@@ -2,7 +2,7 @@
 
 Generates a human figure from typed parameters by code: named measurements, physiological motions and closed-set choices go in, and an `IAutoMovieModel` comes out. The package holds no mesh, morph target or baked data.
 
-The package is being rebuilt under [#2788](https://github.com/samchon/automovie/issues/2788). Today it admits the documents, converts traits for any age and either sex from published anthropometry, generates the full 55-bone humanoid skeleton with landmarks and per-joint ranges of motion, and emits it as a stick figure; the skin, face, hair and underwear arrive stage by stage.
+The package is being rebuilt under [#2788](https://github.com/samchon/automovie/issues/2788). Today it admits the documents, converts traits for any age and either sex from published anthropometry, generates the full 55-bone humanoid skeleton with landmarks and per-joint ranges of motion, and emits it as a stick figure with a skin joined from one generator per part, `getModel({ appearance, assembly: "joined" })` for one skinned surface or `"parts"` for each part alone; the real parts, face, hair and underwear arrive stage by stage.
 
 ## Usage
 
@@ -43,5 +43,8 @@ const pose = human.pose({
 | `IAutoMovieHumanPose`, `IAutoMovieHumanExpression`, `IAutoMovieHumanAppearance` | Pose, FACS expression and surface appearance documents |
 | `validateAutoMovieHuman*` | Admission returning typia's `IValidation` |
 | `IAutoMovieHumanPartGenerator`, `IAutoMovieHumanJunction`, `IAutoMovieHumanCage`, `IAutoMovieHumanRing` | Contracts for skin part generators and the junction that joins them |
+| `AUTOMOVIE_HUMAN_RINGS`, `layoutAutoMovieHumanRing`, `AutoMovieHumanCageBuilder` | The ring every junction site fixes, resolved against a skeleton, and the builder parts open rings with |
+| `AutoMovieHumanJunction`, `meshAutoMovieHumanCage`, `AUTOMOVIE_HUMAN_UV_LAYOUT` | Welding rings, one engine subdivision into a mesh with limit normals, and the versioned UV layout |
+| `AUTOMOVIE_HUMAN_PART_GENERATORS`, `IAutoMovieHumanPartGenerators` | The profile's generator per part; `AutoMovieHuman` accepts replacements through `parts` |
 
 The build first runs `scripts/guard.ts`, which refuses a file other than TypeScript, Markdown and the package's own configuration, a file above 256 KiB, and an array literal under `src` holding more than 64 numbers. Lint keeps the source layers one-way, as listed in `lint.config.ts`.
