@@ -29,6 +29,7 @@ const INCLINATION: number = EAR.inclination;
  * @author Samchon
  */
 export class AutoMovieHumanEarGenerator implements IAutoMovieHumanPartGenerator<"ear"> {
+  /** The part this generator produces. */
   public readonly part = "ear" as const;
 
   /**
@@ -38,6 +39,12 @@ export class AutoMovieHumanEarGenerator implements IAutoMovieHumanPartGenerator<
     private readonly form?: shapeAutoMovieHumanEar.IForm,
   ) {}
 
+  /**
+   * Generate one ear's cage.
+   *
+   * @param props Measurements, skeleton and the side of the ear
+   * @returns Cage in the skeleton's model frame and millimetres, with the `ear` ring
+   */
   public generate(
     props: IAutoMovieHumanPartGenerator.IProps<"ear">,
   ): IAutoMovieHumanCage {

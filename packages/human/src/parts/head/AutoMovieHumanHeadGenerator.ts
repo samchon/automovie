@@ -20,6 +20,7 @@ import { relaxAutoMovieHumanHeadCage } from "./relaxAutoMovieHumanHeadCage";
  * @author Samchon
  */
 export class AutoMovieHumanHeadGenerator implements IAutoMovieHumanPartGenerator<"head"> {
+  /** The part this generator produces. */
   public readonly part = "head" as const;
 
   public generate(props: IAutoMovieHumanPartGenerator.IProps<"head">): IAutoMovieHumanCage {

@@ -28,12 +28,13 @@ export class AutoMovieHumanHeadField {
   private readonly blend_: number;
 
   /**
-   * @param frame The head frame and its landmarks
    * @param measurements Resolved measurements of the person
    * @param form Form coefficients, by default the head's own
    */
   public constructor(
+    /** The head frame and its landmarks. */
     public readonly frame: frameAutoMovieHumanHead.IFrame,
+
     measurements: IAutoMovieHumanMeasurements,
     form: IAutoMovieHumanHeadForm = AUTOMOVIE_HUMAN_HEAD_FORM,
   ) {

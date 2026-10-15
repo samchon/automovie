@@ -34,8 +34,15 @@ import { shapeAutoMovieHumanFootUpper } from "./shapeAutoMovieHumanFootUpper";
  * @author Samchon
  */
 export class AutoMovieHumanFootGenerator implements IAutoMovieHumanPartGenerator<"foot"> {
+  /** The part this generator produces. */
   public readonly part = "foot" as const;
 
+  /**
+   * Generate one foot's cage.
+   *
+   * @param props Measurements, skeleton and the side of the foot
+   * @returns Cage in the skeleton's model frame and millimetres, with the `ankle` ring
+   */
   public generate(
     props: IAutoMovieHumanPartGenerator.IProps<"foot">,
   ): IAutoMovieHumanCage {
