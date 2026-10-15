@@ -72,3 +72,4 @@ export * from "./tessellateToMesh";
 export * from "./transformAutoMovieMesh";
 export * from "./triangulateAutoMovieRegion";
 export * from "./triangleIndicesOf";
+export * from "./sweep";
