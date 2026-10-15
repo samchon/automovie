@@ -117,12 +117,19 @@ const responds = async (base: string): Promise<boolean> => {
   }
 };
 
-/** Start the playground's dev server and wait until it answers. The package is an ES module, so its directory comes from `import.meta.url`; `__dirname` does not exist there. */
+/** Start the playground's dev server on the base URL's port and wait until it answers. The package is an ES module, so its directory comes from `import.meta.url`; `__dirname` does not exist there. */
 const startServer = async (base: string): Promise<ChildProcess> => {
   const root: string = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
   const child: ChildProcess = spawn(
     process.execPath,
-    [path.join(root, "node_modules", "vite", "bin", "vite.js"), "--clearScreen", "false"],
+    [
+      path.join(root, "node_modules", "vite", "bin", "vite.js"),
+      "--clearScreen",
+      "false",
+      "--port",
+      new URL(base).port || "80",
+      "--strictPort",
+    ],
     { cwd: root, stdio: "ignore" },
   );
   for (let i: number = 0; i < 120; ++i) {
