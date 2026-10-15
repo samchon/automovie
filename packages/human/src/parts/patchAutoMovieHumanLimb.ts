@@ -3,7 +3,7 @@ import { IAutoMovieSurfaceNetwork } from "@automovie/engine";
 /**
  * Divide a limb's sweep into the patches of its control cage: rows of quads around the limb between its stations, and a transition band wherever the number of vertices around changes.
  *
- * Between two stations of equal column count the patch is the sweep's own rectangle `[u_i, u_i+1] × [0, 1]`, sampled in `rows` rows and `columns` columns, so its vertices lie at `v = j / columns` on each station row and the rows of neighbouring patches weld. Between a station of `W` columns and one of `W - 4`, one row of quads turns four spans into two twice, on the half turns centred at `v` 0.25 and 0.75: each half keeps one straight span at either end and between them four quads around one vertex in the band's middle, a pattern whose only extraordinary vertices are a valence-3 and a valence-5 vertex on each side of that centre. The quads are bilinear Coons patches of one face each, their sides straight lines of the sweep's domain, so their corners are points of the sweep like every other vertex. For both limbs `v` 0.25 and 0.75 are the medial and lateral meridians, the narrow, sharply curved sides where the poles show least, never the broad front and back.
+ * Between two stations of equal column count the patch is the sweep's own rectangle `[u_i, u_i+1] × [0, 1]`, sampled in `rows` rows and `columns` columns, so its vertices lie at `v = j / columns` on each station row and the rows of neighbouring patches weld. Between a station of `W` columns and one of `W - 4`, one band of quads turns three wide spans into one narrow span on each half of the turn: four quads around two vertices in the band's middle, a third of the narrow span apart, whose only extraordinary vertices are those two of valence 3 and the narrow span's two ends of valence 5, and every other span runs straight across the band. Every quad of the pattern is convex in the domain, so none folds into a triangle with a corner on one side, which the sampled limit surface shows as a dent. The quads are bilinear Coons patches of one face each, their sides straight lines of the sweep's domain, so their corners are points of the sweep like every other vertex. The patterns sit just past `v` 0.25 and 0.75, the medial and lateral meridians of both limbs, the narrow, sharply curved sides where the poles show least, never the broad front and back.
  *
  * @param props.sweep Name of the sweep in the network
  * @param props.at Each station's `u` on the sweep, increasing from 0 to 1
@@ -52,18 +52,30 @@ export function patchAutoMovieHumanLimb(props: {
     const t = (j: number): IDomain => ({ u: uWide, v: j / W });
     const b = (k: number): IDomain => ({ u: uNarrow, v: k / N });
     for (let half: number = 0; half < 2; ++half) {
+      const q: number = N / 4;
+      // q straight spans, three wide spans into one narrow span, then q - 1 straight spans
       const j0: number = (half * W) / 2;
       const k0: number = (half * N) / 2;
-      const m: IDomain = { u: (uWide + uNarrow) / 2, v: 0.25 + 0.5 * half };
+      const ja: number = j0 + q;
+      const kc: number = k0 + q;
+      const u: number = (uWide + uNarrow) / 2;
+      const p: IDomain = { u, v: (kc + 1 / 3) / N };
+      const r: IDomain = { u, v: (kc + 2 / 3) / N };
       const quads: IDomain[][] = [
-        [t(j0), b(k0), b(k0 + 1), t(j0 + 1)],
-        [t(j0 + 1), b(k0 + 1), m, t(j0 + 2)],
-        [t(j0 + 2), m, t(j0 + 4), t(j0 + 3)],
-        [t(j0 + 4), m, b(k0 + 3), t(j0 + 5)],
-        [m, b(k0 + 1), b(k0 + 2), b(k0 + 3)],
+        [t(ja), t(ja + 1), p, b(kc)],
+        [t(ja + 1), t(ja + 2), r, p],
+        [t(ja + 2), t(ja + 3), b(kc + 1), r],
+        [p, r, b(kc + 1), b(kc)],
       ];
-      for (let j: number = j0 + 5; j < j0 + W / 2; ++j)
-        quads.push([t(j), b(j - j0 - 5 + k0 + 3), b(j - j0 - 5 + k0 + 4), t(j + 1)]);
+      for (let k: number = 0; k < q; ++k)
+        quads.push([t(j0 + k), t(j0 + k + 1), b(k0 + k + 1), b(k0 + k)]);
+      for (let k: number = 0; k < q - 1; ++k)
+        quads.push([
+          t(ja + 3 + k),
+          t(ja + 4 + k),
+          b(kc + 2 + k),
+          b(kc + 1 + k),
+        ]);
       for (const quad of quads) {
         const corners: IDomain[] = counterclockwise(quad);
         patches.push({
