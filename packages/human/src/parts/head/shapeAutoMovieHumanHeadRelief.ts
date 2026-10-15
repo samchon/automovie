@@ -15,6 +15,7 @@ import { frameAutoMovieHumanHead } from "./frameAutoMovieHumanHead";
  * - Superciliary arches over the medial half of each orbit, meeting at glabella.
  * - Temporal fossae behind the forehead's lateral edge, where "the sides turn sharply to the plane of the temples" (Bridgman, p. 126).
  * - The mandibular angles at gonion and the mental protuberance of the chin.
+ * - The buccal fat over each cheek, fuller the smaller the face is against the head, as in infants and young children.
  *
  * The neutral nose is the region the nose module replaces: a tapered wedge from the nasal root to the tip with the alae at its base, from the 3D Facial Norms adult means over face height and width (nasal height n-sn 56.6 / 127.2, protrusion sn-prn 21.0 / 127.2, width al-al 36.1 / 137.6; Weinberg et al. 2016). Grade: derived.
  *
@@ -56,6 +57,14 @@ export function shapeAutoMovieHumanHeadRelief(
       height: form.gonial * fh,
     });
   }
+  const share: number = fh / head.headHeight;
+  const buccal: number = Math.max(0, form.buccal + form.buccalGrowth * (ADULT_FACE_SHARE - share));
+  for (const s of [1, -1])
+    bumps.push({
+      centre: v(s * 0.3 * fw, frame.stomion.y + 0.2 * fh, frame.nasion.z - 0.1 * fh),
+      radii: v(0.15 * fw, 0.2 * fh, 0.35 * fh),
+      height: buccal * fh,
+    });
   bumps.push({
     centre: v(0, frame.menton.y + 0.1 * fh, frame.nasion.z),
     radii: v(0.13 * fw, 0.1 * fh, 0.2 * fh),
@@ -75,7 +84,7 @@ export function shapeAutoMovieHumanHeadRelief(
           ((p.x - b.centre.x) / b.radii.x) ** 2 +
           ((p.y - b.centre.y) / b.radii.y) ** 2 +
           ((p.z - b.centre.z) / b.radii.z) ** 2;
-        if (q < 1) sum += b.height * (1 - q) ** 2;
+        if (q < 1) sum += b.height * (1 - q) ** 3;
       }
       return sum;
     },
@@ -99,6 +108,9 @@ export function shapeAutoMovieHumanHeadRelief(
     },
   };
 }
+/** Face height over head height in adults: 127.2 / 219.8 and 118.6 / 205.3 mm (3D Facial Norms face heights over the converter's adult head heights). Grade: derived. */
+const ADULT_FACE_SHARE: number = 0.578;
+
 /** Output type of {@link shapeAutoMovieHumanHeadRelief}. */
 export namespace shapeAutoMovieHumanHeadRelief {
   /**

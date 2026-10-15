@@ -10,12 +10,22 @@ import { AutoMovieHumanHeadField } from "./AutoMovieHumanHeadField";
 import { anchorAutoMovieHumanHead } from "./anchorAutoMovieHumanHead";
 import { buildAutoMovieHumanHeadTopology } from "./buildAutoMovieHumanHeadTopology";
 import { frameAutoMovieHumanHead } from "./frameAutoMovieHumanHead";
+import { liftAutoMovieHumanHeadCage } from "./liftAutoMovieHumanHeadCage";
 import { relaxAutoMovieHumanHeadCage } from "./relaxAutoMovieHumanHeadCage";
 
 /**
  * Generates the head: the cranial vault and the one continuous face surface, open at the neck top and at both ear attachments.
  *
- * Rings, in order: `neckTop`, `ear` left, `ear` right.
+ * Generation runs in four steps, all in the head's own frame ({@link frameAutoMovieHumanHead}):
+ *
+ * 1. Skin: a signed distance field of the vault, the face mass, the upper neck and their relief ({@link AutoMovieHumanHeadField}), shaped by the identity's head measurements and the skeleton's landmarks through calibrated form coefficients.
+ * 2. Connectivity: a box of quads wrapped round the skull with the eyes' and the mouth's concentric loops and pockets, the same for every person ({@link buildAutoMovieHumanHeadTopology}).
+ * 3. Anchors: the rings exactly on the shared ring shapes, the feature loops where the eyes and lips lie, and the box corners on the head's own corners ({@link anchorAutoMovieHumanHead}); every other vertex settles over the skin between them ({@link relaxAutoMovieHumanHeadCage}).
+ * 4. Lift: the free vertices rise until the limit surface of one subdivision lies on the skin rather than inside it ({@link liftAutoMovieHumanHeadCage}).
+ *
+ * The eyes, nose and mouth are neutral regions of that one surface: closed lids over a pocket for the eyeball, a neutral nose, closed lips over a pocket for the mouth's interior. Their modules reshape those regions without changing the connectivity.
+ *
+ * The chart runs `u` from the bottom of the head's canonical sphere to the vertex and `v` counterclockwise about the vertical from the anterior midline. Rings, in order: `neckTop`, `ear` left, `ear` right.
  *
  * @author Samchon
  */
@@ -31,7 +41,6 @@ export class AutoMovieHumanHeadGenerator implements IAutoMovieHumanPartGenerator
    */
   public generate(props: IAutoMovieHumanPartGenerator.IProps<"head">): IAutoMovieHumanCage {
     const frame: frameAutoMovieHumanHead.IFrame = frameAutoMovieHumanHead(props.skeleton);
-    const field: AutoMovieHumanHeadField = new AutoMovieHumanHeadField(frame, props.measurements);
     const topology: buildAutoMovieHumanHeadTopology.ITopology = buildAutoMovieHumanHeadTopology();
     const shape = (site: "neckTop" | "ear", side: "left" | "right" | null): IAutoMovieHumanRingShape =>
       shapeAutoMovieHumanRing({ skeleton: props.skeleton, measurements: props.measurements, site, side, part: "head" });
@@ -42,6 +51,23 @@ export class AutoMovieHumanHeadGenerator implements IAutoMovieHumanPartGenerator
     };
     const direction = (d: IAutoMovieVector3): IAutoMovieVector3 =>
       frameAutoMovieHumanHead.toLocal({ ...frame, origin: AutoMovieHumanVector.of(0, 0, 0) }, d);
+    // the skin rises to each ear's attachment plane, so the ear ring lies on the head rather than off it
+    const field: AutoMovieHumanHeadField = new AutoMovieHumanHeadField(
+      frame,
+      props.measurements,
+      undefined,
+      (["left", "right"] as const).map((side): AutoMovieHumanHeadField.IPlatform => {
+        const ring: IAutoMovieHumanRingShape = ears[side];
+        const longest: number = ring.radii.indexOf(Math.max(...ring.radii));
+        return {
+          origin: frameAutoMovieHumanHead.toLocal(frame, ring.frame.origin),
+          normal: direction(ring.frame.normal),
+          axis: direction(ring.directions[longest]!),
+          long: Math.max(...ring.radii),
+          short: Math.min(...ring.radii),
+        };
+      }),
+    );
     // ring vertices sit exactly on the shared boundary: the neck ring in build order, each ear vertex on the direction nearest its place around the attachment
     const rings: Map<number, IAutoMovieVector3> = new Map();
     AutoMovieHumanCageBuilder.buildOrder(neck).forEach((j: number, b: number): void => {
@@ -85,7 +111,7 @@ export class AutoMovieHumanHeadGenerator implements IAutoMovieHumanPartGenerator
         AutoMovieHumanVector.of(v.canonical.x * box.x, v.canonical.y * box.y, v.canonical.z * box.z),
       ),
     );
-    const local: IAutoMovieVector3[] = relaxAutoMovieHumanHeadCage({
+    const settled: IAutoMovieVector3[] = relaxAutoMovieHumanHeadCage({
       positions: initial,
       faces: topology.faces,
       anchors,
@@ -93,6 +119,24 @@ export class AutoMovieHumanHeadGenerator implements IAutoMovieHumanPartGenerator
       field,
       centre,
       sweeps: SWEEPS,
+    });
+    const mirror: number[] = mirrorOf(topology);
+    const local: IAutoMovieVector3[] = liftAutoMovieHumanHeadCage({
+      positions: settled,
+      faces: topology.faces,
+      // the rings, the lid margins and the lips inward keep their places; the orbital rims, lid sulci, outer lip border and box corners lie on the skin and lift with it
+      fixed: new Set(
+        [...anchors.keys()].filter(
+          (v: number): boolean =>
+            rings.has(v) ||
+            (topology.vertices[v]!.loop !== null && topology.vertices[v]!.loop!.loop >= (topology.vertices[v]!.loop!.feature === "mouth" ? 1 : 2)),
+        ),
+      ),
+      mirror,
+      field,
+      centre,
+      rounds: LIFT_ROUNDS,
+      share: LIFT_SHARE,
     });
 
     const builder: AutoMovieHumanCageBuilder = new AutoMovieHumanCageBuilder("head", null);
@@ -128,6 +172,10 @@ export class AutoMovieHumanHeadGenerator implements IAutoMovieHumanPartGenerator
     return builder.build();
   }
 }
+
+/** Rounds and share of lifting the cage so its limit surface reaches the skin. */
+const LIFT_ROUNDS: number = 6;
+const LIFT_SHARE: number = 0.6;
 
 /** Relaxation sweeps, enough for the grid to stop moving by more than a tenth of a millimetre. */
 const SWEEPS: number = 150;
