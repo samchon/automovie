@@ -35,8 +35,13 @@ export interface IAutoMovieHumanLegStation {
   /** Level on the shank, 0 at the ankle joint centre and 1 at the knee joint centre. */
   shank: number;
 
-  /** Circumference the section's limit surface has, millimetres. */
+  /** Circumference of the section, millimetres: what its base shape is drawn at, and what its limit surface keeps when `fitted`. */
   girth: number;
+
+  /**
+   * Whether the limit surface is scaled to keep `girth` exactly: the junction rings and the levels the identity measures. Stations between take their scale by interpolation, so their own shape survives instead of being sharpened by a fit against neighbours that the limit surface averages.
+   */
+  fitted: boolean;
 
   /** Breadth over depth of the section's base ellipse. */
   aspect: number;

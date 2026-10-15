@@ -92,6 +92,7 @@ export function buildAutoMovieHumanLegCage(props: {
       (_: unknown, i: number): IAutoMovieVector3[] => place(i),
     );
     stations.forEach((s: IAutoMovieHumanLegStation, i: number): void => {
+      if (!s.fitted) return;
       const own: boolean =
         i === 0 || i === last || i === reduced - 1 || i === reduced;
       const section: IAutoMovieVector3[] = own
@@ -107,6 +108,7 @@ export function buildAutoMovieHumanLegCage(props: {
           );
       scales[i]! *= s.girth / perimeter(section);
     });
+    interpolate(stations, scales);
   }
 
   // vertices: stations in order, then the two reduction centres
@@ -218,6 +220,25 @@ export function buildAutoMovieHumanLegCage(props: {
     ],
   };
 }
+
+/** Set the scale of every station that is not fitted by linear interpolation in `u` between the fitted stations around it. */
+const interpolate = (
+  stations: IAutoMovieHumanLegStation[],
+  scales: number[],
+): void => {
+  const anchors: number[] = stations
+    .map((s: IAutoMovieHumanLegStation, i: number): number => (s.fitted ? i : -1))
+    .filter((i: number): boolean => i >= 0);
+  for (let k: number = 0; k + 1 < anchors.length; ++k) {
+    const a: number = anchors[k]!;
+    const z: number = anchors[k + 1]!;
+    for (let i: number = a + 1; i < z; ++i) {
+      const t: number =
+        (stations[i]!.u - stations[a]!.u) / (stations[z]!.u - stations[a]!.u);
+      scales[i] = scales[a]! + (scales[z]! - scales[a]!) * t;
+    }
+  }
+};
 
 /** Direction of ring vertex `k` of a layout. */
 const ring = (layout: IAutoMovieHumanRingLayout, k: number): IAutoMovieVector3 =>

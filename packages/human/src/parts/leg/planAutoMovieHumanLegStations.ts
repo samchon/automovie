@@ -57,6 +57,14 @@ const SITE_FAT: Record<"furrow" | "lowerThigh" | "calf" | "ankle", number> = {
   ankle: 0.597,
 };
 
+/** Stations whose limit girth is fitted: the two rings and the levels the identity measures (suprapatella, calf maximum). */
+const FITTED: ReadonlySet<string> = new Set([
+  "mid thigh",
+  "suprapatella",
+  "calf maximum",
+  "ankle",
+]);
+
 /** One station before its frame: level, girth, base shape and fat site weight. */
 interface ILevel {
   name: string;
@@ -303,6 +311,7 @@ export function planAutoMovieHumanLegStations(props: {
         thigh: (l.height - knee.y) / (hip.y - knee.y),
         shank: (l.height - ankle.y) / (knee.y - ankle.y),
         girth: l.girth,
+        fitted: FITTED.has(l.name),
         aspect: l.aspect,
         posterior: l.posterior,
         lateral: Math.max(0, shaftSlope * (l.height - knee.y)),
