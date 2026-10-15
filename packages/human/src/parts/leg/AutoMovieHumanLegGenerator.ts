@@ -1,6 +1,9 @@
 import { IAutoMovieHumanCage } from "../../junction/IAutoMovieHumanCage";
+import { IAutoMovieHumanLimbPlan } from "../IAutoMovieHumanLimbPlan";
 import { IAutoMovieHumanPartGenerator } from "../IAutoMovieHumanPartGenerator";
+import { fieldAutoMovieHumanLimbRelief } from "../fieldAutoMovieHumanLimbRelief";
 import { loftAutoMovieHumanLimb } from "../loftAutoMovieHumanLimb";
+import { networkAutoMovieHumanLimb } from "../networkAutoMovieHumanLimb";
 import { planAutoMovieHumanLeg } from "./planAutoMovieHumanLeg";
 
 /**
@@ -28,5 +31,23 @@ export class AutoMovieHumanLegGenerator implements IAutoMovieHumanPartGenerator<
     props: IAutoMovieHumanPartGenerator.IProps<"leg">,
   ): IAutoMovieHumanCage {
     return loftAutoMovieHumanLimb(planAutoMovieHumanLeg(props));
+  }
+
+  /**
+   * The leg's relief: its superficial forms, `AUTOMOVIE_HUMAN_LEG_RELIEF` laid on the skin by `fieldAutoMovieHumanLimbRelief`.
+   *
+   * @param props Measurements, skeleton and the side of the leg
+   * @returns Displacement, millimetres, outward positive, at a point of the leg's skin
+   */
+  public relief(
+    props: IAutoMovieHumanPartGenerator.IProps<"leg">,
+  ): (point: IAutoMovieHumanPartGenerator.IReliefPoint<"leg">) => number {
+    const plan: IAutoMovieHumanLimbPlan = planAutoMovieHumanLeg(props);
+    const limb: (u: number, v: number) => number = fieldAutoMovieHumanLimbRelief(
+      plan,
+      networkAutoMovieHumanLimb(plan).value,
+    );
+    return (point: IAutoMovieHumanPartGenerator.IReliefPoint<"leg">): number =>
+      limb(point.coordinate.u, point.coordinate.v);
   }
 }

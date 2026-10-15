@@ -1,12 +1,15 @@
 import {
   IAutoMovieSubdivisionCage,
+  IAutoMovieSubdivisionParameter,
   IAutoMovieSubdivisionSurface,
+  displaceAutoMovieSurface,
   subdivideAutoMovieSurface,
 } from "@automovie/engine";
-import { IAutoMovieMesh } from "@automovie/interface";
+import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieHumanUvLayout } from "./AutoMovieHumanUvLayout";
 import { IAutoMovieHumanCage } from "./IAutoMovieHumanCage";
+import { IAutoMovieHumanSurfaceCoordinate } from "./IAutoMovieHumanSurfaceCoordinate";
 
 /**
  * Subdivide a skin cage once with the engine's Catmull-Clark and turn the limit surface into a render mesh.
@@ -15,13 +18,20 @@ import { IAutoMovieHumanCage } from "./IAutoMovieHumanCage";
  *
  * @param props.cage The cage, millimetres, only read
  * @param props.levels Refinement steps, an integer from 1 to 6
+ * With `relief`, each subdivided vertex is then moved along its limit normal by the relief read at its chart address, the bilinear blend of its cage face's corner addresses, and its rest limit position (`displaceAutoMovieSurface`), and the normals turn with the displaced surface.
+ *
  * @param props.domain Physical domain name of the surface's vertices
+ * @param props.relief Displacement, millimetres, outward positive, at a vertex's chart address and rest limit position in millimetres; omitted, none
  * @returns The mesh, without skin, and the parameter of each render vertex on the cage
  */
 export const meshAutoMovieHumanCage = (props: {
   cage: IAutoMovieHumanCage;
   levels: number;
   domain: string;
+  relief?: (point: {
+    coordinate: IAutoMovieHumanSurfaceCoordinate;
+    position: IAutoMovieVector3;
+  }) => number;
 }): meshAutoMovieHumanCage.IOutput => {
   const uvs: number[] = [];
   const uvFaces: number[][] = [];
@@ -62,10 +72,28 @@ export const meshAutoMovieHumanCage = (props: {
       sharpness: c.sharpness,
     })),
   };
-  const surface: IAutoMovieSubdivisionSurface = subdivideAutoMovieSurface({
+  const smooth: IAutoMovieSubdivisionSurface = subdivideAutoMovieSurface({
     cage,
     levels: props.levels,
   });
+  const relief = props.relief;
+  const surface: IAutoMovieSubdivisionSurface =
+    relief === undefined
+      ? smooth
+      : displaceAutoMovieSurface({
+          surface: smooth,
+          heights: smooth.parameters.map(
+            (at: IAutoMovieSubdivisionParameter, v: number): number =>
+              relief({
+                coordinate: addressOf(props.cage, at),
+                position: {
+                  x: smooth.limitPositions[3 * v]! * 1000,
+                  y: smooth.limitPositions[3 * v + 1]! * 1000,
+                  z: smooth.limitPositions[3 * v + 2]! * 1000,
+                },
+              }) / 1000,
+          ),
+        });
   const positions: number[] = [];
   const normals: number[] = [];
   const meshUvs: number[] = [];
@@ -125,6 +153,34 @@ export const meshAutoMovieHumanCage = (props: {
     surface,
   };
 };
+/** A subdivided vertex's chart address: the bilinear blend of its cage face's corner addresses at its face coordinates, the corners of one face lying on one chart. */
+const addressOf = (
+  cage: IAutoMovieHumanCage,
+  at: IAutoMovieSubdivisionParameter,
+): IAutoMovieHumanSurfaceCoordinate => {
+  const corners: IAutoMovieHumanCage.IFace["coordinates"] =
+    cage.faces[at.face]!.coordinates;
+  const w: [number, number, number, number] = [
+    (1 - at.u) * (1 - at.v),
+    at.u * (1 - at.v),
+    at.u * at.v,
+    (1 - at.u) * at.v,
+  ];
+  const blend = (
+    read: (c: IAutoMovieHumanSurfaceCoordinate) => number,
+  ): number =>
+    corners.reduce(
+      (sum: number, c: IAutoMovieHumanSurfaceCoordinate, k: number): number =>
+        sum + w[k]! * read(c),
+      0,
+    );
+  return {
+    ...corners[0],
+    u: blend((c: IAutoMovieHumanSurfaceCoordinate): number => c.u),
+    v: blend((c: IAutoMovieHumanSurfaceCoordinate): number => c.v),
+  } as IAutoMovieHumanSurfaceCoordinate;
+};
+
 /** Output type of {@link meshAutoMovieHumanCage}. */
 export namespace meshAutoMovieHumanCage {
   /**

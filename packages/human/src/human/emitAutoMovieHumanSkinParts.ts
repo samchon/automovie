@@ -6,6 +6,7 @@ import { IAutoMovieHumanSkeleton } from "../skeleton/IAutoMovieHumanSkeleton";
 import { AUTOMOVIE_HUMAN_SKIN_MATERIAL } from "./AUTOMOVIE_HUMAN_SKIN_MATERIAL";
 import { IAutoMovieHumanPartGenerators } from "./IAutoMovieHumanPartGenerators";
 import { generateAutoMovieHumanCages } from "./generateAutoMovieHumanCages";
+import { reliefAutoMovieHumanSkin } from "./reliefAutoMovieHumanSkin";
 
 /**
  * Emit each skin part's own cage, subdivided alone, as a separate static model part, the preview in which a part is judged before joining.
@@ -23,7 +24,9 @@ export const emitAutoMovieHumanSkinParts = (
   skeleton: IAutoMovieHumanSkeleton,
   levels: number,
   generators: IAutoMovieHumanPartGenerators,
-): { parts: IAutoMovieModelPart[]; materials: IAutoMovieMaterial[] } => ({
+): { parts: IAutoMovieModelPart[]; materials: IAutoMovieMaterial[] } => {
+  const relief = reliefAutoMovieHumanSkin(measurements, skeleton, generators);
+  return {
   parts: generateAutoMovieHumanCages(measurements, skeleton, generators).map(
     ({ part, side, cage }): IAutoMovieModelPart => {
       const id: string =
@@ -33,7 +36,8 @@ export const emitAutoMovieHumanSkinParts = (
         name: side === null ? part : `${side} ${part}`,
         geometry: {
           type: "mesh",
-          mesh: meshAutoMovieHumanCage({ cage, levels, domain: id }).mesh,
+          mesh: meshAutoMovieHumanCage({ cage, levels, domain: id, relief })
+            .mesh,
         },
         material: AUTOMOVIE_HUMAN_SKIN_MATERIAL.id,
         attachedBone: null,
@@ -42,4 +46,5 @@ export const emitAutoMovieHumanSkinParts = (
     },
   ),
   materials: [AUTOMOVIE_HUMAN_SKIN_MATERIAL],
-});
+};
+};

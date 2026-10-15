@@ -14,6 +14,7 @@ import { IAutoMovieHumanSkeleton } from "../skeleton/IAutoMovieHumanSkeleton";
 import { AUTOMOVIE_HUMAN_SKIN_MATERIAL } from "./AUTOMOVIE_HUMAN_SKIN_MATERIAL";
 import { IAutoMovieHumanPartGenerators } from "./IAutoMovieHumanPartGenerators";
 import { joinAutoMovieHumanCages } from "./joinAutoMovieHumanCages";
+import { reliefAutoMovieHumanSkin } from "./reliefAutoMovieHumanSkin";
 
 /**
  * Emit the person's skin as one skinned mesh: the joined cage subdivided once by the engine, with limit positions and normals, UVs from the published layout and placeholder skin weights.
@@ -41,6 +42,7 @@ export const emitAutoMovieHumanSkin = (
     cage,
     levels,
     domain: "skin",
+    relief: reliefAutoMovieHumanSkin(measurements, skeleton, generators),
   });
   const mesh: IAutoMovieMesh = output.mesh;
   const joints: AutoMovieHumanoidBone[] = [];

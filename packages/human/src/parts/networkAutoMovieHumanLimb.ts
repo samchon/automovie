@@ -12,7 +12,6 @@ import { AutoMovieHumanVector } from "../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanLimbPlan } from "./IAutoMovieHumanLimbPlan";
 import { measureAutoMovieHumanLimbRow } from "./measureAutoMovieHumanLimbRow";
 import { patchAutoMovieHumanLimb } from "./patchAutoMovieHumanLimb";
-import { showAutoMovieHumanLimbRelief } from "./showAutoMovieHumanLimbRelief";
 
 /** The tier the human profile samples; one tier keeps one topology until resolution tiers reach every part. */
 const TIER = "medium" as const;
@@ -27,11 +26,11 @@ const V: typeof AutoMovieHumanVector = AutoMovieHumanVector;
 /**
  * Build a limb's surface network: one sweep along the bone chain through the plan's station centres, divided into rows of quads around the limb, which `loftAutoMovieHumanLimb` samples into the limb's cage.
  *
- * The sweep's spine runs through the stations' centres, so it bends through the elbow or knee with the bones; its parameter `u` is the centres' chord-length share. Each station places its section in the plane across its own `axis`, turned so the section's first axis is its `anterior`, and between stations the engine interpolates every direction's radius monotonically, so no lump appears that no station has. The relief is a set of feature curves over that surface, each moving the radius by its height along its course and fading across its width, as `showAutoMovieHumanLimbRelief` shows it through the person's fat.
+ * The sweep's spine runs through the stations' centres, so it bends through the elbow or knee with the bones; its parameter `u` is the centres' chord-length share. Each station places its section in the plane across its own `axis`, turned so the section's first axis is its `anterior`, and between stations the engine interpolates every direction's radius monotonically, so no lump appears that no station has. The surface is the limb's gross form only: its relief is laid on the subdivided skin by `fieldAutoMovieHumanLimbRelief`.
  *
- * The four junction stations keep the rings exactly. The proximal and distal rings are pinned to the shared ring shapes of `shapeAutoMovieHumanRing`, vertex for vertex, so the trunk and the hand or foot weld onto them; each collar, the row one step into the limb, is pinned to its ring carried along the ring's axis to the collar's centre, so the rows on both sides of a ring cancel radially and the joined limit girth along the ring is the ring's own. Both junction stations take their ring's limit curve, the closed B-spline of its control points, as their section, and the relief fades out between the collar and the next station, so the surface leaves each collar as the ring's straight continuation.
+ * The four junction stations keep the rings exactly. The proximal and distal rings are pinned to the shared ring shapes of `shapeAutoMovieHumanRing`, vertex for vertex, so the trunk and the hand or foot weld onto them; each collar, the row one step into the limb, is pinned to its ring carried along the ring's axis to the collar's centre, so the rows on both sides of a ring cancel radially and the joined limit girth along the ring is the ring's own. Both junction stations take their ring's limit curve, the closed B-spline of its control points, as their section, so the surface leaves each collar as the ring's straight continuation.
  *
- * Every other station's row is held to its girth: the sweep's scale profile has a knot at each station, 1 at the junction stations, and each round samples the network without fitting, measures each row's limit girth with `measureAutoMovieHumanLimbRow` and rescales that station's knot by the ratio of its girth to the measured one. The girths therefore hold on the limit surface, relief included, and the sections' own girths only start the iteration.
+ * Every other station's row is held to its girth: the sweep's scale profile has a knot at each station, 1 at the junction stations, and each round samples the network without fitting, measures each row's limit girth with `measureAutoMovieHumanLimbRow` and rescales that station's knot by the ratio of its girth to the measured one. The girths therefore hold on the limit surface, and the relief, whose every row averages to nothing, keeps them; the sections' own girths only start the iteration.
  *
  * @param plan The limb's stations, relief and rings
  * @returns The calibrated network, the chart address of every patch corner and the junction rings
@@ -73,25 +72,7 @@ export function networkAutoMovieHumanLimb(
         ? metresOf(s.section)
         : ends.find((e: IEnd): boolean => e.stations.includes(i))!.section,
   );
-  const features: IAutoMovieSweep.IFeature[] = plan.relief.map(
-    (r: IAutoMovieHumanLimbPlan.IRelief): IAutoMovieSweep.IFeature => {
-      const shown: { width: number; heights: number[] } =
-        showAutoMovieHumanLimbRelief(r);
-      return {
-        points: r.points.map(
-          (
-            p: IAutoMovieHumanLimbPlan.IReliefPoint,
-            k: number,
-          ): IAutoMovieSweep.IFeaturePoint => ({
-            at: share(at, p.at),
-            angle: p.angle,
-            offset: metres(shown.heights[k]! * fade(p.at, n)),
-          }),
-        ),
-        width: metres(shown.width),
-      };
-    },
-  );
+
 
   const network = (scales: number[]): IAutoMovieSurfaceNetwork => ({
     sweeps: {
@@ -119,7 +100,6 @@ export function networkAutoMovieHumanLimb(
             value,
           }),
         ),
-        features,
       },
     },
     patches: layout.patches,
@@ -291,19 +271,6 @@ const end = (
 const turn = (p: IAutoMovieSweepSection.IPoint): number => {
   const a: number = Math.atan2(p.y, p.x);
   return a < -1e-12 ? a + 2 * Math.PI : Math.max(0, a);
-};
-
-/**
- * Share of each relief point that shows: none from the proximal collar inward, rising linearly to all at the next station, and the same toward the distal collar, so the surface meets each collar as its ring's straight continuation.
- */
-const fade = (at: number, n: number): number =>
-  Math.min(1, Math.max(0, at - 1), Math.max(0, n - 2 - at));
-
-/** Spine parameter of a position in station-index space. */
-const share = (at: number[], index: number): number => {
-  const i: number = Math.min(at.length - 2, Math.max(0, Math.floor(index)));
-  const t: number = Math.min(1, Math.max(0, index - i));
-  return at[i]! + (at[i + 1]! - at[i]!) * t;
 };
 
 /** Rotation taking `+X` to the station's anterior, `+Y` to its axis crossed with that and `+Z` to its axis. */
