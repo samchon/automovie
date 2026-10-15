@@ -11,11 +11,11 @@ import { IAutoMovieHumanCage } from "../../junction/IAutoMovieHumanCage";
 import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
 import { shapeAutoMovieHumanRing } from "../../junction/shapeAutoMovieHumanRing";
 import { IAutoMovieHumanMeasurements } from "../../measure/IAutoMovieHumanMeasurements";
-import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanSkeleton } from "../../skeleton/IAutoMovieHumanSkeleton";
 import { AutoMovieHumanTrunkSweep } from "./AutoMovieHumanTrunkSweep";
 import { IAutoMovieHumanTrunkFrame } from "./IAutoMovieHumanTrunkFrame";
 import { IAutoMovieHumanTrunkNetwork } from "./IAutoMovieHumanTrunkNetwork";
+import { curveAutoMovieHumanPerineum } from "./curveAutoMovieHumanPerineum";
 import { emitAutoMovieHumanTrunk } from "./emitAutoMovieHumanTrunk";
 import { measureAutoMovieHumanTrunkFrame } from "./measureAutoMovieHumanTrunkFrame";
 import { profileAutoMovieHumanTrunk } from "./profileAutoMovieHumanTrunk";
@@ -51,17 +51,6 @@ export function loftAutoMovieHumanTrunk(
     construction: IAutoMovieHumanCage.inModel(network.value),
   };
 }
-
-/**
- * The curves under the crotch that bound the gusset: each starts on the trunk's lowest row, runs down the front `lip` of the lowest row's height while coming in `lipInset` of the crotch depth, as the surface there does, then turns under the crotch, its two inner points `drop` rows below the crotch and `inset` of the depth in from the front and back; the groin edges lie `half` millimetres either side of the seam. The thighs part in a cleft about as deep as the MakeHuman references' just below the crotch.
- */
-const FORK = {
-  drop: 1.2,
-  inset: 0.3,
-  half: 20,
-  lip: 0.6,
-  lipInset: 0.06,
-} as const;
 
 /** The gusset's half-width round the trunk at the crotch, one front or back column: the seam's neighbours, where the thighs' tubes leave. */
 const GUSSET: number = 1 / 18;
@@ -184,12 +173,11 @@ const networkOf = (
     u: [body.axilla, body.shoulder],
     rows: 2,
   };
-  // one row from the shoulder line to the neck ring: the leaning shoulder plane comes within a few millimetres of the
-  // ring at the front and back, so more rows there would crowd into a crease
-  const topBand: { u: [number, number]; rows: number } = {
-    u: [body.shoulder, 1],
-    rows: 1,
-  };
+  // Sample the shoulder-to-neck slope station explicitly so its changing breadth reaches the cage.
+  const topBands: Array<{ u: [number, number]; rows: number }> = [
+    { u: [body.shoulder, body.slope], rows: 1 },
+    { u: [body.slope, 1], rows: 1 },
+  ];
   const lower: number = LOWER_TRANSITION.row;
   const transition: { u: [number, number]; rows: number } = {
     u: [body.rows[lower]!, body.rows[lower + LOWER_TRANSITION.rows]!],
@@ -208,7 +196,7 @@ const networkOf = (
       ),
     transition,
     shoulderBand,
-    topBand,
+    ...topBands,
   ];
   for (const band of bands)
     for (const strip of STRIPS) {
@@ -376,44 +364,6 @@ const networkOf = (
       ],
     },
   );
-  const L: IAutoMovieHumanTrunkFrame.ILevels = frame.levels;
-  const front: number = body.crotch.centre + body.crotch.depth;
-  const back: number = body.crotch.centre - body.crotch.depth;
-  const underY: number = L.crotch - FORK.drop * body.row;
-  // a curve under the crotch from a front node to a back node, its two inner points `x` millimetres across
-  const under = (
-    from: string,
-    to: string,
-    x: number,
-  ): IAutoMovieSurfaceNetwork.ICurve => ({
-    from,
-    to,
-    // the curve first runs down the front and back as the surface does, then turns under the crotch
-    through: [
-      toMetres(
-        AutoMovieHumanVector.of(
-          x,
-          L.crotch - FORK.lip * body.row,
-          front - FORK.lipInset * (front - back),
-        ),
-      ),
-      toMetres(
-        AutoMovieHumanVector.of(x, underY, front - FORK.inset * (front - back)),
-      ),
-      toMetres(
-        AutoMovieHumanVector.of(x, underY, back + FORK.inset * (front - back)),
-      ),
-      toMetres(
-        AutoMovieHumanVector.of(
-          x,
-          L.crotch - FORK.lip * body.row,
-          back + FORK.lipInset * (front - back),
-        ),
-      ),
-    ],
-    segments: fixed(6),
-    normal: { x: 0, y: -1, z: 0 },
-  });
   const collar = (
     shape: IAutoMovieHumanRingShape,
     share: number,
@@ -429,11 +379,11 @@ const networkOf = (
       groinRightFront: { type: "sweep", sweep: "trunk", u: 0, v: 1 - GUSSET },
       groinRightBack: { type: "sweep", sweep: "trunk", u: 0, v: 0.5 + GUSSET },
     },
-    curves: {
-      seam: under("seamFront", "seamBack", 0),
-      groinLeft: under("groinLeftFront", "groinLeftBack", FORK.half),
-      groinRight: under("groinRightFront", "groinRightBack", -FORK.half),
-    },
+    curves: curveAutoMovieHumanPerineum({
+      crotch: body.crotch,
+      height: frame.levels.crotch,
+      row: body.row,
+    }),
     patches,
     rings: [
       // the measured girths, held exactly by the limit surface along their rows

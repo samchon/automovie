@@ -244,6 +244,7 @@ export function sweepAutoMovieHumanTrunkBody(props: {
     })),
     row: (L.buttock - L.crotch) / S.LOWER_ROWS[0]!,
     shoulder: ats[levels.length - 1]!,
+    slope: ats[ats.length - 2]!,
     crotch,
     furrow: contour(L.gluteal),
   };
@@ -264,6 +265,9 @@ export namespace sweepAutoMovieHumanTrunkBody {
 
     /** Spine parameter of the shoulder line, where the shoulder band closes. */
     shoulder: number;
+
+    /** Spine parameter of the trapezius slope station between the shoulder line and neck ring. */
+    slope: number;
 
     /** Spine parameters of the rows from the crotch to the axilla, increasing, from 0 to `axilla`: each key level and the even steps `LOWER_ROWS` puts between them. */
     rows: number[];

@@ -82,3 +82,10 @@ Biacromial / bicristal breadth 1.344 (women) against 1.513 (men); bideltoid / hi
 - The shape of each cross-section beyond breadth, depth and perimeter (where the flat and the round parts lie) has no measured source; 3D scan statistics are excluded by the data rule, so it must come from the muscle and bone placement.
 - Clavicle and scapula dimensions for the shoulder girdle form were not read.
 - How the armpit and groin hollows deform under abduction belongs to #2800 and has no source yet.
+
+
+## Campaign 2831 shoulder-to-neck sampling
+
+The neck-to-shoulder cage used one row that skipped the sweep's existing trapezius slope station. The slope station should be a cage band boundary, so the cage represents the construction the sweep already defines. This changes no anatomical value or coefficient; each of the four gate cages gains one twelve-vertex ring, and the five pinned junction rings keep identical control positions. Matching committed-snapshot renders of the four gates and their construction remain required before judging improvement.
+
+The local reference README was found below the top-level reference directory. It records millimetre T-pose exports, coordinate axes, pose conversion through each reference's own skin weights, and level and convex-hull tape measurements. The shoulder pose omits its source rig's corrective evaluation, so the reference's shoulder cap and axilla establish approximate mass and topology only.
