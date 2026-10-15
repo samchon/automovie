@@ -49,6 +49,9 @@ export function loftAutoMovieHumanTrunk(
 /** The tier the human profile samples; one tier keeps one topology until resolution tiers reach the other parts. */
 const TIER = "medium" as const;
 
+/** A horizontal section plane: first axis `+Z` (forward), second `+X` (the person's left), normal `+Y`. */
+const HORIZONTAL: IAutoMovieQuaternion = { x: -0.5, y: -0.5, z: -0.5, w: 0.5 };
+
 /** The same count at every tier. */
 const fixed = (n: number): IAutoMovieSurfaceNetwork.ICounts => ({
   lowest: n,
@@ -191,10 +194,14 @@ const networkOf = (
   const ats: number[] = chordShares(spinePoints);
   const trunk: IAutoMovieSweep = {
     spine: { points: spinePoints, normal: { x: 0, y: 0, z: 1 } },
+    // the planes stay level between stations too, however the spine bends through the sections' centres
+    orientation: "fixed",
+    // anthropometry measures every trunk section in a horizontal plane, so each station below the neck ring lies in one
+    // whatever the spine's bend, its first axis forward and its second toward the person's left
     stations: sections.map((s, k: number): IAutoMovieSweep.IStation => ({
       at: ats[k]!,
       section: s.section,
-      ...(k === sections.length - 1 ? { rotation: ringRotation(neck, 0) } : {}),
+      rotation: k === sections.length - 1 ? ringRotation(neck, 0) : HORIZONTAL,
     })),
   };
   // the station nearest the axilla opens the shoulder band, which ends at the shoulder line
