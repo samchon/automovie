@@ -29,13 +29,11 @@ import { IAutoMovieHumanIdentity } from "../structures/IAutoMovieHumanIdentity";
 import { IAutoMovieHumanPose } from "../structures/IAutoMovieHumanPose";
 import { IAutoMovieHumanTraits } from "../structures/IAutoMovieHumanTraits";
 import { AUTOMOVIE_HUMAN_PART_GENERATORS } from "./AUTOMOVIE_HUMAN_PART_GENERATORS";
+import { AUTOMOVIE_HUMAN_SKIN_MATERIAL } from "./AUTOMOVIE_HUMAN_SKIN_MATERIAL";
 import { IAutoMovieHumanPartGenerators } from "./IAutoMovieHumanPartGenerators";
 import { emitAutoMovieHumanAttachments } from "./emitAutoMovieHumanAttachments";
 import { emitAutoMovieHumanSkin } from "./emitAutoMovieHumanSkin";
-import {
-  AUTOMOVIE_HUMAN_SKIN_MATERIAL,
-  emitAutoMovieHumanSkinParts,
-} from "./emitAutoMovieHumanSkinParts";
+import { emitAutoMovieHumanSkinParts } from "./emitAutoMovieHumanSkinParts";
 
 /**
  * One person, generated from a detailed identity by code: the skeleton, the model films use, posing and expression.
