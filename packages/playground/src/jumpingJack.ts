@@ -28,7 +28,7 @@ export const jumpingJack: (sk: string) => IAutoMovieMotion = (
     j("leftUpperArm", { abduction: 185 }),
     j("rightUpperArm", { abduction: 185 }),
     j("leftUpperLeg", { abduction: 18 }),
-    j("rightUpperLeg", { abduction: -18 }),
+    j("rightUpperLeg", { abduction: 18 }),
   ]);
   return {
     id: "jumpingJack",

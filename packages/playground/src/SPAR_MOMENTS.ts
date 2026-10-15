@@ -19,17 +19,18 @@ const j: (
 });
 
 // ── shared boxing vocabulary (mirrors the shadowbox guard/strike scheme) ─────
-// Boxer arm abduction is authored in clinical space; HUMANOID_REST_FRAME in the
-// view recovers the mirrored rig signs for each shoulder.
+// Every angle is clinical on both sides; HUMANOID_REST_FRAME in the view maps
+// it onto each side of the rig (flexion folds either elbow forward, abduction
+// carries either leg outward).
 const GUARD: IAutoMovieJointPose[] = [
   j("spine", { flexion: 9 }),
   j("chest", { flexion: 6 }),
-  j("leftUpperArm", { flexion: -38, abduction: 32 }),
-  j("leftLowerArm", { flexion: -122 }),
+  j("leftUpperArm", { flexion: 38, abduction: 32 }),
+  j("leftLowerArm", { flexion: 122 }),
   j("rightUpperArm", { flexion: 38, abduction: 32 }),
   j("rightLowerArm", { flexion: 122 }),
   j("leftUpperLeg", { abduction: 9, flexion: 12 }),
-  j("rightUpperLeg", { abduction: -9, flexion: -14 }),
+  j("rightUpperLeg", { abduction: 9, flexion: -14 }),
   j("leftLowerLeg", { flexion: 14 }),
   j("rightLowerLeg", { flexion: 22 }),
 ];
@@ -82,8 +83,8 @@ const P: {
   guard: (): IAutoMovieJointPose[] => merge([]),
   jab: (): IAutoMovieJointPose[] =>
     merge([
-      j("leftUpperArm", { flexion: -94, abduction: 96 }),
-      j("leftLowerArm", { flexion: -8 }),
+      j("leftUpperArm", { flexion: 94, abduction: 96 }),
+      j("leftLowerArm", { flexion: 8 }),
       j("spine", { flexion: 9, twist: -12 }),
       j("chest", { flexion: 6, twist: -8 }),
     ]),
@@ -96,8 +97,8 @@ const P: {
     ]),
   leadHook: (): IAutoMovieJointPose[] =>
     merge([
-      j("leftUpperArm", { flexion: -54, abduction: 98 }),
-      j("leftLowerArm", { flexion: -94 }),
+      j("leftUpperArm", { flexion: 54, abduction: 98 }),
+      j("leftLowerArm", { flexion: 94 }),
       j("spine", { flexion: 9, twist: 22 }),
       j("chest", { flexion: 6, twist: 16 }),
     ]),
@@ -113,7 +114,7 @@ const P: {
       j("spine", { flexion: 14, abduction: 18 * d, twist: 8 * d }),
       j("chest", { flexion: 9, abduction: 14 * d }),
       j("leftUpperLeg", { abduction: 9, flexion: 12 }),
-      j("rightUpperLeg", { abduction: -9, flexion: 10 }),
+      j("rightUpperLeg", { abduction: 9, flexion: 10 }),
       j("leftLowerLeg", { flexion: 26 }),
       j("rightLowerLeg", { flexion: 32 }),
     ]),
@@ -123,7 +124,7 @@ const P: {
       j("spine", { flexion: 20, abduction: 26 * d, twist: 12 * d }),
       j("chest", { flexion: 12, abduction: 18 * d }),
       j("leftUpperLeg", { abduction: 11, flexion: 32 }),
-      j("rightUpperLeg", { abduction: -11, flexion: 30 }),
+      j("rightUpperLeg", { abduction: 11, flexion: 30 }),
       j("leftLowerLeg", { flexion: 60 }),
       j("rightLowerLeg", { flexion: 64 }),
     ]),
@@ -132,15 +133,15 @@ const P: {
       j("spine", { flexion: 28 }),
       j("chest", { flexion: 16 }),
       j("leftUpperLeg", { abduction: 11, flexion: 40 }),
-      j("rightUpperLeg", { abduction: -11, flexion: 38 }),
+      j("rightUpperLeg", { abduction: 11, flexion: 38 }),
       j("leftLowerLeg", { flexion: 78 }),
       j("rightLowerLeg", { flexion: 82 }),
     ]),
   block: (): IAutoMovieJointPose[] =>
     merge([
       // high tight guard, both gloves up at the temples
-      j("leftUpperArm", { flexion: -30, abduction: 50 }),
-      j("leftLowerArm", { flexion: -132 }),
+      j("leftUpperArm", { flexion: 30, abduction: 50 }),
+      j("leftLowerArm", { flexion: 132 }),
       j("rightUpperArm", { flexion: 30, abduction: 50 }),
       j("rightLowerArm", { flexion: 132 }),
       j("spine", { flexion: 12 }),
@@ -150,7 +151,7 @@ const P: {
       j("spine", { flexion: -16 }),
       j("chest", { flexion: -10 }),
       j("leftUpperLeg", { abduction: 9, flexion: -6 }),
-      j("rightUpperLeg", { abduction: -9, flexion: -8 }),
+      j("rightUpperLeg", { abduction: 9, flexion: -8 }),
     ]),
   // KO progression for the loser (root carries the fall)
   recoil: (): IAutoMovieJointPose[] =>
@@ -158,7 +159,7 @@ const P: {
       j("spine", { flexion: -14, twist: 6 }),
       j("chest", { flexion: -10 }),
       j("head", { flexion: -16 }),
-      j("leftLowerArm", { flexion: -96 }),
+      j("leftLowerArm", { flexion: 96 }),
       j("rightLowerArm", { flexion: 96 }),
     ]),
 };
@@ -167,12 +168,12 @@ const koStart: IAutoMovieJointPose[] = merge([
   j("spine", { flexion: -24 }),
   j("chest", { flexion: -14 }),
   j("head", { flexion: -26 }),
-  j("leftUpperArm", { flexion: -10, abduction: 6 }),
+  j("leftUpperArm", { flexion: 10, abduction: 6 }),
   j("rightUpperArm", { flexion: 10, abduction: 6 }),
-  j("leftLowerArm", { flexion: -40 }),
+  j("leftLowerArm", { flexion: 40 }),
   j("rightLowerArm", { flexion: 40 }),
   j("leftUpperLeg", { abduction: 12, flexion: 8 }),
-  j("rightUpperLeg", { abduction: -12, flexion: 6 }),
+  j("rightUpperLeg", { abduction: 12, flexion: 6 }),
   j("leftLowerLeg", { flexion: 30 }),
   j("rightLowerLeg", { flexion: 34 }),
 ]);
@@ -180,10 +181,10 @@ const koMid: IAutoMovieJointPose[] = merge([
   j("spine", { flexion: -30 }),
   j("chest", { flexion: -16 }),
   j("head", { flexion: -30 }),
-  j("leftUpperArm", { flexion: -6, abduction: -10 }),
+  j("leftUpperArm", { flexion: 6, abduction: -10 }),
   j("rightUpperArm", { flexion: 6, abduction: -10 }),
   j("leftUpperLeg", { abduction: 14, flexion: -24 }),
-  j("rightUpperLeg", { abduction: -14, flexion: -26 }),
+  j("rightUpperLeg", { abduction: 14, flexion: -26 }),
   j("leftLowerLeg", { flexion: 76 }),
   j("rightLowerLeg", { flexion: 80 }),
 ]);
@@ -191,10 +192,10 @@ const koDown: IAutoMovieJointPose[] = merge([
   j("spine", { flexion: -18 }),
   j("chest", { flexion: -8 }),
   j("head", { flexion: -20 }),
-  j("leftUpperArm", { flexion: -4, abduction: -30 }),
+  j("leftUpperArm", { flexion: 4, abduction: -30 }),
   j("rightUpperArm", { flexion: 4, abduction: -30 }),
   j("leftUpperLeg", { abduction: 18, flexion: -40 }),
-  j("rightUpperLeg", { abduction: -18, flexion: -44 }),
+  j("rightUpperLeg", { abduction: 18, flexion: -44 }),
   j("leftLowerLeg", { flexion: 60 }),
   j("rightLowerLeg", { flexion: 64 }),
 ]);
