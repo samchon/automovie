@@ -9,6 +9,7 @@ import { IAutoMovieHumanTrunkFrame } from "./IAutoMovieHumanTrunkFrame";
 import { IAutoMovieHumanTrunkPoints } from "./IAutoMovieHumanTrunkPoints";
 import { IAutoMovieHumanTrunkTune } from "./IAutoMovieHumanTrunkTune";
 import { measureAutoMovieHumanTrunkFrame } from "./measureAutoMovieHumanTrunkFrame";
+import { placeAutoMovieHumanTrunkGluteal } from "./placeAutoMovieHumanTrunkGluteal";
 import { placeAutoMovieHumanTrunkHip } from "./placeAutoMovieHumanTrunkHip";
 import { placeAutoMovieHumanTrunkShoulder } from "./placeAutoMovieHumanTrunkShoulder";
 import { placeAutoMovieHumanTrunkTorso } from "./placeAutoMovieHumanTrunkTorso";
@@ -83,6 +84,7 @@ export function placeAutoMovieHumanTrunkPoints(
       half,
       layouts.thigh[side],
     );
+    placeAutoMovieHumanTrunkGluteal(frame, profile, half);
     half.forEach((row: IAutoMovieVector3[], i: number): void =>
       row.forEach((q: IAutoMovieVector3, j: number): void => {
         if (i === 11 && j === 6) return;
