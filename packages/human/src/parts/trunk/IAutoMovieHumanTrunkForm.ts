@@ -21,8 +21,8 @@ export interface IAutoMovieHumanTrunkForm {
   /** At the costal arch, the underbust level, between the waist and chest measurements, whose girth is the underbust circumference. */
   underbust: IAutoMovieHumanTrunkForm.IUnderbust;
 
-  /** At the chest point, where chest depth, breadth and circumference are measured. */
-  chest: IAutoMovieHumanTrunkForm.IMeasured;
+  /** At the chest point, where chest depth and circumference are measured. */
+  chest: IAutoMovieHumanTrunkForm.IEncircled;
 
   /** At the axilla, from the chest measurements. */
   axilla: IAutoMovieHumanTrunkForm.IDerived;
@@ -61,6 +61,21 @@ export namespace IAutoMovieHumanTrunkForm {
   export interface IMeasured extends IPlacement {
     /** Natural logarithm of the front exponent over the back one; their geometric mean is solved from the girth. */
     skew: number;
+  }
+
+  /**
+   * A level where depth and circumference are measured and the breadth is solved, so the section's perimeter is the measured girth at the given squareness.
+   *
+   * Anthropometric chest breadth is taken under the arms with the tissue compressed, so it leaves out the latissimus and pectoral wings that the tape around the chest, and the trunk in the rest pose with the arms raised, carry; the breadth that closes the measured girth about the measured depth includes them.
+   *
+   * @author Samchon
+   */
+  export interface IEncircled extends IPlacement {
+    /** Exponent of the front half; 2 is an ellipse. */
+    front: number;
+
+    /** Exponent of the back half. */
+    back: number;
   }
 
   /**
