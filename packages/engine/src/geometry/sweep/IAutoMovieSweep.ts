@@ -20,11 +20,12 @@ import { IAutoMovieSweepSpine } from "./IAutoMovieSweepSpine";
  *    the radius there at every `u`; stations and guides are joined as a
  *    Gordon surface that passes exactly through every guide, so a few
  *    stations plus guides control breadth and depth everywhere between them.
- * 3. Scale: an optional profile along `u` multiplies the whole section, the
- *    size control that volume preservation and local bulges use.
- * 4. Features: each feature curve in the `(u, v)` domain carries the radius
+ * 3. Features: each feature curve in the `(u, v)` domain carries the radius
  *    the surface must have along it, and the surface is moved onto those
  *    radii with a smooth falloff across the curve.
+ * 4. Scale: an optional profile along `u` multiplies the whole section,
+ *    features included, the size control that volume preservation and local
+ *    bulges use.
  *
  * Positions are metres. The section plane at `u` is the spine's
  * rotation-minimizing frame, or under the `fixed` orientation the spine's
@@ -60,7 +61,7 @@ export interface IAutoMovieSweep {
   /** Silhouette guides; omitted or empty, the stations alone set the form. */
   guides?: IAutoMovieSweep.IGuide[];
 
-  /** Section scale by `u`, applied after guides: knots as for a guide, values positive, interpolated by the monotone scheme; omitted, 1 everywhere. */
+  /** Section scale by `u`, applied last, to the section with its guides and features: knots as for a guide, values positive, interpolated by the monotone scheme; omitted, 1 everywhere. */
   scale?: IAutoMovieSweep.IKnot[];
 
   /** Feature curves the surface passes through; omitted or empty, none. */
@@ -119,7 +120,7 @@ export namespace IAutoMovieSweep {
   /**
    * A feature curve: a line on the surface the section family must pass through, such as a ridge or a groove, with the radius it has along it or its offset from the surface the other layers make.
    *
-   * The curve is the polyline through its points in the `(u, angle)` domain; along it the radius or offset is interpolated linearly between points. The surface moves by the difference between that radius and its own, or by the offset at full weight on the curve and fading over `width` metres across it by the cube of `1 - (d / width)^2`, distances measured on the surface's own scale (`u` by the spine's length, the angle by the local radius). Features apply last and add up where their bands overlap.
+   * The curve is the polyline through its points in the `(u, angle)` domain; along it the radius or offset is interpolated linearly between points. The surface moves by the difference between that radius and its own, or by the offset at full weight on the curve and fading over `width` metres across it by the cube of `1 - (d / width)^2`, distances measured on the surface's own scale (`u` by the spine's length, the angle by the local radius before the scale profile). Features apply after guides, before the scale profile, and add up where their bands overlap.
    *
    * @author Samchon
    */
@@ -146,7 +147,7 @@ export namespace IAutoMovieSweep {
     /** Radius the surface has here, metres from the spine point, positive; give either this or `offset` on every point of a feature. */
     radius?: number;
 
-    /** Distance the surface moves here along its radius, metres, outward positive, from where stations, guides and scale put it; a feature whose end points have offset 0 fades into the surface along its length too. */
+    /** Distance the surface moves here along its radius, metres, outward positive, from where stations and guides put it, before the scale profile multiplies both; a feature whose end points have offset 0 fades into the surface along its length too. */
     offset?: number;
   }
 }
