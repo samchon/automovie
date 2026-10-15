@@ -45,7 +45,7 @@ const REVERSED: IAutoMovieAxisFrame = { sign: -1, neutral: 0 };
  * - Shoulder girdle: flexion protracts (the clavicle's tip moves forward), abduction elevates.
  * - Upper arm: flexion raises the arm forward, abduction raises it sideways (0 down, 90 horizontal, 180 overhead: the T-pose rests at 90), twist is external rotation, which turns the front of the arm upward in the T-pose.
  * - Forearm: flexion folds the forearm forward, toward the front of the upper arm; twist is pronation, which turns the T-pose's downward palm backward.
- * - Hand and every finger and thumb segment: flexion carries the fingertips toward the palm, abduction toward the thumb (radial deviation at the wrist).
+ * - Hand and every finger and thumb segment: flexion carries the fingertips toward the palm; abduction is radial deviation at the wrist and spreads a finger away from the middle finger (the middle finger and the thumb toward the thumb's side).
  * - Leg, knee, foot and toes: flexion swings the thigh forward and lifts the foot and toes (dorsiflexion), abduction carries the limb, or the sole, outward (eversion at the foot), twist turns the knee and toes outward (external rotation).
  *
  * The arm abduction frames were calibrated on the stickman (left sign +1, right −1, neutral 90) and are kept as they were. The spine, neck, head and jaw are single bones on the midline and keep the default reading: flexion bends forward, abduction bends toward the figure's right and twist turns its face toward its left. The eyes are left out on purpose: they turn together, a gaze to one side turning both eyes the same way, so they share one reading rather than a mirrored one.
