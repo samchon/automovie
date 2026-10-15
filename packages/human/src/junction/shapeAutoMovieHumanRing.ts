@@ -28,7 +28,7 @@ import { layoutAutoMovieHumanRing } from "./layoutAutoMovieHumanRing";
  *
  * - `neckBase`: an ellipse in the oblique cut through the jugular notch and cervicale, reaching each in front and behind, its lateral semi-axis solved so its perimeter is the neck circumference widened by {@link AUTOMOVIE_HUMAN_NECK_BASE_FLARE}.
  * - `neckTop`: in the mandibular plane, the larger of the jaw and the neck column, blended by a smooth maximum. The jaw is the soft-tissue jawline of {@link AUTOMOVIE_HUMAN_JAWLINE} from gnathion back to both gonia; the column an egg of the neck circumference's mean radius, {@link AUTOMOVIE_HUMAN_NECK_COLUMN} times it across, in front and behind, the back lengthened by the plane's tilt to the neck so it still reaches the nape.
- * - `upperArm`: the upper arm circumference, which is measured at this cut, in four quarter ellipses about the bone axis, deeper than broad over the biceps and triceps and flattest laterally ({@link AUTOMOVIE_HUMAN_UPPER_ARM_SECTION}).
+ * - `upperArm`: the upper arm circumference, which is measured at this cut with the arm hanging and converted to the abducted rest pose, in four quarter ellipses about the bone axis, deeper than broad over the biceps and triceps and flattest laterally ({@link AUTOMOVIE_HUMAN_UPPER_ARM_SECTION}).
  * - `wrist`: an ellipse of the wrist circumference measured at this cut, its radio-ulnar breadth and palmar-dorsal depth in the proportions of {@link AUTOMOVIE_HUMAN_WRIST_SECTION}.
  * - `thigh`: the girth at mid thigh, on the thigh's girth curve between the thigh circumference at the gluteal furrow and the lower thigh circumference at suprapatella, in four quarter ellipses about the hip-to-knee axis, full in front and medially and flat behind and laterally ({@link AUTOMOVIE_HUMAN_THIGH_GIRTH}).
  * - `ankle`: a circle of the ankle circumference, the minimum girth above the malleoli, measured at this cut. Conventional shape.
@@ -287,7 +287,7 @@ const section = (
     case "upperArm":
       // anatomically medial is the side toward the trunk, below the abducted arm in the rest pose
       return quarters(
-        arm.upperArmCircumference,
+        arm.upperArmCircumference * AUTOMOVIE_HUMAN_UPPER_ARM_SECTION.abducted,
         AUTOMOVIE_HUMAN_UPPER_ARM_SECTION,
         AutoMovieHumanVector.of(0, -1, 0),
       );

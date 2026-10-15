@@ -1,3 +1,4 @@
+import { AUTOMOVIE_HUMAN_UPPER_ARM_SECTION } from "../../junction/AUTOMOVIE_HUMAN_UPPER_ARM_SECTION";
 import { AUTOMOVIE_HUMAN_WRIST_SECTION } from "../../junction/AUTOMOVIE_HUMAN_WRIST_SECTION";
 import { IAutoMovieHumanIdentity } from "../../structures/IAutoMovieHumanIdentity";
 import { estimateAutoMovieHumanArmTissue } from "./estimateAutoMovieHumanArmTissue";
@@ -123,7 +124,7 @@ const COUNT: number = 8;
  * Each section is built in three steps:
  *
  * 1. A deep shape of bone and muscle: a superellipse of the level's proportions.
- * 2. The deep shape is scaled and the fat layer laid over it so the section's girth equals the level's girth (`GIRTH_PROFILE`): the identity's upper arm circumference at the upper cut, its forearm circumference from the elbow to the forearm's maximum, its wrist circumference at the wrist, and between them the weights fitted to a reference body.
+ * 2. The deep shape is scaled and the fat layer laid over it so the section's girth equals the level's girth (`GIRTH_PROFILE`): the identity's upper arm circumference at the upper cut, converted to the abducted rest pose (`AUTOMOVIE_HUMAN_UPPER_ARM_SECTION.abducted`), its forearm circumference from the elbow to the forearm's maximum, its wrist circumference at the wrist, and between them the weights fitted to a reference body.
  * 3. Bones bound the radii they reach (`BONES`): the olecranon fixes the back of the elbow, the epicondyles keep the elbow at least as broad as the bone, the subcutaneous ulna holds the back of the forearm down, and the shared wrist section (`AUTOMOVIE_HUMAN_WRIST_SECTION`) fixes the wrist's breadth.
  *
  * Girth is the length of the smooth closed curve through the section's points, the periodic cubic B-spline that interpolates them, which the section's curve in the loft is. The loft holds each station's row to the level's girth again once the relief is on, so these girths only fix the section's proportions and the bones' share of it.
@@ -140,7 +141,9 @@ export function sectionAutoMovieHumanArm(
     fatAround(level, tissue);
   const mean: (values: number[]) => number = (values: number[]): number =>
     values.reduce((a: number, b: number): number => a + b, 0) / values.length;
-  const upper: number = arm.upperArmCircumference;
+  // the hanging arm's measured girth in the abducted rest pose, as the upper arm ring takes it
+  const upper: number =
+    arm.upperArmCircumference * AUTOMOVIE_HUMAN_UPPER_ARM_SECTION.abducted;
   const forearm: number = arm.forearmCircumference;
   const wrist: number = arm.wristCircumference;
   const profile: (level: number) => number = (level: number): number =>
