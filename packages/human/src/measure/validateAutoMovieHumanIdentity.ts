@@ -36,6 +36,7 @@ const MAX_HEADS_PER_STATURE: number = 10;
  * - each greater trochanter above the seat and below the acromion;
  * - a hand and a foot longer than broad, a palm shorter than the hand and a thumb shorter than the middle finger, and a limb girth that tapers from muscle bellies to the tendons at wrist and ankle;
  * - soft-tissue hip breadth wider than the bony iliac crests it covers;
+ * - the chest, waist and buttock breadths and depths each under half their circumference, and the circumference within the rectangle they bound; the underbust no larger than the chest;
  * - a head circumference between twice the head length and the perimeter of the rectangle bounding head length and breadth, the limits for any convex outline a tape can follow;
  * - the face inside the head: face height below head height, and mandibular and frontal widths narrower than the zygomatic arches;
  * - each ear shorter than the head is high, longer than broad, and standing off the scalp by less than its breadth.
@@ -115,6 +116,40 @@ export function validateAutoMovieHumanIdentity(
     body.bicristalBreadth,
     `narrower than hip breadth (${millimetres(body.hipBreadth)})`,
     "hip breadth spans the greater trochanters and the soft tissue over the bony pelvis, which the compressed iliac crest breadth excludes",
+  );
+
+  // trunk sections: a closed outline is at most half its perimeter across and fits inside its bounding rectangle
+  const sections: Array<[string, number, string, number, string, number]> = [
+    ["chestBreadth", body.chestBreadth, "chestDepth", body.chestDepth, "chestCircumference", body.chestCircumference],
+    ["waistBreadth", body.waistBreadth, "waistDepth", body.waistDepth, "waistCircumference", body.waistCircumference],
+    ["hipBreadth", body.hipBreadth, "buttockDepth", body.buttockDepth, "buttockCircumference", body.buttockCircumference],
+  ];
+  for (const [bKey, breadth, dKey, depth, cKey, circumference] of sections) {
+    for (const [key, value] of [
+      [bKey, breadth],
+      [dKey, depth],
+    ] as const)
+      check(
+        value < circumference / 2,
+        `$input.body.${key}`,
+        value,
+        `under half the ${cKey} (${millimetres(circumference / 2)})`,
+        "a closed outline is never wider in any direction than half its perimeter",
+      );
+    check(
+      circumference <= 2 * (breadth + depth),
+      `$input.body.${cKey}`,
+      circumference,
+      `at most twice ${bKey} plus ${dKey} (${millimetres(2 * (breadth + depth))})`,
+      "a tape around a convex section is no longer than the rectangle bounding its breadth and depth",
+    );
+  }
+  check(
+    body.underbustCircumference <= body.chestCircumference,
+    "$input.body.underbustCircumference",
+    body.underbustCircumference,
+    `at most the chest circumference (${millimetres(body.chestCircumference)})`,
+    "the chest circumference passes over the breasts, which only add girth to the rib cage below them",
   );
 
   // limbs

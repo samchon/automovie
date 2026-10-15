@@ -89,14 +89,40 @@ export namespace IAutoMovieHumanIdentity {
     chestCircumference: number & tags.Minimum<180> & tags.Maximum<2000>;
 
     /**
+     * Chest breadth at the level of the chest circumference, across the rib cage under the arms with tissue compressed, at maximum inspiration, millimetres, as ANSUR II measures it.
+     */
+    chestBreadth: number & tags.Minimum<40> & tags.Maximum<700>;
+
+    /**
+     * Chest depth at the level of the chest circumference, from the most anterior point of the chest, the bust in women, to the back, millimetres. With breadth and circumference it fixes how round or square the section is.
+     */
+    chestDepth: number & tags.Minimum<30> & tags.Maximum<700>;
+
+    /**
+     * Underbust circumference, horizontal just below the breasts at the inframammary fold, millimetres. Its difference from the chest circumference is the girth the breasts add; equal values mean no breast volume.
+     */
+    underbustCircumference: number & tags.Minimum<150> & tags.Maximum<2000>;
+
+    /**
      * Waist circumference at the natural waist, the narrowest level between the ribs and the iliac crests, millimetres. This is the waist of attractiveness studies; ANSUR II measures its waist at the navel instead, which is not comparable.
      */
     waistCircumference: number & tags.Minimum<180> & tags.Maximum<2200>;
+
+    /** Waist breadth at the natural waist, millimetres. */
+    waistBreadth: number & tags.Minimum<40> & tags.Maximum<800>;
+
+    /** Waist depth at the natural waist, from the abdomen to the back, millimetres. */
+    waistDepth: number & tags.Minimum<30> & tags.Maximum<800>;
 
     /**
      * Buttock circumference at the maximum posterior protrusion of the buttocks, standing, millimetres.
      */
     buttockCircumference: number & tags.Minimum<200> & tags.Maximum<2200>;
+
+    /**
+     * Buttock depth at the level of the buttock circumference, from the abdomen to the maximum posterior protrusion of the buttocks, standing, millimetres. With hip breadth and the circumference it fixes the section's shape.
+     */
+    buttockDepth: number & tags.Minimum<30> & tags.Maximum<800>;
 
     /** How the spine, pelvis and head stand in the side view. */
     posture: IPosture;
