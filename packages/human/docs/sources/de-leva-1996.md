@@ -46,7 +46,7 @@ Longitudinal offset of each joint centre from a palpable landmark, positive prox
 | Knee | 35.0 | 35.0 | Tibiale | Tibiale-sphyrion |
 | Ankle | -12.6 | -12.6 | Sphyrion | Tibiale-sphyrion |
 
-Table 1 notes that acromion-radiale measured with the arm abducted 90 degrees (235.9 F, 244.8 M mm) is markedly shorter than with the arm adducted, because the acromion moves toward the radiale: a joint centre placed at a fixed offset below the acromion only holds in the adducted rest posture.
+Table 1 notes that acromion-radiale measured with the arm abducted 90 degrees (235.9 F, 244.8 M mm) is markedly shorter than with the arm adducted, because the acromion moves toward the radiale: a joint centre placed at a fixed offset below the acromion only holds in the adducted rest posture. Table 2 marks the shoulder and elbow offsets as estimated for the adducted arm; adducted acromion-radiale is therefore the Table 4 shoulder-to-elbow length plus both offsets, 322.7 (F) and 330.5 (M) mm, and the abducted length is 0.731 and 0.741 of it (re-read from the scan's text layer on 2026-10-15; Table 1 also lists radiale-stylion 247.1 / 251.3 and stylion-dactylion 172.0 / 189.9 mm).
 
 ## What Human takes
 

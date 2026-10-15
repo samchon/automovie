@@ -23,7 +23,7 @@ const T_POSE_ABDUCTION: number = 90;
  * 3. Head: carried forward of the neck by the craniovertebral angle, the head joint at the hard-palate level, eyes, jaw at its measured centre of rotation, and the craniofacial landmarks from the head measurements; the neck runs from cervicale on the column to the head joint.
  * 4. Arms: at the trunk's shoulder depth, clavicles from the jugular notch, the arm hanging below the acromion so its landmarks reproduce acromion-radiale, radiale-stylion and hand length, joint centres at de Leva's offsets, fingers and thumb from hand length and breadth.
  * 5. Constraints for every joint from the person's mobility and girths.
- * 6. The arms turned up 90 degrees about the shoulder centres into the canonical T-pose ({@link abductAutoMovieHumanArms}).
+ * 6. The arms turned up 90 degrees about the shoulder centres into the canonical T-pose and slid toward the midline until the fingertips span the identity's span ({@link abductAutoMovieHumanArms}): an abducted arm reaches less far from the trunk than it hangs, because the acromion comes closer to the radiale.
  *
  * A child's skeleton comes from the child's own measurements, which the converter takes from growth data, never from a scaled adult; nothing here depends on age or sex except through the identity. Measuring the result in the anthropometric posture returns the identity's lengths (see `measureAutoMovieHumanSkeleton`).
  *
@@ -104,5 +104,20 @@ export function generateAutoMovieHumanSkeleton(
       constraint: constrainAutoMovieHumanJoint(joint.bone, identity, incisorRadius),
     }),
   );
-  return abductAutoMovieHumanArms({ joints, landmarks }, T_POSE_ABDUCTION);
+  // the slide that gives the identity's span: half of what a pure turn about the shoulders overshoots
+  const hanging: IAutoMovieHumanSkeleton = { joints, landmarks };
+  const turned: IAutoMovieHumanLandmarks = abductAutoMovieHumanArms(
+    hanging,
+    T_POSE_ABDUCTION,
+    { left: 0, right: 0 },
+  ).landmarks;
+  const slide: number =
+    (turned.left.dactylion.position.x -
+      turned.right.dactylion.position.x -
+      body.span) /
+    2;
+  return abductAutoMovieHumanArms(hanging, T_POSE_ABDUCTION, {
+    left: slide,
+    right: slide,
+  });
 }
