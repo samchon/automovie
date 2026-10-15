@@ -1,27 +1,44 @@
+import { AutoMovieHumanBranch } from "./AutoMovieHumanBranch";
 import { AutoMovieHumanPart } from "./AutoMovieHumanPart";
 import { AutoMovieHumanSide } from "./AutoMovieHumanSide";
 
 /**
- * A semantic address on the skin: which part, which side, and where on that part's own chart.
+ * A semantic address on the skin: which part, which side, which branch of it, and where on that chart.
  *
- * Landmarks, measurements, garments and UV layout address the surface through these coordinates instead of vertex indices, because a coordinate survives any change of identity while an index does not. Every part is tube-like, so its chart is two parameters: `u` along the part's axis and `v` around it. A part generator documents its axis and where `v` starts; on a part with openings in its side, such as the trunk at the arms, the openings are regions of the same chart.
+ * Landmarks, measurements, garments and UV layout address the surface through these coordinates instead of vertex indices, because a coordinate survives any change of identity while an index does not. Every chart is tube-like, so it is two parameters: `u` along its axis and `v` around it. A part generator documents its axis and where `v` starts; on a part with openings in its side, such as the trunk at the arms, the openings are regions of the same chart.
  *
- * @author Samchon
+ * A part that branches, the hand into its digits, gives each branch its own chart, named by a closed set per part, {@link AutoMovieHumanBranch}; the address is a union over parts, so a branch is typed only on the part that has it.
  */
-export interface IAutoMovieHumanSurfaceCoordinate {
-  /** The part whose chart this is. */
-  part: AutoMovieHumanPart;
-
-  /** The side of a bilateral part, or null for the trunk, neck and head. */
-  side: AutoMovieHumanSide | null;
-
+export type IAutoMovieHumanSurfaceCoordinate = {
+  [Part in AutoMovieHumanPart]: IAutoMovieHumanSurfaceCoordinate.IOn<Part>;
+}[AutoMovieHumanPart];
+export namespace IAutoMovieHumanSurfaceCoordinate {
   /**
-   * Position along the part's axis, 0 at its proximal end (toward the trunk, or the bottom of the trunk) and 1 at its distal end.
+   * An address on one part.
+   *
+   * @template Part The part whose chart this is
+   * @author Samchon
    */
-  u: number;
+  export interface IOn<Part extends AutoMovieHumanPart> {
+    /** The part whose chart this is. */
+    part: Part;
 
-  /**
-   * Position around the part's axis as a fraction of a turn, 0 at the part's anterior mark and increasing counterclockwise about the axis pointing distally, from 0 to 1. The corners of one face lie within half a turn of each other without wrapping, so a face that reaches the wrap meridian from below writes 1 there and one that leaves it upward writes 0.
-   */
-  v: number;
+    /** The side of a bilateral part, or null for the trunk, neck and head. */
+    side: AutoMovieHumanSide | null;
+
+    /**
+     * The branch whose own chart this is, or null or omitted for the part's main chart. Only a part that branches admits a branch.
+     */
+    branch?: AutoMovieHumanBranch<Part> | null;
+
+    /**
+     * Position along the chart's axis, 0 at its proximal end (toward the trunk, the bottom of the trunk, or a branch's root) and 1 at its distal end.
+     */
+    u: number;
+
+    /**
+     * Position around the chart's axis as a fraction of a turn, 0 at its anterior mark and increasing counterclockwise about the axis pointing distally, from 0 to 1. The corners of one face lie within half a turn of each other without wrapping, so a face that reaches the wrap meridian from below writes 1 there and one that leaves it upward writes 0.
+     */
+    v: number;
+  }
 }
