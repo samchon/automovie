@@ -14,6 +14,7 @@ export * from "./structures/IAutoMovieHumanAppearance";
 export * from "./structures/IAutoMovieHumanExpression";
 export * from "./structures/IAutoMovieHumanIdentity";
 export * from "./structures/IAutoMovieHumanSubcutaneousFat";
+export * from "./structures/IAutoMovieHumanConstructionNet";
 export * from "./structures/IAutoMovieHumanPose";
 export * from "./structures/IAutoMovieHumanTraits";
 

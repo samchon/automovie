@@ -7,6 +7,9 @@ import {
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 import { IValidation } from "typia";
+import { IAutoMovieHumanConstructionNet } from "../structures/IAutoMovieHumanConstructionNet";
+import { generateAutoMovieHumanCages } from "./generateAutoMovieHumanCages";
+import { inspectAutoMovieHumanConstruction } from "./inspectAutoMovieHumanConstruction";
 
 import { dressAutoMovieHumanNails } from "../appearance/dressAutoMovieHumanNails";
 import { dressAutoMovieHumanSkin } from "../appearance/dressAutoMovieHumanSkin";
@@ -126,6 +129,21 @@ export class AutoMovieHuman {
    */
   public getSkeleton(): IAutoMovieSkeleton {
     return emitAutoMovieHumanSkeleton(this.skeleton_, this.skeletonId());
+  }
+
+  /**
+   * The construction net of every lofted part, for inspecting how its surface was built: each sweep's spine, stations, guides and features, the network's curves, the part's rings and its control cage, in the model frame at rest, metres. It is a debug output, never part of the model.
+   *
+   * @returns One net per lofted part instance
+   */
+  public inspect(): IAutoMovieHumanConstructionNet[] {
+    return inspectAutoMovieHumanConstruction(
+      generateAutoMovieHumanCages(
+        this.measurements_,
+        this.skeleton_,
+        this.generators_,
+      ),
+    );
   }
 
   /**
