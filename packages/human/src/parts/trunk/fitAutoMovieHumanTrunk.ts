@@ -105,6 +105,7 @@ export function fitAutoMovieHumanTrunk(
   }
   return { cage, tune };
 }
+/** Output type of {@link fitAutoMovieHumanTrunk}. */
 export namespace fitAutoMovieHumanTrunk {
   /**
    * The fitted trunk.

@@ -71,6 +71,7 @@ export function planAutoMovieHumanEye(props: {
     scale,
   };
 }
+/** Plan type of {@link planAutoMovieHumanEye}. */
 export namespace planAutoMovieHumanEye {
   /**
    * One eye's dimensions, millimetres, in the eye's own frame: origin at the globe's geometric centre, +Z along the line of sight to the corneal apex, +X toward the person's left and +Y up, which at rest is the model frame translated.

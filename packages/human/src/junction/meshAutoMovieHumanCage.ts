@@ -125,6 +125,7 @@ export const meshAutoMovieHumanCage = (props: {
     surface,
   };
 };
+/** Output type of {@link meshAutoMovieHumanCage}. */
 export namespace meshAutoMovieHumanCage {
   /**
    * The render mesh and how it maps back to the subdivided surface.

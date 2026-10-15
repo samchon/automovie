@@ -132,6 +132,7 @@ export function shapeAutoMovieHumanFootUpper(
       upper[i]![j] = p;
     }
 }
+/** Polar reading of the upper grid about the ankle hole, and the ankle section in any direction, that {@link shapeAutoMovieHumanFootUpper} builds on. */
 export namespace shapeAutoMovieHumanFootUpper {
   /**
    * Where an upper vertex lies about the ankle.

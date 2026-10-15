@@ -191,6 +191,7 @@ export function shapeAutoMovieHumanPalm(
     thumb: [s2[0]!, s3[0]!, s3[13]!, s3[12]!, s2[12]!, s1[12]!, s1[13]!, s1[0]!],
   };
 }
+/** Props and output types of {@link shapeAutoMovieHumanPalm}. */
 export namespace shapeAutoMovieHumanPalm {
   /**
    * What the palm is drawn from.

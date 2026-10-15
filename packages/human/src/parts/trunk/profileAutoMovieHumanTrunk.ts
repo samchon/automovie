@@ -155,6 +155,7 @@ export function profileAutoMovieHumanTrunk(
     },
   };
 }
+/** Profile type of {@link profileAutoMovieHumanTrunk}. */
 export namespace profileAutoMovieHumanTrunk {
   /**
    * The trunk's body of one side, read by height.

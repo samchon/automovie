@@ -69,6 +69,7 @@ export function frameAutoMovieHumanHead(
     cervicale: local(landmarks.cervicale.position),
   };
 }
+/** The head frame {@link frameAutoMovieHumanHead} returns, and conversion between it and the model frame. */
 export namespace frameAutoMovieHumanHead {
   /**
    * An orthonormal frame placed in the model.

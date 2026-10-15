@@ -124,6 +124,7 @@ export function knitAutoMovieHumanFootCage(
   });
   return { positions, charts, faces, ring };
 }
+/** Chart and output types of {@link knitAutoMovieHumanFootCage}. */
 export namespace knitAutoMovieHumanFootCage {
   /**
    * A chart coordinate before it is attached to a face.

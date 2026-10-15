@@ -100,6 +100,7 @@ export function sectionAutoMovieHumanNeck(props: {
     AutoMovieHumanCageBuilder.buildOrder(shape).map((j: number): IAutoMovieVector3 => shape.positions[j]!);
   return { axis, centre: lower, base: ring(props.base), mid, top: ring(props.top) };
 }
+/** Output type of {@link sectionAutoMovieHumanNeck}. */
 export namespace sectionAutoMovieHumanNeck {
   /**
    * The neck's sections.

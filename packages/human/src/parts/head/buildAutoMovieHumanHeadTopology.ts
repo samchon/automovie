@@ -254,6 +254,7 @@ export function buildAutoMovieHumanHeadTopology(): buildAutoMovieHumanHeadTopolo
     nostrils: [at(half + 2, 0, MOUTH_BOTTOM + 3), at(half - 2, 0, MOUTH_BOTTOM + 3)],
   };
 }
+/** Vertex and topology types of {@link buildAutoMovieHumanHeadTopology}. */
 export namespace buildAutoMovieHumanHeadTopology {
   /**
    * One cage vertex's address: where it sits in the box lattice or in a feature's loops, and its direction on the canonical sphere the chart is read from.

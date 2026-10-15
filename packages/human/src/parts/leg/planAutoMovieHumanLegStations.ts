@@ -311,6 +311,7 @@ export function planAutoMovieHumanLegStations(props: {
   );
   return { stations, thighRing, ankleRing };
 }
+/** Output type of {@link planAutoMovieHumanLegStations}. */
 export namespace planAutoMovieHumanLegStations {
   /**
    * The leg's stations and its two ring layouts.
