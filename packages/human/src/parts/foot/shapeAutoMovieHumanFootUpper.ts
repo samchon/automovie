@@ -114,8 +114,14 @@ export function shapeAutoMovieHumanFootUpper(
       }
       let p: IAutoMovieVector3 = sample(meridian(ring, boundary(at.edge)), at.fraction);
       if (at.loop === 2) {
-        // the loop next to the ring keeps the ring's own section, straight below it, so the joined limit surface keeps the measured girth there
-        upper[i]![j] = AutoMovieHumanVector.of(ring.x, p.y, ring.z);
+        // the loop next to the ring is a straight collar of the ring's own section; the two collar vertices beside each corner of the hole stand out by 1 / cos 22.5 degrees so their mean, which the corner's limit takes, falls on the ring
+        const eighths: number = (at.angle * 8) / Math.PI;
+        const out: number = Math.abs(eighths - Math.round(eighths)) < 1e-9 && Math.round(eighths) % 2 !== 0 ? 1 / Math.cos(Math.PI / 8) : 1;
+        upper[i]![j] = AutoMovieHumanVector.of(
+          centre.x + (ring.x - centre.x) * out,
+          p.y,
+          centre.z + (ring.z - centre.z) * out,
+        );
         continue;
       }
       const degrees: number = Math.abs((at.angle * 180) / Math.PI);
