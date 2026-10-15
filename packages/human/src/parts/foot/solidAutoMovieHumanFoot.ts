@@ -1,5 +1,6 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
+import { AUTOMOVIE_HUMAN_FOOT_FORM } from "./AUTOMOVIE_HUMAN_FOOT_FORM";
 import { IAutoMovieHumanFootPlan } from "./IAutoMovieHumanFootPlan";
 import { interpolateAutoMovieHumanFootProfile } from "./interpolateAutoMovieHumanFootProfile";
 
@@ -41,7 +42,36 @@ export function solidAutoMovieHumanFoot(props: {
     const middle: number = Math.max(0, 1 - ((x - arc.x) / arc.width) ** 2);
     const rim: number = arc.rim[1] * HEEL_TOP.side + (arc.rim[0] * HEEL_TOP.back - arc.rim[1] * HEEL_TOP.side) * middle;
     const heel: number = rim + (dorsum - rim) * k * k * (3 - 2 * k);
-    return Math.min(dorsum, heel);
+    return toes(x, z, Math.min(dorsum, heel));
+  };
+  // past the metatarsophalangeal joints the dorsum comes down onto the toes: a ridge along each toe at the height of its root, the webs between them
+  const first: IAutoMovieHumanFootPlan.IToe = plan.toes[0]!;
+  const last: IAutoMovieHumanFootPlan.IToe = plan.toes[plan.toes.length - 1]!;
+  const line: { x: number; z: number } = (() => {
+    const dx: number = last.joint.x - first.joint.x;
+    const dz: number = last.joint.z - first.joint.z;
+    const n: number = Math.hypot(dx, dz);
+    return { x: -dz / n, z: dx / n };
+  })();
+  const reach: number =
+    (AUTOMOVIE_HUMAN_FOOT_FORM.toeRidge.reach * plan.toes.reduce((sum: number, t: IAutoMovieHumanFootPlan.IToe): number => sum + t.length, 0)) /
+    plan.toes.length;
+  const web: number =
+    (AUTOMOVIE_HUMAN_FOOT_FORM.toeRidge.web * plan.toes.reduce((sum: number, t: IAutoMovieHumanFootPlan.IToe): number => sum + t.height, 0)) /
+    plan.toes.length;
+  const toes = (x: number, z: number, dorsum: number): number => {
+    // past the line of the metatarsophalangeal joints, the same for every toe
+    const k: number = Math.min(1, Math.max(0, ((x - first.joint.x) * line.x + (z - first.joint.z) * line.z) / reach));
+    if (k === 0) return dorsum;
+    let ridge: number = web;
+    for (const toe of plan.toes) {
+      const dx: number = x - toe.joint.x;
+      const dz: number = z - toe.joint.z;
+      const across: number = Math.abs(dx * toe.direction.z - dz * toe.direction.x) / (AUTOMOVIE_HUMAN_FOOT_FORM.toeRidge.width * toe.width);
+      const height: number = toe.height * (toe.hallux ? AUTOMOVIE_HUMAN_FOOT_FORM.toeRidge.hallux : AUTOMOVIE_HUMAN_FOOT_FORM.toeRidge.lesser);
+      ridge = Math.max(ridge, height * Math.sqrt(Math.max(0, 1 - Math.min(1, across) ** 2)));
+    }
+    return dorsum + (ridge - dorsum) * k * k * (3 - 2 * k);
   };
   // the plantar surface: the standing surface, lifted under the medial arch toward the medial border
   const bottom = (x: number, z: number): number => {
