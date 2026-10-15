@@ -9,12 +9,9 @@ const SKINFOLD: { male: [number, number]; female: [number, number] } = {
 };
 
 /**
- * Bony breadths over wrist circumference: NHANES III adult elbow breadth (biepicondylar humerus, 7.4 cm men, 6.5 cm women; Tables 63 and 64) and wrist breadth (bistyloid, 5.9 and 5.2 cm; Tables 51 and 52) over the ANSUR II mean wrist circumference (175.9 and 154.8 mm; Gordon et al. 2014, NATICK/TR-15/007). Both sexes give the same ratios to within 0.002, and the 1988-1994 children's elbow-to-wrist breadth ratio (1.23 at 10 years) matches the adults' 1.25, so one skeletal girth carries both breadths. Grade: derived across two surveys.
+ * Biepicondylar breadth of the humerus over wrist circumference: NHANES III adult elbow breadth (7.4 cm men, 6.5 cm women; McDowell et al. 2009, Vital Health Stat 11(249), Tables 63 and 64) over the ANSUR II mean wrist circumference (175.9 and 154.8 mm; Gordon et al. 2014, NATICK/TR-15/007). Both sexes give 0.42 to within 0.001, and the 1988-1994 children's elbow-to-wrist breadth ratio (1.23 at 10 years, Tables 50 and 62) matches the adults' 1.25, so the wrist's skeletal girth carries the elbow's breadth. Grade: derived across two surveys.
  */
-const BREADTH_PER_WRIST: { elbow: number; wrist: number } = {
-  elbow: 0.42,
-  wrist: 0.335,
-};
+const ELBOW_PER_WRIST: number = 0.42;
 
 /**
  * Girth each body mass index unit adds, flexed biceps 7.45 mm, flexed forearm 4.00 mm and wrist 1.16 mm in ANSUR II women (7.06, 4.07 and 1.22 in men), our ordinary least squares fits. Adiposity is what a BMI unit adds at constant stature, so the ratios are how thick the fat over each level is against the upper arm: 0.54 over the forearm and 0.16 at the wrist. Grade: derived.
@@ -35,7 +32,7 @@ const NEUTRAL_LEAN_INDEX: number = 7.84;
 const NEUTRAL_MUSCLE_PER_WRIST: number = 1.57;
 
 /**
- * Estimate the soft tissue and bony breadths that shape one arm's surface from its identity.
+ * Estimate the soft tissue and the elbow's bony breadth that shape one arm's surface from its identity.
  *
  * Subcutaneous fat over the triceps is half the triceps skinfold, the convention of arm anthropometry in which arm muscle circumference is the arm circumference less pi times the skinfold (Jelliffe 1966, WHO Monograph 53; Frisancho 1981, Am J Clin Nutr 34(11):2540-2545). The skinfold follows body fat by a power law through the adult means of both sexes, so the sex difference in limb fat arrives through body fat alone: `skinfold = 13.1 (fat / 28)^1.64`. The forearm and wrist carry the fractions of that thickness that their per-BMI girth slopes give.
  *
@@ -69,8 +66,7 @@ export function estimateAutoMovieHumanArmTissue(
         identity.composition.appendicularLeanMassIndex / NEUTRAL_LEAN_INDEX,
       ) *
       (muscle / arm.wristCircumference / NEUTRAL_MUSCLE_PER_WRIST),
-    elbowBreadth: BREADTH_PER_WRIST.elbow * arm.wristCircumference,
-    wristBreadth: BREADTH_PER_WRIST.wrist * arm.wristCircumference,
+    elbowBreadth: ELBOW_PER_WRIST * arm.wristCircumference,
   };
 }
 /** Output type of {@link estimateAutoMovieHumanArmTissue}. */
@@ -96,7 +92,5 @@ export namespace estimateAutoMovieHumanArmTissue {
     /** Biepicondylar breadth of the humerus, bone only. */
     elbowBreadth: number;
 
-    /** Bistyloid breadth of the wrist, bone only. */
-    wristBreadth: number;
   }
 }

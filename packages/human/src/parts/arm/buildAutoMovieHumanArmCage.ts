@@ -15,6 +15,12 @@ import { sectionAutoMovieHumanArm } from "./sectionAutoMovieHumanArm";
 /** Ring count of both arm junctions, the vertices of every section. */
 const COUNT: number = 8;
 
+/** Level of the loop that repeats the upper arm ring, where the loops' lean off the bone axis is whole. */
+const COMPANION: number = -0.9;
+
+/** Level above the elbow by which the loops have leant back onto the humerus axis. */
+const ELBOW_LEVEL: number = -0.15;
+
 /**
  * Rounds of the fit that moves the cage until its limit surface passes through the sections. Each round removes at least 8/9 of the remaining error in every mode, the smallest eigenvalue of the bicubic limit stencil being 1/9, so 60 rounds leave under a thousandth.
  */
@@ -30,7 +36,7 @@ const CALIBRATION_ROUNDS: number = 4;
  *
  * Every section of `sectionAutoMovieHumanArm` becomes one loop of eight cage vertices around the bone axis: above the elbow on the line from the shoulder to the elbow joint centre, below it on the line from the elbow to the wrist joint centre, at the joint on their bisector, so a carrying angle or flexion in the skeleton bends the cage with it. Each section's anterior direction is the rest-pose front projected across its axis, turned by the section's twist toward the medial side, so the vertex lines spiral down the mid-prone forearm and the last loop starts on the palmar surface exactly as the wrist ring does.
  *
- * The two end loops are the junction's: the `upperArm` and `wrist` rings of `shapeAutoMovieHumanRing`, vertex for vertex, so the trunk and the hand meet them without either part adapting. The interior section radii describe the surface, not the cage: interior vertices are fitted so the limit surface passes through every section point by the bicubic B-spline limit stencil, each moving only along its own ray from its loop's centre. The loops are unevenly spaced around the elbow, and fitting along the limb would push neighbouring loops past each other and fold the surface.
+ * The two end loops are the junction's: the `upperArm` and `wrist` rings of `shapeAutoMovieHumanRing`, vertex for vertex, so the trunk and the hand meet them without either part adapting. The loop next to each repeats its ring carried along the bone, so the joined limit surface along the ring keeps the ring's measured girth, and the loops of the upper arm lean from the upper arm ring's centre, which lies off the bone axis (`AUTOMOVIE_HUMAN_UPPER_ARM_SECTION`), back onto the axis by the elbow. The interior section radii describe the surface, not the cage: interior vertices are fitted so the limit surface passes through every section point by the bicubic B-spline limit stencil, each moving only along its own ray from its loop's centre. The loops are unevenly spaced around the elbow, and fitting along the limb would push neighbouring loops past each other and fold the surface.
  *
  * The chart runs `u` from the upper cut (0) to the wrist (1) in proportion to length along the bones, and `v` counterclockwise about the distal axis from the anterior mark of each section. Both sides share connectivity; the right arm mirrors the left through the side's own frame, so its faces stay counterclockwise from outside.
  *
@@ -70,7 +76,13 @@ export function buildAutoMovieHumanArmCage(
   const forearm: IAutoMovieVector3 = V.normalize(
     V.offset(joint("Hand"), [elbow, -1]),
   );
-  const above: number = V.distance(upper.frame.origin, elbow);
+  const above: number = V.dot(V.offset(elbow, [upper.frame.origin, -1]), humerus);
+  // the ring centre's offset from the humerus axis at the cut
+  const offset: IAutoMovieVector3 = V.offset(
+    upper.frame.origin,
+    [elbow, -1],
+    [humerus, above],
+  );
   const below: number = V.distance(elbow, wrist.frame.origin);
   const mirror: number = side === "left" ? 1 : -1;
 
@@ -85,17 +97,23 @@ export function buildAutoMovieHumanArmCage(
         section: sectionAutoMovieHumanArm.ISection,
         i: number,
       ): IAutoMovieVector3[] => {
-        if (i === 0) {
-          centres.push(upper.frame.origin);
+        if (i <= 1) {
+          // the ring, and its companion carried along the humerus
+          const shift: number = (1 + section.level) * above;
+          centres.push(V.offset(upper.frame.origin, [humerus, shift]));
           return Array.from(
             { length: COUNT },
             (_: unknown, j: number): IAutoMovieVector3 =>
-              upper.positions[(COUNT - j) % COUNT]!,
+              V.offset(upper.positions[(COUNT - j) % COUNT]!, [humerus, shift]),
           );
         }
-        if (i === last) {
-          centres.push(wrist.frame.origin);
-          return [...wrist.positions];
+        if (i >= last - 1) {
+          const shift: number = (section.level - 1) * below;
+          centres.push(V.offset(wrist.frame.origin, [forearm, shift]));
+          return wrist.positions.map(
+            (p: IAutoMovieVector3): IAutoMovieVector3 =>
+              V.offset(p, [forearm, shift]),
+          );
         }
         const axis: IAutoMovieVector3 =
           section.level < 0
@@ -103,10 +121,16 @@ export function buildAutoMovieHumanArmCage(
             : section.level > 0
               ? forearm
               : V.normalize(V.offset(humerus, [forearm, 1]));
-        const centre: IAutoMovieVector3 = V.offset(elbow, [
-          axis,
-          section.level * (section.level < 0 ? above : below),
-        ]);
+        // the upper arm ring's centre lies off the bone axis; the loops below it lean back to the axis by the elbow
+        const lean: number = Math.min(
+          1,
+          Math.max(0, (section.level - ELBOW_LEVEL) / (COMPANION - ELBOW_LEVEL)),
+        );
+        const centre: IAutoMovieVector3 = V.offset(
+          elbow,
+          [axis, section.level * (section.level < 0 ? above : below)],
+          [offset, lean],
+        );
         centres.push(centre);
         const front: IAutoMovieVector3 = V.normalize(
           V.offset(V.of(0, 0, 1), [axis, -axis.z]),
@@ -289,7 +313,7 @@ const forearmMaximum = (
 };
 
 /**
- * Move the interior loops until the Catmull-Clark limit surface passes through the targets; the end loops are the junction rings and stay.
+ * Move the interior loops until the Catmull-Clark limit surface passes through the targets; the junction rings and their companion loops stay.
  *
  * A regular interior vertex's limit is the tensor product of the cubic B-spline weights 1/6, 4/6, 1/6 over its 3 by 3 neighbourhood. Each round moves every interior vertex along its own ray from its loop's centre by the part of the remaining error along that ray, a stable fixed-point iteration since every eigenvalue of the stencil lies between 1/9 and 1.
  */
@@ -315,7 +339,7 @@ const fit = (
   for (let round: number = 0; round < FIT_ROUNDS; ++round)
     cage = cage.map(
       (row: IAutoMovieVector3[], i: number): IAutoMovieVector3[] =>
-        i === 0 || i === rows - 1
+        i <= 1 || i >= rows - 2
           ? row
           : row.map((point: IAutoMovieVector3, j: number): IAutoMovieVector3 => {
               let limit: IAutoMovieVector3 = V.of(0, 0, 0);
