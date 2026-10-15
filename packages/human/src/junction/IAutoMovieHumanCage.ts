@@ -97,6 +97,25 @@ export namespace IAutoMovieHumanCage {
 
     /** Model displacement of one metre along the network's Z, millimetres. */
     z: IAutoMovieVector3;
+
+    /** The part's relief forms as curves on its surface before the relief, model frame, millimetres: each form's centre line and half-height border; omitted, none. */
+    relief?: IRelief[];
+  }
+
+  /**
+   * One curve of a part's relief, for inspection.
+   *
+   * @author Samchon
+   */
+  export interface IRelief {
+    /** The form and which of its lines this is. */
+    name: string;
+
+    /** Whether the curve closes on itself. */
+    closed: boolean;
+
+    /** Its points, model frame, millimetres. */
+    points: IAutoMovieVector3[];
   }
 
   /**

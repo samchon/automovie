@@ -47,7 +47,22 @@ export function inspectAutoMovieHumanConstruction(
     nets.push({
       part,
       side,
-      curves: [...networkCurves(construction), ...ringCurves(cage)],
+      curves: [
+        ...networkCurves(construction),
+        ...ringCurves(cage),
+        ...(construction.relief ?? []).map(
+          (r: IAutoMovieHumanCage.IRelief): IAutoMovieHumanConstructionNet.ICurve => ({
+            kind: "relief",
+            name: r.name,
+            closed: r.closed,
+            points: r.points.flatMap((p: IAutoMovieVector3): number[] => [
+              p.x / 1000,
+              p.y / 1000,
+              p.z / 1000,
+            ]),
+          }),
+        ),
+      ],
       cage: cageEdges(cage),
     });
   }

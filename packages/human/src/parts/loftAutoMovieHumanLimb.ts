@@ -8,6 +8,7 @@ import { IAutoMovieHumanCage } from "../junction/IAutoMovieHumanCage";
 import { IAutoMovieHumanRing } from "../junction/IAutoMovieHumanRing";
 import { IAutoMovieHumanSurfaceCoordinate } from "../junction/IAutoMovieHumanSurfaceCoordinate";
 import { IAutoMovieHumanLimbPlan } from "./IAutoMovieHumanLimbPlan";
+import { fieldAutoMovieHumanLimbRelief } from "./fieldAutoMovieHumanLimbRelief";
 import { networkAutoMovieHumanLimb } from "./networkAutoMovieHumanLimb";
 import { patchAutoMovieHumanLimb } from "./patchAutoMovieHumanLimb";
 
@@ -72,6 +73,9 @@ export function loftAutoMovieHumanLimb(
     faces,
     creases: [],
     rings,
-    construction: IAutoMovieHumanCage.inModel(network.value),
+    construction: {
+      ...IAutoMovieHumanCage.inModel(network.value),
+      relief: fieldAutoMovieHumanLimbRelief(plan, network.value).curves(),
+    },
   };
 }

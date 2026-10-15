@@ -28,6 +28,7 @@ export namespace IAutoMovieHumanConstructionNet {
    * - `feature`: a crease or ridge carried along a sweep's surface.
    * - `curve`: a network curve between nodes, which patches and bridges span.
    * - `ring`: an opening a junction joins to the neighbouring part.
+   * - `relief`: a muscle belly, furrow or bony landmark laid on the subdivided skin as a displacement: its centre line along its course and its border where it stands at half its height, on the part's surface before the relief.
    */
   export type Kind =
     | "spine"
@@ -35,7 +36,8 @@ export namespace IAutoMovieHumanConstructionNet {
     | "guide"
     | "feature"
     | "curve"
-    | "ring";
+    | "ring"
+    | "relief";
 
   /**
    * One construction curve as a polyline.

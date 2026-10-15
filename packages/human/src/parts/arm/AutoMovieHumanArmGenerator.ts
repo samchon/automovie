@@ -7,6 +7,23 @@ import { networkAutoMovieHumanLimb } from "../networkAutoMovieHumanLimb";
 import { IAutoMovieHumanLimbPlan } from "../IAutoMovieHumanLimbPlan";
 import { planAutoMovieHumanArm } from "./planAutoMovieHumanArm";
 
+/** Share of the stations' chord length at station `i`. */
+const arcShare = (plan: IAutoMovieHumanLimbPlan, i: number): number => {
+  let to: number = 0;
+  let total: number = 0;
+  plan.stations.forEach((s: IAutoMovieHumanLimbPlan.IStation, k: number): void => {
+    if (k === 0) return;
+    const d: number = Math.hypot(
+      s.centre.x - plan.stations[k - 1]!.centre.x,
+      s.centre.y - plan.stations[k - 1]!.centre.y,
+      s.centre.z - plan.stations[k - 1]!.centre.z,
+    );
+    total += d;
+    if (k <= i) to += d;
+  });
+  return to / total;
+};
+
 /**
  * Arm from mid upper arm to the wrist, with the elbow: one sweep along the humerus and forearm bones, lofted through thirteen stations.
  *
@@ -47,9 +64,16 @@ export class AutoMovieHumanArmGenerator implements IAutoMovieHumanPartGenerator<
     const limb: (u: number, v: number) => number = fieldAutoMovieHumanLimbRelief(
       plan,
       networkAutoMovieHumanLimb(plan).value,
-    );
+    ).at;
     const deltoid = fieldAutoMovieHumanDeltoid(props);
-    return (point: IAutoMovieHumanPartGenerator.IReliefPoint<"arm">): number =>
-      limb(point.coordinate.u, point.coordinate.v) + deltoid(point.position);
+    // the shoulder branch does not read the deltoid yet, so the arm takes it in over the rows next to the ring instead of stepping at the ring
+    const start: number = plan.stations[2]!.rows > 0 ? arcShare(plan, 2) : 0;
+    return (point: IAutoMovieHumanPartGenerator.IReliefPoint<"arm">): number => {
+      const t: number = Math.min(1, Math.max(0, point.coordinate.u / start));
+      return (
+        limb(point.coordinate.u, point.coordinate.v) +
+        t * t * (3 - 2 * t) * deltoid(point.position)
+      );
+    };
   }
 }
