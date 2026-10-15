@@ -12,8 +12,8 @@ const discover = (dir: string): string[] =>
         : [];
   });
 const files = discover(root).sort((a, b) => a.localeCompare(b));
-let tests = 0,
-  failures = 0;
+let tests = 0;
+let failures = 0;
 if (!files.length) {
   failures++;
   console.error("NO TEST FILES");

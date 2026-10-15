@@ -1,7 +1,8 @@
-import { Assembly, v } from "../assembly";
-import { datum } from "../plan";
-import { slabTop } from "../storeys/floors";
-import { cutWall } from "../walls";
+import { Assembly } from "../Assembly";
+import { v } from "../v";
+import { datum } from "../datum";
+import { slabTop } from "../storeys/slabTop";
+import { cutWall } from "../cutWall";
 
 /** One switchback, two flights and their shared landing. Step dimensions belong
  * to these solids; connector.steps is omitted because its run is the entire

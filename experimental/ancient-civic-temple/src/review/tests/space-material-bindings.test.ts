@@ -2,8 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import type { IAutoMovieBuiltEnvironment } from "@automovie/interface";
 
-import { bindTempleMaterials, templeModelFinish, templeSpaceFinish } from "../../materials/bindings";
-import { createTempleEnvironment } from "../../spaces/environment";
+import { bindTempleMaterials } from "../../materials/bindTempleMaterials";
+import { templeModelFinish } from "../../materials/templeModelFinish";
+import { templeSpaceFinish } from "../../materials/templeSpaceFinish";
+import { createTempleEnvironment } from "../../spaces/createTempleEnvironment";
 
 /**
  * Pin refusal of undeclared surfaces and inherited object/part keys while current emitted faces remain bound.

@@ -4,8 +4,8 @@ import { readFile, readdir } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { dirname, resolve } from "node:path";
 import { parseArgs } from "node:util";
-import { createViewerPayload } from "./payload";
-import { materialStates } from "../materials/007-observation";
+import { createViewerPayload } from "./createViewerPayload";
+import { materialStates } from "../materials/materialStates";
 
 const productionRoot = resolve(__dirname, "../..");
 

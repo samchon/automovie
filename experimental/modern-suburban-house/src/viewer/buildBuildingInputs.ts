@@ -3,16 +3,21 @@ import { linearColorToSrgbHex } from "@automovie/engine";
 import type { IAutoMovieBuiltEnvironment } from "@automovie/interface";
 
 import { ArchitecturalFitout } from "../instances/ArchitecturalFitout";
-import { Baseboards } from "../instances/baseboards";
-import { ExteriorDoorFills } from "../instances/exterior-door-fills";
-import { ExteriorRepetition } from "../instances/exterior-repetition";
-import { ExteriorEdges } from "../instances/exterior-repetition-edges";
-import { InteriorDoorFills } from "../instances/interior-door-fills";
-import { FixedLightFixtures } from "../instances/lighting-fixtures";
-import { OpeningWindowFills } from "../instances/opening-fills";
-import { buildingModelFinish } from "../materials/model-bindings";
-import type { IHouse } from "../spaces/house";
-import type { IViewerModelInputs } from "./modelScene.js";
+import { Baseboards } from "../instances/Baseboards";
+import { ExteriorDoorFills } from "../instances/ExteriorDoorFills";
+import { ExteriorRepetition } from "../instances/ExteriorRepetition";
+import { ExteriorEdges } from "../instances/ExteriorEdges";
+import { InteriorDoorFills } from "../instances/InteriorDoorFills";
+import { FixedLightFixtures } from "../instances/FixedLightFixtures";
+import { OpeningWindowFills } from "../instances/OpeningWindowFills";
+import { buildingModelFinish } from "../materials/buildingModelFinish";
+import type { IHouse } from "../spaces/IHouse";
+import type { IViewerModelInputs } from "./IViewerModelInputs";
+import type { Face } from "../geometry/Face";
+import type { Instance } from "../instances/Instance";
+import type { Model } from "../instances/Model";
+import type { FittingBuilt } from "../models/furnishings/FittingBuilt";
+import type { HouseFinish } from "../materials/HouseFinish";
 
 /**
  * Build fresh authored model prototypes, world-metre placements and per-face finishes for the house viewer.
@@ -32,20 +37,20 @@ export function buildBuildingInputs(
     environment,
     inspectionPose === "maximum-opposite" ? "maximum" : inspectionPose,
   );
-  const exteriorDoors: { prototypes: ({ model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, import("../geometry/exterior-door-geometry").Face>>; } | { model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, "sash" | "glass" | "exterior-trim" | "leaf-panel" | "jamb" | "leaf-exterior" | "leaf-interior" | "panel-edge" | "rail">>; joints: readonly Readonly<{ z: number; y: number; }>[]; } | { model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, "leaf-panel" | "handle" | "hinge" | "gate-batten">>; })[]; instances: { id: string; modelId: string; transform: import("@automovie/engine").IAutoMovieMeshTransform; }[]; } = new ExteriorDoorFills().build(environment, maximum);
+  const exteriorDoors: { prototypes: ({ model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, Face>>; } | { model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, "sash" | "glass" | "exterior-trim" | "leaf-panel" | "jamb" | "leaf-exterior" | "leaf-interior" | "panel-edge" | "rail">>; joints: readonly Readonly<{ z: number; y: number; }>[]; } | { model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, "leaf-panel" | "handle" | "hinge" | "gate-batten">>; })[]; instances: { id: string; modelId: string; transform: import("@automovie/engine").IAutoMovieMeshTransform; }[]; } = new ExteriorDoorFills().build(environment, maximum);
   const repetition: ExteriorRepetition = new ExteriorRepetition();
-  const siding: { models: import("../instances/exterior-repetition-geometry").Model[]; instances: import("../instances/exterior-repetition-geometry").Instance[]; } = repetition.buildSiding(house);
-  const shingles: { models: import("../instances/exterior-repetition-geometry").Model[]; instances: import("../instances/exterior-repetition-geometry").Instance[]; } = repetition.buildShingles(house);
+  const siding: { models: Model[]; instances: Instance[]; } = repetition.buildSiding(house);
+  const shingles: { models: Model[]; instances: Instance[]; } = repetition.buildShingles(house);
   const edges: ExteriorEdges = new ExteriorEdges();
-  const cornerTrim: { models: import("../instances/exterior-repetition-geometry").Model[]; instances: import("../instances/exterior-repetition-geometry").Instance[]; } = edges.buildCornerTrim();
-  const ridgeCaps: { models: import("../instances/exterior-repetition-geometry").Model[]; instances: import("../instances/exterior-repetition-geometry").Instance[]; } = edges.buildRidgeCaps();
-  const gutters: { models: import("../instances/exterior-repetition-geometry").Model[]; instances: import("../instances/exterior-repetition-geometry").Instance[]; } = edges.buildGutters(house);
+  const cornerTrim: { models: Model[]; instances: Instance[]; } = edges.buildCornerTrim();
+  const ridgeCaps: { models: Model[]; instances: Instance[]; } = edges.buildRidgeCaps();
+  const gutters: { models: Model[]; instances: Instance[]; } = edges.buildGutters(house);
   const fitout: { prototypes: { model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, string>>; }[]; instances: { id: string; modelId: string; transform: import("@automovie/engine").IAutoMovieMeshTransform; }[]; } = new ArchitecturalFitout().build(
     house,
     maximum,
     inspectionPose === "maximum-opposite",
   );
-  const lightFixtures: { prototypes: import("../models/furnishings/geometry").FittingBuilt[]; instances: { id: string; modelId: string; transform: import("@automovie/engine").IAutoMovieMeshTransform; }[]; } = new FixedLightFixtures().build(house);
+  const lightFixtures: { prototypes: FittingBuilt[]; instances: { id: string; modelId: string; transform: import("@automovie/engine").IAutoMovieMeshTransform; }[]; } = new FixedLightFixtures().build(house);
   const baseboards: { prototypes: { model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, string>>; }[]; instances: { id: string; modelId: string; transform: import("@automovie/engine").IAutoMovieMeshTransform; }[]; } = new Baseboards().build(
     house,
     [
@@ -91,7 +96,7 @@ export function buildBuildingInputs(
       const faceId: string = faceByPart[part.id];
       if (faceId === undefined)
         throw new Error(`model ${model.id}/${part.id} lacks an authored face`);
-      const finish: import("../materials/finish").HouseFinish = buildingModelFinish(model.id, faceId);
+      const finish: HouseFinish = buildingModelFinish(model.id, faceId);
       const material: import("@automovie/interface").IAutoMovieMaterial = finish.material;
       const hex: string = linearColorToSrgbHex(material.baseColor);
       finishes[`${model.id}/${faceId}`] = {

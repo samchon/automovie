@@ -2,18 +2,18 @@
 import { strict as assert } from "node:assert";
 import { test } from "node:test";
 
-import { buildingModelFinish } from "../materials/model-bindings";
-import { Closet } from "../models/closet";
-import { ExteriorDoor } from "../models/exterior-door";
-import { AsphaltShingle } from "../models/exterior/shingle";
-import { Siding } from "../models/exterior/siding";
-import { ExteriorCornerTrim } from "../models/exterior/trim";
-import { GarageDoor } from "../models/garage-door";
-import { InteriorDoor } from "../models/interior-door";
-import { Baseboard } from "../models/interior/baseboard";
-import { StairBaluster } from "../models/stair-baluster";
-import { StairSkirt } from "../models/stair-skirt";
-import { Windows } from "../models/windows";
+import { buildingModelFinish } from "../materials/buildingModelFinish";
+import { Closet } from "../models/Closet";
+import { ExteriorDoor } from "../models/ExteriorDoor";
+import { AsphaltShingle } from "../models/exterior/AsphaltShingle";
+import { Siding } from "../models/exterior/Siding";
+import { ExteriorCornerTrim } from "../models/exterior/ExteriorCornerTrim";
+import { GarageDoor } from "../models/GarageDoor";
+import { InteriorDoor } from "../models/InteriorDoor";
+import { Baseboard } from "../models/interior/Baseboard";
+import { StairBaluster } from "../models/StairBaluster";
+import { StairSkirt } from "../models/StairSkirt";
+import { Windows } from "../models/Windows";
 
 type Built = {
   model: { id: string; parts: readonly { id: string }[] };

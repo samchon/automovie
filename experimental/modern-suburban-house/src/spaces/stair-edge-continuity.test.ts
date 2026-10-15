@@ -5,9 +5,9 @@ const require: NodeJS.Require = createRequire(import.meta.url);
 require(require.resolve("tsx/cjs"));
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildHouse } from "./house";
-import { STAIR_OPENING } from "./stair";
-import { STOREYS } from "./storeys";
+import { buildHouse } from "./buildHouse";
+import { STAIR_OPENING } from "./STAIR_OPENING";
+import { STOREYS } from "./STOREYS";
 
 const EPS = 1e-6;
 const edges: Array<[string, number, number, number, [number, number]]> = [

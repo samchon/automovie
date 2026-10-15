@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { auditStatuses, runAudit } from "../audit-all.js";
+import { runAudit } from "../runAudit.js";
+import { auditStatuses } from "../auditStatuses.js";
 
 void test("audit sums failures and still runs every gate", () => {
   assert.equal(auditStatuses([0, 1, 0, 2]), 2);

@@ -1,8 +1,8 @@
 /** Inward static opening preserves each actual model hinge at its threshold. */
 import assert from "node:assert/strict";
 import test from "node:test";
-import { templeOpenDoorPlacement } from "../../geometry/door-placement";
-import { templeDoorPassages } from "../../spaces/openings";
+import { templeOpenDoorPlacement } from "../../geometry/templeOpenDoorPlacement";
+import { templeDoorPassages } from "../../spaces/templeDoorPassages";
 
 void test("both double leaves open into the entrance or sanctuary and preserve their hinges", () => {
   for (const door of templeDoorPassages.filter((entry) => entry.axis === "x")) {

@@ -1,9 +1,9 @@
 /** Authored oak binding and seamless grain remain distinct from white trim. */
 import assert from "node:assert/strict";
 import test from "node:test";
-import {buildingModelFinish} from "../materials/model-bindings";
-import {ServiceRooms} from "../models/furnishings/service-rooms";
-import {furnitureOakSample} from "../materials/furnishings/wood-grain.js";
+import {buildingModelFinish} from "../materials/buildingModelFinish";
+import {ServiceRooms} from "../models/furnishings/ServiceRooms";
+import {furnitureOakSample} from "../materials/furnishings/furnitureOakSample.js";
 
 void test("every pantry shelf and cleat resolves to the canonical oil-finished oak",()=>{
   const built=new ServiceRooms().pantryShelves();

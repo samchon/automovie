@@ -9,9 +9,9 @@
  * Loading failure clears the scene and displays the error.
  */
 import * as THREE from "three";
-import type { ViewerPayload } from "./payload";
-import type { SectionPayload } from "./section";
-import type { ReviewPayload } from "../review/review-payload";
+import type { ViewerPayload } from "./ViewerPayload";
+import type { SectionPayload } from "./SectionPayload";
+import type { ReviewPayload } from "../review/ReviewPayload";
 import type { IAncientTempleViewer } from "./IAncientTempleViewer";
 interface LoadedTemple extends ReturnType<typeof uploadTemple> {
   payload: ViewerPayload;
@@ -24,9 +24,12 @@ interface TempleSectionRequest { axis: "x" | "z"; offset: number; flip: boolean;
 interface SectionShown { key: string; pieces: number; }
 interface Point3 { x: number; y: number; z: number; }
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { createTemplePresentation } from "./daylight";
-import { isTempleRoofCovering } from "./inspection-visibility";
-import { disposeTree, loadTempleTextures, uploadSupports, uploadTemple } from "./scene";
+import { createTemplePresentation } from "./createTemplePresentation";
+import { isTempleRoofCovering } from "./isTempleRoofCovering";
+import { uploadTemple } from "./uploadTemple";
+import { disposeTree } from "./disposeTree";
+import { uploadSupports } from "./uploadSupports";
+import { loadTempleTextures } from "./loadTempleTextures";
 
 /** @typedef {import("./payload.js").ViewerPayload} Payload */
 /** @typedef {Payload["observations"][number]} Observation */
@@ -375,7 +378,7 @@ function applyInspection() {
   renderer.clippingPlanes = on && section.value === "plan-cut" ? [planCut] : cutting ? [verticalCut] : [];
   if (cutting && cut.axis !== null) {
     loadSection({ axis: cut.axis, offset: cut.offset, flip: cut.flip })
-      .catch((error) => fail(error instanceof Error ? error.message : String(error)));
+      .catch((error: unknown) => fail(error instanceof Error ? error.message : String(error)));
   }
   for (const mesh of current.meshes) {
     const model = String(mesh.userData.model);
@@ -432,7 +435,7 @@ for (const input of [inspection, section, owners, supportsToggle, sectionOffset,
 }
 reset.addEventListener("click", () => selectStation(station?.id ?? "exterior.setting"));
 reviewLoad.addEventListener("click", () => {
-  loadReview().catch((error) => { reviewOutput.textContent = `Review failed: ${error instanceof Error ? error.message : String(error)}`; });
+  loadReview().catch((error: unknown) => { reviewOutput.textContent = `Review failed: ${error instanceof Error ? error.message : String(error)}`; });
 });
 
 /** Show /review measurements from the self-check producer as text alongside colors. */
@@ -497,4 +500,4 @@ if (params.get("flip") === "1") sectionFlip.checked = true;
 if (params.get("ortho") === "1") sectionOrtho.checked = true;
 if (params.get("span") !== null) sectionSpan.value = String(params.get("span"));
 requestAnimationFrame(frame);
-load().catch((error) => fail(error instanceof Error ? error.stack ?? error.message : String(error)));
+load().catch((error: unknown) => fail(error instanceof Error ? error.stack ?? error.message : String(error)));

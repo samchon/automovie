@@ -2,16 +2,17 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
-import { TempleColumns } from "../../models/columns";
-import { TempleCladding } from "../../models/cladding";
-import { TempleEntablature } from "../../models/entablature";
-import { TempleLandscape } from "../../models/landscape";
-import { TempleOpenings } from "../../models/openings";
-import { templeModelFinish } from "../../materials/bindings";
-import { templePlan } from "../../spaces/building";
-import { templeClerestories, templeDoorPassages } from "../../spaces/openings";
-import { templeRoofRules } from "../../spaces/roofs/assembly";
-import { createModelBoardPayload } from "../../viewer/model-board-payload";
+import { TempleColumns } from "../../models/TempleColumns";
+import { TempleCladding } from "../../models/TempleCladding";
+import { TempleEntablature } from "../../models/TempleEntablature";
+import { TempleLandscape } from "../../models/TempleLandscape";
+import { TempleOpenings } from "../../models/TempleOpenings";
+import { templeModelFinish } from "../../materials/templeModelFinish";
+import { templePlan } from "../../spaces/templePlan";
+import { templeClerestories } from "../../spaces/templeClerestories";
+import { templeDoorPassages } from "../../spaces/templeDoorPassages";
+import { templeRoofRules } from "../../spaces/roofs/templeRoofRules";
+import { createModelBoardPayload } from "../../viewer/createModelBoardPayload";
 
 const partMesh=(model:IAutoMovieModel,id:string):IAutoMovieMesh=>{
   const part=model.parts.find((item)=>item.id===id);

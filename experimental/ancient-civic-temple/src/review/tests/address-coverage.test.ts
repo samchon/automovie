@@ -1,14 +1,24 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { IAutoMovieBuiltEnvironment } from "@automovie/interface";
-import { identityTransform, surfaceModel } from "../../geometry/model-parts";
-import { rectanglePolygon } from "../../geometry/planar-domain";
-import { levelPlane, prismFaces } from "../../geometry/prism";
-import { levelCell } from "../../geometry/spatial-cells";
-import { wallFaces, type WallSpec } from "../../geometry/wall-solids";
-import { addressCoverageCensus, pointInOutline, rayIntersectsBounds, rayTriangle, reachesExterior, type Triangle } from "../address-coverage";
-import { exposedAddressExceptionFor, exposedAddressExceptions } from "../address-exceptions";
-import { ownFacadeFailures, type OwnFacadeRow } from "../own-facade-view";
+import { surfaceModel } from "../../geometry/surfaceModel";
+import { identityTransform } from "../../geometry/identityTransform";
+import { rectanglePolygon } from "../../geometry/rectanglePolygon";
+import { prismFaces } from "../../geometry/prismFaces";
+import { levelPlane } from "../../geometry/levelPlane";
+import { levelCell } from "../../geometry/levelCell";
+import { wallFaces } from "../../geometry/wallFaces";
+import { type WallSpec } from "../../geometry/WallSpec";
+import { addressCoverageCensus } from "../addressCoverageCensus";
+import { reachesExterior } from "../reachesExterior";
+import { rayIntersectsBounds } from "../rayIntersectsBounds";
+import { pointInOutline } from "../pointInOutline";
+import { rayTriangle } from "../rayTriangle";
+import { type Triangle } from "../Triangle";
+import { exposedAddressExceptions } from "../exposedAddressExceptions";
+import { exposedAddressExceptionFor } from "../exposedAddressExceptionFor";
+import { ownFacadeFailures } from "../ownFacadeFailures";
+import { type OwnFacadeRow } from "../OwnFacadeRow";
 
 const wall: WallSpec = {
   id: "wall.fixture", owner: "fixture", axis: "x", bottom: 0,

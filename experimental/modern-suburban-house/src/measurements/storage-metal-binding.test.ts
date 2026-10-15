@@ -1,7 +1,7 @@
 /** Reused rod/rail IDs resolve to bare storage metal while handles keep their coating. */
 import assert from "node:assert/strict";
 import test from "node:test";
-import { buildingModelFinish } from "../materials/model-bindings";
+import { buildingModelFinish } from "../materials/buildingModelFinish";
 
 void test("storage rods and rails resolve uniquely to the declared stainless finish",()=>{
   for(const model of ["closet:entry-coat-storage","closet:upper-linen-storage","fitting:bedroom-sliding-closet"])

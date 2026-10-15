@@ -3,7 +3,7 @@
  *
  * Responsibility: name the transient JSON that server.ts writes at GET /scene and the native client consumes. The native response is not persisted as authoring state; Website scene export separately wraps the house payload in its generated compressed transport.
  *
- * Producers include calibration.ts and buildHouseScene.ts, with model and material inspection payloads selected by the native server. The native client, shared scene uploader and Website payload boundary consume this erased TypeScript shape; no runtime implementation is exported by this module. Native client serving and the Website Vite build are separate module-loading paths.
+ * Producers include buildCalibrationScene and buildHouseScene, with model and material inspection payloads selected by the native server. The native client, shared scene uploader and Website payload boundary consume this erased TypeScript shape; no runtime implementation is exported by this module. Native client serving and the Website Vite build are separate module-loading paths.
  *
  * Units follow settings `coordinate-units`: right-handed Y-up, meters, degrees only where a field name says `Deg`. Colors are sRGB hex integers; the client converts them to linear working color through three.js color management.
  */
@@ -67,7 +67,7 @@ export interface IViewerScene {
   sectionX?: number;
 
   /**
- * Self-space observation poses derived by `src/spaces/observations.ts`, for the `observe=<id>` inspection query; absent for the calibration scene.
+ * Self-space observation poses derived by `deriveHouseObservations`, for the `observe=<id>` inspection query; absent for the calibration scene.
  */
   observations?: {
     id: string;

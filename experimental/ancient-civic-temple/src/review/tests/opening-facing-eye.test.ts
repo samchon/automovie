@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { IAutoMovieBuiltSpace } from "@automovie/interface";
-import { levelCell } from "../../geometry/spatial-cells";
-import { openingFacingEye } from "../../spaces/perimeter-observations";
+import { levelCell } from "../../geometry/levelCell";
+import { openingFacingEye } from "../../spaces/openingFacingEye";
 
 const room = (west: number, east: number): IAutoMovieBuiltSpace => ({
   id: "room", kind: "room", parent: "floor", fidelity: "exact",

@@ -4,7 +4,7 @@ import { createRequire } from "node:module";
 
 const require: NodeJS.Require = createRequire(import.meta.url);
 require(require.resolve("tsx/cjs"));
-import { buildHouse } from "../spaces/house";
+import { buildHouse } from "../spaces/buildHouse";
 const parts = buildHouse().parts.filter((p) => p.role === "paving");
 type P = { x:number;y:number;z:number };
 type Mesh = { positions:ArrayLike<number>;indices?:ArrayLike<number>|null };

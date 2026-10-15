@@ -10,10 +10,10 @@
  */
 import assert from "node:assert/strict";
 import { builtEnvironmentElementBounds } from "@automovie/engine";
-import { buildHouse } from "../house/build";
-import { exteriorFrame } from "../house/envelope/facade";
-import { datum } from "../house/plan";
-import { foundationBottom } from "../house/storeys/ground";
+import { buildHouse } from "../house/buildHouse";
+import { exteriorFrame } from "../house/envelope/exteriorFrame";
+import { datum } from "../house/datum";
+import { foundationBottom } from "../house/storeys/foundationBottom";
 type Bounds = NonNullable<ReturnType<typeof builtEnvironmentElementBounds>>;
 
 const environment: ReturnType<typeof buildHouse> = buildHouse();

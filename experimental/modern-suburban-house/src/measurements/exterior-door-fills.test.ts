@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { buildHouseEnvironment } from "../spaces/environment";
-import { ExteriorDoorFills } from "../instances/exterior-door-fills";
-import { OpeningWindowFills } from "../instances/opening-fills";
+import { buildHouseEnvironment } from "../spaces/buildHouseEnvironment";
+import { ExteriorDoorFills } from "../instances/ExteriorDoorFills";
+import { OpeningWindowFills } from "../instances/OpeningWindowFills";
 import { validateMeshTopology } from "@automovie/engine";
 
 const environment = buildHouseEnvironment();

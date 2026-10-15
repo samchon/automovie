@@ -1,6 +1,17 @@
-import { Assembly } from "../assembly";
-import { datum } from "../plan";
-import { Item, lining, bed, cabinet, desk, chair, plant, lights } from "./interior";
+import { Assembly } from "../Assembly";
+import { datum } from "../datum";
+import { desk } from "./desk";
+import { lights } from "./lights";
+import { plant } from "./plant";
+import { bed } from "./bed";
+import { cabinet } from "./cabinet";
+import { chair } from "./chair";
+import { Item } from "./Item";
+import { lining } from "./lining";
+/**
+ * Line and furnish the primary bedroom: bed with nightstands and lamps, wardrobe, desk, chair,
+ * plant and lights.
+ */
 export function primary(a: Assembly): void {
   const r = "primary-bedroom"; lining(a, r);
   bed(new Item(a, "primary-bed", r, 2.88, datum.floors[1], 4.32), 1.8, "linen");

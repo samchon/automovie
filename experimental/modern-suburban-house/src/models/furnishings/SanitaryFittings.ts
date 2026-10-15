@@ -1,5 +1,7 @@
 /** Fixed toilets and wall mirrors; metres and local +Z toward the room. */
-import { FittingParts, type FittingBuilt, type FittingPoint } from "./geometry";
+import { FittingParts } from "./FittingParts";
+import { type FittingBuilt } from "./FittingBuilt";
+import { type FittingPoint } from "./FittingPoint";
 import type {IAutoMovieNode} from "@automovie/interface";
 
 /**

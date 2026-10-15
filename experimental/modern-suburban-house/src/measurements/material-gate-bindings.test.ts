@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { Gate } from "../models/gate";
-import { buildingModelFinish } from "../materials/model-bindings";
+import { Gate } from "../models/Gate";
+import { buildingModelFinish } from "../materials/buildingModelFinish";
 
 void test("side-yard gate boards and steel hardware bind without collisions", () => {
   const { model, faceByPart } = new Gate().build(-0.45);

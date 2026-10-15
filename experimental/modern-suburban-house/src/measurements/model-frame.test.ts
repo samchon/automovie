@@ -11,14 +11,16 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { OrthographicCamera, PerspectiveCamera, Vector3 } from "three";
 
-import { Frame } from "../models/frame";
+import { Frame } from "../models/Frame";
 import {
-  type FittingBuilt,
   FittingParts,
-} from "../models/furnishings/geometry";
+} from "../models/furnishings/FittingParts";
+import { type FittingBuilt } from "../models/furnishings/FittingBuilt";
 import { SanitaryFittings } from "../models/furnishings/SanitaryFittings";
-import { ServiceRooms } from "../models/furnishings/service-rooms";
-import type { IViewerModelInputs } from "../viewer/modelScene.js";
+import { ServiceRooms } from "../models/furnishings/ServiceRooms";
+import type { IViewerModelInputs } from "../viewer/IViewerModelInputs";
+import type { IViewerScene } from "../viewer/IViewerScene";
+import type { IViewerSceneItem } from "../viewer/IViewerSceneItem";
 
 const input: (built: FittingBuilt) => IViewerModelInputs = (built: FittingBuilt): IViewerModelInputs => ({
   prototypes: [built],
@@ -33,7 +35,7 @@ const input: (built: FittingBuilt) => IViewerModelInputs = (built: FittingBuilt)
 
 void test("front orthographic review preserves height, UVs, face identities and the full human scale", () : void => {
   const built: FittingBuilt = new SanitaryFittings().toilet(),
-    scene: import("../viewer/IViewerScene").IViewerScene = new Frame().build(
+    scene: IViewerScene = new Frame().build(
       input(built),
       built.model.id,
       "front",
@@ -44,7 +46,7 @@ void test("front orthographic review preserves height, UVs, face identities and 
   assert.equal(scene.camera.target[1], 1.9 / 2);
   assert.ok(scene.camera.target[1] - scene.camera.orthographicSpan / 2 < 0);
   assert.equal(scene.sectionX, undefined);
-  const parts: import("../viewer/IViewerSceneItem").IViewerSceneItem[] = scene.items.filter((i: import("../viewer/IViewerSceneItem").IViewerSceneItem) : boolean => i.role === "model");
+  const parts: IViewerSceneItem[] = scene.items.filter((i: IViewerSceneItem) : boolean => i.role === "model");
   assert.equal(parts.length, built.model.parts.length);
   for (const [j, part] of parts.entries()) {
     const source: import("@automovie/interface").IAutoMovieGeometry = built.model.parts[j]!.geometry;
@@ -54,7 +56,7 @@ void test("front orthographic review preserves height, UVs, face identities and 
     assert.equal(part.faceId, built.faceByPart[built.model.parts[j]!.id]);
     assert.equal(part.inspectionFace, undefined);
   }
-  const human: import("../viewer/IViewerSceneItem").IViewerSceneItem = scene.items.find((i: import("../viewer/IViewerSceneItem").IViewerSceneItem) : boolean => i.role === "reference")!,
+  const human: IViewerSceneItem = scene.items.find((i: IViewerSceneItem) : boolean => i.role === "reference")!,
     ys: number[] = human.positions.filter((_: number, i: number) : boolean => i % 3 === 1);
   assert.equal(Math.max(...ys) - Math.min(...ys), 1.9);
 });
@@ -62,16 +64,16 @@ void test("front orthographic review preserves height, UVs, face identities and 
 void test("the world-anchored slab uses its authored front yaw while overlay changes only appearance", () : void => {
   const built: FittingBuilt = new ServiceRooms().laundryTop(),
     frames: Frame = new Frame();
-  const actual: import("../viewer/IViewerScene").IViewerScene = frames.build(
+  const actual: IViewerScene = frames.build(
       input(built),
       built.model.id,
       "front",
       false,
       "b",
     ),
-    overlay: import("../viewer/IViewerScene").IViewerScene = frames.build(input(built), built.model.id, "front", true, "b");
+    overlay: IViewerScene = frames.build(input(built), built.model.id, "front", true, "b");
   for (const [j, item] of actual.items.entries()) {
-    const marked: import("../viewer/IViewerSceneItem").IViewerSceneItem = overlay.items[j]!;
+    const marked: IViewerSceneItem = overlay.items[j]!;
     assert.deepEqual(marked.positions, item.positions);
     assert.deepEqual(marked.normals, item.normals);
     assert.deepEqual(marked.uvs, item.uvs);
@@ -80,13 +82,13 @@ void test("the world-anchored slab uses its authored front yaw while overlay cha
       assert.equal(marked.transmission, 0);
     }
   }
-  const top: import("../viewer/IViewerSceneItem").IViewerSceneItem = actual.items.find((i: import("../viewer/IViewerSceneItem").IViewerSceneItem) : boolean => i.faceId === "top")!,
+  const top: IViewerSceneItem = actual.items.find((i: IViewerSceneItem) : boolean => i.faceId === "top")!,
     xs: number[] = top.positions.filter((_: number, i: number) : boolean => i % 3 === 0);
   assert.ok(Math.abs(Math.max(...xs) - Math.min(...xs) - 1.3) < 1e-10);
   const colors: Map<string | undefined, number> = new Map(
     overlay.items
-      .filter((i: import("../viewer/IViewerSceneItem").IViewerSceneItem) : boolean => i.role === "model")
-      .map((i: import("../viewer/IViewerSceneItem").IViewerSceneItem) : [string | undefined, number] => [i.faceId, i.color]),
+      .filter((i: IViewerSceneItem) : boolean => i.role === "model")
+      .map((i: IViewerSceneItem) : [string | undefined, number] => [i.faceId, i.color]),
   );
   assert.equal(new Set(colors.values()).size, colors.size);
 });
@@ -95,12 +97,12 @@ void test("side section keeps the entire scale body behind its plane and diagona
   const built: FittingBuilt = new SanitaryFittings().toilet(),
     f: Frame = new Frame(),
     i: IViewerModelInputs = input(built);
-  const side: import("../viewer/IViewerScene").IViewerScene = f.build(i, built.model.id, "side", false, "b");
+  const side: IViewerScene = f.build(i, built.model.id, "side", false, "b");
   assert.equal(side.sectionX, 0);
   assert.ok(side.camera.orthographicSpan);
-  const human: import("../viewer/IViewerSceneItem").IViewerSceneItem = side.items.find((p: import("../viewer/IViewerSceneItem").IViewerSceneItem) : boolean => p.role === "reference")!;
+  const human: IViewerSceneItem = side.items.find((p: IViewerSceneItem) : boolean => p.role === "reference")!;
   assert.ok(human.positions.filter((_: number, j: number) : boolean => j % 3 === 0).every((x: number) : boolean => x < 0));
-  const diagonal: import("../viewer/IViewerScene").IViewerScene = f.build(i, built.model.id, "diagonal", false, "b");
+  const diagonal: IViewerScene = f.build(i, built.model.id, "diagonal", false, "b");
   assert.equal(diagonal.camera.position[1], 1.6);
   assert.equal(diagonal.camera.fovDeg, 45);
   assert.equal(diagonal.camera.orthographicSpan, undefined);
@@ -131,12 +133,12 @@ void test("review refuses an unknown or empty model instead of producing an empt
   const built: FittingBuilt = new SanitaryFittings().toilet(),
     f: Frame = new Frame();
   assert.throws(
-    () : import("../viewer/IViewerScene").IViewerScene => f.build(input(built), "absent", "front", false, "b"),
+    () : IViewerScene => f.build(input(built), "absent", "front", false, "b"),
     /unknown review model/,
   );
   const empty: typeof built = { ...built, model: { ...built.model, parts: [] } };
   assert.throws(
-    () : import("../viewer/IViewerScene").IViewerScene => f.build(input(empty), built.model.id, "front", false, "b"),
+    () : IViewerScene => f.build(input(empty), built.model.id, "front", false, "b"),
     /empty review model/,
   );
 });
@@ -147,7 +149,7 @@ void test("orthographic views fit a broad and deep solid plus its full scale ref
   const built: FittingBuilt = parts.finish("wide-deep"),
     basis: string = JSON.stringify(built);
   for (const view of ["front", "side"] as const) {
-    const scene: import("../viewer/IViewerScene").IViewerScene = new Frame().build(
+    const scene: IViewerScene = new Frame().build(
       input(built),
       built.model.id,
       view,

@@ -1,8 +1,8 @@
 /** Thresholds preserve their eye and use an inward normal rather than a blocked diagonal. */
 import assert from "node:assert/strict";
 import test from "node:test";
-import { templeThresholdTarget } from "../../geometry/threshold-view";
-import { templeDoorPassages } from "../../spaces/openings";
+import { templeThresholdTarget } from "../../geometry/templeThresholdTarget";
+import { templeDoorPassages } from "../../spaces/templeDoorPassages";
 
 void test("every door's two arrival sides look straight away from the host wall", () => {
   for (const door of templeDoorPassages) for (const side of [-1, 1]) {

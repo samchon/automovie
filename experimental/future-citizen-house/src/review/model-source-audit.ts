@@ -14,7 +14,7 @@ import fs from "node:fs";
 
 import path from "node:path";
 
-import { modelMaterialFor } from "../materials/model-bindings";
+import { modelMaterialFor } from "../materials/modelMaterialFor";
 
 /** Each discovered module is expected to expose the same authored catalog/build API. */
 type ModelOwner = Pick<typeof import("../models/Models001").Models001, "catalog" | "build">;

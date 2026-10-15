@@ -1,5 +1,5 @@
 /**
- * src/geometry/face-bands.ts: roof-line bands on vertical faces and horizontal-face splitting.
+ * splitVerticalFace and splitAtLevel: roof-line bands on vertical faces and horizontal-face splitting.
  * Fixtures: a horizontal roof line crossing a face (three convex bands), a
  * sloping roof line crossing the upper edge (extra cut point), omitted empty
  * ownership bands, non-quadrilateral faces (passed through), horizontal faces
@@ -10,8 +10,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { splitAtLevel, splitVerticalFace } from "../../geometry/face-bands";
-import { faceArea, near, v } from "./fixtures";
+import { splitVerticalFace } from "../../geometry/splitVerticalFace";
+import { splitAtLevel } from "../../geometry/splitAtLevel";
+import { faceArea } from "./faceArea";
+import { near } from "./near";
+import { v } from "./v";
 
 const owners = { below: "below", within: "within", above: "above" };
 /** Prism side-face order [a-bottom, a-top, b-top, b-bottom]; x 0..4, y 0..5, z=0 plane. */

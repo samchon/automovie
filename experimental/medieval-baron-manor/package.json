@@ -33,7 +33,7 @@
     "plugins": [
       {
         "transform": "@ttsc/lint",
-        "configFile": "src/source.lint.config.ts"
+        "configFile": "source.lint.config.ts"
       }
     ],
     "allowJs": true

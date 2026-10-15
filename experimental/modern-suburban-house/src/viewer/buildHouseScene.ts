@@ -21,10 +21,10 @@
  * maps input that is not authored (maps disabled); this plane is viewer
  * context so shadows and contact read, and it is not a spaces or maps result.
  */
-import { HouseLighting } from "../systems/lighting";
-import { WallTilePartitions } from "../materials/wall-tile-partitions";
-import { wallTile } from "../materials/interior/tile";
-import { PALETTE } from "../spaces/palette";
+import { HouseLighting } from "../systems/HouseLighting";
+import { WallTilePartitions } from "../materials/WallTilePartitions";
+import { wallTile } from "../materials/interior/wallTile";
+import { PALETTE } from "../spaces/PALETTE";
 import {
   linearColorToSrgbHex,
   lowerBuiltEnvironment,
@@ -32,13 +32,19 @@ import {
   transformAutoMovieMesh,
 } from "@automovie/engine";
 
-import { buildHouseEnvironment } from "../spaces/environment";
-import { buildHouse } from "../spaces/house";
-import { buildObservationViews } from "./observationViews.js";
+import { buildHouseEnvironment } from "../spaces/buildHouseEnvironment";
+import { buildHouse } from "../spaces/buildHouse";
+import { buildObservationViews } from "./buildObservationViews.js";
 import { buildBuildingInputs } from "./buildBuildingInputs.js";
-import { houseFinish, houseTextureUvs, houseWallFinishGroups } from "./materialPreview";
-import { lowerViewerModels, type IViewerModelInputs } from "./modelScene.js";
+import { houseWallFinishGroups } from "./houseWallFinishGroups";
+import { houseTextureUvs } from "./houseTextureUvs";
+import { houseFinish } from "./houseFinish";
+import { lowerViewerModels } from "./lowerViewerModels.js";
+import { type IViewerModelInputs } from "./IViewerModelInputs";
 import type { IViewerScene, IViewerSceneItem } from "./scenePayload";
+import type { IHouse } from "../spaces/IHouse";
+import type { IHousePart } from "../types/IHousePart";
+import type { HousePreviewFinish } from "./HousePreviewFinish";
 
 /** Neutral reference ground, viewer-owned. */
 const referenceGround: () => IViewerSceneItem = (): IViewerSceneItem => {
@@ -80,13 +86,13 @@ export function buildHouseScene(
   modelInputs?: IViewerModelInputs,
 ): IViewerScene {
   const items: IViewerSceneItem[] = [referenceGround()];
-  const house: import("../spaces/house").IHouse = buildHouse();
+  const house: IHouse = buildHouse();
   const environment: import("@automovie/interface").IAutoMovieBuiltEnvironment & { pendingMapGround: { parts: string[]; zones: string[]; }; } = buildHouseEnvironment(house);
   const lowered: ReturnType<typeof lowerBuiltEnvironment> = lowerBuiltEnvironment(environment);
-  const parts: Map<string, import("../types/IHousePart").IHousePart> = new Map(house.parts.map((p: import("../types/IHousePart").IHousePart) : [string, import("../types/IHousePart").IHousePart] => [p.id, p]));
+  const parts: Map<string, IHousePart> = new Map(house.parts.map((p: IHousePart) : [string, IHousePart] => [p.id, p]));
   const models: Map<string, import("@automovie/interface").IAutoMovieModel> = new Map((lowered.models ?? []).map((m: import("@automovie/interface").IAutoMovieModel) : [string, import("@automovie/interface").IAutoMovieModel] => [m.id, m]));
   for (const piece of lowered.set ?? []) {
-    const part: import("../types/IHousePart").IHousePart | undefined = parts.get(piece.model);
+    const part: IHousePart | undefined = parts.get(piece.model);
     const model: import("@automovie/interface").IAutoMovieModel | undefined = models.get(piece.model);
     if (part === undefined || model === undefined || model.parts.length === 0)
       throw new Error(`set piece ${piece.node} has no emitted part or model`);
@@ -118,7 +124,7 @@ export function buildHouseScene(
       for (const group of piece.paint?[{suffix:"",indices:piece.mesh.indices!,finish:houseFinish("wall",PALETTE.interiorWall)}]:piece.wet?[{
         suffix:"",indices:piece.mesh.indices!,finish:{id:wallTile.material.id,color:Number.parseInt(linearColorToSrgbHex(wallTile.material.baseColor).slice(1),16),roughness:wallTile.material.roughness,metalness:wallTile.material.metallic,texture:wallTile.texture},
       }]:houseWallFinishGroups(part,piece.mesh.normals!,piece.mesh.indices!)) {
-        const finish: import("./materialPreview").HouseFinish = group.finish;
+        const finish: HousePreviewFinish = group.finish;
         items.push({
           id: `${model.parts.length === 1 ? part.id : `${part.id}/${member.id}`}${piece.suffix}${group.suffix}`,
           role: part.role,

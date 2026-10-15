@@ -6,7 +6,7 @@
  */
 import assert from "node:assert/strict";
 
-import { createViewerPayload } from "../viewer/payload";
+import { createViewerPayload } from "../viewer/createViewerPayload";
 
 const checkViewerScene = (): void => {
   const scene = createViewerPayload();

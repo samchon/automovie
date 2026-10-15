@@ -1,4 +1,4 @@
-import type { templeMaterialPalette } from "./bindings";
+import type { templeMaterialPalette } from "./templeMaterialPalette";
 
 /**
  * Exact spatial surface assignments from the authored material binding map.

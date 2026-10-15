@@ -1,18 +1,21 @@
 /**
- * src/geometry/prism.ts prismFaces: vertical prisms over convex planar polygons.
+ * prismFaces: vertical prisms over convex planar polygons.
  * Fixtures: convex quadrilaterals with level or sloped tops, triangles, thin
  * thickness (1mm), heights near the numeric limit, concave polygons (refused),
  * and determinism. Holes are outside the domain, which takes one ring only;
- * wall-solids column decomposition owns walls with holes and planar-domain
+ * wallColumns owns walls with holes and the plan polygon functions
  * partition owns planes with holes. Open boundaries are also outside the
  * domain; the operation always emits a closed face list.
  */
 import assert from "node:assert/strict";
 import test from "node:test";
 import { buildAutoMoviePolyhedron } from "@automovie/engine";
-import { rectanglePolygon } from "../../geometry/planar-domain";
-import { levelPlane, prismFaces } from "../../geometry/prism";
-import { accountFaces, assertClosed, near } from "./fixtures";
+import { rectanglePolygon } from "../../geometry/rectanglePolygon";
+import { prismFaces } from "../../geometry/prismFaces";
+import { levelPlane } from "../../geometry/levelPlane";
+import { assertClosed } from "./assertClosed";
+import { near } from "./near";
+import { accountFaces } from "./accountFaces";
 
 const square = rectanglePolygon({ west: 0, east: 2, north: 0, south: 3 });
 

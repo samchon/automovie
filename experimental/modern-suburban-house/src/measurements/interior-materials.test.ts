@@ -2,18 +2,21 @@
 import { strict as assert } from "node:assert";
 import { test } from "node:test";
 
-import { interiorCeilings } from "../materials/interior/ceilings";
+import { interiorCeilings } from "../materials/interior/interiorCeilings";
 import {
-  carpet,
-  garageConcrete,
-  laundryFloor,
   oakFloor,
-} from "../materials/interior/floors";
-import { blackMetal } from "../materials/interior/metal";
-import { handrail, stairTread } from "../materials/interior/stair";
-import { floorTile, tileGrout, wallTile } from "../materials/interior/tile";
-import { interiorTrim } from "../materials/interior/trim";
-import { interiorWalls } from "../materials/interior/walls";
+} from "../materials/interior/oakFloor";
+import { garageConcrete } from "../materials/interior/garageConcrete";
+import { laundryFloor } from "../materials/interior/laundryFloor";
+import { carpet } from "../materials/interior/carpet";
+import { blackMetal } from "../materials/interior/blackMetal";
+import { stairTread } from "../materials/interior/stairTread";
+import { handrail } from "../materials/interior/handrail";
+import { floorTile } from "../materials/interior/floorTile";
+import { tileGrout } from "../materials/interior/tileGrout";
+import { wallTile } from "../materials/interior/wallTile";
+import { interiorTrim } from "../materials/interior/interiorTrim";
+import { interiorWalls } from "../materials/interior/interiorWalls";
 
 const finishes = [
   interiorWalls,
