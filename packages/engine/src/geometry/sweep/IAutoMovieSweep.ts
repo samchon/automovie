@@ -27,8 +27,9 @@ import { IAutoMovieSweepSpine } from "./IAutoMovieSweepSpine";
  *    radii with a smooth falloff across the curve.
  *
  * Positions are metres. The section plane at `u` is the spine's
- * rotation-minimizing frame, turned by the stations' rotations where they
- * give one.
+ * rotation-minimizing frame, or under the `fixed` orientation the spine's
+ * start frame carried along without turning, in either case turned by the
+ * stations' rotations where they give one.
  *
  * @evidence contracts/common.md#principled-implementation A generalized cylinder whose section radii are interpolated per direction with a shape-preserving scheme, as sweep-based modelling interpolates key sections, with silhouette guides and pass-through feature curves as the standard lofting constraints, guides joined to the stations as a Gordon surface.
  * @evidence contracts/common.md#clear-and-simple-design One record holds the spine, stations, guides and features of one surface; evaluation and every constraint's rule live in `compileAutoMovieSweep`.
@@ -50,6 +51,11 @@ export interface IAutoMovieSweep {
    * How stations correspond: `direction` pairs the points of neighbouring stations along each polar angle about the spine point, so every section must be star-shaped about it; `parameter` pairs points at equal curve parameters, corner `k` with corner `k` for polygons, so sections may be concave and may carry holes, while guides and features, which are read by direction, are not available. Omitted, `direction`.
    */
   correspondence?: "direction" | "parameter";
+
+  /**
+   * How the section plane follows the spine: `transported` turns it with the spine's rotation-minimizing frame, so sections stay normal to a bending path, as a tube needs; `fixed` keeps the start frame's axes at every `u`, a translational sweep whose sections stay parallel however the path bends, as a body measured in level planes needs. Station rotations turn the plane relative to this frame in both cases, so stations that all give one rotation keep that exact plane between them too. Under `fixed` the path must stay out of the plane it carries, or sections there collapse onto it. Omitted, `transported`.
+   */
+  orientation?: "transported" | "fixed";
 
   /** Silhouette guides; omitted or empty, the stations alone set the form. */
   guides?: IAutoMovieSweep.IGuide[];
@@ -77,7 +83,7 @@ export namespace IAutoMovieSweep {
     holes?: IAutoMovieSweepSection[];
 
     /**
-     * Orientation of the station's plane in the model frame: its first axis is this rotation applied to `+X`, its second to `+Y` and its normal to `+Z`. Omitted, the plane is the spine's rotation-minimizing frame at `at`. Between stations the turn relative to the transported frame is interpolated by normalized linear quaternion interpolation, so a twist given at two stations spreads evenly between them.
+     * Orientation of the station's plane in the model frame: its first axis is this rotation applied to `+X`, its second to `+Y` and its normal to `+Z`. Omitted, the plane is the sweep's own frame at `at` (see `orientation`). Between stations the turn relative to that frame is interpolated by normalized linear quaternion interpolation, so a twist given at two stations spreads evenly between them.
      */
     rotation?: IAutoMovieQuaternion;
   }
