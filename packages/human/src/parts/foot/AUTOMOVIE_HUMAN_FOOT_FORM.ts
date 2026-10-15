@@ -40,8 +40,8 @@ export const AUTOMOVIE_HUMAN_FOOT_FORM = {
   /** Lesser toes, second to fifth, from the metatarsophalangeal joint centre to the tip; the hallux reaches the full foot length. */
   toeLength: [0.2691, 0.254, 0.1869, 0.1918],
 
-  /** Dorsal height of each toe's free part, hallux to fifth. */
-  toeHeight: [0.1092, 0.0685, 0.0265, 0.0923, 0.0946],
+  /** Dorsal height of each toe's free part, hallux to fifth: the hallux and second toe fitted, the third to fifth falling laterally, conventional, since the old cage's fitted values for them (a third toe a quarter of the second's height) served its four-sided toe tubes and flattened a swept toe. */
+  toeHeight: [0.1092, 0.0685, 0.064, 0.06, 0.056],
 
   /** How far lateral of the ankle joint centre the foot's long axis runs: the calcaneus lies lateral of the talus and the foot's axis runs out through the second ray. */
   axis: 0.00996,
