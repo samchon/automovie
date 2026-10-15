@@ -85,6 +85,9 @@ const COLLAR = { arm: 2 / 3, thigh: 1 / 2 } as const;
 /** Rows of the trunk from the crotch to the axilla; the hip bridges and tubes take rows of the same height, so the subdivided surface meets no change of row spacing at the hips. */
 const LOWER_ROWS: number = 10;
 
+/** How far medial of each thigh lobe's middle its tube's spine starts, as a share of the lobe's half-width. */
+const MEDIAL_OFFSET: number = 0.5;
+
 /** Trunk strips by `v`, a twelfth of a turn per column: front across the anterior midline, left flank, back, right flank. */
 const STRIPS: Array<{
   name: string;
@@ -329,7 +332,22 @@ const networkOf = (
       depth: lerp(furrow.depth, (Math.max(...zs) - Math.min(...zs)) / 2),
       centre: lerp(furrow.centre, (Math.max(...zs) + Math.min(...zs)) / 2),
     };
-    const start: IAutoMovieVector3 = AutoMovieHumanVector.of((sign * outer) / 2, y, lobe.centre);
+    // the ring's radii are measured from its origin, the femur's axis, which lies off the thigh's own middle; the tube's
+    // spine runs parallel to that offset so every section keeps the ring's placement about it and the front and back
+    // run straight from the lobe to the ring instead of swinging round a spine through the lobe's middle
+    const allX: number[] = shape.positions.map((p: IAutoMovieVector3): number => p.x);
+    const shift = {
+      x: (Math.max(...allX) + Math.min(...allX)) / 2 - shape.frame.origin.x,
+      z: (Math.max(...zs) + Math.min(...zs)) / 2 - shape.frame.origin.z,
+    };
+    // and the spine starts medial of the lobe's middle, so its front and back directions meet the lobe's medial front and
+    // back, under the fork's ends on the trunk's midline, and its lateral direction the lobe's lateral side
+    const medial: number = sign * MEDIAL_OFFSET * (outer / 2);
+    const start: IAutoMovieVector3 = AutoMovieHumanVector.of(
+      (sign * outer) / 2 - shift.x - medial,
+      y,
+      lobe.centre - shift.z,
+    );
     lengths[`thigh.${side}`] = AutoMovieHumanVector.distance(start, shape.frame.origin);
     return {
       spine: {
@@ -351,6 +369,8 @@ const networkOf = (
             up: metres(outer / 2),
             left: metres(lobe.depth),
             down: metres(outer / 2),
+            // first axis backward, second toward the person's left
+            centre: { x: metres(-shift.z), y: metres(shift.x + medial) },
             // the second axis points to the person's left, so the medial quadrants are the negative ones on the left thigh
             exponents:
               side === "left"
@@ -412,8 +432,9 @@ const networkOf = (
       columns: fixed(8),
     });
   // hip tube strips by v, matched to the pieces of the loop they meet: half the back strip, the flank, half the front strip, the fork curve;
-  // the tube's v runs from the back (0) through the left (1/4) to the front (1/2), so its outer half meets the trunk's half loop
-  // direction for direction and its medial half meets the fork; a twelfth of a turn per column, so the tube ends on the ring's
+  // the tube's v runs from the back (0) through the left (1/4) to the front (1/2); its outer six columns start a twelfth
+  // past the back, so the trunk's front midline, where the fork leaves it, meets the lobe's front-medial point rather than
+  // its foremost one, and the inguinal region does not sag; a twelfth of a turn per column, so the tube ends on the ring's
   // twelve directions with the anterior one at v 0.5
   const hipLeft: Array<{ v: [number, number]; columns: number }> = [
     { v: [0, 2 / 12], columns: 2 },
