@@ -5,7 +5,7 @@ import { IAutoMovieHumanLegStation } from "./IAutoMovieHumanLegStation";
 /**
  * Fat thickness, millimetres, over which a muscle or bone's relief halves: subcutaneous fat fills the hollows between bellies, so the same muscle reads sharply under a thin layer and is a smooth swell under a thick one. Grade: conventional.
  */
-const RELIEF_FAT_HALF: number = 10;
+const RELIEF_FAT_HALF: number = 20;
 
 /**
  * Appendicular lean mass index, kilograms per square metre, at which muscle relief takes its tabulated height: the midpoint of the NHANES medians at 20 years, 6.81 for women and 8.87 for men (Kelly et al. 2009, PLoS ONE 4(9):e7038). Relief grows in proportion to the index above and below it. Grade: derived.

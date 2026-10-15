@@ -138,8 +138,8 @@ export function planAutoMovieHumanLegStations(props: {
   const levels: ILevel[] = [
     { name: "mid thigh", height: top, aspect: 1.12, posterior: 0.1 },
     { name: "lower thigh", height: lerp(top, supra, 0.38), aspect: 1.12, posterior: 0.08 },
-    { name: "vastus medialis", height: lerp(top, supra, 0.72), aspect: 1.14, posterior: 0.05 },
-    { name: "suprapatella", height: supra, aspect: 1.18, posterior: 0.03 },
+    { name: "vastus medialis", height: lerp(top, supra, 0.72), aspect: 1.1, posterior: 0.05 },
+    { name: "suprapatella", height: supra, aspect: 1.06, posterior: 0.03 },
   ].map(
     (l: Omit<ILevel, "girth" | "site" | "count">): ILevel => ({
       ...l,
@@ -157,8 +157,8 @@ export function planAutoMovieHumanLegStations(props: {
       name: "midpatella",
       height: patella,
       girth: kneeGirth,
-      aspect: 1.2,
-      posterior: 0.1,
+      aspect: 1.02,
+      posterior: 0.0,
       site: SITE_FAT.lowerThigh,
       count: 12,
     },
@@ -167,8 +167,8 @@ export function planAutoMovieHumanLegStations(props: {
       height: tibiale - 0.06 * leg.shankLength,
       girth:
         GIRTH.belowKnee * Math.min(kneeGirth, leg.calfCircumference),
-      aspect: 1.1,
-      posterior: 0.25,
+      aspect: 1.0,
+      posterior: 0.08,
       site: lerp(SITE_FAT.lowerThigh, SITE_FAT.calf, 0.5),
       count: 12,
     },
@@ -176,7 +176,7 @@ export function planAutoMovieHumanLegStations(props: {
       name: "upper calf",
       height: tibiale - 0.15 * leg.shankLength,
       girth: GIRTH.upperCalf * leg.calfCircumference,
-      aspect: 1.02,
+      aspect: 1.06,
       posterior: 0.45,
       site: SITE_FAT.calf,
       count: 12,
@@ -185,14 +185,14 @@ export function planAutoMovieHumanLegStations(props: {
       name: "calf maximum",
       height: calf,
       girth: leg.calfCircumference,
-      aspect: 0.98,
+      aspect: 1.06,
       posterior: 0.55,
       site: SITE_FAT.calf,
       count: 12,
     },
     ...(
       [
-        ["lower calf", 0.62, 0.8, 0.98, 0.5, 12],
+        ["lower calf", 0.62, 0.8, 1.02, 0.5, 12],
         ["calcaneal tendon", 0.36, 0.42, 1.0, 0.4, 12],
         ["above the ankle", 0.13, 0.08, 1.02, 0.28, 8],
         ["ankle", 0, 0, 1.02, 0.22, 8],
