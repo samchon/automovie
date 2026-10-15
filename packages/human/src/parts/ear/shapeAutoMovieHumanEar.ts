@@ -23,7 +23,18 @@ export function shapeAutoMovieHumanEar(
   const B: number = size.breadth * LIMIT.breadth;
   const P: number = size.protrusion * LIMIT.protrusion;
   const xc: number = -ATTACHMENT * B;
-  const place = (k: IPoint): IPoint => ({ x: xc + k.x * B, y: k.y * L, h: k.h * P });
+  // the cartilage keeps pace with the breadth and the lobule takes the rest of the length
+  const cartilage: number = Math.min(
+    CARTILAGE.most * L,
+    Math.max(CARTILAGE.least * L, CARTILAGE.perBreadth * B),
+  );
+  const up: number = cartilage / (1 - LOBULE);
+  const down: number = (L - cartilage) / LOBULE;
+  const y = (f: number): number =>
+    f >= NOTCH_LEVEL
+      ? f * up
+      : NOTCH_LEVEL * up + (f - NOTCH_LEVEL) * down;
+  const place = (k: IPoint): IPoint => ({ x: xc + k.x * B, y: y(k.y), h: k.h * P });
   const centre: IPoint = place(CONCHA);
 
   // the helix: back, free margin, crest, lip, and the scapha floor under it
@@ -55,7 +66,7 @@ export function shapeAutoMovieHumanEar(
     along(j, 0.03, -(0.12 + 0.06 * helix[j]!)),
   );
   const crest: IPoint[] = range(24).map((j: number): IPoint =>
-    along(j, 0.05 + 0.04 * helix[j]!, 0.05 + 0.1 * helix[j]!),
+    along(j, 0.05 + 0.04 * helix[j]!, 0.05 + 0.1 * helix[j]! + 0.1 * window(j, 8, 1.5)),
   );
   const lip: IPoint[] = range(24).map((j: number): IPoint =>
     along(j, 0.1 + 0.1 * helix[j]!, 0.04 * helix[j]!),
@@ -251,6 +262,21 @@ const LIMIT: Record<keyof shapeAutoMovieHumanEar.ISize, number> = {
   protrusion: 0.918,
 };
 
+/** Lobular length over ear length in the drawing: 25.3 of 66.8 mm in men (Cho et al. 2025). */
+const LOBULE: number = 0.38;
+
+/** Level of the intertragic notch in the drawing, where the lobule begins, in ear lengths from tragion: subaurale at -0.55 plus the lobule. */
+const NOTCH_LEVEL: number = -0.17;
+
+/**
+ * The cartilaginous auricle above the intertragic notch, by breadth, and its bounds by length. With age the ear lengthens while its breadth holds, and "the lobule contributes the most to the overall elongation of the auricle" (415 Indian men aged 18 to 70, Purkait and Singh 2007, Aesthetic Plast Surg 31(4):372-379); Cho et al. (2025) likewise find breadth stable and lobular length rising with age. So the cartilage above the notch keeps its adult ratio to breadth, 1.375 (40.0 of 29.1 mm at 30 years in men, the drawing's 0.62 of length), and the lobule takes the rest of the length: 0.45 of an 80-year-old woman's ear, 0.30 of a 6-year-old boy's. The bounds keep an infant's lobule at least 0.28 of the ear and an old lobule at most 0.46. Grade: derived.
+ */
+const CARTILAGE: { perBreadth: number; least: number; most: number } = {
+  perBreadth: 1.375,
+  least: 0.54,
+  most: 0.72,
+};
+
 /** Otobasion superius in front of tragion across the auricle, over ear breadth: it stands nearly over the tragus along the long axis (Gray 1918, fig. 904). */
 const ATTACHMENT: number = 0.02;
 
@@ -258,7 +284,7 @@ const ATTACHMENT: number = 0.02;
 const CONCHA: IPoint = { x: 0.42, y: -0.02, h: 0 };
 
 /** How far the anterior and intertragic notches cut into the margin either side of the tragus, over breadth, and how far they sink, over protrusion. */
-const NOTCH: { depth: number; drop: number } = { depth: 0.06, drop: 0.12 };
+const NOTCH: { depth: number; drop: number } = { depth: -0.1, drop: 0.22 };
 
 /** Depth of the concha floor below the attachment plane, over protrusion; the floor sinks toward the meatus. */
 const FLOOR: number = -0.12;
