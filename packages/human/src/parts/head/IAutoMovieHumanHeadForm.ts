@@ -40,6 +40,9 @@ export interface IAutoMovieHumanHeadForm {
   /** Sections: exponent of the front quadrants at the vertex. */
   frontVault: number;
 
+  /** Sections: exponent of the front quadrants at zygion's level, the cheeks' turn from the face to its side. */
+  frontCheek: number;
+
   /** Sections: exponent of the front quadrants at subnasale, the maxilla's turn from the nose base to the cheeks. */
   frontSubnasale: number;
 

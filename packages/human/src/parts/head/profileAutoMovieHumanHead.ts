@@ -15,7 +15,7 @@ import { frameAutoMovieHumanHead } from "./frameAutoMovieHumanHead";
  * - Front: the midline profile without the nose and lips, which the features add: the forehead's arc from the vertex to glabella, nasion, the cheek plane under the nose, subnasale at the measured nose height below nasion, the base under the lips, the labiomental fold, pogonion and gnathion. Subnasale and gnathion stand where the measured tragion depths put them: the straight distances from tragion to nasion, subnasale and gnathion keep their measured ratios, so the skeleton's tragion-nasion distance sets the other two, and each depth follows after half the bitragion width and the landmark's height above tragion.
  * - Back: the midline from the vertex over the vault to opisthocranion and down the occiput to the neck-top ring's posterior point at the nape.
  * - Breadth: the half-breadth of the head's frontal outline, from the vertex over eurion and tragion to gonion, with the depth at which it lies.
- * - Exponents: the turn of the section's front and back quadrants, solved where a landmark lies on it (frontotemporale on the forehead, zygion on the cheek, the ring behind the jaw) and named coefficients elsewhere.
+ * - Exponents: the turn of the section's front and back quadrants, solved where a landmark lies on it (frontotemporale on the forehead, the ring behind the jaw) and named coefficients elsewhere.
  *
  * @param props The head frame with its landmarks, the head measurements, the neck-top ring's limit points in the head frame (anterior, posterolateral on the left and posterior), and the form coefficients
  * @returns The guides as functions of height in the head frame, millimetres
@@ -134,7 +134,7 @@ export function profileAutoMovieHumanHead(props: {
     { y: pogonion.y, z: form.frontChin },
     { y: frame.stomion.y, z: form.frontStomion },
     { y: subnasale.y, z: form.frontSubnasale },
-    { y: frame.zygion.y, z: throughFront(frame.zygion, form.frontSubnasale) },
+    { y: frame.zygion.y, z: form.frontCheek },
     { y: frame.frontotemporale.y, z: throughFront(frame.frontotemporale, form.frontVault) },
     { y: top, z: form.frontVault },
   ];

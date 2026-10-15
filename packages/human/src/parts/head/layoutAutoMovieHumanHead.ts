@@ -291,7 +291,7 @@ const pinRing = (
   );
 };
 
-/** One three-to-one unit: four quads round two valence-3 vertices between three spans on one side and one on the other, each interior vertex halfway between its span point and the opposite side. */
+/** One three-to-one unit: four quads round two valence-3 vertices between three spans on one side and one on the other, each interior vertex {@link UNIT} of the way from its span point to the opposite side. */
 const reduce = (
   network: AutoMovieHumanHeadNetwork,
   a: [AutoMovieHumanHeadNetwork.IPoint, AutoMovieHumanHeadNetwork.IPoint, AutoMovieHumanHeadNetwork.IPoint, AutoMovieHumanHeadNetwork.IPoint],
@@ -301,8 +301,8 @@ const reduce = (
   const unwrap = (v: number): number => v + Math.round(ref - v);
   const inner = (k: 1 | 2): AutoMovieHumanHeadNetwork.IPoint => {
     const t: number = k / 3;
-    const u: number = (a[k].domain.u + b[0].domain.u * (1 - t) + b[1].domain.u * t) / 2;
-    const v: number = (unwrap(a[k].domain.v) + unwrap(b[0].domain.v) * (1 - t) + unwrap(b[1].domain.v) * t) / 2;
+    const u: number = a[k].domain.u * (1 - UNIT) + (b[0].domain.u * (1 - t) + b[1].domain.u * t) * UNIT;
+    const v: number = unwrap(a[k].domain.v) * (1 - UNIT) + (unwrap(b[0].domain.v) * (1 - t) + unwrap(b[1].domain.v) * t) * UNIT;
     return network.on(u, v);
   };
   const p: AutoMovieHumanHeadNetwork.IPoint = inner(1);
@@ -315,6 +315,9 @@ const reduce = (
 
 /** Half the face's angle about the spine, degrees, inside which its dense columns lie. Conventional: past the zygomatic arches. */
 const FACE_HALF: number = 60;
+
+/** Share of the way from a reduction's dense side to its sparse one at which its two inner vertices lie: nearer the dense side keeps its four quads closer in size. Chosen on renders. */
+const UNIT: number = 0.3;
 
 /** Columns over the face, between {@link FACE_HALF} degrees either side of the midline. */
 const FRONT: number = 36;

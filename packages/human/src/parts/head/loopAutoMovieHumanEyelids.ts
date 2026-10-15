@@ -46,14 +46,14 @@ export function loopAutoMovieHumanEyelids(props: {
       return lateralFirst ? 1 - fromFirst : fromFirst;
     };
     // a point of the fissure's outline, opened by `open` of the lid's arc and set `out` beyond the globe
-    const lid = (s: number, upper: boolean, open: number, widen: number, out: number): IAutoMovieVector3 => {
+    const lid = (s: number, upper: boolean, open: number, widen: number, out: number, gap: number = CANTHUS): IAutoMovieVector3 => {
       const arc = (skew: number, power: number): number =>
         Math.pow(Math.sin(Math.PI * Math.pow(s, skew)), power);
       const x: number = inner - widen + (length + 2 * widen) * s;
       const y: number =
         level +
         rise * s +
-        (upper ? UPPER * height * arc(0.9, 0.8) * open + CANTHUS : -(1 - UPPER) * height * arc(1.1, 0.9) * open - CANTHUS);
+        (upper ? UPPER * height * arc(0.9, 0.8) * open + gap : -(1 - UPPER) * height * arc(1.1, 0.9) * open - gap);
       const r: number = eyeRadius + out;
       const dx: number = x - frame.eye.x;
       const dy: number = y - eye.y;
@@ -72,7 +72,7 @@ export function loopAutoMovieHumanEyelids(props: {
       });
     // the sulcus lies on the face: found over the domain from a point well in front of the globe
     const sulcus: AutoMovieHumanHeadNetwork.IPoint[] = loop((s: number, upper: boolean) => {
-      const p: IAutoMovieVector3 = lid(s, upper, upper ? SULCUS.upper : SULCUS.lower, SULCUS.widen, 0);
+      const p: IAutoMovieVector3 = lid(s, upper, upper ? SULCUS.upper : SULCUS.lower, SULCUS.widen, 0, SULCUS.gap);
       return AutoMovieHumanVector.of(p.x, p.y, frame.cornea.z + 10);
     }, null);
     const anterior: AutoMovieHumanHeadNetwork.IPoint[] = loop(
@@ -108,8 +108,8 @@ const CONTACT: number = 0.3;
 /** How far the posterior margin closes over the anterior's opening, so the margin's thickness faces the fissure. */
 const POSTERIOR_OPEN: number = 0.94;
 
-/** The lid sulcus as multiples of the margin's opening, and its widening beyond the canthi, millimetres. Conventional. */
-const SULCUS = { upper: 1.9, lower: 2.0, widen: 4 } as const;
+/** The lid sulcus as multiples of the margin's opening, its widening beyond the canthi and its half-opening there, millimetres, so the loops round each canthus stay open rather than meeting in a crease. Conventional. */
+const SULCUS = { upper: 1.9, lower: 2.0, widen: 4, gap: 2.5 } as const;
 
 /** Allowance over the apex distance for the globe's sclera beside the cornea, millimetres: the scleral sphere of about 12 mm sits a millimetre in front of the centre of rotation. Derived from the eye module's globe. */
 const GLOBE_ALLOWANCE: number = 0.6;

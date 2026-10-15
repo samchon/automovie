@@ -19,9 +19,10 @@ export const AUTOMOVIE_HUMAN_HEAD_FORM: IAutoMovieHumanHeadForm = {
   eurionHeight: 0.34,
   vaultSide: 2.25,
   frontVault: 2.2,
+  frontCheek: 2.4,
   frontSubnasale: 2.0,
   frontStomion: 1.8,
-  frontChin: 2.0,
+  frontChin: 1.7,
   backVault: 2.2,
   backNape: 2.3,
 };

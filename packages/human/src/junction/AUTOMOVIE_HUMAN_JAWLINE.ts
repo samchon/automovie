@@ -6,5 +6,5 @@
 export const AUTOMOVIE_HUMAN_JAWLINE = {
   gnathionDepth: 1.184,
   gnathionAboveMenton: 0.03,
-  exponent: 2.4,
+  exponent: 2.2,
 } as const;
