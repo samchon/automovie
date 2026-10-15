@@ -40,7 +40,8 @@ const refuses: (
  *
  * 1. The valid two-quad cage with UVs and a semi-sharp crease subdivides, and
  *    sharpness 0 and 10 at the range ends are admitted.
- * 2. Levels: 0, a fraction and NaN are refused.
+ * 2. Levels: 0, 7 (one past the cap), a fraction and NaN are refused, while
+ *    6, the cap, turns one quad into 4,096.
  * 3. Positions: empty, not packed in threes, and non-finite are refused.
  * 4. Faces: none, a two-corner face, an out-of-range or fractional corner, and
  *    a repeated vertex are refused.
@@ -56,8 +57,8 @@ const refuses: (
  *    made of one quad and its reverse, is refused after refinement.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls `subdivideAutoMovieSurface` on each malformed cage and asserts a synchronous Error naming the defect; a guard that is missing, misplaced or silently repairs the input fails.
- * @evidence contracts/testing.md#independent-expectations Each refusal follows from the documented cage contract (manifold, consistent winding, vertex-owned UVs, sharpness range, integer level of at least one) and the expected message fragment names the offending index, not an implementation detail.
- * @evidence contracts/testing.md#distinguishing-cases Every negative case is one property away from the valid cage, and the valid cage plus both sharpness range ends prove the guards do not over-reach; rules, limits, boundaries, creases and UVs are owned by the other `test_geometry_subdivision_*` tests.
+ * @evidence contracts/testing.md#independent-expectations Each refusal follows from the documented cage contract (manifold, consistent winding, vertex-owned UVs, sharpness range, integer level from one to six, the cap that bounds the fourfold growth per level) and the expected message fragment names the offending index, not an implementation detail.
+ * @evidence contracts/testing.md#distinguishing-cases Every negative case is one property away from the valid cage, and the valid cage, both sharpness range ends and the six-level cap prove the guards do not over-reach; rules, limits, boundaries, creases and UVs are owned by the other `test_geometry_subdivision_*` tests.
  * @evidence contracts/testing.md#execution-ownership A discoverable unit entry calling the portable engine function on synthetic cages; no consumer, native build, process, browser or GPU.
  */
 export function test_geometry_subdivision_refusals(): void {
@@ -72,10 +73,21 @@ export function test_geometry_subdivision_refusals(): void {
     ),
   );
   TestValidator.predicate(
-    "levels must be an integer of at least one",
-    [0, 1.5, Number.NaN].every((levels: number): boolean =>
-      refuses(VALID, "subdivision levels must be an integer of at least 1", levels),
+    "levels must be an integer from one to six",
+    [0, 7, 1.5, Number.NaN].every((levels: number): boolean =>
+      refuses(VALID, "subdivision levels must be an integer from 1 to 6", levels),
     ),
+  );
+  TestValidator.equals(
+    "six levels, the cap, refine one quad into 4^6 quads",
+    subdivideAutoMovieSurface({
+      cage: {
+        positions: [0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0],
+        faces: [[0, 1, 2, 3]],
+      },
+      levels: 6,
+    }).faces.length,
+    4 ** 6 * 4,
   );
   TestValidator.predicate(
     "positions must be finite triples",
