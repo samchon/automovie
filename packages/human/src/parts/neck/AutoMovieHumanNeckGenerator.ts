@@ -11,6 +11,9 @@ import { IAutoMovieHumanPartGenerator } from "../../parts/IAutoMovieHumanPartGen
 import { measureAutoMovieHumanNeckGirth } from "./measureAutoMovieHumanNeckGirth";
 import { sectionAutoMovieHumanNeck } from "./sectionAutoMovieHumanNeck";
 
+/** Stations of the neck's tube, both rings included. */
+const STATIONS: number = 6;
+
 /** Rounds of widening the mid section to the measured girth; each leaves under a tenth of the previous error. */
 const GIRTH_FITS: number = 3;
 
@@ -91,12 +94,19 @@ export class AutoMovieHumanNeckGenerator implements IAutoMovieHumanPartGenerator
     };
     const line = (segment: 0 | 1, t: number): IAutoMovieVector3[] =>
       Array.from({ length: n }, (_: unknown, k: number): IAutoMovieVector3 => along(k, segment, t));
+    // the first loop off each ring continues the ring straight into the neck at the ring's own radii, so the joined girth stays the ring's
+    const step: number =
+      AutoMovieHumanVector.distance(base.frame.origin, top.frame.origin) / (STATIONS - 1);
+    const continued = (ring: IAutoMovieHumanRingShape, points: IAutoMovieVector3[]): IAutoMovieVector3[] =>
+      points.map((p: IAutoMovieVector3): IAutoMovieVector3 =>
+        AutoMovieHumanVector.offset(p, [ring.frame.normal, -step]),
+      );
     const stations: AutoMovieHumanCageBuilder.IStation[] = [
       builder.place(base, 0),
-      builder.station(line(0, 0.5), 0.2),
+      builder.station(continued(base, sections.base), 0.2),
       builder.station(mid, 0.4),
-      builder.station(line(1, 1 / 3), 0.6),
-      builder.station(line(1, 2 / 3), 0.8),
+      builder.station(line(1, 0.4), 0.6),
+      builder.station(continued(top, sections.top), 0.8),
       builder.place(top, 1),
     ];
     for (let i: number = 0; i + 1 < stations.length; ++i) builder.bridge(stations[i]!, stations[i + 1]!);

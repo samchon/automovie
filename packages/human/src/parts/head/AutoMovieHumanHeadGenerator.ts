@@ -9,6 +9,7 @@ import { IAutoMovieHumanPartGenerator } from "../../parts/IAutoMovieHumanPartGen
 import { AutoMovieHumanHeadField } from "./AutoMovieHumanHeadField";
 import { anchorAutoMovieHumanHead } from "./anchorAutoMovieHumanHead";
 import { buildAutoMovieHumanHeadTopology } from "./buildAutoMovieHumanHeadTopology";
+import { continueAutoMovieHumanHeadRings } from "./continueAutoMovieHumanHeadRings";
 import { frameAutoMovieHumanHead } from "./frameAutoMovieHumanHead";
 import { liftAutoMovieHumanHeadCage } from "./liftAutoMovieHumanHeadCage";
 import { relaxAutoMovieHumanHeadCage } from "./relaxAutoMovieHumanHeadCage";
@@ -98,6 +99,28 @@ export class AutoMovieHumanHeadGenerator implements IAutoMovieHumanPartGenerator
       measurements: props.measurements,
     });
     for (const [vertex, position] of rings) anchors.set(vertex, frameAutoMovieHumanHead.toLocal(frame, position));
+    // the first loop off each ring continues the ring straight into the head, so the joined girth stays the ring's
+    const layoutVertices = (ring: IAutoMovieHumanRingShape, build: number[]): number[] => {
+      const out: number[] = new Array<number>(build.length);
+      AutoMovieHumanCageBuilder.buildOrder(ring).forEach((j: number, b: number): void => {
+        out[j] = build[b]!;
+      });
+      return out;
+    };
+    const continued: Map<number, IAutoMovieVector3> = new Map();
+    for (const [ring, build, depth] of [
+      [neck, topology.neck, NECK_CONTINUATION * props.measurements.identity.head.headHeight],
+      [ears.left, earOrder.left, EAR_CONTINUATION * Math.min(...ears.left.radii)],
+      [ears.right, earOrder.right, EAR_CONTINUATION * Math.min(...ears.right.radii)],
+    ] as Array<[IAutoMovieHumanRingShape, number[], number]>)
+      for (const [vertex, position] of continueAutoMovieHumanHeadRings({
+        ring,
+        vertices: layoutVertices(ring, build),
+        faces: topology.faces,
+        depth,
+      }))
+        continued.set(vertex, position);
+    for (const [vertex, position] of continued) anchors.set(vertex, frameAutoMovieHumanHead.toLocal(frame, position));
     const head = props.measurements.identity.head;
     const centre: IAutoMovieVector3 = AutoMovieHumanVector.of(0, 0.1 * head.headHeight, 0);
     const box: IAutoMovieVector3 = AutoMovieHumanVector.of(
@@ -129,6 +152,7 @@ export class AutoMovieHumanHeadGenerator implements IAutoMovieHumanPartGenerator
         [...anchors.keys()].filter(
           (v: number): boolean =>
             rings.has(v) ||
+            continued.has(v) ||
             (topology.vertices[v]!.loop !== null && topology.vertices[v]!.loop!.loop >= (topology.vertices[v]!.loop!.feature === "mouth" ? 1 : 2)),
         ),
       ),
@@ -141,7 +165,7 @@ export class AutoMovieHumanHeadGenerator implements IAutoMovieHumanPartGenerator
 
     const builder: AutoMovieHumanCageBuilder = new AutoMovieHumanCageBuilder("head", null);
     local.forEach((p: IAutoMovieVector3, i: number): void => {
-      builder.vertex(rings.get(i) ?? frameAutoMovieHumanHead.toModel(frame, p));
+      builder.vertex(rings.get(i) ?? continued.get(i) ?? frameAutoMovieHumanHead.toModel(frame, p));
     });
     const chart: AutoMovieHumanCageBuilder.IChart[] = topology.vertices.map((v) => chartOf(v.canonical));
     for (const f of topology.faces) {
@@ -172,6 +196,12 @@ export class AutoMovieHumanHeadGenerator implements IAutoMovieHumanPartGenerator
     return builder.build();
   }
 }
+
+/** Depth of the first loop off the neck ring into the head, over head height. Conventional: about one cage span. */
+const NECK_CONTINUATION: number = 0.06;
+
+/** Depth of the first loop off each ear ring into the head, over the attachment's short semi-axis: a shallow step, since the head's side lies in the attachment's plane. Conventional. */
+const EAR_CONTINUATION: number = 0.15;
 
 /** Rounds and share of lifting the cage so its limit surface reaches the skin. */
 const LIFT_ROUNDS: number = 6;
