@@ -12,8 +12,8 @@ export function paintAutoMovieHumanHairStrands(): IAutoMovieImage {
   const pixels: Uint8Array = new Uint8Array(WIDTH * HEIGHT * 4);
   const C = paintAutoMovieHumanHairStrands.COLUMNS;
   for (let k: number = 0; k < 4; ++k) lock(pixels, C.locks[k]!, 15, 0.7, 2.6, k);
-  lock(pixels, C.single, 1, 1, 7, 10);
-  lock(pixels, C.lashes, 3, 0.8, 2.2, 11);
+  lock(pixels, C.single, 1, 1, 13, 10);
+  lock(pixels, C.lashes, 3, 0.8, 5, 11);
   for (let y: number = 0; y < HEIGHT; ++y)
     for (let x: number = Math.ceil(C.solid[0] * WIDTH); x < WIDTH; ++x) {
       const at: number = 4 * (y * WIDTH + x);
