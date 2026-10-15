@@ -38,6 +38,7 @@ These rules add to the [3d-modeling skill](../3d-modeling/SKILL.md) for Human wo
 ## Verification And Reporting
 
 - A visual claim stands only on actual viewer screenshots that the claimant opened and looked at, attached where the user reads them. A lead opens a subagent's screenshots before accepting its visual claim.
+- Calibrate and judge form on lean 20-year-olds: a slim, model-grade woman and man, plus a low-fat muscular woman and man for muscle relief. Fat, sagging skin and wrinkles hide wrong form, so heavier, older and younger people only confirm that the converter's range still holds after the lean four pass.
 - Report progress as stages and renders, never as a percentage.
 - When the code-and-formula route seems unable to reach the quality bar, stop and report it; never substitute data or another route.
 - Keep numerical, clinical, and visual judgments distinct, and preserve the last valid state when an operation fails.
