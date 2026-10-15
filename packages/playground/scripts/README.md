@@ -44,6 +44,15 @@ Overrides via env: `CHROME=/path/to/chrome` (binary), `BASE=http://host:port`
 `[page, query, durationSeconds, frameCount, width, height, outPath, fps]` to
 capture a new clip. Encoding uses `h264-mp4-encoder` (wasm) + `pngjs`.
 
+## Human preset views (`human:capture`)
+
+Drives `human.html` in Chrome, loads each person through the page's `window.__automovieHuman` API and runs the page's capture action: PNGs go to `.shots/output/<name>-<scale>-<view>.png`, and `.shots/captures/<name>.json` records the source commit, uncommitted paths, document hash, WebGL renderer, documents and camera of every view. A software renderer is refused. Without `--people` it captures the page's default person in all eight views at whole-body and head scales.
+
+```bash
+pnpm human:capture -- --name adult-female
+pnpm human:capture -- --people people.json   # [{ name, traits?, statureScale?, session?, views?, scales?, focus?, hidden? }]
+```
+
 ## Capture smoke (`smoke:capture`, #1170)
 
 Chrome renders the served stickman page and the existing adapter captures beauty, mask and pose in two sessions. The script compares their bytes on that host, checks the declared mask/pose color-population thresholds and requires beauty to differ from mask. These checks do not prove anatomical or visual quality or cross-host GPU equivalence. It reuses a responding server at `--base` (default `http://127.0.0.1:5173`) or acquires and terminates its own Vite process. Google Chrome is required (`--chrome` or `CHROME` selects its executable); a failed check exits nonzero.
