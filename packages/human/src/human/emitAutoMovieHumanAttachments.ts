@@ -12,7 +12,7 @@ import { IAutoMovieHumanMeasurements } from "../measure/IAutoMovieHumanMeasureme
 import { IAutoMovieHumanPartGenerator } from "../parts/IAutoMovieHumanPartGenerator";
 import { IAutoMovieHumanSkeleton } from "../skeleton/IAutoMovieHumanSkeleton";
 import { IAutoMovieHumanPartGenerators } from "./IAutoMovieHumanPartGenerators";
-import { AUTOMOVIE_HUMAN_PART_INSTANCES } from "./emitAutoMovieHumanSkinParts";
+import { AUTOMOVIE_HUMAN_PART_INSTANCES } from "./AUTOMOVIE_HUMAN_PART_INSTANCES";
 
 /**
  * Emit every part's separate meshes, such as nail plates and eyeballs, as their own model parts, each riding its bone.

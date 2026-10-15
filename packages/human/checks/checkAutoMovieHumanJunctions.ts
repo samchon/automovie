@@ -4,7 +4,7 @@
 // sex, age and stature and fails, naming each site and gap, when any ring
 // pair does not coincide.
 import { AUTOMOVIE_HUMAN_PART_GENERATORS } from "../src/human/AUTOMOVIE_HUMAN_PART_GENERATORS";
-import { joinAutoMovieHumanCages } from "../src/human/emitAutoMovieHumanSkin";
+import { joinAutoMovieHumanCages } from "../src/human/joinAutoMovieHumanCages";
 import { AutoMovieHumanConverter } from "../src/measure/AutoMovieHumanConverter";
 import { IAutoMovieHumanMeasurements } from "../src/measure/IAutoMovieHumanMeasurements";
 import { resolveAutoMovieHumanMeasurements } from "../src/measure/resolveAutoMovieHumanMeasurements";
