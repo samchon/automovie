@@ -13,7 +13,7 @@ import { poseAutoMovieSweep } from "./poseAutoMovieSweep";
  * points with their bones, keeping every patch, count and name.
  *
  * Each bound sweep is posed by `poseAutoMovieSweep`. A free node, a curve's
- * through points and direction, and a ring's pinned positions move rigidly
+ * through points, direction and normal, and a ring's pinned positions move rigidly
  * with the bone named for them; nodes on a sweep follow that sweep by
  * construction. Anything without a binding keeps its rest position. Because
  * the patch layout is unchanged, sampling the posed network at a tier gives
@@ -106,6 +106,7 @@ export const poseAutoMovieSurfaceNetwork: (props: {
                   ...c,
                   ...(c.through === undefined ? {} : { through: c.through.map((p: IAutoMovieVector3) => m.apply(p)) }),
                   ...(c.direction === undefined ? {} : { direction: Quaternion.rotateVector(m.rotation, c.direction) }),
+                  ...(c.normal === undefined ? {} : { normal: Quaternion.rotateVector(m.rotation, c.normal) }),
                 },
               ];
             },
