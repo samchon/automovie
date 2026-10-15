@@ -211,6 +211,7 @@ export function sectionAutoMovieHumanArm(
     };
   });
 }
+/** Section type of {@link sectionAutoMovieHumanArm}, one per station. */
 export namespace sectionAutoMovieHumanArm {
   /**
    * One cross-section of the arm, at one edge loop.

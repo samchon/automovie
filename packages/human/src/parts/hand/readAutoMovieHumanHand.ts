@@ -112,6 +112,7 @@ export function readAutoMovieHumanHand(
     },
   };
 }
+/** Finger names and the hand and digit types {@link readAutoMovieHumanHand} returns. */
 export namespace readAutoMovieHumanHand {
   /** The four fingers by their bone name stem. */
   export type IFinger = "Index" | "Middle" | "Ring" | "Little";

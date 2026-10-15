@@ -73,6 +73,7 @@ export function estimateAutoMovieHumanArmTissue(
     wristBreadth: BREADTH_PER_WRIST.wrist * arm.wristCircumference,
   };
 }
+/** Output type of {@link estimateAutoMovieHumanArmTissue}. */
 export namespace estimateAutoMovieHumanArmTissue {
   /**
    * Soft tissue and bony breadths of one arm, millimetres unless stated.

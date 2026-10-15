@@ -186,6 +186,7 @@ export function shapeAutoMovieHumanEar(
     ],
   };
 }
+/** Size, form and output types of {@link shapeAutoMovieHumanEar}. */
 export namespace shapeAutoMovieHumanEar {
   /**
    * The measurements the auricle is drawn from, millimetres.

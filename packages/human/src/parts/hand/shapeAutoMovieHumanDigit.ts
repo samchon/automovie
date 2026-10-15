@@ -67,6 +67,7 @@ export function shapeAutoMovieHumanDigit(
   const apex: number = sketch.cap(loops[loops.length - 1]!, props.apex);
   return { loops, apex };
 }
+/** Props, section and output types of {@link shapeAutoMovieHumanDigit}. */
 export namespace shapeAutoMovieHumanDigit {
   /**
    * The vertices one digit added.

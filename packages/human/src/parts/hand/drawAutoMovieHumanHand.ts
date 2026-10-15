@@ -114,6 +114,7 @@ export function drawAutoMovieHumanHand(props: {
     quads,
   };
 }
+/** Output type of {@link drawAutoMovieHumanHand}. */
 export namespace drawAutoMovieHumanHand {
   /**
    * One solved hand.

@@ -81,6 +81,7 @@ export function paintAutoMovieHumanEye(
     },
   };
 }
+/** Output type of {@link paintAutoMovieHumanEye}. */
 export namespace paintAutoMovieHumanEye {
   /**
    * The eyeball's two images.

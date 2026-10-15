@@ -141,6 +141,7 @@ export function placeAutoMovieHumanTrunkShoulder(
   const cut: IAutoMovieVector3[] = layout.positions;
   return { crest, rings, cut };
 }
+/** Output type of {@link placeAutoMovieHumanTrunkShoulder}. */
 export namespace placeAutoMovieHumanTrunkShoulder {
   /**
    * The shoulder's points beyond the torso loops.

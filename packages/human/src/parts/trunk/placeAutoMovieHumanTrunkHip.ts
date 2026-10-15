@@ -137,6 +137,7 @@ export function placeAutoMovieHumanTrunkHip(
     cut,
   };
 }
+/** Output type of {@link placeAutoMovieHumanTrunkHip}. */
 export namespace placeAutoMovieHumanTrunkHip {
   /**
    * The hip's points beyond the torso loops.

@@ -99,6 +99,7 @@ export function shapeAutoMovieHumanHeadRelief(
     },
   };
 }
+/** Output type of {@link shapeAutoMovieHumanHeadRelief}. */
 export namespace shapeAutoMovieHumanHeadRelief {
   /**
    * The relief and the nose.

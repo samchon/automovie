@@ -76,6 +76,7 @@ export function meshAutoMovieHumanEye(props: {
     cornea: revolve([cornea], around, p, mean),
   };
 }
+/** Output type of {@link meshAutoMovieHumanEye}. */
 export namespace meshAutoMovieHumanEye {
   /**
    * The eyeball's two surfaces.

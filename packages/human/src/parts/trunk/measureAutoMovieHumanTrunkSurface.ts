@@ -86,6 +86,7 @@ export function measureAutoMovieHumanTrunkSurface(
     thigh: section(L.gluteal, (x: number): boolean => x > 0).girth,
   };
 }
+/** Output type of {@link measureAutoMovieHumanTrunkSurface}. */
 export namespace measureAutoMovieHumanTrunkSurface {
   /**
    * The trunk's measured surface.
