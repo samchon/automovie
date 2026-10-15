@@ -62,7 +62,21 @@ Vertebral levels of surface landmarks, all measured against imaging:
 | Pelvic tilt | 13.0 +- 6.8 deg | rises slightly with age (r 0.16) | same |
 | Sacral slope | 39.6 +- 7.9 deg | falls slightly (r -0.10) | same |
 
-PI = PT + SS is a geometric identity: pelvic incidence is a fixed shape parameter of the pelvis per identity, and tilt is posture. Lumbar lordosis was not read from a source (open question). The rib cage and pelvis are rigid masses that bend, twist and tilt against each other through the lumbar spine (`../sources/bridgman-1920.md`, conventional); at rest the thorax leans back over the lordosis while the pelvis tilts forward, which gives the counter-tilt the trunk generator expects.
+PI = PT + SS is a geometric identity: pelvic incidence is a fixed shape parameter of the pelvis per identity, and tilt is posture.
+
+### Sagittal curvature as built (#2793 review)
+
+The first stick render stood the spine as a straight vertical line. Now the identity carries a posture group (pelvic tilt, sacral slope, thoracic kyphosis T2-T12, sagittal vertical axis, craniovertebral angle), filled by age and sex:
+
+| Source | Ages | Values |
+| --- | --- | --- |
+| `../sources/mac-thiong-2011-pediatric.md` | 3-10, 10-18 (pooled) | PT 5.5, 7.7; SS 38.2, 39.1; TK 42.0, 45.8; SVA (Cil 2005) +25 at 3-6 down to -9 mm at 13-15 |
+| `../sources/asai-2017-wakayama.md` | under 50 to 80+, by sex | PT 11.5 to 19.7 (men), 14.5 to 25.2 (women); SS = PI - PT; TK 33 to 40-44; SVA -11/-19 to +39/+52 mm |
+| `../sources/zarate-tejero-2024-cva.md` | 18-75, by sex | CVA 47.5 (men), 50.1 (women) at 45, -1.6 a decade |
+
+Geometry (`curveAutoMovieHumanSpine`): column heights from the identity (sacral plate 1.25 lumbar segments under the crest, lumbar segment 18/46/5 of the C7-S1 height from Gray's column lengths, C7 at cervicale); the plate's midpoint behind the hip axis by PT; tangent SS at the plate; Roussouly's arcs (`../sources/roussouly-2011-biomechanical.md`) with the lumbar apex at L3-4, the inflection at mid-T12 and the thoracic apex at T7 (Gray 1918: thoracic curve from mid-T2 to mid-T12, most prominent behind at T7; lumbar curve from mid-T12, lower three vertebrae most convex; the lumbar curve forms at 12 to 18 months with walking). Lordosis is solved so C7 stands at the identity's SVA over the plate's posterior superior corner. The head is carried so the line from the cervicale skin point to tragion rises at the CVA; the shoulders stand in the coronal plane of the jugular notch (conventional).
+
+Finding: with Asai's angles the arc model needs a lordosis 15 to 20 degrees larger than Asai measured (solved 64-73 against 48-52 in adults under 50; 47-53 against 39 at 80+) to put C7 at the measured SVA. The measured balance and kyphosis are honoured and the lordosis absorbs the model's error; a measured distribution of curvature per level (segmental angles) would remove it. The rib cage and pelvis are rigid masses that bend, twist and tilt against each other through the lumbar spine (`../sources/bridgman-1920.md`, conventional); at rest the thorax leans back over the lordosis while the pelvis tilts forward, which gives the counter-tilt the trunk generator expects.
 
 ## Breadths and sex differences
 
@@ -116,7 +130,8 @@ From Gray 1918 surface anatomy (`../sources/gray-1918.md`), conventional for a l
 ## Open questions
 
 - Why de Leva's thigh (HJC to KJC, 422 mm men) is 20 mm longer than our ANSUR-derived 402 mm: different knee centre definition, different population, or a trochanterion-to-hip-centre offset that is not purely vertical.
-- Lumbar lordosis norms and their relation to pelvic incidence: no source read.
+- Segmental angles of the lumbar and thoracic curves (where the arcs really turn): no source read; the solved lordosis exceeds the survey's.
+- Old-age posture in children's and European samples, and infants below 3 years standing: not read; the youngest child group holds below 3 years.
 - Hara's equations need ASIS-to-medial-malleolus leg length; ANSUR II has no iliospinale height, so the ASIS height must come from another source or a fitted offset from trochanterion and iliocristale heights.
 - Clavicle length, scapula dimensions and the scapulohumeral rhythm (ratio of glenohumeral to scapulothoracic elevation): no source read.
 - Carrying angle of the elbow and knee valgus by sex: no numeric source read (Goldfarb 2012 reports a larger carrying angle in females, abstract only).

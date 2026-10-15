@@ -32,48 +32,50 @@ const ARM_AXES: IAutoMovieHumanSkeleton.IAxes = {
 /**
  * Place one arm, in the anthropometric posture with the arm hanging.
  *
- * The acromion sits at acromial height, half the biacromial breadth from the midline. The arm hangs straight below it: radiale at acromial height minus acromion-radiale length, stylion a forearm length lower, the middle fingertip a hand length below stylion, so measuring the hanging arm returns the identity's lengths exactly. The shoulder, elbow and wrist centres sit at de Leva's offsets from those landmarks, scaled with the segment. The clavicle runs from the sternoclavicular joint, level with the jugular notch, to the shoulder joint centre; the scapula has no bone, so the shoulder bone carries the acromion. No carrying angle is modelled, for want of a measured source.
+ * The acromion sits at acromial height, half the biacromial breadth from the midline. The arm hangs straight below it: radiale at acromial height minus acromion-radiale length, stylion a forearm length lower, the middle fingertip a hand length below stylion, so measuring the hanging arm returns the identity's lengths exactly. The shoulder, elbow and wrist centres sit at de Leva's offsets from those landmarks, scaled with the segment. The arm hangs in the coronal plane at the trunk's shoulder depth. The clavicle runs from the sternoclavicular joint beside the jugular notch, on the front of the neck, back and out to the shoulder joint centre; the scapula has no bone, so the shoulder bone carries the acromion. No carrying angle is modelled, for want of a measured source.
  *
  * The skeleton generator then turns the upper arm and everything below it about the shoulder centre into the T-pose; the clavicle and acromion stay, because the canonical rest frame assigns the whole 90 degrees to the upper arm.
  *
  * @param body The body measurements
  * @param side Which arm
- * @param suprasternale Height of the jugular notch, millimetres
+ * @param suprasternale The jugular notch
+ * @param depth Front-back position of the shoulder and the hanging arm, millimetres
  * @returns Joints from the clavicle to the fingertips, the shoulder centre, and the arm's landmarks
  */
 export function placeAutoMovieHumanArm(
   body: IAutoMovieHumanIdentity.IBody,
   side: "left" | "right",
-  suprasternale: number,
+  suprasternale: IAutoMovieVector3,
+  depth: number,
 ): placeAutoMovieHumanArm.IOutput {
   const V: typeof AutoMovieHumanVector = AutoMovieHumanVector;
   const s: number = side === "left" ? 1 : -1;
   const arm: IAutoMovieHumanIdentity.IArm =
     side === "left" ? body.leftArm : body.rightArm;
   const x: number = (s * body.biacromialBreadth) / 2;
-  const acromion: IAutoMovieVector3 = V.of(x, body.acromialHeight, 0);
+  const acromion: IAutoMovieVector3 = V.of(x, body.acromialHeight, depth);
   const radialeY: number = body.acromialHeight - arm.upperArmLength;
-  const radiale: IAutoMovieVector3 = V.of(x, radialeY, 0);
-  const stylion: IAutoMovieVector3 = V.of(x, radialeY - arm.forearmLength, 0);
+  const radiale: IAutoMovieVector3 = V.of(x, radialeY, depth);
+  const stylion: IAutoMovieVector3 = V.of(x, radialeY - arm.forearmLength, depth);
   const shoulder: IAutoMovieVector3 = V.of(
     x,
     body.acromialHeight - JOINT_OFFSET.shoulder * arm.upperArmLength,
-    0,
+    depth,
   );
   const elbow: IAutoMovieVector3 = V.of(
     x,
     radialeY + JOINT_OFFSET.elbow * arm.upperArmLength,
-    0,
+    depth,
   );
   const wrist: IAutoMovieVector3 = V.of(
     x,
     stylion.y - JOINT_OFFSET.wrist * arm.forearmLength,
-    0,
+    depth,
   );
   const clavicale: IAutoMovieVector3 = V.of(
     s * CLAVICALE_PER_BIACROMIAL * body.biacromialBreadth,
-    suprasternale,
-    0,
+    suprasternale.y,
+    suprasternale.z,
   );
   const hand: placeAutoMovieHumanHand.IOutput = placeAutoMovieHumanHand(
     arm,
