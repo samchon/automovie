@@ -58,7 +58,7 @@ export function shapeAutoMovieHumanDigit(
     ];
     const loop: number[] = sketch.loop(
       offsets.map(([y, z]: [number, number], k: number): IAutoMovieVector3 =>
-        V.offset(centre, [palmar, y], [ulnar, z], [tangent, section.advance?.[k] ?? 0]),
+        V.offset(centre, [palmar, y * (section.swell?.[k] ?? 1)], [ulnar, z * (section.swell?.[k] ?? 1)], [tangent, section.advance?.[k] ?? 0]),
       ),
     );
     sketch.bridge(loops[loops.length - 1]!, loop);
@@ -133,5 +133,8 @@ export namespace shapeAutoMovieHumanDigit {
 
     /** Distance each vertex is carried along the digit beyond the section's plane, millimetres, by loop index; none when omitted. */
     advance?: number[];
+
+    /** Factor on each vertex's distance from the section's centre, by loop index: above 1 a crest or pad, below 1 a crease; 1 when omitted. */
+    swell?: number[];
   }
 }

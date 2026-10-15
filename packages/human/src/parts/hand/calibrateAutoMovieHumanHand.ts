@@ -30,6 +30,9 @@ export function calibrateAutoMovieHumanHand(props: {
 
   /** Vertices of the thumb beyond its socket. */
   thumb: number[];
+
+  /** Vertices kept at their given points, the loop beside the wrist ring. */
+  held: number[];
 }): IAutoMovieVector3[] {
   const hand: readAutoMovieHumanHand.IHand = props.hand;
   const digits: Set<number> = new Set([...props.thumb, ...props.fingers.flatMap((f) => f.vertices)]);
@@ -40,7 +43,7 @@ export function calibrateAutoMovieHumanHand(props: {
   const half: number = (hand.metacarpaleII.z - hand.metacarpaleV.z) / 2;
   let positions: IAutoMovieVector3[] = [];
   for (let pass: number = 0; pass < 4; ++pass) {
-    positions = fitAutoMovieHumanCageLimit({ targets: props.targets, faces: props.faces, sweeps: 400 });
+    positions = fitAutoMovieHumanCageLimit({ targets: props.targets, faces: props.faces, sweeps: 400, held: props.held });
     if (pass === 3) break;
     const surface: IAutoMovieSubdivisionSurface = subdivideAutoMovieSurface({
       cage: {

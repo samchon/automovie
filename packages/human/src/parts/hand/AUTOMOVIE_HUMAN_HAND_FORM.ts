@@ -27,6 +27,11 @@ export const AUTOMOVIE_HUMAN_HAND_FORM = {
   depth: { pip: 0.953, dip: 0.849, thumb: 0.932 },
 
   /**
+   * Distance of the loop beside the wrist ring from it, over hand length. Conventional: close enough that the ring keeps its girth in the joined surface, far enough to leave the carpus to the palm's loops.
+   */
+  besideWrist: 0.03,
+
+  /**
    * Hand circumference over metacarpales II and V over hand breadth, pooled over the ANSUR II means of 2.388 in women and 2.406 in men (Gordon et al. 2014, NATICK/TR-15/007). The palm's section at the heads is given the thickness at which its own perimeter equals this circumference. Grade: measured, ratio derived.
    */
   circumference: 2.397,
@@ -35,6 +40,11 @@ export const AUTOMOVIE_HUMAN_HAND_FORM = {
    * Fat over the back of a young adult's hand, millimetres: the dorsal superficial, intermediate and deep laminae over the metacarpals by ultrasound, 0.70, 2.16 and 1.48 mm in the 20s, from their losses to over 60 and the shares those losses are (Hung et al. 2022, Aesthet Surg J 42(10):1119-1126). The hand's dorsal form is drawn for this thickness; an identity with less fat loses the difference from the back of the palm, while the knuckle crests, bone under thin skin, stay. Grade: measured, sum derived.
    */
   dorsalFat: 4.34,
+
+  /**
+   * Share of the lost dorsal fat that comes from the superficial lamina, the one that also covers the extensor tendons: 0.21 of the 1.90 mm the three laminae lose from the 20s to over 60 (Hung et al. 2022). Between the tendons all of the loss shows, over them only this share, so old hands show their tendons. Grade: derived.
+   */
+  dorsalFatSuperficialShare: 0.11,
 
   /**
    * Depth of the web between thumb and index below the wrist crease, over hand length (Greiner 1991, crotch 1 height: 62.8 and 69.1 mm). Grade: measured, ratio derived.
