@@ -160,7 +160,8 @@ export function constrainAutoMovieHumanJoint(
       return {
         flexion: range(Math.min(0, negate(arm.elbowHyperextension)), arm.elbowFlexion),
         abduction: null,
-        twist: range(negate(arm.forearmPronation), arm.forearmSupination),
+        // positive twist about the T-pose arm's +X pronates either forearm, the engine's arm basis, so supination is negative
+        twist: range(negate(arm.forearmSupination), arm.forearmPronation),
       };
     case "Hand":
       return {
