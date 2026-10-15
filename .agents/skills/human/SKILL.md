@@ -10,7 +10,7 @@ These rules add to the [3d-modeling skill](../3d-modeling/SKILL.md) for Human wo
 ## Source Of Form
 
 - Generate every person from typed parameters through code and formulas. The package holds no mesh, morph target, landmark index or baked data, neither as files nor as large literals; a small named constant that cites its primary source is allowed. The build guard `packages/human/scripts/guard.ts` refuses the rest.
-- MakeHuman and MPFB code may be read to understand their methods; never copy it into the repository, because it is AGPL and GPL. MakeHuman's CC0 data and MetaHuman exports the user provides in `.references/metahuman` serve as comparison and calibration references outside the package: sections, silhouettes, feature curves and face loops extracted from them fit the named coefficients, and their geometry never enters it.
+- MakeHuman and MPFB code may be read to understand their methods; never copy it into the repository, because it is AGPL and GPL. MakeHuman's CC0 data and MetaHuman exports the user provides in `.references/metahuman` serve as comparison and calibration references outside the package: sections, silhouettes, feature curves and face loops extracted from them fit the named coefficients, and their geometry never enters it. They are references, not ground truth: fit on the presets closest to the gate identities, keep only coefficients that hold across all presets by sex, height, build and ancestry, and use a reference only for what it models (MetaHuman's builds do not model how thin fat sharpens relief).
 - Compare a value only with one taken by the same protocol, scale, level and posture, converting first with a cited relation: bioimpedance or skinfold body fat onto DXA, arms-down measurements onto the T-pose rest form.
 - Ground each anatomical value in a primary measurement, a dissection study, or an established physiological account, with its quantity, protocol, population, and conditions, and mark it measured, derived, population-fitted, or conventional. Cite only a source you read.
 - Extending a value beyond the population, site, direction, or state it was measured at is a new inference that needs its own grounds and a geometry check.
@@ -42,6 +42,7 @@ These rules add to the [3d-modeling skill](../3d-modeling/SKILL.md) for Human wo
 ## Verification And Reporting
 
 - Every Human part is generated from curves, so every judgment of it follows the [net review](../3d-modeling/SKILL.md#visual-debugging).
+- Fix form in rounds, not defect by defect: compare the joined gate identities with their nearest references in full (side-by-side views, section overlays, per-region error maps), register every defect by cause and owner, fix all causes in one pass, then rerun the same comparison.
 - Attach the screenshots behind a visual claim where the user reads them. A lead opens a subagent's screenshots before accepting its visual claim.
 - Calibrate and judge form on lean 20-year-olds: a slim, model-grade woman and man, plus a low-fat muscular woman and man for muscle relief. Fat, sagging skin and wrinkles hide wrong form, so heavier, older and younger people only confirm that the converter's range still holds after the lean four pass.
 - Report progress as stages and renders, never as a percentage.
