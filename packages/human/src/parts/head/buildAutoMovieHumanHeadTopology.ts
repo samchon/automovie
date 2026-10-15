@@ -95,10 +95,23 @@ export function buildAutoMovieHumanHeadTopology(): buildAutoMovieHumanHeadTopolo
   };
 
   // concentric loops filling a hole, outer loop first, each running as the faces outside it do
+  const eyeY: number = EYE_BOTTOM + 1;
+  // a lattice point's place around its feature's hole, the hole a unit square: laterally and up for an eye, toward the left and up for the mouth
+  const place = (feature: "leftEye" | "rightEye" | "mouth", x: number, y: number, z: number): [number, number] => {
+    if (feature === "mouth") return [(x - half) / 3, z - (MOUTH_BOTTOM + 1)];
+    const sign: number = feature === "leftEye" ? 1 : -1;
+    return [(sign * (x - (half + 3 * sign))) / 2, y - eyeY];
+  };
+  const pockets: Record<"leftEye" | "rightEye" | "mouth", Array<{ vertex: number; offset: [number, number] }>> = {
+    leftEye: [],
+    rightEye: [],
+    mouth: [],
+  };
   const fill = (
     feature: "leftEye" | "rightEye" | "mouth",
     start: [number, number, number],
     centre: IAutoMovieVector3,
+    cells: Array<Array<[number, number, number]>>,
   ): number[][] => {
     const outer: number[] = loopFrom(lattice(...start));
     const loops: number[][] = [outer];
@@ -125,23 +138,79 @@ export function buildAutoMovieHumanHeadTopology(): buildAutoMovieHumanHeadTopolo
       });
       loops.push(loop);
     }
+    // the pocket's floor: the hole's own cells again, wound as before, on the innermost loop
+    const innermost: number[] = loops[LOOPS - 1]!;
+    const floor: Map<string, number> = new Map();
+    for (const cell of cells)
+      faces.push(
+        cell.map(([x, y, z]: [number, number, number]): number => {
+          const key: string = `${x},${y},${z}`;
+          const rim: number = outer.indexOf(index.get(key) ?? -1);
+          if (rim !== -1) return innermost[rim]!;
+          let found: number | undefined = floor.get(key);
+          if (found === undefined) {
+            found = vertices.length;
+            floor.set(key, found);
+            vertices.push({
+              lattice: null,
+              loop: { feature, loop: LOOPS, outer: -1 },
+              canonical: AutoMovieHumanVector.normalize(
+                AutoMovieHumanVector.offset(
+                  AutoMovieHumanVector.of(0, 0, 0),
+                  [canonical(x, y, z), 1 / (LOOPS + 1)],
+                  [centre, LOOPS / (LOOPS + 1)],
+                ),
+              ),
+            });
+            pockets[feature].push({ vertex: found, offset: place(feature, x, y, z) });
+          }
+          return found;
+        }) as [number, number, number, number],
+      );
     return loops;
   };
-  const eyeY: number = EYE_BOTTOM + 1;
+  const front = (xs: number[], ys: number[]): Array<Array<[number, number, number]>> =>
+    xs.flatMap((x: number) =>
+      ys.map((y: number): Array<[number, number, number]> => [
+        [x, y, DEPTH],
+        [x + 1, y, DEPTH],
+        [x + 1, y + 1, DEPTH],
+        [x, y + 1, DEPTH],
+      ]),
+    );
+  const bottom = (xs: number[], zs: number[]): Array<Array<[number, number, number]>> =>
+    xs.flatMap((x: number) =>
+      zs.map((z: number): Array<[number, number, number]> => [
+        [x, 0, z],
+        [x + 1, 0, z],
+        [x + 1, 0, z + 1],
+        [x, 0, z + 1],
+      ]),
+    );
   const loops: Record<"leftEye" | "rightEye" | "mouth", number[][]> = {
-    leftEye: fill("leftEye", [half + 1, eyeY, DEPTH], canonical(half + 3, eyeY, DEPTH)),
-    rightEye: fill("rightEye", [half - 1, eyeY, DEPTH], canonical(half - 3, eyeY, DEPTH)),
-    mouth: fill("mouth", [half, 0, MOUTH_BOTTOM + 2], canonical(half, 0, MOUTH_BOTTOM + 1)),
+    leftEye: fill(
+      "leftEye",
+      [half + 1, eyeY, DEPTH],
+      canonical(half + 3, eyeY, DEPTH),
+      front(range(half + 1, half + 5), range(EYE_BOTTOM, EYE_BOTTOM + 2)),
+    ),
+    rightEye: fill(
+      "rightEye",
+      [half - 1, eyeY, DEPTH],
+      canonical(half - 3, eyeY, DEPTH),
+      front(range(half - 5, half - 1), range(EYE_BOTTOM, EYE_BOTTOM + 2)),
+    ),
+    mouth: fill(
+      "mouth",
+      [half, 0, MOUTH_BOTTOM + 2],
+      canonical(half, 0, MOUTH_BOTTOM + 1),
+      bottom(range(half - 3, half + 3), range(MOUTH_BOTTOM, MOUTH_BOTTOM + 2)),
+    ),
   };
 
   const at = (x: number, y: number, z: number): number => index.get(`${x},${y},${z}`)!;
-  // each rim vertex's place around its hole, the hole a unit square
-  const offset = (vertex: number, feature: "leftEye" | "rightEye" | "mouth"): [number, number] => {
-    const [x, y, z] = vertices[vertex]!.lattice!;
-    if (feature === "mouth") return [(x - half) / 3, z - (MOUTH_BOTTOM + 1)];
-    const sign: number = feature === "leftEye" ? 1 : -1;
-    return [(sign * (x - (half + 3 * sign))) / 2, y - eyeY];
-  };
+  const offset = (vertex: number, feature: "leftEye" | "rightEye" | "mouth"): [number, number] =>
+    place(feature, ...vertices[vertex]!.lattice!);
   // build order counterclockwise about the head's long axis from the anterior midline
   const neck: number[] = [
     ...range(half, half + 2).map((x: number): number => at(x, 0, NECK_BACK + 2)),
@@ -170,6 +239,7 @@ export function buildAutoMovieHumanHeadTopology(): buildAutoMovieHumanHeadTopolo
       right: ear(1, 0).map(([v, up, forward]) => ({ vertex: v, up, forward })),
     },
     loops,
+    pockets,
     rims: {
       leftEye: loops.leftEye[0]!.map((v: number) => offset(v, "leftEye")),
       rightEye: loops.rightEye[0]!.map((v: number) => offset(v, "rightEye")),
@@ -224,6 +294,9 @@ export namespace buildAutoMovieHumanHeadTopology {
      */
     rims: Record<"leftEye" | "rightEye" | "mouth", Array<[number, number]>>;
 
+    /** Each feature's pocket floor vertices, inside its innermost loop, with their place across the hole as in `rims`. */
+    pockets: Record<"leftEye" | "rightEye" | "mouth", Array<{ vertex: number; offset: [number, number] }>>;
+
     /** The box corners, left first in each pair. */
     corners: Record<"cheek" | "occiput" | "temple" | "parietal", [number, number]>;
 
@@ -246,8 +319,8 @@ const MOUTH_BOTTOM: number = 6;
 const EYE_BOTTOM: number = 1;
 /** Side-plane column where each ear hole starts, counted from the back. */
 const EAR_BACK: number = 3;
-/** Loops in each feature hole, the rim included. */
-const LOOPS: number = 4;
+/** Loops in each feature hole, the rim included; the innermost lines the pocket behind the lids or lips. */
+const LOOPS: number = 5;
 
 const range = (from: number, to: number, step: number = 1): number[] => {
   const out: number[] = [];

@@ -2,8 +2,8 @@ import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieHumanCageBuilder } from "../../junction/AutoMovieHumanCageBuilder";
 import { IAutoMovieHumanCage } from "../../junction/IAutoMovieHumanCage";
-import { IAutoMovieHumanRingLayout } from "../../junction/IAutoMovieHumanRingLayout";
-import { layoutAutoMovieHumanRing } from "../../junction/layoutAutoMovieHumanRing";
+import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
+import { shapeAutoMovieHumanRing } from "../../junction/shapeAutoMovieHumanRing";
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanPartGenerator } from "../../parts/IAutoMovieHumanPartGenerator";
 import { AutoMovieHumanHeadField } from "./AutoMovieHumanHeadField";
@@ -26,25 +26,45 @@ export class AutoMovieHumanHeadGenerator implements IAutoMovieHumanPartGenerator
     const frame: frameAutoMovieHumanHead.IFrame = frameAutoMovieHumanHead(props.skeleton);
     const field: AutoMovieHumanHeadField = new AutoMovieHumanHeadField(frame, props.measurements);
     const topology: buildAutoMovieHumanHeadTopology.ITopology = buildAutoMovieHumanHeadTopology();
-    const layout = (site: "neckTop" | "ear", side: "left" | "right" | null): IAutoMovieHumanRingLayout =>
-      layoutAutoMovieHumanRing({ skeleton: props.skeleton, site, side, part: "head" });
-    const neck: IAutoMovieHumanRingLayout = layout("neckTop", null);
-    const ears: Record<"left" | "right", IAutoMovieHumanRingLayout> = {
-      left: layout("ear", "left"),
-      right: layout("ear", "right"),
+    const shape = (site: "neckTop" | "ear", side: "left" | "right" | null): IAutoMovieHumanRingShape =>
+      shapeAutoMovieHumanRing({ skeleton: props.skeleton, measurements: props.measurements, site, side, part: "head" });
+    const neck: IAutoMovieHumanRingShape = shape("neckTop", null);
+    const ears: Record<"left" | "right", IAutoMovieHumanRingShape> = {
+      left: shape("ear", "left"),
+      right: shape("ear", "right"),
     };
     const direction = (d: IAutoMovieVector3): IAutoMovieVector3 =>
       frameAutoMovieHumanHead.toLocal({ ...frame, origin: AutoMovieHumanVector.of(0, 0, 0) }, d);
+    // ring vertices sit exactly on the shared boundary: the neck ring in build order, each ear vertex on the direction nearest its place around the attachment
+    const rings: Map<number, IAutoMovieVector3> = new Map();
+    AutoMovieHumanCageBuilder.buildOrder(neck).forEach((j: number, b: number): void => {
+      rings.set(topology.neck[b]!, neck.positions[j]!);
+    });
+    const earOrder: Record<"left" | "right", number[]> = { left: [], right: [] };
+    for (const side of ["left", "right"] as const) {
+      const ring: IAutoMovieHumanRingShape = ears[side];
+      earOrder[side] = AutoMovieHumanCageBuilder.buildOrder(ring).map((j: number): number => {
+        const l: IAutoMovieVector3 = direction(ring.directions[j]!);
+        let best: number = -1;
+        let score: number = -Infinity;
+        for (const e of topology.ears[side]) {
+          const s: number = (l.y * e.up + l.z * e.forward) / Math.hypot(e.up, e.forward);
+          if (s > score) {
+            score = s;
+            best = e.vertex;
+          }
+        }
+        rings.set(best, ring.positions[j]!);
+        return best;
+      });
+    }
     const anchors: Map<number, IAutoMovieVector3> = anchorAutoMovieHumanHead({
       topology,
       field,
       frame,
       measurements: props.measurements,
-      neck: {
-        origin: frameAutoMovieHumanHead.toLocal(frame, neck.frame.origin),
-        directions: AutoMovieHumanCageBuilder.buildDirections(neck).map(direction),
-      },
     });
+    for (const [vertex, position] of rings) anchors.set(vertex, frameAutoMovieHumanHead.toLocal(frame, position));
     const head = props.measurements.identity.head;
     const centre: IAutoMovieVector3 = AutoMovieHumanVector.of(0, 0.1 * head.headHeight, 0);
     const box: IAutoMovieVector3 = AutoMovieHumanVector.of(
@@ -69,8 +89,8 @@ export class AutoMovieHumanHeadGenerator implements IAutoMovieHumanPartGenerator
     });
 
     const builder: AutoMovieHumanCageBuilder = new AutoMovieHumanCageBuilder("head", null);
-    local.forEach((p: IAutoMovieVector3): void => {
-      builder.vertex(frameAutoMovieHumanHead.toModel(frame, p));
+    local.forEach((p: IAutoMovieVector3, i: number): void => {
+      builder.vertex(rings.get(i) ?? frameAutoMovieHumanHead.toModel(frame, p));
     });
     const chart: AutoMovieHumanCageBuilder.IChart[] = topology.vertices.map((v) => chartOf(v.canonical));
     for (const f of topology.faces) {
@@ -93,23 +113,11 @@ export class AutoMovieHumanHeadGenerator implements IAutoMovieHumanPartGenerator
       vertices: topology.neck,
       coordinates: topology.neck.map((i: number) => chart[i]!),
     });
-    for (const side of ["left", "right"] as const) {
-      const ring: IAutoMovieHumanRingLayout = ears[side];
-      const order: number[] = AutoMovieHumanCageBuilder.buildDirections(ring).map((d: IAutoMovieVector3): number => {
-        const l: IAutoMovieVector3 = direction(d);
-        let best: number = -1;
-        let score: number = -Infinity;
-        for (const e of topology.ears[side]) {
-          const s: number = (l.y * e.up + l.z * e.forward) / Math.hypot(e.up, e.forward);
-          if (s > score) {
-            score = s;
-            best = e.vertex;
-          }
-        }
-        return best;
+    for (const side of ["left", "right"] as const)
+      builder.record(ears[side], {
+        vertices: earOrder[side],
+        coordinates: earOrder[side].map((i: number) => chart[i]!),
       });
-      builder.record(ring, { vertices: order, coordinates: order.map((i: number) => chart[i]!) });
-    }
     return builder.build();
   }
 }
