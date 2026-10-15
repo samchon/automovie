@@ -110,7 +110,10 @@ const networkOf = (
     {
       frame,
       head: measurements.identity.head,
-      ring: { posterior: limit[n / 2]!, posterolateral: limit[(2 * n) / 3]! },
+      ring: {
+        posterior: limit[n / 2]!,
+        posterolateral: alongRing(limit, (2 * n) / 3),
+      },
       form,
     },
   );
@@ -159,6 +162,17 @@ const networkOf = (
       ["ear.right", ears.right],
     ],
   };
+};
+
+/** The point at a fractional index round a closed ring of points, between its neighbours. */
+const alongRing = (ring: IAutoMovieVector3[], x: number): IAutoMovieVector3 => {
+  const i: number = Math.floor(x);
+  const f: number = x - i;
+  return AutoMovieHumanVector.offset(
+    AutoMovieHumanVector.of(0, 0, 0),
+    [ring[i % ring.length]!, 1 - f],
+    [ring[(i + 1) % ring.length]!, f],
+  );
 };
 
 /** The sweep's name in the network. */

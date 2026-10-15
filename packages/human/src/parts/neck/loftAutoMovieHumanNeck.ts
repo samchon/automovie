@@ -27,7 +27,7 @@ import { sectionAutoMovieHumanNeck } from "./sectionAutoMovieHumanNeck";
  * 3. The throat, just under the jaw and parallel to the mandibular plane: the neck column alone, the egg of the neck circumference's mean radius {@link AUTOMOVIE_HUMAN_NECK_COLUMN} gives the neck-top ring behind and beside the jaw.
  * 4. The neck-top ring's limit curve in the mandibular plane, which in front is the jawline.
  *
- * Between the throat and the top ring the front widens from the column to the jawline within a few millimetres, so the submental surface runs forward under the chin and the throat rises upright below it, the cervicomental angle ("canopied in front by the chin", Bridgman 1920, Constructive Anatomy, p. 104). The sweep is one patch of twelve columns, so each ring's twelve vertices close it, pinned to the shared shapes.
+ * Between the throat and the top ring the front widens from the column to the jawline within a few millimetres, so the submental surface runs forward under the chin and the throat rises upright below it, the cervicomental angle ("canopied in front by the chin", Bridgman 1920, Constructive Anatomy, p. 104). The neck-top ring has 28 columns and the base 12; two transition bands over the lowest rows shed the difference, 12 to 18 to 28 going up, with the reduction blocks' pole pairs of valence three and five spread round the neck's base as on the reference meshes, and plain rows of 28 columns run to the top. Each ring's vertices close their band, pinned to the shared shapes.
  *
  * @param props The neck's sections and its two ring shapes, and the mid section's scale about the neck bone
  * @returns The neck cage, model frame, millimetres
@@ -115,10 +115,12 @@ export function loftAutoMovieHumanNeck(props: {
       }),
     ),
   };
-  const n: number = base.count;
+  const nb: number = base.count;
+  const nt: number = top.count;
   const surface: IAutoMovieSweepSurface = compileAutoMovieSweep(sweep);
   // ring vertex k sits on the sweep's column nearest it: the turn and direction bringing the ring's positions closest to the columns
   const columns = (shape: IAutoMovieHumanRingShape, u: number): number[] => {
+    const n: number = shape.count;
     const at: IAutoMovieVector3[] = Array.from(
       { length: n },
       (_: unknown, c: number): IAutoMovieVector3 => {
@@ -143,29 +145,56 @@ export function loftAutoMovieHumanNeck(props: {
       }
     return best.order;
   };
-  const loop = (order: number[], u: number): IAutoMovieSurfaceNetwork.IEdge[] =>
-    order.map((c: number, k: number): IAutoMovieSurfaceNetwork.ISweepEdge => {
-      const next: number = order[(k + 1) % n]!;
-      const forward: boolean = (next - c + n) % n === 1;
-      return {
-        type: "sweep",
-        sweep: "neck",
-        from: { u, v: c / n },
-        to: { u, v: forward ? (c + 1) / n : (c - 1) / n },
-        segments: fixed(1),
-      };
-    });
+  const loop = (
+    order: number[],
+    u: number,
+  ): IAutoMovieSurfaceNetwork.IEdge[] => {
+    const n: number = order.length;
+    return order.map(
+      (c: number, k: number): IAutoMovieSurfaceNetwork.ISweepEdge => {
+        const next: number = order[(k + 1) % n]!;
+        const forward: boolean = (next - c + n) % n === 1;
+        return {
+          type: "sweep",
+          sweep: "neck",
+          from: { u, v: c / n },
+          to: { u, v: forward ? (c + 1) / n : (c - 1) / n },
+          segments: fixed(1),
+        };
+      },
+    );
+  };
   const network: IAutoMovieSurfaceNetwork = {
     sweeps: { neck: sweep },
     patches: [
       {
+        type: "transition",
+        name: "neck.base",
+        sweep: "neck",
+        u: [0, 1 / ROWS],
+        v: [0, 1],
+        start: fixed(nb),
+        end: fixed(MIDDLE),
+        rows: fixed(1),
+      },
+      {
+        type: "transition",
+        name: "neck.lower",
+        sweep: "neck",
+        u: [1 / ROWS, 2 / ROWS],
+        v: [0, 1],
+        start: fixed(MIDDLE),
+        end: fixed(nt),
+        rows: fixed(1),
+      },
+      {
         type: "sweep",
         name: "neck",
         sweep: "neck",
-        u: [0, 1],
+        u: [2 / ROWS, 1],
         v: [0, 1],
-        rows: fixed(ROWS),
-        columns: fixed(n),
+        rows: fixed(ROWS - 2),
+        columns: fixed(nt),
       },
     ],
     rings: [
@@ -200,12 +229,18 @@ export function loftAutoMovieHumanNeck(props: {
         sampled.corners[f]!.map(
           (
             c: IAutoMovieSurfaceCoordinate,
-          ): IAutoMovieHumanSurfaceCoordinate.IOn<"neck"> => ({
-            part: "neck",
-            side: null,
-            u: c.t,
-            v: c.s,
-          }),
+          ): IAutoMovieHumanSurfaceCoordinate.IOn<"neck"> => {
+            // the patch's own coordinates onto the neck's: u along it, v round it
+            const patch = network.patches[c.patch] as
+              | IAutoMovieSurfaceNetwork.ISweepPatch
+              | IAutoMovieSurfaceNetwork.ITransitionPatch;
+            return {
+              part: "neck",
+              side: null,
+              u: patch.u[0] + c.t * (patch.u[1] - patch.u[0]),
+              v: patch.v[0] + c.s * (patch.v[1] - patch.v[0]),
+            };
+          },
         );
       return {
         vertices: [face[0]!, face[1]!, face[2]!, face[3]!],
@@ -241,6 +276,9 @@ interface IStation {
 
 /** Rows of the neck between its rings. */
 const ROWS: number = 6;
+
+/** Columns between the two transition bands: at least three fifths of the finer count on either side, 28 and 18, so neither band sets two reduction blocks side by side in a valence-six pole. */
+const MIDDLE: number = 18;
 
 /** Depth of the throat's section under the mandibular plane, over the neck circumference's mean radius. Conventional. */
 const THROAT: number = 0.2;
