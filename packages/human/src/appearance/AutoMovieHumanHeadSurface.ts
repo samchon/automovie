@@ -94,6 +94,27 @@ export class AutoMovieHumanHeadSurface {
   }
 
   /**
+   * The surface point at a head chart address, falling back to the chart's canonical direction where the lookup finds no triangle.
+   *
+   * The head's chart is the elevation and turn of each control point's canonical direction, so near the poles, where the chart pinches and its triangles degenerate, the address is found by casting from a centre inside the head along that direction instead.
+   *
+   * @param centre A point inside the head, millimetres
+   * @param u Along the chart, 0 at its bottom and 1 at the vertex
+   * @param v Turn counterclockwise about the vertical from the anterior midline
+   * @returns The point, or null when neither finds the surface
+   */
+  public toward(centre: readonly number[], u: number, v: number): AutoMovieHumanHeadSurface.IPoint | null {
+    const found: AutoMovieHumanHeadSurface.IPoint | null = this.at(u, v);
+    if (found !== null) return found;
+    const latitude: number = Math.PI * (u - 0.5);
+    const turn: number = 2 * Math.PI * v;
+    return this.cast(
+      [centre[0]!, centre[1]!, centre[2]!],
+      [Math.cos(latitude) * Math.sin(turn), Math.sin(latitude), Math.cos(latitude) * Math.cos(turn)],
+    );
+  }
+
+  /**
    * The nearest point where a ray meets the head's surface, from either side.
    *
    * @param origin Ray origin, millimetres

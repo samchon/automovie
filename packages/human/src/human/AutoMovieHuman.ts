@@ -8,6 +8,7 @@ import {
 } from "@automovie/interface";
 import { IValidation } from "typia";
 
+import { dressAutoMovieHumanNails } from "../appearance/dressAutoMovieHumanNails";
 import { dressAutoMovieHumanSkin } from "../appearance/dressAutoMovieHumanSkin";
 import { emitAutoMovieHumanHair } from "../appearance/emitAutoMovieHumanHair";
 import { validateAutoMovieHumanAppearance } from "../appearance/validateAutoMovieHumanAppearance";
@@ -141,7 +142,7 @@ export class AutoMovieHuman {
   /**
    * The person as a model films place and pose like any other.
    *
-   * The model holds the stick figure of the skeleton, a capsule from each joint centre to the bone's end and a sphere at each joint, every bone including fingers, eyes and jaw, coloured grey on the midline, red on the person's left and blue on the right, and the skin. With `assembly: "parts"`, the default while the parts are being built, the skin is every part's own cage subdivided alone, one static model part each with id `skin.<part>` or `skin.<part>.<side>`, so the viewer can isolate a part and judge it before joining. With `assembly: "joined"` the skin is the person: every part's cage joined through its rings, subdivided once as one surface, and emitted as one skinned mesh `skin` with limit normals and the published UV layout. Separate meshes a part carries, such as the nail plates and the eyeballs, are their own parts riding one bone each, id `<part>[.<side>].<name>`, and the model carries the images their materials sample, such as each iris. The skin's material follows the identity's pigmentation and the appearance's finish and samples a generated relief image the model carries. Scalp hair, brows and lashes are cards grown on the emitted head's surface, parts `hair`, `brows` and `lashes` riding the head bone; teeth and underwear follow as their generators land. The appearance is admitted already, so a document that will be refused later is refused now.
+   * The model holds the stick figure of the skeleton, a capsule from each joint centre to the bone's end and a sphere at each joint, every bone including fingers, eyes and jaw, coloured grey on the midline, red on the person's left and blue on the right, and the skin. With `assembly: "parts"`, the default while the parts are being built, the skin is every part's own cage subdivided alone, one static model part each with id `skin.<part>` or `skin.<part>.<side>`, so the viewer can isolate a part and judge it before joining. With `assembly: "joined"` the skin is the person: every part's cage joined through its rings, subdivided once as one surface, and emitted as one skinned mesh `skin` with limit normals and the published UV layout. Separate meshes a part carries, such as the nail plates and the eyeballs, are their own parts riding one bone each, id `<part>[.<side>].<name>`, and the model carries the images their materials sample, such as each iris. The skin's material follows the identity's pigmentation and the appearance's finish and samples a generated relief image the model carries. Nail plates show the nail bed of the person's pigmentation with a pale free edge. Scalp hair, brows and lashes are cards grown on the emitted head's surface, parts `hair`, `brows` and `lashes` riding the head bone; teeth and underwear follow as their generators land. The appearance is admitted already, so a document that will be refused later is refused now.
    *
    * @param props The appearance to wear, and how the skin is assembled
    * @returns Model with `origin: "generated"`
@@ -200,6 +201,12 @@ export class AutoMovieHuman {
         appearance: admitted.data,
         skin: skin.parts,
       });
+    const nails: ReturnType<typeof dressAutoMovieHumanNails> =
+      dressAutoMovieHumanNails({
+        parts: attachments.parts,
+        measurements: this.measurements_,
+        skeleton: this.skeleton_,
+      });
     const images: IAutoMovieImage[] = [
       ...attachments.images,
       ...dressed.images,
@@ -209,7 +216,7 @@ export class AutoMovieHuman {
       id: this.id_,
       name: null,
       origin: "generated",
-      parts: [...dressed.parts, ...attachments.parts, ...hair.parts, ...stick.parts],
+      parts: [...dressed.parts, ...nails.parts, ...hair.parts, ...stick.parts],
       skeleton: this.getSkeleton(),
       body: null,
       materials: [
@@ -217,7 +224,12 @@ export class AutoMovieHuman {
           (m: IAutoMovieMaterial): IAutoMovieMaterial =>
             m.id === dressed.material.id ? dressed.material : m,
         ),
-        ...attachments.materials,
+        // the nail plates now cite the appearance's nail material instead of the tissue placeholder
+        ...attachments.materials.filter(
+          (m: IAutoMovieMaterial): boolean =>
+            nails.parts.some((p): boolean => p.material === m.id),
+        ),
+        nails.material,
         ...hair.materials,
         ...stick.materials,
       ],

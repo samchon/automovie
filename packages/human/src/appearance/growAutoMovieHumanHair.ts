@@ -12,7 +12,7 @@ import { paintAutoMovieHumanHairStrands } from "./paintAutoMovieHumanHairStrands
  *
  * Roots are semantic addresses on the head's chart, a jittered grid of equal area on its canonical sphere, kept where the scalp's density allows; every root is evaluated on the head the skin generator built, so hair follows any head. Each root grows a guide curve (Scheuermann 2004 practice, generated directly rather than clustered from strands): it leaves the scalp along the style's direction field lifted by a small angle, bends under gravity, keeps at least its shell's clearance above the skin by a radial map of the head taken from the same surface, and waves by the curl type. A card is a strip along the guide that tapers to the tip, textured with one lock of the strand atlas, its shading normal pointing away from the head's centre so a shell of cards shades like a smooth mass of hair. Cards are emitted cap first, then inner shell to outer shell, so the index buffer is sorted from the scalp outward, the drawing order of layered hair cards.
  *
- * The style follows the longest hair's length, a closed set of three short cuts: up to 20 mm a crop whose hair lies away from the crown's whorl; up to 120 mm a short cut with tapered back and sides, combed back from a side parting; longer, a bob parted at the midline that hangs to a level cut, at most to the shoulders. Curl types I and II are straight; III to VIII wave with growing amplitude and shorter period, and the coiled types stand further off the scalp. All sizes are conventional, chosen to read as hair: strand density and diameter set no card count here because a card stands for a lock.
+ * The appearance's style chooses among three short cuts: a crop whose hair lies away from the crown's whorl; a short cut with tapered back and sides, combed back from a side parting; a bob parted at the midline that hangs to a level cut the hair's length below the vertex, at most to the shoulders. Curl types I and II are straight; III to VIII wave with growing amplitude and shorter period, and the coiled types stand further off the scalp. All sizes are conventional, chosen to read as hair: strand density and diameter set no card count here because a card stands for a lock.
  *
  * @param props.surface The head's surface
  * @param props.scalp The scalp's centre and density
@@ -29,7 +29,7 @@ export function growAutoMovieHumanHair(props: {
   const { surface, scalp, hair } = props;
   if (hair.length <= 0) return null;
   const C: readonly number[] = scalp.centre;
-  const style: "crop" | "short" | "bob" = hair.length <= 20 ? "crop" : hair.length <= 120 ? "short" : "bob";
+  const style: IAutoMovieHumanAppearance.IHair["style"] = hair.style;
   const curl: number = CURLS.indexOf(hair.curl);
   const wave: { amplitude: number; period: number; stand: number } = {
     amplitude: curl < 2 ? 0 : [0, 0, 1.2, 2, 3, 3.5, 4, 4][curl]!,
@@ -43,7 +43,7 @@ export function growAutoMovieHumanHair(props: {
     (l.left.acromion.position.y + l.right.acromion.position.y) / 2 + 25;
   const crown: number[] = [0, C[1]! + 0.85 * R, C[2]! - 0.45 * (C[2]! - l.opisthocranion.position.z)];
   const part: number = style === "bob" ? 0 : 0.3 * (l.left.eurion.position.x - l.right.eurion.position.x) / 2;
-  const cut: number = Math.max(shoulders, l.vertex.position.y - hair.length * 0.8);
+  const cut: number = Math.max(shoulders, l.vertex.position.y - hair.length);
   const builder: AutoMovieHumanCardBuilder = new AutoMovieHumanCardBuilder();
 
   // the cap: the scalp's own surface lifted a little, opaque, inset from the hairline
@@ -54,7 +54,7 @@ export function growAutoMovieHumanHair(props: {
     const row: Array<AutoMovieHumanHeadSurface.IPoint | null> = [];
     for (let j: number = 0; j <= capCols; ++j) {
       const u: number = 0.3 + (0.7 * i) / capRows;
-      const point: AutoMovieHumanHeadSurface.IPoint | null = surface.at(Math.min(u, 0.9999), j / capCols);
+      const point: AutoMovieHumanHeadSurface.IPoint | null = surface.toward(C, Math.min(u, 0.9999), j / capCols);
       row.push(point !== null && scalp.density(point.position) >= 0.99 ? point : null);
     }
     grid.push(row);
@@ -118,7 +118,7 @@ export function growAutoMovieHumanHair(props: {
         const lat: number = latitude + jitterU * ((0.7 * Math.PI) / rows);
         const u: number = Math.min(0.9999, (lat + Math.PI / 2) / Math.PI);
         const v: number = (j + 0.5 + jitterV) / cols;
-        const root: AutoMovieHumanHeadSurface.IPoint | null = surface.at(u, v);
+        const root: AutoMovieHumanHeadSurface.IPoint | null = surface.toward(C, u, v);
         if (root === null) continue;
         const density: number = scalp.density(root.position);
         if (density <= hash(layer, i, j, 2)) continue;

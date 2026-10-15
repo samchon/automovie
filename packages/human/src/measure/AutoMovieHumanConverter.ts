@@ -1,3 +1,5 @@
+import { AutoMovieHumanHairColor } from "../structures/AutoMovieHumanHairColor";
+import { AutoMovieHumanPopulation } from "../structures/AutoMovieHumanPopulation";
 import { AutoMovieHumanSex } from "../structures/AutoMovieHumanSex";
 import { IAutoMovieHumanAppearance } from "../structures/IAutoMovieHumanAppearance";
 import { IAutoMovieHumanIdentity } from "../structures/IAutoMovieHumanIdentity";
@@ -55,7 +57,7 @@ const MUSCULARITY_LEAN_SHARE: number = 0.25;
  * 7. Mobility from the CDC normal joint range of motion study by age and sex, the carrying angle by age and sex (see {@link estimateAutoMovieHumanCarryingAngle}), composition from the NHANES and childhood DXA references (see {@link estimateAutoMovieHumanComposition}), standing posture from radiographic and photographic norms by age and sex (see {@link estimateAutoMovieHumanPosture}), navicular height from foot length by age (see {@link estimateAutoMovieHumanNavicularHeight}).
  * 8. Spinal loss subtracted from stature, sitting height, cervicale, suprasternale and acromial height; every limb keeps its peak length.
  *
- * Age is unrestricted. Beyond the oldest sample of a source the converter holds that sample's value, and below its youngest it holds or, where a source states the trend, extends it; each estimator says which. Both arms and both legs get the same values. Population reaches only the head and face, the only measurements read by population; cuteness is not read yet. Pigmentation is a conventional moderate default until the skin stage reads pigmentation surveys: melanin 0.12 within the moderately pigmented range of Jacques (1998, "Skin Optics", Oregon Medical Laser Center News), the eumelanin share 0.7 Donner and Jensen illustrate (2006, Eurographics Symposium on Rendering, pp. 409-417), haemoglobin 0.05 and a brown iris.
+ * Age is unrestricted. Beyond the oldest sample of a source the converter holds that sample's value, and below its youngest it holds or, where a source states the trend, extends it; each estimator says which. Both arms and both legs get the same values. Population reaches only the head and face, the only measurements read by population; cuteness is not read yet. Pigmentation follows the population as a conventional choice inside the measured melanosome volume fractions of Jacques (1998, "Skin Optics", Oregon Medical Laser Center News): melanin 0.04 for a European population within the lightly pigmented 0.013 to 0.063, 0.10 for an East Asian population between the lightly and the moderately pigmented ranges, and 0.30 for an African population within the darkly pigmented 0.18 to 0.43; the eumelanin share is the 0.7 Donner and Jensen illustrate (2006, Eurographics Symposium on Rendering, pp. 409-417) and the dermal haemoglobin their 0.005; the iris is brown.
  *
  * @author Samchon
  */
@@ -163,30 +165,46 @@ export class AutoMovieHumanConverter implements IAutoMovieHumanConverter {
       head,
       composition,
       pigmentation: {
-        melanin: 0.12,
+        melanin: MELANIN[traits.population],
         eumelaninShare: 0.7,
-        haemoglobin: 0.05,
+        haemoglobin: 0.005,
         iris: "brown",
       },
     };
   }
 
   /**
-   * Default appearance: underwear by sex (briefs for a male person, briefs and a bra for a female person) in white, dark brown hair, brows and lashes, a lash length below the 12 mm natural lashes rarely exceed, mid-range skin oil, and a round hairline with a gently waved curl. Hair length is a short cut for a male person and shoulder length for a female person. Grade: conventional defaults, not population statistics.
+   * Default appearance, by sex, age and population. Grade: conventional defaults, not population statistics.
+   *
+   * - Hair: a short cut for a boy or man, with temples receding from 30 years; a bob for a girl or woman; a crop under three years. Black, straight hair for an East Asian population, black coiled hair for an African one, brown and gently waved for a European one; grey from 60 years.
+   * - Brows and lashes take the natural hair colour, grey from 70 years; lashes 10 mm long for a woman, 9 for a man and 8 for a child, below the 12 mm natural lashes rarely exceed.
+   * - Mid-range skin oil, and fine wrinkles that deepen linearly from 25 to 75 years; underwear by sex (briefs for a male person, briefs and a bra for a female person) in white.
    */
   public toAppearance(traits: IAutoMovieHumanTraits): IAutoMovieHumanAppearance {
     const female: boolean = traits.sex === "female";
+    const natural: AutoMovieHumanHairColor =
+      traits.population === "european" ? "brown" : "black";
+    const style: IAutoMovieHumanAppearance.IHair["style"] =
+      traits.age < 3 ? "crop" : female ? "bob" : "short";
     return {
       version: 1,
-      skin: { oiliness: 0.5 },
-      hair: {
-        color: "darkBrown",
-        length: female ? 400 : 40,
-        curl: "II",
-        hairline: "round",
+      skin: {
+        oiliness: 0.5,
+        wrinkles: Math.min(1, Math.max(0, (traits.age - 25) / 50)),
       },
-      brows: { color: "darkBrown" },
-      lashes: { color: "darkBrown", length: 10 },
+      hair: {
+        style,
+        color: traits.age >= 60 ? "gray" : natural,
+        length: style === "crop" ? 15 : style === "bob" ? (traits.age < 12 ? 170 : 210) : traits.age < 12 ? 40 : 55,
+        curl:
+          traits.population === "african" ? "VI" : traits.population === "eastAsian" ? "I" : "II",
+        hairline: !female && traits.age >= 30 ? "mShaped" : "round",
+      },
+      brows: { color: traits.age >= 70 ? "gray" : natural },
+      lashes: {
+        color: traits.age >= 70 ? "gray" : natural,
+        length: traits.age < 12 ? 8 : female ? 10 : 9,
+      },
       underwear: {
         bottom: "briefs",
         top: female ? "bra" : "none",
@@ -195,3 +213,10 @@ export class AutoMovieHumanConverter implements IAutoMovieHumanConverter {
     };
   }
 }
+
+/** Default melanin volume fraction by population; see {@link AutoMovieHumanConverter}. */
+const MELANIN: Record<AutoMovieHumanPopulation, number> = {
+  european: 0.04,
+  eastAsian: 0.1,
+  african: 0.3,
+};

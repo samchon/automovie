@@ -41,6 +41,11 @@ export namespace IAutoMovieHumanAppearance {
      * Surface oil, from dry (0) to oily (1), dimensionless; it weights the specular sheen of the skin, after the oiliness parameter of Donner and Jensen (2006, Eurographics Symposium on Rendering).
      */
     oiliness: number & tags.Minimum<0> & tags.Maximum<1>;
+
+    /**
+     * Depth of the fine wrinkles that cut the skin's surface into plateaus, from the faint lines of young skin (0) to the deep furrows of old, sun-exposed skin (1), dimensionless; it deepens the furrow network of the generated micro-relief. A converter raises it with age.
+     */
+    wrinkles: number & tags.Minimum<0> & tags.Maximum<1>;
   }
 
   /**
@@ -49,11 +54,16 @@ export namespace IAutoMovieHumanAppearance {
    * @author Samchon
    */
   export interface IHair {
+    /**
+     * Cut, one of a closed set of short styles: `crop` lies close all over and points away from the crown's whorl; `short` has tapered back and sides and a longer top combed back from a side parting; `bob` is parted at the midline and hangs to a level cut, at most to the shoulders.
+     */
+    style: "crop" | "short" | "bob";
+
     /** Hair colour. */
     color: AutoMovieHumanHairColor;
 
     /**
-     * Length of the longest scalp hair from the scalp to the tip, straightened, millimetres; zero is a shaved scalp.
+     * Length of the longest scalp hair from the scalp to the tip, straightened, millimetres; zero is a shaved scalp. The style shapes how lengths vary over the scalp: a crop is even, a short cut tapers to a third of this at the nape and sides, and a bob ends at a level this far below the vertex.
      */
     length: number & tags.Minimum<0> & tags.Maximum<1500>;
 

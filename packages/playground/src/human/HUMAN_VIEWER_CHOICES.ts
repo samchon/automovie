@@ -23,6 +23,7 @@ export const HUMAN_VIEWER_CHOICES: {
   population: AutoMovieHumanPopulation[];
   iris: AutoMovieHumanIrisColor[];
   hairColor: AutoMovieHumanHairColor[];
+  hairStyle: IAutoMovieHumanAppearance.IHair["style"][];
   curl: IAutoMovieHumanAppearance.IHair["curl"][];
   hairline: IAutoMovieHumanAppearance.IHair["hairline"][];
   actionUnits: AutoMovieHumanActionUnit[];
@@ -52,6 +53,11 @@ export const HUMAN_VIEWER_CHOICES: {
     red: true,
     gray: true,
     white: true,
+  }),
+  hairStyle: all<IAutoMovieHumanAppearance.IHair["style"]>({
+    crop: true,
+    short: true,
+    bob: true,
   }),
   curl: all<IAutoMovieHumanAppearance.IHair["curl"]>({
     I: true,

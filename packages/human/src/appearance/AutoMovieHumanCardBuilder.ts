@@ -3,7 +3,7 @@ import { IAutoMovieMesh } from "@automovie/interface";
 /**
  * Accumulates hair cards, strips of quads along guide curves, into one mesh in emission order.
  *
- * A card is a ribbon along a polyline: at each guide point it spans its width across the given side direction, so two vertices per point and two triangles per segment, wound counterclockwise seen from the side its normals face. Texture `x` runs across the card within the card's atlas column and `y` from 0 at the root to 1 at the tip, which is the direction the hair material's anisotropy follows. Normals are given per point rather than taken from the strip, so a card lying on the scalp shades like the head it covers instead of like a flat ribbon (Scheuermann 2004, "Practical Real-Time Hair Rendering and Shading", SIGGRAPH sketch). Cards are kept in the order they are added, which is the order the renderer draws them, so a caller adds them from the scalp outward.
+ * A card is a ribbon along a polyline: at each guide point it spans its width across the given side direction, so two vertices per point and two triangles per segment, wound counterclockwise seen from the side its normals face, whichever way its side direction runs. Texture `x` runs across the card within the card's atlas column and `y` from 0 at the root to 1 at the tip, which is the direction the hair material's anisotropy follows. Normals are given per point rather than taken from the strip, so a card lying on the scalp shades like the head it covers instead of like a flat ribbon (Scheuermann 2004, "Practical Real-Time Hair Rendering and Shading", SIGGRAPH sketch). Cards are kept in the order they are added, which is the order the renderer draws them, so a caller adds them from the scalp outward.
  *
  * @author Samchon
  */
@@ -32,9 +32,17 @@ export class AutoMovieHumanCardBuilder {
         this.uvs_.push(k < 0 ? card.column[0] : card.column[1], card.v[0] + y * (card.v[1] - card.v[0]));
       }
     }
+    // wind the triangles so their geometric front faces the given normals; a double-sided material flips the shading normal on back faces, so a card wound against its normals would shade from inside
+    const P = (i: number): number[] => this.positions_.slice(3 * i, 3 * i + 3);
+    const [p0, p1, p3] = [P(base), P(base + 1), P(base + 3)];
+    const e1: number[] = [p1[0]! - p0[0]!, p1[1]! - p0[1]!, p1[2]! - p0[2]!];
+    const e2: number[] = [p3[0]! - p0[0]!, p3[1]! - p0[1]!, p3[2]! - p0[2]!];
+    const g: number[] = [e1[1]! * e2[2]! - e1[2]! * e2[1]!, e1[2]! * e2[0]! - e1[0]! * e2[2]!, e1[0]! * e2[1]! - e1[1]! * e2[0]!];
+    const facing: number = g[0]! * card.normals[0]![0]! + g[1]! * card.normals[0]![1]! + g[2]! * card.normals[0]![2]!;
     for (let i: number = 0; i + 1 < n; ++i) {
       const a: number = base + 2 * i;
-      this.indices_.push(a, a + 1, a + 3, a, a + 3, a + 2);
+      if (facing >= 0) this.indices_.push(a, a + 1, a + 3, a, a + 3, a + 2);
+      else this.indices_.push(a, a + 3, a + 1, a, a + 2, a + 3);
     }
   }
 

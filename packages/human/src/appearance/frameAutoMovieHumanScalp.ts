@@ -7,8 +7,8 @@ import { IAutoMovieHumanAppearance } from "../structures/IAutoMovieHumanAppearan
  *
  * The hairline is a height above the standing surface as a function of the azimuth about the head's vertical axis, from the anterior midline (0) to the posterior midline (π), the same on both sides:
  *
- * - The frontal margin lies at trichion, one forehead height above glabella. Forehead height trichion-glabella is 0.47 of the morphological face height (derived: Kenyan adults measure 61.4 mm in men and 55.4 in women, Virdi et al. 2019, against face heights near 120 and 112 mm).
- * - The hairline shape choice moves the margin as its class is defined (Zhang et al. 2026 after Suzan et al., conventional): `round` keeps a smooth contour; `mShaped` lifts the frontotemporal corners by a quarter of the forehead height; `rectangular` keeps the margin level to the corner; `bellShaped` lifts the midline point by a third of the forehead height, about 2 cm in an adult; `triangular` lets the margin descend from the midline toward the temples.
+ * - The frontal margin lies at trichion, 0.52 of the way up from glabella to the vertex (derived: trichion-glabella measures 55 to 61 mm in adults, Virdi et al. 2019 and Wilson et al. 2023, about half of an adult's 100 to 110 mm glabella-to-vertex height). Taking the share of the head's own height rather than the forehead's measured length keeps the hairline on the brow of the vault the generator built.
+ * - The hairline shape choice moves the margin as its class is defined (Zhang et al. 2026 after Suzan et al., conventional): `round` keeps a smooth contour; `mShaped` lifts the frontotemporal corners by a quarter of the forehead's rise; `rectangular` keeps the margin level to the corner; `bellShaped` lifts the midline point by a third of the forehead's rise; `triangular` lets the margin descend from the midline toward the temples.
  * - From the temples the margin falls along the sideburn in front of the ear to the tragion's level, passes over the ear, and runs back to the nape, a third of the tragion-to-vertex height below the tragion (conventional).
  *
  * Around the hairline the density falls to zero over a 4 mm band, which is how a hairline thins into vellus hair. Points near the ear's attachment, within the ear's own half-length and half-breadth of a centre above and behind the tragion, bear no hair.
@@ -32,7 +32,7 @@ export function frameAutoMovieHumanScalp(props: {
     tragion + 0.35 * (vertex - tragion),
     (l.glabella.position.z + l.opisthocranion.position.z) / 2,
   ];
-  const forehead: number = 0.47 * head.faceHeight;
+  const forehead: number = 0.52 * (vertex - l.glabella.position.y);
   const front: number = l.glabella.position.y + forehead;
   const lift: Record<IAutoMovieHumanAppearance.IHair["hairline"], [number, number, number]> = {
     // midline, frontotemporal corner, temple; millimetres above the frontal margin
