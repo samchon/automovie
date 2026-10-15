@@ -2,7 +2,7 @@
 
 ## Decision
 
-Nobody working on Human reads MakeHuman or MPFB code. Their CC0 data may be compared offline and is never shipped or loaded. reference-character serves as rendered visual comparison only.
+Nobody working on Human reads MakeHuman or MPFB code. Their CC0 data may be compared offline and is never shipped or loaded.
 
 ## Reasons
 

@@ -15,4 +15,4 @@ The package holds no mesh, morph target, landmark index or baked data, neither a
 
 - Shape knowledge is formulas over named measurements and form rules, each value graded measured, derived, population-fitted or conventional.
 - Detail below geometric scale uses generated cards, instances and procedural maps (`../techniques/`), not images or scans.
-- Reference data (MakeHuman CC0, reference-character renders) is used only for comparison outside the package.
+- Reference data (MakeHuman CC0 and the reference meshes the user provides) is used only for comparison outside the package.
