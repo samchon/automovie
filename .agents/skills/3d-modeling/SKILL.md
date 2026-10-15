@@ -19,7 +19,8 @@ description: Defines modeling rules and the visual debugging procedure. Use befo
 A broken viewer comes first: do no work that needs visual judgment until a displayed model and working controls confirm recovery, and protect other owners' processes meanwhile.
 
 - Inspect the actual consumer with current source on a hardware renderer, recording source, input, renderer, and view. Readiness or numerical success proves no appearance.
-- Enlarge the affected parts and inspect opposing views, assembled neighbors, and use distance, at rest, intermediate states, supported extremes, return, and shape-motion combinations.
+- Inspect from every direction, back quarters and high and low obliques included, and aim a free camera at each defect, because front and side alone hide oblique sections and junctions. Enlarge the affected parts and inspect assembled neighbors and use distance, at rest, intermediate states, supported extremes, return, and shape-motion combinations.
+- Judge a constructed surface together with its construction net, its sections, guide curves and control cage: pair each sweep of surface views with the same views overlaid with the net, and give each defect a surface, overlay and net-alone view from one camera. The surface shows the symptom; the net shows the curve or section that causes it.
 - Judge materials and lighting in beauty; use structural passes only for the quantities they document.
 - Compare the render with the engine result to separate calculation from display faults, and compare before and after under matching conditions.
 - After every correction, render again and look yourself. Stale, blank, or unobserved output stays unverified.
