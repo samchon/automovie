@@ -3,14 +3,15 @@ import { IAutoMovieVector3 } from "@automovie/interface";
 import { AutoMovieHumanCageBuilder } from "../../junction/AutoMovieHumanCageBuilder";
 import { IAutoMovieHumanCage } from "../../junction/IAutoMovieHumanCage";
 import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
-import { EAR, shapeAutoMovieHumanRing } from "../../junction/shapeAutoMovieHumanRing";
+import { AUTOMOVIE_HUMAN_EAR_ATTACHMENT } from "../../junction/AUTOMOVIE_HUMAN_EAR_ATTACHMENT";
+import { shapeAutoMovieHumanRing } from "../../junction/shapeAutoMovieHumanRing";
 import { IAutoMovieHumanPartGenerator } from "../IAutoMovieHumanPartGenerator";
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanIdentity } from "../../structures/IAutoMovieHumanIdentity";
 import { shapeAutoMovieHumanEar } from "./shapeAutoMovieHumanEar";
 
 /** Inclination of the auricle's long axis behind the vertical, the one the shared attachment ring leans by. */
-const INCLINATION: number = EAR.inclination;
+const INCLINATION: number = AUTOMOVIE_HUMAN_EAR_ATTACHMENT.inclination;
 
 /**
  * Generates the auricle: one cartilage plate rolled at its free margin and folded inside it, open at its attachment to the head.
