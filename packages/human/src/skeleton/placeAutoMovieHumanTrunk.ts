@@ -113,6 +113,7 @@ export function placeAutoMovieHumanTrunk(
     rightCrest: crest(-1),
   };
 }
+/** Output type of {@link placeAutoMovieHumanTrunk}. */
 export namespace placeAutoMovieHumanTrunk {
   /**
    * The placed trunk.

@@ -127,6 +127,7 @@ export function placeAutoMovieHumanArm(
     },
   };
 }
+/** Output type of {@link placeAutoMovieHumanArm}. */
 export namespace placeAutoMovieHumanArm {
   /**
    * One placed arm.

@@ -70,6 +70,7 @@ export function estimateAutoMovieHumanMobility(
     },
   };
 }
+/** Output type of {@link estimateAutoMovieHumanMobility}. */
 export namespace estimateAutoMovieHumanMobility {
   /**
    * Mobility of one arm and one leg, degrees.

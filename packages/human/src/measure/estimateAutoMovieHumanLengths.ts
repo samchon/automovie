@@ -446,6 +446,7 @@ export function estimateAutoMovieHumanLengths(
     },
   };
 }
+/** Output type of {@link estimateAutoMovieHumanLengths}. */
 export namespace estimateAutoMovieHumanLengths {
   /**
    * Skeletal dimensions before old-age spinal loss, millimetres.
