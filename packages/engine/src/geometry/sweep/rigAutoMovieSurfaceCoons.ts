@@ -19,7 +19,9 @@
  * @evidence contracts/performance.md#reuse-equivalent-work Indices and weights are computed once.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains 17 numbers per interior point.
  */
-export const rigAutoMovieSurfaceCoons: (grid: number[][]) => (targets: Float64Array) => void = (
+export const rigAutoMovieSurfaceCoons: (
+  grid: number[][],
+) => (targets: Float64Array) => void = (
   grid: number[][],
 ): ((targets: Float64Array) => void) => {
   const rows: number = grid.length - 1;
@@ -29,8 +31,27 @@ export const rigAutoMovieSurfaceCoons: (grid: number[][]) => (targets: Float64Ar
     for (let i: number = 1; i < columns; ++i) {
       const s: number = i / columns;
       const t: number = j / rows;
-      terms.push(grid[j]![i]!, grid[0]![i]!, 1 - t, grid[rows]![i]!, t, grid[j]![0]!, 1 - s, grid[j]![columns]!, s);
-      terms.push(grid[0]![0]!, -(1 - s) * (1 - t), grid[0]![columns]!, -s * (1 - t), grid[rows]![0]!, -(1 - s) * t, grid[rows]![columns]!, -s * t);
+      terms.push(
+        grid[j]![i]!,
+        grid[0]![i]!,
+        1 - t,
+        grid[rows]![i]!,
+        t,
+        grid[j]![0]!,
+        1 - s,
+        grid[j]![columns]!,
+        s,
+      );
+      terms.push(
+        grid[0]![0]!,
+        -(1 - s) * (1 - t),
+        grid[0]![columns]!,
+        -s * (1 - t),
+        grid[rows]![0]!,
+        -(1 - s) * t,
+        grid[rows]![columns]!,
+        -s * t,
+      );
     }
   const coons: Float64Array = Float64Array.from(terms);
   return (targets: Float64Array): void => {
@@ -38,7 +59,8 @@ export const rigAutoMovieSurfaceCoons: (grid: number[][]) => (targets: Float64Ar
       const o: number = 3 * coons[k]!;
       for (let c: number = 0; c < 3; ++c) {
         let sum: number = 0;
-        for (let w: number = k + 1; w < k + 17; w += 2) sum += targets[3 * coons[w]! + c]! * coons[w + 1]!;
+        for (let w: number = k + 1; w < k + 17; w += 2)
+          sum += targets[3 * coons[w]! + c]! * coons[w + 1]!;
         targets[o + c] = sum;
       }
     }

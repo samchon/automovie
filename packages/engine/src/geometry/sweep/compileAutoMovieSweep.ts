@@ -3,16 +3,16 @@ import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "../../math/Vector3";
 import { IAutoMovieSweep } from "./IAutoMovieSweep";
 import { IAutoMovieSweepFrame } from "./IAutoMovieSweepFrame";
+import { IAutoMovieSweepOrientation } from "./IAutoMovieSweepOrientation";
 import { IAutoMovieSweepPath } from "./IAutoMovieSweepPath";
 import { IAutoMovieSweepSection } from "./IAutoMovieSweepSection";
 import { IAutoMovieSweepSurface } from "./IAutoMovieSweepSurface";
-import { IAutoMovieSweepOrientation } from "./IAutoMovieSweepOrientation";
 import { IAutoMovieSweepTransport } from "./IAutoMovieSweepTransport";
+import { interpolateAutoMovieMonotone } from "./interpolateAutoMovieMonotone";
 import { loadAutoMovieSweepSpine } from "./loadAutoMovieSweepSpine";
 import { orientAutoMovieSweep } from "./orientAutoMovieSweep";
-import { pathAutoMovieSweepTransport } from "./pathAutoMovieSweepTransport";
-import { interpolateAutoMovieMonotone } from "./interpolateAutoMovieMonotone";
 import { parameterizeAutoMovieSweepSection } from "./parameterizeAutoMovieSweepSection";
+import { pathAutoMovieSweepTransport } from "./pathAutoMovieSweepTransport";
 import { sampleAutoMovieSweepSection } from "./sampleAutoMovieSweepSection";
 
 /** Directions each section is sampled in; the radius between two is linear in angle. */
@@ -91,36 +91,57 @@ const STEP: number = 1e-4;
  * @evidence contracts/performance.md#reuse-equivalent-work Guided rows are cached by exact `u`, because sampling a grid queries every row at many `v`; a row depends only on the immutable compiled stations and guides, so the cache never invalidates.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The surface retains the station radii (S D numbers), the D interpolants, the spine's transport tables and at most 8,192 cached rows of D numbers, cleared when full; everything is released with the surface.
  */
-export const compileAutoMovieSweep: (sweep: IAutoMovieSweep) => IAutoMovieSweepSurface = (
+export const compileAutoMovieSweep: (
+  sweep: IAutoMovieSweep,
+) => IAutoMovieSweepSurface = (
   sweep: IAutoMovieSweep,
 ): IAutoMovieSweepSurface => {
-  const transport: IAutoMovieSweepTransport = loadAutoMovieSweepSpine(sweep.spine, true);
+  const transport: IAutoMovieSweepTransport = loadAutoMovieSweepSpine(
+    sweep.spine,
+    true,
+  );
   const path: IAutoMovieSweepPath = pathAutoMovieSweepTransport(transport);
   const stations: IAutoMovieSweep.IStation[] = sweep.stations;
-  if (stations.length === 0) throw new Error("sweep needs at least one station");
+  if (stations.length === 0)
+    throw new Error("sweep needs at least one station");
   stations.forEach((s: IAutoMovieSweep.IStation, k: number): void => {
     if (!Number.isFinite(s.at) || s.at < 0 || s.at > 1)
-      throw new Error(`sweep station ${k} must lie on the spine, at from 0 to 1`);
+      throw new Error(
+        `sweep station ${k} must lie on the spine, at from 0 to 1`,
+      );
     if (k > 0 && !(s.at > stations[k - 1]!.at))
       throw new Error(`sweep station ${k} does not follow station ${k - 1}`);
   });
-  const knots: number[] = stations.map((s: IAutoMovieSweep.IStation): number => s.at);
+  const knots: number[] = stations.map(
+    (s: IAutoMovieSweep.IStation): number => s.at,
+  );
   const byParameter: boolean = sweep.correspondence === "parameter";
   const holes: number = stations[0]!.holes?.length ?? 0;
   stations.forEach((s: IAutoMovieSweep.IStation, k: number): void => {
     if ((s.holes?.length ?? 0) !== holes)
-      throw new Error(`sweep station ${k} must declare the same ${holes} holes as station 0`);
+      throw new Error(
+        `sweep station ${k} must declare the same ${holes} holes as station 0`,
+      );
   });
-  if (!byParameter && holes > 0) throw new Error("sweep holes need parameter correspondence");
-  if (byParameter && ((sweep.guides?.length ?? 0) > 0 || (sweep.features?.length ?? 0) > 0))
+  if (!byParameter && holes > 0)
+    throw new Error("sweep holes need parameter correspondence");
+  if (
+    byParameter &&
+    ((sweep.guides?.length ?? 0) > 0 || (sweep.features?.length ?? 0) > 0)
+  )
     throw new Error("sweep guides and features need direction correspondence");
   const loops: ICompiledLoop[] = byParameter
-    ? Array.from({ length: 1 + holes }, (_: unknown, l: number): ICompiledLoop =>
-        compileLoop(
-          stations.map((s: IAutoMovieSweep.IStation): IAutoMovieSweepSection => (l === 0 ? s.section : s.holes![l - 1]!)),
-          knots,
-          l,
-        ),
+    ? Array.from(
+        { length: 1 + holes },
+        (_: unknown, l: number): ICompiledLoop =>
+          compileLoop(
+            stations.map(
+              (s: IAutoMovieSweep.IStation): IAutoMovieSweepSection =>
+                l === 0 ? s.section : s.holes![l - 1]!,
+            ),
+            knots,
+            l,
+          ),
       )
     : [];
   const radii: number[][] = byParameter
@@ -142,12 +163,17 @@ export const compileAutoMovieSweep: (sweep: IAutoMovieSweep) => IAutoMovieSweepS
     .map(compileGuide)
     .sort((a: ICompiledGuide, b: ICompiledGuide): number => a.angle - b.angle);
   guides.forEach((g: ICompiledGuide, k: number): void => {
-    if (k > 0 && g.angle === guides[k - 1]!.angle) throw new Error("sweep guides must have distinct directions");
+    if (k > 0 && g.angle === guides[k - 1]!.angle)
+      throw new Error("sweep guides must have distinct directions");
   });
   const scale: ((u: number) => number) | null =
-    sweep.scale === undefined ? null : compileProfile(sweep.scale, "sweep scale");
+    sweep.scale === undefined
+      ? null
+      : compileProfile(sweep.scale, "sweep scale");
   (sweep.features ?? []).forEach(checkFeature);
-  const features: ICompiledFeature[] = (sweep.features ?? []).map(compileFeature);
+  const features: ICompiledFeature[] = (sweep.features ?? []).map(
+    compileFeature,
+  );
 
   const cache: Map<number, Float64Array> = new Map();
   const row = (input: number): Float64Array => {
@@ -156,7 +182,8 @@ export const compileAutoMovieSweep: (sweep: IAutoMovieSweep) => IAutoMovieSweepS
     if (cached !== undefined) return cached;
     const base: Float64Array = new Float64Array(DIRECTIONS);
     for (let d: number = 0; d < DIRECTIONS; ++d) base[d] = profiles[d]!(u);
-    const out: Float64Array = guides.length === 0 ? base : guide(base, guides, u);
+    const out: Float64Array =
+      guides.length === 0 ? base : guide(base, guides, u);
     if (cache.size >= CACHE_LIMIT) cache.clear();
     cache.set(u, out);
     return out;
@@ -176,9 +203,14 @@ export const compileAutoMovieSweep: (sweep: IAutoMovieSweep) => IAutoMovieSweepS
       r += displace(feature, u, angle, own, path.length, guided);
     return r;
   };
-  const scaleAt = (input: number): number => (scale === null ? 1 : scale(Math.min(1, Math.max(0, input))));
+  const scaleAt = (input: number): number =>
+    scale === null ? 1 : scale(Math.min(1, Math.max(0, input)));
   // the loop point before the scale profile
-  const shaped = (u: number, v: number, loop: number): IAutoMovieSweepSection.IPoint => {
+  const shaped = (
+    u: number,
+    v: number,
+    loop: number,
+  ): IAutoMovieSweepSection.IPoint => {
     if (!byParameter) {
       if (loop !== 0) throw new Error("a sweep by direction has one loop");
       const r: number = directional(u, v);
@@ -189,7 +221,11 @@ export const compileAutoMovieSweep: (sweep: IAutoMovieSweep) => IAutoMovieSweepS
     if (compiled === undefined) throw new Error(`sweep has no loop ${loop}`);
     return compiled.point(u, v);
   };
-  const section = (input: number, v: number, loop: number = 0): IAutoMovieSweepSection.IPoint => {
+  const section = (
+    input: number,
+    v: number,
+    loop: number = 0,
+  ): IAutoMovieSweepSection.IPoint => {
     const u: number = Math.min(1, Math.max(0, input));
     const p: IAutoMovieSweepSection.IPoint = shaped(u, v, loop);
     const k: number = scaleAt(u);
@@ -212,14 +248,23 @@ export const compileAutoMovieSweep: (sweep: IAutoMovieSweep) => IAutoMovieSweepS
   stations.forEach((s: IAutoMovieSweep.IStation, k: number): void => {
     if (s.rotation === undefined) return;
     const q: IAutoMovieQuaternion = s.rotation;
-    if (![q.x, q.y, q.z, q.w].every(Number.isFinite) || Math.hypot(q.x, q.y, q.z, q.w) === 0)
-      throw new Error("sweep station rotation must be a finite non-zero quaternion");
+    if (
+      ![q.x, q.y, q.z, q.w].every(Number.isFinite) ||
+      Math.hypot(q.x, q.y, q.z, q.w) === 0
+    )
+      throw new Error(
+        "sweep station rotation must be a finite non-zero quaternion",
+      );
     orientation.given[k] = 1;
     orientation.rotations.set([q.x, q.y, q.z, q.w], 4 * k);
   });
   orientation.update();
   const scratch: Float64Array = new Float64Array(12);
-  const vector = (at: number): IAutoMovieVector3 => ({ x: scratch[at]!, y: scratch[at + 1]!, z: scratch[at + 2]! });
+  const vector = (at: number): IAutoMovieVector3 => ({
+    x: scratch[at]!,
+    y: scratch[at + 1]!,
+    z: scratch[at + 2]!,
+  });
   const frame = (u: number): IAutoMovieSweepFrame => {
     orientation.frame(u, scratch, 0);
     return { origin: vector(0), x: vector(3), y: vector(6), normal: vector(9) };
@@ -227,15 +272,28 @@ export const compileAutoMovieSweep: (sweep: IAutoMovieSweep) => IAutoMovieSweepS
   const point = (u: number, v: number, loop: number = 0): IAutoMovieVector3 => {
     const f: IAutoMovieSweepFrame = frame(u);
     const p: IAutoMovieSweepSection.IPoint = section(u, v, loop);
-    return Vector3.add(f.origin, Vector3.add(Vector3.scale(f.x, p.x), Vector3.scale(f.y, p.y)));
+    return Vector3.add(
+      f.origin,
+      Vector3.add(Vector3.scale(f.x, p.x), Vector3.scale(f.y, p.y)),
+    );
   };
   const along = (u: number, v: number, loop: number = 0): IAutoMovieVector3 => {
     const a: number = Math.max(0, u - STEP);
     const b: number = Math.min(1, u + STEP);
-    return Vector3.scale(Vector3.subtract(point(b, v, loop), point(a, v, loop)), 1 / (b - a));
+    return Vector3.scale(
+      Vector3.subtract(point(b, v, loop), point(a, v, loop)),
+      1 / (b - a),
+    );
   };
-  const normal = (u: number, v: number, loop: number = 0): IAutoMovieVector3 => {
-    const around: IAutoMovieVector3 = Vector3.subtract(point(u, v + STEP, loop), point(u, v - STEP, loop));
+  const normal = (
+    u: number,
+    v: number,
+    loop: number = 0,
+  ): IAutoMovieVector3 => {
+    const around: IAutoMovieVector3 = Vector3.subtract(
+      point(u, v + STEP, loop),
+      point(u, v - STEP, loop),
+    );
     return Vector3.normalize(Vector3.cross(around, along(u, v, loop)));
   };
   return {
@@ -266,21 +324,48 @@ const PARAMETER_SAMPLES: number = 512;
  * Compile one loop of a sweep by parameter: each station's curve sampled at the same parameters,
  * each sample's coordinates interpolated along the spine by the monotone scheme, linear between samples.
  */
-const compileLoop = (sections: IAutoMovieSweepSection[], knots: number[], loop: number): ICompiledLoop => {
+const compileLoop = (
+  sections: IAutoMovieSweepSection[],
+  knots: number[],
+  loop: number,
+): ICompiledLoop => {
   const polygon: boolean = sections[0]!.type === "polygon";
-  const count: number = polygon ? (sections[0] as IAutoMovieSweepSection.IPolygon).points.length : PARAMETER_SAMPLES;
+  const count: number = polygon
+    ? (sections[0] as IAutoMovieSweepSection.IPolygon).points.length
+    : PARAMETER_SAMPLES;
   const samples: IAutoMovieSweepSection.IPoint[][] = sections.map(
-    (section: IAutoMovieSweepSection, k: number): IAutoMovieSweepSection.IPoint[] => {
-      if (section.type === "radial") throw new Error("radial sections need direction correspondence");
-      if ((section.type === "polygon") !== polygon || (polygon && (section as IAutoMovieSweepSection.IPolygon).points.length !== count))
-        throw new Error(`sweep station ${k} loop ${loop} must be a polygon of ${count} corners like station 0, or a curve like it`);
+    (
+      section: IAutoMovieSweepSection,
+      k: number,
+    ): IAutoMovieSweepSection.IPoint[] => {
+      if (section.type === "radial")
+        throw new Error("radial sections need direction correspondence");
+      if (
+        (section.type === "polygon") !== polygon ||
+        (polygon &&
+          (section as IAutoMovieSweepSection.IPolygon).points.length !== count)
+      )
+        throw new Error(
+          `sweep station ${k} loop ${loop} must be a polygon of ${count} corners like station 0, or a curve like it`,
+        );
       const curve = parameterizeAutoMovieSweepSection(section);
-      return Array.from({ length: count }, (_: unknown, j: number): IAutoMovieSweepSection.IPoint => curve.point(j / count));
+      return Array.from(
+        { length: count },
+        (_: unknown, j: number): IAutoMovieSweepSection.IPoint =>
+          curve.point(j / count),
+      );
     },
   );
   const axis = (key: "x" | "y"): Array<(u: number) => number> =>
-    Array.from({ length: count }, (_: unknown, j: number): ((u: number) => number) =>
-      interpolateAutoMovieMonotone({ knots, values: samples.map((s: IAutoMovieSweepSection.IPoint[]): number => s[j]![key]) }),
+    Array.from(
+      { length: count },
+      (_: unknown, j: number): ((u: number) => number) =>
+        interpolateAutoMovieMonotone({
+          knots,
+          values: samples.map(
+            (s: IAutoMovieSweepSection.IPoint[]): number => s[j]![key],
+          ),
+        }),
     );
   const xs: Array<(u: number) => number> = axis("x");
   const ys: Array<(u: number) => number> = axis("y");
@@ -305,8 +390,12 @@ interface ICompiledGuide {
   radius: (u: number) => number;
 }
 
-const compileGuide = (g: IAutoMovieSweep.IGuide, index: number): ICompiledGuide => {
-  if (!Number.isFinite(g.angle)) throw new Error(`sweep guide ${index} angle is not finite`);
+const compileGuide = (
+  g: IAutoMovieSweep.IGuide,
+  index: number,
+): ICompiledGuide => {
+  if (!Number.isFinite(g.angle))
+    throw new Error(`sweep guide ${index} angle is not finite`);
   return {
     angle: ((g.angle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI),
     radius: compileProfile(g.radii, `sweep guide ${index}`),
@@ -314,11 +403,15 @@ const compileGuide = (g: IAutoMovieSweep.IGuide, index: number): ICompiledGuide 
 };
 
 /** A profile along the spine from knots spanning it, positive values, by the monotone scheme. */
-const compileProfile = (e: IAutoMovieSweep.IKnot[], what: string): ((u: number) => number) => {
+const compileProfile = (
+  e: IAutoMovieSweep.IKnot[],
+  what: string,
+): ((u: number) => number) => {
   if (e.length < 2 || e[0]!.at !== 0 || e[e.length - 1]!.at !== 1)
     throw new Error(`${what} must span the spine from at 0 to at 1`);
   e.forEach((k: IAutoMovieSweep.IKnot): void => {
-    if (!Number.isFinite(k.value) || k.value <= 0) throw new Error(`${what} values must be positive and finite`);
+    if (!Number.isFinite(k.value) || k.value <= 0)
+      throw new Error(`${what} values must be positive and finite`);
   });
   return interpolateAutoMovieMonotone({
     knots: e.map((k: IAutoMovieSweep.IKnot): number => k.at),
@@ -334,7 +427,11 @@ const compileProfile = (e: IAutoMovieSweep.IKnot[], what: string): ((u: number) 
  * is their difference at the guide directions, interpolated round the turn by the periodic monotone
  * scheme over the guide directions.
  */
-const guide = (base: Float64Array, guides: ICompiledGuide[], u: number): Float64Array => {
+const guide = (
+  base: Float64Array,
+  guides: ICompiledGuide[],
+  u: number,
+): Float64Array => {
   const n: number = base.length;
   const at = (angle: number): number => {
     const x: number = (angle / (2 * Math.PI)) * n;
@@ -344,13 +441,18 @@ const guide = (base: Float64Array, guides: ICompiledGuide[], u: number): Float64
   };
   const correction: (angle: number) => number = interpolateAutoMovieMonotone({
     knots: guides.map((g: ICompiledGuide): number => g.angle),
-    values: guides.map((g: ICompiledGuide): number => g.radius(u) - at(g.angle)),
+    values: guides.map(
+      (g: ICompiledGuide): number => g.radius(u) - at(g.angle),
+    ),
     period: 2 * Math.PI,
   });
   const out: Float64Array = new Float64Array(n);
   for (let d: number = 0; d < n; ++d) {
     out[d] = base[d]! + correction((2 * Math.PI * d) / n);
-    if (!(out[d]! > 0)) throw new Error(`sweep guides make the section's radius vanish at u = ${u}`);
+    if (!(out[d]! > 0))
+      throw new Error(
+        `sweep guides make the section's radius vanish at u = ${u}`,
+      );
   }
   return out;
 };
@@ -358,15 +460,34 @@ const guide = (base: Float64Array, guides: ICompiledGuide[], u: number): Float64
 const checkFeature = (f: IAutoMovieSweep.IFeature, index: number): void => {
   if (!(f.width > 0) || !Number.isFinite(f.width))
     throw new Error(`sweep feature ${index} width must be positive and finite`);
-  if (f.points.length < 2) throw new Error(`sweep feature ${index} needs at least two points`);
+  if (f.points.length < 2)
+    throw new Error(`sweep feature ${index} needs at least two points`);
   const relative: boolean = f.points[0]!.offset !== undefined;
   f.points.forEach((p: IAutoMovieSweep.IFeaturePoint): void => {
-    if (!Number.isFinite(p.at) || p.at < 0 || p.at > 1 || !Number.isFinite(p.angle))
-      throw new Error(`sweep feature ${index} point lies off the surface's domain`);
-    if ((p.offset !== undefined) !== relative || (p.radius !== undefined) === relative)
-      throw new Error(`sweep feature ${index} must give every point either a radius or an offset`);
-    if (relative ? !Number.isFinite(p.offset!) : !Number.isFinite(p.radius!) || p.radius! <= 0)
-      throw new Error(`sweep feature ${index} radius must be positive and offsets finite`);
+    if (
+      !Number.isFinite(p.at) ||
+      p.at < 0 ||
+      p.at > 1 ||
+      !Number.isFinite(p.angle)
+    )
+      throw new Error(
+        `sweep feature ${index} point lies off the surface's domain`,
+      );
+    if (
+      (p.offset !== undefined) !== relative ||
+      (p.radius !== undefined) === relative
+    )
+      throw new Error(
+        `sweep feature ${index} must give every point either a radius or an offset`,
+      );
+    if (
+      relative
+        ? !Number.isFinite(p.offset!)
+        : !Number.isFinite(p.radius!) || p.radius! <= 0
+    )
+      throw new Error(
+        `sweep feature ${index} radius must be positive and offsets finite`,
+      );
   });
 };
 
@@ -385,21 +506,31 @@ interface ICompiledFeature {
 const compileFeature = (f: IAutoMovieSweep.IFeature): ICompiledFeature => {
   // unwrap the polyline so consecutive points take the shorter way round
   let previous: number = f.points[0]!.angle;
-  const angle: Float64Array = Float64Array.from(f.points, (p: IAutoMovieSweep.IFeaturePoint, k: number): number => {
-    if (k === 0) return previous;
-    let step: number = p.angle - previous;
-    step -= 2 * Math.PI * Math.round(step / (2 * Math.PI));
-    previous += step;
-    return previous;
-  });
+  const angle: Float64Array = Float64Array.from(
+    f.points,
+    (p: IAutoMovieSweep.IFeaturePoint, k: number): number => {
+      if (k === 0) return previous;
+      let step: number = p.angle - previous;
+      step -= 2 * Math.PI * Math.round(step / (2 * Math.PI));
+      previous += step;
+      return previous;
+    },
+  );
   const relative: boolean = f.points[0]!.offset !== undefined;
-  const at: Float64Array = Float64Array.from(f.points, (p: IAutoMovieSweep.IFeaturePoint): number => p.at);
+  const at: Float64Array = Float64Array.from(
+    f.points,
+    (p: IAutoMovieSweep.IFeaturePoint): number => p.at,
+  );
   return {
     width: f.width,
     relative,
     at,
     angle,
-    value: Float64Array.from(f.points, (p: IAutoMovieSweep.IFeaturePoint): number => (relative ? p.offset! : p.radius!)),
+    value: Float64Array.from(
+      f.points,
+      (p: IAutoMovieSweep.IFeaturePoint): number =>
+        relative ? p.offset! : p.radius!,
+    ),
     low: Math.min(...at),
     high: Math.max(...at),
   };
@@ -415,7 +546,11 @@ const displace = (
   guided: (u: number, angle: number) => number,
 ): number => {
   // the band reaches no further along the spine than its width
-  if ((feature.low - u) * length >= feature.width || (u - feature.high) * length >= feature.width) return 0;
+  if (
+    (feature.low - u) * length >= feature.width ||
+    (u - feature.high) * length >= feature.width
+  )
+    return 0;
   let best: number = Infinity;
   let at: number = 0;
   let direction: number = 0;
@@ -429,17 +564,22 @@ const displace = (
     const qx: number = (u - feature.at[k]!) * length;
     const qy: number = qa * local;
     const span: number = sx * sx + sy * sy;
-    const t: number = span > 0 ? Math.min(1, Math.max(0, (qx * sx + qy * sy) / span)) : 0;
+    const t: number =
+      span > 0 ? Math.min(1, Math.max(0, (qx * sx + qy * sy) / span)) : 0;
     const d: number = Math.hypot(qx - t * sx, qy - t * sy);
     if (d < best) {
       best = d;
       at = feature.at[k]! + t * (feature.at[k + 1]! - feature.at[k]!);
-      direction = feature.angle[k]! + t * (feature.angle[k + 1]! - feature.angle[k]!);
-      target = feature.value[k]! + t * (feature.value[k + 1]! - feature.value[k]!);
+      direction =
+        feature.angle[k]! + t * (feature.angle[k + 1]! - feature.angle[k]!);
+      target =
+        feature.value[k]! + t * (feature.value[k + 1]! - feature.value[k]!);
     }
   }
   if (best >= feature.width) return 0;
   const x: number = best / feature.width;
-  const residual: number = feature.relative ? target : target - guided(at, direction);
+  const residual: number = feature.relative
+    ? target
+    : target - guided(at, direction);
   return residual * (1 - x * x) ** 3;
 };

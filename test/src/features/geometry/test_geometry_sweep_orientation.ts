@@ -1,4 +1,8 @@
-import { IAutoMovieSweep, IAutoMovieSweepSurface, compileAutoMovieSweep } from "@automovie/engine";
+import {
+  IAutoMovieSweep,
+  IAutoMovieSweepSurface,
+  compileAutoMovieSweep,
+} from "@automovie/engine";
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -18,12 +22,19 @@ const SNAKE: IAutoMovieVector3[] = [
 ];
 
 /** Stations at the path's points, each a 0.1 m by 0.08 m ellipse, optionally in a level plane. */
-const snake = (orientation: IAutoMovieSweep["orientation"], level: boolean): IAutoMovieSweep => {
+const snake = (
+  orientation: IAutoMovieSweep["orientation"],
+  level: boolean,
+): IAutoMovieSweep => {
   const lengths: number[] = [0];
   for (let k: number = 1; k < SNAKE.length; ++k)
     lengths.push(
       lengths[k - 1]! +
-        Math.hypot(SNAKE[k]!.x - SNAKE[k - 1]!.x, SNAKE[k]!.y - SNAKE[k - 1]!.y, SNAKE[k]!.z - SNAKE[k - 1]!.z),
+        Math.hypot(
+          SNAKE[k]!.x - SNAKE[k - 1]!.x,
+          SNAKE[k]!.y - SNAKE[k - 1]!.y,
+          SNAKE[k]!.z - SNAKE[k - 1]!.z,
+        ),
     );
   return {
     spine: { points: SNAKE, normal: { x: 0, y: 0, z: 1 } },
@@ -31,7 +42,14 @@ const snake = (orientation: IAutoMovieSweep["orientation"], level: boolean): IAu
     stations: lengths.map(
       (l: number): IAutoMovieSweep.IStation => ({
         at: l / lengths[lengths.length - 1]!,
-        section: { type: "superellipse", right: 0.1, up: 0.08, left: 0.1, down: 0.08, exponents: [2, 2, 2, 2] },
+        section: {
+          type: "superellipse",
+          right: 0.1,
+          up: 0.08,
+          left: 0.1,
+          down: 0.08,
+          exponents: [2, 2, 2, 2],
+        },
         ...(level ? { rotation: LEVEL } : {}),
       }),
     ),
@@ -44,7 +62,10 @@ const tilt = (surface: IAutoMovieSweepSurface): number => {
   for (let i: number = 0; i <= 97; ++i)
     for (let j: number = 0; j < 16; ++j) {
       const u: number = i / 97;
-      worst = Math.max(worst, Math.abs(surface.point(u, j / 16).y - surface.frame(u).origin.y));
+      worst = Math.max(
+        worst,
+        Math.abs(surface.point(u, j / 16).y - surface.frame(u).origin.y),
+      );
     }
   return worst;
 };
@@ -63,32 +84,69 @@ const tilt = (surface: IAutoMovieSweepSurface): number => {
  * @evidence contracts/testing.md#execution-ownership The discoverable named entry calls the portable engine compiler directly; it installs no consumer and starts no process, browser or GPU.
  */
 export function test_geometry_sweep_orientation(): void {
-  const fixed: IAutoMovieSweepSurface = compileAutoMovieSweep(snake("fixed", true));
-  const transported: IAutoMovieSweepSurface = compileAutoMovieSweep(snake(undefined, true));
-  const bare: IAutoMovieSweepSurface = compileAutoMovieSweep(snake("fixed", false));
-  const following: IAutoMovieSweepSurface = compileAutoMovieSweep(snake(undefined, false));
-  const explicit: IAutoMovieSweepSurface = compileAutoMovieSweep(snake("transported", false));
-  const us: number[] = Array.from({ length: 41 }, (_: unknown, i: number): number => i / 40);
+  const fixed: IAutoMovieSweepSurface = compileAutoMovieSweep(
+    snake("fixed", true),
+  );
+  const transported: IAutoMovieSweepSurface = compileAutoMovieSweep(
+    snake(undefined, true),
+  );
+  const bare: IAutoMovieSweepSurface = compileAutoMovieSweep(
+    snake("fixed", false),
+  );
+  const following: IAutoMovieSweepSurface = compileAutoMovieSweep(
+    snake(undefined, false),
+  );
+  const explicit: IAutoMovieSweepSurface = compileAutoMovieSweep(
+    snake("transported", false),
+  );
+  const us: number[] = Array.from(
+    { length: 41 },
+    (_: unknown, i: number): number => i / 40,
+  );
   const start: IAutoMovieVector3 = bare.frame(0).normal;
   const turn = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
-    (Math.acos(Math.min(1, Math.abs(a.x * b.x + a.y * b.y + a.z * b.z))) * 180) / Math.PI;
+    (Math.acos(Math.min(1, Math.abs(a.x * b.x + a.y * b.y + a.z * b.z))) *
+      180) /
+    Math.PI;
   TestValidator.equals(
     "a fixed orientation keeps section planes parallel along a bending spine",
     namedFacts([
       ["fixedLevel", (): boolean => nclose(tilt(fixed), 0, 1e-9)],
       ["transportedTilts", (): boolean => tilt(transported) > 0.001],
-      ["fixedKeepsStart", (): boolean => us.every((u: number): boolean => nclose(turn(bare.frame(u).normal, start), 0, 1e-6))],
-      ["defaultTurns", (): boolean => Math.max(...us.map((u: number): number => turn(following.frame(u).normal, start))) > 10],
+      [
+        "fixedKeepsStart",
+        (): boolean =>
+          us.every((u: number): boolean =>
+            nclose(turn(bare.frame(u).normal, start), 0, 1e-6),
+          ),
+      ],
+      [
+        "defaultTurns",
+        (): boolean =>
+          Math.max(
+            ...us.map((u: number): number =>
+              turn(following.frame(u).normal, start),
+            ),
+          ) > 10,
+      ],
       [
         "omittedIsTransported",
         (): boolean =>
           us.every((u: number): boolean => {
             const a: IAutoMovieVector3 = following.frame(u).normal;
             const b: IAutoMovieVector3 = explicit.frame(u).normal;
-            return nclose(a.x, b.x, 0) && nclose(a.y, b.y, 0) && nclose(a.z, b.z, 0);
+            return (
+              nclose(a.x, b.x, 0) && nclose(a.y, b.y, 0) && nclose(a.z, b.z, 0)
+            );
           }),
       ],
     ]),
-    { fixedLevel: true, transportedTilts: true, fixedKeepsStart: true, defaultTurns: true, omittedIsTransported: true },
+    {
+      fixedLevel: true,
+      transportedTilts: true,
+      fixedKeepsStart: true,
+      defaultTurns: true,
+      omittedIsTransported: true,
+    },
   );
 }

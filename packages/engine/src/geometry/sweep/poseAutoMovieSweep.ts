@@ -77,37 +77,82 @@ export const poseAutoMovieSweep: (props: {
     throw new Error("sweep binding needs one bone per spine point");
   if (binding.stations.length !== sweep.stations.length)
     throw new Error("sweep binding needs one bone or joint per station");
-  const motion = createAutoMovieBoneMotion({ rest: props.rest, posed: props.posed });
+  const motion = createAutoMovieBoneMotion({
+    rest: props.rest,
+    posed: props.posed,
+  });
   // declared end tangents turn with the bones of the first and last points
-  const turnTangents = (t: NonNullable<IAutoMovieSweepSpine["tangents"]>): NonNullable<IAutoMovieSweepSpine["tangents"]> => ({
-    ...(t.start === undefined ? {} : { start: Quaternion.rotateVector(motion(binding.points[0]!).rotation, t.start) }),
-    ...(t.end === undefined ? {} : { end: Quaternion.rotateVector(motion(binding.points[binding.points.length - 1]!).rotation, t.end) }),
+  const turnTangents = (
+    t: NonNullable<IAutoMovieSweepSpine["tangents"]>,
+  ): NonNullable<IAutoMovieSweepSpine["tangents"]> => ({
+    ...(t.start === undefined
+      ? {}
+      : {
+          start: Quaternion.rotateVector(
+            motion(binding.points[0]!).rotation,
+            t.start,
+          ),
+        }),
+    ...(t.end === undefined
+      ? {}
+      : {
+          end: Quaternion.rotateVector(
+            motion(binding.points[binding.points.length - 1]!).rotation,
+            t.end,
+          ),
+        }),
   });
   const rest: IAutoMovieSweepSurface = compileAutoMovieSweep(sweep);
   const stations: IAutoMovieSweep.IStation[] = sweep.stations.map(
-    (station: IAutoMovieSweep.IStation, k: number): IAutoMovieSweep.IStation => {
+    (
+      station: IAutoMovieSweep.IStation,
+      k: number,
+    ): IAutoMovieSweep.IStation => {
       const f: IAutoMovieSweepFrame = rest.frame(station.at);
-      const plane: IAutoMovieQuaternion = quaternionFromAutoMovieBasis(f.x, f.y, f.normal);
+      const plane: IAutoMovieQuaternion = quaternionFromAutoMovieBasis(
+        f.x,
+        f.y,
+        f.normal,
+      );
       const turned: IAutoMovieQuaternion[] = binding.stations[k]!.map(
-        (bone): IAutoMovieQuaternion => Quaternion.normalize(Quaternion.multiply(motion(bone).rotation, plane)),
+        (bone): IAutoMovieQuaternion =>
+          Quaternion.normalize(
+            Quaternion.multiply(motion(bone).rotation, plane),
+          ),
       );
       return {
         ...station,
-        rotation: turned.length === 1 ? turned[0]! : Quaternion.slerp(turned[0]!, turned[1]!, 0.5),
+        rotation:
+          turned.length === 1
+            ? turned[0]!
+            : Quaternion.slerp(turned[0]!, turned[1]!, 0.5),
       };
     },
   );
   const posed: IAutoMovieSweep = {
     ...sweep,
     spine: {
-      points: sweep.spine.points.map((p, k: number) => motion(binding.points[k]!).apply(p)),
-      normal: Quaternion.rotateVector(motion(binding.points[0]!).rotation, sweep.spine.normal),
-      ...(sweep.spine.tangents === undefined ? {} : { tangents: turnTangents(sweep.spine.tangents) }),
+      points: sweep.spine.points.map((p, k: number) =>
+        motion(binding.points[k]!).apply(p),
+      ),
+      normal: Quaternion.rotateVector(
+        motion(binding.points[0]!).rotation,
+        sweep.spine.normal,
+      ),
+      ...(sweep.spine.tangents === undefined
+        ? {}
+        : { tangents: turnTangents(sweep.spine.tangents) }),
     },
     stations,
   };
-  const joints: boolean[] = binding.stations.map((b): boolean => b.length === 2);
-  if (!(props.preserveVolume ?? false) || !joints.some((j: boolean): boolean => j)) return posed;
+  const joints: boolean[] = binding.stations.map(
+    (b): boolean => b.length === 2,
+  );
+  if (
+    !(props.preserveVolume ?? false) ||
+    !joints.some((j: boolean): boolean => j)
+  )
+    return posed;
 
   const target: number = measureAutoMovieSweepVolume(rest);
   const previous: ((u: number) => number) | null =
@@ -115,21 +160,33 @@ export const poseAutoMovieSweep: (props: {
       ? null
       : interpolateAutoMovieMonotone({
           knots: sweep.scale.map((k: IAutoMovieSweep.IKnot): number => k.at),
-          values: sweep.scale.map((k: IAutoMovieSweep.IKnot): number => k.value),
+          values: sweep.scale.map(
+            (k: IAutoMovieSweep.IKnot): number => k.value,
+          ),
         });
   const knots: number[] = [
-    ...new Set([0, 1, ...sweep.stations.map((s: IAutoMovieSweep.IStation): number => s.at), ...(sweep.scale ?? []).map((k: IAutoMovieSweep.IKnot): number => k.at)]),
+    ...new Set([
+      0,
+      1,
+      ...sweep.stations.map((s: IAutoMovieSweep.IStation): number => s.at),
+      ...(sweep.scale ?? []).map((k: IAutoMovieSweep.IKnot): number => k.at),
+    ]),
   ].sort((a: number, b: number): number => a - b);
   const jointAt: Set<number> = new Set(
-    sweep.stations.filter((_: IAutoMovieSweep.IStation, k: number): boolean => joints[k]!).map((s: IAutoMovieSweep.IStation): number => s.at),
+    sweep.stations
+      .filter((_: IAutoMovieSweep.IStation, k: number): boolean => joints[k]!)
+      .map((s: IAutoMovieSweep.IStation): number => s.at),
   );
   const scaled = (factor: number): IAutoMovieSweep => ({
     ...posed,
-    scale: knots.map((at: number): IAutoMovieSweep.IKnot => ({
-      at,
-      value: (previous?.(at) ?? 1) * (jointAt.has(at) ? factor : 1),
-    })),
+    scale: knots.map(
+      (at: number): IAutoMovieSweep.IKnot => ({
+        at,
+        value: (previous?.(at) ?? 1) * (jointAt.has(at) ? factor : 1),
+      }),
+    ),
   });
-  const volume = (factor: number): number => measureAutoMovieSweepVolume(compileAutoMovieSweep(scaled(factor)));
+  const volume = (factor: number): number =>
+    measureAutoMovieSweepVolume(compileAutoMovieSweep(scaled(factor)));
   return scaled(settleAutoMovieSweepVolume(target, volume));
 };

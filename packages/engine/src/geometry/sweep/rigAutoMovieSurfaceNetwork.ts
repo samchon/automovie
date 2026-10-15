@@ -120,27 +120,45 @@ export const rigAutoMovieSurfaceNetwork: (props: {
 }): IAutoMovieSurfaceRig => {
   const { network, tier } = props;
   const bindings: NonNullable<typeof props.bindings> = props.bindings ?? {};
-  const known = (names: string[], record: object | undefined, what: string): void => {
+  const known = (
+    names: string[],
+    record: object | undefined,
+    what: string,
+  ): void => {
     for (const name of Object.keys(record ?? {}))
-      if (!names.includes(name)) throw new Error(`binding names unknown ${what} ${name}`);
+      if (!names.includes(name))
+        throw new Error(`binding names unknown ${what} ${name}`);
   };
   known(Object.keys(network.sweeps), bindings.sweeps, "sweep");
   known(Object.keys(network.nodes ?? {}), bindings.nodes, "node");
   known(Object.keys(network.curves ?? {}), bindings.curves, "curve");
-  known((network.rings ?? []).map((r: IAutoMovieSurfaceNetwork.IRing): string => r.name), bindings.rings, "ring");
-  const bound: boolean = [bindings.sweeps, bindings.nodes, bindings.curves, bindings.rings].some(
-    (r: object | undefined): boolean => Object.keys(r ?? {}).length > 0,
+  known(
+    (network.rings ?? []).map(
+      (r: IAutoMovieSurfaceNetwork.IRing): string => r.name,
+    ),
+    bindings.rings,
+    "ring",
   );
-  if (bound && props.rest === undefined) throw new Error("a rig with bindings needs the rest bones");
-  const bones: IAutoMovieBoneBuffer | null = props.rest === undefined ? null : bufferAutoMovieBones(props.rest);
-  const boneOf = (bone: AutoMovieHumanoidBone | undefined): number => (bone === undefined || bones === null ? -1 : bones.index(bone));
+  const bound: boolean = [
+    bindings.sweeps,
+    bindings.nodes,
+    bindings.curves,
+    bindings.rings,
+  ].some((r: object | undefined): boolean => Object.keys(r ?? {}).length > 0);
+  if (bound && props.rest === undefined)
+    throw new Error("a rig with bindings needs the rest bones");
+  const bones: IAutoMovieBoneBuffer | null =
+    props.rest === undefined ? null : bufferAutoMovieBones(props.rest);
+  const boneOf = (bone: AutoMovieHumanoidBone | undefined): number =>
+    bone === undefined || bones === null ? -1 : bones.index(bone);
 
   const sweeps: Map<string, IAutoMovieSweepRig> = new Map();
   const sweepRig = (name: string): IAutoMovieSweepRig => {
     let r: IAutoMovieSweepRig | undefined = sweeps.get(name);
     if (r === undefined) {
       const sweep = network.sweeps[name];
-      if (sweep === undefined) throw new Error(`network names unknown sweep ${name}`);
+      if (sweep === undefined)
+        throw new Error(`network names unknown sweep ${name}`);
       const b: IAutoMovieSweepBinding | undefined = bindings.sweeps?.[name];
       r = rigAutoMovieSweep({
         sweep,
@@ -148,8 +166,15 @@ export const rigAutoMovieSurfaceNetwork: (props: {
           ? {}
           : {
               binding: {
-                points: b.points.map((bone: AutoMovieHumanoidBone): number => boneOf(bone)),
-                stations: b.stations.map((s: AutoMovieHumanoidBone[]): number[] => s.map((bone: AutoMovieHumanoidBone): number => boneOf(bone))),
+                points: b.points.map((bone: AutoMovieHumanoidBone): number =>
+                  boneOf(bone),
+                ),
+                stations: b.stations.map(
+                  (s: AutoMovieHumanoidBone[]): number[] =>
+                    s.map((bone: AutoMovieHumanoidBone): number =>
+                      boneOf(bone),
+                    ),
+                ),
               },
             }),
         preserveVolume: props.preserveVolume ?? false,
@@ -158,9 +183,13 @@ export const rigAutoMovieSurfaceNetwork: (props: {
     }
     return r;
   };
-  const count = (counts: IAutoMovieSurfaceNetwork.ICounts, what: string): number => {
+  const count = (
+    counts: IAutoMovieSurfaceNetwork.ICounts,
+    what: string,
+  ): number => {
     const n: number = counts[tier];
-    if (!Number.isSafeInteger(n) || n < 1) throw new Error(`${what} needs a positive integer count at tier ${tier}`);
+    if (!Number.isSafeInteger(n) || n < 1)
+      throw new Error(`${what} needs a positive integer count at tier ${tier}`);
     return n;
   };
   const SCALE: number = 10 ** KEY_DIGITS;
@@ -168,158 +197,279 @@ export const rigAutoMovieSurfaceNetwork: (props: {
   // v is read modulo one turn after rounding, so v near 0 and near 1 name the same point
   const sweepKey = (name: string, u: number, v: number): string =>
     `s|${name}|${round(Math.min(1, Math.max(0, u)))}|${((round(v) % SCALE) + SCALE) % SCALE}`;
-  const rest3 = (p: IAutoMovieVector3): Float64Array => Float64Array.from([p.x, p.y, p.z]);
+  const rest3 = (p: IAutoMovieVector3): Float64Array =>
+    Float64Array.from([p.x, p.y, p.z]);
   // a point that rides a bone, or stays where it is without one
-  const riding = (p: IAutoMovieVector3, bone: number): ((out: Float64Array, at: number) => void) => {
+  const riding = (
+    p: IAutoMovieVector3,
+    bone: number,
+  ): ((out: Float64Array, at: number) => void) => {
     const rest: Float64Array = rest3(p);
     return (out: Float64Array, at: number): void => {
       if (bone >= 0) bones!.apply(bone, rest, 0, out, at);
       else for (let c: number = 0; c < 3; ++c) out[at + c] = rest[c]!;
     };
   };
-  const nodes: Map<string, IAutoMovieSurfacePoint & { key: string }> = new Map();
+  const nodes: Map<string, IAutoMovieSurfacePoint & { key: string }> =
+    new Map();
   const node = (name: string): IAutoMovieSurfacePoint & { key: string } => {
-    let found: (IAutoMovieSurfacePoint & { key: string }) | undefined = nodes.get(name);
+    let found: (IAutoMovieSurfacePoint & { key: string }) | undefined =
+      nodes.get(name);
     if (found !== undefined) return found;
     const n: IAutoMovieSurfaceNetwork.INode | undefined = network.nodes?.[name];
     if (n === undefined) throw new Error(`network names unknown node ${name}`);
     found =
       n.type === "point"
-        ? { key: `n|${name}`, write: riding(n.position, boneOf(bindings.nodes?.[name])), probe: null }
+        ? {
+            key: `n|${name}`,
+            write: riding(n.position, boneOf(bindings.nodes?.[name])),
+            probe: null,
+          }
         : {
             key: sweepKey(n.sweep, n.u, n.v),
             write: sweepRig(n.sweep).sample(n.u, n.v, [0, 0, 0, 0]),
-            probe: { rig: sweepRig(n.sweep), slot: sweepRig(n.sweep).probe(n.u, n.v) },
+            probe: {
+              rig: sweepRig(n.sweep),
+              slot: sweepRig(n.sweep).probe(n.u, n.v),
+            },
           };
     nodes.set(name, found);
     return found;
   };
   const curves: Map<string, IAutoMovieSurfaceCurveRig> = new Map();
-  const curveRig = (name: string, curve: IAutoMovieSurfaceNetwork.ICurve): IAutoMovieSurfaceCurveRig => {
+  const curveRig = (
+    name: string,
+    curve: IAutoMovieSurfaceNetwork.ICurve,
+  ): IAutoMovieSurfaceCurveRig => {
     let r: IAutoMovieSurfaceCurveRig | undefined = curves.get(name);
     if (r === undefined) {
-      r = rigAutoMovieSurfaceCurve({ name, curve, from: node(curve.from), to: node(curve.to), bone: boneOf(bindings.curves?.[name]), bones });
+      r = rigAutoMovieSurfaceCurve({
+        name,
+        curve,
+        from: node(curve.from),
+        to: node(curve.to),
+        bone: boneOf(bindings.curves?.[name]),
+        bones,
+      });
       curves.set(name, r);
     }
     return r;
   };
 
-  const registry: IAutoMovieSurfaceRegistry = registerAutoMovieSurfaceVertices(sweepRig);
+  const registry: IAutoMovieSurfaceRegistry =
+    registerAutoMovieSurfaceVertices(sweepRig);
   const { writers, reserve, admit, existing } = registry;
   // a bridge may run along a network curve no patch samples, but a sweep point it names must be one a patch made
   const joined = (point: IAutoMovieSurfaceSample, what: string): number =>
     point.key.startsWith("s|") ? existing(point.key, what) : admit(point);
-  const sample = (edge: IAutoMovieSurfaceNetwork.IEdge, what: string): IAutoMovieSurfaceSample[] => {
+  const sample = (
+    edge: IAutoMovieSurfaceNetwork.IEdge,
+    what: string,
+  ): IAutoMovieSurfaceSample[] => {
     if (edge.type === "sweep") {
       const n: number = count(edge.segments, what);
       const rig: IAutoMovieSweepRig = sweepRig(edge.sweep);
-      return Array.from({ length: n + 1 }, (_: unknown, i: number): IAutoMovieSurfaceSample => {
-        const u: number = i === n ? edge.to.u : edge.from.u + ((edge.to.u - edge.from.u) * i) / n;
-        const v: number = i === n ? edge.to.v : edge.from.v + ((edge.to.v - edge.from.v) * i) / n;
-        const [ub, ua] = reach((edge.to.u - edge.from.u) / n, i === 0, i === n);
-        const [vb, va] = reach((edge.to.v - edge.from.v) / n, i === 0, i === n);
-        return {
-          key: sweepKey(edge.sweep, u, v),
-          writer: () => rig.sample(u, v, [0, 0, 0, 0]),
-          point: { sweep: edge.sweep, u, v, cell: [ub, ua, vb, va] },
-          sweep: { rig, u, v },
-          curve: null,
-        };
-      });
+      return Array.from(
+        { length: n + 1 },
+        (_: unknown, i: number): IAutoMovieSurfaceSample => {
+          const u: number =
+            i === n
+              ? edge.to.u
+              : edge.from.u + ((edge.to.u - edge.from.u) * i) / n;
+          const v: number =
+            i === n
+              ? edge.to.v
+              : edge.from.v + ((edge.to.v - edge.from.v) * i) / n;
+          const [ub, ua] = reach(
+            (edge.to.u - edge.from.u) / n,
+            i === 0,
+            i === n,
+          );
+          const [vb, va] = reach(
+            (edge.to.v - edge.from.v) / n,
+            i === 0,
+            i === n,
+          );
+          return {
+            key: sweepKey(edge.sweep, u, v),
+            writer: () => rig.sample(u, v, [0, 0, 0, 0]),
+            point: { sweep: edge.sweep, u, v, cell: [ub, ua, vb, va] },
+            sweep: { rig, u, v },
+            curve: null,
+          };
+        },
+      );
     }
-    const curve: IAutoMovieSurfaceNetwork.ICurve | undefined = network.curves?.[edge.curve];
-    if (curve === undefined) throw new Error(`${what} names unknown curve ${edge.curve}`);
-    if (curve.from === curve.to) throw new Error(`curve ${edge.curve} must join two different nodes`);
+    const curve: IAutoMovieSurfaceNetwork.ICurve | undefined =
+      network.curves?.[edge.curve];
+    if (curve === undefined)
+      throw new Error(`${what} names unknown curve ${edge.curve}`);
+    if (curve.from === curve.to)
+      throw new Error(`curve ${edge.curve} must join two different nodes`);
     const n: number = count(curve.segments, `curve ${edge.curve}`);
     const rig: IAutoMovieSurfaceCurveRig = curveRig(edge.curve, curve);
     const reverse: boolean = edge.reverse ?? false;
-    return Array.from({ length: n + 1 }, (_: unknown, i: number): IAutoMovieSurfaceSample => {
-      const t: number = reverse ? (n - i) / n : i / n;
-      const end: string | null = t === 0 ? curve.from : t === 1 ? curve.to : null;
-      const at: IAutoMovieSurfaceNetwork.INode | null = end === null ? null : network.nodes![end]!;
-      return {
-        key: end !== null ? node(end).key : `c|${edge.curve}|${round(t)}`,
-        writer: () => (end !== null ? node(end).write : (out: Float64Array, offset: number): void => rig.point(t, out, offset)),
-        point: at !== null && at.type === "sweep" ? { sweep: at.sweep, u: at.u, v: at.v, cell: [Infinity, Infinity, Infinity, Infinity] } : null,
-        sweep: null,
-        curve: { rig, t },
-      };
-    });
+    return Array.from(
+      { length: n + 1 },
+      (_: unknown, i: number): IAutoMovieSurfaceSample => {
+        const t: number = reverse ? (n - i) / n : i / n;
+        const end: string | null =
+          t === 0 ? curve.from : t === 1 ? curve.to : null;
+        const at: IAutoMovieSurfaceNetwork.INode | null =
+          end === null ? null : network.nodes![end]!;
+        return {
+          key: end !== null ? node(end).key : `c|${edge.curve}|${round(t)}`,
+          writer: () =>
+            end !== null
+              ? node(end).write
+              : (out: Float64Array, offset: number): void =>
+                  rig.point(t, out, offset),
+          point:
+            at !== null && at.type === "sweep"
+              ? {
+                  sweep: at.sweep,
+                  u: at.u,
+                  v: at.v,
+                  cell: [Infinity, Infinity, Infinity, Infinity],
+                }
+              : null,
+          sweep: null,
+          curve: { rig, t },
+        };
+      },
+    );
   };
-  const loop = (edges: IAutoMovieSurfaceNetwork.IEdge[], what: string): IAutoMovieSurfaceSample[] => {
+  const loop = (
+    edges: IAutoMovieSurfaceNetwork.IEdge[],
+    what: string,
+  ): IAutoMovieSurfaceSample[] => {
     if (edges.length === 0) throw new Error(`${what} needs at least one edge`);
     const out: IAutoMovieSurfaceSample[] = [];
     edges.forEach((edge: IAutoMovieSurfaceNetwork.IEdge, k: number): void => {
       const points: IAutoMovieSurfaceSample[] = sample(edge, what);
       if (k > 0 && points[0]!.key !== out[out.length - 1]!.key)
-        throw new Error(`${what} edge ${k} does not start where edge ${k - 1} ends`);
+        throw new Error(
+          `${what} edge ${k} does not start where edge ${k - 1} ends`,
+        );
       out.push(...(k > 0 ? points.slice(1) : points));
     });
-    if (out[out.length - 1]!.key !== out[0]!.key) throw new Error(`${what} does not close`);
+    if (out[out.length - 1]!.key !== out[0]!.key)
+      throw new Error(`${what} does not close`);
     out.pop();
     return out;
   };
 
   const blend: Set<number> = new Set();
-  const layout: IAutoMovieSurfaceLayout = layoutAutoMovieSurfacePatches(network);
+  const layout: IAutoMovieSurfaceLayout =
+    layoutAutoMovieSurfacePatches(network);
   const { faces, emit } = layout;
   const names: Set<string> = new Set();
 
   const order: number[] = network.patches
     .map((_: IAutoMovieSurfaceNetwork.IPatch, p: number): number => p)
-    .sort((a: number, b: number): number => Number(network.patches[a]!.type === "bridge") - Number(network.patches[b]!.type === "bridge") || a - b);
+    .sort(
+      (a: number, b: number): number =>
+        Number(network.patches[a]!.type === "bridge") -
+          Number(network.patches[b]!.type === "bridge") || a - b,
+    );
   for (const p of order) {
     const patch: IAutoMovieSurfaceNetwork.IPatch = network.patches[p]!;
     const what: string = `patch ${patch.name}`;
-    if (names.has(patch.name)) throw new Error(`patch name ${patch.name} repeats`);
+    if (names.has(patch.name))
+      throw new Error(`patch name ${patch.name} repeats`);
     names.add(patch.name);
     if (patch.type === "sweep") {
       const columns: number = count(patch.columns, what);
       const rows: number = count(patch.rows, what);
       const [u0, u1] = patch.u;
       const [v0, v1] = patch.v;
-      if (!(u0 >= 0 && u1 <= 1 && u1 > u0)) throw new Error(`${what} u range must increase within 0 to 1`);
-      if (!(v1 > v0 && v1 - v0 <= 1)) throw new Error(`${what} v range must increase by at most one turn`);
+      if (!(u0 >= 0 && u1 <= 1 && u1 > u0))
+        throw new Error(`${what} u range must increase within 0 to 1`);
+      if (!(v1 > v0 && v1 - v0 <= 1))
+        throw new Error(`${what} v range must increase by at most one turn`);
       sweepRig(patch.sweep);
-      const grid: number[][] = Array.from({ length: rows + 1 }, (_: unknown, j: number): number[] => {
-        const u: number = j === rows ? u1 : u0 + ((u1 - u0) * j) / rows;
-        return Array.from({ length: columns + 1 }, (__: unknown, i: number): number => {
-          const v: number = i === columns ? v1 : v0 + ((v1 - v0) * i) / columns;
-          const [ub, ua] = reach((u1 - u0) / rows, j === 0, j === rows);
-          const [vb, va] = reach((v1 - v0) / columns, i === 0, i === columns);
-          return admit({
-            key: sweepKey(patch.sweep, u, v),
-            writer: () => sweepRig(patch.sweep).sample(u, v, [0, 0, 0, 0]),
-            point: { sweep: patch.sweep, u, v, cell: [ub, ua, vb, va] },
-            sweep: null,
-            curve: null,
-          });
-        });
-      });
+      const grid: number[][] = Array.from(
+        { length: rows + 1 },
+        (_: unknown, j: number): number[] => {
+          const u: number = j === rows ? u1 : u0 + ((u1 - u0) * j) / rows;
+          return Array.from(
+            { length: columns + 1 },
+            (__: unknown, i: number): number => {
+              const v: number =
+                i === columns ? v1 : v0 + ((v1 - v0) * i) / columns;
+              const [ub, ua] = reach((u1 - u0) / rows, j === 0, j === rows);
+              const [vb, va] = reach(
+                (v1 - v0) / columns,
+                i === 0,
+                i === columns,
+              );
+              return admit({
+                key: sweepKey(patch.sweep, u, v),
+                writer: () => sweepRig(patch.sweep).sample(u, v, [0, 0, 0, 0]),
+                point: { sweep: patch.sweep, u, v, cell: [ub, ua, vb, va] },
+                sweep: null,
+                curve: null,
+              });
+            },
+          );
+        },
+      );
       emit(p, grid, columns, rows, false);
     } else if (patch.type === "coons") {
-      const [bottom, right, top, left] = patch.sides.map((e: IAutoMovieSurfaceNetwork.IEdge, k: number): IAutoMovieSurfaceSample[] =>
-        sample(e, `${what} side ${k}`),
-      ) as [IAutoMovieSurfaceSample[], IAutoMovieSurfaceSample[], IAutoMovieSurfaceSample[], IAutoMovieSurfaceSample[]];
+      const [bottom, right, top, left] = patch.sides.map(
+        (
+          e: IAutoMovieSurfaceNetwork.IEdge,
+          k: number,
+        ): IAutoMovieSurfaceSample[] => sample(e, `${what} side ${k}`),
+      ) as [
+        IAutoMovieSurfaceSample[],
+        IAutoMovieSurfaceSample[],
+        IAutoMovieSurfaceSample[],
+        IAutoMovieSurfaceSample[],
+      ];
       const columns: number = bottom.length - 1;
       const rows: number = right.length - 1;
-      if (top.length !== bottom.length || left.length !== right.length) throw new Error(`${what} opposite sides differ in count`);
-      const ends: Array<[IAutoMovieSurfaceSample[], IAutoMovieSurfaceSample[]]> = [
+      if (top.length !== bottom.length || left.length !== right.length)
+        throw new Error(`${what} opposite sides differ in count`);
+      const ends: Array<
+        [IAutoMovieSurfaceSample[], IAutoMovieSurfaceSample[]]
+      > = [
         [bottom, right],
         [right, top],
         [top, left],
         [left, bottom],
       ];
-      ends.forEach(([a, b]: [IAutoMovieSurfaceSample[], IAutoMovieSurfaceSample[]], k: number): void => {
-        if (a[a.length - 1]!.key !== b[0]!.key) throw new Error(`${what} side ${k} does not end where side ${(k + 1) % 4} starts`);
-      });
+      ends.forEach(
+        (
+          [a, b]: [IAutoMovieSurfaceSample[], IAutoMovieSurfaceSample[]],
+          k: number,
+        ): void => {
+          if (a[a.length - 1]!.key !== b[0]!.key)
+            throw new Error(
+              `${what} side ${k} does not end where side ${(k + 1) % 4} starts`,
+            );
+        },
+      );
       const edgeAt = (i: number, j: number): IAutoMovieSurfaceSample | null =>
-        j === 0 ? bottom[i]! : j === rows ? top[columns - i]! : i === 0 ? left[rows - j]! : i === columns ? right[j]! : null;
-      const grid: number[][] = Array.from({ length: rows + 1 }, (_: unknown, j: number): number[] =>
-        Array.from({ length: columns + 1 }, (__: unknown, i: number): number => {
-          const e: IAutoMovieSurfaceSample | null = edgeAt(i, j);
-          return e === null ? -1 : admit(e);
-        }),
+        j === 0
+          ? bottom[i]!
+          : j === rows
+            ? top[columns - i]!
+            : i === 0
+              ? left[rows - j]!
+              : i === columns
+                ? right[j]!
+                : null;
+      const grid: number[][] = Array.from(
+        { length: rows + 1 },
+        (_: unknown, j: number): number[] =>
+          Array.from(
+            { length: columns + 1 },
+            (__: unknown, i: number): number => {
+              const e: IAutoMovieSurfaceSample | null = edgeAt(i, j);
+              return e === null ? -1 : admit(e);
+            },
+          ),
       );
       for (let j: number = 1; j < rows; ++j)
         for (let i: number = 1; i < columns; ++i) {
@@ -330,18 +480,36 @@ export const rigAutoMovieSurfaceNetwork: (props: {
       emit(p, grid, columns, rows, false);
     } else {
       const rows: number = count(patch.rows, what);
-      const a: IAutoMovieSurfaceSample[] = loop(patch.from.edges, `${what} from loop`);
-      const b: IAutoMovieSurfaceSample[] = loop(patch.to.edges, `${what} to loop`);
-      if (a.length !== b.length) throw new Error(`${what} loops differ in count, ${a.length} and ${b.length}`);
-      const tension: number = patch.tension ?? 1;
-      if (!(tension > 0) || !Number.isFinite(tension)) throw new Error(`${what} tension must be positive`);
-      const n: number = a.length;
-      const fromIndex: number[] = a.map((x: IAutoMovieSurfaceSample): number => joined(x, `${what} from loop`));
-      const toIndex: number[] = b.map((x: IAutoMovieSurfaceSample): number => joined(x, `${what} to loop`));
-      const probes: number[] = [...a, ...b].map((x: IAutoMovieSurfaceSample): number =>
-        x.sweep === null ? -1 : x.sweep.rig.probe(x.sweep.u, x.sweep.v),
+      const a: IAutoMovieSurfaceSample[] = loop(
+        patch.from.edges,
+        `${what} from loop`,
       );
-      const grid: number[][] = Array.from({ length: rows + 1 }, (): number[] => new Array<number>(n));
+      const b: IAutoMovieSurfaceSample[] = loop(
+        patch.to.edges,
+        `${what} to loop`,
+      );
+      if (a.length !== b.length)
+        throw new Error(
+          `${what} loops differ in count, ${a.length} and ${b.length}`,
+        );
+      const tension: number = patch.tension ?? 1;
+      if (!(tension > 0) || !Number.isFinite(tension))
+        throw new Error(`${what} tension must be positive`);
+      const n: number = a.length;
+      const fromIndex: number[] = a.map((x: IAutoMovieSurfaceSample): number =>
+        joined(x, `${what} from loop`),
+      );
+      const toIndex: number[] = b.map((x: IAutoMovieSurfaceSample): number =>
+        joined(x, `${what} to loop`),
+      );
+      const probes: number[] = [...a, ...b].map(
+        (x: IAutoMovieSurfaceSample): number =>
+          x.sweep === null ? -1 : x.sweep.rig.probe(x.sweep.u, x.sweep.v),
+      );
+      const grid: number[][] = Array.from(
+        { length: rows + 1 },
+        (): number[] => new Array<number>(n),
+      );
       const interior: number[] = [];
       for (let k: number = 0; k < n; ++k) {
         grid[0]![k] = fromIndex[k]!;
@@ -354,7 +522,18 @@ export const rigAutoMovieSurfaceNetwork: (props: {
         }
       }
       writers.push(
-        rigAutoMovieSurfaceBridge({ from: a, to: b, fromIndex, toIndex, fromRule: patch.from.tangent, toRule: patch.to.tangent, probes, rows, tension, interior }),
+        rigAutoMovieSurfaceBridge({
+          from: a,
+          to: b,
+          fromIndex,
+          toIndex,
+          fromRule: patch.from.tangent,
+          toRule: patch.to.tangent,
+          probes,
+          rows,
+          tension,
+          interior,
+        }),
       );
       emit(p, grid, n, rows, true);
     }
@@ -368,14 +547,20 @@ export const rigAutoMovieSurfaceNetwork: (props: {
   const rings: Record<string, number[]> = {};
   for (const ring of network.rings ?? []) {
     if (ring.name in rings) throw new Error(`ring name ${ring.name} repeats`);
-    const members: number[] = loop(ring.edges, `ring ${ring.name}`).map((s: IAutoMovieSurfaceSample): number => existing(s.key, `ring ${ring.name}`));
+    const members: number[] = loop(ring.edges, `ring ${ring.name}`).map(
+      (s: IAutoMovieSurfaceSample): number =>
+        existing(s.key, `ring ${ring.name}`),
+    );
     if (ring.positions !== undefined) {
       if (ring.positions.length !== members.length)
-        throw new Error(`ring ${ring.name} has ${members.length} vertices but ${ring.positions.length} positions`);
+        throw new Error(
+          `ring ${ring.name} has ${members.length} vertices but ${ring.positions.length} positions`,
+        );
       const bone: number = boneOf(bindings.rings?.[ring.name]);
       members.forEach((v: number, k: number): void => {
         const p: IAutoMovieVector3 = ring.positions![k]!;
-        if (![p.x, p.y, p.z].every(Number.isFinite)) throw new Error(`ring ${ring.name} position ${k} is not finite`);
+        if (![p.x, p.y, p.z].every(Number.isFinite))
+          throw new Error(`ring ${ring.name} position ${k} is not finite`);
         const write: (out: Float64Array, at: number) => void = riding(p, bone);
         pins.push((targets: Float64Array): void => write(targets, 3 * v));
         pinned[v] = true;
@@ -387,9 +572,14 @@ export const rigAutoMovieSurfaceNetwork: (props: {
   for (const rig of sweeps.values()) rig.seal();
 
   const fit: boolean = props.fit ?? true;
-  const stencil: IAutoMovieSubdivisionStencil | null = fit ? stencilAutoMovieSubdivisionLimit(faces, vertices) : null;
+  const stencil: IAutoMovieSubdivisionStencil | null = fit
+    ? stencilAutoMovieSubdivisionLimit(faces, vertices)
+    : null;
   // blend vertices are controls of their own construction, not samples of a surface to pass through
-  const free: Uint8Array = Uint8Array.from({ length: vertices }, (_: unknown, i: number): number => (pinned[i] || blend.has(i) ? 0 : 1));
+  const free: Uint8Array = Uint8Array.from(
+    { length: vertices },
+    (_: unknown, i: number): number => (pinned[i] || blend.has(i) ? 0 : 1),
+  );
   const targets: Float64Array = new Float64Array(3 * vertices);
   const scratch: Float64Array = new Float64Array(3 * vertices);
   const evaluate = (posed: readonly IAutoMovieResolvedBone[] | null): void => {
@@ -402,14 +592,21 @@ export const rigAutoMovieSurfaceNetwork: (props: {
     for (const write of writers) write(targets);
     for (const pin of pins) pin(targets);
     for (let k: number = 0; k < targets.length; ++k)
-      if (!Number.isFinite(targets[k]!)) throw new Error(`network point ${Math.floor(k / 3)} is not finite`);
+      if (!Number.isFinite(targets[k]!))
+        throw new Error(`network point ${Math.floor(k / 3)} is not finite`);
   };
   const place = (positions: Float64Array): number => {
     if (stencil === null) {
       positions.set(targets);
       return 0;
     }
-    return solveAutoMovieSubdivisionLimit({ stencil, targets, free, positions, scratch });
+    return solveAutoMovieSubdivisionLimit({
+      stencil,
+      targets,
+      free,
+      positions,
+      scratch,
+    });
   };
 
   evaluate(null);
@@ -426,11 +623,17 @@ export const rigAutoMovieSurfaceNetwork: (props: {
       }
       extent = Math.max(extent, high - low);
     }
-    if (residual > FIT_LIMIT * extent) throw new Error(`limit fit did not converge, residual ${residual}`);
+    if (residual > FIT_LIMIT * extent)
+      throw new Error(`limit fit did not converge, residual ${residual}`);
   }
   const cage: IAutoMovieSurfaceCage = {
     tier,
-    cage: { positions: Array.from(restPositions), faces, uvs: layout.uvs, uvFaces: layout.uvFaces },
+    cage: {
+      positions: Array.from(restPositions),
+      faces,
+      uvs: layout.uvs,
+      uvFaces: layout.uvFaces,
+    },
     targets: Array.from(targets),
     pinned,
     corners: layout.corners,
@@ -441,9 +644,19 @@ export const rigAutoMovieSurfaceNetwork: (props: {
   return {
     cage,
     bones: bones?.bones ?? [],
-    pose: (posed: readonly IAutoMovieResolvedBone[], positions: Float64Array, out?: Float64Array): number => {
-      if (positions.length !== 3 * vertices) throw new Error(`a posed cage needs ${3 * vertices} position numbers, not ${positions.length}`);
-      if (out !== undefined && out.length !== 3 * vertices) throw new Error(`a posed cage needs ${3 * vertices} target numbers, not ${out.length}`);
+    pose: (
+      posed: readonly IAutoMovieResolvedBone[],
+      positions: Float64Array,
+      out?: Float64Array,
+    ): number => {
+      if (positions.length !== 3 * vertices)
+        throw new Error(
+          `a posed cage needs ${3 * vertices} position numbers, not ${positions.length}`,
+        );
+      if (out !== undefined && out.length !== 3 * vertices)
+        throw new Error(
+          `a posed cage needs ${3 * vertices} target numbers, not ${out.length}`,
+        );
       evaluate(bones === null ? null : posed);
       if (out !== undefined) out.set(targets);
       return place(positions);
@@ -451,9 +664,12 @@ export const rigAutoMovieSurfaceNetwork: (props: {
   };
 };
 
-
 /** The spacing a sampling step gives a point's cell below and above along one axis, infinite on a side the sampling does not reach. */
-const reach = (step: number, first: boolean, last: boolean): [number, number] => {
+const reach = (
+  step: number,
+  first: boolean,
+  last: boolean,
+): [number, number] => {
   const size: number = Math.abs(step);
   if (step === 0) return [Infinity, Infinity];
   const back: number = first ? Infinity : size;

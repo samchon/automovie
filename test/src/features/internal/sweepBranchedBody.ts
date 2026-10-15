@@ -6,29 +6,56 @@ import {
 import { type IAutoMovieVector3 } from "@automovie/interface";
 
 /** The same count at every tier. */
-const fixed = (n: number): IAutoMovieSurfaceNetwork.ICounts => ({ lowest: n, low: n, medium: n, high: n });
+const fixed = (n: number): IAutoMovieSurfaceNetwork.ICounts => ({
+  lowest: n,
+  low: n,
+  medium: n,
+  high: n,
+});
 
 /** Columns of the two wide strips, a multiple of two so their middle is a sample. */
-const STRIP: IAutoMovieSurfaceNetwork.ICounts = { lowest: 2, low: 4, medium: 8, high: 16 };
+const STRIP: IAutoMovieSurfaceNetwork.ICounts = {
+  lowest: 2,
+  low: 4,
+  medium: 8,
+  high: 16,
+};
 
 /** Half a wide strip's columns, from its middle to a flank strip. */
-const HALF: IAutoMovieSurfaceNetwork.ICounts = { lowest: 1, low: 2, medium: 4, high: 8 };
+const HALF: IAutoMovieSurfaceNetwork.ICounts = {
+  lowest: 1,
+  low: 2,
+  medium: 4,
+  high: 8,
+};
 
 /** Segments of the fork curve between the two fork tubes. */
-const FORK: IAutoMovieSurfaceNetwork.ICounts = { lowest: 2, low: 2, medium: 2, high: 4 };
+const FORK: IAutoMovieSurfaceNetwork.ICounts = {
+  lowest: 2,
+  low: 2,
+  medium: 2,
+  high: 4,
+};
 
 /** The flank strips and the side openings: two columns at every tier, so a side opening is a loop of eight. */
 const SIDE: IAutoMovieSurfaceNetwork.ICounts = fixed(2);
 
 /** Trunk bands along its spine: below the side openings, beside them, above them. */
-const BANDS: Array<{ u: [number, number]; rows: IAutoMovieSurfaceNetwork.ICounts }> = [
+const BANDS: Array<{
+  u: [number, number];
+  rows: IAutoMovieSurfaceNetwork.ICounts;
+}> = [
   { u: [0, 0.66], rows: { lowest: 2, low: 4, medium: 8, high: 16 } },
   { u: [0.66, 0.86], rows: fixed(2) },
   { u: [0.86, 1], rows: { lowest: 1, low: 2, medium: 2, high: 4 } },
 ];
 
 /** Trunk strips by `v`, mirror images of each other across the plane `x = 0`: the `+Z` face across the seam, the `+X` flank, the `-Z` face, the `-X` flank. */
-const STRIPS: Array<{ name: string; v: [number, number]; columns: IAutoMovieSurfaceNetwork.ICounts }> = [
+const STRIPS: Array<{
+  name: string;
+  v: [number, number];
+  columns: IAutoMovieSurfaceNetwork.ICounts;
+}> = [
   { name: "front", v: [-0.17, 0.17], columns: STRIP },
   { name: "left", v: [0.17, 0.33], columns: SIDE },
   { name: "back", v: [0.33, 0.67], columns: STRIP },
@@ -36,7 +63,12 @@ const STRIPS: Array<{ name: string; v: [number, number]; columns: IAutoMovieSurf
 ];
 
 /** A rounded section with half-axes toward `+x`, toward each side and toward `-x` of its plane, metres. */
-const oval = (ahead: number, side: number, behind: number, exponent: number): IAutoMovieSweepSection => ({
+const oval = (
+  ahead: number,
+  side: number,
+  behind: number,
+  exponent: number,
+): IAutoMovieSweepSection => ({
   type: "superellipse",
   right: ahead,
   up: side,
@@ -45,10 +77,15 @@ const oval = (ahead: number, side: number, behind: number, exponent: number): IA
   exponents: [exponent, exponent, exponent, exponent],
 });
 
-const point = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
+const point = (x: number, y: number, z: number): IAutoMovieVector3 => ({
+  x,
+  y,
+  z,
+});
 
 /** The mirror image across the plane `x = 0`. */
-const mirror = (p: IAutoMovieVector3): IAutoMovieVector3 => point(-p.x, p.y, p.z);
+const mirror = (p: IAutoMovieVector3): IAutoMovieVector3 =>
+  point(-p.x, p.y, p.z);
 
 const edge = (
   sweep: string,
@@ -101,7 +138,10 @@ export function sweepBranchedBody(
   const b: number = shape.breadth ?? 1;
   const a: number = shape.branch ?? 1;
   const trunk: IAutoMovieSweep = {
-    spine: { points: [point(0, 0, 0), point(0, 0.3, 0.012), point(0, 0.6, 0)], normal: point(0, 0, 1) },
+    spine: {
+      points: [point(0, 0, 0), point(0, 0.3, 0.012), point(0, 0.6, 0)],
+      normal: point(0, 0, 1),
+    },
     stations: [
       { at: 0, section: oval(0.1, 0.16 * b, 0.11, 2.2) },
       { at: 0.45, section: oval(0.085, 0.13 * b, 0.09, 2) },
@@ -151,7 +191,13 @@ export function sweepBranchedBody(
         }
       : {}),
   };
-  const tube = (from: IAutoMovieVector3, to: IAutoMovieVector3, normal: IAutoMovieVector3, r0: number, r1: number): IAutoMovieSweep => ({
+  const tube = (
+    from: IAutoMovieVector3,
+    to: IAutoMovieVector3,
+    normal: IAutoMovieVector3,
+    r0: number,
+    r1: number,
+  ): IAutoMovieSweep => ({
     spine: { points: [from, to], normal },
     stations: [
       { at: 0, section: oval(r0, r0, r0, 2) },
@@ -161,17 +207,35 @@ export function sweepBranchedBody(
   });
   const reflect = (s: IAutoMovieSweep): IAutoMovieSweep => ({
     ...s,
-    spine: { points: s.spine.points.map(mirror), normal: mirror(s.spine.normal) },
+    spine: {
+      points: s.spine.points.map(mirror),
+      normal: mirror(s.spine.normal),
+    },
   });
   const sideY: number = 0.456;
-  const sideLeft: IAutoMovieSweep = tube(point(0.27 * b, sideY, 0), point(0.75, sideY, 0), point(0, -1, 1), 0.042 * a, 0.034 * a);
-  const forkLeft: IAutoMovieSweep = tube(point(0.095 * b, -0.16, 0), point(0.1 * b, -0.9, 0), point(0, 0, -1), 0.082, 0.055);
+  const sideLeft: IAutoMovieSweep = tube(
+    point(0.27 * b, sideY, 0),
+    point(0.75, sideY, 0),
+    point(0, -1, 1),
+    0.042 * a,
+    0.034 * a,
+  );
+  const forkLeft: IAutoMovieSweep = tube(
+    point(0.095 * b, -0.16, 0),
+    point(0.1 * b, -0.9, 0),
+    point(0, 0, -1),
+    0.082,
+    0.055,
+  );
   const sweeps: Record<string, IAutoMovieSweep> = {
     trunk,
     sideLeft,
     sideRight: reflect(sideLeft),
     top: {
-      spine: { points: [point(0, 0.66, 0), point(0, 0.8, 0.01)], normal: point(0, 0, 1) },
+      spine: {
+        points: [point(0, 0.66, 0), point(0, 0.8, 0.01)],
+        normal: point(0, 0, 1),
+      },
       stations: [
         { at: 0, section: oval(0.06, 0.065, 0.065, 2) },
         { at: 1, section: oval(0.05, 0.055, 0.055, 2) },
@@ -185,15 +249,47 @@ export function sweepBranchedBody(
   for (const band of BANDS)
     for (const strip of STRIPS) {
       if (strip.columns === SIDE && band === BANDS[1]) continue;
-      patches.push({ type: "sweep", name: `trunk.${strip.name}.${band.u[0]}`, sweep: "trunk", u: band.u, v: strip.v, rows: band.rows, columns: strip.columns });
+      patches.push({
+        type: "sweep",
+        name: `trunk.${strip.name}.${band.u[0]}`,
+        sweep: "trunk",
+        u: band.u,
+        v: strip.v,
+        rows: band.rows,
+        columns: strip.columns,
+      });
     }
   for (const strip of STRIPS)
-    patches.push({ type: "sweep", name: `top.${strip.name}`, sweep: "top", u: [0, 1], v: strip.v, rows: { lowest: 1, low: 1, medium: 2, high: 3 }, columns: strip.columns });
-  const sideRows: IAutoMovieSurfaceNetwork.ICounts = { lowest: 2, low: 3, medium: 6, high: 12 };
+    patches.push({
+      type: "sweep",
+      name: `top.${strip.name}`,
+      sweep: "top",
+      u: [0, 1],
+      v: strip.v,
+      rows: { lowest: 1, low: 1, medium: 2, high: 3 },
+      columns: strip.columns,
+    });
+  const sideRows: IAutoMovieSurfaceNetwork.ICounts = {
+    lowest: 2,
+    low: 3,
+    medium: 6,
+    high: 12,
+  };
   for (const branch of ["sideLeft", "sideRight"])
-    patches.push({ type: "sweep", name: branch, sweep: branch, u: [0, 1], v: [0, 1], rows: sideRows, columns: fixed(8) });
+    patches.push({
+      type: "sweep",
+      name: branch,
+      sweep: branch,
+      u: [0, 1],
+      v: [0, 1],
+      rows: sideRows,
+      columns: fixed(8),
+    });
   // fork strips by v, matched to the parts of the loop they meet: the trunk edge's -Z half, its flank, its +Z half, the fork curve
-  const forkStripsLeft: Array<{ v: [number, number]; columns: IAutoMovieSurfaceNetwork.ICounts }> = [
+  const forkStripsLeft: Array<{
+    v: [number, number];
+    columns: IAutoMovieSurfaceNetwork.ICounts;
+  }> = [
     { v: [-0.12, 0.1], columns: HALF },
     { v: [0.1, 0.22], columns: SIDE },
     { v: [0.22, 0.61], columns: HALF },
@@ -202,17 +298,43 @@ export function sweepBranchedBody(
   // the mirror at 1 - v, in increasing order
   const forkStripsRight: typeof forkStripsLeft = [...forkStripsLeft]
     .reverse()
-    .map((s) => ({ v: [1 - s.v[1], 1 - s.v[0]] as [number, number], columns: s.columns }));
-  const forkRows: IAutoMovieSurfaceNetwork.ICounts = { lowest: 2, low: 4, medium: 8, high: 16 };
-  const forkStrips: Record<string, typeof forkStripsLeft> = { forkLeft: forkStripsLeft, forkRight: forkStripsRight };
+    .map((s) => ({
+      v: [1 - s.v[1], 1 - s.v[0]] as [number, number],
+      columns: s.columns,
+    }));
+  const forkRows: IAutoMovieSurfaceNetwork.ICounts = {
+    lowest: 2,
+    low: 4,
+    medium: 8,
+    high: 16,
+  };
+  const forkStrips: Record<string, typeof forkStripsLeft> = {
+    forkLeft: forkStripsLeft,
+    forkRight: forkStripsRight,
+  };
   for (const branch of ["forkLeft", "forkRight"])
     forkStrips[branch]!.forEach((strip, k: number): void => {
-      patches.push({ type: "sweep", name: `${branch}.${k}`, sweep: branch, u: [0, 1], v: strip.v, rows: forkRows, columns: strip.columns });
+      patches.push({
+        type: "sweep",
+        name: `${branch}.${k}`,
+        sweep: branch,
+        u: [0, 1],
+        v: strip.v,
+        rows: forkRows,
+        columns: strip.columns,
+      });
     });
 
   const [u0, u1] = BANDS[1]!.u;
-  const bridgeRows: IAutoMovieSurfaceNetwork.ICounts = { lowest: 1, low: 2, medium: 2, high: 4 };
-  const start = (sweep: string): IAutoMovieSurfaceNetwork.IEdge[] => [edge(sweep, [0, 0], [0, 1], fixed(8))];
+  const bridgeRows: IAutoMovieSurfaceNetwork.ICounts = {
+    lowest: 1,
+    low: 2,
+    medium: 2,
+    high: 4,
+  };
+  const start = (sweep: string): IAutoMovieSurfaceNetwork.IEdge[] => [
+    edge(sweep, [0, 0], [0, 1], fixed(8)),
+  ];
   patches.push(
     {
       type: "bridge",
@@ -248,7 +370,10 @@ export function sweepBranchedBody(
     },
   );
   const ring = (sweep: string, u: number): IAutoMovieSurfaceNetwork.IEdge[] =>
-    STRIPS.map((s): IAutoMovieSurfaceNetwork.IEdge => edge(sweep, [u, s.v[0]], [u, s.v[1]], s.columns));
+    STRIPS.map(
+      (s): IAutoMovieSurfaceNetwork.IEdge =>
+        edge(sweep, [u, s.v[0]], [u, s.v[1]], s.columns),
+    );
   patches.push({
     type: "bridge",
     name: "joinTop",
@@ -257,8 +382,16 @@ export function sweepBranchedBody(
     rows: { lowest: 1, low: 1, medium: 2, high: 2 },
   });
   const forkStart = (branch: string): IAutoMovieSurfaceNetwork.IEdge[] =>
-    forkStrips[branch]!.map((s): IAutoMovieSurfaceNetwork.IEdge => edge(branch, [0, s.v[0]], [0, s.v[1]], s.columns));
-  const joinForkRows: IAutoMovieSurfaceNetwork.ICounts = { lowest: 1, low: 2, medium: 3, high: 4 };
+    forkStrips[branch]!.map(
+      (s): IAutoMovieSurfaceNetwork.IEdge =>
+        edge(branch, [0, s.v[0]], [0, s.v[1]], s.columns),
+    );
+  const joinForkRows: IAutoMovieSurfaceNetwork.ICounts = {
+    lowest: 1,
+    low: 2,
+    medium: 3,
+    high: 4,
+  };
   patches.push(
     {
       type: "bridge",
@@ -294,12 +427,19 @@ export function sweepBranchedBody(
   // a pinned octagon of control points across the left side tube's end, the shape a neighbouring part would share
   const tip: IAutoMovieVector3 = sideLeft.spine.points[1]!;
   const root: number = Math.SQRT1_2;
-  const endLeft: IAutoMovieVector3[] = Array.from({ length: 8 }, (_: unknown, k: number): IAutoMovieVector3 => {
-    const angle: number = (2 * Math.PI * k) / 8;
-    const radius: number = 0.037 * a;
-    // the tube's frame: first axis (0, -1, 1) / sqrt 2, second axis +X crossed with it, (0, -1, -1) / sqrt 2
-    return point(tip.x, tip.y + radius * root * (-Math.cos(angle) - Math.sin(angle)), tip.z + radius * root * (Math.cos(angle) - Math.sin(angle)));
-  });
+  const endLeft: IAutoMovieVector3[] = Array.from(
+    { length: 8 },
+    (_: unknown, k: number): IAutoMovieVector3 => {
+      const angle: number = (2 * Math.PI * k) / 8;
+      const radius: number = 0.037 * a;
+      // the tube's frame: first axis (0, -1, 1) / sqrt 2, second axis +X crossed with it, (0, -1, -1) / sqrt 2
+      return point(
+        tip.x,
+        tip.y + radius * root * (-Math.cos(angle) - Math.sin(angle)),
+        tip.z + radius * root * (Math.cos(angle) - Math.sin(angle)),
+      );
+    },
+  );
   return {
     sweeps,
     nodes: {
@@ -321,14 +461,24 @@ export function sweepBranchedBody(
       ...["forkLeft", "forkRight"].map(
         (branch: string): IAutoMovieSurfaceNetwork.IRing => ({
           name: `${branch}.end`,
-          edges: forkStrips[branch]!.map((s): IAutoMovieSurfaceNetwork.IEdge => edge(branch, [1, s.v[0]], [1, s.v[1]], s.columns)),
+          edges: forkStrips[branch]!.map(
+            (s): IAutoMovieSurfaceNetwork.IEdge =>
+              edge(branch, [1, s.v[0]], [1, s.v[1]], s.columns),
+          ),
         }),
       ),
-      { name: "sideLeft.end", edges: [edge("sideLeft", [1, 0], [1, 1], fixed(8))], positions: endLeft },
+      {
+        name: "sideLeft.end",
+        edges: [edge("sideLeft", [1, 0], [1, 1], fixed(8))],
+        positions: endLeft,
+      },
       {
         name: "sideRight.end",
         edges: [edge("sideRight", [1, 0], [1, 1], fixed(8))],
-        positions: endLeft.map((_: IAutoMovieVector3, k: number): IAutoMovieVector3 => mirror(endLeft[(8 - k) % 8]!)),
+        positions: endLeft.map(
+          (_: IAutoMovieVector3, k: number): IAutoMovieVector3 =>
+            mirror(endLeft[(8 - k) % 8]!),
+        ),
       },
     ],
   };

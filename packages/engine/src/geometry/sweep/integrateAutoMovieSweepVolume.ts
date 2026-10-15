@@ -24,7 +24,11 @@
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure sum.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing.
  */
-export const integrateAutoMovieSweepVolume: (moments: Float64Array, scales: Float64Array, frames: Float64Array) => number = (
+export const integrateAutoMovieSweepVolume: (
+  moments: Float64Array,
+  scales: Float64Array,
+  frames: Float64Array,
+) => number = (
   moments: Float64Array,
   scales: Float64Array,
   frames: Float64Array,
@@ -38,13 +42,23 @@ export const integrateAutoMovieSweepVolume: (moments: Float64Array, scales: Floa
     const s: number = scales[i]!;
     volume +=
       s * s * moments[3 * i]! * change(frames, a, b, m, 0) +
-      s * s * s * (moments[3 * i + 1]! * change(frames, a, b, m, 3) + moments[3 * i + 2]! * change(frames, a, b, m, 6));
+      s *
+        s *
+        s *
+        (moments[3 * i + 1]! * change(frames, a, b, m, 3) +
+          moments[3 * i + 2]! * change(frames, a, b, m, 6));
   }
   return volume;
 };
 
 /** The change from frame `a` to frame `b` of the vector at offset `k`, the origin or an axis, against frame `m`'s normal. */
-const change = (frames: Float64Array, a: number, b: number, m: number, k: number): number =>
+const change = (
+  frames: Float64Array,
+  a: number,
+  b: number,
+  m: number,
+  k: number,
+): number =>
   frames[m + 9]! * (frames[b + k]! - frames[a + k]!) +
   frames[m + 10]! * (frames[b + k + 1]! - frames[a + k + 1]!) +
   frames[m + 11]! * (frames[b + k + 2]! - frames[a + k + 2]!);

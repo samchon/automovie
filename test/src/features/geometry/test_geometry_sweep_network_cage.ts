@@ -12,7 +12,8 @@ import { sweepHoledNetwork } from "../internal/sweepHoledNetwork";
 
 const TIERS: AutoMovieSurfaceTier[] = ["lowest", "low", "medium", "high"];
 
-const undirected = (a: number, b: number): string => (a < b ? `${a},${b}` : `${b},${a}`);
+const undirected = (a: number, b: number): string =>
+  a < b ? `${a},${b}` : `${b},${a}`;
 
 /**
  * Whether a cage is a consistently wound 2-manifold whose boundary is
@@ -35,33 +36,56 @@ const manifold = (cage: IAutoMovieSurfaceCage): Record<string, boolean> => {
       borders.set(edge, (borders.get(edge) ?? 0) + 1);
     }
   });
-  const boundary: Set<string> = new Set([...borders].filter(([, n]: [string, number]): boolean => n === 1).map(([e]: [string, number]): string => e));
+  const boundary: Set<string> = new Set(
+    [...borders]
+      .filter(([, n]: [string, number]): boolean => n === 1)
+      .map(([e]: [string, number]): string => e),
+  );
   const rings: Set<string> = new Set();
   for (const loop of Object.values(cage.rings))
     loop.forEach((v: number, k: number): void => {
       rings.add(undirected(v, loop[(k + 1) % loop.length]!));
     });
-  const incident: number[][] = Array.from({ length: cage.targets.length / 3 }, (): number[] => []);
-  faces.forEach((quad: number[], f: number): void => quad.forEach((v: number): void => void incident[v]!.push(f)));
-  const fans: boolean = incident.every((around: number[], v: number): boolean => {
-    if (around.length === 0) return false;
-    // faces at v meet through an edge at v when they share v and one more vertex
-    const reached: Set<number> = new Set([around[0]!]);
-    const queue: number[] = [around[0]!];
-    while (queue.length > 0) {
-      const f: number = queue.pop()!;
-      for (const g of around)
-        if (!reached.has(g) && faces[f]!.some((w: number): boolean => w !== v && faces[g]!.includes(w) && borders.has(undirected(v, w)))) {
-          reached.add(g);
-          queue.push(g);
-        }
-    }
-    return reached.size === around.length;
-  });
+  const incident: number[][] = Array.from(
+    { length: cage.targets.length / 3 },
+    (): number[] => [],
+  );
+  faces.forEach((quad: number[], f: number): void =>
+    quad.forEach((v: number): void => void incident[v]!.push(f)),
+  );
+  const fans: boolean = incident.every(
+    (around: number[], v: number): boolean => {
+      if (around.length === 0) return false;
+      // faces at v meet through an edge at v when they share v and one more vertex
+      const reached: Set<number> = new Set([around[0]!]);
+      const queue: number[] = [around[0]!];
+      while (queue.length > 0) {
+        const f: number = queue.pop()!;
+        for (const g of around)
+          if (
+            !reached.has(g) &&
+            faces[f]!.some(
+              (w: number): boolean =>
+                w !== v &&
+                faces[g]!.includes(w) &&
+                borders.has(undirected(v, w)),
+            )
+          ) {
+            reached.add(g);
+            queue.push(g);
+          }
+      }
+      return reached.size === around.length;
+    },
+  );
   return {
     wound,
-    twoFaced: [...borders.values()].every((n: number): boolean => n === 1 || n === 2),
-    boundaryIsRings: boundary.size === rings.size && [...boundary].every((e: string): boolean => rings.has(e)),
+    twoFaced: [...borders.values()].every(
+      (n: number): boolean => n === 1 || n === 2,
+    ),
+    boundaryIsRings:
+      boundary.size === rings.size &&
+      [...boundary].every((e: string): boolean => rings.has(e)),
     fans,
   };
 };
@@ -93,15 +117,25 @@ export function test_geometry_sweep_network_cage(): void {
   for (const [name, network] of bodies)
     TestValidator.equals(
       `the ${name} cage is closed except at its rings at every tier`,
-      TIERS.map((tier: AutoMovieSurfaceTier): Record<string, boolean> => manifold(sampleAutoMovieSurfaceNetwork({ network, tier }))),
-      TIERS.map((): Record<string, boolean> => ({ wound: true, twoFaced: true, boundaryIsRings: true, fans: true })),
+      TIERS.map(
+        (tier: AutoMovieSurfaceTier): Record<string, boolean> =>
+          manifold(sampleAutoMovieSurfaceNetwork({ network, tier })),
+      ),
+      TIERS.map(
+        (): Record<string, boolean> => ({
+          wound: true,
+          twoFaced: true,
+          boundaryIsRings: true,
+          fans: true,
+        }),
+      ),
     );
 
   const open: IAutoMovieSurfaceNetwork = { ...sweepBottle(), rings: [] };
   TestValidator.equals(
     "an opening without a ring is caught",
-    manifold(sampleAutoMovieSurfaceNetwork({ network: open, tier: "low" })).boundaryIsRings,
+    manifold(sampleAutoMovieSurfaceNetwork({ network: open, tier: "low" }))
+      .boundaryIsRings,
     false,
   );
-
 }

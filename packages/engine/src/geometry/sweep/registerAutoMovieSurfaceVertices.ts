@@ -25,7 +25,9 @@ import { IAutoMovieSweepRig } from "./IAutoMovieSweepRig";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A registry; a shared point is evaluated once per pose because it is registered once.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains one index entry and one writer per vertex and one pending record per sweep point, released with the rig.
  */
-export const registerAutoMovieSurfaceVertices: (sweepRig: (name: string) => IAutoMovieSweepRig) => IAutoMovieSurfaceRegistry = (
+export const registerAutoMovieSurfaceVertices: (
+  sweepRig: (name: string) => IAutoMovieSweepRig,
+) => IAutoMovieSurfaceRegistry = (
   sweepRig: (name: string) => IAutoMovieSweepRig,
 ): IAutoMovieSurfaceRegistry => {
   const index: Map<string, number> = new Map();
@@ -36,7 +38,10 @@ export const registerAutoMovieSurfaceVertices: (sweepRig: (name: string) => IAut
     index.set(key, i);
     return i;
   };
-  const vertex = (key: string, make: () => (out: Float64Array, at: number) => void): number => {
+  const vertex = (
+    key: string,
+    make: () => (out: Float64Array, at: number) => void,
+  ): number => {
     let i: number | undefined = index.get(key);
     if (i === undefined) {
       const write: (out: Float64Array, at: number) => void = make();
@@ -52,11 +57,18 @@ export const registerAutoMovieSurfaceVertices: (sweepRig: (name: string) => IAut
     let entry: IPending | undefined = pending.get(sample.key);
     if (entry === undefined) {
       const at: number = 3 * reserve(sample.key);
-      const created: IPending = { sweep: point.sweep, u: point.u, v: point.v, cell: [Infinity, Infinity, Infinity, Infinity], write: (): void => undefined };
+      const created: IPending = {
+        sweep: point.sweep,
+        u: point.u,
+        v: point.v,
+        cell: [Infinity, Infinity, Infinity, Infinity],
+        write: (): void => undefined,
+      };
       writers.push((targets: Float64Array): void => created.write(targets, at));
       pending.set(sample.key, (entry = created));
     }
-    for (let k: number = 0; k < 4; ++k) entry.cell[k] = Math.min(entry.cell[k]!, point.cell[k]!);
+    for (let k: number = 0; k < 4; ++k)
+      entry.cell[k] = Math.min(entry.cell[k]!, point.cell[k]!);
     return index.get(sample.key)!;
   };
   const finalize = (): void => {
@@ -65,7 +77,11 @@ export const registerAutoMovieSurfaceVertices: (sweepRig: (name: string) => IAut
       for (const axis of [0, 2]) {
         const below: number = entry.cell[axis]!;
         const above: number = entry.cell[axis + 1]!;
-        cell[axis] = Number.isFinite(below) ? below : Number.isFinite(above) ? above : 0;
+        cell[axis] = Number.isFinite(below)
+          ? below
+          : Number.isFinite(above)
+            ? above
+            : 0;
         cell[axis + 1] = Number.isFinite(above) ? above : cell[axis]!;
       }
       entry.write = sweepRig(entry.sweep).sample(entry.u, entry.v, cell);
@@ -76,7 +92,15 @@ export const registerAutoMovieSurfaceVertices: (sweepRig: (name: string) => IAut
     if (i === undefined) throw new Error(`${what} names a point no patch made`);
     return i;
   };
-  return { writers, count: (): number => vertices, reserve, vertex, admit, finalize, existing };
+  return {
+    writers,
+    count: (): number => vertices,
+    reserve,
+    vertex,
+    admit,
+    finalize,
+    existing,
+  };
 };
 
 /** A sweep point awaiting its writer: the sweep, domain point, the finest spacing reported on each side, and the writer once made. */

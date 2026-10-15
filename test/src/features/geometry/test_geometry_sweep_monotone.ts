@@ -14,17 +14,30 @@ const SAMPLES: number = 400;
 
 /** The uniform Catmull-Rom curve through the same data, the interpolant the sweep's profiles replaced, which overshoots. */
 const catmullRom = (x: number): number => {
-  const found: number = KNOTS.findIndex((_: number, i: number): boolean => i + 1 < KNOTS.length && x < KNOTS[i + 1]!);
+  const found: number = KNOTS.findIndex(
+    (_: number, i: number): boolean =>
+      i + 1 < KNOTS.length && x < KNOTS[i + 1]!,
+  );
   const k: number = found < 0 ? KNOTS.length - 2 : found;
-  const at = (i: number): number => VALUES[Math.min(VALUES.length - 1, Math.max(0, i))]!;
+  const at = (i: number): number =>
+    VALUES[Math.min(VALUES.length - 1, Math.max(0, i))]!;
   const t: number = (x - KNOTS[k]!) / (KNOTS[k + 1]! - KNOTS[k]!);
   const m0: number = (at(k + 1) - at(k - 1)) / 2;
   const m1: number = (at(k + 2) - at(k)) / 2;
-  return (2 * t ** 3 - 3 * t ** 2 + 1) * at(k) + (t ** 3 - 2 * t ** 2 + t) * m0 + (-2 * t ** 3 + 3 * t ** 2) * at(k + 1) + (t ** 3 - t ** 2) * m1;
+  return (
+    (2 * t ** 3 - 3 * t ** 2 + 1) * at(k) +
+    (t ** 3 - 2 * t ** 2 + t) * m0 +
+    (-2 * t ** 3 + 3 * t ** 2) * at(k + 1) +
+    (t ** 3 - t ** 2) * m1
+  );
 };
 
 /** Largest excursion of `f` beyond the range of each segment's two knot values, and whether every segment runs one way. */
-const scan = (f: (x: number) => number, knots: number[], values: number[]): { overshoot: number; monotone: boolean } => {
+const scan = (
+  f: (x: number) => number,
+  knots: number[],
+  values: number[],
+): { overshoot: number; monotone: boolean } => {
   let overshoot: number = 0;
   let monotone: boolean = true;
   for (let k: number = 0; k + 1 < knots.length; ++k) {
@@ -33,7 +46,9 @@ const scan = (f: (x: number) => number, knots: number[], values: number[]): { ov
     const sign: number = Math.sign(values[k + 1]! - values[k]!);
     let previous: number = f(knots[k]!);
     for (let i: number = 1; i <= SAMPLES; ++i) {
-      const y: number = f(knots[k]! + ((knots[k + 1]! - knots[k]!) * i) / SAMPLES);
+      const y: number = f(
+        knots[k]! + ((knots[k + 1]! - knots[k]!) * i) / SAMPLES,
+      );
       overshoot = Math.max(overshoot, low - y, y - high);
       if ((y - previous) * sign < -1e-15) monotone = false;
       previous = y;
@@ -65,9 +80,20 @@ const scan = (f: (x: number) => number, knots: number[], values: number[]): { ov
  * @evidence contracts/testing.md#execution-ownership A portable unit test reached through the discoverable `test_geometry_sweep_monotone` entry, calling the engine function directly with no process, browser or GPU.
  */
 export function test_geometry_sweep_monotone(): void {
-  const f: (x: number) => number = interpolateAutoMovieMonotone({ knots: KNOTS, values: VALUES });
-  const shaped: { overshoot: number; monotone: boolean } = scan(f, KNOTS, VALUES);
-  const reference: { overshoot: number; monotone: boolean } = scan(catmullRom, KNOTS, VALUES);
+  const f: (x: number) => number = interpolateAutoMovieMonotone({
+    knots: KNOTS,
+    values: VALUES,
+  });
+  const shaped: { overshoot: number; monotone: boolean } = scan(
+    f,
+    KNOTS,
+    VALUES,
+  );
+  const reference: { overshoot: number; monotone: boolean } = scan(
+    catmullRom,
+    KNOTS,
+    VALUES,
+  );
   TestValidator.equals(
     "a rising-and-falling profile never leaves a segment's range, where Catmull-Rom does",
     namedFacts([
@@ -78,16 +104,41 @@ export function test_geometry_sweep_monotone(): void {
     { withinRange: true, monotone: true, referenceOvershoots: true },
   );
 
-  const linear: (x: number) => number = interpolateAutoMovieMonotone({ knots: [0, 0.3, 1], values: [2, 2.6, 4] });
-  const derivative = (x: number, side: number): number => (side * (f(x + side * 1e-7) - f(x))) / 1e-7;
+  const linear: (x: number) => number = interpolateAutoMovieMonotone({
+    knots: [0, 0.3, 1],
+    values: [2, 2.6, 4],
+  });
+  const derivative = (x: number, side: number): number =>
+    (side * (f(x + side * 1e-7) - f(x))) / 1e-7;
   TestValidator.equals(
     "the curve passes through its knots, holds its ends, keeps linear data linear and is C1",
     namedFacts([
-      ["knots", (): boolean => KNOTS.every((x: number, k: number): boolean => f(x) === VALUES[k])],
+      [
+        "knots",
+        (): boolean =>
+          KNOTS.every((x: number, k: number): boolean => f(x) === VALUES[k]),
+      ],
       ["before", (): boolean => f(-0.5) === VALUES[0] && f(-1e9) === VALUES[0]],
       ["after", (): boolean => f(1.5) === VALUES[VALUES.length - 1]],
-      ["linear", (): boolean => Array.from({ length: 101 }, (_: unknown, i: number): number => i / 100).every((x: number): boolean => nclose(linear(x), 2 + 2 * x, 1e-14))],
-      ["smooth", (): boolean => KNOTS.slice(1, -1).every((x: number): boolean => nclose(derivative(x, -1), derivative(x, 1), 1e-4 * (1 + Math.abs(derivative(x, 1)))))],
+      [
+        "linear",
+        (): boolean =>
+          Array.from(
+            { length: 101 },
+            (_: unknown, i: number): number => i / 100,
+          ).every((x: number): boolean => nclose(linear(x), 2 + 2 * x, 1e-14)),
+      ],
+      [
+        "smooth",
+        (): boolean =>
+          KNOTS.slice(1, -1).every((x: number): boolean =>
+            nclose(
+              derivative(x, -1),
+              derivative(x, 1),
+              1e-4 * (1 + Math.abs(derivative(x, 1))),
+            ),
+          ),
+      ],
     ]),
     { knots: true, before: true, after: true, linear: true, smooth: true },
   );
@@ -95,29 +146,105 @@ export function test_geometry_sweep_monotone(): void {
   const knots: number[] = [0, 1.5, 3, 4.5];
   const values: number[] = [1, 2, 0.5, 1.8];
   const period: number = 2 * Math.PI;
-  const periodic: (x: number) => number = interpolateAutoMovieMonotone({ knots, values, period });
-  const wrapped: { overshoot: number; monotone: boolean } = scan(periodic, [...knots, period], [...values, values[0]!]);
+  const periodic: (x: number) => number = interpolateAutoMovieMonotone({
+    knots,
+    values,
+    period,
+  });
+  const wrapped: { overshoot: number; monotone: boolean } = scan(
+    periodic,
+    [...knots, period],
+    [...values, values[0]!],
+  );
   TestValidator.equals(
     "a periodic profile repeats and its wrap segment stays within its knots",
     namedFacts([
-      ["repeats", (): boolean => [-3, 0.4, 2.2, 5.9].every((x: number): boolean => nclose(periodic(x), periodic(x + period), 1e-12) && nclose(periodic(x), periodic(x - 2 * period), 1e-12))],
+      [
+        "repeats",
+        (): boolean =>
+          [-3, 0.4, 2.2, 5.9].every(
+            (x: number): boolean =>
+              nclose(periodic(x), periodic(x + period), 1e-12) &&
+              nclose(periodic(x), periodic(x - 2 * period), 1e-12),
+          ),
+      ],
       ["withinRange", (): boolean => wrapped.overshoot <= 1e-15],
       ["monotone", (): boolean => wrapped.monotone],
     ]),
     { repeats: true, withinRange: true, monotone: true },
   );
 
-  const single: (x: number) => number = interpolateAutoMovieMonotone({ knots: [0.4], values: [7] });
-  TestValidator.predicate("a single knot gives a constant", [-1, 0.4, 3].every((x: number): boolean => single(x) === 7));
+  const single: (x: number) => number = interpolateAutoMovieMonotone({
+    knots: [0.4],
+    values: [7],
+  });
+  TestValidator.predicate(
+    "a single knot gives a constant",
+    [-1, 0.4, 3].every((x: number): boolean => single(x) === 7),
+  );
   const invalids: Array<readonly [string, () => unknown, string]> = [
-    ["no knot", (): unknown => interpolateAutoMovieMonotone({ knots: [], values: [] }), "needs at least one knot"],
-    ["short values", (): unknown => interpolateAutoMovieMonotone({ knots: [0, 1], values: [1] }), "needs one value per knot"],
-    ["repeated knot", (): unknown => interpolateAutoMovieMonotone({ knots: [0, 0.5, 0.5], values: [1, 2, 3] }), "knot 2 does not increase"],
-    ["unsorted knot", (): unknown => interpolateAutoMovieMonotone({ knots: [0, 0.5, 0.2], values: [1, 2, 3] }), "knot 2 does not increase"],
-    ["non-finite value", (): unknown => interpolateAutoMovieMonotone({ knots: [0, 1], values: [1, Number.NaN] }), "knot 1 is not finite"],
-    ["knot beyond period", (): unknown => interpolateAutoMovieMonotone({ knots: [0, 1, 7], values: [1, 2, 3], period }), "periodic knots must lie in [0, period)"],
-    ["negative periodic knot", (): unknown => interpolateAutoMovieMonotone({ knots: [-1, 1], values: [1, 2], period }), "periodic knots must lie in [0, period)"],
+    [
+      "no knot",
+      (): unknown => interpolateAutoMovieMonotone({ knots: [], values: [] }),
+      "needs at least one knot",
+    ],
+    [
+      "short values",
+      (): unknown =>
+        interpolateAutoMovieMonotone({ knots: [0, 1], values: [1] }),
+      "needs one value per knot",
+    ],
+    [
+      "repeated knot",
+      (): unknown =>
+        interpolateAutoMovieMonotone({
+          knots: [0, 0.5, 0.5],
+          values: [1, 2, 3],
+        }),
+      "knot 2 does not increase",
+    ],
+    [
+      "unsorted knot",
+      (): unknown =>
+        interpolateAutoMovieMonotone({
+          knots: [0, 0.5, 0.2],
+          values: [1, 2, 3],
+        }),
+      "knot 2 does not increase",
+    ],
+    [
+      "non-finite value",
+      (): unknown =>
+        interpolateAutoMovieMonotone({
+          knots: [0, 1],
+          values: [1, Number.NaN],
+        }),
+      "knot 1 is not finite",
+    ],
+    [
+      "knot beyond period",
+      (): unknown =>
+        interpolateAutoMovieMonotone({
+          knots: [0, 1, 7],
+          values: [1, 2, 3],
+          period,
+        }),
+      "periodic knots must lie in [0, period)",
+    ],
+    [
+      "negative periodic knot",
+      (): unknown =>
+        interpolateAutoMovieMonotone({
+          knots: [-1, 1],
+          values: [1, 2],
+          period,
+        }),
+      "periodic knots must lie in [0, period)",
+    ],
   ];
   for (const [name, callback, message] of invalids)
-    TestValidator.predicate(`${name} is refused by its own diagnostic`, throwsError(callback, message));
+    TestValidator.predicate(
+      `${name} is refused by its own diagnostic`,
+      throwsError(callback, message),
+    );
 }

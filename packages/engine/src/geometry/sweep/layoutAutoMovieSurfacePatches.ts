@@ -25,7 +25,9 @@ import { IAutoMovieSurfaceNetwork } from "./IAutoMovieSurfaceNetwork";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built once per rig.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains the face, UV and corner arrays, O(F), which the cage record takes over; the edge set of `check` is released on return.
  */
-export const layoutAutoMovieSurfacePatches: (network: IAutoMovieSurfaceNetwork) => IAutoMovieSurfaceLayout = (
+export const layoutAutoMovieSurfacePatches: (
+  network: IAutoMovieSurfaceNetwork,
+) => IAutoMovieSurfaceLayout = (
   network: IAutoMovieSurfaceNetwork,
 ): IAutoMovieSurfaceLayout => {
   const faces: number[][] = [];
@@ -34,16 +36,34 @@ export const layoutAutoMovieSurfacePatches: (network: IAutoMovieSurfaceNetwork) 
   const uvFaces: number[][] = [];
   const grids: IAutoMovieSurfaceCage.IPatch[] = [];
   const total: number = network.patches.length;
-  const emit = (p: number, grid: number[][], columns: number, rows: number, wrap: boolean): void => {
+  const emit = (
+    p: number,
+    grid: number[][],
+    columns: number,
+    rows: number,
+    wrap: boolean,
+  ): void => {
     const patch: IAutoMovieSurfaceNetwork.IPatch = network.patches[p]!;
-    const rect: IAutoMovieSurfaceNetwork.IUvRect = patch.uv ?? { s: [0, 1], t: [p / total, (p + 1) / total] };
-    const uv: number[][] = Array.from({ length: rows + 1 }, (_: unknown, j: number): number[] =>
-      Array.from({ length: columns + 1 }, (__: unknown, i: number): number => {
-        uvs.push(rect.s[0] + ((rect.s[1] - rect.s[0]) * i) / columns, rect.t[0] + ((rect.t[1] - rect.t[0]) * j) / rows);
-        return uvs.length / 2 - 1;
-      }),
+    const rect: IAutoMovieSurfaceNetwork.IUvRect = patch.uv ?? {
+      s: [0, 1],
+      t: [p / total, (p + 1) / total],
+    };
+    const uv: number[][] = Array.from(
+      { length: rows + 1 },
+      (_: unknown, j: number): number[] =>
+        Array.from(
+          { length: columns + 1 },
+          (__: unknown, i: number): number => {
+            uvs.push(
+              rect.s[0] + ((rect.s[1] - rect.s[0]) * i) / columns,
+              rect.t[0] + ((rect.t[1] - rect.t[0]) * j) / rows,
+            );
+            return uvs.length / 2 - 1;
+          },
+        ),
     );
-    const at = (i: number, j: number): number => grid[j]![wrap ? i % columns : i]!;
+    const at = (i: number, j: number): number =>
+      grid[j]![wrap ? i % columns : i]!;
     const faceList: number[] = [];
     for (let j: number = 0; j < rows; ++j)
       for (let i: number = 0; i < columns; ++i) {
@@ -55,9 +75,17 @@ export const layoutAutoMovieSurfacePatches: (network: IAutoMovieSurfaceNetwork) 
         ];
         faceList.push(faces.length);
         faces.push(quad.map(([a, b]: [number, number]): number => at(a, b)));
-        uvFaces.push(quad.map(([a, b]: [number, number]): number => uv[b]![a]!));
+        uvFaces.push(
+          quad.map(([a, b]: [number, number]): number => uv[b]![a]!),
+        );
         corners.push(
-          quad.map(([a, b]: [number, number]): IAutoMovieSurfaceCoordinate => ({ patch: p, s: a / columns, t: b / rows })) as IAutoMovieSurfaceCage["corners"][number],
+          quad.map(
+            ([a, b]: [number, number]): IAutoMovieSurfaceCoordinate => ({
+              patch: p,
+              s: a / columns,
+              t: b / rows,
+            }),
+          ) as IAutoMovieSurfaceCage["corners"][number],
         );
       }
     grids[p] = { name: patch.name, columns, rows, faces: faceList };
@@ -68,7 +96,10 @@ export const layoutAutoMovieSurfacePatches: (network: IAutoMovieSurfaceNetwork) 
     faces.forEach((quad: number[]): void => {
       for (let k: number = 0; k < 4; ++k) {
         const key: string = `${quad[k]},${quad[(k + 1) % 4]}`;
-        if (directed.has(key)) throw new Error(`patches overlap or wind inconsistently at edge ${key}`);
+        if (directed.has(key))
+          throw new Error(
+            `patches overlap or wind inconsistently at edge ${key}`,
+          );
         directed.add(key);
       }
     });

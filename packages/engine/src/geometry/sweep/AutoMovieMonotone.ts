@@ -53,7 +53,12 @@ export namespace AutoMovieMonotone {
     }
     const segments: number = period === 0 ? n - 1 : n;
     for (let k: number = 0; k < n; ++k) {
-      const before: number = k > 0 ? secant(xs, ys, n, period, k - 1) : period !== 0 ? secant(xs, ys, n, period, segments - 1) : NaN;
+      const before: number =
+        k > 0
+          ? secant(xs, ys, n, period, k - 1)
+          : period !== 0
+            ? secant(xs, ys, n, period, segments - 1)
+            : NaN;
       const after: number = k < segments ? secant(xs, ys, n, period, k) : NaN;
       if (Number.isNaN(before)) slopes[k] = after;
       else if (Number.isNaN(after)) slopes[k] = before;
@@ -146,10 +151,19 @@ export namespace AutoMovieMonotone {
   };
 
   /** Width of segment `k`, the wrap segment's taken across the period. */
-  const width = (xs: ArrayLike<number>, n: number, period: number, k: number): number =>
-    k < n - 1 ? xs[k + 1]! - xs[k]! : xs[0]! + period - xs[n - 1]!;
+  const width = (
+    xs: ArrayLike<number>,
+    n: number,
+    period: number,
+    k: number,
+  ): number => (k < n - 1 ? xs[k + 1]! - xs[k]! : xs[0]! + period - xs[n - 1]!);
 
   /** Secant of segment `k`. */
-  const secant = (xs: ArrayLike<number>, ys: ArrayLike<number>, n: number, period: number, k: number): number =>
-    (ys[(k + 1) % n]! - ys[k]!) / width(xs, n, period, k);
+  const secant = (
+    xs: ArrayLike<number>,
+    ys: ArrayLike<number>,
+    n: number,
+    period: number,
+    k: number,
+  ): number => (ys[(k + 1) % n]! - ys[k]!) / width(xs, n, period, k);
 }

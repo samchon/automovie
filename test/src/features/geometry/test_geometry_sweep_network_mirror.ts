@@ -15,12 +15,16 @@ const TIERS: AutoMovieSurfaceTier[] = ["lowest", "low", "medium", "high"];
 const mirrorMap = (points: number[], tolerance: number): number[] | null => {
   const count: number = points.length / 3;
   // points by coordinates rounded to a 1e-7 m grid, far coarser than the tolerance and far finer than the cage
-  const grid = (x: number, y: number, z: number): string => `${Math.round(x * 1e7)},${Math.round(y * 1e7)},${Math.round(z * 1e7)}`;
+  const grid = (x: number, y: number, z: number): string =>
+    `${Math.round(x * 1e7)},${Math.round(y * 1e7)},${Math.round(z * 1e7)}`;
   const at: Map<string, number> = new Map();
-  for (let i: number = 0; i < count; ++i) at.set(grid(points[3 * i]!, points[3 * i + 1]!, points[3 * i + 2]!), i);
+  for (let i: number = 0; i < count; ++i)
+    at.set(grid(points[3 * i]!, points[3 * i + 1]!, points[3 * i + 2]!), i);
   const map: number[] = [];
   for (let i: number = 0; i < count; ++i) {
-    const j: number | undefined = at.get(grid(-points[3 * i]!, points[3 * i + 1]!, points[3 * i + 2]!));
+    const j: number | undefined = at.get(
+      grid(-points[3 * i]!, points[3 * i + 1]!, points[3 * i + 2]!),
+    );
     if (
       j === undefined ||
       Math.abs(points[3 * j]! + points[3 * i]!) > tolerance ||
@@ -35,10 +39,18 @@ const mirrorMap = (points: number[], tolerance: number): number[] | null => {
 
 /** Whether the mirror map is an involution that carries every face onto a face wound the other way. */
 const mirrorsFaces = (cage: IAutoMovieSurfaceCage, map: number[]): boolean => {
-  const faces: Set<string> = new Set(cage.cage.faces.map((q: number[]): string => canonical(q)));
+  const faces: Set<string> = new Set(
+    cage.cage.faces.map((q: number[]): string => canonical(q)),
+  );
   return (
     map.every((j: number, i: number): boolean => map[j] === i) &&
-    cage.cage.faces.every((q: number[]): boolean => faces.has(canonical([q[3]!, q[2]!, q[1]!, q[0]!].map((v: number): number => map[v]!))))
+    cage.cage.faces.every((q: number[]): boolean =>
+      faces.has(
+        canonical(
+          [q[3]!, q[2]!, q[1]!, q[0]!].map((v: number): number => map[v]!),
+        ),
+      ),
+    )
   );
 };
 
@@ -73,7 +85,10 @@ export function test_geometry_sweep_network_mirror(): void {
   TestValidator.equals(
     "the mirrored body samples to a mirrored cage at every tier",
     TIERS.map((tier: AutoMovieSurfaceTier): Record<string, boolean> => {
-      const cage: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({ network: body, tier });
+      const cage: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({
+        network: body,
+        tier,
+      });
       const map: number[] | null = mirrorMap(cage.targets, 1e-9);
       return namedFacts([
         ["targets", (): boolean => map !== null],
@@ -83,27 +98,61 @@ export function test_geometry_sweep_network_mirror(): void {
           (): boolean =>
             map!.every(
               (j: number, i: number): boolean =>
-                Math.abs(cage.cage.positions[3 * j]! + cage.cage.positions[3 * i]!) <= 1e-9 &&
-                Math.abs(cage.cage.positions[3 * j + 1]! - cage.cage.positions[3 * i + 1]!) <= 1e-9 &&
-                Math.abs(cage.cage.positions[3 * j + 2]! - cage.cage.positions[3 * i + 2]!) <= 1e-9,
+                Math.abs(
+                  cage.cage.positions[3 * j]! + cage.cage.positions[3 * i]!,
+                ) <= 1e-9 &&
+                Math.abs(
+                  cage.cage.positions[3 * j + 1]! -
+                    cage.cage.positions[3 * i + 1]!,
+                ) <= 1e-9 &&
+                Math.abs(
+                  cage.cage.positions[3 * j + 2]! -
+                    cage.cage.positions[3 * i + 2]!,
+                ) <= 1e-9,
             ),
         ],
       ]);
     }),
-    TIERS.map((): Record<string, boolean> => ({ targets: true, faces: true, controls: true })),
+    TIERS.map(
+      (): Record<string, boolean> => ({
+        targets: true,
+        faces: true,
+        controls: true,
+      }),
+    ),
   );
 
-  const reshaped: IAutoMovieSurfaceNetwork = sweepBranchedBody({ breadth: 1.15, branch: 0.9 });
+  const reshaped: IAutoMovieSurfaceNetwork = sweepBranchedBody({
+    breadth: 1.15,
+    branch: 0.9,
+  });
   TestValidator.equals(
     "a reshaped body keeps every tier's topology",
-    (["lowest", "high"] as AutoMovieSurfaceTier[]).map((tier: AutoMovieSurfaceTier): boolean => {
-      const a: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({ network: body, tier });
-      const b: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({ network: reshaped, tier });
-      return (
-        JSON.stringify([a.cage.faces, a.cage.uvFaces, a.corners, a.rings]) === JSON.stringify([b.cage.faces, b.cage.uvFaces, b.corners, b.rings]) &&
-        a.targets.some((x: number, k: number): boolean => Math.abs(x - b.targets[k]!) > 1e-3)
-      );
-    }),
+    (["lowest", "high"] as AutoMovieSurfaceTier[]).map(
+      (tier: AutoMovieSurfaceTier): boolean => {
+        const a: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({
+          network: body,
+          tier,
+        });
+        const b: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({
+          network: reshaped,
+          tier,
+        });
+        return (
+          JSON.stringify([a.cage.faces, a.cage.uvFaces, a.corners, a.rings]) ===
+            JSON.stringify([
+              b.cage.faces,
+              b.cage.uvFaces,
+              b.corners,
+              b.rings,
+            ]) &&
+          a.targets.some(
+            (x: number, k: number): boolean =>
+              Math.abs(x - b.targets[k]!) > 1e-3,
+          )
+        );
+      },
+    ),
     [true, true],
   );
 }

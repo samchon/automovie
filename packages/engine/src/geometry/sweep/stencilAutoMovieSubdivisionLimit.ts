@@ -32,15 +32,22 @@ export const stencilAutoMovieSubdivisionLimit: (
   count: number,
 ): IAutoMovieSubdivisionStencil => {
   // edge neighbours and quad diagonals of each vertex, and its boundary neighbours
-  const edges: Array<Set<number>> = Array.from({ length: count }, (): Set<number> => new Set());
-  const diagonals: number[][] = Array.from({ length: count }, (): number[] => []);
+  const edges: Array<Set<number>> = Array.from(
+    { length: count },
+    (): Set<number> => new Set(),
+  );
+  const diagonals: number[][] = Array.from(
+    { length: count },
+    (): number[] => [],
+  );
   const valence: number[] = new Array<number>(count).fill(0);
   const directed: Map<string, number> = new Map();
   faces.forEach((face: readonly number[], f: number): void => {
     if (face.length !== 4) throw new Error(`fit face ${f} is not a quad`);
     for (let k: number = 0; k < 4; ++k) {
       const a: number = face[k]!;
-      if (!Number.isInteger(a) || a < 0 || a >= count) throw new Error(`fit face ${f} names vertex ${a} out of range`);
+      if (!Number.isInteger(a) || a < 0 || a >= count)
+        throw new Error(`fit face ${f} names vertex ${a} out of range`);
       const b: number = face[(k + 1) % 4]!;
       const d: number = face[(k + 2) % 4]!;
       edges[a]!.add(b);
@@ -50,7 +57,10 @@ export const stencilAutoMovieSubdivisionLimit: (
       directed.set(`${a},${b}`, (directed.get(`${a},${b}`) ?? 0) + 1);
     }
   });
-  const boundary: number[][] = Array.from({ length: count }, (): number[] => []);
+  const boundary: number[][] = Array.from(
+    { length: count },
+    (): number[] => [],
+  );
   for (const key of directed.keys()) {
     const [a, b] = key.split(",").map(Number) as [number, number];
     if (!directed.has(`${b},${a}`)) {
@@ -83,5 +93,10 @@ export const stencilAutoMovieSubdivisionLimit: (
     } else throw new Error(`fit vertex ${i} has ${b.length} boundary edges`);
     offsets[i + 1] = indices.length;
   }
-  return { count, offsets, indices: Int32Array.from(indices), weights: Float64Array.from(weights) };
+  return {
+    count,
+    offsets,
+    indices: Int32Array.from(indices),
+    weights: Float64Array.from(weights),
+  };
 };
