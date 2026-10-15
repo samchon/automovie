@@ -1,4 +1,7 @@
-import { IAutoMovieSweepFrame, IAutoMovieSweepSurface } from "@automovie/engine";
+import {
+  IAutoMovieSweepFrame,
+  IAutoMovieSweepSurface,
+} from "@automovie/engine";
 import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
@@ -89,7 +92,10 @@ export class AutoMovieHumanHeadDomain {
     const q: IAutoMovieVector3 = this.toModel(p);
     const offset = (u: number): number => {
       const f: IAutoMovieSweepFrame = this.surface.frame(u);
-      return AutoMovieHumanVector.dot(AutoMovieHumanVector.offset(q, [f.origin, -1]), f.normal);
+      return AutoMovieHumanVector.dot(
+        AutoMovieHumanVector.offset(q, [f.origin, -1]),
+        f.normal,
+      );
     };
     // the normal points down the spine, so the offset falls as u grows past the point
     let lo: number = 0;
@@ -103,7 +109,10 @@ export class AutoMovieHumanHeadDomain {
     const u: number = (lo + hi) / 2;
     const f: IAutoMovieSweepFrame = this.surface.frame(u);
     const d: IAutoMovieVector3 = AutoMovieHumanVector.offset(q, [f.origin, -1]);
-    const angle: number = Math.atan2(AutoMovieHumanVector.dot(d, f.y), AutoMovieHumanVector.dot(d, f.x));
+    const angle: number = Math.atan2(
+      AutoMovieHumanVector.dot(d, f.y),
+      AutoMovieHumanVector.dot(d, f.x),
+    );
     return { u, v: (((angle / (2 * Math.PI)) % 1) + 1) % 1 };
   }
 
@@ -118,7 +127,10 @@ export class AutoMovieHumanHeadDomain {
     const levels: number[] = this.loft.levels;
     let k: number = 0;
     while (k + 2 < levels.length && levels[k + 1]! < level) ++k;
-    const t: number = Math.min(1, Math.max(0, (level - levels[k]!) / (levels[k + 1]! - levels[k]!)));
+    const t: number = Math.min(
+      1,
+      Math.max(0, (level - levels[k]!) / (levels[k + 1]! - levels[k]!)),
+    );
     return shares[k]! + (shares[k + 1]! - shares[k]!) * t;
   }
 

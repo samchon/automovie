@@ -29,7 +29,10 @@ export const AUTOMOVIE_HUMAN_FOOT_FORM = {
   ridgeX: [0.033, -0.024, -0.08, -0.118],
 
   /** The dorsal crest's height at 0, 0.12, 0.22, 0.3, 0.36, 0.45, 0.55, 0.65, 0.74, 0.82 and 0.9 of foot length, for a navicular height of 0.2 foot lengths. */
-  ridgeHeight: [0.19, 0.2063, 0.314, 0.3435, 0.311, 0.269, 0.2275, 0.158, 0.1077, 0.095, 0.08],
+  ridgeHeight: [
+    0.19, 0.2063, 0.314, 0.3435, 0.311, 0.269, 0.2275, 0.158, 0.1077, 0.095,
+    0.08,
+  ],
 
   /** Share of the navicular height's departure from 0.2 foot lengths that raises or lowers the crest over the midfoot. */
   ridgeLift: 0.2,
@@ -56,5 +59,11 @@ export const AUTOMOVIE_HUMAN_FOOT_FORM = {
   tendon: { depth: 0.045, at: 0.99, spread: 0.41, angle: 212.5, width: 42.5 },
 
   /** The dorsum's descent onto the toes past the line of the metatarsophalangeal joints: the ridge over each toe at its root, of the toe's height (the old cage's dorsal heights at the base of the free toe), its half-breadth, of the toe's breadth, the share of the toes' mean length over which the dorsum comes down onto them, and the webs' height between the toes, of their mean height. */
-  toeRidge: { hallux: 1.055, lesser: 1.155, width: 0.5533, reach: 0.5038, web: 0.5542 },
+  toeRidge: {
+    hallux: 1.055,
+    lesser: 1.155,
+    width: 0.5533,
+    reach: 0.5038,
+    web: 0.5542,
+  },
 } as const;

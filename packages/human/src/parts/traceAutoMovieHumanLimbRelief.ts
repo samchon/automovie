@@ -60,8 +60,10 @@ export function traceAutoMovieHumanLimbRelief(props: {
       }),
     )
     .sort(
-      (a: IAutoMovieHumanLimbPlan.IReliefPoint, b: IAutoMovieHumanLimbPlan.IReliefPoint): number =>
-        a.at - b.at,
+      (
+        a: IAutoMovieHumanLimbPlan.IReliefPoint,
+        b: IAutoMovieHumanLimbPlan.IReliefPoint,
+      ): number => a.at - b.at,
     );
   return {
     name: props.name,
@@ -78,7 +80,8 @@ const indexOf = (levels: number[], level: number): number => {
     if ((level - a) * (level - b) <= 0)
       return a === b ? i : i + (level - a) / (b - a);
   }
-  return Math.abs(level - levels[0]!) < Math.abs(level - levels[levels.length - 1]!)
+  return Math.abs(level - levels[0]!) <
+    Math.abs(level - levels[levels.length - 1]!)
     ? 0
     : levels.length - 1;
 };

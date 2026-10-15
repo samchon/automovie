@@ -40,16 +40,24 @@ import { momentAutoMovieSweepSections } from "./momentAutoMovieSweepSections";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure measurement; the surface's row cache is the reuse.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing.
  */
-export const measureAutoMovieSweepVolume: (surface: IAutoMovieSweepSurface) => number = (
+export const measureAutoMovieSweepVolume: (
   surface: IAutoMovieSweepSurface,
-): number => {
+) => number = (surface: IAutoMovieSweepSurface): number => {
   const moments: Float64Array = momentAutoMovieSweepSections(surface);
   const steps: number = moments.length / 3;
-  const scales: Float64Array = Float64Array.from({ length: steps }, (_: unknown, i: number): number => surface.scale((i + 0.5) / steps));
+  const scales: Float64Array = Float64Array.from(
+    { length: steps },
+    (_: unknown, i: number): number => surface.scale((i + 0.5) / steps),
+  );
   const frames: Float64Array = new Float64Array(12 * (2 * steps + 1));
   for (let j: number = 0; j <= 2 * steps; ++j) {
     const f: IAutoMovieSweepFrame = surface.frame(j / (2 * steps));
-    frames.set([f.origin, f.x, f.y, f.normal].flatMap((v: IAutoMovieVector3): number[] => [v.x, v.y, v.z]), 12 * j);
+    frames.set(
+      [f.origin, f.x, f.y, f.normal].flatMap(
+        (v: IAutoMovieVector3): number[] => [v.x, v.y, v.z],
+      ),
+      12 * j,
+    );
   }
   return integrateAutoMovieSweepVolume(moments, scales, frames);
 };

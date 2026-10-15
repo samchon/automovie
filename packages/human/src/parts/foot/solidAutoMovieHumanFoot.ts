@@ -29,18 +29,30 @@ export function solidAutoMovieHumanFoot(props: {
     const f: number = (z - plan.heel) / L;
     const crest: number = plan.axis + profile(plan.ridge.x, f) * L;
     const lift: number =
-      plan.ridge.lift * (plan.navicularHeight - 0.2 * L) * Math.exp(-(((f - 0.4) / 0.2) ** 2));
+      plan.ridge.lift *
+      (plan.navicularHeight - 0.2 * L) *
+      Math.exp(-(((f - 0.4) / 0.2) ** 2));
     const high: number = profile(plan.ridge.height, f) * L + lift;
     const medial: boolean = x < crest;
-    const border: IAutoMovieHumanFootPlan.IBorder = medial ? plan.medial : plan.lateral;
-    const reach: number = plan.axis + (medial ? -1 : 1) * profile(border.offset, Math.max(f, arc.at)) * L;
+    const border: IAutoMovieHumanFootPlan.IBorder = medial
+      ? plan.medial
+      : plan.lateral;
+    const reach: number =
+      plan.axis +
+      (medial ? -1 : 1) * profile(border.offset, Math.max(f, arc.at)) * L;
     const low: number = profile(border.rim, Math.max(f, arc.at)) * L;
     const t: number = Math.min(1, Math.max(0, (x - crest) / (reach - crest)));
-    const dorsum: number = low + (high - low) * Math.sqrt(Math.max(0, 1 - t ** (medial ? 3 : 1.7)));
+    const dorsum: number =
+      low + (high - low) * Math.sqrt(Math.max(0, 1 - t ** (medial ? 3 : 1.7)));
     // behind the talus the slab is the heel alone: its rim highest at the back's midline, lower at its sides, the calcaneal tendon's insertion between
-    const k: number = Math.min(1, Math.max(0, (f - HEEL_TOP.from) / (HEEL_TOP.to - HEEL_TOP.from)));
+    const k: number = Math.min(
+      1,
+      Math.max(0, (f - HEEL_TOP.from) / (HEEL_TOP.to - HEEL_TOP.from)),
+    );
     const middle: number = Math.max(0, 1 - ((x - arc.x) / arc.width) ** 2);
-    const rim: number = arc.rim[1] * HEEL_TOP.side + (arc.rim[0] * HEEL_TOP.back - arc.rim[1] * HEEL_TOP.side) * middle;
+    const rim: number =
+      arc.rim[1] * HEEL_TOP.side +
+      (arc.rim[0] * HEEL_TOP.back - arc.rim[1] * HEEL_TOP.side) * middle;
     const heel: number = rim + (dorsum - rim) * k * k * (3 - 2 * k);
     return toes(x, z, Math.min(dorsum, heel));
   };
@@ -54,22 +66,47 @@ export function solidAutoMovieHumanFoot(props: {
     return { x: -dz / n, z: dx / n };
   })();
   const reach: number =
-    (AUTOMOVIE_HUMAN_FOOT_FORM.toeRidge.reach * plan.toes.reduce((sum: number, t: IAutoMovieHumanFootPlan.IToe): number => sum + t.length, 0)) /
+    (AUTOMOVIE_HUMAN_FOOT_FORM.toeRidge.reach *
+      plan.toes.reduce(
+        (sum: number, t: IAutoMovieHumanFootPlan.IToe): number =>
+          sum + t.length,
+        0,
+      )) /
     plan.toes.length;
   const web: number =
-    (AUTOMOVIE_HUMAN_FOOT_FORM.toeRidge.web * plan.toes.reduce((sum: number, t: IAutoMovieHumanFootPlan.IToe): number => sum + t.height, 0)) /
+    (AUTOMOVIE_HUMAN_FOOT_FORM.toeRidge.web *
+      plan.toes.reduce(
+        (sum: number, t: IAutoMovieHumanFootPlan.IToe): number =>
+          sum + t.height,
+        0,
+      )) /
     plan.toes.length;
   const toes = (x: number, z: number, dorsum: number): number => {
     // past the line of the metatarsophalangeal joints, the same for every toe
-    const k: number = Math.min(1, Math.max(0, ((x - first.joint.x) * line.x + (z - first.joint.z) * line.z) / reach));
+    const k: number = Math.min(
+      1,
+      Math.max(
+        0,
+        ((x - first.joint.x) * line.x + (z - first.joint.z) * line.z) / reach,
+      ),
+    );
     if (k === 0) return dorsum;
     let ridge: number = web;
     for (const toe of plan.toes) {
       const dx: number = x - toe.joint.x;
       const dz: number = z - toe.joint.z;
-      const across: number = Math.abs(dx * toe.direction.z - dz * toe.direction.x) / (AUTOMOVIE_HUMAN_FOOT_FORM.toeRidge.width * toe.width);
-      const height: number = toe.height * (toe.hallux ? AUTOMOVIE_HUMAN_FOOT_FORM.toeRidge.hallux : AUTOMOVIE_HUMAN_FOOT_FORM.toeRidge.lesser);
-      ridge = Math.max(ridge, height * Math.sqrt(Math.max(0, 1 - Math.min(1, across) ** 2)));
+      const across: number =
+        Math.abs(dx * toe.direction.z - dz * toe.direction.x) /
+        (AUTOMOVIE_HUMAN_FOOT_FORM.toeRidge.width * toe.width);
+      const height: number =
+        toe.height *
+        (toe.hallux
+          ? AUTOMOVIE_HUMAN_FOOT_FORM.toeRidge.hallux
+          : AUTOMOVIE_HUMAN_FOOT_FORM.toeRidge.lesser);
+      ridge = Math.max(
+        ridge,
+        height * Math.sqrt(Math.max(0, 1 - Math.min(1, across) ** 2)),
+      );
     }
     return dorsum + (ridge - dorsum) * k * k * (3 - 2 * k);
   };
@@ -77,22 +114,47 @@ export function solidAutoMovieHumanFoot(props: {
   const bottom = (x: number, z: number): number => {
     const f: number = (z - plan.heel) / L;
     const { centre, half } = across(z);
-    const medial: number = Math.min(1, Math.max(0, (centre - x) / Math.max(1e-6, half)));
+    const medial: number = Math.min(
+      1,
+      Math.max(0, (centre - x) / Math.max(1e-6, half)),
+    );
     return profile(ARCH(plan), f) * medial * medial * (3 - 2 * medial);
   };
   // the plan's centre line and half breadth at a level along the foot
   const across = (z: number): { centre: number; half: number } => {
     const f: number = Math.max((z - plan.heel) / L, arc.at);
     // past its joint each outer toe narrows the border onto its own outer flank, so the toes' roots end the forefoot
-    const m: number = flank(first, -1, z, plan.axis - profile(plan.medial.offset, f) * L);
-    const l: number = flank(last, 1, z, plan.axis + profile(plan.lateral.offset, f) * L);
+    const m: number = flank(
+      first,
+      -1,
+      z,
+      plan.axis - profile(plan.medial.offset, f) * L,
+    );
+    const l: number = flank(
+      last,
+      1,
+      z,
+      plan.axis + profile(plan.lateral.offset, f) * L,
+    );
     return { centre: (m + l) / 2, half: (l - m) / 2 };
   };
-  const flank = (toe: IAutoMovieHumanFootPlan.IToe, sign: number, z: number, border: number): number => {
+  const flank = (
+    toe: IAutoMovieHumanFootPlan.IToe,
+    sign: number,
+    z: number,
+    border: number,
+  ): number => {
     const along: number = (z - toe.joint.z) / toe.direction.z;
-    const k: number = Math.min(1, Math.max(0, along / (AUTOMOVIE_HUMAN_FOOT_FORM.toeRidge.reach * toe.length)));
+    const k: number = Math.min(
+      1,
+      Math.max(
+        0,
+        along / (AUTOMOVIE_HUMAN_FOOT_FORM.toeRidge.reach * toe.length),
+      ),
+    );
     if (k === 0) return border;
-    const outer: number = toe.joint.x + toe.direction.x * along + (sign * toe.width) / 2;
+    const outer: number =
+      toe.joint.x + toe.direction.x * along + (sign * toe.width) / 2;
     return border + (outer - border) * k * k * (3 - 2 * k);
   };
   // the sole's edge rounds broadly under the heel, the calcaneal tuberosity, and narrowly along the borders
@@ -117,7 +179,10 @@ export function solidAutoMovieHumanFoot(props: {
     const z: number = Math.max(p.z, plan.heel);
     const up: number = p.y - top(x, z);
     const down: number = bottom(x, z) - p.y;
-    return Math.max(rounded(side, up, TOP_ROUND * L), rounded(side, down, soleRadius(p.z)));
+    return Math.max(
+      rounded(side, up, TOP_ROUND * L),
+      rounded(side, down, soleRadius(p.z)),
+    );
   };
   // the column: the ring's section at and above the ring, deepening below it toward the heel and the front of the talus
   const ring: solidAutoMovieHumanFoot.IRing = props.ring;
@@ -125,11 +190,15 @@ export function solidAutoMovieHumanFoot(props: {
   const origin: IAutoMovieVector3 = ring.origin;
   const floor: number = COLUMN_BOTTOM * plan.ankleHeight;
   const column = (p: IAutoMovieVector3): number => {
-    const t: number = Math.min(1, Math.max(0, (origin.y - p.y) / (origin.y - plan.ankleHeight)));
+    const t: number = Math.min(
+      1,
+      Math.max(0, (origin.y - p.y) / (origin.y - plan.ankleHeight)),
+    );
     const s: number = t * t * (3 - 2 * t);
     const dx: number = p.x - origin.x;
     const dz: number = p.z - origin.z;
-    const ax: number = r0 * (dx >= 0 ? ring.aspect.lateral : ring.aspect.medial);
+    const ax: number =
+      r0 * (dx >= 0 ? ring.aspect.lateral : ring.aspect.medial);
     const az: number =
       dz >= 0
         ? r0 * ring.aspect.anterior * (1 + COLUMN_DEEPEN.anterior * s)
@@ -141,20 +210,34 @@ export function solidAutoMovieHumanFoot(props: {
   // the malleoli: bony knobs at the skeleton's landmarks, the lateral lower and further back, the medial higher and further forward (Gray 1918)
   const lateral: IAutoMovieVector3 = plan.lateralMalleolus;
   const medial: IAutoMovieVector3 = plan.medialMalleolus;
-  const radii: IAutoMovieVector3 = { x: KNOB.side * L + KNOB.skin, y: KNOB.height * L, z: KNOB.depth * L };
+  const radii: IAutoMovieVector3 = {
+    x: KNOB.side * L + KNOB.skin,
+    y: KNOB.height * L,
+    z: KNOB.depth * L,
+  };
   const knobs: IAutoMovieVector3[] = [
-    { x: lateral.x - KNOB.side * L, y: lateral.y + KNOB.lift.lateral * L, z: lateral.z - KNOB.behind * L },
-    { x: medial.x + KNOB.side * L, y: medial.y + KNOB.lift.medial * L, z: medial.z },
+    {
+      x: lateral.x - KNOB.side * L,
+      y: lateral.y + KNOB.lift.lateral * L,
+      z: lateral.z - KNOB.behind * L,
+    },
+    {
+      x: medial.x + KNOB.side * L,
+      y: medial.y + KNOB.lift.medial * L,
+      z: medial.z,
+    },
   ];
   const field = (p: IAutoMovieVector3): number =>
     knobs.reduce(
-      (f: number, c: IAutoMovieVector3): number => smoothMin(f, ellipsoid(p, c, radii), KNOB.blend * L),
+      (f: number, c: IAutoMovieVector3): number =>
+        smoothMin(f, ellipsoid(p, c, radii), KNOB.blend * L),
       smoothMin(slab(p), column(p), BLEND * L),
     );
   return {
     field,
     ray: (origin: IAutoMovieVector3, direction: IAutoMovieVector3): number => {
-      if (field(origin) >= 0) throw new Error("foot section centre lies outside the foot");
+      if (field(origin) >= 0)
+        throw new Error("foot section centre lies outside the foot");
       const at = (t: number): number =>
         field({
           x: origin.x + direction.x * t,
@@ -195,7 +278,12 @@ export namespace solidAutoMovieHumanFoot {
     girth: number;
 
     /** Each side's limit radius over the mean radius. */
-    aspect: { anterior: number; medial: number; posterior: number; lateral: number };
+    aspect: {
+      anterior: number;
+      medial: number;
+      posterior: number;
+      lateral: number;
+    };
   }
 
   /**
@@ -266,8 +354,13 @@ const KNOB = {
 } as const;
 
 /** Field of an axis-aligned ellipsoid, negative inside, about the distance near its surface. */
-const ellipsoid = (p: IAutoMovieVector3, c: IAutoMovieVector3, r: IAutoMovieVector3): number =>
-  (Math.hypot((p.x - c.x) / r.x, (p.y - c.y) / r.y, (p.z - c.z) / r.z) - 1) * Math.min(r.x, r.y, r.z);
+const ellipsoid = (
+  p: IAutoMovieVector3,
+  c: IAutoMovieVector3,
+  r: IAutoMovieVector3,
+): number =>
+  (Math.hypot((p.x - c.x) / r.x, (p.y - c.y) / r.y, (p.z - c.z) / r.z) - 1) *
+  Math.min(r.x, r.y, r.z);
 
 /** Radius of the column's lower rim, of foot length. Grade: conventional, set against renders. */
 const COLUMN_ROUND: number = 0.05;
@@ -276,8 +369,11 @@ const COLUMN_ROUND: number = 0.05;
 const STEP: number = 1;
 
 /** Lift of the plantar surface under the medial arch at the medial border, of foot length: the plan's medial sole heights over the arch, nothing under the heel and the ball. */
-const ARCH = (plan: IAutoMovieHumanFootPlan): IAutoMovieHumanFootPlan.IProfile => {
-  const at = (f: number): number => interpolateAutoMovieHumanFootProfile(plan.medial.sole, f);
+const ARCH = (
+  plan: IAutoMovieHumanFootPlan,
+): IAutoMovieHumanFootPlan.IProfile => {
+  const at = (f: number): number =>
+    interpolateAutoMovieHumanFootProfile(plan.medial.sole, f);
   return [
     [0.16, 0],
     [0.32, at(0.32) * plan.length],
@@ -288,7 +384,9 @@ const ARCH = (plan: IAutoMovieHumanFootPlan): IAutoMovieHumanFootPlan.IProfile =
 
 /** A rounded corner of two half-space distances: the corner rounded with radius `r`. */
 const rounded = (a: number, b: number, r: number): number =>
-  Math.hypot(Math.max(a + r, 0), Math.max(b + r, 0)) + Math.min(Math.max(a + r, b + r), 0) - r;
+  Math.hypot(Math.max(a + r, 0), Math.max(b + r, 0)) +
+  Math.min(Math.max(a + r, b + r), 0) -
+  r;
 
 /** Polynomial smooth minimum (Quilez). */
 const smoothMin = (a: number, b: number, k: number): number => {

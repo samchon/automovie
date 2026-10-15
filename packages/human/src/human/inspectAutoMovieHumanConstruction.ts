@@ -85,7 +85,8 @@ function networkCurves(
   ): IAutoMovieHumanConstructionNet.ICurve => {
     const points: number[] = [];
     const last: number = closed ? count - 1 : count;
-    for (let i: number = 0; i <= last; ++i) points.push(...model(at(i / count)));
+    for (let i: number = 0; i <= last; ++i)
+      points.push(...model(at(i / count)));
     return { kind, name, closed, points };
   };
   const curves: IAutoMovieHumanConstructionNet.ICurve[] = [];
@@ -115,9 +116,7 @@ function networkCurves(
   }
   const node = (key: string): IAutoMovieVector3 => {
     const n: IAutoMovieSurfaceNetwork.INode = network.nodes![key]!;
-    return n.type === "point"
-      ? n.position
-      : surfaces[n.sweep]!.point(n.u, n.v);
+    return n.type === "point" ? n.position : surfaces[n.sweep]!.point(n.u, n.v);
   };
   for (const [name, c] of Object.entries(network.curves ?? {})) {
     const path: IAutoMovieSweepPath = frameAutoMovieSweepSpine({
@@ -163,17 +162,15 @@ function featureCurve(
 function ringCurves(
   cage: IAutoMovieHumanCage,
 ): IAutoMovieHumanConstructionNet.ICurve[] {
-  return cage.rings.map(
-    (ring: IAutoMovieHumanCage["rings"][number]) => ({
-      kind: "ring" as const,
-      name: ring.side === null ? ring.site : `${ring.site}.${ring.side}`,
-      closed: true,
-      points: ring.vertices.flatMap((v: number): number[] => {
-        const p: IAutoMovieVector3 = cage.vertices[v]!.position;
-        return [p.x / 1000, p.y / 1000, p.z / 1000];
-      }),
+  return cage.rings.map((ring: IAutoMovieHumanCage["rings"][number]) => ({
+    kind: "ring" as const,
+    name: ring.side === null ? ring.site : `${ring.site}.${ring.side}`,
+    closed: true,
+    points: ring.vertices.flatMap((v: number): number[] => {
+      const p: IAutoMovieVector3 = cage.vertices[v]!.position;
+      return [p.x / 1000, p.y / 1000, p.z / 1000];
     }),
-  );
+  }));
 }
 
 /** The cage's vertices and its edges, each once, metres. */

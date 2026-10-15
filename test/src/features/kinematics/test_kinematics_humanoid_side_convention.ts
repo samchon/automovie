@@ -35,27 +35,153 @@ const v = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
 
 /** The figure's left is +X and its front +Z; the palms face −Y and the fingers extend along ±X. */
 const CASES: ICase[] = [
-  { bone: "Shoulder", axis: "flexion", probe: v(1, 0, 0), toward: ["z", 1], motion: "protraction" },
-  { bone: "Shoulder", axis: "abduction", probe: v(1, 0, 0), toward: ["y", 1], motion: "elevation" },
-  { bone: "UpperArm", axis: "flexion", probe: v(1, 0, 0), toward: ["z", 1], motion: "forward raise" },
-  { bone: "UpperArm", axis: "abduction", probe: v(1, 0, 0), toward: ["y", 1], motion: "side raise" },
-  { bone: "UpperArm", axis: "twist", probe: v(0, 0, 1), toward: ["y", 1], motion: "external rotation" },
-  { bone: "LowerArm", axis: "flexion", probe: v(1, 0, 0), toward: ["z", 1], motion: "elbow flexion" },
-  { bone: "LowerArm", axis: "twist", probe: v(0, -1, 0), toward: ["z", -1], motion: "pronation" },
-  { bone: "Hand", axis: "flexion", probe: v(1, 0, 0), toward: ["y", -1], motion: "palmar flexion" },
-  { bone: "Hand", axis: "abduction", probe: v(1, 0, 0), toward: ["z", 1], motion: "radial deviation" },
-  { bone: "IndexProximal", axis: "flexion", probe: v(1, 0, 0), toward: ["y", -1], motion: "finger flexion" },
-  { bone: "IndexProximal", axis: "abduction", probe: v(1, 0, 0), toward: ["z", 1], motion: "toward the thumb" },
-  { bone: "RingProximal", axis: "abduction", probe: v(1, 0, 0), toward: ["z", -1], motion: "spread away from the middle finger" },
-  { bone: "ThumbProximal", axis: "flexion", probe: v(1, 0, 0), toward: ["y", -1], motion: "thumb flexion" },
-  { bone: "UpperLeg", axis: "flexion", probe: v(0, -1, 0), toward: ["z", 1], motion: "hip flexion" },
-  { bone: "UpperLeg", axis: "abduction", probe: v(0, -1, 0), toward: ["x", 1], motion: "hip abduction" },
-  { bone: "UpperLeg", axis: "twist", probe: v(0, 0, 1), toward: ["x", 1], motion: "hip external rotation" },
-  { bone: "LowerLeg", axis: "flexion", probe: v(0, -1, 0), toward: ["z", -1], motion: "knee flexion" },
-  { bone: "Foot", axis: "flexion", probe: v(0, 0, 1), toward: ["y", 1], motion: "dorsiflexion" },
-  { bone: "Foot", axis: "abduction", probe: v(0, -1, 0), toward: ["x", 1], motion: "eversion" },
-  { bone: "Foot", axis: "twist", probe: v(0, 0, 1), toward: ["x", 1], motion: "toe-out" },
-  { bone: "Toes", axis: "flexion", probe: v(0, 0, 1), toward: ["y", 1], motion: "toe dorsiflexion" },
+  {
+    bone: "Shoulder",
+    axis: "flexion",
+    probe: v(1, 0, 0),
+    toward: ["z", 1],
+    motion: "protraction",
+  },
+  {
+    bone: "Shoulder",
+    axis: "abduction",
+    probe: v(1, 0, 0),
+    toward: ["y", 1],
+    motion: "elevation",
+  },
+  {
+    bone: "UpperArm",
+    axis: "flexion",
+    probe: v(1, 0, 0),
+    toward: ["z", 1],
+    motion: "forward raise",
+  },
+  {
+    bone: "UpperArm",
+    axis: "abduction",
+    probe: v(1, 0, 0),
+    toward: ["y", 1],
+    motion: "side raise",
+  },
+  {
+    bone: "UpperArm",
+    axis: "twist",
+    probe: v(0, 0, 1),
+    toward: ["y", 1],
+    motion: "external rotation",
+  },
+  {
+    bone: "LowerArm",
+    axis: "flexion",
+    probe: v(1, 0, 0),
+    toward: ["z", 1],
+    motion: "elbow flexion",
+  },
+  {
+    bone: "LowerArm",
+    axis: "twist",
+    probe: v(0, -1, 0),
+    toward: ["z", -1],
+    motion: "pronation",
+  },
+  {
+    bone: "Hand",
+    axis: "flexion",
+    probe: v(1, 0, 0),
+    toward: ["y", -1],
+    motion: "palmar flexion",
+  },
+  {
+    bone: "Hand",
+    axis: "abduction",
+    probe: v(1, 0, 0),
+    toward: ["z", 1],
+    motion: "radial deviation",
+  },
+  {
+    bone: "IndexProximal",
+    axis: "flexion",
+    probe: v(1, 0, 0),
+    toward: ["y", -1],
+    motion: "finger flexion",
+  },
+  {
+    bone: "IndexProximal",
+    axis: "abduction",
+    probe: v(1, 0, 0),
+    toward: ["z", 1],
+    motion: "toward the thumb",
+  },
+  {
+    bone: "RingProximal",
+    axis: "abduction",
+    probe: v(1, 0, 0),
+    toward: ["z", -1],
+    motion: "spread away from the middle finger",
+  },
+  {
+    bone: "ThumbProximal",
+    axis: "flexion",
+    probe: v(1, 0, 0),
+    toward: ["y", -1],
+    motion: "thumb flexion",
+  },
+  {
+    bone: "UpperLeg",
+    axis: "flexion",
+    probe: v(0, -1, 0),
+    toward: ["z", 1],
+    motion: "hip flexion",
+  },
+  {
+    bone: "UpperLeg",
+    axis: "abduction",
+    probe: v(0, -1, 0),
+    toward: ["x", 1],
+    motion: "hip abduction",
+  },
+  {
+    bone: "UpperLeg",
+    axis: "twist",
+    probe: v(0, 0, 1),
+    toward: ["x", 1],
+    motion: "hip external rotation",
+  },
+  {
+    bone: "LowerLeg",
+    axis: "flexion",
+    probe: v(0, -1, 0),
+    toward: ["z", -1],
+    motion: "knee flexion",
+  },
+  {
+    bone: "Foot",
+    axis: "flexion",
+    probe: v(0, 0, 1),
+    toward: ["y", 1],
+    motion: "dorsiflexion",
+  },
+  {
+    bone: "Foot",
+    axis: "abduction",
+    probe: v(0, -1, 0),
+    toward: ["x", 1],
+    motion: "eversion",
+  },
+  {
+    bone: "Foot",
+    axis: "twist",
+    probe: v(0, 0, 1),
+    toward: ["x", 1],
+    motion: "toe-out",
+  },
+  {
+    bone: "Toes",
+    axis: "flexion",
+    probe: v(0, 0, 1),
+    toward: ["y", 1],
+    motion: "toe dorsiflexion",
+  },
 ];
 
 /** Clinical angle of the motion, degrees: 30 past each axis's neutral, the T-pose arm resting at abduction 90. */
@@ -101,8 +227,7 @@ function rotation(
   c: ICase,
 ): IAutoMovieQuaternion {
   const neutral: number =
-    HUMANOID_REST_FRAME[bone as AutoMovieHumanoidBone]?.[c.axis]?.neutral ??
-    0;
+    HUMANOID_REST_FRAME[bone as AutoMovieHumanoidBone]?.[c.axis]?.neutral ?? 0;
   const joint: IAutoMovieJointPose = {
     bone: bone as AutoMovieHumanoidBone,
     flexion: null,
@@ -126,11 +251,15 @@ function rig(): IAutoMovieSkeleton {
     ["left", 1],
     ["right", -1],
   ] as const) {
-    const chain = (
-      list: [string, string, IAutoMovieVector3][],
-    ): void => {
+    const chain = (list: [string, string, IAutoMovieVector3][]): void => {
       for (const [name, parent, t] of list)
-        bones.push(make(`${side}${name}`, parent === "hips" ? "hips" : `${side}${parent}`, t));
+        bones.push(
+          make(
+            `${side}${name}`,
+            parent === "hips" ? "hips" : `${side}${parent}`,
+            t,
+          ),
+        );
     };
     chain([
       ["Shoulder", "hips", v(0.05 * s, 0.4, 0)],

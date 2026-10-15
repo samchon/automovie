@@ -138,7 +138,10 @@ export function test_service_network_render(): void {
   TestValidator.equals(
     "the swept tube stands on the centre line the graph was checked against",
     namedFacts([
-      ["vertices", (): boolean => coldRun.positions.length === (2 * (8 + 1) + 2 * 8) * 3],
+      [
+        "vertices",
+        (): boolean => coldRun.positions.length === (2 * (8 + 1) + 2 * 8) * 3,
+      ],
       ["indexed", (): boolean => coldRun.indices !== null],
       [
         "xSpan",
@@ -175,8 +178,15 @@ export function test_service_network_render(): void {
   TestValidator.equals(
     "the section rings every route point, at the resolution the caller asked for",
     namedFacts([
-      ["turning", (): boolean => coldBranch.positions.length === (3 * (8 + 1) + 2 * 8) * 3],
-      ["coarse", (): boolean => coarseRun.positions.length === (2 * (3 + 1) + 2 * 3) * 3],
+      [
+        "turning",
+        (): boolean =>
+          coldBranch.positions.length === (3 * (8 + 1) + 2 * 8) * 3,
+      ],
+      [
+        "coarse",
+        (): boolean => coarseRun.positions.length === (2 * (3 + 1) + 2 * 3) * 3,
+      ],
       [
         "tooCoarse",
         (): boolean =>

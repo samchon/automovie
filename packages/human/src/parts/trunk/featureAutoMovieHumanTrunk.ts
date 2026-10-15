@@ -1,4 +1,8 @@
-import { IAutoMovieSweep, IAutoMovieSweepSurface, locateAutoMovieSweepPoint } from "@automovie/engine";
+import {
+  IAutoMovieSweep,
+  IAutoMovieSweepSurface,
+  locateAutoMovieSweepPoint,
+} from "@automovie/engine";
 import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
@@ -26,15 +30,28 @@ export function featureAutoMovieHumanTrunk(props: {
   const L: IAutoMovieHumanTrunkFrame.ILevels = frame.levels;
   const F: IAutoMovieHumanTrunkFeatures = AUTOMOVIE_HUMAN_TRUNK_FEATURES;
   // a point on the front or back of the level section at `x` across, estimated on the ellipse through the midline and the side
-  const on = (side: "front" | "back", x: number, y: number): IAutoMovieVector3 => {
+  const on = (
+    side: "front" | "back",
+    x: number,
+    y: number,
+  ): IAutoMovieVector3 => {
     const widest: number = profile.widest(y);
-    const reach: number = (side === "front" ? profile.front(y) : profile.back(y)) - widest;
+    const reach: number =
+      (side === "front" ? profile.front(y) : profile.back(y)) - widest;
     const share: number = Math.min(0.98, Math.abs(x) / profile.half(y));
-    return AutoMovieHumanVector.of(x, y, widest + reach * Math.sqrt(1 - share * share));
+    return AutoMovieHumanVector.of(
+      x,
+      y,
+      widest + reach * Math.sqrt(1 - share * share),
+    );
   };
   const left = (p: IAutoMovieVector3): IAutoMovieVector3 => p;
-  const right = (p: IAutoMovieVector3): IAutoMovieVector3 => AutoMovieHumanVector.of(-p.x, p.y, p.z);
-  const curves: Array<{ points: IAutoMovieVector3[]; form: IAutoMovieHumanTrunkFeatures.ICurve }> = [];
+  const right = (p: IAutoMovieVector3): IAutoMovieVector3 =>
+    AutoMovieHumanVector.of(-p.x, p.y, p.z);
+  const curves: Array<{
+    points: IAutoMovieVector3[];
+    form: IAutoMovieHumanTrunkFeatures.ICurve;
+  }> = [];
   for (const mirror of [left, right]) {
     const clavicale: IAutoMovieVector3 = mirror(frame.clavicale);
     const acromion: IAutoMovieVector3 = mirror(frame.acromion);
@@ -43,30 +60,55 @@ export function featureAutoMovieHumanTrunk(props: {
       points: [
         mirror(on("front", F.pectoral.medial, L.fold)),
         mirror(on("front", F.pectoral.middle * profile.half(L.fold), L.fold)),
-        mirror(on("front", F.pectoral.lateral * profile.half(L.axilla), L.axilla - F.pectoral.below)),
+        mirror(
+          on(
+            "front",
+            F.pectoral.lateral * profile.half(L.axilla),
+            L.axilla - F.pectoral.below,
+          ),
+        ),
       ],
       form: F.pectoral,
     });
     const spine: IAutoMovieVector3 = mirror(frame.iliospinale);
     curves.push({
-      points: [spine, mirror(frame.iliocristale), mirror(on("back", F.iliac.dimple, frame.iliospinale.y))],
+      points: [
+        spine,
+        mirror(frame.iliocristale),
+        mirror(on("back", F.iliac.dimple, frame.iliospinale.y)),
+      ],
       form: F.iliac,
     });
-    const tubercle: number = L.crotch + F.inguinal.tubercle * (frame.iliospinale.y - L.crotch);
-    curves.push({ points: [spine, mirror(on("front", F.inguinal.medial, tubercle))], form: F.inguinal });
+    const tubercle: number =
+      L.crotch + F.inguinal.tubercle * (frame.iliospinale.y - L.crotch);
+    curves.push({
+      points: [spine, mirror(on("front", F.inguinal.medial, tubercle))],
+      form: F.inguinal,
+    });
   }
-  const apex: number = L.buttock + F.cleft.apex * (frame.iliospinale.y - L.buttock);
-  curves.push({ points: [on("back", 0, apex), on("back", 0, L.crotch)], form: F.cleft });
+  const apex: number =
+    L.buttock + F.cleft.apex * (frame.iliospinale.y - L.buttock);
+  curves.push({
+    points: [on("back", 0, apex), on("back", 0, L.crotch)],
+    form: F.cleft,
+  });
   return curves.map(
     ({ points, form }): IAutoMovieSweep.IFeature => ({
       width: form.width / 1000,
-      points: points.map((p: IAutoMovieVector3): IAutoMovieSweep.IFeaturePoint => {
-        const found: { u: number; v: number; offset: number } = locateAutoMovieSweepPoint({
-          surface,
-          point: { x: p.x / 1000, y: p.y / 1000, z: p.z / 1000 },
-        });
-        return { at: found.u, angle: 2 * Math.PI * found.v, offset: form.offset / 1000 };
-      }),
+      points: points.map(
+        (p: IAutoMovieVector3): IAutoMovieSweep.IFeaturePoint => {
+          const found: { u: number; v: number; offset: number } =
+            locateAutoMovieSweepPoint({
+              surface,
+              point: { x: p.x / 1000, y: p.y / 1000, z: p.z / 1000 },
+            });
+          return {
+            at: found.u,
+            angle: 2 * Math.PI * found.v,
+            offset: form.offset / 1000,
+          };
+        },
+      ),
     }),
   );
 }

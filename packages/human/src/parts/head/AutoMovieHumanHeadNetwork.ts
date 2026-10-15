@@ -12,10 +12,12 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  */
 export class AutoMovieHumanHeadNetwork {
   private readonly nodes_: Record<string, IAutoMovieSurfaceNetwork.INode> = {};
-  private readonly curves_: Record<string, IAutoMovieSurfaceNetwork.ICurve> = {};
+  private readonly curves_: Record<string, IAutoMovieSurfaceNetwork.ICurve> =
+    {};
   private readonly patches_: IAutoMovieSurfaceNetwork.IPatch[] = [];
   private readonly rings_: IAutoMovieSurfaceNetwork.IRing[] = [];
-  private readonly names_: Map<IAutoMovieSurfaceNetwork.IPatch, string> = new Map();
+  private readonly names_: Map<IAutoMovieSurfaceNetwork.IPatch, string> =
+    new Map();
 
   /** Name of the head's sweep in the network. */
   public readonly sweep: string;
@@ -75,7 +77,10 @@ export class AutoMovieHumanHeadNetwork {
     group: string,
     orient: boolean = true,
   ): IAutoMovieSurfaceNetwork.ICoonsPatch {
-    const ordered = !orient || area(corners) >= 0 ? corners : ([corners[0], corners[3], corners[2], corners[1]] as typeof corners);
+    const ordered =
+      !orient || area(corners) >= 0
+        ? corners
+        : ([corners[0], corners[3], corners[2], corners[1]] as typeof corners);
     const patch: IAutoMovieSurfaceNetwork.ICoonsPatch = {
       type: "coons",
       name: `${group}.${this.patches_.length}`,
@@ -104,11 +109,19 @@ export class AutoMovieHumanHeadNetwork {
     b: AutoMovieHumanHeadNetwork.IPoint[],
     t: number,
   ): AutoMovieHumanHeadNetwork.IPoint[] {
-    return a.map((p: AutoMovieHumanHeadNetwork.IPoint, k: number): AutoMovieHumanHeadNetwork.IPoint => {
-      const q: AutoMovieHumanHeadNetwork.IPoint = b[k]!;
-      const v: number = q.domain.v + Math.round(p.domain.v - q.domain.v);
-      return this.on(p.domain.u + (q.domain.u - p.domain.u) * t, p.domain.v + (v - p.domain.v) * t);
-    });
+    return a.map(
+      (
+        p: AutoMovieHumanHeadNetwork.IPoint,
+        k: number,
+      ): AutoMovieHumanHeadNetwork.IPoint => {
+        const q: AutoMovieHumanHeadNetwork.IPoint = b[k]!;
+        const v: number = q.domain.v + Math.round(p.domain.v - q.domain.v);
+        return this.on(
+          p.domain.u + (q.domain.u - p.domain.u) * t,
+          p.domain.v + (v - p.domain.v) * t,
+        );
+      },
+    );
   }
 
   /**
@@ -120,23 +133,27 @@ export class AutoMovieHumanHeadNetwork {
    * @param group Region name
    * @returns Whether the quads run along each loop in its own direction on their outer side, which a cap closing the last loop needs
    */
-  public bands(loops: AutoMovieHumanHeadNetwork.IPoint[][], group: string): boolean {
+  public bands(
+    loops: AutoMovieHumanHeadNetwork.IPoint[][],
+    group: string,
+  ): boolean {
     const n: number = loops[0]!.length;
     const a: AutoMovieHumanHeadNetwork.IPoint[] = loops[0]!;
     const b: AutoMovieHumanHeadNetwork.IPoint[] = loops[1]!;
     let sum: number = 0;
-    for (let m: number = 0; m < n; ++m) sum += area([a[m]!, a[(m + 1) % n]!, b[(m + 1) % n]!, b[m]!]);
+    for (let m: number = 0; m < n; ++m)
+      sum += area([a[m]!, a[(m + 1) % n]!, b[(m + 1) % n]!, b[m]!]);
     const forward: boolean = sum >= 0;
     for (let k: number = 0; k + 1 < loops.length; ++k) {
       const outer: AutoMovieHumanHeadNetwork.IPoint[] = loops[k]!;
       const inner: AutoMovieHumanHeadNetwork.IPoint[] = loops[k + 1]!;
       for (let m: number = 0; m < n; ++m) {
-        const q: [AutoMovieHumanHeadNetwork.IPoint, AutoMovieHumanHeadNetwork.IPoint, AutoMovieHumanHeadNetwork.IPoint, AutoMovieHumanHeadNetwork.IPoint] = [
-          outer[m]!,
-          outer[(m + 1) % n]!,
-          inner[(m + 1) % n]!,
-          inner[m]!,
-        ];
+        const q: [
+          AutoMovieHumanHeadNetwork.IPoint,
+          AutoMovieHumanHeadNetwork.IPoint,
+          AutoMovieHumanHeadNetwork.IPoint,
+          AutoMovieHumanHeadNetwork.IPoint,
+        ] = [outer[m]!, outer[(m + 1) % n]!, inner[(m + 1) % n]!, inner[m]!];
         this.quad(forward ? q : [q[0], q[3], q[2], q[1]], group, false);
       }
     }
@@ -158,7 +175,10 @@ export class AutoMovieHumanHeadNetwork {
     this.rings_.push({
       name,
       edges: points.map(
-        (p: AutoMovieHumanHeadNetwork.IPoint, k: number): IAutoMovieSurfaceNetwork.IEdge =>
+        (
+          p: AutoMovieHumanHeadNetwork.IPoint,
+          k: number,
+        ): IAutoMovieSurfaceNetwork.IEdge =>
           this.edge(p, points[(k + 1) % points.length]!),
       ),
       ...(positions !== undefined ? { positions } : {}),
@@ -171,7 +191,9 @@ export class AutoMovieHumanHeadNetwork {
    * @returns Group names
    */
   public groups(): string[] {
-    return this.patches_.map((p: IAutoMovieSurfaceNetwork.IPatch): string => this.names_.get(p)!);
+    return this.patches_.map(
+      (p: IAutoMovieSurfaceNetwork.IPatch): string => this.names_.get(p)!,
+    );
   }
 
   /**
@@ -199,8 +221,10 @@ export class AutoMovieHumanHeadNetwork {
     const to: string = this.node(b);
     const forward: string = `${from}>${to}`;
     const backward: string = `${to}>${from}`;
-    if (this.curves_[backward] !== undefined) return { type: "curve", curve: backward, reverse: true };
-    if (this.curves_[forward] === undefined) this.curves_[forward] = { from, to, segments: ONE };
+    if (this.curves_[backward] !== undefined)
+      return { type: "curve", curve: backward, reverse: true };
+    if (this.curves_[forward] === undefined)
+      this.curves_[forward] = { from, to, segments: ONE };
     return { type: "curve", curve: forward };
   }
 
@@ -258,17 +282,24 @@ export namespace AutoMovieHumanHeadNetwork {
 }
 
 /** One segment at every tier: each quad of the head's layout is one face of its cage. */
-const ONE: IAutoMovieSurfaceNetwork.ICounts = { lowest: 1, low: 1, medium: 1, high: 1 };
+const ONE: IAutoMovieSurfaceNetwork.ICounts = {
+  lowest: 1,
+  low: 1,
+  medium: 1,
+  high: 1,
+};
 
 /** Signed area of a quad in the domain, `v` across and `u` up, the seam unwrapped about the first corner. */
 const area = (corners: AutoMovieHumanHeadNetwork.IPoint[]): number => {
   const v0: number = corners[0]!.domain.v;
-  const pts: Array<[number, number]> = corners.map((c: AutoMovieHumanHeadNetwork.IPoint): [number, number] => {
-    let v: number = c.domain.v;
-    while (v - v0 > 0.5) v -= 1;
-    while (v - v0 < -0.5) v += 1;
-    return [v, c.domain.u];
-  });
+  const pts: Array<[number, number]> = corners.map(
+    (c: AutoMovieHumanHeadNetwork.IPoint): [number, number] => {
+      let v: number = c.domain.v;
+      while (v - v0 > 0.5) v -= 1;
+      while (v - v0 < -0.5) v += 1;
+      return [v, c.domain.u];
+    },
+  );
   let sum: number = 0;
   for (let k: number = 0; k < pts.length; ++k) {
     const [x0, y0] = pts[k]!;

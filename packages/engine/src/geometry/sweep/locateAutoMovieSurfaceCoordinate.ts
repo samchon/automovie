@@ -38,8 +38,12 @@ export const locateAutoMovieSurfaceCoordinate: (props: {
   coordinate: IAutoMovieSurfaceCoordinate;
 }): IAutoMovieSubdivisionParameter => {
   const { patch, s, t } = props.coordinate;
-  const grid: IAutoMovieSurfaceCage.IPatch | undefined = props.cage.patches[patch];
-  if (grid === undefined) throw new Error(`surface coordinate names patch ${patch}, which the cage lacks`);
+  const grid: IAutoMovieSurfaceCage.IPatch | undefined =
+    props.cage.patches[patch];
+  if (grid === undefined)
+    throw new Error(
+      `surface coordinate names patch ${patch}, which the cage lacks`,
+    );
   if (!(s >= 0 && s <= 1 && t >= 0 && t <= 1))
     throw new Error("surface coordinate s and t must lie in 0 to 1");
   if (!grid.grid) return within(props.cage, grid, s, t);
@@ -60,14 +64,29 @@ const NEWTON: number = 30;
 const SLACK: number = 1e-9;
 
 /** The face of a non-grid patch whose bilinear corner map reaches `(s, t)`, and the local coordinates there. */
-const within = (cage: IAutoMovieSurfaceCage, grid: IAutoMovieSurfaceCage.IPatch, s: number, t: number): IAutoMovieSubdivisionParameter => {
+const within = (
+  cage: IAutoMovieSurfaceCage,
+  grid: IAutoMovieSurfaceCage.IPatch,
+  s: number,
+  t: number,
+): IAutoMovieSubdivisionParameter => {
   for (const face of grid.faces) {
     const c: IAutoMovieSurfaceCage["corners"][number] = cage.corners[face]!;
     let a: number = 0.5;
     let b: number = 0.5;
     for (let k: number = 0; k < NEWTON; ++k) {
-      const fs: number = (1 - a) * (1 - b) * c[0].s + a * (1 - b) * c[1].s + a * b * c[2].s + (1 - a) * b * c[3].s - s;
-      const ft: number = (1 - a) * (1 - b) * c[0].t + a * (1 - b) * c[1].t + a * b * c[2].t + (1 - a) * b * c[3].t - t;
+      const fs: number =
+        (1 - a) * (1 - b) * c[0].s +
+        a * (1 - b) * c[1].s +
+        a * b * c[2].s +
+        (1 - a) * b * c[3].s -
+        s;
+      const ft: number =
+        (1 - a) * (1 - b) * c[0].t +
+        a * (1 - b) * c[1].t +
+        a * b * c[2].t +
+        (1 - a) * b * c[3].t -
+        t;
       const sa: number = (1 - b) * (c[1].s - c[0].s) + b * (c[2].s - c[3].s);
       const ta: number = (1 - b) * (c[1].t - c[0].t) + b * (c[2].t - c[3].t);
       const sb: number = (1 - a) * (c[3].s - c[0].s) + a * (c[2].s - c[1].s);
@@ -78,7 +97,14 @@ const within = (cage: IAutoMovieSurfaceCage, grid: IAutoMovieSurfaceCage.IPatch,
       b -= (sa * ft - fs * ta) / det;
     }
     if (a >= -SLACK && a <= 1 + SLACK && b >= -SLACK && b <= 1 + SLACK)
-      return { face, corner: null, u: Math.min(1, Math.max(0, a)), v: Math.min(1, Math.max(0, b)) };
+      return {
+        face,
+        corner: null,
+        u: Math.min(1, Math.max(0, a)),
+        v: Math.min(1, Math.max(0, b)),
+      };
   }
-  throw new Error(`surface coordinate (${s}, ${t}) lies on no face of patch ${grid.name}`);
+  throw new Error(
+    `surface coordinate (${s}, ${t}) lies on no face of patch ${grid.name}`,
+  );
 };

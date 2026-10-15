@@ -33,10 +33,17 @@ export function test_geometry_sweep_network_cage(): void {
   for (const [name, network] of bodies)
     TestValidator.equals(
       `the ${name} cage is closed except at its rings at every tier`,
-      TIERS.map((tier: AutoMovieSurfaceTier): Record<string, boolean> => sweepManifold(sampleAutoMovieSurfaceNetwork({ network, tier }))),
-      TIERS.map((): Record<string, boolean> => ({ wound: true, twoFaced: true, boundaryIsRings: true, fans: true })),
+      TIERS.map(
+        (tier: AutoMovieSurfaceTier): Record<string, boolean> =>
+          sweepManifold(sampleAutoMovieSurfaceNetwork({ network, tier })),
+      ),
+      TIERS.map(
+        (): Record<string, boolean> => ({
+          wound: true,
+          twoFaced: true,
+          boundaryIsRings: true,
+          fans: true,
+        }),
+      ),
     );
-
-
-
 }

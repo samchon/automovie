@@ -34,19 +34,40 @@ export function reliefAutoMovieHumanHead(props: {
   const fh: number = head.faceHeight;
 
   // the body's fat and lean, which set the soft tissue's depth and the prominence of the bones and muscles under it
-  const fat: number = Math.min(1, Math.max(0, (props.composition.bodyFatPercentage - FAT.lean) / (FAT.full - FAT.lean)));
-  const lean: number = Math.min(1, Math.max(0, (props.composition.appendicularLeanMassIndex - LEAN.low) / (LEAN.high - LEAN.low)));
+  const fat: number = Math.min(
+    1,
+    Math.max(
+      0,
+      (props.composition.bodyFatPercentage - FAT.lean) / (FAT.full - FAT.lean),
+    ),
+  );
+  const lean: number = Math.min(
+    1,
+    Math.max(
+      0,
+      (props.composition.appendicularLeanMassIndex - LEAN.low) /
+        (LEAN.high - LEAN.low),
+    ),
+  );
 
   // nose
   const yNasion: number = frame.nasion.y;
   const ySub: number = profile.subnasale.y;
   const yTip: number = ySub + form.nose.tipAboveSubnasale * f.noseHeight;
   const rise: number = yTip - ySub;
-  const zTip: number = profile.subnasale.z + Math.sqrt(Math.max(0, f.noseProtrusion ** 2 - rise * rise));
+  const zTip: number =
+    profile.subnasale.z +
+    Math.sqrt(Math.max(0, f.noseProtrusion ** 2 - rise * rise));
   const tipShare: number = (yNasion - yTip) / (yNasion - ySub);
   const dorsum = (y: number): number => {
-    const t: number = Math.min(1, Math.max(0, (yNasion - y) / (yNasion - yTip)));
-    return frame.nasion.z + (zTip - frame.nasion.z) * Math.pow(t, form.nose.dorsumCurve);
+    const t: number = Math.min(
+      1,
+      Math.max(0, (yNasion - y) / (yNasion - yTip)),
+    );
+    return (
+      frame.nasion.z +
+      (zTip - frame.nasion.z) * Math.pow(t, form.nose.dorsumCurve)
+    );
   };
   const tipHeight: number = zTip - profile.front(yTip);
   const nose = (x: number, y: number): number => {
@@ -55,15 +76,27 @@ export function reliefAutoMovieHumanHead(props: {
     const height: number =
       s <= tipShare
         ? Math.max(0, dorsum(y) - profile.front(y))
-        : tipHeight * Math.sqrt(Math.max(0, 1 - ((s - tipShare) / (1 - tipShare)) ** 2));
-    const half: number = f.noseWidth * lerp(form.nose.bridge, form.nose.ala, smooth(0, tipShare, s));
+        : tipHeight *
+          Math.sqrt(Math.max(0, 1 - ((s - tipShare) / (1 - tipShare)) ** 2));
+    const half: number =
+      f.noseWidth *
+      lerp(form.nose.bridge, form.nose.ala, smooth(0, tipShare, s));
     const t: number = Math.abs(x) / half;
-    const ridge: number = t >= 1 ? 0 : height * Math.pow(1 - t * t, lerp(1.6, 1.0, smooth(0, tipShare, s)));
+    const ridge: number =
+      t >= 1
+        ? 0
+        : height * Math.pow(1 - t * t, lerp(1.6, 1.0, smooth(0, tipShare, s)));
     // the alar lobes beside the tip, low on the nose
     const ala: number =
       form.nose.alaHeight *
       tipHeight *
-      Math.exp(-(((Math.abs(x) - form.nose.alaOffset * f.noseWidth) / (form.nose.alaSpread * f.noseWidth)) ** 2)) *
+      Math.exp(
+        -(
+          ((Math.abs(x) - form.nose.alaOffset * f.noseWidth) /
+            (form.nose.alaSpread * f.noseWidth)) **
+          2
+        ),
+      ) *
       Math.exp(-(((s - (1 + tipShare) / 2) / form.nose.alaDepth) ** 2));
     return Math.max(ridge, ala);
   };
@@ -75,9 +108,26 @@ export function reliefAutoMovieHumanHead(props: {
     if (t >= 1) return 0;
     const across: number = Math.sqrt(1 - t * t);
     const upper: number =
-      form.lips.roll * fh * Math.exp(-(((y - (frame.stomion.y + 0.55 * f.upperVermilionHeight)) / (0.75 * f.upperVermilionHeight)) ** 2));
+      form.lips.roll *
+      fh *
+      Math.exp(
+        -(
+          ((y - (frame.stomion.y + 0.55 * f.upperVermilionHeight)) /
+            (0.75 * f.upperVermilionHeight)) **
+          2
+        ),
+      );
     const lower: number =
-      form.lips.roll * fh * 1.1 * Math.exp(-(((y - (frame.stomion.y - 0.5 * f.lowerVermilionHeight)) / (0.75 * f.lowerVermilionHeight)) ** 2));
+      form.lips.roll *
+      fh *
+      1.1 *
+      Math.exp(
+        -(
+          ((y - (frame.stomion.y - 0.5 * f.lowerVermilionHeight)) /
+            (0.75 * f.lowerVermilionHeight)) **
+          2
+        ),
+      );
     return across * (upper + lower);
   };
 
@@ -85,8 +135,13 @@ export function reliefAutoMovieHumanHead(props: {
   // half-width w under a layer t deep reaches the skin as the bump blurred over the layer's depth, w' = sqrt(w^2 + t^2), its height
   // falling by (w / w')^2 over an area and by w / w' along a ridge
   const tissue = (site: keyof typeof AUTOMOVIE_HUMAN_FACIAL_TISSUE): number =>
-    AUTOMOVIE_HUMAN_FACIAL_TISSUE[site].lean + AUTOMOVIE_HUMAN_FACIAL_TISSUE[site].gain * fat;
-  const through = (width: number, depth: number, ridge: boolean): { width: number; height: number } => {
+    AUTOMOVIE_HUMAN_FACIAL_TISSUE[site].lean +
+    AUTOMOVIE_HUMAN_FACIAL_TISSUE[site].gain * fat;
+  const through = (
+    width: number,
+    depth: number,
+    ridge: boolean,
+  ): { width: number; height: number } => {
     const blurred: number = Math.hypot(width, depth);
     return { width: blurred, height: Math.pow(width / blurred, ridge ? 1 : 2) };
   };
@@ -94,67 +149,166 @@ export function reliefAutoMovieHumanHead(props: {
   const robust: number = form.robust + (1 - form.robust) * lean;
 
   // orbits, lids and brows
-  const eyeRadius: number = AutoMovieHumanVector.distance(frame.eye, frame.cornea) + GLOBE_ALLOWANCE;
+  const eyeRadius: number =
+    AutoMovieHumanVector.distance(frame.eye, frame.cornea) + GLOBE_ALLOWANCE;
   const orbitX: number = f.intercanthalWidth / 2 + f.palpebralFissureLength / 2;
-  const orbitShows: number = through(form.orbit.breadth * f.palpebralFissureLength, tissue("infraorbital"), false).height;
+  const orbitShows: number = through(
+    form.orbit.breadth * f.palpebralFissureLength,
+    tissue("infraorbital"),
+    false,
+  ).height;
   const orbit = (p: IAutoMovieVector3): number => {
     const x: number = Math.abs(p.x);
-    const ex: number = (x - orbitX) / (form.orbit.across * f.palpebralFissureLength);
-    const ey: number = (p.y - frame.eye.y) / ((p.y >= frame.eye.y ? form.orbit.up : form.orbit.down) * f.palpebralFissureLength);
+    const ex: number =
+      (x - orbitX) / (form.orbit.across * f.palpebralFissureLength);
+    const ey: number =
+      (p.y - frame.eye.y) /
+      ((p.y >= frame.eye.y ? form.orbit.up : form.orbit.down) *
+        f.palpebralFissureLength);
     const rho: number = Math.hypot(ex, ey);
     const weight: number = 1 - smooth(form.orbit.inner, form.orbit.outer, rho);
     if (weight <= 0) return 0;
     const dx: number = x - frame.eye.x;
     const dy: number = p.y - frame.eye.y;
     const r: number = eyeRadius + form.orbit.lid;
-    const dome: number = Math.max(frame.eye.z, frame.eye.z + Math.sqrt(Math.max(0, r * r - dx * dx - dy * dy)));
+    const dome: number = Math.max(
+      frame.eye.z,
+      frame.eye.z + Math.sqrt(Math.max(0, r * r - dx * dx - dy * dy)),
+    );
     // the lids drape from the margin on the globe out to the orbit's rim, filled by the orbital fat, so the surface sinks toward
     // the globe by no more than the margin's own depth under the face, less and less outward: no sulcus deeper than that line
     const allowed: number = form.orbit.sink * f.palpebralFissureLength * weight;
-    return orbitShows * (dome >= p.z ? weight * (dome - p.z) : -Math.min(p.z - dome, allowed));
+    return (
+      orbitShows *
+      (dome >= p.z ? weight * (dome - p.z) : -Math.min(p.z - dome, allowed))
+    );
   };
-  const browRidge = through(0.2 * f.palpebralFissureLength, tissue("supraorbital"), true);
+  const browRidge = through(
+    0.2 * f.palpebralFissureLength,
+    tissue("supraorbital"),
+    true,
+  );
   const brow = (p: IAutoMovieVector3): number => {
     const x: number = Math.abs(p.x);
-    const along: number = Math.exp(-(((x - orbitX) / (0.9 * f.palpebralFissureLength)) ** 2));
+    const along: number = Math.exp(
+      -(((x - orbitX) / (0.9 * f.palpebralFissureLength)) ** 2),
+    );
     return (
-      form.brow.height * fh * robust * browRidge.height * along *
-      Math.exp(-(((p.y - (frame.eye.y + form.brow.level * f.palpebralFissureLength)) / browRidge.width) ** 2))
+      form.brow.height *
+      fh *
+      robust *
+      browRidge.height *
+      along *
+      Math.exp(
+        -(
+          ((p.y - (frame.eye.y + form.brow.level * f.palpebralFissureLength)) /
+            browRidge.width) **
+          2
+        ),
+      )
     );
   };
   // masses on the side of the face, each a bump over the side's own height and depth, faded in from the face's front
   // a child's face is small under its vault: the share it falls short of the adult's face height over head height
-  const youth: number = Math.max(0, ADULT_FACE_SHARE - fh / head.headHeight) / ADULT_FACE_SHARE;
+  const youth: number =
+    Math.max(0, ADULT_FACE_SHARE - fh / head.headHeight) / ADULT_FACE_SHARE;
   const z: IAutoMovieVector3 = frame.zygion;
-  const bump = (p: IAutoMovieVector3, y: number, depth: number, ry: number, rz: number): number =>
-    Math.exp(-(((p.y - y) / ry) ** 2) - ((p.z - depth) / rz) ** 2);
-  const side = (p: IAutoMovieVector3): number => smooth(0.45, 0.75, Math.abs(p.x) / Math.max(1, profile.breadth(p.y)));
-  const malarY: number = frame.eye.y - form.malar.below * f.palpebralFissureLength;
-  const malarBody = through(0.55 * f.palpebralFissureLength, tissue("zygion"), false);
+  const bump = (
+    p: IAutoMovieVector3,
+    y: number,
+    depth: number,
+    ry: number,
+    rz: number,
+  ): number => Math.exp(-(((p.y - y) / ry) ** 2) - ((p.z - depth) / rz) ** 2);
+  const side = (p: IAutoMovieVector3): number =>
+    smooth(0.45, 0.75, Math.abs(p.x) / Math.max(1, profile.breadth(p.y)));
+  const malarY: number =
+    frame.eye.y - form.malar.below * f.palpebralFissureLength;
+  const malarBody = through(
+    0.55 * f.palpebralFissureLength,
+    tissue("zygion"),
+    false,
+  );
   const archRidge = through(form.arch.width * fh, tissue("zygion"), true);
-  const templeHollow = through(form.temple.spread * fh, tissue("frontal"), false);
-  const masseterBelly = through(form.masseter.across * fh, tissue("gonion"), false);
+  const templeHollow = through(
+    form.temple.spread * fh,
+    tissue("frontal"),
+    false,
+  );
+  const masseterBelly = through(
+    form.masseter.across * fh,
+    tissue("gonion"),
+    false,
+  );
   const masses = (p: IAutoMovieVector3): number => {
     const malar: number =
-      form.malar.height * fh * robust * malarBody.height *
-      Math.exp(-(((Math.abs(p.x) - (frame.eye.x + form.malar.out * f.palpebralFissureLength)) / malarBody.width) ** 2)) *
+      form.malar.height *
+      fh *
+      robust *
+      malarBody.height *
+      Math.exp(
+        -(
+          ((Math.abs(p.x) -
+            (frame.eye.x + form.malar.out * f.palpebralFissureLength)) /
+            malarBody.width) **
+          2
+        ),
+      ) *
       Math.exp(-(((p.y - malarY) / (0.9 * malarBody.width)) ** 2));
     // the arch: a ridge from the zygoma's body back to the root above tragion
-    const t: number = Math.min(1, Math.max(0, (z.z - p.z) / Math.max(1, z.z - frame.tragion.z)));
-    const archY: number = z.y + (frame.tragion.y + form.arch.root * fh - z.y) * t;
+    const t: number = Math.min(
+      1,
+      Math.max(0, (z.z - p.z) / Math.max(1, z.z - frame.tragion.z)),
+    );
+    const archY: number =
+      z.y + (frame.tragion.y + form.arch.root * fh - z.y) * t;
     const arch: number =
-      form.arch.height * fh * robust * archRidge.height *
-      Math.exp(-(((p.y - archY) / archRidge.width) ** 2)) * (p.z > frame.tragion.z + 5 ? 1 : 0);
+      form.arch.height *
+      fh *
+      robust *
+      archRidge.height *
+      Math.exp(-(((p.y - archY) / archRidge.width) ** 2)) *
+      (p.z > frame.tragion.z + 5 ? 1 : 0);
     const temple: number =
-      -form.temple.depth * fh * (1 - fat) * templeHollow.height *
-      bump(p, z.y + form.temple.above * fh, z.z - form.temple.behind * fh, templeHollow.width, 0.8 * templeHollow.width);
+      -form.temple.depth *
+      fh *
+      (1 - fat) *
+      templeHollow.height *
+      bump(
+        p,
+        z.y + form.temple.above * fh,
+        z.z - form.temple.behind * fh,
+        templeHollow.width,
+        0.8 * templeHollow.width,
+      );
     const masseter: number =
-      form.masseter.height * fh * (0.5 + lean) * masseterBelly.height *
-      bump(p, (z.y + frame.gonion.y) / 2, frame.gonion.z + form.masseter.forward * fh, form.masseter.up * fh, masseterBelly.width);
+      form.masseter.height *
+      fh *
+      (0.5 + lean) *
+      masseterBelly.height *
+      bump(
+        p,
+        (z.y + frame.gonion.y) / 2,
+        frame.gonion.z + form.masseter.forward * fh,
+        form.masseter.up * fh,
+        masseterBelly.width,
+      );
     const buccal: number =
-      (form.buccal.adult + form.buccal.fat * fat + form.buccal.growth * youth) * fh *
-      bump(p, frame.stomion.y + form.buccal.above * fh, z.z, form.buccal.spread * fh, form.buccal.spread * fh);
-    return malar + side(p) * (arch + temple + masseter) + buccal * smooth(0.3, 0.6, Math.abs(p.x) / Math.max(1, profile.breadth(p.y)));
+      (form.buccal.adult + form.buccal.fat * fat + form.buccal.growth * youth) *
+      fh *
+      bump(
+        p,
+        frame.stomion.y + form.buccal.above * fh,
+        z.z,
+        form.buccal.spread * fh,
+        form.buccal.spread * fh,
+      );
+    return (
+      malar +
+      side(p) * (arch + temple + masseter) +
+      buccal *
+        smooth(0.3, 0.6, Math.abs(p.x) / Math.max(1, profile.breadth(p.y)))
+    );
   };
   return (p: IAutoMovieVector3): number => {
     if (p.z <= frame.tragion.z - 10) return 0;

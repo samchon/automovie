@@ -1,4 +1,8 @@
-import { IAutoMovieSweep, IAutoMovieSweepSection, sampleAutoMovieSweepSection } from "@automovie/engine";
+import {
+  IAutoMovieSweep,
+  IAutoMovieSweepSection,
+  sampleAutoMovieSweepSection,
+} from "@automovie/engine";
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
@@ -68,7 +72,10 @@ export function sweepAutoMovieHumanHead(props: {
     };
   };
   // where a guide at depth g(y) meets the plane: y = y0 + slope g(y)
-  const meet = (p: sweepAutoMovieHumanHead.IPlane, g: (y: number) => number): number => {
+  const meet = (
+    p: sweepAutoMovieHumanHead.IPlane,
+    g: (y: number) => number,
+  ): number => {
     let lo: number = profile.chin - 60;
     let hi: number = profile.top;
     for (let k: number = 0; k < 60; ++k) {
@@ -81,14 +88,20 @@ export function sweepAutoMovieHumanHead(props: {
   const ringAxes = axes(plane(1));
   const ringSection: IAutoMovieSweepSection = closedCurve(
     ring.limit.map((q: IAutoMovieVector3) => {
-      const d: IAutoMovieVector3 = AutoMovieHumanVector.offset(q, [ringAxes.origin, -1]);
+      const d: IAutoMovieVector3 = AutoMovieHumanVector.offset(q, [
+        ringAxes.origin,
+        -1,
+      ]);
       return {
         x: metres(AutoMovieHumanVector.dot(d, ringAxes.a)),
         y: metres(AutoMovieHumanVector.dot(d, ringAxes.b)),
       };
     }),
   );
-  const ringRadii: number[] = sampleAutoMovieSweepSection({ section: ringSection, count: DIRECTIONS });
+  const ringRadii: number[] = sampleAutoMovieSweepSection({
+    section: ringSection,
+    count: DIRECTIONS,
+  });
   // where the lower head starts turning into the ring: the plane through stomion
   const levelAt = (y: number): number => {
     let lo: number = HORIZONTAL;
@@ -107,31 +120,44 @@ export function sweepAutoMovieHumanHead(props: {
     const block: IAutoMovieSweepSection.ISuperellipse = blockOf(level);
     const ax = axes(plane(level));
     // the features and masses move the block-out along each direction from the spine
-    const radii: number[] = sampleAutoMovieSweepSection({ section: block, count: DIRECTIONS }).map(
-      (r: number, d: number): number => {
-        const angle: number = (2 * Math.PI * d) / DIRECTIONS;
-        const mm: number = r * 1000;
-        const p: IAutoMovieVector3 = AutoMovieHumanVector.offset(
-          ax.origin,
-          [ax.a, mm * Math.cos(angle)],
-          [ax.b, mm * Math.sin(angle)],
-        );
-        return (1 - toward) * metres(Math.max(MINIMUM, mm + props.relief(p))) + toward * ringRadii[d]!;
-      },
-    );
+    const radii: number[] = sampleAutoMovieSweepSection({
+      section: block,
+      count: DIRECTIONS,
+    }).map((r: number, d: number): number => {
+      const angle: number = (2 * Math.PI * d) / DIRECTIONS;
+      const mm: number = r * 1000;
+      const p: IAutoMovieVector3 = AutoMovieHumanVector.offset(
+        ax.origin,
+        [ax.a, mm * Math.cos(angle)],
+        [ax.b, mm * Math.sin(angle)],
+      );
+      return (
+        (1 - toward) * metres(Math.max(MINIMUM, mm + props.relief(p))) +
+        toward * ringRadii[d]!
+      );
+    });
     return { type: "radial", radii };
   };
   const blockOf = (level: number): IAutoMovieSweepSection.ISuperellipse => {
     const p: sweepAutoMovieHumanHead.IPlane = plane(level);
     const ax = axes(p);
     const inPlane = (q: IAutoMovieVector3): number =>
-      AutoMovieHumanVector.dot(AutoMovieHumanVector.offset(q, [ax.origin, -1]), ax.a);
+      AutoMovieHumanVector.dot(
+        AutoMovieHumanVector.offset(q, [ax.origin, -1]),
+        ax.a,
+      );
     const yf: number = meet(p, profile.front);
     const yb: number = meet(p, profile.back);
     const yw: number = meet(p, profile.lateral);
-    const xf: number = inPlane(AutoMovieHumanVector.of(0, yf, profile.front(yf)));
-    const xb: number = inPlane(AutoMovieHumanVector.of(0, yb, profile.back(yb)));
-    const xw: number = inPlane(AutoMovieHumanVector.of(0, yw, profile.lateral(yw)));
+    const xf: number = inPlane(
+      AutoMovieHumanVector.of(0, yf, profile.front(yf)),
+    );
+    const xb: number = inPlane(
+      AutoMovieHumanVector.of(0, yb, profile.back(yb)),
+    );
+    const xw: number = inPlane(
+      AutoMovieHumanVector.of(0, yw, profile.lateral(yw)),
+    );
     const half: number = Math.max(MINIMUM, profile.breadth(yw));
     const nf: number = profile.frontExponent(yf);
     const nb: number = profile.backExponent(yb);
@@ -148,7 +174,10 @@ export function sweepAutoMovieHumanHead(props: {
   // the guides' sections reach down to the plane through gnathion; the ring closes the rest
   const end: number = levelAt(profile.chin);
   const levels: number[] = [
-    ...Array.from({ length: STATIONS }, (_: unknown, k: number): number => (end * k) / (STATIONS - 1)),
+    ...Array.from(
+      { length: STATIONS },
+      (_: unknown, k: number): number => (end * k) / (STATIONS - 1),
+    ),
     1,
   ];
   const planes: sweepAutoMovieHumanHead.IPlane[] = levels.map(plane);
@@ -167,14 +196,16 @@ export function sweepAutoMovieHumanHead(props: {
       ),
       normal: model(AutoMovieHumanVector.of(0, 0, -1)),
     },
-    stations: levels.map((level: number, k: number): IAutoMovieSweep.IStation => {
-      const ax = axes(planes[k]!);
-      return {
-        at: shares[k]!,
-        section: k === last ? ringSection : sectionOf(level),
-        rotation: quaternionOf(model(ax.a), model(ax.b), model(ax.n)),
-      };
-    }),
+    stations: levels.map(
+      (level: number, k: number): IAutoMovieSweep.IStation => {
+        const ax = axes(planes[k]!);
+        return {
+          at: shares[k]!,
+          section: k === last ? ringSection : sectionOf(level),
+          rotation: quaternionOf(model(ax.a), model(ax.b), model(ax.n)),
+        };
+      },
+    ),
   };
   return {
     sweep,
@@ -258,13 +289,18 @@ const toMetres = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
 const chordShares = (points: IAutoMovieVector3[]): number[] => {
   const lengths: number[] = [0];
   for (let k: number = 1; k < points.length; ++k)
-    lengths.push(lengths[k - 1]! + AutoMovieHumanVector.distance(points[k - 1]!, points[k]!));
+    lengths.push(
+      lengths[k - 1]! +
+        AutoMovieHumanVector.distance(points[k - 1]!, points[k]!),
+    );
   const total: number = lengths[lengths.length - 1]!;
   return lengths.map((l: number): number => l / total);
 };
 
 /** A closed polygon sampled from the centripetal-free uniform Catmull-Rom curve through points, eight samples per span. */
-const closedCurve = (points: Array<{ x: number; y: number }>): IAutoMovieSweepSection => {
+const closedCurve = (
+  points: Array<{ x: number; y: number }>,
+): IAutoMovieSweepSection => {
   const n: number = points.length;
   const out: Array<{ x: number; y: number }> = [];
   for (let k: number = 0; k < n; ++k) {
@@ -305,16 +341,36 @@ const quaternionOf = (
   const trace: number = x.x + y.y + z.z;
   if (trace > 0) {
     const s: number = Math.sqrt(trace + 1) * 2;
-    return { w: s / 4, x: (y.z - z.y) / s, y: (z.x - x.z) / s, z: (x.y - y.x) / s };
+    return {
+      w: s / 4,
+      x: (y.z - z.y) / s,
+      y: (z.x - x.z) / s,
+      z: (x.y - y.x) / s,
+    };
   }
   if (x.x > y.y && x.x > z.z) {
     const s: number = Math.sqrt(1 + x.x - y.y - z.z) * 2;
-    return { w: (y.z - z.y) / s, x: s / 4, y: (y.x + x.y) / s, z: (z.x + x.z) / s };
+    return {
+      w: (y.z - z.y) / s,
+      x: s / 4,
+      y: (y.x + x.y) / s,
+      z: (z.x + x.z) / s,
+    };
   }
   if (y.y > z.z) {
     const s: number = Math.sqrt(1 + y.y - x.x - z.z) * 2;
-    return { w: (z.x - x.z) / s, x: (y.x + x.y) / s, y: s / 4, z: (z.y + y.z) / s };
+    return {
+      w: (z.x - x.z) / s,
+      x: (y.x + x.y) / s,
+      y: s / 4,
+      z: (z.y + y.z) / s,
+    };
   }
   const s: number = Math.sqrt(1 + z.z - x.x - y.y) * 2;
-  return { w: (x.y - y.x) / s, x: (z.x + x.z) / s, y: (z.y + y.z) / s, z: s / 4 };
+  return {
+    w: (x.y - y.x) / s,
+    x: (z.x + x.z) / s,
+    y: (z.y + y.z) / s,
+    z: s / 4,
+  };
 };

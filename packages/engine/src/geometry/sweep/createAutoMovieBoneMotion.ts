@@ -1,4 +1,8 @@
-import { AutoMovieHumanoidBone, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { IAutoMovieResolvedBone } from "../../kinematics/IAutoMovieResolvedBone";
 import { Quaternion } from "../../math/Quaternion";
@@ -40,26 +44,43 @@ export const createAutoMovieBoneMotion: (props: {
   apply: (point: IAutoMovieVector3) => IAutoMovieVector3;
 }) => {
   const rest: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
-    props.rest.map((b: IAutoMovieResolvedBone): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [b.bone, b]),
+    props.rest.map(
+      (
+        b: IAutoMovieResolvedBone,
+      ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [b.bone, b],
+    ),
   );
   const posed: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
-    props.posed.map((b: IAutoMovieResolvedBone): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [b.bone, b]),
+    props.posed.map(
+      (
+        b: IAutoMovieResolvedBone,
+      ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [b.bone, b],
+    ),
   );
   const cache: Map<AutoMovieHumanoidBone, IAutoMovieQuaternion> = new Map();
   return (bone: AutoMovieHumanoidBone) => {
     const r: IAutoMovieResolvedBone | undefined = rest.get(bone);
     const p: IAutoMovieResolvedBone | undefined = posed.get(bone);
-    if (r === undefined || p === undefined) throw new Error(`bone ${bone} is missing from the rest or posed bones`);
+    if (r === undefined || p === undefined)
+      throw new Error(`bone ${bone} is missing from the rest or posed bones`);
     let rotation: IAutoMovieQuaternion | undefined = cache.get(bone);
     if (rotation === undefined) {
-      rotation = Quaternion.normalize(Quaternion.multiply(p.worldRotation, Quaternion.inverse(r.worldRotation)));
+      rotation = Quaternion.normalize(
+        Quaternion.multiply(
+          p.worldRotation,
+          Quaternion.inverse(r.worldRotation),
+        ),
+      );
       cache.set(bone, rotation);
     }
     const q: IAutoMovieQuaternion = rotation;
     return {
       rotation: q,
       apply: (point: IAutoMovieVector3): IAutoMovieVector3 =>
-        Vector3.add(p.worldPosition, Quaternion.rotateVector(q, Vector3.subtract(point, r.worldPosition))),
+        Vector3.add(
+          p.worldPosition,
+          Quaternion.rotateVector(q, Vector3.subtract(point, r.worldPosition)),
+        ),
     };
   };
 };

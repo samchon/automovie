@@ -3,7 +3,10 @@ import {
   inspectAutoMovieMeshTopology,
   meshAutoMovieSweep,
 } from "@automovie/engine";
-import { type IAutoMovieMesh, type IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieMesh,
+  type IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { PROCEDURAL_TEST_SQUARE as square } from "../internal/PROCEDURAL_TEST_SQUARE";
@@ -41,7 +44,10 @@ const sweep = (
  */
 export function test_geometry_procedural_sweep(): void {
   const small: IAutoMovieProfilePoint[] = square.map(
-    (point: IAutoMovieProfilePoint): IAutoMovieProfilePoint => ({ x: point.x * 0.1, y: point.y * 0.1 }),
+    (point: IAutoMovieProfilePoint): IAutoMovieProfilePoint => ({
+      x: point.x * 0.1,
+      y: point.y * 0.1,
+    }),
   );
   const bend: IAutoMovieVector3[] = [
     { x: 0, y: 0, z: 0 },
@@ -62,16 +68,34 @@ export function test_geometry_procedural_sweep(): void {
     "sweeps cover horizontal bends and vertical paths",
     namedFacts([
       ["bent", (): boolean => finiteMesh(swept) && swept.indices!.length > 0],
-      ["vertical", (): boolean => finiteMesh(vertical) && vertical.indices!.length > 0],
-      ["verticalVolume", (): boolean => nclose(inspectAutoMovieMeshTopology(vertical).volume, 2 * 2 * 2, 1e-12)],
+      [
+        "vertical",
+        (): boolean => finiteMesh(vertical) && vertical.indices!.length > 0,
+      ],
+      [
+        "verticalVolume",
+        (): boolean =>
+          nclose(
+            inspectAutoMovieMeshTopology(vertical).volume,
+            2 * 2 * 2,
+            1e-12,
+          ),
+      ],
     ]),
     { bent: true, vertical: true, verticalVolume: true },
   );
 
-  TestValidator.predicate("bent sweep reproduces its authored geometry", equalGeometryTestValues(sweep(small, bend, up), swept));
+  TestValidator.predicate(
+    "bent sweep reproduces its authored geometry",
+    equalGeometryTestValues(sweep(small, bend, up), swept),
+  );
 
   const invalids: Array<readonly [string, () => unknown, string]> = [
-    ["sweep path", (): IAutoMovieMesh => sweep(square, [{ x: 0, y: 0, z: 0 }], up), "sweep spine needs at least two points"],
+    [
+      "sweep path",
+      (): IAutoMovieMesh => sweep(square, [{ x: 0, y: 0, z: 0 }], up),
+      "sweep spine needs at least two points",
+    ],
     [
       "sweep finite",
       (): IAutoMovieMesh =>
@@ -100,5 +124,8 @@ export function test_geometry_procedural_sweep(): void {
     ],
   ];
   for (const [name, callback, message] of invalids)
-    TestValidator.predicate(`${name} is refused by its own diagnostic`, throwsError(callback, message));
+    TestValidator.predicate(
+      `${name} is refused by its own diagnostic`,
+      throwsError(callback, message),
+    );
 }

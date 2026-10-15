@@ -1,4 +1,9 @@
-import { type AutoMovieSurfaceTier, type IAutoMovieSurfaceCage, type IAutoMovieSurfaceNetwork, sampleAutoMovieSurfaceNetwork } from "@automovie/engine";
+import {
+  type AutoMovieSurfaceTier,
+  type IAutoMovieSurfaceCage,
+  type IAutoMovieSurfaceNetwork,
+  sampleAutoMovieSurfaceNetwork,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { sweepBranchedBody } from "../internal/sweepBranchedBody";
@@ -20,17 +25,37 @@ import { sweepBranchedBody } from "../internal/sweepBranchedBody";
  */
 export function test_geometry_sweep_network_topology(): void {
   const body: IAutoMovieSurfaceNetwork = sweepBranchedBody();
-  const reshaped: IAutoMovieSurfaceNetwork = sweepBranchedBody({ breadth: 1.15, branch: 0.9 });
+  const reshaped: IAutoMovieSurfaceNetwork = sweepBranchedBody({
+    breadth: 1.15,
+    branch: 0.9,
+  });
   TestValidator.equals(
     "a reshaped body keeps every tier's topology",
-    (["lowest", "high"] as AutoMovieSurfaceTier[]).map((tier: AutoMovieSurfaceTier): boolean => {
-      const a: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({ network: body, tier });
-      const b: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({ network: reshaped, tier });
-      return (
-        JSON.stringify([a.cage.faces, a.cage.uvFaces, a.corners, a.rings]) === JSON.stringify([b.cage.faces, b.cage.uvFaces, b.corners, b.rings]) &&
-        a.targets.some((x: number, k: number): boolean => Math.abs(x - b.targets[k]!) > 1e-3)
-      );
-    }),
+    (["lowest", "high"] as AutoMovieSurfaceTier[]).map(
+      (tier: AutoMovieSurfaceTier): boolean => {
+        const a: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({
+          network: body,
+          tier,
+        });
+        const b: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({
+          network: reshaped,
+          tier,
+        });
+        return (
+          JSON.stringify([a.cage.faces, a.cage.uvFaces, a.corners, a.rings]) ===
+            JSON.stringify([
+              b.cage.faces,
+              b.cage.uvFaces,
+              b.corners,
+              b.rings,
+            ]) &&
+          a.targets.some(
+            (x: number, k: number): boolean =>
+              Math.abs(x - b.targets[k]!) > 1e-3,
+          )
+        );
+      },
+    ),
     [true, true],
   );
 }

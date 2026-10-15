@@ -264,7 +264,11 @@ export namespace IAutoMovieSurfaceNetwork {
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
    * @author Samchon
    */
-  export type IPatch = ISweepPatch | ICoonsPatch | IBridgePatch | ITransitionPatch;
+  export type IPatch =
+    | ISweepPatch
+    | ICoonsPatch
+    | IBridgePatch
+    | ITransitionPatch;
 
   /**
    * A rectangle of a sweep's domain.

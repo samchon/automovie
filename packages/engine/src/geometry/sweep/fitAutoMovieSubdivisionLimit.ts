@@ -50,9 +50,14 @@ export const fitAutoMovieSubdivisionLimit: (props: {
   pinned?: readonly boolean[];
 }): { positions: number[]; residual: number } => {
   const count: number = props.targets.length / 3;
-  if (!Number.isInteger(count)) throw new Error("fit targets must be packed triples");
-  const stencil: IAutoMovieSubdivisionStencil = stencilAutoMovieSubdivisionLimit(props.faces, count);
-  const free: Uint8Array = Uint8Array.from({ length: count }, (_: unknown, i: number): number => (props.pinned?.[i] ?? false ? 0 : 1));
+  if (!Number.isInteger(count))
+    throw new Error("fit targets must be packed triples");
+  const stencil: IAutoMovieSubdivisionStencil =
+    stencilAutoMovieSubdivisionLimit(props.faces, count);
+  const free: Uint8Array = Uint8Array.from(
+    { length: count },
+    (_: unknown, i: number): number => ((props.pinned?.[i] ?? false) ? 0 : 1),
+  );
   const positions: number[] = new Array<number>(3 * count).fill(0);
   const residual: number = solveAutoMovieSubdivisionLimit({
     stencil,

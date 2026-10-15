@@ -16,7 +16,9 @@ const ROUNDS: number = 50;
  * @param points The row's limit points in order around it, millimetres
  * @returns Girth, millimetres
  */
-export function measureAutoMovieHumanLimbRow(points: IAutoMovieVector3[]): number {
+export function measureAutoMovieHumanLimbRow(
+  points: IAutoMovieVector3[],
+): number {
   const n: number = points.length;
   let control: IAutoMovieVector3[] = points.map(
     (p: IAutoMovieVector3): IAutoMovieVector3 => ({ ...p }),
@@ -32,5 +34,7 @@ export function measureAutoMovieHumanLimbRow(points: IAutoMovieVector3[]): numbe
           [control[(k + 1) % n]!, -1 / 6],
         ),
     );
-  return AutoMovieHumanRingCurve.perimeter(AutoMovieHumanRingCurve.spline(control));
+  return AutoMovieHumanRingCurve.perimeter(
+    AutoMovieHumanRingCurve.spline(control),
+  );
 }

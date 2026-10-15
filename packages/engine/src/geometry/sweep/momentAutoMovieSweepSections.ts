@@ -28,12 +28,20 @@ const DIRECTIONS: number = 256;
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Called once per compiled sweep; the result is the reuse.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing; two 256-number direction tables are released on return and the 1,200-number result is transferred to the caller.
  */
-export const momentAutoMovieSweepSections: (surface: IAutoMovieSweepSurface) => Float64Array = (
+export const momentAutoMovieSweepSections: (
   surface: IAutoMovieSweepSurface,
-): Float64Array => {
+) => Float64Array = (surface: IAutoMovieSweepSurface): Float64Array => {
   const out: Float64Array = new Float64Array(3 * STEPS);
-  const cos: Float64Array = Float64Array.from({ length: DIRECTIONS }, (_: unknown, d: number): number => Math.cos((2 * Math.PI * (d + 0.5)) / DIRECTIONS));
-  const sin: Float64Array = Float64Array.from({ length: DIRECTIONS }, (_: unknown, d: number): number => Math.sin((2 * Math.PI * (d + 0.5)) / DIRECTIONS));
+  const cos: Float64Array = Float64Array.from(
+    { length: DIRECTIONS },
+    (_: unknown, d: number): number =>
+      Math.cos((2 * Math.PI * (d + 0.5)) / DIRECTIONS),
+  );
+  const sin: Float64Array = Float64Array.from(
+    { length: DIRECTIONS },
+    (_: unknown, d: number): number =>
+      Math.sin((2 * Math.PI * (d + 0.5)) / DIRECTIONS),
+  );
   for (let i: number = 0; i < STEPS; ++i) {
     const u: number = (i + 0.5) / STEPS;
     let area: number = 0;

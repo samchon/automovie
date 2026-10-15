@@ -60,34 +60,66 @@ export const poseAutoMovieSurfaceNetwork: (props: {
   preserveVolume?: boolean;
 }): IAutoMovieSurfaceNetwork => {
   const { network, bindings } = props;
-  const motion = createAutoMovieBoneMotion({ rest: props.rest, posed: props.posed });
-  const known = (names: string[], record: object | undefined, what: string): void => {
+  const motion = createAutoMovieBoneMotion({
+    rest: props.rest,
+    posed: props.posed,
+  });
+  const known = (
+    names: string[],
+    record: object | undefined,
+    what: string,
+  ): void => {
     for (const name of Object.keys(record ?? {}))
-      if (!names.includes(name)) throw new Error(`binding names unknown ${what} ${name}`);
+      if (!names.includes(name))
+        throw new Error(`binding names unknown ${what} ${name}`);
   };
   known(Object.keys(network.sweeps), bindings.sweeps, "sweep");
   known(Object.keys(network.nodes ?? {}), bindings.nodes, "node");
   known(Object.keys(network.curves ?? {}), bindings.curves, "curve");
-  known((network.rings ?? []).map((r: IAutoMovieSurfaceNetwork.IRing): string => r.name), bindings.rings, "ring");
+  known(
+    (network.rings ?? []).map(
+      (r: IAutoMovieSurfaceNetwork.IRing): string => r.name,
+    ),
+    bindings.rings,
+    "ring",
+  );
   const sweeps: Record<string, IAutoMovieSweep> = Object.fromEntries(
-    Object.entries(network.sweeps).map(([name, sweep]: [string, IAutoMovieSweep]): [string, IAutoMovieSweep] => {
-      const binding: IAutoMovieSweepBinding | undefined = bindings.sweeps?.[name];
-      return [
-        name,
-        binding === undefined
-          ? sweep
-          : poseAutoMovieSweep({ sweep, binding, rest: props.rest, posed: props.posed, preserveVolume: props.preserveVolume }),
-      ];
-    }),
+    Object.entries(network.sweeps).map(
+      ([name, sweep]: [string, IAutoMovieSweep]): [string, IAutoMovieSweep] => {
+        const binding: IAutoMovieSweepBinding | undefined =
+          bindings.sweeps?.[name];
+        return [
+          name,
+          binding === undefined
+            ? sweep
+            : poseAutoMovieSweep({
+                sweep,
+                binding,
+                rest: props.rest,
+                posed: props.posed,
+                preserveVolume: props.preserveVolume,
+              }),
+        ];
+      },
+    ),
   );
   const nodes: Record<string, IAutoMovieSurfaceNetwork.INode> | undefined =
     network.nodes === undefined
       ? undefined
       : Object.fromEntries(
           Object.entries(network.nodes).map(
-            ([name, n]: [string, IAutoMovieSurfaceNetwork.INode]): [string, IAutoMovieSurfaceNetwork.INode] => {
-              const bone: AutoMovieHumanoidBone | undefined = bindings.nodes?.[name];
-              return [name, n.type === "point" && bone !== undefined ? { ...n, position: motion(bone).apply(n.position) } : n];
+            ([name, n]: [string, IAutoMovieSurfaceNetwork.INode]): [
+              string,
+              IAutoMovieSurfaceNetwork.INode,
+            ] => {
+              const bone: AutoMovieHumanoidBone | undefined =
+                bindings.nodes?.[name];
+              return [
+                name,
+                n.type === "point" && bone !== undefined
+                  ? { ...n, position: motion(bone).apply(n.position) }
+                  : n,
+              ];
             },
           ),
         );
@@ -96,30 +128,58 @@ export const poseAutoMovieSurfaceNetwork: (props: {
       ? undefined
       : Object.fromEntries(
           Object.entries(network.curves).map(
-            ([name, c]: [string, IAutoMovieSurfaceNetwork.ICurve]): [string, IAutoMovieSurfaceNetwork.ICurve] => {
-              const bone: AutoMovieHumanoidBone | undefined = bindings.curves?.[name];
+            ([name, c]: [string, IAutoMovieSurfaceNetwork.ICurve]): [
+              string,
+              IAutoMovieSurfaceNetwork.ICurve,
+            ] => {
+              const bone: AutoMovieHumanoidBone | undefined =
+                bindings.curves?.[name];
               if (bone === undefined) return [name, c];
               const m = motion(bone);
               return [
                 name,
                 {
                   ...c,
-                  ...(c.through === undefined ? {} : { through: c.through.map((p: IAutoMovieVector3) => m.apply(p)) }),
-                  ...(c.direction === undefined ? {} : { direction: Quaternion.rotateVector(m.rotation, c.direction) }),
-                  ...(c.normal === undefined ? {} : { normal: Quaternion.rotateVector(m.rotation, c.normal) }),
+                  ...(c.through === undefined
+                    ? {}
+                    : {
+                        through: c.through.map((p: IAutoMovieVector3) =>
+                          m.apply(p),
+                        ),
+                      }),
+                  ...(c.direction === undefined
+                    ? {}
+                    : {
+                        direction: Quaternion.rotateVector(
+                          m.rotation,
+                          c.direction,
+                        ),
+                      }),
+                  ...(c.normal === undefined
+                    ? {}
+                    : {
+                        normal: Quaternion.rotateVector(m.rotation, c.normal),
+                      }),
                 },
               ];
             },
           ),
         );
-  const rings: IAutoMovieSurfaceNetwork.IRing[] | undefined = network.rings?.map(
-    (ring: IAutoMovieSurfaceNetwork.IRing): IAutoMovieSurfaceNetwork.IRing => {
-      const bone: AutoMovieHumanoidBone | undefined = bindings.rings?.[ring.name];
-      if (bone === undefined || ring.positions === undefined) return ring;
-      const m = motion(bone);
-      return { ...ring, positions: ring.positions.map((p: IAutoMovieVector3) => m.apply(p)) };
-    },
-  );
+  const rings: IAutoMovieSurfaceNetwork.IRing[] | undefined =
+    network.rings?.map(
+      (
+        ring: IAutoMovieSurfaceNetwork.IRing,
+      ): IAutoMovieSurfaceNetwork.IRing => {
+        const bone: AutoMovieHumanoidBone | undefined =
+          bindings.rings?.[ring.name];
+        if (bone === undefined || ring.positions === undefined) return ring;
+        const m = motion(bone);
+        return {
+          ...ring,
+          positions: ring.positions.map((p: IAutoMovieVector3) => m.apply(p)),
+        };
+      },
+    );
   return {
     ...network,
     sweeps,

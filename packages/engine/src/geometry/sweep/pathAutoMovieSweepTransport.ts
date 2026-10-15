@@ -21,11 +21,17 @@ import { IAutoMovieSweepTransport } from "./IAutoMovieSweepTransport";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work An adapter; the transport is the reuse.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains the transport and twelve scratch numbers.
  */
-export const pathAutoMovieSweepTransport: (transport: IAutoMovieSweepTransport) => IAutoMovieSweepPath = (
+export const pathAutoMovieSweepTransport: (
+  transport: IAutoMovieSweepTransport,
+) => IAutoMovieSweepPath = (
   transport: IAutoMovieSweepTransport,
 ): IAutoMovieSweepPath => {
   const out: Float64Array = new Float64Array(12);
-  const vector = (at: number): IAutoMovieVector3 => ({ x: out[at]!, y: out[at + 1]!, z: out[at + 2]! });
+  const vector = (at: number): IAutoMovieVector3 => ({
+    x: out[at]!,
+    y: out[at + 1]!,
+    z: out[at + 2]!,
+  });
   return {
     length: transport.length(),
     point: (u: number): IAutoMovieVector3 => {
@@ -38,7 +44,12 @@ export const pathAutoMovieSweepTransport: (transport: IAutoMovieSweepTransport) 
     },
     frame: (u: number): IAutoMovieSweepFrame => {
       transport.frame(u, out, 0);
-      return { origin: vector(0), x: vector(3), y: vector(6), normal: vector(9) };
+      return {
+        origin: vector(0),
+        x: vector(3),
+        y: vector(6),
+        normal: vector(9),
+      };
     },
   };
 };

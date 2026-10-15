@@ -23,7 +23,8 @@ import { patchAutoMovieHumanLimb } from "./patchAutoMovieHumanLimb";
 export function loftAutoMovieHumanLimb(
   plan: IAutoMovieHumanLimbPlan,
 ): IAutoMovieHumanCage {
-  const network: networkAutoMovieHumanLimb.IOutput = networkAutoMovieHumanLimb(plan);
+  const network: networkAutoMovieHumanLimb.IOutput =
+    networkAutoMovieHumanLimb(plan);
   const sampled: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({
     network: network.value,
     tier: "medium",
@@ -40,9 +41,14 @@ export function loftAutoMovieHumanLimb(
     });
   const faces: IAutoMovieHumanCage.IFace[] = sampled.cage.faces.map(
     (face: number[], f: number): IAutoMovieHumanCage.IFace => {
-      const corners: IAutoMovieHumanSurfaceCoordinate[] = sampled.corners[f]!.map(
+      const corners: IAutoMovieHumanSurfaceCoordinate[] = sampled.corners[
+        f
+      ]!.map(
         (c: IAutoMovieSurfaceCoordinate): IAutoMovieHumanSurfaceCoordinate => {
-          const d: patchAutoMovieHumanLimb.IDomain = network.domains[c.patch]!(c.s, c.t);
+          const d: patchAutoMovieHumanLimb.IDomain = network.domains[c.patch]!(
+            c.s,
+            c.t,
+          );
           return { part: plan.part, side: plan.side, u: d.u, v: d.v };
         },
       );

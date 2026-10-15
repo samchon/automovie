@@ -52,10 +52,17 @@ export function profileAutoMovieHumanTrunk(
     keys.map((key: IKey): [number, number] => [key.y, pick(key)]);
   const buttock: IKey = keys[0]!;
   const hipLevel: number = lerp(L.buttock, frame.iliocristale.y, F.hip.level);
-  const fork = (y: number, form: IAutoMovieHumanTrunkForm.IFork, pick: "front" | "back"): [number, number] => [
+  const fork = (
+    y: number,
+    form: IAutoMovieHumanTrunkForm.IFork,
+    pick: "front" | "back",
+  ): [number, number] => [
     y,
     buttock.back +
-      (pick === "front" ? form.front + form.fat * (frame.fat - REFERENCE_FAT) : form.back) * buttock.depth,
+      (pick === "front"
+        ? form.front + form.fat * (frame.fat - REFERENCE_FAT)
+        : form.back) *
+        buttock.depth,
   ];
   const front: (y: number) => number = curveAutoMovieHumanTrunk([
     fork(L.gluteal, F.gluteal, "front"),
@@ -63,7 +70,9 @@ export function profileAutoMovieHumanTrunk(
     ...through((k: IKey): number => k.back + k.depth),
     [
       frame.suprasternale.y,
-      frame.suprasternale.z + (F.clavicle.front + F.clavicle.fat * (frame.fat - REFERENCE_FAT)) * C.depth,
+      frame.suprasternale.z +
+        (F.clavicle.front + F.clavicle.fat * (frame.fat - REFERENCE_FAT)) *
+          C.depth,
     ],
   ]);
   const back: (y: number) => number = curveAutoMovieHumanTrunk([
@@ -93,7 +102,10 @@ export function profileAutoMovieHumanTrunk(
     back,
     half,
     widest: (y: number): number =>
-      Math.min(front(y) - MINIMUM_HALF, Math.max(back(y) + MINIMUM_HALF, widest(y))),
+      Math.min(
+        front(y) - MINIMUM_HALF,
+        Math.max(back(y) + MINIMUM_HALF, widest(y)),
+      ),
     squareness: (y: number): { front: number; back: number } => ({
       front: frontSquareness(y),
       back: backSquareness(y),
@@ -208,7 +220,9 @@ const encircled = (
   form: IAutoMovieHumanTrunkForm.IEncircled,
 ): IKey => {
   const perimeter = (breadth: number): number =>
-    2 * (quarter((1 - form.widest) * depth, breadth / 2, form.front) + quarter(form.widest * depth, breadth / 2, form.back));
+    2 *
+    (quarter((1 - form.widest) * depth, breadth / 2, form.front) +
+      quarter(form.widest * depth, breadth / 2, form.back));
   let a: number = BREADTH.low * depth;
   let b: number = BREADTH.high * depth;
   for (let step: number = 0; step < BISECTIONS; ++step) {

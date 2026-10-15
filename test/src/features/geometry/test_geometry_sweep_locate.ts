@@ -1,4 +1,9 @@
-import { IAutoMovieSweep, IAutoMovieSweepSurface, compileAutoMovieSweep, locateAutoMovieSweepPoint } from "@automovie/engine";
+import {
+  IAutoMovieSweep,
+  IAutoMovieSweepSurface,
+  compileAutoMovieSweep,
+  locateAutoMovieSweepPoint,
+} from "@automovie/engine";
 import { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -9,10 +14,36 @@ const LEVEL = { x: -0.5, y: -0.5, z: -0.5, w: 0.5 } as const;
 
 /** A 0.1 m by 0.06 m ellipse swept up a straight vertical spine of 0.5 m. */
 const STRAIGHT: IAutoMovieSweep = {
-  spine: { points: [{ x: 0, y: 0, z: 0 }, { x: 0, y: 0.5, z: 0 }], normal: { x: 0, y: 0, z: 1 } },
+  spine: {
+    points: [
+      { x: 0, y: 0, z: 0 },
+      { x: 0, y: 0.5, z: 0 },
+    ],
+    normal: { x: 0, y: 0, z: 1 },
+  },
   stations: [
-    { at: 0, section: { type: "superellipse", right: 0.1, up: 0.06, left: 0.1, down: 0.06, exponents: [2, 2, 2, 2] } },
-    { at: 1, section: { type: "superellipse", right: 0.1, up: 0.06, left: 0.1, down: 0.06, exponents: [2, 2, 2, 2] } },
+    {
+      at: 0,
+      section: {
+        type: "superellipse",
+        right: 0.1,
+        up: 0.06,
+        left: 0.1,
+        down: 0.06,
+        exponents: [2, 2, 2, 2],
+      },
+    },
+    {
+      at: 1,
+      section: {
+        type: "superellipse",
+        right: 0.1,
+        up: 0.06,
+        left: 0.1,
+        down: 0.06,
+        exponents: [2, 2, 2, 2],
+      },
+    },
   ],
 };
 
@@ -32,13 +63,25 @@ const SNAKE: IAutoMovieSweep = {
     (at: number): IAutoMovieSweep.IStation => ({
       at,
       rotation: LEVEL,
-      section: { type: "superellipse", right: 0.09, up: 0.07, left: 0.08, down: 0.07, exponents: [2.5, 2.5, 2.5, 2.5] },
+      section: {
+        type: "superellipse",
+        right: 0.09,
+        up: 0.07,
+        left: 0.08,
+        down: 0.07,
+        exponents: [2.5, 2.5, 2.5, 2.5],
+      },
     }),
   ),
 };
 
 /** Whether locating `surface.point(u, v)` moved `along` metres outward returns `u`, `v` and that offset. */
-const recovers = (surface: IAutoMovieSweepSurface, u: number, v: number, along: number): boolean => {
+const recovers = (
+  surface: IAutoMovieSweepSurface,
+  u: number,
+  v: number,
+  along: number,
+): boolean => {
   const p: IAutoMovieVector3 = surface.point(u, v);
   const f = surface.frame(u);
   const angle: number = 2 * Math.PI * v;
@@ -49,7 +92,11 @@ const recovers = (surface: IAutoMovieSweepSurface, u: number, v: number, along: 
   };
   const found = locateAutoMovieSweepPoint({ surface, point: out });
   const dv: number = Math.abs(found.v - v);
-  return nclose(found.u, u, 1e-6) && Math.min(dv, 1 - dv) < 1e-6 && nclose(found.offset, along, 1e-6);
+  return (
+    nclose(found.u, u, 1e-6) &&
+    Math.min(dv, 1 - dv) < 1e-6 &&
+    nclose(found.offset, along, 1e-6)
+  );
 };
 
 /**
@@ -76,13 +123,35 @@ export function test_geometry_sweep_locate(): void {
     [0.71, 0.66],
     [0.9, 0.93],
   ];
-  const above = locateAutoMovieSweepPoint({ surface: straight, point: { x: 0.02, y: 0.6, z: 0.03 } });
-  const end = locateAutoMovieSweepPoint({ surface: straight, point: { x: 0.02, y: 0.5, z: 0.03 } });
+  const above = locateAutoMovieSweepPoint({
+    surface: straight,
+    point: { x: 0.02, y: 0.6, z: 0.03 },
+  });
+  const end = locateAutoMovieSweepPoint({
+    surface: straight,
+    point: { x: 0.02, y: 0.5, z: 0.03 },
+  });
   TestValidator.equals(
     "a sweep point is located on the plane and turn it was made from",
     namedFacts([
-      ["straight", (): boolean => grid.every(([u, v]) => [0, 0.01, -0.01].every((d: number): boolean => recovers(straight, u, v, d)))],
-      ["snake", (): boolean => grid.every(([u, v]) => [0, 0.01, -0.01].every((d: number): boolean => recovers(snake, u, v, d)))],
+      [
+        "straight",
+        (): boolean =>
+          grid.every(([u, v]) =>
+            [0, 0.01, -0.01].every((d: number): boolean =>
+              recovers(straight, u, v, d),
+            ),
+          ),
+      ],
+      [
+        "snake",
+        (): boolean =>
+          grid.every(([u, v]) =>
+            [0, 0.01, -0.01].every((d: number): boolean =>
+              recovers(snake, u, v, d),
+            ),
+          ),
+      ],
       ["beyond", (): boolean => nclose(above.u, 1, 0)],
       ["end", (): boolean => nclose(end.u, 1, 1e-9)],
     ]),
@@ -91,7 +160,11 @@ export function test_geometry_sweep_locate(): void {
   TestValidator.predicate(
     "a non-finite point is refused",
     throwsError(
-      (): unknown => locateAutoMovieSweepPoint({ surface: straight, point: { x: Number.NaN, y: 0, z: 0 } }),
+      (): unknown =>
+        locateAutoMovieSweepPoint({
+          surface: straight,
+          point: { x: Number.NaN, y: 0, z: 0 },
+        }),
       "sweep point to locate is not finite",
     ),
   );

@@ -63,7 +63,10 @@ export interface IAutoMovieSurfaceRegistry {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `registerAutoMovieSurfaceVertices`.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `registerAutoMovieSurfaceVertices`.
    */
-  vertex(key: string, make: () => (out: Float64Array, at: number) => void): number;
+  vertex(
+    key: string,
+    make: () => (out: Float64Array, at: number) => void,
+  ): number;
 
   /**
    * Register a sampled point: a sweep point narrows its cell by the spacing this sampling reports, any other point is registered as `vertex` does.

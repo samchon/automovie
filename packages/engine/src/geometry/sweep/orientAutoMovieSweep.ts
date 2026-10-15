@@ -90,9 +90,14 @@ export const orientAutoMovieSweep: (props: {
     const a: number = 4 * k;
     const b: number = 4 * (k + 1);
     const dot: number =
-      offsets[a]! * offsets[b]! + offsets[a + 1]! * offsets[b + 1]! + offsets[a + 2]! * offsets[b + 2]! + offsets[a + 3]! * offsets[b + 3]!;
+      offsets[a]! * offsets[b]! +
+      offsets[a + 1]! * offsets[b + 1]! +
+      offsets[a + 2]! * offsets[b + 2]! +
+      offsets[a + 3]! * offsets[b + 3]!;
     const sign: number = dot < 0 ? -1 : 1;
-    for (let c: number = 0; c < 4; ++c) scratch[16 + c] = offsets[a + c]! + (sign * offsets[b + c]! - offsets[a + c]!) * t;
+    for (let c: number = 0; c < 4; ++c)
+      scratch[16 + c] =
+        offsets[a + c]! + (sign * offsets[b + c]! - offsets[a + c]!) * t;
     AutoMovieSweepRotation.normalize(scratch, 16);
   };
   const frame = (input: number, out: Float64Array, at: number): void => {
@@ -107,7 +112,14 @@ export const orientAutoMovieSweep: (props: {
       scratch[24] = axis === 0 ? 1 : 0;
       scratch[25] = axis === 1 ? 1 : 0;
       scratch[26] = axis === 2 ? 1 : 0;
-      AutoMovieSweepRotation.rotate(scratch, 20, scratch, 24, out, at + 3 + 3 * axis);
+      AutoMovieSweepRotation.rotate(
+        scratch,
+        20,
+        scratch,
+        24,
+        out,
+        at + 3 + 3 * axis,
+      );
     }
   };
   return { rotations, given, update, frame };

@@ -7,9 +7,6 @@ import {
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 import { IValidation } from "typia";
-import { IAutoMovieHumanConstructionNet } from "../structures/IAutoMovieHumanConstructionNet";
-import { generateAutoMovieHumanCages } from "./generateAutoMovieHumanCages";
-import { inspectAutoMovieHumanConstruction } from "./inspectAutoMovieHumanConstruction";
 
 import { dressAutoMovieHumanNails } from "../appearance/dressAutoMovieHumanNails";
 import { dressAutoMovieHumanSkin } from "../appearance/dressAutoMovieHumanSkin";
@@ -32,6 +29,7 @@ import { emitAutoMovieHumanStick } from "../skeleton/emitAutoMovieHumanStick";
 import { generateAutoMovieHumanSkeleton } from "../skeleton/generateAutoMovieHumanSkeleton";
 import { measureAutoMovieHumanSkeleton } from "../skeleton/measureAutoMovieHumanSkeleton";
 import { IAutoMovieHumanAppearance } from "../structures/IAutoMovieHumanAppearance";
+import { IAutoMovieHumanConstructionNet } from "../structures/IAutoMovieHumanConstructionNet";
 import { IAutoMovieHumanExpression } from "../structures/IAutoMovieHumanExpression";
 import { IAutoMovieHumanIdentity } from "../structures/IAutoMovieHumanIdentity";
 import { IAutoMovieHumanPose } from "../structures/IAutoMovieHumanPose";
@@ -42,6 +40,8 @@ import { IAutoMovieHumanPartGenerators } from "./IAutoMovieHumanPartGenerators";
 import { emitAutoMovieHumanAttachments } from "./emitAutoMovieHumanAttachments";
 import { emitAutoMovieHumanSkin } from "./emitAutoMovieHumanSkin";
 import { emitAutoMovieHumanSkinParts } from "./emitAutoMovieHumanSkinParts";
+import { generateAutoMovieHumanCages } from "./generateAutoMovieHumanCages";
+import { inspectAutoMovieHumanConstruction } from "./inspectAutoMovieHumanConstruction";
 
 /**
  * One person, generated from a detailed identity by code: the skeleton, the model films use, posing and expression.

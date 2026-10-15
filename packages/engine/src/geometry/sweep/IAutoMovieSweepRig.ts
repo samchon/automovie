@@ -90,7 +90,11 @@ export interface IAutoMovieSweepRig {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `rigAutoMovieSweep`.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `rigAutoMovieSweep`.
    */
-  sample(u: number, v: number, cell: readonly [number, number, number, number]): (out: Float64Array, at: number) => void;
+  sample(
+    u: number,
+    v: number,
+    cell: readonly [number, number, number, number],
+  ): (out: Float64Array, at: number) => void;
 
   /**
    * Size the arrays and fill them at rest.

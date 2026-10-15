@@ -39,20 +39,32 @@ export function networkAutoMovieHumanFoot(props: {
     ring: { origin: ring.origin, girth: ring.girth, aspect: ring.aspect },
   });
   const solid = (p: IAutoMovieVector3): number => base.field(p);
-  const ray = (from: IAutoMovieVector3, direction: IAutoMovieVector3): number => base.ray(from, direction);
+  const ray = (from: IAutoMovieVector3, direction: IAutoMovieVector3): number =>
+    base.ray(from, direction);
 
   // the toes' roots: the plane through the hallux's and fifth toe's roots, upright
   const toes: IAutoMovieHumanFootPlan.IToe[] = plan.toes;
-  const rootOf = (toe: IAutoMovieHumanFootPlan.IToe, along: number): IAutoMovieVector3 =>
+  const rootOf = (
+    toe: IAutoMovieHumanFootPlan.IToe,
+    along: number,
+  ): IAutoMovieVector3 =>
     V.offset(toe.joint, [toe.direction, along * toe.length]);
   const hallux: IAutoMovieVector3 = rootOf(toes[0]!, ROOTS);
   const fifth: IAutoMovieVector3 = rootOf(toes[4]!, ROOTS);
-  const line: IAutoMovieVector3 = V.normalize(V.of(fifth.x - hallux.x, 0, fifth.z - hallux.z));
+  const line: IAutoMovieVector3 = V.normalize(
+    V.of(fifth.x - hallux.x, 0, fifth.z - hallux.z),
+  );
   const endNormal: IAutoMovieVector3 = V.of(-line.z, 0, line.x);
-  const endMiddle: IAutoMovieVector3 = V.of((hallux.x + fifth.x) / 2, 0, (hallux.z + fifth.z) / 2);
+  const endMiddle: IAutoMovieVector3 = V.of(
+    (hallux.x + fifth.x) / 2,
+    0,
+    (hallux.z + fifth.z) / 2,
+  );
   const endCentre: IAutoMovieVector3 = V.of(
     endMiddle.x,
-    (base.top(endMiddle.x, endMiddle.z) + base.bottom(endMiddle.x, endMiddle.z)) / 2,
+    (base.top(endMiddle.x, endMiddle.z) +
+      base.bottom(endMiddle.x, endMiddle.z)) /
+      2,
     endMiddle.z,
   );
   const middleOf = (f: number): IAutoMovieVector3 => {
@@ -77,8 +89,11 @@ export function networkAutoMovieHumanFoot(props: {
     forefoot,
     endCentre,
   ];
-  const path: IAutoMovieSweepPath = frameAutoMovieSweepSpine({ points: spinePoints, normal: V.of(0, 0, 1) });
-  const collar: number = COLLAR * L / path.length;
+  const path: IAutoMovieSweepPath = frameAutoMovieSweepSpine({
+    points: spinePoints,
+    normal: V.of(0, 0, 1),
+  });
+  const collar: number = (COLLAR * L) / path.length;
   const ringFrame: IAutoMovieSweepFrame = {
     origin,
     x: V.of(0, 0, 1),
@@ -86,11 +101,17 @@ export function networkAutoMovieHumanFoot(props: {
     normal: V.of(0, -1, 0),
   };
   // the sections: the ring's at the ring and its collar, then cuts of the solid at even spine parameters, the last two turned to the roots' plane
-  const sectionOf = (frame: IAutoMovieSweepFrame): IAutoMovieSweepSection.IRadial => ({
+  const sectionOf = (
+    frame: IAutoMovieSweepFrame,
+  ): IAutoMovieSweepSection.IRadial => ({
     type: "radial",
     radii: Array.from({ length: RAYS }, (_: unknown, k: number): number => {
       const a: number = (2 * Math.PI * k) / RAYS;
-      const d: IAutoMovieVector3 = V.offset(V.of(0, 0, 0), [frame.x, Math.cos(a)], [frame.y, Math.sin(a)]);
+      const d: IAutoMovieVector3 = V.offset(
+        V.of(0, 0, 0),
+        [frame.x, Math.cos(a)],
+        [frame.y, Math.sin(a)],
+      );
       return ray(frame.origin, d) / 1000;
     }),
   });
@@ -102,15 +123,36 @@ export function networkAutoMovieHumanFoot(props: {
     down: ring.radii.lateral / 1000,
     exponents: [2, 2, 2, 2],
   };
-  const ringRotation: IAutoMovieQuaternion = quaternionFromAutoMovieBasis(ringFrame.x, ringFrame.y, ringFrame.normal);
-  const endFrame = (u: number, turn: number): { frame: IAutoMovieSweepFrame; rotation: IAutoMovieQuaternion } => {
+  const ringRotation: IAutoMovieQuaternion = quaternionFromAutoMovieBasis(
+    ringFrame.x,
+    ringFrame.y,
+    ringFrame.normal,
+  );
+  const endFrame = (
+    u: number,
+    turn: number,
+  ): { frame: IAutoMovieSweepFrame; rotation: IAutoMovieQuaternion } => {
     const carried: IAutoMovieSweepFrame = path.frame(u);
-    const n: IAutoMovieVector3 = V.normalize(V.offset(carried.normal, [V.offset(endNormal, [carried.normal, -1]), turn]));
-    const up: IAutoMovieVector3 = V.normalize(V.offset(carried.x, [n, -V.dot(carried.x, n)]));
+    const n: IAutoMovieVector3 = V.normalize(
+      V.offset(carried.normal, [
+        V.offset(endNormal, [carried.normal, -1]),
+        turn,
+      ]),
+    );
+    const up: IAutoMovieVector3 = V.normalize(
+      V.offset(carried.x, [n, -V.dot(carried.x, n)]),
+    );
     const side: IAutoMovieVector3 = V.cross(n, up);
-    return { frame: { origin: carried.origin, x: up, y: side, normal: n }, rotation: quaternionFromAutoMovieBasis(up, side, n) };
+    return {
+      frame: { origin: carried.origin, x: up, y: side, normal: n },
+      rotation: quaternionFromAutoMovieBasis(up, side, n),
+    };
   };
-  const ats: number[] = Array.from({ length: CUTS }, (_: unknown, k: number): number => (k === CUTS - 1 ? 1 : FIRST_CUT + ((1 - FIRST_CUT) * k) / (CUTS - 1)));
+  const ats: number[] = Array.from(
+    { length: CUTS },
+    (_: unknown, k: number): number =>
+      k === CUTS - 1 ? 1 : FIRST_CUT + ((1 - FIRST_CUT) * k) / (CUTS - 1),
+  );
   const stations: IAutoMovieSweep.IStation[] = [
     { at: 0, section: ringSection, rotation: ringRotation },
     { at: collar, section: ringSection, rotation: ringRotation },
@@ -141,7 +183,8 @@ export function networkAutoMovieHumanFoot(props: {
     const p: IAutoMovieVector3 = V.offset(endMiddle, [line, s]);
     return V.of(p.x, base.bottom(p.x, p.z), p.z);
   };
-  const offsetOf = (p: IAutoMovieVector3): number => V.dot(V.offset(p, [endMiddle, -1]), line);
+  const offsetOf = (p: IAutoMovieVector3): number =>
+    V.dot(V.offset(p, [endMiddle, -1]), line);
   const webs: number[] = [0, 1, 2, 3].map((w: number): number => {
     const a: IAutoMovieVector3 = rootOf(toes[w]!, ROOTS);
     const b: IAutoMovieVector3 = rootOf(toes[w + 1]!, ROOTS);
@@ -180,24 +223,44 @@ export function networkAutoMovieHumanFoot(props: {
     turnOf[2 * k + 1] = ((v % 1) + 1) % 1;
   });
   turnOf[0] = (turnOf[23]! - 1 + turnOf[1]!) / 2;
-  for (let j: number = 2; j < 24; j += 2) turnOf[j] = (turnOf[j - 1]! + turnOf[j + 1]!) / 2;
+  for (let j: number = 2; j < 24; j += 2)
+    turnOf[j] = (turnOf[j - 1]! + turnOf[j + 1]!) / 2;
   for (let j: number = 1; j < 24; ++j)
     if (!(turnOf[j]! > turnOf[j - 1]!) || !(turnOf[23]! < turnOf[0]! + 1))
-      throw new Error(`foot root columns out of order at ${j}: ${turnOf.map((c: number): string => c.toFixed(3)).join(" ")}`);
-  const at24 = (i: number): number => turnOf[((i % 24) + 24) % 24]! + Math.floor(i / 24);
+      throw new Error(
+        `foot root columns out of order at ${j}: ${turnOf.map((c: number): string => c.toFixed(3)).join(" ")}`,
+      );
+  const at24 = (i: number): number =>
+    turnOf[((i % 24) + 24) % 24]! + Math.floor(i / 24);
 
   const patches: IAutoMovieSurfaceNetwork.IPatch[] = [];
   const addresses: networkAutoMovieHumanFoot.IAddress[] = [];
-  const main = (u: number, v: number): networkAutoMovieHumanFoot.IPoint => ({ u: BODY * u, v: wrap(v) });
-  patches.push({ type: "sweep", name: "foot.ring", sweep: "foot", u: [0, collar], v: [0, 1], rows: fixed(1), columns: fixed(8) });
+  const main = (u: number, v: number): networkAutoMovieHumanFoot.IPoint => ({
+    u: BODY * u,
+    v: wrap(v),
+  });
+  patches.push({
+    type: "sweep",
+    name: "foot.ring",
+    sweep: "foot",
+    u: [0, collar],
+    v: [0, 1],
+    rows: fixed(1),
+    columns: fixed(8),
+  });
   addresses.push((s: number, t: number) => main(collar * t, s));
   const uFan: number = ats[0]!;
   // one quad of the sweep's domain as a one-face Coons patch
-  const quad = (name: string, q: IAutoMovieSurfaceNetwork.IDomainPoint[]): void => {
+  const quad = (
+    name: string,
+    q: IAutoMovieSurfaceNetwork.IDomainPoint[],
+  ): void => {
     patches.push({
       type: "coons",
       name,
-      sides: [0, 1, 2, 3].map((i: number) => edgeOf("foot", q[i]!, q[(i + 1) % 4]!, 1)) as [
+      sides: [0, 1, 2, 3].map((i: number) =>
+        edgeOf("foot", q[i]!, q[(i + 1) % 4]!, 1),
+      ) as [
         IAutoMovieSurfaceNetwork.IEdge,
         IAutoMovieSurfaceNetwork.IEdge,
         IAutoMovieSurfaceNetwork.IEdge,
@@ -217,7 +280,8 @@ export function networkAutoMovieHumanFoot(props: {
     [uFan, BAND, ROWS.heel],
     [BAND, 1, ROWS.fore],
   ];
-  for (const [u0, u1, n] of BANDS) for (let r: number = 0; r < n; ++r) rowsU.push(u0 + ((u1 - u0) * r) / n);
+  for (const [u0, u1, n] of BANDS)
+    for (let r: number = 0; r < n; ++r) rowsU.push(u0 + ((u1 - u0) * r) / n);
   rowsU.push(1);
   const vAt = (u: number, i: number): number => {
     const k: number = Math.min(1, Math.max(0, (u - SHEAR) / (1 - SHEAR)));
@@ -237,8 +301,14 @@ export function networkAutoMovieHumanFoot(props: {
   // the collar's eight spans each turn into three twenty-four spans round one fan
   for (let j: number = 0; j < 8; ++j) {
     const a: IAutoMovieSurfaceNetwork.IDomainPoint = { u: collar, v: j / 8 };
-    const b: IAutoMovieSurfaceNetwork.IDomainPoint = { u: collar, v: (j + 1) / 8 };
-    const top = (i: number): IAutoMovieSurfaceNetwork.IDomainPoint => ({ u: uFan, v: vAt(uFan, 3 * j + i) });
+    const b: IAutoMovieSurfaceNetwork.IDomainPoint = {
+      u: collar,
+      v: (j + 1) / 8,
+    };
+    const top = (i: number): IAutoMovieSurfaceNetwork.IDomainPoint => ({
+      u: uFan,
+      v: vAt(uFan, 3 * j + i),
+    });
     quad(`foot.fan.${j}.0`, [a, b, top(3), top(2)]);
     quad(`foot.fan.${j}.1`, [a, top(2), top(1), top(0)]);
   }
@@ -254,13 +324,23 @@ export function networkAutoMovieHumanFoot(props: {
     [21, 15],
   ];
   webNodes.forEach(([d, p]: [number, number], w: number): void => {
-    nodes[`web${w}.dorsal`] = { type: "sweep", sweep: "foot", u: 1, v: wrap(at24(d)) };
-    nodes[`web${w}.plantar`] = { type: "sweep", sweep: "foot", u: 1, v: wrap(at24(p)) };
+    nodes[`web${w}.dorsal`] = {
+      type: "sweep",
+      sweep: "foot",
+      u: 1,
+      v: wrap(at24(d)),
+    };
+    nodes[`web${w}.plantar`] = {
+      type: "sweep",
+      sweep: "foot",
+      u: 1,
+      v: wrap(at24(p)),
+    };
     const a: IAutoMovieHumanFootPlan.IToe = toes[w]!;
     const b: IAutoMovieHumanFootPlan.IToe = toes[w + 1]!;
     const crotch: IAutoMovieVector3 = V.of(
       (rootOf(a, CROTCH).x + rootOf(b, CROTCH).x) / 2,
-      CROTCH_HEIGHT * (a.height + b.height) / 2,
+      (CROTCH_HEIGHT * (a.height + b.height)) / 2,
       (rootOf(a, CROTCH).z + rootOf(b, CROTCH).z) / 2,
     );
     curves[`web${w}`] = {
@@ -268,18 +348,65 @@ export function networkAutoMovieHumanFoot(props: {
       to: `web${w}.plantar`,
       through: [metres(crotch)],
       segments: fixed(2),
-      normal: V.normalize(V.of((a.direction.x + b.direction.x) / 2, 0, (a.direction.z + b.direction.z) / 2)),
+      normal: V.normalize(
+        V.of(
+          (a.direction.x + b.direction.x) / 2,
+          0,
+          (a.direction.z + b.direction.z) / 2,
+        ),
+      ),
     };
   });
-  const endEdge = (from: number, to: number, segments: number): IAutoMovieSurfaceNetwork.IEdge =>
+  const endEdge = (
+    from: number,
+    to: number,
+    segments: number,
+  ): IAutoMovieSurfaceNetwork.IEdge =>
     edgeOf("foot", { u: 1, v: at24(from) }, { u: 1, v: at24(to) }, segments);
-  const web = (w: number, reverse: boolean): IAutoMovieSurfaceNetwork.IEdge => ({ type: "curve", curve: `web${w}`, reverse });
+  const web = (
+    w: number,
+    reverse: boolean,
+  ): IAutoMovieSurfaceNetwork.IEdge => ({
+    type: "curve",
+    curve: `web${w}`,
+    reverse,
+  });
   const loops: IAutoMovieSurfaceNetwork.IEdge[][] = [
-    [endEdge(4, 5, 1), endEdge(5, 7, 2), endEdge(7, 9, 2), web(0, true), endEdge(3, 4, 1)],
-    [endEdge(2, 3, 1), web(0, false), endEdge(9, 11, 2), web(1, true), endEdge(1, 2, 1)],
-    [endEdge(0, 1, 1), web(1, false), endEdge(11, 13, 2), web(2, true), endEdge(23, 24, 1)],
-    [endEdge(22, 23, 1), web(2, false), endEdge(13, 15, 2), web(3, true), endEdge(21, 22, 1)],
-    [endEdge(20, 21, 1), web(3, false), endEdge(15, 17, 2), endEdge(17, 19, 2), endEdge(19, 20, 1)],
+    [
+      endEdge(4, 5, 1),
+      endEdge(5, 7, 2),
+      endEdge(7, 9, 2),
+      web(0, true),
+      endEdge(3, 4, 1),
+    ],
+    [
+      endEdge(2, 3, 1),
+      web(0, false),
+      endEdge(9, 11, 2),
+      web(1, true),
+      endEdge(1, 2, 1),
+    ],
+    [
+      endEdge(0, 1, 1),
+      web(1, false),
+      endEdge(11, 13, 2),
+      web(2, true),
+      endEdge(23, 24, 1),
+    ],
+    [
+      endEdge(22, 23, 1),
+      web(2, false),
+      endEdge(13, 15, 2),
+      web(3, true),
+      endEdge(21, 22, 1),
+    ],
+    [
+      endEdge(20, 21, 1),
+      web(3, false),
+      endEdge(15, 17, 2),
+      endEdge(17, 19, 2),
+      endEdge(19, 20, 1),
+    ],
   ];
   const axes: networkAutoMovieHumanFoot.IAxis[] = [];
   toes.forEach((toe: IAutoMovieHumanFootPlan.IToe, t: number): void => {
@@ -292,15 +419,29 @@ export function networkAutoMovieHumanFoot(props: {
       type: "bridge",
       name: `${name}.bridge`,
       from: { edges: loops[t]!, tangent: "across" },
-      to: { edges: [edgeOf(name, { u: 0, v: 0 }, { u: 0, v: 1 }, 8)], tangent: "forward" },
+      to: {
+        edges: [edgeOf(name, { u: 0, v: 0 }, { u: 0, v: 1 }, 8)],
+        tangent: "forward",
+      },
       rows: fixed(2),
       tension: TENSION,
     });
-    addresses.push((s: number, t2: number) => ({ u: BODY + (1 - BODY) * 0.1 * t2, v: wrap(toeV + SPREAD * (s - 0.5)) }));
+    addresses.push((s: number, t2: number) => ({
+      u: BODY + (1 - BODY) * 0.1 * t2,
+      v: wrap(toeV + SPREAD * (s - 0.5)),
+    }));
     const marks: number[] = [0, out.at[2]!, out.tip[1], 1];
     for (let i: number = 0; i < TOE_ROWS.length; ++i) {
       const u: [number, number] = [marks[i]!, marks[i + 1]!];
-      patches.push({ type: "sweep", name: `${name}.${i}`, sweep: name, u, v: [0, 1], rows: fixed(TOE_ROWS[i]!), columns: fixed(8) });
+      patches.push({
+        type: "sweep",
+        name: `${name}.${i}`,
+        sweep: name,
+        u,
+        v: [0, 1],
+        rows: fixed(TOE_ROWS[i]!),
+        columns: fixed(8),
+      });
       addresses.push((s: number, t2: number) => ({
         u: BODY + (1 - BODY) * (0.1 + 0.9 * (u[0] + (u[1] - u[0]) * t2)),
         v: wrap(toeV + SPREAD * (s - 0.5)),
@@ -309,7 +450,9 @@ export function networkAutoMovieHumanFoot(props: {
     patches.push({
       type: "coons",
       name: `${name}.cap`,
-      sides: [0, 1, 2, 3].map((q: number) => edgeOf(name, { u: 1, v: q / 4 }, { u: 1, v: (q + 1) / 4 }, 2)) as [
+      sides: [0, 1, 2, 3].map((q: number) =>
+        edgeOf(name, { u: 1, v: q / 4 }, { u: 1, v: (q + 1) / 4 }, 2),
+      ) as [
         IAutoMovieSurfaceNetwork.IEdge,
         IAutoMovieSurfaceNetwork.IEdge,
         IAutoMovieSurfaceNetwork.IEdge,
@@ -320,7 +463,9 @@ export function networkAutoMovieHumanFoot(props: {
   });
 
   // the ankle ring and its collar
-  const ringEdges = (u: number): IAutoMovieSurfaceNetwork.IEdge[] => [edgeOf("foot", { u, v: 0 }, { u, v: ring.sense }, 8)];
+  const ringEdges = (u: number): IAutoMovieSurfaceNetwork.IEdge[] => [
+    edgeOf("foot", { u, v: 0 }, { u, v: ring.sense }, 8),
+  ];
   return {
     network: {
       sweeps,
@@ -328,11 +473,17 @@ export function networkAutoMovieHumanFoot(props: {
       curves,
       patches,
       rings: [
-        { name: "ankle", edges: ringEdges(0), positions: ring.positions.map(metres) },
+        {
+          name: "ankle",
+          edges: ringEdges(0),
+          positions: ring.positions.map(metres),
+        },
         {
           name: "ankle.collar",
           edges: ringEdges(collar),
-          positions: ring.positions.map((p: IAutoMovieVector3) => metres(V.offset(p, [V.of(0, -1, 0), collar * path.length]))),
+          positions: ring.positions.map((p: IAutoMovieVector3) =>
+            metres(V.offset(p, [V.of(0, -1, 0), collar * path.length])),
+          ),
         },
       ],
     },
@@ -355,10 +506,20 @@ export namespace networkAutoMovieHumanFoot {
     girth: number;
 
     /** Control radii toward the front, the medial side, the back and the lateral side. */
-    radii: { anterior: number; medial: number; posterior: number; lateral: number };
+    radii: {
+      anterior: number;
+      medial: number;
+      posterior: number;
+      lateral: number;
+    };
 
     /** Each side's limit radius over the mean radius `girth / 2π`. */
-    aspect: { anterior: number; medial: number; posterior: number; lateral: number };
+    aspect: {
+      anterior: number;
+      medial: number;
+      posterior: number;
+      lateral: number;
+    };
 
     /** Control points in the shared shape's order. */
     positions: IAutoMovieVector3[];
@@ -459,23 +620,39 @@ const SPREAD: number = 0.04;
 /** Share of the half breadth where the borders' corners lie. */
 const CORNER: number = 0.85;
 
-
-const fixed = (n: number): IAutoMovieSurfaceNetwork.ICounts => ({ lowest: n, low: n, medium: n, high: n });
+const fixed = (n: number): IAutoMovieSurfaceNetwork.ICounts => ({
+  lowest: n,
+  low: n,
+  medium: n,
+  high: n,
+});
 
 const wrap = (v: number): number => ((v % 1) + 1) % 1;
 
-const metres = (p: IAutoMovieVector3): IAutoMovieVector3 => ({ x: p.x / 1000, y: p.y / 1000, z: p.z / 1000 });
+const metres = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
+  x: p.x / 1000,
+  y: p.y / 1000,
+  z: p.z / 1000,
+});
 
 const edgeOf = (
   sweep: string,
   from: IAutoMovieSurfaceNetwork.IDomainPoint,
   to: IAutoMovieSurfaceNetwork.IDomainPoint,
   segments: number,
-): IAutoMovieSurfaceNetwork.ISweepEdge => ({ type: "sweep", sweep, from, to, segments: fixed(segments) });
+): IAutoMovieSurfaceNetwork.ISweepEdge => ({
+  type: "sweep",
+  sweep,
+  from,
+  to,
+  segments: fixed(segments),
+});
 
 const lerpDomain = (
   a: IAutoMovieSurfaceNetwork.IDomainPoint,
   b: IAutoMovieSurfaceNetwork.IDomainPoint,
   t: number,
-): IAutoMovieSurfaceNetwork.IDomainPoint => ({ u: a.u + (b.u - a.u) * t, v: a.v + (b.v - a.v) * t });
-
+): IAutoMovieSurfaceNetwork.IDomainPoint => ({
+  u: a.u + (b.u - a.u) * t,
+  v: a.v + (b.v - a.v) * t,
+});

@@ -16,7 +16,8 @@ const depth = (u: number): number => 0.06 + 0.02 * u * u;
 
 /** The family's radius at `u` in direction `angle`, the polar form of the ellipse. */
 const radius = (u: number, angle: number): number =>
-  (breadth(u) * depth(u)) / Math.hypot(depth(u) * Math.cos(angle), breadth(u) * Math.sin(angle));
+  (breadth(u) * depth(u)) /
+  Math.hypot(depth(u) * Math.cos(angle), breadth(u) * Math.sin(angle));
 
 const ellipse = (u: number): IAutoMovieSweepSection => ({
   type: "superellipse",
@@ -27,19 +28,42 @@ const ellipse = (u: number): IAutoMovieSweepSection => ({
   exponents: [2, 2, 2, 2],
 });
 
-const SPINE: IAutoMovieSweep["spine"] = { points: [{ x: 0, y: 0, z: 0 }, { x: 0, y: 1, z: 0 }], normal: { x: 0, y: 0, z: 1 } };
+const SPINE: IAutoMovieSweep["spine"] = {
+  points: [
+    { x: 0, y: 0, z: 0 },
+    { x: 0, y: 1, z: 0 },
+  ],
+  normal: { x: 0, y: 0, z: 1 },
+};
 
 /** Knots of each guide's profile. */
-const KNOTS: number[] = Array.from({ length: 21 }, (_: unknown, k: number): number => k / 20);
+const KNOTS: number[] = Array.from(
+  { length: 21 },
+  (_: unknown, k: number): number => k / 20,
+);
 
 /** Sixteen guides at even directions, each the family's radius there at every knot. */
-const GUIDES: IAutoMovieSweep.IGuide[] = Array.from({ length: 16 }, (_: unknown, g: number): IAutoMovieSweep.IGuide => {
-  const angle: number = (Math.PI * g) / 8;
-  return { angle, radii: KNOTS.map((at: number): IAutoMovieSweep.IKnot => ({ at, value: radius(at, angle) })) };
-});
+const GUIDES: IAutoMovieSweep.IGuide[] = Array.from(
+  { length: 16 },
+  (_: unknown, g: number): IAutoMovieSweep.IGuide => {
+    const angle: number = (Math.PI * g) / 8;
+    return {
+      angle,
+      radii: KNOTS.map(
+        (at: number): IAutoMovieSweep.IKnot => ({
+          at,
+          value: radius(at, angle),
+        }),
+      ),
+    };
+  },
+);
 
 /** Largest relative radius difference between two surfaces over a grid. */
-const difference = (a: IAutoMovieSweepSurface, b: IAutoMovieSweepSurface): number => {
+const difference = (
+  a: IAutoMovieSweepSurface,
+  b: IAutoMovieSweepSurface,
+): number => {
   let worst: number = 0;
   for (let i: number = 0; i <= 100; ++i)
     for (let j: number = 0; j < 64; ++j) {
@@ -76,11 +100,26 @@ const difference = (a: IAutoMovieSweepSurface, b: IAutoMovieSweepSurface): numbe
 export function test_geometry_sweep_gordon(): void {
   const dense: IAutoMovieSweepSurface = compileAutoMovieSweep({
     spine: SPINE,
-    stations: Array.from({ length: 41 }, (_: unknown, k: number): IAutoMovieSweep.IStation => ({ at: k / 40, section: ellipse(k / 40) })),
+    stations: Array.from(
+      { length: 41 },
+      (_: unknown, k: number): IAutoMovieSweep.IStation => ({
+        at: k / 40,
+        section: ellipse(k / 40),
+      }),
+    ),
   });
-  const ends: IAutoMovieSweep.IStation[] = [0, 1].map((at: number): IAutoMovieSweep.IStation => ({ at, section: ellipse(at) }));
-  const guided: IAutoMovieSweepSurface = compileAutoMovieSweep({ spine: SPINE, stations: ends, guides: GUIDES });
-  const bare: IAutoMovieSweepSurface = compileAutoMovieSweep({ spine: SPINE, stations: ends });
+  const ends: IAutoMovieSweep.IStation[] = [0, 1].map(
+    (at: number): IAutoMovieSweep.IStation => ({ at, section: ellipse(at) }),
+  );
+  const guided: IAutoMovieSweepSurface = compileAutoMovieSweep({
+    spine: SPINE,
+    stations: ends,
+    guides: GUIDES,
+  });
+  const bare: IAutoMovieSweepSurface = compileAutoMovieSweep({
+    spine: SPINE,
+    stations: ends,
+  });
   TestValidator.equals(
     "two stations and sixteen guides reproduce the dense family, the stations alone do not",
     namedFacts([
@@ -90,7 +129,10 @@ export function test_geometry_sweep_gordon(): void {
     { guided: true, bare: true },
   );
 
-  const us: number[] = Array.from({ length: 101 }, (_: unknown, i: number): number => i / 100);
+  const us: number[] = Array.from(
+    { length: 101 },
+    (_: unknown, i: number): number => i / 100,
+  );
   TestValidator.equals(
     "the guided surface passes through every guide and through the compatible stations",
     namedFacts([
@@ -100,17 +142,29 @@ export function test_geometry_sweep_gordon(): void {
           GUIDES.every((g: IAutoMovieSweep.IGuide): boolean => {
             const profile: (u: number) => number = interpolateAutoMovieSpline({
               knots: g.radii.map((k: IAutoMovieSweep.IKnot): number => k.at),
-              values: g.radii.map((k: IAutoMovieSweep.IKnot): number => k.value),
+              values: g.radii.map(
+                (k: IAutoMovieSweep.IKnot): number => k.value,
+              ),
             });
-            return us.every((u: number): boolean => Math.abs(guided.radius(u, g.angle / (2 * Math.PI)) - profile(u)) <= 1e-12);
+            return us.every(
+              (u: number): boolean =>
+                Math.abs(
+                  guided.radius(u, g.angle / (2 * Math.PI)) - profile(u),
+                ) <= 1e-12,
+            );
           }),
       ],
       [
         "stations",
         (): boolean =>
           [0, 1].every((u: number): boolean =>
-            Array.from({ length: 90 }, (_: unknown, j: number): number => j / 90).every(
-              (v: number): boolean => Math.abs(guided.radius(u, v) - radius(u, 2 * Math.PI * v)) <= 1e-5,
+            Array.from(
+              { length: 90 },
+              (_: unknown, j: number): number => j / 90,
+            ).every(
+              (v: number): boolean =>
+                Math.abs(guided.radius(u, v) - radius(u, 2 * Math.PI * v)) <=
+                1e-5,
             ),
           ),
       ],
@@ -118,32 +172,84 @@ export function test_geometry_sweep_gordon(): void {
     { guides: true, stations: true },
   );
 
-  const circle: IAutoMovieSweepSection = { type: "superellipse", right: 0.1, up: 0.1, left: 0.1, down: 0.1, exponents: [2, 2, 2, 2] };
+  const circle: IAutoMovieSweepSection = {
+    type: "superellipse",
+    right: 0.1,
+    up: 0.1,
+    left: 0.1,
+    down: 0.1,
+    exponents: [2, 2, 2, 2],
+  };
   const shifted: IAutoMovieSweepSurface = compileAutoMovieSweep({
     spine: SPINE,
-    stations: [{ at: 0, section: circle }, { at: 1, section: circle }],
-    guides: [{ angle: 0, radii: [{ at: 0, value: 0.15 }, { at: 1, value: 0.15 }] }],
+    stations: [
+      { at: 0, section: circle },
+      { at: 1, section: circle },
+    ],
+    guides: [
+      {
+        angle: 0,
+        radii: [
+          { at: 0, value: 0.15 },
+          { at: 1, value: 0.15 },
+        ],
+      },
+    ],
   });
   TestValidator.predicate(
     "a disagreeing guide wins and moves the whole section by its difference",
-    us.every((u: number): boolean => [0, 0.2, 0.5, 0.77].every((v: number): boolean => Math.abs(shifted.radius(u, v) - 0.15) <= 1e-12)),
+    us.every((u: number): boolean =>
+      [0, 0.2, 0.5, 0.77].every(
+        (v: number): boolean => Math.abs(shifted.radius(u, v) - 0.15) <= 1e-12,
+      ),
+    ),
   );
 
-  const flat: IAutoMovieSweep.IKnot[] = [{ at: 0, value: 0.1 }, { at: 1, value: 0.1 }];
+  const flat: IAutoMovieSweep.IKnot[] = [
+    { at: 0, value: 0.1 },
+    { at: 1, value: 0.1 },
+  ];
   const invalids: Array<readonly [string, () => unknown, string]> = [
     [
       "guides sharing a direction",
-      (): unknown => compileAutoMovieSweep({ spine: SPINE, stations: ends, guides: [{ angle: 0, radii: flat }, { angle: 2 * Math.PI, radii: flat }] }),
+      (): unknown =>
+        compileAutoMovieSweep({
+          spine: SPINE,
+          stations: ends,
+          guides: [
+            { angle: 0, radii: flat },
+            { angle: 2 * Math.PI, radii: flat },
+          ],
+        }),
       "sweep guides must have distinct directions",
     ],
     [
       "a guide short of the spine",
-      (): unknown => compileAutoMovieSweep({ spine: SPINE, stations: ends, guides: [{ angle: 0, radii: [{ at: 0, value: 0.1 }, { at: 0.9, value: 0.1 }] }] }),
+      (): unknown =>
+        compileAutoMovieSweep({
+          spine: SPINE,
+          stations: ends,
+          guides: [
+            {
+              angle: 0,
+              radii: [
+                { at: 0, value: 0.1 },
+                { at: 0.9, value: 0.1 },
+              ],
+            },
+          ],
+        }),
       "sweep guide 0 must span the spine from at 0 to at 1",
     ],
     [
       "guides under parameter correspondence",
-      (): unknown => compileAutoMovieSweep({ spine: SPINE, stations: ends, correspondence: "parameter", guides: [{ angle: 0, radii: flat }] }),
+      (): unknown =>
+        compileAutoMovieSweep({
+          spine: SPINE,
+          stations: ends,
+          correspondence: "parameter",
+          guides: [{ angle: 0, radii: flat }],
+        }),
       "sweep guides and features need direction correspondence",
     ],
     [
@@ -151,12 +257,34 @@ export function test_geometry_sweep_gordon(): void {
       (): number =>
         compileAutoMovieSweep({
           spine: SPINE,
-          stations: [0, 1].map((at: number): IAutoMovieSweep.IStation => ({ at, section: { ...circle, right: 0.2, left: 0.2, up: 0.01, down: 0.01 } })),
-          guides: [{ angle: 0, radii: [{ at: 0, value: 0.02 }, { at: 1, value: 0.02 }] }],
+          stations: [0, 1].map(
+            (at: number): IAutoMovieSweep.IStation => ({
+              at,
+              section: {
+                ...circle,
+                right: 0.2,
+                left: 0.2,
+                up: 0.01,
+                down: 0.01,
+              },
+            }),
+          ),
+          guides: [
+            {
+              angle: 0,
+              radii: [
+                { at: 0, value: 0.02 },
+                { at: 1, value: 0.02 },
+              ],
+            },
+          ],
         }).radius(0.5, 0.25),
       "sweep guides make the section's radius vanish",
     ],
   ];
   for (const [name, callback, message] of invalids)
-    TestValidator.predicate(`${name} is refused by its own diagnostic`, throwsError(callback, message));
+    TestValidator.predicate(
+      `${name} is refused by its own diagnostic`,
+      throwsError(callback, message),
+    );
 }

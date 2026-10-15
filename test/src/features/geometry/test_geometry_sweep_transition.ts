@@ -8,12 +8,15 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../internal/namedFacts";
-import { sweepTransitionTube } from "../internal/sweepTransitionTube";
 import { sweepTransitionDeviation } from "../internal/sweepTransitionDeviation";
+import { sweepTransitionTube } from "../internal/sweepTransitionTube";
 import { throwsError } from "../internal/throwsError";
 
 /** Stated bounds of the straight tube's limit surface by tier: radial deviation over the radius, and normal angle from the radial direction in degrees. */
-const BOUNDS: Record<Exclude<AutoMovieSurfaceTier, "high">, [number, number]> = {
+const BOUNDS: Record<
+  Exclude<AutoMovieSurfaceTier, "high">,
+  [number, number]
+> = {
   lowest: [0.07, 20],
   low: [0.012, 5],
   medium: [0.012, 5],
@@ -49,7 +52,10 @@ const BOUNDS: Record<Exclude<AutoMovieSurfaceTier, "high">, [number, number]> = 
  * @evidence contracts/testing.md#execution-ownership A portable unit test reached through the discoverable `test_geometry_sweep_transition` entry with no process, browser or GPU.
  */
 export function test_geometry_sweep_transition(): void {
-  const cage: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({ network: sweepTransitionTube(), tier: "medium" });
+  const cage: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({
+    network: sweepTransitionTube(),
+    tier: "medium",
+  });
   const valence: number[] = new Array<number>(cage.targets.length / 3).fill(0);
   const edges: Map<string, number> = new Map();
   for (const quad of cage.cage.faces)
@@ -66,12 +72,24 @@ export function test_geometry_sweep_transition(): void {
     const degree: number = ringed.has(v) ? n + 2 : n;
     if (degree !== 4) irregular[degree] = (irregular[degree] ?? 0) + 1;
   });
-  const boundary: number = [...edges.values()].filter((n: number): boolean => n === 1).length;
+  const boundary: number = [...edges.values()].filter(
+    (n: number): boolean => n === 1,
+  ).length;
   TestValidator.equals(
     "bands have exactly their blocks' poles and corners as extraordinary vertices",
     namedFacts([
-      ["poles", (): boolean => JSON.stringify(irregular) === JSON.stringify({ 3: 2 * (4 + 2), 5: 4, 6: 4 })],
-      ["boundary", (): boolean => boundary === 8 + 12 && [...edges.values()].every((n: number): boolean => n === 1 || n === 2)],
+      [
+        "poles",
+        (): boolean =>
+          JSON.stringify(irregular) ===
+          JSON.stringify({ 3: 2 * (4 + 2), 5: 4, 6: 4 }),
+      ],
+      [
+        "boundary",
+        (): boolean =>
+          boundary === 8 + 12 &&
+          [...edges.values()].every((n: number): boolean => n === 1 || n === 2),
+      ],
     ]),
     { poles: true, boundary: true },
   );
@@ -79,23 +97,53 @@ export function test_geometry_sweep_transition(): void {
   const mirrored = (start: number, end: number): boolean => {
     const key = (q: Array<{ s: number; t: number }>): string =>
       q
-        .map((c: { s: number; t: number }): string => `${Math.round(c.s * 1e9)},${Math.round(c.t * 1e9)}`)
+        .map(
+          (c: { s: number; t: number }): string =>
+            `${Math.round(c.s * 1e9)},${Math.round(c.t * 1e9)}`,
+        )
         .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0))
         .join(";");
-    const quads: Array<Array<{ s: number; t: number }>> = layoutAutoMovieSurfaceTransition(start, end, 1);
+    const quads: Array<Array<{ s: number; t: number }>> =
+      layoutAutoMovieSurfaceTransition(start, end, 1);
     const set: Set<string> = new Set(quads.map(key));
-    return quads.every((q: Array<{ s: number; t: number }>): boolean => set.has(key(q.map((c: { s: number; t: number }) => ({ s: 1 - c.s, t: c.t })))));
+    return quads.every((q: Array<{ s: number; t: number }>): boolean =>
+      set.has(
+        key(q.map((c: { s: number; t: number }) => ({ s: 1 - c.s, t: c.t }))),
+      ),
+    );
   };
-  TestValidator.equals("a band reversed in s is the same band", [mirrored(8, 16), mirrored(16, 12)], [true, true]);
+  TestValidator.equals(
+    "a band reversed in s is the same band",
+    [mirrored(8, 16), mirrored(16, 12)],
+    [true, true],
+  );
 
-  const low: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({ network: sweepTransitionTube(), tier: "low" });
-  const bands: number[] = cage.patches.flatMap((p: IAutoMovieSurfaceCage.IPatch): number[] => (p.grid ? [] : p.faces));
+  const low: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({
+    network: sweepTransitionTube(),
+    tier: "low",
+  });
+  const bands: number[] = cage.patches.flatMap(
+    (p: IAutoMovieSurfaceCage.IPatch): number[] => (p.grid ? [] : p.faces),
+  );
   TestValidator.predicate(
     "points on band faces round-trip between tiers",
     bands.every((face: number, k: number): boolean => {
-      const at = { face, corner: null, u: 0.1 + 0.8 * ((k * 0.618) % 1), v: 0.1 + 0.8 * ((k * 0.382) % 1) };
-      const back = mapAutoMovieSurfaceTier({ from: low, to: cage, at: mapAutoMovieSurfaceTier({ from: cage, to: low, at }).at }).at;
-      return back.face === face && Math.abs(back.u - at.u) <= 1e-12 && Math.abs(back.v - at.v) <= 1e-12;
+      const at = {
+        face,
+        corner: null,
+        u: 0.1 + 0.8 * ((k * 0.618) % 1),
+        v: 0.1 + 0.8 * ((k * 0.382) % 1),
+      };
+      const back = mapAutoMovieSurfaceTier({
+        from: low,
+        to: cage,
+        at: mapAutoMovieSurfaceTier({ from: cage, to: low, at }).at,
+      }).at;
+      return (
+        back.face === face &&
+        Math.abs(back.u - at.u) <= 1e-12 &&
+        Math.abs(back.v - at.v) <= 1e-12
+      );
     }),
   );
 
@@ -109,11 +157,30 @@ export function test_geometry_sweep_transition(): void {
   );
 
   const invalids: Array<readonly [string, () => unknown, string]> = [
-    ["an odd difference", (): unknown => layoutAutoMovieSurfaceTransition(8, 11, 1), "must differ by an even number"],
-    ["more than a halving", (): unknown => layoutAutoMovieSurfaceTransition(4, 10, 1), "more than twice"],
-    ["a fractional count", (): unknown => layoutAutoMovieSurfaceTransition(8, 12.5, 1), "positive integers"],
-    ["no rows", (): unknown => layoutAutoMovieSurfaceTransition(8, 12, 0), "positive integers"],
+    [
+      "an odd difference",
+      (): unknown => layoutAutoMovieSurfaceTransition(8, 11, 1),
+      "must differ by an even number",
+    ],
+    [
+      "more than a halving",
+      (): unknown => layoutAutoMovieSurfaceTransition(4, 10, 1),
+      "more than twice",
+    ],
+    [
+      "a fractional count",
+      (): unknown => layoutAutoMovieSurfaceTransition(8, 12.5, 1),
+      "positive integers",
+    ],
+    [
+      "no rows",
+      (): unknown => layoutAutoMovieSurfaceTransition(8, 12, 0),
+      "positive integers",
+    ],
   ];
   for (const [name, callback, message] of invalids)
-    TestValidator.predicate(`${name} is refused by its own diagnostic`, throwsError(callback, message));
+    TestValidator.predicate(
+      `${name} is refused by its own diagnostic`,
+      throwsError(callback, message),
+    );
 }

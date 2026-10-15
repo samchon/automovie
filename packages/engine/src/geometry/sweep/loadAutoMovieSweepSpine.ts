@@ -21,20 +21,35 @@ import { transportAutoMovieSweepSpine } from "./transportAutoMovieSweepSpine";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Called once per compiled spine; the transport is the reuse.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing; the transport is transferred to the caller.
  */
-export const loadAutoMovieSweepSpine: (spine: IAutoMovieSweepSpine, frames: boolean) => IAutoMovieSweepTransport = (
+export const loadAutoMovieSweepSpine: (
+  spine: IAutoMovieSweepSpine,
+  frames: boolean,
+) => IAutoMovieSweepTransport = (
   spine: IAutoMovieSweepSpine,
   frames: boolean,
 ): IAutoMovieSweepTransport => {
-  const transport: IAutoMovieSweepTransport = transportAutoMovieSweepSpine(spine.points.length, frames);
+  const transport: IAutoMovieSweepTransport = transportAutoMovieSweepSpine(
+    spine.points.length,
+    frames,
+  );
   spine.points.forEach((p: IAutoMovieVector3, k: number): void => {
     transport.points[3 * k] = p.x;
     transport.points[3 * k + 1] = p.y;
     transport.points[3 * k + 2] = p.z;
   });
-  const write = (target: Float64Array, v: IAutoMovieVector3 | undefined, what: string): void => {
+  const write = (
+    target: Float64Array,
+    v: IAutoMovieVector3 | undefined,
+    what: string,
+  ): void => {
     if (v === undefined) return;
-    if (![v.x, v.y, v.z].every(Number.isFinite) || Math.hypot(v.x, v.y, v.z) === 0)
-      throw new Error(`sweep spine ${what} tangent must be finite and not zero`);
+    if (
+      ![v.x, v.y, v.z].every(Number.isFinite) ||
+      Math.hypot(v.x, v.y, v.z) === 0
+    )
+      throw new Error(
+        `sweep spine ${what} tangent must be finite and not zero`,
+      );
     target[0] = v.x;
     target[1] = v.y;
     target[2] = v.z;

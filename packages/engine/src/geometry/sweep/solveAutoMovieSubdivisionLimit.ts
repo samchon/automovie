@@ -72,7 +72,11 @@ export const solveAutoMovieSubdivisionLimit: (props: {
       let x: number = 0;
       let y: number = 0;
       let z: number = 0;
-      for (let k: number = stencil.offsets[i]!; k < stencil.offsets[i + 1]!; ++k) {
+      for (
+        let k: number = stencil.offsets[i]!;
+        k < stencil.offsets[i + 1]!;
+        ++k
+      ) {
         const j: number = stencil.indices[k]!;
         const w: number = stencil.weights[k]!;
         x += w * positions[3 * j]!;
@@ -93,6 +97,8 @@ export const solveAutoMovieSubdivisionLimit: (props: {
     next = swap;
   }
   // the converged sweep read `positions`; the caller's buffer receives it
-  if (positions !== props.positions) for (let k: number = 0; k < 3 * count; ++k) props.positions[k] = positions[k]!;
+  if (positions !== props.positions)
+    for (let k: number = 0; k < 3 * count; ++k)
+      props.positions[k] = positions[k]!;
   return residual;
 };

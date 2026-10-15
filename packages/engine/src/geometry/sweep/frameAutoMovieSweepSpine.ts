@@ -43,6 +43,7 @@ import { pathAutoMovieSweepTransport } from "./pathAutoMovieSweepTransport";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The table is the reuse; a sweep compiles its spine once.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned closures retain the transport's arrays, O(64 n) numbers, and a twelve-number scratch, released with the path.
  */
-export const frameAutoMovieSweepSpine: (spine: IAutoMovieSweepSpine) => IAutoMovieSweepPath = (
+export const frameAutoMovieSweepSpine: (
   spine: IAutoMovieSweepSpine,
-): IAutoMovieSweepPath => pathAutoMovieSweepTransport(loadAutoMovieSweepSpine(spine, true));
+) => IAutoMovieSweepPath = (spine: IAutoMovieSweepSpine): IAutoMovieSweepPath =>
+  pathAutoMovieSweepTransport(loadAutoMovieSweepSpine(spine, true));

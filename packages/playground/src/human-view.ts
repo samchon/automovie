@@ -31,11 +31,11 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { HUMAN_VIEWER_CHOICES } from "./human/HUMAN_VIEWER_CHOICES";
 import { HumanViewerPaddleHandGenerator } from "./human/HumanViewerPaddleHandGenerator";
 import { IHumanViewerSession } from "./human/IHumanViewerSession";
+import { admitHumanViewerCaptureView } from "./human/admitHumanViewerCaptureView";
 import { createHumanViewerDocumentForm } from "./human/createHumanViewerDocumentForm";
 import { createHumanViewerExpressionEditor } from "./human/createHumanViewerExpressionEditor";
 import { createHumanViewerPoseEditor } from "./human/createHumanViewerPoseEditor";
 import { drawHumanViewerConstruction } from "./human/drawHumanViewerConstruction";
-import { admitHumanViewerCaptureView } from "./human/admitHumanViewerCaptureView";
 import { frameHumanViewerCamera } from "./human/frameHumanViewerCamera";
 import { hashHumanViewerSession } from "./human/hashHumanViewerSession";
 
@@ -141,8 +141,7 @@ scene.onBeforeRender = (
   _scene: THREE.Scene,
   eye: THREE.Camera,
 ): void => {
-  grid.visible =
-    eye.getWorldPosition(new THREE.Vector3()).y > grid.position.y;
+  grid.visible = eye.getWorldPosition(new THREE.Vector3()).y > grid.position.y;
 };
 const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
   30,
@@ -428,8 +427,7 @@ const keyed = (mode: DisplayMode): string => {
 /** File tag of a view: a preset's name, or its angles. */
 const viewTag = (
   v: frameHumanViewerCamera.View | frameHumanViewerCamera.IAngle,
-): string =>
-  typeof v === "string" ? v : `az${v.azimuth}_el${v.elevation}`;
+): string => (typeof v === "string" ? v : `az${v.azimuth}_el${v.elevation}`);
 
 /**
  * Capture views at each scale. A view is a preset name or angles admitted by `admitHumanViewerCaptureView`; an angle view with a focus bone is captured once, close on that bone. Omitted views take every preset, omitted scales `whole` and `close`.
@@ -518,15 +516,15 @@ const capture = async (props: {
         file,
         mode,
         view: view.view,
-      scale: view.scale,
-      focus: view.scale === "whole" ? null : view.focus,
-      margin: view.margin ?? MARGIN[view.scale],
-      camera: {
-        position: camera.position.toArray(),
-        target: controls.target.toArray(),
-        fov: camera.fov,
-      },
-    });
+        scale: view.scale,
+        focus: view.scale === "whole" ? null : view.focus,
+        margin: view.margin ?? MARGIN[view.scale],
+        camera: {
+          position: camera.position.toArray(),
+          target: controls.target.toArray(),
+          fov: camera.fov,
+        },
+      });
     }
   }
   displayMode = previousMode;

@@ -1,4 +1,8 @@
-import { IAutoMovieSurfaceCage, IAutoMovieSurfaceNetwork, sampleAutoMovieSurfaceNetwork } from "@automovie/engine";
+import {
+  IAutoMovieSurfaceCage,
+  IAutoMovieSurfaceNetwork,
+  sampleAutoMovieSurfaceNetwork,
+} from "@automovie/engine";
 import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieHumanBranch } from "../../junction/AutoMovieHumanBranch";
@@ -37,26 +41,48 @@ export function loftAutoMovieHumanHand(props: {
     side: props.side,
     part: "hand",
   });
-  const hand: readAutoMovieHumanHand.IHand = readAutoMovieHumanHand(props.skeleton, props.side, ring);
+  const hand: readAutoMovieHumanHand.IHand = readAutoMovieHumanHand(
+    props.skeleton,
+    props.side,
+    ring,
+  );
   const toLocal = (d: IAutoMovieVector3): IAutoMovieVector3 =>
     V.of(V.dot(d, hand.distal), V.dot(d, hand.palmar), V.dot(d, hand.radial));
-  const laid: networkAutoMovieHumanHand.IOutput = networkAutoMovieHumanHand({ hand, arm, ring, toLocal });
-  const sampled: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({ network: laid.network, tier: TIER });
+  const laid: networkAutoMovieHumanHand.IOutput = networkAutoMovieHumanHand({
+    hand,
+    arm,
+    ring,
+    toLocal,
+  });
+  const sampled: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({
+    network: laid.network,
+    tier: TIER,
+  });
   const positions: IAutoMovieVector3[] = [];
   for (let k: number = 0; k < sampled.cage.positions.length; k += 3)
     positions.push(
-      V.of(sampled.cage.positions[k]! * 1000, sampled.cage.positions[k + 1]! * 1000, sampled.cage.positions[k + 2]! * 1000),
+      V.of(
+        sampled.cage.positions[k]! * 1000,
+        sampled.cage.positions[k + 1]! * 1000,
+        sampled.cage.positions[k + 2]! * 1000,
+      ),
     );
   const faces: loftAutoMovieHumanHand.IFace[] = sampled.cage.faces.map(
     (face: number[], f: number): loftAutoMovieHumanHand.IFace => {
-      const raw: networkAutoMovieHumanHand.IPoint[] = sampled.corners[f]!.map((c) =>
-        laid.addresses[c.patch]!(c.s, c.t),
+      const raw: networkAutoMovieHumanHand.IPoint[] = sampled.corners[f]!.map(
+        (c) => laid.addresses[c.patch]!(c.s, c.t),
       );
-      const known: number[] = raw.map((c) => c.v).filter((v: number): boolean => !Number.isNaN(v));
+      const known: number[] = raw
+        .map((c) => c.v)
+        .filter((v: number): boolean => !Number.isNaN(v));
       const wrap: boolean = Math.max(...known) - Math.min(...known) > 0.5;
       const unwrapped = (v: number): number => (wrap && v < 0.5 ? v + 1 : v);
       // a tip's apex takes the mean turn of the face's other corners
-      const apex: number = known.reduce((sum: number, v: number): number => sum + unwrapped(v), 0) / known.length;
+      const apex: number =
+        known.reduce(
+          (sum: number, v: number): number => sum + unwrapped(v),
+          0,
+        ) / known.length;
       return {
         vertices: [face[0]!, face[1]!, face[2]!, face[3]!],
         corners: raw.map((c) => ({
@@ -67,7 +93,15 @@ export function loftAutoMovieHumanHand(props: {
       };
     },
   );
-  return { hand, arm, ring, positions, faces, wrist: sampled.rings.wrist!, network: laid.network };
+  return {
+    hand,
+    arm,
+    ring,
+    positions,
+    faces,
+    wrist: sampled.rings.wrist!,
+    network: laid.network,
+  };
 }
 /** Output and face types of {@link loftAutoMovieHumanHand}. */
 export namespace loftAutoMovieHumanHand {

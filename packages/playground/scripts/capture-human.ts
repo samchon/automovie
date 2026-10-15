@@ -117,7 +117,9 @@ const main = async (): Promise<void> => {
       null,
       { timeout: COLD_LOAD },
     );
-    console.log(`page ready in ${((Date.now() - loading) / 1000).toFixed(1)} s`);
+    console.log(
+      `page ready in ${((Date.now() - loading) / 1000).toFixed(1)} s`,
+    );
     const renderer: string = await page.evaluate(
       (): string => (window as any).__automovieHuman.renderer,
     );

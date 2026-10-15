@@ -41,17 +41,31 @@ export const interpolateAutoMovieSpline: (props: {
 }): ((x: number) => number) => {
   const n: number = props.knots.length;
   if (n === 0) throw new Error("spline interpolation needs at least one knot");
-  if (props.values.length !== n) throw new Error("spline interpolation needs one value per knot");
+  if (props.values.length !== n)
+    throw new Error("spline interpolation needs one value per knot");
   const xs: Float64Array = Float64Array.from(props.knots);
   const ys: Float64Array = Float64Array.from(props.values);
   for (let k: number = 0; k < n; ++k) {
-    if (!Number.isFinite(xs[k]!) || !Number.isFinite(ys[k]!)) throw new Error(`spline interpolation knot ${k} is not finite`);
-    if (k > 0 && !(xs[k]! > xs[k - 1]!)) throw new Error(`spline interpolation knot ${k} does not increase`);
+    if (!Number.isFinite(xs[k]!) || !Number.isFinite(ys[k]!))
+      throw new Error(`spline interpolation knot ${k} is not finite`);
+    if (k > 0 && !(xs[k]! > xs[k - 1]!))
+      throw new Error(`spline interpolation knot ${k} does not increase`);
   }
   const period: number = props.period ?? 0;
-  if (props.period !== undefined && (!Number.isFinite(period) || xs[0]! < 0 || !(xs[n - 1]! < period)))
+  if (
+    props.period !== undefined &&
+    (!Number.isFinite(period) || xs[0]! < 0 || !(xs[n - 1]! < period))
+  )
     throw new Error("periodic knots must lie in [0, period)");
   const m: Float64Array = new Float64Array(n);
-  const tension: number = AutoMovieSpline.fit(xs, ys, n, period, m, new Float64Array(7 * n + 17));
-  return (x: number): number => AutoMovieSpline.evaluate(xs, ys, m, n, period, tension, x);
+  const tension: number = AutoMovieSpline.fit(
+    xs,
+    ys,
+    n,
+    period,
+    m,
+    new Float64Array(7 * n + 17),
+  );
+  return (x: number): number =>
+    AutoMovieSpline.evaluate(xs, ys, m, n, period, tension, x);
 };

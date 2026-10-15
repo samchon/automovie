@@ -29,7 +29,13 @@ export namespace IAutoMovieHumanConstructionNet {
    * - `curve`: a network curve between nodes, which patches and bridges span.
    * - `ring`: an opening a junction joins to the neighbouring part.
    */
-  export type Kind = "spine" | "station" | "guide" | "feature" | "curve" | "ring";
+  export type Kind =
+    | "spine"
+    | "station"
+    | "guide"
+    | "feature"
+    | "curve"
+    | "ring";
 
   /**
    * One construction curve as a polyline.

@@ -87,7 +87,13 @@ export interface IAutoMovieBoneBuffer {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `bufferAutoMovieBones`.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `bufferAutoMovieBones`.
    */
-  apply(bone: number, p: ArrayLike<number>, pi: number, out: Float64Array, oi: number): void;
+  apply(
+    bone: number,
+    p: ArrayLike<number>,
+    pi: number,
+    out: Float64Array,
+    oi: number,
+  ): void;
 
   /**
    * Write a direction turned by a bone.
@@ -106,7 +112,13 @@ export interface IAutoMovieBoneBuffer {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `bufferAutoMovieBones`.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `bufferAutoMovieBones`.
    */
-  turn(bone: number, v: ArrayLike<number>, vi: number, out: Float64Array, oi: number): void;
+  turn(
+    bone: number,
+    v: ArrayLike<number>,
+    vi: number,
+    out: Float64Array,
+    oi: number,
+  ): void;
 
   /** Each bone's rotation from rest to pose, `[x, y, z, w]` per bone. */
   rotations: Float64Array;

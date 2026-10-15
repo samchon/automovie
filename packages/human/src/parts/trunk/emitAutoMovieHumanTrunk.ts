@@ -1,4 +1,8 @@
-import { IAutoMovieSurfaceCage, IAutoMovieSurfaceCoordinate, IAutoMovieSurfaceNetwork } from "@automovie/engine";
+import {
+  IAutoMovieSurfaceCage,
+  IAutoMovieSurfaceCoordinate,
+  IAutoMovieSurfaceNetwork,
+} from "@automovie/engine";
 
 import { AutoMovieHumanBranch } from "../../junction/AutoMovieHumanBranch";
 import { IAutoMovieHumanCage } from "../../junction/IAutoMovieHumanCage";
@@ -36,7 +40,9 @@ export function emitAutoMovieHumanTrunk(
       vertices: [face[0]!, face[1]!, face[2]!, face[3]!],
       coordinates: unwrap(
         sampled.corners[f]!.map(
-          (c: IAutoMovieSurfaceCoordinate): IAutoMovieHumanSurfaceCoordinate.IOn<"trunk"> =>
+          (
+            c: IAutoMovieSurfaceCoordinate,
+          ): IAutoMovieHumanSurfaceCoordinate.IOn<"trunk"> =>
             addressOf(patches[c.patch]!, c.s, c.t),
         ),
       ) as IAutoMovieHumanCage.IFace["coordinates"],
@@ -72,12 +78,20 @@ const addressOf = (
   s: number,
   t: number,
 ): IAutoMovieHumanSurfaceCoordinate.IOn<"trunk"> => {
-  const lerp = (r: [number, number], x: number): number => r[0] + (r[1] - r[0]) * x;
+  const lerp = (r: [number, number], x: number): number =>
+    r[0] + (r[1] - r[0]) * x;
   const wrap = (v: number): number => ((v % 1) + 1) % 1;
   const branch: AutoMovieHumanBranch<"trunk"> | null = branchOf(patch.name);
-  if (patch.type !== "sweep") return { part: "trunk", side: null, branch, u: 0.3 * t, v: wrap(s) };
+  if (patch.type !== "sweep")
+    return { part: "trunk", side: null, branch, u: 0.3 * t, v: wrap(s) };
   if (branch === null)
-    return { part: "trunk", side: null, branch: null, u: lerp(patch.u, t), v: wrap(lerp(patch.v, s)) };
+    return {
+      part: "trunk",
+      side: null,
+      branch: null,
+      u: lerp(patch.u, t),
+      v: wrap(lerp(patch.v, s)),
+    };
   const hip: boolean = branch === "leftHip" || branch === "rightHip";
   return {
     part: "trunk",
@@ -92,10 +106,14 @@ const addressOf = (
 const unwrap = (
   corners: IAutoMovieHumanSurfaceCoordinate.IOn<"trunk">[],
 ): IAutoMovieHumanSurfaceCoordinate.IOn<"trunk">[] => {
-  const vs: number[] = corners.map((c: IAutoMovieHumanSurfaceCoordinate.IOn<"trunk">): number => c.v);
+  const vs: number[] = corners.map(
+    (c: IAutoMovieHumanSurfaceCoordinate.IOn<"trunk">): number => c.v,
+  );
   if (Math.max(...vs) - Math.min(...vs) <= 0.5) return corners;
   return corners.map(
-    (c: IAutoMovieHumanSurfaceCoordinate.IOn<"trunk">): IAutoMovieHumanSurfaceCoordinate.IOn<"trunk"> =>
+    (
+      c: IAutoMovieHumanSurfaceCoordinate.IOn<"trunk">,
+    ): IAutoMovieHumanSurfaceCoordinate.IOn<"trunk"> =>
       c.v < 0.5 ? { ...c, v: Math.min(1, c.v + 1) } : c,
   );
 };

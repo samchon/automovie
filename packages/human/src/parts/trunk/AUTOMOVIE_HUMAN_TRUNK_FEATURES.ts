@@ -7,7 +7,14 @@ import { IAutoMovieHumanTrunkFeatures } from "./IAutoMovieHumanTrunkFeatures";
  */
 export const AUTOMOVIE_HUMAN_TRUNK_FEATURES: IAutoMovieHumanTrunkFeatures = {
   clavicle: { offset: 0, width: 15 },
-  pectoral: { offset: 0, width: 20, medial: 12, middle: 0.55, lateral: 0.92, below: 10 },
+  pectoral: {
+    offset: 0,
+    width: 20,
+    medial: 12,
+    middle: 0.55,
+    lateral: 0.92,
+    below: 10,
+  },
   iliac: { offset: 0, width: 20, dimple: 40 },
   inguinal: { offset: 0, width: 15, tubercle: 0.3, medial: 25 },
   cleft: { offset: 0, width: 12, apex: 0.6 },

@@ -28,26 +28,33 @@ export function sectionAutoMovieHumanTrunkThigh(props: {
   const { side, centre, depth, half, exponent, medial, start } = props;
   const inside = (x: number, z: number): boolean => {
     const a: number = Math.abs((z - centre) / depth);
-    if (Math.pow(a, exponent) + Math.pow(Math.abs(x / half), exponent) > 1) return false;
+    if (Math.pow(a, exponent) + Math.pow(Math.abs(x / half), exponent) > 1)
+      return false;
     const across: number = (x - (side * half) / 2) / (half / 2);
     // only the medial half of the lobe bounds the section; laterally the spanning contour does
-    return across * side >= 0 || Math.pow(a / LOBE_DEPTH, medial) + Math.pow(Math.abs(across), medial) <= 1;
+    return (
+      across * side >= 0 ||
+      Math.pow(a / LOBE_DEPTH, medial) + Math.pow(Math.abs(across), medial) <= 1
+    );
   };
   const reach: number = 4 * (half + depth);
-  const radii: number[] = Array.from({ length: SAMPLES }, (_: unknown, k: number): number => {
-    const angle: number = (2 * Math.PI * k) / SAMPLES;
-    // first axis backward, second toward the person's left
-    const dx: number = Math.sin(angle);
-    const dz: number = -Math.cos(angle);
-    let low: number = 0;
-    let high: number = reach;
-    for (let step: number = 0; step < BISECTIONS; ++step) {
-      const middle: number = (low + high) / 2;
-      if (inside(start.x + middle * dx, start.z + middle * dz)) low = middle;
-      else high = middle;
-    }
-    return low / 1000;
-  });
+  const radii: number[] = Array.from(
+    { length: SAMPLES },
+    (_: unknown, k: number): number => {
+      const angle: number = (2 * Math.PI * k) / SAMPLES;
+      // first axis backward, second toward the person's left
+      const dx: number = Math.sin(angle);
+      const dz: number = -Math.cos(angle);
+      let low: number = 0;
+      let high: number = reach;
+      for (let step: number = 0; step < BISECTIONS; ++step) {
+        const middle: number = (low + high) / 2;
+        if (inside(start.x + middle * dx, start.z + middle * dz)) low = middle;
+        else high = middle;
+      }
+      return low / 1000;
+    },
+  );
   return { type: "radial", radii };
 }
 

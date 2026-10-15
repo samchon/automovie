@@ -63,8 +63,10 @@ export const rigAutoMovieSweep: (props: {
   const { sweep, binding } = props;
   const surface: IAutoMovieSweepSurface = compileAutoMovieSweep(sweep);
   if (binding !== undefined) {
-    if (binding.points.length !== sweep.spine.points.length) throw new Error("sweep binding needs one bone per spine point");
-    if (binding.stations.length !== sweep.stations.length) throw new Error("sweep binding needs one bone or joint per station");
+    if (binding.points.length !== sweep.spine.points.length)
+      throw new Error("sweep binding needs one bone per spine point");
+    if (binding.stations.length !== sweep.stations.length)
+      throw new Error("sweep binding needs one bone or joint per station");
   }
   const frameAt: Map<number, number> = new Map();
   const scaleAt: Map<number, number> = new Map();
@@ -76,7 +78,11 @@ export const rigAutoMovieSweep: (props: {
   const open = (): void => {
     if (sealed) throw new Error("a sweep rig takes no slot after it is sealed");
   };
-  const slot = (at: Map<number, number>, list: number[], input: number): number => {
+  const slot = (
+    at: Map<number, number>,
+    list: number[],
+    input: number,
+  ): number => {
     open();
     const u: number = Math.min(1, Math.max(0, input));
     let s: number | undefined = at.get(u);
@@ -100,13 +106,30 @@ export const rigAutoMovieSweep: (props: {
     const step: number = surface.step;
     const a: number = Math.max(0, u - step);
     const b: number = Math.min(1, u + step);
-    const points: IAutoMovieSweepSection.IPoint[] = [shaped(u, v + step), shaped(u, v - step), shaped(a, v), shaped(b, v)];
-    probeData.push(frame(u), frame(a), frame(b), scale(u), scale(a), scale(b), b - a);
+    const points: IAutoMovieSweepSection.IPoint[] = [
+      shaped(u, v + step),
+      shaped(u, v - step),
+      shaped(a, v),
+      shaped(b, v),
+    ];
+    probeData.push(
+      frame(u),
+      frame(a),
+      frame(b),
+      scale(u),
+      scale(a),
+      scale(b),
+      b - a,
+    );
     for (const p of points) probeData.push(p.x, p.y);
     return probeData.length / 15 - 1;
   };
 
-  const sample = (u: number, v: number, cell: readonly [number, number, number, number]): ((out: Float64Array, at: number) => void) => {
+  const sample = (
+    u: number,
+    v: number,
+    cell: readonly [number, number, number, number],
+  ): ((out: Float64Array, at: number) => void) => {
     const f: number = 12 * frame(u);
     const slots: number[] = [];
     const xs: number[] = [];
@@ -132,7 +155,8 @@ export const rigAutoMovieSweep: (props: {
       for (const [du, wu] of tent(cell[0], cell[1])) {
         const at: number = Math.min(1, Math.max(0, u + du!));
         let r: number = 0;
-        for (const [dv, wv] of tent(cell[2], cell[3])) r += wu! * wv! * surface.profile(at, v + dv!);
+        for (const [dv, wv] of tent(cell[2], cell[3]))
+          r += wu! * wv! * surface.profile(at, v + dv!);
         slots.push(scale(at));
         xs.push(r * Math.cos(angle));
         ys.push(r * Math.sin(angle));
@@ -150,7 +174,10 @@ export const rigAutoMovieSweep: (props: {
         px += s * x[k]!;
         py += s * y[k]!;
       }
-      for (let c: number = 0; c < 3; ++c) out[at + c] = rig.frames[f + c]! + (rig.frames[f + 3 + c]! * px + rig.frames[f + 6 + c]! * py);
+      for (let c: number = 0; c < 3; ++c)
+        out[at + c] =
+          rig.frames[f + c]! +
+          (rig.frames[f + 3 + c]! * px + rig.frames[f + 6 + c]! * py);
     };
   };
 
@@ -170,19 +197,51 @@ export const rigAutoMovieSweep: (props: {
   let restScales: Float64Array = new Float64Array(0);
   // a section point of a probe at a frame and scale slot, written at scratch[o]
   const scratch: Float64Array = new Float64Array(12);
-  const place = (f: number, s: number, x: number, y: number, o: number): void => {
+  const place = (
+    f: number,
+    s: number,
+    x: number,
+    y: number,
+    o: number,
+  ): void => {
     const k: number = rig.scales[s]!;
     for (let a: number = 0; a < 3; ++a)
-      scratch[o + a] = rig.frames[12 * f + a]! + k * (x * rig.frames[12 * f + 3 + a]! + y * rig.frames[12 * f + 6 + a]!);
+      scratch[o + a] =
+        rig.frames[12 * f + a]! +
+        k * (x * rig.frames[12 * f + 3 + a]! + y * rig.frames[12 * f + 6 + a]!);
   };
   const probeAll = (): void => {
     for (let p: number = 0; p < probeData.length / 15; ++p) {
       const d: number = 15 * p;
       const span: number = probeData[d + 6]!;
-      place(probeData[d]!, probeData[d + 3]!, probeData[d + 7]!, probeData[d + 8]!, 0);
-      place(probeData[d]!, probeData[d + 3]!, probeData[d + 9]!, probeData[d + 10]!, 3);
-      place(probeData[d + 1]!, probeData[d + 4]!, probeData[d + 11]!, probeData[d + 12]!, 6);
-      place(probeData[d + 2]!, probeData[d + 5]!, probeData[d + 13]!, probeData[d + 14]!, 9);
+      place(
+        probeData[d]!,
+        probeData[d + 3]!,
+        probeData[d + 7]!,
+        probeData[d + 8]!,
+        0,
+      );
+      place(
+        probeData[d]!,
+        probeData[d + 3]!,
+        probeData[d + 9]!,
+        probeData[d + 10]!,
+        3,
+      );
+      place(
+        probeData[d + 1]!,
+        probeData[d + 4]!,
+        probeData[d + 11]!,
+        probeData[d + 12]!,
+        6,
+      );
+      place(
+        probeData[d + 2]!,
+        probeData[d + 5]!,
+        probeData[d + 13]!,
+        probeData[d + 14]!,
+        9,
+      );
       // around: the v difference; along: the u difference over its span
       const rx: number = scratch[0]! - scratch[3]!;
       const ry: number = scratch[1]! - scratch[4]!;
@@ -203,21 +262,31 @@ export const rigAutoMovieSweep: (props: {
       rig.probes[o + 5] = az;
     }
   };
-  const writeFrame = (f: IAutoMovieSweepFrame, out: Float64Array, at: number): void => {
-    [f.origin, f.x, f.y, f.normal].forEach((v: IAutoMovieVector3, k: number): void => {
-      out[at + 3 * k] = v.x;
-      out[at + 3 * k + 1] = v.y;
-      out[at + 3 * k + 2] = v.z;
-    });
+  const writeFrame = (
+    f: IAutoMovieSweepFrame,
+    out: Float64Array,
+    at: number,
+  ): void => {
+    [f.origin, f.x, f.y, f.normal].forEach(
+      (v: IAutoMovieVector3, k: number): void => {
+        out[at + 3 * k] = v.x;
+        out[at + 3 * k + 1] = v.y;
+        out[at + 3 * k + 2] = v.z;
+      },
+    );
   };
 
   rig.seal = (): void => {
     open();
     sealed = true;
     rig.frames = new Float64Array(12 * frameU.length);
-    rig.scales = Float64Array.from(scaleU, (u: number): number => surface.scale(u));
+    rig.scales = Float64Array.from(scaleU, (u: number): number =>
+      surface.scale(u),
+    );
     rig.probes = new Float64Array(6 * (probeData.length / 15));
-    frameU.forEach((u: number, s: number): void => writeFrame(surface.frame(u), rig.frames, 12 * s));
+    frameU.forEach((u: number, s: number): void =>
+      writeFrame(surface.frame(u), rig.frames, 12 * s),
+    );
     restFrames = rig.frames.slice();
     restScales = rig.scales.slice();
     probeAll();
@@ -226,16 +295,38 @@ export const rigAutoMovieSweep: (props: {
   };
 
   // the posed sweep: spine, orientation and, with joint stations, volume
-  const bind = (bones: { points: number[]; stations: number[][] }): ((motion: IAutoMovieBoneBuffer | null) => void) => {
+  const bind = (bones: {
+    points: number[];
+    stations: number[][];
+  }): ((motion: IAutoMovieBoneBuffer | null) => void) => {
     const n: number = sweep.spine.points.length;
     const s: number = sweep.stations.length;
-    const transport: IAutoMovieSweepTransport = transportAutoMovieSweepSpine(n, true);
-    const knots: Float64Array = Float64Array.from(sweep.stations, (st: IAutoMovieSweep.IStation): number => st.at);
-    const orientation: IAutoMovieSweepOrientation = orientAutoMovieSweep({ transport, knots, fixed: sweep.orientation === "fixed" });
+    const transport: IAutoMovieSweepTransport = transportAutoMovieSweepSpine(
+      n,
+      true,
+    );
+    const knots: Float64Array = Float64Array.from(
+      sweep.stations,
+      (st: IAutoMovieSweep.IStation): number => st.at,
+    );
+    const orientation: IAutoMovieSweepOrientation = orientAutoMovieSweep({
+      transport,
+      knots,
+      fixed: sweep.orientation === "fixed",
+    });
     orientation.given.fill(1);
-    const rest: Float64Array = Float64Array.from(sweep.spine.points.flatMap((p: IAutoMovieVector3): number[] => [p.x, p.y, p.z]));
+    const rest: Float64Array = Float64Array.from(
+      sweep.spine.points.flatMap((p: IAutoMovieVector3): number[] => [
+        p.x,
+        p.y,
+        p.z,
+      ]),
+    );
     const ends: Float64Array = new Float64Array(9);
-    ends.set([sweep.spine.normal.x, sweep.spine.normal.y, sweep.spine.normal.z], 0);
+    ends.set(
+      [sweep.spine.normal.x, sweep.spine.normal.y, sweep.spine.normal.z],
+      0,
+    );
     const start: IAutoMovieVector3 | undefined = sweep.spine.tangents?.start;
     const end: IAutoMovieVector3 | undefined = sweep.spine.tangents?.end;
     if (start !== undefined) ends.set([start.x, start.y, start.z], 3);
@@ -243,13 +334,21 @@ export const rigAutoMovieSweep: (props: {
     const planes: Float64Array = new Float64Array(4 * s);
     sweep.stations.forEach((st: IAutoMovieSweep.IStation, k: number): void => {
       const f: IAutoMovieSweepFrame = surface.frame(st.at);
-      const q: IAutoMovieQuaternion = quaternionFromAutoMovieBasis(f.x, f.y, f.normal);
+      const q: IAutoMovieQuaternion = quaternionFromAutoMovieBasis(
+        f.x,
+        f.y,
+        f.normal,
+      );
       planes.set([q.x, q.y, q.z, q.w], 4 * k);
     });
     const turned: Float64Array = new Float64Array(8);
-    const joints: boolean[] = bones.stations.map((b: number[]): boolean => b.length === 2);
+    const joints: boolean[] = bones.stations.map(
+      (b: number[]): boolean => b.length === 2,
+    );
     const volume: ((motion: IAutoMovieBoneBuffer) => void) | null =
-      props.preserveVolume && joints.some((j: boolean): boolean => j) ? preserve(orientation, joints) : null;
+      props.preserveVolume && joints.some((j: boolean): boolean => j)
+        ? preserve(orientation, joints)
+        : null;
     return (motion: IAutoMovieBoneBuffer | null): void => {
       if (motion === null) {
         rig.frames.set(restFrames);
@@ -257,7 +356,8 @@ export const rigAutoMovieSweep: (props: {
         probeAll();
         return;
       }
-      for (let k: number = 0; k < n; ++k) motion.apply(bones.points[k]!, rest, 3 * k, transport.points, 3 * k);
+      for (let k: number = 0; k < n; ++k)
+        motion.apply(bones.points[k]!, rest, 3 * k, transport.points, 3 * k);
       const first: number = bones.points[0]!;
       const last: number = bones.points[n - 1]!;
       motion.turn(first, ends, 0, transport.normal, 0);
@@ -267,69 +367,130 @@ export const rigAutoMovieSweep: (props: {
       for (let k: number = 0; k < s; ++k) {
         const pair: number[] = bones.stations[k]!;
         for (let j: number = 0; j < pair.length; ++j) {
-          AutoMovieSweepRotation.multiply(motion.rotations, 4 * pair[j]!, planes, 4 * k, turned, 4 * j);
+          AutoMovieSweepRotation.multiply(
+            motion.rotations,
+            4 * pair[j]!,
+            planes,
+            4 * k,
+            turned,
+            4 * j,
+          );
           AutoMovieSweepRotation.normalize(turned, 4 * j);
         }
-        if (pair.length === 2) AutoMovieSweepRotation.slerp(turned, 0, turned, 4, 0.5, orientation.rotations, 4 * k);
-        else for (let a: number = 0; a < 4; ++a) orientation.rotations[4 * k + a] = turned[a]!;
+        if (pair.length === 2)
+          AutoMovieSweepRotation.slerp(
+            turned,
+            0,
+            turned,
+            4,
+            0.5,
+            orientation.rotations,
+            4 * k,
+          );
+        else
+          for (let a: number = 0; a < 4; ++a)
+            orientation.rotations[4 * k + a] = turned[a]!;
       }
       orientation.update();
-      for (let f: number = 0; f < frameU.length; ++f) orientation.frame(frameU[f]!, rig.frames, 12 * f);
+      for (let f: number = 0; f < frameU.length; ++f)
+        orientation.frame(frameU[f]!, rig.frames, 12 * f);
       if (volume !== null) volume(motion);
       probeAll();
     };
   };
 
   // volume preservation: the joint factor settled against the rest volume, then every scale slot from its profile
-  const preserve = (orientation: IAutoMovieSweepOrientation, joints: boolean[]): ((motion: IAutoMovieBoneBuffer) => void) => {
+  const preserve = (
+    orientation: IAutoMovieSweepOrientation,
+    joints: boolean[],
+  ): ((motion: IAutoMovieBoneBuffer) => void) => {
     const moments: Float64Array = momentAutoMovieSweepSections(surface);
     const steps: number = moments.length / 3;
     const planes: Float64Array = new Float64Array(12 * (2 * steps + 1));
     const middles: Float64Array = new Float64Array(steps);
     // the rest volume, from the same moments with the rest planes and scale, as `measureAutoMovieSweepVolume` sums it
-    for (let j: number = 0; j <= 2 * steps; ++j) writeFrame(surface.frame(j / (2 * steps)), planes, 12 * j);
-    for (let i: number = 0; i < steps; ++i) middles[i] = surface.scale((i + 0.5) / steps);
-    const target: number = integrateAutoMovieSweepVolume(moments, middles, planes);
+    for (let j: number = 0; j <= 2 * steps; ++j)
+      writeFrame(surface.frame(j / (2 * steps)), planes, 12 * j);
+    for (let i: number = 0; i < steps; ++i)
+      middles[i] = surface.scale((i + 0.5) / steps);
+    const target: number = integrateAutoMovieSweepVolume(
+      moments,
+      middles,
+      planes,
+    );
     const previous: ((u: number) => number) | null =
       sweep.scale === undefined
         ? null
         : interpolateAutoMovieSpline({
             knots: sweep.scale.map((k: IAutoMovieSweep.IKnot): number => k.at),
-            values: sweep.scale.map((k: IAutoMovieSweep.IKnot): number => k.value),
+            values: sweep.scale.map(
+              (k: IAutoMovieSweep.IKnot): number => k.value,
+            ),
           });
     const knots: Float64Array = Float64Array.from(
       [
         ...new Set([
           0,
           1,
-          ...sweep.stations.map((st: IAutoMovieSweep.IStation): number => st.at),
-          ...(sweep.scale ?? []).map((k: IAutoMovieSweep.IKnot): number => k.at),
+          ...sweep.stations.map(
+            (st: IAutoMovieSweep.IStation): number => st.at,
+          ),
+          ...(sweep.scale ?? []).map(
+            (k: IAutoMovieSweep.IKnot): number => k.at,
+          ),
         ]),
       ].sort((a: number, b: number): number => a - b),
     );
     const jointAt: Set<number> = new Set(
-      sweep.stations.filter((_: IAutoMovieSweep.IStation, k: number): boolean => joints[k]!).map((st: IAutoMovieSweep.IStation): number => st.at),
+      sweep.stations
+        .filter((_: IAutoMovieSweep.IStation, k: number): boolean => joints[k]!)
+        .map((st: IAutoMovieSweep.IStation): number => st.at),
     );
-    const base: Float64Array = Float64Array.from(knots, (at: number): number => previous?.(at) ?? 1);
-    const joint: Uint8Array = Uint8Array.from(knots, (at: number): number => (jointAt.has(at) ? 1 : 0));
+    const base: Float64Array = Float64Array.from(
+      knots,
+      (at: number): number => previous?.(at) ?? 1,
+    );
+    const joint: Uint8Array = Uint8Array.from(knots, (at: number): number =>
+      jointAt.has(at) ? 1 : 0,
+    );
     const values: Float64Array = new Float64Array(knots.length);
     const curvature: Float64Array = new Float64Array(knots.length);
     const work: Float64Array = new Float64Array(7 * knots.length + 17);
     let tension: number = 0;
     const profile = (factor: number): void => {
-      for (let k: number = 0; k < knots.length; ++k) values[k] = base[k]! * (joint[k] === 1 ? factor : 1);
-      tension = AutoMovieSpline.fit(knots, values, knots.length, 0, curvature, work);
+      for (let k: number = 0; k < knots.length; ++k)
+        values[k] = base[k]! * (joint[k] === 1 ? factor : 1);
+      tension = AutoMovieSpline.fit(
+        knots,
+        values,
+        knots.length,
+        0,
+        curvature,
+        work,
+      );
     };
-    const at = (u: number): number => AutoMovieSpline.evaluate(knots, values, curvature, knots.length, 0, tension, u);
+    const at = (u: number): number =>
+      AutoMovieSpline.evaluate(
+        knots,
+        values,
+        curvature,
+        knots.length,
+        0,
+        tension,
+        u,
+      );
     const volume = (factor: number): number => {
       profile(factor);
-      for (let i: number = 0; i < steps; ++i) middles[i] = at((i + 0.5) / steps);
+      for (let i: number = 0; i < steps; ++i)
+        middles[i] = at((i + 0.5) / steps);
       return integrateAutoMovieSweepVolume(moments, middles, planes);
     };
     return (): void => {
-      for (let j: number = 0; j <= 2 * steps; ++j) orientation.frame(j / (2 * steps), planes, 12 * j);
+      for (let j: number = 0; j <= 2 * steps; ++j)
+        orientation.frame(j / (2 * steps), planes, 12 * j);
       profile(settleAutoMovieSweepVolume(target, volume));
-      for (let k: number = 0; k < scaleU.length; ++k) rig.scales[k] = at(scaleU[k]!);
+      for (let k: number = 0; k < scaleU.length; ++k)
+        rig.scales[k] = at(scaleU[k]!);
     };
   };
   return rig;

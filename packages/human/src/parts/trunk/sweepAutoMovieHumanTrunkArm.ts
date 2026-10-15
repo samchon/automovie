@@ -37,16 +37,29 @@ export function sweepAutoMovieHumanTrunkArm(props: {
     (root.top + root.bottom) / 2,
     (root.front + root.back) / 2,
   );
-  const length: number = AutoMovieHumanVector.distance(start, ring.frame.origin);
-  const at: number = Math.min(S.COLLAR.arm / 2, Math.max(0.05, DELTOID.beyond / Math.abs(ring.frame.origin.x - start.x)));
+  const length: number = AutoMovieHumanVector.distance(
+    start,
+    ring.frame.origin,
+  );
+  const at: number = Math.min(
+    S.COLLAR.arm / 2,
+    Math.max(0.05, DELTOID.beyond / Math.abs(ring.frame.origin.x - start.x)),
+  );
   // over the deltoid the tube keeps the straight course from the root to the ring on every side, so its girth runs
   // monotone and the deltoid stays the fullest part of the cap; only its top line dips below the acromion, where the skin
   // over the T-posed shoulder lies lowest between the acromion and the arm
-  const ys: number[] = ring.positions.map((p: IAutoMovieVector3): number => p.y);
-  const zs: number[] = ring.positions.map((p: IAutoMovieVector3): number => p.z);
+  const ys: number[] = ring.positions.map(
+    (p: IAutoMovieVector3): number => p.y,
+  );
+  const zs: number[] = ring.positions.map(
+    (p: IAutoMovieVector3): number => p.z,
+  );
   const lerp = (a: number, b: number): number => a + (b - a) * at;
   const deltoid: IExtent = {
-    top: Math.min(lerp(root.top, Math.max(...ys)), frame.acromion.y - DELTOID.dip * r),
+    top: Math.min(
+      lerp(root.top, Math.max(...ys)),
+      frame.acromion.y - DELTOID.dip * r,
+    ),
     bottom: lerp(root.bottom, Math.min(...ys)),
     front: lerp(root.front, Math.max(...zs)),
     back: lerp(root.back, Math.min(...zs)),
@@ -56,7 +69,11 @@ export function sweepAutoMovieHumanTrunkArm(props: {
   const forward: IAutoMovieVector3 = AutoMovieHumanVector.of(0, 0, 1);
   const second: IAutoMovieVector3 = AutoMovieHumanVector.cross(normal, forward);
   // a section spanning the extents, centred on their middle and placed about the spine point there
-  const section = (extent: IExtent, spine: IAutoMovieVector3, exponent: number): IAutoMovieSweepSection => {
+  const section = (
+    extent: IExtent,
+    spine: IAutoMovieVector3,
+    exponent: number,
+  ): IAutoMovieSweepSection => {
     const cy: number = (extent.top + extent.bottom) / 2;
     const cz: number = (extent.front + extent.back) / 2;
     const half: { up: number; down: number } =
@@ -70,10 +87,17 @@ export function sweepAutoMovieHumanTrunkArm(props: {
       left: S.metres(cz - extent.back),
       down: S.metres(half.down),
       exponents: [exponent, exponent, exponent, exponent],
-      centre: { x: S.metres(cz - spine.z), y: S.metres((cy - spine.y) * second.y) },
+      centre: {
+        x: S.metres(cz - spine.z),
+        y: S.metres((cy - spine.y) * second.y),
+      },
     };
   };
-  const rotation: IAutoMovieQuaternion = S.quaternionOf(forward, second, normal);
+  const rotation: IAutoMovieQuaternion = S.quaternionOf(
+    forward,
+    second,
+    normal,
+  );
   const spineAt: IAutoMovieVector3 = AutoMovieHumanVector.of(
     start.x + (ring.frame.origin.x - start.x) * at,
     start.y + (ring.frame.origin.y - start.y) * at,
@@ -82,12 +106,23 @@ export function sweepAutoMovieHumanTrunkArm(props: {
   return {
     length,
     sweep: {
-      spine: { points: [S.toMetres(start), S.toMetres(ring.frame.origin)], normal: ring.directions[0]! },
+      spine: {
+        points: [S.toMetres(start), S.toMetres(ring.frame.origin)],
+        normal: ring.directions[0]!,
+      },
       stations: [
         { at: 0, rotation, section: section(root, start, ROOT.exponent) },
         { at, rotation, section: section(deltoid, spineAt, DELTOID.exponent) },
-        { at: S.COLLAR.arm, section: S.ringSection(ring, 0), rotation: S.ringRotation(ring, 0) },
-        { at: 1, section: S.ringSection(ring, 0), rotation: S.ringRotation(ring, 0) },
+        {
+          at: S.COLLAR.arm,
+          section: S.ringSection(ring, 0),
+          rotation: S.ringRotation(ring, 0),
+        },
+        {
+          at: 1,
+          section: S.ringSection(ring, 0),
+          rotation: S.ringRotation(ring, 0),
+        },
       ],
     },
   };

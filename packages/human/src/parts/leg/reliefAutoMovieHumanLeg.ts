@@ -89,13 +89,20 @@ export function reliefAutoMovieHumanLeg(props: {
         spread:
           ((r.width * Math.PI) / 180) *
           mean(
-            Math.min(Math.max(...levels), Math.max(Math.min(...levels), r.peak)),
+            Math.min(
+              Math.max(...levels),
+              Math.max(Math.min(...levels), r.peak),
+            ),
           ),
         ...(r.tissue === "fat"
           ? {}
           : {
               fat: over(props.fat, r.segment, crest),
-              reference: over(AUTOMOVIE_HUMAN_REFERENCE_LIMB_FAT, r.segment, crest),
+              reference: over(
+                AUTOMOVIE_HUMAN_REFERENCE_LIMB_FAT,
+                r.segment,
+                crest,
+              ),
             }),
       });
     },

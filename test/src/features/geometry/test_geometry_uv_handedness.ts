@@ -8,8 +8,8 @@ import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../internal/predicates";
-import { test12ValuesClose } from "../internal/test12ValuesClose";
 import { sweepPolygonLoft } from "../internal/sweepPolygonLoft";
+import { test12ValuesClose } from "../internal/test12ValuesClose";
 
 /**
  * Counts of indexed UV determinant signs, independent of any three-dimensional tangent frame.
