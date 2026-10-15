@@ -3,6 +3,11 @@ import { IAutoMovieHumanLegRelief } from "./IAutoMovieHumanLegRelief";
 import { IAutoMovieHumanLegStation } from "./IAutoMovieHumanLegStation";
 
 /**
+ * Share of the superficial relief the section carries. The leg is blocked out first: its gross form, the girth profile, breadth over depth and the centreline offsets, is fitted to the calibration reference with no relief, and the relief returns, refitted, once the gross form agrees. Zero while blocked out.
+ */
+const RELIEF_SHARE: number = 0;
+
+/**
  * Fat thickness, millimetres, over which a muscle or bone's relief halves: subcutaneous fat fills the hollows between bellies, so the same muscle reads sharply under a thin layer and is a smooth swell under a thick one. Grade: conventional.
  */
 const RELIEF_FAT_HALF: number = 20;
@@ -20,7 +25,7 @@ const LEAN_REFERENCE: number = 7.84;
 /**
  * Radial distance of the skin from the bone axis at one station and one angle, before the station's girth is fitted.
  *
- * The base is an ellipse of the station's aspect whose four half axes differ, so its centre sits behind and lateral to the bone axis by the station's offsets. The relief of every superficial form then adds its height, a Gaussian around the limb times a smooth rise and fall along it, as a fraction of the station's mean radius. Muscle relief grows with the appendicular lean mass index; muscle and bone relief both soften under fat, halving at {@link RELIEF_FAT_HALF} millimetres; fat pads grow with the fat thickness at the station.
+ * The base is an ellipse of the station's aspect whose four half axes differ, so its centre sits behind and lateral to the bone axis by the station's offsets. The relief of every superficial form then adds its height, scaled by {@link RELIEF_SHARE}, a Gaussian around the limb times a smooth rise and fall along it, as a fraction of the station's mean radius. Muscle relief grows with the appendicular lean mass index; muscle and bone relief both soften under fat, halving at {@link RELIEF_FAT_HALF} millimetres; fat pads grow with the fat thickness at the station.
  *
  * @param station The station, with its girth, base shape and fat
  * @param angle Angle around the limb from the anterior direction toward the medial one, radians
@@ -71,7 +76,7 @@ export function shapeAutoMovieHumanLegSection(
     const around: number = Math.exp(-0.5 * apart * apart);
     relief += height(r, softening, muscle, station.fat / mean) * along * around;
   }
-  return base + relief * mean;
+  return base + RELIEF_SHARE * relief * mean;
 }
 
 /** Height of one relief as a fraction of the mean radius, after its tissue scaling. */
