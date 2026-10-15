@@ -38,6 +38,7 @@ import { createHumanViewerPoseEditor } from "./human/createHumanViewerPoseEditor
 import { drawHumanViewerConstruction } from "./human/drawHumanViewerConstruction";
 import { frameHumanViewerCamera } from "./human/frameHumanViewerCamera";
 import { hashHumanViewerSession } from "./human/hashHumanViewerSession";
+import { lightHumanViewer } from "./human/lightHumanViewer";
 
 // Human inspection page: the current AutoMovieHuman output through the normal
 // viewer, with part isolation, preset views, the public documents as controls,
@@ -127,10 +128,21 @@ const admit = (session: IHumanViewerSession): IAccepted => {
 const canvas: HTMLCanvasElement = document.querySelector("#view")!;
 const scene: THREE.Scene = new THREE.Scene();
 scene.background = new THREE.Color(0xf2f4f8);
-scene.add(new THREE.HemisphereLight(0xffffff, 0x9aa3b2, 1.6));
-const sun: THREE.DirectionalLight = new THREE.DirectionalLight(0xffffff, 1.4);
-sun.position.set(2, 4, 3);
+const hemisphere: THREE.HemisphereLight = new THREE.HemisphereLight(
+  0xffffff,
+  0x9aa3b2,
+  lightHumanViewer.INTENSITY.default.hemisphere,
+);
+scene.add(hemisphere);
+const sun: THREE.DirectionalLight = new THREE.DirectionalLight(
+  0xffffff,
+  lightHumanViewer.INTENSITY.default.sun,
+);
+sun.position.copy(lightHumanViewer.DEFAULT_POSITION);
 scene.add(sun);
+scene.add(sun.target);
+/** The page's key light for views that name none; null is the default sun. */
+let pageLight: lightHumanViewer.ILight | null = null;
 const grid: THREE.GridHelper = new THREE.GridHelper(6, 60, 0xb8c0cc, 0xd5dbe4);
 scene.add(grid);
 // The floor grid stands between an eye below the floor and the subject, so every render
@@ -192,6 +204,11 @@ let view: {
   focus: AutoMovieHumanoidBone;
   /** Framing margin overriding the scale's own. */
   margin?: number;
+  /** Point framed instead of the focus bone's subtree, with `radius` metres around it. */
+  point?: admitHumanViewerCaptureView.IPoint;
+  radius?: number;
+  /** Key light overriding the page's. */
+  light?: lightHumanViewer.ILight;
 } = {
   view: "front",
   scale: "whole",
@@ -382,22 +399,49 @@ const visibleBox = (root: THREE.Object3D): THREE.Box3 => {
 /** Distance a close view keeps around the focus bone's joints, metres, so the skin around them is in frame. */
 const JOINT_MARGIN: number = 0.06;
 
-/** Frame the current view; returns false when nothing visible is in focus. */
+/** World position of a point along a bone: its joint, or a share of the way to its first child bone's joint. */
+const pointOf = (
+  point: admitHumanViewerCaptureView.IPoint,
+): THREE.Vector3 | undefined => {
+  const bone: THREE.Object3D | undefined = object?.bones.get(
+    point.bone as AutoMovieHumanoidBone,
+  );
+  if (bone === undefined) return undefined;
+  const at: THREE.Vector3 = bone.getWorldPosition(new THREE.Vector3());
+  const child: THREE.Object3D | undefined = bone.children.find(
+    (c: THREE.Object3D): boolean => (c as THREE.Bone).isBone === true,
+  );
+  if (child === undefined || point.along === 0) return at;
+  return at.lerp(child.getWorldPosition(new THREE.Vector3()), point.along);
+};
+
+/** Frame the current view and light it; returns false when nothing visible is in focus. */
 const frame = (): boolean => {
   if (object === null) return false;
-  const root: THREE.Object3D | undefined =
-    view.scale === "whole" ? object.object : object.bones.get(view.focus);
-  if (root === undefined) return false;
   object.object.updateMatrixWorld(true);
-  const box: THREE.Box3 = visibleBox(root);
-  if (view.scale !== "whole") {
-    // the skin is one skinned mesh beside the bones, so a close view also frames the focus bone's joints
-    const joints: THREE.Box3 = new THREE.Box3();
-    root.traverse((node: THREE.Object3D): void => {
-      if ((node as THREE.Bone).isBone)
-        joints.expandByPoint(node.getWorldPosition(new THREE.Vector3()));
-    });
-    if (!joints.isEmpty()) box.union(joints.expandByScalar(JOINT_MARGIN));
+  let box: THREE.Box3;
+  if (view.point !== undefined) {
+    // a focus point frames a cube of the radius around it, whatever lies there
+    const at: THREE.Vector3 | undefined = pointOf(view.point);
+    if (at === undefined) return false;
+    box = new THREE.Box3().setFromCenterAndSize(
+      at,
+      new THREE.Vector3().setScalar(2 * (view.radius ?? JOINT_MARGIN)),
+    );
+  } else {
+    const root: THREE.Object3D | undefined =
+      view.scale === "whole" ? object.object : object.bones.get(view.focus);
+    if (root === undefined) return false;
+    box = visibleBox(root);
+    if (view.scale !== "whole") {
+      // the skin is one skinned mesh beside the bones, so a close view also frames the focus bone's joints
+      const joints: THREE.Box3 = new THREE.Box3();
+      root.traverse((node: THREE.Object3D): void => {
+        if ((node as THREE.Bone).isBone)
+          joints.expandByPoint(node.getWorldPosition(new THREE.Vector3()));
+      });
+      if (!joints.isEmpty()) box.union(joints.expandByScalar(JOINT_MARGIN));
+    }
   }
   if (box.isEmpty()) return false;
   controls.target.copy(
@@ -405,10 +449,17 @@ const frame = (): boolean => {
       camera,
       box,
       view: view.view,
-      margin: view.margin ?? MARGIN[view.scale],
+      margin: view.point !== undefined ? 1 : (view.margin ?? MARGIN[view.scale]),
     }),
   );
   controls.update();
+  lightHumanViewer({
+    light: view.light ?? pageLight,
+    sun,
+    hemisphere,
+    camera,
+    target: controls.target,
+  });
   return true;
 };
 
@@ -428,6 +479,15 @@ const keyed = (mode: DisplayMode): string => {
 const viewTag = (
   v: frameHumanViewerCamera.View | frameHumanViewerCamera.IAngle,
 ): string => (typeof v === "string" ? v : `az${v.azimuth}_el${v.elevation}`);
+
+/** File tag of a view's focus point and light, empty when it names neither. */
+const extraTag = (v: typeof view): string =>
+  (v.point !== undefined
+    ? `_${v.point.bone}${v.point.along === 0 ? "" : `-at${v.point.along}`}-r${v.radius}`
+    : "") +
+  (v.light !== undefined
+    ? `_light-${v.light.relative}-az${v.light.azimuth}_el${v.light.elevation}`
+    : "");
 
 /**
  * Capture views at each scale. A view is a preset name or angles admitted by `admitHumanViewerCaptureView`; an angle view with a focus bone is captured once, close on that bone. Omitted views take every preset, omitted scales `whole` and `close`.
@@ -467,7 +527,8 @@ const capture = async (props: {
   const plan: { view: typeof view; tag: string }[] = [];
   for (const scale of props.scales ?? (["whole", "close"] as Scale[]))
     for (const v of views) {
-      if (typeof v !== "string" && v.focus !== undefined) continue;
+      if (typeof v !== "string" && (v.focus !== undefined || v.point !== undefined))
+        continue;
       plan.push({
         view: {
           view: v,
@@ -476,20 +537,25 @@ const capture = async (props: {
           ...(typeof v !== "string" && v.margin !== undefined
             ? { margin: v.margin }
             : {}),
+          ...(typeof v !== "string" && v.light !== undefined
+            ? { light: v.light }
+            : {}),
         },
         tag: scale === "whole" ? "whole" : `close-${focus}`,
       });
     }
   for (const v of views)
-    if (typeof v !== "string" && v.focus !== undefined)
+    if (typeof v !== "string" && (v.focus !== undefined || v.point !== undefined))
       plan.push({
         view: {
           view: v,
           scale: "close",
-          focus: v.focus as AutoMovieHumanoidBone,
+          focus: (v.focus ?? v.point!.bone) as AutoMovieHumanoidBone,
           ...(v.margin !== undefined ? { margin: v.margin } : {}),
+          ...(v.point !== undefined ? { point: v.point, radius: v.radius } : {}),
+          ...(v.light !== undefined ? { light: v.light } : {}),
         },
-        tag: `close-${v.focus}`,
+        tag: v.point !== undefined ? "point" : `close-${v.focus}`,
       });
   const modes: DisplayMode[] = props.modes ?? ["surface"];
   for (const mode of modes)
@@ -510,7 +576,7 @@ const capture = async (props: {
       handle.renderer.render(scene, camera);
       // Read the drawing buffer in the same task as the draw, before it clears.
       const png: string = keyed(mode);
-      const file: string = `${props.name}-${mode === "surface" ? "" : `${mode}-`}${step.tag}-${viewTag(view.view)}.png`;
+      const file: string = `${props.name}-${mode === "surface" ? "" : `${mode}-`}${step.tag}-${viewTag(view.view)}${extraTag(view)}.png`;
       shots.push({ file, png });
       records.push({
         file,
@@ -519,6 +585,9 @@ const capture = async (props: {
         scale: view.scale,
         focus: view.scale === "whole" ? null : view.focus,
         margin: view.margin ?? MARGIN[view.scale],
+        point: view.point ?? null,
+        radius: view.radius ?? null,
+        light: view.light ?? pageLight,
         camera: {
           position: camera.position.toArray(),
           target: controls.target.toArray(),
@@ -949,6 +1018,15 @@ frame();
   },
   parts: (): string[] =>
     current.model.parts.map((p: { id: string }): string => p.id),
+  setLight: (next: lightHumanViewer.ILight | "raking" | null): boolean => {
+    pageLight =
+      next === "raking"
+        ? { ...lightHumanViewer.PRESETS.raking }
+        : next === null
+          ? null
+          : { ...next };
+    return frame();
+  },
   setView: (next: Partial<typeof view>): boolean => {
     view = { ...view, ...next };
     return frame();
