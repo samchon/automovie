@@ -12,6 +12,11 @@ import { IAutoMovieHumanIdentity } from "../../structures/IAutoMovieHumanIdentit
 const MID_BREADTH: number = 1.155;
 
 /**
+ * The mid section's back over the distance from the neck bone to cervicale: the nape above the seventh cervical spine lies in front of its prominence, in the nuchal hollow between the semispinalis masses. Calibrated against the MakeHuman CC0 adult variants' mid-neck sections with the shared harness. Grade: calibrated.
+ */
+const NAPE: number = 0.8;
+
+/**
  * Thyroid lamina width over neck circumference: 37.0 mm in men and 31.9 mm in women (Rawal et al. 2014, Natl J Integr Res Med 5(3), cadaver larynges) over the converter's adult neck circumferences of 398 and 330 mm. Grade: derived.
  */
 const LAMINA_PER_NECK: number = 0.095;
@@ -53,9 +58,9 @@ export function sectionAutoMovieHumanNeck(props: {
     AutoMovieHumanVector.offset(AutoMovieHumanVector.of(0, 0, 1), [axis, -axis.z]),
   );
   const directions: IAutoMovieVector3[] = AutoMovieHumanCageBuilder.turn(axis, reference, props.base.count);
-  // the back reaches cervicale, which lies in this section; the front and the breadth follow from the circumference
+  // the back reaches toward cervicale, which lies in this section; the front and the breadth follow from the circumference
   const nape: IAutoMovieVector3 = AutoMovieHumanVector.offset(props.skeleton.landmarks.cervicale.position, [lower, -1]);
-  const back: number = Math.hypot(
+  const back: number = NAPE * Math.hypot(
     ...((): [number, number, number] => {
       const along: number = AutoMovieHumanVector.dot(nape, axis);
       return [nape.x - along * axis.x, nape.y - along * axis.y, nape.z - along * axis.z];

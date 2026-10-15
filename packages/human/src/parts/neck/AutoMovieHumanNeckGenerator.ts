@@ -79,7 +79,7 @@ export class AutoMovieHumanNeckGenerator implements IAutoMovieHumanPartGenerator
       const [p0, p1] = segment === 0 ? [b, m] : [m, e];
       const length: number = AutoMovieHumanVector.distance(p0, p1);
       const upright: IAutoMovieVector3 = AutoMovieHumanVector.offset(AutoMovieHumanVector.of(0, 0, 0), [axis, length]);
-      const t0: IAutoMovieVector3 = segment === 0 ? AutoMovieHumanVector.offset(m, [b, -1]) : upright;
+      const t0: IAutoMovieVector3 = upright;
       const t1: IAutoMovieVector3 = segment === 0 ? upright : AutoMovieHumanVector.offset(e, [m, -1]);
       return AutoMovieHumanVector.offset(
         AutoMovieHumanVector.of(0, 0, 0),
