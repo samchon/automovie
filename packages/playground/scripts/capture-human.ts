@@ -38,6 +38,9 @@ interface IPerson {
 
   /** Skin assembly, `parts` or `joined`; omitted, the page's current one. */
   assembly?: "parts" | "joined";
+
+  /** Hand generator, the profile's or the swap demonstration's paddle; omitted, the page's current one. */
+  hand?: "profile" | "paddle";
 }
 
 /**
@@ -47,10 +50,20 @@ interface IPerson {
  */
 const main = async (): Promise<void> => {
   const flags: Map<string, string> = new Map();
-  const argv: string[] = process.argv.slice(2).filter((a: string): boolean => a !== "--");
-  for (let i: number = 0; i < argv.length; i += 2) flags.set(argv[i]!.replace(/^--/, ""), argv[i + 1] ?? "");
-  const base: string = (flags.get("base") ?? "http://127.0.0.1:5173").replace(/\/+$/, "");
-  const list = (key: string): string[] | undefined => flags.get(key)?.split(",").filter((s: string): boolean => s.length !== 0);
+  const argv: string[] = process.argv
+    .slice(2)
+    .filter((a: string): boolean => a !== "--");
+  for (let i: number = 0; i < argv.length; i += 2)
+    flags.set(argv[i]!.replace(/^--/, ""), argv[i + 1] ?? "");
+  const base: string = (flags.get("base") ?? "http://127.0.0.1:5173").replace(
+    /\/+$/,
+    "",
+  );
+  const list = (key: string): string[] | undefined =>
+    flags
+      .get(key)
+      ?.split(",")
+      .filter((s: string): boolean => s.length !== 0);
   const people: IPerson[] = flags.has("people")
     ? (JSON.parse(fs.readFileSync(flags.get("people")!, "utf8")) as IPerson[])
     : [{ name: flags.get("name") ?? "human" }];
@@ -60,50 +73,79 @@ const main = async (): Promise<void> => {
     person.focus ??= flags.get("focus");
   }
 
-  const server: ChildProcess | null = (await responds(base)) ? null : await startServer(base);
+  const server: ChildProcess | null = (await responds(base))
+    ? null
+    : await startServer(base);
   let browser: Browser | null = null;
   try {
     browser = await chromium.launch({
-      executablePath: flags.get("chrome") ?? process.env.CHROME ?? DEFAULT_CHROME_EXECUTABLE,
+      executablePath:
+        flags.get("chrome") ?? process.env.CHROME ?? DEFAULT_CHROME_EXECUTABLE,
       headless: true,
     });
-    const page: Page = await browser.newPage({ viewport: { width: 1600, height: 1000 }, deviceScaleFactor: 1 });
-    page.on("pageerror", (error: Error): void => console.error(`page error: ${error.message}`));
+    const page: Page = await browser.newPage({
+      viewport: { width: 1600, height: 1000 },
+      deviceScaleFactor: 1,
+    });
+    page.on("pageerror", (error: Error): void =>
+      console.error(`page error: ${error.message}`),
+    );
     await page.goto(`${base}/human.html`);
     await page.waitForFunction(
       (): boolean => ((window as any).__automovieHuman?.frames() ?? 0) > 0,
       null,
       { timeout: 60_000 },
     );
-    const renderer: string = await page.evaluate((): string => (window as any).__automovieHuman.renderer);
+    const renderer: string = await page.evaluate(
+      (): string => (window as any).__automovieHuman.renderer,
+    );
     console.log(`renderer: ${renderer}`);
-    if (SOFTWARE.test(renderer)) throw new Error(`refusing a software renderer: ${renderer}`);
+    if (SOFTWARE.test(renderer))
+      throw new Error(`refusing a software renderer: ${renderer}`);
     for (const person of people) {
       const loaded: boolean = await page.evaluate(
         (p: { person: IPerson; session: unknown }): boolean => {
           const api: any = (window as any).__automovieHuman;
-          if (p.person.assembly !== undefined) api.setAssembly(p.person.assembly);
+          if (p.person.assembly !== undefined)
+            api.setAssembly(p.person.assembly);
+          if (p.person.hand !== undefined) api.setHand(p.person.hand);
           const ok: boolean =
             p.session !== null
               ? api.load(p.session)
               : p.person.traits !== undefined
-                ? api.loadTraits({ traits: p.person.traits, statureScale: p.person.statureScale })
+                ? api.loadTraits({
+                    traits: p.person.traits,
+                    statureScale: p.person.statureScale,
+                  })
                 : true;
           api.setHidden(p.person.hidden ?? []);
           return ok;
         },
         {
           person,
-          session: person.session === undefined ? null : JSON.parse(fs.readFileSync(person.session, "utf8")),
+          session:
+            person.session === undefined
+              ? null
+              : JSON.parse(fs.readFileSync(person.session, "utf8")),
         },
       );
-      if (!loaded) throw new Error(`${person.name} refused:\n${await page.evaluate((): string => (window as any).__automovieHuman.error())}`);
+      if (!loaded)
+        throw new Error(
+          `${person.name} refused:\n${await page.evaluate((): string => (window as any).__automovieHuman.error())}`,
+        );
       const result: { files: string[]; metadata: string } = await page.evaluate(
         (p: IPerson): Promise<{ files: string[]; metadata: string }> =>
-          (window as any).__automovieHuman.capture({ name: p.name, views: p.views, scales: p.scales, focus: p.focus }),
+          (window as any).__automovieHuman.capture({
+            name: p.name,
+            views: p.views,
+            scales: p.scales,
+            focus: p.focus,
+          }),
         person,
       );
-      console.log(`${person.name}: ${result.files.length} views, metadata ${path.relative(process.cwd(), result.metadata)}`);
+      console.log(
+        `${person.name}: ${result.files.length} views, metadata ${path.relative(process.cwd(), result.metadata)}`,
+      );
       for (const file of result.files) console.log(`  ${file}`);
     }
   } finally {
@@ -123,7 +165,10 @@ const responds = async (base: string): Promise<boolean> => {
 
 /** Start the playground's dev server on the base URL's port and wait until it answers. The package is an ES module, so its directory comes from `import.meta.url`; `__dirname` does not exist there. */
 const startServer = async (base: string): Promise<ChildProcess> => {
-  const root: string = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
+  const root: string = path.join(
+    path.dirname(fileURLToPath(import.meta.url)),
+    "..",
+  );
   const child: ChildProcess = spawn(
     process.execPath,
     [

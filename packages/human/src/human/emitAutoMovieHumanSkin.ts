@@ -14,6 +14,7 @@ import { IAutoMovieHumanJunction } from "../junction/IAutoMovieHumanJunction";
 import { meshAutoMovieHumanCage } from "../junction/meshAutoMovieHumanCage";
 import { IAutoMovieHumanMeasurements } from "../measure/IAutoMovieHumanMeasurements";
 import { IAutoMovieHumanSkeleton } from "../skeleton/IAutoMovieHumanSkeleton";
+import { IAutoMovieHumanPartGenerators } from "./IAutoMovieHumanPartGenerators";
 import {
   AUTOMOVIE_HUMAN_SKIN_MATERIAL,
   generateAutoMovieHumanCages,
@@ -26,6 +27,7 @@ import {
  *
  * @param measurements Resolved measurements
  * @param skeleton The skeleton at rest
+ * @param generators The generator of each part
  * @param junction The junction that joins two rings
  * @returns The joined cage
  * @throws {Error} When a part opens a ring the joins leave open
@@ -33,9 +35,10 @@ import {
 export const joinAutoMovieHumanCages = (
   measurements: IAutoMovieHumanMeasurements,
   skeleton: IAutoMovieHumanSkeleton,
+  generators: IAutoMovieHumanPartGenerators,
   junction: IAutoMovieHumanJunction = new AutoMovieHumanJunction(),
 ): IAutoMovieHumanCage => {
-  const cages = generateAutoMovieHumanCages(measurements, skeleton);
+  const cages = generateAutoMovieHumanCages(measurements, skeleton, generators);
   const cage = (
     part: AutoMovieHumanPart,
     side: AutoMovieHumanSide | null,
@@ -64,16 +67,19 @@ export const joinAutoMovieHumanCages = (
  * @param measurements Resolved measurements
  * @param skeleton The skeleton at rest
  * @param levels Subdivision levels
+ * @param generators The generator of each part
  * @returns The skin part, id `skin`
  */
 export const emitAutoMovieHumanSkin = (
   measurements: IAutoMovieHumanMeasurements,
   skeleton: IAutoMovieHumanSkeleton,
   levels: number,
+  generators: IAutoMovieHumanPartGenerators,
 ): IAutoMovieModelPart => {
   const cage: IAutoMovieHumanCage = joinAutoMovieHumanCages(
     measurements,
     skeleton,
+    generators,
   );
   const output: meshAutoMovieHumanCage.IOutput = meshAutoMovieHumanCage({
     cage,

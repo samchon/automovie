@@ -26,6 +26,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 import { HUMAN_VIEWER_CHOICES } from "./human/HUMAN_VIEWER_CHOICES";
+import { HumanViewerPaddleHandGenerator } from "./human/HumanViewerPaddleHandGenerator";
 import { IHumanViewerSession } from "./human/IHumanViewerSession";
 import { createHumanViewerDocumentForm } from "./human/createHumanViewerDocumentForm";
 import { createHumanViewerExpressionEditor } from "./human/createHumanViewerExpressionEditor";
@@ -85,6 +86,9 @@ const sessionFromTraits = (
 /** How the skin is assembled: each part's own cage alone, or the joined person. */
 let assembly: "parts" | "joined" = "parts";
 
+/** Which hand generator builds the person: the profile's own, or the paddle that demonstrates a part swap. */
+let hand: "profile" | "paddle" = "profile";
+
 /** Admit every document of a session; throws the package's refusal unchanged. */
 const admit = (session: IHumanViewerSession): IAccepted => {
   if (
@@ -99,6 +103,10 @@ const admit = (session: IHumanViewerSession): IAccepted => {
   const human: AutoMovieHuman = new AutoMovieHuman({
     id: MODEL_ID,
     identity: session.identity,
+    parts:
+      hand === "paddle"
+        ? { hand: new HumanViewerPaddleHandGenerator() }
+        : undefined,
   });
   return {
     session: structuredClone(session),
@@ -120,7 +128,12 @@ sun.position.set(2, 4, 3);
 scene.add(sun);
 const grid: THREE.GridHelper = new THREE.GridHelper(6, 60, 0xb8c0cc, 0xd5dbe4);
 scene.add(grid);
-const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(30, 1, 0.01, 100);
+const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
+  30,
+  1,
+  0.01,
+  100,
+);
 const controls: OrbitControls = new OrbitControls(camera, canvas);
 let frames: number = 0;
 const handle: ReturnType<typeof mountViewer> = mountViewer(
@@ -158,7 +171,11 @@ let bonesHelper: THREE.SkeletonHelper | null = null;
 let traitsDraft: IAutoMovieHumanTraits = structuredClone(DEFAULT_TRAITS);
 /** Hidden part ids; a rebuilt model keeps hiding the ids it still has. */
 const hidden: Set<string> = new Set();
-let view: { view: frameHumanViewerCamera.View; scale: Scale; focus: AutoMovieHumanoidBone } = {
+let view: {
+  view: frameHumanViewerCamera.View;
+  scale: Scale;
+  focus: AutoMovieHumanoidBone;
+} = {
   view: "front",
   scale: "whole",
   focus: "head",
@@ -170,7 +187,11 @@ const status = (text: string): void => {
 };
 const error = (cause: unknown): void => {
   document.querySelector("#error")!.textContent =
-    cause === null ? "" : cause instanceof Error ? cause.message : String(cause);
+    cause === null
+      ? ""
+      : cause instanceof Error
+        ? cause.message
+        : String(cause);
 };
 
 /** Release the GPU resources of a built model that is being replaced. */
@@ -250,7 +271,12 @@ const frame = (): boolean => {
   const box: THREE.Box3 = visibleBox(root);
   if (box.isEmpty()) return false;
   controls.target.copy(
-    frameHumanViewerCamera({ camera, box, view: view.view, margin: MARGIN[view.scale] }),
+    frameHumanViewerCamera({
+      camera,
+      box,
+      view: view.view,
+      margin: MARGIN[view.scale],
+    }),
   );
   controls.update();
   return true;
@@ -272,7 +298,8 @@ const capture = async (props: {
   for (const scale of props.scales ?? (["whole", "close"] as Scale[]))
     for (const v of props.views ?? [...frameHumanViewerCamera.VIEWS]) {
       view = { view: v, scale, focus };
-      if (!frame()) throw new Error(`Nothing visible to frame for ${scale} ${focus}.`);
+      if (!frame())
+        throw new Error(`Nothing visible to frame for ${scale} ${focus}.`);
       handle.renderer.render(scene, camera);
       // Read the drawing buffer in the same task as the draw, before it clears.
       const png: string = canvas.toDataURL("image/png").split(",")[1]!;
@@ -305,7 +332,9 @@ const capture = async (props: {
         canvas: { width: canvas.width, height: canvas.height },
         documentsHash: await hashHumanViewerSession(current.session),
         documents: current.session,
-        hiddenParts: [...hidden].sort((a: string, b: string): number => a.localeCompare(b)),
+        hiddenParts: [...hidden].sort((a: string, b: string): number =>
+          a.localeCompare(b),
+        ),
         shots: records,
       },
     }),
@@ -325,7 +354,9 @@ const button = (label: string, onClick: () => void): HTMLButtonElement => {
 const mount = (selector: string, ...children: HTMLElement[]): void => {
   document.querySelector(selector)!.replaceChildren(...children);
 };
-const withDocument = <K extends "identity" | "pose" | "expression" | "appearance">(
+const withDocument = <
+  K extends "identity" | "pose" | "expression" | "appearance",
+>(
   key: K,
   value: IHumanViewerSession[K],
 ): void => {
@@ -388,9 +419,17 @@ const renderViews = (): void => {
     assembly = skin.value as typeof assembly;
     accept(current.session, `Skin: ${skin.value}.`);
   });
+  const hands: HTMLSelectElement = document.createElement("select");
+  hands.add(new Option("profile hand", "profile"));
+  hands.add(new Option("paddle hand (swap)", "paddle"));
+  hands.value = hand;
+  hands.addEventListener("change", (): void => {
+    hand = hands.value as typeof hand;
+    accept(current.session, `Hand: ${hands.value}.`);
+  });
   const row: HTMLDivElement = document.createElement("div");
   row.className = "row";
-  row.append(scale, focus, skin, bones);
+  row.append(scale, focus, skin, hands, bones);
   const captureRow: HTMLDivElement = document.createElement("div");
   captureRow.className = "row";
   captureRow.append(name, run);
@@ -453,7 +492,10 @@ const renderPanels = (): void => {
   renderParts();
   const convert: HTMLButtonElement = button("Convert traits", (): void => {
     try {
-      accept(sessionFromTraits(traitsDraft, s), "Converted the traits into identity and appearance.");
+      accept(
+        sessionFromTraits(traitsDraft, s),
+        "Converted the traits into identity and appearance.",
+      );
     } catch (cause) {
       error(cause);
     }
@@ -481,8 +523,12 @@ const renderPanels = (): void => {
     "#identity",
     createHumanViewerDocumentForm<IAutoMovieHumanIdentity>({
       document: s.identity,
-      spec: { hidden: ["version"], choices: { "pigmentation.iris": HUMAN_VIEWER_CHOICES.iris } },
-      onChange: (d: IAutoMovieHumanIdentity): void => withDocument("identity", d),
+      spec: {
+        hidden: ["version"],
+        choices: { "pigmentation.iris": HUMAN_VIEWER_CHOICES.iris },
+      },
+      onChange: (d: IAutoMovieHumanIdentity): void =>
+        withDocument("identity", d),
     }),
   );
   mount(
@@ -498,7 +544,8 @@ const renderPanels = (): void => {
     createHumanViewerExpressionEditor({
       units: HUMAN_VIEWER_CHOICES.actionUnits,
       expression: s.expression,
-      onChange: (d: IAutoMovieHumanExpression): void => withDocument("expression", d),
+      onChange: (d: IAutoMovieHumanExpression): void =>
+        withDocument("expression", d),
     }),
   );
   type Wear = IAutoMovieHumanAppearance.IUnderwear;
@@ -542,7 +589,8 @@ const renderPanels = (): void => {
           },
         },
       },
-      onChange: (d: IAutoMovieHumanAppearance): void => withDocument("appearance", d),
+      onChange: (d: IAutoMovieHumanAppearance): void =>
+        withDocument("appearance", d),
     }),
   );
   const text: HTMLTextAreaElement = document.createElement("textarea");
@@ -552,7 +600,10 @@ const renderPanels = (): void => {
     text,
     button("Apply JSON", (): void => {
       try {
-        accept(JSON.parse(text.value) as IHumanViewerSession, "Applied the JSON documents.");
+        accept(
+          JSON.parse(text.value) as IHumanViewerSession,
+          "Applied the JSON documents.",
+        );
       } catch (cause) {
         error(cause);
       }
@@ -565,12 +616,16 @@ const save = (): void => {
   const text: string = JSON.stringify(current.session, null, 2);
   localStorage.setItem(STORAGE_KEY, text);
   const link: HTMLAnchorElement = document.createElement("a");
-  link.href = URL.createObjectURL(new Blob([text], { type: "application/json" }));
+  link.href = URL.createObjectURL(
+    new Blob([text], { type: "application/json" }),
+  );
   link.download = "human-session.json";
   link.click();
   URL.revokeObjectURL(link.href);
   void hashHumanViewerSession(current.session).then((hash: string): void =>
-    status(`Saved to local storage and human-session.json (documents ${hash.slice(0, 12)}).`),
+    status(
+      `Saved to local storage and human-session.json (documents ${hash.slice(0, 12)}).`,
+    ),
   );
 };
 const open: HTMLInputElement = document.createElement("input");
@@ -601,12 +656,16 @@ const stored: string | null = localStorage.getItem(STORAGE_KEY);
 let resumed: boolean = false;
 if (stored !== null) {
   try {
-    resumed = accept(JSON.parse(stored) as IHumanViewerSession, "Resumed the saved session from local storage.");
+    resumed = accept(
+      JSON.parse(stored) as IHumanViewerSession,
+      "Resumed the saved session from local storage.",
+    );
   } catch (cause) {
     error(cause);
   }
 }
-if (!resumed) accept(sessionFromTraits(DEFAULT_TRAITS), "Showing the default person.");
+if (!resumed)
+  accept(sessionFromTraits(DEFAULT_TRAITS), "Showing the default person.");
 traitsDraft = structuredClone(current!.session.traits);
 renderPanels();
 resize();
@@ -617,14 +676,18 @@ frame();
   frames: (): number => frames,
   session: (): IHumanViewerSession => structuredClone(current.session),
   hash: (): Promise<string> => hashHumanViewerSession(current.session),
-  load: (session: IHumanViewerSession): boolean => accept(session, "Loaded a session."),
-  loadTraits: (props: { traits: IAutoMovieHumanTraits; statureScale?: number }): boolean => {
+  load: (session: IHumanViewerSession): boolean =>
+    accept(session, "Loaded a session."),
+  loadTraits: (props: {
+    traits: IAutoMovieHumanTraits;
+    statureScale?: number;
+  }): boolean => {
     try {
       const traits: IAutoMovieHumanTraits = structuredClone(props.traits);
       if (props.statureScale !== undefined)
         traits.stature =
-          sessionFromTraits({ ...traits, stature: null }).identity.body.stature *
-          props.statureScale;
+          sessionFromTraits({ ...traits, stature: null }).identity.body
+            .stature * props.statureScale;
       traitsDraft = traits;
       return accept(sessionFromTraits(traits), "Loaded traits.");
     } catch (cause) {
@@ -640,11 +703,16 @@ frame();
     applyVisibility();
     renderParts();
   },
+  setHand: (next: "profile" | "paddle"): boolean => {
+    hand = next;
+    return accept(current.session, `Hand: ${next}.`);
+  },
   setAssembly: (next: "parts" | "joined"): boolean => {
     assembly = next;
     return accept(current.session, `Skin: ${next}.`);
   },
-  parts: (): string[] => current.model.parts.map((p: { id: string }): string => p.id),
+  parts: (): string[] =>
+    current.model.parts.map((p: { id: string }): string => p.id),
   setView: (next: Partial<typeof view>): boolean => {
     view = { ...view, ...next };
     return frame();
