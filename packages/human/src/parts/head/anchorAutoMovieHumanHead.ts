@@ -79,7 +79,11 @@ export function anchorAutoMovieHumanHead(props: {
         const z: number = eye.z + Math.sqrt(Math.max(0, r * r - dx * dx - dy * dy));
         return v(px, py, z);
       };
-      anchors.set(loops[1]![i]!, lid(1.15 * mx, 1.45 * my + (s >= 0 ? 0.08 : -0.04) * fissure, 2.8));
+      // the lid sulcus on the skin, where the lid meets the orbit
+      anchors.set(
+        loops[1]![i]!,
+        front(eye.x + sign * 1.15 * mx, eye.y + 1.45 * my + (s >= 0 ? 0.08 : -0.04) * fissure),
+      );
       anchors.set(loops[2]![i]!, lid(mx, my, 1.4));
       anchors.set(loops[3]![i]!, lid(0.97 * mx, 0.8 * my, 0.2));
       // the pocket behind the lids, inside the eyeball's volume so the eyeball covers it
@@ -193,5 +197,5 @@ const MOUTH = {
   /** Lower vermilion sto-li over face height: 8.7 / 127.2. */
   lowerVermilion: 0.068,
   /** Forward bulge of the lips over the base surface, over face height. */
-  protrusion: 0.035,
+  protrusion: 0.015,
 };

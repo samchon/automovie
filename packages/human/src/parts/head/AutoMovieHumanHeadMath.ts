@@ -32,6 +32,18 @@ export namespace AutoMovieHumanHeadMath {
   }
 
   /**
+   * Polynomial smooth maximum of two distances, the smooth intersection of their shapes.
+   *
+   * @param a First distance
+   * @param b Second distance
+   * @param k Blend width, the same unit
+   * @returns The blended maximum
+   */
+  export function smoothMax(a: number, b: number, k: number): number {
+    return -smoothMin(-a, -b, k);
+  }
+
+  /**
    * Hermite smooth step from 0 at `a` to 1 at `b`.
    *
    * @param a Start
@@ -45,7 +57,7 @@ export namespace AutoMovieHumanHeadMath {
   }
 
   /**
-   * The monotone piecewise cubic through knots (Fritsch and Carlson 1980, SIAM J Numer Anal 17(2):238-246), held flat outside them.
+   * The Catmull-Rom cubic through knots: each knot's tangent is the slope between its two neighbours (Catmull and Rom 1974, "A class of local interpolating splines"), so the curve is C1 and has no flat spot at a knot, unlike a monotone cubic, whose zero tangents at local extrema would band a stack of sections. Outside the knots the curve continues linearly along its end tangents.
    *
    * @param knots Abscissa and value pairs, in any order
    * @returns The curve as a function
@@ -63,14 +75,13 @@ export namespace AutoMovieHumanHeadMath {
       (_: [number, number], i: number): number => {
         if (i === 0) return slopes[0]!;
         if (i === k.length - 1) return slopes[slopes.length - 1]!;
-        const a: number = slopes[i - 1]!;
-        const b: number = slopes[i]!;
-        return a * b <= 0 ? 0 : (2 * a * b) / (a + b);
+        return (k[i + 1]![1] - k[i - 1]![1]) / Math.max(1e-9, k[i + 1]![0] - k[i - 1]![0]);
       },
     );
+    const last: number = k.length - 1;
     return (x: number): number => {
-      if (x <= k[0]![0]) return k[0]![1];
-      if (x >= k[k.length - 1]![0]) return k[k.length - 1]![1];
+      if (x <= k[0]![0]) return k[0]![1] + tangents[0]! * (x - k[0]![0]);
+      if (x >= k[last]![0]) return k[last]![1] + tangents[last]! * (x - k[last]![0]);
       let i: number = 0;
       while (x > k[i + 1]![0]) ++i;
       const h: number = Math.max(1e-9, k[i + 1]![0] - k[i]![0]);

@@ -30,77 +30,56 @@ export interface IAutoMovieHumanHeadForm {
   /** Vault: fraction of the front semi-axis where it has receded. */
   recedeEnd: number;
 
-  /** Face: section exponent along the mandible. */
-  jawExponent: number;
+  /** Midface: its front behind nasion, `fh`. */
+  midfaceFront: number;
 
-  /** Face: section exponent between gonion and zygion, over the masseter. */
-  ramusExponent: number;
+  /** Midface: its top above the eyes' centres, `fh`. */
+  midfaceTop: number;
 
-  /** Face: section exponent at zygion, across the cheeks. */
+  /** Midface: its bottom below subnasale, `fh`. */
+  midfaceBottom: number;
+
+  /** Midface: exponent of its horizontal section, the cheeks' turn from the front to the sides. */
   cheekExponent: number;
 
-  /** Face: section exponent at the eyes, across the orbital rims. */
-  orbitExponent: number;
+  /** Midface: exponent of its vertical section. */
+  midfaceExponent: number;
 
-  /** Face: section exponent at glabella, across the brows. */
-  browExponent: number;
+  /** Jaw: its centre above the mandible's lower border, the line from gonion to menton, `fh`. */
+  jawLift: number;
 
-  /** Face: half-width of the section at the eyes, the lateral orbital rims, `fw`. */
-  orbitWidth: number;
+  /** Jaw: its upper semi-axis across the mandibular plane, `fh`. */
+  jawTop: number;
 
-  /** Face: depth of the lateral orbital rims behind the cornea, `fh`. */
-  orbitSetback: number;
+  /** Jaw: exponent of its horizontal section. */
+  jawExponent: number;
 
-  /** Face: depth of the brows' widest point behind frontotemporale, `fh`. */
-  browSetback: number;
+  /** Jaw: exponent of its vertical section, higher for a flatter lower border. */
+  jawBorder: number;
 
-  /** Face: setback of the mask's midline at menton, behind it, `fh`. */
-  maskChin: number;
+  /** Jaw: half-width at pogonion, `fw`. */
+  chinWidth: number;
 
-  /** Face: setback of the mask's midline at the labiomental fold, behind pogonion, `fh`. */
-  maskFold: number;
+  /** Jaw: how the jaw narrows from the gonia to the chin, the exponent of its taper along its depth. */
+  jawTaper: number;
 
-  /** Face: setback of the mask's midline at stomion, behind subnasale, `fh`. */
-  maskMouth: number;
-
-  /** Face: setback of the mask's midline at the nose base, behind nasion, `fh`. */
-  maskNose: number;
-
-  /** Face: setback of the mask's midline under the eyes, behind nasion, `fh`. */
-  maskEye: number;
-
-  /** Muzzle: pogonion in front of gnathion, `fh`. */
+  /** Jaw: pogonion in front of gnathion, `fh`. */
   pogonion: number;
 
-  /** Muzzle: the chin's least depth behind subnasale, `fh`. */
+  /** Jaw: the chin's least depth behind subnasale, `fh`. */
   chin: number;
-
-  /** Muzzle: half-width at menton, `fw`. */
-  muzzleMenton: number;
-
-  /** Muzzle: half-width at pogonion, `fw`. */
-  muzzleChin: number;
-
-  /** Muzzle: half-width at the labiomental fold, `fw`. */
-  muzzleFold: number;
 
   /** Muzzle: half-width at stomion, `fw`. */
   muzzleMouth: number;
 
-  /** Muzzle: half-width at the nose base, `fw`. */
-  muzzleBase: number;
-
-  /** Muzzle: depth from its front to its widest at stomion, `fh`. */
+  /** Muzzle: depth from its front to its centre, `fh`. */
   muzzleDepth: number;
 
-  /** Stem: half-width of the upper neck over the neck circumference's mean radius. */
-  stemWidth: number;
+  /** Muzzle: its top above subnasale, `fh`. */
+  muzzleTop: number;
 
-  /** Stem: back depth over the mean radius. */
-  stemDepth: number;
-
-  /** Stem: front depth over the back depth. */
-  stemFront: number;
+  /** Muzzle: exponent of its vertical section. */
+  muzzleExponent: number;
 
   /** Relief: zygomatic prominence height, `fh`. */
   malar: number;
@@ -117,6 +96,12 @@ export interface IAutoMovieHumanHeadForm {
   /** Relief: mental protuberance height, `fh`. */
   mental: number;
 
-  /** Blend width of the vault and face union, `fh`. */
+  /** Relief: buccal fat over the cheek below the zygoma in an adult face, `fh`. */
+  buccal: number;
+
+  /** Relief: added buccal fat per unit the face's height falls short of the adult's share of head height, `fh`; the full cheeks of a small face under a large vault. */
+  buccalGrowth: number;
+
+  /** Blend width of the unions of the head's masses, `fh`. */
   blend: number;
 }
