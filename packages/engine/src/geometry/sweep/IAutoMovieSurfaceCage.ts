@@ -65,6 +65,13 @@ export namespace IAutoMovieSurfaceCage {
   /**
    * One patch's grid at the tier.
    *
+   * @evidence contracts/common.md#principled-implementation A patch's grid is its row and column counts and its faces in row-major order, which is all the chart inversion needs.
+   * @evidence contracts/common.md#clear-and-simple-design Three numbers and one index list per patch; the faces themselves live once in the cage.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Counts are the tier's declared counts, never inferred from positions.
+   * @evidence contracts/common.md#meaningful-documentation States the row-major face order and how face `(i, j)` is found.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `sampleAutoMovieSurfaceNetwork`.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
    * @author Samchon
    */
   export interface IPatch {

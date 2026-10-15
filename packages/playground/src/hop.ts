@@ -38,8 +38,8 @@ export const hop: (sk: string) => IAutoMovieMotion = (
       j("rightUpperLeg", { flexion: 26 }),
       j("leftLowerLeg", { flexion: 46 }),
       j("rightLowerLeg", { flexion: 46 }),
-      j("leftUpperArm", { abduction: 50, flexion: 38 }),
-      j("rightUpperArm", { abduction: 50, flexion: 38 }),
+      j("leftUpperArm", { abduction: 50, flexion: -38 }),
+      j("rightUpperArm", { abduction: 50, flexion: -38 }),
     ],
     root(0, -0.12, 0, 0),
   );

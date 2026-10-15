@@ -7,6 +7,7 @@ import { jumpingJack } from "./jumpingJack";
 import { kick } from "./kick";
 import { run } from "./run";
 import { shadowbox } from "./shadowbox";
+import { sides } from "./sides";
 import { sprint } from "./sprint";
 import { stroll } from "./stroll";
 import { turn } from "./turn";
@@ -14,7 +15,7 @@ import { walk } from "./walk";
 import { wave } from "./wave";
 
 /**
- * Construct the existing twelve-name selectable motion catalogue for one compatible stick-rig identity. All clips are built eagerly, including composed and traveling routines; selecting one later does not imply the unused ones avoided construction. The catalogue supplies choreography rather than clinical or visual admission.
+ * Construct the existing thirteen-name selectable motion catalogue for one compatible stick-rig identity. All clips are built eagerly, including composed and traveling routines; selecting one later does not imply the unused ones avoided construction. The catalogue supplies choreography rather than clinical or visual admission.
  *
  * @evidence contracts/common.md#principled-implementation Closed authored catalogue names map to their actual clip producers with the same skeleton identity, preserving the page's supported selection set.
  * @evidence contracts/common.md#clear-and-simple-design One map binds the current selectable examples while each clip owns its construction and the page owns selection, player and renderer lifetime.
@@ -43,4 +44,5 @@ export const STICKMAN_CLIPS: (
   shadowbox: shadowbox(sk),
   stroll: stroll(sk),
   sprint: sprint(sk),
+  sides: sides(sk),
 });

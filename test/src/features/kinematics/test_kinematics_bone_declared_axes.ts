@@ -49,8 +49,9 @@ const MINUS_X_DIGIT: IAutoMovieJointAxes = {
  *    down (−Y), on the +X and the −X side alike, with the humanoid table
  *    passed, without any table, and with a table whose own entry for the digit
  *    is the default basis.
- * 2. Without the declaration the same pose reads the table or the default
- *    basis, a roll about the digit's own X axis, and the tips do not move.
+ * 2. Without the declaration and without a table the same pose reads the
+ *    default basis, a roll about the digit's own X axis, and the tips do not
+ *    move.
  * 3. `skeletonJointAxes` returns the host table itself when no bone declares
  *    axes and a frozen empty table when neither does, and puts each declared
  *    bone over the table's entry while keeping the others.
@@ -59,7 +60,7 @@ const MINUS_X_DIGIT: IAutoMovieJointAxes = {
  *
  * @evidence contracts/testing.md#behavioral-verification Resolves poses on a rig with and without bone-declared axes and bakes a clip of it, asserting tip world positions and clip/FK parity; a resolver or baker that ignored the declaration, or let the host table win, moves the tips elsewhere or breaks parity.
  * @evidence contracts/testing.md#independent-expectations A 90-degree right-hand turn about −Z (+Z) carries +X (−X) to −Y, so each tip lands 0.05 m below its digit; an X-axis roll leaves an X-aligned tip in place. Clip parity compares two product paths and only shows they agree.
- * @evidence contracts/testing.md#distinguishing-cases Covers both mirrored sides, the declaration against the humanoid table, no table and a conflicting table entry, the undeclared negative, the identity and empty table returns and bake parity; malformed declared axes belong to the model validation entry and the inverse paths to the declared-axes inverse entry.
+ * @evidence contracts/testing.md#distinguishing-cases Covers both mirrored sides, the declaration against the humanoid table, no table and a conflicting table entry, the undeclared negative on the default basis, the identity and empty table returns and bake parity; malformed declared axes belong to the model validation entry and the inverse paths to the declared-axes inverse entry.
  * @evidence contracts/testing.md#execution-ownership A discoverable synchronous kinematics unit entry that builds its own in-memory rig and calls engine source without a viewer, GPU or installed asset.
  */
 export function test_kinematics_bone_declared_axes(): void {
@@ -101,7 +102,7 @@ export function test_kinematics_bone_declared_axes(): void {
   TestValidator.predicate(
     "undeclared left tip stays put",
     vclose(
-      at(curl, undeclared, "leftIndexIntermediate", HUMANOID_JOINT_AXES),
+      at(curl, undeclared, "leftIndexIntermediate", undefined),
       { x: 0.65, y: 1, z: 0 },
       1e-9,
     ),

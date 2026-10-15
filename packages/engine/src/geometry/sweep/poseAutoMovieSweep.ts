@@ -6,17 +6,13 @@ import { quaternionFromAutoMovieBasis } from "../../math/quaternionFromAutoMovie
 import { IAutoMovieSweep } from "./IAutoMovieSweep";
 import { IAutoMovieSweepBinding } from "./IAutoMovieSweepBinding";
 import { IAutoMovieSweepFrame } from "./IAutoMovieSweepFrame";
+import { IAutoMovieSweepSpine } from "./IAutoMovieSweepSpine";
 import { IAutoMovieSweepSurface } from "./IAutoMovieSweepSurface";
 import { compileAutoMovieSweep } from "./compileAutoMovieSweep";
 import { createAutoMovieBoneMotion } from "./createAutoMovieBoneMotion";
 import { interpolateAutoMovieMonotone } from "./interpolateAutoMovieMonotone";
 import { measureAutoMovieSweepVolume } from "./measureAutoMovieSweepVolume";
-
-/** Secant steps that settle the joint scale of volume preservation. */
-const VOLUME_ROUNDS: number = 8;
-
-/** Relative volume error at which volume preservation stops. */
-const VOLUME_TOLERANCE: number = 1e-6;
+import { settleAutoMovieSweepVolume } from "./settleAutoMovieSweepVolume";
 
 /**
  * Re-sweep a sweep in a pose: move its spine and section planes with the bones
@@ -25,7 +21,8 @@ const VOLUME_TOLERANCE: number = 1e-6;
  * deformation", The Visual Computer 21(8-10):542-550).
  *
  * Each spine point moves rigidly with its bone, and the spine's starting
- * direction turns with the first point's bone. Each station's rest plane, its
+ * direction and any declared end tangents turn with the first or last
+ * point's bone. Each station's rest plane, its
  * own rotation or the rest sweep's frame at its `at`, turns with its bone; a
  * station on two bones takes the spherical midpoint of the two turned planes.
  * The posed sweep carries those planes as station rotations, so between
@@ -42,7 +39,9 @@ const VOLUME_TOLERANCE: number = 1e-6;
  * gains a knot at every station, the factor at joint stations and 1 at the
  * others, multiplied into any existing profile, and the factor is found by
  * secant steps, as the paper first rescales the key section at the bent joint
- * (Section 4.4). Without joint stations the sweep is returned unscaled.
+ * (Section 4.4), by `settleAutoMovieSweepVolume`. Without joint stations the
+ * sweep is returned unscaled. The scale applies after features, so the
+ * section's shape is unchanged and only its size at the joints moves.
  *
  * @param props.sweep The rest sweep, only read.
  * @param props.binding Bones of its spine points and stations.
@@ -78,31 +77,82 @@ export const poseAutoMovieSweep: (props: {
     throw new Error("sweep binding needs one bone per spine point");
   if (binding.stations.length !== sweep.stations.length)
     throw new Error("sweep binding needs one bone or joint per station");
-  const motion = createAutoMovieBoneMotion({ rest: props.rest, posed: props.posed });
+  const motion = createAutoMovieBoneMotion({
+    rest: props.rest,
+    posed: props.posed,
+  });
+  // declared end tangents turn with the bones of the first and last points
+  const turnTangents = (
+    t: NonNullable<IAutoMovieSweepSpine["tangents"]>,
+  ): NonNullable<IAutoMovieSweepSpine["tangents"]> => ({
+    ...(t.start === undefined
+      ? {}
+      : {
+          start: Quaternion.rotateVector(
+            motion(binding.points[0]!).rotation,
+            t.start,
+          ),
+        }),
+    ...(t.end === undefined
+      ? {}
+      : {
+          end: Quaternion.rotateVector(
+            motion(binding.points[binding.points.length - 1]!).rotation,
+            t.end,
+          ),
+        }),
+  });
   const rest: IAutoMovieSweepSurface = compileAutoMovieSweep(sweep);
   const stations: IAutoMovieSweep.IStation[] = sweep.stations.map(
-    (station: IAutoMovieSweep.IStation, k: number): IAutoMovieSweep.IStation => {
+    (
+      station: IAutoMovieSweep.IStation,
+      k: number,
+    ): IAutoMovieSweep.IStation => {
       const f: IAutoMovieSweepFrame = rest.frame(station.at);
-      const plane: IAutoMovieQuaternion = quaternionFromAutoMovieBasis(f.x, f.y, f.normal);
+      const plane: IAutoMovieQuaternion = quaternionFromAutoMovieBasis(
+        f.x,
+        f.y,
+        f.normal,
+      );
       const turned: IAutoMovieQuaternion[] = binding.stations[k]!.map(
-        (bone): IAutoMovieQuaternion => Quaternion.normalize(Quaternion.multiply(motion(bone).rotation, plane)),
+        (bone): IAutoMovieQuaternion =>
+          Quaternion.normalize(
+            Quaternion.multiply(motion(bone).rotation, plane),
+          ),
       );
       return {
         ...station,
-        rotation: turned.length === 1 ? turned[0]! : Quaternion.slerp(turned[0]!, turned[1]!, 0.5),
+        rotation:
+          turned.length === 1
+            ? turned[0]!
+            : Quaternion.slerp(turned[0]!, turned[1]!, 0.5),
       };
     },
   );
   const posed: IAutoMovieSweep = {
     ...sweep,
     spine: {
-      points: sweep.spine.points.map((p, k: number) => motion(binding.points[k]!).apply(p)),
-      normal: Quaternion.rotateVector(motion(binding.points[0]!).rotation, sweep.spine.normal),
+      points: sweep.spine.points.map((p, k: number) =>
+        motion(binding.points[k]!).apply(p),
+      ),
+      normal: Quaternion.rotateVector(
+        motion(binding.points[0]!).rotation,
+        sweep.spine.normal,
+      ),
+      ...(sweep.spine.tangents === undefined
+        ? {}
+        : { tangents: turnTangents(sweep.spine.tangents) }),
     },
     stations,
   };
-  const joints: boolean[] = binding.stations.map((b): boolean => b.length === 2);
-  if (!(props.preserveVolume ?? false) || !joints.some((j: boolean): boolean => j)) return posed;
+  const joints: boolean[] = binding.stations.map(
+    (b): boolean => b.length === 2,
+  );
+  if (
+    !(props.preserveVolume ?? false) ||
+    !joints.some((j: boolean): boolean => j)
+  )
+    return posed;
 
   const target: number = measureAutoMovieSweepVolume(rest);
   const previous: ((u: number) => number) | null =
@@ -110,32 +160,33 @@ export const poseAutoMovieSweep: (props: {
       ? null
       : interpolateAutoMovieMonotone({
           knots: sweep.scale.map((k: IAutoMovieSweep.IKnot): number => k.at),
-          values: sweep.scale.map((k: IAutoMovieSweep.IKnot): number => k.value),
+          values: sweep.scale.map(
+            (k: IAutoMovieSweep.IKnot): number => k.value,
+          ),
         });
   const knots: number[] = [
-    ...new Set([0, 1, ...sweep.stations.map((s: IAutoMovieSweep.IStation): number => s.at), ...(sweep.scale ?? []).map((k: IAutoMovieSweep.IKnot): number => k.at)]),
+    ...new Set([
+      0,
+      1,
+      ...sweep.stations.map((s: IAutoMovieSweep.IStation): number => s.at),
+      ...(sweep.scale ?? []).map((k: IAutoMovieSweep.IKnot): number => k.at),
+    ]),
   ].sort((a: number, b: number): number => a - b);
   const jointAt: Set<number> = new Set(
-    sweep.stations.filter((_: IAutoMovieSweep.IStation, k: number): boolean => joints[k]!).map((s: IAutoMovieSweep.IStation): number => s.at),
+    sweep.stations
+      .filter((_: IAutoMovieSweep.IStation, k: number): boolean => joints[k]!)
+      .map((s: IAutoMovieSweep.IStation): number => s.at),
   );
   const scaled = (factor: number): IAutoMovieSweep => ({
     ...posed,
-    scale: knots.map((at: number): IAutoMovieSweep.IKnot => ({
-      at,
-      value: (previous?.(at) ?? 1) * (jointAt.has(at) ? factor : 1),
-    })),
+    scale: knots.map(
+      (at: number): IAutoMovieSweep.IKnot => ({
+        at,
+        value: (previous?.(at) ?? 1) * (jointAt.has(at) ? factor : 1),
+      }),
+    ),
   });
-  const volume = (factor: number): number => measureAutoMovieSweepVolume(compileAutoMovieSweep(scaled(factor)));
-  let a: number = 1;
-  let va: number = volume(a);
-  let b: number = Math.sqrt(target / va);
-  let vb: number = volume(b);
-  for (let round: number = 0; round < VOLUME_ROUNDS; ++round) {
-    if (Math.abs(vb - target) <= VOLUME_TOLERANCE * target || vb === va) break;
-    const next: number = b + ((target - vb) * (b - a)) / (vb - va);
-    [a, va] = [b, vb];
-    b = Math.max(0.1, next);
-    vb = volume(b);
-  }
-  return scaled(b);
+  const volume = (factor: number): number =>
+    measureAutoMovieSweepVolume(compileAutoMovieSweep(scaled(factor)));
+  return scaled(settleAutoMovieSweepVolume(target, volume));
 };
