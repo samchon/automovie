@@ -5,6 +5,7 @@ import { IAutoMovieHumanIdentity } from "../structures/IAutoMovieHumanIdentity";
 import { AutoMovieHumanVector } from "./AutoMovieHumanVector";
 import { IAutoMovieHumanSkeleton } from "./IAutoMovieHumanSkeleton";
 import { placeAutoMovieHumanHand } from "./placeAutoMovieHumanHand";
+import { tiltAutoMovieHumanForearmAxes } from "./tiltAutoMovieHumanForearmAxes";
 
 /**
  * Joint centres from their landmarks along the hanging arm, fractions of the segment the offset was measured on: shoulder centre below the acromion (33.7 mm women, 34.5 mm men) and elbow centre above radiale (13.9 and 14.3 mm), both from acromion-radiale, over its pooled ANSUR II mean of 323.2 mm; wrist centre below stylion (1.5 mm) over the pooled radiale-stylion mean of 254.6 mm (de Leva 1996, J Biomech 29(9):1223-1230, Table 2; Gordon et al. 2014, NATICK/TR-15/007). Grade: derived.
@@ -34,7 +35,7 @@ const ARM_AXES: IAutoMovieHumanSkeleton.IAxes = {
  *
  * The acromion sits at acromial height, half the biacromial breadth from the midline. The arm hangs straight below it: radiale at acromial height minus acromion-radiale length, stylion a forearm length lower, the middle fingertip a hand length below stylion, so measuring the hanging arm returns the identity's lengths exactly. The shoulder, elbow and wrist centres sit at de Leva's offsets from those landmarks, scaled with the segment. The arm hangs in the coronal plane at the trunk's shoulder depth. The clavicle runs from the sternoclavicular joint beside the jugular notch, on the front of the neck, back and out to the shoulder joint centre; the scapula has no bone, so the shoulder bone carries the acromion.
  *
- * The forearm and hand then turn about the elbow joint centre in the frontal plane by the identity's carrying angle, valgus carrying the wrist away from the body, with their joints, tails, declared axes and landmarks. The angle is measured with the forearm supinated; the hanging arm keeps it with the palm toward the thigh because pronation turns the radius about the forearm's own long axis, which the turned bone carries, so the humeroulnar angle does not change. The turned chain then slides along the upper arm by the fraction of a millimetre that brings radiale back to its acromion-radiale length from the acromion, so measuring the hanging arm still returns every length exactly.
+ * The forearm hangs straight on the arm, so the canonical T-pose rest has it straight and horizontal with the palm down, as every humanoid's does, and a pose retargeted from another humanoid lands the same. The identity's carrying angle, measured with the forearm supinated, lives in the forearm's declared axes instead ({@link tiltAutoMovieHumanForearmAxes}): supinating the forearm into the anatomical position, palm forward, opens the angle, and pronating it back closes it, as the oblique pronation-supination axis of the radius does.
  *
  * The skeleton generator then turns the upper arm and everything below it about the shoulder centre into the T-pose; the clavicle and acromion stay, because the canonical rest frame assigns the whole 90 degrees to the upper arm.
  *
@@ -79,57 +80,12 @@ export function placeAutoMovieHumanArm(
     suprasternale.y,
     suprasternale.z,
   );
-  const straight: placeAutoMovieHumanHand.IOutput = placeAutoMovieHumanHand(
+  const hand: placeAutoMovieHumanHand.IOutput = placeAutoMovieHumanHand(
     arm,
     side,
     wrist,
     stylion,
   );
-
-  // carrying angle: turn the forearm chain about the elbow, then slide it so acromion-radiale stays exact
-  const turn: number = s * arm.carryingAngle;
-  const bend: number = (turn * Math.PI) / 180;
-  const below: number = elbow.y - radialeY;
-  const lateral: number = below * Math.sin(bend);
-  const slide: number =
-    body.acromialHeight -
-    Math.sqrt(arm.upperArmLength * arm.upperArmLength - lateral * lateral) -
-    elbow.y +
-    below * Math.cos(bend);
-  const carried: (p: IAutoMovieVector3) => IAutoMovieVector3 = (
-    p: IAutoMovieVector3,
-  ): IAutoMovieVector3 =>
-    V.offset(V.rotateZ(p, elbow, turn), [V.of(0, 1, 0), slide]);
-  const carriedAxes: (
-    axes: IAutoMovieHumanSkeleton.IAxes,
-  ) => IAutoMovieHumanSkeleton.IAxes = (
-    axes: IAutoMovieHumanSkeleton.IAxes,
-  ): IAutoMovieHumanSkeleton.IAxes => ({
-    flexion: V.rotateZ(axes.flexion, V.of(0, 0, 0), turn),
-    abduction: V.rotateZ(axes.abduction, V.of(0, 0, 0), turn),
-    twist: V.rotateZ(axes.twist, V.of(0, 0, 0), turn),
-  });
-  const hand: placeAutoMovieHumanHand.IOutput = {
-    ...straight,
-    knuckle: carried(straight.knuckle),
-    joints: straight.joints.map(
-      (j: IAutoMovieHumanSkeleton.IJoint): IAutoMovieHumanSkeleton.IJoint => ({
-        ...j,
-        position: carried(j.position),
-        tail: carried(j.tail),
-        axes: carriedAxes(j.axes),
-      }),
-    ),
-    landmarks: Object.fromEntries(
-      Object.entries(straight.landmarks).map(
-        ([key, value]: [string, IAutoMovieHumanLandmarks.ILandmark]): [
-          string,
-          IAutoMovieHumanLandmarks.ILandmark,
-        ] => [key, { ...value, position: carried(value.position) }],
-      ),
-    ) as placeAutoMovieHumanHand.IOutput["landmarks"],
-  };
-  const elbowCarried: IAutoMovieVector3 = carried(elbow);
   // the arm's T-pose axes as they stand before the arm is raised, so the conversion yields them
   const origin: IAutoMovieVector3 = V.of(0, 0, 0);
   const lowered: (d: IAutoMovieVector3) => IAutoMovieVector3 = (
@@ -139,6 +95,17 @@ export function placeAutoMovieHumanArm(
     flexion: lowered(ARM_AXES.flexion),
     abduction: lowered(ARM_AXES.abduction),
     twist: lowered(ARM_AXES.twist),
+  };
+  // the forearm carries the carrying angle in its axes, so supination opens it from a straight rest
+  const tilted: IAutoMovieHumanSkeleton.IAxes = tiltAutoMovieHumanForearmAxes(
+    ARM_AXES,
+    side,
+    arm.carryingAngle,
+  );
+  const forearmAxes: IAutoMovieHumanSkeleton.IAxes = {
+    flexion: lowered(tilted.flexion),
+    abduction: lowered(tilted.abduction),
+    twist: lowered(tilted.twist),
   };
   const joint: (
     bone: IAutoMovieHumanSkeleton.IJoint["bone"],
@@ -158,34 +125,23 @@ export function placeAutoMovieHumanArm(
     axes: bone === `${side}Shoulder` ? ARM_AXES : hangingAxes,
     constraint: null,
   });
-  const carriedJoint: (
-    bone: IAutoMovieHumanSkeleton.IJoint["bone"],
-    parent: IAutoMovieHumanSkeleton.IJoint["bone"],
-    position: IAutoMovieVector3,
-    tail: IAutoMovieVector3,
-  ) => IAutoMovieHumanSkeleton.IJoint = (
-    bone: IAutoMovieHumanSkeleton.IJoint["bone"],
-    parent: IAutoMovieHumanSkeleton.IJoint["bone"],
-    position: IAutoMovieVector3,
-    tail: IAutoMovieVector3,
-  ): IAutoMovieHumanSkeleton.IJoint => {
-    const plain: IAutoMovieHumanSkeleton.IJoint = joint(bone, parent, position, tail);
-    return { ...plain, axes: carriedAxes(plain.axes) };
-  };
   return {
     shoulder,
     joints: [
       joint(`${side}Shoulder`, "upperChest", clavicale, shoulder),
-      joint(`${side}UpperArm`, `${side}Shoulder`, shoulder, elbowCarried),
-      carriedJoint(`${side}LowerArm`, `${side}UpperArm`, elbowCarried, carried(wrist)),
-      carriedJoint(`${side}Hand`, `${side}LowerArm`, carried(wrist), hand.knuckle),
+      joint(`${side}UpperArm`, `${side}Shoulder`, shoulder, elbow),
+      {
+        ...joint(`${side}LowerArm`, `${side}UpperArm`, elbow, wrist),
+        axes: forearmAxes,
+      },
+      joint(`${side}Hand`, `${side}LowerArm`, wrist, hand.knuckle),
       ...hand.joints,
     ],
     landmarks: {
       clavicale: { bone: `${side}Shoulder`, position: clavicale },
       acromion: { bone: `${side}Shoulder`, position: acromion },
-      radiale: { bone: `${side}LowerArm`, position: carried(radiale) },
-      stylion: { bone: `${side}LowerArm`, position: carried(stylion) },
+      radiale: { bone: `${side}LowerArm`, position: radiale },
+      stylion: { bone: `${side}LowerArm`, position: stylion },
       ...hand.landmarks,
     },
   };

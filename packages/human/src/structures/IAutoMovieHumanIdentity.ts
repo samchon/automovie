@@ -242,7 +242,7 @@ export namespace IAutoMovieHumanIdentity {
     wristCircumference: number & tags.Minimum<50> & tags.Maximum<300>;
 
     /**
-     * Carrying angle: the angle in the frontal plane between the long axes of the arm and the forearm with the elbow fully extended and the forearm supinated, degrees, positive for valgus, the forearm turned away from the body. Slightly varus at birth (-1.5), 6 degrees at 2 to 6 years and 11 from 15 on, in 921 Thai children measured with a goniometer, and larger in girls (8.5 against 6.9 over all ages; Kaewpornsawan et al. 2018, Siriraj Med J 70(4):284-288). The skeleton turns the forearm and hand about the elbow joint centre by it.
+     * Carrying angle: the angle in the frontal plane between the long axes of the arm and the forearm with the elbow fully extended and the forearm supinated, degrees, positive for valgus, the forearm turned away from the body. Slightly varus at birth (-1.5), 6 degrees at 2 to 6 years and 11 from 15 on, in 921 Thai children measured with a goniometer, and larger in girls (8.5 against 6.9 over all ages; Kaewpornsawan et al. 2018, Siriraj Med J 70(4):284-288). The angle shows only with the forearm supinated, so the rest skeleton keeps the forearm straight on the arm and carries the angle in the forearm's pronation-supination axis: turning the palm forward opens it, turning it back closes it.
      */
     carryingAngle: number & tags.Minimum<-30> & tags.Maximum<40>;
 
