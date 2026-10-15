@@ -28,6 +28,9 @@ export interface IAutoMovieSweepSurface {
   /** The compiled spine. */
   path: IAutoMovieSweepPath;
 
+  /** Parameter step of the central differences `normal` and `along` take, in `u` and in `v`. */
+  step: number;
+
   /** Number of loops: 1 for a sweep by direction, 1 plus its holes for a sweep by parameter. */
   loops: number;
 
