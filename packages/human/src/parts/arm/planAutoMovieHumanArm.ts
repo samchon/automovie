@@ -15,12 +15,6 @@ import { IAutoMovieHumanArmRelief } from "./IAutoMovieHumanArmRelief";
 import { estimateAutoMovieHumanArmTissue } from "./estimateAutoMovieHumanArmTissue";
 import { sectionAutoMovieHumanArm } from "./sectionAutoMovieHumanArm";
 
-/** Level of the collar after the upper arm ring, where the stations' lean off the bone axis is whole. */
-const COMPANION: number = -0.9;
-
-/** Level above the elbow by which the stations have leant back onto the humerus axis. */
-const ELBOW_LEVEL: number = -0.15;
-
 /**
  * Vertices around each station's row. The rings carry 8, the junction contract; inside them the arm turns to 12 between the upper arm collar and the biceps peak and back to 8 between the end of the forearm's bellies and the tendinous lower forearm, so the bellies and the furrows between them, 30 to 40 degrees apart, each have a vertex line, while the tendinous forearm and the rings stay at 8. Grade: conventional.
  */
@@ -37,7 +31,7 @@ const FAT_LEVELLING: number = 10;
 /**
  * Lay one arm out for lofting, from mid upper arm to the wrist.
  *
- * Every section of `sectionAutoMovieHumanArm` becomes one station: above the elbow on the line from the shoulder to the elbow joint centre, below it on the line from the elbow to the wrist joint centre, at the joint on their bisector, so a carrying angle or flexion in the skeleton bends the spine with it. The upper arm ring's centre lies off the bone axis (`AUTOMOVIE_HUMAN_UPPER_ARM_SECTION`), so the stations below its collar lean from that centre back onto the axis by the elbow. Each station's anterior direction is the rest-pose front projected across its axis, turned by the section's twist toward the medial side, so the chart's `v` spirals down the mid-prone forearm and reaches the wrist on its palmar surface exactly as the wrist ring starts. A section is its eight radii joined round the turn; the first and last two stations are the junctions', the `upperArm` and `wrist` rings of `shapeAutoMovieHumanRing` and their collars.
+ * Every section of `sectionAutoMovieHumanArm` becomes one station: above the elbow on the line from the shoulder to the elbow joint centre, below it on the line from the elbow to the wrist joint centre, at the joint on their bisector, so a carrying angle or flexion in the skeleton bends the spine with it. Each station's anterior direction is the rest-pose front projected across its axis, turned by the section's twist toward the medial side, so the chart's `v` spirals down the mid-prone forearm and reaches the wrist on its palmar surface exactly as the wrist ring starts. A section is its eight radii joined round the turn; the first and last two stations are the junctions', the `upperArm` and `wrist` rings of `shapeAutoMovieHumanRing` and their collars.
  *
  * Relief is `AUTOMOVIE_HUMAN_ARM_RELIEF`, each form's height its amplitude times the section's mean deep radius, times the arm's muscularity for a muscle, rising and falling by a cosine along its levels and levelled by the fat over it, the share `fat / (fat + 10 mm)` of it filled.
  *
@@ -79,12 +73,6 @@ export function planAutoMovieHumanArm(props: {
     V.offset(joint("Hand"), [elbow, -1]),
   );
   const above: number = V.dot(V.offset(elbow, [upper.frame.origin, -1]), humerus);
-  // the ring centre's offset from the humerus axis at the cut
-  const offset: IAutoMovieVector3 = V.offset(
-    upper.frame.origin,
-    [elbow, -1],
-    [humerus, above],
-  );
   const below: number = V.distance(elbow, wrist.frame.origin);
   // the medial side is counterclockwise about the distal axis on the left arm and clockwise on the right
   const mirror: number = side === "left" ? 1 : -1;
@@ -125,21 +113,13 @@ export function planAutoMovieHumanArm(props: {
           : level > 0
             ? forearm
             : V.normalize(V.offset(humerus, [forearm, 1]));
-      const lean: number = Math.min(
-        1,
-        Math.max(0, (level - ELBOW_LEVEL) / (COMPANION - ELBOW_LEVEL)),
-      );
       const front: IAutoMovieVector3 = V.normalize(
         V.offset(V.of(0, 0, 1), [axis, -axis.z]),
       );
       const twist: number = (mirror * section.twist * Math.PI) / 180;
       return {
         ...common,
-        centre: V.offset(
-          elbow,
-          [axis, level * (level < 0 ? above : below)],
-          [offset, lean],
-        ),
+        centre: V.offset(elbow, [axis, level * (level < 0 ? above : below)]),
         axis,
         anterior: V.offset(
           V.of(0, 0, 0),
