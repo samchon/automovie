@@ -74,7 +74,9 @@ export function createHumanViewerPoseEditor(props: {
         label.className = "field";
         const name: HTMLSpanElement = document.createElement("span");
         name.textContent =
-          range === null ? axis : `${axis} [${range.min}, ${range.max}]`;
+          range === null
+            ? axis
+            : `${axis} [${+range.min.toFixed(1)}, ${+range.max.toFixed(1)}]`;
         const slider: HTMLInputElement = document.createElement("input");
         slider.type = "range";
         slider.min = String(range?.min ?? -180);

@@ -65,7 +65,17 @@ export function frameHumanViewerCamera(props: {
   props.camera.updateProjectionMatrix();
   return target;
 }
-/** Preset views of the camera framing. */
+/**
+ * Preset views of the camera framing.
+ *
+ * @evidence contracts/common.md#principled-implementation The view union and its capture order are the closed set the direction table is keyed by, so a view without a direction does not compile.
+ * @evidence contracts/common.md#clear-and-simple-design The namespace keeps the view names beside the function that places them.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Views are named from the subject's side, never from a particular person's measurements.
+ * @evidence contracts/common.md#meaningful-documentation Documents the view naming and the capture order.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms A union and a constant list perform no computation.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A union and a constant list coordinate no work.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A constant list of eight names owns no resource.
+ */
 export namespace frameHumanViewerCamera {
   /** A preset view, named from the subject's side. */
   export type View =

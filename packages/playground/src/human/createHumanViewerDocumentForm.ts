@@ -78,7 +78,17 @@ export function createHumanViewerDocumentForm<T extends object>(props: {
   visit(props.document as Record<string, unknown>, [], root);
   return root;
 }
-/** Types of the document form's spec. */
+/**
+ * Types of the document form's spec.
+ *
+ * @evidence contracts/common.md#principled-implementation The spec carries only what a JSON value cannot state: closed sets, colours, nullability, hidden leaves and multi-leaf styles.
+ * @evidence contracts/common.md#clear-and-simple-design The namespace groups the spec types beside the one function that reads them.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No document-specific field names live here; callers name paths.
+ * @evidence contracts/common.md#meaningful-documentation Each member documents its path keying and effect on the form.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms Type declarations perform no computation.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work Type declarations coordinate no work.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Type declarations own no resource.
+ */
 export namespace createHumanViewerDocumentForm {
   /** What JSON cannot say about a document's leaves, keyed by dotted path. */
   export interface ISpec<T> {

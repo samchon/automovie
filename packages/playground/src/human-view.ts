@@ -42,7 +42,7 @@ const STORAGE_KEY: string = "automovie.human.session";
 /** Model id of the displayed person. */
 const MODEL_ID: string = "human";
 /** Frame margins: whole body nearly touches the frame, a close-up keeps air. */
-const MARGIN: Record<"whole" | "close", number> = { whole: 1.06, close: 1.25 };
+const MARGIN: Record<"whole" | "close", number> = { whole: 1.1, close: 1.25 };
 
 type Scale = "whole" | "close";
 interface IAccepted {
