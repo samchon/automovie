@@ -6,21 +6,30 @@ import { IAutoMovieHumanTrunkTune } from "./IAutoMovieHumanTrunkTune";
 import { curveAutoMovieHumanTrunk } from "./curveAutoMovieHumanTrunk";
 
 /**
- * Distance from the vertebral column back to the skin as a share of the local depth: over the lumbar spine the vertebral body lies about 0.37 of the abdominal depth in front of the back, over the thorax about 0.3 of the chest depth. Conventional, read from transverse sections in Gray (1918, "Anatomy of the Human Body") and checked on side views.
+ * Distance from the vertebral column back to the skin as a share of the local depth. Started from transverse sections in Gray (1918, "Anatomy of the Human Body"), about 0.37 of the abdominal depth over the lumbar spine and 0.3 of the chest depth over the thorax, then fitted by least squares to the section centres of twelve MakeHuman CC0 bodies (base mesh hm08 with its caucasian and universal macro targets: women and men young at average, minimum and maximum weight and maximum muscle, old, and child), sliced at ten stations between the crotch and the seventh cervical vertebra. Grade: fitted to a CC0 reference.
  */
 const BEHIND_COLUMN: Record<"lumbar" | "waist" | "thorax" | "axilla", number> = {
-  lumbar: 0.37,
-  waist: 0.36,
-  thorax: 0.3,
-  axilla: 0.31,
+  lumbar: 0.46,
+  waist: 0.38,
+  thorax: 0.31,
+  axilla: 0.235,
 };
 
 /**
- * Squareness exponents of the half-sections, front and back, at the buttock, the waist, the costal arch and the chest point. 2 is an ellipse; the back of the chest is flattest over the scapulae and the buttocks square the back of the hips. Conventional, judged on renders against Richer's plates of the trunk.
+ * Squareness exponents of the half-sections, front and back, at the buttock, the waist, the costal arch and the chest point; 2 is an ellipse. Fitted by least squares to the breadth- and depth-normalized section outlines of the twelve MakeHuman CC0 bodies described at `BEHIND_COLUMN`, with the front of the buttock and waist at the fit's lower bound of 1.7: the reference's lower abdomen is rounder than a superellipse can follow. Grade: fitted to a CC0 reference.
  */
 const SQUARENESS: Record<"front" | "back", Record<"buttock" | "waist" | "costal" | "chest", number>> = {
-  front: { buttock: 2.3, waist: 2.2, costal: 2.4, chest: 2.6 },
-  back: { buttock: 2.5, waist: 2.3, costal: 2.6, chest: 2.8 },
+  front: { buttock: 1.7, waist: 1.7, costal: 2.45, chest: 2.29 },
+  back: { buttock: 2.74, waist: 2.21, costal: 2.93, chest: 2.69 },
+};
+
+/**
+ * Front-back position of the widest point of the section as a share of the way from the back to the front: below the iliac crest, at the waist and over the chest, fitted with `SQUARENESS` to the same references. Grade: fitted to a CC0 reference.
+ */
+const WIDEST: Record<"pelvis" | "waist" | "chest", number> = {
+  pelvis: 0.65,
+  waist: 0.48,
+  chest: 0.44,
 };
 
 /**
@@ -108,10 +117,10 @@ export function profileAutoMovieHumanTrunk(
   const widest = (y: number): number => {
     const share: number =
       y < frame.iliocristale.y
-        ? 0.55
+        ? WIDEST.pelvis
         : y < L.waist
-          ? lerp(0.55, 0.46, (y - frame.iliocristale.y) / (L.waist - frame.iliocristale.y))
-          : 0.44;
+          ? lerp(WIDEST.pelvis, WIDEST.waist, (y - frame.iliocristale.y) / (L.waist - frame.iliocristale.y))
+          : WIDEST.chest;
     return lerp(rear(y), front(y), share);
   };
   return {

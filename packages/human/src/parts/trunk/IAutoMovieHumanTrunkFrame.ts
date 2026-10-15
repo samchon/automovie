@@ -61,17 +61,11 @@ export interface IAutoMovieHumanTrunkFrame {
   /** Thigh circumference at the gluteal furrow. */
   thighGirth: number;
 
-  /** Thigh circumference at the mid-thigh cut. */
-  midThighGirth: number;
-
   /** Relaxed upper arm circumference at the mid upper arm cut. */
   armGirth: number;
 
   /** Acromion-radiale length. */
   upperArmLength: number;
-
-  /** Neck circumference. */
-  neckGirth: number;
 
   /** Whole-body fat percentage. */
   fat: number;

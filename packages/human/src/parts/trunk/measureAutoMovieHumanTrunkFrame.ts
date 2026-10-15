@@ -28,15 +28,10 @@ const ANSUR_LEVEL: Record<"crotch" | "buttock" | "tenthRib" | "chestPoint", numb
  * Levels with no measured height, as fractions of stature from a measured one. The gluteal furrow lies a little below the crotch, where the thigh circumference is taken; the inframammary fold and the pectoral's lower border lie below the chest point, and the costal arch below them. Conventional, checked on renders against Richer (1890, "Anatomie artistique", plates of the trunk's exterior forms).
  */
 const CONVENTIONAL_LEVEL: Record<"gluteal" | "fold" | "costal", number> = {
-  gluteal: 0.004,
+  gluteal: 0.012,
   fold: 0.028,
   costal: 0.06,
 };
-
-/**
- * Mid-thigh circumference over the thigh circumference at the gluteal furrow, the ratio the leg's own placeholder uses for the same cut, so both parts size the shared ring alike. Conventional.
- */
-const MID_THIGH: number = 0.85;
 
 /**
  * Body fat percentage at which relief is fully shown and the span over which fat hides it; at 10% every muscle edge shows, past 32% none does. Conventional, judged on renders.
@@ -138,10 +133,8 @@ export function measureAutoMovieHumanTrunkFrame(
       depth: body.buttockDepth,
     },
     thighGirth: leg.thighCircumference,
-    midThighGirth: MID_THIGH * leg.thighCircumference,
     armGirth: arm.upperArmCircumference,
     upperArmLength: arm.upperArmLength,
-    neckGirth: body.neckCircumference,
     fat: composition.bodyFatPercentage,
     muscle: Math.max(
       0,

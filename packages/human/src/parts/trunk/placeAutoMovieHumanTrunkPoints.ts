@@ -1,7 +1,7 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieHumanSide } from "../../junction/AutoMovieHumanSide";
-import { layoutAutoMovieHumanRing } from "../../junction/layoutAutoMovieHumanRing";
+import { shapeAutoMovieHumanRing } from "../../junction/shapeAutoMovieHumanRing";
 import { IAutoMovieHumanMeasurements } from "../../measure/IAutoMovieHumanMeasurements";
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanSkeleton } from "../../skeleton/IAutoMovieHumanSkeleton";
@@ -10,7 +10,6 @@ import { IAutoMovieHumanTrunkPoints } from "./IAutoMovieHumanTrunkPoints";
 import { IAutoMovieHumanTrunkTune } from "./IAutoMovieHumanTrunkTune";
 import { measureAutoMovieHumanTrunkFrame } from "./measureAutoMovieHumanTrunkFrame";
 import { placeAutoMovieHumanTrunkHip } from "./placeAutoMovieHumanTrunkHip";
-import { placeAutoMovieHumanTrunkNeckBase } from "./placeAutoMovieHumanTrunkNeckBase";
 import { placeAutoMovieHumanTrunkShoulder } from "./placeAutoMovieHumanTrunkShoulder";
 import { placeAutoMovieHumanTrunkTorso } from "./placeAutoMovieHumanTrunkTorso";
 import { profileAutoMovieHumanTrunk } from "./profileAutoMovieHumanTrunk";
@@ -18,7 +17,7 @@ import { profileAutoMovieHumanTrunk } from "./profileAutoMovieHumanTrunk";
 /**
  * Place every point of the trunk's cage for one person.
  *
- * Each side is placed from its own measurements and skeleton side in the left side's frame, then written back with its sign, so an asymmetric identity gives an asymmetric trunk; the midline slots take the mean of both sides. The neck base ring is placed once for both sides.
+ * Each side is placed from its own measurements and skeleton side in the left side's frame, then written back with its sign, so an asymmetric identity gives an asymmetric trunk; the midline slots take the mean of both sides. Every ring vertex lies exactly on the site's shared shape (`shapeAutoMovieHumanRing`), which the junction requires of both parts.
  *
  * @param measurements Resolved measurements
  * @param skeleton The person's skeleton at rest
@@ -31,25 +30,17 @@ export function placeAutoMovieHumanTrunkPoints(
   tune: IAutoMovieHumanTrunkTune,
 ): IAutoMovieHumanTrunkPoints {
   const V: typeof AutoMovieHumanVector = AutoMovieHumanVector;
-  const layout = (
-    site: "upperArm" | "thigh",
-    side: AutoMovieHumanSide,
-  ): IAutoMovieHumanTrunkPoints.ILayouts["arm"]["left"] =>
-    layoutAutoMovieHumanRing({ skeleton, site, side, part: "trunk" });
+  const shape = (
+    site: "neckBase" | "upperArm" | "thigh",
+    side: AutoMovieHumanSide | null,
+  ): IAutoMovieHumanTrunkPoints.ILayouts["neck"] =>
+    shapeAutoMovieHumanRing({ skeleton, measurements, site, side, part: "trunk" });
   const layouts: IAutoMovieHumanTrunkPoints.ILayouts = {
-    neck: layoutAutoMovieHumanRing({
-      skeleton,
-      site: "neckBase",
-      side: null,
-      part: "trunk",
-    }),
-    arm: { left: layout("upperArm", "left"), right: layout("upperArm", "right") },
-    thigh: { left: layout("thigh", "left"), right: layout("thigh", "right") },
+    neck: shape("neckBase", null),
+    arm: { left: shape("upperArm", "left"), right: shape("upperArm", "right") },
+    thigh: { left: shape("thigh", "left"), right: shape("thigh", "right") },
   };
-  const neck: IAutoMovieVector3[] = placeAutoMovieHumanTrunkNeckBase(
-    measureAutoMovieHumanTrunkFrame(measurements, skeleton, "left"),
-    layouts.neck,
-  );
+  const neck: IAutoMovieVector3[] = layouts.neck.positions;
   const loops: IAutoMovieVector3[][] = Array.from(
     { length: 13 },
     (): IAutoMovieVector3[] => new Array<IAutoMovieVector3>(24),
