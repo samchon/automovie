@@ -1,4 +1,9 @@
-import { AutoMovieHumanoidBone } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieImage,
+  IAutoMovieMaterial,
+  IAutoMovieMesh,
+} from "@automovie/interface";
 
 import { AutoMovieHumanPart } from "../junction/AutoMovieHumanPart";
 import { AutoMovieHumanSide } from "../junction/AutoMovieHumanSide";
@@ -30,9 +35,9 @@ export interface IAutoMovieHumanPartGenerator<Part extends AutoMovieHumanPart> {
   ): IAutoMovieHumanCage;
 
   /**
-   * Generate the separate meshes the part carries that are not skin, such as nail plates and later eyeballs, teeth, tongue, hair cards and garments.
+   * Generate the separate meshes the part carries that are not skin, such as nail plates and eyeballs, and later teeth, tongue, hair cards and garments.
    *
-   * Each is a closed cage without rings, subdivided alone and emitted as its own model part that rides one bone, so it follows the pose rigidly. Omitted, the part carries none.
+   * Each is a closed cage without rings, subdivided alone, or a surface the part evaluates itself, emitted as its own model part that rides one bone, so it follows the pose rigidly. Omitted, the part carries none.
    *
    * @param props The same props as `generate`
    * @returns The attachments, in an order the part documents
@@ -57,8 +62,24 @@ export namespace IAutoMovieHumanPartGenerator {
     /** What it is made of, which decides its material. */
     tissue: AutoMovieHumanTissue;
 
-    /** Closed control cage without rings, model frame and millimetres at rest; corner addresses lie on the part's chart. */
-    cage: IAutoMovieHumanCage;
+    /** Closed control cage without rings, model frame and millimetres at rest; corner addresses lie on the part's chart. Null when the part evaluates the surface itself in `mesh`. */
+    cage: IAutoMovieHumanCage | null;
+
+    /**
+     * The surface the part evaluates itself, for a form a cage's limit surface cannot hold exactly, such as the cornea's sphere: model frame and millimetres at rest, with its own normals and texture coordinates and no skin. Present exactly when `cage` is null.
+     */
+    mesh?: IAutoMovieMesh;
+
+    /**
+     * The appearance the part decides from the identity, such as the iris of the person's colour: the material and the images it samples, which the model carries. Material and image ids name their content, so attachments that share one share its record. Omitted, the tissue's placeholder material applies.
+     */
+    appearance?: {
+      /** The material. */
+      material: IAutoMovieMaterial;
+
+      /** Images the material's texture bindings cite. */
+      images: IAutoMovieImage[];
+    };
   }
 
   /**
