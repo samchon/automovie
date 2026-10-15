@@ -177,10 +177,10 @@ export function shapeAutoMovieHumanPalm(
   const cmc: IAutoMovieVector3 = thumb.points[0]!;
   // carpometacarpal line: the border over the trapezium, the thenar's proximal edge and the snuffbox behind it
   rows[0]![13] = V.of(base - 0.02 * L, 0.25 * palmarDepth(base), cmc.z + 0.45 * tw);
-  rows[0]![0] = V.of(base + 0.02 * L, 1.2 * palmarDepth(base), cmc.z - 0.15 * tw);
+  rows[0]![0] = V.of(base + 0.02 * L, 1.05 * palmarDepth(base), cmc.z - 0.3 * tw);
   rows[0]![12] = V.of(base, -0.6 * dorsalHeight(base), cmc.z + 0.15 * tw);
   // mid-metacarpal: the thenar crease, a groove at the foot of the eminence where the palm meets it, and the first dorsal interosseous between the two metacarpals
-  rows[1]![0] = palmar(rows[1]![1]!.x, zetas[0]! * 0.92 + 0.22, -P.crease);
+  rows[1]![0] = palmar(rows[1]![1]!.x, zetas[0]! * 0.92 + 0.06, -P.crease);
   rows[1]![18] = V.offset(V.of(0, 0, 0), [dorsal(rows[1]![17]!.x, zetas[0]! * 0.92 + 0.25), 0.5], [V.offset(along(0.6), [nail, 0.5 * tw]), 0.5]);
   // the web: its crotch, and its palmar and dorsal sides halfway to the index's base
   rows[2]![19] = crotch;
