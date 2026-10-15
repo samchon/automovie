@@ -149,10 +149,7 @@ export namespace IAutoMovieHumanTrunkForm {
    * @author Samchon
    */
   export interface ICrotch extends IFork {
-    /** Depth of the front cleft between the thighs below the outer contour, as a share of the buttock depth. */
-    frontRecess: number;
-
-    /** Depth of the back cleft, the natal cleft's lower end, as a share of the buttock depth. */
-    backRecess: number;
+    /** Depth of the natal cleft's lower end below the outer contour, as a share of the buttock depth. */
+    recess: number;
   }
 }
