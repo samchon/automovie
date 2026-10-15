@@ -12,6 +12,7 @@ description: Defines modeling rules and the visual debugging procedure. Use befo
 - Emitted primitive counts grow with resolution parameters, not with authored features; use a parametric surface, subdivision, card, instance, or level of detail where the form allows.
 - Keep one unit and one frame inside a declaration, and convert only where they meet, in one named step.
 - Build a boundary between parts from one definition both sides share, so it opens no gap, overlap, or normal jump under any admitted configuration.
+- Build coarse to fine: block out the whole form first, then treat each finer detail as the block-out of a smaller region, zooming in one scale at a time and fitting each scale before the next.
 - Compute and measure from the same geometry, regenerate a derivative when its basis changes, and repair an unsound representation at its foundation instead of accumulating corrections.
 
 ## Visual Debugging
