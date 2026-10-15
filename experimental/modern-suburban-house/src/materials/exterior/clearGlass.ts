@@ -1,7 +1,7 @@
 import { type HouseFinish } from "../HouseFinish";
 import { houseMaterial } from "../houseMaterial";
 
-/** Clear plate glass and privacy etched bathroom glass share tint and IOR. */
+/** Clear plate glass; `obscureGlass` shares its tint and IOR. */
 export const clearGlass = {
   material: houseMaterial("glass-clear", "#E8EEF0", 0.03, {
     transmission: 0.92,

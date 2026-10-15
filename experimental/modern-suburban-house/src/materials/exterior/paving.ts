@@ -1,7 +1,7 @@
 import { type HouseFinish } from "../HouseFinish";
 import { houseMaterial } from "../houseMaterial";
 
-/** Porch slab and broom-finished site concrete retain different values. */
+/** Broom-finished site concrete on the walks, driveway and terrace; the porch slab keeps its own `porchFloor` values. */
 export const paving = {
   material: houseMaterial("paving-concrete", "#B4B0A8", 0.88),
   faces: ["front-walk", "driveway", "side-walk", "terrace"],

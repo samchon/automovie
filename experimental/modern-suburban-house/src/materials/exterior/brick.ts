@@ -1,7 +1,7 @@
 import { type HouseFinish } from "../HouseFinish";
 import { houseMaterial } from "../houseMaterial";
 
-/** Fired clay brick and mortar joint mask on plinth, chimney and fireplace. */
+/** Fired clay brick on the plinth, chimney and fireplace; `brickMortar` masks its joints. */
 export const brick = {
   material: houseMaterial("brick-red-brown", "#8A4A3A", 0.85),
   faces: ["brick-face", "plinth", "chimney-body", "fireplace-body"],

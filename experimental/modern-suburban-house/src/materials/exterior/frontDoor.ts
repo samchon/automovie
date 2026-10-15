@@ -1,7 +1,7 @@
 import { type HouseFinish } from "../HouseFinish";
 import { houseMaterial } from "../houseMaterial";
 
-/** Oiled oak entry leaf and powder-coated segmented garage leaf. */
+/** Oiled oak entry door leaf. */
 export const frontDoor = {
   material: houseMaterial("front-door-wood", "#9A6A3E", 0.5),
   faces: ["leaf-exterior", "leaf-interior", "leaf-edge", "leaf-panel"],

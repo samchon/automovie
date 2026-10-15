@@ -1,7 +1,7 @@
 import { type HouseFinish } from "../HouseFinish";
 import { houseMaterial } from "../houseMaterial";
 
-/** Painted fixed cabinetry and the separate pale stone countertop surfaces. */
+/** Painted fixed cabinetry; its countertops take `lightCountertop`. */
 export const greigeCabinet = {
   material:houseMaterial("greige-cabinet","#8A7F72",0.50),
   faces:["plinth","carcass","leaf","drawer-front","cleat"],

@@ -6,6 +6,15 @@ import { point } from "./point";
 
 /**
  * Build closed concave wall geometry from metric intervals, with no Boolean mesh subtraction.
+ *
+ * One watertight partition with a blind, rectangular wall recess. The solid
+ * remains connected behind the recess; its near face opens toward +X and the
+ * back closes before the opposite room's wall face. Grid cells are emitted
+ * only on occupied/empty boundaries, so no internal mating faces survive.
+ *
+ * Geometry is determined from the wall and recess intervals. The part keeps
+ * the full wall's boundary record with no through-hole, since a niche is not
+ * a door, route, or opening between spaces.
  */
 
 export const blindRecessWall = (input: IBlindRecess): IWallSolid => {
