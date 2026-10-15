@@ -5,15 +5,18 @@ import { AutoMovieSurfaceTier } from "./AutoMovieSurfaceTier";
 import { IAutoMovieBoneBuffer } from "./IAutoMovieBoneBuffer";
 import { IAutoMovieSubdivisionStencil } from "./IAutoMovieSubdivisionStencil";
 import { IAutoMovieSurfaceCage } from "./IAutoMovieSurfaceCage";
-import { IAutoMovieSurfaceCoordinate } from "./IAutoMovieSurfaceCoordinate";
 import { IAutoMovieSurfaceCurveRig } from "./IAutoMovieSurfaceCurveRig";
+import { IAutoMovieSurfaceLayout } from "./IAutoMovieSurfaceLayout";
 import { IAutoMovieSurfaceNetwork } from "./IAutoMovieSurfaceNetwork";
 import { IAutoMovieSurfacePoint } from "./IAutoMovieSurfacePoint";
+import { IAutoMovieSurfaceRegistry } from "./IAutoMovieSurfaceRegistry";
 import { IAutoMovieSurfaceRig } from "./IAutoMovieSurfaceRig";
 import { IAutoMovieSurfaceSample } from "./IAutoMovieSurfaceSample";
 import { IAutoMovieSweepBinding } from "./IAutoMovieSweepBinding";
 import { IAutoMovieSweepRig } from "./IAutoMovieSweepRig";
 import { bufferAutoMovieBones } from "./bufferAutoMovieBones";
+import { layoutAutoMovieSurfacePatches } from "./layoutAutoMovieSurfacePatches";
+import { registerAutoMovieSurfaceVertices } from "./registerAutoMovieSurfaceVertices";
 import { rigAutoMovieSurfaceBridge } from "./rigAutoMovieSurfaceBridge";
 import { rigAutoMovieSurfaceCoons } from "./rigAutoMovieSurfaceCoons";
 import { rigAutoMovieSurfaceCurve } from "./rigAutoMovieSurfaceCurve";
@@ -83,7 +86,7 @@ const FIT_LIMIT: number = 1e-6;
  * @throws Error when a name is unknown or repeated, a binding names nothing in the network or comes without rest bones, a count is not a positive integer, a curve meets a sweep along its normal, a patch's opposite sides differ in count or its sides do not close, a bridge's loops differ in count or name points no patch made, a ring's positions do not match its loop, patches overlap, or the rest fit does not converge.
  *
  * @evidence contracts/common.md#principled-implementation A multi-block structured cage: each block samples its defining surface on a regular grid, blocks weld by exact identity, the limit fit inverts the subdivision stencils for samples of authored surfaces and keeps blend controls, and posing is sweep-based deformation split into its pose-invariant compile and per-pose evaluation.
- * @evidence contracts/common.md#clear-and-simple-design One compile records, per vertex, the writer that evaluates it; the rest cage and every pose run the same writers, and `sampleAutoMovieSurfaceNetwork` is this rig at rest. Sweeps, curves, bridges, bones and the fit are their own modules.
+ * @evidence contracts/common.md#clear-and-simple-design One compile records, per vertex, the writer that evaluates it; the rest cage and every pose run the same writers, and `sampleAutoMovieSurfaceNetwork` is this rig at rest. Vertex registration, face layout, sweeps, curves, Coons patches, bridges, bones and the fit are their own modules.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No vertex is welded by proximity and no gap is stitched; bindings naming nothing are refused; a rest fit that does not converge is refused, and every pose returns its residual.
  * @evidence contracts/common.md#meaningful-documentation States each fill rule and its source, the welding identity, the topology guarantee, the fit and why blends are held, pinning, the UV default, the posing rules and every refusal.
  * @evidence contracts/performance.md#efficient-algorithms Compile, for V vertices and F faces: O(V) map operations and sweep queries, O(F) for the orientation check and stencils, plus each sweep's compile. Pose: O(V) writers of constant size, each bound sweep's and curve's update, O(n r) per bridge and the fit's O(V + F) per Jacobi sweep, with no allocation.
@@ -201,71 +204,8 @@ export const rigAutoMovieSurfaceNetwork: (props: {
     return r;
   };
 
-  // registry of vertices by identity, each with the writer that evaluates it
-  const index: Map<string, number> = new Map();
-  const writers: Array<(targets: Float64Array) => void> = [];
-  let vertices: number = 0;
-  const reserve = (key: string): number => {
-    const i: number = vertices++;
-    index.set(key, i);
-    return i;
-  };
-  const vertex = (key: string, make: () => (out: Float64Array, at: number) => void): number => {
-    let i: number | undefined = index.get(key);
-    if (i === undefined) {
-      const write: (out: Float64Array, at: number) => void = make();
-      const at: number = 3 * (i = reserve(key));
-      writers.push((targets: Float64Array): void => write(targets, at));
-    }
-    return i;
-  };
-  // sweep points: their cell narrows as each sampling reports its spacing, and their writers are made once all have
-  const pending: Map<string, IPending> = new Map();
-  const admit = (sample: IAutoMovieSurfaceSample): number => {
-    const point: IAutoMovieSurfaceSample["point"] = sample.point;
-    if (point === null) return vertex(sample.key, sample.writer);
-    let entry: IPending | undefined = pending.get(sample.key);
-    if (entry === undefined) {
-      const at: number = 3 * reserve(sample.key);
-      const created: IPending = {
-        sweep: point.sweep,
-        u: point.u,
-        v: point.v,
-        cell: [Infinity, Infinity, Infinity, Infinity],
-        write: (): void => undefined,
-      };
-      writers.push((targets: Float64Array): void => created.write(targets, at));
-      pending.set(sample.key, (entry = created));
-    }
-    for (let k: number = 0; k < 4; ++k) entry.cell[k] = Math.min(entry.cell[k]!, point.cell[k]!);
-    return index.get(sample.key)!;
-  };
-  // a side no sampling reported mirrors the other, and an axis no sampling spans has no extent
-  const finalize = (): void => {
-    for (const entry of pending.values()) {
-      const cell: [number, number, number, number] = [0, 0, 0, 0];
-      for (const axis of [0, 2]) {
-        const below: number = entry.cell[axis]!;
-        const above: number = entry.cell[axis + 1]!;
-        cell[axis] = Number.isFinite(below) ? below : Number.isFinite(above) ? above : 0;
-        cell[axis + 1] = Number.isFinite(above) ? above : cell[axis]!;
-      }
-      entry.write = sweepRig(entry.sweep).sample(entry.u, entry.v, cell);
-    }
-  };
-  // the spacing a sampling step gives a point's cell below and above along one axis
-  const reach = (step: number, first: boolean, last: boolean): [number, number] => {
-    const size: number = Math.abs(step);
-    if (step === 0) return [Infinity, Infinity];
-    const back: number = first ? Infinity : size;
-    const ahead: number = last ? Infinity : size;
-    return step > 0 ? [back, ahead] : [ahead, back];
-  };
-  const existing = (key: string, what: string): number => {
-    const i: number | undefined = index.get(key);
-    if (i === undefined) throw new Error(`${what} names a point no patch made`);
-    return i;
-  };
+  const registry: IAutoMovieSurfaceRegistry = registerAutoMovieSurfaceVertices(sweepRig);
+  const { writers, reserve, admit, existing } = registry;
   // a bridge may run along a network curve no patch samples, but a sweep point it names must be one a patch made
   const joined = (point: IAutoMovieSurfaceSample, what: string): number =>
     point.key.startsWith("s|") ? existing(point.key, what) : admit(point);
@@ -321,41 +261,9 @@ export const rigAutoMovieSurfaceNetwork: (props: {
   };
 
   const blend: Set<number> = new Set();
-  const faces: number[][] = [];
-  const corners: IAutoMovieSurfaceCage["corners"] = [];
-  const uvs: number[] = [];
-  const uvFaces: number[][] = [];
-  const grids: IAutoMovieSurfaceCage.IPatch[] = [];
+  const layout: IAutoMovieSurfaceLayout = layoutAutoMovieSurfacePatches(network);
+  const { faces, emit } = layout;
   const names: Set<string> = new Set();
-  const total: number = network.patches.length;
-  const emit = (p: number, grid: number[][], columns: number, rows: number, wrap: boolean): void => {
-    const patch: IAutoMovieSurfaceNetwork.IPatch = network.patches[p]!;
-    const rect: IAutoMovieSurfaceNetwork.IUvRect = patch.uv ?? { s: [0, 1], t: [p / total, (p + 1) / total] };
-    const uv: number[][] = Array.from({ length: rows + 1 }, (_: unknown, j: number): number[] =>
-      Array.from({ length: columns + 1 }, (__: unknown, i: number): number => {
-        uvs.push(rect.s[0] + ((rect.s[1] - rect.s[0]) * i) / columns, rect.t[0] + ((rect.t[1] - rect.t[0]) * j) / rows);
-        return uvs.length / 2 - 1;
-      }),
-    );
-    const at = (i: number, j: number): number => grid[j]![wrap ? i % columns : i]!;
-    const faceList: number[] = [];
-    for (let j: number = 0; j < rows; ++j)
-      for (let i: number = 0; i < columns; ++i) {
-        const quad: Array<[number, number]> = [
-          [i, j],
-          [i + 1, j],
-          [i + 1, j + 1],
-          [i, j + 1],
-        ];
-        faceList.push(faces.length);
-        faces.push(quad.map(([a, b]: [number, number]): number => at(a, b)));
-        uvFaces.push(quad.map(([a, b]: [number, number]): number => uv[b]![a]!));
-        corners.push(
-          quad.map(([a, b]: [number, number]): IAutoMovieSurfaceCoordinate => ({ patch: p, s: a / columns, t: b / rows })) as IAutoMovieSurfaceCage["corners"][number],
-        );
-      }
-    grids[p] = { name: patch.name, columns, rows, faces: faceList };
-  };
 
   const order: number[] = network.patches
     .map((_: IAutoMovieSurfaceNetwork.IPatch, p: number): number => p)
@@ -452,15 +360,8 @@ export const rigAutoMovieSurfaceNetwork: (props: {
     }
   }
 
-  // every directed edge once: patches neither overlap nor disagree in winding
-  const directed: Set<string> = new Set();
-  faces.forEach((quad: number[]): void => {
-    for (let k: number = 0; k < 4; ++k) {
-      const key: string = `${quad[k]},${quad[(k + 1) % 4]}`;
-      if (directed.has(key)) throw new Error(`patches overlap or wind inconsistently at edge ${key}`);
-      directed.add(key);
-    }
-  });
+  layout.check();
+  const vertices: number = registry.count();
 
   const pinned: boolean[] = new Array<boolean>(vertices).fill(false);
   const pins: Array<(targets: Float64Array) => void> = [];
@@ -482,7 +383,7 @@ export const rigAutoMovieSurfaceNetwork: (props: {
     }
     rings[ring.name] = members;
   }
-  finalize();
+  registry.finalize();
   for (const rig of sweeps.values()) rig.seal();
 
   const fit: boolean = props.fit ?? true;
@@ -529,11 +430,11 @@ export const rigAutoMovieSurfaceNetwork: (props: {
   }
   const cage: IAutoMovieSurfaceCage = {
     tier,
-    cage: { positions: Array.from(restPositions), faces, uvs, uvFaces },
+    cage: { positions: Array.from(restPositions), faces, uvs: layout.uvs, uvFaces: layout.uvFaces },
     targets: Array.from(targets),
     pinned,
-    corners,
-    patches: grids,
+    corners: layout.corners,
+    patches: layout.grids,
     rings,
     residual,
   };
@@ -550,11 +451,12 @@ export const rigAutoMovieSurfaceNetwork: (props: {
   };
 };
 
-/** A sweep point awaiting its writer: the sweep, domain point, the finest spacing reported on each side, and the writer once made. */
-interface IPending {
-  sweep: string;
-  u: number;
-  v: number;
-  cell: [number, number, number, number];
-  write: (out: Float64Array, at: number) => void;
-}
+
+/** The spacing a sampling step gives a point's cell below and above along one axis, infinite on a side the sampling does not reach. */
+const reach = (step: number, first: boolean, last: boolean): [number, number] => {
+  const size: number = Math.abs(step);
+  if (step === 0) return [Infinity, Infinity];
+  const back: number = first ? Infinity : size;
+  const ahead: number = last ? Infinity : size;
+  return step > 0 ? [back, ahead] : [ahead, back];
+};
