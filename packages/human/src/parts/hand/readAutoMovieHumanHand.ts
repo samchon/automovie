@@ -91,9 +91,15 @@ export function readAutoMovieHumanHand(
     local(joint("ThumbDistal").tail),
   ];
   const metacarpal: IAutoMovieHumanSkeleton.IJoint = joint("ThumbProximal");
-  const along: IAutoMovieVector3 = direction(metacarpal.axes.twist);
+  // the skeleton declares the thumb's axes on the engine's per-side convention: its anatomical twist runs along s · twist and its flexion about −s · flexion
+  const s: number = side === "left" ? 1 : -1;
+  const zero: IAutoMovieVector3 = V.of(0, 0, 0);
+  const twist: IAutoMovieVector3 = V.offset(zero, [metacarpal.axes.twist, s]);
+  const along: IAutoMovieVector3 = direction(twist);
   const pad: IAutoMovieVector3 = direction(
-    V.normalize(V.cross(metacarpal.axes.flexion, metacarpal.axes.twist)),
+    V.normalize(
+      V.cross(V.offset(zero, [metacarpal.axes.flexion, -s]), twist),
+    ),
   );
   const toIndex: IAutoMovieVector3 = V.offset(
     local(joint("IndexProximal").position),
