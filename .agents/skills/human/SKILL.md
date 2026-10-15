@@ -31,7 +31,7 @@ These rules add to the [3d-modeling skill](../3d-modeling/SKILL.md) for Human wo
 - Refine each part alone from every side before joining, join parts only through the junction module on control cages, subdivide the joined cage once, and judge on the joined person.
 - Within a profile every identity shares one topology and one published UV layout.
 - A capability that any generated or imported model could use, such as skeleton axes and ranges, skinning methods, morph targets, materials, images or general geometry, belongs in core; human anatomy, measurements, proportions and the Human parameter vocabulary belong in Human.
-- When core lacks what Human needs, add it to the core campaign in `../automovie@core`, land it there, and `git pull origin master` into the Human branch. Never work around a core gap inside Human.
+- When core lacks what Human needs, change the core package itself on the Human branch, in its own commits that keep the core boundary above. Never work around a core gap inside Human.
 
 ## Verification And Reporting
 
