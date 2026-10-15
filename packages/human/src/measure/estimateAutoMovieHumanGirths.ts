@@ -30,6 +30,7 @@ const ANSUR_II: Record<
   | "forearm"
   | "wrist"
   | "thigh"
+  | "lowerThigh"
   | "calf"
   | "ankle",
   Record<AutoMovieHumanSex, IRegression>
@@ -65,6 +66,10 @@ const ANSUR_II: Record<
   thigh: {
     female: { intercept: -113.1, stature: 0.2348, bmi: 13.87, age: -0.23 },
     male: { intercept: -94.6, stature: 0.2146, bmi: 13.37, age: -0.91 },
+  },
+  lowerThigh: {
+    female: { intercept: -45.2, stature: 0.1538, bmi: 8.0, age: -0.3 },
+    male: { intercept: -11.8, stature: 0.1383, bmi: 6.75, age: -0.29 },
   },
   calf: {
     female: { intercept: 7.8, stature: 0.1347, bmi: 6.2, age: -0.41 },
@@ -178,6 +183,7 @@ export function estimateAutoMovieHumanGirths(
     },
     leg: {
       thighCircumference: girth("thigh"),
+      lowerThighCircumference: girth("lowerThigh"),
       calfCircumference: girth("calf"),
       ankleCircumference: girth("ankle"),
     },
@@ -212,7 +218,10 @@ export namespace estimateAutoMovieHumanGirths {
     /** Girths of one leg. */
     leg: Pick<
       IAutoMovieHumanIdentity.ILeg,
-      "thighCircumference" | "calfCircumference" | "ankleCircumference"
+      | "thighCircumference"
+      | "lowerThighCircumference"
+      | "calfCircumference"
+      | "ankleCircumference"
     >;
   }
 }
@@ -227,6 +236,7 @@ interface IGirths {
   forearm: number;
   wrist: number;
   thigh: number;
+  lowerThigh: number;
   calf: number;
   ankle: number;
 }
@@ -286,6 +296,7 @@ function adultGirths(
     forearm: fit("forearm") * limbAgeing,
     wrist: fit("wrist") * limbAgeing,
     thigh: fit("thigh") * limbAgeing,
+    lowerThigh: fit("lowerThigh") * limbAgeing,
     calf: fit("calf") * limbAgeing,
     ankle: fit("ankle") * limbAgeing,
   };
@@ -331,6 +342,7 @@ function childGirths(
     forearm: reference.forearm * limb,
     wrist: reference.wrist * limb,
     thigh: reference.thigh * limb,
+    lowerThigh: reference.lowerThigh * limb,
     calf: reference.calf * limb,
     ankle: reference.ankle * limb,
   };

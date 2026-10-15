@@ -256,6 +256,11 @@ export namespace IAutoMovieHumanIdentity {
      */
     thighCircumference: number & tags.Minimum<120> & tags.Maximum<1300>;
 
+    /**
+     * Lower thigh circumference at suprapatella, the upper border of the patella, perpendicular to the thigh axis, millimetres, as ANSUR II measures it. With the thigh circumference it fixes how the thigh tapers to the knee; admission keeps it smaller than the thigh circumference.
+     */
+    lowerThighCircumference: number & tags.Minimum<80> & tags.Maximum<900>;
+
     /** Maximum horizontal calf circumference, millimetres. */
     calfCircumference: number & tags.Minimum<90> & tags.Maximum<800>;
 

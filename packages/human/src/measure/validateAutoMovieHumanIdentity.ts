@@ -187,6 +187,13 @@ export function validateAutoMovieHumanIdentity(
       "the thigh at the gluteal furrow holds the femur, the quadriceps, the hamstrings and the adductors, more than the calf holds",
     );
     check(
+      leg.lowerThighCircumference < leg.thighCircumference,
+      `${legPath}.lowerThighCircumference`,
+      leg.lowerThighCircumference,
+      `smaller than thigh circumference (${millimetres(leg.thighCircumference)})`,
+      "the thigh tapers from the gluteal furrow to the knee as its muscle bellies give way to their tendons",
+    );
+    check(
       leg.ankleCircumference < leg.calfCircumference,
       `${legPath}.ankleCircumference`,
       leg.ankleCircumference,
