@@ -29,26 +29,33 @@ export interface IAutoMovieHumanCage {
 }
 export namespace IAutoMovieHumanCage {
   /**
-   * One control point with its semantic address.
+   * One control point.
    *
    * @author Samchon
    */
   export interface IVertex {
     /** Control point, model frame, millimetres. Not on the limit surface itself. */
     position: IAutoMovieVector3;
-
-    /** Semantic address of the control point, from which UVs and landmarks are derived. */
-    coordinate: IAutoMovieHumanSurfaceCoordinate;
   }
 
   /**
    * One quad, its corners counterclockwise seen from outside the body so the right-hand normal points outward, the glTF front-face convention.
+   *
+   * Addresses are per corner, face-varying like UVs, because one control point can sit on two charts: a ring vertex after joining belongs to both parts of its site, and a vertex on a chart's wrap meridian is at `v = 0` for the faces on one side and `v = 1` for those on the other. UVs and landmarks are derived from these addresses, never from vertex indices.
    *
    * @author Samchon
    */
   export interface IFace {
     /** Vertex indices of the four corners. */
     vertices: [number, number, number, number];
+
+    /** Semantic address of each corner on this face's part chart, aligned with `vertices`. */
+    coordinates: [
+      IAutoMovieHumanSurfaceCoordinate,
+      IAutoMovieHumanSurfaceCoordinate,
+      IAutoMovieHumanSurfaceCoordinate,
+      IAutoMovieHumanSurfaceCoordinate,
+    ];
   }
 
   /**
