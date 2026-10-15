@@ -8,8 +8,6 @@ declare module "production-temple-scene" {
     payload: unknown,
     textures: Map<string, THREE.Texture>,
   ): { root: THREE.Group };
-  /** Native temple tree cleanup; the website's scene owner performs its own resource discovery. */
-  export function disposeTree(root: THREE.Object3D): void;
 }
 declare module "production-temple-daylight" {
   import type * as THREE from "three";

@@ -27,11 +27,11 @@ export const websiteViteConfig: UserConfig = defineConfig({
     alias: {
       "production-temple-scene": resolve(
         __dirname,
-        "../experimental/ancient-civic-temple/src/viewer/scene.ts",
+        "../experimental/ancient-civic-temple/src/viewer/uploadTemple.ts",
       ),
       "production-temple-daylight": resolve(
         __dirname,
-        "../experimental/ancient-civic-temple/src/viewer/daylight.ts",
+        "../experimental/ancient-civic-temple/src/viewer/createTempleDaylight.ts",
       ),
       "production-future-scene": resolve(
         __dirname,

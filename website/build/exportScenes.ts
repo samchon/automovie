@@ -34,7 +34,7 @@ for (const [building, directory] of definitions) {
   let data: TourData;
   if (building === "ancient") {
     const producer: { createViewerPayload(): AncientSource } = require(
-      resolve(production, "src/viewer/payload.ts"),
+      resolve(production, "src/viewer/createViewerPayload.ts"),
     ) as {
       createViewerPayload(): AncientSource;
     };
