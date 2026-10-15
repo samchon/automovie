@@ -37,6 +37,11 @@ export const AUTOMOVIE_HUMAN_HAND_FORM = {
   circumference: 2.397,
 
   /**
+   * Fat over the back of a young adult's hand, millimetres: the dorsal superficial, intermediate and deep laminae over the metacarpals by ultrasound, 0.70, 2.16 and 1.48 mm in the 20s, from their losses to over 60 and the shares those losses are (Hung et al. 2022, Aesthet Surg J 42(10):1119-1126). The hand's dorsal form is drawn for this thickness; an identity with less fat loses the difference from the back of the palm, while the knuckle crests, bone under thin skin, stay. Grade: measured, sum derived.
+   */
+  dorsalFat: 4.34,
+
+  /**
    * Depth of the web between thumb and index below the wrist crease, over hand length (Greiner 1991, crotch 1 height: 62.8 and 69.1 mm). Grade: measured, ratio derived.
    */
   thumbWeb: 0.352,

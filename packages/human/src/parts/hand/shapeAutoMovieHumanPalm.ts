@@ -98,8 +98,10 @@ export function shapeAutoMovieHumanPalm(
   const dorsalHeight = (x: number): number => cw + (thickness * P.dorsal - cw) * level(x);
   const palmarDepth = (x: number): number => cw + (thickness * (1 - P.dorsal) - cw) * level(x);
   /** Dorsal surface point at a level and a share of the half breadth from the centre. */
+  // fat lost from the back of the hand against the young adult the dorsal form is drawn for, nothing at the wrist ring, all of it over the metacarpals
+  const loss: number = Math.max(0, F.dorsalFat - props.dorsalFat);
   const dorsal = (x: number, zeta: number, rise: number = 0): IAutoMovieVector3 =>
-    V.of(x, -dorsalHeight(x) * (arch(x, zeta) + rise), across(x, zeta));
+    V.of(x, -dorsalHeight(x) * (arch(x, zeta) + rise) + loss * level(x), across(x, zeta));
   /** Palmar surface point, `pad` the share it bulges beyond the plain section. */
   const palmar = (x: number, zeta: number, pad: number = 0): IAutoMovieVector3 =>
     V.of(x, palmarDepth(x) * arch(x, zeta) * (1 + pad), across(x, zeta));
@@ -185,9 +187,9 @@ export function shapeAutoMovieHumanPalm(
       V.of(f.crease, pad, knuckle.z),
       V.of(f.crease, pad * 0.8, knuckle.z - w * 0.38),
       null,
-      V.of(knuckle.x, -rise * P.knuckleFlank, knuckle.z - w * 0.4),
+      V.of(knuckle.x, -rise * P.knuckleFlank + loss, knuckle.z - w * 0.4),
       V.of(knuckle.x - 0.01 * L, -rise, knuckle.z),
-      V.of(knuckle.x, -rise * P.knuckleFlank, knuckle.z + w * 0.4),
+      V.of(knuckle.x, -rise * P.knuckleFlank + loss, knuckle.z + w * 0.4),
       null,
       V.of(f.crease, pad * 0.8, knuckle.z + w * 0.38),
     ].map((t: IAutoMovieVector3 | null): number => (t === null ? -1 : sketch.vertex(t)));
@@ -246,6 +248,9 @@ export namespace shapeAutoMovieHumanPalm {
 
     /** Wrist circumference, millimetres. */
     wristCircumference: number;
+
+    /** Fat over the back of the hand, millimetres. */
+    dorsalFat: number;
 
     /** The wrist ring's control points in the hand frame, palmar first, counterclockwise about the hand on the left. */
     wrist: IAutoMovieVector3[];

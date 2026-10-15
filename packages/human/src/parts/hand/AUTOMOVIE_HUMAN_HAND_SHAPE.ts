@@ -1,7 +1,7 @@
 /**
  * Shape coefficients of the hand's sections that no survey measures: how the palm and digits are shaped once the measured breadths, lengths, depths and girths are set.
  *
- * Fitted coefficients were calibrated offline against the MakeHuman CC0 base mesh (hm08, released CC0 in September 2020 by Data Collection AB) blended to the same identity from its CC0 macro targets and carried onto Human's skeleton, by the campaign's shared harness: the hand and the reference were cut by nine planes normal to the wrist-to-dactylion line and the wrist ring, compared by 72 rays per section, and silhouetted from the viewer's eight preset views. Nelder-Mead minimised the mean radial error plus 30 times one minus the mean silhouette IoU over the adult woman and man of 30 (european, average build). This is the block-out: every relief coefficient is off (`thenar`, `hollow`, `hypothenar` and `border` zero, the knuckles level), so the fit decides gross form only; it brought the two hands from 6.35 mm and IoU 0.782 to 5.17 mm and 0.820.
+ * Fitted coefficients were calibrated offline against the MakeHuman CC0 base mesh (hm08, released CC0 in September 2020 by Data Collection AB) blended to the same identity from its CC0 macro targets and carried onto Human's skeleton, by the campaign's shared harness: the hand and the reference were cut by nine planes normal to the wrist-to-dactylion line and the wrist ring, compared by 72 rays per section, and silhouetted from the viewer's eight preset views. Nelder-Mead minimised the mean radial error plus 30 times one minus the mean silhouette IoU over the adult woman and man of 30 (european, average build). The block-out fitted gross form with every relief coefficient off, bringing the two hands from 6.35 mm and IoU 0.782 to 5.17 mm and 0.820; the relief was then fitted on top, bounded so the knuckles do not sink and the palm does not bulge, to 4.89 mm and 0.830 with the conventional hollow and knuckle rise below.
  *
  * Coefficients that place the skin relative to the joint centres are not fitted to the reference, whose joint markers are not anatomical joint centres: carried onto Human's joints they put the reference's palm and fingers about 5 mm palmar of where bone allows. The knuckles' dorsal skin stays at least the metacarpal head's measured dorsal radius plus the dorsal joint capsule above the joint centre, and the fingers' dorsal shares stay conventional.
  */
@@ -16,29 +16,29 @@ export const AUTOMOVIE_HUMAN_HAND_SHAPE = {
     /** Exponent of the breadth's approach from the wrist to the heads, `1 − (1 − level)^widen`: below 1, the palm keeps close to the wrist's breadth and widens toward the heads. Fitted. */
     widen: 0.73,
 
-    /** Knuckle height over the palm's dorsal height at the heads. Level in the block-out. */
-    knuckle: 1,
+    /** Knuckle height over the palm's dorsal height at the heads, the metacarpal heads standing above the valleys between them. Conventional: the reference fit, bounded below by level knuckles, ends at the bound, because the reference's palmar-sunk skin would put the crest inside the head; a 5% rise reads as the knuckles of the anatomy plates and photographs at a cost of 0.1 mm. */
+    knuckle: 1.05,
 
-    /** The middle knuckle's height over the others', the largest and highest (Bridgman 1920). Level in the block-out. */
-    middleKnuckle: 1,
+    /** The middle knuckle's height over the others', the largest and highest (Bridgman 1920). Fitted. */
+    middleKnuckle: 1.06,
 
-    /** Height of the knuckle's flanks over its crest. Level in the block-out. */
-    knuckleFlank: 1,
+    /** Height of the knuckle's flanks over its crest. Fitted. */
+    knuckleFlank: 0.92,
 
     /** Palmar depth at each finger's basal crease over the palm's palmar depth at the heads. Conventional. */
     pad: 0.62,
 
-    /** The thenar eminence's slope over the index line near the wrist, as a share of the section's palmar depth. Off in the block-out. */
-    thenar: 0,
+    /** The thenar eminence's slope over the index line near the wrist, as a share of the section's palmar depth. Fitted. */
+    thenar: 0.7,
 
-    /** Depth of the palm's hollow over the middle and ring lines at mid-palm, as a share of the palmar depth. Off in the block-out. */
-    hollow: 0,
+    /** Depth of the palm's hollow over the middle and ring lines at mid-palm, as a share of the palmar depth. Conventional: the reference has none and the fit, bounded at no hollow, ends there, but the hollow between the thenar and hypothenar eminences is the palm's form in anatomy (Gray 1918, Bridgman 1920) and in photographs, at a cost of 0.1 mm. */
+    hollow: 0.15,
 
-    /** The hypothenar eminence over the little finger's line at mid-palm, as a share of the palmar depth. Off in the block-out. */
-    hypothenar: 0,
+    /** The hypothenar eminence over the little finger's line at mid-palm, as a share of the palmar depth. Fitted. */
+    hypothenar: 0.43,
 
-    /** The hypothenar's bulge at the ulnar border itself, as a share of the palmar depth. Off in the block-out. */
-    border: 0,
+    /** The hypothenar's bulge at the ulnar border itself, as a share of the palmar depth. Fitted. */
+    border: 0.44,
   },
   thumb: {
     /** Breadth of the thumb's knuckle section, inside the thenar's distal slope, over its interphalangeal joint breadth. Fitted. */

@@ -60,6 +60,7 @@ export function drawAutoMovieHumanHand(props: {
     breadth: arm.handBreadth,
     length: arm.handLength,
     wristCircumference: arm.wristCircumference,
+    dorsalFat: arm.dorsalHandFat,
     wrist,
   });
   const fingers: Array<{ vertices: number[]; digit: readAutoMovieHumanHand.IDigit }> = (
