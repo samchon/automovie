@@ -28,6 +28,8 @@ import { IAutoMovieHumanExpression } from "../structures/IAutoMovieHumanExpressi
 import { IAutoMovieHumanIdentity } from "../structures/IAutoMovieHumanIdentity";
 import { IAutoMovieHumanPose } from "../structures/IAutoMovieHumanPose";
 import { IAutoMovieHumanTraits } from "../structures/IAutoMovieHumanTraits";
+import { AUTOMOVIE_HUMAN_PART_GENERATORS } from "./AUTOMOVIE_HUMAN_PART_GENERATORS";
+import { IAutoMovieHumanPartGenerators } from "./IAutoMovieHumanPartGenerators";
 import { emitAutoMovieHumanSkin } from "./emitAutoMovieHumanSkin";
 import {
   AUTOMOVIE_HUMAN_SKIN_MATERIAL,
@@ -62,6 +64,7 @@ export class AutoMovieHuman {
   private readonly id_: string;
   private readonly measurements_: IAutoMovieHumanMeasurements;
   private readonly skeleton_: IAutoMovieHumanSkeleton;
+  private readonly generators_: IAutoMovieHumanPartGenerators;
 
   /**
    * Build a person from a detailed identity.
@@ -77,6 +80,7 @@ export class AutoMovieHuman {
     this.id_ = props.id;
     this.measurements_ = resolveAutoMovieHumanMeasurements(admitted.data);
     this.skeleton_ = generateAutoMovieHumanSkeleton(this.measurements_);
+    this.generators_ = { ...AUTOMOVIE_HUMAN_PART_GENERATORS, ...props.parts };
   }
 
   /**
@@ -98,6 +102,7 @@ export class AutoMovieHuman {
     return new AutoMovieHuman({
       id: props.id,
       identity: converter.toIdentity(admitted.data),
+      parts: props.parts,
     });
   }
 
@@ -155,11 +160,21 @@ export class AutoMovieHuman {
       props.assembly === "joined"
         ? {
             parts: [
-              emitAutoMovieHumanSkin(this.measurements_, this.skeleton_, 2),
+              emitAutoMovieHumanSkin(
+                this.measurements_,
+                this.skeleton_,
+                2,
+                this.generators_,
+              ),
             ],
             materials: [AUTOMOVIE_HUMAN_SKIN_MATERIAL],
           }
-        : emitAutoMovieHumanSkinParts(this.measurements_, this.skeleton_, 2);
+        : emitAutoMovieHumanSkinParts(
+            this.measurements_,
+            this.skeleton_,
+            2,
+            this.generators_,
+          );
     return {
       id: this.id_,
       name: null,
@@ -228,6 +243,11 @@ export namespace AutoMovieHuman {
 
     /** The detailed identity; it is admitted and copied. */
     identity: IAutoMovieHumanIdentity;
+
+    /**
+     * Generators replacing the human profile's for some parts, such as another species' ear; omitted parts keep `AUTOMOVIE_HUMAN_PART_GENERATORS`. A replacement opens the same rings, so it joins without any other part changing.
+     */
+    parts?: Partial<IAutoMovieHumanPartGenerators>;
   }
 
   /**
@@ -244,5 +264,8 @@ export namespace AutoMovieHuman {
 
     /** Converter from traits to identity; omitted, {@link AutoMovieHumanConverter}. */
     converter?: IAutoMovieHumanConverter;
+
+    /** Generators replacing the human profile's for some parts, as in {@link IProps.parts}. */
+    parts?: Partial<IAutoMovieHumanPartGenerators>;
   }
 }

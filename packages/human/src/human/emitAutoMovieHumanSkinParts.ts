@@ -6,7 +6,7 @@ import { IAutoMovieHumanCage } from "../junction/IAutoMovieHumanCage";
 import { meshAutoMovieHumanCage } from "../junction/meshAutoMovieHumanCage";
 import { IAutoMovieHumanMeasurements } from "../measure/IAutoMovieHumanMeasurements";
 import { IAutoMovieHumanSkeleton } from "../skeleton/IAutoMovieHumanSkeleton";
-import { AUTOMOVIE_HUMAN_PART_GENERATORS } from "./AUTOMOVIE_HUMAN_PART_GENERATORS";
+import { IAutoMovieHumanPartGenerators } from "./IAutoMovieHumanPartGenerators";
 
 /**
  * Every skin part instance of a person: the trunk, neck and head once, the ears, arms, hands, legs and feet once per side.
@@ -34,11 +34,13 @@ export const AUTOMOVIE_HUMAN_PART_INSTANCES: ReadonlyArray<
  *
  * @param measurements Resolved measurements
  * @param skeleton The skeleton at rest
+ * @param generators The generator of each part
  * @returns One cage per part instance, in `AUTOMOVIE_HUMAN_PART_INSTANCES` order
  */
 export const generateAutoMovieHumanCages = (
   measurements: IAutoMovieHumanMeasurements,
   skeleton: IAutoMovieHumanSkeleton,
+  generators: IAutoMovieHumanPartGenerators,
 ): Array<{
   part: AutoMovieHumanPart;
   side: AutoMovieHumanSide | null;
@@ -48,7 +50,7 @@ export const generateAutoMovieHumanCages = (
     part,
     side,
     cage: (
-      AUTOMOVIE_HUMAN_PART_GENERATORS[part] as {
+      generators[part] as {
         generate(props: {
           measurements: IAutoMovieHumanMeasurements;
           skeleton: IAutoMovieHumanSkeleton;
@@ -66,14 +68,16 @@ export const generateAutoMovieHumanCages = (
  * @param measurements Resolved measurements
  * @param skeleton The skeleton at rest
  * @param levels Subdivision levels
+ * @param generators The generator of each part
  * @returns The parts and the material they cite
  */
 export const emitAutoMovieHumanSkinParts = (
   measurements: IAutoMovieHumanMeasurements,
   skeleton: IAutoMovieHumanSkeleton,
   levels: number,
+  generators: IAutoMovieHumanPartGenerators,
 ): { parts: IAutoMovieModelPart[]; materials: IAutoMovieMaterial[] } => ({
-  parts: generateAutoMovieHumanCages(measurements, skeleton).map(
+  parts: generateAutoMovieHumanCages(measurements, skeleton, generators).map(
     ({ part, side, cage }): IAutoMovieModelPart => {
       const id: string =
         side === null ? `skin.${part}` : `skin.${part}.${side}`;
