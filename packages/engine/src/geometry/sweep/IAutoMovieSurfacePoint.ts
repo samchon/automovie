@@ -19,6 +19,14 @@ export interface IAutoMovieSurfacePoint {
    *
    * @param out Receives three numbers, metres
    * @param at Offset into `out`
+   *
+   * @evidence contracts/common.md#principled-implementation Evaluates the point for the current pose.
+   * @evidence contracts/common.md#clear-and-simple-design Writes into a caller array.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads only state refreshed for this pose.
+   * @evidence contracts/common.md#meaningful-documentation States the output.
+   * @evidence contracts/performance.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `rigAutoMovieSurfaceNetwork`.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `rigAutoMovieSurfaceNetwork`.
    */
   write(out: Float64Array, at: number): void;
 

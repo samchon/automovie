@@ -30,6 +30,14 @@ export interface IAutoMovieBoneBuffer {
    * @param bone Bone name
    * @returns Its index
    * @throws Error when the rest list lacks the bone
+   *
+   * @evidence contracts/common.md#principled-implementation Bone names resolve once to indices of the rest list.
+   * @evidence contracts/common.md#clear-and-simple-design One lookup.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A missing bone is refused.
+   * @evidence contracts/common.md#meaningful-documentation States the return and refusal.
+   * @evidence contracts/performance.md#efficient-algorithms One map read.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `bufferAutoMovieBones`.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `bufferAutoMovieBones`.
    */
   index(bone: AutoMovieHumanoidBone): number;
 
@@ -38,10 +46,28 @@ export interface IAutoMovieBoneBuffer {
    *
    * @param posed The same bones as the rest list, in the same order
    * @throws Error when the lists differ in length or in a bone
+   *
+   * @evidence contracts/common.md#principled-implementation Each bone's rigid motion from rest to pose.
+   * @evidence contracts/common.md#clear-and-simple-design One call per pose.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A posed list out of step with the rest list is refused.
+   * @evidence contracts/common.md#meaningful-documentation States the expected order.
+   * @evidence contracts/performance.md#efficient-algorithms O(B) for B bones, no allocation.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `bufferAutoMovieBones`.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `bufferAutoMovieBones`.
    */
   update(posed: readonly IAutoMovieResolvedBone[]): void;
 
-  /** Return every motion to the identity, the rest pose. */
+  /**
+   * Return every motion to the identity, the rest pose.
+   *
+   * @evidence contracts/common.md#principled-implementation The identity motion of the rest pose.
+   * @evidence contracts/common.md#clear-and-simple-design One call.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Points are then copied exactly, not transformed.
+   * @evidence contracts/common.md#meaningful-documentation States the effect.
+   * @evidence contracts/performance.md#efficient-algorithms O(B).
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `bufferAutoMovieBones`.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `bufferAutoMovieBones`.
+   */
   reset(): void;
 
   /**
@@ -52,6 +78,14 @@ export interface IAutoMovieBoneBuffer {
    * @param pi Offset of the point
    * @param out Target array, which may be the source
    * @param oi Offset to write at
+   *
+   * @evidence contracts/common.md#principled-implementation The rigid transform of a point.
+   * @evidence contracts/common.md#clear-and-simple-design Array and offset in, array and offset out.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts At rest the point is copied exactly.
+   * @evidence contracts/common.md#meaningful-documentation States the aliasing rule.
+   * @evidence contracts/performance.md#efficient-algorithms Constant time, no allocation.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `bufferAutoMovieBones`.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `bufferAutoMovieBones`.
    */
   apply(bone: number, p: ArrayLike<number>, pi: number, out: Float64Array, oi: number): void;
 
@@ -63,6 +97,14 @@ export interface IAutoMovieBoneBuffer {
    * @param vi Offset of the direction
    * @param out Target array, which may be the source
    * @param oi Offset to write at
+   *
+   * @evidence contracts/common.md#principled-implementation The rotation of a direction.
+   * @evidence contracts/common.md#clear-and-simple-design Array and offset in and out.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts At rest the direction is copied exactly.
+   * @evidence contracts/common.md#meaningful-documentation States the aliasing rule.
+   * @evidence contracts/performance.md#efficient-algorithms Constant time, no allocation.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `bufferAutoMovieBones`.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `bufferAutoMovieBones`.
    */
   turn(bone: number, v: ArrayLike<number>, vi: number, out: Float64Array, oi: number): void;
 

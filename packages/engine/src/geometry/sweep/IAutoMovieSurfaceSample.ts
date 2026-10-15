@@ -24,6 +24,14 @@ export interface IAutoMovieSurfaceSample {
    * Make the writer of a point that is not a sweep point, registering the slots it reads; called once, when the point first becomes a vertex.
    *
    * @returns A writer of the point for the current pose, three numbers in metres at an offset
+   *
+   * @evidence contracts/common.md#principled-implementation Binds a non-sweep point's evaluation when it first becomes a vertex.
+   * @evidence contracts/common.md#clear-and-simple-design A factory, so repeated samplings register nothing twice.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Called only for new vertices.
+   * @evidence contracts/common.md#meaningful-documentation States when it is called.
+   * @evidence contracts/performance.md#efficient-algorithms Constant time per call.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `rigAutoMovieSurfaceNetwork`.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `rigAutoMovieSurfaceNetwork`.
    */
   writer(): (out: Float64Array, at: number) => void;
 

@@ -42,6 +42,14 @@ export interface IAutoMovieSurfaceRig {
    * @param targets Optionally receives the packed limit targets, the same length
    * @returns The largest distance between a fitted vertex's limit point and its target, metres; 0 without the fit
    * @throws Error when a buffer has the wrong length, the posed bones differ from the rest bones, or a sweep or curve refuses the pose
+   *
+   * @evidence contracts/common.md#principled-implementation Per-pose evaluation of a compiled surface: re-sweep, blends and limit fit written into caller memory.
+   * @evidence contracts/common.md#clear-and-simple-design One call per frame with the posed bones and the output buffers.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Wrong buffer lengths and out-of-order bones are refused, and the residual is returned for every pose.
+   * @evidence contracts/common.md#meaningful-documentation States the inputs, outputs, return value and refusals.
+   * @evidence contracts/performance.md#efficient-algorithms O(V) writers plus bound sweeps' and curves' updates and the fit, with no allocation, as `rigAutoMovieSurfaceNetwork` details.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `rigAutoMovieSurfaceNetwork`.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `rigAutoMovieSurfaceNetwork`.
    */
   pose(posed: readonly IAutoMovieResolvedBone[], positions: Float64Array, targets?: Float64Array): number;
 }
