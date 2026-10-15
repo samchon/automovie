@@ -19,14 +19,13 @@ import { IAutoMovieHumanMeasurements } from "../../measure/IAutoMovieHumanMeasur
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanSkeleton } from "../../skeleton/IAutoMovieHumanSkeleton";
 import { IAutoMovieHumanTrunkFrame } from "./IAutoMovieHumanTrunkFrame";
-import { IAutoMovieHumanTrunkTune } from "./IAutoMovieHumanTrunkTune";
 import { measureAutoMovieHumanTrunkFrame } from "./measureAutoMovieHumanTrunkFrame";
 import { profileAutoMovieHumanTrunk } from "./profileAutoMovieHumanTrunk";
 
 /**
  * Loft the trunk: one sweep up the body from the crotch to the neck-base ring, with the shoulder tubes leaving openings in its flanks for the mid-upper-arm rings and the hip tubes leaving its lower edge on either side of a fork curve for the mid-thigh rings.
  *
- * The sweep's sections are the trunk profile's superellipses, read at the profile's own levels (crotch, buttock, iliac crest, waist, costal margin, inframammary fold, chest point, axilla, shoulder line), so the section family is one continuous family from the pelvis through the axilla: between levels the engine interpolates every section parameter monotonically, so no section bulges past its neighbours and no band appears where one family would switch to another. Each tube is a short sweep from inside its opening to its junction ring, joined to the trunk by a bridge that leaves the opening tangent to the trunk, and its last section is pinned to the ring the neighbouring part shares, so the junction welds coincident vertices as before.
+ * The sweep's sections are the trunk profile's level superellipses, read at the crotch, at even steps from the buttock level to the axilla and at the shoulder line, every one in a level plane as anthropometry measures them, so the section family is one continuous family from the pelvis through the axilla and the surface between stations reproduces the profile: between stations the engine interpolates every section parameter monotonically, so no section bulges past its neighbours and no band appears where one family would switch to another. Each tube is a short sweep from inside its opening to its junction ring, joined to the trunk by a bridge that leaves the opening tangent to the trunk, and its last section is pinned to the ring the neighbouring part shares, so the junction welds coincident vertices as before.
  *
  * Topology is fixed by the patch layout alone: twelve columns around the trunk (four in front, two on each flank, four behind), a two-by-two opening on each flank (the eight vertices of the upper-arm ring), and loops of twelve under the pelvis for the thigh rings, so every identity yields the same cage.
  *
@@ -45,6 +44,9 @@ export function loftAutoMovieHumanTrunk(
   });
   return emit(network, sampled);
 }
+
+/** Steps between the stations from the buttock level to the axilla, about 25 mm each in an adult. */
+const STEPS: number = 16;
 
 /** The tier the human profile samples; one tier keeps one topology until resolution tiers reach the other parts. */
 const TIER = "medium" as const;
@@ -90,7 +92,7 @@ const networkOf = (
     "left",
   );
   const profile: profileAutoMovieHumanTrunk.IProfile =
-    profileAutoMovieHumanTrunk(frame, IAutoMovieHumanTrunkTune.neutral());
+    profileAutoMovieHumanTrunk(frame);
   const ring = (
     site: "neckBase" | "upperArm" | "thigh",
     side: AutoMovieHumanSide | null,
@@ -117,20 +119,12 @@ const networkOf = (
   const shoulderLine: number = frame.acromion.y;
   const levels: number[] = [
     L.crotch,
-    L.buttock,
-    frame.iliocristale.y,
-    L.waist,
-    L.costal,
-    L.fold,
-    L.chestPoint,
-    L.axilla,
+    ...Array.from(
+      { length: STEPS + 1 },
+      (_: unknown, k: number): number => L.buttock + ((L.axilla - L.buttock) * k) / STEPS,
+    ),
     shoulderLine,
-  ]
-    .sort((a: number, b: number): number => a - b)
-    .filter(
-      (y: number, k: number, all: number[]): boolean =>
-        k === 0 || y - all[k - 1]! > 12,
-    );
+  ];
   // at the crotch the section is the two thighs side by side at the gluteal furrow, touching at the midline
   const thighRadius: number = frame.thighGirth / (2 * Math.PI);
   const thighCentre: number = Math.max(0.95 * thighRadius, 0.85 * Math.abs(frame.hip.x));
@@ -155,7 +149,7 @@ const networkOf = (
         y >= shoulderLine - 1
           ? Math.max(profile.half(L.axilla), frame.acromion.x - 15)
           : profile.half(y);
-      const square = squareness(profile, y);
+      const square: { front: number; back: number } = profile.squareness(y);
       return {
         centre: AutoMovieHumanVector.of(0, y, widest),
         section: {
@@ -496,24 +490,6 @@ const networkOf = (
       { ring: "thigh.right", shape: thighs.right },
     ],
   };
-};
-
-/** Front and back squareness of the profile's section at a height. */
-const squareness = (
-  profile: profileAutoMovieHumanTrunk.IProfile,
-  y: number,
-): { front: number; back: number } => {
-  // the profile's section is a superellipse quadrant each side of the widest point; columns 3 and 9 sit at
-  // parameter 45 degrees, where x = half * (1 / sqrt 2)^(2 / n), so n = 2 ln(1 / sqrt 2) / ln(x / half)
-  const half: number = Math.max(1e-6, profile.half(y));
-  const read = (column: number): number => {
-    const ratio: number = Math.min(
-      0.999,
-      Math.max(0.001, Math.abs(profile.section(column, y).x) / half),
-    );
-    return Math.min(20, Math.max(1.2, (2 * Math.log(Math.SQRT1_2)) / Math.log(ratio)));
-  };
-  return { front: read(3), back: read(9) };
 };
 
 /** The ring's control positions moved `distance` millimetres back along its axis, into the part, in metres. */
