@@ -34,7 +34,7 @@ const MAX_HEADS_PER_STATURE: number = 10;
  * - sitting height and head height against stature, within bounds wider than every measured age and population;
  * - the acromion and the jugular notch below the seventh cervical spinous process, and all three below the vertex;
  * - each greater trochanter above the seat and below the acromion;
- * - a hand and a foot longer than broad, and a limb girth that tapers from muscle bellies to the tendons at wrist and ankle;
+ * - a hand and a foot longer than broad, a palm shorter than the hand and a thumb shorter than the middle finger, and a limb girth that tapers from muscle bellies to the tendons at wrist and ankle;
  * - soft-tissue hip breadth wider than the bony iliac crests it covers;
  * - a head circumference between twice the head length and the perimeter of the rectangle bounding head length and breadth, the limits for any convex outline a tape can follow;
  * - the face inside the head: face height below head height, and mandibular and frontal widths narrower than the zygomatic arches.
@@ -134,6 +134,20 @@ export function validateAutoMovieHumanIdentity(
       arm.handBreadth,
       `narrower than hand length (${millimetres(arm.handLength)})`,
       "hand length spans the palm and the middle finger, while breadth spans only the metacarpal heads",
+    );
+    check(
+      arm.palmLength < arm.handLength,
+      `${armPath}.palmLength`,
+      arm.palmLength,
+      `shorter than hand length (${millimetres(arm.handLength)})`,
+      "hand length runs on from the palm's crease to the tip of the middle finger",
+    );
+    check(
+      arm.thumbLength < arm.handLength - arm.palmLength,
+      `${armPath}.thumbLength`,
+      arm.thumbLength,
+      `shorter than the middle finger beyond its crease, hand length minus palm length (${millimetres(arm.handLength - arm.palmLength)})`,
+      "the thumb's two phalanges are shorter than the middle finger's three",
     );
     check(
       arm.wristCircumference < arm.forearmCircumference,

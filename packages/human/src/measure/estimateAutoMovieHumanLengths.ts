@@ -156,6 +156,20 @@ const SNYDER_1977_HAND: Record<
 };
 
 /**
+ * Middle and thumb lengths from the crease at their base over hand length, the 1977 survey's means of per-subject ratios by two-year bin (Snyder et al. 1977, UM-HSRI-77-17), fitted by us. The middle finger lengthens against the palm through childhood, 0.416 to 0.435 in boys and 0.428 to 0.439 in girls, and the thumb 0.341 to 0.356 and 0.335 to 0.359. Grade: population-fitted.
+ */
+const SNYDER_1977_DIGITS: Record<"middle" | "thumb", ISexCurve> = {
+  middle: {
+    male: { ages: HAND_AGES, values: [0.416, 0.43, 0.43, 0.435] },
+    female: { ages: HAND_AGES, values: [0.428, 0.434, 0.437, 0.439] },
+  },
+  thumb: {
+    male: { ages: HAND_AGES, values: [0.341, 0.347, 0.354, 0.356] },
+    female: { ages: HAND_AGES, values: [0.335, 0.352, 0.358, 0.359] },
+  },
+};
+
+/**
  * A linear regression `intercept + stature·S + mass·m + bmi·B + age·a` in millimetres, with stature in millimetres, body mass in kilograms, body mass index in kilograms per square metre and age in years; absent terms are zero.
  */
 interface IRegression {
@@ -245,13 +259,14 @@ const ANSUR_II: Record<
 };
 
 /**
- * Adult ratios of ANSUR II means (measured): hand breadth over hand length, foot breadth over foot length and lateral malleolus height over foot length. The last stands in for children, whose ankle height the 1977 survey did not measure.
+ * Adult ratios of ANSUR II means (measured): hand breadth and palm length over hand length, foot breadth over foot length and lateral malleolus height over foot length. The last stands in for children, whose ankle height the 1977 survey did not measure.
  */
 const ANSUR_II_RATIOS: Record<
-  "handBreadth" | "footBreadth" | "ankle",
+  "handBreadth" | "palm" | "footBreadth" | "ankle",
   Record<AutoMovieHumanSex, number>
 > = {
   handBreadth: { female: 0.432, male: 0.457 },
+  palm: { female: 0.601, male: 0.603 },
   footBreadth: { female: 0.376, male: 0.376 },
   ankle: { female: 0.255, male: 0.269 },
 };
@@ -298,6 +313,16 @@ const SLIMNESS: Record<"sittingHeight" | "breadth", number> = {
   sittingHeight: 2 * 0.013,
   breadth: 2 * 0.0086,
 };
+
+/**
+ * The last value of a growth curve, its adult hold.
+ *
+ * @param curve Growth curve
+ * @returns Value at the curve's oldest age
+ */
+function lastValue(curve: IAutoMovieHumanGrowthCurve): number {
+  return curve.values[curve.values.length - 1]!;
+}
 
 /** Ages over which the child ratios hand over to the adult fits, years. */
 const ADULT_FROM: [number, number] = [17.75, 20];
@@ -459,6 +484,15 @@ export function estimateAutoMovieHumanLengths(
           (): number => ratio(SNYDER_1977_HAND.breadthToHand),
           (): number => ANSUR_II_RATIOS.handBreadth[sex],
         ),
+      // the adult palm share, with the finger beyond it grown along the survey's curve
+      palmLength:
+        limbScale *
+        handLength *
+        (1 -
+          (1 - ANSUR_II_RATIOS.palm[sex]) *
+            (ratio(SNYDER_1977_DIGITS.middle) /
+              lastValue(SNYDER_1977_DIGITS.middle[sex]))),
+      thumbLength: limbScale * handLength * ratio(SNYDER_1977_DIGITS.thumb),
     },
     leg: {
       thighLength: limbScale * (trochanterion - tibiale),
@@ -506,7 +540,12 @@ export namespace estimateAutoMovieHumanLengths {
     /** Lengths of one arm. */
     arm: Pick<
       IAutoMovieHumanIdentity.IArm,
-      "upperArmLength" | "forearmLength" | "handLength" | "handBreadth"
+      | "upperArmLength"
+      | "forearmLength"
+      | "handLength"
+      | "handBreadth"
+      | "palmLength"
+      | "thumbLength"
     >;
 
     /** Lengths of one leg. */

@@ -99,6 +99,15 @@ export namespace IAutoMovieHumanLandmarks {
     /** Ulnar side of the head of the fifth metacarpal. */
     metacarpaleV: ILandmark;
 
+    /** Palmar crease at the base of the middle finger, where palm length ends. */
+    middleFingerCrease: ILandmark;
+
+    /** Crease at the base of the thumb, over its metacarpophalangeal joint. */
+    thumbCrease: ILandmark;
+
+    /** Tip of the thumb. */
+    thumbTip: ILandmark;
+
     /** Highest palpable point of the iliac crest. */
     iliocristale: ILandmark;
 
