@@ -145,37 +145,47 @@ export function buildAutoMovieHumanLegCage(props: {
           shapeAutoMovieHumanLegSection(s, anatomical(s, d), lean),
       ),
   );
+  const ringVertex = (ring: "thigh" | "ankle", j: number): IAutoMovieVector3 =>
+    ring === "thigh"
+      ? thighRing.positions[(wide - j) % wide]!
+      : ankleRing.positions[j]!;
+  const collar = (s: IAutoMovieHumanLegStation, j: number): IAutoMovieVector3 => {
+    const ring = s.collar === "thigh" ? thighRing : ankleRing;
+    const n: IAutoMovieVector3 = ring.frame.normal;
+    return AutoMovieHumanVector.offset(ringVertex(s.collar!, j), [
+      n,
+      AutoMovieHumanVector.dot(
+        AutoMovieHumanVector.offset(s.origin, [ring.frame.origin, -1]),
+        n,
+      ),
+    ]);
+  };
   const place = (scales: number[]): IAutoMovieVector3[] => {
     const positions: IAutoMovieVector3[] = [];
     stations.forEach((s: IAutoMovieHumanLegStation, i: number): void => {
       for (let j: number = 0; j < s.count; ++j)
         positions.push(
           i === 0
-            ? thighRing.positions[(wide - j) % wide]!
+            ? ringVertex("thigh", j)
             : i === last
-              ? ankleRing.positions[j]!
-              : AutoMovieHumanVector.offset(s.origin, [
-                  directions[i]![j]!,
-                  scales[i]! * radii[i]![j]!,
-                ]),
+              ? ringVertex("ankle", j)
+              : s.collar !== null
+                ? collar(s, j)
+                : AutoMovieHumanVector.offset(s.origin, [
+                    directions[i]![j]!,
+                    scales[i]! * radii[i]![j]!,
+                  ]),
         );
     });
-    for (const v of [0.25, 0.75]) {
-      const d: IAutoMovieVector3 = around(upper, v);
-      const angle: number = anatomical(upper, d);
-      const radius: number =
-        0.5 *
-        (scales[reduced - 1]! * shapeAutoMovieHumanLegSection(upper, angle, lean) +
-          scales[reduced]! * shapeAutoMovieHumanLegSection(lower, angle, lean));
+    // each reduction centre lies midway between the two loops' vertices on its line
+    for (const v of [0.25, 0.75])
       positions.push(
         AutoMovieHumanVector.offset(
           AutoMovieHumanVector.of(0, 0, 0),
-          [upper.origin, 0.5],
-          [lower.origin, 0.5],
-          [d, radius],
+          [positions[first[reduced - 1]! + v * upper.count]!, 0.5],
+          [positions[first[reduced]! + v * lower.count]!, 0.5],
         ),
       );
-    }
     return positions;
   };
 

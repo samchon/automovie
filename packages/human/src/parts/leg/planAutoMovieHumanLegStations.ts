@@ -1,5 +1,6 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
+import { AUTOMOVIE_HUMAN_THIGH_GIRTH } from "../../junction/AUTOMOVIE_HUMAN_THIGH_GIRTH";
 import { AutoMovieHumanSide } from "../../junction/AutoMovieHumanSide";
 import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
 import { shapeAutoMovieHumanRing } from "../../junction/shapeAutoMovieHumanRing";
@@ -12,24 +13,9 @@ import { AUTOMOVIE_HUMAN_LEG_SECTIONS } from "./AUTOMOVIE_HUMAN_LEG_SECTIONS";
 import { IAutoMovieHumanLegStation } from "./IAutoMovieHumanLegStation";
 
 /**
- * Gluteal furrow below the hip joint centre as a fraction of the hip-to-knee length, where the identity's thigh circumference is measured. The 1977 US child survey puts the furrow at 0.458 (girls) and 0.470 (boys) of stature at 15 to 18 years (Snyder et al. 1977, UM-HSRI-77-17), and ANSUR II puts the hip centre near 0.513 and the knee centre near 0.285 of stature (Gordon et al. 2014, NATICK/TR-15/007, with de Leva's joint offsets), so the furrow lies 0.21 of the segment below the hip. Grade: derived, from adolescents.
- */
-const FURROW_BELOW_HIP: number = 0.21;
-
-/**
- * Suprapatella, the upper border of the patella where ANSUR II measures the lower thigh circumference, above the midpatella as a fraction of thigh length: half an adult patella's height, about 45 mm against a thigh length near 420 mm, plus the soft tissue above its border. Grade: conventional.
- */
-const SUPRAPATELLA_ABOVE_MIDPATELLA: number = 0.06;
-
-/**
  * Calf maximum as a fraction of the way from the lateral malleolus to tibiale: about 0.72 in girls and 0.76 in boys of 15 to 18 years in the 1977 US child survey (Snyder et al. 1977), pooled. Grade: derived, from adolescents.
  */
 const CALF_LEVEL: number = 0.74;
-
-/**
- * Girth curve from the mid thigh to the gluteal furrow: the girth at a level above suprapatella is the lower thigh girth plus the share `t^1.15` of its difference to the furrow girth, `t` the level's fraction of the way from suprapatella to the furrow. The exponent is our fit of the MakeHuman CC0 reference's section perimeters at the lower thigh and over vastus medialis (1.0 and 1.3, SD 0.11 and 0.27) over eight people of both sexes, every build, 11, 30 and 80 years, aligned on our skeleton by the shared calibration harness: the thigh slims faster just above the knee than a cone. Grade: population-fitted to a synthetic reference.
- */
-const THIGH_TAPER: number = 1.15;
 
 /**
  * Girths at levels no survey measures, as fractions of the measured ones: our fit of the section perimeters of the MakeHuman CC0 base mesh with its CC0 macro targets (hm08, released CC0 in September 2020) at the same fractions of thigh and shank length, aligned on our skeleton by the shared calibration harness, over eight people of both sexes, every build, 11, 30 and 80 years; means 0.981 (SD 0.012), 1.001 (SD 0.024) and 0.988 (SD 0.011). Grade: population-fitted to a synthetic reference.
@@ -60,6 +46,24 @@ const SITE_FAT: Record<"furrow" | "lowerThigh" | "calf" | "ankle", number> = {
 
 /** Stations whose limit girth is fitted: the levels the identity measures. The rings are never moved; they lie on the shared ring shape. */
 const FITTED: ReadonlySet<string> = new Set(["suprapatella", "calf maximum"]);
+
+/**
+ * The thigh collar below the mid thigh ring, as a fraction of the way from the ring to suprapatella: close enough that the thigh tapers from it, far enough that its loop is a span of its own. Grade: conventional.
+ */
+const COLLAR: number = 0.12;
+
+/** Stations that continue a junction ring straight; the station just above the ankle is the ankle's collar. */
+const COLLARS: Readonly<Record<string, "thigh" | "ankle">> = {
+  "thigh collar": "thigh",
+  "above the ankle": "ankle",
+};
+
+/** Section of a station with no fitted entry: a collar, whose shape comes from its ring, and a ring itself. */
+const ROUND: (typeof AUTOMOVIE_HUMAN_LEG_SECTIONS)[string] = {
+  aspect: [1, 0],
+  posterior: [0, 0],
+  lateral: [0, 0],
+};
 
 /** One station before its frame: level, girth, base shape and fat site weight. */
 interface ILevel {
@@ -125,22 +129,25 @@ export function planAutoMovieHumanLegStations(props: {
   // levels along the leg, as heights in the standing rest pose
   const top: number = thighRing.frame.origin.y;
   const bottom: number = ankleRing.frame.origin.y;
-  const furrow: number = hip.y - FURROW_BELOW_HIP * (hip.y - knee.y);
+  const furrow: number = hip.y - AUTOMOVIE_HUMAN_THIGH_GIRTH.furrow * (hip.y - knee.y);
   const patella: number = landmarks.patella.position.y;
   const tibiale: number = landmarks.tibiale.position.y;
-  const supra: number = patella + SUPRAPATELLA_ABOVE_MIDPATELLA * leg.thighLength;
+  const supra: number = patella + AUTOMOVIE_HUMAN_THIGH_GIRTH.suprapatella * leg.thighLength;
   const calf: number =
     leg.ankleHeight + CALF_LEVEL * (tibiale - leg.ankleHeight);
   const thighGirth = (height: number): number =>
     leg.lowerThighCircumference +
     (leg.thighCircumference - leg.lowerThighCircumference) *
-      Math.pow(Math.max(0, (height - supra) / (furrow - supra)), THIGH_TAPER);
+      Math.pow(Math.max(0, (height - supra) / (furrow - supra)),
+        AUTOMOVIE_HUMAN_THIGH_GIRTH.exponent,
+      );
   const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
   const kneeGirth: number = GIRTH.knee * leg.lowerThighCircumference;
   const calfToAnkle = (share: number): number =>
     lerp(leg.ankleCircumference, leg.calfCircumference, share);
   const levels: ILevel[] = [
     { name: "mid thigh", height: top },
+    { name: "thigh collar", height: lerp(top, supra, COLLAR) },
     { name: "lower thigh", height: lerp(top, supra, 0.38) },
     { name: "vastus medialis", height: lerp(top, supra, 0.72) },
     { name: "suprapatella", height: supra },
@@ -288,7 +295,7 @@ export function planAutoMovieHumanLegStations(props: {
       const area: number = Math.min(0.9, legFat * l.site);
       const fat: number = radius * (1 - Math.sqrt(1 - area));
       const section: (typeof AUTOMOVIE_HUMAN_LEG_SECTIONS)[string] =
-        AUTOMOVIE_HUMAN_LEG_SECTIONS[l.name]!;
+        AUTOMOVIE_HUMAN_LEG_SECTIONS[l.name] ?? ROUND;
       return {
         name: l.name,
         origin: origins[i]!,
@@ -307,6 +314,7 @@ export function planAutoMovieHumanLegStations(props: {
           Math.max(0, shaftSlope * (l.height - knee.y)) +
           (section.lateral[0] + (section.lateral[1] * fat) / radius) * radius,
         fat,
+        collar: COLLARS[l.name] ?? null,
         count: l.count,
       };
     },
