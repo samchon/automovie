@@ -2,6 +2,7 @@
 import { type ChildProcess, spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { type Browser, type Page, chromium } from "playwright-core";
 
 import { DEFAULT_CHROME_EXECUTABLE } from "./DEFAULT_CHROME_EXECUTABLE";
@@ -116,12 +117,13 @@ const responds = async (base: string): Promise<boolean> => {
   }
 };
 
-/** Start the playground's dev server and wait until it answers. */
+/** Start the playground's dev server and wait until it answers. The package is an ES module, so its directory comes from `import.meta.url`; `__dirname` does not exist there. */
 const startServer = async (base: string): Promise<ChildProcess> => {
+  const root: string = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
   const child: ChildProcess = spawn(
     process.execPath,
-    [path.join(__dirname, "..", "node_modules", "vite", "bin", "vite.js"), "--clearScreen", "false"],
-    { cwd: path.join(__dirname, ".."), stdio: "ignore" },
+    [path.join(root, "node_modules", "vite", "bin", "vite.js"), "--clearScreen", "false"],
+    { cwd: root, stdio: "ignore" },
   );
   for (let i: number = 0; i < 120; ++i) {
     if (await responds(base)) return child;
