@@ -18,16 +18,17 @@ import { validateAutoMovieHumanTraits } from "../measure/validateAutoMovieHumanT
 import { convertAutoMovieHumanPose } from "../rig/convertAutoMovieHumanPose";
 import { validateAutoMovieHumanExpression } from "../rig/validateAutoMovieHumanExpression";
 import { validateAutoMovieHumanPose } from "../rig/validateAutoMovieHumanPose";
+import { IAutoMovieHumanSkeleton } from "../skeleton/IAutoMovieHumanSkeleton";
 import { emitAutoMovieHumanSkeleton } from "../skeleton/emitAutoMovieHumanSkeleton";
 import { emitAutoMovieHumanStick } from "../skeleton/emitAutoMovieHumanStick";
 import { generateAutoMovieHumanSkeleton } from "../skeleton/generateAutoMovieHumanSkeleton";
-import { IAutoMovieHumanSkeleton } from "../skeleton/IAutoMovieHumanSkeleton";
 import { measureAutoMovieHumanSkeleton } from "../skeleton/measureAutoMovieHumanSkeleton";
 import { IAutoMovieHumanAppearance } from "../structures/IAutoMovieHumanAppearance";
 import { IAutoMovieHumanExpression } from "../structures/IAutoMovieHumanExpression";
 import { IAutoMovieHumanIdentity } from "../structures/IAutoMovieHumanIdentity";
 import { IAutoMovieHumanPose } from "../structures/IAutoMovieHumanPose";
 import { IAutoMovieHumanTraits } from "../structures/IAutoMovieHumanTraits";
+import { emitAutoMovieHumanSkinParts } from "./emitAutoMovieHumanSkinParts";
 
 /**
  * One person, generated from a detailed identity by code: the skeleton, the model films use, posing and expression.
@@ -128,13 +129,16 @@ export class AutoMovieHuman {
   /**
    * The person as a model films place and pose like any other.
    *
-   * The model is currently the stick figure of the skeleton: a capsule from each joint centre to the bone's end and a sphere at each joint, every bone including fingers, eyes and jaw, coloured grey on the midline, red on the person's left and blue on the right. The joined skin, eyes, teeth, nails, hair and underwear replace it as their generators land, and the appearance then decides their materials. The appearance is admitted already, so a document that will be refused later is refused now.
+   * The model holds the stick figure of the skeleton, a capsule from each joint centre to the bone's end and a sphere at each joint, every bone including fingers, eyes and jaw, coloured grey on the midline, red on the person's left and blue on the right, and the skin. With `assembly: "parts"`, the default while the parts are being built, the skin is every part's own cage subdivided alone, one static model part each with id `skin.<part>` or `skin.<part>.<side>`, so the viewer can isolate a part and judge it before joining. Eyes, teeth, nails, hair and underwear follow as their generators land, and the appearance then decides their materials. The appearance is admitted already, so a document that will be refused later is refused now.
    *
-   * @param props The appearance to wear
+   * @param props The appearance to wear, and how the skin is assembled
    * @returns Model with `origin: "generated"`
    * @throws {AutoMovieHumanAdmissionError} When the appearance is refused
    */
-  public getModel(props: { appearance: IAutoMovieHumanAppearance }): IAutoMovieModel {
+  public getModel(props: {
+    appearance: IAutoMovieHumanAppearance;
+    assembly?: "parts";
+  }): IAutoMovieModel {
     const admitted: IValidation<IAutoMovieHumanAppearance> =
       validateAutoMovieHumanAppearance(props.appearance);
     if (admitted.success === false)
@@ -143,14 +147,16 @@ export class AutoMovieHuman {
       this.skeleton_,
       this.measurements_.identity.body.stature,
     );
+    const skin: ReturnType<typeof emitAutoMovieHumanSkinParts> =
+      emitAutoMovieHumanSkinParts(this.measurements_, this.skeleton_, 2);
     return {
       id: this.id_,
       name: null,
       origin: "generated",
-      parts: stick.parts,
+      parts: [...skin.parts, ...stick.parts],
       skeleton: this.getSkeleton(),
       body: null,
-      materials: stick.materials,
+      materials: [...skin.materials, ...stick.materials],
       asset: null,
     };
   }
@@ -180,7 +186,9 @@ export class AutoMovieHuman {
    * @returns Engine expression
    * @throws {AutoMovieHumanAdmissionError} When the expression is refused
    */
-  public express(props: { expression: IAutoMovieHumanExpression }): IAutoMovieExpression {
+  public express(props: {
+    expression: IAutoMovieHumanExpression;
+  }): IAutoMovieExpression {
     const admitted: IValidation<IAutoMovieHumanExpression> =
       validateAutoMovieHumanExpression(props.expression);
     if (admitted.success === false)
