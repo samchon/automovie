@@ -23,6 +23,12 @@ export class AutoMovieHumanHeadGenerator implements IAutoMovieHumanPartGenerator
   /** The part this generator produces. */
   public readonly part = "head" as const;
 
+  /**
+   * Generate the head's cage for one person.
+   *
+   * @param props Measurements and skeleton; the side is null
+   * @returns The cage with its three rings
+   */
   public generate(props: IAutoMovieHumanPartGenerator.IProps<"head">): IAutoMovieHumanCage {
     const frame: frameAutoMovieHumanHead.IFrame = frameAutoMovieHumanHead(props.skeleton);
     const field: AutoMovieHumanHeadField = new AutoMovieHumanHeadField(frame, props.measurements);
