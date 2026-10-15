@@ -24,8 +24,13 @@ interface IPerson {
   /** Path of a saved session file to resume instead of traits. */
   session?: string;
 
-  /** Views to capture; omitted, all eight. */
-  views?: string[];
+  /**
+   * Views to capture, each a preset name or angles; omitted, every preset. The page admits each view and refuses the capture with every finding.
+   */
+  views?: (
+    | string
+    | { azimuth: number; elevation: number; margin?: number; focus?: string }
+  )[];
 
   /** Scales to capture; omitted, `whole` and `close`. */
   scales?: string[];
@@ -44,9 +49,11 @@ interface IPerson {
 }
 
 /**
- * Capture the Human page's preset views for one or more people on a hardware WebGL renderer.
+ * Capture the Human page's views for one or more people on a hardware WebGL renderer.
  *
- * Usage: `pnpm human:capture -- [--people people.json] [--name n] [--views front,left] [--scales whole,close] [--focus head] [--base url] [--chrome path]`. Without `--people` it captures the page's default person under `--name`. Each person is loaded through the page's own `window.__automovieHuman` API, the same documents and admission the controls use, and captured by the page's capture action, which writes PNGs to `.shots/output` and metadata (source commit, document hash, renderer, views) to `.shots/captures/<name>.json`. The run refuses a software renderer. A dev server at `--base` is reused, or one is started for the run and stopped after.
+ * Usage: `pnpm human:capture -- [--people people.json] [--name n] [--views front,left] [--scales whole,close] [--focus head] [--base url] [--chrome path]`. Without `--people` it captures the page's default person under `--name`.
+ *
+ * Views. Fourteen presets, captured in this order when no views are given: the turntable `front`, `frontLeft`, `left`, `backLeft`, `back`, `backRight`, `right`, `frontRight` (every 45 degrees toward the subject's left); the obliques `frontLeftHigh` and `backRightHigh` (35 degrees above) and `frontRightLow` and `backLeftLow` (25 degrees below); and `top` and `below`. A people file may also give any direction as an object `{"azimuth": 120, "elevation": -15}` in degrees: azimuth 0 is the front, 90 the subject's left, 180 the back, 270 the right; elevation is above the horizontal, -90 to 90. It may add `"margin"` (framing scale, at least 1, 1 touching the frame edge) and `"focus"` (a bone; the view is then captured once, close on that bone, whatever the scales). For example `"views": ["front", {"azimuth": 120, "elevation": -15, "focus": "leftUpperLeg"}]`. An angle view's file is named `az<azimuth>_el<elevation>`, such as `ana-close-leftUpperLeg-az120_el-15.png`. `--views` on the command line takes preset names only. Each person is loaded through the page's own `window.__automovieHuman` API, the same documents and admission the controls use, and captured by the page's capture action, which writes PNGs to `.shots/output` and metadata (source commit, document hash, renderer, views) to `.shots/captures/<name>.json`. The run refuses a software renderer. A dev server at `--base` is reused, or one is started for the run and stopped after.
  */
 const main = async (): Promise<void> => {
   const flags: Map<string, string> = new Map();
