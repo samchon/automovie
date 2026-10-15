@@ -3,6 +3,26 @@ import {
   IAutoMovieJointAxes,
 } from "@automovie/interface";
 
+/** The hand and every finger and thumb segment, without the side prefix. */
+const HAND: readonly string[] = [
+  "Hand",
+  "ThumbMetacarpal",
+  "ThumbProximal",
+  "ThumbDistal",
+  "IndexProximal",
+  "IndexIntermediate",
+  "IndexDistal",
+  "MiddleProximal",
+  "MiddleIntermediate",
+  "MiddleDistal",
+  "RingProximal",
+  "RingIntermediate",
+  "RingDistal",
+  "LittleProximal",
+  "LittleIntermediate",
+  "LittleDistal",
+];
+
 /**
  * Per-bone clinical axes for the **canonical humanoid rest pose** (VRM T-pose:
  * arms out along ±X, legs down −Y, facing +Z), parallel to
@@ -23,10 +43,20 @@ import {
  * swings the thigh forward and positive ankle and toe flexion lift the toes
  * (dorsiflexion), the senses the table's ranges give them: hip flexion to
  * 120°, ankle dorsiflexion to 20° and toe dorsiflexion to 80°. Both sides share
- * the axis, because flexion is sagittal and needs no mirror; abduction and
- * twist keep the default Z and Y. The knee, spine, neck, head, jaw and eyes
+ * the axis; abduction and twist keep the default Z and Y. The knee, spine, neck, head, jaw and eyes
  * already align with the default basis, so they are omitted (and fall back to
  * it).
+ *
+ * The hand and every finger and thumb segment flex about Z, carrying the
+ * fingertips toward the −Y palm, and twist about their length. The hand, the
+ * thumb and the index and middle fingers deviate or abduct about +Y, toward the
+ * thumb on the +Z side; the ring and little fingers abduct about −Y, away from
+ * the middle finger. The thumbs, which point between ±X and +Z, take the hand's basis as an
+ * approximation.
+ *
+ * Both sides share every axis: `HUMANOID_REST_FRAME` reverses, on one side, each
+ * axis that lies in the body's mirror plane, so a clinical value means the same
+ * motion on the left and the right.
  *
  * The forearm's twist is pronation and supination, which happens beyond the
  * elbow's hinge, so the lower arms declare a distal twist
@@ -53,16 +83,28 @@ export const HUMANOID_JOINT_AXES: Partial<
     "leftShoulder",
     "leftUpperArm",
     "leftLowerArm",
-    "leftHand",
     "rightShoulder",
     "rightUpperArm",
     "rightLowerArm",
-    "rightHand",
   ];
   const forearm: IAutoMovieJointAxes = { ...arm, twistPlacement: "distal" };
   const table: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> = {};
   for (const s of slots)
     table[s] = s === "leftLowerArm" || s === "rightLowerArm" ? forearm : arm;
+  const hand: IAutoMovieJointAxes = {
+    flexion: { x: 0, y: 0, z: 1 },
+    abduction: { x: 0, y: 1, z: 0 },
+    twist: { x: 1, y: 0, z: 0 },
+  };
+  // the ring and little fingers abduct away from the middle finger, toward −Z
+  const ulnar: IAutoMovieJointAxes = {
+    ...hand,
+    abduction: { x: 0, y: -1, z: 0 },
+  };
+  for (const side of ["left", "right"])
+    for (const s of HAND)
+      table[`${side}${s}` as AutoMovieHumanoidBone] =
+        s.startsWith("Ring") || s.startsWith("Little") ? ulnar : hand;
   const forwardFlexing: AutoMovieHumanoidBone[] = [
     "leftUpperLeg",
     "rightUpperLeg",

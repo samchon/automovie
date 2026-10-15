@@ -29,9 +29,9 @@ export const wave: (sk: string) => IAutoMovieMotion = (
     pose(sk, [
       stanceArm,
       j("rightUpperArm", { abduction: 240 }),
-      j("rightLowerArm", { abduction: fore }),
+      j("rightLowerArm", { abduction: -fore }),
       j("leftUpperLeg", { abduction: 6 }),
-      j("rightUpperLeg", { abduction: -6 }),
+      j("rightUpperLeg", { abduction: 6 }),
     ]);
   return {
     id: "wave",

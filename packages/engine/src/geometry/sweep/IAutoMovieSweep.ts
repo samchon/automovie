@@ -20,15 +20,17 @@ import { IAutoMovieSweepSpine } from "./IAutoMovieSweepSpine";
  *    the radius there at every `u`; stations and guides are joined as a
  *    Gordon surface that passes exactly through every guide, so a few
  *    stations plus guides control breadth and depth everywhere between them.
- * 3. Scale: an optional profile along `u` multiplies the whole section, the
- *    size control that volume preservation and local bulges use.
- * 4. Features: each feature curve in the `(u, v)` domain carries the radius
+ * 3. Features: each feature curve in the `(u, v)` domain carries the radius
  *    the surface must have along it, and the surface is moved onto those
  *    radii with a smooth falloff across the curve.
+ * 4. Scale: an optional profile along `u` multiplies the whole section,
+ *    features included, the size control that volume preservation and local
+ *    bulges use.
  *
  * Positions are metres. The section plane at `u` is the spine's
- * rotation-minimizing frame, turned by the stations' rotations where they
- * give one.
+ * rotation-minimizing frame, or under the `fixed` orientation the spine's
+ * start frame carried along without turning, in either case turned by the
+ * stations' rotations where they give one.
  *
  * @evidence contracts/common.md#principled-implementation A generalized cylinder whose section radii are interpolated per direction with a shape-preserving scheme, as sweep-based modelling interpolates key sections, with silhouette guides and pass-through feature curves as the standard lofting constraints, guides joined to the stations as a Gordon surface.
  * @evidence contracts/common.md#clear-and-simple-design One record holds the spine, stations, guides and features of one surface; evaluation and every constraint's rule live in `compileAutoMovieSweep`.
@@ -51,10 +53,15 @@ export interface IAutoMovieSweep {
    */
   correspondence?: "direction" | "parameter";
 
+  /**
+   * How the section plane follows the spine: `transported` turns it with the spine's rotation-minimizing frame, so sections stay normal to a bending path, as a tube needs; `fixed` keeps the start frame's axes at every `u`, a translational sweep whose sections stay parallel however the path bends, as a body measured in level planes needs. Station rotations turn the plane relative to this frame in both cases, so stations that all give one rotation keep that exact plane between them too. Under `fixed` the path must stay out of the plane it carries, or sections there collapse onto it. Omitted, `transported`.
+   */
+  orientation?: "transported" | "fixed";
+
   /** Silhouette guides; omitted or empty, the stations alone set the form. */
   guides?: IAutoMovieSweep.IGuide[];
 
-  /** Section scale by `u`, applied after guides: knots as for a guide, values positive, interpolated by the monotone scheme; omitted, 1 everywhere. */
+  /** Section scale by `u`, applied last, to the section with its guides and features: knots as for a guide, values positive, interpolated by the monotone scheme; omitted, 1 everywhere. */
   scale?: IAutoMovieSweep.IKnot[];
 
   /** Feature curves the surface passes through; omitted or empty, none. */
@@ -64,6 +71,13 @@ export namespace IAutoMovieSweep {
   /**
    * One key section and where it sits on the spine.
    *
+   * @evidence contracts/common.md#principled-implementation A key section placed at a spine parameter with an optional plane rotation, the key-section form of sweep-based modelling.
+   * @evidence contracts/common.md#clear-and-simple-design Parameter, section, holes and rotation in one record.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Unordered or out-of-range stations are refused by the compiler.
+   * @evidence contracts/common.md#meaningful-documentation States the parameter, the section plane, holes and the rotation rule.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `compileAutoMovieSweep`.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
    * @author Samchon
    */
   export interface IStation {
@@ -77,7 +91,7 @@ export namespace IAutoMovieSweep {
     holes?: IAutoMovieSweepSection[];
 
     /**
-     * Orientation of the station's plane in the model frame: its first axis is this rotation applied to `+X`, its second to `+Y` and its normal to `+Z`. Omitted, the plane is the spine's rotation-minimizing frame at `at`. Between stations the turn relative to the transported frame is interpolated by normalized linear quaternion interpolation, so a twist given at two stations spreads evenly between them.
+     * Orientation of the station's plane in the model frame: its first axis is this rotation applied to `+X`, its second to `+Y` and its normal to `+Z`. Omitted, the plane is the sweep's own frame at `at` (see `orientation`). Between stations the turn relative to that frame is interpolated by normalized linear quaternion interpolation, so a twist given at two stations spreads evenly between them.
      */
     rotation?: IAutoMovieQuaternion;
   }
@@ -87,6 +101,13 @@ export namespace IAutoMovieSweep {
    *
    * Guides and stations form a curve network, and the surface is its Gordon surface: it passes exactly through every guide, and between guide directions the guides' corrections to the stations are interpolated round the turn. A guide at a direction where sections are symmetric, such as the front, back or sides of a rounded section, is that view's silhouette.
    *
+   * @evidence contracts/common.md#principled-implementation A silhouette curve at one direction, joined to the stations as a Gordon surface.
+   * @evidence contracts/common.md#clear-and-simple-design A direction and a profile.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Guides sharing a direction are refused.
+   * @evidence contracts/common.md#meaningful-documentation States the Gordon role and the silhouette reading.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `compileAutoMovieSweep`.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
    * @author Samchon
    */
   export interface IGuide {
@@ -100,6 +121,13 @@ export namespace IAutoMovieSweep {
   /**
    * One knot of a guide's profile.
    *
+   * @evidence contracts/common.md#principled-implementation One sample of a monotone profile along the spine.
+   * @evidence contracts/common.md#clear-and-simple-design Parameter and value.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Values must be positive.
+   * @evidence contracts/common.md#meaningful-documentation States both fields.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `compileAutoMovieSweep`.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
    * @author Samchon
    */
   export interface IKnot {
@@ -113,8 +141,15 @@ export namespace IAutoMovieSweep {
   /**
    * A feature curve: a line on the surface the section family must pass through, such as a ridge or a groove, with the radius it has along it or its offset from the surface the other layers make.
    *
-   * The curve is the polyline through its points in the `(u, angle)` domain; along it the radius or offset is interpolated linearly between points. The surface moves by the difference between that radius and its own, or by the offset at full weight on the curve and fading over `width` metres across it by the cube of `1 - (d / width)^2`, distances measured on the surface's own scale (`u` by the spine's length, the angle by the local radius). Features apply last and add up where their bands overlap.
+   * The curve is the polyline through its points in the `(u, angle)` domain; along it the radius or offset is interpolated linearly between points. The surface moves by the difference between that radius and its own, or by the offset at full weight on the curve and fading over `width` metres across it by the cube of `1 - (d / width)^2`, distances measured on the surface's own scale (`u` by the spine's length, the angle by the local radius before the scale profile). Features apply after guides, before the scale profile, and add up where their bands overlap.
    *
+   * @evidence contracts/common.md#principled-implementation A pass-through constraint along a polyline in the domain, applied as a compactly supported C2 bump.
+   * @evidence contracts/common.md#clear-and-simple-design Points and a band width.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Overlapping bands add; the limitation is stated on the compiler.
+   * @evidence contracts/common.md#meaningful-documentation States the polyline, the falloff and the order of layers.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `compileAutoMovieSweep`.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
    * @author Samchon
    */
   export interface IFeature {
@@ -128,6 +163,13 @@ export namespace IAutoMovieSweep {
   /**
    * One point of a feature curve.
    *
+   * @evidence contracts/common.md#principled-implementation One vertex of a feature polyline with its radius or offset.
+   * @evidence contracts/common.md#clear-and-simple-design Domain point plus one of two values.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Mixing radius and offset in one feature is refused.
+   * @evidence contracts/common.md#meaningful-documentation States each field and the shorter-way rule.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `compileAutoMovieSweep`.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
    * @author Samchon
    */
   export interface IFeaturePoint {
@@ -140,7 +182,7 @@ export namespace IAutoMovieSweep {
     /** Radius the surface has here, metres from the spine point, positive; give either this or `offset` on every point of a feature. */
     radius?: number;
 
-    /** Distance the surface moves here along its radius, metres, outward positive, from where stations, guides and scale put it; a feature whose end points have offset 0 fades into the surface along its length too. */
+    /** Distance the surface moves here along its radius, metres, outward positive, from where stations and guides put it, before the scale profile multiplies both; a feature whose end points have offset 0 fades into the surface along its length too. */
     offset?: number;
   }
 }

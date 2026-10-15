@@ -57,13 +57,13 @@ const object: ReturnType<typeof buildModel> = buildModel(model);
 // a braced stance: knees soft, hands up to take the hit
 const BRACE: IAutoMovieJointPose[] = [
   j("leftUpperLeg", { flexion: 10, abduction: 10 }),
-  j("rightUpperLeg", { flexion: 10, abduction: -10 }),
+  j("rightUpperLeg", { flexion: 10, abduction: 10 }),
   j("leftLowerLeg", { flexion: 24 }),
   j("rightLowerLeg", { flexion: 24 }),
-  // Clinical arm abduction: both sides share one anatomical value; the rig's
-  // mirrored signs are recovered by HUMANOID_REST_FRAME at render time.
-  j("leftUpperArm", { flexion: -40, abduction: 40 }),
-  j("leftLowerArm", { flexion: -110 }),
+  // Clinical angles: both sides share one anatomical value; HUMANOID_REST_FRAME
+  // maps each onto its side of the rig at render time.
+  j("leftUpperArm", { flexion: 40, abduction: 40 }),
+  j("leftLowerArm", { flexion: 110 }),
   j("rightUpperArm", { flexion: 40, abduction: 40 }),
   j("rightLowerArm", { flexion: 110 }),
 ];

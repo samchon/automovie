@@ -27,13 +27,14 @@ export const walk: (sk: string) => IAutoMovieMotion = (
   // Arms hang down-and-out (abduction) and swing fore/aft via `flexion` (the
   // anatomical sagittal axis under HUMANOID_JOINT_AXES); `s` is the swing phase
   // in [−1, 1] (+1 = left arm back, right arm forward, opposing the legs).
-  // HUMANOID_REST_FRAME recovers the mirrored rig signs at render time.
+  // Every angle is clinical on both sides (HUMANOID_REST_FRAME): positive
+  // flexion swings either arm forward.
   // Specified in EVERY keyframe so they swing smoothly instead of snapping back
   // to the rest T-pose.
   const arms: (s: number) => IAutoMovieJointPose[] = (
     s: number,
   ): IAutoMovieJointPose[] => [
-    j("leftUpperArm", { abduction: 32, flexion: 30 * s }),
+    j("leftUpperArm", { abduction: 32, flexion: -30 * s }),
     j("rightUpperArm", { abduction: 32, flexion: 30 * s }),
   ];
   // contact: `lead` leg forward (flexion +), `trail` leg back (flexion −).
