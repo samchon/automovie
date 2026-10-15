@@ -151,6 +151,7 @@ export function loftAutoMovieHumanNeck(props: {
     faces,
     creases: [],
     rings: [ring("neckBase", base), ring("neckTop", top)],
+    construction: IAutoMovieHumanCage.inModel(network),
   };
 }
 

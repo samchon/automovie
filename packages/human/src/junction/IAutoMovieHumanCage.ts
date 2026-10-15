@@ -1,3 +1,4 @@
+import { IAutoMovieSurfaceNetwork } from "@automovie/engine";
 import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { IAutoMovieHumanRing } from "./IAutoMovieHumanRing";
@@ -26,6 +27,9 @@ export interface IAutoMovieHumanCage {
 
   /** Openings not yet joined; empty once the person is closed. */
   rings: IAutoMovieHumanRing[];
+
+  /** The surface network the cage was sampled from, kept for inspection only: absent for a part that is not lofted from a network, and never emitted into the model. */
+  construction?: IAutoMovieHumanCage.IConstruction;
 }
 export namespace IAutoMovieHumanCage {
   /**
@@ -70,4 +74,42 @@ export namespace IAutoMovieHumanCage {
     /** Number of subdivision levels the edge stays sharp, nonnegative and possibly fractional. */
     sharpness: number;
   }
+
+  /**
+   * The surface network a lofted part was sampled from, and where its points land on the person.
+   *
+   * The network is in its own frame, in metres; a point `p` of it lies at `origin + x·p.x + y·p.y + z·p.z` in the cage's model frame, in millimetres. Lofts built in the model frame give the identity scaled to millimetres; the hand and the foot, built in their own frames, give those frames.
+   *
+   * @author Samchon
+   */
+  export interface IConstruction {
+    /** The network, as sampled into the cage. */
+    network: IAutoMovieSurfaceNetwork;
+
+    /** Model point of the network's origin, millimetres. */
+    origin: IAutoMovieVector3;
+
+    /** Model displacement of one metre along the network's X, millimetres. */
+    x: IAutoMovieVector3;
+
+    /** Model displacement of one metre along the network's Y, millimetres. */
+    y: IAutoMovieVector3;
+
+    /** Model displacement of one metre along the network's Z, millimetres. */
+    z: IAutoMovieVector3;
+  }
+
+  /**
+   * The construction of a network built in the model frame, in metres.
+   *
+   * @param network The network
+   * @returns Its construction
+   */
+  export const inModel = (network: IAutoMovieSurfaceNetwork): IConstruction => ({
+    network,
+    origin: { x: 0, y: 0, z: 0 },
+    x: { x: 1000, y: 0, z: 0 },
+    y: { x: 0, y: 1000, z: 0 },
+    z: { x: 0, y: 0, z: 1000 },
+  });
 }
