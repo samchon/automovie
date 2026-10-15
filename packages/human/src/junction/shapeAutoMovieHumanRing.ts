@@ -8,6 +8,7 @@ import { AUTOMOVIE_HUMAN_EAR_ATTACHMENT } from "./AUTOMOVIE_HUMAN_EAR_ATTACHMENT
 import { AUTOMOVIE_HUMAN_NECK_BASE_FLARE } from "./AUTOMOVIE_HUMAN_NECK_BASE_FLARE";
 import { AUTOMOVIE_HUMAN_NECK_COLUMN } from "./AUTOMOVIE_HUMAN_NECK_COLUMN";
 import { AUTOMOVIE_HUMAN_THIGH_GIRTH } from "./AUTOMOVIE_HUMAN_THIGH_GIRTH";
+import { AUTOMOVIE_HUMAN_UPPER_ARM_SECTION } from "./AUTOMOVIE_HUMAN_UPPER_ARM_SECTION";
 import { AUTOMOVIE_HUMAN_WRIST_SECTION } from "./AUTOMOVIE_HUMAN_WRIST_SECTION";
 import { AutoMovieHumanJunctionSite } from "./AutoMovieHumanJunctionSite";
 import { AutoMovieHumanPart } from "./AutoMovieHumanPart";
@@ -26,9 +27,9 @@ import { layoutAutoMovieHumanRing } from "./layoutAutoMovieHumanRing";
  *
  * - `neckBase`: an ellipse in the oblique cut through the jugular notch and cervicale, reaching each in front and behind, its lateral semi-axis solved so its perimeter is the neck circumference widened by {@link AUTOMOVIE_HUMAN_NECK_BASE_FLARE}.
  * - `neckTop`: in the mandibular plane, the larger of the jaw and the neck column, blended by a smooth maximum. The jaw is the parabola through menton and both gonia; the column an egg of the neck circumference's mean radius, {@link AUTOMOVIE_HUMAN_NECK_COLUMN} times it across, in front and behind, the back lengthened by the plane's tilt to the neck so it still reaches the nape.
- * - `upperArm`: a circle of the upper arm circumference, which is measured at this cut. Conventional: the mid upper arm is nearly round, and no depth-to-breadth ratio was read.
+ * - `upperArm`: a circle of the upper arm circumference, which is measured at this cut, centred off the bone axis by {@link AUTOMOVIE_HUMAN_UPPER_ARM_SECTION}. The circle is conventional: the mid upper arm is nearly round.
  * - `wrist`: an ellipse of the wrist circumference measured at this cut, its radio-ulnar breadth and palmar-dorsal depth in the proportions of {@link AUTOMOVIE_HUMAN_WRIST_SECTION}.
- * - `thigh`: a circle of the girth at mid thigh, on the thigh's girth curve between the thigh circumference at the gluteal furrow and the lower thigh circumference at suprapatella ({@link AUTOMOVIE_HUMAN_THIGH_GIRTH}).
+ * - `thigh`: a circle of the girth at mid thigh, on the thigh's girth curve between the thigh circumference at the gluteal furrow and the lower thigh circumference at suprapatella, centred in front of and medial to the hip-to-knee axis ({@link AUTOMOVIE_HUMAN_THIGH_GIRTH}).
  * - `ankle`: a circle of the ankle circumference, the minimum girth above the malleoli, measured at this cut. Conventional shape.
  * - `ear`: the attachment of the auricle, an ellipse in the plane of the head's side whose long axis leans back from the vertical by {@link AUTOMOVIE_HUMAN_EAR_ATTACHMENT.inclination}; its centre and semi-axes are fractions of the ear's length and breadth ({@link AUTOMOVIE_HUMAN_EAR_ATTACHMENT}). The origin moves from tragion to the ellipse's centre, so the eight directions spread evenly round the attachment.
  *
@@ -124,11 +125,30 @@ const section = (
     const c: number = AutoMovieHumanVector.dot(d, reference);
     return [c, Math.sqrt(Math.max(0, 1 - c * c))];
   };
-  const circle = (girth: number) => ({
-    origin,
-    radius: (): number => girth / (2 * Math.PI),
-    girth,
-  });
+  // a circle of the girth, its centre moved off the bone axis by fractions of its radius
+  const circle = (
+    girth: number,
+    anterior: number = 0,
+    medial: number = 0,
+    toward: IAutoMovieVector3 = reference,
+  ) => {
+    const r: number = girth / (2 * Math.PI);
+    const inward: IAutoMovieVector3 = AutoMovieHumanVector.normalize(
+      AutoMovieHumanVector.offset(toward, [
+        layout.frame.normal,
+        -AutoMovieHumanVector.dot(toward, layout.frame.normal),
+      ]),
+    );
+    return {
+      origin: AutoMovieHumanVector.offset(
+        origin,
+        [reference, anterior * r],
+        [inward, medial * r],
+      ),
+      radius: (): number => r,
+      girth,
+    };
+  };
   const arm: IAutoMovieHumanIdentity.IArm =
     props.side === "right" ? body.rightArm : body.leftArm;
   const leg: IAutoMovieHumanIdentity.ILeg =
@@ -220,7 +240,13 @@ const section = (
       };
     }
     case "upperArm":
-      return circle(arm.upperArmCircumference);
+      // anatomically medial is the side toward the trunk, below the abducted arm in the rest pose
+      return circle(
+        arm.upperArmCircumference,
+        AUTOMOVIE_HUMAN_UPPER_ARM_SECTION.anterior,
+        AUTOMOVIE_HUMAN_UPPER_ARM_SECTION.medial,
+        AutoMovieHumanVector.of(0, -1, 0),
+      );
     case "wrist": {
       const breadth: number =
         (AUTOMOVIE_HUMAN_WRIST_SECTION.breadth * arm.wristCircumference) / 2;
@@ -261,6 +287,9 @@ const section = (
         leg.lowerThighCircumference +
           (leg.thighCircumference - leg.lowerThighCircumference) *
             Math.pow(t, AUTOMOVIE_HUMAN_THIGH_GIRTH.exponent),
+        AUTOMOVIE_HUMAN_THIGH_GIRTH.anterior,
+        AUTOMOVIE_HUMAN_THIGH_GIRTH.medial,
+        AutoMovieHumanVector.of(props.side === "right" ? 1 : -1, 0, 0),
       );
     }
     case "ankle":
