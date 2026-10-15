@@ -225,6 +225,7 @@ export { AUTOMOVIE_RENDER_REPORT_MAX_CONTRIBUTORS } from "./render/constants/AUT
 export { evaluateAutoMovieRenderBudget } from "./render/evaluateAutoMovieRenderBudget";
 export { autoMovieRenderDigest } from "./render/autoMovieRenderDigest";
 export { utf8Bytes } from "./render/utf8Bytes";
+export { encodeAutoMoviePng } from "./render/encodeAutoMoviePng";
 export { autoMovieRenderHash32 } from "./render/autoMovieRenderHash32";
 export { compareAutoMovieRenderIds } from "./render/compareAutoMovieRenderIds";
 export { measureAutoMovieRenderInventory } from "./render/measureAutoMovieRenderInventory";
