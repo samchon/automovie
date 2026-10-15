@@ -27,10 +27,10 @@ These rules add to the [3d-modeling skill](../3d-modeling/SKILL.md) for Human wo
 ## Construction
 
 - Build the skeleton first on `AutoMovieHumanoidBone` and `HUMANOID_REST_FRAME`, and generate skin and every other part from that one skeleton and rest frame. Never reconcile independently sourced geometry by registration or optimization at run time.
-- The rest form is the T-pose of `HUMANOID_REST_FRAME`, joints straight and no flesh folded, so every pose starts from it. Convert each posture-dependent measurement to it explicitly, such as the lateral chest, axilla and shoulder top of the raised arm.
+- The rest form is the T-pose of `HUMANOID_REST_FRAME`, joints straight and no flesh folded. Convert each posture-dependent measurement to it explicitly, such as the lateral chest, axilla and shoulder top of the raised arm.
 - Loft every part: closed 2D sections stacked along its axis or bone chain and joined by the engine's sweep, steered between stations by silhouette guides and feature curves. Trunk sections lie in level planes because anthropometry measures them level. The face is a curve network of loops around the eyes and mouth and feature lines, filled by patches.
 - Block out first, refine after: fit a part's gross form (girth profile, section ratios, centreline offsets) against the references before any muscle relief, bony landmark or aesthetic detail, and re-score after each refinement.
-- Relief takes its belly size from lean mass and its visibility from the regional subcutaneous fat over it, so a lean body shows its muscles and a heavier one softens them.
+- Relief takes its belly size from lean mass and its visibility from the regional subcutaneous fat over it.
 - Calibrate form coefficients offline against references instead of sculpting by hand: compare a part's sections and silhouettes with the reference set from matching views, fit the formula's named coefficients in scratch tooling, and keep only those coefficients, cited with their reference, in the code. No reference geometry or vertex data enters the package.
 - A part is a region of one continuous mass. Cut only where the cross-section is a simple tube, such as mid upper arm, mid thigh, wrist, ankle and neck; the shoulder, armpit, hip and groin stay inside the trunk because muscles cross them.
 - Eyeballs, teeth, tongue, nails and hair are separate meshes; the ear is a separate part.
@@ -42,9 +42,6 @@ These rules add to the [3d-modeling skill](../3d-modeling/SKILL.md) for Human wo
 ## Verification And Reporting
 
 - A visual claim stands only on actual viewer screenshots that the claimant opened and looked at, attached where the user reads them. A lead opens a subagent's screenshots before accepting its visual claim.
-- Judge from every direction: the viewer's fourteen preset views, plus free cameras aimed at each defect. Front and side alone hide oblique sections and branch junctions.
-- Judge the surface together with its net. Pair each sweep of surface views with the same views overlaid with the curves and cage, and give each defect a triptych from one camera: surface, overlay, net alone. The surface shows the symptom; the net shows which section or curve causes it.
-- Capture through a fresh viewer server each run, because a long-running server misses rebuilt libraries and shows stale geometry.
 - Calibrate and judge form on lean 20-year-olds: a slim, model-grade woman and man, plus a low-fat muscular woman and man for muscle relief. Fat, sagging skin and wrinkles hide wrong form, so heavier, older and younger people only confirm that the converter's range still holds after the lean four pass.
 - Report progress as stages and renders, never as a percentage.
 - When the code-and-formula route seems unable to reach the quality bar, stop and report it; never substitute data or another route.
