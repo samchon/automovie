@@ -1,7 +1,6 @@
 import {
   buildAutoMoviePolyhedron,
   extrudeAutoMovieRegion,
-  loftAutoMovieSections,
 } from "@automovie/engine";
 import {
   type IAutoMovieMesh,
@@ -13,6 +12,7 @@ import { type IAtlasDensityRange } from "../internal/IAtlasDensityRange";
 import { atlasDensityRange } from "../internal/atlasDensityRange";
 import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";
+import { sweepPolygonLoft } from "../internal/sweepPolygonLoft";
 
 /** The largest `v` any vertex of a mesh carries. */
 const longestAlong: (mesh: IAutoMovieMesh) => number = (
@@ -86,7 +86,7 @@ const bend: (
   halfWidth: number,
   halfHeight: number,
 ): IAutoMovieMesh =>
-  loftAutoMovieSections({
+  sweepPolygonLoft({
     path: quarterTurn(radius, 96),
     sections: [
       { at: 0, outer: rectangle(halfWidth, halfHeight) },
@@ -154,7 +154,7 @@ const STRAIGHT_PATH: IAutoMovieVector3[] = [
  * @evidence contracts/testing.md#execution-ownership The named geometry entry directly calls portable builders and the existing canonical area observer on its unchanged fixtures. It starts no process, browser, GPU or native build, and dynamically registers no cases; the measurements cannot establish visual appearance.
  */
 export function test_geometry_loft_atlas_density(): void {
-  const straight: IAutoMovieMesh = loftAutoMovieSections({
+  const straight: IAutoMovieMesh = sweepPolygonLoft({
     path: STRAIGHT_PATH,
     sections: [
       { at: 0, outer: square(0.5) },
@@ -204,7 +204,7 @@ export function test_geometry_loft_atlas_density(): void {
   );
 
   // Half-width 0.5 grows to 1 over 4 m of path, so each face leans 0.125 off it.
-  const taper: IAutoMovieMesh = loftAutoMovieSections({
+  const taper: IAutoMovieMesh = sweepPolygonLoft({
     path: STRAIGHT_PATH,
     sections: [
       { at: 0, outer: square(0.5) },

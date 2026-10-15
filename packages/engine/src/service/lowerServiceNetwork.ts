@@ -5,11 +5,13 @@ import {
   IAutoMovieServiceNetwork,
   IAutoMovieStageSetPiece,
   IAutoMovieValidation,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { IAutoMovieSubjectContribution } from "../IAutoMovieSubjectContribution";
 import { IAutoMovieProfilePoint } from "../geometry/IAutoMovieProfilePoint";
-import { sweepAutoMovieProfile } from "../geometry/sweepAutoMovieProfile";
+import { meshAutoMovieSweep } from "../geometry/sweep/meshAutoMovieSweep";
+import { Vector3 } from "../math/Vector3";
 import { validateServiceNetwork } from "./validateServiceNetwork";
 import { validateWetZones } from "./validateWetZones";
 
@@ -21,8 +23,9 @@ const DEFAULT_SIDES: number = 8;
  *
  * A run is authored as a centre line and a radius, which is the description a
  * clash and a sleeve are measured against; drawing it is the deterministic
- * derivation of that description and nothing more. Sweeping a regular section
- * along the authored line is therefore the whole of it: no fitting library, no
+ * derivation of that description and nothing more. Sweeping a regular polygon
+ * section along the authored line with `meshAutoMovieSweep`, one smooth-shaded
+ * ring per route point and both ends capped, is therefore the whole of it: no fitting library, no
  * elbow catalogue, no per-discipline appearance. A production that wants a
  * modelled valve body authors that prop and places it on the node, exactly as
  * it would author any other asset.
@@ -86,9 +89,13 @@ export const lowerServiceNetwork: (props: {
           name: null,
           geometry: {
             type: "mesh",
-            mesh: sweepAutoMovieProfile({
-              profile: section(segment.radius, sides),
-              path: segment.route,
+            mesh: meshAutoMovieSweep({
+              sweep: {
+                spine: { points: segment.route, normal: across(segment.route) },
+                stations: [{ at: 0, section: { type: "polygon", points: section(segment.radius, sides) } }],
+                correspondence: "parameter",
+              },
+              shading: "smooth",
             }),
           },
           material: null,
@@ -103,6 +110,14 @@ export const lowerServiceNetwork: (props: {
     set.push({ node: id, model: id, position: { x: 0, y: 0, z: 0 } });
   }
   return { models, set };
+};
+
+/** A direction across a route's first leg for the section plane's first axis: the leg crossed with `+Y`, or with `+X` when the leg is nearly vertical. */
+const across: (route: readonly IAutoMovieVector3[]) => IAutoMovieVector3 = (
+  route: readonly IAutoMovieVector3[],
+): IAutoMovieVector3 => {
+  const leg: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(route[1]!, route[0]!));
+  return Vector3.cross(Math.abs(leg.y) < 0.9 ? Vector3.create(0, 1, 0) : Vector3.create(1, 0, 0), leg);
 };
 
 /** A regular section of the given radius, in the sweep's own profile plane. */

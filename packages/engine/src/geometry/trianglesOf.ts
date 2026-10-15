@@ -15,7 +15,7 @@ import { pointInPlanarRing } from "./pointInPlanarRing";
  * The result is a flat counter-clockwise triangle index array into points.
  * Floating-point bridge and ear searches refuse when no candidate is found.
  *
- * @evidence contracts/common.md#principled-implementation Visibility bridges convert canonical disjoint holes into one weakly simple boundary, then convex-ear removal covers that boundary without adding vertices; canonicalRegion establishes containment and winding for triangulateRegion and loftAutoMovieSections, while PLANAR_EPSILON bounds the determinant predicates and can refuse numerically thin ears.
+ * @evidence contracts/common.md#principled-implementation Visibility bridges convert canonical disjoint holes into one weakly simple boundary, then convex-ear removal covers that boundary without adding vertices; canonicalRegion establishes containment and winding for triangulateRegion and meshAutoMovieSweep, while PLANAR_EPSILON bounds the determinant predicates and can refuse numerically thin ears.
  * @evidence contracts/common.md#clear-and-simple-design Bridges and ear clipping stay beside their private visibility predicates because they share indexed boundary identities; canonicalRegion owns validation separately so lofts need triangulate only their two end caps.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Ear checks retain points on proposed diagonals and ignore only repeated bridge endpoints with the same identity; an exhausted search throws rather than inventing a fan or filling a hole.
  * @evidence contracts/common.md#meaningful-documentation States canonical winding and admission prerequisites, unchanged point identities, collinear boundary preservation, output layout and numerical search failure.

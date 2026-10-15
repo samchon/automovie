@@ -1,7 +1,6 @@
 import {
   buildAutoMoviePolyhedron,
   extrudeAutoMovieRegion,
-  loftAutoMovieSections,
   mergeAutoMovieMeshes,
   revolveAutoMovieProfile,
 } from "@automovie/engine";
@@ -10,6 +9,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../internal/predicates";
 import { test12ValuesClose } from "../internal/test12ValuesClose";
+import { sweepPolygonLoft } from "../internal/sweepPolygonLoft";
 
 /**
  * Counts of indexed UV determinant signs, independent of any three-dimensional tangent frame.
@@ -160,7 +160,7 @@ export function test_geometry_uv_handedness(): void {
     ],
     depth: 0.2,
   });
-  const lofted: IAutoMovieMesh = loftAutoMovieSections({
+  const lofted: IAutoMovieMesh = sweepPolygonLoft({
     path: [corner(0, 0, 0), corner(0, 0, 3)],
     sections: [
       { at: 0, outer: square(0.5) },

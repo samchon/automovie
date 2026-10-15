@@ -1,5 +1,4 @@
 /** Geometry operations and their contracts, also re-exported by the engine root. */
-export * from "./IAutoMovieLoftSection";
 export * from "./IAutoMovieMeshAssembly";
 export * from "./IAutoMovieMeshClearanceWitness";
 export * from "./IAutoMovieMeshAttachmentCap";
@@ -53,7 +52,6 @@ export * from "./extrudeAutoMovieProfile";
 export * from "./extrudeAutoMovieRegion";
 export * from "./inspectAutoMovieMeshTopology";
 export * from "./weldedDegenerateTriangles";
-export * from "./loftAutoMovieSections";
 export * from "./measureAutoMovieMeshClearance";
 export * from "./measureAutoMovieMeshCrossings";
 export * from "./measureAutoMovieProjectionIntervals";
@@ -65,10 +63,10 @@ export * from "./revolveAutoMovieProfile";
 export * from "./selectAutoMovieTriangleRegion";
 export * from "./separateAutoMovieMeshSequence";
 export * from "./subdivideAutoMovieSurface";
-export * from "./sweepAutoMovieProfile";
 export * from "./tessellate";
 export * from "./tessellateSurface";
 export * from "./tessellateToMesh";
 export * from "./transformAutoMovieMesh";
 export * from "./triangulateAutoMovieRegion";
 export * from "./triangleIndicesOf";
+export * from "./sweep";
