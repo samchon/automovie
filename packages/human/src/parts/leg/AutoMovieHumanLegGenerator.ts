@@ -46,7 +46,7 @@ export class AutoMovieHumanLegGenerator implements IAutoMovieHumanPartGenerator<
     const limb: (u: number, v: number) => number = fieldAutoMovieHumanLimbRelief(
       plan,
       networkAutoMovieHumanLimb(plan).value,
-    );
+    ).at;
     return (point: IAutoMovieHumanPartGenerator.IReliefPoint<"leg">): number =>
       limb(point.coordinate.u, point.coordinate.v);
   }

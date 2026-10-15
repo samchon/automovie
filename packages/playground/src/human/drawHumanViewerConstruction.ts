@@ -100,6 +100,7 @@ export namespace drawHumanViewerConstruction {
     spine: 0x7f3fbf,
     ring: 0xff7f0e,
     curve: 0x8c564b,
+    relief: 0xe377c2,
     cage: 0x203050,
   };
 
@@ -111,6 +112,7 @@ export namespace drawHumanViewerConstruction {
     spine: "spine",
     ring: "junction ring",
     curve: "network curve",
+    relief: "relief (centre, half-height border)",
     cage: "control cage",
   };
 
