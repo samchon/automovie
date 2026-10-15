@@ -134,6 +134,15 @@ interface IKey {
   rear: number;
 }
 
+/** Body fat percentage at which a placement's `behind` share holds. */
+const REFERENCE_FAT: number = 15;
+
+/** Share of the depth the back lies behind the column at the frame's body fat. */
+const behindOf = (
+  frame: IAutoMovieHumanTrunkFrame,
+  form: IAutoMovieHumanTrunkForm.IPlacement,
+): number => form.behind + form.fat * (frame.fat - REFERENCE_FAT);
+
 /** A key level whose squareness is solved from its circumference. */
 const measured = (
   frame: IAutoMovieHumanTrunkFrame,
@@ -143,7 +152,7 @@ const measured = (
   girth: number,
   form: IAutoMovieHumanTrunkForm.IMeasured,
 ): IKey => {
-  const back: number = frame.column(y) - form.behind * depth;
+  const back: number = frame.column(y) - behindOf(frame, form) * depth;
   const ahead: number = (1 - form.widest) * depth;
   const behind: number = form.widest * depth;
   const ratio: number = Math.exp(form.skew / 2);
@@ -187,7 +196,7 @@ const derived = (
   y,
   depth,
   breadth,
-  back: frame.column(y) - form.behind * depth,
+  back: frame.column(y) - behindOf(frame, form) * depth,
   widest: form.widest,
   front: form.front,
   rear: form.back,
