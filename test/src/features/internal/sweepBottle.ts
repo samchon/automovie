@@ -21,10 +21,12 @@ const rounded = (x: number, y: number, exponent: number): IAutoMovieSweepSection
 });
 
 /**
- * A rigid product-like test body: a flask-shaped bottle lofted from five
- * stations, a rounded-square body narrowing through a shoulder into a round
- * neck with a lip, its base closed by one Coons patch over the four quarters
- * of the bottom loop and its mouth left open as a ring.
+ * A rigid product-like test body: a flask-shaped bottle lofted from six
+ * stations, a rounded-square body rising from a rounded heel and narrowing
+ * through a shoulder into a round neck with a lip, its base closed by one
+ * Coons patch over the four quarters of the bottom loop and its mouth left
+ * open as a ring. The heel turns the wall inward before the base, as a
+ * moulded bottle's does, so the base meets the wall at an obtuse angle.
  *
  * The spine runs up `+Y`; the body is wider along the section's `x` axis
  * (`+Z`) than along `y` (`-X`), and two guides hold the body's depth flat
@@ -46,7 +48,8 @@ export function sweepBottle(shape: { width?: number; height?: number } = {}): IA
   const bottle: IAutoMovieSweep = {
     spine: { points: [{ x: 0, y: 0, z: 0 }, { x: 0, y: 0.26 * h, z: 0 }], normal: { x: 0, y: 0, z: 1 } },
     stations: [
-      { at: 0, section: rounded(0.05 * w, 0.03 * w, 3) },
+      { at: 0, section: rounded(0.04 * w, 0.022 * w, 2.6) },
+      { at: 0.05, section: rounded(0.05 * w, 0.03 * w, 3) },
       { at: 0.55, section: rounded(0.052 * w, 0.032 * w, 3.2) },
       { at: 0.78, section: rounded(0.022, 0.02, 2.2) },
       { at: 0.9, section: rounded(0.014, 0.014, 2) },
@@ -56,7 +59,8 @@ export function sweepBottle(shape: { width?: number; height?: number } = {}): IA
       (angle: number): IAutoMovieSweep.IGuide => ({
         angle,
         radii: [
-          { at: 0, value: 0.03 * w },
+          { at: 0, value: 0.022 * w },
+          { at: 0.05, value: 0.03 * w },
           { at: 0.55, value: 0.031 * w },
           { at: 0.78, value: 0.02 },
           { at: 1, value: 0.016 },
