@@ -25,7 +25,6 @@ import * as THREE from "three";
 import { DEFAULT_STICKMAN } from "./DEFAULT_STICKMAN";
 import { STICKMAN_CLIPS } from "./STICKMAN_CLIPS";
 import { buildStickman } from "./buildStickman";
-import { registerViewerSelection } from "./viewer/registerViewerSelection";
 
 const params: InstanceType<typeof URLSearchParams> = new URLSearchParams(
   location.search,
@@ -383,19 +382,6 @@ if (bar !== null) {
     bar.appendChild(b);
   }
 }
-registerViewerSelection({
-  names: Object.keys(clips),
-  read: (): string => activeClip,
-  select: selectClip,
-  pass: {
-    read: (): AutoMovieGuidePass => observedPass,
-    restore: (pass: AutoMovieGuidePass): void => {
-      passHandle?.restore();
-      passHandle = applyRenderMode(scene, pass);
-      observedPass = pass;
-    },
-  },
-});
 
 // expose for headless verification (the screenshot harness reads this)
 (window as unknown as { __automovie: unknown }).__automovie = {

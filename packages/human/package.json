@@ -1,7 +1,7 @@
 {
   "name": "@automovie/human",
   "version": "0.1.0",
-  "description": "Deterministic anatomical face and body construction and replayable editing documents",
+  "description": "Human figure generated from typed parameters by code",
   "engines": {
     "node": ">=22.23.2"
   },
@@ -11,28 +11,11 @@
       "browser": "./lib/browser/index.js",
       "default": "./src/index.ts"
     },
-    "./body/*": {
-      "browser": "./lib/browser/body/*.js",
-      "default": "./src/body/*.ts"
-    },
-    "./common/*": {
-      "browser": "./lib/browser/common/*.js",
-      "default": "./src/common/*.ts"
-    },
-    "./face/*": {
-      "browser": "./lib/browser/face/*.js",
-      "default": "./src/face/*.ts"
-    },
-    "./human/*": {
-      "browser": "./lib/browser/human/*.js",
-      "default": "./src/human/*.ts"
-    },
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "ttsx --cache-dir node_modules/.cache/ttsc/ttsx -P build/tsconfig.json build/main.ts",
-    "prepack": "pnpm run build",
-    "evidence": "evidence"
+    "build": "ttsx --no-plugins -P tsconfig.scripts.json scripts/guard.ts && ttsc --noEmit && rimraf lib && ttsc && ttsc -p tsconfig.browser.json && ttsx --no-plugins -P tsconfig.check.json checks/checkAutoMovieHumanJunctions.ts",
+    "prepack": "pnpm run build"
   },
   "keywords": [],
   "author": "Samchon",
@@ -42,7 +25,6 @@
     "url": "https://github.com/samchon/automovie"
   },
   "files": [
-    "build",
     "lib",
     "src",
     "package.json",
@@ -59,26 +41,6 @@
         "browser": "./lib/browser/index.js",
         "default": "./lib/index.js"
       },
-      "./body/*": {
-        "types": "./lib/body/*.d.ts",
-        "browser": "./lib/browser/body/*.js",
-        "default": "./lib/body/*.js"
-      },
-      "./common/*": {
-        "types": "./lib/common/*.d.ts",
-        "browser": "./lib/browser/common/*.js",
-        "default": "./lib/common/*.js"
-      },
-      "./face/*": {
-        "types": "./lib/face/*.d.ts",
-        "browser": "./lib/browser/face/*.js",
-        "default": "./lib/face/*.js"
-      },
-      "./human/*": {
-        "types": "./lib/human/*.d.ts",
-        "browser": "./lib/browser/human/*.js",
-        "default": "./lib/human/*.js"
-      },
       "./package.json": "./package.json"
     }
   },
@@ -87,15 +49,13 @@
     "ttsc": "catalog:samchon",
     "typescript": "catalog:typescript",
     "@ttsc/lint": "catalog:samchon",
-    "@wrtnlabs/evidence": "catalog:samchon",
-    "@ttsc/evidence": "catalog:samchon"
+    "@ttsc/evidence": "catalog:samchon",
+    "typescript-compiler": "npm:typescript@5.9.3",
+    "@types/node": "catalog:utils"
   },
   "dependencies": {
-    "fflate": "catalog:media",
     "@automovie/engine": "workspace:^",
     "@automovie/interface": "workspace:^",
-    "typia": "catalog:samchon",
-    "@gltf-transform/core": "catalog:gltf",
-    "@gltf-transform/extensions": "catalog:gltf"
+    "typia": "catalog:samchon"
   }
 }

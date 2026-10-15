@@ -14,7 +14,8 @@ Before editing, group every known symptom by cause, then trace each cause, and y
 Every maintained declaration answers, in its doc comment, the [contracts](../contracts/SKILL.md) checklists its package selects:
 
 - production types and functions: [`common.md`](../contracts/common.md) and [`performance.md`](../contracts/performance.md), except `interface`, which selects only `common.md`;
-- tests: [`testing.md`](../contracts/testing.md).
+- tests: [`testing.md`](../contracts/testing.md);
+- `human`: none until its rebuild declares completion, then both production checklists at once.
 
 ## Code
 

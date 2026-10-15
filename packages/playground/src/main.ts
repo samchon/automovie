@@ -1,7 +1,6 @@
 import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME } from "@automovie/engine";
 import {
   AutoMovieHumanoidBone,
-  type IAutoMovieBone,
   IAutoMovieJointPose,
   type IAutoMovieModel,
   IAutoMovieMotion,
@@ -23,7 +22,6 @@ import * as THREE from "three";
 import { DEFAULT_PARAMS } from "./DEFAULT_PARAMS";
 import type { IHumanoidParams } from "./IHumanoidParams";
 import { buildHumanoid } from "./buildHumanoid";
-import { registerPlaygroundViewerApplication } from "./viewer/registerPlaygroundViewerApplication";
 
 // ── editor state ──────────────────────────────────────────────────────────
 const params: IHumanoidParams = { ...DEFAULT_PARAMS };
@@ -419,97 +417,6 @@ try {
   );
   throw error;
 }
-registerPlaygroundViewerApplication({
-  ready: Promise.resolve(),
-  capture: (): {
-    params: {
-      hipHeight: number;
-      torsoLength: number;
-      neckLength: number;
-      shoulderWidth: number;
-      hipWidth: number;
-      upperArmLength: number;
-      lowerArmLength: number;
-      thighLength: number;
-      shinLength: number;
-      limbRadius: number;
-      headRadius: number;
-    };
-    pose: Partial<Record<AutoMovieHumanoidBone, JointState>>;
-    playing: boolean;
-  } => ({ params: { ...params }, pose: structuredClone(pose), playing }),
-  restore: async (state: unknown): Promise<void> => {
-    if (closed) throw new Error("The humanoid editor is closed.");
-    if (retirementFailure !== undefined) throw retirementFailure.error;
-    if (state === null || typeof state !== "object")
-      throw new Error("Humanoid transfer has no editor state.");
-    const values: unknown = Reflect.get(state, "params"),
-      joints: unknown = Reflect.get(state, "pose");
-    const playback: unknown = Reflect.get(state, "playing");
-    if (
-      values === null ||
-      typeof values !== "object" ||
-      joints === null ||
-      typeof joints !== "object" ||
-      typeof playback !== "boolean"
-    )
-      throw new Error(
-        "Humanoid transfer has invalid parameters/pose/playback.",
-      );
-    const next: {
-      hipHeight: number;
-      torsoLength: number;
-      neckLength: number;
-      shoulderWidth: number;
-      hipWidth: number;
-      upperArmLength: number;
-      lowerArmLength: number;
-      thighLength: number;
-      shinLength: number;
-      limbRadius: number;
-      headRadius: number;
-    } = { ...DEFAULT_PARAMS };
-    for (const key of Object.keys(DEFAULT_PARAMS)) {
-      const value: unknown = Reflect.get(values, key);
-      if (typeof value !== "number" || !Number.isFinite(value) || value <= 0)
-        throw new Error("Humanoid transfer has invalid " + key + ".");
-      Reflect.set(next, key, value);
-    }
-    const nextPose: Partial<Record<AutoMovieHumanoidBone, JointState>> = {};
-    for (const [name, angles] of Object.entries(joints)) {
-      const bone: AutoMovieHumanoidBone | undefined = skeleton.bones.find(
-        (part: IAutoMovieBone): boolean => part.bone === name,
-      )?.bone;
-      if (bone === undefined || angles === null || typeof angles !== "object")
-        throw new Error("Humanoid transfer has an unknown joint.");
-      const flexion: unknown = Reflect.get(angles, "flexion"),
-        abduction: unknown = Reflect.get(angles, "abduction"),
-        twist: unknown = Reflect.get(angles, "twist");
-      if (
-        typeof flexion !== "number" ||
-        typeof abduction !== "number" ||
-        typeof twist !== "number" ||
-        ![flexion, abduction, twist].every(Number.isFinite)
-      )
-        throw new Error("Humanoid transfer has non-finite joint angles.");
-      nextPose[bone] = { flexion, abduction, twist };
-    }
-    Object.assign(params, next);
-    for (const key of Object.keys(pose)) Reflect.deleteProperty(pose, key);
-    Object.assign(pose, nextPose);
-    playing = playback;
-    rebuild();
-    playBtn.textContent = playing ? "Pause" : "Play wave";
-    for (const [selector, specs] of [
-      ["#proportions", proportionSliders],
-      ["#poses", poseSliders],
-    ] as const) {
-      const host: HTMLElement = document.querySelector<HTMLElement>(selector)!;
-      host.replaceChildren();
-      mountSliders(host, specs);
-    }
-  },
-});
 
 // expose for headless verification (screenshot harness reads this)
 (window as unknown as { __automovie: unknown }).__automovie = {

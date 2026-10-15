@@ -1,12 +1,12 @@
 # Regenerating model and demonstration outputs
 
-The model and demonstration outputs listed here are ignored derivatives of Playground's TypeScript models and view pages. These scripts regenerate their own outputs. The repository's `.shots` also holds required Human inputs, reference photographs and resident viewer runtime files; the [Human skill's visual debugging files](../../../.agents/skills/human/SKILL.md#visual-debugging-files) define their preservation boundary.
+The model and demonstration outputs listed here are ignored derivatives of Playground's TypeScript models and view pages. These scripts regenerate their own outputs.
 
 All commands run from `packages/playground` or through `pnpm --filter @automovie/playground <script>`.
 
 ## Type-check boundary
 
-[`tsconfig.json`](../tsconfig.json) checks browser `src`, Node/DOM entries under `scripts/*.ts`, and their shared support. The package's `build` runs that check, then checks the separate [`src/human/inspection/tsconfig.json`](../src/human/inspection/tsconfig.json) program, then runs Vite for the editor pages. Workspace API drift in maintained scripts therefore fails the normal package and repository build.
+[`tsconfig.json`](../tsconfig.json) checks browser `src`, Node/DOM entries under `scripts/*.ts`, and their shared support. The package's `build` runs that check, then runs Vite for the pages. Workspace API drift in maintained scripts therefore fails the normal package and repository build.
 
 ## Models (`.glb`)
 
@@ -44,6 +44,15 @@ Overrides via env: `CHROME=/path/to/chrome` (binary), `BASE=http://host:port`
 `[page, query, durationSeconds, frameCount, width, height, outPath, fps]` to
 capture a new clip. Encoding uses `h264-mp4-encoder` (wasm) + `pngjs`.
 
+## Human preset views (`human:capture`)
+
+Drives `human.html` in Chrome, loads each person through the page's `window.__automovieHuman` API and runs the page's capture action: PNGs go to `.shots/output/<name>-<scale>-<view>.png`, and `.shots/captures/<name>.json` records the source commit, uncommitted paths, document hash, WebGL renderer, documents and camera of every view. A software renderer is refused. Without `--people` it captures the page's default person in all eight views at whole-body and head scales.
+
+```bash
+pnpm human:capture -- --name adult-female
+pnpm human:capture -- --people people.json   # [{ name, traits?, statureScale?, session?, views?, scales?, focus?, hidden? }]
+```
+
 ## Capture smoke (`smoke:capture`, #1170)
 
 Chrome renders the served stickman page and the existing adapter captures beauty, mask and pose in two sessions. The script compares their bytes on that host, checks the declared mask/pose color-population thresholds and requires beauty to differ from mask. These checks do not prove anatomical or visual quality or cross-host GPU equivalence. It reuses a responding server at `--base` (default `http://127.0.0.1:5173`) or acquires and terminates its own Vite process. Google Chrome is required (`--chrome` or `CHROME` selects its executable); a failed check exits nonzero.
@@ -80,13 +89,3 @@ frame paths, encoded MP4 path, and a pixel probe for sampled dissolve frames.
 pnpm render:sequence
 pnpm render:sequence -- --fps 12 --out .shots/_render-see/film-sequence.mp4
 ```
-
-## Observing the connected person editor
-
-`observe:person` drives the real `connected-person.html` page through a list of user actions and records status/state, disabled buttons, document textarea text and its unapplied indicator, displayed admission JSON, saved downloads with SHA-256 and step elapsed time. The textarea may contain unapplied edits, and the renderer string comes from a separate WebGL2 context in that page; neither establishes current application-model provenance. It asserts nothing; a person reads the record. Serve the page first and set `CHROME` to the Chromium executable to use.
-
-```bash
-pnpm observe:person -- record.json base=http://127.0.0.1:4173 load=person.json set=face/shape/noseWidth:0.3 click=undo click=glb
-```
-
-The header of `scripts/observe-connected-person.ts` lists every step and option, including `head=` and `body=` for a caller-owned typed source pair.

@@ -25,13 +25,13 @@ npm run evidence
 | [`@automovie/interface`](./packages/interface) | The pure-type authoring AST an LLM emits |
 | [`@automovie/engine`](./packages/engine) | Deterministic validation and computation of everything a frame needs |
 | [`@automovie/archetypes`](./packages/archetypes) | Typed producers of shipped model groups and the humanoid gait tables |
-| [`@automovie/human`](./packages/human) | Numerical human face, body, and person construction |
+| [`@automovie/human`](./packages/human) | A human figure generated from typed parameters by code (being rebuilt) |
 | [`@automovie/ingest`](./packages/ingest) | Deterministic import of glTF, GLB, VRM, and WAVE inputs |
 | [`@automovie/viewer`](./packages/viewer) | Three.js display, capture, and inspection |
 | [`@automovie/render`](./packages/render) | Frame, sequence, and video render planning |
 | [`@automovie/template`](./packages/template) | The scaffold every production starts from |
 | [`automovie`](./packages/cli) | The CLI that installs the scaffold |
-| [`@automovie/playground`](./packages/playground) | Browser demonstrations and the Human inspection application |
+| [`@automovie/playground`](./packages/playground) | Browser demonstrations of engine motion, film, and physics |
 
 ## Repository development
 
