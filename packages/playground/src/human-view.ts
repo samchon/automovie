@@ -3,6 +3,7 @@ import {
   AutoMovieHuman,
   AutoMovieHumanConverter,
   IAutoMovieHumanAppearance,
+  IAutoMovieHumanConstructionNet,
   IAutoMovieHumanExpression,
   IAutoMovieHumanIdentity,
   IAutoMovieHumanPose,
@@ -33,6 +34,7 @@ import { IHumanViewerSession } from "./human/IHumanViewerSession";
 import { createHumanViewerDocumentForm } from "./human/createHumanViewerDocumentForm";
 import { createHumanViewerExpressionEditor } from "./human/createHumanViewerExpressionEditor";
 import { createHumanViewerPoseEditor } from "./human/createHumanViewerPoseEditor";
+import { drawHumanViewerConstruction } from "./human/drawHumanViewerConstruction";
 import { admitHumanViewerCaptureView } from "./human/admitHumanViewerCaptureView";
 import { frameHumanViewerCamera } from "./human/frameHumanViewerCamera";
 import { hashHumanViewerSession } from "./human/hashHumanViewerSession";
@@ -265,6 +267,48 @@ const texture = async (accepted: IAccepted): Promise<void> => {
   void previous?.dispose();
 };
 
+// ── construction net ────────────────────────────────────────────────────────
+/** How the person is drawn: the surface alone, the construction net over the opaque surface, or the net over a ghosted body. The net is the rest construction, so it matches the surface in the rest pose. */
+type DisplayMode = "surface" | "overlay" | "net";
+const DISPLAY_MODES: readonly DisplayMode[] = ["surface", "overlay", "net"];
+let displayMode: DisplayMode = "surface";
+/** The shown person's construction nets, read on first use. */
+let nets: IAutoMovieHumanConstructionNet[] | null = null;
+let construction: THREE.Group | null = null;
+const GHOST: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial({
+  color: 0xbbbbbb,
+  roughness: 0.9,
+  transparent: true,
+  opacity: 0.18,
+  depthWrite: false,
+  side: THREE.DoubleSide,
+});
+/** Draw the shown person in the current display mode. */
+const applyDisplayMode = (): void => {
+  if (construction !== null) {
+    scene.remove(construction);
+    dispose(construction);
+    construction = null;
+  }
+  if (object === null) return;
+  object.object.traverse((node: THREE.Object3D): void => {
+    const mesh: THREE.Mesh = node as THREE.Mesh;
+    if (mesh.isMesh !== true) return;
+    mesh.userData.surfaceMaterial ??= mesh.material;
+    mesh.material =
+      displayMode === "net"
+        ? GHOST
+        : (mesh.userData.surfaceMaterial as THREE.Material);
+  });
+  if (displayMode === "surface") return;
+  nets ??= current.human.inspect();
+  construction = drawHumanViewerConstruction({
+    nets,
+    occluded: displayMode === "overlay",
+  });
+  scene.add(construction);
+};
+
 /** Put the person's model in the scene, posed and expressed, replacing the one shown. */
 const display = (
   accepted: IAccepted,
@@ -296,6 +340,8 @@ const display = (
     scene.add(bonesHelper);
   }
   applyVisibility();
+  nets = null;
+  applyDisplayMode();
   error(null);
 };
 
@@ -368,6 +414,17 @@ const frame = (): boolean => {
 };
 
 // ── capture ─────────────────────────────────────────────────────────────────
+/** The drawn frame as base64 PNG; a net or overlay frame carries the construction legend in its corner. */
+const keyed = (mode: DisplayMode): string => {
+  if (mode === "surface") return canvas.toDataURL("image/png").split(",")[1]!;
+  const copy: HTMLCanvasElement = document.createElement("canvas");
+  copy.width = canvas.width;
+  copy.height = canvas.height;
+  const context: CanvasRenderingContext2D = copy.getContext("2d")!;
+  context.drawImage(canvas, 0, 0);
+  drawHumanViewerConstruction.key(context);
+  return copy.toDataURL("image/png").split(",")[1]!;
+};
 /** File tag of a view: a preset's name, or its angles. */
 const viewTag = (
   v: frameHumanViewerCamera.View | frameHumanViewerCamera.IAngle,
@@ -382,6 +439,7 @@ const capture = async (props: {
   views?: unknown[];
   scales?: Scale[];
   focus?: AutoMovieHumanoidBone;
+  modes?: DisplayMode[];
 }): Promise<{ files: string[]; metadata: string }> => {
   if (!/^[A-Za-z0-9._-]+$/.test(props.name))
     throw new Error("Capture name must match [A-Za-z0-9._-]+.");
@@ -435,20 +493,31 @@ const capture = async (props: {
         },
         tag: `close-${v.focus}`,
       });
-  for (const step of plan) {
-    view = step.view;
-    if (!frame())
+  const modes: DisplayMode[] = props.modes ?? ["surface"];
+  for (const mode of modes)
+    if (!DISPLAY_MODES.includes(mode))
       throw new Error(
-        `Nothing visible to frame for ${view.scale} ${view.focus}.`,
+        `unknown display mode "${String(mode)}"; modes are ${DISPLAY_MODES.join(", ")}`,
       );
-    handle.renderer.render(scene, camera);
-    // Read the drawing buffer in the same task as the draw, before it clears.
-    const png: string = canvas.toDataURL("image/png").split(",")[1]!;
-    const file: string = `${props.name}-${step.tag}-${viewTag(view.view)}.png`;
-    shots.push({ file, png });
-    records.push({
-      file,
-      view: view.view,
+  const previousMode: DisplayMode = displayMode;
+  for (const mode of modes) {
+    displayMode = mode;
+    applyDisplayMode();
+    for (const step of plan) {
+      view = step.view;
+      if (!frame())
+        throw new Error(
+          `Nothing visible to frame for ${view.scale} ${view.focus}.`,
+        );
+      handle.renderer.render(scene, camera);
+      // Read the drawing buffer in the same task as the draw, before it clears.
+      const png: string = keyed(mode);
+      const file: string = `${props.name}-${mode === "surface" ? "" : `${mode}-`}${step.tag}-${viewTag(view.view)}.png`;
+      shots.push({ file, png });
+      records.push({
+        file,
+        mode,
+        view: view.view,
       scale: view.scale,
       focus: view.scale === "whole" ? null : view.focus,
       margin: view.margin ?? MARGIN[view.scale],
@@ -458,7 +527,10 @@ const capture = async (props: {
         fov: camera.fov,
       },
     });
+    }
   }
+  displayMode = previousMode;
+  applyDisplayMode();
   view = previous;
   frame();
   const response: Response = await fetch("/__automovie/capture", {
@@ -577,9 +649,16 @@ const renderViews = (): void => {
     hand = hands.value as typeof hand;
     accept(current.session, `Hand: ${hands.value}.`);
   });
+  const shown: HTMLSelectElement = document.createElement("select");
+  for (const mode of DISPLAY_MODES) shown.add(new Option(mode, mode));
+  shown.value = displayMode;
+  shown.addEventListener("change", (): void => {
+    displayMode = shown.value as DisplayMode;
+    applyDisplayMode();
+  });
   const row: HTMLDivElement = document.createElement("div");
   row.className = "row";
-  row.append(scale, focus, skin, hands, bones, sticks);
+  row.append(scale, focus, skin, hands, shown, bones, sticks);
   const captureRow: HTMLDivElement = document.createElement("div");
   captureRow.className = "row";
   captureRow.append(name, run);
@@ -861,6 +940,10 @@ frame();
   setStick: (next: boolean): void => {
     showStick = next;
     applyVisibility();
+  },
+  setDisplay: (next: DisplayMode): void => {
+    displayMode = next;
+    applyDisplayMode();
   },
   setAssembly: (next: "parts" | "joined"): boolean => {
     assembly = next;
