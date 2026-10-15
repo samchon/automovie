@@ -27,6 +27,9 @@ export interface IAutoMovieHumanTrunkForm {
   /** At the axilla, from the chest measurements. */
   axilla: IAutoMovieHumanTrunkForm.IDerived;
 
+  /** At the jugular notch's level, over the clavicles and the upper trapezius. */
+  clavicle: IAutoMovieHumanTrunkForm.IClavicle;
+
   /** At the crotch, the trunk's lowest level section, which the two thighs share. */
   crotch: IAutoMovieHumanTrunkForm.ICrotch;
 
@@ -106,13 +109,32 @@ export namespace IAutoMovieHumanTrunkForm {
   }
 
   /**
+   * The section at the jugular notch's level beside the neck, over the clavicles in front and the trapezius behind, as shares of the chest depth.
+   *
+   * @author Samchon
+   */
+  export interface IClavicle {
+    /** Front over the clavicles ahead of the jugular notch, at 15% body fat. */
+    front: number;
+
+    /** Change of `front` per percentage point of body fat above 15%. */
+    fat: number;
+
+    /** Back over the trapezius behind cervicale. */
+    back: number;
+  }
+
+  /**
    * The outer contour of a level below the buttock level, where the section is the two thighs side by side.
    *
    * @author Samchon
    */
   export interface IFork {
-    /** The foremost point, as a share of the buttock depth forward of the buttock level's back. */
+    /** The foremost point, as a share of the buttock depth forward of the buttock level's back, at 15% body fat. */
     front: number;
+
+    /** Change of `front` per percentage point of body fat above 15%, which follows the buttock level's back moving behind the skeleton with fat. */
+    fat: number;
 
     /** The rearmost point, in the same sense as `front`. */
     back: number;
