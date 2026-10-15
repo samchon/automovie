@@ -131,6 +131,17 @@ sun.position.set(2, 4, 3);
 scene.add(sun);
 const grid: THREE.GridHelper = new THREE.GridHelper(6, 60, 0xb8c0cc, 0xd5dbe4);
 scene.add(grid);
+// The floor grid stands between an eye below the floor and the subject, so every render
+// from below hides it; the scene's hook runs before visibility is read, in the viewer's
+// own loop and in captures alike.
+scene.onBeforeRender = (
+  _renderer: THREE.WebGLRenderer,
+  _scene: THREE.Scene,
+  eye: THREE.Camera,
+): void => {
+  grid.visible =
+    eye.getWorldPosition(new THREE.Vector3()).y > grid.position.y;
+};
 const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
   30,
   1,
