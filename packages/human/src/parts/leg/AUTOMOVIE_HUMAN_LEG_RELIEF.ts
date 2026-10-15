@@ -1,7 +1,7 @@
 import { IAutoMovieHumanLegRelief } from "./IAutoMovieHumanLegRelief";
 
 /**
- * The superficial forms of the leg from mid thigh to the ankle, each placed by the attachments and surface descriptions of Gray (1918, Anatomy of the Human Body, 20th ed., "The Muscles and Fasciae of the Thigh" and "of the Leg", and "Surface Anatomy of the Lower Extremity") and Bridgman (1920, Constructive Anatomy). Levels and angles turn those descriptions into numbers and amplitudes are fractions of the local radius; no source measures either, so every value is conventional and was set by looking at renders of lean, average and heavy people of both sexes.
+ * The superficial forms of the leg from mid thigh to the ankle, each placed by the attachments and surface descriptions of Gray (1918, Anatomy of the Human Body, 20th ed., "The Muscles and Fasciae of the Thigh" and "of the Leg", and "Surface Anatomy of the Lower Extremity") and Bridgman (1920, Constructive Anatomy). Levels and angles turn those descriptions into numbers and are conventional. Amplitudes, fractions of the local radius, are our fit to the MakeHuman CC0 reference at the same identity on our skeleton, through the campaign's calibration harness, over the same eight people as `AUTOMOVIE_HUMAN_LEG_SECTIONS` and after that block-out, each held to its anatomical sign and between half and three times the height first read off the plates, so a form the smooth reference lacks keeps at least half its anatomical height; the medial gastrocnemius head, which the reference shows no fuller than the lateral, is held at 1.2 times the lateral, Gray's "thicker" head, at the pair's fitted total.
  *
  * The table carries the art-anatomy rules the sources state:
  *
@@ -22,7 +22,7 @@ export const AUTOMOVIE_HUMAN_LEG_RELIEF: IAutoMovieHumanLegRelief[] = [
     angleBottom: 0,
     angleTop: -5,
     width: 22,
-    amplitude: 0.12,
+    amplitude: 0.318,
   },
   {
     name: "vastus lateralis",
@@ -34,7 +34,7 @@ export const AUTOMOVIE_HUMAN_LEG_RELIEF: IAutoMovieHumanLegRelief[] = [
     angleBottom: -45,
     angleTop: -70,
     width: 28,
-    amplitude: 0.14,
+    amplitude: 0.308,
   },
   {
     name: "vastus medialis",
@@ -46,7 +46,7 @@ export const AUTOMOVIE_HUMAN_LEG_RELIEF: IAutoMovieHumanLegRelief[] = [
     angleBottom: 45,
     angleTop: 70,
     width: 26,
-    amplitude: 0.28,
+    amplitude: 0.14,
   },
   {
     name: "quadriceps tendon hollow, lateral",
@@ -58,7 +58,7 @@ export const AUTOMOVIE_HUMAN_LEG_RELIEF: IAutoMovieHumanLegRelief[] = [
     angleBottom: -35,
     angleTop: -35,
     width: 14,
-    amplitude: -0.08,
+    amplitude: -0.074,
   },
   // thigh: grooves, adductors and hamstrings
   {
@@ -71,7 +71,7 @@ export const AUTOMOVIE_HUMAN_LEG_RELIEF: IAutoMovieHumanLegRelief[] = [
     angleBottom: 115,
     angleTop: 60,
     width: 12,
-    amplitude: -0.06,
+    amplitude: -0.075,
   },
   {
     name: "iliotibial band groove",
@@ -83,7 +83,7 @@ export const AUTOMOVIE_HUMAN_LEG_RELIEF: IAutoMovieHumanLegRelief[] = [
     angleBottom: -95,
     angleTop: -105,
     width: 14,
-    amplitude: -0.07,
+    amplitude: -0.165,
   },
   {
     name: "adductors and gracilis",
@@ -95,7 +95,7 @@ export const AUTOMOVIE_HUMAN_LEG_RELIEF: IAutoMovieHumanLegRelief[] = [
     angleBottom: 115,
     angleTop: 105,
     width: 30,
-    amplitude: 0.1,
+    amplitude: 0.24,
   },
   {
     name: "biceps femoris",
@@ -107,7 +107,7 @@ export const AUTOMOVIE_HUMAN_LEG_RELIEF: IAutoMovieHumanLegRelief[] = [
     angleBottom: -125,
     angleTop: -150,
     width: 22,
-    amplitude: 0.1,
+    amplitude: 0.05,
   },
   {
     name: "semitendinosus and semimembranosus",
@@ -119,7 +119,7 @@ export const AUTOMOVIE_HUMAN_LEG_RELIEF: IAutoMovieHumanLegRelief[] = [
     angleBottom: 135,
     angleTop: 150,
     width: 22,
-    amplitude: 0.1,
+    amplitude: 0.25,
   },
   {
     name: "inner thigh fat",
@@ -131,7 +131,7 @@ export const AUTOMOVIE_HUMAN_LEG_RELIEF: IAutoMovieHumanLegRelief[] = [
     angleBottom: 100,
     angleTop: 110,
     width: 35,
-    amplitude: 0.3,
+    amplitude: 0.15,
   },
   {
     name: "outer thigh fat",
@@ -156,7 +156,7 @@ export const AUTOMOVIE_HUMAN_LEG_RELIEF: IAutoMovieHumanLegRelief[] = [
     angleBottom: 180,
     angleTop: 180,
     width: 22,
-    amplitude: -0.04,
+    amplitude: -0.02,
   },
   {
     name: "patella",
@@ -168,7 +168,7 @@ export const AUTOMOVIE_HUMAN_LEG_RELIEF: IAutoMovieHumanLegRelief[] = [
     angleBottom: 0,
     angleTop: 0,
     width: 20,
-    amplitude: 0.2,
+    amplitude: 0.1,
   },
   {
     name: "suprapatellar recess",
@@ -180,7 +180,7 @@ export const AUTOMOVIE_HUMAN_LEG_RELIEF: IAutoMovieHumanLegRelief[] = [
     angleBottom: 0,
     angleTop: 0,
     width: 16,
-    amplitude: -0.05,
+    amplitude: -0.029,
   },
   {
     name: "medial femoral condyle",
@@ -192,7 +192,7 @@ export const AUTOMOVIE_HUMAN_LEG_RELIEF: IAutoMovieHumanLegRelief[] = [
     angleBottom: 95,
     angleTop: 90,
     width: 30,
-    amplitude: 0.12,
+    amplitude: 0.06,
   },
   {
     name: "infrapatellar fat pads",
@@ -204,7 +204,7 @@ export const AUTOMOVIE_HUMAN_LEG_RELIEF: IAutoMovieHumanLegRelief[] = [
     angleBottom: 30,
     angleTop: 30,
     width: 30,
-    amplitude: 0.35,
+    amplitude: 0.175,
   },
   {
     name: "infrapatellar fat pads, lateral",
@@ -216,7 +216,7 @@ export const AUTOMOVIE_HUMAN_LEG_RELIEF: IAutoMovieHumanLegRelief[] = [
     angleBottom: -30,
     angleTop: -30,
     width: 30,
-    amplitude: 0.35,
+    amplitude: 0.175,
   },
   {
     name: "medial knee fat pad",
@@ -228,7 +228,7 @@ export const AUTOMOVIE_HUMAN_LEG_RELIEF: IAutoMovieHumanLegRelief[] = [
     angleBottom: 75,
     angleTop: 80,
     width: 35,
-    amplitude: 0.45,
+    amplitude: 0.225,
   },
   {
     name: "tibial tuberosity",
@@ -240,7 +240,7 @@ export const AUTOMOVIE_HUMAN_LEG_RELIEF: IAutoMovieHumanLegRelief[] = [
     angleBottom: 0,
     angleTop: 0,
     width: 15,
-    amplitude: 0.06,
+    amplitude: 0.105,
   },
   {
     name: "fibular head",
@@ -252,7 +252,7 @@ export const AUTOMOVIE_HUMAN_LEG_RELIEF: IAutoMovieHumanLegRelief[] = [
     angleBottom: -120,
     angleTop: -120,
     width: 18,
-    amplitude: 0.06,
+    amplitude: 0.03,
   },
   // calf
   {
@@ -265,7 +265,7 @@ export const AUTOMOVIE_HUMAN_LEG_RELIEF: IAutoMovieHumanLegRelief[] = [
     angleBottom: 115,
     angleTop: 100,
     width: 32,
-    amplitude: 0.34,
+    amplitude: 0.308,
   },
   {
     name: "gastrocnemius, lateral head",
@@ -277,7 +277,7 @@ export const AUTOMOVIE_HUMAN_LEG_RELIEF: IAutoMovieHumanLegRelief[] = [
     angleBottom: -145,
     angleTop: -130,
     width: 26,
-    amplitude: 0.18,
+    amplitude: 0.257,
   },
   {
     name: "gastrocnemius median groove",
@@ -289,7 +289,7 @@ export const AUTOMOVIE_HUMAN_LEG_RELIEF: IAutoMovieHumanLegRelief[] = [
     angleBottom: 180,
     angleTop: 180,
     width: 12,
-    amplitude: -0.06,
+    amplitude: -0.03,
   },
   {
     name: "soleus, medial edge",
@@ -301,7 +301,7 @@ export const AUTOMOVIE_HUMAN_LEG_RELIEF: IAutoMovieHumanLegRelief[] = [
     angleBottom: 110,
     angleTop: 105,
     width: 20,
-    amplitude: 0.08,
+    amplitude: 0.128,
   },
   {
     name: "soleus, lateral edge",
@@ -313,7 +313,7 @@ export const AUTOMOVIE_HUMAN_LEG_RELIEF: IAutoMovieHumanLegRelief[] = [
     angleBottom: -115,
     angleTop: -110,
     width: 20,
-    amplitude: 0.1,
+    amplitude: 0.05,
   },
   // shin
   {
@@ -326,7 +326,7 @@ export const AUTOMOVIE_HUMAN_LEG_RELIEF: IAutoMovieHumanLegRelief[] = [
     angleBottom: -25,
     angleTop: -40,
     width: 22,
-    amplitude: 0.12,
+    amplitude: 0.282,
   },
   {
     name: "peroneus longus and brevis",
@@ -338,7 +338,7 @@ export const AUTOMOVIE_HUMAN_LEG_RELIEF: IAutoMovieHumanLegRelief[] = [
     angleBottom: -95,
     angleTop: -95,
     width: 18,
-    amplitude: 0.06,
+    amplitude: 0.03,
   },
   {
     name: "medial tibial surface",
@@ -350,7 +350,7 @@ export const AUTOMOVIE_HUMAN_LEG_RELIEF: IAutoMovieHumanLegRelief[] = [
     angleBottom: 50,
     angleTop: 45,
     width: 25,
-    amplitude: -0.1,
+    amplitude: -0.3,
   },
   {
     name: "tibial crest",
@@ -362,7 +362,7 @@ export const AUTOMOVIE_HUMAN_LEG_RELIEF: IAutoMovieHumanLegRelief[] = [
     angleBottom: 8,
     angleTop: 10,
     width: 10,
-    amplitude: 0.04,
+    amplitude: 0.12,
   },
   // ankle
   {
@@ -375,7 +375,7 @@ export const AUTOMOVIE_HUMAN_LEG_RELIEF: IAutoMovieHumanLegRelief[] = [
     angleBottom: 135,
     angleTop: 135,
     width: 20,
-    amplitude: -0.12,
+    amplitude: -0.06,
   },
   {
     name: "hollow beside the calcaneal tendon, lateral",
@@ -387,6 +387,6 @@ export const AUTOMOVIE_HUMAN_LEG_RELIEF: IAutoMovieHumanLegRelief[] = [
     angleBottom: -135,
     angleTop: -135,
     width: 20,
-    amplitude: -0.12,
+    amplitude: -0.192,
   },
 ];
