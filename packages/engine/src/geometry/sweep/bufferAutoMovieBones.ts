@@ -9,7 +9,9 @@ import { IAutoMovieBoneBuffer } from "./IAutoMovieBoneBuffer";
  *
  * `update` computes each bone's rotation `Q_b R_b^-1`, normalized, and keeps
  * its rest and posed origins, so `apply` moves a point by
- * `P_b + Q_b R_b^-1 (p - O_b)` as `createAutoMovieBoneMotion` does.
+ * `P_b + Q_b R_b^-1 (p - O_b)` as `createAutoMovieBoneMotion` does. Until the
+ * first `update` and after `reset` it copies points and directions unchanged,
+ * so a rig at rest reproduces its unposed cage bit for bit.
  *
  * @param rest Bones at rest, from `resolvePose` of an empty pose; only read.
  * @returns The buffer, every motion the identity until updated.
@@ -41,7 +43,10 @@ export const bufferAutoMovieBones: (rest: readonly IAutoMovieResolvedBone[]) => 
     AutoMovieSweepRotation.conjugate(inverse, 4 * i, inverse, 4 * i);
     origins.set([b.worldPosition.x, b.worldPosition.y, b.worldPosition.z], 3 * i);
   });
+  // at rest every motion is the identity, applied as an exact copy
+  let resting: boolean = true;
   const reset = (): void => {
+    resting = true;
     for (let i: number = 0; i < count; ++i) {
       rotations[4 * i] = 0;
       rotations[4 * i + 1] = 0;
@@ -53,6 +58,7 @@ export const bufferAutoMovieBones: (rest: readonly IAutoMovieResolvedBone[]) => 
   reset();
   const update = (list: readonly IAutoMovieResolvedBone[]): void => {
     if (list.length !== count) throw new Error(`posed bones number ${list.length}, rest bones ${count}`);
+    resting = false;
     for (let i: number = 0; i < count; ++i) {
       const b: IAutoMovieResolvedBone = list[i]!;
       if (b.bone !== bones[i]) throw new Error(`posed bone ${i} is ${b.bone}, rest bone ${bones[i]}`);
@@ -68,9 +74,15 @@ export const bufferAutoMovieBones: (rest: readonly IAutoMovieResolvedBone[]) => 
       posed[3 * i + 2] = b.worldPosition.z;
     }
   };
+  const copy = (v: ArrayLike<number>, vi: number, out: Float64Array, oi: number): void => {
+    out[oi] = v[vi]!;
+    out[oi + 1] = v[vi + 1]!;
+    out[oi + 2] = v[vi + 2]!;
+  };
   const turn = (bone: number, v: ArrayLike<number>, vi: number, out: Float64Array, oi: number): void =>
-    AutoMovieSweepRotation.rotate(rotations, 4 * bone, v, vi, out, oi);
+    resting ? copy(v, vi, out, oi) : AutoMovieSweepRotation.rotate(rotations, 4 * bone, v, vi, out, oi);
   const apply = (bone: number, p: ArrayLike<number>, pi: number, out: Float64Array, oi: number): void => {
+    if (resting) return copy(p, pi, out, oi);
     const o: number = 3 * bone;
     out[oi] = p[pi]! - origins[o]!;
     out[oi + 1] = p[pi + 1]! - origins[o + 1]!;

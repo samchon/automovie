@@ -83,7 +83,9 @@ const edge = (
  * mirror of the left-hand one: its spine points mirrored, its loops the
  * mirrored left loops traversed in reverse from the mirrored start, and its
  * strips at `1 - v`. Tier counts vary in the wide strips and along the
- * spines; the chord through each side opening stays at two by two.
+ * spines; the chord through each side opening stays at two by two. Every
+ * open end is a ring: the top tube's and the fork tubes' ends report their
+ * vertices, and the side tubes' ends are pinned.
  *
  * `shape` changes the sizes without touching the layout, so every value gives
  * the same topology at a tier.
@@ -315,6 +317,13 @@ export function sweepBranchedBody(
     },
     patches,
     rings: [
+      { name: "top.end", edges: ring("top", 1) },
+      ...["forkLeft", "forkRight"].map(
+        (branch: string): IAutoMovieSurfaceNetwork.IRing => ({
+          name: `${branch}.end`,
+          edges: forkStrips[branch]!.map((s): IAutoMovieSurfaceNetwork.IEdge => edge(branch, [1, s.v[0]], [1, s.v[1]], s.columns)),
+        }),
+      ),
       { name: "sideLeft.end", edges: [edge("sideLeft", [1, 0], [1, 1], fixed(8))], positions: endLeft },
       {
         name: "sideRight.end",
