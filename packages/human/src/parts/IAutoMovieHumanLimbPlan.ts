@@ -67,6 +67,8 @@ export namespace IAutoMovieHumanLimbPlan {
   /**
    * One superficial form: a ridge or furrow along a course on the surface, its height rising and falling along it.
    *
+   * Height and spread describe the form as it shows on the skin of the average adult the relief tables describe; each point also carries the subcutaneous fat over it on this person and on that adult, from which the loft shows the form sharper or softer (`traceAutoMovieHumanLimbRelief` states the rule).
+   *
    * @author Samchon
    */
   export interface IRelief {
@@ -76,8 +78,8 @@ export namespace IAutoMovieHumanLimbPlan {
     /** Points of its course, at least two, in order along the limb. */
     points: IReliefPoint[];
 
-    /** Half-width of the band across the course the form raises or lowers, millimetres. */
-    width: number;
+    /** Standard deviation of the form's Gaussian profile across the course on the average adult, millimetres. */
+    spread: number;
   }
 
   /**
@@ -92,7 +94,13 @@ export namespace IAutoMovieHumanLimbPlan {
     /** Direction from the station's `anterior`, radians, counterclockwise about its axis. */
     angle: number;
 
-    /** Height of the form here, millimetres along the surface's radius, outward positive. */
+    /** Height of the form here on the average adult, millimetres along the surface's radius, outward positive. */
     height: number;
+
+    /** Subcutaneous fat over the form here on this person, millimetres; 0 for a form that is itself fat. */
+    fat: number;
+
+    /** Subcutaneous fat over the form here on the average adult the height and spread describe, millimetres; 0 for a form that is itself fat. */
+    reference: number;
   }
 }
