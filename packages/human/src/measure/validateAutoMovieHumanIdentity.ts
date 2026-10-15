@@ -32,7 +32,7 @@ const MAX_HEADS_PER_STATURE: number = 10;
  * The dependent bounds are anatomical orderings and geometric limits rather than population percentiles, so they refuse only bodies that cannot exist:
  *
  * - sitting height and head height against stature, within bounds wider than every measured age and population;
- * - the acromion below the seventh cervical spinous process, and both below the vertex;
+ * - the acromion and the jugular notch below the seventh cervical spinous process, and all three below the vertex;
  * - each greater trochanter above the seat and below the acromion;
  * - a hand and a foot longer than broad, and a limb girth that tapers from muscle bellies to the tendons at wrist and ankle;
  * - soft-tissue hip breadth wider than the bony iliac crests it covers;
@@ -100,6 +100,13 @@ export function validateAutoMovieHumanIdentity(
     body.acromialHeight,
     `below cervicale height (${millimetres(body.cervicaleHeight)})`,
     "standing with the arms hanging, the acromion lies below the seventh cervical spinous process",
+  );
+  check(
+    body.suprasternaleHeight < body.cervicaleHeight,
+    "$input.body.suprasternaleHeight",
+    body.suprasternaleHeight,
+    `below cervicale height (${millimetres(body.cervicaleHeight)})`,
+    "the first rib and the thoracic inlet slope down from the spine to the sternum, so the jugular notch lies below the seventh cervical spinous process",
   );
   check(
     body.bicristalBreadth < body.hipBreadth,

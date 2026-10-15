@@ -172,6 +172,7 @@ interface IRegression {
 const ANSUR_II: Record<
   | "sittingHeight"
   | "cervicaleHeight"
+  | "suprasternaleHeight"
   | "acromialHeight"
   | "upperArm"
   | "forearm"
@@ -192,6 +193,10 @@ const ANSUR_II: Record<
   cervicaleHeight: {
     female: { intercept: -90.4, stature: 0.9126 },
     male: { intercept: -78.1, stature: 0.9084 },
+  },
+  suprasternaleHeight: {
+    female: { intercept: -93.6, stature: 0.874 },
+    male: { intercept: -101.4, stature: 0.8769 },
   },
   acromialHeight: {
     female: { intercept: -96.9, stature: 0.8793 },
@@ -260,14 +265,30 @@ const BICRISTAL_PER_BISPINOUS: Record<AutoMovieHumanSex, number> = {
 };
 
 /**
- * Children's cervicale and acromion below the vertex in head heights: the ANSUR II mean vertex-to-cervicale distance (232.8 mm women, 238.9 mm men) and cervicale-to-acromion drop (60.6 and 76.6 mm) over the 1977 survey's late-adolescent head height (stature over 7.95 and 8.03 at the ANSUR mean statures). Holding them at every age is an inference, because neither survey measured a child's neck. Grade: derived.
+ * Vertex to the jugular notch in head heights, by the 1977 survey's age bins: means of per-subject (stature − suprasternale height) / stature, fitted by us from the individual records (11 to 53 children per bin; Snyder et al. 1977, UM-HSRI-77-17), times the same bin's stature over head height. Heights are read in head heights because the two were measured on different subsets of children. Below the first bin, where the survey has no standing measures, the 2-to-3-year value holds, so an infant's notch stays close under its large head. Grade: population-fitted, derived below 2.5 years.
+ *
+ * The notch climbs toward the head the younger the child: 0.24 of stature below the vertex at 2 to 3 years against 0.19 at 17 to 18 and 0.18 in ANSUR II adults, so a toddler's shoulders sit high under the head, where an adult-proportioned neck put them far too low.
  */
-const HEAD_HEIGHTS_TO: Record<
+const SUPRASTERNALE_HEAD_HEIGHTS: ISexCurve = {
+  male: {
+    ages: BIN_AGES,
+    values: [1.283, 1.301, 1.341, 1.384, 1.4, 1.407, 1.467, 1.488, 1.521],
+  },
+  female: {
+    ages: BIN_AGES,
+    values: [1.265, 1.319, 1.364, 1.387, 1.389, 1.457, 1.503, 1.51, 1.522],
+  },
+};
+
+/**
+ * Children's cervicale and acromion above the jugular notch, in head heights: the ANSUR II mean differences of cervicale and acromial height from suprasternale height (women 66.0 and 5.4 mm, men 78.7 and 2.1 mm; Gordon et al. 2014, NATICK/TR-15/007) over the late-adolescent head height of the 1977 survey at the ANSUR mean statures (204.8 and 218.7 mm). The acromion stands level with the notch in adults, the clavicle running nearly horizontal from the sternum, as Gray (1918, "Anatomy of the Human Body") describes it with the arm hanging. Holding both relations at every age is an inference: the 1977 survey measured neither cervicale nor acromial height. The 1975 survey's sitting mid-shoulder height (Snyder et al. 1975, UM-HSRI-BI-75-5) agrees, putting the top of the shoulder about 1.2 head heights below the vertex at 2 to 2.5 years. Grade: derived.
+ */
+const ABOVE_SUPRASTERNALE: Record<
   "cervicale" | "acromion",
   Record<AutoMovieHumanSex, number>
 > = {
-  cervicale: { female: 1.1365, male: 1.0924 },
-  acromion: { female: 0.2958, male: 0.3502 },
+  cervicale: { female: 0.322, male: 0.36 },
+  acromion: { female: 0.026, male: 0.0096 },
 };
 
 /**
@@ -340,10 +361,15 @@ export function estimateAutoMovieHumanLengths(
         ? adult()
         : (1 - weight) * child() + weight * adult();
 
-  const childCervicale: number =
-    stature - HEAD_HEIGHTS_TO.cervicale[sex] * headHeight;
+  const childSuprasternale: number =
+    stature - ratio(SUPRASTERNALE_HEAD_HEIGHTS) * headHeight;
+  const suprasternaleHeight: number = blend(
+    (): number => childSuprasternale,
+    (): number => fit(ANSUR_II.suprasternaleHeight),
+  );
   const cervicaleHeight: number = blend(
-    (): number => childCervicale,
+    (): number =>
+      childSuprasternale + ABOVE_SUPRASTERNALE.cervicale[sex] * headHeight,
     (): number => fit(ANSUR_II.cervicaleHeight),
   );
   const childHand: number = ratio(SNYDER_1977_HAND.handToStature) * stature;
@@ -372,7 +398,8 @@ export function estimateAutoMovieHumanLengths(
     (): number => fit(ANSUR_II.ankle),
   );
   const acromialHeight: number = blend(
-    (): number => childCervicale - HEAD_HEIGHTS_TO.acromion[sex] * headHeight,
+    (): number =>
+      childSuprasternale + ABOVE_SUPRASTERNALE.acromion[sex] * headHeight,
     (): number => fit(ANSUR_II.acromialHeight),
   );
 
@@ -403,6 +430,7 @@ export function estimateAutoMovieHumanLengths(
   return {
     sittingHeight: slimSittingHeight,
     cervicaleHeight,
+    suprasternaleHeight,
     acromialHeight,
     biacromialBreadth:
       blend(
@@ -459,6 +487,9 @@ export namespace estimateAutoMovieHumanLengths {
 
     /** Cervicale height. */
     cervicaleHeight: number;
+
+    /** Suprasternale height. */
+    suprasternaleHeight: number;
 
     /** Acromial height. */
     acromialHeight: number;
