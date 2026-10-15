@@ -1,30 +1,34 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
+import { AutoMovieHumanBranch } from "../../junction/AutoMovieHumanBranch";
 import { AutoMovieHumanSide } from "../../junction/AutoMovieHumanSide";
 import { IAutoMovieHumanCage } from "../../junction/IAutoMovieHumanCage";
 import { IAutoMovieHumanRing } from "../../junction/IAutoMovieHumanRing";
 import { IAutoMovieHumanSurfaceCoordinate } from "../../junction/IAutoMovieHumanSurfaceCoordinate";
+import { AUTOMOVIE_HUMAN_TRUNK_LOOPS } from "./AUTOMOVIE_HUMAN_TRUNK_LOOPS";
 import { IAutoMovieHumanTrunkPoints } from "./IAutoMovieHumanTrunkPoints";
 
-/** Torso loops and columns. */
-const LOOPS: number = 13;
+/** Torso loops. */
+const LOOPS: number = AUTOMOVIE_HUMAN_TRUNK_LOOPS;
+
+/** Torso columns. */
 const COLUMNS: number = 24;
 
 /** Loops whose side columns bound the arm opening: the axilla, the mid shoulder and the top edge. */
-const ARM_LOOPS: [number, number, number] = [10, 11, 12];
+const ARM_LOOPS: [number, number, number] = [LOOPS - 3, LOOPS - 2, LOOPS - 1];
 
 /**
  * The arm opening of the left side as torso slots `[loop, column]` in the upper arm ring's layout order: front, front-below (the anterior axillary fold), below (the armpit), back-below (the posterior fold), back, back-above, above (the acromion), front-above.
  */
 const ARM_OPENING: Array<[number, number]> = [
-  [11, 5],
-  [10, 5],
-  [10, 6],
-  [10, 7],
-  [11, 7],
-  [12, 7],
-  [12, 6],
-  [12, 5],
+  [ARM_LOOPS[1], 5],
+  [ARM_LOOPS[0], 5],
+  [ARM_LOOPS[0], 6],
+  [ARM_LOOPS[0], 7],
+  [ARM_LOOPS[1], 7],
+  [ARM_LOOPS[2], 7],
+  [ARM_LOOPS[2], 6],
+  [ARM_LOOPS[2], 5],
 ];
 
 /**
@@ -35,11 +39,11 @@ const LEG_OPENING: Array<number | null> = [3, 2, 1, null, 11, 10, 9, 8, 7, 6, 5,
 /**
  * Connect the trunk's points into its quad cage: one fixed topology for every person.
  *
- * The torso is a tube of thirteen loops by twenty-four columns. Its top is closed by a ten-by-two grid over the shoulders, the clavicle line in front, the trapezius crest in the middle and the back edge behind, with the neck base opening as its middle four-by-two block; its bottom by a two-by-two perineal strip between the thigh openings. Each arm opens through a two-by-two block of side faces at the shoulder and runs four rings out to mid upper arm; each thigh opens around loop 0 and the perineum's side and runs three rings to mid thigh.
+ * The torso is a tube of `AUTOMOVIE_HUMAN_TRUNK_LOOPS` loops by twenty-four columns. Its top is closed by a ten-by-two grid over the shoulders, the clavicle line in front, the trapezius crest in the middle and the back edge behind, with a collar of twelve at its middle four-by-two block and the neck base ring one row above the collar; its bottom by a two-by-two perineal strip between the thigh openings. Each arm opens through a two-by-two block of side faces at the shoulder and runs four rings out to mid upper arm; each thigh opens around loop 0 and the perineum's side and runs three rings to mid thigh.
  *
- * Extraordinary vertices are placed where curvature is high anyway (OpenSubdiv documentation, "Modeling Tips"): the four corners of each arm opening that meet the torso's columns are the anterior and posterior axillary folds, valence 5; the thigh openings' medial corners in front and behind are valence 5 at the pubis and the natal cleft; the neck opening's four corners become valence 5 at the sternoclavicular joints and beside the seventh cervical vertebra once the neck joins. The cube-like corners of the shoulder and pelvis grids all fall on openings, so no valence 3 vertex remains.
+ * Extraordinary vertices are placed where curvature is high anyway (OpenSubdiv documentation, "Modeling Tips"): the four corners of each arm opening that meet the torso's columns are the anterior and posterior axillary folds, valence 5; the thigh openings' medial corners in front and behind are valence 5 at the pubis and the natal cleft; the collar's four corners are valence 5 at the sternoclavicular joints and beside the seventh cervical vertebra, and the neck base ring itself is regular once the neck joins. The cube-like corners of the shoulder and pelvis grids all fall on openings, so no valence 3 vertex remains.
  *
- * The chart runs `u` up the torso from the perineum (0) to the shoulder grid (1) and `v` counterclockwise about +Y from the anterior midline, so the arm and thigh openings are regions of it; each stub's rings shrink toward its opening's centre in the chart.
+ * The main chart runs `u` up the torso from the perineum (0) to the shoulder grid (1) and `v` counterclockwise about +Y from the anterior midline. Each stub is a branch with a chart of its own (`leftShoulder`, `rightShoulder`, `leftHip`, `rightHip`): `u` from the opening (0) to the ring (1), `v` counterclockwise about the site's distal axis from its anterior mark, as the limb beyond the ring runs, so both charts meet the ring at the same `v`.
  *
  * Rings, in order: `neckBase`, `upperArm` left and right, `thigh` left and right.
  *
@@ -128,22 +132,38 @@ export function connectAutoMovieHumanTrunk(
       face([bottom(c, r), bottom(c, r + 1), bottom(c + 1, r + 1), bottom(c + 1, r)]);
 
   // stubs: each opening in the layout order of its side, then the rings outward
+  // each stub is a branch with a chart of its own: u from the opening (0) to the ring (1), v about the site's distal axis from its anterior mark
   const stub = (
     opening: number[],
     rings: IAutoMovieVector3[][],
-    centre: { u: number; v: number },
+    branch: AutoMovieHumanBranch<"trunk">,
   ): number[] => {
     let previous: number[] = opening;
+    const n: number = opening.length;
     rings.forEach((ring: IAutoMovieVector3[], r: number): void => {
-      const shrink: number = 1 - (r + 1) / (rings.length + 1);
-      const next: number[] = ring.map((p: IAutoMovieVector3, k: number): number => {
-        const c: { u: number; v: number } = chart[opening[k]!]!;
-        const dv: number = ((c.v - centre.v + 1.5) % 1) - 0.5;
-        return add(p, centre.u + (c.u - centre.u) * shrink, centre.v + dv * shrink);
+      const next: number[] = ring.map((p: IAutoMovieVector3): number =>
+        add(p, 0, 0),
+      );
+      const corner = (row: number, k: number, wrap: boolean): IAutoMovieHumanSurfaceCoordinate => ({
+        part: "trunk",
+        side: null,
+        branch,
+        u: row / rings.length,
+        v: wrap && k === 0 ? 1 : k / n,
       });
-      const n: number = ring.length;
-      for (let k: number = 0; k < n; ++k)
-        face([previous[k]!, previous[(k + 1) % n]!, next[(k + 1) % n]!, next[k]!]);
+      for (let k: number = 0; k < n; ++k) {
+        const l: number = (k + 1) % n;
+        const wrap: boolean = l === 0;
+        faces.push({
+          vertices: [previous[k]!, previous[l]!, next[l]!, next[k]!],
+          coordinates: [
+            corner(r, k, false),
+            corner(r, l, wrap),
+            corner(r + 1, l, wrap),
+            corner(r + 1, k, false),
+          ],
+        });
+      }
       previous = next;
     });
     return previous;
@@ -151,13 +171,22 @@ export function connectAutoMovieHumanTrunk(
   const sided = (side: AutoMovieHumanSide, slots: number[]): number[] =>
     side === "left" ? slots : [slots[0]!, ...slots.slice(1).reverse()];
   const mirror = (j: number): number => (COLUMNS - j) % COLUMNS;
+  // the collar under the neck base, then the ring itself above it
+  const collar: number[] = [0, 1, 2, -2, 10, 11, 12, 13, 14, -9, 22, 23].map((j: number): number =>
+    j === -2 ? ridge[6]! : j === -9 ? ridge[2]! : top[j]!,
+  );
+  const neck: number[] = points.neck.map((p: IAutoMovieVector3, k: number): number =>
+    add(p, 1, k / points.neck.length),
+  );
+  for (let k: number = 0; k < neck.length; ++k) {
+    const l: number = (k + 1) % neck.length;
+    face([collar[k]!, collar[l]!, neck[l]!, neck[k]!]);
+  }
   const rings: IAutoMovieHumanRing[] = [
     {
       site: "neckBase",
       side: null,
-      vertices: [0, 1, 2, -2, 10, 11, 12, 13, 14, -9, 22, 23].map((j: number): number =>
-        j === -2 ? ridge[6]! : j === -9 ? ridge[2]! : top[j]!,
-      ),
+      vertices: neck,
       start: "anterior",
       frame: points.layouts.neck.frame,
     },
@@ -169,10 +198,11 @@ export function connectAutoMovieHumanTrunk(
         loop[i]![side === "left" ? j : mirror(j)]!,
       ),
     );
-    const end: number[] = stub(opening, points.arms[side], {
-      u: height(ARM_LOOPS[1]),
-      v: side === "left" ? 0.25 : 0.75,
-    });
+    const end: number[] = stub(
+      opening,
+      points.arms[side],
+      side === "left" ? "leftShoulder" : "rightShoulder",
+    );
     rings.push({
       site: "upperArm",
       side,
@@ -188,10 +218,11 @@ export function connectAutoMovieHumanTrunk(
         j === null ? perineum[side === "left" ? 2 : 0]! : loop[0]![side === "left" ? j : mirror(j)]!,
       ),
     );
-    const end: number[] = stub(opening, points.legs[side], {
-      u: 0.5 / (LOOPS + 1),
-      v: side === "left" ? 0.25 : 0.75,
-    });
+    const end: number[] = stub(
+      opening,
+      points.legs[side],
+      side === "left" ? "leftHip" : "rightHip",
+    );
     rings.push({
       site: "thigh",
       side,

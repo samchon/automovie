@@ -108,7 +108,7 @@ export function measureAutoMovieHumanTrunkFrame(
       gluteal: crotch - CONVENTIONAL_LEVEL.gluteal * S,
       buttock: hips * ANSUR_LEVEL.buttock,
       navel: joint("spine").y,
-      waist: (tenthRib + lateral.iliocristale.position.y) / 2,
+      waist: body.waistHeight,
       tenthRib,
       costal: chestPoint - CONVENTIONAL_LEVEL.costal * S,
       fold: chestPoint - CONVENTIONAL_LEVEL.fold * S,
@@ -135,6 +135,7 @@ export function measureAutoMovieHumanTrunkFrame(
     thighGirth: leg.thighCircumference,
     armGirth: arm.upperArmCircumference,
     upperArmLength: arm.upperArmLength,
+    deltoid: (body.bideltoidBreadth - body.biacromialBreadth) / 2,
     fat: composition.bodyFatPercentage,
     muscle: Math.max(
       0,

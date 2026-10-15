@@ -3,6 +3,8 @@ import { IAutoMovieVector3 } from "@automovie/interface";
 import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanTrunkFrame } from "./IAutoMovieHumanTrunkFrame";
+import { AUTOMOVIE_HUMAN_TRUNK_FORM } from "./AUTOMOVIE_HUMAN_TRUNK_FORM";
+import { IAutoMovieHumanTrunkForm } from "./IAutoMovieHumanTrunkForm";
 import { IAutoMovieHumanTrunkTune } from "./IAutoMovieHumanTrunkTune";
 import { profileAutoMovieHumanTrunk } from "./profileAutoMovieHumanTrunk";
 
@@ -26,14 +28,6 @@ const ROOT: Array<[number, number, "crotch" | "gluteal", number, number]> = [
   [10, -150, "gluteal", 0, 0.0082],
   [11, -120, "gluteal", 0, -0.0014],
 ];
-
-/**
- * Squareness exponents of the thigh section at the gluteal furrow: the lateral half rounded, the medial half flattened where the two thighs press together, so the section is shallower than an ellipse of the same breadth and girth and the buttock overhangs its back. Conventional, judged on renders against the MakeHuman CC0 bodies.
- */
-const THIGH_SQUARENESS: Record<"medial" | "lateral", number> = {
-  medial: 3.6,
-  lateral: 2.2,
-};
 
 /**
  * Place the hip of one side: the thigh root on loop 0, its half of the perineum, and the thigh down to the mid-thigh cut.
@@ -62,12 +56,13 @@ export function placeAutoMovieHumanTrunkHip(
   const hip: number = frame.hip.y;
 
   // the thigh section at the gluteal furrow: rounded laterally, flattened where the thighs press together medially
-  const width: number = (frame.buttock.breadth * tune.hip.breadth) / 4;
+  const THIGH: IAutoMovieHumanTrunkForm.IThigh = AUTOMOVIE_HUMAN_TRUNK_FORM.thigh;
+  const width: number = (frame.buttock.breadth * tune.hip.breadth * THIGH.breadth) / 2;
   const girth: number = frame.thighGirth * tune.thigh;
   const outline = (t: number, depth: number): [number, number] => {
     const s: number = Math.sin(t);
     const c: number = Math.cos(t);
-    const n: number = s < 0 ? THIGH_SQUARENESS.medial : THIGH_SQUARENESS.lateral;
+    const n: number = s < 0 ? THIGH.medial : THIGH.lateral;
     return [
       Math.sign(s) * width * Math.pow(Math.abs(s), 2 / n),
       Math.sign(c) * depth * Math.pow(Math.abs(c), 2 / n),
@@ -92,7 +87,7 @@ export function placeAutoMovieHumanTrunkHip(
   }
   const depth: number = (low + high) / 2;
   const x0: number = width + 0.004 * S;
-  const z0: number = profile.front(hip) - 0.008 * S - depth;
+  const z0: number = profile.front(hip) - THIGH.front * S - depth;
   const around = (degrees: number, y: number, scale: number): IAutoMovieVector3 => {
     const [x, z]: [number, number] = outline((degrees * Math.PI) / 180, depth);
     return V.of(x0 + x * scale, y, z0 + z * scale);

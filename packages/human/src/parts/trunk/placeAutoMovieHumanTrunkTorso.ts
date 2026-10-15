@@ -1,40 +1,19 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
+import { AUTOMOVIE_HUMAN_TRUNK_FORM } from "./AUTOMOVIE_HUMAN_TRUNK_FORM";
+import { AUTOMOVIE_HUMAN_TRUNK_LOOPS } from "./AUTOMOVIE_HUMAN_TRUNK_LOOPS";
+import { IAutoMovieHumanTrunkForm } from "./IAutoMovieHumanTrunkForm";
 import { IAutoMovieHumanTrunkFrame } from "./IAutoMovieHumanTrunkFrame";
 import { IAutoMovieHumanTrunkTune } from "./IAutoMovieHumanTrunkTune";
 import { profileAutoMovieHumanTrunk } from "./profileAutoMovieHumanTrunk";
-import { reliefAutoMovieHumanTrunk } from "./reliefAutoMovieHumanTrunk";
 
 /**
- * Share of the bust's added girth that becomes the projection of each breast, before the girth fit corrects it. Conventional.
- */
-const BREAST_PROJECTION: number = 0.45;
-
-/**
- * Breast mound weights across the torso columns from the sternum (0) to the posterior axillary line (7): the base spans from beside the sternum to the midaxillary line (Gray 1918, "The Mammae"), the apex near the third column, about 45 degrees from the front.
- */
-const BREAST_ACROSS: number[] = [0, 0.22, 0.72, 1, 0.85, 0.4, 0.08, 0];
-
-/**
- * Breast mound weights down the loops, with the lift of each loop per millimetre of projection: the inframammary fold (8) carries the lower pole and is drawn down by its weight, the chest point (9) the apex, the axilla level (10) the upper pole sloping to the chest wall (11). Conventional.
- */
-const BREAST_DOWN: Array<[number, number, number]> = [
-  [8, 0.42, -0.18],
-  [9, 1.0, -0.1],
-  [10, 0.5, 0],
-  [11, 0.1, 0],
-];
-
-/** Share of each breast's projection turned outward, as breasts point slightly lateral. Conventional. */
-const BREAST_LATERAL: number = 0.25;
-
-/**
- * Place the torso loops of one side: thirteen loops sampled from the profile, with muscle relief and the breasts.
+ * Place the torso loops of one side: one continuous family of loops sampled from the profile, with the breasts.
  *
- * Each loop runs at its own heights in front, at the side and behind, because the trunk's natural lines are not level: the thigh roots rise from the gluteal fold to the groin, the loops of the abdomen follow the rectus inscriptions while the side follows the iliac crest and the costal margin, and the upper back rises toward the seventh cervical vertebra. Loop 0 and the shoulder slots are placed again by the hip and shoulder placements.
+ * The loops follow anchor lines, each a height in front, at the side and behind, because the trunk's natural lines are not level: the thigh root rises from the gluteal fold to the groin, the front follows the iliac spines, the navel and the costal arch while the side follows the trochanter and the iliac crest, and the upper back rises toward the seventh cervical vertebra. Anchors run from the pubis (1) through the buttock point, the iliac spines, the navel, two levels between the navel and the costal arch, the costal arch, the inframammary fold and the chest point to halfway to the axilla (10); the lower loops sample them evenly by anchor index, so a loop lies about every 2% of stature and every anchor line is reached smoothly. The last three loops are the axilla, the mid shoulder and the top edge, which bound the arm opening. Loop 0, the thigh root, and the shoulder slots are placed again by the hip and shoulder placements.
  *
- * The breasts are two mounds on loops 8 to 11, their projection from the girth the bust adds over the underbust, lowered with their own weight and turned slightly outward.
+ * The breasts are two mounds, a smooth field over the loops by angle from the front and height about the chest point (the form record's `breast`): their projection is a share of the girth the bust adds over the underbust, they drop with their own weight and point slightly outward, and between them the front keeps a share of their projection over the sternum, so a large bust or a fat chest reads as one full front rather than two separate mounds. Their base spans from beside the sternum to the midaxillary line and from the second to the sixth rib (Gray 1918, "The Mammae").
  *
  * @param frame The side's trunk frame
  * @param profile The side's continuous body
@@ -51,7 +30,15 @@ export function placeAutoMovieHumanTrunkTorso(
   const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
   const hip: number = frame.hip.y;
   const c7: number = frame.cervicale.y;
-  const heights: Array<[number, number, number]> = [
+  const blend = (
+    a: [number, number, number],
+    b: [number, number, number],
+    t: number,
+  ): [number, number, number] => [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
+  const axilla: [number, number, number] = [L.axilla + 0.012 * S, L.axilla, lerp(L.axilla, c7, 0.22)];
+  const chest: [number, number, number] = [L.chestPoint, L.chestPoint + 0.012 * S, L.chestPoint + 0.02 * S];
+  // anchor lines, front, side and back heights, from the thigh root upward
+  const anchors: Array<[number, number, number]> = [
     [lerp(L.crotch, hip, 0.45), lerp(L.crotch, hip, 0.15), L.gluteal],
     [lerp(hip, frame.iliospinale.y, 0.15), frame.trochanterion.y - 0.004 * S, lerp(L.gluteal, L.buttock, 0.5)],
     [lerp(hip, frame.iliospinale.y, 0.5), frame.trochanterion.y + 0.01 * S, L.buttock],
@@ -61,41 +48,49 @@ export function placeAutoMovieHumanTrunkTorso(
     [lerp(L.navel, L.costal, 0.66), lerp(L.waist, L.costal, 0.5), lerp(L.waist, L.costal, 0.5)],
     [L.costal, L.costal + 0.004 * S, L.costal + 0.008 * S],
     [L.fold, L.fold + 0.008 * S, L.fold + 0.014 * S],
-    [L.chestPoint, L.chestPoint + 0.012 * S, L.chestPoint + 0.02 * S],
-    [L.axilla + 0.012 * S, L.axilla, lerp(L.axilla, c7, 0.22)],
+    chest,
+    blend(chest, axilla, 0.5),
+  ];
+  const lower: number = AUTOMOVIE_HUMAN_TRUNK_LOOPS - 4;
+  const heights: Array<[number, number, number]> = [anchors[0]!];
+  for (let i: number = 0; i < lower; ++i) {
+    const p: number = 1 + (i * (anchors.length - 2)) / (lower - 1);
+    const k: number = Math.min(Math.floor(p), anchors.length - 2);
+    heights.push(blend(anchors[k]!, anchors[k + 1]!, p - k));
+  }
+  heights.push(
+    axilla,
     [lerp(L.axilla, frame.suprasternale.y, 0.55), frame.shoulder.y, lerp(L.axilla, c7, 0.55)],
     [frame.suprasternale.y, frame.acromion.y, c7],
-  ];
+  );
   const loops: IAutoMovieVector3[][] = heights.map(
     ([front, side, back]: [number, number, number]): IAutoMovieVector3[] =>
       Array.from({ length: 13 }, (_: unknown, j: number): IAutoMovieVector3 => {
         // front and back heights blend into the side's by the square cosine of the column's angle
         const c: number = Math.cos((j / 12) * Math.PI);
-        return profile.section(
-          j,
-          c >= 0 ? lerp(side, front, c * c) : lerp(side, back, c * c),
-        );
+        return profile.section(j, c >= 0 ? lerp(side, front, c * c) : lerp(side, back, c * c));
       }),
   );
-  reliefAutoMovieHumanTrunk(loops, frame);
 
+  const B: IAutoMovieHumanTrunkForm.IBreast = AUTOMOVIE_HUMAN_TRUNK_FORM.breast;
   const projection: number =
-    Math.max(0, frame.chest.girth - frame.underbust) * BREAST_PROJECTION * tune.breast;
-  if (projection > 0.5) {
-    for (const [i, weight, drop] of BREAST_DOWN)
-      BREAST_ACROSS.forEach((across: number, j: number): void => {
-        if (j === 0 || across === 0) return;
-        const w: number = across * weight * projection;
-        const q: IAutoMovieVector3 = loops[i]![j]!;
-        loops[i]![j] = AutoMovieHumanVector.of(
-          q.x + BREAST_LATERAL * w,
-          q.y + drop * w,
+    Math.max(0, frame.chest.girth - frame.underbust) * B.projection * tune.breast;
+  if (projection > 0.5)
+    loops.forEach((row: IAutoMovieVector3[], i: number): void => {
+      if (i === 0 || i >= AUTOMOVIE_HUMAN_TRUNK_LOOPS - 2) return;
+      row.forEach((q: IAutoMovieVector3, j: number): void => {
+        if (j > 7) return;
+        const angle: number = (j / 12) * 180;
+        const reach: number = (q.y > L.chestPoint ? B.above : B.below) * S;
+        const mound: number = Math.exp(-(((angle - B.angle) / B.spread) ** 2));
+        const across: number = angle < B.angle ? Math.max(mound, B.fill) : mound;
+        const w: number = projection * across * Math.exp(-(((q.y - L.chestPoint) / reach) ** 2));
+        row[j] = AutoMovieHumanVector.of(
+          j === 0 ? 0 : q.x + B.lateral * w * mound,
+          q.y - B.drop * w,
           q.z + w,
         );
       });
-    // the sternum between the breasts rises a little with them
-    const q: IAutoMovieVector3 = loops[9]![0]!;
-    loops[9]![0] = AutoMovieHumanVector.of(0, q.y, q.z + 0.12 * projection);
-  }
+    });
   return loops;
 }

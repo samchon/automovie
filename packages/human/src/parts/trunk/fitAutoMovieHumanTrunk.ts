@@ -51,7 +51,7 @@ export function fitAutoMovieHumanTrunk(
       skeleton,
       t,
     );
-    return [connectAutoMovieHumanTrunk(points), points.loops[8]![0]!.y];
+    return [connectAutoMovieHumanTrunk(points), frame.levels.fold];
   };
   const ratio = (target: number, measured: number, power: number): number =>
     measured > 0 ? Math.pow(target / measured, power) : 1;

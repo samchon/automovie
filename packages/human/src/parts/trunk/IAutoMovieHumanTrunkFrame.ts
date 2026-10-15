@@ -67,6 +67,11 @@ export interface IAutoMovieHumanTrunkFrame {
   /** Acromion-radiale length. */
   upperArmLength: number;
 
+  /**
+   * Soft tissue lateral to each acromion with the arm hanging, half of bideltoid breadth less biacromial breadth: the deltoid's bulk over the humeral head.
+   */
+  deltoid: number;
+
   /** Whole-body fat percentage. */
   fat: number;
 
@@ -99,7 +104,7 @@ export namespace IAutoMovieHumanTrunkFrame {
     /** Navel. */
     navel: number;
 
-    /** Natural, narrowest waist. */
+    /** Natural, narrowest waist, the identity's waist height. */
     waist: number;
 
     /** Lowest point of the rib cage at the side. */
