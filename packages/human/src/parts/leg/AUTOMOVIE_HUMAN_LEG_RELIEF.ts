@@ -1,7 +1,7 @@
 import { IAutoMovieHumanLegRelief } from "./IAutoMovieHumanLegRelief";
 
 /**
- * The superficial forms of the leg from mid thigh to the ankle, each placed by the attachments and surface descriptions of Gray (1918, Anatomy of the Human Body, 20th ed., "The Muscles and Fasciae of the Thigh" and "of the Leg", and "Surface Anatomy of the Lower Extremity") and Bridgman (1920, Constructive Anatomy). Levels and angles turn those descriptions into numbers and are conventional. Amplitudes, fractions of the local radius, are our fit to the MakeHuman CC0 reference at the same identity on our skeleton, through the campaign's calibration harness, over the same eight people as `AUTOMOVIE_HUMAN_LEG_SECTIONS` and after that block-out, each held to its anatomical sign and between half and three times the height first read off the plates, so a form the smooth reference lacks keeps at least half its anatomical height; the medial gastrocnemius head, which the reference shows no fuller than the lateral, is held at 1.2 times the lateral, Gray's "thicker" head, at the pair's fitted total.
+ * The superficial forms of the leg from mid thigh to the ankle, each placed by the attachments and surface descriptions of Gray (1918, Anatomy of the Human Body, 20th ed., "The Muscles and Fasciae of the Thigh" and "of the Leg", and "Surface Anatomy of the Lower Extremity") and Bridgman (1920, Constructive Anatomy). Levels and angles turn those descriptions into numbers and are conventional. Amplitudes, fractions of the local radius, are our fit to the MakeHuman CC0 reference at the same identity on our skeleton, through the campaign's calibration harness, over the same eight people as `AUTOMOVIE_HUMAN_LEG_SECTIONS` and after that block-out, each held to its anatomical sign and between half and three times the height first read off the plates, so a form the smooth reference lacks keeps at least half its anatomical height; the medial gastrocnemius head, which the reference shows no fuller than the lateral, is held at 1.2 times the lateral, Gray's "thicker" head, at the pair's fitted total. The two heads lie on the back of the calf either side of the median furrow, their crests 32 to 42 degrees off the posterior midline and their spreads narrow enough that the furrow between them shows (Gray 1918, "Surface Anatomy of the Lower Extremity"); the spreads and crest angles are conventional, judged in the viewer against the reference-character comparison bodies.
  *
  * The table carries the art-anatomy rules the sources state:
  *
@@ -286,9 +286,9 @@ export const AUTOMOVIE_HUMAN_LEG_RELIEF: IAutoMovieHumanLegRelief[] = [
     bottom: 0.38,
     peak: 0.58,
     top: 0.98,
-    angleBottom: 105,
-    angleTop: 100,
-    width: 30,
+    angleBottom: 138,
+    angleTop: 148,
+    width: 20,
     amplitude: 0.4,
   },
   {
@@ -298,22 +298,22 @@ export const AUTOMOVIE_HUMAN_LEG_RELIEF: IAutoMovieHumanLegRelief[] = [
     bottom: 0.52,
     peak: 0.76,
     top: 0.98,
-    angleBottom: -118,
-    angleTop: -122,
-    width: 28,
+    angleBottom: -145,
+    angleTop: -152,
+    width: 18,
     amplitude: 0.257,
   },
   {
     name: "gastrocnemius median groove",
     tissue: "bone",
     segment: "shank",
-    bottom: 0.55,
+    bottom: 0.5,
     peak: 0.78,
     top: 0.95,
     angleBottom: 180,
     angleTop: 180,
-    width: 12,
-    amplitude: -0.03,
+    width: 9,
+    amplitude: -0.08,
   },
   {
     name: "soleus, medial edge",
