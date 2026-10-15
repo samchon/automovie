@@ -2,7 +2,7 @@ import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieHumanSide } from "../../junction/AutoMovieHumanSide";
 import { IAutoMovieHumanCage } from "../../junction/IAutoMovieHumanCage";
-import { IAutoMovieHumanRingLayout } from "../../junction/IAutoMovieHumanRingLayout";
+import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
 import { IAutoMovieHumanSurfaceCoordinate } from "../../junction/IAutoMovieHumanSurfaceCoordinate";
 import { IAutoMovieHumanMeasurements } from "../../measure/IAutoMovieHumanMeasurements";
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
@@ -22,9 +22,9 @@ const PERIMETER_SAMPLES: number = 16;
 /**
  * Build one leg's control cage, from the mid thigh ring to the ankle ring.
  *
- * Every station is an edge loop around the limb at its planned level, perpendicular to the bone it crosses; the two end stations are the junction rings, with their vertices on the layout's directions, so the trunk and the foot meet them vertex for vertex. Twelve vertices run around each station from the thigh to the lower calf, where the calf's bellies narrow into the calcaneal tendon, and eight from there to the ankle. The reduction between them is two patches of four quads, centred on the medial and lateral midlines, each turning four spans into two around one regular vertex inside the patch; the two valence-3 and two valence-5 vertices each patch needs lie on the narrow, sharply curved sides of the lower shank, the region the junction research reserves for poles, never on the broad lit shin or calf.
+ * Every station is an edge loop around the limb at its planned level, perpendicular to the bone it crosses; the two end stations are the junction rings, their vertices exactly on the shared ring shape of `shapeAutoMovieHumanRing`, so the junction welds them to the trunk and the foot without moving either. Twelve vertices run around each station from the thigh to the lower calf, where the calf's bellies narrow into the calcaneal tendon, and eight from there to the ankle. The reduction between them is two patches of four quads, centred on the medial and lateral midlines, each turning four spans into two around one regular vertex inside the patch; the two valence-3 and two valence-5 vertices each patch needs lie on the narrow, sharply curved sides of the lower shank, the region the junction research reserves for poles, never on the broad lit shin or calf.
  *
- * Each station's control points sit at the radii `shapeAutoMovieHumanLegSection` gives, then every station is scaled about its origin until the girth of its limit section matches the planned girth. On the regular tube the limit section through a station's vertices is the cubic B-spline of the points `(P[i-1] + 4P[i] + P[i+1]) / 6`, the Catmull-Clark limit mask along the limb; at the ends and beside the reduction, where the neighbours differ in count, the station's own ring is used. The measured girths of the identity therefore hold on the subdivided surface, not on the cage, which lies outside it.
+ * Each inner station's control points sit at the radii `shapeAutoMovieHumanLegSection` gives. The stations at the levels the identity measures, suprapatella and the calf maximum, are then scaled about their origins until the girth of their limit section matches the measurement; the stations between take scales interpolated along the limb from those and from the rings, which keep their shared shape, so no station is sharpened by a fit against neighbours that the limit surface averages. On the regular tube the limit section through a station's vertices is the cubic B-spline of the points `(P[i-1] + 4P[i] + P[i+1]) / 6`, the Catmull-Clark limit mask along the limb; beside the reduction, where the neighbours differ in count, the station's own ring is used. The measured girths therefore hold on the subdivided surface, not on the cage, which lies outside it.
  *
  * Chart: `u` runs from 0 at the mid thigh ring to 1 at the ankle ring by arc length of the bone axis, `v` from 0 at the anterior mark counterclockwise about the distal axis, which is medial on the left leg and lateral on the right.
  *
@@ -79,8 +79,16 @@ export function buildAutoMovieHumanLegCage(props: {
 
   // fit every station's limit girth
   const scales: number[] = stations.map((): number => 1);
+  // the rings lie on the shared ring shape and are never scaled
   const place = (i: number): IAutoMovieVector3[] =>
-    directions[i]!.map(
+    i === 0
+      ? directions[i]!.map(
+          (_: IAutoMovieVector3, j: number): IAutoMovieVector3 =>
+            thighRing.positions[(wide - j) % wide]!,
+        )
+      : i === last
+        ? ankleRing.positions.slice()
+        : directions[i]!.map(
       (d: IAutoMovieVector3, j: number): IAutoMovieVector3 =>
         AutoMovieHumanVector.offset(stations[i]!.origin, [
           d,
@@ -221,13 +229,15 @@ export function buildAutoMovieHumanLegCage(props: {
   };
 }
 
-/** Set the scale of every station that is not fitted by linear interpolation in `u` between the fitted stations around it. */
+/** Set the scale of every station that is not fitted by linear interpolation in `u` between the fitted stations around it, the rings counting as fitted at their unit scale. */
 const interpolate = (
   stations: IAutoMovieHumanLegStation[],
   scales: number[],
 ): void => {
   const anchors: number[] = stations
-    .map((s: IAutoMovieHumanLegStation, i: number): number => (s.fitted ? i : -1))
+    .map((s: IAutoMovieHumanLegStation, i: number): number =>
+      s.fitted || i === 0 || i === stations.length - 1 ? i : -1,
+    )
     .filter((i: number): boolean => i >= 0);
   for (let k: number = 0; k + 1 < anchors.length; ++k) {
     const a: number = anchors[k]!;
@@ -241,7 +251,7 @@ const interpolate = (
 };
 
 /** Direction of ring vertex `k` of a layout. */
-const ring = (layout: IAutoMovieHumanRingLayout, k: number): IAutoMovieVector3 =>
+const ring = (layout: IAutoMovieHumanRingShape, k: number): IAutoMovieVector3 =>
   layout.directions[k]!;
 
 /** Direction at chart angle `v` around a station. */

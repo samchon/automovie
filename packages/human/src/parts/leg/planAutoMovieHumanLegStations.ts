@@ -1,13 +1,14 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieHumanSide } from "../../junction/AutoMovieHumanSide";
-import { IAutoMovieHumanRingLayout } from "../../junction/IAutoMovieHumanRingLayout";
-import { layoutAutoMovieHumanRing } from "../../junction/layoutAutoMovieHumanRing";
+import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
+import { shapeAutoMovieHumanRing } from "../../junction/shapeAutoMovieHumanRing";
 import { IAutoMovieHumanLandmarks } from "../../measure/IAutoMovieHumanLandmarks";
 import { IAutoMovieHumanMeasurements } from "../../measure/IAutoMovieHumanMeasurements";
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanSkeleton } from "../../skeleton/IAutoMovieHumanSkeleton";
 import { IAutoMovieHumanIdentity } from "../../structures/IAutoMovieHumanIdentity";
+import { AUTOMOVIE_HUMAN_LEG_SECTIONS } from "./AUTOMOVIE_HUMAN_LEG_SECTIONS";
 import { IAutoMovieHumanLegStation } from "./IAutoMovieHumanLegStation";
 
 /**
@@ -31,15 +32,15 @@ const CALF_LEVEL: number = 0.74;
 const THIGH_TAPER: number = 0.8;
 
 /**
- * Girths at levels no survey measures, as fractions of the measured ones. Grade: conventional, each a check on renders.
+ * Girths at levels no survey measures, as fractions of the measured ones: our fit of the section perimeters of the MakeHuman CC0 base mesh with its CC0 macro targets (hm08, released CC0 in September 2020) at the same fractions of thigh and shank length, over 54 people of both sexes, child, young and old, and every muscle and weight extreme; means 0.965 (SD 0.021), 1.017 (SD 0.043, held at 1) and 0.984 (SD 0.036). Grade: population-fitted to a synthetic reference.
  */
 const GIRTH: Record<"knee" | "belowKnee" | "upperCalf", number> = {
   /** Midpatella over suprapatella girth: the knee narrows below the vastus medialis. */
-  knee: 0.95,
-  /** Below the patella over the smaller of knee and calf: the patellar tendon level narrows between the two. */
-  belowKnee: 0.93,
+  knee: 0.965,
+  /** Below the patella over the smaller of knee and calf: the infrapatellar fat pads fill the patellar tendon level, so it is no narrower than the knee. */
+  belowKnee: 1.0,
   /** Upper calf over calf maximum. */
-  upperCalf: 0.97,
+  upperCalf: 0.984,
 };
 
 /**
@@ -57,21 +58,14 @@ const SITE_FAT: Record<"furrow" | "lowerThigh" | "calf" | "ankle", number> = {
   ankle: 0.597,
 };
 
-/** Stations whose limit girth is fitted: the two rings and the levels the identity measures (suprapatella, calf maximum). */
-const FITTED: ReadonlySet<string> = new Set([
-  "mid thigh",
-  "suprapatella",
-  "calf maximum",
-  "ankle",
-]);
+/** Stations whose limit girth is fitted: the levels the identity measures. The rings are never moved; they lie on the shared ring shape. */
+const FITTED: ReadonlySet<string> = new Set(["suprapatella", "calf maximum"]);
 
 /** One station before its frame: level, girth, base shape and fat site weight. */
 interface ILevel {
   name: string;
   height: number;
   girth: number;
-  aspect: number;
-  posterior: number;
   site: number;
   count: number;
 }
@@ -79,9 +73,9 @@ interface ILevel {
 /**
  * Plan the leg's stations from mid thigh to the ankle for one person and side.
  *
- * Twelve stations carry the cage. The top one is the mid thigh ring of the junction contract and the bottom one its ankle ring, both at the layout `layoutAutoMovieHumanRing` resolves. Between them stations sit at named levels: two through the lower thigh, where vastus medialis rises; four around the knee (suprapatella, midpatella, the patellar tendon and the tibial tuberosity), denser than elsewhere so the cage has edge loops to fold on in flexion; the calf maximum; and three that follow the calf's taper into the calcaneal tendon. The last two have eight vertices, the ankle ring's count.
+ * Twelve stations carry the cage. The top one is the mid thigh ring of the junction contract and the bottom one its ankle ring, both on the shared shape `shapeAutoMovieHumanRing` resolves, so the trunk and the foot meet them vertex for vertex. Between them stations sit at named levels: two through the lower thigh, where vastus medialis rises; four around the knee (suprapatella, midpatella, the patellar tendon and the tibial tuberosity), denser than elsewhere so the cage has edge loops to fold on in flexion; the calf maximum; and three that follow the calf's taper into the calcaneal tendon. The last two have eight vertices, the ankle ring's count.
  *
- * Girths come from the identity where it measures them: the thigh at the gluteal furrow, the lower thigh at suprapatella, the calf maximum and the ankle minimum. The mid thigh, which no survey read measures, lies on the curve from suprapatella to the furrow; the knee and the levels below the calf are fractions of their neighbours. Each section's base is an ellipse whose centre lies behind the bone axis by its own fraction, small in the thigh, where the femur is central, and large at the calf, where the tibia sits at the front and the triceps surae behind. The thigh's centre also lies lateral to the hip-to-knee axis by the femoral shaft's slope: the shaft runs from between the hip centre and the greater trochanter down to the knee, so the thighs converge on the knees. That slope grows with hip breadth relative to leg length, which is what makes the knee bend "convex toward its fellow" (Bridgman 1920) and more so in a broad-hipped person.
+ * Girths come from the identity where it measures them: the thigh at the gluteal furrow, the lower thigh at suprapatella, the calf maximum and the ankle minimum. The mid thigh, which no survey read measures, lies on the curve from suprapatella to the furrow; the knee and the levels below the calf are fractions of their neighbours. Each section's base is an ellipse whose breadth over depth and offset behind the bone axis come from `AUTOMOVIE_HUMAN_LEG_SECTIONS` for its fat: small offsets in the thigh, where the femur is central, and large at the calf, where the tibia sits at the front and the triceps surae behind. The thigh's centre also lies lateral to the hip-to-knee axis by the femoral shaft's slope: the shaft runs from between the hip centre and the greater trochanter down to the knee, so the thighs converge on the knees. That slope grows with hip breadth relative to leg length, which is what makes the knee bend "convex toward its fellow" (Bridgman 1920) and more so in a broad-hipped person.
  *
  * Fat thickness at each station spreads the leg's fat share over the cross-section: the leg's fat fraction, weighted by the site, is taken as the area fraction of a subcutaneous shell, whose thickness is then `R(1 - √(1 - a))` for the section's mean radius `R`.
  *
@@ -113,14 +107,16 @@ export function planAutoMovieHumanLegStations(props: {
   const hip: IAutoMovieVector3 = joint("UpperLeg");
   const knee: IAutoMovieVector3 = joint("LowerLeg");
   const ankle: IAutoMovieVector3 = joint("Foot");
-  const thighRing: IAutoMovieHumanRingLayout = layoutAutoMovieHumanRing({
+  const thighRing: IAutoMovieHumanRingShape = shapeAutoMovieHumanRing({
     skeleton,
+    measurements: props.measurements,
     site: "thigh",
     side,
     part: "leg",
   });
-  const ankleRing: IAutoMovieHumanRingLayout = layoutAutoMovieHumanRing({
+  const ankleRing: IAutoMovieHumanRingShape = shapeAutoMovieHumanRing({
     skeleton,
+    measurements: props.measurements,
     site: "ankle",
     side,
     part: "leg",
@@ -144,12 +140,12 @@ export function planAutoMovieHumanLegStations(props: {
   const calfToAnkle = (share: number): number =>
     lerp(leg.ankleCircumference, leg.calfCircumference, share);
   const levels: ILevel[] = [
-    { name: "mid thigh", height: top, aspect: 1.12, posterior: 0.1 },
-    { name: "lower thigh", height: lerp(top, supra, 0.38), aspect: 1.12, posterior: 0.08 },
-    { name: "vastus medialis", height: lerp(top, supra, 0.72), aspect: 1.1, posterior: 0.05 },
-    { name: "suprapatella", height: supra, aspect: 1.06, posterior: 0.03 },
+    { name: "mid thigh", height: top },
+    { name: "lower thigh", height: lerp(top, supra, 0.38) },
+    { name: "vastus medialis", height: lerp(top, supra, 0.72) },
+    { name: "suprapatella", height: supra },
   ].map(
-    (l: Omit<ILevel, "girth" | "site" | "count">): ILevel => ({
+    (l: Pick<ILevel, "name" | "height">): ILevel => ({
       ...l,
       girth: thighGirth(l.height),
       site: lerp(
@@ -165,8 +161,6 @@ export function planAutoMovieHumanLegStations(props: {
       name: "midpatella",
       height: patella,
       girth: kneeGirth,
-      aspect: 1.02,
-      posterior: 0.0,
       site: SITE_FAT.lowerThigh,
       count: 12,
     },
@@ -175,8 +169,6 @@ export function planAutoMovieHumanLegStations(props: {
       height: tibiale - 0.06 * leg.shankLength,
       girth:
         GIRTH.belowKnee * Math.min(kneeGirth, leg.calfCircumference),
-      aspect: 1.0,
-      posterior: 0.08,
       site: lerp(SITE_FAT.lowerThigh, SITE_FAT.calf, 0.5),
       count: 12,
     },
@@ -184,8 +176,6 @@ export function planAutoMovieHumanLegStations(props: {
       name: "upper calf",
       height: tibiale - 0.15 * leg.shankLength,
       girth: GIRTH.upperCalf * leg.calfCircumference,
-      aspect: 1.06,
-      posterior: 0.45,
       site: SITE_FAT.calf,
       count: 12,
     },
@@ -193,23 +183,21 @@ export function planAutoMovieHumanLegStations(props: {
       name: "calf maximum",
       height: calf,
       girth: leg.calfCircumference,
-      aspect: 1.06,
-      posterior: 0.55,
       site: SITE_FAT.calf,
       count: 12,
     },
+    // share of the calf-to-ankle girth difference each level keeps, from the same MakeHuman fit:
+    // 0.70 (SD 0.064), 0.365 (SD 0.056) and 0.10 (SD 0.031)
     ...(
       [
-        ["lower calf", 0.62, 0.66, 1.02, 0.5, 12],
-        ["calcaneal tendon", 0.36, 0.26, 1.0, 0.4, 12],
-        ["above the ankle", 0.13, 0.05, 1.02, 0.28, 8],
-        ["ankle", 0, 0, 1.02, 0.22, 8],
+        ["lower calf", 0.62, 0.7, 12],
+        ["calcaneal tendon", 0.36, 0.365, 12],
+        ["above the ankle", 0.13, 0.1, 8],
+        ["ankle", 0, 0, 8],
       ] as const
     ).map(
-      ([name, at, share, aspect, posterior, count]: readonly [
+      ([name, at, share, count]: readonly [
         string,
-        number,
-        number,
         number,
         number,
         number,
@@ -217,8 +205,6 @@ export function planAutoMovieHumanLegStations(props: {
         name,
         height: lerp(bottom, calf, at),
         girth: calfToAnkle(share),
-        aspect,
-        posterior,
         site: lerp(SITE_FAT.ankle, SITE_FAT.calf, at),
         count,
       }),
@@ -300,6 +286,9 @@ export function planAutoMovieHumanLegStations(props: {
       );
       const radius: number = l.girth / (2 * Math.PI);
       const area: number = Math.min(0.9, legFat * l.site);
+      const fat: number = radius * (1 - Math.sqrt(1 - area));
+      const section: (typeof AUTOMOVIE_HUMAN_LEG_SECTIONS)[string] =
+        AUTOMOVIE_HUMAN_LEG_SECTIONS[l.name]!;
       return {
         name: l.name,
         origin: origins[i]!,
@@ -312,10 +301,10 @@ export function planAutoMovieHumanLegStations(props: {
         shank: (l.height - ankle.y) / (knee.y - ankle.y),
         girth: l.girth,
         fitted: FITTED.has(l.name),
-        aspect: l.aspect,
-        posterior: l.posterior,
+        aspect: section.aspect[0] + (section.aspect[1] * fat) / radius,
+        posterior: section.posterior[0] + (section.posterior[1] * fat) / radius,
         lateral: Math.max(0, shaftSlope * (l.height - knee.y)),
-        fat: radius * (1 - Math.sqrt(1 - area)),
+        fat,
         count: l.count,
       };
     },
@@ -333,9 +322,9 @@ export namespace planAutoMovieHumanLegStations {
     stations: IAutoMovieHumanLegStation[];
 
     /** The mid thigh ring the leg opens toward the trunk. */
-    thighRing: IAutoMovieHumanRingLayout;
+    thighRing: IAutoMovieHumanRingShape;
 
     /** The ankle ring the leg opens toward the foot. */
-    ankleRing: IAutoMovieHumanRingLayout;
+    ankleRing: IAutoMovieHumanRingShape;
   }
 }
