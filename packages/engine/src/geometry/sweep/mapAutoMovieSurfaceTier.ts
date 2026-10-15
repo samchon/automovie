@@ -9,8 +9,9 @@ import { locateAutoMovieSurfaceCoordinate } from "./locateAutoMovieSurfaceCoordi
  *
  * The point's face and local coordinates on the source tier give its surface
  * coordinate, the bilinear blend of the face's corner coordinates, which is
- * exact because every face spans an axis-aligned rectangle of its patch; the
- * target tier then locates that coordinate with
+ * exact on a grid patch because every face spans an axis-aligned rectangle of
+ * it, and on a transition band is the same bilinear map the locator inverts;
+ * the target tier then locates that coordinate with
  * `locateAutoMovieSurfaceCoordinate`. Both tiers must come from the same
  * network, whose patch list is the shared chart.
  *
@@ -20,7 +21,7 @@ import { locateAutoMovieSurfaceCoordinate } from "./locateAutoMovieSurfaceCoordi
  * @returns The point on `to`, and its surface coordinate.
  * @throws Error when the face is out of range, the local coordinates leave 0 to 1, or the two cages have different patch lists.
  *
- * @evidence contracts/common.md#principled-implementation Tiers share the patch chart, so mapping is chart composition: the source face's bilinear corner blend gives the chart point exactly, and the target's grid inversion places it.
+ * @evidence contracts/common.md#principled-implementation Tiers share the patch chart, so mapping is chart composition: the source face's bilinear corner blend gives the chart point, exactly on a grid, and the target's grid or face inversion places it.
  * @evidence contracts/common.md#clear-and-simple-design Composes the corner coordinates the sampler publishes with the locator; it holds no state of its own.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Tiers whose patch lists differ are refused instead of matched by position.
  * @evidence contracts/common.md#meaningful-documentation States the mapping, why it is exact, the requirement that both tiers share a network, and the refusals.
