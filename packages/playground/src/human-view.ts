@@ -181,6 +181,8 @@ let view: {
   focus: "head",
 };
 let showBones: boolean = false;
+/** Whether the skeleton's stick figure shows while the model has skin; off by default so markers never poke through the skin. */
+let showStick: boolean = false;
 
 const status = (text: string): void => {
   document.querySelector("#status")!.textContent = text;
@@ -249,7 +251,16 @@ const accept = (candidate: IHumanViewerSession, note: string): boolean => {
 
 const applyVisibility = (): void => {
   if (object === null) return;
-  for (const [id, part] of object.parts) part.visible = !hidden.has(id);
+  const parts: Array<{ id: string; material: string | null }> =
+    current.model.parts;
+  const skinned: boolean = parts.some((p): boolean => p.material === "skin");
+  const stick: Set<string> = new Set(
+    parts
+      .filter((p): boolean => p.material?.startsWith("stick.") === true)
+      .map((p): string => p.id),
+  );
+  for (const [id, part] of object.parts)
+    part.visible = !hidden.has(id) && (showStick || !skinned || !stick.has(id));
 };
 
 /** World box of the visible meshes below `root`. */
@@ -261,6 +272,9 @@ const visibleBox = (root: THREE.Object3D): THREE.Box3 => {
   return box;
 };
 
+/** Distance a close view keeps around the focus bone's joints, metres, so the skin around them is in frame. */
+const JOINT_MARGIN: number = 0.06;
+
 /** Frame the current view; returns false when nothing visible is in focus. */
 const frame = (): boolean => {
   if (object === null) return false;
@@ -269,6 +283,15 @@ const frame = (): boolean => {
   if (root === undefined) return false;
   object.object.updateMatrixWorld(true);
   const box: THREE.Box3 = visibleBox(root);
+  if (view.scale !== "whole") {
+    // the skin is one skinned mesh beside the bones, so a close view also frames the focus bone's joints
+    const joints: THREE.Box3 = new THREE.Box3();
+    root.traverse((node: THREE.Object3D): void => {
+      if ((node as THREE.Bone).isBone)
+        joints.expandByPoint(node.getWorldPosition(new THREE.Vector3()));
+    });
+    if (!joints.isEmpty()) box.union(joints.expandByScalar(JOINT_MARGIN));
+  }
   if (box.isEmpty()) return false;
   controls.target.copy(
     frameHumanViewerCamera({
@@ -397,6 +420,15 @@ const renderViews = (): void => {
     show(current);
   });
   bones.append(check, " bone lines");
+  const sticks: HTMLLabelElement = document.createElement("label");
+  const stickCheck: HTMLInputElement = document.createElement("input");
+  stickCheck.type = "checkbox";
+  stickCheck.checked = showStick;
+  stickCheck.addEventListener("change", (): void => {
+    showStick = stickCheck.checked;
+    applyVisibility();
+  });
+  sticks.append(stickCheck, " stick figure");
   const name: HTMLInputElement = document.createElement("input");
   name.value = "human";
   name.title = "Capture name, the prefix of every file";
@@ -429,7 +461,7 @@ const renderViews = (): void => {
   });
   const row: HTMLDivElement = document.createElement("div");
   row.className = "row";
-  row.append(scale, focus, skin, hands, bones);
+  row.append(scale, focus, skin, hands, bones, sticks);
   const captureRow: HTMLDivElement = document.createElement("div");
   captureRow.className = "row";
   captureRow.append(name, run);
@@ -706,6 +738,10 @@ frame();
   setHand: (next: "profile" | "paddle"): boolean => {
     hand = next;
     return accept(current.session, `Hand: ${next}.`);
+  },
+  setStick: (next: boolean): void => {
+    showStick = next;
+    applyVisibility();
   },
   setAssembly: (next: "parts" | "joined"): boolean => {
     assembly = next;

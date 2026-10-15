@@ -3,20 +3,27 @@ import {
   IAutoMovieHumanCage,
   IAutoMovieHumanIdentity,
   IAutoMovieHumanPartGenerator,
-  IAutoMovieHumanRingLayout,
-  layoutAutoMovieHumanRing,
+  IAutoMovieHumanRingShape,
+  shapeAutoMovieHumanRing,
 } from "@automovie/human";
 
 /**
  * A deliberately different hand, a square paddle, that the Human page swaps in to show that a part opening the same ring joins without any other part changing.
  *
- * It opens the wrist ring from the shared contract at the measured wrist circumference, then runs a square section, wider and longer than the placeholder mitten, to a flat cap. The arm, the junction and every other part are untouched by the swap.
+ * It opens the wrist ring on the shared boundary of `shapeAutoMovieHumanRing`, then runs a square section, wider and longer than the placeholder mitten, to a flat cap. The arm, the junction and every other part are untouched by the swap.
  *
  * @author Samchon
  */
 export class HumanViewerPaddleHandGenerator implements IAutoMovieHumanPartGenerator<"hand"> {
+  /** The part it replaces. */
   public readonly part = "hand" as const;
 
+  /**
+   * Generate the paddle's cage.
+   *
+   * @param props Measurements, skeleton and side
+   * @returns Cage opening the shared wrist ring
+   */
   public generate(
     props: IAutoMovieHumanPartGenerator.IProps<"hand">,
   ): IAutoMovieHumanCage {
@@ -28,8 +35,9 @@ export class HumanViewerPaddleHandGenerator implements IAutoMovieHumanPartGenera
       "hand",
       props.side,
     );
-    const wrist: IAutoMovieHumanRingLayout = layoutAutoMovieHumanRing({
+    const wrist: IAutoMovieHumanRingShape = shapeAutoMovieHumanRing({
       skeleton: props.skeleton,
+      measurements: props.measurements,
       site: "wrist",
       side: props.side,
       part: "hand",
@@ -42,11 +50,7 @@ export class HumanViewerPaddleHandGenerator implements IAutoMovieHumanPartGenera
     const directions = AutoMovieHumanCageBuilder.buildDirections(wrist);
     const n: number = directions.length;
     const stations: AutoMovieHumanCageBuilder.IStation[] = [
-      builder.open(
-        wrist,
-        (): number => arm.wristCircumference / (2 * Math.PI),
-        0,
-      ),
+      builder.place(wrist, 0),
     ];
     const square =
       (a: number, b: number) =>
