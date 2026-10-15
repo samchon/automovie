@@ -461,6 +461,11 @@ export namespace IAutoMovieSurfaceNetwork {
 
     /** Control positions the loop's vertices take, in loop order, metres; they are kept as given and not fitted. Omitted, the vertices are fitted like any other. */
     positions?: IAutoMovieVector3[];
+
+    /**
+     * The perimeter, metres, the limit surface keeps along the loop, such as a measured girth; omitted, none. The loop must run once round one sweep at one `u`, through vertices of valence four whose loop neighbours lie opposite, beside rows of such vertices, so the limit along it is a uniform cubic B-spline; it cannot also have `positions`. The sweep's points are scaled radially by a factor along `u`, the bounded spline through 1 at the sweep's other rings at one `u` and, at each such loop, the factor solved so the fitted cage's limit perimeter there matches, holding its end values beyond the outermost knots; the factor is solved at rest for each tier and kept in every pose.
+     */
+    perimeter?: number;
   }
 
   /**

@@ -15,6 +15,7 @@ import { IAutoMovieSurfaceSample } from "./IAutoMovieSurfaceSample";
 import { IAutoMovieSweepBinding } from "./IAutoMovieSweepBinding";
 import { IAutoMovieSweepRig } from "./IAutoMovieSweepRig";
 import { bufferAutoMovieBones } from "./bufferAutoMovieBones";
+import { holdAutoMovieSurfaceGirths } from "./holdAutoMovieSurfaceGirths";
 import { layoutAutoMovieSurfacePatches } from "./layoutAutoMovieSurfacePatches";
 import { layoutAutoMovieSurfaceTransition } from "./layoutAutoMovieSurfaceTransition";
 import { registerAutoMovieSurfaceVertices } from "./registerAutoMovieSurfaceVertices";
@@ -68,7 +69,9 @@ const FIT_LIMIT: number = 1e-6;
  * samples as control positions, because interpolating a blend's samples
  * makes the limit surface ring between them where a loop turns sharply;
  * pinned ring vertices keep their given positions. Without, controls are the
- * samples themselves and the residual is 0. Every face corner carries
+ * samples themselves and the residual is 0. A ring that declares a
+ * perimeter is held to it at rest by `holdAutoMovieSurfaceGirths`, a radial
+ * factor along its sweep that every pose keeps. Every face corner carries
  * `(patch, s, t)` and a UV value: the patch's rectangle in texture space, or
  * the band `t in [k / P, (k + 1) / P]` of the unit square for patch `k` of `P`.
  *
@@ -655,8 +658,20 @@ export const rigAutoMovieSurfaceNetwork: (props: {
     });
   };
 
-  evaluate(null);
   const restPositions: Float64Array = new Float64Array(3 * vertices);
+  holdAutoMovieSurfaceGirths({
+    network,
+    rings,
+    faces,
+    vertices,
+    sweepRig,
+    rest: (positions: Float64Array): void => {
+      evaluate(null);
+      place(positions);
+    },
+    positions: restPositions,
+  });
+  evaluate(null);
   const residual: number = place(restPositions);
   if (stencil !== null) {
     let extent: number = 0;
