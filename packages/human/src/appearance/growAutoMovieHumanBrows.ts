@@ -13,7 +13,7 @@ import { paintAutoMovieHumanHairStrands } from "./paintAutoMovieHumanHairStrands
  * - The brow runs from its head above the medial canthus, 13 mm medial of the eye's centre, to its tail 33 mm lateral of it, beyond the lateral canthus; its peak lies over the lateral limbus, the brow's peak in every action (Park et al. 2017).
  * - The lower margin stands 11 mm above the eye's centre at the head, 16 at the peak and 10 at the tail, which leaves 9.5 to 11 mm of lid between it and the upper lid margin at the pupil (Gao et al. 2025, measured); the brow is 11 mm tall at its head, thinning to 3 at the tail.
  * - Hair direction follows the brow's three parts (Rajput 2021, conventional): in the head, the first 12 percent, hairs point up; in the body upper-border hairs point down and outward and lower-border hairs up and outward, crossing at the axis; in the tail they run outward, sloping down. Hairs lie nearly flush with the skin, "directed obliquely on the surface" (Gray 1918), lifted 8 degrees.
- * - Density falls toward the tail; hairs are 6 to 10 mm long.
+ * - Density falls toward the tail and toward the upper and lower borders, so the brow has no hard outline; hairs are 6 to 10 mm long.
  *
  * @param props.surface The head's surface
  * @param props.skeleton The skeleton at rest
@@ -38,13 +38,13 @@ export function growAutoMovieHumanBrows(props: {
       k * (u <= peak ? 11 + 5 * Math.sin((Math.PI / 2) * (u / peak)) : 16 - 6 * ((u - peak) / (1 - peak)) ** 2);
     const tall = (u: number): number => k * (11 - 3 * u - 5 * u ** 4);
     const x = (u: number): number => E.x + s * k * (-13 + 46 * u);
-    const rows: number = 11;
-    const cols: number = 46;
+    const rows: number = 9;
+    const cols: number = 52;
     for (let i: number = 0; i < rows; ++i)
       for (let j: number = 0; j < cols; ++j) {
         const u: number = (j + hash(side, i, j, 0)) / cols;
         const w: number = (i + hash(side, i, j, 1)) / rows;
-        if (hash(side, i, j, 2) > 1 - 0.55 * u) continue;
+        if (hash(side, i, j, 2) > (1 - 0.55 * u) * (1 - 0.6 * Math.abs(2 * w - 1) ** 2)) continue;
         const px: number = x(u);
         const py: number = E.y + lower(u) + w * tall(u);
         const hit: AutoMovieHumanHeadSurface.IHit | null = props.surface.cast([px, py, E.z + 80], [0, 0, -1]);
@@ -71,7 +71,7 @@ export function growAutoMovieHumanBrows(props: {
           points: [root, mid, tip] as Array<[number, number, number]>,
           sides: [across, across, across] as Array<[number, number, number]>,
           normals: [n, n, n] as Array<[number, number, number]>,
-          widths: [1.4 * k, 1.2 * k, 0.9 * k],
+          widths: [0.9 * k, 0.8 * k, 0.5 * k],
           column: paintAutoMovieHumanHairStrands.COLUMNS.single,
           v: [0, 1],
         });

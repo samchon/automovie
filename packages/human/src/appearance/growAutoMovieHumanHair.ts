@@ -60,6 +60,8 @@ export function growAutoMovieHumanHair(props: {
     grid.push(row);
   }
   const cap: number = 0.25 * wave.stand;
+  // the middle fifth of the opaque band: wide enough for a tangent frame from texture derivatives, narrow enough to stay opaque at small mip levels
+  const capU: number = (paintAutoMovieHumanHairStrands.COLUMNS.solid[0] + paintAutoMovieHumanHairStrands.COLUMNS.solid[1]) / 2;
   for (let i: number = 0; i < capRows; ++i)
     for (let j: number = 0; j < capCols; ++j) {
       const a = grid[i]![j]!;
@@ -88,7 +90,7 @@ export function growAutoMovieHumanHair(props: {
         sides: [side, side],
         normals: [a.normal, c.normal],
         widths: [width, Math.hypot(...(sub(lift(d), lift(c)) as [number, number, number]))],
-        column: paintAutoMovieHumanHairStrands.COLUMNS.solid,
+        column: [capU - 0.02, capU + 0.02],
         v: [0.4, 0.6],
       });
     }

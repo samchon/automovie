@@ -4,7 +4,7 @@ import { IAutoMovieImage } from "@automovie/interface";
 /**
  * Paint the strand atlas every hair, brow and lash card samples: coverage in alpha and per-strand brightness in grey, which the hair material's colour tints.
  *
- * A card stands for a lock of parallel strands, the "base texture for the fine structure of a hair bundle" with an opacity map that breaks up its outline of Scheuermann (2004, "Practical Real-Time Hair Rendering and Shading", SIGGRAPH sketch). Each strand is a band of smooth cross-section running from the root at texture `y = 0`, the first image row, to its own tip, tapering over the last part of its length; neighbouring strands overlap, differ in brightness and end at different lengths, so the card's outline is ragged and its colour streaked along the strand as hair is. Columns, as {@link paintAutoMovieHumanHairStrands.COLUMNS} lists them: four lock variants for scalp hair, one lone strand for brow hairs, a cluster of three lashes, and an opaque band for the scalp cap. Positions, widths and lengths come from an integer hash, so the image is the same in every run and on every platform. Sizes are in texels and chosen to read as hair at face scale; grade: conventional.
+ * A card stands for a lock of parallel strands, the "base texture for the fine structure of a hair bundle" with an opacity map that breaks up its outline of Scheuermann (2004, "Practical Real-Time Hair Rendering and Shading", SIGGRAPH sketch). Each strand is a band of smooth cross-section running from the root at texture `y = 0`, the first image row, to its own tip, tapering over the last part of its length; neighbouring strands overlap, differ in brightness and end at different lengths, so the card's outline is ragged and its colour streaked along the strand as hair is. Columns, as {@link paintAutoMovieHumanHairStrands.COLUMNS} lists them: four lock variants for scalp hair, one lone strand for brow hairs, a cluster of three lashes, and an opaque band for the scalp cap, which a card samples at its middle so the average of a smaller mip level, where the band meets the transparent texels beside it, never drops it below the alpha test. Positions, widths and lengths come from an integer hash, so the image is the same in every run and on every platform. Sizes are in texels and chosen to read as hair at face scale; grade: conventional.
  *
  * @returns The atlas, RGBA, id `human.hair.strands`
  */
@@ -44,10 +44,10 @@ export namespace paintAutoMovieHumanHairStrands {
     single: [0.75, 0.8125] as readonly [number, number],
 
     /** Three lashes side by side. */
-    lashes: [0.8125, 0.9375] as readonly [number, number],
+    lashes: [0.8125, 0.875] as readonly [number, number],
 
-    /** Opaque, for the scalp cap. */
-    solid: [0.953125, 1] as readonly [number, number],
+    /** Opaque, for the scalp cap; 32 texels wide so its middle stays opaque down to the 8-texel mip level. */
+    solid: [0.875, 1] as readonly [number, number],
   };
 }
 
