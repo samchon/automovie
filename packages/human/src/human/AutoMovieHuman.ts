@@ -139,7 +139,7 @@ export class AutoMovieHuman {
   /**
    * The person as a model films place and pose like any other.
    *
-   * The model holds the stick figure of the skeleton, a capsule from each joint centre to the bone's end and a sphere at each joint, every bone including fingers, eyes and jaw, coloured grey on the midline, red on the person's left and blue on the right, and the skin. With `assembly: "parts"`, the default while the parts are being built, the skin is every part's own cage subdivided alone, one static model part each with id `skin.<part>` or `skin.<part>.<side>`, so the viewer can isolate a part and judge it before joining. With `assembly: "joined"` the skin is the person: every part's cage joined through its rings, subdivided once as one surface, and emitted as one skinned mesh `skin` with limit normals and the published UV layout. Separate meshes a part carries, such as the nail plates, are their own parts riding one bone each, id `<part>[.<side>].<name>`. Eyes, teeth, hair and underwear follow as their generators land, and the appearance then decides their materials. The appearance is admitted already, so a document that will be refused later is refused now.
+   * The model holds the stick figure of the skeleton, a capsule from each joint centre to the bone's end and a sphere at each joint, every bone including fingers, eyes and jaw, coloured grey on the midline, red on the person's left and blue on the right, and the skin. With `assembly: "parts"`, the default while the parts are being built, the skin is every part's own cage subdivided alone, one static model part each with id `skin.<part>` or `skin.<part>.<side>`, so the viewer can isolate a part and judge it before joining. With `assembly: "joined"` the skin is the person: every part's cage joined through its rings, subdivided once as one surface, and emitted as one skinned mesh `skin` with limit normals and the published UV layout. Separate meshes a part carries, such as the nail plates and the eyeballs, are their own parts riding one bone each, id `<part>[.<side>].<name>`, and the model carries the images their materials sample, such as each iris. Teeth, hair and underwear follow as their generators land, and the appearance then decides their materials. The appearance is admitted already, so a document that will be refused later is refused now.
    *
    * @param props The appearance to wear, and how the skin is assembled
    * @returns Model with `origin: "generated"`
@@ -195,6 +195,7 @@ export class AutoMovieHuman {
         ...attachments.materials,
         ...stick.materials,
       ],
+      ...(attachments.images.length === 0 ? {} : { images: attachments.images }),
       asset: null,
     };
   }
