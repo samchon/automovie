@@ -7,8 +7,8 @@ import { instancePrototypeChoices } from "./instancePrototypeChoices";
  * The prototype one instance slot draws, or the explicit one it names.
  *
  * A set with a prototype table draws from it, and a compiled table already
- * starts with the base recipe's default, counted once. A set without a table
- * draws its base recipe under the id `default`. An explicit member names its
+ * starts with the base model's default, counted once. A set without a table
+ * draws its base model under the id `default`. An explicit member names its
  * choice outright, and naming one the table lacks refuses. Otherwise the slot's
  * seeded sample, drawn under the prototype salt, is spent across the weights in
  * table order: every choice but the last is tested, and the last is what
@@ -31,60 +31,48 @@ import { instancePrototypeChoices } from "./instancePrototypeChoices";
 export const selectInstancePrototype: <
   Choice extends Pick<
     IAutoMovieCompiledInstancePrototype,
-    "id" | "modelRecipe" | "weight"
+    "id" | "model" | "weight"
   >,
 >(
   instanceSet: {
     id: string;
     seed: number;
-    modelRecipe: string;
+    model: string;
     prototypes?: readonly Choice[];
   },
   slot: number,
   explicit: string | undefined,
 ) =>
   | Choice
-  | Pick<
-      IAutoMovieCompiledInstancePrototype,
-      "id" | "modelRecipe" | "weight"
-    > = <
+  | Pick<IAutoMovieCompiledInstancePrototype, "id" | "model" | "weight"> = <
   Choice extends Pick<
     IAutoMovieCompiledInstancePrototype,
-    "id" | "modelRecipe" | "weight"
+    "id" | "model" | "weight"
   >,
 >(
   instanceSet: {
     id: string;
     seed: number;
-    modelRecipe: string;
+    model: string;
     prototypes?: readonly Choice[];
   },
   slot: number,
   explicit: string | undefined,
 ):
   | Choice
-  | Pick<
-      IAutoMovieCompiledInstancePrototype,
-      "id" | "modelRecipe" | "weight"
-    > => {
+  | Pick<IAutoMovieCompiledInstancePrototype, "id" | "model" | "weight"> => {
   const choices: readonly (
     | Choice
-    | Pick<IAutoMovieCompiledInstancePrototype, "id" | "modelRecipe" | "weight">
+    | Pick<IAutoMovieCompiledInstancePrototype, "id" | "model" | "weight">
   )[] = instancePrototypeChoices(instanceSet);
   if (explicit !== undefined) {
     const selected:
-      | Pick<
-          IAutoMovieCompiledInstancePrototype,
-          "id" | "modelRecipe" | "weight"
-        >
+      | Pick<IAutoMovieCompiledInstancePrototype, "id" | "model" | "weight">
       | Choice
       | undefined = choices.find(
       (
         choice:
-          | Pick<
-              IAutoMovieCompiledInstancePrototype,
-              "id" | "modelRecipe" | "weight"
-            >
+          | Pick<IAutoMovieCompiledInstancePrototype, "id" | "model" | "weight">
           | Choice,
       ): boolean => choice.id === explicit,
     );
@@ -98,10 +86,7 @@ export const selectInstancePrototype: <
     (
       sum: number,
       choice:
-        | Pick<
-            IAutoMovieCompiledInstancePrototype,
-            "id" | "modelRecipe" | "weight"
-          >
+        | Pick<IAutoMovieCompiledInstancePrototype, "id" | "model" | "weight">
         | Choice,
     ): number => sum + choice.weight,
     0,

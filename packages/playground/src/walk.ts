@@ -36,14 +36,14 @@ export const walk: (sk: string) => IAutoMovieMotion = (
     j("leftUpperArm", { abduction: 32, flexion: 30 * s }),
     j("rightUpperArm", { abduction: 32, flexion: 30 * s }),
   ];
-  // contact: `lead` leg forward (flexion −), `trail` leg back (flexion +).
+  // contact: `lead` leg forward (flexion +), `trail` leg back (flexion −).
   const contact: (lead: "left" | "right") => IAutoMoviePose = (
     lead: "left" | "right",
   ): IAutoMoviePose => {
     const s: number = lead === "left" ? 1 : -1;
     return pose(sk, [
-      j("leftUpperLeg", { flexion: -30 * s }),
-      j("rightUpperLeg", { flexion: 30 * s }),
+      j("leftUpperLeg", { flexion: 30 * s }),
+      j("rightUpperLeg", { flexion: -30 * s }),
       j("leftLowerLeg", { flexion: lead === "left" ? 6 : 34 }),
       j("rightLowerLeg", { flexion: lead === "left" ? 34 : 6 }),
       ...arms(s),
@@ -54,8 +54,8 @@ export const walk: (sk: string) => IAutoMovieMotion = (
     swing: "left" | "right",
   ): IAutoMoviePose =>
     pose(sk, [
-      j("leftUpperLeg", { flexion: swing === "left" ? -16 : -2 }),
-      j("rightUpperLeg", { flexion: swing === "right" ? -16 : -2 }),
+      j("leftUpperLeg", { flexion: swing === "left" ? 16 : 2 }),
+      j("rightUpperLeg", { flexion: swing === "right" ? 16 : 2 }),
       j("leftLowerLeg", { flexion: swing === "left" ? 52 : 8 }),
       j("rightLowerLeg", { flexion: swing === "right" ? 52 : 8 }),
       ...arms(0),

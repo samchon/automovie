@@ -14,7 +14,7 @@ import { seededValue } from "./math/seededValue";
  *
  * The position half of `formationSlot`, taken on its own because a consumer
  * that only asks where a member is should not have to hold the hero overrides
- * and model recipe that name it. The compiled formation carries exactly this
+ * and model group that name it. The compiled formation carries exactly this
  * much, so the builder, the overlap and ground gates, the geometry measurement
  * and the viewer all place a member through this one function, and a gate and
  * a renderer cannot disagree about where a unit is standing.

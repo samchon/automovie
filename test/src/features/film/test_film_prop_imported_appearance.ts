@@ -84,7 +84,7 @@ export function test_film_prop_imported_appearance(): void {
     "an imported chair forges",
     forged.success === true &&
       forged.prop.node === "chair" &&
-      forged.prop.modelRef === "chair-recipe" &&
+      forged.prop.modelRef === "chair-model" &&
       forged.prop.model.origin === "imported" &&
       forged.prop.model.body !== null &&
       forged.prop.model.body !== undefined &&
@@ -356,7 +356,7 @@ export function test_film_prop_imported_appearance(): void {
         (): boolean =>
           refuses(
             (spec: IAutoMoviePropSpec): string =>
-              (spec.model.id = "chair-recipe"),
+              (spec.model.id = "chair-model"),
             "$input.model.id",
             "the staged scene joins on it",
           ),

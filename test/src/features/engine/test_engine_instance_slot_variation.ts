@@ -9,7 +9,7 @@ import { namedFacts, throwsError } from "../internal/predicates";
 
 const LEGACY_KEYS: readonly string[] = [
   "facingDeg",
-  "modelRecipe",
+  "model",
   "node",
   "palette",
   "position",
@@ -28,9 +28,9 @@ const keysOf: (value: object) => string[] = (value: object): string[] =>
  *
  * Scenarios:
  * 1. Each enhanced declaration adds the four contract fields beside the legacy eight.
- * 2. An explicit prototype resolves the named recipe; its adjacent missing name refuses.
+ * 2. An explicit prototype resolves the named model; its adjacent missing name refuses.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the actual member regenerator and compares its complete own-key population for legacy omission and each enhanced declaration, then observes explicit prototype recipe selection and the missing-id refusal.
+ * @evidence contracts/testing.md#behavioral-verification Calls the actual member regenerator and compares its complete own-key population for legacy omission and each enhanced declaration, then observes explicit prototype model selection and the missing-id refusal.
  * @evidence contracts/testing.md#independent-expectations Literal legacy eight keys and four extended keys supply the exact shape oracle independently; literal short-body and missing-name error define prototype outcomes. Key-set checks do not establish all extended field values, which their transform/visibility/distribution units own.
  * @evidence contracts/testing.md#distinguishing-cases Contrasts omission with prototypes, lattice, explicit layout, per-axis scale, rotation and visibility probability, plus selected/missing explicit prototype twins. Existing row labels, key order policy and all six enhanced declarations remain unchanged.
  * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns local placements and key/selection callbacks through the existing canonical fixture; it opens no file, renderer, browser or GPU and replaces no foreign method or installed consumer.
@@ -38,9 +38,9 @@ const keysOf: (value: object) => string[] = (value: object): string[] =>
 export function test_engine_instance_slot_variation(): void {
   const table: ReturnType<typeof crowd> = crowd({
     prototypes: [
-      { id: "default", modelRecipe: "body", weight: 1 },
-      { id: "tall", modelRecipe: "tall-body", weight: 2 },
-      { id: "short", modelRecipe: "short-body", weight: 1 },
+      { id: "default", model: "body", weight: 1 },
+      { id: "tall", model: "tall-body", weight: 2 },
+      { id: "short", model: "short-body", weight: 1 },
     ],
   });
   // 1. Legacy and enhanced shapes.
@@ -49,7 +49,7 @@ export function test_engine_instance_slot_variation(): void {
     [
       "prototypes",
       crowd({
-        prototypes: [{ id: "default", modelRecipe: "body", weight: 1 }],
+        prototypes: [{ id: "default", model: "body", weight: 1 }],
       }),
     ],
     [
@@ -169,8 +169,7 @@ export function test_engine_instance_slot_variation(): void {
     namedFacts([
       [
         "named",
-        (): boolean =>
-          instanceSlot(named("short"), 0).modelRecipe === "short-body",
+        (): boolean => instanceSlot(named("short"), 0).model === "short-body",
       ],
       [
         "missing",

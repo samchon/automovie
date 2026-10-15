@@ -279,7 +279,7 @@ function compactFormationPasses(
 }
 
 /**
- * Whether every promoted hero has a scene node within the declared transform comparison tolerance, built from the design's model recipe.
+ * Whether every promoted hero has a scene node within the declared transform comparison tolerance, built from the design's model group.
  */
 function heroesMaterialized(
   reader: IShotContractSubjectReader,
@@ -294,7 +294,7 @@ function heroesMaterialized(
         vectorClose(node.transform.translation, hero.transform.translation) &&
         quaternionClose(node.transform.rotation, hero.transform.rotation) &&
         vectorClose(node.transform.scale, hero.transform.scale) &&
-        node.model === productionRuntimeModelId(design.modelRecipe)
+        node.model === productionRuntimeModelId(design.model)
       );
     },
   );

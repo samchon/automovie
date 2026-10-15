@@ -11,7 +11,7 @@ import {
   IAutoMovieInstanceChunk,
   IAutoMovieInstanceSetDesign,
   IAutoMovieModel,
-  IAutoMovieModelLodRecipe,
+  IAutoMovieModelLod,
   IAutoMovieWorldRoute,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -33,7 +33,7 @@ const row: (
   overrides: Partial<IAutoMovieInstanceSetDesign> = {},
 ): IAutoMovieInstanceSetDesign => ({
   id: "hedge",
-  modelRecipe: "tree",
+  model: "tree",
   count: AUTOMOVIE_INSTANCE_CHUNK_SIZE + 1,
   layout: {
     kind: "grid",
@@ -58,15 +58,15 @@ const lane: IAutoMovieWorldRoute = {
 };
 
 /** The base tree's declared tiers: a hero tier and a near tier of itself. */
-const TREE_TIERS: IAutoMovieModelLodRecipe[] = [
-  { tier: "hero", maxDistance: 5, recipe: "tree-hero" },
-  { tier: "near", maxDistance: 20, recipe: "tree" },
+const TREE_TIERS: IAutoMovieModelLod[] = [
+  { tier: "hero", maxDistance: 5, model: "tree-hero" },
+  { tier: "near", maxDistance: 20, model: "tree" },
 ];
 
 /** The shrub prototype's declared tiers: a near tier of itself and a far tier. */
-const SHRUB_TIERS: IAutoMovieModelLodRecipe[] = [
-  { tier: "near", maxDistance: 10, recipe: "shrub" },
-  { tier: "far", maxDistance: null, recipe: "shrub-far" },
+const SHRUB_TIERS: IAutoMovieModelLod[] = [
+  { tier: "near", maxDistance: 10, model: "shrub" },
+  { tier: "far", maxDistance: null, model: "shrub-far" },
 ];
 
 /** The supplied tree model group, hashed into every tier that names it. */
@@ -192,8 +192,8 @@ export function test_engine_compiled_instance_set_runtime(): void {
     instanceSet: row({
       lod: TREE_TIERS,
       prototypes: [
-        { id: "tall", modelRecipe: "tall-tree", weight: 2 },
-        { id: "short", modelRecipe: "shrub", weight: 1, lod: SHRUB_TIERS },
+        { id: "tall", model: "tall-tree", weight: 2 },
+        { id: "short", model: "shrub", weight: 1, lod: SHRUB_TIERS },
       ],
     }),
     world: { routes: [] },
@@ -227,18 +227,18 @@ export function test_engine_compiled_instance_set_runtime(): void {
           nclose(short!.weight, 1, 0),
       ],
       [
-        "recipes",
+        "models",
         (): boolean =>
-          base!.modelRecipe === "tree" &&
-          tall!.modelRecipe === "tall-tree" &&
-          short!.modelRecipe === "shrub",
+          base!.model === "tree" &&
+          tall!.model === "tall-tree" &&
+          short!.model === "shrub",
       ],
       [
         "undeclaredDrawsNear",
         (): boolean =>
           tall!.lod.length === 1 &&
           tall!.lod[0]!.tier === "near" &&
-          tall!.lod[0]!.recipe === "tall-tree",
+          tall!.lod[0]!.model === "tall-tree",
       ],
       [
         "declaredTiersKept",
@@ -246,15 +246,15 @@ export function test_engine_compiled_instance_set_runtime(): void {
           short!.lod
             .map(
               (item: IAutoMovieCompiledFormationLod): string =>
-                `${item.tier}:${item.recipe}`,
+                `${item.tier}:${item.model}`,
             )
             .join(",") === "near:shrub,far:shrub-far",
       ],
       [
         "groupDigest",
         (): boolean =>
-          base!.lod[1]!.recipeDigest === nodeDigest(models.get("tree")) &&
-          short!.lod[0]!.recipeDigest !== base!.lod[1]!.recipeDigest,
+          base!.lod[1]!.modelDigest === nodeDigest(models.get("tree")) &&
+          short!.lod[0]!.modelDigest !== base!.lod[1]!.modelDigest,
       ],
       [
         "ownRadii",
@@ -268,14 +268,14 @@ export function test_engine_compiled_instance_set_runtime(): void {
         "baseTiers",
         (): boolean =>
           tabled.lod
-            .map((item: IAutoMovieCompiledFormationLod): string => item.recipe)
+            .map((item: IAutoMovieCompiledFormationLod): string => item.model)
             .join(",") === "tree-hero,tree",
       ],
     ]),
     {
       order: true,
       weights: true,
-      recipes: true,
+      models: true,
       undeclaredDrawsNear: true,
       declaredTiersKept: true,
       groupDigest: true,
@@ -413,7 +413,7 @@ export function test_engine_compiled_instance_set_runtime(): void {
         (): boolean =>
           bare.lod.length === 1 &&
           bare.lod[0]!.tier === "near" &&
-          bare.lod[0]!.recipe === "tree",
+          bare.lod[0]!.model === "tree",
       ],
       ["bareRadius", (): boolean => nclose(bare.projectionRadius, 0.5, 0)],
     ]),

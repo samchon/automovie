@@ -18,7 +18,7 @@ import {
 
 /** One staged unit as the overlap gate reads it: a placement and its tiers. */
 interface IFormationOverlapTier {
-  model: string;
+  runtimeModel: string;
 }
 interface IUnit extends IAutoMovieFormationPlacement {
   lod: ReadonlyArray<IFormationOverlapTier>;
@@ -188,7 +188,7 @@ export const createFormationOverlapScenario: () => {
       anchor: props.anchor ?? { x: 0, y: 0, z: 0 },
       facingDeg: 0,
       seed: 0,
-      lod: [{ model: props.model ?? "post" }],
+      lod: [{ runtimeModel: props.model ?? "post" }],
     };
   };
 
@@ -203,7 +203,9 @@ export const createFormationOverlapScenario: () => {
     props: IFormationTieredInput,
   ): IUnit => ({
     ...row({ id: props.id, count: 1, spacing: 1, anchor: props.anchor }),
-    lod: props.models.map((model: string): { model: string } => ({ model })),
+    lod: props.models.map((model: string): { runtimeModel: string } => ({
+      runtimeModel: model,
+    })),
   });
 
   /** One file of members, one behind the other along +z from a stated anchor. */
@@ -221,7 +223,7 @@ export const createFormationOverlapScenario: () => {
     anchor: props.anchor,
     facingDeg: 0,
     seed: 0,
-    lod: [{ model: "post" }],
+    lod: [{ runtimeModel: "post" }],
   });
 
   /** One unit far larger than the number of members the gate will measure. */
@@ -237,7 +239,7 @@ export const createFormationOverlapScenario: () => {
     anchor: { x: 0, y: 0, z: 0 },
     facingDeg: 0,
     seed: 0,
-    lod: [{ model: "post" }],
+    lod: [{ runtimeModel: "post" }],
   });
 
   /** Where slot `slot` of {@link host} stands, from its layout alone. */

@@ -108,7 +108,7 @@ export function productionSoundCompiled(): IAutoMovieCompiledShotSource {
       materializeCompiledFormation({
         formation: {
           id: "formation",
-          modelRecipe: "formation-model",
+          model: "formation-model",
           count: 1,
           layout: {
             kind: "line",
@@ -128,7 +128,7 @@ export function productionSoundCompiled(): IAutoMovieCompiledShotSource {
       materializeCompiledInstanceSet({
         instanceSet: {
           id: "instances",
-          modelRecipe: "instance-model",
+          model: "instance-model",
           count: 1,
           layout: {
             kind: "grid",

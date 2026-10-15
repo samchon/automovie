@@ -37,7 +37,7 @@ export async function test_viewer_formation_placement_source(): Promise<void> {
   const formation: IAutoMovieCompiledFormation = materializeCompiledFormation({
     formation: {
       id: "placement-unit",
-      modelRecipe: "box",
+      model: "box",
       count: 3,
       layout: {
         kind: "line",
@@ -63,7 +63,7 @@ export async function test_viewer_formation_placement_source(): Promise<void> {
     spacingScale: { lateral: 2, depth: 3 },
   };
   input.formation = formation;
-  input.models = new Map([[formation.lod[0]!.model, model]]);
+  input.models = new Map([[formation.lod[0]!.runtimeModel, model]]);
   input.motions = [
     {
       id: "placement-cue",

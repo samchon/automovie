@@ -1,6 +1,7 @@
 import {
   AutoMovieHumanoidBone,
   IAutoMovieAttachment,
+  IAutoMovieJointAxes,
   IAutoMoviePose,
   IAutoMovieSkeleton,
   IAutoMovieTransform,
@@ -9,7 +10,6 @@ import {
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
-import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
 import { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
 import { resolvePose } from "./resolvePose";
 

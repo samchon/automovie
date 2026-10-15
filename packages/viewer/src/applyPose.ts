@@ -1,10 +1,12 @@
 import {
   IAutoMovieJointAxes,
   IAutoMovieRestFrame,
+  resolveMorphTargetWeights,
   resolvePose,
 } from "@automovie/engine";
 import {
   AutoMovieHumanoidBone,
+  IAutoMovieMeshMorphTarget,
   IAutoMoviePose,
   IAutoMovieSkeleton,
   IAutoMovieTransform,
@@ -13,6 +15,7 @@ import type * as THREE from "three";
 
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 import { applyTransform } from "./applyTransform.js";
+import { morphTargetDriversOf } from "./morphTargetDriversOf.js";
 
 /**
  * Apply a {@link IAutoMoviePose} to a built model by running the engine's
@@ -29,6 +32,10 @@ import { applyTransform } from "./applyTransform.js";
  * raises either arm overhead regardless of side); omit it to treat the pose's
  * angles as raw rig-space, the historical behaviour.
  *
+ * Morph targets that `buildModel` recorded as pose-driven take the weights
+ * `resolveMorphTargetWeights` computes from the same pose, so a corrective
+ * follows every applied pose; expression-written targets are left alone.
+ *
  * Returns the skeleton bones the FK resolved but the model's bone map does not
  * carry (#1051). A deliberately partial imported map (a VRM without toes)
  * reports its unmapped bones every call: the host compares against what it
@@ -36,11 +43,11 @@ import { applyTransform } from "./applyTransform.js";
  * intentional gap instead of both silently not articulating.
  *
  * @author Samchon
- * @evidence contracts/common.md#principled-implementation Delegates admitted semantic/clinical joint angles and skeleton/rest-axis conventions to engine forward kinematics, writes resolved local quaternions by humanoid bone id, then applies root translation/rotation with unit scale; unmapped bones are reported and null root resets to identity rather than retaining the last pose.
- * @evidence contracts/common.md#clear-and-simple-design Keeps pose mathematics in resolvePose and only copies its outputs into borrowed model bones/root; caller-supplied partial bone mapping remains explicit instead of inventing missing joints.
+ * @evidence contracts/common.md#principled-implementation Delegates admitted semantic/clinical joint angles and skeleton/rest-axis conventions to engine forward kinematics, writes resolved local quaternions by humanoid bone id, writes engine-resolved driven morph weights by exact target name, then applies root translation/rotation with unit scale; unmapped bones are reported and null root resets to identity rather than retaining the last pose.
+ * @evidence contracts/common.md#clear-and-simple-design Keeps pose and driver mathematics in resolvePose and resolveMorphTargetWeights and only copies their outputs into borrowed model bones, morph influences and root; caller-supplied partial bone mapping remains explicit instead of inventing missing joints.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unit root scale is the engine rig convention, not a visual compensation; all mapped bones follow one FK result and missing bones are returned without fixture-specific tolerances or replaced solvers.
- * @evidence contracts/common.md#meaningful-documentation Gives local bone write, optional clinical rest frames, unmapped-bone report, root reset and intentionally ignored root scale.
- * @evidence contracts/performance.md#efficient-algorithms Visits the engine's resolved bone list once with map lookups and fixed quaternion writes; dominant work is engine FK over the skeleton, with temporary resolved/skipped records proportional to bones rather than vertex count.
+ * @evidence contracts/common.md#meaningful-documentation Gives local bone write, driven morph weights, optional clinical rest frames, unmapped-bone report, root reset and intentionally ignored root scale.
+ * @evidence contracts/performance.md#efficient-algorithms Visits the engine's resolved bone list once with map lookups and fixed quaternion writes, then traverses the model's O objects once and resolves each driven mesh's targets; dominant work is engine FK over the skeleton, with temporary resolved/skipped records proportional to bones rather than vertex count.
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses the model's existing Bone objects and one engine FK implementation; different pose/skeleton/axes/rest frames require fresh resolution and target state is rewritten rather than cached.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows model/skeleton/pose and retains no solver or bone collection after return; skipped ids transfer to the caller and no GPU allocation or task is acquired.
  */
@@ -71,6 +78,23 @@ export const applyPose: (
       r.localRotation.w,
     );
   }
+  // Pose-driven morph targets follow the same pose, written beside the bones.
+  target.object.traverse((object: THREE.Object3D): void => {
+    const drivers:
+      | readonly Pick<IAutoMovieMeshMorphTarget, "name" | "driver">[]
+      | null = morphTargetDriversOf(object);
+    const mesh: THREE.Mesh = object as THREE.Mesh;
+    if (
+      drivers === null ||
+      mesh.morphTargetDictionary === undefined ||
+      mesh.morphTargetInfluences === undefined
+    )
+      return;
+    for (const [name, weight] of resolveMorphTargetWeights(drivers, pose)) {
+      const index: number | undefined = mesh.morphTargetDictionary[name];
+      if (index !== undefined) mesh.morphTargetInfluences[index] = weight;
+    }
+  });
   // A null root means "at the node's staged base", the engine's convention
   // (`resolvePose`/`animatedBaseAt` default it to identity, #1046). Keeping
   // the previous pose's root here would strand the model at the LAST rooted

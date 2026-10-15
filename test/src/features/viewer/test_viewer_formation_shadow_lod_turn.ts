@@ -40,21 +40,26 @@ export async function test_viewer_formation_shadow_lod_turn(): Promise<void> {
   const near: {
     maxDistance: number;
     tier: "hero" | "near" | "far";
-    recipe: string;
-    recipeDigest: string;
     model: string;
+    modelDigest: string;
+    runtimeModel: string;
   } = { ...input.formation.lod[0]!, maxDistance: 10 };
   const far: {
     tier: "far";
-    model: string;
+    runtimeModel: string;
     maxDistance: null;
-    recipe: string;
-    recipeDigest: string;
-  } = { ...near, tier: "far" as const, model: "far-box", maxDistance: null };
+    model: string;
+    modelDigest: string;
+  } = {
+    ...near,
+    tier: "far" as const,
+    runtimeModel: "far-box",
+    maxDistance: null,
+  };
   input.formation.lod = [near, far];
   input.models = new Map([
-    [near.model, source],
-    [far.model, { ...source, id: "far-box" }],
+    [near.runtimeModel, source],
+    [far.runtimeModel, { ...source, id: "far-box" }],
   ]);
   input.motions = [
     {

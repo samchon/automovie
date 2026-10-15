@@ -181,7 +181,7 @@ export const measureRenderPopulation: (props: {
       instanceSet.prototypes ?? [
         {
           id: "default",
-          modelRecipe: instanceSet.modelRecipe,
+          model: instanceSet.model,
           weight: 1,
           lod: instanceSet.lod,
           projectionRadius: instanceSet.projectionRadius,
@@ -199,7 +199,7 @@ export const measureRenderPopulation: (props: {
       for (const lod of prototype.lod) {
         const cost: IAutoMovieRenderModelCost = measure(
           model(
-            lod.model,
+            lod.runtimeModel,
             `instance set "${instanceSet.id}" prototype "${prototype.id}" LOD "${lod.tier}"`,
           ),
           costs,
@@ -247,7 +247,10 @@ export const measureRenderPopulation: (props: {
       );
     for (const lod of formation.lod) {
       const cost: IAutoMovieRenderModelCost = measure(
-        model(lod.model, `formation "${formation.id}" LOD "${lod.tier}"`),
+        model(
+          lod.runtimeModel,
+          `formation "${formation.id}" LOD "${lod.tier}"`,
+        ),
         costs,
         lod.tier,
       );

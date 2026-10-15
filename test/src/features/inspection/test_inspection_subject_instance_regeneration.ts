@@ -35,10 +35,10 @@ interface IMemberFacts {
 const orchard: () => IAutoMovieInstanceSetDesign =
   (): IAutoMovieInstanceSetDesign => ({
     id: "orchard",
-    modelRecipe: "tree",
+    model: "tree",
     prototypes: [
-      { id: "sapling", modelRecipe: "sapling", weight: 1 },
-      { id: "stump", modelRecipe: "stump", weight: 0.5 },
+      { id: "sapling", model: "sapling", weight: 1 },
+      { id: "stump", model: "stump", weight: 0.5 },
     ],
     count: 64,
     layout: { kind: "scatter", radius: 12 },
@@ -65,7 +65,7 @@ const orchard: () => IAutoMovieInstanceSetDesign =
 const hedge: () => IAutoMovieInstanceSetDesign =
   (): IAutoMovieInstanceSetDesign => ({
     id: "hedge",
-    modelRecipe: "shrub",
+    model: "shrub",
     count: 12,
     layout: { kind: "grid", rows: 3, columns: 4, spacing: { x: 1.5, z: 2 } },
     anchor: { x: -2, y: 0, z: 6 },
@@ -165,7 +165,7 @@ export function test_inspection_subject_instance_regeneration(): void {
           return sameMemberFacts(described(trees, slot), {
             id: member.node,
             semanticKind: member.prototype,
-            model: productionRuntimeModelId(member.modelRecipe),
+            model: productionRuntimeModelId(member.model),
             translation: member.position,
             rotation: member.rotation,
             scale: member.scale3,

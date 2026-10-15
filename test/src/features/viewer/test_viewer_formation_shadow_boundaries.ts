@@ -116,7 +116,7 @@ export function test_viewer_formation_shadow_boundaries(): void {
   const later: IAutoMovieCompiledFormationLod = {
     ...invalid.formation.lod[0]!,
     tier: "far",
-    model: "absent",
+    runtimeModel: "absent",
     maxDistance: null,
   };
   TestValidator.predicate(

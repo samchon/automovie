@@ -76,7 +76,7 @@ export const validateAutoMovieFormationMotions: (
           formation.lod.flatMap(
             (tier: IAutoMovieCompiledFormationLod): string[] => {
               const model: IAutoMovieModel | undefined = runtimeById.get(
-                tier.model,
+                tier.runtimeModel,
               );
               return model === undefined
                 ? []

@@ -1,14 +1,15 @@
 import {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieJointAxes,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieArmChainFault } from "./IAutoMovieArmChainFault";
-import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
 import { HUMANOID_JOINT_AXES } from "./constants/HUMANOID_JOINT_AXES";
+import { skeletonJointAxes } from "./skeletonJointAxes";
 
 /**
  * Sine of the angle below which a hinge counts as parallel to the segment it
@@ -44,7 +45,8 @@ const PARALLEL_SINE: number = 1e-6;
  * @param skeleton Rig whose arm chain is read; only rest offsets are used.
  * @param side Which arm to test.
  * @param jointAxes Per-bone clinical axes; defaults to `HUMANOID_JOINT_AXES`,
- *   the table every arm computation applies.
+ *   the table every arm computation applies, under any axes the lower arm
+ *   declares itself.
  *
  * @evidence contracts/common.md#principled-implementation The elbow's articulation rotates the hand's rest offset in the lower arm's own frame, so the elbow can move the hand exactly when the flexion axis is not parallel to that offset; the test is the cross-product sine of the two unit vectors against `PARALLEL_SINE`, which holds because the function first requires the hand to be the lower arm's child and both vectors to have nonzero length.
  * @evidence contracts/common.md#clear-and-simple-design One rig diagnosis shared by `reachPose` and the perform-shot gate's arm-verb refusal, so the solver and the gate cannot disagree about which rigs can reach; the message formatting lives in two private helpers.
@@ -83,7 +85,10 @@ export const armChainFault: (
   const foreLength: number = Vector3.length(fore);
   if (foreLength < 1e-6) return null;
 
-  const flexion: IAutoMovieVector3 | undefined = jointAxes[lowerName]?.flexion;
+  const flexion: IAutoMovieVector3 | undefined = skeletonJointAxes(
+    skeleton,
+    jointAxes,
+  )[lowerName]?.flexion;
   if (flexion === undefined) return null;
   const hingeLength: number = Vector3.length(flexion);
   if (hingeLength < 1e-6) return null;

@@ -1,7 +1,6 @@
-import { IAutoMovieVector3 } from "@automovie/interface";
+import { IAutoMovieJointAxes, IAutoMovieVector3 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
 import { IAutoMovieJointAxesIssue } from "./IAutoMovieJointAxesIssue";
 
 type AutoMovieJointAxis = "flexion" | "abduction" | "twist";

@@ -15,8 +15,8 @@ export function deriveManorInstanceInventory(entries: IMedievalManorScene["entri
   const inventory: ReturnType<typeof manorInstanceDefinitions> = manorInstanceDefinitions(entries), radii: Map<string, number> = new Map<string, number>();
   for (const p of inventory.prototypes) { radii.set(p.id, prototypeProjectionRadius(p.bounds)); p.model.id = productionRuntimeModelId(p.id); }
   return { ...inventory, sets: inventory.sets.map((s: { entry: string; definition: IAutoMovieInstanceSetDesign; }) : { compiled: IAutoMovieCompiledInstanceSet; entry: string; definition: IAutoMovieInstanceSetDesign; } => {
-    const radius: number | undefined = radii.get(s.definition.modelRecipe);
-    if (radius === undefined) throw new Error("Missing authored manor prototype: " + s.definition.modelRecipe);
+    const radius: number | undefined = radii.get(s.definition.model);
+    if (radius === undefined) throw new Error("Missing authored manor prototype: " + s.definition.model);
     return { ...s, compiled: compileManorInstanceSet(s.definition, radius) };
   }) };
 }

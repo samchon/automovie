@@ -10,5 +10,5 @@ import type { IAutoMovieCompiledInstanceSet, IAutoMovieInstanceSetDesign } from 
 export function compileManorInstanceSet(definition: IAutoMovieInstanceSetDesign, projectionRadius: number): IAutoMovieCompiledInstanceSet {
   if (definition.layout.kind !== "explicit") throw new Error("Manor instances require their authored explicit placements.");
   return materializeCompiledInstanceSet({ instanceSet: definition, world: { routes: [] },
-    projectionRadii: new Map([[definition.modelRecipe, projectionRadius]]) });
+    projectionRadii: new Map([[definition.model, projectionRadius]]) });
 }

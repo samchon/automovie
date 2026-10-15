@@ -80,7 +80,7 @@ const unit: (props: {
   materializeCompiledFormation({
     formation: {
       id: props.id,
-      modelRecipe: `${props.id}-model`,
+      model: `${props.id}-model`,
       count: props.count,
       layout: {
         kind: "line",

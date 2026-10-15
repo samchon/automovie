@@ -144,7 +144,7 @@ export const builtPlacementTestEnvironment =
         },
         set: {
           id: "flags",
-          modelRecipe: "flag-recipe",
+          model: "flag-model",
           count: 3,
           layout: {
             kind: "grid",

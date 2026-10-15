@@ -3,6 +3,7 @@ import {
   IAutoMovieBeatEndActorState,
   IAutoMovieBeatEndFootPlant,
   IAutoMovieBeatEndState,
+  IAutoMovieJointAxes,
   IAutoMovieMotion,
   IAutoMovieQuaternion,
   IAutoMovieSceneNode,
@@ -10,7 +11,6 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieFootPlant } from "../motion/IAutoMovieFootPlant";

@@ -23,7 +23,7 @@ export const createFormationShadowInputs: (
     materializeCompiledFormation({
       formation: {
         id: "shadow-unit",
-        modelRecipe: "box",
+        model: "box",
         count: Math.max(1, count),
         layout: {
           kind: "line",
@@ -126,7 +126,7 @@ export const createFormationShadowInputs: (
     : [];
   return {
     formation,
-    models: new Map([[formation.lod[0]!.model, model]]),
+    models: new Map([[formation.lod[0]!.runtimeModel, model]]),
     motions,
   };
 };

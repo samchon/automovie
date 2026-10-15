@@ -2,6 +2,7 @@ import {
   AutoMovieTextureBinding,
   IAutoMovieAssetProvenance,
   IAutoMovieAssetUse,
+  IAutoMovieImage,
   IAutoMovieMaterial,
   IAutoMovieModel,
   IAutoMovieTextureReference,
@@ -33,13 +34,13 @@ const ENVIRONMENT_MEDIA: ReadonlySet<AutoMovieTextureMediaType> = new Set([
 ]);
 
 /**
- * Cross-check every sampled material/environment image with manifest registration, production consumer authorization, media/edge facts and consistent color intent.
+ * Cross-check every sampled material/environment image with manifest registration, production consumer authorization, media/edge facts and consistent color intent. A binding that names an image its model carries skips the ledger, which holds project files only, and joins the colour-intent check under that model.
  *
  * @author Samchon
- * @evidence contracts/common.md#principled-implementation Cross-check every sampled material/environment image with manifest registration, production consumer authorization, media/edge facts and consistent color intent.
+ * @evidence contracts/common.md#principled-implementation Cross-check every sampled material/environment project image with manifest registration, production consumer authorization, media/edge facts and consistent color intent; model-carried images resolve first, skip the ledger and keep a model-scoped intent check.
  * @evidence contracts/common.md#clear-and-simple-design materialTextureSlots owns consumer slots and facts is the host-provided header-fact seam; byte digest ownership stays with the manifest gate.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Facts do not prove full decoding, and this validator does not reread or redigest bytes.
- * @evidence contracts/common.md#meaningful-documentation Material versus environment media, positive pixel edges/portable limit and stale-use errors are stated.
+ * @evidence contracts/common.md#meaningful-documentation Material versus environment media, positive pixel edges/portable limit, carried-image precedence and stale-use errors are stated.
  * @evidence contracts/performance.md#efficient-algorithms Assets/uses/slots drive maps and scans; repeated asset uses checks cost O(TU) worst-case and string keys/text also contribute.
  * @evidence contracts/performance.md#reuse-equivalent-work Asset records and intent/declared maps are shared within one call; the facts callback may own per-asset reuse outside it.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only report rows escape; assets/models are borrowed and no file, pixel buffer or texture handle is acquired.
@@ -75,29 +76,42 @@ export const validateTextureAssets: (
     string,
     Map<string, string>
   >();
-  const intend: (asset: string, path: string, intent: string) => void = (
-    asset: string,
+  // Keyed by the subject the diagnostic names: a project asset, or one model's
+  // carried image, whose id is scoped to that model.
+  const intend: (subject: string, path: string, intent: string) => void = (
+    subject: string,
     path: string,
     intent: string,
   ): void => {
     const seen: Map<string, string> =
-      intents.get(asset) ?? new Map<string, string>();
+      intents.get(subject) ?? new Map<string, string>();
     seen.set(path, intent);
-    intents.set(asset, seen);
+    intents.set(subject, seen);
   };
   props.models.forEach((model: IAutoMovieModel, modelIndex: number): void => {
+    const carried: Set<string> = new Set(
+      (model.images ?? []).map((image: IAutoMovieImage): string => image.id),
+    );
     model.materials.forEach(
       (material: IAutoMovieMaterial, materialIndex: number): void => {
         const path: string = `$input.models[${modelIndex}].materials[${materialIndex}]`;
         for (const slot of materialTextureSlots(material)) {
           const binding: AutoMovieTextureBinding = slot.binding;
           const asset: string = bindingAsset(binding);
+          const intent: string =
+            typeof binding === "string" ? slot.colorSpace : binding.colorSpace;
+          // A carried image is resolved before project assets and has no
+          // ledger row; its bytes still take one decoding.
+          if (carried.has(asset)) {
+            intend(
+              `image "${asset}" of model "${model.id}"`,
+              `${path}${slot.path}`,
+              intent,
+            );
+            continue;
+          }
           claim("material-texture", model.id, asset);
-          intend(
-            asset,
-            `${path}${slot.path}`,
-            typeof binding === "string" ? slot.colorSpace : binding.colorSpace,
-          );
+          intend(`texture asset "${asset}"`, `${path}${slot.path}`, intent);
           checkAsset({
             asset,
             path: `${path}${slot.path}`,
@@ -133,19 +147,20 @@ export const validateTextureAssets: (
       // already reported above; inventing a decoding for them would only add a
       // second complaint about the same file.
       const facts: IAutoMovieTextureImageFacts | undefined = props.facts(image);
-      if (facts !== undefined) intend(image, path, environmentIntent(facts));
+      if (facts !== undefined)
+        intend(`texture asset "${image}"`, path, environmentIntent(facts));
     },
   );
 
   // The same bytes cannot be both a colour and a measurement.
-  for (const [asset, slots] of intents) {
+  for (const [subject, slots] of intents) {
     const distinct: Set<string> = new Set(slots.values());
     if (distinct.size < 2) continue;
     for (const [path, intent] of slots)
       out.push(
         "type",
         path,
-        `texture asset "${asset}" is bound with contradictory color-space intent (${[...distinct].sort(compareCodeUnits).join(" and ")}); register one image per decoding`,
+        `${subject} is bound with contradictory color-space intent (${[...distinct].sort(compareCodeUnits).join(" and ")}); register one image per decoding`,
         intent,
       );
   }

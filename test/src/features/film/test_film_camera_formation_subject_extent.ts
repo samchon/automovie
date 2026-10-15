@@ -24,7 +24,7 @@ const UNIT: IAutoMovieCompiledFormation = {
   id: "line",
   count: 2_000,
   anonymousCount: 2_000,
-  modelRecipe: "member",
+  model: "member",
   layout: {
     kind: "line",
     ranks: 20,

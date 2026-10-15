@@ -2,11 +2,11 @@ import {
   AutoMovieHumanoidBone,
   IAutoMovieBody,
   IAutoMovieCapsuleProxy,
+  IAutoMovieJointAxes,
   IAutoMovieMotion,
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 
-import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 
 /**

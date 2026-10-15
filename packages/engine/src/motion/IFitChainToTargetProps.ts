@@ -1,11 +1,11 @@
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieJointAxes,
   IAutoMoviePose,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
 import type { IAutoMovieSkeletonTopology } from "../kinematics/IAutoMovieSkeletonTopology";
 import type { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import type { IAutoMoviePlantChain } from "./IAutoMoviePlantChain";
@@ -41,7 +41,10 @@ export interface IFitChainToTargetProps {
   /** Pre-indexed topology belonging to `skeleton`. */
   topology: IAutoMovieSkeletonTopology;
 
-  /** Optional clinical axes used consistently by IK, ROM, and FK. */
+  /**
+   * Optional clinical axes used consistently by IK, ROM, and FK, under any
+   * axes the skeleton's bones declare.
+   */
   jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
 
   /** Optional clinical rest frames used consistently by IK, ROM, and FK. */

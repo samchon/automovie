@@ -7,6 +7,7 @@ import {
   IAutoMovieCompiledFormation,
   IAutoMovieFormationDesign,
   IAutoMovieFormationMotion,
+  IAutoMovieJointAxes,
   IAutoMovieModel,
   IAutoMovieProductionDesign,
   IAutoMoviePropSpec,
@@ -15,7 +16,6 @@ import {
   IAutoMovieWorldDesign,
 } from "@automovie/interface";
 
-import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
 import { IAutoMovieActionSynthesizer } from "../perform/IAutoMovieActionSynthesizer";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { IAutoMovieCameraClearanceRuntime } from "./IAutoMovieCameraClearanceRuntime";

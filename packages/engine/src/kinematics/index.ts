@@ -1,9 +1,13 @@
+// The joint-axis declaration moved to `interface`, where a bone carries it;
+// the engine keeps exporting it for its existing consumers.
+export type {
+  AutoMovieJointTwistPlacement,
+  IAutoMovieJointAxes,
+} from "@automovie/interface";
 export * from "./AutoMovieSkeletonParentKey";
 export * from "./IAutoMovieArmChainFault";
 export * from "./IAutoMovieChainBone";
 export * from "./IAutoMovieHingedArticulation";
-export * from "./AutoMovieJointTwistPlacement";
-export * from "./IAutoMovieJointAxes";
 export * from "./IAutoMovieJointAxesIssue";
 export * from "./IAutoMovieResolvedBone";
 export * from "./IAutoMovieSkeletonTopology";
@@ -26,7 +30,9 @@ export * from "./normalizeJointAxes";
 export * from "./reachPose";
 export * from "./reachableBoneNames";
 export * from "./resolveAttachment";
+export * from "./resolveLookAt";
 export * from "./resolvePose";
+export * from "./skeletonJointAxes";
 export * from "./solveTwoBoneIK";
 export * from "./twoBoneChainArticulation";
 export * from "./validateJointAxesBasis";
