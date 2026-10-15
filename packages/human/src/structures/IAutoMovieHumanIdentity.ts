@@ -89,6 +89,11 @@ export namespace IAutoMovieHumanIdentity {
     neckCircumference: number & tags.Minimum<100> & tags.Maximum<700>;
 
     /**
+     * Thyroid angle: the internal angle between the two laminae of the thyroid cartilage at the level of the vocal folds, degrees. The narrower the angle, the further the laryngeal prominence, the Adam's apple, projects in front of the neck. On computed tomography of 283 people aged 8 to 20 the female mean stayed between 91 and 97 degrees at every age while the male mean fell from 92 to 67, most steeply at 14 to 15 years (Glikson et al. 2017, Laryngoscope 127(10):E354-E358); adult cadaver larynges measure 74.4 in men and 92.4 in women (Rawal et al. 2014, Natl J Integr Res Med 5(3)).
+     */
+    thyroidAngle: number & tags.Minimum<40> & tags.Maximum<140>;
+
+    /**
      * Chest circumference at the most anterior point of the chest, the bust in women, at the maximum of quiet respiration, millimetres.
      */
     chestCircumference: number & tags.Minimum<180> & tags.Maximum<2000>;

@@ -13,6 +13,7 @@ import { estimateAutoMovieHumanMobility } from "./estimateAutoMovieHumanMobility
 import { estimateAutoMovieHumanNavicularHeight } from "./estimateAutoMovieHumanNavicularHeight";
 import { estimateAutoMovieHumanPosture } from "./estimateAutoMovieHumanPosture";
 import { estimateAutoMovieHumanSpinalLoss } from "./estimateAutoMovieHumanSpinalLoss";
+import { estimateAutoMovieHumanThyroidAngle } from "./estimateAutoMovieHumanThyroidAngle";
 import { estimateAutoMovieHumanTrunkSections } from "./estimateAutoMovieHumanTrunkSections";
 
 /**
@@ -128,6 +129,7 @@ export class AutoMovieHumanConverter implements IAutoMovieHumanConverter {
         bicristalBreadth: lengths.bicristalBreadth,
         hipBreadth: lengths.hipBreadth,
         neckCircumference: girths.neckCircumference,
+        thyroidAngle: estimateAutoMovieHumanThyroidAngle(sex, age),
         chestCircumference: girths.chestCircumference,
         waistCircumference: girths.waistCircumference,
         buttockCircumference: girths.buttockCircumference,
