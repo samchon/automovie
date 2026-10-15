@@ -1,18 +1,33 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
-import { AutoMovieHumanCageBuilder } from "../../junction/AutoMovieHumanCageBuilder";
+import { AutoMovieHumanSide } from "../../junction/AutoMovieHumanSide";
 import { IAutoMovieHumanCage } from "../../junction/IAutoMovieHumanCage";
 import { IAutoMovieHumanRingLayout } from "../../junction/IAutoMovieHumanRingLayout";
+import { IAutoMovieHumanSurfaceCoordinate } from "../../junction/IAutoMovieHumanSurfaceCoordinate";
 import { layoutAutoMovieHumanRing } from "../../junction/layoutAutoMovieHumanRing";
+import { IAutoMovieHumanLandmarks } from "../../measure/IAutoMovieHumanLandmarks";
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanSkeleton } from "../../skeleton/IAutoMovieHumanSkeleton";
 import { IAutoMovieHumanIdentity } from "../../structures/IAutoMovieHumanIdentity";
 import { IAutoMovieHumanPartGenerator } from "../IAutoMovieHumanPartGenerator";
+import { IAutoMovieHumanFootDraft } from "./IAutoMovieHumanFootDraft";
+import { IAutoMovieHumanFootPlan } from "./IAutoMovieHumanFootPlan";
+import { fitAutoMovieHumanFootCage } from "./fitAutoMovieHumanFootCage";
+import { knitAutoMovieHumanFootCage } from "./knitAutoMovieHumanFootCage";
+import { outlineAutoMovieHumanFoot } from "./outlineAutoMovieHumanFoot";
+import { planAutoMovieHumanFoot } from "./planAutoMovieHumanFoot";
+import { shapeAutoMovieHumanFootSole } from "./shapeAutoMovieHumanFootSole";
+import { shapeAutoMovieHumanFootToes } from "./shapeAutoMovieHumanFootToes";
+import { shapeAutoMovieHumanFootUpper } from "./shapeAutoMovieHumanFootUpper";
 
 /**
- * Foot placeholder: a boot that runs down from the ankle ring, turns forward over the heel and ends in a quad cap at the toes.
+ * Foot from the ankle ring, with the heel, the arches, the ball and the five toes, as a quad control cage generated from the person's measurements and skeleton.
  *
- * Sections turn a quarter turn about the transverse axis on the way, so the anterior mark at the ankle becomes the dorsum; their width follows the measured foot breadth and their height the ankle joint's, both by conventional fractions, and the boot reaches a conventional 80% of the measured foot length ahead of the ankle. The chart runs `u` from the ankle to the toes and `v` counterclockwise about the distal axis from the anterior mark. The real foot generator replaces this one.
+ * The cage is built like a shoe on the fixed grid of `AUTOMOVIE_HUMAN_FOOT_GRID`: an upper over the dorsum, the sides and the back of the heel, opened at the ankle ring; a sole; a rim of one face row between them; and a four-sided tube for each toe from every other face across the front. `planAutoMovieHumanFoot` turns foot length and breadth, lateral malleolus height, navicular height and the skeleton's malleoli into an outline, a dorsal crest and toes; `outlineAutoMovieHumanFoot`, `shapeAutoMovieHumanFootUpper`, `shapeAutoMovieHumanFootSole` and `shapeAutoMovieHumanFootToes` place the control points; `knitAutoMovieHumanFootCage` makes the faces; and `fitAutoMovieHumanFootCage` makes the limit surface measure the identity's foot length and breadth. A child's foot follows from its own measured length, breadth, ankle height and navicular height, so it is broader for its length and flatter in the arch than an adult's, as the growth surveys measure.
+ *
+ * Both feet are shaped in one local frame, the left foot's, and the right foot is its mirror image: every face's corners and the ring are reversed after their first vertex, so faces still wind outward and the ring still runs counterclockwise about its normal.
+ *
+ * Chart: `u` from 0 at the ankle ring to 1 at the toe tips, `v` counterclockwise about the distal axis from the anterior mark; see `knitAutoMovieHumanFootCage`. Toenails are separate meshes, not part of this cage.
  *
  * Rings, in order: `ankle`.
  *
@@ -24,82 +39,97 @@ export class AutoMovieHumanFootGenerator implements IAutoMovieHumanPartGenerator
   public generate(
     props: IAutoMovieHumanPartGenerator.IProps<"foot">,
   ): IAutoMovieHumanCage {
+    const side: AutoMovieHumanSide = props.side;
+    const sign: number = side === "left" ? 1 : -1;
+    const body: IAutoMovieHumanIdentity.IBody = props.measurements.identity.body;
     const leg: IAutoMovieHumanIdentity.ILeg =
-      props.side === "left"
-        ? props.measurements.identity.body.leftLeg
-        : props.measurements.identity.body.rightLeg;
-    const builder: AutoMovieHumanCageBuilder = new AutoMovieHumanCageBuilder(
-      "foot",
-      props.side,
+      side === "left" ? body.leftLeg : body.rightLeg;
+    const landmarks: IAutoMovieHumanLandmarks.ISide =
+      side === "left" ? props.skeleton.landmarks.left : props.skeleton.landmarks.right;
+    const ankle: IAutoMovieHumanSkeleton.IJoint | undefined =
+      props.skeleton.joints.find(
+        (j: IAutoMovieHumanSkeleton.IJoint): boolean =>
+          j.bone === (side === "left" ? "leftFoot" : "rightFoot"),
+      );
+    if (ankle === undefined) throw new Error(`skeleton lacks the ${side} foot`);
+    const base: IAutoMovieVector3 = AutoMovieHumanVector.of(
+      ankle.position.x,
+      0,
+      ankle.position.z,
     );
-    const ankle: IAutoMovieHumanRingLayout = layoutAutoMovieHumanRing({
+    const toLocal = (p: IAutoMovieVector3): IAutoMovieVector3 =>
+      AutoMovieHumanVector.of(sign * (p.x - base.x), p.y, p.z - base.z);
+    const toModel = (p: IAutoMovieVector3): IAutoMovieVector3 =>
+      AutoMovieHumanVector.of(base.x + sign * p.x, p.y, base.z + p.z);
+    const layout: IAutoMovieHumanRingLayout = layoutAutoMovieHumanRing({
       skeleton: props.skeleton,
       site: "ankle",
-      side: props.side,
+      side,
       part: "foot",
     });
-    const joint: IAutoMovieHumanSkeleton.IJoint = props.skeleton.joints.find(
-      (j: IAutoMovieHumanSkeleton.IJoint): boolean =>
-        j.bone === (props.side === "left" ? "leftFoot" : "rightFoot"),
-    )!;
-    const down: IAutoMovieVector3 = AutoMovieHumanVector.of(
-      -ankle.frame.normal.x,
-      -ankle.frame.normal.y,
-      -ankle.frame.normal.z,
+
+    const plan: IAutoMovieHumanFootPlan = planAutoMovieHumanFoot({
+      leg,
+      landmarks,
+      toLocal,
+      origin: toLocal(layout.frame.origin),
+    });
+    const draft: IAutoMovieHumanFootDraft = outlineAutoMovieHumanFoot(plan);
+    shapeAutoMovieHumanFootUpper(plan, draft);
+    shapeAutoMovieHumanFootSole(plan, draft);
+    draft.toes = shapeAutoMovieHumanFootToes(plan);
+    const knit: knitAutoMovieHumanFootCage.IOutput = knitAutoMovieHumanFootCage(draft);
+    fitAutoMovieHumanFootCage(plan, knit);
+
+    // the ring sits exactly on the layout: each vertex along its layout direction, at its local distance from the origin
+    const positions: IAutoMovieVector3[] = knit.positions.map(toModel);
+    const ring: number[] = knit.ring.map(
+      (_: number, k: number): number => knit.ring[side === "left" ? k : (8 - k) % 8]!,
     );
-    const transverse: IAutoMovieVector3 = AutoMovieHumanVector.of(1, 0, 0);
-    const start: IAutoMovieVector3 =
-      AutoMovieHumanCageBuilder.buildDirections(ankle)[0]!;
-    const o: IAutoMovieVector3 = ankle.frame.origin;
-    const h: number = joint.position.y;
-    const L: number = leg.footLength;
-    const B: number = leg.footBreadth;
-    const stations: AutoMovieHumanCageBuilder.IStation[] = [
-      builder.open(
-        ankle,
-        (): number => leg.ankleCircumference / (2 * Math.PI),
-        0,
+    ring.forEach((vertex: number, k: number): void => {
+      positions[vertex] = AutoMovieHumanVector.offset(layout.frame.origin, [
+        layout.directions[k]!,
+        AutoMovieHumanVector.distance(knit.positions[vertex]!, plan.ankle.origin),
+      ]);
+    });
+    const address = (index: number, v: number): IAutoMovieHumanSurfaceCoordinate => ({
+      part: "foot",
+      side,
+      u: knit.charts[index]!.u,
+      v,
+    });
+    return {
+      vertices: positions.map(
+        (position: IAutoMovieVector3): IAutoMovieHumanCage.IVertex => ({ position }),
       ),
-    ];
-    for (const [t, bend, y, z, height, width] of [
-      [0.3, 0.3, 0.95 * h, 0.02 * L, 0.6 * h, 0.4 * B],
-      [0.55, 0.9, 0.55 * h, 0.3 * L, 0.45 * h, 0.47 * B],
-      [0.85, 1, 0.4 * h, 0.62 * L, 0.32 * h, 0.5 * B],
-    ] as const) {
-      const angle: number = (-Math.PI / 2) * bend;
-      const axis: IAutoMovieVector3 = AutoMovieHumanCageBuilder.rotate(
-        down,
-        transverse,
-        angle,
-      );
-      const reference: IAutoMovieVector3 = AutoMovieHumanCageBuilder.rotate(
-        start,
-        transverse,
-        angle,
-      );
-      stations.push(
-        builder.station(
-          AutoMovieHumanCageBuilder.around(
-            AutoMovieHumanVector.of(o.x, y, o.z + z),
-            AutoMovieHumanCageBuilder.turn(axis, reference, ankle.count),
-            (k: number): number =>
-              AutoMovieHumanCageBuilder.ellipse(
-                height,
-                width,
-                (2 * Math.PI * k) / ankle.count,
-              ),
-          ),
-          t,
-        ),
-      );
-    }
-    for (let i: number = 1; i < stations.length; ++i)
-      builder.bridge(stations[i - 1]!, stations[i]!);
-    builder.cap(
-      stations[stations.length - 1]!,
-      AutoMovieHumanVector.of(0, 0, 1),
-      0.15 * L,
-    );
-    return builder.build();
+      faces: knit.faces.map(
+        (face: [number, number, number, number]): IAutoMovieHumanCage.IFace => {
+          const corners: [number, number, number, number] =
+            side === "left" ? face : [face[0], face[3], face[2], face[1]];
+          const vs: number[] = corners.map((c: number): number => {
+            const v: number = knit.charts[c]!.v;
+            return side === "left" || v === 0 ? v : 1 - v;
+          });
+          const high: boolean = vs.some((v: number): boolean => v > 0.5);
+          return {
+            vertices: corners,
+            coordinates: corners.map(
+              (c: number, k: number): IAutoMovieHumanSurfaceCoordinate =>
+                address(c, vs[k] === 0 && high ? 1 : vs[k]!),
+            ) as IAutoMovieHumanCage.IFace["coordinates"],
+          };
+        },
+      ),
+      creases: [],
+      rings: [
+        {
+          site: "ankle",
+          side,
+          vertices: ring,
+          start: layout.start,
+          frame: layout.frame,
+        },
+      ],
+    };
   }
 }
