@@ -33,6 +33,7 @@ import { IHumanViewerSession } from "./human/IHumanViewerSession";
 import { createHumanViewerDocumentForm } from "./human/createHumanViewerDocumentForm";
 import { createHumanViewerExpressionEditor } from "./human/createHumanViewerExpressionEditor";
 import { createHumanViewerPoseEditor } from "./human/createHumanViewerPoseEditor";
+import { admitHumanViewerCaptureView } from "./human/admitHumanViewerCaptureView";
 import { frameHumanViewerCamera } from "./human/frameHumanViewerCamera";
 import { hashHumanViewerSession } from "./human/hashHumanViewerSession";
 
@@ -174,9 +175,11 @@ let traitsDraft: IAutoMovieHumanTraits = structuredClone(DEFAULT_TRAITS);
 /** Hidden part ids; a rebuilt model keeps hiding the ids it still has. */
 const hidden: Set<string> = new Set();
 let view: {
-  view: frameHumanViewerCamera.View;
+  view: frameHumanViewerCamera.View | frameHumanViewerCamera.IAngle;
   scale: Scale;
   focus: AutoMovieHumanoidBone;
+  /** Framing margin overriding the scale's own. */
+  margin?: number;
 } = {
   view: "front",
   scale: "whole",
@@ -346,7 +349,7 @@ const frame = (): boolean => {
       camera,
       box,
       view: view.view,
-      margin: MARGIN[view.scale],
+      margin: view.margin ?? MARGIN[view.scale],
     }),
   );
   controls.update();
@@ -354,42 +357,97 @@ const frame = (): boolean => {
 };
 
 // ── capture ─────────────────────────────────────────────────────────────────
+/** File tag of a view: a preset's name, or its angles. */
+const viewTag = (
+  v: frameHumanViewerCamera.View | frameHumanViewerCamera.IAngle,
+): string =>
+  typeof v === "string" ? v : `az${v.azimuth}_el${v.elevation}`;
+
+/**
+ * Capture views at each scale. A view is a preset name or angles admitted by `admitHumanViewerCaptureView`; an angle view with a focus bone is captured once, close on that bone. Omitted views take every preset, omitted scales `whole` and `close`.
+ */
 const capture = async (props: {
   name: string;
-  views?: frameHumanViewerCamera.View[];
+  views?: unknown[];
   scales?: Scale[];
   focus?: AutoMovieHumanoidBone;
 }): Promise<{ files: string[]; metadata: string }> => {
   if (!/^[A-Za-z0-9._-]+$/.test(props.name))
     throw new Error("Capture name must match [A-Za-z0-9._-]+.");
+  const bones: string[] = current.skeleton.bones.map(
+    (b: { bone: string }): string => b.bone,
+  );
+  const views: (
+    | frameHumanViewerCamera.View
+    | admitHumanViewerCaptureView.IAngleView
+  )[] = (props.views ?? [...frameHumanViewerCamera.VIEWS]).map(
+    (
+      input: unknown,
+      i: number,
+    ): frameHumanViewerCamera.View | admitHumanViewerCaptureView.IAngleView => {
+      const admitted: admitHumanViewerCaptureView.IResult =
+        admitHumanViewerCaptureView(input, bones);
+      if (admitted.success === false)
+        throw new Error(`views[${i}]: ${admitted.errors.join("; ")}`);
+      return admitted.view;
+    },
+  );
   await textured;
   const previous: typeof view = { ...view };
   const shots: { file: string; png: string }[] = [];
   const records: unknown[] = [];
   const focus: AutoMovieHumanoidBone = props.focus ?? view.focus;
+  const plan: { view: typeof view; tag: string }[] = [];
   for (const scale of props.scales ?? (["whole", "close"] as Scale[]))
-    for (const v of props.views ?? [...frameHumanViewerCamera.VIEWS]) {
-      view = { view: v, scale, focus };
-      if (!frame())
-        throw new Error(`Nothing visible to frame for ${scale} ${focus}.`);
-      handle.renderer.render(scene, camera);
-      // Read the drawing buffer in the same task as the draw, before it clears.
-      const png: string = canvas.toDataURL("image/png").split(",")[1]!;
-      const tag: string = scale === "whole" ? "whole" : `close-${focus}`;
-      const file: string = `${props.name}-${tag}-${v}.png`;
-      shots.push({ file, png });
-      records.push({
-        file,
-        view: v,
-        scale,
-        focus: scale === "whole" ? null : focus,
-        camera: {
-          position: camera.position.toArray(),
-          target: controls.target.toArray(),
-          fov: camera.fov,
+    for (const v of views) {
+      if (typeof v !== "string" && v.focus !== undefined) continue;
+      plan.push({
+        view: {
+          view: v,
+          scale,
+          focus,
+          ...(typeof v !== "string" && v.margin !== undefined
+            ? { margin: v.margin }
+            : {}),
         },
+        tag: scale === "whole" ? "whole" : `close-${focus}`,
       });
     }
+  for (const v of views)
+    if (typeof v !== "string" && v.focus !== undefined)
+      plan.push({
+        view: {
+          view: v,
+          scale: "close",
+          focus: v.focus as AutoMovieHumanoidBone,
+          ...(v.margin !== undefined ? { margin: v.margin } : {}),
+        },
+        tag: `close-${v.focus}`,
+      });
+  for (const step of plan) {
+    view = step.view;
+    if (!frame())
+      throw new Error(
+        `Nothing visible to frame for ${view.scale} ${view.focus}.`,
+      );
+    handle.renderer.render(scene, camera);
+    // Read the drawing buffer in the same task as the draw, before it clears.
+    const png: string = canvas.toDataURL("image/png").split(",")[1]!;
+    const file: string = `${props.name}-${step.tag}-${viewTag(view.view)}.png`;
+    shots.push({ file, png });
+    records.push({
+      file,
+      view: view.view,
+      scale: view.scale,
+      focus: view.scale === "whole" ? null : view.focus,
+      margin: view.margin ?? MARGIN[view.scale],
+      camera: {
+        position: camera.position.toArray(),
+        target: controls.target.toArray(),
+        fov: camera.fov,
+      },
+    });
+  }
   view = previous;
   frame();
   const response: Response = await fetch("/__automovie/capture", {
