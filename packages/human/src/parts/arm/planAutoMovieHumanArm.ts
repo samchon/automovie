@@ -16,9 +16,9 @@ import { estimateAutoMovieHumanArmTissue } from "./estimateAutoMovieHumanArmTiss
 import { sectionAutoMovieHumanArm } from "./sectionAutoMovieHumanArm";
 
 /**
- * Vertices around each station's row. The rings carry 8, the junction contract; inside them the arm turns to 12 between the upper arm collar and the biceps peak and back to 8 between the end of the forearm's bellies and the tendinous lower forearm, so the bellies and the furrows between them, 30 to 40 degrees apart, each have a vertex line, while the tendinous forearm and the rings stay at 8. Grade: conventional.
+ * Vertices around each station's row: the rings' eight all along, so the arm is a regular tube with no pole. A band that turns eight vertices into twelve between two rows dents the limit surface at its poles, on the narrow upper arm as much as on the forearm. Grade: conventional.
  */
-const COLUMNS: number[] = [8, 8, 12, 12, 12, 12, 12, 12, 12, 12, 8, 8, 8];
+const COLUMNS: number[] = [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8];
 
 /** Rows of faces from each station to the next: one per gap, two across the long gaps of the upper arm and the forearm's bellies, so rows lie about a span apart. Grade: conventional. */
 const ROWS: number[] = [1, 1, 2, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1];
