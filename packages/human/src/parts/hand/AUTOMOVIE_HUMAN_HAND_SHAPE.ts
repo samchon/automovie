@@ -111,5 +111,7 @@ export const AUTOMOVIE_HUMAN_HAND_SHAPE = {
     /** Tension of the fingers' and thumb's bridges. */
     tension: 0.8219,
     thumbTension: 0.5227,
+    /** Breadth of each web between two fingers, where each finger's own web curve runs, in hand lengths. Conventional: about 3 mm, so the web is one narrow face wide and its four corners are valence-five vertices instead of two of valence six. */
+    web: 0.015,
   },
 };
