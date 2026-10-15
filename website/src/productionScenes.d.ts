@@ -29,8 +29,6 @@ declare module "production-future-scene" {
   import type * as THREE from "three";
   /** Construct the native future-house group from the unchanged producer payload. */
   export function uploadHouse(payload: unknown): THREE.Group;
-  /** Native future-house cleanup; the website retains its own scene teardown boundary. */
-  export function disposeHouse(root: THREE.Object3D): void;
 }
 declare module "production-future-daylight" {
   import type * as THREE from "three";

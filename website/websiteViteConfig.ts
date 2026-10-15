@@ -35,11 +35,11 @@ export const websiteViteConfig: UserConfig = defineConfig({
       ),
       "production-future-scene": resolve(
         __dirname,
-        "../experimental/future-citizen-house/src/viewer/scene.ts",
+        "../experimental/future-citizen-house/src/viewer/uploadHouse.ts",
       ),
       "production-future-daylight": resolve(
         __dirname,
-        "../experimental/future-citizen-house/src/viewer/illumination.ts",
+        "../experimental/future-citizen-house/src/viewer/daylight.ts",
       ),
     },
   },
