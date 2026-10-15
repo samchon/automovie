@@ -7,9 +7,9 @@ import { IAutoMovieHumanSkeleton } from "../../skeleton/IAutoMovieHumanSkeleton"
 import { IAutoMovieHumanIdentity } from "../../structures/IAutoMovieHumanIdentity";
 
 /**
- * Proportions of the mid section, half-width to front and back depth from the bone axis. Conventional: the neck is close to round, flattened in front over the trachea, whose prominence is added separately.
+ * Breadth over depth of the mid section: 1.155, the median of the MakeHuman CC0 base mesh's macro variants (young, old and child, three populations, both sexes; 1.00 to 1.49) sliced horizontally 0.08 head heights below menton. Grade: calibrated against that reference, which only bounds the shape; the depth itself follows cervicale and the circumference.
  */
-const MID_SHAPE = { across: 1, front: 0.9, back: 1 };
+const MID_BREADTH: number = 1.155;
 
 /**
  * Thyroid lamina width over neck circumference: 37.0 mm in men and 31.9 mm in women (Rawal et al. 2014, Natl J Integr Res Med 5(3), cadaver larynges) over the converter's adult neck circumferences of 398 and 330 mm. Grade: derived.
@@ -53,11 +53,20 @@ export function sectionAutoMovieHumanNeck(props: {
     AutoMovieHumanVector.offset(AutoMovieHumanVector.of(0, 0, 1), [axis, -axis.z]),
   );
   const directions: IAutoMovieVector3[] = AutoMovieHumanCageBuilder.turn(axis, reference, props.base.count);
-  const egg = (scale: number, angle: number): number => {
+  // the back reaches cervicale, which lies in this section; the front and the breadth follow from the circumference
+  const nape: IAutoMovieVector3 = AutoMovieHumanVector.offset(props.skeleton.landmarks.cervicale.position, [lower, -1]);
+  const back: number = Math.hypot(
+    ...((): [number, number, number] => {
+      const along: number = AutoMovieHumanVector.dot(nape, axis);
+      return [nape.x - along * axis.x, nape.y - along * axis.y, nape.z - along * axis.z];
+    })(),
+  );
+  const egg = (front: number, angle: number): number => {
     const c: number = Math.cos(angle);
     const s: number = Math.sin(angle);
-    const depth: number = scale * (c >= 0 ? MID_SHAPE.front : MID_SHAPE.back);
-    return 1 / Math.sqrt((c * c) / (depth * depth) + (s * s) / (scale * MID_SHAPE.across) ** 2);
+    const depth: number = c >= 0 ? front : back;
+    const across: number = (MID_BREADTH * (front + back)) / 2;
+    return 1 / Math.sqrt((c * c) / (depth * depth) + (s * s) / (across * across));
   };
   const perimeter = (scale: number): number => {
     let sum: number = 0;
@@ -72,7 +81,8 @@ export function sectionAutoMovieHumanNeck(props: {
     }
     return sum;
   };
-  const scale: number = solve((x: number): number => perimeter(x) - girth, 1, 4 * mean);
+  const front: number = solve((x: number): number => perimeter(x) - girth, 1, 4 * mean);
+
   const lamina: number = LAMINA_PER_NECK * girth;
   const half = (deg: number): number => Math.cos((deg * Math.PI) / 360);
   const prominence: number = Math.max(0, lamina * (half(props.body.thyroidAngle) - half(FLUSH_ANGLE)));
@@ -83,12 +93,12 @@ export function sectionAutoMovieHumanNeck(props: {
       Math.abs(Math.abs(Math.atan2(Math.sin(angle), Math.cos(angle))) - Math.PI / 3) < 1e-6
         ? STERNOCLEIDOMASTOID * mean
         : 0;
-    const r: number = egg(scale, angle) + scm + (k === 0 ? prominence : 0);
+    const r: number = egg(front, angle) + scm + (k === 0 ? prominence : 0);
     return AutoMovieHumanVector.offset(lower, [d, r]);
   });
   const ring = (shape: IAutoMovieHumanRingShape): IAutoMovieVector3[] =>
     AutoMovieHumanCageBuilder.buildOrder(shape).map((j: number): IAutoMovieVector3 => shape.positions[j]!);
-  return { axis, base: ring(props.base), mid, top: ring(props.top) };
+  return { axis, centre: lower, base: ring(props.base), mid, top: ring(props.top) };
 }
 export namespace sectionAutoMovieHumanNeck {
   /**
@@ -99,6 +109,9 @@ export namespace sectionAutoMovieHumanNeck {
   export interface IOutput {
     /** Unit direction of the neck bone, from the neck joint to the head joint. */
     axis: IAutoMovieVector3;
+
+    /** The mid section's centre on the neck bone, where the girth is measured. */
+    centre: IAutoMovieVector3;
 
     /** The base ring's points in build order. */
     base: IAutoMovieVector3[];

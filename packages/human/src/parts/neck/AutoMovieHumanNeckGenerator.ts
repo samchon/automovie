@@ -8,6 +8,7 @@ import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanSkeleton } from "../../skeleton/IAutoMovieHumanSkeleton";
 import { IAutoMovieHumanIdentity } from "../../structures/IAutoMovieHumanIdentity";
 import { IAutoMovieHumanPartGenerator } from "../../parts/IAutoMovieHumanPartGenerator";
+import { measureAutoMovieHumanNeckGirth } from "./measureAutoMovieHumanNeckGirth";
 import { sectionAutoMovieHumanNeck } from "./sectionAutoMovieHumanNeck";
 
 /**
@@ -19,6 +20,9 @@ import { sectionAutoMovieHumanNeck } from "./sectionAutoMovieHumanNeck";
  *
  * @author Samchon
  */
+/** Rounds of widening the mid section to the measured girth; each leaves under a tenth of the previous error. */
+const GIRTH_FITS: number = 3;
+
 export class AutoMovieHumanNeckGenerator implements IAutoMovieHumanPartGenerator<"neck"> {
   public readonly part = "neck" as const;
 
@@ -41,41 +45,59 @@ export class AutoMovieHumanNeckGenerator implements IAutoMovieHumanPartGenerator
       base,
       top,
     });
-    const axis: IAutoMovieVector3 = sections.axis;
     const n: number = base.count;
+    // the limit surface lies inside its cage, so the mid section is widened until the subdivided neck has the measured girth
+    let scale: number = 1;
+    let cage: IAutoMovieHumanCage = this.build(base, top, sections, scale, n);
+    for (let i: number = 0; i < GIRTH_FITS; ++i) {
+      const girth: number = measureAutoMovieHumanNeckGirth(cage, sections.centre, sections.axis);
+      scale *= body.neckCircumference / girth;
+      cage = this.build(base, top, sections, scale, n);
+    }
+    return cage;
+  }
+
+  /** Assemble the cage with the mid section scaled about the neck bone. */
+  private build(
+    base: IAutoMovieHumanRingShape,
+    top: IAutoMovieHumanRingShape,
+    sections: sectionAutoMovieHumanNeck.IOutput,
+    scale: number,
+    n: number,
+  ): IAutoMovieHumanCage {
+    const axis: IAutoMovieVector3 = sections.axis;
+    const mid: IAutoMovieVector3[] = sections.mid.map((p: IAutoMovieVector3): IAutoMovieVector3 =>
+      AutoMovieHumanVector.offset(sections.centre, [AutoMovieHumanVector.offset(p, [sections.centre, -1]), scale]),
+    );
     const builder: AutoMovieHumanCageBuilder = new AutoMovieHumanCageBuilder("neck", null);
-    const span = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
-      AutoMovieHumanVector.distance(a, b);
     // one cubic Hermite per vertex line and segment, leaving the mid section along the neck bone
     const along = (k: number, segment: 0 | 1, t: number): IAutoMovieVector3 => {
       const b: IAutoMovieVector3 = sections.base[k]!;
-      const m: IAutoMovieVector3 = sections.mid[k]!;
+      const m: IAutoMovieVector3 = mid[k]!;
       const e: IAutoMovieVector3 = sections.top[k]!;
       const [p0, p1] = segment === 0 ? [b, m] : [m, e];
-      const length: number = span(p0, p1);
-      const t0: IAutoMovieVector3 =
-        segment === 0 ? AutoMovieHumanVector.offset(m, [b, -1]) : AutoMovieHumanVector.offset(AutoMovieHumanVector.of(0, 0, 0), [axis, length]);
-      const t1: IAutoMovieVector3 =
-        segment === 0 ? AutoMovieHumanVector.offset(AutoMovieHumanVector.of(0, 0, 0), [axis, length]) : AutoMovieHumanVector.offset(e, [m, -1]);
-      const h00: number = 2 * t ** 3 - 3 * t ** 2 + 1;
-      const h10: number = t ** 3 - 2 * t ** 2 + t;
-      const h01: number = -2 * t ** 3 + 3 * t ** 2;
-      const h11: number = t ** 3 - t ** 2;
+      const length: number = AutoMovieHumanVector.distance(p0, p1);
+      const upright: IAutoMovieVector3 = AutoMovieHumanVector.offset(AutoMovieHumanVector.of(0, 0, 0), [axis, length]);
+      const t0: IAutoMovieVector3 = segment === 0 ? AutoMovieHumanVector.offset(m, [b, -1]) : upright;
+      const t1: IAutoMovieVector3 = segment === 0 ? upright : AutoMovieHumanVector.offset(e, [m, -1]);
       return AutoMovieHumanVector.offset(
         AutoMovieHumanVector.of(0, 0, 0),
-        [p0, h00],
-        [t0, h10],
-        [p1, h01],
-        [t1, h11],
+        [p0, 2 * t ** 3 - 3 * t ** 2 + 1],
+        [t0, t ** 3 - 2 * t ** 2 + t],
+        [p1, -2 * t ** 3 + 3 * t ** 2],
+        [t1, t ** 3 - t ** 2],
       );
     };
-    const stations: AutoMovieHumanCageBuilder.IStation[] = [];
-    stations.push(builder.place(base, 0));
-    stations.push(builder.station(Array.from({ length: n }, (_: unknown, k: number) => along(k, 0, 0.5)), 0.2));
-    stations.push(builder.station(sections.mid, 0.4));
-    stations.push(builder.station(Array.from({ length: n }, (_: unknown, k: number) => along(k, 1, 1 / 3)), 0.6));
-    stations.push(builder.station(Array.from({ length: n }, (_: unknown, k: number) => along(k, 1, 2 / 3)), 0.8));
-    stations.push(builder.place(top, 1));
+    const line = (segment: 0 | 1, t: number): IAutoMovieVector3[] =>
+      Array.from({ length: n }, (_: unknown, k: number): IAutoMovieVector3 => along(k, segment, t));
+    const stations: AutoMovieHumanCageBuilder.IStation[] = [
+      builder.place(base, 0),
+      builder.station(line(0, 0.5), 0.2),
+      builder.station(mid, 0.4),
+      builder.station(line(1, 1 / 3), 0.6),
+      builder.station(line(1, 2 / 3), 0.8),
+      builder.place(top, 1),
+    ];
     for (let i: number = 0; i + 1 < stations.length; ++i) builder.bridge(stations[i]!, stations[i + 1]!);
     return builder.build();
   }
