@@ -34,14 +34,14 @@ These rules add to the [3d-modeling skill](../3d-modeling/SKILL.md) for Human wo
 - Calibrate form coefficients offline against references instead of sculpting by hand: compare a part's sections and silhouettes with the reference set from matching views, fit the formula's named coefficients in scratch tooling, and keep only those coefficients, cited with their reference, in the code. No reference geometry or vertex data enters the package.
 - A part is a region of one continuous mass. Cut only where the cross-section is a simple tube, such as mid upper arm, mid thigh, wrist, ankle and neck; the shoulder, armpit, hip and groin stay inside the trunk because muscles cross them.
 - Eyeballs, teeth, tongue, nails and hair are separate meshes; the ear is a separate part.
-- Refine each part alone from every side before joining, join parts only through the junction module on control cages, subdivide the joined cage once, and judge on the joined person.
+- Refine each part alone before joining, join parts only through the junction module on control cages, subdivide the joined cage once, and judge on the joined person.
 - Within a profile every identity shares one topology and one published UV layout.
 - A capability that any generated or imported model could use, such as skeleton axes and ranges, skinning methods, morph targets, materials, images or general geometry, belongs in core; human anatomy, measurements, proportions and the Human parameter vocabulary belong in Human.
 - When core lacks what Human needs, change the core package itself on the Human branch, in its own commits that keep the core boundary above. Never work around a core gap inside Human.
 
 ## Verification And Reporting
 
-- A visual claim stands only on actual viewer screenshots that the claimant opened and looked at, attached where the user reads them. A lead opens a subagent's screenshots before accepting its visual claim.
+- Attach the screenshots behind a visual claim where the user reads them. A lead opens a subagent's screenshots before accepting its visual claim.
 - Calibrate and judge form on lean 20-year-olds: a slim, model-grade woman and man, plus a low-fat muscular woman and man for muscle relief. Fat, sagging skin and wrinkles hide wrong form, so heavier, older and younger people only confirm that the converter's range still holds after the lean four pass.
 - Report progress as stages and renders, never as a percentage.
 - When the code-and-formula route seems unable to reach the quality bar, stop and report it; never substitute data or another route.
