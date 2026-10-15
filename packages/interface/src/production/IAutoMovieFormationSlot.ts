@@ -5,7 +5,7 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  *
  * @evidence contracts/common.md#principled-implementation Regeneration derives stable slot identity, placement and normalized motion phase from the admitted compact formation and seed; hero identity is the explicit override for that same slot.
  * @evidence contracts/common.md#clear-and-simple-design This materialized member projection contains the fields consumers need without embedding the whole formation or duplicating its placement algorithm.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Null actor means anonymous, not a fabricated actor id; named heroes retain the formation's declared model recipe and deterministic slot placement.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Null actor means anonymous, not a fabricated actor id; named heroes retain the formation's declared model group and deterministic slot placement.
  * @evidence contracts/common.md#meaningful-documentation Defines zero-based slot, compiler node identity, nullable hero, world-meter position, degree heading and normalized phase.
  * @author Samchon
  */
@@ -19,8 +19,8 @@ export interface IAutoMovieFormationSlot {
   /** Named hero actor at this slot, or null. */
   actor: string | null;
 
-  /** Runtime model recipe id. */
-  modelRecipe: string;
+  /** Id of the model group this member draws. */
+  model: string;
 
   /** Compiler-derived world position in meters. */
   position: IAutoMovieVector3;

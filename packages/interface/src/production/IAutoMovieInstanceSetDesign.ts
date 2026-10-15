@@ -2,7 +2,7 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import { IAutoMovieInstancePrototypeDesign } from "./IAutoMovieInstancePrototypeDesign";
 import { IAutoMovieInstanceSetLayout } from "./IAutoMovieInstanceSetLayout";
 import { IAutoMovieInstanceVariation } from "./IAutoMovieInstanceVariation";
-import { IAutoMovieModelLodRecipe } from "./IAutoMovieModelLodRecipe";
+import { IAutoMovieModelLod } from "./IAutoMovieModelLod";
 
 /**
  * A compact non-formation crowd, vegetation, prop, or debris set.
@@ -18,14 +18,14 @@ export interface IAutoMovieInstanceSetDesign {
   id: string;
 
   /** Existing base model group id; compilation inserts it as prototype `default` with weight one when a prototype table is supplied. */
-  modelRecipe: string;
+  model: string;
 
   /**
-   * Ordered distance tiers for the base group, ordered `hero`, `near`, `far` with increasing positive distances and an unbounded tier only at the end; omitted or empty draws `modelRecipe` as one unbounded `near` tier.
+   * Ordered distance tiers for the base group, ordered `hero`, `near`, `far` with increasing positive distances and an unbounded tier only at the end; omitted or empty draws `model` as one unbounded `near` tier.
    */
-  lod?: IAutoMovieModelLodRecipe[];
+  lod?: IAutoMovieModelLod[];
 
-  /** Optional weighted prototype table; `modelRecipe` remains the default. */
+  /** Optional weighted prototype table; `model` remains the default. */
   prototypes?: IAutoMovieInstancePrototypeDesign[];
 
   /** Integer slot count from one through 100,000. */

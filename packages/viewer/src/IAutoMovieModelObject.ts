@@ -1,4 +1,7 @@
-import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieLookAt,
+} from "@automovie/interface";
 import type * as THREE from "three";
 
 import type { IAutoMovieExpressionTarget } from "./IAutoMovieExpressionTarget.js";
@@ -8,9 +11,9 @@ import type { IAutoMovieViewerFrame } from "./IAutoMovieViewerFrame.js";
  * A built model: its `three.js` root object and a lookup of its bones.
  *
  * @evidence contracts/common.md#principled-implementation A root group with semantic bone and authored part-id maps supports common pose and prop-articulation application; imported appearances may supply expression/frame callbacks and an empty part map.
- * @evidence contracts/common.md#clear-and-simple-design Separates root placement, skeletal articulation, authored part lookup and optional runtime integration without exposing a concrete imported-avatar SDK.
+ * @evidence contracts/common.md#clear-and-simple-design Separates root placement, skeletal articulation, authored part lookup, the model's gaze declaration and optional runtime integration without exposing a concrete imported-avatar SDK.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Part ids decide articulation rather than optional nonunique display names; missing imported rig slots are not replaced with invented bones.
- * @evidence contracts/common.md#meaningful-documentation Documents root mounting, nonrigged bone absence, part-id lookup rationale and optional expression/runtime-flush hooks.
+ * @evidence contracts/common.md#meaningful-documentation Documents root mounting, nonrigged bone absence, part-id lookup rationale, the optional gaze declaration and optional expression/runtime-flush hooks.
  * @evidenceExclude contracts/performance.md#efficient-algorithms The built-model shape performs no object traversal or forward kinematics.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Maps expose existing runtime identity but the type coordinates no build cache or asynchronous request.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Builders or importing hosts own root geometry/material lifetime; this interface creates no loop, renderer or loaded asset.
@@ -39,6 +42,14 @@ export interface IAutoMovieModelObject {
    * Optional expression sinks: morph managers, VRM expression managers, etc.
    */
   expressionTargets?: readonly IAutoMovieExpressionTarget[];
+
+  /**
+   * The model's gaze declaration, {@link IAutoMovieModel.lookAt}; `buildModel`
+   * copies it. When it is `"bone"`, `AutoMoviePlayer` turns the eye bones for
+   * the gaze channels instead of writing them to morphs and sinks; omitted,
+   * gaze stays on morphs and sinks.
+   */
+  lookAt?: IAutoMovieLookAt;
 
   /**
    * Optional imported-runtime flush after pose and expression are written.

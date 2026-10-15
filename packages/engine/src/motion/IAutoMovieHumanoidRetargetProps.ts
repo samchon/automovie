@@ -1,11 +1,11 @@
 import {
   AutoMovieHumanoidBone,
+  IAutoMovieJointAxes,
   IAutoMovieMotion,
   IAutoMovieProfileBinding,
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 
-import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { IAutoMovieRetargetContactProps } from "./IAutoMovieRetargetContactProps";
 
@@ -41,10 +41,16 @@ export interface IAutoMovieHumanoidRetargetProps {
   /** Optional target profile binding carrying semantic slot -> node ids. */
   targetBinding?: IAutoMovieProfileBinding;
 
-  /** Optional source clinical axes; defaults to the humanoid table. */
+  /**
+   * Optional source clinical axes; defaults to the humanoid table, under any
+   * axes the source bones declare.
+   */
   sourceJointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
 
-  /** Optional target clinical axes; defaults to the humanoid table. */
+  /**
+   * Optional target clinical axes; defaults to the humanoid table, under any
+   * axes the target bones declare.
+   */
   targetJointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
 
   /** Optional source rest frames; defaults to the humanoid table. */

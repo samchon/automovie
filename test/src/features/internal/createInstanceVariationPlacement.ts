@@ -20,7 +20,7 @@ export const createInstanceVariationPlacement: (
 ): IAutoMovieInstanceSetPlacement => ({
   id: "crowd",
   count: COUNT,
-  modelRecipe: "body",
+  model: "body",
   layout: { kind: "grid", rows: 50, columns: 40, spacing: { x: 1, z: 1 } },
   route: null,
   anchor: { x: 0, y: 0, z: 0 },

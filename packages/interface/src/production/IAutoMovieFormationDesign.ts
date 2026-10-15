@@ -1,7 +1,7 @@
 import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import { AutoMovieFormationCapability } from "./AutoMovieFormationCapability";
 import { IAutoMovieFormationLayout } from "./IAutoMovieFormationLayout";
-import { IAutoMovieModelLodRecipe } from "./IAutoMovieModelLodRecipe";
+import { IAutoMovieModelLod } from "./IAutoMovieModelLod";
 
 /**
  * A unit-level formation whose members are deterministic derived slots.
@@ -19,12 +19,12 @@ export interface IAutoMovieFormationDesign {
   /**
    * Existing model group id enforced on every derived slot, including heroes.
    */
-  modelRecipe: string;
+  model: string;
 
   /**
-   * Ordered distance tiers for anonymous members; omitted or empty draws `modelRecipe` as one unbounded `near` tier. Tiers must be ordered `hero`, `near`, `far` with increasing positive distances and an unbounded tier only at the end; compilation drops a `hero` tier because named hero nodes draw themselves.
+   * Ordered distance tiers for anonymous members; omitted or empty draws `model` as one unbounded `near` tier. Tiers must be ordered `hero`, `near`, `far` with increasing positive distances and an unbounded tier only at the end; compilation drops a `hero` tier because named hero nodes draw themselves.
    */
-  lod?: IAutoMovieModelLodRecipe[];
+  lod?: IAutoMovieModelLod[];
 
   /**
    * Integer number of derived slots from 1 through 100,000. Generated output stores bounded chunks and hero exceptions; anonymous slots are regenerated from index and seed and rendered through instancing.

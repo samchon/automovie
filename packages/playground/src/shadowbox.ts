@@ -19,8 +19,8 @@ const GUARD: IAutoMovieJointPose[] = [
   j("leftLowerArm", { flexion: -122 }),
   j("rightUpperArm", { flexion: 38, abduction: 32 }),
   j("rightLowerArm", { flexion: 122 }),
-  j("leftUpperLeg", { abduction: 9, flexion: -12 }),
-  j("rightUpperLeg", { abduction: -9, flexion: 14 }),
+  j("leftUpperLeg", { abduction: 9, flexion: 12 }),
+  j("rightUpperLeg", { abduction: -9, flexion: -14 }),
   j("leftLowerLeg", { flexion: 14 }),
   j("rightLowerLeg", { flexion: 22 }),
 ];
@@ -93,7 +93,7 @@ export const shadowbox: (sk: string) => IAutoMovieMotion = (
     j("rightLowerArm", { flexion: 10 }),
     j("spine", { flexion: 9, twist: 26 }),
     j("chest", { flexion: 6, twist: 18 }),
-    j("rightUpperLeg", { abduction: -9, flexion: 4 }),
+    j("rightUpperLeg", { abduction: -9, flexion: -4 }),
   ]);
   const leadHook: IAutoMoviePose = merge([
     j("leftUpperArm", { flexion: -54, abduction: 98 }),
@@ -127,8 +127,8 @@ export const shadowbox: (sk: string) => IAutoMovieMotion = (
     ...merge([
       j("spine", { flexion: 14, abduction: 18 * d, twist: 8 * d }),
       j("chest", { flexion: 9, abduction: 14 * d }),
-      j("leftUpperLeg", { abduction: 9, flexion: -12 }),
-      j("rightUpperLeg", { abduction: -9, flexion: -10 }),
+      j("leftUpperLeg", { abduction: 9, flexion: 12 }),
+      j("rightUpperLeg", { abduction: -9, flexion: 10 }),
       j("leftLowerLeg", { flexion: 26 }),
       j("rightLowerLeg", { flexion: 32 }),
     ]),
@@ -140,8 +140,8 @@ export const shadowbox: (sk: string) => IAutoMovieMotion = (
     ...merge([
       j("spine", { flexion: 20, abduction: 26 * d, twist: 12 * d }),
       j("chest", { flexion: 12, abduction: 18 * d }),
-      j("leftUpperLeg", { abduction: 11, flexion: -32 }),
-      j("rightUpperLeg", { abduction: -11, flexion: -30 }),
+      j("leftUpperLeg", { abduction: 11, flexion: 32 }),
+      j("rightUpperLeg", { abduction: -11, flexion: 30 }),
       j("leftLowerLeg", { flexion: 60 }),
       j("rightLowerLeg", { flexion: 64 }),
     ]),
@@ -152,8 +152,8 @@ export const shadowbox: (sk: string) => IAutoMovieMotion = (
     ...merge([
       j("spine", { flexion: 28 }),
       j("chest", { flexion: 16 }),
-      j("leftUpperLeg", { abduction: 11, flexion: -40 }),
-      j("rightUpperLeg", { abduction: -11, flexion: -38 }),
+      j("leftUpperLeg", { abduction: 11, flexion: 40 }),
+      j("rightUpperLeg", { abduction: -11, flexion: 38 }),
       j("leftLowerLeg", { flexion: 78 }),
       j("rightLowerLeg", { flexion: 82 }),
     ]),
@@ -163,12 +163,12 @@ export const shadowbox: (sk: string) => IAutoMovieMotion = (
   // ── legs: chamber → strike pairs ─────────────────────────────────────────
   // rear (right) front push kick (teep)
   const chamberFront: IAutoMoviePose = merge([
-    j("rightUpperLeg", { flexion: -42 }),
+    j("rightUpperLeg", { flexion: 42 }),
     j("rightLowerLeg", { flexion: 86 }),
     j("spine", { flexion: -4 }),
   ]);
   const teep: IAutoMoviePose = merge([
-    j("rightUpperLeg", { flexion: -86 }),
+    j("rightUpperLeg", { flexion: 86 }),
     j("rightLowerLeg", { flexion: 10 }),
     j("leftLowerLeg", { flexion: 10 }),
     j("spine", { flexion: -16 }),
@@ -176,7 +176,7 @@ export const shadowbox: (sk: string) => IAutoMovieMotion = (
   ]);
   // right knee strike: drive the knee up, crunch down, hands clinch
   const chamberKnee: IAutoMoviePose = merge([
-    j("rightUpperLeg", { flexion: -64 }),
+    j("rightUpperLeg", { flexion: 64 }),
     j("rightLowerLeg", { flexion: 104 }),
     j("spine", { flexion: 6 }),
     j("leftUpperArm", { flexion: -28, abduction: 46 }),
@@ -185,7 +185,7 @@ export const shadowbox: (sk: string) => IAutoMovieMotion = (
     j("rightLowerArm", { flexion: 72 }),
   ]);
   const kneeStrike: IAutoMoviePose = merge([
-    j("rightUpperLeg", { flexion: -106 }),
+    j("rightUpperLeg", { flexion: 106 }),
     j("rightLowerLeg", { flexion: 128 }),
     j("spine", { flexion: 18 }),
     j("chest", { flexion: 12 }),
@@ -196,12 +196,12 @@ export const shadowbox: (sk: string) => IAutoMovieMotion = (
   ]);
   // right roundhouse high kick: chamber across, swing high to the side
   const chamberRound: IAutoMoviePose = merge([
-    j("rightUpperLeg", { flexion: -36, abduction: -34 }),
+    j("rightUpperLeg", { flexion: 36, abduction: -34 }),
     j("rightLowerLeg", { flexion: 78 }),
     j("spine", { twist: 14, flexion: 4 }),
   ]);
   const roundhouse: IAutoMoviePose = merge([
-    j("rightUpperLeg", { flexion: -58, abduction: -46, twist: -34 }),
+    j("rightUpperLeg", { flexion: 58, abduction: -46, twist: -34 }),
     j("rightLowerLeg", { flexion: 16 }),
     j("spine", { twist: 34, abduction: -12, flexion: 8 }),
     j("chest", { twist: 20 }),
@@ -209,12 +209,12 @@ export const shadowbox: (sk: string) => IAutoMovieMotion = (
   ]);
   // lead (left) high axe/front kick, straight up high
   const chamberHigh: IAutoMoviePose = merge([
-    j("leftUpperLeg", { flexion: -64 }),
+    j("leftUpperLeg", { flexion: 64 }),
     j("leftLowerLeg", { flexion: 70 }),
     j("spine", { flexion: -4 }),
   ]);
   const highKick: IAutoMoviePose = merge([
-    j("leftUpperLeg", { flexion: -120 }),
+    j("leftUpperLeg", { flexion: 120 }),
     j("leftLowerLeg", { flexion: 8 }),
     j("rightLowerLeg", { flexion: 18 }),
     j("spine", { flexion: -8 }),

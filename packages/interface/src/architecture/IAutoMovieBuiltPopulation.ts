@@ -13,7 +13,7 @@ import { IAutoMovieInstanceSetDesign } from "../production/IAutoMovieInstanceSet
  *
  * @evidence contracts/common.md#principled-implementation `builtInstanceSetPlacementBounds` derives world envelopes from the authored prototype box: occupied grid/lattice hull slots, the declared scatter disk or the first count explicit transforms. Fixed rotations transform corners; varying rotation ranges use an origin-centred enclosing sphere. Scatter/variation envelopes can exceed realized seeded members and ignore visibility thinning; binary64 arithmetic is not outward rounded and does not certify an enclosure of arbitrary rendered geometry.
  * @evidence contracts/common.md#clear-and-simple-design Three members, the owning space, the local prototype box, and the set, are exactly what a building query cannot obtain elsewhere; lowering hands the same set object to the production world instead of copying or expanding it.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Space containment and prototype completeness remain author obligations, not measured claims. Building validation checks the placement subset, including safe counts, finite ordered prototype/variation data and all stored explicit transforms, while production owns the full instance-set recipe contract. `along-route` is refused because no production route registry is available; no population is expanded to make its bounds appear exact.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Space containment and prototype completeness remain author obligations, not measured claims. Building validation checks the placement subset, including safe counts, finite ordered prototype/variation data and all stored explicit transforms, while production owns the full instance-set design contract. `along-route` is refused because no production route registry is available; no population is expanded to make its bounds appear exact.
  * @evidence contracts/common.md#meaningful-documentation States which space to name and what validation checks of it, the model-local frame and metre units of the prototype box, that the author must refresh it when a prototype changes, which boxes are valid, and which layout is refused and why.
  * @author Samchon
  */
@@ -38,13 +38,13 @@ export interface IAutoMovieBuiltPopulation {
    * Conservative occupied box of every selectable prototype, in model-local
    * metres before a slot's rotation, scale, and placement are applied.
    *
-   * The set names model recipes that the building record does not contain, so
+   * The set names model groups that the building record does not contain, so
    * a spatial query cannot measure their meshes; this authored box is the
-   * basis it measures instead. It is one union for the default recipe and
+   * basis it measures instead. It is one union for the default model and
    * every weighted prototype. The engine derives the world box from it and the
    * set's placement law, so changing an anchor, heading, spacing, or scale
-   * needs no edit here, but changing the default recipe or a weighted
-   * prototype does: nothing re-measures the recipes against this box.
+   * needs no edit here, but changing the default model or a weighted
+   * prototype does: nothing re-measures the models against this box.
    *
    * A collapsed axis and a point box are valid and describe flat or degenerate
    * geometry; only an inverted or non-finite box is invalid.

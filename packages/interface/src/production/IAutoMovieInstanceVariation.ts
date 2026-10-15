@@ -62,7 +62,7 @@ export interface IAutoMovieInstanceVariation {
   visibleProbability?: number;
 
   /**
-   * Non-empty exact `#RRGGBB` sRGB swatches applied per instance; the viewer decodes them with `srgbHexToLinearColor`, as it does model recipe palettes. `IAutoMovieColor` instead stores linear components and a derived hex label, so use the same conversion when moving a swatch into that contract.
+   * Non-empty exact `#RRGGBB` sRGB swatches applied per instance; the viewer decodes them with `srgbHexToLinearColor`, as it does model palettes. `IAutoMovieColor` instead stores linear components and a derived hex label, so use the same conversion when moving a swatch into that contract.
    */
   palette: string[];
 

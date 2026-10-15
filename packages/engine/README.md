@@ -20,7 +20,7 @@ Every public function takes typed records and returns either a result or a viola
 
 | Folder | Owns |
 | --- | --- |
-| `math`, `geometry`, `kinematics`, `rom`, `motion` | Vectors and quaternions, tessellation, skeletal kinematics, range of motion, motion sampling |
+| `math`, `geometry`, `kinematics`, `skinning`, `rom`, `motion` | Vectors and quaternions, tessellation and subdivision surfaces, skeletal kinematics, skinned and morphed vertices, range of motion, motion sampling |
 | `perform`, `film`, `scene`, `resolve` | Performance synthesis, staging, blocking, shots, edits, and film grammar |
 | `physics`, `soft`, `fluid` | Rigid impacts, soft bodies, and bounded fluid solves |
 | `architecture`, `space`, `service`, `drawing`, `analysis` | Built environments, spaces, service networks, drawings, and environmental analyses |

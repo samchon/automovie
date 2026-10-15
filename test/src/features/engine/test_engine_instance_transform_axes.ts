@@ -27,7 +27,7 @@ export function test_engine_instance_transform_axes(): void {
     crowd({
       count: 16,
       facingDeg: 90,
-      prototypes: [{ id: "default", modelRecipe: "body", weight: 1 }],
+      prototypes: [{ id: "default", model: "body", weight: 1 }],
     }),
   );
   const offset: ReturnType<typeof slots> = slots(
@@ -84,7 +84,7 @@ export function test_engine_instance_transform_axes(): void {
     }),
   );
   const uniform: ReturnType<typeof slots> = slots(
-    crowd({ prototypes: [{ id: "default", modelRecipe: "body", weight: 1 }] }),
+    crowd({ prototypes: [{ id: "default", model: "body", weight: 1 }] }),
   );
   TestValidator.equals(
     "per-axis scale stays in each axis range and is drawn per axis",

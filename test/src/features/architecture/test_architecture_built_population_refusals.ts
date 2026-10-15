@@ -27,7 +27,7 @@ const population: (
   prototypeBounds,
   set: {
     id: "casks",
-    modelRecipe: "cask",
+    model: "cask",
     count: 4,
     layout: { kind: "grid", rows: 2, columns: 2, spacing: { x: 1, z: 1 } },
     anchor: { x: 0, y: 0, z: 0 },
@@ -105,7 +105,7 @@ const refuses: (
  *
  * @evidence contracts/testing.md#behavioral-verification The four ordered parts call validateBuiltEnvironment and the population query using this entry's authored builders. Validation kind/path membership, clean ordinary/point baselines, capacity-diagnostic exclusion, owned set count and unknown-id throw distinguish specific malformed placement fields from blanket refusal; paths may have other findings beside the required one.
  * @evidence contracts/testing.md#independent-expectations A hand-authored four-slot grid supplies the coherent baseline; each existing mutation names its literal required kind/path, and NaN columns must not also emit the whole-layout capacity path. Point bounds remain admitted, rotation (0,0,0,2) fails unit norm and a three-slot explicit count with one transform is incomplete. Expected diagnostics do not come from the validator's current output, and the query observes set count rather than complete returned record identity.
- * @evidence contracts/testing.md#distinguishing-cases Unknown/duplicate/blank set identity, inverted/nonfinite versus point bounds, route layout, count/anchor/heading, scale/rotation intervals, grid/lattice capacity and explicit count/translation/rotation/scale retain their original refusing and working cases. Seed, jitter, explicit transform-id uniqueness and the full production recipe/variation schema are outside these assertions.
+ * @evidence contracts/testing.md#distinguishing-cases Unknown/duplicate/blank set identity, inverted/nonfinite versus point bounds, route layout, count/anchor/heading, scale/rotation intervals, grid/lattice capacity and explicit count/translation/rotation/scale retain their original refusing and working cases. Seed, jitter, explicit transform-id uniqueness and the full production model/variation schema are outside these assertions.
  * @evidence contracts/testing.md#execution-ownership Portable CPU unit test_architecture_built_population_refusals is the discoverable entry and owns the ordered cases delegated to assertArchitectureBuiltPopulationRefusalsPart1, assertArchitectureBuiltPopulationRefusalsPart2, assertArchitectureBuiltPopulationRefusalsPart3, assertArchitectureBuiltPopulationRefusalsPart4; those helpers are called explicitly, with no dynamic registration, native artifact build, process, browser or GPU host.
  */
 export function test_architecture_built_population_refusals(): void {

@@ -3,7 +3,7 @@ import type { IAutoMovieCompiledFormationLod } from "@automovie/interface";
 /**
  * Per-frame bounded debug summary for one formation.
  *
- * @evidence contracts/common.md#principled-implementation Separates anonymous near/far batch-selected slots, chunk-frustum exclusions and authored removals from promoted hero selection. Counts describe viewer state, not native draw submissions or visible pixels; compiled inputs omit hero recipes from anonymous LODs.
+ * @evidence contracts/common.md#principled-implementation Separates anonymous near/far batch-selected slots, chunk-frustum exclusions and authored removals from promoted hero selection. Counts describe viewer state, not native draw submissions or visible pixels; compiled inputs omit hero tiers from anonymous LODs.
  * @evidence contracts/common.md#clear-and-simple-design A fixed-size count record exposes runtime accounting without retaining per-member debug arrays for the host.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Hero visibility is not counted as anonymous instances; removed and off-camera members remain distinct instead of being combined to match a total.
  * @evidence contracts/common.md#meaningful-documentation Explains anonymous accounting, promoted hero treatment and why authored removal differs from frustum culling.

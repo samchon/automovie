@@ -21,7 +21,7 @@ import { formationSlotRecord } from "../formationSlotRecord";
  * The identity law is not restated here. This and {@link formationSlot} for a
  * grounded design both hand the slot's actor and position to
  * {@link formationSlotRecord}, which names the hero actor or the slot-derived
- * node and carries the base recipe, the designed heading and the seeded motion
+ * node and carries the base model, the designed heading and the seeded motion
  * phase. A test pins the two answers equal for every slot of a compiled
  * formation.
  *

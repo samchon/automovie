@@ -56,8 +56,8 @@ const object: ReturnType<typeof buildModel> = buildModel(model);
 
 // a braced stance: knees soft, hands up to take the hit
 const BRACE: IAutoMovieJointPose[] = [
-  j("leftUpperLeg", { flexion: -10, abduction: 10 }),
-  j("rightUpperLeg", { flexion: -10, abduction: -10 }),
+  j("leftUpperLeg", { flexion: 10, abduction: 10 }),
+  j("rightUpperLeg", { flexion: 10, abduction: -10 }),
   j("leftLowerLeg", { flexion: 24 }),
   j("rightLowerLeg", { flexion: 24 }),
   // Clinical arm abduction: both sides share one anatomical value; the rig's

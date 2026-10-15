@@ -127,9 +127,9 @@ export class Assembly {
     const finish = houseFinishRole(id, material) ?? material;
     const textured = houseTextureTile(finish) !== null;
     const selected = transforms.map((item) => textured ? { ...item, prototype: this.metricPrimitive(finish, "box", item.scale, `instance:${id}:${item.id}`) } : item);
-    const recipes = [...new Set(selected.map((item) => "prototype" in item ? item.prototype : this.primitive(finish)))];
-    const modelRecipe = recipes[0]!;
-    this.environment.populations!.push({ space, prototypeBounds: { min: v(-0.5, -0.5, -0.5), max: v(0.5, 0.5, 0.5) }, set: { id, modelRecipe, ...(textured ? { prototypes: recipes.map((recipe) => ({ id: recipe, modelRecipe: recipe, weight: 1 })) } : {}), count: transforms.length,
+    const models = [...new Set(selected.map((item) => "prototype" in item ? item.prototype : this.primitive(finish)))];
+    const model = models[0]!;
+    this.environment.populations!.push({ space, prototypeBounds: { min: v(-0.5, -0.5, -0.5), max: v(0.5, 0.5, 0.5) }, set: { id, model, ...(textured ? { prototypes: models.map((modelId) => ({ id: modelId, model: modelId, weight: 1 })) } : {}), count: transforms.length,
       layout: { kind: "explicit", transforms: selected }, anchor: v(0, 0, 0), facingDeg: 0, seed: 2080, variation: { scale: { min: 1, max: 1 }, palette: [palette[material] ?? "#e7e1d4"], traits: [] } } });
   }
 }

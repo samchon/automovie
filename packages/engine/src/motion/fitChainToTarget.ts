@@ -1,14 +1,15 @@
 import {
   AutoMovieHumanoidBone,
+  IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
 import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
+import { skeletonJointAxes } from "../kinematics/skeletonJointAxes";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
@@ -32,7 +33,13 @@ import { solvePreparedChainPlant } from "./solvePreparedChainPlant";
  */
 export const fitChainToTarget: (
   props: IFitChainToTargetProps,
-) => IAutoMoviePose = (props: IFitChainToTargetProps): IAutoMoviePose => {
+) => IAutoMoviePose = (input: IFitChainToTargetProps): IAutoMoviePose => {
+  // Declared bone axes take precedence over the host table, once, so the
+  // preparation, the analytic solve and the candidate FK read one basis.
+  const props: IFitChainToTargetProps = {
+    ...input,
+    jointAxes: skeletonJointAxes(input.skeleton, input.jointAxes),
+  };
   const prepared: ReturnType<typeof prepareChainPlant> =
     prepareChainPlant(props);
   if (prepared === null) return props.pose;

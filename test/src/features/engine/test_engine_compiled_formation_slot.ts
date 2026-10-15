@@ -19,7 +19,7 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
 const unit: () => IAutoMovieFormationDesign =
   (): IAutoMovieFormationDesign => ({
     id: "levy",
-    modelRecipe: "member",
+    model: "member",
     count: 30,
     layout: {
       kind: "line",
@@ -64,7 +64,7 @@ const bank: IAutoMovieWorldSurface = worldRamp({
  *
  * 1. Every slot of a dressed, turned unit on a bank regenerates from the compiled
  *    record exactly as the design regenerates it with the same terrain, down to
- *    node, actor, recipe, position, heading and motion phase.
+ *    node, actor, model, position, heading and motion phase.
  * 2. A hero slot is named by its actor and an anonymous slot by the formation id
  *    and six-digit slot, from the compiled record and from the design alike.
  * 3. The design without its terrain places a member up the bank at the anchor's

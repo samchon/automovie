@@ -1,6 +1,7 @@
 import {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMoviePose,
   IAutoMovieQuaternion,
@@ -12,7 +13,6 @@ import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { HUMANOID_REST_FRAME } from "../rom/constants/HUMANOID_REST_FRAME";
 import { getConstraint } from "../rom/getConstraint";
 import { IAutoMovieHingedArticulation } from "./IAutoMovieHingedArticulation";
-import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
 import { IAutoMovieResolvedBone } from "./IAutoMovieResolvedBone";
 import { IAutoMovieResolvedJointAngles } from "./IAutoMovieResolvedJointAngles";
 import { armChainFault } from "./armChainFault";
@@ -22,6 +22,7 @@ import { decomposeJointRotation } from "./decomposeJointRotation";
 import { hingedArmArticulation } from "./hingedArmArticulation";
 import { jointRomOvershoot } from "./jointRomOvershoot";
 import { resolvePose } from "./resolvePose";
+import { skeletonJointAxes } from "./skeletonJointAxes";
 
 /** A joint whose three clinical angles are all known numbers. */
 interface IAutoMovieClinicalJoint extends IAutoMovieResolvedJointAngles {
@@ -44,8 +45,9 @@ interface IAutoMovieClinicalJoint extends IAutoMovieResolvedJointAngles {
  *
  * The angles are clinical, so `validatePose` can compare them with the ROM
  * table directly. The clinical axes and the rest frame are two halves of one
- * convention: this function always applies {@link HUMANOID_JOINT_AXES} and so
- * defaults `restFrames` to the matching {@link HUMANOID_REST_FRAME}. Pass a
+ * convention: this function applies {@link HUMANOID_JOINT_AXES} under any
+ * axes the arm bones declare ({@link skeletonJointAxes}) and so defaults
+ * `restFrames` to the matching {@link HUMANOID_REST_FRAME}. Pass a
  * table for a rig with its own rest convention, or `{}` for raw rest-relative
  * angles.
  *
@@ -63,7 +65,7 @@ interface IAutoMovieClinicalJoint extends IAutoMovieResolvedJointAngles {
  *   `HUMANOID_REST_FRAME`.
  *
  * @evidence contracts/common.md#principled-implementation Reads the arm's rest offsets under the premise that the three bones form one parent chain, which it checks before solving, so each offset is in its parent's frame as the hinge solve requires; candidates are scored through the same clinical decomposition and `jointRomOvershoot` the result is reported and gated with, so the solver cannot pick a pose by a kinder rule than `validatePose` applies.
- * @evidence contracts/common.md#clear-and-simple-design Owns the humanoid arm convention, bone names, axes, rest frames and ROM lookup, while `hingedArmArticulation` owns the geometry and `armChainFault` the rig diagnosis shared with the perform-shot gate.
+ * @evidence contracts/common.md#clear-and-simple-design Owns the humanoid arm convention, bone names, axes under the bones' own declarations, rest frames and ROM lookup, while `hingedArmArticulation` owns the geometry and `armChainFault` the rig diagnosis shared with the perform-shot gate.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No rig, side or target is special-cased; an impossible reach returns its least-overshoot pose for the gate to report rather than a clamped one, and every refusal is a structural or geometric fact about the rig.
  * @evidence contracts/common.md#meaningful-documentation States the clinical output and why, the axis and rest-frame pairing with its default, the unreachable and illegal-target behavior, every `null` case including the parent-chain requirement, and each parameter's frame.
  * @evidence contracts/performance.md#efficient-algorithms Three linear bone lookups and one rest-pose forward-kinematics pass, linear in the bone count, then the hinge solve's at most 720 candidates, each two decompositions and two ROM scorings; the candidate sweep dominates and is constant per call.
@@ -118,16 +120,19 @@ export const reachPose: (
   // quadruped's front legs legitimately ride the arm chains.
   if (armChainFault(skeleton, side) !== null) return null;
 
+  const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
+    skeletonJointAxes(skeleton, HUMANOID_JOINT_AXES);
   const upper: IAutoMovieResolvedBone | undefined = resolvePose(
     { skeleton: skeleton.id, root: null, joints: [] },
     skeleton,
-    HUMANOID_JOINT_AXES,
+    axes,
   ).find((bone: IAutoMovieResolvedBone): boolean => bone.bone === upperName);
   if (upper === undefined) return null;
 
-  // Every arm bone is present in the humanoid axis table by construction.
-  const upperAxes: IAutoMovieJointAxes = HUMANOID_JOINT_AXES[upperName]!;
-  const lowerAxes: IAutoMovieJointAxes = HUMANOID_JOINT_AXES[lowerName]!;
+  // Every arm bone is present in the humanoid axis table by construction, and
+  // a declaration only replaces an entry.
+  const upperAxes: IAutoMovieJointAxes = axes[upperName]!;
+  const lowerAxes: IAutoMovieJointAxes = axes[lowerName]!;
   const upperConstraint: IAutoMovieJointConstraint | null = getConstraint(
     upperName,
     upperBone.constraint,

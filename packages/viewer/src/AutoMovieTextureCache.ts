@@ -1,14 +1,18 @@
-import { AutoMovieTextureBinding } from "@automovie/interface";
+import { AutoMovieTextureBinding, IAutoMovieImage } from "@automovie/interface";
 import * as THREE from "three";
 
 import { AutoMovieTextureCacheAllocationAuthority } from "./AutoMovieTextureCacheAllocationAuthority.js";
 import { IAutoMovieTextureLoader } from "./IAutoMovieTextureLoader.js";
+import { decodeAutoMovieImage } from "./decodeAutoMovieImage.js";
 import { readAutoMovieTextureSource } from "./readAutoMovieTextureSource.js";
 import { textureBindingAsset } from "./textureBindingAsset.js";
 
 /**
  * One shot's decoded texture assets: loaded once, handed out per binding, and
  * released once.
+ *
+ * An original comes from the host's loader, or, for an image a model carries,
+ * from that image's own bytes; either way this cache owns it.
  *
  * Two facts pull in opposite directions and this class is where they meet.
  * {@link buildMaterial} writes a binding's color space, UV transform and sampler
@@ -54,6 +58,11 @@ export class AutoMovieTextureCache {
     string,
     THREE.Texture
   >();
+  /** Where each primed asset id's pixels come from: carried base64 data, or null for the host loader. */
+  private readonly origins: Map<string, string | null> = new Map<
+    string,
+    string | null
+  >();
   private readonly issued: THREE.Texture[] = [];
   /** Actual failed or indeterminate wrappers retained after public bookkeeping closes. */
   private readonly uncertainRetirements: Set<THREE.Texture> =
@@ -92,31 +101,63 @@ export class AutoMovieTextureCache {
   /**
    * Decode every distinct asset the given bindings name, at most once each.
    *
+   * An asset id that names one of `images`, the images the binding's model
+   * carries, is decoded from those bytes by {@link decodeAutoMovieImage};
+   * every other id goes to the host loader. One id names one image for the
+   * whole shot: priming it again from different carried bytes, or once carried
+   * and once from the loader, rejects before anything is decoded, because
+   * {@link resolve} sees only the id.
+   *
    * Awaiting this is what makes {@link resolve} synchronous, which is what lets
    * {@link buildMaterial} stay a pure function of a material. A binding whose
    * asset fails to decode rejects here, naming every asset that failed, rather
    * than surfacing later as a silently untextured surface.
    *
-   * @evidence contracts/common.md#principled-implementation Deduplicates non-null binding assets, waits for every decode outcome and reports all failed asset names; all successful sources are ready for the synchronous resolver.
-   * @evidence contracts/common.md#clear-and-simple-design Asset extraction and decodeOnce isolate binding representation and per-asset promise ownership from this batch-coordination method.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A rejected asset is reported rather than replaced with an absent texture or silently decoded again under a different binding.
-   * @evidence contracts/common.md#meaningful-documentation Explains the asynchronous prerequisite for synchronous material resolution and aggregate asset-name failure behavior.
-   * @evidence contracts/performance.md#efficient-algorithms Walks bindings once into a Set, starts one lookup per distinct asset and examines settled results once, using temporary space linear in distinct assets.
-   * @evidence contracts/performance.md#reuse-equivalent-work decodeOnce shares the same promise for an asset across overlapping prime calls, including its completed outcome; the cache lifetime and host loader fix the decode context.
+   * @evidence contracts/common.md#principled-implementation Deduplicates non-null binding assets, resolves each against the carried images before the host loader, refuses an id whose origin differs from an earlier prime, waits for every decode outcome and reports all failed asset names; all successful sources are ready for the synchronous resolver.
+   * @evidence contracts/common.md#clear-and-simple-design Asset extraction and decodeOnce isolate binding representation and per-asset promise ownership from this batch-coordination method; the carried-image decoder and the host loader are the two interchangeable sources of an original.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A rejected asset is reported rather than replaced with an absent texture or silently decoded again under a different binding, and a conflicting origin for one id is refused rather than resolved by prime order.
+   * @evidence contracts/common.md#meaningful-documentation Explains the asynchronous prerequisite for synchronous material resolution, carried-image precedence, shot-wide id identity and aggregate asset-name failure behavior.
+   * @evidence contracts/performance.md#efficient-algorithms Walks bindings once into a Set and images once into a Map, starts one lookup per distinct asset and examines settled results once, using temporary space linear in distinct assets and images.
+   * @evidence contracts/performance.md#reuse-equivalent-work decodeOnce shares the same promise for an asset across overlapping prime calls, including its completed outcome; the recorded origin, equal carried bytes or the host loader, proves the shared decode equivalent, and the cache lifetime fixes the decode context.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Pending and completed decoded textures enter shot-owned Maps before loader execution; dispose waits for those promises and retires their successful textures even during interrupted preparation.
    */
   public async prime(
     bindings: Iterable<AutoMovieTextureBinding | null | undefined>,
+    images: readonly IAutoMovieImage[] = [],
   ): Promise<void> {
     this.assertLive();
     const assets: Set<string> = new Set<string>();
     for (const binding of bindings)
       if (binding !== null && binding !== undefined)
         assets.add(textureBindingAsset(binding));
+    const carried: Map<string, IAutoMovieImage> = new Map<
+      string,
+      IAutoMovieImage
+    >();
+    for (const image of images) {
+      if (!assets.has(image.id)) continue;
+      const earlier: IAutoMovieImage | undefined = carried.get(image.id);
+      if (earlier !== undefined && earlier.data !== image.data)
+        throw new Error(
+          `Texture asset "${image.id}" names two different carried images.`,
+        );
+      carried.set(image.id, image);
+    }
+    for (const asset of assets) {
+      const origin: string | null = carried.get(asset)?.data ?? null;
+      const earlier: string | null | undefined = this.origins.get(asset);
+      if (earlier !== undefined && earlier !== origin)
+        throw new Error(
+          `Texture asset "${asset}" names different images in one shot.`,
+        );
+    }
+    for (const asset of assets)
+      this.origins.set(asset, carried.get(asset)?.data ?? null);
     const settled: PromiseSettledResult<THREE.Texture>[] =
       await Promise.allSettled(
         [...assets].map(
-          (asset: string): Promise<THREE.Texture> => this.decodeOnce(asset),
+          (asset: string): Promise<THREE.Texture> =>
+            this.decodeOnce(asset, carried.get(asset)),
         ),
       );
     const failed: string[] = [...assets].filter(
@@ -223,6 +264,7 @@ export class AutoMovieTextureCache {
     this.issued.length = 0;
     this.pending.clear();
     this.sources.clear();
+    this.origins.clear();
     const failures: unknown[] = [];
     for (const texture of textures) {
       this.uncertainRetirements.add(texture);
@@ -246,13 +288,19 @@ export class AutoMovieTextureCache {
       throw new AggregateError(failures, "Texture cache retirement failed.");
   }
 
-  private decodeOnce(asset: string): Promise<THREE.Texture> {
+  private decodeOnce(
+    asset: string,
+    image: IAutoMovieImage | undefined,
+  ): Promise<THREE.Texture> {
     const existing: Promise<THREE.Texture> | undefined =
       this.pending.get(asset);
     if (existing !== undefined) return existing;
     // Register ownership before a host loader can synchronously request close.
     const decoding: Promise<THREE.Texture> = Promise.resolve()
-      .then((): Promise<THREE.Texture> => this.load(asset))
+      .then(
+        (): Promise<THREE.Texture> =>
+          image === undefined ? this.load(asset) : decodeAutoMovieImage(image),
+      )
       .then((texture: THREE.Texture): THREE.Texture => {
         AutoMovieTextureCacheAllocationAuthority.claim(
           this.allocationOwner,

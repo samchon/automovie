@@ -1,3 +1,4 @@
+export * from "./IAutoMovieImage";
 export * from "./IAutoMovieMaterial";
 export * from "./IAutoMovieMaterialAssembly";
 export * from "./AutoMovieTextureBinding";

@@ -1,11 +1,11 @@
 import {
-  AutoMovieArkitChannel,
-  AutoMovieExpressionPreset,
   IAutoMovieBlendshapeChannel,
   IAutoMovieExpression,
 } from "@automovie/interface";
 
 import { ViolationCollector } from "./ViolationCollector";
+import { AUTOMOVIE_ARKIT_CHANNELS } from "./constants/AUTOMOVIE_ARKIT_CHANNELS";
+import { AUTOMOVIE_EXPRESSION_PRESETS } from "./constants/AUTOMOVIE_EXPRESSION_PRESETS";
 
 /**
  * Admit preset/channel membership, intensity/weight ranges and duplicate ARKit channels.
@@ -44,7 +44,7 @@ export const validateExpression: (props: {
     collector?: ViolationCollector;
   } = props;
 
-  if (!EXPRESSION_PRESETS.has(expression.preset))
+  if (!AUTOMOVIE_EXPRESSION_PRESETS.has(expression.preset))
     collector.push(
       "type",
       `${path}.preset`,
@@ -57,7 +57,7 @@ export const validateExpression: (props: {
   (expression.blendshapes ?? []).forEach(
     (c: IAutoMovieBlendshapeChannel, i: number): void => {
       const cp: string = `${path}.blendshapes[${i}]`;
-      if (!ARKIT_CHANNELS.has(c.channel))
+      if (!AUTOMOVIE_ARKIT_CHANNELS.has(c.channel))
         collector.push(
           "type",
           `${cp}.channel`,
@@ -78,81 +78,3 @@ export const validateExpression: (props: {
 
   return collector;
 };
-
-const EXPRESSION_PRESETS: Set<AutoMovieExpressionPreset> =
-  new Set<AutoMovieExpressionPreset>([
-    "neutral",
-    "happy",
-    "angry",
-    "sad",
-    "relaxed",
-    "surprised",
-    "aa",
-    "ih",
-    "ou",
-    "ee",
-    "oh",
-    "blink",
-    "blinkLeft",
-    "blinkRight",
-    "lookUp",
-    "lookDown",
-    "lookLeft",
-    "lookRight",
-  ]);
-
-const ARKIT_CHANNELS: Set<AutoMovieArkitChannel> =
-  new Set<AutoMovieArkitChannel>([
-    "eyeBlinkLeft",
-    "eyeLookDownLeft",
-    "eyeLookInLeft",
-    "eyeLookOutLeft",
-    "eyeLookUpLeft",
-    "eyeSquintLeft",
-    "eyeWideLeft",
-    "eyeBlinkRight",
-    "eyeLookDownRight",
-    "eyeLookInRight",
-    "eyeLookOutRight",
-    "eyeLookUpRight",
-    "eyeSquintRight",
-    "eyeWideRight",
-    "jawForward",
-    "jawLeft",
-    "jawRight",
-    "jawOpen",
-    "mouthClose",
-    "mouthFunnel",
-    "mouthPucker",
-    "mouthLeft",
-    "mouthRight",
-    "mouthSmileLeft",
-    "mouthSmileRight",
-    "mouthFrownLeft",
-    "mouthFrownRight",
-    "mouthDimpleLeft",
-    "mouthDimpleRight",
-    "mouthStretchLeft",
-    "mouthStretchRight",
-    "mouthRollLower",
-    "mouthRollUpper",
-    "mouthShrugLower",
-    "mouthShrugUpper",
-    "mouthPressLeft",
-    "mouthPressRight",
-    "mouthLowerDownLeft",
-    "mouthLowerDownRight",
-    "mouthUpperUpLeft",
-    "mouthUpperUpRight",
-    "browDownLeft",
-    "browDownRight",
-    "browInnerUp",
-    "browOuterUpLeft",
-    "browOuterUpRight",
-    "cheekPuff",
-    "cheekSquintLeft",
-    "cheekSquintRight",
-    "noseSneerLeft",
-    "noseSneerRight",
-    "tongueOut",
-  ]);

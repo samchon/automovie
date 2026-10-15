@@ -57,6 +57,7 @@ export * from "./sampleFormationSlotMotion";
 export * from "./scene";
 export * from "./selectFormationLod";
 export * from "./service";
+export * from "./skinning";
 export * from "./soft";
 export * from "./sound";
 export * from "./space";
@@ -368,6 +369,8 @@ export type { IAutoMovieTextureImageFacts } from "./validation/IAutoMovieTexture
 export type { AutoMovieTextureMediaType } from "./validation/AutoMovieTextureMediaType";
 export { AUTO_MOVIE_MAX_TEXTURE_EDGE } from "./validation/constants/AUTO_MOVIE_MAX_TEXTURE_EDGE";
 export { SHA256_DIGEST_PATTERN } from "./validation/constants/SHA256_DIGEST_PATTERN";
+export { AUTOMOVIE_ARKIT_CHANNELS } from "./validation/constants/AUTOMOVIE_ARKIT_CHANNELS";
+export { AUTOMOVIE_EXPRESSION_PRESETS } from "./validation/constants/AUTOMOVIE_EXPRESSION_PRESETS";
 export type { IAutoMovieSceneEnvironmentUse } from "./validation/IAutoMovieSceneEnvironmentUse";
 export type { IAutoMovieTextureClosureInput } from "./validation/IAutoMovieTextureClosureInput";
 export { validateTextureAssets } from "./validation/validateTextureAssets";

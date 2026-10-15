@@ -1,5 +1,6 @@
 import {
   IAutoMovieAngleRange,
+  IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -9,7 +10,6 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
-import { IAutoMovieJointAxes } from "./IAutoMovieJointAxes";
 import { IAutoMovieJointRotationDomain } from "./IAutoMovieJointRotationDomain";
 import { IAutoMovieResolvedJointAngles } from "./IAutoMovieResolvedJointAngles";
 import { DEFAULT_JOINT_AXES } from "./constants/DEFAULT_JOINT_AXES";

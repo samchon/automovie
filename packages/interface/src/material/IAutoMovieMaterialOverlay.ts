@@ -1,14 +1,14 @@
 import { AutoMovieTextureBinding } from "./AutoMovieTextureBinding";
 
 /**
- * An ordered colour and optional relief layer over a material, with independently authored image sampling. Tissue and markings are possible uses of the same blend rules rather than special shader categories.
+ * An ordered colour and optional relief layer over a material, with independently authored image sampling.
  *
- * Colour alpha times `strength` controls colour, optional roughness and replacement-normal coverage. Multiply normals instead add strength-scaled XY to the existing tangent normal and multiply their Z components before normalization; this branch ignores colour alpha and can change an existing normal even at zero strength. Static Human glTF export omits overlays. These shader formulas do not prove tissue response or observed appearance.
+ * Colour alpha times `strength` controls colour, optional roughness and replacement-normal coverage. Multiply normals instead add strength-scaled XY to the existing tangent normal and multiply their Z components before normalization; this branch ignores colour alpha and can change an existing normal even at zero strength. glTF has no counterpart. These shader formulas do not prove a physical response or observed appearance.
  *
  * @evidence contracts/common.md#principled-implementation Ordered colour/roughness and replacement normals use alpha-times-strength coverage. Multiply normals use whiteout composition with strength-scaled XY and retained sampled Z, independently of colour alpha; zero strength therefore does not universally preserve an existing normal.
  * @evidence contracts/common.md#clear-and-simple-design Each overlay owns its image, blend, optional colour and relief factors and strength; the enclosing material owns list order and the four-layer budget, while texture references reuse the normal material sampling representation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Veins and nails are examples rather than special shader branches; the same multiply or replace rule applies to any authored image, and an unavailable colour image applies no overlay instead of fabricating coverage.
- * @evidence contracts/common.md#meaningful-documentation Defines colour coverage, edge texels, ordered blend formulas, multiply-normal alpha/zero-strength limits, finite factors and defaults, and static export omission without a physical-response guarantee.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No use selects a special shader branch; the same multiply or replace rule applies to any authored image, and an unavailable colour image applies no overlay instead of fabricating coverage.
+ * @evidence contracts/common.md#meaningful-documentation Defines colour coverage, edge texels, ordered blend formulas, multiply-normal alpha/zero-strength limits, finite factors and defaults, and the missing glTF counterpart without a physical-response guarantee.
  * @author Samchon
  */
 export interface IAutoMovieMaterialOverlay {
@@ -23,7 +23,7 @@ export interface IAutoMovieMaterialOverlay {
   blend: "multiply" | "replace";
 
   /**
-   * Linear RGB factors on the colour image's colour, each finite and nonnegative, so one image serves bodies of different colouring (a nail bed follows the person's pigmentation); omitted, one.
+   * Linear RGB factors on the colour image's colour, each finite and nonnegative, so one image serves surfaces of different colouring; omitted, one.
    */
   colorFactor?: { r: number; g: number; b: number };
 

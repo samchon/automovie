@@ -49,7 +49,7 @@ import { vector } from "./vector.js";
  * Build one compact formation as chunked instance batches.
  *
  * Heroes are deliberately absent: the builder promoted them to explicit scene
- * nodes. Each LOD recipe is flattened into one mesh, keeping exactly one
+ * nodes. Each LOD tier's model is flattened into one mesh, keeping exactly one
  * 64-byte instance matrix and one 4-byte phase scalar per anonymous slot and
  * tier.
  *
@@ -57,7 +57,7 @@ import { vector } from "./vector.js";
  *
  * No production scene/film caller is connected in the current tree; direct users and owning tests exercise this producer, so this API alone does not establish that compiled shot populations reach the capture application.
  *
- * @evidence contracts/common.md#principled-implementation Uses engine compact slot regeneration, cue sampling, cadence integration and hysteretic LOD, projecting metre placements into chunk InstancedMeshes and baked Float32 part tables; admitted recipes/anchors/tiers are premises, stride is heuristic and cadence matrix interpolation is approximate, while anonymous and caller-supplied hero ownership stay distinct.
+ * @evidence contracts/common.md#principled-implementation Uses engine compact slot regeneration, cue sampling, cadence integration and hysteretic LOD, projecting metre placements into chunk InstancedMeshes and baked Float32 part tables; admitted models/anchors/tiers are premises, stride is heuristic and cadence matrix interpolation is approximate, while anonymous and caller-supplied hero ownership stay distinct.
  * @evidence contracts/common.md#clear-and-simple-design Builds shared tier resources once and per-chunk matrix/phase buffers separately, with sparse slot exception lookup and hero rest snapshots for updates; no in-tree production shot host consumes this producer, and that unresolved wiring is not repaired by another runtime layer.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Regenerates authored seeded slots and actual cues without fixture frames or per-member surrogate nodes. The 0.01 chunk-radius and 0.001 distance/depth floors are numerical conventions; culling uses original chunk bounds and supplied projection radius, without recomputing bounds for reform or sparse offsets. Containment of the current deformed arrangement is therefore a remaining premise, not an independently established visibility guarantee.
  * @evidence contracts/common.md#meaningful-documentation States anonymous versus promoted members, metre/phase buffer roles, shared gait repertoire and cadence approximation, update work beyond uniform writes and the currently absent production consumer.

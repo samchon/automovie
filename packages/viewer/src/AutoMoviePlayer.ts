@@ -5,6 +5,7 @@ import {
   ISpringStep,
   clampPose,
   dampedSpring,
+  resolveLookAt,
   sampleMotion,
 } from "@automovie/engine";
 import {
@@ -49,12 +50,14 @@ interface IAxisSprings {
  * equal or backward times hold the last spring state.
  *
  * Expression output is sampled on the same frame clock and applied to morph
- * targets or imported-runtime expression sinks when the target provides them.
+ * targets or imported-runtime expression sinks when the target provides them;
+ * when the target's `lookAt` is `"bone"`, its gaze channels turn the eye bones
+ * instead (`resolveLookAt`).
  *
- * @evidence contracts/common.md#principled-implementation Engine sampling supplies pose and expression at elapsed seconds, engine clamping and dampedSpring handle optional secondary motion, and applyPose converts semantic joints to bone transforms; spring state is sequence-dependent and non-increasing timestamps hold it.
+ * @evidence contracts/common.md#principled-implementation Engine sampling supplies pose and expression at elapsed seconds, `resolveLookAt` moves a bone gaze onto the eye joints before clamping, engine clamping and dampedSpring handle optional secondary motion, and applyPose converts semantic joints to bone transforms; spring state is sequence-dependent and non-increasing timestamps hold it.
  * @evidence contracts/common.md#clear-and-simple-design The player coordinates one clip and built model while the host owns the animation loop; numerical interpolation and kinematics remain in engine and renderer mutation stays in viewer adapters.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The maximum spring step bounds integration after stalls and ROM is reapplied after intentional spring overshoot; these rules apply to every configured joint rather than to named models or fixtures.
- * @evidence contracts/common.md#meaningful-documentation States host rendering ownership, elapsed-second sampling, stateful spring timing, expression synchronization, optional clinical rest frames and post-spring ROM clamping.
+ * @evidence contracts/common.md#meaningful-documentation States host rendering ownership, elapsed-second sampling, stateful spring timing, expression synchronization, bone gaze, optional clinical rest frames and post-spring ROM clamping.
  * @evidence contracts/performance.md#efficient-algorithms Each update samples the clip, walks pose joints and configured spring joints, then resolves the skeleton; spring membership uses Sets and state uses bone-keyed Maps, with linear per-frame temporary pose storage.
  * @evidence contracts/performance.md#reuse-equivalent-work Per-bone spring values and velocities carry between updates; clip replacement preserves those states for follow-through while pose and expression are resampled because time and clip determine new output.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The instance retains its target, skeleton, current clip, latest sample and at most one three-axis spring state per humanoid-bone key; the host owns their lifetime and no animation task or GPU allocation is started.
@@ -129,7 +132,12 @@ export class AutoMoviePlayer {
         ? 0
         : Math.max(0, seconds - this.lastUpdateSeconds);
     this.lastUpdateSeconds = seconds;
-    const sample: IAutoMovieMotionSample = sampleMotion(this.motion, seconds);
+    // A bone gaze moves the gaze channels from the expression onto the eye
+    // joints before the ROM clamp and springs see the pose.
+    const sample: IAutoMovieMotionSample = resolveLookAt(
+      sampleMotion(this.motion, seconds),
+      this.target.lookAt,
+    );
     this.lastSample = sample;
     let pose: IAutoMoviePose = this.clampToRom
       ? clampPose(sample.pose, this.skeleton)

@@ -13,7 +13,7 @@ import { canonicalizeAutoMovieJson } from "../text/canonicalizeAutoMovieJson";
  * Shared by the compiled formation and instance-set kernels; package-private.
  *
  * @evidence contracts/common.md#principled-implementation Hash canonical JSON v2 of the referenced `IAutoMovieModel` group, so parts, skeleton and materials all enter the identity; absent and unencodable references hash distinct explicit markers. Those markers identify a failure spelling rather than claim a digest of actual model content.
- * @evidence contracts/common.md#clear-and-simple-design One browser-safe digest owner is shared by both compact population compilers and reads the model group a film references, with no construction recipe or archetype catalogue in between.
+ * @evidence contracts/common.md#clear-and-simple-design One browser-safe digest owner is shared by both compact population compilers and reads the model group a film references directly, with no registry in between.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing and unencodable markers are explicit kernel identity policy, not a substitute model or content-validity verdict; callers must perform any model admission they require before compilation.
  * @evidence contracts/common.md#meaningful-documentation Docs identify SHA-256 canonical bytes, missing/unencodable markers and the fact that the kernel catches encoding refusal.
  * @evidence contracts/performance.md#efficient-algorithms Model lookup is map-based; canonicalization and SHA processing take O(B) work/storage in encoded model bytes, or constant-size marker bytes on fallback, so a mesh-heavy group costs its full encoded size per referencing tier.

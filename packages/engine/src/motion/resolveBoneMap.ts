@@ -1,10 +1,10 @@
 import {
   AutoMovieHumanoidBone,
+  IAutoMovieJointAxes,
   IAutoMoviePose,
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 
-import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
 import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
 import { IAutoMovieSkeletonTopology } from "../kinematics/IAutoMovieSkeletonTopology";
 import { indexSkeletonTopology } from "../kinematics/indexSkeletonTopology";

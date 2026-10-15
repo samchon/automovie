@@ -100,18 +100,18 @@ export function createViewerPayload(state: State = initialState) {
       const member = instanceSlot(compiled, index);
       if (member.visible === false) continue;
       const selectedModel = environment.models.find(
-        (model) => model.id === member.modelRecipe,
+        (model) => model.id === member.model,
       );
       if (!selectedModel)
-        throw Error(member.node + ": unresolved model " + member.modelRecipe);
+        throw Error(member.node + ": unresolved model " + member.model);
       const paletteReference = instancePaletteReference(
         selectedModel.materials,
         member.traits,
-        `${member.node}/${member.modelRecipe}`,
+        `${member.node}/${member.model}`,
       );
       placements.push({
         node: member.node,
-        model: member.modelRecipe,
+        model: member.model,
         position: member.position,
         palette: srgbHexToLinearColor(member.palette),
         traits: member.traits,

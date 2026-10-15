@@ -6,7 +6,7 @@ import type {
   IAutoMovieInstanceSetLayout,
   IAutoMovieInstanceVariation,
   IAutoMovieModel,
-  IAutoMovieModelLodRecipe,
+  IAutoMovieModelLod,
   IAutoMovieVector3,
   IAutoMovieWorldDesign,
   IAutoMovieWorldRoute,
@@ -88,7 +88,7 @@ export const materializeCompiledInstanceSet: (props: {
   const placement: IAutoMovieInstanceSetPlacement = {
     id: instanceSet.id,
     count: instanceSet.count,
-    modelRecipe: instanceSet.modelRecipe,
+    model: instanceSet.model,
     layout,
     route,
     anchor: instanceSet.anchor,
@@ -99,7 +99,7 @@ export const materializeCompiledInstanceSet: (props: {
       ? {}
       : {
           prototypes: [
-            { id: "default", modelRecipe: instanceSet.modelRecipe, weight: 1 },
+            { id: "default", model: instanceSet.model, weight: 1 },
             ...instanceSet.prototypes,
           ],
         }),
@@ -117,39 +117,39 @@ export const materializeCompiledInstanceSet: (props: {
   const summary: typeof measured.summary = measured.summary;
   const compilePrototype: (prototype: {
     id: string;
-    modelRecipe: string;
+    model: string;
     weight: number;
-    lod?: IAutoMovieModelLodRecipe[] | undefined;
+    lod?: IAutoMovieModelLod[] | undefined;
   }) => {
     lod: IAutoMovieCompiledFormationLod[];
     projectionRadius: number;
     id: string;
-    modelRecipe: string;
+    model: string;
     weight: number;
   } = (prototype: {
     id: string;
-    modelRecipe: string;
+    model: string;
     weight: number;
-    lod?: IAutoMovieModelLodRecipe[] | undefined;
+    lod?: IAutoMovieModelLod[] | undefined;
   }): {
     lod: IAutoMovieCompiledFormationLod[];
     projectionRadius: number;
     id: string;
-    modelRecipe: string;
+    model: string;
     weight: number;
   } => {
     const representation: {
       lod: IAutoMovieCompiledFormationLod[];
       projectionRadius: number;
     } = compiledPopulationRepresentation({
-      modelRecipe: prototype.modelRecipe,
+      model: prototype.model,
       tiers: prototype.lod ?? [],
       models,
       projectionRadii,
     });
     return {
       id: prototype.id,
-      modelRecipe: prototype.modelRecipe,
+      model: prototype.model,
       weight: prototype.weight,
       lod: representation.lod,
       projectionRadius: representation.projectionRadius,
@@ -159,11 +159,11 @@ export const materializeCompiledInstanceSet: (props: {
     lod: IAutoMovieCompiledFormationLod[];
     projectionRadius: number;
     id: string;
-    modelRecipe: string;
+    model: string;
     weight: number;
   } = compilePrototype({
     id: "default",
-    modelRecipe: instanceSet.modelRecipe,
+    model: instanceSet.model,
     weight: 1,
     lod: instanceSet.lod,
   });
@@ -172,7 +172,7 @@ export const materializeCompiledInstanceSet: (props: {
         lod: IAutoMovieCompiledFormationLod[];
         projectionRadius: number;
         id: string;
-        modelRecipe: string;
+        model: string;
         weight: number;
       }[]
     | undefined =
@@ -202,19 +202,19 @@ export const materializeCompiledInstanceSet: (props: {
           lod: IAutoMovieCompiledFormationLod[];
           projectionRadius: number;
           id: string;
-          modelRecipe: string;
+          model: string;
           weight: number;
         }[]
       | undefined;
     version: 1;
     id: string;
     count: number;
-    modelRecipe: string;
+    model: string;
   } = {
     version: 1 as const,
     id: instanceSet.id,
     count: instanceSet.count,
-    modelRecipe: instanceSet.modelRecipe,
+    model: instanceSet.model,
     ...(prototypes === undefined ? {} : { prototypes }),
     layout: structuredClone(layout),
     route: route === null ? null : structuredClone(route),
@@ -232,7 +232,7 @@ export const materializeCompiledInstanceSet: (props: {
                 lod: IAutoMovieCompiledFormationLod[];
                 projectionRadius: number;
                 id: string;
-                modelRecipe: string;
+                model: string;
                 weight: number;
               }): number => prototype.projectionRadius,
             ),
