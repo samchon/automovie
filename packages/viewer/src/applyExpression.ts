@@ -1,4 +1,8 @@
-import { GAZE_PRESET_CHANNELS } from "@automovie/engine";
+import {
+  AUTOMOVIE_ARKIT_CHANNELS,
+  AUTOMOVIE_EXPRESSION_PRESETS,
+  GAZE_PRESET_CHANNELS,
+} from "@automovie/engine";
 import {
   AutoMovieArkitChannel,
   AutoMovieExpressionPreset,
@@ -8,84 +12,8 @@ import * as THREE from "three";
 
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 
-/** VRM preset names the viewer resets and drives every expression frame. */
-const AUTOMOVIE_EXPRESSION_PRESETS: readonly AutoMovieExpressionPreset[] = [
-  "neutral",
-  "happy",
-  "angry",
-  "sad",
-  "relaxed",
-  "surprised",
-  "aa",
-  "ih",
-  "ou",
-  "ee",
-  "oh",
-  "blink",
-  "blinkLeft",
-  "blinkRight",
-  "lookUp",
-  "lookDown",
-  "lookLeft",
-  "lookRight",
-] as const satisfies readonly AutoMovieExpressionPreset[];
-
-/** ARKit channel names the viewer can address directly on morph dictionaries. */
-const AUTOMOVIE_ARKIT_CHANNELS: readonly AutoMovieArkitChannel[] = [
-  "eyeBlinkLeft",
-  "eyeLookDownLeft",
-  "eyeLookInLeft",
-  "eyeLookOutLeft",
-  "eyeLookUpLeft",
-  "eyeSquintLeft",
-  "eyeWideLeft",
-  "eyeBlinkRight",
-  "eyeLookDownRight",
-  "eyeLookInRight",
-  "eyeLookOutRight",
-  "eyeLookUpRight",
-  "eyeSquintRight",
-  "eyeWideRight",
-  "jawForward",
-  "jawLeft",
-  "jawRight",
-  "jawOpen",
-  "mouthClose",
-  "mouthFunnel",
-  "mouthPucker",
-  "mouthLeft",
-  "mouthRight",
-  "mouthSmileLeft",
-  "mouthSmileRight",
-  "mouthFrownLeft",
-  "mouthFrownRight",
-  "mouthDimpleLeft",
-  "mouthDimpleRight",
-  "mouthStretchLeft",
-  "mouthStretchRight",
-  "mouthRollLower",
-  "mouthRollUpper",
-  "mouthShrugLower",
-  "mouthShrugUpper",
-  "mouthPressLeft",
-  "mouthPressRight",
-  "mouthLowerDownLeft",
-  "mouthLowerDownRight",
-  "mouthUpperUpLeft",
-  "mouthUpperUpRight",
-  "browDownLeft",
-  "browDownRight",
-  "browInnerUp",
-  "browOuterUpLeft",
-  "browOuterUpRight",
-  "cheekPuff",
-  "cheekSquintLeft",
-  "cheekSquintRight",
-  "noseSneerLeft",
-  "noseSneerRight",
-  "tongueOut",
-] as const satisfies readonly AutoMovieArkitChannel[];
-
+// One list with engine admission, which refuses a pose-driven morph target
+// under any of these names because this reset would overwrite it.
 const EXPRESSION_RESET_NAMES: readonly string[] = [
   ...AUTOMOVIE_EXPRESSION_PRESETS,
   ...AUTOMOVIE_ARKIT_CHANNELS,
