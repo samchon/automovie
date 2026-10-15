@@ -39,4 +39,10 @@ export interface IAutoMovieHumanConversionContext {
 
   /** Departure of `bmi` from the sex's reference mean, kilograms per square metre. */
   bmiOffset: number;
+
+  /** Fat mass index less the median person's of the same sex and age, kilograms per square metre. */
+  fatIndexOffset: number;
+
+  /** Appendicular lean mass index less the median person's of the same sex and age, kilograms per square metre. */
+  leanIndexOffset: number;
 }

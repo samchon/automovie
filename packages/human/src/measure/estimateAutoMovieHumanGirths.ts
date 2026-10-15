@@ -189,6 +189,36 @@ const SNYDER_LIMB: Record<"wrist" | "thigh" | "calf" | "ankle", ISexCurve> = {
   },
 };
 
+/**
+ * How fat and limb lean mass each move a girth, as multiples of the girth's own BMI slope: our ordinary least squares fits of NHANES girths on stature, the DXA fat mass index and the appendicular lean mass index, adults 18 to 40 (2017-2018 cycle for the waist at the iliac crest, hip and relaxed mid-upper arm, 657 to 661 women and 635 to 636 men; 1999-2004 cycles, first imputation, for the mid-thigh and the calf, 1,903 to 1,913 women and 2,086 to 2,097 men; National Center for Health Statistics public-use files DXX, BMX and DEMO), each slope over the same girth's slope on BMI at fixed stature. R² 0.82 to 0.94. A unit of fat mass index thickens the waist 1.6 times as much as a unit of BMI does in men while a unit of limb lean mass thickens it 0.64 times; at the arm it is 0.85 and 2.6 times: fat goes to the trunk, lean to the limbs and the shoulders. In the population a unit of BMI carries about 0.53 to 0.65 units of fat mass index and 0.17 to 0.21 of limb lean mass index, which these factors return. Grade: population-fitted.
+ */
+const COMPOSITION_SPLIT: Record<
+  "waist" | "hip" | "arm" | "thigh" | "calf",
+  Record<AutoMovieHumanSex, { fat: number; lean: number }>
+> = {
+  waist: { male: { fat: 1.6, lean: 0.64 }, female: { fat: 1.388, lean: 0.82 } },
+  hip: { male: { fat: 1.362, lean: 1.312 }, female: { fat: 1.376, lean: 0.916 } },
+  arm: { male: { fat: 0.854, lean: 2.612 }, female: { fat: 1.104, lean: 1.885 } },
+  thigh: { male: { fat: 0.889, lean: 2.396 }, female: { fat: 0.909, lean: 2.381 } },
+  calf: { male: { fat: 0.937, lean: 2.218 }, female: { fat: 0.92, lean: 2.316 } },
+};
+
+/**
+ * The NHANES site whose fat and lean split each ANSUR II girth takes. Waist, buttock, upper arm, thigh and calf take their own sites (the navel waist the iliac crest waist, the buttock the hip, the lower thigh the mid-thigh). The chest takes the hip's mixed split, since pectoral and back muscle and fat both fill it; the neck and wrist the arm's, the ankle the calf's. Grade: conventional for the chest, neck, wrist and ankle.
+ */
+const SPLIT_SITE: Record<keyof typeof ANSUR_II, keyof typeof COMPOSITION_SPLIT> = {
+  neck: "arm",
+  chest: "hip",
+  waist: "waist",
+  buttock: "hip",
+  biceps: "arm",
+  wrist: "arm",
+  thigh: "thigh",
+  lowerThigh: "thigh",
+  calf: "calf",
+  ankle: "calf",
+};
+
 /** Ages bounding the ANSUR II sample, years; the regressions are read inside them. */
 const ANSUR_AGES: [number, number] = [17, 58];
 
@@ -201,7 +231,7 @@ const REFERENCE_AGE: number = 19.5;
 /**
  * Girths of one person.
  *
- * Adults take our ANSUR II regressions on stature, BMI and age, so adiposity reaches each girth by its own measured slope (waist 23.6 mm per BMI unit, ankle 2.4). ANSUR II measures the waist only at the navel, so the natural, narrowest waist comes from the navel waist and the buttock girth by the 1988 Army survey's relation between the two waists, which keeps adiposity's and age's own reach into the waist. The relaxed upper arm takes the NHANES mean for age with the ANSUR flexed-biceps slopes for stature and BMI. Past 58, the edge of the ANSUR sample, limb girths follow the NHANES arm girth's decline and the waist the NHANES waist's course, while the other girths hold.
+ * Adults take our ANSUR II regressions on stature, BMI and age at the median person's BMI, and the person's fat and limb lean mass then reach each girth by its own measured slope (waist 23.6 mm per BMI unit, ankle 2.4) split between fat and lean as NHANES DXA measures them, so fat widens the waist and lean mass the arms, thighs and shoulders. ANSUR II measures the waist only at the navel, so the natural, narrowest waist comes from the navel waist and the buttock girth by the 1988 Army survey's relation between the two waists, which keeps adiposity's and age's own reach into the waist. The relaxed upper arm takes the NHANES mean for age with the ANSUR flexed-biceps slopes for stature and BMI. Past 58, the edge of the ANSUR sample, limb girths follow the NHANES arm girth's decline and the waist the NHANES waist's course, while the other girths hold.
  *
  * Children take the adult girths at 19.5 years for the same BMI and scale them by stature over the median stature for age and by the growth of the NHANES waist (chest and buttock), the NHANES upper arm (upper arm and neck) or the girth's own 1977 course (wrist, thigh, lower thigh, calf and ankle). The forearm is a relaxed girth at every age, from the relaxed upper arm and wrist by the 1977 survey's relation; ANSUR II measures only a flexed forearm. No child neck girth was read; it follows the arm girth, which NHANES measured from 2 months, rather than the waist, which it measured only from 2 years; their natural waist is the 1977 survey's natural-waist-to-hip ratio for age. Below 2.5 years, where NHANES measured no waist, trunk girths follow median stature. Between 17.75 and 20 years the two hand over linearly. Population is not read.
  *
@@ -321,17 +351,29 @@ function adultGirths(
 ): IGirths {
   const sex: AutoMovieHumanSex = context.sex;
   const sampleAge: number = Math.min(ANSUR_AGES[1], Math.max(ANSUR_AGES[0], atAge));
-  const fit: (
+  // ANSUR II at the median person's BMI, then fat and limb lean mass each by their own reach
+  const referenceBmi: number = context.bmi - context.bmiOffset;
+  const composed: (key: keyof typeof ANSUR_II) => number = (
     key: keyof typeof ANSUR_II,
-    bmi?: number,
-    age?: number,
-  ) => number = (
+  ): number => {
+    const split: { fat: number; lean: number } =
+      COMPOSITION_SPLIT[SPLIT_SITE[key]][sex];
+    return (
+      ANSUR_II[key][sex].bmi *
+      (split.fat * context.fatIndexOffset + split.lean * context.leanIndexOffset)
+    );
+  };
+  const fit: (key: keyof typeof ANSUR_II) => number = (
     key: keyof typeof ANSUR_II,
-    bmi: number = context.bmi,
-    age: number = sampleAge,
   ): number => {
     const r: IRegression = ANSUR_II[key][sex];
-    return r.intercept + r.stature * stature + r.bmi * bmi + r.age * age;
+    return (
+      r.intercept +
+      r.stature * stature +
+      r.bmi * referenceBmi +
+      r.age * sampleAge +
+      composed(key)
+    );
   };
   const late: number = ANSUR_AGES[1];
   const limbAgeing: number =
@@ -347,7 +389,8 @@ function adultGirths(
   const upperArm: number =
     read(NHANES_ARM, atAge) +
     biceps.stature * (stature - estimateAutoMovieHumanMedianStature(sex, atAge)) +
-    biceps.bmi * (context.bmi - NHANES_ADULT_BMI);
+    biceps.bmi * (referenceBmi - NHANES_ADULT_BMI) +
+    composed("biceps");
   const wrist: number = fit("wrist") * limbAgeing;
   return {
     neck: fit("neck"),
