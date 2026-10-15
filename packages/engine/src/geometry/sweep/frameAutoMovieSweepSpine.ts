@@ -1,10 +1,7 @@
-import { IAutoMovieVector3 } from "@automovie/interface";
-
-import { IAutoMovieSweepFrame } from "./IAutoMovieSweepFrame";
 import { IAutoMovieSweepPath } from "./IAutoMovieSweepPath";
 import { IAutoMovieSweepSpine } from "./IAutoMovieSweepSpine";
-import { IAutoMovieSweepTransport } from "./IAutoMovieSweepTransport";
-import { transportAutoMovieSweepSpine } from "./transportAutoMovieSweepSpine";
+import { loadAutoMovieSweepSpine } from "./loadAutoMovieSweepSpine";
+import { pathAutoMovieSweepTransport } from "./pathAutoMovieSweepTransport";
 
 /**
  * Compile a spine into its curve, tangent and rotation-minimizing frames.
@@ -39,7 +36,7 @@ import { transportAutoMovieSweepSpine } from "./transportAutoMovieSweepSpine";
  * @throws Error when the spine has fewer than two points, a point, the normal or an end tangent is not finite or an end tangent is zero, two consecutive points coincide, the path reverses at a point, the normal is parallel to the first tangent, or the tangent vanishes somewhere on the path.
  *
  * @evidence contracts/common.md#principled-implementation The centripetal Catmull-Rom spline interpolates the points without cusps or self-intersections within a segment, and double reflection is a published fourth-order rotation-minimizing frame integrator; the frame between table entries is one more double reflection, so queries are consistent with the table.
- * @evidence contracts/common.md#clear-and-simple-design The object-returning face of `transportAutoMovieSweepSpine`, which owns the spline and the transport; callers that query a few points use this, posed sweeps rewrite the transport's arrays directly.
+ * @evidence contracts/common.md#clear-and-simple-design The object-returning face of `transportAutoMovieSweepSpine`, which owns the spline and the transport, through `loadAutoMovieSweepSpine` and `pathAutoMovieSweepTransport`; callers that query a few points use this, posed sweeps rewrite the transport's arrays directly.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A vanishing tangent or a normal along the tangent is refused instead of replaced by an arbitrary axis.
  * @evidence contracts/common.md#meaningful-documentation States interpolation, the tangent's difference step, the transport method and its source, the table density, and each refusal.
  * @evidence contracts/performance.md#efficient-algorithms For n points: O(n) chord lengths, a transport table of 64 (n - 1) + 1 frames built in one pass, and O(n) per query to find the segment plus one reflection step; each query allocates only its returned vectors.
@@ -48,43 +45,4 @@ import { transportAutoMovieSweepSpine } from "./transportAutoMovieSweepSpine";
  */
 export const frameAutoMovieSweepSpine: (spine: IAutoMovieSweepSpine) => IAutoMovieSweepPath = (
   spine: IAutoMovieSweepSpine,
-): IAutoMovieSweepPath => {
-  const points: IAutoMovieVector3[] = spine.points;
-  const transport: IAutoMovieSweepTransport = transportAutoMovieSweepSpine(points.length, true);
-  points.forEach((p: IAutoMovieVector3, k: number): void => {
-    transport.points[3 * k] = p.x;
-    transport.points[3 * k + 1] = p.y;
-    transport.points[3 * k + 2] = p.z;
-  });
-  const write = (target: Float64Array, v: IAutoMovieVector3 | undefined, what: string): void => {
-    if (v === undefined) return;
-    if (![v.x, v.y, v.z].every(Number.isFinite) || Math.hypot(v.x, v.y, v.z) === 0)
-      throw new Error(`sweep spine ${what} tangent must be finite and not zero`);
-    target[0] = v.x;
-    target[1] = v.y;
-    target[2] = v.z;
-  };
-  transport.normal[0] = spine.normal.x;
-  transport.normal[1] = spine.normal.y;
-  transport.normal[2] = spine.normal.z;
-  write(transport.start, spine.tangents?.start, "start");
-  write(transport.end, spine.tangents?.end, "end");
-  transport.update();
-  const out: Float64Array = new Float64Array(12);
-  const vector = (at: number): IAutoMovieVector3 => ({ x: out[at]!, y: out[at + 1]!, z: out[at + 2]! });
-  return {
-    length: transport.length(),
-    point: (u: number): IAutoMovieVector3 => {
-      transport.point(u, out, 0);
-      return vector(0);
-    },
-    tangent: (u: number): IAutoMovieVector3 => {
-      transport.tangent(u, out, 0);
-      return vector(0);
-    },
-    frame: (u: number): IAutoMovieSweepFrame => {
-      transport.frame(u, out, 0);
-      return { origin: vector(0), x: vector(3), y: vector(6), normal: vector(9) };
-    },
-  };
-};
+): IAutoMovieSweepPath => pathAutoMovieSweepTransport(loadAutoMovieSweepSpine(spine, true));
