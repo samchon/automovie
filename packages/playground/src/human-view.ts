@@ -16,10 +16,12 @@ import {
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 import {
+  AutoMovieTextureCache,
   IAutoMovieModelObject,
   applyExpression,
   applyPose,
   buildModel,
+  materialTextureBindings,
   mountViewer,
 } from "@automovie/viewer";
 import * as THREE from "three";
@@ -205,8 +207,55 @@ const dispose = (root: THREE.Object3D): void =>
     for (const m of ([] as THREE.Material[]).concat(mesh.material)) m.dispose();
   });
 
-/** Display an accepted person and rebuild the controls from its documents. */
+/** Decoded images of the displayed person's textures, such as its irises; replaced and released with the person. */
+let textures: AutoMovieTextureCache | null = null;
+
+/** Settles once the displayed person's textures are on its materials; a capture waits for it. */
+let textured: Promise<void> = Promise.resolve();
+
+/**
+ * Display an accepted person and rebuild the controls from its documents.
+ *
+ * The model is shown at once with flat materials, and again with its textures once the images it carries are decoded, which is asynchronous; a newer person displayed meanwhile wins and the older textures are released.
+ */
 const show = (accepted: IAccepted): void => {
+  display(accepted, undefined);
+  renderPanels();
+  textured = texture(accepted).catch((cause: unknown): void => error(cause));
+};
+
+/** Decode the images the person's materials sample and display it with them, unless another person replaced it meanwhile. */
+const texture = async (accepted: IAccepted): Promise<void> => {
+  const bindings: ReturnType<typeof materialTextureBindings> =
+    accepted.model.materials.flatMap(materialTextureBindings);
+  if (bindings.length === 0) return;
+  const cache: AutoMovieTextureCache = new AutoMovieTextureCache(
+    (asset: string): Promise<THREE.Texture> =>
+      Promise.reject(
+        new Error(`The Human page carries no texture asset "${asset}".`),
+      ),
+  );
+  try {
+    await cache.prime(bindings, accepted.model.images ?? []);
+  } catch (cause) {
+    void cache.dispose();
+    throw cause;
+  }
+  if (current !== accepted) {
+    void cache.dispose();
+    return;
+  }
+  const previous: AutoMovieTextureCache | null = textures;
+  textures = cache;
+  display(accepted, cache.resolve);
+  void previous?.dispose();
+};
+
+/** Put the person's model in the scene, posed and expressed, replacing the one shown. */
+const display = (
+  accepted: IAccepted,
+  resolveTexture: AutoMovieTextureCache["resolve"] | undefined,
+): void => {
   current = accepted;
   if (object !== null) {
     scene.remove(object.object);
@@ -217,7 +266,7 @@ const show = (accepted: IAccepted): void => {
     bonesHelper.dispose();
     bonesHelper = null;
   }
-  object = buildModel(accepted.model);
+  object = buildModel(accepted.model, resolveTexture);
   scene.add(object.object);
   applyPose(
     object,
@@ -234,7 +283,6 @@ const show = (accepted: IAccepted): void => {
   }
   applyVisibility();
   error(null);
-  renderPanels();
 };
 
 /** Admit a candidate session; on refusal keep the last valid person. */
@@ -314,6 +362,7 @@ const capture = async (props: {
 }): Promise<{ files: string[]; metadata: string }> => {
   if (!/^[A-Za-z0-9._-]+$/.test(props.name))
     throw new Error("Capture name must match [A-Za-z0-9._-]+.");
+  await textured;
   const previous: typeof view = { ...view };
   const shots: { file: string; png: string }[] = [];
   const records: unknown[] = [];
