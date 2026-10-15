@@ -233,6 +233,7 @@ export function placeAutoMovieHumanLeg(
     },
   };
 }
+/** Output type of {@link placeAutoMovieHumanLeg}. */
 export namespace placeAutoMovieHumanLeg {
   /**
    * One placed leg.

@@ -51,6 +51,12 @@ const MUSCULARITY_LEAN_SHARE: number = 0.25;
  * @author Samchon
  */
 export class AutoMovieHumanConverter implements IAutoMovieHumanConverter {
+  /**
+   * Expand traits into a detailed identity by the steps listed on the class.
+   *
+   * @param traits Admitted traits
+   * @returns Identity at the traits' age, sex, stature and build
+   */
   public toIdentity(traits: IAutoMovieHumanTraits): IAutoMovieHumanIdentity {
     const { sex, age }: IAutoMovieHumanTraits = traits;
     const medianStature: number = estimateAutoMovieHumanMedianStature(sex, age);

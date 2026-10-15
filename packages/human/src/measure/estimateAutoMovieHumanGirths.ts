@@ -183,6 +183,7 @@ export function estimateAutoMovieHumanGirths(
     },
   };
 }
+/** Output type of {@link estimateAutoMovieHumanGirths}. */
 export namespace estimateAutoMovieHumanGirths {
   /**
    * Girths of one person, millimetres.

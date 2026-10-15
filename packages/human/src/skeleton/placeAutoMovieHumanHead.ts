@@ -214,6 +214,7 @@ export function placeAutoMovieHumanHead(
     right: side(-1),
   };
 }
+/** Side and output types of {@link placeAutoMovieHumanHead}. */
 export namespace placeAutoMovieHumanHead {
   /** Head landmarks of one side. */
   export type ISide = Pick<

@@ -219,6 +219,7 @@ export function placeAutoMovieHumanHand(
     },
   };
 }
+/** Output type of {@link placeAutoMovieHumanHand}. */
 export namespace placeAutoMovieHumanHand {
   /**
    * One placed hand.

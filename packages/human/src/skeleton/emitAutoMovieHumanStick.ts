@@ -117,6 +117,7 @@ export function emitAutoMovieHumanStick(
     ),
   };
 }
+/** Output type of {@link emitAutoMovieHumanStick}. */
 export namespace emitAutoMovieHumanStick {
   /**
    * The stick figure.
