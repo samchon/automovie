@@ -18,9 +18,11 @@ import { shapeAutoMovieHumanRing } from "../../junction/shapeAutoMovieHumanRing"
 import { IAutoMovieHumanMeasurements } from "../../measure/IAutoMovieHumanMeasurements";
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanSkeleton } from "../../skeleton/IAutoMovieHumanSkeleton";
+import { AUTOMOVIE_HUMAN_TRUNK_FORM } from "./AUTOMOVIE_HUMAN_TRUNK_FORM";
 import { IAutoMovieHumanTrunkFrame } from "./IAutoMovieHumanTrunkFrame";
 import { measureAutoMovieHumanTrunkFrame } from "./measureAutoMovieHumanTrunkFrame";
 import { profileAutoMovieHumanTrunk } from "./profileAutoMovieHumanTrunk";
+import { sectionAutoMovieHumanTrunkCrotch } from "./sectionAutoMovieHumanTrunkCrotch";
 
 /**
  * Loft the trunk: one sweep up the body from the crotch to the neck-base ring, with the shoulder tubes leaving openings in its flanks for the mid-upper-arm rings and the hip tubes leaving its lower edge on either side of a fork curve for the mid-thigh rings.
@@ -45,6 +47,15 @@ export function loftAutoMovieHumanTrunk(
   return emit(network, sampled);
 }
 
+/** Exponent of the crotch section and of the thighs' first sections, one superellipse family so their contours agree. */
+const FORK_EXPONENT: number = 2.5;
+
+/** The fork curve under the crotch: its two inner points lie `drop` trunk rows below the crotch and `inset` of the crotch depth in from the front and the back. */
+const FORK = { drop: 0.5, inset: 0.12 } as const;
+
+/** Exponent of the thighs' medial sides at the crotch, flattened where they press together. */
+const MEDIAL_EXPONENT: number = 4;
+
 /** Steps between the stations from the buttock level to the axilla, about 25 mm each in an adult. */
 const STEPS: number = 16;
 
@@ -63,7 +74,10 @@ const fixed = (n: number): IAutoMovieSurfaceNetwork.ICounts => ({
 });
 
 /** Where each tube's last row starts: the loop there repeats the ring's section, one row before the ring. */
-const COLLAR = { arm: 2 / 3, thigh: 3 / 4 } as const;
+const COLLAR = { arm: 2 / 3, thigh: 1 / 2 } as const;
+
+/** Rows of the trunk from the crotch to the axilla; the hip bridges and tubes take rows of the same height, so the subdivided surface meets no change of row spacing at the hips. */
+const LOWER_ROWS: number = 10;
 
 /** Trunk strips by `v`, a twelfth of a turn per column: front across the anterior midline, left flank, back, right flank. */
 const STRIPS: Array<{
@@ -125,24 +139,31 @@ const networkOf = (
     ),
     shoulderLine,
   ];
-  // at the crotch the section is the two thighs side by side at the gluteal furrow, touching at the midline
-  const thighRadius: number = frame.thighGirth / (2 * Math.PI);
-  const thighCentre: number = Math.max(0.95 * thighRadius, 0.85 * Math.abs(frame.hip.x));
-  const thighDepthCentre: number =
-    (profile.front(L.gluteal) + profile.back(L.gluteal)) / 2;
+  // at the crotch the section is the outer contour of the two thighs side by side; at the gluteal furrow below it each
+  // thigh's tube starts on its own half of that contour, in the same superellipse family, so the bridges between them
+  // join two nearly coincident loops
+  const lobe = (y: number): { centre: number; depth: number; half: number } => ({
+    centre: (profile.front(y) + profile.back(y)) / 2,
+    depth: (profile.front(y) - profile.back(y)) / 2,
+    half: profile.half(y),
+  });
+  const crotch = lobe(L.crotch);
+  const furrow = lobe(L.gluteal);
   const sections: Array<{ centre: IAutoMovieVector3; section: IAutoMovieSweepSection }> =
     levels.map((y: number, k: number) => {
       if (k === 0)
         return {
-          centre: AutoMovieHumanVector.of(0, y, thighDepthCentre),
-          section: {
-            type: "superellipse",
-            right: metres(thighRadius),
-            up: metres(thighCentre + thighRadius),
-            left: metres(1.1 * thighRadius),
-            down: metres(thighCentre + thighRadius),
-            exponents: [2.8, 2.8, 2.8, 2.8],
-          },
+          centre: AutoMovieHumanVector.of(0, y, crotch.centre),
+          section: sectionAutoMovieHumanTrunkCrotch({
+            depth: crotch.depth,
+            half: crotch.half,
+            exponent: FORK_EXPONENT,
+            medial: MEDIAL_EXPONENT,
+            recess: {
+              front: AUTOMOVIE_HUMAN_TRUNK_FORM.crotch.frontRecess * frame.buttock.depth,
+              back: AUTOMOVIE_HUMAN_TRUNK_FORM.crotch.backRecess * frame.buttock.depth,
+            },
+          }),
         };
       const widest: number = profile.widest(y);
       const half: number =
@@ -238,21 +259,41 @@ const networkOf = (
   const thighTube = (side: AutoMovieHumanSide): IAutoMovieSweep => {
     const shape: IAutoMovieHumanRingShape = thighs[side];
     const sign: number = side === "left" ? 1 : -1;
-    // each tube starts just under its half of the crotch section, at the thigh's own centre and girth
-    const start: IAutoMovieVector3 = AutoMovieHumanVector.of(
-      sign * thighCentre,
-      L.crotch - 15,
-      thighDepthCentre,
-    );
+    // each tube starts one trunk row below the crotch on its half of the two thighs' contour, the contour at the gluteal
+    // furrow carried toward the ring's extent by the start's share of the way down to the ring
+    const y: number = L.crotch - (L.axilla - L.crotch) / LOWER_ROWS;
+    const w: number = Math.min(1, Math.max(0, (L.gluteal - y) / (L.gluteal - shape.frame.origin.y)));
+    const xs: number[] = shape.positions.map((p: IAutoMovieVector3): number => sign * p.x);
+    const zs: number[] = shape.positions.map((p: IAutoMovieVector3): number => p.z);
+    const lerp = (a: number, b: number): number => a + (b - a) * w;
+    const outer: number = lerp(furrow.half, Math.max(...xs));
+    const lobe = {
+      depth: lerp(furrow.depth, (Math.max(...zs) - Math.min(...zs)) / 2),
+      centre: lerp(furrow.centre, (Math.max(...zs) + Math.min(...zs)) / 2),
+    };
+    const start: IAutoMovieVector3 = AutoMovieHumanVector.of((sign * outer) / 2, y, lobe.centre);
     lengths[`thigh.${side}`] = AutoMovieHumanVector.distance(start, shape.frame.origin);
-    const r0: number = thighRadius;
     return {
       spine: {
         points: [toMetres(start), toMetres(shape.frame.origin)],
         normal: { x: 0, y: 0, z: -1 },
       },
       stations: [
-        { at: 0, section: circle(r0) },
+        {
+          at: 0,
+          section: {
+            type: "superellipse",
+            right: metres(lobe.depth),
+            up: metres(outer / 2),
+            left: metres(lobe.depth),
+            down: metres(outer / 2),
+            // the second axis points to the person's left, so the medial quadrants are the negative ones on the left thigh
+            exponents:
+              side === "left"
+                ? [FORK_EXPONENT, FORK_EXPONENT, MEDIAL_EXPONENT, MEDIAL_EXPONENT]
+                : [MEDIAL_EXPONENT, MEDIAL_EXPONENT, FORK_EXPONENT, FORK_EXPONENT],
+          },
+        },
         {
           at: COLLAR.thigh,
           section: ringSection(shape, shape.count / 2),
@@ -277,7 +318,7 @@ const networkOf = (
 
   const patches: IAutoMovieSurfaceNetwork.IPatch[] = [];
   const bands: Array<{ u: [number, number]; rows: number }> = [
-    { u: [0, uAxilla], rows: 10 },
+    { u: [0, uAxilla], rows: LOWER_ROWS },
     { u: [uAxilla, uShoulder], rows: 2 },
     { u: [uShoulder, 1], rows: 3 },
   ];
@@ -304,13 +345,15 @@ const networkOf = (
       rows: fixed(3),
       columns: fixed(8),
     });
-  // hip tube strips by v, matched to the pieces of the loop they meet: half the back strip, the flank, half the front strip, the fork curve
-  // a twelfth of a turn per column, so the tube ends on the ring's twelve directions with the anterior one at v 0.5
+  // hip tube strips by v, matched to the pieces of the loop they meet: half the back strip, the flank, half the front strip, the fork curve;
+  // the tube's v runs from the back (0) through the left (1/4) to the front (1/2), so its outer half meets the trunk's half loop
+  // direction for direction and its medial half meets the fork; a twelfth of a turn per column, so the tube ends on the ring's
+  // twelve directions with the anterior one at v 0.5
   const hipLeft: Array<{ v: [number, number]; columns: number }> = [
-    { v: [-1 / 12, 1 / 12], columns: 2 },
-    { v: [1 / 12, 3 / 12], columns: 2 },
-    { v: [3 / 12, 5 / 12], columns: 2 },
-    { v: [5 / 12, 11 / 12], columns: 6 },
+    { v: [0, 2 / 12], columns: 2 },
+    { v: [2 / 12, 4 / 12], columns: 2 },
+    { v: [4 / 12, 6 / 12], columns: 2 },
+    { v: [6 / 12, 12 / 12], columns: 6 },
   ];
   const hipStrips: Record<string, typeof hipLeft> = {
     leftHip: hipLeft,
@@ -327,7 +370,7 @@ const networkOf = (
         sweep: name,
         u: [0, 1],
         v: s.v,
-        rows: fixed(4),
+        rows: fixed(2),
         columns: fixed(s.columns),
       });
     });
@@ -389,7 +432,7 @@ const networkOf = (
         tangent: "across",
       },
       to: { edges: hipStart("leftHip"), tangent: "forward" },
-      rows: fixed(2),
+      rows: fixed(1),
       tension: 0.6,
     },
     {
@@ -405,13 +448,14 @@ const networkOf = (
         tangent: "across",
       },
       to: { edges: hipStart("rightHip"), tangent: "forward" },
-      rows: fixed(2),
+      rows: fixed(1),
       tension: 0.6,
     },
   );
 
   const crotchFront: number = profile.front(L.crotch);
   const crotchBack: number = profile.back(L.crotch);
+  const row: number = (L.axilla - L.crotch) / LOWER_ROWS;
   const value: IAutoMovieSurfaceNetwork = {
     sweeps,
     nodes: {
@@ -426,15 +470,15 @@ const networkOf = (
           toMetres(
             AutoMovieHumanVector.of(
               0,
-              L.crotch - 18,
-              crotchFront - 0.3 * (crotchFront - crotchBack),
+              L.crotch - FORK.drop * row,
+              crotchFront - FORK.inset * (crotchFront - crotchBack),
             ),
           ),
           toMetres(
             AutoMovieHumanVector.of(
               0,
-              L.crotch - 20,
-              crotchBack + 0.3 * (crotchFront - crotchBack),
+              L.crotch - FORK.drop * row,
+              crotchBack + FORK.inset * (crotchFront - crotchBack),
             ),
           ),
         ],

@@ -3,7 +3,7 @@ import { IAutoMovieHumanTrunkForm } from "./IAutoMovieHumanTrunkForm";
 /**
  * The trunk's form coefficients for the human profile.
  *
- * Fitted by least squares against MakeHuman CC0 reference bodies (the hm08 base mesh with its CC0 macro targets, CC0 1.0, makehumancommunity/makehuman at a8bc2d54) for the four lean 20-year-old gate identities, retargeted onto our skeleton by the shared calibration harness. Each reference was first measured like anthropometry at our own levels (convex-hull tape girths, breadths and depths at the buttock, natural waist, costal arch and chest point), and our trunk was generated for identities carrying those measurements, so the fit compares shape alone: the residual is the radial distance between our level section and the reference's, 72 rays about the reference section's midline centre, every 10 mm from the buttock level to the axilla. Grade: fitted to a CC0 reference.
+ * Fitted by least squares against MakeHuman CC0 reference bodies (the hm08 base mesh with its CC0 macro targets, CC0 1.0, makehumancommunity/makehuman at a8bc2d54) for the four lean 20-year-old gate identities, retargeted onto our skeleton by the shared calibration harness. Each reference was first measured like anthropometry at our own levels (convex-hull tape girths, breadths and depths at the buttock, natural waist, costal arch and chest point), and our trunk was generated for identities carrying those measurements, so the fit compares shape alone: the residual is the radial distance between our level section and the reference's, 72 rays about the reference section's midline centre, every 10 mm from the buttock level to the axilla. The crotch and gluteal furrow levels, where the section is two thighs side by side, are the mean outer contour of the same reference sections (foremost and rearmost points and breadth over both thighs), not fitted by rays. Grade: fitted to a CC0 reference.
  */
 export const AUTOMOVIE_HUMAN_TRUNK_FORM: IAutoMovieHumanTrunkForm = {
   buttock: {
@@ -54,8 +54,16 @@ export const AUTOMOVIE_HUMAN_TRUNK_FORM: IAutoMovieHumanTrunkForm = {
     front: 4.0314,
     back: 3.4077,
   },
+  crotch: {
+    front: 0.95,
+    back: 0.075,
+    breadth: 0.97,
+    frontRecess: 0.06,
+    backRecess: 0.16,
+  },
   gluteal: {
-    front: 0.85,
-    back: 0.22,
+    front: 0.95,
+    back: 0.12,
+    breadth: 0.95,
   },
 };
