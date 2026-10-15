@@ -48,9 +48,11 @@ const HAND: readonly string[] = [
  * it).
  *
  * The hand and every finger and thumb segment flex about Z, carrying the
- * fingertips toward the −Y palm, deviate and spread about Y, toward the thumb
- * on the +Z side, and twist about X, their length; the thumbs, which point
- * between ±X and +Z, take the same basis as an approximation.
+ * fingertips toward the −Y palm, and twist about their length. The hand, the
+ * thumb and the index and middle fingers deviate or abduct about +Y, toward the
+ * thumb on the +Z side; the ring and little fingers abduct about −Y, away from
+ * the middle finger. The thumbs, which point between ±X and +Z, take the hand's basis as an
+ * approximation.
  *
  * Both sides share every axis: `HUMANOID_REST_FRAME` reverses, on one side, each
  * axis that lies in the body's mirror plane, so a clinical value means the same
@@ -94,9 +96,15 @@ export const HUMANOID_JOINT_AXES: Partial<
     abduction: { x: 0, y: 1, z: 0 },
     twist: { x: 1, y: 0, z: 0 },
   };
+  // the ring and little fingers abduct away from the middle finger, toward −Z
+  const ulnar: IAutoMovieJointAxes = {
+    ...hand,
+    abduction: { x: 0, y: -1, z: 0 },
+  };
   for (const side of ["left", "right"])
     for (const s of HAND)
-      table[`${side}${s}` as AutoMovieHumanoidBone] = hand;
+      table[`${side}${s}` as AutoMovieHumanoidBone] =
+        s.startsWith("Ring") || s.startsWith("Little") ? ulnar : hand;
   const forwardFlexing: AutoMovieHumanoidBone[] = [
     "leftUpperLeg",
     "rightUpperLeg",

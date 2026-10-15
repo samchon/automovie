@@ -46,6 +46,7 @@ const CASES: ICase[] = [
   { bone: "Hand", axis: "abduction", probe: v(1, 0, 0), toward: ["z", 1], motion: "radial deviation" },
   { bone: "IndexProximal", axis: "flexion", probe: v(1, 0, 0), toward: ["y", -1], motion: "finger flexion" },
   { bone: "IndexProximal", axis: "abduction", probe: v(1, 0, 0), toward: ["z", 1], motion: "toward the thumb" },
+  { bone: "RingProximal", axis: "abduction", probe: v(1, 0, 0), toward: ["z", -1], motion: "spread away from the middle finger" },
   { bone: "ThumbProximal", axis: "flexion", probe: v(1, 0, 0), toward: ["y", -1], motion: "thumb flexion" },
   { bone: "UpperLeg", axis: "flexion", probe: v(0, -1, 0), toward: ["z", 1], motion: "hip flexion" },
   { bone: "UpperLeg", axis: "abduction", probe: v(0, -1, 0), toward: ["x", 1], motion: "hip abduction" },
@@ -72,7 +73,7 @@ const ANGLE = 30;
  *
  * @evidence contracts/testing.md#behavioral-verification Resolves a pose per joint, axis and side and compares the resolved world rotations; a joint whose sign differed between the sides fails the mirror check, and one whose positive angle was the opposite motion fails the direction check.
  * @evidence contracts/testing.md#independent-expectations The directions are anatomy of the VRM T-pose (front +Z, left +X, palms −Y), and the mirror of a rotation across the X = 0 plane is the quaternion with its Y and Z components negated; neither is computed by the product.
- * @evidence contracts/testing.md#distinguishing-cases Covers every axis of the shoulder, upper arm, forearm, hand, a finger, the thumb, hip, knee, foot and toes on both sides; the eyes, which turn together rather than mirrored, and the midline bones belong to other entries.
+ * @evidence contracts/testing.md#distinguishing-cases Covers every axis of the shoulder, upper arm, forearm, hand, the index and ring fingers, the thumb, hip, knee, foot and toes on both sides; the eyes, which turn together rather than mirrored, and the midline bones belong to other entries.
  * @evidence contracts/testing.md#execution-ownership A discoverable synchronous kinematics entry that builds its own in-memory rig and calls engine source without a viewer or GPU.
  */
 export function test_kinematics_humanoid_side_convention(): void {
@@ -137,6 +138,7 @@ function rig(): IAutoMovieSkeleton {
       ["LowerArm", "UpperArm", v(0.28 * s, 0, 0)],
       ["Hand", "LowerArm", v(0.25 * s, 0, 0)],
       ["IndexProximal", "Hand", v(0.09 * s, 0, 0.02)],
+      ["RingProximal", "Hand", v(0.09 * s, 0, -0.02)],
       ["ThumbProximal", "Hand", v(0.03 * s, 0, 0.04)],
       ["UpperLeg", "hips", v(0.09 * s, -0.05, 0)],
       ["LowerLeg", "UpperLeg", v(0, -0.42, 0)],
