@@ -25,10 +25,10 @@ export function shapeAutoMovieHumanEar(
   attachment: shapeAutoMovieHumanEar.IPoint[],
   form: shapeAutoMovieHumanEar.IForm = FORM,
 ): shapeAutoMovieHumanEar.IOutput {
-  const L: number = size.length * LIMIT.length;
-  const B: number = size.breadth * LIMIT.breadth;
-  const P: number = size.protrusion * LIMIT.protrusion;
-  const xc: number = -ATTACHMENT * B;
+  const L: number = size.length * form.limit.length;
+  const B: number = size.breadth * form.limit.breadth;
+  const P: number = size.protrusion * form.limit.protrusion;
+  const xc: number = -form.attachment * B;
   // the cartilage keeps pace with the breadth and the lobule takes the rest of the length
   const cartilage: number = Math.min(
     CARTILAGE.most * L,
@@ -69,7 +69,7 @@ export function shapeAutoMovieHumanEar(
   };
   // the helix: its back, crest and lip, and the scapha floor tucked under the lip; the tragus gets a crest of its own
   const rimBack: IPoint[] = range(24).map((j: number): IPoint =>
-    along(j, 0.03, -(0.12 + 0.06 * helix[j]!)),
+    along(j, 0.03, -form.thickness * (0.8 + 0.4 * helix[j]!)),
   );
   const crest: IPoint[] = range(24).map((j: number): IPoint =>
     along(j, 0.05 + 0.04 * helix[j]!, 0.05 + 0.1 * helix[j]! + form.relief.tragus * window(j, 8, 1.5)),
@@ -138,13 +138,13 @@ export function shapeAutoMovieHumanEar(
     // the cranial surface stays a cartilage's thickness under the lateral one
     const under: number =
       Math.min(scapha[j]!.h, ...plate.map((l: IPoint[]): number => l[j]!.h)) -
-      THICKNESS * P;
+      form.thickness * P;
     return lerp(r, o, t, Math.min(under, o.h * lift * (1 - low)));
   };
-  const neck: IPoint[] = range(8).map((k: number): IPoint => back(3 * k, 0.2, 0.12));
+  const neck: IPoint[] = range(8).map((k: number): IPoint => back(3 * k, 0.2, 0.22 * form.lift));
 
   const loops: IPoint[][] = [
-    range(24).map((j: number): IPoint => back(j, 0.6, 0.55)),
+    range(24).map((j: number): IPoint => back(j, 0.6, form.lift)),
     rimBack,
     outline,
     crest,
@@ -235,6 +235,18 @@ export namespace shapeAutoMovieHumanEar {
     /** Centre of the concha floor. */
     concha: { x: number; y: number };
 
+    /** Calibration from the drawing to the limit surface, per measurement. */
+    limit: { length: number; breadth: number; protrusion: number };
+
+    /** Otobasion superius in front of tragion, over ear breadth. */
+    attachment: number;
+
+    /** Least thickness of the auricle, over protrusion. */
+    thickness: number;
+
+    /** Height of the cranial surface midway out, over the helix back's. */
+    lift: number;
+
     /** Depth of the concha floor, over protrusion. */
     floor: number;
 
@@ -307,9 +319,9 @@ type IOutlineKey = shapeAutoMovieHumanEar.IOutlineKey;
  * Catmull-Clark subdivision draws the limit surface inside its cage, so the drawing is enlarged by the ratio of each measurement to the same measurement taken on the limit surface of this cage, the same for every identity because the cage is linear in the three measurements. Grade: derived, measured on the subdivided surface.
  */
 const LIMIT: Record<keyof shapeAutoMovieHumanEar.ISize, number> = {
-  length: 1.012,
-  breadth: 0.994,
-  protrusion: 0.64,
+  length: 1.039,
+  breadth: 0.904,
+  protrusion: 0.641,
 };
 
 /** Lobular length over ear length in the drawing: 25.3 of 66.8 mm in men (Cho et al. 2025). */
@@ -327,8 +339,8 @@ const CARTILAGE: { perBreadth: number; least: number; most: number } = {
   most: 0.72,
 };
 
-/** Otobasion superius in front of tragion across the auricle, over ear breadth: it stands nearly over the tragus along the long axis (Gray 1918, fig. 904). */
-const ATTACHMENT: number = 0.02;
+/** Otobasion superius in front of tragion across the auricle, over ear breadth: 3.5 mm in men, which sets where the auricle stands over the shared attachment. Fitted in the block-out ({@link FORM}). */
+const ATTACHMENT: number = 0.12;
 
 /** Centre of the concha floor between the cymba and the cavum, at the end of the crus of the helix: across in breadths from otobasion superius, along in lengths from tragion. */
 const CONCHA: { x: number; y: number } = { x: 0.35, y: -0.02 };
@@ -343,64 +355,71 @@ const FLOOR: number = -0.01;
  * The free margin at the even stations: across in breadths from otobasion superius, along in lengths from tragion, off the head in protrusions before the calibration `LIMIT` takes the tragal-level protrusion to the measured one.
  */
 const OUTLINE: IOutlineKey[] = [
-  { x: 0.268, y: 0.48, h: 0.768, helix: 1 }, // superaurale
-  { x: -0.154, y: 0.44, h: 0.31, helix: 1 },
+  { x: 0.276, y: 0.431, h: 0.792, helix: 1 }, // superaurale
+  { x: -0.132, y: 0.42, h: 0.32, helix: 1 },
   { x: -0.232, y: 0.2, h: 0.26, helix: 0.9 }, // ascending helix, preaurale
   { x: -0.154, y: 0.04, h: 0.22, helix: 0.5 }, // helix root over the anterior notch
   { x: 0.149, y: -0.08, h: 0.48, helix: 0 }, // free edge of the tragus
-  { x: -0.12, y: -0.35, h: 0.32, helix: 0 }, // lobule, front
-  { x: 0.194, y: -0.535, h: 0.557, helix: 0 }, // subaurale
-  { x: 0.572, y: -0.448, h: 0.893, helix: 0.45 },
-  { x: 0.922, y: -0.171, h: 1.074, helix: 0.8 }, // tail of the helix
-  { x: 1.034, y: 0.078, h: 1.382, helix: 1 }, // posterior point
-  { x: 0.941, y: 0.27, h: 1.48, helix: 1 },
-  { x: 0.646, y: 0.435, h: 1.182, helix: 1 },
+  { x: -0.128, y: -0.355, h: 0.192, helix: 0 }, // lobule, front
+  { x: 0.189, y: -0.55, h: 0.334, helix: 0 }, // subaurale
+  { x: 0.576, y: -0.456, h: 1.054, helix: 0.45 },
+  { x: 1.019, y: -0.197, h: 1.267, helix: 0.8 }, // tail of the helix
+  { x: 1.133, y: 0.092, h: 1.382, helix: 1 }, // posterior point
+  { x: 0.914, y: 0.257, h: 1.526, helix: 1 },
+  { x: 0.619, y: 0.393, h: 1.219, helix: 1 },
 ];
 
 /** The concha rim at the even stations, in the units of `OUTLINE`: the inferior crus, the crus of the helix, the meatus under the tragus, the intertragic notch, the antitragus and the antihelix. */
 const RIM: IPoint[] = [
-  { x: 0.34, y: 0.21, h: 0.9 }, // under the inferior crus
-  { x: 0.118, y: 0.18, h: 0.058 },
-  { x: -0.027, y: 0.12, h: 0.32 },
-  { x: 0.046, y: 0.027, h: 0.3 }, // crus of the helix
-  { x: 0.27, y: -0.07, h: 0.06 }, // under the tragus, over the meatus
-  { x: 0.198, y: -0.16, h: 0.3 }, // intertragic notch
-  { x: 0.365, y: -0.14, h: 0.17 }, // antitragus
-  { x: 0.571, y: -0.14, h: 1.005 },
-  { x: 0.597, y: -0.069, h: 0.925 },
-  { x: 0.597, y: 0.036, h: 0.988 }, // antihelix
-  { x: 0.541, y: 0.15, h: 1.038 },
-  { x: 0.462, y: 0.2, h: 1.05 },
+  { x: 0.34, y: 0.21, h: 1.029 }, // under the inferior crus
+  { x: 0.118, y: 0.18, h: 0.066 },
+  { x: -0.027, y: 0.12, h: 0.366 },
+  { x: 0.046, y: 0.027, h: 0.343 }, // crus of the helix
+  { x: 0.27, y: -0.07, h: 0.069 }, // under the tragus, over the meatus
+  { x: 0.198, y: -0.16, h: 0.343 }, // intertragic notch
+  { x: 0.365, y: -0.14, h: 0.194 }, // antitragus
+  { x: 0.571, y: -0.14, h: 1.15 },
+  { x: 0.597, y: -0.069, h: 1.058 },
+  { x: 0.597, y: 0.036, h: 1.13 }, // antihelix
+  { x: 0.541, y: 0.15, h: 1.187 },
+  { x: 0.462, y: 0.2, h: 1.201 },
 ];
 
+
+/** Least thickness of the auricle between its cranial and lateral surfaces, over protrusion: the cartilage plate with its skin, about 2 mm at the 19.5 mm protrusion of men. Fitted in the block-out ({@link FORM}). */
+const THICKNESS: number = 0.1;
 
 /**
  * The drawing's coefficients, calibrated offline against the left auricle of the MakeHuman base mesh (`base.obj`, released CC0 in September 2020; its code was not read and nothing of it is shipped). Both ears were reduced to their lateral height fields: the auricle cut from the head by its height above the head's own surface (a quadratic fitted to the skin around it), set upright on its superaurale-subaurale line, and scaled to unit length, breadth and height, so only form is compared and the measurements stay the identity's. A coordinate descent over the margin's keys behind and below the front, the margin and rim heights and the concha floor, regularised toward Gray's drawing, lowered the mean squared height difference over the auricle's footprint from 0.063 to 0.010. The front of the margin keeps Gray's drawing because the reference's flattened cheek hides its height there.
  *
  * Across, the fitted drawing was then stretched about the posterior point until the ear's whole breadth, preaurale to postaurale, is 0.55 of its length, the auricular index of 57.9 in men and 58.7 in women among 200 Turkish adults (Bahşi et al. 2023, J Craniofac Surg 34(8):e799-e803): the survey's breadth is taken from otobasion superius, behind the front of the helix, so the reference's narrower 0.48 is not the measured proportion. Grade: population-fitted form, measured proportion.
+ *
+ * Block-out: the gross form was then fitted to the same reference body on our own skeleton with the shared calibration harness (sections parallel to the attachment 4 to 16 mm out and eight silhouettes, MakeHuman's CC0 macro blend at the adult male), with every fold switched off and the identity's length, breadth and protrusion held on the limit surface. A Nelder-Mead search over the fullness of the helix top, the posterior bulge, the lobule, the protrusion of top, back and lobule, the plate's height, the thickness, the cranial surface's lift and the attachment's place, each bounded to an anatomical range, lowered the adult male's mean radial error from 11.9 to 8.8 mm (silhouette IoU 0.45 to 0.51) and the adult female's from 9.7 to 6.8 mm (0.54 to 0.62). The rest of the gap is measured size: the reference ear stands 13 mm off the attachment plane at the tragal level and is 30 mm across, against the survey's 19.5 mm (Cho et al. 2025) and an auricular index of 0.58 (Bahşi et al. 2023), which the identity keeps. The folds are off in this block-out.
  */
 const FORM: shapeAutoMovieHumanEar.IForm = {
+  limit: LIMIT,
+  attachment: ATTACHMENT,
+  thickness: THICKNESS,
+  lift: 0.8,
   outline: OUTLINE,
   rim: RIM,
   concha: CONCHA,
   floor: FLOOR,
   notch: NOTCH,
   relief: {
-    antihelix: 0.2,
-    superiorCrus: 0.22,
-    fossa: 0.16,
-    lobule: 0.06,
-    notch: 0.1,
-    crus: 0.2,
-    cymba: 0.25,
-    meatus: 0.25,
-    tragus: 0.1,
+    antihelix: 0,
+    superiorCrus: 0,
+    fossa: 0,
+    lobule: 0,
+    notch: 0,
+    crus: 0,
+    cymba: 0,
+    meatus: 0,
+    tragus: 0,
     wall: 2.6,
   },
 };
 
-/** Least thickness of the auricle between its cranial and lateral surfaces, over protrusion: the cartilage plate with its skin, about 3 mm at the 19.5 mm protrusion of men. Conventional. */
-const THICKNESS: number = 0.15;
 
 /** Where the plate loops lie between the scapha floor (0) and the concha rim (1). */
 const PLATE: number[] = [0.28, 0.55, 0.8];
