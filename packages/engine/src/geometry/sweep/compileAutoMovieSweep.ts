@@ -150,7 +150,13 @@ export const compileAutoMovieSweep: (sweep: IAutoMovieSweep) => IAutoMovieSweepS
     sweep.scale === undefined ? null : compileProfile(sweep.scale, "sweep scale");
   (sweep.features ?? []).forEach(checkFeature);
   const features: Array<(u: number, angle: number, local: number, length: number, guided: (u: number, angle: number) => number) => number> =
-    (sweep.features ?? []).map(compileAutoMovieSweepFeature);
+    (sweep.features ?? []).map((f: IAutoMovieSweep.IFeature) =>
+      compileAutoMovieSweepFeature(f, {
+        length: path.length,
+        // the sweep's mean station radius, which spaces a feature's knots in metres
+        radius: radii.flat().reduce((sum: number, r: number): number => sum + r, 0) / Math.max(1, radii.flat().length),
+      }),
+    );
 
   const cache: Map<number, Float64Array> = new Map();
   const row = (input: number): Float64Array => {
