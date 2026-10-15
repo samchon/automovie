@@ -29,7 +29,7 @@ import { layoutAutoMovieHumanRing } from "./layoutAutoMovieHumanRing";
  * - `neckTop`: in the mandibular plane, the larger of the jaw and the neck column, blended by a smooth maximum. The jaw is the parabola through menton and both gonia; the column an egg of the neck circumference's mean radius, {@link AUTOMOVIE_HUMAN_NECK_COLUMN} times it across, in front and behind, the back lengthened by the plane's tilt to the neck so it still reaches the nape.
  * - `upperArm`: a circle of the upper arm circumference, which is measured at this cut, centred off the bone axis by {@link AUTOMOVIE_HUMAN_UPPER_ARM_SECTION}. The circle is conventional: the mid upper arm is nearly round.
  * - `wrist`: an ellipse of the wrist circumference measured at this cut, its radio-ulnar breadth and palmar-dorsal depth in the proportions of {@link AUTOMOVIE_HUMAN_WRIST_SECTION}.
- * - `thigh`: a circle of the girth at mid thigh, on the thigh's girth curve between the thigh circumference at the gluteal furrow and the lower thigh circumference at suprapatella, centred in front of and medial to the hip-to-knee axis ({@link AUTOMOVIE_HUMAN_THIGH_GIRTH}).
+ * - `thigh`: the girth at mid thigh, on the thigh's girth curve between the thigh circumference at the gluteal furrow and the lower thigh circumference at suprapatella, in four quarter ellipses about the hip-to-knee axis, full in front and medially and flat behind and laterally ({@link AUTOMOVIE_HUMAN_THIGH_GIRTH}).
  * - `ankle`: a circle of the ankle circumference, the minimum girth above the malleoli, measured at this cut. Conventional shape.
  * - `ear`: the attachment of the auricle, an ellipse in the plane of the head's side whose long axis leans back from the vertical by {@link AUTOMOVIE_HUMAN_EAR_ATTACHMENT.inclination}; its centre and semi-axes are fractions of the ear's length and breadth ({@link AUTOMOVIE_HUMAN_EAR_ATTACHMENT}). The origin moves from tragion to the ellipse's centre, so the eight directions spread evenly round the attachment.
  *
@@ -283,14 +283,28 @@ const section = (
         1,
         Math.max(0, (suprapatella - along(origin)) / (suprapatella - furrow)),
       );
-      return circle(
-        leg.lowerThighCircumference +
+      const half = AUTOMOVIE_HUMAN_THIGH_GIRTH.section;
+      // the side of the cut facing the body's midline
+      const medial: IAutoMovieVector3 = AutoMovieHumanVector.normalize(
+        AutoMovieHumanVector.offset(
+          AutoMovieHumanVector.of(props.side === "right" ? 1 : -1, 0, 0),
+          [layout.frame.normal, props.side === "right" ? -layout.frame.normal.x : layout.frame.normal.x],
+        ),
+      );
+      return {
+        origin,
+        radius: (d: IAutoMovieVector3): number => {
+          const c: number = AutoMovieHumanVector.dot(d, reference);
+          const s: number = AutoMovieHumanVector.dot(d, medial);
+          const a: number = c >= 0 ? half.front : half.back;
+          const b: number = s >= 0 ? half.medial : half.lateral;
+          return 1 / Math.sqrt((c * c) / (a * a) + (s * s) / (b * b));
+        },
+        girth:
+          leg.lowerThighCircumference +
           (leg.thighCircumference - leg.lowerThighCircumference) *
             Math.pow(t, AUTOMOVIE_HUMAN_THIGH_GIRTH.exponent),
-        AUTOMOVIE_HUMAN_THIGH_GIRTH.anterior,
-        AUTOMOVIE_HUMAN_THIGH_GIRTH.medial,
-        AutoMovieHumanVector.of(props.side === "right" ? 1 : -1, 0, 0),
-      );
+      };
     }
     case "ankle":
       return circle(leg.ankleCircumference);
