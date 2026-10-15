@@ -194,10 +194,24 @@ export const sampleAutoMovieSurfaceNetwork: (props: {
       return {
         key: end !== null ? node(end).key : `c|${edge.curve}|${round(t)}`,
         point: (): IAutoMovieVector3 => (end !== null ? node(end).point : curvePath(edge.curve, curve).point(t)),
-        tangent: (): IAutoMovieVector3 => {
-          if (curve.direction === undefined)
-            throw new Error(`curve ${edge.curve} needs a direction to be part of a bridge loop`);
-          return Vector3.normalize(curve.direction);
+        tangent: (rule: IAutoMovieSurfaceNetwork.ILoop["tangent"]): IAutoMovieVector3 => {
+          const given: IAutoMovieVector3 | undefined = rule === "across" ? curve.normal : curve.direction;
+          if (given === undefined)
+            throw new Error(
+              `curve ${edge.curve} needs a ${rule === "across" ? "normal" : "direction"} to be part of this bridge loop`,
+            );
+          if (rule !== "across") return Vector3.normalize(given);
+          // the declared normal holds at mid-curve; toward an end on a sweep it turns to that sweep's own normal there
+          const endNormal = (name: string): IAutoMovieVector3 => {
+            const n: IAutoMovieSurfaceNetwork.INode = network.nodes![name]!;
+            return n.type === "sweep" ? surface(n.sweep).normal(n.u, n.v) : Vector3.normalize(given);
+          };
+          const middle: IAutoMovieVector3 = Vector3.normalize(given);
+          const blended: IAutoMovieVector3 =
+            t < 0.5
+              ? Vector3.lerp(endNormal(curve.from), middle, t / 0.5)
+              : Vector3.lerp(middle, endNormal(curve.to), (t - 0.5) / 0.5);
+          return Vector3.normalize(blended);
         },
       };
     });
@@ -343,10 +357,10 @@ export const sampleAutoMovieSurfaceNetwork: (props: {
       const at = (i: number): IAutoMovieVector3 => Vector3.create(targets[3 * i]!, targets[3 * i + 1]!, targets[3 * i + 2]!);
       const ia: number[] = a.map((x: ISample): number => joined(x, `${what} from loop`));
       const ib: number[] = b.map((x: ISample): number => joined(x, `${what} to loop`));
-      // direction of travel at a loop point; across a sweep it is normal x loop direction, in the surface
+      // direction of travel at a loop point; across, it is the surface normal crossed with the loop's direction
       const direction = (loopPoints: ISample[], indices: number[], k: number, rule: IAutoMovieSurfaceNetwork.ILoop["tangent"]): IAutoMovieVector3 => {
         const t: IAutoMovieVector3 = loopPoints[k]!.tangent(rule);
-        if (rule !== "across" || !loopPoints[k]!.key.startsWith("s|")) return t;
+        if (rule !== "across") return t;
         const along: IAutoMovieVector3 = Vector3.subtract(at(indices[(k + 1) % n]!), at(indices[(k + n - 1) % n]!));
         return Vector3.normalize(Vector3.cross(t, along));
       };

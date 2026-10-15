@@ -121,8 +121,11 @@ export namespace IAutoMovieSurfaceNetwork {
     /** Segments by tier, positive integers. */
     segments: ICounts;
 
-    /** Direction a bridge leaves or enters the curve along, needed only when the curve is part of a bridge loop. */
+    /** Direction a bridge leaves or enters the curve along, needed only when the curve is part of a bridge loop whose tangent rule is not `across`. */
     direction?: IAutoMovieVector3;
+
+    /** Normal of the surface the bridges make along the curve, needed only when the curve is part of a bridge loop with the `across` rule: a bridge then leaves the curve along this normal crossed with the loop's direction, so two bridges that run along the curve in opposite directions leave it to opposite sides and meet there with one tangent plane, a saddle. The normal holds at the curve's middle; toward an end node on a sweep it turns linearly to that sweep's own normal there, so the bridges also leave the sweep's edge and the curve with one continuous direction field. */
+    normal?: IAutoMovieVector3;
   }
 
   /**
@@ -282,7 +285,7 @@ export namespace IAutoMovieSurfaceNetwork {
     edges: IEdge[];
 
     /**
-     * Direction of travel at the loop: `normal` and `inward` along or against a sweep's outward normal, `forward` and `backward` along or against its spine (`+u` or `-u`), and `across` within the sweep's tangent plane perpendicular to the loop, `N x L` for the outward normal `N` and the loop's direction `L` at the point, which points into the region the loop encloses when the loop runs counterclockwise about `N`. `across` leaves an opening tangent to the surface around it, so the bridge continues that surface with a continuous tangent plane, where `normal` turns a right angle at the opening's edge. Points of a curve edge use the curve's `direction` instead.
+     * Direction of travel at the loop: `normal` and `inward` along or against a sweep's outward normal, `forward` and `backward` along or against its spine (`+u` or `-u`), and `across` within the sweep's tangent plane perpendicular to the loop, `N x L` for the outward normal `N` and the loop's direction `L` at the point, which points into the region the loop encloses when the loop runs counterclockwise about `N`. `across` leaves an opening tangent to the surface around it, so the bridge continues that surface with a continuous tangent plane, where `normal` turns a right angle at the opening's edge. Points of a curve edge take the curve's `normal` as `N` under `across` and the curve's `direction` under every other rule.
      */
     tangent: "normal" | "inward" | "forward" | "backward" | "across";
   }
