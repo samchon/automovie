@@ -36,7 +36,8 @@ const MAX_HEADS_PER_STATURE: number = 10;
  * - each greater trochanter above the seat and below the acromion;
  * - span shorter than shoulder breadth plus both hanging arms and longer than without the upper arms;
  * - a hand and a foot longer than broad, a palm shorter than the hand and a thumb shorter than the middle finger, and a limb girth that tapers from muscle bellies to the tendons at wrist and ankle;
- * - soft-tissue hip breadth wider than the bony iliac crests it covers;
+ * - soft-tissue hip breadth wider than the bony iliac crests it covers, and the breadth over the deltoids wider than the acromia;
+ * - the natural waist between the greater trochanters and the jugular notch;
  * - the chest, waist and buttock breadths and depths each under half their circumference, and the circumference within the rectangle they bound; the underbust no larger than the chest;
  * - a head circumference between twice the head length and the perimeter of the rectangle bounding head length and breadth, the limits for any convex outline a tape can follow;
  * - the face inside the head: face height below head height, and mandibular and frontal widths narrower than the zygomatic arches;
@@ -117,6 +118,26 @@ export function validateAutoMovieHumanIdentity(
     body.bicristalBreadth,
     `narrower than hip breadth (${millimetres(body.hipBreadth)})`,
     "hip breadth spans the greater trochanters and the soft tissue over the bony pelvis, which the compressed iliac crest breadth excludes",
+  );
+
+  check(
+    body.bideltoidBreadth > body.biacromialBreadth,
+    "$input.body.bideltoidBreadth",
+    body.bideltoidBreadth,
+    `wider than biacromial breadth (${millimetres(body.biacromialBreadth)})`,
+    "the deltoids wrap the acromia and the heads of the humeri, so the breadth over them exceeds the bony breadth between the acromia",
+  );
+  const highestTrochanterion: number = Math.max(
+    measurements.leftTrochanterionHeight,
+    measurements.rightTrochanterionHeight,
+  );
+  check(
+    body.waistHeight > highestTrochanterion &&
+      body.waistHeight < body.suprasternaleHeight,
+    "$input.body.waistHeight",
+    body.waistHeight,
+    `between trochanterion height (${millimetres(highestTrochanterion)}) and suprasternale height (${millimetres(body.suprasternaleHeight)})`,
+    "the natural waist lies on the trunk between the rib cage and the pelvis, above the hip joints and below the top of the sternum",
   );
 
   // trunk sections: a closed outline is at most half its perimeter across and fits inside its bounding rectangle

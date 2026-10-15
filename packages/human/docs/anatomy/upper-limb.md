@@ -55,7 +55,7 @@ From Gray 1918 and Bridgman (`../sources/gray-1918.md`, `../sources/bridgman-192
 
 ## Open questions
 
-- Carrying angle by sex and age: a larger female angle is reported (Goldfarb et al. 2012, abstract only) without a value read.
+- Carrying angle: now `carryingAngle` per arm from Kaewpornsawan et al. 2018 (`../sources/kaewpornsawan-2018-carrying-angle.md`), slightly varus at birth, about 6 degrees at 2 to 6 years and 11 from 15, girls 8.5 against boys 6.9; no adult series by sex was read, so adults hold the 16-year value (12.3 women, 10.0 men).
 - The longitudinal girth profile (where each girth peaks between elbow and wrist, and between the cut and the elbow) has no measured source; it must follow from muscle placement and be checked against the ANSUR and NHANES girths.
 - Relaxed versus contracted biceps girth difference: not read.
 - Forearm pronation and supination twist the forearm cross-section; how the radius crossing the ulna changes the surface needs a source (#2800).

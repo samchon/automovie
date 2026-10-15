@@ -69,6 +69,11 @@ export namespace IAutoMovieHumanIdentity {
     biacromialBreadth: number & tags.Minimum<80> & tags.Maximum<600>;
 
     /**
+     * Bideltoid breadth: the maximum horizontal breadth across the deltoid muscles, arms hanging, seated, a soft-tissue breadth, millimetres, as ANSUR II measures it. It is the shoulder width the outline shows, and with the natural waist it carries the male V-taper: bideltoid over hip breadth is 1.28 in ANSUR II women and 1.48 in men. Admission keeps it wider than the biacromial breadth beneath it.
+     */
+    bideltoidBreadth: number & tags.Minimum<90> & tags.Maximum<900>;
+
+    /**
      * Span: the horizontal distance between the tips of the middle fingers with both arms outstretched sideways at shoulder level, millimetres, as ANSUR II measures it. It sets how far the T-pose arms reach: an abducted arm reaches less far from the trunk than it hangs, because the acromion comes closer to the radiale, so span is shorter than shoulder breadth plus both hanging arms.
      */
     span: number & tags.Minimum<300> & tags.Maximum<2800>;
@@ -114,9 +119,14 @@ export namespace IAutoMovieHumanIdentity {
     underbustCircumference: number & tags.Minimum<150> & tags.Maximum<2000>;
 
     /**
-     * Waist circumference at the natural waist, the narrowest level between the ribs and the iliac crests, millimetres. This is the waist of attractiveness studies; ANSUR II measures its waist at the navel instead, which is not comparable.
+     * Waist circumference at the natural waist, millimetres: horizontal, at the level of the torso's greatest lateral indentation, or midway between the tenth rib and iliocristale where no single indentation is clear, at quiet respiration, as the 1988 US Army survey measures it (Gordon et al. 1989, NATICK/TR-89/044). This is the narrowest waist of attractiveness studies and the waist of the waist-to-hip ratio; ANSUR II measures its waist at the navel instead, about 70 mm lower and 20 to 70 mm larger on average, which is not comparable.
      */
     waistCircumference: number & tags.Minimum<180> & tags.Maximum<2200>;
+
+    /**
+     * Natural waist height: the level of the waist circumference above the standing surface, millimetres. In the 1988 Army survey it averaged 1056 mm in women and 1127 mm in men, at or just above the tenth rib (1044 and 1121 mm) rather than midway down to the iliac crest (989 and 1073 mm), and 74 and 68 mm above the navel. The waist breadth and depth are taken at this level. Admission keeps it between the greater trochanter and the jugular notch.
+     */
+    waistHeight: number & tags.Minimum<150> & tags.Maximum<1600>;
 
     /** Waist breadth at the natural waist, millimetres. */
     waistBreadth: number & tags.Minimum<40> & tags.Maximum<800>;
@@ -230,6 +240,11 @@ export namespace IAutoMovieHumanIdentity {
 
     /** Wrist circumference over the radial styloid, millimetres. */
     wristCircumference: number & tags.Minimum<50> & tags.Maximum<300>;
+
+    /**
+     * Carrying angle: the angle in the frontal plane between the long axes of the arm and the forearm with the elbow fully extended and the forearm supinated, degrees, positive for valgus, the forearm turned away from the body. Slightly varus at birth (-1.5), 6 degrees at 2 to 6 years and 11 from 15 on, in 921 Thai children measured with a goniometer, and larger in girls (8.5 against 6.9 over all ages; Kaewpornsawan et al. 2018, Siriraj Med J 70(4):284-288). The skeleton turns the forearm and hand about the elbow joint centre by it.
+     */
+    carryingAngle: number & tags.Minimum<-30> & tags.Maximum<40>;
 
     /**
      * Shoulder flexion, the arm raised forward from hanging, degrees. Goniometric, as in the CDC normal joint range of motion study (Soucie et al. 2011, Haemophilia 17(3)): means of 164 to 179 degrees by age and sex.

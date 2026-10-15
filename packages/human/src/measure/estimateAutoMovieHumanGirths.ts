@@ -126,6 +126,17 @@ const NATURAL_WAIST_TO_HIP: ISexCurve = {
   },
 };
 
+/**
+ * Natural waist from the navel waist and the buttock circumference, `intercept + navel·N + buttock·B`, millimetres: our ordinary least squares fits per sex on the public records of the 1988 US Army survey (Gordon et al. 1989, NATICK/TR-89/044; 2,208 women and 1,774 men, records published by the Penn State OpenLab), the last Army survey to measure both waists. Its natural waist is the horizontal girth "at the level of the greatest indentation" of the right side of the torso, or midway between the tenth rib and iliocristale where no single indentation is clear, at quiet respiration; the navel waist is ANSUR II's own omphalion definition. R² 0.80 and residual standard deviation 28.1 mm in women, 0.92 and 21.1 mm in men. The sample means give a natural waist-to-hip ratio of 0.750 (SD 0.043) in women and 0.853 (0.042) in men. Grade: population-fitted.
+ */
+const NATURAL_WAIST: Record<
+  AutoMovieHumanSex,
+  { intercept: number; navel: number; buttock: number }
+> = {
+  female: { intercept: 83.76, navel: 0.569, buttock: 0.1978 },
+  male: { intercept: 106.84, navel: 0.7868, buttock: 0.0554 },
+};
+
 /** Ages bounding the ANSUR II sample, years; the regressions are read inside them. */
 const ANSUR_AGES: [number, number] = [17, 58];
 
@@ -138,7 +149,7 @@ const REFERENCE_AGE: number = 19.5;
 /**
  * Girths of one person.
  *
- * Adults take our ANSUR II regressions on stature, BMI and age, so adiposity reaches each girth by its own measured slope (waist 23.6 mm per BMI unit, ankle 2.4). The natural waist takes the navel waist's response scaled to the late-adolescent natural-waist-to-hip ratio, because ANSUR measures no natural waist. The relaxed upper arm takes the NHANES mean for age with the ANSUR flexed-biceps slopes for stature and BMI. Past 58, the edge of the ANSUR sample, limb girths follow the NHANES arm girth's decline and the waist the NHANES waist's course, while the other girths hold.
+ * Adults take our ANSUR II regressions on stature, BMI and age, so adiposity reaches each girth by its own measured slope (waist 23.6 mm per BMI unit, ankle 2.4). ANSUR II measures the waist only at the navel, so the natural, narrowest waist comes from the navel waist and the buttock girth by the 1988 Army survey's relation between the two waists, which keeps adiposity's and age's own reach into the waist. The relaxed upper arm takes the NHANES mean for age with the ANSUR flexed-biceps slopes for stature and BMI. Past 58, the edge of the ANSUR sample, limb girths follow the NHANES arm girth's decline and the waist the NHANES waist's course, while the other girths hold.
  *
  * Children take the adult girths at 19.5 years for the same BMI and scale them by the NHANES growth of the waist (chest and buttock) or of the upper arm (limbs and neck) and by stature over the median stature for age. No child neck girth was read; it follows the arm girth, which NHANES measured from 2 months, rather than the waist, which it measured only from 2 years; their natural waist is the 1977 survey's natural-waist-to-hip ratio for age. Below 2.5 years, where NHANES measured no waist, trunk girths follow median stature. Between 17.75 and 20 years the two hand over linearly. Population is not read.
  *
@@ -276,18 +287,19 @@ function adultGirths(
   const waistAgeing: number =
     atAge > late ? read(NHANES_WAIST, atAge) / read(NHANES_WAIST, late) : 1;
 
-  // natural waist: the navel waist's response, scaled to the late-adolescent natural waist over hip
-  const referenceBmi: number = context.bmi - context.bmiOffset;
-  const naturalPerNavel: number =
-    (read(NATURAL_WAIST_TO_HIP, ADULT_FROM[0]) *
-      fit("buttock", referenceBmi, ANSUR_AGES[0])) /
-    fit("waist", referenceBmi, ANSUR_AGES[0]);
+  // natural waist: the 1988 survey's relation to the navel waist and the buttock girth
+  const natural: { intercept: number; navel: number; buttock: number } =
+    NATURAL_WAIST[sex];
+  const buttock: number = fit("buttock");
   const biceps: IRegression = ANSUR_II.biceps[sex];
   return {
     neck: fit("neck"),
     chest: fit("chest"),
-    naturalWaist: naturalPerNavel * fit("waist") * waistAgeing,
-    buttock: fit("buttock"),
+    naturalWaist:
+      natural.intercept +
+      natural.navel * fit("waist") * waistAgeing +
+      natural.buttock * buttock,
+    buttock,
     upperArm:
       read(NHANES_ARM, atAge) +
       biceps.stature *

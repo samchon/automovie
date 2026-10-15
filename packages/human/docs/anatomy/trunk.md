@@ -77,7 +77,7 @@ Biacromial / bicristal breadth 1.344 (women) against 1.513 (men); bideltoid / hi
 
 ## Open questions
 
-- Station heights for the natural waist, gluteal furrow and mid-thigh are not in ANSUR II; the natural waist height needs a source (the 1977 child survey has natural waist girth but no height).
+- Station heights for the gluteal furrow and mid-thigh are not in ANSUR II. The natural waist height is now an identity measurement (`waistHeight`), from the 1988 Army survey (`../sources/ansur-1988.md`): at or just above the tenth rib (women 1056 against 1044 mm, men 1127 against 1121), not midway to the iliac crest, and 74 and 68 mm above the navel; `waistCircumference`, `waistBreadth` and `waistDepth` are taken there.
 - Muscle relief depth per muscularity level: no source quantifies how far each belly stands above the fat layer.
 - The shape of each cross-section beyond breadth, depth and perimeter (where the flat and the round parts lie) has no measured source; 3D scan statistics are excluded by the data rule, so it must come from the muscle and bone placement.
 - Clavicle and scapula dimensions for the shoulder girdle form were not read.
