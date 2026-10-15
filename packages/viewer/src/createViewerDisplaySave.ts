@@ -116,7 +116,7 @@ export function createViewerDisplaySave(props: {
       const blob: Blob = await new Promise<Blob>(
         (
           resolve: (value: Blob | PromiseLike<Blob>) => void,
-          reject: (reason?: any) => void,
+          reject: (reason?: unknown) => void,
         ): void => {
           surface.toBlob(
             (value: Blob | null): void =>
@@ -135,7 +135,7 @@ export function createViewerDisplaySave(props: {
       const data: string = await new Promise<string>(
         (
           resolve: (value: string | PromiseLike<string>) => void,
-          reject: (reason?: any) => void,
+          reject: (reason?: unknown) => void,
         ): void => {
           const reading: FileReader = new FileReader();
           reader = reading;

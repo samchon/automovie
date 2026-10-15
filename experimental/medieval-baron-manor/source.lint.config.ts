@@ -1,4 +1,4 @@
-import shared from "../../../config/lint.config";
+import shared from "../../config/lint.config";
 import type { ITtscLintConfig } from "@ttsc/lint";
 
 /** Shared source correctness and declaration guards, with the production's explicit-any refusal preserved. */
