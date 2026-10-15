@@ -32,6 +32,7 @@ export * from "./skeleton/measureAutoMovieHumanSkeleton";
 export * from "./junction/AUTOMOVIE_HUMAN_NECK_BASE_FLARE";
 export * from "./junction/AUTOMOVIE_HUMAN_RINGS";
 export * from "./junction/AUTOMOVIE_HUMAN_THIGH_GIRTH";
+export * from "./junction/AUTOMOVIE_HUMAN_UPPER_ARM_SECTION";
 export * from "./junction/AUTOMOVIE_HUMAN_UV_LAYOUT";
 export * from "./junction/AUTOMOVIE_HUMAN_WRIST_SECTION";
 export * from "./junction/AutoMovieHumanCageBuilder";

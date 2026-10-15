@@ -1,5 +1,5 @@
 /**
- * The thigh's girth curve between its two measured levels, which the `thigh` ring shape and the leg's stations both read so the mid-thigh ring lies on the leg's own curve.
+ * The thigh's girth curve between its two measured levels, which the `thigh` ring shape and the leg's stations both read so the mid-thigh ring lies on the leg's own curve and centre.
  *
  * The gluteal furrow, where the thigh circumference is measured, lies `furrow` of the hip-to-knee length below the hip joint centre: the 1977 US child survey's furrow heights (Snyder et al. 1977, UM-HSRI-77-17) against ANSUR II's hip and knee centres (Gordon et al. 2014, NATICK/TR-15/007). Grade: derived, from adolescents. Suprapatella, where the lower thigh circumference is measured, lies `suprapatella` of the thigh length above the midpatella, half an adult patella's height and the soft tissue above it. Grade: conventional.
  *
@@ -9,4 +9,6 @@ export const AUTOMOVIE_HUMAN_THIGH_GIRTH = {
   furrow: 0.21,
   suprapatella: 0.06,
   exponent: 1.15,
+  anterior: 0.3,
+  medial: 0.1,
 } as const;
