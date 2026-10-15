@@ -43,6 +43,20 @@ Rule for the generator: given total fat (from BMI and sex), split it between tru
 
 Appendicular lean mass index (men, White): 8.87 kg/m2 at 20, 9.12 at 40, 8.44 at 70, 7.72 at 85; women 6.81 at 20 (`../sources/kelly-2009.md`). Mid-upper arm circumference (relaxed, NHANES) peaks at 40 to 49 and falls by about 4 cm by 80+ (`../sources/nhanes-2015-2018.md`). BMI mixes fat and lean: a muscular identity at BMI 27 must not be built as a fat one, so the detailed parameters carry fat mass and lean mass (or muscularity) separately, and BMI is a derived quantity.
 
+## Fat and lean apart
+
+Adiposity and muscularity each move body fat and the appendicular lean mass index by two of their DXA reference's standard deviations per unit (Kelly et al. 2009 σ columns; Zemel et al. 2023 S times M), and BMI follows as FFMI / (1 - fat) with FFMI scaled from the median person by limb lean mass. Girths read fat and lean apart: our NHANES fits (2017-2018 waist, hip, arm; 1999-2004 thigh, calf; adults 18 to 40) of girth on stature, fat mass index and appendicular lean mass index, as multiples of the girth's BMI slope:
+
+| Site | Men fat / lean | Women fat / lean |
+| --- | --- | --- |
+| Waist (iliac crest) | 1.60 / 0.64 | 1.39 / 0.82 |
+| Hip | 1.36 / 1.31 | 1.38 / 0.92 |
+| Mid-upper arm | 0.85 / 2.61 | 1.10 / 1.89 |
+| Mid-thigh | 0.89 / 2.40 | 0.91 / 2.38 |
+| Calf | 0.94 / 2.22 | 0.92 / 2.32 |
+
+Gate identity targets are in `../sources/gate-identity-targets.md`.
+
 ## Children
 
 Children take their own medians (`estimateAutoMovieHumanComposition`): body fat from the NHANES pediatric DXA tables (Kelly et al. 2009, Table S9, White medians: boys 26.5% at 8, 23.8 at 14, 21.3 at 16; girls 31.6 at 8 rising to 34.3 at 18), extended to 5.5 years by the BMDCS fat mass index course, and the appendicular lean mass index from the BMDCS (`../sources/zemel-2023-bmdcs-body-composition.md`: 4.2 girls and 4.55 boys at 5, 6.7 and 8.6 at 19), which meets Kelly's adults at 20. Below 5.5 both hold. A child no longer receives an adult's lean mass and muscle relief.
