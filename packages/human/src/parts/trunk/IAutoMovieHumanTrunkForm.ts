@@ -18,7 +18,7 @@ export interface IAutoMovieHumanTrunkForm {
   /** At the natural waist, where waist depth, breadth and circumference are measured. */
   waist: IAutoMovieHumanTrunkForm.IMeasured;
 
-  /** At the costal arch, the underbust level, between the waist and chest measurements, whose girth is the underbust circumference. */
+  /** At the inframammary fold, the underbust level, between the waist and chest measurements, whose girth is the underbust circumference. */
   underbust: IAutoMovieHumanTrunkForm.IUnderbust;
 
   /** At the chest point, where chest depth and circumference are measured. */
@@ -98,16 +98,13 @@ export namespace IAutoMovieHumanTrunkForm {
   }
 
   /**
-   * The underbust level: depth and breadth as shares toward the chest's from the waist's, squareness from the underbust circumference.
+   * The underbust level: depth as a share toward the chest's from the waist's, breadth solved so the section's perimeter is the underbust circumference at the given squareness, so the girth holds in a body without breasts, whose underbust is its chest girth, as in one with them.
    *
    * @author Samchon
    */
-  export interface IUnderbust extends IMeasured {
+  export interface IUnderbust extends IEncircled {
     /** Depth as a share toward the chest's from the waist's. */
     depth: number;
-
-    /** Breadth as a share toward the chest's from the waist's. */
-    breadth: number;
   }
 
   /**

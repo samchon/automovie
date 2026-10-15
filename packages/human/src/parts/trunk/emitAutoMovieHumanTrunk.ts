@@ -82,7 +82,9 @@ const addressOf = (
     r[0] + (r[1] - r[0]) * x;
   const wrap = (v: number): number => ((v % 1) + 1) % 1;
   const branch: AutoMovieHumanBranch<"trunk"> | null = branchOf(patch.name);
-  if (patch.type !== "sweep")
+  if (patch.type === "coons")
+    return { part: "trunk", side: null, branch: null, u: 0, v: wrap(s / 2) };
+  if (patch.type !== "sweep" && patch.type !== "transition")
     return { part: "trunk", side: null, branch, u: 0.3 * t, v: wrap(s) };
   if (branch === null)
     return {

@@ -28,13 +28,17 @@ const ANSUR_LEVEL: Record<
 };
 
 /**
- * Levels with no measured height, as fractions of stature from a measured one. The gluteal furrow lies a little below the crotch, where the thigh circumference is taken; the inframammary fold and the pectoral's lower border lie below the chest point, and the costal arch below them. Conventional, checked on renders against Richer (1890, "Anatomie artistique", plates of the trunk's exterior forms).
+ * Levels with no measured height, as fractions of stature from a measured one. The gluteal furrow lies a little below the crotch, where the thigh circumference is taken; the inframammary fold and the pectoral's lower border lie below the chest point. Conventional, checked on renders against Richer (1890, "Anatomie artistique", plates of the trunk's exterior forms).
  */
-const CONVENTIONAL_LEVEL: Record<"gluteal" | "fold" | "costal", number> = {
+const CONVENTIONAL_LEVEL: Record<"gluteal" | "fold", number> = {
   gluteal: 0.012,
   fold: 0.028,
-  costal: 0.06,
 };
+
+/**
+ * The least share of the way from the natural waist up to the chest point the underbust level keeps, so it stays between them in a body whose narrowest level, the natural waist, lies high. Conventional.
+ */
+const UNDERBUST_SHARE: number = 0.5;
 
 /**
  * Body fat percentage at which relief is fully shown and the span over which fat hides it; at 10% every muscle edge shows, past 32% none does. Conventional, judged on renders.
@@ -114,7 +118,10 @@ export function measureAutoMovieHumanTrunkFrame(
       navel: joint("spine").y,
       waist: body.waistHeight,
       tenthRib,
-      costal: chestPoint - CONVENTIONAL_LEVEL.costal * S,
+      underbust: Math.max(
+        chestPoint - CONVENTIONAL_LEVEL.fold * S,
+        body.waistHeight + UNDERBUST_SHARE * (chestPoint - body.waistHeight),
+      ),
       fold: chestPoint - CONVENTIONAL_LEVEL.fold * S,
       chestPoint,
       axilla: joint("upperChest").y,

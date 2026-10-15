@@ -10,14 +10,15 @@ import { sectionAutoMovieHumanTrunkThigh } from "./sectionAutoMovieHumanTrunkThi
 import { sweepAutoMovieHumanTrunkBody } from "./sweepAutoMovieHumanTrunkBody";
 
 /**
- * A hip tube: from one trunk row below the crotch down to the mid-thigh ring, which the leg shares.
+ * A hip tube: from the trunk's lowest row's height below the crotch down to the mid-thigh ring, which the leg shares.
  *
- * The tube starts level, like the crotch section above it, on its half of the two thighs' contour at the gluteal furrow carried toward the ring's extent by the start's share of the way down to the ring (`sectionAutoMovieHumanTrunkThigh`). The ring's radii are measured from its origin on the femur's axis, which lies off the thigh's own middle, so the spine runs parallel to that offset and the front and back run straight from the start to the ring instead of swinging round a spine through the start's middle; and it starts medial of the half's middle, so its front and back directions meet the half's medial front and back, under the fork's ends on the trunk's midline, and its lateral direction the half's lateral side. The last row repeats the ring, one row before it, so the tube's share of the joined girth is the ring's own.
+ * The tube starts level, like the crotch section above it, on its half of the two thighs' contour at the gluteal furrow carried toward the ring's extent by the start's share of the way down to the ring (`sectionAutoMovieHumanTrunkThigh`). The ring's radii are measured from its origin on the femur's axis, which lies off the thigh's own middle, so the spine runs parallel to that offset and the front and back run straight from the start to the ring instead of swinging round a spine through the start's middle; and it starts medial of the half's middle, so its front and back directions meet the half's medial front and back, under the groin edge's ends beside the trunk's midline, and its lateral direction the half's lateral side. The last row repeats the ring, one row before it, so the tube's share of the joined girth is the ring's own.
  *
  * @param props.frame The side's trunk frame
  * @param props.ring The thigh's ring
  * @param props.side The thigh
  * @param props.furrow The two thighs' contour at the gluteal furrow
+ * @param props.row Height of the trunk's lowest row, millimetres, which the tube's first row takes
  * @returns The tube in metres and its spine's length in millimetres
  */
 export function sweepAutoMovieHumanTrunkThigh(props: {
@@ -25,12 +26,13 @@ export function sweepAutoMovieHumanTrunkThigh(props: {
   ring: IAutoMovieHumanRingShape;
   side: AutoMovieHumanSide;
   furrow: sweepAutoMovieHumanTrunkBody.IContour;
+  row: number;
 }): { sweep: IAutoMovieSweep; length: number } {
   const S: typeof AutoMovieHumanTrunkSweep = AutoMovieHumanTrunkSweep;
   const { frame, ring, furrow } = props;
   const L: IAutoMovieHumanTrunkFrame.ILevels = frame.levels;
   const sign: 1 | -1 = props.side === "left" ? 1 : -1;
-  const y: number = L.crotch - (L.axilla - L.crotch) / S.LOWER_ROWS;
+  const y: number = L.crotch - props.row;
   const w: number = Math.min(
     1,
     Math.max(0, (L.gluteal - y) / (L.gluteal - ring.frame.origin.y)),

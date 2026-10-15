@@ -1,6 +1,7 @@
 import {
   IAutoMovieSweep,
   IAutoMovieSweepSection,
+  IAutoMovieSweepSurface,
   compileAutoMovieSweep,
 } from "@automovie/engine";
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
@@ -192,6 +193,15 @@ export function sweepAutoMovieHumanTrunkBody(props: {
       rotation: S.ringRotation(neck, 0),
     },
   );
+  const keys: number[] = [
+    L.crotch,
+    L.buttock,
+    frame.iliocristale.y,
+    L.waist,
+    L.underbust,
+    L.chestPoint,
+    L.axilla,
+  ];
   const points: IAutoMovieVector3[] = stations.map(
     (s): IAutoMovieVector3 => S.toMetres(s.centre),
   );
@@ -207,6 +217,7 @@ export function sweepAutoMovieHumanTrunkBody(props: {
       }),
     ),
   };
+  const rows: number[] = rowsOf(compileAutoMovieSweep(bare), keys);
   return {
     // the feature curves are located on the sweep their stations make
     sweep: {
@@ -219,6 +230,19 @@ export function sweepAutoMovieHumanTrunkBody(props: {
     },
     // the axilla is the last of the even steps from the buttock level, the shoulder line the last level
     axilla: ats[STEPS + 1]!,
+    rows,
+    // the measured waist and chest girths on the rows at their levels, which the limit surface holds; the buttock's row
+    // lies beside the crotch row, whose poles the hold's uniform spline cannot pass, and the underbust's two rows below
+    // the chest's does not converge beside it for a body whose underbust is its chest girth, so those two girths are
+    // the profile's alone
+    girths: [
+      { level: L.waist, girth: frame.waist.girth },
+      { level: L.chestPoint, girth: frame.chest.girth },
+    ].map(({ level, girth }): { row: number; girth: number } => ({
+      row: rowOf(keys, level),
+      girth,
+    })),
+    row: (L.buttock - L.crotch) / S.LOWER_ROWS[0]!,
     shoulder: ats[levels.length - 1]!,
     crotch,
     furrow: contour(L.gluteal),
@@ -240,6 +264,15 @@ export namespace sweepAutoMovieHumanTrunkBody {
 
     /** Spine parameter of the shoulder line, where the shoulder band closes. */
     shoulder: number;
+
+    /** Spine parameters of the rows from the crotch to the axilla, increasing, from 0 to `axilla`: each key level and the even steps `LOWER_ROWS` puts between them. */
+    rows: number[];
+
+    /** Each measured girth, millimetres, with the index in `rows` of the row at its level. */
+    girths: Array<{ row: number; girth: number }>;
+
+    /** Height of the lowest row, from the crotch to its first step toward the buttock level, millimetres. */
+    row: number;
 
     /** The two thighs' contour at the crotch. */
     crotch: IContour;
@@ -264,6 +297,61 @@ export namespace sweepAutoMovieHumanTrunkBody {
     half: number;
   }
 }
+
+/**
+ * The spine parameters of the rows between key levels: each key level's parameter, the levels sorted up the body, and `LOWER_ROWS` even steps of height between consecutive ones, each found where the sweep's spine reaches that height.
+ *
+ * @param surface The trunk's sweep, compiled
+ * @param levels The key levels, millimetres, from the crotch to the axilla
+ * @returns The rows' spine parameters, increasing
+ */
+const rowsOf = (
+  surface: IAutoMovieSweepSurface,
+  levels: number[],
+): number[] => {
+  const S: typeof AutoMovieHumanTrunkSweep = AutoMovieHumanTrunkSweep;
+  const sorted: number[] = [...levels].sort(
+    (a: number, b: number): number => a - b,
+  );
+  const top: number = surface.frame(1).origin.y * 1000;
+  // the spine rises monotonically from the crotch to the axilla, so a height has one parameter there
+  const at = (y: number): number => {
+    let a: number = 0;
+    let b: number = 1;
+    for (let step: number = 0; step < BISECTIONS; ++step) {
+      const middle: number = (a + b) / 2;
+      if (Math.min(top, surface.frame(middle).origin.y * 1000) < y) a = middle;
+      else b = middle;
+    }
+    return (a + b) / 2;
+  };
+  const heights: number[] = [sorted[0]!];
+  S.LOWER_ROWS.forEach((count: number, k: number): void => {
+    for (let j: number = 1; j <= count; ++j)
+      heights.push(sorted[k]! + ((sorted[k + 1]! - sorted[k]!) * j) / count);
+  });
+  return heights.map((y: number, k: number): number => (k === 0 ? 0 : at(y)));
+};
+
+/**
+ * The row index of a key level: its rank among the key levels sorted up the body, counted in `LOWER_ROWS` rows.
+ *
+ * @param keys The key levels, millimetres
+ * @param level One of them
+ * @returns Its row's index in `rowsOf`'s output
+ */
+const rowOf = (keys: number[], level: number): number => {
+  const rank: number = [...keys]
+    .sort((a: number, b: number): number => a - b)
+    .indexOf(level);
+  return AutoMovieHumanTrunkSweep.LOWER_ROWS.slice(0, rank).reduce(
+    (sum: number, n: number): number => sum + n,
+    0,
+  );
+};
+
+/** Bisection steps that find a row's spine parameter; each halves the interval. */
+const BISECTIONS: number = 40;
 
 /** Steps between the stations from the buttock level to the axilla, about 25 mm each in an adult. */
 const STEPS: number = 16;
