@@ -558,9 +558,6 @@ importers:
       '@ttsc/lint':
         specifier: catalog:samchon
         version: 0.32.1
-      '@ttsc/unplugin':
-        specifier: catalog:samchon
-        version: 0.32.1(ttsc@0.32.1)
       '@types/node':
         specifier: catalog:utils
         version: 22.19.20

@@ -7,11 +7,14 @@
   },
   "main": "src/index.ts",
   "exports": {
-    ".": "./src/index.ts",
+    ".": {
+      "browser": "./lib/browser/index.js",
+      "default": "./src/index.ts"
+    },
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "ttsx --no-plugins -P tsconfig.scripts.json scripts/guard.ts && rimraf lib && ttsc",
+    "build": "ttsx --no-plugins -P tsconfig.scripts.json scripts/guard.ts && rimraf lib && ttsc && ttsc -p tsconfig.browser.json",
     "prepack": "pnpm run build"
   },
   "keywords": [],
@@ -35,6 +38,7 @@
     "exports": {
       ".": {
         "types": "./lib/index.d.ts",
+        "browser": "./lib/browser/index.js",
         "default": "./lib/index.js"
       },
       "./package.json": "./package.json"
