@@ -6,9 +6,11 @@ import { quaternionFromAutoMovieBasis } from "../../math/quaternionFromAutoMovie
 import { IAutoMovieSweep } from "./IAutoMovieSweep";
 import { IAutoMovieSweepFrame } from "./IAutoMovieSweepFrame";
 import { IAutoMovieSweepPath } from "./IAutoMovieSweepPath";
+import { IAutoMovieSweepSection } from "./IAutoMovieSweepSection";
 import { IAutoMovieSweepSurface } from "./IAutoMovieSweepSurface";
 import { frameAutoMovieSweepSpine } from "./frameAutoMovieSweepSpine";
 import { interpolateAutoMovieMonotone } from "./interpolateAutoMovieMonotone";
+import { parameterizeAutoMovieSweepSection } from "./parameterizeAutoMovieSweepSection";
 import { sampleAutoMovieSweepSection } from "./sampleAutoMovieSweepSection";
 
 /** Directions each section is sampled in; the radius between two is linear in angle. */
@@ -23,11 +25,21 @@ const STEP: number = 1e-4;
 /**
  * Compile a sweep into an evaluable surface.
  *
- * Each station's section is sampled at 512 directions by
- * `sampleAutoMovieSweepSection`. For each direction the radii of the stations
- * form a profile along `u`, interpolated by `interpolateAutoMovieMonotone`, so
- * between two stations the radius stays between theirs, and before the first
- * or after the last station it holds that station's radius.
+ * Under direction correspondence, the default, each station's section is
+ * sampled at 512 directions by `sampleAutoMovieSweepSection`. For each
+ * direction the radii of the stations form a profile along `u`, interpolated
+ * by `interpolateAutoMovieMonotone`, so between two stations the radius stays
+ * between theirs, and before the first or after the last station it holds
+ * that station's radius.
+ *
+ * Under parameter correspondence each loop of each station, the section and
+ * then its holes, is sampled at the same parameters of
+ * `parameterizeAutoMovieSweepSection`: a polygon at its corners, any other
+ * curve at 512 even parameters. Each sample's two coordinates are interpolated
+ * along `u` by the same monotone scheme and joined linearly round the loop,
+ * so corner `k` of every station meets corner `k` of the next, as a loft
+ * between corresponding polygons blends them. Guides and features read radii
+ * by direction and are refused here; the scale profile applies to every loop.
  *
  * Guides make the radius field a Gordon surface (Gordon 1969, "Spline-blended
  * surface interpolation through curve networks", J. Math. Mech. 18(10)): the
@@ -56,7 +68,7 @@ const STEP: number = 1e-4;
  * The section plane at `u` is the spine's rotation-minimizing frame turned by
  * the stations' rotations: each station's rotation relative to the frame at
  * its `at` is interpolated by normalized linear quaternion interpolation
- * between stations, as sweep-based human deformation interpolates key-ellipse
+ * between stations, as sweep-based deformation interpolates key-ellipse
  * orientations (Hyun et al. 2005, The Visual Computer 21(8-10):542-550), and held
  * beyond the end stations.
  *
@@ -84,18 +96,40 @@ export const compileAutoMovieSweep: (sweep: IAutoMovieSweep) => IAutoMovieSweepS
     if (k > 0 && !(s.at > stations[k - 1]!.at))
       throw new Error(`sweep station ${k} does not follow station ${k - 1}`);
   });
-  const radii: number[][] = stations.map((s: IAutoMovieSweep.IStation): number[] =>
-    sampleAutoMovieSweepSection({ section: s.section, count: DIRECTIONS }),
-  );
   const knots: number[] = stations.map((s: IAutoMovieSweep.IStation): number => s.at);
-  const profiles: Array<(u: number) => number> = Array.from(
-    { length: DIRECTIONS },
-    (_: unknown, d: number): ((u: number) => number) =>
-      interpolateAutoMovieMonotone({
-        knots,
-        values: radii.map((r: number[]): number => r[d]!),
-      }),
-  );
+  const byParameter: boolean = sweep.correspondence === "parameter";
+  const holes: number = stations[0]!.holes?.length ?? 0;
+  stations.forEach((s: IAutoMovieSweep.IStation, k: number): void => {
+    if ((s.holes?.length ?? 0) !== holes)
+      throw new Error(`sweep station ${k} must declare the same ${holes} holes as station 0`);
+  });
+  if (!byParameter && holes > 0) throw new Error("sweep holes need parameter correspondence");
+  if (byParameter && ((sweep.guides?.length ?? 0) > 0 || (sweep.features?.length ?? 0) > 0))
+    throw new Error("sweep guides and features need direction correspondence");
+  const loops: ICompiledLoop[] = byParameter
+    ? Array.from({ length: 1 + holes }, (_: unknown, l: number): ICompiledLoop =>
+        compileLoop(
+          stations.map((s: IAutoMovieSweep.IStation): IAutoMovieSweepSection => (l === 0 ? s.section : s.holes![l - 1]!)),
+          knots,
+          l,
+        ),
+      )
+    : [];
+  const radii: number[][] = byParameter
+    ? []
+    : stations.map((s: IAutoMovieSweep.IStation): number[] =>
+        sampleAutoMovieSweepSection({ section: s.section, count: DIRECTIONS }),
+      );
+  const profiles: Array<(u: number) => number> = byParameter
+    ? []
+    : Array.from(
+        { length: DIRECTIONS },
+        (_: unknown, d: number): ((u: number) => number) =>
+          interpolateAutoMovieMonotone({
+            knots,
+            values: radii.map((r: number[]): number => r[d]!),
+          }),
+      );
   const guides: ICompiledGuide[] = (sweep.guides ?? [])
     .map(compileGuide)
     .sort((a: ICompiledGuide, b: ICompiledGuide): number => a.angle - b.angle);
@@ -130,13 +164,32 @@ export const compileAutoMovieSweep: (sweep: IAutoMovieSweep) => IAutoMovieSweepS
     const t: number = x - Math.floor(x);
     return r[d]! * (1 - t) + r[(d + 1) % DIRECTIONS]! * t;
   };
-  const radius = (u: number, v: number): number => {
+  const directional = (u: number, v: number): number => {
     const angle: number = 2 * Math.PI * v;
     const own: number = guided(u, angle);
     let r: number = own;
     for (const feature of features)
       r += displace(feature, u, angle, own, path.length, guided);
     return r;
+  };
+  const section = (input: number, v: number, loop: number = 0): IAutoMovieSweepSection.IPoint => {
+    const u: number = Math.min(1, Math.max(0, input));
+    if (!byParameter) {
+      if (loop !== 0) throw new Error("a sweep by direction has one loop");
+      const r: number = directional(u, v);
+      const angle: number = 2 * Math.PI * v;
+      return { x: r * Math.cos(angle), y: r * Math.sin(angle) };
+    }
+    const compiled: ICompiledLoop | undefined = loops[loop];
+    if (compiled === undefined) throw new Error(`sweep has no loop ${loop}`);
+    const p: IAutoMovieSweepSection.IPoint = compiled.point(u, v);
+    const k: number = scale === null ? 1 : scale(u);
+    return { x: p.x * k, y: p.y * k };
+  };
+  const radius = (u: number, v: number): number => {
+    if (!byParameter) return directional(u, v);
+    const p: IAutoMovieSweepSection.IPoint = section(u, v);
+    return Math.hypot(p.x, p.y);
   };
 
   // each station's turn relative to the transported frame at its station
@@ -191,25 +244,64 @@ export const compileAutoMovieSweep: (sweep: IAutoMovieSweep) => IAutoMovieSweepS
       normal: Quaternion.rotateVector(q, Vector3.create(0, 0, 1)),
     };
   };
-  const point = (u: number, v: number): IAutoMovieVector3 => {
+  const point = (u: number, v: number, loop: number = 0): IAutoMovieVector3 => {
     const f: IAutoMovieSweepFrame = frame(u);
-    const angle: number = 2 * Math.PI * v;
-    const r: number = radius(u, v);
-    return Vector3.add(
-      f.origin,
-      Vector3.add(Vector3.scale(f.x, r * Math.cos(angle)), Vector3.scale(f.y, r * Math.sin(angle))),
-    );
+    const p: IAutoMovieSweepSection.IPoint = section(u, v, loop);
+    return Vector3.add(f.origin, Vector3.add(Vector3.scale(f.x, p.x), Vector3.scale(f.y, p.y)));
   };
-  const along = (u: number, v: number): IAutoMovieVector3 => {
+  const along = (u: number, v: number, loop: number = 0): IAutoMovieVector3 => {
     const a: number = Math.max(0, u - STEP);
     const b: number = Math.min(1, u + STEP);
-    return Vector3.scale(Vector3.subtract(point(b, v), point(a, v)), 1 / (b - a));
+    return Vector3.scale(Vector3.subtract(point(b, v, loop), point(a, v, loop)), 1 / (b - a));
   };
-  const normal = (u: number, v: number): IAutoMovieVector3 => {
-    const around: IAutoMovieVector3 = Vector3.subtract(point(u, v + STEP), point(u, v - STEP));
-    return Vector3.normalize(Vector3.cross(around, along(u, v)));
+  const normal = (u: number, v: number, loop: number = 0): IAutoMovieVector3 => {
+    const around: IAutoMovieVector3 = Vector3.subtract(point(u, v + STEP, loop), point(u, v - STEP, loop));
+    return Vector3.normalize(Vector3.cross(around, along(u, v, loop)));
   };
-  return { sweep, path, radius, frame, point, normal, along };
+  return { sweep, path, loops: byParameter ? loops.length : 1, radius, section, frame, point, normal, along };
+};
+
+/** One loop of a sweep by parameter: its point at any spine and loop parameter. */
+interface ICompiledLoop {
+  point: (u: number, v: number) => IAutoMovieSweepSection.IPoint;
+}
+
+/** Samples of a smooth section under parameter correspondence; a polygon is sampled at its corners. */
+const PARAMETER_SAMPLES: number = 512;
+
+/**
+ * Compile one loop of a sweep by parameter: each station's curve sampled at the same parameters,
+ * each sample's coordinates interpolated along the spine by the monotone scheme, linear between samples.
+ */
+const compileLoop = (sections: IAutoMovieSweepSection[], knots: number[], loop: number): ICompiledLoop => {
+  const polygon: boolean = sections[0]!.type === "polygon";
+  const count: number = polygon ? (sections[0] as IAutoMovieSweepSection.IPolygon).points.length : PARAMETER_SAMPLES;
+  const samples: IAutoMovieSweepSection.IPoint[][] = sections.map(
+    (section: IAutoMovieSweepSection, k: number): IAutoMovieSweepSection.IPoint[] => {
+      if (section.type === "radial") throw new Error("radial sections need direction correspondence");
+      if ((section.type === "polygon") !== polygon || (polygon && (section as IAutoMovieSweepSection.IPolygon).points.length !== count))
+        throw new Error(`sweep station ${k} loop ${loop} must be a polygon of ${count} corners like station 0, or a curve like it`);
+      const curve = parameterizeAutoMovieSweepSection(section);
+      return Array.from({ length: count }, (_: unknown, j: number): IAutoMovieSweepSection.IPoint => curve.point(j / count));
+    },
+  );
+  const axis = (key: "x" | "y"): Array<(u: number) => number> =>
+    Array.from({ length: count }, (_: unknown, j: number): ((u: number) => number) =>
+      interpolateAutoMovieMonotone({ knots, values: samples.map((s: IAutoMovieSweepSection.IPoint[]): number => s[j]![key]) }),
+    );
+  const xs: Array<(u: number) => number> = axis("x");
+  const ys: Array<(u: number) => number> = axis("y");
+  return {
+    point: (u: number, v: number): IAutoMovieSweepSection.IPoint => {
+      const x: number = (v - Math.floor(v)) * count;
+      const j: number = Math.min(count - 1, Math.floor(x));
+      const t: number = x - j;
+      const a: IAutoMovieSweepSection.IPoint = { x: xs[j]!(u), y: ys[j]!(u) };
+      if (t === 0) return a;
+      const l: number = (j + 1) % count;
+      return { x: a.x + (xs[l]!(u) - a.x) * t, y: a.y + (ys[l]!(u) - a.y) * t };
+    },
+  };
 };
 
 /** A guide with its profile compiled. */

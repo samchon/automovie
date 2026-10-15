@@ -3,9 +3,7 @@ import {
   buildAutoMovieWall,
   extrudeAutoMovieProfile,
   extrudeAutoMovieRegion,
-  loftAutoMovieSections,
   revolveAutoMovieProfile,
-  sweepAutoMovieProfile,
   tessellateToMesh,
 } from "@automovie/engine";
 import { IAutoMovieMesh } from "@automovie/interface";
@@ -13,6 +11,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";
 import { test12ValuesClose } from "../internal/test12ValuesClose";
+import { sweepPolygonLoft } from "../internal/sweepPolygonLoft";
 
 /**
  * The largest value either axis of a mesh's atlas reaches.
@@ -40,14 +39,14 @@ const square: (half: number) => Array<{ x: number; y: number }> = (
  * Geometry constructors preserve explicit UV absence or their authored metric atlas spans and developed perimeter seam.
  *
  * Scenarios:
- * 1. Region extrusion, loft, revolution and polyhedron emit one UV pair per vertex.
- * 2. Convex extrusion, sweep, wall and primitive tessellation emit null UVs.
+ * 1. Region extrusion, the sweep mesh, revolution and polyhedron emit one UV pair per vertex.
+ * 2. Convex extrusion, wall and primitive tessellation emit null UVs.
  * 3. Authored face length, ring perimeter, loft length and revolution circumference yield spans 3, 8, 3 and 6*pi metres.
  * 4. Metric spans differ from a normalized one-unit box, and the developed ring explicitly opens at zero and closes at eight.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls the geometry constructors and measures emitted UV inventory, metric spans and the developed region seam; normalized or missing coordinates on an atlas-bearing constructor fail.
  * @evidence contracts/testing.md#independent-expectations The authored face length, rectangle perimeter, loft path and revolution circumference determine spans 3, 8, 3 and 6*pi metres independently of emitted UVs.
- * @evidence contracts/testing.md#distinguishing-cases Four atlas-bearing constructors contrast with four constructors returning null UVs, metric spans contrast with one-unit normalization, and the perimeter seam contrasts zero with eight; binding vocabulary and visual texture sampling are outside this producer-output unit.
+ * @evidence contracts/testing.md#distinguishing-cases Four atlas-bearing constructors contrast with three constructors returning null UVs, metric spans contrast with one-unit normalization, and the perimeter seam contrasts zero with eight; binding vocabulary and visual texture sampling are outside this producer-output unit.
  * @evidence contracts/testing.md#execution-ownership The discoverable test_geometry_uv_coordinate_source entry owns these synchronous portable numerical cases and any local iteration; it starts no process, browser or GPU and makes no visual-success claim.
  */
 export function test_geometry_uv_coordinate_source(): void {
@@ -68,7 +67,7 @@ export function test_geometry_uv_coordinate_source(): void {
     ],
     depth: 0.2,
   });
-  const lofted: IAutoMovieMesh = loftAutoMovieSections({
+  const lofted: IAutoMovieMesh = sweepPolygonLoft({
     path: [
       { x: 0, y: 0, z: 0 },
       { x: 0, y: 0, z: 3 },
@@ -122,13 +121,6 @@ export function test_geometry_uv_coordinate_source(): void {
           profile: square(0.5),
           depth: 1,
         }).uvs,
-        sweep: sweepAutoMovieProfile({
-          profile: square(0.5),
-          path: [
-            { x: 0, y: 0, z: 0 },
-            { x: 0, y: 0, z: 1 },
-          ],
-        }).uvs,
         wall: buildAutoMovieWall({
           width: 1,
           height: 1,
@@ -142,7 +134,7 @@ export function test_geometry_uv_coordinate_source(): void {
           depth: 1,
         }).uvs,
       },
-      { convexExtrusion: null, sweep: null, wall: null, primitive: null },
+      { convexExtrusion: null, wall: null, primitive: null },
     ),
   );
 

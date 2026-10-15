@@ -8,9 +8,6 @@ import { IAutoMovieSweepSpine } from "./IAutoMovieSweepSpine";
 /** Transport samples per spine segment; the frame between samples takes one more reflection step. */
 const DENSITY: number = 64;
 
-/** Parameter step of the central difference that measures the tangent. */
-const STEP: number = 1e-6;
-
 /**
  * Compile a spine into its curve, tangent and rotation-minimizing frames.
  *
@@ -18,12 +15,15 @@ const STEP: number = 1e-6;
  * Schaefer and Keyser 2011, Computer-Aided Design 43(7):747-755), which has no
  * cusp or self-intersection within a segment and follows a bent chain closely;
  * the ends continue straight through phantom points reflected from the second
- * and second-last points. A per-coordinate monotone interpolant would stop
- * each coordinate flat at a bent joint and leave a corner there. Within each
- * segment the parameter runs linearly from its start point's chord-length
- * share to its end point's, so stations at those shares sit on the points. The
- * tangent is the central difference of the
- * curve over a parameter step of 1e-6, one-sided at the ends. Frames are
+ * and second-last points. Each segment is evaluated in its equivalent cubic
+ * Hermite form, its end derivatives the spline's knot tangents
+ * `(P_k - P_k-1) / d_k-1 - (P_k+1 - P_k-1) / (d_k-1 + d_k) + (P_k+1 - P_k) / d_k`
+ * over the centripetal spacings `d`, so positions and tangents are closed
+ * forms with no difference step and scale with the points exactly. A
+ * per-coordinate monotone interpolant would stop each coordinate flat at a
+ * bent joint and leave a corner there. Within each segment the parameter
+ * runs linearly from its start point's chord-length share to its end
+ * point's, so stations at those shares sit on the points. Frames are
  * transported by the double reflection method of Wang, Juttler, Zheng and Liu
  * (2008, ACM Trans. Graph. 27(1):2): the first axis starts as `spine.normal`
  * made perpendicular to the first tangent, and each step reflects it across
@@ -35,7 +35,7 @@ const STEP: number = 1e-6;
  *
  * @param spine The spine, only read.
  * @returns The compiled path.
- * @throws Error when the spine has fewer than two points, a point or the normal is not finite, two consecutive points coincide, the normal is parallel to the first tangent, or the tangent vanishes somewhere on the path.
+ * @throws Error when the spine has fewer than two points, a point or the normal is not finite, two consecutive points coincide, the path reverses at a point, the normal is parallel to the first tangent, or the tangent vanishes somewhere on the path.
  *
  * @evidence contracts/common.md#principled-implementation The centripetal Catmull-Rom spline interpolates the points without cusps or self-intersections within a segment, and double reflection is a published fourth-order rotation-minimizing frame integrator; the frame between table entries is one more double reflection, so queries are consistent with the table.
  * @evidence contracts/common.md#clear-and-simple-design One compile step returns a path record of closures; the sweep compiler is the only consumer and asks only for points, tangents and frames.
@@ -61,6 +61,13 @@ export const frameAutoMovieSweepSpine: (spine: IAutoMovieSweepSpine) => IAutoMov
     const chord: number = Vector3.length(Vector3.subtract(points[k]!, points[k - 1]!));
     if (chord === 0) throw new Error(`sweep spine points ${k - 1} and ${k} coincide`);
     chords.push(chords[k - 1]! + chord);
+    if (k >= 2) {
+      const a: IAutoMovieVector3 = Vector3.subtract(points[k - 1]!, points[k - 2]!);
+      const b: IAutoMovieVector3 = Vector3.subtract(points[k]!, points[k - 1]!);
+      // a path reversing at a point has no direction there
+      if (Vector3.dot(a, b) <= -(1 - 1e-12) * Vector3.length(a) * Vector3.length(b))
+        throw new Error(`sweep spine doubles back at point ${k - 1}`);
+    }
   }
   const length: number = chords[chords.length - 1]!;
   const knots: number[] = chords.map((c: number): number => c / length);
@@ -72,36 +79,53 @@ export const frameAutoMovieSweepSpine: (spine: IAutoMovieSweepSpine) => IAutoMov
       : k >= n
         ? Vector3.subtract(Vector3.scale(points[n - 1]!, 2), points[n - 2]!)
         : points[k]!;
+  // centripetal knot spacing: the square root of each chord, phantom chords included
+  const spacing = (k: number): number => Math.sqrt(Vector3.length(Vector3.subtract(at(k + 1), at(k))));
+  // the spline's derivative at point k per unit of centripetal parameter
+  const slope = (k: number): IAutoMovieVector3 => {
+    const before: number = spacing(k - 1);
+    const after: number = spacing(k);
+    return Vector3.add(
+      Vector3.subtract(
+        Vector3.scale(Vector3.subtract(at(k), at(k - 1)), 1 / before),
+        Vector3.scale(Vector3.subtract(at(k + 1), at(k - 1)), 1 / (before + after)),
+      ),
+      Vector3.scale(Vector3.subtract(at(k + 1), at(k)), 1 / after),
+    );
+  };
+  // each segment as a cubic Hermite in its own parameter s from 0 to 1
+  const segments: Array<{ p0: IAutoMovieVector3; p1: IAutoMovieVector3; m0: IAutoMovieVector3; m1: IAutoMovieVector3 }> =
+    Array.from({ length: n - 1 }, (_: unknown, k: number) => {
+      const span: number = spacing(k);
+      return { p0: at(k), p1: at(k + 1), m0: Vector3.scale(slope(k), span), m1: Vector3.scale(slope(k + 1), span) };
+    });
   const clamp = (u: number): number => Math.min(1, Math.max(0, u));
-  const point = (u: number): IAutoMovieVector3 => {
-    const c: number = clamp(u);
+  const locate = (c: number): { k: number; s: number } => {
     let k: number = 0;
     while (k < n - 2 && knots[k + 1]! <= c) ++k;
-    const s: number = (c - knots[k]!) / (knots[k + 1]! - knots[k]!);
-    const p: IAutoMovieVector3[] = [at(k - 1), at(k), at(k + 1), at(k + 2)];
-    // Barry and Goldman's pyramid with centripetal knot spacing, the square root of each chord
-    const t: number[] = [0];
-    for (let i: number = 1; i < 4; ++i)
-      t.push(t[i - 1]! + Math.sqrt(Vector3.length(Vector3.subtract(p[i]!, p[i - 1]!))));
-    const x: number = t[1]! + s * (t[2]! - t[1]!);
-    const mix = (
-      a: IAutoMovieVector3,
-      b: IAutoMovieVector3,
-      ta: number,
-      tb: number,
-    ): IAutoMovieVector3 => Vector3.lerp(a, b, (x - ta) / (tb - ta));
-    const a1: IAutoMovieVector3 = mix(p[0]!, p[1]!, t[0]!, t[1]!);
-    const a2: IAutoMovieVector3 = mix(p[1]!, p[2]!, t[1]!, t[2]!);
-    const a3: IAutoMovieVector3 = mix(p[2]!, p[3]!, t[2]!, t[3]!);
-    const b1: IAutoMovieVector3 = mix(a1, a2, t[0]!, t[2]!);
-    const b2: IAutoMovieVector3 = mix(a2, a3, t[1]!, t[3]!);
-    return mix(b1, b2, t[1]!, t[2]!);
+    return { k, s: (c - knots[k]!) / (knots[k + 1]! - knots[k]!) };
+  };
+  const point = (u: number): IAutoMovieVector3 => {
+    const { k, s } = locate(clamp(u));
+    const g = segments[k]!;
+    if (s === 0) return g.p0;
+    if (s === 1) return g.p1;
+    const s2: number = s * s;
+    const s3: number = s2 * s;
+    return Vector3.add(
+      Vector3.add(Vector3.scale(g.p0, 2 * s3 - 3 * s2 + 1), Vector3.scale(g.m0, s3 - 2 * s2 + s)),
+      Vector3.add(Vector3.scale(g.p1, -2 * s3 + 3 * s2), Vector3.scale(g.m1, s3 - s2)),
+    );
   };
   const tangent = (u: number): IAutoMovieVector3 => {
     const c: number = clamp(u);
-    const a: number = Math.max(0, c - STEP);
-    const b: number = Math.min(1, c + STEP);
-    const d: IAutoMovieVector3 = Vector3.subtract(point(b), point(a));
+    const { k, s } = locate(c);
+    const g = segments[k]!;
+    const s2: number = s * s;
+    const d: IAutoMovieVector3 = Vector3.add(
+      Vector3.add(Vector3.scale(g.p0, 6 * s2 - 6 * s), Vector3.scale(g.m0, 3 * s2 - 4 * s + 1)),
+      Vector3.add(Vector3.scale(g.p1, -6 * s2 + 6 * s), Vector3.scale(g.m1, 3 * s2 - 2 * s)),
+    );
     const size: number = Vector3.length(d);
     if (!(size > 0)) throw new Error(`sweep spine tangent vanishes at u = ${c}`);
     return Vector3.scale(d, 1 / size);

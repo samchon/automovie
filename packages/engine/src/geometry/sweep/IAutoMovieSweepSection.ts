@@ -3,20 +3,23 @@
  *
  * Coordinates are metres in the station's section plane: `x` along the plane's
  * first axis and `y` along its second, both measured from the spine point,
- * which is the section's origin. The sweep reads a section as its radius at
- * every polar angle about that origin, so a section must be star-shaped about
- * it: every ray from the origin crosses the curve exactly once. Angles grow
- * counterclockwise from `+x` toward `+y`, and a curve must run that way.
+ * which is the section's origin. Under the sweep's default direction
+ * correspondence a section is read as its radius at every polar angle about
+ * that origin, so it must be star-shaped about it: every ray from the origin
+ * crosses the curve exactly once; angles grow counterclockwise from `+x`
+ * toward `+y`, and a curve must run that way. Under parameter correspondence
+ * a section is read by its own parameter instead, so it need only be simple.
  *
- * The four kinds cover the forms a section family needs: an analytic
- * superellipse with a half-axis and an exponent per quadrant for rounded or
- * boxy, symmetric or egg-shaped sections; a periodic cubic B-spline whose
- * control polygon a junction can share; a closed piecewise cubic Bezier for
- * authored outlines with corners or tangents; and radii at even angles for
- * sections composed from additive terms.
+ * The kinds cover the forms a section family needs: an analytic superellipse
+ * with a half-axis and an exponent per quadrant for rounded or boxy, symmetric
+ * or egg-shaped sections; a periodic cubic B-spline whose control polygon a
+ * junction can share; a closed piecewise cubic Bezier for authored outlines
+ * with tangents; a polygon for sections with corners; and radii at even
+ * angles for sections composed from additive terms. A new kind joins the
+ * union with its own evaluation and leaves the others unchanged.
  *
  * @evidence contracts/common.md#principled-implementation A closed union whose members are the standard closed-curve forms named in the lofting scope, read through one polar radius function, which makes sections of different kinds correspond by direction.
- * @evidence contracts/common.md#clear-and-simple-design One discriminated union instead of a section interface per kind; `sampleAutoMovieSweepSection` owns evaluation for all four.
+ * @evidence contracts/common.md#clear-and-simple-design One discriminated union instead of a section interface per kind; `parameterizeAutoMovieSweepSection` evaluates the curves and `sampleAutoMovieSweepSection` reads them by direction.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing converts one kind into another silently; a curve that is not star-shaped about its origin is refused by the sampler.
  * @evidence contracts/common.md#meaningful-documentation States the plane coordinates and unit, the origin, the star-shape requirement, the angle direction, and what each member is for.
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; sampling cost is answered on `sampleAutoMovieSweepSection`.
@@ -28,6 +31,7 @@ export type IAutoMovieSweepSection =
   | IAutoMovieSweepSection.ISuperellipse
   | IAutoMovieSweepSection.IBSpline
   | IAutoMovieSweepSection.IBezier
+  | IAutoMovieSweepSection.IPolygon
   | IAutoMovieSweepSection.IRadial;
 export namespace IAutoMovieSweepSection {
   /**
@@ -101,6 +105,19 @@ export namespace IAutoMovieSweepSection {
     type: "bezier";
 
     /** Anchors and handles, a positive multiple of three, counterclockwise. */
+    points: IPoint[];
+  }
+
+  /**
+   * A closed polygon, straight between its corners, for sections with corners such as a profile, a moulding or a duct. Under parameter correspondence corner `k` of one station meets corner `k` of the next, so a polygon need not be star-shaped there and may be concave.
+   *
+   * @author Samchon
+   */
+  export interface IPolygon {
+    /** Discriminator. */
+    type: "polygon";
+
+    /** Corners, at least three, a simple polygon. */
     points: IPoint[];
   }
 

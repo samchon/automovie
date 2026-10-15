@@ -1,5 +1,6 @@
 import { IAutoMovieSweepSection } from "./IAutoMovieSweepSection";
 import { interpolateAutoMovieMonotone } from "./interpolateAutoMovieMonotone";
+import { parameterizeAutoMovieSweepSection } from "./parameterizeAutoMovieSweepSection";
 
 /** Curve samples per segment when bracketing a polar angle. */
 const DENSITY: number = 64;
@@ -68,7 +69,7 @@ export const sampleAutoMovieSweepSection: (props: {
     return angles.map(radius);
   }
   const curve: { point: (t: number) => IAutoMovieSweepSection.IPoint; segments: number } =
-    parameterize(section);
+    parameterizeAutoMovieSweepSection(section);
   const samples: number = Math.max(MINIMUM_SAMPLES, DENSITY * curve.segments);
   // unwrapped polar angle at each walk parameter, strictly increasing by one turn
   const ts: number[] = [];
@@ -123,88 +124,4 @@ export const sampleAutoMovieSweepSection: (props: {
     const p: IAutoMovieSweepSection.IPoint = curve.point((a + b) / 2);
     return Math.hypot(p.x, p.y);
   });
-};
-
-/** A section curve as a function of one parameter over `[0, 1]`, closed, with its segment count. */
-const parameterize = (
-  section: Exclude<IAutoMovieSweepSection, IAutoMovieSweepSection.IRadial>,
-): { point: (t: number) => IAutoMovieSweepSection.IPoint; segments: number } => {
-  if (section.type === "superellipse") {
-    const half: number[] = [section.right, section.up, section.left, section.down];
-    half.forEach((h: number): void => {
-      if (!Number.isFinite(h) || h <= 0)
-        throw new Error("superellipse half-axes must be positive and finite");
-    });
-    section.exponents.forEach((n: number): void => {
-      if (!Number.isFinite(n) || n < 1 || n > 20)
-        throw new Error("superellipse exponents must lie in [1, 20]");
-    });
-    const cx: number = section.centre?.x ?? 0;
-    const cy: number = section.centre?.y ?? 0;
-    if (!Number.isFinite(cx) || !Number.isFinite(cy))
-      throw new Error("superellipse centre must be finite");
-    return {
-      segments: 4,
-      point: (t: number): IAutoMovieSweepSection.IPoint => {
-        const p: number = 2 * Math.PI * (t - Math.floor(t));
-        const q: number = Math.min(3, Math.floor(p / (Math.PI / 2)));
-        const n: number = section.exponents[q]!;
-        const c: number = Math.cos(p);
-        const s: number = Math.sin(p);
-        const a: number = c >= 0 ? section.right : section.left;
-        const b: number = s >= 0 ? section.up : section.down;
-        return {
-          x: cx + a * Math.sign(c) * Math.pow(Math.abs(c), 2 / n),
-          y: cy + b * Math.sign(s) * Math.pow(Math.abs(s), 2 / n),
-        };
-      },
-    };
-  }
-  const points: IAutoMovieSweepSection.IPoint[] = section.points;
-  points.forEach((p: IAutoMovieSweepSection.IPoint, k: number): void => {
-    if (!Number.isFinite(p.x) || !Number.isFinite(p.y))
-      throw new Error(`section point ${k} is not finite`);
-  });
-  const m: number = points.length;
-  const at = (k: number): IAutoMovieSweepSection.IPoint => points[((k % m) + m) % m]!;
-  if (section.type === "bspline") {
-    if (m < 3) throw new Error("B-spline section needs at least three control points");
-    return {
-      segments: m,
-      point: (t: number): IAutoMovieSweepSection.IPoint => {
-        const x: number = (t - Math.floor(t)) * m;
-        const i: number = Math.min(m - 1, Math.floor(x));
-        const s: number = x - i;
-        const w: number[] = [
-          (1 - s) ** 3 / 6,
-          (3 * s ** 3 - 6 * s ** 2 + 4) / 6,
-          (-3 * s ** 3 + 3 * s ** 2 + 3 * s + 1) / 6,
-          s ** 3 / 6,
-        ];
-        const p: IAutoMovieSweepSection.IPoint[] = [at(i - 1), at(i), at(i + 1), at(i + 2)];
-        return {
-          x: w.reduce((sum: number, wk: number, k: number): number => sum + wk * p[k]!.x, 0),
-          y: w.reduce((sum: number, wk: number, k: number): number => sum + wk * p[k]!.y, 0),
-        };
-      },
-    };
-  }
-  if (m < 3 || m % 3 !== 0)
-    throw new Error("Bezier section needs a positive multiple of three points");
-  const segments: number = m / 3;
-  return {
-    segments,
-    point: (t: number): IAutoMovieSweepSection.IPoint => {
-      const x: number = (t - Math.floor(t)) * segments;
-      const i: number = Math.min(segments - 1, Math.floor(x));
-      const s: number = x - i;
-      const r: number = 1 - s;
-      const w: number[] = [r * r * r, 3 * r * r * s, 3 * r * s * s, s * s * s];
-      const p: IAutoMovieSweepSection.IPoint[] = [at(3 * i), at(3 * i + 1), at(3 * i + 2), at(3 * i + 3)];
-      return {
-        x: w.reduce((sum: number, wk: number, k: number): number => sum + wk * p[k]!.x, 0),
-        y: w.reduce((sum: number, wk: number, k: number): number => sum + wk * p[k]!.y, 0),
-      };
-    },
-  };
 };
