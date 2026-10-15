@@ -1,7 +1,7 @@
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
 import { quaternionFromAutoMovieBasis } from "../../math/quaternionFromAutoMovieBasis";
-import { AutoMovieMonotone } from "./AutoMovieMonotone";
+import { AutoMovieSpline } from "./AutoMovieSpline";
 import { AutoMovieSweepRotation } from "./AutoMovieSweepRotation";
 import { IAutoMovieBoneBuffer } from "./IAutoMovieBoneBuffer";
 import { IAutoMovieSweep } from "./IAutoMovieSweep";
@@ -13,7 +13,7 @@ import { IAutoMovieSweepSurface } from "./IAutoMovieSweepSurface";
 import { IAutoMovieSweepTransport } from "./IAutoMovieSweepTransport";
 import { compileAutoMovieSweep } from "./compileAutoMovieSweep";
 import { integrateAutoMovieSweepVolume } from "./integrateAutoMovieSweepVolume";
-import { interpolateAutoMovieMonotone } from "./interpolateAutoMovieMonotone";
+import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
 import { momentAutoMovieSweepSections } from "./momentAutoMovieSweepSections";
 import { orientAutoMovieSweep } from "./orientAutoMovieSweep";
 import { settleAutoMovieSweepVolume } from "./settleAutoMovieSweepVolume";
@@ -293,7 +293,7 @@ export const rigAutoMovieSweep: (props: {
     const previous: ((u: number) => number) | null =
       sweep.scale === undefined
         ? null
-        : interpolateAutoMovieMonotone({
+        : interpolateAutoMovieSpline({
             knots: sweep.scale.map((k: IAutoMovieSweep.IKnot): number => k.at),
             values: sweep.scale.map((k: IAutoMovieSweep.IKnot): number => k.value),
           });
@@ -313,12 +313,14 @@ export const rigAutoMovieSweep: (props: {
     const base: Float64Array = Float64Array.from(knots, (at: number): number => previous?.(at) ?? 1);
     const joint: Uint8Array = Uint8Array.from(knots, (at: number): number => (jointAt.has(at) ? 1 : 0));
     const values: Float64Array = new Float64Array(knots.length);
-    const slopes: Float64Array = new Float64Array(knots.length);
+    const curvature: Float64Array = new Float64Array(knots.length);
+    const work: Float64Array = new Float64Array(7 * knots.length + 17);
+    let tension: number = 0;
     const profile = (factor: number): void => {
       for (let k: number = 0; k < knots.length; ++k) values[k] = base[k]! * (joint[k] === 1 ? factor : 1);
-      AutoMovieMonotone.slope(knots, values, knots.length, 0, slopes);
+      tension = AutoMovieSpline.fit(knots, values, knots.length, 0, curvature, work);
     };
-    const at = (u: number): number => AutoMovieMonotone.evaluate(knots, values, slopes, knots.length, 0, u);
+    const at = (u: number): number => AutoMovieSpline.evaluate(knots, values, curvature, knots.length, 0, tension, u);
     const volume = (factor: number): number => {
       profile(factor);
       for (let i: number = 0; i < steps; ++i) middles[i] = at((i + 0.5) / steps);

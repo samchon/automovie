@@ -1,5 +1,5 @@
 import { IAutoMovieSweepSection } from "./IAutoMovieSweepSection";
-import { interpolateAutoMovieMonotone } from "./interpolateAutoMovieMonotone";
+import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
 import { parameterizeAutoMovieSweepSection } from "./parameterizeAutoMovieSweepSection";
 
 /** Curve samples per segment when bracketing a polar angle. */
@@ -16,7 +16,7 @@ const BISECTIONS: number = 40;
  *
  * Radius `k` lies along angle `2 pi k / count`, measured counterclockwise from
  * the section plane's `+x` axis. A radial section is read through its periodic
- * monotone interpolation. A superellipse centred on its origin is read in
+ * spline, `interpolateAutoMovieSpline`. A superellipse centred on its origin is read in
  * closed form: in the quadrant holding the angle, with that quadrant's
  * half-axes `a` along `x` and `b` along `y` and exponent `n`, the curve is
  * `|x / a|^n + |y / b|^n = 1`, so the radius is
@@ -66,7 +66,7 @@ export const sampleAutoMovieSweepSection: (props: {
       if (!Number.isFinite(r) || r <= 0)
         throw new Error(`radial section radius ${k} must be positive and finite`);
     });
-    const radius: (angle: number) => number = interpolateAutoMovieMonotone({
+    const radius: (angle: number) => number = interpolateAutoMovieSpline({
       knots: section.radii.map((_: number, k: number): number => (2 * Math.PI * k) / m),
       values: section.radii,
       period: 2 * Math.PI,

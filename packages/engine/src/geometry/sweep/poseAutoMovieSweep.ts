@@ -10,7 +10,7 @@ import { IAutoMovieSweepSpine } from "./IAutoMovieSweepSpine";
 import { IAutoMovieSweepSurface } from "./IAutoMovieSweepSurface";
 import { compileAutoMovieSweep } from "./compileAutoMovieSweep";
 import { createAutoMovieBoneMotion } from "./createAutoMovieBoneMotion";
-import { interpolateAutoMovieMonotone } from "./interpolateAutoMovieMonotone";
+import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
 import { measureAutoMovieSweepVolume } from "./measureAutoMovieSweepVolume";
 import { settleAutoMovieSweepVolume } from "./settleAutoMovieSweepVolume";
 
@@ -113,7 +113,7 @@ export const poseAutoMovieSweep: (props: {
   const previous: ((u: number) => number) | null =
     sweep.scale === undefined
       ? null
-      : interpolateAutoMovieMonotone({
+      : interpolateAutoMovieSpline({
           knots: sweep.scale.map((k: IAutoMovieSweep.IKnot): number => k.at),
           values: sweep.scale.map((k: IAutoMovieSweep.IKnot): number => k.value),
         });

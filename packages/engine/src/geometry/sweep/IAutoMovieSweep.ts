@@ -14,8 +14,9 @@ import { IAutoMovieSweepSpine } from "./IAutoMovieSweepSpine";
  * evaluates it in four layers, each continuous in both parameters:
  *
  * 1. Sections: every station's radius by direction, interpolated along `u`
- *    by the monotone scheme, so between two stations a radius stays within
- *    their two values and no lump appears that no station has.
+ *    by a C2 spline under tension, so curvature runs on through every
+ *    station and no band shows there, and between two stations a radius
+ *    strays beyond their values by at most a tenth of the local variation.
  * 2. Guides: each guide is a curve on the surface at one direction, giving
  *    the radius there at every `u`; stations and guides are joined as a
  *    Gordon surface that passes exactly through every guide, so a few
@@ -61,7 +62,7 @@ export interface IAutoMovieSweep {
   /** Silhouette guides; omitted or empty, the stations alone set the form. */
   guides?: IAutoMovieSweep.IGuide[];
 
-  /** Section scale by `u`, applied last, to the section with its guides and features: knots as for a guide, values positive, interpolated by the monotone scheme; omitted, 1 everywhere. */
+  /** Section scale by `u`, applied last, to the section with its guides and features: knots as for a guide, values positive, interpolated by the same spline; omitted, 1 everywhere. */
   scale?: IAutoMovieSweep.IKnot[];
 
   /** Feature curves the surface passes through; omitted or empty, none. */
@@ -114,14 +115,14 @@ export namespace IAutoMovieSweep {
     /** Direction in the section plane, radians counterclockwise from the first axis; guides of one sweep have distinct directions. */
     angle: number;
 
-    /** The radius by `u`: at least two knots, the first at `u` 0 and the last at 1, strictly increasing, interpolated by the monotone scheme. */
+    /** The radius by `u`: at least two knots, the first at `u` 0 and the last at 1, strictly increasing, interpolated by the same spline. */
     radii: IKnot[];
   }
 
   /**
    * One knot of a guide's profile.
    *
-   * @evidence contracts/common.md#principled-implementation One sample of a monotone profile along the spine.
+   * @evidence contracts/common.md#principled-implementation One sample of a spline profile along the spine.
    * @evidence contracts/common.md#clear-and-simple-design Parameter and value.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Values must be positive.
    * @evidence contracts/common.md#meaningful-documentation States both fields.
@@ -141,12 +142,12 @@ export namespace IAutoMovieSweep {
   /**
    * A feature curve: a line on the surface the section family must pass through, such as a ridge or a groove, with the radius it has along it or its offset from the surface the other layers make.
    *
-   * The curve is the polyline through its points in the `(u, angle)` domain; along it the radius or offset is interpolated linearly between points. The surface moves by the difference between that radius and its own, or by the offset at full weight on the curve and fading over `width` metres across it by the cube of `1 - (d / width)^2`, distances measured on the surface's own scale (`u` by the spine's length, the angle by the local radius before the scale profile). Features apply after guides, before the scale profile, and add up where their bands overlap.
+   * The curve is the uniform Catmull-Rom spline through its points in the `(u, angle)` domain, so it turns smoothly where a polyline would corner and its band creases only inside a bend tighter than the band is wide; along it the radius or offset follows `interpolateAutoMovieSpline` over the points in order. The surface moves by the difference between that radius and its own, or by the offset at full weight on the curve and fading over `width` metres across it by the cube of `1 - (d / width)^2`, distances measured on the surface's own scale (`u` by the spine's length, the angle by the local radius before the scale profile). Features apply after guides, before the scale profile, and add up where their bands overlap.
    *
-   * @evidence contracts/common.md#principled-implementation A pass-through constraint along a polyline in the domain, applied as a compactly supported C2 bump.
+   * @evidence contracts/common.md#principled-implementation A pass-through constraint along a smooth curve in the domain, applied as a compactly supported C2 bump.
    * @evidence contracts/common.md#clear-and-simple-design Points and a band width.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Overlapping bands add; the limitation is stated on the compiler.
-   * @evidence contracts/common.md#meaningful-documentation States the polyline, the falloff and the order of layers.
+   * @evidence contracts/common.md#meaningful-documentation States the curve, its values, the falloff and the order of layers.
    * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `compileAutoMovieSweep`.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
@@ -163,7 +164,7 @@ export namespace IAutoMovieSweep {
   /**
    * One point of a feature curve.
    *
-   * @evidence contracts/common.md#principled-implementation One vertex of a feature polyline with its radius or offset.
+   * @evidence contracts/common.md#principled-implementation One point a feature curve passes through, with its radius or offset.
    * @evidence contracts/common.md#clear-and-simple-design Domain point plus one of two values.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Mixing radius and offset in one feature is refused.
    * @evidence contracts/common.md#meaningful-documentation States each field and the shorter-way rule.

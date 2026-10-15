@@ -11,7 +11,8 @@ import { IAutoMovieSweepTransport } from "./IAutoMovieSweepTransport";
 import { loadAutoMovieSweepSpine } from "./loadAutoMovieSweepSpine";
 import { orientAutoMovieSweep } from "./orientAutoMovieSweep";
 import { pathAutoMovieSweepTransport } from "./pathAutoMovieSweepTransport";
-import { interpolateAutoMovieMonotone } from "./interpolateAutoMovieMonotone";
+import { compileAutoMovieSweepFeature } from "./compileAutoMovieSweepFeature";
+import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
 import { parameterizeAutoMovieSweepSection } from "./parameterizeAutoMovieSweepSection";
 import { sampleAutoMovieSweepSection } from "./sampleAutoMovieSweepSection";
 
@@ -30,15 +31,16 @@ const STEP: number = 1e-4;
  * Under direction correspondence, the default, each station's section is
  * sampled at 512 directions by `sampleAutoMovieSweepSection`. For each
  * direction the radii of the stations form a profile along `u`, interpolated
- * by `interpolateAutoMovieMonotone`, so between two stations the radius stays
- * between theirs, and before the first or after the last station it holds
- * that station's radius.
+ * by `interpolateAutoMovieSpline`, a C2 spline under tension, so curvature is
+ * continuous through every station, between two stations the radius strays
+ * beyond theirs by at most a tenth of the local variation, and before the
+ * first or after the last station it holds that station's radius.
  *
  * Under parameter correspondence each loop of each station, the section and
  * then its holes, is sampled at the same parameters of
  * `parameterizeAutoMovieSweepSection`: a polygon at its corners, any other
  * curve at 512 even parameters. Each sample's two coordinates are interpolated
- * along `u` by the same monotone scheme and joined linearly round the loop,
+ * along `u` by the same spline and joined linearly round the loop,
  * so corner `k` of every station meets corner `k` of the next, as a loft
  * between corresponding polygons blends them. Guides and features read radii
  * by direction and are refused here; the scale profile applies to every loop.
@@ -48,7 +50,7 @@ const STEP: number = 1e-4;
  * Boolean sum `P + G - T` of the profile interpolant `P` (the stations, along
  * `u`), the guide interpolant `G` (the guides, round the turn) and their
  * tensor interpolant `T` (the profile interpolant read at the guide
- * directions, round the turn). Both directions use the monotone scheme, round
+ * directions, round the turn). Both directions use the spline, round
  * the turn its periodic form over the guide directions. At a guide's
  * direction `G - T` is the guide's radius less the profile's, so the surface
  * passes exactly through every guide at every `u`. Where a guide disagrees
@@ -57,13 +59,13 @@ const STEP: number = 1e-4;
  * interpolated round the turn; a single guide moves the whole section by its
  * one difference. Rows are cached by `u`.
  *
- * Features next: at a query point the nearest point of each feature polyline
- * is found in the surface's own metric, `u` scaled by the spine's length and
- * angle by the guided radius at the query, and the radius moves by the
- * feature's residual there, the declared radius less the guided radius at the
- * curve or the declared offset, times `(1 - (d / width)^2)^3` within `width`. The surface therefore
- * passes exactly through each feature curve where no other feature's band
- * overlaps it.
+ * Features next: each feature curve is the smooth curve through its points
+ * that `compileAutoMovieSweepFeature` builds, and at a query point the radius
+ * moves by the feature's residual at the curve's nearest point in the
+ * surface's own metric, the declared radius less the guided radius there or
+ * the declared offset, times `(1 - (d / width)^2)^3` within `width`. The
+ * surface therefore passes exactly through each feature curve where no
+ * other feature's band overlaps it, and the band has no crease along it.
  *
  * A scale profile, where the sweep gives one, multiplies the result last,
  * features included, so it resizes the section as shaped; `profile` reads the
@@ -83,7 +85,7 @@ const STEP: number = 1e-4;
  * @returns The compiled surface.
  * @throws Error when the spine is refused by `frameAutoMovieSweepSpine`, a section by `sampleAutoMovieSweepSection`, a station, guide or feature is out of range, unordered or not finite, or two guides share a direction; and, when a row is first evaluated, when guides drive a radius to zero.
  *
- * @evidence contracts/common.md#principled-implementation Per-direction monotone interpolation of key-section radii keeps every radius within its neighbouring stations; guides form the Gordon surface of the station profiles and guide curves in radius, exact on every guide; features are pass-through constraints applied as a compactly supported C2 bump of the residual in the surface's own metric; orientations follow the nlerp of key-section rotations from the sweep-based deformation literature. Limitation: overlapping feature bands add, so neither passes exactly through its curve there.
+ * @evidence contracts/common.md#principled-implementation Per-direction interpolation of key-section radii by a C2 spline under tension keeps curvature continuous through the stations and overshoot within a tenth of the local variation; guides form the Gordon surface of the station profiles and guide curves in radius, exact on every guide; features are pass-through constraints along smooth curves, applied as a compactly supported C2 bump of the residual in the surface's own metric; orientations follow the nlerp of key-section rotations from the sweep-based deformation literature. Limitation: overlapping feature bands add, so neither passes exactly through its curve there.
  * @evidence contracts/common.md#clear-and-simple-design One compile owns the four layers in their fixed order; section evaluation, spine transport and orientation are delegated to their own modules, the last two shared with posed sweeps.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid stations, guides and features are refused rather than reordered or clamped, and nothing is tuned for a particular caller.
  * @evidence contracts/common.md#meaningful-documentation States each layer's rule and guarantee, the Gordon construction and how incompatible guides are resolved, the feature metric and kernel, the frame rule and its source, the overlap limitation and every refusal.
@@ -133,7 +135,7 @@ export const compileAutoMovieSweep: (sweep: IAutoMovieSweep) => IAutoMovieSweepS
     : Array.from(
         { length: DIRECTIONS },
         (_: unknown, d: number): ((u: number) => number) =>
-          interpolateAutoMovieMonotone({
+          interpolateAutoMovieSpline({
             knots,
             values: radii.map((r: number[]): number => r[d]!),
           }),
@@ -147,7 +149,8 @@ export const compileAutoMovieSweep: (sweep: IAutoMovieSweep) => IAutoMovieSweepS
   const scale: ((u: number) => number) | null =
     sweep.scale === undefined ? null : compileProfile(sweep.scale, "sweep scale");
   (sweep.features ?? []).forEach(checkFeature);
-  const features: ICompiledFeature[] = (sweep.features ?? []).map(compileFeature);
+  const features: Array<(u: number, angle: number, local: number, length: number, guided: (u: number, angle: number) => number) => number> =
+    (sweep.features ?? []).map(compileAutoMovieSweepFeature);
 
   const cache: Map<number, Float64Array> = new Map();
   const row = (input: number): Float64Array => {
@@ -173,7 +176,7 @@ export const compileAutoMovieSweep: (sweep: IAutoMovieSweep) => IAutoMovieSweepS
     const own: number = guided(u, angle);
     let r: number = own;
     for (const feature of features)
-      r += displace(feature, u, angle, own, path.length, guided);
+      r += feature(u, angle, own, path.length, guided);
     return r;
   };
   const scaleAt = (input: number): number => (scale === null ? 1 : scale(Math.min(1, Math.max(0, input))));
@@ -264,7 +267,7 @@ const PARAMETER_SAMPLES: number = 512;
 
 /**
  * Compile one loop of a sweep by parameter: each station's curve sampled at the same parameters,
- * each sample's coordinates interpolated along the spine by the monotone scheme, linear between samples.
+ * each sample's coordinates interpolated along the spine by the spline, linear between samples.
  */
 const compileLoop = (sections: IAutoMovieSweepSection[], knots: number[], loop: number): ICompiledLoop => {
   const polygon: boolean = sections[0]!.type === "polygon";
@@ -280,7 +283,7 @@ const compileLoop = (sections: IAutoMovieSweepSection[], knots: number[], loop: 
   );
   const axis = (key: "x" | "y"): Array<(u: number) => number> =>
     Array.from({ length: count }, (_: unknown, j: number): ((u: number) => number) =>
-      interpolateAutoMovieMonotone({ knots, values: samples.map((s: IAutoMovieSweepSection.IPoint[]): number => s[j]![key]) }),
+      interpolateAutoMovieSpline({ knots, values: samples.map((s: IAutoMovieSweepSection.IPoint[]): number => s[j]![key]) }),
     );
   const xs: Array<(u: number) => number> = axis("x");
   const ys: Array<(u: number) => number> = axis("y");
@@ -313,14 +316,14 @@ const compileGuide = (g: IAutoMovieSweep.IGuide, index: number): ICompiledGuide 
   };
 };
 
-/** A profile along the spine from knots spanning it, positive values, by the monotone scheme. */
+/** A profile along the spine from knots spanning it, positive values, by the spline. */
 const compileProfile = (e: IAutoMovieSweep.IKnot[], what: string): ((u: number) => number) => {
   if (e.length < 2 || e[0]!.at !== 0 || e[e.length - 1]!.at !== 1)
     throw new Error(`${what} must span the spine from at 0 to at 1`);
   e.forEach((k: IAutoMovieSweep.IKnot): void => {
     if (!Number.isFinite(k.value) || k.value <= 0) throw new Error(`${what} values must be positive and finite`);
   });
-  return interpolateAutoMovieMonotone({
+  return interpolateAutoMovieSpline({
     knots: e.map((k: IAutoMovieSweep.IKnot): number => k.at),
     values: e.map((k: IAutoMovieSweep.IKnot): number => k.value),
   });
@@ -331,7 +334,7 @@ const compileProfile = (e: IAutoMovieSweep.IKnot[], what: string): ((u: number) 
  *
  * The row is the profile interpolant at `u`. At each guide's direction the guide interpolant gives
  * the guide's radius and the tensor interpolant gives the row's own radius there, so the correction
- * is their difference at the guide directions, interpolated round the turn by the periodic monotone
+ * is their difference at the guide directions, interpolated round the turn by the periodic spline
  * scheme over the guide directions.
  */
 const guide = (base: Float64Array, guides: ICompiledGuide[], u: number): Float64Array => {
@@ -342,7 +345,7 @@ const guide = (base: Float64Array, guides: ICompiledGuide[], u: number): Float64
     const t: number = x - Math.floor(x);
     return base[d]! * (1 - t) + base[(d + 1) % n]! * t;
   };
-  const correction: (angle: number) => number = interpolateAutoMovieMonotone({
+  const correction: (angle: number) => number = interpolateAutoMovieSpline({
     knots: guides.map((g: ICompiledGuide): number => g.angle),
     values: guides.map((g: ICompiledGuide): number => g.radius(u) - at(g.angle)),
     period: 2 * Math.PI,
@@ -371,75 +374,3 @@ const checkFeature = (f: IAutoMovieSweep.IFeature, index: number): void => {
 };
 
 /** Radius change one feature makes at a query point. */
-/** A feature with its polyline unwrapped once: parameters, directions taking the shorter way round, values, and its `u` range. */
-interface ICompiledFeature {
-  width: number;
-  relative: boolean;
-  at: Float64Array;
-  angle: Float64Array;
-  value: Float64Array;
-  low: number;
-  high: number;
-}
-
-const compileFeature = (f: IAutoMovieSweep.IFeature): ICompiledFeature => {
-  // unwrap the polyline so consecutive points take the shorter way round
-  let previous: number = f.points[0]!.angle;
-  const angle: Float64Array = Float64Array.from(f.points, (p: IAutoMovieSweep.IFeaturePoint, k: number): number => {
-    if (k === 0) return previous;
-    let step: number = p.angle - previous;
-    step -= 2 * Math.PI * Math.round(step / (2 * Math.PI));
-    previous += step;
-    return previous;
-  });
-  const relative: boolean = f.points[0]!.offset !== undefined;
-  const at: Float64Array = Float64Array.from(f.points, (p: IAutoMovieSweep.IFeaturePoint): number => p.at);
-  return {
-    width: f.width,
-    relative,
-    at,
-    angle,
-    value: Float64Array.from(f.points, (p: IAutoMovieSweep.IFeaturePoint): number => (relative ? p.offset! : p.radius!)),
-    low: Math.min(...at),
-    high: Math.max(...at),
-  };
-};
-
-/** Radius change one feature makes at a query point. */
-const displace = (
-  feature: ICompiledFeature,
-  u: number,
-  angle: number,
-  local: number,
-  length: number,
-  guided: (u: number, angle: number) => number,
-): number => {
-  // the band reaches no further along the spine than its width
-  if ((feature.low - u) * length >= feature.width || (u - feature.high) * length >= feature.width) return 0;
-  let best: number = Infinity;
-  let at: number = 0;
-  let direction: number = 0;
-  let target: number = 0;
-  for (let k: number = 0; k + 1 < feature.at.length; ++k) {
-    // segment and query in metres: u by spine length, angle by the local radius
-    let qa: number = angle - feature.angle[k]!;
-    qa -= 2 * Math.PI * Math.round(qa / (2 * Math.PI));
-    const sx: number = (feature.at[k + 1]! - feature.at[k]!) * length;
-    const sy: number = (feature.angle[k + 1]! - feature.angle[k]!) * local;
-    const qx: number = (u - feature.at[k]!) * length;
-    const qy: number = qa * local;
-    const span: number = sx * sx + sy * sy;
-    const t: number = span > 0 ? Math.min(1, Math.max(0, (qx * sx + qy * sy) / span)) : 0;
-    const d: number = Math.hypot(qx - t * sx, qy - t * sy);
-    if (d < best) {
-      best = d;
-      at = feature.at[k]! + t * (feature.at[k + 1]! - feature.at[k]!);
-      direction = feature.angle[k]! + t * (feature.angle[k + 1]! - feature.angle[k]!);
-      target = feature.value[k]! + t * (feature.value[k + 1]! - feature.value[k]!);
-    }
-  }
-  if (best >= feature.width) return 0;
-  const x: number = best / feature.width;
-  const residual: number = feature.relative ? target : target - guided(at, direction);
-  return residual * (1 - x * x) ** 3;
-};
