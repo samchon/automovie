@@ -6,6 +6,16 @@ import { AutoMovieHumanHandSketch } from "./AutoMovieHumanHandSketch";
 import { readAutoMovieHumanHand } from "./readAutoMovieHumanHand";
 
 /**
+ * Palmar relief over each finger's line, as a share of the plain section's depth, by the share of the way from the carpometacarpal line to the metacarpal heads: the thenar's ulnar slope over the index line near the wrist, the hollow of the palm over the middle and ring lines, and the hypothenar eminence over the little finger's line, highest at mid-palm (Gray 1918: the thenar eminence larger and rounder than the long narrow hypothenar). Conventional.
+ */
+const PADS: Array<(t: number) => number> = [
+  (t: number): number => 0.15 * (1 - t),
+  (t: number): number => -0.1 * Math.sin(t * Math.PI),
+  (t: number): number => -0.1 * Math.sin(t * Math.PI),
+  (t: number): number => 0.18 * Math.sin(t * Math.PI),
+];
+
+/**
  * Draw the palm and the back of the hand from the wrist ring to the finger sockets, with the thumb's socket in its radial side.
  *
  * Five loops run across the hand. The wrist ring has 8 vertices. Three loops of 14 follow at the carpometacarpal line, mid-metacarpal and the metacarpal heads, each with one dorsal vertex over every metacarpal, where the extensor tendons run, one palmar vertex on every finger's line, a vertex on each border and a palmar and dorsal one beside each. The knuckle loop has 26: the four finger sockets' dorsal and palmar thirds and the two borders. Each finger socket is closed by its flank vertices at the webs, and two quads span each web between them, meeting at the crotch.
@@ -77,7 +87,7 @@ export function shapeAutoMovieHumanPalm(
     return [
       palmar(x, 0.72),
       ...[0, 1, 2, 3].map((i: number): IAutoMovieVector3 =>
-        palmar(shaft(i, t), zetas[i]! * spread, i === 3 ? 0.18 * Math.sin(t * Math.PI) : -0.08 * Math.sin(t * Math.PI) * (i === 1 || i === 2 ? 1 : 0)),
+        palmar(shaft(i, t), zetas[i]! * spread, PADS[i]!(t)),
       ),
       palmar(shaft(3, t), -0.88, 0.25 * Math.sin(t * Math.PI)),
       border(shaft(3, t), -1, 0.2),
@@ -111,7 +121,7 @@ export function shapeAutoMovieHumanPalm(
   rows[0]![0] = V.of(base + 0.02 * L, 1.2 * palmarDepth(base), cmc.z - 0.15 * tw);
   rows[0]![12] = V.of(base, -0.75 * dorsalHeight(base), cmc.z - 0.1 * tw);
   // mid-metacarpal: the thenar's summit over the thumb metacarpal toward the palm, and the first dorsal interosseous between the two metacarpals
-  rows[1]![0] = V.offset(along(0.55), [thumb.pad, 0.85 * tw], [thumb.web, 0.15 * tw]);
+  rows[1]![0] = V.offset(along(0.55), [thumb.pad, 0.7 * tw], [thumb.web, 0.2 * tw]);
   rows[1]![12] = V.offset(V.of(0, 0, 0), [dorsal(rows[1]![11]!.x, zetas[0]! * 0.92 + 0.25), 0.5], [V.offset(along(0.6), [nail, 0.5 * tw]), 0.5]);
   // the web: its crotch, and its palmar and dorsal sides halfway to the index's base
   rows[2]![13] = crotch;
@@ -133,16 +143,16 @@ export function shapeAutoMovieHumanPalm(
   const sockets: number[][] = fingers.map((f: readAutoMovieHumanHand.IDigit, i: number): number[] => {
     const knuckle: IAutoMovieVector3 = f.points[0]!;
     const w: number = widths[i]! * 1.06;
-    const rise: number = thickness * F.palm.dorsal * (i === 1 ? 1.08 : 1.02);
+    const rise: number = thickness * F.palm.dorsal * (i === 1 ? 1.16 : 1.1);
     const pad: number = thickness * (1 - F.palm.dorsal) * 0.62;
     // the flanks, 2 and 6, are the webs' and borders' vertices, added below
     return [
       V.of(f.crease, pad, knuckle.z),
       V.of(f.crease, pad * 0.8, knuckle.z - w * 0.38),
       null,
-      V.of(knuckle.x, -rise * 0.8, knuckle.z - w * 0.4),
+      V.of(knuckle.x, -rise * 0.84, knuckle.z - w * 0.4),
       V.of(knuckle.x - 0.01 * L, -rise, knuckle.z),
-      V.of(knuckle.x, -rise * 0.8, knuckle.z + w * 0.4),
+      V.of(knuckle.x, -rise * 0.84, knuckle.z + w * 0.4),
       null,
       V.of(f.crease, pad * 0.8, knuckle.z + w * 0.38),
     ].map((t: IAutoMovieVector3 | null): number => (t === null ? -1 : sketch.vertex(t)));
@@ -154,7 +164,7 @@ export function shapeAutoMovieHumanPalm(
     const crotch: number = (f.crease + g.crease) / 2 + F.webs[i]! * L;
     const middle: number = (f.points[0]!.z + g.points[0]!.z) / 2;
     const gap: number = 0.08 * (f.points[0]!.z - g.points[0]!.z);
-    const y: number = 0.12 * thickness;
+    const y: number = 0;
     sockets[i]![2] = sketch.vertex(V.of(crotch, y, middle + gap));
     sockets[i + 1]![6] = sketch.vertex(V.of(crotch, y, middle - gap));
   }
