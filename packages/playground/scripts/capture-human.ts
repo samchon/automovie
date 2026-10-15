@@ -35,6 +35,9 @@ interface IPerson {
     | { azimuth: number; elevation: number; margin?: number; focus?: string }
   )[];
 
+  /** Display modes to capture, `surface`, `overlay` (the construction net over the surface) or `net` (the net over a ghosted body); omitted, `surface`. */
+  modes?: ("surface" | "overlay" | "net")[];
+
   /** Scales to capture; omitted, `whole` and `close`. */
   scales?: string[];
 
@@ -56,7 +59,11 @@ interface IPerson {
  *
  * Usage: `pnpm human:capture -- [--people people.json] [--name n] [--views front,left] [--scales whole,close] [--focus head] [--base url] [--chrome path]`. Without `--people` it captures the page's default person under `--name`.
  *
- * Views. Fourteen presets, captured in this order when no views are given: the turntable `front`, `frontLeft`, `left`, `backLeft`, `back`, `backRight`, `right`, `frontRight` (every 45 degrees toward the subject's left); the obliques `frontLeftHigh` and `backRightHigh` (35 degrees above) and `frontRightLow` and `backLeftLow` (25 degrees below); and `top` and `below`. A people file may also give any direction as an object `{"azimuth": 120, "elevation": -15}` in degrees: azimuth 0 is the front, 90 the subject's left, 180 the back, 270 the right; elevation is above the horizontal, -90 to 90. It may add `"margin"` (framing scale, at least 1, 1 touching the frame edge) and `"focus"` (a bone; the view is then captured once, close on that bone, whatever the scales). For example `"views": ["front", {"azimuth": 120, "elevation": -15, "focus": "leftUpperLeg"}]`. An angle view's file is named `az<azimuth>_el<elevation>`, such as `ana-close-leftUpperLeg-az120_el-15.png`. `--views` on the command line takes preset names only. Each person is loaded through the page's own `window.__automovieHuman` API, the same documents and admission the controls use, and captured by the page's capture action, which writes PNGs to `.shots/output` and metadata (source commit, document hash, renderer, views) to `.shots/captures/<name>.json`. The run refuses a software renderer. A dev server at `--base` is reused, or one is started for the run and stopped after; pass a free port to get a fresh one. A started server is a snapshot: it neither watches files nor reloads the page, so another edit or build cannot interrupt the run, and it serves the code as it stood when it started. Its first load transforms every module of the page, so the page may take minutes to draw its first frame.
+ * Views. Fourteen presets, captured in this order when no views are given: the turntable `front`, `frontLeft`, `left`, `backLeft`, `back`, `backRight`, `right`, `frontRight` (every 45 degrees toward the subject's left); the obliques `frontLeftHigh` and `backRightHigh` (35 degrees above) and `frontRightLow` and `backLeftLow` (25 degrees below); and `top` and `below`. A people file may also give any direction as an object `{"azimuth": 120, "elevation": -15}` in degrees: azimuth 0 is the front, 90 the subject's left, 180 the back, 270 the right; elevation is above the horizontal, -90 to 90. It may add `"margin"` (framing scale, at least 1, 1 touching the frame edge) and `"focus"` (a bone; the view is then captured once, close on that bone, whatever the scales). For example `"views": ["front", {"azimuth": 120, "elevation": -15, "focus": "leftUpperLeg"}]`. An angle view's file is named `az<azimuth>_el<elevation>`, such as `ana-close-leftUpperLeg-az120_el-15.png`. `--views` on the command line takes preset names only.
+ *
+ * Display modes. `"modes": ["surface", "overlay", "net"]` in a people file captures each view in each mode: the surface alone, the construction net (each lofted part's stations, guides, features, spines, network curves, junction rings and control cage, in the rest pose) over the opaque surface, or the net over a ghosted body. A net or overlay file is named `<name>-<mode>-<scale>-<view>.png` and carries the colour legend in its corner; surface files keep their names.
+ *
+ * Each person is loaded through the page's own `window.__automovieHuman` API, the same documents and admission the controls use, and captured by the page's capture action, which writes PNGs to `.shots/output` and metadata (source commit, document hash, renderer, views) to `.shots/captures/<name>.json`. The run refuses a software renderer. A dev server at `--base` is reused, or one is started for the run and stopped after; pass a free port to get a fresh one. A started server is a snapshot: it neither watches files nor reloads the page, so another edit or build cannot interrupt the run, and it serves the code as it stood when it started. Its first load transforms every module of the page, so the page may take minutes to draw its first frame.
  */
 const main = async (): Promise<void> => {
   const flags: Map<string, string> = new Map();
@@ -154,6 +161,7 @@ const main = async (): Promise<void> => {
             name: p.name,
             views: p.views,
             scales: p.scales,
+            modes: p.modes,
             focus: p.focus,
           }),
         person,
