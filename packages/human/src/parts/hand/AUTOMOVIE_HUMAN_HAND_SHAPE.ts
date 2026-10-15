@@ -5,6 +5,9 @@
  */
 export const AUTOMOVIE_HUMAN_HAND_SHAPE = {
   palm: {
+    /** Palm thickness at the metacarpal heads over hand breadth. Fitted. */
+    thickness: 0.35,
+
     /** Share of the palm's thickness dorsal to the plane of the knuckles' joint centres: a metacarpal head with thin extensor cover above, the volar plate, flexor tendons and palmar pad below. Conventional. */
     dorsal: 0.4,
 
@@ -37,6 +40,22 @@ export const AUTOMOVIE_HUMAN_HAND_SHAPE = {
 
     /** The hypothenar's bulge at the ulnar border itself, as a share of the palmar depth. Fitted. */
     border: 0.005,
+  },
+  thumb: {
+    /** Breadth of the thumb's knuckle section, inside the thenar's distal slope, over its interphalangeal joint breadth. Fitted. */
+    knuckle: 1.3,
+
+    /** Palmar depth of the knuckle section, the thenar's distal end, over the interphalangeal joint depth. Fitted. */
+    knucklePalmar: 0.85,
+
+    /** Dorsal height of the knuckle section over the interphalangeal joint depth. Fitted. */
+    knuckleDorsal: 0.55,
+
+    /** Breadth of the proximal phalanx section where the web leaves it over the interphalangeal joint breadth. Fitted. */
+    phalanx: 1.06,
+
+    /** Height of the thenar eminence's summit above the thumb metacarpal toward the pad, over the interphalangeal joint breadth. Fitted. */
+    thenar: 0.7,
   },
   finger: {
     /** Reach of a section's diagonal vertices toward the box corner: 0.71 for an ellipse, 1 for a box. Fitted. */
