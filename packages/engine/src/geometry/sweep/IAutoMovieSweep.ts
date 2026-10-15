@@ -21,7 +21,7 @@ import { IAutoMovieSweepSpine } from "./IAutoMovieSweepSpine";
  *    Gordon surface that passes exactly through every guide, so a few
  *    stations plus guides control breadth and depth everywhere between them.
  * 3. Scale: an optional profile along `u` multiplies the whole section, the
- *    girth control that volume preservation and muscle bulges use.
+ *    size control that volume preservation and local bulges use.
  * 4. Features: each feature curve in the `(u, v)` domain carries the radius
  *    the surface must have along it, and the surface is moved onto those
  *    radii with a smooth falloff across the curve.
@@ -46,6 +46,11 @@ export interface IAutoMovieSweep {
   /** Key sections, at least one, with strictly increasing `at`. */
   stations: IAutoMovieSweep.IStation[];
 
+  /**
+   * How stations correspond: `direction` pairs the points of neighbouring stations along each polar angle about the spine point, so every section must be star-shaped about it; `parameter` pairs points at equal curve parameters, corner `k` with corner `k` for polygons, so sections may be concave and may carry holes, while guides and features, which are read by direction, are not available. Omitted, `direction`.
+   */
+  correspondence?: "direction" | "parameter";
+
   /** Silhouette guides; omitted or empty, the stations alone set the form. */
   guides?: IAutoMovieSweep.IGuide[];
 
@@ -65,8 +70,11 @@ export namespace IAutoMovieSweep {
     /** Chord-length parameter of the station on the spine, from 0 to 1. */
     at: number;
 
-    /** The section, in the station's plane, star-shaped about the spine point. */
+    /** The section, in the station's plane: star-shaped about the spine point under direction correspondence, any simple curve under parameter correspondence. */
     section: IAutoMovieSweepSection;
+
+    /** Curves removed from the section, inside it and apart from each other, each corresponding to the same hole of every other station; only under parameter correspondence. Omitted, a solid section. */
+    holes?: IAutoMovieSweepSection[];
 
     /**
      * Orientation of the station's plane in the model frame: its first axis is this rotation applied to `+X`, its second to `+Y` and its normal to `+Z`. Omitted, the plane is the spine's rotation-minimizing frame at `at`. Between stations the turn relative to the transported frame is interpolated by normalized linear quaternion interpolation, so a twist given at two stations spreads evenly between them.

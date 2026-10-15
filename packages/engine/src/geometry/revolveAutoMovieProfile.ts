@@ -82,7 +82,7 @@ import { meshOf } from "./meshOf";
  * must carry one is authored as flat faces through
  * {@link buildAutoMoviePolyhedron}, whose per-face frame is isometric, or as a
  * flat cap through {@link extrudeAutoMovieRegion}, and a spire built as facets
- * is how a spire is built anyway. {@link loftAutoMovieSections} is not the
+ * is how a spire is built anyway. {@link meshAutoMovieSweep} is not the
  * escape here that it is for the coordinate-less builders. It measures this
  * same pair, a tapered loft shears the same way, and it gives up something this
  * one keeps: the map here is exactly equiareal, while a loft's `v` is path

@@ -2,7 +2,7 @@ import { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * The path a sweep's sections travel along: a curve through points, such as
- * the centre line of a body or the joint centres of a bone chain.
+ * the centre line of a tube or the joint centres of a bone chain.
  *
  * The curve passes through every point and is parameterized by chord length,
  * `u = 0` at the first point and `u = 1` at the last, each point at its share

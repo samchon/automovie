@@ -3,6 +3,7 @@ import { IAutoMovieVector3 } from "@automovie/interface";
 import { IAutoMovieSweep } from "./IAutoMovieSweep";
 import { IAutoMovieSweepFrame } from "./IAutoMovieSweepFrame";
 import { IAutoMovieSweepPath } from "./IAutoMovieSweepPath";
+import { IAutoMovieSweepSection } from "./IAutoMovieSweepSection";
 
 /**
  * A sweep compiled for evaluation, from `compileAutoMovieSweep`.
@@ -27,8 +28,21 @@ export interface IAutoMovieSweepSurface {
   /** The compiled spine. */
   path: IAutoMovieSweepPath;
 
+  /** Number of loops: 1 for a sweep by direction, 1 plus its holes for a sweep by parameter. */
+  loops: number;
+
   /**
-   * Distance of the surface from the spine point in the section plane.
+   * Point of a loop in the section plane at a spine parameter, before the plane is placed.
+   *
+   * @param u Along the spine
+   * @param v Round the loop
+   * @param loop 0 for the section, `k` for hole `k - 1`; omitted, 0
+   * @returns Metres along the plane's first and second axes
+   */
+  section(u: number, v: number, loop?: number): IAutoMovieSweepSection.IPoint;
+
+  /**
+   * Distance of the section's outer loop from the spine point in the section plane.
    *
    * @param u Along the spine
    * @param v Around it
@@ -49,25 +63,28 @@ export interface IAutoMovieSweepSurface {
    *
    * @param u Along the spine
    * @param v Around it
+   * @param loop 0 for the section, `k` for hole `k - 1`; omitted, 0
    * @returns Metres
    */
-  point(u: number, v: number): IAutoMovieVector3;
+  point(u: number, v: number, loop?: number): IAutoMovieVector3;
 
   /**
-   * Unit normal pointing away from the spine, from central differences of the surface.
+   * Unit normal `dP/dv x dP/du` from central differences of the surface, which points away from the spine where the loop runs counterclockwise in its plane.
    *
    * @param u Along the spine
    * @param v Around it
+   * @param loop 0 for the section, `k` for hole `k - 1`; omitted, 0
    * @returns Unit vector
    */
-  normal(u: number, v: number): IAutoMovieVector3;
+  normal(u: number, v: number, loop?: number): IAutoMovieVector3;
 
   /**
    * Derivative of the surface point along the spine, by central difference.
    *
    * @param u Along the spine
    * @param v Around it
+   * @param loop 0 for the section, `k` for hole `k - 1`; omitted, 0
    * @returns Metres per unit of `u`
    */
-  along(u: number, v: number): IAutoMovieVector3;
+  along(u: number, v: number, loop?: number): IAutoMovieVector3;
 }
