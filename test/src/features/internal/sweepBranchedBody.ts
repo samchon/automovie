@@ -162,8 +162,8 @@ export function sweepBranchedBody(
     spine: { points: s.spine.points.map(mirror), normal: mirror(s.spine.normal) },
   });
   const sideY: number = 0.456;
-  const sideLeft: IAutoMovieSweep = tube(point(0.27 * b, sideY, 0), point(0.75, sideY, 0), point(0, -1, 1), 0.065 * a, 0.045 * a);
-  const forkLeft: IAutoMovieSweep = tube(point(0.09 * b, -0.16, 0), point(0.1 * b, -0.9, 0), point(0, 0, -1), 0.1, 0.055);
+  const sideLeft: IAutoMovieSweep = tube(point(0.27 * b, sideY, 0), point(0.75, sideY, 0), point(0, -1, 1), 0.042 * a, 0.034 * a);
+  const forkLeft: IAutoMovieSweep = tube(point(0.095 * b, -0.16, 0), point(0.1 * b, -0.9, 0), point(0, 0, -1), 0.082, 0.055);
   const sweeps: Record<string, IAutoMovieSweep> = {
     trunk,
     sideLeft,
@@ -294,7 +294,7 @@ export function sweepBranchedBody(
   const root: number = Math.SQRT1_2;
   const endLeft: IAutoMovieVector3[] = Array.from({ length: 8 }, (_: unknown, k: number): IAutoMovieVector3 => {
     const angle: number = (2 * Math.PI * k) / 8;
-    const radius: number = 0.05 * a;
+    const radius: number = 0.037 * a;
     // the tube's frame: first axis (0, -1, 1) / sqrt 2, second axis +X crossed with it, (0, -1, -1) / sqrt 2
     return point(tip.x, tip.y + radius * root * (-Math.cos(angle) - Math.sin(angle)), tip.z + radius * root * (Math.cos(angle) - Math.sin(angle)));
   });
