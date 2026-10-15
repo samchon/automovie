@@ -95,6 +95,19 @@ Under age 3 no face norms were found; only head circumference (WHO) covers infan
 - Soft tissue (`../sources/schenck-2018-fat-compartments.md`, abstract): superficial compartments are distinct; nasolabial, middle cheek and jowl compartments slide down under volume, medial and lateral cheek and temporal compartments project.
 - NIOSH (population-fitted): after 45 face length +2.1 mm, nose length +2.3 mm, interpupillary +1.4 mm, nose breadth +2.0 mm at equal stature and weight.
 
+## Head in the Frankfort plane: depths from tragion
+
+The 1977 child survey (`../sources/snyder-1977.md`) measured the head sitting in the Frankfort plane with a sliding caliper: tragion to back of head is the horizontal distance from tragion to opisthocranion, tragion to top of head the vertical distance to vertex, and ear-sellion depth runs from sellion to the superior ear attachment (not to tragion). Bin means (mm) fitted by us; the ratios are of bin means because head length was taken on the other measurement set. Grade: measured, then population-fitted.
+
+| Age (y) | 2 | 6 | 10 | 14 | 17–18 |
+| --- | --- | --- | --- | --- | --- |
+| Tragion to back of head / head length, boys | 0.526 | 0.511 | 0.489 | 0.486 | 0.490 |
+| Same, girls | 0.523 | 0.510 | 0.509 | 0.486 | 0.507 |
+| Tragion to top of head / head height, boys | 0.658 | 0.649 | 0.623 | 0.602 | 0.583 |
+| Same, girls | 0.661 | 0.628 | 0.606 | 0.592 | 0.597 |
+
+Tragion therefore lies under the middle of the glabella-opisthocranion length at every age, and the vertex, the top of a vault spanning that length, stands over the ear. The 3DFN tragion-nasion distance (126.7 and 118.9 mm) is a straight 3D distance: after half the bitragion width (74 and 69.5 mm) and the height of nasion above tragion (about 33 to 35 mm) it leaves a horizontal depth of about 0.49 (men) and 0.48 (women) head lengths, not the 0.64 the first build read as depth. As built: opisthocranion 0.50 head lengths behind tragion, glabella 0.50 in front, vertex above tragion, nasion at the depth solved from t-n and never in front of glabella (a small child's adult-derived depth would put it there). The first stick render had the vertex 0.17 head lengths in front of the ear, so the head bone leaned 13 degrees off vertical.
+
 ## Form rules for the generator
 
 - Parameters: vault length, breadth and circumference (with the k-band check), minimum frontal width, face width, mandibular width, morphological face height, the three tragion depths and the mid-face heights. Every other landmark position follows from these plus feature parameters.

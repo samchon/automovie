@@ -11,7 +11,7 @@ import { IAutoMovieHumanSkeleton } from "./IAutoMovieHumanSkeleton";
 const DERIVED: Record<
   | "palateAboveMenton"
   | "stomionBelowNasion"
-  | "nasionForward"
+  | "tragionNasion"
   | "pupilSpread"
   | "tragionSpread"
   | "frankfortBelowPupil"
@@ -22,8 +22,8 @@ const DERIVED: Record<
   palateAboveMenton: 0.567,
   /** Stomion below nasion over face height: upper face height 78.2 and 74.3 mm over 127.2 and 118.6 mm (same source). */
   stomionBelowNasion: 0.62,
-  /** Nasion in front of tragion over head length: tragion-nasion depth 126.7 and 118.9 mm over head length 198.3 and 187.3 mm (same source), the depth taken as horizontal. */
-  nasionForward: 0.637,
+  /** Tragion to nasion over head length: the straight 3D distance t-n, 126.7 and 118.9 mm, over head length 198.3 and 187.3 mm (same source). The distance crosses half the bitragion width and the height between the two points as well as the depth, so the depth is solved from it, never taken as the distance itself. */
+  tragionNasion: 0.637,
   /** Half the interpupillary distance over face width: the pupil midway between endocanthion and exocanthion gives (ex-ex + en-en) / 4, which is 0.221 and 0.225 of face width in adult men and women and 0.224 and 0.231 at 3 to 4 years (same source). */
   pupilSpread: 0.225,
   /** Half the bitragion width over face width: tragion-tragion 147.9 and 139.0 mm over 137.6 and 129.8 mm (same source). */
@@ -35,6 +35,11 @@ const DERIVED: Record<
 };
 
 /**
+ * Opisthocranion behind tragion over head length, head in the Frankfort plane: the 1977 US child survey's horizontal tragion-to-back-of-head distance over head length, 0.490 (boys) and 0.507 (girls) at 17 to 18 years and 0.48 to 0.53 in every bin from 2 years, our ratio of bin means because the two were taken on different subsets (Snyder et al. 1977, UM-HSRI-77-17; definitions and individual records at the NIST AnthroKids site). Tragion therefore lies under the middle of the vault's length, and glabella half a head length in front of it. Grade: population-fitted, sexes and ages pooled.
+ */
+const OPISTHOCRANION_BEHIND_TRAGION: number = 0.5;
+
+/**
  * Placements no source read measures, as fractions of the head's own measurements. Grade: conventional, each a check on renders.
  *
  * The head joint is the atlanto-occipital joint: radiographically the tip of the dens and the atlas lie near the level of the hard palate, so it is placed at subnasale height, directly below tragion in the frontal plane of the spine, the erect head's plumb line through the ear.
@@ -43,16 +48,15 @@ const CONVENTIONAL: Record<
   | "pupilBelowNasion"
   | "eyeBehindNasion"
   | "eyeRadius"
-  | "glabellaForward"
   | "glabellaAboveNasion"
   | "condyleForward"
-  | "mentonForward"
-  | "stomionForward"
+  | "mentonBehindNasion"
+  | "stomionBehindNasion"
   | "gonionAboveMenton"
   | "gonionForward"
   | "zygionForward"
   | "frontotemporaleAboveNasion"
-  | "frontotemporaleForward",
+  | "frontotemporaleBehindNasion",
   number
 > = {
   /** Of face height. */
@@ -61,16 +65,14 @@ const CONVENTIONAL: Record<
   eyeBehindNasion: 0.11,
   /** Eye bone length to the cornea, of head height: a 24 mm globe (Bekerman et al. 2014) in an adult head. */
   eyeRadius: 0.059,
-  /** Of head length, in front of tragion. */
-  glabellaForward: 0.67,
   /** Of face height. */
   glabellaAboveNasion: 0.1,
   /** Mandibular condyle in front of tragion, of head length. */
   condyleForward: 0.07,
-  /** Of head length, in front of tragion. */
-  mentonForward: 0.58,
-  /** Of head length, in front of tragion. */
-  stomionForward: 0.6,
+  /** Of head length. */
+  mentonBehindNasion: 0.057,
+  /** Of head length. */
+  stomionBehindNasion: 0.037,
   /** Of face height. */
   gonionAboveMenton: 0.25,
   /** Of head length, in front of tragion. */
@@ -79,14 +81,14 @@ const CONVENTIONAL: Record<
   zygionForward: 0.3,
   /** Of face height. */
   frontotemporaleAboveNasion: 0.2,
-  /** Of head length, in front of tragion. */
-  frontotemporaleForward: 0.5,
+  /** Of head length. */
+  frontotemporaleBehindNasion: 0.137,
 };
 
 /**
  * Place the head, eyes and jaw.
  *
- * Heights stack from the identity: menton at stature minus head height, nasion a face height above it, the head joint at the hard-palate level, the eyes just below nasion, tragion on the Frankfort plane half an orbit below the eyes. Depths run forward from tragion as fractions of head length: glabella and opisthocranion one head length apart, nasion from the tragion-nasion depth. Widths come from face, mandibular, minimum frontal and head breadths and the derived interpupillary spread. The jaw bone starts at the measured centre of rotation for opening, 32 mm below the condyle in adults, so a single rotation opens the mouth as Mehl et al. tracked it, the condyles gliding forward as the jaw turns.
+ * Heights stack from the identity: menton at stature minus head height, nasion a face height above it, the head joint at the hard-palate level, the eyes just below nasion, tragion on the Frankfort plane half an orbit below the eyes. Depths run from tragion, the head held in the Frankfort plane as it is measured: opisthocranion half a head length behind it and glabella half a head length in front, as the 1977 survey's horizontal tragion-to-back-of-head distance gives; the vertex tops the vault midway between them, directly over the ear, so the head bone from the joint below tragion to the vertex stands upright; nasion lies at the depth that leaves the measured tragion-nasion distance after its width and height, and the face's front landmarks keep their depths behind nasion. Widths come from face, mandibular, minimum frontal and head breadths and the derived interpupillary spread. The jaw bone starts at the measured centre of rotation for opening, 32 mm below the condyle in adults, so a single rotation opens the mouth as Mehl et al. tracked it, the condyles gliding forward as the jaw turns.
  *
  * Axes: the head nods about X (flexion forward), as the engine's default; each eye looks down with positive flexion, outward (temporally) with positive abduction, and twists (torsion) about its line of sight; the jaw opens with positive flexion and moves the chin to the person's left with positive abduction.
  *
@@ -106,8 +108,20 @@ export function placeAutoMovieHumanHead(
   const nasion: number = menton + fh;
   const eyeY: number = nasion - CONVENTIONAL.pupilBelowNasion * fh;
   const tragionY: number = eyeY - DERIVED.frankfortBelowPupil * fh;
-  const eyeZ: number = (DERIVED.nasionForward - CONVENTIONAL.eyeBehindNasion) * L;
-  const glabellaZ: number = CONVENTIONAL.glabellaForward * L;
+  // nasion never stands in front of glabella; a small child's adult-derived depth would put it there
+  const glabellaZ: number = (1 - OPISTHOCRANION_BEHIND_TRAGION) * L;
+  const nasionZ: number = Math.min(
+    glabellaZ,
+    Math.sqrt(
+      Math.max(
+        0,
+        (DERIVED.tragionNasion * L) ** 2 -
+          (DERIVED.tragionSpread * head.faceWidth) ** 2 -
+          (nasion - tragionY) ** 2,
+      ),
+    ),
+  );
+  const eyeZ: number = nasionZ - CONVENTIONAL.eyeBehindNasion * L;
   const vaultZ: number = glabellaZ - L / 2;
   const joint: IAutoMovieVector3 = v(0, menton + DERIVED.palateAboveMenton * fh, 0);
   const jaw: IAutoMovieVector3 = v(
@@ -116,7 +130,11 @@ export function placeAutoMovieHumanHead(
     CONVENTIONAL.condyleForward * L,
   );
   const vertex: IAutoMovieVector3 = v(0, body.stature, vaultZ);
-  const mentonPoint: IAutoMovieVector3 = v(0, menton, CONVENTIONAL.mentonForward * L);
+  const mentonPoint: IAutoMovieVector3 = v(
+    0,
+    menton,
+    nasionZ - CONVENTIONAL.mentonBehindNasion * L,
+  );
   const mark: (
     bone: "head" | "jaw",
     position: IAutoMovieVector3,
@@ -137,7 +155,7 @@ export function placeAutoMovieHumanHead(
       v(
         (s * head.minimumFrontalWidth) / 2,
         nasion + CONVENTIONAL.frontotemporaleAboveNasion * fh,
-        CONVENTIONAL.frontotemporaleForward * L,
+        nasionZ - CONVENTIONAL.frontotemporaleBehindNasion * L,
       ),
     ),
     gonion: mark(
@@ -195,7 +213,7 @@ export function placeAutoMovieHumanHead(
         "head",
         v(0, nasion + CONVENTIONAL.glabellaAboveNasion * fh, glabellaZ),
       ),
-      nasion: mark("head", v(0, nasion, DERIVED.nasionForward * L)),
+      nasion: mark("head", v(0, nasion, nasionZ)),
       opisthocranion: mark(
         "head",
         v(0, nasion + CONVENTIONAL.glabellaAboveNasion * fh, glabellaZ - L),
@@ -205,7 +223,7 @@ export function placeAutoMovieHumanHead(
         v(
           0,
           nasion - DERIVED.stomionBelowNasion * fh,
-          CONVENTIONAL.stomionForward * L,
+          nasionZ - CONVENTIONAL.stomionBehindNasion * L,
         ),
       ),
       menton: mark("jaw", mentonPoint),
