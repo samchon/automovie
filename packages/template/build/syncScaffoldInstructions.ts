@@ -19,8 +19,8 @@ const SHARED: readonly (readonly [string, string])[] = [
     ".agents/skills/3d-modeling/SKILL.md",
   ],
   [
-    ".agents/skills/3d-modeling/authoring.md",
-    ".agents/skills/3d-modeling/authoring.md",
+    ".agents/skills/3d-modeling/crafting.md",
+    ".agents/skills/3d-modeling/crafting.md",
   ],
   [
     ".agents/skills/3d-modeling/diffusion.md",
