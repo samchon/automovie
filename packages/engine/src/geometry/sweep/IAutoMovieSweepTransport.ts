@@ -37,6 +37,14 @@ export interface IAutoMovieSweepTransport {
    * Recompile the curve and, when the transport carries frames, the frame table from the arrays.
    *
    * @throws Error as `frameAutoMovieSweepSpine` documents
+   *
+   * @evidence contracts/common.md#principled-implementation Rebuilds the spline and frame table from the arrays.
+   * @evidence contracts/common.md#clear-and-simple-design One call after writing inputs.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid inputs are refused.
+   * @evidence contracts/common.md#meaningful-documentation States the refusals' source.
+   * @evidence contracts/performance.md#efficient-algorithms O(n) plus 64 (n - 1) reflections.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `transportAutoMovieSweepSpine`.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `transportAutoMovieSweepSpine`.
    */
   update(): void;
 
@@ -44,6 +52,14 @@ export interface IAutoMovieSweepTransport {
    * Length of the point polygon, the chord-length scale of `u`.
    *
    * @returns Metres
+   *
+   * @evidence contracts/common.md#principled-implementation The polygon length, the chord-length scale.
+   * @evidence contracts/common.md#clear-and-simple-design One read.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Reflects the last update.
+   * @evidence contracts/common.md#meaningful-documentation States the unit.
+   * @evidence contracts/performance.md#efficient-algorithms Constant time.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `transportAutoMovieSweepSpine`.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `transportAutoMovieSweepSpine`.
    */
   length(): number;
 
@@ -53,6 +69,14 @@ export interface IAutoMovieSweepTransport {
    * @param u Chord-length parameter
    * @param out Receives three numbers
    * @param at Offset into `out`
+   *
+   * @evidence contracts/common.md#principled-implementation The spline point in Hermite form.
+   * @evidence contracts/common.md#clear-and-simple-design Writes into a caller array.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Parameters clamp.
+   * @evidence contracts/common.md#meaningful-documentation States the output.
+   * @evidence contracts/performance.md#efficient-algorithms A segment search and a cubic.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `transportAutoMovieSweepSpine`.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `transportAutoMovieSweepSpine`.
    */
   point(u: number, out: Float64Array, at: number): void;
 
@@ -63,6 +87,14 @@ export interface IAutoMovieSweepTransport {
    * @param out Receives three numbers
    * @param at Offset into `out`
    * @throws Error when the tangent vanishes there
+   *
+   * @evidence contracts/common.md#principled-implementation The spline's unit tangent.
+   * @evidence contracts/common.md#clear-and-simple-design Writes into a caller array.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A vanishing tangent is refused.
+   * @evidence contracts/common.md#meaningful-documentation States the refusal.
+   * @evidence contracts/performance.md#efficient-algorithms A segment search and a quadratic.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `transportAutoMovieSweepSpine`.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `transportAutoMovieSweepSpine`.
    */
   tangent(u: number, out: Float64Array, at: number): void;
 
@@ -73,6 +105,14 @@ export interface IAutoMovieSweepTransport {
    * @param out Receives twelve numbers
    * @param at Offset into `out`
    * @throws Error when the transport was created without frames
+   *
+   * @evidence contracts/common.md#principled-implementation The double-reflection frame from the table.
+   * @evidence contracts/common.md#clear-and-simple-design Writes twelve numbers into a caller array.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A transport without frames refuses.
+   * @evidence contracts/common.md#meaningful-documentation States the layout and refusal.
+   * @evidence contracts/performance.md#efficient-algorithms A segment search and one reflection.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `transportAutoMovieSweepSpine`.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `transportAutoMovieSweepSpine`.
    */
   frame(u: number, out: Float64Array, at: number): void;
 }

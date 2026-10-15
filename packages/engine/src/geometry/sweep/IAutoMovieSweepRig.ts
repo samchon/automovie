@@ -28,6 +28,14 @@ export interface IAutoMovieSweepRig {
    *
    * @param u Along the spine
    * @returns The slot: the plane is `frames[12 slot ...]`, origin, first axis, second axis, normal
+   *
+   * @evidence contracts/common.md#principled-implementation Registers a section plane slot by parameter, deduplicated.
+   * @evidence contracts/common.md#clear-and-simple-design Returns the slot index.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Registration after `seal` is refused.
+   * @evidence contracts/common.md#meaningful-documentation States the slot layout.
+   * @evidence contracts/performance.md#efficient-algorithms One map operation.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `rigAutoMovieSweep`.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `rigAutoMovieSweep`.
    */
   frame(u: number): number;
 
@@ -36,6 +44,14 @@ export interface IAutoMovieSweepRig {
    *
    * @param u Along the spine
    * @returns The slot: the factor is `scales[slot]`
+   *
+   * @evidence contracts/common.md#principled-implementation Registers a scale factor slot.
+   * @evidence contracts/common.md#clear-and-simple-design Returns the slot index.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Registration after `seal` is refused.
+   * @evidence contracts/common.md#meaningful-documentation States the slot layout.
+   * @evidence contracts/performance.md#efficient-algorithms One map operation.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `rigAutoMovieSweep`.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `rigAutoMovieSweep`.
    */
   scale(u: number): number;
 
@@ -45,6 +61,14 @@ export interface IAutoMovieSweepRig {
    * @param u Along the spine
    * @param v Around it
    * @returns The slot: the unit normal is `probes[6 slot ...]` and the derivative along the spine the next three numbers
+   *
+   * @evidence contracts/common.md#principled-implementation Registers the central-difference normal and spine derivative at a point.
+   * @evidence contracts/common.md#clear-and-simple-design Returns the slot index.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The difference step is the surface's own.
+   * @evidence contracts/common.md#meaningful-documentation States the slot layout.
+   * @evidence contracts/performance.md#efficient-algorithms Four shape reads at registration.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `rigAutoMovieSweep`.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `rigAutoMovieSweep`.
    */
   probe(u: number, v: number): number;
 
@@ -57,10 +81,28 @@ export interface IAutoMovieSweepRig {
    * @param v Around it
    * @param cell Spacing to the neighbouring sample below and above along `u`, then below and above along `v`
    * @returns The writer, three numbers in metres at an offset
+   *
+   * @evidence contracts/common.md#principled-implementation The trapezoid average of radius over the point's cell.
+   * @evidence contracts/common.md#clear-and-simple-design Shapes read now, scale and frame per pose.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Radii, not positions, are averaged.
+   * @evidence contracts/common.md#meaningful-documentation States the weights and the zero cell.
+   * @evidence contracts/performance.md#efficient-algorithms Up to nine shape reads at registration, three terms per pose.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `rigAutoMovieSweep`.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `rigAutoMovieSweep`.
    */
   sample(u: number, v: number, cell: readonly [number, number, number, number]): (out: Float64Array, at: number) => void;
 
-  /** Size the arrays and fill them at rest. */
+  /**
+   * Size the arrays and fill them at rest.
+   *
+   * @evidence contracts/common.md#principled-implementation Sizes the slot arrays and fills them at rest.
+   * @evidence contracts/common.md#clear-and-simple-design One call.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Later registration is refused.
+   * @evidence contracts/common.md#meaningful-documentation States the effect.
+   * @evidence contracts/performance.md#efficient-algorithms O(F + P) frame and probe evaluations.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `rigAutoMovieSweep`.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `rigAutoMovieSweep`.
+   */
   seal(): void;
 
   /** Section planes by frame slot, twelve numbers each. */
@@ -76,6 +118,14 @@ export interface IAutoMovieSweepRig {
    * Refresh every slot.
    *
    * @param bones Current bone motions, or `null` for rest
+   *
+   * @evidence contracts/common.md#principled-implementation Re-sweeps the bound sweep and refreshes every slot.
+   * @evidence contracts/common.md#clear-and-simple-design One call per pose.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts An unbound sweep stays at rest.
+   * @evidence contracts/common.md#meaningful-documentation States the rest case.
+   * @evidence contracts/performance.md#efficient-algorithms As `rigAutoMovieSweep` details, no allocation.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `rigAutoMovieSweep`.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `rigAutoMovieSweep`.
    */
   pose(bones: IAutoMovieBoneBuffer | null): void;
 }
