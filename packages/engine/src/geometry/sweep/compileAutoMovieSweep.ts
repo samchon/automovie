@@ -65,9 +65,10 @@ const STEP: number = 1e-4;
  * passes exactly through each feature curve where no other feature's band
  * overlaps it.
  *
- * The section plane at `u` is the spine's rotation-minimizing frame turned by
- * the stations' rotations: each station's rotation relative to the frame at
- * its `at` is interpolated by normalized linear quaternion interpolation
+ * The section plane at `u` is the spine's rotation-minimizing frame, or under
+ * the `fixed` orientation the start frame's axes at the spine point (a
+ * translational sweep), turned by the stations' rotations: each station's
+ * rotation relative to that frame at its `at` is interpolated by normalized linear quaternion interpolation
  * between stations, as sweep-based deformation interpolates key-ellipse
  * orientations (Hyun et al. 2005, The Visual Computer 21(8-10):542-550), and held
  * beyond the end stations.
@@ -88,6 +89,12 @@ export const compileAutoMovieSweep: (sweep: IAutoMovieSweep) => IAutoMovieSweepS
   sweep: IAutoMovieSweep,
 ): IAutoMovieSweepSurface => {
   const path: IAutoMovieSweepPath = frameAutoMovieSweepSpine(sweep.spine);
+  const start: IAutoMovieSweepFrame = path.frame(0);
+  // the plane before station rotations: transported along the path, or the start frame's axes moved to the spine point
+  const carried = (u: number): IAutoMovieSweepFrame => {
+    const f: IAutoMovieSweepFrame = path.frame(u);
+    return sweep.orientation === "fixed" ? { origin: f.origin, x: start.x, y: start.y, normal: start.normal } : f;
+  };
   const stations: IAutoMovieSweep.IStation[] = sweep.stations;
   if (stations.length === 0) throw new Error("sweep needs at least one station");
   stations.forEach((s: IAutoMovieSweep.IStation, k: number): void => {
@@ -199,7 +206,7 @@ export const compileAutoMovieSweep: (sweep: IAutoMovieSweep) => IAutoMovieSweepS
       const q: IAutoMovieQuaternion = s.rotation;
       if (![q.x, q.y, q.z, q.w].every(Number.isFinite) || Math.hypot(q.x, q.y, q.z, q.w) === 0)
         throw new Error("sweep station rotation must be a finite non-zero quaternion");
-      const f: IAutoMovieSweepFrame = path.frame(s.at);
+      const f: IAutoMovieSweepFrame = carried(s.at);
       return Quaternion.normalize(
         Quaternion.multiply(
           Quaternion.inverse(quaternionFromAutoMovieBasis(f.x, f.y, f.normal)),
@@ -231,7 +238,7 @@ export const compileAutoMovieSweep: (sweep: IAutoMovieSweep) => IAutoMovieSweepS
   };
   const frame = (input: number): IAutoMovieSweepFrame => {
     const u: number = Math.min(1, Math.max(0, input));
-    const f: IAutoMovieSweepFrame = path.frame(u);
+    const f: IAutoMovieSweepFrame = carried(u);
     if (!turned) return f;
     const q: IAutoMovieQuaternion = Quaternion.multiply(
       quaternionFromAutoMovieBasis(f.x, f.y, f.normal),
