@@ -4,16 +4,16 @@ import { AutoMovieHumanSide } from "./AutoMovieHumanSide";
 import { AutoMovieHumanUvLayout } from "./AutoMovieHumanUvLayout";
 
 /**
- * The published UV layout of the human profile's skin, version 2.
+ * The published UV layout of the human profile's skin, version 3.
  *
- * Every part instance owns one rectangle of the unit atlas, and so does every branch of one, each digit of each hand, and a face corner's UV is a fixed function of its semantic address: `x` runs across the rectangle with `v`, starting at the chart's seam meridian, and `y` runs up it with `u`. UVs therefore never depend on vertex indices or on the identity, so one texture authored for this layout fits every person. Rectangles share one texel density, about 1.8 m of skin per atlas width, sized from the rounded girths and lengths of the generator's median 30-year-old adult; an identity of other proportions stretches its charts instead of changing the layout. The rectangles leave gaps of at least 0.01 for mip filtering.
+ * Every part instance owns one rectangle of the unit atlas, and so does every branch of one, each digit of each hand and each of the trunk's shoulder and hip tubes, and a face corner's UV is a fixed function of its semantic address: `x` runs across the rectangle with `v`, starting at the chart's seam meridian, and `y` runs up it with `u`. UVs therefore never depend on vertex indices or on the identity, so one texture authored for this layout fits every person. Rectangles share one texel density, about 1.8 m of skin per atlas width, sized from the rounded girths and lengths of the generator's median 30-year-old adult; an identity of other proportions stretches its charts instead of changing the layout. The rectangles leave gaps of at least 0.01 for mip filtering.
  *
  * Seams are where the layout cuts the surface. Each junction ring is a chart boundary, and each chart's wrap seam lies on a low-visibility meridian, where Lévy et al. (2002, ACM TOG 21(3):362-371, "Least squares conformal maps") place cuts so texture discontinuity does not show: the posterior midline of the trunk, neck and head, under the hair and along the spinal furrow; the medial side of each arm, hand, digit and leg, against the body; the back of the heel and the sole of each foot; and behind each ear.
  *
- * A change to any rectangle or seam breaks textures authored against the layout, so it bumps `version`. Version 2 gave each digit its own chart, which version 1 folded into its hand's.
+ * A change to any rectangle or seam breaks textures authored against the layout, so it bumps `version`. Version 2 gave each digit its own chart, which version 1 folded into its hand's; version 3 gave the trunk's shoulder and hip tubes their own charts, as wide as the arm's and the leg's so the texel density matches across the upper arm and thigh rings.
  */
 export const AUTOMOVIE_HUMAN_UV_LAYOUT: AutoMovieHumanUvLayout.ILayout = {
-  version: 2,
+  version: 3,
   charts: [
     chart("trunk", null, 0.5, [0.0, 0.0, 0.556, 0.5]),
     chart("leg", "left", 0.25, [0.57, 0.0, 0.25, 0.303]),
@@ -30,6 +30,11 @@ export const AUTOMOVIE_HUMAN_UV_LAYOUT: AutoMovieHumanUvLayout.ILayout = {
     chart("foot", "right", 0.5, [0.39, 0.7, 0.139, 0.167]),
     ...digits("left", 0.25, 0.64),
     ...digits("right", 0.75, 0.7),
+    // the trunk's tubes out to the limb rings: as wide as the limb's chart, so one turn has the same texels on both sides of the ring
+    chart("trunk", null, 0.25, [0.832, 0.5, 0.167, 0.083], "leftShoulder"),
+    chart("trunk", null, 0.75, [0.832, 0.6, 0.167, 0.083], "rightShoulder"),
+    chart("trunk", null, 0.25, [0.57, 0.76, 0.25, 0.11], "leftHip"),
+    chart("trunk", null, 0.75, [0.57, 0.88, 0.25, 0.11], "rightHip"),
   ],
 };
 

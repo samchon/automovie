@@ -15,7 +15,7 @@ export namespace AutoMovieHumanUvLayout {
    */
   export interface ILayout {
     /** Layout version; a change to any chart bumps it. */
-    version: 2;
+    version: 3;
 
     /** One chart per part instance and per branch of one. */
     charts: IChart[];
