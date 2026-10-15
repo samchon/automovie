@@ -4,6 +4,8 @@ import { IAutoMovieHumanMeasurements } from "../measure/IAutoMovieHumanMeasureme
 import { AutoMovieHumanVector } from "../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanSkeleton } from "../skeleton/IAutoMovieHumanSkeleton";
 import { IAutoMovieHumanIdentity } from "../structures/IAutoMovieHumanIdentity";
+import { AUTOMOVIE_HUMAN_EAR_ATTACHMENT } from "./AUTOMOVIE_HUMAN_EAR_ATTACHMENT";
+import { AUTOMOVIE_HUMAN_NECK_COLUMN } from "./AUTOMOVIE_HUMAN_NECK_COLUMN";
 import { AutoMovieHumanJunctionSite } from "./AutoMovieHumanJunctionSite";
 import { AutoMovieHumanPart } from "./AutoMovieHumanPart";
 import { AutoMovieHumanSide } from "./AutoMovieHumanSide";
@@ -17,12 +19,12 @@ import { layoutAutoMovieHumanRing } from "./layoutAutoMovieHumanRing";
  * Both parts of a site call this with the same person and get the same points, so they meet without either adapting to the other and the junction welds coincident vertices. Each site's section:
  *
  * - `neckBase`: an ellipse in the oblique cut through the jugular notch and cervicale, reaching each in front and behind, its lateral semi-axis solved so its perimeter is the neck circumference widened by {@link NECK_BASE_FLARE}.
- * - `neckTop`: in the mandibular plane, the larger of the jaw and the neck column, blended by a smooth maximum. The jaw is the parabola through menton and both gonia; the column an egg of the neck circumference's mean radius, {@link NECK_COLUMN} times it across, in front and behind, the back lengthened by the plane's tilt to the neck so it still reaches the nape.
+ * - `neckTop`: in the mandibular plane, the larger of the jaw and the neck column, blended by a smooth maximum. The jaw is the parabola through menton and both gonia; the column an egg of the neck circumference's mean radius, {@link AUTOMOVIE_HUMAN_NECK_COLUMN} times it across, in front and behind, the back lengthened by the plane's tilt to the neck so it still reaches the nape.
  * - `upperArm`: a circle of the upper arm circumference, which is measured at this cut. Conventional: the mid upper arm is nearly round, and no depth-to-breadth ratio was read.
  * - `wrist`: an ellipse of the wrist circumference measured at this cut, its radio-ulnar breadth and palmar-dorsal depth in the proportions of {@link WRIST}.
  * - `thigh`: a circle of the girth at mid thigh, on the thigh's girth curve between the thigh circumference at the gluteal furrow and the lower thigh circumference at suprapatella ({@link THIGH}).
  * - `ankle`: a circle of the ankle circumference, the minimum girth above the malleoli, measured at this cut. Conventional shape.
- * - `ear`: the attachment of the auricle, an ellipse in the plane of the head's side whose long axis leans back from the vertical by {@link EAR.inclination}; its centre and semi-axes are fractions of the ear's length and breadth ({@link EAR}). The origin moves from tragion to the ellipse's centre, so the eight directions spread evenly round the attachment.
+ * - `ear`: the attachment of the auricle, an ellipse in the plane of the head's side whose long axis leans back from the vertical by {@link AUTOMOVIE_HUMAN_EAR_ATTACHMENT.inclination}; its centre and semi-axes are fractions of the ear's length and breadth ({@link AUTOMOVIE_HUMAN_EAR_ATTACHMENT}). The origin moves from tragion to the ellipse's centre, so the eight directions spread evenly round the attachment.
  *
  * @param props.skeleton The person's skeleton at rest
  * @param props.measurements The person's resolved measurements
@@ -56,41 +58,20 @@ export const shapeAutoMovieHumanRing = (props: {
 /**
  * Perimeter of the neck's base over the neck circumference: the neck flares into the trapezius and the sternocleidomastoid heads at its root. Conventional, since ANSUR II measures a neck base circumference the identity does not carry.
  */
-export const NECK_BASE_FLARE: number = 1.08;
-
-/**
- * The neck column in the mandibular plane, over the neck circumference's mean radius: across, in front over the larynx, and behind before the plane's tilt lengthens it, with the smooth-maximum blend width to the jaw. Conventional.
- */
-export const NECK_COLUMN = {
-  across: 0.9,
-  front: 0.76,
-  back: 0.95,
-  blend: 0.15,
-} as const;
+const NECK_BASE_FLARE: number = 1.08;
 
 /**
  * The wrist section at the stylion cut: its breadth over the wrist circumference (Greiner 1991, US Army hand anthropometry: 57.0 of 151.4 mm in women and 65.8 of 174.3 in men) and its depth over its breadth, the other axis of the ellipse with that breadth and circumference (0.675 and 0.670). Grade: measured breadth, derived depth.
  */
-export const WRIST = { breadth: 0.377, depth: 0.673 } as const;
+const WRIST = { breadth: 0.377, depth: 0.673 } as const;
 
 /**
  * Levels of the thigh's girth curve. The gluteal furrow, where the thigh circumference is measured, lies `furrow` of the hip-to-knee length below the hip joint centre (the 1977 US child survey's furrow heights, Snyder et al. 1977, UM-HSRI-77-17, against ANSUR II's hip and knee centres, Gordon et al. 2014, NATICK/TR-15/007; derived, from adolescents). Suprapatella, where the lower thigh circumference is measured, lies `suprapatella` of the thigh length above the midpatella (half an adult patella's height and the soft tissue above it; conventional). Between them the girth is the lower thigh girth plus the share `t^exponent` of its difference to the furrow girth, `t` the level's fraction of the way from suprapatella to the furrow, fuller than a cone as the thigh's muscle sits high (conventional).
  */
-export const THIGH = {
+const THIGH = {
   furrow: 0.21,
   suprapatella: 0.06,
   exponent: 0.8,
-} as const;
-
-/**
- * The auricle's attachment to the head. Its long axis leans `inclination` behind the vertical, the superaurale-subaurale angle of 19.40 degrees in men and 17.95 in women among 200 adults aged 18 to 25 (Bahşi et al. 2023, J Craniofac Surg 34(8):e799-e803), the sexes averaged; measured. The attachment runs from in front of the helix root and the tragus, round the lobule's upper part, and back along the posterior auricular sulcus behind the concha (Gray, Anatomy of the Human Body, 1918, fig. 904): from tragion its centre lies `back` ear breadths behind and `down` ear lengths below along those axes, and its semi-axes are `along` ear lengths and `across` ear breadths. Derived from Gray's plate proportioned by the survey's means (Cho et al. 2025, J Korean Med Sci 40(22):e107).
- */
-export const EAR = {
-  inclination: (18.7 * Math.PI) / 180,
-  back: 0.27,
-  down: 0.045,
-  along: 0.305,
-  across: 0.41,
 } as const;
 
 const section = (
@@ -173,9 +154,9 @@ const section = (
       const [jawU, jawW] = inPlane(landmarks.left.gonion.position);
       const tilt: number = Math.abs(AutoMovieHumanVector.dot(normal, axis));
       const column = {
-        across: NECK_COLUMN.across * mean,
-        front: NECK_COLUMN.front * mean,
-        back: (NECK_COLUMN.back * mean) / Math.max(0.5, tilt),
+        across: AUTOMOVIE_HUMAN_NECK_COLUMN.across * mean,
+        front: AUTOMOVIE_HUMAN_NECK_COLUMN.front * mean,
+        back: (AUTOMOVIE_HUMAN_NECK_COLUMN.back * mean) / Math.max(0.5, tilt),
       };
       const k: number = (chin - jawW) / (jawU * jawU);
       return {
@@ -196,7 +177,7 @@ const section = (
               (c * c) / (c >= 0 ? column.front : column.back) ** 2 +
                 (s * s) / column.across ** 2,
             );
-          return smoothMax(reach, neck, NECK_COLUMN.blend * mean);
+          return smoothMax(reach, neck, AUTOMOVIE_HUMAN_NECK_COLUMN.blend * mean);
         },
       };
     }
@@ -250,21 +231,21 @@ const section = (
           : props.measurements.identity.head.leftEar;
       const up: IAutoMovieVector3 = AutoMovieHumanVector.of(
         0,
-        Math.cos(EAR.inclination),
-        -Math.sin(EAR.inclination),
+        Math.cos(AUTOMOVIE_HUMAN_EAR_ATTACHMENT.inclination),
+        -Math.sin(AUTOMOVIE_HUMAN_EAR_ATTACHMENT.inclination),
       );
       const back: IAutoMovieVector3 = AutoMovieHumanVector.of(
         0,
-        -Math.sin(EAR.inclination),
-        -Math.cos(EAR.inclination),
+        -Math.sin(AUTOMOVIE_HUMAN_EAR_ATTACHMENT.inclination),
+        -Math.cos(AUTOMOVIE_HUMAN_EAR_ATTACHMENT.inclination),
       );
-      const a: number = EAR.along * ear.earLength;
-      const b: number = EAR.across * ear.earBreadth;
+      const a: number = AUTOMOVIE_HUMAN_EAR_ATTACHMENT.along * ear.earLength;
+      const b: number = AUTOMOVIE_HUMAN_EAR_ATTACHMENT.across * ear.earBreadth;
       return {
         origin: AutoMovieHumanVector.offset(
           origin,
-          [back, EAR.back * ear.earBreadth],
-          [up, -EAR.down * ear.earLength],
+          [back, AUTOMOVIE_HUMAN_EAR_ATTACHMENT.back * ear.earBreadth],
+          [up, -AUTOMOVIE_HUMAN_EAR_ATTACHMENT.down * ear.earLength],
         ),
         radius: (d: IAutoMovieVector3): number => {
           const c: number = AutoMovieHumanVector.dot(d, up);

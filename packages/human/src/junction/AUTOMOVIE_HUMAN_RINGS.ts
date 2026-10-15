@@ -6,7 +6,7 @@ import { IAutoMovieHumanRingDefinition } from "./IAutoMovieHumanRingDefinition";
  *
  * The base of the neck carries more distinct masses than any limb cut: the two sternocleidomastoid heads converging on the jugular notch, the trachea between them, and the upper trapezius rising behind on each side. Twelve spans give each quadrant three, enough for the sternocleidomastoid's anterior border and the trapezius' anterior border to each run along a vertex line. The ring lies in the plane through cervicale and suprasternale, the oblique plane in which the base of the neck rises from the jugular notch to the seventh cervical spine.
  */
-export const AUTOMOVIE_HUMAN_NECK_BASE_RING: IAutoMovieHumanRingDefinition<"neckBase"> =
+const AUTOMOVIE_HUMAN_NECK_BASE_RING: IAutoMovieHumanRingDefinition<"neckBase"> =
   {
     site: "neckBase",
     proximal: "trunk",
@@ -21,7 +21,7 @@ export const AUTOMOVIE_HUMAN_NECK_BASE_RING: IAutoMovieHumanRingDefinition<"neck
  *
  * The same count as the base, so the neck is a regular tube between two equal rings and needs no pole on its broad lit sides. The ring lies in the mandibular plane, through both gonia and menton: in front it follows the lower border of the mandible, so the submental surface under the chin belongs to the neck, and behind it passes below the skull base. The head part reduces or expands from these twelve spans inside its own cage.
  */
-export const AUTOMOVIE_HUMAN_NECK_TOP_RING: IAutoMovieHumanRingDefinition<"neckTop"> =
+const AUTOMOVIE_HUMAN_NECK_TOP_RING: IAutoMovieHumanRingDefinition<"neckTop"> =
   {
     site: "neckTop",
     proximal: "neck",
@@ -36,7 +36,7 @@ export const AUTOMOVIE_HUMAN_NECK_TOP_RING: IAutoMovieHumanRingDefinition<"neckT
  *
  * The section there is close to round and holds four masses, one per quadrant: biceps in front, triceps behind, the deltoid insertion laterally and the neurovascular groove medially. Eight spans give each a vertex on its crest and one between. The cut lies where the upper arm circumference is measured, midway between acromion and olecranon, so both parts shape the ring from that one measurement.
  */
-export const AUTOMOVIE_HUMAN_UPPER_ARM_RING: IAutoMovieHumanRingDefinition<"upperArm"> =
+const AUTOMOVIE_HUMAN_UPPER_ARM_RING: IAutoMovieHumanRingDefinition<"upperArm"> =
   {
     site: "upperArm",
     proximal: "trunk",
@@ -51,7 +51,7 @@ export const AUTOMOVIE_HUMAN_UPPER_ARM_RING: IAutoMovieHumanRingDefinition<"uppe
  *
  * The same count as mid upper arm, so the arm is a regular tube whose elbow gains loops along its length rather than around it, and no pole lands on the broad forearm. The flattened wrist section keeps a vertex on each of its palmar, dorsal, radial and ulnar sides. The hand expands these spans into the palm and digits inside its own cage. The cut passes through the radial styloid, where the wrist circumference is measured.
  */
-export const AUTOMOVIE_HUMAN_WRIST_RING: IAutoMovieHumanRingDefinition<"wrist"> =
+const AUTOMOVIE_HUMAN_WRIST_RING: IAutoMovieHumanRingDefinition<"wrist"> =
   {
     site: "wrist",
     proximal: "arm",
@@ -66,7 +66,7 @@ export const AUTOMOVIE_HUMAN_WRIST_RING: IAutoMovieHumanRingDefinition<"wrist"> 
  *
  * The thigh is the largest limb section, nearly twice the upper arm's girth, and holds more masses: rectus femoris in front, vastus lateralis and medialis to either side, the adductors medially and the hamstrings behind. Eight spans would make each span about twice as long as the arm's; twelve keep span length close to the arm's and give the vasti and adductors their own vertices. The cut lies midway between the hip and knee joint centres, below the gluteal fold, so the fold and the upper thigh stay in the trunk.
  */
-export const AUTOMOVIE_HUMAN_THIGH_RING: IAutoMovieHumanRingDefinition<"thigh"> =
+const AUTOMOVIE_HUMAN_THIGH_RING: IAutoMovieHumanRingDefinition<"thigh"> =
   {
     site: "thigh",
     proximal: "trunk",
@@ -81,7 +81,7 @@ export const AUTOMOVIE_HUMAN_THIGH_RING: IAutoMovieHumanRingDefinition<"thigh"> 
  *
  * Above the malleoli the section narrows to its minimum and holds four features, one per quadrant: the tibialis anterior tendon in front, the Achilles tendon behind, and the two malleolar ridges to the sides. Eight spans give each a vertex. The leg part reduces its twelve thigh spans to these eight inside its own cage, where its generator places the poles.
  */
-export const AUTOMOVIE_HUMAN_ANKLE_RING: IAutoMovieHumanRingDefinition<"ankle"> =
+const AUTOMOVIE_HUMAN_ANKLE_RING: IAutoMovieHumanRingDefinition<"ankle"> =
   {
     site: "ankle",
     proximal: "leg",
@@ -96,7 +96,7 @@ export const AUTOMOVIE_HUMAN_ANKLE_RING: IAutoMovieHumanRingDefinition<"ankle"> 
  *
  * The attachment is an elongated loop, from the root of the helix above the tragus down to the lobule and back along the posterior auricular sulcus. Eight spans put a vertex at its superior, anterior, inferior and posterior extremes and one between each. The ear part builds its folds inside that loop, so an ear of another species with the same ring replaces it without touching the head.
  */
-export const AUTOMOVIE_HUMAN_EAR_RING: IAutoMovieHumanRingDefinition<"ear"> = {
+const AUTOMOVIE_HUMAN_EAR_RING: IAutoMovieHumanRingDefinition<"ear"> = {
   site: "ear",
   proximal: "head",
   distal: "ear",
