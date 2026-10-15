@@ -1,6 +1,5 @@
 import { AutoMovieHumanSex } from "../structures/AutoMovieHumanSex";
 import { IAutoMovieHumanIdentity } from "../structures/IAutoMovieHumanIdentity";
-import { IAutoMovieHumanConversionContext } from "./IAutoMovieHumanConversionContext";
 import { IAutoMovieHumanGrowthCurve } from "./IAutoMovieHumanGrowthCurve";
 import { interpolateAutoMovieHumanGrowthCurve } from "./interpolateAutoMovieHumanGrowthCurve";
 
@@ -58,36 +57,120 @@ const LEAN_INDEX: Record<AutoMovieHumanSex, IAutoMovieHumanGrowthCurve> = {
 };
 
 /**
- * Body fat percentage points gained per BMI unit of adiposity: Kelly et al. state that fat mass indices of 9 and 13 kg/m² (women) and 6 and 9 kg/m² (men) match BMI 25 and 30 at 25 years, which is 36% to 43% and 24% to 30% fat, so 1.4 and 1.2 points per BMI unit. Grade: derived.
+ * Standard deviation of whole-body fat percentage by age, percentage points: the σ column of the same NHANES tables (Kelly et al. 2009, Tables S9 and S2, non-Hispanic White). Below 8 the 8-year spread holds. Grade: measured, then population-fitted (LMS).
  */
-const FAT_PER_BMI: Record<AutoMovieHumanSex, number> = {
-  female: 1.4,
-  male: 1.2,
+const BODY_FAT_SD: Record<AutoMovieHumanSex, IAutoMovieHumanGrowthCurve> = {
+  male: {
+    ages: [8, 10, 12, 14, 16, 18, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85],
+    values: [
+      7.13, 7.28, 7.11, 6.4, 5.72, 6.22, 6.68, 6.49, 6.25, 5.97, 5.68, 5.44, 5.3,
+      5.23, 5.19, 5.16, 5.11, 5.02, 4.88, 4.73,
+    ],
+  },
+  female: {
+    ages: [8, 10, 12, 14, 16, 18, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85],
+    values: [
+      6.5, 6.52, 6.46, 6.49, 6.68, 7.1, 7.22, 7.23, 7.21, 7.12, 6.96, 6.73, 6.46,
+      6.16, 5.86, 5.58, 5.37, 5.24, 5.14, 5.08,
+    ],
+  },
 };
 
 /**
- * Fat and lean mass of one person.
- *
- * Every age takes the medians of its own sex and age: a child's lean mass index is a child's, about half an adult's at 5 years, so a child never carries an adult's muscle relief, and fat follows the childhood course of a slight fall to the pubertal minimum in boys and a steady rise in girls. Adults rise in fat and fall in limb lean mass with age. Below 5.5 years, where neither reference scanned anyone, both hold their 5.5-year values. Adiposity adds fat at the per-BMI rate the adult reference implies, and muscularity scales the lean mass index (see the converter for both units). Population is not read: the White medians serve every population.
- *
- * @param context Resolved person
- * @param adiposityBmi BMI units the adiposity offset added
- * @param leanScale Factor muscularity applies to the lean mass index
- * @returns Composition within the identity's bounds
+ * Standard deviation of the appendicular lean mass index by age, kilograms per square metre: the Bone Mineral Density in Childhood Study's coefficient of variation times its median from 5 to 19 years (Zemel et al. 2023, Table 3), then the σ column of the NHANES adult table (Kelly et al. 2009, Table S6). The women's rows past 65 were not readable and hold. Grade: measured, then population-fitted (LMS).
  */
-export function estimateAutoMovieHumanComposition(
-  context: IAutoMovieHumanConversionContext,
-  adiposityBmi: number,
-  leanScale: number,
-): IAutoMovieHumanIdentity.IComposition {
-  const { sex, age }: IAutoMovieHumanConversionContext = context;
-  const fat: number =
-    interpolateAutoMovieHumanGrowthCurve(BODY_FAT[sex], age) +
-    FAT_PER_BMI[sex] * adiposityBmi;
-  const lean: number =
-    interpolateAutoMovieHumanGrowthCurve(LEAN_INDEX[sex], age) * leanScale;
+const LEAN_INDEX_SD: Record<AutoMovieHumanSex, IAutoMovieHumanGrowthCurve> = {
+  male: {
+    ages: [
+      5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.5,
+      18.5, 19.5, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85,
+    ],
+    values: [
+      0.53, 0.56, 0.6, 0.64, 0.67, 0.71, 0.77, 0.83, 0.89, 0.95, 1.0, 1.04, 1.07,
+      1.08, 1.09, 1.34, 1.32, 1.31, 1.3, 1.29, 1.27, 1.25, 1.22, 1.18, 1.14,
+      1.09, 1.03, 0.97, 0.91,
+    ],
+  },
+  female: {
+    ages: [
+      5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.5,
+      18.5, 19.5, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65,
+    ],
+    values: [
+      0.5, 0.54, 0.58, 0.62, 0.66, 0.71, 0.75, 0.79, 0.82, 0.84, 0.86, 0.87, 0.89,
+      0.9, 0.91, 1.04, 1.08, 1.11, 1.15, 1.17, 1.19, 1.18, 1.17, 1.14, 1.1,
+    ],
+  },
+};
+
+/**
+ * Standard deviations of each reference that one unit of adiposity or muscularity spans: plus or minus one reaches about the 2nd and 98th percentiles of the people of that sex and age, the large but living departure the traits define. Grade: conventional mapping onto measured spreads.
+ */
+const SPREAD: number = 2;
+
+/**
+ * Fat and lean mass of one person, and the body mass index and the departures from the median person they imply.
+ *
+ * Every age takes the medians of its own sex and age: a child's lean mass index is a child's, about half an adult's at 5 years, so a child never carries an adult's muscle relief, and fat follows the childhood course of a slight fall to the pubertal minimum in boys and a steady rise in girls. Adults rise in fat and fall in limb lean mass with age. Below 5.5 years, where neither reference scanned anyone, both hold their 5.5-year values. Adiposity moves body fat and muscularity the appendicular lean mass index each by two of its reference's standard deviations per unit, so a fashion model's 24% and a bodybuilder's 13% are inside the range at 20 years. Population is not read: the White medians serve every population.
+ *
+ * Fat and lean then fix the body mass index. The median person has the reference body mass index the girth regressions centre on, its fat-free mass index is that index times the median lean share, the person's own fat-free mass index scales with their limb lean mass, and fat is the rest at the person's fat percentage: `BMI = FFMI / (1 - fat)`. So a lean muscular person comes out heavy for their fat and a slim model light, rather than one index standing for both. The departures of the fat mass index and the appendicular lean mass index from the median person's are returned for the girths, which answer to fat and lean separately.
+ *
+ * @param props The person's sex, age, build and reference body mass index
+ * @returns Composition, body mass index and departures from the median person
+ */
+export function estimateAutoMovieHumanComposition(props: {
+  sex: AutoMovieHumanSex;
+  age: number;
+  adiposity: number;
+  muscularity: number;
+  referenceBmi: number;
+}): estimateAutoMovieHumanComposition.IOutput {
+  const { sex, age }: { sex: AutoMovieHumanSex; age: number } = props;
+  const read: (curves: Record<AutoMovieHumanSex, IAutoMovieHumanGrowthCurve>) => number = (
+    curves: Record<AutoMovieHumanSex, IAutoMovieHumanGrowthCurve>,
+  ): number =>
+    interpolateAutoMovieHumanGrowthCurve(curves[sex], age);
+  const medianFat: number = read(BODY_FAT) / 100;
+  const medianLean: number = read(LEAN_INDEX);
+  const fat: number = Math.min(
+    0.75,
+    Math.max(0.02, medianFat + (SPREAD * props.adiposity * read(BODY_FAT_SD)) / 100),
+  );
+  const lean: number = Math.min(
+    16,
+    Math.max(2, medianLean + SPREAD * props.muscularity * read(LEAN_INDEX_SD)),
+  );
+  const medianFatFree: number = props.referenceBmi * (1 - medianFat);
+  const fatFree: number = (medianFatFree * lean) / medianLean;
+  const bmi: number = fatFree / (1 - fat);
   return {
-    bodyFatPercentage: Math.min(75, Math.max(2, fat)),
-    appendicularLeanMassIndex: Math.min(16, Math.max(2, lean)),
+    composition: {
+      bodyFatPercentage: fat * 100,
+      appendicularLeanMassIndex: lean,
+    },
+    bmi,
+    fatIndexOffset: bmi * fat - props.referenceBmi * medianFat,
+    leanIndexOffset: lean - medianLean,
   };
+}
+/** Output type of {@link estimateAutoMovieHumanComposition}. */
+export namespace estimateAutoMovieHumanComposition {
+  /**
+   * Composition of one person and what it implies for body mass.
+   *
+   * @author Samchon
+   */
+  export interface IOutput {
+    /** Body fat percentage and appendicular lean mass index. */
+    composition: IAutoMovieHumanIdentity.IComposition;
+
+    /** Body mass index, kilograms per square metre, on the reference scale the girth regressions read. */
+    bmi: number;
+
+    /** Fat mass index less the median person's, kilograms per square metre. */
+    fatIndexOffset: number;
+
+    /** Appendicular lean mass index less the median person's, kilograms per square metre. */
+    leanIndexOffset: number;
+  }
 }

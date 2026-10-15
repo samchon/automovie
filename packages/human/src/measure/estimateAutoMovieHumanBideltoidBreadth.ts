@@ -28,6 +28,14 @@ const ANSUR_II: Record<
   },
 };
 
+/**
+ * How fat and limb lean mass each widen the deltoids, as multiples of the bideltoid breadth's BMI slope: the split of the NHANES relaxed mid-upper arm girth on the DXA fat mass index and appendicular lean mass index (2017-2018, adults 18 to 40; see `estimateAutoMovieHumanGirths`), the arm site nearest the deltoid. Grade: population-fitted for the arm, conventional in its transfer to the deltoid.
+ */
+const DELTOID_SPLIT: Record<AutoMovieHumanSex, { fat: number; lean: number }> = {
+  male: { fat: 0.854, lean: 2.612 },
+  female: { fat: 1.104, lean: 1.885 },
+};
+
 /** Bounds of the ANSUR II sample the regressions are read inside: stature (mm), BMI and age (years). */
 const SAMPLE: Record<"stature" | "bmi" | "age", [number, number]> = {
   stature: [1400, 2000],
@@ -38,7 +46,7 @@ const SAMPLE: Record<"stature" | "bmi" | "age", [number, number]> = {
 /**
  * Bideltoid breadth: the person's own bony biacromial breadth plus the soft tissue the deltoids add outside it.
  *
- * That margin is the ANSUR II bideltoid fit less the biacromial fit at the person's peak stature, BMI and age, read inside the sample's ranges, and scaled by the person's biacromial breadth over the fitted one. So an adult of the sample's build gets the fitted bideltoid breadth, adiposity and muscularity widen the deltoids through BMI while the bones stay, and a child's or a slim frame's narrower shoulders carry a proportionally narrower margin. No child bideltoid breadth was read.
+ * That margin is the ANSUR II bideltoid fit less the biacromial fit at the person's peak stature, the median person's BMI and age, read inside the sample's ranges, and scaled by the person's biacromial breadth over the fitted one; the person's fat and limb lean mass widen it before that scaling, by the bideltoid's BMI slope split between them as at the upper arm. So an adult of the sample's build gets the fitted bideltoid breadth, muscularity widens the deltoids more than adiposity does while the bones stay, and a child's or a slim frame's narrower shoulders carry a proportionally narrower margin. No child bideltoid breadth was read.
  *
  * @param context Resolved person
  * @param biacromialBreadth The person's biacromial breadth, millimetres
@@ -55,10 +63,14 @@ export function estimateAutoMovieHumanBideltoidBreadth(
     return (
       r.intercept +
       r.stature * within(context.peakStature, SAMPLE.stature) +
-      r.bmi * within(context.bmi, SAMPLE.bmi) +
+      r.bmi * within(context.bmi - context.bmiOffset, SAMPLE.bmi) +
       r.age * within(context.age, SAMPLE.age)
     );
   };
   const bony: number = fit("biacromial");
-  return biacromialBreadth * (1 + (fit("bideltoid") - bony) / bony);
+  const deltoids: number =
+    ANSUR_II.bideltoid[context.sex].bmi *
+    (DELTOID_SPLIT[context.sex].fat * context.fatIndexOffset +
+      DELTOID_SPLIT[context.sex].lean * context.leanIndexOffset);
+  return biacromialBreadth * (1 + (fit("bideltoid") + deltoids - bony) / bony);
 }

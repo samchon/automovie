@@ -31,30 +31,17 @@ const REFERENCE_BMI: Record<AutoMovieHumanSex, number> = {
 };
 
 /**
- * BMI units of one unit of adiposity: two standard deviations of BMI in the ANSUR II working databases (3.5 for women, 4.0 for men), so plus or minus one reaches about the 2nd and 98th percentiles of a sample whose fitness standards already narrow the tails. Grade: conventional mapping onto a measured spread.
- */
-const ADIPOSITY_BMI: Record<AutoMovieHumanSex, number> = {
-  female: 7.0,
-  male: 8.0,
-};
-
-/**
- * Share of the appendicular lean mass index that one unit of muscularity adds or removes. No source for the spread of lean mass at a given age was read, so a quarter is a conventional bound that keeps every muscularity inside the identity's admitted lean index. The lean mass it adds also adds to BMI, counting the limbs' lean mass only. Grade: conventional.
- */
-const MUSCULARITY_LEAN_SHARE: number = 0.25;
-
-/**
  * The default converter: deterministic regressions from published public-domain anthropometry, for every age and both sexes.
  *
  * Order of resolution:
  *
  * 1. Stature. With no stature given, the WHO median for age (to 19 years, then the 19-year median) minus the spinal height lost after 40, fitted to the NHANES 2015-2018 adult tables. A given stature is the stature now; the stature at the end of growth is it plus that loss, because old age shortens the spine and not the bones.
- * 2. BMI, from the ANSUR II mean of the sex, adiposity (two standard deviations per unit) and the lean mass muscularity adds.
+ * 2. Composition and BMI: body fat and the appendicular lean mass index from the DXA references by sex and age, adiposity and muscularity each two of their reference's standard deviations per unit, and the BMI they imply around the ANSUR II mean of the sex. See {@link estimateAutoMovieHumanComposition}.
  * 3. Head, from its own growth curve (1977 US child survey heads per stature, 3D Facial Norms growth fractions, WHO head circumference in infancy) and the population's adult means. See {@link estimateAutoMovieHumanHead}.
  * 4. Lengths and bony breadths: 1977 child survey ratios for children, ANSUR II regressions on peak stature for adults, with slimness. See {@link estimateAutoMovieHumanLengths}.
  * 5. Girths: ANSUR II regressions on stature, BMI and age, NHANES growth and ageing of the waist and upper arm. See {@link estimateAutoMovieHumanGirths}.
  * 6. Trunk sections: breadth and depth of the chest, natural waist and buttock from their girths in ANSUR II proportions, and the underbust from the bust (see {@link estimateAutoMovieHumanTrunkSections}); the natural waist's height on the trunk (see {@link estimateAutoMovieHumanWaistHeight}) and the bideltoid breadth over the shoulders (see {@link estimateAutoMovieHumanBideltoidBreadth}).
- * 7. Mobility from the CDC normal joint range of motion study by age and sex, the carrying angle by age and sex (see {@link estimateAutoMovieHumanCarryingAngle}), composition from the NHANES and childhood DXA references (see {@link estimateAutoMovieHumanComposition}), standing posture from radiographic and photographic norms by age and sex (see {@link estimateAutoMovieHumanPosture}), navicular height from foot length by age (see {@link estimateAutoMovieHumanNavicularHeight}).
+ * 7. Mobility from the CDC normal joint range of motion study by age and sex, the carrying angle by age and sex (see {@link estimateAutoMovieHumanCarryingAngle}), standing posture from radiographic and photographic norms by age and sex (see {@link estimateAutoMovieHumanPosture}), navicular height from foot length by age (see {@link estimateAutoMovieHumanNavicularHeight}).
  * 8. Spinal loss subtracted from stature, sitting height, cervicale, suprasternale and acromial height; every limb keeps its peak length.
  *
  * Age is unrestricted. Beyond the oldest sample of a source the converter holds that sample's value, and below its youngest it holds or, where a source states the trend, extends it; each estimator says which. Both arms and both legs get the same values. Population reaches only the head and face, the only measurements read by population; cuteness is not read yet. Pigmentation follows the population as a conventional choice inside the measured melanosome volume fractions of Jacques (1998, "Skin Optics", Oregon Medical Laser Center News): melanin 0.04 for a European population within the lightly pigmented 0.013 to 0.063, 0.10 for an East Asian population between the lightly and the moderately pigmented ranges, and 0.30 for an African population within the darkly pigmented 0.18 to 0.43; the eumelanin share is the 0.7 Donner and Jensen illustrate (2006, Eurographics Symposium on Rendering, pp. 409-417) and the dermal haemoglobin their 0.005; the iris is brown.
@@ -74,11 +61,17 @@ export class AutoMovieHumanConverter implements IAutoMovieHumanConverter {
     const spinalLoss: number = estimateAutoMovieHumanSpinalLoss(sex, age);
     const peakStature: number =
       traits.stature === null ? medianStature : traits.stature + spinalLoss;
-    const adiposityBmi: number = ADIPOSITY_BMI[sex] * traits.build.adiposity;
-    const leanScale: number =
-      1 + MUSCULARITY_LEAN_SHARE * traits.build.muscularity;
-
-    const draft: IAutoMovieHumanConversionContext = {
+    const resolved: estimateAutoMovieHumanComposition.IOutput =
+      estimateAutoMovieHumanComposition({
+        sex,
+        age,
+        adiposity: traits.build.adiposity,
+        muscularity: traits.build.muscularity,
+        referenceBmi: REFERENCE_BMI[sex],
+      });
+    const composition: IAutoMovieHumanIdentity.IComposition =
+      resolved.composition;
+    const context: IAutoMovieHumanConversionContext = {
       sex,
       age,
       population: traits.population,
@@ -87,17 +80,10 @@ export class AutoMovieHumanConverter implements IAutoMovieHumanConverter {
       peakStature,
       medianStature,
       spinalLoss,
-      bmi: REFERENCE_BMI[sex],
-      bmiOffset: 0,
-    };
-    const composition: IAutoMovieHumanIdentity.IComposition =
-      estimateAutoMovieHumanComposition(draft, adiposityBmi, leanScale);
-    const leanBmi: number =
-      composition.appendicularLeanMassIndex * (1 - 1 / leanScale);
-    const context: IAutoMovieHumanConversionContext = {
-      ...draft,
-      bmi: REFERENCE_BMI[sex] + adiposityBmi + leanBmi,
-      bmiOffset: adiposityBmi + leanBmi,
+      bmi: resolved.bmi,
+      bmiOffset: resolved.bmi - REFERENCE_BMI[sex],
+      fatIndexOffset: resolved.fatIndexOffset,
+      leanIndexOffset: resolved.leanIndexOffset,
     };
 
     const head: IAutoMovieHumanIdentity.IHead =
