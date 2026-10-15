@@ -114,8 +114,12 @@ export function networkAutoMovieHumanHand(props: {
         return {
           first: p,
           second: d,
-          x: metres(V.of(crotch[w]!, 0, z - (SHAPE.web * L) / 2)),
-          y: metres(V.of(crotch[w]!, 0, z + (SHAPE.web * L) / 2)),
+          x: metres(
+            V.of(crotch[w]!, SHAPE.webPalmar * L, z - (SHAPE.web * L) / 2),
+          ),
+          y: metres(
+            V.of(crotch[w]!, SHAPE.webPalmar * L, z + (SHAPE.web * L) / 2),
+          ),
           normal: { x: 1, y: 0, z: 0 },
         };
       },

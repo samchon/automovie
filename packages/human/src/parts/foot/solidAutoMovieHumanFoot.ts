@@ -110,15 +110,26 @@ export function solidAutoMovieHumanFoot(props: {
     }
     return dorsum + (ridge - dorsum) * k * k * (3 - 2 * k);
   };
-  // the plantar surface: the standing surface, lifted under the medial arch toward the medial border
+  // the plantar surface: the standing surface, lifted under the medial arch toward the medial border from the footprint's curved contact edge, which reaches its farthest across where the arch is highest and runs back to the border where the arch ends
+  const arch: IAutoMovieHumanFootPlan.IProfile = ARCH(plan);
+  const archPeak: number = Math.max(
+    1e-6,
+    ...arch.map((point: readonly [number, number]): number => point[1]),
+  );
   const bottom = (x: number, z: number): number => {
     const f: number = (z - plan.heel) / L;
     const { centre, half } = across(z);
-    const medial: number = Math.min(
+    const lift: number = profile(arch, f);
+    const edge: number = 1 - (1 - CONTACT_EDGE) * (lift / archPeak);
+    const t: number = Math.min(
       1,
-      Math.max(0, (centre - x) / Math.max(1e-6, half)),
+      Math.max(
+        0,
+        ((centre - x) / Math.max(1e-6, half) - edge) / Math.max(1e-6, 1 - edge),
+      ),
     );
-    return profile(ARCH(plan), f) * medial * medial * (3 - 2 * medial);
+    // C2 at both ends, so the onset leaves no line of changing curvature under raking light
+    return lift * t * t * t * (10 - 15 * t + 6 * t * t);
   };
   // the plan's centre line and half breadth at a level along the foot
   const across = (z: number): { centre: number; half: number } => {
@@ -367,6 +378,9 @@ const COLUMN_ROUND: number = 0.05;
 
 /** March step of a ray before bisection, millimetres; under half the thinnest part's thickness. */
 const STEP: number = 1;
+
+/** The footprint's contact edge where the arch is highest, as the medial share `(centre - x) / half` from -1 at the lateral border to 1 at the medial: the contact there keeps 35% of the breadth from the lateral border. That share is the Chippaux-Smirak index, the isthmus's least contact breadth over the forefoot's greatest (used for footprints by Forriol and Pascual 1990, Foot Ankle 11(2):101-104); footprints divide into flat and not flat at 0.6 (PLoS ONE 2014, doi:10.1371/journal.pone.0115808), and 0.35 is a well-arched foot below it, applied to the local breadth. Grade: conventional within a measured bound. */
+const CONTACT_EDGE: number = -1 + 2 * 0.35;
 
 /** Lift of the plantar surface under the medial arch at the medial border, of foot length: the plan's medial sole heights over the arch, nothing under the heel and the ball. */
 const ARCH = (

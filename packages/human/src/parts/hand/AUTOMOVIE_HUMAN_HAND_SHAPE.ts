@@ -113,5 +113,7 @@ export const AUTOMOVIE_HUMAN_HAND_SHAPE = {
     thumbTension: 0.5227,
     /** Breadth of each web between two fingers, where each finger's own web curve runs, in hand lengths. Conventional: about 3 mm, so the web is one narrow face wide and its four corners are valence-five vertices instead of two of valence six. */
     web: 0.015,
+    /** Palmar offset of each web's crotch from the knuckles' joint plane, in hand lengths, so the web's margin lies at the fingers' palmar skin: the normal web slopes about 45 degrees from the metacarpal heads on the dorsum to the middle of the proximal phalanx on the palm ("the normal web space slopes 45 degrees in a dorsal to palmar direction from the metacarpal heads to the midproximal phalanx", Green's Operative Hand Surgery, 7th ed., 2017, "Deformities of the Hand and Fingers"). Conventional: about 6 mm, the palmar half-depth of a finger's root; the crotch's distal level stays the crease's. */
+    webPalmar: 0.03,
   },
 };
