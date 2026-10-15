@@ -293,7 +293,7 @@ export function networkAutoMovieHumanFoot(props: {
       name: `${name}.bridge`,
       from: { edges: loops[t]!, tangent: "across" },
       to: { edges: [edgeOf(name, { u: 0, v: 0 }, { u: 0, v: 1 }, 8)], tangent: "forward" },
-      rows: fixed(1),
+      rows: fixed(2),
       tension: TENSION,
     });
     addresses.push((s: number, t2: number) => ({ u: BODY + (1 - BODY) * 0.1 * t2, v: wrap(toeV + SPREAD * (s - 0.5)) }));
