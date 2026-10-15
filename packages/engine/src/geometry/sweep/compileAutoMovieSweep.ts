@@ -1,14 +1,16 @@
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
-import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
-import { quaternionFromAutoMovieBasis } from "../../math/quaternionFromAutoMovieBasis";
 import { IAutoMovieSweep } from "./IAutoMovieSweep";
 import { IAutoMovieSweepFrame } from "./IAutoMovieSweepFrame";
 import { IAutoMovieSweepPath } from "./IAutoMovieSweepPath";
 import { IAutoMovieSweepSection } from "./IAutoMovieSweepSection";
 import { IAutoMovieSweepSurface } from "./IAutoMovieSweepSurface";
-import { frameAutoMovieSweepSpine } from "./frameAutoMovieSweepSpine";
+import { IAutoMovieSweepOrientation } from "./IAutoMovieSweepOrientation";
+import { IAutoMovieSweepTransport } from "./IAutoMovieSweepTransport";
+import { loadAutoMovieSweepSpine } from "./loadAutoMovieSweepSpine";
+import { orientAutoMovieSweep } from "./orientAutoMovieSweep";
+import { pathAutoMovieSweepTransport } from "./pathAutoMovieSweepTransport";
 import { interpolateAutoMovieMonotone } from "./interpolateAutoMovieMonotone";
 import { parameterizeAutoMovieSweepSection } from "./parameterizeAutoMovieSweepSection";
 import { sampleAutoMovieSweepSection } from "./sampleAutoMovieSweepSection";
@@ -55,9 +57,7 @@ const STEP: number = 1e-4;
  * interpolated round the turn; a single guide moves the whole section by its
  * one difference. Rows are cached by `u`.
  *
- * A scale profile, where the sweep gives one, then multiplies each row.
- *
- * Features last: at a query point the nearest point of each feature polyline
+ * Features next: at a query point the nearest point of each feature polyline
  * is found in the surface's own metric, `u` scaled by the spine's length and
  * angle by the guided radius at the query, and the radius moves by the
  * feature's residual there, the declared radius less the guided radius at the
@@ -65,36 +65,37 @@ const STEP: number = 1e-4;
  * passes exactly through each feature curve where no other feature's band
  * overlaps it.
  *
+ * A scale profile, where the sweep gives one, multiplies the result last,
+ * features included, so it resizes the section as shaped; `profile` reads the
+ * radius before it and `scale` the profile's factor. Posing relies on this
+ * order: it changes only the scale, so the shape before it is pose-invariant.
+ *
  * The section plane at `u` is the spine's rotation-minimizing frame, or under
  * the `fixed` orientation the start frame's axes at the spine point (a
  * translational sweep), turned by the stations' rotations: each station's
  * rotation relative to that frame at its `at` is interpolated by normalized linear quaternion interpolation
  * between stations, as sweep-based deformation interpolates key-ellipse
  * orientations (Hyun et al. 2005, The Visual Computer 21(8-10):542-550), and held
- * beyond the end stations.
+ * beyond the end stations; `loadAutoMovieSweepSpine` and `orientAutoMovieSweep`
+ * compute both.
  *
  * @param sweep The sweep, only read and retained by the returned surface.
  * @returns The compiled surface.
  * @throws Error when the spine is refused by `frameAutoMovieSweepSpine`, a section by `sampleAutoMovieSweepSection`, a station, guide or feature is out of range, unordered or not finite, or two guides share a direction; and, when a row is first evaluated, when guides drive a radius to zero.
  *
  * @evidence contracts/common.md#principled-implementation Per-direction monotone interpolation of key-section radii keeps every radius within its neighbouring stations; guides form the Gordon surface of the station profiles and guide curves in radius, exact on every guide; features are pass-through constraints applied as a compactly supported C2 bump of the residual in the surface's own metric; orientations follow the nlerp of key-section rotations from the sweep-based deformation literature. Limitation: overlapping feature bands add, so neither passes exactly through its curve there.
- * @evidence contracts/common.md#clear-and-simple-design One compile owns the three layers in their fixed order; section evaluation and spine transport are delegated to their own modules.
+ * @evidence contracts/common.md#clear-and-simple-design One compile owns the four layers in their fixed order; section evaluation, spine transport and orientation are delegated to their own modules, the last two shared with posed sweeps.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid stations, guides and features are refused rather than reordered or clamped, and nothing is tuned for a particular caller.
  * @evidence contracts/common.md#meaningful-documentation States each layer's rule and guarantee, the Gordon construction and how incompatible guides are resolved, the feature metric and kernel, the frame rule and its source, the overlap limitation and every refusal.
  * @evidence contracts/performance.md#efficient-algorithms For S stations, G guides, F feature segments and D = 512 directions: compile is O(S D) section sampling plus D interpolants; a new row costs O(D (log S + log G)); a point query costs O(1) on a cached row plus O(F) for features.
  * @evidence contracts/performance.md#reuse-equivalent-work Guided rows are cached by exact `u`, because sampling a grid queries every row at many `v`; a row depends only on the immutable compiled stations and guides, so the cache never invalidates.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The surface retains the station radii (S D numbers), the D interpolants and at most 8,192 cached rows of D numbers, cleared when full; everything is released with the surface.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The surface retains the station radii (S D numbers), the D interpolants, the spine's transport tables and at most 8,192 cached rows of D numbers, cleared when full; everything is released with the surface.
  */
 export const compileAutoMovieSweep: (sweep: IAutoMovieSweep) => IAutoMovieSweepSurface = (
   sweep: IAutoMovieSweep,
 ): IAutoMovieSweepSurface => {
-  const path: IAutoMovieSweepPath = frameAutoMovieSweepSpine(sweep.spine);
-  const start: IAutoMovieSweepFrame = path.frame(0);
-  // the plane before station rotations: transported along the path, or the start frame's axes moved to the spine point
-  const carried = (u: number): IAutoMovieSweepFrame => {
-    const f: IAutoMovieSweepFrame = path.frame(u);
-    return sweep.orientation === "fixed" ? { origin: f.origin, x: start.x, y: start.y, normal: start.normal } : f;
-  };
+  const transport: IAutoMovieSweepTransport = loadAutoMovieSweepSpine(sweep.spine, true);
+  const path: IAutoMovieSweepPath = pathAutoMovieSweepTransport(transport);
   const stations: IAutoMovieSweep.IStation[] = sweep.stations;
   if (stations.length === 0) throw new Error("sweep needs at least one station");
   stations.forEach((s: IAutoMovieSweep.IStation, k: number): void => {
@@ -156,10 +157,6 @@ export const compileAutoMovieSweep: (sweep: IAutoMovieSweep) => IAutoMovieSweepS
     const base: Float64Array = new Float64Array(DIRECTIONS);
     for (let d: number = 0; d < DIRECTIONS; ++d) base[d] = profiles[d]!(u);
     const out: Float64Array = guides.length === 0 ? base : guide(base, guides, u);
-    if (scale !== null) {
-      const k: number = scale(u);
-      for (let d: number = 0; d < DIRECTIONS; ++d) out[d] = out[d]! * k;
-    }
     if (cache.size >= CACHE_LIMIT) cache.clear();
     cache.set(u, out);
     return out;
@@ -179,8 +176,9 @@ export const compileAutoMovieSweep: (sweep: IAutoMovieSweep) => IAutoMovieSweepS
       r += displace(feature, u, angle, own, path.length, guided);
     return r;
   };
-  const section = (input: number, v: number, loop: number = 0): IAutoMovieSweepSection.IPoint => {
-    const u: number = Math.min(1, Math.max(0, input));
+  const scaleAt = (input: number): number => (scale === null ? 1 : scale(Math.min(1, Math.max(0, input))));
+  // the loop point before the scale profile
+  const shaped = (u: number, v: number, loop: number): IAutoMovieSweepSection.IPoint => {
     if (!byParameter) {
       if (loop !== 0) throw new Error("a sweep by direction has one loop");
       const r: number = directional(u, v);
@@ -189,67 +187,42 @@ export const compileAutoMovieSweep: (sweep: IAutoMovieSweep) => IAutoMovieSweepS
     }
     const compiled: ICompiledLoop | undefined = loops[loop];
     if (compiled === undefined) throw new Error(`sweep has no loop ${loop}`);
-    const p: IAutoMovieSweepSection.IPoint = compiled.point(u, v);
-    const k: number = scale === null ? 1 : scale(u);
+    return compiled.point(u, v);
+  };
+  const section = (input: number, v: number, loop: number = 0): IAutoMovieSweepSection.IPoint => {
+    const u: number = Math.min(1, Math.max(0, input));
+    const p: IAutoMovieSweepSection.IPoint = shaped(u, v, loop);
+    const k: number = scaleAt(u);
     return { x: p.x * k, y: p.y * k };
   };
-  const radius = (u: number, v: number): number => {
+  const profile = (input: number, v: number): number => {
+    const u: number = Math.min(1, Math.max(0, input));
     if (!byParameter) return directional(u, v);
-    const p: IAutoMovieSweepSection.IPoint = section(u, v);
+    const p: IAutoMovieSweepSection.IPoint = shaped(u, v, 0);
     return Math.hypot(p.x, p.y);
   };
+  const radius = (u: number, v: number): number => scaleAt(u) * profile(u, v);
 
-  // each station's turn relative to the transported frame at its station
-  const offsets: Array<IAutoMovieQuaternion | null> = stations.map(
-    (s: IAutoMovieSweep.IStation): IAutoMovieQuaternion | null => {
-      if (s.rotation === undefined) return null;
-      const q: IAutoMovieQuaternion = s.rotation;
-      if (![q.x, q.y, q.z, q.w].every(Number.isFinite) || Math.hypot(q.x, q.y, q.z, q.w) === 0)
-        throw new Error("sweep station rotation must be a finite non-zero quaternion");
-      const f: IAutoMovieSweepFrame = carried(s.at);
-      return Quaternion.normalize(
-        Quaternion.multiply(
-          Quaternion.inverse(quaternionFromAutoMovieBasis(f.x, f.y, f.normal)),
-          Quaternion.normalize(q),
-        ),
-      );
-    },
-  );
-  const turned: boolean = offsets.some((q: IAutoMovieQuaternion | null): boolean => q !== null);
-  const identity: IAutoMovieQuaternion = Quaternion.identity();
-  const offset = (u: number): IAutoMovieQuaternion => {
-    const at = (k: number): IAutoMovieQuaternion => offsets[k] ?? identity;
-    if (u <= knots[0]!) return at(0);
-    const last: number = knots.length - 1;
-    if (u >= knots[last]!) return at(last);
-    let k: number = 0;
-    while (knots[k + 1]! < u) ++k;
-    const t: number = (u - knots[k]!) / (knots[k + 1]! - knots[k]!);
-    const a: IAutoMovieQuaternion = at(k);
-    let b: IAutoMovieQuaternion = at(k + 1);
-    if (a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w < 0)
-      b = { x: -b.x, y: -b.y, z: -b.z, w: -b.w };
-    return Quaternion.normalize({
-      x: a.x + (b.x - a.x) * t,
-      y: a.y + (b.y - a.y) * t,
-      z: a.z + (b.z - a.z) * t,
-      w: a.w + (b.w - a.w) * t,
-    });
-  };
-  const frame = (input: number): IAutoMovieSweepFrame => {
-    const u: number = Math.min(1, Math.max(0, input));
-    const f: IAutoMovieSweepFrame = carried(u);
-    if (!turned) return f;
-    const q: IAutoMovieQuaternion = Quaternion.multiply(
-      quaternionFromAutoMovieBasis(f.x, f.y, f.normal),
-      offset(u),
-    );
-    return {
-      origin: f.origin,
-      x: Quaternion.rotateVector(q, Vector3.create(1, 0, 0)),
-      y: Quaternion.rotateVector(q, Vector3.create(0, 1, 0)),
-      normal: Quaternion.rotateVector(q, Vector3.create(0, 0, 1)),
-    };
+  // each station's plane, turned relative to the carried frame by the orientation kernel
+  const orientation: IAutoMovieSweepOrientation = orientAutoMovieSweep({
+    transport,
+    knots: Float64Array.from(knots),
+    fixed: sweep.orientation === "fixed",
+  });
+  stations.forEach((s: IAutoMovieSweep.IStation, k: number): void => {
+    if (s.rotation === undefined) return;
+    const q: IAutoMovieQuaternion = s.rotation;
+    if (![q.x, q.y, q.z, q.w].every(Number.isFinite) || Math.hypot(q.x, q.y, q.z, q.w) === 0)
+      throw new Error("sweep station rotation must be a finite non-zero quaternion");
+    orientation.given[k] = 1;
+    orientation.rotations.set([q.x, q.y, q.z, q.w], 4 * k);
+  });
+  orientation.update();
+  const scratch: Float64Array = new Float64Array(12);
+  const vector = (at: number): IAutoMovieVector3 => ({ x: scratch[at]!, y: scratch[at + 1]!, z: scratch[at + 2]! });
+  const frame = (u: number): IAutoMovieSweepFrame => {
+    orientation.frame(u, scratch, 0);
+    return { origin: vector(0), x: vector(3), y: vector(6), normal: vector(9) };
   };
   const point = (u: number, v: number, loop: number = 0): IAutoMovieVector3 => {
     const f: IAutoMovieSweepFrame = frame(u);
@@ -265,7 +238,19 @@ export const compileAutoMovieSweep: (sweep: IAutoMovieSweep) => IAutoMovieSweepS
     const around: IAutoMovieVector3 = Vector3.subtract(point(u, v + STEP, loop), point(u, v - STEP, loop));
     return Vector3.normalize(Vector3.cross(around, along(u, v, loop)));
   };
-  return { sweep, path, loops: byParameter ? loops.length : 1, radius, section, frame, point, normal, along };
+  return {
+    sweep,
+    path,
+    loops: byParameter ? loops.length : 1,
+    radius,
+    profile,
+    scale: scaleAt,
+    section,
+    frame,
+    point,
+    normal,
+    along,
+  };
 };
 
 /** One loop of a sweep by parameter: its point at any spine and loop parameter. */

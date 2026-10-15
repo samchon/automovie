@@ -12,7 +12,7 @@ import { IAutoMovieSweepSection } from "./IAutoMovieSweepSection";
  * it, both from 0 to 1; `u` outside its range is clamped and `v` wraps. The
  * surface is continuous in both. Every query is deterministic.
  *
- * @evidence contracts/common.md#principled-implementation The queries a sampler, a bridge and a measurement need from a parametric surface: position, radius, section frame, outward normal and the derivative along the spine.
+ * @evidence contracts/common.md#principled-implementation The queries a sampler, a bridge and a measurement need from a parametric surface: position, radius and its split into shape and scale, section frame, outward normal and the derivative along the spine.
  * @evidence contracts/common.md#clear-and-simple-design One record of closures over the compiled tables, so callers never repeat the compile.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Out-of-range `u` clamps to the ends instead of extrapolating sections no station declared.
  * @evidence contracts/common.md#meaningful-documentation States the producer, parameter ranges, clamping and wrapping, and each query's unit and direction.
@@ -49,6 +49,23 @@ export interface IAutoMovieSweepSurface {
    * @returns Metres, positive
    */
   radius(u: number, v: number): number;
+
+  /**
+   * Distance of the section's outer loop from the spine point before the scale profile, so `radius` is `scale(u) * profile(u, v)`.
+   *
+   * @param u Along the spine
+   * @param v Around it
+   * @returns Metres, positive
+   */
+  profile(u: number, v: number): number;
+
+  /**
+   * Factor of the scale profile, 1 where the sweep gives none.
+   *
+   * @param u Along the spine
+   * @returns A positive factor
+   */
+  scale(u: number): number;
 
   /**
    * Section plane at a spine parameter, with the stations' rotations applied.
