@@ -47,8 +47,8 @@ export function growAutoMovieHumanHair(props: {
   const builder: AutoMovieHumanCardBuilder = new AutoMovieHumanCardBuilder();
 
   // the cap: the scalp's own surface lifted a little, opaque, inset from the hairline
-  const capRows: number = 72;
-  const capCols: number = 144;
+  const capRows: number = 96;
+  const capCols: number = 192;
   const grid: Array<Array<AutoMovieHumanHeadSurface.IPoint | null>> = [];
   for (let i: number = 0; i <= capRows; ++i) {
     const row: Array<AutoMovieHumanHeadSurface.IPoint | null> = [];
@@ -101,9 +101,9 @@ export function growAutoMovieHumanHair(props: {
           { offset: 1.2, spacing: 6, length: 1 },
         ]
       : [
-          { offset: 0.6, spacing: 6, length: 0.85 },
-          { offset: 2.0, spacing: 6.5, length: 0.95 },
-          { offset: 3.4, spacing: 7.5, length: 1 },
+          { offset: 0.6, spacing: 4.5, length: 0.85 },
+          { offset: 1.8, spacing: 5, length: 0.95 },
+          { offset: 3.0, spacing: 5.5, length: 1 },
         ];
   shells.forEach((shell, layer: number): void => {
     // equal-area rows on the chart's canonical sphere, the step set from the head's radius
@@ -222,7 +222,7 @@ function growCard(p: {
   const sides: Array<[number, number, number]> = [];
   const normals: Array<[number, number, number]> = [];
   const widths: number[] = [];
-  const base: number = (p.style === "bob" ? 11 : p.style === "short" ? 8 : 6) * (0.85 + 0.3 * h(4));
+  const base: number = (p.style === "bob" ? 9 : p.style === "short" ? 5.5 : 4.5) * (0.85 + 0.3 * h(4));
   for (let k: number = 0; k < points.length; ++k) {
     const along: number[] = normalize(sub(points[Math.min(k + 1, points.length - 1)]!, points[Math.max(k - 1, 0)]!));
     const radial: number[] = normalize(sub(points[k]!, C));
