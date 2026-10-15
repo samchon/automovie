@@ -100,6 +100,7 @@ const networkOf = (
       head: measurements.identity.head,
       composition: measurements.identity.composition,
       profile,
+      form: form.relief,
     }),
   });
   const surface: IAutoMovieSweepSurface = compileAutoMovieSweep(loft.sweep);
