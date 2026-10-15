@@ -14,8 +14,15 @@ import { buildAutoMovieHumanArmCage } from "./buildAutoMovieHumanArmCage";
  * @author Samchon
  */
 export class AutoMovieHumanArmGenerator implements IAutoMovieHumanPartGenerator<"arm"> {
+  /** The part this generator produces. */
   public readonly part = "arm" as const;
 
+  /**
+   * Generate one arm's cage.
+   *
+   * @param props Measurements, skeleton and the side of the arm
+   * @returns Cage in the skeleton's model frame and millimetres, with the `upperArm` ring first and the `wrist` ring second
+   */
   public generate(
     props: IAutoMovieHumanPartGenerator.IProps<"arm">,
   ): IAutoMovieHumanCage {
