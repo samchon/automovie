@@ -46,20 +46,20 @@ export const AUTOMOVIE_HUMAN_LEG_SECTIONS: Record<
   "upper calf": {
     aspect: [0.879, 0.15],
     posterior: [0.531, -0.2],
-    lateral: [0.128, 0.48],
+    lateral: [0.02, 0.48],
   },
   "calf maximum": {
     aspect: [0.929, 0.05],
     posterior: [0.525, -0.05],
-    lateral: [0.12, 0.48],
+    lateral: [0.02, 0.48],
   },
   "lower calf": {
-    aspect: [0.951, -0.15],
+    aspect: [0.82, -0.15],
     posterior: [0.525, 0],
-    lateral: [0.15, 0.36],
+    lateral: [0.02, 0.36],
   },
   "calcaneal tendon": {
-    aspect: [0.875, -0.025],
+    aspect: [0.74, -0.025],
     posterior: [0.45, 0],
     lateral: [0.18, 0.6],
   },
