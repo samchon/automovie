@@ -37,7 +37,8 @@ const MAX_HEADS_PER_STATURE: number = 10;
  * - a hand and a foot longer than broad, a palm shorter than the hand and a thumb shorter than the middle finger, and a limb girth that tapers from muscle bellies to the tendons at wrist and ankle;
  * - soft-tissue hip breadth wider than the bony iliac crests it covers;
  * - a head circumference between twice the head length and the perimeter of the rectangle bounding head length and breadth, the limits for any convex outline a tape can follow;
- * - the face inside the head: face height below head height, and mandibular and frontal widths narrower than the zygomatic arches.
+ * - the face inside the head: face height below head height, and mandibular and frontal widths narrower than the zygomatic arches;
+ * - each ear shorter than the head is high, longer than broad, and standing off the scalp by less than its breadth.
  *
  * @param input Candidate identity, of any shape
  * @returns The admitted copy, or every finding with the original input
@@ -225,6 +226,31 @@ export function validateAutoMovieHumanIdentity(
     `narrower than face width (${millimetres(head.faceWidth)})`,
     "the zygomatic arches project beyond the temporal crests of the frontal bone",
   );
+  for (const side of ["left", "right"] as const) {
+    const ear: IAutoMovieHumanIdentity.IEar = head[`${side}Ear`];
+    const path: string = `$input.head.${side}Ear`;
+    check(
+      ear.earLength < head.headHeight,
+      `${path}.earLength`,
+      ear.earLength,
+      `below head height (${millimetres(head.headHeight)})`,
+      "the auricle hangs on the side of the head, between the vertex and the jaw",
+    );
+    check(
+      ear.earBreadth < ear.earLength,
+      `${path}.earBreadth`,
+      ear.earBreadth,
+      `below ear length (${millimetres(ear.earLength)})`,
+      "the auricle is an oval longer than broad at every age",
+    );
+    check(
+      ear.earProtrusion < ear.earBreadth,
+      `${path}.earProtrusion`,
+      ear.earProtrusion,
+      `below ear breadth (${millimetres(ear.earBreadth)})`,
+      "the helix stands off the scalp on the auricular plate, which is no longer than the ear is broad",
+    );
+  }
 
   if (errors.length !== 0) return { success: false, data: input, errors };
   return { success: true, data: measurements.identity };

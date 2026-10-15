@@ -3,6 +3,7 @@ import { AutoMovieHumanSex } from "../structures/AutoMovieHumanSex";
 import { IAutoMovieHumanIdentity } from "../structures/IAutoMovieHumanIdentity";
 import { IAutoMovieHumanConversionContext } from "./IAutoMovieHumanConversionContext";
 import { IAutoMovieHumanGrowthCurve } from "./IAutoMovieHumanGrowthCurve";
+import { estimateAutoMovieHumanEar } from "./estimateAutoMovieHumanEar";
 import { estimateAutoMovieHumanMedianStature } from "./estimateAutoMovieHumanMedianStature";
 import { interpolateAutoMovieHumanGrowthCurve } from "./interpolateAutoMovieHumanGrowthCurve";
 
@@ -141,7 +142,7 @@ const VERKOUTEREN_2022: Record<"mouthOpening" | "mandibularLaterotrusion", ISexC
  *
  * Every head dimension then scales with the person's stature over the median stature for age raised to its own allometric exponent ({@link STATURE_ELASTICITY}), so a tall adult's head is relatively smaller and a short adult's relatively larger, as ANSUR II measures: a 12% taller woman has a head 4% longer and 1% broader, not 12%. Head circumference follows the vault through the population's circumference-to-ellipse ratio, so it always lies within the bounds admission checks. Cuteness is not read yet: it shapes the face features, whose generators define it.
  *
- * Mouth opening and laterotrusion follow the 6-to-18-year growth curves, hold the 18-year value in adults (no adult norm was read) and scale with face height below 6.
+ * Mouth opening and laterotrusion follow the 6-to-18-year growth curves, hold the 18-year value in adults (no adult norm was read) and scale with face height below 6. Both ears take {@link estimateAutoMovieHumanEar}.
  *
  * @param context Resolved person
  * @returns The head group of the identity
@@ -193,6 +194,9 @@ export function estimateAutoMovieHumanHead(
     adult.faceHeight * fraction("faceHeight", age) * faceCarry(age) * size("faceHeight");
   const faceWidth: number = adult.faceWidth * fraction("faceWidth", age) * faceScale;
 
+  // the auricle grows on its own curves (see estimateAutoMovieHumanEar)
+  const ear: IAutoMovieHumanIdentity.IEar = estimateAutoMovieHumanEar(context);
+
   // jaw mobility, scaled by face height below the youngest measured age
   const jawAge: number = Math.max(age, 6);
   const jawScale: number =
@@ -215,6 +219,8 @@ export function estimateAutoMovieHumanHead(
     mouthOpening: read(VERKOUTEREN_2022.mouthOpening, jawAge) * jawScale,
     mandibularLaterotrusion:
       read(VERKOUTEREN_2022.mandibularLaterotrusion, jawAge) * jawScale,
+    leftEar: ear,
+    rightEar: { ...ear },
   };
 }
 

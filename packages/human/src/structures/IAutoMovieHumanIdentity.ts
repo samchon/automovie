@@ -342,6 +342,36 @@ export namespace IAutoMovieHumanIdentity {
      * Lateral excursion of the lower incisors to one side, millimetres, from the dental midline; 9.1 to 10.4 mm in the same study.
      */
     mandibularLaterotrusion: number & tags.Minimum<0> & tags.Maximum<25>;
+
+    /** The left auricle. */
+    leftEar: IEar;
+
+    /** The right auricle. */
+    rightEar: IEar;
+  }
+
+  /**
+   * One auricle, measured on the living head held in the Frankfort plane.
+   *
+   * The definitions are those of the Korean multicentre survey of the external ear (Cho et al. 2025, J Korean Med Sci 40(22):e107), whose means the converter reads: adult ears average 67 mm long and 29 mm broad in men and 64.5 and 27.4 mm in women. Ears keep lengthening through adulthood, from 63.9 mm in men in their twenties to 69.5 mm at 70 and over, while breadth and protrusion stay nearly constant.
+   *
+   * @author Samchon
+   */
+  export interface IEar {
+    /**
+     * Ear length: superaurale, the highest point of the helix, to subaurale, the lowest point of the lobule, millimetres. This line is the auricle's long axis.
+     */
+    earLength: number & tags.Minimum<15> & tags.Maximum<110>;
+
+    /**
+     * Ear breadth: otobasion superius, where the helix leaves the scalp, to the most posterior point of the helix, perpendicular to the long axis, millimetres. Admission keeps it shorter than the ear length.
+     */
+    earBreadth: number & tags.Minimum<10> & tags.Maximum<70>;
+
+    /**
+     * Protrusion: distance of the helix rim from the scalp behind it at the level of the tragus, millimetres. Admission keeps it shorter than the ear breadth, the plate that carries the rim away from the head.
+     */
+    earProtrusion: number & tags.Minimum<0> & tags.Maximum<50>;
   }
 
   /**
