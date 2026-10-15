@@ -5,6 +5,7 @@ import { AutoMovieHumanVector } from "../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanSkeleton } from "../skeleton/IAutoMovieHumanSkeleton";
 import { IAutoMovieHumanIdentity } from "../structures/IAutoMovieHumanIdentity";
 import { AUTOMOVIE_HUMAN_EAR_ATTACHMENT } from "./AUTOMOVIE_HUMAN_EAR_ATTACHMENT";
+import { AUTOMOVIE_HUMAN_JAWLINE } from "./AUTOMOVIE_HUMAN_JAWLINE";
 import { AUTOMOVIE_HUMAN_NECK_BASE_FLARE } from "./AUTOMOVIE_HUMAN_NECK_BASE_FLARE";
 import { AUTOMOVIE_HUMAN_NECK_COLUMN } from "./AUTOMOVIE_HUMAN_NECK_COLUMN";
 import { AUTOMOVIE_HUMAN_THIGH_GIRTH } from "./AUTOMOVIE_HUMAN_THIGH_GIRTH";
@@ -26,7 +27,7 @@ import { layoutAutoMovieHumanRing } from "./layoutAutoMovieHumanRing";
  * Each site's section:
  *
  * - `neckBase`: an ellipse in the oblique cut through the jugular notch and cervicale, reaching each in front and behind, its lateral semi-axis solved so its perimeter is the neck circumference widened by {@link AUTOMOVIE_HUMAN_NECK_BASE_FLARE}.
- * - `neckTop`: in the mandibular plane, the larger of the jaw and the neck column, blended by a smooth maximum. The jaw is the parabola through menton and both gonia; the column an egg of the neck circumference's mean radius, {@link AUTOMOVIE_HUMAN_NECK_COLUMN} times it across, in front and behind, the back lengthened by the plane's tilt to the neck so it still reaches the nape.
+ * - `neckTop`: in the mandibular plane, the larger of the jaw and the neck column, blended by a smooth maximum. The jaw is the soft-tissue jawline of {@link AUTOMOVIE_HUMAN_JAWLINE} from gnathion back to both gonia; the column an egg of the neck circumference's mean radius, {@link AUTOMOVIE_HUMAN_NECK_COLUMN} times it across, in front and behind, the back lengthened by the plane's tilt to the neck so it still reaches the nape.
  * - `upperArm`: the upper arm circumference, which is measured at this cut, in four quarter ellipses about the bone axis, deeper than broad over the biceps and triceps and flattest laterally ({@link AUTOMOVIE_HUMAN_UPPER_ARM_SECTION}).
  * - `wrist`: an ellipse of the wrist circumference measured at this cut, its radio-ulnar breadth and palmar-dorsal depth in the proportions of {@link AUTOMOVIE_HUMAN_WRIST_SECTION}.
  * - `thigh`: the girth at mid thigh, on the thigh's girth curve between the thigh circumference at the gluteal furrow and the lower thigh circumference at suprapatella, in four quarter ellipses about the hip-to-knee axis, full in front and medially and flat behind and laterally ({@link AUTOMOVIE_HUMAN_THIGH_GIRTH}).
@@ -227,7 +228,20 @@ const section = (
         );
         return [Math.hypot(off.x, off.y, off.z), w];
       };
-      const [, chin] = inPlane(landmarks.menton.position);
+      // the soft chin at gnathion, its depth from the measured tragion-gnathion distance
+      const tragion: IAutoMovieVector3 = landmarks.left.tragion.position;
+      const nasion: IAutoMovieVector3 = landmarks.nasion.position;
+      const forward: IAutoMovieVector3 = AutoMovieHumanVector.normalize(
+        AutoMovieHumanVector.offset(reference, [normal, -AutoMovieHumanVector.dot(reference, normal)]),
+      );
+      const gnathionY: number =
+        landmarks.menton.position.y + AUTOMOVIE_HUMAN_JAWLINE.gnathionAboveMenton * props.measurements.identity.head.faceHeight;
+      const reach3: number = AUTOMOVIE_HUMAN_JAWLINE.gnathionDepth * AutoMovieHumanVector.distance(nasion, tragion);
+      const gnathionZ: number =
+        tragion.z +
+        Math.sqrt(Math.max(0, reach3 * reach3 - (tragion.x - nasion.x) ** 2 - (gnathionY - tragion.y) ** 2));
+      void forward;
+      const [, chin] = inPlane(AutoMovieHumanVector.of(nasion.x, gnathionY, gnathionZ));
       const [jawU, jawW] = inPlane(landmarks.left.gonion.position);
       const tilt: number = Math.abs(AutoMovieHumanVector.dot(normal, axis));
       const column = {
@@ -235,18 +249,25 @@ const section = (
         front: AUTOMOVIE_HUMAN_NECK_COLUMN.front * mean,
         back: (AUTOMOVIE_HUMAN_NECK_COLUMN.back * mean) / Math.max(0.5, tilt),
       };
-      const k: number = (chin - jawW) / (jawU * jawU);
+      const n: number = AUTOMOVIE_HUMAN_JAWLINE.exponent;
+      // the jawline: a superellipse quadrant from the chin back to the gonion, its centre level with the gonion
+      const onJaw = (rho: number, c: number, s: number): number =>
+        Math.pow(Math.max(0, (rho * c - jawW) / (chin - jawW)), n) + Math.pow((rho * s) / jawU, n) - 1;
       return {
         origin,
         radius: (d: IAutoMovieVector3): number => {
           const [c, s] = across(d);
-          const jaw: number =
-            s < 1e-9
-              ? c > 0
-                ? chin / c
-                : 0
-              : (-c + Math.sqrt(c * c + 4 * s * s * k * chin)) /
-                (2 * s * s * k);
+          let jaw: number = 0;
+          if (c > 0 || jawW < 0) {
+            let lo: number = 0;
+            let hi: number = 4 * Math.max(chin, jawU);
+            for (let i: number = 0; i < 60; ++i) {
+              const m: number = (lo + hi) / 2;
+              if (onJaw(m, c, s) < 0) lo = m;
+              else hi = m;
+            }
+            jaw = (lo + hi) / 2;
+          }
           const reach: number = jaw * c >= jawW ? jaw : 0;
           const neck: number =
             1 /
