@@ -16,6 +16,7 @@ import { IAutoMovieSweepBinding } from "./IAutoMovieSweepBinding";
 import { IAutoMovieSweepRig } from "./IAutoMovieSweepRig";
 import { bufferAutoMovieBones } from "./bufferAutoMovieBones";
 import { layoutAutoMovieSurfacePatches } from "./layoutAutoMovieSurfacePatches";
+import { layoutAutoMovieSurfaceTransition } from "./layoutAutoMovieSurfaceTransition";
 import { registerAutoMovieSurfaceVertices } from "./registerAutoMovieSurfaceVertices";
 import { rigAutoMovieSurfaceBridge } from "./rigAutoMovieSurfaceBridge";
 import { rigAutoMovieSurfaceCoons } from "./rigAutoMovieSurfaceCoons";
@@ -46,7 +47,9 @@ const FIT_LIMIT: number = 1e-6;
  * samples is the section point itself. A Coons patch takes its four sides' points and fills the
  * interior as `rigAutoMovieSurfaceCoons` states; a bridge
  * fills its rows with cubic Hermite curves between its two loops, as
- * `rigAutoMovieSurfaceBridge` states. A network curve is compiled by
+ * `rigAutoMovieSurfaceBridge` states; a transition band lays its quads out by
+ * `layoutAutoMovieSurfaceTransition` and samples every corner on its sweep.
+ * A network curve is compiled by
  * `rigAutoMovieSurfaceCurve`, which makes it meet sweep nodes in their
  * tangent planes. Vertices are shared by identity, never by distance: a point
  * of a sweep is named by the sweep and its domain coordinates rounded to nine
@@ -297,6 +300,36 @@ export const rigAutoMovieSurfaceNetwork: (props: {
         });
       });
       emit(p, grid, columns, rows, false);
+    } else if (patch.type === "transition") {
+      const [u0, u1] = patch.u;
+      const [v0, v1] = patch.v;
+      if (!(u0 >= 0 && u1 <= 1 && u1 > u0)) throw new Error(`${what} u range must increase within 0 to 1`);
+      if (!(v1 > v0 && v1 - v0 <= 1)) throw new Error(`${what} v range must increase by at most one turn`);
+      const start: number = count(patch.start, what);
+      const end: number = count(patch.end, what);
+      const rows: number = count(patch.rows, what);
+      const fine: number = Math.max(start, end);
+      // every corner is a sweep point; its cell reaches the finer ring's spacing round and half a row along
+      const quads: Array<Array<[number, number, number]>> = layoutAutoMovieSurfaceTransition(start, end, rows).map((quad) =>
+        quad.map(({ s, t }): [number, number, number] => {
+          const u: number = t === 1 ? u1 : u0 + (u1 - u0) * t;
+          const v: number = s === 1 ? v1 : v0 + (v1 - v0) * s;
+          const across: number = (v1 - v0) / fine;
+          const along: number = (u1 - u0) / (2 * rows);
+          return [
+            admit({
+              key: sweepKey(patch.sweep, u, v),
+              writer: () => sweepRig(patch.sweep).sample(u, v, [0, 0, 0, 0]),
+              point: { sweep: patch.sweep, u, v, cell: [t === 0 ? Infinity : along, t === 1 ? Infinity : along, across, across] },
+              sweep: null,
+              curve: null,
+            }),
+            s,
+            t,
+          ];
+        }),
+      );
+      layout.emitFaces(p, quads, fine, rows);
     } else if (patch.type === "coons") {
       const [bottom, right, top, left] = patch.sides.map((e: IAutoMovieSurfaceNetwork.IEdge, k: number): IAutoMovieSurfaceSample[] =>
         sample(e, `${what} side ${k}`),

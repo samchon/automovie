@@ -24,6 +24,9 @@ import { IAutoMovieSweep } from "./IAutoMovieSweep";
  *   count, leaving the first loop and arriving at the second along stated
  *   directions, the explicit rule that blends a branch out of an opening or
  *   joins two sweeps.
+ * - `transition`: a band of a sweep's domain whose column count changes
+ *   from its start ring to its end ring by 2-to-1 quad reduction strips, the
+ *   way a tube gains or sheds columns along its length without a dent.
  *
  * An opening is a region no patch covers. Its boundary stays a boundary of
  * the cage, which a bridge or a ring can then take up. Edges carry their
@@ -261,7 +264,7 @@ export namespace IAutoMovieSurfaceNetwork {
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
    * @author Samchon
    */
-  export type IPatch = ISweepPatch | ICoonsPatch | IBridgePatch;
+  export type IPatch = ISweepPatch | ICoonsPatch | IBridgePatch | ITransitionPatch;
 
   /**
    * A rectangle of a sweep's domain.
@@ -296,6 +299,51 @@ export namespace IAutoMovieSurfaceNetwork {
 
     /** Faces along `s` by tier. */
     columns: ICounts;
+
+    /** The patch's rectangle in texture space; omitted, the sampler assigns one. */
+    uv?: IUvRect;
+  }
+
+  /**
+   * A band of a sweep's domain whose column count changes across it, so a sweep can carry more columns where it needs detail, such as a groove, and fewer where it meets a coarser ring.
+   *
+   * The band runs from its start ring at `u[0]` to its end ring at `u[1]` in `rows` even rows, with `start` columns evenly spaced round the first ring and `end` round the last, so it welds onto sweep patches of those counts on either side. Give it rows so its middle row is about as tall as a coarse column is wide: on a cylinder going from 8 to 16 columns, a middle row half that tall bends the limit normal round the poles by 8 degrees instead of 5. Its middle row reduces the finer ring to the coarser by `(fine - coarse) / 2` blocks of the 2-to-1 quad reduction strip, each turning four fine columns into two coarse columns through six quads with two interior poles of valence three half-way across the row; every other column passes straight through, and rows before the middle keep the start count and rows after it the end count. The fine ring stays regular; the coarse ring vertices at the blocks' corners take valence five beside a straight column and six between two blocks. Blocks spread evenly round the band and mirror with it, as `layoutAutoMovieSurfaceTransition` states. Every vertex is a sample of the sweep and the limit fit passes through it, so the surface stays the sweep's; put the band where the sweep is gently curved along `u`, because its poles carry the most curvature error, and narrow its `v` range to keep them off a region, splitting the ring into several bands.
+   *
+   * Counts must differ by an even number, the finer at most twice the coarser, so a larger change chains two bands; equal counts give plain rows. The patch's `(s, t)` coordinates run along `v` and `u` as a sweep patch's do, but its faces are not a grid: each face's corners carry their own coordinates.
+   *
+   * @evidence contracts/common.md#principled-implementation The 2-to-1 quad reduction strip of subdivision modelling laid on a sweep's domain, sampled on the sweep and interpolated by the limit fit like any sweep patch.
+   * @evidence contracts/common.md#clear-and-simple-design A sweep patch with two column counts instead of one; the reduction itself is fixed, so no layout is authored.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Counts the pattern cannot join are refused instead of being stitched by triangles or a crease.
+   * @evidence contracts/common.md#meaningful-documentation States the band, the pattern, the poles and where to put them, the counts rule and the coordinates.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `rigAutoMovieSurfaceNetwork`.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
+   * @author Samchon
+   */
+  export interface ITransitionPatch {
+    /** Discriminator. */
+    type: "transition";
+
+    /** Name unique among the patches. */
+    name: string;
+
+    /** Name of the sweep. */
+    sweep: string;
+
+    /** Range of `u`, increasing, within 0 to 1: the start ring and the end ring; `t` runs along it. */
+    u: [number, number];
+
+    /** Range of `v`, increasing, at most one turn; `s` runs along it. */
+    v: [number, number];
+
+    /** Columns along the start ring by tier. */
+    start: ICounts;
+
+    /** Columns along the end ring by tier. */
+    end: ICounts;
+
+    /** Rows across the band by tier; the middle one changes the count. */
+    rows: ICounts;
 
     /** The patch's rectangle in texture space; omitted, the sampler assigns one. */
     uv?: IUvRect;
