@@ -1,6 +1,7 @@
 export type { AutoMovieSurfaceTier } from "./AutoMovieSurfaceTier";
 export type { IAutoMovieSurfaceCage } from "./IAutoMovieSurfaceCage";
 export type { IAutoMovieSurfaceCoordinate } from "./IAutoMovieSurfaceCoordinate";
+export type { IAutoMovieSurfaceLocation } from "./IAutoMovieSurfaceLocation";
 export type { IAutoMovieSurfaceNetwork } from "./IAutoMovieSurfaceNetwork";
 export type { IAutoMovieSurfaceRig } from "./IAutoMovieSurfaceRig";
 export type { IAutoMovieSweep } from "./IAutoMovieSweep";
@@ -18,6 +19,7 @@ export * from "./interpolateAutoMovieMonotone";
 export * from "./interpolateAutoMovieSpline";
 export * from "./layoutAutoMovieSurfaceTransition";
 export * from "./locateAutoMovieSurfaceCoordinate";
+export * from "./locateAutoMovieSurfaceVertices";
 export * from "./locateAutoMovieSweepPoint";
 export * from "./mapAutoMovieSurfaceTier";
 export * from "./measureAutoMovieSweepVolume";
