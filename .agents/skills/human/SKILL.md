@@ -10,7 +10,7 @@ These rules add to the [3d-modeling skill](../3d-modeling/SKILL.md) for Human wo
 ## Source Of Form
 
 - Generate every person from typed parameters through code and formulas. The package holds no mesh, morph target, landmark index or baked data, neither as files nor as large literals; a small named constant that cites its primary source is allowed. The build guard `packages/human/scripts/guard.ts` refuses the rest.
-- Never read MakeHuman or MPFB code. MakeHuman's CC0 data and reference-character exports the user provides in `.references/reference-character` serve as comparison and calibration references outside the package; their geometry never enters it.
+- MakeHuman and MPFB code may be read to understand their methods; never copy it into the repository, because it is AGPL and GPL. MakeHuman's CC0 data and reference-character exports the user provides in `.references/reference-character` serve as comparison and calibration references outside the package; their geometry never enters it.
 - Ground each anatomical value in a primary measurement, a dissection study, or an established physiological account, with its quantity, protocol, population, and conditions, and mark it measured, derived, population-fitted, or conventional. Cite only a source you read.
 - Extending a value beyond the population, site, direction, or state it was measured at is a new inference that needs its own grounds and a geometry check.
 - Model what shapes the visible surface: skeleton, palpable bony landmarks, superficial muscles, fat distribution and craniofacial form. Hidden tissue informs formulas and is not emitted as geometry.
