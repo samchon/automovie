@@ -52,7 +52,7 @@ export namespace IAutoMovieHumanFootPlan {
   export type IProfile = ReadonlyArray<readonly [number, number]>;
 
   /**
-   * The ankle ring's section: an ellipse in the cut plane, whose vertices lie on it along their layout directions.
+   * The ankle ring's section, the junction's shared shape seen from the foot: the origin and the distance of each ring vertex, in the left foot's order counterclockwise about +y from the anterior one.
    *
    * @author Samchon
    */
@@ -60,14 +60,8 @@ export namespace IAutoMovieHumanFootPlan {
     /** Centre of the cut, the ring frame's origin. */
     origin: IAutoMovieVector3;
 
-    /** Mediolateral semi-axis. */
-    width: number;
-
-    /** Anteroposterior semi-axis. */
-    depth: number;
-
-    /** How far the ellipse's centre lies behind the origin. */
-    behind: number;
+    /** Distance of ring vertex `k`, at `k` eighths of a turn from the front toward the lateral side. */
+    radii: number[];
   }
 
   /**
@@ -101,8 +95,11 @@ export namespace IAutoMovieHumanFootPlan {
     /** Local x of the crest, of foot length. */
     x: IProfile;
 
-    /** Height of the crest, of foot length. */
+    /** Height of the crest, of foot length, for a navicular height of 0.2 foot lengths. */
     height: IProfile;
+
+    /** How much of the navicular height's departure from 0.2 foot lengths raises or lowers the crest over the midfoot. */
+    lift: number;
   }
 
   /**

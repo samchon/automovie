@@ -2,9 +2,9 @@ import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieHumanSide } from "../../junction/AutoMovieHumanSide";
 import { IAutoMovieHumanCage } from "../../junction/IAutoMovieHumanCage";
-import { IAutoMovieHumanRingLayout } from "../../junction/IAutoMovieHumanRingLayout";
+import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
 import { IAutoMovieHumanSurfaceCoordinate } from "../../junction/IAutoMovieHumanSurfaceCoordinate";
-import { layoutAutoMovieHumanRing } from "../../junction/layoutAutoMovieHumanRing";
+import { shapeAutoMovieHumanRing } from "../../junction/shapeAutoMovieHumanRing";
 import { IAutoMovieHumanLandmarks } from "../../measure/IAutoMovieHumanLandmarks";
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanSkeleton } from "../../skeleton/IAutoMovieHumanSkeleton";
@@ -61,18 +61,28 @@ export class AutoMovieHumanFootGenerator implements IAutoMovieHumanPartGenerator
       AutoMovieHumanVector.of(sign * (p.x - base.x), p.y, p.z - base.z);
     const toModel = (p: IAutoMovieVector3): IAutoMovieVector3 =>
       AutoMovieHumanVector.of(base.x + sign * p.x, p.y, base.z + p.z);
-    const layout: IAutoMovieHumanRingLayout = layoutAutoMovieHumanRing({
+    const layout: IAutoMovieHumanRingShape = shapeAutoMovieHumanRing({
       skeleton: props.skeleton,
+      measurements: props.measurements,
       site: "ankle",
       side,
       part: "foot",
     });
+    // the ring in the left foot's order: the right foot's layout runs the other way round
+    const order: number[] = Array.from(
+      { length: layout.count },
+      (_: unknown, k: number): number =>
+        side === "left" ? k : (layout.count - k) % layout.count,
+    );
 
     const plan: IAutoMovieHumanFootPlan = planAutoMovieHumanFoot({
       leg,
       landmarks,
       toLocal,
-      origin: toLocal(layout.frame.origin),
+      ankle: {
+        origin: toLocal(layout.frame.origin),
+        radii: order.map((j: number): number => layout.radii[j]!),
+      },
     });
     const draft: IAutoMovieHumanFootDraft = outlineAutoMovieHumanFoot(plan);
     shapeAutoMovieHumanFootUpper(plan, draft);
@@ -81,16 +91,11 @@ export class AutoMovieHumanFootGenerator implements IAutoMovieHumanPartGenerator
     const knit: knitAutoMovieHumanFootCage.IOutput = knitAutoMovieHumanFootCage(draft);
     fitAutoMovieHumanFootCage(plan, knit);
 
-    // the ring sits exactly on the layout: each vertex along its layout direction, at its local distance from the origin
+    // the ring sits exactly on the junction's shared shape
     const positions: IAutoMovieVector3[] = knit.positions.map(toModel);
-    const ring: number[] = knit.ring.map(
-      (_: number, k: number): number => knit.ring[side === "left" ? k : (8 - k) % 8]!,
-    );
-    ring.forEach((vertex: number, k: number): void => {
-      positions[vertex] = AutoMovieHumanVector.offset(layout.frame.origin, [
-        layout.directions[k]!,
-        AutoMovieHumanVector.distance(knit.positions[vertex]!, plan.ankle.origin),
-      ]);
+    const ring: number[] = order.map((k: number): number => knit.ring[k]!);
+    ring.forEach((vertex: number, j: number): void => {
+      positions[vertex] = layout.positions[j]!;
     });
     const address = (index: number, v: number): IAutoMovieHumanSurfaceCoordinate => ({
       part: "foot",

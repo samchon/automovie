@@ -54,7 +54,9 @@ export function shapeAutoMovieHumanFootUpper(
     const f: number = (z - plan.heel) / L;
     const crest: number = interpolateAutoMovieHumanFootProfile(plan.ridge.x, f) * L;
     const lift: number =
-      (plan.navicularHeight - 0.2 * L) * Math.exp(-(((f - 0.4) / 0.2) ** 2));
+      plan.ridge.lift *
+      (plan.navicularHeight - 0.2 * L) *
+      Math.exp(-(((f - 0.4) / 0.2) ** 2));
     const top: number = interpolateAutoMovieHumanFootProfile(plan.ridge.height, f) * L + lift;
     const medial: boolean = x < crest;
     const border: IAutoMovieHumanFootPlan.IBorder = medial ? plan.medial : plan.lateral;
@@ -93,7 +95,7 @@ export function shapeAutoMovieHumanFootUpper(
   };
   const inward = (p: IAutoMovieVector3, depth: number): IAutoMovieVector3 => {
     const d: IAutoMovieVector3 = AutoMovieHumanVector.normalize(
-      AutoMovieHumanVector.of(centre.x - p.x, 0, centre.z - plan.ankle.behind - p.z),
+      AutoMovieHumanVector.of(centre.x - p.x, 0, centre.z - p.z),
     );
     return AutoMovieHumanVector.offset(p, [d, depth]);
   };
@@ -182,17 +184,20 @@ export namespace shapeAutoMovieHumanFootUpper {
   /**
    * The point of the ankle ring's section in a direction.
    *
+   * At the ring's own eight directions this is the shared ring vertex; between them the distance blends the two neighbouring vertices' by a cosine, so a meridian between two ring vertices starts on the section's smooth outline.
+   *
    * @param ankle The ankle section
    * @param angle Angle in plan, radians, 0 in front and positive laterally
-   * @returns Where the ray from the ring's origin meets the section's ellipse
+   * @returns The point of the section in that direction
    */
   export function ring(ankle: IAutoMovieHumanFootPlan.IAnkle, angle: number): IAutoMovieVector3 {
     const sx: number = Math.sin(angle);
     const sz: number = Math.cos(angle);
-    const a: number = (sx * sx) / (ankle.width * ankle.width) + (sz * sz) / (ankle.depth * ankle.depth);
-    const b: number = (2 * sz * ankle.behind) / (ankle.depth * ankle.depth);
-    const c: number = (ankle.behind * ankle.behind) / (ankle.depth * ankle.depth) - 1;
-    const t: number = (-b + Math.sqrt(b * b - 4 * a * c)) / (2 * a);
+    const n: number = ankle.radii.length;
+    const at: number = ((((angle / (2 * Math.PI)) * n) % n) + n) % n;
+    const k: number = Math.floor(at);
+    const w: number = (1 - Math.cos(Math.PI * (at - k))) / 2;
+    const t: number = ankle.radii[k]! * (1 - w) + ankle.radii[(k + 1) % n]! * w;
     return AutoMovieHumanVector.of(
       ankle.origin.x + t * sx,
       ankle.origin.y,
