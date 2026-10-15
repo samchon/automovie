@@ -5,7 +5,7 @@
  * browser code. The grey floor, walk envelope and light are inspection aids.
  */
 import * as THREE from "three";
-import type { createModelBoardPayload } from "./model-board-payload";
+import type { createModelBoardPayload } from "./createModelBoardPayload";
 interface ModelBoardSource { basis: string; payload: ReturnType<typeof createModelBoardPayload>; }
 type BoardPoint = [number, number, number];
 function required<T extends Element>(selector: string, kind: new () => T): T {
@@ -208,7 +208,7 @@ const ready=(async()=>{
   viewSelect.value=params.get("view")??"front";
   setModel(params.get("model")??source.payload.models[0]?.key??"");
   return { basis:source.basis,count:source.payload.models.length,runtime };
-})().catch((cause)=>{error.textContent=cause instanceof Error?(cause.stack??cause.message):String(cause);throw cause;});
+})().catch((cause: unknown)=>{error.textContent=cause instanceof Error?(cause.stack??cause.message):String(cause);throw cause;});
 Object.assign(window, {
   templeModelBoard:{
     renderer,

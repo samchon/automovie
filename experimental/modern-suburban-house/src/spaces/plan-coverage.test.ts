@@ -5,12 +5,14 @@ const require: NodeJS.Require = createRequire(import.meta.url);
 require(require.resolve("tsx/cjs"));
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildHouse } from "./house";
-import { MAIN } from "./building";
-import { STAIR_OPENING } from "./stair";
-import { STOREYS } from "./storeys";
+import { buildHouse } from "./buildHouse";
+import { MAIN_OUTLINE } from "./MAIN_OUTLINE";
+import { STAIR_OPENING } from "./STAIR_OPENING";
+import { STOREYS } from "./STOREYS";
 
-const STEP = 0.025, EPS = 1e-5, CELL = 0.25;
+const STEP = 0.025;
+const EPS = 1e-5;
+const CELL = 0.25;
 type Face = { id:string;owner:string;role:string;y:number;up:boolean;a:number[];b:number[];c:number[];box:number[] };
 type Count = { samples:number;finish:number;body:number;opening:number;openingIntrusions:number;holes:number;overlaps:number;examples:string[] };
 const opening = (x: number, z: number) =>
@@ -82,8 +84,8 @@ const scan = (house: ReturnType<typeof buildHouse>) => {
       examples:[],
     };
     result[name]=out;
-    for(let x=MAIN.inner.x[0]+STEP/2;x<MAIN.inner.x[1];x+=STEP)
-      for(let z=MAIN.inner.z[0]+STEP/2;z<MAIN.inner.z[1];z+=STEP){
+    for(let x=MAIN_OUTLINE.inner.x[0]+STEP/2;x<MAIN_OUTLINE.inner.x[1];x+=STEP)
+      for(let z=MAIN_OUTLINE.inner.z[0]+STEP/2;z<MAIN_OUTLINE.inner.z[1];z+=STEP){
         out.samples++;
                 const hits: Array<{ f:Face;hit:number }>=[];
         for(const i of bins.get(`${Math.floor(x/CELL)},${Math.floor(z/CELL)}`)||[]){

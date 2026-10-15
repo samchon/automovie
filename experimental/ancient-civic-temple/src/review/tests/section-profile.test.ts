@@ -1,15 +1,15 @@
 /**
- * Checks src/review/section-profile.ts against known vertical sections: boxes
+ * Checks sectionProfile against known vertical sections: boxes
  * cut by X or Z into rectangles, sloped-top trapezoids, oblique cuts through
  * triangular plans, cuts coincident with corners or edges (numeric boundaries),
  * cuts outside solids (no pieces), thin solids (1mm), and kinds selected by group names.
  */
 import assert from "node:assert/strict";
 import test from "node:test";
-import { rectanglePolygon } from "../../geometry/planar-domain";
-import type { ScanSolid } from "../envelope-overlaps";
-import { sectionProfile } from "../section-profile";
-import { near } from "./fixtures";
+import { rectanglePolygon } from "../../geometry/rectanglePolygon";
+import type { ScanSolid } from "../ScanSolid";
+import { sectionProfile } from "../sectionProfile";
+import { near } from "./near";
 
 const box = (group: string, top = { x: 0, z: 0, constant: 2 }): ScanSolid => ({
   group, polygon: rectanglePolygon({ west: 0, east: 4, north: 0, south: 1 }), bottom: { x: 0, z: 0, constant: 0 }, top,

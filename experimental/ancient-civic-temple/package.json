@@ -47,7 +47,7 @@
     "viewer": "ttsx -P package.json src/viewer/server.ts",
     "self-check": "tsx src/review/self-check.ts",
     "test": "tsx --test src/review/tests/*.test.ts",
-    "audit": "tsx src/review/audit-all.ts"
+    "audit": "tsx src/review/runAudit.ts"
   },
   "dependencies": {
     "@automovie/archetypes": "workspace:^",

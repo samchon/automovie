@@ -1,4 +1,4 @@
-import { Assembly } from "../house/assembly";
+import { Assembly } from "../house/Assembly";
 import { stair } from "../house/circulation/stair";
 import { ground } from "../house/storeys/ground";
 import { upper } from "../house/storeys/upper";

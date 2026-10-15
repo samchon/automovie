@@ -2,7 +2,7 @@
 import { strict as assert } from "node:assert";
 import { test } from "node:test";
 
-import { InteriorDoor } from "../models/interior-door";
+import { InteriorDoor } from "../models/InteriorDoor";
 
 const doors = [
   ["hall-bedroom-three-door", 0.95, 0.15, "high", "knob"],

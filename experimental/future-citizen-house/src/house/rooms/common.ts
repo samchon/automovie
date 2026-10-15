@@ -1,5 +1,15 @@
-import { Assembly } from "../assembly";
-import { Item, lining, table, chair, cabinet, plant, lights } from "./interior";
+import { Assembly } from "../Assembly";
+import { lights } from "./lights";
+import { plant } from "./plant";
+import { cabinet } from "./cabinet";
+import { chair } from "./chair";
+import { table } from "./table";
+import { Item } from "./Item";
+import { lining } from "./lining";
+/**
+ * Line and furnish the common room: sofa on a rug, coffee and dining tables, media cabinet, display
+ * and lights.
+ */
 export function common(a: Assembly): void {
   const r = "common-room"; lining(a, r);
   const sofa = new Item(a, "common-sofa", r, 2.88, 0, 2.75, Math.PI / 2);

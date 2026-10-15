@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { EquirectangularReflectionMapping, SRGBColorSpace } from "three";
 
-import { createTempleDaylight } from "../../viewer/daylight";
+import { createTempleDaylight } from "../../viewer/createTempleDaylight";
 
 void test("daylight supplies reflected sky without changing sun or shadow contact", () => {
   const { sky, hemisphere, sun } = createTempleDaylight();

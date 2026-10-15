@@ -25,7 +25,11 @@ jobs:
       - run: pnpm install
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          path: node_modules/.cache/ttsc
+          path: |
+            node_modules/.cache/ttsc
+            experimental/*/node_modules/.cache/ttsc
           key: ttsc-build-${{ hashFiles('pnpm-lock.yaml') }}
       - run: pnpm run build
       - run: pnpm run evidence
+      # The website bundles the productions without type-checking them.
+      - run: pnpm --filter "./experimental/**" -r lint

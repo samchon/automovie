@@ -5,7 +5,7 @@ const require: NodeJS.Require = createRequire(import.meta.url);
 require(require.resolve("tsx/cjs"));
 import test from "node:test";
 import assert from "node:assert/strict";
-import { partitionPlaneFace } from "../spaces/face-partition";
+import { partitionPlaneFace } from "../spaces/partitionPlaneFace";
 
 void test("indexed face partition keeps positions and aligned attributes", () => {
   const mesh = {

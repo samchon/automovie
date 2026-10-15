@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { IAutoMovieMesh, IAutoMovieModel } from "@automovie/interface";
-import { ObjectMesh } from "../../geometry/object-mesh";
-import { TempleFixtures } from "../../models/fixtures";
-import { TempleLandscape } from "../../models/landscape";
-import { TemplePortable } from "../../models/portable";
-import { TempleWares } from "../../models/wares";
+import { ObjectMesh } from "../../geometry/ObjectMesh";
+import { TempleFixtures } from "../../models/TempleFixtures";
+import { TempleLandscape } from "../../models/TempleLandscape";
+import { TemplePortable } from "../../models/TemplePortable";
+import { TempleWares } from "../../models/TempleWares";
 
 const mesh=(model:IAutoMovieModel,id:string):IAutoMovieMesh=>{
   const geometry=model.parts.find((part)=>part.id===id)?.geometry;

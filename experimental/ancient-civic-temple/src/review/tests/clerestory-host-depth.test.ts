@@ -1,8 +1,8 @@
 /** The northern 0.60 m wall must not select the 0.30 m frame by floating equality. */
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createTempleBuildingScene } from "../../instances/building";
-import { templeClerestories } from "../../spaces/openings";
+import { createTempleBuildingScene } from "../../instances/createTempleBuildingScene";
+import { templeClerestories } from "../../spaces/templeClerestories";
 
 const building = createTempleBuildingScene();
 const hosts = templeClerestories();

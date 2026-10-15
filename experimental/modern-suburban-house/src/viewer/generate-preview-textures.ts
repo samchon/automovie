@@ -3,7 +3,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { deflateSync } from "node:zlib";
-import { furnitureOakSample } from "../materials/furnishings/wood-grain.js";
+import { furnitureOakSample } from "../materials/furnishings/furnitureOakSample.js";
 
 const SIZE = 512;
 const OUTPUT = new URL("../../public/textures/", import.meta.url);
@@ -40,7 +40,7 @@ const concrete = (color: number): Sampler => (x, y) => {
   return base(color, grit + sweep);
 };
 
-/** Each expression is periodic in u/v; module sizes live in materialPreview.ts. */
+/** Each expression is periodic in u/v; module sizes live in each finish's `texture.metres`. */
 const textures: Record<string, Sampler> = {
   "furniture-oak.png": (_x,_y,u,v) => furnitureOakSample(u,v),
   "siding.png": (x, y, _u, v) => {

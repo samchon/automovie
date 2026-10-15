@@ -4,14 +4,18 @@ import { createRequire } from "node:module";
 import { test } from "node:test";
 
 const require = createRequire(import.meta.url);
-const { ExteriorRepetition } =
-  require("../instances/exterior-repetition.ts") as typeof import("../instances/exterior-repetition");
-const { ExteriorEdges } =
-  require("../instances/exterior-repetition-edges.ts") as typeof import("../instances/exterior-repetition-edges");
-const { buildHouse } =
-  require("../spaces/house.ts") as typeof import("../spaces/house");
-const { GARAGE_RIDGE_Z, MAIN_RIDGE_Z, mFront } =
-  require("../spaces/roof/junctions.ts") as typeof import("../spaces/roof/junctions");
+const { ExteriorRepetition }: typeof import("../instances/ExteriorRepetition") =
+  require("../instances/ExteriorRepetition.ts") as typeof import("../instances/ExteriorRepetition");
+const { ExteriorEdges }: typeof import("../instances/ExteriorEdges") =
+  require("../instances/ExteriorEdges.ts") as typeof import("../instances/ExteriorEdges");
+const { buildHouse }: typeof import("../spaces/buildHouse") =
+  require("../spaces/buildHouse.ts") as typeof import("../spaces/buildHouse");
+const { GARAGE_RIDGE_Z }: typeof import("../spaces/roof/GARAGE_RIDGE_Z") =
+  require("../spaces/roof/GARAGE_RIDGE_Z.ts") as typeof import("../spaces/roof/GARAGE_RIDGE_Z");
+const { MAIN_RIDGE_Z }: typeof import("../spaces/roof/MAIN_RIDGE_Z") =
+  require("../spaces/roof/MAIN_RIDGE_Z.ts") as typeof import("../spaces/roof/MAIN_RIDGE_Z");
+const { mFront }: typeof import("../spaces/roof/mFront") =
+  require("../spaces/roof/mFront.ts") as typeof import("../spaces/roof/mFront");
 
 const house = buildHouse();
 const onePart = (id: string) => ({
@@ -19,10 +23,10 @@ const onePart = (id: string) => ({
   parts: house.parts.filter((part) => part.id === id),
 });
 void test("collection records every source member without merging touching solids", () => {
-  const { Siding } =
-    require("../models/exterior/siding.ts") as typeof import("../models/exterior/siding");
-  const { collect } =
-    require("../instances/exterior-repetition-geometry.ts") as typeof import("../instances/exterior-repetition-geometry");
+  const { Siding }: typeof import("../models/exterior/Siding") =
+  require("../models/exterior/Siding.ts") as typeof import("../models/exterior/Siding");
+  const { collect }: typeof import("../instances/collect") =
+  require("../instances/collect.ts") as typeof import("../instances/collect");
   const first = new Siding().build({ id: "first", length: 0.5 });
   const nested = {
     ...first,

@@ -1,5 +1,11 @@
-import { Assembly } from "../assembly";
-import { Item, lining, basin, toilet, cabinet, lights } from "./interior";
+import { Assembly } from "../Assembly";
+import { toilet } from "./toilet";
+import { basin } from "./basin";
+import { lights } from "./lights";
+import { cabinet } from "./cabinet";
+import { Item } from "./Item";
+import { lining } from "./lining";
+/** Line and furnish the powder room: toilet, basin, cleaning cabinet and lights. */
 export function powder(a: Assembly): void {
   const r = "powder-utility"; lining(a, r);
   toilet(new Item(a, "powder-toilet", r, -4.13, 0, -5.32));

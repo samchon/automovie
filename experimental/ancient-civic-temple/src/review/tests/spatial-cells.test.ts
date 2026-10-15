@@ -1,5 +1,5 @@
 /**
- * src/geometry/spatial-cells.ts: logical space cells (half-plane intersections)
+ * polygonCell, levelCell, roofedCells and thresholdCells: logical space cells (half-plane intersections)
  * and threshold passage regions. Fixtures: convex quadrilateral cells with
  * sloped ceilings, triangular cells, rooms covered by two roof patches
  * (partitioned), insufficient coverage (refused), threshold room filtering and
@@ -10,9 +10,15 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { IAutoMovieConvexSpaceCell, IAutoMovieVector3 } from "@automovie/interface";
-import { rectanglePolygon, type RoofPatch } from "../../geometry/planar-domain";
-import { levelCell, passageRectangle, polygonCell, roofedCells, thresholdCells, type DoorPassage } from "../../geometry/spatial-cells";
-import { near } from "./fixtures";
+import { rectanglePolygon } from "../../geometry/rectanglePolygon";
+import { type RoofPatch } from "../../geometry/RoofPatch";
+import { thresholdCells } from "../../geometry/thresholdCells";
+import { roofedCells } from "../../geometry/roofedCells";
+import { levelCell } from "../../geometry/levelCell";
+import { polygonCell } from "../../geometry/polygonCell";
+import { passageRectangle } from "../../geometry/passageRectangle";
+import { type DoorPassage } from "../../geometry/DoorPassage";
+import { near } from "./near";
 
 const inside = (cell: IAutoMovieConvexSpaceCell, p: IAutoMovieVector3) =>
   cell.planes.every((plane) => plane.normal.x * p.x + plane.normal.y * p.y + plane.normal.z * p.z <= plane.offset + 1e-12);

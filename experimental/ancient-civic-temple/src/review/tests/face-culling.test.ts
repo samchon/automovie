@@ -1,5 +1,5 @@
 /**
- * src/geometry/face-culling.ts cullCoincidentVerticalFaces removes common vertical faces of touching convex pieces.
+ * cullCoincidentVerticalFaces removes common vertical faces of touching convex pieces.
  * Fixtures: equal touching boxes (convex), different-height boxes (remaining
  * exposed band), length-offset boxes (partial overlap without a hole), three
  * boxes in an L (concave union), thin boxes (1mm), near-limit planes separated
@@ -12,10 +12,13 @@
  */
 import assert from "node:assert/strict";
 import test from "node:test";
-import { cullCoincidentVerticalFaces } from "../../geometry/face-culling";
-import { rectanglePolygon } from "../../geometry/planar-domain";
-import { levelPlane, prismFaces } from "../../geometry/prism";
-import { accountFaces, assertClosed, boxFaces } from "./fixtures";
+import { cullCoincidentVerticalFaces } from "../../geometry/cullCoincidentVerticalFaces";
+import { rectanglePolygon } from "../../geometry/rectanglePolygon";
+import { prismFaces } from "../../geometry/prismFaces";
+import { levelPlane } from "../../geometry/levelPlane";
+import { assertClosed } from "./assertClosed";
+import { boxFaces } from "./boxFaces";
+import { accountFaces } from "./accountFaces";
 
 /** Box using the production's prism side-face order. */
 const box = (west: number, east: number, top: number, north = 0, south = 1, bottom = 0) =>

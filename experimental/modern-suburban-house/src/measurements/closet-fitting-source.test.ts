@@ -2,7 +2,7 @@
 import { strict as assert } from "node:assert";
 import { test } from "node:test";
 
-import { Closet } from "../models/closet";
+import { Closet } from "../models/Closet";
 
 const bounds = (positions: number[]): [number, number][] => {
   const result: [number, number][] = [

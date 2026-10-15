@@ -13,7 +13,7 @@ const before = JSON.parse(fs.readFileSync(beforeFile, "utf8"));
 if (!afterFile) require(require.resolve("tsx/cjs"));
 const after = afterFile
   ? JSON.parse(fs.readFileSync(afterFile, "utf8"))
-  : require("./scene-snapshot.ts").sceneSnapshot();
+  : require("./sceneSnapshot.ts").sceneSnapshot();
 if (before.threw || after.threw || before.obsThrew || after.obsThrew)
   throw new Error(
     `scene build failed: ${before.threw || after.threw || before.obsThrew || after.obsThrew}`,

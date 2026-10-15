@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { IAutoMovieBuiltEnvironment } from "@automovie/interface";
-import { levelCell } from "../../geometry/spatial-cells";
-import { boundaryUpperCensus, localUpperBand } from "../boundary-upper";
+import { levelCell } from "../../geometry/levelCell";
+import { boundaryUpperCensus } from "../boundaryUpperCensus";
+import { localUpperBand } from "../localUpperBand";
 
 const fixture = (low: number, high: number, split: boolean): IAutoMovieBuiltEnvironment => {
   const face = (bottom: number, top: number) => ({

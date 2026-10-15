@@ -1,13 +1,14 @@
 // @ts-check
 import * as THREE from "three";
-import type { createViewerPayload } from "./payload";
+import type { createViewerPayload } from "./createViewerPayload";
 import type { IFutureHouseViewer } from "./IFutureHouseViewer";
 interface LoadedHouse extends ReturnType<typeof createViewerPayload> { basis: string; }
 interface HouseSection { height: number; remove: "above" | "below"; }
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { uploadHouse, disposeHouse } from "./scene";
-import { daylight } from "./illumination";
-/** @typedef {ReturnType<typeof import('./payload.js').createViewerPayload> & {basis: string}} Payload */
+import { uploadHouse } from "./uploadHouse";
+import { disposeHouse } from "./disposeHouse";
+import { daylight } from "./daylight";
+/** @typedef {ReturnType<typeof import('./createViewerPayload.js').createViewerPayload> & {basis: string}} Payload */
 
 async function start() {
 if (new URL(location.href).searchParams.get("capture") === "1") document.body.classList.add("capture");
@@ -259,7 +260,7 @@ window.addEventListener("pagehide", () => {
 });
 try { await load(); draw(); } catch (error) { fail(error); }
 }
-void start().catch((error) => {
+void start().catch((error: unknown) => {
   const canvas = document.querySelector("canvas");
   if (canvas) canvas.hidden = true;
   const status = document.querySelector("#status");

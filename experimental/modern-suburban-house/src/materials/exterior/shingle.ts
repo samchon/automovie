@@ -1,6 +1,7 @@
-/** Mineral-granule asphalt shingles on roof and porch weather faces. */
-import { type HouseFinish, houseMaterial } from "../finish";
+import { type HouseFinish } from "../HouseFinish";
+import { houseMaterial } from "../houseMaterial";
 
+/** Mineral-granule asphalt shingles on roof and porch weather faces. */
 export const shingle = {
   material: houseMaterial("roof-shingle", "#3A3C3E", 0.9),
   faces: [

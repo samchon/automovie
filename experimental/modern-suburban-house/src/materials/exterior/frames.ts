@@ -1,6 +1,7 @@
-/** Powder-coated charcoal window members, gutter and roof metalwork. */
-import { houseMaterial, type HouseFinish } from "../finish";
+import { type HouseFinish } from "../HouseFinish";
+import { houseMaterial } from "../houseMaterial";
 
+/** Powder-coated charcoal window members, gutter and roof metalwork. */
 export const frames = {
   material: houseMaterial("charcoal-metal", "#2E3033", 0.4),
   faces: [

@@ -2,8 +2,8 @@
 import { strict as assert } from "node:assert";
 import { test } from "node:test";
 import type { IAutoMovieMesh } from "@automovie/interface";
-import { WallTilePartitions } from "../materials/wall-tile-partitions";
-import { LightingFixtures } from "../models/lighting-fixtures";
+import { WallTilePartitions } from "../materials/WallTilePartitions";
+import { LightingFixtures } from "../models/LightingFixtures";
 
 const wall=(y0:number,y1:number,z0:number,z1:number):IAutoMovieMesh=>({
   positions:[-5.5,y0,z0,-5.5,y1,z0,-5.5,y1,z1,-5.5,y0,z1],

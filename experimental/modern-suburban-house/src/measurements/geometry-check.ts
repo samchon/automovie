@@ -1,6 +1,7 @@
 import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
-const { auditHouseGeometry } = require("./space-audit.ts") as typeof import("./space-audit");
+const { auditHouseGeometry }: typeof import("./auditHouseGeometry") =
+  require("./auditHouseGeometry.ts") as typeof import("./auditHouseGeometry");
 
 const result = auditHouseGeometry();
 const badParts = result.parts.filter((part) =>

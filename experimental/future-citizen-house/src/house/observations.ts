@@ -11,22 +11,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { v } from "./assembly";
-import type { auditCanopy } from "./canopy-audit";
-import { appendExteriorObservations } from "./exterior-observations";
-import { supplementalObservationEye } from "./observation-clear-eye";
-import { boundaryCornerEyes } from "./observation-corners";
+import { v } from "./v";
+import type { auditCanopy } from "./auditCanopy";
+import { appendExteriorObservations } from "./appendExteriorObservations";
+import { supplementalObservationEye } from "./supplementalObservationEye";
+import { boundaryCornerEyes } from "./boundaryCornerEyes";
+import { Observation } from "./Observation";
 
-export type Observation = {
-  id: string;
-  space: string;
-  role: string;
-  cameraSpace?: string;
-  pose: { position: IAutoMovieVector3; target: IAutoMovieVector3 } | null;
-  reason: string;
-  section?: { height: number; remove: "above" | "below" };
-  fov: number;
-};
 /** Every question is derived from the produced cells, connectors and faces.
  * Failed positions are retained. No station uses a second room coordinate list. */
 export function observations(

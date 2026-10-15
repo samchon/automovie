@@ -1,6 +1,6 @@
 import { strict as assert } from "node:assert";
 import { test } from "node:test";
-import { buildHouse } from "./house";
+import { buildHouse } from "./buildHouse";
 
 const parts = buildHouse().parts;
 const named = (id: string) => {

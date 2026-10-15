@@ -13,12 +13,16 @@ import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import test from "node:test";
 
-import { buildingModelFinish } from "../materials/model-bindings";
-import { ServiceRooms } from "../models/furnishings/service-rooms";
+import { buildingModelFinish } from "../materials/buildingModelFinish";
+import { ServiceRooms } from "../models/furnishings/ServiceRooms";
+import type { FittingBuilt } from "../models/furnishings/FittingBuilt";
+import type { IHouse } from "../spaces/IHouse";
+import type { IRoomReservation } from "../spaces/rooms/IRoomReservation";
+import type { IRoomSpace } from "../spaces/rooms/IRoomSpace";
 
 const require: NodeJS.Require = createRequire(import.meta.url);
-const { buildHouse }: typeof import("../spaces/house") =
-  require("../spaces/house.ts") as typeof import("../spaces/house");
+const { buildHouse }: typeof import("../spaces/buildHouse") =
+  require("../spaces/buildHouse.ts") as typeof import("../spaces/buildHouse");
 const { ArchitecturalFitout }: typeof import("../instances/ArchitecturalFitout") =
   require("../instances/ArchitecturalFitout.ts") as typeof import("../instances/ArchitecturalFitout");
 
@@ -52,7 +56,7 @@ const volume: (m: IAutoMovieMesh) => number = (m: IAutoMovieMesh): number => {
 };
 
 void test("laundry slab and cleats match their analytic signed-volume budgets", () : void => {
-  const built: import("../models/furnishings/geometry").FittingBuilt = new ServiceRooms().laundryTop();
+  const built: FittingBuilt = new ServiceRooms().laundryTop();
   const volumes: number[] = built.model.parts.map((part: import("@automovie/interface").IAutoMovieModelPart) : number => {
     assert.equal(part.geometry.type, "mesh");
     if (part.geometry.type !== "mesh") throw new Error(part.id);
@@ -76,7 +80,7 @@ void test("laundry slab and cleats match their analytic signed-volume budgets", 
 });
 
 void test("four mitred round hooks match volume budgets and coordinate-welded edge balance", () : void => {
-  const built: import("../models/furnishings/geometry").FittingBuilt = new ServiceRooms().coatHooks();
+  const built: FittingBuilt = new ServiceRooms().coatHooks();
   assert.equal(built.model.parts.length, 5);
   const area: number = (24 / 2) * 0.006 ** 2 * Math.sin((2 * Math.PI) / 24);
   for (const part of built.model.parts) {
@@ -94,7 +98,7 @@ void test("four mitred round hooks match volume budgets and coordinate-welded ed
 });
 
 void test("the folding slab and wall hooks remain inside the actual laundry world reservations", () : void => {
-  const house: import("../spaces/house").IHouse = buildHouse(),
+  const house: IHouse = buildHouse(),
     built: { prototypes: { model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, string>>; }[]; instances: { id: string; modelId: string; transform: import("@automovie/engine").IAutoMovieMeshTransform; }[]; } = new ArchitecturalFitout().build(house);
   const selected: { id: string; modelId: string; transform: import("@automovie/engine").IAutoMovieMeshTransform; }[] = built.instances.filter(
     (i: { id: string; modelId: string; transform: import("@automovie/engine").IAutoMovieMeshTransform; }) : boolean => i.id === "laundry-folding-top" || i.id === "laundry-coat-hooks",
@@ -104,9 +108,9 @@ void test("the folding slab and wall hooks remain inside the actual laundry worl
     const model: import("@automovie/interface").IAutoMovieModel = built.prototypes.find(
       (p: { model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, string>>; }) : boolean => p.model.id === instance.modelId,
     )!.model;
-    const zone: import("../spaces/rooms/reservations").IRoomReservation = house.spaces
-      .flatMap((s: import("../spaces/rooms/shared").IRoomSpace) : readonly import("../spaces/rooms/reservations").IRoomReservation[] => s.reservations ?? [])
-      .find((z: import("../spaces/rooms/reservations").IRoomReservation) : boolean => z.id === instance.id)!;
+    const zone: IRoomReservation = house.spaces
+      .flatMap((s: IRoomSpace) : readonly IRoomReservation[] => s.reservations ?? [])
+      .find((z: IRoomReservation) : boolean => z.id === instance.id)!;
     const t: import("@automovie/interface").IAutoMovieVector3 = instance.transform.translation!;
     for (const part of model.parts) {
       assert.equal(part.geometry.type, "mesh");
@@ -126,7 +130,7 @@ void test("the folding slab and wall hooks remain inside the actual laundry worl
 });
 
 void test("one canonical pantry L member fills both source strips without a second frame transform", () : void => {
-  const house: import("../spaces/house").IHouse = buildHouse(),
+  const house: IHouse = buildHouse(),
     built: { prototypes: { model: import("@automovie/interface").IAutoMovieModel; faceByPart: Readonly<Record<string, string>>; }[]; instances: { id: string; modelId: string; transform: import("@automovie/engine").IAutoMovieMeshTransform; }[]; } = new ArchitecturalFitout().build(house);
   const selected: { id: string; modelId: string; transform: import("@automovie/engine").IAutoMovieMeshTransform; }[] = built.instances.filter(
     (i: { id: string; modelId: string; transform: import("@automovie/engine").IAutoMovieMeshTransform; }) : boolean => i.modelId === "fitting:pantry-shelves",
@@ -135,10 +139,10 @@ void test("one canonical pantry L member fills both source strips without a seco
   assert.equal(selected[0]!.id, "pantry-l-shelf");
   assert.deepEqual(selected[0]!.transform.translation, { x: 0, y: 0, z: 0 });
   assert.deepEqual(selected[0]!.transform.rotation, { x: 0, y: 0, z: 0, w: 1 });
-  const strips: import("../spaces/rooms/reservations").IRoomReservation[] = house.spaces
-    .flatMap((s: import("../spaces/rooms/shared").IRoomSpace) : readonly import("../spaces/rooms/reservations").IRoomReservation[] => s.reservations ?? [])
+  const strips: IRoomReservation[] = house.spaces
+    .flatMap((s: IRoomSpace) : readonly IRoomReservation[] => s.reservations ?? [])
     .filter(
-      (z: import("../spaces/rooms/reservations").IRoomReservation) : boolean => z.id === "pantry-back-shelf" || z.id === "pantry-right-shelf",
+      (z: IRoomReservation) : boolean => z.id === "pantry-back-shelf" || z.id === "pantry-right-shelf",
     );
   assert.equal(strips.length, 2);
   const model: import("@automovie/interface").IAutoMovieModel = built.prototypes.find(
@@ -152,7 +156,7 @@ void test("one canonical pantry L member fills both source strips without a seco
         z: number = part.geometry.mesh.positions[i + 2]!;
       assert.ok(
         strips.some(
-          (s: import("../spaces/rooms/reservations").IRoomReservation) : boolean =>
+          (s: IRoomReservation) : boolean =>
             x >= s.x[0] - 1e-9 &&
             x <= s.x[1] + 1e-9 &&
             z >= s.z[0] - 1e-9 &&

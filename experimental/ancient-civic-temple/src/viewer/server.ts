@@ -32,9 +32,9 @@ const clearSource = (): void => {
 const freshPayload = (): { basis: string; payload: unknown } => {
   clearSource();
   const basis = (
-    require("../review/source-basis") as typeof import("../review/source-basis")
+    require("../review/sourceBasis") as typeof import("../review/sourceBasis")
   ).sourceBasis();
-  const loaded = require("./payload") as typeof import("./payload");
+  const loaded = require("./createViewerPayload") as typeof import("./createViewerPayload");
   return { basis, payload: loaded.createViewerPayload() };
 };
 
@@ -42,10 +42,10 @@ const freshPayload = (): { basis: string; payload: unknown } => {
 const freshModelBoard = (): { basis: string; payload: unknown } => {
   clearSource();
   const basis = (
-    require("../review/source-basis") as typeof import("../review/source-basis")
+    require("../review/sourceBasis") as typeof import("../review/sourceBasis")
   ).sourceBasis();
   const loaded =
-    require("./model-board-payload") as typeof import("./model-board-payload");
+    require("./createModelBoardPayload") as typeof import("./createModelBoardPayload");
   return { basis, payload: loaded.createModelBoardPayload() };
 };
 
@@ -55,7 +55,7 @@ const freshReview = (grid: string | null): unknown => {
   if (!(value > 0)) throw new Error("grid must be a positive value in meters.");
   clearSource();
   const loaded =
-    require("../review/review-payload") as typeof import("../review/review-payload");
+    require("../review/createReviewPayload") as typeof import("../review/createReviewPayload");
   return loaded.createReviewPayload(value);
 };
 
@@ -67,7 +67,7 @@ const freshSection = (axis: string | null, offset: string | null): unknown => {
   if (offset === null || !Number.isFinite(value))
     throw new Error("offset must be a finite value in meters.");
   clearSource();
-  const loaded = require("./section") as typeof import("./section");
+  const loaded = require("./createSectionPayload") as typeof import("./createSectionPayload");
   return loaded.createSectionPayload(axis, value);
 };
 

@@ -3,12 +3,12 @@ import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import test from "node:test";
 
-import { buildingFinishes } from "../materials/model-bindings";
-import { HouseLighting } from "../systems/lighting";
+import { buildingFinishes } from "../materials/buildingFinishes";
+import { HouseLighting } from "../systems/HouseLighting";
 
 const require = createRequire(import.meta.url);
-const { MaterialReview } =
-  require("../materials/review.ts") as typeof import("../materials/review");
+const { MaterialReview }: typeof import("../materials/MaterialReview") =
+  require("../materials/MaterialReview.ts") as typeof import("../materials/MaterialReview");
 void test("neutral and baseline plates contain each active material once as a metric sphere/plate pair", () => {
   const owner = new MaterialReview(),
     ids: string[] = [];

@@ -3,10 +3,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { createRequire } from "node:module";
 import type { IAutoMovieBuiltSpace } from "@automovie/interface";
-import type { IRoomReservation } from "../spaces/rooms/reservations";
-import type { IObservationPose } from "../spaces/observation-records";
+import type { IRoomReservation } from "../spaces/rooms/IRoomReservation";
+import type { IObservationPose } from "../spaces/IObservationPose";
 const require=createRequire(import.meta.url);
-const { standingObservation }=require("../spaces/observation-standing.ts") as typeof import("../spaces/observation-standing");
+const { standingObservation }: typeof import("../spaces/standingObservation") =
+  require("../spaces/standingObservation.ts") as typeof import("../spaces/standingObservation");
 
 const space:IAutoMovieBuiltSpace={id:"test-room",kind:"room",parent:null,cells:[{id:"room-cell",planes:[
   {normal:{x:1,y:0,z:0},offset:2},{normal:{x:-1,y:0,z:0},offset:0},

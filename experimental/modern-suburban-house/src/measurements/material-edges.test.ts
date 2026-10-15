@@ -1,9 +1,9 @@
 import { strict as assert } from "node:assert";
 import { test } from "node:test";
 
-import { ExteriorEdges } from "../instances/exterior-repetition-edges";
-import { buildingModelFinish } from "../materials/model-bindings";
-import { buildHouse } from "../spaces/house";
+import { ExteriorEdges } from "../instances/ExteriorEdges";
+import { buildingModelFinish } from "../materials/buildingModelFinish";
+import { buildHouse } from "../spaces/buildHouse";
 
 void test("ridge caps and eave gutters bind every emitted face", () => {
   const edges = new ExteriorEdges();

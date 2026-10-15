@@ -3,9 +3,9 @@ import type { IAutoMovieMesh, IAutoMovieModelPart } from "@automovie/interface";
 import { strict as assert } from "node:assert";
 import { test } from "node:test";
 
-import { Baseboard } from "../models/interior/baseboard";
-import { StairBaluster } from "../models/stair-baluster";
-import { StairSkirt } from "../models/stair-skirt";
+import { Baseboard } from "../models/interior/Baseboard";
+import { StairBaluster } from "../models/StairBaluster";
+import { StairSkirt } from "../models/StairSkirt";
 
 const meshOf = (part: IAutoMovieModelPart): IAutoMovieMesh => {
   assert.equal(part.geometry.type, "mesh");

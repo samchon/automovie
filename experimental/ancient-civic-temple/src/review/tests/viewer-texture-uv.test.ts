@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { uploadTemple } from "../../viewer/scene";
-import type { ViewerPayload } from "../../viewer/payload";
+import { uploadTemple } from "../../viewer/uploadTemple";
+import type { ViewerPayload } from "../../viewer/ViewerPayload";
 
 const payload = (uvs?: number[]): ViewerPayload => ({
   environmentId: "test",

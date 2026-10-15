@@ -1,12 +1,13 @@
-import { Assembly } from "../assembly";
+import { Assembly } from "../Assembly";
 import {
-  corners,
-  exteriorFrame,
   facade,
-  roomEdge,
-  standardWindowHeight,
 } from "./facade";
+import { corners } from "./corners";
+import { exteriorFrame } from "./exteriorFrame";
+import { standardWindowHeight } from "./standardWindowHeight";
+import { roomEdge } from "./roomEdge";
 
+/** Build the left facade with its glazing runs. */
 export function left(a: Assembly): void {
   const sideStart = roomEdge("flex-workroom", "z", "min") + 0.36;
   const sideEnd = roomEdge("flex-workroom", "z", "min") + 3.46;

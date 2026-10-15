@@ -12,11 +12,14 @@ import test from "node:test";
 import {resolveFrame} from "@automovie/engine";
 import {createRequire} from "node:module";
 import {SanitaryFittings} from "../models/furnishings/SanitaryFittings";
-import {lowerViewerModels,type IViewerModelInputs} from "../viewer/modelScene.js";
+import {lowerViewerModels} from "../viewer/lowerViewerModels.js";
+import { type IViewerModelInputs } from "../viewer/IViewerModelInputs";
+import type { FittingBuilt } from "../models/furnishings/FittingBuilt";
+import type { IViewerSceneItem } from "../viewer/IViewerSceneItem";
 const {forgeProp}: typeof import("@automovie/engine")=createRequire(import.meta.url)("@automovie/engine") as typeof import("@automovie/engine");
 
 const inputs: () => IViewerModelInputs=():IViewerModelInputs=>{
-  const built: import("../models/furnishings/geometry").FittingBuilt=new SanitaryFittings().toilet();
+  const built: FittingBuilt=new SanitaryFittings().toilet();
   return {prototypes:[built],instances:[{id:"toilet",modelId:built.model.id,transform:{}}],
     finishes:Object.fromEntries(Object.values(built.faceByPart).map((face: string): [string, { color: number; roughness: number; metalness: number; }] =>[face,{color:0xffffff,roughness:.2,metalness:0}]))};
 };
@@ -26,7 +29,7 @@ void test("the lid's mesh binds to the documented pivot and the neutral viewer p
   assert.deepEqual(a.nodes.find((n: import("@automovie/interface").IAutoMovieNode): boolean =>n.id==="seat-lid")!.transform.translation,{x:0,y:.43,z:.28});
   assert.deepEqual(forgeProp({node:built.model.id,model:built.model,articulation:a}).success,true);
   const staticInput: IViewerModelInputs={...input,prototypes:[{model:built.model,faceByPart:built.faceByPart}]};
-  const staticItems: import("../viewer/IViewerSceneItem").IViewerSceneItem[]=lowerViewerModels(staticInput),posedItems: import("../viewer/IViewerSceneItem").IViewerSceneItem[]=lowerViewerModels(input);
+  const staticItems: IViewerSceneItem[]=lowerViewerModels(staticInput),posedItems: IViewerSceneItem[]=lowerViewerModels(input);
   for(const [index,item] of posedItems.entries())for(const [k,n] of item.positions.entries())
     assert.ok(Math.abs(n-staticItems[index]!.positions[k]!)<1e-10,`${item.id}/${k}`);
 });
@@ -46,8 +49,8 @@ void test("the viewer preserves a mesh joint's resolved translation before insta
   const input: IViewerModelInputs=inputs(),a: import("@automovie/interface").IAutoMoviePropArticulation=input.prototypes[0]!.articulation!;
   const root: import("@automovie/interface").IAutoMovieNode=a.nodes.find((n: import("@automovie/interface").IAutoMovieNode): boolean =>n.id==="root")!;
   root.transform.translation={x:1,y:2,z:3};
-  const posed: import("../viewer/IViewerSceneItem").IViewerSceneItem=lowerViewerModels(input).find((i: import("../viewer/IViewerSceneItem").IViewerSceneItem): boolean =>i.id==="toilet/seat-lid")!;
+  const posed: IViewerSceneItem=lowerViewerModels(input).find((i: IViewerSceneItem): boolean =>i.id==="toilet/seat-lid")!;
   const staticInput: IViewerModelInputs={...input,prototypes:[{model:input.prototypes[0]!.model,faceByPart:input.prototypes[0]!.faceByPart}]};
-  const rest: import("../viewer/IViewerSceneItem").IViewerSceneItem=lowerViewerModels(staticInput).find((i: import("../viewer/IViewerSceneItem").IViewerSceneItem): boolean =>i.id==="toilet/seat-lid")!;
+  const rest: IViewerSceneItem=lowerViewerModels(staticInput).find((i: IViewerSceneItem): boolean =>i.id==="toilet/seat-lid")!;
   for(const [k,n] of posed.positions.entries())assert.ok(Math.abs(n-rest.positions[k]!-[1,2,3][k%3]!)<1e-10);
 });

@@ -4,10 +4,10 @@ import { strict as assert } from "node:assert";
 import { createRequire } from "node:module";
 import { test } from "node:test";
 
-import { EaveDrainage } from "../models/exterior/drainage";
-import { AsphaltShingle } from "../models/exterior/shingle";
-import { Siding } from "../models/exterior/siding";
-import { ExteriorCornerTrim } from "../models/exterior/trim";
+import { EaveDrainage } from "../models/exterior/EaveDrainage";
+import { AsphaltShingle } from "../models/exterior/AsphaltShingle";
+import { Siding } from "../models/exterior/Siding";
+import { ExteriorCornerTrim } from "../models/exterior/ExteriorCornerTrim";
 
 const engine = createRequire(import.meta.url)(
   "@automovie/engine",

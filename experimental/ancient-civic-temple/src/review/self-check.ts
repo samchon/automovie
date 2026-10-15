@@ -8,12 +8,13 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { parseArgs } from "node:util";
-import { createTempleEnvironment } from "../spaces/environment";
-import { templeObservations } from "../spaces/observations";
-import { addressCoverageCensus } from "./address-coverage";
-import { envelopeSolids } from "./envelope-overlaps";
-import { ownFacadeFailures, ownFacadeViews } from "./own-facade-view";
-import { createReviewPayload } from "./review-payload";
+import { createTempleEnvironment } from "../spaces/createTempleEnvironment";
+import { templeObservations } from "../spaces/templeObservations";
+import { addressCoverageCensus } from "./addressCoverageCensus";
+import { envelopeSolids } from "./envelopeSolids";
+import { ownFacadeViews } from "./ownFacadeViews";
+import { ownFacadeFailures } from "./ownFacadeFailures";
+import { createReviewPayload } from "./createReviewPayload";
 
 const { values } = parseArgs({
   options: {

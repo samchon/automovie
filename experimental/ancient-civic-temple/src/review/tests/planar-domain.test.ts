@@ -1,5 +1,5 @@
 /**
- * src/geometry/planar-domain.ts: rectangles, half-plane clipping, convex partition and cleanup.
+ * rectanglePolygon, clipPlan, partitionPlan and simplifyPlan: rectangles, half-plane clipping, convex partition and cleanup.
  * Fixtures: convex rectangles, concavity (an L-shaped subject clipped by one
  * half-plane), holes (outer pieces split by a central cutter), thin width (1mm),
  * near-limit cases (clipping through a vertex, 0.1mm duplicate points and pieces
@@ -7,8 +7,14 @@
  */
 import assert from "node:assert/strict";
 import test from "node:test";
-import { clipPlan, edgeInside, partitionPlan, planeHeight, rectanglePolygon, simplifyPlan } from "../../geometry/planar-domain";
-import { near, planArea } from "./fixtures";
+import { clipPlan } from "../../geometry/clipPlan";
+import { simplifyPlan } from "../../geometry/simplifyPlan";
+import { partitionPlan } from "../../geometry/partitionPlan";
+import { edgeInside } from "../../geometry/edgeInside";
+import { planeHeight } from "../../geometry/planeHeight";
+import { rectanglePolygon } from "../../geometry/rectanglePolygon";
+import { planArea } from "./planArea";
+import { near } from "./near";
 
 void test("rectanglePolygon: CCW positive area; inverted, empty and non-finite ranges refused", () => {
   const r = rectanglePolygon({ west: -1, east: 2, north: 0, south: 0.5 });

@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { OpeningWindowFills } from "../instances/opening-fills";
-import { buildHouseEnvironment } from "../spaces/environment";
-import { buildHouse } from "../spaces/house";
+import { OpeningWindowFills } from "../instances/OpeningWindowFills";
+import { buildHouseEnvironment } from "../spaces/buildHouseEnvironment";
+import { buildHouse } from "../spaces/buildHouse";
 
 const near = (actual: number, expected: number) =>
   assert.ok(

@@ -1,7 +1,7 @@
 /** Exterior frames point out without translating or mirroring the physical wall. */
 import assert from "node:assert/strict";
 import test from "node:test";
-import { boundaryOrientation } from "../spaces/boundary-orientation";
+import { boundaryOrientation } from "../spaces/boundaryOrientation";
 
 void test("both axes and both exterior sides preserve the world tangent and face outward",()=>{
   for(const axis of ["x","z"] as const)for(const outside of [0,1] as const){
