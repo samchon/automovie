@@ -68,6 +68,9 @@ export interface IAutoMovieHumanHeadForm {
 
   /** Where the loops of the lips run inside the mouth's opening. */
   lips: IAutoMovieHumanHeadForm.ILips;
+
+  /** The features' gross forms over the block-out: the nose, the lips, the orbits and brows, and the masses on the side of the face. */
+  relief: IAutoMovieHumanHeadForm.IRelief;
 }
 export namespace IAutoMovieHumanHeadForm {
   /**
@@ -137,5 +140,49 @@ export namespace IAutoMovieHumanHeadForm {
 
     /** The pocket's wall behind the lips: depth and half-opening, millimetres, and width over the mouth's. */
     pocket: { back: number; open: number; narrow: number };
+  }
+
+  /**
+   * The features' relief over the block-out. Heights and spreads are shares of face height (`fh`), fissure length, nose width or mouth width as each says; the bony and muscular terms reach the skin through the soft tissue over their sites, which softens them further.
+   */
+  export interface IRelief {
+    /** The nose: pronasale above subnasale over nose height; the exponent of the dorsum's rise from nasion to the tip; half-breadth at the bridge and at the alae over nose width; and the alar lobes' height over the tip's, centre off the midline and spread over nose width, and reach along the nose's height. */
+    nose: {
+      tipAboveSubnasale: number;
+      dorsumCurve: number;
+      bridge: number;
+      ala: number;
+      alaHeight: number;
+      alaOffset: number;
+      alaSpread: number;
+      alaDepth: number;
+    };
+
+    /** The lips: their forward roll over `fh`, and their reach past the mouth's corners over half its width. */
+    lips: { roll: number; reach: number };
+
+    /** The orbital opening: half-breadth, half-height above and below the eye's centre over fissure length; the share inside which the lids lie fully on their dome and beyond which the face is untouched; the breadth of its hollow that the soft tissue softens and the deepest the lids sink, over fissure length; and the lids' thickness over the globe, millimetres. */
+    orbit: { across: number; up: number; down: number; inner: number; outer: number; breadth: number; sink: number; lid: number };
+
+    /** The superciliary arch: height over `fh`, and its level above the eye's centre over fissure length. */
+    brow: { height: number; level: number };
+
+    /** The zygoma's body: height over `fh`, its centre outward and below the eye's centre over fissure length. */
+    malar: { height: number; out: number; below: number };
+
+    /** The zygomatic arch: height and half-width over `fh`, and its root's rise above tragion over `fh`. */
+    arch: { height: number; width: number; root: number };
+
+    /** The temporal hollow: depth, centre above zygion and behind it, and spread, over `fh`. */
+    temple: { depth: number; above: number; behind: number; spread: number };
+
+    /** The masseter: height, its centre in front of gonion, and its vertical and horizontal spread, over `fh`. */
+    masseter: { height: number; forward: number; up: number; across: number };
+
+    /** Buccal fat over `fh`: an adult lean face's slight hollow, its gain with body fat and in a small face, its centre above stomion and spread. */
+    buccal: { adult: number; fat: number; growth: number; above: number; spread: number };
+
+    /** Share of the brow's, the zygoma's and the jaw's prominence left at the least lean mass. */
+    robust: number;
   }
 }
