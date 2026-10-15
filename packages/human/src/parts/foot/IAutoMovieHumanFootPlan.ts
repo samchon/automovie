@@ -23,6 +23,12 @@ export interface IAutoMovieHumanFootPlan {
   /** Local z of the back of the heel. */
   heel: number;
 
+  /** How far lateral of the ankle joint centre the foot's long axis runs, the line its outline, crest and toes are laid about. */
+  axis: number;
+
+  /** Scale of the bony and tendinous relief, 1 as anatomy gives it and 0 for the bare block-out of the form. */
+  relief: number;
+
   /** The ankle ring's section. */
   ankle: IAutoMovieHumanFootPlan.IAnkle;
 

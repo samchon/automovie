@@ -52,7 +52,7 @@ export function shapeAutoMovieHumanFootUpper(
   };
   const surface = (x: number, z: number): number => {
     const f: number = (z - plan.heel) / L;
-    const crest: number = interpolateAutoMovieHumanFootProfile(plan.ridge.x, f) * L;
+    const crest: number = plan.axis + interpolateAutoMovieHumanFootProfile(plan.ridge.x, f) * L;
     const lift: number =
       plan.ridge.lift *
       (plan.navicularHeight - 0.2 * L) *
@@ -61,7 +61,7 @@ export function shapeAutoMovieHumanFootUpper(
     const medial: boolean = x < crest;
     const border: IAutoMovieHumanFootPlan.IBorder = medial ? plan.medial : plan.lateral;
     const reach: number =
-      (medial ? -1 : 1) * interpolateAutoMovieHumanFootProfile(border.offset, f) * L;
+      plan.axis + (medial ? -1 : 1) * interpolateAutoMovieHumanFootProfile(border.offset, f) * L;
     const low: number = interpolateAutoMovieHumanFootProfile(border.rim, f) * L;
     const t: number = Math.min(1, Math.max(0, (x - crest) / (reach - crest)));
     return low + (top - low) * Math.sqrt(Math.max(0, 1 - t ** (medial ? 3 : 1.7)));
@@ -120,19 +120,19 @@ export function shapeAutoMovieHumanFootUpper(
       const degrees: number = Math.abs((at.angle * 180) / Math.PI);
       p = inward(
         p,
-        RELIEF.hollow.depth * L *
+        plan.relief * RELIEF.hollow.depth * L *
           Math.exp(-(((degrees - 135) / 22) ** 2)) *
           Math.exp(-(((p.y - 1.55 * A) / (0.55 * A)) ** 2)) +
-          RELIEF.tendon.depth * L *
+          plan.relief * RELIEF.tendon.depth * L *
             Math.exp(-(((degrees - 180) / 40) ** 2)) *
             Math.exp(-(((p.y - 1.25 * A) / (0.45 * A)) ** 2)),
       );
-      p = bump(p, lateral, RELIEF.lateralMalleolus.radius * L, RELIEF.lateralMalleolus.depth * L, 1);
-      p = bump(p, medial, RELIEF.medialMalleolus.radius * L, RELIEF.medialMalleolus.depth * L, -1);
+      p = bump(p, lateral, RELIEF.lateralMalleolus.radius * L, plan.relief * RELIEF.lateralMalleolus.depth * L, 1);
+      p = bump(p, medial, RELIEF.medialMalleolus.radius * L, plan.relief * RELIEF.medialMalleolus.depth * L, -1);
       upper[i]![j] = p;
     }
 }
-/** Polar reading of the upper grid about the ankle hole, and the ankle section in any direction, that {@link shapeAutoMovieHumanFootUpper} builds on. */
+/** The polar reading of the upper's grid and the ankle section, shared with the knitting of its charts. */
 export namespace shapeAutoMovieHumanFootUpper {
   /**
    * Where an upper vertex lies about the ankle.

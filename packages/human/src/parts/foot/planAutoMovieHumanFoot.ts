@@ -82,7 +82,7 @@ export function planAutoMovieHumanFoot(props: {
       const angle: number = (TOE_ANGLE[t]! * Math.PI) / 180;
       const toe: IAutoMovieHumanFootPlan.IToe = {
         joint: AutoMovieHumanVector.of(
-          x + width / 2,
+          x + width / 2 + FORM.axis * L,
           JOINT_HEIGHT * A,
           along(JOINT_ALONG[t]!),
         ),
@@ -113,6 +113,8 @@ export function planAutoMovieHumanFoot(props: {
     ankleHeight: A,
     navicularHeight: props.leg.navicularHeight,
     heel,
+    axis: FORM.axis * L,
+    relief: FORM.relief,
     ankle: props.ankle,
     medial: {
       stations: [heelAt, 0.12, 0.17, 0.23, 0.3, 0.38, 0.47, 0.56, 0.65, 0.74],
@@ -146,7 +148,7 @@ export function planAutoMovieHumanFoot(props: {
     },
     heelArc: {
       at: heelAt,
-      x: 0.005 * L,
+      x: FORM.axis * L,
       width: heelWidth,
       reach: FORM.heel.reach * L,
       rim: [FORM.heel.back * L, FORM.heel.side * L],
