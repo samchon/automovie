@@ -24,25 +24,26 @@ const DIRECTIONS: number = 256;
  * @evidence contracts/common.md#clear-and-simple-design The pose-invariant half of the volume, read from the shape before the scale, so posing never repeats it.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The quadrature is fixed, not adapted to a sweep.
  * @evidence contracts/common.md#meaningful-documentation States the integrals, the quadrature, the scale law and the layout.
- * @evidence contracts/performance.md#efficient-algorithms 400 * 256 profile queries, each a cached-row read for a sweep without features.
+ * @evidence contracts/performance.md#efficient-algorithms 400 * 256 profile queries, each a cached-row read for a sweep without features, with each direction's cosine and sine computed once.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Called once per compiled sweep; the result is the reuse.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing; the 1,200-number result is transferred to the caller.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing; two 256-number direction tables are released on return and the 1,200-number result is transferred to the caller.
  */
 export const momentAutoMovieSweepSections: (surface: IAutoMovieSweepSurface) => Float64Array = (
   surface: IAutoMovieSweepSurface,
 ): Float64Array => {
   const out: Float64Array = new Float64Array(3 * STEPS);
+  const cos: Float64Array = Float64Array.from({ length: DIRECTIONS }, (_: unknown, d: number): number => Math.cos((2 * Math.PI * (d + 0.5)) / DIRECTIONS));
+  const sin: Float64Array = Float64Array.from({ length: DIRECTIONS }, (_: unknown, d: number): number => Math.sin((2 * Math.PI * (d + 0.5)) / DIRECTIONS));
   for (let i: number = 0; i < STEPS; ++i) {
     const u: number = (i + 0.5) / STEPS;
     let area: number = 0;
     let mx: number = 0;
     let my: number = 0;
     for (let d: number = 0; d < DIRECTIONS; ++d) {
-      const a: number = (2 * Math.PI * (d + 0.5)) / DIRECTIONS;
       const r: number = surface.profile(u, (d + 0.5) / DIRECTIONS);
       area += r * r;
-      mx += r * r * r * Math.cos(a);
-      my += r * r * r * Math.sin(a);
+      mx += r * r * r * cos[d]!;
+      my += r * r * r * sin[d]!;
     }
     out[3 * i] = (area * Math.PI) / DIRECTIONS;
     out[3 * i + 1] = (mx * 2 * Math.PI) / (3 * DIRECTIONS);

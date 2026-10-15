@@ -87,7 +87,7 @@ const STEP: number = 1e-4;
  * @evidence contracts/common.md#clear-and-simple-design One compile owns the four layers in their fixed order; section evaluation, spine transport and orientation are delegated to their own modules, the last two shared with posed sweeps.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid stations, guides and features are refused rather than reordered or clamped, and nothing is tuned for a particular caller.
  * @evidence contracts/common.md#meaningful-documentation States each layer's rule and guarantee, the Gordon construction and how incompatible guides are resolved, the feature metric and kernel, the frame rule and its source, the overlap limitation and every refusal.
- * @evidence contracts/performance.md#efficient-algorithms For S stations, G guides, F feature segments and D = 512 directions: compile is O(S D) section sampling plus D interpolants; a new row costs O(D (log S + log G)); a point query costs O(1) on a cached row plus O(F) for features.
+ * @evidence contracts/performance.md#efficient-algorithms For S stations, G guides, F feature segments and D = 512 directions: compile is O(S D) section sampling plus D interpolants; a new row costs O(D (log S + log G)); a point query costs O(1) on a cached row plus O(F) for features whose band reaches its `u`, with each feature's polyline unwrapped once at compile, so a query allocates nothing.
  * @evidence contracts/performance.md#reuse-equivalent-work Guided rows are cached by exact `u`, because sampling a grid queries every row at many `v`; a row depends only on the immutable compiled stations and guides, so the cache never invalidates.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The surface retains the station radii (S D numbers), the D interpolants, the spine's transport tables and at most 8,192 cached rows of D numbers, cleared when full; everything is released with the surface.
  */
@@ -146,8 +146,8 @@ export const compileAutoMovieSweep: (sweep: IAutoMovieSweep) => IAutoMovieSweepS
   });
   const scale: ((u: number) => number) | null =
     sweep.scale === undefined ? null : compileProfile(sweep.scale, "sweep scale");
-  const features: IAutoMovieSweep.IFeature[] = sweep.features ?? [];
-  features.forEach(checkFeature);
+  (sweep.features ?? []).forEach(checkFeature);
+  const features: ICompiledFeature[] = (sweep.features ?? []).map(compileFeature);
 
   const cache: Map<number, Float64Array> = new Map();
   const row = (input: number): Float64Array => {
@@ -371,50 +371,75 @@ const checkFeature = (f: IAutoMovieSweep.IFeature, index: number): void => {
 };
 
 /** Radius change one feature makes at a query point. */
-const displace = (
-  feature: IAutoMovieSweep.IFeature,
-  u: number,
-  angle: number,
-  local: number,
-  length: number,
-  guided: (u: number, angle: number) => number,
-): number => {
-  let best: number = Infinity;
-  let at: number = 0;
-  let direction: number = 0;
-  let target: number = 0;
+/** A feature with its polyline unwrapped once: parameters, directions taking the shorter way round, values, and its `u` range. */
+interface ICompiledFeature {
+  width: number;
+  relative: boolean;
+  at: Float64Array;
+  angle: Float64Array;
+  value: Float64Array;
+  low: number;
+  high: number;
+}
+
+const compileFeature = (f: IAutoMovieSweep.IFeature): ICompiledFeature => {
   // unwrap the polyline so consecutive points take the shorter way round
-  let previous: number = feature.points[0]!.angle;
-  const unwrapped: number[] = feature.points.map((p: IAutoMovieSweep.IFeaturePoint, k: number): number => {
+  let previous: number = f.points[0]!.angle;
+  const angle: Float64Array = Float64Array.from(f.points, (p: IAutoMovieSweep.IFeaturePoint, k: number): number => {
     if (k === 0) return previous;
     let step: number = p.angle - previous;
     step -= 2 * Math.PI * Math.round(step / (2 * Math.PI));
     previous += step;
     return previous;
   });
-  for (let k: number = 0; k + 1 < feature.points.length; ++k) {
-    const a: IAutoMovieSweep.IFeaturePoint = feature.points[k]!;
-    const b: IAutoMovieSweep.IFeaturePoint = feature.points[k + 1]!;
+  const relative: boolean = f.points[0]!.offset !== undefined;
+  const at: Float64Array = Float64Array.from(f.points, (p: IAutoMovieSweep.IFeaturePoint): number => p.at);
+  return {
+    width: f.width,
+    relative,
+    at,
+    angle,
+    value: Float64Array.from(f.points, (p: IAutoMovieSweep.IFeaturePoint): number => (relative ? p.offset! : p.radius!)),
+    low: Math.min(...at),
+    high: Math.max(...at),
+  };
+};
+
+/** Radius change one feature makes at a query point. */
+const displace = (
+  feature: ICompiledFeature,
+  u: number,
+  angle: number,
+  local: number,
+  length: number,
+  guided: (u: number, angle: number) => number,
+): number => {
+  // the band reaches no further along the spine than its width
+  if ((feature.low - u) * length >= feature.width || (u - feature.high) * length >= feature.width) return 0;
+  let best: number = Infinity;
+  let at: number = 0;
+  let direction: number = 0;
+  let target: number = 0;
+  for (let k: number = 0; k + 1 < feature.at.length; ++k) {
     // segment and query in metres: u by spine length, angle by the local radius
-    let qa: number = angle - unwrapped[k]!;
+    let qa: number = angle - feature.angle[k]!;
     qa -= 2 * Math.PI * Math.round(qa / (2 * Math.PI));
-    const sx: number = (b.at - a.at) * length;
-    const sy: number = (unwrapped[k + 1]! - unwrapped[k]!) * local;
-    const qx: number = (u - a.at) * length;
+    const sx: number = (feature.at[k + 1]! - feature.at[k]!) * length;
+    const sy: number = (feature.angle[k + 1]! - feature.angle[k]!) * local;
+    const qx: number = (u - feature.at[k]!) * length;
     const qy: number = qa * local;
     const span: number = sx * sx + sy * sy;
     const t: number = span > 0 ? Math.min(1, Math.max(0, (qx * sx + qy * sy) / span)) : 0;
     const d: number = Math.hypot(qx - t * sx, qy - t * sy);
     if (d < best) {
       best = d;
-      at = a.at + t * (b.at - a.at);
-      direction = unwrapped[k]! + t * (unwrapped[k + 1]! - unwrapped[k]!);
-      target =
-        a.offset !== undefined ? a.offset + t * (b.offset! - a.offset) : a.radius! + t * (b.radius! - a.radius!);
+      at = feature.at[k]! + t * (feature.at[k + 1]! - feature.at[k]!);
+      direction = feature.angle[k]! + t * (feature.angle[k + 1]! - feature.angle[k]!);
+      target = feature.value[k]! + t * (feature.value[k + 1]! - feature.value[k]!);
     }
   }
   if (best >= feature.width) return 0;
   const x: number = best / feature.width;
-  const residual: number = feature.points[0]!.offset !== undefined ? target : target - guided(at, direction);
+  const residual: number = feature.relative ? target : target - guided(at, direction);
   return residual * (1 - x * x) ** 3;
 };
