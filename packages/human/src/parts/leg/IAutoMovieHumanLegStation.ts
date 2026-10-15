@@ -57,6 +57,11 @@ export interface IAutoMovieHumanLegStation {
   /** Subcutaneous fat thickness at the section, millimetres. */
   fat: number;
 
+  /**
+   * The junction ring this station continues straight, or null. A collar repeats its ring's vertices translated along the site axis, so the two loops either side of the ring cancel radially and the joined limit surface keeps the ring's girth there.
+   */
+  collar: "thigh" | "ankle" | null;
+
   /** Number of vertices around the section: 12 from the thigh down to the lower calf, 8 near the ankle. */
   count: number;
 }
