@@ -22,7 +22,7 @@ interface IShot {
 /**
  * Let a page served by the dev server save a set of screenshots into the repository's `.shots/output` and their metadata outside that folder.
  *
- * A page posts `{ name, shots, metadata }` to `/__automovie/capture`. Each shot is written to `.shots/output/<file>`, and `.shots/captures/<name>.json` receives the page's metadata (such as view, document hash and WebGL renderer) plus what only the server knows: the source commit and uncommitted paths at server start, and the write time. Names and files are restricted to `[A-Za-z0-9._-]`, so a request cannot write outside those folders. The response lists the written paths. Pages without a capture action never call it, and a production build has no dev server, so the endpoint exists only while developing.
+ * A page posts `{ name, shots, metadata }` to `/__automovie/capture`. Each shot is written to `.shots/output/<file>`, and `.shots/captures/<name>.json` receives the page's metadata (such as view, document hash and WebGL renderer) plus what only the server knows: the source commit and uncommitted paths (at server start for a capture snapshot, at save time for live development), and the write time. Names and files are restricted to `[A-Za-z0-9._-]`, so a request cannot write outside those folders. The response lists the written paths. Pages without a capture action never call it, and a production build has no dev server, so the endpoint exists only while developing.
  *
  * @param props Repository root
  * @returns The Vite plugin
@@ -49,8 +49,9 @@ export function createCaptureSinkPlugin(props: { repository: string }): Plugin {
     };
   };
 
-  // A capture server does not reload source; its provenance must follow that snapshot.
-  const capturedSource: { commit: string; dirty: string[] } = source();
+  // Only a capture server disables watching; normal development follows its live source.
+  const capturedSource: { commit: string; dirty: string[] } | null =
+    process.env.AUTOMOVIE_CAPTURE === "1" ? source() : null;
 
   const handle: (
     request: IncomingMessage,
@@ -85,7 +86,7 @@ export function createCaptureSinkPlugin(props: { repository: string }): Plugin {
       `${JSON.stringify(
         {
           name: body.name,
-          source: capturedSource,
+          source: capturedSource ?? source(),
           writtenAt: new Date().toISOString(),
           files: files.map((file: string): string =>
             path.relative(props.repository, file).split(path.sep).join("/"),
