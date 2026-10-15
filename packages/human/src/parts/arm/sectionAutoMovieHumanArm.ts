@@ -4,26 +4,28 @@ import { estimateAutoMovieHumanArmTissue } from "./estimateAutoMovieHumanArmTiss
 /**
  * Levels of the arm's edge loops in its own coordinate: minus the fraction of the cut-to-elbow length above the elbow joint centre, plus the fraction of the elbow-to-wrist-cut length below it. The upper arm takes the biceps peak, the narrowing above the elbow and the epicondyles; the joint level carries the olecranon; the forearm takes the swell of its upper muscular half, its maximum girth, the end of the bellies, the flattened tendinous half and the wrist. Loops gather at the elbow, 15, 0 and 10 percent, so the cage has edges to fold on when it flexes ("denser in areas that deform more", Blender Manual, "Mesh Structure"). Grade: conventional placement of measured landmarks.
  */
-const LEVELS: number[] = [-1, -0.62, -0.3, -0.15, 0, 0.1, 0.22, 0.42, 0.64, 0.83, 1];
+const LEVELS: number[] = [-1, -0.62, -0.3, -0.15, 0, 0.08, 0.22, 0.42, 0.64, 0.83, 1];
 
 /** Level of the maximum forearm girth, where the identity's forearm circumference is matched. Grade: conventional, a fifth of the way down, in the upper muscular half. */
 const FOREARM_PEAK: number = 0.22;
 
 /**
- * Cross-section proportions along the arm, as breadth over depth and the superellipse exponent of the section (2 an ellipse, larger a squarer, flattened section). Mid upper arm is a little deeper than broad between biceps and triceps, the elbow broad across the epicondyles, the lower forearm and the wrist flattened with a palmar and a dorsal face (Gray 1918, "Surface Anatomy of the Upper Extremity"). Grade: conventional.
+ * Cross-section proportions along the arm, as breadth over depth of the deep section before its muscles, bones and fat are added, and the superellipse exponent of the section (2 an ellipse, larger a squarer, flattened section, as the tendinous lower forearm and the wrist are; Gray 1918, "Surface Anatomy of the Upper Extremity").
+ *
+ * The breadths are fitted offline to the MakeHuman 1.x base mesh with its CC0 macro targets (the twelve arms of `GIRTH_PROFILE`, elbows straightened), minimising the squared relative difference of the median frontal breadth over girth at each level across the ten converter presets this package's viewer is judged on (women and men at average, thin, heavy and muscular build, a 7-year-old boy and an 80-year-old woman). Away from the elbow the breadth follows two straight lines, the upper arm's from 0.89 at the cut to 0.65 at the elbow and the forearm's from 0.55 at the elbow to 1.35 at the wrist; the three elbow loops are fitted to the reference's frontal breadth relative to the upper forearm (0.95, 0.97 and 0.99), which the straightening preserves because the reference's elbows bend forward, across that breadth. Residuals are under 2 percent at every level but two fifths of the way down the forearm, 7 percent broader there, where the forearm masses this generator adds stand out of the reference's smoother cone. Grade: population-fitted on a CC0 reference body.
  */
 const PROPORTION: Array<[level: number, aspect: number, exponent: number]> = [
-  [-1, 0.92, 2],
-  [-0.62, 0.95, 2],
-  [-0.3, 1.14, 2],
-  [-0.15, 1.22, 2],
-  [0, 1.22, 2],
-  [0.1, 1.18, 2],
-  [0.22, 1.15, 2],
-  [0.42, 1.22, 2.1],
-  [0.64, 1.35, 2.3],
-  [0.83, 1.45, 2.5],
-  [1, 1.5, 2.6],
+  [-1, 0.888, 2],
+  [-0.62, 0.798, 2],
+  [-0.3, 0.721, 2],
+  [-0.15, 0.81, 2],
+  [0, 0.898, 2],
+  [0.08, 0.937, 2],
+  [0.22, 0.726, 2],
+  [0.42, 0.886, 2.1],
+  [0.64, 1.062, 2.3],
+  [0.83, 1.214, 2.5],
+  [1, 1.35, 2.6],
 ];
 
 /**
@@ -39,13 +41,35 @@ const FAT_AROUND: { upper: number[]; fore: number[] } = {
  */
 const FAT_LEVELLING: number = 10;
 
+/** Share of the local fat layer that lies over a bony prominence; fat thins over the epicondyles and gathers between them. Grade: conventional. */
+const EPICONDYLE_FAT: number = 0.5;
+
 /** Thickness of skin over a subcutaneous bone, millimetres; dermis is 1 to 2 mm thick. Grade: conventional. */
 const SKIN: number = 1.5;
 
 /**
- * Elbow girth without fat, a fraction of the forearm's maximum girth without fat. At the joint line the section holds the epicondyles, the olecranon, the brachialis and biceps tendon crossing in front and the origins of the forearm masses. No measured elbow girth was read; the fraction is checked against the arm's visible narrowing above the forearm swell. Grade: conventional.
+ * Elbow girth over the forearm's maximum girth. The elbow is as broad as the arm above and the forearm below, across the epicondyles, but shallow: the olecranon lies under thin skin behind and only the brachialis and the biceps tendon cross in front, so its girth dips below the forearm's, most at the joint line and blending out half way up to the upper cut and a fifth down the forearm. The reference body's elbow cannot give this value because its elbows are bent; no measured elbow girth was read. Grade: conventional.
  */
-const ELBOW_PER_FOREARM: number = 0.9;
+const ELBOW_PER_FOREARM: number = 0.92;
+
+/**
+ * Girth along the arm as a weight between its measured girths: above the elbow from the upper arm circumference (0) toward the forearm circumference (1), below it from the forearm circumference (0) toward the wrist circumference (1). The forearm's girth holds from the elbow to a fifth of the way down, where the identity's maximum forearm circumference lies, before `ELBOW_PER_FOREARM` dips the elbow.
+ *
+ * Weights a third of the way up the arm and from a fifth of the way down the forearm are fitted offline to the MakeHuman 1.x base mesh with its CC0 macro targets (caucasian young female and male at average, minimum and maximum weight and muscle, a male child and an old female; twelve arms, elbows straightened), as the median over those arms of each level's weight between the same three girths measured on the mesh; nearer the elbow the reference's bent elbow folds its sections, so the weight there is interpolated. Spread across the twelve: about 0.1 at the forearm levels; above the elbow the thin and muscular arms depart most, because their upper arm and forearm girths nearly meet. Grade: population-fitted on a CC0 reference body.
+ */
+const GIRTH_PROFILE: Array<[level: number, weight: number]> = [
+  [-1, 0],
+  [-0.62, 0.32],
+  [-0.3, 0.54],
+  [-0.15, 0.75],
+  [0, 0],
+  [0.08, 0],
+  [0.22, 0],
+  [0.42, 0.25],
+  [0.64, 0.55],
+  [0.83, 0.84],
+  [1, 1],
+];
 
 /**
  * Where bone lies under thin skin, as distances from the limb axis in fractions of the biepicondylar breadth, at one level and section direction (0 anterior, 2 medial, 4 posterior, 6 lateral, odd ones between). A `pin` fixes the surface there, a `floor` keeps the surface outside a bony prominence, a `ceiling` keeps it down on a subcutaneous border, each plus skin and the local fat:
@@ -60,15 +84,19 @@ const BONES: Array<[level: number, direction: number, kind: "pin" | "floor" | "c
   [-0.3, 3, "ceiling", 0.62],
   [-0.3, 4, "ceiling", 0.56],
   [-0.3, 5, "ceiling", 0.62],
+  [-0.15, 2, "floor", 0.55],
+  [-0.15, 6, "floor", 0.45],
   [-0.15, 3, "ceiling", 0.5],
   [-0.15, 4, "ceiling", 0.4],
   [-0.15, 5, "ceiling", 0.5],
+  [0, 2, "floor", 0.55],
+  [0, 6, "floor", 0.45],
   [0, 3, "ceiling", 0.42],
   [0, 4, "pin", 0.36],
   [0, 5, "ceiling", 0.46],
-  [0.1, 3, "ceiling", 0.38],
-  [0.1, 4, "ceiling", 0.3],
-  [0.1, 5, "ceiling", 0.5],
+  [0.08, 3, "ceiling", 0.38],
+  [0.08, 4, "ceiling", 0.3],
+  [0.08, 5, "ceiling", 0.5],
   [0.22, 3, "ceiling", 0.36],
   [0.22, 4, "ceiling", 0.33],
   [0.22, 5, "ceiling", 0.56],
@@ -118,7 +146,7 @@ const COUNT: number = 8;
  *
  * 1. A deep shape of bone and muscle: a superellipse of the level's proportions with every superficial form added at its direction and level, muscles scaled by muscularity.
  * 2. Fat levels part of that relief toward the section's mean, more as the layer thickens.
- * 3. The deep shape is scaled and the fat layer laid over it so the section's girth equals the level's girth: the identity's upper arm circumference at the upper cut, its forearm circumference at the forearm's maximum, its wrist circumference at the wrist, and between them a girth interpolated without fat, where the elbow is a fixed fraction of the forearm.
+ * 3. The deep shape is scaled and the fat layer laid over it so the section's girth equals the level's girth (`GIRTH_PROFILE`): the identity's upper arm circumference at the upper cut, its forearm circumference from the elbow to the forearm's maximum, its wrist circumference at the wrist, and between them the weights fitted to a reference body.
  * 4. Bones bound the radii they reach (`BONES`): the olecranon fixes the back of the elbow, the epicondyles keep the elbow at least as broad as the bone, the subcutaneous ulna holds the back of the forearm down, and the styloids fix the breadth of the wrist.
  *
  * Girth is the length of the smooth closed curve through the section's points, the periodic cubic B-spline that interpolates them, which is what the subdivided cage reproduces at that level.
@@ -135,34 +163,25 @@ export function sectionAutoMovieHumanArm(
     fatAround(level, tissue);
   const mean: (values: number[]) => number = (values: number[]): number =>
     values.reduce((a: number, b: number): number => a + b, 0) / values.length;
-  const deep: (girth: number, level: number) => number = (
-    girth: number,
-    level: number,
-  ): number => girth - 2 * Math.PI * mean(fat(level));
-  const upper: number = deep(arm.upperArmCircumference, -1);
-  const forearm: number = deep(arm.forearmCircumference, FOREARM_PEAK);
-  const wrist: number = deep(arm.wristCircumference, 1);
-  const elbow: number = ELBOW_PER_FOREARM * forearm;
-  const deepGirth: (level: number) => number = (level: number): number =>
+  const upper: number = arm.upperArmCircumference;
+  const forearm: number = arm.forearmCircumference;
+  const wrist: number = arm.wristCircumference;
+  const profile: (level: number) => number = (level: number): number =>
     interpolate(
-      [
-        [-1, upper],
-        [-0.62, upper],
-        [-0.3, upper + 0.6 * (elbow - upper)],
-        [-0.15, elbow],
-        [0, elbow + 0.15 * (forearm - elbow)],
-        [0.1, elbow + 0.6 * (forearm - elbow)],
-        [FOREARM_PEAK, forearm],
-        [0.42, forearm + 0.25 * (wrist - forearm)],
-        [0.64, forearm + 0.62 * (wrist - forearm)],
-        [0.83, forearm + 0.88 * (wrist - forearm)],
-        [1, wrist],
-      ],
+      GIRTH_PROFILE.map(
+        ([at, weight]: [number, number]): [number, number] => [
+          at,
+          (at < 0
+            ? upper + weight * (forearm - upper)
+            : forearm + weight * (wrist - forearm)) *
+            (1 - (1 - ELBOW_PER_FOREARM) * bump(at, -0.5, 0, 0.22)),
+        ],
+      ),
       level,
     );
   return LEVELS.map((level: number): sectionAutoMovieHumanArm.ISection => {
     const thickness: number[] = fat(level);
-    const girth: number = deepGirth(level) + 2 * Math.PI * mean(thickness);
+    const girth: number = profile(level);
     const shape: number[] = deepShape(level, tissue.muscularity);
     const levelling: number =
       mean(thickness) / (mean(thickness) + FAT_LEVELLING);
@@ -177,7 +196,9 @@ export function sectionAutoMovieHumanArm(
       if (at === level)
         ({ pin: pinned, floor, ceiling })[kind].set(
           k,
-          breadths * tissue.elbowBreadth + SKIN + thickness[k]!,
+          breadths * tissue.elbowBreadth +
+            SKIN +
+            (kind === "floor" ? EPICONDYLE_FAT : 1) * thickness[k]!,
         );
     if (level === 1) {
       pinned.set(2, tissue.wristBreadth / 2 + SKIN + thickness[2]!);
