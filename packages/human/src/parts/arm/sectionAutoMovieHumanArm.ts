@@ -1,10 +1,11 @@
+import { AUTOMOVIE_HUMAN_WRIST_SECTION } from "../../junction/AUTOMOVIE_HUMAN_WRIST_SECTION";
 import { IAutoMovieHumanIdentity } from "../../structures/IAutoMovieHumanIdentity";
 import { estimateAutoMovieHumanArmTissue } from "./estimateAutoMovieHumanArmTissue";
 
 /**
- * Levels of the arm's edge loops in its own coordinate: minus the fraction of the cut-to-elbow length above the elbow joint centre, plus the fraction of the elbow-to-wrist-cut length below it. The upper arm takes the biceps peak, the narrowing above the elbow and the epicondyles; the joint level carries the olecranon; the forearm takes the swell of its upper muscular half, its maximum girth, the end of the bellies, the flattened tendinous half and the wrist. Loops gather at the elbow, 15, 0 and 10 percent, so the cage has edges to fold on when it flexes ("denser in areas that deform more", Blender Manual, "Mesh Structure"). Grade: conventional placement of measured landmarks.
+ * Levels of the arm's edge loops in its own coordinate: minus the fraction of the cut-to-elbow length above the elbow joint centre, plus the fraction of the elbow-to-wrist-cut length below it. The upper arm takes the biceps peak, the narrowing above the elbow and the epicondyles; the joint level carries the olecranon; the forearm takes the swell of its upper muscular half, its maximum girth, the end of the bellies, the flattened tendinous half and the wrist. Next to each junction ring a loop repeats the ring's shape a tenth of the way in (`-0.9` and `0.93`), so the joined surface keeps the ring's measured girth there instead of bulging toward the part's own sections. Loops gather at the elbow, 15 percent above, at and 8 percent below the joint, so the cage has edges to fold on when it flexes ("denser in areas that deform more", Blender Manual, "Mesh Structure"). Grade: conventional placement of measured landmarks.
  */
-const LEVELS: number[] = [-1, -0.62, -0.3, -0.15, 0, 0.08, 0.22, 0.42, 0.64, 0.83, 1];
+const LEVELS: number[] = [-1, -0.9, -0.62, -0.3, -0.15, 0, 0.08, 0.22, 0.42, 0.64, 0.83, 0.93, 1];
 
 /** Level of the maximum forearm girth, where the identity's forearm circumference is matched. Grade: conventional, a fifth of the way down, in the upper muscular half. */
 const FOREARM_PEAK: number = 0.22;
@@ -147,7 +148,7 @@ const COUNT: number = 8;
  * 1. A deep shape of bone and muscle: a superellipse of the level's proportions with every superficial form added at its direction and level, muscles scaled by muscularity.
  * 2. Fat levels part of that relief toward the section's mean, more as the layer thickens.
  * 3. The deep shape is scaled and the fat layer laid over it so the section's girth equals the level's girth (`GIRTH_PROFILE`): the identity's upper arm circumference at the upper cut, its forearm circumference from the elbow to the forearm's maximum, its wrist circumference at the wrist, and between them the weights fitted to a reference body.
- * 4. Bones bound the radii they reach (`BONES`): the olecranon fixes the back of the elbow, the epicondyles keep the elbow at least as broad as the bone, the subcutaneous ulna holds the back of the forearm down, and the styloids fix the breadth of the wrist.
+ * 4. Bones bound the radii they reach (`BONES`): the olecranon fixes the back of the elbow, the epicondyles keep the elbow at least as broad as the bone, the subcutaneous ulna holds the back of the forearm down, and the shared wrist section (`AUTOMOVIE_HUMAN_WRIST_SECTION`) fixes the wrist's breadth.
  *
  * Girth is the length of the smooth closed curve through the section's points, the periodic cubic B-spline that interpolates them, which is what the subdivided cage reproduces at that level.
  *
@@ -201,8 +202,10 @@ export function sectionAutoMovieHumanArm(
             (kind === "floor" ? EPICONDYLE_FAT : 1) * thickness[k]!,
         );
     if (level === 1) {
-      pinned.set(2, tissue.wristBreadth / 2 + SKIN + thickness[2]!);
-      pinned.set(6, tissue.wristBreadth / 2 + SKIN + thickness[6]!);
+      const half: number =
+        (AUTOMOVIE_HUMAN_WRIST_SECTION.breadth * arm.wristCircumference) / 2;
+      pinned.set(2, half);
+      pinned.set(6, half);
     }
     return {
       level,
