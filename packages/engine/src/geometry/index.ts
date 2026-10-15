@@ -39,6 +39,7 @@ export * from "./buildAutoMoviePolyhedron";
 export * from "./buildAutoMovieRegionFace";
 export * from "./buildAutoMovieWall";
 export * from "./createAutoMovieMeshDeformer";
+export * from "./displaceAutoMovieSurface";
 export * from "./IAutoMovieMeshDeformationInfluence";
 export * from "./createAutoMovieMeshDepthSampler";
 export * from "./createAutoMovieMeshRayCaster";
