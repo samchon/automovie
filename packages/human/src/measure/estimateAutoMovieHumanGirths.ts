@@ -19,7 +19,7 @@ interface IRegression {
 }
 
 /**
- * Adult girths, our ordinary least squares fits per sex on the public ANSUR II working databases (Gordon et al. 2014, NATICK/TR-15/007; Paquette and Parham 2017), 1,986 women and 4,082 men aged 17 to 58, on stature, BMI and age. Waist is ANSUR's navel waist, used only to carry the natural waist's response; biceps is the flexed girth, whose stature and BMI slopes stand in for the relaxed upper arm; forearm is the flexed girth at the elbow crease. Valid within about 1,400 to 2,000 mm stature, BMI 17 to 40 and age 17 to 58. Grade: population-fitted.
+ * Adult girths, our ordinary least squares fits per sex on the public ANSUR II working databases (Gordon et al. 2014, NATICK/TR-15/007; Paquette and Parham 2017), 1,986 women and 4,082 men aged 17 to 58, on stature, BMI and age. Waist is ANSUR's navel waist, used only to carry the natural waist's response; biceps is the flexed girth, whose stature and BMI slopes stand in for the relaxed upper arm. Valid within about 1,400 to 2,000 mm stature, BMI 17 to 40 and age 17 to 58. Grade: population-fitted.
  */
 const ANSUR_II: Record<
   | "neck"
@@ -27,7 +27,6 @@ const ANSUR_II: Record<
   | "waist"
   | "buttock"
   | "biceps"
-  | "forearm"
   | "wrist"
   | "thigh"
   | "lowerThigh"
@@ -54,10 +53,6 @@ const ANSUR_II: Record<
   biceps: {
     female: { intercept: -46.9, stature: 0.0965, bmi: 7.45, age: 0.19 },
     male: { intercept: -3.1, stature: 0.0958, bmi: 7.06, age: -0.08 },
-  },
-  forearm: {
-    female: { intercept: 16.0, stature: 0.0913, bmi: 4.0, age: -0.09 },
-    male: { intercept: 26.9, stature: 0.0962, bmi: 4.07, age: 0.05 },
   },
   wrist: {
     female: { intercept: 24.7, stature: 0.0629, bmi: 1.16, age: -0.07 },
@@ -137,6 +132,63 @@ const NATURAL_WAIST: Record<
   male: { intercept: 106.84, navel: 0.7868, buttock: 0.0554 },
 };
 
+/**
+ * Relaxed maximum forearm girth from the relaxed upper arm and the wrist girths, `intercept + upperArm·U + wrist·W`, millimetres: our ordinary least squares fits per sex on the 1977 US child survey's individual records (Snyder et al. 1977, UM-HSRI-77-17; NIST AnthroKids), 670 boys and 641 girls aged 2 to 18.5, all three girths taken standing with the arms hanging, the forearm "the maximum circumference ... perpendicular to the long axis of the limb", the wrist the minimum above the ulnar styloid. R² 0.965 and 0.953, residual standard deviations 7.5 and 6.5 mm. ANSUR II measures only a flexed forearm girth, across the elbow crease with the fist clenched (Gordon et al. 2014), which is not the relaxed limb the identity describes. Adults extend the relation past 18.5 years, where no relaxed forearm girth was read; within the 16-to-18.5-year records alone it predicts the same adult forearms within 1%. Grade: population-fitted.
+ */
+const RELAXED_FOREARM: Record<
+  AutoMovieHumanSex,
+  { intercept: number; upperArm: number; wrist: number }
+> = {
+  female: { intercept: 8.18, upperArm: 0.5129, wrist: 0.6143 },
+  male: { intercept: 0.82, upperArm: 0.5416, wrist: 0.6536 },
+};
+
+/**
+ * Mean relaxed limb girths by age, millimetres, from the 1977 US child survey's individual records (Snyder et al. 1977, UM-HSRI-77-17; NIST AnthroKids), our means at the centres of one-year bins (the last spanning 17 to 18.5 years; 12 to 157 children per bin), all standing: the wrist the minimum above the ulnar styloid, the thigh horizontal at the gluteal furrow, the calf the maximum and the ankle the minimum above the malleoli. Read only as ratios between ages, they carry how each girth grows: the wrist and ankle grow far less than the arm through childhood (wrist 112 to 149 mm in girls against an upper arm of 156 to 248), so scaling them by the arm's growth would make a child's wrist and ankle too thin. Grade: measured.
+ */
+const SNYDER_LIMB: Record<"wrist" | "thigh" | "calf" | "ankle", ISexCurve> = {
+  wrist: {
+    male: {
+      ages: [2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.75],
+      values: [115, 114, 118, 119, 124, 126, 128, 132, 136, 138, 146, 151, 156, 162, 170, 171],
+    },
+    female: {
+      ages: [2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.75],
+      values: [112, 112, 117, 120, 120, 127, 133, 133, 135, 140, 144, 146, 149, 153, 151, 149],
+    },
+  },
+  thigh: {
+    male: {
+      ages: [2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.75],
+      values: [282, 296, 312, 325, 344, 363, 382, 407, 425, 437, 455, 477, 497, 519, 538, 554],
+    },
+    female: {
+      ages: [2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.75],
+      values: [287, 306, 325, 343, 356, 382, 404, 422, 439, 464, 483, 498, 527, 538, 545, 543],
+    },
+  },
+  calf: {
+    male: {
+      ages: [2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.75],
+      values: [204, 208, 218, 224, 237, 249, 262, 273, 284, 291, 305, 321, 331, 349, 359, 365],
+    },
+    female: {
+      ages: [2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.75],
+      values: [202, 209, 218, 227, 236, 247, 262, 271, 282, 295, 306, 314, 329, 335, 339, 338],
+    },
+  },
+  ankle: {
+    male: {
+      ages: [2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.75],
+      values: [150, 148, 155, 155, 163, 167, 173, 181, 182, 189, 203, 209, 212, 219, 227, 227],
+    },
+    female: {
+      ages: [2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.75],
+      values: [147, 146, 154, 158, 162, 172, 181, 183, 186, 193, 199, 206, 209, 212, 212, 208],
+    },
+  },
+};
+
 /** Ages bounding the ANSUR II sample, years; the regressions are read inside them. */
 const ANSUR_AGES: [number, number] = [17, 58];
 
@@ -151,7 +203,7 @@ const REFERENCE_AGE: number = 19.5;
  *
  * Adults take our ANSUR II regressions on stature, BMI and age, so adiposity reaches each girth by its own measured slope (waist 23.6 mm per BMI unit, ankle 2.4). ANSUR II measures the waist only at the navel, so the natural, narrowest waist comes from the navel waist and the buttock girth by the 1988 Army survey's relation between the two waists, which keeps adiposity's and age's own reach into the waist. The relaxed upper arm takes the NHANES mean for age with the ANSUR flexed-biceps slopes for stature and BMI. Past 58, the edge of the ANSUR sample, limb girths follow the NHANES arm girth's decline and the waist the NHANES waist's course, while the other girths hold.
  *
- * Children take the adult girths at 19.5 years for the same BMI and scale them by the NHANES growth of the waist (chest and buttock) or of the upper arm (limbs and neck) and by stature over the median stature for age. No child neck girth was read; it follows the arm girth, which NHANES measured from 2 months, rather than the waist, which it measured only from 2 years; their natural waist is the 1977 survey's natural-waist-to-hip ratio for age. Below 2.5 years, where NHANES measured no waist, trunk girths follow median stature. Between 17.75 and 20 years the two hand over linearly. Population is not read.
+ * Children take the adult girths at 19.5 years for the same BMI and scale them by stature over the median stature for age and by the growth of the NHANES waist (chest and buttock), the NHANES upper arm (upper arm and neck) or the girth's own 1977 course (wrist, thigh, lower thigh, calf and ankle). The forearm is a relaxed girth at every age, from the relaxed upper arm and wrist by the 1977 survey's relation; ANSUR II measures only a flexed forearm. No child neck girth was read; it follows the arm girth, which NHANES measured from 2 months, rather than the waist, which it measured only from 2 years; their natural waist is the 1977 survey's natural-waist-to-hip ratio for age. Below 2.5 years, where NHANES measured no waist, trunk girths follow median stature. Between 17.75 and 20 years the two hand over linearly. Population is not read.
  *
  * @param context Resolved person
  * @returns Body girths and the girths of one arm and one leg
@@ -292,6 +344,11 @@ function adultGirths(
     NATURAL_WAIST[sex];
   const buttock: number = fit("buttock");
   const biceps: IRegression = ANSUR_II.biceps[sex];
+  const upperArm: number =
+    read(NHANES_ARM, atAge) +
+    biceps.stature * (stature - estimateAutoMovieHumanMedianStature(sex, atAge)) +
+    biceps.bmi * (context.bmi - NHANES_ADULT_BMI);
+  const wrist: number = fit("wrist") * limbAgeing;
   return {
     neck: fit("neck"),
     chest: fit("chest"),
@@ -300,13 +357,9 @@ function adultGirths(
       natural.navel * fit("waist") * waistAgeing +
       natural.buttock * buttock,
     buttock,
-    upperArm:
-      read(NHANES_ARM, atAge) +
-      biceps.stature *
-        (stature - estimateAutoMovieHumanMedianStature(sex, atAge)) +
-      biceps.bmi * (context.bmi - NHANES_ADULT_BMI),
-    forearm: fit("forearm") * limbAgeing,
-    wrist: fit("wrist") * limbAgeing,
+    upperArm,
+    forearm: relaxedForearm(sex, upperArm, wrist),
+    wrist,
     thigh: fit("thigh") * limbAgeing,
     lowerThigh: fit("lowerThigh") * limbAgeing,
     calf: fit("calf") * limbAgeing,
@@ -315,7 +368,7 @@ function adultGirths(
 }
 
 /**
- * Child girths: the adult girths at the reference age scaled by the NHANES growth of the waist or the upper arm and by stature over the median for age.
+ * Child girths: the adult girths at the reference age scaled by stature over the median for age and by a growth ratio: the NHANES waist's for the trunk, the NHANES upper arm's for the upper arm and neck, and the 1977 survey's own girth for the wrist, thigh, calf and ankle; the lower thigh follows the thigh, and the forearm comes from the upper arm and wrist.
  *
  * @param context Resolved person
  * @param adult Adult girths at an age and stature
@@ -344,18 +397,50 @@ function childGirths(
   const tall: number = context.stature / context.medianStature;
   const trunk: number = trunkGrowth * tall;
   const limb: number = limbGrowth * tall;
+  // each girth the 1977 survey measured grows by its own course; below its first bin, by the arm's
+  const own: (key: keyof typeof SNYDER_LIMB) => number = (
+    key: keyof typeof SNYDER_LIMB,
+  ): number => {
+    const curve: ISexCurve = SNYDER_LIMB[key];
+    const first: number = curve[sex].ages[0]!;
+    const last: number = curve[sex].ages[curve[sex].ages.length - 1]!;
+    const infancy: number =
+      age < first ? read(NHANES_ARM, age) / read(NHANES_ARM, first) : 1;
+    return ((read(curve, age) * infancy) / read(curve, last)) * tall;
+  };
   const buttock: number = reference.buttock * trunk;
+  const upperArm: number = reference.upperArm * limb;
+  const wrist: number = reference.wrist * own("wrist");
+  const thigh: number = own("thigh");
   return {
     neck: reference.neck * limb,
     chest: reference.chest * trunk,
     naturalWaist: read(NATURAL_WAIST_TO_HIP, age) * buttock,
     buttock,
-    upperArm: reference.upperArm * limb,
-    forearm: reference.forearm * limb,
-    wrist: reference.wrist * limb,
-    thigh: reference.thigh * limb,
-    lowerThigh: reference.lowerThigh * limb,
-    calf: reference.calf * limb,
-    ankle: reference.ankle * limb,
+    upperArm,
+    forearm: relaxedForearm(sex, upperArm, wrist),
+    wrist,
+    thigh: reference.thigh * thigh,
+    lowerThigh: reference.lowerThigh * thigh,
+    calf: reference.calf * own("calf"),
+    ankle: reference.ankle * own("ankle"),
   };
+}
+
+/**
+ * Relaxed forearm girth from the relaxed upper arm and wrist girths by {@link RELAXED_FOREARM}.
+ *
+ * @param sex Which sex's fit to read
+ * @param upperArm Relaxed upper arm circumference, millimetres
+ * @param wrist Wrist circumference, millimetres
+ * @returns Relaxed maximum forearm circumference, millimetres
+ */
+function relaxedForearm(
+  sex: AutoMovieHumanSex,
+  upperArm: number,
+  wrist: number,
+): number {
+  const r: { intercept: number; upperArm: number; wrist: number } =
+    RELAXED_FOREARM[sex];
+  return r.intercept + r.upperArm * upperArm + r.wrist * wrist;
 }
