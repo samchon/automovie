@@ -83,9 +83,17 @@ export function solidAutoMovieHumanFoot(props: {
   // the plan's centre line and half breadth at a level along the foot
   const across = (z: number): { centre: number; half: number } => {
     const f: number = Math.max((z - plan.heel) / L, arc.at);
-    const m: number = plan.axis - profile(plan.medial.offset, f) * L;
-    const l: number = plan.axis + profile(plan.lateral.offset, f) * L;
+    // past its joint each outer toe narrows the border onto its own outer flank, so the toes' roots end the forefoot
+    const m: number = flank(first, -1, z, plan.axis - profile(plan.medial.offset, f) * L);
+    const l: number = flank(last, 1, z, plan.axis + profile(plan.lateral.offset, f) * L);
     return { centre: (m + l) / 2, half: (l - m) / 2 };
+  };
+  const flank = (toe: IAutoMovieHumanFootPlan.IToe, sign: number, z: number, border: number): number => {
+    const along: number = (z - toe.joint.z) / toe.direction.z;
+    const k: number = Math.min(1, Math.max(0, along / (AUTOMOVIE_HUMAN_FOOT_FORM.toeRidge.reach * toe.length)));
+    if (k === 0) return border;
+    const outer: number = toe.joint.x + toe.direction.x * along + (sign * toe.width) / 2;
+    return border + (outer - border) * k * k * (3 - 2 * k);
   };
   // the sole's edge rounds broadly under the heel, the calcaneal tuberosity, and narrowly along the borders
   const soleRadius = (z: number): number => {
