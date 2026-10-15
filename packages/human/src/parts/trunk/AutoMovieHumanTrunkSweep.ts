@@ -14,11 +14,16 @@ export namespace AutoMovieHumanTrunkSweep {
   /** The tier the human profile samples; one tier keeps one topology until resolution tiers reach the other parts. */
   export const TIER = "medium" as const;
 
-  /** Rows of the trunk from the crotch to the axilla; the hip bridges and tubes take rows of the same height, so the subdivided surface meets no change of row spacing at the hips. */
-  export const LOWER_ROWS: number = 10;
+  /**
+   * Rows of the trunk between its key levels from the crotch to the axilla, in their order up the body: crotch to buttock, buttock to iliac crest, crest to waist, waist to underbust, underbust to chest point, chest point to axilla. Every key level is a row, so the subdivided surface passes through each measured section's girth, and rows stay within about a quarter of the narrowest girth falloff the CC0 reference's measure targets show (hips 105 mm full width at half maximum), so a measured girth changes the surface over its own height. The hip bridges and the thigh tubes' first rows take the lowest row's height, so the subdivided surface meets no change of row spacing at the hips.
+   */
+  export const LOWER_ROWS: readonly number[] = [1, 5, 2, 3, 2, 2];
 
   /** Where each tube's last row starts: the loop there repeats the ring's section, one row before the ring. */
-  export const COLLAR = { arm: 2 / 3, thigh: 1 / 2 } as const;
+  export const COLLAR = {
+    arm: 2 / 3,
+    thigh: 1 / 2,
+  } as const;
 
   /** Exponent of the crotch section and of the thighs' first sections, one superellipse family so their contours agree. */
   export const FORK_EXPONENT: number = 2.5;

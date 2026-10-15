@@ -6,7 +6,7 @@ import { curveAutoMovieHumanTrunk } from "./curveAutoMovieHumanTrunk";
 /**
  * The trunk's level sections: at every height, the front and back of the midline, the half breadth, the depth of the widest point and the squareness of the front and back halves.
  *
- * Key levels carry the measured sections: the buttock level (buttock depth, hip breadth, buttock circumference), the natural waist and the chest point (their depths, breadths and circumferences), with the iliac crest, the costal arch and the axilla between or beside them. Each key section's back lies a share of its depth behind the vertebral column, so the skeleton's lordosis and kyphosis show on the back, and its front lies the depth ahead of the back. Where a circumference is measured, the squareness is solved so the section's perimeter is that circumference, which is what a tape around the convex section reads; the front and back halves keep a fitted ratio of exponents. Between key levels every quantity follows the monotone interpolant of `curveAutoMovieHumanTrunk`, so no section bulges past its neighbours.
+ * Key levels carry the measured sections: the buttock level (buttock depth, hip breadth, buttock circumference), the natural waist and the chest point (their depths, breadths and circumferences), with the iliac crest, the underbust at the inframammary fold and the axilla between or beside them. Each key section's back lies a share of its depth behind the vertebral column, so the skeleton's lordosis and kyphosis show on the back, and its front lies the depth ahead of the back. Where a circumference is measured, the squareness is solved so the section's perimeter is that circumference, which is what a tape around the convex section reads; the front and back halves keep a fitted ratio of exponents. Between key levels every quantity follows the monotone interpolant of `curveAutoMovieHumanTrunk`, so no section bulges past its neighbours.
  *
  * @param frame The side's trunk frame
  * @returns The profile
@@ -31,11 +31,10 @@ export function profileAutoMovieHumanTrunk(
       F.crest,
     ),
     measured(frame, L.waist, W.depth, W.breadth, W.girth, F.waist),
-    measured(
+    encircled(
       frame,
-      L.costal,
+      L.underbust,
       lerp(W.depth, C.depth, F.underbust.depth),
-      lerp(W.breadth, chest.breadth, F.underbust.breadth),
       frame.underbust,
       F.underbust,
     ),
