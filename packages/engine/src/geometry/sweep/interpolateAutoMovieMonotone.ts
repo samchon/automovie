@@ -1,3 +1,5 @@
+import { AutoMovieMonotone } from "./AutoMovieMonotone";
+
 /**
  * Build a shape-preserving piecewise cubic interpolant through knots, the
  * Fritsch-Carlson scheme.
@@ -30,7 +32,7 @@
  * @throws Error when the knots are empty, unsorted or not finite, the values do not match them, or a period does not exceed the knot span.
  *
  * @evidence contracts/common.md#principled-implementation Fritsch and Carlson's monotone piecewise cubic Hermite interpolation: zero slopes at sign changes and the radius-3 restriction are the published sufficient condition for each segment to stay monotone, so values never overshoot their neighbouring knots; the periodic form applies the same rule to secants taken across the wrap.
- * @evidence contracts/common.md#clear-and-simple-design One function owns slope selection and evaluation; the sweep's stations, guides and spine, and periodic section radii, all call it rather than each carrying its own spline.
+ * @evidence contracts/common.md#clear-and-simple-design Validation and a closure over `AutoMovieMonotone`, which owns slope selection and evaluation for this and every in-place caller; the sweep's stations, guides and scale, and periodic section radii, all call it rather than each carrying its own spline.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unsorted or duplicate knots are refused instead of sorted or merged, and extrapolation holds end values instead of extending a cubic beyond the data.
  * @evidence contracts/common.md#meaningful-documentation States the overshoot guarantee, the slope rule and its source, continuity, open extrapolation, periodic wrapping and every refusal.
  * @evidence contracts/performance.md#efficient-algorithms O(n) to compute the n slopes once; each evaluation is one O(log n) binary search and a cubic, with no allocation.
@@ -63,78 +65,8 @@ export const interpolateAutoMovieMonotone: (props: {
     if (!Number.isFinite(period) || xs[0]! < 0 || !(xs[n - 1]! < period))
       throw new Error("periodic knots must lie in [0, period)");
   }
-  if (n === 1) {
-    const only: number = ys[0]!;
-    return (): number => only;
-  }
-  // segment k runs from knot k to knot k + 1; a periodic curve has one more, closing the wrap
-  const segments: number = period === undefined ? n - 1 : n;
-  const width = (k: number): number =>
-    k < n - 1 ? xs[k + 1]! - xs[k]! : xs[0]! + period! - xs[n - 1]!;
-  const secant: number[] = Array.from(
-    { length: segments },
-    (_: unknown, k: number): number => (ys[(k + 1) % n]! - ys[k]!) / width(k),
-  );
-  const slope: number[] = new Array<number>(n);
-  for (let k: number = 0; k < n; ++k) {
-    const before: number | undefined =
-      k > 0 ? secant[k - 1] : period !== undefined ? secant[segments - 1] : undefined;
-    const after: number | undefined = k < segments ? secant[k] : undefined;
-    if (before === undefined) slope[k] = after!;
-    else if (after === undefined) slope[k] = before;
-    else slope[k] = before * after <= 0 ? 0 : (before + after) / 2;
-  }
-  for (let k: number = 0; k < segments; ++k) {
-    const l: number = (k + 1) % n;
-    const d: number = secant[k]!;
-    if (d === 0) {
-      slope[k] = 0;
-      slope[l] = 0;
-      continue;
-    }
-    const alpha: number = slope[k]! / d;
-    const beta: number = slope[l]! / d;
-    // an end slope against its secant would leave the segment's range
-    if (alpha < 0) slope[k] = 0;
-    if (beta < 0) slope[l] = 0;
-    const radius: number = Math.hypot(Math.max(0, alpha), Math.max(0, beta));
-    if (radius > 3) {
-      const tau: number = 3 / radius;
-      slope[k] = tau * Math.max(0, alpha) * d;
-      slope[l] = tau * Math.max(0, beta) * d;
-    }
-  }
-  const first: number = xs[0]!;
-  const last: number = xs[n - 1]!;
-  return (input: number): number => {
-    let x: number = input;
-    if (period !== undefined) {
-      x = (((x - first) % period) + period) % period + first;
-    } else {
-      if (x <= first) return ys[0]!;
-      if (x >= last) return ys[n - 1]!;
-    }
-    // the segment holding x: the last knot not above it, or the wrap segment
-    let low: number = 0;
-    let high: number = n - 1;
-    if (x >= last) low = n - 1;
-    else
-      while (high - low > 1) {
-        const middle: number = (low + high) >> 1;
-        if (xs[middle]! <= x) low = middle;
-        else high = middle;
-      }
-    const k: number = low;
-    const l: number = (k + 1) % n;
-    const h: number = width(k);
-    const t: number = (x - xs[k]!) / h;
-    const t2: number = t * t;
-    const t3: number = t2 * t;
-    return (
-      (2 * t3 - 3 * t2 + 1) * ys[k]! +
-      (t3 - 2 * t2 + t) * h * slope[k]! +
-      (-2 * t3 + 3 * t2) * ys[l]! +
-      (t3 - t2) * h * slope[l]!
-    );
-  };
+  const slopes: Float64Array = new Float64Array(n);
+  const width: number = period ?? 0;
+  AutoMovieMonotone.slope(xs, ys, n, width, slopes);
+  return (x: number): number => AutoMovieMonotone.evaluate(xs, ys, slopes, n, width, x);
 };
