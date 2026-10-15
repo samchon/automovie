@@ -8,7 +8,12 @@ import { IAutoMovieHumanLegStation } from "./IAutoMovieHumanLegStation";
 const RELIEF_FAT_HALF: number = 20;
 
 /**
- * Appendicular lean mass index, kilograms per square metre, at which muscle relief takes its tabulated height: the midpoint of the NHANES medians at 20 years, 6.81 for women and 8.87 for men (Kelly et al. 2009, PLoS ONE 4(9):e7038). Relief grows in proportion to the index above and below it. Grade: derived.
+ * Gain of a fat pad on the square of the fat thickness over the mean radius. Fat pads grow faster than the layer under them: a thin layer lies evenly, while a thick one gathers where the fascia lets it, over the medial knee and the inner and outer thigh. The square sets the sex difference the reference legs show, soft padded knees in women and almost none in lean men, from the fat thickness alone. Grade: conventional, set on renders against the reference boards.
+ */
+const FAT_PAD_GAIN: number = 4;
+
+/**
+ * Appendicular lean mass index, kilograms per square metre, at which muscle relief takes its tabulated height: the midpoint of the NHANES medians at 20 years, 6.81 for women and 8.87 for men (Kelly et al. 2009, PLoS ONE 4(9):e7038). Relief grows with the index to the power 1.5, so lean mass shows as definition more than as bulk, which the girths already carry. Grade: derived.
  */
 const LEAN_REFERENCE: number = 7.84;
 
@@ -46,7 +51,7 @@ export function shapeAutoMovieHumanLegSection(
     );
 
   const softening: number = RELIEF_FAT_HALF / (RELIEF_FAT_HALF + station.fat);
-  const muscle: number = leanIndex / LEAN_REFERENCE;
+  const muscle: number = Math.pow(leanIndex / LEAN_REFERENCE, 1.5);
   let relief: number = 0;
   for (const r of AUTOMOVIE_HUMAN_LEG_RELIEF) {
     const level: number = r.segment === "thigh" ? station.thigh : station.shank;
@@ -80,7 +85,7 @@ const height = (
     ? relief.amplitude * muscle * softening
     : relief.tissue === "bone"
       ? relief.amplitude * softening
-      : relief.amplitude * fat;
+      : relief.amplitude * FAT_PAD_GAIN * fat * fat;
 
 /** An angle wrapped into -π to π. */
 const wrap = (radians: number): number =>
