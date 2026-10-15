@@ -146,6 +146,23 @@ Ordinary least squares on the public working databases, per sex, computed on 202
 
 Lengths regress almost on stature alone. Refitted on 2026-10-15 for #2793 (ordinary least squares on stature only; the earlier lines here did not pass through the sample means, for example acromion-radiale -18.5 + 0.1945 S gives 298 mm at the female mean stature against a 311.2 mm mean): sitting height = 215.8 + 0.3935 S (F, R2 0.58, resid 21.3) and 205.8 + 0.4057 S (M, 0.61, 22.4); acromion-radiale = -34.0 + 0.2120 S (F, 0.63, 10.5) and -20.9 + 0.2028 S (M, 0.63, 10.6); radiale-stylion = -24.5 + 0.1632 S (F, 0.47, 11.1) and -14.4 + 0.1608 S (M, 0.51, 10.8); tibiale height = -103.6 + 0.3325 S (F, 0.73) and -119.1 + 0.3344 S (M, 0.74); trochanterion height = -126.9 + 0.5970 S (F, 0.74) and -169.9 + 0.6098 S (M, 0.72); lateral malleolus height = 6.0 + 0.0348 S (F) and 5.0 + 0.0387 S (M); acromial height = -96.9 + 0.8793 S (F, 0.94) and -126.9 + 0.8926 S (M, 0.93); cervicale height = -90.4 + 0.9126 S (F, 0.97) and -78.1 + 0.9084 S (M, 0.97); suprasternale height = -93.6 + 0.8740 S and -101.4 + 0.8769 S; iliocristale height = -158.0 + 0.7085 S and -150.4 + 0.6901 S; axilla height = -130.5 + 0.8410 S and -148.4 + 0.8413 S. Hand and foot on stature and mass: foot length = 37.9 + 0.118 S + 0.239 m (F, 0.55) and 44.9 + 0.120 S + 0.173 m (M); hand length = 30.8 + 0.0847 S + 0.181 m (F, 0.45) and 30.0 + 0.0883 S + 0.097 m (M). Model B above was refitted and reproduced to the printed precision. Bimalleolar breadth means 67.0 (F) and 74.8 (M) mm; ball-of-foot length 182.1 and 200.9 mm. The slopes below 1 times the mean fraction mean taller adults have relatively shorter trunks and longer legs (sitting height slope 0.39 to 0.41 against a 0.52 mean fraction).
 
+### Head and hand allometry (refitted 2026-10-15 for the #2793 review)
+
+Ordinary least squares on stature alone, per sex (women / men); elasticity is the slope times mean stature over the mean dimension, the percent change of the dimension per percent of stature.
+
+| Measure | Fit (mm, S in mm) | Elasticity | R2 |
+| --- | --- | --- | --- |
+| Head length | 122.2 + 0.0415 S / 133.1 + 0.0378 S | 0.356 / 0.333 | 0.13 / 0.14 |
+| Head breadth | 127.2 + 0.0126 S / 143.7 + 0.0061 S | 0.139 / 0.069 | 0.02 / 0.01 |
+| Head circumference | 406.7 + 0.0948 S / 433.5 + 0.0802 S | 0.275 / 0.245 | 0.10 / 0.12 |
+| Tragion to top of head | 90.2 + 0.0223 S / 99.8 + 0.0178 S | 0.287 / 0.239 | 0.05 / 0.04 |
+| Menton-sellion length | 67.1 + 0.0282 S / 71.0 + 0.0294 S | 0.407 / 0.421 | 0.09 / 0.09 |
+| Bizygomatic breadth | 107.1 + 0.0164 S / 120.0 + 0.0129 S | 0.199 / 0.159 | 0.04 / 0.02 |
+| Hand length | 16.2 + 0.1012 S / 21.7 + 0.0977 S | 0.910 / 0.888 | 0.42 / 0.45 |
+| Hand breadth | 32.1 + 0.0283 S / 35.8 + 0.0298 S | 0.589 / 0.594 | 0.22 / 0.22 |
+
+Hand breadth on stature and mass: 41.6 + 0.0176 S + 0.118 m (women), 46.6 + 0.0176 S + 0.126 m (men). Heads scale with stature at a third of isometry or less, so a tall adult has a relatively small head; the hand narrows relative to its length as stature rises. The first build scaled every head dimension with the square root of relative stature (conventional) and hand breadth isometrically with hand length; both now follow these fits.
+
 ### Ratio distributions
 
 | Ratio | Female mean (SD; p5 to p95) | Male mean (SD; p5 to p95) |

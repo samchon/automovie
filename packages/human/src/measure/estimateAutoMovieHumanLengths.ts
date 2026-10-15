@@ -193,6 +193,7 @@ const ANSUR_II: Record<
   | "tibiale"
   | "trochanterion"
   | "hand"
+  | "handBreadth"
   | "foot"
   | "ankle"
   | "biacromial"
@@ -236,6 +237,10 @@ const ANSUR_II: Record<
     female: { intercept: 30.8, stature: 0.0847, mass: 0.181 },
     male: { intercept: 30.0, stature: 0.0883, mass: 0.097 },
   },
+  handBreadth: {
+    female: { intercept: 41.6, stature: 0.0176, mass: 0.118 },
+    male: { intercept: 46.6, stature: 0.0176, mass: 0.126 },
+  },
   foot: {
     female: { intercept: 37.9, stature: 0.118, mass: 0.239 },
     male: { intercept: 44.9, stature: 0.12, mass: 0.173 },
@@ -259,13 +264,12 @@ const ANSUR_II: Record<
 };
 
 /**
- * Adult ratios of ANSUR II means (measured): hand breadth and palm length over hand length, foot breadth over foot length and lateral malleolus height over foot length. The last stands in for children, whose ankle height the 1977 survey did not measure.
+ * Adult ratios of ANSUR II means (measured): palm length over hand length, foot breadth over foot length and lateral malleolus height over foot length. The last stands in for children, whose ankle height the 1977 survey did not measure.
  */
 const ANSUR_II_RATIOS: Record<
-  "handBreadth" | "palm" | "footBreadth" | "ankle",
+  "palm" | "footBreadth" | "ankle",
   Record<AutoMovieHumanSex, number>
 > = {
-  handBreadth: { female: 0.432, male: 0.457 },
   palm: { female: 0.601, male: 0.603 },
   footBreadth: { female: 0.376, male: 0.376 },
   ankle: { female: 0.255, male: 0.269 },
@@ -478,12 +482,10 @@ export function estimateAutoMovieHumanLengths(
           (): number => fit(ANSUR_II.forearm),
         ),
       handLength: limbScale * handLength,
-      handBreadth:
-        handLength *
-        blend(
-          (): number => ratio(SNYDER_1977_HAND.breadthToHand),
-          (): number => ANSUR_II_RATIOS.handBreadth[sex],
-        ),
+      handBreadth: blend(
+        (): number => handLength * ratio(SNYDER_1977_HAND.breadthToHand),
+        (): number => fit(ANSUR_II.handBreadth),
+      ),
       // the adult palm share, with the finger beyond it grown along the survey's curve
       palmLength:
         limbScale *

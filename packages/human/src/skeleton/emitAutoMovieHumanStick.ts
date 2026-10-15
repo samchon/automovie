@@ -46,7 +46,7 @@ const COLOURS: Record<"axial" | "left" | "right", [number, number, number]> = {
  *
  * This is the stick stage of Human's output, superseded part by part by the skin stages. Every bone of the skeleton is drawn, fingers, thumbs, toes, eyes and jaw included, so proportions and joint placement can be judged in the viewer. Capsules shorter than two radii shrink their radius to a third of their length, so every capsule keeps a positive body. Bone-local frames equal the model frame at rest, so a part's transform is its offset from the joint centre and the rotation that turns the capsule's local +Y onto the bone.
  *
- * A bone whose joint centre is not its parent's tail, such as a hip joint beside the pelvis, a clavicle beside the spine, a finger or thumb root beside the middle knuckle, an eye or the jaw, would float apart from the figure. Each gets a link: a capsule from the nearest point of its parent's stick to its joint centre, or for a finger or thumb from the wrist, as the metacarpals fan out from the carpus, attached to the parent bone, so the link moves with the parent as the rigid body it stands for (the pelvis, the shoulder girdle base, the palm, the skull). Links are display geometry of the stick stage, not bones.
+ * A bone whose joint centre is not its parent's tail, such as a hip joint beside the pelvis, a clavicle beside the spine, a finger or thumb root beside the middle knuckle, an eye or the jaw, would float apart from the figure. Each gets a link: a capsule from the nearest point of its parent's stick to its joint centre, or for a finger or thumb from the wrist, as the metacarpals fan out from the carpus, attached to the parent bone, so the link moves with the parent as the rigid body it stands for (the pelvis, the shoulder girdle base, the palm, the skull). Links are display geometry of the stick stage, not bones. The pelvis also gets its iliac wings, a link on `hips` from each hip joint up to the iliac crest landmark, so the stick shows the bony pelvis's breadth beside the shoulders' and the sex difference in their ratio reads at whole-body scale.
  *
  * @param skeleton Resolved skeleton in the rest pose
  * @param stature Stature, millimetres, which sizes the sticks
@@ -103,6 +103,24 @@ export function emitAutoMovieHumanStick(
       capsule(`${joint.bone}.stick`, `${joint.bone} stick`, material, joint, joint.position, joint.tail, stick),
     );
   }
+  // iliac wings: each hip joint up to its iliac crest, so the bony pelvis's breadth shows
+  const hips: IAutoMovieHumanSkeleton.IJoint | undefined = byBone.get("hips");
+  if (hips !== undefined)
+    for (const side of ["left", "right"] as const) {
+      const hip: IAutoMovieHumanSkeleton.IJoint | undefined = byBone.get(`${side}UpperLeg`);
+      if (hip === undefined) continue;
+      parts.push(
+        capsule(
+          `${side}Ilium.link`,
+          `${side} ilium link`,
+          `stick.${side}`,
+          hips,
+          hip.position,
+          skeleton.landmarks[side].iliocristale.position,
+          STICK_RADIUS.large * stature,
+        ),
+      );
+    }
   return {
     parts,
     materials: (["axial", "left", "right"] as const).map(
