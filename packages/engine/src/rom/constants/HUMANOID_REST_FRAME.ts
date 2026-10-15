@@ -57,8 +57,7 @@ const REVERSED: IAutoMovieAxisFrame = { sign: -1, neutral: 0 };
 export const HUMANOID_REST_FRAME: Partial<
   Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>
 > = ((): Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> => {
-  const table: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> =
-    {};
+  const table: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> = {};
   const set = (
     bone: string,
     axis: keyof IAutoMovieRestFrame,

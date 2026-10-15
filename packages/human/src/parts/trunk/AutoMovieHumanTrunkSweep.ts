@@ -1,4 +1,7 @@
-import { IAutoMovieSurfaceNetwork, IAutoMovieSweepSection } from "@automovie/engine";
+import {
+  IAutoMovieSurfaceNetwork,
+  IAutoMovieSweepSection,
+} from "@automovie/engine";
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
 import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
@@ -24,7 +27,12 @@ export namespace AutoMovieHumanTrunkSweep {
   export const MEDIAL_EXPONENT: number = 4;
 
   /** A horizontal section plane: first axis `+Z` (forward), second `+X` (the person's left), normal `+Y`. */
-  export const HORIZONTAL: IAutoMovieQuaternion = { x: -0.5, y: -0.5, z: -0.5, w: 0.5 };
+  export const HORIZONTAL: IAutoMovieQuaternion = {
+    x: -0.5,
+    y: -0.5,
+    z: -0.5,
+    w: 0.5,
+  };
 
   /**
    * The same count at every tier.
@@ -98,7 +106,10 @@ export namespace AutoMovieHumanTrunkSweep {
   export const chordShares = (points: IAutoMovieVector3[]): number[] => {
     const lengths: number[] = [0];
     for (let k: number = 1; k < points.length; ++k)
-      lengths.push(lengths[k - 1]! + AutoMovieHumanVector.distance(points[k - 1]!, points[k]!));
+      lengths.push(
+        lengths[k - 1]! +
+          AutoMovieHumanVector.distance(points[k - 1]!, points[k]!),
+      );
     const total: number = lengths[lengths.length - 1]!;
     return lengths.map((l: number): number => l / total);
   };
@@ -110,7 +121,10 @@ export namespace AutoMovieHumanTrunkSweep {
    * @param v The vector
    * @returns The turned vector
    */
-  export const rotate = (q: IAutoMovieQuaternion, v: IAutoMovieVector3): IAutoMovieVector3 => {
+  export const rotate = (
+    q: IAutoMovieQuaternion,
+    v: IAutoMovieVector3,
+  ): IAutoMovieVector3 => {
     const tx: number = 2 * (q.y * v.z - q.z * v.y);
     const ty: number = 2 * (q.z * v.x - q.x * v.z);
     const tz: number = 2 * (q.x * v.y - q.y * v.x);
@@ -137,18 +151,38 @@ export namespace AutoMovieHumanTrunkSweep {
     const trace: number = x.x + y.y + z.z;
     if (trace > 0) {
       const s: number = Math.sqrt(trace + 1) * 2;
-      return { w: s / 4, x: (y.z - z.y) / s, y: (z.x - x.z) / s, z: (x.y - y.x) / s };
+      return {
+        w: s / 4,
+        x: (y.z - z.y) / s,
+        y: (z.x - x.z) / s,
+        z: (x.y - y.x) / s,
+      };
     }
     if (x.x > y.y && x.x > z.z) {
       const s: number = Math.sqrt(1 + x.x - y.y - z.z) * 2;
-      return { w: (y.z - z.y) / s, x: s / 4, y: (y.x + x.y) / s, z: (z.x + x.z) / s };
+      return {
+        w: (y.z - z.y) / s,
+        x: s / 4,
+        y: (y.x + x.y) / s,
+        z: (z.x + x.z) / s,
+      };
     }
     if (y.y > z.z) {
       const s: number = Math.sqrt(1 + y.y - x.x - z.z) * 2;
-      return { w: (z.x - x.z) / s, x: (y.x + x.y) / s, y: s / 4, z: (z.y + y.z) / s };
+      return {
+        w: (z.x - x.z) / s,
+        x: (y.x + x.y) / s,
+        y: s / 4,
+        z: (z.y + y.z) / s,
+      };
     }
     const s: number = Math.sqrt(1 + z.z - x.x - y.y) * 2;
-    return { w: (x.y - y.x) / s, x: (z.x + x.z) / s, y: (z.y + y.z) / s, z: s / 4 };
+    return {
+      w: (x.y - y.x) / s,
+      x: (z.x + x.z) / s,
+      y: (z.y + y.z) / s,
+      z: s / 4,
+    };
   };
 
   /**
@@ -173,7 +207,10 @@ export namespace AutoMovieHumanTrunkSweep {
    * @param first Index of the vertex the first axis points at
    * @returns The section in metres
    */
-  export const ringSection = (shape: IAutoMovieHumanRingShape, first: number): IAutoMovieSweepSection => {
+  export const ringSection = (
+    shape: IAutoMovieHumanRingShape,
+    first: number,
+  ): IAutoMovieSweepSection => {
     const n: number = shape.count;
     const r = (k: number): number => metres(shape.radii[(first + k) % n]!);
     return {
@@ -193,8 +230,13 @@ export namespace AutoMovieHumanTrunkSweep {
    * @param first Index of the vertex
    * @returns The rotation
    */
-  export const ringRotation = (shape: IAutoMovieHumanRingShape, first: number): IAutoMovieQuaternion => {
-    const z: IAutoMovieVector3 = AutoMovieHumanVector.normalize(shape.frame.normal);
+  export const ringRotation = (
+    shape: IAutoMovieHumanRingShape,
+    first: number,
+  ): IAutoMovieQuaternion => {
+    const z: IAutoMovieVector3 = AutoMovieHumanVector.normalize(
+      shape.frame.normal,
+    );
     const raw: IAutoMovieVector3 = shape.directions[first % shape.count]!;
     const x: IAutoMovieVector3 = AutoMovieHumanVector.normalize(
       AutoMovieHumanVector.offset(raw, [z, -AutoMovieHumanVector.dot(raw, z)]),
@@ -209,8 +251,15 @@ export namespace AutoMovieHumanTrunkSweep {
    * @param distance Millimetres
    * @returns The moved positions, metres
    */
-  export const collarOf = (shape: IAutoMovieHumanRingShape, distance: number): IAutoMovieVector3[] => {
-    const n: IAutoMovieVector3 = AutoMovieHumanVector.normalize(shape.frame.normal);
-    return shape.positions.map((p: IAutoMovieVector3) => toMetres(AutoMovieHumanVector.offset(p, [n, -distance])));
+  export const collarOf = (
+    shape: IAutoMovieHumanRingShape,
+    distance: number,
+  ): IAutoMovieVector3[] => {
+    const n: IAutoMovieVector3 = AutoMovieHumanVector.normalize(
+      shape.frame.normal,
+    );
+    return shape.positions.map((p: IAutoMovieVector3) =>
+      toMetres(AutoMovieHumanVector.offset(p, [n, -distance])),
+    );
   };
 }

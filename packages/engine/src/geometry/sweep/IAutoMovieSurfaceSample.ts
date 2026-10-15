@@ -36,7 +36,12 @@ export interface IAutoMovieSurfaceSample {
   writer(): (out: Float64Array, at: number) => void;
 
   /** For a point of a sweep, its sweep's name, domain point and the spacing this sampling gives its cell, below and above along `u` then along `v`, infinite where it gives none; otherwise null. Sweep points are finalized once every patch has sampled them, so the cell does not depend on patch order. */
-  point: { sweep: string; u: number; v: number; cell: [number, number, number, number] } | null;
+  point: {
+    sweep: string;
+    u: number;
+    v: number;
+    cell: [number, number, number, number];
+  } | null;
 
   /** The sweep and domain point it lies on, for a point of a sweep edge; otherwise null. */
   sweep: { rig: IAutoMovieSweepRig; u: number; v: number } | null;

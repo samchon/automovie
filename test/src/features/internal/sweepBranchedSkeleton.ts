@@ -1,8 +1,17 @@
-import { type IAutoMovieResolvedBone, type IAutoMovieSweepBinding } from "@automovie/engine";
-import { type AutoMovieHumanoidBone, type IAutoMovieQuaternion, type IAutoMovieVector3 } from "@automovie/interface";
+import {
+  type IAutoMovieResolvedBone,
+  type IAutoMovieSweepBinding,
+} from "@automovie/engine";
+import {
+  type AutoMovieHumanoidBone,
+  type IAutoMovieQuaternion,
+  type IAutoMovieVector3,
+} from "@automovie/interface";
 
 /** Each bone's parent and rest origin, metres, in the branched test body's frame. */
-const BONES: Array<[AutoMovieHumanoidBone, AutoMovieHumanoidBone | null, IAutoMovieVector3]> = [
+const BONES: Array<
+  [AutoMovieHumanoidBone, AutoMovieHumanoidBone | null, IAutoMovieVector3]
+> = [
   ["hips", null, { x: 0, y: 0, z: 0 }],
   ["spine", "hips", { x: 0, y: 0.3, z: 0.012 }],
   ["neck", "spine", { x: 0, y: 0.66, z: 0 }],
@@ -16,14 +25,20 @@ const BONES: Array<[AutoMovieHumanoidBone, AutoMovieHumanoidBone | null, IAutoMo
   ["rightLowerLeg", "rightUpperLeg", { x: -0.1, y: -0.55, z: 0 }],
 ];
 
-const multiply = (a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): IAutoMovieQuaternion => ({
+const multiply = (
+  a: IAutoMovieQuaternion,
+  b: IAutoMovieQuaternion,
+): IAutoMovieQuaternion => ({
   x: a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y,
   y: a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x,
   z: a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w,
   w: a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z,
 });
 
-const rotate = (q: IAutoMovieQuaternion, v: IAutoMovieVector3): IAutoMovieVector3 => {
+const rotate = (
+  q: IAutoMovieQuaternion,
+  v: IAutoMovieVector3,
+): IAutoMovieVector3 => {
   const tx: number = 2 * (q.y * v.z - q.z * v.y);
   const ty: number = 2 * (q.z * v.x - q.x * v.z);
   const tz: number = 2 * (q.x * v.y - q.y * v.x);
@@ -51,7 +66,9 @@ const rotate = (q: IAutoMovieQuaternion, v: IAutoMovieVector3): IAutoMovieVector
  */
 export function sweepBranchedSkeleton(): {
   rest: IAutoMovieResolvedBone[];
-  pose: (turns: Partial<Record<AutoMovieHumanoidBone, IAutoMovieQuaternion>>) => IAutoMovieResolvedBone[];
+  pose: (
+    turns: Partial<Record<AutoMovieHumanoidBone, IAutoMovieQuaternion>>,
+  ) => IAutoMovieResolvedBone[];
   bindings: {
     sweeps: Record<string, IAutoMovieSweepBinding>;
     curves: Record<string, AutoMovieHumanoidBone>;
@@ -59,27 +76,46 @@ export function sweepBranchedSkeleton(): {
   };
 } {
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
-  const pose = (turns: Partial<Record<AutoMovieHumanoidBone, IAutoMovieQuaternion>>): IAutoMovieResolvedBone[] => {
+  const pose = (
+    turns: Partial<Record<AutoMovieHumanoidBone, IAutoMovieQuaternion>>,
+  ): IAutoMovieResolvedBone[] => {
     const world: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
     for (const [bone, parent, origin] of BONES) {
       const local: IAutoMovieQuaternion = turns[bone] ?? identity;
-      const up: IAutoMovieResolvedBone | undefined = parent === null ? undefined : world.get(parent);
-      const restParent: IAutoMovieVector3 | undefined = BONES.find((b) => b[0] === parent)?.[2];
+      const up: IAutoMovieResolvedBone | undefined =
+        parent === null ? undefined : world.get(parent);
+      const restParent: IAutoMovieVector3 | undefined = BONES.find(
+        (b) => b[0] === parent,
+      )?.[2];
       const offset: IAutoMovieVector3 =
         up === undefined || restParent === undefined
           ? origin
-          : rotate(up.worldRotation, { x: origin.x - restParent.x, y: origin.y - restParent.y, z: origin.z - restParent.z });
+          : rotate(up.worldRotation, {
+              x: origin.x - restParent.x,
+              y: origin.y - restParent.y,
+              z: origin.z - restParent.z,
+            });
       world.set(bone, {
         bone,
         localRotation: local,
         worldPosition:
-          up === undefined ? origin : { x: up.worldPosition.x + offset.x, y: up.worldPosition.y + offset.y, z: up.worldPosition.z + offset.z },
-        worldRotation: up === undefined ? local : multiply(up.worldRotation, local),
+          up === undefined
+            ? origin
+            : {
+                x: up.worldPosition.x + offset.x,
+                y: up.worldPosition.y + offset.y,
+                z: up.worldPosition.z + offset.z,
+              },
+        worldRotation:
+          up === undefined ? local : multiply(up.worldRotation, local),
       });
     }
     return BONES.map(([bone]): IAutoMovieResolvedBone => world.get(bone)!);
   };
-  const tube = (upper: AutoMovieHumanoidBone, lower: AutoMovieHumanoidBone): IAutoMovieSweepBinding => ({
+  const tube = (
+    upper: AutoMovieHumanoidBone,
+    lower: AutoMovieHumanoidBone,
+  ): IAutoMovieSweepBinding => ({
     points: [upper, lower],
     stations: [[upper], [upper, lower], [lower]],
   });
@@ -88,7 +124,16 @@ export function sweepBranchedSkeleton(): {
     pose,
     bindings: {
       sweeps: {
-        trunk: { points: ["hips", "spine", "spine"], stations: [["hips"], ["hips", "spine"], ["spine"], ["spine"], ["spine"]] },
+        trunk: {
+          points: ["hips", "spine", "spine"],
+          stations: [
+            ["hips"],
+            ["hips", "spine"],
+            ["spine"],
+            ["spine"],
+            ["spine"],
+          ],
+        },
         sideLeft: tube("leftUpperArm", "leftLowerArm"),
         sideRight: tube("rightUpperArm", "rightLowerArm"),
         forkLeft: tube("leftUpperLeg", "leftLowerLeg"),
@@ -96,7 +141,10 @@ export function sweepBranchedSkeleton(): {
         top: { points: ["neck", "neck"], stations: [["neck"], ["neck"]] },
       },
       curves: { fork: "hips" },
-      rings: { "sideLeft.end": "leftLowerArm", "sideRight.end": "rightLowerArm" },
+      rings: {
+        "sideLeft.end": "leftLowerArm",
+        "sideRight.end": "rightLowerArm",
+      },
     },
   };
 }

@@ -35,11 +35,14 @@ export const locateAutoMovieSweepPoint: (props: {
   point: IAutoMovieVector3;
 }): { u: number; v: number; offset: number } => {
   const { surface, point } = props;
-  if (![point.x, point.y, point.z].every(Number.isFinite)) throw new Error("sweep point to locate is not finite");
+  if (![point.x, point.y, point.z].every(Number.isFinite))
+    throw new Error("sweep point to locate is not finite");
   const plane = (u: number): number => {
     const f: IAutoMovieSweepFrame = surface.frame(u);
     return (
-      (point.x - f.origin.x) * f.normal.x + (point.y - f.origin.y) * f.normal.y + (point.z - f.origin.z) * f.normal.z
+      (point.x - f.origin.x) * f.normal.x +
+      (point.y - f.origin.y) * f.normal.y +
+      (point.z - f.origin.z) * f.normal.z
     );
   };
   const candidates: number[] = [];
@@ -66,17 +69,23 @@ export const locateAutoMovieSweepPoint: (props: {
     previous = value;
   }
   if (previous === 0) candidates.push(1);
-  if (candidates.length === 0) candidates.push(Math.abs(plane(0)) <= Math.abs(plane(1)) ? 0 : 1);
+  if (candidates.length === 0)
+    candidates.push(Math.abs(plane(0)) <= Math.abs(plane(1)) ? 0 : 1);
   let best: { u: number; v: number; offset: number } | null = null;
   for (const u of candidates) {
     const f: IAutoMovieSweepFrame = surface.frame(u);
-    const d: IAutoMovieVector3 = { x: point.x - f.origin.x, y: point.y - f.origin.y, z: point.z - f.origin.z };
+    const d: IAutoMovieVector3 = {
+      x: point.x - f.origin.x,
+      y: point.y - f.origin.y,
+      z: point.z - f.origin.z,
+    };
     const x: number = d.x * f.x.x + d.y * f.x.y + d.z * f.x.z;
     const y: number = d.x * f.y.x + d.y * f.y.y + d.z * f.y.z;
     const turn: number = Math.atan2(y, x) / (2 * Math.PI);
     const v: number = turn - Math.floor(turn);
     const offset: number = Math.hypot(x, y) - surface.radius(u, v);
-    if (best === null || Math.abs(offset) < Math.abs(best.offset)) best = { u, v, offset };
+    if (best === null || Math.abs(offset) < Math.abs(best.offset))
+      best = { u, v, offset };
   }
   return best!;
 };

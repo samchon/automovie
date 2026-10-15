@@ -34,8 +34,10 @@ export function showAutoMovieHumanLimbRelief(
   const seen = (p: IAutoMovieHumanLimbPlan.IReliefPoint): number =>
     Math.hypot(deep(p), blur(p.fat));
   const crest: IAutoMovieHumanLimbPlan.IReliefPoint = relief.points.reduce(
-    (best: IAutoMovieHumanLimbPlan.IReliefPoint, p: IAutoMovieHumanLimbPlan.IReliefPoint) =>
-      Math.abs(p.height) > Math.abs(best.height) ? p : best,
+    (
+      best: IAutoMovieHumanLimbPlan.IReliefPoint,
+      p: IAutoMovieHumanLimbPlan.IReliefPoint,
+    ) => (Math.abs(p.height) > Math.abs(best.height) ? p : best),
   );
   return {
     width: HALF_WIDTH_PER_DEVIATION * seen(crest),

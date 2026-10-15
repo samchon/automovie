@@ -46,7 +46,13 @@ export interface IAutoMovieSurfaceLayout {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `layoutAutoMovieSurfacePatches`.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `layoutAutoMovieSurfacePatches`.
    */
-  emit(patch: number, grid: number[][], columns: number, rows: number, wrap: boolean): void;
+  emit(
+    patch: number,
+    grid: number[][],
+    columns: number,
+    rows: number,
+    wrap: boolean,
+  ): void;
 
   /**
    * Lay out a patch whose faces are not a grid, each corner with its own patch coordinates.
@@ -64,7 +70,12 @@ export interface IAutoMovieSurfaceLayout {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `layoutAutoMovieSurfacePatches`.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `layoutAutoMovieSurfacePatches`.
    */
-  emitFaces(patch: number, quads: Array<Array<[number, number, number]>>, columns: number, rows: number): void;
+  emitFaces(
+    patch: number,
+    quads: Array<Array<[number, number, number]>>,
+    columns: number,
+    rows: number,
+  ): void;
 
   /**
    * Refuse a layout in which a directed edge appears twice.

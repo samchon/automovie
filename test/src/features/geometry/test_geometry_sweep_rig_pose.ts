@@ -15,14 +15,25 @@ import { sweepBranchedBody } from "../internal/sweepBranchedBody";
 import { sweepBranchedSkeleton } from "../internal/sweepBranchedSkeleton";
 
 /** A rotation by `degrees` about a unit axis. */
-const turn = (x: number, y: number, z: number, degrees: number): IAutoMovieQuaternion => {
+const turn = (
+  x: number,
+  y: number,
+  z: number,
+  degrees: number,
+): IAutoMovieQuaternion => {
   const half: number = (degrees * Math.PI) / 360;
-  return { x: x * Math.sin(half), y: y * Math.sin(half), z: z * Math.sin(half), w: Math.cos(half) };
+  return {
+    x: x * Math.sin(half),
+    y: y * Math.sin(half),
+    z: z * Math.sin(half),
+    w: Math.cos(half),
+  };
 };
 
 const largest = (a: ArrayLike<number>, b: ArrayLike<number>): number => {
   let worst: number = 0;
-  for (let i: number = 0; i < a.length; ++i) worst = Math.max(worst, Math.abs(a[i]! - b[i]!));
+  for (let i: number = 0; i < a.length; ++i)
+    worst = Math.max(worst, Math.abs(a[i]! - b[i]!));
   return worst;
 };
 
@@ -59,15 +70,31 @@ export function test_geometry_sweep_rig_pose(): void {
   TestValidator.equals(
     "a rig's pose equals sampling the posed network",
     tiers.map((tier: AutoMovieSurfaceTier): boolean => {
-      const rig: IAutoMovieSurfaceRig = rigAutoMovieSurfaceNetwork({ network, tier, bindings: skeleton.bindings, rest: skeleton.rest });
-      const positions: Float64Array = new Float64Array(rig.cage.cage.positions.length);
+      const rig: IAutoMovieSurfaceRig = rigAutoMovieSurfaceNetwork({
+        network,
+        tier,
+        bindings: skeleton.bindings,
+        rest: skeleton.rest,
+      });
+      const positions: Float64Array = new Float64Array(
+        rig.cage.cage.positions.length,
+      );
       const targets: Float64Array = new Float64Array(positions.length);
       rig.pose(posed, positions, targets);
       const record: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({
-        network: poseAutoMovieSurfaceNetwork({ network, bindings: skeleton.bindings, rest: skeleton.rest, posed }),
+        network: poseAutoMovieSurfaceNetwork({
+          network,
+          bindings: skeleton.bindings,
+          rest: skeleton.rest,
+          posed,
+        }),
         tier,
       });
-      return largest(targets, record.targets) <= 1e-9 && largest(positions, record.cage.positions) <= 1e-9 && largest(targets, rig.cage.targets) > 0.2;
+      return (
+        largest(targets, record.targets) <= 1e-9 &&
+        largest(positions, record.cage.positions) <= 1e-9 &&
+        largest(targets, rig.cage.targets) > 0.2
+      );
     }),
     tiers.map((): boolean => true),
   );

@@ -26,10 +26,24 @@ export function capAutoMovieHumanHead(props: {
   );
   const A: number = SIDES[0];
   const B: number = SIDES[1];
-  const boundary = (a: number, b: number): AutoMovieHumanHeadNetwork.IPoint | null =>
-    b === 0 ? ring[a]! : a === A ? ring[A + b]! : b === B ? ring[A + B + (A - a)]! : a === 0 ? ring[(2 * A + B + (B - b)) % C]! : null;
-  const at = (p: AutoMovieHumanHeadNetwork.IPoint): IAutoMovieVector3 => domain.point(p.domain.u, p.domain.v);
-  const spine: IAutoMovieVector3 = domain.toHead(domain.surface.frame(0).origin);
+  const boundary = (
+    a: number,
+    b: number,
+  ): AutoMovieHumanHeadNetwork.IPoint | null =>
+    b === 0
+      ? ring[a]!
+      : a === A
+        ? ring[A + b]!
+        : b === B
+          ? ring[A + B + (A - a)]!
+          : a === 0
+            ? ring[(2 * A + B + (B - b)) % C]!
+            : null;
+  const at = (p: AutoMovieHumanHeadNetwork.IPoint): IAutoMovieVector3 =>
+    domain.point(p.domain.u, p.domain.v);
+  const spine: IAutoMovieVector3 = domain.toHead(
+    domain.surface.frame(0).origin,
+  );
   const height: number = spine.y;
   const drop: number = domain.profile.top - height;
   const grid: AutoMovieHumanHeadNetwork.IPoint[][] = [];
@@ -43,7 +57,8 @@ export function capAutoMovieHumanHead(props: {
       }
       const s: number = a / A;
       const t: number = b / B;
-      const P = (x: number, y: number): IAutoMovieVector3 => at(boundary(x, y)!);
+      const P = (x: number, y: number): IAutoMovieVector3 =>
+        at(boundary(x, y)!);
       const blend: IAutoMovieVector3 = AutoMovieHumanVector.offset(
         AutoMovieHumanVector.of(0, 0, 0),
         [P(a, 0), 1 - t],
@@ -60,19 +75,32 @@ export function capAutoMovieHumanHead(props: {
       const z: number = blend.z - spine.z;
       const angle: number = Math.atan2(x, -z);
       const rim: IAutoMovieVector3 = domain.point(0, angle / (2 * Math.PI));
-      const share: number = Math.hypot(x, z) / Math.max(1e-6, Math.hypot(rim.x - spine.x, rim.z - spine.z));
+      const share: number =
+        Math.hypot(x, z) /
+        Math.max(1e-6, Math.hypot(rim.x - spine.x, rim.z - spine.z));
       const position: IAutoMovieVector3 = AutoMovieHumanVector.of(
         blend.x,
         height + drop * (1 - Math.pow(Math.min(1, share), DOME)),
         blend.z,
       );
-      column.push(network.free(`cap.${a}.${b}`, domain.toModel(position), { u: 0, v: 0 }));
+      column.push(
+        network.free(`cap.${a}.${b}`, domain.toModel(position), { u: 0, v: 0 }),
+      );
     }
     grid.push(column);
   }
   for (let a: number = 0; a < A; ++a)
     for (let b: number = 0; b < B; ++b)
-      network.quad([grid[a]![b]!, grid[a + 1]![b]!, grid[a + 1]![b + 1]!, grid[a]![b + 1]!], "cap", false);
+      network.quad(
+        [
+          grid[a]![b]!,
+          grid[a + 1]![b]!,
+          grid[a + 1]![b + 1]!,
+          grid[a]![b + 1]!,
+        ],
+        "cap",
+        false,
+      );
 }
 
 /** Column index the loop starts from: the face's line 25 columns from its left edge. */

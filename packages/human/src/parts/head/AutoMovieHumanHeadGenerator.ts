@@ -21,7 +21,9 @@ export class AutoMovieHumanHeadGenerator implements IAutoMovieHumanPartGenerator
    * @param props Measurements and skeleton; the side is null
    * @returns The cage with its three rings
    */
-  public generate(props: IAutoMovieHumanPartGenerator.IProps<"head">): IAutoMovieHumanCage {
+  public generate(
+    props: IAutoMovieHumanPartGenerator.IProps<"head">,
+  ): IAutoMovieHumanCage {
     return loftAutoMovieHumanHead(props.measurements, props.skeleton);
   }
 }

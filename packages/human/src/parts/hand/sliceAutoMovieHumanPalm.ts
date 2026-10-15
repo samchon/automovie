@@ -81,7 +81,10 @@ export function sliceAutoMovieHumanPalm(props: {
   );
   const profile = (x: number, ζ: number): number => {
     const n: number = 2 + P.arch * level(x);
-    return Math.pow(Math.max(0, 1 - Math.pow(Math.min(1, Math.abs(ζ)), n)), 1 / n);
+    return Math.pow(
+      Math.max(0, 1 - Math.pow(Math.min(1, Math.abs(ζ)), n)),
+      1 / n,
+    );
   };
   const dorsalHeight = (x: number): number =>
     cw + (thickness * P.dorsal - cw) * level(x);
@@ -101,7 +104,8 @@ export function sliceAutoMovieHumanPalm(props: {
     return (
       P.thenar * (1 - t) * rise(x) * gauss(ζ - lines[0]!, 0.3) -
       P.hollow * arc * gauss(ζ - (lines[1]! + lines[2]!) / 2, 0.35) +
-      P.hypothenar * Math.max(arc, 0.6 * (1 - t) * rise(x)) *
+      P.hypothenar *
+        Math.max(arc, 0.6 * (1 - t) * rise(x)) *
         gauss(ζ - lines[3]!, 0.25) +
       P.border * arc * gauss(ζ + 0.9, 0.12)
     );
@@ -131,7 +135,9 @@ export function sliceAutoMovieHumanPalm(props: {
     );
   };
 
-  const slice = (plane: sliceAutoMovieHumanPalm.IPlane): sliceAutoMovieHumanPalm.ISlice => {
+  const slice = (
+    plane: sliceAutoMovieHumanPalm.IPlane,
+  ): sliceAutoMovieHumanPalm.ISlice => {
     const axis: IAutoMovieVector3 = AutoMovieHumanVector.of(
       Math.sin(plane.tilt),
       0,
@@ -158,16 +164,13 @@ export function sliceAutoMovieHumanPalm(props: {
     const middle: number = (radial + ulnar) / 2;
     const m = at(middle);
     const height: number = (palmar(m.x, m.z) + dorsal(m.x, m.z)) / 2;
-    const centre: IAutoMovieVector3 = AutoMovieHumanVector.of(
-      m.x,
-      height,
-      m.z,
-    );
+    const centre: IAutoMovieVector3 = AutoMovieHumanVector.of(m.x, height, m.z);
     // samples across, denser toward the borders where the outline turns
     const across: number[] = Array.from(
       { length: SAMPLES + 1 },
       (_: unknown, k: number): number =>
-        ulnar + ((radial - ulnar) * (1 - Math.cos((Math.PI * k) / SAMPLES))) / 2,
+        ulnar +
+        ((radial - ulnar) * (1 - Math.cos((Math.PI * k) / SAMPLES))) / 2,
     );
     const point = (s: number, y: number): IAutoMovieSweepSection.IPoint => ({
       x: y - height,
@@ -348,8 +351,10 @@ const enclose = (half: number, exponent: number, perimeter: number): number => {
       const t: number = (2 * Math.PI * i) / 256;
       const c: number = Math.cos(t);
       const s: number = Math.sin(t);
-      const x: number = half * Math.sign(c) * Math.pow(Math.abs(c), 2 / exponent);
-      const y: number = depth * Math.sign(s) * Math.pow(Math.abs(s), 2 / exponent);
+      const x: number =
+        half * Math.sign(c) * Math.pow(Math.abs(c), 2 / exponent);
+      const y: number =
+        depth * Math.sign(s) * Math.pow(Math.abs(s), 2 / exponent);
       sum += Math.hypot(x - px, y - py);
       px = x;
       py = y;

@@ -49,7 +49,8 @@ export const interpolateAutoMovieMonotone: (props: {
   period?: number;
 }): ((x: number) => number) => {
   const n: number = props.knots.length;
-  if (n === 0) throw new Error("monotone interpolation needs at least one knot");
+  if (n === 0)
+    throw new Error("monotone interpolation needs at least one knot");
   if (props.values.length !== n)
     throw new Error("monotone interpolation needs one value per knot");
   const xs: number[] = [...props.knots];
@@ -68,5 +69,6 @@ export const interpolateAutoMovieMonotone: (props: {
   const slopes: Float64Array = new Float64Array(n);
   const width: number = period ?? 0;
   AutoMovieMonotone.slope(xs, ys, n, width, slopes);
-  return (x: number): number => AutoMovieMonotone.evaluate(xs, ys, slopes, n, width, x);
+  return (x: number): number =>
+    AutoMovieMonotone.evaluate(xs, ys, slopes, n, width, x);
 };

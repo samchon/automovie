@@ -32,27 +32,49 @@ export function profileAutoMovieHumanHead(props: {
   // depth in front of tragion of a midline point at a height, from its straight distance to tragion
   const tn: number = AutoMovieHumanVector.distance(frame.nasion, frame.tragion);
   const depth = (ratio: number, y: number): number =>
-    Math.sqrt(Math.max(0, (ratio * tn) ** 2 - frame.tragion.x ** 2 - (y - frame.tragion.y) ** 2)) + frame.tragion.z;
+    Math.sqrt(
+      Math.max(
+        0,
+        (ratio * tn) ** 2 - frame.tragion.x ** 2 - (y - frame.tragion.y) ** 2,
+      ),
+    ) + frame.tragion.z;
   const subnasaleY: number = frame.nasion.y - head.features.noseHeight;
-  const subnasale: IPoint = { y: subnasaleY, z: depth(SUBNASALE_DEPTH, subnasaleY) };
-  const gnathionY: number = frame.menton.y + AUTOMOVIE_HUMAN_JAWLINE.gnathionAboveMenton * fh;
-  const gnathion: IPoint = { y: gnathionY, z: depth(AUTOMOVIE_HUMAN_JAWLINE.gnathionDepth, gnathionY) };
+  const subnasale: IPoint = {
+    y: subnasaleY,
+    z: depth(SUBNASALE_DEPTH, subnasaleY),
+  };
+  const gnathionY: number =
+    frame.menton.y + AUTOMOVIE_HUMAN_JAWLINE.gnathionAboveMenton * fh;
+  const gnathion: IPoint = {
+    y: gnathionY,
+    z: depth(AUTOMOVIE_HUMAN_JAWLINE.gnathionDepth, gnathionY),
+  };
   const pogonion: IPoint = {
     y: frame.menton.y + form.pogonionAboveMenton * fh,
     z: subnasale.z - form.pogonionBehindSubnasale * fh,
   };
-  const arc = (from: IPoint, to: IPoint, exponent: number, count: number): IPoint[] =>
+  const arc = (
+    from: IPoint,
+    to: IPoint,
+    exponent: number,
+    count: number,
+  ): IPoint[] =>
     Array.from({ length: count }, (_: unknown, k: number): IPoint => {
       // closer together toward the arc's end, where it turns fastest
       const f: number = 1 - Math.pow(1 - (k + 1) / count, ARC_SPACING);
       return {
         y: from.y + (to.y - from.y) * f,
-        z: to.z + (from.z - to.z) * Math.pow(1 - Math.pow(f, exponent), 1 / exponent),
+        z:
+          to.z +
+          (from.z - to.z) * Math.pow(1 - Math.pow(f, exponent), 1 / exponent),
       };
     });
   const vertex: IPoint = { y: top, z: frame.vertex.z };
   const glabella: IPoint = { y: frame.glabella.y, z: frame.glabella.z };
-  const opisthocranion: IPoint = { y: frame.opisthocranion.y, z: frame.opisthocranion.z };
+  const opisthocranion: IPoint = {
+    y: frame.opisthocranion.y,
+    z: frame.opisthocranion.z,
+  };
   const front: IPoint[] = [
     gnathion,
     pogonion,
@@ -90,9 +112,12 @@ export function profileAutoMovieHumanHead(props: {
     { y: top, z: frame.vertex.z },
   ];
   const curve = (points: IPoint[]): ((y: number) => number) => {
-    const sorted: IPoint[] = [...points].sort((a: IPoint, b: IPoint): number => a.y - b.y);
+    const sorted: IPoint[] = [...points].sort(
+      (a: IPoint, b: IPoint): number => a.y - b.y,
+    );
     const kept: IPoint[] = sorted.filter(
-      (p: IPoint, k: number): boolean => k === 0 || p.y - sorted[k - 1]!.y > 0.25,
+      (p: IPoint, k: number): boolean =>
+        k === 0 || p.y - sorted[k - 1]!.y > 0.25,
     );
     return interpolateAutoMovieMonotone({
       knots: kept.map((p: IPoint): number => p.y),
@@ -135,11 +160,17 @@ export function profileAutoMovieHumanHead(props: {
     { y: frame.stomion.y, z: form.frontStomion },
     { y: subnasale.y, z: form.frontSubnasale },
     { y: frame.zygion.y, z: form.frontCheek },
-    { y: frame.frontotemporale.y, z: throughFront(frame.frontotemporale, form.frontVault) },
+    {
+      y: frame.frontotemporale.y,
+      z: throughFront(frame.frontotemporale, form.frontVault),
+    },
     { y: top, z: form.frontVault },
   ];
   const backExponent: IPoint[] = [
-    { y: ring.posterolateral.y, z: throughBack(ring.posterolateral, form.backNape) },
+    {
+      y: ring.posterolateral.y,
+      z: throughBack(ring.posterolateral, form.backNape),
+    },
     { y: opisthocranion.y, z: form.backVault },
     { y: top, z: form.backVault },
   ];

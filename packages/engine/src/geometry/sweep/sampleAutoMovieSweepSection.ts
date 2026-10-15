@@ -64,26 +64,45 @@ export const sampleAutoMovieSweepSection: (props: {
     if (m < 3) throw new Error("radial section needs at least three radii");
     section.radii.forEach((r: number, k: number): void => {
       if (!Number.isFinite(r) || r <= 0)
-        throw new Error(`radial section radius ${k} must be positive and finite`);
+        throw new Error(
+          `radial section radius ${k} must be positive and finite`,
+        );
     });
     const radius: (angle: number) => number = interpolateAutoMovieSpline({
-      knots: section.radii.map((_: number, k: number): number => (2 * Math.PI * k) / m),
+      knots: section.radii.map(
+        (_: number, k: number): number => (2 * Math.PI * k) / m,
+      ),
       values: section.radii,
       period: 2 * Math.PI,
     });
     return angles.map(radius);
   }
-  const curve: { point: (t: number) => IAutoMovieSweepSection.IPoint; segments: number } =
-    parameterizeAutoMovieSweepSection(section);
-  if (section.type === "superellipse" && (section.centre?.x ?? 0) === 0 && (section.centre?.y ?? 0) === 0) {
+  const curve: {
+    point: (t: number) => IAutoMovieSweepSection.IPoint;
+    segments: number;
+  } = parameterizeAutoMovieSweepSection(section);
+  if (
+    section.type === "superellipse" &&
+    (section.centre?.x ?? 0) === 0 &&
+    (section.centre?.y ?? 0) === 0
+  ) {
     // a centred superellipse's quadrant is |x / a|^n + |y / b|^n = 1, so its polar radius is closed-form
-    const half: number[] = [section.right, section.up, section.left, section.down];
+    const half: number[] = [
+      section.right,
+      section.up,
+      section.left,
+      section.down,
+    ];
     return angles.map((angle: number): number => {
       const q: number = Math.min(3, Math.floor(angle / (Math.PI / 2)));
       const n: number = section.exponents[q]!;
       const a: number = half[q % 2 === 0 ? q : (q + 1) % 4]!;
       const b: number = half[q % 2 === 0 ? q + 1 : q]!;
-      return (Math.abs(Math.cos(angle) / a) ** n + Math.abs(Math.sin(angle) / b) ** n) ** (-1 / n);
+      return (
+        (Math.abs(Math.cos(angle) / a) ** n +
+          Math.abs(Math.sin(angle) / b) ** n) **
+        (-1 / n)
+      );
     });
   }
   const samples: number = Math.max(MINIMUM_SAMPLES, DENSITY * curve.segments);
@@ -97,14 +116,17 @@ export const sampleAutoMovieSweepSection: (props: {
     const p: IAutoMovieSweepSection.IPoint = curve.point(t);
     if (!Number.isFinite(p.x) || !Number.isFinite(p.y))
       throw new Error("section curve is not finite");
-    if (Math.hypot(p.x, p.y) === 0) throw new Error("section curve passes through its origin");
+    if (Math.hypot(p.x, p.y) === 0)
+      throw new Error("section curve passes through its origin");
     const raw: number = Math.atan2(p.y, p.x);
     let phi: number = raw;
     if (i > 0) {
       let step: number = raw - previousRaw;
       step -= 2 * Math.PI * Math.round(step / (2 * Math.PI));
       if (!(step > 0))
-        throw new Error("section curve must be star-shaped about its origin and counterclockwise");
+        throw new Error(
+          "section curve must be star-shaped about its origin and counterclockwise",
+        );
       phi = previous + step;
     }
     ts.push(t);
@@ -122,7 +144,8 @@ export const sampleAutoMovieSweepSection: (props: {
   };
   return angles.map((target: number): number => {
     // the target on the walk's unwrapped scale
-    const goal: number = target + 2 * Math.PI * Math.ceil((phis[0]! - target) / (2 * Math.PI));
+    const goal: number =
+      target + 2 * Math.PI * Math.ceil((phis[0]! - target) / (2 * Math.PI));
     let low: number = 0;
     let high: number = samples;
     while (high - low > 1) {

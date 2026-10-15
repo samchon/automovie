@@ -33,23 +33,46 @@ export const mapAutoMovieSurfaceTier: (props: {
   from: IAutoMovieSurfaceCage;
   to: IAutoMovieSurfaceCage;
   at: IAutoMovieSubdivisionParameter;
-}) => { at: IAutoMovieSubdivisionParameter; coordinate: IAutoMovieSurfaceCoordinate } = (props: {
+}) => {
+  at: IAutoMovieSubdivisionParameter;
+  coordinate: IAutoMovieSurfaceCoordinate;
+} = (props: {
   from: IAutoMovieSurfaceCage;
   to: IAutoMovieSurfaceCage;
   at: IAutoMovieSubdivisionParameter;
-}): { at: IAutoMovieSubdivisionParameter; coordinate: IAutoMovieSurfaceCoordinate } => {
+}): {
+  at: IAutoMovieSubdivisionParameter;
+  coordinate: IAutoMovieSurfaceCoordinate;
+} => {
   const names = (c: IAutoMovieSurfaceCage): string =>
-    c.patches.map((p: IAutoMovieSurfaceCage.IPatch): string => p.name).join("\u0000");
-  if (names(props.from) !== names(props.to)) throw new Error("tiers must come from the same network");
-  const corners: IAutoMovieSurfaceCage["corners"][number] | undefined = props.from.corners[props.at.face];
-  if (corners === undefined) throw new Error(`face ${props.at.face} is out of range`);
+    c.patches
+      .map((p: IAutoMovieSurfaceCage.IPatch): string => p.name)
+      .join("\u0000");
+  if (names(props.from) !== names(props.to))
+    throw new Error("tiers must come from the same network");
+  const corners: IAutoMovieSurfaceCage["corners"][number] | undefined =
+    props.from.corners[props.at.face];
+  if (corners === undefined)
+    throw new Error(`face ${props.at.face} is out of range`);
   const { u, v } = props.at;
-  if (!(u >= 0 && u <= 1 && v >= 0 && v <= 1)) throw new Error("face coordinates must lie in 0 to 1");
+  if (!(u >= 0 && u <= 1 && v >= 0 && v <= 1))
+    throw new Error("face coordinates must lie in 0 to 1");
   const w: number[] = [(1 - u) * (1 - v), u * (1 - v), u * v, (1 - u) * v];
   const coordinate: IAutoMovieSurfaceCoordinate = {
     patch: corners[0].patch,
-    s: corners.reduce((sum: number, c: IAutoMovieSurfaceCoordinate, k: number): number => sum + w[k]! * c.s, 0),
-    t: corners.reduce((sum: number, c: IAutoMovieSurfaceCoordinate, k: number): number => sum + w[k]! * c.t, 0),
+    s: corners.reduce(
+      (sum: number, c: IAutoMovieSurfaceCoordinate, k: number): number =>
+        sum + w[k]! * c.s,
+      0,
+    ),
+    t: corners.reduce(
+      (sum: number, c: IAutoMovieSurfaceCoordinate, k: number): number =>
+        sum + w[k]! * c.t,
+      0,
+    ),
   };
-  return { at: locateAutoMovieSurfaceCoordinate({ cage: props.to, coordinate }), coordinate };
+  return {
+    at: locateAutoMovieSurfaceCoordinate({ cage: props.to, coordinate }),
+    coordinate,
+  };
 };

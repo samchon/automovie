@@ -34,7 +34,10 @@ export function patchAutoMovieHumanLimb(props: {
         columns: fixed(columns[i]!),
       });
       domains.push(
-        (s: number, t: number): IDomain => ({ u: u[0] + (u[1] - u[0]) * t, v: s }),
+        (s: number, t: number): IDomain => ({
+          u: u[0] + (u[1] - u[0]) * t,
+          v: s,
+        }),
       );
     } else transitions.push(i);
   }

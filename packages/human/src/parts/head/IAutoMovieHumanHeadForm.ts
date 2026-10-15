@@ -23,7 +23,6 @@ export interface IAutoMovieHumanHeadForm {
   /** Profile: soft-tissue pogonion above menton, `fh`. */
   pogonionAboveMenton: number;
 
-
   /** Profile: exponent of the forehead's arc from glabella to the vertex. */
   forehead: number;
 
@@ -84,7 +83,12 @@ export namespace IAutoMovieHumanHeadForm {
     trichion: number;
 
     /** The eye opening: its top above and its bottom below the eye's centre, its medial edge inside endocanthion and its lateral edge beyond exocanthion, over palpebral fissure length. */
-    eyeOpening: { above: number; below: number; medial: number; lateral: number };
+    eyeOpening: {
+      above: number;
+      below: number;
+      medial: number;
+      lateral: number;
+    };
 
     /** The mouth opening: its top below subnasale and its bottom below stomion over face height, and its edges beyond cheilion over half the mouth's width. */
     mouthOpening: { top: number; bottom: number; lateral: number };
@@ -162,7 +166,16 @@ export namespace IAutoMovieHumanHeadForm {
     lips: { roll: number; reach: number };
 
     /** The orbital opening: half-breadth, half-height above and below the eye's centre over fissure length; the share inside which the lids lie fully on their dome and beyond which the face is untouched; the breadth of its hollow that the soft tissue softens and the deepest the lids sink, over fissure length; and the lids' thickness over the globe, millimetres. */
-    orbit: { across: number; up: number; down: number; inner: number; outer: number; breadth: number; sink: number; lid: number };
+    orbit: {
+      across: number;
+      up: number;
+      down: number;
+      inner: number;
+      outer: number;
+      breadth: number;
+      sink: number;
+      lid: number;
+    };
 
     /** The superciliary arch: height over `fh`, and its level above the eye's centre over fissure length. */
     brow: { height: number; level: number };
@@ -180,7 +193,13 @@ export namespace IAutoMovieHumanHeadForm {
     masseter: { height: number; forward: number; up: number; across: number };
 
     /** Buccal fat over `fh`: an adult lean face's slight hollow, its gain with body fat and in a small face, its centre above stomion and spread. */
-    buccal: { adult: number; fat: number; growth: number; above: number; spread: number };
+    buccal: {
+      adult: number;
+      fat: number;
+      growth: number;
+      above: number;
+      spread: number;
+    };
 
     /** Share of the brow's, the zygoma's and the jaw's prominence left at the least lean mass. */
     robust: number;

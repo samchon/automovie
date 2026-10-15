@@ -39,40 +39,86 @@ export function loopAutoMovieHumanLips(props: {
   };
   const border = (x: number, upper: boolean): number => {
     const t: number = Math.min(1, Math.abs(x) / width);
-    if (!upper) return stomion - form.commissure - features.lowerVermilionHeight * Math.pow(1 - t * t, 0.55);
-    const bow: number = 0.9 + 0.14 * Math.exp(-(((t - form.philtrum) / 0.14) ** 2));
-    return stomion + form.commissure + features.upperVermilionHeight * Math.pow(1 - Math.pow(t, 2.2), 0.6) * bow;
+    if (!upper)
+      return (
+        stomion -
+        form.commissure -
+        features.lowerVermilionHeight * Math.pow(1 - t * t, 0.55)
+      );
+    const bow: number =
+      0.9 + 0.14 * Math.exp(-(((t - form.philtrum) / 0.14) ** 2));
+    return (
+      stomion +
+      form.commissure +
+      features.upperVermilionHeight * Math.pow(1 - Math.pow(t, 2.2), 0.6) * bow
+    );
   };
-  const surface = (x: number, y: number): { at: { u: number; v: number }; p: IAutoMovieVector3 } => {
-    const at: { u: number; v: number } = domain.locate(AutoMovieHumanVector.of(x, y, domain.profile.front(y) + 5));
+  const surface = (
+    x: number,
+    y: number,
+  ): { at: { u: number; v: number }; p: IAutoMovieVector3 } => {
+    const at: { u: number; v: number } = domain.locate(
+      AutoMovieHumanVector.of(x, y, domain.profile.front(y) + 5),
+    );
     return { at, p: domain.point(at.u, at.v) };
   };
-  const vermilion: AutoMovieHumanHeadNetwork.IPoint[] = rim.map((_: AutoMovieHumanHeadNetwork.IPoint, k: number) => {
-    const upper: boolean = k < half;
-    const x: number = across(upper ? k : k - half, upper);
-    const { at } = surface(x, border(x, upper));
-    return network.on(at.u, at.v);
-  });
-  const inside = (name: string, back: number, open: number, narrow: number): AutoMovieHumanHeadNetwork.IPoint[] =>
+  const vermilion: AutoMovieHumanHeadNetwork.IPoint[] = rim.map(
+    (_: AutoMovieHumanHeadNetwork.IPoint, k: number) => {
+      const upper: boolean = k < half;
+      const x: number = across(upper ? k : k - half, upper);
+      const { at } = surface(x, border(x, upper));
+      return network.on(at.u, at.v);
+    },
+  );
+  const inside = (
+    name: string,
+    back: number,
+    open: number,
+    narrow: number,
+  ): AutoMovieHumanHeadNetwork.IPoint[] =>
     rim.map((_: AutoMovieHumanHeadNetwork.IPoint, k: number) => {
       const upper: boolean = k < half;
       const x: number = narrow * across(upper ? k : k - half, upper);
       const y: number = stomion + (upper ? open : -open);
       const { at, p } = surface(x, y);
-      return network.free(`${name}.${k}`, domain.toModel(AutoMovieHumanVector.of(p.x, p.y, p.z - back)), at);
+      return network.free(
+        `${name}.${k}`,
+        domain.toModel(AutoMovieHumanVector.of(p.x, p.y, p.z - back)),
+        at,
+      );
     });
-  const meeting: AutoMovieHumanHeadNetwork.IPoint[] = inside("lips.meeting", form.meeting.back, form.meeting.open, form.meeting.narrow);
-  const pocket: AutoMovieHumanHeadNetwork.IPoint[] = inside("lips.pocket", form.pocket.back, form.pocket.open, form.pocket.narrow);
-  const forward: boolean = network.bands([rim, network.between(rim, vermilion, form.orbicularis), vermilion, meeting, pocket], "mouth");
+  const meeting: AutoMovieHumanHeadNetwork.IPoint[] = inside(
+    "lips.meeting",
+    form.meeting.back,
+    form.meeting.open,
+    form.meeting.narrow,
+  );
+  const pocket: AutoMovieHumanHeadNetwork.IPoint[] = inside(
+    "lips.pocket",
+    form.pocket.back,
+    form.pocket.open,
+    form.pocket.narrow,
+  );
+  const forward: boolean = network.bands(
+    [
+      rim,
+      network.between(rim, vermilion, form.orbicularis),
+      vermilion,
+      meeting,
+      pocket,
+    ],
+    "mouth",
+  );
   // close the pocket: upper point k faces lower point half - 1 - k
-  const lower = (k: number): AutoMovieHumanHeadNetwork.IPoint => pocket[half + (half - 1 - k)]!;
+  const lower = (k: number): AutoMovieHumanHeadNetwork.IPoint =>
+    pocket[half + (half - 1 - k)]!;
   for (let k: number = 0; k + 1 < half; ++k) {
-    const q: [AutoMovieHumanHeadNetwork.IPoint, AutoMovieHumanHeadNetwork.IPoint, AutoMovieHumanHeadNetwork.IPoint, AutoMovieHumanHeadNetwork.IPoint] = [
-      pocket[k]!,
-      pocket[k + 1]!,
-      lower(k + 1),
-      lower(k),
-    ];
+    const q: [
+      AutoMovieHumanHeadNetwork.IPoint,
+      AutoMovieHumanHeadNetwork.IPoint,
+      AutoMovieHumanHeadNetwork.IPoint,
+      AutoMovieHumanHeadNetwork.IPoint,
+    ] = [pocket[k]!, pocket[k + 1]!, lower(k + 1), lower(k)];
     network.quad(forward ? q : [q[0], q[3], q[2], q[1]], "mouth", false);
   }
 }

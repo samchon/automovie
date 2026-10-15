@@ -1,19 +1,47 @@
-import { type IAutoMovieSurfaceNetwork, type IAutoMovieSweep } from "@automovie/engine";
+import {
+  type IAutoMovieSurfaceNetwork,
+  type IAutoMovieSweep,
+} from "@automovie/engine";
 
 /** Coarse columns round the tube's first part by tier. */
-const COARSE: IAutoMovieSurfaceNetwork.ICounts = { lowest: 4, low: 8, medium: 8, high: 16 };
+const COARSE: IAutoMovieSurfaceNetwork.ICounts = {
+  lowest: 4,
+  low: 8,
+  medium: 8,
+  high: 16,
+};
 
 /** Fine columns round its grooved middle by tier, twice the coarse. */
-const FINE: IAutoMovieSurfaceNetwork.ICounts = { lowest: 8, low: 16, medium: 16, high: 32 };
+const FINE: IAutoMovieSurfaceNetwork.ICounts = {
+  lowest: 8,
+  low: 16,
+  medium: 16,
+  high: 32,
+};
 
 /** Columns round its last part by tier, three quarters of the fine. */
-const LAST: IAutoMovieSurfaceNetwork.ICounts = { lowest: 6, low: 12, medium: 12, high: 24 };
+const LAST: IAutoMovieSurfaceNetwork.ICounts = {
+  lowest: 6,
+  low: 12,
+  medium: 12,
+  high: 24,
+};
 
 /** Rows of a count-changing band by tier, so its middle row is about as tall as a coarse column is wide. */
-const BAND: IAutoMovieSurfaceNetwork.ICounts = { lowest: 1, low: 1, medium: 1, high: 2 };
+const BAND: IAutoMovieSurfaceNetwork.ICounts = {
+  lowest: 1,
+  low: 1,
+  medium: 1,
+  high: 2,
+};
 
 /** Rows of a part of the tube by tier. */
-const rows = (n: number): IAutoMovieSurfaceNetwork.ICounts => ({ lowest: n, low: 2 * n, medium: 4 * n, high: 8 * n });
+const rows = (n: number): IAutoMovieSurfaceNetwork.ICounts => ({
+  lowest: n,
+  low: 2 * n,
+  medium: 4 * n,
+  high: 8 * n,
+});
 
 /**
  * A tube whose column count changes along its length, the layout a limb
@@ -34,16 +62,40 @@ const rows = (n: number): IAutoMovieSurfaceNetwork.ICounts => ({ lowest: n, low:
  * @param shape.bow How far the spine's middle leaves the `y` axis along `z`, metres, 0.01 by default.
  * @returns The network, metres.
  */
-export function sweepTransitionTube(shape: { groove?: boolean; bands?: boolean; bow?: number } = {}): IAutoMovieSurfaceNetwork {
-  const circle: IAutoMovieSweep.IStation["section"] = { type: "superellipse", right: 0.05, up: 0.05, left: 0.05, down: 0.05, exponents: [2, 2, 2, 2] };
+export function sweepTransitionTube(
+  shape: { groove?: boolean; bands?: boolean; bow?: number } = {},
+): IAutoMovieSurfaceNetwork {
+  const circle: IAutoMovieSweep.IStation["section"] = {
+    type: "superellipse",
+    right: 0.05,
+    up: 0.05,
+    left: 0.05,
+    down: 0.05,
+    exponents: [2, 2, 2, 2],
+  };
   const tube: IAutoMovieSweep = {
-    spine: { points: [{ x: 0, y: 0, z: 0 }, { x: 0, y: 0.3, z: shape.bow ?? 0.01 }, { x: 0, y: 0.6, z: 0 }], normal: { x: 0, y: 0, z: 1 } },
-    stations: [0, 0.5, 1].map((at: number): IAutoMovieSweep.IStation => ({ at, section: circle })),
+    spine: {
+      points: [
+        { x: 0, y: 0, z: 0 },
+        { x: 0, y: 0.3, z: shape.bow ?? 0.01 },
+        { x: 0, y: 0.6, z: 0 },
+      ],
+      normal: { x: 0, y: 0, z: 1 },
+    },
+    stations: [0, 0.5, 1].map(
+      (at: number): IAutoMovieSweep.IStation => ({ at, section: circle }),
+    ),
     ...((shape.groove ?? false)
       ? {
           features: [
             {
-              points: [0.42, 0.55, 0.68].map((at: number, k: number): IAutoMovieSweep.IFeaturePoint => ({ at, angle: 0, offset: [0, -0.004, 0][k]! })),
+              points: [0.42, 0.55, 0.68].map(
+                (at: number, k: number): IAutoMovieSweep.IFeaturePoint => ({
+                  at,
+                  angle: 0,
+                  offset: [0, -0.004, 0][k]!,
+                }),
+              ),
               width: 0.015,
             },
           ],
@@ -51,7 +103,12 @@ export function sweepTransitionTube(shape: { groove?: boolean; bands?: boolean; 
       : {}),
   };
   const bands: boolean = shape.bands ?? true;
-  const part = (name: string, u: [number, number], columns: IAutoMovieSurfaceNetwork.ICounts, n: number): IAutoMovieSurfaceNetwork.ISweepPatch => ({
+  const part = (
+    name: string,
+    u: [number, number],
+    columns: IAutoMovieSurfaceNetwork.ICounts,
+    n: number,
+  ): IAutoMovieSurfaceNetwork.ISweepPatch => ({
     type: "sweep",
     name,
     sweep: "tube",
@@ -60,11 +117,38 @@ export function sweepTransitionTube(shape: { groove?: boolean; bands?: boolean; 
     rows: rows(n),
     columns,
   });
-  const band = (name: string, u: [number, number], start: IAutoMovieSurfaceNetwork.ICounts, end: IAutoMovieSurfaceNetwork.ICounts): IAutoMovieSurfaceNetwork.IPatch =>
-    bands ? { type: "transition", name, sweep: "tube", u, v: [0, 1], start, end, rows: BAND } : { ...part(name, u, COARSE, 1), rows: BAND };
-  const ring = (u: number, columns: IAutoMovieSurfaceNetwork.ICounts): IAutoMovieSurfaceNetwork.IRing => ({
+  const band = (
+    name: string,
+    u: [number, number],
+    start: IAutoMovieSurfaceNetwork.ICounts,
+    end: IAutoMovieSurfaceNetwork.ICounts,
+  ): IAutoMovieSurfaceNetwork.IPatch =>
+    bands
+      ? {
+          type: "transition",
+          name,
+          sweep: "tube",
+          u,
+          v: [0, 1],
+          start,
+          end,
+          rows: BAND,
+        }
+      : { ...part(name, u, COARSE, 1), rows: BAND };
+  const ring = (
+    u: number,
+    columns: IAutoMovieSurfaceNetwork.ICounts,
+  ): IAutoMovieSurfaceNetwork.IRing => ({
     name: `ring.${u}`,
-    edges: [{ type: "sweep", sweep: "tube", from: { u, v: 0 }, to: { u, v: 1 }, segments: columns }],
+    edges: [
+      {
+        type: "sweep",
+        sweep: "tube",
+        from: { u, v: 0 },
+        to: { u, v: 1 },
+        segments: columns,
+      },
+    ],
   });
   return {
     sweeps: { tube },

@@ -1,4 +1,8 @@
-import { IAutoMovieSweep, IAutoMovieSweepSection, compileAutoMovieSweep } from "@automovie/engine";
+import {
+  IAutoMovieSweep,
+  IAutoMovieSweepSection,
+  compileAutoMovieSweep,
+} from "@automovie/engine";
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
 import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
@@ -33,26 +37,41 @@ export function sweepAutoMovieHumanTrunkBody(props: {
   const shoulderLine: number = frame.acromion.y;
   const levels: number[] = [
     L.crotch,
-    ...Array.from({ length: STEPS + 1 }, (_: unknown, k: number): number => L.buttock + ((L.axilla - L.buttock) * k) / STEPS),
+    ...Array.from(
+      { length: STEPS + 1 },
+      (_: unknown, k: number): number =>
+        L.buttock + ((L.axilla - L.buttock) * k) / STEPS,
+    ),
     ...Array.from(
       { length: UPPER_STEPS },
-      (_: unknown, k: number): number => L.axilla + ((shoulderLine - L.axilla) * (k + 1)) / UPPER_STEPS,
+      (_: unknown, k: number): number =>
+        L.axilla + ((shoulderLine - L.axilla) * (k + 1)) / UPPER_STEPS,
     ),
   ];
   const lean = (y: number): number =>
-    y <= L.axilla ? 0 : NECK_TILT.shoulder * Math.min(1, (y - L.axilla) / (shoulderLine - L.axilla));
+    y <= L.axilla
+      ? 0
+      : NECK_TILT.shoulder *
+        Math.min(1, (y - L.axilla) / (shoulderLine - L.axilla));
   const thighFront: number = Math.max(
-    ...props.thighs.flatMap((t: IAutoMovieHumanRingShape): number[] => t.positions.map((p: IAutoMovieVector3): number => p.z)),
+    ...props.thighs.flatMap((t: IAutoMovieHumanRingShape): number[] =>
+      t.positions.map((p: IAutoMovieVector3): number => p.z),
+    ),
   );
   const contour = (y: number): sweepAutoMovieHumanTrunkBody.IContour => {
     const front: number = Math.max(profile.front(y), thighFront);
-    return { centre: (front + profile.back(y)) / 2, depth: (front - profile.back(y)) / 2, half: profile.half(y) };
+    return {
+      centre: (front + profile.back(y)) / 2,
+      depth: (front - profile.back(y)) / 2,
+      half: profile.half(y),
+    };
   };
   const crotch: sweepAutoMovieHumanTrunkBody.IContour = contour(L.crotch);
   const tilt = (share: number): IAutoMovieQuaternion => {
     const a: IAutoMovieQuaternion = S.HORIZONTAL;
     let b: IAutoMovieQuaternion = S.ringRotation(neck, 0);
-    if (a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w < 0) b = { x: -b.x, y: -b.y, z: -b.z, w: -b.w };
+    if (a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w < 0)
+      b = { x: -b.x, y: -b.y, z: -b.z, w: -b.w };
     const q: IAutoMovieQuaternion = {
       x: a.x + (b.x - a.x) * share,
       y: a.y + (b.y - a.y) * share,
@@ -64,88 +83,140 @@ export function sweepAutoMovieHumanTrunkBody(props: {
   };
   // the profile's front and back where a plane through a centre meets them: the plane's height changes with depth by its
   // slope, so the profile is read at the height the plane reaches there
-  const reach = (centre: IAutoMovieVector3, rotation: IAutoMovieQuaternion): { front: number; back: number; slope: number } => {
+  const reach = (
+    centre: IAutoMovieVector3,
+    rotation: IAutoMovieQuaternion,
+  ): { front: number; back: number; slope: number } => {
     const normal: IAutoMovieVector3 = S.rotate(rotation, { x: 0, y: 0, z: 1 });
     const slope: number = normal.z / normal.y;
     const meet = (read: (y: number) => number): number => {
       let z: number = read(centre.y);
-      for (let k: number = 0; k < 8; ++k) z = read(centre.y - slope * (z - centre.z));
+      for (let k: number = 0; k < 8; ++k)
+        z = read(centre.y - slope * (z - centre.z));
       return z;
     };
     return { front: meet(profile.front), back: meet(profile.back), slope };
   };
-  const stations: Array<{ centre: IAutoMovieVector3; section: IAutoMovieSweepSection; rotation: IAutoMovieQuaternion }> =
-    levels.map((y: number, k: number) => {
-      if (k === 0)
-        return {
-          centre: AutoMovieHumanVector.of(0, y, crotch.centre),
-          section: sectionAutoMovieHumanTrunkCrotch({
-            depth: crotch.depth,
-            half: crotch.half,
-            exponent: S.FORK_EXPONENT,
-            medial: S.MEDIAL_EXPONENT,
-            recess: AUTOMOVIE_HUMAN_TRUNK_FORM.crotch.recess * frame.buttock.depth,
-          }),
-          rotation: S.HORIZONTAL,
-        };
-      const widest: number = profile.widest(y);
-      const half: number = y >= shoulderLine - 1 ? Math.max(profile.half(L.axilla), frame.acromion.x - 15) : profile.half(y);
-      const square: { front: number; back: number } = profile.squareness(y);
-      const centre: IAutoMovieVector3 = AutoMovieHumanVector.of(0, y, widest);
-      const rotation: IAutoMovieQuaternion = lean(y) > 0 ? tilt(lean(y)) : S.HORIZONTAL;
-      const plane: { front: number; back: number; slope: number } = lean(y) > 0 ? reach(centre, rotation) : { front: profile.front(y), back: profile.back(y), slope: 0 };
-      const stretch: number = Math.hypot(1, plane.slope);
+  const stations: Array<{
+    centre: IAutoMovieVector3;
+    section: IAutoMovieSweepSection;
+    rotation: IAutoMovieQuaternion;
+  }> = levels.map((y: number, k: number) => {
+    if (k === 0)
       return {
-        centre,
-        rotation,
-        section: {
-          type: "superellipse",
-          right: S.metres(Math.max(20, (plane.front - widest) * stretch)),
-          up: S.metres(half),
-          left: S.metres(Math.max(20, (widest - plane.back) * stretch)),
-          down: S.metres(half),
-          exponents: [square.front, square.back, square.back, square.front],
-        },
+        centre: AutoMovieHumanVector.of(0, y, crotch.centre),
+        section: sectionAutoMovieHumanTrunkCrotch({
+          depth: crotch.depth,
+          half: crotch.half,
+          exponent: S.FORK_EXPONENT,
+          medial: S.MEDIAL_EXPONENT,
+          recess:
+            AUTOMOVIE_HUMAN_TRUNK_FORM.crotch.recess * frame.buttock.depth,
+        }),
+        rotation: S.HORIZONTAL,
       };
-    });
+    const widest: number = profile.widest(y);
+    const half: number =
+      y >= shoulderLine - 1
+        ? Math.max(profile.half(L.axilla), frame.acromion.x - 15)
+        : profile.half(y);
+    const square: { front: number; back: number } = profile.squareness(y);
+    const centre: IAutoMovieVector3 = AutoMovieHumanVector.of(0, y, widest);
+    const rotation: IAutoMovieQuaternion =
+      lean(y) > 0 ? tilt(lean(y)) : S.HORIZONTAL;
+    const plane: { front: number; back: number; slope: number } =
+      lean(y) > 0
+        ? reach(centre, rotation)
+        : { front: profile.front(y), back: profile.back(y), slope: 0 };
+    const stretch: number = Math.hypot(1, plane.slope);
+    return {
+      centre,
+      rotation,
+      section: {
+        type: "superellipse",
+        right: S.metres(Math.max(20, (plane.front - widest) * stretch)),
+        up: S.metres(half),
+        left: S.metres(Math.max(20, (widest - plane.back) * stretch)),
+        down: S.metres(half),
+        exponents: [square.front, square.back, square.back, square.front],
+      },
+    };
+  });
   // the trapezius slope, in the neck ring's own plane, its front and back where that plane meets the profile
-  const shoulder: { centre: IAutoMovieVector3; section: IAutoMovieSweepSection } = stations[stations.length - 1]!;
+  const shoulder: {
+    centre: IAutoMovieVector3;
+    section: IAutoMovieSweepSection;
+  } = stations[stations.length - 1]!;
   const neckOrigin: IAutoMovieVector3 = neck.frame.origin;
   const slopeY: number = shoulderLine + SLOPE * (neckOrigin.y - shoulderLine);
-  const neckHalf: number = (neck.radii[neck.count / 4]! + neck.radii[(3 * neck.count) / 4]!) / 2;
-  const slopeCentre: IAutoMovieVector3 = AutoMovieHumanVector.of(0, slopeY, (shoulder.centre.z + neckOrigin.z) / 2);
+  const neckHalf: number =
+    (neck.radii[neck.count / 4]! + neck.radii[(3 * neck.count) / 4]!) / 2;
+  const slopeCentre: IAutoMovieVector3 = AutoMovieHumanVector.of(
+    0,
+    slopeY,
+    (shoulder.centre.z + neckOrigin.z) / 2,
+  );
   const slopeRotation: IAutoMovieQuaternion = tilt(NECK_TILT.slope);
-  const slopePlane: { front: number; back: number; slope: number } = reach(slopeCentre, slopeRotation);
+  const slopePlane: { front: number; back: number; slope: number } = reach(
+    slopeCentre,
+    slopeRotation,
+  );
   const slopeStretch: number = Math.hypot(1, slopePlane.slope);
   const slopeHalf: number =
-    neckHalf + SLOPE * (S.millimetres((shoulder.section as IAutoMovieSweepSection.ISuperellipse).up) - neckHalf);
+    neckHalf +
+    SLOPE *
+      (S.millimetres(
+        (shoulder.section as IAutoMovieSweepSection.ISuperellipse).up,
+      ) -
+        neckHalf);
   stations.push(
     {
       centre: slopeCentre,
       rotation: slopeRotation,
       section: {
         type: "superellipse",
-        right: S.metres(Math.max(25, (slopePlane.front - slopeCentre.z) * slopeStretch)),
+        right: S.metres(
+          Math.max(25, (slopePlane.front - slopeCentre.z) * slopeStretch),
+        ),
         up: S.metres(slopeHalf),
-        left: S.metres(Math.max(25, (slopeCentre.z - slopePlane.back) * slopeStretch)),
+        left: S.metres(
+          Math.max(25, (slopeCentre.z - slopePlane.back) * slopeStretch),
+        ),
         down: S.metres(slopeHalf),
         exponents: [2.2, 2.2, 2.2, 2.2],
       },
     },
-    { centre: neckOrigin, section: S.ringSection(neck, 0), rotation: S.ringRotation(neck, 0) },
+    {
+      centre: neckOrigin,
+      section: S.ringSection(neck, 0),
+      rotation: S.ringRotation(neck, 0),
+    },
   );
-  const points: IAutoMovieVector3[] = stations.map((s): IAutoMovieVector3 => S.toMetres(s.centre));
+  const points: IAutoMovieVector3[] = stations.map(
+    (s): IAutoMovieVector3 => S.toMetres(s.centre),
+  );
   const ats: number[] = S.chordShares(points);
   const bare: IAutoMovieSweep = {
     spine: { points, normal: { x: 0, y: 0, z: 1 } },
     orientation: "fixed",
     stations: stations.map(
-      (s, k: number): IAutoMovieSweep.IStation => ({ at: ats[k]!, section: s.section, rotation: s.rotation }),
+      (s, k: number): IAutoMovieSweep.IStation => ({
+        at: ats[k]!,
+        section: s.section,
+        rotation: s.rotation,
+      }),
     ),
   };
   return {
     // the feature curves are located on the sweep their stations make
-    sweep: { ...bare, features: featureAutoMovieHumanTrunk({ frame, profile, surface: compileAutoMovieSweep(bare) }) },
+    sweep: {
+      ...bare,
+      features: featureAutoMovieHumanTrunk({
+        frame,
+        profile,
+        surface: compileAutoMovieSweep(bare),
+      }),
+    },
     // the axilla is the last of the even steps from the buttock level, the shoulder line the last level
     axilla: ats[STEPS + 1]!,
     shoulder: ats[levels.length - 1]!,

@@ -232,16 +232,32 @@ const section = (
       const tragion: IAutoMovieVector3 = landmarks.left.tragion.position;
       const nasion: IAutoMovieVector3 = landmarks.nasion.position;
       const forward: IAutoMovieVector3 = AutoMovieHumanVector.normalize(
-        AutoMovieHumanVector.offset(reference, [normal, -AutoMovieHumanVector.dot(reference, normal)]),
+        AutoMovieHumanVector.offset(reference, [
+          normal,
+          -AutoMovieHumanVector.dot(reference, normal),
+        ]),
       );
       const gnathionY: number =
-        landmarks.menton.position.y + AUTOMOVIE_HUMAN_JAWLINE.gnathionAboveMenton * props.measurements.identity.head.faceHeight;
-      const reach3: number = AUTOMOVIE_HUMAN_JAWLINE.gnathionDepth * AutoMovieHumanVector.distance(nasion, tragion);
+        landmarks.menton.position.y +
+        AUTOMOVIE_HUMAN_JAWLINE.gnathionAboveMenton *
+          props.measurements.identity.head.faceHeight;
+      const reach3: number =
+        AUTOMOVIE_HUMAN_JAWLINE.gnathionDepth *
+        AutoMovieHumanVector.distance(nasion, tragion);
       const gnathionZ: number =
         tragion.z +
-        Math.sqrt(Math.max(0, reach3 * reach3 - (tragion.x - nasion.x) ** 2 - (gnathionY - tragion.y) ** 2));
+        Math.sqrt(
+          Math.max(
+            0,
+            reach3 * reach3 -
+              (tragion.x - nasion.x) ** 2 -
+              (gnathionY - tragion.y) ** 2,
+          ),
+        );
       void forward;
-      const [, chin] = inPlane(AutoMovieHumanVector.of(nasion.x, gnathionY, gnathionZ));
+      const [, chin] = inPlane(
+        AutoMovieHumanVector.of(nasion.x, gnathionY, gnathionZ),
+      );
       const [jawU, jawW] = inPlane(landmarks.left.gonion.position);
       const tilt: number = Math.abs(AutoMovieHumanVector.dot(normal, axis));
       const column = {
@@ -252,7 +268,9 @@ const section = (
       const n: number = AUTOMOVIE_HUMAN_JAWLINE.exponent;
       // the jawline: a superellipse quadrant from the chin back to the gonion, its centre level with the gonion
       const onJaw = (rho: number, c: number, s: number): number =>
-        Math.pow(Math.max(0, (rho * c - jawW) / (chin - jawW)), n) + Math.pow((rho * s) / jawU, n) - 1;
+        Math.pow(Math.max(0, (rho * c - jawW) / (chin - jawW)), n) +
+        Math.pow((rho * s) / jawU, n) -
+        1;
       return {
         origin,
         radius: (d: IAutoMovieVector3): number => {

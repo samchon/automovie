@@ -92,7 +92,15 @@ export const lowerServiceNetwork: (props: {
             mesh: meshAutoMovieSweep({
               sweep: {
                 spine: { points: segment.route, normal: across(segment.route) },
-                stations: [{ at: 0, section: { type: "polygon", points: section(segment.radius, sides) } }],
+                stations: [
+                  {
+                    at: 0,
+                    section: {
+                      type: "polygon",
+                      points: section(segment.radius, sides),
+                    },
+                  },
+                ],
                 correspondence: "parameter",
               },
               shading: "smooth",
@@ -116,8 +124,13 @@ export const lowerServiceNetwork: (props: {
 const across: (route: readonly IAutoMovieVector3[]) => IAutoMovieVector3 = (
   route: readonly IAutoMovieVector3[],
 ): IAutoMovieVector3 => {
-  const leg: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(route[1]!, route[0]!));
-  return Vector3.cross(Math.abs(leg.y) < 0.9 ? Vector3.create(0, 1, 0) : Vector3.create(1, 0, 0), leg);
+  const leg: IAutoMovieVector3 = Vector3.normalize(
+    Vector3.subtract(route[1]!, route[0]!),
+  );
+  return Vector3.cross(
+    Math.abs(leg.y) < 0.9 ? Vector3.create(0, 1, 0) : Vector3.create(1, 0, 0),
+    leg,
+  );
 };
 
 /** A regular section of the given radius, in the sweep's own profile plane. */

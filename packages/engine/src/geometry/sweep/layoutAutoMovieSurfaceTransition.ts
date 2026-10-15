@@ -55,17 +55,38 @@ export const layoutAutoMovieSurfaceTransition: (
   start: number,
   end: number,
   rows: number,
-) => Array<[Pick<IAutoMovieSurfaceCoordinate, "s" | "t">, Pick<IAutoMovieSurfaceCoordinate, "s" | "t">, Pick<IAutoMovieSurfaceCoordinate, "s" | "t">, Pick<IAutoMovieSurfaceCoordinate, "s" | "t">]> = (
+) => Array<
+  [
+    Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
+    Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
+    Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
+    Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
+  ]
+> = (
   start: number,
   end: number,
   rows: number,
-): Array<[Pick<IAutoMovieSurfaceCoordinate, "s" | "t">, Pick<IAutoMovieSurfaceCoordinate, "s" | "t">, Pick<IAutoMovieSurfaceCoordinate, "s" | "t">, Pick<IAutoMovieSurfaceCoordinate, "s" | "t">]> => {
+): Array<
+  [
+    Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
+    Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
+    Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
+    Pick<IAutoMovieSurfaceCoordinate, "s" | "t">,
+  ]
+> => {
   for (const n of [start, end, rows])
-    if (!Number.isSafeInteger(n) || n < 1) throw new Error(`transition counts must be positive integers, not ${n}`);
+    if (!Number.isSafeInteger(n) || n < 1)
+      throw new Error(`transition counts must be positive integers, not ${n}`);
   const fine: number = Math.max(start, end);
   const coarse: number = Math.min(start, end);
-  if ((fine - coarse) % 2 !== 0) throw new Error(`transition counts ${start} and ${end} must differ by an even number`);
-  if (fine > 2 * coarse) throw new Error(`transition count ${fine} is more than twice ${coarse}; chain two bands`);
+  if ((fine - coarse) % 2 !== 0)
+    throw new Error(
+      `transition counts ${start} and ${end} must differ by an even number`,
+    );
+  if (fine > 2 * coarse)
+    throw new Error(
+      `transition count ${fine} is more than twice ${coarse}; chain two bands`,
+    );
   const quads: Array<[ICorner, ICorner, ICorner, ICorner]> = [];
   const middle: number = Math.floor(rows / 2);
   // the plain rows: start count before the middle row, end count after it
@@ -86,11 +107,20 @@ export const layoutAutoMovieSurfaceTransition: (
   const holds: Set<number> = new Set();
   for (let i: number = 0; i < blocks; ++i) {
     const centre: number = ((i + 0.5) * items) / blocks;
-    holds.add(centre < items / 2 ? Math.floor(centre) : centre > items / 2 ? Math.ceil(centre) - 1 : Math.floor(centre));
+    holds.add(
+      centre < items / 2
+        ? Math.floor(centre)
+        : centre > items / 2
+          ? Math.ceil(centre) - 1
+          : Math.floor(centre),
+    );
   }
   // in canonical orientation the fine ring is at the row's bottom; a band that grows is the mirror across the row
   const flip: boolean = start < end;
-  const at = (s: number, tau: number): ICorner => ({ s, t: (middle + (flip ? 1 - tau : tau)) / rows });
+  const at = (s: number, tau: number): ICorner => ({
+    s,
+    t: (middle + (flip ? 1 - tau : tau)) / rows,
+  });
   const push = (q: [ICorner, ICorner, ICorner, ICorner]): void => {
     quads.push(flip ? [q[3], q[2], q[1], q[0]] : q);
   };
@@ -98,14 +128,24 @@ export const layoutAutoMovieSurfaceTransition: (
   let c: number = 0;
   for (let item: number = 0; item < items; ++item) {
     if (!holds.has(item)) {
-      push([at(f / fine, 0), at((f + 1) / fine, 0), at((c + 1) / coarse, 1), at(c / coarse, 1)]);
+      push([
+        at(f / fine, 0),
+        at((f + 1) / fine, 0),
+        at((c + 1) / coarse, 1),
+        at(c / coarse, 1),
+      ]);
       f += 1;
       c += 1;
       continue;
     }
-    const b: ICorner[] = [0, 1, 2, 3, 4].map((k: number): ICorner => at((f + k) / fine, 0));
-    const t: ICorner[] = [0, 1, 2].map((k: number): ICorner => at((c + k) / coarse, 1));
-    const half = (k: number, top: number): ICorner => at(((f + k) / fine + (c + top) / coarse) / 2, 0.5);
+    const b: ICorner[] = [0, 1, 2, 3, 4].map(
+      (k: number): ICorner => at((f + k) / fine, 0),
+    );
+    const t: ICorner[] = [0, 1, 2].map(
+      (k: number): ICorner => at((c + k) / coarse, 1),
+    );
+    const half = (k: number, top: number): ICorner =>
+      at(((f + k) / fine + (c + top) / coarse) / 2, 0.5);
     const i1: ICorner = half(1, 0.5);
     const m: ICorner = half(2, 1);
     const i2: ICorner = half(3, 1.5);
@@ -118,6 +158,9 @@ export const layoutAutoMovieSurfaceTransition: (
     f += 4;
     c += 2;
   }
-  if (f !== fine || c !== coarse) throw new Error(`transition blocks cover ${f} of ${fine} fine and ${c} of ${coarse} coarse columns`);
+  if (f !== fine || c !== coarse)
+    throw new Error(
+      `transition blocks cover ${f} of ${fine} fine and ${c} of ${coarse} coarse columns`,
+    );
   return quads;
 };

@@ -36,24 +36,47 @@ const TIERS: AutoMovieSurfaceTier[] = ["lowest", "low", "medium", "high"];
  * @evidence contracts/testing.md#execution-ownership A portable unit test reached through the discoverable `test_geometry_sweep_tiers` entry with no process, browser or GPU.
  */
 export function test_geometry_sweep_tiers(): void {
-  const cages: IAutoMovieSurfaceCage[] = TIERS.map((tier: AutoMovieSurfaceTier): IAutoMovieSurfaceCage => sampleAutoMovieSurfaceNetwork({ network: sweepBranchedBody(), tier }));
-  const points = (cage: IAutoMovieSurfaceCage): Array<{ face: number; corner: null; u: number; v: number }> =>
+  const cages: IAutoMovieSurfaceCage[] = TIERS.map(
+    (tier: AutoMovieSurfaceTier): IAutoMovieSurfaceCage =>
+      sampleAutoMovieSurfaceNetwork({ network: sweepBranchedBody(), tier }),
+  );
+  const points = (
+    cage: IAutoMovieSurfaceCage,
+  ): Array<{ face: number; corner: null; u: number; v: number }> =>
     Array.from({ length: 60 }, (_: unknown, k: number) => ({
       face: Math.floor(((k * 0.6180339887) % 1) * cage.cage.faces.length),
       corner: null,
       u: 0.02 + 0.96 * ((k * 0.7548776662) % 1),
-      v: 0.02 + 0.96 * ((k * 0.5698402910) % 1),
+      v: 0.02 + 0.96 * ((k * 0.569840291) % 1),
     }));
-  const close = (a: IAutoMovieSurfaceCoordinate, b: IAutoMovieSurfaceCoordinate): boolean =>
-    a.patch === b.patch && Math.abs(a.s - b.s) <= 1e-15 && Math.abs(a.t - b.t) <= 1e-15;
+  const close = (
+    a: IAutoMovieSurfaceCoordinate,
+    b: IAutoMovieSurfaceCoordinate,
+  ): boolean =>
+    a.patch === b.patch &&
+    Math.abs(a.s - b.s) <= 1e-15 &&
+    Math.abs(a.t - b.t) <= 1e-15;
   TestValidator.equals(
     "points round-trip between every pair of tiers",
     TIERS.flatMap((_: AutoMovieSurfaceTier, a: number): boolean[] =>
       TIERS.map((__: AutoMovieSurfaceTier, b: number): boolean =>
         points(cages[a]!).every((at): boolean => {
-          const there = mapAutoMovieSurfaceTier({ from: cages[a]!, to: cages[b]!, at });
-          const back = mapAutoMovieSurfaceTier({ from: cages[b]!, to: cages[a]!, at: there.at });
-          return back.at.face === at.face && Math.abs(back.at.u - at.u) <= 1e-12 && Math.abs(back.at.v - at.v) <= 1e-12 && close(there.coordinate, back.coordinate);
+          const there = mapAutoMovieSurfaceTier({
+            from: cages[a]!,
+            to: cages[b]!,
+            at,
+          });
+          const back = mapAutoMovieSurfaceTier({
+            from: cages[b]!,
+            to: cages[a]!,
+            at: there.at,
+          });
+          return (
+            back.at.face === at.face &&
+            Math.abs(back.at.u - at.u) <= 1e-12 &&
+            Math.abs(back.at.v - at.v) <= 1e-12 &&
+            close(there.coordinate, back.coordinate)
+          );
         }),
       ),
     ),
@@ -65,19 +88,77 @@ export function test_geometry_sweep_tiers(): void {
     "a same-tier map is the identity and a corner maps to its published coordinate",
     points(medium).every((at): boolean => {
       const same = mapAutoMovieSurfaceTier({ from: medium, to: medium, at });
-      const corner = mapAutoMovieSurfaceTier({ from: medium, to: medium, at: { face: at.face, corner: null, u: 1, v: 1 } });
-      return same.at.face === at.face && Math.abs(same.at.u - at.u) <= 1e-12 && Math.abs(same.at.v - at.v) <= 1e-12 && close(corner.coordinate, medium.corners[at.face]![2]);
+      const corner = mapAutoMovieSurfaceTier({
+        from: medium,
+        to: medium,
+        at: { face: at.face, corner: null, u: 1, v: 1 },
+      });
+      return (
+        same.at.face === at.face &&
+        Math.abs(same.at.u - at.u) <= 1e-12 &&
+        Math.abs(same.at.v - at.v) <= 1e-12 &&
+        close(corner.coordinate, medium.corners[at.face]![2])
+      );
     }),
   );
 
-  const bottle: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({ network: sweepBottle(), tier: "medium" });
+  const bottle: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({
+    network: sweepBottle(),
+    tier: "medium",
+  });
   const invalids: Array<readonly [string, () => unknown, string]> = [
-    ["different networks", (): unknown => mapAutoMovieSurfaceTier({ from: medium, to: bottle, at: { face: 0, corner: null, u: 0.5, v: 0.5 } }), "tiers must come from the same network"],
-    ["a face out of range", (): unknown => mapAutoMovieSurfaceTier({ from: medium, to: cages[0]!, at: { face: medium.cage.faces.length, corner: null, u: 0.5, v: 0.5 } }), "is out of range"],
-    ["local coordinates outside the face", (): unknown => mapAutoMovieSurfaceTier({ from: medium, to: cages[0]!, at: { face: 0, corner: null, u: 1.5, v: 0.5 } }), "face coordinates must lie in 0 to 1"],
-    ["a coordinate outside its patch", (): unknown => locateAutoMovieSurfaceCoordinate({ cage: medium, coordinate: { patch: 0, s: 0.5, t: -0.1 } }), "surface coordinate s and t must lie in 0 to 1"],
-    ["a patch the cage lacks", (): unknown => locateAutoMovieSurfaceCoordinate({ cage: medium, coordinate: { patch: medium.patches.length, s: 0.5, t: 0.5 } }), "which the cage lacks"],
+    [
+      "different networks",
+      (): unknown =>
+        mapAutoMovieSurfaceTier({
+          from: medium,
+          to: bottle,
+          at: { face: 0, corner: null, u: 0.5, v: 0.5 },
+        }),
+      "tiers must come from the same network",
+    ],
+    [
+      "a face out of range",
+      (): unknown =>
+        mapAutoMovieSurfaceTier({
+          from: medium,
+          to: cages[0]!,
+          at: { face: medium.cage.faces.length, corner: null, u: 0.5, v: 0.5 },
+        }),
+      "is out of range",
+    ],
+    [
+      "local coordinates outside the face",
+      (): unknown =>
+        mapAutoMovieSurfaceTier({
+          from: medium,
+          to: cages[0]!,
+          at: { face: 0, corner: null, u: 1.5, v: 0.5 },
+        }),
+      "face coordinates must lie in 0 to 1",
+    ],
+    [
+      "a coordinate outside its patch",
+      (): unknown =>
+        locateAutoMovieSurfaceCoordinate({
+          cage: medium,
+          coordinate: { patch: 0, s: 0.5, t: -0.1 },
+        }),
+      "surface coordinate s and t must lie in 0 to 1",
+    ],
+    [
+      "a patch the cage lacks",
+      (): unknown =>
+        locateAutoMovieSurfaceCoordinate({
+          cage: medium,
+          coordinate: { patch: medium.patches.length, s: 0.5, t: 0.5 },
+        }),
+      "which the cage lacks",
+    ],
   ];
   for (const [name, callback, message] of invalids)
-    TestValidator.predicate(`${name} is refused by its own diagnostic`, throwsError(callback, message));
+    TestValidator.predicate(
+      `${name} is refused by its own diagnostic`,
+      throwsError(callback, message),
+    );
 }

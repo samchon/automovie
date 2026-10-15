@@ -29,8 +29,11 @@ export class AutoMovieHumanNeckGenerator implements IAutoMovieHumanPartGenerator
    * @param props Measurements and skeleton; the side is null
    * @returns The cage with its two rings
    */
-  public generate(props: IAutoMovieHumanPartGenerator.IProps<"neck">): IAutoMovieHumanCage {
-    const body: IAutoMovieHumanIdentity.IBody = props.measurements.identity.body;
+  public generate(
+    props: IAutoMovieHumanPartGenerator.IProps<"neck">,
+  ): IAutoMovieHumanCage {
+    const body: IAutoMovieHumanIdentity.IBody =
+      props.measurements.identity.body;
     const shape = (site: "neckBase" | "neckTop"): IAutoMovieHumanRingShape =>
       shapeAutoMovieHumanRing({
         skeleton: props.skeleton,
@@ -41,18 +44,27 @@ export class AutoMovieHumanNeckGenerator implements IAutoMovieHumanPartGenerator
       });
     const base: IAutoMovieHumanRingShape = shape("neckBase");
     const top: IAutoMovieHumanRingShape = shape("neckTop");
-    const sections: sectionAutoMovieHumanNeck.IOutput = sectionAutoMovieHumanNeck({
-      skeleton: props.skeleton,
-      body,
-      base,
-      top,
-    });
+    const sections: sectionAutoMovieHumanNeck.IOutput =
+      sectionAutoMovieHumanNeck({
+        skeleton: props.skeleton,
+        body,
+        base,
+        top,
+      });
     const mean: number = body.neckCircumference / (2 * Math.PI);
     // the limit surface lies inside its cage, so the mid section is widened until the subdivided neck has the measured girth
     let scale: number = 1;
-    let cage: IAutoMovieHumanCage = loftAutoMovieHumanNeck({ sections, base, top, scale, mean });
+    let cage: IAutoMovieHumanCage = loftAutoMovieHumanNeck({
+      sections,
+      base,
+      top,
+      scale,
+      mean,
+    });
     for (let i: number = 0; i < GIRTH_FITS; ++i) {
-      scale *= body.neckCircumference / measureAutoMovieHumanNeckGirth(cage, sections.centre, sections.axis);
+      scale *=
+        body.neckCircumference /
+        measureAutoMovieHumanNeckGirth(cage, sections.centre, sections.axis);
       cage = loftAutoMovieHumanNeck({ sections, base, top, scale, mean });
     }
     return cage;

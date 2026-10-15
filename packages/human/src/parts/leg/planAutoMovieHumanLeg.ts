@@ -54,7 +54,10 @@ export function planAutoMovieHumanLeg(props: {
     proximal: thighRing,
     distal: ankleRing,
     stations: stations.map(
-      (s: IAutoMovieHumanLegStation, i: number): IAutoMovieHumanLimbPlan.IStation => {
+      (
+        s: IAutoMovieHumanLegStation,
+        i: number,
+      ): IAutoMovieHumanLimbPlan.IStation => {
         const common = {
           name: s.name,
           axis: s.axis,
@@ -62,9 +65,19 @@ export function planAutoMovieHumanLeg(props: {
           rows: ROWS[i]!,
         };
         if (i <= 1)
-          return { ...common, ...junction(s, thighRing), section: null, girth: null };
+          return {
+            ...common,
+            ...junction(s, thighRing),
+            section: null,
+            girth: null,
+          };
         if (i >= last - 1)
-          return { ...common, ...junction(s, ankleRing), section: null, girth: null };
+          return {
+            ...common,
+            ...junction(s, ankleRing),
+            section: null,
+            girth: null,
+          };
         return {
           ...common,
           centre: s.origin,
@@ -83,4 +96,3 @@ export function planAutoMovieHumanLeg(props: {
     }),
   };
 }
-

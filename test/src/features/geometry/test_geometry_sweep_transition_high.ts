@@ -19,5 +19,9 @@ import { sweepTransitionDeviation } from "../internal/sweepTransitionDeviation";
  */
 export function test_geometry_sweep_transition_high(): void {
   const [radial, normal] = sweepTransitionDeviation("high");
-  TestValidator.equals("a cylinder changing count at the high tier stays within the stated bounds", [radial <= 0.003, normal <= 2.5], [true, true]);
+  TestValidator.equals(
+    "a cylinder changing count at the high tier stays within the stated bounds",
+    [radial <= 0.003, normal <= 2.5],
+    [true, true],
+  );
 }

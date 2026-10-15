@@ -19,31 +19,53 @@ const VALUES: number[] = [1, 3, 2.9, 0.5, 0.6, 2];
 const BOUND: number = 0.1;
 
 /** One-sided second differences of `f` at `x`, from below and from above. */
-const curvature = (f: (x: number) => number, x: number, h: number): [number, number] => [
+const curvature = (
+  f: (x: number) => number,
+  x: number,
+  h: number,
+): [number, number] => [
   (f(x - 2 * h) - 2 * f(x - h) + f(x)) / (h * h),
   (f(x + 2 * h) - 2 * f(x + h) + f(x)) / (h * h),
 ];
 
 /** Largest excursion beyond each segment's knot range over the allowed bound, sampled 400 times a segment. */
-const overshoot = (f: (x: number) => number, knots: number[], values: number[]): number => {
+const overshoot = (
+  f: (x: number) => number,
+  knots: number[],
+  values: number[],
+): number => {
   let worst: number = 0;
-  const rise = (k: number): number => (k < 0 || k + 1 >= values.length ? 0 : Math.abs(values[k + 1]! - values[k]!));
+  const rise = (k: number): number =>
+    k < 0 || k + 1 >= values.length ? 0 : Math.abs(values[k + 1]! - values[k]!);
   for (let k: number = 0; k + 1 < knots.length; ++k) {
-    const allowed: number = BOUND * Math.max(rise(k - 2), rise(k - 1), rise(k), rise(k + 1), rise(k + 2));
+    const allowed: number =
+      BOUND *
+      Math.max(rise(k - 2), rise(k - 1), rise(k), rise(k + 1), rise(k + 2));
     for (let i: number = 1; i < 400; ++i) {
       const y: number = f(knots[k]! + ((knots[k + 1]! - knots[k]!) * i) / 400);
-      const excess: number = Math.max(y - Math.max(values[k]!, values[k + 1]!), Math.min(values[k]!, values[k + 1]!) - y);
+      const excess: number = Math.max(
+        y - Math.max(values[k]!, values[k + 1]!),
+        Math.min(values[k]!, values[k + 1]!) - y,
+      );
       // a flat run with flat neighbours allows nothing, so any excess there is unbounded
-      worst = Math.max(worst, excess <= 1e-15 ? 0 : allowed === 0 ? Infinity : excess / allowed);
+      worst = Math.max(
+        worst,
+        excess <= 1e-15 ? 0 : allowed === 0 ? Infinity : excess / allowed,
+      );
     }
   }
   return worst;
 };
 
 /** The natural cubic spline through knots, written here independently, the zero-tension curve. */
-const natural = (knots: number[], values: number[]): ((x: number) => number) => {
+const natural = (
+  knots: number[],
+  values: number[],
+): ((x: number) => number) => {
   const n: number = knots.length;
-  const h: number[] = knots.slice(1).map((x: number, k: number): number => x - knots[k]!);
+  const h: number[] = knots
+    .slice(1)
+    .map((x: number, k: number): number => x - knots[k]!);
   const m: number[] = new Array<number>(n).fill(0);
   // tridiagonal for interior second derivatives, solved by elimination
   const c: number[] = [];
@@ -51,16 +73,32 @@ const natural = (knots: number[], values: number[]): ((x: number) => number) => 
   for (let i: number = 1; i < n - 1; ++i) {
     const a: number = h[i - 1]! / 6;
     const b: number = (h[i - 1]! + h[i]!) / 3;
-    const r: number = (values[i + 1]! - values[i]!) / h[i]! - (values[i]! - values[i - 1]!) / h[i - 1]!;
+    const r: number =
+      (values[i + 1]! - values[i]!) / h[i]! -
+      (values[i]! - values[i - 1]!) / h[i - 1]!;
     const q: number = i === 1 ? b : b - a * c[i - 2]!;
     c.push(h[i]! / 6 / q);
     d.push((i === 1 ? r : r - a * d[i - 2]!) / q);
   }
-  for (let i: number = n - 2; i >= 1; --i) m[i] = d[i - 1]! - (i < n - 2 ? c[i - 1]! * m[i + 1]! : 0);
+  for (let i: number = n - 2; i >= 1; --i)
+    m[i] = d[i - 1]! - (i < n - 2 ? c[i - 1]! * m[i + 1]! : 0);
   return (x: number): number => {
-    const k: number = Math.min(n - 2, Math.max(0, knots.findIndex((_: number, j: number): boolean => j + 1 < n && x < knots[j + 1]!)));
+    const k: number = Math.min(
+      n - 2,
+      Math.max(
+        0,
+        knots.findIndex(
+          (_: number, j: number): boolean => j + 1 < n && x < knots[j + 1]!,
+        ),
+      ),
+    );
     const t: number = (x - knots[k]!) / h[k]!;
-    return (1 - t) * values[k]! + t * values[k + 1]! + ((h[k]! * h[k]!) / 6) * (m[k]! * ((1 - t) ** 3 - (1 - t)) + m[k + 1]! * (t ** 3 - t));
+    return (
+      (1 - t) * values[k]! +
+      t * values[k + 1]! +
+      ((h[k]! * h[k]!) / 6) *
+        (m[k]! * ((1 - t) ** 3 - (1 - t)) + m[k + 1]! * (t ** 3 - t))
+    );
   };
 };
 
@@ -94,17 +132,32 @@ const natural = (knots: number[], values: number[]): ((x: number) => number) => 
  * @evidence contracts/testing.md#execution-ownership A portable unit test reached through the discoverable `test_geometry_sweep_spline` entry with no process, browser or GPU.
  */
 export function test_geometry_sweep_spline(): void {
-  const f: (x: number) => number = interpolateAutoMovieSpline({ knots: KNOTS, values: VALUES });
-  const monotone: (x: number) => number = interpolateAutoMovieMonotone({ knots: KNOTS, values: VALUES });
+  const f: (x: number) => number = interpolateAutoMovieSpline({
+    knots: KNOTS,
+    values: VALUES,
+  });
+  const monotone: (x: number) => number = interpolateAutoMovieMonotone({
+    knots: KNOTS,
+    values: VALUES,
+  });
   const continuous = (g: (x: number) => number, tolerance: number): boolean =>
     KNOTS.slice(1, -1).every((x: number): boolean => {
       const [below, above] = curvature(g, x, 1e-5);
-      return Math.abs(below - above) <= tolerance * Math.max(1, Math.abs(below), Math.abs(above));
+      return (
+        Math.abs(below - above) <=
+        tolerance * Math.max(1, Math.abs(below), Math.abs(above))
+      );
     });
   TestValidator.equals(
     "curvature runs on through every knot of an alternating profile",
     namedFacts([
-      ["knots", (): boolean => KNOTS.every((x: number, k: number): boolean => nclose(f(x), VALUES[k]!, 1e-12))],
+      [
+        "knots",
+        (): boolean =>
+          KNOTS.every((x: number, k: number): boolean =>
+            nclose(f(x), VALUES[k]!, 1e-12),
+          ),
+      ],
       ["spline", (): boolean => continuous(f, 1e-3)],
       ["monotoneJumps", (): boolean => !continuous(monotone, 0.1)],
     ]),
@@ -113,27 +166,64 @@ export function test_geometry_sweep_spline(): void {
 
   const stepKnots: number[] = [0, 0.1, 0.2, 0.3, 0.4];
   const stepValues: number[] = [0, 0, 1, 1, 1];
-  const step: (x: number) => number = interpolateAutoMovieSpline({ knots: stepKnots, values: stepValues });
+  const step: (x: number) => number = interpolateAutoMovieSpline({
+    knots: stepKnots,
+    values: stepValues,
+  });
   TestValidator.equals(
     "overshoot stays within a tenth of the local variation",
     namedFacts([
       ["alternating", (): boolean => overshoot(f, KNOTS, VALUES) <= 1.01],
       ["step", (): boolean => overshoot(step, stepKnots, stepValues) <= 1.01],
-      ["cubicWould", (): boolean => overshoot(natural(stepKnots, stepValues), stepKnots, stepValues) > 1.2],
-      ["stepKnots", (): boolean => stepKnots.every((x: number, k: number): boolean => nclose(step(x), stepValues[k]!, 1e-12))],
+      [
+        "cubicWould",
+        (): boolean =>
+          overshoot(natural(stepKnots, stepValues), stepKnots, stepValues) >
+          1.2,
+      ],
+      [
+        "stepKnots",
+        (): boolean =>
+          stepKnots.every((x: number, k: number): boolean =>
+            nclose(step(x), stepValues[k]!, 1e-12),
+          ),
+      ],
     ]),
     { alternating: true, step: true, cubicWould: true, stepKnots: true },
   );
 
-  const line: (x: number) => number = interpolateAutoMovieSpline({ knots: [0, 1], values: [2, 4] });
+  const line: (x: number) => number = interpolateAutoMovieSpline({
+    knots: [0, 1],
+    values: [2, 4],
+  });
   const period: number = 2 * Math.PI;
-  const periodic: (x: number) => number = interpolateAutoMovieSpline({ knots: [0, 1.5, 3, 4.5], values: [1, 2, 0.5, 1.8], period });
+  const periodic: (x: number) => number = interpolateAutoMovieSpline({
+    knots: [0, 1.5, 3, 4.5],
+    values: [1, 2, 0.5, 1.8],
+    period,
+  });
   TestValidator.equals(
     "degenerate and periodic profiles",
     namedFacts([
-      ["line", (): boolean => [0, 0.3, 0.71, 1].every((x: number): boolean => nclose(line(x), 2 + 2 * x, 1e-14))],
-      ["constant", (): boolean => interpolateAutoMovieSpline({ knots: [0.4], values: [7] })(3) === 7],
-      ["repeats", (): boolean => [-3, 0.4, 5.9].every((x: number): boolean => nclose(periodic(x), periodic(x + period), 1e-12))],
+      [
+        "line",
+        (): boolean =>
+          [0, 0.3, 0.71, 1].every((x: number): boolean =>
+            nclose(line(x), 2 + 2 * x, 1e-14),
+          ),
+      ],
+      [
+        "constant",
+        (): boolean =>
+          interpolateAutoMovieSpline({ knots: [0.4], values: [7] })(3) === 7,
+      ],
+      [
+        "repeats",
+        (): boolean =>
+          [-3, 0.4, 5.9].every((x: number): boolean =>
+            nclose(periodic(x), periodic(x + period), 1e-12),
+          ),
+      ],
       [
         "wrap",
         (): boolean => {
@@ -145,17 +235,38 @@ export function test_geometry_sweep_spline(): void {
     { line: true, constant: true, repeats: true, wrap: true },
   );
 
-  const circle = (r: number): IAutoMovieSweep.IStation["section"] => ({ type: "superellipse", right: r, up: r, left: r, down: r, exponents: [2, 2, 2, 2] });
-  const spine: IAutoMovieSweep["spine"] = { points: [{ x: 0, y: 0, z: 0 }, { x: 0, y: 1, z: 0 }], normal: { x: 0, y: 0, z: 1 } };
-  const stations: IAutoMovieSweep.IStation[] = Array.from({ length: 9 }, (_: unknown, k: number): IAutoMovieSweep.IStation => ({
-    at: k / 8,
-    section: circle(k % 2 === 0 ? 0.05 : 0.06),
-  }));
-  const ridged: IAutoMovieSweepSurface = compileAutoMovieSweep({ spine, stations });
+  const circle = (r: number): IAutoMovieSweep.IStation["section"] => ({
+    type: "superellipse",
+    right: r,
+    up: r,
+    left: r,
+    down: r,
+    exponents: [2, 2, 2, 2],
+  });
+  const spine: IAutoMovieSweep["spine"] = {
+    points: [
+      { x: 0, y: 0, z: 0 },
+      { x: 0, y: 1, z: 0 },
+    ],
+    normal: { x: 0, y: 0, z: 1 },
+  };
+  const stations: IAutoMovieSweep.IStation[] = Array.from(
+    { length: 9 },
+    (_: unknown, k: number): IAutoMovieSweep.IStation => ({
+      at: k / 8,
+      section: circle(k % 2 === 0 ? 0.05 : 0.06),
+    }),
+  );
+  const ridged: IAutoMovieSweepSurface = compileAutoMovieSweep({
+    spine,
+    stations,
+  });
   const along = (u: number): number => ridged.radius(u, 0.1);
   const bent: IAutoMovieSweepSurface = compileAutoMovieSweep({
     spine,
-    stations: [0, 1].map((at: number): IAutoMovieSweep.IStation => ({ at, section: circle(0.05) })),
+    stations: [0, 1].map(
+      (at: number): IAutoMovieSweep.IStation => ({ at, section: circle(0.05) }),
+    ),
     features: [
       {
         points: [
@@ -169,26 +280,68 @@ export function test_geometry_sweep_spline(): void {
   });
   // inside the gentle bend, across its middle point: a polyline's nearest segment switches there
   const inside = (u: number): number => bent.radius(u, -0.2 / (2 * Math.PI));
-  const jump: number = Math.abs((inside(0.5 + 1e-5) - inside(0.5)) / 1e-5 - (inside(0.5) - inside(0.5 - 1e-5)) / 1e-5);
+  const jump: number = Math.abs(
+    (inside(0.5 + 1e-5) - inside(0.5)) / 1e-5 -
+      (inside(0.5) - inside(0.5 - 1e-5)) / 1e-5,
+  );
   TestValidator.equals(
     "a sweep shows no terrace at its stations and no crease inside a feature's bend",
     namedFacts([
-      ["stations", (): boolean => stations.slice(1, -1).every((s: IAutoMovieSweep.IStation): boolean => {
-        const [below, above] = curvature(along, s.at, 1e-5);
-        return Math.abs(below - above) <= 1e-2 * Math.max(1, Math.abs(below), Math.abs(above));
-      })],
+      [
+        "stations",
+        (): boolean =>
+          stations
+            .slice(1, -1)
+            .every((s: IAutoMovieSweep.IStation): boolean => {
+              const [below, above] = curvature(along, s.at, 1e-5);
+              return (
+                Math.abs(below - above) <=
+                1e-2 * Math.max(1, Math.abs(below), Math.abs(above))
+              );
+            }),
+      ],
       ["corner", (): boolean => jump <= 1e-4],
     ]),
     { stations: true, corner: true },
   );
 
   const invalids: Array<readonly [string, () => unknown, string]> = [
-    ["no knot", (): unknown => interpolateAutoMovieSpline({ knots: [], values: [] }), "needs at least one knot"],
-    ["short values", (): unknown => interpolateAutoMovieSpline({ knots: [0, 1], values: [1] }), "needs one value per knot"],
-    ["unsorted knot", (): unknown => interpolateAutoMovieSpline({ knots: [0, 0.5, 0.2], values: [1, 2, 3] }), "knot 2 does not increase"],
-    ["non-finite value", (): unknown => interpolateAutoMovieSpline({ knots: [0, 1], values: [1, Number.NaN] }), "knot 1 is not finite"],
-    ["knot beyond period", (): unknown => interpolateAutoMovieSpline({ knots: [0, 1, 7], values: [1, 2, 3], period }), "periodic knots must lie in [0, period)"],
+    [
+      "no knot",
+      (): unknown => interpolateAutoMovieSpline({ knots: [], values: [] }),
+      "needs at least one knot",
+    ],
+    [
+      "short values",
+      (): unknown => interpolateAutoMovieSpline({ knots: [0, 1], values: [1] }),
+      "needs one value per knot",
+    ],
+    [
+      "unsorted knot",
+      (): unknown =>
+        interpolateAutoMovieSpline({ knots: [0, 0.5, 0.2], values: [1, 2, 3] }),
+      "knot 2 does not increase",
+    ],
+    [
+      "non-finite value",
+      (): unknown =>
+        interpolateAutoMovieSpline({ knots: [0, 1], values: [1, Number.NaN] }),
+      "knot 1 is not finite",
+    ],
+    [
+      "knot beyond period",
+      (): unknown =>
+        interpolateAutoMovieSpline({
+          knots: [0, 1, 7],
+          values: [1, 2, 3],
+          period,
+        }),
+      "periodic knots must lie in [0, period)",
+    ],
   ];
   for (const [name, callback, message] of invalids)
-    TestValidator.predicate(`${name} is refused by its own diagnostic`, throwsError(callback, message));
+    TestValidator.predicate(
+      `${name} is refused by its own diagnostic`,
+      throwsError(callback, message),
+    );
 }

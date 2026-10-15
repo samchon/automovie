@@ -27,13 +27,23 @@ export function sweepAutoMovieHumanToe(props: {
   const plantarAt = (f: number): number => profile(PLANTAR, f) * L;
   const halfAt = (f: number): number => profile(HALF_BREADTH, f) * toe.width;
   const fractions: number[] = [TOE_START, ...TOE_STATIONS, 1];
-  const centres: IAutoMovieVector3[] = fractions.map((f: number): IAutoMovieVector3 => {
-    const p: IAutoMovieVector3 = V.offset(toe.joint, [toe.direction, f * toe.length]);
-    const g: number = f === 1 ? TIP : f;
-    return V.of(p.x, (dorsumAt(g) + plantarAt(g)) / 2, p.z);
-  });
+  const centres: IAutoMovieVector3[] = fractions.map(
+    (f: number): IAutoMovieVector3 => {
+      const p: IAutoMovieVector3 = V.offset(toe.joint, [
+        toe.direction,
+        f * toe.length,
+      ]);
+      const g: number = f === 1 ? TIP : f;
+      return V.of(p.x, (dorsumAt(g) + plantarAt(g)) / 2, p.z);
+    },
+  );
   const out: sweepAutoMovieHumanDigit.IOutput = sweepAutoMovieHumanDigit({
-    points: [centres[0]!, centres[2]!, centres[4]!, centres[centres.length - 1]!],
+    points: [
+      centres[0]!,
+      centres[2]!,
+      centres[4]!,
+      centres[centres.length - 1]!,
+    ],
     first: V.of(0, 1, 0),
     pad: Math.PI,
     stations: [TOE_START, ...TOE_STATIONS].map(

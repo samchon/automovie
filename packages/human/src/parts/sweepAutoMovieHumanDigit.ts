@@ -23,7 +23,10 @@ export function sweepAutoMovieHumanDigit(props: {
     .map((p: IAutoMovieVector3, i: number): number =>
       V.distance(props.points[i]!, p),
     );
-  const total: number = lengths.reduce((a: number, b: number): number => a + b, 0);
+  const total: number = lengths.reduce(
+    (a: number, b: number): number => a + b,
+    0,
+  );
   const tip: sweepAutoMovieHumanDigit.IStation =
     props.stations[props.stations.length - 1]!;
   // the dome: a quarter circle of the last station's mean half-size, down to a disc of a fifth of it
@@ -61,7 +64,10 @@ export function sweepAutoMovieHumanDigit(props: {
         normal: props.first,
       },
       stations: stations.map(
-        (s: sweepAutoMovieHumanDigit.IStation, k: number): IAutoMovieSweep.IStation => ({
+        (
+          s: sweepAutoMovieHumanDigit.IStation,
+          k: number,
+        ): IAutoMovieSweep.IStation => ({
           at: ats[k]!,
           section: section(s, props.pad),
         }),
@@ -121,7 +127,13 @@ export namespace sweepAutoMovieHumanDigit {
 }
 
 /** Angles of the dome's stations from the tip's last full section toward its end, radians. */
-const DOME: number[] = [0, Math.PI / 6, Math.PI / 3, (5 * Math.PI) / 12, Math.PI / 2];
+const DOME: number[] = [
+  0,
+  Math.PI / 6,
+  Math.PI / 3,
+  (5 * Math.PI) / 12,
+  Math.PI / 2,
+];
 
 /** The dome's last band, in dome radii from the tip. */
 const NEAR: number = 0.15;
@@ -150,8 +162,11 @@ const section = (
       const e: number = 2 / s.square;
       // toward the pad and across, before the turn to the first axis
       const a: number =
-        (c >= 0 ? s.palmar : s.dorsal) * Math.sign(c) * Math.pow(Math.abs(c), e);
-      const b: number = (s.breadth / 2) * Math.sign(n) * Math.pow(Math.abs(n), e);
+        (c >= 0 ? s.palmar : s.dorsal) *
+        Math.sign(c) *
+        Math.pow(Math.abs(c), e);
+      const b: number =
+        (s.breadth / 2) * Math.sign(n) * Math.pow(Math.abs(n), e);
       return {
         x: (a * Math.cos(pad) - b * Math.sin(pad)) / 1000,
         y: (a * Math.sin(pad) + b * Math.cos(pad)) / 1000,

@@ -8,19 +8,38 @@ import {
 import { type IAutoMovieVector3 } from "@automovie/interface";
 
 /** Columns per quarter turn by tier. */
-const QUARTER: IAutoMovieSurfaceNetwork.ICounts = { lowest: 1, low: 2, medium: 4, high: 8 };
+const QUARTER: IAutoMovieSurfaceNetwork.ICounts = {
+  lowest: 1,
+  low: 2,
+  medium: 4,
+  high: 8,
+};
 
 /** Segments of each heel spoke, from the rim to the inner loop, by tier. */
-const SPOKE: IAutoMovieSurfaceNetwork.ICounts = { lowest: 1, low: 1, medium: 2, high: 4 };
+const SPOKE: IAutoMovieSurfaceNetwork.ICounts = {
+  lowest: 1,
+  low: 1,
+  medium: 2,
+  high: 4,
+};
 
 /** The inner loop's size relative to the base section. */
 const INSET: number = 0.6;
 
 /** Rows along the spine by tier. */
-const ROWS: IAutoMovieSurfaceNetwork.ICounts = { lowest: 2, low: 4, medium: 8, high: 16 };
+const ROWS: IAutoMovieSurfaceNetwork.ICounts = {
+  lowest: 2,
+  low: 4,
+  medium: 8,
+  high: 16,
+};
 
 /** A section with equal half-axes along `x` and `y` of its plane and one exponent, metres. */
-const rounded = (x: number, y: number, exponent: number): IAutoMovieSweepSection => ({
+const rounded = (
+  x: number,
+  y: number,
+  exponent: number,
+): IAutoMovieSweepSection => ({
   type: "superellipse",
   right: x,
   up: y,
@@ -55,11 +74,19 @@ const rounded = (x: number, y: number, exponent: number): IAutoMovieSweepSection
  * @param shape.height Height multiplier, 1 by default.
  * @returns The network, metres.
  */
-export function sweepBottle(shape: { width?: number; height?: number } = {}): IAutoMovieSurfaceNetwork {
+export function sweepBottle(
+  shape: { width?: number; height?: number } = {},
+): IAutoMovieSurfaceNetwork {
   const w: number = shape.width ?? 1;
   const h: number = shape.height ?? 1;
   const bottle: IAutoMovieSweep = {
-    spine: { points: [{ x: 0, y: 0, z: 0 }, { x: 0, y: 0.26 * h, z: 0 }], normal: { x: 0, y: 0, z: 1 } },
+    spine: {
+      points: [
+        { x: 0, y: 0, z: 0 },
+        { x: 0, y: 0.26 * h, z: 0 },
+      ],
+      normal: { x: 0, y: 0, z: 1 },
+    },
     stations: [
       { at: 0, section: rounded(0.04 * w, 0.022 * w, 2.6) },
       { at: 0.05, section: rounded(0.05 * w, 0.03 * w, 3) },
@@ -88,7 +115,10 @@ export function sweepBottle(shape: { width?: number; height?: number } = {}): IA
     [0.75, 1],
   ];
   const patches: IAutoMovieSurfaceNetwork.IPatch[] = quarters.map(
-    ([v0, v1]: [number, number], k: number): IAutoMovieSurfaceNetwork.IPatch => ({
+    (
+      [v0, v1]: [number, number],
+      k: number,
+    ): IAutoMovieSurfaceNetwork.IPatch => ({
       type: "sweep",
       name: `wall.${k}`,
       sweep: "bottle",
@@ -98,7 +128,10 @@ export function sweepBottle(shape: { width?: number; height?: number } = {}): IA
       columns: QUARTER,
     }),
   );
-  const bottom = (from: number, to: number): IAutoMovieSurfaceNetwork.ISweepEdge => ({
+  const bottom = (
+    from: number,
+    to: number,
+  ): IAutoMovieSurfaceNetwork.ISweepEdge => ({
     type: "sweep",
     sweep: "bottle",
     from: { u: 0, v: from },
@@ -116,7 +149,11 @@ export function sweepBottle(shape: { width?: number; height?: number } = {}): IA
     const size: number = Math.hypot(a.x, a.y, a.z);
     return { x: -a.x / size, y: -a.y / size, z: -a.z / size };
   };
-  const shrink = (p: IAutoMovieVector3, y: number): IAutoMovieVector3 => ({ x: INSET * p.x, y, z: INSET * p.z });
+  const shrink = (p: IAutoMovieVector3, y: number): IAutoMovieVector3 => ({
+    x: INSET * p.x,
+    y,
+    z: INSET * p.z,
+  });
   // the inner loop lies where every spoke can turn from the wall to level within half its run: the least such drop
   const drop: number = Math.min(
     ...[0, 0.25, 0.5, 0.75].map((v: number): number => {
@@ -125,13 +162,18 @@ export function sweepBottle(shape: { width?: number; height?: number } = {}): IA
       return (0.5 * run * -d.y) / Math.hypot(d.x, d.z);
     }),
   );
-  const inner = (v: number): IAutoMovieVector3 => shrink(rim(v), rim(v).y - drop);
+  const inner = (v: number): IAutoMovieVector3 =>
+    shrink(rim(v), rim(v).y - drop);
   for (let k: number = 0; k < 4; ++k) {
     const v: number = k / 4;
     // a quadratic arc from the rim down the wall to level at the inner loop, through its middle
     const d: IAutoMovieVector3 = down(v);
     const reach: number = drop / -d.y;
-    const bend: IAutoMovieVector3 = { x: rim(v).x + reach * d.x, y: rim(v).y - drop, z: rim(v).z + reach * d.z };
+    const bend: IAutoMovieVector3 = {
+      x: rim(v).x + reach * d.x,
+      y: rim(v).y - drop,
+      z: rim(v).z + reach * d.z,
+    };
     const end: IAutoMovieVector3 = inner(v);
     nodes[`rim.${k}`] = { type: "sweep", sweep: "bottle", u: 0, v };
     nodes[`inner.${k}`] = { type: "point", position: end };
@@ -170,7 +212,12 @@ export function sweepBottle(shape: { width?: number; height?: number } = {}): IA
   patches.push({
     type: "coons",
     name: "base",
-    sides: [3, 2, 1, 0].map((k: number): IAutoMovieSurfaceNetwork.ICurveEdge => ({ type: "curve", curve: `inner.${k}` })) as [
+    sides: [3, 2, 1, 0].map(
+      (k: number): IAutoMovieSurfaceNetwork.ICurveEdge => ({
+        type: "curve",
+        curve: `inner.${k}`,
+      }),
+    ) as [
       IAutoMovieSurfaceNetwork.ICurveEdge,
       IAutoMovieSurfaceNetwork.ICurveEdge,
       IAutoMovieSurfaceNetwork.ICurveEdge,
@@ -186,7 +233,10 @@ export function sweepBottle(shape: { width?: number; height?: number } = {}): IA
       {
         name: "mouth",
         edges: quarters.map(
-          ([v0, v1]: [number, number]): IAutoMovieSurfaceNetwork.ISweepEdge => ({
+          ([v0, v1]: [
+            number,
+            number,
+          ]): IAutoMovieSurfaceNetwork.ISweepEdge => ({
             type: "sweep",
             sweep: "bottle",
             from: { u: 1, v: v0 },

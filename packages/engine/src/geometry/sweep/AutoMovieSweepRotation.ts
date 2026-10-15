@@ -63,7 +63,10 @@ export namespace AutoMovieSweepRotation {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure operation.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing.
    */
-  export const normalize = (q: { [index: number]: number }, i: number): void => {
+  export const normalize = (
+    q: { [index: number]: number },
+    i: number,
+  ): void => {
     const size: number = Math.hypot(q[i]!, q[i + 1]!, q[i + 2]!, q[i + 3]!);
     if (size === 0) {
       q[i] = 0;
@@ -86,7 +89,12 @@ export namespace AutoMovieSweepRotation {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure operation.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing.
    */
-  export const conjugate = (q: ArrayLike<number>, i: number, out: { [index: number]: number }, oi: number): void => {
+  export const conjugate = (
+    q: ArrayLike<number>,
+    i: number,
+    out: { [index: number]: number },
+    oi: number,
+  ): void => {
     const x: number = q[i]!;
     const y: number = q[i + 1]!;
     const z: number = q[i + 2]!;

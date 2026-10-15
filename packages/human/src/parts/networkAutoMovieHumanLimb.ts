@@ -51,12 +51,16 @@ export function networkAutoMovieHumanLimb(
       );
   });
   const at: number[] = chordShares(
-    stations.map((s: IAutoMovieHumanLimbPlan.IStation): IAutoMovieVector3 => s.centre),
+    stations.map(
+      (s: IAutoMovieHumanLimbPlan.IStation): IAutoMovieVector3 => s.centre,
+    ),
   );
   const layout: patchAutoMovieHumanLimb.IOutput = patchAutoMovieHumanLimb({
     sweep: "limb",
     at,
-    columns: stations.map((s: IAutoMovieHumanLimbPlan.IStation): number => s.columns),
+    columns: stations.map(
+      (s: IAutoMovieHumanLimbPlan.IStation): number => s.columns,
+    ),
     rows: stations.map((s: IAutoMovieHumanLimbPlan.IStation): number => s.rows),
   });
   const ends: IEnd[] = [
@@ -75,7 +79,10 @@ export function networkAutoMovieHumanLimb(
         showAutoMovieHumanLimbRelief(r);
       return {
         points: r.points.map(
-          (p: IAutoMovieHumanLimbPlan.IReliefPoint, k: number): IAutoMovieSweep.IFeaturePoint => ({
+          (
+            p: IAutoMovieHumanLimbPlan.IReliefPoint,
+            k: number,
+          ): IAutoMovieSweep.IFeaturePoint => ({
             at: share(at, p.at),
             angle: p.angle,
             offset: metres(shown.heights[k]! * fade(p.at, n)),
@@ -91,19 +98,26 @@ export function networkAutoMovieHumanLimb(
       limb: {
         spine: {
           points: stations.map(
-            (s: IAutoMovieHumanLimbPlan.IStation): IAutoMovieVector3 => toMetres(s.centre),
+            (s: IAutoMovieHumanLimbPlan.IStation): IAutoMovieVector3 =>
+              toMetres(s.centre),
           ),
           normal: stations[0]!.anterior,
         },
         stations: stations.map(
-          (s: IAutoMovieHumanLimbPlan.IStation, i: number): IAutoMovieSweep.IStation => ({
+          (
+            s: IAutoMovieHumanLimbPlan.IStation,
+            i: number,
+          ): IAutoMovieSweep.IStation => ({
             at: at[i]!,
             section: sections[i]!,
             rotation: rotationOf(s),
           }),
         ),
         scale: scales.map(
-          (value: number, i: number): IAutoMovieSweep.IKnot => ({ at: at[i]!, value }),
+          (value: number, i: number): IAutoMovieSweep.IKnot => ({
+            at: at[i]!,
+            value,
+          }),
         ),
         features,
       },
@@ -111,12 +125,23 @@ export function networkAutoMovieHumanLimb(
     patches: layout.patches,
     rings: [
       ...ends.flatMap((e: IEnd): IAutoMovieSurfaceNetwork.IRing[] => [
-        { name: `ring.${e.stations[0]}`, edges: [e.edge(at[e.stations[0]]!)], positions: e.ring },
-        { name: `ring.${e.stations[1]}`, edges: [e.edge(at[e.stations[1]]!)], positions: e.collar },
+        {
+          name: `ring.${e.stations[0]}`,
+          edges: [e.edge(at[e.stations[0]]!)],
+          positions: e.ring,
+        },
+        {
+          name: `ring.${e.stations[1]}`,
+          edges: [e.edge(at[e.stations[1]]!)],
+          positions: e.collar,
+        },
       ]),
       // every other station's row, reported so its girth can be measured
       ...stations.flatMap(
-        (s: IAutoMovieHumanLimbPlan.IStation, i: number): IAutoMovieSurfaceNetwork.IRing[] =>
+        (
+          s: IAutoMovieHumanLimbPlan.IStation,
+          i: number,
+        ): IAutoMovieSurfaceNetwork.IRing[] =>
           s.girth === null
             ? []
             : [
@@ -160,10 +185,12 @@ export function networkAutoMovieHumanLimb(
   return {
     value: network(scales),
     domains: layout.domains,
-    rings: ends.map((e: IEnd): networkAutoMovieHumanLimb.IRing => ({
-      name: `ring.${e.stations[0]}`,
-      shape: e.shape,
-    })),
+    rings: ends.map(
+      (e: IEnd): networkAutoMovieHumanLimb.IRing => ({
+        name: `ring.${e.stations[0]}`,
+        shape: e.shape,
+      }),
+    ),
   };
 }
 /** Output types of {@link networkAutoMovieHumanLimb}. */
@@ -229,11 +256,16 @@ const end = (
   const points: IAutoMovieSweepSection.IPoint[] = shape.positions
     .map((p: IAutoMovieVector3): IAutoMovieSweepSection.IPoint => {
       const d: IAutoMovieVector3 = V.offset(p, [ring.centre, -1]);
-      return { x: metres(V.dot(d, ring.anterior)), y: metres(V.dot(d, across)) };
+      return {
+        x: metres(V.dot(d, ring.anterior)),
+        y: metres(V.dot(d, across)),
+      };
     })
     .sort(
-      (a: IAutoMovieSweepSection.IPoint, b: IAutoMovieSweepSection.IPoint): number =>
-        turn(a) - turn(b),
+      (
+        a: IAutoMovieSweepSection.IPoint,
+        b: IAutoMovieSweepSection.IPoint,
+      ): number => turn(a) - turn(b),
     );
   const shift: IAutoMovieVector3 = V.offset(collar.centre, [ring.centre, -1]);
   return {
@@ -242,7 +274,8 @@ const end = (
     section: { type: "bspline", points },
     ring: shape.positions.map(toMetres),
     collar: shape.positions.map(
-      (p: IAutoMovieVector3): IAutoMovieVector3 => toMetres(V.offset(p, [shift, 1])),
+      (p: IAutoMovieVector3): IAutoMovieVector3 =>
+        toMetres(V.offset(p, [shift, 1])),
     ),
     edge: (u: number): IAutoMovieSurfaceNetwork.ISweepEdge => ({
       type: "sweep",
@@ -274,7 +307,9 @@ const share = (at: number[], index: number): number => {
 };
 
 /** Rotation taking `+X` to the station's anterior, `+Y` to its axis crossed with that and `+Z` to its axis. */
-const rotationOf = (s: IAutoMovieHumanLimbPlan.IStation): IAutoMovieQuaternion =>
+const rotationOf = (
+  s: IAutoMovieHumanLimbPlan.IStation,
+): IAutoMovieQuaternion =>
   quaternionOf(s.anterior, V.cross(s.axis, s.anterior), s.axis);
 
 /** The unit quaternion of the rotation whose matrix columns are `x`, `y`, `z`, read from the matrix's largest diagonal term for stability. */
@@ -286,23 +321,45 @@ const quaternionOf = (
   const trace: number = x.x + y.y + z.z;
   if (trace > 0) {
     const s: number = Math.sqrt(trace + 1) * 2;
-    return { w: s / 4, x: (y.z - z.y) / s, y: (z.x - x.z) / s, z: (x.y - y.x) / s };
+    return {
+      w: s / 4,
+      x: (y.z - z.y) / s,
+      y: (z.x - x.z) / s,
+      z: (x.y - y.x) / s,
+    };
   }
   if (x.x > y.y && x.x > z.z) {
     const s: number = Math.sqrt(1 + x.x - y.y - z.z) * 2;
-    return { w: (y.z - z.y) / s, x: s / 4, y: (y.x + x.y) / s, z: (z.x + x.z) / s };
+    return {
+      w: (y.z - z.y) / s,
+      x: s / 4,
+      y: (y.x + x.y) / s,
+      z: (z.x + x.z) / s,
+    };
   }
   if (y.y > z.z) {
     const s: number = Math.sqrt(1 + y.y - x.x - z.z) * 2;
-    return { w: (z.x - x.z) / s, x: (y.x + x.y) / s, y: s / 4, z: (z.y + y.z) / s };
+    return {
+      w: (z.x - x.z) / s,
+      x: (y.x + x.y) / s,
+      y: s / 4,
+      z: (z.y + y.z) / s,
+    };
   }
   const s: number = Math.sqrt(1 + z.z - x.x - y.y) * 2;
-  return { w: (x.y - y.x) / s, x: (z.x + x.z) / s, y: (z.y + y.z) / s, z: s / 4 };
+  return {
+    w: (x.y - y.x) / s,
+    x: (z.x + x.z) / s,
+    y: (z.y + y.z) / s,
+    z: s / 4,
+  };
 };
 
 /** A section given in millimetres, in metres. */
 const metresOf = (section: IAutoMovieSweepSection): IAutoMovieSweepSection => {
-  const point = (p: IAutoMovieSweepSection.IPoint): IAutoMovieSweepSection.IPoint => ({
+  const point = (
+    p: IAutoMovieSweepSection.IPoint,
+  ): IAutoMovieSweepSection.IPoint => ({
     x: metres(p.x),
     y: metres(p.y),
   });
@@ -314,7 +371,9 @@ const metresOf = (section: IAutoMovieSweepSection): IAutoMovieSweepSection => {
         up: metres(section.up),
         left: metres(section.left),
         down: metres(section.down),
-        ...(section.centre !== undefined ? { centre: point(section.centre) } : {}),
+        ...(section.centre !== undefined
+          ? { centre: point(section.centre) }
+          : {}),
       };
     case "radial":
       return { type: "radial", radii: section.radii.map(metres) };
@@ -351,4 +410,3 @@ const toMetres = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
   y: metres(p.y),
   z: metres(p.z),
 });
-

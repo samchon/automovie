@@ -31,13 +31,29 @@ export function sweepAutoMovieHumanTrunkThigh(props: {
   const L: IAutoMovieHumanTrunkFrame.ILevels = frame.levels;
   const sign: 1 | -1 = props.side === "left" ? 1 : -1;
   const y: number = L.crotch - (L.axilla - L.crotch) / S.LOWER_ROWS;
-  const w: number = Math.min(1, Math.max(0, (L.gluteal - y) / (L.gluteal - ring.frame.origin.y)));
+  const w: number = Math.min(
+    1,
+    Math.max(0, (L.gluteal - y) / (L.gluteal - ring.frame.origin.y)),
+  );
   const lerp = (a: number, b: number): number => a + (b - a) * w;
-  const xs: number[] = ring.positions.map((p: IAutoMovieVector3): number => p.x);
-  const zs: number[] = ring.positions.map((p: IAutoMovieVector3): number => p.z);
-  const outer: number = lerp(furrow.half, Math.max(...xs.map((x: number): number => sign * x)));
-  const depth: number = lerp(furrow.depth, (Math.max(...zs) - Math.min(...zs)) / 2);
-  const centre: number = lerp(furrow.centre, (Math.max(...zs) + Math.min(...zs)) / 2);
+  const xs: number[] = ring.positions.map(
+    (p: IAutoMovieVector3): number => p.x,
+  );
+  const zs: number[] = ring.positions.map(
+    (p: IAutoMovieVector3): number => p.z,
+  );
+  const outer: number = lerp(
+    furrow.half,
+    Math.max(...xs.map((x: number): number => sign * x)),
+  );
+  const depth: number = lerp(
+    furrow.depth,
+    (Math.max(...zs) - Math.min(...zs)) / 2,
+  );
+  const centre: number = lerp(
+    furrow.centre,
+    (Math.max(...zs) + Math.min(...zs)) / 2,
+  );
   const shift: { x: number; z: number } = {
     x: (Math.max(...xs) + Math.min(...xs)) / 2 - ring.frame.origin.x,
     z: (Math.max(...zs) + Math.min(...zs)) / 2 - ring.frame.origin.z,
@@ -52,12 +68,19 @@ export function sweepAutoMovieHumanTrunkThigh(props: {
   return {
     length: AutoMovieHumanVector.distance(start, ring.frame.origin),
     sweep: {
-      spine: { points: [S.toMetres(start), S.toMetres(ring.frame.origin)], normal: { x: 0, y: 0, z: -1 } },
+      spine: {
+        points: [S.toMetres(start), S.toMetres(ring.frame.origin)],
+        normal: { x: 0, y: 0, z: -1 },
+      },
       stations: [
         {
           at: 0,
           // level like the crotch section above it, first axis backward, second toward the person's left
-          rotation: S.quaternionOf({ x: 0, y: 0, z: -1 }, { x: 1, y: 0, z: 0 }, { x: 0, y: -1, z: 0 }),
+          rotation: S.quaternionOf(
+            { x: 0, y: 0, z: -1 },
+            { x: 1, y: 0, z: 0 },
+            { x: 0, y: -1, z: 0 },
+          ),
           section: sectionAutoMovieHumanTrunkThigh({
             side: sign,
             centre,
@@ -68,8 +91,16 @@ export function sweepAutoMovieHumanTrunkThigh(props: {
             start: { x: start.x, z: start.z },
           }),
         },
-        { at: S.COLLAR.thigh, section: S.ringSection(ring, half), rotation: S.ringRotation(ring, half) },
-        { at: 1, section: S.ringSection(ring, half), rotation: S.ringRotation(ring, half) },
+        {
+          at: S.COLLAR.thigh,
+          section: S.ringSection(ring, half),
+          rotation: S.ringRotation(ring, half),
+        },
+        {
+          at: 1,
+          section: S.ringSection(ring, half),
+          rotation: S.ringRotation(ring, half),
+        },
       ],
     },
   };

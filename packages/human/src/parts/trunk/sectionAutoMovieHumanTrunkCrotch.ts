@@ -27,11 +27,18 @@ export function sectionAutoMovieHumanTrunkCrotch(props: {
     const angle: number = (2 * Math.PI * k) / SAMPLES;
     const forward: number = Math.cos(angle);
     const lateral: number = Math.sin(angle);
-    const spanning: number = radiusOf(forward / depth, lateral / half, exponent);
+    const spanning: number = radiusOf(
+      forward / depth,
+      lateral / half,
+      exponent,
+    );
     radii.push(
       (forward >= 0
         ? spanning
-        : Math.max(lobes(forward, lateral, depth, half / 2, exponent, props.medial), spanning - props.recess)) / 1000,
+        : Math.max(
+            lobes(forward, lateral, depth, half / 2, exponent, props.medial),
+            spanning - props.recess,
+          )) / 1000,
     );
   }
   return { type: "radial", radii };
@@ -61,7 +68,11 @@ const lobes = (
   const inside = (t: number): boolean => {
     const across: number = (t * lateral - side * width) / width;
     const e: number = across * side < 0 ? medial : n;
-    return Math.pow(Math.abs((t * forward) / depth), e) + Math.pow(Math.abs(across), e) <= 1;
+    return (
+      Math.pow(Math.abs((t * forward) / depth), e) +
+        Math.pow(Math.abs(across), e) <=
+      1
+    );
   };
   // the ray starts on the lobe's boundary at the centre and runs through the lobe, leaving it once
   let low: number = 0;

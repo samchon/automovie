@@ -105,7 +105,9 @@ export namespace IAutoMovieHumanCage {
    * @param network The network
    * @returns Its construction
    */
-  export const inModel = (network: IAutoMovieSurfaceNetwork): IConstruction => ({
+  export const inModel = (
+    network: IAutoMovieSurfaceNetwork,
+  ): IConstruction => ({
     network,
     origin: { x: 0, y: 0, z: 0 },
     x: { x: 1000, y: 0, z: 0 },

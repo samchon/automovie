@@ -62,7 +62,13 @@ export function planAutoMovieHumanArm(props: {
     return found.position;
   };
   const ring = (site: "upperArm" | "wrist"): IAutoMovieHumanRingShape =>
-    shapeAutoMovieHumanRing({ skeleton, measurements, site, side, part: "arm" });
+    shapeAutoMovieHumanRing({
+      skeleton,
+      measurements,
+      site,
+      side,
+      part: "arm",
+    });
   const upper: IAutoMovieHumanRingShape = ring("upperArm");
   const wrist: IAutoMovieHumanRingShape = ring("wrist");
   const elbow: IAutoMovieVector3 = joint("LowerArm");
@@ -72,17 +78,21 @@ export function planAutoMovieHumanArm(props: {
   const forearm: IAutoMovieVector3 = V.normalize(
     V.offset(joint("Hand"), [elbow, -1]),
   );
-  const above: number = V.dot(V.offset(elbow, [upper.frame.origin, -1]), humerus);
+  const above: number = V.dot(
+    V.offset(elbow, [upper.frame.origin, -1]),
+    humerus,
+  );
   const below: number = V.distance(elbow, wrist.frame.origin);
   // the medial side is counterclockwise about the distal axis on the left arm and clockwise on the right
   const mirror: number = side === "left" ? 1 : -1;
-  const sections: sectionAutoMovieHumanArm.ISection[] = sectionAutoMovieHumanArm(
-    arm,
-    tissue,
-  );
+  const sections: sectionAutoMovieHumanArm.ISection[] =
+    sectionAutoMovieHumanArm(arm, tissue);
   const last: number = sections.length - 1;
   const stations: IAutoMovieHumanLimbPlan.IStation[] = sections.map(
-    (section: sectionAutoMovieHumanArm.ISection, i: number): IAutoMovieHumanLimbPlan.IStation => {
+    (
+      section: sectionAutoMovieHumanArm.ISection,
+      i: number,
+    ): IAutoMovieHumanLimbPlan.IStation => {
       const level: number = section.level;
       const common = {
         name: `arm ${level}`,
@@ -135,44 +145,60 @@ export function planAutoMovieHumanArm(props: {
   const levels: number[] = sections.map(
     (s: sectionAutoMovieHumanArm.ISection): number => s.level,
   );
-  const along = (read: (s: sectionAutoMovieHumanArm.ISection) => number) =>
+  const along =
+    (read: (s: sectionAutoMovieHumanArm.ISection) => number) =>
     (level: number): number =>
       interpolate(
-        sections.map((s: sectionAutoMovieHumanArm.ISection): [number, number] => [
-          s.level,
-          read(s),
-        ]),
+        sections.map(
+          (s: sectionAutoMovieHumanArm.ISection): [number, number] => [
+            s.level,
+            read(s),
+          ],
+        ),
         level,
       );
   const deep = along((s: sectionAutoMovieHumanArm.ISection): number => s.deep);
   const regional: IAutoMovieHumanSubcutaneousFat =
     identity.composition.subcutaneousFat;
-  const girth = along((s: sectionAutoMovieHumanArm.ISection): number => s.girth);
-  const relief: IAutoMovieHumanLimbPlan.IRelief[] = AUTOMOVIE_HUMAN_ARM_RELIEF.map(
-    (form: IAutoMovieHumanArmRelief): IAutoMovieHumanLimbPlan.IRelief | null =>
-      traceAutoMovieHumanLimbRelief({
-        name: form.name,
-        levels,
-        from: form.from,
-        peak: form.peak,
-        to: form.to,
-        angle: (): number => (mirror * form.angle * Math.PI) / 180,
-        height: (level: number): number =>
-          form.amplitude *
-          (form.kind === "muscle" ? tissue.muscularity : 1) *
-          bump(level, form.from, form.peak, form.to) *
-          deep(level),
-        spread:
-          ((form.width * Math.PI) / 180) *
-          (girth(Math.min(1, Math.max(-1, form.peak))) / (2 * Math.PI)),
-        fat: over(regional, form),
-        reference: over(AUTOMOVIE_HUMAN_REFERENCE_LIMB_FAT, form),
-      }),
-  ).filter(
-    (r: IAutoMovieHumanLimbPlan.IRelief | null): r is IAutoMovieHumanLimbPlan.IRelief =>
-      r !== null,
+  const girth = along(
+    (s: sectionAutoMovieHumanArm.ISection): number => s.girth,
   );
-  return { part: "arm", side, proximal: upper, distal: wrist, stations, relief };
+  const relief: IAutoMovieHumanLimbPlan.IRelief[] =
+    AUTOMOVIE_HUMAN_ARM_RELIEF.map(
+      (
+        form: IAutoMovieHumanArmRelief,
+      ): IAutoMovieHumanLimbPlan.IRelief | null =>
+        traceAutoMovieHumanLimbRelief({
+          name: form.name,
+          levels,
+          from: form.from,
+          peak: form.peak,
+          to: form.to,
+          angle: (): number => (mirror * form.angle * Math.PI) / 180,
+          height: (level: number): number =>
+            form.amplitude *
+            (form.kind === "muscle" ? tissue.muscularity : 1) *
+            bump(level, form.from, form.peak, form.to) *
+            deep(level),
+          spread:
+            ((form.width * Math.PI) / 180) *
+            (girth(Math.min(1, Math.max(-1, form.peak))) / (2 * Math.PI)),
+          fat: over(regional, form),
+          reference: over(AUTOMOVIE_HUMAN_REFERENCE_LIMB_FAT, form),
+        }),
+    ).filter(
+      (
+        r: IAutoMovieHumanLimbPlan.IRelief | null,
+      ): r is IAutoMovieHumanLimbPlan.IRelief => r !== null,
+    );
+  return {
+    part: "arm",
+    side,
+    proximal: upper,
+    distal: wrist,
+    stations,
+    relief,
+  };
 }
 
 /** The subcutaneous fat over one form at an arm level, from a record of regional thicknesses. */

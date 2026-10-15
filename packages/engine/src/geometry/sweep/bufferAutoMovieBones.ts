@@ -24,13 +24,22 @@ import { IAutoMovieBoneBuffer } from "./IAutoMovieBoneBuffer";
  * @evidence contracts/performance.md#reuse-equivalent-work Each bone's rotation is computed once per pose and shared by every point and direction riding it.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains 10 B numbers and the name index, released with the buffer.
  */
-export const bufferAutoMovieBones: (rest: readonly IAutoMovieResolvedBone[]) => IAutoMovieBoneBuffer = (
+export const bufferAutoMovieBones: (
+  rest: readonly IAutoMovieResolvedBone[],
+) => IAutoMovieBoneBuffer = (
   rest: readonly IAutoMovieResolvedBone[],
 ): IAutoMovieBoneBuffer => {
   const count: number = rest.length;
-  const bones: AutoMovieHumanoidBone[] = rest.map((b: IAutoMovieResolvedBone): AutoMovieHumanoidBone => b.bone);
+  const bones: AutoMovieHumanoidBone[] = rest.map(
+    (b: IAutoMovieResolvedBone): AutoMovieHumanoidBone => b.bone,
+  );
   const names: Map<AutoMovieHumanoidBone, number> = new Map(
-    bones.map((b: AutoMovieHumanoidBone, i: number): [AutoMovieHumanoidBone, number] => [b, i]),
+    bones.map(
+      (
+        b: AutoMovieHumanoidBone,
+        i: number,
+      ): [AutoMovieHumanoidBone, number] => [b, i],
+    ),
   );
   // rest rotations inverted, rest origins, posed origins, rotations from rest to pose
   const inverse: Float64Array = new Float64Array(4 * count);
@@ -38,10 +47,21 @@ export const bufferAutoMovieBones: (rest: readonly IAutoMovieResolvedBone[]) => 
   const posed: Float64Array = new Float64Array(3 * count);
   const rotations: Float64Array = new Float64Array(4 * count);
   rest.forEach((b: IAutoMovieResolvedBone, i: number): void => {
-    inverse.set([b.worldRotation.x, b.worldRotation.y, b.worldRotation.z, b.worldRotation.w], 4 * i);
+    inverse.set(
+      [
+        b.worldRotation.x,
+        b.worldRotation.y,
+        b.worldRotation.z,
+        b.worldRotation.w,
+      ],
+      4 * i,
+    );
     AutoMovieSweepRotation.normalize(inverse, 4 * i);
     AutoMovieSweepRotation.conjugate(inverse, 4 * i, inverse, 4 * i);
-    origins.set([b.worldPosition.x, b.worldPosition.y, b.worldPosition.z], 3 * i);
+    origins.set(
+      [b.worldPosition.x, b.worldPosition.y, b.worldPosition.z],
+      3 * i,
+    );
   });
   // at rest every motion is the identity, applied as an exact copy
   let resting: boolean = true;
@@ -52,16 +72,19 @@ export const bufferAutoMovieBones: (rest: readonly IAutoMovieResolvedBone[]) => 
       rotations[4 * i + 1] = 0;
       rotations[4 * i + 2] = 0;
       rotations[4 * i + 3] = 1;
-      for (let a: number = 0; a < 3; ++a) posed[3 * i + a] = origins[3 * i + a]!;
+      for (let a: number = 0; a < 3; ++a)
+        posed[3 * i + a] = origins[3 * i + a]!;
     }
   };
   reset();
   const update = (list: readonly IAutoMovieResolvedBone[]): void => {
-    if (list.length !== count) throw new Error(`posed bones number ${list.length}, rest bones ${count}`);
+    if (list.length !== count)
+      throw new Error(`posed bones number ${list.length}, rest bones ${count}`);
     resting = false;
     for (let i: number = 0; i < count; ++i) {
       const b: IAutoMovieResolvedBone = list[i]!;
-      if (b.bone !== bones[i]) throw new Error(`posed bone ${i} is ${b.bone}, rest bone ${bones[i]}`);
+      if (b.bone !== bones[i])
+        throw new Error(`posed bone ${i} is ${b.bone}, rest bone ${bones[i]}`);
       const o: number = 4 * i;
       rotations[o] = b.worldRotation.x;
       rotations[o + 1] = b.worldRotation.y;
@@ -74,14 +97,33 @@ export const bufferAutoMovieBones: (rest: readonly IAutoMovieResolvedBone[]) => 
       posed[3 * i + 2] = b.worldPosition.z;
     }
   };
-  const copy = (v: ArrayLike<number>, vi: number, out: Float64Array, oi: number): void => {
+  const copy = (
+    v: ArrayLike<number>,
+    vi: number,
+    out: Float64Array,
+    oi: number,
+  ): void => {
     out[oi] = v[vi]!;
     out[oi + 1] = v[vi + 1]!;
     out[oi + 2] = v[vi + 2]!;
   };
-  const turn = (bone: number, v: ArrayLike<number>, vi: number, out: Float64Array, oi: number): void =>
-    resting ? copy(v, vi, out, oi) : AutoMovieSweepRotation.rotate(rotations, 4 * bone, v, vi, out, oi);
-  const apply = (bone: number, p: ArrayLike<number>, pi: number, out: Float64Array, oi: number): void => {
+  const turn = (
+    bone: number,
+    v: ArrayLike<number>,
+    vi: number,
+    out: Float64Array,
+    oi: number,
+  ): void =>
+    resting
+      ? copy(v, vi, out, oi)
+      : AutoMovieSweepRotation.rotate(rotations, 4 * bone, v, vi, out, oi);
+  const apply = (
+    bone: number,
+    p: ArrayLike<number>,
+    pi: number,
+    out: Float64Array,
+    oi: number,
+  ): void => {
     if (resting) return copy(p, pi, out, oi);
     const o: number = 3 * bone;
     out[oi] = p[pi]! - origins[o]!;
@@ -96,7 +138,8 @@ export const bufferAutoMovieBones: (rest: readonly IAutoMovieResolvedBone[]) => 
     bones,
     index: (bone: AutoMovieHumanoidBone): number => {
       const i: number | undefined = names.get(bone);
-      if (i === undefined) throw new Error(`bone ${bone} is missing from the rest or posed bones`);
+      if (i === undefined)
+        throw new Error(`bone ${bone} is missing from the rest or posed bones`);
       return i;
     },
     update,

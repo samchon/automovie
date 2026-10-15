@@ -51,5 +51,9 @@ export interface IAutoMovieSurfaceRig {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `rigAutoMovieSurfaceNetwork`.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `rigAutoMovieSurfaceNetwork`.
    */
-  pose(posed: readonly IAutoMovieResolvedBone[], positions: Float64Array, targets?: Float64Array): number;
+  pose(
+    posed: readonly IAutoMovieResolvedBone[],
+    positions: Float64Array,
+    targets?: Float64Array,
+  ): number;
 }

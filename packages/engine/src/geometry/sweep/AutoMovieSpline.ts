@@ -147,7 +147,16 @@ export namespace AutoMovieSpline {
         if (xs[middle]! <= x) low = middle;
         else high = middle;
       }
-    return segment(xs, ys, m, n, period, tension, low, (x - xs[low]!) / width(xs, n, period, low));
+    return segment(
+      xs,
+      ys,
+      m,
+      n,
+      period,
+      tension,
+      low,
+      (x - xs[low]!) / width(xs, n, period, low),
+    );
   };
 
   /** Whether the spline at a tension meets the overshoot bound, leaving its coefficients in `m`. */
@@ -183,25 +192,41 @@ export namespace AutoMovieSpline {
     const m1: number = m[l]!;
     if (tension < CUBIC) {
       const r: number = 1 - t;
-      return r * y0 + t * y1 + ((h * h) / 6) * (m0 * (r * r * r - r) + m1 * (t * t * t - t));
+      return (
+        r * y0 +
+        t * y1 +
+        ((h * h) / 6) * (m0 * (r * r * r - r) + m1 * (t * t * t - t))
+      );
     }
     const scale: number = (h * h) / (tension * tension);
     return (
-      (scale * (m0 * Math.sinh(tension * (1 - t)) + m1 * Math.sinh(tension * t))) / Math.sinh(tension) +
+      (scale *
+        (m0 * Math.sinh(tension * (1 - t)) + m1 * Math.sinh(tension * t))) /
+        Math.sinh(tension) +
       (y0 - m0 * scale) * (1 - t) +
       (y1 - m1 * scale) * t
     );
   };
 
   /** Width of segment `k`, the wrap segment's taken across the period. */
-  const width = (xs: ArrayLike<number>, n: number, period: number, k: number): number =>
-    k < n - 1 ? xs[k + 1]! - xs[k]! : xs[0]! + period - xs[n - 1]!;
+  const width = (
+    xs: ArrayLike<number>,
+    n: number,
+    period: number,
+    k: number,
+  ): number => (k < n - 1 ? xs[k + 1]! - xs[k]! : xs[0]! + period - xs[n - 1]!);
 
   /** The two coefficients of a segment of width `h` in the continuity system: its own and its neighbour's. */
   const own = (h: number, tension: number): number =>
-    tension < CUBIC ? h / 3 : h * (Math.cosh(tension) / (tension * Math.sinh(tension)) - 1 / (tension * tension));
+    tension < CUBIC
+      ? h / 3
+      : h *
+        (Math.cosh(tension) / (tension * Math.sinh(tension)) -
+          1 / (tension * tension));
   const across = (h: number, tension: number): number =>
-    tension < CUBIC ? h / 6 : h * (1 / (tension * tension) - 1 / (tension * Math.sinh(tension)));
+    tension < CUBIC
+      ? h / 6
+      : h * (1 / (tension * tension) - 1 / (tension * Math.sinh(tension)));
 
   /**
    * Solve the knots' second derivatives at one tension: natural ends, or cyclic for a period by the
@@ -231,7 +256,9 @@ export namespace AutoMovieSpline {
       scratch[r] = across(hb, tension);
       scratch[n + r] = own(hb, tension) + own(ha, tension);
       scratch[2 * n + r] = across(ha, tension);
-      scratch[3 * n + r] = (ys[(after + 1) % n]! - ys[after]!) / ha - (ys[(before + 1) % n]! - ys[before]!) / hb;
+      scratch[3 * n + r] =
+        (ys[(after + 1) % n]! - ys[after]!) / ha -
+        (ys[(before + 1) % n]! - ys[before]!) / hb;
     }
     if (period === 0) {
       m[0] = 0;
@@ -257,10 +284,13 @@ export namespace AutoMovieSpline {
     scratch[n] = scratch[n]! - gamma;
     scratch[2 * n - 1] = scratch[2 * n - 1]! - (alpha * beta) / gamma;
     eliminate(n, n, 3 * n, scratch, m, 0);
-    for (let r: number = 0; r < n; ++r) scratch[3 * n + r] = r === 0 ? gamma : r === n - 1 ? alpha : 0;
+    for (let r: number = 0; r < n; ++r)
+      scratch[3 * n + r] = r === 0 ? gamma : r === n - 1 ? alpha : 0;
     eliminate(n, n, 3 * n, scratch, scratch, 6 * n);
     const z: number = 6 * n;
-    const factor: number = (m[0]! + (beta * m[n - 1]!) / gamma) / (1 + scratch[z]! + (beta * scratch[z + n - 1]!) / gamma);
+    const factor: number =
+      (m[0]! + (beta * m[n - 1]!) / gamma) /
+      (1 + scratch[z]! + (beta * scratch[z + n - 1]!) / gamma);
     for (let r: number = 0; r < n; ++r) m[r] = m[r]! - factor * scratch[z + r]!;
   };
 
@@ -282,12 +312,16 @@ export namespace AutoMovieSpline {
     scratch[cp] = scratch[2 * n]! / scratch[n]!;
     scratch[dp] = scratch[rhs]! / scratch[n]!;
     for (let r: number = 1; r < count; ++r) {
-      const denominator: number = scratch[n + r]! - scratch[r]! * scratch[cp + r - 1]!;
+      const denominator: number =
+        scratch[n + r]! - scratch[r]! * scratch[cp + r - 1]!;
       scratch[cp + r] = scratch[2 * n + r]! / denominator;
-      scratch[dp + r] = (scratch[rhs + r]! - scratch[r]! * scratch[dp + r - 1]!) / denominator;
+      scratch[dp + r] =
+        (scratch[rhs + r]! - scratch[r]! * scratch[dp + r - 1]!) / denominator;
     }
     out[offset + count - 1] = scratch[dp + count - 1]!;
-    for (let r: number = count - 2; r >= 0; --r) out[offset + r] = scratch[dp + r]! - scratch[cp + r]! * out[offset + r + 1]!;
+    for (let r: number = count - 2; r >= 0; --r)
+      out[offset + r] =
+        scratch[dp + r]! - scratch[cp + r]! * out[offset + r + 1]!;
   };
 
   /** Whether no segment strays beyond its knots' range by more than the bound times the local variation. */
@@ -304,24 +338,35 @@ export namespace AutoMovieSpline {
     // the sample fractions are shared by every segment, so their hyperbolic weights are too
     const table: number = 7 * n;
     for (let j: number = 0; j <= SAMPLES; ++j)
-      scratch[table + j] = tension < CUBIC ? 0 : Math.sinh((tension * j) / SAMPLES) / Math.sinh(tension);
+      scratch[table + j] =
+        tension < CUBIC
+          ? 0
+          : Math.sinh((tension * j) / SAMPLES) / Math.sinh(tension);
     for (let k: number = 0; k < segments; ++k) {
       const l: number = (k + 1) % n;
       const low: number = Math.min(ys[k]!, ys[l]!);
       const high: number = Math.max(ys[k]!, ys[l]!);
       let variation: number = 0;
-      for (let j: number = k - 2; j <= k + 2; ++j) variation = Math.max(variation, rise(ys, n, segments, period, j));
+      for (let j: number = k - 2; j <= k + 2; ++j)
+        variation = Math.max(variation, rise(ys, n, segments, period, j));
       const allowed: number = BOUND * variation;
       const h: number = width(xs, n, period, k);
-      const scale: number = tension < CUBIC ? (h * h) / 6 : (h * h) / (tension * tension);
+      const scale: number =
+        tension < CUBIC ? (h * h) / 6 : (h * h) / (tension * tension);
       for (let j: number = 1; j < SAMPLES; ++j) {
         const t: number = j / SAMPLES;
         const r: number = 1 - t;
         // the segment formula of `segment`, with the shared weights
         const y: number =
           tension < CUBIC
-            ? r * ys[k]! + t * ys[l]! + scale * (m[k]! * (r * r * r - r) + m[l]! * (t * t * t - t))
-            : scale * (m[k]! * scratch[table + SAMPLES - j]! + m[l]! * scratch[table + j]!) + (ys[k]! - m[k]! * scale) * r + (ys[l]! - m[l]! * scale) * t;
+            ? r * ys[k]! +
+              t * ys[l]! +
+              scale * (m[k]! * (r * r * r - r) + m[l]! * (t * t * t - t))
+            : scale *
+                (m[k]! * scratch[table + SAMPLES - j]! +
+                  m[l]! * scratch[table + j]!) +
+              (ys[k]! - m[k]! * scale) * r +
+              (ys[l]! - m[l]! * scale) * t;
         if (y > high + allowed || y < low - allowed) return false;
       }
     }
@@ -329,6 +374,14 @@ export namespace AutoMovieSpline {
   };
 
   /** The value step of segment `k`, 0 beyond an open profile's ends. */
-  const rise = (ys: ArrayLike<number>, n: number, segments: number, period: number, k: number): number =>
-    period === 0 && (k < 0 || k >= segments) ? 0 : Math.abs(ys[(((k + 1) % n) + n) % n]! - ys[((k % n) + n) % n]!);
+  const rise = (
+    ys: ArrayLike<number>,
+    n: number,
+    segments: number,
+    period: number,
+    k: number,
+  ): number =>
+    period === 0 && (k < 0 || k >= segments)
+      ? 0
+      : Math.abs(ys[(((k + 1) % n) + n) % n]! - ys[((k % n) + n) % n]!);
 }

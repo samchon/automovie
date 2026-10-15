@@ -28,10 +28,10 @@ const TOLERANCE: number = 1e-6;
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A search; the caller's volume function owns any reuse.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing.
  */
-export const settleAutoMovieSweepVolume: (target: number, volume: (factor: number) => number) => number = (
+export const settleAutoMovieSweepVolume: (
   target: number,
   volume: (factor: number) => number,
-): number => {
+) => number = (target: number, volume: (factor: number) => number): number => {
   let a: number = 1;
   let va: number = volume(a);
   let b: number = Math.sqrt(target / va);

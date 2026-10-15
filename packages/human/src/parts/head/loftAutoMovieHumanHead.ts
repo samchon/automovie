@@ -47,7 +47,12 @@ export function loftAutoMovieHumanHead(
     tier: TIER,
   });
   return {
-    ...emit(sampled, built.frame, measurements.identity.head.headHeight, built.rings),
+    ...emit(
+      sampled,
+      built.frame,
+      measurements.identity.head.headHeight,
+      built.rings,
+    ),
     construction: IAutoMovieHumanCage.inModel(built.network),
   };
 }
@@ -64,38 +69,59 @@ const networkOf = (
   skeleton: IAutoMovieHumanSkeleton,
   form: IAutoMovieHumanHeadForm,
 ): INetwork => {
-  const frame: frameAutoMovieHumanHead.IFrame = frameAutoMovieHumanHead(skeleton);
-  const shape = (site: "neckTop" | "ear", side: "left" | "right" | null): IAutoMovieHumanRingShape =>
-    shapeAutoMovieHumanRing({ skeleton, measurements, site, side, part: "head" });
+  const frame: frameAutoMovieHumanHead.IFrame =
+    frameAutoMovieHumanHead(skeleton);
+  const shape = (
+    site: "neckTop" | "ear",
+    side: "left" | "right" | null,
+  ): IAutoMovieHumanRingShape =>
+    shapeAutoMovieHumanRing({
+      skeleton,
+      measurements,
+      site,
+      side,
+      part: "head",
+    });
   const neck: IAutoMovieHumanRingShape = shape("neckTop", null);
   const ears: Record<"left" | "right", IAutoMovieHumanRingShape> = {
     left: shape("ear", "left"),
     right: shape("ear", "right"),
   };
-  const local = (p: IAutoMovieVector3): IAutoMovieVector3 => frameAutoMovieHumanHead.toLocal(frame, p);
+  const local = (p: IAutoMovieVector3): IAutoMovieVector3 =>
+    frameAutoMovieHumanHead.toLocal(frame, p);
   const direction = (d: IAutoMovieVector3): IAutoMovieVector3 =>
-    frameAutoMovieHumanHead.toLocal({ ...frame, origin: AutoMovieHumanVector.of(0, 0, 0) }, d);
+    frameAutoMovieHumanHead.toLocal(
+      { ...frame, origin: AutoMovieHumanVector.of(0, 0, 0) },
+      d,
+    );
   // the ring's limit points along itself, which the sections end on
   const controls: IAutoMovieVector3[] = neck.positions.map(local);
   const n: number = controls.length;
-  const limit: IAutoMovieVector3[] = controls.map((p: IAutoMovieVector3, k: number) =>
-    AutoMovieHumanVector.offset(
-      AutoMovieHumanVector.of(0, 0, 0),
-      [controls[(k + n - 1) % n]!, 1 / 6],
-      [p, 4 / 6],
-      [controls[(k + 1) % n]!, 1 / 6],
-    ),
+  const limit: IAutoMovieVector3[] = controls.map(
+    (p: IAutoMovieVector3, k: number) =>
+      AutoMovieHumanVector.offset(
+        AutoMovieHumanVector.of(0, 0, 0),
+        [controls[(k + n - 1) % n]!, 1 / 6],
+        [p, 4 / 6],
+        [controls[(k + 1) % n]!, 1 / 6],
+      ),
   );
-  const profile: profileAutoMovieHumanHead.IProfile = profileAutoMovieHumanHead({
-    frame,
-    head: measurements.identity.head,
-    ring: { posterior: limit[n / 2]!, posterolateral: limit[(2 * n) / 3]! },
-    form,
-  });
+  const profile: profileAutoMovieHumanHead.IProfile = profileAutoMovieHumanHead(
+    {
+      frame,
+      head: measurements.identity.head,
+      ring: { posterior: limit[n / 2]!, posterolateral: limit[(2 * n) / 3]! },
+      form,
+    },
+  );
   const loft: sweepAutoMovieHumanHead.IOutput = sweepAutoMovieHumanHead({
     frame,
     profile,
-    ring: { origin: local(neck.frame.origin), normal: direction(neck.frame.normal), limit },
+    ring: {
+      origin: local(neck.frame.origin),
+      normal: direction(neck.frame.normal),
+      limit,
+    },
     tilt: frame.eye.y,
     blend: frame.stomion.y,
     relief: reliefAutoMovieHumanHead({
@@ -107,9 +133,23 @@ const networkOf = (
     }),
   });
   const surface: IAutoMovieSweepSurface = compileAutoMovieSweep(loft.sweep);
-  const domain: AutoMovieHumanHeadDomain = new AutoMovieHumanHeadDomain(surface, loft, frame, profile);
-  const network: AutoMovieHumanHeadNetwork = new AutoMovieHumanHeadNetwork(SWEEP);
-  layoutAutoMovieHumanHead({ domain, network, head: measurements.identity.head, form, neck, ears });
+  const domain: AutoMovieHumanHeadDomain = new AutoMovieHumanHeadDomain(
+    surface,
+    loft,
+    frame,
+    profile,
+  );
+  const network: AutoMovieHumanHeadNetwork = new AutoMovieHumanHeadNetwork(
+    SWEEP,
+  );
+  layoutAutoMovieHumanHead({
+    domain,
+    network,
+    head: measurements.identity.head,
+    form,
+    neck,
+    ears,
+  });
   return {
     network: network.build(loft.sweep),
     frame,
@@ -147,11 +187,20 @@ const emit = (
         positions[k + 2]! * 1000,
       ),
     });
-  const centre: IAutoMovieVector3 = AutoMovieHumanVector.of(0, CHART_CENTRE * headHeight, 0);
+  const centre: IAutoMovieVector3 = AutoMovieHumanVector.of(
+    0,
+    CHART_CENTRE * headHeight,
+    0,
+  );
   const chart: IAutoMovieHumanSurfaceCoordinate.IOn<"head">[] = vertices.map(
-    (v: IAutoMovieHumanCage.IVertex): IAutoMovieHumanSurfaceCoordinate.IOn<"head"> => {
+    (
+      v: IAutoMovieHumanCage.IVertex,
+    ): IAutoMovieHumanSurfaceCoordinate.IOn<"head"> => {
       const d: IAutoMovieVector3 = AutoMovieHumanVector.normalize(
-        AutoMovieHumanVector.offset(frameAutoMovieHumanHead.toLocal(frame, v.position), [centre, -1]),
+        AutoMovieHumanVector.offset(
+          frameAutoMovieHumanHead.toLocal(frame, v.position),
+          [centre, -1],
+        ),
       );
       return {
         part: "head",
@@ -174,7 +223,10 @@ const emit = (
     faces,
     creases: [],
     rings: rings.map(
-      ([name, shape]: [string, IAutoMovieHumanRingShape]): IAutoMovieHumanCage["rings"][number] => ({
+      ([name, shape]: [
+        string,
+        IAutoMovieHumanRingShape,
+      ]): IAutoMovieHumanCage["rings"][number] => ({
         site: shape.site,
         side: shape.side,
         vertices: sampled.rings[name]!,

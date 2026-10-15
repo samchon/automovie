@@ -72,21 +72,45 @@ export const rigAutoMovieSurfaceBridge: (props: {
   const basis: Float64Array = new Float64Array(4 * rows);
   for (let j: number = 1; j < rows; ++j) {
     const t: number = j / rows;
-    basis.set([2 * t ** 3 - 3 * t ** 2 + 1, t ** 3 - 2 * t ** 2 + t, -2 * t ** 3 + 3 * t ** 2, t ** 3 - t ** 2], 4 * j);
+    basis.set(
+      [
+        2 * t ** 3 - 3 * t ** 2 + 1,
+        t ** 3 - 2 * t ** 2 + t,
+        -2 * t ** 3 + 3 * t ** 2,
+        t ** 3 - t ** 2,
+      ],
+      4 * j,
+    );
   }
   // directions at the two loop points, a chord's ends and a base vector in turn
   const scratch: Float64Array = new Float64Array(15);
 
-  const arcs = (targets: Float64Array, index: Int32Array, arc: Float64Array): void => {
+  const arcs = (
+    targets: Float64Array,
+    index: Int32Array,
+    arc: Float64Array,
+  ): void => {
     arc[0] = 0;
     for (let k: number = 1; k <= n; ++k) {
       const a: number = 3 * index[k % n]!;
       const b: number = 3 * index[k - 1]!;
-      arc[k] = arc[k - 1]! + Math.hypot(targets[a]! - targets[b]!, targets[a + 1]! - targets[b + 1]!, targets[a + 2]! - targets[b + 2]!);
+      arc[k] =
+        arc[k - 1]! +
+        Math.hypot(
+          targets[a]! - targets[b]!,
+          targets[a + 1]! - targets[b + 1]!,
+          targets[a + 2]! - targets[b + 2]!,
+        );
     }
   };
   // the loop's point at a distance along it, closed, written at scratch[at]
-  const along = (targets: Float64Array, index: Int32Array, arc: Float64Array, distance: number, at: number): void => {
+  const along = (
+    targets: Float64Array,
+    index: Int32Array,
+    arc: Float64Array,
+    distance: number,
+    at: number,
+  ): void => {
     const total: number = arc[n]!;
     const d: number = ((distance % total) + total) % total;
     let k: number = 0;
@@ -95,7 +119,9 @@ export const rigAutoMovieSurfaceBridge: (props: {
     const w: number = span > 0 ? (d - arc[k]!) / span : 0;
     const a: number = 3 * index[k]!;
     const b: number = 3 * index[(k + 1) % n]!;
-    for (let c: number = 0; c < 3; ++c) scratch[at + c] = targets[a + c]! + (targets[b + c]! - targets[a + c]!) * w;
+    for (let c: number = 0; c < 3; ++c)
+      scratch[at + c] =
+        targets[a + c]! + (targets[b + c]! - targets[a + c]!) * w;
   };
   // the unit direction a column leaves or reaches loop point k along, written at scratch[at]
   const direction = (
@@ -114,13 +140,20 @@ export const rigAutoMovieSurfaceBridge: (props: {
       const p: Float64Array = point.sweep.rig.probes;
       const o: number = 6 * probe;
       if (rule === "forward" || rule === "backward") {
-        const size: number = Math.hypot(p[o + 3]!, p[o + 4]!, p[o + 5]!) * (rule === "forward" ? 1 : -1);
-        for (let c: number = 0; c < 3; ++c) scratch[at + c] = p[o + 3 + c]! / size;
-      } else for (let c: number = 0; c < 3; ++c) scratch[at + c] = p[o + c]! * (rule === "inward" ? -1 : 1);
-    } else if (rule === "across") point.curve!.rig.normal(point.curve!.t, scratch, at);
+        const size: number =
+          Math.hypot(p[o + 3]!, p[o + 4]!, p[o + 5]!) *
+          (rule === "forward" ? 1 : -1);
+        for (let c: number = 0; c < 3; ++c)
+          scratch[at + c] = p[o + 3 + c]! / size;
+      } else
+        for (let c: number = 0; c < 3; ++c)
+          scratch[at + c] = p[o + c]! * (rule === "inward" ? -1 : 1);
+    } else if (rule === "across")
+      point.curve!.rig.normal(point.curve!.t, scratch, at);
     else point.curve!.rig.direction(scratch, at);
     if (rule !== "across") return;
-    const before: number = arc[k]! - arc[(k + n - 1) % n]! + (k === 0 ? arc[n]! : 0);
+    const before: number =
+      arc[k]! - arc[(k + n - 1) % n]! + (k === 0 ? arc[n]! : 0);
     const step: number = Math.max(reach, arc[k + 1]! - arc[k]!, before);
     along(targets, index, arc, arc[k]! + step, 6);
     along(targets, index, arc, arc[k]! - step, 9);
@@ -144,9 +177,35 @@ export const rigAutoMovieSurfaceBridge: (props: {
     for (let k: number = 0; k < n; ++k) {
       const a: number = 3 * ia[k]!;
       const b: number = 3 * ib[k]!;
-      const m: number = tension * Math.hypot(targets[b]! - targets[a]!, targets[b + 1]! - targets[a + 1]!, targets[b + 2]! - targets[a + 2]!);
-      direction(targets, props.from, ia, arcA, probes[k]!, k, m / rows, props.fromRule, 0);
-      direction(targets, props.to, ib, arcB, probes[n + k]!, k, m / rows, props.toRule, 3);
+      const m: number =
+        tension *
+        Math.hypot(
+          targets[b]! - targets[a]!,
+          targets[b + 1]! - targets[a + 1]!,
+          targets[b + 2]! - targets[a + 2]!,
+        );
+      direction(
+        targets,
+        props.from,
+        ia,
+        arcA,
+        probes[k]!,
+        k,
+        m / rows,
+        props.fromRule,
+        0,
+      );
+      direction(
+        targets,
+        props.to,
+        ib,
+        arcB,
+        probes[n + k]!,
+        k,
+        m / rows,
+        props.toRule,
+        3,
+      );
       for (let j: number = 1; j < rows; ++j) {
         const o: number = 3 * interior[k * (rows - 1) + j - 1]!;
         const h: number = 4 * j;
@@ -154,7 +213,8 @@ export const rigAutoMovieSurfaceBridge: (props: {
           targets[o + c] =
             targets[a + c]! * basis[h]! +
             scratch[c]! * m * basis[h + 1]! +
-            (targets[b + c]! * basis[h + 2]! + scratch[3 + c]! * m * basis[h + 3]!);
+            (targets[b + c]! * basis[h + 2]! +
+              scratch[3 + c]! * m * basis[h + 3]!);
       }
     }
   };
