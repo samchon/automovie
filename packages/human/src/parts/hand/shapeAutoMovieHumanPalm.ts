@@ -2,18 +2,9 @@ import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { AUTOMOVIE_HUMAN_HAND_FORM } from "./AUTOMOVIE_HUMAN_HAND_FORM";
+import { AUTOMOVIE_HUMAN_HAND_SHAPE } from "./AUTOMOVIE_HUMAN_HAND_SHAPE";
 import { AutoMovieHumanHandSketch } from "./AutoMovieHumanHandSketch";
 import { readAutoMovieHumanHand } from "./readAutoMovieHumanHand";
-
-/**
- * Palmar relief over each finger's line, as a share of the plain section's depth, by the share of the way from the carpometacarpal line to the metacarpal heads: the thenar's ulnar slope over the index line near the wrist, the hollow of the palm over the middle and ring lines, and the hypothenar eminence over the little finger's line, highest at mid-palm (Gray 1918: the thenar eminence larger and rounder than the long narrow hypothenar). Conventional.
- */
-const PADS: Array<(t: number) => number> = [
-  (t: number): number => 0.15 * (1 - t),
-  (t: number): number => -0.1 * Math.sin(t * Math.PI),
-  (t: number): number => -0.1 * Math.sin(t * Math.PI),
-  (t: number): number => 0.18 * Math.sin(t * Math.PI),
-];
 
 /**
  * Draw the palm and the back of the hand from the wrist ring to the finger sockets, with the thumb's socket in its radial side.
@@ -34,6 +25,14 @@ export function shapeAutoMovieHumanPalm(
 ): shapeAutoMovieHumanPalm.IOutput {
   const V: typeof AutoMovieHumanVector = AutoMovieHumanVector;
   const F: typeof AUTOMOVIE_HUMAN_HAND_FORM = AUTOMOVIE_HUMAN_HAND_FORM;
+  const P: typeof AUTOMOVIE_HUMAN_HAND_SHAPE.palm = AUTOMOVIE_HUMAN_HAND_SHAPE.palm;
+  // palmar relief over each finger line by the share of the way from the carpometacarpal line to the heads: the thenar slope over the index, the hollow over the middle and ring, the hypothenar over the little finger
+  const relief: Array<(t: number) => number> = [
+    (t: number): number => P.thenar * (1 - t),
+    (t: number): number => -P.hollow * Math.sin(t * Math.PI),
+    (t: number): number => -P.hollow * Math.sin(t * Math.PI),
+    (t: number): number => P.hypothenar * Math.sin(t * Math.PI),
+  ];
   const hand: readAutoMovieHumanHand.IHand = props.hand;
   const b: number = props.breadth;
   const L: number = props.length;
@@ -51,17 +50,17 @@ export function shapeAutoMovieHumanPalm(
   const thickness: number = F.palm.thickness * b;
   const level = (x: number): number => Math.min(1, Math.max(0, x / heads));
   const radialEdge = (x: number): number =>
-    aw + (hand.metacarpaleII.z - aw) * (1 - Math.pow(1 - level(x), 3));
+    aw + (hand.metacarpaleII.z - aw) * (1 - Math.pow(1 - level(x), P.widen));
   const ulnarEdge = (x: number): number =>
-    -aw + (hand.metacarpaleV.z + aw) * (1 - Math.pow(1 - level(x), 3));
+    -aw + (hand.metacarpaleV.z + aw) * (1 - Math.pow(1 - level(x), P.widen));
   const across = (x: number, zeta: number): number =>
     (radialEdge(x) + ulnarEdge(x)) / 2 + (zeta * (radialEdge(x) - ulnarEdge(x))) / 2;
   const arch = (x: number, zeta: number): number => {
-    const n: number = 2 + level(x);
+    const n: number = 2 + P.arch * level(x);
     return Math.pow(Math.max(0, 1 - Math.pow(Math.abs(zeta), n)), 1 / n);
   };
-  const dorsalHeight = (x: number): number => cw + (thickness * F.palm.dorsal - cw) * level(x);
-  const palmarDepth = (x: number): number => cw + (thickness * (1 - F.palm.dorsal) - cw) * level(x);
+  const dorsalHeight = (x: number): number => cw + (thickness * P.dorsal - cw) * level(x);
+  const palmarDepth = (x: number): number => cw + (thickness * (1 - P.dorsal) - cw) * level(x);
   /** Dorsal surface point at a level and a share of the half breadth from the centre. */
   const dorsal = (x: number, zeta: number, rise: number = 0): IAutoMovieVector3 =>
     V.of(x, -dorsalHeight(x) * (arch(x, zeta) + rise), across(x, zeta));
@@ -87,9 +86,9 @@ export function shapeAutoMovieHumanPalm(
     return [
       palmar(x, 0.72),
       ...[0, 1, 2, 3].map((i: number): IAutoMovieVector3 =>
-        palmar(shaft(i, t), zetas[i]! * spread, PADS[i]!(t)),
+        palmar(shaft(i, t), zetas[i]! * spread, relief[i]!(t)),
       ),
-      palmar(shaft(3, t), -0.88, 0.25 * Math.sin(t * Math.PI)),
+      palmar(shaft(3, t), -0.88, P.border * Math.sin(t * Math.PI)),
       border(shaft(3, t), -1, 0.2),
       dorsal(shaft(3, t), -0.88),
       ...[3, 2, 1, 0].map((i: number): IAutoMovieVector3 => dorsal(shaft(i, t), zetas[i]! * spread, 0.04)),
@@ -143,16 +142,16 @@ export function shapeAutoMovieHumanPalm(
   const sockets: number[][] = fingers.map((f: readAutoMovieHumanHand.IDigit, i: number): number[] => {
     const knuckle: IAutoMovieVector3 = f.points[0]!;
     const w: number = widths[i]! * 1.06;
-    const rise: number = thickness * F.palm.dorsal * (i === 1 ? 1.16 : 1.1);
-    const pad: number = thickness * (1 - F.palm.dorsal) * 0.62;
+    const rise: number = thickness * P.dorsal * P.knuckle * (i === 1 ? P.middleKnuckle : 1);
+    const pad: number = thickness * (1 - P.dorsal) * P.pad;
     // the flanks, 2 and 6, are the webs' and borders' vertices, added below
     return [
       V.of(f.crease, pad, knuckle.z),
       V.of(f.crease, pad * 0.8, knuckle.z - w * 0.38),
       null,
-      V.of(knuckle.x, -rise * 0.84, knuckle.z - w * 0.4),
+      V.of(knuckle.x, -rise * P.knuckleFlank, knuckle.z - w * 0.4),
       V.of(knuckle.x - 0.01 * L, -rise, knuckle.z),
-      V.of(knuckle.x, -rise * 0.84, knuckle.z + w * 0.4),
+      V.of(knuckle.x, -rise * P.knuckleFlank, knuckle.z + w * 0.4),
       null,
       V.of(f.crease, pad * 0.8, knuckle.z + w * 0.38),
     ].map((t: IAutoMovieVector3 | null): number => (t === null ? -1 : sketch.vertex(t)));
