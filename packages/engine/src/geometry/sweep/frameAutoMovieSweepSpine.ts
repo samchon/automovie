@@ -21,7 +21,10 @@ const DENSITY: number = 64;
  * over the centripetal spacings `d`, so positions and tangents are closed
  * forms with no difference step and scale with the points exactly. A
  * per-coordinate monotone interpolant would stop each coordinate flat at a
- * bent joint and leave a corner there. Within each segment the parameter
+ * bent joint and leave a corner there. A declared end tangent replaces the
+ * first or last derivative's direction and keeps its length, so the end
+ * segment stays a cubic of the same speed that leaves or reaches its point
+ * along the declared direction. Within each segment the parameter
  * runs linearly from its start point's chord-length share to its end
  * point's, so stations at those shares sit on the points. Frames are
  * transported by the double reflection method of Wang, Juttler, Zheng and Liu
@@ -35,7 +38,7 @@ const DENSITY: number = 64;
  *
  * @param spine The spine, only read.
  * @returns The compiled path.
- * @throws Error when the spine has fewer than two points, a point or the normal is not finite, two consecutive points coincide, the path reverses at a point, the normal is parallel to the first tangent, or the tangent vanishes somewhere on the path.
+ * @throws Error when the spine has fewer than two points, a point, the normal or an end tangent is not finite or an end tangent is zero, two consecutive points coincide, the path reverses at a point, the normal is parallel to the first tangent, or the tangent vanishes somewhere on the path.
  *
  * @evidence contracts/common.md#principled-implementation The centripetal Catmull-Rom spline interpolates the points without cusps or self-intersections within a segment, and double reflection is a published fourth-order rotation-minimizing frame integrator; the frame between table entries is one more double reflection, so queries are consistent with the table.
  * @evidence contracts/common.md#clear-and-simple-design One compile step returns a path record of closures; the sweep compiler is the only consumer and asks only for points, tangents and frames.
@@ -93,11 +96,26 @@ export const frameAutoMovieSweepSpine: (spine: IAutoMovieSweepSpine) => IAutoMov
       Vector3.scale(Vector3.subtract(at(k + 1), at(k)), 1 / after),
     );
   };
+  // a declared end direction replaces the spline's own and keeps its speed
+  const steer = (natural: IAutoMovieVector3, direction: IAutoMovieVector3 | undefined, what: string): IAutoMovieVector3 => {
+    if (direction === undefined) return natural;
+    const size: number = Vector3.length(direction);
+    if (![direction.x, direction.y, direction.z].every(Number.isFinite) || !(size > 0))
+      throw new Error(`sweep spine ${what} tangent must be finite and not zero`);
+    return Vector3.scale(direction, Vector3.length(natural) / size);
+  };
   // each segment as a cubic Hermite in its own parameter s from 0 to 1
   const segments: Array<{ p0: IAutoMovieVector3; p1: IAutoMovieVector3; m0: IAutoMovieVector3; m1: IAutoMovieVector3 }> =
     Array.from({ length: n - 1 }, (_: unknown, k: number) => {
       const span: number = spacing(k);
-      return { p0: at(k), p1: at(k + 1), m0: Vector3.scale(slope(k), span), m1: Vector3.scale(slope(k + 1), span) };
+      const m0: IAutoMovieVector3 = Vector3.scale(slope(k), span);
+      const m1: IAutoMovieVector3 = Vector3.scale(slope(k + 1), span);
+      return {
+        p0: at(k),
+        p1: at(k + 1),
+        m0: k === 0 ? steer(m0, spine.tangents?.start, "start") : m0,
+        m1: k === n - 2 ? steer(m1, spine.tangents?.end, "end") : m1,
+      };
     });
   const clamp = (u: number): number => Math.min(1, Math.max(0, u));
   const locate = (c: number): { k: number; s: number } => {

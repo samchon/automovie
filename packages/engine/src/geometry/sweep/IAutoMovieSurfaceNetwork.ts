@@ -104,7 +104,7 @@ export namespace IAutoMovieSurfaceNetwork {
   }
 
   /**
-   * A curve from one node to another through optional points: the centripetal Catmull-Rom spline through them all, sampled by chord-length share.
+   * A curve from one node to another through optional points: the centripetal Catmull-Rom spline through them all, sampled by chord-length share. At a node on a sweep the curve leaves or arrives in the sweep's tangent plane: its end direction is the spline's own less the part along the sweep's normal, so a curve on the surface meets the sweep without a kink.
    *
    * @author Samchon
    */
