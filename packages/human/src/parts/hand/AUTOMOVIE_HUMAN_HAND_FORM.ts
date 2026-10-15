@@ -1,0 +1,53 @@
+/**
+ * Proportions of the hand's skin that its skeleton does not carry, each a ratio to an identity measurement, so a child's broader hand gets its own thicker fingers rather than a scaled adult's.
+ *
+ * Most values come from the 1987-1988 US Army hand survey, digitised from photographs of the flat right hand of 1,304 women and 1,003 men (Greiner 1991, "Hand Anthropometry of U.S. Army Personnel", NATICK/TR-92/011, summary tables). Its means are pooled over the sexes as ratios to its own measured hand breadth, 79.5 mm in women and 90.4 mm in men, or hand length, 180.7 and 194.1 mm. No child or elderly hand survey of these quantities was read, so the adult ratios are held at every age.
+ */
+export const AUTOMOVIE_HUMAN_HAND_FORM = {
+  /**
+   * Breadth of each finger across its proximal and distal interphalangeal joint creases over hand breadth (Greiner 1991: index 19.9 and 17.3 mm in women, 23.0 and 20.1 in men; middle 19.3, 17.1, 22.5, 19.8; ring 18.4, 15.8, 21.4, 18.5; little 16.5, 14.7, 19.2, 17.4). Grade: measured, ratios derived.
+   *
+   * `nail` is the nail plate's width between the lateral nail grooves over the distal joint breadth, from calipers on 18 men and 20 women aged 21 (Shirato et al. 2017, J Phys Ther Sci 29(11):1914-1919, Table 1: index 10.6 and 9.1 mm, middle 11.4 and 10.0, men and women) against Greiner's distal joint breadths. Ring and little nails were not measured; they hold the mean of the index and middle, conventional.
+   */
+  fingers: {
+    Index: { pip: 0.252, dip: 0.22, nail: 0.527 },
+    Middle: { pip: 0.246, dip: 0.217, nail: 0.58 },
+    Ring: { pip: 0.234, dip: 0.202, nail: 0.554 },
+    Little: { pip: 0.21, dip: 0.189, nail: 0.554 },
+  },
+
+  /**
+   * The thumb's breadth at its interphalangeal joint over hand breadth (Greiner 1991: 20.6 and 24.0 mm), and its nail width over that breadth (Shirato et al. 2017: 13.6 and 12.1 mm, men and women). Grade: measured, ratios derived.
+   */
+  thumb: { ip: 0.262, nail: 0.577 },
+
+  /**
+   * Joint depth over joint breadth. Greiner's joint circumferences, regressed on the joint breadths in a measured subsample, enclose the breadths as ellipses (Ramanujan's perimeter) whose other axis is this share: 0.89 to 1.02 at the proximal finger joints, 0.79 to 0.89 at the distal ones and 0.92 and 0.95 at the thumb's interphalangeal joint, pooled over the four fingers and both sexes. Grade: derived.
+   */
+  depth: { pip: 0.953, dip: 0.849, thumb: 0.932 },
+
+  /**
+   * The wrist section at the stylion cut: its breadth over the wrist circumference (Greiner 1991: 57.0 of 151.4 mm and 65.8 of 174.3) and its depth over its breadth, the other axis of the ellipse with that breadth and circumference (0.675 and 0.670). Grade: measured breadth, derived depth.
+   */
+  wrist: { breadth: 0.377, depth: 0.673 },
+
+  /**
+   * Palm thickness at the metacarpal heads over hand breadth. ANSUR II hand circumference over metacarpales II and V is 2.388 and 2.406 times hand breadth (Gordon et al. 2014, NATICK/TR-15/007); a section of superellipse exponent 3, between the oval wrist and the boxy hand, with that breadth and perimeter is 0.34 and 0.355 of the breadth thick. The share of it dorsal to the plane of the metacarpophalangeal joint centres is conventional: a metacarpal head with thin extensor cover above, the volar plate, flexor tendons and palmar pad below. Grade: derived thickness, conventional split.
+   */
+  palm: { thickness: 0.35, dorsal: 0.4 },
+
+  /**
+   * Depth of the web between thumb and index below the wrist crease, over hand length (Greiner 1991, crotch 1 height: 62.8 and 69.1 mm). Grade: measured, ratio derived.
+   */
+  thumbWeb: 0.352,
+
+  /**
+   * Webs between the fingers relative to the palmar creases at the bases of the two fingers they join, in hand lengths beyond the creases' mean level (Greiner 1991, crotch heights 2 to 4 against digit tip-to-wrist-crease length less digit length: index to middle -0.1 and +0.1 mm, middle to ring +1.4 and +1.7, ring to little -4.1 and -3.9). Grade: measured, offsets derived.
+   */
+  webs: [0, 0.008, -0.021],
+
+  /**
+   * Visible nail length from the proximal nail fold to the fingertip over the length of the distal segment from the distal joint centre to the tip (Shirato et al. 2017: thumb 13.7 and 13.5 mm, index 12.3 and 11.8, middle 13.4 and 12.6; against Greiner's distal phalanx link lengths 34.5 and 30.8 for the thumb and 28.4 and 25.5 for the index and middle). Ring and little hold the index and middle mean, conventional. Grade: derived.
+   */
+  nailLength: { Thumb: 0.418, Index: 0.448, Middle: 0.483, Ring: 0.466, Little: 0.466 },
+} as const;

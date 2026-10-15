@@ -1,17 +1,25 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
-import { AutoMovieHumanCageBuilder } from "../../junction/AutoMovieHumanCageBuilder";
 import { IAutoMovieHumanCage } from "../../junction/IAutoMovieHumanCage";
 import { IAutoMovieHumanRingLayout } from "../../junction/IAutoMovieHumanRingLayout";
+import { IAutoMovieHumanSurfaceCoordinate } from "../../junction/IAutoMovieHumanSurfaceCoordinate";
 import { layoutAutoMovieHumanRing } from "../../junction/layoutAutoMovieHumanRing";
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanIdentity } from "../../structures/IAutoMovieHumanIdentity";
-import { IAutoMovieHumanPartGenerator } from "../IAutoMovieHumanPartGenerator";
+import { IAutoMovieHumanPartGenerator } from "../../parts/IAutoMovieHumanPartGenerator";
+import { AUTOMOVIE_HUMAN_HAND_FORM } from "./AUTOMOVIE_HUMAN_HAND_FORM";
+import { AutoMovieHumanHandSketch } from "./AutoMovieHumanHandSketch";
+import { calibrateAutoMovieHumanHand } from "./calibrateAutoMovieHumanHand";
+import { readAutoMovieHumanHand } from "./readAutoMovieHumanHand";
+import { shapeAutoMovieHumanDigit } from "./shapeAutoMovieHumanDigit";
+import { shapeAutoMovieHumanPalm } from "./shapeAutoMovieHumanPalm";
 
 /**
- * Hand placeholder: a flattened mitten from the wrist ring along the hand's length, closed by a quad cap.
+ * The hand from the wrist ring: palm, back of the hand, thenar and hypothenar eminences, four fingers and the thumb, as one control cage of fixed connectivity.
  *
- * Sections are ellipses whose width follows the measured hand breadth and whose thickness is a conventional fraction of it; the mitten ends at the measured hand length. The chart runs `u` from the wrist to the tip and `v` counterclockwise about the distal axis from the palmar mark. The real hand generator replaces this one.
+ * The drawing (`shapeAutoMovieHumanPalm`, `shapeAutoMovieHumanDigit`) gives every cage vertex a point of the skin it must reach, from the skeleton's joints and the measured breadths, lengths and webs; the cage is then solved so its Catmull-Clark limit surface passes through those points (`fitAutoMovieHumanCageLimit`). The surface therefore reaches the middle fingertip at dactylion and the hand's borders at metacarpale II and V wherever the skeleton puts them, so hand length and breadth measured on the skin are the identity's.
+ *
+ * The chart runs `u` along the hand from the wrist ring to the middle fingertip, as the share of its distance in the hand's distal direction, and `v` counterclockwise about that direction from the palmar mark, as the angle about the line from the wrist ring's centre to the middle of the knuckles. Digits project onto that cylinder, so facing flanks of neighbouring fingers can share an address.
  *
  * Rings, in order: `wrist`.
  *
@@ -20,65 +28,217 @@ import { IAutoMovieHumanPartGenerator } from "../IAutoMovieHumanPartGenerator";
 export class AutoMovieHumanHandGenerator implements IAutoMovieHumanPartGenerator<"hand"> {
   public readonly part = "hand" as const;
 
-  public generate(
-    props: IAutoMovieHumanPartGenerator.IProps<"hand">,
-  ): IAutoMovieHumanCage {
+  public generate(props: IAutoMovieHumanPartGenerator.IProps<"hand">): IAutoMovieHumanCage {
+    const V: typeof AutoMovieHumanVector = AutoMovieHumanVector;
+    const F: typeof AUTOMOVIE_HUMAN_HAND_FORM = AUTOMOVIE_HUMAN_HAND_FORM;
     const arm: IAutoMovieHumanIdentity.IArm =
       props.side === "left"
         ? props.measurements.identity.body.leftArm
         : props.measurements.identity.body.rightArm;
-    const builder: AutoMovieHumanCageBuilder = new AutoMovieHumanCageBuilder(
-      "hand",
-      props.side,
-    );
-    const wrist: IAutoMovieHumanRingLayout = layoutAutoMovieHumanRing({
+    const layout: IAutoMovieHumanRingLayout = layoutAutoMovieHumanRing({
       skeleton: props.skeleton,
       site: "wrist",
       side: props.side,
       part: "hand",
     });
-    const axis: IAutoMovieVector3 = AutoMovieHumanVector.of(
-      -wrist.frame.normal.x,
-      -wrist.frame.normal.y,
-      -wrist.frame.normal.z,
-    );
-    const directions: IAutoMovieVector3[] =
-      AutoMovieHumanCageBuilder.buildDirections(wrist);
-    const stations: AutoMovieHumanCageBuilder.IStation[] = [
-      builder.open(
-        wrist,
-        (): number => arm.wristCircumference / (2 * Math.PI),
-        0,
-      ),
-    ];
-    const breadth: number = arm.handBreadth;
-    for (const [t, thick, wide] of [
-      [0.2, 0.17, 0.42],
-      [0.45, 0.16, 0.5],
-      [0.7, 0.12, 0.46],
-      [0.88, 0.09, 0.38],
-    ] as const)
-      stations.push(
-        builder.station(
-          AutoMovieHumanCageBuilder.around(
-            AutoMovieHumanVector.offset(wrist.frame.origin, [
-              axis,
-              t * arm.handLength,
-            ]),
-            directions,
-            (k: number): number =>
-              AutoMovieHumanCageBuilder.ellipse(
-                thick * breadth,
-                wide * breadth,
-                (2 * Math.PI * k) / directions.length,
-              ),
-          ),
-          t,
-        ),
+    const hand: readAutoMovieHumanHand.IHand = readAutoMovieHumanHand(props.skeleton, props.side, layout);
+    const toLocal = (d: IAutoMovieVector3): IAutoMovieVector3 =>
+      V.of(V.dot(d, hand.distal), V.dot(d, hand.palmar), V.dot(d, hand.radial));
+    const toModel = (p: IAutoMovieVector3): IAutoMovieVector3 =>
+      V.offset(hand.origin, [hand.distal, p.x], [hand.palmar, p.y], [hand.radial, p.z]);
+
+    // the wrist ring: the measured ellipse, vertex k of the drawing on the layout direction a k-th eighth turn from the palm
+    const aw: number = (F.wrist.breadth * arm.wristCircumference) / 2;
+    const cw: number = aw * F.wrist.depth;
+    const order: number[] = new Array<number>(layout.count);
+    const wrist: IAutoMovieVector3[] = new Array<IAutoMovieVector3>(layout.count);
+    layout.directions.forEach((direction: IAutoMovieVector3, j: number): void => {
+      const d: IAutoMovieVector3 = toLocal(direction);
+      const angle: number = Math.atan2(-d.z, d.y);
+      const k: number = (Math.round(angle / (Math.PI / 4)) + 8) % 8;
+      const radius: number = (aw * cw) / Math.hypot(aw * d.y, cw * d.z);
+      order[j] = k;
+      wrist[k] = V.of(d.x * radius, d.y * radius, d.z * radius);
+    });
+
+    const sketch: AutoMovieHumanHandSketch = new AutoMovieHumanHandSketch();
+    const palm: shapeAutoMovieHumanPalm.IOutput = shapeAutoMovieHumanPalm(sketch, {
+      hand,
+      breadth: arm.handBreadth,
+      length: arm.handLength,
+      wristCircumference: arm.wristCircumference,
+      wrist,
+    });
+    const fingers: Array<{ vertices: number[]; digit: readAutoMovieHumanHand.IDigit }> = (
+      ["Index", "Middle", "Ring", "Little"] as const
+    ).map((finger: readAutoMovieHumanHand.IFinger) => {
+      const out: shapeAutoMovieHumanDigit.IOutput = shapeAutoMovieHumanDigit(
+        sketch,
+        fingerForm(hand, finger, palm.sockets[finger], arm),
       );
-    for (let i: number = 1; i < stations.length; ++i)
-      builder.bridge(stations[i - 1]!, stations[i]!);
-    builder.cap(stations[stations.length - 1]!, axis, 0.1 * arm.handLength);
-    return builder.build();
+      return { vertices: [...out.loops.slice(1).flat(), out.apex], digit: hand.fingers[finger] };
+    });
+    const thumb: shapeAutoMovieHumanDigit.IOutput = shapeAutoMovieHumanDigit(sketch, thumbForm(hand, palm.thumb, arm));
+
+    // vertices no quad uses, the thumb hole's centre, are dropped and the rest renumbered in order
+    const index: number[] = new Array<number>(sketch.targets().length).fill(-1);
+    for (const quad of sketch.faces()) for (const v of quad) index[v] = 0;
+    const kept: number[] = [];
+    index.forEach((used: number, v: number): void => {
+      if (used === -1) return;
+      index[v] = kept.length;
+      kept.push(v);
+    });
+    const renumber = (vs: number[]): number[] => vs.map((v: number): number => index[v]!);
+    const quads: Array<[number, number, number, number]> = sketch
+      .faces()
+      .map((q: readonly [number, number, number, number]): [number, number, number, number] => [
+        index[q[0]]!,
+        index[q[1]]!,
+        index[q[2]]!,
+        index[q[3]]!,
+      ]);
+    const targets: IAutoMovieVector3[] = kept.map((v: number): IAutoMovieVector3 => sketch.target(v));
+    const positions: IAutoMovieVector3[] = calibrateAutoMovieHumanHand({
+      targets,
+      faces: quads,
+      hand,
+      length: arm.handLength,
+      fingers: fingers.map((f) => ({ vertices: renumber(f.vertices), digit: f.digit })),
+      thumb: renumber([...thumb.loops.slice(1).flat(), thumb.apex]),
+    });
+    const reach: number = hand.fingers.Middle.points[3]!.x;
+    const centre = (x: number): number =>
+      (Math.min(1, Math.max(0, x / hand.metacarpaleII.x)) * (hand.metacarpaleII.z + hand.metacarpaleV.z)) / 2;
+    const chart = (t: IAutoMovieVector3): { u: number; v: number } => {
+      const turn: number = (Math.atan2(-(t.z - centre(t.x)), t.y) / (2 * Math.PI) + 1) % 1;
+      return {
+        u: Math.min(1, Math.max(0, t.x / reach)),
+        v: hand.mirrored ? (1 - turn) % 1 : turn,
+      };
+    };
+    const faces: IAutoMovieHumanCage.IFace[] = quads.map(
+      (quad: readonly [number, number, number, number]): IAutoMovieHumanCage.IFace => {
+        const corners: [number, number, number, number] = hand.mirrored
+          ? [quad[0], quad[3], quad[2], quad[1]]
+          : [quad[0], quad[1], quad[2], quad[3]];
+        const charts: Array<{ u: number; v: number }> = corners.map(
+          (v: number): { u: number; v: number } => chart(targets[v]!),
+        );
+        const vs: number[] = charts.map((c: { u: number; v: number }): number => c.v);
+        const wrap: boolean = Math.max(...vs) - Math.min(...vs) > 0.5;
+        return {
+          vertices: corners,
+          coordinates: charts.map(
+            (c: { u: number; v: number }): IAutoMovieHumanSurfaceCoordinate => ({
+              part: "hand",
+              side: props.side,
+              u: c.u,
+              v: wrap && c.v < 0.5 ? c.v + 1 : c.v,
+            }),
+          ) as IAutoMovieHumanCage.IFace["coordinates"],
+        };
+      },
+    );
+    return {
+      vertices: positions.map((p: IAutoMovieVector3): IAutoMovieHumanCage.IVertex => ({
+        position: toModel(p),
+      })),
+      faces,
+      creases: [],
+      rings: [
+        {
+          site: "wrist",
+          side: props.side,
+          vertices: order.map((k: number): number => index[palm.wrist[k]!]!),
+          start: layout.start,
+          frame: layout.frame,
+        },
+      ],
+    };
   }
 }
+
+/** A finger's loops from its socket: the joints with a loop each side, the pad and the tip. */
+const fingerForm = (
+  hand: readAutoMovieHumanHand.IHand,
+  finger: readAutoMovieHumanHand.IFinger,
+  socket: number[],
+  arm: IAutoMovieHumanIdentity.IArm,
+): shapeAutoMovieHumanDigit.IProps => {
+  const F: typeof AUTOMOVIE_HUMAN_HAND_FORM = AUTOMOVIE_HUMAN_HAND_FORM;
+  const digit: readAutoMovieHumanHand.IDigit = hand.fingers[finger];
+  const L: number = digit.length;
+  const wp: number = F.fingers[finger].pip * arm.handBreadth;
+  const wd: number = F.fingers[finger].dip * arm.handBreadth;
+  const dp: number = F.depth.pip * wp;
+  const dd: number = F.depth.dip * wd;
+  const root: number = (digit.crease - digit.points[0]!.x) / L + 0.06;
+  const section = (
+    at: number,
+    breadth: number,
+    depth: number,
+    dorsal: number,
+    square: number,
+  ): shapeAutoMovieHumanDigit.ISection => ({
+    at: at * L,
+    breadth,
+    dorsal: depth * dorsal,
+    palmar: depth * (1 - dorsal),
+    side: 0.04,
+    square,
+  });
+  return {
+    socket,
+    points: digit.points,
+    palmar: { x: 0, y: 1, z: 0 },
+    ulnar: { x: 0, y: 0, z: -1 },
+    sections: [
+      section(root, wp * 1.02, dp * 1.01, 0.45, 0.74),
+      section(0.4, wp * 0.99, dp * 0.99, 0.45, 0.74),
+      section(0.5, wp, dp, 0.46, 0.74),
+      section(0.62, wp + (wd - wp) * 0.48, dp + (dd - dp) * 0.48, 0.45, 0.74),
+      section(0.75, wd, dd, 0.45, 0.74),
+      section(0.85, wd * 0.95, dd * 0.92, 0.41, 0.74),
+      section(0.94, wd * 0.78, dd * 0.74, 0.41, 0.74),
+    ],
+    apex: AutoMovieHumanVector.offset(digit.points[3]!, [{ x: 0, y: 1, z: 0 }, 0.1 * dd]),
+  };
+};
+
+/** The thumb's loops from its socket around the thenar eminence. */
+const thumbForm = (
+  hand: readAutoMovieHumanHand.IHand,
+  socket: number[],
+  arm: IAutoMovieHumanIdentity.IArm,
+): shapeAutoMovieHumanDigit.IProps => {
+  const F: typeof AUTOMOVIE_HUMAN_HAND_FORM = AUTOMOVIE_HUMAN_HAND_FORM;
+  const thumb: readAutoMovieHumanHand.IHand["thumb"] = hand.thumb;
+  const metacarpal: number = AutoMovieHumanVector.distance(thumb.points[0]!, thumb.points[1]!);
+  const L: number = thumb.length;
+  const w: number = F.thumb.ip * arm.handBreadth;
+  const d: number = F.depth.thumb * w;
+  const section = (
+    at: number,
+    breadth: number,
+    dorsal: number,
+    palmar: number,
+    square: number,
+    advance?: number[],
+  ): shapeAutoMovieHumanDigit.ISection => ({ at, breadth, dorsal, palmar, side: 0.04, square, advance });
+  return {
+    socket,
+    points: thumb.points,
+    palmar: thumb.pad,
+    ulnar: thumb.web,
+    sections: [
+      // the knuckle inside the thenar's distal slope; its web side runs out along the web's edge
+      section(metacarpal, w * 1.3, d * 0.55, d * 0.85, 0.76, [0, 0.12 * L, 0.2 * L, 0.12 * L, 0, 0, 0, 0]),
+      section(metacarpal + 0.28 * L, w * 1.06, d * 0.48, d * 0.56, 0.74),
+      section(metacarpal + 0.5 * L, w, d * 0.5, d * 0.5, 0.74),
+      section(metacarpal + 0.7 * L, w * 0.98, d * 0.4, d * 0.58, 0.74),
+      section(metacarpal + 0.9 * L, w * 0.8, d * 0.34, d * 0.46, 0.74),
+    ],
+    apex: AutoMovieHumanVector.offset(thumb.points[3]!, [thumb.pad, 0.1 * d]),
+  };
+};
