@@ -5,6 +5,7 @@ import { IAutoMovieHumanTraits } from "../structures/IAutoMovieHumanTraits";
 import { IAutoMovieHumanConversionContext } from "./IAutoMovieHumanConversionContext";
 import { IAutoMovieHumanConverter } from "./IAutoMovieHumanConverter";
 import { estimateAutoMovieHumanComposition } from "./estimateAutoMovieHumanComposition";
+import { estimateAutoMovieHumanDorsalHandFat } from "./estimateAutoMovieHumanDorsalHandFat";
 import { estimateAutoMovieHumanGirths } from "./estimateAutoMovieHumanGirths";
 import { estimateAutoMovieHumanHead } from "./estimateAutoMovieHumanHead";
 import { estimateAutoMovieHumanLengths } from "./estimateAutoMovieHumanLengths";
@@ -106,6 +107,7 @@ export class AutoMovieHumanConverter implements IAutoMovieHumanConverter {
       ...lengths.arm,
       ...girths.arm,
       ...mobility.arm,
+      dorsalHandFat: estimateAutoMovieHumanDorsalHandFat(age),
     };
     const leg: IAutoMovieHumanIdentity.ILeg = {
       ...lengths.leg,

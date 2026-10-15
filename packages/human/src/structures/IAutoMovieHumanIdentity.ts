@@ -249,6 +249,11 @@ export namespace IAutoMovieHumanIdentity {
 
     /** Forearm supination from the thumb-up neutral, degrees. */
     forearmSupination: number & tags.Minimum<0> & tags.Maximum<140>;
+
+    /**
+     * Fat over the back of the hand, millimetres: the dorsal superficial, intermediate and deep fatty laminae over the metacarpals, measured by ultrasound. It thins with age, about 4.3 mm in the 20s and 2.4 mm over 60, which is why old hands show their knuckles, tendons and veins (Hung et al. 2022, Aesthet Surg J 42(10):1119-1126).
+     */
+    dorsalHandFat: number & tags.Minimum<0> & tags.Maximum<30>;
   }
 
   /**
