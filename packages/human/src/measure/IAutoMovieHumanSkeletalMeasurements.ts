@@ -48,7 +48,12 @@ export namespace IAutoMovieHumanSkeletalMeasurements {
   /** Lengths of one arm. */
   export type IArm = Pick<
     IAutoMovieHumanIdentity.IArm,
-    "upperArmLength" | "forearmLength" | "handLength" | "handBreadth"
+    | "upperArmLength"
+    | "forearmLength"
+    | "handLength"
+    | "handBreadth"
+    | "palmLength"
+    | "thumbLength"
   >;
 
   /** Lengths of one leg. */

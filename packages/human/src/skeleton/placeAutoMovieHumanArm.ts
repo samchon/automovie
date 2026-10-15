@@ -151,6 +151,9 @@ export namespace placeAutoMovieHumanArm {
       | "dactylion"
       | "metacarpaleII"
       | "metacarpaleV"
+      | "middleFingerCrease"
+      | "thumbCrease"
+      | "thumbTip"
     >;
   }
 }

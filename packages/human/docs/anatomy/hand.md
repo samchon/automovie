@@ -46,11 +46,24 @@ From Gray 1918 and Bridgman (`../sources/gray-1918.md`, `../sources/bridgman-192
 
 AAOS norms as transcribed by Hendriks et al. 2020 (`../sources/hendriks-2020-aaos.md`), conventional: wrist extension 70, flexion 80; thumb MCP flexion 50, IP flexion 80; fingers MCP flexion 80, PIP 90, DIP 65, extensions 0. Bridgman: wrist extension and flexion each almost a right angle, the fingers cannot close fully with the wrist fully flexed (tendon coupling across joints).
 
+## Knuckle arc, palm and thumb (as built in #2793)
+
+The first stick hand set the four finger roots on a near-straight line from conventional factors, the thumb's base by a solve that made the adducted tip reach the index middle joint, and the same finger proportions at every age. Rebuilt from measurements:
+
+- Metacarpal lengths over the third, CT (`../sources/reddy-2024-metacarpal-ct.md`): thumb 0.711, index 1.039, ring 0.883, little 0.797; the third is 0.774 of de Leva's wrist-centre-to-third-metacarpale distance. Bases level across the distal carpal row (conventional), so the heads arc: index about 3 mm beyond the middle knuckle in an adult, ring 9 mm and little 16 mm behind.
+- The thumb's carpometacarpal joint at the metacarpal base level, radial and palmar (placement conventional), its metacarpal the measured length, its phalanges the identity's thumb length.
+- Palm length and thumb length are identity measurements. Adults: palm 0.601 (women) and 0.603 (men) of hand length (ANSUR II means), thumb 0.359 and 0.356 (1977 survey, 16 to 18 years). Children: the middle finger beyond the palm grows along the 1977 curve (0.428 to 0.439 girls, 0.416 to 0.435 boys of hand length from 2-4 to 16-18 years) and the thumb along its own (0.335 to 0.359, 0.341 to 0.356).
+- The middle finger from its joint is 1.347 times the length beyond its crease (de Leva's knuckle fraction 0.459 against ANSUR II palm length), which places the third knuckle.
+- Little finger 0.745 of the middle (1975 survey crease lengths, 0.74 to 0.75 at every age 2 to 13, `../sources/snyder-1975.md`); index 0.905 (1977); ring 0.95 still conventional.
+- The stick draws each finger and thumb root back to the wrist, the metacarpals fanning from the carpus.
+
 ## Open questions
 
 - Phalanx and metacarpal lengths as fractions of hand length for each finger (Buchholz et al. 1992, Buryanov and Kotiuk 2010): not read, both inaccessible. Joint centre positions per digit therefore rest on crease rules only.
 - Nail plate dimensions and curvature: no source read.
-- Ring and little finger lengths and the 2D:4D ratio by sex: no source read.
+- Ring finger length and the 2D:4D ratio by sex: no source read (little finger now from the 1975 survey).
+- Positions of the metacarpal bases (the carpometacarpal line) and of the thumb's carpometacarpal joint: no measured source; bases are taken level.
+- Child metacarpal proportions: none read; adult CT ratios are held.
 - Adult finger lengths: only the 1977 adolescents were read.
 - Finger abduction ranges and the coupling of DIP to PIP flexion: no source read.
 - How the hand maps to `AutoMovieHumanoidBone`: the finger metacarpals two to five have no bones, so palm arching (cupping) cannot be posed; whether `interface` needs metacarpal bones or Human keeps an internal palm arch.
