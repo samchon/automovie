@@ -140,15 +140,18 @@ const POLICIES: ITtscLintBoundariesElementTypesRule[] = [
  *
  * Module boundaries keep Human's layers one-way: see `LAYERS` and `PARTS`.
  *
- * Evidence declarations are suspended until the rebuild declares completion.
+ * One public identity per file named after it, a doc comment on every exported type, function and property, and no `@todo` hold as in every package. Only the `@evidence` checklist answers wait until the rebuild declares completion, which is why Human has no evidence configuration.
  */
 export default {
   ...shared,
   rules: {
     ...shared.rules,
-    "evidence/documented": "off",
-    "evidence/singular": "off",
-    "evidence/todo": "off",
+    "evidence/documented": [
+      "error",
+      { symbol: ["type", "function", "property"] },
+    ],
+    "evidence/singular": "error",
+    "evidence/todo": "error",
     "boundaries/element-types": [
       "error",
       { elements: ELEMENTS, default: "disallow", rules: POLICIES },
