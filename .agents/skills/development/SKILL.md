@@ -36,6 +36,14 @@ Every maintained declaration answers, in its doc comment, the [contracts](../con
 - Open each case with what it pins, then a numbered `Scenarios:` list. Reuse `test/src/features/internal/`.
 - Compare floats with `TestValidator.predicate` over `nclose`, `vclose`, or `qclose`, never deep equality.
 
+## Shared Checkout
+
+Other agents may be editing the same checkout.
+
+- Develop a change in scratch. Copy it into the tree only when it is complete, then under the build lock run the full build and its package's own checks on the tree, and commit at once if they pass or restore your own files if not. Never leave the tree holding a half-done change, such as a new signature whose callers still pass the old arguments.
+- Commit only your own hunks; when a file also carries someone else's edits, stage your hunks alone and read the staged diff. Never stash, reset, restore, or commit another agent's work.
+- Hold `.shots/build.lock` (created with `mkdir`) around a build or capture, and remove it on every exit, an interrupted run included.
+
 ## Validation And CI
 
 - Before finishing, prove the change with the narrowest test that fails without it (`pnpm test --include <name>`). Run the affected tests locally, then let CI run the full suites.

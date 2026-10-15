@@ -13,6 +13,7 @@ description: Defines modeling rules and the visual debugging procedure. Use befo
 - Keep one unit and one frame inside a declaration, and convert only where they meet, in one named step.
 - Build a boundary between parts from one definition both sides share, so it opens no gap, overlap, or normal jump under any admitted configuration.
 - Build coarse to fine: block out the whole form first, then treat each finer detail as the block-out of a smaller region, zooming in one scale at a time and fitting each scale before the next.
+- Give widths, spacings, and falloffs on a surface in physical units through the surface's local metric, never in normalized chart parameters, so a feature keeps its size when the surface or its layout changes.
 - Compute and measure from the same geometry, regenerate a derivative when its basis changes, and repair an unsound representation at its foundation instead of accumulating corrections.
 
 ## Visual Debugging
@@ -21,7 +22,7 @@ A broken viewer comes first: do no work that needs visual judgment until a displ
 
 - Inspect the actual consumer with current source on a hardware renderer, recording source, input, renderer, and view. Readiness or numerical success proves no appearance.
 - Inspect from every direction, back quarters and high and low obliques included, and aim a free camera at each defect, because front and side alone hide oblique sections and junctions. Enlarge the affected parts and inspect assembled neighbors and use distance, at rest, intermediate states, supported extremes, return, and shape-motion combinations.
-- When a surface is generated from curves, such as lofted sections, a curve network or a subdivision cage, never judge it without that net: every set of views, whole sweeps and each defect's close-up alike, shows the same cameras as surface, net overlaid on the surface, and net alone. The surface shows the symptom; the net shows the curve or section that causes it.
-- Judge materials and lighting in beauty; use structural passes only for the quantities they document.
+- When a surface is generated from curves, such as lofted sections, a curve network or a subdivision cage, never judge it without that net: every set of views, whole sweeps and each defect's close-up alike, shows the same cameras as surface, net overlaid on the surface, and net alone. A field laid over the surface, such as displacement relief, shows the curves that define it in the net. The surface shows the symptom; the net shows the curve or section that causes it.
+- Judge form under raking light with fine material detail, such as normal maps, turned off; judge materials and lighting in beauty; use structural passes only for the quantities they document.
 - Compare the render with the engine result to separate calculation from display faults, and compare before and after under matching conditions.
 - After every correction, render again and look yourself. Stale, blank, or unobserved output stays unverified.
