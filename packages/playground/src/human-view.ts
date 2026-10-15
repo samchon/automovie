@@ -82,6 +82,9 @@ const sessionFromTraits = (
   appearance: converter.toAppearance(traits),
 });
 
+/** How the skin is assembled: each part's own cage alone, or the joined person. */
+let assembly: "parts" | "joined" = "parts";
+
 /** Admit every document of a session; throws the package's refusal unchanged. */
 const admit = (session: IHumanViewerSession): IAccepted => {
   if (
@@ -100,7 +103,7 @@ const admit = (session: IHumanViewerSession): IAccepted => {
   return {
     session: structuredClone(session),
     human,
-    model: human.getModel({ appearance: session.appearance }),
+    model: human.getModel({ appearance: session.appearance, assembly }),
     skeleton: human.getSkeleton(),
     pose: human.pose({ pose: session.pose }),
     expression: human.express({ expression: session.expression }),
@@ -377,9 +380,17 @@ const renderViews = (): void => {
         run.disabled = false;
       });
   });
+  const skin: HTMLSelectElement = document.createElement("select");
+  skin.add(new Option("parts alone", "parts"));
+  skin.add(new Option("joined skin", "joined"));
+  skin.value = assembly;
+  skin.addEventListener("change", (): void => {
+    assembly = skin.value as typeof assembly;
+    accept(current.session, `Skin: ${skin.value}.`);
+  });
   const row: HTMLDivElement = document.createElement("div");
   row.className = "row";
-  row.append(scale, focus, bones);
+  row.append(scale, focus, skin, bones);
   const captureRow: HTMLDivElement = document.createElement("div");
   captureRow.className = "row";
   captureRow.append(name, run);
@@ -628,6 +639,10 @@ frame();
     for (const id of ids) hidden.add(id);
     applyVisibility();
     renderParts();
+  },
+  setAssembly: (next: "parts" | "joined"): boolean => {
+    assembly = next;
+    return accept(current.session, `Skin: ${next}.`);
   },
   parts: (): string[] => current.model.parts.map((p: { id: string }): string => p.id),
   setView: (next: Partial<typeof view>): boolean => {

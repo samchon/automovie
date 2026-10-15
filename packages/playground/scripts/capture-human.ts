@@ -35,6 +35,9 @@ interface IPerson {
 
   /** Part ids to hide. */
   hidden?: string[];
+
+  /** Skin assembly, `parts` or `joined`; omitted, the page's current one. */
+  assembly?: "parts" | "joined";
 }
 
 /**
@@ -79,6 +82,7 @@ const main = async (): Promise<void> => {
       const loaded: boolean = await page.evaluate(
         (p: { person: IPerson; session: unknown }): boolean => {
           const api: any = (window as any).__automovieHuman;
+          if (p.person.assembly !== undefined) api.setAssembly(p.person.assembly);
           const ok: boolean =
             p.session !== null
               ? api.load(p.session)

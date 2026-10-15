@@ -5,46 +5,43 @@ import {
 } from "@automovie/engine";
 import { IAutoMovieMesh } from "@automovie/interface";
 
+import { AutoMovieHumanUvLayout } from "./AUTOMOVIE_HUMAN_UV_LAYOUT";
 import { IAutoMovieHumanCage } from "./IAutoMovieHumanCage";
-import { IAutoMovieHumanSurfaceCoordinate } from "./IAutoMovieHumanSurfaceCoordinate";
 
 /**
  * Subdivide a skin cage once with the engine's Catmull-Clark and turn the limit surface into a render mesh.
  *
- * The cage is converted from millimetres to metres in this one step. Positions are the limit positions and normals the limit normals the engine evaluates, written explicitly, because normals recomputed from triangles would split shading wherever a UV seam duplicates a vertex. UVs, when a mapping is given, are face-varying: each face corner takes the UV of its own semantic address, so a corner on a chart boundary gets its own chart's value and the engine pins every chart outline. A render vertex is split where a corner's limit normal or UV differs, and every split copy names its subdivided vertex in `physicalVertices`, so welding and topology treat a seam as one surface.
+ * The cage is converted from millimetres to metres in this one step. Positions are the limit positions and normals the limit normals the engine evaluates, written explicitly, because normals recomputed from triangles would split shading wherever a UV seam duplicates a vertex. UVs follow `AUTOMOVIE_HUMAN_UV_LAYOUT` face-varying: each face corner takes the UV of its own semantic address, so a corner on a chart boundary gets its own chart's value and the engine pins every chart outline. A render vertex is split where a corner's limit normal or UV differs, and every split copy names its subdivided vertex in `physicalVertices`, so welding and topology treat a seam as one surface.
  *
  * @param props.cage The cage, millimetres, only read
  * @param props.levels Refinement steps, an integer from 1 to 6
- * @param props.uv UV of a corner's semantic address, or omitted for a mesh without UVs
  * @param props.domain Physical domain name of the surface's vertices
  * @returns The mesh, without skin, and the parameter of each render vertex on the cage
  */
 export const meshAutoMovieHumanCage = (props: {
   cage: IAutoMovieHumanCage;
   levels: number;
-  uv?: (coordinate: IAutoMovieHumanSurfaceCoordinate) => [number, number];
   domain: string;
 }): meshAutoMovieHumanCage.IOutput => {
   const uvs: number[] = [];
   const uvFaces: number[][] = [];
-  if (props.uv !== undefined) {
-    const index: Map<string, number> = new Map();
-    for (const face of props.cage.faces)
-      uvFaces.push(
-        face.coordinates.map(
-          (c: IAutoMovieHumanSurfaceCoordinate, k: number): number => {
-            const [x, y]: [number, number] = props.uv!(c);
-            const key: string = `${face.vertices[k]}:${x}:${y}`;
-            let found: number | undefined = index.get(key);
-            if (found === undefined) {
-              found = uvs.length / 2;
-              uvs.push(x, y);
-              index.set(key, found);
-            }
-            return found;
-          },
-        ),
-      );
+  const index: Map<string, number> = new Map();
+  for (const face of props.cage.faces) {
+    const corners: Array<[number, number]> = AutoMovieHumanUvLayout.map(
+      face.coordinates,
+    );
+    uvFaces.push(
+      corners.map(([x, y]: [number, number], k: number): number => {
+        const key: string = `${face.vertices[k]}:${x}:${y}`;
+        let found: number | undefined = index.get(key);
+        if (found === undefined) {
+          found = uvs.length / 2;
+          uvs.push(x, y);
+          index.set(key, found);
+        }
+        return found;
+      }),
+    );
   }
   const cage: IAutoMovieSubdivisionCage = {
     positions: props.cage.vertices.flatMap(
@@ -57,7 +54,8 @@ export const meshAutoMovieHumanCage = (props: {
     faces: props.cage.faces.map((f: IAutoMovieHumanCage.IFace): number[] => [
       ...f.vertices,
     ]),
-    ...(props.uv !== undefined ? { uvs, uvFaces } : {}),
+    uvs,
+    uvFaces,
     creases: props.cage.creases.map((c: IAutoMovieHumanCage.ICrease) => ({
       from: c.edge[0],
       to: c.edge[1],
