@@ -78,6 +78,7 @@ export function planAutoMovieHumanLeg(props: {
       stations,
       leanIndex:
         props.measurements.identity.composition.appendicularLeanMassIndex,
+      fat: props.measurements.identity.composition.subcutaneousFat,
       side: props.side,
     }),
   };

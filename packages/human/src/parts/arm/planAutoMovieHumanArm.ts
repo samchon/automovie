@@ -8,6 +8,8 @@ import { IAutoMovieHumanMeasurements } from "../../measure/IAutoMovieHumanMeasur
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanSkeleton } from "../../skeleton/IAutoMovieHumanSkeleton";
 import { IAutoMovieHumanIdentity } from "../../structures/IAutoMovieHumanIdentity";
+import { IAutoMovieHumanSubcutaneousFat } from "../../structures/IAutoMovieHumanSubcutaneousFat";
+import { AUTOMOVIE_HUMAN_REFERENCE_LIMB_FAT } from "../AUTOMOVIE_HUMAN_REFERENCE_LIMB_FAT";
 import { IAutoMovieHumanLimbPlan } from "../IAutoMovieHumanLimbPlan";
 import { traceAutoMovieHumanLimbRelief } from "../traceAutoMovieHumanLimbRelief";
 import { AUTOMOVIE_HUMAN_ARM_RELIEF } from "./AUTOMOVIE_HUMAN_ARM_RELIEF";
@@ -23,17 +25,15 @@ const COLUMNS: number[] = [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8];
 /** Rows of faces from each station to the next: one per gap, two across the long gaps of the upper arm and the forearm's bellies, so rows lie about a span apart. Grade: conventional. */
 const ROWS: number[] = [1, 1, 2, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1];
 
-/**
- * How much of the deep relief fat fills: a layer of this thickness, millimetres, levels half of it. Fat lies thicker in the furrows between muscles than over their bellies, so a fatter arm is rounder at the same girth. Grade: conventional.
- */
-const FAT_LEVELLING: number = 10;
+/** Arm levels between which the fat over a form turns from the upper arm's to the forearm's, about the elbow. Grade: conventional. */
+const ELBOW_FAT: [number, number] = [-0.15, 0.1];
 
 /**
  * Lay one arm out for lofting, from mid upper arm to the wrist.
  *
  * Every section of `sectionAutoMovieHumanArm` becomes one station: above the elbow on the line from the shoulder to the elbow joint centre, below it on the line from the elbow to the wrist joint centre, at the joint on their bisector, so a carrying angle or flexion in the skeleton bends the spine with it. Each station's anterior direction is the rest-pose front projected across its axis, turned by the section's twist toward the medial side, so the chart's `v` spirals down the mid-prone forearm and reaches the wrist on its palmar surface exactly as the wrist ring starts. A section is its eight radii joined round the turn; the first and last two stations are the junctions', the `upperArm` and `wrist` rings of `shapeAutoMovieHumanRing` and their collars.
  *
- * Relief is `AUTOMOVIE_HUMAN_ARM_RELIEF`, each form's height its amplitude times the section's mean deep radius, times the arm's muscularity for a muscle, rising and falling by a cosine along its levels and levelled by the fat over it, the share `fat / (fat + 10 mm)` of it filled.
+ * Relief is `AUTOMOVIE_HUMAN_ARM_RELIEF`, each form's height its amplitude times the section's mean deep radius, times the arm's muscularity for a muscle, rising and falling by a cosine along its levels: the belly's size follows the lean mass. How sharply it shows follows the regional subcutaneous fat over it (`IAutoMovieHumanSubcutaneousFat`), which `traceAutoMovieHumanLimbRelief` lays over it as a smoothing layer in place of the average adult's (`AUTOMOVIE_HUMAN_REFERENCE_LIMB_FAT`) the table describes: on the upper arm the fat over the biceps in front and over the triceps behind, blended round the limb by the cosine of the form's angle, and below the elbow the fat over the forearm's bellies.
  *
  * @param props.measurements The person
  * @param props.skeleton The person's skeleton at rest
@@ -145,7 +145,8 @@ export function planAutoMovieHumanArm(props: {
         level,
       );
   const deep = along((s: sectionAutoMovieHumanArm.ISection): number => s.deep);
-  const fat = along((s: sectionAutoMovieHumanArm.ISection): number => s.fat);
+  const regional: IAutoMovieHumanSubcutaneousFat =
+    identity.composition.subcutaneousFat;
   const girth = along((s: sectionAutoMovieHumanArm.ISection): number => s.girth);
   const relief: IAutoMovieHumanLimbPlan.IRelief[] = AUTOMOVIE_HUMAN_ARM_RELIEF.map(
     (form: IAutoMovieHumanArmRelief): IAutoMovieHumanLimbPlan.IRelief | null =>
@@ -160,11 +161,12 @@ export function planAutoMovieHumanArm(props: {
           form.amplitude *
           (form.kind === "muscle" ? tissue.muscularity : 1) *
           bump(level, form.from, form.peak, form.to) *
-          deep(level) *
-          (FAT_LEVELLING / (fat(level) + FAT_LEVELLING)),
+          deep(level),
         spread:
           ((form.width * Math.PI) / 180) *
           (girth(Math.min(1, Math.max(-1, form.peak))) / (2 * Math.PI)),
+        fat: over(regional, form),
+        reference: over(AUTOMOVIE_HUMAN_REFERENCE_LIMB_FAT, form),
       }),
   ).filter(
     (r: IAutoMovieHumanLimbPlan.IRelief | null): r is IAutoMovieHumanLimbPlan.IRelief =>
@@ -172,6 +174,26 @@ export function planAutoMovieHumanArm(props: {
   );
   return { part: "arm", side, proximal: upper, distal: wrist, stations, relief };
 }
+
+/** The subcutaneous fat over one form at an arm level, from a record of regional thicknesses. */
+const over =
+  (
+    regional: Pick<
+      IAutoMovieHumanSubcutaneousFat,
+      "upperArmFront" | "upperArmBack" | "forearm"
+    >,
+    form: IAutoMovieHumanArmRelief,
+  ) =>
+  (level: number): number => {
+    const front: number = (1 + Math.cos((form.angle * Math.PI) / 180)) / 2;
+    const upper: number =
+      front * regional.upperArmFront + (1 - front) * regional.upperArmBack;
+    const t: number = Math.min(
+      1,
+      Math.max(0, (level - ELBOW_FAT[0]) / (ELBOW_FAT[1] - ELBOW_FAT[0])),
+    );
+    return upper + t * (regional.forearm - upper);
+  };
 
 /**
  * A section's eight radii as a radial section in the station's plane, joined round the turn by the engine's periodic monotone interpolation, which never overshoots its samples: an interpolating spline does, and at an infant's elbow, where the epicondyles floor the sides far out of the shallow front and back, it would loop. Anatomical direction `k` lies `k` eighths of a turn from anterior toward the medial side, which is counterclockwise about the distal axis on the left arm and clockwise on the right.

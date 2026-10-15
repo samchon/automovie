@@ -1,14 +1,11 @@
 import { AutoMovieHumanSide } from "../../junction/AutoMovieHumanSide";
+import { IAutoMovieHumanSubcutaneousFat } from "../../structures/IAutoMovieHumanSubcutaneousFat";
+import { AUTOMOVIE_HUMAN_REFERENCE_LIMB_FAT } from "../AUTOMOVIE_HUMAN_REFERENCE_LIMB_FAT";
 import { IAutoMovieHumanLimbPlan } from "../IAutoMovieHumanLimbPlan";
 import { traceAutoMovieHumanLimbRelief } from "../traceAutoMovieHumanLimbRelief";
 import { AUTOMOVIE_HUMAN_LEG_RELIEF } from "./AUTOMOVIE_HUMAN_LEG_RELIEF";
 import { IAutoMovieHumanLegRelief } from "./IAutoMovieHumanLegRelief";
 import { IAutoMovieHumanLegStation } from "./IAutoMovieHumanLegStation";
-
-/**
- * Fat thickness, millimetres, over which a muscle or bone's relief halves: subcutaneous fat fills the hollows between bellies, so the same muscle reads sharply under a thin layer and is a smooth swell under a thick one. Grade: conventional.
- */
-const RELIEF_FAT_HALF: number = 20;
 
 /**
  * Gain of a fat pad on the square of the fat thickness over the mean radius. Fat pads grow faster than the layer under them: a thin layer lies evenly, while a thick one gathers where the fascia lets it, over the medial knee and the inner and outer thigh. The square sets the sex difference the reference legs show, soft padded knees in women and almost none in lean men, from the fat thickness alone. Grade: conventional, set on renders against the reference boards.
@@ -23,16 +20,18 @@ const LEAN_REFERENCE: number = 7.84;
 /**
  * Trace the leg's superficial forms, `AUTOMOVIE_HUMAN_LEG_RELIEF`, over its stations as the relief of its loft.
  *
- * Each form runs along its segment from `bottom` to `top`, rising to its fullest at `peak` by a smoothstep on each side, its crest turning linearly from `angleBottom` to `angleTop` and its profile across the limb a Gaussian of `width` degrees at the local mean radius. Its height is its amplitude times the local mean radius, the station girth over 2π interpolated along the segment, after its tissue scaling: muscle relief grows with the appendicular lean mass index to the power 1.5; muscle and bone relief both soften under fat, halving at 20 mm; fat pads grow with the square of the fat thickness over the mean radius. The angle runs from anterior toward the medial side, counterclockwise about the distal axis on the left leg and clockwise on the right.
+ * Each form runs along its segment from `bottom` to `top`, rising to its fullest at `peak` by a smoothstep on each side, its crest turning linearly from `angleBottom` to `angleTop` and its profile across the limb a Gaussian of `width` degrees at the local mean radius. Its height is its amplitude times the local mean radius, the station girth over 2π interpolated along the segment, after its tissue scaling: muscle relief grows with the appendicular lean mass index to the power 1.5, so a belly's size follows the lean mass; fat pads grow with the square of the fat thickness over the mean radius. How sharply a muscle or a bone shows follows the regional subcutaneous fat over it (`IAutoMovieHumanSubcutaneousFat`), which `traceAutoMovieHumanLimbRelief` lays over the form as a smoothing layer in place of the average adult's (`AUTOMOVIE_HUMAN_REFERENCE_LIMB_FAT`) the table describes: on the thigh the fat over the quadriceps in front and over the hamstrings behind, blended round the limb by the cosine of the crest's angle, and on the shank the fat over the calf. The angle runs from anterior toward the medial side, counterclockwise about the distal axis on the left leg and clockwise on the right.
  *
  * @param props.stations The leg's stations, from the mid thigh ring to the ankle ring
  * @param props.leanIndex The person's appendicular lean mass index, kilograms per square metre
+ * @param props.fat The person's regional subcutaneous fat thickness
  * @param props.side Which leg
  * @returns The relief of every form that reaches the leg
  */
 export function reliefAutoMovieHumanLeg(props: {
   stations: IAutoMovieHumanLegStation[];
   leanIndex: number;
+  fat: IAutoMovieHumanSubcutaneousFat;
   side: AutoMovieHumanSide;
 }): IAutoMovieHumanLimbPlan.IRelief[] {
   const { stations } = props;
@@ -81,9 +80,9 @@ export function reliefAutoMovieHumanLeg(props: {
           const thickness: number = fat(level);
           const scale: number =
             r.tissue === "muscle"
-              ? (muscle * RELIEF_FAT_HALF) / (RELIEF_FAT_HALF + thickness)
+              ? muscle
               : r.tissue === "bone"
-                ? RELIEF_FAT_HALF / (RELIEF_FAT_HALF + thickness)
+                ? 1
                 : FAT_PAD_GAIN * (thickness / radius) ** 2;
           return r.amplitude * scale * rise * rise * (3 - 2 * rise) * radius;
         },
@@ -92,6 +91,12 @@ export function reliefAutoMovieHumanLeg(props: {
           mean(
             Math.min(Math.max(...levels), Math.max(Math.min(...levels), r.peak)),
           ),
+        ...(r.tissue === "fat"
+          ? {}
+          : {
+              fat: over(props.fat, r.segment, crest),
+              reference: over(AUTOMOVIE_HUMAN_REFERENCE_LIMB_FAT, r.segment, crest),
+            }),
       });
     },
   ).filter(
@@ -100,6 +105,22 @@ export function reliefAutoMovieHumanLeg(props: {
     ): r is IAutoMovieHumanLimbPlan.IRelief => r !== null,
   );
 }
+
+/** The subcutaneous fat over one form at a segment level, from a record of regional thicknesses: on the thigh blended from front to back by the cosine of the crest's angle, on the shank the calf's. */
+const over =
+  (
+    regional: Pick<
+      IAutoMovieHumanSubcutaneousFat,
+      "thighFront" | "thighBack" | "calf"
+    >,
+    segment: IAutoMovieHumanLegRelief["segment"],
+    crest: (level: number) => number,
+  ) =>
+  (level: number): number => {
+    if (segment === "shank") return regional.calf;
+    const front: number = (1 + Math.cos((crest(level) * Math.PI) / 180)) / 2;
+    return front * regional.thighFront + (1 - front) * regional.thighBack;
+  };
 
 /** Piecewise linear interpolation over knots in either order, held beyond the ends. */
 const interpolate = (knots: Array<[number, number]>, x: number): number => {
