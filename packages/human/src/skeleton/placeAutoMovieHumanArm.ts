@@ -17,6 +17,11 @@ const JOINT_OFFSET: Record<"shoulder" | "elbow" | "wrist", number> = {
 };
 
 /**
+ * Shoulder joint centre medial of the acromion's lateral edge, as a fraction of biacromial breadth. On BodyParts3D's adult male (Mitsuhashi et al. 2009, Nucleic Acids Res 37:D782-D785; one man, TARO MRI, arms hanging) a sphere fitted to the humeral head's articular surface centres 3 to 9 mm (6 mm mean over both sides and the fit's choices) medial of the most lateral point of the acromion, against a bony biacromial breadth of 333 mm: our measurement. Radiographs agree that the acromion overhangs the humeral head only partly: the glenoid plane to the acromion's lateral border is 0.64 of the glenoid plane to the humeral head's lateral edge in 70 normal shoulders (Nyffeler et al. 2006, J Bone Joint Surg Am 88(4):800-805), and the head's centre lies about midway along that line. Grade: measured on one anatomy, corroborated.
+ */
+const SHOULDER_MEDIAL_PER_BIACROMIAL: number = 0.018;
+
+/**
  * Sternoclavicular joint from the midline as a fraction of biacromial breadth. No measured source was read. Grade: conventional.
  */
 const CLAVICALE_PER_BIACROMIAL: number = 0.06;
@@ -42,11 +47,11 @@ const HAND_AXES: IAutoMovieHumanSkeleton.IAxes = {
 /**
  * Place one arm, in the anthropometric posture with the arm hanging.
  *
- * The acromion sits at acromial height, half the biacromial breadth from the midline. The arm hangs straight below it: radiale at acromial height minus acromion-radiale length, stylion a forearm length lower, the middle fingertip a hand length below stylion, so measuring the hanging arm returns the identity's lengths exactly. The shoulder, elbow and wrist centres sit at de Leva's offsets from those landmarks, scaled with the segment. The arm hangs in the coronal plane at the trunk's shoulder depth. The clavicle runs from the sternoclavicular joint beside the jugular notch, on the front of the neck, back and out to the shoulder joint centre; the scapula has no bone, so the shoulder bone carries the acromion.
+ * The acromion sits at acromial height, half the biacromial breadth from the midline. The shoulder joint centre, the humeral head's, lies a little medial of the acromion's lateral edge ({@link SHOULDER_MEDIAL_PER_BIACROMIAL}) and de Leva's offset below it, and the arm hangs straight below that centre: radiale the acromion-radiale length from the acromion, stylion a forearm length lower, the middle fingertip a hand length below stylion, so measuring the hanging arm returns the identity's lengths exactly. The elbow and wrist centres sit at de Leva's offsets from those landmarks, scaled with the segment. The arm hangs in the coronal plane at the trunk's shoulder depth. The clavicle runs from the sternoclavicular joint beside the jugular notch, on the front of the neck, back and out to the shoulder joint centre; the scapula has no bone, so the shoulder bone carries the acromion.
  *
  * The forearm hangs straight on the arm, so the canonical T-pose rest has it straight and horizontal with the palm down, as every humanoid's does, and a pose retargeted from another humanoid lands the same. The identity's carrying angle, measured with the forearm supinated, lives in the forearm's declared axes instead ({@link tiltAutoMovieHumanForearmAxes}): supinating the forearm into the anatomical position, palm forward, opens the angle, and pronating it back closes it, as the oblique pronation-supination axis of the radius does.
  *
- * The skeleton generator then turns the upper arm and everything below it about the shoulder centre into the T-pose; the clavicle and acromion stay, because the canonical rest frame assigns the whole 90 degrees to the upper arm.
+ * The skeleton generator then raises the arm into the T-pose (`abductAutoMovieHumanArms`): the girdle carries the acromion and the shoulder centre together, and the upper arm and everything below it turn about the moved shoulder centre.
  *
  * @param body The body measurements
  * @param side Which arm
@@ -64,9 +69,20 @@ export function placeAutoMovieHumanArm(
   const s: number = side === "left" ? 1 : -1;
   const arm: IAutoMovieHumanIdentity.IArm =
     side === "left" ? body.leftArm : body.rightArm;
-  const x: number = (s * body.biacromialBreadth) / 2;
-  const acromion: IAutoMovieVector3 = V.of(x, body.acromialHeight, depth);
-  const radialeY: number = body.acromialHeight - arm.upperArmLength;
+  const acromion: IAutoMovieVector3 = V.of(
+    (s * body.biacromialBreadth) / 2,
+    body.acromialHeight,
+    depth,
+  );
+  // the arm hangs below the humeral head, a little medial of the acromion's lateral edge
+  const x: number =
+    s * (0.5 - SHOULDER_MEDIAL_PER_BIACROMIAL) * body.biacromialBreadth;
+  // acromion-radiale is a straight length, so radiale drops the length's vertical share below the acromion
+  const radialeY: number =
+    body.acromialHeight -
+    Math.sqrt(
+      arm.upperArmLength ** 2 - (acromion.x - x) ** 2,
+    );
   const radiale: IAutoMovieVector3 = V.of(x, radialeY, depth);
   const stylion: IAutoMovieVector3 = V.of(
     x,
