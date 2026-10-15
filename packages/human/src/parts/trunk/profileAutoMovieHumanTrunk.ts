@@ -53,18 +53,23 @@ export function profileAutoMovieHumanTrunk(
   const hipLevel: number = lerp(L.buttock, frame.iliocristale.y, F.hip.level);
   const fork = (y: number, form: IAutoMovieHumanTrunkForm.IFork, pick: "front" | "back"): [number, number] => [
     y,
-    buttock.back + form[pick] * buttock.depth,
+    buttock.back +
+      (pick === "front" ? form.front + form.fat * (frame.fat - REFERENCE_FAT) : form.back) * buttock.depth,
   ];
   const front: (y: number) => number = curveAutoMovieHumanTrunk([
     fork(L.gluteal, F.gluteal, "front"),
     fork(L.crotch, F.crotch, "front"),
     ...through((k: IKey): number => k.back + k.depth),
-    [frame.suprasternale.y, frame.suprasternale.z],
+    [
+      frame.suprasternale.y,
+      frame.suprasternale.z + (F.clavicle.front + F.clavicle.fat * (frame.fat - REFERENCE_FAT)) * C.depth,
+    ],
   ]);
   const back: (y: number) => number = curveAutoMovieHumanTrunk([
     fork(L.gluteal, F.gluteal, "back"),
     fork(L.crotch, F.crotch, "back"),
     ...through((k: IKey): number => k.back),
+    [frame.suprasternale.y, frame.cervicale.z - F.clavicle.back * C.depth],
     [frame.cervicale.y, frame.cervicale.z],
   ]);
   const half: (y: number) => number = curveAutoMovieHumanTrunk([

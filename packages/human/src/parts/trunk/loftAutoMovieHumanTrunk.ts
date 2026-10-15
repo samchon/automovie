@@ -188,6 +188,12 @@ const networkOf = (
   const neckOrigin: IAutoMovieVector3 = neck.frame.origin;
   const slopeY: number = shoulderLine + 0.45 * (neckOrigin.y - shoulderLine);
   const neckHalf: number = (neck.radii[3]! + neck.radii[9]!) / 2;
+  // the slope's front and back run from the shoulder line's toward the neck ring's
+  const top = shoulder.section as IAutoMovieSweepSection.ISuperellipse;
+  const slopeFront: number =
+    shoulder.centre.z + millimetres(top.right) + 0.45 * (neckOrigin.z + neck.radii[0]! - shoulder.centre.z - millimetres(top.right));
+  const slopeBack: number =
+    shoulder.centre.z - millimetres(top.left) + 0.45 * (neckOrigin.z - neck.radii[neck.count / 2]! - shoulder.centre.z + millimetres(top.left));
   sections.push({
     centre: AutoMovieHumanVector.of(
       0,
@@ -196,9 +202,9 @@ const networkOf = (
     ),
     section: {
       type: "superellipse",
-      right: metres(Math.max(25, profile.front(slopeY) - (shoulder.centre.z + neckOrigin.z) / 2)),
+      right: metres(Math.max(25, slopeFront - (shoulder.centre.z + neckOrigin.z) / 2)),
       up: metres(neckHalf + 0.45 * (millimetres((shoulder.section as IAutoMovieSweepSection.ISuperellipse).up) - neckHalf)),
-      left: metres(Math.max(25, (shoulder.centre.z + neckOrigin.z) / 2 - profile.back(slopeY))),
+      left: metres(Math.max(25, (shoulder.centre.z + neckOrigin.z) / 2 - slopeBack)),
       down: metres(neckHalf + 0.45 * (millimetres((shoulder.section as IAutoMovieSweepSection.ISuperellipse).up) - neckHalf)),
       exponents: [2.2, 2.2, 2.2, 2.2],
     },
@@ -281,6 +287,12 @@ const networkOf = (
       stations: [
         {
           at: 0,
+          // level like the crotch section above it, first axis backward, second toward the person's left
+          rotation: quaternionOf(
+            { x: 0, y: 0, z: -1 },
+            { x: 1, y: 0, z: 0 },
+            { x: 0, y: -1, z: 0 },
+          ),
           section: {
             type: "superellipse",
             right: metres(lobe.depth),
