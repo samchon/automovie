@@ -299,6 +299,28 @@ const GHOST: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial({
   depthWrite: false,
   side: THREE.DoubleSide,
 });
+/** Whether the skin shows its fine relief, the pores and furrows of its detail normal map; form is judged without it. */
+let relief: boolean = true;
+/** Show or hide the skin's fine relief: every material with a normal map keeps its scale aside and takes zero while relief is off. */
+const applyRelief = (): void => {
+  object?.object.traverse((node: THREE.Object3D): void => {
+    const mesh: THREE.Mesh = node as THREE.Mesh;
+    if (mesh.isMesh !== true) return;
+    for (const material of Array.isArray(mesh.material)
+      ? mesh.material
+      : [mesh.material]) {
+      const standard: THREE.MeshStandardMaterial =
+        material as THREE.MeshStandardMaterial;
+      if (standard.normalMap === undefined || standard.normalMap === null)
+        continue;
+      standard.userData.normalScale ??= standard.normalScale.x;
+      standard.normalScale.setScalar(
+        relief ? (standard.userData.normalScale as number) : 0,
+      );
+    }
+  });
+};
+
 /** Draw the shown person in the current display mode. */
 const applyDisplayMode = (): void => {
   if (construction !== null) {
@@ -358,6 +380,7 @@ const display = (
   applyVisibility();
   nets = null;
   applyDisplayMode();
+  applyRelief();
   error(null);
 };
 
@@ -498,6 +521,7 @@ const capture = async (props: {
   scales?: Scale[];
   focus?: AutoMovieHumanoidBone;
   modes?: DisplayMode[];
+  relief?: boolean;
 }): Promise<{ files: string[]; metadata: string }> => {
   if (!/^[A-Za-z0-9._-]+$/.test(props.name))
     throw new Error("Capture name must match [A-Za-z0-9._-]+.");
@@ -564,6 +588,9 @@ const capture = async (props: {
         `unknown display mode "${String(mode)}"; modes are ${DISPLAY_MODES.join(", ")}`,
       );
   const previousMode: DisplayMode = displayMode;
+  const previousRelief: boolean = relief;
+  relief = props.relief ?? relief;
+  applyRelief();
   for (const mode of modes) {
     displayMode = mode;
     applyDisplayMode();
@@ -576,7 +603,7 @@ const capture = async (props: {
       handle.renderer.render(scene, camera);
       // Read the drawing buffer in the same task as the draw, before it clears.
       const png: string = keyed(mode);
-      const file: string = `${props.name}-${mode === "surface" ? "" : `${mode}-`}${step.tag}-${viewTag(view.view)}${extraTag(view)}.png`;
+      const file: string = `${props.name}-${mode === "surface" ? "" : `${mode}-`}${step.tag}-${viewTag(view.view)}${extraTag(view)}${relief ? "" : "_norelief"}.png`;
       shots.push({ file, png });
       records.push({
         file,
@@ -588,6 +615,7 @@ const capture = async (props: {
         point: view.point ?? null,
         radius: view.radius ?? null,
         light: view.light ?? pageLight,
+        relief,
         camera: {
           position: camera.position.toArray(),
           target: controls.target.toArray(),
@@ -598,6 +626,8 @@ const capture = async (props: {
   }
   displayMode = previousMode;
   applyDisplayMode();
+  relief = previousRelief;
+  applyRelief();
   view = previous;
   frame();
   const response: Response = await fetch("/__automovie/capture", {
@@ -725,7 +755,15 @@ const renderViews = (): void => {
   });
   const row: HTMLDivElement = document.createElement("div");
   row.className = "row";
-  row.append(scale, focus, skin, hands, shown, bones, sticks);
+  const fine: HTMLSelectElement = document.createElement("select");
+  fine.add(new Option("skin relief", "on"));
+  fine.add(new Option("no skin relief (form)", "off"));
+  fine.value = relief ? "on" : "off";
+  fine.addEventListener("change", (): void => {
+    relief = fine.value === "on";
+    applyRelief();
+  });
+  row.append(scale, focus, skin, hands, shown, fine, bones, sticks);
   const captureRow: HTMLDivElement = document.createElement("div");
   captureRow.className = "row";
   captureRow.append(name, run);
@@ -1007,6 +1045,10 @@ frame();
   setStick: (next: boolean): void => {
     showStick = next;
     applyVisibility();
+  },
+  setRelief: (next: boolean): void => {
+    relief = next;
+    applyRelief();
   },
   setDisplay: (next: DisplayMode): void => {
     displayMode = next;
