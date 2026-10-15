@@ -1,10 +1,12 @@
 # AutoMovie
 
-**Coding-agent-native deterministic filmmaking.**
+**Deterministic motion and staging that a diffusion model repaints into video.**
 
-A user directs a coding agent in natural language; the agent authors assets and their performance in TypeScript against AutoMovie's public engine, and AutoMovie validates and renders them deterministically. It is the cheap, controllable, reproducible alternative to asking a diffusion model to invent a video: the same source always produces the same motion, staging, timing, camera, and media.
+A user directs a coding agent in natural language; the agent authors figures, props, motion, staging and camera in TypeScript against AutoMovie's public engine, and AutoMovie validates and renders them deterministically. The render is the hint a diffusion model repaints into the final video. It fixes who stands where, how they move, when, and from which camera, which a diffusion model left alone invents differently on every run. The same source always produces the same frames.
 
-The output is a prototype that a director judges and a diffusion lane may repaint. There is no internal LLM and no authoring server: whatever an agent cannot reach by reading its project and running its code does not exist.
+Figures range from stick figures to a human generated from measurements, all on one shared skeleton, so motion authored and reviewed on a stick figure carries over unchanged when the figure is upgraded. A realistic, detailed person leaves diffusion less room to distort faces and hands, and serves as the reference that judges the repainted frame. The engine's physics computes hits, impacts, recoil and projectile paths, so they follow from the motion instead of being drawn by hand.
+
+There is no internal LLM and no authoring server: whatever an agent cannot reach by reading its project and running its code does not exist.
 
 See it at [samchon.github.io/AutoMovie](https://samchon.github.io/AutoMovie/), where productions kept under [`experimental`](./experimental) are rendered from their authored source in the browser.
 
