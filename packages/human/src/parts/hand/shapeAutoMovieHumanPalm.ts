@@ -119,7 +119,7 @@ export function shapeAutoMovieHumanPalm(
   // carpometacarpal line: the border over the trapezium, the thenar's proximal edge and the snuffbox behind it
   rows[0]![13] = V.of(base - 0.02 * L, 0.25 * palmarDepth(base), cmc.z + 0.45 * tw);
   rows[0]![0] = V.of(base + 0.02 * L, 1.2 * palmarDepth(base), cmc.z - 0.15 * tw);
-  rows[0]![12] = V.of(base, -0.75 * dorsalHeight(base), cmc.z - 0.1 * tw);
+  rows[0]![12] = V.of(base, -0.6 * dorsalHeight(base), cmc.z + 0.15 * tw);
   // mid-metacarpal: the thenar's summit over the thumb metacarpal toward the palm, and the first dorsal interosseous between the two metacarpals
   rows[1]![0] = V.offset(along(0.55), [thumb.pad, 0.7 * tw], [thumb.web, 0.2 * tw]);
   rows[1]![12] = V.offset(V.of(0, 0, 0), [dorsal(rows[1]![11]!.x, zetas[0]! * 0.92 + 0.25), 0.5], [V.offset(along(0.6), [nail, 0.5 * tw]), 0.5]);
