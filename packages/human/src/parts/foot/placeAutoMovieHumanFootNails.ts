@@ -1,7 +1,6 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
-import { AUTOMOVIE_HUMAN_FOOT_GRID } from "./AUTOMOVIE_HUMAN_FOOT_GRID";
 import { IAutoMovieHumanFootPlan } from "./IAutoMovieHumanFootPlan";
 
 /**
@@ -27,13 +26,13 @@ const GRID: { along: number; across: number } = { along: 5, across: 5 };
  * Each plate's grid points are found by casting rays from the toe's distal axis across its dorsal side onto the refined skin, so the plate follows the skin's own curvature across and along the toe; the top grid stands just above the skin and the bottom grid just below it, and their borders close the plate as one quad cage. The proximal row narrows into the curve of the nail fold.
  *
  * @param props.plan The foot's plan, for each toe's breadth
- * @param props.toes Each toe's stations as the fitted cage holds them, in the foot's local frame
+ * @param props.axes Each toe's axis as the lofted toe's spine holds it, in the foot's local frame
  * @param props.skin The refined skin's triangles in the same frame
  * @returns One closed quad cage per toe, hallux first, local frame, winding outward
  */
 export function placeAutoMovieHumanFootNails(props: {
   plan: IAutoMovieHumanFootPlan;
-  toes: IAutoMovieVector3[][][];
+  axes: Array<{ fractions: number[]; centres: IAutoMovieVector3[] }>;
   skin: { positions: number[]; triangles: number[] };
 }): Array<{
   positions: IAutoMovieVector3[];
@@ -44,27 +43,15 @@ export function placeAutoMovieHumanFootNails(props: {
     const nail: { from: number; to: number; breadth: number } = toe.hallux
       ? NAIL.hallux
       : NAIL.lesser;
-    const stations: IAutoMovieVector3[][] = props.toes[t]!;
-    const centres: IAutoMovieVector3[] = stations.map(
-      (station: IAutoMovieVector3[]): IAutoMovieVector3 =>
-        V.of(
-          (station[0]!.x + station[1]!.x + station[2]!.x + station[3]!.x) / 4,
-          (station[0]!.y + station[1]!.y + station[2]!.y + station[3]!.y) / 4,
-          (station[0]!.z + station[1]!.z + station[2]!.z + station[3]!.z) / 4,
-        ),
-    );
-    // the toe's axis through its stations' centres, read at a fraction of the toe's length
+    const { fractions, centres } = props.axes[t]!;
+    // the toe's axis through its centres, read at a fraction of the toe's length
     const along = (
       s: number,
     ): { origin: IAutoMovieVector3; axis: IAutoMovieVector3 } => {
       let k: number = 0;
-      while (
-        k + 2 < AUTOMOVIE_HUMAN_FOOT_GRID.toeStations.length &&
-        AUTOMOVIE_HUMAN_FOOT_GRID.toeStations[k + 1]! < s
-      )
-        ++k;
-      const a: number = AUTOMOVIE_HUMAN_FOOT_GRID.toeStations[k]!;
-      const b: number = AUTOMOVIE_HUMAN_FOOT_GRID.toeStations[k + 1]!;
+      while (k + 2 < fractions.length && fractions[k + 1]! < s) ++k;
+      const a: number = fractions[k]!;
+      const b: number = fractions[k + 1]!;
       const w: number = (s - a) / (b - a);
       return {
         origin: V.offset(centres[k]!, [

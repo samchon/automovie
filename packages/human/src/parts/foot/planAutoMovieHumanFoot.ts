@@ -4,7 +4,6 @@ import { IAutoMovieHumanLandmarks } from "../../measure/IAutoMovieHumanLandmarks
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanIdentity } from "../../structures/IAutoMovieHumanIdentity";
 import { AUTOMOVIE_HUMAN_FOOT_FORM } from "./AUTOMOVIE_HUMAN_FOOT_FORM";
-import { AUTOMOVIE_HUMAN_FOOT_GRID } from "./AUTOMOVIE_HUMAN_FOOT_GRID";
 import { IAutoMovieHumanFootPlan } from "./IAutoMovieHumanFootPlan";
 
 /**
@@ -100,8 +99,6 @@ export function planAutoMovieHumanFoot(props: {
   );
   const heelWidth: number = 0.49 * HEEL_BREADTH * L;
   const heelAt: number = HEEL_AT;
-  const rows: number = AUTOMOVIE_HUMAN_FOOT_GRID.rows;
-  if (rows !== 11) throw new Error("foot border stations assume 11 rows");
   return {
     length: L,
     breadth: B,

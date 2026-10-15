@@ -1,5 +1,3 @@
-import { AutoMovieHumanoidBone } from "@automovie/interface";
-
 import { IAutoMovieHumanPartGenerator } from "../parts/IAutoMovieHumanPartGenerator";
 import { AutoMovieHumanArmGenerator } from "../parts/arm/AutoMovieHumanArmGenerator";
 import { AutoMovieHumanEarGenerator } from "../parts/ear/AutoMovieHumanEarGenerator";
@@ -26,42 +24,10 @@ export const AUTOMOVIE_HUMAN_PART_GENERATORS: IAutoMovieHumanPartGenerators = {
   ),
   ear: new AutoMovieHumanEarGenerator(),
   arm: new AutoMovieHumanArmGenerator(),
-  hand: carryNails(new AutoMovieHumanHandGenerator()),
+  hand: new AutoMovieHumanHandGenerator(),
   leg: new AutoMovieHumanLegGenerator(),
   foot: new AutoMovieHumanFootGenerator(),
 };
-
-/** Digits in the order the hand generator returns their nails, thumb first. */
-const DIGITS = ["Thumb", "Index", "Middle", "Ring", "Little"] as const;
-
-/**
- * The hand generator with its nail plates exposed as attachments, each riding its digit's distal phalanx.
- *
- * The hand generator returns its plates from `nails`, thumb first; this adapter names them `nail.<digit>` until the generator implements `attachments` itself, which then takes precedence.
- *
- * @param hand The hand generator
- * @returns A generator that builds the same cage and carries the nails
- */
-function carryNails(
-  hand: AutoMovieHumanHandGenerator,
-): IAutoMovieHumanPartGenerator<"hand"> {
-  const own: IAutoMovieHumanPartGenerator<"hand"> = hand;
-  return {
-    part: "hand",
-    generate: (props) => hand.generate(props),
-    attachments: (props) =>
-      own.attachments !== undefined
-        ? own.attachments(props)
-        : hand.nails(props).map(
-            (cage, i: number): IAutoMovieHumanPartGenerator.IAttachment => ({
-              name: `nail.${DIGITS[i]!.toLowerCase()}`,
-              bone: `${props.side}${DIGITS[i]!}Distal` as AutoMovieHumanoidBone,
-              tissue: "nail",
-              cage,
-            }),
-          ),
-  };
-}
 
 /**
  * The head generator carrying the eyeballs after its own attachments.
