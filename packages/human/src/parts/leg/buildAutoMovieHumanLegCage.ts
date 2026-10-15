@@ -1,30 +1,36 @@
+import {
+  IAutoMovieSubdivisionSurface,
+  subdivideAutoMovieSurface,
+} from "@automovie/engine";
 import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieHumanSide } from "../../junction/AutoMovieHumanSide";
 import { IAutoMovieHumanCage } from "../../junction/IAutoMovieHumanCage";
-import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
 import { IAutoMovieHumanSurfaceCoordinate } from "../../junction/IAutoMovieHumanSurfaceCoordinate";
 import { IAutoMovieHumanMeasurements } from "../../measure/IAutoMovieHumanMeasurements";
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanSkeleton } from "../../skeleton/IAutoMovieHumanSkeleton";
 import { IAutoMovieHumanLegStation } from "./IAutoMovieHumanLegStation";
+import { measureAutoMovieHumanLegGirth } from "./measureAutoMovieHumanLegGirth";
 import { planAutoMovieHumanLegStations } from "./planAutoMovieHumanLegStations";
 import { shapeAutoMovieHumanLegSection } from "./shapeAutoMovieHumanLegSection";
 
 /**
- * Fixed-point passes that scale each station until its limit-surface girth matches its target. Each pass divides the remaining error by roughly the share a station's own ring carries in its limit section, two thirds, so eight passes leave well under a millimetre. Grade: numerical.
+ * Fixed-point passes that scale each fitted station until its limit-surface girth matches the measurement. A station's own ring carries about two thirds of its limit section, so each pass divides the remaining error by about three and five passes leave well under a millimetre. Grade: numerical.
  */
-const FIT_PASSES: number = 8;
+const FIT_PASSES: number = 5;
 
-/** Samples per span when measuring a limit cross-section's perimeter. */
-const PERIMETER_SAMPLES: number = 16;
+/**
+ * Subdivision levels of the surface the girths are measured on: three levels put 64 quads on every cage face, so the measured section is a polygon of about a hundred sides whose length is within a fraction of a millimetre of the limit curve's. Grade: numerical.
+ */
+const MEASURE_LEVELS: number = 3;
 
 /**
  * Build one leg's control cage, from the mid thigh ring to the ankle ring.
  *
  * Every station is an edge loop around the limb at its planned level, perpendicular to the bone it crosses; the two end stations are the junction rings, their vertices exactly on the shared ring shape of `shapeAutoMovieHumanRing`, so the junction welds them to the trunk and the foot without moving either. Twelve vertices run around each station from the thigh to the lower calf, where the calf's bellies narrow into the calcaneal tendon, and eight from there to the ankle. The reduction between them is two patches of four quads, centred on the medial and lateral midlines, each turning four spans into two around one regular vertex inside the patch; the two valence-3 and two valence-5 vertices each patch needs lie on the narrow, sharply curved sides of the lower shank, the region the junction research reserves for poles, never on the broad lit shin or calf.
  *
- * Each inner station's control points sit at the radii `shapeAutoMovieHumanLegSection` gives. The stations at the levels the identity measures, suprapatella and the calf maximum, are then scaled about their origins until the girth of their limit section matches the measurement; the stations between take scales interpolated along the limb from those and from the rings, which keep their shared shape, so no station is sharpened by a fit against neighbours that the limit surface averages. On the regular tube the limit section through a station's vertices is the cubic B-spline of the points `(P[i-1] + 4P[i] + P[i+1]) / 6`, the Catmull-Clark limit mask along the limb; beside the reduction, where the neighbours differ in count, the station's own ring is used. The measured girths therefore hold on the subdivided surface, not on the cage, which lies outside it.
+ * Each inner station's control points sit at the radii `shapeAutoMovieHumanLegSection` gives. The stations at the levels the identity measures, suprapatella and the calf maximum, are then scaled about their origins until the girth of the subdivided surface in their plane matches the measurement, measured on the same Catmull-Clark surface the person is rendered with; the stations between take scales interpolated along the limb from those and from the rings, which keep their shared shape, so no station is sharpened by a fit against neighbours that the limit surface averages. The measured girths therefore hold on the surface, not on the cage, which lies outside it.
  *
  * Chart: `u` runs from 0 at the mid thigh ring to 1 at the ankle ring by arc length of the bone axis, `v` from 0 at the anterior mark counterclockwise about the distal axis, which is medial on the left leg and lateral on the right.
  *
@@ -58,100 +64,25 @@ export function buildAutoMovieHumanLegCage(props: {
       `leg cage reduces ${wide} spans to ${narrow}; it needs rings of 4k + 4 and 4k`,
     );
 
-  // directions and raw radii
-  const directions: IAutoMovieVector3[][] = stations.map(
-    (s: IAutoMovieHumanLegStation, i: number): IAutoMovieVector3[] =>
-      Array.from({ length: s.count }, (_: unknown, j: number): IAutoMovieVector3 =>
-        i === 0
-          ? ring(thighRing, (s.count - j) % s.count)
-          : i === last
-            ? ring(ankleRing, j)
-            : around(s, j / s.count),
-      ),
-  );
-  const radii: number[][] = stations.map(
-    (s: IAutoMovieHumanLegStation, i: number): number[] =>
-      directions[i]!.map(
-        (d: IAutoMovieVector3): number =>
-          shapeAutoMovieHumanLegSection(s, anatomical(s, d), lean),
-      ),
-  );
-
-  // fit every station's limit girth
-  const scales: number[] = stations.map((): number => 1);
-  // the rings lie on the shared ring shape and are never scaled
-  const place = (i: number): IAutoMovieVector3[] =>
-    i === 0
-      ? directions[i]!.map(
-          (_: IAutoMovieVector3, j: number): IAutoMovieVector3 =>
-            thighRing.positions[(wide - j) % wide]!,
-        )
-      : i === last
-        ? ankleRing.positions.slice()
-        : directions[i]!.map(
-      (d: IAutoMovieVector3, j: number): IAutoMovieVector3 =>
-        AutoMovieHumanVector.offset(stations[i]!.origin, [
-          d,
-          scales[i]! * radii[i]![j]!,
-        ]),
-    );
-  for (let pass: number = 0; pass < FIT_PASSES; ++pass) {
-    const rings: IAutoMovieVector3[][] = stations.map(
-      (_: unknown, i: number): IAutoMovieVector3[] => place(i),
-    );
-    stations.forEach((s: IAutoMovieHumanLegStation, i: number): void => {
-      if (!s.fitted) return;
-      const own: boolean =
-        i === 0 || i === last || i === reduced - 1 || i === reduced;
-      const section: IAutoMovieVector3[] = own
-        ? rings[i]!
-        : rings[i]!.map(
-            (p: IAutoMovieVector3, j: number): IAutoMovieVector3 =>
-              AutoMovieHumanVector.offset(
-                AutoMovieHumanVector.of(0, 0, 0),
-                [rings[i - 1]![j]!, 1 / 6],
-                [p, 4 / 6],
-                [rings[i + 1]![j]!, 1 / 6],
-              ),
-          );
-      scales[i]! *= s.girth / perimeter(section);
-    });
-    interpolate(stations, scales);
-  }
-
-  // vertices: stations in order, then the two reduction centres
-  const vertices: IAutoMovieHumanCage.IVertex[] = [];
-  const coordinates: Array<{ u: number; v: number }> = [];
+  // topology: stations in order, then the two reduction centres
   const first: number[] = [];
-  stations.forEach((s: IAutoMovieHumanLegStation, i: number): void => {
-    first.push(vertices.length);
-    place(i).forEach((position: IAutoMovieVector3, j: number): void => {
-      vertices.push({ position });
-      coordinates.push({ u: s.u, v: j / s.count });
-    });
-  });
+  let count: number = 0;
+  for (const s of stations) {
+    first.push(count);
+    count += s.count;
+  }
+  const centres: [number, number] = [count, count + 1];
   const upper: IAutoMovieHumanLegStation = stations[reduced - 1]!;
   const lower: IAutoMovieHumanLegStation = stations[reduced]!;
-  const centres: number[] = [0.25, 0.75].map((v: number): number => {
-    const d: IAutoMovieVector3 = around(upper, v);
-    const angle: number = anatomical(upper, d);
-    const radius: number =
-      0.5 *
-      (scales[reduced - 1]! * shapeAutoMovieHumanLegSection(upper, angle, lean) +
-        scales[reduced]! * shapeAutoMovieHumanLegSection(lower, angle, lean));
-    vertices.push({
-      position: AutoMovieHumanVector.offset(
-        AutoMovieHumanVector.of(0, 0, 0),
-        [upper.origin, 0.5],
-        [lower.origin, 0.5],
-        [d, radius],
-      ),
-    });
-    coordinates.push({ u: 0.5 * (upper.u + lower.u), v });
-    return vertices.length - 1;
+  const chart: Array<{ u: number; v: number }> = [];
+  stations.forEach((s: IAutoMovieHumanLegStation): void => {
+    for (let j: number = 0; j < s.count; ++j)
+      chart.push({ u: s.u, v: j / s.count });
   });
-
-  // faces
+  chart.push(
+    { u: 0.5 * (upper.u + lower.u), v: 0.25 },
+    { u: 0.5 * (upper.u + lower.u), v: 0.75 },
+  );
   const at = (i: number, j: number): number =>
     first[i]! + (((j % stations[i]!.count) + stations[i]!.count) % stations[i]!.count);
   const faces: IAutoMovieHumanCage.IFace[] = [];
@@ -163,7 +94,7 @@ export function buildAutoMovieHumanLegCage(props: {
       order[2],
       order[1],
     ];
-    const vs: number[] = corners.map((c: number): number => coordinates[c]!.v);
+    const vs: number[] = corners.map((c: number): number => chart[c]!.v);
     const wraps: boolean = vs.some((v: number): boolean => v > 0.5);
     faces.push({
       vertices: corners,
@@ -171,7 +102,7 @@ export function buildAutoMovieHumanLegCage(props: {
         (c: number, k: number): IAutoMovieHumanSurfaceCoordinate => ({
           part: "leg",
           side: props.side,
-          u: coordinates[c]!.u,
+          u: chart[c]!.u,
           v: wraps && vs[k] === 0 ? 1 : vs[k]!,
         }),
       ) as IAutoMovieHumanCage.IFace["coordinates"],
@@ -200,8 +131,92 @@ export function buildAutoMovieHumanLegCage(props: {
       quad([t(j), b(j - j0 - 5 + k0 + 3), b(j - j0 - 5 + k0 + 4), t(j + 1)]);
   }
 
+  // positions for given station scales; the rings lie on the shared shape and are never scaled
+  const directions: IAutoMovieVector3[][] = stations.map(
+    (s: IAutoMovieHumanLegStation): IAutoMovieVector3[] =>
+      Array.from({ length: s.count }, (_: unknown, j: number): IAutoMovieVector3 =>
+        around(s, j / s.count),
+      ),
+  );
+  const radii: number[][] = stations.map(
+    (s: IAutoMovieHumanLegStation, i: number): number[] =>
+      directions[i]!.map(
+        (d: IAutoMovieVector3): number =>
+          shapeAutoMovieHumanLegSection(s, anatomical(s, d), lean),
+      ),
+  );
+  const place = (scales: number[]): IAutoMovieVector3[] => {
+    const positions: IAutoMovieVector3[] = [];
+    stations.forEach((s: IAutoMovieHumanLegStation, i: number): void => {
+      for (let j: number = 0; j < s.count; ++j)
+        positions.push(
+          i === 0
+            ? thighRing.positions[(wide - j) % wide]!
+            : i === last
+              ? ankleRing.positions[j]!
+              : AutoMovieHumanVector.offset(s.origin, [
+                  directions[i]![j]!,
+                  scales[i]! * radii[i]![j]!,
+                ]),
+        );
+    });
+    for (const v of [0.25, 0.75]) {
+      const d: IAutoMovieVector3 = around(upper, v);
+      const angle: number = anatomical(upper, d);
+      const radius: number =
+        0.5 *
+        (scales[reduced - 1]! * shapeAutoMovieHumanLegSection(upper, angle, lean) +
+          scales[reduced]! * shapeAutoMovieHumanLegSection(lower, angle, lean));
+      positions.push(
+        AutoMovieHumanVector.offset(
+          AutoMovieHumanVector.of(0, 0, 0),
+          [upper.origin, 0.5],
+          [lower.origin, 0.5],
+          [d, radius],
+        ),
+      );
+    }
+    return positions;
+  };
+
+  // fit the measured girths on the subdivided surface
+  const scales: number[] = stations.map((): number => 1);
+  const quads: number[][] = faces.map(
+    (f: IAutoMovieHumanCage.IFace): number[] => f.vertices,
+  );
+  for (let pass: number = 0; pass < FIT_PASSES; ++pass) {
+    const surface: IAutoMovieSubdivisionSurface = subdivideAutoMovieSurface({
+      cage: {
+        positions: place(scales).flatMap((p: IAutoMovieVector3): number[] => [
+          p.x,
+          p.y,
+          p.z,
+        ]),
+        faces: quads,
+      },
+      levels: MEASURE_LEVELS,
+    });
+    stations.forEach((s: IAutoMovieHumanLegStation, i: number): void => {
+      if (!s.fitted) return;
+      scales[i]! *=
+        s.girth /
+        measureAutoMovieHumanLegGirth({
+          positions: surface.limitPositions,
+          faces: surface.faces,
+          origin: s.origin,
+          normal: s.axis,
+          reach: s.girth / 2,
+        });
+    });
+    interpolate(stations, scales);
+  }
+
   return {
-    vertices,
+    vertices: place(scales).map(
+      (position: IAutoMovieVector3): IAutoMovieHumanCage.IVertex => ({
+        position,
+      }),
+    ),
     faces,
     creases: [],
     rings: [
@@ -250,10 +265,6 @@ const interpolate = (
   }
 };
 
-/** Direction of ring vertex `k` of a layout. */
-const ring = (layout: IAutoMovieHumanRingShape, k: number): IAutoMovieVector3 =>
-  layout.directions[k]!;
-
 /** Direction at chart angle `v` around a station. */
 const around = (s: IAutoMovieHumanLegStation, v: number): IAutoMovieVector3 =>
   AutoMovieHumanVector.offset(
@@ -271,31 +282,3 @@ const anatomical = (
     AutoMovieHumanVector.dot(d, s.medial),
     AutoMovieHumanVector.dot(d, s.anterior),
   );
-
-/** Perimeter of the closed uniform cubic B-spline over the given control points. */
-const perimeter = (points: IAutoMovieVector3[]): number => {
-  const n: number = points.length;
-  let total: number = 0;
-  let previous: IAutoMovieVector3 | null = null;
-  for (let k: number = 0; k <= n * PERIMETER_SAMPLES; ++k) {
-    const span: number = Math.floor(k / PERIMETER_SAMPLES) % n;
-    const s: number = (k % PERIMETER_SAMPLES) / PERIMETER_SAMPLES;
-    const w: [number, number, number, number] = [
-      ((1 - s) * (1 - s) * (1 - s)) / 6,
-      (3 * s * s * s - 6 * s * s + 4) / 6,
-      (-3 * s * s * s + 3 * s * s + 3 * s + 1) / 6,
-      (s * s * s) / 6,
-    ];
-    const point: IAutoMovieVector3 = AutoMovieHumanVector.offset(
-      AutoMovieHumanVector.of(0, 0, 0),
-      [points[(span + n - 1) % n]!, w[0]],
-      [points[span]!, w[1]],
-      [points[(span + 1) % n]!, w[2]],
-      [points[(span + 2) % n]!, w[3]],
-    );
-    if (previous !== null)
-      total += AutoMovieHumanVector.distance(previous, point);
-    previous = point;
-  }
-  return total;
-};
