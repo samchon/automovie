@@ -1,4 +1,4 @@
-import { IAutoMovieSweep, IAutoMovieSweepSection } from "@automovie/engine";
+import { IAutoMovieSweep, IAutoMovieSweepSection, compileAutoMovieSweep } from "@automovie/engine";
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
 import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
@@ -6,6 +6,7 @@ import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { AUTOMOVIE_HUMAN_TRUNK_FORM } from "./AUTOMOVIE_HUMAN_TRUNK_FORM";
 import { AutoMovieHumanTrunkSweep } from "./AutoMovieHumanTrunkSweep";
 import { IAutoMovieHumanTrunkFrame } from "./IAutoMovieHumanTrunkFrame";
+import { featureAutoMovieHumanTrunk } from "./featureAutoMovieHumanTrunk";
 import { profileAutoMovieHumanTrunk } from "./profileAutoMovieHumanTrunk";
 import { sectionAutoMovieHumanTrunkCrotch } from "./sectionAutoMovieHumanTrunkCrotch";
 
@@ -135,14 +136,16 @@ export function sweepAutoMovieHumanTrunkBody(props: {
   );
   const points: IAutoMovieVector3[] = stations.map((s): IAutoMovieVector3 => S.toMetres(s.centre));
   const ats: number[] = S.chordShares(points);
+  const bare: IAutoMovieSweep = {
+    spine: { points, normal: { x: 0, y: 0, z: 1 } },
+    orientation: "fixed",
+    stations: stations.map(
+      (s, k: number): IAutoMovieSweep.IStation => ({ at: ats[k]!, section: s.section, rotation: s.rotation }),
+    ),
+  };
   return {
-    sweep: {
-      spine: { points, normal: { x: 0, y: 0, z: 1 } },
-      orientation: "fixed",
-      stations: stations.map(
-        (s, k: number): IAutoMovieSweep.IStation => ({ at: ats[k]!, section: s.section, rotation: s.rotation }),
-      ),
-    },
+    // the feature curves are located on the sweep their stations make
+    sweep: { ...bare, features: featureAutoMovieHumanTrunk({ frame, profile, surface: compileAutoMovieSweep(bare) }) },
     // the axilla is the last of the even steps from the buttock level, the shoulder line the last level
     axilla: ats[STEPS + 1]!,
     shoulder: ats[levels.length - 1]!,
