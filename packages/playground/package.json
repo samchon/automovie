@@ -43,8 +43,7 @@
     "vite": "catalog:vite",
     "@ttsc/lint": "catalog:samchon",
     "@wrtnlabs/evidence": "catalog:samchon",
-    "@ttsc/evidence": "catalog:samchon",
-    "@ttsc/unplugin": "catalog:samchon"
+    "@ttsc/evidence": "catalog:samchon"
   },
   "exports": {
     "./film/ICompilePursuitFilm": "./src/film/ICompilePursuitFilm.ts",
