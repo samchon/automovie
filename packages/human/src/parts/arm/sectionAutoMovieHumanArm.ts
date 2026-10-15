@@ -191,7 +191,6 @@ export function sectionAutoMovieHumanArm(
       twist: level <= 0 ? 0 : NEUTRAL_TWIST * level * level * (3 - 2 * level),
       radii: fitted.radii,
       girth,
-      fat: mean(thickness),
       deep: fitted.scale * mean(shape),
     };
   });
@@ -217,9 +216,6 @@ export namespace sectionAutoMovieHumanArm {
 
     /** Girth of the section and of the loft's row at its level, millimetres. */
     girth: number;
-
-    /** Mean subcutaneous fat thickness around the section, millimetres. */
-    fat: number;
 
     /** Mean radius of the deep shape of bone and muscle under the fat, millimetres. */
     deep: number;
