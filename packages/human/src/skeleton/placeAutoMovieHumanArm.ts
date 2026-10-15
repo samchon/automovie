@@ -31,6 +31,15 @@ const ARM_AXES: IAutoMovieHumanSkeleton.IAxes = {
 };
 
 /**
+ * The engine's hand basis for the canonical T-pose (`HUMANOID_JOINT_AXES`): flexion about +Z carries the fingertips toward the −Y palm, abduction about +Y toward the thumb, twist about +X; `HUMANOID_REST_FRAME` reverses the left hand's flexion and abduction.
+ */
+const HAND_AXES: IAutoMovieHumanSkeleton.IAxes = {
+  flexion: { x: 0, y: 0, z: 1 },
+  abduction: { x: 0, y: 1, z: 0 },
+  twist: { x: 1, y: 0, z: 0 },
+};
+
+/**
  * Place one arm, in the anthropometric posture with the arm hanging.
  *
  * The acromion sits at acromial height, half the biacromial breadth from the midline. The arm hangs straight below it: radiale at acromial height minus acromion-radiale length, stylion a forearm length lower, the middle fingertip a hand length below stylion, so measuring the hanging arm returns the identity's lengths exactly. The shoulder, elbow and wrist centres sit at de Leva's offsets from those landmarks, scaled with the segment. The arm hangs in the coronal plane at the trunk's shoulder depth. The clavicle runs from the sternoclavicular joint beside the jugular notch, on the front of the neck, back and out to the shoulder joint centre; the scapula has no bone, so the shoulder bone carries the acromion.
@@ -138,7 +147,14 @@ export function placeAutoMovieHumanArm(
         ...joint(`${side}LowerArm`, `${side}UpperArm`, elbow, wrist),
         axes: forearmAxes,
       },
-      joint(`${side}Hand`, `${side}LowerArm`, wrist, hand.knuckle),
+      {
+        ...joint(`${side}Hand`, `${side}LowerArm`, wrist, hand.knuckle),
+        axes: {
+          flexion: lowered(HAND_AXES.flexion),
+          abduction: lowered(HAND_AXES.abduction),
+          twist: lowered(HAND_AXES.twist),
+        },
+      },
       ...hand.joints,
     ],
     landmarks: {

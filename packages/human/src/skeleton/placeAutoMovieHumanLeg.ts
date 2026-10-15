@@ -132,10 +132,11 @@ export function placeAutoMovieHumanLeg(
     abduction,
     twist,
   });
+  // the engine's leg basis on both sides: HUMANOID_REST_FRAME reverses the right leg's abduction and twist
   const limbAxes: IAutoMovieHumanSkeleton.IAxes = axes(
     -1,
-    v(0, 0, s),
-    v(0, s, 0),
+    v(0, 0, 1),
+    v(0, 1, 0),
   );
   const mark: (
     bone: IAutoMovieHumanLandmarks.ILandmark["bone"],
@@ -162,7 +163,7 @@ export function placeAutoMovieHumanLeg(
         parent: `${prefix}UpperLeg`,
         position: knee,
         tail: ankleCentre,
-        axes: axes(1, v(0, 0, s), v(0, s, 0)),
+        axes: axes(1, v(0, 0, 1), v(0, 1, 0)),
         constraint: null,
       },
       {
@@ -170,7 +171,7 @@ export function placeAutoMovieHumanLeg(
         parent: `${prefix}LowerLeg`,
         position: ankleCentre,
         tail: toes,
-        axes: axes(-1, v(0, s, 0), v(0, 0, s)),
+        axes: axes(-1, v(0, 0, 1), v(0, 1, 0)),
         constraint: null,
       },
       {
@@ -178,7 +179,7 @@ export function placeAutoMovieHumanLeg(
         parent: `${prefix}Foot`,
         position: toes,
         tail: toeTip,
-        axes: axes(1, v(0, s, 0), v(0, 0, s)),
+        axes: axes(-1, v(0, 0, 1), v(0, 1, 0)),
         constraint: null,
       },
     ],

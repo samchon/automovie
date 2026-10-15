@@ -98,7 +98,7 @@ const KEPT: Record<
  *
  * Ranges come from the person's own mobility measurements where the identity carries them (shoulder flexion, elbow, forearm, hip flexion and extension, knee, ankle, jaw), so age and sex reach them through the converter's CDC norms, and from cited conventions elsewhere. The knee's flexion limit is the smaller of the identity's knee flexion and the angle where this person's calf girth closes the joint, so a heavier calf stops the knee sooner. The jaw turns the identity's mouth opening and laterotrusion, in millimetres at the incisors, into angles about its centre of rotation through this person's own incisor radius. A joint that does not straighten fully keeps its rest pose admissible: extension never starts above zero.
  *
- * Returns null for the bones no source was read for (hips, spine, chest, upper chest, clavicles), which keep the engine's default humanoid range. Signs follow the engine's own tables where the engine's axes are kept (spine, neck, head, arms, the wrist's flexion layout) and the clinical sense of Human's declared axes elsewhere.
+ * Returns null for the bones no source was read for (hips, spine, chest, upper chest, clavicles), which keep the engine's default humanoid range. Every range is clinical on the engine's humanoid convention (`HUMANOID_JOINT_AXES` and `HUMANOID_REST_FRAME`), which Human's declared axes follow: one value means the same motion on either side; wrist and finger flexion carry the fingertips toward the palm, ankle and toe flexion lift the foot and toes, the foot's abduction everts it, and the eyes and the jaw turn sideways about their twist.
  *
  * @param bone The joint's bone
  * @param identity The person
@@ -161,15 +161,15 @@ export function constrainAutoMovieHumanJoint(
     );
     return {
       flexion: range(0, opening),
-      abduction: range(-lateral, lateral),
-      twist: null,
+      abduction: null,
+      twist: range(-lateral, lateral),
     };
   }
   if (part === "Eye")
     return {
       flexion: range(-EYE.vertical, EYE.vertical),
-      abduction: range(-EYE.horizontal, EYE.horizontal),
-      twist: null,
+      abduction: null,
+      twist: range(-EYE.horizontal, EYE.horizontal),
     };
   switch (part) {
     case "UpperArm":
@@ -190,7 +190,7 @@ export function constrainAutoMovieHumanJoint(
       };
     case "Hand":
       return {
-        flexion: range(-AAOS.wristFlexion, AAOS.wristExtension),
+        flexion: range(-AAOS.wristExtension, AAOS.wristFlexion),
         abduction: KEPT.wristDeviation,
         twist: null,
       };
@@ -213,11 +213,16 @@ export function constrainAutoMovieHumanJoint(
     case "Foot":
       return {
         flexion: range(negate(leg.anklePlantarFlexion), leg.ankleDorsiflexion),
-        abduction: null,
-        twist: range(-ROAAS_1982.inversion, ROAAS_1982.inversion),
+        abduction: range(-ROAAS_1982.inversion, ROAAS_1982.inversion),
+        twist: null,
       };
     case "Toes":
-      return hinge(AAOS.toeExtension, AAOS.toeFlexion);
+      // positive toe flexion lifts the toes (dorsiflexion, the engine's sense), so the anatomical curl is negative
+      return {
+        flexion: range(-AAOS.toeFlexion, AAOS.toeExtension),
+        abduction: null,
+        twist: null,
+      };
     case "ThumbMetacarpal":
       // the rest thumb already spreads 40 degrees of the 60 the carpometacarpal joint abducts
       return {

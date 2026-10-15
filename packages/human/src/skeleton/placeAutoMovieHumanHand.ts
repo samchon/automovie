@@ -72,7 +72,7 @@ type IFinger = "Index" | "Middle" | "Ring" | "Little";
  *
  * The hand hangs from the wrist: distal is down, the palm faces the thigh and the thumb points forward. The middle fingertip lands at stylion minus hand length. The middle finger reaches back from it to its metacarpophalangeal joint by the length palm length leaves, lengthened from the crease to the joint, so a child's shorter fingers, which the identity's own palm length carries, give a child's hand rather than a scaled adult's. The metacarpal bases lie level across the distal carpal row, and each metacarpal head sits its measured metacarpal length beyond its base: the knuckles form an arc, the index and middle nearly level and the ring and little stepping back, and the thumb's carpometacarpal joint sits beside them at the base level. Every finger is straight, the rest pose of the T-pose rig, with its joints spaced 2:1:1. The thumb's metacarpal has its measured length and its two phalanges the identity's thumb length, split equally.
  *
- * Each finger joint declares its own axes from the hand frame: flexion turns the finger toward the palm (axis = distal × palmar), abduction turns it away from the middle finger in the palm plane (the middle finger toward the thumb), twist runs along it. The thumb's flexion turns it toward the ulnar side of the palm across its pad, abduction moves it away from the palm. The three are mutually perpendicular, as `IAutoMovieBone.axes` requires; the T-pose conversion turns them with the arm.
+ * Each finger joint declares its own axes from the hand frame: flexion turns the finger toward the palm (axis = distal × palmar), abduction turns it away from the middle finger in the palm plane (the middle finger toward the thumb), twist runs along it. The thumb's flexion turns it toward the ulnar side of the palm across its pad, abduction moves it away from the palm. The three are mutually perpendicular, as `IAutoMovieBone.axes` requires; the T-pose conversion turns them with the arm. They are declared on the engine's humanoid convention, in which `HUMANOID_REST_FRAME` reverses the left digits' flexion and abduction: the left hand declares those two axes reversed and both hands declare twist along +X in the T-pose, so one clinical angle moves either hand alike.
  *
  * @param arm The arm's measurements
  * @param side Which hand
@@ -105,6 +105,14 @@ export function placeAutoMovieHumanHand(
   const baseAlong: number = middleKnuckle - third;
 
   const joints: IAutoMovieHumanSkeleton.IJoint[] = [];
+  // the engine's humanoid rest frame reverses the left digits' flexion and abduction, so the left declares them reversed and a clinical angle turns either hand alike; twist runs along +X on both sides, as the arm's does
+  const sided = (
+    axes: IAutoMovieHumanSkeleton.IAxes,
+  ): IAutoMovieHumanSkeleton.IAxes => ({
+    flexion: V.offset(origin, [axes.flexion, -s]),
+    abduction: V.offset(origin, [axes.abduction, -s]),
+    twist: V.offset(origin, [axes.twist, s]),
+  });
   const chain: (
     bones: AutoMovieHumanoidBone[],
     points: IAutoMovieVector3[],
@@ -120,7 +128,7 @@ export function placeAutoMovieHumanHand(
         parent: i === 0 ? `${side}Hand` : bones[i - 1]!,
         position: points[i]!,
         tail: points[i + 1]!,
-        axes,
+        axes: sided(axes),
         constraint: null,
       });
     });

@@ -61,6 +61,8 @@ export namespace IAutoMovieHumanSkeleton {
    *
    * A positive angle turns about its axis by the right-hand rule. The three axes are mutually perpendicular. Declaring them per bone is what lets a finger flex across its own length and an eye turn horizontally, which the default convention cannot express for bones lying along X in the T-pose.
    *
+   * They follow the engine's humanoid convention, `HUMANOID_JOINT_AXES` read through `HUMANOID_REST_FRAME`: the rest frame reverses, on one side, every axis that lies in the body's mirror plane, so a side declares such an axis reversed wherever the anatomical turn would otherwise be the opposite one, and one clinical angle means the same motion on the left and the right, on Human and on any other humanoid.
+   *
    * @author Samchon
    */
   export interface IAxes {
@@ -70,7 +72,7 @@ export namespace IAutoMovieHumanSkeleton {
     /** Axis of positive abduction. */
     abduction: IAutoMovieVector3;
 
-    /** Axis of positive external rotation, along the bone. */
+    /** Axis of positive twist: external rotation about the length of the arm and leg, pronation at the forearm, toe-out at the foot, and a turn toward the figure's left for the eyes and the jaw. */
     twist: IAutoMovieVector3;
   }
 }
