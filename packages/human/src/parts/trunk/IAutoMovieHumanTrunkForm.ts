@@ -27,8 +27,11 @@ export interface IAutoMovieHumanTrunkForm {
   /** At the axilla, from the chest measurements. */
   axilla: IAutoMovieHumanTrunkForm.IDerived;
 
-  /** At the gluteal furrow, below the buttock level, where the trunk divides into the thighs. */
-  gluteal: IAutoMovieHumanTrunkForm.IGluteal;
+  /** At the crotch, the trunk's lowest level section, which the two thighs share. */
+  crotch: IAutoMovieHumanTrunkForm.ICrotch;
+
+  /** At the gluteal furrow, below the crotch, where the thighs have parted. */
+  gluteal: IAutoMovieHumanTrunkForm.IFork;
 }
 export namespace IAutoMovieHumanTrunkForm {
   /**
@@ -103,15 +106,31 @@ export namespace IAutoMovieHumanTrunkForm {
   }
 
   /**
-   * The gluteal furrow's midline, as shares of the buttock depth forward of the buttock level's back.
+   * The outer contour of a level below the buttock level, where the section is the two thighs side by side.
    *
    * @author Samchon
    */
-  export interface IGluteal {
-    /** The front of the midline. */
+  export interface IFork {
+    /** The foremost point, as a share of the buttock depth forward of the buttock level's back. */
     front: number;
 
-    /** The back of the midline. */
+    /** The rearmost point, in the same sense as `front`. */
     back: number;
+
+    /** Breadth across both thighs as a ratio to the hip breadth. */
+    breadth: number;
+  }
+
+  /**
+   * The crotch level, where the thighs' contours meet with a cleft between them in front and behind.
+   *
+   * @author Samchon
+   */
+  export interface ICrotch extends IFork {
+    /** Depth of the front cleft between the thighs below the outer contour, as a share of the buttock depth. */
+    frontRecess: number;
+
+    /** Depth of the back cleft, the natal cleft's lower end, as a share of the buttock depth. */
+    backRecess: number;
   }
 }

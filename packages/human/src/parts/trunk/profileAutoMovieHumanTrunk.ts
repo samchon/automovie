@@ -51,17 +51,25 @@ export function profileAutoMovieHumanTrunk(
     keys.map((key: IKey): [number, number] => [key.y, pick(key)]);
   const buttock: IKey = keys[0]!;
   const hipLevel: number = lerp(L.buttock, frame.iliocristale.y, F.hip.level);
+  const fork = (y: number, form: IAutoMovieHumanTrunkForm.IFork, pick: "front" | "back"): [number, number] => [
+    y,
+    buttock.back + form[pick] * buttock.depth,
+  ];
   const front: (y: number) => number = curveAutoMovieHumanTrunk([
-    [L.gluteal, buttock.back + F.gluteal.front * buttock.depth],
+    fork(L.gluteal, F.gluteal, "front"),
+    fork(L.crotch, F.crotch, "front"),
     ...through((k: IKey): number => k.back + k.depth),
     [frame.suprasternale.y, frame.suprasternale.z],
   ]);
   const back: (y: number) => number = curveAutoMovieHumanTrunk([
-    [L.gluteal, buttock.back + F.gluteal.back * buttock.depth],
+    fork(L.gluteal, F.gluteal, "back"),
+    fork(L.crotch, F.crotch, "back"),
     ...through((k: IKey): number => k.back),
     [frame.cervicale.y, frame.cervicale.z],
   ]);
   const half: (y: number) => number = curveAutoMovieHumanTrunk([
+    [L.gluteal, (F.gluteal.breadth * B.breadth) / 2],
+    [L.crotch, (F.crotch.breadth * B.breadth) / 2],
     ...through((k: IKey): number => k.breadth / 2),
     [hipLevel, (F.hip.breadth * B.breadth) / 2],
   ]);
