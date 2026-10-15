@@ -14,8 +14,15 @@ import { buildAutoMovieHumanLegCage } from "./buildAutoMovieHumanLegCage";
  * @author Samchon
  */
 export class AutoMovieHumanLegGenerator implements IAutoMovieHumanPartGenerator<"leg"> {
+  /** The part this generator produces. */
   public readonly part = "leg" as const;
 
+  /**
+   * Generate one leg's cage.
+   *
+   * @param props Measurements, skeleton and the side of the leg
+   * @returns Cage in the skeleton's model frame and millimetres, with the `thigh` ring first and the `ankle` ring second
+   */
   public generate(
     props: IAutoMovieHumanPartGenerator.IProps<"leg">,
   ): IAutoMovieHumanCage {

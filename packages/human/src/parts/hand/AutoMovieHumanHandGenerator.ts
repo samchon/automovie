@@ -22,8 +22,15 @@ import { readAutoMovieHumanHand } from "./readAutoMovieHumanHand";
  * @author Samchon
  */
 export class AutoMovieHumanHandGenerator implements IAutoMovieHumanPartGenerator<"hand"> {
+  /** The part this generator produces. */
   public readonly part = "hand" as const;
 
+  /**
+   * Generate one hand's cage.
+   *
+   * @param props Measurements, skeleton and the side of the hand
+   * @returns Cage in the skeleton's model frame and millimetres, with the `wrist` ring
+   */
   public generate(props: IAutoMovieHumanPartGenerator.IProps<"hand">): IAutoMovieHumanCage {
     const drawn: drawAutoMovieHumanHand.IOutput = drawAutoMovieHumanHand(props);
     const hand: readAutoMovieHumanHand.IHand = drawn.hand;

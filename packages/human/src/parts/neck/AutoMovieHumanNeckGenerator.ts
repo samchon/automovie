@@ -11,6 +11,9 @@ import { IAutoMovieHumanPartGenerator } from "../../parts/IAutoMovieHumanPartGen
 import { measureAutoMovieHumanNeckGirth } from "./measureAutoMovieHumanNeckGirth";
 import { sectionAutoMovieHumanNeck } from "./sectionAutoMovieHumanNeck";
 
+/** Rounds of widening the mid section to the measured girth; each leaves under a tenth of the previous error. */
+const GIRTH_FITS: number = 3;
+
 /**
  * Generates the neck: a tube of twelve vertex lines from the neck base ring on the trunk to the neck top ring under the jaw and the skull.
  *
@@ -20,10 +23,8 @@ import { sectionAutoMovieHumanNeck } from "./sectionAutoMovieHumanNeck";
  *
  * @author Samchon
  */
-/** Rounds of widening the mid section to the measured girth; each leaves under a tenth of the previous error. */
-const GIRTH_FITS: number = 3;
-
 export class AutoMovieHumanNeckGenerator implements IAutoMovieHumanPartGenerator<"neck"> {
+  /** The part this generator produces. */
   public readonly part = "neck" as const;
 
   /**

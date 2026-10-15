@@ -14,6 +14,7 @@ import { fitAutoMovieHumanTrunk } from "./fitAutoMovieHumanTrunk";
  * @author Samchon
  */
 export class AutoMovieHumanTrunkGenerator implements IAutoMovieHumanPartGenerator<"trunk"> {
+  /** The part this generator produces. */
   public readonly part = "trunk" as const;
 
   /**

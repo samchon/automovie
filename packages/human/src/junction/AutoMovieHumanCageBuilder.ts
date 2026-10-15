@@ -24,12 +24,11 @@ export class AutoMovieHumanCageBuilder {
     vertices: number[];
   }> = [];
 
-  /**
-   * @param part The part being built, written into every corner address
-   * @param side Its side, or null for the trunk, neck and head
-   */
   public constructor(
+    /** The part being built, written into every corner address. */
     public readonly part: AutoMovieHumanPart,
+
+    /** Its side, or null for the trunk, neck and head. */
     public readonly side: AutoMovieHumanSide | null,
   ) {}
 
