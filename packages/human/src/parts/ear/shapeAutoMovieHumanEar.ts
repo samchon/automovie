@@ -319,9 +319,9 @@ type IOutlineKey = shapeAutoMovieHumanEar.IOutlineKey;
  * Catmull-Clark subdivision draws the limit surface inside its cage, so the drawing is enlarged by the ratio of each measurement to the same measurement taken on the limit surface of this cage, the same for every identity because the cage is linear in the three measurements. Grade: derived, measured on the subdivided surface.
  */
 const LIMIT: Record<keyof shapeAutoMovieHumanEar.ISize, number> = {
-  length: 1.039,
+  length: 1.038,
   breadth: 0.904,
-  protrusion: 0.641,
+  protrusion: 0.642,
 };
 
 /** Lobular length over ear length in the drawing: 25.3 of 66.8 mm in men (Cho et al. 2025). */
@@ -394,7 +394,7 @@ const THICKNESS: number = 0.1;
  *
  * Across, the fitted drawing was then stretched about the posterior point until the ear's whole breadth, preaurale to postaurale, is 0.55 of its length, the auricular index of 57.9 in men and 58.7 in women among 200 Turkish adults (Bahşi et al. 2023, J Craniofac Surg 34(8):e799-e803): the survey's breadth is taken from otobasion superius, behind the front of the helix, so the reference's narrower 0.48 is not the measured proportion. Grade: population-fitted form, measured proportion.
  *
- * Block-out: the gross form was then fitted to the same reference body on our own skeleton with the shared calibration harness (sections parallel to the attachment 4 to 16 mm out and eight silhouettes, MakeHuman's CC0 macro blend at the adult male), with every fold switched off and the identity's length, breadth and protrusion held on the limit surface. A Nelder-Mead search over the fullness of the helix top, the posterior bulge, the lobule, the protrusion of top, back and lobule, the plate's height, the thickness, the cranial surface's lift and the attachment's place, each bounded to an anatomical range, lowered the adult male's mean radial error from 11.9 to 8.8 mm (silhouette IoU 0.45 to 0.51) and the adult female's from 9.7 to 6.8 mm (0.54 to 0.62). The rest of the gap is measured size: the reference ear stands 13 mm off the attachment plane at the tragal level and is 30 mm across, against the survey's 19.5 mm (Cho et al. 2025) and an auricular index of 0.58 (Bahşi et al. 2023), which the identity keeps. The folds are off in this block-out.
+ * Block-out: the gross form was then fitted to the same reference body on our own skeleton with the shared calibration harness (sections parallel to the attachment 4 to 16 mm out and eight silhouettes, MakeHuman's CC0 macro blend at the adult male), with every fold switched off and the identity's length, breadth and protrusion held on the limit surface. A Nelder-Mead search over the fullness of the helix top, the posterior bulge, the lobule, the protrusion of top, back and lobule, the plate's height, the thickness, the cranial surface's lift and the attachment's place, each bounded to an anatomical range, lowered the adult male's mean radial error from 11.9 to 8.8 mm (silhouette IoU 0.45 to 0.51) and the adult female's from 9.7 to 6.8 mm (0.54 to 0.62). The rest of the gap is measured size: the reference ear stands 13 mm off the attachment plane at the tragal level and is 30 mm across, against the survey's 19.5 mm (Cho et al. 2025) and an auricular index of 0.58 (Bahşi et al. 2023), which the identity keeps. Refinement then switched the folds back on and fitted only their heights, each bounded between half and 1.6 times Gray's drawing, with the block-out held: the adult male's mean radial error is 8.9 mm with the folds, against 8.8 without them, the price of the antihelix, crura, fossa, crus of the helix, cymba, meatus, tragus and lobule the reference's coarse ear lacks.
  */
 const FORM: shapeAutoMovieHumanEar.IForm = {
   limit: LIMIT,
@@ -407,15 +407,15 @@ const FORM: shapeAutoMovieHumanEar.IForm = {
   floor: FLOOR,
   notch: NOTCH,
   relief: {
-    antihelix: 0,
-    superiorCrus: 0,
-    fossa: 0,
-    lobule: 0,
-    notch: 0,
-    crus: 0,
-    cymba: 0,
-    meatus: 0,
-    tragus: 0,
+    antihelix: 0.187,
+    superiorCrus: 0.295,
+    fossa: 0.1,
+    lobule: 0.09,
+    notch: 0.05,
+    crus: 0.282,
+    cymba: 0.303,
+    meatus: 0.27,
+    tragus: 0.093,
     wall: 2.6,
   },
 };
