@@ -53,6 +53,12 @@ const FORK_EXPONENT: number = 2.5;
 /** The fork curve under the crotch: its two inner points lie `drop` trunk rows below the crotch and `inset` of the crotch depth in from the front and the back. */
 const FORK = { drop: 0.5, inset: 0.12 } as const;
 
+/** Steps between the stations from the axilla to the shoulder line, where the planes lean toward the neck ring's. */
+const UPPER_STEPS: number = 4;
+
+/** Share of the neck ring's lean the shoulder line's and the slope's planes take. */
+const NECK_TILT = { shoulder: 0.8, slope: 1 } as const;
+
 /** Exponent of the thighs' medial sides at the crotch, flattened where they press together. */
 const MEDIAL_EXPONENT: number = 4;
 
@@ -137,8 +143,14 @@ const networkOf = (
       { length: STEPS + 1 },
       (_: unknown, k: number): number => L.buttock + ((L.axilla - L.buttock) * k) / STEPS,
     ),
-    shoulderLine,
+    ...Array.from(
+      { length: UPPER_STEPS },
+      (_: unknown, k: number): number => L.axilla + ((shoulderLine - L.axilla) * (k + 1)) / UPPER_STEPS,
+    ),
   ];
+  // above the axilla the planes lean progressively toward the neck ring's, reaching its share at the shoulder line
+  const lean = (y: number): number =>
+    y <= L.axilla ? 0 : NECK_TILT.shoulder * Math.min(1, (y - L.axilla) / (shoulderLine - L.axilla));
   // at the crotch the section is the outer contour of the two thighs side by side; at the gluteal furrow below it each
   // thigh's tube starts on its own half of that contour, in the same superellipse family, so the bridges between them
   // join two nearly coincident loops
@@ -149,6 +161,36 @@ const networkOf = (
   });
   const crotch = lobe(L.crotch);
   const furrow = lobe(L.gluteal);
+  // a level plane turned part of the way to the neck ring's plane, which leans forward: its front lies at the jugular
+  // notch, lower than its back at cervicale, as the clavicles lie lower than the trapezius
+  const tilt = (share: number): IAutoMovieQuaternion => {
+    const a: IAutoMovieQuaternion = HORIZONTAL;
+    let b: IAutoMovieQuaternion = ringRotation(neck, 0);
+    if (a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w < 0) b = { x: -b.x, y: -b.y, z: -b.z, w: -b.w };
+    const q: IAutoMovieQuaternion = {
+      x: a.x + (b.x - a.x) * share,
+      y: a.y + (b.y - a.y) * share,
+      z: a.z + (b.z - a.z) * share,
+      w: a.w + (b.w - a.w) * share,
+    };
+    const n: number = Math.hypot(q.x, q.y, q.z, q.w);
+    return { x: q.x / n, y: q.y / n, z: q.z / n, w: q.w / n };
+  };
+  // the front and back of the profile where a plane through a centre, turned by a rotation, meets them: the plane's
+  // height changes with depth by its slope, so the profile is read at the height the plane reaches there
+  const reach = (
+    centre: IAutoMovieVector3,
+    rotation: IAutoMovieQuaternion,
+  ): { front: number; back: number; slope: number } => {
+    const normal: IAutoMovieVector3 = rotate(rotation, { x: 0, y: 0, z: 1 });
+    const slope: number = normal.z / normal.y;
+    const meet = (read: (y: number) => number): number => {
+      let z: number = read(centre.y);
+      for (let k: number = 0; k < 8; ++k) z = read(centre.y - slope * (z - centre.z));
+      return z;
+    };
+    return { front: meet(profile.front), back: meet(profile.back), slope };
+  };
   const sections: Array<{ centre: IAutoMovieVector3; section: IAutoMovieSweepSection }> =
     levels.map((y: number, k: number) => {
       if (k === 0)
@@ -171,13 +213,18 @@ const networkOf = (
           ? Math.max(profile.half(L.axilla), frame.acromion.x - 15)
           : profile.half(y);
       const square: { front: number; back: number } = profile.squareness(y);
+      const centre: IAutoMovieVector3 = AutoMovieHumanVector.of(0, y, widest);
+      // the shoulder line's plane leans toward the neck ring's, so its front and back are read where that plane meets them
+      const plane =
+        lean(y) > 0 ? reach(centre, tilt(lean(y))) : { front: profile.front(y), back: profile.back(y), slope: 0 };
+      const stretch: number = Math.hypot(1, plane.slope);
       return {
-        centre: AutoMovieHumanVector.of(0, y, widest),
+        centre,
         section: {
           type: "superellipse",
-          right: metres(Math.max(20, profile.front(y) - widest)),
+          right: metres(Math.max(20, (plane.front - widest) * stretch)),
           up: metres(half),
-          left: metres(Math.max(20, widest - profile.back(y))),
+          left: metres(Math.max(20, (widest - plane.back) * stretch)),
           down: metres(half),
           exponents: [square.front, square.back, square.back, square.front],
         },
@@ -188,12 +235,10 @@ const networkOf = (
   const neckOrigin: IAutoMovieVector3 = neck.frame.origin;
   const slopeY: number = shoulderLine + 0.45 * (neckOrigin.y - shoulderLine);
   const neckHalf: number = (neck.radii[3]! + neck.radii[9]!) / 2;
-  // the slope's front and back run from the shoulder line's toward the neck ring's
-  const top = shoulder.section as IAutoMovieSweepSection.ISuperellipse;
-  const slopeFront: number =
-    shoulder.centre.z + millimetres(top.right) + 0.45 * (neckOrigin.z + neck.radii[0]! - shoulder.centre.z - millimetres(top.right));
-  const slopeBack: number =
-    shoulder.centre.z - millimetres(top.left) + 0.45 * (neckOrigin.z - neck.radii[neck.count / 2]! - shoulder.centre.z + millimetres(top.left));
+  // the slope's plane is the neck ring's, its front and back where that plane meets the profile
+  const slopeCentre: IAutoMovieVector3 = AutoMovieHumanVector.of(0, slopeY, (shoulder.centre.z + neckOrigin.z) / 2);
+  const slopePlane = reach(slopeCentre, tilt(NECK_TILT.slope));
+  const slopeStretch: number = Math.hypot(1, slopePlane.slope);
   sections.push({
     centre: AutoMovieHumanVector.of(
       0,
@@ -202,9 +247,9 @@ const networkOf = (
     ),
     section: {
       type: "superellipse",
-      right: metres(Math.max(25, slopeFront - (shoulder.centre.z + neckOrigin.z) / 2)),
+      right: metres(Math.max(25, (slopePlane.front - slopeCentre.z) * slopeStretch)),
       up: metres(neckHalf + 0.45 * (millimetres((shoulder.section as IAutoMovieSweepSection.ISuperellipse).up) - neckHalf)),
-      left: metres(Math.max(25, (shoulder.centre.z + neckOrigin.z) / 2 - slopeBack)),
+      left: metres(Math.max(25, (slopeCentre.z - slopePlane.back) * slopeStretch)),
       down: metres(neckHalf + 0.45 * (millimetres((shoulder.section as IAutoMovieSweepSection.ISuperellipse).up) - neckHalf)),
       exponents: [2.2, 2.2, 2.2, 2.2],
     },
@@ -222,7 +267,14 @@ const networkOf = (
     stations: sections.map((s, k: number): IAutoMovieSweep.IStation => ({
       at: ats[k]!,
       section: s.section,
-      rotation: k === sections.length - 1 ? ringRotation(neck, 0) : HORIZONTAL,
+      rotation:
+        k === sections.length - 1
+          ? ringRotation(neck, 0)
+          : k === sections.length - 2
+            ? tilt(NECK_TILT.slope)
+            : k > 0 && lean(levels[k]!) > 0
+              ? tilt(lean(levels[k]!))
+              : HORIZONTAL,
     })),
   };
   // the station nearest the axilla opens the shoulder band, which ends at the shoulder line
@@ -332,7 +384,9 @@ const networkOf = (
   const bands: Array<{ u: [number, number]; rows: number }> = [
     { u: [0, uAxilla], rows: LOWER_ROWS },
     { u: [uAxilla, uShoulder], rows: 2 },
-    { u: [uShoulder, 1], rows: 3 },
+    // one row from the shoulder line to the neck ring: the leaning shoulder plane comes within a few millimetres of the
+    // ring at the front and back, so more rows there would crowd into a crease
+    { u: [uShoulder, 1], rows: 1 },
   ];
   for (const band of bands)
     for (const strip of STRIPS) {
@@ -598,6 +652,18 @@ const ringRotation = (
   );
   const y: IAutoMovieVector3 = AutoMovieHumanVector.cross(z, x);
   return quaternionOf(x, y, z);
+};
+
+/** A vector turned by a unit quaternion. */
+const rotate = (q: IAutoMovieQuaternion, v: IAutoMovieVector3): IAutoMovieVector3 => {
+  const tx: number = 2 * (q.y * v.z - q.z * v.y);
+  const ty: number = 2 * (q.z * v.x - q.x * v.z);
+  const tz: number = 2 * (q.x * v.y - q.y * v.x);
+  return {
+    x: v.x + q.w * tx + (q.y * tz - q.z * ty),
+    y: v.y + q.w * ty + (q.z * tx - q.x * tz),
+    z: v.z + q.w * tz + (q.x * ty - q.y * tx),
+  };
 };
 
 /** The unit quaternion of the rotation whose matrix columns are `x`, `y`, `z`. */
