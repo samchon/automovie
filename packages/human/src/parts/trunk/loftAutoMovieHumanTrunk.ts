@@ -23,6 +23,7 @@ import { IAutoMovieHumanTrunkFrame } from "./IAutoMovieHumanTrunkFrame";
 import { measureAutoMovieHumanTrunkFrame } from "./measureAutoMovieHumanTrunkFrame";
 import { profileAutoMovieHumanTrunk } from "./profileAutoMovieHumanTrunk";
 import { sectionAutoMovieHumanTrunkCrotch } from "./sectionAutoMovieHumanTrunkCrotch";
+import { sectionAutoMovieHumanTrunkThigh } from "./sectionAutoMovieHumanTrunkThigh";
 
 /**
  * Loft the trunk: one sweep up the body from the crotch to the neck-base ring, with the shoulder tubes leaving openings in its flanks for the mid-upper-arm rings and the hip tubes leaving its lower edge on either side of a fork curve for the mid-thigh rings.
@@ -157,11 +158,22 @@ const networkOf = (
   // at the crotch the section is the outer contour of the two thighs side by side; at the gluteal furrow below it each
   // thigh's tube starts on its own half of that contour, in the same superellipse family, so the bridges between them
   // join two nearly coincident loops
-  const lobe = (y: number): { centre: number; depth: number; half: number } => ({
-    centre: (profile.front(y) + profile.back(y)) / 2,
-    depth: (profile.front(y) - profile.back(y)) / 2,
-    half: profile.half(y),
-  });
+  // the thighs' fronts at the fork stand at least as far forward as at their rings, since the thigh's front runs straight
+  // or forward from the groin to mid-thigh in standing; a measured thigh fuller than the reference's then fills the groin
+  // instead of leaving a notch between the belly and the thigh
+  const thighFront: number = Math.max(
+    ...[thighs.left, thighs.right].flatMap((t: IAutoMovieHumanRingShape): number[] =>
+      t.positions.map((p: IAutoMovieVector3): number => p.z),
+    ),
+  );
+  const lobe = (y: number): { centre: number; depth: number; half: number } => {
+    const front: number = Math.max(profile.front(y), thighFront);
+    return {
+      centre: (front + profile.back(y)) / 2,
+      depth: (front - profile.back(y)) / 2,
+      half: profile.half(y),
+    };
+  };
   const crotch = lobe(L.crotch);
   const furrow = lobe(L.gluteal);
   // a level plane turned part of the way to the neck ring's plane, which leans forward: its front lies at the jugular
@@ -204,10 +216,7 @@ const networkOf = (
             half: crotch.half,
             exponent: FORK_EXPONENT,
             medial: MEDIAL_EXPONENT,
-            recess: {
-              front: AUTOMOVIE_HUMAN_TRUNK_FORM.crotch.frontRecess * frame.buttock.depth,
-              back: AUTOMOVIE_HUMAN_TRUNK_FORM.crotch.backRecess * frame.buttock.depth,
-            },
+            recess: AUTOMOVIE_HUMAN_TRUNK_FORM.crotch.recess * frame.buttock.depth,
           }),
         };
       const widest: number = profile.widest(y);
@@ -363,20 +372,15 @@ const networkOf = (
             { x: 1, y: 0, z: 0 },
             { x: 0, y: -1, z: 0 },
           ),
-          section: {
-            type: "superellipse",
-            right: metres(lobe.depth),
-            up: metres(outer / 2),
-            left: metres(lobe.depth),
-            down: metres(outer / 2),
-            // first axis backward, second toward the person's left
-            centre: { x: metres(-shift.z), y: metres(shift.x + medial) },
-            // the second axis points to the person's left, so the medial quadrants are the negative ones on the left thigh
-            exponents:
-              side === "left"
-                ? [FORK_EXPONENT, FORK_EXPONENT, MEDIAL_EXPONENT, MEDIAL_EXPONENT]
-                : [MEDIAL_EXPONENT, MEDIAL_EXPONENT, FORK_EXPONENT, FORK_EXPONENT],
-          },
+          section: sectionAutoMovieHumanTrunkThigh({
+            side: sign as 1 | -1,
+            centre: lobe.centre,
+            depth: lobe.depth,
+            half: outer,
+            exponent: FORK_EXPONENT,
+            medial: MEDIAL_EXPONENT,
+            start: { x: start.x, z: start.z },
+          }),
         },
         {
           at: COLLAR.thigh,

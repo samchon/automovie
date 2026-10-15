@@ -64,8 +64,7 @@ export const AUTOMOVIE_HUMAN_TRUNK_FORM: IAutoMovieHumanTrunkForm = {
     fat: 0.009,
     back: 0.075,
     breadth: 0.97,
-    frontRecess: 0.06,
-    backRecess: 0.16,
+    recess: 0.16,
   },
   gluteal: {
     front: 0.945,

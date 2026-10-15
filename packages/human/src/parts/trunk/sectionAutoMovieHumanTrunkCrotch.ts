@@ -1,9 +1,9 @@
 import { IAutoMovieSweepSection } from "@automovie/engine";
 
 /**
- * The trunk's lowest section, at the crotch: the outer contour of the two thighs side by side, with the clefts between them filled to a given depth.
+ * The trunk's lowest section, at the crotch: one continuous front over the pubic region, and behind it the outer contour of the two buttocks over the thighs with the natal cleft between them filled to a given depth.
  *
- * Each thigh is a superellipse lobe of half-depth `depth` and half-width `half / 2`, centred `half / 2` either side of the midline, rounded by `exponent` on its lateral side and flattened by `medial` on the side it presses against the other thigh, so the lobes touch at the section's centre and their outer sides span the full breadth `half` either way. The two thighs' tubes start on these same lobes, in the same superellipse family, so the bridges between the trunk and the tubes join nearly coincident loops. Between the lobes the contour would reach the centre; the front and back clefts are instead filled to `depth - recess` of the single superellipse spanning both lobes, which is where the pubic region and the natal cleft lie at that level.
+ * Each thigh is a superellipse lobe of half-depth `depth` and half-width `half / 2`, centred `half / 2` either side of the midline, rounded by `exponent` on its lateral side and flattened by `medial` on the side it presses against the other thigh, so the lobes touch at the section's centre and their outer sides span the full breadth `half` either way. The two thighs' tubes start on these same lobes, in the same superellipse family, so the bridges between the trunk and the tubes join nearly coincident loops. In front the section is the single superellipse spanning both lobes, since the thighs part only below the pubic region, at the fork; behind, the lobes' contour would reach the centre, and the cleft is instead filled to `depth - recess` of the spanning superellipse, which is where the natal cleft ends at that level.
  *
  * The section is radial about the centre: the contour's distance at evenly spaced angles, the first forward, then toward the person's left, which keeps it star-shaped as direction correspondence needs.
  *
@@ -11,7 +11,7 @@ import { IAutoMovieSweepSection } from "@automovie/engine";
  * @param props.half Half-breadth of the section across both lobes, millimetres
  * @param props.exponent Superellipse exponent of the lobes' lateral sides and of the spanning section
  * @param props.medial Superellipse exponent of the lobes' medial sides
- * @param props.recess Depth of the front and back clefts below the spanning section, millimetres
+ * @param props.recess Depth of the natal cleft below the spanning section, millimetres
  * @returns The section in metres
  */
 export function sectionAutoMovieHumanTrunkCrotch(props: {
@@ -19,7 +19,7 @@ export function sectionAutoMovieHumanTrunkCrotch(props: {
   half: number;
   exponent: number;
   medial: number;
-  recess: { front: number; back: number };
+  recess: number;
 }): IAutoMovieSweepSection.IRadial {
   const { depth, half, exponent } = props;
   const radii: number[] = [];
@@ -28,8 +28,11 @@ export function sectionAutoMovieHumanTrunkCrotch(props: {
     const forward: number = Math.cos(angle);
     const lateral: number = Math.sin(angle);
     const spanning: number = radiusOf(forward / depth, lateral / half, exponent);
-    const cleft: number = forward >= 0 ? props.recess.front : props.recess.back;
-    radii.push(Math.max(lobes(forward, lateral, depth, half / 2, exponent, props.medial), spanning - cleft) / 1000);
+    radii.push(
+      (forward >= 0
+        ? spanning
+        : Math.max(lobes(forward, lateral, depth, half / 2, exponent, props.medial), spanning - props.recess)) / 1000,
+    );
   }
   return { type: "radial", radii };
 }
