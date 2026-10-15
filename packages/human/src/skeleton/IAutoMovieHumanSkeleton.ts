@@ -13,7 +13,7 @@ import { IAutoMovieHumanLandmarks } from "../measure/IAutoMovieHumanLandmarks";
  *
  * Positions are millimetres in the model frame: origin on the standing surface below the midpoint between the feet, +Y up, +Z to the person's front, +X to the person's left, the right-handed frame of glTF and VRM. Every rest rotation is the identity, so a bone's local frame is the model frame translated to its joint centre, and rest proportions live in positions, never in bone scale, which forward kinematics ignores.
  *
- * Axes and constraints are Human's own anatomy. `IAutoMovieBone` has no field for declared axes yet (core issue #2807 adds it), so they are kept here and not emitted; until then films pose every bone on the engine's default axes.
+ * Axes and constraints are Human's own anatomy, emitted on every `IAutoMovieBone` so films pose the person on them.
  *
  * @author Samchon
  */
@@ -46,7 +46,7 @@ export namespace IAutoMovieHumanSkeleton {
     tail: IAutoMovieVector3;
 
     /**
-     * The clinical rotation axes of this joint at rest. Every bone declares them; posing honours them once core carries per-bone axes.
+     * The clinical rotation axes of this joint at rest. Every bone declares them and the emitted bone carries them, so posing honours them.
      */
     axes: IAxes;
 

@@ -111,7 +111,7 @@ From Gray 1918 surface anatomy (`../sources/gray-1918.md`), conventional for a l
 - Head joint at subnasale level (3DFN sn-gn / n-gn 0.567 of face height), a conventional reading of the dens and atlas lying near the hard palate; jaw bone at Mehl's centre of rotation 0.264 face heights below a condyle on the Frankfort plane.
 - Fingers: middle knuckle at de Leva's 0.459 of wrist-to-fingertip, phalanges 2:1:1 from Bridgman's equal pads, index 0.905 of the middle finger from Snyder; ring 0.95 and little 0.80 conventional (no source). Thumb metacarpal length solved so the adducted tip reaches the index PIP (Gray, Bridgman).
 - Legs stand vertically below the hip centres with parallel feet (canonical rest stance), not ANSUR's heels-together stance; no measured height changes.
-- Engine finding: with the engine's default axes, positive hip flexion swings a +Z-facing thigh backward (checked numerically with `resolvePose`), while the engine's gestures assume forward. Human declares hip flexion about -X; the declaration is emitted once #2807 lands.
+- Engine finding: with the engine's default axes, positive hip flexion swings a +Z-facing thigh backward (checked numerically with `resolvePose`), while the engine's gestures assume forward. Human declares hip flexion about -X, and since #2807 every bone's declared axes are emitted on its `IAutoMovieBone` (the forearm with a distal twist). The first emission found the thumb's abduction axis parallel to its flexion axis; it now turns about the pad's direction.
 
 ## Open questions
 
