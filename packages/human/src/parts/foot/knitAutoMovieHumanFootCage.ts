@@ -95,7 +95,9 @@ export function knitAutoMovieHumanFootCage(
         upper[i + 1]![front]!,
       ]);
   }
+  const toes: number[][][] = [];
   draft.toes.forEach((stations: IAutoMovieVector3[][], t: number): void => {
+    toes.push([]);
     const root: number[] = [
       upper[2 * t]![front]!,
       upper[2 * t + 1]![front]!,
@@ -111,6 +113,7 @@ export function knitAutoMovieHumanFootCage(
         charts.push({ u, v: charts[root[c]!]!.v });
         return positions.push(p) - 1;
       });
+      toes[t]!.push(next);
       for (let c: number = 0; c < 4; ++c)
         faces.push([
           previous[c]!,
@@ -122,7 +125,7 @@ export function knitAutoMovieHumanFootCage(
     });
     faces.push([previous[0]!, previous[3]!, previous[2]!, previous[1]!]);
   });
-  return { positions, charts, faces, ring };
+  return { positions, charts, faces, ring, toes };
 }
 /** Chart and output types of {@link knitAutoMovieHumanFootCage}. */
 export namespace knitAutoMovieHumanFootCage {
@@ -156,6 +159,9 @@ export namespace knitAutoMovieHumanFootCage {
 
     /** The ankle hole's vertices, counterclockwise about +y from the anterior one. */
     ring: number[];
+
+    /** Each toe's stations as vertex indices, hallux first, each station's corners as in the draft. */
+    toes: number[][][];
   }
 }
 
