@@ -52,6 +52,9 @@ interface IPerson {
   /** Display modes to capture, `surface`, `overlay` (the construction net over the surface) or `net` (the net over a ghosted body); omitted, `surface`. */
   modes?: ("surface" | "overlay" | "net")[];
 
+  /** Whether the skin shows its fine relief (pores and furrows); `false` judges form without it and adds `_norelief` to file names; omitted, shown. */
+  relief?: boolean;
+
   /** Scales to capture; omitted, `whole` and `close`. */
   scales?: string[];
 
@@ -180,6 +183,7 @@ const main = async (): Promise<void> => {
             views: p.views,
             scales: p.scales,
             modes: p.modes,
+            relief: p.relief,
             focus: p.focus,
           }),
         person,
