@@ -26,6 +26,7 @@ These rules add to the [3d-modeling skill](../3d-modeling/SKILL.md) for Human wo
 ## Construction
 
 - Build the skeleton first on `AutoMovieHumanoidBone` and `HUMANOID_REST_FRAME`, and generate skin and every other part from that one skeleton and rest frame. Never reconcile independently sourced geometry by registration or optimization at run time.
+- Block out first, refine after: fit a part's gross form (girth profile, section ratios, centreline offsets) against the references before any muscle relief, bony landmark or aesthetic detail, and re-score after each refinement.
 - Calibrate form coefficients offline against references instead of sculpting by hand: compare a part's sections and silhouettes with the reference set from matching views, fit the formula's named coefficients in scratch tooling, and keep only those coefficients, cited with their reference, in the code. No reference geometry or vertex data enters the package.
 - A part is a region of one continuous mass. Cut only where the cross-section is a simple tube, such as mid upper arm, mid thigh, wrist, ankle and neck; the shoulder, armpit, hip and groin stay inside the trunk because muscles cross them.
 - Facial features are generator modules that shape one continuous face surface. Eyeballs, teeth, tongue, nails and hair are separate meshes; the ear is a separate part.
