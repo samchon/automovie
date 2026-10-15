@@ -7,6 +7,9 @@ import { readAutoMovieHumanHand } from "./readAutoMovieHumanHand";
 /** Nail plate thickness above the skin and sunk below it, millimetres; conventional, about the 0.5 mm of an adult plate. */
 const PLATE: { above: number; below: number } = { above: 0.5, below: 0.5 };
 
+/** How far the proximal nail fold's corners lie distal to its middle, as a share of the visible nail length; conventional, the lunula-shaped cuticle arc. */
+const FOLD: number = 0.18;
+
 /** Vertices along and across a nail plate's top and bottom grids. */
 const GRID: { along: number; across: number } = { along: 5, across: 5 };
 
@@ -70,10 +73,12 @@ export function placeAutoMovieHumanNails(props: {
     const bottom: IAutoMovieVector3[] = [];
     for (let i: number = 0; i < GRID.along; ++i) {
       const s: number = segment * (1 - 1.1 * digit.length) + (segment * 1.1 * digit.length - 0.04 * segment) * (i / (GRID.along - 1));
-      const origin: IAutoMovieVector3 = V.offset(dip, [axis, s]);
       for (let j: number = 0; j < GRID.across; ++j) {
-        // the proximal edge narrows into the curve of the nail fold
-        const angle: number = half * (i === 0 ? 0.8 : 1) * (2 * (j / (GRID.across - 1)) - 1);
+        const across01: number = 2 * (j / (GRID.across - 1)) - 1;
+        // the proximal nail fold is an arc convex toward the wrist: the plate's root row bows back at its middle and narrows, the next row follows halfway
+        const bow: number = i === 0 ? 1 : i === 1 ? 0.5 : 0;
+        const origin: IAutoMovieVector3 = V.offset(dip, [axis, s + bow * FOLD * digit.length * segment * across01 * across01]);
+        const angle: number = half * (1 - 0.2 * bow) * across01;
         const ray: IAutoMovieVector3 = V.offset(V.of(0, 0, 0), [dorsal, Math.cos(angle)], [across, Math.sin(angle)]);
         const hit: number = cast(props.skin, origin, ray) ?? radius;
         top.push(V.offset(origin, [ray, hit + PLATE.above]));
