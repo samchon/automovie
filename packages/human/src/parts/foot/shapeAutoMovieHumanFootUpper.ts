@@ -7,26 +7,22 @@ import { IAutoMovieHumanFootPlan } from "./IAutoMovieHumanFootPlan";
 import { interpolateAutoMovieHumanFootProfile } from "./interpolateAutoMovieHumanFootProfile";
 
 /**
- * Relief of the ankle region, each a fraction of foot length. The malleoli are the bony knobs either side of the ankle, the lateral the lower and the more prominent (Gray 1918); the calcaneal tendon descends to the heel with a hollow either side of it, between it and the malleoli, and the heel bulges behind the tendon's line. Grade: conventional, set against renders.
+ * The malleoli, each a fraction of foot length: the bony knobs either side of the ankle, the lateral the lower and the more prominent (Gray 1918). Grade: conventional, set against renders. The hollows beside the calcaneal tendon and the tendon's own line are the plan's fitted `hollow` and `tendon`.
  */
 const RELIEF: Record<
-  "lateralMalleolus" | "medialMalleolus" | "hollow" | "tendon",
+  "lateralMalleolus" | "medialMalleolus",
   { lift: number; radius: number; depth: number }
 > = {
   /** Centre above the lowest point, extent and prominence. */
   lateralMalleolus: { lift: 0.045, radius: 0.055, depth: 0.035 },
   /** Centre above the tip, extent and prominence. */
   medialMalleolus: { lift: 0.035, radius: 0.06, depth: 0.03 },
-  /** Hollows beside the tendon: depth inward. */
-  hollow: { lift: 0, radius: 0, depth: 0.04 },
-  /** The tendon's line set forward of the heel: depth inward. */
-  tendon: { lift: 0, radius: 0, depth: 0.025 },
 };
 
 /**
  * Shape the upper's interior, from the ankle ring down to its boundary.
  *
- * Each upper vertex lies on a meridian, the path from the ring down to the upper's edge in the direction the grid gives it about the ankle. The grid is read in polar terms about the hole's centre: a vertex's ring of the square grid (its Chebyshev distance from the hole) and its place around that ring give its angle about the ankle and its fraction of the way from the ring to the edge, so the vertices in each loop round the hole share their angles' spacing and each meridian is cut evenly. A meridian drops straight down from the ring, as the leg does, until it meets the dorsal surface, then follows that surface out to the edge. The dorsal surface is a height over the plan: highest along the plan's crest, falling to each border's rim height, steeply on the medial side and slowly on the lateral, and raised or lowered with the medial arch. In front this makes the instep's concave turn from the ankle onto the convex dorsum; at the sides and behind, where the crest is far and the rim close, it makes the near-vertical walls of the heel and the malleolar region. The relief then adds the malleoli at the skeleton's landmarks and the hollows beside the calcaneal tendon.
+ * Each upper vertex lies on a meridian, the path from the ring down to the upper's edge in the direction the grid gives it about the ankle. The grid is read in polar terms about the hole's centre: a vertex's ring of the square grid (its Chebyshev distance from the hole) and its place around that ring give its angle about the ankle and its fraction of the way from the ring to the edge, so the vertices in each loop round the hole share their angles' spacing and each meridian is cut evenly. A meridian drops straight down from the ring, as the leg does, until it meets the dorsal surface, then follows that surface out to the edge. The dorsal surface is a height over the plan: highest along the plan's crest, falling to each border's rim height, steeply on the medial side and slowly on the lateral, and raised or lowered with the medial arch. In front this makes the instep's concave turn from the ankle onto the convex dorsum; at the sides and behind, where the crest is far and the rim close, it makes the near-vertical walls of the heel and the malleolar region. The loop next to the ring keeps the ring's own section straight below it, so the joined limit surface keeps the measured ankle girth at the junction. The relief then adds the malleoli at the skeleton's landmarks and the hollows beside the calcaneal tendon.
  *
  * @param plan The foot's plan
  * @param draft The draft whose upper boundary is placed; its interior is filled in place
@@ -117,15 +113,22 @@ export function shapeAutoMovieHumanFootUpper(
         continue;
       }
       let p: IAutoMovieVector3 = sample(meridian(ring, boundary(at.edge)), at.fraction);
+      if (at.loop === 2) {
+        // the loop next to the ring keeps the ring's own section, straight below it, so the joined limit surface keeps the measured girth there
+        upper[i]![j] = AutoMovieHumanVector.of(ring.x, p.y, ring.z);
+        continue;
+      }
       const degrees: number = Math.abs((at.angle * 180) / Math.PI);
+      const hollow: IAutoMovieHumanFootPlan.IHollow = plan.hollow;
+      const tendon: IAutoMovieHumanFootPlan.IHollow = plan.tendon;
       p = inward(
         p,
-        plan.relief * RELIEF.hollow.depth * L *
-          Math.exp(-(((degrees - 135) / 22) ** 2)) *
-          Math.exp(-(((p.y - 1.55 * A) / (0.55 * A)) ** 2)) +
-          plan.relief * RELIEF.tendon.depth * L *
-            Math.exp(-(((degrees - 180) / 40) ** 2)) *
-            Math.exp(-(((p.y - 1.25 * A) / (0.45 * A)) ** 2)),
+        plan.relief * hollow.depth * L *
+          Math.exp(-(((degrees - hollow.angle) / hollow.width) ** 2)) *
+          Math.exp(-(((p.y - hollow.at * A) / (hollow.spread * A)) ** 2)) +
+          plan.relief * tendon.depth * L *
+            Math.exp(-(((degrees - tendon.angle) / tendon.width) ** 2)) *
+            Math.exp(-(((p.y - tendon.at * A) / (tendon.spread * A)) ** 2)),
       );
       p = bump(p, lateral, RELIEF.lateralMalleolus.radius * L, plan.relief * RELIEF.lateralMalleolus.depth * L, 1);
       p = bump(p, medial, RELIEF.medialMalleolus.radius * L, plan.relief * RELIEF.medialMalleolus.depth * L, -1);
@@ -145,6 +148,9 @@ export namespace shapeAutoMovieHumanFootUpper {
 
     /** Fraction of the way from the ring (0) to the upper's edge (1). */
     fraction: number;
+
+    /** Which loop round the hole the vertex lies on: 1 the ring itself, 2 the loop next to it, and so on outward. */
+    loop: number;
 
     /** Fractional grid position where the vertex's ray from the hole's centre meets the upper's edge. */
     edge: [number, number];
@@ -178,6 +184,7 @@ export namespace shapeAutoMovieHumanFootUpper {
     return {
       angle: (degrees * Math.PI) / 180,
       fraction: (1 - 1 / r) / (reach - 1 / r),
+      loop: r,
       edge: [holeColumn + 1 + reach * di, holeRow + 1 + reach * dj],
     };
   }
