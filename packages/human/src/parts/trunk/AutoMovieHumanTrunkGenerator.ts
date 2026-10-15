@@ -1,6 +1,6 @@
 import { IAutoMovieHumanCage } from "../../junction/IAutoMovieHumanCage";
 import { IAutoMovieHumanPartGenerator } from "../IAutoMovieHumanPartGenerator";
-import { fitAutoMovieHumanTrunk } from "./fitAutoMovieHumanTrunk";
+import { loftAutoMovieHumanTrunk } from "./loftAutoMovieHumanTrunk";
 
 /**
  * The trunk: torso and pelvis, the shoulder girdle with the deltoid and the armpit, and the hip and groin with the gluteal region and the upper thigh, open at the neck base, mid upper arms and mid thighs.
@@ -26,6 +26,6 @@ export class AutoMovieHumanTrunkGenerator implements IAutoMovieHumanPartGenerato
   public generate(
     props: IAutoMovieHumanPartGenerator.IProps<"trunk">,
   ): IAutoMovieHumanCage {
-    return fitAutoMovieHumanTrunk(props.measurements, props.skeleton).cage;
+    return loftAutoMovieHumanTrunk(props.measurements, props.skeleton);
   }
 }
