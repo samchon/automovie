@@ -8,7 +8,8 @@ import { IAutoMovieResolvedBone } from "../../kinematics/IAutoMovieResolvedBone"
  *
  * Bone `b` carries a point `p` to `P_b + Q_b R_b^-1 (p - O_b)` and a direction
  * by `Q_b R_b^-1` alone, the transform `createAutoMovieBoneMotion` gives.
- * Before the first `update`, and after `reset`, every motion is the identity.
+ * Before the first `update`, and after `reset`, every motion is the identity,
+ * applied as an exact copy.
  *
  * @evidence contracts/common.md#principled-implementation The per-joint rigid transform of skinning, held as one quaternion and two origins per bone.
  * @evidence contracts/common.md#clear-and-simple-design Bones are addressed by their index in the rest list, resolved once by name when a rig compiles.

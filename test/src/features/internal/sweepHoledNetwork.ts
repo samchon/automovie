@@ -15,7 +15,8 @@ const THROUGH: number = 3;
  * openings take: each half of a rectangle holds a hole surrounded by two
  * concentric loops, and the regions between the rectangle and the outer loop
  * and between the two loops are rings of four Coons patches joined by spokes.
- * The inner loops are left open and reported as rings.
+ * The inner loops are left open and reported as rings, and so is the
+ * rectangle's outer boundary.
  *
  * Every node and curve point lies on the dome `z = height (1 - (x^2 + y^2) / 0.5)`,
  * so the Coons patches fill a surface bounded by curves on it. Corners of each
@@ -122,5 +123,7 @@ export function sweepHoledNetwork(height: number = 0.1): IAutoMovieSurfaceNetwor
     }
     rings.push({ name: `${half.name}.hole`, edges: previous });
   }
+  // the rectangle's outer boundary, counterclockwise seen from +Z
+  rings.push({ name: "rim", edges: ["a-b", "b-c", "c-d", "d-e", "e-f", "f-a"].map(forward) });
   return { sweeps: {}, nodes, curves, patches, rings };
 }
