@@ -1,28 +1,31 @@
 import {
   IAutoMovieSurfaceNetwork,
   IAutoMovieSweep,
-  IAutoMovieSweepSection,
   compileAutoMovieSweep,
 } from "@automovie/engine";
-import { quaternionFromAutoMovieBasis } from "@automovie/engine/math/quaternionFromAutoMovieBasis";
-import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieHumanBranch } from "../../junction/AutoMovieHumanBranch";
 import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanIdentity } from "../../structures/IAutoMovieHumanIdentity";
-import { sweepAutoMovieHumanDigit } from "../sweepAutoMovieHumanDigit";
+import { gridAutoMovieHumanSweep } from "../gridAutoMovieHumanSweep";
+import { patchAutoMovieHumanDigit } from "../patchAutoMovieHumanDigit";
+import { splitAutoMovieHumanWebs } from "../splitAutoMovieHumanWebs";
 import { AUTOMOVIE_HUMAN_HAND_FORM } from "./AUTOMOVIE_HUMAN_HAND_FORM";
 import { AUTOMOVIE_HUMAN_HAND_SHAPE } from "./AUTOMOVIE_HUMAN_HAND_SHAPE";
 import { readAutoMovieHumanHand } from "./readAutoMovieHumanHand";
-import { sliceAutoMovieHumanPalm } from "./sliceAutoMovieHumanPalm";
+import { sweepAutoMovieHumanHandDigits } from "./sweepAutoMovieHumanHandDigits";
+import { sweepAutoMovieHumanPalm } from "./sweepAutoMovieHumanPalm";
 
 /**
  * Lay out the hand as a surface network in its own frame: the palm swept along the hand from the wrist ring, the thumb leaving an opening in its radial border, and the four fingers leaving its distal end between three web curves, each digit joined to the palm by a bridge and closed at its tip by a cap.
  *
- * The palm sweep's sections are slices of `sliceAutoMovieHumanPalm`: the wrist ring's own section at the ring and at its collar, the carpus, mid-palm, the metacarpal heads and the fingers' roots, the last two in planes turned to the oblique knuckle line. Its ring and collar rows have the ring's eight columns; one band of quads turns them into twenty, which the rest of the palm keeps. Those twenty columns are fixed by the fingers' roots: two over each finger's back, two under its palmar side and two over each outer border, divided at the web nodes where the three web curves leave the palm's end, so every finger's bridge loop is its share of the palm's end plus the two webs beside it, the border taking a web's place on the index and little finger. Each web curve passes through its crotch between the creases at the fingers' bases, and both fingers' bridges leave it tangent to the plane across the hand, so a web is a saddle. The radial border's two columns are left open over two rows from the carpus to mid-palm, the eight-segment hole the thumb's bridge leaves.
+ * The palm is `sweepAutoMovieHumanPalm`'s sweep from the wrist ring through the carpus, mid-palm and the metacarpal heads to the fingers' roots. The ring and collar rows keep the ring's eight columns; transition bands of 2-to-1 reduction strips raise them to twelve over the carpus, split at the borders so the strips reduce on the palmar and dorsal middles where the palm is flat, and to eighteen and twenty-six over the metacarpals, each step with no more strips than straight columns between them, so no vertex sits between two strips at valence six. The thenar zone between keeps twelve columns, two of them open astride the radial palmar corner over two rows: the eight-segment hole the thumb's bridge leaves. Over the last row the even columns shear onto the fingers' roots: two over each finger's back, two under its palmar side and two over each outer border, divided at the webs.
  *
- * Each digit is `sweepAutoMovieHumanDigit` along its joints from its root, past the webs, to its tip, its loop of eight starting at its pad, so loop point `k` of the bridge meets the digit at `k` eighths of a turn; the tip's last loop is closed by one Coons patch of four quads.
+ * Each web is a narrow patch one face wide between two curves, one per finger beside it, from the palm's end at the web's palmar side through the crotch to its dorsal side; each web end is two vertices the web's breadth apart, one per finger, so every finger's bridge loop is its share of the palm's end plus its own web curves, the border taking a curve's place on the index and little finger, and the four corners of each web are valence five, where a single web curve would leave two vertices of valence six. Each finger's bridge leaves its web curve tangent to the plane across the hand.
+ *
+ * Each digit is swept by `sweepAutoMovieHumanHandDigits` from its root, past the webs, to its tip, and `patchAutoMovieHumanDigit` joins it: a bridge from its loop on the palm, its sweep in bands at its joints and dome, and a cap over its tip.
  *
  * Everything is in the hand frame of `readAutoMovieHumanHand`, `x` distal, `y` palmar, `z` radial, taken as a right-handed frame in metres; the generator places and, for the left hand, mirrors the sampled cage.
  *
@@ -40,105 +43,13 @@ export function networkAutoMovieHumanHand(props: {
   const hand: readAutoMovieHumanHand.IHand = props.hand;
   const arm: IAutoMovieHumanIdentity.IArm = props.arm;
   const L: number = arm.handLength;
-  const b: number = arm.handBreadth;
   const SHAPE: typeof AUTOMOVIE_HUMAN_HAND_SHAPE.layout =
     AUTOMOVIE_HUMAN_HAND_SHAPE.layout;
-  const field: sliceAutoMovieHumanPalm.IField = sliceAutoMovieHumanPalm({
-    hand,
-    breadth: b,
-    length: L,
-    wristCircumference: arm.wristCircumference,
-    dorsalFat: arm.dorsalHandFat,
-  });
-
-  // the wrist ring in the hand frame: its plane, its first direction and its control radii by quarter turn
-  const ringNormal: IAutoMovieVector3 = V.normalize(
-    props.toLocal(
-      V.of(
-        -props.ring.frame.normal.x,
-        -props.ring.frame.normal.y,
-        -props.ring.frame.normal.z,
-      ),
-    ),
-  );
-  const ringFirst: IAutoMovieVector3 = V.normalize(
-    props.toLocal(props.ring.directions[0]!),
-  );
-  const ringSecond: IAutoMovieVector3 = V.cross(ringNormal, ringFirst);
-  const turns: number[] = props.ring.directions.map(
-    (d: IAutoMovieVector3): number => {
-      const l: IAutoMovieVector3 = props.toLocal(d);
-      return Math.round(
-        (Math.atan2(V.dot(l, ringSecond), V.dot(l, ringFirst)) /
-          (2 * Math.PI)) *
-          props.ring.count,
-      );
-    },
-  );
-  const sense: number = turns[1] === 1 ? 1 : -1;
-  const radiusAt = (quarter: number): number =>
-    props.ring.radii[
-      ((((sense * quarter * props.ring.count) / 4) % props.ring.count) +
-        props.ring.count) %
-        props.ring.count
-    ]!;
-  const ringSection: IAutoMovieSweepSection = {
-    type: "superellipse",
-    right: radiusAt(0) / 1000,
-    up: radiusAt(1) / 1000,
-    left: radiusAt(2) / 1000,
-    down: radiusAt(3) / 1000,
-    exponents: [2, 2, 2, 2],
-  };
-  const ringRotation: IAutoMovieQuaternion = quaternionFromAutoMovieBasis(
-    ringFirst,
-    ringSecond,
-    ringNormal,
-  );
-  const collar: number = F.besideWrist * L;
-
-  // the palm's stations: ring, collar, carpus, mid-palm, heads, the fingers' roots
-  const tilt: number = field.tilt;
-  const axisKnuckle: number = field.knuckle(0);
-  const slices: sliceAutoMovieHumanPalm.ISlice[] = [
-    field.slice({ origin: SHAPE.carpus * L, tilt: 0 }),
-    field.slice({ origin: SHAPE.midPalm * L, tilt: 0 }),
-    field.slice({ origin: axisKnuckle - SHAPE.heads * L, tilt }),
-    field.slice({ origin: axisKnuckle + SHAPE.roots * L, tilt }),
-  ];
-  const palmar: IAutoMovieVector3 = V.of(0, 1, 0);
-  const planeRotation = (
-    s: sliceAutoMovieHumanPalm.ISlice,
-  ): IAutoMovieQuaternion =>
-    quaternionFromAutoMovieBasis(palmar, s.axis, V.cross(palmar, s.axis));
-  const centres: IAutoMovieVector3[] = [
-    V.of(0, 0, 0),
-    V.offset(V.of(0, 0, 0), [ringNormal, collar]),
-    ...slices.map(
-      (s: sliceAutoMovieHumanPalm.ISlice): IAutoMovieVector3 => s.centre,
-    ),
-  ];
-  const at: number[] = chordShares(centres);
-  const palm: IAutoMovieSweep = {
-    spine: { points: centres.map(metres), normal: ringFirst },
-    stations: [
-      { at: at[0]!, section: ringSection, rotation: ringRotation },
-      { at: at[1]!, section: ringSection, rotation: ringRotation },
-      ...slices.map(
-        (
-          s: sliceAutoMovieHumanPalm.ISlice,
-          k: number,
-        ): IAutoMovieSweep.IStation => ({
-          at: at[k + 2]!,
-          section: polygonMetres(s.section),
-          rotation: planeRotation(s),
-        }),
-      ),
-    ],
-  };
+  const laidPalm: sweepAutoMovieHumanPalm.IOutput =
+    sweepAutoMovieHumanPalm(props);
+  const { sweep: palm, at, end, tilt, ringNormal, collar, sense } = laidPalm;
 
   // the twenty columns of the fingers' roots, by the angle of their nodes on the last slice
-  const end: sliceAutoMovieHumanPalm.ISlice = slices[3]!;
   const fingers: readAutoMovieHumanHand.IDigit[] = FINGERS.map(
     (f) => hand.fingers[f],
   );
@@ -153,22 +64,23 @@ export function networkAutoMovieHumanHand(props: {
     radial: SHAPE.corner * end.half.radial,
     ulnar: -SHAPE.corner * end.half.ulnar,
   };
-  // node turns at odd indices of the twenty: 1 index-middle palmar, 3 radial palmar corner, 5 radial dorsal corner, 7 index-middle dorsal, 9 middle-ring dorsal, 11 ring-little dorsal, 13 ulnar dorsal corner, 15 ulnar palmar corner, 17 ring-little palmar, 19 middle-ring palmar
-  const raw: number[] = [
-    angleOf(end.palmar(web(0))),
-    angleOf(end.palmar(corner.radial)),
-    angleOf(end.dorsal(corner.radial)),
-    angleOf(end.dorsal(web(0))),
-    angleOf(end.dorsal(web(1))),
-    angleOf(end.dorsal(web(2))),
-    angleOf(end.dorsal(corner.ulnar)),
-    angleOf(end.palmar(corner.ulnar)),
-    angleOf(end.palmar(web(2))),
-    angleOf(end.palmar(web(1))),
+  // node points on the roots' slice, at odd indices of the twenty: 1 index-middle palmar, 3 radial palmar corner, 5 radial dorsal corner, 7 index-middle dorsal, 9 middle-ring dorsal, 11 ring-little dorsal, 13 ulnar dorsal corner, 15 ulnar palmar corner, 17 ring-little palmar, 19 middle-ring palmar
+  const nodePoints: IAutoMovieVector3[] = [
+    end.palmar(web(0)),
+    end.palmar(corner.radial),
+    end.dorsal(corner.radial),
+    end.dorsal(web(0)),
+    end.dorsal(web(1)),
+    end.dorsal(web(2)),
+    end.dorsal(corner.ulnar),
+    end.palmar(corner.ulnar),
+    end.palmar(web(2)),
+    end.palmar(web(1)),
   ];
   // the twenty-loop's vertex j runs counterclockwise from the middle finger's palmar middle (0); its nodes are the odd ones, the even ones halfway between
   const turn: number[] = new Array<number>(20);
-  raw.forEach((v: number, k: number): void => {
+  nodePoints.forEach((p: IAutoMovieVector3, k: number): void => {
+    const v: number = angleOf(p);
     turn[2 * k + 1] = ((v % 1) + 1) % 1;
   });
   turn[0] = (turn[19]! - 1 + turn[1]!) / 2;
@@ -179,9 +91,38 @@ export function networkAutoMovieHumanHand(props: {
       throw new Error(
         `hand root columns out of order at ${j}: ${turn.map((c: number): string => c.toFixed(3)).join(" ")}`,
       );
-  /** The turn of the twenty-loop's vertex `i`, counted on past 19 into the next turn. */
-  const twentyAt = (i: number): number =>
-    turn[((i % 20) + 20) % 20]! + Math.floor(i / 20);
+  // the webs, index-middle (0), middle-ring (1) and ring-little (2), each from its palmar end to its dorsal end through its crotch between the creases at the fingers' bases, the x curve on its ulnar side and the y curve on its radial side
+  const crotch: number[] = [0, 1, 2].map(
+    (i: number): number =>
+      (fingers[i]!.crease + fingers[i + 1]!.crease) / 2 + F.webs[i]! * L,
+  );
+  const ring: splitAutoMovieHumanWebs.IOutput = splitAutoMovieHumanWebs({
+    sweep: "palm",
+    turns: turn,
+    ends: WEB_ENDS,
+    half: (j: number): number =>
+      (SHAPE.web * L) /
+      2 /
+      (2 * Math.PI * V.distance(nodePoints[(j - 1) / 2]!, end.centre)),
+    webs: WEBS.map(
+      (
+        { palmar: p, dorsal: d }: { palmar: number; dorsal: number },
+        w: number,
+      ): splitAutoMovieHumanWebs.IWeb => {
+        const z: number =
+          (fingers[w]!.points[0]!.z + fingers[w + 1]!.points[0]!.z) / 2;
+        return {
+          first: p,
+          second: d,
+          x: metres(V.of(crotch[w]!, 0, z - (SHAPE.web * L) / 2)),
+          y: metres(V.of(crotch[w]!, 0, z + (SHAPE.web * L) / 2)),
+          normal: { x: 1, y: 0, z: 0 },
+        };
+      },
+    ),
+  });
+  const R: number = ring.count;
+  const { at: rootAt, lo, hi } = ring;
 
   const uCarpus: number = at[2]!;
   const uMid: number = at[3]!;
@@ -189,8 +130,7 @@ export function networkAutoMovieHumanHand(props: {
   const patches: IAutoMovieSurfaceNetwork.IPatch[] = [];
   const addresses: networkAutoMovieHumanHand.IAddress[] = [];
   const reach: number = hand.fingers.Middle.points[3]!.x;
-  const palmU = (u: number): number =>
-    (u * centres[centres.length - 1]!.x) / reach / 2;
+  const palmU = (u: number): number => (u * end.centre.x) / reach / 2;
   const main = (u: number, v: number): networkAutoMovieHumanHand.IPoint => ({
     branch: null,
     u: palmU(u),
@@ -218,418 +158,168 @@ export function networkAutoMovieHumanHand(props: {
   };
   // ring to collar, eight columns
   sweepPatch("palm.ring", [0, at[1]!], [0, 1], 1, 8);
-  // the twenty columns, each its own patch from the middle-ring palmar node round; the two either side of the radial palmar corner are open for the thumb
-  const columns: Array<[number, number]> = Array.from(
-    { length: 20 },
-    (_: unknown, k: number): [number, number] => [twentyAt(k - 1), twentyAt(k)],
-  );
-  const bands: Array<{ u: [number, number]; rows: number; open: boolean }> = [
-    { u: [uCarpus, uMid], rows: 2, open: true },
-    { u: [uMid, uHeads], rows: 1, open: false },
-    { u: [uHeads, 1], rows: 1, open: false },
-  ];
-  bands.forEach((band, i: number): void =>
-    columns.forEach((v: [number, number], k: number): void => {
-      if (band.open && OPENING.includes(k)) return;
-      sweepPatch(`palm.${i}.${k}`, band.u, v, band.rows, 1);
-    }),
-  );
-  // the band from the collar's eight columns to the twenty: one quad per collar span facing one twenty-span, two quads round a fan where it faces three
+  // the ring's eight columns turn into twelve round the carpus, the thenar zone keeps twelve with the thumb's opening astride the radial palmar corner, and twelve turn into eighteen and then the roots' twenty-six before the heads, each change a transition band of 2-to-1 reduction strips
   const uCollar: number = at[1]!;
-  let m: number = SECTORS.start;
-  SECTORS.spans.forEach((span: number, j: number): void => {
-    const a: IAutoMovieSurfaceNetwork.IDomainPoint = { u: uCollar, v: j / 8 };
-    const bPoint: IAutoMovieSurfaceNetwork.IDomainPoint = {
-      u: uCollar,
-      v: (j + 1) / 8,
-    };
-    const top = (i: number): IAutoMovieSurfaceNetwork.IDomainPoint => ({
-      u: uCarpus,
-      v: twentyAt(m + i),
+  const transition = (
+    name: string,
+    u: [number, number],
+    from: number,
+    to: number,
+    rows: number,
+    v: [number, number] = [0, 1],
+  ): void => {
+    patches.push({
+      type: "transition",
+      name,
+      sweep: "palm",
+      u,
+      v,
+      start: fixed(from),
+      end: fixed(to),
+      rows: fixed(rows),
     });
-    const quads: IAutoMovieSurfaceNetwork.IDomainPoint[][] =
-      span === 1
-        ? [[a, bPoint, top(1), top(0)]]
-        : [
-            [a, bPoint, top(3), top(2)],
-            [a, top(2), top(1), top(0)],
-          ];
-    quads.forEach(
-      (q: IAutoMovieSurfaceNetwork.IDomainPoint[], k: number): void => {
-        patches.push({
-          type: "coons",
-          name: `palm.fan.${j}.${k}`,
-          sides: [0, 1, 2, 3].map((i: number) =>
-            line("palm", q[i]!, q[(i + 1) % 4]!, 1),
-          ) as [
-            IAutoMovieSurfaceNetwork.IEdge,
-            IAutoMovieSurfaceNetwork.IEdge,
-            IAutoMovieSurfaceNetwork.IEdge,
-            IAutoMovieSurfaceNetwork.IEdge,
-          ],
-        });
+    addresses.push((s: number, t: number) =>
+      main(u[0] + (u[1] - u[0]) * t, v[0] + (v[1] - v[0]) * s),
+    );
+  };
+  const grid = (laid: gridAutoMovieHumanSweep.IOutput): void =>
+    laid.patches.forEach(
+      (patch: IAutoMovieSurfaceNetwork.ICoonsPatch, k: number): void => {
+        patches.push(patch);
         addresses.push((s: number, t: number) => {
-          const bottom = lerpDomain(q[0]!, q[1]!, s);
-          const upper = lerpDomain(q[3]!, q[2]!, s);
-          const p = lerpDomain(bottom, upper, t);
+          const p: IAutoMovieSurfaceNetwork.IDomainPoint =
+            gridAutoMovieHumanSweep.locate(laid.corners[k]!, s, t);
           return main(p.u, p.v);
         });
       },
     );
-    m += span;
-  });
+  // the carpus widens fastest at the borders, so its band is split there and each half reduces in its middle, palmar and dorsal, where the surface is gently curved
+  transition(
+    "palm.carpus.palmar",
+    [uCollar, uCarpus],
+    4,
+    THENAR / 2,
+    2,
+    [-0.25, 0.25],
+  );
+  transition(
+    "palm.carpus.dorsal",
+    [uCollar, uCarpus],
+    4,
+    THENAR / 2,
+    2,
+    [0.25, 0.75],
+  );
+  const uThenar: number = (uCarpus + uMid) / 2;
+  grid(
+    gridAutoMovieHumanSweep({
+      sweep: "palm",
+      name: "palm.thenar",
+      rows: [uCarpus, uThenar, uMid],
+      columns: THENAR,
+      v: (_: number, i: number): number => i / THENAR,
+      skip: (_: number, i: number): boolean => i === THUMB - 1 || i === THUMB,
+    }),
+  );
+  // two gentle steps, each with no more reduction blocks than straight columns between them, so no coarse vertex sits between two blocks
+  const uStep: number = (uMid + uHeads) / 2;
+  transition("palm.metacarpals", [uMid, uStep], THENAR, STEP, 1);
+  transition("palm.heads", [uStep, uHeads], STEP, R, 1);
+  // over the last row the even columns shear onto the roots' nodes
+  grid(
+    gridAutoMovieHumanSweep({
+      sweep: "palm",
+      name: "palm.roots",
+      rows: [uHeads, 1],
+      columns: R,
+      v: (r: number, i: number): number =>
+        r === 0 ? i / R : rootAt(i + SHIFT),
+    }),
+  );
 
   // the digits
   const sweeps: Record<string, IAutoMovieSweep> = { palm };
   const curves: Record<string, IAutoMovieSurfaceNetwork.ICurve> = {};
   const nodesRecord: Record<string, IAutoMovieSurfaceNetwork.INode> = {};
-  const S: typeof AUTOMOVIE_HUMAN_HAND_SHAPE.finger =
-    AUTOMOVIE_HUMAN_HAND_SHAPE.finger;
-  const crotch: number[] = [0, 1, 2].map(
-    (i: number): number =>
-      (fingers[i]!.crease + fingers[i + 1]!.crease) / 2 + F.webs[i]! * L,
+  Object.assign(nodesRecord, ring.nodes);
+  Object.assign(curves, ring.curves);
+  ring.patches.forEach(
+    (patch: IAutoMovieSurfaceNetwork.ICoonsPatch, w: number): void => {
+      patches.push(patch);
+      const d: number = rootAt(lo(WEBS[w]!.dorsal));
+      const p: number = rootAt(hi(WEBS[w]!.palmar));
+      addresses.push((_: number, t: number) => main(1, d + (p - d) * t));
+    },
   );
-  // webs: index-middle (0), middle-ring (1), ring-little (2), each from its palmar node to its dorsal node through its crotch
-  const webNodes: Array<[number, number]> = [
-    [1, 7],
-    [19, 9],
-    [17, 11],
-  ];
-  webNodes.forEach(([p, d]: [number, number], i: number): void => {
-    nodesRecord[`web${i}.palmar`] = {
-      type: "sweep",
-      sweep: "palm",
-      u: 1,
-      v: wrap(twentyAt(p)),
-    };
-    nodesRecord[`web${i}.dorsal`] = {
-      type: "sweep",
-      sweep: "palm",
-      u: 1,
-      v: wrap(twentyAt(d)),
-    };
-    const z: number =
-      (fingers[i]!.points[0]!.z + fingers[i + 1]!.points[0]!.z) / 2;
-    curves[`web${i}`] = {
-      from: `web${i}.palmar`,
-      to: `web${i}.dorsal`,
-      through: [metres(V.of(crotch[i]!, 0, z))],
-      segments: fixed(2),
-      normal: { x: 1, y: 0, z: 0 },
-    };
-  });
-  const palmEdge = (
-    from: number,
-    to: number,
-    segments: number,
-  ): IAutoMovieSurfaceNetwork.IEdge =>
-    line(
-      "palm",
-      { u: 1, v: twentyAt(from) },
-      { u: 1, v: twentyAt(to) },
-      segments,
-    );
-  const webEdge = (
-    i: number,
-    reverse: boolean,
-  ): IAutoMovieSurfaceNetwork.IEdge => ({
-    type: "curve",
-    curve: `web${i}`,
-    reverse,
-  });
+  const rootPath = ring.path;
+  const webEdge = ring.web;
   // each finger's loop from its palmar middle, counterclockwise about the distal axis: index 2, middle 0 (20), ring 18, little 16
   const loops: IAutoMovieSurfaceNetwork.IEdge[][] = [
+    [...rootPath(lo(2), lo(7)), webEdge(0, "y"), ...rootPath(hi(1), lo(2))],
     [
-      palmEdge(2, 3, 1),
-      palmEdge(3, 5, 2),
-      palmEdge(5, 7, 2),
-      webEdge(0, true),
-      palmEdge(1, 2, 1),
+      ...rootPath(lo(0), lo(1)),
+      webEdge(0, "x"),
+      ...rootPath(hi(7), lo(9)),
+      webEdge(1, "y"),
+      ...rootPath(hi(19), lo(20)),
     ],
     [
-      palmEdge(0, 1, 1),
-      webEdge(0, false),
-      palmEdge(7, 9, 2),
-      webEdge(1, true),
-      palmEdge(19, 20, 1),
+      ...rootPath(lo(18), lo(19)),
+      webEdge(1, "x"),
+      ...rootPath(hi(9), lo(11)),
+      webEdge(2, "y"),
+      ...rootPath(hi(17), lo(18)),
     ],
-    [
-      palmEdge(18, 19, 1),
-      webEdge(1, false),
-      palmEdge(9, 11, 2),
-      webEdge(2, true),
-      palmEdge(17, 18, 1),
-    ],
-    [
-      palmEdge(16, 17, 1),
-      webEdge(2, false),
-      palmEdge(11, 13, 2),
-      palmEdge(13, 15, 2),
-      palmEdge(15, 16, 1),
-    ],
+    [...rootPath(lo(16), lo(17)), webEdge(2, "x"), ...rootPath(hi(11), lo(16))],
   ];
-  const digits: Array<{
-    name: AutoMovieHumanBranch<"hand">;
-    out: sweepAutoMovieHumanDigit.IOutput;
-  }> = [];
-  fingers.forEach((digit: readAutoMovieHumanHand.IDigit, i: number): void => {
-    const finger: readAutoMovieHumanHand.IFinger = FINGERS[i]!;
-    const neighbours: number[] = [i - 1, i]
-      .filter((w: number): boolean => w >= 0 && w < 3)
-      .map((w: number): number => crotch[w]!);
-    const rootX: number = Math.max(...neighbours) + SHAPE.root * L;
-    const start: IAutoMovieVector3 = along(digit.points, rootX);
-    const wp: number = F.fingers[finger].pip * b;
-    const wd: number = F.fingers[finger].dip * b;
-    const dp: number = F.depth.pip * wp;
-    const dd: number = F.depth.dip * wd;
-    const points: IAutoMovieVector3[] = [start, ...digit.points.slice(1)];
-    const base: number = V.distance(start, digit.points[1]!);
-    const l1: number = V.distance(digit.points[1]!, digit.points[2]!);
-    const l2: number = V.distance(digit.points[2]!, digit.points[3]!);
-    const box = (
-      atMm: number,
-      w: number,
-      d: number,
-      dorsal: number,
-    ): sweepAutoMovieHumanDigit.IStation => ({
-      at: atMm,
-      breadth: w,
-      dorsal: d * dorsal,
-      palmar: d * (1 - dorsal),
-      square: SQUARE,
+  // the thumb's opening astride the radial palmar corner, its loop from the opening's first corner, proximal and palmar
+  const opening = (i: number): number => i / THENAR;
+  const opened = (
+    u: number,
+    i: number,
+  ): IAutoMovieSurfaceNetwork.IDomainPoint => ({ u, v: opening(i) });
+  const digits: sweepAutoMovieHumanHandDigits.IDigit[] =
+    sweepAutoMovieHumanHandDigits({
+      hand,
+      arm,
+      crotch,
+      thumbCorner: millimetres(
+        compileAutoMovieSweep(palm).point(uCarpus, opening(THUMB - 1)),
+      ),
     });
-    const out: sweepAutoMovieHumanDigit.IOutput = sweepAutoMovieHumanDigit({
-      points,
-      first: palmar,
-      pad: 0,
-      stations: [
-        box(0, wp * 1.04, dp * 1.03, S.shaft),
-        box(base, wp, dp, S.joint),
-        box(
-          base + 0.5 * l1,
-          wp + (wd - wp) * 0.48,
-          dp + (dd - dp) * 0.48,
-          S.shaft,
-        ),
-        box(base + l1, wd, dd, S.joint),
-        box(base + l1 + 0.4 * l2, wd * S.padBreadth, dd * S.padDepth, S.pad),
-      ],
-    });
-    const name: AutoMovieHumanBranch<"hand"> =
-      finger.toLowerCase() as AutoMovieHumanBranch<"hand">;
-    sweeps[name] = out.sweep;
-    digits.push({ name, out });
-    patches.push({
-      type: "bridge",
-      name: `${name}.bridge`,
-      from: { edges: loops[i]!, tangent: "across" },
-      to: {
-        edges: [line(name, { u: 0, v: 0 }, { u: 0, v: 1 }, 8)],
-        tangent: "forward",
-      },
-      rows: fixed(2),
-      tension: SHAPE.tension,
-    });
-    addresses.push((s: number, t: number) => ({
-      branch: name,
-      u: BRIDGE * t,
-      v: wrap(s),
-    }));
-  });
+  const thumbLoop: IAutoMovieSurfaceNetwork.IEdge[] = [
+    [opened(uCarpus, THUMB - 1), opened(uCarpus, THUMB)],
+    [opened(uCarpus, THUMB), opened(uCarpus, THUMB + 1)],
+    [opened(uCarpus, THUMB + 1), opened(uThenar, THUMB + 1)],
+    [opened(uThenar, THUMB + 1), opened(uMid, THUMB + 1)],
+    [opened(uMid, THUMB + 1), opened(uMid, THUMB)],
+    [opened(uMid, THUMB), opened(uMid, THUMB - 1)],
+    [opened(uMid, THUMB - 1), opened(uThenar, THUMB - 1)],
+    [opened(uThenar, THUMB - 1), opened(uCarpus, THUMB - 1)],
+  ].map(([a, c]) => line("palm", a!, c!, 1));
 
-  // the thumb from the radial border's opening
-  const T: typeof AUTOMOVIE_HUMAN_HAND_SHAPE.thumb =
-    AUTOMOVIE_HUMAN_HAND_SHAPE.thumb;
-  const thumb: readAutoMovieHumanHand.IHand["thumb"] = hand.thumb;
-  const metacarpal: number = V.distance(thumb.points[0]!, thumb.points[1]!);
-  const thumbStart: IAutoMovieVector3 = V.offset(thumb.points[0]!, [
-    V.offset(thumb.points[1]!, [thumb.points[0]!, -1]),
-    SHAPE.thumbStart,
-  ]);
-  const opening: [number, number] = [
-    columns[OPENING[0]!]![0],
-    columns[OPENING[1]!]![1],
-  ];
-  const thumbCorner: number = columns[OPENING[0]!]![1];
-  const thumbAxis: IAutoMovieVector3 = V.normalize(
-    V.offset(thumb.points[1]!, [thumb.points[0]!, -1]),
-  );
-  // the opening's first corner, proximal and palmar, sets the thumb loop's first direction
-  const firstCorner: IAutoMovieVector3 = millimetres(
-    compileAutoMovieSweep(palm).point(uCarpus, opening[0]),
-  );
-  const toCorner: IAutoMovieVector3 = V.offset(firstCorner, [thumbStart, -1]);
-  const first: IAutoMovieVector3 = V.normalize(
-    V.offset(toCorner, [thumbAxis, -V.dot(toCorner, thumbAxis)]),
-  );
-  const second: IAutoMovieVector3 = V.cross(thumbAxis, first);
-  const pad: number = Math.atan2(
-    V.dot(thumb.pad, second),
-    V.dot(thumb.pad, first),
-  );
-  const tw: number = F.thumb.ip * b;
-  const td: number = F.depth.thumb * tw;
-  const thumbOut: sweepAutoMovieHumanDigit.IOutput = sweepAutoMovieHumanDigit({
-    points: [thumbStart, ...thumb.points.slice(1)],
-    first,
-    pad,
-    stations: [
-      {
-        at: 0,
-        breadth: tw * T.mass,
-        dorsal: td * 0.5,
-        palmar: T.thenar * tw,
-        square: 2.4,
-      },
-      {
-        at: (1 - SHAPE.thumbStart) * metacarpal,
-        breadth: tw * T.knuckle,
-        dorsal: td * T.knuckleDorsal,
-        palmar: td * T.knucklePalmar,
-        square: 2.6,
-      },
-      {
-        at:
-          (1 - SHAPE.thumbStart) * metacarpal +
-          0.5 * V.distance(thumb.points[1]!, thumb.points[2]!),
-        breadth: tw * T.phalanx,
-        dorsal: td * 0.48,
-        palmar: td * 0.56,
-        square: 2.6,
-      },
-      {
-        at:
-          (1 - SHAPE.thumbStart) * metacarpal +
-          V.distance(thumb.points[1]!, thumb.points[2]!),
-        breadth: tw,
-        dorsal: td * 0.5,
-        palmar: td * 0.5,
-        square: 2.6,
-      },
-      {
-        at:
-          (1 - SHAPE.thumbStart) * metacarpal +
-          V.distance(thumb.points[1]!, thumb.points[2]!) +
-          0.4 * V.distance(thumb.points[2]!, thumb.points[3]!),
-        breadth: tw * 0.98,
-        dorsal: td * 0.4,
-        palmar: td * 0.58,
-        square: 2.6,
-      },
-    ],
-  });
-  sweeps.thumb = thumbOut.sweep;
-  digits.unshift({ name: "thumb", out: thumbOut });
-  patches.push({
-    type: "bridge",
-    name: "thumb.bridge",
-    from: {
-      edges: [
-        line(
-          "palm",
-          { u: uCarpus, v: opening[0] },
-          { u: uCarpus, v: thumbCorner },
-          1,
-        ),
-        line(
-          "palm",
-          { u: uCarpus, v: thumbCorner },
-          { u: uCarpus, v: opening[1] },
-          1,
-        ),
-        line(
-          "palm",
-          { u: uCarpus, v: opening[1] },
-          { u: uMid, v: opening[1] },
-          2,
-        ),
-        line(
-          "palm",
-          { u: uMid, v: opening[1] },
-          { u: uMid, v: thumbCorner },
-          1,
-        ),
-        line(
-          "palm",
-          { u: uMid, v: thumbCorner },
-          { u: uMid, v: opening[0] },
-          1,
-        ),
-        line(
-          "palm",
-          { u: uMid, v: opening[0] },
-          { u: uCarpus, v: opening[0] },
-          2,
-        ),
-      ],
-      tangent: "across",
-    },
-    to: {
-      edges: [line("thumb", { u: 0, v: 0 }, { u: 0, v: 1 }, 8)],
-      tangent: "forward",
-    },
-    rows: fixed(2),
-    tension: SHAPE.thumbTension,
-  });
-  addresses.push((s: number, t: number) => ({
-    branch: "thumb",
-    u: BRIDGE * t,
-    v: wrap(s),
-  }));
-
-  // every digit's sweep in bands at its joints and its dome, then its cap
-  for (const { name, out } of digits) {
-    const marks: number[] = [
-      0,
-      out.at[1]!,
-      out.at[3]!,
-      out.tip[0],
-      out.tip[1],
-      1,
-    ];
-    const rows: number[] = [3, 3, 3, 2, 1];
-    for (let i: number = 0; i < rows.length; ++i) {
-      const u: [number, number] = [marks[i]!, marks[i + 1]!];
-      patches.push({
-        type: "sweep",
-        name: `${name}.${i}`,
-        sweep: name,
-        u,
-        v: [0, 1],
-        rows: fixed(rows[i]!),
-        columns: fixed(8),
+  // every digit's bridge, its sweep in bands at its joints and its dome, and its cap
+  digits.forEach(
+    ({ name, out }: sweepAutoMovieHumanHandDigits.IDigit, k: number): void => {
+      sweeps[name] = out.sweep;
+      const laid: patchAutoMovieHumanDigit.IOutput = patchAutoMovieHumanDigit({
+        name,
+        digit: out,
+        loop: k === 0 ? thumbLoop : loops[k - 1]!,
+        marks: [0, out.at[1]!, out.at[3]!, out.tip[0], out.tip[1], 1],
+        rows: [3, 3, 3, 2, 1],
+        tension: k === 0 ? SHAPE.thumbTension : SHAPE.tension,
+        share: BRIDGE,
       });
-      addresses.push((s: number, t: number) => ({
-        branch: name,
-        u: BRIDGE + (1 - BRIDGE) * (u[0] + (u[1] - u[0]) * t),
-        v: s,
-      }));
-    }
-    patches.push({
-      type: "coons",
-      name: `${name}.cap`,
-      sides: [0, 1, 2, 3].map((q: number) =>
-        line(name, { u: 1, v: q / 4 }, { u: 1, v: (q + 1) / 4 }, 2),
-      ) as [
-        IAutoMovieSurfaceNetwork.IEdge,
-        IAutoMovieSurfaceNetwork.IEdge,
-        IAutoMovieSurfaceNetwork.IEdge,
-        IAutoMovieSurfaceNetwork.IEdge,
-      ],
-    });
-    addresses.push((s: number, t: number) => ({
-      branch: name,
-      u: 1,
-      v:
-        s === 0.5 && t === 0.5
-          ? Number.NaN
-          : wrap(
-              (Math.atan2(t - 0.5, s - 0.5) + (3 * Math.PI) / 4) /
-                (2 * Math.PI),
-            ),
-    }));
-  }
+      patches.push(...laid.patches);
+      laid.places.forEach((place: patchAutoMovieHumanDigit.IPlace): void => {
+        addresses.push((s: number, t: number) => ({
+          branch: name,
+          ...place(s, t),
+        }));
+      });
+    },
+  );
 
   // the wrist ring and its collar
   const ringEdges = (u: number): IAutoMovieSurfaceNetwork.IEdge[] => [
@@ -701,19 +391,30 @@ export namespace networkAutoMovieHumanHand {
   }
 }
 
-/** Superellipse exponent of a finger's section whose diagonal reaches the fitted share `square` of the way to the box corner: (1/√2)^(2/n) = square. */
-const SQUARE: number =
-  (2 * Math.log(Math.SQRT1_2)) /
-  Math.log(AUTOMOVIE_HUMAN_HAND_SHAPE.finger.square);
+/** Columns of the thenar zone, between the carpus's transition band and the metacarpals'. */
+const THENAR: number = 12;
 
-/** The thumb's opening: the two palm columns either side of the radial palmar corner, the twenty-loop's vertex 3. */
-const OPENING: number[] = [3, 4];
+/** Columns between the metacarpals' two transition bands. */
+const STEP: number = 18;
+
+/** The thenar zone's vertex the thumb's opening is centred on, the radial palmar corner of the palm (turn 0.22 on the gate identities against 3 / 12 = 0.25). */
+const THUMB: number = 3;
+
+/** The twenty-loop's web ends, palmar and dorsal, which split. */
+const WEB_ENDS: number[] = [1, 7, 9, 11, 17, 19];
+
+/** Each web's palmar and dorsal end on the twenty-loop, index-middle, middle-ring and ring-little. */
+const WEBS: Array<{ palmar: number; dorsal: number }> = [
+  { palmar: 1, dorsal: 7 },
+  { palmar: 19, dorsal: 9 },
+  { palmar: 17, dorsal: 11 },
+];
+
+/** The root ring's vertex that the even ring's vertex 0 shears onto, as an offset: the pairing of least total shear on the gate identities. */
+const SHIFT: number = -2;
 
 /** Share of a digit's chart its bridge takes. */
 const BRIDGE: number = 0.1;
-
-/** How the collar's eight spans meet the twenty: the twenty-loop index the collar's vertex 0 meets, then the spans each collar span faces. */
-const SECTORS = { start: 0, spans: [3, 1, 3, 1, 3, 3, 3, 3] } as const;
 
 const FINGERS: readAutoMovieHumanHand.IFinger[] = [
   "Index",
@@ -737,16 +438,6 @@ const metres = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
   z: p.z / 1000,
 });
 
-const polygonMetres = (
-  s: IAutoMovieSweepSection.IPolygon,
-): IAutoMovieSweepSection.IPolygon => ({
-  type: "polygon",
-  points: s.points.map((p: IAutoMovieSweepSection.IPoint) => ({
-    x: p.x / 1000,
-    y: p.y / 1000,
-  })),
-});
-
 const line = (
   sweep: string,
   from: IAutoMovieSurfaceNetwork.IDomainPoint,
@@ -760,45 +451,8 @@ const line = (
   segments: fixed(segments),
 });
 
-const lerpDomain = (
-  a: IAutoMovieSurfaceNetwork.IDomainPoint,
-  b: IAutoMovieSurfaceNetwork.IDomainPoint,
-  t: number,
-): IAutoMovieSurfaceNetwork.IDomainPoint => ({
-  u: a.u + (b.u - a.u) * t,
-  v: a.v + (b.v - a.v) * t,
-});
-
-/** The point of a joint chain at a level `x`. */
-const along = (points: IAutoMovieVector3[], x: number): IAutoMovieVector3 => {
-  for (let i: number = 0; i + 1 < points.length; ++i) {
-    const a: IAutoMovieVector3 = points[i]!;
-    const c: IAutoMovieVector3 = points[i + 1]!;
-    if (x <= c.x || i + 2 === points.length) {
-      const t: number = (x - a.x) / (c.x - a.x);
-      return AutoMovieHumanVector.of(
-        a.x + (c.x - a.x) * t,
-        a.y + (c.y - a.y) * t,
-        a.z + (c.z - a.z) * t,
-      );
-    }
-  }
-  return points[points.length - 1]!;
-};
-
 const millimetres = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
   x: p.x * 1000,
   y: p.y * 1000,
   z: p.z * 1000,
 });
-
-const chordShares = (points: IAutoMovieVector3[]): number[] => {
-  const lengths: number[] = [0];
-  for (let k: number = 1; k < points.length; ++k)
-    lengths.push(
-      lengths[k - 1]! +
-        AutoMovieHumanVector.distance(points[k - 1]!, points[k]!),
-    );
-  const total: number = lengths[lengths.length - 1]!;
-  return lengths.map((l: number): number => l / total);
-};
