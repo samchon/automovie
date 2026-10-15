@@ -2,24 +2,22 @@ import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieHumanCageBuilder } from "../../junction/AutoMovieHumanCageBuilder";
 import { IAutoMovieHumanCage } from "../../junction/IAutoMovieHumanCage";
-import { IAutoMovieHumanRingLayout } from "../../junction/IAutoMovieHumanRingLayout";
-import { layoutAutoMovieHumanRing } from "../../junction/layoutAutoMovieHumanRing";
+import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
+import { EAR, shapeAutoMovieHumanRing } from "../../junction/shapeAutoMovieHumanRing";
 import { IAutoMovieHumanPartGenerator } from "../IAutoMovieHumanPartGenerator";
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanIdentity } from "../../structures/IAutoMovieHumanIdentity";
 import { shapeAutoMovieHumanEar } from "./shapeAutoMovieHumanEar";
 
-/**
- * Inclination of the auricle's long axis behind the vertical, degrees: the angle of the superaurale-subaurale line, 19.40 in men and 17.95 in women among 200 Turkish adults aged 18 to 25 on standardized photographs (Bahşi et al. 2023, J Craniofac Surg 34(8):e799-e803), the sexes averaged. Grade: measured.
- */
-const INCLINATION: number = (18.7 * Math.PI) / 180;
+/** Inclination of the auricle's long axis behind the vertical, the one the shared attachment ring leans by. */
+const INCLINATION: number = EAR.inclination;
 
 /**
  * Generates the auricle: one cartilage plate rolled at its free margin and folded inside it, open at its attachment to the head.
  *
- * The ear reads its side's length, breadth and protrusion and the skeleton's tragion, and nothing of the head, so a profile can replace it by another ear that opens the same ring. `shapeAutoMovieHumanEar` draws its loops in the auricle's own frame; this generator stands that frame at tragion, its long axis inclined behind the vertical by {@link INCLINATION} in the parasagittal plane and its lateral axis out of the head, and builds the cage:
+ * The ear reads its side's length, breadth and protrusion, the skeleton's tragion and the shared `ear` ring, and nothing of the head, so a profile can replace it by another ear that opens the same ring. `shapeAutoMovieHumanEar` draws its loops in the auricle's own frame; this generator stands that frame at tragion, its long axis inclined behind the vertical by {@link INCLINATION} in the parasagittal plane and its lateral axis out of the head, and builds the cage:
  *
- * - The `ear` ring opens at the attachment, its eight vertices on the layout's directions from tragion at the distances the drawing gives. The first loop off it keeps eight vertices, so the junction meets a regular row.
+ * - The `ear` ring opens exactly on `shapeAutoMovieHumanRing`'s attachment, so the head's ring welds to it. The first loop off it keeps eight vertices, so the junction meets a regular row.
  * - Each span of that loop then faces three spans of the next, as two quads, which brings the count to 24 on the cranial surface, where a valence 3 vertex and a valence 5 vertex per span stay out of sight against the head.
  * - The 24-station loops run over the helix into the concha, and a 6 by 6 grid closes the concha floor, its four valence 3 corners at the bottom of the bowl.
  * - Semi-sharp edges keep the antihelix rim of the concha, the free edge of the tragus and the lip of the helix defined after subdivision without extra loops.
@@ -33,6 +31,13 @@ const INCLINATION: number = (18.7 * Math.PI) / 180;
 export class AutoMovieHumanEarGenerator implements IAutoMovieHumanPartGenerator<"ear"> {
   public readonly part = "ear" as const;
 
+  /**
+   * @param form Coefficients of the auricle's drawing; by default the human ear's
+   */
+  public constructor(
+    private readonly form?: shapeAutoMovieHumanEar.IForm,
+  ) {}
+
   public generate(
     props: IAutoMovieHumanPartGenerator.IProps<"ear">,
   ): IAutoMovieHumanCage {
@@ -40,20 +45,17 @@ export class AutoMovieHumanEarGenerator implements IAutoMovieHumanPartGenerator<
       props.side === "left"
         ? props.measurements.identity.head.leftEar
         : props.measurements.identity.head.rightEar;
-    const shape: shapeAutoMovieHumanEar.IOutput = shapeAutoMovieHumanEar({
-      length: ear.earLength,
-      breadth: ear.earBreadth,
-      protrusion: ear.earProtrusion,
-    });
-    const layout: IAutoMovieHumanRingLayout = layoutAutoMovieHumanRing({
+    const layout: IAutoMovieHumanRingShape = shapeAutoMovieHumanRing({
       skeleton: props.skeleton,
+      measurements: props.measurements,
       site: "ear",
       side: props.side,
       part: "ear",
     });
 
     // the auricle's frame: origin at tragion, lateral out of the head, the long axis leaning back
-    const origin: IAutoMovieVector3 = layout.frame.origin;
+    const origin: IAutoMovieVector3 =
+      props.skeleton.landmarks[props.side].tragion.position;
     const lateral: IAutoMovieVector3 = AutoMovieHumanVector.of(
       -layout.frame.normal.x,
       -layout.frame.normal.y,
@@ -71,13 +73,35 @@ export class AutoMovieHumanEarGenerator implements IAutoMovieHumanPartGenerator<
     );
     const place = (p: shapeAutoMovieHumanEar.IPoint): IAutoMovieVector3 =>
       AutoMovieHumanVector.offset(origin, [back, p.x], [up, p.y], [lateral, p.h]);
+    const local = (p: IAutoMovieVector3): shapeAutoMovieHumanEar.IPoint => {
+      const d: IAutoMovieVector3 = AutoMovieHumanVector.offset(p, [origin, -1]);
+      return {
+        x: AutoMovieHumanVector.dot(d, back),
+        y: AutoMovieHumanVector.dot(d, up),
+        h: AutoMovieHumanVector.dot(d, lateral),
+      };
+    };
 
     // build order runs counterclockwise about the lateral axis: toward the front on the left ear, toward the back on the right
-    const directions: IAutoMovieVector3[] =
-      AutoMovieHumanCageBuilder.buildDirections(layout);
-    const forward: boolean = directions[2]!.z > 0;
+    const order: number[] = AutoMovieHumanCageBuilder.buildOrder(layout);
+    const forward: boolean = layout.directions[order[2]!]!.z > 0;
     const station = (k: number, count: number): number =>
       forward ? k % count : (count - (k % count)) % count;
+
+    // the attachment is the shared ring itself; the auricle is drawn out from it
+    const attachment: shapeAutoMovieHumanEar.IPoint[] = new Array(8);
+    order.forEach((j: number, k: number): void => {
+      attachment[station(k, 8)] = local(layout.positions[j]!);
+    });
+    const shape: shapeAutoMovieHumanEar.IOutput = shapeAutoMovieHumanEar(
+      {
+        length: ear.earLength,
+        breadth: ear.earBreadth,
+        protrusion: ear.earProtrusion,
+      },
+      attachment,
+      this.form,
+    );
 
     const builder: AutoMovieHumanCageBuilder = new AutoMovieHumanCageBuilder(
       "ear",
@@ -85,16 +109,7 @@ export class AutoMovieHumanEarGenerator implements IAutoMovieHumanPartGenerator<
     );
     const u = (i: number): number => i / (shape.loops.length + 1);
     const ring: AutoMovieHumanCageBuilder.IStation = builder.station(
-      directions.map((d: IAutoMovieVector3, k: number): IAutoMovieVector3 => {
-        const design: IAutoMovieVector3 = place(shape.ring[station(k, 8)]!);
-        return AutoMovieHumanVector.offset(origin, [
-          d,
-          AutoMovieHumanVector.dot(
-            AutoMovieHumanVector.offset(design, [origin, -1]),
-            d,
-          ),
-        ]);
-      }),
+      order.map((j: number): IAutoMovieVector3 => layout.positions[j]!),
       0,
     );
     builder.record(layout, ring);
