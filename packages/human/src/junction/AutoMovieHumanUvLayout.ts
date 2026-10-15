@@ -1,4 +1,5 @@
 import { AUTOMOVIE_HUMAN_UV_LAYOUT } from "./AUTOMOVIE_HUMAN_UV_LAYOUT";
+import { AutoMovieHumanBranch } from "./AutoMovieHumanBranch";
 import { AutoMovieHumanPart } from "./AutoMovieHumanPart";
 import { AutoMovieHumanSide } from "./AutoMovieHumanSide";
 import { IAutoMovieHumanSurfaceCoordinate } from "./IAutoMovieHumanSurfaceCoordinate";
@@ -14,14 +15,14 @@ export namespace AutoMovieHumanUvLayout {
    */
   export interface ILayout {
     /** Layout version; a change to any chart bumps it. */
-    version: 1;
+    version: 2;
 
-    /** One chart per part instance. */
+    /** One chart per part instance and per branch of one. */
     charts: IChart[];
   }
 
   /**
-   * One part instance's rectangle in the atlas.
+   * One part instance's, or one branch's, rectangle in the atlas.
    *
    * @author Samchon
    */
@@ -31,6 +32,9 @@ export namespace AutoMovieHumanUvLayout {
 
     /** Its side, or null for the trunk, neck and head. */
     side: AutoMovieHumanSide | null;
+
+    /** The branch this chart holds, or null for the part's main chart. */
+    branch: AutoMovieHumanBranch | null;
 
     /** Chart `v` of the wrap seam, where `x` starts and ends. */
     seam: number;
@@ -53,7 +57,7 @@ export namespace AutoMovieHumanUvLayout {
    *
    * The corners' turns past the seam are unwrapped together, so a face that touches the seam from below writes the chart's right edge there and a face that leaves it upward writes the left edge; the seam is cut exactly along its meridian.
    *
-   * @param coordinates The face's corner addresses, all on one part's chart
+   * @param coordinates The face's corner addresses, all on one chart
    * @returns `[x, y]` of each corner
    * @throws {Error} When the layout has no chart for the part instance
    */
@@ -62,11 +66,16 @@ export namespace AutoMovieHumanUvLayout {
   ): Array<[number, number]> {
     const first: IAutoMovieHumanSurfaceCoordinate = coordinates[0]!;
     const found: IChart | undefined = AUTOMOVIE_HUMAN_UV_LAYOUT.charts.find(
-      (c: IChart): boolean => c.part === first.part && c.side === first.side,
+      (c: IChart): boolean =>
+        c.part === first.part &&
+        c.side === first.side &&
+        c.branch === (first.branch ?? null),
     );
     if (found === undefined)
       throw new Error(
-        `UV layout has no chart for ${first.side ?? ""} ${first.part}`.trim(),
+        `UV layout has no chart for ${first.side ?? ""} ${first.part} ${first.branch ?? ""}`
+          .replace(/\s+/g, " ")
+          .trim(),
       );
     const turns: number[] = coordinates.map(
       (c: IAutoMovieHumanSurfaceCoordinate): number =>
