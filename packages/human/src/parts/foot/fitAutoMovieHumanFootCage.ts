@@ -14,7 +14,7 @@ const PASSES: number = 2;
 /**
  * Make the foot's limit surface measure the identity's foot length and breadth.
  *
- * A Catmull-Clark limit surface lies inside its cage, by an amount that depends on the cage's local shape, so the cage's own extent is not the skin's. The foot is therefore measured as it is rendered: the cage alone is subdivided by the engine and its limit positions give the heel's back, the tip of the longest toe and the breadth across the forefoot. The surface is affine-invariant under its cage, so moving every control point that shapes an extreme by the same offset moves the extreme exactly that far: the toes and the forefoot shift forward, the heel back, and each border of the forefoot outward, each by its error, with weights that fade to zero toward the ankle, the heel's by height and the forefoot's forward of the ring, so the ring never moves. Foot length runs from the back of the heel to the tip of the longest toe, as ANSUR II measures it, and foot breadth across the metatarsal heads, centred on the ankle's axis where the skeleton puts the first and fifth metatarsal heads.
+ * A Catmull-Clark limit surface lies inside its cage, by an amount that depends on the cage's local shape, so the cage's own extent is not the skin's. The foot is therefore measured as it is rendered: the cage alone is subdivided by the engine and its limit positions give the heel's back, the tip of the longest toe and the breadth across the forefoot. The surface is affine-invariant under its cage, so moving every control point that shapes an extreme by the same offset moves the extreme exactly that far: the toes and the forefoot shift forward, the heel back, and each border of the forefoot outward, each by its error, with weights that fade to zero toward the ankle, the heel's by height and the forefoot's forward of the ring, so the ring never moves. Foot length runs from the back of the heel to the tip of the longest toe, as ANSUR II measures it, and foot breadth across the metatarsal heads, centred on the foot's long axis.
  *
  * @param plan The foot's plan
  * @param cage The knitted foot, its positions moved in place; the ring's vertices never move
@@ -53,8 +53,8 @@ export function fitAutoMovieHumanFootCage(
     }
     const toTip: number = plan.heel + plan.length - maxZ;
     const toHeel: number = plan.heel - minZ;
-    const toMedial: number = -plan.breadth / 2 - minX;
-    const toLateral: number = plan.breadth / 2 - maxX;
+    const toMedial: number = plan.axis - plan.breadth / 2 - minX;
+    const toLateral: number = plan.axis + plan.breadth / 2 - maxX;
     cage.positions = cage.positions.map(
       (p: IAutoMovieVector3, index: number): IAutoMovieVector3 => {
         if (ring.has(index)) return p;
@@ -62,9 +62,9 @@ export function fitAutoMovieHumanFootCage(
         const hindfoot: number =
           smoothstep((plan.ankle.origin.y * 0.6 - p.y) / (0.3 * plan.ankle.origin.y)) *
           smoothstep(-p.z / (0.1 * plan.length));
-        const side: number = smoothstep(Math.abs(p.x) / (0.35 * plan.breadth));
+        const side: number = smoothstep(Math.abs(p.x - plan.axis) / (0.35 * plan.breadth));
         return AutoMovieHumanVector.of(
-          p.x + forefoot * side * (p.x < 0 ? toMedial : toLateral),
+          p.x + forefoot * side * (p.x < plan.axis ? toMedial : toLateral),
           p.y,
           p.z + forefoot * toTip + hindfoot * toHeel,
         );

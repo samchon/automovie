@@ -45,9 +45,10 @@ export function outlineAutoMovieHumanFoot(
     edge: "rim" | "sole",
   ): IAutoMovieVector3 =>
     AutoMovieHumanVector.of(
-      sign *
-        (interpolateAutoMovieHumanFootProfile(b.offset, f) * L -
-          (edge === "sole" ? b.inset : 0)),
+      plan.axis +
+        sign *
+          (interpolateAutoMovieHumanFootProfile(b.offset, f) * L -
+            (edge === "sole" ? b.inset : 0)),
       interpolateAutoMovieHumanFootProfile(b[edge], f) * L,
       along(f),
     );

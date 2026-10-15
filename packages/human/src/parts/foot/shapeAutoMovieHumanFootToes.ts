@@ -84,7 +84,7 @@ export function shapeAutoMovieHumanFootToes(
       ),
   );
 }
-/** The toe frame {@link shapeAutoMovieHumanFootToes} places its sections in. */
+/** The toe frame helper of {@link shapeAutoMovieHumanFootToes}. */
 export namespace shapeAutoMovieHumanFootToes {
   /**
    * A point on a toe's frame.

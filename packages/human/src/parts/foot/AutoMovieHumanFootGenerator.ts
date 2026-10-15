@@ -36,14 +36,14 @@ import { shapeAutoMovieHumanFootUpper } from "./shapeAutoMovieHumanFootUpper";
  * @author Samchon
  */
 export class AutoMovieHumanFootGenerator implements IAutoMovieHumanPartGenerator<"foot"> {
-  /** The part this generator produces. */
+  /** The foot part. */
   public readonly part = "foot" as const;
 
   /**
    * Generate one foot's cage.
    *
-   * @param props Measurements, skeleton and the side of the foot
-   * @returns Cage in the skeleton's model frame and millimetres, with the `ankle` ring
+   * @param props Measurements, skeleton and side
+   * @returns The foot's cage in the model frame and millimetres, opening the ankle ring on the junction's shared shape
    */
   public generate(
     props: IAutoMovieHumanPartGenerator.IProps<"foot">,
@@ -93,10 +93,10 @@ export class AutoMovieHumanFootGenerator implements IAutoMovieHumanPartGenerator
   }
 
   /**
-   * Generate the five toenail plates of one foot, placed on the skin its cage subdivides to.
+   * Generate the foot's toenail plates.
    *
-   * @param props The same props as `generate`
-   * @returns The plates `nail.hallux`, `nail.second`, `nail.third`, `nail.fourth` and `nail.fifth`, in that order, each riding the side's toes bone
+   * @param props Measurements, skeleton and side
+   * @returns The five nail plates, hallux first, each riding the toes bone
    */
   public attachments(
     props: IAutoMovieHumanPartGenerator.IProps<"foot">,
