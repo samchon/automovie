@@ -41,6 +41,23 @@ Readings:
 - Adult proportions depend on stature: in ANSUR II, sitting height = 215 + 0.394 S (both sexes), so a taller adult has relatively longer legs; Duval (`../sources/duval-1905.md`) states the same for the spine (longer relative to stature in infants, women and short people).
 - Population: adult sitting height ratio ranges from about 0.47 to 0.56 between populations (Bogin and Varela-Silva), wider than the ANSUR II spread (SD 0.014).
 
+## Shoulder and neck height for age
+
+The first stick render put a one-year-old's acromion 18 mm below the jugular notch, the clavicles sloping about 25 degrees, because the child's cervicale and acromion were held at adult head-height distances below the vertex. Growth data say the opposite: the notch, and the shoulders with it, sit high under a child's head.
+
+Vertex to suprasternale, fitted by us from the 1977 individual records (`../sources/snyder-1977.md`), means of per-subject (stature − suprasternale height) / stature by bin, then in head heights with the bin's heads per stature. Grade: population-fitted.
+
+| Age (y) | 2 | 4 | 6 | 8 | 10 | 12 | 14 | 16 | 17–18 | Adult (ANSUR II) |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| / stature, boys | 0.243 | 0.224 | 0.213 | 0.204 | 0.195 | 0.190 | 0.189 | 0.185 | 0.190 | 0.181 |
+| / stature, girls | 0.236 | 0.223 | 0.215 | 0.202 | 0.193 | 0.191 | 0.191 | 0.191 | 0.191 | 0.183 |
+| head heights, boys | 1.28 | 1.30 | 1.34 | 1.38 | 1.40 | 1.41 | 1.47 | 1.49 | 1.52 | 1.45 |
+| head heights, girls | 1.27 | 1.32 | 1.36 | 1.39 | 1.39 | 1.46 | 1.50 | 1.51 | 1.52 | 1.46 |
+
+Bins hold 11 to 53 children (the notch was measured on one of the survey's two measurement sets). The 1975 survey (`../sources/snyder-1975.md`) agrees independently: its sitting mid-shoulder height subtracted from crown-rump sitting height puts the top of the shoulder 203 mm (girls) and 205 mm (boys) below the vertex at 25 to 30 months, about 1.2 head heights, rising to 272 mm (girls, 1.33 head heights) at 13.
+
+In adults the acromion stands level with the notch (ANSUR II means: acromion 5.4 mm above suprasternale in women, 2.1 mm in men) and cervicale 66.0 and 78.7 mm above it. As built: suprasternale height is an identity measurement; a child's notch hangs the fitted head heights below the vertex (the 2-to-3-year value held below 2.5 years), and its cervicale and acromion keep the adult distances above the notch in head heights (0.322 and 0.026 women, 0.360 and 0.010 men). The clavicle line from the sternoclavicular joint to the shoulder joint centre then drops about 7 degrees at one year instead of 25, and about 11 degrees in adults, where the shoulder joint centre lies 34 mm below the acromion.
+
 ## Old age
 
 | Change | Value | Source and grade |
@@ -64,3 +81,4 @@ Stature loss in old age is spinal (discs, kyphosis, vertebral fractures), not li
 - A longitudinal source for adult stature loss (separating ageing from cohort) was not read.
 - Puberty timing as a parameter: the growth curve of a single identity should follow its own maturity tempo; no tempo model was read.
 - Old-age posture beyond kyphosis (forward head, knee flexion, pelvic retroversion) has no numeric source read.
+- Acromion and cervicale height in children: neither child survey measured them standing; the adult distances above the notch are held.

@@ -49,6 +49,7 @@ export function measureAutoMovieHumanLandmarks(
       stature: at(landmarks.vertex).y,
       sittingHeight: at(landmarks.vertex).y - at(landmarks.ischialSeat).y,
       cervicaleHeight: at(landmarks.cervicale).y,
+      suprasternaleHeight: at(landmarks.suprasternale).y,
       acromialHeight: at(landmarks.right.acromion).y,
       biacromialBreadth: distance(
         at(landmarks.left.acromion),

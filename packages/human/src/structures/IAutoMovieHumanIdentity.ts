@@ -54,6 +54,11 @@ export namespace IAutoMovieHumanIdentity {
     cervicaleHeight: number & tags.Minimum<250> & tags.Maximum<2200>;
 
     /**
+     * Suprasternale height: the jugular notch, the midline notch at the top of the sternum between the clavicles, to the standing surface, millimetres. It places the sternoclavicular joints where the clavicles start, so with acromial height it sets how the clavicles slope.
+     */
+    suprasternaleHeight: number & tags.Minimum<200> & tags.Maximum<2150>;
+
+    /**
      * Acromial height: the right acromion, the point of the shoulder, to the standing surface, millimetres. It places the shoulder joints.
      */
     acromialHeight: number & tags.Minimum<200> & tags.Maximum<2150>;

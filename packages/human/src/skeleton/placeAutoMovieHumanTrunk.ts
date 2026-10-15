@@ -9,7 +9,7 @@ import { IAutoMovieHumanSkeleton } from "./IAutoMovieHumanSkeleton";
  * Trunk levels as fractions of the span from the mid-hip joint centre up to cervicale, from ANSUR II mean heights (Gordon et al. 2014, NATICK/TR-15/007) with the hip centre 3 mm above trochanterion (de Leva 1996, J Biomech 29(9):1223-1230), women and men pooled because the identity carries no sex. Fractions of the span rather than of stature, so the trunk keeps its internal proportions when a child's or an old person's trunk is short. Grade: derived.
  */
 const TRUNK_LEVEL: Record<
-  "omphalion" | "iliocristale" | "xiphion" | "axilla" | "suprasternale",
+  "omphalion" | "iliocristale" | "xiphion" | "axilla",
   number
 > = {
   /** Navel, 0.241 (women) and 0.249 (men); the `spine` bone starts here, the top of de Leva's lower trunk. */
@@ -20,8 +20,6 @@ const TRUNK_LEVEL: Record<
   xiphion: 0.617,
   /** Apex of the anterior axillary fold, 0.714 and 0.693; the `upperChest` bone starts here, where the shoulder girdle's muscles meet the rib cage, a conventional boundary. */
   axilla: 0.703,
-  /** Jugular notch, 0.880 and 0.872. */
-  suprasternale: 0.876,
 };
 
 /**
@@ -69,7 +67,7 @@ export function placeAutoMovieHumanTrunk(
     "neck",
   ];
   const neckRadius: number = body.neckCircumference / (2 * Math.PI);
-  const suprasternale: number = level(TRUNK_LEVEL.suprasternale);
+  const suprasternale: number = body.suprasternaleHeight;
   const crest: (s: number) => IAutoMovieHumanLandmarks.ILandmark = (
     s: number,
   ): IAutoMovieHumanLandmarks.ILandmark => ({

@@ -14,6 +14,7 @@ export interface IAutoMovieHumanSkeletalMeasurements {
     | "stature"
     | "sittingHeight"
     | "cervicaleHeight"
+    | "suprasternaleHeight"
     | "acromialHeight"
     | "biacromialBreadth"
     | "bicristalBreadth"
