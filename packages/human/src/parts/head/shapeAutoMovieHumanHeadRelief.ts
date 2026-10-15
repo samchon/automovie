@@ -2,12 +2,12 @@ import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanIdentity } from "../../structures/IAutoMovieHumanIdentity";
-import { AutoMovieHumanHeadMath } from "./AutoMovieHumanHeadMath";
 import { IAutoMovieHumanHeadForm } from "./IAutoMovieHumanHeadForm";
 import { frameAutoMovieHumanHead } from "./frameAutoMovieHumanHead";
+import { shapeAutoMovieHumanNose } from "./shapeAutoMovieHumanNose";
 
 /**
- * The head's local relief and the neutral nose, as a correction to the distance of the masses.
+ * The head's local relief, as a correction to the distance of the masses, and the nose.
  *
  * Each swelling or hollow sits at the landmark it belongs to, sized by fractions of the face:
  *
@@ -17,7 +17,7 @@ import { frameAutoMovieHumanHead } from "./frameAutoMovieHumanHead";
  * - The mandibular angles at gonion and the mental protuberance of the chin.
  * - The buccal fat over each cheek, fuller the smaller the face is against the head, as in infants and young children.
  *
- * The neutral nose is the region the nose module replaces: a tapered wedge from the nasal root to the tip with the alae at its base, from the 3D Facial Norms adult means over face height and width (nasal height n-sn 56.6 / 127.2, protrusion sn-prn 21.0 / 127.2, width al-al 36.1 / 137.6; Weinberg et al. 2016). Grade: derived.
+ * The nose is the nose module's solid ({@link shapeAutoMovieHumanNose}).
  *
  * @param frame The head frame and its landmarks
  * @param head The head measurements
@@ -70,12 +70,6 @@ export function shapeAutoMovieHumanHeadRelief(
     radii: v(0.13 * fw, 0.1 * fh, 0.2 * fh),
     height: form.mental * fh,
   });
-  const snY: number = frame.menton.y + 0.567 * fh;
-  const subnasale: number = frame.nasion.z + 0.081 * fh;
-  const root: IAutoMovieVector3 = v(0, frame.nasion.y - 0.05 * fh, frame.nasion.z - 0.01 * fh);
-  const tip: IAutoMovieVector3 = v(0, snY + 0.05 * fh, subnasale + 0.15 * fh);
-  const halfWidth: number = 0.131 * fw;
-  const rootHalfWidth: number = 0.06 * fw;
   return {
     relief: (p: IAutoMovieVector3): number => {
       let sum: number = 0;
@@ -88,24 +82,7 @@ export function shapeAutoMovieHumanHeadRelief(
       }
       return sum;
     },
-    nose: (p: IAutoMovieVector3): number => {
-      if (p.y > root.y + 2 || p.y < snY - 2) return 1e3;
-      const t: number = Math.min(1, Math.max(0, (root.y - p.y) / (root.y - snY)));
-      const ridge: number =
-        root.z + (tip.z - root.z) * Math.min(1, t / ((root.y - tip.y) / (root.y - snY)));
-      const half: number = rootHalfWidth + (halfWidth - rootHalfWidth) * Math.pow(t, 1.6);
-      const depth: number = Math.max(1, ridge - (root.z - 0.4 * half - 10));
-      const dx: number = Math.abs(p.x);
-      const dz: number = p.z - (ridge - depth);
-      const s: number =
-        dz > 0
-          ? Math.pow(dx / half, 1.6) + Math.pow(dz / depth, 1.6)
-          : (dx / half) ** 2 + (dz / depth) ** 2;
-      return Math.max(
-        AutoMovieHumanHeadMath.radial(Math.hypot(dx, dz), s, 1.6),
-        snY - p.y,
-      );
-    },
+    nose: shapeAutoMovieHumanNose(frame, head).distance,
   };
 }
 /** Face height over head height in adults: 127.2 / 219.8 and 118.6 / 205.3 mm (3D Facial Norms face heights over the converter's adult head heights). Grade: derived. */
@@ -122,7 +99,7 @@ export namespace shapeAutoMovieHumanHeadRelief {
     /** Outward offset of the skin at a point, millimetres; negative in a hollow. */
     relief: (p: IAutoMovieVector3) => number;
 
-    /** Signed distance from the neutral nose, millimetres. */
+    /** Signed distance from the nose, millimetres. */
     nose: (p: IAutoMovieVector3) => number;
   }
 }
