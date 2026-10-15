@@ -16,6 +16,9 @@ export const AUTOMOVIE_HUMAN_HAND_SHAPE = {
     /** Exponent of the breadth's approach from the wrist to the heads, `1 − (1 − level)^widen`: below 1, the palm keeps close to the wrist's breadth and widens toward the heads. Fitted. */
     widen: 0.73,
 
+    /** Rise of each extensor tendon over the back of the palm, as a share of the dorsal height. Conventional: the tendons of a lean young hand show as faint ridges in photographs. */
+    tendon: 0.04,
+
     /** Knuckle height over the palm's dorsal height at the heads, the metacarpal heads standing above the valleys between them. Conventional: the reference fit, bounded below by level knuckles, ends at the bound, because the reference's palmar-sunk skin would put the crest inside the head; a 5% rise reads as the knuckles of the anatomy plates and photographs at a cost of 0.1 mm. */
     knuckle: 1.05,
 
@@ -27,6 +30,9 @@ export const AUTOMOVIE_HUMAN_HAND_SHAPE = {
 
     /** Palmar depth at each finger's basal crease over the palm's palmar depth at the heads. Conventional. */
     pad: 0.62,
+
+    /** Depth of the thenar crease below the plain section at mid-palm, where the palm meets the eminence, as a share of the palmar depth. Conventional. */
+    crease: 0.04,
 
     /** The thenar eminence's slope over the index line near the wrist, as a share of the section's palmar depth. Fitted. */
     thenar: 0.7,
@@ -41,6 +47,9 @@ export const AUTOMOVIE_HUMAN_HAND_SHAPE = {
     border: 0.44,
   },
   thumb: {
+    /** Breadth of the thenar section over the metacarpal's middle over the interphalangeal joint breadth. Conventional. */
+    mass: 1.2,
+
     /** Breadth of the thumb's knuckle section, inside the thenar's distal slope, over its interphalangeal joint breadth. Fitted. */
     knuckle: 1.001,
 
@@ -53,8 +62,8 @@ export const AUTOMOVIE_HUMAN_HAND_SHAPE = {
     /** Breadth of the proximal phalanx section where the web leaves it over the interphalangeal joint breadth. Fitted. */
     phalanx: 0.966,
 
-    /** Height of the thenar eminence's summit above the thumb metacarpal toward the pad, over the interphalangeal joint breadth. Fitted. */
-    thenar: 0.967,
+    /** Height of the thenar eminence's summit above the thumb metacarpal toward the pad, on the thenar section, over the interphalangeal joint breadth. Fitted. */
+    thenar: 0.7,
   },
   finger: {
     /** Reach of a section's diagonal vertices toward the box corner: 0.71 for an ellipse, 1 for a box. Fitted earlier against the CC0 reference's finger sections sliced in each finger's own frame. */
@@ -74,6 +83,15 @@ export const AUTOMOVIE_HUMAN_HAND_SHAPE = {
 
     /** Depth of the distal pad section over the distal joint's depth. Fitted earlier, as `square`. */
     padDepth: 0.979,
+
+    /** Rise of a finger joint's dorsal crest, the knuckle over the head of the phalanx, as a share of the joint's dorsal height. Conventional. */
+    crest: 0.12,
+
+    /** Inset of a finger joint's palmar flexion crease, as a share of the joint's palmar depth. Conventional. */
+    crease: 0.1,
+
+    /** Bulge of the distal pad's pulp under the tip, as a share of the pad's palmar depth. Conventional. */
+    pulp: 0.12,
 
     /** Breadth of the section near the tip at 94% of the finger over the distal joint's breadth. Conventional. */
     tipBreadth: 0.78,

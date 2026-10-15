@@ -119,9 +119,30 @@ export function shapeAutoMovieHumanPalm(
   const base: number = hand.thumb.points[0]!.x;
   const shaft = (i: number, t: number): number => base + t * (fingers[i]!.points[0]!.x - base);
 
-  // the three metacarpal loops: pr, p_i, p_m, p_r, p_l, pu, u, du, d_l, d_r, d_m, d_i, dr, r
-  const metacarpal = (t: number, spread: number): IAutoMovieVector3[] => {
+  // the three metacarpal loops, palmar side: pr, p_i, p_m, p_r, p_l, pu, u; dorsal side at the carpometacarpal line: du, d_l, d_r, d_m, d_i, dr, r;
+  // further out every extensor tendon line has a flank on each side toward its neighbour, the valleys between the tendons:
+  // du, d_l, lr, ru, d_r, rr, mu, d_m, mr, iu, d_i, dr, r. Over a tendon only the superficial lamina's share of the lost fat goes, between them all of it.
+  const tendonLoss: number = loss * F.dorsalFatSuperficialShare;
+  const metacarpal = (t: number, spread: number, flanked: boolean): IAutoMovieVector3[] => {
     const x: number = base + t * (heads - base);
+    const tendon = (i: number): IAutoMovieVector3 =>
+      V.offset(dorsal(shaft(i, t), zetas[i]! * spread, P.tendon), [V.of(0, 1, 0), -(loss - tendonLoss) * level(shaft(i, t))]);
+    const between = (i: number, j: number, share: number): IAutoMovieVector3 =>
+      dorsal(shaft(i, t) + (shaft(j, t) - shaft(i, t)) * share, (zetas[i]! + (zetas[j]! - zetas[i]!) * share) * spread);
+    const back: IAutoMovieVector3[] = flanked
+      ? [
+          tendon(3),
+          between(3, 2, 1 / 3),
+          between(3, 2, 2 / 3),
+          tendon(2),
+          between(2, 1, 1 / 3),
+          between(2, 1, 2 / 3),
+          tendon(1),
+          between(1, 0, 1 / 3),
+          between(1, 0, 2 / 3),
+          tendon(0),
+        ]
+      : [3, 2, 1, 0].map(tendon);
     return [
       palmar(x, 0.72),
       ...[0, 1, 2, 3].map((i: number): IAutoMovieVector3 =>
@@ -130,12 +151,12 @@ export function shapeAutoMovieHumanPalm(
       palmar(shaft(3, t), -0.88, P.border * Math.sin(t * Math.PI)),
       border(shaft(3, t), -1, 0.2),
       dorsal(shaft(3, t), -0.88),
-      ...[3, 2, 1, 0].map((i: number): IAutoMovieVector3 => dorsal(shaft(i, t), zetas[i]! * spread, 0.04)),
+      ...back,
       dorsal(x, 0.78),
       border(x, 1, 0.1),
     ];
   };
-  const rows: IAutoMovieVector3[][] = [metacarpal(0, 0.8), metacarpal(0.5, 0.92), metacarpal(0.82, 1)];
+  const rows: IAutoMovieVector3[][] = [metacarpal(0, 0.8, false), metacarpal(0.5, 0.92, true), metacarpal(0.82, 1, true)];
   // the thumb's socket rides its metacarpal: the thenar toward the pad, the first dorsal interosseous toward the index, the border outward, and the web's crotch halfway from the index's radial flank to the thumb's at its knuckle
   const thumb: readAutoMovieHumanHand.IHand["thumb"] = hand.thumb;
   const tw: number = F.thumb.ip * b;
@@ -158,24 +179,29 @@ export function shapeAutoMovieHumanPalm(
   rows[0]![13] = V.of(base - 0.02 * L, 0.25 * palmarDepth(base), cmc.z + 0.45 * tw);
   rows[0]![0] = V.of(base + 0.02 * L, 1.2 * palmarDepth(base), cmc.z - 0.15 * tw);
   rows[0]![12] = V.of(base, -0.6 * dorsalHeight(base), cmc.z + 0.15 * tw);
-  // mid-metacarpal: the thenar's summit over the thumb metacarpal toward the palm, and the first dorsal interosseous between the two metacarpals
-  rows[1]![0] = V.offset(along(0.55), [thumb.pad, AUTOMOVIE_HUMAN_HAND_SHAPE.thumb.thenar * tw], [thumb.web, 0.2 * tw]);
-  rows[1]![12] = V.offset(V.of(0, 0, 0), [dorsal(rows[1]![11]!.x, zetas[0]! * 0.92 + 0.25), 0.5], [V.offset(along(0.6), [nail, 0.5 * tw]), 0.5]);
+  // mid-metacarpal: the thenar crease, a groove at the foot of the eminence where the palm meets it, and the first dorsal interosseous between the two metacarpals
+  rows[1]![0] = palmar(rows[1]![1]!.x, zetas[0]! * 0.92 + 0.22, -P.crease);
+  rows[1]![18] = V.offset(V.of(0, 0, 0), [dorsal(rows[1]![17]!.x, zetas[0]! * 0.92 + 0.25), 0.5], [V.offset(along(0.6), [nail, 0.5 * tw]), 0.5]);
   // the web: its crotch, and its palmar and dorsal sides halfway to the index's base
-  rows[2]![13] = crotch;
+  rows[2]![19] = crotch;
   rows[2]![0] = V.offset(V.of(0, 0, 0), [crotch, 0.5], [palmar(fingers[0]!.points[0]!.x - 0.06 * L, 0.82, 0.05), 0.5], [thumb.pad, 0.25 * tw]);
-  rows[2]![12] = V.offset(V.of(0, 0, 0), [crotch, 0.5], [dorsal(fingers[0]!.points[0]!.x - 0.06 * L, 0.86), 0.5], [nail, 0.2 * tw]);
+  rows[2]![18] = V.offset(V.of(0, 0, 0), [crotch, 0.5], [dorsal(fingers[0]!.points[0]!.x - 0.06 * L, 0.86), 0.5], [nail, 0.2 * tw]);
   const s1: number[] = sketch.loop(rows[0]!);
   const s2: number[] = sketch.loop(rows[1]!);
   const s3: number[] = sketch.loop(rows[2]!);
   const wrist: number[] = sketch.loop(props.wrist);
+  // beside the ring, a loop at the ring's own radii, so the joined surface keeps the ring's girth: the ring's limit is the B-spline of its loop and its two neighbours, and the arm's loop beside it lies at the same radii
+  const beside: number[] = sketch.loop(
+    props.wrist.map((p: IAutoMovieVector3): IAutoMovieVector3 => V.offset(p, [V.of(1, 0, 0), F.besideWrist * L])),
+  );
+  sketch.bridge(wrist, beside);
 
   // wrist to carpometacarpal line, three sectors; W starts at p_r of the 14-loop
   const rotated: number[] = [...s1.slice(3), ...s1.slice(0, 3)];
-  sketch.taper(wrist, rotated, [1, 1, 3, 1, 3, 1, 1, 3]);
-  const hole: Set<number> = new Set([12, 13]);
-  sketch.bridge(s1, s2, hole);
-  sketch.bridge(s2, s3, hole);
+  sketch.taper(beside, rotated, [1, 1, 3, 1, 3, 1, 1, 3]);
+  // carpometacarpal line to mid-metacarpal: a three-span sector over each valley between tendons; the thumb's hole leaves the radial border open
+  sketch.taper(s1, s2, [1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 1, 1, 1], new Set([12, 13]));
+  sketch.bridge(s2, s3, new Set([18, 19]));
 
   // the knuckle loop and the sockets
   const sockets: number[][] = fingers.map((f: readAutoMovieHumanHand.IDigit, i: number): number[] => {
@@ -217,7 +243,7 @@ export function shapeAutoMovieHumanPalm(
     I[7]!, I[0]!, I[1]!, M[7]!, M[0]!, M[1]!, R[7]!, R[0]!, R[1]!, Lt[7]!, Lt[0]!, Lt[1]!,
     Lt[2]!, Lt[3]!, Lt[4]!, Lt[5]!, R[3]!, R[4]!, R[5]!, M[3]!, M[4]!, M[5]!, I[3]!, I[4]!, I[5]!, I[6]!,
   ];
-  sketch.taper(s3, knuckles, [1, 3, 3, 3, 1, 1, 1, 1, 3, 3, 3, 1, 1, 1]);
+  sketch.taper(s3, knuckles, [1, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
   for (let i: number = 0; i < 3; ++i) {
     const f: number[] = sockets[i]!;
     const g: number[] = sockets[i + 1]!;
@@ -226,8 +252,9 @@ export function shapeAutoMovieHumanPalm(
   }
   return {
     wrist,
+    beside,
     sockets: { Index: I, Middle: M, Ring: R, Little: Lt },
-    thumb: [s2[0]!, s3[0]!, s3[13]!, s3[12]!, s2[12]!, s1[12]!, s1[13]!, s1[0]!],
+    thumb: [s2[0]!, s3[0]!, s3[19]!, s3[18]!, s2[18]!, s1[12]!, s1[13]!, s1[0]!],
   };
 }
 /** Props and output types of {@link shapeAutoMovieHumanPalm}. */
@@ -265,6 +292,9 @@ export namespace shapeAutoMovieHumanPalm {
   export interface IOutput {
     /** The wrist ring's vertices, in the order of `IProps.wrist`. */
     wrist: number[];
+
+    /** The loop beside the wrist ring at its radii, to be held there. */
+    beside: number[];
 
     /** Each finger's socket: palmar, ulnar, dorsal, radial and the vertices between. */
     sockets: Record<readAutoMovieHumanHand.IFinger, number[]>;

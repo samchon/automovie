@@ -63,8 +63,9 @@ export class AutoMovieHumanHandSketch {
    * @param from The smaller loop, nearer the wrist
    * @param to The larger loop, its vertex 0 facing vertex 0 of `from`
    * @param spans Spans of `to` each span of `from` faces, 1 or 3
+   * @param skip Single spans of `from` left open, by the index of their first vertex, to cut a hole
    */
-  public taper(from: number[], to: number[], spans: number[]): void {
+  public taper(from: number[], to: number[], spans: number[], skip: ReadonlySet<number> = new Set()): void {
     const m: number = from.length;
     const n: number = to.length;
     if (spans.length !== m || spans.reduce((a: number, b: number): number => a + b, 0) !== n)
@@ -74,7 +75,9 @@ export class AutoMovieHumanHandSketch {
       const a: number = from[j]!;
       const b: number = from[(j + 1) % m]!;
       const at = (s: number): number => to[(i + s) % n]!;
-      if (span === 1) this.quad([a, b, at(1), at(0)]);
+      if (span === 1) {
+        if (!skip.has(j)) this.quad([a, b, at(1), at(0)]);
+      }
       else {
         this.quad([a, b, at(3), at(2)]);
         this.quad([a, at(2), at(1), at(0)]);

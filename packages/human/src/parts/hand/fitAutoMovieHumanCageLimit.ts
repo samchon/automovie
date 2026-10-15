@@ -10,17 +10,19 @@ const SMOOTHING: number = 0.1;
 /**
  * Solve a quad cage's control points so that its Catmull-Clark limit surface follows given skin points, one per vertex.
  *
- * The limit position of an interior vertex of valence `n` is `(n²·P + 4·ΣE + ΣF) / (n·(n + 5))`, its edge neighbours `E` and the vertices across its faces `F` (Halstead, Kass and DeRose 1993, SIGGRAPH '93, pp. 35-44): a fixed linear map `M` of the control points. The cage minimises `|M·P − T|² + SMOOTHING·|P − T|²`, a damped least-squares fit of the limit to the skin points `T`, by gradient steps from `P = T`. Vertices on the cage's boundary are held: they belong to a ring whose limit also depends on the neighbouring part.
+ * The limit position of an interior vertex of valence `n` is `(n²·P + 4·ΣE + ΣF) / (n·(n + 5))`, its edge neighbours `E` and the vertices across its faces `F` (Halstead, Kass and DeRose 1993, SIGGRAPH '93, pp. 35-44): a fixed linear map `M` of the control points. The cage minimises `|M·P − T|² + SMOOTHING·|P − T|²`, a damped least-squares fit of the limit to the skin points `T`, by gradient steps from `P = T`. Vertices on the cage's boundary are held: they belong to a ring whose limit also depends on the neighbouring part; so are any others the caller names.
  *
  * @param props.targets Skin point of each vertex, or for a held vertex its control point
  * @param props.faces Quads as vertex indices
  * @param props.sweeps Number of gradient steps
+ * @param props.held Further vertices kept at their given points, besides the boundary's
  * @returns Control points, by vertex index
  */
 export function fitAutoMovieHumanCageLimit(props: {
   targets: readonly IAutoMovieVector3[];
   faces: ReadonlyArray<readonly [number, number, number, number]>;
   sweeps: number;
+  held?: readonly number[];
 }): IAutoMovieVector3[] {
   const n: number = props.targets.length;
   const edges: Array<Set<number>> = Array.from({ length: n }, (): Set<number> => new Set());
@@ -40,6 +42,7 @@ export function fitAutoMovieHumanCageLimit(props: {
   const free: boolean[] = valence.map((k: number): boolean => k !== 0);
   for (const [key, c] of count)
     if (c === 1) for (const v of key.split(",")) free[Number(v)] = false;
+  for (const v of props.held ?? []) free[v] = false;
 
   const target: number[] = props.targets.flatMap((t: IAutoMovieVector3): number[] => [t.x, t.y, t.z]);
   const step: number = 0.9 / (1 + SMOOTHING);
