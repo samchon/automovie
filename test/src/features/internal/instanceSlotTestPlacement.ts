@@ -14,7 +14,7 @@ export function instanceSlotTestPlacement(
   return {
     id: "trees",
     count: 6,
-    modelRecipe: "tree",
+    model: "tree",
     layout: { kind: "grid", rows: 2, columns: 3, spacing: { x: 2, z: 3 } },
     route: null,
     anchor: { x: 10, y: 1, z: -5 },

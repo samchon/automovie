@@ -5,6 +5,10 @@ import { EDGE_SHELL_NAME } from "./EDGE_SHELL_NAME.js";
 import type { IAutoMovieRenderModeHandle } from "./IAutoMovieRenderModeHandle.js";
 import { collectAutoMovieRenderModeMeshes } from "./collectAutoMovieRenderModeMeshes.js";
 import {
+  applyDualQuaternionSkinning,
+  dualQuaternionSkinningOf,
+} from "./dualQuaternionSkinning/index.js";
+import {
   type IAutoMovieFormationCycle,
   applyFormationCycleMaterial,
   formationCycleOf,
@@ -55,12 +59,12 @@ const makeEdgeShellMaterial: (edgeWidth: number) => THREE.ShaderMaterial = (
  * Active or failed scene retirement refuses before setup. Failed restore keeps
  * its shell/fill population and cause, while nested fill cleanup still runs.
  *
- * @evidence contracts/common.md#principled-implementation Uses the inverted-hull method: back-face white extrusion plus black front fill, native skinning/instancing and optional shared cycle deformation; finite nonnegative width, usable normals and ordinary mesh surface behavior are premises, with model-space extrusion distorted by nonuniform object scale and transparent/open geometry limitations.
+ * @evidence contracts/common.md#principled-implementation Uses the inverted-hull method: back-face white extrusion plus black front fill, native or dual-quaternion skinning/instancing and optional shared cycle deformation; finite nonnegative width, usable normals and ordinary mesh surface behavior are premises, with model-space extrusion distorted by nonuniform object scale and transparent/open geometry limitations.
  * @evidence contracts/common.md#clear-and-simple-design Owns contour shell placement/materials and delegates black fill substitution to the shared reversible override helper; shallow clones borrow geometry/skeleton and preserve local transforms beside each source mesh.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Derives contours from actual geometry/normals rather than fixture outlines or image postprocess; EDGE_SHELL_NAME identifies owned temporary shells only, and no foreign clone/dispose implementation is substituted.
  * @evidence contracts/common.md#meaningful-documentation Explains inverted hull, black fill/background, supported skinning, extrusion units/scaling and returned shell/material restoration scope.
- * @evidence contracts/performance.md#efficient-algorithms Collects M meshes and adds M shallow shells while allocating C cycle-equivalent shell materials; CPU/temporary references are O(M+C), extra raster cost is one hull draw per mesh, and borrowed vertex buffers are not duplicated.
- * @evidence contracts/performance.md#reuse-equivalent-work Shares one shell shader material per actual cycle identity plus one static material; geometry/skeleton are borrowed from shallow clones, while independent pass installs cannot share mutable restoration state.
+ * @evidence contracts/performance.md#efficient-algorithms Collects M meshes and adds M shallow shells while allocating C cycle- and skinning-method-equivalent shell materials; CPU/temporary references are O(M+C), extra raster cost is one hull draw per mesh, and borrowed vertex buffers are not duplicated.
+ * @evidence contracts/performance.md#reuse-equivalent-work Shares one shell shader material per actual cycle identity and skinning method plus one static material; geometry/skeleton are borrowed from shallow clones, while independent pass installs cannot share mutable restoration state.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Owns shells/shell materials and borrowed original fill/background references until memoized restore; restoration attempts independent removals/disposals, preserving original geometry/skeleton. Mid-install clone/material failure has no outer rollback and remains an acquisition-failure gap.
  */
 export const applyEdgeMode: (
@@ -81,6 +85,11 @@ export const applyEdgeMode: (
     IAutoMovieFormationCycle | null,
     THREE.ShaderMaterial
   > = new Map<IAutoMovieFormationCycle | null, THREE.ShaderMaterial>();
+  // dual-quaternion skins take their own shells, patched like their surface
+  const dualShellMaterials: Map<
+    IAutoMovieFormationCycle | null,
+    THREE.ShaderMaterial
+  > = new Map<IAutoMovieFormationCycle | null, THREE.ShaderMaterial>();
   const fill: IAutoMovieRenderModeHandle = overrideAutoMovieRenderModeMaterials(
     scene,
     "outline",
@@ -93,12 +102,15 @@ export const applyEdgeMode: (
   const shells: THREE.Object3D[] = [];
   for (const mesh of collectAutoMovieRenderModeMeshes(scene)) {
     const cycle: IAutoMovieFormationCycle | null = formationCycleOf(mesh);
-    let shellMaterial: THREE.ShaderMaterial | undefined =
-      shellMaterials.get(cycle);
+    const dual: boolean = dualQuaternionSkinningOf(mesh);
+    const cache: Map<IAutoMovieFormationCycle | null, THREE.ShaderMaterial> =
+      dual ? dualShellMaterials : shellMaterials;
+    let shellMaterial: THREE.ShaderMaterial | undefined = cache.get(cycle);
     if (shellMaterial === undefined) {
       shellMaterial = makeEdgeShellMaterial(edgeWidth);
       if (cycle !== null) applyFormationCycleMaterial(shellMaterial, cycle);
-      shellMaterials.set(cycle, shellMaterial);
+      if (dual) applyDualQuaternionSkinning(shellMaterial);
+      cache.set(cycle, shellMaterial);
     }
     const shell: AutoMovieRenderModeMesh = mesh.clone(
       false,
@@ -119,7 +131,7 @@ export const applyEdgeMode: (
               shell.parent!.remove(shell);
             }),
             ...Array.from(
-              shellMaterials.values(),
+              [...shellMaterials.values(), ...dualShellMaterials.values()],
               (material: THREE.ShaderMaterial): (() => void) =>
                 (): void => {
                   material.dispose();

@@ -1,10 +1,10 @@
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieClip,
+  IAutoMovieJointAxes,
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 
-import type { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { IAutoMovieImportedNodeBoneMapping } from "./IAutoMovieImportedNodeBoneMapping";
 
@@ -39,7 +39,7 @@ export interface IAutoMovieImportedNodeMotionProps {
 
   /**
    * Optional source-rig clinical axes, falling back to the canonical humanoid
-   * table.
+   * table; a source bone's own declared axes take precedence.
    */
   sourceJointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
 

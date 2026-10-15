@@ -1,6 +1,7 @@
 import {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMovieMotion,
   IAutoMoviePose,
@@ -10,8 +11,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
+import { skeletonJointAxes } from "../kinematics/skeletonJointAxes";
 import { Quaternion } from "../math/Quaternion";
 import { MOTION_ROOT_NODE_ID } from "../resolve/constants/MOTION_ROOT_NODE_ID";
 import { lowerSkeletonNodes } from "../resolve/lowerSkeletonNodes";
@@ -51,7 +52,10 @@ export const motionToClip: (props: {
   /** The rig the motion articulates; lowered to the returned nodes. */
   skeleton: IAutoMovieSkeleton;
 
-  /** Optional per-bone clinical-axis remap, as {@link resolvePose} takes. */
+  /**
+   * Optional per-bone clinical-axis remap, as {@link resolvePose} takes; a
+   * bone's own declared axes take precedence.
+   */
   jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
 
   /** Optional per-bone rest-frame remap, as {@link resolvePose} takes. */
@@ -106,6 +110,8 @@ export const motionToClip: (props: {
     skeleton,
     prefix,
   });
+  const jointAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
+    skeletonJointAxes(skeleton, props.jointAxes);
   const times: number[] = sampleTimes(motion.duration, sampleRate);
   const samples: IAutoMoviePose[] = times.map(
     (time: number): IAutoMoviePose => sampleMotion(motion, time).pose,
@@ -143,7 +149,7 @@ export const motionToClip: (props: {
           ? Quaternion.identity()
           : jointToQuaternion(
               joint,
-              props.jointAxes?.[bone.bone],
+              jointAxes[bone.bone],
               props.restFrames?.[bone.bone],
             );
       const local: IAutoMovieQuaternion = Quaternion.multiply(

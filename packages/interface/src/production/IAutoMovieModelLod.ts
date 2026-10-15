@@ -9,7 +9,7 @@
  * @evidence contracts/common.md#meaningful-documentation Defines supported tiers, meter limits, terminal null, model group identity and the population consumer scope.
  * @author Samchon
  */
-export interface IAutoMovieModelLodRecipe {
+export interface IAutoMovieModelLod {
   /** Detail tier. */
   tier: "hero" | "near" | "far";
 
@@ -19,5 +19,5 @@ export interface IAutoMovieModelLodRecipe {
   maxDistance: number | null;
 
   /** Id of the model group drawn at this tier; naming the population's own base group is allowed. */
-  recipe: string;
+  model: string;
 }

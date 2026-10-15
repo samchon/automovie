@@ -16,7 +16,7 @@ export const subjectInspectionInstanceSet: (props: {
     version: 1,
     id: props.id,
     count: props.count,
-    modelRecipe: props.model,
+    model: props.model,
     layout: {
       kind: "grid",
       rows: 1,
@@ -43,9 +43,9 @@ export const subjectInspectionInstanceSet: (props: {
       {
         tier: "near",
         maxDistance: null,
-        recipe: props.model,
-        recipeDigest: `sha256:${"1".repeat(64)}`,
         model: props.model,
+        modelDigest: `sha256:${"1".repeat(64)}`,
+        runtimeModel: props.model,
       },
     ],
     digest: `sha256:${"2".repeat(64)}`,

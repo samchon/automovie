@@ -2,6 +2,8 @@ export * from "./AutoMovieBodyRegion";
 export * from "./AutoMovieHumanoidBone";
 export * from "./IAutoMovieAngleRange";
 export * from "./IAutoMovieAttachment";
+export * from "./AutoMovieJointTwistPlacement";
+export * from "./IAutoMovieJointAxes";
 export * from "./IAutoMovieJointConstraint";
 export * from "./IAutoMovieBone";
 export * from "./IAutoMovieSkeleton";

@@ -22,7 +22,7 @@ const instanceBase: () => Omit<
   "layout"
 > = (): Omit<IAutoMovieInstanceSetDesign, "layout"> => ({
   id: "trees",
-  modelRecipe: "tree",
+  model: "tree",
   count: 12,
   anchor: { x: 0, y: 0, z: 0 },
   facingDeg: 0,

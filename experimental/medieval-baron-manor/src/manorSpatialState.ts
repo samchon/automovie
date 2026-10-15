@@ -343,7 +343,7 @@ export function manorSpatialState(
     bindings = [];
   for (const item of inventory.sets) {
     if (operated.has(item.entry) || attached.has(item.entry)) continue;
-    const prototype = prototypes.get(item.definition.modelRecipe),
+    const prototype = prototypes.get(item.definition.model),
       root = transforms.get(item.entry);
     if (prototype === undefined || root === undefined)
       throw new Error("Unbound spatial population: " + item.definition.id);

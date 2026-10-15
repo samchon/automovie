@@ -6,6 +6,10 @@ import type {
 import * as THREE from "three";
 
 import {
+  applyDualQuaternionSkinning,
+  dualQuaternionSkinningOf,
+} from "../dualQuaternionSkinning/index.js";
+import {
   type IAutoMovieFormationCycle,
   applyFormationCycleMaterial,
   formationCycleOf,
@@ -33,12 +37,12 @@ import { unresolvedOf } from "./unresolvedOf.js";
  *
  * A formation's supplied baked cycle is carried onto each replacement material through the same hook used by beauty. This preserves the requested deformation route; actual shader compilation, frame correspondence and delivered pixels remain rendering observations.
  *
- * @evidence contracts/common.md#principled-implementation Preflights roots/unresolved ids, resolves each mesh to its nearest claimed ancestor and paints canonical entry/per-slot colors while preserving existing formation-cycle deformation and suspending nonmesh/atmosphere fields.
- * @evidence contracts/common.md#clear-and-simple-design Root lookup, nearest ownership and unresolved reporting retain their helpers; call-local color/cycle material reuse and captured originals own one failure-safe reversible installation.
+ * @evidence contracts/common.md#principled-implementation Preflights roots/unresolved ids, resolves each mesh to its nearest claimed ancestor and paints canonical entry/per-slot colors while preserving existing formation-cycle and dual-quaternion skinning deformation and suspending nonmesh/atmosphere fields.
+ * @evidence contracts/common.md#clear-and-simple-design Root lookup, nearest ownership and unresolved reporting retain their helpers; call-local color/cycle/skinning-method material reuse and captured originals own one failure-safe reversible installation.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No child-index ramp replaces an attached semantic id and unclaimed meshes use reserved background; correct built-node order, admitted palette/slot metadata and supported Three color management are premises. Root/mesh counts are not visibility or actual-pixel proof.
- * @evidence contracts/common.md#meaningful-documentation Documents positional/named resolution, per-slot white-base composition, cycle inheritance, independent rollback, borrowed originals and external null-instanceColor native retirement gap.
+ * @evidence contracts/common.md#meaningful-documentation Documents positional/named resolution, per-slot white-base composition, cycle and skinning-method inheritance, independent rollback, borrowed originals and external null-instanceColor native retirement gap.
  * @evidence contracts/performance.md#efficient-algorithms For N scene nodes, M meshes, E entries, ancestor depth D and I instance-color components, setup is O(N+E+M*D+I) with indexed slot lookup and material identity reuse; full traversal/copies preserve supported hidden geometry and original color restoration.
- * @evidence contracts/performance.md#reuse-equivalent-work One material per color/cycle identity shares compile structure within this pass, and actual maintained instance-set producers already own nonnull color arrays reused in place; a new pass owns a fresh reversible snapshot.
+ * @evidence contracts/performance.md#reuse-equivalent-work One material per color/cycle/skinning-method identity shares compile structure within this pass, and actual maintained instance-set producers already own nonnull color arrays reused in place; a new pass owns a fresh reversible snapshot.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Materials register before later patch/mutation and rollback/restore attempt independent owners once. Failed cleanup retains its captured population/cause under the weak scene key and blocks reacquisition even without a returned handle. Maintained nonnull colors restore in place; external temporary native attribute release remains unproved.
  */
 export const applyAutoMovieSemanticMask: (props: {
@@ -97,16 +101,20 @@ export const applyAutoMovieSemanticMask: (props: {
   const materialOf: (
     color: string,
     cycle: IAutoMovieFormationCycle | null,
+    dual: boolean,
   ) => THREE.Material = (
     color: string,
     cycle: IAutoMovieFormationCycle | null,
+    dual: boolean,
   ): THREE.Material => {
+    // a dual-quaternion skin deforms in its own vertex stage, so it keys apart
+    const key: string = `${dual}:${color}`;
     let byCycle:
       | Map<IAutoMovieFormationCycle | null, THREE.Material>
-      | undefined = materials.get(color);
+      | undefined = materials.get(key);
     if (byCycle === undefined) {
       byCycle = new Map();
-      materials.set(color, byCycle);
+      materials.set(key, byCycle);
     }
     const cached: THREE.Material | undefined = byCycle.get(cycle);
     if (cached !== undefined) return cached;
@@ -115,6 +123,7 @@ export const applyAutoMovieSemanticMask: (props: {
     });
     created.push(material);
     if (cycle !== null) applyFormationCycleMaterial(material, cycle);
+    if (dual) applyDualQuaternionSkinning(material);
     byCycle.set(cycle, material);
     return material;
   };
@@ -189,31 +198,36 @@ export const applyAutoMovieSemanticMask: (props: {
         roots,
       );
       swaps.push({ mesh, material: mesh.material });
+      const dual: boolean = dualQuaternionSkinningOf(mesh);
       if (entry === undefined) {
         ++unaddressed;
-        mesh.material = materialOf(mask.background, formationCycleOf(mesh));
+        mesh.material = materialOf(
+          mask.background,
+          formationCycleOf(mesh),
+          dual,
+        );
         return;
       }
       ++painted;
       const cycle: IAutoMovieFormationCycle | null = formationCycleOf(mesh);
       if (entry.kind !== "instance-set") {
-        mesh.material = materialOf(entry.color, cycle);
+        mesh.material = materialOf(entry.color, cycle, dual);
         return;
       }
       const instanced: THREE.InstancedMesh = mesh as THREE.InstancedMesh;
       if (instanced.isInstancedMesh !== true) {
-        mesh.material = materialOf(entry.color, cycle);
+        mesh.material = materialOf(entry.color, cycle, dual);
         return;
       }
       const slots: number[] | undefined = instanced.userData.automovieSlots as
         | number[]
         | undefined;
       if (slots === undefined || slots.length === 0) {
-        mesh.material = materialOf(entry.color, cycle);
+        mesh.material = materialOf(entry.color, cycle, dual);
         return;
       }
       // Three multiplies the base material by instanceColor, so white preserves each slot's assigned color under that composition rule.
-      mesh.material = materialOf("#FFFFFF", cycle);
+      mesh.material = materialOf("#FFFFFF", cycle, dual);
       const previous: THREE.InstancedBufferAttribute | null =
         instanced.instanceColor;
       colors.push({

@@ -1,9 +1,5 @@
 import { retargetHumanoidMotion } from "@automovie/engine";
-import {
-  IAutoMovieJointConstraint,
-  IAutoMovieMotion,
-  IAutoMovieSkeleton,
-} from "@automovie/interface";
+import { IAutoMovieMotion, IAutoMovieSkeleton } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, vclose } from "../internal/predicates";
@@ -12,21 +8,12 @@ import {
   mapped,
   proportionedRig,
   rootShiftClip,
-  withJointConstraint,
 } from "../internal/retargetRigs";
 
-/** A hip gamut wide enough to fold a 1.5x leg under the mapped contact. */
-const WIDE_HIP: IAutoMovieJointConstraint = {
-  flexion: { min: -150, max: 150 },
-  abduction: { min: -90, max: 90 },
-  twist: { min: -90, max: 90 },
-  swingDeg: 180,
-};
-
 /**
- * Observe mapped foot contact on a synthetic nonproportional rig with explicitly widened target hip constraints, against the same retarget with contact correction disabled. This measures authored-key FK positions, not rendered motion or continuous-time ground contact.
+ * Observe mapped foot contact on a synthetic nonproportional rig under the shipped humanoid ROM, against the same retarget with contact correction disabled. This measures authored-key FK positions, not rendered motion or continuous-time ground contact.
  *
- * The target uses legs 1.5 times and torso 0.9 times the source offsets, with explicit wide hips under target-override-then-default-humanoid precedence. The disabled twin supplies the unchanged angle-copy comparison rather than a claim about rendered sliding.
+ * The target uses legs 1.5 times and torso 0.9 times the source offsets, which fold under the mapped contact within the shipped hip and knee ranges, a squat with the thighs forward and the shanks back. The disabled twin supplies the unchanged angle-copy comparison rather than a claim about rendered sliding.
  *
  * Scenarios:
  *
@@ -45,16 +32,15 @@ const WIDE_HIP: IAutoMovieJointConstraint = {
  *
  * @evidence contracts/testing.md#behavioral-verification Checks hand-authored source ankle coordinates, retargets with correction enabled/disabled, measures both corrected feet at both authored keys and the disabled left-foot miss, then observes scale, policy labels and unchanged exact key times.
  * @evidence contracts/testing.md#independent-expectations Fixture offsets give source ankle (0.1,0.1,0.1), shifted z=0.35 and rest heights 1.65/2.025, hence the independent scale ratio. Componentwise mapped source FK supplies the existing contact target while shared FK remains a consumer, not a separate geometry oracle. Original 1e-12 scale, 5e-3 contact and 0.5 negative-twin thresholds remain unchanged.
- * @evidence contracts/testing.md#distinguishing-cases Retains 1.5 leg/0.9 torso proportions with explicit wide hips, both feet and keyframes, enabled versus disabled correction, policy labels and exact [0,1] clock. Default-ROM residual, airborne frames and hand declarations belong to separate units.
+ * @evidence contracts/testing.md#distinguishing-cases Retains 1.5 leg/0.9 torso proportions under the shipped ROM, both feet and keyframes, enabled versus disabled correction, policy labels and exact [0,1] clock. Default-ROM residual, airborne frames and hand declarations belong to separate units.
  * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns both retarget calls and fixture FK observations. Existing shared fixture/mapping helpers register no extra cases and start no viewer, process or native artifact.
  */
 export function test_motion_retarget_contact_proportions(): void {
   const source: IAutoMovieSkeleton = proportionedRig("contact-source");
-  const target: IAutoMovieSkeleton = withJointConstraint(
-    proportionedRig("leggy-target", { leg: 1.5, torso: 0.9 }),
-    ["leftUpperLeg", "rightUpperLeg"],
-    WIDE_HIP,
-  );
+  const target: IAutoMovieSkeleton = proportionedRig("leggy-target", {
+    leg: 1.5,
+    torso: 0.9,
+  });
   const motion: IAutoMovieMotion = rootShiftClip(source.id, {
     x: 0,
     y: 0,

@@ -219,7 +219,8 @@ export const importedNodeClipToAutoMovieMotion: (
               const angles: ReturnType<typeof decomposeJointRotation> =
                 decomposeJointRotation(
                   relative,
-                  props.sourceJointAxes?.[entry.bone] ??
+                  sourceBones.get(entry.bone)!.axes ??
+                    props.sourceJointAxes?.[entry.bone] ??
                     HUMANOID_JOINT_AXES[entry.bone],
                   props.sourceRestFrames?.[entry.bone] ??
                     HUMANOID_REST_FRAME[entry.bone],

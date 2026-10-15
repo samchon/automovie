@@ -40,7 +40,8 @@ const localOf: (
  * `HUMANOID_JOINT_AXES`) and its opt-in path through `resolvePose`. The default
  * basis must be exactly the historical one (flexion→X, abduction→Z, twist→Y);
  * supplying axes lets a T-pose arm's flexion swing sagittally (about Y) instead
- * of rolling along its length, without disturbing bones the table omits.
+ * of rolling along its length and turns hip flexion to −X, without disturbing
+ * bones the table omits.
  *
  * Scenarios:
  *
@@ -48,17 +49,18 @@ const localOf: (
  *    flexion about X (and is NOT the about-Y rotation, the negative twin).
  * 2. Passing an axes override rotates about the given axis: flexion under the
  *    humanoid arm basis is a rotation about Y.
- * 3. The sampled `leftUpperArm` entry in `HUMANOID_JOINT_AXES` is Y/Z/X,
- *    while `leftUpperLeg` and `spine` entries are absent. Other table rows are
- *    not enumerated by this test.
+ * 3. The sampled `leftUpperArm` entry in `HUMANOID_JOINT_AXES` is Y/Z/X and
+ *    the `leftUpperLeg` entry is −X/Z/Y, while `leftLowerLeg` and `spine`
+ *    entries are absent. Other table rows are not enumerated by this test.
  * 4. `resolvePose` with the table remaps an arm joint (leftUpperArm flexion ⇒
- *    about Y) but leaves a leg joint (leftUpperLeg, absent from the table ⇒
- *    about X) on the default basis; omitting the table reproduces the default
- *    for the same arm joint.
+ *    about Y) and a hip joint (leftUpperLeg flexion ⇒ about −X) but leaves a
+ *    knee joint (leftLowerLeg, absent from the table ⇒ about X) on the default
+ *    basis; omitting the table reproduces the default for the same arm and hip
+ *    joints.
  *
- * @evidence contracts/testing.md#behavioral-verification Exercises default and humanoid axis mapping directly and through FK, checking arm override, omitted leg/spine entries and the negative about-Y twin; a global override or swapped semantic axis fails.
+ * @evidence contracts/testing.md#behavioral-verification Exercises default and humanoid axis mapping directly and through FK, checking arm and hip overrides, omitted knee/spine entries and the negative about-Y twin; a global override or swapped semantic axis fails.
  * @evidence contracts/testing.md#independent-expectations Authored unit Cartesian axes fix expected directions, and a local independent half-angle formula supplies 40/45-degree quaternions without calling product quaternion construction. The table's names are a conventional engine rig mapping, not independently measured anatomy.
- * @evidence contracts/testing.md#distinguishing-cases Keeps default X/Z/Y, explicit arm override, wrong-axis discrimination, arm table entries, omitted leg/spine and FK with/without the table; composition order and malformed custom axes are separate entries.
+ * @evidence contracts/testing.md#distinguishing-cases Keeps default X/Z/Y, explicit arm override, wrong-axis discrimination, arm and hip table entries, omitted knee/spine and FK with/without the table; composition order and malformed custom axes are separate entries.
  * @evidence contracts/testing.md#execution-ownership This exported runner entry owns its local unit-axis formula and code skeleton, directly calling actual joint/FK source without viewer, GPU or installed character assets.
  */
 export function test_kinematics_joint_axes_remap(): void {
@@ -106,14 +108,21 @@ export function test_kinematics_joint_axes_remap(): void {
     ),
   );
 
-  // 3. the humanoid table: arm chain remapped, legs/spine omitted
+  // 3. the humanoid table: arm chain and hip remapped, knee/spine omitted
   const arm: IAutoMovieJointAxes = HUMANOID_JOINT_AXES.leftUpperArm!;
   TestValidator.predicate("arm flexion axis is Y", vclose(arm.flexion, Y));
   TestValidator.predicate("arm abduction axis is Z", vclose(arm.abduction, Z));
   TestValidator.predicate("arm twist axis is X", vclose(arm.twist, X));
+  const hip: IAutoMovieJointAxes = HUMANOID_JOINT_AXES.leftUpperLeg!;
+  TestValidator.predicate(
+    "hip flexion axis is -X",
+    vclose(hip.flexion, { x: -1, y: 0, z: 0 }),
+  );
+  TestValidator.predicate("hip abduction axis is Z", vclose(hip.abduction, Z));
+  TestValidator.predicate("hip twist axis is Y", vclose(hip.twist, Y));
   TestValidator.equals(
-    "leg is not in the table",
-    HUMANOID_JOINT_AXES.leftUpperLeg,
+    "knee is not in the table",
+    HUMANOID_JOINT_AXES.leftLowerLeg,
     undefined,
   );
   TestValidator.equals(
@@ -122,7 +131,7 @@ export function test_kinematics_joint_axes_remap(): void {
     undefined,
   );
 
-  // 4. resolvePose opt-in: arm remapped, leg untouched, default reproduced
+  // 4. resolvePose opt-in: arm and hip remapped, knee untouched, default reproduced
   const armPose: IAutoMoviePose = makePose([
     joint("leftUpperArm", { flexion: 40 }),
   ]);
@@ -137,13 +146,27 @@ export function test_kinematics_joint_axes_remap(): void {
     "resolve arm flexion without table ⇒ about X (default)",
     qclose(localOf(armPose, "leftUpperArm"), expectedAxisRotation(X, 40)),
   );
-  const legPose: IAutoMoviePose = makePose([
+  const hipPose: IAutoMoviePose = makePose([
     joint("leftUpperLeg", { flexion: 40 }),
   ]);
   TestValidator.predicate(
-    "resolve leg flexion with table ⇒ still about X (omitted)",
+    "resolve hip flexion with table ⇒ about -X",
     qclose(
-      localOf(legPose, "leftUpperLeg", HUMANOID_JOINT_AXES),
+      localOf(hipPose, "leftUpperLeg", HUMANOID_JOINT_AXES),
+      expectedAxisRotation(X, -40),
+    ),
+  );
+  TestValidator.predicate(
+    "resolve hip flexion without table ⇒ about X (default)",
+    qclose(localOf(hipPose, "leftUpperLeg"), expectedAxisRotation(X, 40)),
+  );
+  const kneePose: IAutoMoviePose = makePose([
+    joint("leftLowerLeg", { flexion: 40 }),
+  ]);
+  TestValidator.predicate(
+    "resolve knee flexion with table ⇒ still about X (omitted)",
+    qclose(
+      localOf(kneePose, "leftLowerLeg", HUMANOID_JOINT_AXES),
       expectedAxisRotation(X, 40),
     ),
   );

@@ -6,7 +6,7 @@ import type {
   IAutoMovieFormationDesign,
   IAutoMovieFormationLayout,
   IAutoMovieModel,
-  IAutoMovieModelLodRecipe,
+  IAutoMovieModelLod,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
   IAutoMovieWorldSurface,
@@ -128,9 +128,9 @@ export const materializeCompiledFormation: (props: {
     lod: IAutoMovieCompiledFormationLod[];
     projectionRadius: number;
   } = compiledPopulationRepresentation({
-    modelRecipe: formation.modelRecipe,
+    model: formation.model,
     tiers: (formation.lod ?? []).filter(
-      (item: IAutoMovieModelLodRecipe): boolean => item.tier !== "hero",
+      (item: IAutoMovieModelLod): boolean => item.tier !== "hero",
     ),
     models: props.models ?? new Map<string, IAutoMovieModel>(),
     projectionRadii: props.projectionRadii ?? new Map<string, number>(),
@@ -162,7 +162,7 @@ export const materializeCompiledFormation: (props: {
     id: string;
     count: number;
     anonymousCount: number;
-    modelRecipe: string;
+    model: string;
     layout: IAutoMovieFormationLayout;
     anchor: IAutoMovieVector3;
     ground: IAutoMovieWorldSurface[];
@@ -173,7 +173,7 @@ export const materializeCompiledFormation: (props: {
     id: formation.id,
     count: formation.count,
     anonymousCount: formation.count - formation.heroOverrides.length,
-    modelRecipe: formation.modelRecipe,
+    model: formation.model,
     layout: structuredClone(formation.layout),
     anchor: structuredClone(formation.anchor),
     ground: structuredClone(grounded.ground),
@@ -263,7 +263,7 @@ const groundFormation: (
   const flat: {
     ground: never[];
     id: string;
-    modelRecipe: string;
+    model: string;
     count: number;
     layout: IAutoMovieFormationLayout;
     anchor: IAutoMovieVector3;

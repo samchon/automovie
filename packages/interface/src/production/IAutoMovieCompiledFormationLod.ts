@@ -15,11 +15,11 @@ export interface IAutoMovieCompiledFormationLod {
   maxDistance: number | null;
 
   /** Model group id the population design names for this tier. */
-  recipe: string;
+  model: string;
 
   /** Canonical digest of the referenced model group, including parts, skeleton and materials, or the producer's explicit missing/unencodable reference marker digest. */
-  recipeDigest: string;
+  modelDigest: string;
 
-  /** Compiler-owned runtime model id. */
-  model: string;
+  /** Compiler-owned runtime model id derived from `model`; viewers and render gates look the runtime model up by it. */
+  runtimeModel: string;
 }

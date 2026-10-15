@@ -3,8 +3,8 @@
  * references precede parts, rigs, body/profile/affordance metadata and materials.
  * Cohesive leaf owners check their typed inputs and append to this one local
  * collector. Caller models are read-only; validation reports faults rather than
- * repairing geometry or binding external resources. Human face construction,
- * authoring builders and static export all consume this same public entry.
+ * repairing geometry or binding external resources. Model generators,
+ * authoring builders and static exporters all consume this same public entry.
  * Moving a leaf must preserve predicate arithmetic, paths and ordering because
  * downstream correction rounds present these diagnostics to the author.
  */
@@ -18,6 +18,7 @@ import type {
   IAutoMovieValidation,
 } from "@automovie/interface";
 
+import { validateJointAxesBasis } from "../kinematics/validateJointAxesBasis";
 import { ViolationCollector } from "./ViolationCollector";
 import { collectNonEmptyId } from "./collectNonEmptyId";
 import { finiteMinimum } from "./finiteMinimum";
@@ -28,8 +29,11 @@ import { validateBody } from "./validateBody";
 import { validateColor } from "./validateColor";
 import { validateExtents } from "./validateExtents";
 import { validateJointConstraint } from "./validateJointConstraint";
+import { validateLookAt } from "./validateLookAt";
+import { validateMaterialLobes } from "./validateMaterialLobes";
 import { validateMaterialOverlays } from "./validateMaterialOverlays";
 import { validateMesh } from "./validateMesh";
+import { validateModelImages } from "./validateModelImages";
 import { validateProfileCapabilities } from "./validateProfileCapabilities";
 import { validateSkeletonGraph } from "./validateSkeletonGraph";
 import { validateTextureBinding } from "./validateTextureBinding";
@@ -37,10 +41,10 @@ import { validateTransformScalars } from "./validateTransformScalars";
 import { validateUniqueValues } from "./validateUniqueValues";
 
 /**
- * Assemble id/reference, primitive/mesh, skeleton, transform, body/profile/affordance and material checks in stable order.
+ * Assemble id/reference, primitive/mesh, skeleton (with declared joint axes), gaze, transform, body/profile/affordance and material checks in stable order.
  *
  * @author Samchon
- * @evidence contracts/common.md#principled-implementation Assemble id/reference, primitive/mesh, skeleton, transform, body/profile/affordance and material checks in stable order.
+ * @evidence contracts/common.md#principled-implementation Assemble id/reference, primitive/mesh, skeleton with declared joint-axes bases, the gaze declaration against the eye bones, transform (uniform scale under a dual-quaternion skin), body/profile/affordance and material checks in stable order.
  * @evidence contracts/common.md#clear-and-simple-design Leaf owners append to one local collector; model orchestration owns cross-reference sets.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Typed record/list shape is a premise; scalar/reference success does not certify visual quality or repair bad geometry.
  * @evidence contracts/common.md#meaningful-documentation Empty parts, null optional metadata and exact field diagnostics are stated.
@@ -192,6 +196,26 @@ export const validateModel: (props: {
         label: "model part transform",
         collector,
       });
+    if (
+      part.transform !== null &&
+      part.attachedBone === null &&
+      part.geometry.type === "mesh" &&
+      part.geometry.mesh.skin?.method === "dual-quaternion"
+    ) {
+      // The shader conjugates each joint transform by the part transform, which
+      // stays rigid only under a uniform scale.
+      const { x, y, z }: { x: number; y: number; z: number } =
+        part.transform.scale;
+      const tolerance: number =
+        1e-9 * Math.max(Math.abs(x), Math.abs(y), Math.abs(z));
+      if (Math.abs(x - y) > tolerance || Math.abs(x - z) > tolerance)
+        collector.push(
+          "range",
+          `${pp}.transform.scale`,
+          "a dual-quaternion skinned part must scale uniformly",
+          part.transform.scale,
+        );
+    }
   });
 
   model.skeleton?.bones.forEach((bone: IAutoMovieBone, i: number): void => {
@@ -204,7 +228,13 @@ export const validateModel: (props: {
     });
     if (bone.constraint !== null)
       validateJointConstraint(bone.constraint, `${bp}.constraint`, collector);
+    if (bone.axes !== undefined)
+      for (const issue of validateJointAxesBasis(bone.axes, `${bp}.axes`))
+        collector.push("range", issue.path, issue.expected, issue.value);
   });
+
+  if (model.lookAt !== undefined)
+    validateLookAt(model.lookAt, model.skeleton, `${path}.lookAt`, collector);
 
   if (model.body !== null) validateBody(model.body, `${path}.body`, collector);
 
@@ -234,6 +264,8 @@ export const validateModel: (props: {
     );
   }
 
+  validateModelImages(model.images, `${path}.images`, collector);
+
   model.materials.forEach((m: IAutoMovieMaterial, i: number): void => {
     const mp: string = `${path}.materials[${i}]`;
     collectNonEmptyId(m.id, `${mp}.id`, "material id", collector);
@@ -253,6 +285,13 @@ export const validateModel: (props: {
         collector,
       );
     validateMaterialOverlays(m.overlays, `${mp}.overlays`, collector);
+    validateMaterialLobes({
+      material: m,
+      path: mp,
+      parts: model.parts,
+      partsPath: `${path}.parts`,
+      collector,
+    });
     collector.range(`${mp}.metallic`, m.metallic, 0, 1, "metallic");
     collector.range(`${mp}.roughness`, m.roughness, 0, 1, "roughness");
     collector.range(`${mp}.opacity`, m.opacity, 0, 1, "opacity");

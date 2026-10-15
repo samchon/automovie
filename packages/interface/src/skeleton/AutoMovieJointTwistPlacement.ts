@@ -22,9 +22,6 @@
  * @evidence contracts/common.md#clear-and-simple-design A closed two-value union on `IAutoMovieJointAxes`, so the order is declared beside the axes it orders and both composition and inversion read it from the same record.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No bone name is special-cased in the composer: the forearm's distal order comes only from its declared axes, and `validateJointAxesBasis` refuses any other string.
  * @evidence contracts/common.md#meaningful-documentation States each value's anatomical meaning with an example, its quaternion order, the equality without twist, the default, which bones declare distal, and which functions read it.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A string union with no runtime body.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A declaration value; nothing is computed from it here.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A string literal held by the axes record that declares it.
  * @author Samchon
  */
 export type AutoMovieJointTwistPlacement = "proximal" | "distal";

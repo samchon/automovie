@@ -6,7 +6,7 @@ import { IAutoMovieProfileTrait } from "./IAutoMovieProfileTrait";
 /**
  * A profile (a USD applied schema): a declarative capability layered onto a subtree of the node graph, contributing drivers, channel limits, typed traits and gaits.
  *
- * A model or model recipe lists profile data, and an application pairs a profile with IAutoMovieProfileBinding. Limits, drivers, traits and gait declarations contribute only the behavior their existing consumers implement.
+ * A model lists profile data, and an application pairs a profile with IAutoMovieProfileBinding. Limits, drivers, traits and gait declarations contribute only the behavior their existing consumers implement.
  *
  * Node references inside limits and drivers are semantic keys: bindProfile reads an own boneMap entry, prepends the placement prefix and refuses missing entries or blank mapped node ids. Pointer channels pass through unchanged. Bound-limit findings carry the profile id; traits declare capability metadata without performing an action.
  *

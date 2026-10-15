@@ -46,10 +46,12 @@ export const createFormationRepresentations: (
   >();
   try {
     for (const lod of input.formation.lod) {
-      const model: IAutoMovieModel | undefined = input.models.get(lod.model);
+      const model: IAutoMovieModel | undefined = input.models.get(
+        lod.runtimeModel,
+      );
       if (model === undefined)
         throw new Error(
-          `Formation "${input.formation.id}" LOD "${lod.tier}" references missing runtime model "${lod.model}".`,
+          `Formation "${input.formation.id}" LOD "${lod.tier}" references missing runtime model "${lod.runtimeModel}".`,
         );
       const representation: IAutoMovieInstancedModelRepresentation<IAutoMovieFormationCycle | null> =
         flattenInstancedModel(

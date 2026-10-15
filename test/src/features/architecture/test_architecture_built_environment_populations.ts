@@ -87,7 +87,7 @@ const field: (input: {
   },
   set: {
     id: input.id,
-    modelRecipe: `${input.id}-recipe`,
+    model: `${input.id}-model`,
     count: input.count,
     layout: {
       kind: "grid",
@@ -268,7 +268,7 @@ const unpopulated: () => IAutoMovieBuiltEnvironment =
  * 10. Lowering hands the populations to the world as the compact sets they are, while a record without populations omits the key entirely.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls space content/population/node/fidelity queries and lowering after validating the populated record. Authored min/max, ordered set/node ids, null emptiness, fidelity labels and compact set/count/key observations expose missing population content, sibling/root leaks or per-member set-piece expansion.
- * @evidence contracts/testing.md#independent-expectations Local grid arithmetic (column-(columns-1)/2)*spacing.x and row*spacing.z plus anchors and prototype extents gives each literal box under the original vclose limits; hall exclusion coordinates use nclose tolerance zero. Counts 6+4+12+4+4=30 and the two model elements determine compact output observations. The population-stripped solar relation shares the lowerer, and authored prototype bounds are a geometric premise rather than independently measured recipe meshes.
+ * @evidence contracts/testing.md#independent-expectations Local grid arithmetic (column-(columns-1)/2)*spacing.x and row*spacing.z plus anchors and prototype extents gives each literal box under the original vclose limits; hall exclusion coordinates use nclose tolerance zero. Counts 6+4+12+4+4=30 and the two model elements determine compact output observations. The population-stripped solar relation shares the lowerer, and authored prototype bounds are a geometric premise rather than independently measured model meshes.
  * @evidence contracts/testing.md#distinguishing-cases Population-only, element-only, mixed and empty spaces, sibling/root membership, descendant selection, fidelity and omitted-versus-present lowering keys expose leaks without reading renderer objects; the declared prototype bounds are the geometric premise.
  * @evidence contracts/testing.md#execution-ownership Portable CPU unit test_architecture_built_environment_populations imports the actual engine/archetype operations and owns its locally enumerated cases; no dynamic registration, consumer installation, native artifact build, process, browser or GPU host is required.
  */

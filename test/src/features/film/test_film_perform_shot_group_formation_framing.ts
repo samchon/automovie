@@ -68,7 +68,7 @@ const unit: (id: string, count: number) => IAutoMovieCompiledFormation = (
   materializeCompiledFormation({
     formation: {
       id,
-      modelRecipe: "member",
+      model: "member",
       count,
       layout: {
         kind: "line",
@@ -243,7 +243,7 @@ const solved: (height: number, radius: number) => number = (
 const REACH: number = ((FILES - 1) / 2) * INTERVAL;
 
 /**
- * The compiled fallback member radius, which no recipe here overrides.
+ * The compiled fallback member radius, which no supplied radius here overrides.
  */
 const PAD: number = 0.5;
 

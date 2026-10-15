@@ -47,8 +47,8 @@ export const run: (sk: string) => IAutoMovieMotion = (
       sk,
       [
         ...lean,
-        j("leftUpperLeg", { flexion: -45 * s }),
-        j("rightUpperLeg", { flexion: 45 * s }),
+        j("leftUpperLeg", { flexion: 45 * s }),
+        j("rightUpperLeg", { flexion: -45 * s }),
         j("leftLowerLeg", { flexion: lead === "left" ? 20 : 58 }),
         j("rightLowerLeg", { flexion: lead === "left" ? 58 : 20 }),
         ...arms(s),
@@ -63,8 +63,8 @@ export const run: (sk: string) => IAutoMovieMotion = (
       sk,
       [
         ...lean,
-        j("leftUpperLeg", { flexion: swing === "left" ? -35 : 10 }),
-        j("rightUpperLeg", { flexion: swing === "right" ? -35 : 10 }),
+        j("leftUpperLeg", { flexion: swing === "left" ? 35 : -10 }),
+        j("rightUpperLeg", { flexion: swing === "right" ? 35 : -10 }),
         j("leftLowerLeg", { flexion: swing === "left" ? 85 : 25 }),
         j("rightLowerLeg", { flexion: swing === "right" ? 85 : 25 }),
         ...arms(0),

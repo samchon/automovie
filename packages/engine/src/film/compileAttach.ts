@@ -2,6 +2,7 @@ import {
   AutoMovieHumanoidBone,
   IAutoMovieAttachment,
   IAutoMovieClip,
+  IAutoMovieJointAxes,
   IAutoMovieMotion,
   IAutoMoviePose,
   IAutoMovieQuaternion,
@@ -10,7 +11,6 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
 import { resolveAttachment } from "../kinematics/resolveAttachment";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";

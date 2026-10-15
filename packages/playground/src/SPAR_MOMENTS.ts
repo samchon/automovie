@@ -28,8 +28,8 @@ const GUARD: IAutoMovieJointPose[] = [
   j("leftLowerArm", { flexion: -122 }),
   j("rightUpperArm", { flexion: 38, abduction: 32 }),
   j("rightLowerArm", { flexion: 122 }),
-  j("leftUpperLeg", { abduction: 9, flexion: -12 }),
-  j("rightUpperLeg", { abduction: -9, flexion: 14 }),
+  j("leftUpperLeg", { abduction: 9, flexion: 12 }),
+  j("rightUpperLeg", { abduction: -9, flexion: -14 }),
   j("leftLowerLeg", { flexion: 14 }),
   j("rightLowerLeg", { flexion: 22 }),
 ];
@@ -112,8 +112,8 @@ const P: {
     merge([
       j("spine", { flexion: 14, abduction: 18 * d, twist: 8 * d }),
       j("chest", { flexion: 9, abduction: 14 * d }),
-      j("leftUpperLeg", { abduction: 9, flexion: -12 }),
-      j("rightUpperLeg", { abduction: -9, flexion: -10 }),
+      j("leftUpperLeg", { abduction: 9, flexion: 12 }),
+      j("rightUpperLeg", { abduction: -9, flexion: 10 }),
       j("leftLowerLeg", { flexion: 26 }),
       j("rightLowerLeg", { flexion: 32 }),
     ]),
@@ -122,8 +122,8 @@ const P: {
     merge([
       j("spine", { flexion: 20, abduction: 26 * d, twist: 12 * d }),
       j("chest", { flexion: 12, abduction: 18 * d }),
-      j("leftUpperLeg", { abduction: 11, flexion: -32 }),
-      j("rightUpperLeg", { abduction: -11, flexion: -30 }),
+      j("leftUpperLeg", { abduction: 11, flexion: 32 }),
+      j("rightUpperLeg", { abduction: -11, flexion: 30 }),
       j("leftLowerLeg", { flexion: 60 }),
       j("rightLowerLeg", { flexion: 64 }),
     ]),
@@ -131,8 +131,8 @@ const P: {
     merge([
       j("spine", { flexion: 28 }),
       j("chest", { flexion: 16 }),
-      j("leftUpperLeg", { abduction: 11, flexion: -40 }),
-      j("rightUpperLeg", { abduction: -11, flexion: -38 }),
+      j("leftUpperLeg", { abduction: 11, flexion: 40 }),
+      j("rightUpperLeg", { abduction: -11, flexion: 38 }),
       j("leftLowerLeg", { flexion: 78 }),
       j("rightLowerLeg", { flexion: 82 }),
     ]),
@@ -149,8 +149,8 @@ const P: {
     merge([
       j("spine", { flexion: -16 }),
       j("chest", { flexion: -10 }),
-      j("leftUpperLeg", { abduction: 9, flexion: 6 }),
-      j("rightUpperLeg", { abduction: -9, flexion: 8 }),
+      j("leftUpperLeg", { abduction: 9, flexion: -6 }),
+      j("rightUpperLeg", { abduction: -9, flexion: -8 }),
     ]),
   // KO progression for the loser (root carries the fall)
   recoil: (): IAutoMovieJointPose[] =>
@@ -171,8 +171,8 @@ const koStart: IAutoMovieJointPose[] = merge([
   j("rightUpperArm", { flexion: 10, abduction: 6 }),
   j("leftLowerArm", { flexion: -40 }),
   j("rightLowerArm", { flexion: 40 }),
-  j("leftUpperLeg", { abduction: 12, flexion: -8 }),
-  j("rightUpperLeg", { abduction: -12, flexion: -6 }),
+  j("leftUpperLeg", { abduction: 12, flexion: 8 }),
+  j("rightUpperLeg", { abduction: -12, flexion: 6 }),
   j("leftLowerLeg", { flexion: 30 }),
   j("rightLowerLeg", { flexion: 34 }),
 ]);
@@ -182,8 +182,8 @@ const koMid: IAutoMovieJointPose[] = merge([
   j("head", { flexion: -30 }),
   j("leftUpperArm", { flexion: -6, abduction: -10 }),
   j("rightUpperArm", { flexion: 6, abduction: -10 }),
-  j("leftUpperLeg", { abduction: 14, flexion: 24 }),
-  j("rightUpperLeg", { abduction: -14, flexion: 26 }),
+  j("leftUpperLeg", { abduction: 14, flexion: -24 }),
+  j("rightUpperLeg", { abduction: -14, flexion: -26 }),
   j("leftLowerLeg", { flexion: 76 }),
   j("rightLowerLeg", { flexion: 80 }),
 ]);
@@ -193,8 +193,8 @@ const koDown: IAutoMovieJointPose[] = merge([
   j("head", { flexion: -20 }),
   j("leftUpperArm", { flexion: -4, abduction: -30 }),
   j("rightUpperArm", { flexion: 4, abduction: -30 }),
-  j("leftUpperLeg", { abduction: 18, flexion: 40 }),
-  j("rightUpperLeg", { abduction: -18, flexion: 44 }),
+  j("leftUpperLeg", { abduction: 18, flexion: -40 }),
+  j("rightUpperLeg", { abduction: -18, flexion: -44 }),
   j("leftLowerLeg", { flexion: 60 }),
   j("rightLowerLeg", { flexion: 64 }),
 ]);

@@ -69,7 +69,7 @@ interface IFormationOverlapUnit {
 
   /** The staged unit itself. */
   formation: IAutoMovieFormationPlacement & {
-    lod: ReadonlyArray<{ model: string }>;
+    lod: ReadonlyArray<{ runtimeModel: string }>;
   };
 
   /** Where each measured member stands at rest, with the slot it is. */
@@ -268,7 +268,9 @@ export const validateAutoMovieFormationOverlap: (
   value: {
     models: readonly IAutoMovieModel[];
     formations: ReadonlyArray<
-      IAutoMovieFormationPlacement & { lod: ReadonlyArray<{ model: string }> }
+      IAutoMovieFormationPlacement & {
+        lod: ReadonlyArray<{ runtimeModel: string }>;
+      }
     >;
     formationMotions?: readonly IAutoMovieFormationMotion[];
     formationSlotMotions?: readonly IAutoMovieFormationSlotMotion[];
@@ -279,7 +281,7 @@ export const validateAutoMovieFormationOverlap: (
     models: readonly IAutoMovieModel[];
     formations: ReadonlyArray<
       IAutoMovieFormationPlacement & {
-        lod: ReadonlyArray<{ model: string }>;
+        lod: ReadonlyArray<{ runtimeModel: string }>;
       }
     >;
     formationMotions?: readonly IAutoMovieFormationMotion[];
@@ -312,13 +314,13 @@ export const validateAutoMovieFormationOverlap: (
         "id" | "count" | "layout" | "anchor" | "facingDeg" | "seed"
       > &
         IAutoMovieFormationGrounding & {
-          lod: ReadonlyArray<{ model: string }>;
+          lod: ReadonlyArray<{ runtimeModel: string }>;
         },
       index: number,
     ): IFormationOverlapUnit[] => {
       const tiers: IAutoMovieModelColumn[][] = formation.lod.map(
-        (tier: { model: string }): IAutoMovieModelColumn[] =>
-          columnsFor(tier.model),
+        (tier: { runtimeModel: string }): IAutoMovieModelColumn[] =>
+          columnsFor(tier.runtimeModel),
       );
       // A unit with a tier this shot does not carry, or one whose geometry fills
       // no column at all, has no size this gate can prove. Measuring it against

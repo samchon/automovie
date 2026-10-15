@@ -49,7 +49,7 @@ export interface IAutoMovieSourceOracle {
    *
    * @evidence contracts/common.md#principled-implementation Own-property lookup selects the compiled set and instanceSlot applies its admitted layout, resolved route, prototype choices and seed-derived variation for the requested slot.
    * @evidence contracts/common.md#clear-and-simple-design Returns one exact member under the compact set's shared law rather than exposing a per-instance data table to source.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Selection reads the compiled prototype table that already counts the default once; missing records and invalid slots cannot fall back to an authored design or arbitrary recipe.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Selection reads the compiled prototype table that already counts the default once; missing records and invalid slots cannot fall back to an authored design or arbitrary model.
    * @evidence contracts/common.md#meaningful-documentation Defines compiled set identity, exact addressed member and the missing-id and range refusals.
    */
   instanceSlot(instanceSet: string, slot: number): IAutoMovieInstanceSlot;

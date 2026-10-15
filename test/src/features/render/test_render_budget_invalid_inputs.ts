@@ -90,7 +90,7 @@ export function test_render_budget_invalid_inputs(): void {
             set.prototypes = [
               {
                 id: "bare",
-                modelRecipe: "window",
+                model: "window",
                 weight: 1,
                 lod: [],
                 projectionRadius: 1,

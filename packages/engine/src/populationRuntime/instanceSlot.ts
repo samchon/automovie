@@ -135,12 +135,12 @@ export const instanceSlot: (
     instanceSet.variation.visibleProbability === undefined;
   const selected: Pick<
     IAutoMovieCompiledInstancePrototype,
-    "id" | "modelRecipe" | "weight"
+    "id" | "model" | "weight"
   > = selectInstancePrototype(instanceSet, slot, explicit?.prototype);
   const base: {
     slot: number;
     node: string;
-    modelRecipe: string;
+    model: string;
     position: { x: number; y: number; z: number };
     facingDeg: number;
     scale: number;
@@ -152,7 +152,7 @@ export const instanceSlot: (
       explicit === undefined
         ? `instance:${instanceSet.id}:slot:${String(slot).padStart(6, "0")}`
         : `instance:${instanceSet.id}:${explicit.id}`,
-    modelRecipe: selected.modelRecipe,
+    model: selected.model,
     position,
     facingDeg: instanceSet.facingDeg,
     scale,
