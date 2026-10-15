@@ -28,7 +28,10 @@ export * from "./skeleton/IAutoMovieHumanSkeleton";
 export * from "./skeleton/measureAutoMovieHumanSkeleton";
 
 export * from "./junction/AUTOMOVIE_HUMAN_RINGS";
+export * from "./junction/AUTOMOVIE_HUMAN_UV_LAYOUT";
+export * from "./junction/AutoMovieHumanCageBuilder";
 export * from "./junction/AutoMovieHumanDirection";
+export * from "./junction/AutoMovieHumanJunction";
 export * from "./junction/AutoMovieHumanJunctionSite";
 export * from "./junction/AutoMovieHumanPart";
 export * from "./junction/AutoMovieHumanSide";
@@ -39,6 +42,7 @@ export * from "./junction/IAutoMovieHumanRingDefinition";
 export * from "./junction/IAutoMovieHumanRingLayout";
 export * from "./junction/IAutoMovieHumanSurfaceCoordinate";
 export * from "./junction/layoutAutoMovieHumanRing";
+export * from "./junction/meshAutoMovieHumanCage";
 
 export * from "./parts/IAutoMovieHumanPartGenerator";
 
