@@ -1,7 +1,7 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
- * One cross-section of the leg cage: an edge loop perpendicular to the limb at a named anatomical level.
+ * One station of the leg's loft: a cross-section perpendicular to the limb at a named anatomical level.
  *
  * Positions are millimetres in the skeleton's model frame. Directions around the station follow the leg's surface chart: `v` turns counterclockwise about `axis`, which points distally, starting at `anterior`, so a vertex at chart angle `v` lies in the direction `cos(2πv)·anterior + sin(2πv)·around`.
  *
@@ -26,22 +26,14 @@ export interface IAutoMovieHumanLegStation {
   /** Unit medial direction in the plane, toward the body's midline. */
   medial: IAutoMovieVector3;
 
-  /** Position along the leg's chart, 0 at the mid thigh ring and 1 at the ankle ring, by arc length of the bone axis. */
-  u: number;
-
   /** Level on the thigh, 0 at the knee joint centre and 1 at the hip joint centre. */
   thigh: number;
 
   /** Level on the shank, 0 at the ankle joint centre and 1 at the knee joint centre. */
   shank: number;
 
-  /** Circumference of the section, millimetres: what its base shape is drawn at, and what its limit surface keeps when `fitted`. */
+  /** Circumference of the section, millimetres: what its base shape is drawn at and what the loft's row at the station keeps on the limit surface, relief included. */
   girth: number;
-
-  /**
-   * Whether the limit surface is scaled to keep `girth` exactly: the junction rings and the levels the identity measures. Stations between take their scale by interpolation, so their own shape survives instead of being sharpened by a fit against neighbours that the limit surface averages.
-   */
-  fitted: boolean;
 
   /** Breadth over depth of the section's base ellipse. */
   aspect: number;
@@ -62,6 +54,6 @@ export interface IAutoMovieHumanLegStation {
    */
   collar: "thigh" | "ankle" | null;
 
-  /** Number of vertices around the section: 12 from the thigh down to the lower calf, 8 near the ankle. */
+  /** Number of vertices around the station's row: 12 from the thigh down to the calcaneal tendon, 8 at the ankle's collar and ring. */
   count: number;
 }

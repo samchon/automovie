@@ -44,9 +44,6 @@ const SITE_FAT: Record<"furrow" | "lowerThigh" | "calf" | "ankle", number> = {
   ankle: 0.597,
 };
 
-/** Stations whose limit girth is fitted: the levels the identity measures. The rings are never moved; they lie on the shared ring shape. */
-const FITTED: ReadonlySet<string> = new Set(["suprapatella", "calf maximum"]);
-
 /**
  * The thigh collar below the mid thigh ring, as a fraction of the way from the ring to suprapatella: close enough that the thigh tapers from it, far enough that its loop is a span of its own. Grade: conventional.
  */
@@ -77,7 +74,7 @@ interface ILevel {
 /**
  * Plan the leg's stations from mid thigh to the ankle for one person and side.
  *
- * Twelve stations carry the cage. The top one is the mid thigh ring of the junction contract and the bottom one its ankle ring, both on the shared shape `shapeAutoMovieHumanRing` resolves, so the trunk and the foot meet them vertex for vertex. Between them stations sit at named levels: two through the lower thigh, where vastus medialis rises; four around the knee (suprapatella, midpatella, the patellar tendon and the tibial tuberosity), denser than elsewhere so the cage has edge loops to fold on in flexion; the calf maximum; and three that follow the calf's taper into the calcaneal tendon. The last two have eight vertices, the ankle ring's count.
+ * Thirteen stations carry the loft. The top one is the mid thigh ring of the junction contract and the bottom one its ankle ring, both on the shared shape `shapeAutoMovieHumanRing` resolves, so the trunk and the foot meet them vertex for vertex. Next to each ring a collar repeats the ring a short way into the leg. Between them stations sit at named levels: two through the lower thigh, where vastus medialis rises; three around the knee (suprapatella, midpatella and the patellar tendon), denser than elsewhere so the cage has rows to fold on in flexion; the upper calf and the calf maximum; and two that follow the calf's taper into the calcaneal tendon. The ankle's collar and ring have eight vertices around, the ankle ring's count, and the rest twelve.
  *
  * Girths come from the identity where it measures them: the thigh at the gluteal furrow, the lower thigh at suprapatella, the calf maximum and the ankle minimum. The mid thigh, which no survey read measures, lies on the curve from suprapatella to the furrow; the knee and the levels below the calf are fractions of their neighbours. Each section's base is an ellipse whose breadth over depth and offset behind the bone axis come from `AUTOMOVIE_HUMAN_LEG_SECTIONS` for its fat: small offsets in the thigh, where the femur is central, and large at the calf, where the tibia sits at the front and the triceps surae behind. The thigh's centre also lies lateral to the hip-to-knee axis by the femoral shaft's slope: the shaft runs from between the hip centre and the greater trochanter down to the knee, so the thighs converge on the knees. That slope grows with hip breadth relative to leg length, which is what makes the knee bend "convex toward its fellow" (Bridgman 1920) and more so in a broad-hipped person.
  *
@@ -261,13 +258,6 @@ export function planAutoMovieHumanLegStations(props: {
           ? ankleRing.frame.origin
           : pointAt(l.height),
   );
-  const lengths: number[] = [0];
-  for (let i: number = 1; i < origins.length; ++i)
-    lengths.push(
-      lengths[i - 1]! +
-        AutoMovieHumanVector.distance(origins[i - 1]!, origins[i]!),
-    );
-  const total: number = lengths[lengths.length - 1]!;
   const stations: IAutoMovieHumanLegStation[] = levels.map(
     (l: ILevel, i: number): IAutoMovieHumanLegStation => {
       const axis: IAutoMovieVector3 =
@@ -305,11 +295,9 @@ export function planAutoMovieHumanLegStations(props: {
         anterior,
         around,
         medial: AutoMovieHumanVector.normalize(medialRaw),
-        u: lengths[i]! / total,
         thigh: (l.height - knee.y) / (hip.y - knee.y),
         shank: (l.height - ankle.y) / (knee.y - ankle.y),
         girth: l.girth,
-        fitted: FITTED.has(l.name),
         aspect: section.aspect[0] + (section.aspect[1] * fat) / radius,
         posterior: section.posterior[0] + (section.posterior[1] * fat) / radius,
         lateral:

@@ -1,13 +1,14 @@
 import { IAutoMovieHumanCage } from "../../junction/IAutoMovieHumanCage";
 import { IAutoMovieHumanPartGenerator } from "../IAutoMovieHumanPartGenerator";
-import { buildAutoMovieHumanLegCage } from "./buildAutoMovieHumanLegCage";
+import { loftAutoMovieHumanLimb } from "../loftAutoMovieHumanLimb";
+import { planAutoMovieHumanLeg } from "./planAutoMovieHumanLeg";
 
 /**
- * Leg from mid thigh to the ankle, with the knee, as a quad control cage generated from the person's measurements and skeleton.
+ * Leg from mid thigh to the ankle, with the knee: one sweep along the femur and tibia, lofted through thirteen stations.
  *
- * Twelve stations run down the limb at named anatomical levels, denser around the knee so the cage has loops to fold on, each section shaped from the measured girths, the bone axis, the superficial muscles, bony landmarks and fat pads, and scaled so its limit surface keeps the identity's girths; twelve spans narrow to the ankle ring's eight in two patches on the sides of the lower shank. See `buildAutoMovieHumanLegCage` for the topology, `planAutoMovieHumanLegStations` for the levels and girths and `shapeAutoMovieHumanLegSection` for the form.
+ * Stations run down the limb at named anatomical levels, denser around the knee so the cage has rows to fold on, each section shaped from the measured girths, the bone axis and the fat (`planAutoMovieHumanLegStations`, `shapeAutoMovieHumanLegSection`), with the superficial muscles, bony landmarks and fat pads over them as relief (`reliefAutoMovieHumanLeg`). `loftAutoMovieHumanLimb` sweeps them into the cage, holding every station's girth on the limit surface; twelve vertices run around the leg down to the calcaneal tendon, turning to the ankle ring's eight on the medial and lateral sides of the lower shank.
  *
- * Chart: `u` from 0 at the mid thigh ring to 1 at the ankle ring along the bone axis, `v` counterclockwise about the distal axis from the anterior mark.
+ * Chart: `u` from 0 at the mid thigh ring to 1 at the ankle ring along the bones, `v` counterclockwise about the distal axis from the anterior mark.
  *
  * Rings, in order: `thigh`, `ankle`.
  *
@@ -26,6 +27,6 @@ export class AutoMovieHumanLegGenerator implements IAutoMovieHumanPartGenerator<
   public generate(
     props: IAutoMovieHumanPartGenerator.IProps<"leg">,
   ): IAutoMovieHumanCage {
-    return buildAutoMovieHumanLegCage(props);
+    return loftAutoMovieHumanLimb(planAutoMovieHumanLeg(props));
   }
 }
