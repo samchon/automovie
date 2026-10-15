@@ -23,10 +23,10 @@ const READERS: string[] = [
 ];
 
 /**
- * Skin parts, one module each under `src/parts/<part>`, matching the
- * `AutoMovieHumanPart` union. A part directory missing here classifies as the
- * catch-all `part` element, which may import nothing, so it fails until it is
- * declared.
+ * Part modules, one each under `src/parts/<part>`: the skin parts of the
+ * `AutoMovieHumanPart` union, then the eye, whose eyeballs are separate meshes
+ * the head carries. A part directory missing here classifies as the catch-all
+ * `part` element, which may import nothing, so it fails until it is declared.
  */
 const PARTS: string[] = [
   "trunk",
@@ -37,6 +37,7 @@ const PARTS: string[] = [
   "hand",
   "leg",
   "foot",
+  "eye",
 ];
 
 /**
