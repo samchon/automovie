@@ -29,6 +29,12 @@ export interface IAutoMovieHumanFootPlan {
   /** Scale of the bony and tendinous relief, 1 as anatomy gives it and 0 for the bare block-out of the form. */
   relief: number;
 
+  /** The hollows either side of the calcaneal tendon, between it and the malleoli, where the heel narrows into the tendon. */
+  hollow: IAutoMovieHumanFootPlan.IHollow;
+
+  /** The tendon's own line, set in from the heel's bulge behind it. */
+  tendon: IAutoMovieHumanFootPlan.IHollow;
+
   /** The ankle ring's section. */
   ankle: IAutoMovieHumanFootPlan.IAnkle;
 
@@ -56,6 +62,28 @@ export interface IAutoMovieHumanFootPlan {
 export namespace IAutoMovieHumanFootPlan {
   /** Pairs of `f` and a value as a fraction of foot length, read by `interpolateAutoMovieHumanFootProfile`. */
   export type IProfile = ReadonlyArray<readonly [number, number]>;
+
+  /**
+   * An inward relief behind the ankle: a Gaussian in the angle about the ankle and in height.
+   *
+   * @author Samchon
+   */
+  export interface IHollow {
+    /** Depth toward the ankle's axis, of foot length. */
+    depth: number;
+
+    /** Height of its middle, of lateral malleolus height. */
+    at: number;
+
+    /** Its spread in height, of lateral malleolus height. */
+    spread: number;
+
+    /** Its angle from the front about the ankle, degrees, on both sides. */
+    angle: number;
+
+    /** Its spread in angle, degrees. */
+    width: number;
+  }
 
   /**
    * The ankle ring's section, the junction's shared shape seen from the foot: the origin and the distance of each ring vertex, in the left foot's order counterclockwise about +y from the anterior one.
