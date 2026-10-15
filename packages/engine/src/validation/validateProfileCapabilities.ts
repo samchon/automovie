@@ -16,7 +16,7 @@ import { ViolationCollector } from "./ViolationCollector";
 export const validateProfileCapabilities: (props: {
   profiles: readonly IAutoMovieProfile[];
 }) => IAutoMovieValidation = (props: {
-  /** Profiles attached to one runtime model or model recipe. */
+  /** Profiles attached to one runtime model or model group. */
   profiles: readonly IAutoMovieProfile[];
 }): IAutoMovieValidation => {
   const collector: ViolationCollector = new ViolationCollector();

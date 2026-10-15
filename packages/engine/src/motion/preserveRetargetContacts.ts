@@ -1,5 +1,6 @@
 import {
   AutoMovieHumanoidBone,
+  IAutoMovieJointAxes,
   IAutoMovieKeyframe,
   IAutoMovieMotion,
   IAutoMoviePose,
@@ -7,7 +8,6 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
 import { indexSkeletonTopology } from "../kinematics/indexSkeletonTopology";
 import { reachableBoneNames } from "../kinematics/reachableBoneNames";
 import { Vector3 } from "../math/Vector3";

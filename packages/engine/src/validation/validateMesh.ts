@@ -1,22 +1,27 @@
 import {
   AutoMovieHumanoidBone,
+  IAutoMovieDrivenCurvePoint,
   IAutoMovieMesh,
+  IAutoMovieMeshMorphTarget,
   IAutoMovieMeshSkin,
+  IAutoMovieMorphTargetDriver,
 } from "@automovie/interface";
 
 import { ViolationCollector } from "./ViolationCollector";
 import { appendMeshTopology } from "./appendMeshTopology";
+import { AUTOMOVIE_ARKIT_CHANNELS } from "./constants/AUTOMOVIE_ARKIT_CHANNELS";
+import { AUTOMOVIE_EXPRESSION_PRESETS } from "./constants/AUTOMOVIE_EXPRESSION_PRESETS";
 
 /**
- * Admit tuple/cardinality buffers, dense finite numeric elements, vertex references, skin bindings and shared welded topology.
+ * Admit tuple/cardinality buffers, dense finite numeric elements, vertex references, skin bindings, morph targets and their drivers, and shared welded topology.
  *
- * @evidence contracts/common.md#principled-implementation Walk IAutoMovieMesh's typed buffer containers for tuple/cardinality, dense finite numeric elements, vertex references, skin bindings and shared welded topology; the array/null and skin-record container structure is a precondition rather than an unknown-payload schema check.
- * @evidence contracts/common.md#clear-and-simple-design Attribute and skin checks stay with the mesh, while appendMeshTopology owns topology admission and analysis.
+ * @evidence contracts/common.md#principled-implementation Walk IAutoMovieMesh's typed buffer containers for tuple/cardinality, dense finite numeric elements, vertex references, skin bindings and methods, morph target buffers, names and drivers, and shared welded topology; the array/null and skin-record container structure is a precondition rather than an unknown-payload schema check.
+ * @evidence contracts/common.md#clear-and-simple-design Attribute, skin and morph target checks stay with the mesh, applying the clip curve's point rules to drivers, while appendMeshTopology owns topology admission and analysis.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Indexed walks inspect resident holes as undefined and malformed numeric coordinates cannot escape through weld analysis. Malformed containers such as positions:null can still throw at length access; skin normalization uses a 1e-6 tolerance.
  * @evidence contracts/common.md#meaningful-documentation States the typed-container premise, one/two/three/four component arities, located numeric/cardinality errors and the separate welded-topology responsibility.
- * @evidence contracts/performance.md#efficient-algorithms Total buffer size drives linear admission; welded topology adds its edge/triangle costs and per-vertex four-weight checks.
+ * @evidence contracts/performance.md#efficient-algorithms Total buffer size, including morph target deltas, drives linear admission; welded topology adds its edge/triangle costs and per-vertex four-weight checks.
  * @evidence contracts/performance.md#reuse-equivalent-work Common tuple/length helpers serve attributes, and the canonical topology owner prevents independent welded rules.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Only collector rows remain; local joint sets/weight slices release and no mesh renderer or byte decoder is created.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only collector rows remain; local joint and target-name sets and weight slices release and no mesh renderer or byte decoder is created.
  */
 export const validateMesh: (
   mesh: IAutoMovieMesh,
@@ -131,6 +136,15 @@ export const validateMesh: (
       collector,
     );
 
+  if (mesh.targets !== undefined)
+    validateMeshTargets(
+      mesh.targets,
+      vertexCount,
+      `${path}.targets`,
+      boneNames,
+      collector,
+    );
+
   // Tier-5 topology (#1183): 2-manifold + consistent winding over the welded
   // surface. Self-guards on the buffers this function already reports, so it
   // never reads a malformed index. Watertightness is not demanded here: an
@@ -222,7 +236,7 @@ const validateBufferLength: (
 };
 
 /**
- * Require four references/weights per vertex, declared unique joints, dense bounded weights/references and finite weight sums within1e-6 of one.
+ * Require a known blend method, four references/weights per vertex, declared unique joints, dense bounded weights/references and finite weight sums within1e-6 of one.
  *
  * Shared length/range owners supply scalar diagnostics while this helper owns skin packing.
  *
@@ -249,6 +263,17 @@ const validateMeshSkin: (
   boneNames: ReadonlySet<string>,
   collector: ViolationCollector,
 ): void => {
+  if (
+    skin.method !== undefined &&
+    skin.method !== "linear" &&
+    skin.method !== "dual-quaternion"
+  )
+    collector.push(
+      "type",
+      `${path}.method`,
+      `skinning method must be "linear" or "dual-quaternion", but was ${JSON.stringify(skin.method)}`,
+      skin.method,
+    );
   const expectedInfluences: number = vertexCount * 4;
   validateBufferLength(
     skin.boneIndices,
@@ -324,4 +349,137 @@ const validateMeshSkin: (
         );
     }
   }
+};
+
+/**
+ * Require each morph target to carry a nonempty unique name, one finite delta
+ * triple per vertex for positions and for non-null normals, and, when driven, a
+ * skeleton bone, a clinical axis, a nonempty finite strictly increasing curve
+ * and a name no expression writes.
+ *
+ * Expressions write preset and ARKit names after the pose, matching ignoring
+ * case, so a driven target under such a name would lose its weight every frame.
+ *
+ * T targets over V vertices cost O(T V) with one name set and one folded
+ * expression-name set per call.
+ *
+ * Only collector rows remain; buffers stay borrowed.
+ */
+const validateMeshTargets: (
+  targets: IAutoMovieMeshMorphTarget[],
+  vertexCount: number,
+  path: string,
+  boneNames: ReadonlySet<string>,
+  collector: ViolationCollector,
+) => void = (
+  targets: IAutoMovieMeshMorphTarget[],
+  vertexCount: number,
+  path: string,
+  boneNames: ReadonlySet<string>,
+  collector: ViolationCollector,
+): void => {
+  const names: Set<string> = new Set<string>();
+  const expressionNames: Set<string> = new Set<string>(
+    [...AUTOMOVIE_EXPRESSION_PRESETS, ...AUTOMOVIE_ARKIT_CHANNELS].map(
+      (name: string): string => name.toLowerCase(),
+    ),
+  );
+  targets.forEach((target: IAutoMovieMeshMorphTarget, i: number): void => {
+    const tp: string = `${path}[${i}]`;
+    if (typeof target.name !== "string" || target.name.length === 0)
+      collector.push(
+        "type",
+        `${tp}.name`,
+        "morph target name must be a nonempty string",
+        target.name,
+      );
+    else if (names.has(target.name))
+      collector.push(
+        "type",
+        `${tp}.name`,
+        `morph target name "${target.name}" is duplicated`,
+        target.name,
+      );
+    names.add(target.name);
+    validateTupleBuffer(target.positions, 3, `${tp}.positions`, collector);
+    validateBufferLength(
+      target.positions,
+      vertexCount * 3,
+      `${tp}.positions`,
+      "morph target positions must contain one delta triple per position vertex",
+      collector,
+    );
+    if (target.normals !== null) {
+      validateTupleBuffer(target.normals, 3, `${tp}.normals`, collector);
+      validateBufferLength(
+        target.normals,
+        vertexCount * 3,
+        `${tp}.normals`,
+        "morph target normals must contain one delta triple per position vertex",
+        collector,
+      );
+    }
+    const driver: IAutoMovieMorphTargetDriver | null = target.driver ?? null;
+    if (driver === null) return;
+    if (
+      typeof target.name === "string" &&
+      expressionNames.has(target.name.toLowerCase())
+    )
+      collector.push(
+        "type",
+        `${tp}.name`,
+        `driven morph target "${target.name}" shares its name with an expression preset or ARKit channel, which expressions overwrite`,
+        target.name,
+      );
+    if (!boneNames.has(driver.bone))
+      collector.push(
+        "type",
+        `${tp}.driver.bone`,
+        `driver bone "${driver.bone}" is not a bone of this model's skeleton`,
+        driver.bone,
+      );
+    if (
+      driver.axis !== "flexion" &&
+      driver.axis !== "abduction" &&
+      driver.axis !== "twist"
+    )
+      collector.push(
+        "type",
+        `${tp}.driver.axis`,
+        `driver axis must be "flexion", "abduction" or "twist", but was ${JSON.stringify(driver.axis)}`,
+        driver.axis,
+      );
+    const points: IAutoMovieDrivenCurvePoint[] = driver.curve.points;
+    if (points.length === 0)
+      collector.push(
+        "type",
+        `${tp}.driver.curve.points`,
+        "driver curve needs at least one point",
+        points,
+      );
+    points.forEach((point: IAutoMovieDrivenCurvePoint, k: number): void => {
+      const pp: string = `${tp}.driver.curve.points[${k}]`;
+      if (!Number.isFinite(point.source))
+        collector.push(
+          "range",
+          `${pp}.source`,
+          "curve source must be finite",
+          point.source,
+        );
+      if (!Number.isFinite(point.output))
+        collector.push(
+          "range",
+          `${pp}.output`,
+          "curve output must be finite",
+          point.output,
+        );
+      if (k > 0 && !(point.source > points[k - 1]!.source))
+        collector.push(
+          "range",
+          `${pp}.source`,
+          `curve sources must strictly increase, but ${point.source} follows ${points[k - 1]!.source}`,
+          point.source,
+        );
+    });
+  });
 };

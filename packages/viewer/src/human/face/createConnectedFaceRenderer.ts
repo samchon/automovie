@@ -153,7 +153,10 @@ export function createConnectedFaceRenderer(
         ]),
       );
       try {
-        await textures.prime(model.materials.flatMap(materialTextureBindings));
+        await textures.prime(
+          model.materials.flatMap(materialTextureBindings),
+          model.images,
+        );
         retirement.requireOpen();
         const built: IAutoMovieModelObject = buildModel(
           model,

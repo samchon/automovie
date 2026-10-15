@@ -5,6 +5,7 @@ import {
   IAutoMovieClip,
   IAutoMovieConstraintViolation,
   IAutoMovieInteractionEvent,
+  IAutoMovieJointAxes,
   IAutoMovieMotion,
   IAutoMovieScene,
   IAutoMovieSceneNode,
@@ -12,7 +13,6 @@ import {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
-import { IAutoMovieJointAxes } from "../kinematics/IAutoMovieJointAxes";
 import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
 import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
 import { ViolationCollector } from "../validation/ViolationCollector";

@@ -177,7 +177,7 @@ function paletteInstances(
   const slab: IAutoMovieModel = paletteModel(swatch);
   const design: IAutoMovieInstanceSetDesign = {
     id: "roof",
-    modelRecipe: "slate",
+    model: "slate",
     count: 2,
     layout: { kind: "grid", rows: 1, columns: 2, spacing: { x: 1, z: 1 } },
     anchor: { x: 0, y: 0, z: 0 },

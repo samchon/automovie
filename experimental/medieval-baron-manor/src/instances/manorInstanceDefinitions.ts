@@ -44,11 +44,11 @@ export function manorInstanceDefinitions(entries: IMedievalManorScene["entries"]
   }
   for(const [prototype,transforms]of groups){
    const mat: import("@automovie/interface").IAutoMovieMaterial=prototypes.find((p: { id: string; model: import("@automovie/interface").IAutoMovieModel; bounds: { min: { x: number; y: number; z: number; }; max: { x: number; y: number; z: number; }; }; }): boolean =>p.id===prototype)!.model.materials[0],c: import("@automovie/interface").IAutoMovieColor=mat.baseColor;
-   sets.push({entry:entry.id,definition:{id:entry.id+'--'+prototype,modelRecipe:prototype,count:transforms.length,layout:{kind:'explicit',transforms},anchor:{x:0,y:0,z:0},facingDeg:0,seed:1902,variation:{scale:{min:1,max:1},palette:['#'+new Color(c.r,c.g,c.b).getHexString()],traits:[]}}});
+   sets.push({entry:entry.id,definition:{id:entry.id+'--'+prototype,model:prototype,count:transforms.length,layout:{kind:'explicit',transforms},anchor:{x:0,y:0,z:0},facingDeg:0,seed:1902,variation:{scale:{min:1,max:1},palette:['#'+new Color(c.r,c.g,c.b).getHexString()],traits:[]}}});
   }
  }
  const counts: Map<string, number>=new Map<string, number>();for(const b of partBindings)counts.set(b.prototype,(counts.get(b.prototype)??0)+1);
  const repeated: Set<string>=new Set([...counts].filter(([,n]: [string, number]): boolean =>n>1).map(([id]: [string, number]): string =>id));
  for(const b of partBindings)if(!repeated.has(b.prototype))singletons.push({entry:b.entry,part:b.part,partIndex:b.partIndex});
- return {prototypes:prototypes.filter((p: { id: string; model: import("@automovie/interface").IAutoMovieModel; bounds: { min: { x: number; y: number; z: number; }; max: { x: number; y: number; z: number; }; }; }): boolean =>repeated.has(p.id)),sets:sets.filter((s: { entry: string; definition: import("@automovie/interface").IAutoMovieInstanceSetDesign; }): boolean =>repeated.has(s.definition.modelRecipe)),singletons,partBindings:partBindings.filter((b: PartBinding): boolean =>repeated.has(b.prototype))};
+ return {prototypes:prototypes.filter((p: { id: string; model: import("@automovie/interface").IAutoMovieModel; bounds: { min: { x: number; y: number; z: number; }; max: { x: number; y: number; z: number; }; }; }): boolean =>repeated.has(p.id)),sets:sets.filter((s: { entry: string; definition: import("@automovie/interface").IAutoMovieInstanceSetDesign; }): boolean =>repeated.has(s.definition.model)),singletons,partBindings:partBindings.filter((b: PartBinding): boolean =>repeated.has(b.prototype))};
 }

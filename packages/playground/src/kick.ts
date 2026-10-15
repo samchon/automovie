@@ -25,14 +25,14 @@ export const kick: (sk: string) => IAutoMovieMotion = (
     j("rightUpperArm", { abduction: 30 }),
   ]);
   const windup: IAutoMoviePose = pose(sk, [
-    j("rightUpperLeg", { flexion: 25 }),
+    j("rightUpperLeg", { flexion: -25 }),
     j("rightLowerLeg", { flexion: 32 }),
     j("spine", { flexion: -8 }),
     j("leftUpperArm", { abduction: 40, flexion: 22 }),
     j("rightUpperArm", { abduction: 40, flexion: 22 }),
   ]);
   const strike: IAutoMoviePose = pose(sk, [
-    j("rightUpperLeg", { flexion: -88 }),
+    j("rightUpperLeg", { flexion: 88 }),
     j("rightLowerLeg", { flexion: 6 }),
     j("leftLowerLeg", { flexion: 6 }),
     j("spine", { flexion: -14 }),

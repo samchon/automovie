@@ -5,7 +5,7 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * One exactly regenerated member of a non-formation instance set.
  *
  * @evidence contracts/common.md#principled-implementation instanceSlot derives placement, independent salted variation and weighted prototype selection from the admitted compiled set and slot; explicit transforms override their stated channels after the common selection rules.
- * @evidence contracts/common.md#clear-and-simple-design The member projection supplies reusable recipe identity and final spatial and visual values; enhanced fields appear together when prototypes, lattice, explicit transforms or enhanced variation are declared.
+ * @evidence contracts/common.md#clear-and-simple-design The member projection supplies reusable model identity and final spatial and visual values; enhanced fields appear together when prototypes, lattice, explicit transforms or enhanced variation are declared.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Legacy single-prototype output intentionally omits enhanced fields and preserves its established eight-field shape; explicit unavailable prototypes and out-of-range slots refuse rather than falling back.
  * @evidence contracts/common.md#meaningful-documentation Defines deterministic identity, world placement, default scalar versus enhanced full transforms, optional visibility and exact sRGB palette and named traits.
  * @author Samchon
@@ -17,8 +17,8 @@ export interface IAutoMovieInstanceSlot {
   /** Compiler-owned stable instance id. */
   node: string;
 
-  /** Runtime model recipe id. */
-  modelRecipe: string;
+  /** Id of the model group this member draws. */
+  model: string;
 
   /** Selected prototype id; omitted for a legacy single-prototype set. */
   prototype?: string;

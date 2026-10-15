@@ -34,8 +34,8 @@ export const hop: (sk: string) => IAutoMovieMotion = (
   const crouch: IAutoMoviePose = pose(
     sk,
     [
-      j("leftUpperLeg", { flexion: -26 }),
-      j("rightUpperLeg", { flexion: -26 }),
+      j("leftUpperLeg", { flexion: 26 }),
+      j("rightUpperLeg", { flexion: 26 }),
       j("leftLowerLeg", { flexion: 46 }),
       j("rightLowerLeg", { flexion: 46 }),
       j("leftUpperArm", { abduction: 50, flexion: 38 }),
@@ -46,8 +46,8 @@ export const hop: (sk: string) => IAutoMovieMotion = (
   const apex: IAutoMoviePose = pose(
     sk,
     [
-      j("leftUpperLeg", { flexion: -12 }),
-      j("rightUpperLeg", { flexion: -12 }),
+      j("leftUpperLeg", { flexion: 12 }),
+      j("rightUpperLeg", { flexion: 12 }),
       j("leftLowerLeg", { flexion: 22 }),
       j("rightLowerLeg", { flexion: 22 }),
       j("leftUpperArm", { abduction: 210 }),

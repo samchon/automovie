@@ -45,7 +45,7 @@ export interface IAutoMovieAssetProvenance {
   /**
    * Appearance ingest/LOD/proxy ledger for external glTF, GLB or VRM assets.
    *
-   * A motion-only glTF-family asset can omit this appearance record. This type has no suffix-dispatched admission after production inventory retirement, and presence alone does not select a recipe, take or conversion.
+   * A motion-only glTF-family asset can omit this appearance record. This type has no suffix-dispatched admission after production inventory retirement, and presence alone does not select a model, take or conversion.
    */
   model?: IAutoMovieExternalModelProvenance;
 

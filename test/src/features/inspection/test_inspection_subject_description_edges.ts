@@ -384,14 +384,14 @@ const prototype: (
   model: string,
 ) => {
   id: string;
-  modelRecipe: string;
+  model: string;
   weight: number;
   lod: {
     tier: "near";
     maxDistance: null;
-    recipe: string;
-    recipeDigest: `sha256:${string}`;
     model: string;
+    modelDigest: `sha256:${string}`;
+    runtimeModel: string;
   }[];
   projectionRadius: number;
 } = (
@@ -399,27 +399,27 @@ const prototype: (
   model: string,
 ): {
   id: string;
-  modelRecipe: string;
+  model: string;
   weight: number;
   lod: {
     tier: "near";
     maxDistance: null;
-    recipe: string;
-    recipeDigest: `sha256:${string}`;
     model: string;
+    modelDigest: `sha256:${string}`;
+    runtimeModel: string;
   }[];
   projectionRadius: number;
 } => ({
   id,
-  modelRecipe: model,
+  model: model,
   weight: 0,
   lod: [
     {
       tier: "near" as const,
       maxDistance: null,
-      recipe: model,
-      recipeDigest: `sha256:${"7".repeat(64)}` as const,
       model,
+      modelDigest: `sha256:${"7".repeat(64)}` as const,
+      runtimeModel: model,
     },
   ],
   projectionRadius: 1,

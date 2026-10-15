@@ -36,7 +36,7 @@ export function test_render_budget_compact_population(): void {
     id: "crowd",
     anonymousCount: 10,
     chunks: [{}, {}],
-    lod: [{ tier: "near", model: "window-model" }],
+    lod: [{ tier: "near", runtimeModel: "window-model" }],
   } as unknown as IAutoMovieCompiledFormation;
 
   const effect: IAutoMovieCompiledEffect = {
@@ -94,7 +94,12 @@ export function test_render_budget_compact_population(): void {
   });
   set.lod = [
     { ...set.lod[0]!, maxDistance: 10 },
-    { ...set.lod[0]!, tier: "far", maxDistance: null, model: "far-heavy" },
+    {
+      ...set.lod[0]!,
+      tier: "far",
+      maxDistance: null,
+      runtimeModel: "far-heavy",
+    },
   ];
   const population: ReturnType<typeof measure> = measure({
     scene: { ...sceneFixture(), nodes: [], lights: [] },

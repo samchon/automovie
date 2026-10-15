@@ -13,16 +13,18 @@ import { resolveAutoMovieMaterialTexture } from "./resolveAutoMovieMaterialTextu
 import { applySubsurfaceShading } from "./subsurfaceShading/index.js";
 
 /**
- * Build a `three.js` physical PBR material from an automovie material. It
+ * Build a `three.js` physical PBR material from an automovie material, mapping
+ * each optional lobe to the `MeshPhysicalMaterial` property of the same glTF
+ * meaning and leaving an omitted lobe at its neutral value. It
  * carries the material's name, or its id when unnamed, as the glTF export
  * does, so a preview can recognise a finish by it.
  * The producer owns its new material before resolving texture bindings. Setup
  * failure retires that material and preserves cleanup causes; resolver textures
  * and shared shader tables remain owned by their actual producers.
  *
- * @evidence contracts/common.md#principled-implementation Maps admitted linear PBR coefficients/alpha policy into MeshPhysicalMaterial and resolves binding-private textures with explicit color-space roles; glTF combined metallic-roughness uses one shared binding, while subsurface/detail/overlay shader features follow their actual producer conventions rather than claiming a measured full spectral material model.
+ * @evidence contracts/common.md#principled-implementation Maps admitted linear PBR coefficients/alpha policy and the glTF anisotropy, sheen, specular and volume parameters (degrees to radians, a declared sheen at intensity one) into MeshPhysicalMaterial and resolves binding-private textures with explicit color-space roles; glTF combined metallic-roughness uses one shared binding, while subsurface/detail/overlay shader features follow their actual producer conventions rather than claiming a measured full spectral material model.
  * @evidence contracts/common.md#clear-and-simple-design Owns material field realization and delegates sampler admission plus feature-specific shader injection to their existing owners; optional omission yields documented scalar/default behavior without a second material representation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses authored coefficients and contract defaults (mask cutoff0.5, ior1.5, neutral overlay factors), not expected-frame textures; no resolver/global method is replaced, and unresolved optional maps produce scalar material rather than pretending an image was decoded.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses authored coefficients and contract defaults (mask cutoff0.5, ior1.5, specular intensity 1, isotropic and sheen-free lobes, neutral overlay factors), not expected-frame textures; no resolver/global method is replaced, and unresolved optional maps produce scalar material rather than pretending an image was decoded.
  * @evidence contracts/common.md#meaningful-documentation Documents name/id identity, new-material ownership, separate texture/shared-table lifetime and failure preservation; individual texture roles and detail-only normal fallback are explicit in their owning helpers/comments.
  * @evidence contracts/performance.md#efficient-algorithms Performs fixed PBR/binding setup plus O(K) authored overlay resolution and feature source initialization; material storage grows with active texture/overlay bindings, not mesh vertices or instance population, and combined metallic/roughness reuses one resolved texture.
  * @evidence contracts/performance.md#reuse-equivalent-work Resolves the shared metallic-roughness binding once and borrows primed texture-cache bindings, while model/library owners share equivalent material variants across parts/surfaces; this producer creates one independent material per request.
@@ -60,8 +62,22 @@ export const buildMaterial: (
           ior: material.ior ?? 1.5,
           thickness: material.thickness ?? 0,
           clearcoat: material.clearcoat ?? 0,
+          specularIntensity: material.specularIntensity ?? 1,
+          anisotropy: material.anisotropy?.strength ?? 0,
+          anisotropyRotation:
+            ((material.anisotropy?.rotationDeg ?? 0) * Math.PI) / 180,
+          // glTF sheen has no intensity factor: a declared lobe is at full
+          // intensity and its colour scales it
+          sheen: material.sheen === undefined ? 0 : 1,
+          sheenRoughness: material.sheen?.roughness ?? 1,
         }),
       );
+      if (material.sheen !== undefined)
+        std.sheenColor.setRGB(
+          material.sheen.color.r,
+          material.sheen.color.g,
+          material.sheen.color.b,
+        );
       if (material.subsurfaceRadius !== undefined)
         applySubsurfaceShading(std, material.subsurfaceRadius);
       std.map = resolveAutoMovieMaterialTexture(
@@ -164,6 +180,16 @@ export const buildMaterial: (
               ? []
               : [{ ...overlay, color: overlay.color }],
         ),
+      );
+      std.thicknessMap = resolveAutoMovieMaterialTexture(
+        material.thicknessTexture,
+        "linear",
+        resolveTexture,
+      );
+      std.anisotropyMap = resolveAutoMovieMaterialTexture(
+        material.anisotropy?.texture,
+        "linear",
+        resolveTexture,
       );
       std.aoMap = resolveAutoMovieMaterialTexture(
         material.occlusionTexture,

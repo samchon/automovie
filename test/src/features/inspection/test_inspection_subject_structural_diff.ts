@@ -250,7 +250,7 @@ const compactSet: (
   version: 1,
   id,
   count: 2,
-  modelRecipe: "stable",
+  model: "stable",
   layout: {
     kind: "grid",
     rows: 1,
@@ -277,9 +277,9 @@ const compactSet: (
     {
       tier: "near",
       maxDistance: null,
-      recipe: "stable",
-      recipeDigest: `sha256:${"4".repeat(64)}`,
       model: "stable",
+      modelDigest: `sha256:${"4".repeat(64)}`,
+      runtimeModel: "stable",
     },
   ],
   digest: `sha256:${"5".repeat(64)}`,

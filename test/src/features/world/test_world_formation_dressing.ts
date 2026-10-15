@@ -16,7 +16,7 @@ const line: (props: {
   dressing?: { lateral: number; depth: number };
 }): IAutoMovieFormationDesign => ({
   id: "probe-line",
-  modelRecipe: "probe-model",
+  model: "probe-model",
   count: COUNT,
   layout: {
     kind: "line",

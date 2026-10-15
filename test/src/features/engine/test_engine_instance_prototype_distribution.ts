@@ -29,29 +29,29 @@ const shares: (
 };
 
 /**
- * A two-thousand-member weighted table accounts for the default once through both direct and compiled instance regeneration. Proportions and recipe ownership keep the original statistical bounds.
+ * A two-thousand-member weighted table accounts for the default once through both direct and compiled instance regeneration. Proportions and model ownership keep the original statistical bounds.
  *
  * Scenarios:
  * 1. Default/tall/short weights 1/2/1 produce 25/50/25 percent within four points.
  * 2. Compilation prepends the default once and retains the same population and law.
  *
- * @evidence contracts/testing.md#behavioral-verification Regenerates all 2000 addressed slots through the actual member owner and repeats through actual compiled instance materialization, observing weighted prototype shares, recipe linkage and one default entry.
+ * @evidence contracts/testing.md#behavioral-verification Regenerates all 2000 addressed slots through the actual member owner and repeats through actual compiled instance materialization, observing weighted prototype shares, model linkage and one default entry.
  * @evidence contracts/testing.md#independent-expectations Literal weights 1/2/1 imply shares .25/.5/.25, each under the original strict four-percentage-point bound. This is one fixed-seed population witness rather than an exhaustive probability or independence proof; the share counter only summarizes observed choices.
- * @evidence contracts/testing.md#distinguishing-cases Compares direct default-first placement with a design that lists only two nondefault prototypes, preserving every slot and recipe association. Zero/invalid weights and explicit prototype selection belong to their dedicated admission/selection units.
+ * @evidence contracts/testing.md#distinguishing-cases Compares direct default-first placement with a design that lists only two nondefault prototypes, preserving every slot and model association. Zero/invalid weights and explicit prototype selection belong to their dedicated admission/selection units.
  * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns local placements, compiled records and arrays via existing canonical fixtures; it opens no file, renderer, browser or GPU and replaces no foreign method or installed consumer.
  */
 export function test_engine_instance_prototype_distribution(): void {
   // 3. Weighted table with the default first.
   const table: ReturnType<typeof crowd> = crowd({
     prototypes: [
-      { id: "default", modelRecipe: "body", weight: 1 },
-      { id: "tall", modelRecipe: "tall-body", weight: 2 },
-      { id: "short", modelRecipe: "short-body", weight: 1 },
+      { id: "default", model: "body", weight: 1 },
+      { id: "tall", model: "tall-body", weight: 2 },
+      { id: "short", model: "short-body", weight: 1 },
     ],
   });
   const chosen: ReturnType<typeof slots> = slots(table);
   const tableShares: ReturnType<typeof shares> = shares(chosen);
-  const recipeOf: Record<string, string> = {
+  const modelOf: Record<string, string> = {
     default: "body",
     tall: "tall-body",
     short: "short-body",
@@ -78,24 +78,24 @@ export function test_engine_instance_prototype_distribution(): void {
           Math.abs(tableShares.short! - 0.25) < 0.04,
       ],
       [
-        "recipeFollowsPrototype",
+        "modelFollowsPrototype",
         (): boolean =>
           chosen.every(
             (member: (typeof chosen)[number]): boolean =>
-              member.modelRecipe === recipeOf[member.prototype!],
+              member.model === modelOf[member.prototype!],
           ),
       ],
     ]),
-    { default: true, tall: true, short: true, recipeFollowsPrototype: true },
+    { default: true, tall: true, short: true, modelFollowsPrototype: true },
   );
 
   // 4. The same table from a design compiles the default in once.
   const design: IAutoMovieInstanceSetDesign = {
     id: "crowd",
-    modelRecipe: "body",
+    model: "body",
     prototypes: [
-      { id: "tall", modelRecipe: "tall-body", weight: 2 },
-      { id: "short", modelRecipe: "short-body", weight: 1 },
+      { id: "tall", model: "tall-body", weight: 2 },
+      { id: "short", model: "short-body", weight: 1 },
     ],
     count: COUNT,
     layout: { kind: "grid", rows: 50, columns: 40, spacing: { x: 1, z: 1 } },

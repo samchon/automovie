@@ -1,4 +1,4 @@
-import { IAutoMovieJointAxes } from "../IAutoMovieJointAxes";
+import { IAutoMovieJointAxes } from "@automovie/interface";
 
 /** The default clinical basis: flexion→X, abduction→Z, twist→Y. */
 export const DEFAULT_JOINT_AXES: IAutoMovieJointAxes = {

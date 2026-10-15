@@ -1,7 +1,7 @@
 import type {
   IAutoMovieCompiledFormationLod,
   IAutoMovieModel,
-  IAutoMovieModelLodRecipe,
+  IAutoMovieModelLod,
 } from "@automovie/interface";
 
 import { productionRuntimeModelId } from "../productionRuntimeModelId";
@@ -34,8 +34,8 @@ import { compiledLodModelDigest } from "./compiledLodModelDigest";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only fresh tier records and one radius transfer to the caller; no registry, measurement task or cache is retained.
  */
 export const compiledPopulationRepresentation: (props: {
-  /** Base model group the population prototype names. */ modelRecipe: string;
-  /** Declared tiers that apply to this population, before the default. */ tiers: readonly IAutoMovieModelLodRecipe[];
+  /** Base model group the population prototype names. */ model: string;
+  /** Declared tiers that apply to this population, before the default. */ tiers: readonly IAutoMovieModelLod[];
   /** Model groups keyed by the id populations and tiers name, for tier digests. */ models: ReadonlyMap<
     string,
     IAutoMovieModel
@@ -49,9 +49,9 @@ export const compiledPopulationRepresentation: (props: {
   projectionRadius: number;
 } = (props: {
   /** Base model group the population prototype names. */
-  modelRecipe: string;
+  model: string;
   /** Declared tiers that apply to this population, before the default. */
-  tiers: readonly IAutoMovieModelLodRecipe[];
+  tiers: readonly IAutoMovieModelLod[];
   /** Model groups keyed by the id populations and tiers name, for tier digests. */
   models: ReadonlyMap<string, IAutoMovieModel>;
   /** Supplied root-centered radius estimate in metres keyed by model group id. */
@@ -63,15 +63,15 @@ export const compiledPopulationRepresentation: (props: {
           {
             tier: "near" as const,
             maxDistance: null,
-            recipe: props.modelRecipe,
+            model: props.model,
           },
         ]
       : props.tiers
   ).map(
-    (item: IAutoMovieModelLodRecipe): IAutoMovieCompiledFormationLod => ({
+    (item: IAutoMovieModelLod): IAutoMovieCompiledFormationLod => ({
       ...item,
-      recipeDigest: compiledLodModelDigest(props.models, item.recipe),
-      model: productionRuntimeModelId(item.recipe),
+      modelDigest: compiledLodModelDigest(props.models, item.model),
+      runtimeModel: productionRuntimeModelId(item.model),
     }),
   );
   return {
@@ -80,8 +80,8 @@ export const compiledPopulationRepresentation: (props: {
       0.01,
       ...lod.map(
         (item: IAutoMovieCompiledFormationLod): number =>
-          props.projectionRadii.get(item.recipe) ??
-          props.projectionRadii.get(props.modelRecipe) ??
+          props.projectionRadii.get(item.model) ??
+          props.projectionRadii.get(props.model) ??
           0.5,
       ),
     ),

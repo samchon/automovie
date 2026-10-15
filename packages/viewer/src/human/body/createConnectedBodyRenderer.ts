@@ -115,7 +115,10 @@ export function createConnectedBodyRenderer(
         ]),
       );
       try {
-        await textures.prime(model.materials.flatMap(materialTextureBindings));
+        await textures.prime(
+          model.materials.flatMap(materialTextureBindings),
+          model.images,
+        );
         retirement.requireOpen();
         // Float32 attributes are array-like, but Three's setIndex treats a
         // Uint32Array as an already constructed BufferAttribute. Materialize

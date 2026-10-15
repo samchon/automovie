@@ -60,7 +60,7 @@ const unit: (
   materializeCompiledFormation({
     formation: {
       id,
-      modelRecipe: `${id}-model`,
+      model: `${id}-model`,
       count,
       layout: {
         kind: "line",
@@ -175,7 +175,7 @@ const compiled: () => IAutoMovieCompiledShotSource =
         materializeCompiledInstanceSet({
           instanceSet: {
             id: "crowd",
-            modelRecipe: "crowd-model",
+            model: "crowd-model",
             count: CROWD_COUNT,
             // One row, so every slot shares the anchor's depth and the set's
             // centroid is the anchor itself: a grid centers its columns on the

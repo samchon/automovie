@@ -35,7 +35,7 @@ export interface IAutoMoviePropSpec {
    *
    * The reference buys appearance only. Authored proxy parts, explicit footprint/clearance boxes and affordances remain the inputs to occupancy, bearing, clearance, containment and passage measurements. Body, articulation and placement remain this spec's own data; this path does not infer mass, a seat face, a hinge or a keep-out volume from imported bytes.
    *
-   * The value names a model recipe id or runtime model id the production registry owns, as a built environment's `modelReferences` entries do. It means "forge me as an imported appearance", unlike a cast member's `modelRef`, which skips forging because an imported rig carries the bones a performer is driven through.
+   * The value names a model group id or runtime model id the production registry owns, as a built environment's `modelReferences` entries do. It means "forge me as an imported appearance", unlike a cast member's `modelRef`, which skips forging because an imported rig carries the bones a performer is driven through.
    *
    * Stating it makes `forgeProp` require a non-blank value, `origin: "imported"`, a non-null `asset`, and a sealed `imported` closure: unique asset paths with `sha256:` digests of 64 lowercase hex digits, the rigid `gltf-static-v1` profile on the closure and every LOD with no humanoid bones, unique LOD levels whose asset and digest match the ledger, and a `hero` LOD binding `asset`. The production shot runtime then refuses a reference that does not resolve to a registered glTF, GLB or VRM appearance, a closure other than the one it sealed, and an `asset` other than the registered one.
    */

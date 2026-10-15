@@ -49,7 +49,7 @@ export const describeAutoMovieInstanceSetSubject = (
   revision: string,
   memberOffset: number,
 ): IAutoMovieSubjectDescription => {
-  const model: string | null = set.lod[0]?.model ?? null;
+  const model: string | null = set.lod[0]?.runtimeModel ?? null;
   const address: string = autoMovieSubjectAddress("instance-set", set.id);
   const runtime: IAutoMovieModel | undefined =
     model === null ? undefined : models.get(model);

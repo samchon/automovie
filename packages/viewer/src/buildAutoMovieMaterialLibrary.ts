@@ -1,5 +1,9 @@
 import { resolveAutoMovieMaterial } from "@automovie/engine";
-import type { IAutoMovieMaterial } from "@automovie/interface";
+import type {
+  IAutoMovieImage,
+  IAutoMovieMaterial,
+  IAutoMovieModel,
+} from "@automovie/interface";
 
 import type { IAutoMovieMaterialLibrary } from "./IAutoMovieMaterialLibrary.js";
 import type { IBuildAutoMovieMaterialLibraryProps } from "./IBuildAutoMovieMaterialLibraryProps.js";
@@ -20,7 +24,8 @@ import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceReti
  *
  * Each admitted id is built once and shared by every borrowing surface. Texture
  * assets are primed through the shot cache before synchronous material
- * construction; that cache owns binding-private texture clones and decoded
+ * construction, together with the images carried by the models that declare
+ * the requested materials; that cache owns binding-private texture clones and decoded
  * sources, while the returned library owns only the `THREE.Material` objects.
  * Construction refusal retires already-built materials independently. Disposal
  * attempts every material once, retains failed ownership and preserves the same
@@ -66,7 +71,19 @@ export const buildAutoMovieMaterialLibrary: (
     throw new Error(
       "Requested materials bind texture assets but no shot texture cache was supplied.",
     );
-  await props.textures?.prime(bindings);
+  // A binding resolves against the images of the models that declare it.
+  await props.textures?.prime(
+    bindings,
+    props.models
+      .filter((model: IAutoMovieModel): boolean =>
+        model.materials.some((material: IAutoMovieMaterial): boolean =>
+          definitions.has(material.id),
+        ),
+      )
+      .flatMap(
+        (model: IAutoMovieModel): IAutoMovieImage[] => model.images ?? [],
+      ),
+  );
 
   const materials: Map<
     string,

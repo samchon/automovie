@@ -71,9 +71,13 @@ export const DEFAULT_HUMANOID_ROM: Partial<
   upperChest: constraint(range(-15, 30), range(-20, 20), range(-30, 30)),
   neck: constraint(range(-50, 45), range(-40, 40), range(-70, 70)),
   head: constraint(range(-50, 45), range(-40, 40), range(-70, 70)),
-  jaw: constraint(range(0, 35), range(-10, 10), null),
-  leftEye: constraint(range(-30, 30), range(-45, 45), null),
-  rightEye: constraint(range(-30, 30), range(-45, 45), null),
+  // The jaw and eyes have no `HUMANOID_JOINT_AXES` entry, so they read the
+  // default basis: flexion about X (jaw opening, gaze down), twist about Y (a
+  // sideways jaw shift, a horizontal gaze) and abduction about Z, a roll
+  // neither performs.
+  jaw: constraint(range(0, 35), null, range(-10, 10)),
+  leftEye: constraint(range(-30, 30), null, range(-45, 45)),
+  rightEye: constraint(range(-30, 30), null, range(-45, 45)),
 
   // ── arms ──
   leftShoulder: constraint(range(-15, 30), range(-30, 30), null),

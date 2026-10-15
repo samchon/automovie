@@ -86,9 +86,9 @@ interface IInstanceChunkObject {
  * hundred thousand members holds one batch per chunk, prototype and LOD tier,
  * and each member costs one instance matrix rather than one object.
  *
- * A prototype is either the builder's generated recipe or a host-loaded
+ * A prototype is either a portable model the builder flattens or a host-loaded
  * object; passing `prototypeObjects` is what lets a registered static glTF be
- * the prototype, and it is flattened by the same rigid path a generated recipe
+ * the prototype, and it is flattened by the same rigid path a portable model
  * takes. Rigid is the whole condition: a skinned, morphed, or multi-material
  * source mesh is refused by name rather than instanced as something else.
  * Generated prototype materials are owned and reused as white instance-only
@@ -129,7 +129,7 @@ export const buildInstancedInstanceSet: (
         .instanceSet.prototypes ?? [
         {
           id: "default",
-          modelRecipe: input.instanceSet.modelRecipe,
+          model: input.instanceSet.model,
           weight: 1,
           lod: input.instanceSet.lod,
           projectionRadius: input.instanceSet.projectionRadius,
@@ -166,15 +166,15 @@ export const buildInstancedInstanceSet: (
                   IInstanceRepresentation,
                 ] => {
                   const model: IAutoMovieModel | undefined = input.models.get(
-                    lod.model,
+                    lod.runtimeModel,
                   );
                   if (model === undefined)
                     throw new Error(
-                      `Instance set "${input.instanceSet.id}" prototype "${prototype.id}" LOD "${lod.tier}" references missing runtime model "${lod.model}".`,
+                      `Instance set "${input.instanceSet.id}" prototype "${prototype.id}" LOD "${lod.tier}" references missing runtime model "${lod.runtimeModel}".`,
                     );
                   const owner: string = `Instance set "${input.instanceSet.id}" prototype "${prototype.id}" LOD "${lod.tier}"`;
                   const loaded: IAutoMovieModelObject | undefined =
-                    input.prototypeObjects?.get(lod.model);
+                    input.prototypeObjects?.get(lod.runtimeModel);
                   const representation: IAutoMovieInstancedModelRepresentation<IAutoMovieFormationCycle | null> =
                     loaded === undefined
                       ? flattenInstancedModel(model, owner)
@@ -309,7 +309,7 @@ export const buildInstancedInstanceSet: (
                       // off would silently brighten every instanced set while materials
                       // built from an `IAutoMovieColor` triple stayed where they were.
                       // Decoding explicitly is also what makes the two authoring paths
-                      // one conversion: the builder decodes a recipe palette with this
+                      // one conversion: the builder decodes a model palette with this
                       // same function on its way into `baseColor`.
                       let paint: THREE.Color | undefined = paletteColors.get(
                         slot.palette,

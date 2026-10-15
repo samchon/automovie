@@ -116,7 +116,7 @@ function artifact(
     prototypes: [
       {
         id: prototype,
-        modelRecipe: model,
+        model: model,
         weight: 1,
         lod: base.lod,
         projectionRadius: 1,

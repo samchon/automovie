@@ -383,7 +383,7 @@ export function test_world_formation_ground(): void {
 
   const design: IAutoMovieFormationDesign & IAutoMovieFormationGrounding = {
     id: "block",
-    modelRecipe: "member",
+    model: "member",
     count: COUNT,
     layout: {
       kind: "line",

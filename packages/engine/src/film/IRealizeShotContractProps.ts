@@ -63,7 +63,7 @@ export interface IRealizeShotContractProps {
   /**
    * Formation designs by id. A camera subject named here is placed and boxed
    * as a formation rather than as a scene node, and each formation participant
-   * is held to its design's count and model recipe.
+   * is held to its design's count and model group.
    */
   formations: ReadonlyMap<string, IAutoMovieFormationDesign>;
 

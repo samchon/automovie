@@ -7,28 +7,28 @@ const SLOTS: number = 2_000;
 
 interface IChoice {
   id: string;
-  modelRecipe: string;
+  model: string;
   weight: number;
 }
 
-/** Preserve the authored prototype identity, recipe spelling and scalar weight. */
+/** Preserve the authored prototype identity, model spelling and scalar weight. */
 const choice: (id: string, weight: number) => IChoice = (
   id: string,
   weight: number,
 ): IChoice => ({
   id,
-  modelRecipe: `${id}-recipe`,
+  model: `${id}-model`,
   weight,
 });
 
-/** A grove drawing from `prototypes`, or from its base recipe without them. */
+/** A grove drawing from `prototypes`, or from its base model without them. */
 const grove: (
   prototypes?: IChoice[],
   seed?: number,
 ) => {
   id: string;
   seed: number;
-  modelRecipe: string;
+  model: string;
   prototypes: IChoice[] | undefined;
 } = (
   prototypes?: IChoice[],
@@ -36,12 +36,12 @@ const grove: (
 ): {
   id: string;
   seed: number;
-  modelRecipe: string;
+  model: string;
   prototypes: IChoice[] | undefined;
 } => ({
   id: "grove",
   seed,
-  modelRecipe: "oak",
+  model: "oak",
   prototypes,
 });
 
@@ -77,7 +77,7 @@ const share: (drawn: readonly IChoice[], id: string) => number = (
  *
  * Scenarios:
  *
- * 1. A set without a table draws its base recipe as `default` on every slot, and
+ * 1. A set without a table draws its base model as `default` on every slot, and
  *    a one-entry table draws that entry, the table's own object, on every slot.
  * 2. Weights 1:2:1 are drawn in about those shares. A zero-weight choice between
  *    two others is never drawn while its twin of weight one takes about a third;
@@ -102,12 +102,12 @@ export function test_engine_prototype_selection(): void {
     "a set with one choice draws it on every slot",
     namedFacts([
       [
-        "baseRecipe",
+        "baseModel",
         (): boolean =>
           base.every(
             (value: IChoice): boolean =>
               value.id === "default" &&
-              value.modelRecipe === "oak" &&
+              value.model === "oak" &&
               nclose(value.weight, 1, 0),
           ),
       ],
@@ -119,7 +119,7 @@ export function test_engine_prototype_selection(): void {
           ),
       ],
     ]),
-    { baseRecipe: true, loneEntry: true },
+    { baseModel: true, loneEntry: true },
   );
 
   const weighted: IChoice[] = draws(
