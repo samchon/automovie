@@ -34,8 +34,10 @@ import { transportAutoMovieSweepSpine } from "./transportAutoMovieSweepSpine";
  * elsewhere, and `settleAutoMovieSweepVolume` finds the factor whose volume,
  * from the rest section moments and this pose's frames by
  * `integrateAutoMovieSweepVolume`, equals the rest volume. Without either the
- * scale stays the rest profile. Shapes before the scale never change with
- * the pose, so they are read once at registration.
+ * scale stays the rest profile. A girth factor set by `girth` then multiplies
+ * every scale slot, at rest and after settling, so the settled volume is the
+ * rest volume before that correction. Shapes before the scale never change
+ * with the pose, so they are read once at registration.
  *
  * @param props.sweep The sweep, only read and retained through its compiled surface.
  * @param props.binding Bone indices of its spine points and stations, as `IAutoMovieSweepBinding` names them; omitted, the sweep stays at rest.
@@ -188,12 +190,15 @@ export const rigAutoMovieSweep: (props: {
     probe,
     sample,
     seal: (): void => undefined,
+    girth: (): void => undefined,
     frames: new Float64Array(0),
     scales: new Float64Array(0),
     probes: new Float64Array(0),
     pose: (): void => undefined,
   };
   let restFrames: Float64Array = new Float64Array(0);
+  // the girth factor of each scale slot, 1 until a network sets it
+  let girth: Float64Array = new Float64Array(0);
   let restScales: Float64Array = new Float64Array(0);
   // a section point of a probe at a frame and scale slot, written at scratch[o]
   const scratch: Float64Array = new Float64Array(12);
@@ -289,9 +294,28 @@ export const rigAutoMovieSweep: (props: {
     );
     restFrames = rig.frames.slice();
     restScales = rig.scales.slice();
+    girth = new Float64Array(scaleU.length).fill(1);
     probeAll();
     if (binding === undefined) return;
     rig.pose = bind(binding);
+  };
+
+  rig.girth = (factor: (u: number) => number): void => {
+    if (!sealed)
+      throw new Error(
+        "a sweep rig takes a girth factor only after it is sealed",
+      );
+    for (let k: number = 0; k < scaleU.length; ++k) {
+      const g: number = factor(scaleU[k]!);
+      if (!(Number.isFinite(g) && g > 0))
+        throw new Error(
+          `girth factor at u ${scaleU[k]} is not positive and finite`,
+        );
+      girth[k] = g;
+      restScales[k] = surface.scale(scaleU[k]!) * g;
+    }
+    rig.scales.set(restScales);
+    probeAll();
   };
 
   // the posed sweep: spine, orientation and, with joint stations, volume
@@ -490,7 +514,7 @@ export const rigAutoMovieSweep: (props: {
         orientation.frame(j / (2 * steps), planes, 12 * j);
       profile(settleAutoMovieSweepVolume(target, volume));
       for (let k: number = 0; k < scaleU.length; ++k)
-        rig.scales[k] = at(scaleU[k]!);
+        rig.scales[k] = at(scaleU[k]!) * girth[k]!;
     };
   };
   return rig;
