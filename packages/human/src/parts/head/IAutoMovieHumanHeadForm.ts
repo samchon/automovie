@@ -1,107 +1,57 @@
 /**
- * The named form coefficients of the head's distance field: dimensionless exponents and fractions of the person's own head and face measurements, so one set serves every identity.
+ * The named form coefficients of the lofted head: dimensionless exponents and fractions of the person's own face height, so one set serves every identity.
  *
- * Lengths are fractions of face height (`fh`), face width (`fw`) or head height (`hh`) as each field says; exponents are superellipse exponents, 2 for an ellipse, larger for a squarer section.
+ * Depths named "behind subnasale" are horizontal distances, head in the Frankfort plane, from the true vertical through subnasale, the reference of soft-tissue profile analysis; heights are fractions of face height (`fh`, nasion to gnathion). Exponents are superellipse exponents of a section quadrant: 2 for an ellipse, larger for a squarer turn, smaller toward a diamond.
  *
  * @author Samchon
  */
 export interface IAutoMovieHumanHeadForm {
-  /** Vault: superellipsoid exponent of the top half behind the forehead. */
-  vaultTop: number;
+  /** Profile: the cheek plane under the nose at the zygion's level behind subnasale, `fh`, the base the nose rises from. */
+  midfaceBehindSubnasale: number;
 
-  /** Vault: exponent of the top half over the forehead, higher for a more upright forehead. */
-  vaultForehead: number;
+  /** Profile: the base under the closed lips at stomion behind subnasale, `fh`; the lips rise from it. */
+  stomionBehindSubnasale: number;
 
-  /** Vault: exponent of the lower half, the walls down to the cranial base. */
-  vaultBottom: number;
+  /** Profile: soft-tissue B point, the deepest point of the labiomental fold, behind subnasale, `fh`. */
+  labiomentalBehindSubnasale: number;
 
-  /** Vault: how far its lower half reaches below tragion at the back, `hh`. */
-  mastoid: number;
+  /** Profile: soft-tissue pogonion behind subnasale, `fh`. */
+  pogonionBehindSubnasale: number;
 
-  /** Vault: how far its lower half reaches below tragion at the temples, `hh`. */
-  temple: number;
+  /** Profile: soft-tissue pogonion above menton, `fh`. */
+  pogonionAboveMenton: number;
 
-  /** Vault: how far its front reaches below glabella, under the brows, `hh`. */
-  orbitRoof: number;
 
-  /** Vault: fraction of the front semi-axis where the front starts receding into the orbits. */
-  recedeStart: number;
+  /** Profile: exponent of the forehead's arc from glabella to the vertex. */
+  forehead: number;
 
-  /** Vault: fraction of the front semi-axis where it has receded. */
-  recedeEnd: number;
+  /** Profile: exponent of the vault's back from opisthocranion to the vertex. */
+  vaultBack: number;
 
-  /** Midface: its front behind nasion, `fh`. */
-  midfaceFront: number;
+  /** Profile: exponent of the occiput's arc from opisthocranion down to the nape. */
+  occiput: number;
 
-  /** Midface: its top above the eyes' centres, `fh`. */
-  midfaceTop: number;
+  /** Breadth: height of the head's widest section above tragion, over the vertex's height above tragion. */
+  eurionHeight: number;
 
-  /** Midface: its bottom below subnasale, `fh`. */
-  midfaceBottom: number;
+  /** Breadth: exponent of the vault's frontal outline from eurion to the vertex. */
+  vaultSide: number;
 
-  /** Midface: exponent of its horizontal section, the cheeks' turn from the front to the sides. */
-  cheekExponent: number;
+  /** Sections: exponent of the front quadrants at the vertex. */
+  frontVault: number;
 
-  /** Midface: exponent of its vertical section. */
-  midfaceExponent: number;
+  /** Sections: exponent of the front quadrants at subnasale, the maxilla's turn from the nose base to the cheeks. */
+  frontSubnasale: number;
 
-  /** Jaw: its centre above the mandible's lower border, the line from gonion to menton, `fh`. */
-  jawLift: number;
+  /** Sections: exponent of the front quadrants at stomion, the dental arch under the lips. */
+  frontStomion: number;
 
-  /** Jaw: its upper semi-axis across the mandibular plane, `fh`. */
-  jawTop: number;
+  /** Sections: exponent of the front quadrants at pogonion, the chin's turn to the jaw. */
+  frontChin: number;
 
-  /** Jaw: exponent of its horizontal section. */
-  jawExponent: number;
+  /** Sections: exponent of the back quadrants over the vault. */
+  backVault: number;
 
-  /** Jaw: exponent of its vertical section, higher for a flatter lower border. */
-  jawBorder: number;
-
-  /** Jaw: half-width at pogonion, `fw`. */
-  chinWidth: number;
-
-  /** Jaw: how the jaw narrows from the gonia to the chin, the exponent of its taper along its depth. */
-  jawTaper: number;
-
-  /** Jaw: pogonion in front of gnathion, `fh`. */
-  pogonion: number;
-
-  /** Jaw: the chin's least depth behind subnasale, `fh`. */
-  chin: number;
-
-  /** Muzzle: half-width at stomion, `fw`. */
-  muzzleMouth: number;
-
-  /** Muzzle: depth from its front to its centre, `fh`. */
-  muzzleDepth: number;
-
-  /** Muzzle: its top above subnasale, `fh`. */
-  muzzleTop: number;
-
-  /** Muzzle: exponent of its vertical section. */
-  muzzleExponent: number;
-
-  /** Relief: zygomatic prominence height, `fh`. */
-  malar: number;
-
-  /** Relief: superciliary arch height, `fh`. */
-  brow: number;
-
-  /** Relief: temporal fossa depth, `fh`, a hollow. */
-  templeHollow: number;
-
-  /** Relief: mandibular angle height, `fh`. */
-  gonial: number;
-
-  /** Relief: mental protuberance height, `fh`. */
-  mental: number;
-
-  /** Relief: buccal fat over the cheek below the zygoma in an adult face, `fh`. */
-  buccal: number;
-
-  /** Relief: added buccal fat per unit the face's height falls short of the adult's share of head height, `fh`; the full cheeks of a small face under a large vault. */
-  buccalGrowth: number;
-
-  /** Blend width of the unions of the head's masses, `fh`. */
-  blend: number;
+  /** Sections: exponent of the back quadrants at the nape. */
+  backNape: number;
 }
