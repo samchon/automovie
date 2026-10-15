@@ -41,7 +41,7 @@ These rules add to the [3d-modeling skill](../3d-modeling/SKILL.md) for Human wo
 
 ## Verification And Reporting
 
-- Every Human part is generated from curves, so every judgment of it follows the [net review](../3d-modeling/SKILL.md#visual-debugging).
+- Every Human part is generated from curves, so every judgment of it follows the [net review](../3d-modeling/visual-debugging.md).
 - Fix form in rounds, not defect by defect: compare the joined gate identities with their nearest references in full (side-by-side views, section overlays, per-region error maps), register every defect by cause and owner, fix all causes in one pass, then rerun the same comparison.
 - Attach the screenshots behind a visual claim where the user reads them. A lead opens a subagent's screenshots before accepting its visual claim.
 - Calibrate and judge form on lean 20-year-olds: a slim, model-grade woman and man, plus a low-fat muscular woman and man for muscle relief. Fat, sagging skin and wrinkles hide wrong form, so heavier, older and younger people only confirm that the converter's range still holds after the lean four pass.

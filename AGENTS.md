@@ -10,8 +10,7 @@
 - Write everything the user sees in the user's language.
 - Write code, comments, commits, issues, and pull requests in English.
 - Let a test run, CI run, or review round finish, then fix all of its findings together by cause.
-- Do the work yourself; use subagents only when the user asks. When you lead them, delegate the work, audit their commits and renders yourself, and split an owner whose open items hold the rest back.
-- Work only in this checkout, never in another clone or worktree.
+- Do the work yourself; use subagents only when the user asks.
 - Ship each topic as its own pull request.
 - Delete every scratch file once it has served.
 
