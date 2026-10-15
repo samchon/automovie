@@ -200,9 +200,9 @@ export function planAutoMovieHumanLegStations(props: {
     },
     ...(
       [
-        ["lower calf", 0.62, 0.8, 1.02, 0.5, 12],
-        ["calcaneal tendon", 0.36, 0.42, 1.0, 0.4, 12],
-        ["above the ankle", 0.13, 0.08, 1.02, 0.28, 8],
+        ["lower calf", 0.62, 0.66, 1.02, 0.5, 12],
+        ["calcaneal tendon", 0.36, 0.26, 1.0, 0.4, 12],
+        ["above the ankle", 0.13, 0.05, 1.02, 0.28, 8],
         ["ankle", 0, 0, 1.02, 0.22, 8],
       ] as const
     ).map(
