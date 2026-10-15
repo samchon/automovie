@@ -5,7 +5,7 @@ import {
 } from "@automovie/engine";
 import { IAutoMovieMesh } from "@automovie/interface";
 
-import { AutoMovieHumanUvLayout } from "./AUTOMOVIE_HUMAN_UV_LAYOUT";
+import { AutoMovieHumanUvLayout } from "./AutoMovieHumanUvLayout";
 import { IAutoMovieHumanCage } from "./IAutoMovieHumanCage";
 
 /**
