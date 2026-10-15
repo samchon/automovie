@@ -23,13 +23,13 @@ const METACARPAL: Record<IFinger | "Thumb", number> & { thirdShare: number } = {
 };
 
 /**
- * Finger lengths beyond the metacarpophalangeal joint relative to the middle finger, from lengths measured from the crease at each finger's base. Index: 0.392 and 0.435 of hand length in boys and 0.399 and 0.439 in girls at 16 to 18 years, so 0.905, and 0.907 to 0.918 at 2 to 4 years (Snyder et al. 1977, UM-HSRI-77-17). Little: 0.74 to 0.75 of the middle finger in every age group from 2 to 13 years, boys and girls (Snyder et al. 1975, UM-HSRI-BI-75-5, little and middle finger length tables), so 0.745. Ring: no measured source was read; 0.95 is conventional. The ratios assume each crease sits alike over its joint. Grade: derived for index and little, conventional for ring.
+ * Finger lengths beyond the metacarpophalangeal joint relative to the middle finger, from the digit lengths of the 1987-1988 US Army hand survey: each finger from its tip to the centre of its proximal flexion crease, digitized from hand photographs of 1,304 women and 1,003 men (Greiner 1991, NATICK/TR-92/011, measurements 10, 22, 34 and 46). Means, women and men, cm: index 6.96 and 7.53, middle 7.72 and 8.38, ring 7.22 and 7.92, little 5.83 and 6.47, so index 0.902 and 0.899, ring 0.935 and 0.945, little 0.755 and 0.772 of the middle finger; the skeleton reads no sex, so the sexes are averaged. Children: the 1977 survey's index-to-middle ratio, 0.907 to 0.918 at 2 to 4 years (Snyder et al. 1977, UM-HSRI-77-17), and the 1975 survey's little-to-middle ratio, 0.74 to 0.75 from 2 to 13 years (Snyder et al. 1975, UM-HSRI-BI-75-5), lie within two hundredths of these adult ratios, so the adult ratios hold at every age. The ratios assume each crease sits alike over its joint. Grade: measured, then derived.
  */
 const FINGER_LENGTH: Record<IFinger, number> = {
-  Index: 0.905,
+  Index: 0.9,
   Middle: 1,
-  Ring: 0.95,
-  Little: 0.745,
+  Ring: 0.94,
+  Little: 0.764,
 };
 
 /**

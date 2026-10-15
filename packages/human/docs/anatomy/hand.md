@@ -54,14 +54,14 @@ The first stick hand set the four finger roots on a near-straight line from conv
 - The thumb's carpometacarpal joint at the metacarpal base level, radial and palmar (placement conventional), its metacarpal the measured length, its phalanges the identity's thumb length.
 - Palm length and thumb length are identity measurements. Adults: palm 0.601 (women) and 0.603 (men) of hand length (ANSUR II means), thumb 0.359 and 0.356 (1977 survey, 16 to 18 years). Children: the middle finger beyond the palm grows along the 1977 curve (0.428 to 0.439 girls, 0.416 to 0.435 boys of hand length from 2-4 to 16-18 years) and the thumb along its own (0.335 to 0.359, 0.341 to 0.356).
 - The middle finger from its joint is 1.347 times the length beyond its crease (de Leva's knuckle fraction 0.459 against ANSUR II palm length), which places the third knuckle.
-- Little finger 0.745 of the middle (1975 survey crease lengths, 0.74 to 0.75 at every age 2 to 13, `../sources/snyder-1975.md`); index 0.905 (1977); ring 0.95 still conventional.
+- Finger lengths relative to the middle finger from the 1987-1988 Army hand survey (`../sources/greiner-1991-hand.md`), sexes averaged: index 0.900, ring 0.940, little 0.764 (the earlier ring 0.95 was conventional and the little 0.745 a child value). The children's surveys give index 0.907 to 0.918 and little 0.74 to 0.75, within two hundredths, so the adult ratios hold at every age. Adult thumb 0.351 (women) and 0.359 (men) of hand length from the same survey, children along the 1977 curve.
 - The stick draws each finger and thumb root back to the wrist, the metacarpals fanning from the carpus.
 
 ## Open questions
 
 - Phalanx and metacarpal lengths as fractions of hand length for each finger (Buchholz et al. 1992, Buryanov and Kotiuk 2010): not read, both inaccessible. Joint centre positions per digit therefore rest on crease rules only.
 - Nail plate dimensions and curvature: no source read.
-- Ring finger length and the 2D:4D ratio by sex: no source read (little finger now from the 1975 survey).
+- The 2D:4D ratio by sex: the Army survey's means give index over ring 0.964 (women) and 0.951 (men), but the skeleton reads no sex and averages them.
 - Positions of the metacarpal bases (the carpometacarpal line) and of the thumb's carpometacarpal joint: no measured source; bases are taken level.
 - Child metacarpal proportions: none read; adult CT ratios are held.
 - Adult finger lengths: only the 1977 adolescents were read.

@@ -170,6 +170,14 @@ const SNYDER_1977_DIGITS: Record<"middle" | "thumb", ISexCurve> = {
 };
 
 /**
+ * Adult thumb length over hand length: the 1987-1988 US Army hand survey's digit 1 length, tip to the proximal flexion crease over the metacarpophalangeal joint, 6.35 cm in 1,304 women and 6.97 cm in 1,003 men, over measured hand length, 18.07 and 19.41 cm (Greiner 1991, NATICK/TR-92/011, measurements 1 and 59). Children take it times the 1977 survey's thumb share at their age over its share at 16 to 18 years. Grade: measured, ratio derived.
+ */
+const GREINER_THUMB: Record<AutoMovieHumanSex, number> = {
+  female: 0.3514,
+  male: 0.3591,
+};
+
+/**
  * A linear regression `intercept + stature·S + mass·m + bmi·B + age·a` in millimetres, with stature in millimetres, body mass in kilograms, body mass index in kilograms per square metre and age in years; absent terms are zero.
  */
 interface IRegression {
@@ -512,7 +520,12 @@ export function estimateAutoMovieHumanLengths(
           (1 - ANSUR_II_RATIOS.palm[sex]) *
             (ratio(SNYDER_1977_DIGITS.middle) /
               lastValue(SNYDER_1977_DIGITS.middle[sex]))),
-      thumbLength: limbScale * handLength * ratio(SNYDER_1977_DIGITS.thumb),
+      // the adult thumb share, grown along the survey's curve
+      thumbLength:
+        limbScale *
+        handLength *
+        GREINER_THUMB[sex] *
+        (ratio(SNYDER_1977_DIGITS.thumb) / lastValue(SNYDER_1977_DIGITS.thumb[sex])),
     },
     leg: {
       thighLength: limbScale * (trochanterion - tibiale),
