@@ -1,13 +1,65 @@
 /**
- * The face and the body are the same kind of problem against the same engine:
- * a connected numerical basis, compact documents against it, and a static
- * export. Each anatomy lives in its own folder at this one level, and what
- * both need (region splitting, normals, the document text envelope, the glTF
- * extensions) lives in `common`, which imports neither of them. Dependencies
- * run `face -> common <- body` and never between the two anatomies; `human`
- * composes both into one person and is imported by neither.
+ * Public entry of `@automovie/human`: the person class, its input documents, the converter contract and default, admission, and the part and junction contracts that part generators implement.
  */
-export * from "./body";
-export * from "./common";
-export * from "./face";
-export * from "./human";
+export * from "./human/AutoMovieHuman";
+export * from "./human/AUTOMOVIE_HUMAN_PART_GENERATORS";
+export * from "./human/IAutoMovieHumanPartGenerators";
+
+export * from "./structures/AutoMovieHumanActionUnit";
+export * from "./structures/AutoMovieHumanHairColor";
+export * from "./structures/AutoMovieHumanIrisColor";
+export * from "./structures/AutoMovieHumanPopulation";
+export * from "./structures/AutoMovieHumanSex";
+export * from "./structures/IAutoMovieHumanAppearance";
+export * from "./structures/IAutoMovieHumanExpression";
+export * from "./structures/IAutoMovieHumanIdentity";
+export * from "./structures/IAutoMovieHumanPose";
+export * from "./structures/IAutoMovieHumanTraits";
+
+export * from "./measure/AutoMovieHumanAdmissionError";
+export * from "./measure/AutoMovieHumanConverter";
+export * from "./measure/IAutoMovieHumanConverter";
+export * from "./measure/IAutoMovieHumanLandmarks";
+export * from "./measure/IAutoMovieHumanMeasurements";
+export * from "./measure/IAutoMovieHumanSkeletalMeasurements";
+export * from "./measure/measureAutoMovieHumanLandmarks";
+export * from "./measure/validateAutoMovieHumanIdentity";
+export * from "./measure/validateAutoMovieHumanTraits";
+
+export * from "./skeleton/IAutoMovieHumanSkeleton";
+export * from "./skeleton/measureAutoMovieHumanSkeleton";
+
+export * from "./junction/AUTOMOVIE_HUMAN_NECK_BASE_FLARE";
+export * from "./junction/AUTOMOVIE_HUMAN_RINGS";
+export * from "./junction/AUTOMOVIE_HUMAN_THIGH_GIRTH";
+export * from "./junction/AUTOMOVIE_HUMAN_UPPER_ARM_SECTION";
+export * from "./junction/AUTOMOVIE_HUMAN_UV_LAYOUT";
+export * from "./junction/AUTOMOVIE_HUMAN_WRIST_SECTION";
+export * from "./junction/AutoMovieHumanBranch";
+export * from "./junction/AutoMovieHumanCageBuilder";
+export * from "./junction/AutoMovieHumanDirection";
+export * from "./junction/AutoMovieHumanJunction";
+export * from "./junction/AutoMovieHumanJunctionSite";
+export * from "./junction/AutoMovieHumanPart";
+export * from "./junction/AutoMovieHumanRingCurve";
+export * from "./junction/AutoMovieHumanSide";
+export * from "./junction/AutoMovieHumanTissue";
+export * from "./junction/AutoMovieHumanUvLayout";
+export * from "./junction/IAutoMovieHumanCage";
+export * from "./junction/IAutoMovieHumanJunction";
+export * from "./junction/IAutoMovieHumanRing";
+export * from "./junction/IAutoMovieHumanRingDefinition";
+export * from "./junction/IAutoMovieHumanRingLayout";
+export * from "./junction/IAutoMovieHumanRingShape";
+export * from "./junction/IAutoMovieHumanSurfaceCoordinate";
+export * from "./junction/layoutAutoMovieHumanRing";
+export * from "./junction/measureAutoMovieHumanJunctionGirth";
+export * from "./junction/meshAutoMovieHumanCage";
+export * from "./junction/shapeAutoMovieHumanRing";
+
+export * from "./parts/IAutoMovieHumanPartGenerator";
+
+export * from "./rig/validateAutoMovieHumanExpression";
+export * from "./rig/validateAutoMovieHumanPose";
+
+export * from "./appearance/validateAutoMovieHumanAppearance";

@@ -7,11 +7,7 @@ export default {
     {
       name: "playground declarations",
       type: "typescript",
-      files: [
-        "src/**/*.ts",
-        // A global augmentation the TypeScript adapter cannot address.
-        "!src/viewer/page.ts",
-      ],
+      files: ["src/**/*.ts"],
       symbol: ["type", "function"],
       reference: {
         type: "markdown",

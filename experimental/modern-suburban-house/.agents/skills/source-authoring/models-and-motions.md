@@ -6,11 +6,11 @@ Read [Geometry](geometry.md) before changing triangle data or choosing a geometr
 
 ## Model decisions
 
-## Anatomical face models
+## Generated human models
 
-Identity, observed expression and current expression are separate records. An omitted current expression means neutral; it does not replay the photographed smile. A motion owner may evaluate its completed time-varying expression and call the face builder for the selected pose. This is procedural reconstruction, not a skinned animation or a real-time playback guarantee. Record the sampling cost and supported combinations before choosing it for a shot.
+Identity, pose and expression are separate documents. `pose` admits an `IAutoMovieHumanPose` against the person's own range of motion and returns the engine pose. `express` admits an `IAutoMovieHumanExpression`, FACS action units with an intensity and side, where an empty list is the neutral face; it returns the neutral engine expression until the face carries its morph targets, so plan facial acting for a shot only once the `express` JSDoc says the face renders it.
 
-Use the returned metre-valued `IAutoMovieModel` through the same model and instance realization path as other authored geometry. `exportHumanFace(model)` produces portable GLB bytes and glTF/resources without handing a class-bound document across module instances. A static facial GLTF/GLB may instead be adopted as an external model under the existing adoption procedure; its exported pose has no facial animation channels. Review the actual eyes, lips, dental occlusion, shared skin and all required views through the review-verification skill. Construction success does not settle likeness, hidden anatomy or unsupported oral physiology.
+Use the returned metre-valued `IAutoMovieModel`, with `origin: "generated"` and the person's own skeleton, through the same model and instance realization path as other authored geometry. `getModel` takes an `IAutoMovieHumanAppearance` and an `assembly` of `"parts"` or `"joined"`. Review the actual skin, eyes, hair and all required views through the review-verification skill. Construction success does not settle likeness or the parts the package has not generated yet.
 
 ## Motion decisions
 

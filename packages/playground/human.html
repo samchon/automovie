@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>automovie: human</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        font: 12px/1.35 system-ui, sans-serif;
+        color: #1f2733;
+        background: #f2f4f8;
+      }
+      body {
+        display: flex;
+      }
+      #view {
+        flex: 1;
+        min-width: 0;
+        height: 100vh;
+        display: block;
+      }
+      #panel {
+        width: 380px;
+        height: 100vh;
+        overflow-y: auto;
+        box-sizing: border-box;
+        padding: 8px 10px 40px;
+        background: #fff;
+        border-left: 1px solid #d5dbe4;
+      }
+      details {
+        border-bottom: 1px solid #e4e8ee;
+        padding: 4px 0;
+      }
+      summary {
+        font-weight: 600;
+        cursor: pointer;
+        padding: 3px 0;
+      }
+      fieldset {
+        border: 1px solid #e4e8ee;
+        margin: 4px 0;
+        padding: 2px 6px 4px;
+      }
+      legend {
+        font-weight: 600;
+        color: #4a5566;
+      }
+      legend button {
+        margin-left: 6px;
+        font-size: 11px;
+      }
+      .field {
+        display: grid;
+        grid-template-columns: 1fr 120px;
+        align-items: center;
+        gap: 4px;
+        margin: 2px 0;
+      }
+      .pose-editor .field {
+        grid-template-columns: 1fr 110px 60px;
+      }
+      .field input,
+      .field select {
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin: 4px 0;
+      }
+      .activation {
+        display: grid;
+        grid-template-columns: 1fr 56px 60px 24px;
+        gap: 4px;
+        margin: 2px 0;
+      }
+      .parts {
+        max-height: 260px;
+        overflow-y: auto;
+        border: 1px solid #e4e8ee;
+        padding: 2px 4px;
+      }
+      .parts label {
+        display: block;
+        white-space: nowrap;
+      }
+      #status {
+        margin: 4px 0;
+        color: #2b6a3a;
+        word-break: break-all;
+      }
+      #error {
+        margin: 4px 0;
+        color: #b3261e;
+        white-space: pre-wrap;
+        font: 11px/1.3 ui-monospace, monospace;
+      }
+      textarea {
+        width: 100%;
+        height: 200px;
+        box-sizing: border-box;
+        font: 11px/1.3 ui-monospace, monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="view"></canvas>
+    <div id="panel">
+      <div id="status"></div>
+      <div id="error"></div>
+      <details open>
+        <summary>View</summary>
+        <div id="views"></div>
+      </details>
+      <details>
+        <summary>Parts</summary>
+        <div id="parts"></div>
+      </details>
+      <details open>
+        <summary>Session</summary>
+        <div id="session"></div>
+      </details>
+      <details>
+        <summary>Traits (converter input)</summary>
+        <div id="traits"></div>
+      </details>
+      <details>
+        <summary>Identity</summary>
+        <div id="identity"></div>
+      </details>
+      <details>
+        <summary>Pose</summary>
+        <div id="pose"></div>
+      </details>
+      <details>
+        <summary>Expression</summary>
+        <div id="expression"></div>
+      </details>
+      <details>
+        <summary>Appearance</summary>
+        <div id="appearance"></div>
+      </details>
+      <details>
+        <summary>Documents (JSON)</summary>
+        <div id="json"></div>
+      </details>
+    </div>
+    <script type="module" src="/src/human-view.ts"></script>
+  </body>
+</html>
