@@ -32,6 +32,11 @@ export const AUTOMOVIE_HUMAN_HAND_FORM = {
   wrist: { breadth: 0.377, depth: 0.673 },
 
   /**
+   * Hand circumference over metacarpales II and V over hand breadth, pooled over the ANSUR II means of 2.388 in women and 2.406 in men (Gordon et al. 2014, NATICK/TR-15/007). The palm's section at the heads is given the thickness at which its own perimeter equals this circumference. Grade: measured, ratio derived.
+   */
+  circumference: 2.397,
+
+  /**
    * Depth of the web between thumb and index below the wrist crease, over hand length (Greiner 1991, crotch 1 height: 62.8 and 69.1 mm). Grade: measured, ratio derived.
    */
   thumbWeb: 0.352,
