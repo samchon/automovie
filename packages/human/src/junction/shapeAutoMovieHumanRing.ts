@@ -5,9 +5,13 @@ import { AutoMovieHumanVector } from "../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanSkeleton } from "../skeleton/IAutoMovieHumanSkeleton";
 import { IAutoMovieHumanIdentity } from "../structures/IAutoMovieHumanIdentity";
 import { AUTOMOVIE_HUMAN_EAR_ATTACHMENT } from "./AUTOMOVIE_HUMAN_EAR_ATTACHMENT";
+import { AUTOMOVIE_HUMAN_NECK_BASE_FLARE } from "./AUTOMOVIE_HUMAN_NECK_BASE_FLARE";
 import { AUTOMOVIE_HUMAN_NECK_COLUMN } from "./AUTOMOVIE_HUMAN_NECK_COLUMN";
+import { AUTOMOVIE_HUMAN_THIGH_GIRTH } from "./AUTOMOVIE_HUMAN_THIGH_GIRTH";
+import { AUTOMOVIE_HUMAN_WRIST_SECTION } from "./AUTOMOVIE_HUMAN_WRIST_SECTION";
 import { AutoMovieHumanJunctionSite } from "./AutoMovieHumanJunctionSite";
 import { AutoMovieHumanPart } from "./AutoMovieHumanPart";
+import { AutoMovieHumanRingCurve } from "./AutoMovieHumanRingCurve";
 import { AutoMovieHumanSide } from "./AutoMovieHumanSide";
 import { IAutoMovieHumanRingLayout } from "./IAutoMovieHumanRingLayout";
 import { IAutoMovieHumanRingShape } from "./IAutoMovieHumanRingShape";
@@ -16,13 +20,15 @@ import { layoutAutoMovieHumanRing } from "./layoutAutoMovieHumanRing";
 /**
  * Resolve the boundary one part opens at one junction site: the frame and directions of `layoutAutoMovieHumanRing` and the distance of every ring vertex, from the site's own measurements.
  *
- * Both parts of a site call this with the same person and get the same points, so they meet without either adapting to the other and the junction welds coincident vertices. Each site's section:
+ * Both parts of a site call this with the same person and get the same points, so they meet without either adapting to the other and the junction welds coincident vertices. The points are control points, not the section itself: the Catmull-Clark limit of a ring lies inside it, about 10% inside for eight vertices, so the control radius of each ray is solved from the ring's limit stencil (`AutoMovieHumanRingCurve.unstencil`) to put the limit curve on the section along that ray, and all radii are then scaled together so the limit curve's length is the site's girth, measured where the site has one and the section's own perimeter where not (`neckTop`, `ear`).
  *
- * - `neckBase`: an ellipse in the oblique cut through the jugular notch and cervicale, reaching each in front and behind, its lateral semi-axis solved so its perimeter is the neck circumference widened by {@link NECK_BASE_FLARE}.
+ * Each site's section:
+ *
+ * - `neckBase`: an ellipse in the oblique cut through the jugular notch and cervicale, reaching each in front and behind, its lateral semi-axis solved so its perimeter is the neck circumference widened by {@link AUTOMOVIE_HUMAN_NECK_BASE_FLARE}.
  * - `neckTop`: in the mandibular plane, the larger of the jaw and the neck column, blended by a smooth maximum. The jaw is the parabola through menton and both gonia; the column an egg of the neck circumference's mean radius, {@link AUTOMOVIE_HUMAN_NECK_COLUMN} times it across, in front and behind, the back lengthened by the plane's tilt to the neck so it still reaches the nape.
  * - `upperArm`: a circle of the upper arm circumference, which is measured at this cut. Conventional: the mid upper arm is nearly round, and no depth-to-breadth ratio was read.
- * - `wrist`: an ellipse of the wrist circumference measured at this cut, its radio-ulnar breadth and palmar-dorsal depth in the proportions of {@link WRIST}.
- * - `thigh`: a circle of the girth at mid thigh, on the thigh's girth curve between the thigh circumference at the gluteal furrow and the lower thigh circumference at suprapatella ({@link THIGH}).
+ * - `wrist`: an ellipse of the wrist circumference measured at this cut, its radio-ulnar breadth and palmar-dorsal depth in the proportions of {@link AUTOMOVIE_HUMAN_WRIST_SECTION}.
+ * - `thigh`: a circle of the girth at mid thigh, on the thigh's girth curve between the thigh circumference at the gluteal furrow and the lower thigh circumference at suprapatella ({@link AUTOMOVIE_HUMAN_THIGH_GIRTH}).
  * - `ankle`: a circle of the ankle circumference, the minimum girth above the malleoli, measured at this cut. Conventional shape.
  * - `ear`: the attachment of the auricle, an ellipse in the plane of the head's side whose long axis leans back from the vertical by {@link AUTOMOVIE_HUMAN_EAR_ATTACHMENT.inclination}; its centre and semi-axes are fractions of the ear's length and breadth ({@link AUTOMOVIE_HUMAN_EAR_ATTACHMENT}). The origin moves from tragion to the ellipse's centre, so the eight directions spread evenly round the attachment.
  *
@@ -42,37 +48,57 @@ export const shapeAutoMovieHumanRing = (props: {
   part: AutoMovieHumanPart;
 }): IAutoMovieHumanRingShape => {
   const layout: IAutoMovieHumanRingLayout = layoutAutoMovieHumanRing(props);
-  const { origin, radius } = section(props, layout);
-  const radii: number[] = layout.directions.map(radius);
+  const { origin, radius, girth } = section(props, layout);
+  const n: number = layout.count;
+  const binormal: IAutoMovieVector3 = AutoMovieHumanVector.cross(
+    layout.frame.normal,
+    layout.frame.reference,
+  );
+  const target: number =
+    girth ??
+    AutoMovieHumanRingCurve.perimeter(
+      Array.from(
+        { length: SAMPLES },
+        (_: unknown, i: number): IAutoMovieVector3 => {
+          const angle: number = (2 * Math.PI * i) / SAMPLES;
+          const d: IAutoMovieVector3 = AutoMovieHumanVector.offset(
+            AutoMovieHumanVector.of(0, 0, 0),
+            [layout.frame.reference, Math.cos(angle)],
+            [binormal, Math.sin(angle)],
+          );
+          return AutoMovieHumanVector.offset(origin, [d, radius(d)]);
+        },
+      ),
+    );
+  // control radii whose limit points reach the section radially: the ring's limit stencil
+  // (1, 4, 1) / 6 seen along each ray, where neighbouring rays meet at cos(2π / n)
+  const control: number[] = AutoMovieHumanRingCurve.unstencil(
+    layout.directions.map(radius),
+    Math.cos((2 * Math.PI) / n),
+  );
+  const place = (radii: number[]): IAutoMovieVector3[] =>
+    layout.directions.map(
+      (d: IAutoMovieVector3, k: number): IAutoMovieVector3 =>
+        AutoMovieHumanVector.offset(origin, [d, radii[k]!]),
+    );
+  // the limit curve scales with the control radii about the origin, so one factor sets its girth
+  const scale: number =
+    target /
+    AutoMovieHumanRingCurve.perimeter(
+      AutoMovieHumanRingCurve.spline(place(control)),
+    );
+  const radii: number[] = control.map((r: number): number => r * scale);
   return {
     ...layout,
     frame: { ...layout.frame, origin },
+    girth: target,
     radii,
-    positions: layout.directions.map(
-      (d: IAutoMovieVector3, k: number): IAutoMovieVector3 =>
-        AutoMovieHumanVector.offset(origin, [d, radii[k]!]),
-    ),
+    positions: place(radii),
   };
 };
 
-/**
- * Perimeter of the neck's base over the neck circumference: the neck flares into the trapezius and the sternocleidomastoid heads at its root. Conventional, since ANSUR II measures a neck base circumference the identity does not carry.
- */
-const NECK_BASE_FLARE: number = 1.08;
-
-/**
- * The wrist section at the stylion cut: its breadth over the wrist circumference (Greiner 1991, US Army hand anthropometry: 57.0 of 151.4 mm in women and 65.8 of 174.3 in men) and its depth over its breadth, the other axis of the ellipse with that breadth and circumference (0.675 and 0.670). Grade: measured breadth, derived depth.
- */
-const WRIST = { breadth: 0.377, depth: 0.673 } as const;
-
-/**
- * Levels of the thigh's girth curve. The gluteal furrow, where the thigh circumference is measured, lies `furrow` of the hip-to-knee length below the hip joint centre (the 1977 US child survey's furrow heights, Snyder et al. 1977, UM-HSRI-77-17, against ANSUR II's hip and knee centres, Gordon et al. 2014, NATICK/TR-15/007; derived, from adolescents). Suprapatella, where the lower thigh circumference is measured, lies `suprapatella` of the thigh length above the midpatella (half an adult patella's height and the soft tissue above it; conventional). Between them the girth is the lower thigh girth plus the share `t^exponent` of its difference to the furrow girth, `t` the level's fraction of the way from suprapatella to the furrow, fuller than a cone as the thigh's muscle sits high (conventional).
- */
-const THIGH = {
-  furrow: 0.21,
-  suprapatella: 0.06,
-  exponent: 0.8,
-} as const;
+/** Directions sampled round a section to measure its own perimeter. */
+const SAMPLES: number = 720;
 
 const section = (
   props: {
@@ -81,7 +107,11 @@ const section = (
     side: AutoMovieHumanSide | null;
   },
   layout: IAutoMovieHumanRingLayout,
-): { origin: IAutoMovieVector3; radius: (d: IAutoMovieVector3) => number } => {
+): {
+  origin: IAutoMovieVector3;
+  radius: (d: IAutoMovieVector3) => number;
+  girth: number | null;
+} => {
   const body: IAutoMovieHumanIdentity.IBody = props.measurements.identity.body;
   const landmarks = props.skeleton.landmarks;
   const joint = (bone: string): IAutoMovieVector3 =>
@@ -97,6 +127,7 @@ const section = (
   const circle = (girth: number) => ({
     origin,
     radius: (): number => girth / (2 * Math.PI),
+    girth,
   });
   const arm: IAutoMovieHumanIdentity.IArm =
     props.side === "right" ? body.rightArm : body.leftArm;
@@ -116,7 +147,8 @@ const section = (
       const sagittal: number = (anterior + posterior) / 2;
       const lateral: number = solve(
         (b: number): number =>
-          ramanujan(sagittal, b) - NECK_BASE_FLARE * body.neckCircumference,
+          ramanujan(sagittal, b) -
+          AUTOMOVIE_HUMAN_NECK_BASE_FLARE * body.neckCircumference,
         1,
         10 * sagittal,
       );
@@ -129,6 +161,7 @@ const section = (
             1 / Math.sqrt((c * c) / (a * a) + (s * s) / (lateral * lateral))
           );
         },
+        girth: AUTOMOVIE_HUMAN_NECK_BASE_FLARE * body.neckCircumference,
       };
     }
     case "neckTop": {
@@ -177,21 +210,28 @@ const section = (
               (c * c) / (c >= 0 ? column.front : column.back) ** 2 +
                 (s * s) / column.across ** 2,
             );
-          return smoothMax(reach, neck, AUTOMOVIE_HUMAN_NECK_COLUMN.blend * mean);
+          return smoothMax(
+            reach,
+            neck,
+            AUTOMOVIE_HUMAN_NECK_COLUMN.blend * mean,
+          );
         },
+        girth: null,
       };
     }
     case "upperArm":
       return circle(arm.upperArmCircumference);
     case "wrist": {
-      const breadth: number = (WRIST.breadth * arm.wristCircumference) / 2;
-      const depth: number = breadth * WRIST.depth;
+      const breadth: number =
+        (AUTOMOVIE_HUMAN_WRIST_SECTION.breadth * arm.wristCircumference) / 2;
+      const depth: number = breadth * AUTOMOVIE_HUMAN_WRIST_SECTION.depth;
       return {
         origin,
         radius: (d: IAutoMovieVector3): number => {
           const [c, s] = across(d);
           return (breadth * depth) / Math.hypot(breadth * c, depth * s);
         },
+        girth: arm.wristCircumference,
       };
     }
     case "thigh": {
@@ -209,9 +249,10 @@ const section = (
       const patella: IAutoMovieVector3 = (
         props.side === "right" ? landmarks.right : landmarks.left
       ).patella.position;
-      const furrow: number = THIGH.furrow * length;
+      const furrow: number = AUTOMOVIE_HUMAN_THIGH_GIRTH.furrow * length;
       const suprapatella: number =
-        along(patella) - THIGH.suprapatella * leg.thighLength;
+        along(patella) -
+        AUTOMOVIE_HUMAN_THIGH_GIRTH.suprapatella * leg.thighLength;
       const t: number = Math.min(
         1,
         Math.max(0, (suprapatella - along(origin)) / (suprapatella - furrow)),
@@ -219,7 +260,7 @@ const section = (
       return circle(
         leg.lowerThighCircumference +
           (leg.thighCircumference - leg.lowerThighCircumference) *
-            Math.pow(t, THIGH.exponent),
+            Math.pow(t, AUTOMOVIE_HUMAN_THIGH_GIRTH.exponent),
       );
     }
     case "ankle":
@@ -252,6 +293,7 @@ const section = (
           const s: number = AutoMovieHumanVector.dot(d, back);
           return 1 / Math.sqrt((c * c) / (a * a) + (s * s) / (b * b));
         },
+        girth: null,
       };
     }
   }
