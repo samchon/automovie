@@ -33,7 +33,7 @@ export function sweepAutoMovieHumanDigit(props: {
   );
   const dome: sweepAutoMovieHumanDigit.IStation[] = DOME.map(
     (angle: number): sweepAutoMovieHumanDigit.IStation => {
-      const k: number = Math.max(0.2, Math.cos(angle));
+      const k: number = Math.max(0.06, Math.cos(angle));
       return {
         at: total - radius * (1 - Math.sin(angle)),
         breadth: tip.breadth * k,
@@ -70,6 +70,7 @@ export function sweepAutoMovieHumanDigit(props: {
     at: ats,
     length: total,
     dome: radius,
+    tip: [(total - radius) / total, (total - NEAR * radius) / total],
   };
 }
 /** Station and output types of {@link sweepAutoMovieHumanDigit}. */
@@ -113,11 +114,17 @@ export namespace sweepAutoMovieHumanDigit {
 
     /** Radius of the tip's dome, millimetres. */
     dome: number;
+
+    /** `u` where the dome starts and where its last thin band, the one the cap closes, starts: the sampler averages a sweep's radius over half a row each side, so the thin last band keeps the tip's last loop small and the cap round. */
+    tip: [number, number];
   }
 }
 
 /** Angles of the dome's stations from the tip's last full section toward its end, radians. */
 const DOME: number[] = [0, Math.PI / 6, Math.PI / 3, (5 * Math.PI) / 12, Math.PI / 2];
+
+/** The dome's last band, in dome radii from the tip. */
+const NEAR: number = 0.15;
 
 /** Corners of each section polygon. */
 const CORNERS: number = 48;

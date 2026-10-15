@@ -10,12 +10,12 @@ import { interpolateAutoMovieHumanFootProfile } from "./interpolateAutoMovieHuma
  *
  * Distances are millimetres in the foot's local frame, `x` lateral, `y` up, `z` forward; the field is negative inside and approximates the distance to the skin near it.
  *
- * @param props The plan and the column's section
+ * @param props The plan and the ankle ring
  * @returns The solid
  */
 export function solidAutoMovieHumanFoot(props: {
   plan: IAutoMovieHumanFootPlan;
-  column: solidAutoMovieHumanFoot.IColumn;
+  ring: solidAutoMovieHumanFoot.IRing;
 }): solidAutoMovieHumanFoot.ISolid {
   const plan: IAutoMovieHumanFootPlan = props.plan;
   const L: number = plan.length;
@@ -72,7 +72,8 @@ export function solidAutoMovieHumanFoot(props: {
     } else {
       const dx: number = (p.x - arc.x) / arc.width;
       const dz: number = (arcZ - p.z) / arc.reach;
-      side = (Math.hypot(dx, dz) - 1) * Math.min(arc.width, arc.reach);
+      // scaled by the half breadth, so at the arc's centre it meets the borders' distance with the same value and slope
+      side = (Math.hypot(dx, dz) - 1) * arc.width;
     }
     const x: number = p.x;
     const z: number = Math.max(p.z, plan.heel);
@@ -80,18 +81,38 @@ export function solidAutoMovieHumanFoot(props: {
     const down: number = bottom(x, z) - p.y;
     return Math.max(rounded(side, up, TOP_ROUND * L), rounded(side, down, soleRadius(p.z)));
   };
-  const C: solidAutoMovieHumanFoot.IColumn = props.column;
+  // the column: the ring's section at and above the ring, deepening below it toward the heel and the front of the talus
+  const ring: solidAutoMovieHumanFoot.IRing = props.ring;
+  const r0: number = ring.girth / (2 * Math.PI);
+  const origin: IAutoMovieVector3 = ring.origin;
+  const floor: number = COLUMN_BOTTOM * plan.ankleHeight;
   const column = (p: IAutoMovieVector3): number => {
-    const s: solidAutoMovieHumanFoot.ISection = C.section(Math.min(p.y, C.top));
-    const dx: number = p.x - s.x;
-    const dz: number = p.z - s.z;
-    const ax: number = dx >= 0 ? s.lateral : s.medial;
-    const az: number = dz >= 0 ? s.anterior : s.posterior;
+    const t: number = Math.min(1, Math.max(0, (origin.y - p.y) / (origin.y - plan.ankleHeight)));
+    const s: number = t * t * (3 - 2 * t);
+    const dx: number = p.x - origin.x;
+    const dz: number = p.z - origin.z;
+    const ax: number = r0 * (dx >= 0 ? ring.aspect.lateral : ring.aspect.medial);
+    const az: number =
+      dz >= 0
+        ? r0 * ring.aspect.anterior * (1 + COLUMN_DEEPEN.anterior * s)
+        : r0 * ring.aspect.posterior * (1 + COLUMN_DEEPEN.posterior * s);
     const r: number = Math.hypot(dx / ax, dz / az);
-    const size: number = Math.min(ax, az);
-    return Math.max((r - 1) * size, C.bottom - p.y);
+    // the column ends in a rounded rim inside the heel, so where it stands out of the slab it rounds in
+    return rounded((r - 1) * Math.min(ax, az), floor - p.y, COLUMN_ROUND * L);
   };
-  const field = (p: IAutoMovieVector3): number => smoothMin(slab(p), column(p), BLEND * L);
+  // the malleoli: bony knobs at the skeleton's landmarks, the lateral lower and further back, the medial higher and further forward (Gray 1918)
+  const lateral: IAutoMovieVector3 = plan.lateralMalleolus;
+  const medial: IAutoMovieVector3 = plan.medialMalleolus;
+  const radii: IAutoMovieVector3 = { x: KNOB.side * L + KNOB.skin, y: KNOB.height * L, z: KNOB.depth * L };
+  const knobs: IAutoMovieVector3[] = [
+    { x: lateral.x - KNOB.side * L, y: lateral.y + KNOB.lift.lateral * L, z: lateral.z - KNOB.behind * L },
+    { x: medial.x + KNOB.side * L, y: medial.y + KNOB.lift.medial * L, z: medial.z },
+  ];
+  const field = (p: IAutoMovieVector3): number =>
+    knobs.reduce(
+      (f: number, c: IAutoMovieVector3): number => smoothMin(f, ellipsoid(p, c, radii), KNOB.blend * L),
+      smoothMin(slab(p), column(p), BLEND * L),
+    );
   return {
     field,
     ray: (origin: IAutoMovieVector3, direction: IAutoMovieVector3): number => {
@@ -121,52 +142,22 @@ export function solidAutoMovieHumanFoot(props: {
     across,
   };
 }
-/** Column, section and solid types of {@link solidAutoMovieHumanFoot}. */
+/** Ring and solid types of {@link solidAutoMovieHumanFoot}. */
 export namespace solidAutoMovieHumanFoot {
   /**
-   * The leg's column above the foot.
+   * The ankle ring the column continues.
    *
    * @author Samchon
    */
-  export interface IColumn {
-    /** Height above which the section holds the ring's, millimetres. */
-    top: number;
+  export interface IRing {
+    /** Centre, local frame, millimetres. */
+    origin: IAutoMovieVector3;
 
-    /** Height below which the column ends inside the slab. */
-    bottom: number;
+    /** Girth of its limit curve, millimetres. */
+    girth: number;
 
-    /**
-     * The column's horizontal section at a height.
-     *
-     * @param y Height, millimetres
-     * @returns Its centre and four half-axes
-     */
-    section(y: number): ISection;
-  }
-
-  /**
-   * A horizontal section of the column: an egg of four quarter ellipses.
-   *
-   * @author Samchon
-   */
-  export interface ISection {
-    /** Centre, lateral. */
-    x: number;
-
-    /** Centre, forward. */
-    z: number;
-
-    /** Half-axis toward the lateral side. */
-    lateral: number;
-
-    /** Half-axis toward the medial side. */
-    medial: number;
-
-    /** Half-axis forward. */
-    anterior: number;
-
-    /** Half-axis backward. */
-    posterior: number;
+    /** Each side's limit radius over the mean radius. */
+    aspect: { anterior: number; medial: number; posterior: number; lateral: number };
   }
 
   /**
@@ -218,6 +209,30 @@ const BLEND: number = 0.06;
 
 /** The heel's top behind the talus, of foot length, rising from the back of the heel to the dorsum over its span of foot length. Grade: conventional, set against the reference's heel sections. */
 const HEEL_TOP = { back: 1, side: 1, from: 0.08, to: 0.3 } as const;
+
+/** The column ends this share of the lateral malleolus height above the ground, inside the heel. Conventional. */
+const COLUMN_BOTTOM: number = 0.8;
+
+/** Growth of the column's depth from the ring down to the malleoli: in front over the talus, behind toward the heel. Conventional, set against renders. */
+const COLUMN_DEEPEN = { anterior: 0.15, posterior: 0.2 } as const;
+
+/** The malleoli as ellipsoids, in foot lengths: half-breadth inward of the landmark, half-height, half-depth, the lift of the centre above the landmark, the skin over the bone in millimetres, and their blend into the column. Conventional, the old cage's relief radii. */
+const KNOB = {
+  side: 0.03,
+  height: 0.06,
+  depth: 0.05,
+  behind: 0.01,
+  lift: { lateral: 0.045, medial: 0.035 },
+  skin: 2,
+  blend: 0.03,
+} as const;
+
+/** Field of an axis-aligned ellipsoid, negative inside, about the distance near its surface. */
+const ellipsoid = (p: IAutoMovieVector3, c: IAutoMovieVector3, r: IAutoMovieVector3): number =>
+  (Math.hypot((p.x - c.x) / r.x, (p.y - c.y) / r.y, (p.z - c.z) / r.z) - 1) * Math.min(r.x, r.y, r.z);
+
+/** Radius of the column's lower rim, of foot length. Grade: conventional, set against renders. */
+const COLUMN_ROUND: number = 0.05;
 
 /** March step of a ray before bisection, millimetres; under half the thinnest part's thickness. */
 const STEP: number = 1;

@@ -25,9 +25,6 @@ export const AUTOMOVIE_HUMAN_HAND_SHAPE = {
     /** The middle knuckle's height over the others', the largest and highest (Bridgman 1920). Fitted. */
     middleKnuckle: 1.06,
 
-    /** Height of the knuckle's flanks over its crest. Fitted. */
-    knuckleFlank: 0.92,
-
     /** Palmar depth at each finger's basal crease over the palm's palmar depth at the heads. Conventional. */
     pad: 0.62,
 
@@ -92,11 +89,27 @@ export const AUTOMOVIE_HUMAN_HAND_SHAPE = {
 
     /** Bulge of the distal pad's pulp under the tip, as a share of the pad's palmar depth. Conventional. */
     pulp: 0.12,
-
-    /** Breadth of the section near the tip at 94% of the finger over the distal joint's breadth. Conventional. */
-    tipBreadth: 0.78,
-
-    /** Depth of the section near the tip over the distal joint's depth. Conventional. */
-    tipDepth: 0.74,
+  },
+  /**
+   * Where the hand's network places its stations and digits, in hand lengths unless stated. Conventional: chosen so the palm's slices fall at the carpus, mid-palm, the heads and the fingers' roots, and checked against renders and the reference.
+   */
+  layout: {
+    /** The carpus station, where the twenty columns begin. */
+    carpus: 0.1,
+    /** The mid-palm station, where the thumb's opening ends. */
+    midPalm: 0.3,
+    /** The heads' plane, proximal of the knuckle line. */
+    heads: 0.05,
+    /** The fingers' roots plane, distal of the knuckle line. */
+    roots: 0.025,
+    /** Each finger's sweep starts this far beyond the farther of its webs. */
+    root: 0.02,
+    /** Share of the border's half-breadth where the radial and ulnar corners lie on the roots' slice. */
+    corner: 0.85,
+    /** Where the thumb's sweep starts along its metacarpal. */
+    thumbStart: 0.5,
+    /** Tension of the fingers' and thumb's bridges. */
+    tension: 0.8,
+    thumbTension: 0.5,
   },
 };
