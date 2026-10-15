@@ -22,8 +22,8 @@ import { sectionAutoMovieHumanArm } from "./sectionAutoMovieHumanArm";
  */
 const COLUMNS: number[] = [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8];
 
-/** Rows of faces from each station to the next: one per gap, two across the long gaps of the upper arm and the forearm's bellies, so rows lie about a span apart. Grade: conventional. */
-const ROWS: number[] = [1, 1, 2, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1];
+/** Rows of faces from each station to the next: one per gap, two across the long gaps of the upper arm, forearm bellies and tendinous taper, so the lower forearm has a row between its last two shaped stations. Grade: conventional. */
+const ROWS: number[] = [1, 1, 2, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1];
 
 /** Arm levels between which the fat over a form turns from the upper arm's to the forearm's, about the elbow. Grade: conventional. */
 const ELBOW_FAT: [number, number] = [-0.15, 0.1];
