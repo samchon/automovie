@@ -37,14 +37,17 @@ export * from "./junction/AutoMovieHumanJunction";
 export * from "./junction/AutoMovieHumanJunctionSite";
 export * from "./junction/AutoMovieHumanPart";
 export * from "./junction/AutoMovieHumanSide";
+export * from "./junction/AutoMovieHumanTissue";
 export * from "./junction/IAutoMovieHumanCage";
 export * from "./junction/IAutoMovieHumanJunction";
 export * from "./junction/IAutoMovieHumanRing";
 export * from "./junction/IAutoMovieHumanRingDefinition";
 export * from "./junction/IAutoMovieHumanRingLayout";
+export * from "./junction/IAutoMovieHumanRingShape";
 export * from "./junction/IAutoMovieHumanSurfaceCoordinate";
 export * from "./junction/layoutAutoMovieHumanRing";
 export * from "./junction/meshAutoMovieHumanCage";
+export * from "./junction/shapeAutoMovieHumanRing";
 
 export * from "./parts/IAutoMovieHumanPartGenerator";
 

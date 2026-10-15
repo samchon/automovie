@@ -6,6 +6,7 @@ import { AutoMovieHumanPart } from "./AutoMovieHumanPart";
 import { AutoMovieHumanSide } from "./AutoMovieHumanSide";
 import { IAutoMovieHumanCage } from "./IAutoMovieHumanCage";
 import { IAutoMovieHumanRingLayout } from "./IAutoMovieHumanRingLayout";
+import { IAutoMovieHumanRingShape } from "./IAutoMovieHumanRingShape";
 
 /**
  * Assembles one part's control cage from stations, the closed loops of vertices a tube-like part is made of, with each face's corners addressed on the part's chart.
@@ -79,7 +80,7 @@ export class AutoMovieHumanCageBuilder {
   }
 
   /**
-   * Open the junction ring this part has at a site and return it as a station.
+   * Open the junction ring this part has at a site at radii of the part's own choosing and return it as a station. The junction refuses a ring off the site's shared boundary, so a part opens its rings with `place` and keeps this for rings it shapes to that boundary itself.
    *
    * Vertex `k` of the station, in build order, is placed at `layout.origin + radius(direction) · direction` along its layout direction. The ring is recorded in the layout's own order, counterclockwise about its normal, so the junction can pair it.
    *
@@ -105,6 +106,29 @@ export class AutoMovieHumanCageBuilder {
       u,
     );
     this.record(layout, station);
+    return station;
+  }
+
+  /**
+   * Open the junction ring this part has at a site exactly on the site's shared boundary and return it as a station.
+   *
+   * Vertex `k` of the station, in build order, is the shape's position for layout vertex `buildOrder(shape)[k]`, so the ring coincides point for point with the other part's ring at the site. The ring is recorded in the layout's own order.
+   *
+   * @param shape The part's ring shape at the site, from `shapeAutoMovieHumanRing`
+   * @param u Chart coordinate of the ring
+   * @returns The ring as a station in build order
+   */
+  public place(
+    shape: IAutoMovieHumanRingShape,
+    u: number,
+  ): AutoMovieHumanCageBuilder.IStation {
+    const station: AutoMovieHumanCageBuilder.IStation = this.station(
+      AutoMovieHumanCageBuilder.buildOrder(shape).map(
+        (j: number): IAutoMovieVector3 => ({ ...shape.positions[j]! }),
+      ),
+      u,
+    );
+    this.record(shape, station);
     return station;
   }
 
