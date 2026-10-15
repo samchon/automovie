@@ -1,6 +1,8 @@
 /**
  * The named form coefficients of the lofted head: dimensionless exponents and fractions of the person's own face height, so one set serves every identity.
  *
+ * Besides the cranium's and the face's sections, the form places the face's network: where its lattice's openings and rows fall on the person's features ({@link IAutoMovieHumanHeadForm.ILayout}) and where the loops of the lids and the lips run inside them ({@link IAutoMovieHumanHeadForm.IEyelids}, {@link IAutoMovieHumanHeadForm.ILips}). Every placement is a share of a feature's own measurement or a few millimetres at a margin, so fitting the network to a reference changes coefficients, never the network's structure.
+ *
  * Depths named "behind subnasale" are horizontal distances, head in the Frankfort plane, from the true vertical through subnasale, the reference of soft-tissue profile analysis; heights are fractions of face height (`fh`, nasion to gnathion). Exponents are superellipse exponents of a section quadrant: 2 for an ellipse, larger for a squarer turn, smaller toward a diamond.
  *
  * @author Samchon
@@ -57,4 +59,83 @@ export interface IAutoMovieHumanHeadForm {
 
   /** Sections: exponent of the back quadrants at the nape. */
   backNape: number;
+
+  /** Where the face's lattice, its openings and its rows fall on the person's features. */
+  layout: IAutoMovieHumanHeadForm.ILayout;
+
+  /** Where the loops of the lids run inside each eye's opening. */
+  eyelids: IAutoMovieHumanHeadForm.IEyelids;
+
+  /** Where the loops of the lips run inside the mouth's opening. */
+  lips: IAutoMovieHumanHeadForm.ILips;
+}
+export namespace IAutoMovieHumanHeadForm {
+  /**
+   * Placement of the face's lattice. Its column lines are spaced smoothly between the midline, the eye openings' medial edges, the mouth opening's edges, the eye openings' lateral edges and the face's edges, each edge set on the face's surface at its feature's own level; its rows are spaced evenly between heights set on the features.
+   */
+  export interface ILayout {
+    /** Half the face's angle about the spine inside which its dense columns lie, degrees. */
+    faceHalf: number;
+
+    /** Trichion, the hairline at the midline and the top of the face's rows, above nasion, over face height. */
+    trichion: number;
+
+    /** The eye opening: its top above and its bottom below the eye's centre, its medial edge inside endocanthion and its lateral edge beyond exocanthion, over palpebral fissure length. */
+    eyeOpening: { above: number; below: number; medial: number; lateral: number };
+
+    /** The mouth opening: its top below subnasale and its bottom below stomion over face height, and its edges beyond cheilion over half the mouth's width. */
+    mouthOpening: { top: number; bottom: number; lateral: number };
+
+    /** Share of the way from a three-to-one reduction's dense side to its sparse one at which its two inner vertices lie. */
+    reduction: number;
+  }
+
+  /**
+   * Placement of the lids' loops, from the opening's rim inward: the orbital loop, the lid sulcus on the face, the anterior lid margin resting on the eyeball and the posterior margin on the globe. The fissure runs from endocanthion to exocanthion; its opening above and below the line of the canthi comes from the measured fissure height.
+   */
+  export interface IEyelids {
+    /** Share of the way from the opening's rim to the lid sulcus at which the orbital loop runs. */
+    orbit: number;
+
+    /** Rise of exocanthion over endocanthion, degrees. */
+    canthalTilt: number;
+
+    /** Share of the fissure height above the line of the canthi at the pupil. */
+    upper: number;
+
+    /** Half the gap between the upper and lower margins at each canthus, millimetres, so the canthus is a short edge. */
+    canthus: number;
+
+    /** Thickness of the lid margin from its posterior edge on the globe to its anterior edge, millimetres. */
+    marginThickness: number;
+
+    /** Gap between the posterior margin and the globe, millimetres. */
+    contact: number;
+
+    /** How far the posterior margin closes over the anterior's opening, a share. */
+    posteriorOpen: number;
+
+    /** The lid sulcus: the upper's and the lower's opening as multiples of the margin's, its widening beyond the canthi and its half-opening there, millimetres. */
+    sulcus: { upper: number; lower: number; widen: number; gap: number };
+  }
+
+  /**
+   * Placement of the lips' loops, from the opening's rim inward: the loop of orbicularis oris, the vermilion border through the cupid's bow, the closed lips' meeting line and the pocket behind them.
+   */
+  export interface ILips {
+    /** Share of the way from the opening's rim to the vermilion border at which the loop of orbicularis oris runs. */
+    orbicularis: number;
+
+    /** Distance between the crista philtri points, the cupid's bow's peaks, over mouth width. */
+    philtrum: number;
+
+    /** Half the gap between the vermilion borders at each commissure, millimetres, so the commissure is a short edge. */
+    commissure: number;
+
+    /** The meeting line: depth behind the lips' surface and half-opening, millimetres, and width over the mouth's. */
+    meeting: { back: number; open: number; narrow: number };
+
+    /** The pocket's wall behind the lips: depth and half-opening, millimetres, and width over the mouth's. */
+    pocket: { back: number; open: number; narrow: number };
+  }
 }

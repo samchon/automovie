@@ -17,6 +17,7 @@ import { IAutoMovieHumanSkeleton } from "../../skeleton/IAutoMovieHumanSkeleton"
 import { AUTOMOVIE_HUMAN_HEAD_FORM } from "./AUTOMOVIE_HUMAN_HEAD_FORM";
 import { AutoMovieHumanHeadDomain } from "./AutoMovieHumanHeadDomain";
 import { AutoMovieHumanHeadNetwork } from "./AutoMovieHumanHeadNetwork";
+import { IAutoMovieHumanHeadForm } from "./IAutoMovieHumanHeadForm";
 import { frameAutoMovieHumanHead } from "./frameAutoMovieHumanHead";
 import { layoutAutoMovieHumanHead } from "./layoutAutoMovieHumanHead";
 import { profileAutoMovieHumanHead } from "./profileAutoMovieHumanHead";
@@ -32,13 +33,15 @@ import { sweepAutoMovieHumanHead } from "./sweepAutoMovieHumanHead";
  *
  * @param measurements Resolved measurements of the person
  * @param skeleton The person's skeleton
+ * @param form The head's form coefficients, {@link AUTOMOVIE_HUMAN_HEAD_FORM} unless a fit to a reference passes others
  * @returns The head cage, model frame, millimetres
  */
 export function loftAutoMovieHumanHead(
   measurements: IAutoMovieHumanMeasurements,
   skeleton: IAutoMovieHumanSkeleton,
+  form: IAutoMovieHumanHeadForm = AUTOMOVIE_HUMAN_HEAD_FORM,
 ): IAutoMovieHumanCage {
-  const built: INetwork = networkOf(measurements, skeleton);
+  const built: INetwork = networkOf(measurements, skeleton, form);
   const sampled: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({
     network: built.network,
     tier: TIER,
@@ -56,6 +59,7 @@ interface INetwork {
 const networkOf = (
   measurements: IAutoMovieHumanMeasurements,
   skeleton: IAutoMovieHumanSkeleton,
+  form: IAutoMovieHumanHeadForm,
 ): INetwork => {
   const frame: frameAutoMovieHumanHead.IFrame = frameAutoMovieHumanHead(skeleton);
   const shape = (site: "neckTop" | "ear", side: "left" | "right" | null): IAutoMovieHumanRingShape =>
@@ -83,7 +87,7 @@ const networkOf = (
     frame,
     head: measurements.identity.head,
     ring: { posterior: limit[n / 2]!, posterolateral: limit[(2 * n) / 3]! },
-    form: AUTOMOVIE_HUMAN_HEAD_FORM,
+    form,
   });
   const loft: sweepAutoMovieHumanHead.IOutput = sweepAutoMovieHumanHead({
     frame,
@@ -101,7 +105,7 @@ const networkOf = (
   const surface: IAutoMovieSweepSurface = compileAutoMovieSweep(loft.sweep);
   const domain: AutoMovieHumanHeadDomain = new AutoMovieHumanHeadDomain(surface, loft, frame, profile);
   const network: AutoMovieHumanHeadNetwork = new AutoMovieHumanHeadNetwork(SWEEP);
-  layoutAutoMovieHumanHead({ domain, network, head: measurements.identity.head, neck, ears });
+  layoutAutoMovieHumanHead({ domain, network, head: measurements.identity.head, form, neck, ears });
   return {
     network: network.build(loft.sweep),
     frame,
