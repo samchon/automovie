@@ -1,6 +1,7 @@
-/** Stained fence boards and the separately modeled side-yard gate wood. */
-import { houseMaterial, type HouseFinish } from "../finish";
+import { type HouseFinish } from "../HouseFinish";
+import { houseMaterial } from "../houseMaterial";
 
+/** Stained fence boards and the separately modeled side-yard gate wood. */
 export const fence = {
   material: houseMaterial("fence-wood", "#8C6A48", 0.75),
   faces: ["fence-board", "fence-post", "leaf-panel", "gate-batten"],

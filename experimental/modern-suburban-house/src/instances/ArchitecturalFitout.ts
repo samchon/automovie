@@ -6,18 +6,20 @@
 import type { IAutoMovieMeshTransform } from "@automovie/engine";
 import type { IAutoMovieModel } from "@automovie/interface";
 
-import { Closet } from "../models/closet";
-import { Bathrooms } from "../models/furnishings/bathrooms";
-import { Bedrooms } from "../models/furnishings/bedrooms";
-import { KitchenDining } from "../models/furnishings/kitchen-dining";
-import { Living } from "../models/furnishings/living";
+import { Closet } from "../models/Closet";
+import { Bathrooms } from "../models/furnishings/Bathrooms";
+import { Bedrooms } from "../models/furnishings/Bedrooms";
+import { KitchenDining } from "../models/furnishings/KitchenDining";
+import { Living } from "../models/furnishings/Living";
 import { SanitaryFittings } from "../models/furnishings/SanitaryFittings";
-import { ServiceRooms } from "../models/furnishings/service-rooms";
-import { StairBaluster } from "../models/stair-baluster";
-import { StairSkirt } from "../models/stair-skirt";
-import type { IHouse } from "../spaces/house";
-import type { IRoomReservation } from "../spaces/rooms/reservations";
-import { roomLevels } from "../spaces/rooms/shared";
+import { ServiceRooms } from "../models/furnishings/ServiceRooms";
+import { StairBaluster } from "../models/StairBaluster";
+import { StairSkirt } from "../models/StairSkirt";
+import type { IHouse } from "../spaces/IHouse";
+import type { IRoomReservation } from "../spaces/rooms/IRoomReservation";
+import { roomLevels } from "../spaces/rooms/roomLevels";
+import type { IRoomSpace } from "../spaces/rooms/IRoomSpace";
+import type { FittingBuilt } from "../models/furnishings/FittingBuilt";
 
 type Built = {
   model: IAutoMovieModel;
@@ -46,7 +48,7 @@ export class ArchitecturalFitout {
     const prototypes: Built[] = [],
       instances: Placement[] = [];
     const zones: Map<string, { readonly zone: IRoomReservation; readonly floor: number; }> = new Map(
-      house.spaces.flatMap((space: import("../spaces/rooms/shared").IRoomSpace) : (readonly [string, { readonly zone: IRoomReservation; readonly floor: number; }])[] =>
+      house.spaces.flatMap((space: IRoomSpace) : (readonly [string, { readonly zone: IRoomReservation; readonly floor: number; }])[] =>
         (space.reservations ?? []).map(
           (zone: IRoomReservation) : readonly [string, { readonly zone: IRoomReservation; readonly floor: number; }] => [zone.id, { zone, floor: roomLevels(space)[0] }] as const,
         ),
@@ -111,7 +113,7 @@ export class ArchitecturalFitout {
       ),
       {
         x: 0,
-        y: roomLevels(house.spaces.find((s: import("../spaces/rooms/shared").IRoomSpace) : boolean => s.id === "upper-hall")!)[0],
+        y: roomLevels(house.spaces.find((s: IRoomSpace) : boolean => s.id === "upper-hall")!)[0],
         z: 0,
       },
     );
@@ -177,7 +179,7 @@ export class ArchitecturalFitout {
       y: rail.floor,
       z: rail.zone.z[0],
     });
-    const fireplace: import("../models/furnishings/geometry").FittingBuilt = new Living().fireplace();
+    const fireplace: FittingBuilt = new Living().fireplace();
     // The space owns the brick void; the model's front plane meets its inner face.
     add(
       "living-fireplace-insert",

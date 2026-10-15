@@ -10,13 +10,14 @@
  */
 import { strict as assert } from "node:assert";
 import { test } from "node:test";
-import { KitchenDining } from "../models/furnishings/kitchen-dining";
-import { Living } from "../models/furnishings/living";
-import { ServiceRooms } from "../models/furnishings/service-rooms";
-import { Bedrooms } from "../models/furnishings/bedrooms";
-import { Bathrooms } from "../models/furnishings/bathrooms";
+import { KitchenDining } from "../models/furnishings/KitchenDining";
+import { Living } from "../models/furnishings/Living";
+import { ServiceRooms } from "../models/furnishings/ServiceRooms";
+import { Bedrooms } from "../models/furnishings/Bedrooms";
+import { Bathrooms } from "../models/furnishings/Bathrooms";
 import { SanitaryFittings } from "../models/furnishings/SanitaryFittings";
-import { FittingParts, type FittingBuilt } from "../models/furnishings/geometry";
+import { FittingParts } from "../models/furnishings/FittingParts";
+import { type FittingBuilt } from "../models/furnishings/FittingBuilt";
 
 const near: (a: number, b: number) => void=(a:number,b:number):void=>assert.ok(
   Math.abs(a-b)<1e-7,

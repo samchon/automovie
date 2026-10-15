@@ -3,15 +3,13 @@ import { strict as assert } from "node:assert";
 import { createRequire } from "node:module";
 import { test } from "node:test";
 
-import { InteriorDoorFills } from "../instances/interior-door-fills";
+import { InteriorDoorFills } from "../instances/InteriorDoorFills";
 
 const require=createRequire(import.meta.url);
-const { buildHouseEnvironment }=require(
-  "../spaces/environment.ts",
-) as typeof import("../spaces/environment");
-const { buildHouse }=require(
-  "../spaces/house.ts",
-) as typeof import("../spaces/house");
+const { buildHouseEnvironment }: typeof import("../spaces/buildHouseEnvironment") =
+  require("../spaces/buildHouseEnvironment.ts") as typeof import("../spaces/buildHouseEnvironment");
+const { buildHouse }: typeof import("../spaces/buildHouse") =
+  require("../spaces/buildHouse.ts") as typeof import("../spaces/buildHouse");
 
 const environment = buildHouseEnvironment(buildHouse());
 const near=(actual:number,expected:number):void=>

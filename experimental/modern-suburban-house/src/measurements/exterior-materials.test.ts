@@ -2,16 +2,20 @@
 import { strict as assert } from "node:assert";
 import { test } from "node:test";
 
-import { brick, brickMortar } from "../materials/exterior/brick";
-import { frontDoor, garageDoor } from "../materials/exterior/doors";
+import { brick } from "../materials/exterior/brick";
+import { brickMortar } from "../materials/exterior/brickMortar";
+import { frontDoor } from "../materials/exterior/frontDoor";
+import { garageDoor } from "../materials/exterior/garageDoor";
 import { fence } from "../materials/exterior/fence";
 import { frames } from "../materials/exterior/frames";
-import { clearGlass, obscureGlass } from "../materials/exterior/glass";
-import { paving, porchFloor } from "../materials/exterior/paving";
+import { clearGlass } from "../materials/exterior/clearGlass";
+import { obscureGlass } from "../materials/exterior/obscureGlass";
+import { paving } from "../materials/exterior/paving";
+import { porchFloor } from "../materials/exterior/porchFloor";
 import { shingle } from "../materials/exterior/shingle";
 import { siding } from "../materials/exterior/siding";
 import { trim } from "../materials/exterior/trim";
-import { stainlessSteel } from "../materials/furnishings/appliances";
+import { stainlessSteel } from "../materials/furnishings/stainlessSteel";
 
 const finishes = [
   siding,

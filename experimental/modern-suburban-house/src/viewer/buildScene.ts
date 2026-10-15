@@ -3,6 +3,7 @@
  */
 import * as THREE from "three";
 import { buildMesh } from "./buildMesh";
+import type { IViewerSceneLighting } from "./scenePayload";
 
 type IViewerScene = import("./scenePayload").IViewerScene;
 
@@ -16,7 +17,7 @@ type IViewerScene = import("./scenePayload").IViewerScene;
 export const buildScene: (payload: IViewerScene, textures: Map<string, THREE.Texture>, renderer: { toneMappingExposure: number; }) => THREE.Scene<THREE.Object3DEventMap> = (payload: IViewerScene, textures: Map<string, THREE.Texture>, renderer: { toneMappingExposure: number }) : THREE.Scene<THREE.Object3DEventMap> => {
   const scene: THREE.Scene<THREE.Object3DEventMap> = new THREE.Scene();
   scene.background = new THREE.Color(0xd9dde2);
-  const light: import("./scenePayload").IViewerSceneLighting = payload.lighting;
+  const light: IViewerSceneLighting = payload.lighting;
   if (payload.physicalLighting) {
     const physical: { lights: import("@automovie/interface").IAutoMovieLight[]; environment: import("@automovie/interface").IAutoMovieSceneEnvironment; } = payload.physicalLighting;
     const background: import("@automovie/interface").IAutoMovieColor | null = physical.environment.background;

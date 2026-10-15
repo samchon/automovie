@@ -3,13 +3,14 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
-  type FittingBuilt,
   FittingParts,
-  type FittingPoint,
-} from "../models/furnishings/geometry";
-import { lowerViewerModels } from "../viewer/modelScene.js";
+} from "../models/furnishings/FittingParts";
+import { type FittingBuilt } from "../models/furnishings/FittingBuilt";
+import { type FittingPoint } from "../models/furnishings/FittingPoint";
+import { lowerViewerModels } from "../viewer/lowerViewerModels.js";
 import type { IViewerSceneItem } from "../viewer/scenePayload";
-import { sectionCap, sectionCaps } from "../viewer/sectionCaps";
+import { sectionCaps } from "../viewer/sectionCaps";
+import { sectionCap } from "../viewer/sectionCap";
 
 const item = (built: FittingBuilt): IViewerSceneItem =>
   lowerViewerModels({
