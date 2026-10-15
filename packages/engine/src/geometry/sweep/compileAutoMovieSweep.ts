@@ -241,6 +241,7 @@ export const compileAutoMovieSweep: (sweep: IAutoMovieSweep) => IAutoMovieSweepS
   return {
     sweep,
     path,
+    step: STEP,
     loops: byParameter ? loops.length : 1,
     radius,
     profile,
