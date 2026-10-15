@@ -1,10 +1,3 @@
-/**
- * East exterior wall solid
- * The yard section is a low stone wall sharing the north facade's top, cut by
- * the exterior service-door void. South of the storage room's north shared
- * wall, it closes to the east-wing roof underside; only the southeast corner
- * cell butting the south parapet rises to the same coping height.
- */
 import type { WallSpec } from "../../geometry/WallSpec";
 import { templePlan as p } from "../templePlan";
 import { templeOuterWallPlans } from "../templeOuterWallPlans";
@@ -18,6 +11,13 @@ const roof = { kind: "roof", tier: "wing" } as const;
 const yardTop = {
   kind: "flat", height: templeYardWallTop, surface: "surface.service-yard.wall-top", coping: templeWallTrim.copingThickness,
 } as const;
+/**
+ * East exterior wall solid
+ * The yard section is a low stone wall sharing the north facade's top, cut by
+ * the exterior service-door void. South of the storage room's north shared
+ * wall, it closes to the east-wing roof underside; only the southeast corner
+ * cell butting the south parapet rises to the same coping height.
+ */
 export const templeEastWalls = (bottom: number): WallSpec[] => [{
   id: "wall.facade-east", owner: "facade-east", axis: "z", bottom,
   plan: templeOuterWallPlans().east,

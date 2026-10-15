@@ -42,6 +42,7 @@ const woodBox = (
  * Portable fixed-form props without room placement or animated use.
  */
 export class TemplePortable {
+  /** Stone bench on two piers, standard or short. */
   bench(kind: "standard" | "short"): IAutoMovieModel {
     const m = new ObjectMesh(),
       w = kind === "standard" ? 1.4 : 1.1;
@@ -50,6 +51,7 @@ export class TemplePortable {
       box(m, "pier", x, 0, 0, 0.12, 0.4, 0.36);
     return m.model(`portable.bench.${kind}`, `Stone bench ${kind}`);
   }
+  /** Small portable oil lamp: foot, stem and dish. */
   portableLamp(): IAutoMovieModel {
     const m = new ObjectMesh();
     m.frustum("foot", 0, 0, 0, 0.035, 0.1, 0.1, 16);
@@ -70,6 +72,7 @@ export class TemplePortable {
     );
     return m.model("portable.lamp", "Small oil lamp");
   }
+  /** Rack board with two round jar holes. */
   jarRack(): IAutoMovieModel {
     const m = new ObjectMesh();
     const outer = [
@@ -127,6 +130,7 @@ export class TemplePortable {
         woodBox(m, "leg", x, 0, z, 0.07, 0.22, 0.07);
     return m.model("portable.jar-rack", "Two-place jar rack");
   }
+  /** Two-handed carrying yoke with two hooks. */
   carryingYoke(): IAutoMovieModel {
     const m = new ObjectMesh();
     box(m, "beam", 0, -0.025, 0, 1.16, 0.05, 0.05);
@@ -134,6 +138,7 @@ export class TemplePortable {
       m.loop("hook", x, -0.085, 0, 0.05, 0.01, "yz", 16);
     return m.model("portable.carrying-yoke", "Two-handed carrying yoke");
   }
+  /** Handcart: deck, axle and two wheels. */
   handcart(): IAutoMovieModel {
     const m = new ObjectMesh();
     woodBox(m, "deck", 0, 0.43, -0.025, 0.6, 0.06, 1.25);
@@ -162,6 +167,7 @@ export class TemplePortable {
       m.rod("handle", p(x, 0.45, -0.65), p(x, 0.7, -1.2), 0.02, 8);
     return m.model("portable.handcart", "Small handcart");
   }
+  /** Open bucket. */
   bucket(): IAutoMovieModel {
     const m = new ObjectMesh();
     m.vessel(
@@ -192,6 +198,7 @@ export class TemplePortable {
     }
     return m.model("portable.bucket", "Handled water bucket");
   }
+  /** Open planter pot. */
   planter(): IAutoMovieModel {
     const m = new ObjectMesh();
     m.vessel(
@@ -211,12 +218,14 @@ export class TemplePortable {
     m.frustum("soil", 0, 0, 0.03, 0.27, 0.12, 0.165, 16);
     return m.model("portable.planter", "Low planter");
   }
+  /** Plain votive plaque on a base. */
   votivePlaque(): IAutoMovieModel {
     const m = new ObjectMesh();
     box(m, "base", 0, 0, 0, 0.36, 0.04, 0.14);
     box(m, "slab", 0, 0.04, 0, 0.32, 0.38, 0.035);
     return m.model("portable.votive-plaque", "Plain votive plaque");
   }
+  /** Low offering tray with a closed rim. */
   offeringTray(): IAutoMovieModel {
     const m = new ObjectMesh();
     box(m, "floor", 0, 0, 0, 0.52, 0.018, 0.34);
@@ -231,6 +240,7 @@ export class TemplePortable {
       ["rim", TempleRectilinearUnion.mesh("rim", solids)],
     ]);
   }
+  /** Folded textile, standard or small. */
   textile(kind: "standard" | "small"): IAutoMovieModel {
     const w = kind === "standard" ? 0.55 : 0.42;
     const d = kind === "standard" ? 0.4 : 0.36,
@@ -253,6 +263,7 @@ export class TemplePortable {
       ],
     ]);
   }
+  /** Writing stylus with a pointed tip. */
   stylus(): IAutoMovieModel {
     const m = new ObjectMesh();
     m.cylinder("shaft", p(-0.11, 0, 0), p(0.09, 0, 0), 0.006, 8, "x");
@@ -267,6 +278,7 @@ export class TemplePortable {
     }
     return m.model("portable.stylus", "Writing stylus");
   }
+  /** Blank writing tablet in a raised frame. */
   writingTablet(): IAutoMovieModel {
     const m = new ObjectMesh();
     box(m, "writing-face", 0, 0.013, 0, 0.244, 0.001, 0.184);
@@ -284,6 +296,7 @@ export class TemplePortable {
       ["writing-face", modelMesh(m, "writing-face")],
     ]);
   }
+  /** Tied coil of three rope loops. */
   ropeCoil(): IAutoMovieModel {
     const m = new ObjectMesh();
     for (const r of [0.045, 0.075, 0.105])

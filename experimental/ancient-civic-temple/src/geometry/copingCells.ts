@@ -15,11 +15,18 @@ const containsPoint = (polygon: readonly PlanPoint[], p: PlanPoint): boolean => 
   return (b.x - a.x) * (p.z - a.z) - (b.z - a.z) * (p.x - a.x) >= -1e-9;
 });
 /**
+ * Derives the stone coping on top of the outer walls and the stone plinth band at their foot from the wall columns.
+ * The coping sits on the plane of each flat-topped column (parapet, yard wall) by its thickness and projects at
+ * both long faces and free ends. An end that continues into a higher wall does not project, and cells whose
+ * projection would enter another wall column are dropped. The plinth projects only in front of outer faces on
+ * the building outline that run unbroken from the foot to the plinth top, and its top follows the ground height
+ * the caller gives. Both results are unions of grid cells, so no solids overlap inside one part, and the shared
+ * faces of touching cells are removed by culling.
+ *
  * Coping: for every column with a coping thickness on a flat top, the bounding rectangle of that plane is
  * the core. Adjacent columns at the same height are joined by union, and the coping projects along the length
  * only at the ends of the wall plane (corners and free ends).
  */
-
 export const copingCells = (input: WallTrimInput): TrimCell[] => {
   const { walls, roof, profile } = input;
   const e = profile.copingProjection;

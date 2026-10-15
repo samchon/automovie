@@ -1,14 +1,14 @@
-/**
- * Deterministic metre-valued mesh assembly for the temple's bounded objects.
- * Each named part collects its own triangles so later materials can bind to
- * stable surface identities. The builder owns no placement or finish choice.
- */
 import type { IAutoMovieMesh, IAutoMovieModel, IAutoMovieVector3 } from "@automovie/interface";
 
 type Point = IAutoMovieVector3;
 type Buffer = { positions: number[]; indices: number[]; normals: number[]; uvs: number[] };
 const point = (x: number, y: number, z: number): Point => ({ x, y, z });
 
+/**
+ * Deterministic metre-valued mesh assembly for the temple's bounded objects.
+ * Each named part collects its own triangles so later materials can bind to
+ * stable surface identities. The builder owns no placement or finish choice.
+ */
 export class ObjectMesh {
   private readonly parts = new Map<string, Buffer>();
 
@@ -58,6 +58,10 @@ export class ObjectMesh {
     return this;
   }
 
+  /**
+   * Add an axis-aligned box to part `name`, centred on `x, z` and standing on `y`, with outward
+   * faces. Throws for a non-positive dimension.
+   */
   box(name: string, x: number, y: number, z: number, width: number, height: number, depth: number): this {
     if (!(width > 0 && height > 0 && depth > 0)) throw new Error(`${name}: box dimensions must be positive.`);
     const a = x - width / 2, b = x + width / 2;
@@ -72,6 +76,10 @@ export class ObjectMesh {
     return this;
   }
 
+  /**
+   * Add a closed vertical frustum to part `name` around `x, z` from `bottom` to `top`, with the
+   * given end radii and side count. Throws for invalid input.
+   */
   frustum(name: string, x: number, z: number, bottom: number, top: number, lowerRadius: number, upperRadius: number, segments = 16): this {
     if (!(top > bottom && lowerRadius > 0 && upperRadius > 0 && segments >= 3)) throw new Error(`${name}: invalid frustum input`);
     const low: Point[] = [], high: Point[] = [];
@@ -127,6 +135,10 @@ export class ObjectMesh {
     return this;
   }
 
+  /**
+   * Add a closed round rod of `radius` from `from` to `to` to part `name`; `uStart` offsets its U
+   * texture coordinate along the length. Throws for zero length or radius.
+   */
   rod(name: string, from: Point, to: Point, radius: number, segments = 8, uStart = 0): this {
     const dx = to.x-from.x, dy = to.y-from.y, dz = to.z-from.z;
     const length = Math.hypot(dx,dy,dz);
@@ -203,6 +215,10 @@ export class ObjectMesh {
     return this;
   }
 
+  /**
+   * Add a closed ring of rods with `thickness` radius tracing a circle of `radius` around `x, y, z`
+   * in `plane`.
+   */
   loop(name: string, x: number, y: number, z: number, radius: number, thickness: number, plane: "xz" | "xy" | "yz" = "xz", segments = 16): this {
     const path = Array.from({ length: segments+1 }, (_, i) => {
       const angle = 2*Math.PI*i/segments;
@@ -219,6 +235,10 @@ export class ObjectMesh {
     return this;
   }
 
+  /**
+   * Model holding one mesh part per named part, with unbound materials. Throws when nothing was
+   * added.
+   */
   model(id: string, name: string): IAutoMovieModel {
     if (this.parts.size === 0) throw new Error(`${id}: no members.`);
     return {

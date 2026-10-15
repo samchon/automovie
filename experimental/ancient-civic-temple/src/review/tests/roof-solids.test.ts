@@ -1,12 +1,12 @@
 /**
- * src/geometry/roof-solids.ts and roof-planes.ts: roof slabs, boarding ceilings,
+ * roofSlabFaces, ceilingBoardFaces, roofStepClosures, gablePlanes and leanToPlanes: roof slabs, boarding ceilings,
  * step closures, and gable or mono-pitch planes. Fixtures: convex quadrilateral
  * slabs with sloped tops (no underside region or a half region), triangular
  * slabs (half gables), thin slabs, step closures between touching pieces
  * (present, equal height or same-direction edges), boarding ceilings, gable
  * ridge position and support height, mono-pitch planes, vertical thickness,
  * and determinism. Slabs are closed after T-junction resolution. A step closure
- * is one face rather than a closed solid, matching the mesh-ledger closure fixture.
+ * is one face rather than a closed solid, matching the accountMeshes closure fixture.
  */
 import assert from "node:assert/strict";
 import test from "node:test";

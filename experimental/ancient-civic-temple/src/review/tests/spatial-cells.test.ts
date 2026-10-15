@@ -1,5 +1,5 @@
 /**
- * src/geometry/spatial-cells.ts: logical space cells (half-plane intersections)
+ * polygonCell, levelCell, roofedCells and thresholdCells: logical space cells (half-plane intersections)
  * and threshold passage regions. Fixtures: convex quadrilateral cells with
  * sloped ceilings, triangular cells, rooms covered by two roof patches
  * (partitioned), insufficient coverage (refused), threshold room filtering and

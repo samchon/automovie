@@ -1,9 +1,9 @@
 /**
- * src/geometry/model-parts.ts surfaceModel groups faces into parts by surface ID.
+ * surfaceModel groups faces into parts by surface ID.
  * Fixtures: a closed box with several surfaces (part order, null materials and
  * identity transforms), one surface in several pieces, empty input (refused),
  * a concave face (model/surface address added to the engine refusal), and determinism.
- * One part may be an open face set; mesh-ledger measures closure over the complete model.
+ * One part may be an open face set; accountMeshes measures closure over the complete model.
  */
 import assert from "node:assert/strict";
 import test from "node:test";

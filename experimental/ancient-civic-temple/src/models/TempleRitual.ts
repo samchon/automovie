@@ -6,6 +6,7 @@ import { ObjectMesh } from "../geometry/ObjectMesh";
  * Three fixed ritual and storage silhouettes with no moving interface.
  */
 export class TempleRitual {
+  /** Low censer with ash and three incense sticks. */
   censer():IAutoMovieModel {
     const m=new ObjectMesh();
     m.frustum("foot",0,0,0,0.04,0.11,0.09,20);
@@ -17,6 +18,7 @@ export class TempleRitual {
       m.frustum("incense",x,0,0.19,0.35,0.003,0.003,8);
     return m.model("ritual.censer","Low censer");
   }
+  /** Floor cushion: base, pad and fold. */
   floorCushion():IAutoMovieModel {
     const m=new ObjectMesh();
     m.box("base",0,0,0,0.46,0.04,0.38);
@@ -24,6 +26,7 @@ export class TempleRitual {
     m.box("fold",0,0.14,-0.14,0.42,0.018,0.06);
     return m.model("ritual.floor-cushion","Floor cushion");
   }
+  /** Single-jar stand: foot, post and ring. */
   jarStand():IAutoMovieModel {
     const m=new ObjectMesh();
     m.frustum("foot",0,0,0,0.05,0.30,0.29,16);

@@ -31,7 +31,10 @@ const resolveTJunctions = (mesh: IAutoMovieMesh): Resolution => {
   const indices = mesh.indices ?? Array.from({ length: p.length / 3 }, (_, i) => i);
   const parent = points.map((_, i) => i);
   const find = (i: number): number => {
-    while (parent[i] !== i) i = parent[i] = parent[parent[i]!]!;
+    while (parent[i] !== i) {
+      parent[i] = parent[parent[i]!]!;
+      i = parent[i]!;
+    }
     return i;
   };
   const union = (a: number, b: number) => { parent[find(a)] = find(b); };

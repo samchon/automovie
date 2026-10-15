@@ -1,5 +1,5 @@
 /**
- * src/geometry/planar-domain.ts: rectangles, half-plane clipping, convex partition and cleanup.
+ * rectanglePolygon, clipPlan, partitionPlan and simplifyPlan: rectangles, half-plane clipping, convex partition and cleanup.
  * Fixtures: convex rectangles, concavity (an L-shaped subject clipped by one
  * half-plane), holes (outer pieces split by a central cutter), thin width (1mm),
  * near-limit cases (clipping through a vertex, 0.1mm duplicate points and pieces

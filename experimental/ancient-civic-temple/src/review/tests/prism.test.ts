@@ -1,9 +1,9 @@
 /**
- * src/geometry/prism.ts prismFaces: vertical prisms over convex planar polygons.
+ * prismFaces: vertical prisms over convex planar polygons.
  * Fixtures: convex quadrilaterals with level or sloped tops, triangles, thin
  * thickness (1mm), heights near the numeric limit, concave polygons (refused),
  * and determinism. Holes are outside the domain, which takes one ring only;
- * wall-solids column decomposition owns walls with holes and planar-domain
+ * wallColumns owns walls with holes and the plan polygon functions
  * partition owns planes with holes. Open boundaries are also outside the
  * domain; the operation always emits a closed face list.
  */

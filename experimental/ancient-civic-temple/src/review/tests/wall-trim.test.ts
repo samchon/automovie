@@ -1,5 +1,5 @@
 /**
- * src/geometry/wall-trim.ts: parapet coping and exterior plinth.
+ * copingCells, copingFaces, plinthCells and plinthFaces: parapet coping and exterior plinth.
  * Fixtures: one straight full-width parapet (coping projection, free-end lip,
  * plinth band and two corner cells), sloped ground (plinth top follows ground)
  * and slope transitions (cell splitting), junctions of different-height

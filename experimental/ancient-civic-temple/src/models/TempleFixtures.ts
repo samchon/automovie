@@ -19,6 +19,7 @@ const disc=(m:ObjectMesh,id:string,y0:number,y1:number,r:number,n=16)=>
  * Fixed fit-out prototypes with placement and finish left to later branches.
  */
 export class TempleFixtures {
+  /** Courtyard fountain: step, basin rim, water surface with a ripple ring, nozzle and jet. */
   fountain():IAutoMovieModel {
     const m=new ObjectMesh();
     disc(m,"step",0,0.08,1.15,48);
@@ -30,6 +31,7 @@ export class TempleFixtures {
     m.frustum("jet",0,0,0.49,1.09,0.025,0.012,48);
     return m.model("fixture.fountain","Courtyard fountain");
   }
+  /** Stone altar: step, two supports and top. */
   altar():IAutoMovieModel {
     const m=new ObjectMesh();
     box(m,"step",0,0,0,2.4,0.15,1.6);
@@ -37,6 +39,7 @@ export class TempleFixtures {
     for(const x of [-0.52,0.52]) box(m,"support",x,0.15,-0.20,0.28,0.81,0.67);
     return m.model("fixture.altar","Stone altar");
   }
+  /** Plain wall niche: plinth, side bodies, framed recess and cap. */
   niche():IAutoMovieModel {
     const m=new ObjectMesh();
     box(m,"plinth",0,0,0.20,1.20,0.60,0.40);
@@ -47,6 +50,7 @@ export class TempleFixtures {
     box(m,"cap",0,1.80,0.21,1.24,0.14,0.42);
     return m.model("fixture.niche","Plain niche");
   }
+  /** Metal lampstand: foot, stem with two knops and an oil dish. */
   lampstand():IAutoMovieModel {
     const m=new ObjectMesh();
     const rings=([[0,0.13],[0.06,0.08],[0.08,0.08]] as const).map(([y,r])=>
@@ -62,12 +66,14 @@ export class TempleFixtures {
       [[1.15,0.10],[1.106,0.10]],16);
     return m.model("fixture.lampstand","Metal lampstand");
   }
+  /** Offering table on two trestles. */
   offeringTable():IAutoMovieModel {
     const m=new ObjectMesh();
     box(m,"top",0,0.72,0,0.75,0.10,2.20);
     for(const z of [-0.75,0.75]) box(m,"trestle",0,0,z,0.60,0.72,0.12);
     return m.model("fixture.offering-table","Offering table");
   }
+  /** Open wall shelf, wider and taller for the offering room than for administration. */
   displayShelf(kind:"offering"|"administration"):IAutoMovieModel {
     const m=new ObjectMesh();
     const wide=kind==="offering",w=wide?1.60:1.00,d=wide?0.40:0.30,h=wide?1.40:1.20;
@@ -77,6 +83,7 @@ export class TempleFixtures {
       woodBox(m,"board",0,y,d/2,w-2*side,0.03,d);
     return m.model(`fixture.display-shelf.${kind}`,`Wall shelf ${kind}`);
   }
+  /** Work table with legs and stretchers, the writing table larger than the reading table. */
   desk(kind:"writing"|"reading"):IAutoMovieModel {
     const m=new ObjectMesh(),writing=kind==="writing";
     const w=writing?1.10:0.90,d=writing?0.60:0.55,h=writing?0.75:0.72;
@@ -88,6 +95,7 @@ export class TempleFixtures {
     for(const x of [-lx,lx]) woodBox(m,"stretcher",x,0.15,0,0.04,0.05,2*lz);
     return m.model(`fixture.desk.${kind}`,`Work table ${kind}`);
   }
+  /** Wooden stool with stretchers. */
   stool():IAutoMovieModel {
     const m=new ObjectMesh();woodBox(m,"seat",0,0.41,0,0.40,0.04,0.35);
     for(const x of [-0.16,0.16]) for(const z of [-0.135,0.135])
@@ -96,6 +104,7 @@ export class TempleFixtures {
     for(const x of [-0.16,0.16]) woodBox(m,"stretcher",x,0.12,0,0.025,0.03,0.27);
     return m.model("fixture.stool","Stool");
   }
+  /** Records shelf with five rows of four compartments. */
   scrollShelf():IAutoMovieModel {
     const m=new ObjectMesh();
     for(const x of [-0.88,0.88]) woodBox(m,"frame",x,0,0.20,0.04,1.70,0.40);
@@ -106,6 +115,7 @@ export class TempleFixtures {
         woodBox(m,"divider",x,low,0.20,0.03,high-low,0.40);
     return m.model("fixture.scroll-shelf","Records shelf");
   }
+  /** Storage chest with lid, hasp and straps. */
   chest():IAutoMovieModel {
     const m=new ObjectMesh();
     woodBox(m,"body",0,0,0,0.80,0.44,0.50);

@@ -5,6 +5,10 @@ import type { RoofPatch } from "../geometry/RoofPatch";
 import { ceiling } from "./ceiling";
 
 
+/**
+ * Heights capping a space at plan point `x, z`: its cell volume top and the physical roof underside
+ * of its roof unit. Open spaces have no roof unit; returns null outside the space.
+ */
 export const cap = (space: IAutoMovieBuiltSpace, x: number, z: number, roof: readonly RoofPatch[]): { physical: number; volume: number; } | null => {
   const volume = ceiling(space, x, z);
   if (volume === null) return null;

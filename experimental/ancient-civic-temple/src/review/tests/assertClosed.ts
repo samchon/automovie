@@ -1,6 +1,6 @@
 /**
  * Shared fixtures for pure geometry tests. Builds an engine polyhedron from
- * face lists, measures it through mesh-ledger, and checks closed-solid expectations:
+ * face lists, measures it through accountMeshes, and checks closed-solid expectations:
  * 0 open edges, non-manifold edges, winding errors and degeneracy, plus expected volume.
  * Expected volume is calculated independently from fixture input dimensions, not operation code.
  */

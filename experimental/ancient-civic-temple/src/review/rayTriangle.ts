@@ -2,6 +2,10 @@ import { Point } from "./Point";
 import { Triangle } from "./Triangle";
 
 
+/**
+ * Distance along the ray from `o` in direction `d` to its hit on the triangle, or null when it
+ * misses, runs parallel, or hits within 1e-7 of the origin.
+ */
 export const rayTriangle = (o: Point, d: Point, { a, b, c }: Pick<Triangle, "a" | "b" | "c">): number | null => {
   const e1 = { x: b.x - a.x, y: b.y - a.y, z: b.z - a.z };
   const e2 = { x: c.x - a.x, y: c.y - a.y, z: c.z - a.z };

@@ -1,5 +1,5 @@
 import type { PlanRectangle } from "../../geometry/PlanRectangle";
-import { l } from "./l";
+import { templeSiteLines as l } from "./templeSiteLines";
 
 /**
  * Curb outer lines.

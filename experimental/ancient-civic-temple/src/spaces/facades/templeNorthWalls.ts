@@ -1,10 +1,3 @@
-/**
- * Rear exterior wall solid
- * The offering section is a parapet at the south facade's coping height, the
- * sanctuary section a gable end closing to its roof underside, and the yard
- * section a low stone wall at Y=2.55m. Two high sanctuary clerestories cut actual
- * voids. Corners consume diagonal-butt plans.
- */
 import type { WallSpec } from "../../geometry/WallSpec";
 import { templePlan as p } from "../templePlan";
 import { templeOuterWallPlans } from "../templeOuterWallPlans";
@@ -20,6 +13,13 @@ const coping = {
 } as const;
 const wing = { tier: "wing", above: "surface.facade-north.parapet-back" } as const;
 
+/**
+ * Rear exterior wall solid
+ * The offering section is a parapet at the south facade's coping height, the
+ * sanctuary section a gable end closing to its roof underside, and the yard
+ * section a low stone wall at Y=2.55m. Two high sanctuary clerestories cut actual
+ * voids. Corners consume diagonal-butt plans.
+ */
 export const templeNorthWalls = (bottom: number): WallSpec[] => [{
   id: "wall.facade-north", owner: "facade-north", axis: "x", bottom,
   plan: templeOuterWallPlans().north,

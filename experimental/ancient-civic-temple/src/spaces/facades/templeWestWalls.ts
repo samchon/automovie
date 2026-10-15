@@ -1,14 +1,14 @@
+import type { WallSpec } from "../../geometry/WallSpec";
+import { templePlan as p } from "../templePlan";
+import { templeOuterWallPlans } from "../templeOuterWallPlans";
+import { templeWallTrim } from "../templeWallTrim";
+import { templeParapetTop } from "./templeParapetTop";
 /**
  * West exterior wall solid
  * A full-length unpierced parapet using the south facade's coping height.
  * Inner faces divide into offering finish, west-roof contact and parapet back
  * above the roof. Both corners consume diagonal-butt plans.
  */
-import type { WallSpec } from "../../geometry/WallSpec";
-import { templePlan as p } from "../templePlan";
-import { templeOuterWallPlans } from "../templeOuterWallPlans";
-import { templeWallTrim } from "../templeWallTrim";
-import { templeParapetTop } from "./templeParapetTop";
 export const templeWestWalls = (bottom: number): WallSpec[] => [{
   id: "wall.facade-west", owner: "facade-west", axis: "z", bottom, voids: [],
   plan: templeOuterWallPlans().west,

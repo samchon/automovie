@@ -1,4 +1,3 @@
-/** Named junction strips outside a facade host's centre-line outline. They remain inspection questions. */
 import { templePlan as p } from "../spaces/templePlan";
 import { AddressException } from "./AddressException";
 
@@ -9,6 +8,7 @@ const strip = (wall: string, face: number, axis: "x" | "z", from: number, to: nu
 
 /** Each interval comes from a named outside corner or wall junction in templePlan. */
 const outerWallHalf = (p.westInner - p.westOuter) / 2;
+/** Named junction strips outside a facade host's centre-line outline. They remain inspection questions. */
 export const exposedAddressExceptions: readonly AddressException[] = [
   strip("wall.facade-north", 0, "x", p.westOuter, p.westOuter + outerWallHalf, "exterior.corner.northwest"),
   strip("wall.facade-west", 3, "z", p.northOuter, p.northOuter + outerWallHalf, "exterior.corner.northwest"),

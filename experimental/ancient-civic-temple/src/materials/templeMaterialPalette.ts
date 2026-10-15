@@ -1,5 +1,6 @@
 import { Finish } from "./Finish";
 
+/** Colour, roughness, metallic value and texture with its tile size for every temple finish. */
 export const templeMaterialPalette: Record<
   Finish, {
     color: number;

@@ -1,12 +1,3 @@
-/**
- * Derives the stone coping on top of the outer walls and the stone plinth band at their foot from the wall columns.
- * The coping sits on the plane of each flat-topped column (parapet, yard wall) by its thickness and projects at
- * both long faces and free ends. An end that continues into a higher wall does not project, and cells whose
- * projection would enter another wall column are dropped. The plinth projects only in front of outer faces on
- * the building outline that run unbroken from the foot to the plinth top, and its top follows the ground height
- * the caller gives. Both results are unions of grid cells, so no solids overlap inside one part, and the shared
- * faces of touching cells are removed by culling.
- */
 import { type PlanRectangle } from "./PlanRectangle";
 import { type RoofPatch } from "./RoofPatch";
 import { type HeightPlane } from "./HeightPlane";
@@ -22,9 +13,13 @@ interface WallTrimProfile {
   plinthRise: number;
 }
 
+/** Walls, roof and profile from which the outer-wall coping and plinth cells are derived. */
 export interface WallTrimInput {
+  /** Walls whose columns carry the coping and plinth. */
   walls: readonly WallSpec[];
+  /** Composed roof that sets column tops. */
   roof: readonly RoofPatch[];
+  /** Coping and plinth projections and the plinth rise. */
   profile: WallTrimProfile;
   /** The building's outer outline. The plinth attaches only to faces on this line. */
   outline: PlanRectangle;

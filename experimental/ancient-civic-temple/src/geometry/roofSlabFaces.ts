@@ -1,10 +1,3 @@
-/**
- * Turns composed roof pieces into closed slab prisms with a normal thickness.
- * The top is the piece's original owner's upper surface, the sides are exposed end thickness, and the
- * underside is split by the planar region below (room, wall, exterior) into interior ceiling, support contact
- * face and exterior eave soffit. Interior sides where pieces touch hide inside the neighbouring slab. The
- * underside split is a face split on the same plane and does not change the slab shape.
- */
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { simplifyPlan } from "./simplifyPlan";
 import { partitionPlan } from "./partitionPlan";
@@ -15,6 +8,13 @@ import { prismFaces } from "./prismFaces";
 import type { WallFace } from "./WallFace";
 import { UndersideRegion } from "./UndersideRegion";
 
+/**
+ * Turns composed roof pieces into closed slab prisms with a normal thickness.
+ * The top is the piece's original owner's upper surface, the sides are exposed end thickness, and the
+ * underside is split by the planar region below (room, wall, exterior) into interior ceiling, support contact
+ * face and exterior eave soffit. Interior sides where pieces touch hide inside the neighbouring slab. The
+ * underside split is a face split on the same plane and does not change the slab shape.
+ */
 export const roofSlabFaces = (
   patches: readonly RoofPatch[],
   regions: readonly UndersideRegion[],

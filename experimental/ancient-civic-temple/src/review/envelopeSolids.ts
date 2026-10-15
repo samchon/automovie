@@ -9,6 +9,10 @@ import type { WallSpec } from "../geometry/WallSpec";
 import { ScanSolid } from "./ScanSolid";
 
 
+/**
+ * Convex solids of the building envelope for overlap scanning: wall column intervals, roof slabs,
+ * coping and plinth cells, and floor slabs, each grouped by owner.
+ */
 export const envelopeSolids = (input: {
   walls: readonly WallSpec[]; roof: readonly RoofPatch[]; trim: WallTrimInput; floors: readonly FloorInput[];
 }): ScanSolid[] => [

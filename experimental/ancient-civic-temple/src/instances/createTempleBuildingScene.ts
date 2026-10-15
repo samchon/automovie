@@ -1,4 +1,3 @@
-/** Places the reviewed fixed building prototypes on the current space datums. */
 import type {
   IAutoMovieBuiltElement,
   IAutoMovieBuiltEnvironment,
@@ -37,6 +36,7 @@ const placed = (
     },
   },
 });
+/** Places the reviewed fixed building prototypes on the current space datums. */
 export const createTempleBuildingScene = (): IAutoMovieBuiltEnvironment => {
   const built = createTempleBuildingEnvelope();
   const columns = new TempleColumns();

@@ -4,6 +4,10 @@ import { templeSiteGradeBreaks } from "./templeSiteGradeBreaks";
 
 
 
+/**
+ * Grade height field at world `z`: level at the service approach north of the first break, level at
+ * the public road south of the second, and a straight fall between.
+ */
 export const templeSiteGradePlane = (z: number): HeightPlane => {
   const [north, south] = templeSiteGradeBreaks;
   if (z <= north) return { x: 0, z: 0, constant: y.serviceApproach };

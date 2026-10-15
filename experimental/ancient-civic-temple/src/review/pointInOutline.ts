@@ -1,4 +1,5 @@
 
+/** Whether a point lies inside a polygon, by the even-odd rule. */
 export const pointInOutline = (polygon: readonly { x: number; y: number; }[], x: number, y: number): boolean => {
   let inside = false;
   for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {

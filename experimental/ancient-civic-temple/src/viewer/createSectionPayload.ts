@@ -7,6 +7,10 @@ import { templeSiteGrade } from "../spaces/site/templeSiteGrade";
 import { templeSiteGradeBreaks } from "../spaces/site/templeSiteGradeBreaks";
 
 
+/**
+ * Vertical section of the current envelope on the x or z plane at `offset`: exact solid pieces plus
+ * the site ground lines outside the building footprint.
+ */
 export const createSectionPayload = (axis: "x" | "z", offset: number) => {
   const built = createTempleEnvironment();
   const solids = envelopeSolids({ walls: built.walls, roof: built.roof, trim: built.trim, floors: built.floors.inputs });

@@ -1,3 +1,8 @@
+import { createHash } from "node:crypto";
+import { readdirSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { productionRoot } from "./productionRoot";
+
 /**
  * Source identity recorded with observations and measurements
  * The basis is the first 16 sha256 characters of source, public, and package
@@ -6,11 +11,6 @@
  * its working tree changed. Uncommitted changes mean dirty; their result does
  * not belong to the recorded commit.
  */
-import { createHash } from "node:crypto";
-import { readdirSync, readFileSync } from "node:fs";
-import { resolve } from "node:path";
-import { productionRoot } from "./productionRoot";
-
 export const sourceBasis = (): string => {
   const hash = createHash("sha256");
   const visit = (relative: string): void => {

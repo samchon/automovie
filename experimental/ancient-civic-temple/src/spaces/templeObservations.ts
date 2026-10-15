@@ -1,17 +1,3 @@
-/**
- * Derive the observation population
- * from the current built environment. Engine stations cover four central directions,
- * four inside corners and opening thresholds; their eyes are raised 1.6 m above
- * actual supports. Add four central directions for each of six colonnade regions.
- * Exterior views cover the setting, exposed census facades and corners, roofs in
- * four directions, undersides and openings. Site views cover its layout, two
- * approaches, lane grade and distant ridge. Further views cover inside colonnade
- * corners, entrance corners, valleys, floating eaves, parapet junctions and corner
- * stone bands, exact vertical sections and five reference comparisons. Diagonal
- * valley sections unavailable on X/Z planes remain unverified without poses.
- * Unavailable or colliding stations and invalid former window thresholds remain
- * with null poses and reasons. These are observation locations, not visual verdicts.
- */
 import { builtSpaceObservationStations } from "@automovie/engine";
 import type { IAutoMovieBuiltEnvironment, IAutoMovieVector3 } from "@automovie/interface";
 import { openingFacingObservations } from "./openingFacingObservations";
@@ -36,6 +22,20 @@ const directionNames: Record<string, string> = {
   "corner-x-minus-z-minus": "Northwest corner", "corner-x-minus-z-plus": "Southwest corner",
   "corner-x-plus-z-minus": "Northeast corner", "corner-x-plus-z-plus": "Southeast corner",
 };
+/**
+ * Derive the observation population
+ * from the current built environment. Engine stations cover four central directions,
+ * four inside corners and opening thresholds; their eyes are raised 1.6 m above
+ * actual supports. Add four central directions for each of six colonnade regions.
+ * Exterior views cover the setting, exposed census facades and corners, roofs in
+ * four directions, undersides and openings. Site views cover its layout, two
+ * approaches, lane grade and distant ridge. Further views cover inside colonnade
+ * corners, entrance corners, valleys, floating eaves, parapet junctions and corner
+ * stone bands, exact vertical sections and five reference comparisons. Diagonal
+ * valley sections unavailable on X/Z planes remain unverified without poses.
+ * Unavailable or colliding stations and invalid former window thresholds remain
+ * with null poses and reasons. These are observation locations, not visual verdicts.
+ */
 export const templeObservations = (environment: IAutoMovieBuiltEnvironment): TempleObservation[] => {
   const result: TempleObservation[] = [];
   for (const space of environment.spaces.filter((s) => s.cells.length > 0)) {

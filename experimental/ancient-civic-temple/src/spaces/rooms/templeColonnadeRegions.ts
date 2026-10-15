@@ -1,5 +1,9 @@
 import { templePlan as p } from "../templePlan";
 
+/**
+ * The six plan regions of the colonnade around the courtyard: north, west, east and south walks,
+ * and the southwest and southeast corners beside the porch.
+ */
 export const templeColonnadeRegions = [
   { id: "north", west: p.westRing, east: p.eastRing, north: p.northRing, south: p.courtBack },
   { id: "west", west: p.westRing, east: p.westCourt, north: p.courtBack, south: p.courtFront },

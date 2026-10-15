@@ -1,3 +1,7 @@
+/**
+ * Storey and building identities with the temple's vertical datums in metres: floor, courtyard,
+ * road and approach levels, slab thickness, low ceiling, ceiling board reserve and beam depth.
+ */
 export const templeLevels = {
   storey: "temple-ground",
   building: "temple",

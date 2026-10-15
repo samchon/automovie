@@ -1,9 +1,10 @@
 import type { PlanRectangle } from "../../geometry/PlanRectangle";
-import { e } from "./e";
-import { lane } from "./lane";
-import { setback } from "./setback";
+import { templeSiteExtent as e } from "./templeSiteExtent";
+import { templeSiteLaneOuter as lane } from "./templeSiteLaneOuter";
 import { templeSiteCurbOuter } from "./templeSiteCurbOuter";
 
+const setback = 1.5;
+/** Plan zones where neighbouring buildings and trees may be placed, with the kinds each allows. */
 export const templeSitePlacementZones: readonly { id: string; allows: readonly string[]; rect: PlanRectangle; }[] = [
   {
     id: "zone.neighbour-south", allows: ["neighbour", "tree"],

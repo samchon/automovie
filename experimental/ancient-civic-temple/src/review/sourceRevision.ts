@@ -1,4 +1,4 @@
-import { execFileSync } from "child_process";
+import { execFileSync } from "node:child_process";
 import { ISourceRevision } from "./ISourceRevision";
 import { productionRoot } from "./productionRoot";
 

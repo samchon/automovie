@@ -1,10 +1,3 @@
-/**
- * Assemble the `temple-site` ownership unit
- * One input produces its root space and element, four convex cells, ground,
- * curb and distant-background models, and walking supports. It is independent
- * of building spaces and storeys; two circulation connectors link it to the
- * building. Neighboring buildings and tree instances are authored elsewhere.
- */
 import type {
   IAutoMovieBuildingUnit, IAutoMovieBuiltElement, IAutoMovieBuiltSpace, IAutoMovieBuiltSurface, IAutoMovieModel,
 } from "@automovie/interface";
@@ -37,6 +30,13 @@ const siteCells = () => [
   levelCell(`${templeSiteIds.space}.west`, { west: e.west, east: p.westOuter, north: p.northOuter, south: p.southOuter }, v.floor, v.ceiling),
   levelCell(`${templeSiteIds.space}.east`, { west: p.eastOuter, east: e.east, north: p.northOuter, south: p.southOuter }, v.floor, v.ceiling),
 ];
+/**
+ * Assemble the `temple-site` ownership unit
+ * One input produces its root space and element, four convex cells, ground,
+ * curb and distant-background models, and walking supports. It is independent
+ * of building spaces and storeys; two circulation connectors link it to the
+ * building. Neighboring buildings and tree instances are authored elsewhere.
+ */
 export const createTempleSite = (): TempleSite => {
   const ids = templeSiteIds;
   const models = [

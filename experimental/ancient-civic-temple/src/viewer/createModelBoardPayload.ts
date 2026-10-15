@@ -1,8 +1,3 @@
-/**
- * The neutral review population consumes the actual model source classes.
- * It records model labels and named size/pose variants without copying
- * their meshes. The browser receives the current source result verbatim.
- */
 import type { IAutoMovieModel } from "@automovie/interface";
 import {
   mergeAutoMovieMeshes,
@@ -47,6 +42,11 @@ const repeated = (model: IAutoMovieModel, placements: readonly (readonly [number
     }),
   });
 
+/**
+ * The neutral review population consumes the actual model source classes.
+ * It records model labels and named size/pose variants without copying
+ * their meshes. The browser receives the current source result verbatim.
+ */
 export const createModelBoardPayload = () => {
   const columns=new TempleColumns(), beams=new TempleEntablature();
   const openings=new TempleOpenings(), cladding=new TempleCladding();

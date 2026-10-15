@@ -66,6 +66,11 @@ import { templeStorageCeiling } from "./rooms/templeStorageCeiling";
 import { templeStoragePlan } from "./rooms/templeStoragePlan";
 import { templeWallBottom } from "./templeWallBottom";
 import { templeLevels as y } from "./templeLevels";
+/**
+ * Build the temple's built environment from the space owners: roof envelope, site, floors, walls
+ * with their openings, spaces, boundaries and surfaces. Returns the environment with the walls,
+ * roof, wall bottom, floors, site and trim inputs it was built from.
+ */
 export const createTempleEnvironment = () => {
   const roof = templeRoofEnvelope();
   const site = createTempleSite();

@@ -1,5 +1,5 @@
 /**
- * src/geometry/face-bands.ts: roof-line bands on vertical faces and horizontal-face splitting.
+ * splitVerticalFace and splitAtLevel: roof-line bands on vertical faces and horizontal-face splitting.
  * Fixtures: a horizontal roof line crossing a face (three convex bands), a
  * sloping roof line crossing the upper edge (extra cut point), omitted empty
  * ownership bands, non-quadrilateral faces (passed through), horizontal faces

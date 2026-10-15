@@ -16,7 +16,13 @@ import { solidsContaining } from "./solidsContaining";
 import { sourceBasis } from "./sourceBasis";
 import { sourceRevision } from "./sourceRevision";
 
-
+/**
+ * Measurement producer shared by the pre-review self-check and viewer /review
+ * . Builds the current environment once and returns (1) the
+ * complete envelope overlap scan, (2) observation poses inside solids and (3)
+ * topology accounts for every model and composite solid, together with their
+ * source basis, Git revision and grid input. Values are geometric facts, not verdicts.
+ */
 export const createReviewPayload = (grid: number): ReviewPayload => {
   if (!(grid > 0)) throw new Error("Grid spacing must be a positive value in m.");
   const basis = sourceBasis();

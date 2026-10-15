@@ -1,10 +1,10 @@
-/** Rear storage room and direct threshold */
 import type { IAutoMovieBuiltSpace } from "@automovie/interface";
 import { thresholdCells } from "../../geometry/thresholdCells";
 import { levelCell } from "../../geometry/levelCell";
 import { templeDoorPassages } from "../templeDoorPassages";
 import { templeLevels as y } from "../templeLevels";
 import { templeStoragePlan } from "./templeStoragePlan";
+/** Rear storage room and direct threshold */
 export const templeStorage = (): IAutoMovieBuiltSpace => ({
   id: "storage", kind: "storage", parent: y.storey, fidelity: "exact",
   cells: [

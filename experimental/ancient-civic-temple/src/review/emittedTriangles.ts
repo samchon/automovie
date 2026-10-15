@@ -4,6 +4,10 @@ import { Point } from "./Point";
 import { Triangle } from "./Triangle";
 
 
+/**
+ * Every triangle of every placed element in world coordinates, primitives tessellated. Throws for
+ * an incomplete triangle list.
+ */
 export const emittedTriangles = (environment: IAutoMovieBuiltEnvironment): Triangle[] => {
   const models = new Map(environment.models.map((model) => [model.id, model]));
   const result: Triangle[] = [];

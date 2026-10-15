@@ -4,7 +4,9 @@ import type { TempleObservation } from "../spaces/TempleObservation";
 import { inViewerFrustum } from "./inViewerFrustum";
 import { OpeningFrustumRow } from "./OpeningFrustumRow";
 
-
+/**
+ * Perspective/frustum audit for the complete compiled opening population.
+ */
 export const openingFrustumCensus = (environment: IAutoMovieBuiltEnvironment, observations: readonly TempleObservation[]): OpeningFrustumRow[] => environment.openings.map((opening) => {
   const boundary = environment.boundaries.find((entry) => entry.id === opening.boundary);
   if (boundary?.face === undefined || opening.profile === undefined) throw new Error(`frustum: ${opening.id} lacks host/profile`);

@@ -1,3 +1,5 @@
+import type { DoorPassage } from "./DoorPassage";
+
 /**
  * Static open-door placement for the temple's reviewed passage table. Models
  * retain closed local geometry; this helper rotates that geometry around its
@@ -7,8 +9,6 @@
  * The building instance producer consumes the returned rigid transform. A
  * changed hinge datum invalidates opening contact tests and threshold views.
  */
-import type { DoorPassage } from "./DoorPassage";
-
 export const templeOpenDoorPlacement = (door: DoorPassage, side: -1 | 1) => {
   const across = (door.wallLow + door.wallHigh) / 2;
   const double = door.axis === "x";

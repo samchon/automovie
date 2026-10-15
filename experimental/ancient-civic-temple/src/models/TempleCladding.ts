@@ -20,6 +20,10 @@ type RectilinearSolid=Parameters<typeof TempleRectilinearUnion.mesh>[1][number];
  * Tile prototypes and declared host-cut variants preserve overlaps and empty semicircles.
  */
 export class TempleCladding {
+  /**
+   * Roof tile clipped by the given planes, with id `tile.roof.cut.<id>`, or null when nothing of it
+   * remains.
+   */
   roofTileCut(id: string, planes: readonly TileCutPlane[], ridgeEnd: number | null = null): IAutoMovieModel | null {
     const original = this.roofTile(ridgeEnd);
     const parts = original.parts.flatMap((part) => {

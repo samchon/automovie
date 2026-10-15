@@ -1,12 +1,3 @@
-/**
- * Pure assembly entry evaluating the reviewed space owners once.
- * Resolves the roof envelope first, then uses that same result for entrance,
- * sanctuary and colonnade cells. Returns geometry inputs for the space-source
- * draft rather than a complete BuiltEnvironment. Floors return actual meshes
- * and supports; wall/opening solids, connectors, exterior ground and renderer
- * binding remain outside this entry. Viewer and measurement consumers share
- * these inputs instead of authoring separate coordinates or cells.
- */
 import { createTempleFloors } from "./createTempleFloors";
 import { templeSpaceHierarchy } from "./spaces/templeSpaceHierarchy";
 import { templeClerestories } from "./spaces/templeClerestories";
@@ -23,6 +14,15 @@ import { templeSanctuary } from "./spaces/rooms/templeSanctuary";
 import { templeServiceYard } from "./spaces/rooms/templeServiceYard";
 import { templeStorage } from "./spaces/rooms/templeStorage";
 
+/**
+ * Pure assembly entry evaluating the reviewed space owners once.
+ * Resolves the roof envelope first, then uses that same result for entrance,
+ * sanctuary and colonnade cells. Returns geometry inputs for the space-source
+ * draft rather than a complete BuiltEnvironment. Floors return actual meshes
+ * and supports; wall/opening solids, connectors, exterior ground and renderer
+ * binding remain outside this entry. Viewer and measurement consumers share
+ * these inputs instead of authoring separate coordinates or cells.
+ */
 export const createTempleSpatialLayout = () => {
   const roof = templeRoofEnvelope();
   return {

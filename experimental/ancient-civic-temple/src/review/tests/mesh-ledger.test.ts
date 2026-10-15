@@ -1,5 +1,5 @@
 /**
- * Checks mesh-ledger against independently known measurement cases
+ * Checks accountMeshes against independently known measurement cases
  * (): a closed box, a T-junction box with only
  * one face split, a lidless box, an inverted face, two separate boxes, one sheet
  * attached to an edge (the production's roof step-closure form), and repeated-call determinism.

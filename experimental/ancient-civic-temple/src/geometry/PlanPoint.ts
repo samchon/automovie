@@ -1,7 +1,10 @@
 /**
- * XZ convex region computation shared by the roof height field and space cells.
- * It decides no building dimension or surface ownership. Input is a finite CCW convex polygon,
- * and output is a new polygon that leaves the input unchanged. Height is y=ax+bz+c (m).
- * Only numeric error is handled, at 1e-9; it is not a design tolerance or a gap filler.
+ * Plan point in world metres on the XZ plane. Plan polygons are finite counter-clockwise convex lists
+ * of these, and heights over them are planes `y = ax + bz + c`; only numeric error is absorbed, at 1e-9.
  */
-export interface PlanPoint { x: number; z: number; }
+export interface PlanPoint {
+  /** World x in metres. */
+  x: number;
+  /** World z in metres. */
+  z: number;
+}

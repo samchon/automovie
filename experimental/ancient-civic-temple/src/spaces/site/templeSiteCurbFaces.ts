@@ -8,8 +8,9 @@ import { entry } from "./entry";
 import { apron } from "./apron";
 import { templeSiteCurbOuter as curb } from "./templeSiteCurbOuter";
 import { templeSiteLines as l } from "./templeSiteLines";
-import { offset } from "./offset";
+import type { HeightPlane } from "../../geometry/HeightPlane";
 
+const offset = (plane: HeightPlane, dy: number): HeightPlane => ({ ...plane, constant: plane.constant + dy });
 /**
  * Curb bands break at entry and service doors and close at four corners.
  */

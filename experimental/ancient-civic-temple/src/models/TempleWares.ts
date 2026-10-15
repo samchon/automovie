@@ -80,6 +80,7 @@ const jar = (
  * Open vessel and unmarked scroll silhouettes in their own local frames.
  */
 export class TempleWares {
+  /** Large storage jar. */
   storageJar(): IAutoMovieModel {
     return jar(
       "ware.storage-jar",
@@ -103,6 +104,7 @@ export class TempleWares {
       16,
     );
   }
+  /** Carrying jar. */
   carryJar(): IAutoMovieModel {
     return jar(
       "ware.carry-jar",
@@ -126,6 +128,7 @@ export class TempleWares {
       16,
     );
   }
+  /** Small table vessel. */
   smallVessel(): IAutoMovieModel {
     return jar(
       "ware.small-vessel",
@@ -145,6 +148,7 @@ export class TempleWares {
       12,
     );
   }
+  /** Shallow offering bowl. */
   offeringBowl(): IAutoMovieModel {
     const m = new ObjectMesh();
     m.vessel(
@@ -167,6 +171,7 @@ export class TempleWares {
     );
     return m.model("ware.offering-bowl", "Shallow offering bowl");
   }
+  /** Open woven basket. */
   basket(): IAutoMovieModel {
     const m = new ObjectMesh();
     m.vessel(
@@ -191,6 +196,7 @@ export class TempleWares {
     }
     return m.model("ware.basket", "Carrying basket");
   }
+  /** Scroll rolled, tied in a bundle, or open as a sheet between two rollers. */
   scroll(state: "rolled" | "bundle" | "open"): IAutoMovieModel {
     const m = new ObjectMesh();
     if (state === "open") {

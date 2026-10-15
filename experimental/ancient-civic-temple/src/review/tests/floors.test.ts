@@ -1,5 +1,5 @@
 /**
- * src/geometry/floor-input.ts, floor-faces.ts and floor-supports.ts: room floor
+ * roomFloorInput, floorBoundaryFaces and floorSupportSurfaces: room floor
  * inputs, irregular-grid boundary faces, and walking-support outlines and holes.
  * Fixtures: room body and threshold (union of two convex pieces), two rooms at
  * different heights (step), a yard enclosed by four rooms (support with a hole),

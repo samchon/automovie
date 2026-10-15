@@ -1,4 +1,5 @@
 
+/** Shared roof datums, slopes, thickness and overhang every roof owner composes from. */
 export interface RoofRules {
   /** Top-face height (m) of the courtyard-side support line (portico eave datum) and of the east gable support line. */
   courtEave: number;

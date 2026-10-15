@@ -1,3 +1,8 @@
+import { rectanglePolygon } from "../../geometry/rectanglePolygon";
+import { roofVerticalThickness } from "../../geometry/roofVerticalThickness";
+import { leanToPlanes } from "../../geometry/leanToPlanes";
+import { type RoofRules } from "../../geometry/RoofRules";
+import { templePlan as p } from "../templePlan";
 /**
  * North/south colonnade mono-pitch roofs
  * The north roof rises from court-back to the sanctuary south-wall face; the
@@ -6,11 +11,6 @@
  * ends reach the west parapet, composing corner valleys with the west roof.
  * The north roof's east end projects over the yard at the gable end.
  */
-import { rectanglePolygon } from "../../geometry/rectanglePolygon";
-import { roofVerticalThickness } from "../../geometry/roofVerticalThickness";
-import { leanToPlanes } from "../../geometry/leanToPlanes";
-import { type RoofRules } from "../../geometry/RoofRules";
-import { templePlan as p } from "../templePlan";
 export const templeColonnadeRoof = (rules: RoofRules) => {
   const thickness = roofVerticalThickness(rules, rules.leanSlope);
   const north = leanToPlanes({

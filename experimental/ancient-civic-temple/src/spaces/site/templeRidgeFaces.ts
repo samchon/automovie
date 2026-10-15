@@ -1,7 +1,10 @@
 import type { WallFace } from "../../geometry/WallFace";
 import { templeRidge } from "./templeRidge";
-import { at } from "./at";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 
+const at = (radius: number, phi: number, height: number): IAutoMovieVector3 => ({
+  x: radius * Math.sin(phi), y: height, z: radius * Math.cos(phi),
+});
 /**
  * Crest height in meters at azimuth φ, zero at front +Z and increasing toward east +X.
  */

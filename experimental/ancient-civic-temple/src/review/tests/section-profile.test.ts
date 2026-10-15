@@ -1,5 +1,5 @@
 /**
- * Checks src/review/section-profile.ts against known vertical sections: boxes
+ * Checks sectionProfile against known vertical sections: boxes
  * cut by X or Z into rectangles, sloped-top trapezoids, oblique cuts through
  * triangular plans, cuts coincident with corners or edges (numeric boundaries),
  * cuts outside solids (no pieces), thin solids (1mm), and kinds selected by group names.

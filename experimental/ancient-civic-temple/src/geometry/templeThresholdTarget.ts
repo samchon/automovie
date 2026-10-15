@@ -1,7 +1,7 @@
-/** A door threshold looks straight inward, clear of its opened hinge leaves. */
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { DoorPassage } from "./DoorPassage";
 
+/** A door threshold looks straight inward, clear of its opened hinge leaves. */
 export const templeThresholdTarget = (door: DoorPassage, position: IAutoMovieVector3): IAutoMovieVector3 => {
   const middle = (door.wallLow + door.wallHigh) / 2;
   const across = door.axis === "x" ? position.z : position.x;

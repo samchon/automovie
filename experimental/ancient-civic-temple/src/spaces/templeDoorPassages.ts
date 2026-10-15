@@ -1,6 +1,7 @@
 import type { DoorPassage } from "../geometry/DoorPassage";
 import { templePlan as p } from "./templePlan";
 
+/** Every door and passage of the temple. */
 export const templeDoorPassages: readonly DoorPassage[] = [
   {
     id: "door-entry", boundary: "boundary-entry", room: "entrance",

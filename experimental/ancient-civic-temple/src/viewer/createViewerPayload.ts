@@ -1,9 +1,3 @@
-/**
- * Viewer payload. Run the actual production producer and public engine lowering
- * once in CJS, forwarding their geometry, placements, spaces and observations.
- * Unbound parts retain null materials. Site ground, curbs and distant ridges
- * arrive as models in the same environment.
- */
 import {
   builtEnvironmentBuildingCensus,
   lowerBuiltEnvironment,
@@ -37,6 +31,12 @@ interface ViewerPlacement {
   scale: IAutoMovieVector3;
 }
 
+/**
+ * Viewer payload. Run the actual production producer and public engine lowering
+ * once in CJS, forwarding their geometry, placements, spaces and observations.
+ * Unbound parts retain null materials. Site ground, curbs and distant ridges
+ * arrive as models in the same environment.
+ */
 export const createViewerPayload = () => {
   const environment = bindTempleMaterials(
     addTempleObjectInstances(addTempleSiteInstances(createTempleBuildingScene())),

@@ -1,3 +1,8 @@
+import { rectanglePolygon } from "../../geometry/rectanglePolygon";
+import { roofVerticalThickness } from "../../geometry/roofVerticalThickness";
+import { leanToPlanes } from "../../geometry/leanToPlanes";
+import { type RoofRules } from "../../geometry/RoofRules";
+import { templePlan as p } from "../templePlan";
 /**
  * West-wing mono-pitch roof
  * Rises from the west courtyard support to the west parapet inner face, covering
@@ -5,11 +10,6 @@
  * north, south and west ends stop at parapet inner faces. Only the courtyard
  * side has eaves with the shared projection.
  */
-import { rectanglePolygon } from "../../geometry/rectanglePolygon";
-import { roofVerticalThickness } from "../../geometry/roofVerticalThickness";
-import { leanToPlanes } from "../../geometry/leanToPlanes";
-import { type RoofRules } from "../../geometry/RoofRules";
-import { templePlan as p } from "../templePlan";
 export const templeWestRoof = (rules: RoofRules) => leanToPlanes({
   owner: "roof-west", id: "roof-west", tier: "wing", axis: "x",
   pieces: [

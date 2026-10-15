@@ -1,11 +1,3 @@
-/**
- * Removes the overlapping parts of vertical faces that touch each other within one solid set.
- * The shared contact face of adjacent convex columns or roof pieces is hidden inside both solids, so it is
- * not exposed; keeping it would make four triangles share one edge in one surface part.
- * For coplanar faces with opposite normals, the trapezoid difference is computed in plane coordinates (s, y)
- * and only the actually exposed parts (door-jamb reveals, end faces at roof height changes) are kept.
- * A face with no overlap is kept as is without recomputing its coordinates.
- */
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { WallFace } from "./WallFace";
 
@@ -19,6 +11,14 @@ interface Vertical {
 
 const tolerance = 1e-6;
 
+/**
+ * Removes the overlapping parts of vertical faces that touch each other within one solid set.
+ * The shared contact face of adjacent convex columns or roof pieces is hidden inside both solids, so it is
+ * not exposed; keeping it would make four triangles share one edge in one surface part.
+ * For coplanar faces with opposite normals, the trapezoid difference is computed in plane coordinates (s, y)
+ * and only the actually exposed parts (door-jamb reveals, end faces at roof height changes) are kept.
+ * A face with no overlap is kept as is without recomputing its coordinates.
+ */
 export const cullCoincidentVerticalFaces = (faces: readonly WallFace[]): WallFace[] => {
   const verticals: Vertical[] = [];
   const others: WallFace[] = [];

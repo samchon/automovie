@@ -19,6 +19,10 @@ const outwardNormal = (
   const sign = inside ? -1 : 1;
   return { x: sign * normal.x / length, y: 0, z: sign * normal.z / length };
 };
+/**
+ * Exterior stations: the overall setting, then one view per census facade at a fitting distance,
+ * raised above roofs for elevated faces.
+ */
 export const exteriorObservations = (environment: IAutoMovieBuiltEnvironment): TempleObservation[] => {
   const census = builtEnvironmentBuildingCensus(environment)[0];
   const center = { x: 0, y: 2.2, z: 0 };

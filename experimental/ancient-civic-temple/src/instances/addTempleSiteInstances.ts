@@ -1,4 +1,3 @@
-/** Places the local setting outside the temple, retaining authored site surfaces. */
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieModel,
@@ -6,6 +5,7 @@ import type {
 import { identityTransform } from "../geometry/identityTransform";
 import { TempleLandscape } from "../models/TempleLandscape";
 import { templeSiteGrade } from "../spaces/site/templeSiteGrade";
+/** Places the local setting outside the temple, retaining authored site surfaces. */
 export const addTempleSiteInstances = (environment: IAutoMovieBuiltEnvironment): IAutoMovieBuiltEnvironment => {
   const landscape = new TempleLandscape();
   const gable = landscape.neighborHouse("gable");

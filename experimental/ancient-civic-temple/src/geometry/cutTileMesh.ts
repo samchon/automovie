@@ -107,7 +107,8 @@ export const cutTileMesh = (input: IAutoMovieMesh, planes: readonly TileCutPlane
     const v = [normal[1]! * u[2]! - normal[2]! * u[1]!, normal[2]! * u[0]! - normal[0]! * u[2]!, normal[0]! * u[1]! - normal[1]! * u[0]!];
     const dot = (a: number[], b: number[]): number => a.reduce((sum, value, i) => sum + value * b[i]!, 0);
     while (nodes.size > 0) {
-      const first = [...nodes].find(([, node]) => node.adjacent.size === 1)?.[0] ?? nodes.keys().next().value!;
+      const anyNode = nodes.keys().next().value!;
+      const first = [...nodes].find(([, node]) => node.adjacent.size === 1)?.[0] ?? anyNode;
       const startDegree = nodes.get(first)!.adjacent.size;
       const ring: number[][] = [];
       let current: string | undefined = first, prior: string | undefined;

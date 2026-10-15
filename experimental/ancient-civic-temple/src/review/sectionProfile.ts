@@ -1,11 +1,3 @@
-/**
- * Vertical section inspection: cuts the overlap scan's convex solids (wall
- * columns, roof slabs, coping, plinth and floor slabs) with an X or Z plane to
- * produce exact section pieces. At both ends of each plan polygon's intersection
- * with the cut line, reads the bottom and top plane heights to form a trapezoid.
- * This measurement drawing exposes gaps and overlaps between pieces; it does
- * not establish visual acceptance or document compliance.
- */
 import { planeHeight } from "../geometry/planeHeight";
 import { type PlanPoint } from "../geometry/PlanPoint";
 import type { ScanSolid } from "./ScanSolid";
@@ -20,6 +12,14 @@ interface SectionPiece {
 const kindOf = (group: string): SectionPiece["kind"] =>
   group.startsWith("roof:") ? "roof" : group.startsWith("trim:") ? "trim" : group.startsWith("floor:") ? "floor" : "wall";
 
+/**
+ * Vertical section inspection: cuts the overlap scan's convex solids (wall
+ * columns, roof slabs, coping, plinth and floor slabs) with an X or Z plane to
+ * produce exact section pieces. At both ends of each plan polygon's intersection
+ * with the cut line, reads the bottom and top plane heights to form a trapezoid.
+ * This measurement drawing exposes gaps and overlaps between pieces; it does
+ * not establish visual acceptance or document compliance.
+ */
 export const sectionProfile = (solids: readonly ScanSolid[], axis: "x" | "z", offset: number): SectionPiece[] => {
   const pieces: SectionPiece[] = [];
   for (const solid of solids) {

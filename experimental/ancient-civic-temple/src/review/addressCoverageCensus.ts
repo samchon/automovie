@@ -15,8 +15,11 @@ import { rayTriangle } from "./rayTriangle";
 import { reachesExterior } from "./reachesExterior";
 import { Triangle } from "./Triangle";
 
-/** Every emitted wall plan edge is sampled, even if the authored boundary collection omits it. */
-
+/**
+ * Samples emitted wall triangles from the geometry side, including faces without any boundary address.
+ *
+ * Every emitted wall plan edge is sampled, even if the authored boundary collection omits it.
+ */
 export const addressCoverageCensus = (environment: IAutoMovieBuiltEnvironment, walls: readonly WallSpec[], solids: readonly ScanSolid[], step = 0.1): AddressCoverage => {
   if (!(step > 0 && step <= 0.1)) throw new Error("address coverage: step must be in (0, 0.1] m");
   const tris = emittedTriangles(environment);
@@ -25,11 +28,21 @@ export const addressCoverageCensus = (environment: IAutoMovieBuiltEnvironment, w
   const buckets = new Map<string, Triangle[]>();
   const byElement = new Map<string, Triangle[]>();
   for (const triangle of tris) {
-    (byElement.get(triangle.element) ?? byElement.set(triangle.element, []).get(triangle.element)!).push(triangle);
+    let elementTriangles = byElement.get(triangle.element);
+    if (elementTriangles === undefined) {
+      elementTriangles = [];
+      byElement.set(triangle.element, elementTriangles);
+    }
+    elementTriangles.push(triangle);
     for (let x = Math.floor(triangle.minX / bucketSize); x <= Math.floor(triangle.maxX / bucketSize); x++) {
       for (let z = Math.floor(triangle.minZ / bucketSize); z <= Math.floor(triangle.maxZ / bucketSize); z++) {
         const key = `${x},${z}`;
-        (buckets.get(key) ?? buckets.set(key, []).get(key)!).push(triangle);
+        let bucket = buckets.get(key);
+        if (bucket === undefined) {
+          bucket = [];
+          buckets.set(key, bucket);
+        }
+        bucket.push(triangle);
       }
     }
   }

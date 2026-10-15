@@ -16,4 +16,8 @@ const templeFootholdRects = (): PlanRectangle[] => {
     { west: e.east, east: h, north: e.north, south: e.south },
   ];
 };
+/**
+ * Top faces of the four distant ground bands surrounding the local site, out to the ridge's far
+ * extent.
+ */
 export const templeFootholdFaces = (): WallFace[] => templeFootholdRects().flatMap((rect) => gradeTopFaces(rect, "surface.site-distant.ground"));

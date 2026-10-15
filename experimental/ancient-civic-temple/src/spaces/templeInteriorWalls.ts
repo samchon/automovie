@@ -1,10 +1,3 @@
-/**
- * Interior wall solids
- * Makes each west/east spine, sanctuary south wall and three east cross walls
- * one physical wall, leaving finishes on both faces with adjacent room surface
- * owners. Bottoms use the ordinary floor structure underside; tops use composite
- * roof undersides. Doors and clerestories consume the same voids from openings.
- */
 import type { WallSpec } from "../geometry/WallSpec";
 import { templePlan as p } from "./templePlan";
 import { templeInteriorWallEnds } from "./templeInteriorWallEnds";
@@ -16,6 +9,13 @@ import { templeLevels as y } from "./templeLevels";
 const roof = { kind: "roof", tier: "wing" } as const;
 const sanctuary = { kind: "roof", tier: "sanctuary" } as const;
 const wall = (space: string) => `surface.${space}.wall`;
+/**
+ * Interior wall solids
+ * Makes each west/east spine, sanctuary south wall and three east cross walls
+ * one physical wall, leaving finishes on both faces with adjacent room surface
+ * owners. Bottoms use the ordinary floor structure underside; tops use composite
+ * roof undersides. Doors and clerestories consume the same voids from openings.
+ */
 export const templeInteriorWalls = (): WallSpec[] => {
   const ends = templeInteriorWallEnds();
   const bottom = y.floor - y.slabThickness;

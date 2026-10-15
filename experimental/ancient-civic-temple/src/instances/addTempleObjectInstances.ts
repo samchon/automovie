@@ -1,4 +1,3 @@
-/** Fixed room contents; models own geometry and materials own their finishes. */
 import type { IAutoMovieBuiltEnvironment, IAutoMovieModel } from "@automovie/interface";
 import { identityTransform } from "../geometry/identityTransform";
 import { TempleFixtures } from "../models/TempleFixtures";
@@ -20,6 +19,7 @@ const level = (model:IAutoMovieModel, side:"min"|"max", part?:string):number => 
     throw new Error(`${model.id}/${part??"*"}: finite support geometry required`);
   return side==="min"?Math.min(...values):Math.max(...values);
 };
+/** Fixed room contents; models own geometry and materials own their finishes. */
 export const addTempleObjectInstances = (environment:IAutoMovieBuiltEnvironment):IAutoMovieBuiltEnvironment => {
   const fixtures=new TempleFixtures(),wares=new TempleWares(),portable=new TemplePortable(),ritual=new TempleRitual();
   const rows:Row[]=[];

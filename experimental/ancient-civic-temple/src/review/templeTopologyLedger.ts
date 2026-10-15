@@ -25,9 +25,9 @@ import { NamedSheet } from "./NamedSheet";
 /**
  * Temple model closure contract. The soil, paving, neighbor floors and distant
  * ridge are open top-only surfaces
- * (src/spaces/site/ground.ts and ridge.ts). The three wing-roof owners are culled
+ * (templeSiteGroundFaces, templeFootholdFaces and templeRidgeFaces). The three wing-roof owners are culled
  * together: their touching side faces hide inside adjacent slabs
- * (src/geometry/roof-solids.ts), so each owner model is open at those interfaces
+ * (roofSlabFaces), so each owner model is open at those interfaces
  * and the union of all three is a closed solid. Every other model is individually
  * closed. After T-junction resolution, a closed solid has 0 open edges,
  * 0 non-manifold edges, 0 winding errors and positive volume.

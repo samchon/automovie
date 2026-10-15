@@ -6,6 +6,10 @@ const linear = (channel: number): number => {
   const srgb = channel / 255;
   return srgb <= 0.04045 ? srgb / 12.92 : ((srgb + 0.055) / 1.055) ** 2.4;
 };
+/**
+ * Native material of a palette finish, with its colour, roughness, metallic value and metre-scaled
+ * texture.
+ */
 export const material = (finish: Finish): IAutoMovieMaterial => {
   const { color, roughness, metallic, image, scale } = templeMaterialPalette[finish];
   return {

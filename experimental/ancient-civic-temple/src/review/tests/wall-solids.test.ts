@@ -1,5 +1,5 @@
 /**
- * src/geometry/wall-solids.ts: wall-host column decomposition, face classification
+ * wallColumns, wallFaces and the outline clipping functions: wall-host column decomposition, face classification
  * and height-outline clipping. Fixtures: straight flat-top walls (convex), door
  * voids open to the floor (through holes), window voids (holes within walls),
  * tops following sloping roof undersides, diagonal butt ends (trapezoidal plans),

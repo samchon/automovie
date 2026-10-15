@@ -208,7 +208,7 @@ const ready=(async()=>{
   viewSelect.value=params.get("view")??"front";
   setModel(params.get("model")??source.payload.models[0]?.key??"");
   return { basis:source.basis,count:source.payload.models.length,runtime };
-})().catch((cause)=>{error.textContent=cause instanceof Error?(cause.stack??cause.message):String(cause);throw cause;});
+})().catch((cause: unknown)=>{error.textContent=cause instanceof Error?(cause.stack??cause.message):String(cause);throw cause;});
 Object.assign(window, {
   templeModelBoard:{
     renderer,

@@ -4,17 +4,25 @@ import { templeOuterWallPlans } from "../templeOuterWallPlans";
 import { templeInteriorWallEnds } from "../templeInteriorWallEnds";
 import { templeWallRect } from "../templeWallRect";
 import { templeDoorVoidsOn } from "../templeDoorVoidsOn";
-import { outer } from "./outer";
-import { back } from "./back";
-import { colonnade } from "./colonnade";
-import { entrance } from "./entrance";
-import { coping } from "./coping";
-import { wing } from "./wing";
+import { templeWallTrim } from "../templeWallTrim";
+import { templeParapetTop } from "./templeParapetTop";
 
+const outer = "surface.facade-south.outer";
+const back = "surface.facade-south.parapet-back";
+const colonnade = "surface.colonnade.wall";
+const entrance = "surface.entrance.return";
+const coping = {
+  kind: "flat", height: templeParapetTop, surface: "surface.facade-south.coping", coping: templeWallTrim.copingThickness,
+} as const;
+const wing = { tier: "wing", above: back } as const;
 /**
  * Porch tympanum underside (m), at the support height of the horizontal beam above columns.
  */
 const templePedimentBase = 3.5;
+/**
+ * South facade walls from `bottom`: the parapet sections west and east of the porch, the two porch
+ * return walls, the recessed entry wall and the pediment.
+ */
 export const templeSouthWalls = (bottom: number): WallSpec[] => {
   const plans = templeOuterWallPlans();
   const entry = templeInteriorWallEnds().entryBack;

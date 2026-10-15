@@ -1,7 +1,7 @@
 /**
  * Builds a vertical prism over a convex planar polygon as a closed face list.
  * The bottom and top are each a plane y=ax+bz+c, so a wall top can be a sloped face following the
- * real roof underside. The input polygon follows planar-domain's orientation (rectangle order), and
+ * real roof underside. The input polygon follows the plan polygon orientation (rectangle order), and
  * output faces are in the order from which the engine polyhedron derives outward normals.
  * Each face keeps its direction and original polygon edge number so the caller decides surface ownership.
  */

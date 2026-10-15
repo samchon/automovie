@@ -10,6 +10,7 @@ const p=(x:number,y:number,z:number)=>({ x,y,z });
  * Emits local vegetation and two neighboring house envelopes.
  */
 export class TempleLandscape {
+  /** Narrow tall evergreen: trunk and three stacked crowns. */
   cypress():IAutoMovieModel {
     const m=new ObjectMesh();
     m.frustum("trunk",0,0,0,1.4,0.12,0.08,12);
@@ -21,6 +22,7 @@ export class TempleLandscape {
       modelEllipsoid(m,"crown",p(x,y,0),p(r,h/2,r),10,6);
     return m.model("landscape.cypress","Narrow tall evergreen");
   }
+  /** Broad tree: trunk, three branches and clustered crowns. */
   broadTree():IAutoMovieModel {
     const m=new ObjectMesh();
     m.frustum("trunk",0,0,0,1.6,0.18,0.13,12);
@@ -40,6 +42,7 @@ export class TempleLandscape {
     ]) modelEllipsoid(m,"crown",p(x,y,z),p(rx,ry,rz),10,6);
     return m.model("landscape.broad-tree","Broad-crowned tree");
   }
+  /** Twelve two-sided blades of grass at the wall foot. */
   grassTuft():IAutoMovieModel {
     const m=new ObjectMesh();
     for(let i=0;i<12;i++){
@@ -54,6 +57,9 @@ export class TempleLandscape {
     }
     return m.model("landscape.grass-tuft","Grass at the wall foot");
   }
+  /**
+   * Neighbouring house with recessed door and window openings, either a gable or a shed roof form.
+   */
   neighborHouse(kind:"gable"|"shed"):IAutoMovieModel {
     const m=new ObjectMesh();
     const gable=kind==="gable",w=gable?8:6,d=gable?6:7;

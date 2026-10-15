@@ -3,6 +3,10 @@ import { templeModelFinish } from "./templeModelFinish";
 import { templeSpaceFinish } from "./templeSpaceFinish";
 import { material } from "./material";
 
+/**
+ * Bind every model part to its finish: surface parts by their surface identity, other parts by
+ * model and part. Each model receives one material per distinct finish.
+ */
 export const bindTempleMaterials = (
   environment: IAutoMovieBuiltEnvironment
 ): IAutoMovieBuiltEnvironment => ({

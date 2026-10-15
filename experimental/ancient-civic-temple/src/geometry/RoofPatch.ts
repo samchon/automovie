@@ -7,11 +7,18 @@ import { PlanPoint } from "./PlanPoint";
  */
 
 export interface RoofPatch {
+  /** Patch identity within its owner. */
   id: string;
+  /** Roof owner the patch belongs to, such as `roof-west`. */
   owner: string;
+  /** Surface identity of the patch's top face. */
   surface: string;
+  /** Composition unit the patch composes with. */
   tier: "wing" | "sanctuary" | "porch";
+  /** Convex counter-clockwise plan outline of the patch. */
   polygon: PlanPoint[];
+  /** Height field of the patch's top face. */
   height: HeightPlane;
+  /** Vertical depth from the top face to the underside. */
   thickness: number;
 }

@@ -4,10 +4,14 @@ import { passageRectangle } from "./passageRectangle";
 import { type DoorPassage } from "./DoorPassage";
 
 /**
+ * Splits a room-owned floor input into solid compartments and walkable support regions.
+ * XZ and Y are world m, and the compartments' interiors must not overlap.
+ * A threshold solid extends under the frame, while support extends only to the clear width.
+ * This input alone does not judge passage clearance free of member collisions.
+ *
  * Consumes only the room body, door profile and storey thickness and sets no new floor dimension.
  * The returned compartments are used both by later face generation and by removing the walls' threshold reservations.
  */
-
 export const roomFloorInput = (
   space: string,
   body: readonly FloorRegion[],

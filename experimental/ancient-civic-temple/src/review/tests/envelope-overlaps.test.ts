@@ -1,5 +1,5 @@
 /**
- * Checks src/review/envelope-overlaps.ts against known measurement cases: two
+ * Checks scanOverlaps and solidsContaining against known measurement cases: two
  * solids overlapping by a known depth, face-only contact, same-group overlap
  * (excluded), overlap below a sloped top, and point containment in solids.
  */
