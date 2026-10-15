@@ -247,6 +247,11 @@ export namespace IAutoMovieHumanIdentity {
     footBreadth: number & tags.Minimum<20> & tags.Maximum<180>;
 
     /**
+     * Navicular height: the navicular tuberosity, the bony prominence in front of and below the medial malleolus, above the standing surface with full weight on the foot, millimetres. It sets the height of the medial longitudinal arch: about 0.20 of foot length in Dutch adults and 0.17 in Malawian adults (Stolwijk et al. 2013, PLoS ONE 8(2):e57209), and lower in young children, 15.8 mm at 2 years and 27.0 mm at 6 (Chang et al. 2012, Biomed Eng Online 11:76). Admission keeps it below the lateral malleolus.
+     */
+    navicularHeight: number & tags.Minimum<5> & tags.Maximum<100>;
+
+    /**
      * Thigh circumference at the gluteal furrow, perpendicular to the thigh axis, millimetres.
      */
     thighCircumference: number & tags.Minimum<120> & tags.Maximum<1300>;

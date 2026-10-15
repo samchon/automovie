@@ -10,6 +10,7 @@ import { estimateAutoMovieHumanHead } from "./estimateAutoMovieHumanHead";
 import { estimateAutoMovieHumanLengths } from "./estimateAutoMovieHumanLengths";
 import { estimateAutoMovieHumanMedianStature } from "./estimateAutoMovieHumanMedianStature";
 import { estimateAutoMovieHumanMobility } from "./estimateAutoMovieHumanMobility";
+import { estimateAutoMovieHumanNavicularHeight } from "./estimateAutoMovieHumanNavicularHeight";
 import { estimateAutoMovieHumanPosture } from "./estimateAutoMovieHumanPosture";
 import { estimateAutoMovieHumanSpinalLoss } from "./estimateAutoMovieHumanSpinalLoss";
 
@@ -44,7 +45,7 @@ const MUSCULARITY_LEAN_SHARE: number = 0.25;
  * 3. Head, from its own growth curve (1977 US child survey heads per stature, 3D Facial Norms growth fractions, WHO head circumference in infancy) and the population's adult means. See {@link estimateAutoMovieHumanHead}.
  * 4. Lengths and bony breadths: 1977 child survey ratios for children, ANSUR II regressions on peak stature for adults, with slimness. See {@link estimateAutoMovieHumanLengths}.
  * 5. Girths: ANSUR II regressions on stature, BMI and age, NHANES growth and ageing of the waist and upper arm. See {@link estimateAutoMovieHumanGirths}.
- * 6. Mobility from the CDC normal joint range of motion study by age and sex, composition from the NHANES DXA reference, standing posture from radiographic and photographic norms by age and sex (see {@link estimateAutoMovieHumanPosture}).
+ * 6. Mobility from the CDC normal joint range of motion study by age and sex, composition from the NHANES DXA reference, standing posture from radiographic and photographic norms by age and sex (see {@link estimateAutoMovieHumanPosture}), navicular height from foot length by age (see {@link estimateAutoMovieHumanNavicularHeight}).
  * 7. Spinal loss subtracted from stature, sitting height, cervicale, suprasternale and acromial height; every limb keeps its peak length.
  *
  * Age is unrestricted. Beyond the oldest sample of a source the converter holds that sample's value, and below its youngest it holds or, where a source states the trend, extends it; each estimator says which. Both arms and both legs get the same values. Population reaches only the head and face, the only measurements read by population; cuteness is not read yet. Pigmentation is a conventional moderate default until the skin stage reads pigmentation surveys: melanin 0.12 within the moderately pigmented range of Jacques (1998, "Skin Optics", Oregon Medical Laser Center News), the eumelanin share 0.7 Donner and Jensen illustrate (2006, Eurographics Symposium on Rendering, pp. 409-417), haemoglobin 0.05 and a brown iris.
@@ -107,6 +108,10 @@ export class AutoMovieHumanConverter implements IAutoMovieHumanConverter {
       ...lengths.leg,
       ...girths.leg,
       ...mobility.leg,
+      navicularHeight: estimateAutoMovieHumanNavicularHeight(
+        age,
+        lengths.leg.footLength,
+      ),
     };
     return {
       version: 1,

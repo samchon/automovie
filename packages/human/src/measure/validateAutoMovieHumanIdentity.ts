@@ -172,6 +172,13 @@ export function validateAutoMovieHumanIdentity(
       "foot length spans heel to toe tip, while breadth spans only the metatarsal heads",
     );
     check(
+      leg.navicularHeight < leg.ankleHeight,
+      `${legPath}.navicularHeight`,
+      leg.navicularHeight,
+      `below lateral malleolus height (${millimetres(leg.ankleHeight)})`,
+      "the navicular articulates with the head of the talus, in front of and below the talar body that the malleoli clasp",
+    );
+    check(
       leg.calfCircumference < leg.thighCircumference,
       `${legPath}.calfCircumference`,
       leg.calfCircumference,
