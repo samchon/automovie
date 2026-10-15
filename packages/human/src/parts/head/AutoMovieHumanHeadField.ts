@@ -65,11 +65,11 @@ export class AutoMovieHumanHeadField {
   public distance(p: IAutoMovieVector3): number {
     const k: number = this.blend_;
     let d: number = AutoMovieHumanHeadMath.smoothMin(this.vault_(p), this.face_(p), k);
-    d = AutoMovieHumanHeadMath.smoothMin(d, this.stem_(p), 2.5 * k);
+    d = AutoMovieHumanHeadMath.smoothMin(d, this.stem_(p), 1.2 * k);
     d = AutoMovieHumanHeadMath.smoothMin(d, this.relief_.nose(p), 0.5 * k);
     for (const eye of this.eyes_) d = AutoMovieHumanHeadMath.smoothMin(d, eye(p), 0.4 * this.blend_);
     for (const platform of this.platforms_)
-      d = AutoMovieHumanHeadMath.smoothMin(d, platform(p), this.blend_);
+      d = AutoMovieHumanHeadMath.smoothMin(d, platform(p), 0.25 * this.blend_);
     return d - this.relief_.relief(p);
   }
 
@@ -137,7 +137,7 @@ export namespace AutoMovieHumanHeadField {
 const LID: number = 0.15;
 
 /** Margin of a platform beyond its attachment, as a factor of the semi-axes, so the skin is level under the whole ring. Conventional. */
-const PLATFORM_MARGIN: number = 1.35;
+const PLATFORM_MARGIN: number = 1.2;
 
 /** The solid of a platform: a flat-faced superellipsoid whose outer face is the attachment's plane. */
 const shapePlatform = (
