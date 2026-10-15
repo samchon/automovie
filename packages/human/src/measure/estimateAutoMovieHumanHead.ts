@@ -86,7 +86,7 @@ interface IAdultHead {
 /**
  * Adult head and face means by population and sex. Grade: measured; protocols differ between sources (3D surface against caliper), so compare within a source before across.
  *
- * - European: 3D Facial Norms, US adults of European ancestry aged 20 to 40 (Weinberg et al. 2016); circumference over the ellipse 1.04 from the NIOSH baseline of US workers (Zhuang et al. 2010, Ann Occup Hyg 54(4):391-402).
+ * - European: 3D Facial Norms, US adults of European ancestry aged 20 to 40 (Weinberg et al. 2016); circumference over the ellipse 1.04 from the NIOSH baseline of US workers (Zhuang et al. 2010, Ann Occup Hyg 54(4):391-402). Face width is instead the caliper maximum across the zygomatic arches that defines it, from the White soldiers aged 17 to 40 of ANSUR II (Gordon et al. 2014; 2,385 men, 859 women: 141.7 and 132.3 mm at mean statures 1,765 and 1,638 mm), set so the converter returns those means at those statures: 3D Facial Norms' surface-landmarked zygia gave 5.3 and 2.7 mm less there. The other dimensions agree with ANSUR II within 2.7 mm (head length, breadth) or differ by definition (ANSUR's menton-sellion length against nasion-gnathion face height), so they keep 3D Facial Norms.
  * - East Asian: Chinese workers aged 18 to 66 by caliper (Du et al. 2008, Ann Occup Hyg 52(8):773-782), circumference over the ellipse 1.051 for men and 1.061 for women derived from the same means. Its face length runs from sellion rather than nasion, so face height keeps the European nasion-to-gnathion mean.
  * - African: Kenyan adults by direct caliper (Virdi et al. 2019) for face, mandibular and minimum frontal widths. No vault length, breadth or nasion-to-gnathion height of an African population was read, so those keep the European means.
  */
@@ -98,7 +98,7 @@ const ADULT_HEAD: Record<
     male: {
       headLength: 198.3,
       headBreadth: 152.3,
-      faceWidth: 137.6,
+      faceWidth: 142.9,
       mandibularWidth: 104.5,
       minimumFrontalWidth: 111.4,
       faceHeight: 127.2,
@@ -107,7 +107,7 @@ const ADULT_HEAD: Record<
     female: {
       headLength: 187.3,
       headBreadth: 145.8,
-      faceWidth: 129.8,
+      faceWidth: 132.5,
       mandibularWidth: 97.0,
       minimumFrontalWidth: 105.5,
       faceHeight: 118.6,
