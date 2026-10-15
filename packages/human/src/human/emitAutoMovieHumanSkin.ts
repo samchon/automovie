@@ -191,7 +191,20 @@ const candidates = (
     case "arm":
       return [s("UpperArm"), s("LowerArm"), s("Hand")];
     case "hand":
-      return [s("LowerArm"), s("Hand")];
+      return [
+        s("LowerArm"),
+        s("Hand"),
+        ...["Thumb", "Index", "Middle", "Ring", "Little"].flatMap(
+          (digit: string) =>
+            (digit === "Thumb"
+              ? ["Metacarpal", "Proximal", "Distal"]
+              : ["Proximal", "Intermediate", "Distal"]
+            ).map(
+              (phalanx: string): AutoMovieHumanoidBone =>
+                s(`${digit}${phalanx}`),
+            ),
+        ),
+      ];
     case "leg":
       return [s("UpperLeg"), s("LowerLeg"), s("Foot")];
     case "foot":
