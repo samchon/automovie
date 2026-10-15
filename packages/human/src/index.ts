@@ -38,6 +38,7 @@ export * from "./junction/AutoMovieHumanJunctionSite";
 export * from "./junction/AutoMovieHumanPart";
 export * from "./junction/AutoMovieHumanSide";
 export * from "./junction/AutoMovieHumanTissue";
+export * from "./junction/AutoMovieHumanUvLayout";
 export * from "./junction/IAutoMovieHumanCage";
 export * from "./junction/IAutoMovieHumanJunction";
 export * from "./junction/IAutoMovieHumanRing";
