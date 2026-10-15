@@ -62,7 +62,7 @@ export const decodeAutoMovieImage: (
         body[12] !== 0
       )
         throw refuse(
-          "must be a non-interlaced 8-bit greyscale, RGB or RGBA PNG",
+          "must be a non-interlaced 8-bit greyscale, greyscale-alpha, RGB or RGBA PNG",
         );
       header = {
         width: view.getUint32(offset + 8),
