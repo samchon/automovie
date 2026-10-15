@@ -14,14 +14,10 @@ import { IAutoMovieSweepTransport } from "./IAutoMovieSweepTransport";
 import { compileAutoMovieSweep } from "./compileAutoMovieSweep";
 import { integrateAutoMovieSweepVolume } from "./integrateAutoMovieSweepVolume";
 import { interpolateAutoMovieMonotone } from "./interpolateAutoMovieMonotone";
-import { measureAutoMovieSweepVolume } from "./measureAutoMovieSweepVolume";
 import { momentAutoMovieSweepSections } from "./momentAutoMovieSweepSections";
 import { orientAutoMovieSweep } from "./orientAutoMovieSweep";
 import { settleAutoMovieSweepVolume } from "./settleAutoMovieSweepVolume";
 import { transportAutoMovieSweepSpine } from "./transportAutoMovieSweepSpine";
-
-/** Weights of the tent that averages a radius over a sample's cell, at the cell's centre and half a spacing either side. */
-const TENT: readonly number[] = [0.25, 0.5, 0.25];
 
 /**
  * Compile one sweep of a surface rig: its rest surface, and, when it rides
@@ -51,7 +47,7 @@ const TENT: readonly number[] = [0.25, 0.5, 0.25];
  * @evidence contracts/common.md#clear-and-simple-design The spine, orientation, volume and secant are the kernels `compileAutoMovieSweep`, `measureAutoMovieSweepVolume` and `poseAutoMovieSweep` use, so the rig and the record path compute the same surface.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Bindings that do not align with the sweep are refused, and volume preservation changes only the joint stations' scale.
  * @evidence contracts/common.md#meaningful-documentation States the rest and posed rules, the volume rule and its sources, and every refusal.
- * @evidence contracts/performance.md#efficient-algorithms Compile: one sweep compile, O(1) per registered slot, and for volume preservation the 400 x 256 section moments and one rest volume. Pose, for N spine points, S stations, F planes, P probes and K scale knots: O(N) transport plus 64 (N - 1) reflections, O(S) orientation, O(F + 3P) plane queries and, with volume preservation, 801 more planes and at most ten volume sums of O(400 + K); nothing allocates.
+ * @evidence contracts/performance.md#efficient-algorithms Compile: one sweep compile, O(1) per registered slot, and for volume preservation the 400 x 256 section moments and the rest volume summed from them. Pose, for N spine points, S stations, F planes, P probes and K scale knots: O(N) transport plus 64 (N - 1) reflections, O(S) orientation, O(F + 3P) plane queries and, with volume preservation, 801 more planes and at most ten volume sums of O(400 + K); nothing allocates.
  * @evidence contracts/performance.md#reuse-equivalent-work Shapes, rest planes, section moments and the rest volume are computed once; a pose recomputes only what bones move.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains the compiled surface, 12 F + S + 6 P numbers twice (current and rest), 14 numbers per probe, and when bound the spine buffers of `transportAutoMovieSweepSpine`, 4 S rest planes and, for volume preservation, 1,200 moments, 801 planes and O(K) profile arrays; all sized by `seal` and released with the rig.
  */
@@ -110,22 +106,33 @@ export const rigAutoMovieSweep: (props: {
     return probeData.length / 15 - 1;
   };
 
-  const sample = (u: number, v: number, du: number, dv: number): ((out: Float64Array, at: number) => void) => {
+  const sample = (u: number, v: number, cell: readonly [number, number, number, number]): ((out: Float64Array, at: number) => void) => {
     const f: number = 12 * frame(u);
     const slots: number[] = [];
     const xs: number[] = [];
     const ys: number[] = [];
-    if (du === 0 && dv === 0) {
+    if (cell.every((d: number): boolean => d === 0)) {
       const p: IAutoMovieSweepSection.IPoint = shaped(u, v);
       slots.push(scale(u));
       xs.push(p.x);
       ys.push(p.y);
     } else {
+      // the trapezoid rule over the cell from half the spacing below to half the spacing above, each axis
+      const tent = (below: number, above: number): number[][] => {
+        const total: number = below + above;
+        return total === 0
+          ? [[0, 1]]
+          : [
+              [-below / 2, below / (2 * total)],
+              [0, 0.5],
+              [above / 2, above / (2 * total)],
+            ];
+      };
       const angle: number = 2 * Math.PI * v;
-      for (let a: number = -1; a <= 1; ++a) {
-        const at: number = Math.min(1, Math.max(0, u + (a * du) / 2));
+      for (const [du, wu] of tent(cell[0], cell[1])) {
+        const at: number = Math.min(1, Math.max(0, u + du!));
         let r: number = 0;
-        for (let b: number = -1; b <= 1; ++b) r += TENT[a + 1]! * TENT[b + 1]! * surface.profile(at, v + (b * dv) / 2);
+        for (const [dv, wv] of tent(cell[2], cell[3])) r += wu! * wv! * surface.profile(at, v + dv!);
         slots.push(scale(at));
         xs.push(r * Math.cos(angle));
         ys.push(r * Math.sin(angle));
@@ -277,9 +284,12 @@ export const rigAutoMovieSweep: (props: {
   const preserve = (orientation: IAutoMovieSweepOrientation, joints: boolean[]): ((motion: IAutoMovieBoneBuffer) => void) => {
     const moments: Float64Array = momentAutoMovieSweepSections(surface);
     const steps: number = moments.length / 3;
-    const target: number = measureAutoMovieSweepVolume(surface);
     const planes: Float64Array = new Float64Array(12 * (2 * steps + 1));
     const middles: Float64Array = new Float64Array(steps);
+    // the rest volume, from the same moments with the rest planes and scale, as `measureAutoMovieSweepVolume` sums it
+    for (let j: number = 0; j <= 2 * steps; ++j) writeFrame(surface.frame(j / (2 * steps)), planes, 12 * j);
+    for (let i: number = 0; i < steps; ++i) middles[i] = surface.scale((i + 0.5) / steps);
+    const target: number = integrateAutoMovieSweepVolume(moments, middles, planes);
     const previous: ((u: number) => number) | null =
       sweep.scale === undefined
         ? null
