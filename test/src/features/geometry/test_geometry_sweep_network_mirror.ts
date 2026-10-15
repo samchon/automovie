@@ -49,8 +49,7 @@ const canonical = (q: number[]): string => {
 };
 
 /**
- * A mirrored network samples to a mirrored cage at every tier, and a tier's
- * topology does not depend on the network's shape.
+ * A mirrored network samples to a mirrored cage at every tier.
  *
  * Scenarios:
  *
@@ -59,13 +58,9 @@ const canonical = (q: number[]): string => {
  *    targets and controls within 1e-9, through one involution that carries
  *    every face onto a face of opposite winding. Points shared by strips of
  *    different spacing are where an order-dependent rule would break it.
- * 2. Changing the branched body's breadth and branch size keeps the lowest
- *    and high tiers' faces, UV faces, face coordinates and ring vertices
- *    while moving its targets.
- *
- * @evidence contracts/testing.md#behavioral-verification Samples the branched body with `sampleAutoMovieSurfaceNetwork` and matches each point to its mirror image; a rule that depends on patch order or on a sweep's handedness breaks the map, and shape-dependent topology changes the faces, while any symmetric, layout-determined sampling passes.
- * @evidence contracts/testing.md#independent-expectations The mirror image is computed in this test by negating `x`, and the face map by reversing each quad through the vertex map; invariance compares two samplings of one layout.
- * @evidence contracts/testing.md#distinguishing-cases Covers every tier, targets and fitted controls, every patch kind of the body, and a shape change that must move points but not topology; closure is owned by the network cage test.
+ * @evidence contracts/testing.md#behavioral-verification Samples the branched body with `sampleAutoMovieSurfaceNetwork` and matches each point to its mirror image; a rule that depends on patch order or on a sweep's handedness breaks the map, while any symmetric sampling passes.
+ * @evidence contracts/testing.md#independent-expectations The mirror image is computed in this test by negating `x`, and the face map by reversing each quad through the vertex map.
+ * @evidence contracts/testing.md#distinguishing-cases Covers every tier, targets and fitted controls and every patch kind of the body; shape invariance is owned by the network topology test and closure by the network cage test.
  * @evidence contracts/testing.md#execution-ownership A portable unit test reached through the discoverable `test_geometry_sweep_network_mirror` entry with no process, browser or GPU.
  */
 export function test_geometry_sweep_network_mirror(): void {
@@ -91,19 +86,5 @@ export function test_geometry_sweep_network_mirror(): void {
       ]);
     }),
     TIERS.map((): Record<string, boolean> => ({ targets: true, faces: true, controls: true })),
-  );
-
-  const reshaped: IAutoMovieSurfaceNetwork = sweepBranchedBody({ breadth: 1.15, branch: 0.9 });
-  TestValidator.equals(
-    "a reshaped body keeps every tier's topology",
-    (["lowest", "high"] as AutoMovieSurfaceTier[]).map((tier: AutoMovieSurfaceTier): boolean => {
-      const a: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({ network: body, tier });
-      const b: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({ network: reshaped, tier });
-      return (
-        JSON.stringify([a.cage.faces, a.cage.uvFaces, a.corners, a.rings]) === JSON.stringify([b.cage.faces, b.cage.uvFaces, b.corners, b.rings]) &&
-        a.targets.some((x: number, k: number): boolean => Math.abs(x - b.targets[k]!) > 1e-3)
-      );
-    }),
-    [true, true],
   );
 }

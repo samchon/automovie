@@ -15,6 +15,7 @@ export * from "./createAutoMovieBoneMotion";
 export * from "./fitAutoMovieSubdivisionLimit";
 export * from "./frameAutoMovieSweepSpine";
 export * from "./interpolateAutoMovieMonotone";
+export * from "./interpolateAutoMovieSpline";
 export * from "./layoutAutoMovieSurfaceTransition";
 export * from "./locateAutoMovieSurfaceCoordinate";
 export * from "./locateAutoMovieSweepPoint";

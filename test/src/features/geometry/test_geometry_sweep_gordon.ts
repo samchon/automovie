@@ -3,7 +3,7 @@ import {
   type IAutoMovieSweepSection,
   type IAutoMovieSweepSurface,
   compileAutoMovieSweep,
-  interpolateAutoMovieMonotone,
+  interpolateAutoMovieSpline,
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
@@ -32,9 +32,9 @@ const SPINE: IAutoMovieSweep["spine"] = { points: [{ x: 0, y: 0, z: 0 }, { x: 0,
 /** Knots of each guide's profile. */
 const KNOTS: number[] = Array.from({ length: 21 }, (_: unknown, k: number): number => k / 20);
 
-/** Eight guides at even directions, each the family's radius there at every knot. */
-const GUIDES: IAutoMovieSweep.IGuide[] = Array.from({ length: 8 }, (_: unknown, g: number): IAutoMovieSweep.IGuide => {
-  const angle: number = (Math.PI * g) / 4;
+/** Sixteen guides at even directions, each the family's radius there at every knot. */
+const GUIDES: IAutoMovieSweep.IGuide[] = Array.from({ length: 16 }, (_: unknown, g: number): IAutoMovieSweep.IGuide => {
+  const angle: number = (Math.PI * g) / 8;
   return { angle, radii: KNOTS.map((at: number): IAutoMovieSweep.IKnot => ({ at, value: radius(at, angle) })) };
 });
 
@@ -50,15 +50,15 @@ const difference = (a: IAutoMovieSweepSurface, b: IAutoMovieSweepSurface): numbe
 };
 
 /**
- * Guides join a sweep's stations as a Gordon surface: two stations and eight
+ * Guides join a sweep's stations as a Gordon surface: two stations and sixteen
  * silhouette guides reproduce a densely stationed section family, and the
  * surface passes through every guide.
  *
  * Scenarios:
  *
  * 1. A family of ellipses whose breadth swells and settles while its depth
- *    grows, stationed every 2.5 percent, is reproduced within 3 percent of
- *    radius by its two end stations plus eight guides, while the two end
+ *    grows, stationed every 2.5 percent, is reproduced within 0.5 percent of
+ *    radius by its two end stations plus sixteen guides, while the two end
  *    stations alone miss it by more than 20 percent.
  * 2. The guided surface takes each guide's own profile at every `u` to
  *    1e-12, and the end stations' sections where the guides agree with them.
@@ -69,7 +69,7 @@ const difference = (a: IAutoMovieSweepSurface, b: IAutoMovieSweepSurface): numbe
  *    radius to zero are refused by their own diagnostics.
  *
  * @evidence contracts/testing.md#behavioral-verification Compiles dense, sparse-with-guides and sparse sweeps with `compileAutoMovieSweep` and compares their radius fields; a guide layer that ignored the guides, applied them only at their own directions, or let stations override them fails scenarios 1 to 3, while any Gordon blend exact on the guides and stations passes.
- * @evidence contracts/testing.md#independent-expectations The family's radius is the ellipse's polar form computed in this test; each guide's profile is its declared knots through the monotone interpolant, itself verified by the monotone test; the single-guide shift is the Gordon sum's value for one guide, the guide minus the station. The 3 percent bound is the Gordon blend's accuracy between eight guides on this family, which a station-only loft misses by an order of magnitude.
+ * @evidence contracts/testing.md#independent-expectations The family's radius is the ellipse's polar form computed in this test; each guide's profile is its declared knots through the spline interpolant, itself verified by the spline test; the single-guide shift is the Gordon sum's value for one guide, the guide minus the station. The 0.5 percent bound is the Gordon blend's accuracy between sixteen guides on this family, which a station-only loft misses by two orders of magnitude.
  * @evidence contracts/testing.md#distinguishing-cases Covers the guided and unguided pair on one family, compatible and incompatible guides, the end stations and the guide directions, and every refusal; the loft's sampling into cages is owned by the network tests.
  * @evidence contracts/testing.md#execution-ownership A portable unit test reached through the discoverable `test_geometry_sweep_gordon` entry with no process, browser or GPU.
  */
@@ -82,9 +82,9 @@ export function test_geometry_sweep_gordon(): void {
   const guided: IAutoMovieSweepSurface = compileAutoMovieSweep({ spine: SPINE, stations: ends, guides: GUIDES });
   const bare: IAutoMovieSweepSurface = compileAutoMovieSweep({ spine: SPINE, stations: ends });
   TestValidator.equals(
-    "two stations and eight guides reproduce the dense family, the stations alone do not",
+    "two stations and sixteen guides reproduce the dense family, the stations alone do not",
     namedFacts([
-      ["guided", (): boolean => difference(guided, dense) < 0.03],
+      ["guided", (): boolean => difference(guided, dense) < 0.005],
       ["bare", (): boolean => difference(bare, dense) > 0.2],
     ]),
     { guided: true, bare: true },
@@ -98,7 +98,7 @@ export function test_geometry_sweep_gordon(): void {
         "guides",
         (): boolean =>
           GUIDES.every((g: IAutoMovieSweep.IGuide): boolean => {
-            const profile: (u: number) => number = interpolateAutoMovieMonotone({
+            const profile: (u: number) => number = interpolateAutoMovieSpline({
               knots: g.radii.map((k: IAutoMovieSweep.IKnot): number => k.at),
               values: g.radii.map((k: IAutoMovieSweep.IKnot): number => k.value),
             });
