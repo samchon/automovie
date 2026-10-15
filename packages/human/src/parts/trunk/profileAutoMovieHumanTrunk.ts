@@ -20,6 +20,7 @@ export function profileAutoMovieHumanTrunk(
   const B = frame.buttock;
   const W = frame.waist;
   const C = frame.chest;
+  const chest: IKey = encircled(frame, L.chestPoint, C.depth, C.girth, F.chest);
   const keys: IKey[] = [
     measured(frame, L.buttock, B.depth, B.breadth, B.girth, F.buttock),
     derived(
@@ -34,16 +35,16 @@ export function profileAutoMovieHumanTrunk(
       frame,
       L.costal,
       lerp(W.depth, C.depth, F.underbust.depth),
-      lerp(W.breadth, C.breadth, F.underbust.breadth),
+      lerp(W.breadth, chest.breadth, F.underbust.breadth),
       frame.underbust,
       F.underbust,
     ),
-    measured(frame, L.chestPoint, C.depth, C.breadth, C.girth, F.chest),
+    chest,
     derived(
       frame,
       L.axilla,
       C.depth * F.axilla.depth,
-      C.breadth * F.axilla.breadth,
+      chest.breadth * F.axilla.breadth,
       F.axilla,
     ),
   ];
@@ -197,6 +198,37 @@ const measured = (
     rear: n / ratio,
   };
 };
+
+/** A key level whose breadth is solved so its section's perimeter is the girth at the given squareness. */
+const encircled = (
+  frame: IAutoMovieHumanTrunkFrame,
+  y: number,
+  depth: number,
+  girth: number,
+  form: IAutoMovieHumanTrunkForm.IEncircled,
+): IKey => {
+  const perimeter = (breadth: number): number =>
+    2 * (quarter((1 - form.widest) * depth, breadth / 2, form.front) + quarter(form.widest * depth, breadth / 2, form.back));
+  let a: number = BREADTH.low * depth;
+  let b: number = BREADTH.high * depth;
+  for (let step: number = 0; step < BISECTIONS; ++step) {
+    const middle: number = (a + b) / 2;
+    if (perimeter(middle) < girth) a = middle;
+    else b = middle;
+  }
+  return {
+    y,
+    depth,
+    breadth: (a + b) / 2,
+    back: frame.column(y) - behindOf(frame, form) * depth,
+    widest: form.widest,
+    front: form.front,
+    rear: form.back,
+  };
+};
+
+/** Breadths a solved section stays within, as multiples of its depth. */
+const BREADTH: { low: number; high: number } = { low: 0.5, high: 4 };
 
 /** A key level whose squareness is given. */
 const derived = (
