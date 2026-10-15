@@ -72,7 +72,10 @@ const mix: (
   terms: ReadonlyArray<readonly [number, IAutoMovieVector3]>,
 ): IAutoMovieVector3 =>
   terms.reduce(
-    (a: IAutoMovieVector3, [w, p]: readonly [number, IAutoMovieVector3]): IAutoMovieVector3 => ({
+    (
+      a: IAutoMovieVector3,
+      [w, p]: readonly [number, IAutoMovieVector3],
+    ): IAutoMovieVector3 => ({
       x: a.x + w * p.x,
       y: a.y + w * p.y,
       z: a.z + w * p.z,
@@ -141,7 +144,10 @@ export function test_geometry_subdivision_boundaries(): void {
   TestValidator.predicate(
     "boundary vertices take the crease rule over their boundary neighbours",
     Array.from({ length: vertexCount }, (_: unknown, v: number): number => v)
-      .filter((v: number): boolean => boundaryNeighbours(flatFaces, 4, v).length === 2)
+      .filter(
+        (v: number): boolean =>
+          boundaryNeighbours(flatFaces, 4, v).length === 2,
+      )
       .every((v: number): boolean => {
         const [a, b] = boundaryNeighbours(flatFaces, 4, v) as [number, number];
         return vclose(
@@ -173,12 +179,18 @@ export function test_geometry_subdivision_boundaries(): void {
   const boundary: number[] = Array.from(
     { length: refined.positions.length / 3 },
     (_: unknown, v: number): number => v,
-  ).filter((v: number): boolean => boundaryNeighbours(refined.faces, 4, v).length === 2);
+  ).filter(
+    (v: number): boolean =>
+      boundaryNeighbours(refined.faces, 4, v).length === 2,
+  );
   TestValidator.predicate(
     "boundary limits are the B-spline points of their boundary neighbours",
     boundary.length === 20 &&
       boundary.every((v: number): boolean => {
-        const [a, b] = boundaryNeighbours(refined.faces, 4, v) as [number, number];
+        const [a, b] = boundaryNeighbours(refined.faces, 4, v) as [
+          number,
+          number,
+        ];
         return vclose(
           subdivisionPoint(refined.limitPositions, v),
           mix([
@@ -224,15 +236,20 @@ export function test_geometry_subdivision_boundaries(): void {
     ),
   );
 
-  const lift: (x: number, y: number) => number = (x: number, y: number): number =>
-    0.3 * x * x - 0.2 * y + 0.25 * x * y;
+  const lift: (x: number, y: number) => number = (
+    x: number,
+    y: number,
+  ): number => 0.3 * x * x - 0.2 * y + 0.25 * x * y;
   for (const k of [2, 3, 4, 6]) {
     const surfaces: IAutoMovieSubdivisionSurface[] = [1, 2, 3, 4].map(
       (levels: number): IAutoMovieSubdivisionSurface =>
         subdivideAutoMovieSurface({ cage: halfFan(k, lift), levels }),
     );
     const normal: IAutoMovieVector3 = subdivisionCornerNormal(surfaces[0]!, 0);
-    const [a, b] = boundaryNeighbours(surfaces[0]!.faces, 4, 0) as [number, number];
+    const [a, b] = boundaryNeighbours(surfaces[0]!.faces, 4, 0) as [
+      number,
+      number,
+    ];
     const tangent: IAutoMovieVector3 = mix([
       [1, subdivisionPoint(surfaces[0]!.positions, a)],
       [-1, subdivisionPoint(surfaces[0]!.positions, b)],
@@ -240,15 +257,15 @@ export function test_geometry_subdivision_boundaries(): void {
     TestValidator.predicate(
       `a ${k}-face boundary limit does not depend on the level`,
       k > 3 ||
-      surfaces.every(
-        (surface: IAutoMovieSubdivisionSurface): boolean =>
-          vclose(subdivisionCornerNormal(surface, 0), normal, 1e-13) &&
-          vclose(
-            subdivisionPoint(surface.limitPositions, 0),
-            subdivisionPoint(surfaces[0]!.limitPositions, 0),
-            1e-14,
-          ),
-      ),
+        surfaces.every(
+          (surface: IAutoMovieSubdivisionSurface): boolean =>
+            vclose(subdivisionCornerNormal(surface, 0), normal, 1e-13) &&
+            vclose(
+              subdivisionPoint(surface.limitPositions, 0),
+              subdivisionPoint(surfaces[0]!.limitPositions, 0),
+              1e-14,
+            ),
+        ),
     );
     TestValidator.predicate(
       `a ${k}-face boundary normal is perpendicular to the crease tangent`,
@@ -265,6 +282,8 @@ export function test_geometry_subdivision_boundaries(): void {
   );
   TestValidator.predicate(
     "a one-face cage corner keeps its normal across levels",
-    corners.every((n: IAutoMovieVector3): boolean => vclose(n, corners[0]!, 1e-13)),
+    corners.every((n: IAutoMovieVector3): boolean =>
+      vclose(n, corners[0]!, 1e-13),
+    ),
   );
 }

@@ -40,7 +40,10 @@ export const dualQuaternionSkinningVertex: (vertexShader: string) => string = (
       "#include <skinning_pars_vertex>",
       `#include <skinning_pars_vertex>\n${PARS}`,
     )
-    .replace("#include <skinbase_vertex>", `#include <skinbase_vertex>\n${BASE}`)
+    .replace(
+      "#include <skinbase_vertex>",
+      `#include <skinbase_vertex>\n${BASE}`,
+    )
     .replace("#include <skinnormal_vertex>", NORMAL)
     .replace("#include <skinning_vertex>", POSITION);
 };

@@ -319,7 +319,10 @@ export function test_engine_compiled_formation_runtime(): void {
         "models",
         (): boolean =>
           withTiers.lod
-            .map((item: IAutoMovieCompiledFormationLod): string => item.runtimeModel)
+            .map(
+              (item: IAutoMovieCompiledFormationLod): string =>
+                item.runtimeModel,
+            )
             .join() === "automovie:model:member,automovie:model:member-far" &&
           withTiers.lod.every(
             (item: IAutoMovieCompiledFormationLod): boolean =>

@@ -62,7 +62,8 @@ export const describeAutoMovieInstanceSubject = (
       (entry: IAutoMovieCompiledInstancePrototype): boolean =>
         entry.id === prototype,
     );
-  const model: string | null = (choice?.lod ?? set.lod)[0]?.runtimeModel ?? null;
+  const model: string | null =
+    (choice?.lod ?? set.lod)[0]?.runtimeModel ?? null;
   const transform: IAutoMovieTransform = {
     translation: member.position,
     rotation:

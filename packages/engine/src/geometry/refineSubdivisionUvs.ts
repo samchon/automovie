@@ -69,7 +69,8 @@ export const refineSubdivisionUvs = (
     const first: number = topology.edgeCorners[e * 2]!;
     const second: number = topology.edgeCorners[e * 2 + 1]!;
     edgeUvs[first] = edgeBase++;
-    if (second !== -1) edgeUvs[second] = continuous[e] ? edgeUvs[first]! : edgeBase++;
+    if (second !== -1)
+      edgeUvs[second] = continuous[e] ? edgeUvs[first]! : edgeBase++;
   }
   const faceBase: number = edgeBase;
   const out: number[] = new Array<number>(2 * (faceBase + faceCount)).fill(0);
@@ -78,7 +79,8 @@ export const refineSubdivisionUvs = (
     const weight: number = 1 / (faceOffsets[f + 1]! - faceOffsets[f]!);
     for (let c: number = faceOffsets[f]!; c < faceOffsets[f + 1]!; ++c)
       for (let axis: number = 0; axis < 2; ++axis)
-        out[(faceBase + f) * 2 + axis]! += weight * uvs[cornerUvs[c]! * 2 + axis]!;
+        out[(faceBase + f) * 2 + axis]! +=
+          weight * uvs[cornerUvs[c]! * 2 + axis]!;
   }
 
   for (let e: number = 0; e < edgeCount; ++e) {
@@ -87,7 +89,9 @@ export const refineSubdivisionUvs = (
     const smooth: number = continuous[e]
       ? subdivisionEdgeSmoothness(topology.edgeSharpness[e]!)
       : 0;
-    for (const side of second === -1 || continuous[e] ? [first] : [first, second])
+    for (const side of second === -1 || continuous[e]
+      ? [first]
+      : [first, second])
       for (let axis: number = 0; axis < 2; ++axis) {
         const ends: number =
           uvs[cornerUvs[side]! * 2 + axis]! +
@@ -102,9 +106,15 @@ export const refineSubdivisionUvs = (
       }
   }
 
-  const pinned: boolean[] = new Array<boolean>(topology.vertexCount).fill(false);
+  const pinned: boolean[] = new Array<boolean>(topology.vertexCount).fill(
+    false,
+  );
   for (let v: number = 0; v < topology.vertexCount; ++v)
-    for (let at: number = topology.fanEdgeOffsets[v]!; at < topology.fanEdgeOffsets[v + 1]!; ++at)
+    for (
+      let at: number = topology.fanEdgeOffsets[v]!;
+      at < topology.fanEdgeOffsets[v + 1]!;
+      ++at
+    )
       if (continuous[topology.fanEdges[at]!] === false) pinned[v] = true;
   const done: boolean[] = new Array<boolean>(uvCount).fill(false);
   for (let c: number = 0; c < topology.cornerEdges.length; ++c) {

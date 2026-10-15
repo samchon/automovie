@@ -31,7 +31,10 @@ const basis: (t: number) => { value: number[]; slope: number[] } = (
   ],
 });
 
-const cross: (a: IAutoMovieVector3, b: IAutoMovieVector3) => IAutoMovieVector3 = (
+const cross: (
+  a: IAutoMovieVector3,
+  b: IAutoMovieVector3,
+) => IAutoMovieVector3 = (
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
 ): IAutoMovieVector3 => ({
@@ -59,14 +62,22 @@ const patch: (
   j: number,
   u: number,
   v: number,
-) => { point: IAutoMovieVector3; du: IAutoMovieVector3; dv: IAutoMovieVector3 } = (
+) => {
+  point: IAutoMovieVector3;
+  du: IAutoMovieVector3;
+  dv: IAutoMovieVector3;
+} = (
   grid: IAutoMovieSubdivisionCage,
   columns: number,
   i: number,
   j: number,
   u: number,
   v: number,
-): { point: IAutoMovieVector3; du: IAutoMovieVector3; dv: IAutoMovieVector3 } => {
+): {
+  point: IAutoMovieVector3;
+  du: IAutoMovieVector3;
+  dv: IAutoMovieVector3;
+} => {
   const bu: { value: number[]; slope: number[] } = basis(u);
   const bv: { value: number[]; slope: number[] } = basis(v);
   const point: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
@@ -106,7 +117,10 @@ const ringLimit: (
     const k: number = quad.indexOf(vertex);
     if (k === -1) continue;
     ++n;
-    const edges: IAutoMovieVector3[] = [quad[(k + 1) % 4]!, quad[(k + 3) % 4]!].map(
+    const edges: IAutoMovieVector3[] = [
+      quad[(k + 1) % 4]!,
+      quad[(k + 3) % 4]!,
+    ].map(
       (w: number): IAutoMovieVector3 => subdivisionPoint(surface.positions, w),
     );
     const diagonal: IAutoMovieVector3 = subdivisionPoint(
@@ -175,7 +189,11 @@ export function test_geometry_subdivision_limit(): void {
       } = patch(grid, columns, i, j, parameter.u, parameter.v);
       return (
         parameter.corner === null &&
-        vclose(subdivisionPoint(regular.limitPositions, vertex), expected.point, 1e-12) &&
+        vclose(
+          subdivisionPoint(regular.limitPositions, vertex),
+          expected.point,
+          1e-12,
+        ) &&
         vclose(
           subdivisionCornerNormal(regular, vertex),
           unit(cross(expected.du, expected.dv)),
@@ -275,7 +293,11 @@ export function test_geometry_subdivision_limit(): void {
     "closed valence-3 corners take the smooth limit, normal along the diagonal",
     [0, 6].every(
       (v: number): boolean =>
-        vclose(subdivisionPoint(cube.limitPositions, v), ringLimit(cube, v), 1e-14) &&
+        vclose(
+          subdivisionPoint(cube.limitPositions, v),
+          ringLimit(cube, v),
+          1e-14,
+        ) &&
         vclose(
           subdivisionCornerNormal(cube, v),
           unit(subdivisionPoint(cube.limitPositions, v)),

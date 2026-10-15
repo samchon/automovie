@@ -169,8 +169,7 @@ export function test_engine_instance_slot_variation(): void {
     namedFacts([
       [
         "named",
-        (): boolean =>
-          instanceSlot(named("short"), 0).model === "short-body",
+        (): boolean => instanceSlot(named("short"), 0).model === "short-body",
       ],
       [
         "missing",

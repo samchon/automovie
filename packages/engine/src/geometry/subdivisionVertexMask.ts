@@ -70,7 +70,8 @@ const countSharp: (sharpness: readonly number[]) => number = (
   );
 
 /** Rule rank by sharp edge count: 0 smooth or dart, 1 crease, 2 corner. */
-const rank: (sharp: number) => number = (sharp: number): number => (sharp <= 1 ? 0 : sharp === 2 ? 1 : 2);
+const rank: (sharp: number) => number = (sharp: number): number =>
+  sharp <= 1 ? 0 : sharp === 2 ? 1 : 2;
 
 /** The unblended mask of the rule the sharpness selects. */
 const ruleMask: (

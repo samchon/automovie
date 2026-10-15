@@ -190,8 +190,7 @@ export function test_kinematics_humanoid_sagittal_flexion(): void {
   );
   TestValidator.predicate(
     "spine extension -20 carries the head back",
-    positionOf(STICKMAN, [joint("spine", { flexion: -20 })], "head").z <
-      head.z,
+    positionOf(STICKMAN, [joint("spine", { flexion: -20 })], "head").z < head.z,
   );
 
   // 6. the frontal axis is unchanged

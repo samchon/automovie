@@ -102,7 +102,9 @@ export const refineSubdivisionLevel = (
       return corner < vertexCount &&
         middle >= vertexCount &&
         middle < vertexCount + edgeCount
-        ? decaySubdivisionSharpness(topology.edgeSharpness[middle - vertexCount]!)
+        ? decaySubdivisionSharpness(
+            topology.edgeSharpness[middle - vertexCount]!,
+          )
         : 0;
     },
   );

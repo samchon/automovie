@@ -25,7 +25,9 @@ import { subdivisionVertexMask } from "./subdivisionVertexMask";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each step consumes the previous ring; nothing is shared across vertices.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns a ring of the same size and retains nothing.
  */
-export const stepSubdivisionRing = (ring: ISubdivisionRing): ISubdivisionRing => {
+export const stepSubdivisionRing = (
+  ring: ISubdivisionRing,
+): ISubdivisionRing => {
   const edgeCount: number = ring.sharpness.length;
   const faceCount: number = ring.diagonals.length / 3;
   const diagonals: number[] = new Array<number>(faceCount * 3);

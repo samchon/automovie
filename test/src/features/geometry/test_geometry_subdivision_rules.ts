@@ -64,7 +64,11 @@ const centroid: (
   face: readonly number[],
 ): IAutoMovieVector3 =>
   scale(
-    sum(face.map((v: number): IAutoMovieVector3 => subdivisionPoint(cage.positions, v))),
+    sum(
+      face.map(
+        (v: number): IAutoMovieVector3 => subdivisionPoint(cage.positions, v),
+      ),
+    ),
     1 / face.length,
   );
 
@@ -92,7 +96,11 @@ const catmullClarkVertex: (
   const n: number = neighbours.size;
   const p: IAutoMovieVector3 = subdivisionPoint(cage.positions, vertex);
   const f: IAutoMovieVector3 = scale(
-    sum(faces.map((face: readonly number[]): IAutoMovieVector3 => centroid(cage, face))),
+    sum(
+      faces.map(
+        (face: readonly number[]): IAutoMovieVector3 => centroid(cage, face),
+      ),
+    ),
     1 / faces.length,
   );
   const r: IAutoMovieVector3 = scale(
@@ -192,10 +200,17 @@ export function test_geometry_subdivision_rules(): void {
   TestValidator.predicate(
     "face points follow in face order at the centroid",
     CUBE.faces.every((face: readonly number[], f: number): boolean =>
-      vclose(subdivisionPoint(cube.positions, 20 + f), centroid(CUBE, face), 1e-15),
+      vclose(
+        subdivisionPoint(cube.positions, 20 + f),
+        centroid(CUBE, face),
+        1e-15,
+      ),
     ),
   );
-  TestValidator.predicate("child quads keep the outward winding", facesOutward(cube));
+  TestValidator.predicate(
+    "child quads keep the outward winding",
+    facesOutward(cube),
+  );
 
   for (const n of [3, 5, 6]) {
     const fan: IAutoMovieSubdivisionCage = subdivisionFan(

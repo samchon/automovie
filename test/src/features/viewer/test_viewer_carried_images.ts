@@ -10,8 +10,8 @@ import {
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
-import { createModel } from "../internal/fixtures";
 import { encodeTestPng } from "../internal/encodeTestPng";
+import { createModel } from "../internal/fixtures";
 import { namedFacts, rejectsError } from "../internal/predicates";
 
 /** Three rows of three RGBA pixels with distinct bytes, so any row or channel swap shows. */
@@ -93,10 +93,7 @@ export async function test_viewer_carried_images(): Promise<void> {
     ),
   ];
   const cache: AutoMovieTextureCache = new AutoMovieTextureCache(loader);
-  await cache.prime(
-    ["rgba", "rgb", "grey-alpha", "grey", "floor.png"],
-    images,
-  );
+  await cache.prime(["rgba", "rgb", "grey-alpha", "grey", "floor.png"], images);
   const rgba: THREE.Texture = cache.resolve("rgba");
   TestValidator.equals(
     "carried images decode to their authored samples",
@@ -106,7 +103,9 @@ export async function test_viewer_carried_images(): Promise<void> {
         "rgb",
         (): boolean =>
           texels(cache.resolve("rgb")).join() ===
-          [10, 20, 30, 255, 250, 240, 230, 255, 1, 2, 3, 255, 99, 98, 97, 255].join(),
+          [
+            10, 20, 30, 255, 250, 240, 230, 255, 1, 2, 3, 255, 99, 98, 97, 255,
+          ].join(),
       ],
       [
         "greyAlpha",

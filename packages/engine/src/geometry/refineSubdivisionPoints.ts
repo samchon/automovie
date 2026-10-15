@@ -35,9 +35,9 @@ export const refineSubdivisionPoints = (
   const edgeCount: number = topology.edgeSharpness.length;
   const faceCount: number = topology.faceOffsets.length - 1;
   const faceBase: number = vertexCount + edgeCount;
-  const points: number[] = new Array<number>(
-    3 * (faceBase + faceCount),
-  ).fill(0);
+  const points: number[] = new Array<number>(3 * (faceBase + faceCount)).fill(
+    0,
+  );
 
   for (let f: number = 0; f < faceCount; ++f) {
     const start: number = topology.faceOffsets[f]!;
@@ -91,9 +91,7 @@ export const refineSubdivisionPoints = (
       let sum: number = mask.vertex * positions[v * 3 + axis]!;
       edges.forEach((e: number, i: number): void => {
         const far: number =
-          topology.edgeVertices[e * 2]! +
-          topology.edgeVertices[e * 2 + 1]! -
-          v;
+          topology.edgeVertices[e * 2]! + topology.edgeVertices[e * 2 + 1]! - v;
         sum += mask.edges[i]! * positions[far * 3 + axis]!;
       });
       corners.forEach((c: number, i: number): void => {

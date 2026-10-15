@@ -398,10 +398,8 @@ const selectedPrototype: (
     return { key: JSON.stringify(["missing", explicit]), model: null };
   const selected:
     | IAutoMovieCompiledInstancePrototype
-    | Pick<
-        IAutoMovieCompiledInstancePrototype,
-        "id" | "model" | "weight"
-      > = selectInstancePrototype(set, slot, explicit);
+    | Pick<IAutoMovieCompiledInstancePrototype, "id" | "model" | "weight"> =
+    selectInstancePrototype(set, slot, explicit);
   const model: string | null =
     ("lod" in selected ? selected.lod : set.lod)[0]?.runtimeModel ?? null;
   return { key: JSON.stringify(["selected", selected.id, model]), model };

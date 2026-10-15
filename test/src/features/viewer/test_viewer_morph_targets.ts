@@ -62,10 +62,10 @@ export function test_viewer_morph_targets(): void {
 
   // 1. geometry
   const geometry: THREE.BufferGeometry = buildGeometry({ type: "mesh", mesh });
-  const position: THREE.BufferAttribute[] =
-    geometry.morphAttributes.position as THREE.BufferAttribute[];
-  const normal: THREE.BufferAttribute[] =
-    geometry.morphAttributes.normal as THREE.BufferAttribute[];
+  const position: THREE.BufferAttribute[] = geometry.morphAttributes
+    .position as THREE.BufferAttribute[];
+  const normal: THREE.BufferAttribute[] = geometry.morphAttributes
+    .normal as THREE.BufferAttribute[];
   TestValidator.equals(
     "targets upload as named relative deltas with aligned normal morphs",
     [
@@ -77,7 +77,15 @@ export function test_viewer_morph_targets(): void {
       normal[0]!.getY(3),
       normal[1]!.getY(3),
     ],
-    [true, ["jawOpen", "bend-bulge"], 0.25, -0.5, ["jawOpen", "bend-bulge"], 0, 0.125],
+    [
+      true,
+      ["jawOpen", "bend-bulge"],
+      0.25,
+      -0.5,
+      ["jawOpen", "bend-bulge"],
+      0,
+      0.125,
+    ],
   );
   const normalLess: THREE.BufferGeometry = buildGeometry({
     type: "mesh",
@@ -122,12 +130,20 @@ export function test_viewer_morph_targets(): void {
   );
 
   // 4. pose
-  applyPose(built, makePose([joint("spine", { flexion: 45 })]), model.skeleton!);
+  applyPose(
+    built,
+    makePose([joint("spine", { flexion: 45 })]),
+    model.skeleton!,
+  );
   TestValidator.predicate(
     "a pose writes its driven weight",
     nclose(influences[1]!, 0.5) && influences[0] === 0.6,
   );
-  applyPose(built, makePose([joint("spine", { flexion: 90 })]), model.skeleton!);
+  applyPose(
+    built,
+    makePose([joint("spine", { flexion: 90 })]),
+    model.skeleton!,
+  );
   TestValidator.predicate(
     "a later pose updates the driven weight",
     nclose(influences[1]!, 1) && influences[0] === 0.6,

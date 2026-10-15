@@ -6,14 +6,14 @@ import type {
 import * as THREE from "three";
 
 import {
+  applyDualQuaternionSkinning,
+  dualQuaternionSkinningOf,
+} from "../dualQuaternionSkinning/index.js";
+import {
   type IAutoMovieFormationCycle,
   applyFormationCycleMaterial,
   formationCycleOf,
 } from "../formationCycle/index.js";
-import {
-  applyDualQuaternionSkinning,
-  dualQuaternionSkinningOf,
-} from "../dualQuaternionSkinning/index.js";
 import { guardAutoMovieRenderModeRetirement } from "../guardAutoMovieRenderModeRetirement.js";
 import { restoreAutoMovieRenderModeOnce } from "../restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "../restoreAutoMovieRenderModeState.js";
@@ -201,7 +201,11 @@ export const applyAutoMovieSemanticMask: (props: {
       const dual: boolean = dualQuaternionSkinningOf(mesh);
       if (entry === undefined) {
         ++unaddressed;
-        mesh.material = materialOf(mask.background, formationCycleOf(mesh), dual);
+        mesh.material = materialOf(
+          mask.background,
+          formationCycleOf(mesh),
+          dual,
+        );
         return;
       }
       ++painted;

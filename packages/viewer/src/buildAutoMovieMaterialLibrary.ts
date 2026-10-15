@@ -80,7 +80,9 @@ export const buildAutoMovieMaterialLibrary: (
           definitions.has(material.id),
         ),
       )
-      .flatMap((model: IAutoMovieModel): IAutoMovieImage[] => model.images ?? []),
+      .flatMap(
+        (model: IAutoMovieModel): IAutoMovieImage[] => model.images ?? [],
+      ),
   );
 
   const materials: Map<

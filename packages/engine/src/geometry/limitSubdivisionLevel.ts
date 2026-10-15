@@ -48,7 +48,9 @@ export const limitSubdivisionLevel = (
     points.slice(index * 3, index * 3 + 3);
   const positions: number[] = new Array<number>(vertexCount * 3);
   const normals: number[] = [];
-  const cornerNormals: number[] = new Array<number>(topology.faceVertices.length);
+  const cornerNormals: number[] = new Array<number>(
+    topology.faceVertices.length,
+  );
   for (let v: number = 0; v < vertexCount; ++v) {
     const edges: number[] = topology.fanEdges.slice(
       topology.fanEdgeOffsets[v],
@@ -70,8 +72,11 @@ export const limitSubdivisionLevel = (
     };
     while (ring.sharpness.some((s: number): boolean => s > 0 && s < 10))
       ring = stepSubdivisionRing(ring);
-    const limit: { position: number[]; normals: number[][]; sectors: number[] } =
-      limitSubdivisionRing(ring, v);
+    const limit: {
+      position: number[];
+      normals: number[][];
+      sectors: number[];
+    } = limitSubdivisionRing(ring, v);
     for (let axis: number = 0; axis < 3; ++axis)
       positions[v * 3 + axis] = limit.position[axis]!;
     const base: number = normals.length / 3;

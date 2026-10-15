@@ -84,20 +84,22 @@ export const validateMaterialLobes: (props: {
         );
       // The highlight direction lives in the UV0 tangent frame.
       if (typeof anisotropy.strength === "number" && anisotropy.strength > 0)
-        props.parts.forEach((part: IAutoMovieModelPart, index: number): void => {
-          if (
-            part.material === material.id &&
-            (part.geometry.type !== "mesh" || part.geometry.mesh.uvs === null)
-          )
-            collector.push(
-              "type",
-              part.geometry.type === "mesh"
-                ? `${props.partsPath}[${index}].geometry.mesh.uvs`
-                : `${props.partsPath}[${index}].geometry`,
-              `material "${material.id}" is anisotropic, so a part citing it needs a mesh with UV0 for its tangent frame`,
-              part.geometry.type === "mesh" ? null : part.geometry.type,
-            );
-        });
+        props.parts.forEach(
+          (part: IAutoMovieModelPart, index: number): void => {
+            if (
+              part.material === material.id &&
+              (part.geometry.type !== "mesh" || part.geometry.mesh.uvs === null)
+            )
+              collector.push(
+                "type",
+                part.geometry.type === "mesh"
+                  ? `${props.partsPath}[${index}].geometry.mesh.uvs`
+                  : `${props.partsPath}[${index}].geometry`,
+                `material "${material.id}" is anisotropic, so a part citing it needs a mesh with UV0 for its tangent frame`,
+                part.geometry.type === "mesh" ? null : part.geometry.type,
+              );
+          },
+        );
     }
   const sheen: unknown = material.sheen;
   if (sheen !== undefined)

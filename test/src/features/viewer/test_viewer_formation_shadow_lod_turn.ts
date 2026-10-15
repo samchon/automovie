@@ -50,7 +50,12 @@ export async function test_viewer_formation_shadow_lod_turn(): Promise<void> {
     maxDistance: null;
     model: string;
     modelDigest: string;
-  } = { ...near, tier: "far" as const, runtimeModel: "far-box", maxDistance: null };
+  } = {
+    ...near,
+    tier: "far" as const,
+    runtimeModel: "far-box",
+    maxDistance: null,
+  };
   input.formation.lod = [near, far];
   input.models = new Map([
     [near.runtimeModel, source],

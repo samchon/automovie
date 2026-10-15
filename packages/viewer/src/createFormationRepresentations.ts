@@ -46,7 +46,9 @@ export const createFormationRepresentations: (
   >();
   try {
     for (const lod of input.formation.lod) {
-      const model: IAutoMovieModel | undefined = input.models.get(lod.runtimeModel);
+      const model: IAutoMovieModel | undefined = input.models.get(
+        lod.runtimeModel,
+      );
       if (model === undefined)
         throw new Error(
           `Formation "${input.formation.id}" LOD "${lod.tier}" references missing runtime model "${lod.runtimeModel}".`,

@@ -15,7 +15,9 @@ import { subdivisionPoint } from "../internal/subdivisionPoint";
 import { vclose } from "../internal/vclose";
 
 /** A cube of half-size 1: bottom vertices 0 to 3 at z = -1, top 4 to 7 at z = 1, top face 1. */
-const cube: (creases: IAutoMovieSubdivisionCrease[]) => IAutoMovieSubdivisionCage = (
+const cube: (
+  creases: IAutoMovieSubdivisionCrease[],
+) => IAutoMovieSubdivisionCage = (
   creases: IAutoMovieSubdivisionCrease[],
 ): IAutoMovieSubdivisionCage => ({
   positions: [
@@ -151,7 +153,11 @@ export function test_geometry_subdivision_creases(): void {
   );
   TestValidator.predicate(
     "loop edges take midpoints and bottom corners keep the smooth point",
-    vclose(subdivisionPoint(sharp.positions, 8 + 4), { x: 0, y: -1, z: 1 }, 1e-15) &&
+    vclose(
+      subdivisionPoint(sharp.positions, 8 + 4),
+      { x: 0, y: -1, z: 1 },
+      1e-15,
+    ) &&
       [0, 1, 2, 3].every((v: number): boolean =>
         vclose(
           subdivisionPoint(sharp.positions, v),
@@ -169,7 +175,8 @@ export function test_geometry_subdivision_creases(): void {
     "the top face stays flat with +Z normals and its loop has two normals",
     deep.parameters.every(
       (parameter: { face: number }, v: number): boolean =>
-        parameter.face !== 1 || nclose(deep.limitPositions[v * 3 + 2]!, 1, 1e-15),
+        parameter.face !== 1 ||
+        nclose(deep.limitPositions[v * 3 + 2]!, 1, 1e-15),
     ) &&
       deep.faces.every((v: number, c: number): boolean => {
         if (v !== 4) return true;
@@ -187,7 +194,9 @@ export function test_geometry_subdivision_creases(): void {
       }) &&
       new Set(
         deep.faces
-          .map((v: number, c: number): number => (v === 4 ? deep.normalFaces[c]! : -1))
+          .map((v: number, c: number): number =>
+            v === 4 ? deep.normalFaces[c]! : -1,
+          )
           .filter((n: number): boolean => n !== -1),
       ).size === 2,
   );
@@ -199,11 +208,17 @@ export function test_geometry_subdivision_creases(): void {
   TestValidator.predicate(
     "sharpness 1 is sharp for one step only",
     equalGeometryTestValues(surface(one, 1).positions, sharp.positions) &&
-      !equalGeometryTestValues(surface(one, 2).positions, surface(cage, 2).positions),
+      !equalGeometryTestValues(
+        surface(one, 2).positions,
+        surface(cage, 2).positions,
+      ),
   );
   TestValidator.predicate(
     "sharpness 2 is sharp for two steps",
-    equalGeometryTestValues(surface(two, 2).positions, surface(cage, 2).positions),
+    equalGeometryTestValues(
+      surface(two, 2).positions,
+      surface(cage, 2).positions,
+    ),
   );
   const blended: number[] = surface(half, 1).positions;
   const softer: number[] = surface(smooth, 1).positions;
@@ -227,12 +242,18 @@ export function test_geometry_subdivision_creases(): void {
           subdivisionPoint(semi[0]!.limitPositions, 4),
           1e-14,
         ) &&
-        vclose(subdivisionCornerNormal(s, 4), subdivisionCornerNormal(semi[0]!, 4), 1e-13),
+        vclose(
+          subdivisionCornerNormal(s, 4),
+          subdivisionCornerNormal(semi[0]!, 4),
+          1e-13,
+        ),
     ) &&
       semi[0]!.normals.length === semi[0]!.positions.length &&
       semi[3]!.limitPositions.some(
         (z: number, i: number): boolean =>
-          i % 3 === 2 && semi[3]!.parameters[(i - 2) / 3]!.face === 1 && z < 1 - 1e-6,
+          i % 3 === 2 &&
+          semi[3]!.parameters[(i - 2) / 3]!.face === 1 &&
+          z < 1 - 1e-6,
       ),
   );
 
@@ -242,7 +263,11 @@ export function test_geometry_subdivision_creases(): void {
     box.limitPositions.every((_: number, i: number): boolean => {
       if (i % 3 !== 0) return true;
       const p: IAutoMovieVector3 = subdivisionPoint(box.limitPositions, i / 3);
-      return nclose(Math.max(Math.abs(p.x), Math.abs(p.y), Math.abs(p.z)), 1, 1e-15);
+      return nclose(
+        Math.max(Math.abs(p.x), Math.abs(p.y), Math.abs(p.z)),
+        1,
+        1e-15,
+      );
     }) &&
       [0, 1, 2, 3, 4, 5, 6, 7].every((v: number): boolean =>
         vclose(
@@ -259,7 +284,10 @@ export function test_geometry_subdivision_creases(): void {
               subdivisionPoint(box.positions, box.faces[f * 4 + k]!),
           )
           .reduce(
-            (a: IAutoMovieVector3, b: IAutoMovieVector3): IAutoMovieVector3 => ({
+            (
+              a: IAutoMovieVector3,
+              b: IAutoMovieVector3,
+            ): IAutoMovieVector3 => ({
               x: a.x + b.x,
               y: a.y + b.y,
               z: a.z + b.z,
@@ -273,7 +301,9 @@ export function test_geometry_subdivision_creases(): void {
       }) &&
       new Set(
         box.faces
-          .map((v: number, c: number): number => (v === 6 ? box.normalFaces[c]! : -1))
+          .map((v: number, c: number): number =>
+            v === 6 ? box.normalFaces[c]! : -1,
+          )
           .filter((n: number): boolean => n !== -1),
       ).size === 3,
   );
@@ -324,7 +354,11 @@ export function test_geometry_subdivision_creases(): void {
           subdivisionPoint(darts[0]!.limitPositions, 0),
           1e-14,
         ) &&
-        vclose(subdivisionCornerNormal(s, 0), subdivisionCornerNormal(darts[0]!, 0), 1e-13),
+        vclose(
+          subdivisionCornerNormal(s, 0),
+          subdivisionCornerNormal(darts[0]!, 0),
+          1e-13,
+        ),
     ),
   );
 }

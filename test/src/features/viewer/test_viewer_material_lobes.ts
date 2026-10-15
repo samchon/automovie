@@ -48,7 +48,10 @@ export function test_viewer_material_lobes(): void {
     "declared lobes reach the physical material",
     namedFacts([
       ["anisotropy", (): boolean => nclose(built.anisotropy, 0.6)],
-      ["rotation", (): boolean => nclose(built.anisotropyRotation, Math.PI / 2)],
+      [
+        "rotation",
+        (): boolean => nclose(built.anisotropyRotation, Math.PI / 2),
+      ],
       [
         "anisotropyMap",
         (): boolean => built.anisotropyMap?.colorSpace === THREE.NoColorSpace,

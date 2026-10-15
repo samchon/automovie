@@ -44,10 +44,7 @@ export const selectInstancePrototype: <
   explicit: string | undefined,
 ) =>
   | Choice
-  | Pick<
-      IAutoMovieCompiledInstancePrototype,
-      "id" | "model" | "weight"
-    > = <
+  | Pick<IAutoMovieCompiledInstancePrototype, "id" | "model" | "weight"> = <
   Choice extends Pick<
     IAutoMovieCompiledInstancePrototype,
     "id" | "model" | "weight"
@@ -63,28 +60,19 @@ export const selectInstancePrototype: <
   explicit: string | undefined,
 ):
   | Choice
-  | Pick<
-      IAutoMovieCompiledInstancePrototype,
-      "id" | "model" | "weight"
-    > => {
+  | Pick<IAutoMovieCompiledInstancePrototype, "id" | "model" | "weight"> => {
   const choices: readonly (
     | Choice
     | Pick<IAutoMovieCompiledInstancePrototype, "id" | "model" | "weight">
   )[] = instancePrototypeChoices(instanceSet);
   if (explicit !== undefined) {
     const selected:
-      | Pick<
-          IAutoMovieCompiledInstancePrototype,
-          "id" | "model" | "weight"
-        >
+      | Pick<IAutoMovieCompiledInstancePrototype, "id" | "model" | "weight">
       | Choice
       | undefined = choices.find(
       (
         choice:
-          | Pick<
-              IAutoMovieCompiledInstancePrototype,
-              "id" | "model" | "weight"
-            >
+          | Pick<IAutoMovieCompiledInstancePrototype, "id" | "model" | "weight">
           | Choice,
       ): boolean => choice.id === explicit,
     );
@@ -98,10 +86,7 @@ export const selectInstancePrototype: <
     (
       sum: number,
       choice:
-        | Pick<
-            IAutoMovieCompiledInstancePrototype,
-            "id" | "model" | "weight"
-          >
+        | Pick<IAutoMovieCompiledInstancePrototype, "id" | "model" | "weight">
         | Choice,
     ): number => sum + choice.weight,
     0,

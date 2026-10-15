@@ -62,7 +62,9 @@ export const limitSubdivisionRing = (
     if (s > 0) sharp.push(i);
   });
   if (sharp.length <= 1 && edgeCount < 3)
-    throw new Error(`subdivision limit normal at vertex ${vertex} is undefined`);
+    throw new Error(
+      `subdivision limit normal at vertex ${vertex} is undefined`,
+    );
   if (sharp.length === 0) {
     const smooth: { position: number[]; normal: number[] } = smoothLimit(ring);
     return {
@@ -105,7 +107,8 @@ export const limitSubdivisionRing = (
   const sectors: number[] = new Array<number>(faceCount).fill(0);
   const normals: number[][] = bounds.map(
     ([lead, trail]: [number, number], sector: number): number[] => {
-      for (let i: number = lead; i < trail; ++i) sectors[i % edgeCount] = sector;
+      for (let i: number = lead; i < trail; ++i)
+        sectors[i % edgeCount] = sector;
       const turn: number[] = winding(ring, lead, trail);
       if (sharp.length === 2 && trail - lead === 3) {
         const basis: { limit: number[]; tangents: number[][] } =
@@ -231,7 +234,11 @@ const crossTangent: (
  * The sum of `(E_i - C) x (E_{i+1} - C)` over the ring quads from edge `lead`
  * to edge `trail`, a vector on the outward side of that sector.
  */
-const winding: (ring: ISubdivisionRing, lead: number, trail: number) => number[] = (
+const winding: (
+  ring: ISubdivisionRing,
+  lead: number,
+  trail: number,
+) => number[] = (
   ring: ISubdivisionRing,
   lead: number,
   trail: number,
@@ -249,19 +256,30 @@ const winding: (ring: ISubdivisionRing, lead: number, trail: number) => number[]
 };
 
 /** The unit vector along `normal`, flipped to the side of `turn`. */
-const oriented: (normal: number[], turn: readonly number[], vertex: number) => number[] = (
+const oriented: (
+  normal: number[],
+  turn: readonly number[],
+  vertex: number,
+) => number[] = (
   normal: number[],
   turn: readonly number[],
   vertex: number,
 ): number[] =>
-  unit(dot(normal, turn) < 0 ? normal.map((x: number): number => -x) : normal, vertex);
+  unit(
+    dot(normal, turn) < 0 ? normal.map((x: number): number => -x) : normal,
+    vertex,
+  );
 
 /**
  * The faces from edge `lead` to edge `trail` of a crease ring as a boundary
  * ring of their own, which refines independently of the other side because
  * the crease rules read only the crease.
  */
-const side: (ring: ISubdivisionRing, lead: number, trail: number) => ISubdivisionRing = (
+const side: (
+  ring: ISubdivisionRing,
+  lead: number,
+  trail: number,
+) => ISubdivisionRing = (
   ring: ISubdivisionRing,
   lead: number,
   trail: number,
@@ -289,11 +307,7 @@ const add: (a: number[], b: readonly number[]) => void = (
 const subtract: (a: readonly number[], b: readonly number[]) => number[] = (
   a: readonly number[],
   b: readonly number[],
-): number[] => [
-  a[0]! - b[0]!,
-  a[1]! - b[1]!,
-  a[2]! - b[2]!,
-];
+): number[] => [a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!];
 
 /** The cross product `a x b`. */
 const cross: (a: readonly number[], b: readonly number[]) => number[] = (
@@ -309,8 +323,7 @@ const cross: (a: readonly number[], b: readonly number[]) => number[] = (
 const dot: (a: readonly number[], b: readonly number[]) => number = (
   a: readonly number[],
   b: readonly number[],
-): number =>
-  a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!;
+): number => a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!;
 
 /** The Euclidean length. */
 const length: (a: readonly number[]) => number = (
@@ -324,6 +337,8 @@ const unit: (a: readonly number[], vertex: number) => number[] = (
 ): number[] => {
   const size: number = length(a);
   if (!(size > 0) || !Number.isFinite(size))
-    throw new Error(`subdivision limit normal at vertex ${vertex} is undefined`);
+    throw new Error(
+      `subdivision limit normal at vertex ${vertex} is undefined`,
+    );
   return a.map((x: number): number => x / size);
 };

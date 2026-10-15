@@ -162,10 +162,11 @@ export function test_viewer_dual_quaternion_skinning(): void {
   ];
   for (const mode of ["depth", "normal", "mask"] as const) {
     const handle: IAutoMovieRenderModeHandle = applyRenderMode(scene, mode);
-    TestValidator.equals(`the ${mode} pass patches only the dual skin`, patched(), [
-      true,
-      false,
-    ]);
+    TestValidator.equals(
+      `the ${mode} pass patches only the dual skin`,
+      patched(),
+      [true, false],
+    );
     handle.restore();
   }
   const outline: IAutoMovieRenderModeHandle = applyRenderMode(scene, "outline");
@@ -173,7 +174,8 @@ export function test_viewer_dual_quaternion_skinning(): void {
     (built: IAutoMovieModelObject): THREE.Mesh =>
       built.object.children.find(
         (child: THREE.Object3D): boolean =>
-          child !== meshOf(built, "tube") && (child as THREE.Mesh).isMesh === true,
+          child !== meshOf(built, "tube") &&
+          (child as THREE.Mesh).isMesh === true,
       ) as THREE.Mesh,
   );
   TestValidator.equals(

@@ -67,7 +67,10 @@ export const applyMaskMode: (
       const materials: Map<
         IAutoMovieFormationCycle | null,
         Map<boolean, THREE.Material<THREE.MaterialEventMap>>
-      > = new Map<IAutoMovieFormationCycle | null, Map<boolean, THREE.Material>>();
+      > = new Map<
+        IAutoMovieFormationCycle | null,
+        Map<boolean, THREE.Material>
+      >();
       for (const mesh of meshes) {
         const cycle: IAutoMovieFormationCycle | null = formationCycleOf(mesh);
         const dual: boolean = dualQuaternionSkinningOf(mesh);

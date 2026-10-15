@@ -47,7 +47,9 @@ export const admitSubdivisionCage = (
   const faceVertices: number[] = [];
   cage.faces.forEach((face: readonly number[], f: number): void => {
     if (face.length < 3)
-      throw new Error(`subdivision cage face ${f} needs at least three corners`);
+      throw new Error(
+        `subdivision cage face ${f} needs at least three corners`,
+      );
     face.forEach((v: number, k: number): void => {
       if (!Number.isSafeInteger(v) || v < 0 || v >= vertexCount)
         throw new Error(
@@ -63,8 +65,7 @@ export const admitSubdivisionCage = (
   const key: (a: number, b: number) => number = (
     a: number,
     b: number,
-  ): number =>
-    Math.min(a, b) * vertexCount + Math.max(a, b);
+  ): number => Math.min(a, b) * vertexCount + Math.max(a, b);
   const sharpness: Map<number, number> = new Map<number, number>();
   (cage.creases ?? []).forEach(
     (crease: IAutoMovieSubdivisionCrease, i: number): void => {
@@ -74,7 +75,9 @@ export const admitSubdivisionCage = (
             `subdivision cage crease ${i} must join two cage vertices`,
           );
       if (crease.from === crease.to)
-        throw new Error(`subdivision cage crease ${i} must join two cage vertices`);
+        throw new Error(
+          `subdivision cage crease ${i} must join two cage vertices`,
+        );
       if (
         !Number.isFinite(crease.sharpness) ||
         crease.sharpness < 0 ||
@@ -98,7 +101,9 @@ export const admitSubdivisionCage = (
   );
   const edges: Set<number> = new Set<number>();
   for (let e: number = 0; e < topology.edgeSharpness.length; ++e)
-    edges.add(key(topology.edgeVertices[e * 2]!, topology.edgeVertices[e * 2 + 1]!));
+    edges.add(
+      key(topology.edgeVertices[e * 2]!, topology.edgeVertices[e * 2 + 1]!),
+    );
   (cage.creases ?? []).forEach(
     (crease: IAutoMovieSubdivisionCrease, i: number): void => {
       if (!edges.has(key(crease.from, crease.to)))
@@ -157,7 +162,9 @@ const admitUvs: (
   const cornerUvs: number[] = [];
   cage.uvFaces.forEach((row: readonly number[], f: number): void => {
     if (row.length !== cage.faces[f]!.length)
-      throw new Error(`subdivision cage uvFaces[${f}] must name one UV per corner`);
+      throw new Error(
+        `subdivision cage uvFaces[${f}] must name one UV per corner`,
+      );
     row.forEach((t: number, k: number): void => {
       if (!Number.isSafeInteger(t) || t < 0 || t >= uvCount)
         throw new Error(

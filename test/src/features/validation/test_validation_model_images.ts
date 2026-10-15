@@ -12,8 +12,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { createModel } from "../internal/fixtures";
 import { encodeTestPng } from "../internal/encodeTestPng";
+import { createModel } from "../internal/fixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";
 
 const GRID: string = "grid";
@@ -71,8 +71,9 @@ const refusedAt: (images: unknown, path: string) => boolean = (
  * @evidence contracts/testing.md#execution-ownership The discoverable exported unit runs portable engine validators on in-memory records without a file, browser or GPU.
  */
 export function test_validation_model_images(): void {
-  const facts: (asset: string) => IAutoMovieTextureImageFacts | undefined =
-    (): IAutoMovieTextureImageFacts | undefined => undefined;
+  const facts: (asset: string) => IAutoMovieTextureImageFacts | undefined = ():
+    | IAutoMovieTextureImageFacts
+    | undefined => undefined;
   const closure: (models: IAutoMovieModel[]) => IAutoMovieValidation = (
     models: IAutoMovieModel[],
   ): IAutoMovieValidation =>
@@ -210,7 +211,10 @@ export function test_validation_model_images(): void {
         (): boolean =>
           refusedAt([header({ interlace: 1 })], "$input.images[0].data"),
       ],
-      ["zeroEdge", (): boolean => refusedAt([edge(0)], "$input.images[0].data")],
+      [
+        "zeroEdge",
+        (): boolean => refusedAt([edge(0)], "$input.images[0].data"),
+      ],
       [
         "overEdge",
         (): boolean => refusedAt([edge(8193)], "$input.images[0].data"),
@@ -226,10 +230,7 @@ export function test_validation_model_images(): void {
                   width: 1,
                   height: 1,
                   colourType,
-                  samples: [1, 2, 3].slice(
-                    0,
-                    { 0: 1, 2: 3, 4: 2 }[colourType],
-                  ),
+                  samples: [1, 2, 3].slice(0, { 0: 1, 2: 3, 4: 2 }[colourType]),
                 }),
               }),
             ]),

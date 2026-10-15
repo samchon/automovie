@@ -14,34 +14,35 @@ import { subdivisionGrid } from "../internal/subdivisionGrid";
  * maps grid point `(x, y)` to `(0.1 x, 0.1 y)` and the right chart to
  * `(0.5 + 0.1 x, 0.1 y)`, so the seam vertices carry two UVs each.
  */
-const charted: () => IAutoMovieSubdivisionCage = (): IAutoMovieSubdivisionCage => {
-  const grid: IAutoMovieSubdivisionCage = subdivisionGrid(
-    4,
-    2,
-    (i: number, j: number): number => 0.25 * Math.sin(i + 2 * j),
-  );
-  const uvs: number[] = [];
-  const index: Map<string, number> = new Map<string, number>();
-  const uvOf: (x: number, y: number, right: boolean) => number = (
-    x: number,
-    y: number,
-    right: boolean,
-  ): number => {
-    const key: string = `${x},${y},${right}`;
-    if (!index.has(key)) {
-      index.set(key, uvs.length / 2);
-      uvs.push((right ? 0.5 : 0) + 0.1 * x, 0.1 * y);
-    }
-    return index.get(key)!;
+const charted: () => IAutoMovieSubdivisionCage =
+  (): IAutoMovieSubdivisionCage => {
+    const grid: IAutoMovieSubdivisionCage = subdivisionGrid(
+      4,
+      2,
+      (i: number, j: number): number => 0.25 * Math.sin(i + 2 * j),
+    );
+    const uvs: number[] = [];
+    const index: Map<string, number> = new Map<string, number>();
+    const uvOf: (x: number, y: number, right: boolean) => number = (
+      x: number,
+      y: number,
+      right: boolean,
+    ): number => {
+      const key: string = `${x},${y},${right}`;
+      if (!index.has(key)) {
+        index.set(key, uvs.length / 2);
+        uvs.push((right ? 0.5 : 0) + 0.1 * x, 0.1 * y);
+      }
+      return index.get(key)!;
+    };
+    const uvFaces: number[][] = grid.faces.map(
+      (face: readonly number[], f: number): number[] =>
+        face.map((v: number): number =>
+          uvOf(v % 5, Math.floor(v / 5), f % 4 >= 2),
+        ),
+    );
+    return { ...grid, uvs, uvFaces };
   };
-  const uvFaces: number[][] = grid.faces.map(
-    (face: readonly number[], f: number): number[] =>
-      face.map((v: number): number =>
-        uvOf(v % 5, Math.floor(v / 5), f % 4 >= 2),
-      ),
-  );
-  return { ...grid, uvs, uvFaces };
-};
 
 /** Grid coordinates of a vertex of a refined grid, from its cage parameters. */
 const gridPoint: (
@@ -95,14 +96,18 @@ export function test_geometry_subdivision_uvs(): void {
       const centreX: number =
         [0, 1, 2, 3].reduce(
           (sum: number, k: number): number =>
-            sum + gridPoint(refined.parameters[refined.faces[f * 4 + k]!]!, 4)[0],
+            sum +
+            gridPoint(refined.parameters[refined.faces[f * 4 + k]!]!, 4)[0],
           0,
         ) / 4;
       const [x, y] = gridPoint(refined.parameters[v]!, 4);
       const uv: number = refined.uvFaces![c]!;
       return (
-        nclose(refined.uvs![uv * 2]!, (centreX > 2 ? 0.5 : 0) + 0.1 * x, 1e-15) &&
-        nclose(refined.uvs![uv * 2 + 1]!, 0.1 * y, 1e-15)
+        nclose(
+          refined.uvs![uv * 2]!,
+          (centreX > 2 ? 0.5 : 0) + 0.1 * x,
+          1e-15,
+        ) && nclose(refined.uvs![uv * 2 + 1]!, 0.1 * y, 1e-15)
       );
     }),
   );
@@ -110,7 +115,10 @@ export function test_geometry_subdivision_uvs(): void {
   refined.faces.forEach((v: number, c: number): void => {
     if (v === 2) seamValues.add(refined.uvFaces![c]!);
   });
-  TestValidator.predicate("a seam vertex keeps two UV values", seamValues.size === 2);
+  TestValidator.predicate(
+    "a seam vertex keeps two UV values",
+    seamValues.size === 2,
+  );
 
   const bent: IAutoMovieSubdivisionCage = charted();
   const seamUv: number = bent.uvFaces![1]![1]!;
@@ -184,18 +192,25 @@ export function test_geometry_subdivision_uvs(): void {
           Math.max(0, Math.ceil(y) - 1) * 2 + Math.max(0, Math.ceil(x) - 1)
       );
     }) &&
-      Array.from({ length: grid.faces.length / 4 }, (_: unknown, f: number): boolean => {
-        const points: [number, number][] = [0, 1, 2, 3].map(
-          (k: number): [number, number] =>
-            gridPoint(grid.parameters[grid.faces[f * 4 + k]!]!, 2),
-        );
-        const xs: number[] = points.map((q: [number, number]): number => q[0]);
-        const ys: number[] = points.map((q: [number, number]): number => q[1]);
-        return (
-          Math.max(...xs) - Math.min(...xs) === 0.25 &&
-          Math.max(...ys) - Math.min(...ys) === 0.25
-        );
-      }).every((fits: boolean): boolean => fits),
+      Array.from(
+        { length: grid.faces.length / 4 },
+        (_: unknown, f: number): boolean => {
+          const points: [number, number][] = [0, 1, 2, 3].map(
+            (k: number): [number, number] =>
+              gridPoint(grid.parameters[grid.faces[f * 4 + k]!]!, 2),
+          );
+          const xs: number[] = points.map(
+            (q: [number, number]): number => q[0],
+          );
+          const ys: number[] = points.map(
+            (q: [number, number]): number => q[1],
+          );
+          return (
+            Math.max(...xs) - Math.min(...xs) === 0.25 &&
+            Math.max(...ys) - Math.min(...ys) === 0.25
+          );
+        },
+      ).every((fits: boolean): boolean => fits),
   );
   const triangle: IAutoMovieSubdivisionSurface = subdivideAutoMovieSurface({
     cage: { positions: [0, 0, 0, 1, 0, 0, 0, 1, 0], faces: [[0, 1, 2]] },

@@ -69,7 +69,8 @@ export const skinAutoMovieMesh: (
   morphWeights?: ReadonlyMap<string, number>,
 ): number[] => {
   const skin: IAutoMovieMeshSkin | null = mesh.skin;
-  if (skin === null) throw new Error("skinAutoMovieMesh needs a mesh with a skin");
+  if (skin === null)
+    throw new Error("skinAutoMovieMesh needs a mesh with a skin");
   const joints: IJointTransform[] = jointTransforms(skin.joints, rest, posed);
   const dual: boolean = skin.method === "dual-quaternion";
   const positions: number[] = morphedPositions(mesh, morphWeights);
@@ -261,8 +262,12 @@ const blendDualQuaternion: (
     dual[3] += aligned * d.w;
   }
   const length: number = Math.hypot(real[0], real[1], real[2], real[3]);
-  const [rx, ry, rz, rw]: number[] = real.map((c: number): number => c / length);
-  const [dx, dy, dz, dw]: number[] = dual.map((c: number): number => c / length);
+  const [rx, ry, rz, rw]: number[] = real.map(
+    (c: number): number => c / length,
+  );
+  const [dx, dy, dz, dw]: number[] = dual.map(
+    (c: number): number => c / length,
+  );
   const turned: IAutoMovieVector3 = Quaternion.rotateVector(
     { x: rx!, y: ry!, z: rz!, w: rw! },
     point,

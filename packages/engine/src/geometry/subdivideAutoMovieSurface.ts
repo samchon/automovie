@@ -77,8 +77,11 @@ export const subdivideAutoMovieSurface = (props: {
   let level: ISubdivisionLevel = admitSubdivisionCage(props.cage);
   for (let step: number = 0; step < props.levels; ++step)
     level = refineSubdivisionLevel(level);
-  const limit: { positions: number[]; normals: number[]; cornerNormals: number[] } =
-    limitSubdivisionLevel(level);
+  const limit: {
+    positions: number[];
+    normals: number[];
+    cornerNormals: number[];
+  } = limitSubdivisionLevel(level);
   const parameters: IAutoMovieSubdivisionParameter[] =
     new Array<IAutoMovieSubdivisionParameter>(level.topology.vertexCount);
   level.topology.faceVertices.forEach((v: number, c: number): void => {

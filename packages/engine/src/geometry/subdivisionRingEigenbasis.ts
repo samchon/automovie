@@ -52,7 +52,8 @@ export const subdivisionRingEigenbasis = (
       ...refined.edges,
       ...refined.diagonals,
     ];
-    for (let i: number = 0; i < size; ++i) (matrix[i] ??= [])[j] = column[i * 3]!;
+    for (let i: number = 0; i < size; ++i)
+      (matrix[i] ??= [])[j] = column[i * 3]!;
   }
   const times: (w: readonly number[]) => number[] = (
     w: readonly number[],
@@ -76,13 +77,19 @@ export const subdivisionRingEigenbasis = (
     first = normalise(zeroSum(times(first)));
     second = zeroSum(times(second));
     const along: number = dot(second, first);
-    second = normalise(second.map((x: number, i: number): number => x - along * first[i]!));
+    second = normalise(
+      second.map((x: number, i: number): number => x - along * first[i]!),
+    );
   }
   const apply: (w: readonly number[]) => number[] = (
     w: readonly number[],
   ): number[] =>
     [0, 1, 2].map((axis: number): number =>
-      w.reduce((sum: number, x: number, i: number): number => sum + x * points[i * 3 + axis]!, 0),
+      w.reduce(
+        (sum: number, x: number, i: number): number =>
+          sum + x * points[i * 3 + axis]!,
+        0,
+      ),
     );
   return { limit: apply(limit), tangents: [apply(first), apply(second)] };
 };
@@ -94,7 +101,8 @@ const EIGEN_STEPS: number = 512;
 const zeroSum: (w: readonly number[]) => number[] = (
   w: readonly number[],
 ): number[] => {
-  const mean: number = w.reduce((a: number, b: number): number => a + b, 0) / w.length;
+  const mean: number =
+    w.reduce((a: number, b: number): number => a + b, 0) / w.length;
   return w.map((x: number): number => x - mean);
 };
 

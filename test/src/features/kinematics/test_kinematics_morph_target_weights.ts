@@ -68,19 +68,16 @@ export function test_kinematics_morph_target_weights(): void {
     name: string,
   ): number | undefined =>
     resolveMorphTargetWeights(targets, makePose(joints)).get(name);
-  const flex: IAutoMovieMeshMorphTarget[] = [
-    target("bend", driver("flexion")),
-  ];
+  const flex: IAutoMovieMeshMorphTarget[] = [target("bend", driver("flexion"))];
 
   // 1. curve evaluation
   TestValidator.equals(
     "flexion drives the curve, holding its ends",
-    [45, 120, -30, 90].map(
-      (angle: number): boolean =>
-        nclose(
-          weight(flex, [joint("spine", { flexion: angle })], "bend")!,
-          Math.min(1, Math.max(0, angle / 90)),
-        ),
+    [45, 120, -30, 90].map((angle: number): boolean =>
+      nclose(
+        weight(flex, [joint("spine", { flexion: angle })], "bend")!,
+        Math.min(1, Math.max(0, angle / 90)),
+      ),
     ),
     [true, true, true, true],
   );
@@ -148,11 +145,14 @@ export function test_kinematics_morph_target_weights(): void {
   // 90 degrees about +x maps (y, z) to (-z, y)
   TestValidator.predicate(
     "a weighted delta applies in the rest frame before skinning",
-    vclose(at(skinAutoMovieMesh(mesh, rest, posed, new Map([["swell", 0.5]]))), {
-      x: 0,
-      y: 1 - 0.25,
-      z: 1,
-    }),
+    vclose(
+      at(skinAutoMovieMesh(mesh, rest, posed, new Map([["swell", 0.5]]))),
+      {
+        x: 0,
+        y: 1 - 0.25,
+        z: 1,
+      },
+    ),
   );
   TestValidator.predicate(
     "omitted weights and an unknown name leave the rest shape",

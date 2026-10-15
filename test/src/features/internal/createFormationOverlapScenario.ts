@@ -203,7 +203,9 @@ export const createFormationOverlapScenario: () => {
     props: IFormationTieredInput,
   ): IUnit => ({
     ...row({ id: props.id, count: 1, spacing: 1, anchor: props.anchor }),
-    lod: props.models.map((model: string): { runtimeModel: string } => ({ runtimeModel: model })),
+    lod: props.models.map((model: string): { runtimeModel: string } => ({
+      runtimeModel: model,
+    })),
   });
 
   /** One file of members, one behind the other along +z from a stated anchor. */

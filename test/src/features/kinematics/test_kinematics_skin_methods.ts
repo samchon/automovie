@@ -77,8 +77,9 @@ export function test_kinematics_skin_methods(): void {
   for (const method of ["linear", "dual-quaternion"] as const)
     TestValidator.predicate(
       `${method} leaves the rest pose in place`,
-      skinned(method, rest).every((value: number, i: number): boolean =>
-        Math.abs(value - createSkinnedTubeMesh().positions[i]!) <= 1e-12,
+      skinned(method, rest).every(
+        (value: number, i: number): boolean =>
+          Math.abs(value - createSkinnedTubeMesh().positions[i]!) <= 1e-12,
       ),
     );
 

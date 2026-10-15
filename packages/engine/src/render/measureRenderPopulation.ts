@@ -247,7 +247,10 @@ export const measureRenderPopulation: (props: {
       );
     for (const lod of formation.lod) {
       const cost: IAutoMovieRenderModelCost = measure(
-        model(lod.runtimeModel, `formation "${formation.id}" LOD "${lod.tier}"`),
+        model(
+          lod.runtimeModel,
+          `formation "${formation.id}" LOD "${lod.tier}"`,
+        ),
         costs,
         lod.tier,
       );

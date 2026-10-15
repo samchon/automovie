@@ -268,7 +268,9 @@ export const validateAutoMovieFormationOverlap: (
   value: {
     models: readonly IAutoMovieModel[];
     formations: ReadonlyArray<
-      IAutoMovieFormationPlacement & { lod: ReadonlyArray<{ runtimeModel: string }> }
+      IAutoMovieFormationPlacement & {
+        lod: ReadonlyArray<{ runtimeModel: string }>;
+      }
     >;
     formationMotions?: readonly IAutoMovieFormationMotion[];
     formationSlotMotions?: readonly IAutoMovieFormationSlotMotion[];

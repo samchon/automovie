@@ -66,8 +66,7 @@ export const encodeTestPng: (props: {
   const sample: (x: number, y: number) => number = (
     x: number,
     y: number,
-  ): number =>
-    x < 0 || y < 0 ? 0 : props.samples[y * stride + x]!;
+  ): number => (x < 0 || y < 0 ? 0 : props.samples[y * stride + x]!);
   const raw: number[] = [];
   for (let y: number = 0; y < props.height; ++y) {
     const filter: number = props.filters?.[y] ?? 0;

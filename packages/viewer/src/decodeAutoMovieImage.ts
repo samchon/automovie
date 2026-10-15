@@ -40,8 +40,7 @@ export const decodeAutoMovieImage: (
   if (SIGNATURE.some((value: number, i: number): boolean => bytes[i] !== value))
     throw refuse("is not a PNG");
   const view: DataView = new DataView(bytes.buffer);
-  let header: { width: number; height: number; channels: number } | null =
-    null;
+  let header: { width: number; height: number; channels: number } | null = null;
   const data: Uint8Array[] = [];
   let offset: number = 8;
   while (offset + 8 <= bytes.length) {

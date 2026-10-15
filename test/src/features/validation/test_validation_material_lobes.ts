@@ -86,8 +86,7 @@ export function test_validation_material_lobes(): void {
     namedFacts([
       [
         "boundaries",
-        (): boolean =>
-          validate(LOBES, [triangle([0, 0, 1, 0, 0, 1])]).success,
+        (): boolean => validate(LOBES, [triangle([0, 0, 1, 0, 0, 1])]).success,
       ],
       ["omitted", (): boolean => validate({}).success],
       [
