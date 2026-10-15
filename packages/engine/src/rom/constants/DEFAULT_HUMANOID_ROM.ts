@@ -36,8 +36,9 @@ const FINGER = constraint(range(-20, 100), null, null);
  * sign convention documented on {@link IAutoMovieJointConstraint}: flexion (+) /
  * extension (−) about the sagittal axis, abduction (+) / adduction (−) about
  * the frontal axis, external (+) / internal (−) about the limb's long axis.
- * Left and right limbs share magnitudes here; mirroring the abduction _sign_
- * per side is a future refinement.
+ * Left and right limbs share these clinical ranges; `HUMANOID_REST_FRAME`
+ * maps each onto its side of the T-pose rig, so a value means the same motion
+ * on both sides.
  *
  * A bone absent from this table (or an axis set to `null`) is treated as
  * unconstrained / immobile on that axis. A skeleton may override any of these
