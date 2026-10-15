@@ -76,7 +76,7 @@ const GIRTH_PROFILE: Array<[level: number, weight: number]> = [
  *
  * - The epicondyles, the medial more prominent (Gray 1918), floor the elbow's breadth.
  * - The olecranon tip pins the back of the elbow; above it the triceps tendon lies flat on the humerus.
- * - The posterior border of the ulna is subcutaneous from the olecranon to the ulnar head (Gray 1918), so the forearm's flexor and extensor masses swell in front of and beside the bones, not behind them.
+ * - The posterior border of the ulna is subcutaneous from the olecranon to the ulnar head (Gray 1918), so the forearm's flexor and extensor masses swell in front of and beside the bones rather than behind them. Below the elbow these ceilings are fitted to the MakeHuman 1.x CC0 reference body: scaling the conventional values (0.36, 0.33 and 0.56 at a fifth of the way down, 0.34 and 0.36 at two fifths, 0.32 and 0.31 further) by 1.5 minimised the girth-normalised mean radial error of the arm sections against the reference for an adult woman and man at average build (3.5 and 3.2 mm at 1.0, 2.5 at 1.5, 2.5 and 2.8 at 2.5), because the reference's ulnar border stands further behind the forearm axis.
  *
  * Grade: conventional.
  */
@@ -97,13 +97,13 @@ const BONES: Array<[level: number, direction: number, kind: "pin" | "floor" | "c
   [0.08, 3, "ceiling", 0.38],
   [0.08, 4, "ceiling", 0.3],
   [0.08, 5, "ceiling", 0.5],
-  [0.22, 3, "ceiling", 0.36],
-  [0.22, 4, "ceiling", 0.33],
-  [0.22, 5, "ceiling", 0.56],
-  [0.42, 3, "ceiling", 0.34],
-  [0.42, 4, "ceiling", 0.36],
-  [0.64, 3, "ceiling", 0.32],
-  [0.83, 3, "ceiling", 0.31],
+  [0.22, 3, "ceiling", 0.54],
+  [0.22, 4, "ceiling", 0.495],
+  [0.22, 5, "ceiling", 0.84],
+  [0.42, 3, "ceiling", 0.51],
+  [0.42, 4, "ceiling", 0.54],
+  [0.64, 3, "ceiling", 0.48],
+  [0.83, 3, "ceiling", 0.465],
 ];
 
 /**
