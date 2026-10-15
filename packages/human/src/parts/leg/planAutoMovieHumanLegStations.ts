@@ -27,20 +27,20 @@ const SUPRAPATELLA_ABOVE_MIDPATELLA: number = 0.06;
 const CALF_LEVEL: number = 0.74;
 
 /**
- * Girth curve from the mid thigh to the gluteal furrow: the girth at a level above suprapatella is the lower thigh girth plus the share `t^0.8` of its difference to the furrow girth, `t` the level's fraction of the way from suprapatella to the furrow. An exponent below 1 makes the thigh fuller than a cone, as its muscle mass sits high. Grade: conventional.
+ * Girth curve from the mid thigh to the gluteal furrow: the girth at a level above suprapatella is the lower thigh girth plus the share `t^1.15` of its difference to the furrow girth, `t` the level's fraction of the way from suprapatella to the furrow. The exponent is our fit of the MakeHuman CC0 reference's section perimeters at the lower thigh and over vastus medialis (1.0 and 1.3, SD 0.11 and 0.27) over eight people of both sexes, every build, 11, 30 and 80 years, aligned on our skeleton by the shared calibration harness: the thigh slims faster just above the knee than a cone. Grade: population-fitted to a synthetic reference.
  */
-const THIGH_TAPER: number = 0.8;
+const THIGH_TAPER: number = 1.15;
 
 /**
- * Girths at levels no survey measures, as fractions of the measured ones: our fit of the section perimeters of the MakeHuman CC0 base mesh with its CC0 macro targets (hm08, released CC0 in September 2020) at the same fractions of thigh and shank length, over 54 people of both sexes, child, young and old, and every muscle and weight extreme; means 0.965 (SD 0.021), 1.017 (SD 0.043, held at 1) and 0.984 (SD 0.036). Grade: population-fitted to a synthetic reference.
+ * Girths at levels no survey measures, as fractions of the measured ones: our fit of the section perimeters of the MakeHuman CC0 base mesh with its CC0 macro targets (hm08, released CC0 in September 2020) at the same fractions of thigh and shank length, aligned on our skeleton by the shared calibration harness, over eight people of both sexes, every build, 11, 30 and 80 years; means 0.981 (SD 0.012), 1.001 (SD 0.024) and 0.988 (SD 0.011). Grade: population-fitted to a synthetic reference.
  */
 const GIRTH: Record<"knee" | "belowKnee" | "upperCalf", number> = {
   /** Midpatella over suprapatella girth: the knee narrows below the vastus medialis. */
-  knee: 0.965,
+  knee: 0.981,
   /** Below the patella over the smaller of knee and calf: the infrapatellar fat pads fill the patellar tendon level, so it is no narrower than the knee. */
   belowKnee: 1.0,
   /** Upper calf over calf maximum. */
-  upperCalf: 0.984,
+  upperCalf: 0.988,
 };
 
 /**
@@ -187,12 +187,12 @@ export function planAutoMovieHumanLegStations(props: {
       count: 12,
     },
     // share of the calf-to-ankle girth difference each level keeps, from the same MakeHuman fit:
-    // 0.70 (SD 0.064), 0.365 (SD 0.056) and 0.10 (SD 0.031)
+    // 0.715 (SD 0.050), 0.380 (SD 0.052) and 0.110 (SD 0.020)
     ...(
       [
-        ["lower calf", 0.62, 0.7, 12],
-        ["calcaneal tendon", 0.36, 0.365, 12],
-        ["above the ankle", 0.13, 0.1, 8],
+        ["lower calf", 0.62, 0.715, 12],
+        ["calcaneal tendon", 0.36, 0.38, 12],
+        ["above the ankle", 0.13, 0.11, 8],
         ["ankle", 0, 0, 8],
       ] as const
     ).map(
@@ -303,7 +303,9 @@ export function planAutoMovieHumanLegStations(props: {
         fitted: FITTED.has(l.name),
         aspect: section.aspect[0] + (section.aspect[1] * fat) / radius,
         posterior: section.posterior[0] + (section.posterior[1] * fat) / radius,
-        lateral: Math.max(0, shaftSlope * (l.height - knee.y)),
+        lateral:
+          Math.max(0, shaftSlope * (l.height - knee.y)) +
+          (section.lateral[0] + (section.lateral[1] * fat) / radius) * radius,
         fat,
         count: l.count,
       };
