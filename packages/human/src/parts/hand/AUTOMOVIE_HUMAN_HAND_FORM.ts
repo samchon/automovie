@@ -27,11 +27,6 @@ export const AUTOMOVIE_HUMAN_HAND_FORM = {
   depth: { pip: 0.953, dip: 0.849, thumb: 0.932 },
 
   /**
-   * The wrist section at the stylion cut: its breadth over the wrist circumference (Greiner 1991: 57.0 of 151.4 mm and 65.8 of 174.3) and its depth over its breadth, the other axis of the ellipse with that breadth and circumference (0.675 and 0.670). Grade: measured breadth, derived depth.
-   */
-  wrist: { breadth: 0.377, depth: 0.673 },
-
-  /**
    * Hand circumference over metacarpales II and V over hand breadth, pooled over the ANSUR II means of 2.388 in women and 2.406 in men (Gordon et al. 2014, NATICK/TR-15/007). The palm's section at the heads is given the thickness at which its own perimeter equals this circumference. Grade: measured, ratio derived.
    */
   circumference: 2.397,

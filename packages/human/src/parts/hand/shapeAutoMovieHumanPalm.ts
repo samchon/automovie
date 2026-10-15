@@ -1,5 +1,6 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
+import { AUTOMOVIE_HUMAN_WRIST_SECTION } from "../../junction/AUTOMOVIE_HUMAN_WRIST_SECTION";
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { AUTOMOVIE_HUMAN_HAND_FORM } from "./AUTOMOVIE_HUMAN_HAND_FORM";
 import { AUTOMOVIE_HUMAN_HAND_SHAPE } from "./AUTOMOVIE_HUMAN_HAND_SHAPE";
@@ -80,8 +81,8 @@ export function shapeAutoMovieHumanPalm(
 
   // section of the palm at a level, from the wrist ellipse to the metacarpal heads
   const heads: number = hand.metacarpaleII.x;
-  const aw: number = (F.wrist.breadth * props.wristCircumference) / 2;
-  const cw: number = aw * F.wrist.depth;
+  const aw: number = (AUTOMOVIE_HUMAN_WRIST_SECTION.breadth * props.wristCircumference) / 2;
+  const cw: number = aw * AUTOMOVIE_HUMAN_WRIST_SECTION.depth;
   // thickness at the heads: the section's own superellipse, of the hand breadth and the heads' exponent, enclosing the measured hand circumference
   const thickness: number = enclose(b / 2, 2 + P.arch, F.circumference * b);
   const level = (x: number): number => Math.min(1, Math.max(0, x / heads));
