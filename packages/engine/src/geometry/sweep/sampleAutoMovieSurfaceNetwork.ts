@@ -34,7 +34,11 @@ const FIT_LIMIT: number = 1e-6;
  * its four sides' points and fills the interior with Coons' bilinearly
  * blended interpolation of them (Coons 1967, MIT Project MAC TR-41); a bridge
  * takes its two loops' existing points and fills its rows with cubic Hermite
- * curves between them. Vertices are shared by identity, never by distance: a
+ * curves between them. A network curve is the centripetal Catmull-Rom spline
+ * through its nodes and points, except that at a node on a sweep its end
+ * direction is the spline's own less its part along the sweep's normal, so
+ * the curve leaves or reaches the sweep in its tangent plane and the patches
+ * it bounds can meet the sweep with one tangent plane. Vertices are shared by identity, never by distance: a
  * point of a sweep is named by the sweep and its domain coordinates rounded to
  * nine decimals, a curve point by the curve and its share, a node by its name,
  * so every patch that samples the same side at the same count welds onto the
@@ -60,7 +64,7 @@ const FIT_LIMIT: number = 1e-6;
  * @param props.tier The tier to sample.
  * @param props.fit Whether to fit controls to the limit surface; omitted, true.
  * @returns The cage, its targets, coordinates, patch grids and rings.
- * @throws Error when a name is unknown or repeated, a count is not a positive integer, a patch's opposite sides differ in count or its sides do not close, a bridge's loops differ in count or name points no patch made, a ring's positions do not match its loop, patches overlap, or the fit does not converge.
+ * @throws Error when a name is unknown or repeated, a count is not a positive integer, a curve meets a sweep along the sweep's normal, a patch's opposite sides differ in count or its sides do not close, a bridge's loops differ in count or name points no patch made, a ring's positions do not match its loop, patches overlap, or the fit does not converge.
  *
  * @evidence contracts/common.md#principled-implementation A multi-block structured cage: each block samples its defining surface (a sweep, a Coons patch of its boundary curves, or a Hermite blend between loops) on a regular grid, blocks weld by exact identity of shared sides, and the limit fit inverts the subdivision stencils so the smooth surface interpolates the samples.
  * @evidence contracts/common.md#clear-and-simple-design Sampling, welding and fitting run in one pass per patch kind; sweep compilation, curve transport and the fit are delegated to their own modules.
@@ -126,15 +130,32 @@ export const sampleAutoMovieSurfaceNetwork: (props: {
     let p: IAutoMovieSweepPath | undefined = paths.get(name);
     if (p === undefined) {
       const points: IAutoMovieVector3[] = [node(curve.from).point, ...(curve.through ?? []), node(curve.to).point];
-      const chord: IAutoMovieVector3 = Vector3.subtract(points[1]!, points[0]!);
-      // any direction off the first chord; the curve's frames are never read
-      const off: IAutoMovieVector3 =
-        Math.abs(chord.x) <= Math.abs(chord.y) && Math.abs(chord.x) <= Math.abs(chord.z)
+      // any direction off the first tangent; the curve's frames are never read
+      const off = (d: IAutoMovieVector3): IAutoMovieVector3 =>
+        Math.abs(d.x) <= Math.abs(d.y) && Math.abs(d.x) <= Math.abs(d.z)
           ? Vector3.create(1, 0, 0)
-          : Math.abs(chord.y) <= Math.abs(chord.z)
+          : Math.abs(d.y) <= Math.abs(d.z)
             ? Vector3.create(0, 1, 0)
             : Vector3.create(0, 0, 1);
-      p = frameAutoMovieSweepSpine({ points, normal: off });
+      p = frameAutoMovieSweepSpine({ points, normal: off(Vector3.subtract(points[1]!, points[0]!)) });
+      // an end on a sweep leaves or reaches it in its tangent plane: the spline's own direction less its normal part
+      const along = (end: string, u: number): IAutoMovieVector3 | undefined => {
+        const n: IAutoMovieSurfaceNetwork.INode = network.nodes![end]!;
+        if (n.type !== "sweep") return undefined;
+        const normal: IAutoMovieVector3 = surface(n.sweep).normal(n.u, n.v);
+        const t: IAutoMovieVector3 = p!.tangent(u);
+        const flat: IAutoMovieVector3 = Vector3.subtract(t, Vector3.scale(normal, Vector3.dot(t, normal)));
+        if (!(Vector3.length(flat) > 1e-9)) throw new Error(`curve ${name} meets sweep ${n.sweep} along its normal`);
+        return flat;
+      };
+      const start: IAutoMovieVector3 | undefined = along(curve.from, 0);
+      const end: IAutoMovieVector3 | undefined = along(curve.to, 1);
+      if (start !== undefined || end !== undefined)
+        p = frameAutoMovieSweepSpine({
+          points,
+          normal: off(start ?? p.tangent(0)),
+          tangents: { ...(start === undefined ? {} : { start }), ...(end === undefined ? {} : { end }) },
+        });
       paths.set(name, p);
     }
     return p;
@@ -230,6 +251,7 @@ export const sampleAutoMovieSurfaceNetwork: (props: {
     return out;
   };
 
+  const blend: Set<number> = new Set();
   const faces: number[][] = [];
   const corners: IAutoMovieSurfaceCage["corners"] = [];
   const uvs: number[] = [];
@@ -343,6 +365,7 @@ export const sampleAutoMovieSurfaceNetwork: (props: {
             Vector3.add(Vector3.scale(pt(0, rows), (1 - s) * t), Vector3.scale(pt(columns, rows), s * t)),
           );
           grid[j]![i] = vertex(`p|${p}|${i}|${j}`, (): IAutoMovieVector3 => Vector3.subtract(ruled, corner));
+          blend.add(grid[j]![i]!);
         }
       emit(p, grid, columns, rows, false);
     } else {
@@ -357,24 +380,51 @@ export const sampleAutoMovieSurfaceNetwork: (props: {
       const at = (i: number): IAutoMovieVector3 => Vector3.create(targets[3 * i]!, targets[3 * i + 1]!, targets[3 * i + 2]!);
       const ia: number[] = a.map((x: ISample): number => joined(x, `${what} from loop`));
       const ib: number[] = b.map((x: ISample): number => joined(x, `${what} to loop`));
-      // direction of travel at a loop point; across, it is the surface normal crossed with the loop's direction
-      const direction = (loopPoints: ISample[], indices: number[], k: number, rule: IAutoMovieSurfaceNetwork.ILoop["tangent"]): IAutoMovieVector3 => {
+      // a loop's arc length at each point, closed, so the loop can be read at any distance along it
+      const arcs = (indices: number[]): number[] => {
+        const out: number[] = [0];
+        for (let k: number = 1; k <= n; ++k)
+          out.push(out[k - 1]! + Vector3.length(Vector3.subtract(at(indices[k % n]!), at(indices[k - 1]!))));
+        return out;
+      };
+      const along = (indices: number[], arc: number[], distance: number): IAutoMovieVector3 => {
+        const total: number = arc[n]!;
+        const d: number = ((distance % total) + total) % total;
+        let k: number = 0;
+        while (k < n - 1 && arc[k + 1]! <= d) ++k;
+        const span: number = arc[k + 1]! - arc[k]!;
+        const w: number = span > 0 ? (d - arc[k]!) / span : 0;
+        return Vector3.lerp(at(indices[k]!), at(indices[(k + 1) % n]!), w);
+      };
+      // direction of travel at a loop point; across, the surface normal crossed with the loop's chord over the column's first row either side
+      const direction = (
+        loopPoints: ISample[],
+        indices: number[],
+        arc: number[],
+        k: number,
+        reach: number,
+        rule: IAutoMovieSurfaceNetwork.ILoop["tangent"],
+      ): IAutoMovieVector3 => {
         const t: IAutoMovieVector3 = loopPoints[k]!.tangent(rule);
         if (rule !== "across") return t;
-        const along: IAutoMovieVector3 = Vector3.subtract(at(indices[(k + 1) % n]!), at(indices[(k + n - 1) % n]!));
-        return Vector3.normalize(Vector3.cross(t, along));
+        const step: number = Math.max(reach, arc[k + 1]! - arc[k]!, arc[k]! - arc[(k + n - 1) % n]! + (k === 0 ? arc[n]! : 0));
+        const chord: IAutoMovieVector3 = Vector3.subtract(along(indices, arc, arc[k]! + step), along(indices, arc, arc[k]! - step));
+        return Vector3.normalize(Vector3.cross(t, chord));
       };
+      const arcA: number[] = arcs(ia);
+      const arcB: number[] = arcs(ib);
       for (let k: number = 0; k < n; ++k) {
         grid[0]![k] = ia[k]!;
         grid[rows]![k] = ib[k]!;
         const pa: IAutoMovieVector3 = at(ia[k]!);
         const pb: IAutoMovieVector3 = at(ib[k]!);
         const m: number = tension * Vector3.length(Vector3.subtract(pb, pa));
-        const ta: IAutoMovieVector3 = Vector3.scale(direction(a, ia, k, patch.from.tangent), m);
-        const tb: IAutoMovieVector3 = Vector3.scale(direction(b, ib, k, patch.to.tangent), m);
+        const ta: IAutoMovieVector3 = Vector3.scale(direction(a, ia, arcA, k, m / rows, patch.from.tangent), m);
+        const tb: IAutoMovieVector3 = Vector3.scale(direction(b, ib, arcB, k, m / rows, patch.to.tangent), m);
         for (let j: number = 1; j < rows; ++j) {
           const t: number = j / rows;
           const h: number[] = [2 * t ** 3 - 3 * t ** 2 + 1, t ** 3 - 2 * t ** 2 + t, -2 * t ** 3 + 3 * t ** 2, t ** 3 - t ** 2];
+          blend.add(targets.length / 3);
           grid[j]![k] = vertex(`p|${p}|${k}|${j}`, (): IAutoMovieVector3 =>
             Vector3.add(
               Vector3.add(Vector3.scale(pa, h[0]!), Vector3.scale(ta, h[1]!)),
@@ -422,7 +472,9 @@ export const sampleAutoMovieSurfaceNetwork: (props: {
   let positions: number[] = [...targets];
   let residual: number = 0;
   if (props.fit ?? true) {
-    const fitted: { positions: number[]; residual: number } = fitAutoMovieSubdivisionLimit({ faces, targets, pinned });
+    // blend vertices are controls of their own construction, not samples of a surface to pass through
+    const held: boolean[] = pinned.map((p: boolean, i: number): boolean => p || blend.has(i));
+    const fitted: { positions: number[]; residual: number } = fitAutoMovieSubdivisionLimit({ faces, targets, pinned: held });
     let extent: number = 0;
     for (let axis: number = 0; axis < 3; ++axis) {
       let low: number = Infinity;
