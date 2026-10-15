@@ -8,6 +8,7 @@ import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanSkeleton } from "../../skeleton/IAutoMovieHumanSkeleton";
 import { IAutoMovieHumanIdentity } from "../../structures/IAutoMovieHumanIdentity";
 import { AUTOMOVIE_HUMAN_HAND_FORM } from "./AUTOMOVIE_HUMAN_HAND_FORM";
+import { AUTOMOVIE_HUMAN_HAND_SHAPE } from "./AUTOMOVIE_HUMAN_HAND_SHAPE";
 import { AutoMovieHumanHandSketch } from "./AutoMovieHumanHandSketch";
 import { calibrateAutoMovieHumanHand } from "./calibrateAutoMovieHumanHand";
 import { readAutoMovieHumanHand } from "./readAutoMovieHumanHand";
@@ -155,6 +156,7 @@ const fingerForm = (
   const L: number = digit.length;
   const wp: number = F.fingers[finger].pip * arm.handBreadth;
   const wd: number = F.fingers[finger].dip * arm.handBreadth;
+  const S: typeof AUTOMOVIE_HUMAN_HAND_SHAPE.finger = AUTOMOVIE_HUMAN_HAND_SHAPE.finger;
   const dp: number = F.depth.pip * wp;
   const dd: number = F.depth.dip * wd;
   const root: number = (digit.crease - digit.points[0]!.x) / L + 0.06;
@@ -178,13 +180,13 @@ const fingerForm = (
   palmar: { x: 0, y: 1, z: 0 },
   ulnar: { x: 0, y: 0, z: -1 },
   sections: [
-    section(root, wp * 1.02, dp * 1.01, 0.45, 0.74),
-    section(0.4, wp * 0.99, dp * 0.99, 0.45, 0.74),
-    section(0.5, wp, dp, 0.46, 0.74),
-    section(0.62, wp + (wd - wp) * 0.48, dp + (dd - dp) * 0.48, 0.45, 0.74),
-    section(0.75, wd, dd, 0.45, 0.74),
-    section(0.85, wd * 0.95, dd * 0.92, 0.41, 0.74),
-    section(0.94, wd * 0.78, dd * 0.74, 0.41, 0.74),
+    section(root, wp * 1.02, dp * 1.01, S.shaft, S.square),
+    section(0.4, wp * 0.99, dp * 0.99, S.shaft, S.square),
+    section(0.5, wp, dp, S.joint, S.square),
+    section(0.62, wp + (wd - wp) * 0.48, dp + (dd - dp) * 0.48, S.shaft, S.square),
+    section(0.75, wd, dd, S.joint, S.square),
+    section(0.85, wd * S.padBreadth, dd * S.padDepth, S.pad, S.square),
+    section(0.94, wd * S.tipBreadth, dd * S.tipDepth, S.pad, S.square),
   ],
   apex: AutoMovieHumanVector.offset(digit.points[3]!, [{ x: 0, y: 1, z: 0 }, 0.1 * dd]),
   };

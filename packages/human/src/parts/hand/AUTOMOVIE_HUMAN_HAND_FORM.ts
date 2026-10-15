@@ -32,9 +32,9 @@ export const AUTOMOVIE_HUMAN_HAND_FORM = {
   wrist: { breadth: 0.377, depth: 0.673 },
 
   /**
-   * Palm thickness at the metacarpal heads over hand breadth. ANSUR II hand circumference over metacarpales II and V is 2.388 and 2.406 times hand breadth (Gordon et al. 2014, NATICK/TR-15/007); a section of superellipse exponent 3, between the oval wrist and the boxy hand, with that breadth and perimeter is 0.34 and 0.355 of the breadth thick. The share of it dorsal to the plane of the metacarpophalangeal joint centres is conventional: a metacarpal head with thin extensor cover above, the volar plate, flexor tendons and palmar pad below. Grade: derived thickness, conventional split.
+   * Palm thickness at the metacarpal heads over hand breadth. ANSUR II hand circumference over metacarpales II and V is 2.388 and 2.406 times hand breadth (Gordon et al. 2014, NATICK/TR-15/007); a section of superellipse exponent 3, between the oval wrist and the boxy hand, with that breadth and perimeter is 0.34 and 0.355 of the breadth thick. Grade: derived.
    */
-  palm: { thickness: 0.35, dorsal: 0.4 },
+  palm: { thickness: 0.35 },
 
   /**
    * Depth of the web between thumb and index below the wrist crease, over hand length (Greiner 1991, crotch 1 height: 62.8 and 69.1 mm). Grade: measured, ratio derived.
