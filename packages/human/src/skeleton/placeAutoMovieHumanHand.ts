@@ -77,7 +77,7 @@ type IFinger = "Index" | "Middle" | "Ring" | "Little";
  *
  * The hand hangs from the wrist: distal is down, the palm faces the thigh and the thumb points forward. Wrist-to-fingertip length is the hand length less the wrist centre's offset below stylion, so the middle fingertip lands at stylion minus hand length. Every finger is straight, the rest pose of the T-pose rig, with its joints spaced 2:1:1. The thumb chain leaves the carpometacarpal joint at its rest spread.
  *
- * Each finger joint declares its own axes from the hand frame: flexion turns the finger toward the palm (axis = distal × palmar), abduction turns it away from the middle finger in the palm plane (the middle finger toward the thumb), twist runs along it. The thumb's flexion turns it toward the ulnar side of the palm across its pad, abduction moves it away from the palm. These are the axes core issue #2807 will let a rig declare; the T-pose conversion turns them with the arm.
+ * Each finger joint declares its own axes from the hand frame: flexion turns the finger toward the palm (axis = distal × palmar), abduction turns it away from the middle finger in the palm plane (the middle finger toward the thumb), twist runs along it. The thumb's flexion turns it toward the ulnar side of the palm across its pad, abduction moves it away from the palm. The three are mutually perpendicular, as `IAutoMovieBone.axes` requires; the T-pose conversion turns them with the arm.
  *
  * @param arm The arm's measurements
  * @param side Which hand
@@ -162,7 +162,9 @@ export function placeAutoMovieHumanHand(
     ],
     {
       flexion: V.cross(along, pad),
-      abduction: V.cross(pad, along),
+      // about the pad's own direction, signed so a positive turn carries the tip palmar, out of the palm's plane
+      abduction:
+        V.dot(V.cross(pad, along), palmar) >= 0 ? pad : V.offset(V.of(0, 0, 0), [pad, -1]),
       twist: along,
     },
   );
