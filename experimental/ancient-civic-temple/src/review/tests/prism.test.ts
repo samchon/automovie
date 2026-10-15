@@ -10,9 +10,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { buildAutoMoviePolyhedron } from "@automovie/engine";
-import { rectanglePolygon } from "../../geometry/planar-domain";
-import { levelPlane, prismFaces } from "../../geometry/prism";
-import { accountFaces, assertClosed, near } from "./fixtures";
+import { rectanglePolygon } from "../../geometry/rectanglePolygon";
+import { prismFaces } from "../../geometry/prismFaces";
+import { levelPlane } from "../../geometry/levelPlane";
+import { assertClosed } from "./assertClosed";
+import { near } from "./near";
+import { accountFaces } from "./accountFaces";
 
 const square = rectanglePolygon({ west: 0, east: 2, north: 0, south: 3 });
 

@@ -5,7 +5,7 @@ import {
   inspectAutoMovieMeshTopology,
   validateMeshTopology,
 } from "@automovie/engine";
-import { TempleRectilinearUnion } from "../../models/rectilinear-union";
+import { TempleRectilinearUnion } from "../../models/TempleRectilinearUnion";
 
 const p = (x:number,y:number,z:number)=>({ x,y,z });
 const unit={ min:p(0,0,0),max:p(1,1,1) };

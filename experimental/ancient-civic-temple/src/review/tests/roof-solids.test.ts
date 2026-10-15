@@ -10,10 +10,20 @@
  */
 import assert from "node:assert/strict";
 import test from "node:test";
-import { rectanglePolygon, type RoofPatch } from "../../geometry/planar-domain";
-import { gablePlanes, leanToPlanes, roofVerticalThickness, type RoofRules } from "../../geometry/roof-planes";
-import { ceilingBoardFaces, roofSlabFaces, roofStepClosures } from "../../geometry/roof-solids";
-import { accountFaces, assertClosed, faceArea, near, planArea } from "./fixtures";
+import { rectanglePolygon } from "../../geometry/rectanglePolygon";
+import { type RoofPatch } from "../../geometry/RoofPatch";
+import { roofVerticalThickness } from "../../geometry/roofVerticalThickness";
+import { leanToPlanes } from "../../geometry/leanToPlanes";
+import { gablePlanes } from "../../geometry/gablePlanes";
+import { type RoofRules } from "../../geometry/RoofRules";
+import { roofSlabFaces } from "../../geometry/roofSlabFaces";
+import { roofStepClosures } from "../../geometry/roofStepClosures";
+import { ceilingBoardFaces } from "../../geometry/ceilingBoardFaces";
+import { assertClosed } from "./assertClosed";
+import { planArea } from "./planArea";
+import { faceArea } from "./faceArea";
+import { near } from "./near";
+import { accountFaces } from "./accountFaces";
 
 const patch = (overrides: Partial<RoofPatch> = {}): RoofPatch => ({
   id: "p", owner: "roof-test", surface: "surface.roof-test.upper", tier: "wing",

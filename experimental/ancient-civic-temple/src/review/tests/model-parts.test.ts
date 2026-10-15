@@ -7,9 +7,12 @@
  */
 import assert from "node:assert/strict";
 import test from "node:test";
-import { identityTransform, surfaceModel } from "../../geometry/model-parts";
-import { accountModel } from "../mesh-ledger";
-import { assertClosed, boxFaces, v } from "./fixtures";
+import { surfaceModel } from "../../geometry/surfaceModel";
+import { identityTransform } from "../../geometry/identityTransform";
+import { accountModel } from "../accountModel";
+import { assertClosed } from "./assertClosed";
+import { boxFaces } from "./boxFaces";
+import { v } from "./v";
 
 void test("parts are grouped per surface in sorted order, unbound, and the whole model is closed", () => {
   const faces = boxFaces({ west: 0, east: 1, bottom: 0, top: 1, north: 0, south: 1 })

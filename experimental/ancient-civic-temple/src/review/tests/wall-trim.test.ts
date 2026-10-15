@@ -9,10 +9,15 @@
  */
 import assert from "node:assert/strict";
 import test from "node:test";
-import { copingCells, copingFaces, plinthCells, plinthFaces, type WallTrimInput } from "../../geometry/wall-trim";
-import { rectanglePolygon } from "../../geometry/planar-domain";
-import type { WallSpec } from "../../geometry/wall-solids";
-import { accountFaces, assertClosed } from "./fixtures";
+import { type WallTrimInput } from "../../geometry/WallTrimInput";
+import { plinthFaces } from "../../geometry/plinthFaces";
+import { plinthCells } from "../../geometry/plinthCells";
+import { copingFaces } from "../../geometry/copingFaces";
+import { copingCells } from "../../geometry/copingCells";
+import { rectanglePolygon } from "../../geometry/rectanglePolygon";
+import type { WallSpec } from "../../geometry/WallSpec";
+import { assertClosed } from "./assertClosed";
+import { accountFaces } from "./accountFaces";
 
 const parapet = (overrides: Partial<WallSpec> = {}): WallSpec => ({
   id: "wall.front", owner: "front", axis: "x", bottom: -0.42,

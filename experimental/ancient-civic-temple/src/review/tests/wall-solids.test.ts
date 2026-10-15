@@ -10,10 +10,18 @@
  */
 import assert from "node:assert/strict";
 import test from "node:test";
-import { cullCoincidentVerticalFaces } from "../../geometry/face-culling";
-import { rectanglePolygon, type RoofPatch } from "../../geometry/planar-domain";
-import { clipOutlineAtHeight, clipOutlineAtLine, wallColumns, wallFaces, type WallSpec } from "../../geometry/wall-solids";
-import { accountFaces, assertClosed, near, planArea } from "./fixtures";
+import { cullCoincidentVerticalFaces } from "../../geometry/cullCoincidentVerticalFaces";
+import { rectanglePolygon } from "../../geometry/rectanglePolygon";
+import { type RoofPatch } from "../../geometry/RoofPatch";
+import { wallFaces } from "../../geometry/wallFaces";
+import { clipOutlineAtLine } from "../../geometry/clipOutlineAtLine";
+import { clipOutlineAtHeight } from "../../geometry/clipOutlineAtHeight";
+import { wallColumns } from "../../geometry/wallColumns";
+import { type WallSpec } from "../../geometry/WallSpec";
+import { assertClosed } from "./assertClosed";
+import { planArea } from "./planArea";
+import { near } from "./near";
+import { accountFaces } from "./accountFaces";
 
 const wall = (overrides: Partial<WallSpec> = {}): WallSpec => ({
   id: "wall.test", owner: "test", axis: "x", bottom: 0,

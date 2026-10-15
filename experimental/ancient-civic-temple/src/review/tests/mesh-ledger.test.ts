@@ -7,8 +7,14 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { buildAutoMoviePolyhedron } from "@automovie/engine";
-import { accountMeshes, closureFindings, partitionNamedSheetTriangles } from "../mesh-ledger";
-import { accountFaces, assertClosed, boxFaces, near, v } from "./fixtures";
+import { closureFindings } from "../closureFindings";
+import { partitionNamedSheetTriangles } from "../partitionNamedSheetTriangles";
+import { accountMeshes } from "../accountMeshes";
+import { assertClosed } from "./assertClosed";
+import { boxFaces } from "./boxFaces";
+import { near } from "./near";
+import { accountFaces } from "./accountFaces";
+import { v } from "./v";
 
 const unit = { west: 0, east: 1, bottom: 0, top: 1, north: 0, south: 1 };
 

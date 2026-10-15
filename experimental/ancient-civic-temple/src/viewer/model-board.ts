@@ -5,7 +5,7 @@
  * browser code. The grey floor, walk envelope and light are inspection aids.
  */
 import * as THREE from "three";
-import type { createModelBoardPayload } from "./model-board-payload";
+import type { createModelBoardPayload } from "./createModelBoardPayload";
 interface ModelBoardSource { basis: string; payload: ReturnType<typeof createModelBoardPayload>; }
 type BoardPoint = [number, number, number];
 function required<T extends Element>(selector: string, kind: new () => T): T {

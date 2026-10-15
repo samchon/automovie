@@ -5,9 +5,12 @@
  */
 import assert from "node:assert/strict";
 import test from "node:test";
-import { rectanglePolygon } from "../../geometry/planar-domain";
-import { lastScan, scanOverlaps, solidsContaining, type ScanSolid } from "../envelope-overlaps";
-import { near } from "./fixtures";
+import { rectanglePolygon } from "../../geometry/rectanglePolygon";
+import { scanOverlaps } from "../scanOverlaps";
+import { solidsContaining } from "../solidsContaining";
+import { lastScan } from "../lastScan";
+import { type ScanSolid } from "../ScanSolid";
+import { near } from "./near";
 
 const solid = (group: string, west: number, east: number, bottom: number, top: number, slopeX = 0): ScanSolid => ({
   group, polygon: rectanglePolygon({ west, east, north: 0, south: 1 }),

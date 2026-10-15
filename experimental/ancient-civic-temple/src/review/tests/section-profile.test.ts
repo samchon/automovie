@@ -6,10 +6,10 @@
  */
 import assert from "node:assert/strict";
 import test from "node:test";
-import { rectanglePolygon } from "../../geometry/planar-domain";
-import type { ScanSolid } from "../envelope-overlaps";
-import { sectionProfile } from "../section-profile";
-import { near } from "./fixtures";
+import { rectanglePolygon } from "../../geometry/rectanglePolygon";
+import type { ScanSolid } from "../ScanSolid";
+import { sectionProfile } from "../sectionProfile";
+import { near } from "./near";
 
 const box = (group: string, top = { x: 0, z: 0, constant: 2 }): ScanSolid => ({
   group, polygon: rectanglePolygon({ west: 0, east: 4, north: 0, south: 1 }), bottom: { x: 0, z: 0, constant: 0 }, top,

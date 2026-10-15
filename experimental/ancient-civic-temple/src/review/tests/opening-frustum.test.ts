@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { inViewerFrustum } from "../opening-frustum";
+import { inViewerFrustum } from "../inViewerFrustum";
 
 void test("perspective frustum sees its target and rejects the same opening behind the eye", () => {
   const eye = { x: 0, y: 1.6, z: 0 };

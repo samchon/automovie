@@ -9,9 +9,9 @@
  * Loading failure clears the scene and displays the error.
  */
 import * as THREE from "three";
-import type { ViewerPayload } from "./payload";
-import type { SectionPayload } from "./section";
-import type { ReviewPayload } from "../review/review-payload";
+import type { ViewerPayload } from "./ViewerPayload";
+import type { SectionPayload } from "./SectionPayload";
+import type { ReviewPayload } from "../review/ReviewPayload";
 import type { IAncientTempleViewer } from "./IAncientTempleViewer";
 interface LoadedTemple extends ReturnType<typeof uploadTemple> {
   payload: ViewerPayload;
@@ -24,9 +24,12 @@ interface TempleSectionRequest { axis: "x" | "z"; offset: number; flip: boolean;
 interface SectionShown { key: string; pieces: number; }
 interface Point3 { x: number; y: number; z: number; }
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { createTemplePresentation } from "./daylight";
-import { isTempleRoofCovering } from "./inspection-visibility";
-import { disposeTree, loadTempleTextures, uploadSupports, uploadTemple } from "./scene";
+import { createTemplePresentation } from "./createTemplePresentation";
+import { isTempleRoofCovering } from "./isTempleRoofCovering";
+import { uploadTemple } from "./uploadTemple";
+import { disposeTree } from "./disposeTree";
+import { uploadSupports } from "./uploadSupports";
+import { loadTempleTextures } from "./loadTempleTextures";
 
 /** @typedef {import("./payload.js").ViewerPayload} Payload */
 /** @typedef {Payload["observations"][number]} Observation */

@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { validateMeshTopology } from "@automovie/engine";
-import { TempleCladding } from "../../models/cladding";
+import { TempleCladding } from "../../models/TempleCladding";
 
 void test("diagonal valley cuts preserve all surviving tile parts and close valid cut faces", () => {
   const plane = { x: 1, y: 0.2, z: -0.6, constant: 0.1 };

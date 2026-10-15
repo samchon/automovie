@@ -10,8 +10,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { splitAtLevel, splitVerticalFace } from "../../geometry/face-bands";
-import { faceArea, near, v } from "./fixtures";
+import { splitVerticalFace } from "../../geometry/splitVerticalFace";
+import { splitAtLevel } from "../../geometry/splitAtLevel";
+import { faceArea } from "./faceArea";
+import { near } from "./near";
+import { v } from "./v";
 
 const owners = { below: "below", within: "within", above: "above" };
 /** Prism side-face order [a-bottom, a-top, b-top, b-bottom]; x 0..4, y 0..5, z=0 plane. */

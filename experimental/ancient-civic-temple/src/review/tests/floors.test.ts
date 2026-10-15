@@ -9,11 +9,15 @@
  */
 import assert from "node:assert/strict";
 import test from "node:test";
-import { floorBoundaryFaces } from "../../geometry/floor-faces";
-import { roomFloorInput, type FloorInput } from "../../geometry/floor-input";
-import { floorSupportSurfaces } from "../../geometry/floor-supports";
-import type { DoorPassage } from "../../geometry/spatial-cells";
-import { accountFaces, assertClosed, near, planArea } from "./fixtures";
+import { floorBoundaryFaces } from "../../geometry/floorBoundaryFaces";
+import { type FloorInput } from "../../geometry/FloorInput";
+import { roomFloorInput } from "../../geometry/roomFloorInput";
+import { floorSupportSurfaces } from "../../geometry/floorSupportSurfaces";
+import type { DoorPassage } from "../../geometry/DoorPassage";
+import { assertClosed } from "./assertClosed";
+import { planArea } from "./planArea";
+import { near } from "./near";
+import { accountFaces } from "./accountFaces";
 
 const door: DoorPassage = {
   id: "door-a", boundary: "b", room: "a", adjacent: "c", axis: "x", center: 1, wallLow: 3, wallHigh: 3.3,
