@@ -1,7 +1,7 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieHumanSide } from "../../junction/AutoMovieHumanSide";
-import { IAutoMovieHumanRingLayout } from "../../junction/IAutoMovieHumanRingLayout";
+import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
 
 /**
  * Every point of the trunk's control cage by its anatomical slot, before connectivity.
@@ -28,23 +28,23 @@ export interface IAutoMovieHumanTrunkPoints {
   /** Rings of each thigh down to the cut, in the thigh ring's layout order, the last ring the cut itself. */
   legs: Record<AutoMovieHumanSide, IAutoMovieVector3[][]>;
 
-  /** The ring layouts of the trunk's five openings. */
+  /** The shared shapes of the trunk's five rings. */
   layouts: IAutoMovieHumanTrunkPoints.ILayouts;
 }
 export namespace IAutoMovieHumanTrunkPoints {
   /**
-   * Where the trunk opens its rings.
+   * The shared ring shapes where the trunk opens.
    *
    * @author Samchon
    */
   export interface ILayouts {
     /** The neck base. */
-    neck: IAutoMovieHumanRingLayout;
+    neck: IAutoMovieHumanRingShape;
 
     /** Each mid upper arm. */
-    arm: Record<AutoMovieHumanSide, IAutoMovieHumanRingLayout>;
+    arm: Record<AutoMovieHumanSide, IAutoMovieHumanRingShape>;
 
     /** Each mid thigh. */
-    thigh: Record<AutoMovieHumanSide, IAutoMovieHumanRingLayout>;
+    thigh: Record<AutoMovieHumanSide, IAutoMovieHumanRingShape>;
   }
 }

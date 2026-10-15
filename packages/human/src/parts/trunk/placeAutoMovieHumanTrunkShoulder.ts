@@ -1,6 +1,6 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
-import { IAutoMovieHumanRingLayout } from "../../junction/IAutoMovieHumanRingLayout";
+import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanTrunkFrame } from "./IAutoMovieHumanTrunkFrame";
 import { profileAutoMovieHumanTrunk } from "./profileAutoMovieHumanTrunk";
@@ -18,9 +18,9 @@ const ARM_RINGS: Array<{
   rise: number;
   radii: [number, number, number, number];
 }> = [
-  { out: 0.03, rise: 0.02, radii: [1.2, 0.92, 1.18, 0] },
-  { out: 0.17, rise: 0.015, radii: [1.14, 0.97, 1.12, 1.12] },
-  { out: 0.31, rise: 0.003, radii: [1.02, 0.99, 1.02, 0.97] },
+  { out: 0.02, rise: 0.02, radii: [1.24, 0.92, 1.22, 0] },
+  { out: 0.15, rise: 0.015, radii: [1.17, 0.99, 1.15, 1.13] },
+  { out: 0.31, rise: 0.004, radii: [1.04, 1.0, 1.04, 0.98] },
 ];
 
 /**
@@ -28,22 +28,22 @@ const ARM_RINGS: Array<{
  *
  * The opening's eight slots, in the arm ring's layout order, are the deltopectoral groove (front), the anterior axillary fold's root on the chest wall, the armpit's apex, the posterior fold's root, the back of the shoulder over the scapula, the back and top of the acromion and the front of the acromioclavicular joint. The axillary folds' roots are the two extraordinary vertices of the opening, where the pectoral and the latissimus diverge from the chest wall into the arm. The top edge runs along the clavicle, convex forward in its medial part and concave in its lateral third (Gray 1918), and behind it along the upper border of the trapezius from cervicale to the acromion; the crest between them rises from the side of the neck and dips to the acromion, raised by the trapezius' bulk.
  *
- * The stub's rings are perpendicular to the arm, their radii from the measured mid upper arm girth, the deltoid fuller with muscularity; the last ring is the `upperArm` cut on its layout, a circle of the measured girth.
+ * The stub's rings are perpendicular to the arm, their radii from the measured mid upper arm girth, the deltoid fuller with muscularity; the last ring is the `upperArm` cut on the site's shared ring shape.
  *
  * @param frame The side's trunk frame, left frame
  * @param profile The side's continuous body
  * @param loops Left half torso loops, modified in place at the shoulder slots
  * @param neck The neck base ring in layout order, model frame
- * @param layout The trunk's ring layout at this side's mid upper arm
+ * @param layout The shared ring shape at this side's mid upper arm
  * @param sign 1 for the left side, -1 for the right
- * @returns The trapezius crest (c = 2, 3, 4) in the left frame, and the stub rings: three in the left frame in the left ring order, then the cut on its layout in the model frame
+ * @returns The trapezius crest (c = 2, 3, 4) in the left frame, and the stub rings: three in the left frame in the left ring order, then the cut on the shared shape in the model frame
  */
 export function placeAutoMovieHumanTrunkShoulder(
   frame: IAutoMovieHumanTrunkFrame,
   profile: profileAutoMovieHumanTrunk.IProfile,
   loops: IAutoMovieVector3[][],
   neck: IAutoMovieVector3[],
-  layout: IAutoMovieHumanRingLayout,
+  layout: IAutoMovieHumanRingShape,
   sign: number,
 ): placeAutoMovieHumanTrunkShoulder.IOutput {
   const V: typeof AutoMovieHumanVector = AutoMovieHumanVector;
@@ -56,14 +56,17 @@ export function placeAutoMovieHumanTrunkShoulder(
   const left = (p: IAutoMovieVector3): IAutoMovieVector3 => V.of(sign * p.x, p.y, p.z);
 
   // the opening
-  loops[12]![6] = V.of(A.x - 0.006 * S, A.y + 0.006 * S, A.z - 0.004 * S);
-  loops[12]![5] = V.of(A.x - 0.03 * S, A.y - 0.001 * S, A.z + 0.022 * S);
-  loops[12]![7] = V.of(A.x - 0.035 * S, A.y - 0.002 * S, A.z - 0.03 * S);
-  loops[11]![5] = V.of(A.x - 0.04 * S, G.y - 0.008 * S, lerp(profile.front(G.y), A.z, 0.2));
-  loops[11]![7] = V.of(A.x - 0.042 * S, G.y - 0.012 * S, lerp(profile.back(G.y), A.z, 0.12));
-  loops[10]![5] = V.of(axillaHalf * 0.9, lerp(ax, G.y, 0.2), lerp(profile.widest(ax), profile.front(ax), 0.55));
-  loops[10]![6] = V.of(axillaHalf * 0.93, lerp(ax, G.y, 0.45), profile.widest(ax) - 0.004 * S);
-  loops[10]![7] = V.of(axillaHalf * 0.9, lerp(ax, G.y, 0.05), lerp(profile.widest(ax), profile.back(ax), 0.6));
+  // slots between the chest wall under the arm (0) and the acromion (1)
+  const reach: number = Math.max(A.x - axillaHalf, 0.03 * S);
+  const across = (t: number): number => A.x - (1 - t) * reach;
+  loops[12]![6] = V.of(across(0.88), A.y + 0.004 * S, A.z - 0.004 * S);
+  loops[12]![5] = V.of(across(0.7), A.y - 0.003 * S, A.z + 0.022 * S);
+  loops[12]![7] = V.of(across(0.66), A.y - 0.004 * S, A.z - 0.028 * S);
+  loops[11]![5] = V.of(across(0.5), G.y - 0.01 * S, lerp(profile.front(G.y), A.z, 0.25));
+  loops[11]![7] = V.of(across(0.46), G.y - 0.014 * S, lerp(profile.back(G.y), A.z, 0.2));
+  loops[10]![5] = V.of(across(0.06), lerp(ax, G.y, 0.25), lerp(profile.widest(ax), profile.front(ax), 0.5));
+  loops[10]![6] = V.of(across(0.3), lerp(ax, G.y, 0.5), profile.widest(ax) - 0.004 * S);
+  loops[10]![7] = V.of(across(0.06), lerp(ax, G.y, 0.1), lerp(profile.widest(ax), profile.back(ax), 0.55));
 
   // the clavicle, its medial part convex forward
   const cl: IAutoMovieVector3 = frame.clavicale;
@@ -79,17 +82,17 @@ export function placeAutoMovieHumanTrunkShoulder(
       lerp(cl.z, A.z, t) + bulge + skin + 0.006 * S,
     );
   }
-  // the upper border of the trapezius behind
+  // the back edge: the trapezius rounding over just below and behind its crest
   const c7: IAutoMovieVector3 = frame.cervicale;
   for (const [j, t] of [
-    [9, 0.55],
-    [8, 0.78],
+    [9, 0.4],
+    [8, 0.72],
   ] as const)
     loops[12]![j] = V.of(
-      lerp(0, A.x - 0.035 * S, t),
-      lerp(c7.y - 0.012 * S, A.y - 0.012 * S, Math.pow(t, 0.55)),
-      lerp(c7.z - 0.01 * S, A.z - 0.04 * S, Math.pow(t, 0.8)) -
-        0.012 * S * Math.sin(Math.PI * t),
+      lerp(0.03 * S, A.x - 0.03 * S, t),
+      lerp(c7.y - 0.012 * S, A.y - 0.008 * S, Math.pow(t, 1.3)),
+      lerp(c7.z - 0.004 * S, A.z - 0.04 * S, Math.pow(t, 0.8)) -
+        0.01 * S * Math.sin(Math.PI * t),
     );
   // the neck base ring's slots of this side
   const ring = (k: number): IAutoMovieVector3 =>
@@ -108,8 +111,8 @@ export function placeAutoMovieHumanTrunkShoulder(
     crest.push(
       V.of(
         lerp(side.x, A.x - 0.006 * S, t),
-        lerp(side.y, A.y + 0.006 * S, Math.pow(t, 0.7)) +
-          0.004 * S * Math.sin(Math.PI * t) * (1 + 0.6 * frame.muscle),
+        lerp(side.y, A.y + 0.004 * S, Math.pow(t, 1.3)) +
+          0.003 * S * Math.sin(Math.PI * t) * frame.muscle,
         lerp(side.z, A.z - 0.006 * S, t) - 0.004 * S,
       ),
     );
@@ -117,7 +120,7 @@ export function placeAutoMovieHumanTrunkShoulder(
   // the arm stub, layout order of the left arm: front, then down, back and up
   const radius: number = frame.armGirth / (2 * Math.PI);
   const deltoid: number = 1 + 0.18 * frame.muscle;
-  const top: number = A.y + 0.008 * S * deltoid - G.y;
+  const top: number = A.y + 0.01 * S * deltoid - G.y;
   const rings: IAutoMovieVector3[][] = ARM_RINGS.map(({ out, rise, radii }) => {
     const x: number = A.x + out * frame.upperArmLength;
     const cy: number = G.y + rise * frame.upperArmLength;
@@ -135,10 +138,7 @@ export function placeAutoMovieHumanTrunkShoulder(
       return V.of(x, cy + dy * (dy <= 0 ? r[1] : r[3]), G.z + dz * (dz >= 0 ? r[0] : r[2]));
     });
   });
-  const cut: IAutoMovieVector3[] = layout.directions.map(
-    (d: IAutoMovieVector3): IAutoMovieVector3 =>
-      V.offset(layout.frame.origin, [d, radius / EIGHT_SPAN_LIMIT]),
-  );
+  const cut: IAutoMovieVector3[] = layout.positions;
   return { crest, rings, cut };
 }
 export namespace placeAutoMovieHumanTrunkShoulder {
@@ -154,7 +154,7 @@ export namespace placeAutoMovieHumanTrunkShoulder {
     /** Stub rings outward from the opening, left frame, the left arm's ring order. */
     rings: IAutoMovieVector3[][];
 
-    /** The `upperArm` cut in its layout order, model frame. */
+    /** The `upperArm` cut on the shared shape, layout order, model frame. */
     cut: IAutoMovieVector3[];
   }
 }

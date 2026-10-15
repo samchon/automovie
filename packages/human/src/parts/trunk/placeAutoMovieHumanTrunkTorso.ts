@@ -62,8 +62,8 @@ export function placeAutoMovieHumanTrunkTorso(
     [L.costal, L.costal + 0.004 * S, L.costal + 0.008 * S],
     [L.fold, L.fold + 0.008 * S, L.fold + 0.014 * S],
     [L.chestPoint, L.chestPoint + 0.012 * S, L.chestPoint + 0.02 * S],
-    [L.axilla + 0.012 * S, L.axilla, lerp(L.axilla, c7, 0.15)],
-    [lerp(L.axilla, frame.suprasternale.y, 0.55), frame.shoulder.y, lerp(L.axilla, c7, 0.42)],
+    [L.axilla + 0.012 * S, L.axilla, lerp(L.axilla, c7, 0.22)],
+    [lerp(L.axilla, frame.suprasternale.y, 0.55), frame.shoulder.y, lerp(L.axilla, c7, 0.55)],
     [frame.suprasternale.y, frame.acromion.y, c7],
   ];
   const loops: IAutoMovieVector3[][] = heights.map(
