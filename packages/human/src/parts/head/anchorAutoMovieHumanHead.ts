@@ -8,17 +8,15 @@ import { buildAutoMovieHumanHeadTopology } from "./buildAutoMovieHumanHeadTopolo
 import { frameAutoMovieHumanHead } from "./frameAutoMovieHumanHead";
 
 /**
- * Place the head cage's anchored vertices in the head frame: the rings, the feature loops and the box corners.
+ * Place the head cage's anchored vertices in the head frame: the feature loops and the box corners. The rings are anchored by the generator on the shared ring shapes.
  *
  * Everything else in the cage settles between these by relaxation over the skin, so these are the head's semantic coordinates: every one is set from a landmark or a measurement, never from a vertex of another person.
  *
- * - Neck ring: in the mandibular plane, each vertex where its ring direction leaves the skin, so it follows the mandible's lower border in front and the nape behind.
- * - Ear rings: around tragion on an ellipse of the auricle's attachment, proportioned to the ear length, pressed onto the side of the head.
  * - Eyes: the orbital rim on the skin around the eye; the lid sulcus, the lid margin and its inner edge on spheres about the eyeball's centre a lid's thickness out, the margin tracing the palpebral fissure from endocanthion to exocanthion. This is the neutral eye region the eye module refines.
  * - Mouth: the outer lip border along the nose base and the labiomental fold, the vermilion border with its cupid's bow, the lip crest and the closed inner edge. This is the neutral mouth region the mouth module refines.
  * - Box corners: the zygomatic prominences, the frontal eminences, the parietal eminences and the occiput behind the mastoids.
  *
- * @param props Topology, field, frame, measurements and the ring layouts in the head frame
+ * @param props Topology, field, frame and measurements
  * @returns Local position of every anchored vertex, by vertex index
  */
 export function anchorAutoMovieHumanHead(props: {
@@ -26,7 +24,6 @@ export function anchorAutoMovieHumanHead(props: {
   field: AutoMovieHumanHeadField;
   frame: frameAutoMovieHumanHead.IFrame;
   measurements: IAutoMovieHumanMeasurements;
-  neck: { origin: IAutoMovieVector3; directions: IAutoMovieVector3[] };
 }): Map<number, IAutoMovieVector3> {
   const { topology, field, frame } = props;
   const head: IAutoMovieHumanIdentity.IHead = props.measurements.identity.head;
@@ -40,29 +37,6 @@ export function anchorAutoMovieHumanHead(props: {
   /** The skin straight in front of a frontal-plane point. */
   const front = (x: number, y: number): IAutoMovieVector3 =>
     field.project(v(x, y, 0), v(0, 0, 1));
-
-  // neck ring in the mandibular plane
-  topology.neck.forEach((vertex: number, b: number): void => {
-    anchors.set(vertex, field.project(props.neck.origin, props.neck.directions[b]!));
-  });
-
-  // ear rings around tragion
-  const ears: Array<["left" | "right", number, IAutoMovieHumanIdentity.IEar]> = [
-    ["left", 1, head.leftEar],
-    ["right", -1, head.rightEar],
-  ];
-  for (const [side, sign, ear] of ears)
-    for (const entry of topology.ears[side]) {
-      const up: number = entry.up * (entry.up > 0 ? 0.3 : 0.42) * ear.earLength;
-      const forward: number = entry.forward * (entry.forward > 0 ? 0.08 : 0.3) * ear.earLength;
-      const diagonal: number = entry.up !== 0 && entry.forward !== 0 ? Math.SQRT1_2 : 1;
-      const p: IAutoMovieVector3 = v(
-        0,
-        frame.tragion.y + up * diagonal,
-        frame.tragion.z + forward * diagonal,
-      );
-      anchors.set(entry.vertex, field.project(p, v(sign, 0, 0)));
-    }
 
   // eyes
   const fissure: number = EYE.fissureWidth * fw;
@@ -108,7 +82,11 @@ export function anchorAutoMovieHumanHead(props: {
       anchors.set(loops[1]![i]!, lid(1.15 * mx, 1.45 * my + (s >= 0 ? 0.08 : -0.04) * fissure, 2.8));
       anchors.set(loops[2]![i]!, lid(mx, my, 1.4));
       anchors.set(loops[3]![i]!, lid(0.97 * mx, 0.8 * my, 0.2));
+      // the pocket behind the lids, inside the eyeball's volume so the eyeball covers it
+      anchors.set(loops[4]![i]!, lid(0.85 * mx, 0.5 * my, -0.25 * radius));
     });
+    for (const { vertex, offset } of topology.pockets[feature])
+      anchors.set(vertex, v(eye.x + sign * 0.3 * fissure * offset[0], eye.y, eye.z + 0.5 * radius));
   }
 
   // mouth
@@ -143,7 +121,18 @@ export function anchorAutoMovieHumanHead(props: {
       mouth[3]![i]!,
       base(0.95 * x, sto.y + Math.sign(height) * 0.004 * fh, bulge - 0.025 * fh),
     );
+    // the pocket behind the closed lips, where the mouth's interior will open
+    anchors.set(
+      mouth[4]![i]!,
+      base(0.85 * x, sto.y + Math.sign(height) * 0.012 * fh, bulge - 0.07 * fh),
+    );
   });
+
+  for (const { vertex, offset } of topology.pockets.mouth)
+    anchors.set(vertex, (() => {
+      const p: IAutoMovieVector3 = front(0.6 * half * offset[0], sto.y);
+      return v(p.x, p.y, p.z - 0.1 * fh);
+    })());
 
   // box corners
   const B: number = props.measurements.headBreadth / 2;

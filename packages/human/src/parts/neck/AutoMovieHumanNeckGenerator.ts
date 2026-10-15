@@ -2,8 +2,8 @@ import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieHumanCageBuilder } from "../../junction/AutoMovieHumanCageBuilder";
 import { IAutoMovieHumanCage } from "../../junction/IAutoMovieHumanCage";
-import { IAutoMovieHumanRingLayout } from "../../junction/IAutoMovieHumanRingLayout";
-import { layoutAutoMovieHumanRing } from "../../junction/layoutAutoMovieHumanRing";
+import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
+import { shapeAutoMovieHumanRing } from "../../junction/shapeAutoMovieHumanRing";
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanSkeleton } from "../../skeleton/IAutoMovieHumanSkeleton";
 import { IAutoMovieHumanIdentity } from "../../structures/IAutoMovieHumanIdentity";
@@ -31,14 +31,13 @@ export class AutoMovieHumanNeckGenerator implements IAutoMovieHumanPartGenerator
   public generate(props: IAutoMovieHumanPartGenerator.IProps<"neck">): IAutoMovieHumanCage {
     const skeleton: IAutoMovieHumanSkeleton = props.skeleton;
     const body: IAutoMovieHumanIdentity.IBody = props.measurements.identity.body;
-    const layout = (site: "neckBase" | "neckTop"): IAutoMovieHumanRingLayout =>
-      layoutAutoMovieHumanRing({ skeleton, site, side: null, part: "neck" });
-    const base: IAutoMovieHumanRingLayout = layout("neckBase");
-    const top: IAutoMovieHumanRingLayout = layout("neckTop");
+    const shape = (site: "neckBase" | "neckTop"): IAutoMovieHumanRingShape =>
+      shapeAutoMovieHumanRing({ skeleton, measurements: props.measurements, site, side: null, part: "neck" });
+    const base: IAutoMovieHumanRingShape = shape("neckBase");
+    const top: IAutoMovieHumanRingShape = shape("neckTop");
     const sections: sectionAutoMovieHumanNeck.IOutput = sectionAutoMovieHumanNeck({
       skeleton,
       body,
-      head: props.measurements.identity.head,
       base,
       top,
     });
@@ -71,12 +70,12 @@ export class AutoMovieHumanNeckGenerator implements IAutoMovieHumanPartGenerator
       );
     };
     const stations: AutoMovieHumanCageBuilder.IStation[] = [];
-    stations.push(builder.open(base, (d: IAutoMovieVector3): number => sections.radius(base, d), 0));
+    stations.push(builder.place(base, 0));
     stations.push(builder.station(Array.from({ length: n }, (_: unknown, k: number) => along(k, 0, 0.5)), 0.2));
     stations.push(builder.station(sections.mid, 0.4));
     stations.push(builder.station(Array.from({ length: n }, (_: unknown, k: number) => along(k, 1, 1 / 3)), 0.6));
     stations.push(builder.station(Array.from({ length: n }, (_: unknown, k: number) => along(k, 1, 2 / 3)), 0.8));
-    stations.push(builder.open(top, (d: IAutoMovieVector3): number => sections.radius(top, d), 1));
+    stations.push(builder.place(top, 1));
     for (let i: number = 0; i + 1 < stations.length; ++i) builder.bridge(stations[i]!, stations[i + 1]!);
     return builder.build();
   }
