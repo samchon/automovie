@@ -57,14 +57,14 @@ const JOINT_HEIGHT: number = 0.35;
  * @param props.leg The leg's measurements
  * @param props.landmarks The side's landmarks
  * @param props.toLocal Conversion of a model point into the foot's local frame
- * @param props.origin The ankle ring's origin in the local frame
+ * @param props.ankle The ankle ring's shared shape in the local frame
  * @returns The plan
  */
 export function planAutoMovieHumanFoot(props: {
   leg: IAutoMovieHumanIdentity.ILeg;
   landmarks: IAutoMovieHumanLandmarks.ISide;
   toLocal: (point: IAutoMovieVector3) => IAutoMovieVector3;
-  origin: IAutoMovieVector3;
+  ankle: IAutoMovieHumanFootPlan.IAnkle;
 }): IAutoMovieHumanFootPlan {
   const L: number = props.leg.footLength;
   const B: number = props.leg.footBreadth;
@@ -73,8 +73,6 @@ export function planAutoMovieHumanFoot(props: {
   const heel: number = -HEEL_BEHIND_ANKLE * L;
   const along = (f: number): number => heel + f * L;
 
-  // the ankle's minimum section, an ellipse a little wider than deep with its centre behind the bone axis, where the calcaneal tendon stands off the tibia
-  const radius: number = props.leg.ankleCircumference / (2 * Math.PI);
 
   // toes from the medial border across, touching at their roots
   const total: number =
@@ -115,12 +113,7 @@ export function planAutoMovieHumanFoot(props: {
     ankleHeight: A,
     navicularHeight: props.leg.navicularHeight,
     heel,
-    ankle: {
-      origin: props.origin,
-      width: radius * Math.sqrt(1.02),
-      depth: radius / Math.sqrt(1.02),
-      behind: 0.22 * radius,
-    },
+    ankle: props.ankle,
     medial: {
       stations: [heelAt, 0.12, 0.17, 0.23, 0.3, 0.38, 0.47, 0.56, 0.65, 0.74],
       offset: [
@@ -192,6 +185,7 @@ export function planAutoMovieHumanFoot(props: {
         [0.82, 0.125],
         [0.9, 0.11],
       ],
+      lift: 1,
     },
     heelArc: {
       at: heelAt,

@@ -24,7 +24,7 @@ export function fitAutoMovieHumanFootCage(
   cage: knitAutoMovieHumanFootCage.IOutput,
 ): void {
   const ring: Set<number> = new Set(cage.ring);
-  const front: number = plan.ankle.origin.z + plan.ankle.depth;
+  const front: number = plan.ankle.origin.z + plan.ankle.radii[0]!;
   const ball: number = plan.toes[plan.toes.length - 1]!.joint.z;
   for (let pass: number = 0; pass < PASSES; ++pass) {
     const surface: IAutoMovieSubdivisionSurface = subdivideAutoMovieSurface({
