@@ -57,18 +57,25 @@ export function emitAutoMovieHumanStick(
   stature: number,
 ): emitAutoMovieHumanStick.IOutput {
   const parts: IAutoMovieModelPart[] = [];
-  const byBone: Map<AutoMovieHumanoidBone, IAutoMovieHumanSkeleton.IJoint> = new Map(
-    skeleton.joints.map(
-      (
-        joint: IAutoMovieHumanSkeleton.IJoint,
-      ): [AutoMovieHumanoidBone, IAutoMovieHumanSkeleton.IJoint] => [joint.bone, joint],
-    ),
-  );
+  const byBone: Map<AutoMovieHumanoidBone, IAutoMovieHumanSkeleton.IJoint> =
+    new Map(
+      skeleton.joints.map(
+        (
+          joint: IAutoMovieHumanSkeleton.IJoint,
+        ): [AutoMovieHumanoidBone, IAutoMovieHumanSkeleton.IJoint] => [
+          joint.bone,
+          joint,
+        ],
+      ),
+    );
   for (const joint of skeleton.joints) {
     const radius: number =
       (SMALL.test(joint.bone) ? STICK_RADIUS.small : STICK_RADIUS.large) *
       stature;
-    const length: number = AutoMovieHumanVector.distance(joint.position, joint.tail);
+    const length: number = AutoMovieHumanVector.distance(
+      joint.position,
+      joint.tail,
+    );
     const stick: number = Math.min(radius, length / 3);
     const material: string = materialOf(joint.bone);
     parts.push({
@@ -95,19 +102,37 @@ export function emitAutoMovieHumanStick(
       const gap: number = AutoMovieHumanVector.distance(root, joint.position);
       if (gap > LINK_GAP * radius)
         parts.push(
-          capsule(`${joint.bone}.link`, `${joint.bone} link`, material, parent, root, joint.position, Math.min(radius, gap / 3)),
+          capsule(
+            `${joint.bone}.link`,
+            `${joint.bone} link`,
+            material,
+            parent,
+            root,
+            joint.position,
+            Math.min(radius, gap / 3),
+          ),
         );
     }
     if (length === 0) continue;
     parts.push(
-      capsule(`${joint.bone}.stick`, `${joint.bone} stick`, material, joint, joint.position, joint.tail, stick),
+      capsule(
+        `${joint.bone}.stick`,
+        `${joint.bone} stick`,
+        material,
+        joint,
+        joint.position,
+        joint.tail,
+        stick,
+      ),
     );
   }
   // iliac wings: each hip joint up to its iliac crest, so the bony pelvis's breadth shows
   const hips: IAutoMovieHumanSkeleton.IJoint | undefined = byBone.get("hips");
   if (hips !== undefined)
     for (const side of ["left", "right"] as const) {
-      const hip: IAutoMovieHumanSkeleton.IJoint | undefined = byBone.get(`${side}UpperLeg`);
+      const hip: IAutoMovieHumanSkeleton.IJoint | undefined = byBone.get(
+        `${side}UpperLeg`,
+      );
       if (hip === undefined) continue;
       parts.push(
         capsule(
@@ -224,7 +249,11 @@ function nearestOnSegment(
   if (squared === 0) return a;
   const t: number = Math.min(
     1,
-    Math.max(0, AutoMovieHumanVector.dot(AutoMovieHumanVector.offset(p, [a, -1]), ab) / squared),
+    Math.max(
+      0,
+      AutoMovieHumanVector.dot(AutoMovieHumanVector.offset(p, [a, -1]), ab) /
+        squared,
+    ),
   );
   return AutoMovieHumanVector.offset(a, [ab, t]);
 }

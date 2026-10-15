@@ -1,12 +1,15 @@
+import {
+  IAutoMovieSubdivisionSurface,
+  subdivideAutoMovieSurface,
+} from "@automovie/engine";
 import { IAutoMovieVector3 } from "@automovie/interface";
 
-import { IAutoMovieSubdivisionSurface, subdivideAutoMovieSurface } from "@automovie/engine";
 import { AutoMovieHumanBranch } from "../../junction/AutoMovieHumanBranch";
 import { AutoMovieHumanSide } from "../../junction/AutoMovieHumanSide";
 import { IAutoMovieHumanCage } from "../../junction/IAutoMovieHumanCage";
 import { IAutoMovieHumanSurfaceCoordinate } from "../../junction/IAutoMovieHumanSurfaceCoordinate";
-import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanPartGenerator } from "../../parts/IAutoMovieHumanPartGenerator";
+import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { drawAutoMovieHumanHand } from "./drawAutoMovieHumanHand";
 import { placeAutoMovieHumanNails } from "./placeAutoMovieHumanNails";
 import { readAutoMovieHumanHand } from "./readAutoMovieHumanHand";
@@ -32,34 +35,50 @@ export class AutoMovieHumanHandGenerator implements IAutoMovieHumanPartGenerator
    * @param props Measurements, skeleton and the side of the hand
    * @returns Cage in the skeleton's model frame and millimetres, with the `wrist` ring
    */
-  public generate(props: IAutoMovieHumanPartGenerator.IProps<"hand">): IAutoMovieHumanCage {
+  public generate(
+    props: IAutoMovieHumanPartGenerator.IProps<"hand">,
+  ): IAutoMovieHumanCage {
     const drawn: drawAutoMovieHumanHand.IOutput = drawAutoMovieHumanHand(props);
     const hand: readAutoMovieHumanHand.IHand = drawn.hand;
     const toModel = (p: IAutoMovieVector3): IAutoMovieVector3 => model(hand, p);
     const reach: number = hand.fingers.Middle.points[3]!.x;
     const centre = (x: number): number =>
-      (Math.min(1, Math.max(0, x / hand.metacarpaleII.x)) * (hand.metacarpaleII.z + hand.metacarpaleV.z)) / 2;
+      (Math.min(1, Math.max(0, x / hand.metacarpaleII.x)) *
+        (hand.metacarpaleII.z + hand.metacarpaleV.z)) /
+      2;
     const chart = (t: IAutoMovieVector3): { u: number; v: number } => {
-      const turn: number = (Math.atan2(-(t.z - centre(t.x)), t.y) / (2 * Math.PI) + 1) % 1;
+      const turn: number =
+        (Math.atan2(-(t.z - centre(t.x)), t.y) / (2 * Math.PI) + 1) % 1;
       return {
         u: Math.min(1, Math.max(0, t.x / reach)),
         v: hand.mirrored ? (1 - turn) % 1 : turn,
       };
     };
     const faces: IAutoMovieHumanCage.IFace[] = drawn.quads.map(
-      (quad: readonly [number, number, number, number], f: number): IAutoMovieHumanCage.IFace => {
+      (
+        quad: readonly [number, number, number, number],
+        f: number,
+      ): IAutoMovieHumanCage.IFace => {
         const corners: [number, number, number, number] = hand.mirrored
           ? [quad[0], quad[3], quad[2], quad[1]]
           : [quad[0], quad[1], quad[2], quad[3]];
-        const digit: drawAutoMovieHumanHand.IOutput["branches"][number] | undefined = drawn.branches.find(
-          (b: drawAutoMovieHumanHand.IOutput["branches"][number]): boolean => f >= b.start && f < b.end,
+        const digit:
+          | drawAutoMovieHumanHand.IOutput["branches"][number]
+          | undefined = drawn.branches.find(
+          (b: drawAutoMovieHumanHand.IOutput["branches"][number]): boolean =>
+            f >= b.start && f < b.end,
         );
         // a digit's chart turns counterclockwise about its own distal axis, which the right hand's mirror reverses
-        const charts: Array<{ u: number; v: number }> = corners.map((v: number): { u: number; v: number } => {
-          if (digit === undefined) return chart(drawn.targets[v]!);
-          const c: { u: number; v: number } = digit.chart.get(v)!;
-          return { u: c.u, v: hand.mirrored && !Number.isNaN(c.v) ? (1 - c.v) % 1 : c.v };
-        });
+        const charts: Array<{ u: number; v: number }> = corners.map(
+          (v: number): { u: number; v: number } => {
+            if (digit === undefined) return chart(drawn.targets[v]!);
+            const c: { u: number; v: number } = digit.chart.get(v)!;
+            return {
+              u: c.u,
+              v: hand.mirrored && !Number.isNaN(c.v) ? (1 - c.v) % 1 : c.v,
+            };
+          },
+        );
         const known: number[] = charts
           .map((c: { u: number; v: number }): number => c.v)
           .filter((v: number): boolean => !Number.isNaN(v));
@@ -67,11 +86,17 @@ export class AutoMovieHumanHandGenerator implements IAutoMovieHumanPartGenerator
         const unwrapped = (v: number): number => (wrap && v < 0.5 ? v + 1 : v);
         // the tip's apex takes the mean turn of the face's other corners
         const apex: number =
-          known.reduce((sum: number, v: number): number => sum + unwrapped(v), 0) / known.length;
+          known.reduce(
+            (sum: number, v: number): number => sum + unwrapped(v),
+            0,
+          ) / known.length;
         return {
           vertices: corners,
           coordinates: charts.map(
-            (c: { u: number; v: number }): IAutoMovieHumanSurfaceCoordinate => ({
+            (c: {
+              u: number;
+              v: number;
+            }): IAutoMovieHumanSurfaceCoordinate => ({
               part: "hand",
               side: props.side,
               branch: digit?.branch ?? null,
@@ -83,9 +108,11 @@ export class AutoMovieHumanHandGenerator implements IAutoMovieHumanPartGenerator
       },
     );
     return {
-      vertices: drawn.positions.map((p: IAutoMovieVector3): IAutoMovieHumanCage.IVertex => ({
-        position: toModel(p),
-      })),
+      vertices: drawn.positions.map(
+        (p: IAutoMovieVector3): IAutoMovieHumanCage.IVertex => ({
+          position: toModel(p),
+        }),
+      ),
       faces,
       creases: [],
       rings: [
@@ -106,51 +133,92 @@ export class AutoMovieHumanHandGenerator implements IAutoMovieHumanPartGenerator
    * @param props Measurements, skeleton and side, as for `generate`
    * @returns One closed cage per digit, thumb first, model frame and millimetres, without rings
    */
-  public nails(props: IAutoMovieHumanPartGenerator.IProps<"hand">): IAutoMovieHumanCage[] {
+  public nails(
+    props: IAutoMovieHumanPartGenerator.IProps<"hand">,
+  ): IAutoMovieHumanCage[] {
     const drawn: drawAutoMovieHumanHand.IOutput = drawAutoMovieHumanHand(props);
     const surface: IAutoMovieSubdivisionSurface = subdivideAutoMovieSurface({
       cage: {
-        positions: drawn.positions.flatMap((p: IAutoMovieVector3): number[] => [p.x, p.y, p.z]),
-        faces: drawn.quads.map((q: [number, number, number, number]): number[] => [...q]),
+        positions: drawn.positions.flatMap((p: IAutoMovieVector3): number[] => [
+          p.x,
+          p.y,
+          p.z,
+        ]),
+        faces: drawn.quads.map(
+          (q: [number, number, number, number]): number[] => [...q],
+        ),
       },
       levels: 3,
     });
     const triangles: number[] = [];
     for (let q: number = 0; q < surface.faces.length; q += 4)
       triangles.push(
-        surface.faces[q]!, surface.faces[q + 1]!, surface.faces[q + 2]!,
-        surface.faces[q]!, surface.faces[q + 2]!, surface.faces[q + 3]!,
+        surface.faces[q]!,
+        surface.faces[q + 1]!,
+        surface.faces[q + 2]!,
+        surface.faces[q]!,
+        surface.faces[q + 2]!,
+        surface.faces[q + 3]!,
       );
     return placeAutoMovieHumanNails({
       hand: drawn.hand,
       breadth: drawn.arm.handBreadth,
       skin: { positions: surface.limitPositions, triangles },
-    }).map(({ positions, quads }, digit: number): IAutoMovieHumanCage => ({
-      vertices: positions.map((p: IAutoMovieVector3): IAutoMovieHumanCage.IVertex => ({
-        position: model(drawn.hand, p),
-      })),
-      // the hand frame is the left hand's mirror in the model, so the plate's outward winding there reverses
-      faces: quads.map(([a, b, c, d]: [number, number, number, number]): IAutoMovieHumanCage.IFace => ({
-        vertices: drawn.hand.mirrored ? [a, b, c, d] : [a, d, c, b],
-        coordinates: [a, b, c, d].map(
-          (): IAutoMovieHumanSurfaceCoordinate => nailAddress(props.side, NAIL_BRANCHES[digit]!),
-        ) as IAutoMovieHumanCage.IFace["coordinates"],
-      })),
-      creases: [],
-      rings: [],
-    }));
+    }).map(
+      ({ positions, quads }, digit: number): IAutoMovieHumanCage => ({
+        vertices: positions.map(
+          (p: IAutoMovieVector3): IAutoMovieHumanCage.IVertex => ({
+            position: model(drawn.hand, p),
+          }),
+        ),
+        // the hand frame is the left hand's mirror in the model, so the plate's outward winding there reverses
+        faces: quads.map(
+          ([a, b, c, d]: [
+            number,
+            number,
+            number,
+            number,
+          ]): IAutoMovieHumanCage.IFace => ({
+            vertices: drawn.hand.mirrored ? [a, b, c, d] : [a, d, c, b],
+            coordinates: [a, b, c, d].map(
+              (): IAutoMovieHumanSurfaceCoordinate =>
+                nailAddress(props.side, NAIL_BRANCHES[digit]!),
+            ) as IAutoMovieHumanCage.IFace["coordinates"],
+          }),
+        ),
+        creases: [],
+        rings: [],
+      }),
+    );
   }
 }
 
 /** Model point of a hand-frame point. */
-const model = (hand: readAutoMovieHumanHand.IHand, p: IAutoMovieVector3): IAutoMovieVector3 =>
-  AutoMovieHumanVector.offset(hand.origin, [hand.distal, p.x], [hand.palmar, p.y], [hand.radial, p.z]);
+const model = (
+  hand: readAutoMovieHumanHand.IHand,
+  p: IAutoMovieVector3,
+): IAutoMovieVector3 =>
+  AutoMovieHumanVector.offset(
+    hand.origin,
+    [hand.distal, p.x],
+    [hand.palmar, p.y],
+    [hand.radial, p.z],
+  );
 
 /** The digit each nail plate rests on, in the order `placeAutoMovieHumanNails` returns them. */
-const NAIL_BRANCHES: AutoMovieHumanBranch<"hand">[] = ["thumb", "index", "middle", "ring", "little"];
+const NAIL_BRANCHES: AutoMovieHumanBranch<"hand">[] = [
+  "thumb",
+  "index",
+  "middle",
+  "ring",
+  "little",
+];
 
 /** A nail plate lies off the skin's chart; its corners carry its digit's tip address. */
-const nailAddress = (side: AutoMovieHumanSide, branch: AutoMovieHumanBranch<"hand">): IAutoMovieHumanSurfaceCoordinate => ({
+const nailAddress = (
+  side: AutoMovieHumanSide,
+  branch: AutoMovieHumanBranch<"hand">,
+): IAutoMovieHumanSurfaceCoordinate => ({
   part: "hand",
   side,
   branch,

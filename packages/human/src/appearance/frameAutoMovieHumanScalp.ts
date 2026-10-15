@@ -25,7 +25,8 @@ export function frameAutoMovieHumanScalp(props: {
 }): frameAutoMovieHumanScalp.IScalp {
   const l = props.skeleton.landmarks;
   const head = props.measurements.identity.head;
-  const tragion: number = (l.left.tragion.position.y + l.right.tragion.position.y) / 2;
+  const tragion: number =
+    (l.left.tragion.position.y + l.right.tragion.position.y) / 2;
   const vertex: number = l.vertex.position.y;
   const centre: [number, number, number] = [
     0,
@@ -34,7 +35,10 @@ export function frameAutoMovieHumanScalp(props: {
   ];
   const front: number = l.nasion.position.y + 0.57 * head.faceHeight;
   const forehead: number = front - l.glabella.position.y;
-  const lift: Record<IAutoMovieHumanAppearance.IHair["hairline"], [number, number, number]> = {
+  const lift: Record<
+    IAutoMovieHumanAppearance.IHair["hairline"],
+    [number, number, number]
+  > = {
     // midline, frontotemporal corner, temple; millimetres above the frontal margin
     round: [0, 0.05 * forehead, -0.1 * forehead],
     mShaped: [0, 0.25 * forehead, 0.05 * forehead],
@@ -71,7 +75,11 @@ export function frameAutoMovieHumanScalp(props: {
     const t = l[side].tragion.position;
     const ear = head[side === "left" ? "leftEar" : "rightEar"];
     return {
-      centre: [t.x, t.y + 0.12 * ear.earLength, t.z - 0.35 * ear.earBreadth] as const,
+      centre: [
+        t.x,
+        t.y + 0.12 * ear.earLength,
+        t.z - 0.35 * ear.earBreadth,
+      ] as const,
       long: 0.5 * ear.earLength + 4,
       short: 0.5 * ear.earBreadth + 6,
     };
@@ -82,7 +90,8 @@ export function frameAutoMovieHumanScalp(props: {
       for (const ear of ears) {
         const dy: number = (p[1] - ear.centre[1]) / ear.long;
         const dz: number = (p[2] - ear.centre[2]) / ear.short;
-        if (Math.abs(p[0] - ear.centre[0]) < 25 && dy * dy + dz * dz < 1) return 0;
+        if (Math.abs(p[0] - ear.centre[0]) < 25 && dy * dy + dz * dz < 1)
+          return 0;
       }
       const azimuth: number = Math.atan2(p[0] - centre[0], p[2] - centre[2]);
       const above: number = p[1] - height(azimuth);

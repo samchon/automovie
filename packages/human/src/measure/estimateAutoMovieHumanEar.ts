@@ -15,7 +15,10 @@ const ADULT_LENGTH: Record<AutoMovieHumanSex, IAutoMovieHumanGrowthCurve> = {
 /**
  * Adult ear breadth (otobasion superius to the most posterior point of the helix) and protrusion of the helix from the scalp at the tragal level, millimetres, the same survey's means with both sides averaged: breadth 29.05 and 27.4, protrusion 19.5 and 17.3, men and women. Grade: measured.
  */
-const ADULT: Record<AutoMovieHumanSex, { breadth: number; protrusion: number }> = {
+const ADULT: Record<
+  AutoMovieHumanSex,
+  { breadth: number; protrusion: number }
+> = {
   male: { breadth: 29.05, protrusion: 19.5 },
   female: { breadth: 27.4, protrusion: 17.3 },
 };

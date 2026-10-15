@@ -28,10 +28,14 @@ export function estimateAutoMovieHumanThyroidAngle(
   if (sex === "female") return GLIKSON_2017.female;
   const t: number = Math.min(
     1,
-    Math.max(0, (age - GLIKSON_2017.onset) / (GLIKSON_2017.end - GLIKSON_2017.onset)),
+    Math.max(
+      0,
+      (age - GLIKSON_2017.onset) / (GLIKSON_2017.end - GLIKSON_2017.onset),
+    ),
   );
   const step: number = t * t * (3 - 2 * t);
   return (
-    GLIKSON_2017.maleChild + (GLIKSON_2017.maleAdult - GLIKSON_2017.maleChild) * step
+    GLIKSON_2017.maleChild +
+    (GLIKSON_2017.maleAdult - GLIKSON_2017.maleChild) * step
   );
 }

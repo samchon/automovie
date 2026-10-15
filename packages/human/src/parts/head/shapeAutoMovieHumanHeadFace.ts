@@ -33,7 +33,10 @@ export function shapeAutoMovieHumanHeadFace(
   const sto: IAutoMovieVector3 = frame.stomion;
   const subnasale: number = n.z + SUBNASALE * fh;
   const gnathion: number = n.z + GNATHION * fh;
-  const pogonion: number = Math.max(gnathion + form.pogonion * fh, subnasale - form.chin * fh);
+  const pogonion: number = Math.max(
+    gnathion + form.pogonion * fh,
+    subnasale - form.chin * fh,
+  );
   const snY: number = me.y + SUBNASALE_HEIGHT * fh;
   const foldY: number = sto.y - LOWER_LIP * fh;
 
@@ -58,7 +61,8 @@ export function shapeAutoMovieHumanHeadFace(
     go.z + lift * Math.sin(tilt),
   ];
   const along: number =
-    (pogonion - jawCentre[2]) * Math.cos(tilt) - (me.y + 0.12 * fh - jawCentre[1]) * Math.sin(tilt);
+    (pogonion - jawCentre[2]) * Math.cos(tilt) -
+    (me.y + 0.12 * fh - jawCentre[1]) * Math.sin(tilt);
   const jaw = solid({
     centre: jawCentre,
     across: go.x,
@@ -139,7 +143,8 @@ const solid = (props: {
       props.taper === null
         ? props.across
         : props.across *
-          (1 - (1 - props.taper.width) * Math.pow(forward, props.taper.exponent));
+          (1 -
+            (1 - props.taper.width) * Math.pow(forward, props.taper.exponent));
     const h: number = props.horizontal;
     const v: number = props.vertical;
     const horizontal: number = Math.pow(
@@ -148,7 +153,12 @@ const solid = (props: {
       1 / h,
     );
     const s: number =
-      Math.pow(horizontal, v) + Math.pow(Math.abs(dy) / (dy > 0 ? up : down), v);
-    return AutoMovieHumanHeadMath.radial(Math.sqrt(dx * dx + dy * dy + dz * dz), s, v);
+      Math.pow(horizontal, v) +
+      Math.pow(Math.abs(dy) / (dy > 0 ? up : down), v);
+    return AutoMovieHumanHeadMath.radial(
+      Math.sqrt(dx * dx + dy * dy + dz * dz),
+      s,
+      v,
+    );
   };
 };

@@ -2,9 +2,9 @@ import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
-import { IAutoMovieHumanTrunkFrame } from "./IAutoMovieHumanTrunkFrame";
 import { AUTOMOVIE_HUMAN_TRUNK_FORM } from "./AUTOMOVIE_HUMAN_TRUNK_FORM";
 import { IAutoMovieHumanTrunkForm } from "./IAutoMovieHumanTrunkForm";
+import { IAutoMovieHumanTrunkFrame } from "./IAutoMovieHumanTrunkFrame";
 import { IAutoMovieHumanTrunkTune } from "./IAutoMovieHumanTrunkTune";
 import { profileAutoMovieHumanTrunk } from "./profileAutoMovieHumanTrunk";
 
@@ -56,8 +56,10 @@ export function placeAutoMovieHumanTrunkHip(
   const hip: number = frame.hip.y;
 
   // the thigh section at the gluteal furrow: rounded laterally, flattened where the thighs press together medially
-  const THIGH: IAutoMovieHumanTrunkForm.IThigh = AUTOMOVIE_HUMAN_TRUNK_FORM.thigh;
-  const width: number = (frame.buttock.breadth * tune.hip.breadth * THIGH.breadth) / 2;
+  const THIGH: IAutoMovieHumanTrunkForm.IThigh =
+    AUTOMOVIE_HUMAN_TRUNK_FORM.thigh;
+  const width: number =
+    (frame.buttock.breadth * tune.hip.breadth * THIGH.breadth) / 2;
   const girth: number = frame.thighGirth * tune.thigh;
   const outline = (t: number, depth: number): [number, number] => {
     const s: number = Math.sin(t);
@@ -88,7 +90,11 @@ export function placeAutoMovieHumanTrunkHip(
   const depth: number = (low + high) / 2;
   const x0: number = width + 0.004 * S;
   const z0: number = profile.front(hip) - THIGH.front * S - depth;
-  const around = (degrees: number, y: number, scale: number): IAutoMovieVector3 => {
+  const around = (
+    degrees: number,
+    y: number,
+    scale: number,
+  ): IAutoMovieVector3 => {
     const [x, z]: [number, number] = outline((degrees * Math.PI) / 180, depth);
     return V.of(x0 + x * scale, y, z0 + z * scale);
   };
@@ -105,15 +111,23 @@ export function placeAutoMovieHumanTrunkHip(
   loops[0]![12] = V.of(0, crotch + 0.02 * S, z0 - depth * 0.9);
 
   // the thigh: below the fold, halfway, and the cut
-  const ring = (y: number, scale: number, medial: number): IAutoMovieVector3[] =>
+  const ring = (
+    y: number,
+    scale: number,
+    medial: number,
+  ): IAutoMovieVector3[] =>
     Array.from({ length: 12 }, (_: unknown, k: number): IAutoMovieVector3 => {
-      const [x, z]: [number, number] = outline((-k * 30 * Math.PI) / 180, depth);
+      const [x, z]: [number, number] = outline(
+        (-k * 30 * Math.PI) / 180,
+        depth,
+      );
       return V.of(Math.max(medial, x0 + x * scale), y, z0 + z * scale);
     });
   const furrow: number = gluteal - 0.012 * S;
   const thighRadius: number = girth / (2 * Math.PI);
   const cutRadius: number =
-    layout.radii.reduce((sum: number, r: number): number => sum + r, 0) / layout.radii.length;
+    layout.radii.reduce((sum: number, r: number): number => sum + r, 0) /
+    layout.radii.length;
   const rings: IAutoMovieVector3[][] = [
     ring(furrow, 1 / TWELVE_SPAN_LIMIT, 0.004 * S),
     ring(

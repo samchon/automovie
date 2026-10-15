@@ -26,16 +26,20 @@ export function growAutoMovieHumanBrows(props: {
 }): IAutoMovieMesh {
   const builder: AutoMovieHumanCardBuilder = new AutoMovieHumanCardBuilder();
   for (const side of ["left", "right"] as const) {
-    const joint: IAutoMovieHumanSkeleton.IJoint | undefined = props.skeleton.joints.find(
-      (j: IAutoMovieHumanSkeleton.IJoint): boolean => j.bone === `${side}Eye`,
-    );
+    const joint: IAutoMovieHumanSkeleton.IJoint | undefined =
+      props.skeleton.joints.find(
+        (j: IAutoMovieHumanSkeleton.IJoint): boolean => j.bone === `${side}Eye`,
+      );
     if (joint === undefined) throw new Error(`the skeleton lacks ${side}Eye`);
     const E = joint.position;
     const s: number = side === "left" ? 1 : -1;
     const k: number = Math.abs(E.x) / 31;
     const peak: number = 0.41;
     const lower = (u: number): number =>
-      k * (u <= peak ? 11 + 5 * Math.sin((Math.PI / 2) * (u / peak)) : 16 - 6 * ((u - peak) / (1 - peak)) ** 2);
+      k *
+      (u <= peak
+        ? 11 + 5 * Math.sin((Math.PI / 2) * (u / peak))
+        : 16 - 6 * ((u - peak) / (1 - peak)) ** 2);
     const tall = (u: number): number => k * (11 - 3 * u - 5 * u ** 4);
     const x = (u: number): number => E.x + s * k * (-13 + 46 * u);
     const rows: number = 9;
@@ -44,27 +48,47 @@ export function growAutoMovieHumanBrows(props: {
       for (let j: number = 0; j < cols; ++j) {
         const u: number = (j + hash(side, i, j, 0)) / cols;
         const w: number = (i + hash(side, i, j, 1)) / rows;
-        if (hash(side, i, j, 2) > (1 - 0.55 * u) * (1 - 0.6 * Math.abs(2 * w - 1) ** 2)) continue;
+        if (
+          hash(side, i, j, 2) >
+          (1 - 0.55 * u) * (1 - 0.6 * Math.abs(2 * w - 1) ** 2)
+        )
+          continue;
         const px: number = x(u);
         const py: number = E.y + lower(u) + w * tall(u);
-        const hit: AutoMovieHumanHeadSurface.IHit | null = props.surface.cast([px, py, E.z + 80], [0, 0, -1]);
+        const hit: AutoMovieHumanHeadSurface.IHit | null = props.surface.cast(
+          [px, py, E.z + 80],
+          [0, 0, -1],
+        );
         if (hit === null) continue;
         // direction in the frontal plane: the brow's axis turned by the part's angle
         const ax: number = x(Math.min(1, u + 0.02)) - x(Math.max(0, u - 0.02));
-        const ay: number = lower(Math.min(1, u + 0.02)) + 0.5 * tall(Math.min(1, u + 0.02)) - lower(Math.max(0, u - 0.02)) - 0.5 * tall(Math.max(0, u - 0.02));
+        const ay: number =
+          lower(Math.min(1, u + 0.02)) +
+          0.5 * tall(Math.min(1, u + 0.02)) -
+          lower(Math.max(0, u - 0.02)) -
+          0.5 * tall(Math.max(0, u - 0.02));
         const axis: number = Math.atan2(ay, s * ax);
         const v: number = 2 * w - 1;
         const angle: number =
-          u < 0.12 ? (75 * Math.PI) / 180 : u < 0.8 ? (-28 * v * Math.PI) / 180 : (-10 * Math.PI) / 180;
+          u < 0.12
+            ? (75 * Math.PI) / 180
+            : u < 0.8
+              ? (-28 * v * Math.PI) / 180
+              : (-10 * Math.PI) / 180;
         const theta: number = axis + angle + (hash(side, i, j, 3) - 0.5) * 0.25;
         const planar: number[] = [s * Math.cos(theta), Math.sin(theta), 0];
         const n: number[] = hit.normal;
         const t: number[] = normalize(sub(planar, scale(n, dot(planar, n))));
         const lift: number = (8 * Math.PI) / 180;
-        const d: number[] = normalize(add(scale(t, Math.cos(lift)), scale(n, Math.sin(lift))));
+        const d: number[] = normalize(
+          add(scale(t, Math.cos(lift)), scale(n, Math.sin(lift))),
+        );
         const length: number = k * (u < 0.12 ? 6 : 7 + 3 * hash(side, i, j, 4));
         const root: number[] = add(hit.position, scale(n, 0.15));
-        const mid: number[] = add(add(root, scale(d, length / 2)), scale(n, 0.25));
+        const mid: number[] = add(
+          add(root, scale(d, length / 2)),
+          scale(n, 0.25),
+        );
         const tip: number[] = add(add(root, scale(t, length)), scale(n, 0.3));
         const across: number[] = normalize(cross(n, d));
         builder.card({
@@ -82,7 +106,11 @@ export function growAutoMovieHumanBrows(props: {
 
 /** Integer hash to `[0, 1)`. */
 function hash(side: "left" | "right", i: number, j: number, k: number): number {
-  let h: number = Math.imul(side === "left" ? 11 : 13, 0x27d4eb2d) ^ Math.imul(i + 1, 0x165667b1) ^ Math.imul(j + 1, 0x9e3779b9) ^ Math.imul(k + 5, 0x85ebca77);
+  let h: number =
+    Math.imul(side === "left" ? 11 : 13, 0x27d4eb2d) ^
+    Math.imul(i + 1, 0x165667b1) ^
+    Math.imul(j + 1, 0x9e3779b9) ^
+    Math.imul(k + 5, 0x85ebca77);
   h = Math.imul(h ^ (h >>> 15), 0x85ebca6b);
   h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35);
   h ^= h >>> 16;
@@ -106,7 +134,11 @@ function dot(a: readonly number[], b: readonly number[]): number {
 }
 
 function cross(a: readonly number[], b: readonly number[]): number[] {
-  return [a[1]! * b[2]! - a[2]! * b[1]!, a[2]! * b[0]! - a[0]! * b[2]!, a[0]! * b[1]! - a[1]! * b[0]!];
+  return [
+    a[1]! * b[2]! - a[2]! * b[1]!,
+    a[2]! * b[0]! - a[0]! * b[2]!,
+    a[0]! * b[1]! - a[1]! * b[0]!,
+  ];
 }
 
 function normalize(a: readonly number[]): number[] {

@@ -1,8 +1,8 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
+import { AUTOMOVIE_HUMAN_NECK_COLUMN } from "../../junction/AUTOMOVIE_HUMAN_NECK_COLUMN";
 import { IAutoMovieHumanMeasurements } from "../../measure/IAutoMovieHumanMeasurements";
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
-import { AUTOMOVIE_HUMAN_NECK_COLUMN } from "../../junction/AUTOMOVIE_HUMAN_NECK_COLUMN";
 import { IAutoMovieHumanIdentity } from "../../structures/IAutoMovieHumanIdentity";
 import { AUTOMOVIE_HUMAN_HEAD_FORM } from "./AUTOMOVIE_HUMAN_HEAD_FORM";
 import { AutoMovieHumanHeadMath } from "./AutoMovieHumanHeadMath";
@@ -43,17 +43,35 @@ export class AutoMovieHumanHeadField {
     platforms: AutoMovieHumanHeadField.IPlatform[] = [],
   ) {
     const head: IAutoMovieHumanIdentity.IHead = measurements.identity.head;
-    this.vault_ = shapeAutoMovieHumanHeadVault(frame, head, measurements.headBreadth, form);
+    this.vault_ = shapeAutoMovieHumanHeadVault(
+      frame,
+      head,
+      measurements.headBreadth,
+      form,
+    );
     this.face_ = shapeAutoMovieHumanHeadFace(frame, head, form);
-    this.relief_ = shapeAutoMovieHumanHeadRelief(frame, head, measurements.headBreadth, form);
+    this.relief_ = shapeAutoMovieHumanHeadRelief(
+      frame,
+      head,
+      measurements.headBreadth,
+      form,
+    );
     this.stem_ = shapeStem(frame, measurements.identity.body.neckCircumference);
     this.blend_ = form.blend * head.faceHeight;
     this.platforms_ = platforms.map(shapePlatform);
-    const globe: number = (1 + LID) * AutoMovieHumanVector.distance(frame.eye, frame.cornea);
-    this.eyes_ = [1, -1].map((s: number): ((p: IAutoMovieVector3) => number) => {
-      const centre: IAutoMovieVector3 = AutoMovieHumanVector.of(s * frame.eye.x, frame.eye.y, frame.eye.z);
-      return (p: IAutoMovieVector3): number => AutoMovieHumanVector.distance(p, centre) - globe;
-    });
+    const globe: number =
+      (1 + LID) * AutoMovieHumanVector.distance(frame.eye, frame.cornea);
+    this.eyes_ = [1, -1].map(
+      (s: number): ((p: IAutoMovieVector3) => number) => {
+        const centre: IAutoMovieVector3 = AutoMovieHumanVector.of(
+          s * frame.eye.x,
+          frame.eye.y,
+          frame.eye.z,
+        );
+        return (p: IAutoMovieVector3): number =>
+          AutoMovieHumanVector.distance(p, centre) - globe;
+      },
+    );
   }
 
   /**
@@ -64,10 +82,15 @@ export class AutoMovieHumanHeadField {
    */
   public distance(p: IAutoMovieVector3): number {
     const k: number = this.blend_;
-    let d: number = AutoMovieHumanHeadMath.smoothMin(this.vault_(p), this.face_(p), k);
+    let d: number = AutoMovieHumanHeadMath.smoothMin(
+      this.vault_(p),
+      this.face_(p),
+      k,
+    );
     d = AutoMovieHumanHeadMath.smoothMin(d, this.stem_(p), 1.2 * k);
     d = AutoMovieHumanHeadMath.smoothMin(d, this.relief_.nose(p), 0.5 * k);
-    for (const eye of this.eyes_) d = AutoMovieHumanHeadMath.smoothMin(d, eye(p), 0.4 * this.blend_);
+    for (const eye of this.eyes_)
+      d = AutoMovieHumanHeadMath.smoothMin(d, eye(p), 0.4 * this.blend_);
     for (const platform of this.platforms_)
       d = AutoMovieHumanHeadMath.smoothMin(d, platform(p), 0.25 * this.blend_);
     return d - this.relief_.relief(p);
@@ -89,10 +112,12 @@ export class AutoMovieHumanHeadField {
     guess?: number,
   ): IAutoMovieVector3 {
     const d: IAutoMovieVector3 = AutoMovieHumanVector.normalize(direction);
-    const at = (t: number): IAutoMovieVector3 => AutoMovieHumanVector.offset(from, [d, t]);
+    const at = (t: number): IAutoMovieVector3 =>
+      AutoMovieHumanVector.offset(from, [d, t]);
     const step: number = 2;
     let outer: number = guess === undefined ? 400 : guess + 3 * step;
-    while (guess !== undefined && this.distance(at(outer)) < 0) outer += 3 * step;
+    while (guess !== undefined && this.distance(at(outer)) < 0)
+      outer += 3 * step;
     let inner: number = outer;
     while (inner > 0) {
       inner -= step;
@@ -143,17 +168,28 @@ const PLATFORM_MARGIN: number = 1.2;
 const shapePlatform = (
   platform: AutoMovieHumanHeadField.IPlatform,
 ): ((p: IAutoMovieVector3) => number) => {
-  const across: IAutoMovieVector3 = AutoMovieHumanVector.cross(platform.normal, platform.axis);
+  const across: IAutoMovieVector3 = AutoMovieHumanVector.cross(
+    platform.normal,
+    platform.axis,
+  );
   const long: number = PLATFORM_MARGIN * platform.long;
   const short: number = PLATFORM_MARGIN * platform.short;
   const thickness: number = short;
   return (p: IAutoMovieVector3): number => {
-    const q: IAutoMovieVector3 = AutoMovieHumanVector.offset(p, [platform.origin, -1]);
+    const q: IAutoMovieVector3 = AutoMovieHumanVector.offset(p, [
+      platform.origin,
+      -1,
+    ]);
     const u: number = AutoMovieHumanVector.dot(q, platform.axis);
     const w: number = AutoMovieHumanVector.dot(q, across);
     const n: number = AutoMovieHumanVector.dot(q, platform.normal) + thickness;
-    const s: number = ((u / long) ** 2 + (w / short) ** 2) ** 2 + (n / thickness) ** 4;
-    return AutoMovieHumanHeadMath.radial(Math.sqrt(u * u + w * w + n * n), s, 4);
+    const s: number =
+      ((u / long) ** 2 + (w / short) ** 2) ** 2 + (n / thickness) ** 4;
+    return AutoMovieHumanHeadMath.radial(
+      Math.sqrt(u * u + w * w + n * n),
+      s,
+      4,
+    );
   };
 };
 

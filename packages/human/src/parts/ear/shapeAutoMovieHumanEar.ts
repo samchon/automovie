@@ -37,10 +37,12 @@ export function shapeAutoMovieHumanEar(
   const up: number = cartilage / (1 - LOBULE);
   const down: number = (L - cartilage) / LOBULE;
   const y = (f: number): number =>
-    f >= NOTCH_LEVEL
-      ? f * up
-      : NOTCH_LEVEL * up + (f - NOTCH_LEVEL) * down;
-  const place = (k: IPoint): IPoint => ({ x: xc + k.x * B, y: y(k.y), h: k.h * P });
+    f >= NOTCH_LEVEL ? f * up : NOTCH_LEVEL * up + (f - NOTCH_LEVEL) * down;
+  const place = (k: IPoint): IPoint => ({
+    x: xc + k.x * B,
+    y: y(k.y),
+    h: k.h * P,
+  });
   const centre: IPoint = place({ ...form.concha, h: 0 });
 
   // the free margin; the tragus stands between the anterior notch above it and the intertragic notch below, both cut forward of its tip
@@ -68,25 +70,32 @@ export function shapeAutoMovieHumanEar(
     };
   };
   // the helix: its back, crest and lip, and the scapha floor tucked under the lip; the tragus gets a crest of its own
-  const rimBack: IPoint[] = range(24).map((j: number): IPoint =>
-    along(j, 0.03, -form.thickness * (0.8 + 0.4 * helix[j]!)),
+  const rimBack: IPoint[] = range(24).map(
+    (j: number): IPoint =>
+      along(j, 0.03, -form.thickness * (0.8 + 0.4 * helix[j]!)),
   );
-  const crest: IPoint[] = range(24).map((j: number): IPoint =>
-    along(j, 0.05 + 0.04 * helix[j]!, 0.05 + 0.1 * helix[j]! + form.relief.tragus * window(j, 8, 1.5)),
-  );
-  const lip: IPoint[] = range(24).map((j: number): IPoint =>
-    along(j, 0.1 + 0.12 * helix[j]!, 0.04 * helix[j]!),
-  );
-  const scapha: IPoint[] = range(24).map((j: number): IPoint =>
-    along(
-      j,
-      0.12 + 0.08 * helix[j]!,
-      // the scapha never sinks below half the margin's height, so the root of the helix keeps its thickness
-      -Math.min(
-        0.04 + 0.2 * helix[j]! * (1 - 0.45 * window(j, 0, 5)),
-        (0.5 * outline[j]!.h) / P,
+  const crest: IPoint[] = range(24).map(
+    (j: number): IPoint =>
+      along(
+        j,
+        0.05 + 0.04 * helix[j]!,
+        0.05 + 0.1 * helix[j]! + form.relief.tragus * window(j, 8, 1.5),
       ),
-    ),
+  );
+  const lip: IPoint[] = range(24).map(
+    (j: number): IPoint => along(j, 0.1 + 0.12 * helix[j]!, 0.04 * helix[j]!),
+  );
+  const scapha: IPoint[] = range(24).map(
+    (j: number): IPoint =>
+      along(
+        j,
+        0.12 + 0.08 * helix[j]!,
+        // the scapha never sinks below half the margin's height, so the root of the helix keeps its thickness
+        -Math.min(
+          0.04 + 0.2 * helix[j]! * (1 - 0.45 * window(j, 0, 5)),
+          (0.5 * outline[j]!.h) / P,
+        ),
+      ),
   );
 
   // the concha rim, the crus of the helix lifting it where it enters; each station's rim lies on its own ray from the scapha floor to the concha centre, so the loops inside the helix never cross
@@ -97,9 +106,17 @@ export function shapeAutoMovieHumanEar(
       const dy: number = centre.y - s.y;
       const q: number = Math.min(
         RAY.most,
-        Math.max(RAY.least, ((r.x - s.x) * dx + (r.y - s.y) * dy) / (dx * dx + dy * dy)),
+        Math.max(
+          RAY.least,
+          ((r.x - s.x) * dx + (r.y - s.y) * dy) / (dx * dx + dy * dy),
+        ),
       );
-      return lerp(s, centre, q, r.h + form.relief.crus * P * window(j, 5.5, 1.6));
+      return lerp(
+        s,
+        centre,
+        q,
+        r.h + form.relief.crus * P * window(j, 5.5, 1.6),
+      );
     },
   );
 
@@ -132,7 +149,8 @@ export function shapeAutoMovieHumanEar(
           form.relief.cymba * window(j, 1, 5) -
           form.relief.meatus * window(j, 8, 3) * bump(t, 0.3, 0.6));
       const wall: number = Math.pow(1 - t, form.relief.wall);
-      const crus: number = form.relief.crus * 1.1 * P * window(j, 5.5, 1.6) * (1 - t);
+      const crus: number =
+        form.relief.crus * 1.1 * P * window(j, 5.5, 1.6) * (1 - t);
       return lerp(r, floor, t, deep + (r.h - deep) * wall + crus * (1 - wall));
     }),
   );
@@ -172,8 +190,8 @@ export function shapeAutoMovieHumanEar(
     return lerp(r, o, t, Math.max(0, Math.min(under, o.h * lift * (1 - low))));
   };
   // the first loop leaves each attachment vertex toward its own station
-  const neck: IPoint[] = range(8).map((k: number): IPoint =>
-    back(3 * k, 0.2, 0.22 * form.lift, ring[k]!),
+  const neck: IPoint[] = range(8).map(
+    (k: number): IPoint => back(3 * k, 0.2, 0.22 * form.lift, ring[k]!),
   );
 
   const loops: IPoint[][] = [
@@ -433,7 +451,6 @@ const RIM: IPoint[] = [
   { x: 0.462, y: 0.2, h: 1.201 },
 ];
 
-
 /** Least thickness of the auricle between its cranial and lateral surfaces, over protrusion: the cartilage plate with its skin, about 2 mm at the 19.5 mm protrusion of men. Fitted in the block-out ({@link FORM}). */
 const THICKNESS: number = 0.1;
 
@@ -467,7 +484,6 @@ const FORM: shapeAutoMovieHumanEar.IForm = {
     wall: 2.6,
   },
 };
-
 
 /** Bounds of the concha rim's place on each station's ray from the scapha floor (0) to the concha centre (1), so the plate and the bowl each keep a share of the ray. Conventional. */
 const RAY: { least: number; most: number } = { least: 0.2, most: 0.75 };

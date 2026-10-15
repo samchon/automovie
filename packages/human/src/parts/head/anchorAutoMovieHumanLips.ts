@@ -54,19 +54,29 @@ export function anchorAutoMovieHumanLips(props: {
           : props.front(side * 1.3 * half, sto),
     );
     // place along the vermilion border: the midline, the bow's peak, its slope and the corner's approach
-    const bow: number = dy === 0 ? 1 : ax < 0.2 ? 0 : ax < 0.5 ? PHILTRUM : ax < 0.8 ? 0.6 : 0.85;
+    const bow: number =
+      dy === 0 ? 1 : ax < 0.2 ? 0 : ax < 0.5 ? PHILTRUM : ax < 0.8 ? 0.6 : 0.85;
     const x: number = side * half * bow;
     const rise: number =
       dy > 0
-        ? features.upperVermilionHeight * (ax < 0.2 ? 0.9 : ax < 0.5 ? 1 : ax < 0.8 ? 0.7 : 0.35)
+        ? features.upperVermilionHeight *
+          (ax < 0.2 ? 0.9 : ax < 0.5 ? 1 : ax < 0.8 ? 0.7 : 0.35)
         : dy < 0
-          ? -1 * features.lowerVermilionHeight * (ax < 0.2 ? 1 : ax < 0.5 ? 0.97 : ax < 0.8 ? 0.75 : 0.35)
+          ? -1 *
+            features.lowerVermilionHeight *
+            (ax < 0.2 ? 1 : ax < 0.5 ? 0.97 : ax < 0.8 ? 0.75 : 0.35)
           : 0;
     const out: number = bulge * (1 - (x / half) ** 2);
     anchors.set(loops[1]![i]!, at(x, sto + rise, 0.6 * out));
     anchors.set(loops[2]![i]!, at(0.98 * x, sto + 0.5 * rise, out));
-    anchors.set(loops[3]![i]!, at(0.95 * x, sto + Math.sign(rise) * 0.004 * fh, out - 0.025 * fh));
-    anchors.set(loops[4]![i]!, at(0.85 * x, sto + Math.sign(rise) * 0.012 * fh, out - 0.07 * fh));
+    anchors.set(
+      loops[3]![i]!,
+      at(0.95 * x, sto + Math.sign(rise) * 0.004 * fh, out - 0.025 * fh),
+    );
+    anchors.set(
+      loops[4]![i]!,
+      at(0.85 * x, sto + Math.sign(rise) * 0.012 * fh, out - 0.07 * fh),
+    );
   });
   for (const { vertex, offset } of topology.pockets.mouth)
     anchors.set(vertex, at(0.6 * half * offset[0], sto, -0.1 * fh));

@@ -198,7 +198,12 @@ function styleField<T extends object>(
   const select: HTMLSelectElement = document.createElement("select");
   // A document holding values no option offers shows them as such rather
   // than as the first option, which it does not hold.
-  if (!style.options.some((o: createHumanViewerDocumentForm.IStyleOption<T>): boolean => o.matches(props.document))) {
+  if (
+    !style.options.some(
+      (o: createHumanViewerDocumentForm.IStyleOption<T>): boolean =>
+        o.matches(props.document),
+    )
+  ) {
     const other: HTMLOptionElement = new Option("(not offered)", "");
     other.disabled = true;
     select.add(other);

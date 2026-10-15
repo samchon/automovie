@@ -16,9 +16,11 @@ export function measureAutoMovieHumanSkeleton(
   skeleton: IAutoMovieHumanSkeleton,
 ): IAutoMovieHumanSkeletalMeasurements {
   const { left, right }: IAutoMovieHumanLandmarks = skeleton.landmarks;
-  const measured: IAutoMovieHumanSkeletalMeasurements.IHanging = measureAutoMovieHumanLandmarks(
-    abductAutoMovieHumanArms(skeleton, "lower", { left: 0, right: 0 }).landmarks,
-  );
+  const measured: IAutoMovieHumanSkeletalMeasurements.IHanging =
+    measureAutoMovieHumanLandmarks(
+      abductAutoMovieHumanArms(skeleton, "lower", { left: 0, right: 0 })
+        .landmarks,
+    );
   return {
     ...measured,
     body: {

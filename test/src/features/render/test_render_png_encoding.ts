@@ -141,12 +141,7 @@ export function test_render_png_encoding(): void {
   );
 
   // 3. grey singleton
-  const grey: ReturnType<typeof decode> = decode(
-    1,
-    1,
-    1,
-    Uint8Array.of(200),
-  );
+  const grey: ReturnType<typeof decode> = decode(1, 1, 1, Uint8Array.of(200));
   TestValidator.equals("grey colour type", grey.header[9], 0);
   TestValidator.equals("grey scanline", [...grey.scanlines], [0, 200]);
   TestValidator.equals(
@@ -162,10 +157,26 @@ export function test_render_png_encoding(): void {
 
   // 4. refusals
   for (const [title, props, message] of [
-    ["zero width", { width: 0, height: 1, channels: 1, pixels: new Uint8Array(0) }, "width"],
-    ["fractional height", { width: 1, height: 1.5, channels: 1, pixels: new Uint8Array(1) }, "height"],
-    ["five channels", { width: 1, height: 1, channels: 5, pixels: new Uint8Array(5) }, "channels"],
-    ["short buffer", { width: 2, height: 2, channels: 3, pixels: new Uint8Array(11) }, "12 bytes"],
+    [
+      "zero width",
+      { width: 0, height: 1, channels: 1, pixels: new Uint8Array(0) },
+      "width",
+    ],
+    [
+      "fractional height",
+      { width: 1, height: 1.5, channels: 1, pixels: new Uint8Array(1) },
+      "height",
+    ],
+    [
+      "five channels",
+      { width: 1, height: 1, channels: 5, pixels: new Uint8Array(5) },
+      "channels",
+    ],
+    [
+      "short buffer",
+      { width: 2, height: 2, channels: 3, pixels: new Uint8Array(11) },
+      "12 bytes",
+    ],
   ] as const)
     TestValidator.equals(
       `refuses ${title}`,

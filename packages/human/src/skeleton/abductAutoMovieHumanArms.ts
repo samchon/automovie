@@ -43,7 +43,9 @@ export function abductAutoMovieHumanArms(
   slide: Record<ISide, number>,
 ): IAutoMovieHumanSkeleton {
   const V: typeof AutoMovieHumanVector = AutoMovieHumanVector;
-  const find: (bone: AutoMovieHumanoidBone) => IAutoMovieHumanSkeleton.IJoint = (
+  const find: (
+    bone: AutoMovieHumanoidBone,
+  ) => IAutoMovieHumanSkeleton.IJoint = (
     bone: AutoMovieHumanoidBone,
   ): IAutoMovieHumanSkeleton.IJoint =>
     skeleton.joints.find(
@@ -51,21 +53,27 @@ export function abductAutoMovieHumanArms(
     )!;
 
   // per side: the rigid map of the arm chain, the moved acromion and the moved shoulder centre
-  const arm: Map<AutoMovieHumanoidBone, (p: IAutoMovieVector3, along: boolean) => IAutoMovieVector3> =
-    new Map();
+  const arm: Map<
+    AutoMovieHumanoidBone,
+    (p: IAutoMovieVector3, along: boolean) => IAutoMovieVector3
+  > = new Map();
   const acromion: Partial<Record<ISide, IAutoMovieVector3>> = {};
   const shoulderTail: Map<AutoMovieHumanoidBone, IAutoMovieVector3> = new Map();
   for (const side of ["left", "right"] as const) {
     const s: number = side === "left" ? 1 : -1;
     const upper: IAutoMovieHumanSkeleton.IJoint = find(`${side}UpperArm`);
-    const sternal: IAutoMovieVector3 = skeleton.landmarks[side].clavicale.position;
+    const sternal: IAutoMovieVector3 =
+      skeleton.landmarks[side].clavicale.position;
     const girdle: IGirdle = girdleOf(s);
     let from: IAutoMovieVector3;
     let to: IAutoMovieVector3;
     let turn: number;
     if (direction === "raise") {
       const a: IAutoMovieVector3 = skeleton.landmarks[side].acromion.position;
-      const moved: IAutoMovieVector3 = V.offset(sternal, [girdle.clavicle(V.offset(a, [sternal, -1])), 1]);
+      const moved: IAutoMovieVector3 = V.offset(sternal, [
+        girdle.clavicle(V.offset(a, [sternal, -1])),
+        1,
+      ]);
       acromion[side] = moved;
       from = upper.position;
       to = V.offset(
@@ -75,7 +83,8 @@ export function abductAutoMovieHumanArms(
       );
       turn = s * 90;
     } else {
-      const moved: IAutoMovieVector3 = skeleton.landmarks[side].acromion.position;
+      const moved: IAutoMovieVector3 =
+        skeleton.landmarks[side].acromion.position;
       const a: IAutoMovieVector3 = V.offset(sternal, [
         girdle.clavicleInverse(V.offset(moved, [sternal, -1])),
         1,
@@ -98,16 +107,23 @@ export function abductAutoMovieHumanArms(
         : V.offset(V.rotateZ(p, from, turn), [to, 1], [from, -1]);
     const moved: Set<AutoMovieHumanoidBone> = new Set([upper.bone]);
     for (const joint of skeleton.joints)
-      if (joint.parent !== null && moved.has(joint.parent)) moved.add(joint.bone);
+      if (joint.parent !== null && moved.has(joint.parent))
+        moved.add(joint.bone);
     for (const bone of moved) arm.set(bone, map);
     shoulderTail.set(`${side}Shoulder`, to);
   }
 
-  const point: (bone: AutoMovieHumanoidBone, p: IAutoMovieVector3) => IAutoMovieVector3 = (
+  const point: (
+    bone: AutoMovieHumanoidBone,
+    p: IAutoMovieVector3,
+  ) => IAutoMovieVector3 = (
     bone: AutoMovieHumanoidBone,
     p: IAutoMovieVector3,
   ): IAutoMovieVector3 => arm.get(bone)?.(p, false) ?? p;
-  const turned: (bone: AutoMovieHumanoidBone, d: IAutoMovieVector3) => IAutoMovieVector3 = (
+  const turned: (
+    bone: AutoMovieHumanoidBone,
+    d: IAutoMovieVector3,
+  ) => IAutoMovieVector3 = (
     bone: AutoMovieHumanoidBone,
     d: IAutoMovieVector3,
   ): IAutoMovieVector3 => arm.get(bone)?.(d, true) ?? d;
@@ -124,14 +140,18 @@ export function abductAutoMovieHumanArms(
           {
             bone: value.bone,
             position:
-              key === "acromion" ? acromion[side]! : point(value.bone, value.position),
+              key === "acromion"
+                ? acromion[side]!
+                : point(value.bone, value.position),
           },
         ],
       ),
     ) as unknown as IAutoMovieHumanLandmarks.ISide;
   return {
     joints: skeleton.joints.map(
-      (joint: IAutoMovieHumanSkeleton.IJoint): IAutoMovieHumanSkeleton.IJoint => ({
+      (
+        joint: IAutoMovieHumanSkeleton.IJoint,
+      ): IAutoMovieHumanSkeleton.IJoint => ({
         ...joint,
         position: point(joint.bone, joint.position),
         // the clavicle ends at the shoulder joint centre wherever the girdle and slide take it
@@ -178,21 +198,42 @@ function girdleOf(s: number): IGirdle {
   const clavicle: (d: IAutoMovieVector3) => IAutoMovieVector3 = (
     d: IAutoMovieVector3,
   ): IAutoMovieVector3 =>
-    rotate(rotate(d, elevation, GIRDLE.clavicleElevation), retraction, GIRDLE.clavicleRetraction);
+    rotate(
+      rotate(d, elevation, GIRDLE.clavicleElevation),
+      retraction,
+      GIRDLE.clavicleRetraction,
+    );
   const clavicleInverse: (d: IAutoMovieVector3) => IAutoMovieVector3 = (
     d: IAutoMovieVector3,
   ): IAutoMovieVector3 =>
-    rotate(rotate(d, retraction, -GIRDLE.clavicleRetraction), elevation, -GIRDLE.clavicleElevation);
+    rotate(
+      rotate(d, retraction, -GIRDLE.clavicleRetraction),
+      elevation,
+      -GIRDLE.clavicleElevation,
+    );
   const plane: number = (GIRDLE.scapularPlane * Math.PI) / 180;
   // the scapular plane faces forward and out; its normal and its horizontal line, before the clavicle turns
-  const normal: IAutoMovieVector3 = V.of(-s * Math.sin(plane), 0, Math.cos(plane));
-  const across: IAutoMovieVector3 = V.of(s * Math.cos(plane), 0, Math.sin(plane));
+  const normal: IAutoMovieVector3 = V.of(
+    -s * Math.sin(plane),
+    0,
+    Math.cos(plane),
+  );
+  const across: IAutoMovieVector3 = V.of(
+    s * Math.cos(plane),
+    0,
+    Math.sin(plane),
+  );
   const below: IAutoMovieVector3 = V.of(0, -1, 0);
-  const signed: (axis: IAutoMovieVector3, toward: IAutoMovieVector3) => IAutoMovieVector3 = (
+  const signed: (
+    axis: IAutoMovieVector3,
+    toward: IAutoMovieVector3,
+  ) => IAutoMovieVector3 = (
     axis: IAutoMovieVector3,
     toward: IAutoMovieVector3,
   ): IAutoMovieVector3 =>
-    V.dot(V.cross(axis, below), toward) >= 0 ? axis : V.offset(V.of(0, 0, 0), [axis, -1]);
+    V.dot(V.cross(axis, below), toward) >= 0
+      ? axis
+      : V.offset(V.of(0, 0, 0), [axis, -1]);
   const upward: IAutoMovieVector3 = clavicle(signed(normal, V.of(s, 0, 0)));
   const tilt: IAutoMovieVector3 = clavicle(signed(across, V.of(0, 0, 1)));
   return {
@@ -215,7 +256,11 @@ function girdleOf(s: number): IGirdle {
  * @param degrees Angle, degrees
  * @returns The rotated vector
  */
-function rotate(v: IAutoMovieVector3, axis: IAutoMovieVector3, degrees: number): IAutoMovieVector3 {
+function rotate(
+  v: IAutoMovieVector3,
+  axis: IAutoMovieVector3,
+  degrees: number,
+): IAutoMovieVector3 {
   const V: typeof AutoMovieHumanVector = AutoMovieHumanVector;
   const r: number = (degrees * Math.PI) / 180;
   const c: number = Math.cos(r);

@@ -25,10 +25,12 @@ export function readAutoMovieHumanHand(
 ): readAutoMovieHumanHand.IHand {
   const V: typeof AutoMovieHumanVector = AutoMovieHumanVector;
   const joint = (name: string): IAutoMovieHumanSkeleton.IJoint => {
-    const bone: AutoMovieHumanoidBone = `${side}${name}` as AutoMovieHumanoidBone;
-    const found: IAutoMovieHumanSkeleton.IJoint | undefined = skeleton.joints.find(
-      (j: IAutoMovieHumanSkeleton.IJoint): boolean => j.bone === bone,
-    );
+    const bone: AutoMovieHumanoidBone =
+      `${side}${name}` as AutoMovieHumanoidBone;
+    const found: IAutoMovieHumanSkeleton.IJoint | undefined =
+      skeleton.joints.find(
+        (j: IAutoMovieHumanSkeleton.IJoint): boolean => j.bone === bone,
+      );
     if (found === undefined) throw new Error(`skeleton lacks bone ${bone}`);
     return found;
   };
@@ -36,16 +38,25 @@ export function readAutoMovieHumanHand(
     side === "left" ? skeleton.landmarks.left : skeleton.landmarks.right;
   const origin: IAutoMovieVector3 = wrist.frame.origin;
   const hand: IAutoMovieHumanSkeleton.IJoint = joint("Hand");
-  const distal: IAutoMovieVector3 = V.normalize(V.offset(hand.tail, [hand.position, -1]));
+  const distal: IAutoMovieVector3 = V.normalize(
+    V.offset(hand.tail, [hand.position, -1]),
+  );
   const palmar: IAutoMovieVector3 = V.normalize(
-    V.offset(wrist.frame.reference, [distal, -V.dot(wrist.frame.reference, distal)]),
+    V.offset(wrist.frame.reference, [
+      distal,
+      -V.dot(wrist.frame.reference, distal),
+    ]),
   );
-  const across: IAutoMovieVector3 = V.offset(
-    joint("IndexProximal").position,
-    [joint("LittleProximal").position, -1],
-  );
+  const across: IAutoMovieVector3 = V.offset(joint("IndexProximal").position, [
+    joint("LittleProximal").position,
+    -1,
+  ]);
   const radial: IAutoMovieVector3 = V.normalize(
-    V.offset(across, [distal, -V.dot(across, distal)], [palmar, -V.dot(across, palmar)]),
+    V.offset(
+      across,
+      [distal, -V.dot(across, distal)],
+      [palmar, -V.dot(across, palmar)],
+    ),
   );
   const local = (p: IAutoMovieVector3): IAutoMovieVector3 => {
     const d: IAutoMovieVector3 = V.offset(p, [origin, -1]);
@@ -55,11 +66,15 @@ export function readAutoMovieHumanHand(
     V.of(V.dot(p, distal), V.dot(p, palmar), V.dot(p, radial));
 
   const middleTip: IAutoMovieVector3 = local(joint("MiddleDistal").tail);
-  const middleKnuckle: IAutoMovieVector3 = local(joint("MiddleProximal").position);
+  const middleKnuckle: IAutoMovieVector3 = local(
+    joint("MiddleProximal").position,
+  );
   const crease: number =
     (middleTip.x - local(landmarks.middleFingerCrease.position).x) /
     V.distance(middleTip, middleKnuckle);
-  const finger = (name: readAutoMovieHumanHand.IFinger): readAutoMovieHumanHand.IDigit => {
+  const finger = (
+    name: readAutoMovieHumanHand.IFinger,
+  ): readAutoMovieHumanHand.IDigit => {
     const points: IAutoMovieVector3[] = [
       local(joint(`${name}Proximal`).position),
       local(joint(`${name}Intermediate`).position),
@@ -80,12 +95,16 @@ export function readAutoMovieHumanHand(
   const pad: IAutoMovieVector3 = direction(
     V.normalize(V.cross(metacarpal.axes.flexion, metacarpal.axes.twist)),
   );
-  const toIndex: IAutoMovieVector3 = V.offset(local(joint("IndexProximal").position), [
-    thumbPoints[1]!,
-    -1,
-  ]);
+  const toIndex: IAutoMovieVector3 = V.offset(
+    local(joint("IndexProximal").position),
+    [thumbPoints[1]!, -1],
+  );
   const web: IAutoMovieVector3 = V.normalize(
-    V.offset(toIndex, [along, -V.dot(toIndex, along)], [pad, -V.dot(toIndex, pad)]),
+    V.offset(
+      toIndex,
+      [along, -V.dot(toIndex, along)],
+      [pad, -V.dot(toIndex, pad)],
+    ),
   );
   return {
     origin,

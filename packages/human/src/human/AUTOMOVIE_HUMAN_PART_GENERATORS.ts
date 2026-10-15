@@ -20,7 +20,10 @@ import { IAutoMovieHumanPartGenerators } from "./IAutoMovieHumanPartGenerators";
 export const AUTOMOVIE_HUMAN_PART_GENERATORS: IAutoMovieHumanPartGenerators = {
   trunk: new AutoMovieHumanTrunkGenerator(),
   neck: new AutoMovieHumanNeckGenerator(),
-  head: carryEyes(new AutoMovieHumanHeadGenerator(), new AutoMovieHumanEyeGenerator()),
+  head: carryEyes(
+    new AutoMovieHumanHeadGenerator(),
+    new AutoMovieHumanEyeGenerator(),
+  ),
   ear: new AutoMovieHumanEarGenerator(),
   arm: new AutoMovieHumanArmGenerator(),
   hand: carryNails(new AutoMovieHumanHandGenerator()),

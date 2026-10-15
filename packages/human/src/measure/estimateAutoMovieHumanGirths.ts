@@ -149,42 +149,90 @@ const RELAXED_FOREARM: Record<
 const SNYDER_LIMB: Record<"wrist" | "thigh" | "calf" | "ankle", ISexCurve> = {
   wrist: {
     male: {
-      ages: [2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.75],
-      values: [115, 114, 118, 119, 124, 126, 128, 132, 136, 138, 146, 151, 156, 162, 170, 171],
+      ages: [
+        2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5,
+        15.5, 16.5, 17.75,
+      ],
+      values: [
+        115, 114, 118, 119, 124, 126, 128, 132, 136, 138, 146, 151, 156, 162,
+        170, 171,
+      ],
     },
     female: {
-      ages: [2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.75],
-      values: [112, 112, 117, 120, 120, 127, 133, 133, 135, 140, 144, 146, 149, 153, 151, 149],
+      ages: [
+        2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5,
+        15.5, 16.5, 17.75,
+      ],
+      values: [
+        112, 112, 117, 120, 120, 127, 133, 133, 135, 140, 144, 146, 149, 153,
+        151, 149,
+      ],
     },
   },
   thigh: {
     male: {
-      ages: [2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.75],
-      values: [282, 296, 312, 325, 344, 363, 382, 407, 425, 437, 455, 477, 497, 519, 538, 554],
+      ages: [
+        2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5,
+        15.5, 16.5, 17.75,
+      ],
+      values: [
+        282, 296, 312, 325, 344, 363, 382, 407, 425, 437, 455, 477, 497, 519,
+        538, 554,
+      ],
     },
     female: {
-      ages: [2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.75],
-      values: [287, 306, 325, 343, 356, 382, 404, 422, 439, 464, 483, 498, 527, 538, 545, 543],
+      ages: [
+        2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5,
+        15.5, 16.5, 17.75,
+      ],
+      values: [
+        287, 306, 325, 343, 356, 382, 404, 422, 439, 464, 483, 498, 527, 538,
+        545, 543,
+      ],
     },
   },
   calf: {
     male: {
-      ages: [2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.75],
-      values: [204, 208, 218, 224, 237, 249, 262, 273, 284, 291, 305, 321, 331, 349, 359, 365],
+      ages: [
+        2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5,
+        15.5, 16.5, 17.75,
+      ],
+      values: [
+        204, 208, 218, 224, 237, 249, 262, 273, 284, 291, 305, 321, 331, 349,
+        359, 365,
+      ],
     },
     female: {
-      ages: [2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.75],
-      values: [202, 209, 218, 227, 236, 247, 262, 271, 282, 295, 306, 314, 329, 335, 339, 338],
+      ages: [
+        2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5,
+        15.5, 16.5, 17.75,
+      ],
+      values: [
+        202, 209, 218, 227, 236, 247, 262, 271, 282, 295, 306, 314, 329, 335,
+        339, 338,
+      ],
     },
   },
   ankle: {
     male: {
-      ages: [2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.75],
-      values: [150, 148, 155, 155, 163, 167, 173, 181, 182, 189, 203, 209, 212, 219, 227, 227],
+      ages: [
+        2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5,
+        15.5, 16.5, 17.75,
+      ],
+      values: [
+        150, 148, 155, 155, 163, 167, 173, 181, 182, 189, 203, 209, 212, 219,
+        227, 227,
+      ],
     },
     female: {
-      ages: [2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.75],
-      values: [147, 146, 154, 158, 162, 172, 181, 183, 186, 193, 199, 206, 209, 212, 212, 208],
+      ages: [
+        2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5,
+        15.5, 16.5, 17.75,
+      ],
+      values: [
+        147, 146, 154, 158, 162, 172, 181, 183, 186, 193, 199, 206, 209, 212,
+        212, 208,
+      ],
     },
   },
 };
@@ -197,16 +245,31 @@ const COMPOSITION_SPLIT: Record<
   Record<AutoMovieHumanSex, { fat: number; lean: number }>
 > = {
   waist: { male: { fat: 1.6, lean: 0.64 }, female: { fat: 1.388, lean: 0.82 } },
-  hip: { male: { fat: 1.362, lean: 1.312 }, female: { fat: 1.376, lean: 0.916 } },
-  arm: { male: { fat: 0.854, lean: 2.612 }, female: { fat: 1.104, lean: 1.885 } },
-  thigh: { male: { fat: 0.889, lean: 2.396 }, female: { fat: 0.909, lean: 2.381 } },
-  calf: { male: { fat: 0.937, lean: 2.218 }, female: { fat: 0.92, lean: 2.316 } },
+  hip: {
+    male: { fat: 1.362, lean: 1.312 },
+    female: { fat: 1.376, lean: 0.916 },
+  },
+  arm: {
+    male: { fat: 0.854, lean: 2.612 },
+    female: { fat: 1.104, lean: 1.885 },
+  },
+  thigh: {
+    male: { fat: 0.889, lean: 2.396 },
+    female: { fat: 0.909, lean: 2.381 },
+  },
+  calf: {
+    male: { fat: 0.937, lean: 2.218 },
+    female: { fat: 0.92, lean: 2.316 },
+  },
 };
 
 /**
  * The NHANES site whose fat and lean split each ANSUR II girth takes. Waist, buttock, upper arm, thigh and calf take their own sites (the navel waist the iliac crest waist, the buttock the hip, the lower thigh the mid-thigh). The chest takes the hip's mixed split, since pectoral and back muscle and fat both fill it; the neck and wrist the arm's, the ankle the calf's. Grade: conventional for the chest, neck, wrist and ankle.
  */
-const SPLIT_SITE: Record<keyof typeof ANSUR_II, keyof typeof COMPOSITION_SPLIT> = {
+const SPLIT_SITE: Record<
+  keyof typeof ANSUR_II,
+  keyof typeof COMPOSITION_SPLIT
+> = {
   neck: "arm",
   chest: "hip",
   waist: "waist",
@@ -350,7 +413,10 @@ function adultGirths(
   read: (curve: ISexCurve, at: number) => number,
 ): IGirths {
   const sex: AutoMovieHumanSex = context.sex;
-  const sampleAge: number = Math.min(ANSUR_AGES[1], Math.max(ANSUR_AGES[0], atAge));
+  const sampleAge: number = Math.min(
+    ANSUR_AGES[1],
+    Math.max(ANSUR_AGES[0], atAge),
+  );
   // ANSUR II at the median person's BMI, then fat and limb lean mass each by their own reach
   const referenceBmi: number = context.bmi - context.bmiOffset;
   const composed: (key: keyof typeof ANSUR_II) => number = (
@@ -360,7 +426,8 @@ function adultGirths(
       COMPOSITION_SPLIT[SPLIT_SITE[key]][sex];
     return (
       ANSUR_II[key][sex].bmi *
-      (split.fat * context.fatIndexOffset + split.lean * context.leanIndexOffset)
+      (split.fat * context.fatIndexOffset +
+        split.lean * context.leanIndexOffset)
     );
   };
   const fit: (key: keyof typeof ANSUR_II) => number = (
@@ -388,7 +455,8 @@ function adultGirths(
   const biceps: IRegression = ANSUR_II.biceps[sex];
   const upperArm: number =
     read(NHANES_ARM, atAge) +
-    biceps.stature * (stature - estimateAutoMovieHumanMedianStature(sex, atAge)) +
+    biceps.stature *
+      (stature - estimateAutoMovieHumanMedianStature(sex, atAge)) +
     biceps.bmi * (referenceBmi - NHANES_ADULT_BMI) +
     composed("biceps");
   const wrist: number = fit("wrist") * limbAgeing;

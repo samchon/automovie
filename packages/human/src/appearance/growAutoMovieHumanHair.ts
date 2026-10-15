@@ -41,8 +41,15 @@ export function growAutoMovieHumanHair(props: {
   const R: number = l.vertex.position.y - C[1]!;
   const shoulders: number =
     (l.left.acromion.position.y + l.right.acromion.position.y) / 2 + 25;
-  const crown: number[] = [0, C[1]! + 0.85 * R, C[2]! - 0.45 * (C[2]! - l.opisthocranion.position.z)];
-  const part: number = style === "bob" ? 0 : 0.3 * (l.left.eurion.position.x - l.right.eurion.position.x) / 2;
+  const crown: number[] = [
+    0,
+    C[1]! + 0.85 * R,
+    C[2]! - 0.45 * (C[2]! - l.opisthocranion.position.z),
+  ];
+  const part: number =
+    style === "bob"
+      ? 0
+      : (0.3 * (l.left.eurion.position.x - l.right.eurion.position.x)) / 2;
   const cut: number = Math.max(shoulders, l.vertex.position.y - hair.length);
   const builder: AutoMovieHumanCardBuilder = new AutoMovieHumanCardBuilder();
 
@@ -54,14 +61,23 @@ export function growAutoMovieHumanHair(props: {
     const row: Array<AutoMovieHumanHeadSurface.IPoint | null> = [];
     for (let j: number = 0; j <= capCols; ++j) {
       const u: number = 0.3 + (0.7 * i) / capRows;
-      const point: AutoMovieHumanHeadSurface.IPoint | null = surface.toward(C, Math.min(u, 0.9999), j / capCols);
-      row.push(point !== null && scalp.density(point.position) >= 0.99 ? point : null);
+      const point: AutoMovieHumanHeadSurface.IPoint | null = surface.toward(
+        C,
+        Math.min(u, 0.9999),
+        j / capCols,
+      );
+      row.push(
+        point !== null && scalp.density(point.position) >= 0.99 ? point : null,
+      );
     }
     grid.push(row);
   }
   const cap: number = 0.25 * wave.stand;
   // the middle fifth of the opaque band: wide enough for a tangent frame from texture derivatives, narrow enough to stay opaque at small mip levels
-  const capU: number = (paintAutoMovieHumanHairStrands.COLUMNS.solid[0] + paintAutoMovieHumanHairStrands.COLUMNS.solid[1]) / 2;
+  const capU: number =
+    (paintAutoMovieHumanHairStrands.COLUMNS.solid[0] +
+      paintAutoMovieHumanHairStrands.COLUMNS.solid[1]) /
+    2;
   for (let i: number = 0; i < capRows; ++i)
     for (let j: number = 0; j < capCols; ++j) {
       const a = grid[i]![j]!;
@@ -69,7 +85,9 @@ export function growAutoMovieHumanHair(props: {
       const c = grid[i + 1]![j]!;
       const d = grid[i + 1]![j + 1]!;
       if (a === null || b === null || c === null || d === null) continue;
-      const lift = (p: AutoMovieHumanHeadSurface.IPoint): [number, number, number] => [
+      const lift = (
+        p: AutoMovieHumanHeadSurface.IPoint,
+      ): [number, number, number] => [
         p.position[0] + cap * p.normal[0],
         p.position[1] + cap * p.normal[1],
         p.position[2] + cap * p.normal[2],
@@ -79,8 +97,15 @@ export function growAutoMovieHumanHair(props: {
       const across: number[] = sub(pb, pa);
       const width: number = Math.hypot(across[0]!, across[1]!, across[2]!);
       if (width < 1e-6) continue;
-      const side: [number, number, number] = [across[0]! / width, across[1]! / width, across[2]! / width];
-      const mid = (p: [number, number, number], q: [number, number, number]): [number, number, number] => [
+      const side: [number, number, number] = [
+        across[0]! / width,
+        across[1]! / width,
+        across[2]! / width,
+      ];
+      const mid = (
+        p: [number, number, number],
+        q: [number, number, number],
+      ): [number, number, number] => [
         (p[0] + q[0]) / 2,
         (p[1] + q[1]) / 2,
         (p[2] + q[2]) / 2,
@@ -89,7 +114,10 @@ export function growAutoMovieHumanHair(props: {
         points: [mid(pa, pb), mid(lift(c), lift(d))],
         sides: [side, side],
         normals: [a.normal, c.normal],
-        widths: [width, Math.hypot(...(sub(lift(d), lift(c)) as [number, number, number]))],
+        widths: [
+          width,
+          Math.hypot(...(sub(lift(d), lift(c)) as [number, number, number])),
+        ],
         column: [capU - 0.02, capU + 0.02],
         v: [0.4, 0.6],
       });
@@ -112,15 +140,23 @@ export function growAutoMovieHumanHair(props: {
     const step: number = shell.spacing / R;
     const rows: number = Math.ceil((0.7 * Math.PI) / step);
     for (let i: number = 0; i < rows; ++i) {
-      const latitude: number = -0.2 * Math.PI + (i + 0.5) * ((0.7 * Math.PI) / rows);
-      const cols: number = Math.max(1, Math.round((2 * Math.PI * Math.cos(latitude)) / step));
+      const latitude: number =
+        -0.2 * Math.PI + (i + 0.5) * ((0.7 * Math.PI) / rows);
+      const cols: number = Math.max(
+        1,
+        Math.round((2 * Math.PI * Math.cos(latitude)) / step),
+      );
       for (let j: number = 0; j < cols; ++j) {
         const jitterU: number = hash(layer, i, j, 0) - 0.5;
         const jitterV: number = hash(layer, i, j, 1) - 0.5;
         const lat: number = latitude + jitterU * ((0.7 * Math.PI) / rows);
         const u: number = Math.min(0.9999, (lat + Math.PI / 2) / Math.PI);
         const v: number = (j + 0.5 + jitterV) / cols;
-        const root: AutoMovieHumanHeadSurface.IPoint | null = surface.toward(C, u, v);
+        const root: AutoMovieHumanHeadSurface.IPoint | null = surface.toward(
+          C,
+          u,
+          v,
+        );
         if (root === null) continue;
         const density: number = scalp.density(root.position);
         if (density <= hash(layer, i, j, 2)) continue;
@@ -147,7 +183,16 @@ export function growAutoMovieHumanHair(props: {
 }
 
 /** Curl types in order. */
-const CURLS: readonly string[] = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII"];
+const CURLS: readonly string[] = [
+  "I",
+  "II",
+  "III",
+  "IV",
+  "V",
+  "VI",
+  "VII",
+  "VIII",
+];
 
 /** Grow one card's guide from its root and build the card. */
 function growCard(p: {
@@ -187,7 +232,9 @@ function growCard(p: {
   const sideVec: number[] = normalize(cross(n, t));
   t = normalize(add(t, scale(sideVec, twist)));
   const lift: number = (p.style === "crop" ? 0.45 : 0.25) * p.wave.stand;
-  let d: number[] = normalize(add(scale(t, Math.cos(lift)), scale(n, Math.sin(lift))));
+  let d: number[] = normalize(
+    add(scale(t, Math.cos(lift)), scale(n, Math.sin(lift))),
+  );
   // length by style: tapered sides for the short cut, a level cut for the bob
   let length: number = p.length * p.shell.length * (0.85 + 0.3 * h(1));
   if (p.style === "short") length *= 0.3 + 0.7 * high;
@@ -195,28 +242,37 @@ function growCard(p: {
   const segments: number = Math.max(3, Math.min(12, Math.ceil(length / 10)));
   const stepLength: number = length / segments;
   const offset: number = p.shell.offset * p.wave.stand;
-  const points: Array<[number, number, number]> = [add(at, scale(n, offset)) as [number, number, number]];
+  const points: Array<[number, number, number]> = [
+    add(at, scale(n, offset)) as [number, number, number],
+  ];
   const phase: number = 2 * Math.PI * h(2);
   let travelled: number = 0;
   for (let k: number = 0; k < segments; ++k) {
     // gravity, and the pull back onto the head for combed and lying hair
     const radial: number[] = normalize(sub(points[k]!, C));
-    const gravity: number = p.style === "bob" ? 0.35 : p.style === "short" ? 0.12 : 0;
+    const gravity: number =
+      p.style === "bob" ? 0.35 : p.style === "short" ? 0.12 : 0;
     d = normalize(add(d, [0, -gravity, 0]));
     const out: number = dot(d, radial);
-    if (out > 0 && p.style !== "bob") d = normalize(sub(d, scale(radial, out * 0.6)));
+    if (out > 0 && p.style !== "bob")
+      d = normalize(sub(d, scale(radial, out * 0.6)));
     let next: number[] = add(points[k]!, scale(d, stepLength));
     travelled += stepLength;
     if (p.wave.amplitude > 0) {
       const w: number =
-        p.wave.amplitude * (Math.sin(phase + (2 * Math.PI * travelled) / p.wave.period) - Math.sin(phase + (2 * Math.PI * (travelled - stepLength)) / p.wave.period));
+        p.wave.amplitude *
+        (Math.sin(phase + (2 * Math.PI * travelled) / p.wave.period) -
+          Math.sin(
+            phase + (2 * Math.PI * (travelled - stepLength)) / p.wave.period,
+          ));
       next = add(next, scale(normalize(cross(d, radial)), w));
     }
     // keep the shell's clearance above the skin
     const dir: number[] = normalize(sub(next, C));
     const floor: number = p.radius(dir);
     const r: number = Math.hypot(...sub(next, C));
-    if (floor > 0 && r < floor + offset) next = add(C, scale(dir, floor + offset));
+    if (floor > 0 && r < floor + offset)
+      next = add(C, scale(dir, floor + offset));
     points.push(next as [number, number, number]);
     if (p.style === "bob" && next[1]! < p.cut) break;
   }
@@ -224,21 +280,35 @@ function growCard(p: {
   const sides: Array<[number, number, number]> = [];
   const normals: Array<[number, number, number]> = [];
   const widths: number[] = [];
-  const base: number = (p.style === "bob" ? 9 : p.style === "short" ? 5.5 : 4.5) * (0.85 + 0.3 * h(4));
+  const base: number =
+    (p.style === "bob" ? 9 : p.style === "short" ? 5.5 : 4.5) *
+    (0.85 + 0.3 * h(4));
   for (let k: number = 0; k < points.length; ++k) {
-    const along: number[] = normalize(sub(points[Math.min(k + 1, points.length - 1)]!, points[Math.max(k - 1, 0)]!));
+    const along: number[] = normalize(
+      sub(
+        points[Math.min(k + 1, points.length - 1)]!,
+        points[Math.max(k - 1, 0)]!,
+      ),
+    );
     const radial: number[] = normalize(sub(points[k]!, C));
     sides.push(normalize(cross(radial, along)) as [number, number, number]);
     normals.push(radial as [number, number, number]);
-    widths.push(base * (1 - (0.35 * k) / (points.length - 1)) * Math.max(0.5, p.density));
+    widths.push(
+      base * (1 - (0.35 * k) / (points.length - 1)) * Math.max(0.5, p.density),
+    );
   }
-  const column = paintAutoMovieHumanHairStrands.COLUMNS.locks[Math.floor(h(5) * 4)]!;
+  const column =
+    paintAutoMovieHumanHairStrands.COLUMNS.locks[Math.floor(h(5) * 4)]!;
   return { points, sides, normals, widths, column, v: [0, 1] };
 }
 
 /** Integer hash to `[0, 1)`. */
 function hash(a: number, b: number, c: number, k: number): number {
-  let h: number = Math.imul(a + 7, 0x27d4eb2d) ^ Math.imul(b + 1, 0x165667b1) ^ Math.imul(c + 1, 0x9e3779b9) ^ Math.imul(k + 3, 0x85ebca77);
+  let h: number =
+    Math.imul(a + 7, 0x27d4eb2d) ^
+    Math.imul(b + 1, 0x165667b1) ^
+    Math.imul(c + 1, 0x9e3779b9) ^
+    Math.imul(k + 3, 0x85ebca77);
   h = Math.imul(h ^ (h >>> 15), 0x85ebca6b);
   h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35);
   h ^= h >>> 16;
@@ -268,7 +338,11 @@ function dot(a: readonly number[], b: readonly number[]): number {
 }
 
 function cross(a: readonly number[], b: readonly number[]): number[] {
-  return [a[1]! * b[2]! - a[2]! * b[1]!, a[2]! * b[0]! - a[0]! * b[2]!, a[0]! * b[1]! - a[1]! * b[0]!];
+  return [
+    a[1]! * b[2]! - a[2]! * b[1]!,
+    a[2]! * b[0]! - a[0]! * b[2]!,
+    a[0]! * b[1]! - a[1]! * b[0]!,
+  ];
 }
 
 function normalize(a: readonly number[]): number[] {

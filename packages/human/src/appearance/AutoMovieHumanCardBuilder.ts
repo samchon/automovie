@@ -27,9 +27,16 @@ export class AutoMovieHumanCardBuilder {
       const half: number = card.widths[i]! / 2;
       const y: number = i / (n - 1);
       for (const k of [-1, 1]) {
-        this.positions_.push(p[0]! + k * half * s[0]!, p[1]! + k * half * s[1]!, p[2]! + k * half * s[2]!);
+        this.positions_.push(
+          p[0]! + k * half * s[0]!,
+          p[1]! + k * half * s[1]!,
+          p[2]! + k * half * s[2]!,
+        );
         this.normals_.push(...card.normals[i]!);
-        this.uvs_.push(k < 0 ? card.column[0] : card.column[1], card.v[0] + y * (card.v[1] - card.v[0]));
+        this.uvs_.push(
+          k < 0 ? card.column[0] : card.column[1],
+          card.v[0] + y * (card.v[1] - card.v[0]),
+        );
       }
     }
     // wind the triangles so their geometric front faces the given normals; a double-sided material flips the shading normal on back faces, so a card wound against its normals would shade from inside
@@ -37,8 +44,15 @@ export class AutoMovieHumanCardBuilder {
     const [p0, p1, p3] = [P(base), P(base + 1), P(base + 3)];
     const e1: number[] = [p1[0]! - p0[0]!, p1[1]! - p0[1]!, p1[2]! - p0[2]!];
     const e2: number[] = [p3[0]! - p0[0]!, p3[1]! - p0[1]!, p3[2]! - p0[2]!];
-    const g: number[] = [e1[1]! * e2[2]! - e1[2]! * e2[1]!, e1[2]! * e2[0]! - e1[0]! * e2[2]!, e1[0]! * e2[1]! - e1[1]! * e2[0]!];
-    const facing: number = g[0]! * card.normals[0]![0]! + g[1]! * card.normals[0]![1]! + g[2]! * card.normals[0]![2]!;
+    const g: number[] = [
+      e1[1]! * e2[2]! - e1[2]! * e2[1]!,
+      e1[2]! * e2[0]! - e1[0]! * e2[2]!,
+      e1[0]! * e2[1]! - e1[1]! * e2[0]!,
+    ];
+    const facing: number =
+      g[0]! * card.normals[0]![0]! +
+      g[1]! * card.normals[0]![1]! +
+      g[2]! * card.normals[0]![2]!;
     for (let i: number = 0; i + 1 < n; ++i) {
       const a: number = base + 2 * i;
       if (facing >= 0) this.indices_.push(a, a + 1, a + 3, a, a + 3, a + 2);

@@ -25,11 +25,24 @@ export function shapeAutoMovieHumanNose(
   const snY: number = frame.nasion.y - height;
   const snZ: number = frame.nasion.z + SUBNASALE * head.faceHeight;
   const lobule: number = 0.24 * width;
-  const tip: IAutoMovieVector3 = v(0, snY + TIP_RISE * height, snZ + f.noseProtrusion - lobule);
-  const root: IAutoMovieVector3 = v(0, frame.nasion.y - 0.04 * height, frame.nasion.z - 0.5 * ROOT * width);
+  const tip: IAutoMovieVector3 = v(
+    0,
+    snY + TIP_RISE * height,
+    snZ + f.noseProtrusion - lobule,
+  );
+  const root: IAutoMovieVector3 = v(
+    0,
+    frame.nasion.y - 0.04 * height,
+    frame.nasion.z - 0.5 * ROOT * width,
+  );
   const ala: number = 0.24 * width;
   const alae: IAutoMovieVector3[] = [1, -1].map(
-    (s: number): IAutoMovieVector3 => v(s * (width / 2 - ala), snY + 0.1 * height, snZ + 0.15 * f.noseProtrusion),
+    (s: number): IAutoMovieVector3 =>
+      v(
+        s * (width / 2 - ala),
+        snY + 0.1 * height,
+        snZ + 0.15 * f.noseProtrusion,
+      ),
   );
   const columella: number = 0.1 * width;
   const blend: number = 0.25 * width;
@@ -42,7 +55,13 @@ export function shapeAutoMovieHumanNose(
   ): number => {
     const ab: IAutoMovieVector3 = AutoMovieHumanVector.offset(b, [a, -1]);
     const ap: IAutoMovieVector3 = AutoMovieHumanVector.offset(p, [a, -1]);
-    const t: number = Math.min(1, Math.max(0, AutoMovieHumanVector.dot(ap, ab) / AutoMovieHumanVector.dot(ab, ab)));
+    const t: number = Math.min(
+      1,
+      Math.max(
+        0,
+        AutoMovieHumanVector.dot(ap, ab) / AutoMovieHumanVector.dot(ab, ab),
+      ),
+    );
     const q: IAutoMovieVector3 = AutoMovieHumanVector.offset(a, [ab, t]);
     return AutoMovieHumanVector.distance(p, q) - (ra + (rb - ra) * t);
   };
@@ -50,15 +69,32 @@ export function shapeAutoMovieHumanNose(
   return {
     distance: (p: IAutoMovieVector3): number => {
       let d: number = capsule(root, tip, 0.5 * ROOT * width, 0.3 * width, p);
-      d = AutoMovieHumanHeadMath.smoothMin(d, AutoMovieHumanVector.distance(p, tip) - lobule, blend);
+      d = AutoMovieHumanHeadMath.smoothMin(
+        d,
+        AutoMovieHumanVector.distance(p, tip) - lobule,
+        blend,
+      );
       for (const a of alae)
-        d = AutoMovieHumanHeadMath.smoothMin(d, AutoMovieHumanVector.distance(p, a) - ala, blend);
-      d = AutoMovieHumanHeadMath.smoothMin(d, capsule(tip, subnasale, columella, columella, p), 0.5 * blend);
+        d = AutoMovieHumanHeadMath.smoothMin(
+          d,
+          AutoMovieHumanVector.distance(p, a) - ala,
+          blend,
+        );
+      d = AutoMovieHumanHeadMath.smoothMin(
+        d,
+        capsule(tip, subnasale, columella, columella, p),
+        0.5 * blend,
+      );
       // the nose ends at the lip: nothing of it below subnasale
-      return AutoMovieHumanHeadMath.smoothMax(d, snY - 0.02 * height - p.y, 0.3 * blend);
+      return AutoMovieHumanHeadMath.smoothMax(
+        d,
+        snY - 0.02 * height - p.y,
+        0.3 * blend,
+      );
     },
     nostrils: [1, -1].map(
-      (s: number): IAutoMovieVector3 => v(s * 0.2 * width, snY + 0.04 * height, snZ + 0.25 * f.noseProtrusion),
+      (s: number): IAutoMovieVector3 =>
+        v(s * 0.2 * width, snY + 0.04 * height, snZ + 0.25 * f.noseProtrusion),
     ) as [IAutoMovieVector3, IAutoMovieVector3],
   };
 }

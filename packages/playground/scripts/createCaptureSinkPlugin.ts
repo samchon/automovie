@@ -110,7 +110,9 @@ export function createCaptureSinkPlugin(props: { repository: string }): Plugin {
           }
           handle(request, response).catch((error: unknown): void => {
             response.statusCode = 400;
-            response.end(error instanceof Error ? error.message : String(error));
+            response.end(
+              error instanceof Error ? error.message : String(error),
+            );
           });
         },
       );

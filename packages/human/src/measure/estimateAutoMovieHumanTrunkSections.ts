@@ -16,7 +16,12 @@ interface IRegression {
  * Trunk breadths and depths, our ordinary least squares fits per sex on the public ANSUR II working databases (Gordon et al. 2014, NATICK/TR-15/007; Paquette and Parham 2017), 1,986 women and 4,082 men aged 17 to 58, on stature, BMI and age. Chest breadth is taken under the arms with tissue compressed; the waist is ANSUR's navel waist; hip breadth spans the buttocks standing. Fat deepens the chest about twice as fast as it widens it, and the waist equally in both. Grade: population-fitted.
  */
 const ANSUR_II: Record<
-  "chestBreadth" | "chestDepth" | "waistBreadth" | "waistDepth" | "hipBreadth" | "buttockDepth",
+  | "chestBreadth"
+  | "chestDepth"
+  | "waistBreadth"
+  | "waistDepth"
+  | "hipBreadth"
+  | "buttockDepth",
   Record<AutoMovieHumanSex, IRegression>
 > = {
   chestBreadth: {
@@ -48,7 +53,10 @@ const ANSUR_II: Record<
 /**
  * Circumference over the sum of breadth and depth at each level, ANSUR II means (same survey): chest 946.9 / (269.3 + 247.4) for women and 1058.7 / (289.4 + 253.8) for men, navel waist 860.9 / (299.9 + 213.0) and 940.6 / (326.4 + 237.8), buttock 1021.2 / (353.8 + 232.9) and 1019.5 / (345.7 + 245.8). An ellipse gives about 1.57 and a rectangle 2, so the factor states how square the mean section is. Grade: measured.
  */
-const PERIMETER_FACTOR: Record<"chest" | "waist" | "buttock", Record<AutoMovieHumanSex, number>> = {
+const PERIMETER_FACTOR: Record<
+  "chest" | "waist" | "buttock",
+  Record<AutoMovieHumanSex, number>
+> = {
   chest: { female: 1.833, male: 1.949 },
   waist: { female: 1.679, male: 1.667 },
   buttock: { female: 1.741, male: 1.724 },
@@ -86,7 +94,10 @@ export function estimateAutoMovieHumanTrunkSections(
   context: IAutoMovieHumanConversionContext,
   girths: Pick<
     IAutoMovieHumanIdentity.IBody,
-    "chestCircumference" | "waistCircumference" | "buttockCircumference" | "hipBreadth"
+    | "chestCircumference"
+    | "waistCircumference"
+    | "buttockCircumference"
+    | "hipBreadth"
   >,
 ): Pick<
   IAutoMovieHumanIdentity.IBody,
@@ -141,7 +152,8 @@ export function estimateAutoMovieHumanTrunkSections(
     sex === "male"
       ? 0
       : within(
-          (context.age - BREAST_GROWTH[0]) / (BREAST_GROWTH[1] - BREAST_GROWTH[0]),
+          (context.age - BREAST_GROWTH[0]) /
+            (BREAST_GROWTH[1] - BREAST_GROWTH[0]),
           [0, 1],
         );
   return {

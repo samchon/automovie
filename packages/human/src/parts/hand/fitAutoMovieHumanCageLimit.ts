@@ -25,7 +25,10 @@ export function fitAutoMovieHumanCageLimit(props: {
   held?: readonly number[];
 }): IAutoMovieVector3[] {
   const n: number = props.targets.length;
-  const edges: Array<Set<number>> = Array.from({ length: n }, (): Set<number> => new Set());
+  const edges: Array<Set<number>> = Array.from(
+    { length: n },
+    (): Set<number> => new Set(),
+  );
   const across: number[][] = Array.from({ length: n }, (): number[] => []);
   const valence: number[] = new Array<number>(n).fill(0);
   const count: Map<string, number> = new Map();
@@ -44,14 +47,17 @@ export function fitAutoMovieHumanCageLimit(props: {
     if (c === 1) for (const v of key.split(",")) free[Number(v)] = false;
   for (const v of props.held ?? []) free[v] = false;
 
-  const target: number[] = props.targets.flatMap((t: IAutoMovieVector3): number[] => [t.x, t.y, t.z]);
+  const target: number[] = props.targets.flatMap(
+    (t: IAutoMovieVector3): number[] => [t.x, t.y, t.z],
+  );
   const step: number = 0.9 / (1 + SMOOTHING);
   let x: number[] = [...target];
   for (let sweep: number = 0; sweep < props.sweeps; ++sweep) {
     // residual of the limit, then the gradient through the transposed mask
     const residual: number[] = [...target];
     for (let v: number = 0; v < n; ++v)
-      for (let c: number = 0; c < 3; ++c) residual[3 * v + c]! -= free[v] ? mask(v, c, x) : x[3 * v + c]!;
+      for (let c: number = 0; c < 3; ++c)
+        residual[3 * v + c]! -= free[v] ? mask(v, c, x) : x[3 * v + c]!;
     const gradient: number[] = new Array<number>(3 * n).fill(0);
     for (let v: number = 0; v < n; ++v) {
       if (!free[v]) continue;
@@ -65,14 +71,19 @@ export function fitAutoMovieHumanCageLimit(props: {
       }
     }
     x = x.map((value: number, i: number): number =>
-      free[Math.floor(i / 3)] ? value + step * (gradient[i]! + SMOOTHING * (target[i]! - value)) : value,
+      free[Math.floor(i / 3)]
+        ? value + step * (gradient[i]! + SMOOTHING * (target[i]! - value))
+        : value,
     );
   }
-  return Array.from({ length: n }, (_: unknown, v: number): IAutoMovieVector3 => ({
-    x: x[3 * v]!,
-    y: x[3 * v + 1]!,
-    z: x[3 * v + 2]!,
-  }));
+  return Array.from(
+    { length: n },
+    (_: unknown, v: number): IAutoMovieVector3 => ({
+      x: x[3 * v]!,
+      y: x[3 * v + 1]!,
+      z: x[3 * v + 2]!,
+    }),
+  );
 
   /** Limit position of vertex `v`, coordinate `c`, under control points `p`. */
   function mask(v: number, c: number, p: number[]): number {

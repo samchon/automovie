@@ -29,7 +29,11 @@ export function tiltAutoMovieHumanForearmAxes(
   const s: number = side === "left" ? 1 : -1;
   // rest direction and its direction once supinated, valgus turning away from the body
   const d: IAutoMovieVector3 = V.of(s, 0, 0);
-  const target: IAutoMovieVector3 = V.rotateZ(d, V.of(0, 0, 0), s * carryingAngle);
+  const target: IAutoMovieVector3 = V.rotateZ(
+    d,
+    V.of(0, 0, 0),
+    s * carryingAngle,
+  );
   const m: IAutoMovieVector3 = V.normalize(V.offset(d, [target, 1]));
   const n: IAutoMovieVector3 = V.normalize(V.cross(d, target));
   const cone: number = Math.asin(Math.sqrt(1 - Math.cos(theta)));
@@ -55,11 +59,11 @@ export function tiltAutoMovieHumanForearmAxes(
     }
   // the rigid turn carrying +X onto the tilted twist axis
   const pivot: IAutoMovieVector3 = V.cross(V.of(1, 0, 0), best);
-  const angle: number = (Math.asin(Math.hypot(pivot.x, pivot.y, pivot.z)) * 180) / Math.PI;
+  const angle: number =
+    (Math.asin(Math.hypot(pivot.x, pivot.y, pivot.z)) * 180) / Math.PI;
   const turn: (v: IAutoMovieVector3) => IAutoMovieVector3 = (
     v: IAutoMovieVector3,
-  ): IAutoMovieVector3 =>
-    rotate(v, V.normalize(pivot), angle);
+  ): IAutoMovieVector3 => rotate(v, V.normalize(pivot), angle);
   return {
     flexion: turn(axes.flexion),
     abduction: turn(axes.abduction),

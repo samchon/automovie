@@ -75,7 +75,9 @@ const LAYERS: Array<[string, string[]]> = [
 
 /** Classification of every Human source module for the boundary rule. */
 const ELEMENTS: ITtscLintBoundariesElement[] = [
-  ...LAYERS.filter(([type]: [string, string[]]): boolean => type !== "parts").map(
+  ...LAYERS.filter(
+    ([type]: [string, string[]]): boolean => type !== "parts",
+  ).map(
     ([type]: [string, string[]]): ITtscLintBoundariesElement => ({
       type,
       pattern: `src/${type}/**`,
@@ -95,7 +97,10 @@ const ELEMENTS: ITtscLintBoundariesElement[] = [
 /** Allowed imports of every classified module; anything else is refused. */
 const POLICIES: ITtscLintBoundariesElementTypesRule[] = [
   ...LAYERS.map(
-    ([type, below]: [string, string[]]): ITtscLintBoundariesElementTypesRule => ({
+    ([type, below]: [
+      string,
+      string[],
+    ]): ITtscLintBoundariesElementTypesRule => ({
       from: type,
       allow: [type, ...below],
     }),

@@ -24,9 +24,10 @@ export class AutoMovieHumanHeadSurface {
    * @throws {Error} When no triangle lies on the head's chart
    */
   public constructor(parts: readonly IAutoMovieModelPart[]) {
-    const chart: AutoMovieHumanUvLayout.IChart = AUTOMOVIE_HUMAN_UV_LAYOUT.charts.find(
-      (c: AutoMovieHumanUvLayout.IChart): boolean => c.part === "head",
-    )!;
+    const chart: AutoMovieHumanUvLayout.IChart =
+      AUTOMOVIE_HUMAN_UV_LAYOUT.charts.find(
+        (c: AutoMovieHumanUvLayout.IChart): boolean => c.part === "head",
+      )!;
     this.positions_ = [];
     this.normals_ = [];
     this.charts_ = [];
@@ -34,7 +35,8 @@ export class AutoMovieHumanHeadSurface {
     for (const part of parts) {
       if (part.geometry.type !== "mesh") continue;
       const mesh: IAutoMovieMesh = part.geometry.mesh;
-      if (mesh.uvs === null || mesh.normals === null || mesh.indices === null) continue;
+      if (mesh.uvs === null || mesh.normals === null || mesh.indices === null)
+        continue;
       const local: Map<number, number> = new Map();
       const take = (i: number): number => {
         let found: number | undefined = local.get(i);
@@ -53,23 +55,39 @@ export class AutoMovieHumanHeadSurface {
         return found;
       };
       for (let t: number = 0; t < mesh.indices.length; t += 3) {
-        const corners: number[] = [mesh.indices[t]!, mesh.indices[t + 1]!, mesh.indices[t + 2]!];
+        const corners: number[] = [
+          mesh.indices[t]!,
+          mesh.indices[t + 1]!,
+          mesh.indices[t + 2]!,
+        ];
         const inside: boolean = corners.every((i: number): boolean => {
           const x: number = mesh.uvs![2 * i]!;
           const y: number = mesh.uvs![2 * i + 1]!;
-          return x >= chart.x - 1e-9 && x <= chart.x + chart.width + 1e-9 && y >= chart.y - 1e-9 && y <= chart.y + chart.height + 1e-9;
+          return (
+            x >= chart.x - 1e-9 &&
+            x <= chart.x + chart.width + 1e-9 &&
+            y >= chart.y - 1e-9 &&
+            y <= chart.y + chart.height + 1e-9
+          );
         });
         if (inside) this.triangles_.push(...corners.map(take));
       }
     }
-    if (this.triangles_.length === 0) throw new Error("the skin has no triangle on the head's chart");
+    if (this.triangles_.length === 0)
+      throw new Error("the skin has no triangle on the head's chart");
     this.buckets_ = Array.from({ length: GRID * GRID }, (): number[] => []);
     for (let t: number = 0; t < this.triangles_.length; t += 3) {
-      const xs: number[] = [0, 1, 2].map((k: number): number => this.charts_[2 * this.triangles_[t + k]!]!);
-      const ys: number[] = [0, 1, 2].map((k: number): number => this.charts_[2 * this.triangles_[t + k]! + 1]!);
+      const xs: number[] = [0, 1, 2].map(
+        (k: number): number => this.charts_[2 * this.triangles_[t + k]!]!,
+      );
+      const ys: number[] = [0, 1, 2].map(
+        (k: number): number => this.charts_[2 * this.triangles_[t + k]! + 1]!,
+      );
       const [x0, x1] = [cell(Math.min(...xs)), cell(Math.max(...xs))];
       const [y0, y1] = [cell(Math.min(...ys)), cell(Math.max(...ys))];
-      for (let y: number = y0; y <= y1; ++y) for (let x: number = x0; x <= x1; ++x) this.buckets_[y * GRID + x]!.push(t);
+      for (let y: number = y0; y <= y1; ++y)
+        for (let x: number = x0; x <= x1; ++x)
+          this.buckets_[y * GRID + x]!.push(t);
     }
     this.seam_ = chart.seam;
   }
@@ -87,7 +105,13 @@ export class AutoMovieHumanHeadSurface {
     const x: number = (((v - this.seam_) % 1) + 1) % 1;
     const y: number = u;
     for (const t of this.buckets_[cell(y) * GRID + cell(x)]!) {
-      const w: [number, number, number] | null = barycentric(this.charts_, this.triangles_, t, x, y);
+      const w: [number, number, number] | null = barycentric(
+        this.charts_,
+        this.triangles_,
+        t,
+        x,
+        y,
+      );
       if (w !== null) return this.blend(t, w);
     }
     return null;
@@ -103,14 +127,22 @@ export class AutoMovieHumanHeadSurface {
    * @param v Turn counterclockwise about the vertical from the anterior midline
    * @returns The point, or null when neither finds the surface
    */
-  public toward(centre: readonly number[], u: number, v: number): AutoMovieHumanHeadSurface.IPoint | null {
+  public toward(
+    centre: readonly number[],
+    u: number,
+    v: number,
+  ): AutoMovieHumanHeadSurface.IPoint | null {
     const found: AutoMovieHumanHeadSurface.IPoint | null = this.at(u, v);
     if (found !== null) return found;
     const latitude: number = Math.PI * (u - 0.5);
     const turn: number = 2 * Math.PI * v;
     return this.cast(
       [centre[0]!, centre[1]!, centre[2]!],
-      [Math.cos(latitude) * Math.sin(turn), Math.sin(latitude), Math.cos(latitude) * Math.cos(turn)],
+      [
+        Math.cos(latitude) * Math.sin(turn),
+        Math.sin(latitude),
+        Math.cos(latitude) * Math.cos(turn),
+      ],
     );
   }
 
@@ -121,7 +153,10 @@ export class AutoMovieHumanHeadSurface {
    * @param direction Ray direction, not necessarily unit
    * @returns The hit with its distance along the direction's unit length, or null when the ray misses
    */
-  public cast(origin: readonly [number, number, number], direction: readonly [number, number, number]): AutoMovieHumanHeadSurface.IHit | null {
+  public cast(
+    origin: readonly [number, number, number],
+    direction: readonly [number, number, number],
+  ): AutoMovieHumanHeadSurface.IHit | null {
     const length: number = Math.hypot(direction[0], direction[1], direction[2]);
     const d: number[] = direction.map((c: number): number => c / length);
     let best: AutoMovieHumanHeadSurface.IHit | null = null;
@@ -130,19 +165,32 @@ export class AutoMovieHumanHeadSurface {
       const a: number = 3 * this.triangles_[t]!;
       const b: number = 3 * this.triangles_[t + 1]!;
       const c: number = 3 * this.triangles_[t + 2]!;
-      const e1: number[] = [p[b]! - p[a]!, p[b + 1]! - p[a + 1]!, p[b + 2]! - p[a + 2]!];
-      const e2: number[] = [p[c]! - p[a]!, p[c + 1]! - p[a + 1]!, p[c + 2]! - p[a + 2]!];
+      const e1: number[] = [
+        p[b]! - p[a]!,
+        p[b + 1]! - p[a + 1]!,
+        p[b + 2]! - p[a + 2]!,
+      ];
+      const e2: number[] = [
+        p[c]! - p[a]!,
+        p[c + 1]! - p[a + 1]!,
+        p[c + 2]! - p[a + 2]!,
+      ];
       const h: number[] = cross(d, e2);
       const det: number = dot(e1, h);
       if (Math.abs(det) < 1e-12) continue;
-      const s: number[] = [origin[0] - p[a]!, origin[1] - p[a + 1]!, origin[2] - p[a + 2]!];
+      const s: number[] = [
+        origin[0] - p[a]!,
+        origin[1] - p[a + 1]!,
+        origin[2] - p[a + 2]!,
+      ];
       const wu: number = dot(s, h) / det;
       if (wu < 0 || wu > 1) continue;
       const q: number[] = cross(s, e1);
       const wv: number = dot(d, q) / det;
       if (wv < 0 || wu + wv > 1) continue;
       const distance: number = dot(e2, q) / det;
-      if (distance <= 0 || (best !== null && distance >= best.distance)) continue;
+      if (distance <= 0 || (best !== null && distance >= best.distance))
+        continue;
       best = { ...this.blend(t, [1 - wu - wv, wu, wv]), distance };
     }
     return best;
@@ -156,16 +204,23 @@ export class AutoMovieHumanHeadSurface {
    * @param centre A point inside the head, millimetres
    * @returns Radius in millimetres along a unit direction, interpolated between cells, or zero where the head has no surface
    */
-  public radii(centre: readonly number[]): (direction: readonly number[]) => number {
+  public radii(
+    centre: readonly number[],
+  ): (direction: readonly number[]) => number {
     const rows: number = 36;
     const cols: number = 72;
     const table: Float64Array = new Float64Array(rows * cols);
     const p: number[] = this.positions_;
     for (let i: number = 0; i < p.length; i += 3) {
-      const d: number[] = [p[i]! - centre[0]!, p[i + 1]! - centre[1]!, p[i + 2]! - centre[2]!];
+      const d: number[] = [
+        p[i]! - centre[0]!,
+        p[i + 1]! - centre[1]!,
+        p[i + 2]! - centre[2]!,
+      ];
       const r: number = Math.hypot(d[0]!, d[1]!, d[2]!);
       const [y, x] = cellOf(d, r, rows, cols);
-      const at: number = Math.min(rows - 1, Math.floor(y)) * cols + (Math.floor(x) % cols);
+      const at: number =
+        Math.min(rows - 1, Math.floor(y)) * cols + (Math.floor(x) % cols);
       table[at] = Math.max(table[at]!, r);
     }
     return (direction: readonly number[]): number => {
@@ -176,14 +231,26 @@ export class AutoMovieHumanHeadSurface {
       const fy: number = Math.max(0, Math.min(1, y - 0.5 - i0));
       const fx: number = x - 0.5 - Math.floor(x - 0.5);
       const v = (i: number, j: number): number => table[i * cols + j]!;
-      const corners: number[] = [v(i0, j0), v(i0, j1), v(i0 + 1, j0), v(i0 + 1, j1)];
-      if (corners.some((c: number): boolean => c === 0)) return Math.max(...corners);
-      return (corners[0]! * (1 - fx) + corners[1]! * fx) * (1 - fy) + (corners[2]! * (1 - fx) + corners[3]! * fx) * fy;
+      const corners: number[] = [
+        v(i0, j0),
+        v(i0, j1),
+        v(i0 + 1, j0),
+        v(i0 + 1, j1),
+      ];
+      if (corners.some((c: number): boolean => c === 0))
+        return Math.max(...corners);
+      return (
+        (corners[0]! * (1 - fx) + corners[1]! * fx) * (1 - fy) +
+        (corners[2]! * (1 - fx) + corners[3]! * fx) * fy
+      );
     };
   }
 
   /** Interpolate a triangle's corners by barycentric weights. */
-  private blend(t: number, w: [number, number, number]): AutoMovieHumanHeadSurface.IPoint {
+  private blend(
+    t: number,
+    w: [number, number, number],
+  ): AutoMovieHumanHeadSurface.IPoint {
     const position: [number, number, number] = [0, 0, 0];
     const normal: [number, number, number] = [0, 0, 0];
     for (let k: number = 0; k < 3; ++k) {
@@ -226,7 +293,12 @@ export namespace AutoMovieHumanHeadSurface {
 }
 
 /** Fractional latitude row and longitude column of a direction of the given length. */
-function cellOf(d: readonly number[], length: number, rows: number, cols: number): [number, number] {
+function cellOf(
+  d: readonly number[],
+  length: number,
+  rows: number,
+  cols: number,
+): [number, number] {
   const lat: number = Math.asin(Math.max(-1, Math.min(1, d[1]! / length)));
   const lon: number = (Math.atan2(d[0]!, d[2]!) + 2 * Math.PI) % (2 * Math.PI);
   return [((lat + Math.PI / 2) / Math.PI) * rows, (lon / (2 * Math.PI)) * cols];
@@ -241,7 +313,13 @@ function cell(x: number): number {
 }
 
 /** Barycentric weights of a chart point in a triangle, or null outside it. */
-function barycentric(charts: number[], triangles: number[], t: number, x: number, y: number): [number, number, number] | null {
+function barycentric(
+  charts: number[],
+  triangles: number[],
+  t: number,
+  x: number,
+  y: number,
+): [number, number, number] | null {
   const [a, b, c] = [triangles[t]!, triangles[t + 1]!, triangles[t + 2]!];
   const ax: number = charts[2 * a]!;
   const ay: number = charts[2 * a + 1]!;
@@ -261,7 +339,11 @@ function barycentric(charts: number[], triangles: number[], t: number, x: number
 }
 
 function cross(a: number[], b: number[]): number[] {
-  return [a[1]! * b[2]! - a[2]! * b[1]!, a[2]! * b[0]! - a[0]! * b[2]!, a[0]! * b[1]! - a[1]! * b[0]!];
+  return [
+    a[1]! * b[2]! - a[2]! * b[1]!,
+    a[2]! * b[0]! - a[0]! * b[2]!,
+    a[0]! * b[1]! - a[1]! * b[0]!,
+  ];
 }
 
 function dot(a: number[], b: number[]): number {

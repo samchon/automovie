@@ -141,8 +141,14 @@ export namespace frameAutoMovieHumanHead {
    * @param p Model point
    * @returns Local coordinates
    */
-  export function toLocal(frame: IAxes, p: IAutoMovieVector3): IAutoMovieVector3 {
-    const d: IAutoMovieVector3 = AutoMovieHumanVector.offset(p, [frame.origin, -1]);
+  export function toLocal(
+    frame: IAxes,
+    p: IAutoMovieVector3,
+  ): IAutoMovieVector3 {
+    const d: IAutoMovieVector3 = AutoMovieHumanVector.offset(p, [
+      frame.origin,
+      -1,
+    ]);
     return AutoMovieHumanVector.of(
       AutoMovieHumanVector.dot(d, frame.x),
       AutoMovieHumanVector.dot(d, frame.y),
@@ -157,7 +163,10 @@ export namespace frameAutoMovieHumanHead {
    * @param p Local coordinates
    * @returns Model point
    */
-  export function toModel(frame: IAxes, p: IAutoMovieVector3): IAutoMovieVector3 {
+  export function toModel(
+    frame: IAxes,
+    p: IAutoMovieVector3,
+  ): IAutoMovieVector3 {
     return AutoMovieHumanVector.offset(
       frame.origin,
       [frame.x, p.x],

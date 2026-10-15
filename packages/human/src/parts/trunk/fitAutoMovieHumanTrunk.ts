@@ -45,7 +45,9 @@ export function fitAutoMovieHumanTrunk(
   );
   const tune: IAutoMovieHumanTrunkTune = IAutoMovieHumanTrunkTune.neutral();
   const breasted: boolean = frame.underbust < frame.chest.girth * 0.995;
-  const build = (t: IAutoMovieHumanTrunkTune): [IAutoMovieHumanCage, number] => {
+  const build = (
+    t: IAutoMovieHumanTrunkTune,
+  ): [IAutoMovieHumanCage, number] => {
     const points: IAutoMovieHumanTrunkPoints = placeAutoMovieHumanTrunkPoints(
       measurements,
       skeleton,
@@ -55,20 +57,25 @@ export function fitAutoMovieHumanTrunk(
   };
   const ratio = (target: number, measured: number, power: number): number =>
     measured > 0 ? Math.pow(target / measured, power) : 1;
-  const bound = (x: number, [low, high]: [number, number]): number => Math.min(high, Math.max(low, x));
+  const bound = (x: number, [low, high]: [number, number]): number =>
+    Math.min(high, Math.max(low, x));
   let [cage, underY]: [IAutoMovieHumanCage, number] = build(tune);
   for (let round: number = 0; round < ROUNDS; ++round) {
-    const m: measureAutoMovieHumanTrunkSurface.IOutput = measureAutoMovieHumanTrunkSurface(
-      cage,
-      frame,
-      underY,
-    );
+    const m: measureAutoMovieHumanTrunkSurface.IOutput =
+      measureAutoMovieHumanTrunkSurface(cage, frame, underY);
     tune.chest.depth *= ratio(frame.chest.depth, m.chest.depth, 0.9);
     if (breasted) {
-      const [flat, flatY]: [IAutoMovieHumanCage, number] = build({ ...tune, breast: 0 });
+      const [flat, flatY]: [IAutoMovieHumanCage, number] = build({
+        ...tune,
+        breast: 0,
+      });
       const base: measureAutoMovieHumanTrunkSurface.IOutput =
         measureAutoMovieHumanTrunkSurface(flat, frame, flatY);
-      tune.chest.breadth *= ratio(BASE_OVER_UNDERBUST * frame.underbust, base.chest.girth, 1.2);
+      tune.chest.breadth *= ratio(
+        BASE_OVER_UNDERBUST * frame.underbust,
+        base.chest.girth,
+        1.2,
+      );
       tune.under.breadth *= ratio(frame.underbust, base.underbust, 1.2);
       tune.breast = Math.min(
         4,
@@ -97,7 +104,8 @@ export function fitAutoMovieHumanTrunk(
     tune.hip.breadth *= ratio(frame.buttock.breadth, m.buttock.breadth, 0.9);
     tune.hip.depth *= ratio(frame.buttock.depth, m.buttock.depth, 0.9);
     tune.hip.squareness = bound(
-      tune.hip.squareness * (1 + 5 * (frame.buttock.girth / m.buttock.girth - 1)),
+      tune.hip.squareness *
+        (1 + 5 * (frame.buttock.girth / m.buttock.girth - 1)),
       SQUARENESS.hip,
     );
     tune.thigh *= ratio(frame.thighGirth, m.thigh, 0.9);

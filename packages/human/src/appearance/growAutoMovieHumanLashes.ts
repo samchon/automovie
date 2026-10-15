@@ -26,9 +26,10 @@ export function growAutoMovieHumanLashes(props: {
   if (props.length <= 0) return null;
   const builder: AutoMovieHumanCardBuilder = new AutoMovieHumanCardBuilder();
   for (const side of ["left", "right"] as const) {
-    const joint: IAutoMovieHumanSkeleton.IJoint | undefined = props.skeleton.joints.find(
-      (j: IAutoMovieHumanSkeleton.IJoint): boolean => j.bone === `${side}Eye`,
-    );
+    const joint: IAutoMovieHumanSkeleton.IJoint | undefined =
+      props.skeleton.joints.find(
+        (j: IAutoMovieHumanSkeleton.IJoint): boolean => j.bone === `${side}Eye`,
+      );
     if (joint === undefined) throw new Error(`the skeleton lacks ${side}Eye`);
     const E = joint.position;
     const s: number = side === "left" ? 1 : -1;
@@ -40,18 +41,30 @@ export function growAutoMovieHumanLashes(props: {
     ]) {
       const margin = (c: number): [number, number] => [
         E.x + s * 14.5 * k * c,
-        E.y + 0.75 * k * c + (lid.upper ? 4.5 * k * Math.pow(1 - c * c, 0.7) : -5 * k * Math.pow(1 - c * c, 0.8)),
+        E.y +
+          0.75 * k * c +
+          (lid.upper
+            ? 4.5 * k * Math.pow(1 - c * c, 0.7)
+            : -5 * k * Math.pow(1 - c * c, 0.8)),
       ];
       for (let i: number = 0; i < lid.count; ++i) {
-        const c: number = lid.from + ((i + 0.5 + 0.3 * lid.row) / lid.count) * (lid.to - lid.from);
+        const c: number =
+          lid.from +
+          ((i + 0.5 + 0.3 * lid.row) / lid.count) * (lid.to - lid.from);
         const [x, y] = margin(c);
-        const hit: AutoMovieHumanHeadSurface.IHit | null = props.surface.cast([x, y, E.z + 60], [0, 0, -1]);
+        const hit: AutoMovieHumanHeadSurface.IHit | null = props.surface.cast(
+          [x, y, E.z + 60],
+          [0, 0, -1],
+        );
         if (hit === null) continue;
         const [x1, y1] = margin(Math.min(1, c + 0.03));
         const [x0, y0] = margin(Math.max(-1, c - 0.03));
         const along: number[] = normalize([x1 - x0, y1 - y0, 0]);
         const up: number = lid.upper ? 1 : -1;
-        const length: number = props.length * lid.scale * (0.6 + 0.4 * Math.pow(1 - Math.min(1, Math.abs(c - 0.15)), 1.5));
+        const length: number =
+          props.length *
+          lid.scale *
+          (0.6 + 0.4 * Math.pow(1 - Math.min(1, Math.abs(c - 0.15)), 1.5));
         const points: Array<[number, number, number]> = [];
         let p: number[] = add(hit.position, [0, -up * 0.3 * k, 0.2]);
         let d: number[] = normalize([0.15 * s * c, up * 0.35, 1]);
@@ -63,13 +76,19 @@ export function growAutoMovieHumanLashes(props: {
           // each lash curls from its bulb toward the brow or the cheek
           d = normalize(add(d, [0, up * 0.32, -0.08]));
         }
-        const width: number = (1.6 * ((lid.to - lid.from) * 14.5 * k)) / lid.count;
+        const width: number =
+          (1.6 * ((lid.to - lid.from) * 14.5 * k)) / lid.count;
         const normal: [number, number, number] = [0, 0, 1];
         builder.card({
           points,
-          sides: points.map((): [number, number, number] => along as [number, number, number]),
+          sides: points.map(
+            (): [number, number, number] => along as [number, number, number],
+          ),
           normals: points.map((): [number, number, number] => normal),
-          widths: points.map((_: unknown, j: number): number => width * (1 - 0.3 * (j / segments))),
+          widths: points.map(
+            (_: unknown, j: number): number =>
+              width * (1 - 0.3 * (j / segments)),
+          ),
           column: paintAutoMovieHumanHairStrands.COLUMNS.lashes,
           v: [0, 1],
         });

@@ -55,16 +55,20 @@ const AAOS: Record<
 /**
  * Passive hip rotation and ankle inversion and eversion of 105 Göteborg men aged 30 to 40 by goniometer (Roaas and Andersson 1982, Acta Orthop Scand 53:205-208), degrees: hip internal 32.6 and external 33.6, inversion 27.7 and eversion 27.6. Grade: measured.
  */
-const ROAAS_1982: Record<"hipInternal" | "hipExternal" | "inversion", number> = {
-  hipInternal: 32.6,
-  hipExternal: 33.6,
-  inversion: 27.7,
-};
+const ROAAS_1982: Record<"hipInternal" | "hipExternal" | "inversion", number> =
+  {
+    hipInternal: 32.6,
+    hipExternal: 33.6,
+    inversion: 27.7,
+  };
 
 /**
  * Knee flexion where the thigh and calf stop the joint: mean maximum flexion kneeling, 149.4 degrees, falling 1.47 degrees per centimetre of proximal calf girth (McGillivary 2015, MSc thesis, University of Waterloo; 30 young adults, pressure mapping between thigh and calf). The slope is centred on the pooled ANSUR II mean calf girth of 382.8 mm, standing in for the thesis sample's mean, which was not read. Grade: derived.
  */
-const KNEE_CONTACT: Record<"angle" | "perMillimetre" | "referenceCalf", number> = {
+const KNEE_CONTACT: Record<
+  "angle" | "perMillimetre" | "referenceCalf",
+  number
+> = {
   angle: 149.4,
   perMillimetre: 0.147,
   referenceCalf: 382.8,
@@ -81,7 +85,10 @@ const EYE: Record<"vertical" | "horizontal", number> = {
 /**
  * Engine default ranges Human keeps where no source was read, degrees: shoulder rotation ±90 and wrist deviation −30 to 20. Grade: conventional.
  */
-const KEPT: Record<"shoulderRotation" | "wristDeviation", IAutoMovieAngleRange> = {
+const KEPT: Record<
+  "shoulderRotation" | "wristDeviation",
+  IAutoMovieAngleRange
+> = {
   shoulderRotation: { min: -90, max: 90 },
   wristDeviation: { min: -30, max: 20 },
 };
@@ -107,7 +114,10 @@ export function constrainAutoMovieHumanJoint(
     min: number,
     max: number,
   ): IAutoMovieAngleRange => ({ min, max });
-  const hinge: (extension: number, flexion: number) => IAutoMovieJointConstraint = (
+  const hinge: (
+    extension: number,
+    flexion: number,
+  ) => IAutoMovieJointConstraint = (
     extension: number,
     flexion: number,
   ): IAutoMovieJointConstraint => ({
@@ -131,17 +141,29 @@ export function constrainAutoMovieHumanJoint(
     // the AAOS cervical ranges, split equally between the two bones that share them
     return {
       flexion: range(-AAOS.neckExtension / 2, AAOS.neckFlexion / 2),
-      abduction: range(-AAOS.neckLateralFlexion / 2, AAOS.neckLateralFlexion / 2),
+      abduction: range(
+        -AAOS.neckLateralFlexion / 2,
+        AAOS.neckLateralFlexion / 2,
+      ),
       twist: range(-AAOS.neckRotation / 2, AAOS.neckRotation / 2),
     };
   if (bone === "jaw") {
     const opening: number = degrees(
-      2 * Math.asin(Math.min(1, identity.head.mouthOpening / (2 * incisorRadius))),
+      2 *
+        Math.asin(
+          Math.min(1, identity.head.mouthOpening / (2 * incisorRadius)),
+        ),
     );
     const lateral: number = degrees(
-      Math.asin(Math.min(1, identity.head.mandibularLaterotrusion / incisorRadius)),
+      Math.asin(
+        Math.min(1, identity.head.mandibularLaterotrusion / incisorRadius),
+      ),
     );
-    return { flexion: range(0, opening), abduction: range(-lateral, lateral), twist: null };
+    return {
+      flexion: range(0, opening),
+      abduction: range(-lateral, lateral),
+      twist: null,
+    };
   }
   if (part === "Eye")
     return {
@@ -158,7 +180,10 @@ export function constrainAutoMovieHumanJoint(
       };
     case "LowerArm":
       return {
-        flexion: range(Math.min(0, negate(arm.elbowHyperextension)), arm.elbowFlexion),
+        flexion: range(
+          Math.min(0, negate(arm.elbowHyperextension)),
+          arm.elbowFlexion,
+        ),
         abduction: null,
         // positive twist about the T-pose arm's +X pronates either forearm, the engine's arm basis, so supination is negative
         twist: range(negate(arm.forearmSupination), arm.forearmPronation),

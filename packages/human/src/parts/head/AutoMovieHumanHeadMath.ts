@@ -75,13 +75,17 @@ export namespace AutoMovieHumanHeadMath {
       (_: [number, number], i: number): number => {
         if (i === 0) return slopes[0]!;
         if (i === k.length - 1) return slopes[slopes.length - 1]!;
-        return (k[i + 1]![1] - k[i - 1]![1]) / Math.max(1e-9, k[i + 1]![0] - k[i - 1]![0]);
+        return (
+          (k[i + 1]![1] - k[i - 1]![1]) /
+          Math.max(1e-9, k[i + 1]![0] - k[i - 1]![0])
+        );
       },
     );
     const last: number = k.length - 1;
     return (x: number): number => {
       if (x <= k[0]![0]) return k[0]![1] + tangents[0]! * (x - k[0]![0]);
-      if (x >= k[last]![0]) return k[last]![1] + tangents[last]! * (x - k[last]![0]);
+      if (x >= k[last]![0])
+        return k[last]![1] + tangents[last]! * (x - k[last]![0]);
       let i: number = 0;
       while (x > k[i + 1]![0]) ++i;
       const h: number = Math.max(1e-9, k[i + 1]![0] - k[i]![0]);

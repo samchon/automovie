@@ -27,6 +27,7 @@ export function estimateAutoMovieHumanSpinalLoss(
   sex: AutoMovieHumanSex,
   age: number,
 ): number {
-  const years: number = Math.min(LAST_AGE, Math.max(ONSET_AGE, age)) - ONSET_AGE;
+  const years: number =
+    Math.min(LAST_AGE, Math.max(ONSET_AGE, age)) - ONSET_AGE;
   return LOSS_COEFFICIENT[sex] * years * years;
 }

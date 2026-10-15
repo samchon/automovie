@@ -18,11 +18,12 @@ const ABOVE_LANDMARK: Record<"hip" | "knee" | "patella", number> = {
 /**
  * Hip joint centre in the pelvis from leg length LL (anterior superior iliac spine to medial malleolus), millimetres, from CT of 157 people aged 5 to 40 of both sexes, one equation for both (Hara et al. 2016, Sci Rep 6:37707): the centre lies 11 − 0.063 LL anterior (negative: posterior), 8 + 0.086 LL lateral and −9 − 0.078 LL superior (negative: inferior) to the midpoint of the anterior superior iliac spines. Younger and older ages are an extrapolation of the published fit. Grade: measured, population-fitted.
  */
-const HARA_2016: Record<"anterior" | "lateral" | "superior", [number, number]> = {
-  anterior: [11, -0.063],
-  lateral: [8, 0.086],
-  superior: [-9, -0.078],
-};
+const HARA_2016: Record<"anterior" | "lateral" | "superior", [number, number]> =
+  {
+    anterior: [11, -0.063],
+    lateral: [8, 0.086],
+    superior: [-9, -0.078],
+  };
 
 /**
  * Anterior superior iliac spine from the midline as a fraction of bicristal breadth: Hara's inter-spine relation (hip centre lateral = 10 + 0.329 × inter-spine distance) inverted at the ANSUR II mean leg lengths gives 219 mm (women) and 232 mm (men) between the spines, 0.80 and 0.84 of the mean bicristal breadths, so each spine sits 0.41 of the crest breadth from the midline. Grade: derived.
@@ -95,13 +96,15 @@ export function placeAutoMovieHumanLeg(
   const ankle: number = leg.ankleHeight;
   const tibiale: number = ankle + leg.shankLength;
   const trochanterion: number = tibiale + leg.thighLength;
-  const hipHeight: number = trochanterion + ABOVE_LANDMARK.hip * leg.thighLength;
+  const hipHeight: number =
+    trochanterion + ABOVE_LANDMARK.hip * leg.thighLength;
   const kneeHeight: number = tibiale + ABOVE_LANDMARK.knee * leg.thighLength;
 
   // Hara: hip height = spine height + (-9 - 0.078 LL), and LL = spine height - malleolus height
   const legLength: number =
     (hipHeight - HARA_2016.superior[0] - ankle) / (1 + HARA_2016.superior[1]);
-  const lateral: number = HARA_2016.lateral[0] + HARA_2016.lateral[1] * legLength;
+  const lateral: number =
+    HARA_2016.lateral[0] + HARA_2016.lateral[1] * legLength;
   const x: number = s * lateral;
   const hip: IAutoMovieVector3 = v(x, hipHeight, 0);
   const knee: IAutoMovieVector3 = v(x, kneeHeight, 0);
@@ -184,7 +187,8 @@ export function placeAutoMovieHumanLeg(
         "hips",
         v(
           s * ILIOSPINALE_PER_BICRISTAL * body.bicristalBreadth,
-          hipHeight - (HARA_2016.superior[0] + HARA_2016.superior[1] * legLength),
+          hipHeight -
+            (HARA_2016.superior[0] + HARA_2016.superior[1] * legLength),
           -(HARA_2016.anterior[0] + HARA_2016.anterior[1] * legLength),
         ),
       ),

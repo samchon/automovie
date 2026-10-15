@@ -28,29 +28,58 @@ export function dressAutoMovieHumanNails(props: {
     haemoglobin: Math.min(0.32, 6 * p.haemoglobin),
   });
   const edge: number[] = [0.86, 0.84, 0.8];
-  const parts: IAutoMovieModelPart[] = props.parts.map((part: IAutoMovieModelPart): IAutoMovieModelPart => {
-    if (!/\.nail\./.test(part.id) || part.geometry.type !== "mesh" || part.attachedBone === null) return part;
-    const joint: IAutoMovieHumanSkeleton.IJoint | undefined = props.skeleton.joints.find(
-      (j: IAutoMovieHumanSkeleton.IJoint): boolean => j.bone === part.attachedBone,
-    );
-    if (joint === undefined) return part;
-    const axis: number[] = [joint.tail.x - joint.position.x, joint.tail.y - joint.position.y, joint.tail.z - joint.position.z];
-    const length: number = Math.hypot(axis[0]!, axis[1]!, axis[2]!);
-    const d: number[] = axis.map((c: number): number => c / length);
-    const positions: number[] = part.geometry.mesh.positions;
-    const along: number[] = [];
-    for (let i: number = 0; i < positions.length; i += 3)
-      along.push(1000 * (positions[i]! * d[0]! + positions[i + 1]! * d[1]! + positions[i + 2]! * d[2]!));
-    const far: number = Math.max(...along);
-    const near: number = Math.min(...along);
-    const band: number = Math.min(1.5, 0.15 * (far - near));
-    const colors: number[] = [];
-    for (const t of along) {
-      const w: number = Math.min(1, Math.max(0, (t - (far - band)) / (0.5 * band)));
-      colors.push(bed.r + w * (edge[0]! - bed.r), bed.g + w * (edge[1]! - bed.g), bed.b + w * (edge[2]! - bed.b));
-    }
-    return { ...part, material: MATERIAL.id, geometry: { type: "mesh", mesh: { ...part.geometry.mesh, colors } } };
-  });
+  const parts: IAutoMovieModelPart[] = props.parts.map(
+    (part: IAutoMovieModelPart): IAutoMovieModelPart => {
+      if (
+        !/\.nail\./.test(part.id) ||
+        part.geometry.type !== "mesh" ||
+        part.attachedBone === null
+      )
+        return part;
+      const joint: IAutoMovieHumanSkeleton.IJoint | undefined =
+        props.skeleton.joints.find(
+          (j: IAutoMovieHumanSkeleton.IJoint): boolean =>
+            j.bone === part.attachedBone,
+        );
+      if (joint === undefined) return part;
+      const axis: number[] = [
+        joint.tail.x - joint.position.x,
+        joint.tail.y - joint.position.y,
+        joint.tail.z - joint.position.z,
+      ];
+      const length: number = Math.hypot(axis[0]!, axis[1]!, axis[2]!);
+      const d: number[] = axis.map((c: number): number => c / length);
+      const positions: number[] = part.geometry.mesh.positions;
+      const along: number[] = [];
+      for (let i: number = 0; i < positions.length; i += 3)
+        along.push(
+          1000 *
+            (positions[i]! * d[0]! +
+              positions[i + 1]! * d[1]! +
+              positions[i + 2]! * d[2]!),
+        );
+      const far: number = Math.max(...along);
+      const near: number = Math.min(...along);
+      const band: number = Math.min(1.5, 0.15 * (far - near));
+      const colors: number[] = [];
+      for (const t of along) {
+        const w: number = Math.min(
+          1,
+          Math.max(0, (t - (far - band)) / (0.5 * band)),
+        );
+        colors.push(
+          bed.r + w * (edge[0]! - bed.r),
+          bed.g + w * (edge[1]! - bed.g),
+          bed.b + w * (edge[2]! - bed.b),
+        );
+      }
+      return {
+        ...part,
+        material: MATERIAL.id,
+        geometry: { type: "mesh", mesh: { ...part.geometry.mesh, colors } },
+      };
+    },
+  );
   return { parts, material: MATERIAL };
 }
 

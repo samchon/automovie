@@ -29,7 +29,9 @@ export const AUTOMOVIE_HUMAN_FOOT_FORM = {
   ridgeX: [0.033, -0.024, -0.08, -0.118],
 
   /** The dorsal crest's height at 0, 0.12, 0.22, 0.3, 0.36, 0.45, 0.55, 0.65, 0.74, 0.82 and 0.9 of foot length, for a navicular height of 0.2 foot lengths. */
-  ridgeHeight: [0.19, 0.2063, 0.314, 0.339, 0.311, 0.269, 0.226, 0.158, 0.111, 0.156, 0.11],
+  ridgeHeight: [
+    0.19, 0.2063, 0.314, 0.339, 0.311, 0.269, 0.226, 0.158, 0.111, 0.156, 0.11,
+  ],
 
   /** Share of the navicular height's departure from 0.2 foot lengths that raises or lowers the crest over the midfoot. */
   ridgeLift: 0.2,

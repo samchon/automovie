@@ -59,5 +59,11 @@ export const AUTOMOVIE_HUMAN_HAND_FORM = {
   /**
    * Visible nail length from the proximal nail fold to the fingertip over the length of the distal segment from the distal joint centre to the tip (Shirato et al. 2017: thumb 13.7 and 13.5 mm, index 12.3 and 11.8, middle 13.4 and 12.6; against Greiner's distal phalanx link lengths 34.5 and 30.8 for the thumb and 28.4 and 25.5 for the index and middle). Ring and little hold the index and middle mean, conventional. Grade: derived.
    */
-  nailLength: { Thumb: 0.418, Index: 0.448, Middle: 0.483, Ring: 0.466, Little: 0.466 },
+  nailLength: {
+    Thumb: 0.418,
+    Index: 0.448,
+    Middle: 0.483,
+    Ring: 0.466,
+    Little: 0.466,
+  },
 } as const;

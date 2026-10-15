@@ -28,17 +28,25 @@ export function pigmentAutoMovieHumanSkin(
       (1 - melanin) * base;
     // whole blood absorption, mm⁻¹: 2.303 · e · 150 g/L / 64,500 g/mol per cm, a tenth per mm
     const blood: number =
-      (0.1 * 2.303 * 150 * (OXYGENATION * extinction(OXY, lambda) + (1 - OXYGENATION) * extinction(DEOXY, lambda))) /
+      (0.1 *
+        2.303 *
+        150 *
+        (OXYGENATION * extinction(OXY, lambda) +
+          (1 - OXYGENATION) * extinction(DEOXY, lambda))) /
       64500;
     const dermis: number = haemoglobin * blood + (1 - haemoglobin) * base;
     const scattering: number =
       0.5 * (14.74 * Math.pow(lambda, -0.22) + 2.2e11 * Math.pow(lambda, -4));
     const k: number = ((8 / 3) * dermis) / scattering;
     const deep: number = 1 + k - Math.sqrt(k * k + 2 * k);
-    return CORNEUM + (1 - CORNEUM) * Math.exp(-2 * epidermis * EPIDERMIS) * deep;
+    return (
+      CORNEUM + (1 - CORNEUM) * Math.exp(-2 * epidermis * EPIDERMIS) * deep
+    );
   });
   const rgb: [number, number, number] = toLinearSrgb(xyz);
-  const white: [number, number, number] = toLinearSrgb(integrate((): number => 1));
+  const white: [number, number, number] = toLinearSrgb(
+    integrate((): number => 1),
+  );
   const channel = (i: number): number =>
     Math.min(1, Math.max(0, rgb[i]! / white[i]!));
   return { r: channel(0), g: channel(1), b: channel(2) };
@@ -57,24 +65,34 @@ const CORNEUM: number = 0.03;
 const WAVELENGTHS: readonly number[] = [450, 500, 542, 560, 576, 600, 650, 700];
 
 /** Molar extinction of oxyhaemoglobin at {@link WAVELENGTHS}, cm⁻¹/M (Prahl 1999). */
-const OXY: readonly number[] = [62816, 20932.8, 53292, 32613.2, 55540, 3200, 368, 290];
+const OXY: readonly number[] = [
+  62816, 20932.8, 53292, 32613.2, 55540, 3200, 368, 290,
+];
 
 /** Molar extinction of deoxyhaemoglobin at {@link WAVELENGTHS}, cm⁻¹/M (Prahl 1999). */
-const DEOXY: readonly number[] = [103292, 20862, 48148, 53788, 40092, 14677.2, 3750.12, 1794.28];
+const DEOXY: readonly number[] = [
+  103292, 20862, 48148, 53788, 40092, 14677.2, 3750.12, 1794.28,
+];
 
 /** Extinction at a wavelength, log-linear between samples and held beyond them. */
 function extinction(table: readonly number[], lambda: number): number {
   if (lambda <= WAVELENGTHS[0]!) return table[0]!;
   for (let i: number = 1; i < WAVELENGTHS.length; ++i)
     if (lambda <= WAVELENGTHS[i]!) {
-      const t: number = (lambda - WAVELENGTHS[i - 1]!) / (WAVELENGTHS[i]! - WAVELENGTHS[i - 1]!);
-      return Math.exp((1 - t) * Math.log(table[i - 1]!) + t * Math.log(table[i]!));
+      const t: number =
+        (lambda - WAVELENGTHS[i - 1]!) /
+        (WAVELENGTHS[i]! - WAVELENGTHS[i - 1]!);
+      return Math.exp(
+        (1 - t) * Math.log(table[i - 1]!) + t * Math.log(table[i]!),
+      );
     }
   return table[table.length - 1]!;
 }
 
 /** CIE XYZ of a reflectance spectrum under an equal-energy illuminant, 400 to 700 nm in 10 nm steps. */
-function integrate(reflectance: (lambda: number) => number): [number, number, number] {
+function integrate(
+  reflectance: (lambda: number) => number,
+): [number, number, number] {
   const sum: [number, number, number] = [0, 0, 0];
   for (let lambda: number = 400; lambda <= 700; lambda += 10) {
     const r: number = reflectance(lambda);
@@ -83,20 +101,35 @@ function integrate(reflectance: (lambda: number) => number): [number, number, nu
       (1.056 * lobe(lambda, 599.8, 37.9, 31.0) +
         0.362 * lobe(lambda, 442.0, 16.0, 26.7) -
         0.065 * lobe(lambda, 501.1, 20.4, 26.2));
-    sum[1] += r * (0.821 * lobe(lambda, 568.8, 46.9, 40.5) + 0.286 * lobe(lambda, 530.9, 16.3, 31.1));
-    sum[2] += r * (1.217 * lobe(lambda, 437.0, 11.8, 36.0) + 0.681 * lobe(lambda, 459.0, 26.0, 13.8));
+    sum[1] +=
+      r *
+      (0.821 * lobe(lambda, 568.8, 46.9, 40.5) +
+        0.286 * lobe(lambda, 530.9, 16.3, 31.1));
+    sum[2] +=
+      r *
+      (1.217 * lobe(lambda, 437.0, 11.8, 36.0) +
+        0.681 * lobe(lambda, 459.0, 26.0, 13.8));
   }
   return sum;
 }
 
 /** Piecewise Gaussian of Wyman et al. (2013), with its own width on each side of the mean. */
-function lobe(lambda: number, mean: number, below: number, above: number): number {
+function lobe(
+  lambda: number,
+  mean: number,
+  below: number,
+  above: number,
+): number {
   const s: number = lambda < mean ? below : above;
   return Math.exp(-0.5 * ((lambda - mean) / s) ** 2);
 }
 
 /** Linear sRGB of a CIE XYZ triple (IEC 61966-2-1 matrix). */
-function toLinearSrgb([x, y, z]: [number, number, number]): [number, number, number] {
+function toLinearSrgb([x, y, z]: [number, number, number]): [
+  number,
+  number,
+  number,
+] {
   return [
     3.2406 * x - 1.5372 * y - 0.4986 * z,
     -0.9689 * x + 1.8758 * y + 0.0415 * z,

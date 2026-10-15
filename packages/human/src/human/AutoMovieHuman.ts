@@ -225,9 +225,8 @@ export class AutoMovieHuman {
             m.id === dressed.material.id ? dressed.material : m,
         ),
         // the nail plates now cite the appearance's nail material instead of the tissue placeholder
-        ...attachments.materials.filter(
-          (m: IAutoMovieMaterial): boolean =>
-            nails.parts.some((p): boolean => p.material === m.id),
+        ...attachments.materials.filter((m: IAutoMovieMaterial): boolean =>
+          nails.parts.some((p): boolean => p.material === m.id),
         ),
         nails.material,
         ...hair.materials,

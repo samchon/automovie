@@ -1,13 +1,13 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
+import { AUTOMOVIE_HUMAN_EAR_ATTACHMENT } from "../../junction/AUTOMOVIE_HUMAN_EAR_ATTACHMENT";
 import { AutoMovieHumanCageBuilder } from "../../junction/AutoMovieHumanCageBuilder";
 import { IAutoMovieHumanCage } from "../../junction/IAutoMovieHumanCage";
 import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
-import { AUTOMOVIE_HUMAN_EAR_ATTACHMENT } from "../../junction/AUTOMOVIE_HUMAN_EAR_ATTACHMENT";
 import { shapeAutoMovieHumanRing } from "../../junction/shapeAutoMovieHumanRing";
-import { IAutoMovieHumanPartGenerator } from "../IAutoMovieHumanPartGenerator";
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanIdentity } from "../../structures/IAutoMovieHumanIdentity";
+import { IAutoMovieHumanPartGenerator } from "../IAutoMovieHumanPartGenerator";
 import { shapeAutoMovieHumanEar } from "./shapeAutoMovieHumanEar";
 
 /** Inclination of the auricle's long axis behind the vertical, the one the shared attachment ring leans by. */
@@ -36,9 +36,7 @@ export class AutoMovieHumanEarGenerator implements IAutoMovieHumanPartGenerator<
   /**
    * @param form Coefficients of the auricle's drawing; by default the human ear's
    */
-  public constructor(
-    private readonly form?: shapeAutoMovieHumanEar.IForm,
-  ) {}
+  public constructor(private readonly form?: shapeAutoMovieHumanEar.IForm) {}
 
   /**
    * Generate one ear's cage.
@@ -80,7 +78,12 @@ export class AutoMovieHumanEarGenerator implements IAutoMovieHumanPartGenerator<
       -Math.cos(INCLINATION),
     );
     const place = (p: shapeAutoMovieHumanEar.IPoint): IAutoMovieVector3 =>
-      AutoMovieHumanVector.offset(origin, [back, p.x], [up, p.y], [lateral, p.h]);
+      AutoMovieHumanVector.offset(
+        origin,
+        [back, p.x],
+        [up, p.y],
+        [lateral, p.h],
+      );
     const local = (p: IAutoMovieVector3): shapeAutoMovieHumanEar.IPoint => {
       const d: IAutoMovieVector3 = AutoMovieHumanVector.offset(p, [origin, -1]);
       return {
@@ -122,8 +125,10 @@ export class AutoMovieHumanEarGenerator implements IAutoMovieHumanPartGenerator<
     );
     builder.record(layout, ring);
     const neck: AutoMovieHumanCageBuilder.IStation = builder.station(
-      Array.from({ length: 8 }, (_: unknown, k: number): IAutoMovieVector3 =>
-        place(shape.neck[station(k, 8)]!),
+      Array.from(
+        { length: 8 },
+        (_: unknown, k: number): IAutoMovieVector3 =>
+          place(shape.neck[station(k, 8)]!),
       ),
       u(1),
     );
@@ -167,11 +172,31 @@ export class AutoMovieHumanEarGenerator implements IAutoMovieHumanPartGenerator<
       const n = (i: number): number => (k + i) % 8;
       const f = (i: number): number => (3 * k + i) % 24;
       if (forward) {
-        quad([[neck, n(0)], [first, f(2)], [first, f(1)], [first, f(0)]]);
-        quad([[neck, n(0)], [neck, n(1)], [first, f(3)], [first, f(2)]]);
+        quad([
+          [neck, n(0)],
+          [first, f(2)],
+          [first, f(1)],
+          [first, f(0)],
+        ]);
+        quad([
+          [neck, n(0)],
+          [neck, n(1)],
+          [first, f(3)],
+          [first, f(2)],
+        ]);
       } else {
-        quad([[neck, n(0)], [neck, n(1)], [first, f(1)], [first, f(0)]]);
-        quad([[neck, n(1)], [first, f(3)], [first, f(2)], [first, f(1)]]);
+        quad([
+          [neck, n(0)],
+          [neck, n(1)],
+          [first, f(1)],
+          [first, f(0)],
+        ]);
+        quad([
+          [neck, n(1)],
+          [first, f(3)],
+          [first, f(2)],
+          [first, f(1)],
+        ]);
       }
     }
     for (let i: number = 1; i < loops.length; ++i)
@@ -182,7 +207,10 @@ export class AutoMovieHumanEarGenerator implements IAutoMovieHumanPartGenerator<
       const loop: AutoMovieHumanCageBuilder.IStation = loops[crease.loop]!;
       const at = (j: number): number =>
         loop.vertices[forward ? j % 24 : (24 - (j % 24)) % 24]!;
-      builder.crease([at(crease.station), at(crease.station + 1)], crease.sharpness);
+      builder.crease(
+        [at(crease.station), at(crease.station + 1)],
+        crease.sharpness,
+      );
     }
     return builder.build();
   }

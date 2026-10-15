@@ -59,7 +59,11 @@ export function placeAutoMovieHumanArm(
   const acromion: IAutoMovieVector3 = V.of(x, body.acromialHeight, depth);
   const radialeY: number = body.acromialHeight - arm.upperArmLength;
   const radiale: IAutoMovieVector3 = V.of(x, radialeY, depth);
-  const stylion: IAutoMovieVector3 = V.of(x, radialeY - arm.forearmLength, depth);
+  const stylion: IAutoMovieVector3 = V.of(
+    x,
+    radialeY - arm.forearmLength,
+    depth,
+  );
   const shoulder: IAutoMovieVector3 = V.of(
     x,
     body.acromialHeight - JOINT_OFFSET.shoulder * arm.upperArmLength,

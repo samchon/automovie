@@ -66,7 +66,13 @@ export function buildAutoMovieHumanArmCage(
     return found.position;
   };
   const ring = (site: "upperArm" | "wrist"): IAutoMovieHumanRingShape =>
-    shapeAutoMovieHumanRing({ skeleton, measurements, site, side, part: "arm" });
+    shapeAutoMovieHumanRing({
+      skeleton,
+      measurements,
+      site,
+      side,
+      part: "arm",
+    });
   const upper: IAutoMovieHumanRingShape = ring("upperArm");
   const wrist: IAutoMovieHumanRingShape = ring("wrist");
   const elbow: IAutoMovieVector3 = joint("LowerArm");
@@ -76,7 +82,10 @@ export function buildAutoMovieHumanArmCage(
   const forearm: IAutoMovieVector3 = V.normalize(
     V.offset(joint("Hand"), [elbow, -1]),
   );
-  const above: number = V.dot(V.offset(elbow, [upper.frame.origin, -1]), humerus);
+  const above: number = V.dot(
+    V.offset(elbow, [upper.frame.origin, -1]),
+    humerus,
+  );
   // the ring centre's offset from the humerus axis at the cut
   const offset: IAutoMovieVector3 = V.offset(
     upper.frame.origin,
@@ -124,7 +133,10 @@ export function buildAutoMovieHumanArmCage(
         // the upper arm ring's centre lies off the bone axis; the loops below it lean back to the axis by the elbow
         const lean: number = Math.min(
           1,
-          Math.max(0, (section.level - ELBOW_LEVEL) / (COMPANION - ELBOW_LEVEL)),
+          Math.max(
+            0,
+            (section.level - ELBOW_LEVEL) / (COMPANION - ELBOW_LEVEL),
+          ),
         );
         const centre: IAutoMovieVector3 = V.offset(
           elbow,
@@ -208,13 +220,11 @@ export function buildAutoMovieHumanArmCage(
       });
   const last: number = sections.length - 1;
   return {
-    vertices: vertices
-      .flat()
-      .map(
-        (position: IAutoMovieVector3): IAutoMovieHumanCage.IVertex => ({
-          position,
-        }),
-      ),
+    vertices: vertices.flat().map(
+      (position: IAutoMovieVector3): IAutoMovieHumanCage.IVertex => ({
+        position,
+      }),
+    ),
     faces,
     creases: [],
     rings: [
@@ -261,12 +271,10 @@ const perimeter = (control: IAutoMovieVector3[]): number => {
       points.push(
         V.offset(
           V.of(0, 0, 0),
-          ...w.map(
-            (weight: number, a: number): [IAutoMovieVector3, number] => [
-              control[(k - 1 + a + control.length) % control.length]!,
-              weight,
-            ],
-          ),
+          ...w.map((weight: number, a: number): [IAutoMovieVector3, number] => [
+            control[(k - 1 + a + control.length) % control.length]!,
+            weight,
+          ]),
         ),
       );
     }
@@ -341,21 +349,23 @@ const fit = (
       (row: IAutoMovieVector3[], i: number): IAutoMovieVector3[] =>
         i <= 1 || i >= rows - 2
           ? row
-          : row.map((point: IAutoMovieVector3, j: number): IAutoMovieVector3 => {
-              let limit: IAutoMovieVector3 = V.of(0, 0, 0);
-              for (let a: number = -1; a <= 1; ++a)
-                for (let b: number = -1; b <= 1; ++b)
-                  limit = V.offset(limit, [
-                    at(i + a, j + b),
-                    W[a + 1]! * W[b + 1]!,
-                  ]);
-              const error: IAutoMovieVector3 = V.offset(targets[i]![j]!, [
-                limit,
-                -1,
-              ]);
-              const ray: IAutoMovieVector3 = rays[i]![j]!;
-              return V.offset(point, [ray, V.dot(error, ray)]);
-            }),
+          : row.map(
+              (point: IAutoMovieVector3, j: number): IAutoMovieVector3 => {
+                let limit: IAutoMovieVector3 = V.of(0, 0, 0);
+                for (let a: number = -1; a <= 1; ++a)
+                  for (let b: number = -1; b <= 1; ++b)
+                    limit = V.offset(limit, [
+                      at(i + a, j + b),
+                      W[a + 1]! * W[b + 1]!,
+                    ]);
+                const error: IAutoMovieVector3 = V.offset(targets[i]![j]!, [
+                  limit,
+                  -1,
+                ]);
+                const ray: IAutoMovieVector3 = rays[i]![j]!;
+                return V.offset(point, [ray, V.dot(error, ray)]);
+              },
+            ),
     );
   return cage;
 };

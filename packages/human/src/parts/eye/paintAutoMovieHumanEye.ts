@@ -20,7 +20,8 @@ import { IAutoMovieHumanIrisPigment } from "./IAutoMovieHumanIrisPigment";
 export function paintAutoMovieHumanEye(
   iris: AutoMovieHumanIrisColor,
 ): paintAutoMovieHumanEye.IOutput {
-  const pigment: IAutoMovieHumanIrisPigment = AUTOMOVIE_HUMAN_IRIS_PIGMENTS[iris];
+  const pigment: IAutoMovieHumanIrisPigment =
+    AUTOMOVIE_HUMAN_IRIS_PIGMENTS[iris];
   const atlas: typeof AUTOMOVIE_HUMAN_EYE_ATLAS = AUTOMOVIE_HUMAN_EYE_ATLAS;
   const pupil: number = AUTOMOVIE_HUMAN_EYE.pupil / AUTOMOVIE_HUMAN_EYE.limbus;
   const color: Uint8Array = new Uint8Array(SIZE * SIZE * 3);
@@ -39,7 +40,10 @@ export function paintAutoMovieHumanEye(
                 LIMBUS,
                 (rho - atlas.iris) / (atlas.limbus - atlas.iris),
               )
-            : paintSclera((rho - atlas.limbus) / (atlas.pole - atlas.limbus), turn);
+            : paintSclera(
+                (rho - atlas.limbus) / (atlas.pole - atlas.limbus),
+                turn,
+              );
       const at: number = 3 * (y * SIZE + x);
       for (let c: number = 0; c < 3; ++c)
         color[at + c] = Math.round(255 * clamp(rgb[c]!));
@@ -107,7 +111,10 @@ const SIZE: number = 512;
 const ROUGH_SIZE: number = 64;
 
 /** Roughness of the wet conjunctiva and of the stroma. Grade: conventional. */
-const ROUGHNESS: Record<"sclera" | "iris", number> = { sclera: 0.22, iris: 0.6 };
+const ROUGHNESS: Record<"sclera" | "iris", number> = {
+  sclera: 0.22,
+  iris: 0.6,
+};
 
 /** The sclera's off-white, the grey of the limbal transition and the vessels' red, sRGB. Grade: conventional. */
 const SCLERA: Rgb = [0.88, 0.85, 0.81];
@@ -143,8 +150,15 @@ function paintIris(
   rgb = mix(rgb, pigment.crest, 0.75 * smooth(0.45, 0.85, fibre));
   rgb = scale(rgb, 0.7 + 0.45 * fibre);
   // collarette ridge with a shadow on its pupillary side
-  rgb = mix(rgb, pigment.crest, 0.45 * Math.exp(-(((t - collarette) / 0.03) ** 2)));
-  rgb = scale(rgb, 1 - 0.3 * Math.exp(-(((t - collarette + 0.05) / 0.025) ** 2)));
+  rgb = mix(
+    rgb,
+    pigment.crest,
+    0.45 * Math.exp(-(((t - collarette) / 0.03) ** 2)),
+  );
+  rgb = scale(
+    rgb,
+    1 - 0.3 * Math.exp(-(((t - collarette + 0.05) / 0.025) ** 2)),
+  );
   // crypts between the collarette and mid ciliary zone
   rgb = scale(rgb, 1 - 0.5 * crypt(turn, t));
   // broken contraction furrows in the outer ciliary zone
@@ -205,7 +219,9 @@ function paintSclera(s: number, turn: number): Rgb {
   const canthal: number = Math.cos(2 * Math.PI * turn) ** 2;
   rgb = mix(rgb, [0.86, 0.78, 0.75], 0.35 * canthal * smooth(0.1, 0.5, s));
   const warp: number = 0.6 * noise(turn * 12, s * 3, 12, 21);
-  const line: number = Math.abs(noise(turn * 22 + warp * 4, s * 1.2, 22, 22) - 0.5);
+  const line: number = Math.abs(
+    noise(turn * 22 + warp * 4, s * 1.2, 22, 22) - 0.5,
+  );
   const vessel: number =
     (1 - smooth(0.006, 0.02, line)) *
     smooth(0.05, 0.25, s) *
@@ -284,7 +300,11 @@ function clamp(x: number): number {
  * @returns Blend
  */
 function mix(a: Rgb, b: Rgb, t: number): Rgb {
-  return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
+  return [
+    a[0] + (b[0] - a[0]) * t,
+    a[1] + (b[1] - a[1]) * t,
+    a[2] + (b[2] - a[2]) * t,
+  ];
 }
 
 /**

@@ -34,7 +34,20 @@ const ARM_OPENING: Array<[number, number]> = [
 /**
  * The thigh opening of the left side in the thigh ring's layout order: loop 0 columns, or `null` for the perineum's left vertex. Front, then medially round to the back and up the lateral side.
  */
-const LEG_OPENING: Array<number | null> = [3, 2, 1, null, 11, 10, 9, 8, 7, 6, 5, 4];
+const LEG_OPENING: Array<number | null> = [
+  3,
+  2,
+  1,
+  null,
+  11,
+  10,
+  9,
+  8,
+  7,
+  6,
+  5,
+  4,
+];
 
 /**
  * Connect the trunk's points into its quad cage: one fixed topology for every person.
@@ -64,15 +77,20 @@ export function connectAutoMovieHumanTrunk(
   const loop: number[][] = points.loops.map(
     (row: IAutoMovieVector3[], i: number): number[] =>
       row.map((p: IAutoMovieVector3, j: number): number =>
-        i === ARM_LOOPS[1] && (j === 6 || j === 18) ? -1 : add(p, height(i), j / COLUMNS),
+        i === ARM_LOOPS[1] && (j === 6 || j === 18)
+          ? -1
+          : add(p, height(i), j / COLUMNS),
       ),
   );
-  const ridge: number[] = points.ridge.map((p: IAutoMovieVector3, k: number): number => {
-    const c: number = k - 4;
-    if (Math.abs(c) <= 1) return -1;
-    const v: number = c > 0 ? 0.25 * (1 - (c - 2) / 6) : 0.75 + 0.25 * ((-c - 2) / 6);
-    return add(p, (LOOPS + 0.5) / (LOOPS + 1), v);
-  });
+  const ridge: number[] = points.ridge.map(
+    (p: IAutoMovieVector3, k: number): number => {
+      const c: number = k - 4;
+      if (Math.abs(c) <= 1) return -1;
+      const v: number =
+        c > 0 ? 0.25 * (1 - (c - 2) / 6) : 0.75 + 0.25 * ((-c - 2) / 6);
+      return add(p, (LOOPS + 0.5) / (LOOPS + 1), v);
+    },
+  );
   const perineum: number[] = points.perineum.map(
     (p: IAutoMovieVector3, k: number): number => add(p, 0, (k - 1) / COLUMNS),
   );
@@ -82,7 +100,9 @@ export function connectAutoMovieHumanTrunk(
     const corners: Array<{ u: number; v: number }> = q.map(
       (i: number): { u: number; v: number } => chart[i]!,
     );
-    const vs: number[] = corners.map((c: { u: number; v: number }): number => c.v);
+    const vs: number[] = corners.map(
+      (c: { u: number; v: number }): number => c.v,
+    );
     const wrap: boolean = Math.max(...vs) - Math.min(...vs) > 0.5;
     faces.push({
       vertices: q,
@@ -119,7 +139,12 @@ export function connectAutoMovieHumanTrunk(
   for (let c: number = -5; c < 5; ++c) {
     if (c >= -2 && c <= 1) continue;
     for (let r: number = 0; r < 2; ++r)
-      face([shoulder(c, r), shoulder(c + 1, r), shoulder(c + 1, r + 1), shoulder(c, r + 1)]);
+      face([
+        shoulder(c, r),
+        shoulder(c + 1, r),
+        shoulder(c + 1, r + 1),
+        shoulder(c, r + 1),
+      ]);
   }
   // the perineal strip
   const bottom = (c: number, r: number): number => {
@@ -129,7 +154,12 @@ export function connectAutoMovieHumanTrunk(
   };
   for (let c: number = -1; c < 1; ++c)
     for (let r: number = 0; r < 2; ++r)
-      face([bottom(c, r), bottom(c, r + 1), bottom(c + 1, r + 1), bottom(c + 1, r)]);
+      face([
+        bottom(c, r),
+        bottom(c, r + 1),
+        bottom(c + 1, r + 1),
+        bottom(c + 1, r),
+      ]);
 
   // stubs: each opening in the layout order of its side, then the rings outward
   // each stub is a branch with a chart of its own: u from the opening (0) to the ring (1), v about the site's distal axis from its anterior mark
@@ -144,7 +174,11 @@ export function connectAutoMovieHumanTrunk(
       const next: number[] = ring.map((p: IAutoMovieVector3): number =>
         add(p, 0, 0),
       );
-      const corner = (row: number, k: number, wrap: boolean): IAutoMovieHumanSurfaceCoordinate => ({
+      const corner = (
+        row: number,
+        k: number,
+        wrap: boolean,
+      ): IAutoMovieHumanSurfaceCoordinate => ({
         part: "trunk",
         side: null,
         branch,
@@ -172,11 +206,13 @@ export function connectAutoMovieHumanTrunk(
     side === "left" ? slots : [slots[0]!, ...slots.slice(1).reverse()];
   const mirror = (j: number): number => (COLUMNS - j) % COLUMNS;
   // the collar under the neck base, then the ring itself above it
-  const collar: number[] = [0, 1, 2, -2, 10, 11, 12, 13, 14, -9, 22, 23].map((j: number): number =>
-    j === -2 ? ridge[6]! : j === -9 ? ridge[2]! : top[j]!,
+  const collar: number[] = [0, 1, 2, -2, 10, 11, 12, 13, 14, -9, 22, 23].map(
+    (j: number): number =>
+      j === -2 ? ridge[6]! : j === -9 ? ridge[2]! : top[j]!,
   );
-  const neck: number[] = points.neck.map((p: IAutoMovieVector3, k: number): number =>
-    add(p, 1, k / points.neck.length),
+  const neck: number[] = points.neck.map(
+    (p: IAutoMovieVector3, k: number): number =>
+      add(p, 1, k / points.neck.length),
   );
   for (let k: number = 0; k < neck.length; ++k) {
     const l: number = (k + 1) % neck.length;
@@ -194,8 +230,9 @@ export function connectAutoMovieHumanTrunk(
   for (const side of ["left", "right"] as const) {
     const opening: number[] = sided(
       side,
-      ARM_OPENING.map(([i, j]: [number, number]): number =>
-        loop[i]![side === "left" ? j : mirror(j)]!,
+      ARM_OPENING.map(
+        ([i, j]: [number, number]): number =>
+          loop[i]![side === "left" ? j : mirror(j)]!,
       ),
     );
     const end: number[] = stub(
@@ -215,7 +252,9 @@ export function connectAutoMovieHumanTrunk(
     const opening: number[] = sided(
       side,
       LEG_OPENING.map((j: number | null): number =>
-        j === null ? perineum[side === "left" ? 2 : 0]! : loop[0]![side === "left" ? j : mirror(j)]!,
+        j === null
+          ? perineum[side === "left" ? 2 : 0]!
+          : loop[0]![side === "left" ? j : mirror(j)]!,
       ),
     );
     const end: number[] = stub(

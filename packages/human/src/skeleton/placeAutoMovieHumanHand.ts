@@ -50,7 +50,10 @@ const PHALANGES: [number, number] = [0.5, 0.75];
 /**
  * Thumb placement at rest. The carpometacarpal joint of the thumb sits on the trapezium in the distal carpal row, level with the bases of the other metacarpals, on the radial and palmar side of the hand: its metacarpal is never flat with the palm (Bridgman 1920). The thumb points out from the index line by its radial spread and from the palm plane by its palmar spread. Grade: conventional.
  */
-const THUMB: Record<"baseRadial" | "basePalmar" | "radialSpread" | "palmarSpread", number> = {
+const THUMB: Record<
+  "baseRadial" | "basePalmar" | "radialSpread" | "palmarSpread",
+  number
+> = {
   /** Carpometacarpal joint toward the thumb, of hand breadth. */
   baseRadial: 0.3,
   /** Carpometacarpal joint palmar to the hand's plane, of hand breadth. */
@@ -90,9 +93,13 @@ export function placeAutoMovieHumanHand(
   const palmar: IAutoMovieVector3 = V.of(-s, 0, 0);
   const radial: IAutoMovieVector3 = V.of(0, 0, 1);
   const breadth: number = arm.handBreadth;
-  const dactylion: IAutoMovieVector3 = V.offset(stylion, [distal, arm.handLength]);
+  const dactylion: IAutoMovieVector3 = V.offset(stylion, [
+    distal,
+    arm.handLength,
+  ]);
   const reach: number = wrist.y - dactylion.y;
-  const middleFinger: number = FINGER_PER_CREASE * (arm.handLength - arm.palmLength);
+  const middleFinger: number =
+    FINGER_PER_CREASE * (arm.handLength - arm.palmLength);
   const middleKnuckle: number = reach - middleFinger;
   const third: number = METACARPAL.thirdShare * middleKnuckle;
   const baseAlong: number = middleKnuckle - third;
@@ -125,8 +132,16 @@ export function placeAutoMovieHumanHand(
   const along: IAutoMovieVector3 = V.normalize(
     V.offset(
       origin,
-      [distal, Math.cos(radians(THUMB.radialSpread)) * Math.cos(radians(THUMB.palmarSpread))],
-      [radial, Math.sin(radians(THUMB.radialSpread)) * Math.cos(radians(THUMB.palmarSpread))],
+      [
+        distal,
+        Math.cos(radians(THUMB.radialSpread)) *
+          Math.cos(radians(THUMB.palmarSpread)),
+      ],
+      [
+        radial,
+        Math.sin(radians(THUMB.radialSpread)) *
+          Math.cos(radians(THUMB.palmarSpread)),
+      ],
       [palmar, Math.sin(radians(THUMB.palmarSpread))],
     ),
   );
@@ -144,7 +159,10 @@ export function placeAutoMovieHumanHand(
     along,
     METACARPAL.Thumb * third,
   ]);
-  const thumbTip: IAutoMovieVector3 = V.offset(thumbKnuckle, [along, arm.thumbLength]);
+  const thumbTip: IAutoMovieVector3 = V.offset(thumbKnuckle, [
+    along,
+    arm.thumbLength,
+  ]);
   chain(
     [`${side}ThumbMetacarpal`, `${side}ThumbProximal`, `${side}ThumbDistal`],
     [
@@ -156,7 +174,10 @@ export function placeAutoMovieHumanHand(
     {
       flexion: V.cross(along, pad),
       // about the pad's own direction, signed so a positive turn carries the tip palmar, out of the palm's plane
-      abduction: V.dot(V.cross(pad, along), palmar) >= 0 ? pad : V.offset(origin, [pad, -1]),
+      abduction:
+        V.dot(V.cross(pad, along), palmar) >= 0
+          ? pad
+          : V.offset(origin, [pad, -1]),
       twist: along,
     },
   );
@@ -214,11 +235,19 @@ export function placeAutoMovieHumanHand(
       dactylion: mark(`${side}MiddleDistal`, dactylion),
       metacarpaleII: mark(
         `${side}Hand`,
-        V.offset(wrist, [distal, edgeAlong], [radial, edgeCentre + breadth / 2]),
+        V.offset(
+          wrist,
+          [distal, edgeAlong],
+          [radial, edgeCentre + breadth / 2],
+        ),
       ),
       metacarpaleV: mark(
         `${side}Hand`,
-        V.offset(wrist, [distal, edgeAlong], [radial, edgeCentre - breadth / 2]),
+        V.offset(
+          wrist,
+          [distal, edgeAlong],
+          [radial, edgeCentre - breadth / 2],
+        ),
       ),
       middleFingerCrease: mark(
         `${side}MiddleProximal`,

@@ -14,7 +14,10 @@ const AGES: number[] = [6.5, 14, 40, 55, 65, 75, 85];
 /**
  * Pelvic tilt, sacral slope and thoracic kyphosis, degrees, standing lateral radiographs with hips and knees extended. Children: means of 646 children reported by Mac-Thiong, Labelle and Roussouly (2011), sexes pooled (tilt 5.5 and 7.7, slope 38.2 and 39.1, kyphosis 42.0 and 45.8 at 3 to 10 and 10 to 18 years). Adults: the Wakayama Spine Study's community sample of 466 men and 995 women (Asai et al. 2017, Tables 2 and 3), kyphosis the Cobb angle from T2 to T12, sacral slope its pelvic incidence less its pelvic tilt. With age the pelvis tilts back (tilt 11.5 to 19.7 in men, 14.5 to 25.2 in women), the sacrum flattens and the thoracic curve deepens, most after 70. The adult sample is Japanese; no European sample with age groups was read, so every population takes it. Grade: measured.
  */
-const SAGITTAL: Record<"pelvicTilt" | "sacralSlope" | "thoracicKyphosis", ISexCurve> = {
+const SAGITTAL: Record<
+  "pelvicTilt" | "sacralSlope" | "thoracicKyphosis",
+  ISexCurve
+> = {
   pelvicTilt: {
     male: { ages: AGES, values: [5.5, 7.7, 11.5, 14.4, 15.5, 16.0, 19.7] },
     female: { ages: AGES, values: [5.5, 7.7, 14.5, 15.8, 18.1, 23.0, 25.2] },
@@ -83,6 +86,7 @@ export function estimateAutoMovieHumanPosture(
     thoracicKyphosis: read(SAGITTAL.thoracicKyphosis),
     sagittalVerticalAxis: read(SAGITTAL_VERTICAL_AXIS),
     craniovertebralAngle:
-      CRANIOVERTEBRAL[sex] + CRANIOVERTEBRAL.perYear * (cvaAge - CRANIOVERTEBRAL.meanAge),
+      CRANIOVERTEBRAL[sex] +
+      CRANIOVERTEBRAL.perYear * (cvaAge - CRANIOVERTEBRAL.meanAge),
   };
 }

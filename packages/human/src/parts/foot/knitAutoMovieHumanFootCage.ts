@@ -77,7 +77,12 @@ export function knitAutoMovieHumanFootCage(
   const last: number = columns - 1;
   const front: number = rows - 1;
   for (let j: number = 0; j < rows - 1; ++j) {
-    faces.push([upper[0]![j]!, sole[0]![j]!, sole[0]![j + 1]!, upper[0]![j + 1]!]);
+    faces.push([
+      upper[0]![j]!,
+      sole[0]![j]!,
+      sole[0]![j + 1]!,
+      upper[0]![j + 1]!,
+    ]);
     faces.push([
       upper[last]![j]!,
       upper[last]![j + 1]!,
@@ -86,7 +91,12 @@ export function knitAutoMovieHumanFootCage(
     ]);
   }
   for (let i: number = 0; i < columns - 1; ++i) {
-    faces.push([upper[i]![0]!, upper[i + 1]![0]!, sole[i + 1]![0]!, sole[i]![0]!]);
+    faces.push([
+      upper[i]![0]!,
+      upper[i + 1]![0]!,
+      sole[i + 1]![0]!,
+      sole[i]![0]!,
+    ]);
     if (i % 2 === 1)
       faces.push([
         upper[i]![front]!,
@@ -109,10 +119,12 @@ export function knitAutoMovieHumanFootCage(
       const u: number =
         TOE_CHART.root +
         ((TOE_CHART.tip - TOE_CHART.root) * (s + 1)) / toeStations.length;
-      const next: number[] = corners.map((p: IAutoMovieVector3, c: number): number => {
-        charts.push({ u, v: charts[root[c]!]!.v });
-        return positions.push(p) - 1;
-      });
+      const next: number[] = corners.map(
+        (p: IAutoMovieVector3, c: number): number => {
+          charts.push({ u, v: charts[root[c]!]!.v });
+          return positions.push(p) - 1;
+        },
+      );
       toes[t]!.push(next);
       for (let c: number = 0; c < 4; ++c)
         faces.push([

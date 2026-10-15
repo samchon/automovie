@@ -50,13 +50,24 @@ export function tintAutoMovieHumanSkin(props: {
   const stomion = l.stomion.position;
   const mouth: number = 0.185 * head.faceWidth;
   const ankle: number =
-    0.5 * Math.min(props.measurements.identity.body.leftLeg.ankleHeight, props.measurements.identity.body.rightLeg.ankleHeight);
-  const cheeks: number[][] = (["left", "right"] as const).map((side): number[] => {
-    const z = l[side].zygion.position;
-    return [z.x * 0.72, z.y - 8 * k, z.z + 0.5 * (stomion.z - z.z)];
-  });
+    0.5 *
+    Math.min(
+      props.measurements.identity.body.leftLeg.ankleHeight,
+      props.measurements.identity.body.rightLeg.ankleHeight,
+    );
+  const cheeks: number[][] = (["left", "right"] as const).map(
+    (side): number[] => {
+      const z = l[side].zygion.position;
+      return [z.x * 0.72, z.y - 8 * k, z.z + 0.5 * (stomion.z - z.z)];
+    },
+  );
   return props.parts.map((part: IAutoMovieModelPart): IAutoMovieModelPart => {
-    if (part.geometry.type !== "mesh" || part.geometry.mesh.uvs === null || !part.id.startsWith("skin")) return part;
+    if (
+      part.geometry.type !== "mesh" ||
+      part.geometry.mesh.uvs === null ||
+      !part.id.startsWith("skin")
+    )
+      return part;
     const mesh: IAutoMovieMesh = part.geometry.mesh;
     const uvs: number[] = mesh.uvs!;
     const colors: number[] = [];
@@ -65,8 +76,14 @@ export function tintAutoMovieHumanSkin(props: {
       const y: number = mesh.positions[3 * i + 1]! * 1000;
       const z: number = mesh.positions[3 * i + 2]! * 1000;
       const ny: number = mesh.normals === null ? 0 : mesh.normals[3 * i + 1]!;
-      const chart: { chart: AutoMovieHumanUvLayout.IChart; v: number } | null = chartOf(uvs[2 * i]!, uvs[2 * i + 1]!);
-      const w: Record<"palm" | "lips" | "flush" | "ear", number> = { palm: 0, lips: 0, flush: 0, ear: 0 };
+      const chart: { chart: AutoMovieHumanUvLayout.IChart; v: number } | null =
+        chartOf(uvs[2 * i]!, uvs[2 * i + 1]!);
+      const w: Record<"palm" | "lips" | "flush" | "ear", number> = {
+        palm: 0,
+        lips: 0,
+        flush: 0,
+        ear: 0,
+      };
       if (chart !== null)
         switch (chart.chart.part) {
           case "hand":
@@ -81,9 +98,13 @@ export function tintAutoMovieHumanSkin(props: {
           case "head": {
             const dx: number = x / mouth;
             const dy: number = (y - stomion.y) / ((y > stomion.y ? 8 : 9) * k);
-            w.lips = z > stomion.z - 12 * k ? smooth(2.5 * (1 - dx * dx - dy * dy)) : 0;
+            w.lips =
+              z > stomion.z - 12 * k
+                ? smooth(2.5 * (1 - dx * dx - dy * dy))
+                : 0;
             for (const c of cheeks) {
-              const d: number = Math.hypot(x - c[0]!, y - c[1]!, z - c[2]!) / (24 * k);
+              const d: number =
+                Math.hypot(x - c[0]!, y - c[1]!, z - c[2]!) / (24 * k);
               w.flush = Math.max(w.flush, smooth(1.4 * (1 - d * d)));
             }
             break;
@@ -96,7 +117,8 @@ export function tintAutoMovieHumanSkin(props: {
         }
       for (let c: number = 0; c < 3; ++c) {
         let v: number = body[c]!;
-        for (const r of ["palm", "lips", "flush", "ear"] as const) v += w[r] * (regions[r][c]! - body[c]!);
+        for (const r of ["palm", "lips", "flush", "ear"] as const)
+          v += w[r] * (regions[r][c]! - body[c]!);
         colors.push(Math.min(1, Math.max(0, v)));
       }
     }
@@ -111,9 +133,20 @@ function smooth(t: number): number {
 }
 
 /** The chart a texture coordinate lies in, with the chart `v` it encodes, or null off every chart. */
-function chartOf(x: number, y: number): { chart: AutoMovieHumanUvLayout.IChart; v: number } | null {
+function chartOf(
+  x: number,
+  y: number,
+): { chart: AutoMovieHumanUvLayout.IChart; v: number } | null {
   for (const chart of AUTOMOVIE_HUMAN_UV_LAYOUT.charts)
-    if (x >= chart.x - 1e-9 && x <= chart.x + chart.width + 1e-9 && y >= chart.y - 1e-9 && y <= chart.y + chart.height + 1e-9)
-      return { chart, v: ((((x - chart.x) / chart.width + chart.seam) % 1) + 1) % 1 };
+    if (
+      x >= chart.x - 1e-9 &&
+      x <= chart.x + chart.width + 1e-9 &&
+      y >= chart.y - 1e-9 &&
+      y <= chart.y + chart.height + 1e-9
+    )
+      return {
+        chart,
+        v: ((((x - chart.x) / chart.width + chart.seam) % 1) + 1) % 1,
+      };
   return null;
 }

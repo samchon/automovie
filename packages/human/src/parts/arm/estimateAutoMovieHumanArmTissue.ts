@@ -91,6 +91,5 @@ export namespace estimateAutoMovieHumanArmTissue {
 
     /** Biepicondylar breadth of the humerus, bone only. */
     elbowBreadth: number;
-
   }
 }

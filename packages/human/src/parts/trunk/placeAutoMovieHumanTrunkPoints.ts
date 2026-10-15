@@ -37,7 +37,13 @@ export function placeAutoMovieHumanTrunkPoints(
     site: "neckBase" | "upperArm" | "thigh",
     side: AutoMovieHumanSide | null,
   ): IAutoMovieHumanTrunkPoints.ILayouts["neck"] =>
-    shapeAutoMovieHumanRing({ skeleton, measurements, site, side, part: "trunk" });
+    shapeAutoMovieHumanRing({
+      skeleton,
+      measurements,
+      site,
+      side,
+      part: "trunk",
+    });
   const layouts: IAutoMovieHumanTrunkPoints.ILayouts = {
     neck: shape("neckBase", null),
     arm: { left: shape("upperArm", "left"), right: shape("upperArm", "right") },
@@ -57,11 +63,18 @@ export function placeAutoMovieHumanTrunkPoints(
   );
   const ridge: IAutoMovieVector3[] = new Array<IAutoMovieVector3>(9);
   const perineum: IAutoMovieVector3[] = new Array<IAutoMovieVector3>(3);
-  const arms: Record<AutoMovieHumanSide, IAutoMovieVector3[][]> = { left: [], right: [] };
-  const legs: Record<AutoMovieHumanSide, IAutoMovieVector3[][]> = { left: [], right: [] };
+  const arms: Record<AutoMovieHumanSide, IAutoMovieVector3[][]> = {
+    left: [],
+    right: [],
+  };
+  const legs: Record<AutoMovieHumanSide, IAutoMovieVector3[][]> = {
+    left: [],
+    right: [],
+  };
   for (const side of ["left", "right"] as const) {
     const sign: number = side === "left" ? 1 : -1;
-    const toModel = (p: IAutoMovieVector3): IAutoMovieVector3 => V.of(sign * p.x, p.y, p.z);
+    const toModel = (p: IAutoMovieVector3): IAutoMovieVector3 =>
+      V.of(sign * p.x, p.y, p.z);
     // a ring built in the left ring order runs the other way round on the right
     const order = (ring: IAutoMovieVector3[]): IAutoMovieVector3[] => {
       const model: IAutoMovieVector3[] = ring.map(toModel);
@@ -72,11 +85,13 @@ export function placeAutoMovieHumanTrunkPoints(
       skeleton,
       side,
     );
-    const profile: profileAutoMovieHumanTrunk.IProfile = profileAutoMovieHumanTrunk(
+    const profile: profileAutoMovieHumanTrunk.IProfile =
+      profileAutoMovieHumanTrunk(frame, tune);
+    const half: IAutoMovieVector3[][] = placeAutoMovieHumanTrunkTorso(
       frame,
+      profile,
       tune,
     );
-    const half: IAutoMovieVector3[][] = placeAutoMovieHumanTrunkTorso(frame, profile, tune);
     const shoulder: placeAutoMovieHumanTrunkShoulder.IOutput =
       placeAutoMovieHumanTrunkShoulder(
         frame,
@@ -86,13 +101,14 @@ export function placeAutoMovieHumanTrunkPoints(
         layouts.arm[side],
         sign,
       );
-    const hip: placeAutoMovieHumanTrunkHip.IOutput = placeAutoMovieHumanTrunkHip(
-      frame,
-      profile,
-      tune,
-      half,
-      layouts.thigh[side],
-    );
+    const hip: placeAutoMovieHumanTrunkHip.IOutput =
+      placeAutoMovieHumanTrunkHip(
+        frame,
+        profile,
+        tune,
+        half,
+        layouts.thigh[side],
+      );
     placeAutoMovieHumanTrunkGluteal(frame, profile, half);
     half.forEach((row: IAutoMovieVector3[], i: number): void =>
       row.forEach((q: IAutoMovieVector3, j: number): void => {
@@ -115,9 +131,19 @@ export function placeAutoMovieHumanTrunkPoints(
     perineum[1] =
       perineum[1] === undefined
         ? middle
-        : V.of(0, (perineum[1].y + middle.y) / 2, (perineum[1].z + middle.z) / 2);
-    arms[side] = beside([...shoulder.rings.map(order), shoulder.cut], layouts.arm[side]);
-    legs[side] = beside([...hip.rings.map(order), hip.cut], layouts.thigh[side]);
+        : V.of(
+            0,
+            (perineum[1].y + middle.y) / 2,
+            (perineum[1].z + middle.z) / 2,
+          );
+    arms[side] = beside(
+      [...shoulder.rings.map(order), shoulder.cut],
+      layouts.arm[side],
+    );
+    legs[side] = beside(
+      [...hip.rings.map(order), hip.cut],
+      layouts.thigh[side],
+    );
   }
   // the collar's slots are exact on both sides
   for (const [j, k] of [
@@ -135,7 +161,15 @@ export function placeAutoMovieHumanTrunkPoints(
     loops[AUTOMOVIE_HUMAN_TRUNK_LOOPS - 1]![j] = neck[k]!;
   ridge[6] = neck[3]!;
   ridge[2] = neck[9]!;
-  return { loops, ridge, perineum, neck: layouts.neck.positions, arms, legs, layouts };
+  return {
+    loops,
+    ridge,
+    perineum,
+    neck: layouts.neck.positions,
+    arms,
+    legs,
+    layouts,
+  };
 }
 
 /**
@@ -152,19 +186,24 @@ const beside = (
   const k: number = rings.length - 2;
   const n: number = rings[k]!.length;
   const centre: IAutoMovieVector3 = AutoMovieHumanVector.of(
-    rings[k]!.reduce((s: number, p: IAutoMovieVector3): number => s + p.x, 0) / n,
-    rings[k]!.reduce((s: number, p: IAutoMovieVector3): number => s + p.y, 0) / n,
-    rings[k]!.reduce((s: number, p: IAutoMovieVector3): number => s + p.z, 0) / n,
+    rings[k]!.reduce((s: number, p: IAutoMovieVector3): number => s + p.x, 0) /
+      n,
+    rings[k]!.reduce((s: number, p: IAutoMovieVector3): number => s + p.y, 0) /
+      n,
+    rings[k]!.reduce((s: number, p: IAutoMovieVector3): number => s + p.z, 0) /
+      n,
   );
   const back: number = AutoMovieHumanVector.dot(
     AutoMovieHumanVector.offset(shape.frame.origin, [centre, -1]),
     shape.frame.normal,
   );
-  return rings.map((ring: IAutoMovieVector3[], r: number): IAutoMovieVector3[] =>
-    r === k
-      ? shape.positions.map((p: IAutoMovieVector3): IAutoMovieVector3 =>
-          AutoMovieHumanVector.offset(p, [shape.frame.normal, -back]),
-        )
-      : ring,
+  return rings.map(
+    (ring: IAutoMovieVector3[], r: number): IAutoMovieVector3[] =>
+      r === k
+        ? shape.positions.map(
+            (p: IAutoMovieVector3): IAutoMovieVector3 =>
+              AutoMovieHumanVector.offset(p, [shape.frame.normal, -back]),
+          )
+        : ring,
   );
 };

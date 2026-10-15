@@ -1,4 +1,7 @@
-import { IAutoMovieSubdivisionSurface, subdivideAutoMovieSurface } from "@automovie/engine";
+import {
+  IAutoMovieSubdivisionSurface,
+  subdivideAutoMovieSurface,
+} from "@automovie/engine";
 import { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieHumanSide } from "../../junction/AutoMovieHumanSide";
@@ -59,12 +62,16 @@ export class AutoMovieHumanFootGenerator implements IAutoMovieHumanPartGenerator
     });
     return {
       vertices: positions.map(
-        (position: IAutoMovieVector3): IAutoMovieHumanCage.IVertex => ({ position }),
+        (position: IAutoMovieVector3): IAutoMovieHumanCage.IVertex => ({
+          position,
+        }),
       ),
       faces: knit.faces.map(
         (face: [number, number, number, number]): IAutoMovieHumanCage.IFace => {
           const corners: [number, number, number, number] = mirror(side, face);
-          const vs: number[] = corners.map((c: number): number => chartV(side, knit.charts[c]!.v));
+          const vs: number[] = corners.map((c: number): number =>
+            chartV(side, knit.charts[c]!.v),
+          );
           const high: boolean = vs.some((v: number): boolean => v > 0.5);
           return {
             vertices: corners,
@@ -105,7 +112,11 @@ export class AutoMovieHumanFootGenerator implements IAutoMovieHumanPartGenerator
     const { side, knit, toModel } = foot;
     const surface: IAutoMovieSubdivisionSurface = subdivideAutoMovieSurface({
       cage: {
-        positions: knit.positions.flatMap((p: IAutoMovieVector3): number[] => [p.x, p.y, p.z]),
+        positions: knit.positions.flatMap((p: IAutoMovieVector3): number[] => [
+          p.x,
+          p.y,
+          p.z,
+        ]),
         faces: knit.faces,
       },
       levels: 2,
@@ -120,46 +131,65 @@ export class AutoMovieHumanFootGenerator implements IAutoMovieHumanPartGenerator
         surface.faces[f + 2]!,
         surface.faces[f + 3]!,
       );
-    const plates: ReturnType<typeof placeAutoMovieHumanFootNails> = placeAutoMovieHumanFootNails({
-      plan: foot.plan,
-      toes: knit.toes.map((stations: number[][]): IAutoMovieVector3[][] =>
-        stations.map((corners: number[]): IAutoMovieVector3[] =>
-          corners.map((c: number): IAutoMovieVector3 => knit.positions[c]!),
+    const plates: ReturnType<typeof placeAutoMovieHumanFootNails> =
+      placeAutoMovieHumanFootNails({
+        plan: foot.plan,
+        toes: knit.toes.map((stations: number[][]): IAutoMovieVector3[][] =>
+          stations.map((corners: number[]): IAutoMovieVector3[] =>
+            corners.map((c: number): IAutoMovieVector3 => knit.positions[c]!),
+          ),
         ),
-      ),
-      skin: { positions: surface.limitPositions, triangles },
-    });
-    const bone: AutoMovieHumanoidBone = side === "left" ? "leftToes" : "rightToes";
-    return plates.map((plate, t: number): IAutoMovieHumanPartGenerator.IAttachment => {
-      // the plate's chart address: the toe's own dorsal column on the foot's chart, toward its tip
-      const v: number = chartV(side, knit.charts[knit.toes[t]![0]![0]!]!.v);
-      return {
-        name: `nail.${NAILS[t]!}`,
-        bone,
-        tissue: "nail",
-        cage: {
-          vertices: plate.positions.map(
-            (p: IAutoMovieVector3): IAutoMovieHumanCage.IVertex => ({ position: toModel(p) }),
-          ),
-          faces: plate.quads.map(
-            (quad: [number, number, number, number]): IAutoMovieHumanCage.IFace => {
-              const coordinate: IAutoMovieHumanSurfaceCoordinate = { part: "foot", side, u: 0.95, v };
-              return {
-                vertices: mirror(side, quad),
-                coordinates: [coordinate, coordinate, coordinate, coordinate],
-              };
-            },
-          ),
-          creases: [],
-          rings: [],
-        },
-      };
-    });
+        skin: { positions: surface.limitPositions, triangles },
+      });
+    const bone: AutoMovieHumanoidBone =
+      side === "left" ? "leftToes" : "rightToes";
+    return plates.map(
+      (plate, t: number): IAutoMovieHumanPartGenerator.IAttachment => {
+        // the plate's chart address: the toe's own dorsal column on the foot's chart, toward its tip
+        const v: number = chartV(side, knit.charts[knit.toes[t]![0]![0]!]!.v);
+        return {
+          name: `nail.${NAILS[t]!}`,
+          bone,
+          tissue: "nail",
+          cage: {
+            vertices: plate.positions.map(
+              (p: IAutoMovieVector3): IAutoMovieHumanCage.IVertex => ({
+                position: toModel(p),
+              }),
+            ),
+            faces: plate.quads.map(
+              (
+                quad: [number, number, number, number],
+              ): IAutoMovieHumanCage.IFace => {
+                const coordinate: IAutoMovieHumanSurfaceCoordinate = {
+                  part: "foot",
+                  side,
+                  u: 0.95,
+                  v,
+                };
+                return {
+                  vertices: mirror(side, quad),
+                  coordinates: [coordinate, coordinate, coordinate, coordinate],
+                };
+              },
+            ),
+            creases: [],
+            rings: [],
+          },
+        };
+      },
+    );
   }
 }
 
 /** Attachment names of the toenails, hallux first. */
-const NAILS: readonly string[] = ["hallux", "second", "third", "fourth", "fifth"];
+const NAILS: readonly string[] = [
+  "hallux",
+  "second",
+  "third",
+  "fourth",
+  "fifth",
+];
 
 /** One foot's cage in its local frame, with the transforms and ring order that place it on the person. */
 interface IFoot {
@@ -175,10 +205,12 @@ interface IFoot {
 const mirror = (
   side: AutoMovieHumanSide,
   face: [number, number, number, number],
-): [number, number, number, number] => (side === "left" ? face : [face[0], face[3], face[2], face[1]]);
+): [number, number, number, number] =>
+  side === "left" ? face : [face[0], face[3], face[2], face[1]];
 
 /** A chart `v` of the left foot, mirrored on the right foot so it still runs counterclockwise about the distal axis. */
-const chartV = (side: AutoMovieHumanSide, v: number): number => (side === "left" || v === 0 ? v : 1 - v);
+const chartV = (side: AutoMovieHumanSide, v: number): number =>
+  side === "left" || v === 0 ? v : 1 - v;
 
 /** Plan, shape, knit and fit one foot in its local frame. */
 const build = (props: IAutoMovieHumanPartGenerator.IProps<"foot">): IFoot => {
@@ -188,7 +220,9 @@ const build = (props: IAutoMovieHumanPartGenerator.IProps<"foot">): IFoot => {
   const leg: IAutoMovieHumanIdentity.ILeg =
     side === "left" ? body.leftLeg : body.rightLeg;
   const landmarks: IAutoMovieHumanLandmarks.ISide =
-    side === "left" ? props.skeleton.landmarks.left : props.skeleton.landmarks.right;
+    side === "left"
+      ? props.skeleton.landmarks.left
+      : props.skeleton.landmarks.right;
   const ankle: IAutoMovieHumanSkeleton.IJoint | undefined =
     props.skeleton.joints.find(
       (j: IAutoMovieHumanSkeleton.IJoint): boolean =>
@@ -231,7 +265,8 @@ const build = (props: IAutoMovieHumanPartGenerator.IProps<"foot">): IFoot => {
   shapeAutoMovieHumanFootUpper(plan, draft);
   shapeAutoMovieHumanFootSole(plan, draft);
   draft.toes = shapeAutoMovieHumanFootToes(plan);
-  const knit: knitAutoMovieHumanFootCage.IOutput = knitAutoMovieHumanFootCage(draft);
+  const knit: knitAutoMovieHumanFootCage.IOutput =
+    knitAutoMovieHumanFootCage(draft);
   fitAutoMovieHumanFootCage(plan, knit);
   return { side, plan, knit, toModel, layout, order };
 };

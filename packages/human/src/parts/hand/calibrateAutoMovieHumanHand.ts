@@ -1,6 +1,9 @@
+import {
+  IAutoMovieSubdivisionSurface,
+  subdivideAutoMovieSurface,
+} from "@automovie/engine";
 import { IAutoMovieVector3 } from "@automovie/interface";
 
-import { subdivideAutoMovieSurface, IAutoMovieSubdivisionSurface } from "@automovie/engine";
 import { fitAutoMovieHumanCageLimit } from "./fitAutoMovieHumanCageLimit";
 import { readAutoMovieHumanHand } from "./readAutoMovieHumanHand";
 
@@ -35,19 +38,34 @@ export function calibrateAutoMovieHumanHand(props: {
   held: number[];
 }): IAutoMovieVector3[] {
   const hand: readAutoMovieHumanHand.IHand = props.hand;
-  const digits: Set<number> = new Set([...props.thumb, ...props.fingers.flatMap((f) => f.vertices)]);
+  const digits: Set<number> = new Set([
+    ...props.thumb,
+    ...props.fingers.flatMap((f) => f.vertices),
+  ]);
   const thumb: Set<number> = new Set(props.thumb);
-  const thumbFaces: boolean[] = props.faces.map((f: readonly number[]): boolean => f.some((v: number): boolean => thumb.has(v)));
+  const thumbFaces: boolean[] = props.faces.map(
+    (f: readonly number[]): boolean =>
+      f.some((v: number): boolean => thumb.has(v)),
+  );
   const heads: number = hand.metacarpaleII.x;
   const centre: number = (hand.metacarpaleII.z + hand.metacarpaleV.z) / 2;
   const half: number = (hand.metacarpaleII.z - hand.metacarpaleV.z) / 2;
   let positions: IAutoMovieVector3[] = [];
   for (let pass: number = 0; pass < 4; ++pass) {
-    positions = fitAutoMovieHumanCageLimit({ targets: props.targets, faces: props.faces, sweeps: 400, held: props.held });
+    positions = fitAutoMovieHumanCageLimit({
+      targets: props.targets,
+      faces: props.faces,
+      sweeps: 400,
+      held: props.held,
+    });
     if (pass === 3) break;
     const surface: IAutoMovieSubdivisionSurface = subdivideAutoMovieSurface({
       cage: {
-        positions: positions.flatMap((p: IAutoMovieVector3): number[] => [p.x, p.y, p.z]),
+        positions: positions.flatMap((p: IAutoMovieVector3): number[] => [
+          p.x,
+          p.y,
+          p.z,
+        ]),
         faces: props.faces.map((f: readonly number[]): number[] => [...f]),
       },
       levels: 3,
@@ -60,7 +78,8 @@ export function calibrateAutoMovieHumanHand(props: {
       const x: number = limit[3 * v]!;
       const z: number = limit[3 * v + 2]!;
       reach = Math.max(reach, x);
-      if (Math.abs(x - heads) > 1 || thumbFaces[surface.parameters[v]!.face]) continue;
+      if (Math.abs(x - heads) > 1 || thumbFaces[surface.parameters[v]!.face])
+        continue;
       radial = Math.max(radial, z);
       ulnar = Math.min(ulnar, z);
     }
@@ -72,12 +91,19 @@ export function calibrateAutoMovieHumanHand(props: {
       const tip: number = finger.digit.points[3]!.x;
       for (const v of finger.vertices) {
         const t: IAutoMovieVector3 = props.targets[v]!;
-        if (t.x > dip) props.targets[v] = { ...t, x: t.x + (along * (t.x - dip)) / (tip - dip) };
+        if (t.x > dip)
+          props.targets[v] = {
+            ...t,
+            x: t.x + (along * (t.x - dip)) / (tip - dip),
+          };
       }
     }
     props.targets.forEach((t: IAutoMovieVector3, v: number): void => {
       if (digits.has(v)) return;
-      const level: number = Math.max(0, 1 - Math.abs(t.x - heads) / (0.2 * props.length));
+      const level: number = Math.max(
+        0,
+        1 - Math.abs(t.x - heads) / (0.2 * props.length),
+      );
       const across: number = (t.z - centre) / half;
       const shift: number =
         across > 0

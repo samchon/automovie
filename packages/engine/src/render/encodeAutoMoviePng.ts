@@ -45,7 +45,10 @@ export const encodeAutoMoviePng: (props: {
   // filtered scanlines, each led by filter type 0
   const raw: Uint8Array = new Uint8Array((stride + 1) * height);
   for (let y: number = 0; y < height; ++y)
-    raw.set(pixels.subarray(y * stride, (y + 1) * stride), y * (stride + 1) + 1);
+    raw.set(
+      pixels.subarray(y * stride, (y + 1) * stride),
+      y * (stride + 1) + 1,
+    );
 
   // zlib: header, stored blocks, Adler-32
   const blocks: number = Math.max(1, Math.ceil(raw.length / 65535));

@@ -4,10 +4,8 @@ import { AutoMovieHumanActionUnit } from "../structures/AutoMovieHumanActionUnit
 import { IAutoMovieHumanExpression } from "../structures/IAutoMovieHumanExpression";
 
 /** Action units that move the mandible, which is one bone and cannot act on one side alone. */
-const JAW_UNITS: ReadonlySet<AutoMovieHumanActionUnit> = new Set<AutoMovieHumanActionUnit>([
-  "jawDrop",
-  "mouthStretch",
-]);
+const JAW_UNITS: ReadonlySet<AutoMovieHumanActionUnit> =
+  new Set<AutoMovieHumanActionUnit>(["jawDrop", "mouthStretch"]);
 
 /**
  * Admit an expression: its static type and bounds, then the combinations a face can take.
@@ -35,7 +33,8 @@ export function validateAutoMovieHumanExpression(
           path: `${path}.side`,
           value: activation.side,
           expected: `"both" for ${activation.unit}`,
-          description: "the mandible is one bone and opens on both sides together",
+          description:
+            "the mandible is one bone and opens on both sides together",
         });
       const listed: Set<string> = sides.get(activation.unit) ?? new Set();
       if (

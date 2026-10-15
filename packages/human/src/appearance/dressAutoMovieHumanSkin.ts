@@ -1,9 +1,13 @@
-import { IAutoMovieImage, IAutoMovieMaterial, IAutoMovieModelPart } from "@automovie/interface";
+import {
+  IAutoMovieImage,
+  IAutoMovieMaterial,
+  IAutoMovieModelPart,
+} from "@automovie/interface";
 
 import { AUTOMOVIE_HUMAN_UV_LAYOUT } from "../junction/AUTOMOVIE_HUMAN_UV_LAYOUT";
-import { IAutoMovieHumanAppearance } from "../structures/IAutoMovieHumanAppearance";
 import { IAutoMovieHumanMeasurements } from "../measure/IAutoMovieHumanMeasurements";
 import { IAutoMovieHumanSkeleton } from "../skeleton/IAutoMovieHumanSkeleton";
+import { IAutoMovieHumanAppearance } from "../structures/IAutoMovieHumanAppearance";
 import { paintAutoMovieHumanSkinRelief } from "./paintAutoMovieHumanSkinRelief";
 import { tintAutoMovieHumanSkin } from "./tintAutoMovieHumanSkin";
 
@@ -28,8 +32,14 @@ export function dressAutoMovieHumanSkin(props: {
   measurements: IAutoMovieHumanMeasurements;
   skeleton: IAutoMovieHumanSkeleton;
   skin: IAutoMovieHumanAppearance.ISkin;
-}): { parts: IAutoMovieModelPart[]; material: IAutoMovieMaterial; images: IAutoMovieImage[] } {
-  const relief: IAutoMovieImage = paintAutoMovieHumanSkinRelief({ furrows: props.skin.wrinkles });
+}): {
+  parts: IAutoMovieModelPart[];
+  material: IAutoMovieMaterial;
+  images: IAutoMovieImage[];
+} {
+  const relief: IAutoMovieImage = paintAutoMovieHumanSkinRelief({
+    furrows: props.skin.wrinkles,
+  });
   const repeats: number = ATLAS_SPAN / paintAutoMovieHumanSkinRelief.TILE;
   return {
     parts: tintAutoMovieHumanSkin({

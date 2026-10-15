@@ -43,7 +43,10 @@ export function continueAutoMovieHumanHeadRings(props: {
   );
   const out: Map<number, IAutoMovieVector3> = new Map();
   props.vertices.forEach((vertex: number, k: number): void => {
-    const target: IAutoMovieVector3 = AutoMovieHumanVector.offset(props.ring.positions[k]!, [inward, 1]);
+    const target: IAutoMovieVector3 = AutoMovieHumanVector.offset(
+      props.ring.positions[k]!,
+      [inward, 1],
+    );
     const off: number[] = [...(neighbours.get(vertex) ?? [])];
     if (off.length === 1) {
       out.set(off[0]!, target);
@@ -52,13 +55,20 @@ export function continueAutoMovieHumanHeadRings(props: {
     // two neighbours at a hole's corner: spread them along the ring's tangent about the continued point
     const next: IAutoMovieVector3 = props.ring.positions[(k + 1) % n]!;
     const previous: IAutoMovieVector3 = props.ring.positions[(k + n - 1) % n]!;
-    const tangent: IAutoMovieVector3 = AutoMovieHumanVector.offset(next, [previous, -1]);
+    const tangent: IAutoMovieVector3 = AutoMovieHumanVector.offset(next, [
+      previous,
+      -1,
+    ]);
     // the neighbour sharing a face with the next ring vertex lies toward it
     const shares = (v: number, w: number): boolean =>
-      props.faces.some((f: [number, number, number, number]): boolean => f.includes(v) && f.includes(w));
+      props.faces.some(
+        (f: [number, number, number, number]): boolean =>
+          f.includes(v) && f.includes(w),
+      );
     const toward: number = props.vertices[(k + 1) % n]!;
     const ordered: number[] = [...off].sort(
-      (a: number, b: number): number => Number(shares(b, toward)) - Number(shares(a, toward)),
+      (a: number, b: number): number =>
+        Number(shares(b, toward)) - Number(shares(a, toward)),
     );
     ordered.forEach((v: number, i: number): void => {
       const share: number = (0.5 - i / (ordered.length - 1)) * SPREAD;

@@ -1,5 +1,10 @@
-import { IAutoMovieConstraintViolation, IAutoMoviePose, IAutoMovieSkeleton, IAutoMovieValidation } from "@automovie/interface";
 import { validatePoseResult } from "@automovie/engine";
+import {
+  IAutoMovieConstraintViolation,
+  IAutoMoviePose,
+  IAutoMovieSkeleton,
+  IAutoMovieValidation,
+} from "@automovie/interface";
 import typia, { IValidation } from "typia";
 
 import { IAutoMovieHumanPose } from "../structures/IAutoMovieHumanPose";

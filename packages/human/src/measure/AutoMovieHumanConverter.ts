@@ -166,7 +166,9 @@ export class AutoMovieHumanConverter implements IAutoMovieHumanConverter {
    * - Brows and lashes take the natural hair colour, grey from 70 years; lashes 10 mm long for a woman, 9 for a man and 8 for a child, below the 12 mm natural lashes rarely exceed.
    * - Mid-range skin oil, and fine wrinkles that deepen linearly from 25 to 75 years; underwear by sex (briefs for a male person, briefs and a bra for a female person) in white.
    */
-  public toAppearance(traits: IAutoMovieHumanTraits): IAutoMovieHumanAppearance {
+  public toAppearance(
+    traits: IAutoMovieHumanTraits,
+  ): IAutoMovieHumanAppearance {
     const female: boolean = traits.sex === "female";
     const natural: AutoMovieHumanHairColor =
       traits.population === "european" ? "brown" : "black";
@@ -181,9 +183,22 @@ export class AutoMovieHumanConverter implements IAutoMovieHumanConverter {
       hair: {
         style,
         color: traits.age >= 60 ? "gray" : natural,
-        length: style === "crop" ? 15 : style === "bob" ? (traits.age < 12 ? 170 : 210) : traits.age < 12 ? 40 : 55,
+        length:
+          style === "crop"
+            ? 15
+            : style === "bob"
+              ? traits.age < 12
+                ? 170
+                : 210
+              : traits.age < 12
+                ? 40
+                : 55,
         curl:
-          traits.population === "african" ? "VI" : traits.population === "eastAsian" ? "I" : "II",
+          traits.population === "african"
+            ? "VI"
+            : traits.population === "eastAsian"
+              ? "I"
+              : "II",
         hairline: !female && traits.age >= 40 ? "mShaped" : "round",
       },
       brows: { color: traits.age >= 70 ? "gray" : natural },

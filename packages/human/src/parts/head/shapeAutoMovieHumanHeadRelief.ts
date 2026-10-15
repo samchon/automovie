@@ -37,7 +37,11 @@ export function shapeAutoMovieHumanHeadRelief(
   const bumps: IBump[] = [];
   for (const s of [1, -1]) {
     bumps.push({
-      centre: v(s * 0.38 * fw, frame.eye.y - 0.19 * fh, frame.zygion.z + 0.1 * fh),
+      centre: v(
+        s * 0.38 * fw,
+        frame.eye.y - 0.19 * fh,
+        frame.zygion.z + 0.1 * fh,
+      ),
       radii: v(0.16 * fw, 0.11 * fh, 0.35 * fh),
       height: form.malar * fh,
     });
@@ -47,21 +51,36 @@ export function shapeAutoMovieHumanHeadRelief(
       height: form.brow * fh,
     });
     bumps.push({
-      centre: v(s * 0.5 * breadth, frame.eye.y + 0.12 * fh, frame.frontotemporale.z - 0.25 * fh),
+      centre: v(
+        s * 0.5 * breadth,
+        frame.eye.y + 0.12 * fh,
+        frame.frontotemporale.z - 0.25 * fh,
+      ),
       radii: v(0.15 * fw, 0.2 * fh, 0.22 * fh),
       height: -form.templeHollow * fh,
     });
     bumps.push({
-      centre: v(s * frame.gonion.x, frame.gonion.y + 0.02 * fh, frame.gonion.z + 0.03 * fh),
+      centre: v(
+        s * frame.gonion.x,
+        frame.gonion.y + 0.02 * fh,
+        frame.gonion.z + 0.03 * fh,
+      ),
       radii: v(0.1 * fw, 0.12 * fh, 0.15 * fh),
       height: form.gonial * fh,
     });
   }
   const share: number = fh / head.headHeight;
-  const buccal: number = Math.max(0, form.buccal + form.buccalGrowth * (ADULT_FACE_SHARE - share));
+  const buccal: number = Math.max(
+    0,
+    form.buccal + form.buccalGrowth * (ADULT_FACE_SHARE - share),
+  );
   for (const s of [1, -1])
     bumps.push({
-      centre: v(s * 0.3 * fw, frame.stomion.y + 0.2 * fh, frame.nasion.z - 0.1 * fh),
+      centre: v(
+        s * 0.3 * fw,
+        frame.stomion.y + 0.2 * fh,
+        frame.nasion.z - 0.1 * fh,
+      ),
       radii: v(0.15 * fw, 0.2 * fh, 0.35 * fh),
       height: buccal * fh,
     });

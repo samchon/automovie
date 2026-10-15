@@ -29,18 +29,25 @@ export function measureAutoMovieHumanTrunkSurface(
 ): measureAutoMovieHumanTrunkSurface.IOutput {
   const surface: IAutoMovieSubdivisionSurface = subdivideAutoMovieSurface({
     cage: {
-      positions: cage.vertices.flatMap((v: IAutoMovieHumanCage.IVertex): number[] => [
-        v.position.x,
-        v.position.y,
-        v.position.z,
+      positions: cage.vertices.flatMap(
+        (v: IAutoMovieHumanCage.IVertex): number[] => [
+          v.position.x,
+          v.position.y,
+          v.position.z,
+        ],
+      ),
+      faces: cage.faces.map((f: IAutoMovieHumanCage.IFace): number[] => [
+        ...f.vertices,
       ]),
-      faces: cage.faces.map((f: IAutoMovieHumanCage.IFace): number[] => [...f.vertices]),
     },
     levels: LEVELS,
   });
   const P: number[] = surface.limitPositions;
   const quads: number[] = surface.faces;
-  const slice = (y: number, keep: (x: number) => boolean): Array<[number, number]> => {
+  const slice = (
+    y: number,
+    keep: (x: number) => boolean,
+  ): Array<[number, number]> => {
     const out: Array<[number, number]> = [];
     for (let f: number = 0; f < quads.length; f += 4)
       for (let k: number = 0; k < 4; ++k) {
@@ -51,11 +58,15 @@ export function measureAutoMovieHumanTrunkSurface(
         if (ya < 0 === yb < 0) continue;
         const t: number = ya / (ya - yb);
         const x: number = P[a * 3]! + (P[b * 3]! - P[a * 3]!) * t;
-        if (keep(x)) out.push([x, P[a * 3 + 2]! + (P[b * 3 + 2]! - P[a * 3 + 2]!) * t]);
+        if (keep(x))
+          out.push([x, P[a * 3 + 2]! + (P[b * 3 + 2]! - P[a * 3 + 2]!) * t]);
       }
     return out;
   };
-  const section = (y: number, keep: (x: number) => boolean = (): boolean => true): ISection => {
+  const section = (
+    y: number,
+    keep: (x: number) => boolean = (): boolean => true,
+  ): ISection => {
     const points: Array<[number, number]> = slice(y, keep);
     const extent = (k: 0 | 1): number => {
       let low: number = Infinity;
@@ -70,7 +81,11 @@ export function measureAutoMovieHumanTrunkSurface(
   };
   const L: IAutoMovieHumanTrunkFrame.ILevels = frame.levels;
   let chest: ISection = section(L.costal);
-  for (let y: number = L.costal; y <= L.chestPoint + 0.025 * frame.stature; y += STEP) {
+  for (
+    let y: number = L.costal;
+    y <= L.chestPoint + 0.025 * frame.stature;
+    y += STEP
+  ) {
     const s: ISection = section(y);
     if (s.girth > chest.girth) chest = s;
   }
@@ -122,14 +137,21 @@ interface ISection {
 const hull = (points: Array<[number, number]>): number => {
   if (points.length < 3) return 0;
   const sorted: Array<[number, number]> = [...points].sort(
-    (a: [number, number], b: [number, number]): number => a[0] - b[0] || a[1] - b[1],
+    (a: [number, number], b: [number, number]): number =>
+      a[0] - b[0] || a[1] - b[1],
   );
-  const turn = (o: [number, number], a: [number, number], b: [number, number]): number =>
-    (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+  const turn = (
+    o: [number, number],
+    a: [number, number],
+    b: [number, number],
+  ): number => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
   const chain = (list: Array<[number, number]>): Array<[number, number]> => {
     const out: Array<[number, number]> = [];
     for (const p of list) {
-      while (out.length >= 2 && turn(out[out.length - 2]!, out[out.length - 1]!, p) <= 0)
+      while (
+        out.length >= 2 &&
+        turn(out[out.length - 2]!, out[out.length - 1]!, p) <= 0
+      )
         out.pop();
       out.push(p);
     }

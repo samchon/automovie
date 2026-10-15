@@ -36,12 +36,19 @@ export function emitAutoMovieHumanHair(props: {
   skeleton: IAutoMovieHumanSkeleton;
   appearance: IAutoMovieHumanAppearance;
   skin: readonly IAutoMovieModelPart[];
-}): { parts: IAutoMovieModelPart[]; materials: IAutoMovieMaterial[]; images: IAutoMovieImage[] } {
-  const head: IAutoMovieHumanSkeleton.IJoint | undefined = props.skeleton.joints.find(
-    (j: IAutoMovieHumanSkeleton.IJoint): boolean => j.bone === "head",
-  );
+}): {
+  parts: IAutoMovieModelPart[];
+  materials: IAutoMovieMaterial[];
+  images: IAutoMovieImage[];
+} {
+  const head: IAutoMovieHumanSkeleton.IJoint | undefined =
+    props.skeleton.joints.find(
+      (j: IAutoMovieHumanSkeleton.IJoint): boolean => j.bone === "head",
+    );
   if (head === undefined) throw new Error("the skeleton lacks the head bone");
-  const surface: AutoMovieHumanHeadSurface = new AutoMovieHumanHeadSurface(props.skin);
+  const surface: AutoMovieHumanHeadSurface = new AutoMovieHumanHeadSurface(
+    props.skin,
+  );
   const scalp: frameAutoMovieHumanScalp.IScalp = frameAutoMovieHumanScalp({
     measurements: props.measurements,
     skeleton: props.skeleton,
@@ -50,11 +57,19 @@ export function emitAutoMovieHumanHair(props: {
   const strands: IAutoMovieImage = paintAutoMovieHumanHairStrands();
   const parts: IAutoMovieModelPart[] = [];
   const materials: Map<string, IAutoMovieMaterial> = new Map();
-  const add = (name: "hair" | "brows" | "lashes", color: AutoMovieHumanHairColor, mesh: IAutoMovieMesh | null): void => {
+  const add = (
+    name: "hair" | "brows" | "lashes",
+    color: AutoMovieHumanHairColor,
+    mesh: IAutoMovieMesh | null,
+  ): void => {
     if (mesh === null || mesh.positions.length === 0) return;
     const material: IAutoMovieMaterial = materialOf(color, strands.id);
     materials.set(material.id, material);
-    const origin: number[] = [head.position.x, head.position.y, head.position.z];
+    const origin: number[] = [
+      head.position.x,
+      head.position.y,
+      head.position.z,
+    ];
     parts.push({
       id: name,
       name,
@@ -62,7 +77,9 @@ export function emitAutoMovieHumanHair(props: {
         type: "mesh",
         mesh: {
           ...mesh,
-          positions: mesh.positions.map((x: number, i: number): number => (x - origin[i % 3]!) / 1000),
+          positions: mesh.positions.map(
+            (x: number, i: number): number => (x - origin[i % 3]!) / 1000,
+          ),
         },
       },
       material: material.id,
@@ -71,15 +88,44 @@ export function emitAutoMovieHumanHair(props: {
     });
   };
   const appearance: IAutoMovieHumanAppearance = props.appearance;
-  add("hair", appearance.hair.color, growAutoMovieHumanHair({ surface, scalp, skeleton: props.skeleton, hair: appearance.hair }));
-  add("brows", appearance.brows.color, growAutoMovieHumanBrows({ surface, skeleton: props.skeleton }));
-  add("lashes", appearance.lashes.color, growAutoMovieHumanLashes({ surface, skeleton: props.skeleton, length: appearance.lashes.length }));
-  return { parts, materials: [...materials.values()], images: parts.length === 0 ? [] : [strands] };
+  add(
+    "hair",
+    appearance.hair.color,
+    growAutoMovieHumanHair({
+      surface,
+      scalp,
+      skeleton: props.skeleton,
+      hair: appearance.hair,
+    }),
+  );
+  add(
+    "brows",
+    appearance.brows.color,
+    growAutoMovieHumanBrows({ surface, skeleton: props.skeleton }),
+  );
+  add(
+    "lashes",
+    appearance.lashes.color,
+    growAutoMovieHumanLashes({
+      surface,
+      skeleton: props.skeleton,
+      length: appearance.lashes.length,
+    }),
+  );
+  return {
+    parts,
+    materials: [...materials.values()],
+    images: parts.length === 0 ? [] : [strands],
+  };
 }
 
 /** The hair material of one colour, sampling the strand atlas. */
-function materialOf(color: AutoMovieHumanHairColor, atlas: string): IAutoMovieMaterial {
-  const c: { r: number; g: number; b: number } = AUTOMOVIE_HUMAN_HAIR_COLORS[color];
+function materialOf(
+  color: AutoMovieHumanHairColor,
+  atlas: string,
+): IAutoMovieMaterial {
+  const c: { r: number; g: number; b: number } =
+    AUTOMOVIE_HUMAN_HAIR_COLORS[color];
   return {
     id: `hair.${color}`,
     name: `${color} hair`,
@@ -93,7 +139,12 @@ function materialOf(color: AutoMovieHumanHairColor, atlas: string): IAutoMovieMa
       texCoord: 0,
       coordinateSource: "normalized",
       colorSpace: "linear",
-      sampler: { wrapS: "clamp", wrapT: "clamp", minFilter: "linearMipmapLinear", magFilter: "linear" },
+      sampler: {
+        wrapS: "clamp",
+        wrapT: "clamp",
+        minFilter: "linearMipmapLinear",
+        magFilter: "linear",
+      },
     },
     alphaMode: "mask",
     alphaCutoff: 0.35,

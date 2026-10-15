@@ -11,7 +11,8 @@ import { IAutoMovieImage } from "@automovie/interface";
 export function paintAutoMovieHumanHairStrands(): IAutoMovieImage {
   const pixels: Uint8Array = new Uint8Array(WIDTH * HEIGHT * 4);
   const C = paintAutoMovieHumanHairStrands.COLUMNS;
-  for (let k: number = 0; k < 4; ++k) lock(pixels, C.locks[k]!, 15, 0.7, 2.6, k);
+  for (let k: number = 0; k < 4; ++k)
+    lock(pixels, C.locks[k]!, 15, 0.7, 2.6, k);
   lock(pixels, C.single, 1, 1, 13, 10);
   lock(pixels, C.lashes, 3, 0.8, 5, 11);
   for (let y: number = 0; y < HEIGHT; ++y)
@@ -23,7 +24,12 @@ export function paintAutoMovieHumanHairStrands(): IAutoMovieImage {
   return {
     id: "human.hair.strands",
     mimeType: "image/png",
-    data: encodeAutoMoviePng({ width: WIDTH, height: HEIGHT, channels: 4, pixels }),
+    data: encodeAutoMoviePng({
+      width: WIDTH,
+      height: HEIGHT,
+      channels: 4,
+      pixels,
+    }),
   };
 }
 /**
@@ -68,7 +74,11 @@ function lock(
   const span: number = (column[1] - column[0]) * WIDTH;
   for (let s: number = 0; s < count; ++s) {
     const centre: number =
-      count === 1 ? x0 + span / 2 : x0 + 1.5 + ((s + 0.5 + 0.8 * (hash(seed, s, 0) - 0.5)) / count) * (span - 3);
+      count === 1
+        ? x0 + span / 2
+        : x0 +
+          1.5 +
+          ((s + 0.5 + 0.8 * (hash(seed, s, 0) - 0.5)) / count) * (span - 3);
     const half: number = (width * (0.75 + 0.5 * hash(seed, s, 1))) / 2;
     const tip: number = shortest + (1 - shortest) * hash(seed, s, 2);
     const shade: number = 0.72 + 0.28 * hash(seed, s, 3);
@@ -79,7 +89,11 @@ function lock(
       const taper: number = Math.min(1, (tip - t) / (0.25 * tip));
       const c: number = centre + sway * t * t * half * 2;
       const h: number = Math.max(0.5, half * (0.35 + 0.65 * taper));
-      for (let x: number = Math.floor(c - h - 1); x <= Math.ceil(c + h + 1); ++x) {
+      for (
+        let x: number = Math.floor(c - h - 1);
+        x <= Math.ceil(c + h + 1);
+        ++x
+      ) {
         if (x < x0 || x >= x0 + span) continue;
         const d: number = Math.abs(x + 0.5 - c) / (h + 0.5);
         if (d >= 1) continue;
@@ -97,7 +111,10 @@ function lock(
 
 /** Integer hash to `[0, 1)`, a 32-bit avalanche mix. */
 function hash(seed: number, i: number, k: number): number {
-  let h: number = Math.imul(seed + 1, 0x27d4eb2d) ^ Math.imul(i + 1, 0x165667b1) ^ Math.imul(k + 1, 0x9e3779b9);
+  let h: number =
+    Math.imul(seed + 1, 0x27d4eb2d) ^
+    Math.imul(i + 1, 0x165667b1) ^
+    Math.imul(k + 1, 0x9e3779b9);
   h = Math.imul(h ^ (h >>> 15), 0x85ebca6b);
   h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35);
   h ^= h >>> 16;

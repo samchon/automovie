@@ -135,7 +135,11 @@ export function placeAutoMovieHumanHead(
   );
   const eyeZ: number = nasionZ - CONVENTIONAL.eyeBehindNasion * L;
   const vaultZ: number = glabellaZ - L / 2;
-  const joint: IAutoMovieVector3 = v(0, menton + DERIVED.palateAboveMenton * fh, 0);
+  const joint: IAutoMovieVector3 = v(
+    0,
+    menton + DERIVED.palateAboveMenton * fh,
+    0,
+  );
   const jaw: IAutoMovieVector3 = v(
     0,
     tragionY - DERIVED.jawCentreBelowCondyle * fh,
@@ -178,7 +182,10 @@ export function placeAutoMovieHumanHead(
         CONVENTIONAL.gonionForward * L,
       ),
     ),
-    tragion: mark("head", v(s * DERIVED.tragionSpread * head.faceWidth, tragionY, 0)),
+    tragion: mark(
+      "head",
+      v(s * DERIVED.tragionSpread * head.faceWidth, tragionY, 0),
+    ),
   });
   const eye: (s: number) => IAutoMovieHumanSkeleton.IJoint = (
     s: number,

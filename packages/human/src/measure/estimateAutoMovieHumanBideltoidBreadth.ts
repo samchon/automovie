@@ -31,10 +31,11 @@ const ANSUR_II: Record<
 /**
  * How fat and limb lean mass each widen the deltoids, as multiples of the bideltoid breadth's BMI slope: the split of the NHANES relaxed mid-upper arm girth on the DXA fat mass index and appendicular lean mass index (2017-2018, adults 18 to 40; see `estimateAutoMovieHumanGirths`), the arm site nearest the deltoid. Grade: population-fitted for the arm, conventional in its transfer to the deltoid.
  */
-const DELTOID_SPLIT: Record<AutoMovieHumanSex, { fat: number; lean: number }> = {
-  male: { fat: 0.854, lean: 2.612 },
-  female: { fat: 1.104, lean: 1.885 },
-};
+const DELTOID_SPLIT: Record<AutoMovieHumanSex, { fat: number; lean: number }> =
+  {
+    male: { fat: 0.854, lean: 2.612 },
+    female: { fat: 1.104, lean: 1.885 },
+  };
 
 /** Bounds of the ANSUR II sample the regressions are read inside: stature (mm), BMI and age (years). */
 const SAMPLE: Record<"stature" | "bmi" | "age", [number, number]> = {

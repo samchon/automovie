@@ -61,17 +61,23 @@ const LEAN_INDEX: Record<AutoMovieHumanSex, IAutoMovieHumanGrowthCurve> = {
  */
 const BODY_FAT_SD: Record<AutoMovieHumanSex, IAutoMovieHumanGrowthCurve> = {
   male: {
-    ages: [8, 10, 12, 14, 16, 18, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85],
+    ages: [
+      8, 10, 12, 14, 16, 18, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80,
+      85,
+    ],
     values: [
-      7.13, 7.28, 7.11, 6.4, 5.72, 6.22, 6.68, 6.49, 6.25, 5.97, 5.68, 5.44, 5.3,
-      5.23, 5.19, 5.16, 5.11, 5.02, 4.88, 4.73,
+      7.13, 7.28, 7.11, 6.4, 5.72, 6.22, 6.68, 6.49, 6.25, 5.97, 5.68, 5.44,
+      5.3, 5.23, 5.19, 5.16, 5.11, 5.02, 4.88, 4.73,
     ],
   },
   female: {
-    ages: [8, 10, 12, 14, 16, 18, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85],
+    ages: [
+      8, 10, 12, 14, 16, 18, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80,
+      85,
+    ],
     values: [
-      6.5, 6.52, 6.46, 6.49, 6.68, 7.1, 7.22, 7.23, 7.21, 7.12, 6.96, 6.73, 6.46,
-      6.16, 5.86, 5.58, 5.37, 5.24, 5.14, 5.08,
+      6.5, 6.52, 6.46, 6.49, 6.68, 7.1, 7.22, 7.23, 7.21, 7.12, 6.96, 6.73,
+      6.46, 6.16, 5.86, 5.58, 5.37, 5.24, 5.14, 5.08,
     ],
   },
 };
@@ -86,9 +92,9 @@ const LEAN_INDEX_SD: Record<AutoMovieHumanSex, IAutoMovieHumanGrowthCurve> = {
       18.5, 19.5, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85,
     ],
     values: [
-      0.53, 0.56, 0.6, 0.64, 0.67, 0.71, 0.77, 0.83, 0.89, 0.95, 1.0, 1.04, 1.07,
-      1.08, 1.09, 1.34, 1.32, 1.31, 1.3, 1.29, 1.27, 1.25, 1.22, 1.18, 1.14,
-      1.09, 1.03, 0.97, 0.91,
+      0.53, 0.56, 0.6, 0.64, 0.67, 0.71, 0.77, 0.83, 0.89, 0.95, 1.0, 1.04,
+      1.07, 1.08, 1.09, 1.34, 1.32, 1.31, 1.3, 1.29, 1.27, 1.25, 1.22, 1.18,
+      1.14, 1.09, 1.03, 0.97, 0.91,
     ],
   },
   female: {
@@ -97,8 +103,9 @@ const LEAN_INDEX_SD: Record<AutoMovieHumanSex, IAutoMovieHumanGrowthCurve> = {
       18.5, 19.5, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65,
     ],
     values: [
-      0.5, 0.54, 0.58, 0.62, 0.66, 0.71, 0.75, 0.79, 0.82, 0.84, 0.86, 0.87, 0.89,
-      0.9, 0.91, 1.04, 1.08, 1.11, 1.15, 1.17, 1.19, 1.18, 1.17, 1.14, 1.1,
+      0.5, 0.54, 0.58, 0.62, 0.66, 0.71, 0.75, 0.79, 0.82, 0.84, 0.86, 0.87,
+      0.89, 0.9, 0.91, 1.04, 1.08, 1.11, 1.15, 1.17, 1.19, 1.18, 1.17, 1.14,
+      1.1,
     ],
   },
 };
@@ -126,15 +133,19 @@ export function estimateAutoMovieHumanComposition(props: {
   referenceBmi: number;
 }): estimateAutoMovieHumanComposition.IOutput {
   const { sex, age }: { sex: AutoMovieHumanSex; age: number } = props;
-  const read: (curves: Record<AutoMovieHumanSex, IAutoMovieHumanGrowthCurve>) => number = (
+  const read: (
     curves: Record<AutoMovieHumanSex, IAutoMovieHumanGrowthCurve>,
-  ): number =>
-    interpolateAutoMovieHumanGrowthCurve(curves[sex], age);
+  ) => number = (
+    curves: Record<AutoMovieHumanSex, IAutoMovieHumanGrowthCurve>,
+  ): number => interpolateAutoMovieHumanGrowthCurve(curves[sex], age);
   const medianFat: number = read(BODY_FAT) / 100;
   const medianLean: number = read(LEAN_INDEX);
   const fat: number = Math.min(
     0.75,
-    Math.max(0.02, medianFat + (SPREAD * props.adiposity * read(BODY_FAT_SD)) / 100),
+    Math.max(
+      0.02,
+      medianFat + (SPREAD * props.adiposity * read(BODY_FAT_SD)) / 100,
+    ),
   );
   const lean: number = Math.min(
     16,

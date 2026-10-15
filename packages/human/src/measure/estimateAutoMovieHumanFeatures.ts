@@ -15,7 +15,10 @@ type Feature = keyof IAutoMovieHumanIdentity.IFeatures;
  * - East Asian: the Chinese group of Gao et al. 2025 for the eyes; nose width, protrusion and mouth width from Chinese workers by caliper (Du et al. 2008, Ann Occup Hyg 52(8):773-782). Du measures nasal height from sellion, not nasion, and no lip heights, so those keep the European means.
  * - African: Kenyan adults by caliper (Virdi et al. 2019) for the eyes' widths, nose width and height, mouth width and both vermilion heights. No fissure height was read, so it keeps the European mean; protrusion is the European mean less the 2.3 mm by which African-American noses project less than the Caucasian baseline at equal stature in the NIOSH regression (Zhuang et al. 2010, Ann Occup Hyg 54(4):391-402).
  */
-const ADULT: Record<AutoMovieHumanPopulation, Record<Feature, [number, number]>> = {
+const ADULT: Record<
+  AutoMovieHumanPopulation,
+  Record<Feature, [number, number]>
+> = {
   european: {
     intercanthalWidth: [32.7, 31.3],
     palpebralFissureLength: [28.8, 27.8],
@@ -54,7 +57,10 @@ const ADULT: Record<AutoMovieHumanPopulation, Record<Feature, [number, number]>>
 /**
  * Each feature at an age over its young adult size, from the 3D Facial Norms age-group means (Weinberg et al. 2016) at 3 to 4 years and, where published, 10 to 11, over the 20-to-40 means; held at one from 20. Fissure height has no growth means and follows fissure length; the vermilion heights' girls' means were not read and follow the boys'. Grade: measured.
  */
-const GROWTH: Record<Feature, Record<AutoMovieHumanSex, IAutoMovieHumanGrowthCurve>> = {
+const GROWTH: Record<
+  Feature,
+  Record<AutoMovieHumanSex, IAutoMovieHumanGrowthCurve>
+> = {
   intercanthalWidth: {
     male: { ages: [3.5, 20], values: [27.9 / 32.7, 1] },
     female: { ages: [3.5, 20], values: [28.2 / 31.3, 1] },
@@ -109,7 +115,10 @@ export function estimateAutoMovieHumanFeatures(
   const index: number = context.sex === "male" ? 0 : 1;
   const value = (feature: Feature): number =>
     ADULT[context.population][feature][index] *
-    interpolateAutoMovieHumanGrowthCurve(GROWTH[feature][context.sex], context.age) *
+    interpolateAutoMovieHumanGrowthCurve(
+      GROWTH[feature][context.sex],
+      context.age,
+    ) *
     scale;
   return {
     intercanthalWidth: value("intercanthalWidth"),

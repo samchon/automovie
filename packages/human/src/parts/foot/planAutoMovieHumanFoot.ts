@@ -70,7 +70,6 @@ export function planAutoMovieHumanFoot(props: {
   const heel: number = -HEEL_BEHIND_ANKLE * L;
   const along = (f: number): number => heel + f * L;
 
-
   // toes from the medial border across, touching at their roots
   const total: number =
     TOE_BREADTH.reduce((a: number, b: number): number => a + b, 0) +
@@ -86,11 +85,7 @@ export function planAutoMovieHumanFoot(props: {
           JOINT_HEIGHT * A,
           along(JOINT_ALONG[t]!),
         ),
-        direction: AutoMovieHumanVector.of(
-          Math.sin(angle),
-          0,
-          Math.cos(angle),
-        ),
+        direction: AutoMovieHumanVector.of(Math.sin(angle), 0, Math.cos(angle)),
         length:
           (t === 0
             ? (1 - JOINT_ALONG[0]!) / Math.cos(angle)
@@ -120,7 +115,11 @@ export function planAutoMovieHumanFoot(props: {
     ankle: props.ankle,
     medial: {
       stations: [heelAt, 0.12, 0.17, 0.23, 0.3, 0.38, 0.47, 0.56, 0.65, 0.74],
-      offset: keyed(heelWidth / L, [0.2, 0.35, 0.55, 0.66, 0.74], FORM.medialOffset),
+      offset: keyed(
+        heelWidth / L,
+        [0.2, 0.35, 0.55, 0.66, 0.74],
+        FORM.medialOffset,
+      ),
       rim: keyed(null, [heelAt, 0.2, 0.32, 0.45, 0.6, 0.74], FORM.medialRim),
       sole: [
         [heelAt, FORM.medialSole[0]],
@@ -134,7 +133,11 @@ export function planAutoMovieHumanFoot(props: {
     },
     lateral: {
       stations: [heelAt, 0.12, 0.17, 0.23, 0.29, 0.36, 0.43, 0.5, 0.57, 0.635],
-      offset: keyed(heelWidth / L, [0.2, 0.3, 0.45, 0.56, 0.635], FORM.lateralOffset),
+      offset: keyed(
+        heelWidth / L,
+        [0.2, 0.3, 0.45, 0.56, 0.635],
+        FORM.lateralOffset,
+      ),
       rim: keyed(null, [heelAt, 0.25, 0.45, 0.635], FORM.lateralRim),
       sole: keyed(null, [heelAt, 0.3, 0.635], FORM.lateralSole),
       inset: 0.02 * L,
@@ -169,5 +172,8 @@ const keyed = (
   values: readonly number[],
 ): IAutoMovieHumanFootPlan.IProfile => [
   ...(heel === null ? [] : [[HEEL_AT, heel] as const]),
-  ...at.map((f: number, k: number): readonly [number, number] => [f, values[k]!]),
+  ...at.map((f: number, k: number): readonly [number, number] => [
+    f,
+    values[k]!,
+  ]),
 ];

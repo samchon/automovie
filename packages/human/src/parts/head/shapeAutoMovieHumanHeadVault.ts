@@ -44,7 +44,11 @@ export function shapeAutoMovieHumanHeadVault(
     1.5,
     5,
   );
-  const frontHalf: number = AutoMovieHumanHeadMath.halfPerimeter(half, front, frontExponent);
+  const frontHalf: number = AutoMovieHumanHeadMath.halfPerimeter(
+    half,
+    front,
+    frontExponent,
+  );
   const backExponent: number = AutoMovieHumanHeadMath.solve(
     (n: number): number =>
       frontHalf +
@@ -64,14 +68,20 @@ export function shapeAutoMovieHumanHeadVault(
     const forward: number = dz / (dz > 0 ? front : back);
     const temple: number =
       downBack +
-      (downTemple - downBack) * AutoMovieHumanHeadMath.smoothStep(-0.15, 0.1, forward);
+      (downTemple - downBack) *
+        AutoMovieHumanHeadMath.smoothStep(-0.15, 0.1, forward);
     const down: number =
       temple +
       (downFront - temple) *
-        AutoMovieHumanHeadMath.smoothStep(form.recedeStart, form.recedeEnd, forward);
+        AutoMovieHumanHeadMath.smoothStep(
+          form.recedeStart,
+          form.recedeEnd,
+          forward,
+        );
     const n: number = dz > 0 ? frontExponent : backExponent;
     const horizontal: number = Math.pow(
-      Math.pow(dx / half, n) + Math.pow(Math.abs(dz) / (dz > 0 ? front : back), n),
+      Math.pow(dx / half, n) +
+        Math.pow(Math.abs(dz) / (dz > 0 ? front : back), n),
       1 / n,
     );
     const q: number =
@@ -81,7 +91,12 @@ export function shapeAutoMovieHumanHeadVault(
             AutoMovieHumanHeadMath.smoothStep(0, 0.8, forward)
         : form.vaultBottom;
     const s: number =
-      Math.pow(horizontal, q) + Math.pow(Math.abs(dy) / (dy > 0 ? up : down), q);
-    return AutoMovieHumanHeadMath.radial(Math.sqrt(dx * dx + dy * dy + dz * dz), s, q);
+      Math.pow(horizontal, q) +
+      Math.pow(Math.abs(dy) / (dy > 0 ? up : down), q);
+    return AutoMovieHumanHeadMath.radial(
+      Math.sqrt(dx * dx + dy * dy + dz * dz),
+      s,
+      q,
+    );
   };
 }

@@ -81,7 +81,10 @@ function poreDepth(x: number, y: number): number {
       const dx: number = x - (cx + i + px) * cell;
       const dy: number = y - (cy + j + py) * cell;
       const radius: number = (0.9 + 0.9 * r) * (cell / 8);
-      depth = Math.max(depth, Math.exp(-(dx * dx + dy * dy) / (2 * radius * radius)));
+      depth = Math.max(
+        depth,
+        Math.exp(-(dx * dx + dy * dy) / (2 * radius * radius)),
+      );
     }
   return depth;
 }
@@ -96,7 +99,10 @@ function furrowDepth(x: number, y: number): number {
   for (let j: number = -2; j <= 2; ++j)
     for (let i: number = -2; i <= 2; ++i) {
       const [px, py] = feature(cx + i, cy + j, FURROW_CELLS, 2);
-      const d: number = Math.hypot(x - (cx + i + px) * cell, y - (cy + j + py) * cell);
+      const d: number = Math.hypot(
+        x - (cx + i + px) * cell,
+        y - (cy + j + py) * cell,
+      );
       if (d < first) {
         second = first;
         first = d;
@@ -107,7 +113,12 @@ function furrowDepth(x: number, y: number): number {
 }
 
 /** Feature point of a wrapped cell, its offset within the cell and a third random value, all in `[0, 1)`. */
-function feature(i: number, j: number, cells: number, seed: number): [number, number, number] {
+function feature(
+  i: number,
+  j: number,
+  cells: number,
+  seed: number,
+): [number, number, number] {
   const wi: number = ((i % cells) + cells) % cells;
   const wj: number = ((j % cells) + cells) % cells;
   return [hash(wi, wj, seed, 0), hash(wi, wj, seed, 1), hash(wi, wj, seed, 2)];
@@ -115,7 +126,10 @@ function feature(i: number, j: number, cells: number, seed: number): [number, nu
 
 /** Integer hash of a cell address to `[0, 1)`, a 32-bit avalanche mix. */
 function hash(i: number, j: number, seed: number, k: number): number {
-  let h: number = Math.imul(i, 0x27d4eb2d) ^ Math.imul(j, 0x165667b1) ^ Math.imul(seed * 4 + k, 0x9e3779b9);
+  let h: number =
+    Math.imul(i, 0x27d4eb2d) ^
+    Math.imul(j, 0x165667b1) ^
+    Math.imul(seed * 4 + k, 0x9e3779b9);
   h = Math.imul(h ^ (h >>> 15), 0x85ebca6b);
   h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35);
   h ^= h >>> 16;

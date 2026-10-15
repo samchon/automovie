@@ -54,7 +54,10 @@ export function createHumanViewerExpressionEditor(props: {
     );
 
   props.expression.units.forEach(
-    (activation: IAutoMovieHumanExpression.IActivation, index: number): void => {
+    (
+      activation: IAutoMovieHumanExpression.IActivation,
+      index: number,
+    ): void => {
       const row: HTMLDivElement = document.createElement("div");
       row.className = "activation";
       const unit: HTMLSelectElement = document.createElement("select");

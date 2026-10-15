@@ -34,18 +34,50 @@ export function placeAutoMovieHumanTrunkTorso(
     a: [number, number, number],
     b: [number, number, number],
     t: number,
-  ): [number, number, number] => [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
-  const axilla: [number, number, number] = [L.axilla + 0.012 * S, L.axilla, lerp(L.axilla, c7, 0.22)];
-  const chest: [number, number, number] = [L.chestPoint, L.chestPoint + 0.012 * S, L.chestPoint + 0.02 * S];
+  ): [number, number, number] => [
+    lerp(a[0], b[0], t),
+    lerp(a[1], b[1], t),
+    lerp(a[2], b[2], t),
+  ];
+  const axilla: [number, number, number] = [
+    L.axilla + 0.012 * S,
+    L.axilla,
+    lerp(L.axilla, c7, 0.22),
+  ];
+  const chest: [number, number, number] = [
+    L.chestPoint,
+    L.chestPoint + 0.012 * S,
+    L.chestPoint + 0.02 * S,
+  ];
   // anchor lines, front, side and back heights, from the thigh root upward
   const anchors: Array<[number, number, number]> = [
     [lerp(L.crotch, hip, 0.45), lerp(L.crotch, hip, 0.15), L.gluteal],
-    [lerp(hip, frame.iliospinale.y, 0.15), frame.trochanterion.y - 0.004 * S, lerp(L.gluteal, L.buttock, 0.5)],
-    [lerp(hip, frame.iliospinale.y, 0.5), frame.trochanterion.y + 0.01 * S, L.buttock],
-    [frame.iliospinale.y, lerp(frame.trochanterion.y, frame.iliocristale.y, 0.55), lerp(L.buttock, frame.iliocristale.y, 0.5)],
-    [L.navel, frame.iliocristale.y + 0.006 * S, frame.iliocristale.y - 0.012 * S],
+    [
+      lerp(hip, frame.iliospinale.y, 0.15),
+      frame.trochanterion.y - 0.004 * S,
+      lerp(L.gluteal, L.buttock, 0.5),
+    ],
+    [
+      lerp(hip, frame.iliospinale.y, 0.5),
+      frame.trochanterion.y + 0.01 * S,
+      L.buttock,
+    ],
+    [
+      frame.iliospinale.y,
+      lerp(frame.trochanterion.y, frame.iliocristale.y, 0.55),
+      lerp(L.buttock, frame.iliocristale.y, 0.5),
+    ],
+    [
+      L.navel,
+      frame.iliocristale.y + 0.006 * S,
+      frame.iliocristale.y - 0.012 * S,
+    ],
     [lerp(L.navel, L.costal, 0.33), L.waist, L.waist],
-    [lerp(L.navel, L.costal, 0.66), lerp(L.waist, L.costal, 0.5), lerp(L.waist, L.costal, 0.5)],
+    [
+      lerp(L.navel, L.costal, 0.66),
+      lerp(L.waist, L.costal, 0.5),
+      lerp(L.waist, L.costal, 0.5),
+    ],
     [L.costal, L.costal + 0.004 * S, L.costal + 0.008 * S],
     [L.fold, L.fold + 0.008 * S, L.fold + 0.014 * S],
     chest,
@@ -60,7 +92,11 @@ export function placeAutoMovieHumanTrunkTorso(
   }
   heights.push(
     axilla,
-    [lerp(L.axilla, frame.suprasternale.y, 0.55), frame.shoulder.y, lerp(L.axilla, c7, 0.55)],
+    [
+      lerp(L.axilla, frame.suprasternale.y, 0.55),
+      frame.shoulder.y,
+      lerp(L.axilla, c7, 0.55),
+    ],
     [frame.suprasternale.y, frame.acromion.y, c7],
   );
   const loops: IAutoMovieVector3[][] = heights.map(
@@ -68,13 +104,18 @@ export function placeAutoMovieHumanTrunkTorso(
       Array.from({ length: 13 }, (_: unknown, j: number): IAutoMovieVector3 => {
         // front and back heights blend into the side's by the square cosine of the column's angle
         const c: number = Math.cos((j / 12) * Math.PI);
-        return profile.section(j, c >= 0 ? lerp(side, front, c * c) : lerp(side, back, c * c));
+        return profile.section(
+          j,
+          c >= 0 ? lerp(side, front, c * c) : lerp(side, back, c * c),
+        );
       }),
   );
 
   const B: IAutoMovieHumanTrunkForm.IBreast = AUTOMOVIE_HUMAN_TRUNK_FORM.breast;
   const projection: number =
-    Math.max(0, frame.chest.girth - frame.underbust) * B.projection * tune.breast;
+    Math.max(0, frame.chest.girth - frame.underbust) *
+    B.projection *
+    tune.breast;
   if (projection > 0.5)
     loops.forEach((row: IAutoMovieVector3[], i: number): void => {
       if (i === 0 || i >= AUTOMOVIE_HUMAN_TRUNK_LOOPS - 2) return;
@@ -83,8 +124,12 @@ export function placeAutoMovieHumanTrunkTorso(
         const angle: number = (j / 12) * 180;
         const reach: number = (q.y > L.chestPoint ? B.above : B.below) * S;
         const mound: number = Math.exp(-(((angle - B.angle) / B.spread) ** 2));
-        const across: number = angle < B.angle ? Math.max(mound, B.fill) : mound;
-        const w: number = projection * across * Math.exp(-(((q.y - L.chestPoint) / reach) ** 2));
+        const across: number =
+          angle < B.angle ? Math.max(mound, B.fill) : mound;
+        const w: number =
+          projection *
+          across *
+          Math.exp(-(((q.y - L.chestPoint) / reach) ** 2));
         row[j] = AutoMovieHumanVector.of(
           j === 0 ? 0 : q.x + B.lateral * w * mound,
           q.y - B.drop * w,

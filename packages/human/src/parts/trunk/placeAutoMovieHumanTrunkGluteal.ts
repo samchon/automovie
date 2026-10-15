@@ -1,10 +1,10 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
-import { IAutoMovieHumanTrunkFrame } from "./IAutoMovieHumanTrunkFrame";
 import { AUTOMOVIE_HUMAN_TRUNK_FORM } from "./AUTOMOVIE_HUMAN_TRUNK_FORM";
 import { AUTOMOVIE_HUMAN_TRUNK_LOOPS } from "./AUTOMOVIE_HUMAN_TRUNK_LOOPS";
 import { IAutoMovieHumanTrunkForm } from "./IAutoMovieHumanTrunkForm";
+import { IAutoMovieHumanTrunkFrame } from "./IAutoMovieHumanTrunkFrame";
 import { profileAutoMovieHumanTrunk } from "./profileAutoMovieHumanTrunk";
 
 /**
@@ -23,7 +23,8 @@ export function placeAutoMovieHumanTrunkGluteal(
   loops: IAutoMovieVector3[][],
 ): void {
   const S: number = frame.stature;
-  const MASS: IAutoMovieHumanTrunkForm.IGluteal = AUTOMOVIE_HUMAN_TRUNK_FORM.gluteal;
+  const MASS: IAutoMovieHumanTrunkForm.IGluteal =
+    AUTOMOVIE_HUMAN_TRUNK_FORM.gluteal;
   const y0: number = frame.levels.buttock - MASS.below * S;
   const half: number = profile.half(frame.levels.buttock);
   const x0: number = MASS.across * half;
@@ -34,7 +35,8 @@ export function placeAutoMovieHumanTrunkGluteal(
       if (q === undefined || q.z > profile.widest(q.y)) continue;
       const reach: number = (q.y > y0 ? MASS.above : MASS.under) * S;
       const vertical: number = Math.exp(-(((q.y - y0) / reach) ** 2));
-      const bump = (cx: number): number => Math.exp(-(((q.x - cx) / width) ** 2));
+      const bump = (cx: number): number =>
+        Math.exp(-(((q.x - cx) / width) ** 2));
       const own: number = bump(x0) * vertical;
       const other: number = bump(-x0) * vertical;
       const lateral: number = (own * (q.x - x0) + other * (q.x + x0)) / width;

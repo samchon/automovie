@@ -27,7 +27,11 @@ export function buildAutoMovieHumanHeadTopology(): buildAutoMovieHumanHeadTopolo
     if (found === undefined) {
       found = vertices.length;
       index.set(key, found);
-      vertices.push({ lattice: [x, y, z], loop: null, canonical: canonical(x, y, z) });
+      vertices.push({
+        lattice: [x, y, z],
+        loop: null,
+        canonical: canonical(x, y, z),
+      });
     }
     return found;
   };
@@ -37,7 +41,11 @@ export function buildAutoMovieHumanHeadTopology(): buildAutoMovieHumanHeadTopolo
   };
   const half: number = WIDTH / 2;
   hole("bottom", range(half - 2, half + 2), range(NECK_BACK, NECK_BACK + 2));
-  hole("bottom", range(half - 3, half + 3), range(MOUTH_BOTTOM, MOUTH_BOTTOM + 2));
+  hole(
+    "bottom",
+    range(half - 3, half + 3),
+    range(MOUTH_BOTTOM, MOUTH_BOTTOM + 2),
+  );
   hole("front", range(half + 1, half + 5), range(EYE_BOTTOM, EYE_BOTTOM + 2));
   hole("front", range(half - 5, half - 1), range(EYE_BOTTOM, EYE_BOTTOM + 2));
   hole("left", [0], range(EAR_BACK, EAR_BACK + 2));
@@ -48,32 +56,59 @@ export function buildAutoMovieHumanHeadTopology(): buildAutoMovieHumanHeadTopolo
   const faces: Array<[number, number, number, number]> = [];
   const quad = (corners: Array<[number, number, number]>): void => {
     faces.push(
-      corners.map(([x, y, z]: [number, number, number]): number => lattice(x, y, z)) as [
-        number,
-        number,
-        number,
-        number,
-      ],
+      corners.map(([x, y, z]: [number, number, number]): number =>
+        lattice(x, y, z),
+      ) as [number, number, number, number],
     );
   };
   for (let x: number = 0; x < WIDTH; ++x)
     for (let z: number = 0; z < DEPTH; ++z) {
       if (!holes.has(`bottom:${x}:${z}`))
-        quad([[x, 0, z], [x + 1, 0, z], [x + 1, 0, z + 1], [x, 0, z + 1]]);
-      quad([[x, HEIGHT, z], [x, HEIGHT, z + 1], [x + 1, HEIGHT, z + 1], [x + 1, HEIGHT, z]]);
+        quad([
+          [x, 0, z],
+          [x + 1, 0, z],
+          [x + 1, 0, z + 1],
+          [x, 0, z + 1],
+        ]);
+      quad([
+        [x, HEIGHT, z],
+        [x, HEIGHT, z + 1],
+        [x + 1, HEIGHT, z + 1],
+        [x + 1, HEIGHT, z],
+      ]);
     }
   for (let x: number = 0; x < WIDTH; ++x)
     for (let y: number = 0; y < HEIGHT; ++y) {
       if (!holes.has(`front:${x}:${y}`))
-        quad([[x, y, DEPTH], [x + 1, y, DEPTH], [x + 1, y + 1, DEPTH], [x, y + 1, DEPTH]]);
-      quad([[x, y, 0], [x, y + 1, 0], [x + 1, y + 1, 0], [x + 1, y, 0]]);
+        quad([
+          [x, y, DEPTH],
+          [x + 1, y, DEPTH],
+          [x + 1, y + 1, DEPTH],
+          [x, y + 1, DEPTH],
+        ]);
+      quad([
+        [x, y, 0],
+        [x, y + 1, 0],
+        [x + 1, y + 1, 0],
+        [x + 1, y, 0],
+      ]);
     }
   for (let y: number = 0; y < HEIGHT; ++y)
     for (let z: number = 0; z < DEPTH; ++z) {
       if (!holes.has(`left:${y}:${z}`))
-        quad([[WIDTH, y, z], [WIDTH, y + 1, z], [WIDTH, y + 1, z + 1], [WIDTH, y, z + 1]]);
+        quad([
+          [WIDTH, y, z],
+          [WIDTH, y + 1, z],
+          [WIDTH, y + 1, z + 1],
+          [WIDTH, y, z + 1],
+        ]);
       if (!holes.has(`right:${y}:${z}`))
-        quad([[0, y, z], [0, y, z + 1], [0, y + 1, z + 1], [0, y + 1, z]]);
+        quad([
+          [0, y, z],
+          [0, y, z + 1],
+          [0, y + 1, z + 1],
+          [0, y + 1, z],
+        ]);
     }
 
   // boundary edges, each directed as its face runs it
@@ -90,19 +125,28 @@ export function buildAutoMovieHumanHeadTopology(): buildAutoMovieHumanHeadTopolo
   for (const [a, b] of edges.values()) next.set(a, b);
   const loopFrom = (start: number): number[] => {
     const loop: number[] = [start];
-    for (let v: number = next.get(start)!; v !== start; v = next.get(v)!) loop.push(v);
+    for (let v: number = next.get(start)!; v !== start; v = next.get(v)!)
+      loop.push(v);
     return loop;
   };
 
   // concentric loops filling a hole, outer loop first, each running as the faces outside it do
   const eyeY: number = EYE_BOTTOM + 1;
   // a lattice point's place around its feature's hole, the hole a unit square: laterally and up for an eye, toward the left and up for the mouth
-  const place = (feature: "leftEye" | "rightEye" | "mouth", x: number, y: number, z: number): [number, number] => {
+  const place = (
+    feature: "leftEye" | "rightEye" | "mouth",
+    x: number,
+    y: number,
+    z: number,
+  ): [number, number] => {
     if (feature === "mouth") return [(x - half) / 3, z - (MOUTH_BOTTOM + 1)];
     const sign: number = feature === "leftEye" ? 1 : -1;
     return [(sign * (x - (half + 3 * sign))) / 2, y - eyeY];
   };
-  const pockets: Record<"leftEye" | "rightEye" | "mouth", Array<{ vertex: number; offset: [number, number] }>> = {
+  const pockets: Record<
+    "leftEye" | "rightEye" | "mouth",
+    Array<{ vertex: number; offset: [number, number] }>
+  > = {
     leftEye: [],
     rightEye: [],
     mouth: [],
@@ -162,30 +206,43 @@ export function buildAutoMovieHumanHeadTopology(): buildAutoMovieHumanHeadTopolo
                 ),
               ),
             });
-            pockets[feature].push({ vertex: found, offset: place(feature, x, y, z) });
+            pockets[feature].push({
+              vertex: found,
+              offset: place(feature, x, y, z),
+            });
           }
           return found;
         }) as [number, number, number, number],
       );
     return loops;
   };
-  const front = (xs: number[], ys: number[]): Array<Array<[number, number, number]>> =>
+  const front = (
+    xs: number[],
+    ys: number[],
+  ): Array<Array<[number, number, number]>> =>
     xs.flatMap((x: number) =>
-      ys.map((y: number): Array<[number, number, number]> => [
-        [x, y, DEPTH],
-        [x + 1, y, DEPTH],
-        [x + 1, y + 1, DEPTH],
-        [x, y + 1, DEPTH],
-      ]),
+      ys.map(
+        (y: number): Array<[number, number, number]> => [
+          [x, y, DEPTH],
+          [x + 1, y, DEPTH],
+          [x + 1, y + 1, DEPTH],
+          [x, y + 1, DEPTH],
+        ],
+      ),
     );
-  const bottom = (xs: number[], zs: number[]): Array<Array<[number, number, number]>> =>
+  const bottom = (
+    xs: number[],
+    zs: number[],
+  ): Array<Array<[number, number, number]>> =>
     xs.flatMap((x: number) =>
-      zs.map((z: number): Array<[number, number, number]> => [
-        [x, 0, z],
-        [x + 1, 0, z],
-        [x + 1, 0, z + 1],
-        [x, 0, z + 1],
-      ]),
+      zs.map(
+        (z: number): Array<[number, number, number]> => [
+          [x, 0, z],
+          [x + 1, 0, z],
+          [x + 1, 0, z + 1],
+          [x, 0, z + 1],
+        ],
+      ),
     );
   const loops: Record<"leftEye" | "rightEye" | "mouth", number[][]> = {
     leftEye: fill(
@@ -208,19 +265,31 @@ export function buildAutoMovieHumanHeadTopology(): buildAutoMovieHumanHeadTopolo
     ),
   };
 
-  const at = (x: number, y: number, z: number): number => index.get(`${x},${y},${z}`)!;
-  const offset = (vertex: number, feature: "leftEye" | "rightEye" | "mouth"): [number, number] =>
-    place(feature, ...vertices[vertex]!.lattice!);
+  const at = (x: number, y: number, z: number): number =>
+    index.get(`${x},${y},${z}`)!;
+  const offset = (
+    vertex: number,
+    feature: "leftEye" | "rightEye" | "mouth",
+  ): [number, number] => place(feature, ...vertices[vertex]!.lattice!);
   // build order counterclockwise about the head's long axis from the anterior midline
   const neck: number[] = [
-    ...range(half, half + 2).map((x: number): number => at(x, 0, NECK_BACK + 2)),
+    ...range(half, half + 2).map((x: number): number =>
+      at(x, 0, NECK_BACK + 2),
+    ),
     at(half + 2, 0, NECK_BACK + 2),
     at(half + 2, 0, NECK_BACK + 1),
-    ...range(half + 2, half - 3, -1).map((x: number): number => at(x, 0, NECK_BACK)),
+    ...range(half + 2, half - 3, -1).map((x: number): number =>
+      at(x, 0, NECK_BACK),
+    ),
     at(half - 2, 0, NECK_BACK + 1),
-    ...range(half - 2, half).map((x: number): number => at(x, 0, NECK_BACK + 2)),
+    ...range(half - 2, half).map((x: number): number =>
+      at(x, 0, NECK_BACK + 2),
+    ),
   ];
-  const ear = (inner: number, wall: number): Array<[number, number, number]> => {
+  const ear = (
+    inner: number,
+    wall: number,
+  ): Array<[number, number, number]> => {
     const ring: Array<[number, number, number]> = [];
     for (let dz: number = -1; dz <= 1; ++dz) {
       const z: number = EAR_BACK + 1 + dz;
@@ -235,7 +304,11 @@ export function buildAutoMovieHumanHeadTopology(): buildAutoMovieHumanHeadTopolo
     faces,
     neck,
     ears: {
-      left: ear(WIDTH - 1, WIDTH).map(([v, up, forward]) => ({ vertex: v, up, forward })),
+      left: ear(WIDTH - 1, WIDTH).map(([v, up, forward]) => ({
+        vertex: v,
+        up,
+        forward,
+      })),
       right: ear(1, 0).map(([v, up, forward]) => ({ vertex: v, up, forward })),
     },
     loops,
@@ -251,7 +324,10 @@ export function buildAutoMovieHumanHeadTopology(): buildAutoMovieHumanHeadTopolo
       temple: [at(WIDTH, HEIGHT, DEPTH), at(0, HEIGHT, DEPTH)],
       parietal: [at(WIDTH, HEIGHT, 0), at(0, HEIGHT, 0)],
     },
-    nostrils: [at(half + 2, 0, MOUTH_BOTTOM + 3), at(half - 2, 0, MOUTH_BOTTOM + 3)],
+    nostrils: [
+      at(half + 2, 0, MOUTH_BOTTOM + 3),
+      at(half - 2, 0, MOUTH_BOTTOM + 3),
+    ],
   };
 }
 /** Vertex and topology types of {@link buildAutoMovieHumanHeadTopology}. */
@@ -266,7 +342,11 @@ export namespace buildAutoMovieHumanHeadTopology {
     lattice: [number, number, number] | null;
 
     /** The loop vertex's feature, loop number from the hole outward and its vertex on the hole's rim, or null for a lattice vertex. */
-    loop: { feature: "leftEye" | "rightEye" | "mouth"; loop: number; outer: number } | null;
+    loop: {
+      feature: "leftEye" | "rightEye" | "mouth";
+      loop: number;
+      outer: number;
+    } | null;
 
     /** Unit direction of the vertex on the canonical sphere, identical for every person. */
     canonical: IAutoMovieVector3;
@@ -285,7 +365,10 @@ export namespace buildAutoMovieHumanHeadTopology {
     neck: number[];
 
     /** Each ear ring's eight vertices with their place around tragion, one step up or forward per unit. */
-    ears: Record<"left" | "right", Array<{ vertex: number; up: number; forward: number }>>;
+    ears: Record<
+      "left" | "right",
+      Array<{ vertex: number; up: number; forward: number }>
+    >;
 
     /** Each feature's loops, the rim of the hole first; loop vertex `i` descends from rim vertex `i`. */
     loops: Record<"leftEye" | "rightEye" | "mouth", number[][]>;
@@ -296,10 +379,16 @@ export namespace buildAutoMovieHumanHeadTopology {
     rims: Record<"leftEye" | "rightEye" | "mouth", Array<[number, number]>>;
 
     /** Each feature's pocket floor vertices, inside its innermost loop, with their place across the hole as in `rims`. */
-    pockets: Record<"leftEye" | "rightEye" | "mouth", Array<{ vertex: number; offset: [number, number] }>>;
+    pockets: Record<
+      "leftEye" | "rightEye" | "mouth",
+      Array<{ vertex: number; offset: [number, number] }>
+    >;
 
     /** The box corners, left first in each pair. */
-    corners: Record<"cheek" | "occiput" | "temple" | "parietal", [number, number]>;
+    corners: Record<
+      "cheek" | "occiput" | "temple" | "parietal",
+      [number, number]
+    >;
 
     /** Centre of each nostril's pocket, left first. */
     nostrils: [number, number];
@@ -332,5 +421,9 @@ const range = (from: number, to: number, step: number = 1): number[] => {
 /** Unit direction of a lattice point from the box centre, the box scaled to a cube. */
 const canonical = (x: number, y: number, z: number): IAutoMovieVector3 =>
   AutoMovieHumanVector.normalize(
-    AutoMovieHumanVector.of((2 * x) / WIDTH - 1, (2 * y) / HEIGHT - 1, (2 * z) / DEPTH - 1),
+    AutoMovieHumanVector.of(
+      (2 * x) / WIDTH - 1,
+      (2 * y) / HEIGHT - 1,
+      (2 * z) / DEPTH - 1,
+    ),
   );

@@ -43,13 +43,20 @@ export function anchorAutoMovieHumanHead(props: {
 
   // the eyes, the lips and the nostrils: their modules place their own regions
   for (const anchored of [
-    anchorAutoMovieHumanEyelids({ topology, front, frame, features: head.features }),
+    anchorAutoMovieHumanEyelids({
+      topology,
+      front,
+      frame,
+      features: head.features,
+    }),
     anchorAutoMovieHumanLips({ topology, front, frame, head }),
   ])
     for (const [vertex, position] of anchored) anchors.set(vertex, position);
-  shapeAutoMovieHumanNose(frame, head).nostrils.forEach((p: IAutoMovieVector3, i: number): void => {
-    anchors.set(topology.nostrils[i]!, p);
-  });
+  shapeAutoMovieHumanNose(frame, head).nostrils.forEach(
+    (p: IAutoMovieVector3, i: number): void => {
+      anchors.set(topology.nostrils[i]!, p);
+    },
+  );
 
   // box corners
   const B: number = props.measurements.headBreadth / 2;

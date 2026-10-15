@@ -14,7 +14,9 @@ import { IAutoMovieHumanSkeletalMeasurements } from "./IAutoMovieHumanSkeletalMe
 export function measureAutoMovieHumanLandmarks(
   landmarks: IAutoMovieHumanLandmarks,
 ): IAutoMovieHumanSkeletalMeasurements.IHanging {
-  const at: (landmark: IAutoMovieHumanLandmarks.ILandmark) => IAutoMovieVector3 = (
+  const at: (
+    landmark: IAutoMovieHumanLandmarks.ILandmark,
+  ) => IAutoMovieVector3 = (
     landmark: IAutoMovieHumanLandmarks.ILandmark,
   ): IAutoMovieVector3 => landmark.position;
   const arm: (
@@ -71,7 +73,10 @@ export function measureAutoMovieHumanLandmarks(
       cephalicIndex: (100 * headBreadth) / headLength,
       headHeight: at(landmarks.vertex).y - at(landmarks.menton).y,
       faceHeight: at(landmarks.nasion).y - at(landmarks.menton).y,
-      faceWidth: distance(at(landmarks.left.zygion), at(landmarks.right.zygion)),
+      faceWidth: distance(
+        at(landmarks.left.zygion),
+        at(landmarks.right.zygion),
+      ),
       mandibularWidth: distance(
         at(landmarks.left.gonion),
         at(landmarks.right.gonion),

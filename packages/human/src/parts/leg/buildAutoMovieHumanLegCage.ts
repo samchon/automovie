@@ -44,7 +44,11 @@ export function buildAutoMovieHumanLegCage(props: {
   skeleton: IAutoMovieHumanSkeleton;
   side: AutoMovieHumanSide;
 }): IAutoMovieHumanCage {
-  const { stations, thighRing, ankleRing }: planAutoMovieHumanLegStations.IOutput =
+  const {
+    stations,
+    thighRing,
+    ankleRing,
+  }: planAutoMovieHumanLegStations.IOutput =
     planAutoMovieHumanLegStations(props);
   const lean: number =
     props.measurements.identity.composition.appendicularLeanMassIndex;
@@ -84,7 +88,8 @@ export function buildAutoMovieHumanLegCage(props: {
     { u: 0.5 * (upper.u + lower.u), v: 0.75 },
   );
   const at = (i: number, j: number): number =>
-    first[i]! + (((j % stations[i]!.count) + stations[i]!.count) % stations[i]!.count);
+    first[i]! +
+    (((j % stations[i]!.count) + stations[i]!.count) % stations[i]!.count);
   const faces: IAutoMovieHumanCage.IFace[] = [];
   const quad = (order: [number, number, number, number]): void => {
     // listed down the limb first, which turns clockwise seen from outside
@@ -134,22 +139,25 @@ export function buildAutoMovieHumanLegCage(props: {
   // positions for given station scales; the rings lie on the shared shape and are never scaled
   const directions: IAutoMovieVector3[][] = stations.map(
     (s: IAutoMovieHumanLegStation): IAutoMovieVector3[] =>
-      Array.from({ length: s.count }, (_: unknown, j: number): IAutoMovieVector3 =>
-        around(s, j / s.count),
+      Array.from(
+        { length: s.count },
+        (_: unknown, j: number): IAutoMovieVector3 => around(s, j / s.count),
       ),
   );
   const radii: number[][] = stations.map(
     (s: IAutoMovieHumanLegStation, i: number): number[] =>
-      directions[i]!.map(
-        (d: IAutoMovieVector3): number =>
-          shapeAutoMovieHumanLegSection(s, anatomical(s, d), lean),
+      directions[i]!.map((d: IAutoMovieVector3): number =>
+        shapeAutoMovieHumanLegSection(s, anatomical(s, d), lean),
       ),
   );
   const ringVertex = (ring: "thigh" | "ankle", j: number): IAutoMovieVector3 =>
     ring === "thigh"
       ? thighRing.positions[(wide - j) % wide]!
       : ankleRing.positions[j]!;
-  const collar = (s: IAutoMovieHumanLegStation, j: number): IAutoMovieVector3 => {
+  const collar = (
+    s: IAutoMovieHumanLegStation,
+    j: number,
+  ): IAutoMovieVector3 => {
     const ring = s.collar === "thigh" ? thighRing : ankleRing;
     const n: IAutoMovieVector3 = ring.frame.normal;
     return AutoMovieHumanVector.offset(ringVertex(s.collar!, j), [

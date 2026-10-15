@@ -60,9 +60,12 @@ export function fitAutoMovieHumanFootCage(
         if (ring.has(index)) return p;
         const forefoot: number = smoothstep((p.z - front) / (ball - front));
         const hindfoot: number =
-          smoothstep((plan.ankle.origin.y * 0.6 - p.y) / (0.3 * plan.ankle.origin.y)) *
-          smoothstep(-p.z / (0.1 * plan.length));
-        const side: number = smoothstep(Math.abs(p.x - plan.axis) / (0.35 * plan.breadth));
+          smoothstep(
+            (plan.ankle.origin.y * 0.6 - p.y) / (0.3 * plan.ankle.origin.y),
+          ) * smoothstep(-p.z / (0.1 * plan.length));
+        const side: number = smoothstep(
+          Math.abs(p.x - plan.axis) / (0.35 * plan.breadth),
+        );
         return AutoMovieHumanVector.of(
           p.x + forefoot * side * (p.x < plan.axis ? toMedial : toLateral),
           p.y,

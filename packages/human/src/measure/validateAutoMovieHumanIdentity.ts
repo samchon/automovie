@@ -142,9 +142,30 @@ export function validateAutoMovieHumanIdentity(
 
   // trunk sections: a closed outline is at most half its perimeter across and fits inside its bounding rectangle
   const sections: Array<[string, number, string, number, string, number]> = [
-    ["chestBreadth", body.chestBreadth, "chestDepth", body.chestDepth, "chestCircumference", body.chestCircumference],
-    ["waistBreadth", body.waistBreadth, "waistDepth", body.waistDepth, "waistCircumference", body.waistCircumference],
-    ["hipBreadth", body.hipBreadth, "buttockDepth", body.buttockDepth, "buttockCircumference", body.buttockCircumference],
+    [
+      "chestBreadth",
+      body.chestBreadth,
+      "chestDepth",
+      body.chestDepth,
+      "chestCircumference",
+      body.chestCircumference,
+    ],
+    [
+      "waistBreadth",
+      body.waistBreadth,
+      "waistDepth",
+      body.waistDepth,
+      "waistCircumference",
+      body.waistCircumference,
+    ],
+    [
+      "hipBreadth",
+      body.hipBreadth,
+      "buttockDepth",
+      body.buttockDepth,
+      "buttockCircumference",
+      body.buttockCircumference,
+    ],
   ];
   for (const [bKey, breadth, dKey, depth, cKey, circumference] of sections) {
     for (const [key, value] of [
@@ -180,7 +201,8 @@ export function validateAutoMovieHumanIdentity(
   ): number => arm.upperArmLength + arm.forearmLength + arm.handLength;
   const longest: number =
     body.biacromialBreadth + hanging(body.leftArm) + hanging(body.rightArm);
-  const shortest: number = longest - body.leftArm.upperArmLength - body.rightArm.upperArmLength;
+  const shortest: number =
+    longest - body.leftArm.upperArmLength - body.rightArm.upperArmLength;
   check(
     body.span > shortest && body.span < longest,
     "$input.body.span",

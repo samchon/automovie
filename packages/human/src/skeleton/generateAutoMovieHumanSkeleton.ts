@@ -96,21 +96,34 @@ export function generateAutoMovieHumanSkeleton(
     ...leftLeg.joints,
     ...rightLeg.joints,
   ].map(
-    (joint: IAutoMovieHumanSkeleton.IJoint): IAutoMovieHumanSkeleton.IJoint => ({
+    (
+      joint: IAutoMovieHumanSkeleton.IJoint,
+    ): IAutoMovieHumanSkeleton.IJoint => ({
       ...joint,
-      constraint: constrainAutoMovieHumanJoint(joint.bone, identity, incisorRadius),
+      constraint: constrainAutoMovieHumanJoint(
+        joint.bone,
+        identity,
+        incisorRadius,
+      ),
     }),
   );
   // the slide that gives the identity's span: half of what the girdle's motion alone leaves over
   const hanging: IAutoMovieHumanSkeleton = { joints, landmarks };
-  const raised: IAutoMovieHumanLandmarks = abductAutoMovieHumanArms(hanging, "raise", {
-    left: 0,
-    right: 0,
-  }).landmarks;
+  const raised: IAutoMovieHumanLandmarks = abductAutoMovieHumanArms(
+    hanging,
+    "raise",
+    {
+      left: 0,
+      right: 0,
+    },
+  ).landmarks;
   const slide: number =
     (raised.left.dactylion.position.x -
       raised.right.dactylion.position.x -
       body.span) /
     2;
-  return abductAutoMovieHumanArms(hanging, "raise", { left: slide, right: slide });
+  return abductAutoMovieHumanArms(hanging, "raise", {
+    left: slide,
+    right: slide,
+  });
 }

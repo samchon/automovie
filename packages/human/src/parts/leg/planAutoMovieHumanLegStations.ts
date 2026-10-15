@@ -129,16 +129,19 @@ export function planAutoMovieHumanLegStations(props: {
   // levels along the leg, as heights in the standing rest pose
   const top: number = thighRing.frame.origin.y;
   const bottom: number = ankleRing.frame.origin.y;
-  const furrow: number = hip.y - AUTOMOVIE_HUMAN_THIGH_GIRTH.furrow * (hip.y - knee.y);
+  const furrow: number =
+    hip.y - AUTOMOVIE_HUMAN_THIGH_GIRTH.furrow * (hip.y - knee.y);
   const patella: number = landmarks.patella.position.y;
   const tibiale: number = landmarks.tibiale.position.y;
-  const supra: number = patella + AUTOMOVIE_HUMAN_THIGH_GIRTH.suprapatella * leg.thighLength;
+  const supra: number =
+    patella + AUTOMOVIE_HUMAN_THIGH_GIRTH.suprapatella * leg.thighLength;
   const calf: number =
     leg.ankleHeight + CALF_LEVEL * (tibiale - leg.ankleHeight);
   const thighGirth = (height: number): number =>
     leg.lowerThighCircumference +
     (leg.thighCircumference - leg.lowerThighCircumference) *
-      Math.pow(Math.max(0, (height - supra) / (furrow - supra)),
+      Math.pow(
+        Math.max(0, (height - supra) / (furrow - supra)),
         AUTOMOVIE_HUMAN_THIGH_GIRTH.exponent,
       );
   const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
@@ -174,8 +177,7 @@ export function planAutoMovieHumanLegStations(props: {
     {
       name: "patellar tendon",
       height: tibiale - 0.06 * leg.shankLength,
-      girth:
-        GIRTH.belowKnee * Math.min(kneeGirth, leg.calfCircumference),
+      girth: GIRTH.belowKnee * Math.min(kneeGirth, leg.calfCircumference),
       site: lerp(SITE_FAT.lowerThigh, SITE_FAT.calf, 0.5),
       count: 12,
     },

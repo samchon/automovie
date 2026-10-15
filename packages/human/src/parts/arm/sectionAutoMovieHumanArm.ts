@@ -5,7 +5,9 @@ import { estimateAutoMovieHumanArmTissue } from "./estimateAutoMovieHumanArmTiss
 /**
  * Levels of the arm's edge loops in its own coordinate: minus the fraction of the cut-to-elbow length above the elbow joint centre, plus the fraction of the elbow-to-wrist-cut length below it. The upper arm takes the biceps peak, the narrowing above the elbow and the epicondyles; the joint level carries the olecranon; the forearm takes the swell of its upper muscular half, its maximum girth, the end of the bellies, the flattened tendinous half and the wrist. Next to each junction ring a loop repeats the ring's shape a tenth of the way in (`-0.9` and `0.93`), so the joined surface keeps the ring's measured girth there instead of bulging toward the part's own sections. Loops gather at the elbow, 15 percent above, at and 8 percent below the joint, so the cage has edges to fold on when it flexes ("denser in areas that deform more", Blender Manual, "Mesh Structure"). Grade: conventional placement of measured landmarks.
  */
-const LEVELS: number[] = [-1, -0.9, -0.62, -0.3, -0.15, 0, 0.08, 0.22, 0.42, 0.64, 0.83, 0.93, 1];
+const LEVELS: number[] = [
+  -1, -0.9, -0.62, -0.3, -0.15, 0, 0.08, 0.22, 0.42, 0.64, 0.83, 0.93, 1,
+];
 
 /** Level of the maximum forearm girth, where the identity's forearm circumference is matched. Grade: conventional, a fifth of the way down, in the upper muscular half. */
 const FOREARM_PEAK: number = 0.22;
@@ -81,7 +83,14 @@ const GIRTH_PROFILE: Array<[level: number, weight: number]> = [
  *
  * Grade: conventional.
  */
-const BONES: Array<[level: number, direction: number, kind: "pin" | "floor" | "ceiling", breadths: number]> = [
+const BONES: Array<
+  [
+    level: number,
+    direction: number,
+    kind: "pin" | "floor" | "ceiling",
+    breadths: number,
+  ]
+> = [
   [-0.3, 3, "ceiling", 0.62],
   [-0.3, 4, "ceiling", 0.56],
   [-0.3, 5, "ceiling", 0.62],
@@ -113,25 +122,196 @@ const BONES: Array<[level: number, direction: number, kind: "pin" | "floor" | "c
  * `angle` is degrees from the anterior (flexor) surface toward the medial side, in the forearm's frame in supination, which the section twists into the rest pose. `amplitude` is relative to the section's mean deep radius; muscles and furrows scale with muscularity, bones do not. `from`, `peak` and `to` are arm levels as in `LEVELS`. Courses follow Gray (1918) and Bridgman (1920, "Constructive Anatomy"): the brachioradialis wedge rises a third of the way up the arm and peaks above the medial flexor-pronator mass, which starts at the medial epicondyle and peaks lower, so the outer and inner contours never peak at one level; the deltoid insertion and the cubital fossa are hollows between bellies; the lower forearm is tendinous. Amplitudes are conventional, judged in the viewer.
  */
 const FORMS: IForm[] = [
-  { name: "biceps", kind: "muscle", angle: 10, width: 38, amplitude: 0.1, from: -1.4, peak: -0.5, to: 0.25 },
-  { name: "brachialis lateral", kind: "muscle", angle: -60, width: 25, amplitude: 0.05, from: -0.75, peak: -0.2, to: 0.15 },
-  { name: "brachialis medial", kind: "muscle", angle: 62, width: 25, amplitude: 0.04, from: -0.7, peak: -0.2, to: 0.1 },
-  { name: "triceps long head", kind: "muscle", angle: 150, width: 35, amplitude: 0.08, from: -1.5, peak: -0.9, to: -0.35 },
-  { name: "triceps lateral head", kind: "muscle", angle: -140, width: 32, amplitude: 0.07, from: -1.5, peak: -1, to: -0.45 },
-  { name: "triceps tendon plane", kind: "muscle", angle: 180, width: 30, amplitude: -0.07, from: -0.6, peak: -0.25, to: -0.02 },
-  { name: "deltoid insertion", kind: "muscle", angle: -90, width: 25, amplitude: -0.035, from: -1.3, peak: -1, to: -0.7 },
-  { name: "medial bicipital groove", kind: "muscle", angle: 95, width: 20, amplitude: -0.04, from: -1.3, peak: -0.6, to: -0.15 },
-  { name: "cubital fossa", kind: "muscle", angle: 0, width: 30, amplitude: -0.02, from: -0.35, peak: 0.02, to: 0.3 },
-  { name: "brachioradialis", kind: "muscle", angle: -70, width: 32, amplitude: 0.14, from: -0.9, peak: 0, to: 0.6 },
-  { name: "flexor-pronator mass", kind: "muscle", angle: 50, width: 38, amplitude: 0.11, from: -0.25, peak: 0.3, to: 0.8 },
-  { name: "extensor mass", kind: "muscle", angle: -125, width: 32, amplitude: 0.07, from: 0, peak: 0.25, to: 0.8 },
-  { name: "anconeus", kind: "muscle", angle: -158, width: 20, amplitude: 0.03, from: 0, peak: 0.08, to: 0.2 },
-  { name: "ulnar furrow", kind: "muscle", angle: 150, width: 18, amplitude: -0.05, from: 0.05, peak: 0.4, to: 1 },
-  { name: "abductor pollicis longus", kind: "muscle", angle: -105, width: 25, amplitude: 0.04, from: 0.55, peak: 0.74, to: 0.92 },
-  { name: "medial epicondyle", kind: "bone", angle: 90, width: 18, amplitude: 0.08, from: -0.3, peak: -0.08, to: 0.08 },
-  { name: "lateral epicondyle", kind: "bone", angle: -90, width: 18, amplitude: 0.05, from: -0.3, peak: -0.08, to: 0.08 },
-  { name: "olecranon", kind: "bone", angle: 180, width: 22, amplitude: 0.05, from: -0.1, peak: 0, to: 0.12 },
-  { name: "ulnar head", kind: "bone", angle: 135, width: 22, amplitude: 0.05, from: 0.82, peak: 1, to: 1.2 },
+  {
+    name: "biceps",
+    kind: "muscle",
+    angle: 10,
+    width: 38,
+    amplitude: 0.1,
+    from: -1.4,
+    peak: -0.5,
+    to: 0.25,
+  },
+  {
+    name: "brachialis lateral",
+    kind: "muscle",
+    angle: -60,
+    width: 25,
+    amplitude: 0.05,
+    from: -0.75,
+    peak: -0.2,
+    to: 0.15,
+  },
+  {
+    name: "brachialis medial",
+    kind: "muscle",
+    angle: 62,
+    width: 25,
+    amplitude: 0.04,
+    from: -0.7,
+    peak: -0.2,
+    to: 0.1,
+  },
+  {
+    name: "triceps long head",
+    kind: "muscle",
+    angle: 150,
+    width: 35,
+    amplitude: 0.08,
+    from: -1.5,
+    peak: -0.9,
+    to: -0.35,
+  },
+  {
+    name: "triceps lateral head",
+    kind: "muscle",
+    angle: -140,
+    width: 32,
+    amplitude: 0.07,
+    from: -1.5,
+    peak: -1,
+    to: -0.45,
+  },
+  {
+    name: "triceps tendon plane",
+    kind: "muscle",
+    angle: 180,
+    width: 30,
+    amplitude: -0.07,
+    from: -0.6,
+    peak: -0.25,
+    to: -0.02,
+  },
+  {
+    name: "deltoid insertion",
+    kind: "muscle",
+    angle: -90,
+    width: 25,
+    amplitude: -0.035,
+    from: -1.3,
+    peak: -1,
+    to: -0.7,
+  },
+  {
+    name: "medial bicipital groove",
+    kind: "muscle",
+    angle: 95,
+    width: 20,
+    amplitude: -0.04,
+    from: -1.3,
+    peak: -0.6,
+    to: -0.15,
+  },
+  {
+    name: "cubital fossa",
+    kind: "muscle",
+    angle: 0,
+    width: 30,
+    amplitude: -0.02,
+    from: -0.35,
+    peak: 0.02,
+    to: 0.3,
+  },
+  {
+    name: "brachioradialis",
+    kind: "muscle",
+    angle: -70,
+    width: 32,
+    amplitude: 0.14,
+    from: -0.9,
+    peak: 0,
+    to: 0.6,
+  },
+  {
+    name: "flexor-pronator mass",
+    kind: "muscle",
+    angle: 50,
+    width: 38,
+    amplitude: 0.11,
+    from: -0.25,
+    peak: 0.3,
+    to: 0.8,
+  },
+  {
+    name: "extensor mass",
+    kind: "muscle",
+    angle: -125,
+    width: 32,
+    amplitude: 0.07,
+    from: 0,
+    peak: 0.25,
+    to: 0.8,
+  },
+  {
+    name: "anconeus",
+    kind: "muscle",
+    angle: -158,
+    width: 20,
+    amplitude: 0.03,
+    from: 0,
+    peak: 0.08,
+    to: 0.2,
+  },
+  {
+    name: "ulnar furrow",
+    kind: "muscle",
+    angle: 150,
+    width: 18,
+    amplitude: -0.05,
+    from: 0.05,
+    peak: 0.4,
+    to: 1,
+  },
+  {
+    name: "abductor pollicis longus",
+    kind: "muscle",
+    angle: -105,
+    width: 25,
+    amplitude: 0.04,
+    from: 0.55,
+    peak: 0.74,
+    to: 0.92,
+  },
+  {
+    name: "medial epicondyle",
+    kind: "bone",
+    angle: 90,
+    width: 18,
+    amplitude: 0.08,
+    from: -0.3,
+    peak: -0.08,
+    to: 0.08,
+  },
+  {
+    name: "lateral epicondyle",
+    kind: "bone",
+    angle: -90,
+    width: 18,
+    amplitude: 0.05,
+    from: -0.3,
+    peak: -0.08,
+    to: 0.08,
+  },
+  {
+    name: "olecranon",
+    kind: "bone",
+    angle: 180,
+    width: 22,
+    amplitude: 0.05,
+    from: -0.1,
+    peak: 0,
+    to: 0.12,
+  },
+  {
+    name: "ulnar head",
+    kind: "bone",
+    angle: 135,
+    width: 22,
+    amplitude: 0.05,
+    from: 0.82,
+    peak: 1,
+    to: 1.2,
+  },
 ];
 
 /** Forearm twist at the wrist, degrees: the rest pose holds the forearm at neutral rotation, palm toward the thigh, a quarter turn from supination. */
@@ -169,15 +349,13 @@ export function sectionAutoMovieHumanArm(
   const wrist: number = arm.wristCircumference;
   const profile: (level: number) => number = (level: number): number =>
     interpolate(
-      GIRTH_PROFILE.map(
-        ([at, weight]: [number, number]): [number, number] => [
-          at,
-          (at < 0
-            ? upper + weight * (forearm - upper)
-            : forearm + weight * (wrist - forearm)) *
-            (1 - (1 - ELBOW_PER_FOREARM) * bump(at, -0.5, 0, 0.22)),
-        ],
-      ),
+      GIRTH_PROFILE.map(([at, weight]: [number, number]): [number, number] => [
+        at,
+        (at < 0
+          ? upper + weight * (forearm - upper)
+          : forearm + weight * (wrist - forearm)) *
+          (1 - (1 - ELBOW_PER_FOREARM) * bump(at, -0.5, 0, 0.22)),
+      ]),
       level,
     );
   return LEVELS.map((level: number): sectionAutoMovieHumanArm.ISection => {
@@ -250,11 +428,17 @@ interface IForm {
 /** Deep relative radii of one level: superellipse proportions plus every form, mean near 1. */
 const deepShape = (level: number, muscularity: number): number[] => {
   const aspect: number = interpolate(
-    PROPORTION.map((p: [number, number, number]): [number, number] => [p[0], p[1]]),
+    PROPORTION.map((p: [number, number, number]): [number, number] => [
+      p[0],
+      p[1],
+    ]),
     level,
   );
   const exponent: number = interpolate(
-    PROPORTION.map((p: [number, number, number]): [number, number] => [p[0], p[2]]),
+    PROPORTION.map((p: [number, number, number]): [number, number] => [
+      p[0],
+      p[2],
+    ]),
     level,
   );
   const breadth: number = Math.sqrt(aspect);
@@ -363,14 +547,16 @@ const perimeter = (radii: number[]): number => {
     (p: [number, number]): [number, number] => [p[0], p[1]],
   );
   for (let step: number = 0; step < 60; ++step)
-    control = control.map((c: [number, number], k: number): [number, number] => {
-      const a: [number, number] = control[(k + COUNT - 1) % COUNT]!;
-      const b: [number, number] = control[(k + 1) % COUNT]!;
-      return [
-        c[0] + points[k]![0] - (a[0] + 4 * c[0] + b[0]) / 6,
-        c[1] + points[k]![1] - (a[1] + 4 * c[1] + b[1]) / 6,
-      ];
-    });
+    control = control.map(
+      (c: [number, number], k: number): [number, number] => {
+        const a: [number, number] = control[(k + COUNT - 1) % COUNT]!;
+        const b: [number, number] = control[(k + 1) % COUNT]!;
+        return [
+          c[0] + points[k]![0] - (a[0] + 4 * c[0] + b[0]) / 6,
+          c[1] + points[k]![1] - (a[1] + 4 * c[1] + b[1]) / 6,
+        ];
+      },
+    );
   const SAMPLES: number = 16;
   let length: number = 0;
   let previous: [number, number] | null = null;
@@ -397,13 +583,16 @@ const perimeter = (radii: number[]): number => {
       else first = point;
       previous = point;
     }
-  return length + Math.hypot(first![0] - previous![0], first![1] - previous![1]);
+  return (
+    length + Math.hypot(first![0] - previous![0], first![1] - previous![1])
+  );
 };
 
 /** Smooth bump along the arm: 0 outside `from` to `to`, 1 at `peak`, cosine on each side. */
 const bump = (x: number, from: number, peak: number, to: number): number => {
   if (x <= from || x >= to) return 0;
-  const t: number = x < peak ? (x - from) / (peak - from) : (to - x) / (to - peak);
+  const t: number =
+    x < peak ? (x - from) / (peak - from) : (to - x) / (to - peak);
   return 0.5 - 0.5 * Math.cos(Math.PI * t);
 };
 

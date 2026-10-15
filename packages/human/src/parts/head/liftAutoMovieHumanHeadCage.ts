@@ -37,19 +37,33 @@ export function liftAutoMovieHumanHeadCage(props: {
       }
     }
   // a refined point steers the lift only where none of its cage vertices is kept
-  const free = (vs: number[]): boolean => vs.every((v: number): boolean => !props.fixed.has(v));
-  let cage: IAutoMovieVector3[] = props.positions.map((q: IAutoMovieVector3) => ({ ...q }));
+  const free = (vs: number[]): boolean =>
+    vs.every((v: number): boolean => !props.fixed.has(v));
+  let cage: IAutoMovieVector3[] = props.positions.map(
+    (q: IAutoMovieVector3) => ({ ...q }),
+  );
   for (let round: number = 0; round < props.rounds; ++round) {
     const limit: number[] = subdivideAutoMovieSurface({
       cage: {
-        positions: cage.flatMap((q: IAutoMovieVector3): number[] => [q.x, q.y, q.z]),
+        positions: cage.flatMap((q: IAutoMovieVector3): number[] => [
+          q.x,
+          q.y,
+          q.z,
+        ]),
         faces: props.faces,
       },
       levels: 1,
     }).limitPositions;
     const gap = (j: number): IAutoMovieVector3 => {
-      const p: IAutoMovieVector3 = AutoMovieHumanVector.of(limit[3 * j]!, limit[3 * j + 1]!, limit[3 * j + 2]!);
-      const ray: IAutoMovieVector3 = AutoMovieHumanVector.offset(p, [props.centre, -1]);
+      const p: IAutoMovieVector3 = AutoMovieHumanVector.of(
+        limit[3 * j]!,
+        limit[3 * j + 1]!,
+        limit[3 * j + 2]!,
+      );
+      const ray: IAutoMovieVector3 = AutoMovieHumanVector.offset(p, [
+        props.centre,
+        -1,
+      ]);
       const skin: IAutoMovieVector3 = props.field.project(
         props.centre,
         ray,
@@ -57,7 +71,9 @@ export function liftAutoMovieHumanHeadCage(props: {
       );
       return AutoMovieHumanVector.offset(skin, [p, -1]);
     };
-    const sum: IAutoMovieVector3[] = cage.map(() => AutoMovieHumanVector.of(0, 0, 0));
+    const sum: IAutoMovieVector3[] = cage.map(() =>
+      AutoMovieHumanVector.of(0, 0, 0),
+    );
     const weight: number[] = new Array<number>(n).fill(0);
     const add = (v: number, g: IAutoMovieVector3, w: number): void => {
       sum[v] = AutoMovieHumanVector.offset(sum[v]!, [g, w]);
@@ -70,22 +86,29 @@ export function liftAutoMovieHumanHeadCage(props: {
       add(a, g, 0.5);
       add(b, g, 0.5);
     });
-    props.faces.forEach((f: [number, number, number, number], i: number): void => {
-      if (!free(f)) return;
-      const g: IAutoMovieVector3 = gap(n + edges.length + i);
-      for (const v of f) add(v, g, 0.25);
-    });
-    const moved: IAutoMovieVector3[] = cage.map((q: IAutoMovieVector3, i: number): IAutoMovieVector3 =>
-      props.fixed.has(i) || weight[i] === 0
-        ? q
-        : AutoMovieHumanVector.offset(q, [sum[i]!, props.share / weight[i]!]),
+    props.faces.forEach(
+      (f: [number, number, number, number], i: number): void => {
+        if (!free(f)) return;
+        const g: IAutoMovieVector3 = gap(n + edges.length + i);
+        for (const v of f) add(v, g, 0.25);
+      },
+    );
+    const moved: IAutoMovieVector3[] = cage.map(
+      (q: IAutoMovieVector3, i: number): IAutoMovieVector3 =>
+        props.fixed.has(i) || weight[i] === 0
+          ? q
+          : AutoMovieHumanVector.offset(q, [sum[i]!, props.share / weight[i]!]),
     );
     cage = moved.map((a: IAutoMovieVector3, i: number): IAutoMovieVector3 => {
       if (props.fixed.has(i)) return a;
       const m: number = props.mirror[i]!;
       if (m === i) return AutoMovieHumanVector.of(0, a.y, a.z);
       const b: IAutoMovieVector3 = moved[m]!;
-      return AutoMovieHumanVector.of((a.x - b.x) / 2, (a.y + b.y) / 2, (a.z + b.z) / 2);
+      return AutoMovieHumanVector.of(
+        (a.x - b.x) / 2,
+        (a.y + b.y) / 2,
+        (a.z + b.z) / 2,
+      );
     });
   }
   return cage;

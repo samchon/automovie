@@ -19,17 +19,50 @@ const SOUCIE_2011: Record<
   | keyof estimateAutoMovieHumanMobility.IOutput["leg"],
   IMotion
 > = {
-  hipExtension: { female: [26.2, 20.5, 18.1, 16.7], male: [28.3, 18.2, 17.4, 13.5] },
-  hipFlexion: { female: [140.8, 134.9, 133.8, 130.8], male: [131.1, 135.2, 130.4, 127.2] },
-  kneeFlexion: { female: [152.6, 142.3, 141.9, 137.8], male: [147.8, 142.2, 137.7, 132.9] },
-  kneeHyperextension: { female: [5.4, 2.4, 1.6, 1.2], male: [1.6, 1.8, 1.0, 0.5] },
-  ankleDorsiflexion: { female: [24.8, 17.3, 13.8, 11.6], male: [22.8, 16.3, 12.7, 11.9] },
-  anklePlantarFlexion: { female: [67.1, 57.3, 62.1, 56.5], male: [55.8, 52.8, 54.6, 49.4] },
-  shoulderFlexion: { female: [178.6, 171.8, 172.0, 168.1], male: [177.8, 170.9, 168.8, 164.0] },
-  elbowFlexion: { female: [152.9, 149.7, 150.0, 148.3], male: [151.4, 148.3, 144.6, 143.5] },
-  elbowHyperextension: { female: [6.8, 6.4, 4.7, 3.6], male: [2.2, 5.3, 0.8, -0.7] },
-  forearmPronation: { female: [84.6, 81.2, 82.0, 80.8], male: [79.6, 79.8, 76.9, 77.7] },
-  forearmSupination: { female: [93.7, 90.0, 90.6, 87.2], male: [86.4, 87.8, 85.0, 82.4] },
+  hipExtension: {
+    female: [26.2, 20.5, 18.1, 16.7],
+    male: [28.3, 18.2, 17.4, 13.5],
+  },
+  hipFlexion: {
+    female: [140.8, 134.9, 133.8, 130.8],
+    male: [131.1, 135.2, 130.4, 127.2],
+  },
+  kneeFlexion: {
+    female: [152.6, 142.3, 141.9, 137.8],
+    male: [147.8, 142.2, 137.7, 132.9],
+  },
+  kneeHyperextension: {
+    female: [5.4, 2.4, 1.6, 1.2],
+    male: [1.6, 1.8, 1.0, 0.5],
+  },
+  ankleDorsiflexion: {
+    female: [24.8, 17.3, 13.8, 11.6],
+    male: [22.8, 16.3, 12.7, 11.9],
+  },
+  anklePlantarFlexion: {
+    female: [67.1, 57.3, 62.1, 56.5],
+    male: [55.8, 52.8, 54.6, 49.4],
+  },
+  shoulderFlexion: {
+    female: [178.6, 171.8, 172.0, 168.1],
+    male: [177.8, 170.9, 168.8, 164.0],
+  },
+  elbowFlexion: {
+    female: [152.9, 149.7, 150.0, 148.3],
+    male: [151.4, 148.3, 144.6, 143.5],
+  },
+  elbowHyperextension: {
+    female: [6.8, 6.4, 4.7, 3.6],
+    male: [2.2, 5.3, 0.8, -0.7],
+  },
+  forearmPronation: {
+    female: [84.6, 81.2, 82.0, 80.8],
+    male: [79.6, 79.8, 76.9, 77.7],
+  },
+  forearmSupination: {
+    female: [93.7, 90.0, 90.6, 87.2],
+    male: [86.4, 87.8, 85.0, 82.4],
+  },
 };
 
 /**

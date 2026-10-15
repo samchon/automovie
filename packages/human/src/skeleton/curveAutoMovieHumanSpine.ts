@@ -14,7 +14,12 @@ const CREST_ABOVE_SACRUM: number = 1.25;
  * Vertebral levels of the curve's turning points, in segments. The lumbar curve begins at the middle of the last thoracic vertebra, the thoracic curve runs from there to the middle of the second thoracic vertebra with its most prominent point behind at the seventh (Gray 1918), four and a half lumbar segments above the plate, then five and ten thoracic segments up. The lordosis turns vertical at its apex, the third-fourth lumbar interspace two segments above the plate, because its lower arc from the plate to the apex equals the sacral slope and about two thirds of the lordosis lies from L4 to S1 (Roussouly and Pinheiro-Franco 2011, Eur Spine J 20(Suppl 5):578-585). The sacral plate is 1.2 lumbar segments deep, so its posterior superior corner lies 0.6 behind its midpoint. Grade: conventional.
  */
 const LEVEL: Record<
-  "lumbarApex" | "inflection" | "thoracicApex" | "secondThoracic" | "thoracicSegments" | "plateHalfDepth",
+  | "lumbarApex"
+  | "inflection"
+  | "thoracicApex"
+  | "secondThoracic"
+  | "thoracicSegments"
+  | "plateHalfDepth",
   number
 > = {
   lumbarApex: 2,
@@ -57,7 +62,8 @@ export function curveAutoMovieHumanSpine(
     (degrees * Math.PI) / 180;
   const plate: number = -(sacrum - hip) * Math.tan(radians(posture.pelvicTilt));
   const corner: number =
-    plate - LEVEL.plateHalfDepth * segment * Math.cos(radians(posture.sacralSlope));
+    plate -
+    LEVEL.plateHalfDepth * segment * Math.cos(radians(posture.sacralSlope));
 
   // direction (degrees forward of vertical) at the turning points, for an upper lordotic arc
   const knots: (upper: number) => Array<[number, number]> = (
@@ -69,7 +75,10 @@ export function curveAutoMovieHumanSpine(
       [sacrum, ss],
       [sacrum + LEVEL.lumbarApex * segment, Math.max(0, -upper)],
       [inflection, -upper],
-      [inflection + LEVEL.thoracicApex * thoracic, -upper + Math.min(Math.max(upper, 0), tk)],
+      [
+        inflection + LEVEL.thoracicApex * thoracic,
+        -upper + Math.min(Math.max(upper, 0), tk),
+      ],
       [inflection + LEVEL.secondThoracic * thoracic, -upper + tk],
       [c7, -upper + tk],
     ];
@@ -89,7 +98,9 @@ export function curveAutoMovieHumanSpine(
     const step: number = (c7 - sacrum) / SAMPLES;
     const z: number[] = [plate];
     for (let i: number = 0; i < SAMPLES; ++i)
-      z.push(z[i]! + Math.tan(radians(direction(sacrum + (i + 0.5) * step))) * step);
+      z.push(
+        z[i]! + Math.tan(radians(direction(sacrum + (i + 0.5) * step))) * step,
+      );
     return z;
   };
   const balance: (upper: number) => number = (upper: number): number =>
@@ -108,7 +119,8 @@ export function curveAutoMovieHumanSpine(
   const top: number = posture.thoracicKyphosis - upper;
   const at: (y: number) => number = (y: number): number => {
     const t: number = ((y - sacrum) / (c7 - sacrum)) * SAMPLES;
-    if (t <= 0) return z[0]! + (y - sacrum) * Math.tan(radians(posture.sacralSlope));
+    if (t <= 0)
+      return z[0]! + (y - sacrum) * Math.tan(radians(posture.sacralSlope));
     if (t >= SAMPLES) return z[SAMPLES]! + (y - c7) * Math.tan(radians(top));
     const i: number = Math.floor(t);
     return z[i]! + (t - i) * (z[i + 1]! - z[i]!);

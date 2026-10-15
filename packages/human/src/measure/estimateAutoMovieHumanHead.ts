@@ -95,16 +95,64 @@ const ADULT_HEAD: Record<
   Record<AutoMovieHumanSex, IAdultHead>
 > = {
   european: {
-    male: { headLength: 198.3, headBreadth: 152.3, faceWidth: 137.6, mandibularWidth: 104.5, minimumFrontalWidth: 111.4, faceHeight: 127.2, circumferencePerEllipse: 1.04 },
-    female: { headLength: 187.3, headBreadth: 145.8, faceWidth: 129.8, mandibularWidth: 97.0, minimumFrontalWidth: 105.5, faceHeight: 118.6, circumferencePerEllipse: 1.04 },
+    male: {
+      headLength: 198.3,
+      headBreadth: 152.3,
+      faceWidth: 137.6,
+      mandibularWidth: 104.5,
+      minimumFrontalWidth: 111.4,
+      faceHeight: 127.2,
+      circumferencePerEllipse: 1.04,
+    },
+    female: {
+      headLength: 187.3,
+      headBreadth: 145.8,
+      faceWidth: 129.8,
+      mandibularWidth: 97.0,
+      minimumFrontalWidth: 105.5,
+      faceHeight: 118.6,
+      circumferencePerEllipse: 1.04,
+    },
   },
   eastAsian: {
-    male: { headLength: 185.7, headBreadth: 157.2, faceWidth: 147.5, mandibularWidth: 119.0, minimumFrontalWidth: 108.7, faceHeight: 127.2, circumferencePerEllipse: 1.051 },
-    female: { headLength: 176.7, headBreadth: 150.5, faceWidth: 139.9, mandibularWidth: 114.2, minimumFrontalWidth: 106.6, faceHeight: 118.6, circumferencePerEllipse: 1.061 },
+    male: {
+      headLength: 185.7,
+      headBreadth: 157.2,
+      faceWidth: 147.5,
+      mandibularWidth: 119.0,
+      minimumFrontalWidth: 108.7,
+      faceHeight: 127.2,
+      circumferencePerEllipse: 1.051,
+    },
+    female: {
+      headLength: 176.7,
+      headBreadth: 150.5,
+      faceWidth: 139.9,
+      mandibularWidth: 114.2,
+      minimumFrontalWidth: 106.6,
+      faceHeight: 118.6,
+      circumferencePerEllipse: 1.061,
+    },
   },
   african: {
-    male: { headLength: 198.3, headBreadth: 152.3, faceWidth: 133.8, mandibularWidth: 106.6, minimumFrontalWidth: 115.3, faceHeight: 127.2, circumferencePerEllipse: 1.04 },
-    female: { headLength: 187.3, headBreadth: 145.8, faceWidth: 130.1, mandibularWidth: 96.8, minimumFrontalWidth: 111.2, faceHeight: 118.6, circumferencePerEllipse: 1.04 },
+    male: {
+      headLength: 198.3,
+      headBreadth: 152.3,
+      faceWidth: 133.8,
+      mandibularWidth: 106.6,
+      minimumFrontalWidth: 115.3,
+      faceHeight: 127.2,
+      circumferencePerEllipse: 1.04,
+    },
+    female: {
+      headLength: 187.3,
+      headBreadth: 145.8,
+      faceWidth: 130.1,
+      mandibularWidth: 96.8,
+      minimumFrontalWidth: 111.2,
+      faceHeight: 118.6,
+      circumferencePerEllipse: 1.04,
+    },
   },
 };
 
@@ -125,7 +173,10 @@ const STATURE_ELASTICITY: Record<
 /**
  * Active maximum mouth opening and laterotrusion, millimetres, the mixed-model growth curves of 169 healthy Dutch children aged 6 to 18 (Verkouteren et al. 2022, Eur J Oral Sci 130(3):e12869) at 6 and 18 years. Grade: population-fitted.
  */
-const VERKOUTEREN_2022: Record<"mouthOpening" | "mandibularLaterotrusion", ISexCurve> = {
+const VERKOUTEREN_2022: Record<
+  "mouthOpening" | "mandibularLaterotrusion",
+  ISexCurve
+> = {
   mouthOpening: {
     male: { ages: [6, 18], values: [45.0, 55.3] },
     female: { ages: [6, 18], values: [42.8, 50.5] },
@@ -178,7 +229,10 @@ export function estimateAutoMovieHumanHead(
   const fraction: (
     norm: keyof typeof FACIAL_NORMS_GROWTH,
     at: number,
-  ) => number = (norm: keyof typeof FACIAL_NORMS_GROWTH, at: number): number => {
+  ) => number = (
+    norm: keyof typeof FACIAL_NORMS_GROWTH,
+    at: number,
+  ): number => {
     const curve: IAutoMovieHumanGrowthCurve = FACIAL_NORMS_GROWTH[norm][sex];
     return (
       interpolateAutoMovieHumanGrowthCurve(curve, at) /
@@ -187,13 +241,23 @@ export function estimateAutoMovieHumanHead(
   };
 
   const headLength: number =
-    adult.headLength * fraction("headLength", age) * vaultCarry * size("headLength");
+    adult.headLength *
+    fraction("headLength", age) *
+    vaultCarry *
+    size("headLength");
   const headBreadth: number =
-    adult.headBreadth * fraction("headBreadth", age) * vaultCarry * size("headBreadth");
+    adult.headBreadth *
+    fraction("headBreadth", age) *
+    vaultCarry *
+    size("headBreadth");
   const faceScale: number = faceCarry(age) * size("faceWidth");
   const faceHeight: number =
-    adult.faceHeight * fraction("faceHeight", age) * faceCarry(age) * size("faceHeight");
-  const faceWidth: number = adult.faceWidth * fraction("faceWidth", age) * faceScale;
+    adult.faceHeight *
+    fraction("faceHeight", age) *
+    faceCarry(age) *
+    size("faceHeight");
+  const faceWidth: number =
+    adult.faceWidth * fraction("faceWidth", age) * faceScale;
 
   // the auricle grows on its own curves (see estimateAutoMovieHumanEar)
   const ear: IAutoMovieHumanIdentity.IEar = estimateAutoMovieHumanEar(context);
@@ -202,7 +266,8 @@ export function estimateAutoMovieHumanHead(
   const jawAge: number = Math.max(age, 6);
   const jawScale: number =
     age < 6
-      ? (fraction("faceHeight", age) * faceCarry(age)) / fraction("faceHeight", 6)
+      ? (fraction("faceHeight", age) * faceCarry(age)) /
+        fraction("faceHeight", 6)
       : 1;
   return {
     headLength,

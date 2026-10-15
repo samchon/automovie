@@ -339,7 +339,10 @@ function lastValue(curve: IAutoMovieHumanGrowthCurve): number {
 /**
  * Span from the person's own segments with the arms outstretched. Abducting the arm 90 degrees brings the acromion markedly closer to the radiale: de Leva measured acromion-radiale abducted at 235.9 mm in women and 244.8 mm in men, against 322.7 and 330.5 mm adducted from his own shoulder and elbow offsets (33.7 and 13.9, 34.5 and 14.3 mm) and upper-arm lengths (275.1 and 281.7 mm), so an outstretched upper arm reaches 0.731 and 0.741 of its hanging acromion-radiale beyond the acromion (de Leva 1996, J Biomech 29(9):1223-1230, Tables 1, 2 and 4). Span is then biacromial breadth plus, on each side, that reach, the forearm and the hand. Over the ANSUR II working databases this predicts measured span within 1.4 percent (SD of the ratio) and overestimates the mean by 0.3 percent in women and 1.1 percent in men, so the result is scaled by the measured-over-predicted means (0.997 and 0.9888; our computation on the public records, Gordon et al. 2014, NATICK/TR-15/007). Children take the same relation; no child span was read. Grade: measured, then derived.
  */
-const SPAN: Record<"reach" | "calibration", Record<AutoMovieHumanSex, number>> = {
+const SPAN: Record<
+  "reach" | "calibration",
+  Record<AutoMovieHumanSex, number>
+> = {
   reach: { female: 0.731, male: 0.7407 },
   calibration: { female: 0.997, male: 0.9888 },
 };
@@ -525,7 +528,8 @@ export function estimateAutoMovieHumanLengths(
         limbScale *
         handLength *
         GREINER_THUMB[sex] *
-        (ratio(SNYDER_1977_DIGITS.thumb) / lastValue(SNYDER_1977_DIGITS.thumb[sex])),
+        (ratio(SNYDER_1977_DIGITS.thumb) /
+          lastValue(SNYDER_1977_DIGITS.thumb[sex])),
     },
     leg: {
       thighLength: limbScale * (trochanterion - tibiale),
@@ -587,7 +591,11 @@ export namespace estimateAutoMovieHumanLengths {
     /** Lengths of one leg. */
     leg: Pick<
       IAutoMovieHumanIdentity.ILeg,
-      "thighLength" | "shankLength" | "ankleHeight" | "footLength" | "footBreadth"
+      | "thighLength"
+      | "shankLength"
+      | "ankleHeight"
+      | "footLength"
+      | "footBreadth"
     >;
   }
 }

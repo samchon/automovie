@@ -60,8 +60,7 @@ export function createHumanViewerPoseEditor(props: {
       remove.addEventListener("click", (): void =>
         emit(
           props.pose.joints.filter(
-            (_j: IAutoMovieHumanPose.IJoint, i: number): boolean =>
-              i !== index,
+            (_j: IAutoMovieHumanPose.IJoint, i: number): boolean => i !== index,
           ),
         ),
       );

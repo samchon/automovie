@@ -48,11 +48,19 @@ export class AutoMovieHumanHandSketch {
    * @param to The next loop distally, its vertex `k` facing vertex `k` of `from`
    * @param skip Spans left open, by the index of their first vertex
    */
-  public bridge(from: number[], to: number[], skip: ReadonlySet<number> = new Set()): void {
+  public bridge(
+    from: number[],
+    to: number[],
+    skip: ReadonlySet<number> = new Set(),
+  ): void {
     const n: number = from.length;
-    if (to.length !== n) throw new Error(`hand bridge needs equal loops, got ${n} and ${to.length}`);
+    if (to.length !== n)
+      throw new Error(
+        `hand bridge needs equal loops, got ${n} and ${to.length}`,
+      );
     for (let k: number = 0; k < n; ++k)
-      if (!skip.has(k)) this.quad([from[k]!, from[(k + 1) % n]!, to[(k + 1) % n]!, to[k]!]);
+      if (!skip.has(k))
+        this.quad([from[k]!, from[(k + 1) % n]!, to[(k + 1) % n]!, to[k]!]);
   }
 
   /**
@@ -65,10 +73,18 @@ export class AutoMovieHumanHandSketch {
    * @param spans Spans of `to` each span of `from` faces, 1 or 3
    * @param skip Single spans of `from` left open, by the index of their first vertex, to cut a hole
    */
-  public taper(from: number[], to: number[], spans: number[], skip: ReadonlySet<number> = new Set()): void {
+  public taper(
+    from: number[],
+    to: number[],
+    spans: number[],
+    skip: ReadonlySet<number> = new Set(),
+  ): void {
     const m: number = from.length;
     const n: number = to.length;
-    if (spans.length !== m || spans.reduce((a: number, b: number): number => a + b, 0) !== n)
+    if (
+      spans.length !== m ||
+      spans.reduce((a: number, b: number): number => a + b, 0) !== n
+    )
       throw new Error(`hand taper spans must cover ${n} spans in ${m}`);
     let i: number = 0;
     spans.forEach((span: number, j: number): void => {
@@ -77,8 +93,7 @@ export class AutoMovieHumanHandSketch {
       const at = (s: number): number => to[(i + s) % n]!;
       if (span === 1) {
         if (!skip.has(j)) this.quad([a, b, at(1), at(0)]);
-      }
-      else {
+      } else {
         this.quad([a, b, at(3), at(2)]);
         this.quad([a, at(2), at(1), at(0)]);
       }
@@ -96,9 +111,11 @@ export class AutoMovieHumanHandSketch {
    * @returns The apex vertex
    */
   public cap(loop: number[], apex: IAutoMovieVector3): number {
-    if (loop.length !== 8) throw new Error(`hand cap needs a loop of 8, got ${loop.length}`);
+    if (loop.length !== 8)
+      throw new Error(`hand cap needs a loop of 8, got ${loop.length}`);
     const c: number = this.vertex(apex);
-    for (let k: number = 0; k < 4; ++k) this.quad([loop[2 * k]!, loop[2 * k + 1]!, loop[(2 * k + 2) % 8]!, c]);
+    for (let k: number = 0; k < 4; ++k)
+      this.quad([loop[2 * k]!, loop[2 * k + 1]!, loop[(2 * k + 2) % 8]!, c]);
     return c;
   }
 

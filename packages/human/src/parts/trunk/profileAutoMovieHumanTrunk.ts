@@ -1,10 +1,10 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
-import { IAutoMovieHumanTrunkFrame } from "./IAutoMovieHumanTrunkFrame";
-import { IAutoMovieHumanTrunkTune } from "./IAutoMovieHumanTrunkTune";
 import { AUTOMOVIE_HUMAN_TRUNK_FORM } from "./AUTOMOVIE_HUMAN_TRUNK_FORM";
 import { IAutoMovieHumanTrunkForm } from "./IAutoMovieHumanTrunkForm";
+import { IAutoMovieHumanTrunkFrame } from "./IAutoMovieHumanTrunkFrame";
+import { IAutoMovieHumanTrunkTune } from "./IAutoMovieHumanTrunkTune";
 import { curveAutoMovieHumanTrunk } from "./curveAutoMovieHumanTrunk";
 
 /**
@@ -39,7 +39,9 @@ export function profileAutoMovieHumanTrunk(
   const waistBack: number = back(L.waist);
   const waistFront: number = waistBack + waistDepth;
   const spineFront: number =
-    frame.iliospinale.z + F.front.spine * S + F.front.spineFat * Math.max(0, frame.fat - 15);
+    frame.iliospinale.z +
+    F.front.spine * S +
+    F.front.spineFat * Math.max(0, frame.fat - 15);
   const buttockFront: number = Math.max(
     spineFront - F.front.buttock * S,
     lerp(spineFront, waistFront, F.front.buttockToWaist),
@@ -49,8 +51,14 @@ export function profileAutoMovieHumanTrunk(
   const front: (y: number) => number = curveAutoMovieHumanTrunk([
     [L.crotch, buttockFront - F.front.pubis * S],
     [L.buttock, buttockFront],
-    [frame.iliospinale.y, Math.max(spineFront, lerp(buttockFront, waistFront, F.front.iliac))],
-    [L.navel, lerp(Math.max(spineFront, buttockFront), waistFront, F.front.navel)],
+    [
+      frame.iliospinale.y,
+      Math.max(spineFront, lerp(buttockFront, waistFront, F.front.iliac)),
+    ],
+    [
+      L.navel,
+      lerp(Math.max(spineFront, buttockFront), waistFront, F.front.navel),
+    ],
     [L.waist, waistFront],
     [L.costal, lerp(waistFront, chestFront, F.front.costal)],
     [L.fold, chestFront - F.front.fold * S],
@@ -61,13 +69,23 @@ export function profileAutoMovieHumanTrunk(
   const rear: (y: number) => number = curveAutoMovieHumanTrunk([
     [L.gluteal, buttockBack + F.back.fold * S],
     [L.buttock, buttockBack + gluteal],
-    [lerp(L.buttock, frame.iliocristale.y, 0.5), lerp(buttockBack + gluteal, back(frame.iliocristale.y), F.back.upperButtock)],
+    [
+      lerp(L.buttock, frame.iliocristale.y, 0.5),
+      lerp(
+        buttockBack + gluteal,
+        back(frame.iliocristale.y),
+        F.back.upperButtock,
+      ),
+    ],
     [frame.iliocristale.y, back(frame.iliocristale.y)],
     [L.waist, waistBack],
     [L.tenthRib, back(L.tenthRib)],
     [L.chestPoint, chestBack],
     [L.axilla, back(L.axilla)],
-    [lerp(L.axilla, frame.cervicale.y, 0.55), lerp(back(L.axilla), frame.cervicale.z, F.back.upperBack)],
+    [
+      lerp(L.axilla, frame.cervicale.y, 0.55),
+      lerp(back(L.axilla), frame.cervicale.z, F.back.upperBack),
+    ],
     [frame.cervicale.y, frame.cervicale.z],
   ]);
   const hipHalf: number = (frame.buttock.breadth / 2) * tune.hip.breadth;
@@ -76,11 +94,17 @@ export function profileAutoMovieHumanTrunk(
   const half: (y: number) => number = curveAutoMovieHumanTrunk([
     [L.gluteal, hipHalf * F.half.gluteal],
     [frame.trochanterion.y - F.half.trochanter * S, hipHalf],
-    [frame.iliocristale.y - F.half.crestBelow * S, lerp(hipHalf, waistHalf, F.half.crest)],
+    [
+      frame.iliocristale.y - F.half.crestBelow * S,
+      lerp(hipHalf, waistHalf, F.half.crest),
+    ],
     [L.waist, waistHalf],
     [L.costal, lerp(waistHalf, chestHalf, F.half.costal) * tune.under.breadth],
     [L.chestPoint, chestHalf],
-    [L.axilla, chestHalf * (F.half.axilla + F.half.axillaMuscle * frame.muscle)],
+    [
+      L.axilla,
+      chestHalf * (F.half.axilla + F.half.axillaMuscle * frame.muscle),
+    ],
   ]);
   const squareness = (side: "front" | "back"): ((y: number) => number) =>
     curveAutoMovieHumanTrunk([
@@ -96,7 +120,11 @@ export function profileAutoMovieHumanTrunk(
       y < frame.iliocristale.y
         ? F.widest.pelvis
         : y < L.waist
-          ? lerp(F.widest.pelvis, F.widest.waist, (y - frame.iliocristale.y) / (L.waist - frame.iliocristale.y))
+          ? lerp(
+              F.widest.pelvis,
+              F.widest.waist,
+              (y - frame.iliocristale.y) / (L.waist - frame.iliocristale.y),
+            )
           : F.widest.chest;
     return lerp(rear(y), front(y), share);
   };

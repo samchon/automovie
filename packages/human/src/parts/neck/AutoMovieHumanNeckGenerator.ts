@@ -4,10 +4,10 @@ import { AutoMovieHumanCageBuilder } from "../../junction/AutoMovieHumanCageBuil
 import { IAutoMovieHumanCage } from "../../junction/IAutoMovieHumanCage";
 import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
 import { shapeAutoMovieHumanRing } from "../../junction/shapeAutoMovieHumanRing";
+import { IAutoMovieHumanPartGenerator } from "../../parts/IAutoMovieHumanPartGenerator";
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanSkeleton } from "../../skeleton/IAutoMovieHumanSkeleton";
 import { IAutoMovieHumanIdentity } from "../../structures/IAutoMovieHumanIdentity";
-import { IAutoMovieHumanPartGenerator } from "../../parts/IAutoMovieHumanPartGenerator";
 import { measureAutoMovieHumanNeckGirth } from "./measureAutoMovieHumanNeckGirth";
 import { sectionAutoMovieHumanNeck } from "./sectionAutoMovieHumanNeck";
 
@@ -36,25 +36,39 @@ export class AutoMovieHumanNeckGenerator implements IAutoMovieHumanPartGenerator
    * @param props Measurements and skeleton; the side is null
    * @returns The cage with its two rings
    */
-  public generate(props: IAutoMovieHumanPartGenerator.IProps<"neck">): IAutoMovieHumanCage {
+  public generate(
+    props: IAutoMovieHumanPartGenerator.IProps<"neck">,
+  ): IAutoMovieHumanCage {
     const skeleton: IAutoMovieHumanSkeleton = props.skeleton;
-    const body: IAutoMovieHumanIdentity.IBody = props.measurements.identity.body;
+    const body: IAutoMovieHumanIdentity.IBody =
+      props.measurements.identity.body;
     const shape = (site: "neckBase" | "neckTop"): IAutoMovieHumanRingShape =>
-      shapeAutoMovieHumanRing({ skeleton, measurements: props.measurements, site, side: null, part: "neck" });
+      shapeAutoMovieHumanRing({
+        skeleton,
+        measurements: props.measurements,
+        site,
+        side: null,
+        part: "neck",
+      });
     const base: IAutoMovieHumanRingShape = shape("neckBase");
     const top: IAutoMovieHumanRingShape = shape("neckTop");
-    const sections: sectionAutoMovieHumanNeck.IOutput = sectionAutoMovieHumanNeck({
-      skeleton,
-      body,
-      base,
-      top,
-    });
+    const sections: sectionAutoMovieHumanNeck.IOutput =
+      sectionAutoMovieHumanNeck({
+        skeleton,
+        body,
+        base,
+        top,
+      });
     const n: number = base.count;
     // the limit surface lies inside its cage, so the mid section is widened until the subdivided neck has the measured girth
     let scale: number = 1;
     let cage: IAutoMovieHumanCage = this.build(base, top, sections, scale, n);
     for (let i: number = 0; i < GIRTH_FITS; ++i) {
-      const girth: number = measureAutoMovieHumanNeckGirth(cage, sections.centre, sections.axis);
+      const girth: number = measureAutoMovieHumanNeckGirth(
+        cage,
+        sections.centre,
+        sections.axis,
+      );
       scale *= body.neckCircumference / girth;
       cage = this.build(base, top, sections, scale, n);
     }
@@ -70,10 +84,17 @@ export class AutoMovieHumanNeckGenerator implements IAutoMovieHumanPartGenerator
     n: number,
   ): IAutoMovieHumanCage {
     const axis: IAutoMovieVector3 = sections.axis;
-    const mid: IAutoMovieVector3[] = sections.mid.map((p: IAutoMovieVector3): IAutoMovieVector3 =>
-      AutoMovieHumanVector.offset(sections.centre, [AutoMovieHumanVector.offset(p, [sections.centre, -1]), scale]),
+    const mid: IAutoMovieVector3[] = sections.mid.map(
+      (p: IAutoMovieVector3): IAutoMovieVector3 =>
+        AutoMovieHumanVector.offset(sections.centre, [
+          AutoMovieHumanVector.offset(p, [sections.centre, -1]),
+          scale,
+        ]),
     );
-    const builder: AutoMovieHumanCageBuilder = new AutoMovieHumanCageBuilder("neck", null);
+    const builder: AutoMovieHumanCageBuilder = new AutoMovieHumanCageBuilder(
+      "neck",
+      null,
+    );
     // one cubic Hermite per vertex line and segment, leaving the mid section along the neck bone
     const along = (k: number, segment: 0 | 1, t: number): IAutoMovieVector3 => {
       const b: IAutoMovieVector3 = sections.base[k]!;
@@ -81,9 +102,13 @@ export class AutoMovieHumanNeckGenerator implements IAutoMovieHumanPartGenerator
       const e: IAutoMovieVector3 = sections.top[k]!;
       const [p0, p1] = segment === 0 ? [b, m] : [m, e];
       const length: number = AutoMovieHumanVector.distance(p0, p1);
-      const upright: IAutoMovieVector3 = AutoMovieHumanVector.offset(AutoMovieHumanVector.of(0, 0, 0), [axis, length]);
+      const upright: IAutoMovieVector3 = AutoMovieHumanVector.offset(
+        AutoMovieHumanVector.of(0, 0, 0),
+        [axis, length],
+      );
       const t0: IAutoMovieVector3 = upright;
-      const t1: IAutoMovieVector3 = segment === 0 ? upright : AutoMovieHumanVector.offset(e, [m, -1]);
+      const t1: IAutoMovieVector3 =
+        segment === 0 ? upright : AutoMovieHumanVector.offset(e, [m, -1]);
       return AutoMovieHumanVector.offset(
         AutoMovieHumanVector.of(0, 0, 0),
         [p0, 2 * t ** 3 - 3 * t ** 2 + 1],
@@ -93,13 +118,21 @@ export class AutoMovieHumanNeckGenerator implements IAutoMovieHumanPartGenerator
       );
     };
     const line = (segment: 0 | 1, t: number): IAutoMovieVector3[] =>
-      Array.from({ length: n }, (_: unknown, k: number): IAutoMovieVector3 => along(k, segment, t));
+      Array.from(
+        { length: n },
+        (_: unknown, k: number): IAutoMovieVector3 => along(k, segment, t),
+      );
     // the first loop off each ring continues the ring straight into the neck at the ring's own radii, so the joined girth stays the ring's
     const step: number =
-      AutoMovieHumanVector.distance(base.frame.origin, top.frame.origin) / (STATIONS - 1);
-    const continued = (ring: IAutoMovieHumanRingShape, points: IAutoMovieVector3[]): IAutoMovieVector3[] =>
-      points.map((p: IAutoMovieVector3): IAutoMovieVector3 =>
-        AutoMovieHumanVector.offset(p, [ring.frame.normal, -step]),
+      AutoMovieHumanVector.distance(base.frame.origin, top.frame.origin) /
+      (STATIONS - 1);
+    const continued = (
+      ring: IAutoMovieHumanRingShape,
+      points: IAutoMovieVector3[],
+    ): IAutoMovieVector3[] =>
+      points.map(
+        (p: IAutoMovieVector3): IAutoMovieVector3 =>
+          AutoMovieHumanVector.offset(p, [ring.frame.normal, -step]),
       );
     const stations: AutoMovieHumanCageBuilder.IStation[] = [
       builder.place(base, 0),
@@ -109,7 +142,8 @@ export class AutoMovieHumanNeckGenerator implements IAutoMovieHumanPartGenerator
       builder.station(continued(top, sections.top), 0.8),
       builder.place(top, 1),
     ];
-    for (let i: number = 0; i + 1 < stations.length; ++i) builder.bridge(stations[i]!, stations[i + 1]!);
+    for (let i: number = 0; i + 1 < stations.length; ++i)
+      builder.bridge(stations[i]!, stations[i + 1]!);
     return builder.build();
   }
 }

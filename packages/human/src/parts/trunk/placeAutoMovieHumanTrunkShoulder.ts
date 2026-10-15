@@ -2,8 +2,8 @@ import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
-import { IAutoMovieHumanTrunkFrame } from "./IAutoMovieHumanTrunkFrame";
 import { AUTOMOVIE_HUMAN_TRUNK_LOOPS } from "./AUTOMOVIE_HUMAN_TRUNK_LOOPS";
+import { IAutoMovieHumanTrunkFrame } from "./IAutoMovieHumanTrunkFrame";
 import { profileAutoMovieHumanTrunk } from "./profileAutoMovieHumanTrunk";
 
 /**
@@ -59,9 +59,12 @@ export function placeAutoMovieHumanTrunkShoulder(
   const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
   const ax: number = frame.levels.axilla;
   const axillaHalf: number = profile.half(ax);
-  const left = (p: IAutoMovieVector3): IAutoMovieVector3 => V.of(sign * p.x, p.y, p.z);
+  const left = (p: IAutoMovieVector3): IAutoMovieVector3 =>
+    V.of(sign * p.x, p.y, p.z);
   // the axilla, mid shoulder and top loops
-  const [AX, MID, TOP]: number[] = [3, 2, 1].map((k: number): number => AUTOMOVIE_HUMAN_TRUNK_LOOPS - k);
+  const [AX, MID, TOP]: number[] = [3, 2, 1].map(
+    (k: number): number => AUTOMOVIE_HUMAN_TRUNK_LOOPS - k,
+  );
 
   // the opening
   // slots between the chest wall under the arm (0) and the acromion (1)
@@ -70,11 +73,31 @@ export function placeAutoMovieHumanTrunkShoulder(
   loops[TOP]![6] = V.of(across(0.88), A.y + 0.004 * S, A.z - 0.004 * S);
   loops[TOP]![5] = V.of(across(0.7), A.y - 0.003 * S, A.z + 0.022 * S);
   loops[TOP]![7] = V.of(across(0.66), A.y - 0.004 * S, A.z - 0.028 * S);
-  loops[MID]![5] = V.of(across(0.5), G.y - 0.01 * S, lerp(profile.front(G.y), A.z, 0.25));
-  loops[MID]![7] = V.of(across(0.46), G.y - 0.014 * S, lerp(profile.back(G.y), A.z, 0.2));
-  loops[AX]![5] = V.of(across(0.06), lerp(ax, G.y, 0.25), lerp(profile.widest(ax), profile.front(ax), 0.5));
-  loops[AX]![6] = V.of(across(0.3), lerp(ax, G.y, 0.5), profile.widest(ax) - 0.004 * S);
-  loops[AX]![7] = V.of(across(0.06), lerp(ax, G.y, 0.1), lerp(profile.widest(ax), profile.back(ax), 0.55));
+  loops[MID]![5] = V.of(
+    across(0.5),
+    G.y - 0.01 * S,
+    lerp(profile.front(G.y), A.z, 0.25),
+  );
+  loops[MID]![7] = V.of(
+    across(0.46),
+    G.y - 0.014 * S,
+    lerp(profile.back(G.y), A.z, 0.2),
+  );
+  loops[AX]![5] = V.of(
+    across(0.06),
+    lerp(ax, G.y, 0.25),
+    lerp(profile.widest(ax), profile.front(ax), 0.5),
+  );
+  loops[AX]![6] = V.of(
+    across(0.3),
+    lerp(ax, G.y, 0.5),
+    profile.widest(ax) - 0.004 * S,
+  );
+  loops[AX]![7] = V.of(
+    across(0.06),
+    lerp(ax, G.y, 0.1),
+    lerp(profile.widest(ax), profile.back(ax), 0.55),
+  );
 
   // the clavicle, its medial part convex forward
   const cl: IAutoMovieVector3 = frame.clavicale;
@@ -83,7 +106,8 @@ export function placeAutoMovieHumanTrunkShoulder(
     [3, 0.3],
     [4, 0.62],
   ] as const) {
-    const bulge: number = Math.sin(Math.PI * t) * 0.008 * S * (t < 0.5 ? 1 : 0.3);
+    const bulge: number =
+      Math.sin(Math.PI * t) * 0.008 * S * (t < 0.5 ? 1 : 0.3);
     loops[TOP]![j] = V.of(
       lerp(cl.x, A.x, t),
       lerp(cl.y, A.y, t) + skin + 0.003 * S,
@@ -130,7 +154,10 @@ export function placeAutoMovieHumanTrunkShoulder(
   // the deltoid's measured bulk over its value for the mean shoulder, the stub's rings scale with it
   const deltoid: number = Math.min(
     1.6,
-    Math.max(0.7, frame.deltoid / (DELTOID_PER_BIACROMIAL * (2 * frame.acromion.x))),
+    Math.max(
+      0.7,
+      frame.deltoid / (DELTOID_PER_BIACROMIAL * (2 * frame.acromion.x)),
+    ),
   );
   const top: number = A.y + 0.01 * S * deltoid - G.y;
   const rings: IAutoMovieVector3[][] = ARM_RINGS.map(({ out, rise, radii }) => {
@@ -143,12 +170,19 @@ export function placeAutoMovieHumanTrunkShoulder(
       (radius * behind * deltoid) / EIGHT_SPAN_LIMIT,
       (above === 0 ? top : radius * above * deltoid) / EIGHT_SPAN_LIMIT,
     ];
-    return Array.from({ length: 8 }, (_: unknown, k: number): IAutoMovieVector3 => {
-      const angle: number = (k / 8) * 2 * Math.PI;
-      const dz: number = Math.cos(angle);
-      const dy: number = -Math.sin(angle);
-      return V.of(x, cy + dy * (dy <= 0 ? r[1] : r[3]), G.z + dz * (dz >= 0 ? r[0] : r[2]));
-    });
+    return Array.from(
+      { length: 8 },
+      (_: unknown, k: number): IAutoMovieVector3 => {
+        const angle: number = (k / 8) * 2 * Math.PI;
+        const dz: number = Math.cos(angle);
+        const dy: number = -Math.sin(angle);
+        return V.of(
+          x,
+          cy + dy * (dy <= 0 ? r[1] : r[3]),
+          G.z + dz * (dz >= 0 ? r[0] : r[2]),
+        );
+      },
+    );
   });
   const cut: IAutoMovieVector3[] = layout.positions;
   return { crest, rings, cut };

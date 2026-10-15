@@ -29,15 +29,24 @@ export function measureAutoMovieHumanLegGirth(props: {
     const t: number = ha / (ha - height(b));
     return {
       x: positions[3 * a]! + t * (positions[3 * b]! - positions[3 * a]!),
-      y: positions[3 * a + 1]! + t * (positions[3 * b + 1]! - positions[3 * a + 1]!),
-      z: positions[3 * a + 2]! + t * (positions[3 * b + 2]! - positions[3 * a + 2]!),
+      y:
+        positions[3 * a + 1]! +
+        t * (positions[3 * b + 1]! - positions[3 * a + 1]!),
+      z:
+        positions[3 * a + 2]! +
+        t * (positions[3 * b + 2]! - positions[3 * a + 2]!),
     };
   };
   const near = (p: IAutoMovieVector3): boolean =>
     Math.hypot(p.x - origin.x, p.y - origin.y, p.z - origin.z) <= props.reach;
   let girth: number = 0;
   for (let f: number = 0; f < faces.length; f += 4) {
-    const quad: number[] = [faces[f]!, faces[f + 1]!, faces[f + 2]!, faces[f + 3]!];
+    const quad: number[] = [
+      faces[f]!,
+      faces[f + 1]!,
+      faces[f + 2]!,
+      faces[f + 3]!,
+    ];
     for (const triangle of [
       [quad[0]!, quad[1]!, quad[2]!],
       [quad[0]!, quad[2]!, quad[3]!],

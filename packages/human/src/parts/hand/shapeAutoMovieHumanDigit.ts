@@ -20,8 +20,12 @@ export function shapeAutoMovieHumanDigit(
   const loops: number[][] = [props.socket];
   const lengths: number[] = props.points
     .slice(1)
-    .map((p: IAutoMovieVector3, i: number): number => V.distance(props.points[i]!, p));
-  const at = (s: number): { centre: IAutoMovieVector3; tangent: IAutoMovieVector3 } => {
+    .map((p: IAutoMovieVector3, i: number): number =>
+      V.distance(props.points[i]!, p),
+    );
+  const at = (
+    s: number,
+  ): { centre: IAutoMovieVector3; tangent: IAutoMovieVector3 } => {
     let rest: number = s;
     for (let i: number = 0; i < lengths.length; ++i) {
       const a: IAutoMovieVector3 = props.points[i]!;
@@ -41,7 +45,11 @@ export function shapeAutoMovieHumanDigit(
       V.offset(props.palmar, [tangent, -V.dot(props.palmar, tangent)]),
     );
     const ulnar: IAutoMovieVector3 = V.normalize(
-      V.offset(props.ulnar, [tangent, -V.dot(props.ulnar, tangent)], [palmar, -V.dot(props.ulnar, palmar)]),
+      V.offset(
+        props.ulnar,
+        [tangent, -V.dot(props.ulnar, tangent)],
+        [palmar, -V.dot(props.ulnar, palmar)],
+      ),
     );
     const w: number = section.breadth / 2;
     const q: number = section.square;
@@ -57,8 +65,14 @@ export function shapeAutoMovieHumanDigit(
       [section.palmar * q, -w * q],
     ];
     const loop: number[] = sketch.loop(
-      offsets.map(([y, z]: [number, number], k: number): IAutoMovieVector3 =>
-        V.offset(centre, [palmar, y * (section.swell?.[k] ?? 1)], [ulnar, z * (section.swell?.[k] ?? 1)], [tangent, section.advance?.[k] ?? 0]),
+      offsets.map(
+        ([y, z]: [number, number], k: number): IAutoMovieVector3 =>
+          V.offset(
+            centre,
+            [palmar, y * (section.swell?.[k] ?? 1)],
+            [ulnar, z * (section.swell?.[k] ?? 1)],
+            [tangent, section.advance?.[k] ?? 0],
+          ),
       ),
     );
     sketch.bridge(loops[loops.length - 1]!, loop);

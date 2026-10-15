@@ -11,8 +11,8 @@ import { meshAutoMovieHumanCage } from "../junction/meshAutoMovieHumanCage";
 import { IAutoMovieHumanMeasurements } from "../measure/IAutoMovieHumanMeasurements";
 import { IAutoMovieHumanPartGenerator } from "../parts/IAutoMovieHumanPartGenerator";
 import { IAutoMovieHumanSkeleton } from "../skeleton/IAutoMovieHumanSkeleton";
-import { IAutoMovieHumanPartGenerators } from "./IAutoMovieHumanPartGenerators";
 import { AUTOMOVIE_HUMAN_PART_INSTANCES } from "./AUTOMOVIE_HUMAN_PART_INSTANCES";
+import { IAutoMovieHumanPartGenerators } from "./IAutoMovieHumanPartGenerators";
 
 /**
  * Emit every part's separate meshes, such as nail plates and eyeballs, as their own model parts, each riding its bone.
@@ -84,7 +84,9 @@ export const emitAutoMovieHumanAttachments = (
       const material: IAutoMovieMaterial | undefined =
         attachment.appearance?.material ?? TISSUE_MATERIALS[attachment.tissue];
       if (material === undefined)
-        throw new Error(`${id} is ${attachment.tissue}, which has no placeholder material`);
+        throw new Error(
+          `${id} is ${attachment.tissue}, which has no placeholder material`,
+        );
       materials.set(material.id, material);
       for (const image of attachment.appearance?.images ?? [])
         images.set(image.id, image);
@@ -119,7 +121,9 @@ export const emitAutoMovieHumanAttachments = (
 };
 
 /** Placeholder material of each tissue until the appearance stage decides it; a tissue whose part always gives its own appearance has none. */
-const TISSUE_MATERIALS: Partial<Record<AutoMovieHumanTissue, IAutoMovieMaterial>> = {
+const TISSUE_MATERIALS: Partial<
+  Record<AutoMovieHumanTissue, IAutoMovieMaterial>
+> = {
   nail: {
     id: "nail",
     name: "nail",

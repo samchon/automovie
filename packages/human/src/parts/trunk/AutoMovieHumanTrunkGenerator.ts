@@ -23,7 +23,9 @@ export class AutoMovieHumanTrunkGenerator implements IAutoMovieHumanPartGenerato
    * @param props Measurements and skeleton; the side is null
    * @returns The cage with its five rings
    */
-  public generate(props: IAutoMovieHumanPartGenerator.IProps<"trunk">): IAutoMovieHumanCage {
+  public generate(
+    props: IAutoMovieHumanPartGenerator.IProps<"trunk">,
+  ): IAutoMovieHumanCage {
     return fitAutoMovieHumanTrunk(props.measurements, props.skeleton).cage;
   }
 }

@@ -17,7 +17,10 @@ import { curveAutoMovieHumanTrunk } from "./curveAutoMovieHumanTrunk";
  * - `tenthRib`: tenth rib height as a fraction of the mid-hip to cervicale span, 0.380 and 0.354.
  * - `chestPoint`: chest height on the same span, 0.591 (the bust) and 0.631.
  */
-const ANSUR_LEVEL: Record<"crotch" | "buttock" | "tenthRib" | "chestPoint", number> = {
+const ANSUR_LEVEL: Record<
+  "crotch" | "buttock" | "tenthRib" | "chestPoint",
+  number
+> = {
   crotch: 0.071,
   buttock: 0.982,
   tenthRib: 0.367,
@@ -67,9 +70,10 @@ export function measureAutoMovieHumanTrunkFrame(
   const mirror = (p: IAutoMovieVector3): IAutoMovieVector3 =>
     side === "left" ? p : AutoMovieHumanVector.of(-p.x, p.y, p.z);
   const joint = (bone: string): IAutoMovieVector3 => {
-    const found: IAutoMovieHumanSkeleton.IJoint | undefined = skeleton.joints.find(
-      (j: IAutoMovieHumanSkeleton.IJoint): boolean => j.bone === bone,
-    );
+    const found: IAutoMovieHumanSkeleton.IJoint | undefined =
+      skeleton.joints.find(
+        (j: IAutoMovieHumanSkeleton.IJoint): boolean => j.bone === bone,
+      );
     if (found === undefined) throw new Error(`skeleton lacks ${bone}`);
     return found.position;
   };

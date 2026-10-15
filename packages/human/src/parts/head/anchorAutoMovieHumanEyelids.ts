@@ -33,9 +33,16 @@ export function anchorAutoMovieHumanEyelids(props: {
   const inner: number = features.intercanthalWidth / 2;
   const radius: number = AutoMovieHumanVector.distance(frame.eye, frame.cornea);
   const rise: number = length * Math.tan(CANTHAL_TILT);
-  for (const [feature, sign] of [["leftEye", 1], ["rightEye", -1]] as const) {
+  for (const [feature, sign] of [
+    ["leftEye", 1],
+    ["rightEye", -1],
+  ] as const) {
     const loops: number[][] = topology.loops[feature];
-    const eye: IAutoMovieVector3 = v(sign * frame.eye.x, frame.eye.y, frame.eye.z);
+    const eye: IAutoMovieVector3 = v(
+      sign * frame.eye.x,
+      frame.eye.y,
+      frame.eye.z,
+    );
     const middle: number = inner + length / 2;
     // the fissure's corners straddle the pupil's level
     const level: number = frame.eye.y - rise / 2;
@@ -60,14 +67,20 @@ export function anchorAutoMovieHumanEyelids(props: {
       const y: number =
         level +
         rise * t +
-        (s >= 0 ? UPPER * height * arc(0.9, 0.8) : -(1 - UPPER) * height * arc(1.1, 0.9));
+        (s >= 0
+          ? UPPER * height * arc(0.9, 0.8)
+          : -(1 - UPPER) * height * arc(1.1, 0.9));
       const lid = (dx: number, dy: number, out: number): IAutoMovieVector3 => {
         const px: number = sign * (middle + (x - middle) * dx);
         const py: number = frame.eye.y + (y - frame.eye.y) * dy;
         const r: number = radius + out;
         const ox: number = px - eye.x;
         const oy: number = py - eye.y;
-        return v(px, py, eye.z + Math.sqrt(Math.max(0, r * r - ox * ox - oy * oy)));
+        return v(
+          px,
+          py,
+          eye.z + Math.sqrt(Math.max(0, r * r - ox * ox - oy * oy)),
+        );
       };
       // the lid sulcus on the skin, a step beyond the margin
       const sulcus: IAutoMovieVector3 = lid(1.15, 1.45, 0);
@@ -80,7 +93,10 @@ export function anchorAutoMovieHumanEyelids(props: {
       anchors.set(loops[4]![i]!, lid(0.85, 0.5, -0.25 * radius));
     });
     for (const { vertex, offset } of topology.pockets[feature])
-      anchors.set(vertex, v(eye.x + sign * 0.3 * length * offset[0], eye.y, eye.z + 0.5 * radius));
+      anchors.set(
+        vertex,
+        v(eye.x + sign * 0.3 * length * offset[0], eye.y, eye.z + 0.5 * radius),
+      );
   }
   return anchors;
 }
