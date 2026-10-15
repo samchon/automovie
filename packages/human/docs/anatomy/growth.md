@@ -80,5 +80,5 @@ Stature loss in old age is spinal (discs, kyphosis, vertebral fractures), not li
 - The 1977 children are leaner and shorter than today's; whether their ratios hold for current children is untested (no modern child segment data read; Size Korea covers children but was not downloaded).
 - A longitudinal source for adult stature loss (separating ageing from cohort) was not read.
 - Puberty timing as a parameter: the growth curve of a single identity should follow its own maturity tempo; no tempo model was read.
-- Old-age posture beyond kyphosis (forward head, knee flexion, pelvic retroversion) has no numeric source read.
+- Old-age posture: kyphosis, pelvic retroversion and the forward neck now come from Asai 2017 and the forward head from Zárate-Tejero 2024 (see `skeleton.md`); knee flexion in old age has no numeric source read.
 - Acromion and cervicale height in children: neither child survey measured them standing; the adult distances above the notch are held.

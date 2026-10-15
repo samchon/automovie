@@ -88,19 +88,21 @@ const CONVENTIONAL: Record<
 /**
  * Place the head, eyes and jaw.
  *
- * Heights stack from the identity: menton at stature minus head height, nasion a face height above it, the head joint at the hard-palate level, the eyes just below nasion, tragion on the Frankfort plane half an orbit below the eyes. Depths run from tragion, the head held in the Frankfort plane as it is measured: opisthocranion half a head length behind it and glabella half a head length in front, as the 1977 survey's horizontal tragion-to-back-of-head distance gives; the vertex tops the vault midway between them, directly over the ear, so the head bone from the joint below tragion to the vertex stands upright; nasion lies at the depth that leaves the measured tragion-nasion distance after its width and height, and the face's front landmarks keep their depths behind nasion. Widths come from face, mandibular, minimum frontal and head breadths and the derived interpupillary spread. The jaw bone starts at the measured centre of rotation for opening, 32 mm below the condyle in adults, so a single rotation opens the mouth as Mehl et al. tracked it, the condyles gliding forward as the jaw turns.
+ * Heights stack from the identity: menton at stature minus head height, nasion a face height above it, the head joint at the hard-palate level, the eyes just below nasion, tragion on the Frankfort plane half an orbit below the eyes. Depths run from tragion, the head held in the Frankfort plane as it is measured: opisthocranion half a head length behind it and glabella half a head length in front, as the 1977 survey's horizontal tragion-to-back-of-head distance gives; the vertex tops the vault midway between them, directly over the ear, so the head bone from the joint below tragion to the vertex stands upright; nasion lies at the depth that leaves the measured tragion-nasion distance after its width and height, and the face's front landmarks keep their depths behind nasion. The whole head stands in front of the back of the neck where the identity's craniovertebral angle puts tragion: the line from the seventh cervical spinous process to tragion rises at that angle, so a smaller angle carries the head further forward while it stays in the Frankfort plane, the forward head of old age. Widths come from face, mandibular, minimum frontal and head breadths and the derived interpupillary spread. The jaw bone starts at the measured centre of rotation for opening, 32 mm below the condyle in adults, so a single rotation opens the mouth as Mehl et al. tracked it, the condyles gliding forward as the jaw turns.
  *
  * Axes: the head nods about X (flexion forward), as the engine's default; each eye looks down with positive flexion, outward (temporally) with positive abduction, and twists (torsion) about its line of sight; the jaw opens with positive flexion and moves the chin to the person's left with positive abduction.
  *
  * @param body The body measurements
  * @param head The head measurements
+ * @param cervicale The seventh cervical spinous process on the back of the neck, which the craniovertebral angle is measured from
  * @returns Head, eye and jaw joints, the head joint centre and the head's landmarks
  */
 export function placeAutoMovieHumanHead(
   body: IAutoMovieHumanIdentity.IBody,
   head: IAutoMovieHumanIdentity.IHead,
+  cervicale: IAutoMovieVector3,
 ): placeAutoMovieHumanHead.IOutput {
-  const v: typeof AutoMovieHumanVector.of = AutoMovieHumanVector.of;
+  const d: typeof AutoMovieHumanVector.of = AutoMovieHumanVector.of;
   const L: number = head.headLength;
   const B: number = (head.headLength * head.cephalicIndex) / 100;
   const fh: number = head.faceHeight;
@@ -108,6 +110,16 @@ export function placeAutoMovieHumanHead(
   const nasion: number = menton + fh;
   const eyeY: number = nasion - CONVENTIONAL.pupilBelowNasion * fh;
   const tragionY: number = eyeY - DERIVED.frankfortBelowPupil * fh;
+  // the head rides forward of the neck's back by the craniovertebral angle; depths below run from tragion
+  const forward: number =
+    cervicale.z +
+    (tragionY - cervicale.y) /
+      Math.tan((body.posture.craniovertebralAngle * Math.PI) / 180);
+  const v: (x: number, y: number, z: number) => IAutoMovieVector3 = (
+    x: number,
+    y: number,
+    z: number,
+  ): IAutoMovieVector3 => d(x, y, z + forward);
   // nasion never stands in front of glabella; a small child's adult-derived depth would put it there
   const glabellaZ: number = (1 - OPISTHOCRANION_BEHIND_TRAGION) * L;
   const nasionZ: number = Math.min(
@@ -180,8 +192,11 @@ export function placeAutoMovieHumanHead(
       bone: s === 1 ? "leftEye" : "rightEye",
       parent: "head",
       position: centre,
-      tail: v(centre.x, centre.y, centre.z + CONVENTIONAL.eyeRadius * head.headHeight),
-      axes: { flexion: v(1, 0, 0), abduction: v(0, s, 0), twist: v(0, 0, -s) },
+      tail: AutoMovieHumanVector.offset(centre, [
+        d(0, 0, 1),
+        CONVENTIONAL.eyeRadius * head.headHeight,
+      ]),
+      axes: { flexion: d(1, 0, 0), abduction: d(0, s, 0), twist: d(0, 0, -s) },
       constraint: null,
     };
   };
@@ -193,7 +208,7 @@ export function placeAutoMovieHumanHead(
         parent: "neck",
         position: joint,
         tail: vertex,
-        axes: { flexion: v(1, 0, 0), abduction: v(0, 0, 1), twist: v(0, 1, 0) },
+        axes: { flexion: d(1, 0, 0), abduction: d(0, 0, 1), twist: d(0, 1, 0) },
         constraint: null,
       },
       eye(1),
@@ -203,7 +218,7 @@ export function placeAutoMovieHumanHead(
         parent: "head",
         position: jaw,
         tail: mentonPoint,
-        axes: { flexion: v(1, 0, 0), abduction: v(0, 1, 0), twist: v(0, 0, 1) },
+        axes: { flexion: d(1, 0, 0), abduction: d(0, 1, 0), twist: d(0, 0, 1) },
         constraint: null,
       },
     ],
