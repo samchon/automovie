@@ -121,8 +121,8 @@ const poseAt: (phase: number, y: number) => IAutoMovieJointPose[] = (
   // readable V, 180 reaches overhead at the apex without rig-space overshoot.
   const clinicalArmRaise: number = 120 + 60 * air;
   return [
-    j("leftUpperLeg", { flexion: -tuck - 14 * squash, abduction: 10 }),
-    j("rightUpperLeg", { flexion: -tuck - 14 * squash, abduction: -10 }),
+    j("leftUpperLeg", { flexion: tuck + 14 * squash, abduction: 10 }),
+    j("rightUpperLeg", { flexion: tuck + 14 * squash, abduction: -10 }),
     j("leftLowerLeg", { flexion: knee }),
     j("rightLowerLeg", { flexion: knee }),
     j("leftUpperArm", { abduction: clinicalArmRaise }),

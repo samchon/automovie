@@ -20,7 +20,9 @@ import { AutoMovieJointTwistPlacement } from "./AutoMovieJointTwistPlacement";
  * `1e-6` of zero, in either handedness; otherwise `normalizeJointAxes` throws,
  * `validateJointAxesBasis` reports an issue, and `validateModel` refuses a
  * bone that declares them. `DEFAULT_JOINT_AXES` maps flexion to X, abduction
- * to Z and twist to Y, and `HUMANOID_JOINT_AXES` remaps the arms.
+ * to Z and twist to Y, and `HUMANOID_JOINT_AXES` remaps the arms and turns
+ * hip, ankle and toe flexion to −X, so positive flexion swings the thigh
+ * forward and lifts the toes.
  *
  * @evidence contracts/common.md#principled-implementation An orthogonal basis per bone in which `jointToQuaternion` composes three axis-angle rotations and `decomposeJointRotation` inverts them by projecting onto the same axes, which is exact only for an orthogonal basis; the validators enforce that premise and the decomposer corrects a left-handed triple's twist sign.
  * @evidence contracts/common.md#clear-and-simple-design Three direction vectors and the composition order in one record per bone, so a rig overrides only the bones whose frames differ, on the bone or in a host table, and every composer and inverse reads the same declaration.
