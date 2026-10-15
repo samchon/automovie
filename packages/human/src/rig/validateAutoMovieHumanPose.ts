@@ -24,7 +24,7 @@ export function validateAutoMovieHumanPose(
   skeleton: IAutoMovieSkeleton,
 ): IValidation<IAutoMovieHumanPose> {
   const typed: IValidation<IAutoMovieHumanPose> =
-    typia.validateEquals<IAutoMovieHumanPose>(input);
+    typia.validate<IAutoMovieHumanPose>(input);
   if (typed.success === false) return typed;
   const pose: IAutoMovieHumanPose = structuredClone(typed.data);
 

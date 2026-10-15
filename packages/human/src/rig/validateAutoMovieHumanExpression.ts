@@ -19,7 +19,7 @@ export function validateAutoMovieHumanExpression(
   input: unknown,
 ): IValidation<IAutoMovieHumanExpression> {
   const typed: IValidation<IAutoMovieHumanExpression> =
-    typia.validateEquals<IAutoMovieHumanExpression>(input);
+    typia.validate<IAutoMovieHumanExpression>(input);
   if (typed.success === false) return typed;
   const expression: IAutoMovieHumanExpression = structuredClone(typed.data);
 
