@@ -1,9 +1,11 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
+import { IAutoMovieHumanLandmarks } from "../measure/IAutoMovieHumanLandmarks";
 import { IAutoMovieHumanMeasurements } from "../measure/IAutoMovieHumanMeasurements";
 import { AutoMovieHumanVector } from "../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanSkeleton } from "../skeleton/IAutoMovieHumanSkeleton";
 import { IAutoMovieHumanIdentity } from "../structures/IAutoMovieHumanIdentity";
+import { AUTOMOVIE_HUMAN_ANKLE_SECTION } from "./AUTOMOVIE_HUMAN_ANKLE_SECTION";
 import { AUTOMOVIE_HUMAN_EAR_ATTACHMENT } from "./AUTOMOVIE_HUMAN_EAR_ATTACHMENT";
 import { AUTOMOVIE_HUMAN_JAWLINE } from "./AUTOMOVIE_HUMAN_JAWLINE";
 import { AUTOMOVIE_HUMAN_NECK_BASE_FLARE } from "./AUTOMOVIE_HUMAN_NECK_BASE_FLARE";
@@ -31,7 +33,7 @@ import { layoutAutoMovieHumanRing } from "./layoutAutoMovieHumanRing";
  * - `upperArm`: the upper arm circumference, which is measured at this cut with the arm hanging and converted to the abducted rest pose, in four quarter ellipses about the bone axis, deeper than broad over the biceps and triceps and flattest laterally ({@link AUTOMOVIE_HUMAN_UPPER_ARM_SECTION}).
  * - `wrist`: an ellipse of the wrist circumference measured at this cut, its radio-ulnar breadth and palmar-dorsal depth in the proportions of {@link AUTOMOVIE_HUMAN_WRIST_SECTION}.
  * - `thigh`: the girth at mid thigh, on the thigh's girth curve between the thigh circumference at the gluteal furrow and the lower thigh circumference at suprapatella, in four quarter ellipses about the hip-to-knee axis, full in front and medially and flat behind and laterally ({@link AUTOMOVIE_HUMAN_THIGH_GIRTH}).
- * - `ankle`: a circle of the ankle circumference, the minimum girth above the malleoli, measured at this cut. Conventional shape.
+ * - `ankle`: an ellipse of the ankle circumference, the minimum girth above the malleoli, deeper than broad by {@link AUTOMOVIE_HUMAN_ANKLE_SECTION}; its own limit-curve perimeter sets the girth.
  * - `ear`: the attachment of the auricle, an ellipse in the plane of the head's side whose long axis leans back from the vertical by {@link AUTOMOVIE_HUMAN_EAR_ATTACHMENT.inclination}; its centre and semi-axes are fractions of the ear's length and breadth ({@link AUTOMOVIE_HUMAN_EAR_ATTACHMENT}). The origin moves from tragion to the ellipse's centre, so the eight directions spread evenly round the attachment.
  *
  * @param props.skeleton The person's skeleton at rest
@@ -42,7 +44,7 @@ import { layoutAutoMovieHumanRing } from "./layoutAutoMovieHumanRing";
  * @returns The ring's layout with every vertex's radius and position
  * @throws {Error} When `layoutAutoMovieHumanRing` refuses the site, side or part
  */
-export const shapeAutoMovieHumanRing = (props: {
+export const shapeAutoMovieHumanRing: (props: { skeleton: IAutoMovieHumanSkeleton; measurements: IAutoMovieHumanMeasurements; site: AutoMovieHumanJunctionSite; side: AutoMovieHumanSide | null; part: AutoMovieHumanPart; }) => IAutoMovieHumanRingShape = (props: {
   skeleton: IAutoMovieHumanSkeleton;
   measurements: IAutoMovieHumanMeasurements;
   site: AutoMovieHumanJunctionSite;
@@ -50,7 +52,7 @@ export const shapeAutoMovieHumanRing = (props: {
   part: AutoMovieHumanPart;
 }): IAutoMovieHumanRingShape => {
   const layout: IAutoMovieHumanRingLayout = layoutAutoMovieHumanRing(props);
-  const { origin, radius, girth } = section(props, layout);
+  const { origin, radius, girth }: { origin: IAutoMovieVector3; radius: (d: IAutoMovieVector3) => number; girth: number | null; } = section(props, layout);
   const n: number = layout.count;
   const binormal: IAutoMovieVector3 = AutoMovieHumanVector.cross(
     layout.frame.normal,
@@ -78,7 +80,7 @@ export const shapeAutoMovieHumanRing = (props: {
     layout.directions.map(radius),
     Math.cos((2 * Math.PI) / n),
   );
-  const place = (radii: number[]): IAutoMovieVector3[] =>
+  const place: (radii: number[]) => IAutoMovieVector3[] = (radii: number[]): IAutoMovieVector3[] =>
     layout.directions.map(
       (d: IAutoMovieVector3, k: number): IAutoMovieVector3 =>
         AutoMovieHumanVector.offset(origin, [d, radii[k]!]),
@@ -102,7 +104,7 @@ export const shapeAutoMovieHumanRing = (props: {
 /** Directions sampled round a section to measure its own perimeter. */
 const SAMPLES: number = 720;
 
-const section = (
+const section: (props: { skeleton: IAutoMovieHumanSkeleton; measurements: IAutoMovieHumanMeasurements; side: AutoMovieHumanSide | null; }, layout: IAutoMovieHumanRingLayout) => { origin: IAutoMovieVector3; radius: (d: IAutoMovieVector3) => number; girth: number | null; } = (
   props: {
     skeleton: IAutoMovieHumanSkeleton;
     measurements: IAutoMovieHumanMeasurements;
@@ -115,47 +117,23 @@ const section = (
   girth: number | null;
 } => {
   const body: IAutoMovieHumanIdentity.IBody = props.measurements.identity.body;
-  const landmarks = props.skeleton.landmarks;
-  const joint = (bone: string): IAutoMovieVector3 =>
+  const landmarks: IAutoMovieHumanLandmarks = props.skeleton.landmarks;
+  const joint: (bone: string) => IAutoMovieVector3 = (bone: string): IAutoMovieVector3 =>
     props.skeleton.joints.find(
       (j: IAutoMovieHumanSkeleton.IJoint): boolean => j.bone === bone,
     )!.position;
   const origin: IAutoMovieVector3 = layout.frame.origin;
   const reference: IAutoMovieVector3 = layout.frame.reference;
-  const across = (d: IAutoMovieVector3): [number, number] => {
+  const across: (d: IAutoMovieVector3) => [number, number] = (d: IAutoMovieVector3): [number, number] => {
     const c: number = AutoMovieHumanVector.dot(d, reference);
     return [c, Math.sqrt(Math.max(0, 1 - c * c))];
   };
-  // a circle of the girth, its centre moved off the bone axis by fractions of its radius
-  const circle = (
-    girth: number,
-    anterior: number = 0,
-    medial: number = 0,
-    toward: IAutoMovieVector3 = reference,
-  ) => {
-    const r: number = girth / (2 * Math.PI);
-    const inward: IAutoMovieVector3 = AutoMovieHumanVector.normalize(
-      AutoMovieHumanVector.offset(toward, [
-        layout.frame.normal,
-        -AutoMovieHumanVector.dot(toward, layout.frame.normal),
-      ]),
-    );
-    return {
-      origin: AutoMovieHumanVector.offset(
-        origin,
-        [reference, anterior * r],
-        [inward, medial * r],
-      ),
-      radius: (): number => r,
-      girth,
-    };
-  };
   // four quarter ellipses about the cut origin, half axes in mean radii toward the front, back, medial and lateral sides; the ring is scaled to its girth afterwards
-  const quarters = (
+  const quarters: (girth: number, half: { front: number; back: number; medial: number; lateral: number; }, toward: IAutoMovieVector3) => { origin: IAutoMovieVector3; radius: (d: IAutoMovieVector3) => number; girth: number; } = (
     girth: number,
     half: { front: number; back: number; medial: number; lateral: number },
     toward: IAutoMovieVector3,
-  ) => {
+  ): { origin: IAutoMovieVector3; radius: (d: IAutoMovieVector3) => number; girth: number; } => {
     const medial: IAutoMovieVector3 = AutoMovieHumanVector.normalize(
       AutoMovieHumanVector.offset(toward, [
         layout.frame.normal,
@@ -200,7 +178,7 @@ const section = (
       return {
         origin,
         radius: (d: IAutoMovieVector3): number => {
-          const [c, s] = across(d);
+          const [c, s]: [number, number] = across(d);
           const a: number = c >= 0 ? anterior : posterior;
           return (
             1 / Math.sqrt((c * c) / (a * a) + (s * s) / (lateral * lateral))
@@ -215,7 +193,7 @@ const section = (
         AutoMovieHumanVector.offset(joint("head"), [joint("neck"), -1]),
       );
       const normal: IAutoMovieVector3 = layout.frame.normal;
-      const inPlane = (p: IAutoMovieVector3): [number, number] => {
+      const inPlane: (p: IAutoMovieVector3) => [number, number] = (p: IAutoMovieVector3): [number, number] => {
         const d: IAutoMovieVector3 = AutoMovieHumanVector.offset(p, [
           origin,
           -1,
@@ -255,26 +233,26 @@ const section = (
           ),
         );
       void forward;
-      const [, chin] = inPlane(
+      const [, chin]: [number, number] = inPlane(
         AutoMovieHumanVector.of(nasion.x, gnathionY, gnathionZ),
       );
-      const [jawU, jawW] = inPlane(landmarks.left.gonion.position);
+      const [jawU, jawW]: [number, number] = inPlane(landmarks.left.gonion.position);
       const tilt: number = Math.abs(AutoMovieHumanVector.dot(normal, axis));
-      const column = {
+      const column: { across: number; front: number; back: number; } = {
         across: AUTOMOVIE_HUMAN_NECK_COLUMN.across * mean,
         front: AUTOMOVIE_HUMAN_NECK_COLUMN.front * mean,
         back: (AUTOMOVIE_HUMAN_NECK_COLUMN.back * mean) / Math.max(0.5, tilt),
       };
       const n: number = AUTOMOVIE_HUMAN_JAWLINE.exponent;
       // the jawline: a superellipse quadrant from the chin back to the gonion, its centre level with the gonion
-      const onJaw = (rho: number, c: number, s: number): number =>
+      const onJaw: (rho: number, c: number, s: number) => number = (rho: number, c: number, s: number): number =>
         Math.pow(Math.max(0, (rho * c - jawW) / (chin - jawW)), n) +
         Math.pow((rho * s) / jawU, n) -
         1;
       return {
         origin,
         radius: (d: IAutoMovieVector3): number => {
-          const [c, s] = across(d);
+          const [c, s]: [number, number] = across(d);
           let jaw: number = 0;
           if (c > 0 || jawW < 0) {
             let lo: number = 0;
@@ -316,7 +294,7 @@ const section = (
       return {
         origin,
         radius: (d: IAutoMovieVector3): number => {
-          const [c, s] = across(d);
+          const [c, s]: [number, number] = across(d);
           return (breadth * depth) / Math.hypot(breadth * c, depth * s);
         },
         girth: arm.wristCircumference,
@@ -329,7 +307,7 @@ const section = (
       const axis: IAutoMovieVector3 = AutoMovieHumanVector.normalize(
         AutoMovieHumanVector.offset(knee, [hip, -1]),
       );
-      const along = (p: IAutoMovieVector3): number =>
+      const along: (p: IAutoMovieVector3) => number = (p: IAutoMovieVector3): number =>
         AutoMovieHumanVector.dot(
           AutoMovieHumanVector.offset(p, [hip, -1]),
           axis,
@@ -354,7 +332,16 @@ const section = (
       );
     }
     case "ankle":
-      return circle(leg.ankleCircumference);
+      return quarters(
+        leg.ankleCircumference,
+        {
+          front: AUTOMOVIE_HUMAN_ANKLE_SECTION.depthOverBreadth,
+          back: AUTOMOVIE_HUMAN_ANKLE_SECTION.depthOverBreadth,
+          medial: 1,
+          lateral: 1,
+        },
+        AutoMovieHumanVector.of(props.side === "right" ? 1 : -1, 0, 0),
+      );
     case "ear": {
       const ear: IAutoMovieHumanIdentity.IEar =
         props.side === "right"
@@ -390,17 +377,17 @@ const section = (
 };
 
 /** Ramanujan's perimeter of an ellipse with semi-axes `a` and `b`. */
-const ramanujan = (a: number, b: number): number =>
+const ramanujan: (a: number, b: number) => number = (a: number, b: number): number =>
   Math.PI * (3 * (a + b) - Math.sqrt((3 * a + b) * (a + 3 * b)));
 
 /** Polynomial smooth maximum (Quilez). */
-const smoothMax = (a: number, b: number, k: number): number => {
+const smoothMax: (a: number, b: number, k: number) => number = (a: number, b: number, k: number): number => {
   const h: number = Math.max(k - Math.abs(a - b), 0) / k;
   return Math.max(a, b) + (h * h * k) / 4;
 };
 
 /** Root of a monotone function by bisection. */
-const solve = (f: (x: number) => number, lo: number, hi: number): number => {
+const solve: (f: (x: number) => number, lo: number, hi: number) => number = (f: (x: number) => number, lo: number, hi: number): number => {
   let a: number = lo;
   let b: number = hi;
   const fa: number = f(a);

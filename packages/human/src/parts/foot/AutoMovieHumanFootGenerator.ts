@@ -1,5 +1,6 @@
 import {
   IAutoMovieSubdivisionSurface,
+  IAutoMovieSurfaceCoordinate,
   IAutoMovieSurfaceCage,
   sampleAutoMovieSurfaceNetwork,
   subdivideAutoMovieSurface,
@@ -36,7 +37,7 @@ import { planAutoMovieHumanFoot } from "./planAutoMovieHumanFoot";
  */
 export class AutoMovieHumanFootGenerator implements IAutoMovieHumanPartGenerator<"foot"> {
   /** The foot part. */
-  public readonly part = "foot" as const;
+  public readonly part: "foot" = "foot" as const;
 
   /**
    * Generate one foot's cage.
@@ -48,7 +49,7 @@ export class AutoMovieHumanFootGenerator implements IAutoMovieHumanPartGenerator
     props: IAutoMovieHumanPartGenerator.IProps<"foot">,
   ): IAutoMovieHumanCage {
     const foot: IFoot = build(props);
-    const { side, sampled, toModel, layout } = foot;
+    const { side, sampled, toModel, layout }: IFoot = foot;
     const positions: IAutoMovieVector3[] = [];
     for (let k: number = 0; k < sampled.cage.positions.length; k += 3)
       positions.push(
@@ -76,7 +77,7 @@ export class AutoMovieHumanFootGenerator implements IAutoMovieHumanPartGenerator
         (face: number[], f: number): IAutoMovieHumanCage.IFace => {
           const raw: networkAutoMovieHumanFoot.IPoint[] = sampled.corners[
             f
-          ]!.map((c) => foot.addresses[c.patch]!(c.s, c.t));
+          ]!.map((c: IAutoMovieSurfaceCoordinate): networkAutoMovieHumanFoot.IPoint => foot.addresses[c.patch]!(c.s, c.t));
           const vs: number[] = raw.map(
             (c: networkAutoMovieHumanFoot.IPoint): number =>
               side === "left" ? c.v : (1 - c.v) % 1,
@@ -121,7 +122,7 @@ export class AutoMovieHumanFootGenerator implements IAutoMovieHumanPartGenerator
     props: IAutoMovieHumanPartGenerator.IProps<"foot">,
   ): IAutoMovieHumanPartGenerator.IAttachment[] {
     const foot: IFoot = build(props);
-    const { side, sampled, toModel } = foot;
+    const { side, sampled, toModel }: IFoot = foot;
     const surface: IAutoMovieSubdivisionSurface = subdivideAutoMovieSurface({
       cage: {
         positions: sampled.cage.positions.map((x: number): number => x * 1000),
@@ -148,7 +149,7 @@ export class AutoMovieHumanFootGenerator implements IAutoMovieHumanPartGenerator
     const bone: AutoMovieHumanoidBone =
       side === "left" ? "leftToes" : "rightToes";
     return plates.map(
-      (plate, t: number): IAutoMovieHumanPartGenerator.IAttachment => {
+      (plate: { positions: IAutoMovieVector3[]; quads: Array<[number, number, number, number]>; }, t: number): IAutoMovieHumanPartGenerator.IAttachment => {
         const coordinate: IAutoMovieHumanSurfaceCoordinate = {
           part: "foot",
           side,
@@ -186,7 +187,7 @@ export class AutoMovieHumanFootGenerator implements IAutoMovieHumanPartGenerator
 const V: typeof AutoMovieHumanVector = AutoMovieHumanVector;
 
 /** The tier the human profile samples; one tier keeps one topology until resolution tiers reach every part. */
-const TIER = "medium" as const;
+const TIER: "medium" = "medium" as const;
 
 /** Attachment names of the toenails, hallux first. */
 const NAILS: readonly string[] = [
@@ -212,7 +213,7 @@ interface IFoot {
 }
 
 /** Plan and loft one foot in its local frame. */
-const build = (props: IAutoMovieHumanPartGenerator.IProps<"foot">): IFoot => {
+const build: (props: IAutoMovieHumanPartGenerator.IProps<"foot">) => IFoot = (props: IAutoMovieHumanPartGenerator.IProps<"foot">): IFoot => {
   const side: AutoMovieHumanSide = props.side;
   const sign: number = side === "left" ? 1 : -1;
   const body: IAutoMovieHumanIdentity.IBody = props.measurements.identity.body;
@@ -229,9 +230,9 @@ const build = (props: IAutoMovieHumanPartGenerator.IProps<"foot">): IFoot => {
     );
   if (ankle === undefined) throw new Error(`skeleton lacks the ${side} foot`);
   const base: IAutoMovieVector3 = V.of(ankle.position.x, 0, ankle.position.z);
-  const toLocal = (p: IAutoMovieVector3): IAutoMovieVector3 =>
+  const toLocal: (p: IAutoMovieVector3) => IAutoMovieVector3 = (p: IAutoMovieVector3): IAutoMovieVector3 =>
     V.of(sign * (p.x - base.x), p.y, p.z - base.z);
-  const toModel = (p: IAutoMovieVector3): IAutoMovieVector3 =>
+  const toModel: (p: IAutoMovieVector3) => IAutoMovieVector3 = (p: IAutoMovieVector3): IAutoMovieVector3 =>
     V.of(base.x + sign * p.x, p.y, base.z + p.z);
   const layout: IAutoMovieHumanRingShape = shapeAutoMovieHumanRing({
     skeleton: props.skeleton,
@@ -245,14 +246,9 @@ const build = (props: IAutoMovieHumanPartGenerator.IProps<"foot">): IFoot => {
     (d: IAutoMovieVector3): IAutoMovieVector3 => V.of(sign * d.x, d.y, d.z),
   );
   // the sweep turns counterclockwise about the downward axis: front, medial (-x), back, lateral
-  const turnOf = (d: IAutoMovieVector3): number =>
+  const turnOf: (d: IAutoMovieVector3) => number = (d: IAutoMovieVector3): number =>
     Math.round((Math.atan2(-d.x, d.z) / (2 * Math.PI)) * layout.count);
   const sense: 1 | -1 = turnOf(local[1]!) === 1 ? 1 : -1;
-  const n: number = layout.count;
-  const radius = (quarter: number): number =>
-    layout.radii[((((sense * quarter * n) / 4) % n) + n) % n]!;
-  const mean: number =
-    layout.radii.reduce((a: number, b: number): number => a + b, 0) / n;
   const plan: IAutoMovieHumanFootPlan = planAutoMovieHumanFoot({
     leg,
     landmarks,
@@ -263,19 +259,6 @@ const build = (props: IAutoMovieHumanPartGenerator.IProps<"foot">): IFoot => {
     plan,
     ring: {
       origin,
-      girth: layout.girth,
-      radii: {
-        anterior: radius(0),
-        medial: radius(1),
-        posterior: radius(2),
-        lateral: radius(3),
-      },
-      aspect: {
-        anterior: radius(0) / mean,
-        medial: radius(1) / mean,
-        posterior: radius(2) / mean,
-        lateral: radius(3) / mean,
-      },
       positions: layout.positions.map(toLocal),
       sense,
     },

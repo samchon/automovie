@@ -1,5 +1,11 @@
+import {
+  IAutoMovieSweepSection,
+  IAutoMovieSweepSurface,
+  compileAutoMovieSweep,
+} from "@automovie/engine";
 import { IAutoMovieVector3 } from "@automovie/interface";
 
+import { AUTOMOVIE_HUMAN_FOOT_COLLAR } from "./AUTOMOVIE_HUMAN_FOOT_COLLAR";
 import { AUTOMOVIE_HUMAN_FOOT_FORM } from "./AUTOMOVIE_HUMAN_FOOT_FORM";
 import { IAutoMovieHumanFootPlan } from "./IAutoMovieHumanFootPlan";
 import { interpolateAutoMovieHumanFootProfile } from "./interpolateAutoMovieHumanFootProfile";
@@ -7,7 +13,7 @@ import { interpolateAutoMovieHumanFootProfile } from "./interpolateAutoMovieHuma
 /**
  * The foot as a solid: the foot proper, a slab over the plan between the sole and the dorsum, joined to the ankle column by a smooth union, and the distance from a point inside to the skin along a ray, which turns the solid into the sections of the foot's sweep.
  *
- * The slab's plan is the plan's two borders, joined behind by the heel's half ellipse; its top is the dorsum, highest along the plan's crest and falling to each border's rim, steeply on the medial side and slowly on the lateral (Gray 1918, "Surface Anatomy of the Lower Extremity"), raised or lowered with the medial arch; its underside is the standing surface, lifted under the medial arch by the plan's medial sole heights. Its edges are rounded, the sole's edge more broadly under the heel, where the calcaneal tuberosity rounds into the heel pad. The column is the leg above the foot: at and above the ankle ring its section is the ring's own, and below it widens to the malleoli. A smooth minimum of the two (Quilez's polynomial smooth minimum) fills the angle between them, so the front of the ankle runs into the dorsum in one curve, the instep, and the back of the heel rises into the column.
+ * The slab's plan is the plan's two borders, joined behind by the heel's half ellipse; its top is the dorsum, highest along the plan's crest and falling to each border's rim, steeply on the medial side and slowly on the lateral (Gray 1918, "Surface Anatomy of the Lower Extremity"), raised or lowered with the medial arch; its underside is the standing surface, lifted under the medial arch by the plan's medial sole heights. Its edges are rounded, the sole's edge more broadly under the heel, where the calcaneal tuberosity rounds into the heel pad. The column continues the shared ankle B-spline through its pinned collar, using the engine's own polar section reader, then widens below the collar toward the malleoli. The malleolar and slab union starts below that boundary and reaches its original field at the higher malleolar mass centre; a quintic weight has zero first and second derivatives at both ends. This is the explicit geometric boundary condition, graded conventional rather than an anatomical regression. The engine's finite angular sampling remains an approximation of the B-spline. A smooth minimum of the two (Quilez's polynomial smooth minimum) fills the angle between them, so the front of the ankle runs into the dorsum in one curve, the instep, and the back of the heel rises into the column.
  *
  * Distances are millimetres in the foot's local frame, `x` lateral, `y` up, `z` forward; the field is negative inside and approximates the distance to the skin near it.
  *
@@ -20,12 +26,12 @@ export function solidAutoMovieHumanFoot(props: {
 }): solidAutoMovieHumanFoot.ISolid {
   const plan: IAutoMovieHumanFootPlan = props.plan;
   const L: number = plan.length;
-  const profile = (p: IAutoMovieHumanFootPlan.IProfile, f: number): number =>
+  const profile: (p: IAutoMovieHumanFootPlan.IProfile, f: number) => number = (p: IAutoMovieHumanFootPlan.IProfile, f: number): number =>
     interpolateAutoMovieHumanFootProfile(p, f);
   const arc: IAutoMovieHumanFootPlan.IHeel = plan.heelArc;
   const arcZ: number = plan.heel + arc.at * L;
   // the dorsum over the plan: the old upper's surface, the crest falling to each border's rim
-  const top = (x: number, z: number): number => {
+  const top: (x: number, z: number) => number = (x: number, z: number): number => {
     const f: number = (z - plan.heel) / L;
     const crest: number = plan.axis + profile(plan.ridge.x, f) * L;
     const lift: number =
@@ -59,7 +65,7 @@ export function solidAutoMovieHumanFoot(props: {
   // past the metatarsophalangeal joints the dorsum comes down onto the toes: a ridge along each toe at the height of its root, the webs between them
   const first: IAutoMovieHumanFootPlan.IToe = plan.toes[0]!;
   const last: IAutoMovieHumanFootPlan.IToe = plan.toes[plan.toes.length - 1]!;
-  const line: { x: number; z: number } = (() => {
+  const line: { x: number; z: number } = ((): { x: number; z: number; } => {
     const dx: number = last.joint.x - first.joint.x;
     const dz: number = last.joint.z - first.joint.z;
     const n: number = Math.hypot(dx, dz);
@@ -81,7 +87,7 @@ export function solidAutoMovieHumanFoot(props: {
         0,
       )) /
     plan.toes.length;
-  const toes = (x: number, z: number, dorsum: number): number => {
+  const toes: (x: number, z: number, dorsum: number) => number = (x: number, z: number, dorsum: number): number => {
     // past the line of the metatarsophalangeal joints, the same for every toe
     const k: number = Math.min(
       1,
@@ -116,9 +122,9 @@ export function solidAutoMovieHumanFoot(props: {
     1e-6,
     ...arch.map((point: readonly [number, number]): number => point[1]),
   );
-  const bottom = (x: number, z: number): number => {
+  const bottom: (x: number, z: number) => number = (x: number, z: number): number => {
     const f: number = (z - plan.heel) / L;
-    const { centre, half } = across(z);
+    const { centre, half }: { centre: number; half: number; } = across(z);
     const lift: number = profile(arch, f);
     const edge: number = 1 - (1 - CONTACT_EDGE) * (lift / archPeak);
     const t: number = Math.min(
@@ -132,7 +138,7 @@ export function solidAutoMovieHumanFoot(props: {
     return lift * t * t * t * (10 - 15 * t + 6 * t * t);
   };
   // the plan's centre line and half breadth at a level along the foot
-  const across = (z: number): { centre: number; half: number } => {
+  const across: (z: number) => { centre: number; half: number; } = (z: number): { centre: number; half: number } => {
     const f: number = Math.max((z - plan.heel) / L, arc.at);
     // past its joint each outer toe narrows the border onto its own outer flank, so the toes' roots end the forefoot
     const m: number = flank(
@@ -149,7 +155,7 @@ export function solidAutoMovieHumanFoot(props: {
     );
     return { centre: (m + l) / 2, half: (l - m) / 2 };
   };
-  const flank = (
+  const flank: (toe: IAutoMovieHumanFootPlan.IToe, sign: number, z: number, border: number) => number = (
     toe: IAutoMovieHumanFootPlan.IToe,
     sign: number,
     z: number,
@@ -169,16 +175,16 @@ export function solidAutoMovieHumanFoot(props: {
     return border + (outer - border) * k * k * (3 - 2 * k);
   };
   // the sole's edge rounds broadly under the heel, the calcaneal tuberosity, and narrowly along the borders
-  const soleRadius = (z: number): number => {
+  const soleRadius: (z: number) => number = (z: number): number => {
     const f: number = (z - plan.heel) / L;
     const k: number = Math.min(1, Math.max(0, (f - 0.02) / 0.2));
     return (HEEL_ROUND + (EDGE_ROUND - HEEL_ROUND) * k * k * (3 - 2 * k)) * L;
   };
-  const slab = (p: IAutoMovieVector3): number => {
+  const slab: (p: IAutoMovieVector3) => number = (p: IAutoMovieVector3): number => {
     // the plan: the borders ahead of the heel arc's centre, its half ellipse behind
     let side: number;
     if (p.z >= arcZ) {
-      const { centre, half } = across(p.z);
+      const { centre, half }: { centre: number; half: number; } = across(p.z);
       side = Math.abs(p.x - centre) - half;
     } else {
       const dx: number = (p.x - arc.x) / arc.width;
@@ -197,26 +203,33 @@ export function solidAutoMovieHumanFoot(props: {
   };
   // the column: the ring's section at and above the ring, deepening below it toward the heel and the front of the talus
   const ring: solidAutoMovieHumanFoot.IRing = props.ring;
-  const r0: number = ring.girth / (2 * Math.PI);
   const origin: IAutoMovieVector3 = ring.origin;
   const floor: number = COLUMN_BOTTOM * plan.ankleHeight;
-  const column = (p: IAutoMovieVector3): number => {
+  const collar: number = origin.y - AUTOMOVIE_HUMAN_FOOT_COLLAR * L;
+  const columnSurface: IAutoMovieSweepSurface = compileAutoMovieSweep({
+    spine: {
+      points: [
+        { x: origin.x / 1000, y: origin.y / 1000, z: origin.z / 1000 },
+        { x: origin.x / 1000, y: floor / 1000, z: origin.z / 1000 },
+      ],
+      normal: { x: 0, y: 0, z: 1 },
+    },
+    stations: [{ at: 0, section: ring.section }],
+  });
+  const column: (p: IAutoMovieVector3) => number = (p: IAutoMovieVector3): number => {
     const t: number = Math.min(
       1,
-      Math.max(0, (origin.y - p.y) / (origin.y - plan.ankleHeight)),
+      Math.max(0, (collar - p.y) / (collar - plan.ankleHeight)),
     );
-    const s: number = t * t * (3 - 2 * t);
+    const s: number = t * t * t * (10 - 15 * t + 6 * t * t);
     const dx: number = p.x - origin.x;
     const dz: number = p.z - origin.z;
-    const ax: number =
-      r0 * (dx >= 0 ? ring.aspect.lateral : ring.aspect.medial);
-    const az: number =
-      dz >= 0
-        ? r0 * ring.aspect.anterior * (1 + COLUMN_DEEPEN.anterior * s)
-        : r0 * ring.aspect.posterior * (1 + COLUMN_DEEPEN.posterior * s);
-    const r: number = Math.hypot(dx / ax, dz / az);
-    // the column ends in a rounded rim inside the heel, so where it stands out of the slab it rounds in
-    return rounded((r - 1) * Math.min(ax, az), floor - p.y, COLUMN_ROUND * L);
+    const stretch: number = 1 + (dz >= 0 ? COLUMN_DEEPEN.anterior : COLUMN_DEEPEN.posterior) * s;
+    const z: number = dz / stretch;
+    const turn: number = Math.atan2(-dx, z) / (2 * Math.PI);
+    const radius: number = columnSurface.radius(0, turn) * 1000;
+    // The source column uses the exact same engine section reader as the foot sweep.
+    return rounded(Math.hypot(dx, z) - radius, floor - p.y, COLUMN_ROUND * L);
   };
   // the malleoli: bony knobs at the skeleton's landmarks, the lateral lower and further back, the medial higher and further forward (Gray 1918)
   const lateral: IAutoMovieVector3 = plan.lateralMalleolus;
@@ -238,18 +251,30 @@ export function solidAutoMovieHumanFoot(props: {
       z: medial.z,
     },
   ];
-  const field = (p: IAutoMovieVector3): number =>
-    knobs.reduce(
+  // The shared ring and the pinned collar are one extrusion. The union begins
+  // below that collar and reaches its full field by the higher malleolus centre.
+  // This is an explicit junction constraint, not a fitted anatomical value.
+  const full: number = Math.max(...knobs.map((p: IAutoMovieVector3): number => p.y));
+  if (!(collar > full)) throw new Error("foot collar is not above the malleolar mass centres");
+  const field: (p: IAutoMovieVector3) => number = (p: IAutoMovieVector3): number => {
+    const c: number = column(p);
+    if (p.y >= collar) return c;
+    const union: number = knobs.reduce(
       (f: number, c: IAutoMovieVector3): number =>
         smoothMin(f, ellipsoid(p, c, radii), KNOB.blend * L),
-      smoothMin(slab(p), column(p), BLEND * L),
+      smoothMin(slab(p), c, BLEND * L),
     );
+    if (p.y <= full) return union;
+    const t: number = (collar - p.y) / (collar - full);
+    const weight: number = t * t * t * (10 - 15 * t + 6 * t * t);
+    return c + (union - c) * weight;
+  };
   return {
     field,
     ray: (origin: IAutoMovieVector3, direction: IAutoMovieVector3): number => {
       if (field(origin) >= 0)
         throw new Error("foot section centre lies outside the foot");
-      const at = (t: number): number =>
+      const at: (t: number) => number = (t: number): number =>
         field({
           x: origin.x + direction.x * t,
           y: origin.y + direction.y * t,
@@ -285,16 +310,8 @@ export namespace solidAutoMovieHumanFoot {
     /** Centre, local frame, millimetres. */
     origin: IAutoMovieVector3;
 
-    /** Girth of its limit curve, millimetres. */
-    girth: number;
-
-    /** Each side's limit radius over the mean radius. */
-    aspect: {
-      anterior: number;
-      medial: number;
-      posterior: number;
-      lateral: number;
-    };
+    /** The shared ring's B-spline section, in metres, +x anterior and +y medial. */
+    section: IAutoMovieSweepSection.IBSpline;
   }
 
   /**
@@ -345,16 +362,16 @@ const HEEL_ROUND: number = 0.07;
 const BLEND: number = 0.06;
 
 /** The heel's top behind the talus, of foot length, rising from the back of the heel to the dorsum over its span of foot length. Grade: conventional, set against the reference's heel sections. */
-const HEEL_TOP = { back: 1, side: 1, from: 0.08, to: 0.3 } as const;
+const HEEL_TOP: { readonly back: 1; readonly side: 1; readonly from: 0.08; readonly to: 0.3; } = { back: 1, side: 1, from: 0.08, to: 0.3 } as const;
 
 /** The column ends this share of the lateral malleolus height above the ground, inside the heel. Conventional. */
 const COLUMN_BOTTOM: number = 0.8;
 
 /** Growth of the column's depth from the ring down to the malleoli: in front over the talus, behind toward the heel. Conventional, set against renders. */
-const COLUMN_DEEPEN = { anterior: 0.15, posterior: 0.2 } as const;
+const COLUMN_DEEPEN: { readonly anterior: 0.15; readonly posterior: 0.2; } = { anterior: 0.15, posterior: 0.2 } as const;
 
 /** The malleoli as ellipsoids, in foot lengths: half-breadth inward of the landmark, half-height, half-depth, the lift of the centre above the landmark, the skin over the bone in millimetres, and their blend into the column. Conventional, the old cage's relief radii. */
-const KNOB = {
+const KNOB: { readonly side: 0.03; readonly height: 0.06; readonly depth: 0.05; readonly behind: 0.01; readonly lift: { readonly lateral: 0.045; readonly medial: 0.035; }; readonly skin: 2; readonly blend: 0.03; } = {
   side: 0.03,
   height: 0.06,
   depth: 0.05,
@@ -365,7 +382,7 @@ const KNOB = {
 } as const;
 
 /** Field of an axis-aligned ellipsoid, negative inside, about the distance near its surface. */
-const ellipsoid = (
+const ellipsoid: (p: IAutoMovieVector3, c: IAutoMovieVector3, r: IAutoMovieVector3) => number = (
   p: IAutoMovieVector3,
   c: IAutoMovieVector3,
   r: IAutoMovieVector3,
@@ -383,10 +400,10 @@ const STEP: number = 1;
 const CONTACT_EDGE: number = -1 + 2 * 0.35;
 
 /** Lift of the plantar surface under the medial arch at the medial border, of foot length: the plan's medial sole heights over the arch, nothing under the heel and the ball. */
-const ARCH = (
+const ARCH: (plan: IAutoMovieHumanFootPlan) => IAutoMovieHumanFootPlan.IProfile = (
   plan: IAutoMovieHumanFootPlan,
 ): IAutoMovieHumanFootPlan.IProfile => {
-  const at = (f: number): number =>
+  const at: (f: number) => number = (f: number): number =>
     interpolateAutoMovieHumanFootProfile(plan.medial.sole, f);
   return [
     [0.16, 0],
@@ -397,13 +414,13 @@ const ARCH = (
 };
 
 /** A rounded corner of two half-space distances: the corner rounded with radius `r`. */
-const rounded = (a: number, b: number, r: number): number =>
+const rounded: (a: number, b: number, r: number) => number = (a: number, b: number, r: number): number =>
   Math.hypot(Math.max(a + r, 0), Math.max(b + r, 0)) +
   Math.min(Math.max(a + r, b + r), 0) -
   r;
 
 /** Polynomial smooth minimum (Quilez). */
-const smoothMin = (a: number, b: number, k: number): number => {
+const smoothMin: (a: number, b: number, k: number) => number = (a: number, b: number, k: number): number => {
   const h: number = Math.max(k - Math.abs(a - b), 0) / k;
   return Math.min(a, b) - (h * h * k) / 4;
 };

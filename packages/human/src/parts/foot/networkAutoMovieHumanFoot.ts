@@ -1,4 +1,8 @@
-import { IAutoMovieSurfaceNetwork, IAutoMovieSweep } from "@automovie/engine";
+import {
+  IAutoMovieSurfaceNetwork,
+  IAutoMovieSweep,
+  IAutoMovieSweepSection,
+} from "@automovie/engine";
 import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
@@ -7,6 +11,7 @@ import { patchAutoMovieHumanDigit } from "../patchAutoMovieHumanDigit";
 import { splitAutoMovieHumanWebs } from "../splitAutoMovieHumanWebs";
 import { IAutoMovieHumanFootPlan } from "./IAutoMovieHumanFootPlan";
 import { solidAutoMovieHumanFoot } from "./solidAutoMovieHumanFoot";
+import { splitAutoMovieHumanFootWebs } from "./splitAutoMovieHumanFootWebs";
 import { sweepAutoMovieHumanFoot } from "./sweepAutoMovieHumanFoot";
 import { sweepAutoMovieHumanToe } from "./sweepAutoMovieHumanToe";
 
@@ -28,135 +33,40 @@ export function networkAutoMovieHumanFoot(props: {
 }): networkAutoMovieHumanFoot.IOutput {
   const V: typeof AutoMovieHumanVector = AutoMovieHumanVector;
   const plan: IAutoMovieHumanFootPlan = props.plan;
-  const L: number = plan.length;
   const ring: networkAutoMovieHumanFoot.IRing = props.ring;
 
+  // The sweep and its source solid read the same shared B-spline, not a four-axis ellipse reconstructed from it.
+  const points: IAutoMovieSweepSection.IPoint[] = ring.positions.map(
+    (p: IAutoMovieVector3): IAutoMovieSweepSection.IPoint => ({
+      x: (p.z - ring.origin.z) / 1000,
+      y: -(p.x - ring.origin.x) / 1000,
+    }),
+  );
+  const section: IAutoMovieSweepSection.IBSpline = {
+    type: "bspline",
+    points: ring.sense === 1 ? points : [points[0]!, ...points.slice(1).reverse()],
+  };
   const base: solidAutoMovieHumanFoot.ISolid = solidAutoMovieHumanFoot({
     plan,
-    ring: { origin: ring.origin, girth: ring.girth, aspect: ring.aspect },
+    ring: { origin: ring.origin, section },
   });
-  const solid = (p: IAutoMovieVector3): number => base.field(p);
 
   const toes: IAutoMovieHumanFootPlan.IToe[] = plan.toes;
-  const rootOf = (
-    toe: IAutoMovieHumanFootPlan.IToe,
-    along: number,
-  ): IAutoMovieVector3 =>
-    V.offset(toe.joint, [toe.direction, along * toe.length]);
   const laid: sweepAutoMovieHumanFoot.IOutput = sweepAutoMovieHumanFoot({
     plan,
     solid: base,
-    ring,
+    ring: { ...ring, section },
   });
-  const { sweep: foot, path, collar, end, line, endMiddle, endCentre } = laid;
+  const { sweep: foot, path, collar }: sweepAutoMovieHumanFoot.IOutput = laid;
 
-  // the twenty-four columns of the toes' roots, by the angle of their nodes on the end section
-  const angleOf = (p: IAutoMovieVector3): number => {
-    const d: IAutoMovieVector3 = V.offset(p, [end.origin, -1]);
-    return Math.atan2(V.dot(d, end.y), V.dot(d, end.x)) / (2 * Math.PI);
-  };
-  // points of the end section's dorsum and sole at a lateral offset along the roots' line
-  const dorsum = (s: number): IAutoMovieVector3 => {
-    const p: IAutoMovieVector3 = V.offset(endMiddle, [line, s]);
-    return V.of(p.x, base.top(p.x, p.z), p.z);
-  };
-  const sole = (s: number): IAutoMovieVector3 => {
-    const p: IAutoMovieVector3 = V.offset(endMiddle, [line, s]);
-    return V.of(p.x, base.bottom(p.x, p.z), p.z);
-  };
-  const offsetOf = (p: IAutoMovieVector3): number =>
-    V.dot(V.offset(p, [endMiddle, -1]), line);
-  const webs: number[] = [0, 1, 2, 3].map((w: number): number => {
-    const a: IAutoMovieVector3 = laid.root(toes[w]!);
-    const b: IAutoMovieVector3 = laid.root(toes[w + 1]!);
-    return offsetOf(V.of((a.x + b.x) / 2, 0, (a.z + b.z) / 2));
-  });
-  const halfBreadth = (sign: 1 | -1): number => {
-    let lo: number = 0;
-    let hi: number = L;
-    for (let k: number = 0; k < 40; ++k) {
-      const mid: number = (lo + hi) / 2;
-      const p: IAutoMovieVector3 = V.offset(endCentre, [line, sign * mid]);
-      if (solid(p) < 0) lo = mid;
-      else hi = mid;
-    }
-    return lo;
-  };
-  const cornerMedial: number = -CORNER * halfBreadth(-1);
-  const cornerLateral: number = CORNER * halfBreadth(1);
-  // node points at the odd indices of the twenty-four, counterclockwise from the third toe's back (0): 1 web 2-3 dorsal, 3 web 1-2 dorsal, 5 medial dorsal corner, 7 medial plantar corner, 9 web 1-2 plantar, 11 web 2-3 plantar, 13 web 3-4 plantar, 15 web 4-5 plantar, 17 lateral plantar corner, 19 lateral dorsal corner, 21 web 4-5 dorsal, 23 web 3-4 dorsal
-  const nodePoints: IAutoMovieVector3[] = [
-    dorsum(webs[1]!),
-    dorsum(webs[0]!),
-    dorsum(cornerMedial),
-    sole(cornerMedial),
-    sole(webs[0]!),
-    sole(webs[1]!),
-    sole(webs[2]!),
-    sole(webs[3]!),
-    sole(cornerLateral),
-    dorsum(cornerLateral),
-    dorsum(webs[3]!),
-    dorsum(webs[2]!),
-  ];
-  const turnOf: number[] = new Array<number>(24);
-  nodePoints.forEach((q: IAutoMovieVector3, k: number): void => {
-    const v: number = angleOf(q);
-    turnOf[2 * k + 1] = ((v % 1) + 1) % 1;
-  });
-  turnOf[0] = (turnOf[23]! - 1 + turnOf[1]!) / 2;
-  for (let j: number = 2; j < 24; j += 2)
-    turnOf[j] = (turnOf[j - 1]! + turnOf[j + 1]!) / 2;
-  for (let j: number = 1; j < 24; ++j)
-    if (!(turnOf[j]! > turnOf[j - 1]!) || !(turnOf[23]! < turnOf[0]! + 1))
-      throw new Error(
-        `foot root columns out of order at ${j}: ${turnOf.map((c: number): string => c.toFixed(3)).join(" ")}`,
-      );
-  // the webs, hallux-second (0) to fourth-fifth (3), each from its plantar end to its dorsal end through the crotch between its toes, the x curve on its medial side and the y curve on its lateral side
-  const split: splitAutoMovieHumanWebs.IOutput = splitAutoMovieHumanWebs({
-    sweep: "foot",
-    turns: turnOf,
-    ends: WEB_ENDS,
-    half: (j: number): number =>
-      (WEB * L) /
-      2 /
-      (2 * Math.PI * V.distance(nodePoints[(j - 1) / 2]!, end.origin)),
-    webs: WEBS.map(
-      (
-        { dorsal: d, plantar: p }: { dorsal: number; plantar: number },
-        w: number,
-      ): splitAutoMovieHumanWebs.IWeb => {
-        const a: IAutoMovieHumanFootPlan.IToe = toes[w]!;
-        const b: IAutoMovieHumanFootPlan.IToe = toes[w + 1]!;
-        const crotch: IAutoMovieVector3 = V.of(
-          (rootOf(a, CROTCH).x + rootOf(b, CROTCH).x) / 2,
-          (CROTCH_HEIGHT * (a.height + b.height)) / 2,
-          (rootOf(a, CROTCH).z + rootOf(b, CROTCH).z) / 2,
-        );
-        const normal: IAutoMovieVector3 = V.normalize(
-          V.of(
-            (a.direction.x + b.direction.x) / 2,
-            0,
-            (a.direction.z + b.direction.z) / 2,
-          ),
-        );
-        const across: IAutoMovieVector3 = V.of(normal.z, 0, -normal.x);
-        return {
-          first: p,
-          second: d,
-          x: metres(V.offset(crotch, [across, (-WEB * L) / 2])),
-          y: metres(V.offset(crotch, [across, (WEB * L) / 2])),
-          normal,
-        };
-      },
-    ),
-  });
+  const webLayout: splitAutoMovieHumanFootWebs.IOutput = splitAutoMovieHumanFootWebs({ plan, base, laid });
+  const { split, loops }: splitAutoMovieHumanFootWebs.IOutput = webLayout;
   const R: number = split.count;
-  const { at: rootAt, lo, hi } = split;
+  const { at: rootAt, lo }: splitAutoMovieHumanWebs.IOutput = split;
 
   const patches: IAutoMovieSurfaceNetwork.IPatch[] = [];
   const addresses: networkAutoMovieHumanFoot.IAddress[] = [];
-  const main = (u: number, v: number): networkAutoMovieHumanFoot.IPoint => ({
+  const main: (u: number, v: number) => networkAutoMovieHumanFoot.IPoint = (u: number, v: number): networkAutoMovieHumanFoot.IPoint => ({
     u: BODY * u,
     v: wrap(v),
   });
@@ -169,7 +79,7 @@ export function networkAutoMovieHumanFoot(props: {
     rows: fixed(1),
     columns: fixed(8),
   });
-  addresses.push((s: number, t: number) => main(collar * t, s));
+  addresses.push((s: number, t: number): networkAutoMovieHumanFoot.IPoint => main(collar * t, s));
   // the ring's eight columns turn into the toes' roots' thirty-two down the column in four gentle steps, each with no more reduction blocks than straight columns between them
   STEPS.forEach(([from, to]: [number, number], k: number): void => {
     const u: [number, number] = [
@@ -186,7 +96,7 @@ export function networkAutoMovieHumanFoot(props: {
       end: fixed(to),
       rows: fixed(1),
     });
-    addresses.push((s: number, t: number) => main(u[0] + (u[1] - u[0]) * t, s));
+    addresses.push((s: number, t: number): networkAutoMovieHumanFoot.IPoint => main(u[0] + (u[1] - u[0]) * t, s));
   });
   // the body: rows of thirty-two columns, evenly spaced round the heel, shearing over the forefoot onto the toes' roots' nodes; every vertex is a sample of the sweep
   const rowsU: number[] = [];
@@ -215,7 +125,7 @@ export function networkAutoMovieHumanFoot(props: {
   body.patches.forEach(
     (patch: IAutoMovieSurfaceNetwork.ICoonsPatch, k: number): void => {
       patches.push(patch);
-      addresses.push((s: number, t: number) => {
+      addresses.push((s: number, t: number): networkAutoMovieHumanFoot.IPoint => {
         const q: IAutoMovieSurfaceNetwork.IDomainPoint =
           gridAutoMovieHumanSweep.locate(body.corners[k]!, s, t);
         return main(q.u, q.v);
@@ -232,43 +142,15 @@ export function networkAutoMovieHumanFoot(props: {
   split.patches.forEach(
     (patch: IAutoMovieSurfaceNetwork.ICoonsPatch, w: number): void => {
       patches.push(patch);
-      const d: number = rootAt(lo(WEBS[w]!.dorsal));
-      const p: number = rootAt(hi(WEBS[w]!.plantar));
-      addresses.push((_: number, t: number) => main(1, d + (p - d) * t));
+      const d: number = webLayout.webTurns[w]!.dorsal;
+      const p: number = webLayout.webTurns[w]!.plantar;
+      addresses.push((_: number, t: number): networkAutoMovieHumanFoot.IPoint => main(1, d + (p - d) * t));
     },
   );
-  const rootPath = split.path;
-  const web = split.web;
-  // each toe's loop from its back, counterclockwise about the distal axis: hallux 4, second 2, third 0 (24), fourth 22, fifth 20
-  const loops: IAutoMovieSurfaceNetwork.IEdge[][] = [
-    [...rootPath(lo(4), lo(9)), web(0, "x"), ...rootPath(hi(3), lo(4))],
-    [
-      ...rootPath(lo(2), lo(3)),
-      web(0, "y"),
-      ...rootPath(hi(9), lo(11)),
-      web(1, "x"),
-      ...rootPath(hi(1), lo(2)),
-    ],
-    [
-      ...rootPath(lo(0), lo(1)),
-      web(1, "y"),
-      ...rootPath(hi(11), lo(13)),
-      web(2, "x"),
-      ...rootPath(hi(23), lo(24)),
-    ],
-    [
-      ...rootPath(lo(22), lo(23)),
-      web(2, "y"),
-      ...rootPath(hi(13), lo(15)),
-      web(3, "x"),
-      ...rootPath(hi(21), lo(22)),
-    ],
-    [...rootPath(lo(20), lo(21)), web(3, "y"), ...rootPath(hi(15), lo(20))],
-  ];
   const axes: networkAutoMovieHumanFoot.IAxis[] = [];
   toes.forEach((toe: IAutoMovieHumanFootPlan.IToe, t: number): void => {
     const name: string = `toe${t}`;
-    const { out, fractions, centres } = sweepAutoMovieHumanToe({ plan, toe });
+    const { out, fractions, centres }: sweepAutoMovieHumanToe.IOutput = sweepAutoMovieHumanToe({ plan, toe });
     sweeps[name] = out.sweep;
     axes.push({ fractions, centres });
     const toeV: number = wrap(rootAt(lo([4, 2, 0, 22, 20][t]!)));
@@ -287,8 +169,8 @@ export function networkAutoMovieHumanFoot(props: {
       (place: patchAutoMovieHumanDigit.IPlace, k: number): void => {
         addresses.push(
           k === toePatches.places.length - 1
-            ? () => ({ u: 1, v: toeV })
-            : (s: number, t2: number) => ({
+            ? (): { u: number; v: number; } => ({ u: 1, v: toeV })
+            : (s: number, t2: number): { u: number; v: number; } => ({
                 u: BODY + (1 - BODY) * place(s, t2).u,
                 v: wrap(toeV + SPREAD * (s - 0.5)),
               }),
@@ -298,7 +180,7 @@ export function networkAutoMovieHumanFoot(props: {
   });
 
   // the ankle ring and its collar
-  const ringEdges = (u: number): IAutoMovieSurfaceNetwork.IEdge[] => [
+  const ringEdges: (u: number) => IAutoMovieSurfaceNetwork.IEdge[] = (u: number): IAutoMovieSurfaceNetwork.IEdge[] => [
     edgeOf("foot", { u, v: 0 }, { u, v: ring.sense }, 8),
   ];
   return {
@@ -316,7 +198,7 @@ export function networkAutoMovieHumanFoot(props: {
         {
           name: "ankle.collar",
           edges: ringEdges(collar),
-          positions: ring.positions.map((p: IAutoMovieVector3) =>
+          positions: ring.positions.map((p: IAutoMovieVector3): IAutoMovieVector3 =>
             metres(V.offset(p, [V.of(0, -1, 0), collar * path.length])),
           ),
         },
@@ -336,25 +218,6 @@ export namespace networkAutoMovieHumanFoot {
   export interface IRing {
     /** Centre. */
     origin: IAutoMovieVector3;
-
-    /** Girth of its limit curve, millimetres. */
-    girth: number;
-
-    /** Control radii toward the front, the medial side, the back and the lateral side. */
-    radii: {
-      anterior: number;
-      medial: number;
-      posterior: number;
-      lateral: number;
-    };
-
-    /** Each side's limit radius over the mean radius `girth / 2π`. */
-    aspect: {
-      anterior: number;
-      medial: number;
-      posterior: number;
-      lateral: number;
-    };
 
     /** Control points in the shared shape's order. */
     positions: IAutoMovieVector3[];
@@ -420,20 +283,6 @@ const STEPS: Array<[number, number]> = [
   [26, 32],
 ];
 
-/** The twenty-four-loop's web ends, dorsal and plantar, which split. */
-const WEB_ENDS: number[] = [1, 3, 9, 11, 13, 15, 21, 23];
-
-/** Each web's dorsal and plantar end on the twenty-four-loop: hallux-second, second-third, third-fourth, fourth-fifth. */
-const WEBS: Array<{ dorsal: number; plantar: number }> = [
-  { dorsal: 3, plantar: 9 },
-  { dorsal: 1, plantar: 11 },
-  { dorsal: 23, plantar: 13 },
-  { dorsal: 21, plantar: 15 },
-];
-
-/** Breadth of each web between two toes, of foot length: about 3 mm, so the web is one narrow face wide and its four corners are valence-five vertices instead of two of valence six. Conventional. */
-const WEB: number = 0.012;
-
 /** The root ring's vertex the even ring's vertex 0 shears onto, as an offset: the pairing of least total shear on the gate identities. */
 const SHIFT: number = 1;
 
@@ -444,11 +293,7 @@ const SHEAR: number = 0.5;
 const BAND: number = 0.5;
 
 /** Rows of the two bands. */
-const ROWS = { heel: 10, fore: 4 } as const;
-
-/** Where each web's crotch lies, of the toes' length from their joints, and its height of their heights. Conventional. */
-const CROTCH: number = 0.42;
-const CROTCH_HEIGHT: number = 0.55;
+const ROWS: { readonly heel: 10; readonly fore: 4; } = { heel: 10, fore: 4 } as const;
 
 /** Rows of a toe's two bands. */
 const TOE_ROWS: number[] = [2, 3, 1];
@@ -462,25 +307,22 @@ const BODY: number = 0.85;
 /** Spread of a toe's chart round its column. */
 const SPREAD: number = 0.04;
 
-/** Share of the half breadth where the borders' corners lie. */
-const CORNER: number = 0.85;
-
-const fixed = (n: number): IAutoMovieSurfaceNetwork.ICounts => ({
+const fixed: (n: number) => IAutoMovieSurfaceNetwork.ICounts = (n: number): IAutoMovieSurfaceNetwork.ICounts => ({
   lowest: n,
   low: n,
   medium: n,
   high: n,
 });
 
-const wrap = (v: number): number => ((v % 1) + 1) % 1;
+const wrap: (v: number) => number = (v: number): number => ((v % 1) + 1) % 1;
 
-const metres = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
+const metres: (p: IAutoMovieVector3) => IAutoMovieVector3 = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
   x: p.x / 1000,
   y: p.y / 1000,
   z: p.z / 1000,
 });
 
-const edgeOf = (
+const edgeOf: (sweep: string, from: IAutoMovieSurfaceNetwork.IDomainPoint, to: IAutoMovieSurfaceNetwork.IDomainPoint, segments: number) => IAutoMovieSurfaceNetwork.ISweepEdge = (
   sweep: string,
   from: IAutoMovieSurfaceNetwork.IDomainPoint,
   to: IAutoMovieSurfaceNetwork.IDomainPoint,

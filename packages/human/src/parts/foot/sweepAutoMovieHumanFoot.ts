@@ -9,6 +9,7 @@ import { quaternionFromAutoMovieBasis } from "@automovie/engine/math/quaternionF
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
+import { AUTOMOVIE_HUMAN_FOOT_COLLAR } from "./AUTOMOVIE_HUMAN_FOOT_COLLAR";
 import { IAutoMovieHumanFootPlan } from "./IAutoMovieHumanFootPlan";
 import { solidAutoMovieHumanFoot } from "./solidAutoMovieHumanFoot";
 
@@ -17,7 +18,7 @@ import { solidAutoMovieHumanFoot } from "./solidAutoMovieHumanFoot";
  *
  * The spine drops from the ring's centre down the leg's axis and turns forward through the middle of the foot to the toes' roots, so its sections turn from the ankle's level sections to the forefoot's upright ones: the outside of the turn is the back of the heel, the inside the instep. The turn is a quarter circle wider than the instep is deep, so the section planes fanning round it never cross inside the foot. The ring and its collar take the ring's own limit curve, the closed B-spline of its control points, so the sweep leaves the collar on the surface the subdivision makes there rather than on the control polygon outside it. Every later section is the solid cut by its plane, read by ray from the spine at even angles, so the sweep is one section family from the ring to the toes; the last two planes turn to the toes' roots' plane, upright through the hallux's and the fifth toe's roots.
  *
- * @param props The foot's plan, its solid, and its ankle ring's centre, control points and turn, local frame, millimetres
+ * @param props The foot's plan and source solid in local millimetres, with its shared ankle origin in millimetres and section in metres
  * @returns The sweep in metres, its spine's path, the collar's `u`, the end's frame and the roots' line
  */
 export function sweepAutoMovieHumanFoot(props: {
@@ -25,15 +26,14 @@ export function sweepAutoMovieHumanFoot(props: {
   solid: solidAutoMovieHumanFoot.ISolid;
   ring: {
     origin: IAutoMovieVector3;
-    positions: IAutoMovieVector3[];
-    sense: 1 | -1;
+    section: IAutoMovieSweepSection.IBSpline;
   };
 }): sweepAutoMovieHumanFoot.IOutput {
   const V: typeof AutoMovieHumanVector = AutoMovieHumanVector;
-  const { plan, solid: base } = props;
+  const { plan, solid: base }: { plan: IAutoMovieHumanFootPlan; solid: solidAutoMovieHumanFoot.ISolid; ring: { origin: IAutoMovieVector3; section: IAutoMovieSweepSection.IBSpline; }; } = props;
   const L: number = plan.length;
   const origin: IAutoMovieVector3 = props.ring.origin;
-  const root = (toe: IAutoMovieHumanFootPlan.IToe): IAutoMovieVector3 =>
+  const root: (toe: IAutoMovieHumanFootPlan.IToe) => IAutoMovieVector3 = (toe: IAutoMovieHumanFootPlan.IToe): IAutoMovieVector3 =>
     V.offset(toe.joint, [toe.direction, ROOTS * toe.length]);
 
   // the toes' roots: the plane through the hallux's and fifth toe's roots, upright
@@ -66,7 +66,7 @@ export function sweepAutoMovieHumanFoot(props: {
   // the spine: down the leg's axis, round the heel, through the foot's middle to the roots
   const radius: number = SPINE.radius * L;
   const top: number = forefoot.y + radius;
-  const arc = (angle: number): IAutoMovieVector3 =>
+  const arc: (angle: number) => IAutoMovieVector3 = (angle: number): IAutoMovieVector3 =>
     V.of(
       origin.x + (forefoot.x - origin.x) * (1 - Math.cos(angle)),
       top - radius * Math.sin(angle),
@@ -82,10 +82,10 @@ export function sweepAutoMovieHumanFoot(props: {
     points: spinePoints,
     normal: V.of(0, 0, 1),
   });
-  const collar: number = (COLLAR * L) / path.length;
+  const collar: number = (AUTOMOVIE_HUMAN_FOOT_COLLAR * L) / path.length;
 
   // the sections: the ring's at the ring and its collar, then cuts of the solid at even spine parameters, the last two turned to the roots' plane
-  const sectionOf = (
+  const sectionOf: (frame: IAutoMovieSweepFrame) => IAutoMovieSweepSection.IRadial = (
     frame: IAutoMovieSweepFrame,
   ): IAutoMovieSweepSection.IRadial => ({
     type: "radial",
@@ -109,28 +109,13 @@ export function sweepAutoMovieHumanFoot(props: {
     y: V.cross(V.of(0, -1, 0), V.of(0, 0, 1)),
     normal: V.of(0, -1, 0),
   };
-  const ringPoints: IAutoMovieSweepSection.IPoint[] = props.ring.positions.map(
-    (q: IAutoMovieVector3): IAutoMovieSweepSection.IPoint => {
-      const d: IAutoMovieVector3 = V.offset(q, [origin, -1]);
-      return {
-        x: V.dot(d, ringFrame.x) / 1000,
-        y: V.dot(d, ringFrame.y) / 1000,
-      };
-    },
-  );
-  const ringSection: IAutoMovieSweepSection = {
-    type: "bspline",
-    points:
-      props.ring.sense === 1
-        ? ringPoints
-        : [ringPoints[0]!, ...ringPoints.slice(1).reverse()],
-  };
+  const ringSection: IAutoMovieSweepSection.IBSpline = props.ring.section;
   const ringRotation: IAutoMovieQuaternion = quaternionFromAutoMovieBasis(
     ringFrame.x,
     ringFrame.y,
     ringFrame.normal,
   );
-  const endFrame = (
+  const endFrame: (u: number, turn: number) => { frame: IAutoMovieSweepFrame; rotation: IAutoMovieQuaternion; } = (
     u: number,
     turn: number,
   ): { frame: IAutoMovieSweepFrame; rotation: IAutoMovieQuaternion } => {
@@ -163,7 +148,7 @@ export function sweepAutoMovieHumanFoot(props: {
       ...ats.map((u: number, k: number): IAutoMovieSweep.IStation => {
         const turn: number = Math.max(0, (k - (CUTS - 3)) / 2);
         if (turn === 0) return { at: u, section: sectionOf(path.frame(u)) };
-        const e = endFrame(u, turn);
+        const e: { frame: IAutoMovieSweepFrame; rotation: IAutoMovieQuaternion; } = endFrame(u, turn);
         return { at: u, section: sectionOf(e.frame), rotation: e.rotation };
       }),
     ],
@@ -227,16 +212,13 @@ const CUTS: number = 14;
 /** `u` of the first cut, where the transition bands are well below the ankle. */
 const FIRST_CUT: number = 0.1;
 
-/** Distance of the collar below the ring, of foot length. Conventional, as the hand's collar. */
-const COLLAR: number = 0.025;
-
 /** The spine: the radius of its turn from the leg's axis into the foot, of foot length, and where along the foot it reaches the foot's middle line. Conventional. */
-const SPINE = { radius: 0.27, mid: 0.6 } as const;
+const SPINE: { readonly radius: 0.27; readonly mid: 0.6; } = { radius: 0.27, mid: 0.6 } as const;
 
 /** Where the toes' roots lie, of each toe's length from its joint: the old cage's dorsal root. */
 const ROOTS: number = 0.3;
 
-const metres = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
+const metres: (p: IAutoMovieVector3) => IAutoMovieVector3 = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
   x: p.x / 1000,
   y: p.y / 1000,
   z: p.z / 1000,
