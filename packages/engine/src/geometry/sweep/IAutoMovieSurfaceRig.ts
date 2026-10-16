@@ -2,6 +2,7 @@ import { AutoMovieHumanoidBone } from "@automovie/interface";
 
 import { IAutoMovieResolvedBone } from "../../kinematics/IAutoMovieResolvedBone";
 import { IAutoMovieSurfaceCage } from "./IAutoMovieSurfaceCage";
+import { IAutoMovieSurfaceConstruction } from "./IAutoMovieSurfaceConstruction";
 
 /**
  * A surface network compiled at one tier for posing, from
@@ -19,7 +20,7 @@ import { IAutoMovieSurfaceCage } from "./IAutoMovieSurfaceCage";
  * the rig fills while compiling and `pose` does not touch.
  *
  * @evidence contracts/common.md#principled-implementation The pose-invariant compile and per-pose evaluation split of a deformable surface, with the posed cage equal to sampling the network `poseAutoMovieSurfaceNetwork` makes.
- * @evidence contracts/common.md#clear-and-simple-design One rest cage record shared with `sampleAutoMovieSurfaceNetwork` and one update that fills a buffer.
+ * @evidence contracts/common.md#clear-and-simple-design One shared rest cage, an optional rest construction snapshot and one pose writer that fills a buffer.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The fit residual is returned on every pose, so a caller can refuse a pose whose fit did not converge.
  * @evidence contracts/common.md#meaningful-documentation States what compiles once, what moves per pose, the allocation and cache guarantees and the residual.
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record; costs are on `rigAutoMovieSurfaceNetwork`.
@@ -30,6 +31,9 @@ import { IAutoMovieSurfaceCage } from "./IAutoMovieSurfaceCage";
 export interface IAutoMovieSurfaceRig {
   /** The cage at rest: topology, UVs, coordinates, rings, targets and fitted positions. */
   cage: IAutoMovieSurfaceCage;
+
+  /** Requested rest construction polylines, after the girth solve; empty when not requested. These unfiltered generating curves stay at rest after pose updates. */
+  construction: readonly IAutoMovieSurfaceConstruction[];
 
   /** The rest bones' names, in the order `pose` expects; empty for a rig without bones. */
   bones: readonly AutoMovieHumanoidBone[];

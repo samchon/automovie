@@ -55,6 +55,29 @@ export interface IAutoMovieSurfaceLayout {
   ): void;
 
   /**
+   * Lay out a patch whose faces are not a grid, each corner with its own patch coordinates.
+   *
+   * @param patch Index of the patch in the network
+   * @param quads Each face's four corners counterclockwise: vertex index and patch coordinates
+   * @param columns The count the patch's record reports along `s`
+   * @param rows The count the patch's record reports along `t`
+   *
+   * @evidence contracts/common.md#principled-implementation Faces of a non-grid block keep the same `(patch, s, t)` chart, carried per corner.
+   * @evidence contracts/common.md#clear-and-simple-design One call per patch, like `emit`.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Corners sharing coordinates share one UV value, so the patch has no texture seam inside it.
+   * @evidence contracts/common.md#meaningful-documentation States the corner record and the counts reported.
+   * @evidence contracts/performance.md#efficient-algorithms O(faces) with one map lookup per corner.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `layoutAutoMovieSurfacePatches`.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `layoutAutoMovieSurfacePatches`.
+   */
+  emitFaces(
+    patch: number,
+    quads: Array<Array<[number, number, number]>>,
+    columns: number,
+    rows: number,
+  ): void;
+
+  /**
    * Refuse a layout in which a directed edge appears twice.
    *
    * @throws Error when patches overlap or wind inconsistently

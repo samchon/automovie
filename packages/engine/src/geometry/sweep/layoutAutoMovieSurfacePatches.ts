@@ -12,7 +12,9 @@ import { IAutoMovieSurfaceNetwork } from "./IAutoMovieSurfaceNetwork";
  * rectangle in texture space or, where it declares none, the band
  * `t in [k / P, (k + 1) / P]` of the unit square for patch `k` of `P`. A
  * patch's UVs are its own, so seams between patches stay seams in texture
- * space. `check` then requires every directed edge to appear once.
+ * space. A patch whose faces are no grid, a transition band, gives each
+ * corner its own coordinates instead, and corners at the same coordinates
+ * share a UV value. `check` then requires every directed edge to appear once.
  *
  * @param network The network, only read.
  * @returns The empty layout.
@@ -36,13 +38,13 @@ export const layoutAutoMovieSurfacePatches: (
   const uvFaces: number[][] = [];
   const grids: IAutoMovieSurfaceCage.IPatch[] = [];
   const total: number = network.patches.length;
-  const emit = (
+  function emit(
     p: number,
     grid: number[][],
     columns: number,
     rows: number,
     wrap: boolean,
-  ): void => {
+  ): void {
     const patch: IAutoMovieSurfaceNetwork.IPatch = network.patches[p]!;
     const rect: IAutoMovieSurfaceNetwork.IUvRect = patch.uv ?? {
       s: [0, 1],
@@ -62,8 +64,9 @@ export const layoutAutoMovieSurfacePatches: (
           },
         ),
     );
-    const at = (i: number, j: number): number =>
-      grid[j]![wrap ? i % columns : i]!;
+    function at(i: number, j: number): number {
+      return grid[j]![wrap ? i % columns : i]!;
+    }
     const faceList: number[] = [];
     for (let j: number = 0; j < rows; ++j)
       for (let i: number = 0; i < columns; ++i) {
@@ -88,9 +91,58 @@ export const layoutAutoMovieSurfacePatches: (
           ) as IAutoMovieSurfaceCage["corners"][number],
         );
       }
-    grids[p] = { name: patch.name, columns, rows, faces: faceList };
-  };
-  const check = (): void => {
+    grids[p] = { name: patch.name, columns, rows, grid: true, faces: faceList };
+  }
+  function emitFaces(
+    p: number,
+    quads: Array<Array<[number, number, number]>>,
+    columns: number,
+    rows: number,
+  ): void {
+    const patch: IAutoMovieSurfaceNetwork.IPatch = network.patches[p]!;
+    const rect: IAutoMovieSurfaceNetwork.IUvRect = patch.uv ?? {
+      s: [0, 1],
+      t: [p / total, (p + 1) / total],
+    };
+    const shared: Map<string, number> = new Map();
+    function uv(s: number, t: number): number {
+      const key: string = `${s},${t}`;
+      let i: number | undefined = shared.get(key);
+      if (i === undefined) {
+        uvs.push(
+          rect.s[0] + (rect.s[1] - rect.s[0]) * s,
+          rect.t[0] + (rect.t[1] - rect.t[0]) * t,
+        );
+        shared.set(key, (i = uvs.length / 2 - 1));
+      }
+      return i;
+    }
+    const faceList: number[] = [];
+    for (const quad of quads) {
+      faceList.push(faces.length);
+      faces.push(quad.map(([v]: [number, number, number]): number => v));
+      uvFaces.push(
+        quad.map(([, s, t]: [number, number, number]): number => uv(s, t)),
+      );
+      corners.push(
+        quad.map(
+          ([, s, t]: [
+            number,
+            number,
+            number,
+          ]): IAutoMovieSurfaceCoordinate => ({ patch: p, s, t }),
+        ) as IAutoMovieSurfaceCage["corners"][number],
+      );
+    }
+    grids[p] = {
+      name: patch.name,
+      columns,
+      rows,
+      grid: false,
+      faces: faceList,
+    };
+  }
+  function check(): void {
     // every directed edge once: patches neither overlap nor disagree in winding
     const directed: Set<string> = new Set();
     faces.forEach((quad: number[]): void => {
@@ -103,6 +155,6 @@ export const layoutAutoMovieSurfacePatches: (
         directed.add(key);
       }
     });
-  };
-  return { faces, uvs, uvFaces, corners, grids, emit, check };
+  }
+  return { faces, uvs, uvFaces, corners, grids, emit, emitFaces, check };
 };

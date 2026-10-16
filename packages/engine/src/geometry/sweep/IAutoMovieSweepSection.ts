@@ -20,7 +20,7 @@
  *
  * @evidence contracts/common.md#principled-implementation A closed union whose members are the standard closed-curve forms named in the lofting scope, read through one polar radius function, which makes sections of different kinds correspond by direction.
  * @evidence contracts/common.md#clear-and-simple-design One discriminated union instead of a section interface per kind; `parameterizeAutoMovieSweepSection` evaluates the curves and `sampleAutoMovieSweepSection` reads them by direction.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing converts one kind into another silently; a curve that is not star-shaped about its origin is refused by the sampler.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing converts one kind into another silently; the sampler refuses a curve whose finite polar-angle walk detects a star-shape violation; unsampled intervals are not certified.
  * @evidence contracts/common.md#meaningful-documentation States the plane coordinates and unit, the origin, the star-shape requirement, the angle direction, and what each member is for.
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; sampling cost is answered on `sampleAutoMovieSweepSection`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record read by the sweep compiler once per station.
@@ -157,9 +157,9 @@ export namespace IAutoMovieSweepSection {
   }
 
   /**
-   * Radii at evenly spaced angles, the first along `+x`, joined by a periodic monotone interpolation, so a radius between two samples stays between their values.
+   * Radii at evenly spaced angles, the first along `+x`, joined by the periodic C2 spline of `interpolateAutoMovieSpline`, with continuous curvature and the spline's sampled overshoot policy. Positive inputs need not give positive interpolation; the section sampler refuses a non-positive or non-finite sampled radius.
    *
-   * @evidence contracts/common.md#principled-implementation Radii at even angles joined by the periodic monotone scheme.
+   * @evidence contracts/common.md#principled-implementation Radii at even angles joined by the periodic bounded spline.
    * @evidence contracts/common.md#clear-and-simple-design One array.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Non-positive radii are refused.
    * @evidence contracts/common.md#meaningful-documentation States the angle of each radius and the interpolation.
