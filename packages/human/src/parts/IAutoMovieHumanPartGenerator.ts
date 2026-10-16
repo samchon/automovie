@@ -1,8 +1,10 @@
+import { IAutoMovieMeshRayCaster } from "@automovie/engine";
 import {
   AutoMovieHumanoidBone,
   IAutoMovieImage,
   IAutoMovieMaterial,
   IAutoMovieMesh,
+  IAutoMovieModelPart,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -45,7 +47,7 @@ export interface IAutoMovieHumanPartGenerator<Part extends AutoMovieHumanPart> {
    * @returns The attachments, in an order the part documents
    */
   attachments?(
-    props: IAutoMovieHumanPartGenerator.IProps<Part>,
+    props: IAutoMovieHumanPartGenerator.IAttachmentProps<Part>,
   ): IAutoMovieHumanPartGenerator.IAttachment[];
 
   /**
@@ -108,6 +110,18 @@ export namespace IAutoMovieHumanPartGenerator {
 
     /** The point's rest limit position before any relief, model frame, millimetres. */
     position: IAutoMovieVector3;
+  }
+
+  /**
+   * Attachments read the actual assembled, subdivided and displaced rest skin.
+   * Its model-frame positions are metres; it is borrowed without mutation.
+   * Regenerating an independent part would lose joined fitting and relief.
+   */
+  export interface IAttachmentProps<Part extends AutoMovieHumanPart> extends IProps<Part> {
+    /** Actual skin parts emitted for this model, before appearance dressing. */
+    skin: readonly IAutoMovieModelPart[];
+    /** Borrow one lazy immutable caster per emitted skin mesh, shared by attachments during this emission. */
+    skinRayCaster: (mesh: IAutoMovieMesh) => IAutoMovieMeshRayCaster;
   }
 
   /**

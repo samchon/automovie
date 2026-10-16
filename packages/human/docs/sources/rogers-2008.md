@@ -16,3 +16,8 @@ Rogers M.S., Barr A.B., Kasemsontitum B., Rempel D.M. "A three-dimensional anthr
 ## What Human takes
 
 The hand breadth definition that places the metacarpale II and V landmarks; the per-digit joint size ratios for the hand part (#2797).
+
+
+## Campaign 2831 method reread
+
+Section 2.5.2 explicitly sets MCP breadth equal to PIP breadth as a modelling assumption. Section 2.5.3 defines the web from adjacent phalangeal sections and the palmar crease, with its width depending on their relative posture. These support a shared section-and-web definition, not a measured uniform finger spacing or a complete calibration target. The 66 digitized landmark positions are not imported into Human.
