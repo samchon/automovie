@@ -12,7 +12,7 @@ import { networkAutoMovieHumanLimb } from "./networkAutoMovieHumanLimb";
 import { patchAutoMovieHumanLimb } from "./patchAutoMovieHumanLimb";
 
 /**
- * Loft a limb into its control cage: the network of `networkAutoMovieHumanLimb` sampled by the engine at the human profile's tier, so the cage's limit surface passes through the limb's sweep at every vertex and its junction rows sit on their pinned rings.
+ * Loft a limb into its control cage: the engine samples the network of `networkAutoMovieHumanLimb` at the human profile's tier. Free coarse vertices interpolate the engine's cell-averaged targets on the subdivision limit; these targets can differ from the unfiltered analytic sweep. Junction ring and collar controls retain their shared pinned positions, and the joined limit at those boundaries depends on both neighboring parts.
  *
  * The chart is the sweep's domain: `u` along the limb from 0 at the proximal ring to 1 at the distal ring, `v` counterclockwise about the distal axis from each station's `anterior`. Rings, in order: the proximal one, then the distal one.
  *
