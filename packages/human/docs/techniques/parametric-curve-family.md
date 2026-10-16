@@ -28,7 +28,7 @@ Define `S(y,v; m,theta)` in a torso-local frame. `m` contains independent measur
 
 The section family owns its centre, front/back/lateral envelopes, rounding and any declared paired anterior course. Derive section anchors, longitudinal guides, construction and dependent placement from this evaluator. The frontmost point need not lie on the sternal midline; a family that forces that relationship cannot represent an off-axis pectoral maximum regardless of the optimizer.
 
-For a cubic segment over parameter span `du`, with endpoints `P0,P3` and physical derivatives `T0,T1`, derive its controls as `P1=P0+du*T0/3` and `P2=P3-du*T1/3`. Neighboring segments reference the same endpoint and derivative definition. This is an algebraic construction from dimensions, not free fitted vertex coordinates. Existing network `through` points are Catmull–Rom interpolation waypoints; placing them with a Bezier formula does not change the generated curve into that Bezier curve.
+For a cubic segment over parameter span `du`, with endpoints `P0,P3` and physical derivatives `T0,T1`, derive its controls as `P1=P0+du*T0/3` and `P2=P3-du*T1/3`. Neighboring segments reference the same endpoint and derivative definition. This is an algebraic construction from dimensions, not free fitted vertex coordinates. Existing network `through` points are Catmull-Rom interpolation waypoints; placing them with a Bezier formula does not change the generated curve into that Bezier curve.
 
 Choose the discrete section vocabulary before fitting. Four oval arcs may suffice for a simple tube; a paired anterior mass and recess may need additional semantic arcs. Use the same vocabulary for all identities in the profile. Fit only the rounding and mass parameters supported by observations, with one longitudinal onset/peak/decay family shared across related guides. Feature widths use physical dimensions, independently of chart spacing or emitted row count. Do not introduce a per-height, per-ray or per-person correction array.
 
@@ -54,7 +54,7 @@ E(theta) = E_sections + E_front/side + E_oblique + E_landmarks
 
 Normalize each observation class by sample count and its declared uncertainty or engineering scale. Use symmetric closest-distance residuals with arclength weights and semantic feature correspondence to prevent a match jumping between masses. [Wang, Pottmann and Liu](https://i.cs.hku.hk/~wenping/SDM/TOG_SDM.pdf) analyze geometric curve-distance fitting and the limitations of point/tangent approximations. This supports a geometric objective; it does not mean the current Human fitter implements their method. [Robust losses](https://ceres-solver.readthedocs.io/latest/nnls_tutorial.html#robust-curve-fitting) can reduce outlier influence but must not hide a wrong plane, registration or omitted anatomical course.
 
-A conservative pilot solve initializes from measured extrema, fixes semantic knot order, and alternates closest-point assignment with bounded trust-region Gauss–Newton updates of the named coefficients. Eliminate closure and shared position/derivative equalities algebraically through the family. A remaining girth parameter can use a bracketed scalar root only on a verified feasible monotone branch while keeping breadth/depth fixed. Otherwise report infeasibility. Use QR/SVD for the small scaled step and preserve the last valid iterate when a step violates orientation, constraints or bounds. This is a proposed local solver, without a global-optimum guarantee.
+A conservative pilot solve initializes from measured extrema, fixes semantic knot order, and alternates closest-point assignment with bounded trust-region Gauss-Newton updates of the named coefficients. Eliminate closure and shared position/derivative equalities algebraically through the family. A remaining girth parameter can use a bracketed scalar root only on a verified feasible monotone branch while keeping breadth/depth fixed. Otherwise report infeasibility. Use QR/SVD for the small scaled step and preserve the last valid iterate when a step violates orientation, constraints or bounds. This is a proposed local solver, without a global-optimum guarantee.
 
 ## Source to displayed skin
 
@@ -76,7 +76,7 @@ Reuse basis evaluations and subdivision stencils where topology is fixed. Keep t
 
 ## Bounded torso experiment
 
-Test the unbranched torso band from waist through the declared fold and chest sections to the axillary boundary. Preserve the skeleton, pelvis, head, arms, shared junction definitions and published UV meaning. This tests a torso family and does not claim to solve the shoulder branch. Record both field value and derivative at axilla. If an observed mass must continue above it, consume the same physical field across the boundary or declare the bounded pilot's boundary assumption inadequate; do not zero the field at the cut or copy a neighbor's placement.
+Test the unbranched torso band from waist through the declared fold and chest sections to the axillary boundary. Hold neighboring parts and their contracts fixed for this controlled comparison; this does not prohibit a later justified redesign of the legacy representation. This tests a torso family and does not claim to solve the shoulder branch. Record both field value and derivative at axilla. If an observed mass must continue above it, consume the same physical field across the boundary or declare the bounded pilot's boundary assumption inadequate; do not zero the field at the cut or copy a neighbor's placement.
 
 | Phase | Evidence and decision |
 | --- | --- |
@@ -92,7 +92,7 @@ Before running the experiment, choose and record the independent coefficient cou
 
 Begin at the existing topology. If evidence requires a support-resolution variant, declare it once for the whole profile and compare it independently of new shape coefficients. Record emitted faces, evaluation count and LOD behavior under matching hardware/load. Keep semantic feature locations independent of tessellation. Compare strict triangle intersections and sampled source Jacobian orientation while stating that finite checks are not proofs of continuous injectivity.
 
-One fitting/validation round can be followed by one coherent correction when it identifies a bounded cause. If matching holdout and visual review still fail, stop the experiment and report the failed hypothesis and smallest missing capability. Stop earlier for incompatible dimensions, unidentifiable parameters, missing junction support, downstream source loss or excessive complexity/runtime. A lower aggregate loss with a new shelf, groove or neighbor defect fails. This proposal does not authorize a complete Human rewrite or indefinite per-person tuning.
+One fitting/validation round can be followed by one coherent correction when it identifies a bounded cause. If matching holdout and visual review still fail, stop the experiment and report the failed hypothesis and smallest missing capability. Stop earlier for incompatible dimensions, unidentifiable parameters, missing junction support, downstream source loss or excessive complexity/runtime. A lower aggregate loss with a new shelf, groove or neighbor defect fails. Broader architectural work requires its own declared scope and evidence; failed fitting does not justify indefinite per-person tuning.
 
 ## General asset and CAD use
 
@@ -113,6 +113,8 @@ The shared architecture extends beyond Human; the best geometric operator depend
 
 Generic interpolation, sampling, fitting, topology and solid operations belong to core when a demonstrated gap requires them. Human owns anatomical dimensions and the fitted shape vocabulary. Keep extracted reference geometry and per-reference diagnostic forms outside the package; production uses compact named rules with sources. No implementation or library adoption follows from this research proposal alone.
 
+The current engine supports inner section loops and annular caps through [meshAutoMovieSweep](../../../engine/src/geometry/sweep/meshAutoMovieSweep.ts), and explicitly laid-out openings and bridges through [surface networks](../../../engine/src/geometry/sweep/IAutoMovieSurfaceNetwork.ts). A network sweep patch has no inner-loop selector, so station holes do not automatically produce network inner walls. Arbitrary post-loft trimming and solid booleans are absent; [mesh merging](../../../engine/src/geometry/mergeAutoMovieMeshes.ts) concatenates surfaces. These are source-inspection findings, not new execution or visual verification; the CAD alternatives above are not an inventory of implemented engine operators.
+
 ## Reading and uncertainty
 
 | Source | Scope read for this proposal |
@@ -122,7 +124,7 @@ Generic interpolation, sampling, fitting, topology and solid operations belong t
 | [OCCT Bezier curve](https://occt3d.com/dev/doc/refman/html/class_geom___bezier_curve.html) | Rational/nonrational forms, exact conic-arc weights and closure warning. |
 | [DLR TiGL curve-network interpolation](https://dlr-sc.github.io/tigl/doc/3.3.0/classtigl_1_1CTiglInterpolateCurveNetwork.html) | Official intersection, sorting, compatibility/reparameterization and construction sequence. The related paper could not be retrieved, so no full-paper claim is made. |
 | [OCCT constrained filling](https://occt3d.com/dev/doc/refman/html/class_geom_fill___constrained_filling.html) | Path/tangency contracts, result checks and fillet-specific limitation. |
-| [Wang, Pottmann and Liu, 2006](https://i.cs.hku.hk/~wenping/SDM/TOG_SDM.pdf) | Abstract and sections 1–3: geometric objective, point/tangent approximations, curvature approximation and fixed-knot assumptions. It concerns planar curves, not anatomy. |
+| [Wang, Pottmann and Liu, 2006](https://i.cs.hku.hk/~wenping/SDM/TOG_SDM.pdf) | Abstract and sections 1-3: geometric objective, point/tangent approximations, curvature approximation and fixed-knot assumptions. It concerns planar curves, not anatomy. |
 | [Ceres covariance](https://ceres-solver.readthedocs.io/latest/nnls_covariance.html) and [robust curve fitting](https://ceres-solver.readthedocs.io/latest/nnls_tutorial.html#robust-curve-fitting) | Whitening, gauge/rank/SVD and robust-loss treatment. Statistical assumptions are not asserted for reference meshes. |
 | [OpenSubdiv surfaces](https://opensubdiv.org/docs/subdivision_surfaces.html) | Regular/irregular features, refinement versus limit tessellation and topology/data separation. |
 | [Krishnamurthy and Levoy, 1996](https://graphics.stanford.edu/papers/surfacefitting/) | Author-hosted abstract/process, not the full paper. No adoption of stored displacement maps. |
