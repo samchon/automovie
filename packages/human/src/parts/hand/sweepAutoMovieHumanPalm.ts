@@ -2,10 +2,10 @@ import { IAutoMovieSweep, IAutoMovieSweepSection } from "@automovie/engine";
 import { quaternionFromAutoMovieBasis } from "@automovie/engine/math/quaternionFromAutoMovieBasis";
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
+import { measureAutoMovieHumanWristCollar } from "../../junction/measureAutoMovieHumanWristCollar";
 import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanIdentity } from "../../structures/IAutoMovieHumanIdentity";
-import { AUTOMOVIE_HUMAN_HAND_FORM } from "./AUTOMOVIE_HUMAN_HAND_FORM";
 import { AUTOMOVIE_HUMAN_HAND_SHAPE } from "./AUTOMOVIE_HUMAN_HAND_SHAPE";
 import { readAutoMovieHumanHand } from "./readAutoMovieHumanHand";
 import { sliceAutoMovieHumanPalm } from "./sliceAutoMovieHumanPalm";
@@ -81,7 +81,7 @@ export function sweepAutoMovieHumanPalm(props: {
     ringSecond,
     ringNormal,
   );
-  const collar: number = AUTOMOVIE_HUMAN_HAND_FORM.besideWrist * L;
+  const collar: number = measureAutoMovieHumanWristCollar(L);
 
   // the palm's stations: ring, collar, carpus, mid-palm, heads, the fingers' roots
   const axisKnuckle: number = field.knuckle(0);
@@ -119,7 +119,7 @@ export function sweepAutoMovieHumanPalm(props: {
           section: {
             type: "polygon",
             points: s.section.points.map(
-              (p: IAutoMovieSweepSection.IPoint) => ({
+              (p: IAutoMovieSweepSection.IPoint) : IAutoMovieSweepSection.IPoint => ({
                 x: p.x / 1000,
                 y: p.y / 1000,
               }),
@@ -175,7 +175,7 @@ export namespace sweepAutoMovieHumanPalm {
   }
 }
 
-const metres = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
+const metres: (p: IAutoMovieVector3) => IAutoMovieVector3 = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
   x: p.x / 1000,
   y: p.y / 1000,
   z: p.z / 1000,

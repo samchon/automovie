@@ -5,7 +5,7 @@ import {
 } from "@automovie/engine";
 import { IAutoMovieVector3 } from "@automovie/interface";
 
-import { AUTOMOVIE_HUMAN_FOOT_COLLAR } from "./AUTOMOVIE_HUMAN_FOOT_COLLAR";
+import { measureAutoMovieHumanAnkleCollar } from "../../junction/measureAutoMovieHumanAnkleCollar";
 import { AUTOMOVIE_HUMAN_FOOT_FORM } from "./AUTOMOVIE_HUMAN_FOOT_FORM";
 import { IAutoMovieHumanFootPlan } from "./IAutoMovieHumanFootPlan";
 import { interpolateAutoMovieHumanFootProfile } from "./interpolateAutoMovieHumanFootProfile";
@@ -234,7 +234,7 @@ export function solidAutoMovieHumanFoot(props: {
   const ring: solidAutoMovieHumanFoot.IRing = props.ring;
   const origin: IAutoMovieVector3 = ring.origin;
   const floor: number = COLUMN_BOTTOM * plan.ankleHeight;
-  const collar: number = origin.y - AUTOMOVIE_HUMAN_FOOT_COLLAR * L;
+  const collar: number = origin.y - measureAutoMovieHumanAnkleCollar(L);
   const columnSurface: IAutoMovieSweepSurface = compileAutoMovieSweep({
     spine: {
       points: [

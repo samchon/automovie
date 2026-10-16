@@ -3,6 +3,7 @@ import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieHumanSide } from "../../junction/AutoMovieHumanSide";
 import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
+import { measureAutoMovieHumanWristCollar } from "../../junction/measureAutoMovieHumanWristCollar";
 import { shapeAutoMovieHumanRing } from "../../junction/shapeAutoMovieHumanRing";
 import { IAutoMovieHumanMeasurements } from "../../measure/IAutoMovieHumanMeasurements";
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
@@ -46,13 +47,13 @@ export function planAutoMovieHumanArm(props: {
   side: AutoMovieHumanSide;
 }): IAutoMovieHumanLimbPlan {
   const V: typeof AutoMovieHumanVector = AutoMovieHumanVector;
-  const { measurements, skeleton, side } = props;
+  const { measurements, skeleton, side }: typeof props = props;
   const identity: IAutoMovieHumanIdentity = measurements.identity;
   const arm: IAutoMovieHumanIdentity.IArm =
     side === "left" ? identity.body.leftArm : identity.body.rightArm;
   const tissue: estimateAutoMovieHumanArmTissue.IOutput =
     estimateAutoMovieHumanArmTissue(identity, arm);
-  const joint = (bone: string): IAutoMovieVector3 => {
+  const joint: (bone: string) => IAutoMovieVector3 = (bone: string): IAutoMovieVector3 => {
     const found: IAutoMovieHumanSkeleton.IJoint | undefined =
       skeleton.joints.find(
         (j: IAutoMovieHumanSkeleton.IJoint): boolean =>
@@ -61,7 +62,7 @@ export function planAutoMovieHumanArm(props: {
     if (found === undefined) throw new Error(`skeleton lacks ${side}${bone}`);
     return found.position;
   };
-  const ring = (site: "upperArm" | "wrist"): IAutoMovieHumanRingShape =>
+  const ring: (site: "upperArm" | "wrist") => IAutoMovieHumanRingShape = (site: "upperArm" | "wrist"): IAutoMovieHumanRingShape =>
     shapeAutoMovieHumanRing({
       skeleton,
       measurements,
@@ -86,7 +87,10 @@ export function planAutoMovieHumanArm(props: {
   // the medial side is counterclockwise about the distal axis on the left arm and clockwise on the right
   const mirror: number = side === "left" ? 1 : -1;
   const sections: sectionAutoMovieHumanArm.ISection[] =
-    sectionAutoMovieHumanArm(arm, tissue);
+    sectionAutoMovieHumanArm(arm, tissue, {
+      upperArm: -0.9,
+      wrist: 1 - measureAutoMovieHumanWristCollar(arm.handLength) / below,
+    });
   const last: number = sections.length - 1;
   const stations: IAutoMovieHumanLimbPlan.IStation[] = sections.map(
     (
@@ -94,7 +98,7 @@ export function planAutoMovieHumanArm(props: {
       i: number,
     ): IAutoMovieHumanLimbPlan.IStation => {
       const level: number = section.level;
-      const common = {
+      const common: Pick<IAutoMovieHumanLimbPlan.IStation, "name" | "columns" | "rows"> = {
         name: `arm ${level}`,
         columns: COLUMNS[i]!,
         rows: ROWS[i]!,
@@ -145,8 +149,8 @@ export function planAutoMovieHumanArm(props: {
   const levels: number[] = sections.map(
     (s: sectionAutoMovieHumanArm.ISection): number => s.level,
   );
-  const along =
-    (read: (s: sectionAutoMovieHumanArm.ISection) => number) =>
+  const along: (read: (s: sectionAutoMovieHumanArm.ISection) => number) => (level: number) => number =
+    (read: (s: sectionAutoMovieHumanArm.ISection) => number) : (level: number) => number =>
     (level: number): number =>
       interpolate(
         sections.map(
@@ -157,10 +161,10 @@ export function planAutoMovieHumanArm(props: {
         ),
         level,
       );
-  const deep = along((s: sectionAutoMovieHumanArm.ISection): number => s.deep);
+  const deep: (level: number) => number = along((s: sectionAutoMovieHumanArm.ISection): number => s.deep);
   const regional: IAutoMovieHumanSubcutaneousFat =
     identity.composition.subcutaneousFat;
-  const girth = along(
+  const girth: (level: number) => number = along(
     (s: sectionAutoMovieHumanArm.ISection): number => s.girth,
   );
   const relief: IAutoMovieHumanLimbPlan.IRelief[] =
@@ -202,14 +206,17 @@ export function planAutoMovieHumanArm(props: {
 }
 
 /** The subcutaneous fat over one form at an arm level, from a record of regional thicknesses. */
-const over =
+const over: (regional: Pick<
+      IAutoMovieHumanSubcutaneousFat,
+      "upperArmFront" | "upperArmBack" | "forearm"
+    >, form: IAutoMovieHumanArmRelief) => (level: number) => number =
   (
     regional: Pick<
       IAutoMovieHumanSubcutaneousFat,
       "upperArmFront" | "upperArmBack" | "forearm"
     >,
     form: IAutoMovieHumanArmRelief,
-  ) =>
+  ) : (level: number) => number =>
   (level: number): number => {
     const front: number = (1 + Math.cos((form.angle * Math.PI) / 180)) / 2;
     const upper: number =
@@ -224,7 +231,7 @@ const over =
 /**
  * A section's eight radii as a radial section in the station's plane, joined round the turn by the engine's periodic monotone interpolation, which never overshoots its samples: an interpolating spline does, and at an infant's elbow, where the epicondyles floor the sides far out of the shallow front and back, it would loop. Anatomical direction `k` lies `k` eighths of a turn from anterior toward the medial side, which is counterclockwise about the distal axis on the left arm and clockwise on the right.
  */
-const curveOf = (radii: number[], mirror: number): IAutoMovieSweepSection => ({
+const curveOf: (radii: number[], mirror: number) => IAutoMovieSweepSection = (radii: number[], mirror: number): IAutoMovieSweepSection => ({
   type: "radial",
   radii: radii.map(
     (_: number, j: number): number =>
@@ -233,7 +240,7 @@ const curveOf = (radii: number[], mirror: number): IAutoMovieSweepSection => ({
 });
 
 /** Smooth bump along the arm: 0 outside `from` to `to`, 1 at `peak`, cosine on each side. */
-const bump = (x: number, from: number, peak: number, to: number): number => {
+const bump: (x: number, from: number, peak: number, to: number) => number = (x: number, from: number, peak: number, to: number): number => {
   if (x <= from || x >= to) return 0;
   const t: number =
     x < peak ? (x - from) / (peak - from) : (to - x) / (to - peak);
@@ -241,7 +248,7 @@ const bump = (x: number, from: number, peak: number, to: number): number => {
 };
 
 /** Piecewise linear interpolation over ascending knots, held beyond the ends. */
-const interpolate = (knots: Array<[number, number]>, x: number): number => {
+const interpolate: (knots: Array<[number, number]>, x: number) => number = (knots: Array<[number, number]>, x: number): number => {
   if (x <= knots[0]![0]) return knots[0]![1];
   for (let i: number = 1; i < knots.length; ++i) {
     const [x1, y1]: [number, number] = knots[i]!;

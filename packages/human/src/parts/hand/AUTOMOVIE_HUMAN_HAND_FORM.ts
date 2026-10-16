@@ -44,7 +44,6 @@ export const AUTOMOVIE_HUMAN_HAND_FORM: {
         readonly dip: 0.849;
         readonly thumb: 0.932;
     };
-    readonly besideWrist: 0.03;
     readonly circumference: 2.397;
     readonly dorsalFat: 4.34;
     readonly dorsalFatSuperficialShare: 0.11;
@@ -83,10 +82,6 @@ export const AUTOMOVIE_HUMAN_HAND_FORM: {
      * Joint depth over joint breadth. Greiner's joint circumferences, regressed on the joint breadths in a measured subsample, enclose the breadths as ellipses (Ramanujan's perimeter) whose other axis is this share: 0.89 to 1.02 at the proximal finger joints, 0.79 to 0.89 at the distal ones and 0.92 and 0.95 at the thumb's interphalangeal joint, pooled over the four fingers and both sexes. Grade: derived.
      */
     depth: { pip: 0.953, dip: 0.849, thumb: 0.932 },
-    /**
-     * Distance of the loop beside the wrist ring from it, over hand length. Conventional: close enough that the ring keeps its girth in the joined surface, far enough to leave the carpus to the palm's loops.
-     */
-    besideWrist: 0.03,
     /**
      * Hand circumference over metacarpales II and V over hand breadth, pooled over the ANSUR II means of 2.388 in women and 2.406 in men (Gordon et al. 2014, NATICK/TR-15/007). The palm's section at the heads is given the thickness at which its own perimeter equals this circumference. Grade: measured, ratio derived.
      */

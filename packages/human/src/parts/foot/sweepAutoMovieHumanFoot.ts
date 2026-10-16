@@ -9,7 +9,7 @@ import { quaternionFromAutoMovieBasis } from "@automovie/engine/math/quaternionF
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
-import { AUTOMOVIE_HUMAN_FOOT_COLLAR } from "./AUTOMOVIE_HUMAN_FOOT_COLLAR";
+import { measureAutoMovieHumanAnkleCollar } from "../../junction/measureAutoMovieHumanAnkleCollar";
 import { IAutoMovieHumanFootPlan } from "./IAutoMovieHumanFootPlan";
 import { solidAutoMovieHumanFoot } from "./solidAutoMovieHumanFoot";
 
@@ -95,7 +95,7 @@ export function sweepAutoMovieHumanFoot(props: {
     points: spinePoints,
     normal: V.of(0, 0, 1),
   });
-  const collar: number = (AUTOMOVIE_HUMAN_FOOT_COLLAR * L) / path.length;
+  const collar: number = (measureAutoMovieHumanAnkleCollar(L)) / path.length;
 
   // the sections: the ring's at the ring and its collar, then cuts of the solid at even spine parameters, the last two turned to the roots' plane
   const sectionOf: (

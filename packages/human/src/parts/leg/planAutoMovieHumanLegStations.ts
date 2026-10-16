@@ -3,6 +3,8 @@ import { IAutoMovieVector3 } from "@automovie/interface";
 import { AUTOMOVIE_HUMAN_THIGH_GIRTH } from "../../junction/AUTOMOVIE_HUMAN_THIGH_GIRTH";
 import { AutoMovieHumanSide } from "../../junction/AutoMovieHumanSide";
 import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
+import { measureAutoMovieHumanAnkleCollar } from "../../junction/measureAutoMovieHumanAnkleCollar";
+import { thighAutoMovieHumanCollar } from "../../junction/thighAutoMovieHumanCollar";
 import { shapeAutoMovieHumanRing } from "../../junction/shapeAutoMovieHumanRing";
 import { IAutoMovieHumanLandmarks } from "../../measure/IAutoMovieHumanLandmarks";
 import { IAutoMovieHumanMeasurements } from "../../measure/IAutoMovieHumanMeasurements";
@@ -18,7 +20,7 @@ import { IAutoMovieHumanLegStation } from "./IAutoMovieHumanLegStation";
 const CALF_LEVEL: number = 0.74;
 
 /**
- * Girths at levels no survey measures, as fractions of the measured ones: our fit of the section perimeters of the MakeHuman CC0 base mesh with its CC0 macro targets (hm08, released CC0 in September 2020) at the same fractions of thigh and shank length, aligned on our skeleton by the shared calibration harness, over eight people of both sexes, every build, 11, 30 and 80 years; means 0.981 (SD 0.012), 1.001 (SD 0.024) and 0.988 (SD 0.011). Grade: population-fitted to a synthetic reference.
+ * Girths at levels no survey measures, as fractions of the measured ones: fitted section perimeters of synthetic reference surfaces at the same fractions of thigh and shank length, aligned on the shared skeleton, over eight people of both sexes, every build, 11, 30 and 80 years; means 0.981 (SD 0.012), 1.001 (SD 0.024) and 0.988 (SD 0.011). Grade: fitted to synthetic references, not clinical population measurements.
  */
 const GIRTH: Record<"knee" | "belowKnee" | "upperCalf", number> = {
   /** Midpatella over suprapatella girth: the knee narrows below the vastus medialis. */
@@ -43,11 +45,6 @@ const SITE_FAT: Record<"furrow" | "lowerThigh" | "calf" | "ankle", number> = {
   calf: 0.879,
   ankle: 0.597,
 };
-
-/**
- * The thigh collar below the mid thigh ring, as a fraction of the way from the ring to suprapatella: close enough that the thigh tapers from it, far enough that its loop is a span of its own. Grade: conventional.
- */
-const COLLAR: number = 0.12;
 
 /** Stations that continue a junction ring straight; the station just above the ankle is the ankle's collar. */
 const COLLARS: Readonly<Record<string, "thigh" | "ankle">> = {
@@ -90,13 +87,13 @@ export function planAutoMovieHumanLegStations(props: {
   skeleton: IAutoMovieHumanSkeleton;
   side: AutoMovieHumanSide;
 }): planAutoMovieHumanLegStations.IOutput {
-  const { skeleton, side } = props;
+  const { skeleton, side }: typeof props = props;
   const identity: IAutoMovieHumanIdentity = props.measurements.identity;
   const leg: IAutoMovieHumanIdentity.ILeg =
     side === "left" ? identity.body.leftLeg : identity.body.rightLeg;
   const landmarks: IAutoMovieHumanLandmarks.ISide =
     side === "left" ? skeleton.landmarks.left : skeleton.landmarks.right;
-  const joint = (name: string): IAutoMovieVector3 => {
+  const joint: (name: string) => IAutoMovieVector3 = (name: string): IAutoMovieVector3 => {
     const found: IAutoMovieHumanSkeleton.IJoint | undefined =
       skeleton.joints.find(
         (j: IAutoMovieHumanSkeleton.IJoint): boolean =>
@@ -123,6 +120,9 @@ export function planAutoMovieHumanLegStations(props: {
     part: "leg",
   });
 
+  const thighCollar: ReturnType<typeof thighAutoMovieHumanCollar> = thighAutoMovieHumanCollar({ ...props, ring: thighRing });
+  const ankleSupport: number = measureAutoMovieHumanAnkleCollar(leg.footLength);
+
   // levels along the leg, as heights in the standing rest pose
   const top: number = thighRing.frame.origin.y;
   const bottom: number = ankleRing.frame.origin.y;
@@ -134,27 +134,28 @@ export function planAutoMovieHumanLegStations(props: {
     patella + AUTOMOVIE_HUMAN_THIGH_GIRTH.suprapatella * leg.thighLength;
   const calf: number =
     leg.ankleHeight + CALF_LEVEL * (tibiale - leg.ankleHeight);
-  const thighGirth = (height: number): number =>
+  const thighGirth: (height: number) => number = (height: number): number =>
     leg.lowerThighCircumference +
     (leg.thighCircumference - leg.lowerThighCircumference) *
       Math.pow(
         Math.max(0, (height - supra) / (furrow - supra)),
         AUTOMOVIE_HUMAN_THIGH_GIRTH.exponent,
       );
-  const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
+  const lerp: (a: number, b: number, t: number) => number = (a: number, b: number, t: number): number => a + (b - a) * t;
   const kneeGirth: number = GIRTH.knee * leg.lowerThighCircumference;
-  const calfToAnkle = (share: number): number =>
+  const calfToAnkle: (share: number) => number = (share: number): number =>
     lerp(leg.ankleCircumference, leg.calfCircumference, share);
   const levels: ILevel[] = [
     { name: "mid thigh", height: top },
-    { name: "thigh collar", height: lerp(top, supra, COLLAR) },
+    { name: "thigh collar", height: thighCollar.distal.y },
     { name: "lower thigh", height: lerp(top, supra, 0.38) },
     { name: "vastus medialis", height: lerp(top, supra, 0.72) },
     { name: "suprapatella", height: supra },
   ].map(
     (l: Pick<ILevel, "name" | "height">): ILevel => ({
       ...l,
-      girth: thighGirth(l.height),
+      // The collar is an exact extrusion of the shared ring, not a taper cut.
+      girth: l.name === "thigh collar" ? thighRing.girth : thighGirth(l.height),
       site: lerp(
         SITE_FAT.lowerThigh,
         SITE_FAT.furrow,
@@ -192,17 +193,18 @@ export function planAutoMovieHumanLegStations(props: {
       site: SITE_FAT.calf,
       count: 12,
     },
-    // share of the calf-to-ankle girth difference each level keeps, from the same MakeHuman fit:
-    // 0.715 (SD 0.050), 0.380 (SD 0.052) and 0.110 (SD 0.020)
+    // Share of the calf-to-ankle girth difference from the same synthetic-reference fit:
+    // 0.715 (SD 0.050) and 0.380 (SD 0.052). The two pinned ankle
+    // rows instead consume their shared ring's exact circumference.
     ...(
       [
-        ["lower calf", 0.62, 0.715, 12],
-        ["calcaneal tendon", 0.36, 0.38, 12],
-        ["above the ankle", 0.13, 0.11, 8],
-        ["ankle", 0, 0, 8],
+        ["lower calf", 0.62, calfToAnkle(0.715), 12],
+        ["calcaneal tendon", 0.36, calfToAnkle(0.38), 12],
+        ["above the ankle", ankleSupport / (calf - bottom), ankleRing.girth, 8],
+        ["ankle", 0, ankleRing.girth, 8],
       ] as const
     ).map(
-      ([name, at, share, count]: readonly [
+      ([name, at, girth, count]: readonly [
         string,
         number,
         number,
@@ -210,7 +212,7 @@ export function planAutoMovieHumanLegStations(props: {
       ]): ILevel => ({
         name,
         height: lerp(bottom, calf, at),
-        girth: calfToAnkle(share),
+        girth,
         site: lerp(SITE_FAT.ankle, SITE_FAT.calf, at),
         count,
       }),
@@ -236,7 +238,7 @@ export function planAutoMovieHumanLegStations(props: {
     ) /
     2 /
     (landmarks.trochanterion.position.y - knee.y);
-  const pointAt = (height: number): IAutoMovieVector3 =>
+  const pointAt: (height: number) => IAutoMovieVector3 = (height: number): IAutoMovieVector3 =>
     height >= knee.y
       ? AutoMovieHumanVector.offset(hip, [
           AutoMovieHumanVector.offset(knee, [hip, -1]),
@@ -254,9 +256,13 @@ export function planAutoMovieHumanLegStations(props: {
     (l: ILevel, i: number): IAutoMovieVector3 =>
       i === 0
         ? thighRing.frame.origin
-        : i === levels.length - 1
-          ? ankleRing.frame.origin
-          : pointAt(l.height),
+        : i === 1
+          ? thighCollar.distal
+          : i === levels.length - 1
+            ? ankleRing.frame.origin
+            : i === levels.length - 2
+              ? AutoMovieHumanVector.offset(ankleRing.frame.origin, [ankleRing.frame.normal, -ankleSupport])
+              : pointAt(l.height),
   );
   const stations: IAutoMovieHumanLegStation[] = levels.map(
     (l: ILevel, i: number): IAutoMovieHumanLegStation => {
@@ -283,7 +289,9 @@ export function planAutoMovieHumanLegStations(props: {
         [axis, lateralOfMidline.x * axis.x],
         [anterior, lateralOfMidline.x * anterior.x],
       );
-      const radius: number = l.girth / (2 * Math.PI);
+      const collar: "thigh" | "ankle" | null = COLLARS[l.name] ?? null;
+      const girth: number = l.girth;
+      const radius: number = girth / (2 * Math.PI);
       const area: number = Math.min(0.9, legFat * l.site);
       const fat: number = radius * (1 - Math.sqrt(1 - area));
       const section: (typeof AUTOMOVIE_HUMAN_LEG_SECTIONS)[string] =
@@ -297,14 +305,14 @@ export function planAutoMovieHumanLegStations(props: {
         medial: AutoMovieHumanVector.normalize(medialRaw),
         thigh: (l.height - knee.y) / (hip.y - knee.y),
         shank: (l.height - ankle.y) / (knee.y - ankle.y),
-        girth: l.girth,
+        girth,
         aspect: section.aspect[0] + (section.aspect[1] * fat) / radius,
         posterior: section.posterior[0] + (section.posterior[1] * fat) / radius,
         lateral:
           Math.max(0, shaftSlope * (l.height - knee.y)) +
           (section.lateral[0] + (section.lateral[1] * fat) / radius) * radius,
         fat,
-        collar: COLLARS[l.name] ?? null,
+        collar,
         count: l.count,
       };
     },
