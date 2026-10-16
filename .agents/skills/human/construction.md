@@ -8,7 +8,7 @@ The rest form is the T-pose, joints straight and no flesh folded. Convert each p
 
 ## Lofting
 
-Build continuous skin from curve networks: closed sections along an axis or bone chain, steered by silhouette guides and feature curves. Trunk sections lie level because anthropometry measures them level. The face is a curve network of loops around the eyes and mouth and feature lines, filled by patches. Choose separate meshes' representations by [Crafting](../3d-modeling/crafting.md#representation), such as textured cards for hair where their silhouette and motion hold.
+Build continuous skin from curve networks: closed sections along an axis or bone chain, steered by silhouette guides and feature curves. Apply [Lofting](../3d-modeling/lofting.md) to the section family and its fitting. Trunk sections lie level because anthropometry measures them level. The face is a curve network of loops around the eyes and mouth and feature lines, filled by patches. Choose separate meshes' representations by [Crafting](../3d-modeling/crafting.md#representation), such as textured cards for hair where their silhouette and motion hold.
 
 Block out a part's gross form before relief, bony landmarks, or aesthetic detail, at the scales body, region, masses, and borders.
 
@@ -18,7 +18,7 @@ A part is a region of one continuous mass. Cut only where the section is a simpl
 
 Apply [Modularization](../3d-modeling/modularization.md) to the source and the generated person.
 
-Refine each part alone, join parts only at junctions built on their control cages, subdivide the joined cage once, and judge the joined person.
+Refine each part alone, preserve the shared boundary and continuity definitions when joining, and judge the joined person. When using subdivision, build junctions on shared control cages and subdivide the joined cage once.
 
 Within a profile every identity shares one topology and one published UV layout.
 

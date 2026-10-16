@@ -8,6 +8,7 @@ description: Defines how 3D assets are built, by crafting them from dimensions a
 An asset is something the engine owns: built from code, reproducible, rigged when it moves, and judged on screen. The user chooses whether a form is crafted directly or rebuilt from a diffusion model's output:
 
 - Read [Crafting](crafting.md) when building or changing a form from dimensions and formulas.
+- Read [Lofting](lofting.md) when building or fitting a form from related sections and guides.
 - Read [Diffusion](diffusion.md) when a diffusion model's image or mesh is the source of a form.
 - Read [Modularization](modularization.md) when defining parts, groups, placements, or shared boundaries, whatever the asset's source.
 - Read [Visual Debugging](visual-debugging.md) before planning a correction or judging any visual result.

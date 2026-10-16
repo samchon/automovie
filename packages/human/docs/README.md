@@ -1,10 +1,10 @@
 # Human research workspace
 
-This folder keeps the Human rebuild's scientific sources, measurement protocols, reconstruction studies and rejected hypotheses. It is a developer research workspace; users read the package README and public declarations. The rebuild began in #2788 and #2791; [#2834](https://github.com/samchon/automovie/issues/2834) now owns continuation of PR #2829 on `feat/human-loft`.
+This folder keeps the Human rebuild's scientific sources, measurement protocols, reconstruction studies and rejected hypotheses. It is a developer research workspace; users read the package README and public declarations. The rebuild began in #2788 and #2791; [#2834](https://github.com/samchon/automovie/issues/2834) owns continuation after the checkpoint merged in PR #2829.
 
 ## Current checkpoint
 
-The source inventory below was checked at `758d17b5`. Preparing a checkpoint merge with remaining defects does not mean the joined body, human-looking face or complete campaign has passed visual acceptance. The current issue ledger owns outstanding observations and their exact capture sources; historical notes below retain their original experiment stages rather than silently becoming current results.
+The source inventory below was checked at `758d17b5` and delivered in checkpoint merge `a9118a0e`. The joined body, face and complete campaign remain visually unaccepted. The current issue ledger owns outstanding observations and their exact capture sources; historical notes retain their original experiment stages rather than silently becoming current results.
 
 | Implemented chain | Actual source and remaining boundary |
 | --- | --- |
@@ -16,7 +16,7 @@ The source inventory below was checked at `758d17b5`. Preparing a checkpoint mer
 | Appearance, pose and expression | `src/human/AutoMovieHuman.ts` emits joined or isolated skin, attachments, generated skin finish and hair cards. Joined skin still uses placeholder distance-based weights; pose admission/conversion exists, while `express()` returns neutral. Underwear and generated expression targets are not emitted by this assembly. |
 | Core capabilities | [Core survey](core/gaps.md) separates already implemented axes, skinning, morph drivers, gaze, images and materials from remaining proposals. |
 
-The supervisor retained gross acceptance for foot body/toes/nails and neck body, excluding ankle and jaw/nape junctions. Remaining responsibilities are tracked separately:
+The supervisor retained gross acceptance for foot body/toes/nails and neck body, excluding ankle and jaw/nape junctions. These are quality references for the redesign, not requirements to preserve their old representation. Remaining responsibilities are tracked separately:
 
 | Issues | Responsibility |
 | --- | --- |
@@ -29,6 +29,8 @@ The supervisor retained gross acceptance for foot body/toes/nails and neck body,
 ## Next representation experiment
 
 The proposed direction gives each part front, side and oblique contours plus physical sections, places them with relative frames/proportions, shares a small family of Bezier and oval rounding rules, and fits a low-dimensional set of named coefficients to reference meshes outside the package. This is a proposal for the next experiment, not an implemented or validated system. Existing fitting of subdivision controls to authored source curves is a different operation from fitting an anatomical parameter family to references.
+
+[Parametric curve families](techniques/parametric-curve-family.md) compares representations and proposes a bounded torso experiment with measurement feasibility, shared junction derivatives, identity holdout and source-to-displayed-skin checks. It also distinguishes lofts from primitives, sweeps, trims and booleans for general assets; no universal Bezier/loft rule or new acceptance threshold is adopted.
 
 Evaluate that proposal on actual final skin and shared junctions while preserving independent measurements and their protocols. Breadth, depth, tape girth, a fitted reference residual and a rendered contour do not substitute for one another. [Trunk](anatomy/trunk.md), [pelvis](anatomy/pelvis.md), [hand](techniques/hand-curve-network.md) and [face](anatomy/face-courses.md) notes preserve correspondence failures that a new representation must not repeat.
 
