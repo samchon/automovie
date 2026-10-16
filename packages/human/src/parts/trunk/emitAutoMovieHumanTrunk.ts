@@ -26,18 +26,29 @@ export function emitAutoMovieHumanTrunk(
 ): IAutoMovieHumanCage {
   const positions: number[] = sampled.cage.positions;
   const vertices: IAutoMovieHumanCage.IVertex[] = [];
-  for (let k: number = 0; k < positions.length; k += 3)
+  function modelSample(k: number): IAutoMovieHumanCage.IVertex["position"] {
+    return {
+      x: AutoMovieHumanTrunkSweep.millimetres(sampled.targets[k]!),
+      y: AutoMovieHumanTrunkSweep.millimetres(sampled.targets[k + 1]!),
+      z: AutoMovieHumanTrunkSweep.millimetres(sampled.targets[k + 2]!),
+    };
+  }
+  for (let k: number = 0; k < positions.length; k += 3) {
+    const sample: IAutoMovieHumanCage.IVertex["position"] = modelSample(k);
     vertices.push({
+      fitting: { sample, target: sampled.limitTargetMask[k / 3] ? { ...sample } : null, anchor: sampled.pinned[k / 3]! },
       position: {
         x: AutoMovieHumanTrunkSweep.millimetres(positions[k]!),
         y: AutoMovieHumanTrunkSweep.millimetres(positions[k + 1]!),
         z: AutoMovieHumanTrunkSweep.millimetres(positions[k + 2]!),
       },
     });
+  }
   const patches: IAutoMovieSurfaceNetwork.IPatch[] = network.value.patches;
   const faces: IAutoMovieHumanCage.IFace[] = sampled.cage.faces.map(
     (face: number[], f: number): IAutoMovieHumanCage.IFace => ({
       vertices: [face[0]!, face[1]!, face[2]!, face[3]!],
+      fitting: /^(upper\.patch\.|(?:left|right)Shoulder|join(?:Left|Right)Shoulder)/.test(patches[sampled.corners[f]![0].patch]!.name) ? "upper" : undefined,
       coordinates: unwrap(
         sampled.corners[f]!.map(
           (

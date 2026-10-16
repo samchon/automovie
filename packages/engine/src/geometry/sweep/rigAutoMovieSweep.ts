@@ -43,15 +43,15 @@ import { transportAutoMovieSweepSpine } from "./transportAutoMovieSweepSpine";
  * @param props.binding Bone indices of its spine points and stations, as `IAutoMovieSweepBinding` names them; omitted, the sweep stays at rest.
  * @param props.preserveVolume Whether posing restores the rest volume at joint stations.
  * @returns The rig, open for registration.
- * @throws Error when `compileAutoMovieSweep` refuses the sweep, the binding does not align with it, or a slot is registered after `seal`; and from `pose` whatever the spine transport refuses.
+ * @throws Error when `compileAutoMovieSweep` refuses the sweep, the binding does not align with it, a slot is registered after `seal`, or a probe cell is negative or nonfinite; and from `pose` whatever the spine transport refuses.
  *
  * @evidence contracts/common.md#principled-implementation Sweep-based deformation (Hyun et al. 2005, The Visual Computer 21(8-10):542-550): key sections ride their links or turn halfway at joints, the centre curve and orientations are re-interpolated, and the joint section is rescaled to the rest volume; split into its pose-invariant shape and its per-pose frames and scale.
  * @evidence contracts/common.md#clear-and-simple-design The spine, orientation, volume and secant are the kernels `compileAutoMovieSweep`, `measureAutoMovieSweepVolume` and `poseAutoMovieSweep` use, so the rig and the record path compute the same surface.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Bindings that do not align with the sweep are refused, and volume preservation changes only the joint stations' scale.
  * @evidence contracts/common.md#meaningful-documentation States the rest and posed rules, the volume rule and its sources, and every refusal.
- * @evidence contracts/performance.md#efficient-algorithms Compile: one sweep compile, O(1) per registered slot, and for volume preservation the 400 x 256 section moments and the rest volume summed from them. Pose, for N spine points, S stations, F planes, P probes and K scale knots: O(N) transport plus 64 (N - 1) reflections, O(S) orientation, O(F + 3P) plane queries and, with volume preservation, 801 more planes and at most ten volume sums of O(400 + K); nothing allocates.
+ * @evidence contracts/performance.md#efficient-algorithms Compile: one sweep compile, O(1) per registered slot, and for volume preservation the 400 x 256 section moments and the rest volume summed from them. Pose, for N spine points, S stations, F registered planes, L registered scale slots, P probes and K scale knots: O(N) transport plus 64 (N - 1) reflections, O(S) orientation, O(F) plane queries and O(P) four-point probe writes and, with volume preservation, 801 more planes and at most ten volume sums of O(400 + K), plus O(L) scale refresh; nothing allocates. Each probe registers four sample writers, up to 36 shape reads, at most three frame slots and nine scale slots before deduplication. These differentiate the same fixed footprint at four neighbouring parameters; they do not differentiate changes of footprint size across the network.
  * @evidence contracts/performance.md#reuse-equivalent-work Shapes, rest planes, section moments and the rest volume are computed once; a pose recomputes only what bones move.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Retains the compiled surface, 12 F + S + 6 P numbers twice (current and rest), 14 numbers per probe, and when bound the spine buffers of `transportAutoMovieSweepSpine`, 4 S rest planes and, for volume preservation, 1,200 moments, 801 planes and O(K) profile arrays; all sized by `seal` and released with the rig.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Retains the compiled surface, F + L registered parameter numbers and their map entries, 24 F frame numbers, three L scale arrays and 6 P probe outputs, plus four sample writers and one span per probe (each writer retains one frame slot, one to three scale slots and their two weighted coordinate arrays), and when bound the spine buffers of `transportAutoMovieSweepSpine`, 4 S rest planes and, for volume preservation, 1,200 moments, 801 planes and O(K) profile arrays; all sized by `seal` and released with the rig.
  */
 export const rigAutoMovieSweep: (props: {
   sweep: IAutoMovieSweep;
@@ -62,7 +62,7 @@ export const rigAutoMovieSweep: (props: {
   binding?: { points: number[]; stations: number[][] };
   preserveVolume: boolean;
 }): IAutoMovieSweepRig => {
-  const { sweep, binding } = props;
+  const { sweep, binding }: Pick<typeof props, "sweep" | "binding"> = props;
   const surface: IAutoMovieSweepSurface = compileAutoMovieSweep(sweep);
   if (binding !== undefined) {
     if (binding.points.length !== sweep.spine.points.length)
@@ -74,17 +74,13 @@ export const rigAutoMovieSweep: (props: {
   const scaleAt: Map<number, number> = new Map();
   const frameU: number[] = [];
   const scaleU: number[] = [];
-  // per probe: frame slots of u, u - step and u + step, scale slots likewise, the step span, and four shaped points
-  const probeData: number[] = [];
+  // Four writers share one fixed cell per probe; their frame/scale slots are deduplicated with all other samples.
+  const probeWriters: IProbe[] = [];
   let sealed: boolean = false;
-  const open = (): void => {
+  function open(): void {
     if (sealed) throw new Error("a sweep rig takes no slot after it is sealed");
-  };
-  const slot = (
-    at: Map<number, number>,
-    list: number[],
-    input: number,
-  ): number => {
+  }
+  function slot(at: Map<number, number>, list: number[], input: number): number {
     open();
     const u: number = Math.min(1, Math.max(0, input));
     let s: number | undefined = at.get(u);
@@ -94,44 +90,36 @@ export const rigAutoMovieSweep: (props: {
       at.set(u, s);
     }
     return s;
-  };
-  const frame = (u: number): number => slot(frameAt, frameU, u);
-  const scale = (u: number): number => slot(scaleAt, scaleU, u);
+  }
+  function frame(u: number): number { return slot(frameAt, frameU, u); }
+  function scale(u: number): number { return slot(scaleAt, scaleU, u); }
   // the section point before the scale profile
-  const shaped = (u: number, v: number): IAutoMovieSweepSection.IPoint => {
+  function shaped(u: number, v: number): IAutoMovieSweepSection.IPoint {
     const p: IAutoMovieSweepSection.IPoint = surface.section(u, v);
     const k: number = surface.scale(u);
     return { x: p.x / k, y: p.y / k };
-  };
-  const probe = (u: number, v: number): number => {
+  }
+  function probe(u: number, v: number, cell: readonly [number, number, number, number] = [0, 0, 0, 0]): number {
     open();
+    if (!cell.every((value: number): boolean => Number.isFinite(value) && value >= 0))
+      throw new Error("a sweep probe cell must be finite and nonnegative");
     const step: number = surface.step;
     const a: number = Math.max(0, u - step);
     const b: number = Math.min(1, u + step);
-    const points: IAutoMovieSweepSection.IPoint[] = [
-      shaped(u, v + step),
-      shaped(u, v - step),
-      shaped(a, v),
-      shaped(b, v),
-    ];
-    probeData.push(
-      frame(u),
-      frame(a),
-      frame(b),
-      scale(u),
-      scale(a),
-      scale(b),
-      b - a,
-    );
-    for (const p of points) probeData.push(p.x, p.y);
-    return probeData.length / 15 - 1;
-  };
+    const slot: number = probeWriters.length;
+    probeWriters.push({
+      points: [
+        sample(u, v + step, cell),
+        sample(u, v - step, cell),
+        sample(a, v, cell),
+        sample(b, v, cell),
+      ],
+      span: b - a,
+    });
+    return slot;
+  }
 
-  const sample = (
-    u: number,
-    v: number,
-    cell: readonly [number, number, number, number],
-  ): ((out: Float64Array, at: number) => void) => {
+  function sample(u: number, v: number, cell: readonly [number, number, number, number]): ((out: Float64Array, at: number) => void) {
     const f: number = 12 * frame(u);
     const slots: number[] = [];
     const xs: number[] = [];
@@ -143,7 +131,7 @@ export const rigAutoMovieSweep: (props: {
       ys.push(p.y);
     } else {
       // the trapezoid rule over the cell from half the spacing below to half the spacing above, each axis
-      const tent = (below: number, above: number): number[][] => {
+      function tent(below: number, above: number): number[][] {
         const total: number = below + above;
         return total === 0
           ? [[0, 1]]
@@ -152,7 +140,7 @@ export const rigAutoMovieSweep: (props: {
               [0, 0.5],
               [above / 2, above / (2 * total)],
             ];
-      };
+      }
       const angle: number = 2 * Math.PI * v;
       for (const [du, wu] of tent(cell[0], cell[1])) {
         const at: number = Math.min(1, Math.max(0, u + du!));
@@ -181,7 +169,7 @@ export const rigAutoMovieSweep: (props: {
           rig.frames[f + c]! +
           (rig.frames[f + 3 + c]! * px + rig.frames[f + 6 + c]! * py);
     };
-  };
+  }
 
   const rig: IAutoMovieSweepRig = {
     surface,
@@ -200,53 +188,14 @@ export const rigAutoMovieSweep: (props: {
   // the girth factor of each scale slot, 1 until a network sets it
   let girth: Float64Array = new Float64Array(0);
   let restScales: Float64Array = new Float64Array(0);
-  // a section point of a probe at a frame and scale slot, written at scratch[o]
+  // Four geometric finite-difference points, evaluated after frames and scales refresh.
   const scratch: Float64Array = new Float64Array(12);
-  const place = (
-    f: number,
-    s: number,
-    x: number,
-    y: number,
-    o: number,
-  ): void => {
-    const k: number = rig.scales[s]!;
-    for (let a: number = 0; a < 3; ++a)
-      scratch[o + a] =
-        rig.frames[12 * f + a]! +
-        k * (x * rig.frames[12 * f + 3 + a]! + y * rig.frames[12 * f + 6 + a]!);
-  };
-  const probeAll = (): void => {
-    for (let p: number = 0; p < probeData.length / 15; ++p) {
-      const d: number = 15 * p;
-      const span: number = probeData[d + 6]!;
-      place(
-        probeData[d]!,
-        probeData[d + 3]!,
-        probeData[d + 7]!,
-        probeData[d + 8]!,
-        0,
-      );
-      place(
-        probeData[d]!,
-        probeData[d + 3]!,
-        probeData[d + 9]!,
-        probeData[d + 10]!,
-        3,
-      );
-      place(
-        probeData[d + 1]!,
-        probeData[d + 4]!,
-        probeData[d + 11]!,
-        probeData[d + 12]!,
-        6,
-      );
-      place(
-        probeData[d + 2]!,
-        probeData[d + 5]!,
-        probeData[d + 13]!,
-        probeData[d + 14]!,
-        9,
-      );
+  function probeAll(): void {
+    for (let p: number = 0; p < probeWriters.length; ++p) {
+      const definition: IProbe = probeWriters[p]!;
+      const span: number = definition.span;
+      for (let k: number = 0; k < 4; ++k)
+        definition.points[k]!(scratch, 3 * k);
       // around: the v difference; along: the u difference over its span
       const rx: number = scratch[0]! - scratch[3]!;
       const ry: number = scratch[1]! - scratch[4]!;
@@ -266,12 +215,8 @@ export const rigAutoMovieSweep: (props: {
       rig.probes[o + 4] = ay;
       rig.probes[o + 5] = az;
     }
-  };
-  const writeFrame = (
-    f: IAutoMovieSweepFrame,
-    out: Float64Array,
-    at: number,
-  ): void => {
+  }
+  function writeFrame(f: IAutoMovieSweepFrame, out: Float64Array, at: number): void {
     [f.origin, f.x, f.y, f.normal].forEach(
       (v: IAutoMovieVector3, k: number): void => {
         out[at + 3 * k] = v.x;
@@ -279,7 +224,7 @@ export const rigAutoMovieSweep: (props: {
         out[at + 3 * k + 2] = v.z;
       },
     );
-  };
+  }
 
   rig.seal = (): void => {
     open();
@@ -288,7 +233,7 @@ export const rigAutoMovieSweep: (props: {
     rig.scales = Float64Array.from(scaleU, (u: number): number =>
       surface.scale(u),
     );
-    rig.probes = new Float64Array(6 * (probeData.length / 15));
+    rig.probes = new Float64Array(6 * probeWriters.length);
     frameU.forEach((u: number, s: number): void =>
       writeFrame(surface.frame(u), rig.frames, 12 * s),
     );
@@ -319,10 +264,10 @@ export const rigAutoMovieSweep: (props: {
   };
 
   // the posed sweep: spine, orientation and, with joint stations, volume
-  const bind = (bones: {
+  function bind(bones: {
     points: number[];
     stations: number[][];
-  }): ((motion: IAutoMovieBoneBuffer | null) => void) => {
+  }): ((motion: IAutoMovieBoneBuffer | null) => void) {
     const n: number = sweep.spine.points.length;
     const s: number = sweep.stations.length;
     const transport: IAutoMovieSweepTransport = transportAutoMovieSweepSpine(
@@ -421,13 +366,10 @@ export const rigAutoMovieSweep: (props: {
       if (volume !== null) volume(motion);
       probeAll();
     };
-  };
+  }
 
   // volume preservation: the joint factor settled against the rest volume, then every scale slot from its profile
-  const preserve = (
-    orientation: IAutoMovieSweepOrientation,
-    joints: boolean[],
-  ): ((motion: IAutoMovieBoneBuffer) => void) => {
+  function preserve(orientation: IAutoMovieSweepOrientation, joints: boolean[]): ((motion: IAutoMovieBoneBuffer) => void) {
     const moments: Float64Array = momentAutoMovieSweepSections(surface);
     const steps: number = moments.length / 3;
     const planes: Float64Array = new Float64Array(12 * (2 * steps + 1));
@@ -481,7 +423,7 @@ export const rigAutoMovieSweep: (props: {
     const curvature: Float64Array = new Float64Array(knots.length);
     const work: Float64Array = new Float64Array(7 * knots.length + 17);
     let tension: number = 0;
-    const profile = (factor: number): void => {
+    function profile(factor: number): void {
       for (let k: number = 0; k < knots.length; ++k)
         values[k] = base[k]! * (joint[k] === 1 ? factor : 1);
       tension = AutoMovieSpline.fit(
@@ -492,9 +434,8 @@ export const rigAutoMovieSweep: (props: {
         curvature,
         work,
       );
-    };
-    const at = (u: number): number =>
-      AutoMovieSpline.evaluate(
+    }
+    function at(u: number): number { return AutoMovieSpline.evaluate(
         knots,
         values,
         curvature,
@@ -502,13 +443,13 @@ export const rigAutoMovieSweep: (props: {
         0,
         tension,
         u,
-      );
-    const volume = (factor: number): number => {
+      ); }
+    function volume(factor: number): number {
       profile(factor);
       for (let i: number = 0; i < steps; ++i)
         middles[i] = at((i + 0.5) / steps);
       return integrateAutoMovieSweepVolume(moments, middles, planes);
-    };
+    }
     return (): void => {
       for (let j: number = 0; j <= 2 * steps; ++j)
         orientation.frame(j / (2 * steps), planes, 12 * j);
@@ -516,6 +457,12 @@ export const rigAutoMovieSweep: (props: {
       for (let k: number = 0; k < scaleU.length; ++k)
         rig.scales[k] = at(scaleU[k]!) * girth[k]!;
     };
-  };
+  }
   return rig;
 };
+
+/** One fixed-footprint differential probe; writers own only precompiled sampling terms. */
+interface IProbe {
+  points: Array<(out: Float64Array, at: number) => void>;
+  span: number;
+}

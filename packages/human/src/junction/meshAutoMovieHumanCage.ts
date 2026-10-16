@@ -10,6 +10,7 @@ import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 import { AutoMovieHumanUvLayout } from "./AutoMovieHumanUvLayout";
 import { IAutoMovieHumanCage } from "./IAutoMovieHumanCage";
 import { IAutoMovieHumanSurfaceCoordinate } from "./IAutoMovieHumanSurfaceCoordinate";
+import { fitAutoMovieHumanCage } from "./fitAutoMovieHumanCage";
 
 /**
  * Subdivide a skin cage once with the engine's Catmull-Clark and turn the limit surface into a render mesh.
@@ -24,7 +25,7 @@ import { IAutoMovieHumanSurfaceCoordinate } from "./IAutoMovieHumanSurfaceCoordi
  * @param props.relief Displacement, millimetres, outward positive, at a vertex's chart address and rest limit position in millimetres; omitted, none
  * @returns The mesh, without skin, and the parameter of each render vertex on the cage
  */
-export const meshAutoMovieHumanCage = (props: {
+export function meshAutoMovieHumanCage(props: {
   cage: IAutoMovieHumanCage;
   levels: number;
   domain: string;
@@ -32,7 +33,7 @@ export const meshAutoMovieHumanCage = (props: {
     coordinate: IAutoMovieHumanSurfaceCoordinate;
     position: IAutoMovieVector3;
   }) => number;
-}): meshAutoMovieHumanCage.IOutput => {
+}): meshAutoMovieHumanCage.IOutput {
   const uvs: number[] = [];
   const uvFaces: number[][] = [];
   const index: Map<string, number> = new Map();
@@ -66,17 +67,14 @@ export const meshAutoMovieHumanCage = (props: {
     ]),
     uvs,
     uvFaces,
-    creases: props.cage.creases.map((c: IAutoMovieHumanCage.ICrease) => ({
+    creases: props.cage.creases.map((c: IAutoMovieHumanCage.ICrease): NonNullable<IAutoMovieSubdivisionCage["creases"]>[number] => ({
       from: c.edge[0],
       to: c.edge[1],
       sharpness: c.sharpness,
     })),
   };
-  const smooth: IAutoMovieSubdivisionSurface = subdivideAutoMovieSurface({
-    cage,
-    levels: props.levels,
-  });
-  const relief = props.relief;
+  const smooth: IAutoMovieSubdivisionSurface = fitAutoMovieHumanCage({ source: props.cage, cage, levels: props.levels }) ?? subdivideAutoMovieSurface({ cage, levels: props.levels });
+  const relief: typeof props.relief = props.relief;
   const surface: IAutoMovieSubdivisionSurface =
     relief === undefined
       ? smooth
@@ -100,7 +98,7 @@ export const meshAutoMovieHumanCage = (props: {
   const sources: number[] = [];
   const indices: number[] = [];
   const split: Map<string, number> = new Map();
-  const corner = (c: number): number => {
+  function corner(c: number): number {
     const v: number = surface.faces[c]!;
     const n: number = surface.normalFaces[c]!;
     const t: number = surface.uvFaces === null ? -1 : surface.uvFaces[c]!;
@@ -124,7 +122,7 @@ export const meshAutoMovieHumanCage = (props: {
         meshUvs.push(surface.uvs![2 * t]!, surface.uvs![2 * t + 1]!);
     }
     return found;
-  };
+  }
   for (let f: number = 0; f < surface.faces.length; f += 4) {
     const [a, b, c, d]: number[] = [
       corner(f),
@@ -144,7 +142,7 @@ export const meshAutoMovieHumanCage = (props: {
       physicalVertices: {
         sources: Array.from(
           { length: surface.limitPositions.length / 3 },
-          (_: unknown, id: number) => ({ domain: props.domain, id }),
+          (_: unknown, id: number): { domain: string; id: number } => ({ domain: props.domain, id }),
         ),
         vertices: sources,
       },
@@ -152,12 +150,9 @@ export const meshAutoMovieHumanCage = (props: {
     vertices: sources,
     surface,
   };
-};
+}
 /** A subdivided vertex's chart address: the bilinear blend of its cage face's corner addresses at its face coordinates, the corners of one face lying on one chart. */
-const addressOf = (
-  cage: IAutoMovieHumanCage,
-  at: IAutoMovieSubdivisionParameter,
-): IAutoMovieHumanSurfaceCoordinate => {
+function addressOf(cage: IAutoMovieHumanCage, at: IAutoMovieSubdivisionParameter): IAutoMovieHumanSurfaceCoordinate {
   const corners: IAutoMovieHumanCage.IFace["coordinates"] =
     cage.faces[at.face]!.coordinates;
   const w: [number, number, number, number] = [
@@ -166,20 +161,17 @@ const addressOf = (
     at.u * at.v,
     (1 - at.u) * at.v,
   ];
-  const blend = (
-    read: (c: IAutoMovieHumanSurfaceCoordinate) => number,
-  ): number =>
-    corners.reduce(
+  function blend(read: (c: IAutoMovieHumanSurfaceCoordinate) => number): number { return corners.reduce(
       (sum: number, c: IAutoMovieHumanSurfaceCoordinate, k: number): number =>
         sum + w[k]! * read(c),
       0,
-    );
+    ); }
   return {
     ...corners[0],
     u: blend((c: IAutoMovieHumanSurfaceCoordinate): number => c.u),
     v: blend((c: IAutoMovieHumanSurfaceCoordinate): number => c.v),
   } as IAutoMovieHumanSurfaceCoordinate;
-};
+}
 
 /** Output type of {@link meshAutoMovieHumanCage}. */
 export namespace meshAutoMovieHumanCage {

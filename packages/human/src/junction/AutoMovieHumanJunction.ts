@@ -17,8 +17,8 @@ export class AutoMovieHumanJunction implements IAutoMovieHumanJunction {
    * @throws {Error} When either cage lacks the site's ring, the rings break the site's definition, or the ring vertices do not pair
    */
   public join(props: IAutoMovieHumanJunction.IProps): IAutoMovieHumanCage {
-    const definition = AUTOMOVIE_HUMAN_RINGS[props.site];
-    const find = (cage: IAutoMovieHumanCage, role: string): number => {
+    const definition: typeof AUTOMOVIE_HUMAN_RINGS[typeof props.site] = AUTOMOVIE_HUMAN_RINGS[props.site];
+    function find(cage: IAutoMovieHumanCage, role: string): number {
       const index: number = cage.rings.findIndex(
         (r: IAutoMovieHumanRing): boolean =>
           r.site === props.site && r.side === props.side,
@@ -36,7 +36,7 @@ export class AutoMovieHumanJunction implements IAutoMovieHumanJunction {
           `${role} ${props.site} ring has ${ring.vertices.length} vertices from ${ring.start}; the site fixes ${definition.count} from ${definition.start}`,
         );
       return index;
-    };
+    }
     const pi: number = find(props.proximal, "proximal");
     const di: number = find(props.distal, "distal");
     const proximal: IAutoMovieHumanRing = props.proximal.rings[pi]!;
@@ -46,6 +46,7 @@ export class AutoMovieHumanJunction implements IAutoMovieHumanJunction {
     const vertices: IAutoMovieHumanCage.IVertex[] = props.proximal.vertices.map(
       (v: IAutoMovieHumanCage.IVertex): IAutoMovieHumanCage.IVertex => ({
         position: { ...v.position },
+        fitting: v.fitting === undefined ? undefined : structuredClone(v.fitting),
       }),
     );
     const map: number[] = new Array<number>(props.distal.vertices.length).fill(
@@ -58,8 +59,10 @@ export class AutoMovieHumanJunction implements IAutoMovieHumanJunction {
       if (map[d] !== -1)
         throw new Error(`distal ${props.site} ring repeats a vertex`);
       map[d] = p;
-      const a = props.proximal.vertices[p]!.position;
-      const b = props.distal.vertices[d]!.position;
+      if (vertices[p]!.fitting === undefined && props.distal.vertices[d]!.fitting !== undefined)
+        vertices[p]!.fitting = structuredClone(props.distal.vertices[d]!.fitting);
+      const a: IAutoMovieHumanCage.IVertex["position"] = props.proximal.vertices[p]!.position;
+      const b: IAutoMovieHumanCage.IVertex["position"] = props.distal.vertices[d]!.position;
       worst = Math.max(worst, Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z));
     }
     if (worst > TOLERANCE)
@@ -70,38 +73,40 @@ export class AutoMovieHumanJunction implements IAutoMovieHumanJunction {
       (v: IAutoMovieHumanCage.IVertex, i: number): void => {
         if (map[i] !== -1) return;
         map[i] = vertices.length;
-        vertices.push({ position: { ...v.position } });
+        vertices.push({ position: { ...v.position }, fitting: v.fitting === undefined ? undefined : structuredClone(v.fitting) });
       },
     );
-    const remap = (i: number): number => map[i]!;
+    function remap(i: number): number { return map[i]!; }
     return {
       vertices,
       faces: [
         ...props.proximal.faces.map(
           (f: IAutoMovieHumanCage.IFace): IAutoMovieHumanCage.IFace => ({
+            fitting: f.fitting,
             vertices: [...f.vertices],
-            coordinates: f.coordinates.map((c) => ({
+            coordinates: f.coordinates.map((c: IAutoMovieHumanCage.IFace["coordinates"][number]): IAutoMovieHumanCage.IFace["coordinates"][number] => ({
               ...c,
             })) as IAutoMovieHumanCage.IFace["coordinates"],
           }),
         ),
         ...props.distal.faces.map(
           (f: IAutoMovieHumanCage.IFace): IAutoMovieHumanCage.IFace => ({
+            fitting: f.fitting,
             vertices: f.vertices.map(
               remap,
             ) as IAutoMovieHumanCage.IFace["vertices"],
-            coordinates: f.coordinates.map((c) => ({
+            coordinates: f.coordinates.map((c: IAutoMovieHumanCage.IFace["coordinates"][number]): IAutoMovieHumanCage.IFace["coordinates"][number] => ({
               ...c,
             })) as IAutoMovieHumanCage.IFace["coordinates"],
           }),
         ),
       ],
       creases: [
-        ...props.proximal.creases.map((c: IAutoMovieHumanCage.ICrease) => ({
+        ...props.proximal.creases.map((c: IAutoMovieHumanCage.ICrease): IAutoMovieHumanCage.ICrease => ({
           edge: [...c.edge] as [number, number],
           sharpness: c.sharpness,
         })),
-        ...props.distal.creases.map((c: IAutoMovieHumanCage.ICrease) => ({
+        ...props.distal.creases.map((c: IAutoMovieHumanCage.ICrease): IAutoMovieHumanCage.ICrease => ({
           edge: [remap(c.edge[0]), remap(c.edge[1])] as [number, number],
           sharpness: c.sharpness,
         })),

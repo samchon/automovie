@@ -1,3 +1,4 @@
+import { generateAutoMovieHumanRest } from "./generateAutoMovieHumanRest";
 import { IAutoMovieExpression, IAutoMovieImage, IAutoMovieMaterial, IAutoMovieModel, IAutoMovieModelPart, IAutoMoviePose, IAutoMovieSkeleton, } from "@automovie/interface";
 import { IValidation } from "typia";
 import { dressAutoMovieHumanNails } from "../appearance/dressAutoMovieHumanNails";
@@ -30,10 +31,10 @@ import { AUTOMOVIE_HUMAN_PART_GENERATORS } from "./AUTOMOVIE_HUMAN_PART_GENERATO
 import { AUTOMOVIE_HUMAN_SKIN_MATERIAL } from "./AUTOMOVIE_HUMAN_SKIN_MATERIAL";
 import { IAutoMovieHumanPartGenerators } from "./IAutoMovieHumanPartGenerators";
 import { emitAutoMovieHumanAttachments } from "./emitAutoMovieHumanAttachments";
-import { emitAutoMovieHumanSkin } from "./emitAutoMovieHumanSkin";
+
 import { emitAutoMovieHumanSkinParts } from "./emitAutoMovieHumanSkinParts";
 import { generateAutoMovieHumanCages } from "./generateAutoMovieHumanCages";
-import { inspectAutoMovieHumanConstruction } from "./inspectAutoMovieHumanConstruction";
+
 /**
  * One person, generated from a detailed identity by code: the skeleton, the model films use, posing and expression.
  *
@@ -63,6 +64,9 @@ export class AutoMovieHuman {
     private readonly measurements_: IAutoMovieHumanMeasurements;
     private readonly skeleton_: IAutoMovieHumanSkeleton;
     private readonly generators_: IAutoMovieHumanPartGenerators;
+    private rest_: Partial<Record<"parts" | "joined", ReturnType<typeof generateAutoMovieHumanRest>>> = {};
+    private cages_: ReturnType<typeof generateAutoMovieHumanCages> | undefined;
+    private inspectionAssembly_: "parts" | "joined" = "parts";
     /**
      * Build a person from a detailed identity.
      *
@@ -117,11 +121,12 @@ export class AutoMovieHuman {
     /**
      * The construction net of every lofted part, for inspecting how its surface was built: each sweep's spine, stations, guides and features, the network's curves, the part's rings and its control cage, in the model frame at rest, metres. It is a debug output, never part of the model.
      *
-     * @returns One net per lofted part instance
+     * @param props.assembly Assembly to inspect; omitted, the last successfully emitted model assembly, or parts before the first model.
+   * @returns One net per lofted part instance
      */
-    public inspect(): IAutoMovieHumanConstructionNet[] {
-        return inspectAutoMovieHumanConstruction(generateAutoMovieHumanCages(this.measurements_, this.skeleton_, this.generators_));
-    }
+    public inspect(props: { assembly?: "parts" | "joined" } = {}): IAutoMovieHumanConstructionNet[] {
+ return structuredClone(this.rest(props.assembly ?? this.inspectionAssembly_).construction);
+}
     /**
      * The skeleton's measurements, taken in the anthropometric posture.
      *
@@ -149,14 +154,7 @@ export class AutoMovieHuman {
         if (admitted.success === false)
             throw new AutoMovieHumanAdmissionError("appearance", admitted.errors);
         const stick: emitAutoMovieHumanStick.IOutput = emitAutoMovieHumanStick(this.skeleton_, this.measurements_.identity.body.stature);
-        const skin: ReturnType<typeof emitAutoMovieHumanSkinParts> = props.assembly === "joined"
-            ? {
-                parts: [
-                    emitAutoMovieHumanSkin(this.measurements_, this.skeleton_, 2, this.generators_),
-                ],
-                materials: [AUTOMOVIE_HUMAN_SKIN_MATERIAL],
-            }
-            : emitAutoMovieHumanSkinParts(this.measurements_, this.skeleton_, 2, this.generators_);
+        const skin: Pick<ReturnType<typeof emitAutoMovieHumanSkinParts>, "parts" | "materials"> = { parts: structuredClone(this.rest(props.assembly ?? "parts").parts), materials: [AUTOMOVIE_HUMAN_SKIN_MATERIAL] };
         const attachments: ReturnType<typeof emitAutoMovieHumanAttachments> = emitAutoMovieHumanAttachments(this.measurements_, this.skeleton_, 2, this.generators_, skin.parts);
         // the appearance decides the skin's material in place of the parts' placeholder
         const dressed: ReturnType<typeof dressAutoMovieHumanSkin> = dressAutoMovieHumanSkin({
@@ -181,7 +179,8 @@ export class AutoMovieHuman {
             ...dressed.images,
             ...hair.images,
         ];
-        return {
+        this.inspectionAssembly_ = props.assembly ?? "parts";
+return {
             id: this.id_,
             name: null,
             origin: "generated",
@@ -241,6 +240,13 @@ export class AutoMovieHuman {
     private skeletonId(): string {
         return `${this.id_}.skeleton`;
     }
+
+ /** Immutable source cages and at most two assembly-specific rest results, retained by this person; failures are not cached. */
+ private rest(assembly: "parts" | "joined"): ReturnType<typeof generateAutoMovieHumanRest> {
+   this.cages_ ??= generateAutoMovieHumanCages(this.measurements_, this.skeleton_, this.generators_);
+   this.rest_[assembly] ??= generateAutoMovieHumanRest(this.measurements_, this.skeleton_, this.generators_, assembly, this.cages_);
+   return this.rest_[assembly]!;
+ }
 }
 export namespace AutoMovieHuman {
     /**
@@ -274,3 +280,4 @@ export namespace AutoMovieHuman {
         parts?: Partial<IAutoMovieHumanPartGenerators>;
     }
 }
+

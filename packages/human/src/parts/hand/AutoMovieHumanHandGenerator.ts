@@ -29,66 +29,86 @@ export class AutoMovieHumanHandGenerator implements IAutoMovieHumanPartGenerator
      * @param props Measurements, skeleton and the side of the hand
      * @returns Cage in the skeleton's model frame and millimetres, with the `wrist` ring
      */
-    public generate(props: IAutoMovieHumanPartGenerator.IProps<"hand">): IAutoMovieHumanCage {
-        const lofted: loftAutoMovieHumanHand.IOutput = loftAutoMovieHumanHand(props);
-        const hand: readAutoMovieHumanHand.IHand = lofted.hand;
-        // the hand frame is right-handed in the model only on the right hand
-        const keep: boolean = hand.mirrored;
-        return {
-            vertices: lofted.positions.map((p: IAutoMovieVector3): IAutoMovieHumanCage.IVertex => ({
-                position: model(hand, p),
-            })),
-            faces: lofted.faces.map((face: loftAutoMovieHumanHand.IFace): IAutoMovieHumanCage.IFace => {
-                const order: [
-                    number,
-                    number,
-                    number,
-                    number
-                ] = keep
-                    ? [0, 1, 2, 3]
-                    : [0, 3, 2, 1];
-                return {
-                    vertices: order.map((k: number): number => face.vertices[k]!) as IAutoMovieHumanCage.IFace["vertices"],
-                    coordinates: order.map((k: number): IAutoMovieHumanSurfaceCoordinate => {
-                        const c: loftAutoMovieHumanHand.ICorner = face.corners[k]!;
-                        return {
-                            part: "hand",
-                            side: props.side,
-                            branch: c.branch,
-                            u: c.u,
-                            v: keep ? c.v : 1 - c.v,
-                        };
-                    }) as IAutoMovieHumanCage.IFace["coordinates"],
-                };
-            }),
-            creases: [],
-            rings: [
-                {
-                    site: "wrist",
-                    side: props.side,
-                    vertices: lofted.wrist,
-                    start: lofted.ring.start,
-                    frame: lofted.ring.frame,
-                },
-            ],
-            construction: {
-                network: lofted.network,
-                origin: hand.origin,
-                x: AutoMovieHumanVector.offset(AutoMovieHumanVector.of(0, 0, 0), [
-                    hand.distal,
-                    1000,
-                ]),
-                y: AutoMovieHumanVector.offset(AutoMovieHumanVector.of(0, 0, 0), [
-                    hand.palmar,
-                    1000,
-                ]),
-                z: AutoMovieHumanVector.offset(AutoMovieHumanVector.of(0, 0, 0), [
-                    hand.radial,
-                    1000,
-                ]),
-            },
-        };
+    public generate(
+    props: IAutoMovieHumanPartGenerator.IProps<"hand">,
+  ): IAutoMovieHumanCage {
+    const lofted: loftAutoMovieHumanHand.IOutput =
+      loftAutoMovieHumanHand(props);
+    const hand: readAutoMovieHumanHand.IHand = lofted.hand;
+    // the hand frame is right-handed in the model only on the right hand
+    const keep: boolean = hand.mirrored;
+    // The engine buffer is metres in the hand frame; make this boundary
+    // conversion once, then share the result between sample and active target.
+    function modelSample(i: number): IAutoMovieVector3 {
+      return model(hand, {
+        x: lofted.sampled.targets[3 * i]! * 1000,
+        y: lofted.sampled.targets[3 * i + 1]! * 1000,
+        z: lofted.sampled.targets[3 * i + 2]! * 1000,
+      });
     }
+    return {
+      vertices: lofted.positions.map(
+        (p: IAutoMovieVector3, i: number): IAutoMovieHumanCage.IVertex => {
+          const sample: IAutoMovieVector3 = modelSample(i);
+          return {
+            position: model(hand, p),
+            fitting: { sample, target: lofted.sampled.limitTargetMask[i] ? { ...sample } : null, anchor: lofted.sampled.pinned[i]! },
+          };
+        },
+      ),
+      faces: lofted.faces.map(
+        (face: loftAutoMovieHumanHand.IFace): IAutoMovieHumanCage.IFace => {
+          const order: [number, number, number, number] = keep
+            ? [0, 1, 2, 3]
+            : [0, 3, 2, 1];
+          return {
+            fitting: `hand.${props.side}`,
+            vertices: order.map(
+              (k: number): number => face.vertices[k]!,
+            ) as IAutoMovieHumanCage.IFace["vertices"],
+            coordinates: order.map(
+              (k: number): IAutoMovieHumanSurfaceCoordinate => {
+                const c: loftAutoMovieHumanHand.ICorner = face.corners[k]!;
+                return {
+                  part: "hand",
+                  side: props.side,
+                  branch: c.branch,
+                  u: c.u,
+                  v: keep ? c.v : 1 - c.v,
+                };
+              },
+            ) as IAutoMovieHumanCage.IFace["coordinates"],
+          };
+        },
+      ),
+      creases: [],
+      rings: [
+        {
+          site: "wrist",
+          side: props.side,
+          vertices: lofted.wrist,
+          start: lofted.ring.start,
+          frame: lofted.ring.frame,
+        },
+      ],
+      construction: {
+        network: lofted.network,
+        origin: hand.origin,
+        x: AutoMovieHumanVector.offset(AutoMovieHumanVector.of(0, 0, 0), [
+          hand.distal,
+          1000,
+        ]),
+        y: AutoMovieHumanVector.offset(AutoMovieHumanVector.of(0, 0, 0), [
+          hand.palmar,
+          1000,
+        ]),
+        z: AutoMovieHumanVector.offset(AutoMovieHumanVector.of(0, 0, 0), [
+          hand.radial,
+          1000,
+        ]),
+      },
+    };
+  }
     /**
      * Generate the hand's nail plates, separate meshes resting on its skin.
      *

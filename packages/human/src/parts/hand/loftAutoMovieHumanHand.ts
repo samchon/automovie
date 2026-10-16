@@ -46,8 +46,7 @@ export function loftAutoMovieHumanHand(props: {
     props.side,
     ring,
   );
-  const toLocal = (d: IAutoMovieVector3): IAutoMovieVector3 =>
-    V.of(V.dot(d, hand.distal), V.dot(d, hand.palmar), V.dot(d, hand.radial));
+  function toLocal(d: IAutoMovieVector3): IAutoMovieVector3 { return V.of(V.dot(d, hand.distal), V.dot(d, hand.palmar), V.dot(d, hand.radial)); }
   const laid: networkAutoMovieHumanHand.IOutput = networkAutoMovieHumanHand({
     hand,
     arm,
@@ -70,13 +69,13 @@ export function loftAutoMovieHumanHand(props: {
   const faces: loftAutoMovieHumanHand.IFace[] = sampled.cage.faces.map(
     (face: number[], f: number): loftAutoMovieHumanHand.IFace => {
       const raw: networkAutoMovieHumanHand.IPoint[] = sampled.corners[f]!.map(
-        (c) => laid.addresses[c.patch]!(c.s, c.t),
+        (c: IAutoMovieSurfaceCage["corners"][number][number]): networkAutoMovieHumanHand.IPoint => laid.addresses[c.patch]!(c.s, c.t),
       );
       const known: number[] = raw
-        .map((c) => c.v)
+        .map((c: networkAutoMovieHumanHand.IPoint): number => c.v)
         .filter((v: number): boolean => !Number.isNaN(v));
       const wrap: boolean = Math.max(...known) - Math.min(...known) > 0.5;
-      const unwrapped = (v: number): number => (wrap && v < 0.5 ? v + 1 : v);
+      function unwrapped(v: number): number { return (wrap && v < 0.5 ? v + 1 : v); }
       // a tip's apex takes the mean turn of the face's other corners
       const apex: number =
         known.reduce(
@@ -85,7 +84,7 @@ export function loftAutoMovieHumanHand(props: {
         ) / known.length;
       return {
         vertices: [face[0]!, face[1]!, face[2]!, face[3]!],
-        corners: raw.map((c) => ({
+        corners: raw.map((c: networkAutoMovieHumanHand.IPoint): loftAutoMovieHumanHand.ICorner => ({
           branch: c.branch,
           u: c.u,
           v: Number.isNaN(c.v) ? apex : unwrapped(c.v),
@@ -97,6 +96,7 @@ export function loftAutoMovieHumanHand(props: {
     hand,
     arm,
     ring,
+    sampled,
     positions,
     faces,
     wrist: sampled.rings.wrist!,
@@ -111,6 +111,9 @@ export namespace loftAutoMovieHumanHand {
    * @author Samchon
    */
   export interface IOutput {
+    /** Original engine generation samples and exact constraint roles. */
+    sampled: IAutoMovieSurfaceCage;
+
     /** The hand in its frame. */
     hand: readAutoMovieHumanHand.IHand;
 
@@ -164,4 +167,4 @@ export namespace loftAutoMovieHumanHand {
 }
 
 /** The tier the human profile samples; one tier keeps one topology until resolution tiers reach every part. */
-const TIER = "medium" as const;
+const TIER: "medium" = "medium" as const;

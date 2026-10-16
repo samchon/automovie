@@ -56,21 +56,27 @@ export interface IAutoMovieSweepRig {
   scale(u: number): number;
 
   /**
-   * Register a probe of the surface's normal and spine derivative, as `IAutoMovieSweepSurface.normal` and `along` compute them.
+   * Register a normal and spine derivative of the same geometric writer as sample, with one fixed cell at all four finite-difference points. Omitted or zero, the cell preserves the raw surface meaning; a nonzero cell differentiates that local averaged field, not a spatial interpolation of varying footprint sizes.
    *
    * @param u Along the spine
    * @param v Around it
+   * @param cell Fixed below/above reaches along u and v, finite and nonnegative; omitted, all zero
    * @returns The slot: the unit normal is `probes[6 slot ...]` and the derivative along the spine the next three numbers
+   * @throws Error if the rig is sealed or any cell reach is negative or nonfinite
    *
-   * @evidence contracts/common.md#principled-implementation Registers the central-difference normal and spine derivative at a point.
+   * @evidence contracts/common.md#principled-implementation Uses the source surface's finite-difference step and four writers of the same fixed-cell geometric field for its normal and axial derivative.
    * @evidence contracts/common.md#clear-and-simple-design Returns the slot index.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The difference step is the surface's own.
    * @evidence contracts/common.md#meaningful-documentation States the slot layout.
-   * @evidence contracts/performance.md#efficient-algorithms Four shape reads at registration.
+   * @evidence contracts/performance.md#efficient-algorithms Four writers at registration, each with one to nine shape reads and one to three per-pose scale terms; frame and scale slots deduplicate with all other samples.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `rigAutoMovieSweep`.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `rigAutoMovieSweep`.
    */
-  probe(u: number, v: number): number;
+  probe(
+    u: number,
+    v: number,
+    cell?: readonly [number, number, number, number],
+  ): number;
 
   /**
    * Register a surface point and make its writer.

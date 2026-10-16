@@ -34,7 +34,7 @@ const FIT_LIMIT: number = 1e-6;
 /**
  * Compile a surface network at one tier into its rest cage and a per-pose update of the cage's control positions.
  *
- * Each patch becomes a grid of its tier's rows and columns, sampled evenly in its own coordinates. A sweep patch evaluates its sweep, its radius averaged over each vertex's cell, which reaches half the spacing to the neighbouring sample on each side along `u` and `v`, as `IAutoMovieSweepRig.sample` states, so detail finer than the tier's grid fades instead of aliasing into ripples. A point sampled by several patches or sides takes, on each side, the finest spacing any of them gives there, and a side none of them reaches mirrors the other, so a point's position does not depend on patch order and a mirrored layout samples to a mirrored cage; a node on a sweep that no grid samples is the section point itself. A Coons patch takes its four sides' points and fills the interior as `rigAutoMovieSurfaceCoons` states; a bridge fills its rows with cubic Hermite curves between its two loops, as `rigAutoMovieSurfaceBridge` states; a transition band lays its quads out by `layoutAutoMovieSurfaceTransition` and samples every corner on its sweep. A network curve is compiled by `rigAutoMovieSurfaceCurve`, which makes it meet sweep nodes in their tangent planes. Vertices are shared by identity, never by distance: a point of a sweep is named by the sweep and its domain coordinates rounded to nine decimals, a curve point by the curve and its share, a node by its name.
+ * Each patch becomes a grid of its tier's rows and columns, sampled evenly in its own coordinates. A sweep patch evaluates its sweep, its radius averaged over each vertex's cell, which reaches half the spacing to the neighbouring sample on each side along `u` and `v`, as `IAutoMovieSweepRig.sample` states, so detail finer than the tier's grid fades instead of aliasing into ripples. A point sampled by several patches or sides takes, on each side, the finest spacing any of them gives there, and a side none of them reaches mirrors the other, so a point's position does not depend on patch order and a mirrored layout samples to a mirrored cage; a node on a sweep that no grid samples is the section point itself. A Coons patch takes its four sides' points and fills the interior as `rigAutoMovieSurfaceCoons` states; a bridge fills its rows with cubic Hermite curves between its two loops, as `rigAutoMovieSurfaceBridge` states; a transition band lays its quads out by `layoutAutoMovieSurfaceTransition` and samples every corner on its sweep. A network curve is compiled by `rigAutoMovieSurfaceCurve`, which regenerates its whole spline from sweep nodes and tangent planes evaluated with the same registry-resolved cell as their geometric targets. Observation-only sweep nodes keep a zero cell. This is a fixed local footprint derivative, not a differential of footprint size across the network. Vertices are shared by identity, never by distance: a point of a sweep is named by the sweep and its domain coordinates rounded to nine decimals, a curve point by the curve and its share, a node by its name.
  *
  * The patch grids alone decide the topology, so one network gives every input and every pose the same cage at a tier. A ring may only name points that patches made, and a bridge loop only sweep points that patches made, which catches sides that do not meet; an edge used twice in the same direction is refused as overlapping or misoriented patches.
  *
@@ -47,7 +47,7 @@ const FIT_LIMIT: number = 1e-6;
  * @param props.fit Whether to fit controls to the limit surface; omitted, true.
  * @param props.bindings Bones by name for sweeps, free nodes, curves and rings; omitted, none.
  * @param props.rest Bones at rest, required with bindings.
- * @param props.construction Optional rest construction sample counts; inspection uses the same unfiltered sweep and curve writers after the girth solve.
+ * @param props.construction Optional rest construction sample counts; inspection uses raw sweep observation writers and the actual regenerated network curves after the girth solve; these are separate evaluation stages.
  * @param props.preserveVolume Whether bound sweeps keep their rest volume at joint stations; omitted, false.
  * @returns The rig.
  * @throws Error when a name is unknown or repeated, a binding names nothing in the network or comes without rest bones, a count is not a positive integer, a curve meets a sweep along its normal, a patch's opposite sides differ in count or its sides do not close, a bridge's loops differ in count or name points no patch made, a ring's positions do not match its loop, patches overlap, or the rest fit does not converge.
@@ -57,7 +57,7 @@ const FIT_LIMIT: number = 1e-6;
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No vertex is welded by proximity and no gap is stitched; bindings naming nothing are refused; a rest fit that does not converge is refused, and every pose returns its residual.
  * @evidence contracts/common.md#meaningful-documentation States each fill rule and its source, the welding identity, the topology guarantee, the fit and why blends are held, pinning, the UV default, the posing rules and every refusal.
  * @evidence contracts/performance.md#efficient-algorithms Compile, for P patches, V vertices and F faces: O(P log P) patch ordering plus O(V) map operations and sweep queries, O(F) for the orientation check and stencils, plus each sweep's compile and O(N) requested construction writers and reads. Pose: O(V) writers of constant size, each bound sweep's and curve's update including O(N) registered observation frame/scale slots, O(n r) per bridge and the fit's O(V + F) per Jacobi sweep, with no allocation.
- * @evidence contracts/performance.md#reuse-equivalent-work Shapes, Coons weights, Hermite weights, stencils and rest volumes are computed once; a vertex shared by patches is evaluated once per pose.
+ * @evidence contracts/performance.md#reuse-equivalent-work Shapes, Coons weights, Hermite weights, stencils and rest volumes are computed once; shared identities reuse their compiled geometric writers and sampling coefficients. Each emitted vertex is written once, while each curve endpoint read reevaluates its shared field's one to three terms; endpoint values are not cached.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains the cage record, one writer per vertex or blend, four position buffers of 3 V numbers, the stencils, and each sweep's and curve's rig with its compiled surface, whose row cache `compileAutoMovieSweep` bounds at 8,192 rows and which posing does not grow; requested construction temporarily adds one writer per sample, clears those writers after reading, and retains the registered observation frame/scale slots and the separate rest snapshot until the rig is released.
  */
 export const rigAutoMovieSurfaceNetwork: (props: {
@@ -89,15 +89,11 @@ export const rigAutoMovieSurfaceNetwork: (props: {
 }): IAutoMovieSurfaceRig => {
   const { network, tier }: typeof props = props;
   const bindings: NonNullable<typeof props.bindings> = props.bindings ?? {};
-  const known = (
-    names: string[],
-    record: object | undefined,
-    what: string,
-  ): void => {
+  function known(names: string[], record: object | undefined, what: string): void {
     for (const name of Object.keys(record ?? {}))
       if (!names.includes(name))
         throw new Error(`binding names unknown ${what} ${name}`);
-  };
+  }
   known(Object.keys(network.sweeps), bindings.sweeps, "sweep");
   known(Object.keys(network.nodes ?? {}), bindings.nodes, "node");
   known(Object.keys(network.curves ?? {}), bindings.curves, "curve");
@@ -118,11 +114,10 @@ export const rigAutoMovieSurfaceNetwork: (props: {
     throw new Error("a rig with bindings needs the rest bones");
   const bones: IAutoMovieBoneBuffer | null =
     props.rest === undefined ? null : bufferAutoMovieBones(props.rest);
-  const boneOf = (bone: AutoMovieHumanoidBone | undefined): number =>
-    bone === undefined || bones === null ? -1 : bones.index(bone);
+  function boneOf(bone: AutoMovieHumanoidBone | undefined): number { return bone === undefined || bones === null ? -1 : bones.index(bone); }
 
   const sweeps: Map<string, IAutoMovieSweepRig> = new Map();
-  const sweepRig = (name: string): IAutoMovieSweepRig => {
+  function sweepRig(name: string): IAutoMovieSweepRig {
     let r: IAutoMovieSweepRig | undefined = sweeps.get(name);
     if (r === undefined) {
       const sweep: IAutoMovieSurfaceNetwork["sweeps"][string] | undefined =
@@ -152,65 +147,66 @@ export const rigAutoMovieSurfaceNetwork: (props: {
       sweeps.set(name, r);
     }
     return r;
-  };
-  const count = (
-    counts: IAutoMovieSurfaceNetwork.ICounts,
-    what: string,
-  ): number => {
+  }
+  function count(counts: IAutoMovieSurfaceNetwork.ICounts, what: string): number {
     const n: number = counts[tier];
     if (!Number.isSafeInteger(n) || n < 1)
       throw new Error(`${what} needs a positive integer count at tier ${tier}`);
     return n;
-  };
+  }
   const SCALE: number = 10 ** KEY_DIGITS;
-  const round = (x: number): number => Math.round(x * SCALE);
+  function round(x: number): number { return Math.round(x * SCALE); }
   // v is read modulo one turn after rounding, so v near 0 and near 1 name the same point
-  const sweepKey = (name: string, u: number, v: number): string =>
-    `s|${name}|${round(Math.min(1, Math.max(0, u)))}|${((round(v) % SCALE) + SCALE) % SCALE}`;
-  const rest3 = (p: IAutoMovieVector3): Float64Array =>
-    Float64Array.from([p.x, p.y, p.z]);
+  function sweepKey(name: string, u: number, v: number): string { return `s|${name}|${round(Math.min(1, Math.max(0, u)))}|${((round(v) % SCALE) + SCALE) % SCALE}`; }
+  function rest3(p: IAutoMovieVector3): Float64Array { return Float64Array.from([p.x, p.y, p.z]); }
   // a point that rides a bone, or stays where it is without one
-  const riding = (
-    p: IAutoMovieVector3,
-    bone: number,
-  ): ((out: Float64Array, at: number) => void) => {
+  function riding(p: IAutoMovieVector3, bone: number): ((out: Float64Array, at: number) => void) {
     const rest: Float64Array = rest3(p);
     return (out: Float64Array, at: number): void => {
       if (bone >= 0) bones!.apply(bone, rest, 0, out, at);
       else for (let c: number = 0; c < 3; ++c) out[at + c] = rest[c]!;
     };
-  };
+  }
   const nodes: Map<string, IAutoMovieSurfacePoint & { key: string }> =
     new Map();
-  const node = (name: string): IAutoMovieSurfacePoint & { key: string } => {
+  function node(name: string): IAutoMovieSurfacePoint & { key: string } {
     let found: (IAutoMovieSurfacePoint & { key: string }) | undefined =
       nodes.get(name);
     if (found !== undefined) return found;
     const n: IAutoMovieSurfaceNetwork.INode | undefined = network.nodes?.[name];
     if (n === undefined) throw new Error(`network names unknown node ${name}`);
-    found =
-      n.type === "point"
-        ? {
-            key: `n|${name}`,
-            write: riding(n.position, boneOf(bindings.nodes?.[name])),
-            probe: null,
-          }
-        : {
-            key: sweepKey(n.sweep, n.u, n.v),
-            write: sweepRig(n.sweep).sample(n.u, n.v, [0, 0, 0, 0]),
-            probe: {
-              rig: sweepRig(n.sweep),
-              slot: sweepRig(n.sweep).probe(n.u, n.v),
-            },
+    if (n.type === "point")
+      found = {
+        key: `n|${name}`,
+        write: riding(n.position, boneOf(bindings.nodes?.[name])),
+        probe: null,
+      };
+    else {
+      const rig: IAutoMovieSweepRig = sweepRig(n.sweep);
+      const point: IAutoMovieSurfacePoint & { key: string } = {
+        key: sweepKey(n.sweep, n.u, n.v),
+        write: (): void => {
+          throw new Error("a geometric node was read before registry finalization");
+        },
+        probe: null,
+      };
+      registry.bindSweep(
+        point.key,
+        (resolved: IAutoMovieSurfaceRegistry.ISweep | null): void => {
+          point.write = resolved?.write ?? rig.sample(n.u, n.v, [0, 0, 0, 0]);
+          point.probe = {
+            rig,
+            slot: rig.probe(resolved?.u ?? n.u, resolved?.v ?? n.v, resolved?.cell),
           };
+        },
+      );
+      found = point;
+    }
     nodes.set(name, found);
     return found;
-  };
+  }
   const curves: Map<string, IAutoMovieSurfaceCurveRig> = new Map();
-  const curveRig = (
-    name: string,
-    curve: IAutoMovieSurfaceNetwork.ICurve,
-  ): IAutoMovieSurfaceCurveRig => {
+  function curveRig(name: string, curve: IAutoMovieSurfaceNetwork.ICurve): IAutoMovieSurfaceCurveRig {
     let r: IAutoMovieSurfaceCurveRig | undefined = curves.get(name);
     if (r === undefined) {
       r = rigAutoMovieSurfaceCurve({
@@ -224,15 +220,12 @@ export const rigAutoMovieSurfaceNetwork: (props: {
       curves.set(name, r);
     }
     return r;
-  };
+  }
 
   const registry: IAutoMovieSurfaceRegistry =
     registerAutoMovieSurfaceVertices(sweepRig);
   const { writers, existing }: IAutoMovieSurfaceRegistry = registry;
-  const sample = (
-    edge: IAutoMovieSurfaceNetwork.IEdge,
-    what: string,
-  ): IAutoMovieSurfaceSample[] => {
+  function sample(edge: IAutoMovieSurfaceNetwork.IEdge, what: string): IAutoMovieSurfaceSample[] {
     if (edge.type === "sweep") {
       const n: number = count(edge.segments, what);
       const rig: IAutoMovieSweepRig = sweepRig(edge.sweep);
@@ -306,11 +299,8 @@ export const rigAutoMovieSurfaceNetwork: (props: {
         };
       },
     );
-  };
-  const loop = (
-    edges: IAutoMovieSurfaceNetwork.IEdge[],
-    what: string,
-  ): IAutoMovieSurfaceSample[] => {
+  }
+  function loop(edges: IAutoMovieSurfaceNetwork.IEdge[], what: string): IAutoMovieSurfaceSample[] {
     if (edges.length === 0) throw new Error(`${what} needs at least one edge`);
     const out: IAutoMovieSurfaceSample[] = [];
     edges.forEach((edge: IAutoMovieSurfaceNetwork.IEdge, k: number): void => {
@@ -325,7 +315,7 @@ export const rigAutoMovieSurfaceNetwork: (props: {
       throw new Error(`${what} does not close`);
     out.pop();
     return out;
-  };
+  }
 
   const { layout, blend }: ReturnType<typeof planAutoMovieSurfaceRigPatches> =
     planAutoMovieSurfaceRigPatches({
@@ -387,7 +377,7 @@ export const rigAutoMovieSurfaceNetwork: (props: {
   );
   const targets: Float64Array = new Float64Array(3 * vertices);
   const scratch: Float64Array = new Float64Array(3 * vertices);
-  const evaluate = (posed: readonly IAutoMovieResolvedBone[] | null): void => {
+  function evaluate(posed: readonly IAutoMovieResolvedBone[] | null): void {
     if (bones !== null) {
       if (posed === null) bones.reset();
       else bones.update(posed);
@@ -399,8 +389,8 @@ export const rigAutoMovieSurfaceNetwork: (props: {
     for (let k: number = 0; k < targets.length; ++k)
       if (!Number.isFinite(targets[k]!))
         throw new Error(`network point ${Math.floor(k / 3)} is not finite`);
-  };
-  const place = (positions: Float64Array): number => {
+  }
+  function place(positions: Float64Array): number {
     if (stencil === null) {
       positions.set(targets);
       return 0;
@@ -412,7 +402,7 @@ export const rigAutoMovieSurfaceNetwork: (props: {
       positions,
       scratch,
     });
-  };
+  }
 
   const restPositions: Float64Array = new Float64Array(3 * vertices);
   holdAutoMovieSurfaceGirths({
@@ -453,6 +443,7 @@ export const rigAutoMovieSurfaceNetwork: (props: {
     },
     targets: Array.from(targets),
     pinned,
+    limitTargetMask: Array.from(free, (value: number): boolean => fit && value === 1),
     corners: layout.corners,
     patches: layout.grids,
     rings,

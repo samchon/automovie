@@ -40,6 +40,16 @@ export namespace IAutoMovieHumanCage {
   export interface IVertex {
     /** Control point, model frame, millimetres. Not on the limit surface itself. */
     position: IAutoMovieVector3;
+
+    /** Initial pre-inverse coordinates, independent active limit equality and coarse-control anchor, in the model frame and millimetres. Omitted on parts retaining their original representation. */
+    fitting?: {
+      /** Initial buffer in model millimetres, including original control pins; not an unfiltered geometric curve. */
+      sample: IAutoMovieVector3;
+      /** Original active C limit equality in model millimetres, or null for a held/pinned control. */
+      target: IAutoMovieVector3 | null;
+      /** Keep the original coarse control position, independently of any limit equality. */
+      anchor: boolean;
+    };
   }
 
   /**
@@ -52,6 +62,9 @@ export namespace IAutoMovieHumanCage {
   export interface IFace {
     /** Vertex indices of the four corners. */
     vertices: [number, number, number, number];
+
+    /** Named generating region; faces with the same name are fitted together on joined topology. */
+    fitting?: string;
 
     /** Semantic address of each corner on this face's part chart, aligned with `vertices`. */
     coordinates: [
@@ -124,13 +137,11 @@ export namespace IAutoMovieHumanCage {
    * @param network The network
    * @returns Its construction
    */
-  export const inModel = (
-    network: IAutoMovieSurfaceNetwork,
-  ): IConstruction => ({
+  export function inModel(network: IAutoMovieSurfaceNetwork): IConstruction { return ({
     network,
     origin: { x: 0, y: 0, z: 0 },
     x: { x: 1000, y: 0, z: 0 },
     y: { x: 0, y: 1000, z: 0 },
     z: { x: 0, y: 0, z: 1000 },
-  });
+  }); }
 }

@@ -36,11 +36,14 @@ export interface IAutoMovieSurfaceCage {
     faces: number[][];
   };
 
-  /** Packed surface points `[x, y, z, ...]` the subdivision limit of each control vertex is fitted to, metres. */
+  /** Packed pre-inverse samples `[x, y, z, ...]`, metres, after girth adjustment and control pins. Only limitTargetMask rows are limit equalities; pinned entries are control positions, not points on the geometric curve. */
   targets: number[];
 
   /** Whether each vertex is a pinned ring vertex, kept at its given position. */
   pinned: boolean[];
+
+  /** Active limit equalities: false for control pins, blend controls and a sample made without fitting. */
+  limitTargetMask: boolean[];
 
   /** Surface coordinate of each face corner, aligned with `cage.faces`. */
   corners: Array<
