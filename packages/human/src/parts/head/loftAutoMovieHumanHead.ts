@@ -2,14 +2,20 @@ import {
   IAutoMovieSurfaceCage,
   IAutoMovieSurfaceNetwork,
   IAutoMovieSweepSurface,
+  IAutoMovieSweep,
   compileAutoMovieSweep,
   sampleAutoMovieSurfaceNetwork,
 } from "@automovie/engine";
 import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { IAutoMovieHumanCage } from "../../junction/IAutoMovieHumanCage";
+import { AUTOMOVIE_HUMAN_RINGS } from "../../junction/AUTOMOVIE_HUMAN_RINGS";
 import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
 import { IAutoMovieHumanSurfaceCoordinate } from "../../junction/IAutoMovieHumanSurfaceCoordinate";
+import { planAutoMovieHumanNeckCut } from "../../junction/planAutoMovieHumanNeckCut";
+import { shapeAutoMovieHumanNeckSection } from "../../junction/shapeAutoMovieHumanNeckSection";
+import { shapeAutoMovieHumanMandible } from "../../junction/shapeAutoMovieHumanMandible";
+import { sweepAutoMovieHumanNeckCollar } from "../../junction/sweepAutoMovieHumanNeckCollar";
 import { shapeAutoMovieHumanRing } from "../../junction/shapeAutoMovieHumanRing";
 import { IAutoMovieHumanMeasurements } from "../../measure/IAutoMovieHumanMeasurements";
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
@@ -34,14 +40,16 @@ import { sweepAutoMovieHumanHead } from "./sweepAutoMovieHumanHead";
  * @param measurements Resolved measurements of the person
  * @param skeleton The person's skeleton
  * @param form The head's form coefficients, {@link AUTOMOVIE_HUMAN_HEAD_FORM} unless a fit to a reference passes others
+ * @param fitScale Numerical radial scale of the head-owned neck section; one until the unchanged physical proxy plane is fitted
  * @returns The head cage, model frame, millimetres
  */
 export function loftAutoMovieHumanHead(
   measurements: IAutoMovieHumanMeasurements,
   skeleton: IAutoMovieHumanSkeleton,
   form: IAutoMovieHumanHeadForm = AUTOMOVIE_HUMAN_HEAD_FORM,
+  fitScale: number = 1,
 ): IAutoMovieHumanCage {
-  const built: INetwork = networkOf(measurements, skeleton, form);
+  const built: INetwork = networkOf(measurements, skeleton, form, fitScale);
   const sampled: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({
     network: built.network,
     tier: TIER,
@@ -64,14 +72,15 @@ interface INetwork {
 }
 
 /** The head's network and the rings it reports, before sampling. */
-const networkOf = (
+const networkOf: (measurements: IAutoMovieHumanMeasurements, skeleton: IAutoMovieHumanSkeleton, form: IAutoMovieHumanHeadForm, fitScale: number) => INetwork = (
   measurements: IAutoMovieHumanMeasurements,
   skeleton: IAutoMovieHumanSkeleton,
   form: IAutoMovieHumanHeadForm,
+  fitScale: number,
 ): INetwork => {
   const frame: frameAutoMovieHumanHead.IFrame =
     frameAutoMovieHumanHead(skeleton);
-  const shape = (
+  const shape: (site: "neckTop" | "ear", side: "left" | "right" | null) => IAutoMovieHumanRingShape = (
     site: "neckTop" | "ear",
     side: "left" | "right" | null,
   ): IAutoMovieHumanRingShape =>
@@ -87,18 +96,22 @@ const networkOf = (
     left: shape("ear", "left"),
     right: shape("ear", "right"),
   };
-  const local = (p: IAutoMovieVector3): IAutoMovieVector3 =>
+  const local: (p: IAutoMovieVector3) => IAutoMovieVector3 = (p: IAutoMovieVector3): IAutoMovieVector3 =>
     frameAutoMovieHumanHead.toLocal(frame, p);
-  const direction = (d: IAutoMovieVector3): IAutoMovieVector3 =>
+  const direction: (d: IAutoMovieVector3) => IAutoMovieVector3 = (d: IAutoMovieVector3): IAutoMovieVector3 =>
     frameAutoMovieHumanHead.toLocal(
       { ...frame, origin: AutoMovieHumanVector.of(0, 0, 0) },
       d,
     );
   // the ring's limit points along itself, which the sections end on
-  const controls: IAutoMovieVector3[] = neck.positions.map(local);
+  const jaw: IAutoMovieHumanRingShape = shapeAutoMovieHumanMandible(
+    measurements,
+    skeleton,
+  );
+  const controls: IAutoMovieVector3[] = jaw.positions.map(local);
   const n: number = controls.length;
   const limit: IAutoMovieVector3[] = controls.map(
-    (p: IAutoMovieVector3, k: number) =>
+    (p: IAutoMovieVector3, k: number): IAutoMovieVector3 =>
       AutoMovieHumanVector.offset(
         AutoMovieHumanVector.of(0, 0, 0),
         [controls[(k + n - 1) % n]!, 1 / 6],
@@ -117,14 +130,30 @@ const networkOf = (
       form,
     },
   );
+  const neckPlan: ReturnType<typeof planAutoMovieHumanNeckCut> = planAutoMovieHumanNeckCut(skeleton, shapeAutoMovieHumanRing({skeleton, measurements, site: "neckBase", part: "neck", side: null}));
+  const fitShape: ReturnType<typeof shapeAutoMovieHumanNeckSection> =
+    shapeAutoMovieHumanNeckSection({skeleton, body: measurements.identity.body, count: AUTOMOVIE_HUMAN_RINGS.neckBase.count});
   const loft: sweepAutoMovieHumanHead.IOutput = sweepAutoMovieHumanHead({
     frame,
     profile,
     ring: {
-      origin: local(neck.frame.origin),
-      normal: direction(neck.frame.normal),
+      origin: local(jaw.frame.origin),
+      normal: direction(jaw.frame.normal),
       limit,
     },
+    neck: {
+      origin: local(neck.frame.origin),
+      normal: direction(neck.frame.normal),
+      reference: direction(neck.frame.reference),
+      controls: neck.positions.map(local),
+    },
+    fit: {origin: local(fitShape.centre), normal: direction(fitShape.axis),
+      limit: fitShape.points.map((p: IAutoMovieVector3): IAutoMovieVector3 => local(AutoMovieHumanVector.offset(fitShape.centre,
+        [AutoMovieHumanVector.offset(p, [fitShape.centre, -1]), fitScale])))},
+    support: neckPlan.support,
+    mean: measurements.identity.body.neckCircumference / (2 * Math.PI),
+    cervical: local(neckPlan.cervical),
+    cervicalCentre: local(neckPlan.cervicalCentre),
     tilt: frame.eye.y,
     blend: frame.stomion.y,
     relief: reliefAutoMovieHumanHead({
@@ -145,16 +174,19 @@ const networkOf = (
   const network: AutoMovieHumanHeadNetwork = new AutoMovieHumanHeadNetwork(
     SWEEP,
   );
+  const collar: IAutoMovieSweep = sweepAutoMovieHumanNeckCollar({ring: neck, plan: neckPlan, side: "head"});
   layoutAutoMovieHumanHead({
     domain,
     network,
     head: measurements.identity.head,
     form,
     neck,
+    support: neckPlan.support,
+    collar: COLLAR,
     ears,
   });
   return {
-    network: network.build(loft.sweep),
+    network: network.build(loft.sweep, {[COLLAR]: collar}),
     frame,
     rings: [
       ["neckTop", neck],
@@ -165,7 +197,7 @@ const networkOf = (
 };
 
 /** The point at a fractional index round a closed ring of points, between its neighbours. */
-const alongRing = (ring: IAutoMovieVector3[], x: number): IAutoMovieVector3 => {
+const alongRing: (ring: IAutoMovieVector3[], x: number) => IAutoMovieVector3 = (ring: IAutoMovieVector3[], x: number): IAutoMovieVector3 => {
   const i: number = Math.floor(x);
   const f: number = x - i;
   return AutoMovieHumanVector.offset(
@@ -177,15 +209,17 @@ const alongRing = (ring: IAutoMovieVector3[], x: number): IAutoMovieVector3 => {
 
 /** The sweep's name in the network. */
 const SWEEP: string = "head";
+/** The independent straight source for the shared cut collar. */
+const COLLAR: string = "headNeckCollar";
 
 /** The tier the human profile samples. */
-const TIER = "medium" as const;
+const TIER: "medium" = "medium" as const;
 
 /** Height of the chart's centre above tragion, over head height. */
 const CHART_CENTRE: number = 0.1;
 
 /** Turn the sampled network into the head cage: millimetres, chart addresses and rings. */
-const emit = (
+const emit: (sampled: IAutoMovieSurfaceCage, frame: frameAutoMovieHumanHead.IFrame, headHeight: number, rings: Array<[string, IAutoMovieHumanRingShape]>) => IAutoMovieHumanCage = (
   sampled: IAutoMovieSurfaceCage,
   frame: frameAutoMovieHumanHead.IFrame,
   headHeight: number,

@@ -42,6 +42,28 @@ export class AutoMovieHumanHeadNetwork {
   }
 
   /**
+   * A point of another named construction sweep, with head-layout coordinates.
+   *
+   * The source parameters name the point in that sweep. The separate domain
+   * only orients and connects the head's quads; it does not move the point.
+   *
+   * @param sweep The named sweep owning the physical point
+   * @param u Along that sweep
+   * @param v Around that sweep
+   * @param domain The unchanged head-layout address
+   * @returns A named source point
+   */
+  public onSweep(
+    sweep: string,
+    u: number,
+    v: number,
+    domain: {u: number; v: number},
+  ): AutoMovieHumanHeadNetwork.IPoint {
+    const wrapped: number = ((v % 1) + 1) % 1;
+    return {type: "sweep", sweep, u, v: wrapped, domain};
+  }
+
+  /**
    * A free point.
    *
    * @param name Name unique among free points
@@ -77,7 +99,7 @@ export class AutoMovieHumanHeadNetwork {
     group: string,
     orient: boolean = true,
   ): IAutoMovieSurfaceNetwork.ICoonsPatch {
-    const ordered =
+    const ordered: [AutoMovieHumanHeadNetwork.IPoint, AutoMovieHumanHeadNetwork.IPoint, AutoMovieHumanHeadNetwork.IPoint, AutoMovieHumanHeadNetwork.IPoint] =
       !orient || area(corners) >= 0
         ? corners
         : ([corners[0], corners[3], corners[2], corners[1]] as typeof corners);
@@ -202,9 +224,12 @@ export class AutoMovieHumanHeadNetwork {
    * @param sweep The sweep, model frame, metres
    * @returns The network
    */
-  public build(sweep: IAutoMovieSweep): IAutoMovieSurfaceNetwork {
+  public build(
+    sweep: IAutoMovieSweep,
+    others: Record<string, IAutoMovieSweep> = {},
+  ): IAutoMovieSurfaceNetwork {
     return {
-      sweeps: { [this.sweep]: sweep },
+      sweeps: { [this.sweep]: sweep, ...others },
       nodes: this.nodes_,
       curves: this.curves_,
       patches: this.patches_,
@@ -231,9 +256,10 @@ export class AutoMovieHumanHeadNetwork {
   /** The node of a point, registering a sweep point's node on first use. */
   private node(p: AutoMovieHumanHeadNetwork.IPoint): string {
     if (p.type === "free") return p.name;
-    const key: string = `s.${p.u.toFixed(9)}.${p.v.toFixed(9)}`;
+    const owner: string = p.sweep ?? this.sweep;
+    const key: string = `${owner === this.sweep ? "s" : owner}.${p.u.toFixed(9)}.${p.v.toFixed(9)}`;
     if (this.nodes_[key] === undefined)
-      this.nodes_[key] = { type: "sweep", sweep: this.sweep, u: p.u, v: p.v };
+      this.nodes_[key] = { type: "sweep", sweep: owner, u: p.u, v: p.v };
     return key;
   }
 }
@@ -253,6 +279,9 @@ export namespace AutoMovieHumanHeadNetwork {
   export interface ISweepPoint {
     /** Discriminator. */
     type: "sweep";
+
+    /** Named source sweep; omitted, the head's main sweep. */
+    sweep?: string;
 
     /** Along the spine. */
     u: number;
@@ -290,7 +319,7 @@ const ONE: IAutoMovieSurfaceNetwork.ICounts = {
 };
 
 /** Signed area of a quad in the domain, `v` across and `u` up, the seam unwrapped about the first corner. */
-const area = (corners: AutoMovieHumanHeadNetwork.IPoint[]): number => {
+const area: (corners: AutoMovieHumanHeadNetwork.IPoint[]) => number = (corners: AutoMovieHumanHeadNetwork.IPoint[]): number => {
   const v0: number = corners[0]!.domain.v;
   const pts: Array<[number, number]> = corners.map(
     (c: AutoMovieHumanHeadNetwork.IPoint): [number, number] => {
@@ -302,8 +331,8 @@ const area = (corners: AutoMovieHumanHeadNetwork.IPoint[]): number => {
   );
   let sum: number = 0;
   for (let k: number = 0; k < pts.length; ++k) {
-    const [x0, y0] = pts[k]!;
-    const [x1, y1] = pts[(k + 1) % pts.length]!;
+    const [x0, y0]: [number, number] = pts[k]!;
+    const [x1, y1]: [number, number] = pts[(k + 1) % pts.length]!;
     sum += x0 * y1 - x1 * y0;
   }
   return sum;

@@ -11,15 +11,17 @@ import { AutoMovieHumanPart } from "./AutoMovieHumanPart";
 import { AutoMovieHumanSide } from "./AutoMovieHumanSide";
 import { IAutoMovieHumanRing } from "./IAutoMovieHumanRing";
 import { IAutoMovieHumanRingDefinition } from "./IAutoMovieHumanRingDefinition";
+import { IAutoMovieHumanRingShape } from "./IAutoMovieHumanRingShape";
 import { IAutoMovieHumanRingLayout } from "./IAutoMovieHumanRingLayout";
+import { planAutoMovieHumanNeckCut } from "./planAutoMovieHumanNeckCut";
 
 /**
  * Resolve the frame and vertex directions of the ring one part opens at one junction site from the person's skeleton. A part opens the ring itself from `shapeAutoMovieHumanRing`, which adds the vertex positions both parts share.
  *
- * Each site's cut is fixed by the skeleton alone, so both parts of the site compute the same frame without seeing each other:
+ * Each site's cut is fixed by shared skeleton and boundary definitions, so both parts of the site compute the same frame without seeing each other:
  *
  * - `neckBase`: the plane through cervicale and suprasternale that contains the transverse axis, the oblique plane in which the base of the neck rises from the jugular notch to the seventh cervical spine. Origin where the neck bone's axis crosses it.
- * - `neckTop`: the mandibular plane through both gonia and menton. In front it follows the lower border of the mandible, behind it passes below the skull base. Origin where the neck bone's axis crosses it.
+ * - `neckTop`: perpendicular to the neck axis, in the available tube below the unchanged circumference proxy plane. Its lower bound clears the shared base control hull and the existing column ellipse. The cut and two equal parallel supports subdivide that interval. The head owns the jaw floor and cervical turn.
  * - `upperArm`: perpendicular to the upper arm bone, through the point of its axis midway between the acromion and the elbow joint centre, where the upper arm circumference is measured (the olecranon lies at the elbow centre's level along the arm).
  * - `wrist`: perpendicular to the forearm bone, through the radial styloid's projection on its axis, where the wrist circumference is measured.
  * - `thigh`: perpendicular to the thigh bone, midway between the hip and knee joint centres, below the gluteal fold.
@@ -35,11 +37,12 @@ import { IAutoMovieHumanRingLayout } from "./IAutoMovieHumanRingLayout";
  * @returns The ring's count, start, frame and vertex directions for that part
  * @throws {Error} When the side does not match the site's laterality or the part does not meet at the site
  */
-export const layoutAutoMovieHumanRing: (props: { skeleton: IAutoMovieHumanSkeleton; site: AutoMovieHumanJunctionSite; side: AutoMovieHumanSide | null; part: AutoMovieHumanPart; }) => IAutoMovieHumanRingLayout = (props: {
+export const layoutAutoMovieHumanRing: (props: { skeleton: IAutoMovieHumanSkeleton; site: AutoMovieHumanJunctionSite; side: AutoMovieHumanSide | null; part: AutoMovieHumanPart; neckBase?: IAutoMovieHumanRingShape; }) => IAutoMovieHumanRingLayout = (props: {
   skeleton: IAutoMovieHumanSkeleton;
   site: AutoMovieHumanJunctionSite;
   side: AutoMovieHumanSide | null;
   part: AutoMovieHumanPart;
+  neckBase?: IAutoMovieHumanRingShape;
 }): IAutoMovieHumanRingLayout => {
   const definition: IAutoMovieHumanRingDefinition =
     AUTOMOVIE_HUMAN_RINGS[props.site];
@@ -51,7 +54,7 @@ export const layoutAutoMovieHumanRing: (props: { skeleton: IAutoMovieHumanSkelet
     throw new Error(
       `part ${props.part} does not meet at junction site ${props.site}; it joins ${definition.proximal} to ${definition.distal}`,
     );
-  const cut: ICut = cutSite(props.skeleton, props.site, props.side);
+  const cut: ICut = cutSite(props.skeleton, props.site, props.side, props.neckBase);
   const normal: IAutoMovieVector3 =
     props.part === definition.proximal
       ? cut.axis
@@ -113,10 +116,11 @@ const TOWARD: Partial<Record<AutoMovieHumanDirection, IAutoMovieVector3>> = {
 /** The T-pose palm faces down, so the wrist's anterior, palmar surface faces -Y. */
 const PALMAR: IAutoMovieVector3 = AutoMovieHumanVector.of(0, -1, 0);
 
-const cutSite: (skeleton: IAutoMovieHumanSkeleton, site: AutoMovieHumanJunctionSite, side: AutoMovieHumanSide | null) => ICut = (
+const cutSite: (skeleton: IAutoMovieHumanSkeleton, site: AutoMovieHumanJunctionSite, side: AutoMovieHumanSide | null, neckBase?: IAutoMovieHumanRingShape) => ICut = (
   skeleton: IAutoMovieHumanSkeleton,
   site: AutoMovieHumanJunctionSite,
   side: AutoMovieHumanSide | null,
+  neckBase?: IAutoMovieHumanRingShape,
 ): ICut => {
   const joint: (bone: AutoMovieHumanoidBone) => IAutoMovieVector3 = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 => {
     const found: IAutoMovieHumanSkeleton.IJoint | undefined =
@@ -148,14 +152,9 @@ const cutSite: (skeleton: IAutoMovieHumanSkeleton, site: AutoMovieHumanJunctionS
         toward: anterior,
       };
     case "neckTop":
+      if (neckBase === undefined) throw new Error("The neck-top cut needs its shared base definition");
       return {
-        ...planeCut(
-          joint("neck"),
-          joint("head"),
-          landmarks.right.gonion.position,
-          landmarks.left.gonion.position,
-          landmarks.menton.position,
-        ),
+        ...planAutoMovieHumanNeckCut(skeleton, neckBase),
         toward: anterior,
       };
     case "upperArm": {

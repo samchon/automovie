@@ -1,9 +1,9 @@
 /**
- * The neck column in the mandibular plane, over the neck circumference's mean radius: across, in front over the larynx, and behind before the plane's tilt lengthens it, with the smooth-maximum blend width to the jaw. Conventional.
+ * Neck-column semi-axes over mean neck radius: across, anterior and posterior, with the blend width of the internal mandibular guide. Grade: conventional.
  *
- * `shapeAutoMovieHumanRing` shapes the `neckTop` ring's column from it, and the head continues that column above the ring under the occiput, so both read this one constant.
+ * The simple neck tube cut and the upper-neck guide read the same semi-axes. Only the internal mandibular outline combines that column with the jawline; the actual part boundary contains no jaw.
  */
-export const AUTOMOVIE_HUMAN_NECK_COLUMN = {
+export const AUTOMOVIE_HUMAN_NECK_COLUMN: { readonly across: 0.9; readonly front: 0.76; readonly back: 0.95; readonly blend: 0.15; } = {
   across: 0.9,
   front: 0.76,
   back: 0.95,

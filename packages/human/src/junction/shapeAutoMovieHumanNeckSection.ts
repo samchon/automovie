@@ -1,18 +1,17 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
-import { AutoMovieHumanCageBuilder } from "../../junction/AutoMovieHumanCageBuilder";
-import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
-import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
-import { IAutoMovieHumanSkeleton } from "../../skeleton/IAutoMovieHumanSkeleton";
-import { IAutoMovieHumanIdentity } from "../../structures/IAutoMovieHumanIdentity";
+import { AutoMovieHumanVector } from "../skeleton/AutoMovieHumanVector";
+import { IAutoMovieHumanSkeleton } from "../skeleton/IAutoMovieHumanSkeleton";
+import { IAutoMovieHumanIdentity } from "../structures/IAutoMovieHumanIdentity";
+import { AutoMovieHumanCageBuilder } from "./AutoMovieHumanCageBuilder";
 
 /**
- * Breadth over depth of the mid section: 1.155, the median of the MakeHuman CC0 base mesh's macro variants (young, old and child, three populations, both sexes; 1.00 to 1.49) sliced horizontally 0.08 head heights below menton. Grade: calibrated against that reference, which only bounds the shape; the depth itself follows cervicale and the circumference.
+ * Breadth over depth of the mid section: 1.155, the median of reference mesh variants (young, old and child, three populations, both sexes; 1.00 to 1.49) sliced horizontally 0.08 head heights below menton. Grade: calibrated against those references, which only bound the shape; the depth itself follows cervicale and the circumference.
  */
 const MID_BREADTH: number = 1.155;
 
 /**
- * The mid section's back over the distance from the neck bone to cervicale: the nape above the seventh cervical spine lies in front of its prominence, in the nuchal hollow between the semispinalis masses. Calibrated against the MakeHuman CC0 adult variants' mid-neck sections with the shared harness. Grade: calibrated.
+ * The mid section's back over the distance from the neck bone to cervicale: the nape above the seventh cervical spine lies in front of its prominence, in the nuchal hollow between the semispinalis masses. Calibrated against adult reference meshes' mid-neck sections with the shared harness. Grade: calibrated.
  */
 const NAPE: number = 0.8;
 
@@ -30,22 +29,21 @@ const FLUSH_ANGLE: number = 94.25;
 const STERNOCLEIDOMASTOID: number = 0.04;
 
 /**
- * The neck's three defining sections, each as twelve points in build order.
+ * The existing cervicale-height circumference section, shared by its owner.
  *
- * - Base: the shared neck base ring.
- * - Mid: perpendicular to the neck bone at cervicale's level, where the circumference is measured just below the thyroid cartilage; an egg of exactly the neck circumference, with the sternocleidomastoids at its anterolateral corners and the laryngeal prominence in front. The prominence is the forward reach of the thyroid notch, `w cos(θ/2)` for laminae of width `w` meeting at angle `θ` (Rawal et al. 2014), beyond the reach at the angle where it lies flush.
- * - Top: the shared neck top ring in the mandibular plane, the jaw's parabola and the neck column under the skull.
+ * Its egg shape and relief retain the original neck source coefficients.
+ * Moving an ownership cut does not move this plane. Cervicale height remains
+ * a geometric proxy, without clinical infrathyroid registration.
  *
- * @param props Skeleton, body measurements and the neck's two ring shapes
- * @returns The sections
+ * @param props Shared skeleton, identity body and section sample count
+ * @returns Physical section points and plane, model millimetres
  */
-export function sectionAutoMovieHumanNeck(props: {
+export function shapeAutoMovieHumanNeckSection(props: {
   skeleton: IAutoMovieHumanSkeleton;
   body: IAutoMovieHumanIdentity.IBody;
-  base: IAutoMovieHumanRingShape;
-  top: IAutoMovieHumanRingShape;
-}): sectionAutoMovieHumanNeck.IOutput {
-  const joint = (bone: string): IAutoMovieVector3 =>
+  count: number;
+}): { axis: IAutoMovieVector3; centre: IAutoMovieVector3; points: IAutoMovieVector3[] } {
+  const joint: (bone: string) => IAutoMovieVector3 = (bone: string): IAutoMovieVector3 =>
     props.skeleton.joints.find(
       (j: IAutoMovieHumanSkeleton.IJoint): boolean => j.bone === bone,
     )!.position;
@@ -67,7 +65,7 @@ export function sectionAutoMovieHumanNeck(props: {
   const directions: IAutoMovieVector3[] = AutoMovieHumanCageBuilder.turn(
     axis,
     reference,
-    props.base.count,
+    props.count,
   );
   // the back reaches toward cervicale, which lies in this section; the front and the breadth follow from the circumference
   const nape: IAutoMovieVector3 = AutoMovieHumanVector.offset(
@@ -86,7 +84,7 @@ export function sectionAutoMovieHumanNeck(props: {
         ];
       })(),
     );
-  const egg = (front: number, angle: number): number => {
+  const egg: (front: number, angle: number) => number = (front: number, angle: number): number => {
     const c: number = Math.cos(angle);
     const s: number = Math.sin(angle);
     const depth: number = c >= 0 ? front : back;
@@ -95,7 +93,7 @@ export function sectionAutoMovieHumanNeck(props: {
       1 / Math.sqrt((c * c) / (depth * depth) + (s * s) / (across * across))
     );
   };
-  const perimeter = (scale: number): number => {
+  const perimeter: (scale: number) => number = (scale: number): number => {
     let sum: number = 0;
     const steps: number = 360;
     let prev: [number, number] = [egg(scale, 0), 0];
@@ -118,7 +116,7 @@ export function sectionAutoMovieHumanNeck(props: {
   );
 
   const lamina: number = LAMINA_PER_NECK * girth;
-  const half = (deg: number): number => Math.cos((deg * Math.PI) / 360);
+  const half: (deg: number) => number = (deg: number): number => Math.cos((deg * Math.PI) / 360);
   const prominence: number = Math.max(
     0,
     lamina * (half(props.body.thyroidAngle) - half(FLUSH_ANGLE)),
@@ -137,44 +135,10 @@ export function sectionAutoMovieHumanNeck(props: {
       return AutoMovieHumanVector.offset(lower, [d, r]);
     },
   );
-  const ring = (shape: IAutoMovieHumanRingShape): IAutoMovieVector3[] =>
-    AutoMovieHumanCageBuilder.buildOrder(shape).map(
-      (j: number): IAutoMovieVector3 => shape.positions[j]!,
-    );
-  return {
-    axis,
-    centre: lower,
-    base: ring(props.base),
-    mid,
-    top: ring(props.top),
-  };
-}
-/** Output type of {@link sectionAutoMovieHumanNeck}. */
-export namespace sectionAutoMovieHumanNeck {
-  /**
-   * The neck's sections.
-   *
-   * @author Samchon
-   */
-  export interface IOutput {
-    /** Unit direction of the neck bone, from the neck joint to the head joint. */
-    axis: IAutoMovieVector3;
-
-    /** The mid section's centre on the neck bone, where the girth is measured. */
-    centre: IAutoMovieVector3;
-
-    /** The base ring's points in build order. */
-    base: IAutoMovieVector3[];
-
-    /** The mid section's points in build order. */
-    mid: IAutoMovieVector3[];
-
-    /** The top ring's points in build order. */
-    top: IAutoMovieVector3[];
-  }
+  return {axis, centre: lower, points: mid};
 }
 
-const solve = (f: (x: number) => number, lo: number, hi: number): number => {
+const solve: (f: (x: number) => number, lo: number, hi: number) => number = (f: (x: number) => number, lo: number, hi: number): number => {
   let a: number = lo;
   let b: number = hi;
   const fa: number = f(a);

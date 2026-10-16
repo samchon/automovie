@@ -19,7 +19,13 @@ import { reliefAutoMovieHumanSkin } from "./reliefAutoMovieHumanSkin";
 /**
  * Emit the person's skin as one skinned mesh: the joined cage subdivided once by the engine, with limit positions and normals, UVs from the published layout and placeholder skin weights.
  *
- * The weights bind each vertex to the bones of the part it lies on, by inverse fourth power of its distance to each bone's segment, the four nearest kept and normalized. They only let the joined skin follow a pose until the rig stage derives real weights.
+ * The placeholder weights use inverse fourth power of distance to bone segments,
+ * the four nearest kept and normalized. Head and neck share the same candidate
+ * bones. Upper-chest contribution falls continuously from one at the neck joint
+ * to zero at the head joint, by a cubic Hermite ease along that shared bone.
+ * Thus moving their construction cut does not move a discontinuity in candidate
+ * weights. Other parts retain their existing candidates. These are conventional
+ * placeholder weights, not measured muscle influence or a completed rig.
  *
  * @param measurements Resolved measurements
  * @param skeleton The skeleton at rest
@@ -44,6 +50,17 @@ export function emitAutoMovieHumanSkin(measurements: IAutoMovieHumanMeasurements
   const jointIndex: Map<AutoMovieHumanoidBone, number> = new Map();
   const segments: Map<AutoMovieHumanoidBone, IAutoMovieHumanSkeleton.IJoint> =
     new Map(skeleton.joints.map((j: IAutoMovieHumanSkeleton.IJoint): [AutoMovieHumanoidBone, IAutoMovieHumanSkeleton.IJoint] => [j.bone, j]));
+  const neck: IAutoMovieHumanSkeleton.IJoint = segments.get("neck")!;
+  const head: IAutoMovieHumanSkeleton.IJoint = segments.get("head")!;
+  const axis: IAutoMovieVector3 = {x: head.position.x-neck.position.x,
+    y: head.position.y-neck.position.y, z: head.position.z-neck.position.z};
+  const length2: number = axis.x*axis.x+axis.y*axis.y+axis.z*axis.z;
+  if (!(length2 > 0)) throw new Error("Neck weights require a positive shared bone length");
+  const chestShare: (p: IAutoMovieVector3) => number = (p: IAutoMovieVector3): number => {
+    const t: number = Math.max(0,Math.min(1,((p.x-neck.position.x)*axis.x+
+      (p.y-neck.position.y)*axis.y+(p.z-neck.position.z)*axis.z)/length2));
+    return 1-t*t*(3-2*t);
+  };
   const boneIndices: number[] = [];
   const weights: number[] = [];
   const cache: Map<number, Array<[number, number]>> = new Map();
@@ -61,7 +78,8 @@ export function emitAutoMovieHumanSkin(measurements: IAutoMovieHumanMeasurements
       const ranked: Array<[AutoMovieHumanoidBone, number]> = candidates(part, side)
         .map((bone: AutoMovieHumanoidBone): [AutoMovieHumanoidBone, number] => {
           const d: number = distance(p, segments.get(bone)!);
-          return [bone, 1 / Math.pow(d * d + 1, 2)];
+          const share: number = bone === "upperChest" && (part === "head" || part === "neck") ? chestShare(p) : 1;
+          return [bone, share / Math.pow(d * d + 1, 2)];
         })
         .sort((a: [AutoMovieHumanoidBone, number], b: [AutoMovieHumanoidBone, number]): number => b[1] - a[1])
         .slice(0, 4);
@@ -117,6 +135,7 @@ function candidates(part: AutoMovieHumanPart, side: AutoMovieHumanSide | null): 
     case "neck":
       return ["upperChest", "neck", "head"];
     case "head":
+      return ["upperChest", "neck", "head"];
     case "ear":
       return ["neck", "head"];
     case "arm":
