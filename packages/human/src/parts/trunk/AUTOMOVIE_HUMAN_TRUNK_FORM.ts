@@ -3,7 +3,9 @@ import { IAutoMovieHumanTrunkForm } from "./IAutoMovieHumanTrunkForm";
 /**
  * The trunk's form coefficients for the human profile.
  *
- * Fitted by least squares against reference bodies, the four nearest the lean 20-year-old gate identities (two lean young women, a lean young man and a muscular young man), each mapped onto our skeleton for the identity by its own skin weights in the shared calibration harness. Each reference was first measured like anthropometry at our own levels (convex-hull tape girths, breadths and depths at the buttock, natural waist, costal arch and chest point), and our trunk was generated for identities carrying those measurements, so the fit compares shape alone: the residual is the radial distance between our level section and the reference's, 72 rays about the reference section's midline centre, every 10 mm from the buttock level to the axilla; the profile's mean residual is 3.5 to 4.9 mm per body. The crotch and gluteal furrow levels, where the section is two thighs side by side, are the mean outer contour of the same reference sections (foremost and rearmost points and breadth over both thighs), and the clavicle level is the foremost and rearmost points 40 to 100 mm beside the midline 8 mm below the jugular notch; fronts are regressed on body fat. The back's midline lies 0.30 of the chest depth behind the column at the chest, about 65 mm in a lean man. Grade: fitted to reference bodies.
+ * Fitted by least squares against reference bodies, the four nearest the lean 20-year-old gate identities (two lean young women, a lean young man and a muscular young man), each mapped onto our skeleton for the identity by its own skin weights in the shared calibration harness. Each reference was first measured like anthropometry at our own levels (convex-hull tape girths, breadths and depths at the buttock, natural waist, costal arch and chest point), and our trunk was generated for identities carrying those measurements, so the fit compares shape alone: the residual is the radial distance between our level section and the reference's, 72 rays about the reference section's midline centre, every 10 mm from the buttock level to the axilla; that historical profile fit was 3.5 to 4.9 mm per body under its original level protocol, not a score for the current generator. The crotch and gluteal furrow levels, where the section is two thighs side by side, are the mean outer contour of the same reference sections (foremost and rearmost points and breadth over both thighs), and the clavicle level is the foremost and rearmost points 40 to 100 mm beside the midline 8 mm below the jugular notch; fronts are regressed on body fat. The back's midline lies 0.30 of the chest depth behind the column at the chest, about 65 mm in a lean man. Grade: fitted to reference bodies.
+ *
+ * The six underbust values were refitted together at the current physical fold planes, 53.152 to 59.840 mm above the old costal extraction planes. Depth is now a share of that plane's tape girth, not an interpolation fraction between waist and chest depths. The same two-half superellipse family fits 144 rays on each of the four nearest reference bodies, with that plane's convex tape as its source girth and unchanged torso ancestor transforms. Observed first-order normal residual RMS is 4.22 to 5.06 mm. This bounded local calibration is not a global representation floor, clinical norm, or final-skin pass; bone registration and omitted rest-pose correctives limit its anatomical use. Grade: reference-fitted.
  */
 export const AUTOMOVIE_HUMAN_TRUNK_FORM: IAutoMovieHumanTrunkForm = {
   buttock: {
@@ -32,12 +34,12 @@ export const AUTOMOVIE_HUMAN_TRUNK_FORM: IAutoMovieHumanTrunkForm = {
     skew: -0.434,
   },
   underbust: {
-    behind: 0.2915,
-    fat: -0.0044,
-    widest: 0.3974,
-    front: 2.1954,
-    back: 3.0604,
-    depth: 0.1106,
+    behind: 0.2905,
+    fat: -0.0047,
+    widest: 0.4081,
+    front: 2.0070,
+    back: 3.7661,
+    depth: 0.2468,
   },
   chest: {
     behind: 0.2969,

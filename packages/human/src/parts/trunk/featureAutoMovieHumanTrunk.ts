@@ -29,27 +29,50 @@ export function featureAutoMovieHumanTrunk(props: {
   const { frame, profile, surface }: typeof props = props;
   const L: IAutoMovieHumanTrunkFrame.ILevels = frame.levels;
   const F: IAutoMovieHumanTrunkFeatures = AUTOMOVIE_HUMAN_TRUNK_FEATURES;
-  // a point on the front or back of the level section at `x` across, estimated on the ellipse through the midline and the side
-  const on: (side: "front" | "back", x: number, y: number) => IAutoMovieVector3 = (
-    side: "front" | "back",
-    x: number,
-    y: number,
-  ): IAutoMovieVector3 => {
-    const widest: number = profile.widest(y);
-    const reach: number =
-      (side === "front" ? profile.front(y) : profile.back(y)) - widest;
-    const share: number = Math.min(0.98, Math.abs(x) / profile.half(y));
-    return AutoMovieHumanVector.of(
-      x,
-      y,
-      widest + reach * Math.sqrt(1 - share * share),
-    );
+  // Intersect the compiled generating family at the named physical X. If an anatomical hint
+  // lies outside this section's lateral support, project it to that support;
+  // unlike the old ellipse guess, the returned point remains on the source.
+  const on: (side: "front" | "back", x: number, y: number) => ISourcePoint = (
+    side: "front" | "back", x: number, y: number,
+  ): ISourcePoint => {
+    const u: number = heightParameter(y);
+    const sign: number = x < 0 ? -1 : 1;
+    const lateral: ISourcePoint = sourcePoint(u, sign * Math.PI / 2);
+    if (Math.abs(x) >= Math.abs(lateral.x)) return lateral;
+    let low: number = 0;
+    let high: number = Math.PI / 2;
+    for (let step: number = 0; step < 48; ++step) {
+      const middle: number = (low + high) / 2;
+      const angle: number = sign * (side === "front" ? middle : Math.PI - middle);
+      if (Math.abs(sourcePoint(u, angle).x) < Math.abs(x)) low = middle;
+      else high = middle;
+    }
+    const angle: number = sign * (side === "front" ? (low + high) / 2 : Math.PI - (low + high) / 2);
+    return sourcePoint(u, angle);
   };
-  const left: (p: IAutoMovieVector3) => IAutoMovieVector3 = (p: IAutoMovieVector3): IAutoMovieVector3 => p;
-  const right: (p: IAutoMovieVector3) => IAutoMovieVector3 = (p: IAutoMovieVector3): IAutoMovieVector3 =>
-    AutoMovieHumanVector.of(-p.x, p.y, p.z);
+  // The lower trunk's stations remain horizontal and its spine rises. This
+  // physical-height inverse is shared by all feature hints, not re-fitted per guide.
+  function heightParameter(y: number): number {
+    let low: number = 0;
+    let high: number = 1;
+    for (let step: number = 0; step < 48; ++step) {
+      const middle: number = (low + high) / 2;
+      if (surface.frame(middle).origin.y * 1000 < y) low = middle;
+      else high = middle;
+    }
+    return (low + high) / 2;
+  }
+  function sourcePoint(u: number, angle: number): ISourcePoint {
+    const point: IAutoMovieVector3 = surface.point(u, angle / (2 * Math.PI));
+    return {x:point.x*1000,y:point.y*1000,z:point.z*1000,source:{at:u,angle}};
+  }
+  const left: (p: ISourcePoint) => ISourcePoint = (p: ISourcePoint): ISourcePoint => p;
+  const right: (p: ISourcePoint) => ISourcePoint = (p: ISourcePoint): ISourcePoint => ({
+    ...AutoMovieHumanVector.of(-p.x,p.y,p.z),
+    source:p.source===undefined?undefined:{at:p.source.at,angle:-p.source.angle},
+  });
   const curves: Array<{
-    points: IAutoMovieVector3[];
+    points: ISourcePoint[];
     form: IAutoMovieHumanTrunkFeatures.ICurve;
   }> = [];
   for (const mirror of [left, right]) {
@@ -67,7 +90,7 @@ export function featureAutoMovieHumanTrunk(props: {
       ],
       form: F.pectoral,
     });
-    const spine: IAutoMovieVector3 = mirror(frame.iliospinale);
+    const spine: ISourcePoint = mirror(frame.iliospinale);
     curves.push({
       points: [
         spine,
@@ -90,10 +113,13 @@ export function featureAutoMovieHumanTrunk(props: {
     form: F.cleft,
   });
   return curves.map(
-    ({ points, form }: { points: IAutoMovieVector3[]; form: IAutoMovieHumanTrunkFeatures.ICurve }): IAutoMovieSweep.IFeature => ({
+    ({ points, form }: { points: ISourcePoint[]; form: IAutoMovieHumanTrunkFeatures.ICurve }): IAutoMovieSweep.IFeature => ({
       width: form.width / 1000,
       points: points.map(
-        (p: IAutoMovieVector3): IAutoMovieSweep.IFeaturePoint => {
+        (p: ISourcePoint): IAutoMovieSweep.IFeaturePoint => {
+          // A generated source point already owns its exact chart address.
+          // Only independent bone-landmark hints require inverse projection.
+          if(p.source!==undefined)return {...p.source,offset:form.offset/1000};
           const found: { u: number; v: number; offset: number } =
             locateAutoMovieSweepPoint({
               surface,
@@ -108,4 +134,9 @@ export function featureAutoMovieHumanTrunk(props: {
       ),
     }),
   );
+}
+
+/** A generated point retains its source address through bilateral mirroring. */
+interface ISourcePoint extends IAutoMovieVector3 {
+  source?: {at:number;angle:number};
 }

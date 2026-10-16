@@ -1,12 +1,12 @@
 import { AUTOMOVIE_HUMAN_TRUNK_FORM } from "./AUTOMOVIE_HUMAN_TRUNK_FORM";
 import { IAutoMovieHumanTrunkForm } from "./IAutoMovieHumanTrunkForm";
 import { IAutoMovieHumanTrunkFrame } from "./IAutoMovieHumanTrunkFrame";
-import { curveAutoMovieHumanTrunk } from "./curveAutoMovieHumanTrunk";
+import { interpolateAutoMovieHumanTrunkSection } from "./interpolateAutoMovieHumanTrunkSection";
 
 /**
  * The trunk's level sections: at every height, the front and back of the midline, the half breadth, the depth of the widest point and the squareness of the front and back halves.
  *
- * Key levels carry the measured sections: the buttock level (buttock depth, hip breadth, buttock circumference), the natural waist and the chest point (their depths, breadths and circumferences), with the iliac crest, the underbust at the inframammary fold and the axilla between or beside them. Each key section's back lies a share of its depth behind the vertebral column, so the skeleton's lordosis and kyphosis show on the back, and its front lies the depth ahead of the back. Where a circumference is measured, the squareness is solved so the section's perimeter is that circumference, which is what a tape around the convex section reads; the front and back halves keep a fitted ratio of exponents. Between key levels every quantity follows the monotone interpolant of `curveAutoMovieHumanTrunk`, so no section bulges past its neighbours.
+ * Key levels carry the measured sections: the buttock level (buttock depth, hip breadth, buttock circumference), the natural waist and the chest point (their depths, breadths and circumferences), with the iliac crest, the underbust at the inframammary fold and the axilla between or beside them. Each key section's back lies a share of its depth behind the vertebral column, so the skeleton's lordosis and kyphosis show on the back, and its front lies the depth ahead of the back. Where a circumference is measured, the squareness is solved so the section's perimeter is that circumference, which is what a tape around the convex section reads; the front and back halves keep a fitted ratio of exponents. Every longitudinal guide is the same `point(height, angle)` family at a fixed polar angle. The shared section centre and positive half-dimensions interpolate together at the anatomical key heights; front and back supports derive from those values, with no independent coordinate clamps. Dimensionless log interpolation keeps half-dimensions positive and C2 between keys, under the engine's sampled-tension policy. This does not prove monotonicity or a final-skin bound. The spinal axis is unchanged. The underbust uses its own measured girth and a shape ratio calibrated at its actual fold plane, independently of the waist and chest depths.
  *
  * @param frame The side's trunk frame
  * @returns The profile
@@ -16,10 +16,10 @@ export function profileAutoMovieHumanTrunk(
 ): profileAutoMovieHumanTrunk.IProfile {
   const F: IAutoMovieHumanTrunkForm = AUTOMOVIE_HUMAN_TRUNK_FORM;
   const L: IAutoMovieHumanTrunkFrame.ILevels = frame.levels;
-  const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
-  const B = frame.buttock;
-  const W = frame.waist;
-  const C = frame.chest;
+  const lerp: (a: number, b: number, t: number) => number = (a: number, b: number, t: number): number => a + (b - a) * t;
+  const B: IAutoMovieHumanTrunkFrame.ISection = frame.buttock;
+  const W: IAutoMovieHumanTrunkFrame.ISection = frame.waist;
+  const C: IAutoMovieHumanTrunkFrame.ISection = frame.chest;
   const chest: IKey = encircled(frame, L.chestPoint, C.depth, C.girth, F.chest);
   const keys: IKey[] = [
     measured(frame, L.buttock, B.depth, B.breadth, B.girth, F.buttock),
@@ -34,7 +34,7 @@ export function profileAutoMovieHumanTrunk(
     encircled(
       frame,
       L.underbust,
-      lerp(W.depth, C.depth, F.underbust.depth),
+      frame.underbust * F.underbust.depth,
       frame.underbust,
       F.underbust,
     ),
@@ -47,68 +47,49 @@ export function profileAutoMovieHumanTrunk(
       F.axilla,
     ),
   ];
-  const through = (pick: (key: IKey) => number): Array<[number, number]> =>
-    keys.map((key: IKey): [number, number] => [key.y, pick(key)]);
   const buttock: IKey = keys[0]!;
+  const crest: IKey = keys[1]!;
   const hipLevel: number = lerp(L.buttock, frame.iliocristale.y, F.hip.level);
-  const fork = (
-    y: number,
-    form: IAutoMovieHumanTrunkForm.IFork,
-    pick: "front" | "back",
-  ): [number, number] => [
-    y,
-    buttock.back +
-      (pick === "front"
-        ? form.front + form.fat * (frame.fat - REFERENCE_FAT)
-        : form.back) *
-        buttock.depth,
-  ];
-  const front: (y: number) => number = curveAutoMovieHumanTrunk([
-    fork(L.gluteal, F.gluteal, "front"),
-    fork(L.crotch, F.crotch, "front"),
-    ...through((k: IKey): number => k.back + k.depth),
-    [
-      frame.suprasternale.y,
-      frame.suprasternale.z +
-        (F.clavicle.front + F.clavicle.fat * (frame.fat - REFERENCE_FAT)) *
-          C.depth,
-    ],
-  ]);
-  const back: (y: number) => number = curveAutoMovieHumanTrunk([
-    fork(L.gluteal, F.gluteal, "back"),
-    fork(L.crotch, F.crotch, "back"),
-    ...through((k: IKey): number => k.back),
-    [frame.suprasternale.y, frame.cervicale.z - F.clavicle.back * C.depth],
-    [frame.cervicale.y, frame.cervicale.z],
-  ]);
-  const half: (y: number) => number = curveAutoMovieHumanTrunk([
-    [L.gluteal, (F.gluteal.breadth * B.breadth) / 2],
-    [L.crotch, (F.crotch.breadth * B.breadth) / 2],
-    ...through((k: IKey): number => k.breadth / 2),
-    [hipLevel, (F.hip.breadth * B.breadth) / 2],
-  ]);
-  const widest: (y: number) => number = curveAutoMovieHumanTrunk(
-    through((k: IKey): number => k.back + k.widest * k.depth),
-  );
-  const frontSquareness: (y: number) => number = curveAutoMovieHumanTrunk(
-    through((k: IKey): number => k.front),
-  );
-  const backSquareness: (y: number) => number = curveAutoMovieHumanTrunk(
-    through((k: IKey): number => k.rear),
-  );
+  const hip: IKey = {
+    y: hipLevel,
+    depth: lerp(buttock.depth, crest.depth, F.hip.level),
+    breadth: F.hip.breadth * B.breadth,
+    back: lerp(buttock.back, crest.back, F.hip.level),
+    widest: lerp(buttock.widest, crest.widest, F.hip.level),
+    front: Math.exp(lerp(Math.log(buttock.front), Math.log(crest.front), F.hip.level)),
+    rear: Math.exp(lerp(Math.log(buttock.rear), Math.log(crest.rear), F.hip.level)),
+  };
+  function fork(y: number, form: IAutoMovieHumanTrunkForm.IFork): IKey {
+    const back: number = buttock.back + form.back * buttock.depth;
+    const front: number = buttock.back +
+      (form.front + form.fat * (frame.fat - REFERENCE_FAT)) * buttock.depth;
+    return {y, back, depth:front-back, breadth:form.breadth*B.breadth,
+      widest:0.5, front:buttock.front, rear:buttock.rear};
+  }
+  const family: interpolateAutoMovieHumanTrunkSection.IFamily =
+    interpolateAutoMovieHumanTrunkSection([
+      fork(L.gluteal, F.gluteal), fork(L.crotch, F.crotch), ...keys, hip,
+    ].map((key: IKey): interpolateAutoMovieHumanTrunkSection.ISection => ({
+      height:key.y, centre:key.back + key.widest*key.depth,
+      forward:(1-key.widest)*key.depth, backward:key.widest*key.depth,
+      half:key.breadth/2, frontExponent:key.front, backExponent:key.rear,
+    })));
   return {
-    front,
-    back,
-    half,
-    widest: (y: number): number =>
-      Math.min(
-        front(y) - MINIMUM_HALF,
-        Math.max(back(y) + MINIMUM_HALF, widest(y)),
-      ),
-    squareness: (y: number): { front: number; back: number } => ({
-      front: frontSquareness(y),
-      back: backSquareness(y),
-    }),
+    ...family,
+    front: (y: number): number => {
+      const section: interpolateAutoMovieHumanTrunkSection.ISection = family.at(y);
+      return section.centre + section.forward;
+    },
+    back: (y: number): number => {
+      const section: interpolateAutoMovieHumanTrunkSection.ISection = family.at(y);
+      return section.centre - section.backward;
+    },
+    half: (y: number): number => family.at(y).half,
+    widest: (y: number): number => family.at(y).centre,
+    squareness: (y: number): {front:number;back:number} => {
+      const section: interpolateAutoMovieHumanTrunkSection.ISection = family.at(y);
+      return {front:section.frontExponent,back:section.backExponent};
+    },
   };
 }
 /** Profile type of {@link profileAutoMovieHumanTrunk}. */
@@ -118,7 +99,7 @@ export namespace profileAutoMovieHumanTrunk {
    *
    * @author Samchon
    */
-  export interface IProfile {
+  export interface IProfile extends interpolateAutoMovieHumanTrunkSection.IFamily {
     /** Front of the midline at a height. */
     front: (y: number) => number;
 
@@ -135,9 +116,6 @@ export namespace profileAutoMovieHumanTrunk {
     squareness: (y: number) => { front: number; back: number };
   }
 }
-
-/** Smallest front or back half-depth a section keeps, millimetres. */
-const MINIMUM_HALF: number = 10;
 
 /** Exponents a solved section stays within: near a diamond at the low end, near a rectangle at the high end. */
 const EXPONENT: { low: number; high: number } = { low: 1.2, high: 12 };
@@ -163,13 +141,13 @@ interface IKey {
 const REFERENCE_FAT: number = 15;
 
 /** Share of the depth the back lies behind the column at the frame's body fat. */
-const behindOf = (
+const behindOf: (frame: IAutoMovieHumanTrunkFrame, form: IAutoMovieHumanTrunkForm.IPlacement) => number = (
   frame: IAutoMovieHumanTrunkFrame,
   form: IAutoMovieHumanTrunkForm.IPlacement,
 ): number => form.behind + form.fat * (frame.fat - REFERENCE_FAT);
 
 /** A key level whose squareness is solved from its circumference. */
-const measured = (
+const measured: (frame: IAutoMovieHumanTrunkFrame, y: number, depth: number, breadth: number, girth: number, form: IAutoMovieHumanTrunkForm.IMeasured) => IKey = (
   frame: IAutoMovieHumanTrunkFrame,
   y: number,
   depth: number,
@@ -181,7 +159,7 @@ const measured = (
   const ahead: number = (1 - form.widest) * depth;
   const behind: number = form.widest * depth;
   const ratio: number = Math.exp(form.skew / 2);
-  const perimeter = (n: number): number =>
+  const perimeter: (n: number) => number = (n: number): number =>
     2 *
     (quarter(ahead, breadth / 2, n * ratio) +
       quarter(behind, breadth / 2, n / ratio));
@@ -211,14 +189,14 @@ const measured = (
 };
 
 /** A key level whose breadth is solved so its section's perimeter is the girth at the given squareness. */
-const encircled = (
+const encircled: (frame: IAutoMovieHumanTrunkFrame, y: number, depth: number, girth: number, form: IAutoMovieHumanTrunkForm.IEncircled) => IKey = (
   frame: IAutoMovieHumanTrunkFrame,
   y: number,
   depth: number,
   girth: number,
   form: IAutoMovieHumanTrunkForm.IEncircled,
 ): IKey => {
-  const perimeter = (breadth: number): number =>
+  const perimeter: (breadth: number) => number = (breadth: number): number =>
     2 *
     (quarter((1 - form.widest) * depth, breadth / 2, form.front) +
       quarter(form.widest * depth, breadth / 2, form.back));
@@ -244,7 +222,7 @@ const encircled = (
 const BREADTH: { low: number; high: number } = { low: 0.5, high: 4 };
 
 /** A key level whose squareness is given. */
-const derived = (
+const derived: (frame: IAutoMovieHumanTrunkFrame, y: number, depth: number, breadth: number, form: IAutoMovieHumanTrunkForm.IDerived) => IKey = (
   frame: IAutoMovieHumanTrunkFrame,
   y: number,
   depth: number,
@@ -261,7 +239,7 @@ const derived = (
 });
 
 /** Length of the superellipse quarter `x = a cos^(2/n) t`, `y = b sin^(2/n) t` for `t` from 0 to a right angle. */
-const quarter = (a: number, b: number, n: number): number => {
+const quarter: (a: number, b: number, n: number) => number = (a: number, b: number, n: number): number => {
   let length: number = 0;
   let px: number = a;
   let py: number = 0;

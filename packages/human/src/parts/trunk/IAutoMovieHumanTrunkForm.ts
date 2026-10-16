@@ -98,12 +98,12 @@ export namespace IAutoMovieHumanTrunkForm {
   }
 
   /**
-   * The underbust level: depth as a share toward the chest's from the waist's, breadth solved so the section's perimeter is the underbust circumference at the given squareness, so the girth holds in a body without breasts, whose underbust is its chest girth, as in one with them.
+   * The actual inframammary/pectoral fold section: depth is a dimensionless share of its own tape girth. Breadth is solved to close that girth at the given squareness; its dimensions are not copied from the neighbouring waist or chest planes.
    *
    * @author Samchon
    */
   export interface IUnderbust extends IEncircled {
-    /** Depth as a share toward the chest's from the waist's. */
+    /** Depth divided by the actual fold plane's tape girth. */
     depth: number;
   }
 

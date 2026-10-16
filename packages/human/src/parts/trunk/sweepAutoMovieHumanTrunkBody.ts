@@ -3,6 +3,7 @@ import {
   IAutoMovieSweepSection,
   IAutoMovieSweepSurface,
   compileAutoMovieSweep,
+  sampleAutoMovieSweepSection,
 } from "@automovie/engine";
 import { IAutoMovieVector3 } from "@automovie/interface";
 
@@ -31,14 +32,15 @@ export function sweepAutoMovieHumanTrunkBody(props: {
   const { frame, profile }: typeof props = props;
   const S: typeof AutoMovieHumanTrunkSweep = AutoMovieHumanTrunkSweep;
   const L: IAutoMovieHumanTrunkFrame.ILevels = frame.levels;
-  const levels: number[] = [
+  const levels: number[] = Array.from(new Set([
     L.crotch,
+    ...profile.heights.filter((y: number): boolean => y >= L.crotch && y <= L.axilla),
     ...Array.from(
       { length: STEPS + 1 },
       (_: unknown, k: number): number =>
         L.buttock + ((L.axilla - L.buttock) * k) / STEPS,
     ),
-  ];
+  ])).sort((a: number,b: number): number => a-b);
   const thighFront: number = Math.max(
     ...props.thighs.flatMap((t: IAutoMovieHumanRingShape): number[] =>
       t.positions.map((p: IAutoMovieVector3): number => p.z),
@@ -73,18 +75,14 @@ export function sweepAutoMovieHumanTrunkBody(props: {
           recess: AUTOMOVIE_HUMAN_TRUNK_FORM.crotch.recess * frame.buttock.depth,
         }),
       };
-    const widest: number = profile.widest(y);
-    const half: number = profile.half(y);
-    const square: { front: number; back: number } = profile.squareness(y);
+    const state: ReturnType<profileAutoMovieHumanTrunk.IProfile["at"]> = profile.at(y);
     return {
-      centre: AutoMovieHumanVector.of(0, y, widest),
+      centre: AutoMovieHumanVector.of(0, y, state.centre),
       section: {
         type: "superellipse",
-        right: S.metres(Math.max(20, profile.front(y) - widest)),
-        up: S.metres(half),
-        left: S.metres(Math.max(20, widest - profile.back(y))),
-        down: S.metres(half),
-        exponents: [square.front, square.back, square.back, square.front],
+        right: S.metres(state.forward), up: S.metres(state.half),
+        left: S.metres(state.backward), down: S.metres(state.half),
+        exponents: [state.frontExponent,state.backExponent,state.backExponent,state.frontExponent],
       },
     };
   });
@@ -102,9 +100,19 @@ export function sweepAutoMovieHumanTrunkBody(props: {
       S.toMetres(s.centre),
   );
   const ats: number[] = S.chordShares(points);
+  // Axial and diagonal meridians all consume the same section definitions,
+  // including the shared pelvic boundary. No guide owns a separate shape table.
+  const guideRadii: number[][] = stations.map(
+    (station: { centre: IAutoMovieVector3; section: IAutoMovieSweepSection }): number[] =>
+      sampleAutoMovieSweepSection({section:station.section,count:GUIDE_DIRECTIONS}),
+  );
   const bare: IAutoMovieSweep = {
     spine: { points, normal: { x: 0, y: 0, z: 1 } },
     orientation: "fixed",
+    guides: Array.from({length:GUIDE_DIRECTIONS},(_:unknown,direction:number):IAutoMovieSweep.IGuide=>({
+      angle:2*Math.PI*direction/GUIDE_DIRECTIONS,
+      radii:ats.map((at:number,k:number):IAutoMovieSweep.IKnot=>({at,value:guideRadii[k]![direction]!})),
+    })),
     stations: stations.map(
       (
         s: { centre: IAutoMovieVector3; section: IAutoMovieSweepSection },
@@ -243,4 +251,7 @@ const BISECTIONS: number = 40;
 
 /** Steps between the stations from the buttock level to the axilla, about 25 mm each in an adult. */
 const STEPS: number = 16;
+
+/** The four section axes and their diagonals, all derived from one section family. */
+const GUIDE_DIRECTIONS: number = 8;
 
