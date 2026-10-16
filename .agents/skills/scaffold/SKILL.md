@@ -7,6 +7,6 @@ description: Maintains the generated-project scaffold under packages/template an
 
 A production's own `AGENTS.md`, `README.md`, and source own its meaning; read them and the installed package APIs before interpreting, authoring, or reviewing it. Repository instructions never override them.
 
-- The scaffold's `.agents/skills/3d-modeling/SKILL.md` and `.agents/skills/contracts/common.md` are copies of this repository's, written by `packages/template/build/syncScaffoldInstructions.ts`; edit the repository's file, never the copy.
+- The [instruction synchronizer](../../../packages/template/build/syncScaffoldInstructions.ts) owns which repository 3d-modeling guides and common contract are copied into the scaffold; edit their repository sources and regenerate the copies with that helper.
 - Installation is one-way: installed files belong to the production, and package upgrades never overwrite them.
 - For changed installation behavior, observe a generated project's installed entry point and its `lint` and `evidence` commands.

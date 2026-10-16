@@ -10,7 +10,7 @@ Pick the representation that fits the form best, then optimize the form within i
 
 Prefer one where a few named values control the whole surface, the form splits into parts, and an edit stays local:
 
-- Curve networks, sections lofted along an axis or a chain over a subdivision cage, are the default for forms that can be cut into sections, deforming and branching ones included.
+- Curve networks, sections lofted along an axis or a chain over a subdivision cage, are the default for forms that can be cut into sections, deforming and branching ones included. Read [Lofting](lofting.md) for section families and fitting.
 - Code CAD, dimensioned primitives with extrusion, revolution, and boolean operations, suits rigid forms with holes and chamfers.
 - Procedural rules, such as grammars or scattering, suit repeated structure.
 - Implicit surfaces suit blended masses that never deform.
