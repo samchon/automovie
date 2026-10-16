@@ -13,6 +13,9 @@ import { AutoMovieHumanVector } from "../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanSkeleton } from "../skeleton/IAutoMovieHumanSkeleton";
 import { IAutoMovieHumanIdentity } from "../structures/IAutoMovieHumanIdentity";
 import { pigmentAutoMovieHumanSkin } from "./pigmentAutoMovieHumanSkin";
+import { AUTOMOVIE_HUMAN_LIP_FORM } from "../junction/AUTOMOVIE_HUMAN_LIP_FORM";
+import { frameAutoMovieHumanHead } from "../junction/frameAutoMovieHumanHead";
+import { curveAutoMovieHumanLips } from "../junction/curveAutoMovieHumanLips";
 
 /**
  * Give the skin regional linear albedo from its physical rest position and limit normal, independently of the published UV atlas.
@@ -23,7 +26,7 @@ import { pigmentAutoMovieHumanSkin } from "./pigmentAutoMovieHumanSkin";
  *
  * Regional albedos change the chromophores consumed by {@link pigmentAutoMovieHumanSkin}: palms and soles use one quarter of the body's melanin, lips seven tenths of its melanin and five times its haemoglobin, cheeks twice its haemoglobin and ears 1.6 times. These factors remain conventional. The fivefold difference in palmoplantar melanocyte density reported by Yamaguchi et al. (2004, J Cell Biol 165(2):275-285, DOI 10.1083/jcb.200311122) measures cells, not melanin fraction, and does not calibrate the quarter factor or any transition width.
  *
- * The lips and cheeks retain their physical landmark fields. Vertex colors are absolute linear albedo over the skin material's white base color; posed geometry carries the rest albedo with it.
+ * Lip pigmentation follows the same head-frame vermilion border as the generated mouth loops, rather than a separate fixed-size ellipse. Cheeks retain their physical landmark fields. Vertex colors are absolute linear albedo over the skin material's white base color; posed geometry carries the rest albedo with it.
  *
  * @param props.parts The generated skin parts in metres, with limit normals
  * @param props.measurements Resolved measurements, for pigmentation and regional scales
@@ -95,7 +98,10 @@ export function tintAutoMovieHumanSkin(props: {
   const head: IAutoMovieHumanIdentity.IHead = props.measurements.identity.head;
   const k: number = head.faceHeight / 120;
   const stomion: IAutoMovieVector3 = props.skeleton.landmarks.stomion.position;
-  const mouth: number = 0.185 * head.faceWidth;
+  const headFrame: frameAutoMovieHumanHead.IFrame = frameAutoMovieHumanHead(props.skeleton);
+  const lips: curveAutoMovieHumanLips.ICurve = curveAutoMovieHumanLips({
+    head, stomion: headFrame.stomion.y, form: AUTOMOVIE_HUMAN_LIP_FORM,
+  });
   const ankle: number =
     0.5 * Math.min(
       props.measurements.identity.body.leftLeg.ankleHeight,
@@ -136,9 +142,15 @@ export function tintAutoMovieHumanSkin(props: {
           smooth((facing - 0.05) / 0.6) * smooth(along / hand.radius),
         );
       }
-      const dx: number = position.x / mouth;
-      const dy: number = (position.y - stomion.y) / ((position.y > stomion.y ? 8 : 9) * k);
-      w.lips = position.z > stomion.z - 12 * k ? smooth(2.5 * (1 - dx * dx - dy * dy)) : 0;
+      const face: IAutoMovieVector3 = frameAutoMovieHumanHead.toLocal(headFrame, position);
+      // The same physical border as the lip loops, in the same head frame.
+      // Its finite commissure allowance supplies the pigment-edge transition;
+      // this is a conventional albedo fade, not a measured skin transition.
+      if (Math.abs(face.x) < lips.halfWidth && face.z > headFrame.tragion.z) {
+        const margin: number = AUTOMOVIE_HUMAN_LIP_FORM.commissure;
+        w.lips = smooth((lips.border(face.x, true) - face.y) / margin) *
+          smooth((face.y - lips.border(face.x, false)) / margin);
+      }
       for (const cheek of cheeks) {
         const distance: number = V.distance(position, cheek) / (24 * k);
         w.flush = Math.max(w.flush, smooth(1.4 * (1 - distance * distance)));

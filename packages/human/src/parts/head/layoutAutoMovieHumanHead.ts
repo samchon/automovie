@@ -1,5 +1,6 @@
 import { layoutAutoMovieSurfaceTransition } from "@automovie/engine";
 
+import { IAutoMovieHumanCage } from "../../junction/IAutoMovieHumanCage";
 import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
 import { IAutoMovieHumanIdentity } from "../../structures/IAutoMovieHumanIdentity";
 import { AutoMovieHumanHeadDomain } from "./AutoMovieHumanHeadDomain";
@@ -7,6 +8,7 @@ import { AutoMovieHumanHeadNetwork } from "./AutoMovieHumanHeadNetwork";
 import { IAutoMovieHumanHeadForm } from "./IAutoMovieHumanHeadForm";
 import { capAutoMovieHumanHead } from "./capAutoMovieHumanHead";
 import { columnAutoMovieHumanHead } from "./columnAutoMovieHumanHead";
+import { rowsAutoMovieHumanFace } from "./rowsAutoMovieHumanFace";
 import { locateAutoMovieHumanHeadRing } from "./locateAutoMovieHumanHeadRing";
 import { loopAutoMovieHumanEyelids } from "./loopAutoMovieHumanEyelids";
 import { loopAutoMovieHumanLips } from "./loopAutoMovieHumanLips";
@@ -29,11 +31,10 @@ export function layoutAutoMovieHumanHead(props: {
   form: IAutoMovieHumanHeadForm;
   neck: IAutoMovieHumanRingShape;
   ears: Record<"left" | "right", IAutoMovieHumanRingShape>;
-}): void {
+}): IAutoMovieHumanCage.IRelief[] {
   const { domain, network, head }: typeof props = props;
   const layout: IAutoMovieHumanHeadForm.ILayout = props.form.layout;
   const frame: AutoMovieHumanHeadDomain["frame"] = domain.frame;
-  const profile: AutoMovieHumanHeadDomain["profile"] = domain.profile;
   const fh: number = head.faceHeight;
   const features: IAutoMovieHumanIdentity.IFeatures = head.features;
 
@@ -62,26 +63,15 @@ export function layoutAutoMovieHumanHead(props: {
   const C: number = lines.length;
 
   // ---- rows: the vault and face row counts continue around the sides, spaced at the ears
-  const pfl: number = features.palpebralFissureLength;
   const hairline: number = domain.front(frame.nasion.y + layout.trichion * fh);
   const vaultRows: number[] = Array.from(
     { length: ROWS.vault + 1 },
     (_: unknown, k: number): number => (hairline * k) / ROWS.vault,
   );
-  const anchors: Array<[number, number]> = [
-    [frame.eye.y + layout.eyeOpening.above * pfl, ROWS.forehead],
-    [frame.eye.y - layout.eyeOpening.below * pfl, ROWS.eyes],
-    [profile.subnasale.y - layout.mouthOpening.top * fh, ROWS.nose],
-    [frame.stomion.y - layout.mouthOpening.bottom * fh, ROWS.mouth],
-  ];
-  const faceRows: number[] = [hairline];
-  let previous: number = hairline;
-  anchors.forEach(([y, count]: [number, number]): void => {
-    const target: number = domain.front(y);
-    for (let k: number = 1; k <= count; ++k)
-      faceRows.push(previous + ((target - previous) * k) / count);
-    previous = target;
+  const faceRows: number[] = rowsAutoMovieHumanFace({
+    domain, head, form: props.form, hairline, counts: ROWS,
   });
+  const previous: number = faceRows[faceRows.length - 1]!;
   // the chin's rows end on the jawline, the plane through gnathion, and the reductions and the ring's row share the chin's underside
   const jawU: number = domain.loft.shares[domain.loft.shares.length - 2]!;
   const chinU: number = jawU;
@@ -315,11 +305,12 @@ export function layoutAutoMovieHumanHead(props: {
     form: props.form.eyelids,
     rims: { left: rim(openings[0]!), right: rim(openings[1]!) },
   });
-  loopAutoMovieHumanLips({
+  const mouthGuides: IAutoMovieHumanCage.IRelief[] = loopAutoMovieHumanLips({
     domain,
     network,
     head,
     form: props.form.lips,
+    relief: props.form.relief.lips,
     rim: rim(openings[2]!),
   });
   for (const [name, o] of [
@@ -400,6 +391,7 @@ export function layoutAutoMovieHumanHead(props: {
     ringPoints,
     props.neck.positions,
   );
+  return mouthGuides;
 }
 
 /**

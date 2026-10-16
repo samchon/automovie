@@ -6,13 +6,14 @@ import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanIdentity } from "../../structures/IAutoMovieHumanIdentity";
 import { IAutoMovieHumanHeadForm } from "./IAutoMovieHumanHeadForm";
 import { frameAutoMovieHumanHead } from "./frameAutoMovieHumanHead";
+import { locateAutoMovieHumanSubnasale } from "./locateAutoMovieHumanSubnasale";
 
 /**
  * The head's guide curves, the silhouettes its sections are lofted through, in the head frame.
  *
  * Four guides run from the vertex down to the chin, each a monotone piecewise cubic through landmark knots, so between knots a guide never bulges past its neighbours (Fritsch and Carlson 1980):
  *
- * - Front: the midline profile without the nose and lips, which the features add: the forehead's arc from the vertex to glabella, nasion, the cheek plane under the nose, subnasale at the measured nose height below nasion, the base under the lips, the labiomental fold, pogonion and gnathion. Subnasale and gnathion stand where the measured tragion depths put them: the straight distances from tragion to nasion, subnasale and gnathion keep their measured ratios, so the skeleton's tragion-nasion distance sets the other two, and each depth follows after half the bitragion width and the landmark's height above tragion.
+ * - Front: the midline profile without the nose and lips, which the features add: the forehead's arc from the vertex to glabella, nasion, the cheek plane under the nose, subnasale at the intersection of its measured three-dimensional nasal chord and its tragion-distance sphere, the base under the lips, the labiomental fold, pogonion and gnathion. Subnasale and gnathion stand where the measured tragion depths put them: the straight distances from tragion to nasion, subnasale and gnathion keep their measured ratios, so the skeleton's tragion-nasion distance sets the other two, and each depth follows after half the bitragion width and the landmark's height above tragion.
  * - Back: the midline from the vertex over the vault to opisthocranion and down the occiput to the neck-top ring's posterior point at the nape.
  * - Breadth: the half-breadth of the head's frontal outline, from the vertex over eurion and tragion to gonion, with the depth at which it lies.
  * - Exponents: the turn of the section's front and back quadrants, solved where a landmark lies on it (frontotemporale on the forehead, the ring behind the jaw) and named coefficients elsewhere.
@@ -26,23 +27,24 @@ export function profileAutoMovieHumanHead(props: {
   ring: profileAutoMovieHumanHead.IRing;
   form: IAutoMovieHumanHeadForm;
 }): profileAutoMovieHumanHead.IProfile {
-  const { frame, head, ring, form } = props;
+  const { frame, head, ring, form }: typeof props = props;
   const fh: number = head.faceHeight;
   const top: number = frame.vertex.y;
   // depth in front of tragion of a midline point at a height, from its straight distance to tragion
   const tn: number = AutoMovieHumanVector.distance(frame.nasion, frame.tragion);
-  const depth = (ratio: number, y: number): number =>
+  const depth: (ratio: number, y: number) => number = (ratio: number, y: number): number =>
     Math.sqrt(
       Math.max(
         0,
         (ratio * tn) ** 2 - frame.tragion.x ** 2 - (y - frame.tragion.y) ** 2,
       ),
     ) + frame.tragion.z;
-  const subnasaleY: number = frame.nasion.y - head.features.noseHeight;
-  const subnasale: IPoint = {
-    y: subnasaleY,
-    z: depth(SUBNASALE_DEPTH, subnasaleY),
-  };
+  const subnasale: IPoint = locateAutoMovieHumanSubnasale({
+    nasion: frame.nasion,
+    tragion: frame.tragion,
+    noseHeight: head.features.noseHeight,
+    tragionDistance: SUBNASALE_DEPTH * tn,
+  });
   const gnathionY: number =
     frame.menton.y + AUTOMOVIE_HUMAN_JAWLINE.gnathionAboveMenton * fh;
   const gnathion: IPoint = {
@@ -53,7 +55,7 @@ export function profileAutoMovieHumanHead(props: {
     y: frame.menton.y + form.pogonionAboveMenton * fh,
     z: subnasale.z - form.pogonionBehindSubnasale * fh,
   };
-  const arc = (
+  const arc: (from: IPoint, to: IPoint, exponent: number, count: number) => IPoint[] = (
     from: IPoint,
     to: IPoint,
     exponent: number,
@@ -111,7 +113,7 @@ export function profileAutoMovieHumanHead(props: {
     { y: frame.tragion.y, z: frame.tragion.z },
     { y: top, z: frame.vertex.z },
   ];
-  const curve = (points: IPoint[]): ((y: number) => number) => {
+  const curve: (points: IPoint[]) => (y: number) => number = (points: IPoint[]): ((y: number) => number) => {
     const sorted: IPoint[] = [...points].sort(
       (a: IPoint, b: IPoint): number => a.y - b.y,
     );
@@ -124,14 +126,14 @@ export function profileAutoMovieHumanHead(props: {
       values: kept.map((p: IPoint): number => p.z),
     });
   };
-  const guides = {
+  const guides: { front: (y: number) => number; back: (y: number) => number; breadth: (y: number) => number; lateral: (y: number) => number } = {
     front: curve(front),
     back: curve(back),
     breadth: curve(breadth),
     lateral: curve(lateral),
   };
   // the exponent that carries a quadrant through a point at its own height
-  const solve = (x: number, z: number, fallback: number): number => {
+  const solve: (x: number, z: number, fallback: number) => number = (x: number, z: number, fallback: number): number => {
     if (!(x > 0 && x < 1 && z > 0 && z < 1)) return fallback;
     let lo: number = 1.05;
     let hi: number = 20;
@@ -142,13 +144,13 @@ export function profileAutoMovieHumanHead(props: {
     }
     return (lo + hi) / 2;
   };
-  const throughFront = (p: IAutoMovieVector3, fallback: number): number =>
+  const throughFront: (p: IAutoMovieVector3, fallback: number) => number = (p: IAutoMovieVector3, fallback: number): number =>
     solve(
       Math.abs(p.x) / guides.breadth(p.y),
       (p.z - guides.lateral(p.y)) / (guides.front(p.y) - guides.lateral(p.y)),
       fallback,
     );
-  const throughBack = (p: IAutoMovieVector3, fallback: number): number =>
+  const throughBack: (p: IAutoMovieVector3, fallback: number) => number = (p: IAutoMovieVector3, fallback: number): number =>
     solve(
       Math.abs(p.x) / guides.breadth(p.y),
       (guides.lateral(p.y) - p.z) / (guides.lateral(p.y) - guides.back(p.y)),

@@ -1,3 +1,4 @@
+import { AUTOMOVIE_HUMAN_LIP_FORM } from "../../junction/AUTOMOVIE_HUMAN_LIP_FORM";
 import { IAutoMovieHumanHeadForm } from "./IAutoMovieHumanHeadForm";
 
 /**
@@ -54,19 +55,13 @@ export const AUTOMOVIE_HUMAN_HEAD_FORM: IAutoMovieHumanHeadForm = {
     /** Geometric envelope of the four reference heads used in the campaign gate comparison, native head frames, outward quad-strip courses: each expansion is normalized by its own seed aperture width, fitted with equal reference weights, then rounded to four decimals. Grade: derived from reference geometry, not a clinical rim or population norm. */
     envelope: { medial: 0.0183, lateral: 0.2628, above: 0.091, below: 0.1668 },
   },
-  lips: {
-    orbicularis: 0.5,
-    /** Crista philtri 13.3 and 11.8 mm apart over mouths of 50.9 and 48.1 mm (3D Facial Norms; Weinberg et al. 2016). Grade: derived. */
-    philtrum: 0.26,
-    commissure: 0.5,
-    meeting: { back: 1.5, open: 0.25, narrow: 0.97 },
-    pocket: { back: 8, open: 2.5, narrow: 0.85 },
-  },
+  lips: AUTOMOVIE_HUMAN_LIP_FORM,
   relief: {
     /** The alae's half-breadth is half of alare-alare. */
     nose: {
       tipAboveSubnasale: 0.17,
-      dorsumCurve: 0.85,
+      /** Zero-end-slope basis t^p(1+p(1-t)); minimax relative shape-error fit of native midsagittal N–PRN profiles of the four provided campaign reference heads; each profile uses its own landmark-proxy endpoints and scale. All four leave-one-reference-out comparisons and eight other held-out native heads improve. Synthetic geometric correspondence, not a clinical nasal-profile population norm. */
+      dorsumCurve: 2.245593,
       bridge: 0.2,
       ala: 0.5,
       alaHeight: 0.5,
@@ -74,7 +69,7 @@ export const AUTOMOVIE_HUMAN_HEAD_FORM: IAutoMovieHumanHeadForm = {
       alaSpread: 0.13,
       alaDepth: 0.12,
     },
-    lips: { roll: 0.04, reach: 1.05 },
+    lips: { roll: 0.04 },
     orbit: {
       across: 0.95,
       up: 0.65,

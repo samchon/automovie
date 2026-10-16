@@ -1,3 +1,5 @@
+import { IAutoMovieHumanLipForm } from "../../junction/IAutoMovieHumanLipForm";
+
 /**
  * The named form coefficients of the lofted head: dimensionless exponents and fractions of the person's own face height, so one set serves every identity.
  *
@@ -129,28 +131,13 @@ export namespace IAutoMovieHumanHeadForm {
   /**
    * Placement of the lips' loops, from the opening's rim inward: the loop of orbicularis oris, the vermilion border through the cupid's bow, the closed lips' meeting line and the pocket behind them.
    */
-  export interface ILips {
-    /** Share of the way from the opening's rim to the vermilion border at which the loop of orbicularis oris runs. */
-    orbicularis: number;
-
-    /** Distance between the crista philtri points, the cupid's bow's peaks, over mouth width. */
-    philtrum: number;
-
-    /** Half the gap between the vermilion borders at each commissure, millimetres, so the commissure is a short edge. */
-    commissure: number;
-
-    /** The meeting line: depth behind the lips' surface and half-opening, millimetres, and width over the mouth's. */
-    meeting: { back: number; open: number; narrow: number };
-
-    /** The pocket's wall behind the lips: depth and half-opening, millimetres, and width over the mouth's. */
-    pocket: { back: number; open: number; narrow: number };
-  }
+  export type ILips = IAutoMovieHumanLipForm;
 
   /**
    * The features' relief over the block-out. Heights and spreads are shares of face height (`fh`), fissure length, nose width or mouth width as each says; the bony and muscular terms reach the skin through the soft tissue over their sites, which softens them further.
    */
   export interface IRelief {
-    /** The nose: pronasale above subnasale over nose height; the exponent of the dorsum's rise from nasion to the tip; half-breadth at the bridge and at the alae over nose width; and the alar lobes' height over the tip's, centre off the midline and spread over nose width, and reach along the nose's height. */
+    /** The nose: pronasale above subnasale over nose height; the exponent of the zero-end-slope dorsum basis t^p(1+p(1-t)) from nasion to the tip; half-breadth at the bridge and at the alae over nose width; and the alar lobes' height over the tip's, centre off the midline and spread over nose width, and reach along the nose's height. */
     nose: {
       tipAboveSubnasale: number;
       dorsumCurve: number;
@@ -162,8 +149,8 @@ export namespace IAutoMovieHumanHeadForm {
       alaDepth: number;
     };
 
-    /** The lips: their forward roll over `fh`, and their reach past the mouth's corners over half its width. */
-    lips: { roll: number; reach: number };
+    /** The lips' conventional anterior crest reach over face height, consumed by the shared spatial oral arch. */
+    lips: IAutoMovieHumanLipForm.IRelief;
 
     /** The orbital opening: half-breadth, half-height above and below the eye's centre over fissure length; the share inside which the lids lie fully on their dome and beyond which the face is untouched; the breadth of its hollow that the soft tissue softens and the deepest the lids sink, over fissure length; and the lids' thickness over the globe, millimetres. */
     orbit: {
