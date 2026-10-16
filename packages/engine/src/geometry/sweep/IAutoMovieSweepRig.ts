@@ -81,16 +81,16 @@ export interface IAutoMovieSweepRig {
   /**
    * Register a surface point and make its writer.
    *
-   * The point's radius is averaged over its cell, which reaches half the spacing to the neighbouring sample on each side along `u` (clamped to the spine) and `v`, by the trapezoid rule on the cell's two halves: weights `b / (2 (b + a))`, `1/2` and `a / (2 (b + a))` at the lower end, the point and the upper end for halves `b` below and `a` above, which is `1/4, 1/2, 1/4` on an even grid. It averages radii rather than positions, so a round section keeps its size. A cell of zero extent is the section point itself, as `IAutoMovieSweepSurface.point` places it. Shapes are read now; the writer scales and places them in the current frame.
+   * The point is averaged over its cell, which reaches half the spacing to the neighbouring sample on each side along `u` (clamped to the spine) and `v`, by the trapezoid rule on the cell's two halves: weights `b / (2 (b + a))`, `1/2` and `a / (2 (b + a))` at the lower end, the point and the upper end for halves `b` below and `a` above, which is `1/4, 1/2, 1/4` on an even grid. Direction correspondence averages radii about the authored direction, so a round section keeps its size. Parameter correspondence averages the actual Cartesian section points, with each u-dependent scale inside the average; it preserves an off-origin curve and permits a legitimately cancelling origin. Signed means and products that cannot be represented are refused. A cell of zero extent is the section point itself, as `IAutoMovieSweepSurface.point` places it. Shapes are read now; the writer scales and places them in the current frame.
    *
    * @param u Along the spine
    * @param v Around it
    * @param cell Spacing to the neighbouring sample below and above along `u`, then below and above along `v`
    * @returns The writer, three numbers in metres at an offset
    *
-   * @evidence contracts/common.md#principled-implementation The trapezoid average of radius over the point's cell.
+   * @evidence contracts/common.md#principled-implementation Tensor trapezoid integration over the fixed cell: radial radii or parameter-correspondence Cartesian points, with scale inside the u integral.
    * @evidence contracts/common.md#clear-and-simple-design Shapes read now, scale and frame per pose.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Radii, not positions, are averaged.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The declared correspondence selects radial or Cartesian averaging; no Cartesian section is projected onto an unrelated polar direction.
    * @evidence contracts/common.md#meaningful-documentation States the weights and the zero cell.
    * @evidence contracts/performance.md#efficient-algorithms Up to nine shape reads at registration, three terms per pose.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `rigAutoMovieSweep`.

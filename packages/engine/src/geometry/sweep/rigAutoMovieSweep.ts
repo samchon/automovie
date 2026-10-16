@@ -13,6 +13,7 @@ import { IAutoMovieSweepTransport } from "./IAutoMovieSweepTransport";
 import { compileAutoMovieSweep } from "./compileAutoMovieSweep";
 import { orientAutoMovieSweep } from "./orientAutoMovieSweep";
 import { preserveAutoMovieSweepVolume } from "./preserveAutoMovieSweepVolume";
+import { sampleAutoMovieParameterSweep } from "./sampleAutoMovieParameterSweep";
 import { transportAutoMovieSweepSpine } from "./transportAutoMovieSweepSpine";
 
 /**
@@ -34,7 +35,8 @@ import { transportAutoMovieSweepSpine } from "./transportAutoMovieSweepSpine";
  * every scale slot, at rest and after settling, so the settled volume is the
  * rest volume before that correction. Shapes before scale come directly from the shared shape evaluator and are
  * read once at registration; no scaled result is divided back into a shape.
- * Unrepresentable positive cell averages, scaled samples and girth products
+ * Parameter-correspondence cells average actual signed section coordinates; radial cells retain radius averaging about their authored direction. Valid Cartesian cancellation at the origin is allowed.
+ * Unrepresentable nonzero cell averages, scaled samples and girth products
  * are refused. Girth admission stages every factor, product and probe before committing.
  *
  * @param props.sweep The sweep, only read and retained through its compiled surface.
@@ -139,6 +141,18 @@ export const rigAutoMovieSweep: (props: {
     cell: readonly [number, number, number, number],
   ): (out: Float64Array, at: number) => void {
     const f: number = 12 * frame(u);
+    if (sweep.correspondence === "parameter")
+      return sampleAutoMovieParameterSweep({
+        surface,
+        u,
+        v,
+        cell,
+        frame: f,
+        scale,
+        readScale: (slot: number): number =>
+          (probeScales ?? rig.scales)[probeScaleOffset + slot]!,
+        frames: (): Float64Array => rig.frames,
+      });
     const slots: number[] = [];
     const xs: number[] = [];
     const ys: number[] = [];
