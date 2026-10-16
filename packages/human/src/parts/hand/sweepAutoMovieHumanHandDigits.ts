@@ -10,7 +10,7 @@ import { sectionAutoMovieHumanFingerShaft } from "./sectionAutoMovieHumanFingerS
 /**
  * Sweep the hand's five digits along their joints with `sweepAutoMovieHumanDigit`, in the hand frame.
  *
- * Each finger starts on its axis a fitted distance beyond the higher of the crotches beside it, so its bridge spans the webs, and its sections are rounded boxes at its root, its proximal and distal interphalangeal joints, the middle of its middle phalanx and its pad, sized by the hand's breadth, their shaft sizes supplied by the shared external-section proxy and their dorsal shares conventional. Its loop starts at its palmar side. The thumb starts a fitted share along its metacarpal, its first section the thenar mass, then its metacarpophalangeal knuckle, its phalanx, its interphalangeal joint and its pad; its loop starts toward the first corner of its opening in the palm, so the bridge from that opening meets the thumb without a twist.
+ * Each finger starts on its axis a fitted distance beyond the higher of the crotches beside it, so its bridge spans the webs, and its sections are rounded boxes at its root, its proximal and distal interphalangeal joints, the middle of its middle phalanx and its pad, sized by the hand's breadth, their shaft sizes supplied by the shared external-section proxy and their dorsal shares conventional. Its loop starts at its palmar side. The palm and saddle bridge own the thenar mass through the thumb's metacarpophalangeal joint to its first-web plane; the free tube starts beyond that shared plane on the proximal phalanx, then passes the interphalangeal joint and pad; its loop starts toward the first corner of its opening in the palm, so the bridge from that opening meets the thumb without a twist.
  *
  * @param props The hand, its arm's measurements, the crotches' distal levels between neighbouring fingers and the first corner of the thumb's opening, hand frame, millimetres
  * @returns The digits' sweeps, thumb first and then index to little
@@ -30,58 +30,56 @@ export function sweepAutoMovieHumanHandDigits(props: {
     const b: number = props.arm.handBreadth;
     // the thumb, its loop starting toward the opening's first corner
     const thumb: readAutoMovieHumanHand.IHand["thumb"] = props.hand.thumb;
-    const metacarpal: number = V.distance(thumb.points[0]!, thumb.points[1]!);
-    const start: IAutoMovieVector3 = V.offset(thumb.points[0]!, [
-        V.offset(thumb.points[1]!, [thumb.points[0]!, -1]),
-        SHAPE.thumbStart,
-    ]);
+    // The palm owns the thenar mass. The free tube leaves beyond the first-web
+    // plane, measured from the same stylion datum as hand length. Greiner's
+    // crease baseline is approximated here by its radial stylion landmark;
+    // this is a population-derived proxy, not an individual clinical claim.
+    const cut: number = props.hand.stylion.x + (F.thumbWeb + SHAPE.root) * L;
+    if (!(cut > thumb.points[1]!.x && cut < thumb.points[2]!.x))
+        throw new Error("The thumb web must leave the proximal phalanx");
+    const start: IAutoMovieVector3 = along(thumb.points, cut);
     const axis: IAutoMovieVector3 = V.normalize(V.offset(thumb.points[1]!, [thumb.points[0]!, -1]));
     const toCorner: IAutoMovieVector3 = V.offset(props.thumbCorner, [start, -1]);
     const first: IAutoMovieVector3 = V.normalize(V.offset(toCorner, [axis, -V.dot(toCorner, axis)]));
     const second: IAutoMovieVector3 = V.cross(axis, first);
     const tw: number = F.thumb.ip * b;
     const td: number = F.depth.thumb * tw;
-    const knuckle: number = (1 - SHAPE.thumbStart) * metacarpal;
-    const phalanx: number = V.distance(thumb.points[1]!, thumb.points[2]!);
+    const phalanx: number = V.distance(start, thumb.points[2]!);
+    const through: number = V.distance(thumb.points[1]!, start) / V.distance(thumb.points[1]!, thumb.points[2]!);
+    const breadth: number = tw * (T.knuckle + (1 - T.knuckle) * through);
+    const dorsal: number = td * (T.knuckleDorsal + (0.5 - T.knuckleDorsal) * through);
+    const palmar: number = td * (T.knucklePalmar + (0.5 - T.knucklePalmar) * through);
     const digits: sweepAutoMovieHumanHandDigits.IDigit[] = [
         {
             name: "thumb",
             out: sweepAutoMovieHumanDigit({
-                points: [start, ...thumb.points.slice(1)],
+                points: [start, ...thumb.points.slice(2)],
                 first,
                 pad: Math.atan2(V.dot(thumb.pad, second), V.dot(thumb.pad, first)),
                 stations: [
                     {
                         at: 0,
-                        breadth: tw * T.mass,
-                        dorsal: td * 0.5,
-                        palmar: T.thenar * tw,
-                        square: 2.4,
-                    },
-                    {
-                        at: knuckle,
-                        breadth: tw * T.knuckle,
-                        dorsal: td * T.knuckleDorsal,
-                        palmar: td * T.knucklePalmar,
+                        breadth,
+                        dorsal,
+                        palmar,
                         square: 2.6,
                     },
                     {
-                        at: knuckle + 0.5 * phalanx,
+                        at: .5 * phalanx,
                         breadth: tw * T.phalanx,
                         dorsal: td * 0.48,
                         palmar: td * 0.56,
                         square: 2.6,
                     },
                     {
-                        at: knuckle + phalanx,
+                        at: phalanx,
                         breadth: tw,
                         dorsal: td * 0.5,
                         palmar: td * 0.5,
                         square: 2.6,
                     },
                     {
-                        at: knuckle +
-                            phalanx +
+                        at: phalanx +
                             0.4 * V.distance(thumb.points[2]!, thumb.points[3]!),
                         breadth: tw * 0.98,
                         dorsal: td * 0.4,

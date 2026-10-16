@@ -1,7 +1,7 @@
 /**
  * Shape coefficients of the hand's sections that no survey measures: how the palm and digits are shaped once the measured breadths, lengths, depths and girths are set.
  *
- * Fitted coefficients were calibrated offline against the MakeHuman CC0 base mesh (hm08, released CC0 in September 2020 by Data Collection AB) blended to the same identity from its CC0 macro targets and carried onto Human's skeleton, by the campaign's shared harness: the hand and the reference were cut by nine planes normal to the wrist-to-dactylion line and the wrist ring, compared by 72 rays per section, and silhouetted from the viewer's eight preset views. Nelder-Mead minimised the mean radial error plus 30 times one minus the mean silhouette IoU over the adult woman and man of 30 (european, average build). The block-out fitted gross form with every relief coefficient off, bringing the two hands from 6.35 mm and IoU 0.782 to 5.17 mm and 0.820; the relief was then fitted on top, bounded so the knuckles do not sink and the palm does not bulge, to 4.89 mm and 0.830 with the conventional hollow and knuckle rise below.
+ * Fitted coefficients were calibrated offline against the CC0 reference base mesh blended to the same identity from its CC0 macro targets and carried onto Human's skeleton, by the campaign's shared harness: the hand and the reference were cut by nine planes normal to the wrist-to-dactylion line and the wrist ring, compared by 72 rays per section, and silhouetted from the viewer's eight preset views. Nelder-Mead minimised the mean radial error plus 30 times one minus the mean silhouette IoU over the adult woman and man of 30 (european, average build). The block-out fitted gross form with every relief coefficient off, bringing the two hands from 6.35 mm and IoU 0.782 to 5.17 mm and 0.820; the relief was then fitted on top, bounded so the knuckles do not sink and the palm does not bulge, to 4.89 mm and 0.830 with the conventional hollow and knuckle rise below.
  *
  * The lofted hand refitted the palm's form, thumb and finger-pad coefficients and its layout on the four lean 20-year-old gate identities (a slim model woman and man, a lean muscular woman and man) by the same harness and objective, bounded within 30% of the drawing's values, with our hand moved 4 mm palmar for the comparison only: that is the reference's systematic offset at the palm and the fingers (below), so the fit sees form rather than offset; the four hands went from 3.7 to 4.2 mm and IoU 0.83 to 0.84 on that comparison. Coefficients that place the skin relative to the joint centres are not fitted to the reference, whose joint markers are not anatomical joint centres: carried onto Human's joints they put the reference's palm and fingers about 5 mm palmar of where bone allows. The knuckles' dorsal skin stays at least the metacarpal head's measured dorsal radius plus the dorsal joint capsule above the joint centre, and the fingers' dorsal shares stay conventional.
  */
@@ -22,6 +22,7 @@ export const AUTOMOVIE_HUMAN_HAND_SHAPE: {
     };
     thumb: {
         mass: number;
+        massSquare: number;
         knuckle: number;
         knucklePalmar: number;
         knuckleDorsal: number;
@@ -46,7 +47,6 @@ export const AUTOMOVIE_HUMAN_HAND_SHAPE: {
         roots: number;
         root: number;
         corner: number;
-        thumbStart: number;
         tension: number;
         thumbTension: number;
     };
@@ -80,6 +80,8 @@ export const AUTOMOVIE_HUMAN_HAND_SHAPE: {
     thumb: {
         /** Breadth of the thenar section over the metacarpal's middle over the interphalangeal joint breadth. Conventional. */
         mass: 1.224,
+        /** Conventional superellipse exponent of the shared thenar belly section. */
+        massSquare: 2.4,
         /** Breadth of the thumb's knuckle section, inside the thenar's distal slope, over its interphalangeal joint breadth. Fitted. */
         knuckle: 1.001,
         /** Palmar depth of the knuckle section, the thenar's distal end, over the interphalangeal joint depth. Fitted. */
@@ -127,8 +129,6 @@ export const AUTOMOVIE_HUMAN_HAND_SHAPE: {
         root: 0.02,
         /** Share of the border's half-breadth where the radial and ulnar corners lie on the roots' slice. */
         corner: 0.85,
-        /** Where the thumb's sweep starts along its metacarpal. */
-        thumbStart: 0.4467,
         /** Tension of the fingers' and thumb's bridges. */
         tension: 0.8219,
         thumbTension: 0.5227,

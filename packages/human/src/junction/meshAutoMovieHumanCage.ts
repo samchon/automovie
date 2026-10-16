@@ -7,6 +7,7 @@ import {
 } from "@automovie/engine";
 import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
+import { AUTOMOVIE_HUMAN_UV_LAYOUT_V3 } from "./AUTOMOVIE_HUMAN_UV_LAYOUT_V3";
 import { AutoMovieHumanUvLayout } from "./AutoMovieHumanUvLayout";
 import { IAutoMovieHumanCage } from "./IAutoMovieHumanCage";
 import { IAutoMovieHumanSurfaceCoordinate } from "./IAutoMovieHumanSurfaceCoordinate";
@@ -15,7 +16,7 @@ import { fitAutoMovieHumanCage } from "./fitAutoMovieHumanCage";
 /**
  * Subdivide a skin cage once with the engine's Catmull-Clark and turn the limit surface into a render mesh.
  *
- * The cage is converted from millimetres to metres in this one step. Positions are the limit positions and normals the limit normals the engine evaluates, written explicitly, because normals recomputed from triangles would split shading wherever a UV seam duplicates a vertex. UVs follow `AUTOMOVIE_HUMAN_UV_LAYOUT` face-varying: each face corner takes the UV of its own semantic address, so a corner on a chart boundary gets its own chart's value and the engine pins every chart outline. A render vertex is split where a corner's limit normal or UV differs, and every split copy names its subdivided vertex in `physicalVertices`, so welding and topology treat a seam as one surface.
+ * The cage is converted from millimetres to metres in this one step. Positions are the limit positions and normals the limit normals the engine evaluates, written explicitly, because normals recomputed from triangles would split shading wherever a UV seam duplicates a vertex. UVs follow `AUTOMOVIE_HUMAN_UV_LAYOUT` face-varying: each face corner takes its explicitly declared UV or the layout maps its evaluation address, so a corner on a chart boundary gets its own chart's value and the engine pins every chart outline. A render vertex is split where a corner's limit normal or UV differs, and every split copy names its subdivided vertex in `physicalVertices`, so welding and topology treat a seam as one surface.
  *
  * @param props.cage The cage, millimetres, only read
  * @param props.levels Refinement steps, an integer from 1 to 6
@@ -29,6 +30,8 @@ export function meshAutoMovieHumanCage(props: {
   cage: IAutoMovieHumanCage;
   levels: number;
   domain: string;
+  /** Published atlas version; omitted, current (4). Version 3 maps the preserved evaluation coordinates, reproducing the previous texture layout. */
+  uvLayout?: 3 | 4;
   relief?: (point: {
     coordinate: IAutoMovieHumanSurfaceCoordinate;
     position: IAutoMovieVector3;
@@ -38,9 +41,13 @@ export function meshAutoMovieHumanCage(props: {
   const uvFaces: number[][] = [];
   const index: Map<string, number> = new Map();
   for (const face of props.cage.faces) {
-    const corners: Array<[number, number]> = AutoMovieHumanUvLayout.map(
-      face.coordinates,
-    );
+    const corners: Array<[number, number]> =
+      props.uvLayout === 3
+        ? AutoMovieHumanUvLayout.map(
+            face.coordinates,
+            AUTOMOVIE_HUMAN_UV_LAYOUT_V3,
+          )
+        : (face.uvs ?? AutoMovieHumanUvLayout.map(face.coordinates));
     uvFaces.push(
       corners.map(([x, y]: [number, number], k: number): number => {
         const key: string = `${face.vertices[k]}:${x}:${y}`;

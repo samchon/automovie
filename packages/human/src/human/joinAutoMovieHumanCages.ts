@@ -83,6 +83,7 @@ function beside(a: IAutoMovieHumanCage, b: IAutoMovieHumanCage): IAutoMovieHuman
             shift,
           ) as IAutoMovieHumanCage.IFace["vertices"],
           coordinates: f.coordinates,
+          ...(f.uvs === undefined ? {} : { uvs: f.uvs }),
         }),
       ),
     ],

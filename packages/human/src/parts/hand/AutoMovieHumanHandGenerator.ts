@@ -5,6 +5,7 @@ import { IAutoMovieHumanCage } from "../../junction/IAutoMovieHumanCage";
 import { IAutoMovieHumanSurfaceCoordinate } from "../../junction/IAutoMovieHumanSurfaceCoordinate";
 import { IAutoMovieHumanPartGenerator } from "../../parts/IAutoMovieHumanPartGenerator";
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
+import { AutoMovieHumanHandChart } from "./AutoMovieHumanHandChart";
 import { loftAutoMovieHumanHand } from "./loftAutoMovieHumanHand";
 import { placeAutoMovieHumanNails } from "./placeAutoMovieHumanNails";
 import { shapeAutoMovieHumanRing } from "../../junction/shapeAutoMovieHumanRing";
@@ -15,6 +16,8 @@ import { readAutoMovieHumanHand } from "./readAutoMovieHumanHand";
  * `loftAutoMovieHumanHand` lofts the hand in its own frame; this class places it in the model frame, where the left hand's frame is a mirror image, so the left hand's quads and chart turns are reversed and the right hand's kept. The nail plates are separate meshes riding each digit's distal phalanx, projected on the already emitted assembled skin after joined fitting and relief.
  *
  * The palm and the back of the hand lie on the main chart: `u` along the palm sweep from the wrist ring (0) to the fingers' roots, scaled so the middle fingertip would be 1 and the roots lie short of 0.5, and `v` counterclockwise about the distal axis from the palmar mark. Each digit, with its bridge from the palm, lies on its own branch chart: `u` from the palm (0) through the bridge to the digit's root (0.1) and along the digit to its tip (1), `v` counterclockwise about its distal axis from its pad.
+ *
+ * Texture coordinates are separate face-varying data: version 4 uses named logical stations and columns, with a separate rectangle for each web and tip cap. Those coordinates stay fixed as the person changes while the evaluation addresses above retain their physical sweep parameter. The chart cut follows the first palmar column; the ring transitions do not all have a quarter-turn column.
  *
  * Rings, in order: `wrist`. Attachments, in order: `nail.thumb`, `nail.index`, `nail.middle`, `nail.ring`, `nail.little`.
  *
@@ -63,6 +66,13 @@ export class AutoMovieHumanHandGenerator implements IAutoMovieHumanPartGenerator
             : [0, 3, 2, 1];
           return {
             fitting: `hand.${props.side}`,
+            uvs: AutoMovieHumanHandChart.pack(
+              props.side,
+              keep,
+              order.map(
+                (k: number): AutoMovieHumanHandChart.IPoint => face.atlas[k]!,
+              ),
+            ) as IAutoMovieHumanCage.IFace["uvs"],
             vertices: order.map(
               (k: number): number => face.vertices[k]!,
             ) as IAutoMovieHumanCage.IFace["vertices"],
