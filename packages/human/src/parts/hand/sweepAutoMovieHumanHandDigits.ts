@@ -6,6 +6,7 @@ import { sweepAutoMovieHumanDigit } from "../sweepAutoMovieHumanDigit";
 import { AUTOMOVIE_HUMAN_HAND_FORM } from "./AUTOMOVIE_HUMAN_HAND_FORM";
 import { AUTOMOVIE_HUMAN_HAND_SHAPE } from "./AUTOMOVIE_HUMAN_HAND_SHAPE";
 import { readAutoMovieHumanHand } from "./readAutoMovieHumanHand";
+import { measureAutoMovieHumanFingerRoots } from "./measureAutoMovieHumanFingerRoots";
 import { sectionAutoMovieHumanFingerShaft } from "./sectionAutoMovieHumanFingerShaft";
 /**
  * Sweep the hand's five digits along their joints with `sweepAutoMovieHumanDigit`, in the hand frame.
@@ -37,7 +38,8 @@ export function sweepAutoMovieHumanHandDigits(props: {
     const cut: number = props.hand.stylion.x + (F.thumbWeb + SHAPE.root) * L;
     if (!(cut > thumb.points[1]!.x && cut < thumb.points[2]!.x))
         throw new Error("The thumb web must leave the proximal phalanx");
-    const start: IAutoMovieVector3 = along(thumb.points, cut);
+    const free: IAutoMovieVector3 = along(thumb.points, cut);
+    const start: IAutoMovieVector3 = thumb.points[1]!;
     const axis: IAutoMovieVector3 = V.normalize(V.offset(thumb.points[1]!, [thumb.points[0]!, -1]));
     const toCorner: IAutoMovieVector3 = V.offset(props.thumbCorner, [start, -1]);
     const first: IAutoMovieVector3 = V.normalize(V.offset(toCorner, [axis, -V.dot(toCorner, axis)]));
@@ -45,23 +47,16 @@ export function sweepAutoMovieHumanHandDigits(props: {
     const tw: number = F.thumb.ip * b;
     const td: number = F.depth.thumb * tw;
     const phalanx: number = V.distance(start, thumb.points[2]!);
-    const through: number = V.distance(thumb.points[1]!, start) / V.distance(thumb.points[1]!, thumb.points[2]!);
-    const breadth: number = tw * (T.knuckle + (1 - T.knuckle) * through);
-    const dorsal: number = td * (T.knuckleDorsal + (0.5 - T.knuckleDorsal) * through);
-    const palmar: number = td * (T.knucklePalmar + (0.5 - T.knucklePalmar) * through);
-    const digits: sweepAutoMovieHumanHandDigits.IDigit[] = [
-        {
-            name: "thumb",
-            out: sweepAutoMovieHumanDigit({
+    const thumbBody: sweepAutoMovieHumanDigit.IOutput = sweepAutoMovieHumanDigit({
                 points: [start, ...thumb.points.slice(2)],
                 first,
                 pad: Math.atan2(V.dot(thumb.pad, second), V.dot(thumb.pad, first)),
                 stations: [
                     {
                         at: 0,
-                        breadth,
-                        dorsal,
-                        palmar,
+                        breadth: tw * T.knuckle,
+                        dorsal: td * T.knuckleDorsal,
+                        palmar: td * T.knucklePalmar,
                         square: 2.6,
                     },
                     {
@@ -87,16 +82,13 @@ export function sweepAutoMovieHumanHandDigits(props: {
                         square: 2.6,
                     },
                 ],
-            }),
-        },
-    ];
+            });
+    const digits: sweepAutoMovieHumanHandDigits.IDigit[] = [{ name: "thumb", out: thumbBody, root: V.distance(start, free) / thumbBody.length }];
+    const roots: number[] = measureAutoMovieHumanFingerRoots(props.crotch, L);
     // the fingers, each from beyond its webs, its loop starting at its palmar side
     FINGERS.forEach((finger: readAutoMovieHumanHand.IFinger, i: number): void => {
         const digit: readAutoMovieHumanHand.IDigit = props.hand.fingers[finger];
-        const neighbours: number[] = [i - 1, i]
-            .filter((w: number): boolean => w >= 0 && w < 3)
-            .map((w: number): number => props.crotch[w]!);
-        const root: IAutoMovieVector3 = along(digit.points, Math.max(...neighbours) + SHAPE.root * L);
+        const root: IAutoMovieVector3 = along(digit.points, roots[i]!);
         const shaft: sectionAutoMovieHumanFingerShaft.ISection = sectionAutoMovieHumanFingerShaft(finger, b);
         const wp: number = F.fingers[finger].pip * b;
         const wd: number = F.fingers[finger].dip * b;
@@ -114,6 +106,7 @@ export function sweepAutoMovieHumanHandDigits(props: {
         });
         digits.push({
             name: finger.toLowerCase() as AutoMovieHumanBranch<"hand">,
+            root: 0,
             out: sweepAutoMovieHumanDigit({
                 points: [root, ...digit.points.slice(1)],
                 first: V.of(0, 1, 0),
@@ -142,6 +135,8 @@ export namespace sweepAutoMovieHumanHandDigits {
         name: AutoMovieHumanBranch<"hand">;
         /** Its sweep and stations. */
         out: sweepAutoMovieHumanDigit.IOutput;
+        /** First free-tube section on the same anatomical sweep; zero for fingers. */
+        root: number;
     }
 }
 const FINGERS: readAutoMovieHumanHand.IFinger[] = [

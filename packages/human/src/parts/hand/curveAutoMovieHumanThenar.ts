@@ -17,7 +17,9 @@ import { readAutoMovieHumanHand } from "./readAutoMovieHumanHand";
  * directly to the first web. The belly is an anatomical section of the same
  * thumb axis and pad frame, not another intersecting tube. A guide whose palm
  * end already lies beyond the belly receives no backward detour. Eight Coons
- * strips reuse the original bridge's two rows and eight columns.
+ * strips resolve the belly and meet a shared anatomical loop at the
+ * actual MCP section of the same thumb sweep, independent of sampling rows.
+ * The next band reaches its first-web cut on that sweep.
  *
  * @param props Shared palm hole, thumb surfaces and hand measurements
  * @returns Named shared guides, nodes and the bridge's patches and addresses
@@ -29,6 +31,8 @@ export function curveAutoMovieHumanThenar(props: {
   hand: readAutoMovieHumanHand.IHand;
   breadth: number;
   share: number;
+  /** Free-tube cut on the same MCP-to-tip sweep. */
+  root: number;
 }): {
   nodes: Record<string, IAutoMovieSurfaceNetwork.INode>;
   curves: Record<string, IAutoMovieSurfaceNetwork.ICurve>;
@@ -80,16 +84,26 @@ export function curveAutoMovieHumanThenar(props: {
   }
   for (let i: number = 0; i < count; i++) {
     patches.push({
-      type: "coons", name: `thumb.thenar.${i}`,
+      type: "coons", name: `thumb.thenar.${i}.0`,
       sides: [props.loop[i]!, { type: "curve", curve: `thenar.guide.${(i + 1) % count}` },
         { type: "sweep", sweep: "thumb", from: { u: 0, v: (i + 1) / count }, to: { u: 0, v: i / count }, segments: ONE },
         { type: "curve", curve: `thenar.guide.${i}`, reverse: true }],
     });
-    places.push((s: number, t: number): { u: number; v: number } => ({ u: props.share * t, v: (i + s) / count }));
+    places.push((s: number, t: number): { u: number; v: number } => ({ u: props.share * t / 2, v: (i + s) / count }));
+    patches.push({
+      type: "coons", name: `thumb.thenar.${i}.1`,
+      sides: [
+        { type: "sweep", sweep: "thumb", from: { u: 0, v: i / count }, to: { u: 0, v: (i + 1) / count }, segments: ONE },
+        { type: "sweep", sweep: "thumb", from: { u: 0, v: (i + 1) / count }, to: { u: props.root, v: (i + 1) / count }, segments: ONE },
+        { type: "sweep", sweep: "thumb", from: { u: props.root, v: (i + 1) / count }, to: { u: props.root, v: i / count }, segments: ONE },
+        { type: "sweep", sweep: "thumb", from: { u: props.root, v: i / count }, to: { u: 0, v: i / count }, segments: ONE },
+      ],
+    });
+    places.push((s: number, t: number): { u: number; v: number } => ({ u: props.share * (1 + t) / 2, v: (i + s) / count }));
   }
   return { nodes, curves, patches, places };
 }
 
-const ONE: IAutoMovieSurfaceNetwork.ICounts = { lowest: 1, low: 1, medium: 1, high: 1 };
 const TWO: IAutoMovieSurfaceNetwork.ICounts = { lowest: 2, low: 2, medium: 2, high: 2 };
+const ONE: IAutoMovieSurfaceNetwork.ICounts = { lowest: 1, low: 1, medium: 1, high: 1 };
 const metres: (point: IAutoMovieVector3) => IAutoMovieVector3 = (point: IAutoMovieVector3): IAutoMovieVector3 => ({ x: point.x / 1000, y: point.y / 1000, z: point.z / 1000 });

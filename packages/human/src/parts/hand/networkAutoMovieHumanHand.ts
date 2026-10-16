@@ -118,8 +118,8 @@ export function networkAutoMovieHumanHand(props: {
         }),
     });
     const { at: rootAt, lo, hi }: typeof ring = ring;
-    const uCarpus: number = at[2]!;
-    const uMid: number = at[3]!;
+    const uCarpus: number = at.carpus;
+    const uMid: number = at.midPalm;
     const { patches, addresses, atlasAddresses, main, thenar: uThenar }: ReturnType<typeof layoutAutoMovieHumanPalm> = layoutAutoMovieHumanPalm({ at, end, reach: hand.fingers.Middle.points[3]!.x, roots: ring });
     // the digits
     const sweeps: Record<string, IAutoMovieSweep> = { palm };
@@ -175,19 +175,19 @@ export function networkAutoMovieHumanHand(props: {
         [opened(uThenar, THUMB - 1), opened(uCarpus, THUMB - 1)],
     ].map(([a, c]: IAutoMovieSurfaceNetwork.IDomainPoint[]): IAutoMovieSurfaceNetwork.ISweepEdge => line("palm", a!, c!, 1));
     // every digit's bridge, its sweep in bands at its joints and its dome, and its cap
-    digits.forEach(({ name, out }: sweepAutoMovieHumanHandDigits.IDigit, k: number): void => {
+    digits.forEach(({ name, out, root }: sweepAutoMovieHumanHandDigits.IDigit, k: number): void => {
         sweeps[name] = out.sweep;
         const laid: patchAutoMovieHumanDigit.IOutput = patchAutoMovieHumanDigit({
             name,
             digit: out,
             loop: k === 0 ? thumbLoop : loops[k - 1]!,
-            marks: [0, out.at[1]!, out.at[k === 0 ? 2 : 3]!, out.tip[0], out.tip[1], 1],
+            marks: [root, k === 0 ? (root + out.at[2]!) / 2 : out.at[1]!, out.at[k === 0 ? 2 : 3]!, out.tip[0], out.tip[1], 1],
             rows: [3, 3, 3, 2, 1],
             tension: k === 0 ? SHAPE.thumbTension : SHAPE.tension,
             share: BRIDGE,
         });
         if (k === 0) {
-            const bridge: ReturnType<typeof curveAutoMovieHumanThenar> = curveAutoMovieHumanThenar({ loop: thumbLoop, palm: compileAutoMovieSweep(palm), thumb: compileAutoMovieSweep(out.sweep), hand, breadth: arm.handBreadth, share: BRIDGE });
+            const bridge: ReturnType<typeof curveAutoMovieHumanThenar> = curveAutoMovieHumanThenar({ loop: thumbLoop, palm: compileAutoMovieSweep(palm), thumb: compileAutoMovieSweep(out.sweep), hand, breadth: arm.handBreadth, share: BRIDGE, root });
             Object.assign(nodesRecord, bridge.nodes);
             Object.assign(curves, bridge.curves);
             laid.patches.splice(0, 1, ...bridge.patches);
@@ -203,10 +203,14 @@ export function networkAutoMovieHumanHand(props: {
                 branch: name,
                 ...place(s, t),
             }));
-            const bridges: number = k === 0 ? thumbLoop.length : 1;
+            const bridges: number = k === 0 ? 2 * thumbLoop.length : 1;
             const logical: number = band < bridges ? 0 : band - bridges + 1;
             const address: AutoMovieHumanHandChart.IAddress = C.digit(name, logical, laid.places.length - bridges, BRIDGE);
-            atlasAddresses.push((s: number, t: number): AutoMovieHumanHandChart.IPoint => address(band < bridges ? (band + s) / bridges : s, t));
+            atlasAddresses.push((s: number, t: number): AutoMovieHumanHandChart.IPoint => {
+                  if (band >= bridges) return address(s, t);
+                  const physical: ReturnType<typeof place> = place(s, t);
+                  return { branch: name, u: physical.u, v: physical.v };
+              });
         });
     });
     // the wrist ring and its collar
@@ -227,7 +231,7 @@ export function networkAutoMovieHumanHand(props: {
                 },
                 {
                     name: "wrist.collar",
-                    edges: ringEdges(at[1]!),
+                    edges: ringEdges(at.collar),
                     positions: props.ring.positions.map((p: IAutoMovieVector3): IAutoMovieVector3 => metres(V.offset(props.toLocal(V.offset(p, [props.ring.frame.origin, -1])), [ringNormal, collar]))),
                 },
             ],

@@ -5,6 +5,7 @@ import { splitAutoMovieHumanWebs } from "../splitAutoMovieHumanWebs";
 import { AUTOMOVIE_HUMAN_HAND_TOPOLOGY } from "./AUTOMOVIE_HUMAN_HAND_TOPOLOGY";
 import { AutoMovieHumanHandChart } from "./AutoMovieHumanHandChart";
 import { networkAutoMovieHumanHand } from "./networkAutoMovieHumanHand";
+import { sweepAutoMovieHumanPalm } from "./sweepAutoMovieHumanPalm";
 import { sliceAutoMovieHumanPalm } from "./sliceAutoMovieHumanPalm";
 /**
  * Lay palm sections and meridians as one shared anatomical fan. The engine's
@@ -15,7 +16,7 @@ import { sliceAutoMovieHumanPalm } from "./sliceAutoMovieHumanPalm";
  * @returns Shared patches and both physical and logical address families
  */
 export function layoutAutoMovieHumanPalm(props: {
-    at: number[];
+    at: sweepAutoMovieHumanPalm.IOutput["at"];
     end: sliceAutoMovieHumanPalm.ISlice;
     reach: number;
     roots: splitAutoMovieHumanWebs.IOutput;
@@ -30,9 +31,8 @@ export function layoutAutoMovieHumanPalm(props: {
     const { at, end, reach }: typeof props = props;
     const R: number = props.roots.count;
     const rootAt: splitAutoMovieHumanWebs.IOutput["at"] = props.roots.at;
-    const uCarpus: number = at[2]!;
-    const uMid: number = at[3]!;
-    const uHeads: number = at[4]!;
+    const uCarpus: number = at.carpus;
+    const uMid: number = at.midPalm;
     const THENAR: number = AUTOMOVIE_HUMAN_HAND_TOPOLOGY.thenar;
     const STEP: number = AUTOMOVIE_HUMAN_HAND_TOPOLOGY.step;
     const THUMB: number = AUTOMOVIE_HUMAN_HAND_TOPOLOGY.thumb;
@@ -79,12 +79,12 @@ export function layoutAutoMovieHumanPalm(props: {
         atlasAddresses.push((s: number, t: number): AutoMovieHumanHandChart.IPoint => atlas(chart[0] + (chart[1] - chart[0]) * t, v[0] + (v[1] - v[0]) * s));
     };
     // ring to collar, eight columns
-    sweepPatch("palm.ring", [0, at[1]!], [0, 1], 1, 8, [
+    sweepPatch("palm.ring", [0, at.collar], [0, 1], 1, 8, [
         C.palm("wrist"),
         C.palm("collar"),
     ]);
     // the ring's eight columns turn into twelve round the carpus, the thenar zone keeps twelve with the thumb's opening astride the radial palmar corner, and twelve turn into eighteen and then the roots' twenty-six before the heads, each change a transition band of 2-to-1 reduction strips
-    const uCollar: number = at[1]!;
+    const uCollar: number = at.collar;
     const transition: (name: string, u: [
         number,
         number
@@ -150,22 +150,26 @@ export function layoutAutoMovieHumanPalm(props: {
         const blend: number = t * t * (3 - 2 * t);
         return v + (target - v) * blend;
     };
-    const uStep: number = (uMid + uHeads) / 2;
+    const uStep: number = at.metacarpals;
+    // Count transitions finish on the flatter metacarpal shafts; the distal
+    // band follows the four-MCP field without imposing one planar head ridge.
+    const uShaft: number = (uMid + uStep) / 2;
+    const chartShaft: number = (C.palm("midPalm") + C.palm("metacarpals")) / 2;
     grid(transitionAutoMovieHumanSweep({
-        sweep: "palm", name: "palm.metacarpals", u: [uMid, uStep],
+        sweep: "palm", name: "palm.metacarpals", u: [uMid, uShaft],
         start: THENAR, end: STEP, rows: 1, turn: fan,
-    }), transitionAutoMovieHumanSweep({ sweep: "palm", name: "palm.metacarpals.chart", u: [C.palm("midPalm"), C.palm("metacarpals")], start: THENAR, end: STEP, rows: 1, turn: (_u: number, v: number): number => v }));
+    }), transitionAutoMovieHumanSweep({ sweep: "palm", name: "palm.metacarpals.chart", u: [C.palm("midPalm"), chartShaft], start: THENAR, end: STEP, rows: 1, turn: (_u: number, v: number): number => v }));
     grid(transitionAutoMovieHumanSweep({
-        sweep: "palm", name: "palm.heads", u: [uStep, uHeads],
+        sweep: "palm", name: "palm.heads", u: [uShaft, uStep],
         start: STEP, end: R, rows: 1, turn: fan,
-    }), transitionAutoMovieHumanSweep({ sweep: "palm", name: "palm.heads.chart", u: [C.palm("metacarpals"), C.palm("heads")], start: STEP, end: R, rows: 1, turn: (_u: number, v: number): number => v }));
+    }), transitionAutoMovieHumanSweep({ sweep: "palm", name: "palm.heads.chart", u: [chartShaft, C.palm("metacarpals")], start: STEP, end: R, rows: 1, turn: (_u: number, v: number): number => v }));
     grid(gridAutoMovieHumanSweep({
         sweep: "palm",
         name: "palm.roots",
-        rows: [uHeads, 1],
+        rows: [uStep, 1],
         columns: R,
-        v: (r: number, i: number): number => fan(r === 0 ? uHeads : 1, i / R),
-    }), C.grid("palm.roots", ["heads", "roots"], R));
+        v: (r: number, i: number): number => fan(r === 0 ? uStep : 1, i / R),
+    }), C.grid("palm.roots", ["metacarpals", "roots"], R));
     return { patches, addresses, atlasAddresses, main, thenar: uThenar };
 }
 const fixed: (n: number) => IAutoMovieSurfaceNetwork.ICounts = (n: number): IAutoMovieSurfaceNetwork.ICounts => ({ lowest: n, low: n, medium: n, high: n });

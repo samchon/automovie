@@ -9,7 +9,7 @@ The four lean adult gates were registered to the current generated skeleton. All
 | Reference course or mass | Shared Human definition | Source correction |
 |---|---|---|
 | Wrist section and carpal perimeter | Existing wrist ring, collar and hand frame | Preserve the shared ring and its constraints. |
-| Longitudinal metacarpal fan to MCP heads | Palm sections and semantic finger-root turns | One monotone angular family approaches the roots across both metacarpal bands. The engine's reduction-strip topology is reused without more faces. |
+| Longitudinal metacarpal fan to MCP heads | Palm sections and semantic finger-root turns | One monotone angular family approaches the roots; count transitions finish on metacarpal support, before the digit branches. Four MCPs define a shared longitudinal field, rather than one index-only level or an extra planar ridge. |
 | Thenar belly over the thumb metacarpal | CMC–MCP axis, its midpoint, thumb pad direction and existing width/depth coefficients | A family of shared longitudinal curves passes the belly on its proximal side and runs directly to the web on its distal side. There is one mass rather than a short tube turning back inside another branch. |
 | First-web course into the proximal thumb phalanx | Stylion datum, hand length, population-derived first-web height and the same clearance convention as other digit roots | The free tube leaves beyond the shared web plane. Its cut and dimensions derive from the bone chain; no case-specific coordinates are set. |
 | Finger bases and interdigital webs | Existing common shaft sections and web-floor definition | Preserve one width source for the skeleton, shaft and web, and retain the physical branch addresses. |
@@ -18,7 +18,7 @@ The four lean adult gates were registered to the current generated skeleton. All
 
 The first-web ratio is Greiner1991's pooled crotch1 height over hand length, already declared by `AUTOMOVIE_HUMAN_HAND_FORM`. Its photographic wrist-crease baseline is approximated by the radial stylion datum, not asserted to be an individual clinical identity. The adult ratio is still held across converter ages; range generation is a separate check. No independent length, breadth or skeleton measurement is replaced by a reference fit.
 
-The defining sections, bone-relative belly and web plane are independent of sampling rows. The bridge's eight ports and two rows are its existing topological budget; subdivision changes approximation density. The physical and logical networks share block correspondence while keeping their different coordinate meanings.
+The defining sections, bone-relative belly and web plane are independent of sampling rows. The thumb retains eight anatomical ports. Its belly curve and actual MCP section precede the same sweep's first-web cut; sampling resolves those features without defining their size or position. Subdivision changes approximation density. The physical and logical networks share block correspondence while keeping their different coordinate meanings.
 
 ## Diagnosis and limits
 
@@ -29,3 +29,11 @@ Moving the free-tube cut alone lost thenar mass: at x/L=.15013, the female model
 On the same23104-triangle left-hand region, the b341 actual joined L2 skin with production relief has3/6/3/6 strict crossing pairs across the four gates. The complete private source family has0/0/0/0 with the same predicate and no exemptions. This proves only the finite-mesh census. Actual committed renders, all valid directions, construction, raking light, range, LOD and supported motion remain required.
 
 Private source inputs must begin with immutable commit bytes plus an explicit owner patch. A complete content inventory must reject every path outside that allowlist before its launcher starts. Earlier live-checkout copies that included another owner's uncommitted head/neck work are excluded from commit-based validation.
+
+## Shared MCP and shaft courses
+
+The palm field previously kept its dorsal half at palm depth beyond the MCPs while only its palmar half thinned. The digit bridges then reached independently generated, shallower shaft sections. Both depth fields now consume the existing shared finger-shaft dimensions and the same free-root levels as the digit sweeps. A shape-preserving course across the four skeletal MCPs carries the longitudinal coordinate. Independent hand breadth, circumference, bone lengths and shaft dimensions are retained; no calibration coefficient is reduced to hide a ridge.
+
+The thumb's proximal-phalanx sweep now begins at its actual MCP. The thenar guide family meets that section, then reaches the first-web cut on the same sweep. The generic digit patch supports a nonzero first emitted sweep address; root zero preserves its earlier declarations and chart values exactly. Actual joined-skin nail attachment and the single local ray caster remain its consumers.
+
+Private controls rejected row relocation alone and a common added MCP plane: a plane through one representative level does not represent four distinct joint heads and introduced a transverse crease. The curved MCP course remains in the shared field. Higher-resolution thenar sampling retains the belly guide before its named MCP section; it does not set anatomical depth from a row count. Four-gate joined consumer, range, UV, nails and multi-view render verification remains separate from this source explanation.
