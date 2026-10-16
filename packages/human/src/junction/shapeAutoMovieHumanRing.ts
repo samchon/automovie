@@ -1,12 +1,13 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
+import { IAutoMovieHumanLandmarks } from "../measure/IAutoMovieHumanLandmarks";
 import { IAutoMovieHumanMeasurements } from "../measure/IAutoMovieHumanMeasurements";
 import { AutoMovieHumanVector } from "../skeleton/AutoMovieHumanVector";
-import { IAutoMovieHumanLandmarks } from "../measure/IAutoMovieHumanLandmarks";
 import { IAutoMovieHumanSkeleton } from "../skeleton/IAutoMovieHumanSkeleton";
 import { IAutoMovieHumanIdentity } from "../structures/IAutoMovieHumanIdentity";
 import { AUTOMOVIE_HUMAN_ANKLE_SECTION } from "./AUTOMOVIE_HUMAN_ANKLE_SECTION";
 import { AUTOMOVIE_HUMAN_EAR_ATTACHMENT } from "./AUTOMOVIE_HUMAN_EAR_ATTACHMENT";
+import { AUTOMOVIE_HUMAN_JAWLINE } from "./AUTOMOVIE_HUMAN_JAWLINE";
 import { AUTOMOVIE_HUMAN_NECK_BASE_FLARE } from "./AUTOMOVIE_HUMAN_NECK_BASE_FLARE";
 import { AUTOMOVIE_HUMAN_NECK_COLUMN } from "./AUTOMOVIE_HUMAN_NECK_COLUMN";
 import { AUTOMOVIE_HUMAN_THIGH_GIRTH } from "./AUTOMOVIE_HUMAN_THIGH_GIRTH";
@@ -14,11 +15,11 @@ import { AUTOMOVIE_HUMAN_UPPER_ARM_SECTION } from "./AUTOMOVIE_HUMAN_UPPER_ARM_S
 import { AUTOMOVIE_HUMAN_WRIST_SECTION } from "./AUTOMOVIE_HUMAN_WRIST_SECTION";
 import { AutoMovieHumanJunctionSite } from "./AutoMovieHumanJunctionSite";
 import { AutoMovieHumanPart } from "./AutoMovieHumanPart";
+import { AutoMovieHumanRingCurve } from "./AutoMovieHumanRingCurve";
 import { AutoMovieHumanSide } from "./AutoMovieHumanSide";
 import { IAutoMovieHumanRingLayout } from "./IAutoMovieHumanRingLayout";
 import { IAutoMovieHumanRingShape } from "./IAutoMovieHumanRingShape";
 import { layoutAutoMovieHumanRing } from "./layoutAutoMovieHumanRing";
-import { shapeAutoMovieHumanRadialSection } from "./shapeAutoMovieHumanRadialSection";
 
 /**
  * Resolve the boundary one part opens at one junction site: the frame and directions of `layoutAutoMovieHumanRing` and the distance of every ring vertex, from the site's own measurements.
@@ -28,7 +29,7 @@ import { shapeAutoMovieHumanRadialSection } from "./shapeAutoMovieHumanRadialSec
  * Each site's section:
  *
  * - `neckBase`: an ellipse in the oblique cut through the jugular notch and cervicale, reaching each in front and behind, its lateral semi-axis solved so its perimeter is the neck circumference widened by {@link AUTOMOVIE_HUMAN_NECK_BASE_FLARE}.
- * - `neckTop`: a simple neck-column section perpendicular to the neck axis, below the mandible; its dimensions retain {@link AUTOMOVIE_HUMAN_NECK_COLUMN}, without the jaw outline.
+ * - `neckTop`: in the mandibular plane, the larger of the jaw and the neck column, blended by a smooth maximum. The jaw is the soft-tissue jawline of {@link AUTOMOVIE_HUMAN_JAWLINE} from gnathion back to both gonia; the column an egg of the neck circumference's mean radius, {@link AUTOMOVIE_HUMAN_NECK_COLUMN} times it across, in front and behind, the back lengthened by the plane's tilt to the neck so it still reaches the nape.
  * - `upperArm`: the upper arm circumference, which is measured at this cut with the arm hanging and converted to the abducted rest pose, in four quarter ellipses about the bone axis, deeper than broad over the biceps and triceps and flattest laterally ({@link AUTOMOVIE_HUMAN_UPPER_ARM_SECTION}).
  * - `wrist`: an ellipse of the wrist circumference measured at this cut, its radio-ulnar breadth and palmar-dorsal depth in the proportions of {@link AUTOMOVIE_HUMAN_WRIST_SECTION}.
  * - `thigh`: the girth at mid thigh, on the thigh's girth curve between the thigh circumference at the gluteal furrow and the lower thigh circumference at suprapatella, in four quarter ellipses about the hip-to-knee axis, full in front and medially and flat behind and laterally ({@link AUTOMOVIE_HUMAN_THIGH_GIRTH}).
@@ -50,12 +51,58 @@ export const shapeAutoMovieHumanRing: (props: { skeleton: IAutoMovieHumanSkeleto
   side: AutoMovieHumanSide | null;
   part: AutoMovieHumanPart;
 }): IAutoMovieHumanRingShape => {
-  const neckBase: IAutoMovieHumanRingShape | undefined = props.site === "neckTop"
-    ? shapeAutoMovieHumanRing({...props, site: "neckBase", part: "neck"}) : undefined;
-  const layout: IAutoMovieHumanRingLayout = layoutAutoMovieHumanRing({...props, neckBase});
+  const layout: IAutoMovieHumanRingLayout = layoutAutoMovieHumanRing(props);
   const { origin, radius, girth }: { origin: IAutoMovieVector3; radius: (d: IAutoMovieVector3) => number; girth: number | null; } = section(props, layout);
-  return shapeAutoMovieHumanRadialSection(layout, { origin, radius, girth });
+  const n: number = layout.count;
+  const binormal: IAutoMovieVector3 = AutoMovieHumanVector.cross(
+    layout.frame.normal,
+    layout.frame.reference,
+  );
+  const target: number =
+    girth ??
+    AutoMovieHumanRingCurve.perimeter(
+      Array.from(
+        { length: SAMPLES },
+        (_: unknown, i: number): IAutoMovieVector3 => {
+          const angle: number = (2 * Math.PI * i) / SAMPLES;
+          const d: IAutoMovieVector3 = AutoMovieHumanVector.offset(
+            AutoMovieHumanVector.of(0, 0, 0),
+            [layout.frame.reference, Math.cos(angle)],
+            [binormal, Math.sin(angle)],
+          );
+          return AutoMovieHumanVector.offset(origin, [d, radius(d)]);
+        },
+      ),
+    );
+  // control radii whose limit points reach the section radially: the ring's limit stencil
+  // (1, 4, 1) / 6 seen along each ray, where neighbouring rays meet at cos(2π / n)
+  const control: number[] = AutoMovieHumanRingCurve.unstencil(
+    layout.directions.map(radius),
+    Math.cos((2 * Math.PI) / n),
+  );
+  const place: (radii: number[]) => IAutoMovieVector3[] = (radii: number[]): IAutoMovieVector3[] =>
+    layout.directions.map(
+      (d: IAutoMovieVector3, k: number): IAutoMovieVector3 =>
+        AutoMovieHumanVector.offset(origin, [d, radii[k]!]),
+    );
+  // the limit curve scales with the control radii about the origin, so one factor sets its girth
+  const scale: number =
+    target /
+    AutoMovieHumanRingCurve.perimeter(
+      AutoMovieHumanRingCurve.spline(place(control)),
+    );
+  const radii: number[] = control.map((r: number): number => r * scale);
+  return {
+    ...layout,
+    frame: { ...layout.frame, origin },
+    girth: target,
+    radii,
+    positions: place(radii),
+  };
 };
+
+/** Directions sampled round a section to measure its own perimeter. */
+const SAMPLES: number = 720;
 
 const section: (props: { skeleton: IAutoMovieHumanSkeleton; measurements: IAutoMovieHumanMeasurements; side: AutoMovieHumanSide | null; }, layout: IAutoMovieHumanRingLayout) => { origin: IAutoMovieVector3; radius: (d: IAutoMovieVector3) => number; girth: number | null; } = (
   props: {
@@ -142,18 +189,92 @@ const section: (props: { skeleton: IAutoMovieHumanSkeleton; measurements: IAutoM
     }
     case "neckTop": {
       const mean: number = body.neckCircumference / (2 * Math.PI);
+      const axis: IAutoMovieVector3 = AutoMovieHumanVector.normalize(
+        AutoMovieHumanVector.offset(joint("head"), [joint("neck"), -1]),
+      );
+      const normal: IAutoMovieVector3 = layout.frame.normal;
+      const inPlane: (p: IAutoMovieVector3) => [number, number] = (p: IAutoMovieVector3): [number, number] => {
+        const d: IAutoMovieVector3 = AutoMovieHumanVector.offset(p, [
+          origin,
+          -1,
+        ]);
+        const w: number = AutoMovieHumanVector.dot(d, reference);
+        const off: IAutoMovieVector3 = AutoMovieHumanVector.offset(
+          d,
+          [reference, -w],
+          [normal, -AutoMovieHumanVector.dot(d, normal)],
+        );
+        return [Math.hypot(off.x, off.y, off.z), w];
+      };
+      // the soft chin at gnathion, its depth from the measured tragion-gnathion distance
+      const tragion: IAutoMovieVector3 = landmarks.left.tragion.position;
+      const nasion: IAutoMovieVector3 = landmarks.nasion.position;
+      const forward: IAutoMovieVector3 = AutoMovieHumanVector.normalize(
+        AutoMovieHumanVector.offset(reference, [
+          normal,
+          -AutoMovieHumanVector.dot(reference, normal),
+        ]),
+      );
+      const gnathionY: number =
+        landmarks.menton.position.y +
+        AUTOMOVIE_HUMAN_JAWLINE.gnathionAboveMenton *
+          props.measurements.identity.head.faceHeight;
+      const reach3: number =
+        AUTOMOVIE_HUMAN_JAWLINE.gnathionDepth *
+        AutoMovieHumanVector.distance(nasion, tragion);
+      const gnathionZ: number =
+        tragion.z +
+        Math.sqrt(
+          Math.max(
+            0,
+            reach3 * reach3 -
+              (tragion.x - nasion.x) ** 2 -
+              (gnathionY - tragion.y) ** 2,
+          ),
+        );
+      void forward;
+      const [, chin]: [number, number] = inPlane(
+        AutoMovieHumanVector.of(nasion.x, gnathionY, gnathionZ),
+      );
+      const [jawU, jawW]: [number, number] = inPlane(landmarks.left.gonion.position);
+      const tilt: number = Math.abs(AutoMovieHumanVector.dot(normal, axis));
+      const column: { across: number; front: number; back: number; } = {
+        across: AUTOMOVIE_HUMAN_NECK_COLUMN.across * mean,
+        front: AUTOMOVIE_HUMAN_NECK_COLUMN.front * mean,
+        back: (AUTOMOVIE_HUMAN_NECK_COLUMN.back * mean) / Math.max(0.5, tilt),
+      };
+      const n: number = AUTOMOVIE_HUMAN_JAWLINE.exponent;
+      // the jawline: a superellipse quadrant from the chin back to the gonion, its centre level with the gonion
+      const onJaw: (rho: number, c: number, s: number) => number = (rho: number, c: number, s: number): number =>
+        Math.pow(Math.max(0, (rho * c - jawW) / (chin - jawW)), n) +
+        Math.pow((rho * s) / jawU, n) -
+        1;
       return {
         origin,
         radius: (d: IAutoMovieVector3): number => {
           const [c, s]: [number, number] = across(d);
-          const depth: number =
-            (c >= 0
-              ? AUTOMOVIE_HUMAN_NECK_COLUMN.front
-              : AUTOMOVIE_HUMAN_NECK_COLUMN.back) * mean;
-          const breadth: number = AUTOMOVIE_HUMAN_NECK_COLUMN.across * mean;
-          return (
+          let jaw: number = 0;
+          if (c > 0 || jawW < 0) {
+            let lo: number = 0;
+            let hi: number = 4 * Math.max(chin, jawU);
+            for (let i: number = 0; i < 60; ++i) {
+              const m: number = (lo + hi) / 2;
+              if (onJaw(m, c, s) < 0) lo = m;
+              else hi = m;
+            }
+            jaw = (lo + hi) / 2;
+          }
+          const reach: number = jaw * c >= jawW ? jaw : 0;
+          const neck: number =
             1 /
-            Math.sqrt((c * c) / (depth * depth) + (s * s) / (breadth * breadth))
+            Math.sqrt(
+              (c * c) / (c >= 0 ? column.front : column.back) ** 2 +
+                (s * s) / column.across ** 2,
+            );
+          return smoothMax(
+            reach,
+            neck,
+            AUTOMOVIE_HUMAN_NECK_COLUMN.blend * mean,
           );
         },
         girth: null,
@@ -258,6 +379,12 @@ const section: (props: { skeleton: IAutoMovieHumanSkeleton; measurements: IAutoM
 /** Ramanujan's perimeter of an ellipse with semi-axes `a` and `b`. */
 const ramanujan: (a: number, b: number) => number = (a: number, b: number): number =>
   Math.PI * (3 * (a + b) - Math.sqrt((3 * a + b) * (a + 3 * b)));
+
+/** Polynomial smooth maximum (Quilez). */
+const smoothMax: (a: number, b: number, k: number) => number = (a: number, b: number, k: number): number => {
+  const h: number = Math.max(k - Math.abs(a - b), 0) / k;
+  return Math.max(a, b) + (h * h * k) / 4;
+};
 
 /** Root of a monotone function by bisection. */
 const solve: (f: (x: number) => number, lo: number, hi: number) => number = (f: (x: number) => number, lo: number, hi: number): number => {

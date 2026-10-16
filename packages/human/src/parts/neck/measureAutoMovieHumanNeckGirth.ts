@@ -4,8 +4,8 @@ import {
 } from "@automovie/engine";
 import { IAutoMovieVector3 } from "@automovie/interface";
 
-import { IAutoMovieHumanCage } from "./IAutoMovieHumanCage";
-import { AutoMovieHumanVector } from "../skeleton/AutoMovieHumanVector";
+import { IAutoMovieHumanCage } from "../../junction/IAutoMovieHumanCage";
+import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 
 /**
  * Measure a neck cage's girth the way the tape takes it: the perimeter of the subdivided limit surface's section in a plane, with the tape spanning concavities, so the convex hull of the section.
@@ -24,9 +24,9 @@ export function measureAutoMovieHumanNeckGirth(
     cage: {
       positions: cage.vertices.flatMap(
         (v: IAutoMovieHumanCage.IVertex): number[] => [
-          v.position.x * METRES_PER_MILLIMETRE,
-          v.position.y * METRES_PER_MILLIMETRE,
-          v.position.z * METRES_PER_MILLIMETRE,
+          v.position.x,
+          v.position.y,
+          v.position.z,
         ],
       ),
       faces: cage.faces.map((f: IAutoMovieHumanCage.IFace): number[] => [
@@ -36,9 +36,9 @@ export function measureAutoMovieHumanNeckGirth(
     levels: 3,
   });
   const p: number[] = surface.limitPositions;
-  const at: (i: number) => IAutoMovieVector3 = (i: number): IAutoMovieVector3 =>
-    AutoMovieHumanVector.of(p[3 * i]! / METRES_PER_MILLIMETRE, p[3 * i + 1]! / METRES_PER_MILLIMETRE, p[3 * i + 2]! / METRES_PER_MILLIMETRE);
-  const side: (i: number) => number = (i: number): number =>
+  const at = (i: number): IAutoMovieVector3 =>
+    AutoMovieHumanVector.of(p[3 * i]!, p[3 * i + 1]!, p[3 * i + 2]!);
+  const side = (i: number): number =>
     AutoMovieHumanVector.dot(
       AutoMovieHumanVector.offset(at(i), [origin, -1]),
       normal,
@@ -71,18 +71,18 @@ export function measureAutoMovieHumanNeckGirth(
 }
 
 /** Perimeter of the convex hull of planar points (Andrew's monotone chain). */
-const hull: (input: Array<[number, number]>) => number = (input: Array<[number, number]>): number => {
+const hull = (input: Array<[number, number]>): number => {
   const p: Array<[number, number]> = [...input].sort(
     (a: [number, number], b: [number, number]): number =>
       a[0] - b[0] || a[1] - b[1],
   );
   if (p.length < 3) return 0;
-  const cross: (o: [number, number], a: [number, number], b: [number, number]) => number = (
+  const cross = (
     o: [number, number],
     a: [number, number],
     b: [number, number],
   ): number => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
-  const chain: (points: Array<[number, number]>) => Array<[number, number]> = (points: Array<[number, number]>): Array<[number, number]> => {
+  const chain = (points: Array<[number, number]>): Array<[number, number]> => {
     const out: Array<[number, number]> = [];
     for (const q of points) {
       while (
@@ -105,6 +105,3 @@ const hull: (input: Array<[number, number]>) => number = (input: Array<[number, 
   });
   return sum;
 };
-
-/** The sole unit boundary between Human millimetres and engine metres. */
-const METRES_PER_MILLIMETRE: number = 0.001;

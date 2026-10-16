@@ -19,7 +19,7 @@ const AUTOMOVIE_HUMAN_NECK_BASE_RING: IAutoMovieHumanRingDefinition<"neckBase"> 
 /**
  * Neck to head, 28 vertices from the anterior midline.
  *
- * The head's lattice carries 60 columns round the jaw, and a quad strip sheds at most a third of a ring's columns without two of its reduction blocks meeting in a valence-six pole, so the head reaches this ring in two strips, 60 to 40 to 28, and the neck sheds the rest toward its base, 28 to 18 to 12, where the reference meshes spread their poles too. Twenty-eight spans, a multiple of four, keep a vertex on each midline and each side. The ring lies perpendicular to the neck axis halfway from the neck joint to the column centre beneath the cervical guide. The cut stays in the tube; the jaw floor and cervical turn belong to one head mass above it.
+ * The head's lattice carries 60 columns round the jaw, and a quad strip sheds at most a third of a ring's columns without two of its reduction blocks meeting in a valence-six pole, so the head reaches this ring in two strips, 60 to 40 to 28, and the neck sheds the rest toward its base, 28 to 18 to 12, where the reference meshes spread their poles too. Twenty-eight spans, a multiple of four, keep a vertex on each midline and each side. The ring lies in the mandibular plane, through both gonia and menton: in front it follows the lower border of the mandible, so the submental surface under the chin belongs to the neck, and behind it passes below the skull base.
  */
 const AUTOMOVIE_HUMAN_NECK_TOP_RING: IAutoMovieHumanRingDefinition<"neckTop"> =
   {

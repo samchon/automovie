@@ -1,159 +1,270 @@
 import {
-  IAutoMovieSurfaceCage, IAutoMovieSurfaceCoordinate, IAutoMovieSurfaceNetwork,
-  IAutoMovieSweep, IAutoMovieSweepSection, IAutoMovieSweepSurface,
-  compileAutoMovieSweep, layoutAutoMovieSurfaceTransition, sampleAutoMovieSurfaceNetwork,
+  IAutoMovieSurfaceCage,
+  IAutoMovieSurfaceCoordinate,
+  IAutoMovieSurfaceNetwork,
+  IAutoMovieSweep,
+  IAutoMovieSweepSection,
+  IAutoMovieSweepSurface,
+  compileAutoMovieSweep,
+  sampleAutoMovieSurfaceNetwork,
 } from "@automovie/engine";
-import { quaternionFromAutoMovieBasis } from "@automovie/engine/math/quaternionFromAutoMovieBasis";
-import { IAutoMovieVector3 } from "@automovie/interface";
+import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
+import { AUTOMOVIE_HUMAN_NECK_COLUMN } from "../../junction/AUTOMOVIE_HUMAN_NECK_COLUMN";
 import { IAutoMovieHumanCage } from "../../junction/IAutoMovieHumanCage";
 import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
 import { IAutoMovieHumanSurfaceCoordinate } from "../../junction/IAutoMovieHumanSurfaceCoordinate";
-import { planAutoMovieHumanNeckCut } from "../../junction/planAutoMovieHumanNeckCut";
-import { sweepAutoMovieHumanNeckCollar } from "../../junction/sweepAutoMovieHumanNeckCollar";
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
+import { sectionAutoMovieHumanNeck } from "./sectionAutoMovieHumanNeck";
 
 /**
- * Continue the oblique neck base into the shared perpendicular collar.
+ * Loft the neck: one sweep from the neck-base ring to the neck-top ring through its measured mid section and the throat under the jaw.
  *
- * Six semantic rows retain the published chart and column transitions. The
- * first five span the base-to-support source; the last uses an independent
- * straight collar. Its pinned raw controls are the shared cut translated by
- * the same support distance as on the head, with opposite sign. The physical
- * circumference proxy plane lies above this part and is fitted by the head.
- * Coons edges share source nodes across the two sweeps at the support row.
+ * Four stations, each a smooth closed curve in its own plane:
  *
- * @param props Shared base, cut and its geometric partition plan
- * @returns The sampled cage and construction, model millimetres
+ * 1. The neck-base ring's limit curve, in the oblique plane from the jugular notch to cervicale.
+ * 2. The mid section, perpendicular to the neck bone where the neck circumference is measured, scaled until the subdivided neck has that circumference.
+ * 3. The throat, just under the jaw and parallel to the mandibular plane: the neck column alone, the egg of the neck circumference's mean radius {@link AUTOMOVIE_HUMAN_NECK_COLUMN} gives the neck-top ring behind and beside the jaw.
+ * 4. The neck-top ring's limit curve in the mandibular plane, which in front is the jawline.
+ *
+ * Between the throat and the top ring the front widens from the column to the jawline within a few millimetres, so the submental surface runs forward under the chin and the throat rises upright below it, the cervicomental angle ("canopied in front by the chin", Bridgman 1920, Constructive Anatomy, p. 104). The neck-top ring has 28 columns and the base 12; two transition bands over the lowest rows shed the difference, 12 to 18 to 28 going up, with the reduction blocks' pole pairs of valence three and five spread round the neck's base as on the reference meshes, and plain rows of 28 columns run to the top. Each ring's vertices close their band, pinned to the shared shapes.
+ *
+ * @param props The neck's sections and its two ring shapes, and the mid section's scale about the neck bone
+ * @returns The neck cage, model frame, millimetres
  */
 export function loftAutoMovieHumanNeck(props: {
+  sections: sectionAutoMovieHumanNeck.IOutput;
   base: IAutoMovieHumanRingShape;
   top: IAutoMovieHumanRingShape;
-  plan: ReturnType<typeof planAutoMovieHumanNeckCut>;
+  scale: number;
+  mean: number;
 }): IAutoMovieHumanCage {
-  const {base, top, plan}: { base: IAutoMovieHumanRingShape; top: IAutoMovieHumanRingShape; plan: ReturnType<typeof planAutoMovieHumanNeckCut>; } = props;
-  const support: IAutoMovieVector3[] = top.positions.map(
-    (p: IAutoMovieVector3): IAutoMovieVector3 =>
-      AutoMovieHumanVector.offset(p, [plan.axis, -plan.support]),
+  const { sections, base, top } = props;
+  const up: IAutoMovieVector3 = sections.axis;
+  const limit = (ring: IAutoMovieVector3[]): IAutoMovieVector3[] =>
+    ring.map(
+      (p: IAutoMovieVector3, k: number): IAutoMovieVector3 =>
+        AutoMovieHumanVector.offset(
+          AutoMovieHumanVector.of(0, 0, 0),
+          [ring[(k + ring.length - 1) % ring.length]!, 1 / 6],
+          [p, 4 / 6],
+          [ring[(k + 1) % ring.length]!, 1 / 6],
+        ),
+    );
+  // the throat: the top ring's plane moved down into the neck, the column shape about the moved origin
+  const topNormal: IAutoMovieVector3 = AutoMovieHumanVector.normalize(
+    top.frame.normal,
   );
-  const supportOrigin: IAutoMovieVector3 = AutoMovieHumanVector.offset(
-    top.frame.origin, [plan.axis, -plan.support]);
+  const toward: IAutoMovieVector3 =
+    AutoMovieHumanVector.dot(topNormal, up) >= 0
+      ? topNormal
+      : AutoMovieHumanVector.of(-topNormal.x, -topNormal.y, -topNormal.z);
+  const throatOrigin: IAutoMovieVector3 = AutoMovieHumanVector.offset(
+    top.frame.origin,
+    [toward, -THROAT * props.mean],
+  );
+  const tilt: number = Math.max(
+    0.5,
+    Math.abs(AutoMovieHumanVector.dot(toward, up)),
+  );
+  const column = {
+    across: AUTOMOVIE_HUMAN_NECK_COLUMN.across * props.mean,
+    front: AUTOMOVIE_HUMAN_NECK_COLUMN.front * props.mean,
+    back: (AUTOMOVIE_HUMAN_NECK_COLUMN.back * props.mean) / tilt,
+  };
+  const mid: IAutoMovieVector3[] = sections.mid.map((p: IAutoMovieVector3) =>
+    AutoMovieHumanVector.offset(sections.centre, [
+      AutoMovieHumanVector.offset(p, [sections.centre, -1]),
+      props.scale,
+    ]),
+  );
   const stations: IStation[] = [
-    plane(base.frame.origin, base.frame.normal, plan.axis, base.positions),
-    plane(supportOrigin, plan.axis, plan.axis, support),
+    plane(
+      base.frame.origin,
+      base.frame.normal,
+      up,
+      sections.base.length ? limit(sections.base) : [],
+    ),
+    plane(sections.centre, up, up, mid),
+    planeOf(
+      throatOrigin,
+      toward,
+      up,
+      (c: number, s: number): number =>
+        1 /
+        Math.sqrt(
+          (c * c) / (c >= 0 ? column.front : column.back) ** 2 +
+            (s * s) / column.across ** 2,
+        ),
+    ),
+    plane(top.frame.origin, toward, up, limit(sections.top)),
   ];
-  const shares: number[] = chordShares(stations.map((s: IStation): IAutoMovieVector3 => s.origin));
+  const origins: IAutoMovieVector3[] = stations.map((s: IStation) => s.origin);
+  const shares: number[] = chordShares(origins);
   const sweep: IAutoMovieSweep = {
-    spine: {points: stations.map((s: IStation): IAutoMovieVector3 => toMetres(s.origin)), normal: stations[0]!.x},
-    stations: stations.map((s: IStation, i: number): IAutoMovieSweep.IStation => ({
-      at: shares[i]!, section: s.section,
-      rotation: quaternionFromAutoMovieBasis(s.x, AutoMovieHumanVector.cross(s.normal, s.x), s.normal),
-    })),
+    spine: { points: origins.map(toMetres), normal: stations[0]!.x },
+    stations: stations.map(
+      (s: IStation, k: number): IAutoMovieSweep.IStation => ({
+        at: shares[k]!,
+        section: s.section,
+        rotation: quaternionOf(
+          s.x,
+          AutoMovieHumanVector.cross(s.normal, s.x),
+          s.normal,
+        ),
+      }),
+    ),
   };
-  const collar: IAutoMovieSweep = sweepAutoMovieHumanNeckCollar({ring: top, plan, side: "neck"});
-  const surfaces: Record<string, IAutoMovieSweepSurface> = {
-    neck: compileAutoMovieSweep(sweep), neckCollar: compileAutoMovieSweep(collar),
+  const nb: number = base.count;
+  const nt: number = top.count;
+  const surface: IAutoMovieSweepSurface = compileAutoMovieSweep(sweep);
+  // ring vertex k sits on the sweep's column nearest it: the turn and direction bringing the ring's positions closest to the columns
+  const columns = (shape: IAutoMovieHumanRingShape, u: number): number[] => {
+    const n: number = shape.count;
+    const at: IAutoMovieVector3[] = Array.from(
+      { length: n },
+      (_: unknown, c: number): IAutoMovieVector3 => {
+        const p: IAutoMovieVector3 = surface.point(u, c / n);
+        return AutoMovieHumanVector.of(p.x * 1000, p.y * 1000, p.z * 1000);
+      },
+    );
+    let best: { order: number[]; cost: number } = { order: [], cost: Infinity };
+    for (const sign of [1, -1])
+      for (let first: number = 0; first < n; ++first) {
+        const order: number[] = Array.from(
+          { length: n },
+          (_: unknown, k: number): number => (((first + sign * k) % n) + n) % n,
+        );
+        const cost: number = order.reduce(
+          (sum: number, c: number, k: number): number =>
+            sum +
+            AutoMovieHumanVector.distance(at[c]!, shape.positions[k]!) ** 2,
+          0,
+        );
+        if (cost < best.cost) best = { order, cost };
+      }
+    return best.order;
   };
-  const nodes: Record<string, IAutoMovieSurfaceNetwork.INode> = {};
-  const curves: Record<string, IAutoMovieSurfaceNetwork.ICurve> = {};
-  const patches: IAutoMovieSurfaceNetwork.IPatch[] = [];
-  const rings: IAutoMovieSurfaceNetwork.IRing[] = [];
+  const loop = (
+    order: number[],
+    u: number,
+  ): IAutoMovieSurfaceNetwork.IEdge[] => {
+    const n: number = order.length;
+    return order.map(
+      (c: number, k: number): IAutoMovieSurfaceNetwork.ISweepEdge => {
+        const next: number = order[(k + 1) % n]!;
+        const forward: boolean = (next - c + n) % n === 1;
+        return {
+          type: "sweep",
+          sweep: "neck",
+          from: { u, v: c / n },
+          to: { u, v: forward ? (c + 1) / n : (c - 1) / n },
+          segments: fixed(1),
+        };
+      },
+    );
+  };
   const network: IAutoMovieSurfaceNetwork = {
-    sweeps: {neck: sweep, neckCollar: collar}, nodes, curves, patches, rings,
+    sweeps: { neck: sweep },
+    patches: [
+      {
+        type: "transition",
+        name: "neck.base",
+        sweep: "neck",
+        u: [0, 1 / ROWS],
+        v: [0, 1],
+        start: fixed(nb),
+        end: fixed(MIDDLE),
+        rows: fixed(1),
+      },
+      {
+        type: "transition",
+        name: "neck.lower",
+        sweep: "neck",
+        u: [1 / ROWS, 2 / ROWS],
+        v: [0, 1],
+        start: fixed(MIDDLE),
+        end: fixed(nt),
+        rows: fixed(1),
+      },
+      {
+        type: "sweep",
+        name: "neck",
+        sweep: "neck",
+        u: [2 / ROWS, 1],
+        v: [0, 1],
+        rows: fixed(ROWS - 2),
+        columns: fixed(nt),
+      },
+    ],
+    rings: [
+      {
+        name: "neckBase",
+        edges: loop(columns(base, 0), 0),
+        positions: base.positions.map(toMetres),
+      },
+      {
+        name: "neckTop",
+        edges: loop(columns(top, 1), 1),
+        positions: top.positions.map(toMetres),
+      },
+    ],
   };
-  // Addresses name source samples, not absolute skin coordinates. The same
-  // declared row corner is reused by its incident neck bands and ring.
-  const point: (sweep: "neck" | "neckCollar", u: number, v: number, domain: { u: number; v: number; }) => IPoint = (sweep: "neck" | "neckCollar", u: number, v: number,
-    domain: {u: number; v: number}): IPoint => {
-    const wrapped: number = ((v % 1) + 1) % 1;
-    const key: string = `${sweep}.${u.toFixed(9)}.${wrapped.toFixed(9)}`;
-    nodes[key] ??= {type: "sweep", sweep, u, v: wrapped};
-    return {key, sweep, u, v: wrapped, domain};
-  };
-  const edge: (a: IPoint, b: IPoint) => IAutoMovieSurfaceNetwork.IEdge = (a: IPoint, b: IPoint): IAutoMovieSurfaceNetwork.IEdge => {
-    const from: string = `${a.key}>${b.key}`;
-    const reverse: string = `${b.key}>${a.key}`;
-    if (curves[reverse] !== undefined) return {type: "curve", curve: reverse, reverse: true};
-    curves[from] ??= {from: a.key, to: b.key, segments: ONE};
-    return {type: "curve", curve: from};
-  };
-  const rows: IPoint[][] = Array.from(
-    {length: ROWS + 1}, (_: unknown, r: number): IPoint[] => {
-      const count: number = r === 0 ? base.count : r === 1 ? MIDDLE : top.count;
-      return Array.from({length: count}, (_: unknown, j: number): IPoint =>
-        point(r < ROWS - 1 ? "neck" : "neckCollar",
-          r < ROWS - 1 ? r / (ROWS - 1) : r - (ROWS - 1), j / count, {u: r / ROWS, v: j / count}));
+  const sampled: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({
+    network,
+    tier: "medium",
+  });
+  const vertices: IAutoMovieHumanCage.IVertex[] = [];
+  for (let k: number = 0; k < sampled.cage.positions.length; k += 3)
+    vertices.push({
+      position: AutoMovieHumanVector.of(
+        sampled.cage.positions[k]! * 1000,
+        sampled.cage.positions[k + 1]! * 1000,
+        sampled.cage.positions[k + 2]! * 1000,
+      ),
+    });
+  const faces: IAutoMovieHumanCage.IFace[] = sampled.cage.faces.map(
+    (face: number[], f: number): IAutoMovieHumanCage.IFace => {
+      const corners: IAutoMovieHumanSurfaceCoordinate.IOn<"neck">[] =
+        sampled.corners[f]!.map(
+          (
+            c: IAutoMovieSurfaceCoordinate,
+          ): IAutoMovieHumanSurfaceCoordinate.IOn<"neck"> => {
+            // the patch's own coordinates onto the neck's: u along it, v round it
+            const patch = network.patches[c.patch] as
+              | IAutoMovieSurfaceNetwork.ISweepPatch
+              | IAutoMovieSurfaceNetwork.ITransitionPatch;
+            return {
+              part: "neck",
+              side: null,
+              u: patch.u[0] + c.t * (patch.u[1] - patch.u[0]),
+              v: patch.v[0] + c.s * (patch.v[1] - patch.v[0]),
+            };
+          },
+        );
+      return {
+        vertices: [face[0]!, face[1]!, face[2]!, face[3]!],
+        coordinates: corners as IAutoMovieHumanCage.IFace["coordinates"],
+      };
     },
   );
-  const domains: Array<Array<{u: number; v: number}>> = [];
-  const quad: (points: IPoint[]) => void = (points: IPoint[]): void => {
-    const v0: number = points[0]!.domain.v;
-    const uv: Array<{u: number; v: number}> = points.map((p: IPoint): {u: number; v: number} =>
-      ({u: p.domain.u, v: p.domain.v + Math.round(v0 - p.domain.v)}));
-    const turn: number = Math.floor(Math.min(...uv.map((p: {u: number; v: number}): number => p.v)));
-    for (const point of uv) point.v -= turn;
-    let area: number = 0;
-    for (let k: number = 0; k < 4; ++k) area += uv[k]!.v * uv[(k+1)%4]!.u - uv[(k+1)%4]!.v * uv[k]!.u;
-    const order: number[] = area >= 0 ? [0,1,2,3] : [0,3,2,1];
-    const corners: IPoint[] = order.map((i: number): IPoint => points[i]!);
-    patches.push({type: "coons", name: `neck.${patches.length}`, sides: [
-      edge(corners[0]!, corners[1]!), edge(corners[1]!, corners[2]!),
-      edge(corners[2]!, corners[3]!), edge(corners[3]!, corners[0]!),
-    ]});
-    domains.push(order.map((i: number): {u: number; v: number} => uv[i]!));
-  };
-  for (let r: number = 0; r < ROWS; ++r) {
-    const a: IPoint[] = rows[r]!;
-    const b: IPoint[] = rows[r+1]!;
-    if (a.length === b.length)
-      for (let k: number = 0; k < a.length; ++k)
-        quad([a[k]!, a[(k+1)%a.length]!, b[(k+1)%b.length]!, b[k]!]);
-    else {
-      const corner: (c: { s: number; t: number; }) => IPoint = (c: {s: number; t: number}): IPoint => {
-        if (c.t === 0) return a[Math.round(c.s * a.length) % a.length]!;
-        if (c.t === 1) return b[Math.round(c.s * b.length) % b.length]!;
-        return point("neck", (r+c.t)/(ROWS-1), c.s, {u:(r+c.t)/ROWS,v:c.s});
-      };
-      for (const q of layoutAutoMovieSurfaceTransition(a.length,b.length,1))
-        quad(q.map(corner));
-    }
-  }
-  // Ring order is the shared definition's order, chosen by a cyclic isometry.
-  const ring: (name: string, row: number, positions: IAutoMovieVector3[]) => void = (name: string, row: number, positions: IAutoMovieVector3[]): void => {
-    const loop: IPoint[] = rows[row]!;
-    const at: IAutoMovieVector3[] = loop.map((p: IPoint): IAutoMovieVector3 => {
-      const q: IAutoMovieVector3 = surfaces[p.sweep ?? "neck"]!.point(p.u,p.v);
-      return AutoMovieHumanVector.of(q.x*1000,q.y*1000,q.z*1000);
-    });
-    let best: {order: number[]; cost: number} = {order:[],cost:Infinity};
-    for (const sign of [1,-1]) for(let first: number = 0; first < loop.length; ++first) {
-      const order: number[] = loop.map((_: IPoint,k: number): number => ((first+sign*k)%loop.length+loop.length)%loop.length);
-      const cost: number = order.reduce((sum: number,index: number,k: number): number => sum+AutoMovieHumanVector.distance(at[index]!,positions[k]!)**2,0);
-      if(cost < best.cost) best={order,cost};
-    }
-    const ordered: IPoint[] = best.order.map((k: number): IPoint => loop[k]!);
-    rings.push({name, edges: ordered.map((p: IPoint, k: number): IAutoMovieSurfaceNetwork.IEdge =>
-      edge(p, ordered[(k + 1) % ordered.length]!)), positions: positions.map(toMetres)});
-  };
-  ring("neckBase",0,base.positions);
-  ring("neckTopCollar",ROWS-1,support);
-  ring("neckTop",ROWS,top.positions);
-  const sampled: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({network,tier:"medium"});
-  const vertices: IAutoMovieHumanCage.IVertex[] = [];
-  for(let i: number = 0; i < sampled.cage.positions.length; i += 3)
-    vertices.push({position: AutoMovieHumanVector.of(sampled.cage.positions[i]!*1000,sampled.cage.positions[i+1]!*1000,sampled.cage.positions[i+2]!*1000)});
-  const faces: IAutoMovieHumanCage.IFace[] = sampled.cage.faces.map((face: number[], f: number): IAutoMovieHumanCage.IFace => ({
-    vertices: [face[0]!,face[1]!,face[2]!,face[3]!],
-    coordinates: sampled.corners[f]!.map((c: IAutoMovieSurfaceCoordinate): IAutoMovieHumanSurfaceCoordinate.IOn<"neck"> => {
-      const uv: Array<{u:number;v:number}> = domains[c.patch]!;
-      const weights: number[] = [(1-c.s)*(1-c.t), c.s*(1-c.t), c.s*c.t, (1-c.s)*c.t];
-      return {part:"neck",side:null,u:uv.reduce((sum:number,p:{u:number;v:number},i:number):number=>sum+p.u*weights[i]!,0),v:uv.reduce((sum:number,p:{u:number;v:number},i:number):number=>sum+p.v*weights[i]!,0)};
-    }) as IAutoMovieHumanCage.IFace["coordinates"],
-  }));
-  const boundary: (name: string, shape: IAutoMovieHumanRingShape) => IAutoMovieHumanCage["rings"][number] = (name: string, shape: IAutoMovieHumanRingShape): IAutoMovieHumanCage["rings"][number] => ({
-    site:shape.site,side:shape.side,vertices:sampled.rings[name]!,start:shape.start,frame:shape.frame,
+  const ring = (
+    name: string,
+    shape: IAutoMovieHumanRingShape,
+  ): IAutoMovieHumanCage["rings"][number] => ({
+    site: shape.site,
+    side: shape.side,
+    vertices: sampled.rings[name]!,
+    start: shape.start,
+    frame: shape.frame,
   });
-  return {vertices,faces,creases:[],rings:[boundary("neckBase",base),boundary("neckTop",top)],construction:IAutoMovieHumanCage.inModel(network)};
+  return {
+    vertices,
+    faces,
+    creases: [],
+    rings: [ring("neckBase", base), ring("neckTop", top)],
+    construction: IAutoMovieHumanCage.inModel(network),
+  };
 }
 
 interface IStation {
@@ -169,14 +280,24 @@ const ROWS: number = 6;
 /** Columns between the two transition bands: at least three fifths of the finer count on either side, 28 and 18, so neither band sets two reduction blocks side by side in a valence-six pole. */
 const MIDDLE: number = 18;
 
-const toMetres: (p: IAutoMovieVector3) => IAutoMovieVector3 = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
+/** Depth of the throat's section under the mandibular plane, over the neck circumference's mean radius. Conventional. */
+const THROAT: number = 0.2;
+
+const fixed = (n: number): IAutoMovieSurfaceNetwork.ICounts => ({
+  lowest: n,
+  low: n,
+  medium: n,
+  high: n,
+});
+
+const toMetres = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
   x: p.x / 1000,
   y: p.y / 1000,
   z: p.z / 1000,
 });
 
 /** A plane whose first axis is the anterior direction within it, the spine running up the neck. */
-const axesOf: (origin: IAutoMovieVector3, normal: IAutoMovieVector3, up: IAutoMovieVector3) => { origin: IAutoMovieVector3; normal: IAutoMovieVector3; x: IAutoMovieVector3; y: IAutoMovieVector3; } = (
+const axesOf = (
   origin: IAutoMovieVector3,
   normal: IAutoMovieVector3,
   up: IAutoMovieVector3,
@@ -202,15 +323,15 @@ const axesOf: (origin: IAutoMovieVector3, normal: IAutoMovieVector3, up: IAutoMo
 };
 
 /** A station through points, its section the closed curve through them about the origin. */
-const plane: (origin: IAutoMovieVector3, normal: IAutoMovieVector3, up: IAutoMovieVector3, points: IAutoMovieVector3[]) => IStation = (
+const plane = (
   origin: IAutoMovieVector3,
   normal: IAutoMovieVector3,
   up: IAutoMovieVector3,
   points: IAutoMovieVector3[],
 ): IStation => {
-  const ax: { origin: IAutoMovieVector3; normal: IAutoMovieVector3; x: IAutoMovieVector3; y: IAutoMovieVector3; } = axesOf(origin, normal, up);
+  const ax = axesOf(origin, normal, up);
   const flat: Array<{ x: number; y: number }> = points.map(
-    (p: IAutoMovieVector3): { x: number; y: number; } => {
+    (p: IAutoMovieVector3) => {
       const d: IAutoMovieVector3 = AutoMovieHumanVector.offset(p, [origin, -1]);
       return {
         x: AutoMovieHumanVector.dot(d, ax.x) / 1000,
@@ -218,15 +339,34 @@ const plane: (origin: IAutoMovieVector3, normal: IAutoMovieVector3, up: IAutoMov
       };
     },
   );
-  let area: number = 0;
-  for (let k: number = 0; k < flat.length; ++k)
-    area += flat[k]!.x * flat[(k + 1) % flat.length]!.y - flat[(k + 1) % flat.length]!.x * flat[k]!.y;
-  return { origin, normal: ax.normal, x: ax.x,
-    section: {type: "bspline", points: area >= 0 ? flat : flat.reverse()} };
+  return { origin, normal: ax.normal, x: ax.x, section: closedCurve(flat) };
+};
+
+/** A station whose section is a radius by the cosine and sine of the direction from its anterior axis. */
+const planeOf = (
+  origin: IAutoMovieVector3,
+  normal: IAutoMovieVector3,
+  up: IAutoMovieVector3,
+  radius: (c: number, s: number) => number,
+): IStation => {
+  const ax = axesOf(origin, normal, up);
+  const radii: number[] = Array.from(
+    { length: 72 },
+    (_: unknown, k: number): number => {
+      const a: number = (2 * Math.PI * k) / 72;
+      return radius(Math.cos(a), Math.sin(a)) / 1000;
+    },
+  );
+  return {
+    origin,
+    normal: ax.normal,
+    x: ax.x,
+    section: { type: "radial", radii },
+  };
 };
 
 /** Each point's share of the polyline's chord length. */
-const chordShares: (points: IAutoMovieVector3[]) => number[] = (points: IAutoMovieVector3[]): number[] => {
+const chordShares = (points: IAutoMovieVector3[]): number[] => {
   const lengths: number[] = [0];
   for (let k: number = 1; k < points.length; ++k)
     lengths.push(
@@ -237,14 +377,79 @@ const chordShares: (points: IAutoMovieVector3[]) => number[] = (points: IAutoMov
   return lengths.map((l: number): number => l / total);
 };
 
-/** One authored quad per named neck patch at every cage tier. */
-const ONE: IAutoMovieSurfaceNetwork.ICounts = {lowest: 1, low: 1, medium: 1, high: 1};
+/** A closed polygon sampled from the uniform Catmull-Rom curve through points, eight samples per span, counterclockwise. */
+const closedCurve = (
+  points: Array<{ x: number; y: number }>,
+): IAutoMovieSweepSection => {
+  const n: number = points.length;
+  const out: Array<{ x: number; y: number }> = [];
+  for (let k: number = 0; k < n; ++k) {
+    const p0 = points[(k + n - 1) % n]!;
+    const p1 = points[k]!;
+    const p2 = points[(k + 1) % n]!;
+    const p3 = points[(k + 2) % n]!;
+    for (let i: number = 0; i < 8; ++i) {
+      const t: number = i / 8;
+      const t2: number = t * t;
+      const t3: number = t2 * t;
+      const w0: number = -0.5 * t3 + t2 - 0.5 * t;
+      const w1: number = 1.5 * t3 - 2.5 * t2 + 1;
+      const w2: number = -1.5 * t3 + 2 * t2 + 0.5 * t;
+      const w3: number = 0.5 * t3 - 0.5 * t2;
+      out.push({
+        x: w0 * p0.x + w1 * p1.x + w2 * p2.x + w3 * p3.x,
+        y: w0 * p0.y + w1 * p1.y + w2 * p2.y + w3 * p3.y,
+      });
+    }
+  }
+  let area: number = 0;
+  for (let k: number = 0; k < out.length; ++k) {
+    const a = out[k]!;
+    const b = out[(k + 1) % out.length]!;
+    area += a.x * b.y - b.x * a.y;
+  }
+  return { type: "polygon", points: area >= 0 ? out : out.reverse() };
+};
 
-/** A neck-row sample on one of the two named construction sweeps. */
-interface IPoint {
-  key: string;
-  sweep: "neck" | "neckCollar";
-  u: number;
-  v: number;
-  domain: {u: number; v: number};
-}
+/** The unit quaternion of the rotation whose matrix columns are `x`, `y`, `z`. */
+const quaternionOf = (
+  x: IAutoMovieVector3,
+  y: IAutoMovieVector3,
+  z: IAutoMovieVector3,
+): IAutoMovieQuaternion => {
+  const trace: number = x.x + y.y + z.z;
+  if (trace > 0) {
+    const s: number = Math.sqrt(trace + 1) * 2;
+    return {
+      w: s / 4,
+      x: (y.z - z.y) / s,
+      y: (z.x - x.z) / s,
+      z: (x.y - y.x) / s,
+    };
+  }
+  if (x.x > y.y && x.x > z.z) {
+    const s: number = Math.sqrt(1 + x.x - y.y - z.z) * 2;
+    return {
+      w: (y.z - z.y) / s,
+      x: s / 4,
+      y: (y.x + x.y) / s,
+      z: (z.x + x.z) / s,
+    };
+  }
+  if (y.y > z.z) {
+    const s: number = Math.sqrt(1 + y.y - x.x - z.z) * 2;
+    return {
+      w: (z.x - x.z) / s,
+      x: (y.x + x.y) / s,
+      y: s / 4,
+      z: (z.y + y.z) / s,
+    };
+  }
+  const s: number = Math.sqrt(1 + z.z - x.x - y.y) * 2;
+  return {
+    w: (x.y - y.x) / s,
+    x: (z.x + x.z) / s,
+    y: (z.y + y.z) / s,
+    z: s / 4,
+  };
+};

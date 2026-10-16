@@ -10,7 +10,6 @@ import { columnAutoMovieHumanHead } from "./columnAutoMovieHumanHead";
 import { locateAutoMovieHumanHeadRing } from "./locateAutoMovieHumanHeadRing";
 import { loopAutoMovieHumanEyelids } from "./loopAutoMovieHumanEyelids";
 import { loopAutoMovieHumanLips } from "./loopAutoMovieHumanLips";
-import { layoutAutoMovieHumanHeadNeck } from "./layoutAutoMovieHumanHeadNeck";
 import { pinAutoMovieHumanHeadRing } from "./pinAutoMovieHumanHeadRing";
 
 /**
@@ -18,7 +17,7 @@ import { pinAutoMovieHumanHeadRing } from "./pinAutoMovieHumanHeadRing";
  *
  * The layout is a lattice of 60 columns round the head in three blocks. Thirty-six columns cover the face between the form's half-angle either side of the midline, on average three times as dense as the 24 over the sides and the back, because the face carries the features; they are spaced smoothly through the edges of the eye and mouth openings, which the form sets on the canthi and the commissures ({@link IAutoMovieHumanHeadForm.ILayout}), so the openings hold the features whatever the face's proportions; the midline is a column line, so the head is mirror-symmetric through vertices, and the back-left line through each ear's centre spaces the side columns. Six vault rows from the crown to the hairline run round every column. Below the hairline the face takes 21 rows spaced by anatomy (four over the forehead, five through the eyes, four over the nose, five through the mouth, three over the chin to the jawline) and the sides the same row count, two of them each ear's height; each face row continues around the sides without reduction poles at the lateral orbital and malar boundary, while the rows ease to the ear's spacing away from the face. Five openings cut the lattice, each a rectangle of whole cells: an eye opening of ten columns by five rows on each side, the mouth's of twelve by five, and each ear's of two by two side cells, whose eight corners are the ear ring.
  *
- * Inside each eye and the mouth, concentric geometric loop bands fill each opening ({@link loopAutoMovieHumanEyelids}, {@link loopAutoMovieHumanLips}), with short end edges at the upper and lower runs. Their topology does not establish muscle paths, expression behavior, or anatomical fold correspondence. The mouth perimeter comes from height rows and interpolated columns; its nasolabial and labiomental registration remains unverified. The forehead rows interpolate height levels and do not establish frontalis crease locations. Over the crown a 14 by 16 grid closes the lattice's top row ({@link capAutoMovieHumanHead}). The jaw floor and upper neck continue through their named internal sections ({@link layoutAutoMovieHumanHeadNeck}); the simple cervical tube is the shared part boundary. Every change of count is the engine's transition strip ({@link layoutAutoMovieSurfaceTransition}): 2-to-1 blocks among straight columns, each with two poles of valence three inside and valence five at its coarse corners, the pole pairs where loops end that reference faces use; a count at least three fifths of the finer keeps every block between straight columns, so no vertex takes valence six, and each closed band's blocks mirror about both midlines.
+ * Inside each eye and the mouth, concentric geometric loop bands fill each opening ({@link loopAutoMovieHumanEyelids}, {@link loopAutoMovieHumanLips}), with short end edges at the upper and lower runs. Their topology does not establish muscle paths, expression behavior, or anatomical fold correspondence. The mouth perimeter comes from height rows and interpolated columns; its nasolabial and labiomental registration remains unverified. The forehead rows interpolate height levels and do not establish frontalis crease locations. Over the crown a 14 by 16 grid closes the lattice's top row ({@link capAutoMovieHumanHead}). Between the jawline and the neck-top ring, under the chin and the occiput, two transition bands take the 60 columns to 40 and then to the ring's 28, and one row reaches the ring, pinned to its shared shape. Every change of count is the engine's transition strip ({@link layoutAutoMovieSurfaceTransition}): 2-to-1 blocks among straight columns, each with two poles of valence three inside and valence five at its coarse corners, the pole pairs where loops end that reference faces use; a count at least three fifths of the finer keeps every block between straight columns, so no vertex takes valence six, and each closed band's blocks mirror about both midlines.
  *
  * @param props The domain, the network builder, the head measurements and the ring shapes, model frame
  * @returns Nothing; the quads and rings go to the builder
@@ -29,8 +28,6 @@ export function layoutAutoMovieHumanHead(props: {
   head: IAutoMovieHumanIdentity.IHead;
   form: IAutoMovieHumanHeadForm;
   neck: IAutoMovieHumanRingShape;
-  support: number;
-  collar: string;
   ears: Record<"left" | "right", IAutoMovieHumanRingShape>;
 }): void {
   const { domain, network, head }: typeof props = props;
@@ -86,8 +83,10 @@ export function layoutAutoMovieHumanHead(props: {
     previous = target;
   });
   // the chin's rows end on the jawline, the plane through gnathion, and the reductions and the ring's row share the chin's underside
-  const jawU: number = domain.loft.jaw;
+  const jawU: number = domain.loft.shares[domain.loft.shares.length - 2]!;
   const chinU: number = jawU;
+  const bandU: number = jawU + (1 - jawU) / 3;
+  const collarU: number = jawU + (2 * (1 - jawU)) / 3;
   for (let k: number = 1; k <= ROWS.chin; ++k)
     faceRows.push(previous + ((chinU - previous) * k) / ROWS.chin);
   const R: number = faceRows.length - 1;
@@ -358,7 +357,49 @@ export function layoutAutoMovieHumanHead(props: {
   );
 
   // ---- transition bands to the ring under the chin and the occiput
-  layoutAutoMovieHumanHeadNeck({domain, network, neck: props.neck, bottom, reduction: layout.reduction, support: props.support, collar: props.collar});
+  const band: (
+    from: AutoMovieHumanHeadNetwork.IPoint[],
+    count: number,
+    u: number,
+  ) => AutoMovieHumanHeadNetwork.IPoint[] = (
+    from: AutoMovieHumanHeadNetwork.IPoint[],
+    count: number,
+    u: number,
+  ): AutoMovieHumanHeadNetwork.IPoint[] => {
+    const to: AutoMovieHumanHeadNetwork.IPoint[] = Array.from(
+      { length: count },
+      (_: unknown, j: number): AutoMovieHumanHeadNetwork.IPoint =>
+        network.on(u, along(from, true, (j * from.length) / count).v),
+    );
+    strip(network, layout.reduction, from, to, true, "transition");
+    return to;
+  };
+  const collar: AutoMovieHumanHeadNetwork.IPoint[] = band(
+    band(bottom, BANDS[0], bandU),
+    BANDS[1],
+    collarU,
+  );
+  const ringPoints: AutoMovieHumanHeadNetwork.IPoint[] = collar.map(
+    (p: AutoMovieHumanHeadNetwork.IPoint): AutoMovieHumanHeadNetwork.IPoint =>
+      network.on(1, p.domain.v),
+  );
+  for (let k: number = 0; k < ringPoints.length; ++k)
+    network.quad(
+      [
+        collar[k]!,
+        collar[(k + 1) % collar.length]!,
+        ringPoints[(k + 1) % ringPoints.length]!,
+        ringPoints[k]!,
+      ],
+      "ring",
+    );
+  pinAutoMovieHumanHeadRing(
+    domain,
+    network,
+    "neckTop",
+    ringPoints,
+    props.neck.positions,
+  );
 }
 
 /**
@@ -421,6 +462,9 @@ const SIDE: number = 24;
 
 /** Back-left column line through the ear's centre. */
 const EAR_LINE: number = 8;
+
+/** Columns of the two transition bands under the chin and the occiput, from the lattice's 60 to the neck-top ring's 28, each at least three fifths of the one before. */
+const BANDS: [number, number] = [40, 28];
 
 /** Rows of each band of the face, from the crown down. */
 const ROWS: {

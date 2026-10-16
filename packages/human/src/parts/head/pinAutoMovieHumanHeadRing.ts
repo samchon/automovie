@@ -6,9 +6,6 @@ import { AutoMovieHumanHeadNetwork } from "./AutoMovieHumanHeadNetwork";
 
 /**
  * Pin a loop of points to a ring's positions: ring vertex `k` takes the loop point a fixed turn round from it, the turn and direction that bring the two loops closest, so the pairing follows the loop's order for any shape.
- *
- * @param correspondence An existing angular pairing for a parallel support row
- * @returns The pairing used by the boundary and its support row
  */
 export const pinAutoMovieHumanHeadRing: (
   domain: AutoMovieHumanHeadDomain,
@@ -16,15 +13,13 @@ export const pinAutoMovieHumanHeadRing: (
   name: string,
   loop: AutoMovieHumanHeadNetwork.IPoint[],
   positions: IAutoMovieVector3[],
-  correspondence?: { shift: number; sign: number },
-) => { shift: number; sign: number } = (
+) => void = (
   domain: AutoMovieHumanHeadDomain,
   network: AutoMovieHumanHeadNetwork,
   name: string,
   loop: AutoMovieHumanHeadNetwork.IPoint[],
   positions: IAutoMovieVector3[],
-  correspondence?: { shift: number; sign: number },
-): { shift: number; sign: number } => {
+): void => {
   const n: number = loop.length;
   if (positions.length !== n)
     throw new Error(
@@ -39,11 +34,11 @@ export const pinAutoMovieHumanHeadRing: (
     },
   );
   let best: { shift: number; sign: number; cost: number } = {
-    shift: correspondence?.shift ?? 0,
-    sign: correspondence?.sign ?? 1,
-    cost: correspondence === undefined ? Infinity : 0,
+    shift: 0,
+    sign: 1,
+    cost: Infinity,
   };
-  for (const sign of correspondence === undefined ? [1, -1] : [])
+  for (const sign of [1, -1])
     for (let shift: number = 0; shift < n; ++shift) {
       let cost: number = 0;
       for (let k: number = 0; k < n; ++k) {
@@ -67,5 +62,4 @@ export const pinAutoMovieHumanHeadRing: (
       }),
     ),
   );
-  return { shift: best.shift, sign: best.sign };
 };
