@@ -6,7 +6,7 @@ import { IAutoMovieHumanLimbPlan } from "../IAutoMovieHumanLimbPlan";
 import { planAutoMovieHumanArm } from "./planAutoMovieHumanArm";
 
 /** Share of the stations' chord length at station `i`. */
-const arcShare = (plan: IAutoMovieHumanLimbPlan, i: number): number => {
+const arcShare: (plan: IAutoMovieHumanLimbPlan, i: number) => number = (plan: IAutoMovieHumanLimbPlan, i: number): number => {
   let to: number = 0;
   let total: number = 0;
   plan.stations.forEach((s: IAutoMovieHumanLimbPlan.IStation, k: number): void => {
@@ -35,7 +35,7 @@ const arcShare = (plan: IAutoMovieHumanLimbPlan, i: number): number => {
  */
 export class AutoMovieHumanArmGenerator implements IAutoMovieHumanPartGenerator<"arm"> {
   /** The part this generator produces. */
-  public readonly part = "arm" as const;
+  public readonly part: "arm" = "arm" as const;
 
   /**
    * Generate one arm's cage.
@@ -59,7 +59,7 @@ export class AutoMovieHumanArmGenerator implements IAutoMovieHumanPartGenerator<
     props: IAutoMovieHumanPartGenerator.IProps<"arm">,
   ): (point: IAutoMovieHumanPartGenerator.IReliefPoint<"arm">) => number {
     const plan: IAutoMovieHumanLimbPlan = planAutoMovieHumanArm(props);
-    const deltoid = fieldAutoMovieHumanDeltoid(props);
+    const deltoid: ReturnType<typeof fieldAutoMovieHumanDeltoid> = fieldAutoMovieHumanDeltoid(props);
     // the shoulder branch does not read the deltoid yet, so the arm takes it in over the rows next to the ring instead of stepping at the ring
     const start: number = plan.stations[2]!.rows > 0 ? arcShare(plan, 2) : 0;
     return (point: IAutoMovieHumanPartGenerator.IReliefPoint<"arm">): number => {

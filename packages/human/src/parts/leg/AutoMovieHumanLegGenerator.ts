@@ -16,7 +16,7 @@ import { planAutoMovieHumanLeg } from "./planAutoMovieHumanLeg";
  */
 export class AutoMovieHumanLegGenerator implements IAutoMovieHumanPartGenerator<"leg"> {
   /** The part this generator produces. */
-  public readonly part = "leg" as const;
+  public readonly part: "leg" = "leg" as const;
 
   /**
    * Generate one leg's cage.

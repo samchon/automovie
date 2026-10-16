@@ -48,17 +48,17 @@ export function fieldAutoMovieHumanLimbRelief(
 }
 
 /** The existing Gaussian fat-layer conversion; the fixed engine band takes its width at the crest. */
-const show = (
+const show: (relief: IAutoMovieHumanLimbPlan.IRelief) => { width: number; heights: number[] } = (
   relief: IAutoMovieHumanLimbPlan.IRelief,
 ): { width: number; heights: number[] } => {
   const spread: number = relief.spread;
-  const blur = (thickness: number): number => BLUR_PER_FAT * thickness;
-  const deep = (point: IAutoMovieHumanLimbPlan.IReliefPoint): number =>
+  const blur: (thickness: number) => number = (thickness: number): number => BLUR_PER_FAT * thickness;
+  const deep: (point: IAutoMovieHumanLimbPlan.IReliefPoint) => number = (point: IAutoMovieHumanLimbPlan.IReliefPoint): number =>
     Math.max(
       LEAST_DEEP_SHARE * spread,
       Math.sqrt(Math.max(0, spread * spread - blur(point.reference) ** 2)),
     );
-  const seen = (point: IAutoMovieHumanLimbPlan.IReliefPoint): number =>
+  const seen: (point: IAutoMovieHumanLimbPlan.IReliefPoint) => number = (point: IAutoMovieHumanLimbPlan.IReliefPoint): number =>
     Math.hypot(deep(point), blur(point.fat));
   const crest: IAutoMovieHumanLimbPlan.IReliefPoint = relief.points.reduce(
     (
@@ -78,11 +78,11 @@ const show = (
 };
 
 /** Zero through a junction collar and one at the next interior station; the same rule applies at both ends. */
-const fade = (index: number, count: number): number =>
+const fade: (index: number, count: number) => number = (index: number, count: number): number =>
   Math.min(1, Math.max(0, index - 1), Math.max(0, count - 2 - index));
 
 /** Spine parameter of a course point expressed in station-index space. */
-const share = (at: number[], index: number): number => {
+const share: (at: number[], index: number) => number = (at: number[], index: number): number => {
   const i: number = Math.min(at.length - 2, Math.max(0, Math.floor(index)));
   const fraction: number = Math.min(1, Math.max(0, index - i));
   return at[i]! + (at[i + 1]! - at[i]!) * fraction;
