@@ -3,7 +3,7 @@ import { IAutoMovieSurfaceNetwork } from "@automovie/engine";
 /**
  * Divide a limb's sweep into the patches of its control cage: rows of quads around the limb between its stations, and a transition band wherever the number of vertices around changes.
  *
- * Between two stations of equal column count the patch is the sweep's own rectangle `[u_i, u_i+1] × [0, 1]`, sampled in `rows` rows and `columns` columns, so its vertices lie at `v = j / columns` on each station row and the rows of neighbouring patches weld. Between a station of `W` columns and one of `W - 4`, one band of quads turns three wide spans into one narrow span on each half of the turn: four quads around two vertices in the band's middle, a third of the narrow span apart, whose only extraordinary vertices are those two of valence 3 and the narrow span's two ends of valence 5, and every other span runs straight across the band. Every quad of the pattern is convex in the domain, so none folds into a triangle with a corner on one side, which the sampled limit surface shows as a dent. The quads are bilinear Coons patches of one face each, their sides straight lines of the sweep's domain, so their corners are points of the sweep like every other vertex. The patterns sit just past `v` 0.25 and 0.75, the medial and lateral meridians of both limbs, the narrow, sharply curved sides where the poles show least, never the broad front and back.
+ * Between two stations of equal column count the patch is the sweep's own rectangle `[u_i, u_i+1] × [0, 1]`, sampled in `rows` rows and `columns` columns, so its vertices lie at `v = j / columns` on each station row and the rows of neighbouring patches weld. Where the column count changes, the last row beside the narrower station is the transition and any preceding rows retain the wider count. Between a row of `W` columns and one of `W - 4`, one band of quads turns three wide spans into one narrow span on each half of the turn: four quads around two vertices in the band's middle, a third of the narrow span apart, whose only extraordinary vertices are those two of valence 3 and the narrow span's two ends of valence 5, and every other span runs straight across the band. Every quad of the pattern is convex in the domain, so none folds into a triangle with a corner on one side, which the sampled limit surface shows as a dent. The quads are bilinear Coons patches of one face each, their sides straight lines of the sweep's domain, so their corners are points of the sweep like every other vertex. The patterns sit just past `v` 0.25 and 0.75, the medial and lateral meridians of both limbs, the narrow, sharply curved sides where the poles show least, never the broad front and back.
  *
  * @param props.sweep Name of the sweep in the network
  * @param props.at Each station's `u` on the sweep, increasing from 0 to 1
@@ -21,25 +21,50 @@ export function patchAutoMovieHumanLimb(props: {
   const patches: IAutoMovieSurfaceNetwork.IPatch[] = [];
   const domains: Array<(s: number, t: number) => IDomain> = [];
   const transitions: number[] = [];
+  // The regular patch and transition share this exact domain coordinate.
+  const wideAt = (i: number): number => {
+    const wideFirst: boolean = columns[i]! > columns[i + 1]!;
+    const wide: number = wideFirst ? at[i]! : at[i + 1]!;
+    const narrow: number = wideFirst ? at[i + 1]! : at[i]!;
+    return rows[i] === 1 ? wide : narrow + (wide - narrow) / rows[i]!;
+  };
+  const band = (
+    name: string,
+    u: [number, number],
+    count: number,
+    rowCount: number,
+  ): void => {
+    patches.push({
+      type: "sweep",
+      name,
+      sweep,
+      u,
+      v: [0, 1],
+      rows: fixed(rowCount),
+      columns: fixed(count),
+    });
+    domains.push(
+      (s: number, t: number): IDomain => ({
+        u: u[0] + (u[1] - u[0]) * t,
+        v: s,
+      }),
+    );
+  };
   for (let i: number = 0; i + 1 < at.length; ++i) {
-    if (columns[i] === columns[i + 1]) {
-      const u: [number, number] = [at[i]!, at[i + 1]!];
-      patches.push({
-        type: "sweep",
-        name: `band.${i}`,
-        sweep,
-        u,
-        v: [0, 1],
-        rows: fixed(rows[i]!),
-        columns: fixed(columns[i]!),
-      });
-      domains.push(
-        (s: number, t: number): IDomain => ({
-          u: u[0] + (u[1] - u[0]) * t,
-          v: s,
-        }),
+    if (columns[i] === columns[i + 1])
+      band(`band.${i}`, [at[i]!, at[i + 1]!], columns[i]!, rows[i]!);
+    else {
+      transitions.push(i);
+      if (rows[i]! <= 1) continue;
+      const wideFirst: boolean = columns[i]! > columns[i + 1]!;
+      const split: number = wideAt(i);
+      band(
+        `band.${i}.wide`,
+        wideFirst ? [at[i]!, split] : [split, at[i + 1]!],
+        Math.max(columns[i]!, columns[i + 1]!),
+        rows[i]! - 1,
       );
-    } else transitions.push(i);
+    }
   }
   // transition quads after every sweep patch, so the station rows they share are sampled at their patches' spacing
   for (const i of transitions) {
@@ -50,8 +75,8 @@ export function patchAutoMovieHumanLimb(props: {
       throw new Error(
         `limb band ${i} turns ${columns[i]} columns into ${columns[i + 1]}; it needs 4k + 4 and 4k`,
       );
-    const uWide: number = wideFirst ? at[i]! : at[i + 1]!;
     const uNarrow: number = wideFirst ? at[i + 1]! : at[i]!;
+    const uWide: number = wideAt(i);
     const t = (j: number): IDomain => ({ u: uWide, v: j / W });
     const b = (k: number): IDomain => ({ u: uNarrow, v: k / N });
     for (let half: number = 0; half < 2; ++half) {

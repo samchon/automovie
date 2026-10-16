@@ -10,9 +10,9 @@ import { reliefAutoMovieHumanLeg } from "./reliefAutoMovieHumanLeg";
 import { shapeAutoMovieHumanLegSection } from "./shapeAutoMovieHumanLegSection";
 
 /**
- * Rows of faces from each station to the next: two across the long gaps of the lower thigh and the calf's taper, one elsewhere, so rows lie about a span of the twelve around apart and gather at the knee. Grade: conventional.
+ * Rows of faces from each station to the next: two across the long gaps of the lower thigh, calf's taper and calcaneal tendon, one elsewhere, so the transition to the ankle collar has an intermediate row and rows gather at the knee. Grade: conventional.
  */
-const ROWS: number[] = [1, 1, 2, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1];
+const ROWS: number[] = [1, 1, 2, 1, 1, 1, 1, 1, 2, 2, 2, 1, 1];
 
 /**
  * Lay one leg out for lofting, from mid thigh to the ankle.

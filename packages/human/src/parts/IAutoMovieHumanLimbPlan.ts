@@ -60,7 +60,7 @@ export namespace IAutoMovieHumanLimbPlan {
     /** Vertices around the station's row, a multiple of four; neighbouring stations differ by four at most. */
     columns: number;
 
-    /** Rows of faces from this station to the next; 1 where the column count changes. Ignored on the last station. */
+    /** Rows of faces from this station to the next; where the column count changes, only the row next to the narrower station changes count and all other rows keep the wider count. Ignored on the last station. */
     rows: number;
   }
 
