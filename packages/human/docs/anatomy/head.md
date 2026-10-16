@@ -126,3 +126,15 @@ Individual means, SDs and landmark definitions are facts and may become named co
 - Trichion has no growth or ageing data here; forehead height of children is unknown.
 - Gonion and gnathion definitions differ between sources; the generator must choose one and convert.
 - Cephalic index of European-ancestry children and of adults over 40 is not covered.
+
+## Face landmark projection, campaign 2831
+
+The mouth loops projected a requested transverse coordinate and height radially from a point 5 mm ahead of the profile guide. The evaluated sweep point consequently moved away from the requested landmark: across the four gate identities, each mouth corner moved inward by 2.006 to 2.114 mm and upward by 1.868 to 2.022 mm before cage fitting. These are numerical sweep residuals, not measurements on the displayed subdivision limit surface.
+
+The replacement solves the anterior surface depth while holding transverse coordinate and height fixed. A bracket between the lateral guide and one head depth beyond the front guide converged on 1,428 face samples across the four gate identities, with coordinate residuals at most 0.00001 mm in no more than 23 bisections. Both mouth corners measured on the joined subdivision limit surface moved from transverse residuals of 2.004 to 2.111 mm and height residuals of 1.852 to 2.006 mm to residuals below 0.00001 mm. The lip border and anterior orbital course use this inverse; free lid margins retain their globe-based positions. This changes address conversion, with no anatomical coefficient adjustment. A committed matching render remains required before accepting the resulting form.
+
+## Facial shape differences, campaign 2831
+
+Matthews et al. 2023, "Using data-driven phenotyping to investigate the impact of sex on 3D human facial surface morphology", doi:10.1111/joa.13866, was read as the full author manuscript through the Europe PMC full-text API for [PMC10335371](https://pmc.ncbi.nlm.nih.gov/articles/PMC10335371/). The sample comprised 1,223 adults of each sex, mean age 27.8 years, all reporting recent European ancestry. Shape regression adjusted for full-face centroid size and BMI, using stereophotogrammetry, dense correspondence and local Procrustes alignment.
+
+The study supports local forehead, brow and philtrum shape differences after those adjustments. Its illustrative morphs were deliberately exaggerated, with their magnitude selected for visibility; they do not provide physical displacement coefficients. It neither establishes an appendicular lean mass rule for brow prominence nor supplies an East Asian female calibration. No numerical form coefficient was taken from it.

@@ -5,7 +5,7 @@ import { IAutoMovieHumanHeadForm } from "./IAutoMovieHumanHeadForm";
  *
  * The network's placement is conventional unless a property says otherwise: chosen on renders of the gate identities, pending a fit to reference faces.
  *
- * The profile's depths below subnasale are conventional shares of face height behind it, pending a measured soft-tissue profile; the exponents are calibrated against the sections of the MakeHuman CC0 reference heads at the four gate identities.
+ * The profile's depths below subnasale are conventional shares of face height behind it, pending a measured soft-tissue profile; the exponents are calibrated against the sections of the CC0 reference heads at the four gate identities.
  *
  * @author Samchon
  */
@@ -51,8 +51,8 @@ export const AUTOMOVIE_HUMAN_HEAD_FORM: IAutoMovieHumanHeadForm = {
     /** So the eyeball never shows through the lid. */
     contact: 0.3,
     posteriorOpen: 0.94,
-    /** The loops round each canthus stay open rather than meeting in a crease. */
-    sulcus: { upper: 1.9, lower: 2.0, widen: 4, gap: 2.5 },
+    /** Geometric envelope of the four reference heads used in the campaign gate comparison, native head frames, outward quad-strip courses: each expansion is normalized by its own seed aperture width, fitted with equal reference weights, then rounded to four decimals. Grade: derived from reference geometry, not a clinical rim or population norm. */
+    envelope: { medial: 0.0183, lateral: 0.2628, above: 0.091, below: 0.1668 },
   },
   lips: {
     orbicularis: 0.5,

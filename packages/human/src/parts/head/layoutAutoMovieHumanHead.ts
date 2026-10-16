@@ -1,23 +1,21 @@
-import {
-  interpolateAutoMovieMonotone,
-  layoutAutoMovieSurfaceTransition,
-} from "@automovie/engine";
-import { IAutoMovieVector3 } from "@automovie/interface";
+import { layoutAutoMovieSurfaceTransition } from "@automovie/engine";
 
 import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
-import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanIdentity } from "../../structures/IAutoMovieHumanIdentity";
 import { AutoMovieHumanHeadDomain } from "./AutoMovieHumanHeadDomain";
 import { AutoMovieHumanHeadNetwork } from "./AutoMovieHumanHeadNetwork";
 import { IAutoMovieHumanHeadForm } from "./IAutoMovieHumanHeadForm";
 import { capAutoMovieHumanHead } from "./capAutoMovieHumanHead";
+import { columnAutoMovieHumanHead } from "./columnAutoMovieHumanHead";
+import { locateAutoMovieHumanHeadRing } from "./locateAutoMovieHumanHeadRing";
 import { loopAutoMovieHumanEyelids } from "./loopAutoMovieHumanEyelids";
 import { loopAutoMovieHumanLips } from "./loopAutoMovieHumanLips";
+import { pinAutoMovieHumanHeadRing } from "./pinAutoMovieHumanHeadRing";
 
 /**
  * Lay the head's quads over its sweep: the same connectivity for every person, placed by the person's anatomy.
  *
- * The layout is a lattice of 60 columns round the head in three blocks. Thirty-six columns cover the face between the form's half-angle either side of the midline, on average three times as dense as the 24 over the sides and the back, because the face carries the features; they are spaced smoothly through the edges of the eye and mouth openings, which the form sets on the canthi and the commissures ({@link IAutoMovieHumanHeadForm.ILayout}), so the openings hold the features whatever the face's proportions; the midline is a column line, so the head is mirror-symmetric through vertices, and the back-left line through each ear's centre spaces the side columns. Six vault rows from the crown to the hairline run round every column. Below the hairline the face takes 21 rows spaced by anatomy (four over the forehead, five through the eyes, four over the nose, five through the mouth, three over the chin to the jawline) and the sides thirteen, two of them each ear's height; in the column beside each edge of the face, a transition strip takes the 21 face rows onto the 13 side rows, and the side rows next to it continue the face's rows where the strip meets them so its quads stay square. Five openings cut the lattice, each a rectangle of whole cells: an eye opening of ten columns by five rows on each side, the mouth's of twelve by five, and each ear's of two by two side cells, whose eight corners are the ear ring.
+ * The layout is a lattice of 60 columns round the head in three blocks. Thirty-six columns cover the face between the form's half-angle either side of the midline, on average three times as dense as the 24 over the sides and the back, because the face carries the features; they are spaced smoothly through the edges of the eye and mouth openings, which the form sets on the canthi and the commissures ({@link IAutoMovieHumanHeadForm.ILayout}), so the openings hold the features whatever the face's proportions; the midline is a column line, so the head is mirror-symmetric through vertices, and the back-left line through each ear's centre spaces the side columns. Six vault rows from the crown to the hairline run round every column. Below the hairline the face takes 21 rows spaced by anatomy (four over the forehead, five through the eyes, four over the nose, five through the mouth, three over the chin to the jawline) and the sides the same row count, two of them each ear's height; each face row continues around the sides without reduction poles at the lateral orbital and malar boundary, while the rows ease to the ear's spacing away from the face. Five openings cut the lattice, each a rectangle of whole cells: an eye opening of ten columns by five rows on each side, the mouth's of twelve by five, and each ear's of two by two side cells, whose eight corners are the ear ring.
  *
  * Inside each eye and the mouth, concentric loops of the opening's own count run from the opening's rim to the feature's inner edge ({@link loopAutoMovieHumanEyelids}, {@link loopAutoMovieHumanLips}). These loops are the fold lines of orbicularis oculi and oris: an expression that narrows the eye or purses, stretches or opens the mouth moves each loop as a whole along its own course, so the creases it makes fall on loop lines and the corners (the canthi and the commissures, short edges where a loop's upper and lower runs meet) stay where they are. The mouth opening's rim, from beside the alae round the commissures to the labiomental fold, follows the nasolabial and labiomental folds, and the face's rows over the brow and the forehead are the lines frontalis creases. Over the crown a 14 by 16 grid closes the lattice's top row ({@link capAutoMovieHumanHead}). Between the jawline and the neck-top ring, under the chin and the occiput, two transition bands take the 60 columns to 40 and then to the ring's 28, and one row reaches the ring, pinned to its shared shape. Every change of count is the engine's transition strip ({@link layoutAutoMovieSurfaceTransition}): 2-to-1 blocks among straight columns, each with two poles of valence three inside and valence five at its coarse corners, the pole pairs where loops end that reference faces use; a count at least three fifths of the finer keeps every block between straight columns, so no vertex takes valence six, and each closed band's blocks mirror about both midlines.
  *
@@ -32,15 +30,16 @@ export function layoutAutoMovieHumanHead(props: {
   neck: IAutoMovieHumanRingShape;
   ears: Record<"left" | "right", IAutoMovieHumanRingShape>;
 }): void {
-  const { domain, network, head } = props;
+  const { domain, network, head }: typeof props = props;
   const layout: IAutoMovieHumanHeadForm.ILayout = props.form.layout;
-  const frame = domain.frame;
-  const profile = domain.profile;
+  const frame: AutoMovieHumanHeadDomain["frame"] = domain.frame;
+  const profile: AutoMovieHumanHeadDomain["profile"] = domain.profile;
   const fh: number = head.faceHeight;
   const features: IAutoMovieHumanIdentity.IFeatures = head.features;
 
   // ---- columns: v of each column line, back-left 0..11, front 12..47, back-right 48..59
-  const earLeft = located(domain, props.ears.left.positions);
+  const earLeft: ReturnType<typeof locateAutoMovieHumanHeadRing> =
+    locateAutoMovieHumanHeadRing(domain, props.ears.left.positions);
   const edge: number = 0.5 - layout.faceHalf / 360;
   const vEar: number = Math.min(earLeft.v, edge - 2 / 36);
   const lines: number[] = [];
@@ -50,11 +49,12 @@ export function layoutAutoMovieHumanHead(props: {
         ? (vEar * k) / EAR_LINE
         : vEar + ((edge - vEar) * (k - EAR_LINE)) / (12 - EAR_LINE),
     );
-  const turn: (k: number) => number = faceColumns(
+  const turn: (k: number) => number = columnAutoMovieHumanHead(
     domain,
     head,
     layout,
     0.5 - edge,
+    { front: FRONT, eye: EYE, mouth: MOUTH },
   );
   for (let k: number = 0; k < FRONT; ++k)
     lines.push(0.5 + Math.sign(k - FRONT / 2) * turn(Math.abs(k - FRONT / 2)));
@@ -91,7 +91,7 @@ export function layoutAutoMovieHumanHead(props: {
   for (let k: number = 1; k <= ROWS.chin; ++k)
     faceRows.push(previous + ((chinU - previous) * k) / ROWS.chin);
   const R: number = faceRows.length - 1;
-  const S: number = SIDE_ROWS;
+  const S: number = R;
   // the side's rows put the ear's opening on two of them, the rest evenly above and below
   const earTop: number = Math.min(...earLeft.us);
   const earBottom: number = Math.max(...earLeft.us);
@@ -119,40 +119,53 @@ export function layoutAutoMovieHumanHead(props: {
             ((chinU - earBottom) * (k - earRow - 2)) / (S - earRow - 2),
   );
   const vault: AutoMovieHumanHeadNetwork.IPoint[][] = vaultRows.map(
-    (u: number) => lines.map((v: number) => network.on(u, v)),
+    (u: number): AutoMovieHumanHeadNetwork.IPoint[] =>
+      lines.map(
+        (v: number): AutoMovieHumanHeadNetwork.IPoint => network.on(u, v),
+      ),
   );
   // the face block over lines 12 to 48, its top row the vault's last
   const face: AutoMovieHumanHeadNetwork.IPoint[][] = faceRows.map(
-    (u: number, i: number) =>
-      Array.from({ length: FRONT + 1 }, (_: unknown, k: number) =>
-        i === 0 ? vault[ROWS.vault]![12 + k]! : network.on(u, lines[12 + k]!),
+    (u: number, i: number): AutoMovieHumanHeadNetwork.IPoint[] =>
+      Array.from(
+        { length: FRONT + 1 },
+        (_: unknown, k: number): AutoMovieHumanHeadNetwork.IPoint =>
+          i === 0 ? vault[ROWS.vault]![12 + k]! : network.on(u, lines[12 + k]!),
       ),
   );
   // the side block from line 48 round the back to line 12, its top row the vault's last
-  const sideLine = (m: number): number => (48 + m) % C;
-  // beside the face each side row continues the face's rows where the transition strip meets it, so the strip's quads stay square; toward the ears and the back the side rows take the ears' spacing
-  const edgeRow = (s: number): number =>
+  const sideLine: (m: number) => number = (m: number): number => (48 + m) % C;
+  // Every face row continues into the side; toward the ears and back, the same rows take the ears' spacing.
+  const edgeRow: (s: number) => number = (s: number): number =>
     along(
-      faceRows.map((u: number) => network.on(u, 0)),
+      faceRows.map(
+        (u: number): AutoMovieHumanHeadNetwork.IPoint => network.on(u, 0),
+      ),
       false,
       (s * R) / S,
     ).u;
-  const toEar = (m: number): number => {
+  const toEar: (m: number) => number = (m: number): number => {
     const t: number = Math.min(1, Math.max(0, (Math.min(m, SIDE - m) - 1) / 2));
     return t * t * (3 - 2 * t);
   };
   const side: AutoMovieHumanHeadNetwork.IPoint[][] = sideRows.map(
-    (u: number, s: number) =>
-      Array.from({ length: SIDE + 1 }, (_: unknown, m: number) =>
-        s === 0
-          ? vault[ROWS.vault]![sideLine(m)]!
-          : network.on(
-              edgeRow(s) + (u - edgeRow(s)) * toEar(m),
-              lines[sideLine(m)]!,
-            ),
+    (u: number, s: number): AutoMovieHumanHeadNetwork.IPoint[] =>
+      Array.from(
+        { length: SIDE + 1 },
+        (_: unknown, m: number): AutoMovieHumanHeadNetwork.IPoint =>
+          s === 0
+            ? vault[ROWS.vault]![sideLine(m)]!
+            : network.on(
+                edgeRow(s) + (u - edgeRow(s)) * toEar(m),
+                lines[sideLine(m)]!,
+              ),
       ),
   );
-  const at = (
+  const at: (
+    block: AutoMovieHumanHeadNetwork.IPoint[][],
+    i: number,
+    k: number,
+  ) => AutoMovieHumanHeadNetwork.IPoint = (
     block: AutoMovieHumanHeadNetwork.IPoint[][],
     i: number,
     k: number,
@@ -195,7 +208,11 @@ export function layoutAutoMovieHumanHead(props: {
       columns: [SIDE - earColumn - 1, SIDE - earColumn + 1],
     },
   ];
-  const open = (
+  const open: (
+    block: AutoMovieHumanHeadNetwork.IPoint[][],
+    i: number,
+    k: number,
+  ) => boolean = (
     block: AutoMovieHumanHeadNetwork.IPoint[][],
     i: number,
     k: number,
@@ -243,12 +260,19 @@ export function layoutAutoMovieHumanHead(props: {
           ],
           "side",
         );
-  // the face's rows onto the side's, in the column beside each edge of the face
-  const column = (
+  // Equal-count bands join the face and sides without a density reduction at the orbit-cheek boundary.
+  const column: (
+    block: AutoMovieHumanHeadNetwork.IPoint[][],
+    k: number,
+  ) => AutoMovieHumanHeadNetwork.IPoint[] = (
     block: AutoMovieHumanHeadNetwork.IPoint[][],
     k: number,
   ): AutoMovieHumanHeadNetwork.IPoint[] =>
-    block.map((row: AutoMovieHumanHeadNetwork.IPoint[]) => row[k]!);
+    block.map(
+      (
+        row: AutoMovieHumanHeadNetwork.IPoint[],
+      ): AutoMovieHumanHeadNetwork.IPoint => row[k]!,
+    );
   strip(
     network,
     layout.reduction,
@@ -266,11 +290,15 @@ export function layoutAutoMovieHumanHead(props: {
     "transition",
   );
   // the rim of an opening, from the middle of its first column side round over the top
-  const rim = (o: IOpening): AutoMovieHumanHeadNetwork.IPoint[] => {
-    const [i0, i1] = o.rows;
-    const [j0, j1] = o.columns;
-    const g = (i: number, j: number): AutoMovieHumanHeadNetwork.IPoint =>
-      at(o.block, i, j);
+  const rim: (o: IOpening) => AutoMovieHumanHeadNetwork.IPoint[] = (
+    o: IOpening,
+  ): AutoMovieHumanHeadNetwork.IPoint[] => {
+    const [i0, i1]: [number, number] = o.rows;
+    const [j0, j1]: [number, number] = o.columns;
+    const g: (i: number, j: number) => AutoMovieHumanHeadNetwork.IPoint = (
+      i: number,
+      j: number,
+    ): AutoMovieHumanHeadNetwork.IPoint => at(o.block, i, j);
     const out: AutoMovieHumanHeadNetwork.IPoint[] = [];
     const half: number = Math.floor((i1 - i0) / 2);
     for (let i: number = i0 + half; i > i0; --i) out.push(g(i, j0));
@@ -299,11 +327,13 @@ export function layoutAutoMovieHumanHead(props: {
     ["left", openings[3]!],
     ["right", openings[4]!],
   ] as const) {
-    const [i0, i1] = o.rows;
-    const [j0, j1] = o.columns;
-    const g = (i: number, j: number): AutoMovieHumanHeadNetwork.IPoint =>
-      at(side, i, j);
-    pinRing(
+    const [i0, i1]: [number, number] = o.rows;
+    const [j0, j1]: [number, number] = o.columns;
+    const g: (i: number, j: number) => AutoMovieHumanHeadNetwork.IPoint = (
+      i: number,
+      j: number,
+    ): AutoMovieHumanHeadNetwork.IPoint => at(side, i, j);
+    pinAutoMovieHumanHeadRing(
       domain,
       network,
       `ear.${name}`,
@@ -323,19 +353,23 @@ export function layoutAutoMovieHumanHead(props: {
 
   capAutoMovieHumanHead({ domain, network, top: vault[0]!, lines });
   const bottom: AutoMovieHumanHeadNetwork.IPoint[] = lines.map(
-    (_: number, j: number) =>
+    (_: number, j: number): AutoMovieHumanHeadNetwork.IPoint =>
       j >= 12 && j <= 48 ? at(face, R, j - 12) : at(side, S, (j - 48 + C) % C),
   );
 
   // ---- transition bands to the ring under the chin and the occiput
-  const band = (
+  const band: (
+    from: AutoMovieHumanHeadNetwork.IPoint[],
+    count: number,
+    u: number,
+  ) => AutoMovieHumanHeadNetwork.IPoint[] = (
     from: AutoMovieHumanHeadNetwork.IPoint[],
     count: number,
     u: number,
   ): AutoMovieHumanHeadNetwork.IPoint[] => {
     const to: AutoMovieHumanHeadNetwork.IPoint[] = Array.from(
       { length: count },
-      (_: unknown, j: number) =>
+      (_: unknown, j: number): AutoMovieHumanHeadNetwork.IPoint =>
         network.on(u, along(from, true, (j * from.length) / count).v),
     );
     strip(network, layout.reduction, from, to, true, "transition");
@@ -347,7 +381,8 @@ export function layoutAutoMovieHumanHead(props: {
     collarU,
   );
   const ringPoints: AutoMovieHumanHeadNetwork.IPoint[] = collar.map(
-    (p: AutoMovieHumanHeadNetwork.IPoint) => network.on(1, p.domain.v),
+    (p: AutoMovieHumanHeadNetwork.IPoint): AutoMovieHumanHeadNetwork.IPoint =>
+      network.on(1, p.domain.v),
   );
   for (let k: number = 0; k < ringPoints.length; ++k)
     network.quad(
@@ -359,94 +394,32 @@ export function layoutAutoMovieHumanHead(props: {
       ],
       "ring",
     );
-  pinRing(domain, network, "neckTop", ringPoints, props.neck.positions);
+  pinAutoMovieHumanHeadRing(
+    domain,
+    network,
+    "neckTop",
+    ringPoints,
+    props.neck.positions,
+  );
 }
-
-/** Domain points of model-frame millimetre positions, and their `u` values. */
-const located = (
-  domain: AutoMovieHumanHeadDomain,
-  positions: IAutoMovieVector3[],
-): { u: number; v: number; us: number[] } => {
-  const points = positions.map((p: IAutoMovieVector3) =>
-    domain.locate(
-      domain.toHead({ x: p.x / 1000, y: p.y / 1000, z: p.z / 1000 }),
-    ),
-  );
-  const v0: number = points[0]!.v;
-  const vs: number[] = points.map((p) => p.v + Math.round(v0 - p.v));
-  return {
-    u: points.reduce((a, p) => a + p.u, 0) / points.length,
-    v: (((vs.reduce((a, x) => a + x, 0) / vs.length) % 1) + 1) % 1,
-    us: points.map((p) => p.u),
-  };
-};
-
-/**
- * Pin a loop of points to a ring's positions: ring vertex `k` takes the loop point a fixed turn round from it, the turn and direction that bring the two loops closest, so the pairing follows the loop's order for any shape.
- */
-const pinRing = (
-  domain: AutoMovieHumanHeadDomain,
-  network: AutoMovieHumanHeadNetwork,
-  name: string,
-  loop: AutoMovieHumanHeadNetwork.IPoint[],
-  positions: IAutoMovieVector3[],
-): void => {
-  const n: number = loop.length;
-  if (positions.length !== n)
-    throw new Error(
-      `head ring ${name} has ${positions.length} vertices for a loop of ${n}`,
-    );
-  const at: IAutoMovieVector3[] = loop.map(
-    (p: AutoMovieHumanHeadNetwork.IPoint): IAutoMovieVector3 => {
-      const m: IAutoMovieVector3 = domain.toModel(
-        domain.point(p.domain.u, p.domain.v),
-      );
-      return AutoMovieHumanVector.of(m.x * 1000, m.y * 1000, m.z * 1000);
-    },
-  );
-  let best: { shift: number; sign: number; cost: number } = {
-    shift: 0,
-    sign: 1,
-    cost: Infinity,
-  };
-  for (const sign of [1, -1])
-    for (let shift: number = 0; shift < n; ++shift) {
-      let cost: number = 0;
-      for (let k: number = 0; k < n; ++k) {
-        const q: IAutoMovieVector3 = at[(((shift + sign * k) % n) + n) % n]!;
-        const p: IAutoMovieVector3 = positions[k]!;
-        cost += (q.x - p.x) ** 2 + (q.y - p.y) ** 2 + (q.z - p.z) ** 2;
-      }
-      if (cost < best.cost) best = { shift, sign, cost };
-    }
-  network.ring(
-    name,
-    positions.map(
-      (_: IAutoMovieVector3, k: number) =>
-        loop[(((best.shift + best.sign * k) % n) + n) % n]!,
-    ),
-    positions.map((p: IAutoMovieVector3) => ({
-      x: p.x / 1000,
-      y: p.y / 1000,
-      z: p.z / 1000,
-    })),
-  );
-};
 
 /**
  * A strip of quads between a finer and a coarser run of points, by the engine's transition layout: 2-to-1 reduction blocks among straight columns, each block's two interior poles of valence three and its coarse corners of valence five. The runs are closed rings or open runs whose ends meet the neighbours; a corner of the layout's coarse or fine side is that run's point, and an interior corner lies `unit` of the way from the fine run toward the coarse at its own place along them.
  */
-const strip = (
+function strip(
   network: AutoMovieHumanHeadNetwork,
   unit: number,
   fine: AutoMovieHumanHeadNetwork.IPoint[],
   coarse: AutoMovieHumanHeadNetwork.IPoint[],
   closed: boolean,
   group: string,
-): void => {
+): void {
   const F: number = closed ? fine.length : fine.length - 1;
   const K: number = closed ? coarse.length : coarse.length - 1;
-  const corner = (c: {
+  const corner: (c: {
+    s: number;
+    t: number;
+  }) => AutoMovieHumanHeadNetwork.IPoint = (c: {
     s: number;
     t: number;
   }): AutoMovieHumanHeadNetwork.IPoint => {
@@ -462,14 +435,14 @@ const strip = (
       [corner(quad[0]), corner(quad[1]), corner(quad[2]), corner(quad[3])],
       group,
     );
-};
+}
 
 /** The domain point at a fractional index along a run of points, closed or open. */
-const along = (
+function along(
   points: AutoMovieHumanHeadNetwork.IPoint[],
   closed: boolean,
   x: number,
-): { u: number; v: number } => {
+): { u: number; v: number } {
   const n: number = points.length;
   const i: number = Math.min(Math.floor(x), closed ? Infinity : n - 2);
   const f: number = x - i;
@@ -480,63 +453,7 @@ const along = (
     u: a.domain.u + (b.domain.u - a.domain.u) * f,
     v: a.domain.v + (v - a.domain.v) * f,
   };
-};
-
-/**
- * The face's column lines either side of the midline: the turn from the midline, in turns of `v`, of the line `k` columns out, spaced smoothly through the edges of the openings. Each edge is set where the face's surface reaches its feature's offset at the feature's own level: the eye opening's medial edge inside endocanthion and its lateral edge beyond exocanthion at the eyes' centre, the mouth opening's edges beyond cheilion at stomion. Edges that would cross keep at least half a uniform column between them.
- */
-const faceColumns = (
-  domain: AutoMovieHumanHeadDomain,
-  head: IAutoMovieHumanIdentity.IHead,
-  layout: IAutoMovieHumanHeadForm.ILayout,
-  half: number,
-): ((k: number) => number) => {
-  const f: IAutoMovieHumanIdentity.IFeatures = head.features;
-  const frame = domain.frame;
-  // the turn at which the face's surface on row `u` lies `x` from the midline, by bisection
-  const turnAt = (u: number, x: number): number => {
-    let lo: number = 0;
-    let hi: number = half;
-    for (let i: number = 0; i < 40; ++i) {
-      const m: number = (lo + hi) / 2;
-      if (Math.abs(domain.point(u, 0.5 + m).x) < x) lo = m;
-      else hi = m;
-    }
-    return (lo + hi) / 2;
-  };
-  const eyeU: number = domain.front(frame.eye.y);
-  const mouthU: number = domain.front(frame.stomion.y);
-  const endocanthion: number = f.intercanthalWidth / 2;
-  const knots: number[] = [0, EYE.medial, MOUTH, EYE.lateral, FRONT / 2];
-  const wanted: number[] = [
-    0,
-    turnAt(
-      eyeU,
-      endocanthion - layout.eyeOpening.medial * f.palpebralFissureLength,
-    ),
-    turnAt(mouthU, (f.mouthWidth / 2) * (1 + layout.mouthOpening.lateral)),
-    turnAt(
-      eyeU,
-      endocanthion + (1 + layout.eyeOpening.lateral) * f.palpebralFissureLength,
-    ),
-    half,
-  ];
-  const step: number = half / (FRONT / 2);
-  const values: number[] = [0];
-  for (let i: number = 1; i < knots.length; ++i)
-    values.push(
-      i === knots.length - 1
-        ? half
-        : Math.min(
-            Math.max(
-              wanted[i]!,
-              values[i - 1]! + 0.5 * step * (knots[i]! - knots[i - 1]!),
-            ),
-            half - 0.5 * step * (FRONT / 2 - knots[i]!),
-          ),
-    );
-  return interpolateAutoMovieMonotone({ knots, values });
-};
+}
 
 /** Columns over the face, between the form's half-angle either side of the midline. */
 const FRONT: number = 36;
@@ -547,14 +464,18 @@ const SIDE: number = 24;
 /** Back-left column line through the ear's centre. */
 const EAR_LINE: number = 8;
 
-/** Side rows from the hairline to the jawline: the fewest at least three fifths of the face's 21 rows with an even difference, so the transition strip beside each edge of the face keeps its blocks between straight columns. */
-const SIDE_ROWS: number = 13;
-
 /** Columns of the two transition bands under the chin and the occiput, from the lattice's 60 to the neck-top ring's 28, each at least three fifths of the one before. */
 const BANDS: [number, number] = [40, 28];
 
 /** Rows of each band of the face, from the crown down. */
-const ROWS = {
+const ROWS: {
+  readonly vault: 6;
+  readonly forehead: 4;
+  readonly eyes: 5;
+  readonly nose: 4;
+  readonly mouth: 5;
+  readonly chin: 3;
+} = {
   vault: 6,
   forehead: 4,
   eyes: 5,
@@ -564,7 +485,10 @@ const ROWS = {
 } as const;
 
 /** Each eye's opening, columns from the midline to its medial and lateral sides. */
-const EYE = { medial: 3, lateral: 13 } as const;
+const EYE: { readonly medial: 3; readonly lateral: 13 } = {
+  medial: 3,
+  lateral: 13,
+} as const;
 
 /** The mouth's opening, columns from the midline to either side. */
 const MOUTH: number = 6;

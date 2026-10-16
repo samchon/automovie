@@ -26,18 +26,24 @@ export function loopAutoMovieHumanLips(props: {
   form: IAutoMovieHumanHeadForm.ILips;
   rim: AutoMovieHumanHeadNetwork.IPoint[];
 }): void {
-  const { domain, network, head, form, rim } = props;
-  const frame = domain.frame;
+  const { domain, network, head, form, rim }: typeof props = props;
+  const frame: AutoMovieHumanHeadDomain["frame"] = domain.frame;
   const features: IAutoMovieHumanIdentity.IFeatures = head.features;
   const half: number = rim.length / 2;
   const width: number = features.mouthWidth / 2;
   const stomion: number = frame.stomion.y;
   // x across the run of `half` points: from the person's left (+x) over the upper lip, back from the right under the lower
-  const across = (m: number, upper: boolean): number => {
+  const across: (m: number, upper: boolean) => number = (
+    m: number,
+    upper: boolean,
+  ): number => {
     const x: number = width * Math.cos((Math.PI * m) / (half - 1));
     return upper ? x : -x;
   };
-  const border = (x: number, upper: boolean): number => {
+  const border: (x: number, upper: boolean) => number = (
+    x: number,
+    upper: boolean,
+  ): number => {
     const t: number = Math.min(1, Math.abs(x) / width);
     if (!upper)
       return (
@@ -53,40 +59,61 @@ export function loopAutoMovieHumanLips(props: {
       features.upperVermilionHeight * Math.pow(1 - Math.pow(t, 2.2), 0.6) * bow
     );
   };
-  const surface = (
+  const surface: (
+    x: number,
+    y: number,
+  ) => { at: { u: number; v: number }; p: IAutoMovieVector3 } = (
     x: number,
     y: number,
   ): { at: { u: number; v: number }; p: IAutoMovieVector3 } => {
-    const at: { u: number; v: number } = domain.locate(
-      AutoMovieHumanVector.of(x, y, domain.profile.front(y) + 5),
-    );
+    const at: { u: number; v: number } = domain.onFace(x, y);
     return { at, p: domain.point(at.u, at.v) };
   };
   const vermilion: AutoMovieHumanHeadNetwork.IPoint[] = rim.map(
-    (_: AutoMovieHumanHeadNetwork.IPoint, k: number) => {
+    (
+      _: AutoMovieHumanHeadNetwork.IPoint,
+      k: number,
+    ): AutoMovieHumanHeadNetwork.IPoint => {
       const upper: boolean = k < half;
       const x: number = across(upper ? k : k - half, upper);
-      const { at } = surface(x, border(x, upper));
+      const { at }: { at: { u: number; v: number }; p: IAutoMovieVector3 } =
+        surface(x, border(x, upper));
       return network.on(at.u, at.v);
     },
   );
-  const inside = (
+  const inside: (
+    name: string,
+    back: number,
+    open: number,
+    narrow: number,
+  ) => AutoMovieHumanHeadNetwork.IPoint[] = (
     name: string,
     back: number,
     open: number,
     narrow: number,
   ): AutoMovieHumanHeadNetwork.IPoint[] =>
-    rim.map((_: AutoMovieHumanHeadNetwork.IPoint, k: number) => {
-      const upper: boolean = k < half;
-      const x: number = narrow * across(upper ? k : k - half, upper);
-      const y: number = stomion + (upper ? open : -open);
-      const { at, p } = surface(x, y);
-      return network.free(
-        `${name}.${k}`,
-        domain.toModel(AutoMovieHumanVector.of(p.x, p.y, p.z - back)),
-        at,
-      );
-    });
+    rim.map(
+      (
+        _: AutoMovieHumanHeadNetwork.IPoint,
+        k: number,
+      ): AutoMovieHumanHeadNetwork.IPoint => {
+        const upper: boolean = k < half;
+        const x: number = narrow * across(upper ? k : k - half, upper);
+        const y: number = stomion + (upper ? open : -open);
+        const {
+          at,
+          p,
+        }: { at: { u: number; v: number }; p: IAutoMovieVector3 } = surface(
+          x,
+          y,
+        );
+        return network.free(
+          `${name}.${k}`,
+          domain.toModel(AutoMovieHumanVector.of(p.x, p.y, p.z - back)),
+          at,
+        );
+      },
+    );
   const meeting: AutoMovieHumanHeadNetwork.IPoint[] = inside(
     "lips.meeting",
     form.meeting.back,
@@ -110,8 +137,9 @@ export function loopAutoMovieHumanLips(props: {
     "mouth",
   );
   // close the pocket: upper point k faces lower point half - 1 - k
-  const lower = (k: number): AutoMovieHumanHeadNetwork.IPoint =>
-    pocket[half + (half - 1 - k)]!;
+  const lower: (k: number) => AutoMovieHumanHeadNetwork.IPoint = (
+    k: number,
+  ): AutoMovieHumanHeadNetwork.IPoint => pocket[half + (half - 1 - k)]!;
   for (let k: number = 0; k + 1 < half; ++k) {
     const q: [
       AutoMovieHumanHeadNetwork.IPoint,

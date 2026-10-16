@@ -90,7 +90,7 @@ export class AutoMovieHumanHeadDomain {
    */
   public locate(p: IAutoMovieVector3): { u: number; v: number } {
     const q: IAutoMovieVector3 = this.toModel(p);
-    const offset = (u: number): number => {
+    const offset: (u: number) => number = (u: number): number => {
       const f: IAutoMovieSweepFrame = this.surface.frame(u);
       return AutoMovieHumanVector.dot(
         AutoMovieHumanVector.offset(q, [f.origin, -1]),
@@ -114,6 +114,38 @@ export class AutoMovieHumanHeadDomain {
       AutoMovieHumanVector.dot(d, f.x),
     );
     return { u, v: (((angle / (2 * Math.PI)) % 1) + 1) % 1 };
+  }
+
+  /**
+   * Find the anterior surface address while preserving a landmark's transverse coordinate and height.
+   *
+   * A radial address of a point in front of the face changes both coordinates when evaluated on the sweep. Bisect its depth between the lateral guide and a head depth beyond the anterior guide until both coordinate residuals are within 0.00001 mm, instead of using that radial projection as the landmark itself.
+   *
+   * @param x Transverse coordinate in the head frame, millimetres
+   * @param y Height in the head frame, millimetres
+   * @returns Surface address whose head-frame position has the requested coordinates
+   * @throws Error when the anterior branch cannot place the requested coordinates within the residual tolerance
+   */
+  public onFace(x: number, y: number): { u: number; v: number } {
+    let lo: number = this.profile.lateral(y);
+    let hi: number =
+      this.profile.front(y) +
+      Math.abs(this.profile.front(y) - this.profile.back(y));
+    for (let k: number = 0; k < 48; ++k) {
+      const depth: number = (lo + hi) / 2;
+      const at: { u: number; v: number } = this.locate({ x, y, z: depth });
+      const p: IAutoMovieVector3 = this.point(at.u, at.v);
+      if (Math.hypot(p.x - x, p.y - y) <= 1e-5) {
+        if (at.v < 0.25 || at.v > 0.75)
+          throw new Error(
+            `Head face projection reached the posterior branch at (${x}, ${y}) mm`,
+          );
+        return at;
+      }
+      if (p.z > depth) lo = depth;
+      else hi = depth;
+    }
+    throw new Error(`Head face projection did not converge at (${x}, ${y}) mm`);
   }
 
   /**
@@ -141,7 +173,7 @@ export class AutoMovieHumanHeadDomain {
    * @returns `u`
    */
   public front(y: number): number {
-    const meet = (level: number): number => {
+    const meet: (level: number) => number = (level: number): number => {
       const p: sweepAutoMovieHumanHead.IPlane = this.loft.plane(level);
       let lo: number = this.profile.chin - 60;
       let hi: number = this.profile.top;

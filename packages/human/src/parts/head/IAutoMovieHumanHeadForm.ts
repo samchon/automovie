@@ -93,37 +93,37 @@ export namespace IAutoMovieHumanHeadForm {
     /** The mouth opening: its top below subnasale and its bottom below stomion over face height, and its edges beyond cheilion over half the mouth's width. */
     mouthOpening: { top: number; bottom: number; lateral: number };
 
-    /** Share of the way from a three-to-one reduction's dense side to its sparse one at which its two inner vertices lie. */
+    /** Share of the way from a two-to-one reduction's dense side to its sparse one at which its interior vertices lie. */
     reduction: number;
   }
 
   /**
-   * Placement of the lids' loops, from the opening's rim inward: the orbital loop, the lid sulcus on the face, the anterior lid margin resting on the eyeball and the posterior margin on the globe. The fissure runs from endocanthion to exocanthion; its opening above and below the line of the canthi comes from the measured fissure height.
+   * Placement of the lids' loops, from the opening's rim inward: the intermediate orbital loop, an orbital envelope on the face, the anterior and posterior margins on their reference spheres. The margin currently uses the fissure-length input as its transverse span; that is not an independent validation of the source's three-dimensional chord. Eye clearance remains a separate geometric check.
    */
   export interface IEyelids {
-    /** Share of the way from the opening's rim to the lid sulcus at which the orbital loop runs. */
+    /** Share of the way from the opening's rim to the orbital envelope at which the intermediate loop runs. */
     orbit: number;
 
-    /** Rise of exocanthion over endocanthion, degrees. */
+    /** Slope of the canthal line in the head's transverse-height plane, degrees. */
     canthalTilt: number;
 
-    /** Share of the fissure height above the line of the canthi at the pupil. */
+    /** Upper arc's share of the input fissure height before its vertical margin allowance. */
     upper: number;
 
-    /** Half the gap between the upper and lower margins at each canthus, millimetres, so the canthus is a short edge. */
+    /** Half the vertical separation of the upper and lower margin nodes at each canthus, head-frame millimetres; it creates a short edge rather than a single clinical landmark. */
     canthus: number;
 
-    /** Thickness of the lid margin from its posterior edge on the globe to its anterior edge, millimetres. */
+    /** Anterior margin's radial allowance over the reference lid sphere, millimetres; this historical property name does not establish the distance to the posterior margin. */
     marginThickness: number;
 
-    /** Gap between the posterior margin and the globe, millimetres. */
+    /** Posterior margin's radial allowance over the reference lid sphere, millimetres; ellipsoidal-eye clearance requires independent verification. */
     contact: number;
 
     /** How far the posterior margin closes over the anterior's opening, a share. */
     posteriorOpen: number;
 
-    /** The lid sulcus: the upper's and the lower's opening as multiples of the margin's, its widening beyond the canthi and its half-opening there, millimetres. */
-    sulcus: { upper: number; lower: number; widen: number; gap: number };
+    /** Orbital envelope expansions beyond the aperture on its medial, lateral, superior and inferior sides, over the generated transverse aperture span. These are reference-fitted geometric reaches, not clinical orbital-rim measurements. */
+    envelope: { medial: number; lateral: number; above: number; below: number };
   }
 
   /**
