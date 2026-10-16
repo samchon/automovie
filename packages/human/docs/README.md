@@ -30,6 +30,8 @@ The supervisor retained gross acceptance for foot body/toes/nails and neck body,
 
 The proposed direction gives each part front, side and oblique contours plus physical sections, places them with relative frames/proportions, shares a small family of Bezier and oval rounding rules, and fits a low-dimensional set of named coefficients to reference meshes outside the package. This is a proposal for the next experiment, not an implemented or validated system. Existing fitting of subdivision controls to authored source curves is a different operation from fitting an anatomical parameter family to references.
 
+[Parametric curve families](techniques/parametric-curve-family.md) compares representations and proposes a bounded torso experiment with measurement feasibility, shared junction derivatives, identity holdout and source-to-displayed-skin checks. It also distinguishes lofts from primitives, sweeps, trims and booleans for general assets; no universal Bezier/loft rule or new acceptance threshold is adopted.
+
 Evaluate that proposal on actual final skin and shared junctions while preserving independent measurements and their protocols. Breadth, depth, tape girth, a fitted reference residual and a rendered contour do not substitute for one another. [Trunk](anatomy/trunk.md), [pelvis](anatomy/pelvis.md), [hand](techniques/hand-curve-network.md) and [face](anatomy/face-courses.md) notes preserve correspondence failures that a new representation must not repeat.
 
 ## Rules
