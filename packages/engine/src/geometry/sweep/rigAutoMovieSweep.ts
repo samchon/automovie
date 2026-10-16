@@ -1,7 +1,6 @@
 import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 
 import { quaternionFromAutoMovieBasis } from "../../math/quaternionFromAutoMovieBasis";
-import { AutoMovieMonotone } from "./AutoMovieMonotone";
 import { AutoMovieSweepRotation } from "./AutoMovieSweepRotation";
 import { IAutoMovieBoneBuffer } from "./IAutoMovieBoneBuffer";
 import { IAutoMovieSweep } from "./IAutoMovieSweep";
@@ -12,11 +11,8 @@ import { IAutoMovieSweepSection } from "./IAutoMovieSweepSection";
 import { IAutoMovieSweepSurface } from "./IAutoMovieSweepSurface";
 import { IAutoMovieSweepTransport } from "./IAutoMovieSweepTransport";
 import { compileAutoMovieSweep } from "./compileAutoMovieSweep";
-import { integrateAutoMovieSweepVolume } from "./integrateAutoMovieSweepVolume";
-import { interpolateAutoMovieMonotone } from "./interpolateAutoMovieMonotone";
-import { momentAutoMovieSweepSections } from "./momentAutoMovieSweepSections";
 import { orientAutoMovieSweep } from "./orientAutoMovieSweep";
-import { settleAutoMovieSweepVolume } from "./settleAutoMovieSweepVolume";
+import { preserveAutoMovieSweepVolume } from "./preserveAutoMovieSweepVolume";
 import { transportAutoMovieSweepSpine } from "./transportAutoMovieSweepSpine";
 
 /**
@@ -34,8 +30,10 @@ import { transportAutoMovieSweepSpine } from "./transportAutoMovieSweepSpine";
  * elsewhere, and `settleAutoMovieSweepVolume` finds the factor whose volume,
  * from the rest section moments and this pose's frames by
  * `integrateAutoMovieSweepVolume`, equals the rest volume. Without either the
- * scale stays the rest profile. Shapes before the scale never change with
- * the pose, so they are read once at registration.
+ * scale stays the rest profile. A girth factor set by `girth` then multiplies
+ * every scale slot, at rest and after settling, so the settled volume is the
+ * rest volume before that correction. Shapes before the scale never change
+ * with the pose, so they are read once at registration.
  *
  * @param props.sweep The sweep, only read and retained through its compiled surface.
  * @param props.binding Bone indices of its spine points and stations, as `IAutoMovieSweepBinding` names them; omitted, the sweep stays at rest.
@@ -49,18 +47,24 @@ import { transportAutoMovieSweepSpine } from "./transportAutoMovieSweepSpine";
  * @evidence contracts/common.md#meaningful-documentation States the rest and posed rules, the volume rule and its sources, and every refusal.
  * @evidence contracts/performance.md#efficient-algorithms Compile: one sweep compile, O(1) per registered slot, and for volume preservation the 400 x 256 section moments and the rest volume summed from them. Pose, for N spine points, S stations, F planes, P probes and K scale knots: O(N) transport plus 64 (N - 1) reflections, O(S) orientation, O(F + 3P) plane queries and, with volume preservation, 801 more planes and at most ten volume sums of O(400 + K); nothing allocates.
  * @evidence contracts/performance.md#reuse-equivalent-work Shapes, rest planes, section moments and the rest volume are computed once; a pose recomputes only what bones move.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Retains the compiled surface, 12 F + S + 6 P numbers twice (current and rest), 14 numbers per probe, and when bound the spine buffers of `transportAutoMovieSweepSpine`, 4 S rest planes and, for volume preservation, 1,200 moments, 801 planes and O(K) profile arrays; all sized by `seal` and released with the rig.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources For F registered frames, Q scale slots and P probes, retains the compiled surface, 24 F current/rest frame numbers, 3 Q current/rest/girth factors, 6 P probe outputs and 15 P probe parameters, plus O(F + Q + P) registration records. A bound rig adds transport buffers and 4 S station planes; volume preservation adds 1,200 moments, 801 packed planes and O(K) profile arrays. Registration stops at `seal`; all state is released with the rig.
  */
 export const rigAutoMovieSweep: (props: {
   sweep: IAutoMovieSweep;
-  binding?: { points: number[]; stations: number[][] };
+  binding?: {
+    points: number[];
+    stations: number[][];
+  };
   preserveVolume: boolean;
 }) => IAutoMovieSweepRig = (props: {
   sweep: IAutoMovieSweep;
-  binding?: { points: number[]; stations: number[][] };
+  binding?: {
+    points: number[];
+    stations: number[][];
+  };
   preserveVolume: boolean;
 }): IAutoMovieSweepRig => {
-  const { sweep, binding } = props;
+  const { sweep, binding }: typeof props = props;
   const surface: IAutoMovieSweepSurface = compileAutoMovieSweep(sweep);
   if (binding !== undefined) {
     if (binding.points.length !== sweep.spine.points.length)
@@ -75,14 +79,14 @@ export const rigAutoMovieSweep: (props: {
   // per probe: frame slots of u, u - step and u + step, scale slots likewise, the step span, and four shaped points
   const probeData: number[] = [];
   let sealed: boolean = false;
-  const open = (): void => {
+  function open(): void {
     if (sealed) throw new Error("a sweep rig takes no slot after it is sealed");
-  };
-  const slot = (
+  }
+  function slot(
     at: Map<number, number>,
     list: number[],
     input: number,
-  ): number => {
+  ): number {
     open();
     const u: number = Math.min(1, Math.max(0, input));
     let s: number | undefined = at.get(u);
@@ -92,16 +96,20 @@ export const rigAutoMovieSweep: (props: {
       at.set(u, s);
     }
     return s;
-  };
-  const frame = (u: number): number => slot(frameAt, frameU, u);
-  const scale = (u: number): number => slot(scaleAt, scaleU, u);
+  }
+  function frame(u: number): number {
+    return slot(frameAt, frameU, u);
+  }
+  function scale(u: number): number {
+    return slot(scaleAt, scaleU, u);
+  }
   // the section point before the scale profile
-  const shaped = (u: number, v: number): IAutoMovieSweepSection.IPoint => {
+  function shaped(u: number, v: number): IAutoMovieSweepSection.IPoint {
     const p: IAutoMovieSweepSection.IPoint = surface.section(u, v);
     const k: number = surface.scale(u);
     return { x: p.x / k, y: p.y / k };
-  };
-  const probe = (u: number, v: number): number => {
+  }
+  function probe(u: number, v: number): number {
     open();
     const step: number = surface.step;
     const a: number = Math.max(0, u - step);
@@ -123,13 +131,12 @@ export const rigAutoMovieSweep: (props: {
     );
     for (const p of points) probeData.push(p.x, p.y);
     return probeData.length / 15 - 1;
-  };
-
-  const sample = (
+  }
+  function sample(
     u: number,
     v: number,
     cell: readonly [number, number, number, number],
-  ): ((out: Float64Array, at: number) => void) => {
+  ): (out: Float64Array, at: number) => void {
     const f: number = 12 * frame(u);
     const slots: number[] = [];
     const xs: number[] = [];
@@ -141,7 +148,7 @@ export const rigAutoMovieSweep: (props: {
       ys.push(p.y);
     } else {
       // the trapezoid rule over the cell from half the spacing below to half the spacing above, each axis
-      const tent = (below: number, above: number): number[][] => {
+      function tent(below: number, above: number): number[][] {
         const total: number = below + above;
         return total === 0
           ? [[0, 1]]
@@ -150,7 +157,7 @@ export const rigAutoMovieSweep: (props: {
               [0, 0.5],
               [above / 2, above / (2 * total)],
             ];
-      };
+      }
       const angle: number = 2 * Math.PI * v;
       for (const [du, wu] of tent(cell[0], cell[1])) {
         const at: number = Math.min(1, Math.max(0, u + du!));
@@ -179,8 +186,7 @@ export const rigAutoMovieSweep: (props: {
           rig.frames[f + c]! +
           (rig.frames[f + 3 + c]! * px + rig.frames[f + 6 + c]! * py);
     };
-  };
-
+  }
   const rig: IAutoMovieSweepRig = {
     surface,
     frame,
@@ -188,29 +194,26 @@ export const rigAutoMovieSweep: (props: {
     probe,
     sample,
     seal: (): void => undefined,
+    girth: (): void => undefined,
     frames: new Float64Array(0),
     scales: new Float64Array(0),
     probes: new Float64Array(0),
     pose: (): void => undefined,
   };
   let restFrames: Float64Array = new Float64Array(0);
+  // the girth factor of each scale slot, 1 until a network sets it
+  let girth: Float64Array = new Float64Array(0);
   let restScales: Float64Array = new Float64Array(0);
   // a section point of a probe at a frame and scale slot, written at scratch[o]
   const scratch: Float64Array = new Float64Array(12);
-  const place = (
-    f: number,
-    s: number,
-    x: number,
-    y: number,
-    o: number,
-  ): void => {
+  function place(f: number, s: number, x: number, y: number, o: number): void {
     const k: number = rig.scales[s]!;
     for (let a: number = 0; a < 3; ++a)
       scratch[o + a] =
         rig.frames[12 * f + a]! +
         k * (x * rig.frames[12 * f + 3 + a]! + y * rig.frames[12 * f + 6 + a]!);
-  };
-  const probeAll = (): void => {
+  }
+  function probeAll(): void {
     for (let p: number = 0; p < probeData.length / 15; ++p) {
       const d: number = 15 * p;
       const span: number = probeData[d + 6]!;
@@ -261,12 +264,12 @@ export const rigAutoMovieSweep: (props: {
       rig.probes[o + 4] = ay;
       rig.probes[o + 5] = az;
     }
-  };
-  const writeFrame = (
+  }
+  function writeFrame(
     f: IAutoMovieSweepFrame,
     out: Float64Array,
     at: number,
-  ): void => {
+  ): void {
     [f.origin, f.x, f.y, f.normal].forEach(
       (v: IAutoMovieVector3, k: number): void => {
         out[at + 3 * k] = v.x;
@@ -274,8 +277,7 @@ export const rigAutoMovieSweep: (props: {
         out[at + 3 * k + 2] = v.z;
       },
     );
-  };
-
+  }
   rig.seal = (): void => {
     open();
     sealed = true;
@@ -289,16 +291,33 @@ export const rigAutoMovieSweep: (props: {
     );
     restFrames = rig.frames.slice();
     restScales = rig.scales.slice();
+    girth = new Float64Array(scaleU.length).fill(1);
     probeAll();
     if (binding === undefined) return;
     rig.pose = bind(binding);
   };
-
+  rig.girth = (factor: (u: number) => number): void => {
+    if (!sealed)
+      throw new Error(
+        "a sweep rig takes a girth factor only after it is sealed",
+      );
+    for (let k: number = 0; k < scaleU.length; ++k) {
+      const g: number = factor(scaleU[k]!);
+      if (!(Number.isFinite(g) && g > 0))
+        throw new Error(
+          `girth factor at u ${scaleU[k]} is not positive and finite`,
+        );
+      girth[k] = g;
+      restScales[k] = surface.scale(scaleU[k]!) * g;
+    }
+    rig.scales.set(restScales);
+    probeAll();
+  };
   // the posed sweep: spine, orientation and, with joint stations, volume
-  const bind = (bones: {
+  function bind(bones: {
     points: number[];
     stations: number[][];
-  }): ((motion: IAutoMovieBoneBuffer | null) => void) => {
+  }): (motion: IAutoMovieBoneBuffer | null) => void {
     const n: number = sweep.spine.points.length;
     const s: number = sweep.stations.length;
     const transport: IAutoMovieSweepTransport = transportAutoMovieSweepSpine(
@@ -345,9 +364,17 @@ export const rigAutoMovieSweep: (props: {
     const joints: boolean[] = bones.stations.map(
       (b: number[]): boolean => b.length === 2,
     );
-    const volume: ((motion: IAutoMovieBoneBuffer) => void) | null =
+    const volume: (() => void) | null =
       props.preserveVolume && joints.some((j: boolean): boolean => j)
-        ? preserve(orientation, joints)
+        ? preserveAutoMovieSweepVolume({
+            surface,
+            orientation,
+            joints,
+            scaleU,
+            girth,
+            scales: rig.scales,
+            writeFrame,
+          })
         : null;
     return (motion: IAutoMovieBoneBuffer | null): void => {
       if (motion === null) {
@@ -394,87 +421,9 @@ export const rigAutoMovieSweep: (props: {
       orientation.update();
       for (let f: number = 0; f < frameU.length; ++f)
         orientation.frame(frameU[f]!, rig.frames, 12 * f);
-      if (volume !== null) volume(motion);
+      if (volume !== null) volume();
       probeAll();
     };
-  };
-
-  // volume preservation: the joint factor settled against the rest volume, then every scale slot from its profile
-  const preserve = (
-    orientation: IAutoMovieSweepOrientation,
-    joints: boolean[],
-  ): ((motion: IAutoMovieBoneBuffer) => void) => {
-    const moments: Float64Array = momentAutoMovieSweepSections(surface);
-    const steps: number = moments.length / 3;
-    const planes: Float64Array = new Float64Array(12 * (2 * steps + 1));
-    const middles: Float64Array = new Float64Array(steps);
-    // the rest volume, from the same moments with the rest planes and scale, as `measureAutoMovieSweepVolume` sums it
-    for (let j: number = 0; j <= 2 * steps; ++j)
-      writeFrame(surface.frame(j / (2 * steps)), planes, 12 * j);
-    for (let i: number = 0; i < steps; ++i)
-      middles[i] = surface.scale((i + 0.5) / steps);
-    const target: number = integrateAutoMovieSweepVolume(
-      moments,
-      middles,
-      planes,
-    );
-    const previous: ((u: number) => number) | null =
-      sweep.scale === undefined
-        ? null
-        : interpolateAutoMovieMonotone({
-            knots: sweep.scale.map((k: IAutoMovieSweep.IKnot): number => k.at),
-            values: sweep.scale.map(
-              (k: IAutoMovieSweep.IKnot): number => k.value,
-            ),
-          });
-    const knots: Float64Array = Float64Array.from(
-      [
-        ...new Set([
-          0,
-          1,
-          ...sweep.stations.map(
-            (st: IAutoMovieSweep.IStation): number => st.at,
-          ),
-          ...(sweep.scale ?? []).map(
-            (k: IAutoMovieSweep.IKnot): number => k.at,
-          ),
-        ]),
-      ].sort((a: number, b: number): number => a - b),
-    );
-    const jointAt: Set<number> = new Set(
-      sweep.stations
-        .filter((_: IAutoMovieSweep.IStation, k: number): boolean => joints[k]!)
-        .map((st: IAutoMovieSweep.IStation): number => st.at),
-    );
-    const base: Float64Array = Float64Array.from(
-      knots,
-      (at: number): number => previous?.(at) ?? 1,
-    );
-    const joint: Uint8Array = Uint8Array.from(knots, (at: number): number =>
-      jointAt.has(at) ? 1 : 0,
-    );
-    const values: Float64Array = new Float64Array(knots.length);
-    const slopes: Float64Array = new Float64Array(knots.length);
-    const profile = (factor: number): void => {
-      for (let k: number = 0; k < knots.length; ++k)
-        values[k] = base[k]! * (joint[k] === 1 ? factor : 1);
-      AutoMovieMonotone.slope(knots, values, knots.length, 0, slopes);
-    };
-    const at = (u: number): number =>
-      AutoMovieMonotone.evaluate(knots, values, slopes, knots.length, 0, u);
-    const volume = (factor: number): number => {
-      profile(factor);
-      for (let i: number = 0; i < steps; ++i)
-        middles[i] = at((i + 0.5) / steps);
-      return integrateAutoMovieSweepVolume(moments, middles, planes);
-    };
-    return (): void => {
-      for (let j: number = 0; j <= 2 * steps; ++j)
-        orientation.frame(j / (2 * steps), planes, 12 * j);
-      profile(settleAutoMovieSweepVolume(target, volume));
-      for (let k: number = 0; k < scaleU.length; ++k)
-        rig.scales[k] = at(scaleU[k]!);
-    };
-  };
+  }
   return rig;
 };

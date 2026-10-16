@@ -157,9 +157,9 @@ export namespace IAutoMovieSweepSection {
   }
 
   /**
-   * Radii at evenly spaced angles, the first along `+x`, joined by a periodic monotone interpolation, so a radius between two samples stays between their values.
+   * Radii at evenly spaced angles, the first along `+x`, joined by the periodic C2 spline of `interpolateAutoMovieSpline`, with continuous curvature and the spline's sampled overshoot policy. Positive inputs need not give positive interpolation; the section sampler refuses a non-positive or non-finite sampled radius.
    *
-   * @evidence contracts/common.md#principled-implementation Radii at even angles joined by the periodic monotone scheme.
+   * @evidence contracts/common.md#principled-implementation Radii at even angles joined by the periodic bounded spline.
    * @evidence contracts/common.md#clear-and-simple-design One array.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Non-positive radii are refused.
    * @evidence contracts/common.md#meaningful-documentation States the angle of each radius and the interpolation.
