@@ -152,17 +152,8 @@ export namespace IAutoMovieHumanHeadForm {
     /** The lips' conventional anterior crest reach over face height, consumed by the shared spatial oral arch. */
     lips: IAutoMovieHumanLipForm.IRelief;
 
-    /** The orbital opening: half-breadth, half-height above and below the eye's centre over fissure length; the share inside which the lids lie fully on their dome and beyond which the face is untouched; the breadth of its hollow that the soft tissue softens and the deepest the lids sink, over fissure length; and the lids' thickness over the globe, millimetres. */
-    orbit: {
-      across: number;
-      up: number;
-      down: number;
-      inner: number;
-      outer: number;
-      breadth: number;
-      sink: number;
-      lid: number;
-    };
+    /** Width of the reference-course orbital tissue footprint, over fissure length; regional tissue depth controls its visibility. */
+    orbit: { breadth: number };
 
     /** The superciliary arch: height over `fh`, and its level above the eye's centre over fissure length. */
     brow: { height: number; level: number };

@@ -1,5 +1,5 @@
 /**
- * The construction net of one lofted part, for inspecting how its surface was built: the curves the loft passed its surface through and the control cage it sampled, in the model frame of the person at rest, metres.
+ * The construction net of one generated part in the person's rest model frame, metres: its available authored source curves, junction rings and actual generating cage. A procedural part may have no sweep curves; its cage still participates in inspection.
  *
  * It is a debug output, never part of the model: a viewer draws it over or instead of the surface so form can be judged together with the construction that produced it.
  *
@@ -12,10 +12,10 @@ export interface IAutoMovieHumanConstructionNet {
   /** Side of a bilateral part, or null on the midline. */
   side: "left" | "right" | null;
 
-  /** Every construction curve, sampled into polylines. */
+  /** Available authored construction curves and junction rings, sampled into polylines. */
   curves: IAutoMovieHumanConstructionNet.ICurve[];
 
-  /** The part's control cage, the quads one subdivision smooths into its surface. */
+  /** Generating controls at the inspected assembly and refinement level, or the authored coarse cage when inspected before generation. */
   cage: IAutoMovieHumanConstructionNet.ICage;
 }
 export namespace IAutoMovieHumanConstructionNet {

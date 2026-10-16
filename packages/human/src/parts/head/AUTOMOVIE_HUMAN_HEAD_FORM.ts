@@ -71,14 +71,8 @@ export const AUTOMOVIE_HUMAN_HEAD_FORM: IAutoMovieHumanHeadForm = {
     },
     lips: { roll: 0.04 },
     orbit: {
-      across: 0.95,
-      up: 0.65,
-      down: 0.55,
-      inner: 0.25,
-      outer: 1.25,
+      /** Width of the infraorbital tissue footprint in input fissure lengths. */
       breadth: 0.35,
-      sink: 0.32,
-      lid: 2,
     },
     brow: { height: 0.018, level: 0.62 },
     malar: { height: 0.022, out: 0.45, below: 0.7 },

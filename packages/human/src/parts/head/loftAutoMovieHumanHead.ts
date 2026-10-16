@@ -7,6 +7,9 @@ import {
 } from "@automovie/engine";
 import { IAutoMovieVector3 } from "@automovie/interface";
 
+import { boundAutoMovieHumanEye } from "../../junction/boundAutoMovieHumanEye";
+import { planAutoMovieHumanEye } from "../../junction/planAutoMovieHumanEye";
+
 import { IAutoMovieHumanCage } from "../../junction/IAutoMovieHumanCage";
 import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
 import { IAutoMovieHumanSurfaceCoordinate } from "../../junction/IAutoMovieHumanSurfaceCoordinate";
@@ -27,7 +30,7 @@ import { sweepAutoMovieHumanHead } from "./sweepAutoMovieHumanHead";
 /**
  * Loft the head: one sweep of sections from under the vertex to the neck-top ring, laid out as a network of quads with the face's loops, sampled into the head's cage.
  *
- * The steps, all in the head's own frame ({@link frameAutoMovieHumanHead}): guide curves from the landmarks and measurements ({@link profileAutoMovieHumanHead}); sections lofted through them ({@link sweepAutoMovieHumanHead}); the quads laid over the sweep's domain with the eyes', mouth's and ears' openings and loops ({@link layoutAutoMovieHumanHead}); and the engine's sampling, which evaluates every point of the domain on the sweep and fits the cage so its limit surface passes through them, the rings kept on their shared shapes.
+ * The steps, all in the head's own frame ({@link frameAutoMovieHumanHead}): guide curves from the landmarks and measurements ({@link profileAutoMovieHumanHead}); sections lofted through them ({@link sweepAutoMovieHumanHead}); the quads laid over the sweep's domain with the eyes', mouth's and ears' openings and loops ({@link layoutAutoMovieHumanHead}); a shared head-frame anterior source evaluated by the facial courses; and sampling into the coarse cage with its independent source targets and control pins. The joined mesher refines the eye and mouth regions through the public physical fitting domain, retaining both limit equations and pinned junction controls.
  *
  * The chart runs `u` from the bottom of the head's canonical sphere to the vertex and `v` counterclockwise about the vertical from the anterior midline, each corner's address the direction of its control point from a centre a tenth of head height above tragion. Rings, in order: `neckTop`, `ear` left, `ear` right.
  *
@@ -53,25 +56,26 @@ export function loftAutoMovieHumanHead(
       measurements.identity.head.headHeight,
       built.rings,
     ),
-    construction: IAutoMovieHumanCage.inModel(built.network),
+    construction: {...IAutoMovieHumanCage.inModel(built.network), relief: built.guides},
   };
 }
 
 interface INetwork {
   network: IAutoMovieSurfaceNetwork;
   frame: frameAutoMovieHumanHead.IFrame;
+  guides: IAutoMovieHumanCage.IRelief[];
   rings: Array<[string, IAutoMovieHumanRingShape]>;
 }
 
 /** The head's network and the rings it reports, before sampling. */
-const networkOf = (
+const networkOf: (measurements: IAutoMovieHumanMeasurements, skeleton: IAutoMovieHumanSkeleton, form: IAutoMovieHumanHeadForm) => INetwork = (
   measurements: IAutoMovieHumanMeasurements,
   skeleton: IAutoMovieHumanSkeleton,
   form: IAutoMovieHumanHeadForm,
 ): INetwork => {
   const frame: frameAutoMovieHumanHead.IFrame =
     frameAutoMovieHumanHead(skeleton);
-  const shape = (
+  const shape: (site: "neckTop" | "ear", side: "left" | "right" | null) => IAutoMovieHumanRingShape = (
     site: "neckTop" | "ear",
     side: "left" | "right" | null,
   ): IAutoMovieHumanRingShape =>
@@ -87,9 +91,9 @@ const networkOf = (
     left: shape("ear", "left"),
     right: shape("ear", "right"),
   };
-  const local = (p: IAutoMovieVector3): IAutoMovieVector3 =>
+  const local: (p: IAutoMovieVector3) => IAutoMovieVector3 = (p: IAutoMovieVector3): IAutoMovieVector3 =>
     frameAutoMovieHumanHead.toLocal(frame, p);
-  const direction = (d: IAutoMovieVector3): IAutoMovieVector3 =>
+  const direction: (d: IAutoMovieVector3) => IAutoMovieVector3 = (d: IAutoMovieVector3): IAutoMovieVector3 =>
     frameAutoMovieHumanHead.toLocal(
       { ...frame, origin: AutoMovieHumanVector.of(0, 0, 0) },
       d,
@@ -98,7 +102,7 @@ const networkOf = (
   const controls: IAutoMovieVector3[] = neck.positions.map(local);
   const n: number = controls.length;
   const limit: IAutoMovieVector3[] = controls.map(
-    (p: IAutoMovieVector3, k: number) =>
+    (p: IAutoMovieVector3, k: number): IAutoMovieVector3 =>
       AutoMovieHumanVector.offset(
         AutoMovieHumanVector.of(0, 0, 0),
         [controls[(k + n - 1) % n]!, 1 / 6],
@@ -117,6 +121,9 @@ const networkOf = (
       form,
     },
   );
+  const eyePlan: planAutoMovieHumanEye.IPlan = planAutoMovieHumanEye({measurements, skeleton, side: "left"});
+  const eyeRadius: number = boundAutoMovieHumanEye(eyePlan);
+  const relief: reliefAutoMovieHumanHead.IOutput = reliefAutoMovieHumanHead({ frame, head: measurements.identity.head, composition: measurements.identity.composition, profile, form: form.relief, lips: form.lips, eye: {radius: eyeRadius, margin: form.eyelids.marginThickness, form: form.eyelids} });
   const loft: sweepAutoMovieHumanHead.IOutput = sweepAutoMovieHumanHead({
     frame,
     profile,
@@ -127,13 +134,7 @@ const networkOf = (
     },
     tilt: frame.eye.y,
     blend: frame.stomion.y,
-    relief: reliefAutoMovieHumanHead({
-      frame,
-      head: measurements.identity.head,
-      composition: measurements.identity.composition,
-      profile,
-      form: form.relief,
-    }),
+    relief: relief.radial,
   });
   const surface: IAutoMovieSweepSurface = compileAutoMovieSweep(loft.sweep);
   const domain: AutoMovieHumanHeadDomain = new AutoMovieHumanHeadDomain(
@@ -141,11 +142,13 @@ const networkOf = (
     loft,
     frame,
     profile,
+    {anterior: relief.anterior, eyeRadius},
   );
   const network: AutoMovieHumanHeadNetwork = new AutoMovieHumanHeadNetwork(
     SWEEP,
+    domain,
   );
-  layoutAutoMovieHumanHead({
+  const mouthGuides: IAutoMovieHumanCage.IRelief[] = layoutAutoMovieHumanHead({
     domain,
     network,
     head: measurements.identity.head,
@@ -156,6 +159,14 @@ const networkOf = (
   return {
     network: network.build(loft.sweep),
     frame,
+    guides: [...relief.guides.map((guide: reliefAutoMovieHumanHead.IGuide): IAutoMovieHumanCage.IRelief => ({
+      name: guide.name, closed: guide.closed,
+      points: Array.from({length: 33}, (_: unknown, index: number): IAutoMovieVector3 => {
+        const xy: {x: number; y: number} = guide.at(index / 32);
+        const at: {u: number; v: number} = domain.onFace(xy.x, xy.y);
+        return frameAutoMovieHumanHead.toModel(frame, domain.point(at.u, at.v));
+      }),
+    })), ...mouthGuides],
     rings: [
       ["neckTop", neck],
       ["ear.left", ears.left],
@@ -165,7 +176,7 @@ const networkOf = (
 };
 
 /** The point at a fractional index round a closed ring of points, between its neighbours. */
-const alongRing = (ring: IAutoMovieVector3[], x: number): IAutoMovieVector3 => {
+const alongRing: (ring: IAutoMovieVector3[], x: number) => IAutoMovieVector3 = (ring: IAutoMovieVector3[], x: number): IAutoMovieVector3 => {
   const i: number = Math.floor(x);
   const f: number = x - i;
   return AutoMovieHumanVector.offset(
@@ -179,19 +190,21 @@ const alongRing = (ring: IAutoMovieVector3[], x: number): IAutoMovieVector3 => {
 const SWEEP: string = "head";
 
 /** The tier the human profile samples. */
-const TIER = "medium" as const;
+const TIER: "medium" = "medium" as const;
 
 /** Height of the chart's centre above tragion, over head height. */
 const CHART_CENTRE: number = 0.1;
 
 /** Turn the sampled network into the head cage: millimetres, chart addresses and rings. */
-const emit = (
+const emit: (sampled: IAutoMovieSurfaceCage, frame: frameAutoMovieHumanHead.IFrame, headHeight: number, rings: Array<[string, IAutoMovieHumanRingShape]>) => IAutoMovieHumanCage = (
   sampled: IAutoMovieSurfaceCage,
   frame: frameAutoMovieHumanHead.IFrame,
   headHeight: number,
   rings: Array<[string, IAutoMovieHumanRingShape]>,
 ): IAutoMovieHumanCage => {
   const positions: number[] = sampled.cage.positions;
+  const fittedFaces: Set<number> = new Set(sampled.patches.filter((patch: IAutoMovieSurfaceCage.IPatch): boolean => (patch.name.startsWith("eye.") || patch.name.startsWith("mouth."))).flatMap((patch: IAutoMovieSurfaceCage.IPatch): number[] => patch.faces));
+  const fittedVertices: Set<number> = new Set([...fittedFaces].flatMap((face: number): number[] => sampled.cage.faces[face]!));
   const vertices: IAutoMovieHumanCage.IVertex[] = [];
   for (let k: number = 0; k < positions.length; k += 3)
     vertices.push({
@@ -200,6 +213,11 @@ const emit = (
         positions[k + 1]! * 1000,
         positions[k + 2]! * 1000,
       ),
+      ...(fittedVertices.has(k / 3) ? { fitting: {
+        sample: AutoMovieHumanVector.of(sampled.targets[k]! * 1000, sampled.targets[k + 1]! * 1000, sampled.targets[k + 2]! * 1000),
+        target: sampled.limitTargetMask[k / 3] ? AutoMovieHumanVector.of(sampled.targets[k]! * 1000, sampled.targets[k + 1]! * 1000, sampled.targets[k + 2]! * 1000) : null,
+        anchor: sampled.pinned[k / 3]!,
+      }} : {}),
     });
   const centre: IAutoMovieVector3 = AutoMovieHumanVector.of(
     0,
@@ -225,7 +243,8 @@ const emit = (
     },
   );
   const faces: IAutoMovieHumanCage.IFace[] = sampled.cage.faces.map(
-    (face: number[]): IAutoMovieHumanCage.IFace => ({
+    (face: number[], index: number): IAutoMovieHumanCage.IFace => ({
+      ...(fittedFaces.has(index) ? {fitting: "head.facialFeatures"} : {}),
       vertices: [face[0]!, face[1]!, face[2]!, face[3]!],
       coordinates: face.map(
         (i: number): IAutoMovieHumanSurfaceCoordinate.IOn<"head"> => chart[i]!,

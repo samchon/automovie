@@ -20,7 +20,7 @@ const SAMPLES: Record<"station" | "line" | "feature" | "curve", number> = {
 };
 
 /**
- * Read the construction net of every lofted part: each sweep's spine, stations, guides and features, the network's curves, the part's rings and its control cage, in the model frame, metres.
+ * Read the construction net of every generated part: each sweep's spine, stations, guides and features, the network's curves, the part's rings and its control cage, in the model frame, metres.
  *
  * Raw zero-cell sweep stations, guides and feature courses remain authored
  * construction. Network curves are the actual regenerated curves whose ends
@@ -28,9 +28,11 @@ const SAMPLES: Record<"station" | "line" | "feature" | "curve", number> = {
  * When a generated surface is supplied, its completed fitting-domain controls
  * provide the cage for the same assembly and refinement level as the skin.
  * Source curves and geometric targets are not relabelled as fitted controls.
+ * Procedural parts without a sweep still expose their actual source or joined
+ * generating cage and rings; absence of sweep curves cannot erase a part.
  *
  * @param cages Every part's cage, as `generateAutoMovieHumanCages` returns them
- * @returns One net per lofted part instance, in the order given
+ * @returns One net per generated part instance, including procedural cages with no authored sweep curves, in the order given
  */
 export function inspectAutoMovieHumanConstruction(
   cages: Array<{
@@ -38,20 +40,23 @@ export function inspectAutoMovieHumanConstruction(
     side: AutoMovieHumanSide | null;
     cage: IAutoMovieHumanCage;
   }>,
-  generated?: { cage: IAutoMovieHumanCage; surface: IAutoMovieSubdivisionSurface; levels?: number },
+  generated?: {
+    cage: IAutoMovieHumanCage;
+    surface: IAutoMovieSubdivisionSurface;
+    levels?: number;
+  },
 ): IAutoMovieHumanConstructionNet[] {
   const nets: IAutoMovieHumanConstructionNet[] = [];
   for (const { part, side, cage } of cages) {
     const construction: IAutoMovieHumanCage.IConstruction | undefined =
       cage.construction;
-    if (construction === undefined) continue;
     nets.push({
       part,
       side,
       curves: [
-        ...networkCurves(construction),
+        ...(construction === undefined ? [] : networkCurves(construction)),
         ...ringCurves(cage),
-        ...(construction.relief ?? []).map(
+        ...(construction?.relief ?? []).map(
           (
             r: IAutoMovieHumanCage.IRelief,
           ): IAutoMovieHumanConstructionNet.ICurve => ({
@@ -66,7 +71,10 @@ export function inspectAutoMovieHumanConstruction(
           }),
         ),
       ],
-      cage: generated === undefined ? cageEdges(cage) : generatingEdges(generated, part, side),
+      cage:
+        generated === undefined
+          ? cageEdges(cage)
+          : generatingEdges(generated, part, side),
     });
   }
   return nets;
@@ -81,23 +89,25 @@ function networkCurves(
     tier: "medium",
     construction: SAMPLES,
   });
-  function model(p: IAutoMovieVector3): number[] { return [
-    (construction.origin.x +
-      construction.x.x * p.x +
-      construction.y.x * p.y +
-      construction.z.x * p.z) /
-      1000,
-    (construction.origin.y +
-      construction.x.y * p.x +
-      construction.y.y * p.y +
-      construction.z.y * p.z) /
-      1000,
-    (construction.origin.z +
-      construction.x.z * p.x +
-      construction.y.z * p.y +
-      construction.z.z * p.z) /
-      1000,
-  ]; }
+  function model(p: IAutoMovieVector3): number[] {
+    return [
+      (construction.origin.x +
+        construction.x.x * p.x +
+        construction.y.x * p.y +
+        construction.z.x * p.z) /
+        1000,
+      (construction.origin.y +
+        construction.x.y * p.x +
+        construction.y.y * p.y +
+        construction.z.y * p.z) /
+        1000,
+      (construction.origin.z +
+        construction.x.z * p.x +
+        construction.y.z * p.y +
+        construction.z.z * p.z) /
+        1000,
+    ];
+  }
   return rig.construction.map(
     (
       curve: IAutoMovieSurfaceConstruction,
@@ -166,7 +176,11 @@ function cageEdges(
 
 /** The actual globally fitted generating controls belonging to one source part. */
 function generatingEdges(
-  generated: { cage: IAutoMovieHumanCage; surface: IAutoMovieSubdivisionSurface; levels?: number },
+  generated: {
+    cage: IAutoMovieHumanCage;
+    surface: IAutoMovieSubdivisionSurface;
+    levels?: number;
+  },
   part: AutoMovieHumanPart,
   side: AutoMovieHumanSide | null,
 ): IAutoMovieHumanConstructionNet.ICage {
@@ -184,11 +198,13 @@ function generatingEdges(
     return found;
   };
   for (let f: number = 0; f < generated.surface.faces.length / 4; f++) {
-    const coordinate: IAutoMovieHumanCage.IFace["coordinates"][number] = generated.cage.faces[Math.floor(f / 4 ** (generated.levels ?? 2))]!.coordinates[0];
+    const coordinate: IAutoMovieHumanCage.IFace["coordinates"][number] =
+      generated.cage.faces[Math.floor(f / 4 ** (generated.levels ?? 2))]!
+        .coordinates[0];
     if (coordinate.part !== part || coordinate.side !== side) continue;
     for (let k: number = 0; k < 4; k++) {
       const a: number = vertex(generated.surface.faces[4 * f + k]!);
-      const b: number = vertex(generated.surface.faces[4 * f + (k + 1) % 4]!);
+      const b: number = vertex(generated.surface.faces[4 * f + ((k + 1) % 4)]!);
       const key: string = `${Math.min(a, b)},${Math.max(a, b)}`;
       if (seen.has(key)) continue;
       seen.add(key);

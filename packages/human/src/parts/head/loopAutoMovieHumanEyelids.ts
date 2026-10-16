@@ -1,9 +1,9 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
-import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanIdentity } from "../../structures/IAutoMovieHumanIdentity";
 import { AutoMovieHumanHeadDomain } from "./AutoMovieHumanHeadDomain";
 import { AutoMovieHumanHeadNetwork } from "./AutoMovieHumanHeadNetwork";
+import { curveAutoMovieHumanOrbit } from "./curveAutoMovieHumanOrbit";
 import { IAutoMovieHumanHeadForm } from "./IAutoMovieHumanHeadForm";
 
 /**
@@ -28,22 +28,11 @@ export function loopAutoMovieHumanEyelids(props: {
 }): void {
   const { domain, network, features, form }: typeof props = props;
   const frame: AutoMovieHumanHeadDomain["frame"] = domain.frame;
-  const length: number = features.palpebralFissureLength;
-  const height: number = features.palpebralFissureHeight;
-  const inner: number = features.intercanthalWidth / 2;
-  const eyeRadius: number =
-    AutoMovieHumanVector.distance(frame.eye, frame.cornea) + GLOBE_ALLOWANCE;
-  const rise: number = length * Math.tan((form.canthalTilt * Math.PI) / 180);
+  const curve: ReturnType<typeof curveAutoMovieHumanOrbit> = curveAutoMovieHumanOrbit({frame,features,form,eyeRadius:domain.eyeRadius});
   for (const side of ["left", "right"] as const) {
     const sign: number = side === "left" ? 1 : -1;
     const rim: AutoMovieHumanHeadNetwork.IPoint[] = props.rims[side];
     const half: number = rim.length / 2;
-    const eye: IAutoMovieVector3 = AutoMovieHumanVector.of(
-      sign * frame.eye.x,
-      frame.eye.y,
-      frame.eye.z,
-    );
-    const level: number = frame.eye.y - rise / 2;
     // the rim's lower-v side is lateral on the left eye and medial on the right
     const lateralFirst: boolean = side === "left";
     // place m of a run of `half` points: 0 at the medial canthus, 1 at the lateral, closer together at the corners
@@ -55,42 +44,9 @@ export function loopAutoMovieHumanEyelids(props: {
       const fromFirst: number = upper ? t : 1 - t;
       return lateralFirst ? 1 - fromFirst : fromFirst;
     };
-    // a point of the fissure's outline, opened by `open` of the lid's arc and set `out` beyond the globe
-    const lid: (
-      s: number,
-      upper: boolean,
-      open: number,
-      widen: number,
-      out: number,
-      gap?: number,
-    ) => IAutoMovieVector3 = (
-      s: number,
-      upper: boolean,
-      open: number,
-      widen: number,
-      out: number,
-      gap: number = form.canthus,
-    ): IAutoMovieVector3 => {
-      const arc: (skew: number, power: number) => number = (
-        skew: number,
-        power: number,
-      ): number => Math.pow(Math.sin(Math.PI * Math.pow(s, skew)), power);
-      const x: number = inner - widen + (length + 2 * widen) * s;
-      const y: number =
-        level +
-        rise * s +
-        (upper
-          ? form.upper * height * arc(0.9, 0.8) * open + gap
-          : -(1 - form.upper) * height * arc(1.1, 0.9) * open - gap);
-      const r: number = eyeRadius + out;
-      const dx: number = x - frame.eye.x;
-      const dy: number = y - eye.y;
-      const z: number =
-        eye.z +
-        Math.sqrt(
-          Math.max(r * r - dx * dx - dy * dy, (MINIMUM_DEPTH * r) ** 2),
-        );
-      return AutoMovieHumanVector.of(sign * x, y, z);
+    const lid: typeof curve.lid = (...args: Parameters<typeof curve.lid>): IAutoMovieVector3 => {
+      const p: IAutoMovieVector3 = curve.lid(...args);
+      return {...p,x:sign*p.x};
     };
     const loop: (
       make: (s: number, upper: boolean) => IAutoMovieVector3,
@@ -114,27 +70,17 @@ export function loopAutoMovieHumanEyelids(props: {
             : network.free(`${free}.${side}.${k}`, domain.toModel(p), at);
         },
       );
-    // A geometric orbital envelope, not a clinically located lid crease: the medial and lateral reaches are independent.
-    const envelope: AutoMovieHumanHeadNetwork.IPoint[] = loop(
-      (s: number, upper: boolean): IAutoMovieVector3 => {
-        const x: number =
-          inner -
-          form.envelope.medial * length +
-          length * (1 + form.envelope.medial + form.envelope.lateral) * s;
-        const arc: number = upper
-          ? Math.pow(Math.sin(Math.PI * Math.pow(s, 0.9)), 0.8)
-          : Math.pow(Math.sin(Math.PI * Math.pow(s, 1.1)), 0.9);
-        const extent: number = upper
-          ? form.upper * height + form.envelope.above * length
-          : (1 - form.upper) * height + form.envelope.below * length;
-        const y: number =
-          level +
-          rise * s +
-          (upper ? extent * arc + form.canthus : -extent * arc - form.canthus);
-        return AutoMovieHumanVector.of(sign * x, y, domain.profile.front(y));
-      },
-      null,
-    );
+    // The field and this XY course consume one reference-relative definition.
+    const envelope: AutoMovieHumanHeadNetwork.IPoint[] = loop((s: number, upper: boolean): IAutoMovieVector3 => {
+      const p: IAutoMovieVector3 = curve.envelope(s,upper);
+      return {...p,x:sign*p.x};
+    },null);
+    const middle: AutoMovieHumanHeadNetwork.IPoint[] = rim.map((point: AutoMovieHumanHeadNetwork.IPoint,k:number):AutoMovieHumanHeadNetwork.IPoint=>{
+      const a: IAutoMovieVector3=network.point(point);
+      const b: IAutoMovieVector3=network.point(envelope[k]!);
+      const at:{u:number;v:number}=domain.onFace(a.x+form.orbit*(b.x-a.x),a.y+form.orbit*(b.y-a.y));
+      return network.on(at.u,at.v);
+    });
     const anterior: AutoMovieHumanHeadNetwork.IPoint[] = loop(
       (s: number, upper: boolean): IAutoMovieVector3 =>
         lid(s, upper, 1, 0, form.marginThickness),
@@ -148,7 +94,7 @@ export function loopAutoMovieHumanEyelids(props: {
     network.bands(
       [
         rim,
-        network.between(rim, envelope, form.orbit),
+        middle,
         envelope,
         anterior,
         posterior,
@@ -159,9 +105,3 @@ export function loopAutoMovieHumanEyelids(props: {
     network.ring(`orbit.envelope.${side}`, envelope);
   }
 }
-
-/** Allowance over the apex distance for the globe's sclera beside the cornea, millimetres: the scleral sphere of about 12 mm sits a millimetre in front of the centre of rotation. Derived from the eye module's globe. */
-const GLOBE_ALLOWANCE: number = 0.6;
-
-/** Least depth of a lid point in front of the eye's centre, over the sphere's radius, where the canthi lie beyond the globe's outline. Conventional. */
-const MINIMUM_DEPTH: number = 0.25;

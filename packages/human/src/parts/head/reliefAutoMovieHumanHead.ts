@@ -7,6 +7,7 @@ import { frameAutoMovieHumanHead } from "./frameAutoMovieHumanHead";
 import { profileAutoMovieHumanHead } from "./profileAutoMovieHumanHead";
 import { reliefAutoMovieHumanOrbit } from "./reliefAutoMovieHumanOrbit";
 import { curveAutoMovieHumanLips } from "../../junction/curveAutoMovieHumanLips";
+import { curveAutoMovieHumanOrbit } from "./curveAutoMovieHumanOrbit";
 import { curveAutoMovieHumanNose } from "./curveAutoMovieHumanNose";
 import { curveAutoMovieHumanPhiltrum } from "./curveAutoMovieHumanPhiltrum";
 
@@ -83,6 +84,7 @@ export function reliefAutoMovieHumanHead(props: {
   // the skeleton's and muscles' prominence follows lean mass, the robust brow, zygoma and jaw of a muscular build
   const robust: number = form.robust + (1 - form.robust) * lean;
 
+  const orbitalCourses: ReturnType<typeof curveAutoMovieHumanOrbit> = curveAutoMovieHumanOrbit({frame,features:f,form:props.eye.form,eyeRadius:props.eye.radius});
   const orbit: (p: IAutoMovieVector3) => number = reliefAutoMovieHumanOrbit({
     frame, head, form, robust, tissue, through, eye: props.eye,
   });
@@ -196,6 +198,16 @@ export function reliefAutoMovieHumanHead(props: {
         nose.displacement(p.x, p.y) +
         philtrum.displacement(p.x, p.y) + orbit(p),
     guides: [
+      ...([-1,1] as const).flatMap((side:number):reliefAutoMovieHumanHead.IGuide[] =>
+        [true,false].map((upper:boolean):reliefAutoMovieHumanHead.IGuide=>({
+          name:`orbit.${side > 0 ? "left" : "right"}.${upper ? "upper" : "lower"}`,
+          closed:false,
+          at:(t:number):{x:number;y:number}=>{
+            const p:IAutoMovieVector3=orbitalCourses.envelope(t,upper);
+            return {x:side*p.x,y:p.y};
+          },
+        })),
+      ),
       { name: "nose.dorsum", closed: false, at: (t: number): { x: number; y: number } => ({ x: 0, y: frame.nasion.y + (nose.tip.y - frame.nasion.y) * t }) },
       { name: "nose.underside", closed: false, at: (t: number): { x: number; y: number } => ({ x: 0, y: nose.tip.y + (profile.subnasale.y - nose.tip.y) * t }) },
       ...([-1, 1] as const).flatMap((side: number): reliefAutoMovieHumanHead.IGuide[] => [

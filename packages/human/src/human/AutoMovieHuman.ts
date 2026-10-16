@@ -119,7 +119,7 @@ export class AutoMovieHuman {
         return emitAutoMovieHumanSkeleton(this.skeleton_, this.skeletonId());
     }
     /**
-     * The construction net of every lofted part, for inspecting how its surface was built: each sweep's spine, stations, guides and features, the network's curves, the part's rings and its control cage, in the model frame at rest, metres. It is a debug output, never part of the model.
+     * The construction net of every generated part, for inspecting how its surface was built: each sweep's spine, stations, guides and features, the network's curves, the part's rings and its control cage, in the model frame at rest, metres. It is a debug output, never part of the model.
      *
      * @param props.assembly Assembly to inspect; omitted, the last successfully emitted model assembly, or parts before the first model.
    * @returns One net per lofted part instance

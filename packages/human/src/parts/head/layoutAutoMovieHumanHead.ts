@@ -8,6 +8,7 @@ import { AutoMovieHumanHeadNetwork } from "./AutoMovieHumanHeadNetwork";
 import { IAutoMovieHumanHeadForm } from "./IAutoMovieHumanHeadForm";
 import { capAutoMovieHumanHead } from "./capAutoMovieHumanHead";
 import { columnAutoMovieHumanHead } from "./columnAutoMovieHumanHead";
+import { layoutAutoMovieHumanFaceRows } from "./layoutAutoMovieHumanFaceRows";
 import { rowsAutoMovieHumanFace } from "./rowsAutoMovieHumanFace";
 import { locateAutoMovieHumanHeadRing } from "./locateAutoMovieHumanHeadRing";
 import { loopAutoMovieHumanEyelids } from "./loopAutoMovieHumanEyelids";
@@ -114,22 +115,18 @@ export function layoutAutoMovieHumanHead(props: {
       ),
   );
   // the face block over lines 12 to 48, its top row the vault's last
-  const face: AutoMovieHumanHeadNetwork.IPoint[][] = faceRows.map(
-    (u: number, i: number): AutoMovieHumanHeadNetwork.IPoint[] =>
-      Array.from(
-        { length: FRONT + 1 },
-        (_: unknown, k: number): AutoMovieHumanHeadNetwork.IPoint =>
-          i === 0 ? vault[ROWS.vault]![12 + k]! : network.on(u, lines[12 + k]!),
-      ),
-  );
+  const face: AutoMovieHumanHeadNetwork.IPoint[][] = layoutAutoMovieHumanFaceRows({
+    domain, network, head, form: props.form, rows: faceRows,
+    columns: lines.slice(12, 12 + FRONT + 1),
+    vault: vault[ROWS.vault]!.slice(12, 12 + FRONT + 1),
+    nasalStart: ROWS.forehead + ROWS.eyes, nasalCount: ROWS.nose,
+  });
   // the side block from line 48 round the back to line 12, its top row the vault's last
   const sideLine: (m: number) => number = (m: number): number => (48 + m) % C;
   // Every face row continues into the side; toward the ears and back, the same rows take the ears' spacing.
   const edgeRow: (s: number) => number = (s: number): number =>
     along(
-      faceRows.map(
-        (u: number): AutoMovieHumanHeadNetwork.IPoint => network.on(u, 0),
-      ),
+      face.map((row: AutoMovieHumanHeadNetwork.IPoint[]): AutoMovieHumanHeadNetwork.IPoint => row[FRONT]!),
       false,
       (s * R) / S,
     ).u;
@@ -144,7 +141,7 @@ export function layoutAutoMovieHumanHead(props: {
         (_: unknown, m: number): AutoMovieHumanHeadNetwork.IPoint =>
           s === 0
             ? vault[ROWS.vault]![sideLine(m)]!
-            : network.on(
+            : m === 0 ? face[s]![FRONT]! : m === SIDE ? face[s]![0]! : network.on(
                 edgeRow(s) + (u - edgeRow(s)) * toEar(m),
                 lines[sideLine(m)]!,
               ),

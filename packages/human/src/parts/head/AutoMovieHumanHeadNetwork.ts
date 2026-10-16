@@ -1,14 +1,15 @@
 import { IAutoMovieSurfaceNetwork, IAutoMovieSweep } from "@automovie/engine";
 import { IAutoMovieVector3 } from "@automovie/interface";
 
+import { AutoMovieHumanHeadDomain } from "./AutoMovieHumanHeadDomain";
+
 /**
- * Builds the head's surface network one quad at a time from points of the head sweep's domain and free points.
+ * Shared head source corners, free anatomical loops.
  *
- * A point of the sweep is a domain coordinate `(u, v)`, evaluated on the sweep by the engine, so the regions of the head that follow the loft lie exactly on it; a free point is a position the head computes itself, such as a lid margin resting on the eyeball or a lip's inner edge folding back into the mouth. Each quad is a Coons patch of one face whose four sides are network curves between its corners' nodes; a sweep point's node is the sweep at that domain point, so the quads lie exactly on the sweep rather than on an average of it over their cells. Neighbouring quads that name the same corners share them, so the network welds exactly where the quads meet. A quad is wound counterclockwise seen from outside, which in the domain is increasing `v` then increasing `u`; the builder orients each quad by its signed area in the domain and so needs only its corners in order around it.
- *
- * Positions are metres in the model frame, like the sweep's.
- *
- * @author Samchon
+ * Ordinary source corners evaluate the same head-frame directional source used
+ * by the facial guides. Their connecting curves define Coons patches; a patch
+ * interior is their interpolation, rather than an exact analytic field sample.
+ * Positions are model-frame metres; layout coordinates only orient the quads.
  */
 export class AutoMovieHumanHeadNetwork {
   private readonly nodes_: Record<string, IAutoMovieSurfaceNetwork.INode> = {};
@@ -24,13 +25,32 @@ export class AutoMovieHumanHeadNetwork {
 
   /**
    * @param sweep Name of the head's sweep in the network
+   * @param domain Shared directional source in head-local millimetres
    */
-  public constructor(sweep: string) {
+  public constructor(sweep: string, domain: AutoMovieHumanHeadDomain) {
     this.sweep = sweep;
+    this.domain_ = domain;
+  }
+
+  /** Shared directional source in the head frame. */
+  private readonly domain_: AutoMovieHumanHeadDomain;
+
+  /**
+   * Read the authored source corner in head-local millimetres.
+   *
+   * Free anatomical courses keep their actual XYZ position. Their layout
+   * address orients patches; it cannot reconstruct an authored height.
+   * A sweep corner instead evaluates the domain source that owns it.
+   */
+  public point(point: AutoMovieHumanHeadNetwork.IPoint): IAutoMovieVector3 {
+    if (point.type === "sweep") return this.domain_.point(point.u, point.v);
+    const node: IAutoMovieSurfaceNetwork.INode = this.nodes_[point.name]!;
+    if (node.type !== "point") throw new Error("Head source point has no physical position");
+    return this.domain_.toHead(node.position);
   }
 
   /**
-   * A point of the sweep's domain.
+   * A shared facial-source corner at a sweep-domain address.
    *
    * @param u Along the spine, 0 to 1
    * @param v Around it, any real number, read modulo one
@@ -38,7 +58,7 @@ export class AutoMovieHumanHeadNetwork {
    */
   public on(u: number, v: number): AutoMovieHumanHeadNetwork.IPoint {
     const wrapped: number = ((v % 1) + 1) % 1;
-    return { type: "sweep", u, v: wrapped, domain: { u, v: wrapped } };
+    return this.free(`source.${u.toFixed(9)}.${wrapped.toFixed(9)}`, this.domain_.toModel(this.domain_.point(u, wrapped)), { u, v: wrapped });
   }
 
   /**
@@ -77,7 +97,7 @@ export class AutoMovieHumanHeadNetwork {
     group: string,
     orient: boolean = true,
   ): IAutoMovieSurfaceNetwork.ICoonsPatch {
-    const ordered =
+    const ordered: [AutoMovieHumanHeadNetwork.IPoint, AutoMovieHumanHeadNetwork.IPoint, AutoMovieHumanHeadNetwork.IPoint, AutoMovieHumanHeadNetwork.IPoint] =
       !orient || area(corners) >= 0
         ? corners
         : ([corners[0], corners[3], corners[2], corners[1]] as typeof corners);
@@ -94,34 +114,6 @@ export class AutoMovieHumanHeadNetwork {
     this.patches_.push(patch);
     this.names_.set(patch, group);
     return patch;
-  }
-
-  /**
-   * A loop of sweep points between two loops of equal count, each point the domain's linear blend of its two.
-   *
-   * @param a The loop at share 0
-   * @param b The loop at share 1
-   * @param t Share of the way from `a` to `b`
-   * @returns The blended loop
-   */
-  public between(
-    a: AutoMovieHumanHeadNetwork.IPoint[],
-    b: AutoMovieHumanHeadNetwork.IPoint[],
-    t: number,
-  ): AutoMovieHumanHeadNetwork.IPoint[] {
-    return a.map(
-      (
-        p: AutoMovieHumanHeadNetwork.IPoint,
-        k: number,
-      ): AutoMovieHumanHeadNetwork.IPoint => {
-        const q: AutoMovieHumanHeadNetwork.IPoint = b[k]!;
-        const v: number = q.domain.v + Math.round(p.domain.v - q.domain.v);
-        return this.on(
-          p.domain.u + (q.domain.u - p.domain.u) * t,
-          p.domain.v + (v - p.domain.v) * t,
-        );
-      },
-    );
   }
 
   /**
@@ -212,7 +204,7 @@ export class AutoMovieHumanHeadNetwork {
     };
   }
 
-  /** The side from one corner to the next: a network curve between their nodes, so a point of the sweep is the sweep's own point there, not an average over a cell. */
+  /** A shared straight source edge between authored corners. One emitted cage cell per patch approximates the defining courses; the edge is not an exact evaluation of the continuous facial field. */
   private edge(
     a: AutoMovieHumanHeadNetwork.IPoint,
     b: AutoMovieHumanHeadNetwork.IPoint,
@@ -246,7 +238,7 @@ export namespace AutoMovieHumanHeadNetwork {
   export type IPoint = ISweepPoint | IFreePoint;
 
   /**
-   * A point of the sweep's domain.
+   * A shared facial-source corner at a sweep-domain address.
    *
    * @author Samchon
    */
@@ -290,7 +282,7 @@ const ONE: IAutoMovieSurfaceNetwork.ICounts = {
 };
 
 /** Signed area of a quad in the domain, `v` across and `u` up, the seam unwrapped about the first corner. */
-const area = (corners: AutoMovieHumanHeadNetwork.IPoint[]): number => {
+const area: (corners: AutoMovieHumanHeadNetwork.IPoint[]) => number = (corners: AutoMovieHumanHeadNetwork.IPoint[]): number => {
   const v0: number = corners[0]!.domain.v;
   const pts: Array<[number, number]> = corners.map(
     (c: AutoMovieHumanHeadNetwork.IPoint): [number, number] => {
@@ -302,8 +294,8 @@ const area = (corners: AutoMovieHumanHeadNetwork.IPoint[]): number => {
   );
   let sum: number = 0;
   for (let k: number = 0; k < pts.length; ++k) {
-    const [x0, y0] = pts[k]!;
-    const [x1, y1] = pts[(k + 1) % pts.length]!;
+    const [x0, y0]: [number, number] = pts[k]!;
+    const [x1, y1]: [number, number] = pts[(k + 1) % pts.length]!;
     sum += x0 * y1 - x1 * y0;
   }
   return sum;

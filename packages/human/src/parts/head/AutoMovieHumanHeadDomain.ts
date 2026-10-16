@@ -10,9 +10,9 @@ import { profileAutoMovieHumanHead } from "./profileAutoMovieHumanHead";
 import { sweepAutoMovieHumanHead } from "./sweepAutoMovieHumanHead";
 
 /**
- * The head sweep's domain and the head frame side by side: where a point of the head lies over the domain, and what the sweep is at a domain point, in the head frame's millimetres.
+ * The head's shared source domain and local frame, in millimetres.
  *
- * The layout places the head's quads by anatomy in the head frame and hands the network domain points, so it needs both directions: a landmark's domain point, found by the section plane through it and its turn in that plane, and the surface at a domain point.
+ * The underlying sweep owns radial side masses. Facial heights act along the head's anterior axis while preserving its transverse and vertical coordinates. The layout, source guides and network corners all evaluate that same directional definition. A plane-based radial address seeds the physical anterior XY inverse; it is not itself a landmark on the featured face.
  *
  * @author Samchon
  */
@@ -28,12 +28,21 @@ export class AutoMovieHumanHeadDomain {
     loft: sweepAutoMovieHumanHead.IOutput,
     frame: frameAutoMovieHumanHead.IFrame,
     profile: profileAutoMovieHumanHead.IProfile,
+    source: { anterior: (point: IAutoMovieVector3) => number; eyeRadius: number },
   ) {
     this.surface = surface;
     this.loft = loft;
     this.frame = frame;
     this.profile = profile;
+    this.anterior_ = source.anterior;
+    this.eyeRadius = source.eyeRadius;
   }
+
+  /** Supporting sphere of the generated eyeball about its joint, before the lid allowance, millimetres. */
+  public readonly eyeRadius: number;
+
+  /** Forward height source in head-frame millimetres, evaluated on the underlying loft. */
+  private readonly anterior_: (point: IAutoMovieVector3) => number;
 
   /** The compiled head sweep, model frame, metres. */
   public readonly surface: IAutoMovieSweepSurface;
@@ -48,13 +57,19 @@ export class AutoMovieHumanHeadDomain {
   public readonly profile: profileAutoMovieHumanHead.IProfile;
 
   /**
-   * The sweep's point, head frame.
+   * The directional source point, head frame, before cage fitting.
    *
    * @param u Along the spine
    * @param v Around it
    * @returns Millimetres
    */
   public point(u: number, v: number): IAutoMovieVector3 {
+    const point: IAutoMovieVector3 = this.basePoint(u, v);
+    return { ...point, z: point.z + this.loft.featureWeight(u) * this.anterior_(point) };
+  }
+
+  /** The underlying loft point before the forward face source is applied. */
+  private basePoint(u: number, v: number): IAutoMovieVector3 {
     return this.toHead(this.surface.point(u, v));
   }
 
@@ -119,7 +134,7 @@ export class AutoMovieHumanHeadDomain {
   /**
    * Find the anterior surface address while preserving a landmark's transverse coordinate and height.
    *
-   * A radial address of a point in front of the face changes both coordinates when evaluated on the sweep. Bisect its depth between the lateral guide and a head depth beyond the anterior guide until both coordinate residuals are within 0.00001 mm, instead of using that radial projection as the landmark itself.
+   * A radial projection changes both coordinates on the tilted sections. A safeguarded Newton iteration therefore solves the actual anterior surface's transverse and vertical coordinates to a 0.00001 mm residual. The derivative step and iteration limits control this numerical inverse only; they define no anatomical feature or placement.
    *
    * @param x Transverse coordinate in the head frame, millimetres
    * @param y Height in the head frame, millimetres
@@ -128,22 +143,56 @@ export class AutoMovieHumanHeadDomain {
    */
   public onFace(x: number, y: number): { u: number; v: number } {
     let lo: number = this.profile.lateral(y);
-    let hi: number =
-      this.profile.front(y) +
-      Math.abs(this.profile.front(y) - this.profile.back(y));
-    for (let k: number = 0; k < 48; ++k) {
+    let hi: number = this.profile.front(y) + Math.abs(this.profile.front(y) - this.profile.back(y));
+    let at: {u: number; v: number} = this.locate({x, y, z: hi});
+    let closest: number = Infinity;
+    // Radial plane addresses seed the physical inverse; they do not prove it.
+    // Keep the closest candidate when tilted planes have several ray roots.
+    for (let seed: number = 0; seed < 48; ++seed) {
       const depth: number = (lo + hi) / 2;
-      const at: { u: number; v: number } = this.locate({ x, y, z: depth });
-      const p: IAutoMovieVector3 = this.point(at.u, at.v);
-      if (Math.hypot(p.x - x, p.y - y) <= 1e-5) {
-        if (at.v < 0.25 || at.v > 0.75)
-          throw new Error(
-            `Head face projection reached the posterior branch at (${x}, ${y}) mm`,
-          );
-        return at;
-      }
-      if (p.z > depth) lo = depth;
+      const candidate: {u: number; v: number} = this.locate({x, y, z: depth});
+      const value: IAutoMovieVector3 = this.basePoint(candidate.u, candidate.v);
+      const distance: number = Math.hypot(value.x - x, value.y - y);
+      if (distance < closest) { at = candidate; closest = distance; }
+      if (distance <= 1e-5) break;
+      if (value.z > depth) lo = depth;
       else hi = depth;
+    }
+    // The carried section planes need not be ordered along a ray through a
+    // tilted, curved spine. Invert the actual surface's XY map instead.
+    const step: number = 1e-6;
+    for (let iteration: number = 0; iteration < 48; ++iteration) {
+      const point: IAutoMovieVector3 = this.basePoint(at.u, at.v);
+      const rx: number = point.x - x;
+      const ry: number = point.y - y;
+      const error: number = Math.hypot(rx, ry);
+      if (error <= 1e-5 && at.v >= 0.25 && at.v <= 0.75) return at;
+      const ua: number = Math.max(0, at.u - step);
+      const ub: number = Math.min(1, at.u + step);
+      const low: IAutoMovieVector3 = this.basePoint(ua, at.v);
+      const high: IAutoMovieVector3 = this.basePoint(ub, at.v);
+      const left: IAutoMovieVector3 = this.basePoint(at.u, at.v - step);
+      const right: IAutoMovieVector3 = this.basePoint(at.u, at.v + step);
+      const ux: number = (high.x - low.x) / (ub - ua);
+      const uy: number = (high.y - low.y) / (ub - ua);
+      const vx: number = (right.x - left.x) / (2 * step);
+      const vy: number = (right.y - left.y) / (2 * step);
+      const determinant: number = ux * vy - vx * uy;
+      if (!Number.isFinite(determinant) || determinant === 0) break;
+      const du: number = (vy * rx - vx * ry) / determinant;
+      const dv: number = (ux * ry - uy * rx) / determinant;
+      let accepted: boolean = false;
+      for (let line: number = 0; line < 24; ++line) {
+        const scale: number = 2 ** -line;
+        const next: {u: number; v: number} = {u: at.u - scale * du, v: at.v - scale * dv};
+        if (next.u < 0 || next.u > 1 || next.v < 0.25 || next.v > 0.75) continue;
+        const value: IAutoMovieVector3 = this.basePoint(next.u, next.v);
+        if (Math.hypot(value.x - x, value.y - y) >= error) continue;
+        at = next;
+        accepted = true;
+        break;
+      }
+      if (!accepted) break;
     }
     throw new Error(`Head face projection did not converge at (${x}, ${y}) mm`);
   }
