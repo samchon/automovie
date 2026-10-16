@@ -1,6 +1,7 @@
 import { AutoMovieHumanSex } from "../structures/AutoMovieHumanSex";
 import { IAutoMovieHumanIdentity } from "../structures/IAutoMovieHumanIdentity";
 import { IAutoMovieHumanGrowthCurve } from "./IAutoMovieHumanGrowthCurve";
+import { estimateAutoMovieHumanSubcutaneousFat } from "./estimateAutoMovieHumanSubcutaneousFat";
 import { interpolateAutoMovieHumanGrowthCurve } from "./interpolateAutoMovieHumanGrowthCurve";
 
 /**
@@ -158,6 +159,11 @@ export function estimateAutoMovieHumanComposition(props: {
     composition: {
       bodyFatPercentage: fat * 100,
       appendicularLeanMassIndex: lean,
+      subcutaneousFat: estimateAutoMovieHumanSubcutaneousFat({
+        sex,
+        age,
+        bodyFatPercentage: fat * 100,
+      }),
     },
     bmi,
     fatIndexOffset: bmi * fat - props.referenceBmi * medianFat,
@@ -172,7 +178,7 @@ export namespace estimateAutoMovieHumanComposition {
    * @author Samchon
    */
   export interface IOutput {
-    /** Body fat percentage and appendicular lean mass index. */
+    /** Body fat percentage, appendicular lean mass index and regional subcutaneous fat. */
     composition: IAutoMovieHumanIdentity.IComposition;
 
     /** Body mass index, kilograms per square metre, on the reference scale the girth regressions read. */

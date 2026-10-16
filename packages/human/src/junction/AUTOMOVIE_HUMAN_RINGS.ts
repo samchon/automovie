@@ -17,9 +17,9 @@ const AUTOMOVIE_HUMAN_NECK_BASE_RING: IAutoMovieHumanRingDefinition<"neckBase"> 
   };
 
 /**
- * Neck to head, 12 vertices from the anterior midline.
+ * Neck to head, 28 vertices from the anterior midline.
  *
- * The same count as the base, so the neck is a regular tube between two equal rings and needs no pole on its broad lit sides. The ring lies in the mandibular plane, through both gonia and menton: in front it follows the lower border of the mandible, so the submental surface under the chin belongs to the neck, and behind it passes below the skull base. The head part reduces or expands from these twelve spans inside its own cage.
+ * The head's lattice carries 60 columns round the jaw, and a quad strip sheds at most a third of a ring's columns without two of its reduction blocks meeting in a valence-six pole, so the head reaches this ring in two strips, 60 to 40 to 28, and the neck sheds the rest toward its base, 28 to 18 to 12, where the reference meshes spread their poles too. Twenty-eight spans, a multiple of four, keep a vertex on each midline and each side. The ring lies in the mandibular plane, through both gonia and menton: in front it follows the lower border of the mandible, so the submental surface under the chin belongs to the neck, and behind it passes below the skull base.
  */
 const AUTOMOVIE_HUMAN_NECK_TOP_RING: IAutoMovieHumanRingDefinition<"neckTop"> =
   {
@@ -27,7 +27,7 @@ const AUTOMOVIE_HUMAN_NECK_TOP_RING: IAutoMovieHumanRingDefinition<"neckTop"> =
     proximal: "neck",
     distal: "head",
     bilateral: false,
-    count: 12,
+    count: 28,
     start: "anterior",
   };
 

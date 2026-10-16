@@ -7,6 +7,9 @@ import { type Browser, type Page, chromium } from "playwright-core";
 
 import { DEFAULT_CHROME_EXECUTABLE } from "./DEFAULT_CHROME_EXECUTABLE";
 
+/** Time a page may take to load and draw its first frame, milliseconds: a fresh dev server transforms every module of the page on its first load. */
+const COLD_LOAD: number = 300_000;
+
 /** Renderer strings of software rasterizers, which do not count as hardware. */
 const SOFTWARE: RegExp = /swiftshader|llvmpipe|software|basic render|warp/i;
 
@@ -29,8 +32,28 @@ interface IPerson {
    */
   views?: (
     | string
-    | { azimuth: number; elevation: number; margin?: number; focus?: string }
+    | {
+        azimuth: number;
+        elevation: number;
+        margin?: number;
+        focus?: string;
+        point?: { bone: string; along?: number };
+        radius?: number;
+        light?:
+          | "raking"
+          | {
+              azimuth: number;
+              elevation: number;
+              relative: "world" | "camera";
+            };
+      }
   )[];
+
+  /** Display modes to capture, `surface`, `overlay` (the construction net over the surface) `net` (the net over a ghosted body), or `construction` (the net alone); omitted, `surface`. */
+  modes?: ("surface" | "overlay" | "net" | "construction")[];
+
+  /** Whether the skin shows its fine relief (pores and furrows); `false` judges form without it and adds `_norelief` to file names; omitted, shown. */
+  relief?: boolean;
 
   /** Scales to capture; omitted, `whole` and `close`. */
   scales?: string[];
@@ -53,7 +76,13 @@ interface IPerson {
  *
  * Usage: `pnpm human:capture -- [--people people.json] [--name n] [--views front,left] [--scales whole,close] [--focus head] [--base url] [--chrome path]`. Without `--people` it captures the page's default person under `--name`.
  *
- * Views. Fourteen presets, captured in this order when no views are given: the turntable `front`, `frontLeft`, `left`, `backLeft`, `back`, `backRight`, `right`, `frontRight` (every 45 degrees toward the subject's left); the obliques `frontLeftHigh` and `backRightHigh` (35 degrees above) and `frontRightLow` and `backLeftLow` (25 degrees below); and `top` and `below`. A people file may also give any direction as an object `{"azimuth": 120, "elevation": -15}` in degrees: azimuth 0 is the front, 90 the subject's left, 180 the back, 270 the right; elevation is above the horizontal, -90 to 90. It may add `"margin"` (framing scale, at least 1, 1 touching the frame edge) and `"focus"` (a bone; the view is then captured once, close on that bone, whatever the scales). For example `"views": ["front", {"azimuth": 120, "elevation": -15, "focus": "leftUpperLeg"}]`. An angle view's file is named `az<azimuth>_el<elevation>`, such as `ana-close-leftUpperLeg-az120_el-15.png`. `--views` on the command line takes preset names only. Each person is loaded through the page's own `window.__automovieHuman` API, the same documents and admission the controls use, and captured by the page's capture action, which writes PNGs to `.shots/output` and metadata (source commit, document hash, renderer, views) to `.shots/captures/<name>.json`. The run refuses a software renderer. A dev server at `--base` is reused, or one is started for the run and stopped after.
+ * Views. Fourteen presets, captured in this order when no views are given: the turntable `front`, `frontLeft`, `left`, `backLeft`, `back`, `backRight`, `right`, `frontRight` (every 45 degrees toward the subject's left); the obliques `frontLeftHigh` and `backRightHigh` (35 degrees above) and `frontRightLow` and `backLeftLow` (25 degrees below); and `top` and `below`. A people file may also give any direction as an object `{"azimuth": 120, "elevation": -15}` in degrees: azimuth 0 is the front, 90 the subject's left, 180 the back, 270 the right; elevation is above the horizontal, -90 to 90. It may add `"margin"` (framing scale, at least 1, 1 touching the frame edge) and `"focus"` (a bone; the view is then captured once, close on that bone, whatever the scales). For example `"views": ["front", {"azimuth": 120, "elevation": -15, "focus": "leftUpperLeg"}]`. An angle view's file is named `az<azimuth>_el<elevation>`, such as `ana-close-leftUpperLeg-az120_el-15.png`. `--views` on the command line takes preset names only.
+ *
+ * Close framing and light. Instead of a focus bone's whole subtree an angle view may frame `"point": {"bone": "leftUpperArm", "along": 0.2}`, a share of the way from the bone's joint to its first child's (0, the joint itself, when omitted), with `"radius"` metres around it, for example `{"azimuth": 60, "elevation": 10, "point": {"bone": "leftUpperArm"}, "radius": 0.09}` for the shoulder. It may also name its key light, `"light": "raking"` (grazing from the image's right, 80 degrees off the eye and 20 above) or `"light": {"azimuth": 120, "elevation": 30, "relative": "world"}` (angles as a view's) or `"relative": "camera"` (azimuth from the eye toward the image's right, elevation toward its top); a given light dims the fill so the key light shapes the surface. Such files add `_<bone>[-at<along>]-r<radius>` and `_light-<relative>-az<azimuth>_el<elevation>` to their names.
+ *
+ * Display modes. `"modes": ["surface", "overlay", "net"]` in a people file captures each view in each mode: the surface alone, the construction net (each lofted part's stations, guides, features, spines, network curves, junction rings and control cage, in the rest pose) over the opaque surface, the net over a ghosted body, or `"construction"` for the net alone. A construction, net or overlay file is named `<name>-<mode>-<scale>-<view>.png` and carries the colour legend in its corner; surface files keep their names.
+ *
+ * Each person is loaded through the page's own `window.__automovieHuman` API, the same documents and admission the controls use, and captured by the page's capture action, which writes PNGs to `.shots/output` and metadata (source commit, document hash, renderer, views) to `.shots/captures/<name>.json`. The run refuses a software renderer. A dev server at `--base` is reused, or one is started for the run and stopped after; pass a free port to get a fresh one. A started server is a snapshot: it neither watches files nor reloads the page, so another edit or build cannot interrupt the run, and it serves the code as it stood when it started. Its first load transforms every module of the page, so the page may take minutes to draw its first frame.
  */
 const main = async (): Promise<void> => {
   const flags: Map<string, string> = new Map();
@@ -97,11 +126,18 @@ const main = async (): Promise<void> => {
     page.on("pageerror", (error: Error): void =>
       console.error(`page error: ${error.message}`),
     );
-    await page.goto(`${base}/human.html`);
+    const loading: number = Date.now();
+    await page.goto(`${base}/human.html`, {
+      timeout: COLD_LOAD,
+      waitUntil: "domcontentloaded",
+    });
     await page.waitForFunction(
       (): boolean => ((window as any).__automovieHuman?.frames() ?? 0) > 0,
       null,
-      { timeout: 60_000 },
+      { timeout: COLD_LOAD },
+    );
+    console.log(
+      `page ready in ${((Date.now() - loading) / 1000).toFixed(1)} s`,
     );
     const renderer: string = await page.evaluate(
       (): string => (window as any).__automovieHuman.renderer,
@@ -146,6 +182,8 @@ const main = async (): Promise<void> => {
             name: p.name,
             views: p.views,
             scales: p.scales,
+            modes: p.modes,
+            relief: p.relief,
             focus: p.focus,
           }),
         person,
@@ -186,7 +224,12 @@ const startServer = async (base: string): Promise<ChildProcess> => {
       new URL(base).port || "80",
       "--strictPort",
     ],
-    { cwd: root, stdio: "ignore" },
+    // a snapshot server: no file watching and no hot reload, so another edit or build cannot reload the page during the run
+    {
+      cwd: root,
+      stdio: "ignore",
+      env: { ...process.env, AUTOMOVIE_CAPTURE: "1" },
+    },
   );
   for (let i: number = 0; i < 120; ++i) {
     if (await responds(base)) return child;

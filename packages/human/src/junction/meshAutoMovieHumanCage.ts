@@ -1,35 +1,53 @@
 import {
   IAutoMovieSubdivisionCage,
+  IAutoMovieSubdivisionParameter,
   IAutoMovieSubdivisionSurface,
+  displaceAutoMovieSurface,
   subdivideAutoMovieSurface,
 } from "@automovie/engine";
-import { IAutoMovieMesh } from "@automovie/interface";
+import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
+import { AUTOMOVIE_HUMAN_UV_LAYOUT_V3 } from "./AUTOMOVIE_HUMAN_UV_LAYOUT_V3";
 import { AutoMovieHumanUvLayout } from "./AutoMovieHumanUvLayout";
 import { IAutoMovieHumanCage } from "./IAutoMovieHumanCage";
+import { IAutoMovieHumanSurfaceCoordinate } from "./IAutoMovieHumanSurfaceCoordinate";
+import { fitAutoMovieHumanCage } from "./fitAutoMovieHumanCage";
 
 /**
  * Subdivide a skin cage once with the engine's Catmull-Clark and turn the limit surface into a render mesh.
  *
- * The cage is converted from millimetres to metres in this one step. Positions are the limit positions and normals the limit normals the engine evaluates, written explicitly, because normals recomputed from triangles would split shading wherever a UV seam duplicates a vertex. UVs follow `AUTOMOVIE_HUMAN_UV_LAYOUT` face-varying: each face corner takes the UV of its own semantic address, so a corner on a chart boundary gets its own chart's value and the engine pins every chart outline. A render vertex is split where a corner's limit normal or UV differs, and every split copy names its subdivided vertex in `physicalVertices`, so welding and topology treat a seam as one surface.
+ * The cage is converted from millimetres to metres in this one step. Positions are the limit positions and normals the limit normals the engine evaluates, written explicitly, because normals recomputed from triangles would split shading wherever a UV seam duplicates a vertex. UVs follow `AUTOMOVIE_HUMAN_UV_LAYOUT` face-varying: each face corner takes its explicitly declared UV or the layout maps its evaluation address, so a corner on a chart boundary gets its own chart's value and the engine pins every chart outline. A render vertex is split where a corner's limit normal or UV differs, and every split copy names its subdivided vertex in `physicalVertices`, so welding and topology treat a seam as one surface.
  *
  * @param props.cage The cage, millimetres, only read
  * @param props.levels Refinement steps, an integer from 1 to 6
+ * With `relief`, each subdivided vertex is then moved along its limit normal by the relief read at its chart address, the bilinear blend of its cage face's corner addresses, and its rest limit position (`displaceAutoMovieSurface`), and the normals turn with the displaced surface.
+ *
  * @param props.domain Physical domain name of the surface's vertices
+ * @param props.relief Displacement, millimetres, outward positive, at a vertex's chart address and rest limit position in millimetres; omitted, none
  * @returns The mesh, without skin, and the parameter of each render vertex on the cage
  */
-export const meshAutoMovieHumanCage = (props: {
+export function meshAutoMovieHumanCage(props: {
   cage: IAutoMovieHumanCage;
   levels: number;
   domain: string;
-}): meshAutoMovieHumanCage.IOutput => {
+  /** Published atlas version; omitted, current (4). Version 3 maps the preserved evaluation coordinates, reproducing the previous texture layout. */
+  uvLayout?: 3 | 4;
+  relief?: (point: {
+    coordinate: IAutoMovieHumanSurfaceCoordinate;
+    position: IAutoMovieVector3;
+  }) => number;
+}): meshAutoMovieHumanCage.IOutput {
   const uvs: number[] = [];
   const uvFaces: number[][] = [];
   const index: Map<string, number> = new Map();
   for (const face of props.cage.faces) {
-    const corners: Array<[number, number]> = AutoMovieHumanUvLayout.map(
-      face.coordinates,
-    );
+    const corners: Array<[number, number]> =
+      props.uvLayout === 3
+        ? AutoMovieHumanUvLayout.map(
+            face.coordinates,
+            AUTOMOVIE_HUMAN_UV_LAYOUT_V3,
+          )
+        : (face.uvs ?? AutoMovieHumanUvLayout.map(face.coordinates));
     uvFaces.push(
       corners.map(([x, y]: [number, number], k: number): number => {
         const key: string = `${face.vertices[k]}:${x}:${y}`;
@@ -56,23 +74,38 @@ export const meshAutoMovieHumanCage = (props: {
     ]),
     uvs,
     uvFaces,
-    creases: props.cage.creases.map((c: IAutoMovieHumanCage.ICrease) => ({
+    creases: props.cage.creases.map((c: IAutoMovieHumanCage.ICrease): NonNullable<IAutoMovieSubdivisionCage["creases"]>[number] => ({
       from: c.edge[0],
       to: c.edge[1],
       sharpness: c.sharpness,
     })),
   };
-  const surface: IAutoMovieSubdivisionSurface = subdivideAutoMovieSurface({
-    cage,
-    levels: props.levels,
-  });
+  const smooth: IAutoMovieSubdivisionSurface = fitAutoMovieHumanCage({ source: props.cage, cage, levels: props.levels }) ?? subdivideAutoMovieSurface({ cage, levels: props.levels });
+  const relief: typeof props.relief = props.relief;
+  const surface: IAutoMovieSubdivisionSurface =
+    relief === undefined
+      ? smooth
+      : displaceAutoMovieSurface({
+          surface: smooth,
+          heights: smooth.parameters.map(
+            (at: IAutoMovieSubdivisionParameter, v: number): number =>
+              relief({
+                coordinate: addressOf(props.cage, at),
+                position: {
+                  x: smooth.limitPositions[3 * v]! * 1000,
+                  y: smooth.limitPositions[3 * v + 1]! * 1000,
+                  z: smooth.limitPositions[3 * v + 2]! * 1000,
+                },
+              }) / 1000,
+          ),
+        });
   const positions: number[] = [];
   const normals: number[] = [];
   const meshUvs: number[] = [];
   const sources: number[] = [];
   const indices: number[] = [];
   const split: Map<string, number> = new Map();
-  const corner = (c: number): number => {
+  function corner(c: number): number {
     const v: number = surface.faces[c]!;
     const n: number = surface.normalFaces[c]!;
     const t: number = surface.uvFaces === null ? -1 : surface.uvFaces[c]!;
@@ -96,7 +129,7 @@ export const meshAutoMovieHumanCage = (props: {
         meshUvs.push(surface.uvs![2 * t]!, surface.uvs![2 * t + 1]!);
     }
     return found;
-  };
+  }
   for (let f: number = 0; f < surface.faces.length; f += 4) {
     const [a, b, c, d]: number[] = [
       corner(f),
@@ -116,7 +149,7 @@ export const meshAutoMovieHumanCage = (props: {
       physicalVertices: {
         sources: Array.from(
           { length: surface.limitPositions.length / 3 },
-          (_: unknown, id: number) => ({ domain: props.domain, id }),
+          (_: unknown, id: number): { domain: string; id: number } => ({ domain: props.domain, id }),
         ),
         vertices: sources,
       },
@@ -124,7 +157,29 @@ export const meshAutoMovieHumanCage = (props: {
     vertices: sources,
     surface,
   };
-};
+}
+/** A subdivided vertex's chart address: the bilinear blend of its cage face's corner addresses at its face coordinates, the corners of one face lying on one chart. */
+function addressOf(cage: IAutoMovieHumanCage, at: IAutoMovieSubdivisionParameter): IAutoMovieHumanSurfaceCoordinate {
+  const corners: IAutoMovieHumanCage.IFace["coordinates"] =
+    cage.faces[at.face]!.coordinates;
+  const w: [number, number, number, number] = [
+    (1 - at.u) * (1 - at.v),
+    at.u * (1 - at.v),
+    at.u * at.v,
+    (1 - at.u) * at.v,
+  ];
+  function blend(read: (c: IAutoMovieHumanSurfaceCoordinate) => number): number { return corners.reduce(
+      (sum: number, c: IAutoMovieHumanSurfaceCoordinate, k: number): number =>
+        sum + w[k]! * read(c),
+      0,
+    ); }
+  return {
+    ...corners[0],
+    u: blend((c: IAutoMovieHumanSurfaceCoordinate): number => c.u),
+    v: blend((c: IAutoMovieHumanSurfaceCoordinate): number => c.v),
+  } as IAutoMovieHumanSurfaceCoordinate;
+}
+
 /** Output type of {@link meshAutoMovieHumanCage}. */
 export namespace meshAutoMovieHumanCage {
   /**

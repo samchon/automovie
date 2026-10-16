@@ -1,44 +1,91 @@
+import { AUTOMOVIE_HUMAN_LIP_FORM } from "../../junction/AUTOMOVIE_HUMAN_LIP_FORM";
 import { IAutoMovieHumanHeadForm } from "./IAutoMovieHumanHeadForm";
 
 /**
- * The head's form coefficients, calibrated against reference heads rather than sculpted.
+ * The lofted head's form coefficients.
  *
- * Every value was fitted offline by coordinate descent to the CC0 MakeHuman base mesh with each of eleven pure macro variants applied at full weight (young, old, child and baby; caucasian, asian and african; male and female). Each variant's head length, breadth, circumference, head and face height, face, mandibular and minimum frontal width were measured on its mesh and given to the converter's identity of that sex, age and population; the variant was scaled onto the generated head frame by its landmarks; and the field's skin was compared with the variant's along a grid of rays from the head's centre. The objective is the robust mean square of the radial gaps plus twice that of their second differences across the grid, so a crease or ripple the reference lacks costs as much as an offset, with every coefficient held between half and twice an anatomical starting value; the eyes, the nose and the ears, which their own modules shape, are left out. The masses were fitted first with every relief coefficient at zero, the block-out, which the shared MakeHuman harness scores at a mean radial gap of 5.6 mm (mean silhouette overlap 0.90) for the default adult woman and 7.1 mm (0.88) for the default adult man; the relief was then fitted with the masses held, which the reference, a smooth average, keeps near its lower bounds (5.57 and 7.04 mm). Most of the remainder comes from head dimensions the identity takes from measured surveys where the reference differs. No reference geometry is kept, only these numbers. Grade: calibrated against that one CC0 reference set, standing in for the average form between landmarks that no anthropometric survey measures.
+ * The network's placement is conventional unless a property says otherwise: chosen on renders of the gate identities, pending a fit to reference faces.
+ *
+ * The profile's depths below subnasale are conventional shares of face height behind it, pending a measured soft-tissue profile; the exponents are calibrated against the sections of the CC0 reference heads at the four gate identities.
  *
  * @author Samchon
  */
 export const AUTOMOVIE_HUMAN_HEAD_FORM: IAutoMovieHumanHeadForm = {
-  vaultTop: 2.1552,
-  vaultForehead: 1.9535,
-  vaultBottom: 2.5117,
-  mastoid: 0.1371,
-  temple: 0.129,
-  orbitRoof: 0.0655,
-  recedeStart: 0.8624,
-  recedeEnd: 0.9114,
-  midfaceFront: 0.0598,
-  midfaceTop: 0.0996,
-  midfaceBottom: 0.2238,
-  cheekExponent: 2.0054,
-  midfaceExponent: 2.2169,
-  jawLift: 0.2008,
-  jawTop: 0.3659,
-  jawExponent: 2.7172,
-  jawBorder: 3.8479,
-  chinWidth: 0.2019,
-  jawTaper: 5.3238,
-  pogonion: 0.0303,
-  chin: 0.0926,
-  muzzleMouth: 0.2518,
-  muzzleDepth: 0.3596,
-  muzzleTop: 0.035,
-  muzzleExponent: 1.4289,
-  malar: 0.01,
-  brow: 0.0153,
-  templeHollow: 0.01,
-  gonial: 0.01,
-  mental: 0.01,
-  buccal: 0.02,
-  buccalGrowth: 0.2,
-  blend: 0.1588,
+  midfaceBehindSubnasale: 0.115,
+  stomionBehindSubnasale: 0.012,
+  labiomentalBehindSubnasale: 0.05,
+  pogonionBehindSubnasale: 0.025,
+  pogonionAboveMenton: 0.1,
+  forehead: 2.35,
+  vaultBack: 1.86,
+  occiput: 1.65,
+  eurionHeight: 0.34,
+  vaultSide: 2.25,
+  frontVault: 2.2,
+  frontCheek: 2.4,
+  frontSubnasale: 2.0,
+  frontStomion: 1.8,
+  frontChin: 1.7,
+  backVault: 2.2,
+  backNape: 2.3,
+  layout: {
+    /** Past the zygomatic arches. */
+    faceHalf: 60,
+    /** Trichion-nasion 72.2 mm in Kenyan men and 67.5 in women (Virdi et al. 2019), about 0.57 of face height. Grade: derived. */
+    trichion: 0.57,
+    /** The opening reaches the brow above and the cheek's top below, and holds the canthi with a margin inside and the orbit's lateral rim beyond. */
+    eyeOpening: { above: 0.55, below: 0.6, medial: 0.1, lateral: 0.5 },
+    /** The opening runs from under the columella to the labiomental fold and out to the nasolabial folds. */
+    mouthOpening: { top: 0.02, bottom: 0.15, lateral: 0.3 },
+    /** Nearer the dense side keeps a reduction's four quads closer in size. */
+    reduction: 0.3,
+  },
+  eyelids: {
+    orbit: 0.5,
+    /** About 3 degrees, between the 0.8 to 2.4 of Caucasian and the 4.9 to 6.0 of Chinese young adults (Gao et al. 2025, periocular 3D photographs), pending a measured tilt in the identity. */
+    canthalTilt: 3,
+    /** The upper lid rests 1 to 2 mm over the iris and the lower at its lower edge. */
+    upper: 0.45,
+    canthus: 0.3,
+    /** About 2 mm, pending a measured value. */
+    marginThickness: 2,
+    /** So the eyeball never shows through the lid. */
+    contact: 0.3,
+    posteriorOpen: 0.94,
+    /** Geometric envelope of the four reference heads used in the campaign gate comparison, native head frames, outward quad-strip courses: each expansion is normalized by its own seed aperture width, fitted with equal reference weights, then rounded to four decimals. Grade: derived from reference geometry, not a clinical rim or population norm. */
+    envelope: { medial: 0.0183, lateral: 0.2628, above: 0.091, below: 0.1668 },
+  },
+  lips: AUTOMOVIE_HUMAN_LIP_FORM,
+  relief: {
+    /** The alae's half-breadth is half of alare-alare. */
+    nose: {
+      tipAboveSubnasale: 0.17,
+      /** Zero-end-slope basis t^p(1+p(1-t)); minimax relative shape-error fit of native midsagittal N–PRN profiles of the four provided campaign reference heads; each profile uses its own landmark-proxy endpoints and scale. All four leave-one-reference-out comparisons and eight other held-out native heads improve. Synthetic geometric correspondence, not a clinical nasal-profile population norm. */
+      dorsumCurve: 2.245593,
+      bridge: 0.2,
+      ala: 0.5,
+      alaHeight: 0.5,
+      alaOffset: 0.3,
+      alaSpread: 0.13,
+      alaDepth: 0.12,
+    },
+    lips: { roll: 0.04 },
+    orbit: {
+      /** Width of the infraorbital tissue footprint in input fissure lengths. */
+      breadth: 0.35,
+    },
+    brow: { height: 0.018, level: 0.62 },
+    malar: { height: 0.022, out: 0.45, below: 0.7 },
+    arch: { height: 0.012, width: 0.035, root: 0.03 },
+    temple: { depth: 0.02, above: 0.28, behind: 0.18, spread: 0.13 },
+    masseter: { height: 0.012, forward: 0.17, up: 0.22, across: 0.1 },
+    buccal: {
+      adult: -0.006,
+      fat: 0.025,
+      growth: 0.12,
+      above: 0.05,
+      spread: 0.12,
+    },
+    robust: 0.55,
+  },
 };

@@ -58,7 +58,10 @@ interface ISection {
   holes?: Array<Array<{ x: number; y: number }>>;
 }
 
-const constant: (outer: ReturnType<typeof box>, holes?: Array<ReturnType<typeof box>>) => ISection[] = (
+const constant: (
+  outer: ReturnType<typeof box>,
+  holes?: Array<ReturnType<typeof box>>,
+) => ISection[] = (
   outer: ReturnType<typeof box>,
   holes?: Array<ReturnType<typeof box>>,
 ): ISection[] => [
@@ -289,18 +292,27 @@ export function test_geometry_loft_sections(): void {
     ],
   ];
   const solids: IAutoMovieMesh[] = paths.map(
-    (path: IAutoMovieVector3[]): IAutoMovieMesh => sweepPolygonLoft({ path, sections: constant(profile) }),
+    (path: IAutoMovieVector3[]): IAutoMovieMesh =>
+      sweepPolygonLoft({ path, sections: constant(profile) }),
   );
   TestValidator.equals(
     "one repeated convex section closes along straight, bent and turning paths",
     solids.map((lofted: IAutoMovieMesh): Record<string, boolean> => {
-      const topology: IAutoMovieMeshTopology = inspectAutoMovieMeshTopology(lofted);
+      const topology: IAutoMovieMeshTopology =
+        inspectAutoMovieMeshTopology(lofted);
       return namedFacts([
         ["closed", (): boolean => topology.watertight],
-        ["topology", (): boolean => validateMeshTopology({ mesh: lofted, expectClosed: true }).success],
+        [
+          "topology",
+          (): boolean =>
+            validateMeshTopology({ mesh: lofted, expectClosed: true }).success,
+        ],
       ]);
     }),
-    paths.map((): { closed: boolean; topology: boolean } => ({ closed: true, topology: true })),
+    paths.map((): { closed: boolean; topology: boolean } => ({
+      closed: true,
+      topology: true,
+    })),
   );
   // the bend lies in the XY plane: its frame's first axis stays -Z, the second is the bisecting tangent crossed with it
   const root: number = Math.SQRT1_2;
@@ -318,16 +330,29 @@ export function test_geometry_loft_sections(): void {
   TestValidator.equals(
     "a straight constant loft is a prism, and the bend's corner ring lies across its bisector",
     namedFacts([
-      ["prism", (): boolean => nclose(inspectAutoMovieMeshTopology(solids[0]!).volume, 0.2 * 0.2 * 2, 1e-12)],
-      ...profile.map((corner: { x: number; y: number }, k: number): [string, () => boolean] => [
-        `corner${k}`,
+      [
+        "prism",
         (): boolean =>
-          near(solids[1]!, {
-            x: 2 + corner.y * second.x,
-            y: corner.y * second.y,
-            z: -corner.x,
-          }),
-      ]),
+          nclose(
+            inspectAutoMovieMeshTopology(solids[0]!).volume,
+            0.2 * 0.2 * 2,
+            1e-12,
+          ),
+      ],
+      ...profile.map(
+        (
+          corner: { x: number; y: number },
+          k: number,
+        ): [string, () => boolean] => [
+          `corner${k}`,
+          (): boolean =>
+            near(solids[1]!, {
+              x: 2 + corner.y * second.x,
+              y: corner.y * second.y,
+              z: -corner.x,
+            }),
+        ],
+      ),
     ]),
     { prism: true, corner0: true, corner1: true, corner2: true, corner3: true },
   );

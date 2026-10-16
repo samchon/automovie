@@ -7,6 +7,8 @@
 
 ## For Human
 
+The following is the original design study. Current `src/appearance/{growAutoMovieHumanHair,emitAutoMovieHumanHair,growAutoMovieHumanBrows,growAutoMovieHumanLashes,paintAutoMovieHumanHairStrands}.ts` already generates cards and procedural strand images against the emitted head. [#2844](https://github.com/samchon/automovie/issues/2844) owns their remaining appearance and attachment acceptance; the study does not certify every proposed technique below was adopted.
+
 Human has no strands to cluster, so cards are generated directly:
 
 1. Scalp coordinates: the hairline and parting are curves on the head surface's semantic coordinates; roots are placed by a deterministic blue-noise or jittered-grid scheme on that region.
@@ -21,4 +23,4 @@ Binding: cards attach to the head through semantic scalp coordinates and inherit
 
 - Alpha: cards need `alphaMode: "mask"` for the opaque core and blended fringes; the four-pass ordering above is a renderer concern.
 - Double-sided: cards are seen from both sides (`doubleSided: true`).
-- Anisotropic specular along the strand tangent with two shifted lobes is what makes cards read as hair. `IAutoMovieMaterial` has no anisotropy field, and the viewer's hair shading constants lived in the basis-era `viewer/src/human` that #2789 deletes (`../core/gaps.md`).
+- `IAutoMovieMaterial` now carries anisotropy, sheen and specular intensity, mapped by the viewer. The two shifted lobes described above remain a possible extension if current card renders demonstrate the need; they are not a missing prerequisite for generating cards. The [core survey](../core/gaps.md) records the current boundary.

@@ -6,24 +6,23 @@ Unreal's modular characters keep each part a separate skeletal mesh and combine 
 
 ## Why Human joins at the cage
 
-Human's plan avoids that class of defect by construction: parts meet as cages, the joined cage is subdivided once, and the seam becomes an interior region of one limit surface. Across a regular region the surface is C2, so position, normal and curvature are continuous across the former cut (`subdivision-and-cage.md`). Skin weights, UVs and every other attribute then come from the joined surface, not per part.
+Human joins parts as cages before one subdivision, making a shared boundary an interior region of one limit surface. A regular region is C2 (`subdivision-and-cage.md`); this smoothness premise does not establish anatomical flow, absence of folds or injectivity. The current `AutoMovieHumanJunction` welds equal-count shared rings and refuses mismatched rings rather than adding a transition patch. UVs remain face-varying corner data with separate charts on either side; joined skin weights are still placeholders.
 
 ## Ring contract
 
 - A ring is a closed edge loop on a tube cross-section, declared by count, orientation (counter-clockwise looking from the parent bone toward the child), a start mark on a named anatomical direction (for example anterior), and a frame from the skeleton.
-- Both parts read one ring definition. A part never adapts to another; where counts differ, the junction owns the transition patch.
+- Both parts read one ring definition. Current Human refuses unequal counts; each part owns its internal transition to the shared count.
 - A regular face's limit patch depends on 16 control vertices, the face plus one ring of neighbours, and a face at a valence N vertex on 2N + 8 (`../sources/stam-1998.md`). The limit surface next to a cut therefore depends on cage vertices of both parts, so neither part's appearance near the cut can be judged alone, and a part generator must not assume its boundary ring is the end of its surface.
 
 ## Transition patches
 
-- A count change of n to n + 2 around a tube needs extraordinary vertices; OpenSubdiv's guidance is a valence 5 vertex to expand three loops into five (`subdivision-and-cage.md`). Each patch type is a typed, versioned topology in the junction module, and the profile's topology fixes which patch each junction uses, so every identity keeps the same connectivity.
+- A count change of n to n + 2 around a tube needs extraordinary vertices; OpenSubdiv's guidance is a valence 5 vertex to expand three loops into five (`subdivision-and-cage.md`). Current Human transitions sit inside part generators; matching counts at every shared junction make a junction transition module unnecessary. A future unequal-count profile would need an explicitly designed topology rather than silent resampling.
 - Place transition patches where curvature is already high or where the surface is out of direct light (the inner wrist, the medial ankle, under the jaw), never across a broad lit field.
 
 ## Semantic coordinates through the junction
 
-Landmarks and garment bindings address (part, station, angle) or (patch, u, v). The junction maps each part's local coordinates to faces of the joined cage, so a coordinate survives joining and every identity change.
+Face-corner physical addresses retain part/side and local parameters through joining; UV coordinates may be separately declared. These support physical evaluation and future garment binding, but they do not mean an implemented garment consumer exists. A semantic landmark must still preserve its measurement protocol when mapped to the final skin.
 
-## Open questions for #2795
+## Resolved construction questions
 
-- Whether facial feature generators and the cranium share one cage (the plan says one continuous face surface) or the face is a patch-based cage with its own transition patches at the hairline and the jaw line.
-- Whether the ear attachment, which is not a tube, gets its own ring shape (an oval with a fixed count) or is treated as a patch insert.
+`AutoMovieHumanHeadGenerator` emits the continuous head cage, including facial network features. The ear is a separate generator joined through the shared eight-control attachment ring. `AUTOMOVIE_HUMAN_RINGS` fixes the neck-top boundary in the mandibular plane; it is not the early generic mid-neck-cut proposal. Head/jaw/nape and ear form still require their current issue's visual checks.

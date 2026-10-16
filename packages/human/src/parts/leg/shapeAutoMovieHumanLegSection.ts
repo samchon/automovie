@@ -1,92 +1,32 @@
-import { AUTOMOVIE_HUMAN_LEG_RELIEF } from "./AUTOMOVIE_HUMAN_LEG_RELIEF";
-import { IAutoMovieHumanLegRelief } from "./IAutoMovieHumanLegRelief";
+import { IAutoMovieSweepSection } from "@automovie/engine";
+
+import { AutoMovieHumanSide } from "../../junction/AutoMovieHumanSide";
 import { IAutoMovieHumanLegStation } from "./IAutoMovieHumanLegStation";
 
 /**
- * Fat thickness, millimetres, over which a muscle or bone's relief halves: subcutaneous fat fills the hollows between bellies, so the same muscle reads sharply under a thin layer and is a smooth swell under a thick one. Grade: conventional.
- */
-const RELIEF_FAT_HALF: number = 20;
-
-/**
- * Gain of a fat pad on the square of the fat thickness over the mean radius. Fat pads grow faster than the layer under them: a thin layer lies evenly, while a thick one gathers where the fascia lets it, over the medial knee and the inner and outer thigh. The square sets the sex difference the reference legs show, soft padded knees in women and almost none in lean men, from the fat thickness alone. Grade: conventional, set on renders against the reference boards.
- */
-const FAT_PAD_GAIN: number = 4;
-
-/**
- * Appendicular lean mass index, kilograms per square metre, at which muscle relief takes its tabulated height: the midpoint of the NHANES medians at 20 years, 6.81 for women and 8.87 for men (Kelly et al. 2009, PLoS ONE 4(9):e7038). Relief grows with the index to the power 1.5, so lean mass shows as definition more than as bulk, which the girths already carry. Grade: derived.
- */
-const LEAN_REFERENCE: number = 7.84;
-
-/**
- * Radial distance of the skin from the bone axis at one station and one angle, before the station's girth is fitted.
+ * The block-out section of one leg station, before its relief: an ellipse of the station's aspect whose four half axes differ, so its centre sits behind and lateral to the bone axis by the station's offsets.
  *
- * The base is an ellipse of the station's aspect whose four half axes differ, so its centre sits behind and lateral to the bone axis by the station's offsets. The relief of every superficial form then adds its height, a Gaussian around the limb times a smooth rise and fall along it, as a fraction of the station's mean radius. Muscle relief grows with the appendicular lean mass index; muscle and bone relief both soften under fat, halving at {@link RELIEF_FAT_HALF} millimetres; fat pads grow with the fat thickness at the station.
+ * Its mean radius is the station's girth over 2π, its depth that over the square root of the aspect and its breadth that times it; the anterior half axis is the depth times `1 - posterior` and the posterior one times `1 + posterior`, the medial half axis the breadth less the lateral offset and the lateral one the breadth plus it. The section lies in the station's plane with its first axis anterior and its second the chart's counterclockwise quarter turn about the distal axis, which is medial on the left leg and lateral on the right. The loft then holds the station's row to its girth on the limit surface, relief included, so the ellipse sets the section's proportions rather than its size.
  *
- * @param station The station, with its girth, base shape and fat
- * @param angle Angle around the limb from the anterior direction toward the medial one, radians
- * @param leanIndex The person's appendicular lean mass index, kilograms per square metre
- * @returns Distance from the station's origin, millimetres, at the girth the base alone would have
+ * @param station The station, with its girth and base shape
+ * @param side Which leg
+ * @returns The section in millimetres, in the station's plane
  */
 export function shapeAutoMovieHumanLegSection(
   station: IAutoMovieHumanLegStation,
-  angle: number,
-  leanIndex: number,
-): number {
+  side: AutoMovieHumanSide,
+): IAutoMovieSweepSection {
   const mean: number = station.girth / (2 * Math.PI);
   const depth: number = mean / Math.sqrt(station.aspect);
   const breadth: number = mean * Math.sqrt(station.aspect);
-  const forward: number = Math.cos(angle);
-  const inward: number = Math.sin(angle);
-  const radial: number =
-    forward >= 0
-      ? depth * (1 - station.posterior)
-      : depth * (1 + station.posterior);
-  const transverse: number =
-    inward >= 0 ? breadth - station.lateral : breadth + station.lateral;
-  const base: number =
-    1 /
-    Math.sqrt(
-      (forward / radial) * (forward / radial) +
-        (inward / transverse) * (inward / transverse),
-    );
-
-  const softening: number = RELIEF_FAT_HALF / (RELIEF_FAT_HALF + station.fat);
-  const muscle: number = Math.pow(leanIndex / LEAN_REFERENCE, 1.5);
-  let relief: number = 0;
-  for (const r of AUTOMOVIE_HUMAN_LEG_RELIEF) {
-    const level: number = r.segment === "thigh" ? station.thigh : station.shank;
-    if (level <= r.bottom || level >= r.top) continue;
-    const rise: number =
-      level < r.peak
-        ? (level - r.bottom) / (r.peak - r.bottom)
-        : (r.top - level) / (r.top - r.peak);
-    const along: number = rise * rise * (3 - 2 * rise);
-    const crest: number =
-      ((r.angleBottom +
-        ((r.angleTop - r.angleBottom) * (level - r.bottom)) /
-          (r.top - r.bottom)) *
-        Math.PI) /
-      180;
-    const apart: number = wrap(angle - crest) / ((r.width * Math.PI) / 180);
-    const around: number = Math.exp(-0.5 * apart * apart);
-    relief += height(r, softening, muscle, station.fat / mean) * along * around;
-  }
-  return base + relief * mean;
+  const medial: number = breadth - station.lateral;
+  const lateral: number = breadth + station.lateral;
+  return {
+    type: "superellipse",
+    right: depth * (1 - station.posterior),
+    left: depth * (1 + station.posterior),
+    up: side === "left" ? medial : lateral,
+    down: side === "left" ? lateral : medial,
+    exponents: [2, 2, 2, 2],
+  };
 }
-
-/** Height of one relief as a fraction of the mean radius, after its tissue scaling. */
-const height = (
-  relief: IAutoMovieHumanLegRelief,
-  softening: number,
-  muscle: number,
-  fat: number,
-): number =>
-  relief.tissue === "muscle"
-    ? relief.amplitude * muscle * softening
-    : relief.tissue === "bone"
-      ? relief.amplitude * softening
-      : relief.amplitude * FAT_PAD_GAIN * fat * fat;
-
-/** An angle wrapped into -π to π. */
-const wrap = (radians: number): number =>
-  Math.atan2(Math.sin(radians), Math.cos(radians));

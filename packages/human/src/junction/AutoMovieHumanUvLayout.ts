@@ -15,7 +15,7 @@ export namespace AutoMovieHumanUvLayout {
    */
   export interface ILayout {
     /** Layout version; a change to any chart bumps it. */
-    version: 3;
+    version: 3 | 4;
 
     /** One chart per part instance and per branch of one. */
     charts: IChart[];
@@ -53,19 +53,21 @@ export namespace AutoMovieHumanUvLayout {
   }
 
   /**
-   * UVs of one face's corners.
+   * Map one tube-domain face into its published rectangle. Explicit `IAutoMovieHumanCage.IFace.uvs`, such as the version 4 hand's logical planar charts, supersede this fallback in the mesher; mapping physical hand evaluation coordinates alone does not reconstruct those charts.
    *
    * The corners' turns past the seam are unwrapped together, so a face that touches the seam from below writes the chart's right edge there and a face that leaves it upward writes the left edge; the seam is cut exactly along its meridian.
    *
    * @param coordinates The face's corner addresses, all on one chart
+   * @param layout The published version to map; omitted, the current layout
    * @returns `[x, y]` of each corner
    * @throws {Error} When the layout has no chart for the part instance
    */
   export function map(
     coordinates: readonly IAutoMovieHumanSurfaceCoordinate[],
+    layout: ILayout = AUTOMOVIE_HUMAN_UV_LAYOUT,
   ): Array<[number, number]> {
     const first: IAutoMovieHumanSurfaceCoordinate = coordinates[0]!;
-    const found: IChart | undefined = AUTOMOVIE_HUMAN_UV_LAYOUT.charts.find(
+    const found: IChart | undefined = layout.charts.find(
       (c: IChart): boolean =>
         c.part === first.part &&
         c.side === first.side &&

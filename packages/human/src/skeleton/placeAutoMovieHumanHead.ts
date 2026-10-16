@@ -203,7 +203,7 @@ export function placeAutoMovieHumanHead(
         d(0, 0, 1),
         CONVENTIONAL.eyeRadius * head.headHeight,
       ]),
-      axes: { flexion: d(1, 0, 0), abduction: d(0, s, 0), twist: d(0, 0, -s) },
+      axes: { flexion: d(1, 0, 0), abduction: d(0, 0, 1), twist: d(0, 1, 0) },
       constraint: null,
     };
   };
@@ -225,7 +225,7 @@ export function placeAutoMovieHumanHead(
         parent: "head",
         position: jaw,
         tail: mentonPoint,
-        axes: { flexion: d(1, 0, 0), abduction: d(0, 1, 0), twist: d(0, 0, 1) },
+        axes: { flexion: d(1, 0, 0), abduction: d(0, 0, 1), twist: d(0, 1, 0) },
         constraint: null,
       },
     ],

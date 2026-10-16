@@ -3,43 +3,41 @@ import { IAutoMovieMaterial, IAutoMovieModelPart } from "@automovie/interface";
 import { meshAutoMovieHumanCage } from "../junction/meshAutoMovieHumanCage";
 import { IAutoMovieHumanMeasurements } from "../measure/IAutoMovieHumanMeasurements";
 import { IAutoMovieHumanSkeleton } from "../skeleton/IAutoMovieHumanSkeleton";
+import { IAutoMovieHumanConstructionNet } from "../structures/IAutoMovieHumanConstructionNet";
 import { AUTOMOVIE_HUMAN_SKIN_MATERIAL } from "./AUTOMOVIE_HUMAN_SKIN_MATERIAL";
 import { IAutoMovieHumanPartGenerators } from "./IAutoMovieHumanPartGenerators";
 import { generateAutoMovieHumanCages } from "./generateAutoMovieHumanCages";
+import { inspectAutoMovieHumanConstruction } from "./inspectAutoMovieHumanConstruction";
+import { reliefAutoMovieHumanSkin } from "./reliefAutoMovieHumanSkin";
 
 /**
- * Emit each skin part's own cage, subdivided alone, as a separate static model part, the preview in which a part is judged before joining.
- *
- * Each part keeps its open rings as boundaries, so its edge near a junction is the part's own limit surface, not the joined one. Part ids are `skin.<part>` or `skin.<part>.<side>`, so the viewer can show one part alone.
- *
- * @param measurements Resolved measurements
- * @param skeleton The skeleton at rest
- * @param levels Subdivision levels
- * @param generators The generator of each part
- * @returns The parts and the material they cite
+ * Emit each part's standalone skin and the same completed generating cage.
+ * Open rings retain the part's own boundary rule; this output is distinct from
+ * joined skin. Prepared source cages let the owning Human instance reuse its
+ * immutable generation inputs without conflating the two fitting domains.
  */
-export const emitAutoMovieHumanSkinParts = (
+export function emitAutoMovieHumanSkinParts(
   measurements: IAutoMovieHumanMeasurements,
   skeleton: IAutoMovieHumanSkeleton,
   levels: number,
   generators: IAutoMovieHumanPartGenerators,
-): { parts: IAutoMovieModelPart[]; materials: IAutoMovieMaterial[] } => ({
-  parts: generateAutoMovieHumanCages(measurements, skeleton, generators).map(
-    ({ part, side, cage }): IAutoMovieModelPart => {
-      const id: string =
-        side === null ? `skin.${part}` : `skin.${part}.${side}`;
-      return {
-        id,
-        name: side === null ? part : `${side} ${part}`,
-        geometry: {
-          type: "mesh",
-          mesh: meshAutoMovieHumanCage({ cage, levels, domain: id }).mesh,
-        },
-        material: AUTOMOVIE_HUMAN_SKIN_MATERIAL.id,
-        attachedBone: null,
-        transform: null,
-      };
-    },
-  ),
-  materials: [AUTOMOVIE_HUMAN_SKIN_MATERIAL],
-});
+  prepared?: ReturnType<typeof generateAutoMovieHumanCages>,
+): { parts: IAutoMovieModelPart[]; materials: IAutoMovieMaterial[]; construction: IAutoMovieHumanConstructionNet[] } {
+  const relief: ReturnType<typeof reliefAutoMovieHumanSkin> = reliefAutoMovieHumanSkin(measurements, skeleton, generators);
+  const cages: ReturnType<typeof generateAutoMovieHumanCages> = prepared ?? generateAutoMovieHumanCages(measurements, skeleton, generators);
+  const construction: IAutoMovieHumanConstructionNet[] = [];
+  const parts: IAutoMovieModelPart[] = cages.map((source: ReturnType<typeof generateAutoMovieHumanCages>[number]): IAutoMovieModelPart => {
+    const id: string = source.side === null ? `skin.${source.part}` : `skin.${source.part}.${source.side}`;
+    const output: meshAutoMovieHumanCage.IOutput = meshAutoMovieHumanCage({ cage: source.cage, levels, domain: id, relief });
+    construction.push(...inspectAutoMovieHumanConstruction([source], { cage: source.cage, surface: output.surface, levels }));
+    return {
+      id,
+      name: source.side === null ? source.part : `${source.side} ${source.part}`,
+      geometry: { type: "mesh", mesh: output.mesh },
+      material: AUTOMOVIE_HUMAN_SKIN_MATERIAL.id,
+      attachedBone: null,
+      transform: null,
+    };
+  });
+  return { parts, materials: [AUTOMOVIE_HUMAN_SKIN_MATERIAL], construction };
+}

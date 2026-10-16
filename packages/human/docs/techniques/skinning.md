@@ -1,5 +1,7 @@
 # Skinning and skin weights
 
+This note retains the initial method comparison and its sources. [#2843](https://github.com/samchon/automovie/issues/2843) replaces #2800's early DQS-only and closed-form-weight-only proposal: evaluate posed section re-sweeps for tubes, geometry/semantic-derived weights for branches and face, and anatomical correctives against a DQS baseline. Current Human joined skin still emits placeholder distance-based weights in `src/human/emitAutoMovieHumanSkin.ts`; admitting a pose does not establish its deformation quality.
+
 ## Methods
 
 | Method | How it blends | Known artifacts | Source |
@@ -12,19 +14,19 @@
 Facts that decide Human's choice:
 
 - DQS bulges because "all vertices near a joint share the same center of rotation (CoR), which is located exactly at the joint" (`../sources/le-hodgins-2016-optimized-centers.md`). The bulge appears exactly where Human must look best: the elbow and knee crease, the chest under shoulder flexion.
-- Kavan et al. note DQS flips past 180 degrees and that joint constraints usually prevent that (`../sources/kavan-2008-dual-quaternion-skinning.md`). Human admits poses only inside the range of motion (#2800), so the flip is out of reach.
+- Kavan et al. note DQS flips past 180 degrees and that joint constraints usually prevent that (`../sources/kavan-2008-dual-quaternion-skinning.md`). Human's per-joint range admission alone is not evidence that every influenced bone pair stays below that relative rotation; the actual posed influences need checking.
 - The CoR method keeps the LBS/DQS inputs (rest pose, weights, bone transforms) and adds a per-vertex centre computable once per identity from Human's own weights (`../sources/le-hodgins-2016-optimized-centers.md`).
 - SMPL, a skinned body model, found that plain LBS and DQS "produce serious artifacts at the knees, elbows, shoulders and hips" and adds pose-dependent corrective blend shapes linear in the elements of (R(pose) - R(rest)) (`../sources/loper-2015-smpl.md`). Its learned data is not usable here (research licence, and no external data), but the formulation shows correctives are needed whichever blend is used.
 
-## Recommendation for #2800
+## Initial recommendation for #2800
 
-1. Use DQS as the base, as planned, because it removes the twist and collapse artifacts LBS shows on the forearm and the thigh.
+1. The initial proposal used DQS as the base because it removes the twist and collapse artifacts LBS shows on the forearm and the thigh. This default was superseded by the region-specific evaluation above.
 2. Evaluate optimized centres of rotation against DQS at the elbow, knee, shoulder and hip in the viewer. If the DQS bulge shows, CoR is the orthodox next step, and its per-vertex centre is a core change (`../core/gaps.md`).
 3. Express what neither blend can (the elbow and knee crease fold, the gluteal fold under hip flexion, the deltoid shape under abduction) as rule-based correctives: displacements in the rest pose computed by formula from joint angles, as pose space deformation defines them, "mappings from a pose space ... to displacements in the object local coordinate frames" (`../sources/lewis-2000-pose-space-deformation.md`).
 
 ## Where correctives run
 
-Correctives are a function of pose, so they must run wherever the pose is applied. The viewer applies only skinning and expression morph names today; a film cannot carry a pose-driven corrective (`../core/gaps.md`, morph targets and rig drivers). Until core carries them, correctives exist only inside Human's own posing, which the plan forbids as a workaround, so the core change comes first.
+Correctives are a function of pose, so they must run wherever the pose is applied. Core now carries relative morph targets and scalar clinical-angle drivers in `IAutoMovieMeshMorphTarget` and `IAutoMovieMorphTargetDriver`, with viewer application beside bone rotations. That capability removes the original delivery gap; Human must still generate and verify its anatomical correctives, and establish a reusable contract for effects the scalar driver cannot express. See the [core survey](../core/gaps.md).
 
 ## Weights from cage semantics
 
@@ -34,8 +36,8 @@ Automatic weighting methods compute weights from an arbitrary mesh:
 - Geodesic voxel binding voxelizes the mesh and takes weights from geodesic distance between skeleton and mesh voxels, robust to non-manifold and multi-component meshes, and needs every joint inside the volume (`../sources/maya-geodesic-voxel-binding.md`).
 - Bounded biharmonic weights minimize the Laplacian energy under bound constraints, smooth, local and shape-aware (`../sources/jacobson-2011-bounded-biharmonic-weights.md`).
 
-Human does not need them, because each cage vertex already knows its part, its station along a bone and its angle around it. Weights are a closed-form function of those semantic coordinates: a vertex on a limb tube between two joints blends the two bones with a smooth step over a band around the joint centre whose width is a named fraction of the local radius; trunk regions blend spine bones by station; the shoulder region blends `upperChest`, `shoulder` and `upperArm` by position on the deltoid and trapezius masses. Being a function of semantic coordinates, the weights are identical in meaning for every identity, deterministic, and need no solver. Heat diffusion remains a useful offline check: a weight that differs strongly from the Pinocchio solution at the same vertex marks a formula to inspect.
+The initial plan proposed closed-form weights from each vertex's part, station and angle: smooth bone blends on tubes, spinal blends by trunk station, and shoulder blends by anatomical mass. These are candidate constructions, not the current placeholder weighting algorithm or a reason to dismiss geometry-derived methods. #2843 requires the choice to survive actual deformation/contact comparisons. Heat diffusion remains a useful offline comparison, with its geometry and boundary assumptions recorded.
 
 ## Influence count
 
-`IAutoMovieMeshSkin` carries four influences per vertex. Human's analytic weights stay within four everywhere except possibly the shoulder region (`upperChest`, `shoulder`, `upperArm`, `chest`) and the finger roots; the generator must normalize to the four largest and report any vertex where the dropped weight is not negligible.
+`IAutoMovieMeshSkin` carries four influences per vertex. The current placeholder generator keeps its four largest distance-based influences and normalizes them. A replacement derived from geometry or semantics must quantify any discarded weight, particularly at shoulder and finger branches; four slots are a representation limit, not a proof of adequate deformation.

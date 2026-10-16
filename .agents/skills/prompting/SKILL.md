@@ -20,6 +20,7 @@ An agent does not reliably follow long, detailed, or conditional prose, so a rul
 - [`AGENTS.md`](../../../AGENTS.md) holds what every session needs, under 200 lines, and lists every skill, because Claude Code finds skills only there. [`CLAUDE.md`](../../../CLAUDE.md) is `@AGENTS.md`.
 - A skill is `.agents/skills/<name>/SKILL.md` with `name` equal to the directory and a third-person `description` saying what it does and when to use it.
 - `SKILL.md` is the overview. Move a branch that only some tasks need into a sibling file linked directly from it, give a job with its own trigger its own skill, and never nest skills.
+- Put repeated deterministic operations in tested helpers, reusing existing tools before adding another. Link their task-specific invocation from the relevant guide, and take examples from working consumers rather than duplicating their implementation in the prompt.
 
 ## Verification
 

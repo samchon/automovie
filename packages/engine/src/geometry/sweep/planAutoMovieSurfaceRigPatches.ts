@@ -10,7 +10,7 @@ import { rigAutoMovieSurfaceBridge } from "./rigAutoMovieSurfaceBridge";
 import { rigAutoMovieSurfaceCoons } from "./rigAutoMovieSurfaceCoons";
 
 /**
- * Lay out the sweep, transition, Coons and bridge blocks of a surface rig, preserving the sampler's vertex registration order and cell reaches.
+ * Lay out the sweep, transition, Coons and bridge blocks of a surface rig, preserving vertex registration order and cell reaches. Bridge sweep probes bind once after registry cell resolution and before sealing, so their normals and axial derivatives use the same geometric field as their loop positions, before control pins.
  *
  * @param props Network, registry and the rig's shared edge/sweep evaluators
  * @returns The checked patch layout and the blend-control vertex indices
@@ -264,10 +264,19 @@ export function planAutoMovieSurfaceRigPatches(props: {
       const toIndex: number[] = b.map((x: IAutoMovieSurfaceSample): number =>
         joined(x, `${what} to loop`),
       );
-      const probes: number[] = [...a, ...b].map(
-        (x: IAutoMovieSurfaceSample): number =>
-          x.sweep === null ? -1 : x.sweep.rig.probe(x.sweep.u, x.sweep.v),
-      );
+      const probes: number[] = new Array<number>(2 * n).fill(-1);
+      [...a, ...b].forEach((point: IAutoMovieSurfaceSample, slot: number): void => {
+        if (point.sweep === null) return;
+        const sweep: NonNullable<IAutoMovieSurfaceSample["sweep"]> = point.sweep;
+        registry.bindSweep(
+          point.key,
+          (resolved: IAutoMovieSurfaceRegistry.ISweep | null): void => {
+            if (resolved === null)
+              throw new Error("a bridge probe needs a registered geometric sweep sample");
+            probes[slot] = sweep.rig.probe(resolved.u, resolved.v, resolved.cell);
+          },
+        );
+      });
       const grid: number[][] = Array.from(
         { length: rows + 1 },
         (): number[] => new Array<number>(n),

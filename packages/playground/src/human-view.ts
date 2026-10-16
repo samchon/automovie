@@ -3,6 +3,7 @@ import {
   AutoMovieHuman,
   AutoMovieHumanConverter,
   IAutoMovieHumanAppearance,
+  IAutoMovieHumanConstructionNet,
   IAutoMovieHumanExpression,
   IAutoMovieHumanIdentity,
   IAutoMovieHumanPose,
@@ -34,8 +35,10 @@ import { admitHumanViewerCaptureView } from "./human/admitHumanViewerCaptureView
 import { createHumanViewerDocumentForm } from "./human/createHumanViewerDocumentForm";
 import { createHumanViewerExpressionEditor } from "./human/createHumanViewerExpressionEditor";
 import { createHumanViewerPoseEditor } from "./human/createHumanViewerPoseEditor";
+import { drawHumanViewerConstruction } from "./human/drawHumanViewerConstruction";
 import { frameHumanViewerCamera } from "./human/frameHumanViewerCamera";
 import { hashHumanViewerSession } from "./human/hashHumanViewerSession";
+import { lightHumanViewer } from "./human/lightHumanViewer";
 
 // Human inspection page: the current AutoMovieHuman output through the normal
 // viewer, with part isolation, preset views, the public documents as controls,
@@ -125,10 +128,21 @@ const admit = (session: IHumanViewerSession): IAccepted => {
 const canvas: HTMLCanvasElement = document.querySelector("#view")!;
 const scene: THREE.Scene = new THREE.Scene();
 scene.background = new THREE.Color(0xf2f4f8);
-scene.add(new THREE.HemisphereLight(0xffffff, 0x9aa3b2, 1.6));
-const sun: THREE.DirectionalLight = new THREE.DirectionalLight(0xffffff, 1.4);
-sun.position.set(2, 4, 3);
+const hemisphere: THREE.HemisphereLight = new THREE.HemisphereLight(
+  0xffffff,
+  0x9aa3b2,
+  lightHumanViewer.INTENSITY.default.hemisphere,
+);
+scene.add(hemisphere);
+const sun: THREE.DirectionalLight = new THREE.DirectionalLight(
+  0xffffff,
+  lightHumanViewer.INTENSITY.default.sun,
+);
+sun.position.copy(lightHumanViewer.DEFAULT_POSITION);
 scene.add(sun);
+scene.add(sun.target);
+/** The page's key light for views that name none; null is the default sun. */
+let pageLight: lightHumanViewer.ILight | null = null;
 const grid: THREE.GridHelper = new THREE.GridHelper(6, 60, 0xb8c0cc, 0xd5dbe4);
 scene.add(grid);
 // The floor grid stands between an eye below the floor and the subject, so every render
@@ -190,6 +204,11 @@ let view: {
   focus: AutoMovieHumanoidBone;
   /** Framing margin overriding the scale's own. */
   margin?: number;
+  /** Point framed instead of the focus bone's subtree, with `radius` metres around it. */
+  point?: admitHumanViewerCaptureView.IPoint;
+  radius?: number;
+  /** Key light overriding the page's. */
+  light?: lightHumanViewer.ILight;
 } = {
   view: "front",
   scale: "whole",
@@ -264,6 +283,76 @@ const texture = async (accepted: IAccepted): Promise<void> => {
   void previous?.dispose();
 };
 
+// ── construction net ────────────────────────────────────────────────────────
+/** How the person is drawn: the surface alone, the construction net over the opaque surface, the net over a ghosted body, or construction alone. The net is the rest construction, so it matches the surface in the rest pose. */
+type DisplayMode = "surface" | "overlay" | "net" | "construction";
+const DISPLAY_MODES: readonly DisplayMode[] = ["surface", "overlay", "net", "construction"];
+let displayMode: DisplayMode = "surface";
+/** The shown person's construction nets, read on first use. */
+let nets: IAutoMovieHumanConstructionNet[] | null = null;
+let construction: THREE.Group | null = null;
+const GHOST: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial({
+  color: 0xbbbbbb,
+  roughness: 0.9,
+  transparent: true,
+  opacity: 0.18,
+  depthWrite: false,
+  side: THREE.DoubleSide,
+});
+/** An invisible material keeps the surface's framing bounds available in construction-only views. */
+const CONSTRUCTION_ONLY: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial({
+  visible: false,
+});
+/** Whether the skin shows its fine relief, the pores and furrows of its detail normal map; form is judged without it. */
+let relief: boolean = true;
+/** Show or hide the skin's fine relief: every material with a normal map keeps its scale aside and takes zero while relief is off. */
+const applyRelief = (): void => {
+  object?.object.traverse((node: THREE.Object3D): void => {
+    const mesh: THREE.Mesh = node as THREE.Mesh;
+    if (mesh.isMesh !== true) return;
+    for (const material of Array.isArray(mesh.material)
+      ? mesh.material
+      : [mesh.material]) {
+      const standard: THREE.MeshStandardMaterial =
+        material as THREE.MeshStandardMaterial;
+      if (standard.normalMap === undefined || standard.normalMap === null)
+        continue;
+      standard.userData.normalScale ??= standard.normalScale.x;
+      standard.normalScale.setScalar(
+        relief ? (standard.userData.normalScale as number) : 0,
+      );
+    }
+  });
+};
+
+/** Draw the shown person in the current display mode. */
+const applyDisplayMode = (): void => {
+  if (construction !== null) {
+    scene.remove(construction);
+    dispose(construction);
+    construction = null;
+  }
+  if (object === null) return;
+  object.object.traverse((node: THREE.Object3D): void => {
+    const mesh: THREE.Mesh = node as THREE.Mesh;
+    if (mesh.isMesh !== true) return;
+    mesh.userData.surfaceMaterial ??= mesh.material;
+    mesh.material =
+      displayMode === "construction"
+        ? CONSTRUCTION_ONLY
+        : displayMode === "net"
+          ? GHOST
+          : (mesh.userData.surfaceMaterial as THREE.Material);
+  });
+  if (displayMode === "surface") return;
+  nets ??= current.human.inspect();
+  construction = drawHumanViewerConstruction({
+    nets,
+    occluded: displayMode === "overlay",
+  });
+  scene.add(construction);
+};
+
 /** Put the person's model in the scene, posed and expressed, replacing the one shown. */
 const display = (
   accepted: IAccepted,
@@ -295,6 +384,9 @@ const display = (
     scene.add(bonesHelper);
   }
   applyVisibility();
+  nets = null;
+  applyDisplayMode();
+  applyRelief();
   error(null);
 };
 
@@ -336,22 +428,49 @@ const visibleBox = (root: THREE.Object3D): THREE.Box3 => {
 /** Distance a close view keeps around the focus bone's joints, metres, so the skin around them is in frame. */
 const JOINT_MARGIN: number = 0.06;
 
-/** Frame the current view; returns false when nothing visible is in focus. */
+/** World position of a point along a bone: its joint, or a share of the way to its first child bone's joint. */
+const pointOf = (
+  point: admitHumanViewerCaptureView.IPoint,
+): THREE.Vector3 | undefined => {
+  const bone: THREE.Object3D | undefined = object?.bones.get(
+    point.bone as AutoMovieHumanoidBone,
+  );
+  if (bone === undefined) return undefined;
+  const at: THREE.Vector3 = bone.getWorldPosition(new THREE.Vector3());
+  const child: THREE.Object3D | undefined = bone.children.find(
+    (c: THREE.Object3D): boolean => (c as THREE.Bone).isBone === true,
+  );
+  if (child === undefined || point.along === 0) return at;
+  return at.lerp(child.getWorldPosition(new THREE.Vector3()), point.along);
+};
+
+/** Frame the current view and light it; returns false when nothing visible is in focus. */
 const frame = (): boolean => {
   if (object === null) return false;
-  const root: THREE.Object3D | undefined =
-    view.scale === "whole" ? object.object : object.bones.get(view.focus);
-  if (root === undefined) return false;
   object.object.updateMatrixWorld(true);
-  const box: THREE.Box3 = visibleBox(root);
-  if (view.scale !== "whole") {
-    // the skin is one skinned mesh beside the bones, so a close view also frames the focus bone's joints
-    const joints: THREE.Box3 = new THREE.Box3();
-    root.traverse((node: THREE.Object3D): void => {
-      if ((node as THREE.Bone).isBone)
-        joints.expandByPoint(node.getWorldPosition(new THREE.Vector3()));
-    });
-    if (!joints.isEmpty()) box.union(joints.expandByScalar(JOINT_MARGIN));
+  let box: THREE.Box3;
+  if (view.point !== undefined) {
+    // a focus point frames a cube of the radius around it, whatever lies there
+    const at: THREE.Vector3 | undefined = pointOf(view.point);
+    if (at === undefined) return false;
+    box = new THREE.Box3().setFromCenterAndSize(
+      at,
+      new THREE.Vector3().setScalar(2 * (view.radius ?? JOINT_MARGIN)),
+    );
+  } else {
+    const root: THREE.Object3D | undefined =
+      view.scale === "whole" ? object.object : object.bones.get(view.focus);
+    if (root === undefined) return false;
+    box = visibleBox(root);
+    if (view.scale !== "whole") {
+      // the skin is one skinned mesh beside the bones, so a close view also frames the focus bone's joints
+      const joints: THREE.Box3 = new THREE.Box3();
+      root.traverse((node: THREE.Object3D): void => {
+        if ((node as THREE.Bone).isBone)
+          joints.expandByPoint(node.getWorldPosition(new THREE.Vector3()));
+      });
+      if (!joints.isEmpty()) box.union(joints.expandByScalar(JOINT_MARGIN));
+    }
   }
   if (box.isEmpty()) return false;
   controls.target.copy(
@@ -359,18 +478,45 @@ const frame = (): boolean => {
       camera,
       box,
       view: view.view,
-      margin: view.margin ?? MARGIN[view.scale],
+      margin: view.point !== undefined ? 1 : (view.margin ?? MARGIN[view.scale]),
     }),
   );
   controls.update();
+  lightHumanViewer({
+    light: view.light ?? pageLight,
+    sun,
+    hemisphere,
+    camera,
+    target: controls.target,
+  });
   return true;
 };
 
 // ── capture ─────────────────────────────────────────────────────────────────
+/** The drawn frame as base64 PNG; a net or overlay frame carries the construction legend in its corner. */
+const keyed = (mode: DisplayMode): string => {
+  if (mode === "surface") return canvas.toDataURL("image/png").split(",")[1]!;
+  const copy: HTMLCanvasElement = document.createElement("canvas");
+  copy.width = canvas.width;
+  copy.height = canvas.height;
+  const context: CanvasRenderingContext2D = copy.getContext("2d")!;
+  context.drawImage(canvas, 0, 0);
+  drawHumanViewerConstruction.key(context);
+  return copy.toDataURL("image/png").split(",")[1]!;
+};
 /** File tag of a view: a preset's name, or its angles. */
 const viewTag = (
   v: frameHumanViewerCamera.View | frameHumanViewerCamera.IAngle,
 ): string => (typeof v === "string" ? v : `az${v.azimuth}_el${v.elevation}`);
+
+/** File tag of a view's focus point and light, empty when it names neither. */
+const extraTag = (v: typeof view): string =>
+  (v.point !== undefined
+    ? `_${v.point.bone}${v.point.along === 0 ? "" : `-at${v.point.along}`}-r${v.radius}`
+    : "") +
+  (v.light !== undefined
+    ? `_light-${v.light.relative}-az${v.light.azimuth}_el${v.light.elevation}`
+    : "");
 
 /**
  * Capture views at each scale. A view is a preset name or angles admitted by `admitHumanViewerCaptureView`; an angle view with a focus bone is captured once, close on that bone. Omitted views take every preset, omitted scales `whole` and `close`.
@@ -380,6 +526,8 @@ const capture = async (props: {
   views?: unknown[];
   scales?: Scale[];
   focus?: AutoMovieHumanoidBone;
+  modes?: DisplayMode[];
+  relief?: boolean;
 }): Promise<{ files: string[]; metadata: string }> => {
   if (!/^[A-Za-z0-9._-]+$/.test(props.name))
     throw new Error("Capture name must match [A-Za-z0-9._-]+.");
@@ -409,7 +557,8 @@ const capture = async (props: {
   const plan: { view: typeof view; tag: string }[] = [];
   for (const scale of props.scales ?? (["whole", "close"] as Scale[]))
     for (const v of views) {
-      if (typeof v !== "string" && v.focus !== undefined) continue;
+      if (typeof v !== "string" && (v.focus !== undefined || v.point !== undefined))
+        continue;
       plan.push({
         view: {
           view: v,
@@ -418,45 +567,73 @@ const capture = async (props: {
           ...(typeof v !== "string" && v.margin !== undefined
             ? { margin: v.margin }
             : {}),
+          ...(typeof v !== "string" && v.light !== undefined
+            ? { light: v.light }
+            : {}),
         },
         tag: scale === "whole" ? "whole" : `close-${focus}`,
       });
     }
   for (const v of views)
-    if (typeof v !== "string" && v.focus !== undefined)
+    if (typeof v !== "string" && (v.focus !== undefined || v.point !== undefined))
       plan.push({
         view: {
           view: v,
           scale: "close",
-          focus: v.focus as AutoMovieHumanoidBone,
+          focus: (v.focus ?? v.point!.bone) as AutoMovieHumanoidBone,
           ...(v.margin !== undefined ? { margin: v.margin } : {}),
+          ...(v.point !== undefined ? { point: v.point, radius: v.radius } : {}),
+          ...(v.light !== undefined ? { light: v.light } : {}),
         },
-        tag: `close-${v.focus}`,
+        tag: v.point !== undefined ? "point" : `close-${v.focus}`,
       });
-  for (const step of plan) {
-    view = step.view;
-    if (!frame())
+  const modes: DisplayMode[] = props.modes ?? ["surface"];
+  for (const mode of modes)
+    if (!DISPLAY_MODES.includes(mode))
       throw new Error(
-        `Nothing visible to frame for ${view.scale} ${view.focus}.`,
+        `unknown display mode "${String(mode)}"; modes are ${DISPLAY_MODES.join(", ")}`,
       );
-    handle.renderer.render(scene, camera);
-    // Read the drawing buffer in the same task as the draw, before it clears.
-    const png: string = canvas.toDataURL("image/png").split(",")[1]!;
-    const file: string = `${props.name}-${step.tag}-${viewTag(view.view)}.png`;
-    shots.push({ file, png });
-    records.push({
-      file,
-      view: view.view,
-      scale: view.scale,
-      focus: view.scale === "whole" ? null : view.focus,
-      margin: view.margin ?? MARGIN[view.scale],
-      camera: {
-        position: camera.position.toArray(),
-        target: controls.target.toArray(),
-        fov: camera.fov,
-      },
-    });
+  const previousMode: DisplayMode = displayMode;
+  const previousRelief: boolean = relief;
+  relief = props.relief ?? relief;
+  applyRelief();
+  for (const mode of modes) {
+    displayMode = mode;
+    applyDisplayMode();
+    for (const step of plan) {
+      view = step.view;
+      if (!frame())
+        throw new Error(
+          `Nothing visible to frame for ${view.scale} ${view.focus}.`,
+        );
+      handle.renderer.render(scene, camera);
+      // Read the drawing buffer in the same task as the draw, before it clears.
+      const png: string = keyed(mode);
+      const file: string = `${props.name}-${mode === "surface" ? "" : `${mode}-`}${step.tag}-${viewTag(view.view)}${extraTag(view)}${relief ? "" : "_norelief"}.png`;
+      shots.push({ file, png });
+      records.push({
+        file,
+        mode,
+        view: view.view,
+        scale: view.scale,
+        focus: view.scale === "whole" ? null : view.focus,
+        margin: view.margin ?? MARGIN[view.scale],
+        point: view.point ?? null,
+        radius: view.radius ?? null,
+        light: view.light ?? pageLight,
+        relief,
+        camera: {
+          position: camera.position.toArray(),
+          target: controls.target.toArray(),
+          fov: camera.fov,
+        },
+      });
+    }
   }
+  displayMode = previousMode;
+  applyDisplayMode();
+  relief = previousRelief;
+  applyRelief();
   view = previous;
   frame();
   const response: Response = await fetch("/__automovie/capture", {
@@ -471,6 +648,10 @@ const capture = async (props: {
         canvas: { width: canvas.width, height: canvas.height },
         documentsHash: await hashHumanViewerSession(current.session),
         documents: current.session,
+        assembly,
+        hand,
+        showStick,
+        showBones,
         hiddenParts: [...hidden].sort((a: string, b: string): number =>
           a.localeCompare(b),
         ),
@@ -575,9 +756,24 @@ const renderViews = (): void => {
     hand = hands.value as typeof hand;
     accept(current.session, `Hand: ${hands.value}.`);
   });
+  const shown: HTMLSelectElement = document.createElement("select");
+  for (const mode of DISPLAY_MODES) shown.add(new Option(mode, mode));
+  shown.value = displayMode;
+  shown.addEventListener("change", (): void => {
+    displayMode = shown.value as DisplayMode;
+    applyDisplayMode();
+  });
   const row: HTMLDivElement = document.createElement("div");
   row.className = "row";
-  row.append(scale, focus, skin, hands, bones, sticks);
+  const fine: HTMLSelectElement = document.createElement("select");
+  fine.add(new Option("skin relief", "on"));
+  fine.add(new Option("no skin relief (form)", "off"));
+  fine.value = relief ? "on" : "off";
+  fine.addEventListener("change", (): void => {
+    relief = fine.value === "on";
+    applyRelief();
+  });
+  row.append(scale, focus, skin, hands, shown, fine, bones, sticks);
   const captureRow: HTMLDivElement = document.createElement("div");
   captureRow.className = "row";
   captureRow.append(name, run);
@@ -860,12 +1056,29 @@ frame();
     showStick = next;
     applyVisibility();
   },
+  setRelief: (next: boolean): void => {
+    relief = next;
+    applyRelief();
+  },
+  setDisplay: (next: DisplayMode): void => {
+    displayMode = next;
+    applyDisplayMode();
+  },
   setAssembly: (next: "parts" | "joined"): boolean => {
     assembly = next;
     return accept(current.session, `Skin: ${next}.`);
   },
   parts: (): string[] =>
     current.model.parts.map((p: { id: string }): string => p.id),
+  setLight: (next: lightHumanViewer.ILight | "raking" | null): boolean => {
+    pageLight =
+      next === "raking"
+        ? { ...lightHumanViewer.PRESETS.raking }
+        : next === null
+          ? null
+          : { ...next };
+    return frame();
+  },
   setView: (next: Partial<typeof view>): boolean => {
     view = { ...view, ...next };
     return frame();

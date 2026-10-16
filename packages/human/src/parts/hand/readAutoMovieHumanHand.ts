@@ -11,6 +11,8 @@ import { IAutoMovieHumanSkeleton } from "../../skeleton/IAutoMovieHumanSkeleton"
  *
  * The frame's origin is the wrist ring's centre, on the forearm axis level with stylion. `x` runs distally along the hand bone from the wrist joint to the middle knuckle, `y` toward the palm along the wrist ring's palmar reference, and `z` toward the thumb, from the little knuckle to the index knuckle. Both hands get the same three directions in anatomical terms, so one drawing serves both; the right hand's frame is the mirror image of the left's, which `mirrored` reports.
  *
+ * The thumb's pad faces the side of its flexion line toward the palm, `y` positive, whichever sense the skeleton's flexion axis is declared in.
+ *
  * Each finger's palmar crease at its base is placed as the middle finger's is: the skeleton puts every crease at the same share of its finger's length from the tip, and the middle finger's crease is a landmark.
  *
  * @param skeleton The person's skeleton at rest
@@ -92,9 +94,12 @@ export function readAutoMovieHumanHand(
   ];
   const metacarpal: IAutoMovieHumanSkeleton.IJoint = joint("ThumbProximal");
   const along: IAutoMovieVector3 = direction(metacarpal.axes.twist);
-  const pad: IAutoMovieVector3 = direction(
+  // the line the thumb flexes along, its pad on the side facing the palm: the flexion axis's sense follows the engine's per-side convention, so it cannot say which side that is
+  const flexing: IAutoMovieVector3 = direction(
     V.normalize(V.cross(metacarpal.axes.flexion, metacarpal.axes.twist)),
   );
+  const pad: IAutoMovieVector3 =
+    flexing.y >= 0 ? flexing : V.of(-flexing.x, -flexing.y, -flexing.z);
   const toIndex: IAutoMovieVector3 = V.offset(
     local(joint("IndexProximal").position),
     [thumbPoints[1]!, -1],

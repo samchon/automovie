@@ -1,7 +1,8 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieHumanVector } from "../skeleton/AutoMovieHumanVector";
-import { AUTOMOVIE_HUMAN_RINGS } from "./AUTOMOVIE_HUMAN_RINGS";
+import { AutoMovieHumanCageFrame } from "./AutoMovieHumanCageFrame";
+import { capAutoMovieHumanCage } from "./capAutoMovieHumanCage";
 import { AutoMovieHumanPart } from "./AutoMovieHumanPart";
 import { AutoMovieHumanSide } from "./AutoMovieHumanSide";
 import { IAutoMovieHumanCage } from "./IAutoMovieHumanCage";
@@ -174,7 +175,7 @@ export class AutoMovieHumanCageBuilder {
     const wrap: boolean = Math.max(...vs) - Math.min(...vs) > 0.5;
     this.faces_.push({
       vertices,
-      coordinates: coordinates.map((c: AutoMovieHumanCageBuilder.IChart) => ({
+      coordinates: coordinates.map((c: AutoMovieHumanCageBuilder.IChart): IAutoMovieHumanCage.IFace["coordinates"][number] => ({
         part: this.part,
         side: this.side,
         u: c.u,
@@ -283,11 +284,11 @@ export class AutoMovieHumanCageBuilder {
         (_: unknown, s: number): number => (i + s) % n,
       );
       const b: [number, number] = [j, (j + 1) % m];
-      const fc = (s: number): AutoMovieHumanCageBuilder.IChart =>
+      const fc: (s: number) => AutoMovieHumanCageBuilder.IChart = (s: number): AutoMovieHumanCageBuilder.IChart =>
         s === 0
           ? from.coordinates[a[0]!]!
           : wrapped(from.coordinates, a[0]!, a[s]!);
-      const tc = (s: number): AutoMovieHumanCageBuilder.IChart =>
+      const tc: (s: number) => AutoMovieHumanCageBuilder.IChart = (s: number): AutoMovieHumanCageBuilder.IChart =>
         s === 0 ? to.coordinates[b[0]]! : wrapped(to.coordinates, b[0], b[1]);
       if (span === 1)
         this.face(
@@ -337,114 +338,7 @@ export class AutoMovieHumanCageBuilder {
     axis: IAutoMovieVector3,
     height: number,
   ): void {
-    const n: number = station.vertices.length;
-    if (n % 4 !== 0 || n < 8)
-      throw new Error(
-        `a cap needs a multiple of four of at least 8 vertices, got ${n}`,
-      );
-    const m: number = n / 4;
-    // Boundary walk counterclockwise from (floor(m/2), 0), the station's vertex 0.
-    const walk: Array<[number, number]> = [];
-    for (let i: number = 0; i < m; ++i) walk.push([i, 0]);
-    for (let j: number = 0; j < m; ++j) walk.push([m, j]);
-    for (let i: number = m; i > 0; --i) walk.push([i, m]);
-    for (let j: number = m; j > 0; --j) walk.push([0, j]);
-    const shift: number = Math.floor(m / 2);
-    const grid: number[][] = Array.from({ length: m + 1 }, (): number[] =>
-      new Array<number>(m + 1).fill(-1),
-    );
-    const chart: AutoMovieHumanCageBuilder.IChart[][] = Array.from(
-      { length: m + 1 },
-      (): AutoMovieHumanCageBuilder.IChart[] => new Array(m + 1),
-    );
-    walk.forEach(([i, j]: [number, number], w: number): void => {
-      const k: number = (w - shift + n) % n;
-      grid[i]![j] = station.vertices[k]!;
-      chart[i]![j] = station.coordinates[k]!;
-    });
-    const at = (i: number, j: number): IAutoMovieVector3 =>
-      this.position(grid[i]![j]!);
-    const u0: number = station.coordinates[0]!.u;
-    for (let i: number = 1; i < m; ++i)
-      for (let j: number = 1; j < m; ++j) {
-        const s: number = i / m;
-        const t: number = j / m;
-        const coons: IAutoMovieVector3 = AutoMovieHumanVector.offset(
-          AutoMovieHumanVector.of(0, 0, 0),
-          [at(i, 0), 1 - t],
-          [at(i, m), t],
-          [at(0, j), 1 - s],
-          [at(m, j), s],
-          [at(0, 0), -(1 - s) * (1 - t)],
-          [at(m, 0), -s * (1 - t)],
-          [at(0, m), -(1 - s) * t],
-          [at(m, m), -s * t],
-        );
-        const inside: number =
-          1 - Math.max(Math.abs(2 * s - 1), Math.abs(2 * t - 1));
-        grid[i]![j] = this.vertex(
-          AutoMovieHumanVector.offset(coons, [
-            axis,
-            height * Math.sin((inside * Math.PI) / 2),
-          ]),
-        );
-        const centre: boolean = 2 * i === m && 2 * j === m;
-        chart[i]![j] = {
-          u: u0 + (1 - u0) * inside,
-          v: centre
-            ? Number.NaN
-            : ((Math.atan2(t - 0.5, s - 0.5) -
-                Math.atan2(-0.5, (shift - m / 2) / m)) /
-                (2 * Math.PI) +
-                2) %
-              1,
-        };
-      }
-    for (let i: number = 0; i < m; ++i)
-      for (let j: number = 0; j < m; ++j) {
-        const corners: Array<[number, number]> = [
-          [i, j],
-          [i + 1, j],
-          [i + 1, j + 1],
-          [i, j + 1],
-        ];
-        const charts: AutoMovieHumanCageBuilder.IChart[] = corners.map(
-          ([a, b]: [number, number]): AutoMovieHumanCageBuilder.IChart =>
-            chart[a]![b]!,
-        );
-        const known: number[] = charts
-          .filter(
-            (c: AutoMovieHumanCageBuilder.IChart): boolean =>
-              !Number.isNaN(c.v),
-          )
-          .map((c: AutoMovieHumanCageBuilder.IChart): number => c.v);
-        const spread: boolean = Math.max(...known) - Math.min(...known) > 0.5;
-        const unwrapped: number[] = known.map((v: number): number =>
-          spread && v < 0.5 ? v + 1 : v,
-        );
-        const mean: number =
-          unwrapped.reduce((a: number, b: number): number => a + b, 0) /
-          unwrapped.length;
-        this.face(
-          corners.map(([a, b]: [number, number]): number => grid[a]![b]!) as [
-            number,
-            number,
-            number,
-            number,
-          ],
-          charts.map(
-            (
-              c: AutoMovieHumanCageBuilder.IChart,
-            ): AutoMovieHumanCageBuilder.IChart =>
-              Number.isNaN(c.v) ? { u: c.u, v: mean % 1 } : c,
-          ) as [
-            AutoMovieHumanCageBuilder.IChart,
-            AutoMovieHumanCageBuilder.IChart,
-            AutoMovieHumanCageBuilder.IChart,
-            AutoMovieHumanCageBuilder.IChart,
-          ],
-        );
-      }
+    capAutoMovieHumanCage(this, station, axis, height);
   }
 
   /**
@@ -471,7 +365,7 @@ export class AutoMovieHumanCageBuilder {
       used[i] = vertices.length;
       vertices.push({ position: this.positions_[i]! });
     });
-    const map = (i: number): number => {
+    const map: (i: number) => number = (i: number): number => {
       if (used[i] === -1) throw new Error(`vertex ${i} belongs to no face`);
       return used[i]!;
     };
@@ -491,7 +385,7 @@ export class AutoMovieHumanCageBuilder {
           sharpness: c.sharpness,
         }),
       ),
-      rings: this.rings_.map(({ layout, vertices }) => ({
+      rings: this.rings_.map(({ layout, vertices }: { layout: IAutoMovieHumanRingLayout; vertices: number[] }): IAutoMovieHumanCage["rings"][number] => ({
         site: layout.site,
         side: layout.side,
         vertices: vertices.map(map),
@@ -528,146 +422,31 @@ export namespace AutoMovieHumanCageBuilder {
     coordinates: IChart[];
   }
 
-  /**
-   * Layout index of each build-order position of a junction ring.
-   *
-   * Build order runs counterclockwise about the site axis pointing distally, from the start mark. The proximal part's ring normal is that axis, so its layout order is the build order; the distal part's normal is reversed, so build position `k` is layout vertex `(count - k) % count`.
-   *
-   * @param layout The part's ring layout at the site
-   * @returns Layout index per build position
-   */
-  export function buildOrder(layout: IAutoMovieHumanRingLayout): number[] {
-    const n: number = layout.count;
-    const distal: boolean = isDistal(layout);
-    return Array.from({ length: n }, (_: unknown, k: number): number =>
-      distal ? (n - k) % n : k,
-    );
-  }
+  /** Layout indices in the site axis's build order; only the distal part reverses the shared ring winding. */
+  export const buildOrder: typeof AutoMovieHumanCageFrame.buildOrder = AutoMovieHumanCageFrame.buildOrder;
 
-  /**
-   * Unit direction of each build-order position of a junction ring.
-   *
-   * @param layout The part's ring layout at the site
-   * @returns Direction per build position
-   */
-  export function buildDirections(
-    layout: IAutoMovieHumanRingLayout,
-  ): IAutoMovieVector3[] {
-    return buildOrder(layout).map(
-      (j: number): IAutoMovieVector3 => layout.directions[j]!,
-    );
-  }
+  /** Shared ring unit directions in build order, retaining the layout's model frame. */
+  export const buildDirections: typeof AutoMovieHumanCageFrame.buildDirections = AutoMovieHumanCageFrame.buildDirections;
 
-  /**
-   * Positions of a station: each direction scaled by the radius it is given, from an origin.
-   *
-   * @param origin Centre of the station
-   * @param directions Unit directions in build order
-   * @param radius Distance along each direction, by its index
-   * @returns The positions
-   */
-  export function around(
-    origin: IAutoMovieVector3,
-    directions: IAutoMovieVector3[],
-    radius: (k: number) => number,
-  ): IAutoMovieVector3[] {
-    return directions.map(
-      (d: IAutoMovieVector3, k: number): IAutoMovieVector3 =>
-        AutoMovieHumanVector.offset(origin, [d, radius(k)]),
-    );
-  }
+  /** Station positions from a common origin and directional radii; lengths retain the caller's one unit and frame. */
+  export const around: typeof AutoMovieHumanCageFrame.around = AutoMovieHumanCageFrame.around;
 
-  /**
-   * Rotate a vector about a unit axis by the right-hand rule.
-   *
-   * @param v The vector
-   * @param axis Unit axis
-   * @param angle Radians
-   * @returns The rotated vector
-   */
-  export function rotate(
-    v: IAutoMovieVector3,
-    axis: IAutoMovieVector3,
-    angle: number,
-  ): IAutoMovieVector3 {
-    const c: number = Math.cos(angle);
-    const s: number = Math.sin(angle);
-    return AutoMovieHumanVector.offset(
-      AutoMovieHumanVector.of(0, 0, 0),
-      [v, c],
-      [AutoMovieHumanVector.cross(axis, v), s],
-      [axis, AutoMovieHumanVector.dot(axis, v) * (1 - c)],
-    );
-  }
+  /** Right-handed rotation in radians about a unit axis, retaining the input vector's unit and frame. */
+  export const rotate: typeof AutoMovieHumanCageFrame.rotate = AutoMovieHumanCageFrame.rotate;
 
-  /**
-   * Signed angle from one vector to another about a unit axis, both perpendicular to it.
-   *
-   * @param from Start vector
-   * @param to End vector
-   * @param axis Unit axis
-   * @returns Radians in (-π, π], counterclockwise positive
-   */
-  export function angle(
-    from: IAutoMovieVector3,
-    to: IAutoMovieVector3,
-    axis: IAutoMovieVector3,
-  ): number {
-    return Math.atan2(
-      AutoMovieHumanVector.dot(AutoMovieHumanVector.cross(from, to), axis),
-      AutoMovieHumanVector.dot(from, to),
-    );
-  }
+  /** Signed radians between perpendicular directions around their common unit axis, in (-pi, pi]. */
+  export const angle: typeof AutoMovieHumanCageFrame.angle = AutoMovieHumanCageFrame.angle;
 
-  /**
-   * Distance from the centre to an ellipse along a direction at an angle from its first semi-axis.
-   *
-   * @param a Semi-axis along the angle's zero
-   * @param b Semi-axis a quarter turn on
-   * @param angle Radians
-   * @returns The radius
-   */
-  export function ellipse(a: number, b: number, angle: number): number {
-    return (a * b) / Math.hypot(b * Math.cos(angle), a * Math.sin(angle));
-  }
+  /** Physical ellipse radius along a polar angle in radians; both semi-axes use the caller's one length unit. */
+  export const ellipse: typeof AutoMovieHumanCageFrame.ellipse = AutoMovieHumanCageFrame.ellipse;
 
-  /**
-   * Counterclockwise loop of directions about an axis, starting at a reference, for an intermediate station.
-   *
-   * @param axis Unit axis
-   * @param reference Unit direction perpendicular to the axis
-   * @param count Number of directions
-   * @returns The directions
-   */
-  export function turn(
-    axis: IAutoMovieVector3,
-    reference: IAutoMovieVector3,
-    count: number,
-  ): IAutoMovieVector3[] {
-    const binormal: IAutoMovieVector3 = AutoMovieHumanVector.cross(
-      axis,
-      reference,
-    );
-    return Array.from(
-      { length: count },
-      (_: unknown, k: number): IAutoMovieVector3 => {
-        const angle: number = (2 * Math.PI * k) / count;
-        return AutoMovieHumanVector.offset(
-          AutoMovieHumanVector.of(0, 0, 0),
-          [reference, Math.cos(angle)],
-          [binormal, Math.sin(angle)],
-        );
-      },
-    );
-  }
+  /** Counterclockwise unit directions in the common axis/reference frame; reference is perpendicular to the unit axis. */
+  export const turn: typeof AutoMovieHumanCageFrame.turn = AutoMovieHumanCageFrame.turn;
+
 }
 
-/** Whether a layout belongs to its site's distal part. */
-const isDistal = (layout: IAutoMovieHumanRingLayout): boolean =>
-  AUTOMOVIE_HUMAN_RINGS[layout.site].distal === layout.part;
-
 /** Coordinate of vertex `l` as seen from vertex `k` of the same station, 1 instead of 0 when the span closes the loop. */
-const wrapped = (
+const wrapped: (coordinates: AutoMovieHumanCageBuilder.IChart[], k: number, l: number) => AutoMovieHumanCageBuilder.IChart = (
   coordinates: AutoMovieHumanCageBuilder.IChart[],
   k: number,
   l: number,

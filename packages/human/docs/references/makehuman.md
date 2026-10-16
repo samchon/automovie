@@ -1,6 +1,6 @@
 # MakeHuman
 
-MakeHuman is the comparison reference for "one fixed template plus offsets". Its code is never read (see `../decisions/makehuman-code-never-read.md`); this survey comes from its documentation, its FAQ, its licence statement and the file listing of its target folder, as recorded in the research notes on #2788.
+MakeHuman is the comparison reference for "one fixed template plus offsets". This historical survey read documentation, the FAQ, the licence statement and the target-folder listing, as recorded in #2788; it did not read implementation code. Current [reference instructions](../../../../.agents/skills/human/references.md) allow reading MakeHuman and MPFB methods while prohibiting code copying, and permit their CC0 data for offline comparison. The old blanket reading prohibition is retired.
 
 ## Base mesh
 

@@ -28,19 +28,19 @@ type ISide = "left" | "right";
 /**
  * Convert both arms between the anthropometric posture (arms hanging) and the canonical T-pose rest, the one conversion between where the skeleton is measured and where it rests.
  *
- * Raising, each side first moves its shoulder girdle as a real 90-degree abduction does ({@link GIRDLE}): the clavicle turns about the sternoclavicular joint, elevating and retracting, and the scapula turns about the acromion, rotating upward and tilting posteriorly, carrying the acromion and the shoulder joint centre with it; the shoulder joint centre therefore rises and swings back along the clavicle's arc. The upper arm and every bone below it then take the canonical T-pose orientation, turned 90 degrees in the frontal plane about the moved shoulder joint centre with their joint centres, tails, declared axes and landmarks, so the arm lies horizontal with the palm down whatever the girdle did; positive abduction turns the left arm counter-clockwise seen from the front's +Z, the right arm clockwise. Last the arm slides toward the midline by `slide`, the share of the measured span the girdle's motion does not explain (see `generateAutoMovieHumanSkeleton`). The clavicle's tail follows the shoulder joint centre; the sternoclavicular joint and everything medial stay.
+ * Raising, each side first moves its shoulder girdle as a real 90-degree abduction does ({@link GIRDLE}): the clavicle turns about the sternoclavicular joint, elevating and retracting, and the scapula turns about the acromion, rotating upward and tilting posteriorly, carrying the acromion and the shoulder joint centre with it; the shoulder joint centre therefore rises and swings back along the clavicle's arc. The upper arm and every bone below it then take the canonical T-pose orientation, turned 90 degrees in the frontal plane about the moved shoulder joint centre with their joint centres, tails, declared axes and landmarks, so the arm lies horizontal with the palm down whatever the girdle did; positive abduction turns the left arm counter-clockwise seen from the front's +Z, the right arm clockwise. The clavicle's tail follows the shoulder joint centre; the sternoclavicular joint and everything medial stay.
  *
- * Lowering inverts exactly: the slide and the shoulder joint centre's hanging depth below the acromion are recovered from the T-pose shoulder itself, because the girdle's motion is fixed and the hanging shoulder joint centre stands directly below the acromion. Raising and then lowering returns the original positions to floating-point precision.
+ * The shoulder joint centre stays where the scapula carries it: from hanging to 90 degrees of abduction the humeral head's centre moves 3.2 mm (SD 2.8) anteriorly and 0.3 mm (SD 2.1) inferiorly on the glenoid, on dual fluoroscopy of five healthy men (Massimini et al. 2012, J Orthop Surg Res 7:29, Results), so the arm does not slide toward the midline to meet the identity's span. ANSUR II takes span with the back and both arms pressed flat against a wall, palms forward (Hotzman et al. 2011, NATICK/TR-11/017, 6.4.75). Posed that way, with the girdle as it stands at 90 degrees of abduction under scapular retraction (Oyama et al. 2010, J Orthop Sports Phys Ther 40(3):169-179, Table 1, exercise 2) and the forearm at the carrying angle, a skeleton built from ANSUR II's own biacromial and arm lengths still reaches 31 mm (SD 11) per side further than the women's measured span and 37 mm (SD 13) further than the men's; no measured offset between the landmarks and the joint centres accounts for that, so the skeleton does not fit it.
+ *
+ * Lowering inverts exactly: the shoulder joint centre returns from the T-pose by the inverse of the girdle's fixed motion. Raising and then lowering returns the original positions to floating-point precision.
  *
  * @param skeleton Skeleton to convert; not modified
  * @param direction `"raise"` from hanging to the T-pose, `"lower"` back
- * @param slide Slide of each raised arm toward the midline, millimetres; read only when raising
  * @returns A new skeleton with both arms converted
  */
 export function abductAutoMovieHumanArms(
   skeleton: IAutoMovieHumanSkeleton,
   direction: "raise" | "lower",
-  slide: Record<ISide, number>,
 ): IAutoMovieHumanSkeleton {
   const V: typeof AutoMovieHumanVector = AutoMovieHumanVector;
   const find: (
@@ -76,11 +76,10 @@ export function abductAutoMovieHumanArms(
       ]);
       acromion[side] = moved;
       from = upper.position;
-      to = V.offset(
-        moved,
-        [girdle.whole(V.offset(upper.position, [a, -1])), 1],
-        [V.of(-s, 0, 0), slide[side]],
-      );
+      to = V.offset(moved, [
+        girdle.whole(V.offset(upper.position, [a, -1])),
+        1,
+      ]);
       turn = s * 90;
     } else {
       const moved: IAutoMovieVector3 =
@@ -90,12 +89,11 @@ export function abductAutoMovieHumanArms(
         1,
       ]);
       acromion[side] = a;
-      // the shoulder centre hung a depth d below the acromion: T-pose offset = d·u + slide·(-s, 0, 0)
-      const u: IAutoMovieVector3 = girdle.whole(V.of(0, -1, 0));
-      const offset: IAutoMovieVector3 = V.offset(upper.position, [moved, -1]);
-      const depth: number = offset.y / u.y;
       from = upper.position;
-      to = V.offset(a, [V.of(0, -1, 0), depth]);
+      to = V.offset(a, [
+        girdle.wholeInverse(V.offset(upper.position, [moved, -1])),
+        1,
+      ]);
       turn = -s * 90;
     }
     const map: (p: IAutoMovieVector3, along: boolean) => IAutoMovieVector3 = (
@@ -154,7 +152,7 @@ export function abductAutoMovieHumanArms(
       ): IAutoMovieHumanSkeleton.IJoint => ({
         ...joint,
         position: point(joint.bone, joint.position),
-        // the clavicle ends at the shoulder joint centre wherever the girdle and slide take it
+        // the clavicle ends at the shoulder joint centre wherever the girdle takes it
         tail: shoulderTail.get(joint.bone) ?? point(joint.bone, joint.tail),
         axes: {
           flexion: turned(joint.bone, joint.axes.flexion),
@@ -181,6 +179,9 @@ interface IGirdle {
 
   /** The clavicle's turn followed by the scapula's about the acromion: what a vector from the acromion to a point the scapula carries becomes. */
   whole: (d: IAutoMovieVector3) => IAutoMovieVector3;
+
+  /** Its inverse. */
+  wholeInverse: (d: IAutoMovieVector3) => IAutoMovieVector3;
 }
 
 /**
@@ -244,6 +245,14 @@ function girdleOf(s: number): IGirdle {
         rotate(clavicle(d), upward, GIRDLE.scapularUpwardRotation),
         tilt,
         GIRDLE.scapularPosteriorTilt,
+      ),
+    wholeInverse: (d: IAutoMovieVector3): IAutoMovieVector3 =>
+      clavicleInverse(
+        rotate(
+          rotate(d, tilt, -GIRDLE.scapularPosteriorTilt),
+          upward,
+          -GIRDLE.scapularUpwardRotation,
+        ),
       ),
   };
 }

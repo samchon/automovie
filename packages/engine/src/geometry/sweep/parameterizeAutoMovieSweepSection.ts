@@ -28,11 +28,22 @@ import { IAutoMovieSweepSection } from "./IAutoMovieSweepSection";
  */
 export const parameterizeAutoMovieSweepSection: (
   section: Exclude<IAutoMovieSweepSection, IAutoMovieSweepSection.IRadial>,
-) => { point: (t: number) => IAutoMovieSweepSection.IPoint; segments: number } = (
+) => {
+  point: (t: number) => IAutoMovieSweepSection.IPoint;
+  segments: number;
+} = (
   section: Exclude<IAutoMovieSweepSection, IAutoMovieSweepSection.IRadial>,
-): { point: (t: number) => IAutoMovieSweepSection.IPoint; segments: number } => {
+): {
+  point: (t: number) => IAutoMovieSweepSection.IPoint;
+  segments: number;
+} => {
   if (section.type === "superellipse") {
-    const half: number[] = [section.right, section.up, section.left, section.down];
+    const half: number[] = [
+      section.right,
+      section.up,
+      section.left,
+      section.down,
+    ];
     half.forEach((h: number): void => {
       if (!Number.isFinite(h) || h <= 0)
         throw new Error("superellipse half-axes must be positive and finite");
@@ -68,7 +79,8 @@ export const parameterizeAutoMovieSweepSection: (
       throw new Error(`section point ${k} is not finite`);
   });
   const m: number = points.length;
-  const at = (k: number): IAutoMovieSweepSection.IPoint => points[((k % m) + m) % m]!;
+  const at = (k: number): IAutoMovieSweepSection.IPoint =>
+    points[((k % m) + m) % m]!;
   if (section.type === "polygon") {
     if (m < 3) throw new Error("polygon section needs at least three points");
     return {
@@ -79,12 +91,15 @@ export const parameterizeAutoMovieSweepSection: (
         const s: number = x - i;
         const a: IAutoMovieSweepSection.IPoint = at(i);
         const b: IAutoMovieSweepSection.IPoint = at(i + 1);
-        return s === 0 ? { x: a.x, y: a.y } : { x: a.x + (b.x - a.x) * s, y: a.y + (b.y - a.y) * s };
+        return s === 0
+          ? { x: a.x, y: a.y }
+          : { x: a.x + (b.x - a.x) * s, y: a.y + (b.y - a.y) * s };
       },
     };
   }
   if (section.type === "bspline") {
-    if (m < 3) throw new Error("B-spline section needs at least three control points");
+    if (m < 3)
+      throw new Error("B-spline section needs at least three control points");
     return {
       segments: m,
       point: (t: number): IAutoMovieSweepSection.IPoint => {
@@ -97,10 +112,21 @@ export const parameterizeAutoMovieSweepSection: (
           (-3 * s ** 3 + 3 * s ** 2 + 3 * s + 1) / 6,
           s ** 3 / 6,
         ];
-        const p: IAutoMovieSweepSection.IPoint[] = [at(i - 1), at(i), at(i + 1), at(i + 2)];
+        const p: IAutoMovieSweepSection.IPoint[] = [
+          at(i - 1),
+          at(i),
+          at(i + 1),
+          at(i + 2),
+        ];
         return {
-          x: w.reduce((sum: number, wk: number, k: number): number => sum + wk * p[k]!.x, 0),
-          y: w.reduce((sum: number, wk: number, k: number): number => sum + wk * p[k]!.y, 0),
+          x: w.reduce(
+            (sum: number, wk: number, k: number): number => sum + wk * p[k]!.x,
+            0,
+          ),
+          y: w.reduce(
+            (sum: number, wk: number, k: number): number => sum + wk * p[k]!.y,
+            0,
+          ),
         };
       },
     };
@@ -116,10 +142,21 @@ export const parameterizeAutoMovieSweepSection: (
       const s: number = x - i;
       const r: number = 1 - s;
       const w: number[] = [r * r * r, 3 * r * r * s, 3 * r * s * s, s * s * s];
-      const p: IAutoMovieSweepSection.IPoint[] = [at(3 * i), at(3 * i + 1), at(3 * i + 2), at(3 * i + 3)];
+      const p: IAutoMovieSweepSection.IPoint[] = [
+        at(3 * i),
+        at(3 * i + 1),
+        at(3 * i + 2),
+        at(3 * i + 3),
+      ];
       return {
-        x: w.reduce((sum: number, wk: number, k: number): number => sum + wk * p[k]!.x, 0),
-        y: w.reduce((sum: number, wk: number, k: number): number => sum + wk * p[k]!.y, 0),
+        x: w.reduce(
+          (sum: number, wk: number, k: number): number => sum + wk * p[k]!.x,
+          0,
+        ),
+        y: w.reduce(
+          (sum: number, wk: number, k: number): number => sum + wk * p[k]!.y,
+          0,
+        ),
       };
     },
   };
