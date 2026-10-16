@@ -8,13 +8,15 @@ The rest form is the T-pose, joints straight and no flesh folded. Convert each p
 
 ## Lofting
 
-Loft every part: closed sections along its axis or bone chain, steered by silhouette guides and feature curves. Trunk sections lie level because anthropometry measures them level. The face is a curve network of loops around the eyes and mouth and feature lines, filled by patches.
+Build continuous skin from curve networks: closed sections along an axis or bone chain, steered by silhouette guides and feature curves. Trunk sections lie level because anthropometry measures them level. The face is a curve network of loops around the eyes and mouth and feature lines, filled by patches. Choose separate meshes' representations by [Crafting](../3d-modeling/crafting.md#representation), such as textured cards for hair where their silhouette and motion hold.
 
 Block out a part's gross form before relief, bony landmarks, or aesthetic detail, at the scales body, region, masses, and borders.
 
 ## Parts And Junctions
 
 A part is a region of one continuous mass. Cut only where the section is a simple tube, such as mid upper arm, mid thigh, wrist, ankle, and neck; the shoulder, armpit, hip, and groin stay inside the trunk because muscles cross them. Eyeballs, teeth, tongue, nails, and hair are separate meshes, and the ear is a separate part.
+
+Apply [Modularization](../3d-modeling/modularization.md) to the source and the generated person.
 
 Refine each part alone, join parts only at junctions built on their control cages, subdivide the joined cage once, and judge the joined person.
 

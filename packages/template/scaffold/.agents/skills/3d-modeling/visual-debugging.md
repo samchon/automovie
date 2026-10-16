@@ -8,6 +8,14 @@ Recover a broken viewer first. Do no work that needs visual judgment until a dis
 
 Inspect the actual consumer with current source on a hardware renderer, recording source, input, renderer, and view.
 
+## Correction Rounds
+
+Before editing, inspect the whole affected asset and record every observed defect with its construction and comparison conditions. Trace causes through generation and display, including shared boundaries and derived outputs, and map each proposed change to all defects and parts it affects.
+
+Fix all identified causes in the round together at their source, coordinating coupled changes across part boundaries. Use controlled comparisons to distinguish causes and interactions, then judge the complete correction on the assembled asset.
+
+Rerun the original comparison across every affected part, view, identity, resolution and motion state, checking both the recorded defects and regressions. Account for every recorded defect before accepting the round; new or unexplained defects keep it open.
+
 ## Coverage
 
 Front and side alone hide oblique sections and junctions, so inspect:

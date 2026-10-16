@@ -8,7 +8,7 @@ Calibrate and judge form on lean 20-year-olds: a slim, model-grade woman and man
 
 Every Human part is generated from curves, so every judgment of it shows its [construction](../3d-modeling/visual-debugging.md#construction).
 
-Fix form in rounds: compare the joined gate identities with their nearest references in full, register every defect by cause and owner, fix all causes in one pass, then rerun the same comparison.
+Apply [Correction Rounds](../3d-modeling/visual-debugging.md#correction-rounds) to the joined gate identities and their nearest references, assigning each cause and shared boundary to an owner.
 
 Keep numerical, clinical, and visual judgments distinct, and preserve the last valid state when an operation fails.
 

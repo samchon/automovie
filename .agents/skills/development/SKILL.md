@@ -13,7 +13,7 @@ Every maintained declaration answers, in its doc comment, the [contracts](../con
 
 Annotate the type of every variable and parameter and the return type of every function. Leave a type to inference only where TypeScript takes no annotation, such as a `for...of` or `catch` binding.
 
-A source file has at most 500 lines and exports one symbol named after it, barrels excepted.
+A source file has fewer than 500 lines and exports one symbol named after it, barrels excepted.
 
 ## Packages
 

@@ -4,6 +4,8 @@ A diffusion model's image or mesh is source material; turn it into an asset the 
 
 This covers generated forms; repainting rendered frames into video is a separate lane.
 
+Apply [Modularization](modularization.md) to direct placement and rebuilds alike.
+
 ## Source
 
 1. Use the model or service the user chooses, local or paid.

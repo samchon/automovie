@@ -16,4 +16,4 @@ Human generates every person from typed parameters through code and formulas, ad
 
 ## Documentation
 
-Explanation lives in JSDoc, on public types and inside implementation code, and cites primary sources directly. `packages/human/docs` is the developers' research workspace, not a manual, and may be deleted when the rebuild completes, so no code or JSDoc refers to it.
+Apply [Meaningful documentation](../contracts/common.md#meaningful-documentation) to Human's public declarations and implementation comments, citing anatomical primary sources directly. `packages/human/docs` is the developers' research workspace, not a manual, and may be deleted when the rebuild completes, so no code or JSDoc refers to it.

@@ -2,6 +2,8 @@
 
 A crafted form is code: named dimensions and formulas that the engine turns into geometry the same way every time.
 
+Organize its parts and groups by [Modularization](modularization.md).
+
 ## Representation
 
 Pick the representation that fits the form best, then optimize the form within it.
@@ -23,28 +25,22 @@ A coding agent works under four limits, and each favors these representations ov
 - It cannot see the surface while it edits, so local edits keep a fix where it was made, while moving a hand-placed vertex disturbs neighbors it cannot see.
 - It judges a render it did not draw, so a construction drawn beside the surface, such as sections, sketches, or a generation skeleton, traces each defect to the value that made it, while a hand-placed mesh has no construction to trace.
 
-## Parts And Groups
-
-Split an asset into fine parts, each one named declaration.
-
-Group the parts as the object is assembled and moves. A group is a node with children: its frame is the pivot of its subtree and its rotation limit is the subtree's range of motion, so put each group's frame on the real axis, such as a hinge. Link across branches with a driver, never a second parent.
-
-A group never copies a member's shape. Neighbors meet only at a boundary built from one shared definition, so no state of the asset opens a gap, overlap, or normal jump.
-
 ## Dimensions
 
-Keep one unit and one frame inside a declaration, and convert only where declarations meet, in one named step.
+Construct positions in each part's local frame from named dimensions and dimensionless ratios tied to shared axes, landmarks and boundaries. Express related curves as a parameterized family with shared dimensions and constraints, keeping independent measurements as independent parameters.
+
+Keep calibration in named, sourced dimensions and coefficients; never patch individual cases with absolute vertex coordinates or duplicate a neighbor's placement constants.
 
 Size a feature on a surface in physical units through the surface's metric. A feature sized in chart parameters changes size whenever the surface or its layout changes.
 
 ## Resolution
 
-Let the number of emitted primitives follow the resolution setting, not the number of crafted features. Use a parametric surface, subdivision, cards, instances, or levels of detail where the form allows.
+Let the number of emitted primitives follow the resolution setting, not the number of crafted features. Keep defining dimensions and feature locations independent of tessellation. Use a parametric surface, subdivision, cards, instances, or levels of detail where the form allows.
 
 On a subdivision surface, place extraordinary vertices where curvature is low and keep them at valence 3 or 5 where the layout allows, because higher valences and clustered poles leave visible pinches on the limit surface.
 
 ## Order Of Work
 
-Block out the whole form first. Then treat each finer detail as the block-out of a smaller region, and fit each scale before zooming into the next.
+Block out the whole form first. Then treat each finer detail as the block-out of a smaller region, and fit each scale before zooming into the next. Apply [Correction Rounds](visual-debugging.md#correction-rounds) at every scale.
 
 Measure on the geometry that is displayed, such as a subdivision limit surface rather than its cage. Regenerate anything derived when its basis changes, and repair an unsound representation at its foundation instead of stacking corrections on it.
