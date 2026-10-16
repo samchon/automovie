@@ -13,7 +13,7 @@ export namespace AutoMovieHumanGirthRegression {
     /** Area term of girth squared divided by stature, millimetres. */
     area: number;
 
-    /** Area response per BMI unit, with BMI in kg/m©÷. */
+    /** Area response per BMI unit, with BMI in kg/m^2. */
     bmi: number;
 
     /** Area response per year inside the adult sample range. */
