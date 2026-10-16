@@ -32,8 +32,10 @@ import { transportAutoMovieSweepSpine } from "./transportAutoMovieSweepSpine";
  * `integrateAutoMovieSweepVolume`, equals the rest volume. Without either the
  * scale stays the rest profile. A girth factor set by `girth` then multiplies
  * every scale slot, at rest and after settling, so the settled volume is the
- * rest volume before that correction. Shapes before the scale never change
- * with the pose, so they are read once at registration.
+ * rest volume before that correction. Shapes before scale come directly from the shared shape evaluator and are
+ * read once at registration; no scaled result is divided back into a shape.
+ * Unrepresentable positive cell averages, scaled samples and girth products
+ * are refused. Girth admission stages every factor, product and probe before committing.
  *
  * @param props.sweep The sweep, only read and retained through its compiled surface.
  * @param props.binding Bone indices of its spine points and stations, as `IAutoMovieSweepBinding` names them; omitted, the sweep stays at rest.
@@ -47,7 +49,7 @@ import { transportAutoMovieSweepSpine } from "./transportAutoMovieSweepSpine";
  * @evidence contracts/common.md#meaningful-documentation States the rest and posed rules, the volume rule and its sources, and every refusal.
  * @evidence contracts/performance.md#efficient-algorithms Compile: one sweep compile, O(1) per registered slot, and for volume preservation the 400 x 256 section moments and the rest volume summed from them. Pose, for N spine points, S stations, F planes, P probes and K scale knots: O(N) transport plus 64 (N - 1) reflections, O(S) orientation, O(F + 3P) plane queries and, with volume preservation, 801 more planes and at most ten volume sums of O(400 + K); nothing allocates.
  * @evidence contracts/performance.md#reuse-equivalent-work Shapes, rest planes, section moments and the rest volume are computed once; a pose recomputes only what bones move.
- * @evidence contracts/performance.md#bound-retention-and-release-resources For F registered frames, Q scale slots and P probes, retains the compiled surface, 24 F current/rest frame numbers, 3 Q current/rest/girth factors, 6 P probe outputs and 15 P probe parameters, plus O(F + Q + P) registration records. A bound rig adds transport buffers and 4 S station planes; volume preservation adds 1,200 moments, 801 packed planes and O(K) profile arrays. Registration stops at `seal`; all state is released with the rig.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources For F registered frames, Q scale slots and P probes, retains the compiled surface, 24 F current/rest frame numbers, 5 Q current/rest/girth and staging factors, 12 P current/staging probe outputs and 15 P probe parameters, plus O(F + Q + P) registration records. A bound rig adds transport buffers and 4 S station planes; volume preservation adds 1,200 moments, 801 packed planes and O(K) profile arrays. Registration stops at `seal`; all state is released with the rig.
  */
 export const rigAutoMovieSweep: (props: {
   sweep: IAutoMovieSweep;
@@ -103,22 +105,16 @@ export const rigAutoMovieSweep: (props: {
   function scale(u: number): number {
     return slot(scaleAt, scaleU, u);
   }
-  // the section point before the scale profile
-  function shaped(u: number, v: number): IAutoMovieSweepSection.IPoint {
-    const p: IAutoMovieSweepSection.IPoint = surface.section(u, v);
-    const k: number = surface.scale(u);
-    return { x: p.x / k, y: p.y / k };
-  }
   function probe(u: number, v: number): number {
     open();
     const step: number = surface.step;
     const a: number = Math.max(0, u - step);
     const b: number = Math.min(1, u + step);
     const points: IAutoMovieSweepSection.IPoint[] = [
-      shaped(u, v + step),
-      shaped(u, v - step),
-      shaped(a, v),
-      shaped(b, v),
+      surface.shape(u, v + step),
+      surface.shape(u, v - step),
+      surface.shape(a, v),
+      surface.shape(b, v),
     ];
     probeData.push(
       frame(u),
@@ -142,7 +138,7 @@ export const rigAutoMovieSweep: (props: {
     const xs: number[] = [];
     const ys: number[] = [];
     if (cell.every((d: number): boolean => d === 0)) {
-      const p: IAutoMovieSweepSection.IPoint = shaped(u, v);
+      const p: IAutoMovieSweepSection.IPoint = surface.shape(u, v);
       slots.push(scale(u));
       xs.push(p.x);
       ys.push(p.y);
@@ -162,8 +158,14 @@ export const rigAutoMovieSweep: (props: {
       for (const [du, wu] of tent(cell[0], cell[1])) {
         const at: number = Math.min(1, Math.max(0, u + du!));
         let r: number = 0;
-        for (const [dv, wv] of tent(cell[2], cell[3]))
-          r += wu! * wv! * surface.profile(at, v + dv!);
+        let positive: boolean = false;
+        for (const [dv, wv] of tent(cell[2], cell[3])) {
+          const value: number = surface.profile(at, v + dv!);
+          positive ||= wu! > 0 && wv! > 0 && value > 0;
+          r += wu! * wv! * value;
+        }
+        if (!Number.isFinite(r) || r < 0 || (positive && r === 0))
+          throw new Error("averaged sweep radius is not representable");
         slots.push(scale(at));
         xs.push(r * Math.cos(angle));
         ys.push(r * Math.sin(angle));
@@ -173,6 +175,9 @@ export const rigAutoMovieSweep: (props: {
     const slot: Int32Array = Int32Array.from(slots);
     const x: Float64Array = Float64Array.from(xs);
     const y: Float64Array = Float64Array.from(ys);
+    const positive: boolean =
+      xs.some((value: number): boolean => value !== 0) ||
+      ys.some((value: number): boolean => value !== 0);
     return (out: Float64Array, at: number): void => {
       let px: number = 0;
       let py: number = 0;
@@ -181,6 +186,12 @@ export const rigAutoMovieSweep: (props: {
         px += s * x[k]!;
         py += s * y[k]!;
       }
+      if (
+        !Number.isFinite(px) ||
+        !Number.isFinite(py) ||
+        (positive && px === 0 && py === 0)
+      )
+        throw new Error("scaled sweep sample is not representable");
       for (let c: number = 0; c < 3; ++c)
         out[at + c] =
           rig.frames[f + c]! +
@@ -204,43 +215,48 @@ export const rigAutoMovieSweep: (props: {
   // the girth factor of each scale slot, 1 until a network sets it
   let girth: Float64Array = new Float64Array(0);
   let restScales: Float64Array = new Float64Array(0);
+  let girthWork: Float64Array = new Float64Array(0);
+  let probeWork: Float64Array = new Float64Array(0);
   // a section point of a probe at a frame and scale slot, written at scratch[o]
   const scratch: Float64Array = new Float64Array(12);
-  function place(f: number, s: number, x: number, y: number, o: number): void {
-    const k: number = rig.scales[s]!;
+  function place(f: number, k: number, x: number, y: number, o: number): void {
     for (let a: number = 0; a < 3; ++a)
       scratch[o + a] =
         rig.frames[12 * f + a]! +
         k * (x * rig.frames[12 * f + 3 + a]! + y * rig.frames[12 * f + 6 + a]!);
   }
-  function probeAll(): void {
+  function probeAll(
+    scales: Float64Array = rig.scales,
+    offset: number = 0,
+    out: Float64Array = rig.probes,
+  ): void {
     for (let p: number = 0; p < probeData.length / 15; ++p) {
       const d: number = 15 * p;
       const span: number = probeData[d + 6]!;
       place(
         probeData[d]!,
-        probeData[d + 3]!,
+        scales[offset + probeData[d + 3]!]!,
         probeData[d + 7]!,
         probeData[d + 8]!,
         0,
       );
       place(
         probeData[d]!,
-        probeData[d + 3]!,
+        scales[offset + probeData[d + 3]!]!,
         probeData[d + 9]!,
         probeData[d + 10]!,
         3,
       );
       place(
         probeData[d + 1]!,
-        probeData[d + 4]!,
+        scales[offset + probeData[d + 4]!]!,
         probeData[d + 11]!,
         probeData[d + 12]!,
         6,
       );
       place(
         probeData[d + 2]!,
-        probeData[d + 5]!,
+        scales[offset + probeData[d + 5]!]!,
         probeData[d + 13]!,
         probeData[d + 14]!,
         9,
@@ -256,13 +272,21 @@ export const rigAutoMovieSweep: (props: {
       const ny: number = rz * ax - rx * az;
       const nz: number = rx * ay - ry * ax;
       const size: number = Math.hypot(nx, ny, nz);
+      if (
+        !(size > 0) ||
+        !Number.isFinite(size) ||
+        !Number.isFinite(ax) ||
+        !Number.isFinite(ay) ||
+        !Number.isFinite(az)
+      )
+        throw new Error("sweep probe is not representable");
       const o: number = 6 * p;
-      rig.probes[o] = nx / size;
-      rig.probes[o + 1] = ny / size;
-      rig.probes[o + 2] = nz / size;
-      rig.probes[o + 3] = ax;
-      rig.probes[o + 4] = ay;
-      rig.probes[o + 5] = az;
+      out[o] = nx / size;
+      out[o + 1] = ny / size;
+      out[o + 2] = nz / size;
+      out[o + 3] = ax;
+      out[o + 4] = ay;
+      out[o + 5] = az;
     }
   }
   function writeFrame(
@@ -292,6 +316,8 @@ export const rigAutoMovieSweep: (props: {
     restFrames = rig.frames.slice();
     restScales = rig.scales.slice();
     girth = new Float64Array(scaleU.length).fill(1);
+    girthWork = new Float64Array(2 * scaleU.length);
+    probeWork = new Float64Array(rig.probes.length);
     probeAll();
     if (binding === undefined) return;
     rig.pose = bind(binding);
@@ -307,11 +333,19 @@ export const rigAutoMovieSweep: (props: {
         throw new Error(
           `girth factor at u ${scaleU[k]} is not positive and finite`,
         );
-      girth[k] = g;
-      restScales[k] = surface.scale(scaleU[k]!) * g;
+      const value: number = surface.scale(scaleU[k]!) * g;
+      if (!(value > 0) || !Number.isFinite(value))
+        throw new Error("girth scale is not positive and finite");
+      girthWork[k] = g;
+      girthWork[scaleU.length + k] = value;
+    }
+    probeAll(girthWork, scaleU.length, probeWork);
+    for (let k: number = 0; k < scaleU.length; ++k) {
+      girth[k] = girthWork[k]!;
+      restScales[k] = girthWork[scaleU.length + k]!;
     }
     rig.scales.set(restScales);
-    probeAll();
+    rig.probes.set(probeWork);
   };
   // the posed sweep: spine, orientation and, with joint stations, volume
   function bind(bones: {

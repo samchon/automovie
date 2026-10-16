@@ -18,7 +18,7 @@ import { throwsError } from "../internal/throwsError";
  *
  * 1. Positive station radii and scale knots with a steep transition cannot return a non-positive queried value; a scalar interpolation method that stays positive is also valid.
  * 2. A periodic radial section follows the same positive-domain rule. A feature whose declared on-course offset exceeds the base radius is refused instead of clamped.
- * 3. A normal constant cylinder remains unchanged; a finite scale and finite radius whose product overflows are refused by both section and radius queries. A positive subnormal scale whose nonzero radius product rounds to zero is refused by radius, section and point queries. An authored parameter-correspondence origin remains a valid zero-radius point. A finite maximum-size girth request is refused for its non-finite solve step, without losing the measured initial diagonal to residual cancellation.
+ * 3. A normal constant cylinder remains unchanged; a finite scale and finite radius whose product overflows are refused by both section and radius queries. A positive subnormal scale whose nonzero radius product rounds to zero is refused by radius, section and point queries. The shared unscaled shape remains available when its scaled result is unrepresentable. An authored parameter-correspondence origin remains a valid zero-radius point. A finite maximum-size girth request is refused for its non-finite solve step, without losing the measured initial diagonal to residual cancellation.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls the actual sweep, section and network producers, checks their public queried values or domain refusals and rejects silent signed/clamped feature output. The large finite constraint must reach a finite-measurement solve refusal instead of corrupting a factor or entering positivity backtracking.
  * @evidence contracts/testing.md#independent-expectations Radii/scales must be positive and finite; positive input samples alone do not ensure that between knots. The feature's -0.2 m offset on a 0.1 m cylinder has a negative on-course radius and must be refused. The positive cylinder's 0.1 m radius and IEEE finite maximum supply independent controls.
@@ -167,6 +167,11 @@ export function test_geometry_sweep_numeric_admission(): void {
         (): unknown => underflowing.point(0.5, 0),
         "scaled sweep section radius is not positive and finite",
       ),
+  );
+  TestValidator.predicate(
+    "unscaled source shape stays available when a scaled result is unrepresentable",
+    nclose(underflowing.shape(0.5, 0).x, 0.1, 1e-14) &&
+      nclose(underflowing.shape(0.5, 0).y, 0, 1e-14),
   );
   const square: IAutoMovieSweep.IStation["section"] = {
     type: "polygon",

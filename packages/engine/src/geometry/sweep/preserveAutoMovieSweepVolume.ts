@@ -28,7 +28,7 @@ import { settleAutoMovieSweepVolume } from "./settleAutoMovieSweepVolume";
  * @evidence contracts/common.md#meaningful-documentation States the target's scope, caller update order, in-place result and shared buffer ownership.
  * @evidence contracts/performance.md#efficient-algorithms Compile uses 400 by 256 section-profile queries and 801 rest planes plus O(K) knot preparation for K combined scale/station knots. Each pose reads 801 planes and at most ten volume trials; a trial fits the K-knot spline and sums 400 volume samples. It allocates nothing per pose.
  * @evidence contracts/performance.md#reuse-equivalent-work Section moments, authored rest target and knot layout are immutable per compiled sweep and computed once. The returned writer reads the current shared orientation and current girth multipliers on each pose, so it never reuses an old pose's scale output.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The owning rig retains 1200 moment numbers, 801 packed planes, 400 midpoint scales and O(K) profile/work arrays with this closure. The supplied scale/girth buffers and orientation are shared with that same rig and released with it; caller registration is sealed before these references are captured.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The owning rig retains 1200 moment numbers, 801 packed planes, 400 midpoint scales and O(K) profile/work arrays with this closure. One additional scale-slot-sized staging buffer prevents partial scale publication on refusal. The supplied scale/girth buffers and orientation are shared with that same rig and released with it; caller registration is sealed before these references are captured.
  */
 export function preserveAutoMovieSweepVolume(props: {
   surface: IAutoMovieSweepSurface;
@@ -101,6 +101,7 @@ export function preserveAutoMovieSweepVolume(props: {
   const values: Float64Array = new Float64Array(knots.length);
   const curvature: Float64Array = new Float64Array(knots.length);
   const work: Float64Array = new Float64Array(7 * knots.length + 17);
+  const settled: Float64Array = new Float64Array(scaleU.length);
   let tension: number = 0;
   const profile: (factor: number) => void = (factor: number): void => {
     for (let k: number = 0; k < knots.length; ++k)
@@ -133,7 +134,12 @@ export function preserveAutoMovieSweepVolume(props: {
     for (let j: number = 0; j <= 2 * steps; ++j)
       orientation.frame(j / (2 * steps), planes, 12 * j);
     profile(settleAutoMovieSweepVolume(target, volume));
-    for (let k: number = 0; k < scaleU.length; ++k)
-      scales[k] = at(scaleU[k]!) * girth[k]!;
+    for (let k: number = 0; k < scaleU.length; ++k) {
+      const value: number = at(scaleU[k]!) * girth[k]!;
+      if (!(value > 0) || !Number.isFinite(value))
+        throw new Error("posed sweep scale is not positive and finite");
+      settled[k] = value;
+    }
+    scales.set(settled);
   };
 }

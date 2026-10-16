@@ -10,6 +10,7 @@ import { IAutoMovieSweepSurface } from "./IAutoMovieSweepSurface";
 import { IAutoMovieSweepTransport } from "./IAutoMovieSweepTransport";
 import { checkAutoMovieSweepFeature } from "./checkAutoMovieSweepFeature";
 import { compileAutoMovieSweepFeature } from "./compileAutoMovieSweepFeature";
+import { compileAutoMovieSweepGuide } from "./compileAutoMovieSweepGuide";
 import { compileAutoMovieSweepProfile } from "./compileAutoMovieSweepProfile";
 import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
 import { loadAutoMovieSweepSpine } from "./loadAutoMovieSweepSpine";
@@ -165,7 +166,7 @@ export const compileAutoMovieSweep: (
           }),
       );
   const guides: ICompiledGuide[] = (sweep.guides ?? [])
-    .map(compileGuide)
+    .map(compileAutoMovieSweepGuide)
     .sort((a: ICompiledGuide, b: ICompiledGuide): number => a.angle - b.angle);
   guides.forEach((g: ICompiledGuide, k: number): void => {
     if (k > 0 && g.angle === guides[k - 1]!.angle)
@@ -240,10 +241,11 @@ export const compileAutoMovieSweep: (
   }
   // the loop point before the scale profile
   function shaped(
-    u: number,
+    input: number,
     v: number,
-    loop: number,
+    loop: number = 0,
   ): IAutoMovieSweepSection.IPoint {
+    const u: number = Math.min(1, Math.max(0, input));
     if (!byParameter) {
       if (loop !== 0) throw new Error("a sweep by direction has one loop");
       const r: number = directional(u, v);
@@ -252,16 +254,18 @@ export const compileAutoMovieSweep: (
     }
     const compiled: ICompiledLoop | undefined = loops[loop];
     if (compiled === undefined) throw new Error(`sweep has no loop ${loop}`);
-    return compiled.point(u, v);
+    const point: IAutoMovieSweepSection.IPoint = compiled.point(u, v);
+    if (!Number.isFinite(point.x) || !Number.isFinite(point.y))
+      throw new Error("sweep section shape is not finite");
+    return point;
   }
   function section(
     input: number,
     v: number,
     loop: number = 0,
   ): IAutoMovieSweepSection.IPoint {
-    const u: number = Math.min(1, Math.max(0, input));
-    const p: IAutoMovieSweepSection.IPoint = shaped(u, v, loop);
-    const k: number = scaleAt(u);
+    const p: IAutoMovieSweepSection.IPoint = shaped(input, v, loop);
+    const k: number = scaleAt(input);
     const x: number = p.x * k;
     const y: number = p.y * k;
     if (!Number.isFinite(x) || !Number.isFinite(y))
@@ -275,7 +279,9 @@ export const compileAutoMovieSweep: (
     const u: number = Math.min(1, Math.max(0, input));
     if (!byParameter) return directional(u, v);
     const p: IAutoMovieSweepSection.IPoint = shaped(u, v, 0);
-    return Math.hypot(p.x, p.y);
+    const value: number = Math.hypot(p.x, p.y);
+    if (!Number.isFinite(value)) throw new Error("sweep profile is not finite");
+    return value;
   }
   function radius(u: number, v: number): number {
     const shape: number = profile(u, v);
@@ -356,6 +362,7 @@ export const compileAutoMovieSweep: (
     radius,
     profile,
     scale: scaleAt,
+    shape: shaped,
     section,
     frame,
     point,
@@ -436,25 +443,8 @@ function compileLoop(
   };
 }
 
-/** A guide with its profile compiled. */
-interface ICompiledGuide {
-  /** Direction in radians within one turn from 0. */
-  angle: number;
-  /** Radius along the direction by `u`. */
-  radius: (u: number) => number;
-}
-
-function compileGuide(
-  g: IAutoMovieSweep.IGuide,
-  index: number,
-): ICompiledGuide {
-  if (!Number.isFinite(g.angle))
-    throw new Error(`sweep guide ${index} angle is not finite`);
-  return {
-    angle: ((g.angle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI),
-    radius: compileAutoMovieSweepProfile(g.radii, `sweep guide ${index}`),
-  };
-}
+/** One compiled silhouette guide. */
+type ICompiledGuide = ReturnType<typeof compileAutoMovieSweepGuide>;
 
 /**
  * Correct a row of section radii by the guides, the Gordon surface's guide term less its tensor term.
