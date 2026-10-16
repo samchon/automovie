@@ -14,7 +14,7 @@ import { IAutoMovieHumanTrunkNetwork } from "./IAutoMovieHumanTrunkNetwork";
 /**
  * Turn the sampled trunk network into the trunk cage: positions in millimetres, each face corner's chart address and the junction rings.
  *
- * A point of the trunk sweep is addressed on the trunk's main chart by its sweep coordinates. A point of a shoulder or hip tube, or of the bridge that joins it to the trunk, is addressed on that branch's chart: the bridge fills `u` from 0 to 0.3 and the tube the rest, and a hip tube's `v` is turned half a turn so its anterior direction lies at the chart's 0 like the trunk's.
+ * A point of the measured torso sweep is addressed below the axilla in the trunk's main chart; the upper curve patches continue that chart to the neck ring through their declared rectangles. A point of a shoulder or hip tube, or of the bridge that joins it to the trunk, is addressed on that branch's chart: the bridge fills `u` from 0 to 0.3 and the tube the rest, and a hip tube's `v` is turned half a turn so its anterior direction lies at the chart's 0 like the trunk's.
  *
  * @param network The network the cage was sampled from
  * @param sampled The sampled cage
@@ -43,13 +43,18 @@ export function emitAutoMovieHumanTrunk(
           (
             c: IAutoMovieSurfaceCoordinate,
           ): IAutoMovieHumanSurfaceCoordinate.IOn<"trunk"> =>
-            addressOf(patches[c.patch]!, c.s, c.t),
+            addressOf(
+              patches[c.patch]!,
+              c.s,
+              c.t,
+              network.charts[patches[c.patch]!.name],
+            ),
         ),
       ) as IAutoMovieHumanCage.IFace["coordinates"],
     }),
   );
   const rings: IAutoMovieHumanRing[] = network.shapes.map(
-    ({ ring, shape }): IAutoMovieHumanRing => ({
+    ({ ring, shape }: IAutoMovieHumanTrunkNetwork["shapes"][number]): IAutoMovieHumanRing => ({
       site: shape.site,
       side: shape.side,
       vertices: sampled.rings[ring]!,
@@ -61,7 +66,7 @@ export function emitAutoMovieHumanTrunk(
 }
 
 /** The branch a patch belongs to, by its name, or none for the trunk's own sweep patches. */
-const branchOf = (name: string): AutoMovieHumanBranch<"trunk"> | null =>
+const branchOf: (name: string) => AutoMovieHumanBranch<"trunk"> | null = (name: string): AutoMovieHumanBranch<"trunk"> | null =>
   name.startsWith("leftShoulder") || name === "joinLeftShoulder"
     ? "leftShoulder"
     : name.startsWith("rightShoulder") || name === "joinRightShoulder"
@@ -73,27 +78,37 @@ const branchOf = (name: string): AutoMovieHumanBranch<"trunk"> | null =>
           : null;
 
 /** The chart address of a patch point: the trunk's main chart, or the branch chart of a shoulder or hip tube and its bridge. */
-const addressOf = (
+const addressOf: (patch: IAutoMovieSurfaceNetwork.IPatch, s: number, t: number, chart: { u: [number, number]; v: [number, number] } | undefined) => IAutoMovieHumanSurfaceCoordinate.IOn<"trunk"> = (
   patch: IAutoMovieSurfaceNetwork.IPatch,
   s: number,
   t: number,
+  chart: { u: [number, number]; v: [number, number] } | undefined,
 ): IAutoMovieHumanSurfaceCoordinate.IOn<"trunk"> => {
-  const lerp = (r: [number, number], x: number): number =>
+  const lerp: (r: [number, number], x: number) => number = (r: [number, number], x: number): number =>
     r[0] + (r[1] - r[0]) * x;
-  const wrap = (v: number): number => ((v % 1) + 1) % 1;
+  const wrap: (v: number) => number = (v: number): number => ((v % 1) + 1) % 1;
   const branch: AutoMovieHumanBranch<"trunk"> | null = branchOf(patch.name);
-  if (patch.type === "coons")
-    return { part: "trunk", side: null, branch: null, u: 0, v: wrap(s / 2) };
-  if (patch.type !== "sweep" && patch.type !== "transition")
-    return { part: "trunk", side: null, branch, u: 0.3 * t, v: wrap(s) };
-  if (branch === null)
+  if (chart !== undefined)
     return {
       part: "trunk",
       side: null,
       branch: null,
-      u: lerp(patch.u, t),
-      v: wrap(lerp(patch.v, s)),
+      u: lerp(chart.u, t),
+      v: wrap(lerp(chart.v, s)),
     };
+  if (patch.type === "coons")
+    return { part: "trunk", side: null, branch: null, u: 0, v: wrap(s / 2) };
+  if (patch.type !== "sweep" && patch.type !== "transition") {
+    const phase: number =
+      patch.name === "joinLeftShoulder"
+        ? AutoMovieHumanTrunkSweep.SHOULDER_PHASE.left
+        : patch.name === "joinRightShoulder"
+          ? AutoMovieHumanTrunkSweep.SHOULDER_PHASE.right
+          : 0;
+    return { part: "trunk", side: null, branch, u: 0.3 * t, v: wrap(s + phase) };
+  }
+  if (branch === null)
+    throw new Error("the trunk sweep patch has no declared chart rectangle");
   const hip: boolean = branch === "leftHip" || branch === "rightHip";
   return {
     part: "trunk",
@@ -105,7 +120,7 @@ const addressOf = (
 };
 
 /** Keep one face's corners within half a turn: a face across the wrap meridian writes 1 where it would write 0. */
-const unwrap = (
+const unwrap: (corners: IAutoMovieHumanSurfaceCoordinate.IOn<"trunk">[]) => IAutoMovieHumanSurfaceCoordinate.IOn<"trunk">[] = (
   corners: IAutoMovieHumanSurfaceCoordinate.IOn<"trunk">[],
 ): IAutoMovieHumanSurfaceCoordinate.IOn<"trunk">[] => {
   const vs: number[] = corners.map(

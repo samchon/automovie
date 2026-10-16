@@ -4,7 +4,7 @@ import {
   IAutoMovieSweepSurface,
   compileAutoMovieSweep,
 } from "@automovie/engine";
-import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
@@ -16,26 +16,21 @@ import { profileAutoMovieHumanTrunk } from "./profileAutoMovieHumanTrunk";
 import { sectionAutoMovieHumanTrunkCrotch } from "./sectionAutoMovieHumanTrunkCrotch";
 
 /**
- * The trunk's own sweep, from the crotch up to the neck-base ring, with the spine parameters where the shoulder band opens and closes.
+ * The measured horizontal torso sweep, from the crotch to the axilla.
  *
- * Stations stand at the crotch, at even steps from the buttock level to the axilla, at even steps on to the shoulder line, then on the trapezius slope and at the neck ring. Anthropometry measures every trunk section in a level plane, so up to the axilla each station lies level whatever the spine's bend, under the sweep's fixed orientation so the planes stay level between stations too. The neck ring leans forward, its front at the jugular notch below the shoulder line and its back at cervicale above it, so above the axilla the planes lean progressively toward the ring's, as the clavicles lie lower than the trapezius; each such section is read where its plane meets the level profile. The crotch section is the outer contour of the two thighs (`sectionAutoMovieHumanTrunkCrotch`), its front raised to the thighs' fronts at their rings where those stand further forward, since the thigh's front runs straight or forward from the groin to mid-thigh in standing.
+ * Every station lies level, as the breadths, depths and tape girths are measured. Above the axilla the neck and shoulder girdle are separate boundaries of the upper trunk's curve network, so this sweep carries no rotated neck plane through the chest. The crotch uses the outer contour of the two thighs and keeps its anterior extent at least that of their shared rings.
  *
- * @param props.frame The side's trunk frame
- * @param props.profile The trunk's level sections
- * @param props.neck The neck-base ring
- * @param props.thighs The two mid-thigh rings
- * @returns The sweep in metres, the spine parameters of the axilla and shoulder line, and the contour of the two thighs at the crotch and at the gluteal furrow, millimetres
+ * @param props The trunk frame, measured level profiles and two shared thigh rings
+ * @returns The torso sweep, its rows and measured girths, and the pelvic contours in millimetres
  */
 export function sweepAutoMovieHumanTrunkBody(props: {
   frame: IAutoMovieHumanTrunkFrame;
   profile: profileAutoMovieHumanTrunk.IProfile;
-  neck: IAutoMovieHumanRingShape;
   thighs: IAutoMovieHumanRingShape[];
 }): sweepAutoMovieHumanTrunkBody.IOutput {
-  const { frame, profile, neck } = props;
+  const { frame, profile }: typeof props = props;
   const S: typeof AutoMovieHumanTrunkSweep = AutoMovieHumanTrunkSweep;
   const L: IAutoMovieHumanTrunkFrame.ILevels = frame.levels;
-  const shoulderLine: number = frame.acromion.y;
   const levels: number[] = [
     L.crotch,
     ...Array.from(
@@ -43,23 +38,15 @@ export function sweepAutoMovieHumanTrunkBody(props: {
       (_: unknown, k: number): number =>
         L.buttock + ((L.axilla - L.buttock) * k) / STEPS,
     ),
-    ...Array.from(
-      { length: UPPER_STEPS },
-      (_: unknown, k: number): number =>
-        L.axilla + ((shoulderLine - L.axilla) * (k + 1)) / UPPER_STEPS,
-    ),
   ];
-  const lean = (y: number): number =>
-    y <= L.axilla
-      ? 0
-      : NECK_TILT.shoulder *
-        Math.min(1, (y - L.axilla) / (shoulderLine - L.axilla));
   const thighFront: number = Math.max(
     ...props.thighs.flatMap((t: IAutoMovieHumanRingShape): number[] =>
       t.positions.map((p: IAutoMovieVector3): number => p.z),
     ),
   );
-  const contour = (y: number): sweepAutoMovieHumanTrunkBody.IContour => {
+  const contour: (y: number) => sweepAutoMovieHumanTrunkBody.IContour = (
+    y: number,
+  ): sweepAutoMovieHumanTrunkBody.IContour => {
     const front: number = Math.max(profile.front(y), thighFront);
     return {
       centre: (front + profile.back(y)) / 2,
@@ -68,41 +55,13 @@ export function sweepAutoMovieHumanTrunkBody(props: {
     };
   };
   const crotch: sweepAutoMovieHumanTrunkBody.IContour = contour(L.crotch);
-  const tilt = (share: number): IAutoMovieQuaternion => {
-    const a: IAutoMovieQuaternion = S.HORIZONTAL;
-    let b: IAutoMovieQuaternion = S.ringRotation(neck, 0);
-    if (a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w < 0)
-      b = { x: -b.x, y: -b.y, z: -b.z, w: -b.w };
-    const q: IAutoMovieQuaternion = {
-      x: a.x + (b.x - a.x) * share,
-      y: a.y + (b.y - a.y) * share,
-      z: a.z + (b.z - a.z) * share,
-      w: a.w + (b.w - a.w) * share,
-    };
-    const n: number = Math.hypot(q.x, q.y, q.z, q.w);
-    return { x: q.x / n, y: q.y / n, z: q.z / n, w: q.w / n };
-  };
-  // the profile's front and back where a plane through a centre meets them: the plane's height changes with depth by its
-  // slope, so the profile is read at the height the plane reaches there
-  const reach = (
-    centre: IAutoMovieVector3,
-    rotation: IAutoMovieQuaternion,
-  ): { front: number; back: number; slope: number } => {
-    const normal: IAutoMovieVector3 = S.rotate(rotation, { x: 0, y: 0, z: 1 });
-    const slope: number = normal.z / normal.y;
-    const meet = (read: (y: number) => number): number => {
-      let z: number = read(centre.y);
-      for (let k: number = 0; k < 8; ++k)
-        z = read(centre.y - slope * (z - centre.z));
-      return z;
-    };
-    return { front: meet(profile.front), back: meet(profile.back), slope };
-  };
   const stations: Array<{
     centre: IAutoMovieVector3;
     section: IAutoMovieSweepSection;
-    rotation: IAutoMovieQuaternion;
-  }> = levels.map((y: number, k: number) => {
+  }> = levels.map((
+    y: number,
+    k: number,
+  ): { centre: IAutoMovieVector3; section: IAutoMovieSweepSection } => {
     if (k === 0)
       return {
         centre: AutoMovieHumanVector.of(0, y, crotch.centre),
@@ -111,88 +70,24 @@ export function sweepAutoMovieHumanTrunkBody(props: {
           half: crotch.half,
           exponent: S.FORK_EXPONENT,
           medial: S.MEDIAL_EXPONENT,
-          recess:
-            AUTOMOVIE_HUMAN_TRUNK_FORM.crotch.recess * frame.buttock.depth,
+          recess: AUTOMOVIE_HUMAN_TRUNK_FORM.crotch.recess * frame.buttock.depth,
         }),
-        rotation: S.HORIZONTAL,
       };
     const widest: number = profile.widest(y);
-    const half: number =
-      y >= shoulderLine - 1
-        ? Math.max(profile.half(L.axilla), frame.acromion.x - 15)
-        : profile.half(y);
+    const half: number = profile.half(y);
     const square: { front: number; back: number } = profile.squareness(y);
-    const centre: IAutoMovieVector3 = AutoMovieHumanVector.of(0, y, widest);
-    const rotation: IAutoMovieQuaternion =
-      lean(y) > 0 ? tilt(lean(y)) : S.HORIZONTAL;
-    const plane: { front: number; back: number; slope: number } =
-      lean(y) > 0
-        ? reach(centre, rotation)
-        : { front: profile.front(y), back: profile.back(y), slope: 0 };
-    const stretch: number = Math.hypot(1, plane.slope);
     return {
-      centre,
-      rotation,
+      centre: AutoMovieHumanVector.of(0, y, widest),
       section: {
         type: "superellipse",
-        right: S.metres(Math.max(20, (plane.front - widest) * stretch)),
+        right: S.metres(Math.max(20, profile.front(y) - widest)),
         up: S.metres(half),
-        left: S.metres(Math.max(20, (widest - plane.back) * stretch)),
+        left: S.metres(Math.max(20, widest - profile.back(y))),
         down: S.metres(half),
         exponents: [square.front, square.back, square.back, square.front],
       },
     };
   });
-  // the trapezius slope, in the neck ring's own plane, its front and back where that plane meets the profile
-  const shoulder: {
-    centre: IAutoMovieVector3;
-    section: IAutoMovieSweepSection;
-  } = stations[stations.length - 1]!;
-  const neckOrigin: IAutoMovieVector3 = neck.frame.origin;
-  const slopeY: number = shoulderLine + SLOPE * (neckOrigin.y - shoulderLine);
-  const neckHalf: number =
-    (neck.radii[neck.count / 4]! + neck.radii[(3 * neck.count) / 4]!) / 2;
-  const slopeCentre: IAutoMovieVector3 = AutoMovieHumanVector.of(
-    0,
-    slopeY,
-    (shoulder.centre.z + neckOrigin.z) / 2,
-  );
-  const slopeRotation: IAutoMovieQuaternion = tilt(NECK_TILT.slope);
-  const slopePlane: { front: number; back: number; slope: number } = reach(
-    slopeCentre,
-    slopeRotation,
-  );
-  const slopeStretch: number = Math.hypot(1, slopePlane.slope);
-  const slopeHalf: number =
-    neckHalf +
-    SLOPE *
-      (S.millimetres(
-        (shoulder.section as IAutoMovieSweepSection.ISuperellipse).up,
-      ) -
-        neckHalf);
-  stations.push(
-    {
-      centre: slopeCentre,
-      rotation: slopeRotation,
-      section: {
-        type: "superellipse",
-        right: S.metres(
-          Math.max(25, (slopePlane.front - slopeCentre.z) * slopeStretch),
-        ),
-        up: S.metres(slopeHalf),
-        left: S.metres(
-          Math.max(25, (slopeCentre.z - slopePlane.back) * slopeStretch),
-        ),
-        down: S.metres(slopeHalf),
-        exponents: [2.2, 2.2, 2.2, 2.2],
-      },
-    },
-    {
-      centre: neckOrigin,
-      section: S.ringSection(neck, 0),
-      rotation: S.ringRotation(neck, 0),
-    },
-  );
   const keys: number[] = [
     L.crotch,
     L.buttock,
@@ -203,23 +98,25 @@ export function sweepAutoMovieHumanTrunkBody(props: {
     L.axilla,
   ];
   const points: IAutoMovieVector3[] = stations.map(
-    (s): IAutoMovieVector3 => S.toMetres(s.centre),
+    (s: { centre: IAutoMovieVector3; section: IAutoMovieSweepSection }): IAutoMovieVector3 =>
+      S.toMetres(s.centre),
   );
   const ats: number[] = S.chordShares(points);
   const bare: IAutoMovieSweep = {
     spine: { points, normal: { x: 0, y: 0, z: 1 } },
     orientation: "fixed",
     stations: stations.map(
-      (s, k: number): IAutoMovieSweep.IStation => ({
+      (
+        s: { centre: IAutoMovieVector3; section: IAutoMovieSweepSection },
+        k: number,
+      ): IAutoMovieSweep.IStation => ({
         at: ats[k]!,
         section: s.section,
-        rotation: s.rotation,
+        rotation: S.HORIZONTAL,
       }),
     ),
   };
-  const rows: number[] = rowsOf(compileAutoMovieSweep(bare), keys);
   return {
-    // the feature curves are located on the sweep their stations make
     sweep: {
       ...bare,
       features: featureAutoMovieHumanTrunk({
@@ -228,23 +125,16 @@ export function sweepAutoMovieHumanTrunkBody(props: {
         surface: compileAutoMovieSweep(bare),
       }),
     },
-    // the axilla is the last of the even steps from the buttock level, the shoulder line the last level
-    axilla: ats[STEPS + 1]!,
-    rows,
-    // the measured waist and chest girths on the rows at their levels, which the limit surface holds; the buttock's row
-    // lies beside the crotch row, whose poles the hold's uniform spline cannot pass, and the underbust's two rows below
-    // the chest's does not converge beside it for a body whose underbust is its chest girth, so those two girths are
-    // the profile's alone
+    axilla: 1,
+    rows: rowsOf(compileAutoMovieSweep(bare), keys),
     girths: [
       { level: L.waist, girth: frame.waist.girth },
       { level: L.chestPoint, girth: frame.chest.girth },
-    ].map(({ level, girth }): { row: number; girth: number } => ({
+    ].map(({ level, girth }: { level: number; girth: number }): { row: number; girth: number } => ({
       row: rowOf(keys, level),
       girth,
     })),
     row: (L.buttock - L.crotch) / S.LOWER_ROWS[0]!,
-    shoulder: ats[levels.length - 1]!,
-    slope: ats[ats.length - 2]!,
     crotch,
     furrow: contour(L.gluteal),
   };
@@ -262,12 +152,6 @@ export namespace sweepAutoMovieHumanTrunkBody {
 
     /** Spine parameter of the axilla, where the shoulder band opens. */
     axilla: number;
-
-    /** Spine parameter of the shoulder line, where the shoulder band closes. */
-    shoulder: number;
-
-    /** Spine parameter of the trapezius slope station between the shoulder line and neck ring. */
-    slope: number;
 
     /** Spine parameters of the rows from the crotch to the axilla, increasing, from 0 to `axilla`: each key level and the even steps `LOWER_ROWS` puts between them. */
     rows: number[];
@@ -309,7 +193,7 @@ export namespace sweepAutoMovieHumanTrunkBody {
  * @param levels The key levels, millimetres, from the crotch to the axilla
  * @returns The rows' spine parameters, increasing
  */
-const rowsOf = (
+const rowsOf: (surface: IAutoMovieSweepSurface, levels: number[]) => number[] = (
   surface: IAutoMovieSweepSurface,
   levels: number[],
 ): number[] => {
@@ -319,7 +203,7 @@ const rowsOf = (
   );
   const top: number = surface.frame(1).origin.y * 1000;
   // the spine rises monotonically from the crotch to the axilla, so a height has one parameter there
-  const at = (y: number): number => {
+  const at: (y: number) => number = (y: number): number => {
     let a: number = 0;
     let b: number = 1;
     for (let step: number = 0; step < BISECTIONS; ++step) {
@@ -344,7 +228,7 @@ const rowsOf = (
  * @param level One of them
  * @returns Its row's index in `rowsOf`'s output
  */
-const rowOf = (keys: number[], level: number): number => {
+const rowOf: (keys: number[], level: number) => number = (keys: number[], level: number): number => {
   const rank: number = [...keys]
     .sort((a: number, b: number): number => a - b)
     .indexOf(level);
@@ -360,11 +244,3 @@ const BISECTIONS: number = 40;
 /** Steps between the stations from the buttock level to the axilla, about 25 mm each in an adult. */
 const STEPS: number = 16;
 
-/** Steps between the stations from the axilla to the shoulder line, where the planes lean toward the neck ring's. */
-const UPPER_STEPS: number = 4;
-
-/** Share of the neck ring's lean the shoulder line's and the slope's planes take. */
-const NECK_TILT = { shoulder: 0.8, slope: 1 } as const;
-
-/** Where the slope station lies, as a share of the way from the shoulder line to the neck ring's origin. */
-const SLOPE: number = 0.45;

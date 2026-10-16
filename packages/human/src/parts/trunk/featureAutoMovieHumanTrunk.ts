@@ -12,9 +12,9 @@ import { IAutoMovieHumanTrunkFrame } from "./IAutoMovieHumanTrunkFrame";
 import { profileAutoMovieHumanTrunk } from "./profileAutoMovieHumanTrunk";
 
 /**
- * The trunk's anatomical feature curves, laid on its own sweep: the clavicles, the inferior borders of the pectorals, the iliac crests, the inguinal lines and the natal cleft.
+ * The trunk's anatomical feature curves, laid on its own sweep: the inferior borders of the pectorals, the iliac crests, the inguinal lines and the natal cleft.
  *
- * Each curve is drawn in the model frame through bony landmarks of the skeleton (clavicale, acromion, iliospinale, iliocristale) and through points the level profile places on the surface (the sternum at the inframammary fold, the anterior axillary fold, the posterior superior iliac spines, the pubic tubercles, the sacrum's apex), then located on the compiled sweep point by point (`locateAutoMovieSweepPoint`), so it follows the surface whatever the sweep's stations. Each carries the offset and width of its form record; the curves lie on the trunk sweep only, from the crotch up, so the gluteal folds, which run under the buttocks on the thigh tubes, are drawn there by their own tubes.
+ * Each curve is drawn in the model frame through bony landmarks of the skeleton (iliospinale, iliocristale) and through points the level profile places on the surface (the sternum at the inframammary fold, the anterior axillary fold, the posterior superior iliac spines, the pubic tubercles, the sacrum's apex), then located on the compiled sweep point by point (`locateAutoMovieSweepPoint`), so it follows the surface whatever the sweep's stations. Each carries the offset and width of its form record; the curves lie on the trunk sweep only, from the crotch up, so the gluteal folds, which run under the buttocks on the thigh tubes, are drawn there by their own tubes.
  *
  * @param props.frame The side's trunk frame
  * @param props.profile The trunk's level sections
@@ -26,11 +26,11 @@ export function featureAutoMovieHumanTrunk(props: {
   profile: profileAutoMovieHumanTrunk.IProfile;
   surface: IAutoMovieSweepSurface;
 }): IAutoMovieSweep.IFeature[] {
-  const { frame, profile, surface } = props;
+  const { frame, profile, surface }: typeof props = props;
   const L: IAutoMovieHumanTrunkFrame.ILevels = frame.levels;
   const F: IAutoMovieHumanTrunkFeatures = AUTOMOVIE_HUMAN_TRUNK_FEATURES;
   // a point on the front or back of the level section at `x` across, estimated on the ellipse through the midline and the side
-  const on = (
+  const on: (side: "front" | "back", x: number, y: number) => IAutoMovieVector3 = (
     side: "front" | "back",
     x: number,
     y: number,
@@ -45,17 +45,14 @@ export function featureAutoMovieHumanTrunk(props: {
       widest + reach * Math.sqrt(1 - share * share),
     );
   };
-  const left = (p: IAutoMovieVector3): IAutoMovieVector3 => p;
-  const right = (p: IAutoMovieVector3): IAutoMovieVector3 =>
+  const left: (p: IAutoMovieVector3) => IAutoMovieVector3 = (p: IAutoMovieVector3): IAutoMovieVector3 => p;
+  const right: (p: IAutoMovieVector3) => IAutoMovieVector3 = (p: IAutoMovieVector3): IAutoMovieVector3 =>
     AutoMovieHumanVector.of(-p.x, p.y, p.z);
   const curves: Array<{
     points: IAutoMovieVector3[];
     form: IAutoMovieHumanTrunkFeatures.ICurve;
   }> = [];
   for (const mirror of [left, right]) {
-    const clavicale: IAutoMovieVector3 = mirror(frame.clavicale);
-    const acromion: IAutoMovieVector3 = mirror(frame.acromion);
-    curves.push({ points: [clavicale, acromion], form: F.clavicle });
     curves.push({
       points: [
         mirror(on("front", F.pectoral.medial, L.fold)),
@@ -93,7 +90,7 @@ export function featureAutoMovieHumanTrunk(props: {
     form: F.cleft,
   });
   return curves.map(
-    ({ points, form }): IAutoMovieSweep.IFeature => ({
+    ({ points, form }: { points: IAutoMovieVector3[]; form: IAutoMovieHumanTrunkFeatures.ICurve }): IAutoMovieSweep.IFeature => ({
       width: form.width / 1000,
       points: points.map(
         (p: IAutoMovieVector3): IAutoMovieSweep.IFeaturePoint => {

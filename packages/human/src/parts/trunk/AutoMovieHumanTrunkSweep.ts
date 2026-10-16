@@ -12,15 +12,23 @@ import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
  */
 export namespace AutoMovieHumanTrunkSweep {
   /** The tier the human profile samples; one tier keeps one topology until resolution tiers reach the other parts. */
-  export const TIER = "medium" as const;
+  export const TIER: "medium" = "medium" as const;
 
   /**
    * Rows of the trunk between its key levels from the crotch to the axilla, in their order up the body: crotch to buttock, buttock to iliac crest, crest to waist, waist to underbust, underbust to chest point, chest point to axilla. Every key level is a row, so the subdivided surface passes through each measured section's girth, and rows stay within about a quarter of the narrowest girth falloff the CC0 reference's measure targets show (hips 105 mm full width at half maximum), so a measured girth changes the surface over its own height. The hip bridges and the thigh tubes' first rows take the lowest row's height, so the subdivided surface meets no change of row spacing at the hips.
    */
   export const LOWER_ROWS: readonly number[] = [1, 5, 2, 3, 2, 2];
 
+  /**
+   * Tube phase at each shoulder opening. The rectangular opening loop starts at its anterior lower corner; the arm section starts anteriorly and turns down on the left and up on the right, so one of its eight columns aligns those named sectors. The bridge chart uses the same phase as its destination loop.
+   */
+  export const SHOULDER_PHASE: Record<"left" | "right", number> = {
+    left: 1 / 8,
+    right: -1 / 8,
+  };
+
   /** Where each tube's last row starts: the loop there repeats the ring's section, one row before the ring. */
-  export const COLLAR = {
+  export const COLLAR: { readonly arm: number; readonly thigh: number } = {
     arm: 2 / 3,
     thigh: 1 / 2,
   } as const;
@@ -45,7 +53,7 @@ export namespace AutoMovieHumanTrunkSweep {
    * @param n The count
    * @returns The counts by tier
    */
-  export const fixed = (n: number): IAutoMovieSurfaceNetwork.ICounts => ({
+  export const fixed: (n: number) => IAutoMovieSurfaceNetwork.ICounts = (n: number): IAutoMovieSurfaceNetwork.ICounts => ({
     lowest: n,
     low: n,
     medium: n,
@@ -61,7 +69,7 @@ export namespace AutoMovieHumanTrunkSweep {
    * @param segments Segments at every tier
    * @returns The edge
    */
-  export const edge = (
+  export const edge: (sweep: string, from: [number, number], to: [number, number], segments: number) => IAutoMovieSurfaceNetwork.ISweepEdge = (
     sweep: string,
     from: [number, number],
     to: [number, number],
@@ -80,7 +88,7 @@ export namespace AutoMovieHumanTrunkSweep {
    * @param mm Millimetres
    * @returns Metres
    */
-  export const metres = (mm: number): number => mm / 1000;
+  export const metres: (mm: number) => number = (mm: number): number => mm / 1000;
 
   /**
    * Metres to millimetres.
@@ -88,7 +96,7 @@ export namespace AutoMovieHumanTrunkSweep {
    * @param m Metres
    * @returns Millimetres
    */
-  export const millimetres = (m: number): number => m * 1000;
+  export const millimetres: (m: number) => number = (m: number): number => m * 1000;
 
   /**
    * A point in millimetres to metres.
@@ -96,7 +104,7 @@ export namespace AutoMovieHumanTrunkSweep {
    * @param p Millimetres
    * @returns Metres
    */
-  export const toMetres = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
+  export const toMetres: (p: IAutoMovieVector3) => IAutoMovieVector3 = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
     x: p.x / 1000,
     y: p.y / 1000,
     z: p.z / 1000,
@@ -108,7 +116,7 @@ export namespace AutoMovieHumanTrunkSweep {
    * @param points The polyline
    * @returns One share per point
    */
-  export const chordShares = (points: IAutoMovieVector3[]): number[] => {
+  export const chordShares: (points: IAutoMovieVector3[]) => number[] = (points: IAutoMovieVector3[]): number[] => {
     const lengths: number[] = [0];
     for (let k: number = 1; k < points.length; ++k)
       lengths.push(
@@ -126,7 +134,7 @@ export namespace AutoMovieHumanTrunkSweep {
    * @param v The vector
    * @returns The turned vector
    */
-  export const rotate = (
+  export const rotate: (q: IAutoMovieQuaternion, v: IAutoMovieVector3) => IAutoMovieVector3 = (
     q: IAutoMovieQuaternion,
     v: IAutoMovieVector3,
   ): IAutoMovieVector3 => {
@@ -148,7 +156,7 @@ export namespace AutoMovieHumanTrunkSweep {
    * @param z Third column, unit
    * @returns The rotation
    */
-  export const quaternionOf = (
+  export const quaternionOf: (x: IAutoMovieVector3, y: IAutoMovieVector3, z: IAutoMovieVector3) => IAutoMovieQuaternion = (
     x: IAutoMovieVector3,
     y: IAutoMovieVector3,
     z: IAutoMovieVector3,
@@ -196,7 +204,7 @@ export namespace AutoMovieHumanTrunkSweep {
    * @param r Radius, millimetres
    * @returns The section in metres
    */
-  export const circle = (r: number): IAutoMovieSweepSection => ({
+  export const circle: (r: number) => IAutoMovieSweepSection = (r: number): IAutoMovieSweepSection => ({
     type: "superellipse",
     right: metres(r),
     up: metres(r),
@@ -212,12 +220,12 @@ export namespace AutoMovieHumanTrunkSweep {
    * @param first Index of the vertex the first axis points at
    * @returns The section in metres
    */
-  export const ringSection = (
+  export const ringSection: (shape: IAutoMovieHumanRingShape, first: number) => IAutoMovieSweepSection = (
     shape: IAutoMovieHumanRingShape,
     first: number,
   ): IAutoMovieSweepSection => {
     const n: number = shape.count;
-    const r = (k: number): number => metres(shape.radii[(first + k) % n]!);
+    const r: (k: number) => number = (k: number): number => metres(shape.radii[(first + k) % n]!);
     return {
       type: "superellipse",
       right: r(0),
@@ -235,7 +243,7 @@ export namespace AutoMovieHumanTrunkSweep {
    * @param first Index of the vertex
    * @returns The rotation
    */
-  export const ringRotation = (
+  export const ringRotation: (shape: IAutoMovieHumanRingShape, first: number) => IAutoMovieQuaternion = (
     shape: IAutoMovieHumanRingShape,
     first: number,
   ): IAutoMovieQuaternion => {
@@ -256,7 +264,7 @@ export namespace AutoMovieHumanTrunkSweep {
    * @param distance Millimetres
    * @returns The moved positions, metres
    */
-  export const collarOf = (
+  export const collarOf: (shape: IAutoMovieHumanRingShape, distance: number) => IAutoMovieVector3[] = (
     shape: IAutoMovieHumanRingShape,
     distance: number,
   ): IAutoMovieVector3[] => {

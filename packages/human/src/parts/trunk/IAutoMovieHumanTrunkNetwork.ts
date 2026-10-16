@@ -11,6 +11,9 @@ export interface IAutoMovieHumanTrunkNetwork {
   /** The network, in metres. */
   value: IAutoMovieSurfaceNetwork;
 
+  /** Torso sweep and upper curve patches' fixed rectangles in the trunk chart. */
+  charts: Record<string, { u: [number, number]; v: [number, number] }>;
+
   /** Each junction ring the cage reports, by the network ring's name, with the shape the neighbouring part shares. */
   shapes: Array<{ ring: string; shape: IAutoMovieHumanRingShape }>;
 }
