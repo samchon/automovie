@@ -266,6 +266,9 @@ export const compileAutoMovieSweep: (
     const y: number = p.y * k;
     if (!Number.isFinite(x) || !Number.isFinite(y))
       throw new Error("scaled sweep section is not finite");
+    const length: number = Math.hypot(x, y);
+    if (!Number.isFinite(length) || (length === 0 && (p.x !== 0 || p.y !== 0)))
+      throw new Error("scaled sweep section radius is not positive and finite");
     return { x, y };
   }
   function profile(input: number, v: number): number {
@@ -275,8 +278,9 @@ export const compileAutoMovieSweep: (
     return Math.hypot(p.x, p.y);
   }
   function radius(u: number, v: number): number {
-    const value: number = scaleAt(u) * profile(u, v);
-    if (!(value > 0) || !Number.isFinite(value))
+    const shape: number = profile(u, v);
+    const value: number = scaleAt(u) * shape;
+    if (!Number.isFinite(value) || value < 0 || (shape > 0 && value === 0))
       throw new Error("scaled sweep radius is not positive and finite");
     return value;
   }
