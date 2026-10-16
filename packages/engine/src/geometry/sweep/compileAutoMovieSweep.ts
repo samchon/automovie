@@ -10,6 +10,8 @@ import { IAutoMovieSweepSurface } from "./IAutoMovieSweepSurface";
 import { IAutoMovieSweepTransport } from "./IAutoMovieSweepTransport";
 import { checkAutoMovieSweepFeature } from "./checkAutoMovieSweepFeature";
 import { compileAutoMovieSweepFeature } from "./compileAutoMovieSweepFeature";
+import { compileAutoMovieSweepGuide } from "./compileAutoMovieSweepGuide";
+import { compileAutoMovieSweepProfile } from "./compileAutoMovieSweepProfile";
 import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
 import { loadAutoMovieSweepSpine } from "./loadAutoMovieSweepSpine";
 import { orientAutoMovieSweep } from "./orientAutoMovieSweep";
@@ -33,8 +35,8 @@ const STEP: number = 1e-4;
  * sampled at 512 directions by `sampleAutoMovieSweepSection`. For each
  * direction the radii of the stations form a profile along `u`, interpolated
  * by `interpolateAutoMovieSpline`, a C2 spline under tension, so curvature is
- * continuous through every station, between two stations the radius strays
- * beyond theirs by at most a tenth of the local variation, and before the
+ * continuous at interior stations, with its sampled overshoot policy;
+ * queried non-positive radii are refused. Before the
  * first or after the last station it holds that station's radius.
  *
  * Under parameter correspondence each loop of each station, the section and
@@ -54,7 +56,8 @@ const STEP: number = 1e-4;
  * directions, round the turn). Both directions use the spline, round
  * the turn its periodic form over the guide directions. At a guide's
  * direction `G - T` is the guide's radius less the profile's, so the surface
- * passes exactly through every guide at every `u`. Where a guide disagrees
+ * passes through every guide at every `u` on the sampled angular grid;
+ * non-grid guide directions are reconstructed linearly from that grid. Where a guide disagrees
  * with a station at the station's `u`, the network is incompatible and the
  * guide wins, so the station's section is moved by the guides' disagreement
  * interpolated round the turn; a single guide moves the whole section by its
@@ -84,9 +87,9 @@ const STEP: number = 1e-4;
  *
  * @param sweep The sweep, only read and retained by the returned surface.
  * @returns The compiled surface.
- * @throws Error when the spine is refused by `frameAutoMovieSweepSpine`, a section by `sampleAutoMovieSweepSection`, a station, guide or feature is out of range, unordered or not finite, or two guides share a direction; and, when a row is first evaluated, when guides drive a radius to zero.
+ * @throws Error when the spine is refused by `frameAutoMovieSweepSpine`, a section by `sampleAutoMovieSweepSection`, a station, guide or feature is out of range, unordered or not finite, or two guides share a direction; and, when a row is first evaluated, when a profile, guide, feature or scale query is non-positive or not finite.
  *
- * @evidence contracts/common.md#principled-implementation Per-direction interpolation of key-section radii by a C2 spline under tension keeps curvature continuous through the stations and overshoot within a tenth of the local variation; guides form the Gordon surface of the station profiles and guide curves in radius, exact on every guide; features are pass-through constraints along smooth curves, applied as a compactly supported C2 bump of the residual in the local cylindrical metric approximation; orientations follow the nlerp of key-section rotations from the sweep-based deformation literature. Limitation: overlapping feature bands add, so neither passes exactly through its curve there.
+ * @evidence contracts/common.md#principled-implementation Per-direction interpolation of key-section radii by a C2 spline under tension keeps curvature continuous through the stations with the scalar spline's sampled overshoot policy; queried non-positive radius and scale values are refused; guides form a sampled Gordon correction of the station profiles and guide curves in radius, exact at grid-aligned guide directions with linear angular reconstruction elsewhere; features target smooth curves, applied as a compactly supported C2 bump of the residual in the local cylindrical metric approximation; orientations follow the nlerp of key-section rotations from the sweep-based deformation literature. Limitation: overlapping feature bands add, so neither passes exactly through its curve there.
  * @evidence contracts/common.md#clear-and-simple-design One compile owns the four layers in their fixed order; section evaluation, spine transport and orientation are delegated to their own modules, the last two shared with posed sweeps.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid stations, guides and features are refused rather than reordered or clamped, and nothing is tuned for a particular caller.
  * @evidence contracts/common.md#meaningful-documentation States each layer's rule and guarantee, the Gordon construction and how incompatible guides are resolved, the feature metric and kernel, the frame rule and its source, the overlap limitation and every refusal.
@@ -163,7 +166,7 @@ export const compileAutoMovieSweep: (
           }),
       );
   const guides: ICompiledGuide[] = (sweep.guides ?? [])
-    .map(compileGuide)
+    .map(compileAutoMovieSweepGuide)
     .sort((a: ICompiledGuide, b: ICompiledGuide): number => a.angle - b.angle);
   guides.forEach((g: ICompiledGuide, k: number): void => {
     if (k > 0 && g.angle === guides[k - 1]!.angle)
@@ -172,7 +175,7 @@ export const compileAutoMovieSweep: (
   const scale: ((u: number) => number) | null =
     sweep.scale === undefined
       ? null
-      : compileProfile(sweep.scale, "sweep scale");
+      : compileAutoMovieSweepProfile(sweep.scale, "sweep scale");
   (sweep.features ?? []).forEach(checkAutoMovieSweepFeature);
   const featureRadius: number =
     (sweep.features?.length ?? 0) === 0
@@ -199,7 +202,7 @@ export const compileAutoMovieSweep: (
   );
 
   const cache: Map<number, Float64Array> = new Map();
-  const row = (input: number): Float64Array => {
+  function row(input: number): Float64Array {
     const u: number = Math.min(1, Math.max(0, input));
     const cached: Float64Array | undefined = cache.get(u);
     if (cached !== undefined) return cached;
@@ -210,30 +213,39 @@ export const compileAutoMovieSweep: (
     if (cache.size >= CACHE_LIMIT) cache.clear();
     cache.set(u, out);
     return out;
-  };
-  const guided = (u: number, angle: number): number => {
+  }
+  function guided(u: number, angle: number): number {
     const r: Float64Array = row(u);
     const x: number = ((((angle / (2 * Math.PI)) % 1) + 1) % 1) * DIRECTIONS;
     const d: number = Math.floor(x) % DIRECTIONS;
     const t: number = x - Math.floor(x);
-    return r[d]! * (1 - t) + r[(d + 1) % DIRECTIONS]! * t;
-  };
-  const directional = (u: number, v: number): number => {
+    const value: number = r[d]! * (1 - t) + r[(d + 1) % DIRECTIONS]! * t;
+    if (!(value > 0) || !Number.isFinite(value))
+      throw new Error(`sweep profile is not positive and finite at u ${u}`);
+    return value;
+  }
+  function directional(u: number, v: number): number {
     const angle: number = 2 * Math.PI * v;
     const own: number = guided(u, angle);
     let r: number = own;
     for (const feature of features)
       r += feature.displacement(u, angle, own, path.length, guided);
+    if (!(r > 0) || !Number.isFinite(r))
+      throw new Error(
+        `featured sweep is not positive and finite at u ${u}, v ${v}`,
+      );
     return r;
-  };
-  const scaleAt = (input: number): number =>
-    scale === null ? 1 : scale(Math.min(1, Math.max(0, input)));
+  }
+  function scaleAt(input: number): number {
+    return scale === null ? 1 : scale(Math.min(1, Math.max(0, input)));
+  }
   // the loop point before the scale profile
-  const shaped = (
-    u: number,
+  function shaped(
+    input: number,
     v: number,
-    loop: number,
-  ): IAutoMovieSweepSection.IPoint => {
+    loop: number = 0,
+  ): IAutoMovieSweepSection.IPoint {
+    const u: number = Math.min(1, Math.max(0, input));
     if (!byParameter) {
       if (loop !== 0) throw new Error("a sweep by direction has one loop");
       const r: number = directional(u, v);
@@ -242,25 +254,42 @@ export const compileAutoMovieSweep: (
     }
     const compiled: ICompiledLoop | undefined = loops[loop];
     if (compiled === undefined) throw new Error(`sweep has no loop ${loop}`);
-    return compiled.point(u, v);
-  };
-  const section = (
+    const point: IAutoMovieSweepSection.IPoint = compiled.point(u, v);
+    if (!Number.isFinite(point.x) || !Number.isFinite(point.y))
+      throw new Error("sweep section shape is not finite");
+    return point;
+  }
+  function section(
     input: number,
     v: number,
     loop: number = 0,
-  ): IAutoMovieSweepSection.IPoint => {
-    const u: number = Math.min(1, Math.max(0, input));
-    const p: IAutoMovieSweepSection.IPoint = shaped(u, v, loop);
-    const k: number = scaleAt(u);
-    return { x: p.x * k, y: p.y * k };
-  };
-  const profile = (input: number, v: number): number => {
+  ): IAutoMovieSweepSection.IPoint {
+    const p: IAutoMovieSweepSection.IPoint = shaped(input, v, loop);
+    const k: number = scaleAt(input);
+    const x: number = p.x * k;
+    const y: number = p.y * k;
+    if (!Number.isFinite(x) || !Number.isFinite(y))
+      throw new Error("scaled sweep section is not finite");
+    const length: number = Math.hypot(x, y);
+    if (!Number.isFinite(length) || (length === 0 && (p.x !== 0 || p.y !== 0)))
+      throw new Error("scaled sweep section radius is not positive and finite");
+    return { x, y };
+  }
+  function profile(input: number, v: number): number {
     const u: number = Math.min(1, Math.max(0, input));
     if (!byParameter) return directional(u, v);
     const p: IAutoMovieSweepSection.IPoint = shaped(u, v, 0);
-    return Math.hypot(p.x, p.y);
-  };
-  const radius = (u: number, v: number): number => scaleAt(u) * profile(u, v);
+    const value: number = Math.hypot(p.x, p.y);
+    if (!Number.isFinite(value)) throw new Error("sweep profile is not finite");
+    return value;
+  }
+  function radius(u: number, v: number): number {
+    const shape: number = profile(u, v);
+    const value: number = scaleAt(u) * shape;
+    if (!Number.isFinite(value) || value < 0 || (shape > 0 && value === 0))
+      throw new Error("scaled sweep radius is not positive and finite");
+    return value;
+  }
 
   // each station's plane, turned relative to the carried frame by the orientation kernel
   const orientation: IAutoMovieSweepOrientation = orientAutoMovieSweep({
@@ -283,42 +312,40 @@ export const compileAutoMovieSweep: (
   });
   orientation.update();
   const scratch: Float64Array = new Float64Array(12);
-  const vector = (at: number): IAutoMovieVector3 => ({
-    x: scratch[at]!,
-    y: scratch[at + 1]!,
-    z: scratch[at + 2]!,
-  });
-  const frame = (u: number): IAutoMovieSweepFrame => {
+  function vector(at: number): IAutoMovieVector3 {
+    return {
+      x: scratch[at]!,
+      y: scratch[at + 1]!,
+      z: scratch[at + 2]!,
+    };
+  }
+  function frame(u: number): IAutoMovieSweepFrame {
     orientation.frame(u, scratch, 0);
     return { origin: vector(0), x: vector(3), y: vector(6), normal: vector(9) };
-  };
-  const point = (u: number, v: number, loop: number = 0): IAutoMovieVector3 => {
+  }
+  function point(u: number, v: number, loop: number = 0): IAutoMovieVector3 {
     const f: IAutoMovieSweepFrame = frame(u);
     const p: IAutoMovieSweepSection.IPoint = section(u, v, loop);
     return Vector3.add(
       f.origin,
       Vector3.add(Vector3.scale(f.x, p.x), Vector3.scale(f.y, p.y)),
     );
-  };
-  const along = (u: number, v: number, loop: number = 0): IAutoMovieVector3 => {
+  }
+  function along(u: number, v: number, loop: number = 0): IAutoMovieVector3 {
     const a: number = Math.max(0, u - STEP);
     const b: number = Math.min(1, u + STEP);
     return Vector3.scale(
       Vector3.subtract(point(b, v, loop), point(a, v, loop)),
       1 / (b - a),
     );
-  };
-  const normal = (
-    u: number,
-    v: number,
-    loop: number = 0,
-  ): IAutoMovieVector3 => {
+  }
+  function normal(u: number, v: number, loop: number = 0): IAutoMovieVector3 {
     const around: IAutoMovieVector3 = Vector3.subtract(
       point(u, v + STEP, loop),
       point(u, v - STEP, loop),
     );
     return Vector3.normalize(Vector3.cross(around, along(u, v, loop)));
-  };
+  }
   return {
     sweep,
     path,
@@ -335,6 +362,7 @@ export const compileAutoMovieSweep: (
     radius,
     profile,
     scale: scaleAt,
+    shape: shaped,
     section,
     frame,
     point,
@@ -355,11 +383,11 @@ const PARAMETER_SAMPLES: number = 512;
  * Compile one loop of a sweep by parameter: each station's curve sampled at the same parameters,
  * each sample's coordinates interpolated along the spine by the spline, linear between samples.
  */
-const compileLoop = (
+function compileLoop(
   sections: IAutoMovieSweepSection[],
   knots: number[],
   loop: number,
-): ICompiledLoop => {
+): ICompiledLoop {
   const polygon: boolean = sections[0]!.type === "polygon";
   const count: number = polygon
     ? (sections[0] as IAutoMovieSweepSection.IPolygon).points.length
@@ -388,8 +416,8 @@ const compileLoop = (
       );
     },
   );
-  const axis = (key: "x" | "y"): Array<(u: number) => number> =>
-    Array.from(
+  function axis(key: "x" | "y"): Array<(u: number) => number> {
+    return Array.from(
       { length: count },
       (_: unknown, j: number): ((u: number) => number) =>
         interpolateAutoMovieSpline({
@@ -399,6 +427,7 @@ const compileLoop = (
           ),
         }),
     );
+  }
   const xs: Array<(u: number) => number> = axis("x");
   const ys: Array<(u: number) => number> = axis("y");
   return {
@@ -412,44 +441,10 @@ const compileLoop = (
       return { x: a.x + (xs[l]!(u) - a.x) * t, y: a.y + (ys[l]!(u) - a.y) * t };
     },
   };
-};
-
-/** A guide with its profile compiled. */
-interface ICompiledGuide {
-  /** Direction in radians within one turn from 0. */
-  angle: number;
-  /** Radius along the direction by `u`. */
-  radius: (u: number) => number;
 }
 
-const compileGuide = (
-  g: IAutoMovieSweep.IGuide,
-  index: number,
-): ICompiledGuide => {
-  if (!Number.isFinite(g.angle))
-    throw new Error(`sweep guide ${index} angle is not finite`);
-  return {
-    angle: ((g.angle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI),
-    radius: compileProfile(g.radii, `sweep guide ${index}`),
-  };
-};
-
-/** A profile along the spine from knots spanning it, positive values, by the spline. */
-const compileProfile = (
-  e: IAutoMovieSweep.IKnot[],
-  what: string,
-): ((u: number) => number) => {
-  if (e.length < 2 || e[0]!.at !== 0 || e[e.length - 1]!.at !== 1)
-    throw new Error(`${what} must span the spine from at 0 to at 1`);
-  e.forEach((k: IAutoMovieSweep.IKnot): void => {
-    if (!Number.isFinite(k.value) || k.value <= 0)
-      throw new Error(`${what} values must be positive and finite`);
-  });
-  return interpolateAutoMovieSpline({
-    knots: e.map((k: IAutoMovieSweep.IKnot): number => k.at),
-    values: e.map((k: IAutoMovieSweep.IKnot): number => k.value),
-  });
-};
+/** One compiled silhouette guide. */
+type ICompiledGuide = ReturnType<typeof compileAutoMovieSweepGuide>;
 
 /**
  * Correct a row of section radii by the guides, the Gordon surface's guide term less its tensor term.
@@ -459,18 +454,18 @@ const compileProfile = (
  * is their difference at the guide directions, interpolated round the turn by the periodic spline
  * scheme over the guide directions.
  */
-const guide = (
+function guide(
   base: Float64Array,
   guides: ICompiledGuide[],
   u: number,
-): Float64Array => {
+): Float64Array {
   const n: number = base.length;
-  const at = (angle: number): number => {
+  function at(angle: number): number {
     const x: number = (angle / (2 * Math.PI)) * n;
     const d: number = Math.floor(x) % n;
     const t: number = x - Math.floor(x);
     return base[d]! * (1 - t) + base[(d + 1) % n]! * t;
-  };
+  }
   const correction: (angle: number) => number = interpolateAutoMovieSpline({
     knots: guides.map((g: ICompiledGuide): number => g.angle),
     values: guides.map(
@@ -487,4 +482,4 @@ const guide = (
       );
   }
   return out;
-};
+}

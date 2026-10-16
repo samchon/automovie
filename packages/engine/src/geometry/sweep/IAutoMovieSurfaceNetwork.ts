@@ -10,7 +10,7 @@ import { IAutoMovieSweep } from "./IAutoMovieSweep";
  *
  * Every patch is a grid in its own coordinates `(s, t)`, both from 0 to 1, and
  * its faces wind counterclockwise seen from outside when `s` runs to the right
- * and `t` up. Three rules fill a patch:
+ * and `t` up. Four rules fill a patch:
  *
  * - `sweep`: a rectangle of one sweep's `(u, v)` domain, with `s` along `v`
  *   and `t` along `u`. Patches of the same sweep that share a side share its
@@ -26,7 +26,8 @@ import { IAutoMovieSweep } from "./IAutoMovieSweep";
  *   joins two sweeps.
  * - `transition`: a band of a sweep's domain whose column count changes
  *   from its start ring to its end ring by 2-to-1 quad reduction strips, the
- *   way a tube gains or sheds columns along its length without a dent.
+ *   way a tube gains or sheds columns along its length; extraordinary
+ *   vertices can still perturb its limit curvature.
  *
  * An opening is a region no patch covers. Its boundary stays a boundary of
  * the cage, which a bridge or a ring can then take up. Edges carry their
@@ -135,7 +136,7 @@ export namespace IAutoMovieSurfaceNetwork {
   }
 
   /**
-   * A curve from one node to another through optional points: the centripetal Catmull-Rom spline through them all, sampled by chord-length share. At a node on a sweep the curve leaves or arrives in the sweep's tangent plane: its end direction is the spline's own less the part along the sweep's normal, so a curve on the surface meets the sweep without a kink.
+   * A curve from one node to another through optional points: the centripetal Catmull-Rom spline through them all, sampled by chord-length share. At a node on a sweep the curve leaves or arrives in the sweep's tangent plane: its end direction is the spline's own less the part along the sweep's normal, so its generating endpoint tangent lies in that plane. Cell averaging and subdivision remain separate; this is not a final-skin normal guarantee.
    *
    * @evidence contracts/common.md#principled-implementation A centripetal Catmull-Rom curve through its nodes and points, with the tangent-plane end condition at sweep nodes and the bridge directions it carries.
    * @evidence contracts/common.md#clear-and-simple-design Nodes by name, optional through points, counts, and the two optional bridge fields.
@@ -162,7 +163,7 @@ export namespace IAutoMovieSurfaceNetwork {
     /** Direction a bridge leaves or enters the curve along, needed only when the curve is part of a bridge loop whose tangent rule is not `across`. */
     direction?: IAutoMovieVector3;
 
-    /** Normal of the surface the bridges make along the curve, needed only when the curve is part of a bridge loop with the `across` rule: a bridge then leaves the curve along this normal crossed with the loop's direction, so two bridges that run along the curve in opposite directions leave it to opposite sides and meet there with one tangent plane, a saddle. The normal holds at the curve's middle; toward an end node on a sweep it turns linearly to that sweep's own normal there, so the bridges also leave the sweep's edge and the curve with one continuous direction field. */
+    /** Normal of the surface the bridges make along the curve, needed only when the curve is part of a bridge loop with the `across` rule: a bridge then leaves the curve along this normal crossed with the loop's direction, so opposite loop directions supply opposite cross-boundary input tangents. This constrains the generating rows rather than certifying the final subdivision normals. The normal holds at the curve's middle; toward an end node on a sweep it turns linearly to that sweep's own normal there, which supplies a continuous normal-hint field where the interpolated vector is nonzero. */
     normal?: IAutoMovieVector3;
   }
 
@@ -255,7 +256,7 @@ export namespace IAutoMovieSurfaceNetwork {
   /**
    * One patch.
    *
-   * @evidence contracts/common.md#principled-implementation The three fill rules of the network: sweep rectangle, Coons patch and Hermite bridge.
+   * @evidence contracts/common.md#principled-implementation The four fill rules: sweep rectangle, Coons patch, Hermite bridge and quad column-transition band.
    * @evidence contracts/common.md#clear-and-simple-design A closed union.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown kinds are not accepted.
    * @evidence contracts/common.md#meaningful-documentation States the members.
@@ -311,7 +312,7 @@ export namespace IAutoMovieSurfaceNetwork {
   /**
    * A band of a sweep's domain whose column count changes across it, so a sweep can carry more columns where it needs detail, such as a groove, and fewer where it meets a coarser ring.
    *
-   * The band runs from its start ring at `u[0]` to its end ring at `u[1]` in `rows` even rows, with `start` columns evenly spaced round the first ring and `end` round the last, so it welds onto sweep patches of those counts on either side. Give it rows so its middle row is about as tall as a coarse column is wide: on a cylinder going from 8 to 16 columns, a middle row half that tall bends the limit normal round the poles by 8 degrees instead of 5. Its middle row reduces the finer ring to the coarser by `(fine - coarse) / 2` blocks of the 2-to-1 quad reduction strip, each turning four fine columns into two coarse columns through six quads with two interior poles of valence three half-way across the row; every other column passes straight through, and rows before the middle keep the start count and rows after it the end count. The fine ring stays regular; the coarse ring vertices at the blocks' corners take valence five beside a straight column and six between two blocks. Blocks spread evenly round the band and mirror with it, as `layoutAutoMovieSurfaceTransition` states. Every vertex is a sample of the sweep and the limit fit passes through it, so the surface stays the sweep's; put the band where the sweep is gently curved along `u`, because its poles carry the most curvature error, and narrow its `v` range to keep them off a region, splitting the ring into several bands.
+   * The band runs from its start ring at `u[0]` to its end ring at `u[1]` in `rows` even rows, with `start` columns evenly spaced round the first ring and `end` round the last, so it welds onto sweep patches of those counts on either side. Give it rows so its middle row is about as tall as a coarse column is wide: on a cylinder going from 8 to 16 columns, a middle row half that tall bends the limit normal round the poles by 8 degrees instead of 5. Its middle row reduces the finer ring to the coarser by `(fine - coarse) / 2` blocks of the 2-to-1 quad reduction strip, each turning four fine columns into two coarse columns through six quads with two interior poles of valence three half-way across the row; every other column passes straight through, and rows before the middle keep the start count and rows after it the end count. The fine ring stays regular; the coarse ring vertices at the blocks' corners take valence five beside a straight column and six between two blocks. Blocks spread evenly round the band and mirror with it, as `layoutAutoMovieSurfaceTransition` states. Vertices sample the sweep with the rig's cell averaging. With fitting enabled, free limit vertices interpolate those filtered targets; the surface between them still depends on subdivision topology; put the band where the sweep is gently curved along `u`, because its poles carry the most curvature error, and narrow its `v` range to keep them off a region, splitting the ring into several bands.
    *
    * Counts must differ by an even number, the finer at most twice the coarser, so a larger change chains two bands; equal counts give plain rows. The patch's `(s, t)` coordinates run along `v` and `u` as a sweep patch's do, but its faces are not a grid: each face's corners carry their own coordinates.
    *
@@ -435,7 +436,7 @@ export namespace IAutoMovieSurfaceNetwork {
     edges: IEdge[];
 
     /**
-     * Direction of travel at the loop: `normal` and `inward` along or against a sweep's outward normal, `forward` and `backward` along or against its spine (`+u` or `-u`), and `across` within the sweep's tangent plane perpendicular to the loop, `N x L` for the outward normal `N` and the loop's direction `L` at the point, which points into the region the loop encloses when the loop runs counterclockwise about `N`. `across` leaves an opening tangent to the surface around it, so the bridge continues that surface with a continuous tangent plane, where `normal` turns a right angle at the opening's edge. Points of a curve edge take the curve's `normal` as `N` under `across` and the curve's `direction` under every other rule.
+     * Direction of travel at the loop: `normal` and `inward` along or against a sweep's outward normal, `forward` and `backward` along or against its spine (`+u` or `-u`), and `across` within the sweep's tangent plane perpendicular to the loop, `N x L` for the outward normal `N` and the loop's direction `L` at the point, which points into the region the loop encloses when the loop runs counterclockwise about `N`. `across` places each generating row's endpoint tangent in the supplied plane, while `normal` supplies its perpendicular. Final joined-skin normals and curvature require separate evaluation. Points of a curve edge take the curve's `normal` as `N` under `across` and the curve's `direction` under every other rule.
      */
     tangent: "normal" | "inward" | "forward" | "backward" | "across";
   }
@@ -463,7 +464,7 @@ export namespace IAutoMovieSurfaceNetwork {
     positions?: IAutoMovieVector3[];
 
     /**
-     * The perimeter, metres, the limit surface keeps along the loop, such as a measured girth; omitted, none. The loop must run once round one sweep at one `u`, through vertices of valence four whose loop neighbours lie opposite, beside rows of such vertices, so the limit along it is a uniform cubic B-spline; it cannot also have `positions`. The sweep's points are scaled radially by a factor along `u`, the bounded spline through 1 at the sweep's other rings at one `u` and, at each such loop, the factor solved so the fitted cage's limit perimeter there matches, holding its end values beyond the outermost knots; the factor is solved at rest for each tier and kept in every pose.
+     * Target limit perimeter at rest, metres, such as a measured girth; omitted, none. The loop must run once round one sweep at one `u`, through vertices of valence four whose loop neighbours lie opposite, beside rows of such vertices, so the limit along it is a uniform cubic B-spline; it cannot also have `positions`. The sweep's points are scaled radially by a factor along `u`, the sampled-overshoot-policy spline through 1 at the sweep's other rings at one `u` and, at each such loop, the factor solved so the fitted cage's limit perimeter there matches, holding its end values beyond the outermost knots; the factor is solved at rest for each tier and retained, without re-solving the perimeter in every pose.
      */
     perimeter?: number;
   }

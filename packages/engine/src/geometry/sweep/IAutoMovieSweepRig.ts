@@ -119,10 +119,10 @@ export interface IAutoMovieSweepRig {
    * Multiply every scale slot by a fixed factor of its `u`, at rest and in
    * every pose from now on, the radial correction a surface network solves
    * to hold a measured girth. Each call replaces the previous factor, and the
-   * rest slots and probes are refreshed at once.
+   * rest slots and probes are refreshed after every factor, scale product and probe is admitted. A rejected factor, product or probe leaves the previous scales and probes in place.
    *
    * @param factor The factor at a spine parameter, positive and finite
-   * @throws Error when called before `seal`, or the factor is not positive and finite at a slot
+   * @throws Error when called before `seal`, or the factor or its resulting scale is not positive and finite at a slot, or a probe is not representable
    *
    * @evidence contracts/common.md#principled-implementation A shape correction folded into the scale, the one place every sample, probe and pose reads the radius from.
    * @evidence contracts/common.md#clear-and-simple-design One factor per scale slot, replaced rather than compounded.

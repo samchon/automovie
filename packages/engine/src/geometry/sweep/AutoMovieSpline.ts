@@ -1,10 +1,10 @@
 /** Tension below which a segment is evaluated as the plain cubic, where the hyperbolic form loses precision. */
 const CUBIC: number = 1e-4;
 
-/** Largest tension tried; at this tension a segment is within a fraction of a percent of its chord. */
+/** Largest tension tried by the fixed sampled-search policy. */
 const MOST: number = 64;
 
-/** Bisection steps that settle the least admissible tension. */
+/** Bisection steps that refine an accepted/rejected sampled-tension bracket. */
 const SETTLE: number = 10;
 
 /** Samples per segment when measuring overshoot. */
@@ -12,7 +12,7 @@ const SAMPLES: number = 16;
 
 /**
  * The interpolating spline under tension on caller-owned arrays: one shared
- * tension chosen per profile to bound overshoot, the coefficients solved in
+ * tension chosen per profile by a sampled overshoot policy, the coefficients solved in
  * place and evaluation without allocation.
  *
  * Segment `k` of width `h` between knots `x_k` and `x_k+1` is
@@ -25,18 +25,17 @@ const SAMPLES: number = 16;
  * ends, second derivative 0, and holds its end values outside its knots; a
  * periodic one closes across its period.
  *
- * `fit` takes tension 0 when no segment strays beyond the range of its two
- * knot values by more than a tenth of the local variation, the largest
- * value step within two segments of it, since a spline answers a jump over
- * about two segments; otherwise the least
- * tension that meets that bound, found by doubling from 1/2 and ten
- * bisection steps, at most 64. Overshoot falls as tension rises, so the
- * choice moves continuously with the values. Unlike a monotone cubic, which
- * flattens the curve at every local extremum and leaves its curvature
- * jumping at every knot, this keeps curvature continuous through the knots,
- * so a profile sampled densely shows no terrace at its stations.
+ * `fit` first tries tension 0. It checks fifteen interior locations per
+ * segment against the knot range expanded by a tenth of the largest value
+ * step within two segments. If that scan fails, it doubles tension from
+ * 1/2, then bisects the rejected/accepted bracket ten times, up to 64.
+ * The scan does not bound extrema between probes, and reaching 64 returns
+ * that tension even if the scan still fails. Positive values need not stay
+ * positive between knots. Unlike a monotone cubic, the spline preserves
+ * curvature continuity at interior knots; its constant open-end extension
+ * need not preserve the endpoint's first derivative.
  *
- * @evidence contracts/common.md#principled-implementation The spline under tension, C2 for every tension, with the tension raised only as far as a stated overshoot bound requires: the standard remedy between a cubic spline's overshoot and a monotone cubic's curvature jumps.
+ * @evidence contracts/common.md#principled-implementation The spline under tension, C2 for every tension, with tension selected by the stated sampled overshoot policy and capped at 64; between-probe extrema and acceptance at that cap are not guaranteed: the standard remedy between a cubic spline's overshoot and a monotone cubic's curvature jumps.
  * @evidence contracts/common.md#clear-and-simple-design One implementation for the closure API and every in-place caller: `fit` solves, `evaluate` reads.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Inputs are not validated here; `interpolateAutoMovieSpline` validates, and compiled profiles were validated when compiled. The bound, its sampling and the tension search are fixed constants, not tuned per caller.
  * @evidence contracts/common.md#meaningful-documentation States the segment formula and its sources, the end and periodic conditions, the tension rule, the bound and why it replaces the monotone cubic.
@@ -49,7 +48,7 @@ export namespace AutoMovieSpline {
   export const BOUND: number = 0.1;
 
   /**
-   * Choose the tension and solve the knots' second derivatives.
+   * Choose the sampled-policy tension and solve the knots' second derivatives.
    *
    * @param xs Strictly increasing knots, at least `n`.
    * @param ys Values, at least `n`.
@@ -59,7 +58,7 @@ export namespace AutoMovieSpline {
    * @param scratch At least `7 n + 17` numbers, overwritten.
    * @returns The tension.
    *
-   * @evidence contracts/common.md#principled-implementation The tridiagonal continuity system of the spline under tension, solved by elimination, cyclic for a periodic profile by the Sherman-Morrison correction, and the least tension meeting the overshoot bound.
+   * @evidence contracts/common.md#principled-implementation The tridiagonal continuity system of the spline under tension, solved by elimination, cyclic for a periodic profile by the Sherman-Morrison correction, and a bounded search for a tension accepted by the sampled overshoot check; the cap can return without acceptance.
    * @evidence contracts/common.md#clear-and-simple-design One solve per trial tension and one overshoot scan, in the caller's arrays.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The search stops at the stated largest tension rather than looping.
    * @evidence contracts/common.md#meaningful-documentation States the arrays, the return and the search.
@@ -67,14 +66,14 @@ export namespace AutoMovieSpline {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Called once per profile change; the coefficients are the reuse.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing; writes only `m` and `scratch`.
    */
-  export const fit = (
+  export function fit(
     xs: ArrayLike<number>,
     ys: ArrayLike<number>,
     n: number,
     period: number,
     m: { [index: number]: number },
     scratch: { [index: number]: number },
-  ): number => {
+  ): number {
     if (n < 3 && period === 0) {
       for (let k: number = 0; k < n; ++k) m[k] = 0;
       return 0;
@@ -98,7 +97,7 @@ export namespace AutoMovieSpline {
     }
     solve(xs, ys, n, period, high, m, scratch);
     return high;
-  };
+  }
 
   /**
    * Evaluate the spline at `x`.
@@ -120,7 +119,7 @@ export namespace AutoMovieSpline {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure evaluation.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing.
    */
-  export const evaluate = (
+  export function evaluate(
     xs: ArrayLike<number>,
     ys: ArrayLike<number>,
     m: ArrayLike<number>,
@@ -128,7 +127,7 @@ export namespace AutoMovieSpline {
     period: number,
     tension: number,
     input: number,
-  ): number => {
+  ): number {
     if (n === 1) return ys[0]!;
     const first: number = xs[0]!;
     const last: number = xs[n - 1]!;
@@ -157,10 +156,10 @@ export namespace AutoMovieSpline {
       low,
       (x - xs[low]!) / width(xs, n, period, low),
     );
-  };
+  }
 
   /** Whether the spline at a tension meets the overshoot bound, leaving its coefficients in `m`. */
-  const admits = (
+  function admits(
     xs: ArrayLike<number>,
     ys: ArrayLike<number>,
     n: number,
@@ -168,13 +167,13 @@ export namespace AutoMovieSpline {
     tension: number,
     m: { [index: number]: number },
     scratch: { [index: number]: number },
-  ): boolean => {
+  ): boolean {
     solve(xs, ys, n, period, tension, m, scratch);
     return within(xs, ys, m, n, period, tension, scratch);
-  };
+  }
 
   /** The spline on segment `k` at its own parameter `t`. */
-  const segment = (
+  function segment(
     xs: ArrayLike<number>,
     ys: ArrayLike<number>,
     m: { readonly [index: number]: number },
@@ -183,7 +182,7 @@ export namespace AutoMovieSpline {
     tension: number,
     k: number,
     t: number,
-  ): number => {
+  ): number {
     const l: number = (k + 1) % n;
     const h: number = width(xs, n, period, k);
     const y0: number = ys[k]!;
@@ -206,27 +205,31 @@ export namespace AutoMovieSpline {
       (y0 - m0 * scale) * (1 - t) +
       (y1 - m1 * scale) * t
     );
-  };
+  }
 
   /** Width of segment `k`, the wrap segment's taken across the period. */
-  const width = (
+  function width(
     xs: ArrayLike<number>,
     n: number,
     period: number,
     k: number,
-  ): number => (k < n - 1 ? xs[k + 1]! - xs[k]! : xs[0]! + period - xs[n - 1]!);
+  ): number {
+    return k < n - 1 ? xs[k + 1]! - xs[k]! : xs[0]! + period - xs[n - 1]!;
+  }
 
   /** The two coefficients of a segment of width `h` in the continuity system: its own and its neighbour's. */
-  const own = (h: number, tension: number): number =>
-    tension < CUBIC
+  function own(h: number, tension: number): number {
+    return tension < CUBIC
       ? h / 3
       : h *
-        (Math.cosh(tension) / (tension * Math.sinh(tension)) -
-          1 / (tension * tension));
-  const across = (h: number, tension: number): number =>
-    tension < CUBIC
+          (Math.cosh(tension) / (tension * Math.sinh(tension)) -
+            1 / (tension * tension));
+  }
+  function across(h: number, tension: number): number {
+    return tension < CUBIC
       ? h / 6
       : h * (1 / (tension * tension) - 1 / (tension * Math.sinh(tension)));
+  }
 
   /**
    * Solve the knots' second derivatives at one tension: natural ends, or cyclic for a period by the
@@ -234,7 +237,7 @@ export namespace AutoMovieSpline {
    * sub-diagonal, diagonal, super-diagonal and right side from 0, n, 2n and 3n, the elimination's
    * work from 4n and 5n, and the correction column from 6n.
    */
-  const solve = (
+  function solve(
     xs: ArrayLike<number>,
     ys: ArrayLike<number>,
     n: number,
@@ -242,7 +245,7 @@ export namespace AutoMovieSpline {
     tension: number,
     m: { [index: number]: number },
     scratch: { [index: number]: number },
-  ): void => {
+  ): void {
     const segments: number = period === 0 ? n - 1 : n;
     // knot i's row joins segments i - 1 and i
     const first: number = period === 0 ? 1 : 0;
@@ -292,20 +295,20 @@ export namespace AutoMovieSpline {
       (m[0]! + (beta * m[n - 1]!) / gamma) /
       (1 + scratch[z]! + (beta * scratch[z + n - 1]!) / gamma);
     for (let r: number = 0; r < n; ++r) m[r] = m[r]! - factor * scratch[z + r]!;
-  };
+  }
 
   /**
    * Solve the tridiagonal rows held in `scratch` (sub-diagonal from 0, diagonal from `n`, super-diagonal
    * from `2n`, right side from `rhs`) into `out` from `offset`, by elimination using `scratch` from `4n`.
    */
-  const eliminate = (
+  function eliminate(
     count: number,
     n: number,
     rhs: number,
     scratch: { [index: number]: number },
     out: { [index: number]: number },
     offset: number,
-  ): void => {
+  ): void {
     if (count <= 0) return;
     const cp: number = 4 * n;
     const dp: number = 5 * n;
@@ -322,10 +325,10 @@ export namespace AutoMovieSpline {
     for (let r: number = count - 2; r >= 0; --r)
       out[offset + r] =
         scratch[dp + r]! - scratch[cp + r]! * out[offset + r + 1]!;
-  };
+  }
 
-  /** Whether no segment strays beyond its knots' range by more than the bound times the local variation. */
-  const within = (
+  /** Whether the sampled fractions of every segment stay within the knot range plus the allowed local variation. */
+  function within(
     xs: ArrayLike<number>,
     ys: ArrayLike<number>,
     m: { readonly [index: number]: number },
@@ -333,7 +336,7 @@ export namespace AutoMovieSpline {
     period: number,
     tension: number,
     scratch: { [index: number]: number },
-  ): boolean => {
+  ): boolean {
     const segments: number = period === 0 ? n - 1 : n;
     // the sample fractions are shared by every segment, so their hyperbolic weights are too
     const table: number = 7 * n;
@@ -371,17 +374,18 @@ export namespace AutoMovieSpline {
       }
     }
     return true;
-  };
+  }
 
   /** The value step of segment `k`, 0 beyond an open profile's ends. */
-  const rise = (
+  function rise(
     ys: ArrayLike<number>,
     n: number,
     segments: number,
     period: number,
     k: number,
-  ): number =>
-    period === 0 && (k < 0 || k >= segments)
+  ): number {
+    return period === 0 && (k < 0 || k >= segments)
       ? 0
       : Math.abs(ys[(((k + 1) % n) + n) % n]! - ys[((k % n) + n) % n]!);
+  }
 }

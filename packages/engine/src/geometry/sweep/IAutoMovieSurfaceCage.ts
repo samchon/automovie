@@ -36,7 +36,7 @@ export interface IAutoMovieSurfaceCage {
     faces: number[][];
   };
 
-  /** Packed pre-inverse samples `[x, y, z, ...]`, metres, after girth adjustment and control pins. Only limitTargetMask rows are limit equalities; pinned entries are control positions, not points on the geometric curve. */
+  /** Packed pre-inverse generating samples `[x, y, z, ...]`, metres, after girth adjustment and control pins: cell-averaged sweep samples, curve samples and blend controls. Only limitTargetMask rows are hard limit equalities; pinned entries are declared control positions, not geometric curve points, and held blend interiors retain their generating controls. */
   targets: number[];
 
   /** Whether each vertex is a pinned ring vertex, kept at its given position. */

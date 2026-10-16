@@ -51,7 +51,11 @@ export function planAutoMovieSurfaceRigPatches(props: {
   const { writers, reserve, admit, existing }: IAutoMovieSurfaceRegistry =
     registry;
   // a bridge may run along a network curve no patch samples, but a sweep point it names must be one a patch made
-  function joined(point: IAutoMovieSurfaceSample, what: string): number { return point.key.startsWith("s|") ? existing(point.key, what) : admit(point); }
+  function joined(point: IAutoMovieSurfaceSample, what: string): number {
+    return point.key.startsWith("s|")
+      ? existing(point.key, what)
+      : admit(point);
+  }
   const blend: Set<number> = new Set();
   const layout: IAutoMovieSurfaceLayout =
     layoutAutoMovieSurfacePatches(network);
@@ -207,7 +211,8 @@ export function planAutoMovieSurfaceRigPatches(props: {
             );
         },
       );
-      function edgeAt(i: number, j: number): IAutoMovieSurfaceSample | null { return j === 0
+      function edgeAt(i: number, j: number): IAutoMovieSurfaceSample | null {
+        return j === 0
           ? bottom[i]!
           : j === rows
             ? top[columns - i]!
@@ -215,7 +220,8 @@ export function planAutoMovieSurfaceRigPatches(props: {
               ? left[rows - j]!
               : i === columns
                 ? right[j]!
-                : null; }
+                : null;
+      }
       const grid: number[][] = Array.from(
         { length: rows + 1 },
         (_: unknown, j: number): number[] =>

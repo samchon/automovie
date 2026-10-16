@@ -16,7 +16,9 @@ import { IAutoMovieSubdivisionSurface } from "./IAutoMovieSubdivisionSurface";
  * keeps the exact limit normal wherever every quad around a normal is
  * undisplaced, and agrees with the displaced shape to the mesh's resolution,
  * so relief narrower than about two faces of the subdivided mesh aliases and
- * belongs at a finer level. The heights usually come from a field evaluated
+ * belongs at a finer level. The orientation check is local to each normal
+ * group's aggregate area; it does not certify every face orientation or
+ * global absence of self-intersections. The heights usually come from a field evaluated
  * at each vertex's `locateAutoMovieSurfaceVertices` location, which depends
  * on no pose, so a posed surface takes the same heights.
  *
@@ -40,7 +42,7 @@ export const displaceAutoMovieSurface: (props: {
   surface: IAutoMovieSubdivisionSurface;
   heights: ArrayLike<number>;
 }): IAutoMovieSubdivisionSurface => {
-  const { surface, heights } = props;
+  const { surface, heights }: typeof props = props;
   const vertices: number = surface.limitPositions.length / 3;
   if (heights.length !== vertices)
     throw new Error(`displacement needs ${vertices} heights, one per vertex`);
@@ -77,12 +79,12 @@ export const displaceAutoMovieSurface: (props: {
   // area vectors of the quads around each normal, before and after
   const before: Float64Array = new Float64Array(3 * normalCount);
   const after: Float64Array = new Float64Array(3 * normalCount);
-  const area = (
+  function area(
     points: readonly number[],
     f: number,
     out: Float64Array,
     n: number,
-  ): void => {
+  ): void {
     const p0: number = 3 * surface.faces[f]!;
     const p1: number = 3 * surface.faces[f + 1]!;
     const p2: number = 3 * surface.faces[f + 2]!;
@@ -96,7 +98,7 @@ export const displaceAutoMovieSurface: (props: {
     out[3 * n]! += ay * bz - az * by;
     out[3 * n + 1]! += az * bx - ax * bz;
     out[3 * n + 2]! += ax * by - ay * bx;
-  };
+  }
   for (let f: number = 0; f < surface.faces.length; f += 4)
     for (let k: number = 0; k < 4; ++k) {
       const n: number = surface.normalFaces[f + k]!;

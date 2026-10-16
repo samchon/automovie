@@ -18,7 +18,7 @@ import { sweepTransitionDeviation } from "../internal/sweepTransitionDeviation";
  * @evidence contracts/testing.md#execution-ownership A portable unit test reached through the discoverable `test_geometry_sweep_transition_high` entry with no process, browser or GPU.
  */
 export function test_geometry_sweep_transition_high(): void {
-  const [radial, normal] = sweepTransitionDeviation("high");
+  const [radial, normal]: [number, number] = sweepTransitionDeviation("high");
   TestValidator.equals(
     "a cylinder changing count at the high tier stays within the stated bounds",
     [radial <= 0.003, normal <= 2.5],

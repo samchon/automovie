@@ -31,7 +31,7 @@ export function sweepRowPerimeter(
     network,
     tier,
   });
-  const at = (levels: number): number[] => {
+  function at(levels: number): number[] {
     const surface: IAutoMovieSubdivisionSurface = subdivideAutoMovieSurface({
       cage: { positions: cage.cage.positions, faces: cage.cage.faces },
       levels,
@@ -71,7 +71,7 @@ export function sweepRowPerimeter(
       });
       return length;
     });
-  };
+  }
   const fine: number[] = at(3);
   const coarse: number[] = at(2);
   return fine.map((l: number, k: number): number => (4 * l - coarse[k]!) / 3);

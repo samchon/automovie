@@ -41,29 +41,38 @@ export function sweepGirthTube(shape: {
   perimeter?: number;
   beside?: [number, number];
 }): IAutoMovieSurfaceNetwork {
-  const section = (
+  function section(
     right: number,
     up: number,
-  ): IAutoMovieSweep.IStation["section"] => ({
-    type: "superellipse",
-    right,
-    up,
-    left: right,
-    down: up,
-    exponents: [shape.exponent, shape.exponent, shape.exponent, shape.exponent],
-  });
-  const ring = (name: string, u: number): IAutoMovieSurfaceNetwork.IRing => ({
-    name,
-    edges: [
-      {
-        type: "sweep",
-        sweep: "tube",
-        from: { u, v: 0 },
-        to: { u, v: 1 },
-        segments: COLUMNS,
-      },
-    ],
-  });
+  ): IAutoMovieSweep.IStation["section"] {
+    return {
+      type: "superellipse",
+      right,
+      up,
+      left: right,
+      down: up,
+      exponents: [
+        shape.exponent,
+        shape.exponent,
+        shape.exponent,
+        shape.exponent,
+      ],
+    };
+  }
+  function ring(name: string, u: number): IAutoMovieSurfaceNetwork.IRing {
+    return {
+      name,
+      edges: [
+        {
+          type: "sweep",
+          sweep: "tube",
+          from: { u, v: 0 },
+          to: { u, v: 1 },
+          segments: COLUMNS,
+        },
+      ],
+    };
+  }
   return {
     sweeps: {
       tube: {

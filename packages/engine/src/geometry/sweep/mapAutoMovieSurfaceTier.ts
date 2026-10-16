@@ -25,7 +25,7 @@ import { locateAutoMovieSurfaceCoordinate } from "./locateAutoMovieSurfaceCoordi
  * @evidence contracts/common.md#clear-and-simple-design Composes the corner coordinates the sampler publishes with the locator; it holds no state of its own.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Tiers whose patch lists differ are refused instead of matched by position.
  * @evidence contracts/common.md#meaningful-documentation States the mapping, why it is exact, the requirement that both tiers share a network, and the refusals.
- * @evidence contracts/performance.md#efficient-algorithms Constant time plus a comparison of the two patch name lists, O(P) for P patches.
+ * @evidence contracts/performance.md#efficient-algorithms O(P) to compare the patch name lists, then constant chart composition plus target location: O(1) for a grid or up to 30 Newton steps per target-band face. Temporary name strings and weights are released on return.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure lookup.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -44,17 +44,18 @@ export const mapAutoMovieSurfaceTier: (props: {
   at: IAutoMovieSubdivisionParameter;
   coordinate: IAutoMovieSurfaceCoordinate;
 } => {
-  const names = (c: IAutoMovieSurfaceCage): string =>
-    c.patches
+  function names(c: IAutoMovieSurfaceCage): string {
+    return c.patches
       .map((p: IAutoMovieSurfaceCage.IPatch): string => p.name)
       .join("\u0000");
+  }
   if (names(props.from) !== names(props.to))
     throw new Error("tiers must come from the same network");
   const corners: IAutoMovieSurfaceCage["corners"][number] | undefined =
     props.from.corners[props.at.face];
   if (corners === undefined)
     throw new Error(`face ${props.at.face} is out of range`);
-  const { u, v } = props.at;
+  const { u, v }: typeof props.at = props.at;
   if (!(u >= 0 && u <= 1 && v >= 0 && v <= 1))
     throw new Error("face coordinates must lie in 0 to 1");
   const w: number[] = [(1 - u) * (1 - v), u * (1 - v), u * v, (1 - u) * v];

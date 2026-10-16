@@ -1,5 +1,6 @@
 import {
   type AutoMovieSurfaceTier,
+  type IAutoMovieSubdivisionParameter,
   type IAutoMovieSurfaceCage,
   layoutAutoMovieSurfaceTransition,
   mapAutoMovieSurfaceTier,
@@ -21,7 +22,6 @@ const BOUNDS: Record<
   low: [0.012, 5],
   medium: [0.012, 5],
 };
-
 /**
  * A transition band changes a sweep's column count with quads only: its
  * cage stays a closed manifold with regular rings and only the band's poles
@@ -93,31 +93,50 @@ export function test_geometry_sweep_transition(): void {
     ]),
     { poles: true, boundary: true },
   );
-
-  const mirrored = (start: number, end: number): boolean => {
-    const key = (q: Array<{ s: number; t: number }>): string =>
-      q
+  function mirrored(start: number, end: number): boolean {
+    function key(
+      q: Array<{
+        s: number;
+        t: number;
+      }>,
+    ): string {
+      return q
         .map(
           (c: { s: number; t: number }): string =>
             `${Math.round(c.s * 1e9)},${Math.round(c.t * 1e9)}`,
         )
         .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0))
         .join(";");
-    const quads: Array<Array<{ s: number; t: number }>> =
-      layoutAutoMovieSurfaceTransition(start, end, 1);
+    }
+    const quads: Array<
+      Array<{
+        s: number;
+        t: number;
+      }>
+    > = layoutAutoMovieSurfaceTransition(start, end, 1);
     const set: Set<string> = new Set(quads.map(key));
-    return quads.every((q: Array<{ s: number; t: number }>): boolean =>
-      set.has(
-        key(q.map((c: { s: number; t: number }) => ({ s: 1 - c.s, t: c.t }))),
-      ),
+    return quads.every(
+      (
+        q: Array<{
+          s: number;
+          t: number;
+        }>,
+      ): boolean =>
+        set.has(
+          key(
+            q.map((c: { s: number; t: number }): { s: number; t: number } => ({
+              s: 1 - c.s,
+              t: c.t,
+            })),
+          ),
+        ),
     );
-  };
+  }
   TestValidator.equals(
     "a band reversed in s is the same band",
     [mirrored(8, 16), mirrored(16, 12)],
     [true, true],
   );
-
   const low: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({
     network: sweepTransitionTube(),
     tier: "low",
@@ -128,13 +147,13 @@ export function test_geometry_sweep_transition(): void {
   TestValidator.predicate(
     "points on band faces round-trip between tiers",
     bands.every((face: number, k: number): boolean => {
-      const at = {
+      const at: { face: number; corner: null; u: number; v: number } = {
         face,
         corner: null,
         u: 0.1 + 0.8 * ((k * 0.618) % 1),
         v: 0.1 + 0.8 * ((k * 0.382) % 1),
       };
-      const back = mapAutoMovieSurfaceTier({
+      const back: IAutoMovieSubdivisionParameter = mapAutoMovieSurfaceTier({
         from: low,
         to: cage,
         at: mapAutoMovieSurfaceTier({ from: cage, to: low, at }).at,
@@ -146,16 +165,17 @@ export function test_geometry_sweep_transition(): void {
       );
     }),
   );
-
   TestValidator.equals(
     "a cylinder changing count stays within the stated bounds",
-    (Object.keys(BOUNDS) as Array<keyof typeof BOUNDS>).map((tier): boolean => {
-      const [radial, normal] = sweepTransitionDeviation(tier);
-      return radial <= BOUNDS[tier][0] && normal <= BOUNDS[tier][1];
-    }),
+    (Object.keys(BOUNDS) as Array<keyof typeof BOUNDS>).map(
+      (tier: "medium" | "low" | "lowest"): boolean => {
+        const [radial, normal]: [number, number] =
+          sweepTransitionDeviation(tier);
+        return radial <= BOUNDS[tier][0] && normal <= BOUNDS[tier][1];
+      },
+    ),
     [true, true, true],
   );
-
   const invalids: Array<readonly [string, () => unknown, string]> = [
     [
       "an odd difference",

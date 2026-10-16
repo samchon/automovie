@@ -12,11 +12,12 @@ import { sweepBranchedBody } from "../internal/sweepBranchedBody";
 const TIERS: AutoMovieSurfaceTier[] = ["lowest", "low", "medium", "high"];
 
 /** The vertex map of the mirror across `x = 0`, matching mirrored points within `tolerance`, or null when some point has no mirror. */
-const mirrorMap = (points: number[], tolerance: number): number[] | null => {
+function mirrorMap(points: number[], tolerance: number): number[] | null {
   const count: number = points.length / 3;
   // points by coordinates rounded to a 1e-7 m grid, far coarser than the tolerance and far finer than the cage
-  const grid = (x: number, y: number, z: number): string =>
-    `${Math.round(x * 1e7)},${Math.round(y * 1e7)},${Math.round(z * 1e7)}`;
+  function grid(x: number, y: number, z: number): string {
+    return `${Math.round(x * 1e7)},${Math.round(y * 1e7)},${Math.round(z * 1e7)}`;
+  }
   const at: Map<string, number> = new Map();
   for (let i: number = 0; i < count; ++i)
     at.set(grid(points[3 * i]!, points[3 * i + 1]!, points[3 * i + 2]!), i);
@@ -35,10 +36,10 @@ const mirrorMap = (points: number[], tolerance: number): number[] | null => {
     map.push(j);
   }
   return map;
-};
+}
 
 /** Whether the mirror map is an involution that carries every face onto a face wound the other way. */
-const mirrorsFaces = (cage: IAutoMovieSurfaceCage, map: number[]): boolean => {
+function mirrorsFaces(cage: IAutoMovieSurfaceCage, map: number[]): boolean {
   const faces: Set<string> = new Set(
     cage.cage.faces.map((q: number[]): string => canonical(q)),
   );
@@ -52,13 +53,13 @@ const mirrorsFaces = (cage: IAutoMovieSurfaceCage, map: number[]): boolean => {
       ),
     )
   );
-};
+}
 
 /** A quad as a string independent of its starting corner. */
-const canonical = (q: number[]): string => {
+function canonical(q: number[]): string {
   const k: number = q.indexOf(Math.min(...q));
   return [0, 1, 2, 3].map((i: number): number => q[(k + i) % 4]!).join(",");
-};
+}
 
 /**
  * A mirrored network samples to a mirrored cage at every tier.

@@ -54,7 +54,13 @@ export function prepareAutoMovieSurfaceConstruction(props: {
     )
       throw new Error(`unknown construction sample count ${key}`);
   const entries: IEntry[] = [];
-  function add(kind: IAutoMovieSurfaceConstruction["kind"], name: string, closed: boolean, count: number, make: (t: number) => (out: Float64Array, at: number) => void): void {
+  function add(
+    kind: IAutoMovieSurfaceConstruction["kind"],
+    name: string,
+    closed: boolean,
+    count: number,
+    make: (t: number) => (out: Float64Array, at: number) => void,
+  ): void {
     entries.push({
       kind,
       name,
@@ -67,7 +73,12 @@ export function prepareAutoMovieSurfaceConstruction(props: {
   }
   for (const [name, sweep] of Object.entries(props.network.sweeps)) {
     const rig: IAutoMovieSweepRig = props.sweepRig(name);
-    function point(u: number, v: number): ((out: Float64Array, at: number) => void) { return rig.sample(u, v, [0, 0, 0, 0]); }
+    function point(
+      u: number,
+      v: number,
+    ): (out: Float64Array, at: number) => void {
+      return rig.sample(u, v, [0, 0, 0, 0]);
+    }
     add("spine", name, false, samples.line, (u: number): IWriter => {
       const frame: number = 12 * rig.frame(u);
       return (out: Float64Array, at: number): void => {

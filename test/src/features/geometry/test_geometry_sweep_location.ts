@@ -3,12 +3,14 @@ import {
   type IAutoMovieSurfaceCage,
   type IAutoMovieSurfaceLocation,
   type IAutoMovieSurfaceNetwork,
+  type IAutoMovieSweep,
   type IAutoMovieSweepSurface,
   compileAutoMovieSweep,
   locateAutoMovieSurfaceVertices,
   sampleAutoMovieSurfaceNetwork,
   subdivideAutoMovieSurface,
 } from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { sweepBottle } from "../internal/sweepBottle";
@@ -17,7 +19,6 @@ import { throwsError } from "../internal/throwsError";
 
 /** Metres a vertex may lie from the sweep at its located domain point: the chart's departure where row spacing changes, measured 4.6 mm, against 0.27 m for the chart read the wrong way round. */
 const NEAR: number = 0.01;
-
 /**
  * Every vertex of a subdivided network is located by patch, patch
  * coordinates and, on a sweep or transition patch, the sweep's domain point,
@@ -60,25 +61,20 @@ export function test_geometry_sweep_location(): void {
       });
     const sweeps: Record<string, IAutoMovieSweepSurface> = Object.fromEntries(
       Object.entries(network.sweeps).map(
-        ([key, sweep]): [string, IAutoMovieSweepSurface] => [
-          key,
-          compileAutoMovieSweep(sweep),
-        ],
+        ([key, sweep]: [string, IAutoMovieSweep]): [
+          string,
+          IAutoMovieSweepSurface,
+        ] => [key, compileAutoMovieSweep(sweep)],
       ),
     );
-    const distance = (
-      sweep: string,
-      u: number,
-      v: number,
-      at: number,
-    ): number => {
-      const p = sweeps[sweep]!.point(u, v);
+    function distance(sweep: string, u: number, v: number, at: number): number {
+      const p: IAutoMovieVector3 = sweeps[sweep]!.point(u, v);
       return Math.hypot(
         p.x - surface.limitPositions[3 * at]!,
         p.y - surface.limitPositions[3 * at + 1]!,
         p.z - surface.limitPositions[3 * at + 2]!,
       );
-    };
+    }
     let near: number = 0;
     let swapped: number = 0;
     let kinds: boolean = true;
@@ -115,17 +111,24 @@ export function test_geometry_sweep_location(): void {
       },
     );
   }
-
   const network: IAutoMovieSurfaceNetwork = sweepTransitionTube();
   const cage: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({
     network,
     tier: "lowest",
   });
-  const locate =
+  const locate: (
+    parameter: { face: number; corner: number | null; u: number; v: number },
+    other?: IAutoMovieSurfaceNetwork,
+  ) => () => unknown =
     (
-      parameter: { face: number; corner: number | null; u: number; v: number },
+      parameter: {
+        face: number;
+        corner: number | null;
+        u: number;
+        v: number;
+      },
       other: IAutoMovieSurfaceNetwork = network,
-    ) =>
+    ): (() => unknown) =>
     (): unknown =>
       locateAutoMovieSurfaceVertices({
         network: other,

@@ -2,6 +2,7 @@ import {
   type IAutoMovieSweepSurface,
   compileAutoMovieSweep,
 } from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { sweepGirthTube } from "../internal/sweepGirthTube";
@@ -9,7 +10,6 @@ import { sweepRowPerimeter } from "../internal/sweepRowPerimeter";
 
 /** Metres the held limit perimeter may differ from the declared one. */
 const HELD: number = 0.0005;
-
 /**
  * A ring that declares a perimeter holds the limit surface's perimeter along
  * it on an ellipse at 8, 12 and 16 columns.
@@ -32,14 +32,14 @@ export function test_geometry_sweep_girth(): void {
   );
   let perimeter: number = 0;
   for (let k: number = 0; k < 4096; ++k) {
-    const a = sweep.point(0.5, k / 4096);
-    const b = sweep.point(0.5, (k + 1) / 4096);
+    const a: IAutoMovieVector3 = sweep.point(0.5, k / 4096);
+    const b: IAutoMovieVector3 = sweep.point(0.5, (k + 1) / 4096);
     perimeter += Math.hypot(b.x - a.x, b.y - a.y, b.z - a.z);
   }
   TestValidator.equals(
     "the ellipse's held girth matches at 8, 12 and 16 columns",
     (["lowest", "low", "medium"] as const).map(
-      (tier): boolean =>
+      (tier: "medium" | "low" | "lowest"): boolean =>
         Math.abs(
           sweepRowPerimeter(
             sweepGirthTube({ exponent: 2, perimeter }),

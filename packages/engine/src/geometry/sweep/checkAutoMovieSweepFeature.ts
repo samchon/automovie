@@ -15,10 +15,10 @@ import { IAutoMovieSweep } from "./IAutoMovieSweep";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A single validation pass per sweep compile.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains no state or resources.
  */
-export const checkAutoMovieSweepFeature = (
+export function checkAutoMovieSweepFeature(
   f: IAutoMovieSweep.IFeature,
   index: number,
-): void => {
+): void {
   if (!(f.width > 0) || !Number.isFinite(f.width))
     throw new Error(`sweep feature ${index} width must be positive and finite`);
   if (f.points.length < 2)
@@ -50,4 +50,4 @@ export const checkAutoMovieSweepFeature = (
         `sweep feature ${index} radius must be positive and offsets finite`,
       );
   });
-};
+}

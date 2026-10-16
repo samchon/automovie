@@ -97,7 +97,37 @@
     "typesVersions": {
       "*": {
         "math/*": [
-          "lib/math/*"
+          "lib/math/*.d.ts"
+        ],
+        "validation/constants/SHA256_DIGEST_PATTERN": [
+          "lib/validation/constants/SHA256_DIGEST_PATTERN.d.ts"
+        ],
+        "architecture/appendBuiltRegionDefects": [
+          "lib/architecture/appendBuiltRegionDefects.d.ts"
+        ],
+        "architecture/builtOutlineIsClosed": [
+          "lib/architecture/builtOutlineIsClosed.d.ts"
+        ],
+        "architecture/outlineHull": [
+          "lib/architecture/outlineHull.d.ts"
+        ],
+        "architecture/pointInPolygon": [
+          "lib/architecture/pointInPolygon.d.ts"
+        ],
+        "architecture/polygonInside": [
+          "lib/architecture/polygonInside.d.ts"
+        ],
+        "geometry/assertAutoMovieDeformedTriangles": [
+          "lib/geometry/assertAutoMovieDeformedTriangles.d.ts"
+        ],
+        "populationRuntime/summarizeCompiledSlotChunks": [
+          "lib/populationRuntime/summarizeCompiledSlotChunks.d.ts"
+        ],
+        "render/assertAutoMovieSemanticMaskCapacity": [
+          "lib/render/assertAutoMovieSemanticMaskCapacity.d.ts"
+        ],
+        "validation/channelValueWidth": [
+          "lib/validation/channelValueWidth.d.ts"
         ]
       }
     }
@@ -116,7 +146,37 @@
   "typesVersions": {
     "*": {
       "math/*": [
-        "src/math/*"
+        "src/math/*.ts"
+      ],
+      "validation/constants/SHA256_DIGEST_PATTERN": [
+        "src/validation/constants/SHA256_DIGEST_PATTERN.ts"
+      ],
+      "architecture/appendBuiltRegionDefects": [
+        "src/architecture/appendBuiltRegionDefects.ts"
+      ],
+      "architecture/builtOutlineIsClosed": [
+        "src/architecture/builtOutlineIsClosed.ts"
+      ],
+      "architecture/outlineHull": [
+        "src/architecture/outlineHull.ts"
+      ],
+      "architecture/pointInPolygon": [
+        "src/architecture/pointInPolygon.ts"
+      ],
+      "architecture/polygonInside": [
+        "src/architecture/polygonInside.ts"
+      ],
+      "geometry/assertAutoMovieDeformedTriangles": [
+        "src/geometry/assertAutoMovieDeformedTriangles.ts"
+      ],
+      "populationRuntime/summarizeCompiledSlotChunks": [
+        "src/populationRuntime/summarizeCompiledSlotChunks.ts"
+      ],
+      "render/assertAutoMovieSemanticMaskCapacity": [
+        "src/render/assertAutoMovieSemanticMaskCapacity.ts"
+      ],
+      "validation/channelValueWidth": [
+        "src/validation/channelValueWidth.ts"
       ]
     }
   }

@@ -14,29 +14,31 @@ import { throwsError } from "../internal/throwsError";
 /** A profile whose values alternate up and down on uneven knots, every interior knot a local extremum but one. */
 const KNOTS: number[] = [0, 0.2, 0.35, 0.5, 0.7, 1];
 const VALUES: number[] = [1, 3, 2.9, 0.5, 0.6, 2];
-
 /** Overshoot allowed beyond a segment's knots, as a fraction of the largest value step within two segments of it. */
 const BOUND: number = 0.1;
-
 /** One-sided second differences of `f` at `x`, from below and from above. */
-const curvature = (
+function curvature(
   f: (x: number) => number,
   x: number,
   h: number,
-): [number, number] => [
-  (f(x - 2 * h) - 2 * f(x - h) + f(x)) / (h * h),
-  (f(x + 2 * h) - 2 * f(x + h) + f(x)) / (h * h),
-];
-
+): [number, number] {
+  return [
+    (f(x - 2 * h) - 2 * f(x - h) + f(x)) / (h * h),
+    (f(x + 2 * h) - 2 * f(x + h) + f(x)) / (h * h),
+  ];
+}
 /** Largest excursion beyond each segment's knot range over the allowed bound, sampled 400 times a segment. */
-const overshoot = (
+function overshoot(
   f: (x: number) => number,
   knots: number[],
   values: number[],
-): number => {
+): number {
   let worst: number = 0;
-  const rise = (k: number): number =>
-    k < 0 || k + 1 >= values.length ? 0 : Math.abs(values[k + 1]! - values[k]!);
+  function rise(k: number): number {
+    return k < 0 || k + 1 >= values.length
+      ? 0
+      : Math.abs(values[k + 1]! - values[k]!);
+  }
   for (let k: number = 0; k + 1 < knots.length; ++k) {
     const allowed: number =
       BOUND *
@@ -55,13 +57,9 @@ const overshoot = (
     }
   }
   return worst;
-};
-
+}
 /** The natural cubic spline through knots, written here independently, the zero-tension curve. */
-const natural = (
-  knots: number[],
-  values: number[],
-): ((x: number) => number) => {
+function natural(knots: number[], values: number[]): (x: number) => number {
   const n: number = knots.length;
   const h: number[] = knots
     .slice(1)
@@ -100,8 +98,7 @@ const natural = (
         (m[k]! * ((1 - t) ** 3 - (1 - t)) + m[k + 1]! * (t ** 3 - t))
     );
   };
-};
-
+}
 /**
  * The bounded spline every sweep profile uses keeps curvature continuous
  * through its knots, so a densely sampled sweep shows no terrace at its
@@ -140,14 +137,15 @@ export function test_geometry_sweep_spline(): void {
     knots: KNOTS,
     values: VALUES,
   });
-  const continuous = (g: (x: number) => number, tolerance: number): boolean =>
-    KNOTS.slice(1, -1).every((x: number): boolean => {
-      const [below, above] = curvature(g, x, 1e-5);
+  function continuous(g: (x: number) => number, tolerance: number): boolean {
+    return KNOTS.slice(1, -1).every((x: number): boolean => {
+      const [below, above]: [number, number] = curvature(g, x, 1e-5);
       return (
         Math.abs(below - above) <=
         tolerance * Math.max(1, Math.abs(below), Math.abs(above))
       );
     });
+  }
   TestValidator.equals(
     "curvature runs on through every knot of an alternating profile",
     namedFacts([
@@ -163,7 +161,6 @@ export function test_geometry_sweep_spline(): void {
     ]),
     { knots: true, spline: true, monotoneJumps: true },
   );
-
   const stepKnots: number[] = [0, 0.1, 0.2, 0.3, 0.4];
   const stepValues: number[] = [0, 0, 1, 1, 1];
   const step: (x: number) => number = interpolateAutoMovieSpline({
@@ -191,7 +188,6 @@ export function test_geometry_sweep_spline(): void {
     ]),
     { alternating: true, step: true, cubicWould: true, stepKnots: true },
   );
-
   const line: (x: number) => number = interpolateAutoMovieSpline({
     knots: [0, 1],
     values: [2, 4],
@@ -227,22 +223,27 @@ export function test_geometry_sweep_spline(): void {
       [
         "wrap",
         (): boolean => {
-          const [below, above] = curvature(periodic, period, 1e-5);
+          const [below, above]: [number, number] = curvature(
+            periodic,
+            period,
+            1e-5,
+          );
           return Math.abs(below - above) <= 1e-3 * Math.max(1, Math.abs(below));
         },
       ],
     ]),
     { line: true, constant: true, repeats: true, wrap: true },
   );
-
-  const circle = (r: number): IAutoMovieSweep.IStation["section"] => ({
-    type: "superellipse",
-    right: r,
-    up: r,
-    left: r,
-    down: r,
-    exponents: [2, 2, 2, 2],
-  });
+  function circle(r: number): IAutoMovieSweep.IStation["section"] {
+    return {
+      type: "superellipse",
+      right: r,
+      up: r,
+      left: r,
+      down: r,
+      exponents: [2, 2, 2, 2],
+    };
+  }
   const spine: IAutoMovieSweep["spine"] = {
     points: [
       { x: 0, y: 0, z: 0 },
@@ -261,7 +262,9 @@ export function test_geometry_sweep_spline(): void {
     spine,
     stations,
   });
-  const along = (u: number): number => ridged.radius(u, 0.1);
+  function along(u: number): number {
+    return ridged.radius(u, 0.1);
+  }
   const bent: IAutoMovieSweepSurface = compileAutoMovieSweep({
     spine,
     stations: [0, 1].map(
@@ -279,7 +282,9 @@ export function test_geometry_sweep_spline(): void {
     ],
   });
   // inside the gentle bend, across its middle point: a polyline's nearest segment switches there
-  const inside = (u: number): number => bent.radius(u, -0.2 / (2 * Math.PI));
+  function inside(u: number): number {
+    return bent.radius(u, -0.2 / (2 * Math.PI));
+  }
   const jump: number = Math.abs(
     (inside(0.5 + 1e-5) - inside(0.5)) / 1e-5 -
       (inside(0.5) - inside(0.5 - 1e-5)) / 1e-5,
@@ -293,7 +298,11 @@ export function test_geometry_sweep_spline(): void {
           stations
             .slice(1, -1)
             .every((s: IAutoMovieSweep.IStation): boolean => {
-              const [below, above] = curvature(along, s.at, 1e-5);
+              const [below, above]: [number, number] = curvature(
+                along,
+                s.at,
+                1e-5,
+              );
               return (
                 Math.abs(below - above) <=
                 1e-2 * Math.max(1, Math.abs(below), Math.abs(above))
@@ -304,7 +313,6 @@ export function test_geometry_sweep_spline(): void {
     ]),
     { stations: true, corner: true },
   );
-
   const invalids: Array<readonly [string, () => unknown, string]> = [
     [
       "no knot",

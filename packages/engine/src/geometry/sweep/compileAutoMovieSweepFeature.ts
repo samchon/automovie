@@ -16,8 +16,8 @@ const NEWTON: number = 4;
  * shorter way round and a point repeating its predecessor dropped, continued
  * straight beyond its ends through reflected phantom points. Its knots are
  * spaced by the square root of each chord measured in metres, `u` by the
- * spine's length and angle by the sweep's mean radius, so the curve has no
- * cusp or loop however unevenly its points are spaced (Yuksel, Schaefer and
+ * spine's length and angle by the sweep's mean radius, so each segment has no
+ * cusp or self-intersection however unevenly its points are spaced (Yuksel, Schaefer and
  * Keyser 2011, Computer-Aided Design 43(7):747-755), and it is C1 in that
  * knot parameter. Its radius or offset follows the same parameter by
  * `interpolateAutoMovieSpline`, so it too runs smoothly along the curve. At a
@@ -83,36 +83,41 @@ export const compileAutoMovieSweepFeature: (
     (p: { angle: number }): number => p.angle,
   );
   // the point k in the domain, or a phantom point continuing the curve straight beyond its ends
-  const at = (array: Float64Array, k: number): number =>
-    n === 1
+  function at(array: Float64Array, k: number): number {
+    return n === 1
       ? array[0]!
       : k < 0
         ? 2 * array[0]! - array[1]!
         : k >= n
           ? 2 * array[n - 1]! - array[n - 2]!
           : array[k]!;
+  }
   // centripetal spacing: the square root of a chord in metres, phantom chords included
-  const spacing = (k: number): number =>
-    Math.sqrt(
+  function spacing(k: number): number {
+    return Math.sqrt(
       Math.hypot(
         (at(xs, k + 1) - at(xs, k)) * scale.length,
         (at(ys, k + 1) - at(ys, k)) * scale.radius,
       ),
     );
+  }
   const knots: Float64Array = new Float64Array(n);
   for (let k: number = 1; k < n; ++k) knots[k] = knots[k - 1]! + spacing(k - 1);
   const end: number = knots[n - 1]!;
   // each segment's Hermite end derivatives per unit of its local parameter, both axes
   const tangents: Float64Array = new Float64Array(4 * Math.max(0, n - 1));
-  const slope = (
+  function slope(
     array: Float64Array,
     k: number,
     before: number,
     after: number,
-  ): number =>
-    (at(array, k) - at(array, k - 1)) / before -
-    (at(array, k + 1) - at(array, k - 1)) / (before + after) +
-    (at(array, k + 1) - at(array, k)) / after;
+  ): number {
+    return (
+      (at(array, k) - at(array, k - 1)) / before -
+      (at(array, k + 1) - at(array, k - 1)) / (before + after) +
+      (at(array, k + 1) - at(array, k)) / after
+    );
+  }
   for (let k: number = 0; k + 1 < n; ++k) {
     const span: number = spacing(k);
     const b0: number = spacing(k - 1);
@@ -130,12 +135,12 @@ export const compileAutoMovieSweepFeature: (
           values: points.map((p: { value: number }): number => p.value),
         });
   // the curve's coordinate, or its first or second derivative in the knot parameter, along one axis
-  const curve = (
+  function curve(
     array: Float64Array,
     axis: number,
     s: number,
     order: number,
-  ): number => {
+  ): number {
     if (n === 1) return order === 0 ? array[0]! : 0;
     let k: number = 0;
     let upper: number = n - 2;
@@ -172,7 +177,7 @@ export const compileAutoMovieSweepFeature: (
         (6 * t - 2) * m1) /
       (width * width)
     );
-  };
+  }
   const samples: number = DENSITY * Math.max(1, n - 1);
   const seedS: Float64Array = Float64Array.from(
     { length: samples + 1 },
@@ -186,15 +191,16 @@ export const compileAutoMovieSweepFeature: (
   );
   const low: number = Math.min(...seedU);
   const high: number = Math.max(...seedU);
-  const wrap = (a: number): number =>
-    a - 2 * Math.PI * Math.round(a / (2 * Math.PI));
-  const displacement = (
+  function wrap(a: number): number {
+    return a - 2 * Math.PI * Math.round(a / (2 * Math.PI));
+  }
+  function displacement(
     u: number,
     angle: number,
     local: number,
     length: number,
     guided: (u: number, angle: number) => number,
-  ): number => {
+  ): number {
     // the band reaches no further along the spine than its width
     if (
       (low - u) * length >= feature.width ||
@@ -250,7 +256,7 @@ export const compileAutoMovieSweepFeature: (
       ? value(s)
       : value(s) - guided(on, direction);
     return residual * (1 - x * x) ** 3;
-  };
+  }
   return {
     displacement,
     point: (t: number): { u: number; v: number } => {

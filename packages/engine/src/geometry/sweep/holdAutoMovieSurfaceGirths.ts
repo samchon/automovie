@@ -28,7 +28,7 @@ const GAUSS: ReadonlyArray<readonly [number, number]> = [
  * whose control points are `(A + 4 P + B) / 6` for each vertex `P` and its
  * two neighbours `A` and `B` across the row; its perimeter is integrated by
  * five-point Gauss-Legendre quadrature on every span. Each sweep's factor is
- * the bounded spline of `interpolateAutoMovieSpline` through 1 at the sweep's
+ * the sampled-overshoot-policy spline of `interpolateAutoMovieSpline` through 1 at the sweep's
  * other rings at one `u`, which meet neighbouring parts and stay, and through
  * a value at each girth ring, holding its end values beyond the outermost
  * knots; `IAutoMovieSweepRig.girth` folds it into the scale. The girth
@@ -42,6 +42,10 @@ const GAUSS: ReadonlyArray<readonly [number, number]> = [
  * converge together where updating each alone would oscillate or crawl; a
  * step that would make a factor non-positive is halved. It stops when every
  * perimeter is within 1e-9 of its declaration and refuses after 24 fits.
+ * Non-finite measurements/steps and zero representable progress are refused
+ * before a factor update can enter nonterminating positivity backtracking.
+ * The initial diagonal uses each measured perimeter directly, without
+ * reconstructing it from a potentially cancellation-dominated residual.
  *
  * @param props.network The network, only read.
  * @param props.rings Each ring's vertices in loop order, from the sampler.
@@ -50,15 +54,15 @@ const GAUSS: ReadonlyArray<readonly [number, number]> = [
  * @param props.sweepRig The rig of a sweep by name, sealed.
  * @param props.rest Evaluates the network at rest and writes the fitted control positions into `positions`.
  * @param props.positions Receives the rest control positions, `3 * vertices` numbers.
- * @throws Error when a girth ring's perimeter is not positive and finite, it also has positions, it does not run once round one sweep at one `u`, a vertex on or beside it is not a regular interior vertex, two rings of one sweep share a `u`, or the solve does not converge.
+ * @throws Error when a girth ring's perimeter is not positive and finite, it also has positions, it does not run once round one sweep at one `u`, a vertex on or beside it is not a regular interior vertex, two rings of one sweep share a `u`, a measured perimeter is non-positive or non-finite, a computed step is non-finite, no representable progress is possible, or the solve does not converge.
  *
- * @evidence contracts/common.md#principled-implementation The limit along a regular isoline is the tensor-product B-spline's isoline, measured by Gauss-Legendre quadrature; the correction is a smooth radial scale along the spine whose knot values solve the coupled perimeter equations by Broyden's quasi-Newton method from the exact uncoupled Jacobian.
+ * @evidence contracts/common.md#principled-implementation The limit along a regular isoline is the tensor-product B-spline's isoline, measured by Gauss-Legendre quadrature; the correction is a smooth radial scale along the spine whose knot values solve the coupled perimeter equations by Broyden's quasi-Newton method from a diagonal proportionality guess that is exact only under the stated uncoupled conditions.
  * @evidence contracts/common.md#clear-and-simple-design Validation, the regular-row check, the measurement and the iteration are one pass each; the factor lives in the sweep rig's scale, so samples, probes and poses read it without change.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A ring through an extraordinary vertex, where the isoline is not the B-spline, is refused instead of measured approximately; a solve that does not converge is refused.
  * @evidence contracts/common.md#meaningful-documentation States the ring's requirements, the measurement, the factor's knots and ends, the iteration, its exactness and its tolerance.
- * @evidence contracts/performance.md#efficient-algorithms O(F) to index the faces, then at most 24 rest fits plus O(R) quadrature for R ring vertices and O(G^3) for G girth rings each; no work without girth rings.
+ * @evidence contracts/performance.md#efficient-algorithms For N network rings, F faces, R girth-row vertices and G girth constraints: O(N) admission, O(F) adjacency and O(N G) anchor discovery, then at most 24 rest fits plus O(R) quadrature, factor-knot preparation and O(G^3) dense solve per fit. Without girths only the initial ring filter runs. Positive-step backtracking is bounded by representable halving and refuses non-finite steps.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Runs once per rig compile; the factor it leaves is what every pose reuses.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing; its O(F) adjacency is released on return.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Retains no state after return; temporary adjacency, row controls and dense solve arrays cost O(V + F + R + G^2) for V cage vertices, plus ring/profile records, and are released on completion or refusal. The sweep rigs own the installed scale factors.
  */
 export const holdAutoMovieSurfaceGirths: (props: {
   network: IAutoMovieSurfaceNetwork;
@@ -86,9 +90,9 @@ export const holdAutoMovieSurfaceGirths: (props: {
   if (declared.length === 0) return;
 
   // the sweep and u of a ring running round one sweep at one u, or null
-  const level = (
+  function level(
     ring: IAutoMovieSurfaceNetwork.IRing,
-  ): { sweep: string; u: number; turn: number } | null => {
+  ): { sweep: string; u: number; turn: number } | null {
     const first: IAutoMovieSurfaceNetwork.IEdge | undefined = ring.edges[0];
     if (first === undefined || first.type !== "sweep") return null;
     let turn: number = 0;
@@ -103,7 +107,7 @@ export const holdAutoMovieSurfaceGirths: (props: {
       turn += edge.to.v - edge.from.v;
     }
     return { sweep: first.sweep, u: first.from.u, turn };
-  };
+  }
 
   // each vertex's neighbours, faces and boundary edges
   const neighbours: Array<Set<number>> = Array.from(
@@ -123,13 +127,13 @@ export const holdAutoMovieSurfaceGirths: (props: {
       directed.add(`${a},${b}`);
       for (const c of face) if (c !== a) together.add(`${a},${c}`);
     }
-  const regular = (v: number): boolean => {
+  function regular(v: number): boolean {
     if (valence[v] !== 4 || neighbours[v]!.size !== 4) return false;
     for (const w of neighbours[v]!)
       if (!directed.has(`${v},${w}`) || !directed.has(`${w},${v}`))
         return false;
     return true;
-  };
+  }
 
   interface IGirth {
     name: string;
@@ -220,7 +224,7 @@ export const holdAutoMovieSurfaceGirths: (props: {
   }
 
   // the limit perimeter along a girth ring: the periodic cubic B-spline of the row-averaged controls
-  const measure = (g: IGirth): number => {
+  function measure(g: IGirth): number {
     const m: number = g.members.length;
     const q: Float64Array = new Float64Array(3 * m);
     g.members.forEach((v: number, k: number): void => {
@@ -253,7 +257,7 @@ export const holdAutoMovieSurfaceGirths: (props: {
         length += w * Math.hypot(dx, dy, dz);
       }
     return length;
-  };
+  }
 
   // Broyden's method on the residuals F(g) = measured - declared over the girth values g
   const n: number = girths.length;
@@ -283,19 +287,22 @@ export const holdAutoMovieSurfaceGirths: (props: {
     let worst: number = 0;
     girths.forEach((g: IGirth, i: number): void => {
       const measured: number = measure(g);
+      if (!(measured > 0) || !Number.isFinite(measured))
+        throw new Error(
+          `ring ${g.name} measured perimeter is not positive and finite`,
+        );
       worst = Math.max(worst, Math.abs(measured - g.perimeter) / g.perimeter);
       previous[i] = residual[i]!;
       residual[i] = measured - g.perimeter;
+      if (iteration === 0) jacobian[i * n + i] = measured / g.value;
     });
     if (worst <= TOLERANCE) return;
-    if (iteration === 0)
-      girths.forEach((g: IGirth, i: number): void => {
-        jacobian[i * n + i] = (residual[i]! + g.perimeter) / g.value;
-      });
-    else {
+    if (iteration !== 0) {
       // the rank-one update that makes the Jacobian map the last step onto the last change of the residuals
       let length: number = 0;
       for (let j: number = 0; j < n; ++j) length += step[j]! * step[j]!;
+      if (!(length > 0) || !Number.isFinite(length))
+        throw new Error("girth rings made no finite progress");
       for (let i: number = 0; i < n; ++i) {
         let miss: number = residual[i]! - previous[i]!;
         for (let j: number = 0; j < n; ++j)
@@ -305,13 +312,28 @@ export const holdAutoMovieSurfaceGirths: (props: {
       }
     }
     solve(jacobian, residual, step, n);
+    if (!step.every(Number.isFinite))
+      throw new Error("girth ring solve step is not finite");
     let scale: number = 1;
     while (
-      girths.some(
-        (g: IGirth, i: number): boolean => !(g.value - scale * step[i]! > 0),
+      girths.some((g: IGirth, i: number): boolean => {
+        const candidate: number = g.value - scale * step[i]!;
+        return !(candidate > 0) || !Number.isFinite(candidate);
+      })
+    ) {
+      scale /= 2;
+      if (scale === 0)
+        throw new Error(
+          "girth rings cannot take a positive representable step",
+        );
+    }
+    if (
+      girths.every(
+        (g: IGirth, i: number): boolean =>
+          g.value - scale * step[i]! === g.value,
       )
     )
-      scale /= 2;
+      throw new Error("girth rings made no representable progress");
     girths.forEach((g: IGirth, i: number): void => {
       step[i] = -scale * step[i]!;
       g.value += step[i]!;
@@ -323,12 +345,12 @@ export const holdAutoMovieSurfaceGirths: (props: {
 };
 
 /** Solve the dense system `a x = b` of order `n` by Gaussian elimination with partial pivoting, into `x`; `a` and `b` are left intact. */
-const solve = (
+function solve(
   a: Float64Array,
   b: Float64Array,
   x: Float64Array,
   n: number,
-): void => {
+): void {
   const m: Float64Array = a.slice();
   const r: Float64Array = b.slice();
   for (let c: number = 0; c < n; ++c) {
@@ -358,4 +380,4 @@ const solve = (
     for (let j: number = i + 1; j < n; ++j) s -= m[i * n + j]! * x[j]!;
     x[i] = s / m[i * n + i]!;
   }
-};
+}

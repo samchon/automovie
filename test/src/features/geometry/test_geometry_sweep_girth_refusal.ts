@@ -1,9 +1,11 @@
 import {
+  type IAutoMovieSurfaceCage,
   type IAutoMovieSurfaceNetwork,
   type IAutoMovieSweepSurface,
   compileAutoMovieSweep,
   sampleAutoMovieSurfaceNetwork,
 } from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { sweepGirthTube } from "../internal/sweepGirthTube";
@@ -36,8 +38,8 @@ export function test_geometry_sweep_girth_refusal(): void {
   );
   let perimeter: number = 0;
   for (let k: number = 0; k < 4096; ++k) {
-    const a = sweep.point(0.5, k / 4096);
-    const b = sweep.point(0.5, (k + 1) / 4096);
+    const a: IAutoMovieVector3 = sweep.point(0.5, k / 4096);
+    const b: IAutoMovieVector3 = sweep.point(0.5, (k + 1) / 4096);
     perimeter += Math.hypot(b.x - a.x, b.y - a.y, b.z - a.z);
   }
   TestValidator.predicate(
@@ -46,27 +48,32 @@ export function test_geometry_sweep_girth_refusal(): void {
       sweepRowPerimeter(sweepGirthTube({ exponent: 2 }), "medium", [0.5])[0]! >
       0.002,
   );
-
   const tube: IAutoMovieSurfaceNetwork = sweepGirthTube({
     exponent: 2,
     perimeter,
   });
-  const rings = (
+  function rings(
     change: (
       ring: IAutoMovieSurfaceNetwork.IRing,
     ) => IAutoMovieSurfaceNetwork.IRing,
-  ): IAutoMovieSurfaceNetwork => ({
-    ...tube,
-    rings: tube.rings!.map(
-      (ring: IAutoMovieSurfaceNetwork.IRing): IAutoMovieSurfaceNetwork.IRing =>
-        ring.name === "girth" ? change(ring) : ring,
-    ),
-  });
+  ): IAutoMovieSurfaceNetwork {
+    return {
+      ...tube,
+      rings: tube.rings!.map(
+        (
+          ring: IAutoMovieSurfaceNetwork.IRing,
+        ): IAutoMovieSurfaceNetwork.IRing =>
+          ring.name === "girth" ? change(ring) : ring,
+      ),
+    };
+  }
   const banded: IAutoMovieSurfaceNetwork = sweepTransitionTube();
   // the ring without its perimeter
-  const bare = (
+  function bare(
     ring: IAutoMovieSurfaceNetwork.IRing,
-  ): IAutoMovieSurfaceNetwork.IRing => ({ name: ring.name, edges: ring.edges });
+  ): IAutoMovieSurfaceNetwork.IRing {
+    return { name: ring.name, edges: ring.edges };
+  }
   const invalids: Array<readonly [string, IAutoMovieSurfaceNetwork, string]> = [
     [
       "a perimeter that is not positive",
@@ -84,11 +91,14 @@ export function test_geometry_sweep_girth_refusal(): void {
           ring: IAutoMovieSurfaceNetwork.IRing,
         ): IAutoMovieSurfaceNetwork.IRing => ({
           ...ring,
-          positions: Array.from({ length: 16 }, (_: unknown, k: number) => ({
-            x: Math.cos(k),
-            y: 0.3,
-            z: Math.sin(k),
-          })),
+          positions: Array.from(
+            { length: 16 },
+            (_: unknown, k: number): { x: number; y: number; z: number } => ({
+              x: Math.cos(k),
+              y: 0.3,
+              z: Math.sin(k),
+            }),
+          ),
         }),
       ),
       "both positions and a perimeter",
@@ -186,7 +196,8 @@ export function test_geometry_sweep_girth_refusal(): void {
     TestValidator.predicate(
       `${name} is refused by its own diagnostic`,
       throwsError(
-        () => sampleAutoMovieSurfaceNetwork({ network, tier: "medium" }),
+        (): IAutoMovieSurfaceCage =>
+          sampleAutoMovieSurfaceNetwork({ network, tier: "medium" }),
         message,
       ),
     );

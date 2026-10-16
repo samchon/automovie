@@ -14,14 +14,14 @@
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A numerical query with no cross-request coordination.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains no state or resources.
  */
-export const reachAutoMovieSurfaceCell = (
+export function reachAutoMovieSurfaceCell(
   step: number,
   first: boolean,
   last: boolean,
-): [number, number] => {
+): [number, number] {
   const size: number = Math.abs(step);
   if (step === 0) return [Infinity, Infinity];
   const back: number = first ? Infinity : size;
   const ahead: number = last ? Infinity : size;
   return step > 0 ? [back, ahead] : [ahead, back];
-};
+}

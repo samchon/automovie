@@ -11,19 +11,21 @@ import { IAutoMovieSweepSpine } from "./IAutoMovieSweepSpine";
  * The surface is a function of two parameters: `u` along the spine by chord
  * length from 0 to 1, and `v` around it from 0 to 1, the polar angle
  * `2 pi v` in the section plane from its first axis. `compileAutoMovieSweep`
- * evaluates it in four layers, each continuous in both parameters:
+ * evaluates it in four ordered layers:
  *
  * 1. Sections: every station's radius by direction, interpolated along `u`
- *    by a C2 spline under tension, so curvature runs on through every
- *    station and no band shows there, and between two stations a radius
- *    strays beyond their values by at most a tenth of the local variation.
+ *    by a C2 spline under tension, selected by its sampled overshoot policy,
+ *    so curvature is continuous at interior stations. The sampled bound is
+ *    not a strict extremum bound; non-positive queried radii are refused.
  * 2. Guides: each guide is a curve on the surface at one direction, giving
  *    the radius there at every `u`; stations and guides are joined as a
- *    Gordon surface that passes exactly through every guide, so a few
+ *    sampled Gordon surface: guide constraints are exact at its angular grid,
+ *    with linear angular reconstruction between samples, so a few
  *    stations plus guides control breadth and depth everywhere between them.
  * 3. Features: each feature curve in the `(u, v)` domain carries the radius
- *    the surface must have along it, and the surface is moved onto those
- *    radii with a smooth falloff across the curve.
+ *    the surface targets along it, with compact falloff in a cylindrical
+ *    metric approximation. Dense-seeded local course search and overlapping
+ *    bands limit exact passage and global smoothness.
  * 4. Scale: an optional profile along `u` multiplies the whole section,
  *    features included, the size control that volume preservation and local
  *    bulges use.
@@ -33,7 +35,7 @@ import { IAutoMovieSweepSpine } from "./IAutoMovieSweepSpine";
  * start frame carried along without turning, in either case turned by the
  * stations' rotations where they give one.
  *
- * @evidence contracts/common.md#principled-implementation A generalized cylinder whose section radii are interpolated per direction with a shape-preserving scheme, as sweep-based modelling interpolates key sections, with silhouette guides and pass-through feature curves as the standard lofting constraints, guides joined to the stations as a Gordon surface.
+ * @evidence contracts/common.md#principled-implementation A generalized cylinder whose section radii are interpolated per direction with a C2 spline and sampled overshoot policy, as sweep-based modelling interpolates key sections, with silhouette guides and compact feature fields as lofting controls; the Gordon correction is sampled on the angular grid.
  * @evidence contracts/common.md#clear-and-simple-design One record holds the spine, stations, guides and features of one surface; evaluation and every constraint's rule live in `compileAutoMovieSweep`.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Stations, guides and features are applied in a fixed order with stated rules; nothing is tuned per consumer.
  * @evidence contracts/common.md#meaningful-documentation States the two parameters, the four evaluation layers and what each guarantees, the frame, and the unit.
@@ -65,7 +67,7 @@ export interface IAutoMovieSweep {
   /** Section scale by `u`, applied last, to the section with its guides and features: knots as for a guide, values positive, interpolated by the same spline; omitted, 1 everywhere. */
   scale?: IAutoMovieSweep.IKnot[];
 
-  /** Feature curves the surface passes through; omitted or empty, none. */
+  /** Feature curves targeted by compact radius fields; omitted or empty, none. */
   features?: IAutoMovieSweep.IFeature[];
 }
 export namespace IAutoMovieSweep {
@@ -142,7 +144,7 @@ export namespace IAutoMovieSweep {
   /**
    * A feature curve: a line on the surface the section family must pass through, such as a ridge or a groove, with the radius it has along it or its offset from the surface the other layers make.
    *
-   * The curve is the uniform Catmull-Rom spline through its points in the `(u, angle)` domain, so it turns smoothly where a polyline would corner and its band creases only inside a bend tighter than the band is wide; along it the radius or offset follows `interpolateAutoMovieSpline` over the points in order. The surface moves by the difference between that radius and its own, or by the offset at full weight on the curve and fading over `width` metres across it by the cube of `1 - (d / width)^2`, distances measured on the surface's own scale (`u` by the spine's length, the angle by the local radius before the scale profile). Features apply after guides, before the scale profile, and add up where their bands overlap.
+   * The course is the centripetal Catmull-Rom spline through its points in the `(u, angle)` domain, with knots spaced in the sweep's mean cylindrical scale; its radius or offset follows `interpolateAutoMovieSpline` over those same knots. The field uses a dense-seeded local Newton search in a cylindrical metric approximation, not a guaranteed global nearest point or an exact noncircular surface metric. A nearest-branch change inside a tight bend can still crease the band. The surface moves by the difference between that radius and its own, or by the offset at full weight on the curve and fading over `width` metres across it by the cube of `1 - (d / width)^2`, distances approximated with `u` scaled by spine length and angle by the query's local radius before scale. Features apply after guides, before the scale profile, and add up where their bands overlap.
    *
    * @evidence contracts/common.md#principled-implementation A pass-through constraint along a smooth curve in the domain, applied as a compactly supported C2 bump.
    * @evidence contracts/common.md#clear-and-simple-design Points and a band width.

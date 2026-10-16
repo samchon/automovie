@@ -117,13 +117,15 @@ export const layoutAutoMovieSurfaceTransition: (
   }
   // in canonical orientation the fine ring is at the row's bottom; a band that grows is the mirror across the row
   const flip: boolean = start < end;
-  const at = (s: number, tau: number): ICorner => ({
-    s,
-    t: (middle + (flip ? 1 - tau : tau)) / rows,
-  });
-  const push = (q: [ICorner, ICorner, ICorner, ICorner]): void => {
+  function at(s: number, tau: number): ICorner {
+    return {
+      s,
+      t: (middle + (flip ? 1 - tau : tau)) / rows,
+    };
+  }
+  function push(q: [ICorner, ICorner, ICorner, ICorner]): void {
     quads.push(flip ? [q[3], q[2], q[1], q[0]] : q);
-  };
+  }
   let f: number = 0;
   let c: number = 0;
   for (let item: number = 0; item < items; ++item) {
@@ -144,8 +146,9 @@ export const layoutAutoMovieSurfaceTransition: (
     const t: ICorner[] = [0, 1, 2].map(
       (k: number): ICorner => at((c + k) / coarse, 1),
     );
-    const half = (k: number, top: number): ICorner =>
-      at(((f + k) / fine + (c + top) / coarse) / 2, 0.5);
+    function half(k: number, top: number): ICorner {
+      return at(((f + k) / fine + (c + top) / coarse) / 2, 0.5);
+    }
     const i1: ICorner = half(1, 0.5);
     const m: ICorner = half(2, 1);
     const i2: ICorner = half(3, 1.5);

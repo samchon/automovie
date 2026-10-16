@@ -38,13 +38,13 @@ export const layoutAutoMovieSurfacePatches: (
   const uvFaces: number[][] = [];
   const grids: IAutoMovieSurfaceCage.IPatch[] = [];
   const total: number = network.patches.length;
-  const emit = (
+  function emit(
     p: number,
     grid: number[][],
     columns: number,
     rows: number,
     wrap: boolean,
-  ): void => {
+  ): void {
     const patch: IAutoMovieSurfaceNetwork.IPatch = network.patches[p]!;
     const rect: IAutoMovieSurfaceNetwork.IUvRect = patch.uv ?? {
       s: [0, 1],
@@ -64,8 +64,9 @@ export const layoutAutoMovieSurfacePatches: (
           },
         ),
     );
-    const at = (i: number, j: number): number =>
-      grid[j]![wrap ? i % columns : i]!;
+    function at(i: number, j: number): number {
+      return grid[j]![wrap ? i % columns : i]!;
+    }
     const faceList: number[] = [];
     for (let j: number = 0; j < rows; ++j)
       for (let i: number = 0; i < columns; ++i) {
@@ -91,20 +92,20 @@ export const layoutAutoMovieSurfacePatches: (
         );
       }
     grids[p] = { name: patch.name, columns, rows, grid: true, faces: faceList };
-  };
-  const emitFaces = (
+  }
+  function emitFaces(
     p: number,
     quads: Array<Array<[number, number, number]>>,
     columns: number,
     rows: number,
-  ): void => {
+  ): void {
     const patch: IAutoMovieSurfaceNetwork.IPatch = network.patches[p]!;
     const rect: IAutoMovieSurfaceNetwork.IUvRect = patch.uv ?? {
       s: [0, 1],
       t: [p / total, (p + 1) / total],
     };
     const shared: Map<string, number> = new Map();
-    const uv = (s: number, t: number): number => {
+    function uv(s: number, t: number): number {
       const key: string = `${s},${t}`;
       let i: number | undefined = shared.get(key);
       if (i === undefined) {
@@ -115,7 +116,7 @@ export const layoutAutoMovieSurfacePatches: (
         shared.set(key, (i = uvs.length / 2 - 1));
       }
       return i;
-    };
+    }
     const faceList: number[] = [];
     for (const quad of quads) {
       faceList.push(faces.length);
@@ -140,8 +141,8 @@ export const layoutAutoMovieSurfacePatches: (
       grid: false,
       faces: faceList,
     };
-  };
-  const check = (): void => {
+  }
+  function check(): void {
     // every directed edge once: patches neither overlap nor disagree in winding
     const directed: Set<string> = new Set();
     faces.forEach((quad: number[]): void => {
@@ -154,6 +155,6 @@ export const layoutAutoMovieSurfacePatches: (
         directed.add(key);
       }
     });
-  };
+  }
   return { faces, uvs, uvFaces, corners, grids, emit, emitFaces, check };
 };

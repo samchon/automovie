@@ -69,10 +69,9 @@ export function test_geometry_sweep_construction(): void {
   const from: IAutoMovieVector3 = raw.point(0.2, 0);
   const to: IAutoMovieVector3 = { x: 0.2, y: 0.7, z: 0.2 };
   const through: IAutoMovieVector3 = { x: 0.05, y: 0.35, z: 0.2 };
-  const curve = (
-    from: string,
-    to: string,
-  ): IAutoMovieSurfaceNetwork.ICurve => ({ from, to, segments: counts });
+  function curve(from: string, to: string): IAutoMovieSurfaceNetwork.ICurve {
+    return { from, to, segments: counts };
+  }
   const network: IAutoMovieSurfaceNetwork = {
     sweeps: { tube: sweep },
     nodes: {
@@ -114,23 +113,23 @@ export function test_geometry_sweep_construction(): void {
     network,
     tier: "medium",
   });
-  const position = (
-    points: readonly number[],
-    i: number,
-  ): IAutoMovieVector3 => ({
-    x: points[3 * i]!,
-    y: points[3 * i + 1]!,
-    z: points[3 * i + 2]!,
-  });
-  const find = (
+  function position(points: readonly number[], i: number): IAutoMovieVector3 {
+    return {
+      x: points[3 * i]!,
+      y: points[3 * i + 1]!,
+      z: points[3 * i + 2]!,
+    };
+  }
+  function find(
     rig: IAutoMovieSurfaceRig,
     kind: IAutoMovieSurfaceConstruction["kind"],
     name: string,
-  ): IAutoMovieSurfaceConstruction =>
-    rig.construction.find(
+  ): IAutoMovieSurfaceConstruction {
+    return rig.construction.find(
       (c: IAutoMovieSurfaceConstruction): boolean =>
         c.kind === kind && c.name === name,
     )!;
+  }
   const boundary: IAutoMovieSurfaceConstruction = find(observed, "curve", "ab");
   const quarter: IAutoMovieVector3 = position(boundary.points, 16);
   const vertex: number =

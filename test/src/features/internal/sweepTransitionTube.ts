@@ -36,12 +36,14 @@ const BAND: IAutoMovieSurfaceNetwork.ICounts = {
 };
 
 /** Rows of a part of the tube by tier. */
-const rows = (n: number): IAutoMovieSurfaceNetwork.ICounts => ({
-  lowest: n,
-  low: 2 * n,
-  medium: 4 * n,
-  high: 8 * n,
-});
+function rows(n: number): IAutoMovieSurfaceNetwork.ICounts {
+  return {
+    lowest: n,
+    low: 2 * n,
+    medium: 4 * n,
+    high: 8 * n,
+  };
+}
 
 /**
  * A tube whose column count changes along its length, the layout a limb
@@ -103,27 +105,29 @@ export function sweepTransitionTube(
       : {}),
   };
   const bands: boolean = shape.bands ?? true;
-  const part = (
+  function part(
     name: string,
     u: [number, number],
     columns: IAutoMovieSurfaceNetwork.ICounts,
     n: number,
-  ): IAutoMovieSurfaceNetwork.ISweepPatch => ({
-    type: "sweep",
-    name,
-    sweep: "tube",
-    u,
-    v: [0, 1],
-    rows: rows(n),
-    columns,
-  });
-  const band = (
+  ): IAutoMovieSurfaceNetwork.ISweepPatch {
+    return {
+      type: "sweep",
+      name,
+      sweep: "tube",
+      u,
+      v: [0, 1],
+      rows: rows(n),
+      columns,
+    };
+  }
+  function band(
     name: string,
     u: [number, number],
     start: IAutoMovieSurfaceNetwork.ICounts,
     end: IAutoMovieSurfaceNetwork.ICounts,
-  ): IAutoMovieSurfaceNetwork.IPatch =>
-    bands
+  ): IAutoMovieSurfaceNetwork.IPatch {
+    return bands
       ? {
           type: "transition",
           name,
@@ -135,21 +139,24 @@ export function sweepTransitionTube(
           rows: BAND,
         }
       : { ...part(name, u, COARSE, 1), rows: BAND };
-  const ring = (
+  }
+  function ring(
     u: number,
     columns: IAutoMovieSurfaceNetwork.ICounts,
-  ): IAutoMovieSurfaceNetwork.IRing => ({
-    name: `ring.${u}`,
-    edges: [
-      {
-        type: "sweep",
-        sweep: "tube",
-        from: { u, v: 0 },
-        to: { u, v: 1 },
-        segments: columns,
-      },
-    ],
-  });
+  ): IAutoMovieSurfaceNetwork.IRing {
+    return {
+      name: `ring.${u}`,
+      edges: [
+        {
+          type: "sweep",
+          sweep: "tube",
+          from: { u, v: 0 },
+          to: { u, v: 1 },
+          segments: columns,
+        },
+      ],
+    };
+  }
   return {
     sweeps: { tube },
     patches: [

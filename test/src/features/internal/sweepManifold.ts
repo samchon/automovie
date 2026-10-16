@@ -1,7 +1,8 @@
 import { type IAutoMovieSurfaceCage } from "@automovie/engine";
 
-const undirected = (a: number, b: number): string =>
-  a < b ? `${a},${b}` : `${b},${a}`;
+function undirected(a: number, b: number): string {
+  return a < b ? `${a},${b}` : `${b},${a}`;
+}
 
 /**
  * Whether a cage is a consistently wound 2-manifold whose boundary is

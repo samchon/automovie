@@ -1,15 +1,16 @@
 import { AutoMovieSpline } from "./AutoMovieSpline";
 
 /**
- * Build a C2 interpolant through knots that bounds its overshoot: the spline
+ * Build a C2 interpolant through knots with a sampled overshoot policy: the spline
  * under tension of `AutoMovieSpline`, at tension 0 a cubic spline and with
- * the least tension that keeps every segment within a tenth of the local
- * variation, the largest value step within two segments, beyond its two knot
- * values.
+ * a searched tension whose sixteen-part segment scan stays within a tenth
+ * of the largest value step within two segments. This is a sampled policy,
+ * not a strict bound on extrema; the fixed maximum tension can be returned
+ * without scan acceptance. Positive data can produce negative interpolation.
  *
- * It passes through every knot with continuous curvature, so a profile of
- * sections sampled densely shows no band at its stations, and bulges or
- * dips between knots only as far as the bound allows. Open knots extend
+ * It passes through its knots with continuous curvature at interior knots.
+ * Constant extension outside open knots need not preserve the endpoint
+ * derivative. Radius and scale consumers must refuse invalid query results. Open knots extend
  * flat: below the first knot the curve holds the first value and above the
  * last it holds the last, with second derivative 0 at both ends. Periodic
  * knots wrap: `period` is the length after which the curve repeats and every
@@ -22,7 +23,7 @@ import { AutoMovieSpline } from "./AutoMovieSpline";
  * @returns The interpolant, which evaluates after a binary search over the knots.
  * @throws Error when the knots are empty, unsorted or not finite, the values do not match them, or a period does not exceed the knot span.
  *
- * @evidence contracts/common.md#principled-implementation The interpolating spline under tension (Schweikert 1966; Cline 1974), C2 for every tension, with the tension raised only as far as a stated overshoot bound requires.
+ * @evidence contracts/common.md#principled-implementation The interpolating spline under tension (Schweikert 1966; Cline 1974), C2 for every tension, with tension selected by the stated finite sampled search; it does not strictly bound between-probe extrema or preserve positivity.
  * @evidence contracts/common.md#clear-and-simple-design Validation and a closure over `AutoMovieSpline`, which every in-place caller shares.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unsorted or duplicate knots are refused instead of sorted or merged, and the curve holds its end values instead of extending a curve beyond the data.
  * @evidence contracts/common.md#meaningful-documentation States the continuity, the overshoot bound, the end and periodic rules, the degenerate cases and every refusal.

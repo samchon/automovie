@@ -12,7 +12,9 @@ import { IAutoMovieSurfaceNetwork } from "./IAutoMovieSurfaceNetwork";
  * A vertex's cage face and quad-local coordinates give its surface
  * coordinate, the bilinear blend of the face's corner coordinates, the same
  * chart `mapAutoMovieSurfaceTier` uses, so the coordinate is exact on a grid
- * patch and continuous across every face edge. A sweep or transition patch
+ * patch and continuous across faces inside that patch. Different patch charts
+ * can assign different addresses to a shared edge; compatible fields must
+ * agree there. Each vertex keeps its supplied incident-face address. A sweep or transition patch
  * also gives the sweep's domain point, `u` and `v` carried from `t` and `s`
  * by the patch's ranges. The locations depend only on the network's layout
  * and the tier, never on a pose, so they are computed once per tier and level
@@ -27,7 +29,7 @@ import { IAutoMovieSurfaceNetwork } from "./IAutoMovieSurfaceNetwork";
  * @evidence contracts/common.md#principled-implementation Chart composition: the subdivision's face parameters through the sampler's per-corner patch coordinates, then a sweep patch's affine map to its domain rectangle.
  * @evidence contracts/common.md#clear-and-simple-design Reads only the parameters, the corner coordinates and the patch ranges; it neither subdivides nor evaluates a sweep.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A cage from another network is refused by its patch names instead of matched by position, and a non-quad face, which the sampler never emits, is refused rather than guessed.
- * @evidence contracts/common.md#meaningful-documentation States the chart, its exactness and continuity, the domain map, the pose independence and every refusal.
+ * @evidence contracts/common.md#meaningful-documentation States the chart, its within-patch exactness and continuity, its seam limitation, the domain map, the pose independence and every refusal.
  * @evidence contracts/performance.md#efficient-algorithms O(V + P) for V vertices and P patches, a constant blend per vertex.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A single pass; the caller keeps its result across poses, as the description states.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing; the result holds one location per vertex, owned by the caller.
@@ -65,7 +67,7 @@ export const locateAutoMovieSurfaceVertices: (props: {
         throw new Error(
           `vertex ${index} lies on face ${at.face}, which is not a quad`,
         );
-      const { u, v } = at;
+      const { u, v }: typeof at = at;
       if (!(u >= 0 && u <= 1 && v >= 0 && v <= 1))
         throw new Error(`vertex ${index} has face coordinates outside 0 to 1`);
       const w0: number = (1 - u) * (1 - v);

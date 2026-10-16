@@ -1,7 +1,9 @@
 import {
+  type IAutoMovieSurfaceNetwork,
   type IAutoMovieSweepSurface,
   compileAutoMovieSweep,
 } from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { sweepGirthTube } from "../internal/sweepGirthTube";
@@ -9,7 +11,6 @@ import { sweepRowPerimeter } from "../internal/sweepRowPerimeter";
 
 /** Metres each held limit perimeter may differ from the declared one. */
 const HELD: number = 0.0005;
-
 /**
  * Girth rings one row apart hold their perimeters together, though each
  * ring's factor moves its neighbours' rows.
@@ -31,21 +32,21 @@ export function test_geometry_sweep_girth_coupled(): void {
   const sweep: IAutoMovieSweepSurface = compileAutoMovieSweep(
     sweepGirthTube({ exponent: 2 }).sweeps.tube!,
   );
-  const section = (u: number): number => {
+  function section(u: number): number {
     let length: number = 0;
     for (let k: number = 0; k < 4096; ++k) {
-      const a = sweep.point(u, k / 4096);
-      const b = sweep.point(u, (k + 1) / 4096);
+      const a: IAutoMovieVector3 = sweep.point(u, k / 4096);
+      const b: IAutoMovieVector3 = sweep.point(u, (k + 1) / 4096);
       length += Math.hypot(b.x - a.x, b.y - a.y, b.z - a.z);
     }
     return length;
-  };
+  }
   const declared: Array<[number, number]> = [
     [0.375, 1.03 * section(0.375)],
     [0.5, section(0.5)],
     [0.625, 0.98 * section(0.625)],
   ];
-  const network = sweepGirthTube({
+  const network: IAutoMovieSurfaceNetwork = sweepGirthTube({
     exponent: 2,
     perimeter: declared[1]![1],
     beside: [declared[0]![1], declared[2]![1]],

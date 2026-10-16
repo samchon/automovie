@@ -1,5 +1,6 @@
 import {
   IAutoMovieSweep,
+  type IAutoMovieSweepFrame,
   IAutoMovieSweepSurface,
   compileAutoMovieSweep,
   locateAutoMovieSweepPoint,
@@ -10,8 +11,12 @@ import { TestValidator } from "@nestia/e2e";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
 /** A level plane: first axis `+Z`, second `+X`, normal `+Y`. */
-const LEVEL = { x: -0.5, y: -0.5, z: -0.5, w: 0.5 } as const;
-
+const LEVEL: {
+  readonly x: -0.5;
+  readonly y: -0.5;
+  readonly z: -0.5;
+  readonly w: 0.5;
+} = { x: -0.5, y: -0.5, z: -0.5, w: 0.5 } as const;
 /** A 0.1 m by 0.06 m ellipse swept up a straight vertical spine of 0.5 m. */
 const STRAIGHT: IAutoMovieSweep = {
   spine: {
@@ -46,7 +51,6 @@ const STRAIGHT: IAutoMovieSweep = {
     },
   ],
 };
-
 /** An S-bent rising spine with level stations under the fixed orientation. */
 const SNAKE: IAutoMovieSweep = {
   spine: {
@@ -74,31 +78,30 @@ const SNAKE: IAutoMovieSweep = {
     }),
   ),
 };
-
 /** Whether locating `surface.point(u, v)` moved `along` metres outward returns `u`, `v` and that offset. */
-const recovers = (
+function recovers(
   surface: IAutoMovieSweepSurface,
   u: number,
   v: number,
   along: number,
-): boolean => {
+): boolean {
   const p: IAutoMovieVector3 = surface.point(u, v);
-  const f = surface.frame(u);
+  const f: IAutoMovieSweepFrame = surface.frame(u);
   const angle: number = 2 * Math.PI * v;
   const out: IAutoMovieVector3 = {
     x: p.x + along * (Math.cos(angle) * f.x.x + Math.sin(angle) * f.y.x),
     y: p.y + along * (Math.cos(angle) * f.x.y + Math.sin(angle) * f.y.y),
     z: p.z + along * (Math.cos(angle) * f.x.z + Math.sin(angle) * f.y.z),
   };
-  const found = locateAutoMovieSweepPoint({ surface, point: out });
+  const found: { u: number; v: number; offset: number } =
+    locateAutoMovieSweepPoint({ surface, point: out });
   const dv: number = Math.abs(found.v - v);
   return (
     nclose(found.u, u, 1e-6) &&
     Math.min(dv, 1 - dv) < 1e-6 &&
     nclose(found.offset, along, 1e-6)
   );
-};
-
+}
 /**
  * Locating a point on a sweep returns the spine parameter of the plane holding it, its turn in that plane and its distance outside the surface, the inverse of the sweep's own point query.
  *
@@ -123,21 +126,23 @@ export function test_geometry_sweep_locate(): void {
     [0.71, 0.66],
     [0.9, 0.93],
   ];
-  const above = locateAutoMovieSweepPoint({
-    surface: straight,
-    point: { x: 0.02, y: 0.6, z: 0.03 },
-  });
-  const end = locateAutoMovieSweepPoint({
-    surface: straight,
-    point: { x: 0.02, y: 0.5, z: 0.03 },
-  });
+  const above: { u: number; v: number; offset: number } =
+    locateAutoMovieSweepPoint({
+      surface: straight,
+      point: { x: 0.02, y: 0.6, z: 0.03 },
+    });
+  const end: { u: number; v: number; offset: number } =
+    locateAutoMovieSweepPoint({
+      surface: straight,
+      point: { x: 0.02, y: 0.5, z: 0.03 },
+    });
   TestValidator.equals(
     "a sweep point is located on the plane and turn it was made from",
     namedFacts([
       [
         "straight",
         (): boolean =>
-          grid.every(([u, v]) =>
+          grid.every(([u, v]: [number, number]): boolean =>
             [0, 0.01, -0.01].every((d: number): boolean =>
               recovers(straight, u, v, d),
             ),
@@ -146,7 +151,7 @@ export function test_geometry_sweep_locate(): void {
       [
         "snake",
         (): boolean =>
-          grid.every(([u, v]) =>
+          grid.every(([u, v]: [number, number]): boolean =>
             [0, 0.01, -0.01].every((d: number): boolean =>
               recovers(snake, u, v, d),
             ),

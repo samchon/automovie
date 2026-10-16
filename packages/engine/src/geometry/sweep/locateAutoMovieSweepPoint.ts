@@ -5,10 +5,8 @@ import { IAutoMovieSweepSurface } from "./IAutoMovieSweepSurface";
 
 /** Even samples of the spine parameter a sign change of the plane distance is bracketed between. */
 const SAMPLES: number = 128;
-
 /** Bisection steps that place the plane on the point; each halves the bracket. */
 const BISECTIONS: number = 48;
-
 /**
  * Find where a point lies on a compiled sweep: the spine parameter whose section plane holds it, its polar direction in that plane, and how far it stands outside the surface along that direction.
  *
@@ -30,21 +28,29 @@ const BISECTIONS: number = 48;
 export const locateAutoMovieSweepPoint: (props: {
   surface: IAutoMovieSweepSurface;
   point: IAutoMovieVector3;
-}) => { u: number; v: number; offset: number } = (props: {
+}) => {
+  u: number;
+  v: number;
+  offset: number;
+} = (props: {
   surface: IAutoMovieSweepSurface;
   point: IAutoMovieVector3;
-}): { u: number; v: number; offset: number } => {
-  const { surface, point } = props;
+}): {
+  u: number;
+  v: number;
+  offset: number;
+} => {
+  const { surface, point }: typeof props = props;
   if (![point.x, point.y, point.z].every(Number.isFinite))
     throw new Error("sweep point to locate is not finite");
-  const plane = (u: number): number => {
+  function plane(u: number): number {
     const f: IAutoMovieSweepFrame = surface.frame(u);
     return (
       (point.x - f.origin.x) * f.normal.x +
       (point.y - f.origin.y) * f.normal.y +
       (point.z - f.origin.z) * f.normal.z
     );
-  };
+  }
   const candidates: number[] = [];
   let previous: number = plane(0);
   for (let k: number = 1; k <= SAMPLES; ++k) {
@@ -71,7 +77,11 @@ export const locateAutoMovieSweepPoint: (props: {
   if (previous === 0) candidates.push(1);
   if (candidates.length === 0)
     candidates.push(Math.abs(plane(0)) <= Math.abs(plane(1)) ? 0 : 1);
-  let best: { u: number; v: number; offset: number } | null = null;
+  let best: {
+    u: number;
+    v: number;
+    offset: number;
+  } | null = null;
   for (const u of candidates) {
     const f: IAutoMovieSweepFrame = surface.frame(u);
     const d: IAutoMovieVector3 = {

@@ -1,5 +1,6 @@
 import {
   type AutoMovieSurfaceTier,
+  type IAutoMovieSubdivisionSurface,
   type IAutoMovieSurfaceCage,
   sampleAutoMovieSurfaceNetwork,
   subdivideAutoMovieSurface,
@@ -25,12 +26,14 @@ export function sweepTransitionDeviation(
     network: sweepTransitionTube({ bow: 0 }),
     tier,
   });
-  const surface = subdivideAutoMovieSurface({
+  const surface: IAutoMovieSubdivisionSurface = subdivideAutoMovieSurface({
     cage: { positions: cage.cage.positions, faces: cage.cage.faces },
     levels: 2,
   });
   const p: ArrayLike<number> = surface.limitPositions;
-  const inside = (y: number): boolean => y >= 0.01 && y <= 0.59;
+  function inside(y: number): boolean {
+    return y >= 0.01 && y <= 0.59;
+  }
   let radial: number = 0;
   for (let i: number = 0; i < p.length / 3; ++i)
     if (inside(p[3 * i + 1]!))
@@ -40,8 +43,9 @@ export function sweepTransitionDeviation(
       );
   let normal: number = 0;
   for (let f: number = 0; f < surface.faces.length / 4; ++f) {
-    const at = (k: number, axis: number): number =>
-      p[3 * surface.faces[4 * f + k]! + axis]!;
+    function at(k: number, axis: number): number {
+      return p[3 * surface.faces[4 * f + k]! + axis]!;
+    }
     const centre: number[] = [0, 1, 2].map(
       (axis: number): number =>
         (at(0, axis) + at(1, axis) + at(2, axis) + at(3, axis)) / 4,

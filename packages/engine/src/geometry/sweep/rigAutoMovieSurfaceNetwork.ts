@@ -114,7 +114,9 @@ export const rigAutoMovieSurfaceNetwork: (props: {
     throw new Error("a rig with bindings needs the rest bones");
   const bones: IAutoMovieBoneBuffer | null =
     props.rest === undefined ? null : bufferAutoMovieBones(props.rest);
-  function boneOf(bone: AutoMovieHumanoidBone | undefined): number { return bone === undefined || bones === null ? -1 : bones.index(bone); }
+  function boneOf(bone: AutoMovieHumanoidBone | undefined): number {
+    return bone === undefined || bones === null ? -1 : bones.index(bone);
+  }
 
   const sweeps: Map<string, IAutoMovieSweepRig> = new Map();
   function sweepRig(name: string): IAutoMovieSweepRig {
@@ -148,19 +150,31 @@ export const rigAutoMovieSurfaceNetwork: (props: {
     }
     return r;
   }
-  function count(counts: IAutoMovieSurfaceNetwork.ICounts, what: string): number {
+  function count(
+    counts: IAutoMovieSurfaceNetwork.ICounts,
+    what: string,
+  ): number {
     const n: number = counts[tier];
     if (!Number.isSafeInteger(n) || n < 1)
       throw new Error(`${what} needs a positive integer count at tier ${tier}`);
     return n;
   }
   const SCALE: number = 10 ** KEY_DIGITS;
-  function round(x: number): number { return Math.round(x * SCALE); }
+  function round(x: number): number {
+    return Math.round(x * SCALE);
+  }
   // v is read modulo one turn after rounding, so v near 0 and near 1 name the same point
-  function sweepKey(name: string, u: number, v: number): string { return `s|${name}|${round(Math.min(1, Math.max(0, u)))}|${((round(v) % SCALE) + SCALE) % SCALE}`; }
-  function rest3(p: IAutoMovieVector3): Float64Array { return Float64Array.from([p.x, p.y, p.z]); }
+  function sweepKey(name: string, u: number, v: number): string {
+    return `s|${name}|${round(Math.min(1, Math.max(0, u)))}|${((round(v) % SCALE) + SCALE) % SCALE}`;
+  }
+  function rest3(p: IAutoMovieVector3): Float64Array {
+    return Float64Array.from([p.x, p.y, p.z]);
+  }
   // a point that rides a bone, or stays where it is without one
-  function riding(p: IAutoMovieVector3, bone: number): ((out: Float64Array, at: number) => void) {
+  function riding(
+    p: IAutoMovieVector3,
+    bone: number,
+  ): (out: Float64Array, at: number) => void {
     const rest: Float64Array = rest3(p);
     return (out: Float64Array, at: number): void => {
       if (bone >= 0) bones!.apply(bone, rest, 0, out, at);
@@ -206,7 +220,10 @@ export const rigAutoMovieSurfaceNetwork: (props: {
     return found;
   }
   const curves: Map<string, IAutoMovieSurfaceCurveRig> = new Map();
-  function curveRig(name: string, curve: IAutoMovieSurfaceNetwork.ICurve): IAutoMovieSurfaceCurveRig {
+  function curveRig(
+    name: string,
+    curve: IAutoMovieSurfaceNetwork.ICurve,
+  ): IAutoMovieSurfaceCurveRig {
     let r: IAutoMovieSurfaceCurveRig | undefined = curves.get(name);
     if (r === undefined) {
       r = rigAutoMovieSurfaceCurve({
@@ -225,7 +242,10 @@ export const rigAutoMovieSurfaceNetwork: (props: {
   const registry: IAutoMovieSurfaceRegistry =
     registerAutoMovieSurfaceVertices(sweepRig);
   const { writers, existing }: IAutoMovieSurfaceRegistry = registry;
-  function sample(edge: IAutoMovieSurfaceNetwork.IEdge, what: string): IAutoMovieSurfaceSample[] {
+  function sample(
+    edge: IAutoMovieSurfaceNetwork.IEdge,
+    what: string,
+  ): IAutoMovieSurfaceSample[] {
     if (edge.type === "sweep") {
       const n: number = count(edge.segments, what);
       const rig: IAutoMovieSweepRig = sweepRig(edge.sweep);
@@ -300,7 +320,10 @@ export const rigAutoMovieSurfaceNetwork: (props: {
       },
     );
   }
-  function loop(edges: IAutoMovieSurfaceNetwork.IEdge[], what: string): IAutoMovieSurfaceSample[] {
+  function loop(
+    edges: IAutoMovieSurfaceNetwork.IEdge[],
+    what: string,
+  ): IAutoMovieSurfaceSample[] {
     if (edges.length === 0) throw new Error(`${what} needs at least one edge`);
     const out: IAutoMovieSurfaceSample[] = [];
     edges.forEach((edge: IAutoMovieSurfaceNetwork.IEdge, k: number): void => {

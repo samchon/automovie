@@ -37,7 +37,7 @@ export const locateAutoMovieSurfaceCoordinate: (props: {
   cage: IAutoMovieSurfaceCage;
   coordinate: IAutoMovieSurfaceCoordinate;
 }): IAutoMovieSubdivisionParameter => {
-  const { patch, s, t } = props.coordinate;
+  const { patch, s, t }: typeof props.coordinate = props.coordinate;
   const grid: IAutoMovieSurfaceCage.IPatch | undefined =
     props.cage.patches[patch];
   if (grid === undefined)
@@ -56,20 +56,17 @@ export const locateAutoMovieSurfaceCoordinate: (props: {
     v: t * grid.rows - j,
   };
 };
-
 /** Newton steps that invert one face's bilinear map; each roughly squares the error of a convex quad. */
 const NEWTON: number = 30;
-
 /** How far outside a face its local coordinates may fall and still count as inside, for points on a shared edge. */
 const SLACK: number = 1e-9;
-
 /** The face of a non-grid patch whose bilinear corner map reaches `(s, t)`, and the local coordinates there. */
-const within = (
+function within(
   cage: IAutoMovieSurfaceCage,
   grid: IAutoMovieSurfaceCage.IPatch,
   s: number,
   t: number,
-): IAutoMovieSubdivisionParameter => {
+): IAutoMovieSubdivisionParameter {
   for (const face of grid.faces) {
     const c: IAutoMovieSurfaceCage["corners"][number] = cage.corners[face]!;
     let a: number = 0.5;
@@ -107,4 +104,4 @@ const within = (
   throw new Error(
     `surface coordinate (${s}, ${t}) lies on no face of patch ${grid.name}`,
   );
-};
+}

@@ -11,22 +11,31 @@ import { namedFacts } from "../internal/namedFacts";
 import { throwsError } from "../internal/throwsError";
 
 /** Half-axes of an elliptic section family: breadth swelling and settling, depth growing. */
-const breadth = (u: number): number => 0.1 + 0.03 * Math.sin(Math.PI * u);
-const depth = (u: number): number => 0.06 + 0.02 * u * u;
+function breadth(u: number): number {
+  return 0.1 + 0.03 * Math.sin(Math.PI * u);
+}
+function depth(u: number): number {
+  return 0.06 + 0.02 * u * u;
+}
 
 /** The family's radius at `u` in direction `angle`, the polar form of the ellipse. */
-const radius = (u: number, angle: number): number =>
-  (breadth(u) * depth(u)) /
-  Math.hypot(depth(u) * Math.cos(angle), breadth(u) * Math.sin(angle));
+function radius(u: number, angle: number): number {
+  return (
+    (breadth(u) * depth(u)) /
+    Math.hypot(depth(u) * Math.cos(angle), breadth(u) * Math.sin(angle))
+  );
+}
 
-const ellipse = (u: number): IAutoMovieSweepSection => ({
-  type: "superellipse",
-  right: breadth(u),
-  up: depth(u),
-  left: breadth(u),
-  down: depth(u),
-  exponents: [2, 2, 2, 2],
-});
+function ellipse(u: number): IAutoMovieSweepSection {
+  return {
+    type: "superellipse",
+    right: breadth(u),
+    up: depth(u),
+    left: breadth(u),
+    down: depth(u),
+    exponents: [2, 2, 2, 2],
+  };
+}
 
 const SPINE: IAutoMovieSweep["spine"] = {
   points: [
@@ -60,10 +69,10 @@ const GUIDES: IAutoMovieSweep.IGuide[] = Array.from(
 );
 
 /** Largest relative radius difference between two surfaces over a grid. */
-const difference = (
+function difference(
   a: IAutoMovieSweepSurface,
   b: IAutoMovieSweepSurface,
-): number => {
+): number {
   let worst: number = 0;
   for (let i: number = 0; i <= 100; ++i)
     for (let j: number = 0; j < 64; ++j) {
@@ -71,7 +80,7 @@ const difference = (
       worst = Math.max(worst, Math.abs(a.radius(i / 100, j / 64) - r) / r);
     }
   return worst;
-};
+}
 
 /**
  * Guides join a sweep's stations as a Gordon surface: two stations and sixteen
