@@ -1,9 +1,7 @@
 import { IAutoMovieHumanCage } from "../../junction/IAutoMovieHumanCage";
 import { IAutoMovieHumanPartGenerator } from "../IAutoMovieHumanPartGenerator";
 import { fieldAutoMovieHumanDeltoid } from "../fieldAutoMovieHumanDeltoid";
-import { fieldAutoMovieHumanLimbRelief } from "../fieldAutoMovieHumanLimbRelief";
 import { loftAutoMovieHumanLimb } from "../loftAutoMovieHumanLimb";
-import { networkAutoMovieHumanLimb } from "../networkAutoMovieHumanLimb";
 import { IAutoMovieHumanLimbPlan } from "../IAutoMovieHumanLimbPlan";
 import { planAutoMovieHumanArm } from "./planAutoMovieHumanArm";
 
@@ -52,7 +50,7 @@ export class AutoMovieHumanArmGenerator implements IAutoMovieHumanPartGenerator<
   }
 
   /**
-   * The arm's relief: its superficial forms (`fieldAutoMovieHumanLimbRelief` over `AUTOMOVIE_HUMAN_ARM_RELIEF`) and the lower end of the deltoid, the field the trunk's shoulder branch shares (`fieldAutoMovieHumanDeltoid`).
+   * The lower end of the deltoid, the field the trunk's shoulder branch shares (`fieldAutoMovieHumanDeltoid`). The arm's own superficial masses are already part of its girth-fitted sweep.
    *
    * @param props Measurements, skeleton and the side of the arm
    * @returns Displacement, millimetres, outward positive, at a point of the arm's skin
@@ -61,19 +59,12 @@ export class AutoMovieHumanArmGenerator implements IAutoMovieHumanPartGenerator<
     props: IAutoMovieHumanPartGenerator.IProps<"arm">,
   ): (point: IAutoMovieHumanPartGenerator.IReliefPoint<"arm">) => number {
     const plan: IAutoMovieHumanLimbPlan = planAutoMovieHumanArm(props);
-    const limb: (u: number, v: number) => number = fieldAutoMovieHumanLimbRelief(
-      plan,
-      networkAutoMovieHumanLimb(plan).value,
-    ).at;
     const deltoid = fieldAutoMovieHumanDeltoid(props);
     // the shoulder branch does not read the deltoid yet, so the arm takes it in over the rows next to the ring instead of stepping at the ring
     const start: number = plan.stations[2]!.rows > 0 ? arcShare(plan, 2) : 0;
     return (point: IAutoMovieHumanPartGenerator.IReliefPoint<"arm">): number => {
       const t: number = Math.min(1, Math.max(0, point.coordinate.u / start));
-      return (
-        limb(point.coordinate.u, point.coordinate.v) +
-        t * t * (3 - 2 * t) * deltoid(point.position)
-      );
+      return t * t * (3 - 2 * t) * deltoid(point.position);
     };
   }
 }

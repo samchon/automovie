@@ -12,12 +12,13 @@ import { AutoMovieHumanVector } from "../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanLimbPlan } from "./IAutoMovieHumanLimbPlan";
 import { measureAutoMovieHumanLimbRow } from "./measureAutoMovieHumanLimbRow";
 import { patchAutoMovieHumanLimb } from "./patchAutoMovieHumanLimb";
+import { fieldAutoMovieHumanLimbRelief } from "./fieldAutoMovieHumanLimbRelief";
 
 /** The tier the human profile samples; one tier keeps one topology until resolution tiers reach every part. */
 const TIER = "medium" as const;
 
 /**
- * Rounds that rescale each station until its row keeps its girth. Relief and the neighbouring stations change a row's girth by a few percent, and a round divides that error by about twenty, the coupling through the sampling filter and the scale profile between rows, so four rounds leave well under a tenth of a millimetre. Grade: numerical.
+ * Rounds that rescale each shaped station to its girth, with all radial features included. Each round measures the complete sampled row and applies its target-to-measured ratio; four is the existing numerical iteration count. The displayed triangulated surface is checked separately from these spline-row measurements. Grade: numerical.
  */
 const GIRTH_ROUNDS: number = 4;
 
@@ -26,11 +27,11 @@ const V: typeof AutoMovieHumanVector = AutoMovieHumanVector;
 /**
  * Build a limb's surface network: one sweep along the bone chain through the plan's station centres, divided into rows of quads around the limb, which `loftAutoMovieHumanLimb` samples into the limb's cage.
  *
- * The sweep's spine runs through the stations' centres, so it bends through the elbow or knee with the bones; its parameter `u` is the centres' chord-length share. Each station places its section in the plane across its own `axis`, turned so the section's first axis is its `anterior`, and between stations the engine interpolates every direction's radius monotonically, so no lump appears that no station has. The surface is the limb's gross form only: its relief is laid on the subdivided skin by `fieldAutoMovieHumanLimbRelief`.
+ * The sweep's spine runs through the stations' centres, so it bends through the elbow or knee with the bones; its parameter `u` is the centres' chord-length share. Each station places its section in the plane across its own `axis`, turned so the section's first axis is its `anterior`, and between stations the engine interpolates each direction's radius with its bounded C2 spline. The superficial masses are radial feature fields from `fieldAutoMovieHumanLimbRelief` on this same sweep, so their full anatomical courses and fat-dependent widths shape the cage before the girths are fitted.
  *
  * The four junction stations keep the rings exactly. The proximal and distal rings are pinned to the shared ring shapes of `shapeAutoMovieHumanRing`, vertex for vertex, so the trunk and the hand or foot weld onto them; each collar, the row one step into the limb, is pinned to its ring carried along the ring's axis to the collar's centre, so the rows on both sides of a ring cancel radially and the joined limit girth along the ring is the ring's own. Both junction stations take their ring's limit curve, the closed B-spline of its control points, as their section, so the surface leaves each collar as the ring's straight continuation.
  *
- * Every other station's row is held to its girth: the sweep's scale profile has a knot at each station, 1 at the junction stations, and each round samples the network without fitting, measures each row's limit girth with `measureAutoMovieHumanLimbRow` and rescales that station's knot by the ratio of its girth to the measured one. The girths therefore hold on the limit surface, and the relief, whose every row averages to nothing, keeps them; the sections' own girths only start the iteration.
+ * Every other station's row is held to its girth: the sweep's scale profile has a knot at each station, 1 at the junction stations, and each round samples the network without fitting, measures each row's limit girth with `measureAutoMovieHumanLimbRow` and rescales that station's knot by the ratio of its girth to the measured one. The fit includes the complete feature-shaped section; the sections' own girths only start the iteration. The limb masses stay in this fitted basis through subdivision. Any separate shoulder field and the finite triangulation are measured on the displayed skin separately.
  *
  * @param plan The limb's stations, relief and rings
  * @returns The calibrated network, the chart address of every patch corner and the junction rings
@@ -74,6 +75,9 @@ export function networkAutoMovieHumanLimb(
   );
 
 
+  const features: IAutoMovieSweep.IFeature[] =
+    fieldAutoMovieHumanLimbRelief(plan, at);
+
   const network = (scales: number[]): IAutoMovieSurfaceNetwork => ({
     sweeps: {
       limb: {
@@ -100,6 +104,7 @@ export function networkAutoMovieHumanLimb(
             value,
           }),
         ),
+        features,
       },
     },
     patches: layout.patches,
