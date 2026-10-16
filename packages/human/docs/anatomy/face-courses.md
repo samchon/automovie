@@ -1,6 +1,6 @@
 # Shared facial source courses
 
-The current committable scope contains the shared three-dimensional mouth/philtrum and CPH anchors, nasal meridian/profile and construction, and the matching pigment border. The unfinished cavity helpers and nasal holes remain private research; no cavity or complete-head acceptance is claimed.
+Commit `83c9c4ad` contains the shared three-dimensional mouth/philtrum and CPH anchors, nasal meridian/profile and construction, and matching pigment border. Commit `8f05ae5b` adds the shared-frame head/orbit/ear correction. The unfinished cavity helpers and nasal holes remain private research; neither commit establishes cavity, complete-head or human-looking-face acceptance. [#2841](https://github.com/samchon/automovie/issues/2841) and [#2842](https://github.com/samchon/automovie/issues/2842) own the remaining source and actual-consumer verification.
 
 This correction starts from immutable b341e287 head functions. The rejected 49849f77 lower-head experiment was restored by a1f4db37; its radial chin folds and neck flange are diagnostic failures, not the source of this facial candidate. Explicit own function patches preserve other owners and all unreviewed instruction documents.
 
@@ -48,4 +48,4 @@ One cached philtral trace jumps about 25 mm into a back/cavity component. It is 
 
 The skeleton's conventional stomion depth differs from the generated oral surface by roughly 17–20 mm. Current geometry shares its measured Y and the profile's derived base Z; final clinical landmark mapping remains open. No absolute correction coordinates are copied into the skeleton.
 
-The coupled source requires full native build/evidence and affected geometry checks under the shared lock, immediate separate owner commits, final immutable asset/source freeze, then original hardware Human consumer inspection. Four identities and fourteen directions, localized high/low/opposite obliques in surface/overlay/construction and fine-normal-off raking light remain required. No global head or campaign block-out pass is declared here.
+The external source and shared-frame work are committed; the private cavity research is not. Native checks and later captures must retain their own exact commit and artifact hashes. Original hardware Human consumer inspection of four identities and fourteen directions, localized high/low/opposite obliques in surface/overlay/construction and fine-normal-off raking light remains separate from the source/numerical results above. No global head or campaign block-out pass is declared here.

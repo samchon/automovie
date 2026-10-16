@@ -85,6 +85,8 @@ Biacromial / bicristal breadth 1.344 (women) against 1.513 (men); bideltoid / hi
 
 ## Campaign 2831 upper trunk representation
 
+This section records a historical representation experiment. [#2835](https://github.com/samchon/automovie/issues/2835) and [#2836](https://github.com/samchon/automovie/issues/2836) now own the canonical trunk/shoulder failures and private-candidate disposition; none of the source diagnostics below is a later visual pass.
+
 Commit 62089b17 added the existing slope station to the cage, but the committed four-gate comparison failed: the neck plate remained and a new V-shaped ridge appeared below the clavicles. The numerical junction check had passed; that did not establish appearance. Raw sweep station heights show an anterior reversal before the neck, but raw sweep points, the compiled network curves and the filtered cage targets are distinct quantities and must not be substituted for each other.
 
 The replacement candidate keeps measured horizontal sections through the axilla and uses a curve network above it. Front and back meridians join the corresponding controls of the shared neck ring; lateral guides pass through the skeleton's acromia. Intermediate guides sample a ruled axilla-to-neck field plus the lateral guide residual with a squared-sine angular blend. Coons patches fill the network and share the shoulder opening curves with the arm bridges. Every control is derived from those boundaries and anatomical landmarks; there is no authored vertex table, fitted tilt or new anatomical coefficient.

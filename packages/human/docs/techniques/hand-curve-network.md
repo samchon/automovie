@@ -2,9 +2,11 @@
 
 This is a development record, not a form acceptance. The reference meshes stay outside the package; no reference vertex, connectivity, landmark index or morph data is copied into Human.
 
+The shared MCP/shaft/thumb-saddle source described in the final section landed in `f4fff1d0`. Earlier private preview counts below retain their original baselines and must not be reported as that commit's full validation. [#2840](https://github.com/samchon/automovie/issues/2840) records completed owner captures and residual palm/thenar plates, root lobes, web ends, wrist ridge and nail-tip findings; supervisor acceptance remains incomplete.
+
 ## Correspondence
 
-The four lean adult gates were registered to the current generated skeleton. All55 public joint origins reconstructed from the immutable b341 consumer match the target skeleton within2.28e-13mm. Native reference skin weights rotate and stretch bone axes onto those joints, preserving transverse reference dimensions. The native rig markers are not clinical joint centres. Digit roll and palmar offsets remain different between reference people, so their absolute transverse depths are not individual fitting targets.
+The four lean adult gates were registered to the generated skeleton at `b341e287`. All 55 public joint origins reconstructed from that immutable consumer match the target skeleton within 2.28e-13 mm. Native reference skin weights rotate and stretch bone axes onto those joints, preserving transverse reference dimensions. The native rig markers are not clinical joint centres. Digit roll and palmar offsets remain different between reference people, so their absolute transverse depths are not individual fitting targets.
 
 | Reference course or mass | Shared Human definition | Source correction |
 |---|---|---|

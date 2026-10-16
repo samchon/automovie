@@ -1,6 +1,6 @@
 # Expression
 
-Covers #2802: FACS action units as muscle-driven deformation of the generated face, combinations, visemes, and return to neutral.
+Covers the research begun for #2802, now continued by [#2845](https://github.com/samchon/automovie/issues/2845): FACS action units as muscle-driven deformation of the generated face, combinations, visemes, and return to neutral. Human currently admits expression documents and returns neutral; the study below is not emitted articulation.
 
 ## Action units and their muscles
 
@@ -96,7 +96,7 @@ The 15-viseme convention (`../sources/meta-ovrlipsync-visemes.md`): sil, PP, FF,
 
 ## Interface fit
 
-`IAutoMovieExpression` carries a coarse VRM-style preset (happy, angry, sad, relaxed, surprised, five vowels, blink and look) and ARKit's 52 blendshape names, and its sinks address morph targets by name. Human generates no morph targets, and neither vocabulary is FACS: ARKit names such as `mouthSmileLeft` bundle several AUs. An expression document of AU intensities (and a jaw angle) needs either a FACS channel set in `interface` or a Human-owned document that converts AUs to the mesh deformation; see the report for #2802.
+`IAutoMovieExpression` carries a coarse VRM-style preset (happy, angry, sad, relaxed, surprised, five vowels, blink and look) and ARKit's 52 blendshape names, and its sinks address morph targets by name. Human's `IAutoMovieHumanExpression` already owns AU activations, including jaw action units; `AutoMovieHuman.express()` admits it but returns neutral while generated targets are absent. #2845 requires conversion of anatomical articulation into exactly 52 ARKit targets, with no additional preset-named targets; gaze uses eye bones under #2842. The original alternative of adding a FACS channel set to `interface` is not the current contract.
 
 ## Open questions
 
