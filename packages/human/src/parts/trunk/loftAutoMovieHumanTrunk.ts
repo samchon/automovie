@@ -27,7 +27,7 @@ import { sweepAutoMovieHumanTrunkThigh } from "./sweepAutoMovieHumanTrunkThigh";
 /**
  * Construct the trunk: a horizontal torso sweep from the crotch to the axilla (`sweepAutoMovieHumanTrunkBody`), an anatomical curve network on to the neck-base ring (`networkAutoMovieHumanUpperTrunk`), with the shoulder tubes (`sweepAutoMovieHumanTrunkArm`) leaving openings in its flanks for the mid-upper-arm rings and the hip tubes (`sweepAutoMovieHumanTrunkThigh`) leaving its lower edge on either side of a gusset between the thighs for the mid-thigh rings.
  *
- * Each tube is joined to the trunk by a bridge that leaves the trunk across its edge and arrives along the tube, and its last section is pinned to the ring the neighbouring part shares, so the junction welds coincident vertices. The hip bridges are one trunk row tall, so the subdivided surface meets no change of row spacing at the hips; the gusset's two Coons strips run under the crotch from the trunk's front midline to its back on either side of a seam, and each hip bridge leaves the trunk's outer half and its groin edge. The trunk's midlines run on into the seam, and the four extra edges the division needs meet at the groin edges' ends, valence five each, where the references' loops turn into the thighs.
+ * Each tube is joined to the trunk by a bridge that leaves the trunk across its edge and arrives along the tube, and its last section is pinned to the ring the neighbouring part shares, so the junction welds coincident vertices. Each hip bridge joins the nonplanar trunk/groin loop directly to the pinned thigh collar with two Hermite rows, then one straight support row reaches the shared ring; the gusset's two Coons strips run under the crotch from the trunk's front midline to its back on either side of a seam, and each hip bridge leaves the trunk's outer half and its groin edge. The trunk's midlines run on into the seam, and the four extra edges the division needs meet at the groin edges' ends, valence five each, where the references' loops turn into the thighs.
  *
  * Topology is fixed by the patch layout alone: twelve columns around the trunk (four in front, two on each flank, four behind), a two-by-two opening on each flank (the eight vertices of the upper-arm ring), and loops of twelve under the pelvis for the thigh rings, so every identity yields the same cage.
  *
@@ -64,8 +64,8 @@ const LOWER_COLUMNS: { readonly below: 6; readonly above: 4 } = { below: 6, abov
 /** The row above the buttock level where the transition band starts, and its rows. */
 const LOWER_TRANSITION: { readonly row: 2; readonly rows: 2 } = { row: 2, rows: 2 } as const;
 
-/** Rows of each thigh tube, about as tall as the trunk's lowest rows, so the subdivided surface keeps its row spacing into the thigh. */
-const HIP_ROWS: number = 2;
+/** One straight support row between the pinned thigh collar and shared ring. */
+const HIP_ROWS: number = 1;
 
 /**
  * Trunk strips by `v`: front across the anterior midline and back across the posterior one, four columns each, and two on each flank, which the arm openings take. Below the lower abdomen the front and back strips carry six columns each, so the sixteen columns round the trunk give each thigh twelve where the trunk divides: six of the trunk's outer half and six along the gusset between the thighs.
@@ -133,10 +133,10 @@ const networkOf: (measurements: IAutoMovieHumanMeasurements, skeleton: IAutoMovi
       frame,
       rightFrame: measureAutoMovieHumanTrunkFrame(measurements, skeleton, "right"),
     });
-  const tube: Record<
-    "arm" | "thigh",
-    Record<AutoMovieHumanSide, { sweep: IAutoMovieSweep; length: number }>
-  > = {
+  const tube: {
+    arm: Record<AutoMovieHumanSide, ReturnType<typeof sweepAutoMovieHumanTrunkArm>>;
+    thigh: Record<AutoMovieHumanSide, ReturnType<typeof sweepAutoMovieHumanTrunkThigh>>;
+  } = {
     arm: {
       left: sweepAutoMovieHumanTrunkArm({
         frame,
@@ -318,7 +318,7 @@ const networkOf: (measurements: IAutoMovieHumanMeasurements, skeleton: IAutoMovi
         tangent: "across",
       },
       to: { edges: hipStart("leftHip"), tangent: "forward" },
-      rows: fixed(1),
+      rows: fixed(2),
       tension: 0.6,
     },
     {
@@ -334,7 +334,7 @@ const networkOf: (measurements: IAutoMovieHumanMeasurements, skeleton: IAutoMovi
         tangent: "across",
       },
       to: { edges: hipStart("rightHip"), tangent: "forward" },
-      rows: fixed(1),
+      rows: fixed(2),
       tension: 0.6,
     },
   );
@@ -438,16 +438,12 @@ const networkOf: (measurements: IAutoMovieHumanMeasurements, skeleton: IAutoMovi
           edges: [
             edge(
               `${side}Hip`,
-              [S.COLLAR.thigh, 0.5],
-              [S.COLLAR.thigh, 1.5],
+              [0, 0.5],
+              [0, 1.5],
               12,
             ),
           ],
-          positions: collar(
-            thighs[side],
-            S.COLLAR.thigh,
-            tube.thigh[side].length,
-          ),
+          positions: S.collarOf(thighs[side], tube.thigh[side].collar),
         },
       ]),
     ],

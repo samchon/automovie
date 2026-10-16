@@ -14,7 +14,7 @@ import { IAutoMovieHumanTrunkNetwork } from "./IAutoMovieHumanTrunkNetwork";
 /**
  * Turn the sampled trunk network into the trunk cage: positions in millimetres, each face corner's chart address and the junction rings.
  *
- * A point of the measured torso sweep is addressed below the axilla in the trunk's main chart; the upper curve patches continue that chart to the neck ring through their declared rectangles. A point of a shoulder or hip tube, or of the bridge that joins it to the trunk, is addressed on that branch's chart: the bridge fills `u` from 0 to 0.3 and the tube the rest, and a hip tube's `v` is turned half a turn so its anterior direction lies at the chart's 0 like the trunk's.
+ * The measured torso sweep uses its fixed row-index rectangles in the trunk chart, and upper curve patches continue that chart to the neck. Shoulder bridges end at longitudinal coordinate 0.3 and their tubes fill the rest. Direct hip bridges end at the existing collar's chart coordinate, and the straight supports continue to the shared ring at 1. Hip bridge and support meridians both turn half a turn so their shared boundary has one address; shoulder bridges retain their signed phase.
  *
  * @param network The network the cage was sampled from
  * @param sampled The sampled cage
@@ -105,16 +105,29 @@ const addressOf: (patch: IAutoMovieSurfaceNetwork.IPatch, s: number, t: number, 
         : patch.name === "joinRightShoulder"
           ? AutoMovieHumanTrunkSweep.SHOULDER_PHASE.right
           : 0;
-    return { part: "trunk", side: null, branch, u: 0.3 * t, v: wrap(s + phase) };
+    const hip: boolean = branch === "leftHip" || branch === "rightHip";
+    const end: number = hip
+      ? 0.3 + 0.7 * AutoMovieHumanTrunkSweep.COLLAR.thigh
+      : 0.3;
+    return {
+      part: "trunk",
+      side: null,
+      branch,
+      u: end * t,
+      v: wrap(s + (hip ? -0.5 : phase)),
+    };
   }
   if (branch === null)
     throw new Error("the trunk sweep patch has no declared chart rectangle");
   const hip: boolean = branch === "leftHip" || branch === "rightHip";
+  const start: number = hip
+    ? 0.3 + 0.7 * AutoMovieHumanTrunkSweep.COLLAR.thigh
+    : 0.3;
   return {
     part: "trunk",
     side: null,
     branch,
-    u: 0.3 + 0.7 * lerp(patch.u, t),
+    u: start + (1 - start) * lerp(patch.u, t),
     v: wrap(lerp(patch.v, s) - (hip ? 0.5 : 0)),
   };
 };

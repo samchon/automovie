@@ -6,20 +6,19 @@ import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShap
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { AutoMovieHumanTrunkSweep } from "./AutoMovieHumanTrunkSweep";
 import { IAutoMovieHumanTrunkFrame } from "./IAutoMovieHumanTrunkFrame";
-import { sectionAutoMovieHumanTrunkThigh } from "./sectionAutoMovieHumanTrunkThigh";
 import { sweepAutoMovieHumanTrunkBody } from "./sweepAutoMovieHumanTrunkBody";
 
 /**
- * A hip tube: from the trunk's lowest row's height below the crotch down to the mid-thigh ring, which the leg shares.
+ * The straight support between the pinned thigh collar and its shared mid-thigh ring.
  *
- * The tube starts level, like the crotch section above it, on its half of the two thighs' contour at the gluteal furrow carried toward the ring's extent by the start's share of the way down to the ring (`sectionAutoMovieHumanTrunkThigh`). The ring's radii are measured from its origin on the femur's axis, which lies off the thigh's own middle, so the spine runs parallel to that offset and the front and back run straight from the start to the ring instead of swinging round a spine through the start's middle; and it starts medial of the half's middle, so its front and back directions meet the half's medial front and back, under the groin edge's ends beside the trunk's midline, and its lateral direction the half's lateral side. The last row repeats the ring, one row before it, so the tube's share of the joined girth is the ring's own.
+ * The collar keeps the preceding layout's spacing, derived from its trunk-row support and ring frame. The nonplanar groin/trunk boundary reaches this collar directly through a Hermite patch; no separate medial section presses the two thigh surfaces onto the midline. Both emitted stations use the ring's section and frame so the neighboring ring loops continue along its axis.
  *
  * @param props.frame The side's trunk frame
- * @param props.ring The thigh's ring
+ * @param props.ring The shared mid-thigh ring
  * @param props.side The thigh
- * @param props.furrow The two thighs' contour at the gluteal furrow
- * @param props.row Height of the trunk's lowest row, millimetres, which the tube's first row takes
- * @returns The tube in metres and its spine's length in millimetres
+ * @param props.furrow Existing contour used to preserve the collar spacing
+ * @param props.row The existing neighboring trunk row height, millimetres
+ * @returns The support sweep in metres and the collar's distance back from the ring, millimetres
  */
 export function sweepAutoMovieHumanTrunkThigh(props: {
   frame: IAutoMovieHumanTrunkFrame;
@@ -27,9 +26,9 @@ export function sweepAutoMovieHumanTrunkThigh(props: {
   side: AutoMovieHumanSide;
   furrow: sweepAutoMovieHumanTrunkBody.IContour;
   row: number;
-}): { sweep: IAutoMovieSweep; length: number } {
+}): { sweep: IAutoMovieSweep; collar: number } {
   const S: typeof AutoMovieHumanTrunkSweep = AutoMovieHumanTrunkSweep;
-  const { frame, ring, furrow } = props;
+  const { frame, ring, furrow }: typeof props = props;
   const L: IAutoMovieHumanTrunkFrame.ILevels = frame.levels;
   const sign: 1 | -1 = props.side === "left" ? 1 : -1;
   const y: number = L.crotch - props.row;
@@ -37,7 +36,7 @@ export function sweepAutoMovieHumanTrunkThigh(props: {
     1,
     Math.max(0, (L.gluteal - y) / (L.gluteal - ring.frame.origin.y)),
   );
-  const lerp = (a: number, b: number): number => a + (b - a) * w;
+  const lerp: (a: number, b: number) => number = (a: number, b: number): number => a + (b - a) * w;
   const xs: number[] = ring.positions.map(
     (p: IAutoMovieVector3): number => p.x,
   );
@@ -47,10 +46,6 @@ export function sweepAutoMovieHumanTrunkThigh(props: {
   const outer: number = lerp(
     furrow.half,
     Math.max(...xs.map((x: number): number => sign * x)),
-  );
-  const depth: number = lerp(
-    furrow.depth,
-    (Math.max(...zs) - Math.min(...zs)) / 2,
   );
   const centre: number = lerp(
     furrow.centre,
@@ -65,36 +60,26 @@ export function sweepAutoMovieHumanTrunkThigh(props: {
     y,
     centre - shift.z,
   );
-  // the ring's first axis faces back, so its section starts half a turn round
+  const collar: number =
+    (1 - S.COLLAR.thigh) * AutoMovieHumanVector.distance(start, ring.frame.origin);
+  const normal: IAutoMovieVector3 = AutoMovieHumanVector.normalize(
+    ring.frame.normal,
+  );
+  const origin: IAutoMovieVector3 = AutoMovieHumanVector.offset(
+    ring.frame.origin,
+    [normal, -collar],
+  );
   const half: number = ring.count / 2;
   return {
-    length: AutoMovieHumanVector.distance(start, ring.frame.origin),
+    collar,
     sweep: {
       spine: {
-        points: [S.toMetres(start), S.toMetres(ring.frame.origin)],
-        normal: { x: 0, y: 0, z: -1 },
+        points: [S.toMetres(origin), S.toMetres(ring.frame.origin)],
+        normal: S.rotate(S.ringRotation(ring, half), { x: 1, y: 0, z: 0 }),
       },
       stations: [
         {
           at: 0,
-          // level like the crotch section above it, first axis backward, second toward the person's left
-          rotation: S.quaternionOf(
-            { x: 0, y: 0, z: -1 },
-            { x: 1, y: 0, z: 0 },
-            { x: 0, y: -1, z: 0 },
-          ),
-          section: sectionAutoMovieHumanTrunkThigh({
-            side: sign,
-            centre,
-            depth,
-            half: outer,
-            exponent: S.FORK_EXPONENT,
-            medial: S.MEDIAL_EXPONENT,
-            start: { x: start.x, z: start.z },
-          }),
-        },
-        {
-          at: S.COLLAR.thigh,
           section: S.ringSection(ring, half),
           rotation: S.ringRotation(ring, half),
         },
@@ -108,5 +93,5 @@ export function sweepAutoMovieHumanTrunkThigh(props: {
   };
 }
 
-/** How far medial of its half's middle each thigh tube's spine starts, as a share of the half's half-width. */
+/** Existing medial support used only to retain the preceding collar spacing. */
 const MEDIAL_OFFSET: number = 0.5;
