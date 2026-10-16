@@ -1,9 +1,67 @@
 /**
- * The foot's form coefficients, each a fraction of foot length unless stated: the outline, rim and sole profiles, the dorsal crest, the heel's back and the toes.
+ * Shared foot profile shapes, rims, sole, dorsal crest, heel and toe heights.
  *
- * Fitted by us, offline, as the least-squares match of shape descriptors between this generator's limit surface and reference feet: the MakeHuman 1.x base mesh with its caucasian female and male young, child and old macro targets applied at full weight (both released CC0 by the MakeHuman team in September 2020; used numerically only, nothing of them in this package). Each reference and its counterpart from the converter for the same sex and age, given the reference's breadth-to-length ratio, were compared on the plan outline at 23 stations, the dorsal and medial-underside height profiles, five cross-sections and the heel's posterior silhouette, all normalised by foot length and breadth, and one coefficient set was fitted across all six by coordinate descent. Measured quantities stay measured: foot length and breadth, heel breadth, navicular height, the malleoli and the metatarsophalangeal joints come from the identity and the skeleton, so the fit decides only form between them. The lofted foot refitted its axis, the borders' offsets, the heel, three heights of the dorsal crest, the toes' descent and the hallux's and second toe's heights on the four lean 20-year-old gate identities of the campaign's harness (a slim model woman and man, a lean muscular woman and man), minimising the mean radial error of nine sections plus 30 times one minus the mean IoU of eight silhouettes, from 5.9 to 6.3 mm and IoU 0.83 to 0.84. Grade: population-fitted to a modelled reference, set against anatomical plates and photographs.
+ * Historical offline form fit across six age/sex art references supplies the
+ * profile ratios. These are conventional shape parameters, not independently
+ * measured clinical dimensions. The plan normalizes the transverse outline
+ * as one family to the independently supplied foot breadth and carries its
+ * centre from the actual heel to the shared metatarsal boundary. Heights and
+ * longitudinal stations retain their stated foot-length/navicular bases.
+ * The source-level normalization does not certify the final displayed
+ * breadth or the original fit after representation changes.
  */
-export const AUTOMOVIE_HUMAN_FOOT_FORM = {
+export const AUTOMOVIE_HUMAN_FOOT_FORM: {
+  readonly medialOffset: readonly [number, number, number, number, number];
+  readonly lateralOffset: readonly [number, number, number, number, number];
+  readonly medialRim: readonly [number, number, number, number, number, number];
+  readonly lateralRim: readonly [number, number, number, number];
+  readonly medialSole: readonly [number, number, number, number];
+  readonly medialArch: readonly [number, number];
+  readonly lateralSole: readonly [number, number, number];
+  readonly ridgeX: readonly [number, number, number, number];
+  readonly ridgeHeight: readonly [
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+  ];
+  readonly ridgeLift: number;
+  readonly heel: {
+    readonly reach: number;
+    readonly back: number;
+    readonly side: number;
+  };
+  readonly toeHeight: readonly [number, number, number, number, number];
+  readonly relief: number;
+  readonly hollow: {
+    readonly depth: number;
+    readonly at: number;
+    readonly spread: number;
+    readonly angle: number;
+    readonly width: number;
+  };
+  readonly tendon: {
+    readonly depth: number;
+    readonly at: number;
+    readonly spread: number;
+    readonly angle: number;
+    readonly width: number;
+  };
+  readonly toeRidge: {
+    readonly hallux: number;
+    readonly lesser: number;
+    readonly width: number;
+    readonly reach: number;
+    readonly web: number;
+  };
+} = {
   /** Medial border's distance from the foot's axis at the rim's upper edge, at 0.2, 0.35, 0.55, 0.66 and 0.74 of foot length from the heel. */
   medialOffset: [0.0842, 0.1188, 0.1297, 0.1744, 0.2181],
 
@@ -40,14 +98,8 @@ export const AUTOMOVIE_HUMAN_FOOT_FORM = {
   /** The heel arc's reach behind its centre and the upper's edge height at its back and its sides. */
   heel: { reach: 0.088, back: 0.2131, side: 0.1081 },
 
-  /** Lesser toes, second to fifth, from the metatarsophalangeal joint centre to the tip; the hallux reaches the full foot length. */
-  toeLength: [0.2691, 0.254, 0.1869, 0.1918],
-
   /** Dorsal height of each toe's free part, hallux to fifth: the hallux and second toe fitted, the third to fifth falling laterally, conventional, since the old cage's fitted values for them (a third toe a quarter of the second's height) served its four-sided toe tubes and flattened a swept toe. */
   toeHeight: [0.1092, 0.0685, 0.064, 0.06, 0.056],
-
-  /** How far lateral of the ankle joint centre the foot's long axis runs: the calcaneus lies lateral of the talus and the foot's axis runs out through the second ray. */
-  axis: 0.00996,
 
   /** Scale of the malleoli, the hollows beside the calcaneal tendon and the tendon's line, 1 as fitted and set against renders. */
   relief: 1,

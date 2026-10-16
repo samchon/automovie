@@ -20,12 +20,16 @@ export function sweepAutoMovieHumanToe(props: {
   const V: typeof AutoMovieHumanVector = AutoMovieHumanVector;
   const toe: IAutoMovieHumanFootPlan.IToe = props.toe;
   const L: number = props.plan.length;
-  const profile = (p: IAutoMovieHumanFootPlan.IProfile, f: number): number =>
-    interpolateAutoMovieHumanFootProfile(p, f);
-  const dorsumAt = (f: number): number =>
+  const profile: (p: IAutoMovieHumanFootPlan.IProfile, f: number) => number = (
+    p: IAutoMovieHumanFootPlan.IProfile,
+    f: number,
+  ): number => interpolateAutoMovieHumanFootProfile(p, f);
+  const dorsumAt: (f: number) => number = (f: number): number =>
     profile(toe.hallux ? HALLUX_DORSUM : LESSER_DORSUM, f) * toe.height;
-  const plantarAt = (f: number): number => profile(PLANTAR, f) * L;
-  const halfAt = (f: number): number => profile(HALF_BREADTH, f) * toe.width;
+  const plantarAt: (f: number) => number = (f: number): number =>
+    profile(PLANTAR, f) * L;
+  const halfAt: (f: number) => number = (f: number): number =>
+    ((profile(HALF_BREADTH, f) / PIP_HALF_BREADTH) * toe.width) / 2;
   const fractions: number[] = [TOE_START, ...TOE_STATIONS, 1];
   const centres: IAutoMovieVector3[] = fractions.map(
     (f: number): IAutoMovieVector3 => {
@@ -125,3 +129,9 @@ const HALF_BREADTH: IAutoMovieHumanFootPlan.IProfile = [
   [0.91, 0.52],
   [0.975, 0.33],
 ];
+
+/** Read the breadth scale from the same declared IP station and profile. */
+const PIP_HALF_BREADTH: number = interpolateAutoMovieHumanFootProfile(
+  HALF_BREADTH,
+  TOE_STATIONS[0]!,
+);

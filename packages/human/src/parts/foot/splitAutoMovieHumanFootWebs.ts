@@ -15,38 +15,48 @@ import { sweepAutoMovieHumanFoot } from "./sweepAutoMovieHumanFoot";
  * rather than reconstructing the neighboring toe's boundary.
  *
  * @param props The local foot plan, source solid and generated sweep layout
+ * @param props.starts The same first free-tube centres consumed by the digit sweeps
  * @returns The shared web network, toe loops and address turns of each web
  */
 export function splitAutoMovieHumanFootWebs(props: {
   plan: IAutoMovieHumanFootPlan;
   base: solidAutoMovieHumanFoot.ISolid;
   laid: sweepAutoMovieHumanFoot.IOutput;
+  /** Each free tube's first source centre, shared with its sweep. */
+  starts: IAutoMovieVector3[];
 }): splitAutoMovieHumanFootWebs.IOutput {
   const { plan, base, laid }: typeof props = props;
   const V: typeof AutoMovieHumanVector = AutoMovieHumanVector;
   const L: number = plan.length;
   const toes: IAutoMovieHumanFootPlan.IToe[] = plan.toes;
-  const { end, line, endMiddle, endCentre }: sweepAutoMovieHumanFoot.IOutput = laid;
-  const solid: (p: IAutoMovieVector3) => number = (p: IAutoMovieVector3): number => base.field(p);
-  const rootOf: (toe: IAutoMovieHumanFootPlan.IToe, along: number) => IAutoMovieVector3 =
-    (toe: IAutoMovieHumanFootPlan.IToe, along: number): IAutoMovieVector3 =>
-      V.offset(toe.joint, [toe.direction, along * toe.length]);
+  const { end, line, endMiddle, endCentre }: sweepAutoMovieHumanFoot.IOutput =
+    laid;
+  const solid: (p: IAutoMovieVector3) => number = (
+    p: IAutoMovieVector3,
+  ): number => base.field(p);
   // the twenty-four columns of the toes' roots, by the angle of their nodes on the end section
-  const angleOf: (p: IAutoMovieVector3) => number = (p: IAutoMovieVector3): number => {
+  const angleOf: (p: IAutoMovieVector3) => number = (
+    p: IAutoMovieVector3,
+  ): number => {
     const d: IAutoMovieVector3 = V.offset(p, [end.origin, -1]);
     return Math.atan2(V.dot(d, end.y), V.dot(d, end.x)) / (2 * Math.PI);
   };
   // points of the end section's dorsum and sole at a lateral offset along the roots' line
-  const dorsum: (s: number) => IAutoMovieVector3 = (s: number): IAutoMovieVector3 => {
+  const dorsum: (s: number) => IAutoMovieVector3 = (
+    s: number,
+  ): IAutoMovieVector3 => {
     const p: IAutoMovieVector3 = V.offset(endMiddle, [line, s]);
     return V.of(p.x, base.top(p.x, p.z), p.z);
   };
-  const sole: (s: number) => IAutoMovieVector3 = (s: number): IAutoMovieVector3 => {
+  const sole: (s: number) => IAutoMovieVector3 = (
+    s: number,
+  ): IAutoMovieVector3 => {
     const p: IAutoMovieVector3 = V.offset(endMiddle, [line, s]);
     return V.of(p.x, base.bottom(p.x, p.z), p.z);
   };
-  const offsetOf: (p: IAutoMovieVector3) => number = (p: IAutoMovieVector3): number =>
-    V.dot(V.offset(p, [endMiddle, -1]), line);
+  const offsetOf: (p: IAutoMovieVector3) => number = (
+    p: IAutoMovieVector3,
+  ): number => V.dot(V.offset(p, [endMiddle, -1]), line);
   const webs: number[] = [0, 1, 2, 3].map((w: number): number => {
     const a: IAutoMovieVector3 = laid.root(toes[w]!);
     const b: IAutoMovieVector3 = laid.root(toes[w + 1]!);
@@ -82,8 +92,12 @@ export function splitAutoMovieHumanFootWebs(props: {
   ];
   const turnOf: number[] = new Array<number>(24);
   nodePoints.forEach((q: IAutoMovieVector3, k: number): void => {
-    const v: number = angleOf(q);
-    turnOf[2 * k + 1] = ((v % 1) + 1) % 1;
+    let v: number = angleOf(q);
+    // Keep semantic loop order through the periodic seam. Independent modulo
+    // can turn a small negative first angle into a spurious reversed edge.
+    // A true reversal still consumes another turn and fails the span check.
+    if (k > 0) while (v <= turnOf[2 * k - 1]!) v += 1;
+    turnOf[2 * k + 1] = v;
   });
   turnOf[0] = (turnOf[23]! - 1 + turnOf[1]!) / 2;
   for (let j: number = 2; j < 24; j += 2)
@@ -109,11 +123,6 @@ export function splitAutoMovieHumanFootWebs(props: {
       ): splitAutoMovieHumanWebs.IWeb => {
         const a: IAutoMovieHumanFootPlan.IToe = toes[w]!;
         const b: IAutoMovieHumanFootPlan.IToe = toes[w + 1]!;
-        const crotch: IAutoMovieVector3 = V.of(
-          (rootOf(a, CROTCH).x + rootOf(b, CROTCH).x) / 2,
-          (CROTCH_HEIGHT * (a.height + b.height)) / 2,
-          (rootOf(a, CROTCH).z + rootOf(b, CROTCH).z) / 2,
-        );
         const normal: IAutoMovieVector3 = V.normalize(
           V.of(
             (a.direction.x + b.direction.x) / 2,
@@ -121,6 +130,32 @@ export function splitAutoMovieHumanFootWebs(props: {
             (a.direction.z + b.direction.z) / 2,
           ),
         );
+        const middle: IAutoMovieVector3 = V.of(
+          (a.joint.x + b.joint.x) / 2,
+          0,
+          (a.joint.z + b.joint.z) / 2,
+        );
+        // The shared web must precede both free-tube cuts, including a short
+        // lateral toe beside a longer medial one. Averaging two fractional
+        // toe points can put the crotch beyond the shorter tube's start.
+        const reach: number = Math.min(
+          ...[a, b].map(
+            (toe: IAutoMovieHumanFootPlan.IToe, i: number): number => {
+              const cut: IAutoMovieVector3 = props.starts[w + i]!;
+              return (
+                V.dot(V.offset(cut, [middle, -1]), toe.direction) /
+                V.dot(normal, toe.direction)
+              );
+            },
+          ),
+        );
+        if (!(reach > 0))
+          throw new Error(`foot web ${w} has no common proximal domain`);
+        const crotch: IAutoMovieVector3 = V.offset(middle, [
+          normal,
+          WEB_REACH * reach,
+        ]);
+        crotch.y = (CROTCH_HEIGHT * (a.height + b.height)) / 2;
         const across: IAutoMovieVector3 = V.of(normal.z, 0, -normal.x);
         return {
           first: p,
@@ -133,8 +168,10 @@ export function splitAutoMovieHumanFootWebs(props: {
     ),
   });
   const { at: rootAt, lo, hi }: splitAutoMovieHumanWebs.IOutput = split;
-  const rootPath: (a: number, b: number) => IAutoMovieSurfaceNetwork.IEdge[] = split.path;
-  const web: (w: number, side: "x" | "y") => IAutoMovieSurfaceNetwork.IEdge = split.web;
+  const rootPath: (a: number, b: number) => IAutoMovieSurfaceNetwork.IEdge[] =
+    split.path;
+  const web: (w: number, side: "x" | "y") => IAutoMovieSurfaceNetwork.IEdge =
+    split.web;
   // each toe's loop from its back, counterclockwise about the distal axis: hallux 4, second 2, third 0 (24), fourth 22, fifth 20
   const loops: IAutoMovieSurfaceNetwork.IEdge[][] = [
     [...rootPath(lo(4), lo(9)), web(0, "x"), ...rootPath(hi(3), lo(4))],
@@ -164,10 +201,15 @@ export function splitAutoMovieHumanFootWebs(props: {
   return {
     split,
     loops,
-    webTurns: WEBS.map((ends: { dorsal: number; plantar: number }): { dorsal: number; plantar: number } => ({
-      dorsal: rootAt(lo(ends.dorsal)),
-      plantar: rootAt(hi(ends.plantar)),
-    })),
+    webTurns: WEBS.map(
+      (ends: {
+        dorsal: number;
+        plantar: number;
+      }): { dorsal: number; plantar: number } => ({
+        dorsal: rootAt(lo(ends.dorsal)),
+        plantar: rootAt(hi(ends.plantar)),
+      }),
+    ),
   };
 }
 
@@ -199,13 +241,15 @@ const WEBS: Array<{ dorsal: number; plantar: number }> = [
 /** Breadth of each web between two toes, of foot length: about 3 mm, so the web is one narrow face wide and its four corners are valence-five vertices instead of two of valence six. Conventional. */
 const WEB: number = 0.012;
 
-/** Where each web's crotch lies, of the toes' length from their joints, and its height of their heights. Conventional. */
-const CROTCH: number = 0.42;
+/** Share of the common proximal-to-free-cut domain taken by the web. Conventional layout, 0 at the shared MTP midpoint and 1 at the nearer source cut. */
+const WEB_REACH: number = 0.84;
+
+/** Web height of the adjacent toes' mean dorsal height. Conventional. */
 const CROTCH_HEIGHT: number = 0.55;
 
 /** Share of the half breadth where the borders' corners lie. */
 const CORNER: number = 0.85;
 
-
-const metres: (p: IAutoMovieVector3) => IAutoMovieVector3 =
-  (p: IAutoMovieVector3): IAutoMovieVector3 => ({ x: p.x / 1000, y: p.y / 1000, z: p.z / 1000 });
+const metres: (p: IAutoMovieVector3) => IAutoMovieVector3 = (
+  p: IAutoMovieVector3,
+): IAutoMovieVector3 => ({ x: p.x / 1000, y: p.y / 1000, z: p.z / 1000 });

@@ -27,173 +27,150 @@ const GRID: { along: number; across: number } = { along: 5, across: 5 };
  *
  * @param props.plan The foot's plan, for each toe's breadth
  * @param props.axes Each toe's axis as the lofted toe's spine holds it, in the foot's local frame
- * @param props.skin The refined skin's triangles in the same frame
+ * @param props.skin The final emitted skin projected through the shared local frame
  * @returns One closed quad cage per toe, hallux first, local frame, winding outward
  */
 export function placeAutoMovieHumanFootNails(props: {
   plan: IAutoMovieHumanFootPlan;
   axes: Array<{ fractions: number[]; centres: IAutoMovieVector3[] }>;
-  skin: { positions: number[]; triangles: number[] };
+  skin: {
+    project: (
+      origin: IAutoMovieVector3,
+      direction: IAutoMovieVector3,
+    ) => number | null;
+  };
 }): Array<{
   positions: IAutoMovieVector3[];
   quads: Array<[number, number, number, number]>;
 }> {
   const V: typeof AutoMovieHumanVector = AutoMovieHumanVector;
-  return props.plan.toes.map((toe: IAutoMovieHumanFootPlan.IToe, t: number) => {
-    const nail: { from: number; to: number; breadth: number } = toe.hallux
-      ? NAIL.hallux
-      : NAIL.lesser;
-    const { fractions, centres } = props.axes[t]!;
-    // the toe's axis through its centres, read at a fraction of the toe's length
-    const along = (
-      s: number,
-    ): { origin: IAutoMovieVector3; axis: IAutoMovieVector3 } => {
-      let k: number = 0;
-      while (k + 2 < fractions.length && fractions[k + 1]! < s) ++k;
-      const a: number = fractions[k]!;
-      const b: number = fractions[k + 1]!;
-      const w: number = (s - a) / (b - a);
-      return {
-        origin: V.offset(centres[k]!, [
-          V.offset(centres[k + 1]!, [centres[k]!, -1]),
-          w,
-        ]),
-        axis: V.normalize(V.offset(centres[k + 1]!, [centres[k]!, -1])),
+  return props.plan.toes.map(
+    (
+      toe: IAutoMovieHumanFootPlan.IToe,
+      t: number,
+    ): {
+      positions: IAutoMovieVector3[];
+      quads: [number, number, number, number][];
+    } => {
+      const nail: { from: number; to: number; breadth: number } = toe.hallux
+        ? NAIL.hallux
+        : NAIL.lesser;
+      const {
+        fractions,
+        centres,
+      }: { fractions: number[]; centres: IAutoMovieVector3[] } = props.axes[t]!;
+      // the toe's axis through its centres, read at a fraction of the toe's length
+      const along: (s: number) => {
+        origin: IAutoMovieVector3;
+        axis: IAutoMovieVector3;
+      } = (
+        s: number,
+      ): { origin: IAutoMovieVector3; axis: IAutoMovieVector3 } => {
+        let k: number = 0;
+        while (k + 2 < fractions.length && fractions[k + 1]! < s) ++k;
+        const a: number = fractions[k]!;
+        const b: number = fractions[k + 1]!;
+        const w: number = (s - a) / (b - a);
+        return {
+          origin: V.offset(centres[k]!, [
+            V.offset(centres[k + 1]!, [centres[k]!, -1]),
+            w,
+          ]),
+          axis: V.normalize(V.offset(centres[k + 1]!, [centres[k]!, -1])),
+        };
       };
-    };
-    const width: number = nail.breadth * toe.width;
-    const middle: { origin: IAutoMovieVector3; axis: IAutoMovieVector3 } =
-      along((nail.from + nail.to) / 2);
-    const across: IAutoMovieVector3 = V.normalize(
-      V.cross(V.of(0, 1, 0), middle.axis),
-    );
-    const dorsal: IAutoMovieVector3 = V.normalize(V.cross(middle.axis, across));
-    const radius: number = cast(props.skin, middle.origin, dorsal) ?? width;
-    const half: number = Math.min(1.2, width / 2 / radius);
-    const top: IAutoMovieVector3[] = [];
-    const bottom: IAutoMovieVector3[] = [];
-    for (let i: number = 0; i < GRID.along; ++i) {
-      const origin: IAutoMovieVector3 = along(
-        nail.from + ((nail.to - nail.from) * i) / (GRID.along - 1),
-      ).origin;
-      for (let j: number = 0; j < GRID.across; ++j) {
-        const angle: number =
-          half * (i === 0 ? 0.8 : 1) * (2 * (j / (GRID.across - 1)) - 1);
-        const ray: IAutoMovieVector3 = V.offset(
-          V.of(0, 0, 0),
-          [dorsal, Math.cos(angle)],
-          [across, Math.sin(angle)],
-        );
-        const hit: number = cast(props.skin, origin, ray) ?? radius;
-        top.push(V.offset(origin, [ray, hit + PLATE.above]));
-        bottom.push(V.offset(origin, [ray, hit - PLATE.below]));
+      const width: number = nail.breadth * toe.width;
+      const middle: { origin: IAutoMovieVector3; axis: IAutoMovieVector3 } =
+        along((nail.from + nail.to) / 2);
+      const across: IAutoMovieVector3 = V.normalize(
+        V.cross(V.of(0, 1, 0), middle.axis),
+      );
+      const dorsal: IAutoMovieVector3 = V.normalize(
+        V.cross(middle.axis, across),
+      );
+      const radius: number | null = props.skin.project(middle.origin, dorsal);
+      if (radius === null || !(radius > 0))
+        throw new Error(`Toenail ${t} centre ray misses the emitted skin`);
+      const half: number = Math.min(1.2, width / 2 / radius);
+      const top: IAutoMovieVector3[] = [];
+      const bottom: IAutoMovieVector3[] = [];
+      for (let i: number = 0; i < GRID.along; ++i) {
+        const origin: IAutoMovieVector3 = along(
+          nail.from + ((nail.to - nail.from) * i) / (GRID.along - 1),
+        ).origin;
+        for (let j: number = 0; j < GRID.across; ++j) {
+          const angle: number =
+            half * (i === 0 ? 0.8 : 1) * (2 * (j / (GRID.across - 1)) - 1);
+          const ray: IAutoMovieVector3 = V.offset(
+            V.of(0, 0, 0),
+            [dorsal, Math.cos(angle)],
+            [across, Math.sin(angle)],
+          );
+          const hit: number | null = props.skin.project(origin, ray);
+          if (hit === null || !(hit > 0))
+            throw new Error(`Toenail ${t} grid ray misses the emitted skin`);
+          top.push(V.offset(origin, [ray, hit + PLATE.above]));
+          bottom.push(V.offset(origin, [ray, hit - PLATE.below]));
+        }
       }
-    }
-    const positions: IAutoMovieVector3[] = [...top, ...bottom];
-    const index = (layer: number, i: number, j: number): number =>
-      layer * GRID.along * GRID.across + i * GRID.across + j;
-    const quads: Array<[number, number, number, number]> = [];
-    for (let i: number = 0; i + 1 < GRID.along; ++i)
-      for (let j: number = 0; j + 1 < GRID.across; ++j) {
+      const positions: IAutoMovieVector3[] = [...top, ...bottom];
+      const index: (layer: number, i: number, j: number) => number = (
+        layer: number,
+        i: number,
+        j: number,
+      ): number => layer * GRID.along * GRID.across + i * GRID.across + j;
+      const quads: Array<[number, number, number, number]> = [];
+      for (let i: number = 0; i + 1 < GRID.along; ++i)
+        for (let j: number = 0; j + 1 < GRID.across; ++j) {
+          quads.push([
+            index(0, i, j),
+            index(0, i, j + 1),
+            index(0, i + 1, j + 1),
+            index(0, i + 1, j),
+          ]);
+          quads.push([
+            index(1, i, j),
+            index(1, i + 1, j),
+            index(1, i + 1, j + 1),
+            index(1, i, j + 1),
+          ]);
+        }
+      const rim: Array<[number, number]> = [];
+      for (let j: number = 0; j + 1 < GRID.across; ++j) rim.push([0, j]);
+      for (let i: number = 0; i + 1 < GRID.along; ++i)
+        rim.push([i, GRID.across - 1]);
+      for (let j: number = GRID.across - 1; j > 0; --j)
+        rim.push([GRID.along - 1, j]);
+      for (let i: number = GRID.along - 1; i > 0; --i) rim.push([i, 0]);
+      rim.forEach(([i, j]: [number, number], k: number): void => {
+        const [p, q]: [number, number] = rim[(k + 1) % rim.length]!;
         quads.push([
+          index(0, p, q),
           index(0, i, j),
-          index(0, i, j + 1),
-          index(0, i + 1, j + 1),
-          index(0, i + 1, j),
-        ]);
-        quads.push([
           index(1, i, j),
-          index(1, i + 1, j),
-          index(1, i + 1, j + 1),
-          index(1, i, j + 1),
+          index(1, p, q),
         ]);
-      }
-    const rim: Array<[number, number]> = [];
-    for (let j: number = 0; j + 1 < GRID.across; ++j) rim.push([0, j]);
-    for (let i: number = 0; i + 1 < GRID.along; ++i)
-      rim.push([i, GRID.across - 1]);
-    for (let j: number = GRID.across - 1; j > 0; --j)
-      rim.push([GRID.along - 1, j]);
-    for (let i: number = GRID.along - 1; i > 0; --i) rim.push([i, 0]);
-    rim.forEach(([i, j]: [number, number], k: number): void => {
-      const [p, q]: [number, number] = rim[(k + 1) % rim.length]!;
-      quads.push([
-        index(0, p, q),
-        index(0, i, j),
-        index(1, i, j),
-        index(1, p, q),
-      ]);
-    });
-    // wind every quad so its normal leaves the plate: the top grid's faces away from the toe's axis
-    const first: [number, number, number, number] = quads[0]!;
-    const normal: IAutoMovieVector3 = V.cross(
-      V.offset(positions[first[1]]!, [positions[first[0]]!, -1]),
-      V.offset(positions[first[3]]!, [positions[first[0]]!, -1]),
-    );
-    const outward: boolean = V.dot(normal, dorsal) > 0;
-    return {
-      positions,
-      quads: outward
-        ? quads
-        : quads.map(
-            ([a, b, c, d]: [number, number, number, number]): [
-              number,
-              number,
-              number,
-              number,
-            ] => [a, d, c, b],
-          ),
-    };
-  });
-}
-
-/**
- * Distance along a ray from an origin inside a toe to the nearest skin triangle it crosses, the toe's own skin, or null when it crosses none.
- */
-function cast(
-  skin: { positions: number[]; triangles: number[] },
-  origin: IAutoMovieVector3,
-  ray: IAutoMovieVector3,
-): number | null {
-  const p: number[] = skin.positions;
-  let best: number | null = null;
-  for (let t: number = 0; t < skin.triangles.length; t += 3) {
-    const a: number = 3 * skin.triangles[t]!;
-    const b: number = 3 * skin.triangles[t + 1]!;
-    const c: number = 3 * skin.triangles[t + 2]!;
-    const e1: [number, number, number] = [
-      p[b]! - p[a]!,
-      p[b + 1]! - p[a + 1]!,
-      p[b + 2]! - p[a + 2]!,
-    ];
-    const e2: [number, number, number] = [
-      p[c]! - p[a]!,
-      p[c + 1]! - p[a + 1]!,
-      p[c + 2]! - p[a + 2]!,
-    ];
-    const h: [number, number, number] = [
-      ray.y * e2[2] - ray.z * e2[1],
-      ray.z * e2[0] - ray.x * e2[2],
-      ray.x * e2[1] - ray.y * e2[0],
-    ];
-    const det: number = e1[0] * h[0] + e1[1] * h[1] + e1[2] * h[2];
-    if (Math.abs(det) < 1e-12) continue;
-    const s: [number, number, number] = [
-      origin.x - p[a]!,
-      origin.y - p[a + 1]!,
-      origin.z - p[a + 2]!,
-    ];
-    const u: number = (s[0] * h[0] + s[1] * h[1] + s[2] * h[2]) / det;
-    if (u < 0 || u > 1) continue;
-    const q: [number, number, number] = [
-      s[1] * e1[2] - s[2] * e1[1],
-      s[2] * e1[0] - s[0] * e1[2],
-      s[0] * e1[1] - s[1] * e1[0],
-    ];
-    const v: number = (ray.x * q[0] + ray.y * q[1] + ray.z * q[2]) / det;
-    if (v < 0 || u + v > 1) continue;
-    const d: number = (e2[0] * q[0] + e2[1] * q[1] + e2[2] * q[2]) / det;
-    if (d > 0 && (best === null || d < best)) best = d;
-  }
-  return best;
+      });
+      // wind every quad so its normal leaves the plate: the top grid's faces away from the toe's axis
+      const first: [number, number, number, number] = quads[0]!;
+      const normal: IAutoMovieVector3 = V.cross(
+        V.offset(positions[first[1]]!, [positions[first[0]]!, -1]),
+        V.offset(positions[first[3]]!, [positions[first[0]]!, -1]),
+      );
+      const outward: boolean = V.dot(normal, dorsal) > 0;
+      return {
+        positions,
+        quads: outward
+          ? quads
+          : quads.map(
+              ([a, b, c, d]: [number, number, number, number]): [
+                number,
+                number,
+                number,
+                number,
+              ] => [a, d, c, b],
+            ),
+      };
+    },
+  );
 }

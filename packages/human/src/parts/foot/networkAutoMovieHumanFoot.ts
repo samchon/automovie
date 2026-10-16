@@ -44,7 +44,8 @@ export function networkAutoMovieHumanFoot(props: {
   );
   const section: IAutoMovieSweepSection.IBSpline = {
     type: "bspline",
-    points: ring.sense === 1 ? points : [points[0]!, ...points.slice(1).reverse()],
+    points:
+      ring.sense === 1 ? points : [points[0]!, ...points.slice(1).reverse()],
   };
   const base: solidAutoMovieHumanFoot.ISolid = solidAutoMovieHumanFoot({
     plan,
@@ -59,14 +60,30 @@ export function networkAutoMovieHumanFoot(props: {
   });
   const { sweep: foot, path, collar }: sweepAutoMovieHumanFoot.IOutput = laid;
 
-  const webLayout: splitAutoMovieHumanFootWebs.IOutput = splitAutoMovieHumanFootWebs({ plan, base, laid });
+  const digits: sweepAutoMovieHumanToe.IOutput[] = toes.map(
+    (toe: IAutoMovieHumanFootPlan.IToe): sweepAutoMovieHumanToe.IOutput =>
+      sweepAutoMovieHumanToe({ plan, toe }),
+  );
+  const webLayout: splitAutoMovieHumanFootWebs.IOutput =
+    splitAutoMovieHumanFootWebs({
+      plan,
+      base,
+      laid,
+      starts: digits.map(
+        (digit: sweepAutoMovieHumanToe.IOutput): IAutoMovieVector3 =>
+          digit.centres[0]!,
+      ),
+    });
   const { split, loops }: splitAutoMovieHumanFootWebs.IOutput = webLayout;
   const R: number = split.count;
   const { at: rootAt, lo }: splitAutoMovieHumanWebs.IOutput = split;
 
   const patches: IAutoMovieSurfaceNetwork.IPatch[] = [];
   const addresses: networkAutoMovieHumanFoot.IAddress[] = [];
-  const main: (u: number, v: number) => networkAutoMovieHumanFoot.IPoint = (u: number, v: number): networkAutoMovieHumanFoot.IPoint => ({
+  const main: (u: number, v: number) => networkAutoMovieHumanFoot.IPoint = (
+    u: number,
+    v: number,
+  ): networkAutoMovieHumanFoot.IPoint => ({
     u: BODY * u,
     v: wrap(v),
   });
@@ -79,7 +96,10 @@ export function networkAutoMovieHumanFoot(props: {
     rows: fixed(1),
     columns: fixed(8),
   });
-  addresses.push((s: number, t: number): networkAutoMovieHumanFoot.IPoint => main(collar * t, s));
+  addresses.push(
+    (s: number, t: number): networkAutoMovieHumanFoot.IPoint =>
+      main(collar * t, s),
+  );
   // the ring's eight columns turn into the toes' roots' thirty-two down the column in four gentle steps, each with no more reduction blocks than straight columns between them
   STEPS.forEach(([from, to]: [number, number], k: number): void => {
     const u: [number, number] = [
@@ -96,7 +116,10 @@ export function networkAutoMovieHumanFoot(props: {
       end: fixed(to),
       rows: fixed(1),
     });
-    addresses.push((s: number, t: number): networkAutoMovieHumanFoot.IPoint => main(u[0] + (u[1] - u[0]) * t, s));
+    addresses.push(
+      (s: number, t: number): networkAutoMovieHumanFoot.IPoint =>
+        main(u[0] + (u[1] - u[0]) * t, s),
+    );
   });
   // the body: rows of thirty-two columns, evenly spaced round the heel, shearing over the forefoot onto the toes' roots' nodes; every vertex is a sample of the sweep
   const rowsU: number[] = [];
@@ -125,11 +148,13 @@ export function networkAutoMovieHumanFoot(props: {
   body.patches.forEach(
     (patch: IAutoMovieSurfaceNetwork.ICoonsPatch, k: number): void => {
       patches.push(patch);
-      addresses.push((s: number, t: number): networkAutoMovieHumanFoot.IPoint => {
-        const q: IAutoMovieSurfaceNetwork.IDomainPoint =
-          gridAutoMovieHumanSweep.locate(body.corners[k]!, s, t);
-        return main(q.u, q.v);
-      });
+      addresses.push(
+        (s: number, t: number): networkAutoMovieHumanFoot.IPoint => {
+          const q: IAutoMovieSurfaceNetwork.IDomainPoint =
+            gridAutoMovieHumanSweep.locate(body.corners[k]!, s, t);
+          return main(q.u, q.v);
+        },
+      );
     },
   );
 
@@ -144,13 +169,16 @@ export function networkAutoMovieHumanFoot(props: {
       patches.push(patch);
       const d: number = webLayout.webTurns[w]!.dorsal;
       const p: number = webLayout.webTurns[w]!.plantar;
-      addresses.push((_: number, t: number): networkAutoMovieHumanFoot.IPoint => main(1, d + (p - d) * t));
+      addresses.push(
+        (_: number, t: number): networkAutoMovieHumanFoot.IPoint =>
+          main(1, d + (p - d) * t),
+      );
     },
   );
   const axes: networkAutoMovieHumanFoot.IAxis[] = [];
-  toes.forEach((toe: IAutoMovieHumanFootPlan.IToe, t: number): void => {
+  digits.forEach((digit: sweepAutoMovieHumanToe.IOutput, t: number): void => {
     const name: string = `toe${t}`;
-    const { out, fractions, centres }: sweepAutoMovieHumanToe.IOutput = sweepAutoMovieHumanToe({ plan, toe });
+    const { out, fractions, centres }: sweepAutoMovieHumanToe.IOutput = digit;
     sweeps[name] = out.sweep;
     axes.push({ fractions, centres });
     const toeV: number = wrap(rootAt(lo([4, 2, 0, 22, 20][t]!)));
@@ -169,8 +197,8 @@ export function networkAutoMovieHumanFoot(props: {
       (place: patchAutoMovieHumanDigit.IPlace, k: number): void => {
         addresses.push(
           k === toePatches.places.length - 1
-            ? (): { u: number; v: number; } => ({ u: 1, v: toeV })
-            : (s: number, t2: number): { u: number; v: number; } => ({
+            ? (): { u: number; v: number } => ({ u: 1, v: toeV })
+            : (s: number, t2: number): { u: number; v: number } => ({
                 u: BODY + (1 - BODY) * place(s, t2).u,
                 v: wrap(toeV + SPREAD * (s - 0.5)),
               }),
@@ -180,7 +208,9 @@ export function networkAutoMovieHumanFoot(props: {
   });
 
   // the ankle ring and its collar
-  const ringEdges: (u: number) => IAutoMovieSurfaceNetwork.IEdge[] = (u: number): IAutoMovieSurfaceNetwork.IEdge[] => [
+  const ringEdges: (u: number) => IAutoMovieSurfaceNetwork.IEdge[] = (
+    u: number,
+  ): IAutoMovieSurfaceNetwork.IEdge[] => [
     edgeOf("foot", { u, v: 0 }, { u, v: ring.sense }, 8),
   ];
   return {
@@ -198,8 +228,9 @@ export function networkAutoMovieHumanFoot(props: {
         {
           name: "ankle.collar",
           edges: ringEdges(collar),
-          positions: ring.positions.map((p: IAutoMovieVector3): IAutoMovieVector3 =>
-            metres(V.offset(p, [V.of(0, -1, 0), collar * path.length])),
+          positions: ring.positions.map(
+            (p: IAutoMovieVector3): IAutoMovieVector3 =>
+              metres(V.offset(p, [V.of(0, -1, 0), collar * path.length])),
           ),
         },
       ],
@@ -293,7 +324,10 @@ const SHEAR: number = 0.5;
 const BAND: number = 0.5;
 
 /** Rows of the two bands. */
-const ROWS: { readonly heel: 10; readonly fore: 4; } = { heel: 10, fore: 4 } as const;
+const ROWS: { readonly heel: 10; readonly fore: 4 } = {
+  heel: 10,
+  fore: 4,
+} as const;
 
 /** Rows of a toe's two bands. */
 const TOE_ROWS: number[] = [2, 3, 1];
@@ -307,7 +341,9 @@ const BODY: number = 0.85;
 /** Spread of a toe's chart round its column. */
 const SPREAD: number = 0.04;
 
-const fixed: (n: number) => IAutoMovieSurfaceNetwork.ICounts = (n: number): IAutoMovieSurfaceNetwork.ICounts => ({
+const fixed: (n: number) => IAutoMovieSurfaceNetwork.ICounts = (
+  n: number,
+): IAutoMovieSurfaceNetwork.ICounts => ({
   lowest: n,
   low: n,
   medium: n,
@@ -316,13 +352,20 @@ const fixed: (n: number) => IAutoMovieSurfaceNetwork.ICounts = (n: number): IAut
 
 const wrap: (v: number) => number = (v: number): number => ((v % 1) + 1) % 1;
 
-const metres: (p: IAutoMovieVector3) => IAutoMovieVector3 = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
+const metres: (p: IAutoMovieVector3) => IAutoMovieVector3 = (
+  p: IAutoMovieVector3,
+): IAutoMovieVector3 => ({
   x: p.x / 1000,
   y: p.y / 1000,
   z: p.z / 1000,
 });
 
-const edgeOf: (sweep: string, from: IAutoMovieSurfaceNetwork.IDomainPoint, to: IAutoMovieSurfaceNetwork.IDomainPoint, segments: number) => IAutoMovieSurfaceNetwork.ISweepEdge = (
+const edgeOf: (
+  sweep: string,
+  from: IAutoMovieSurfaceNetwork.IDomainPoint,
+  to: IAutoMovieSurfaceNetwork.IDomainPoint,
+  segments: number,
+) => IAutoMovieSurfaceNetwork.ISweepEdge = (
   sweep: string,
   from: IAutoMovieSurfaceNetwork.IDomainPoint,
   to: IAutoMovieSurfaceNetwork.IDomainPoint,

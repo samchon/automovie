@@ -16,7 +16,7 @@ import { solidAutoMovieHumanFoot } from "./solidAutoMovieHumanFoot";
 /**
  * Sweep the foot from the ankle ring down the column, round the heel and forward to the toes' roots, in the foot's local frame.
  *
- * The spine drops from the ring's centre down the leg's axis and turns forward through the middle of the foot to the toes' roots, so its sections turn from the ankle's level sections to the forefoot's upright ones: the outside of the turn is the back of the heel, the inside the instep. The turn is a quarter circle wider than the instep is deep, so the section planes fanning round it never cross inside the foot. The ring and its collar take the ring's own limit curve, the closed B-spline of its control points, so the sweep leaves the collar on the surface the subdivision makes there rather than on the control polygon outside it. Every later section is the solid cut by its plane, read by ray from the spine at even angles, so the sweep is one section family from the ring to the toes; the last two planes turn to the toes' roots' plane, upright through the hallux's and the fifth toe's roots.
+ * The spine drops from the ring's centre down the leg's axis and turns forward through the middle of the foot to the toes' roots, so its sections turn from the ankle's level sections to the forefoot's upright ones: the outside of the turn is the back of the heel, the inside the instep. The turn is a quarter circle wider than the instep is deep, so the section planes fanning round it never cross inside the foot. The ring and its collar take the ring's own limit curve, the closed B-spline of its control points, so the sweep leaves the collar on the surface the subdivision makes there rather than on the control polygon outside it. Every later section is the solid cut by its plane, read by ray from the spine at even angles, so the sweep is one section family from the ring to the toes; the last two planes turn to the shared metatarsophalangeal boundary. Free-toe valleys belong to the branching web curves beyond this boundary, rather than to one radial body section.
  *
  * @param props The foot's plan and source solid in local millimetres, with its shared ankle origin in millimetres and section in metres
  * @returns The sweep in metres, its spine's path, the collar's `u`, the end's frame and the roots' line
@@ -30,11 +30,22 @@ export function sweepAutoMovieHumanFoot(props: {
   };
 }): sweepAutoMovieHumanFoot.IOutput {
   const V: typeof AutoMovieHumanVector = AutoMovieHumanVector;
-  const { plan, solid: base }: { plan: IAutoMovieHumanFootPlan; solid: solidAutoMovieHumanFoot.ISolid; ring: { origin: IAutoMovieVector3; section: IAutoMovieSweepSection.IBSpline; }; } = props;
+  const {
+    plan,
+    solid: base,
+  }: {
+    plan: IAutoMovieHumanFootPlan;
+    solid: solidAutoMovieHumanFoot.ISolid;
+    ring: {
+      origin: IAutoMovieVector3;
+      section: IAutoMovieSweepSection.IBSpline;
+    };
+  } = props;
   const L: number = plan.length;
   const origin: IAutoMovieVector3 = props.ring.origin;
-  const root: (toe: IAutoMovieHumanFootPlan.IToe) => IAutoMovieVector3 = (toe: IAutoMovieHumanFootPlan.IToe): IAutoMovieVector3 =>
-    V.offset(toe.joint, [toe.direction, ROOTS * toe.length]);
+  const root: (toe: IAutoMovieHumanFootPlan.IToe) => IAutoMovieVector3 = (
+    toe: IAutoMovieHumanFootPlan.IToe,
+  ): IAutoMovieVector3 => ({ ...toe.joint });
 
   // the toes' roots: the plane through the hallux's and fifth toe's roots, upright
   const hallux: IAutoMovieVector3 = root(plan.toes[0]!);
@@ -66,7 +77,9 @@ export function sweepAutoMovieHumanFoot(props: {
   // the spine: down the leg's axis, round the heel, through the foot's middle to the roots
   const radius: number = SPINE.radius * L;
   const top: number = forefoot.y + radius;
-  const arc: (angle: number) => IAutoMovieVector3 = (angle: number): IAutoMovieVector3 =>
+  const arc: (angle: number) => IAutoMovieVector3 = (
+    angle: number,
+  ): IAutoMovieVector3 =>
     V.of(
       origin.x + (forefoot.x - origin.x) * (1 - Math.cos(angle)),
       top - radius * Math.sin(angle),
@@ -85,7 +98,9 @@ export function sweepAutoMovieHumanFoot(props: {
   const collar: number = (AUTOMOVIE_HUMAN_FOOT_COLLAR * L) / path.length;
 
   // the sections: the ring's at the ring and its collar, then cuts of the solid at even spine parameters, the last two turned to the roots' plane
-  const sectionOf: (frame: IAutoMovieSweepFrame) => IAutoMovieSweepSection.IRadial = (
+  const sectionOf: (
+    frame: IAutoMovieSweepFrame,
+  ) => IAutoMovieSweepSection.IRadial = (
     frame: IAutoMovieSweepFrame,
   ): IAutoMovieSweepSection.IRadial => ({
     type: "radial",
@@ -115,7 +130,10 @@ export function sweepAutoMovieHumanFoot(props: {
     ringFrame.y,
     ringFrame.normal,
   );
-  const endFrame: (u: number, turn: number) => { frame: IAutoMovieSweepFrame; rotation: IAutoMovieQuaternion; } = (
+  const endFrame: (
+    u: number,
+    turn: number,
+  ) => { frame: IAutoMovieSweepFrame; rotation: IAutoMovieQuaternion } = (
     u: number,
     turn: number,
   ): { frame: IAutoMovieSweepFrame; rotation: IAutoMovieQuaternion } => {
@@ -148,7 +166,10 @@ export function sweepAutoMovieHumanFoot(props: {
       ...ats.map((u: number, k: number): IAutoMovieSweep.IStation => {
         const turn: number = Math.max(0, (k - (CUTS - 3)) / 2);
         if (turn === 0) return { at: u, section: sectionOf(path.frame(u)) };
-        const e: { frame: IAutoMovieSweepFrame; rotation: IAutoMovieQuaternion; } = endFrame(u, turn);
+        const e: {
+          frame: IAutoMovieSweepFrame;
+          rotation: IAutoMovieQuaternion;
+        } = endFrame(u, turn);
         return { at: u, section: sectionOf(e.frame), rotation: e.rotation };
       }),
     ],
@@ -213,12 +234,14 @@ const CUTS: number = 14;
 const FIRST_CUT: number = 0.1;
 
 /** The spine: the radius of its turn from the leg's axis into the foot, of foot length, and where along the foot it reaches the foot's middle line. Conventional. */
-const SPINE: { readonly radius: 0.27; readonly mid: 0.6; } = { radius: 0.27, mid: 0.6 } as const;
+const SPINE: { readonly radius: 0.27; readonly mid: 0.6 } = {
+  radius: 0.27,
+  mid: 0.6,
+} as const;
 
-/** Where the toes' roots lie, of each toe's length from its joint: the old cage's dorsal root. */
-const ROOTS: number = 0.3;
-
-const metres: (p: IAutoMovieVector3) => IAutoMovieVector3 = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
+const metres: (p: IAutoMovieVector3) => IAutoMovieVector3 = (
+  p: IAutoMovieVector3,
+): IAutoMovieVector3 => ({
   x: p.x / 1000,
   y: p.y / 1000,
   z: p.z / 1000,
