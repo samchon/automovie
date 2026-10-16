@@ -109,6 +109,25 @@ export interface IAutoMovieSweepRig {
    */
   seal(): void;
 
+  /**
+   * Multiply every scale slot by a fixed factor of its `u`, at rest and in
+   * every pose from now on, the radial correction a surface network solves
+   * to hold a measured girth. Each call replaces the previous factor, and the
+   * rest slots and probes are refreshed after every factor, scale product and probe is admitted. A rejected factor, product or probe leaves the previous scales and probes in place.
+   *
+   * @param factor The factor at a spine parameter, positive and finite
+   * @throws Error when called before `seal`, or the factor or its resulting scale is not positive and finite at a slot, or a probe is not representable
+   *
+   * @evidence contracts/common.md#principled-implementation A shape correction folded into the scale, the one place every sample, probe and pose reads the radius from.
+   * @evidence contracts/common.md#clear-and-simple-design One factor per scale slot, replaced rather than compounded.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A factor that is not positive and finite is refused instead of clamped.
+   * @evidence contracts/common.md#meaningful-documentation States when the factor applies and that a call replaces the last.
+   * @evidence contracts/performance.md#efficient-algorithms O(S + P) for S scale slots and P probes.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature; reuse is answered on `rigAutoMovieSweep`.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; retention is answered on `rigAutoMovieSweep`.
+   */
+  girth(factor: (u: number) => number): void;
+
   /** Section planes by frame slot, twelve numbers each. */
   frames: Float64Array;
 

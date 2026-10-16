@@ -1,22 +1,19 @@
 import { IAutoMovieSweepSection } from "./IAutoMovieSweepSection";
-import { interpolateAutoMovieMonotone } from "./interpolateAutoMovieMonotone";
+import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
 import { parameterizeAutoMovieSweepSection } from "./parameterizeAutoMovieSweepSection";
 
 /** Curve samples per segment when bracketing a polar angle. */
 const DENSITY: number = 64;
-
 /** Fewest curve samples whatever the segment count. */
 const MINIMUM_SAMPLES: number = 1024;
-
 /** Bisection steps that place a radius on the curve, each halving the parameter interval. */
 const BISECTIONS: number = 40;
-
 /**
  * Sample a section's radius from its origin at evenly spaced polar angles.
  *
  * Radius `k` lies along angle `2 pi k / count`, measured counterclockwise from
  * the section plane's `+x` axis. A radial section is read through its periodic
- * monotone interpolation. A superellipse centred on its origin is read in
+ * spline, `interpolateAutoMovieSpline`. A superellipse centred on its origin is read in
  * closed form: in the quadrant holding the angle, with that quadrant's
  * half-axes `a` along `x` and `b` along `y` and exponent `n`, the curve is
  * `|x / a|^n + |y / b|^n = 1`, so the radius is
@@ -26,21 +23,20 @@ const BISECTIONS: number = 40;
  * then the parameter is bisected forty times against the curve's own polar
  * angle, so the radius lies on the exact curve rather than on a chord.
  *
- * The walk also proves the curve star-shaped about its origin and wound
+ * The walk checks the sampled curve for star-shapedness about its origin and winding
  * counterclockwise: the polar angle must strictly increase between successive
- * points and turn once in total, or the curve is refused, because a ray would
- * then cross it more than once and the sweep could not pair its points by
- * direction.
+ * points and turn once in total, or the curve is refused, because the sampled walk would not pair its points by direction.
+ * This finite walk does not certify monotone polar angle between probes.
  *
  * @param props.section The section, only read.
  * @param props.count Number of angles, an integer of at least 3.
  * @returns Radii in metres, one per angle, all positive.
  * @throws Error when the count is not an integer of at least 3, the section's numbers are not finite or out of range, or the curve passes through its origin, winds clockwise or is not star-shaped about it.
  *
- * @evidence contracts/common.md#principled-implementation The polar radius function of a star-shaped closed curve: a dense parameter walk brackets each direction and bisection on the curve's monotone polar angle converges to the unique crossing, accurate to 2^-40 of a bracket; the star-shape check is the strict increase of that angle, which is exactly the uniqueness premise.
+ * @evidence contracts/common.md#principled-implementation The polar radius function of a star-shaped closed curve: a dense parameter walk brackets each direction and bisection on the curve's monotone polar angle converges to the unique crossing, accurate to 2^-40 of a bracket; the finite star-shape check requires strict increase at walk samples but cannot certify unsampled intervals.
  * @evidence contracts/common.md#clear-and-simple-design Evaluation of all four section kinds is local to this module, so the sweep compiler sees only radii by direction.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A non-star-shaped or clockwise curve is refused instead of being reordered or hulled, and out-of-range half-axes, exponents or point counts are refused rather than clamped.
- * @evidence contracts/common.md#meaningful-documentation States the angle convention, how each kind is read, the accuracy, the star-shape and winding proof, and every refusal.
+ * @evidence contracts/common.md#meaningful-documentation States the angle convention, how each kind is read, the accuracy, the sampled star-shape and winding check and its limitation, and every refusal.
  * @evidence contracts/performance.md#efficient-algorithms A centred superellipse costs O(C) closed-form radii. Otherwise, for S curve segments and C angles: O(64 S) for the walk and O(C (log S + 40)) for bracketing and bisection; a radial section costs O(C) after its O(m) interpolant.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Called once per station when a sweep compiles; the compiled sweep keeps the radii.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing; the walk's arrays, O(64 S), are released on return and the radii array is transferred to the caller.
@@ -52,7 +48,7 @@ export const sampleAutoMovieSweepSection: (props: {
   section: IAutoMovieSweepSection;
   count: number;
 }): number[] => {
-  const { section, count } = props;
+  const { section, count }: typeof props = props;
   if (!Number.isSafeInteger(count) || count < 3)
     throw new Error("section sampling needs an integer count of at least 3");
   const angles: number[] = Array.from(
@@ -68,14 +64,21 @@ export const sampleAutoMovieSweepSection: (props: {
           `radial section radius ${k} must be positive and finite`,
         );
     });
-    const radius: (angle: number) => number = interpolateAutoMovieMonotone({
+    const radius: (angle: number) => number = interpolateAutoMovieSpline({
       knots: section.radii.map(
         (_: number, k: number): number => (2 * Math.PI * k) / m,
       ),
       values: section.radii,
       period: 2 * Math.PI,
     });
-    return angles.map(radius);
+    return angles.map((angle: number): number => {
+      const value: number = radius(angle);
+      if (!(value > 0) || !Number.isFinite(value))
+        throw new Error(
+          `radial section is not positive and finite at angle ${angle}`,
+        );
+      return value;
+    });
   }
   const curve: {
     point: (t: number) => IAutoMovieSweepSection.IPoint;
@@ -136,12 +139,12 @@ export const sampleAutoMovieSweepSection: (props: {
   }
   if (Math.abs(phis[samples]! - phis[0]! - 2 * Math.PI) > 1e-6)
     throw new Error("section curve must turn once about its origin");
-  const angleAt = (t: number, near: number): number => {
+  function angleAt(t: number, near: number): number {
     const p: IAutoMovieSweepSection.IPoint = curve.point(t);
     let phi: number = Math.atan2(p.y, p.x);
     phi += 2 * Math.PI * Math.round((near - phi) / (2 * Math.PI));
     return phi;
-  };
+  }
   return angles.map((target: number): number => {
     // the target on the walk's unwrapped scale
     const goal: number =
