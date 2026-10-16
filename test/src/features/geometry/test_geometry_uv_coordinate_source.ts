@@ -10,8 +10,8 @@ import { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose } from "../internal/predicates";
-import { test12ValuesClose } from "../internal/test12ValuesClose";
 import { sweepPolygonLoft } from "../internal/sweepPolygonLoft";
+import { test12ValuesClose } from "../internal/test12ValuesClose";
 
 /**
  * The largest value either axis of a mesh's atlas reaches.

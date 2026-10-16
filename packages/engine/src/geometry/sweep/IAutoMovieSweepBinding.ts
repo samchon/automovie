@@ -25,5 +25,7 @@ export interface IAutoMovieSweepBinding {
   points: AutoMovieHumanoidBone[];
 
   /** Bones each station follows, aligned with `stations`: one bone for a station on a link, the parent and child bones for a station at their joint. */
-  stations: Array<[AutoMovieHumanoidBone] | [AutoMovieHumanoidBone, AutoMovieHumanoidBone]>;
+  stations: Array<
+    [AutoMovieHumanoidBone] | [AutoMovieHumanoidBone, AutoMovieHumanoidBone]
+  >;
 }

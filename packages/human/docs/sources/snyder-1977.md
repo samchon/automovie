@@ -49,3 +49,17 @@ Bins are one year wide from the stated age (n 55 to 157 per cell; the last spans
 ## What Human takes
 
 Age curves from 2 to 18 years for sitting-height ratio, heads per stature, shoulder and pelvic breadth fractions, limb segment fractions, natural-waist-to-hip ratio and hand and foot proportions. The 1970s US sample is shorter and leaner than today's (compare `nhanes-2015-2018.md`), so Human takes ratios, not absolute sizes.
+
+
+## Minimum ankle section, read for #2831
+
+Measurement 83 is the minimum horizontal right-ankle circumference above the malleoli, with an automated tape, standing with weight evenly distributed; measurement 84 is the minimum horizontal breadth above the malleoli with an automated sliding caliper. The definitions do not require both minima to occur at one height. Read the same NIST descriptions and individual records again on 2026-10-16.
+
+Ages 16.0 to below 18.5 years, from `AGE IN MONTHS / 12`, with both ankle measurements positive. The ratio below is the mean of each person's breadth/circumference, not the ratio of the group means. Grade: measured inputs, ratios derived.
+
+| Sex | n | Mean breadth mm | Mean circumference mm | Mean breadth/circumference | Sample SD of ratio |
+| --- | --- | --- | --- | --- | --- |
+| Male | 77 | 60.4805 | 227.2338 | 0.266390 | 0.015979 |
+| Female | 76 | 53.8684 | 209.7895 | 0.256611 | 0.013152 |
+
+This is evidence against a circular minimum section, whose breadth/circumference is 1/pi, rather than an adult same-level ellipse fit. Adult extension and a cut's height require independent comparison. Human's fixed minimum-ankle section was fitted to the campaign's adult reference sections, checked against these standing ratios, and remains a conventional shape outside that calibration.

@@ -13,16 +13,17 @@ import { sweepBranchedBody } from "../internal/sweepBranchedBody";
 import { vclose } from "../internal/vclose";
 
 /**
- * The actual curve evaluator and a shared grid-filtered cage node remain distinct observations.
+ * A generated network curve shares the geometric field of its grid-filtered sweep endpoint.
  *
  * Scenarios:
  *
- * 1. The fork curve of the branched-body fixture retains its generating zero-cell endpoint. Its shared sweep-grid node is independently read from the emitted target buffer and differs because that grid samples a nonzero cell.
- * 2. Asking for construction observations leaves every target, control position, corner and ring unchanged. Inspection neither narrows a registry cell nor snaps the curve endpoint to a sampled target.
+ * 1. The fork curve of the branched-body fixture meets its shared geometric target, independently located by its sweep-domain corner identity. The raw zero-cell sweep point remains a negative control and differs because the shared grid samples a nonzero cell.
+ * 2. Asking for construction observations leaves every target, control position, corner and ring unchanged. Inspection neither narrows a registry cell nor substitutes an endpoint into a separately generated display curve.
+ * 3. A formula-generated ring of deliberately displaced cage pins includes the shared node. The whole generating curve stays unchanged even though the emitted pin target moves, distinguishing geometric evaluation from a pin-overwritten target-buffer read.
  *
- * @evidence contracts/testing.md#behavioral-verification Compiles a real sweep/bridge network with and without construction, locates the emitted fork endpoint by its sweep-domain corner identity, and independently compares that target with the actual curve endpoint. Endpoint substitution, cell changes or fake continuity fail.
- * @evidence contracts/testing.md#independent-expectations The curve node contract uses the unfiltered sweep point; emitted node identity follows the patch's affine chart and the sampler's domain identity. The nonzero gap exposes the existing generator/filter distinction rather than declaring anatomical correctness.
- * @evidence contracts/testing.md#distinguishing-cases Covers a shared filtered node beside a continuous curve and the no-inspection control. Separate construction pose and volume scenarios own bound resweep and fixed rest snapshots. The main construction test owns tangent flattening, girth correction, smooth feature courses and count admission; pose and general topology are owned by existing rig tests.
+ * @evidence contracts/testing.md#behavioral-verification Compiles a real sweep/bridge network with and without construction, locates the emitted fork endpoint by its sweep-domain corner identity, and independently compares that target with the actual curve endpoint. Returning a raw endpoint, changing observation cells or altering cage output fails.
+ * @evidence contracts/testing.md#independent-expectations The shared geometric boundary contract determines endpoint equality; emitted node identity follows the patch's affine chart and sampler's domain identity. A separately compiled raw zero-cell surface point distinguishes an unchanged mixed-field implementation. This establishes evaluator consistency rather than anatomical correctness.
+ * @evidence contracts/testing.md#distinguishing-cases Covers a shared filtered node beside a continuous curve, the no-inspection control and active cage pins that must not change the generating curve. Separate construction pose and volume scenarios own bound resweep and fixed rest snapshots. The main construction test owns tangent flattening, girth correction, smooth feature courses and count admission; pose and general topology are owned by existing rig tests.
  * @evidence contracts/testing.md#execution-ownership A portable synchronous test_geometry_sweep_construction_boundary entry; no host, process, renderer or GPU is started.
  */
 export function test_geometry_sweep_construction_boundary(): void {
@@ -51,8 +52,8 @@ export function test_geometry_sweep_construction_boundary(): void {
     z: curve.points[2]!,
   };
   TestValidator.predicate(
-    "the actual curve endpoint is not replaced",
-    vclose(actual, raw, 1e-12),
+    "the shared-field curve is distinct from the raw zero-cell sweep",
+    !vclose(actual, raw, 1e-6),
   );
   const ids: Set<number> = new Set();
   observed.cage.corners.forEach(
@@ -87,8 +88,8 @@ export function test_geometry_sweep_construction_boundary(): void {
     z: observed.cage.targets[3 * index + 2]!,
   };
   TestValidator.predicate(
-    "the filtered node is a separate geometric quantity",
-    !vclose(actual, target, 1e-6),
+    "the curve meets its shared geometric target",
+    vclose(actual, target, 1e-12),
   );
   TestValidator.predicate(
     "observation preserves every emitted number",
@@ -127,4 +128,39 @@ export function test_geometry_sweep_construction_boundary(): void {
     observed.cage.rings,
     plain.cage.rings,
   );
+  function counts(n: number): IAutoMovieSurfaceNetwork.ICounts { return ({
+    lowest: n, low: n, medium: n, high: n,
+  }); }
+  const boundary: Array<[number, number, number]> = [
+    [-0.17, 0.17, 8], [0.17, 0.33, 2], [0.33, 0.67, 8], [0.67, 0.83, 2],
+  ];
+  const pinned: IAutoMovieSurfaceRig = rigAutoMovieSurfaceNetwork({
+    network: {
+      ...network,
+      rings: [...(network.rings ?? []), {
+        name: "geometric-field-negative-control",
+        edges: boundary.map(([from, to, segments]: [number, number, number]): IAutoMovieSurfaceNetwork.ISweepEdge => ({
+          type: "sweep", sweep: "trunk", from: { u: 0, v: from }, to: { u: 0, v: to }, segments: counts(segments),
+        })),
+        positions: Array.from({ length: 20 }, (_: unknown, i: number): IAutoMovieVector3 => {
+          const angle: number = 2 * Math.PI * i / 20;
+          return { x: 0.5 * Math.cos(angle), y: 0, z: 0.5 * Math.sin(angle) };
+        }),
+      }],
+    },
+    tier: "medium",
+    fit: false,
+    construction: { station: 16, line: 16, feature: 8, curve: 8 },
+  });
+  const pinnedCurve: IAutoMovieSurfaceConstruction = pinned.construction.find(
+    (entry: IAutoMovieSurfaceConstruction): boolean => entry.kind === "curve" && entry.name === "fork",
+  )!;
+  TestValidator.predicate("active cage pins do not replace the generating curve", pinnedCurve.points.every(
+    (value: number, i: number): boolean => nclose(value, curve.points[i]!, 0),
+  ));
+  TestValidator.predicate("the negative control actually moves the shared pin", !vclose(actual, {
+    x: pinned.cage.targets[3 * index]!,
+    y: pinned.cage.targets[3 * index + 1]!,
+    z: pinned.cage.targets[3 * index + 2]!,
+  }, 1e-3));
 }

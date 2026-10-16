@@ -4,8 +4,8 @@ For about three months Human shipped MakeHuman data baked in Blender and correct
 
 ## What was shipped
 
-- Commit c7af1556a held `packages/human/assets/{face/basis,body/basis,person/head,person/body}.json.gz`, 27 to 32 MB each, and `person/source-manifest.json`. Master no longer ships them, and its README says "It ships no basis, mesh or person data", so master cannot render a Human.
-- The manifest names its upstreams: `mpfb2` (MakeHuman Plugin for Blender, revision 817587ce), `mpfb-extra-targets`, `makehuman` (only the CC0 low-poly eye data) and `makehuman-system-assets`. The bake ran in Blender 5.1.2 from `test/scripts/human-source/*`, which master no longer has.
+- Commit c7af1556a held `packages/human/assets/{face/basis,body/basis,person/head,person/body}.json.gz`, 27 to 32 MB each, and `person/source-manifest.json`. Their removal left the initial rebuild without rendered skin. That was the retirement checkpoint, not a statement about today's code-generated Human; see the [current inventory](../README.md).
+- The manifest names its upstreams: `mpfb2` (MakeHuman Plugin for Blender, revision 817587ce), `mpfb-extra-targets`, `makehuman` (only the CC0 low-poly eye data) and `makehuman-system-assets`. The bake ran in Blender 5.1.2 from the subsequently retired `test/scripts/human-source/*`.
 - Face basis: the hm08 head skin with 16,942 vertices plus eyebrow, eyelash, eye, teeth and tongue proxy meshes, 206 channels, and 377 baked morph targets on the skin: the 52 ARKit expressions such as `browDownLeft` and `jawOpen`, MakeHuman modifiers such as `headWidth` and `noseBridgeHump`, and population targets such as `africanAncestry`. Materials carried hard-coded colours.
 - Body basis: 36,810 vertices, 148 channels, 1,859 MakeHuman targets such as `torso/torso-trans-backward`, and 1,575 correctives.
 

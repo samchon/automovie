@@ -13,6 +13,8 @@ export * from "./structures/AutoMovieHumanSex";
 export * from "./structures/IAutoMovieHumanAppearance";
 export * from "./structures/IAutoMovieHumanExpression";
 export * from "./structures/IAutoMovieHumanIdentity";
+export * from "./structures/IAutoMovieHumanSubcutaneousFat";
+export * from "./structures/IAutoMovieHumanConstructionNet";
 export * from "./structures/IAutoMovieHumanPose";
 export * from "./structures/IAutoMovieHumanTraits";
 
@@ -34,6 +36,7 @@ export * from "./junction/AUTOMOVIE_HUMAN_RINGS";
 export * from "./junction/AUTOMOVIE_HUMAN_THIGH_GIRTH";
 export * from "./junction/AUTOMOVIE_HUMAN_UPPER_ARM_SECTION";
 export * from "./junction/AUTOMOVIE_HUMAN_UV_LAYOUT";
+export * from "./junction/AUTOMOVIE_HUMAN_UV_LAYOUT_V3";
 export * from "./junction/AUTOMOVIE_HUMAN_WRIST_SECTION";
 export * from "./junction/AutoMovieHumanBranch";
 export * from "./junction/AutoMovieHumanCageBuilder";
@@ -58,6 +61,7 @@ export * from "./junction/meshAutoMovieHumanCage";
 export * from "./junction/shapeAutoMovieHumanRing";
 
 export * from "./parts/IAutoMovieHumanPartGenerator";
+export * from "./parts/fieldAutoMovieHumanDeltoid";
 
 export * from "./rig/validateAutoMovieHumanExpression";
 export * from "./rig/validateAutoMovieHumanPose";

@@ -39,18 +39,9 @@ const JOINS: Array<
  * @returns The joined cage, with no ring left open
  * @throws {Error} When any site's rings do not join, listing every such site
  */
-export const joinAutoMovieHumanCages = (
-  measurements: IAutoMovieHumanMeasurements,
-  skeleton: IAutoMovieHumanSkeleton,
-  generators: IAutoMovieHumanPartGenerators,
-  junction: IAutoMovieHumanJunction = new AutoMovieHumanJunction(),
-): IAutoMovieHumanCage => {
-  const cages = generateAutoMovieHumanCages(measurements, skeleton, generators);
-  const cage = (
-    part: AutoMovieHumanPart,
-    side: AutoMovieHumanSide | null,
-  ): IAutoMovieHumanCage =>
-    cages.find((c) => c.part === part && c.side === side)!.cage;
+export function joinAutoMovieHumanCages(measurements: IAutoMovieHumanMeasurements, skeleton: IAutoMovieHumanSkeleton, generators: IAutoMovieHumanPartGenerators, junction: IAutoMovieHumanJunction = new AutoMovieHumanJunction(), prepared?: ReturnType<typeof generateAutoMovieHumanCages>): IAutoMovieHumanCage {
+  const cages: ReturnType<typeof generateAutoMovieHumanCages> = prepared ?? generateAutoMovieHumanCages(measurements, skeleton, generators);
+  function cage(part: AutoMovieHumanPart, side: AutoMovieHumanSide | null): IAutoMovieHumanCage { return cages.find((c: ReturnType<typeof generateAutoMovieHumanCages>[number]): boolean => c.part === part && c.side === side)!.cage; }
   const refused: string[] = [];
   let joined: IAutoMovieHumanCage = cage("trunk", null);
   for (const [site, side, part] of JOINS) {
@@ -72,28 +63,27 @@ export const joinAutoMovieHumanCages = (
     );
   if (joined.rings.length !== 0)
     throw new Error(
-      `joined skin leaves rings open: ${joined.rings.map((r) => `${r.side ?? ""} ${r.site}`.trim()).join(", ")}`,
+      `joined skin leaves rings open: ${joined.rings.map((r: IAutoMovieHumanCage["rings"][number]): string => `${r.side ?? ""} ${r.site}`.trim()).join(", ")}`,
     );
   return joined;
-};
+}
 
 /** Two cages as one without any shared vertex. */
-const beside = (
-  a: IAutoMovieHumanCage,
-  b: IAutoMovieHumanCage,
-): IAutoMovieHumanCage => {
+function beside(a: IAutoMovieHumanCage, b: IAutoMovieHumanCage): IAutoMovieHumanCage {
   const n: number = a.vertices.length;
-  const shift = (v: number): number => v + n;
+  function shift(v: number): number { return v + n; }
   return {
     vertices: [...a.vertices, ...b.vertices],
     faces: [
       ...a.faces,
       ...b.faces.map(
         (f: IAutoMovieHumanCage.IFace): IAutoMovieHumanCage.IFace => ({
+          fitting: f.fitting,
           vertices: f.vertices.map(
             shift,
           ) as IAutoMovieHumanCage.IFace["vertices"],
           coordinates: f.coordinates,
+          ...(f.uvs === undefined ? {} : { uvs: f.uvs }),
         }),
       ),
     ],
@@ -108,7 +98,7 @@ const beside = (
     ],
     rings: [
       ...a.rings,
-      ...b.rings.map((r) => ({ ...r, vertices: r.vertices.map(shift) })),
+      ...b.rings.map((r: IAutoMovieHumanCage["rings"][number]): IAutoMovieHumanCage["rings"][number] => ({ ...r, vertices: r.vertices.map(shift) })),
     ],
   };
-};
+}

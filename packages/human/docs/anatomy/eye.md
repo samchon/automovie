@@ -79,3 +79,16 @@ Brow peak over the lateral limbus in every action. Brow shape and hair direction
 - Epicanthic fold geometry and prevalence; no open source read.
 - Corneal radius and iris size for African populations; the Nigerian ocular normative study PMC5586704 was fetched but not read.
 - Lid margin shape as a curve (peak position of the upper lid over the iris) has no measured source here.
+
+
+## Orbital envelope construction, campaign 2831
+
+The former geometric course was called a lid sulcus without clinical correspondence. Its symmetric 4 mm widening could exceed the head opening's nominal medial allowance of 0.1 aperture spans. The reference eye courses instead expand much farther laterally than medially. The replacement is explicitly an orbital envelope, not a measured sulcus, orbital rim or malar landmark.
+
+Four reference heads used by the campaign supply a seed aperture and eight successive outward quad strips. At poles the extractor joins a strip by shortest edge paths, so the eighth strip is a topology-relative outer course, not an anatomical boundary. For each head, the course's medial, lateral, superior and inferior excursions are normalized by its own seed's projected transverse width; one shared coefficient per direction is fitted with equal reference weights. Rounded values are 0.0183, 0.2628, 0.0910 and 0.1668. Grade: derived from reference geometry, not a population norm. Product source retains these four numbers and no reference coordinates, mesh or index table.
+
+Twenty-five other native reference heads, both eyes, were held out. Relative to the former symmetric 4 mm horizontal reach, raw-course medial RMS changes from 2.915 to 1.041 mm and lateral RMS from 3.290 to 1.622 mm. The unfitted right eyes of the four training heads were also checked. The 18 fixed-body variants have no extracted eye-loop family and supply no facial validation. Recorded ancestry and apparent-age groups are visual classifications and cannot establish population norms. These geometric fit errors are separate from the generated skin and from observed appearance.
+
+The orbital envelope preserves the existing anterior and posterior lid margins, shared head rings and feature-field amplitudes. Its expansions scale with the generated transverse aperture span. The existing margin uses the palpebral-fissure length input as that span even where its source is a three-dimensional chord; this independent measurement-contract limitation remains. The fixed canthal short edges and their closure behavior also remain unproven.
+
+Candidate numerical runs trace named source nodes through the sampler, joined level-2 limit skin and production displacement dispatcher. Native build, evidence, committed viewer comparison, motion and clinical correspondence are separate gates. A lack of strict noncoplanar intersections in a selected eye region is not a proof about the whole head or about contact surfaces.

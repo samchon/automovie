@@ -36,11 +36,14 @@ export interface IAutoMovieSurfaceCage {
     faces: number[][];
   };
 
-  /** Packed generating samples `[x, y, z, ...]`, metres: cell-averaged sweep samples, curve samples and blend controls. Free fitted vertices use these as limit targets; pinned rings and held blend interiors keep their declared control positions. */
+  /** Packed pre-inverse generating samples `[x, y, z, ...]`, metres, after girth adjustment and control pins: cell-averaged sweep samples, curve samples and blend controls. Only limitTargetMask rows are hard limit equalities; pinned entries are declared control positions, not geometric curve points, and held blend interiors retain their generating controls. */
   targets: number[];
 
   /** Whether each vertex is a pinned ring vertex, kept at its given position. */
   pinned: boolean[];
+
+  /** Active limit equalities: false for control pins, blend controls and a sample made without fitting. */
+  limitTargetMask: boolean[];
 
   /** Surface coordinate of each face corner, aligned with `cage.faces`. */
   corners: Array<

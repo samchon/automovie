@@ -3,6 +3,7 @@ import { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
 import { IAutoMovieHumanLandmarks } from "../measure/IAutoMovieHumanLandmarks";
 import { AutoMovieHumanVector } from "../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanSkeleton } from "../skeleton/IAutoMovieHumanSkeleton";
+import { AUTOMOVIE_HUMAN_ANKLE_SECTION } from "./AUTOMOVIE_HUMAN_ANKLE_SECTION";
 import { AUTOMOVIE_HUMAN_RINGS } from "./AUTOMOVIE_HUMAN_RINGS";
 import { AutoMovieHumanDirection } from "./AutoMovieHumanDirection";
 import { AutoMovieHumanJunctionSite } from "./AutoMovieHumanJunctionSite";
@@ -22,7 +23,7 @@ import { IAutoMovieHumanRingLayout } from "./IAutoMovieHumanRingLayout";
  * - `upperArm`: perpendicular to the upper arm bone, through the point of its axis midway between the acromion and the elbow joint centre, where the upper arm circumference is measured (the olecranon lies at the elbow centre's level along the arm).
  * - `wrist`: perpendicular to the forearm bone, through the radial styloid's projection on its axis, where the wrist circumference is measured.
  * - `thigh`: perpendicular to the thigh bone, midway between the hip and knee joint centres, below the gluteal fold.
- * - `ankle`: perpendicular to the shank bone, at a height above the medial malleolus tip (sphyrion) equal to the height of the lateral malleolus' lowest point above the standing surface, so the cut clears both malleolar prominences. Conventional: no source for the level of the minimum ankle girth was read, and the leg and foot stages check it on the joined surface.
+ * - `ankle`: perpendicular to the shank bone, at the minimum ankle section above both malleoli, the distance above sphyrion set by {@link AUTOMOVIE_HUMAN_ANKLE_SECTION}. Its level is fitted to reference minima, not a population measurement of minimum-girth height.
  * - `ear`: through tragion, the notch at the front of the auricle's attachment, with the lateral direction as its axis. The skeleton has no otobasion landmarks yet; the origin moves to the attachment's centre when it does.
  *
  * The site axis points from the proximal part into the distal one; the proximal part's normal follows it and the distal part's is reversed. The reference is the rest-pose direction of the site's start mark projected into the cut plane: +Z for anterior on the neck, the upper arm, the thigh and the ankle; -Y for the palmar surface of the wrist, because the T-pose palm faces down; +Y for the superior point of the ear.
@@ -34,7 +35,7 @@ import { IAutoMovieHumanRingLayout } from "./IAutoMovieHumanRingLayout";
  * @returns The ring's count, start, frame and vertex directions for that part
  * @throws {Error} When the side does not match the site's laterality or the part does not meet at the site
  */
-export const layoutAutoMovieHumanRing = (props: {
+export const layoutAutoMovieHumanRing: (props: { skeleton: IAutoMovieHumanSkeleton; site: AutoMovieHumanJunctionSite; side: AutoMovieHumanSide | null; part: AutoMovieHumanPart; }) => IAutoMovieHumanRingLayout = (props: {
   skeleton: IAutoMovieHumanSkeleton;
   site: AutoMovieHumanJunctionSite;
   side: AutoMovieHumanSide | null;
@@ -112,12 +113,12 @@ const TOWARD: Partial<Record<AutoMovieHumanDirection, IAutoMovieVector3>> = {
 /** The T-pose palm faces down, so the wrist's anterior, palmar surface faces -Y. */
 const PALMAR: IAutoMovieVector3 = AutoMovieHumanVector.of(0, -1, 0);
 
-const cutSite = (
+const cutSite: (skeleton: IAutoMovieHumanSkeleton, site: AutoMovieHumanJunctionSite, side: AutoMovieHumanSide | null) => ICut = (
   skeleton: IAutoMovieHumanSkeleton,
   site: AutoMovieHumanJunctionSite,
   side: AutoMovieHumanSide | null,
 ): ICut => {
-  const joint = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 => {
+  const joint: (bone: AutoMovieHumanoidBone) => IAutoMovieVector3 = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 => {
     const found: IAutoMovieHumanSkeleton.IJoint | undefined =
       skeleton.joints.find(
         (j: IAutoMovieHumanSkeleton.IJoint): boolean => j.bone === bone,
@@ -128,7 +129,7 @@ const cutSite = (
   const landmarks: IAutoMovieHumanLandmarks = skeleton.landmarks;
   const lateral: IAutoMovieHumanLandmarks.ISide =
     side === "right" ? landmarks.right : landmarks.left;
-  const bone = (name: string): AutoMovieHumanoidBone =>
+  const bone: (name: string) => AutoMovieHumanoidBone = (name: string): AutoMovieHumanoidBone =>
     `${side}${name}` as AutoMovieHumanoidBone;
   const anterior: IAutoMovieVector3 = TOWARD.anterior!;
   switch (site) {
@@ -202,7 +203,9 @@ const cutSite = (
       const knee: IAutoMovieVector3 = joint(bone("LowerLeg"));
       const ankle: IAutoMovieVector3 = joint(bone("Foot"));
       const height: number =
-        lateral.sphyrion.position.y + lateral.lateralMalleolus.position.y;
+        lateral.sphyrion.position.y +
+        AUTOMOVIE_HUMAN_ANKLE_SECTION.aboveSphyrion *
+          lateral.lateralMalleolus.position.y;
       const axis: IAutoMovieVector3 = AutoMovieHumanVector.normalize(
         AutoMovieHumanVector.offset(ankle, [knee, -1]),
       );
@@ -225,7 +228,7 @@ const cutSite = (
 };
 
 /** Cut perpendicular to the bone from `from` to `to`, through the projection of `at` on its axis. */
-const axisCut = (
+const axisCut: (from: IAutoMovieVector3, to: IAutoMovieVector3, at: IAutoMovieVector3) => Omit<ICut, "toward"> = (
   from: IAutoMovieVector3,
   to: IAutoMovieVector3,
   at: IAutoMovieVector3,
@@ -248,7 +251,7 @@ const axisCut = (
 /**
  * Cut in the plane through three points, oriented along the bone from `from` to `to`, with its origin where that bone's axis crosses the plane.
  */
-const planeCut = (
+const planeCut: (from: IAutoMovieVector3, to: IAutoMovieVector3, a: IAutoMovieVector3, b: IAutoMovieVector3, c: IAutoMovieVector3) => Omit<ICut, "toward"> = (
   from: IAutoMovieVector3,
   to: IAutoMovieVector3,
   a: IAutoMovieVector3,

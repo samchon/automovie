@@ -23,8 +23,8 @@ export interface IAutoMovieHumanFootPlan {
   /** Local z of the back of the heel. */
   heel: number;
 
-  /** How far lateral of the ankle joint centre the foot's long axis runs, the line its outline, crest and toes are laid about. */
-  axis: number;
+  /** Shared envelope-centre family from the heel to the metatarsal boundary, local millimetres; at is the forefoot station as a fraction of L. */
+  axis: { heel: number; forefoot: number; at: number };
 
   /** Scale of the bony and tendinous relief, 1 as anatomy gives it and 0 for the bare block-out of the form. */
   relief: number;
@@ -176,7 +176,7 @@ export namespace IAutoMovieHumanFootPlan {
     /** Joint centre to tip. */
     length: number;
 
-    /** Breadth of the toe. */
+    /** Breadth at the free toe's conventionally located IP station. */
     width: number;
 
     /** Dorsal height of the toe's free part above the standing surface. */

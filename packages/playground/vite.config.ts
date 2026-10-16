@@ -11,6 +11,10 @@ export default defineConfig({
     host: "127.0.0.1",
     port: 5173,
     strictPort: true,
+    // A capture's server is a snapshot: it neither watches files nor reloads the page, so another edit or build cannot interrupt a run.
+    ...(process.env.AUTOMOVIE_CAPTURE === "1"
+      ? { hmr: false, watch: { ignored: ["**/*"] } }
+      : {}),
     fs: { allow: [resolve(__dirname, "../..")] },
   },
   preview: { host: "127.0.0.1", port: 4173, strictPort: true },

@@ -5,7 +5,7 @@ import { AutoMovieHumanSide } from "./AutoMovieHumanSide";
 /**
  * A semantic address on the skin: which part, which side, which branch of it, and where on that chart.
  *
- * Landmarks, measurements, garments and UV layout address the surface through these coordinates instead of vertex indices, because a coordinate survives any change of identity while an index does not. Every chart is tube-like, so it is two parameters: `u` along its axis and `v` around it. A part generator documents its axis and where `v` starts; on a part with openings in its side, such as the trunk at the arms, the openings are regions of the same chart.
+ * Landmarks, measurements and garments address the evaluation surface through these coordinates instead of vertex indices. A texture layout may map this same domain or declare separate face-varying UVs from the network's logical layout, as the version 4 hand does; physical evaluation coordinates are not replaced when its texture charts change. Every chart is tube-like, so it is two parameters: `u` along its axis and `v` around it. A part generator documents its axis and where `v` starts; on a part with openings in its side, such as the trunk at the arms, the openings are regions of the same chart.
  *
  * A part that branches, the hand into its digits, gives each branch its own chart, named by a closed set per part, {@link AutoMovieHumanBranch}; the address is a union over parts, so a branch is typed only on the part that has it.
  */

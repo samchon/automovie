@@ -6,7 +6,7 @@ import { IAutoMovieSweepRig } from "./IAutoMovieSweepRig";
 /**
  * Register observation writers while a network rig is still open, then read them after its girth solve and final rest evaluation.
  *
- * Sweep observations use the same zero-cell writer as unsampled sweep nodes; spine observations read the same registered section frame; network curves use the same tangent-constrained curve rig as patch boundaries. Feature observations read the compiled field's own smooth domain course. No observation enters the cage registry, changes a sampling cell or adds a vertex.
+ * Sweep observations use the same zero-cell writer as unsampled sweep nodes; spine observations read the same registered section frame; network curves use the actual tangent-constrained curve rig as patch boundaries, including its resolved geometric endpoint cells. Those curves are not raw zero-cell sweep observations. Feature observations read the compiled field's own smooth domain course. No observation enters the cage registry, changes a sampling cell or adds a vertex.
  *
  * @param props Network, shared rig lookups and optional segment counts
  * @returns A one-use reader producing caller-owned rest polylines; subsequent reads and requests without counts return an empty array
@@ -14,7 +14,7 @@ import { IAutoMovieSweepRig } from "./IAutoMovieSweepRig";
  *
  * @evidence contracts/common.md#principled-implementation Registers the actual sweep, frame and curve evaluator writers before sealing and reads them after all constraints; feature coordinates come from the same compiled feature spline as the displacement.
  * @evidence contracts/common.md#clear-and-simple-design Separates observation registration from its final read without adding another curve or surface implementation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Observation writers never enter the cage registry and use zero-size cells, so they cannot change topology or the cage's averaging cells.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Sweep observation writers use zero-size cells and never enter the cage registry; network-curve observations read the actual curve rig. Neither changes registry cells or topology.
  * @evidence contracts/common.md#meaningful-documentation States registration/read ordering, shared evaluators, filtering distinction and ownership.
  * @evidence contracts/performance.md#efficient-algorithms O(N) registration and reads for N requested points, plus the same surface queries used by the rig; allocates one writer per point until the final read.
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses the rig's compiled sweep/curve and feature coefficients; no geometric representation is refitted for display.

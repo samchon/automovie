@@ -12,7 +12,10 @@ import { IAutoMovieSweepRig } from "./IAutoMovieSweepRig";
  * with `IAutoMovieSweepRig.sample`, a side none reached mirroring the other
  * and an axis none spans having no extent, so the point does not depend on
  * which patch sampled it first. Its writer slot is held in registration
- * order, so writers still run after everything they read.
+ * order, so writers still run after everything they read. After resolving every
+ * sweep writer, finalization binds dependent geometric node writers and probes
+ * once, before sweep sealing. This field is independent of later control pins.
+ * Registering or binding after finalization, or finalizing twice, is refused.
  *
  * @param sweepRig The rig of a sweep by name.
  * @returns The empty registry.
@@ -21,9 +24,9 @@ import { IAutoMovieSweepRig } from "./IAutoMovieSweepRig";
  * @evidence contracts/common.md#clear-and-simple-design Registration and finalization in one place; the network rig only names identities and samples.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No proximity welding, and an unknown identity is refused by `existing`.
  * @evidence contracts/common.md#meaningful-documentation States the identity rule, the cell rule and why writers keep their order.
- * @evidence contracts/performance.md#efficient-algorithms O(1) map work per registration and O(1) per sweep point to finalize.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A registry; a shared point is evaluated once per pose because it is registered once.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Retains one index entry and one writer per vertex and one pending record per sweep point, released with the rig.
+ * @evidence contracts/performance.md#efficient-algorithms O(1) map work per registration; finalization uses O(S + D) registry bookkeeping for S sweep samples and D dependent bindings, plus at most nine profile queries per sample and the dependent probe compilations. Profile-query cost belongs to the compiled surface.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each shared identity compiles one writer and sampling coefficients after all reaches resolve. Geometric nodes and the emitted vertex share it; separate curve-end reads still reevaluate its one to three terms rather than caching per-pose coordinates.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Retains one index entry and ordered writer per vertex during compilation. Pending sweep records and dependent callbacks are cleared after finalization, including failure; emitted writers retain only their own sample records. The returned rig owns the writers.
  */
 export const registerAutoMovieSurfaceVertices: (
   sweepRig: (name: string) => IAutoMovieSweepRig,
@@ -33,15 +36,22 @@ export const registerAutoMovieSurfaceVertices: (
   const index: Map<string, number> = new Map();
   const writers: Array<(targets: Float64Array) => void> = [];
   let vertices: number = 0;
-  const reserve = (key: string): number => {
+  let finalized: boolean = false;
+  const bindings: Array<{
+    key: string;
+    bind: (sample: IAutoMovieSurfaceRegistry.ISweep | null) => void;
+  }> = [];
+  function open(): void {
+    if (finalized) throw new Error("surface registry is already finalized");
+  }
+  function reserve(key: string): number {
+    open();
     const i: number = vertices++;
     index.set(key, i);
     return i;
-  };
-  const vertex = (
-    key: string,
-    make: () => (out: Float64Array, at: number) => void,
-  ): number => {
+  }
+  function vertex(key: string, make: () => (out: Float64Array, at: number) => void): number {
+    open();
     let i: number | undefined = index.get(key);
     if (i === undefined) {
       const write: (out: Float64Array, at: number) => void = make();
@@ -49,9 +59,10 @@ export const registerAutoMovieSurfaceVertices: (
       writers.push((targets: Float64Array): void => write(targets, at));
     }
     return i;
-  };
+  }
   const pending: Map<string, IPending> = new Map();
-  const admit = (sample: IAutoMovieSurfaceSample): number => {
+  function admit(sample: IAutoMovieSurfaceSample): number {
+    open();
     const point: IAutoMovieSurfaceSample["point"] = sample.point;
     if (point === null) return vertex(sample.key, sample.writer);
     let entry: IPending | undefined = pending.get(sample.key);
@@ -70,28 +81,42 @@ export const registerAutoMovieSurfaceVertices: (
     for (let k: number = 0; k < 4; ++k)
       entry.cell[k] = Math.min(entry.cell[k]!, point.cell[k]!);
     return index.get(sample.key)!;
-  };
-  const finalize = (): void => {
-    for (const entry of pending.values()) {
-      const cell: [number, number, number, number] = [0, 0, 0, 0];
-      for (const axis of [0, 2]) {
-        const below: number = entry.cell[axis]!;
-        const above: number = entry.cell[axis + 1]!;
-        cell[axis] = Number.isFinite(below)
-          ? below
-          : Number.isFinite(above)
-            ? above
-            : 0;
-        cell[axis + 1] = Number.isFinite(above) ? above : cell[axis]!;
+  }
+  function finalize(): void {
+    open();
+    finalized = true;
+    try {
+      for (const entry of pending.values()) {
+        const cell: [number, number, number, number] = [0, 0, 0, 0];
+        for (const axis of [0, 2]) {
+          const below: number = entry.cell[axis]!;
+          const above: number = entry.cell[axis + 1]!;
+          cell[axis] = Number.isFinite(below)
+            ? below
+            : Number.isFinite(above)
+              ? above
+              : 0;
+          cell[axis + 1] = Number.isFinite(above) ? above : cell[axis]!;
+        }
+        entry.cell = cell;
+        entry.write = sweepRig(entry.sweep).sample(entry.u, entry.v, cell);
       }
-      entry.write = sweepRig(entry.sweep).sample(entry.u, entry.v, cell);
+      for (const request of bindings)
+        request.bind(pending.get(request.key) ?? null);
+    } finally {
+      bindings.length = 0;
+      pending.clear();
     }
-  };
-  const existing = (key: string, what: string): number => {
+  }
+  function bindSweep(key: string, bind: (sample: IAutoMovieSurfaceRegistry.ISweep | null) => void): void {
+    open();
+    bindings.push({ key, bind });
+  }
+  function existing(key: string, what: string): number {
     const i: number | undefined = index.get(key);
     if (i === undefined) throw new Error(`${what} names a point no patch made`);
     return i;
-  };
+  }
   return {
     writers,
     count: (): number => vertices,
@@ -99,6 +124,7 @@ export const registerAutoMovieSurfaceVertices: (
     vertex,
     admit,
     finalize,
+    bindSweep,
     existing,
   };
 };

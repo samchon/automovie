@@ -1,11 +1,11 @@
 /**
  * A polyline sampled from a surface rig's generating construction at rest, in network-frame metres, after any girth correction.
  *
- * These are the unfiltered sweep, spine, guide, feature and tangent-constrained network curves. They explain the surface that the cage samples; the cage's cell averaging and limit fit remain distinct operations. They are snapshots and do not move when the rig is posed.
+ * Spine, station, guide and feature observations use raw zero-cell sweep writers. Network-curve observations use the actual regenerated tangent-constrained curve: its sweep endpoints and tangent planes share the registry-resolved geometric sampling cells, or zero cells at observation-only nodes. These distinct stages explain the geometry before subdivision fitting; none is a pin-overwritten control polygon. They are snapshots and do not move when the rig is posed.
  *
  * @evidence contracts/common.md#principled-implementation Samples the actual sealed rig evaluators after their rest constraints, rather than reconstructing their input polylines.
  * @evidence contracts/common.md#clear-and-simple-design A curve kind, source name, closure flag and packed positions.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Makes no claim that an unfiltered generating surface equals a cell-averaged target or a cage control polygon.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Distinguishes raw sweep observations from cell-consistent generated network curves and from fitted or pinned cage controls.
  * @evidence contracts/common.md#meaningful-documentation States the frame, units, filtering distinction and rest-only lifetime.
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record; the surface rig owns sampling cost.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A returned snapshot without mutable evaluator state.

@@ -27,7 +27,7 @@ const MAX_HEADS_PER_STATURE: number = 10;
 /**
  * Admit a detailed identity: its static type and bounds, then every bound that depends on other measurements.
  *
- * Static checks are typia's `validateEquals`, which also refuses unknown properties so a misspelt measurement is not silently ignored. Dependent bounds run on the resolved measurements, the same derived values modeling reads, and each finding names the field, the bound and its cause. The function never mutates its input; on success it returns a private copy.
+ * Static checks are typia's `validate`, the declared properties' types and bounds; a property the identity does not declare is not checked and is carried along. Dependent bounds run on the resolved measurements, the same derived values modeling reads, and each finding names the field, the bound and its cause. The function never mutates its input; on success it returns a private copy.
  *
  * The dependent bounds are anatomical orderings and geometric limits rather than population percentiles, so they refuse only bodies that cannot exist:
  *
@@ -50,7 +50,7 @@ export function validateAutoMovieHumanIdentity(
   input: unknown,
 ): IValidation<IAutoMovieHumanIdentity> {
   const typed: IValidation<IAutoMovieHumanIdentity> =
-    typia.validateEquals<IAutoMovieHumanIdentity>(input);
+    typia.validate<IAutoMovieHumanIdentity>(input);
   if (typed.success === false) return typed;
 
   const measurements: IAutoMovieHumanMeasurements =

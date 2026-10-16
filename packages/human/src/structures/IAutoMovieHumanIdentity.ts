@@ -1,6 +1,8 @@
 import { tags } from "typia";
 
 import { AutoMovieHumanIrisColor } from "./AutoMovieHumanIrisColor";
+import { IAutoMovieHumanHeadIdentity } from "./IAutoMovieHumanHeadIdentity";
+import { IAutoMovieHumanSubcutaneousFat } from "./IAutoMovieHumanSubcutaneousFat";
 
 /**
  * Who a person is, as detailed parameters: named anthropometric and craniofacial measurements, joint mobility, body composition and pigmentation.
@@ -74,7 +76,7 @@ export namespace IAutoMovieHumanIdentity {
     bideltoidBreadth: number & tags.Minimum<90> & tags.Maximum<900>;
 
     /**
-     * Span: the horizontal distance between the tips of the middle fingers with both arms outstretched sideways at shoulder level, millimetres, as ANSUR II measures it. It sets how far the T-pose arms reach: an abducted arm reaches less far from the trunk than it hangs, because the acromion comes closer to the radiale, so span is shorter than shoulder breadth plus both hanging arms.
+     * Span: the horizontal distance between the tips of the middle fingers with both arms outstretched sideways at shoulder level, millimetres, as ANSUR II measures it: standing with the back and both arms pressed flat against a wall, palms forward (Hotzman et al. 2011, NATICK/TR-11/017, 6.4.75). It is shorter than shoulder breadth plus both hanging arms, and shorter than the skeleton's T-pose reaches; the skeleton does not fit it (see `abductAutoMovieHumanArms`).
      */
     span: number & tags.Minimum<300> & tags.Maximum<2800>;
 
@@ -347,72 +349,13 @@ export namespace IAutoMovieHumanIdentity {
   }
 
   /**
-   * The cranial vault and the frame of the face.
+   * The head's resolved measurements, with its original feature and auricle records.
    *
-   * Vault shape is a parameter of its own, the cephalic index, because it is not implied by sex or face size: means derived from published lengths and breadths differ by population (about 77 in US adults of European ancestry, Weinberg et al. 2016; about 85 in Chinese workers, Du et al. 2008, Ann Occup Hyg 52(8):773-782) and Chinese children measured on CT range from 73.5 to 105.7 (Liang et al. 2024, BMC Pediatr 24:685). Head breadth follows from length and index, so the document cannot state a breadth that contradicts them.
+   * This public nested interface remains augmentable. The head group owns its unchanged measurement bounds and member documentation; feature and ear references retain this namespace so existing augmentations still apply.
    *
    * @author Samchon
    */
-  export interface IHead {
-    /**
-     * Head length: glabella to opisthocranion, the longest midline length of the vault, millimetres.
-     */
-    headLength: number & tags.Minimum<80> & tags.Maximum<260>;
-
-    /**
-     * Cephalic index: maximum head breadth (eurion to eurion) over head length, times 100, dimensionless.
-     */
-    cephalicIndex: number & tags.Minimum<60> & tags.Maximum<110>;
-
-    /**
-     * Head circumference: maximum circumference just above the brow ridges and around the back of the vault, millimetres. Admission checks it against the length and breadth it must enclose.
-     */
-    headCircumference: number & tags.Minimum<300> & tags.Maximum<700>;
-
-    /**
-     * Head height: vertex to menton, the lowest point of the chin, head in the Frankfurt plane, millimetres. Stature over head height is about 5.3 at age 2 and 8.0 in late adolescence (Snyder et al. 1977, UM-HSRI-77-17).
-     */
-    headHeight: number & tags.Minimum<80> & tags.Maximum<320>;
-
-    /**
-     * Morphological face height: nasion to gnathion, millimetres.
-     */
-    faceHeight: number & tags.Minimum<40> & tags.Maximum<180>;
-
-    /**
-     * Face width: zygion to zygion, between the most lateral points of the zygomatic arches, millimetres.
-     */
-    faceWidth: number & tags.Minimum<50> & tags.Maximum<200>;
-
-    /**
-     * Mandibular width: gonion to gonion, between the angles of the mandible, millimetres.
-     */
-    mandibularWidth: number & tags.Minimum<40> & tags.Maximum<180>;
-
-    /**
-     * Minimum frontal width: frontotemporale to frontotemporale, the narrowest forehead between the temporal crests, millimetres.
-     */
-    minimumFrontalWidth: number & tags.Minimum<50> & tags.Maximum<160>;
-
-    /**
-     * Active maximum mouth opening between the upper and lower incisal edges, millimetres, as measured with a ruler in children by Verkouteren et al. (2022, Eur J Oral Sci 130(3):e12869): 42.8 to 55.3 mm from 6 to 18 years. The skeleton turns it into the jaw's opening angle through the person's own jaw geometry.
-     */
-    mouthOpening: number & tags.Minimum<5> & tags.Maximum<90>;
-
-    /**
-     * Lateral excursion of the lower incisors to one side, millimetres, from the dental midline; 9.1 to 10.4 mm in the same study.
-     */
-    mandibularLaterotrusion: number & tags.Minimum<0> & tags.Maximum<25>;
-
-    /** The eyes', nose's and mouth's measurements, which their modules shape the face surface from. */
-    features: IFeatures;
-
-    /** The left auricle. */
-    leftEar: IEar;
-
-    /** The right auricle. */
-    rightEar: IEar;
-  }
+  export interface IHead extends IAutoMovieHumanHeadIdentity {}
 
   /**
    * The eyes, nose and mouth, measured between the Farkas landmarks of the 3D Facial Norms on the living face at rest, eyes open and lips closed.
@@ -489,6 +432,9 @@ export namespace IAutoMovieHumanIdentity {
      * Appendicular lean mass index: lean mass of the arms and legs over stature squared, kilograms per square metre. NHANES means are 6.81 for women and 8.87 for men at age 20 (Kelly et al. 2009).
      */
     appendicularLeanMassIndex: number & tags.Minimum<2> & tags.Maximum<16>;
+
+    /** Subcutaneous fat thickness over each region, the fat that decides how sharply muscle shows. */
+    subcutaneousFat: IAutoMovieHumanSubcutaneousFat;
   }
 
   /**

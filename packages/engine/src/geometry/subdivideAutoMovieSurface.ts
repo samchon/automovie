@@ -1,9 +1,8 @@
 import { IAutoMovieSubdivisionCage } from "./IAutoMovieSubdivisionCage";
-import { IAutoMovieSubdivisionParameter } from "./IAutoMovieSubdivisionParameter";
 import { IAutoMovieSubdivisionSurface } from "./IAutoMovieSubdivisionSurface";
 import { ISubdivisionLevel } from "./ISubdivisionLevel";
 import { admitSubdivisionCage } from "./admitSubdivisionCage";
-import { limitSubdivisionLevel } from "./limitSubdivisionLevel";
+import { evaluateSubdivisionLevel } from "./evaluateSubdivisionLevel";
 import { refineSubdivisionLevel } from "./refineSubdivisionLevel";
 
 /**
@@ -59,13 +58,13 @@ const MAX_LEVELS: number = 6;
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the current level is held while refining; the returned surface owns arrays linear in the final level and nothing else is retained.
  * @author Samchon
  */
-export const subdivideAutoMovieSurface = (props: {
+export function subdivideAutoMovieSurface(props: {
   /** The control cage, only read. */
   cage: IAutoMovieSubdivisionCage;
 
   /** Number of refinement steps, an integer from 1 to 6. */
   levels: number;
-}): IAutoMovieSubdivisionSurface => {
+}): IAutoMovieSubdivisionSurface {
   if (
     !Number.isSafeInteger(props.levels) ||
     props.levels < 1 ||
@@ -77,31 +76,5 @@ export const subdivideAutoMovieSurface = (props: {
   let level: ISubdivisionLevel = admitSubdivisionCage(props.cage);
   for (let step: number = 0; step < props.levels; ++step)
     level = refineSubdivisionLevel(level);
-  const limit: {
-    positions: number[];
-    normals: number[];
-    cornerNormals: number[];
-  } = limitSubdivisionLevel(level);
-  const parameters: IAutoMovieSubdivisionParameter[] =
-    new Array<IAutoMovieSubdivisionParameter>(level.topology.vertexCount);
-  level.topology.faceVertices.forEach((v: number, c: number): void => {
-    if (parameters[v] !== undefined) return;
-    parameters[v] = {
-      face: level.parameterFaces[c]!,
-      corner:
-        level.parameterCorners[c] === -1 ? null : level.parameterCorners[c]!,
-      u: level.parameterU[c]!,
-      v: level.parameterV[c]!,
-    };
-  });
-  return {
-    positions: level.positions,
-    limitPositions: limit.positions,
-    faces: level.topology.faceVertices,
-    normals: limit.normals,
-    normalFaces: limit.cornerNormals,
-    uvs: level.uvs,
-    uvFaces: level.cornerUvs,
-    parameters,
-  };
-};
+  return evaluateSubdivisionLevel(level);
+}

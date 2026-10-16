@@ -110,8 +110,8 @@ export namespace IAutoMovieHumanTrunkFrame {
     /** Lowest point of the rib cage at the side. */
     tenthRib: number;
 
-    /** Lower border of the costal arch in front. */
-    costal: number;
+    /** Where the underbust circumference is taken: just below the breasts or the pectorals, at the inframammary fold, and never lower than half way from the natural waist to the chest point. */
+    underbust: number;
 
     /** The inframammary fold and the pectoral's lower border. */
     fold: number;

@@ -1,107 +1,185 @@
+import { IAutoMovieHumanLipForm } from "../../junction/IAutoMovieHumanLipForm";
+
 /**
- * The named form coefficients of the head's distance field: dimensionless exponents and fractions of the person's own head and face measurements, so one set serves every identity.
+ * The named form coefficients of the lofted head: dimensionless exponents and fractions of the person's own face height, so one set serves every identity.
  *
- * Lengths are fractions of face height (`fh`), face width (`fw`) or head height (`hh`) as each field says; exponents are superellipse exponents, 2 for an ellipse, larger for a squarer section.
+ * Besides the cranium's and the face's sections, the form places the face's network: where its lattice's openings and rows fall on the person's features ({@link IAutoMovieHumanHeadForm.ILayout}) and where the loops of the lids and the lips run inside them ({@link IAutoMovieHumanHeadForm.IEyelids}, {@link IAutoMovieHumanHeadForm.ILips}). Every placement is a share of a feature's own measurement or a few millimetres at a margin, so fitting the network to a reference changes coefficients, never the network's structure.
+ *
+ * Depths named "behind subnasale" are horizontal distances, head in the Frankfort plane, from the true vertical through subnasale, the reference of soft-tissue profile analysis; heights are fractions of face height (`fh`, nasion to gnathion). Exponents are superellipse exponents of a section quadrant: 2 for an ellipse, larger for a squarer turn, smaller toward a diamond.
  *
  * @author Samchon
  */
 export interface IAutoMovieHumanHeadForm {
-  /** Vault: superellipsoid exponent of the top half behind the forehead. */
-  vaultTop: number;
+  /** Profile: the cheek plane under the nose at the zygion's level behind subnasale, `fh`, the base the nose rises from. */
+  midfaceBehindSubnasale: number;
 
-  /** Vault: exponent of the top half over the forehead, higher for a more upright forehead. */
-  vaultForehead: number;
+  /** Profile: the base under the closed lips at stomion behind subnasale, `fh`; the lips rise from it. */
+  stomionBehindSubnasale: number;
 
-  /** Vault: exponent of the lower half, the walls down to the cranial base. */
-  vaultBottom: number;
+  /** Profile: soft-tissue B point, the deepest point of the labiomental fold, behind subnasale, `fh`. */
+  labiomentalBehindSubnasale: number;
 
-  /** Vault: how far its lower half reaches below tragion at the back, `hh`. */
-  mastoid: number;
+  /** Profile: soft-tissue pogonion behind subnasale, `fh`. */
+  pogonionBehindSubnasale: number;
 
-  /** Vault: how far its lower half reaches below tragion at the temples, `hh`. */
-  temple: number;
+  /** Profile: soft-tissue pogonion above menton, `fh`. */
+  pogonionAboveMenton: number;
 
-  /** Vault: how far its front reaches below glabella, under the brows, `hh`. */
-  orbitRoof: number;
+  /** Profile: exponent of the forehead's arc from glabella to the vertex. */
+  forehead: number;
 
-  /** Vault: fraction of the front semi-axis where the front starts receding into the orbits. */
-  recedeStart: number;
+  /** Profile: exponent of the vault's back from opisthocranion to the vertex. */
+  vaultBack: number;
 
-  /** Vault: fraction of the front semi-axis where it has receded. */
-  recedeEnd: number;
+  /** Profile: exponent of the occiput's arc from opisthocranion down to the nape. */
+  occiput: number;
 
-  /** Midface: its front behind nasion, `fh`. */
-  midfaceFront: number;
+  /** Breadth: height of the head's widest section above tragion, over the vertex's height above tragion. */
+  eurionHeight: number;
 
-  /** Midface: its top above the eyes' centres, `fh`. */
-  midfaceTop: number;
+  /** Breadth: exponent of the vault's frontal outline from eurion to the vertex. */
+  vaultSide: number;
 
-  /** Midface: its bottom below subnasale, `fh`. */
-  midfaceBottom: number;
+  /** Sections: exponent of the front quadrants at the vertex. */
+  frontVault: number;
 
-  /** Midface: exponent of its horizontal section, the cheeks' turn from the front to the sides. */
-  cheekExponent: number;
+  /** Sections: exponent of the front quadrants at zygion's level, the cheeks' turn from the face to its side. */
+  frontCheek: number;
 
-  /** Midface: exponent of its vertical section. */
-  midfaceExponent: number;
+  /** Sections: exponent of the front quadrants at subnasale, the maxilla's turn from the nose base to the cheeks. */
+  frontSubnasale: number;
 
-  /** Jaw: its centre above the mandible's lower border, the line from gonion to menton, `fh`. */
-  jawLift: number;
+  /** Sections: exponent of the front quadrants at stomion, the dental arch under the lips. */
+  frontStomion: number;
 
-  /** Jaw: its upper semi-axis across the mandibular plane, `fh`. */
-  jawTop: number;
+  /** Sections: exponent of the front quadrants at pogonion, the chin's turn to the jaw. */
+  frontChin: number;
 
-  /** Jaw: exponent of its horizontal section. */
-  jawExponent: number;
+  /** Sections: exponent of the back quadrants over the vault. */
+  backVault: number;
 
-  /** Jaw: exponent of its vertical section, higher for a flatter lower border. */
-  jawBorder: number;
+  /** Sections: exponent of the back quadrants at the nape. */
+  backNape: number;
 
-  /** Jaw: half-width at pogonion, `fw`. */
-  chinWidth: number;
+  /** Where the face's lattice, its openings and its rows fall on the person's features. */
+  layout: IAutoMovieHumanHeadForm.ILayout;
 
-  /** Jaw: how the jaw narrows from the gonia to the chin, the exponent of its taper along its depth. */
-  jawTaper: number;
+  /** Where the loops of the lids run inside each eye's opening. */
+  eyelids: IAutoMovieHumanHeadForm.IEyelids;
 
-  /** Jaw: pogonion in front of gnathion, `fh`. */
-  pogonion: number;
+  /** Where the loops of the lips run inside the mouth's opening. */
+  lips: IAutoMovieHumanHeadForm.ILips;
 
-  /** Jaw: the chin's least depth behind subnasale, `fh`. */
-  chin: number;
+  /** The features' gross forms over the block-out: the nose, the lips, the orbits and brows, and the masses on the side of the face. */
+  relief: IAutoMovieHumanHeadForm.IRelief;
+}
+export namespace IAutoMovieHumanHeadForm {
+  /**
+   * Placement of the face's lattice. Its column lines are spaced smoothly between the midline, the eye openings' medial edges, the mouth opening's edges, the eye openings' lateral edges and the face's edges, each edge set on the face's surface at its feature's own level; its rows are spaced evenly between heights set on the features.
+   */
+  export interface ILayout {
+    /** Half the face's angle about the spine inside which its dense columns lie, degrees. */
+    faceHalf: number;
 
-  /** Muzzle: half-width at stomion, `fw`. */
-  muzzleMouth: number;
+    /** Trichion, the hairline at the midline and the top of the face's rows, above nasion, over face height. */
+    trichion: number;
 
-  /** Muzzle: depth from its front to its centre, `fh`. */
-  muzzleDepth: number;
+    /** The eye opening: its top above and its bottom below the eye's centre, its medial edge inside endocanthion and its lateral edge beyond exocanthion, over palpebral fissure length. */
+    eyeOpening: {
+      above: number;
+      below: number;
+      medial: number;
+      lateral: number;
+    };
 
-  /** Muzzle: its top above subnasale, `fh`. */
-  muzzleTop: number;
+    /** The mouth opening: its top below subnasale and its bottom below stomion over face height, and its edges beyond cheilion over half the mouth's width. */
+    mouthOpening: { top: number; bottom: number; lateral: number };
 
-  /** Muzzle: exponent of its vertical section. */
-  muzzleExponent: number;
+    /** Share of the way from a two-to-one reduction's dense side to its sparse one at which its interior vertices lie. */
+    reduction: number;
+  }
 
-  /** Relief: zygomatic prominence height, `fh`. */
-  malar: number;
+  /**
+   * Placement of the lids' loops, from the opening's rim inward: the intermediate orbital loop, an orbital envelope on the face, the anterior and posterior margins on their reference spheres. The margin currently uses the fissure-length input as its transverse span; that is not an independent validation of the source's three-dimensional chord. Eye clearance remains a separate geometric check.
+   */
+  export interface IEyelids {
+    /** Share of the way from the opening's rim to the orbital envelope at which the intermediate loop runs. */
+    orbit: number;
 
-  /** Relief: superciliary arch height, `fh`. */
-  brow: number;
+    /** Slope of the canthal line in the head's transverse-height plane, degrees. */
+    canthalTilt: number;
 
-  /** Relief: temporal fossa depth, `fh`, a hollow. */
-  templeHollow: number;
+    /** Upper arc's share of the input fissure height before its vertical margin allowance. */
+    upper: number;
 
-  /** Relief: mandibular angle height, `fh`. */
-  gonial: number;
+    /** Half the vertical separation of the upper and lower margin nodes at each canthus, head-frame millimetres; it creates a short edge rather than a single clinical landmark. */
+    canthus: number;
 
-  /** Relief: mental protuberance height, `fh`. */
-  mental: number;
+    /** Anterior margin's radial allowance over the reference lid sphere, millimetres; this historical property name does not establish the distance to the posterior margin. */
+    marginThickness: number;
 
-  /** Relief: buccal fat over the cheek below the zygoma in an adult face, `fh`. */
-  buccal: number;
+    /** Posterior margin's radial allowance over the reference lid sphere, millimetres; ellipsoidal-eye clearance requires independent verification. */
+    contact: number;
 
-  /** Relief: added buccal fat per unit the face's height falls short of the adult's share of head height, `fh`; the full cheeks of a small face under a large vault. */
-  buccalGrowth: number;
+    /** How far the posterior margin closes over the anterior's opening, a share. */
+    posteriorOpen: number;
 
-  /** Blend width of the unions of the head's masses, `fh`. */
-  blend: number;
+    /** Orbital envelope expansions beyond the aperture on its medial, lateral, superior and inferior sides, over the generated transverse aperture span. These are reference-fitted geometric reaches, not clinical orbital-rim measurements. */
+    envelope: { medial: number; lateral: number; above: number; below: number };
+  }
+
+  /**
+   * Placement of the lips' loops, from the opening's rim inward: the loop of orbicularis oris, the vermilion border through the cupid's bow, the closed lips' meeting line and the pocket behind them.
+   */
+  export type ILips = IAutoMovieHumanLipForm;
+
+  /**
+   * The features' relief over the block-out. Heights and spreads are shares of face height (`fh`), fissure length, nose width or mouth width as each says; the bony and muscular terms reach the skin through the soft tissue over their sites, which softens them further.
+   */
+  export interface IRelief {
+    /** The nose: pronasale above subnasale over nose height; the exponent of the zero-end-slope dorsum basis t^p(1+p(1-t)) from nasion to the tip; half-breadth at the bridge and at the alae over nose width; and the alar lobes' height over the tip's, centre off the midline and spread over nose width, and reach along the nose's height. */
+    nose: {
+      tipAboveSubnasale: number;
+      dorsumCurve: number;
+      bridge: number;
+      ala: number;
+      alaHeight: number;
+      alaOffset: number;
+      alaSpread: number;
+      alaDepth: number;
+    };
+
+    /** The lips' conventional anterior crest reach over face height, consumed by the shared spatial oral arch. */
+    lips: IAutoMovieHumanLipForm.IRelief;
+
+    /** Width of the reference-course orbital tissue footprint, over fissure length; regional tissue depth controls its visibility. */
+    orbit: { breadth: number };
+
+    /** The superciliary arch: height over `fh`, and its level above the eye's centre over fissure length. */
+    brow: { height: number; level: number };
+
+    /** The zygoma's body: height over `fh`, its centre outward and below the eye's centre over fissure length. */
+    malar: { height: number; out: number; below: number };
+
+    /** The zygomatic arch: height and half-width over `fh`, and its root's rise above tragion over `fh`. */
+    arch: { height: number; width: number; root: number };
+
+    /** The temporal hollow: depth, centre above zygion and behind it, and spread, over `fh`. */
+    temple: { depth: number; above: number; behind: number; spread: number };
+
+    /** The masseter: height, its centre in front of gonion, and its vertical and horizontal spread, over `fh`. */
+    masseter: { height: number; forward: number; up: number; across: number };
+
+    /** Buccal fat over `fh`: an adult lean face's slight hollow, its gain with body fat and in a small face, its centre above stomion and spread. */
+    buccal: {
+      adult: number;
+      fat: number;
+      growth: number;
+      above: number;
+      spread: number;
+    };
+
+    /** Share of the brow's, the zygoma's and the jaw's prominence left at the least lean mass. */
+    robust: number;
+  }
 }

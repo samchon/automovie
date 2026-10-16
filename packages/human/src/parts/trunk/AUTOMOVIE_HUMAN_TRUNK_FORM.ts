@@ -3,84 +3,76 @@ import { IAutoMovieHumanTrunkForm } from "./IAutoMovieHumanTrunkForm";
 /**
  * The trunk's form coefficients for the human profile.
  *
- * Started from anatomical accounts (transverse sections in Gray 1918, "Anatomy of the Human Body", for the back's depth behind the column; Gray's descriptions of the gluteus maximus and the mammae; Richer's plates of the trunk, 1890, "Anatomie artistique") and fitted by Levenberg-Marquardt least squares against MakeHuman CC0 reference bodies: the hm08 base mesh with its CC0 macro targets (CC0 1.0, makehumancommunity/makehuman at a8bc2d54), blended for a woman and a man of 30 at average build and a man of 70 at heavier build, scaled to our stature and retargeted onto our skeleton by the shared calibration harness. Each reference was first measured like anthropometry at our own levels (convex-hull tape girths and breadths and depths of the chest, underbust, natural waist and buttock, hip breadth and thigh at the gluteal furrow), and our trunk was generated for identities carrying those measurements, so the fit compares shape alone: the residual is the radial distance between the two sections from our section's centroid, 72 rays at each of nine planes normal to the hips-to-neck axis between the thigh ring and the neck base. Bounds keep the coefficients anatomically ordered (the front at the inframammary fold and the axilla never ahead of the chest point, the costal breadth inside the chest's), because outside them the fit traded bands and bulges for score. Superficial muscle relief is off while the gross form is fitted. Grade: fitted to a CC0 reference.
+ * Fitted by least squares against reference bodies, the four nearest the lean 20-year-old gate identities (two lean young women, a lean young man and a muscular young man), each mapped onto our skeleton for the identity by its own skin weights in the shared calibration harness. Each reference was first measured like anthropometry at our own levels (convex-hull tape girths, breadths and depths at the buttock, natural waist, costal arch and chest point), and our trunk was generated for identities carrying those measurements, so the fit compares shape alone: the residual is the radial distance between our level section and the reference's, 72 rays about the reference section's midline centre, every 10 mm from the buttock level to the axilla; that historical profile fit was 3.5 to 4.9 mm per body under its original level protocol, not a score for the current generator. The crotch and gluteal furrow levels, where the section is two thighs side by side, are the mean outer contour of the same reference sections (foremost and rearmost points and breadth over both thighs), and the clavicle level is the foremost and rearmost points 40 to 100 mm beside the midline 8 mm below the jugular notch; fronts are regressed on body fat. The back's midline lies 0.30 of the chest depth behind the column at the chest, about 65 mm in a lean man. Grade: fitted to reference bodies.
+ *
+ * The six underbust values were refitted together at the current physical fold planes, 53.152 to 59.840 mm above the old costal extraction planes. Depth is now a share of that plane's tape girth, not an interpolation fraction between waist and chest depths. The same two-half superellipse family fits 144 rays on each of the four nearest reference bodies, with that plane's convex tape as its source girth and unchanged torso ancestor transforms. Observed first-order normal residual RMS is 4.22 to 5.06 mm. This bounded local calibration is not a global representation floor, clinical norm, or final-skin pass; bone registration and omitted rest-pose correctives limit its anatomical use. Grade: reference-fitted.
  */
 export const AUTOMOVIE_HUMAN_TRUNK_FORM: IAutoMovieHumanTrunkForm = {
-  behind: {
-    lumbar: 0.3509,
-    waist: 0.2262,
-    thorax: 0.3015,
-    axilla: 0.3083,
+  buttock: {
+    behind: 0.5655,
+    fat: -0.0011,
+    widest: 0.7507,
+    skew: -0.5078,
   },
-  widest: {
-    pelvis: 0.5995,
-    waist: 0.4571,
-    chest: 0.4207,
+  hip: {
+    level: 0.7672,
+    breadth: 0.8943,
   },
-  squareness: {
-    front: {
-      buttock: 1.7,
-      waist: 1.7,
-      costal: 4.5,
-      chest: 2.7046,
-    },
-    back: {
-      buttock: 2.45,
-      waist: 2.08,
-      costal: 2.3589,
-      chest: 2.2055,
-    },
+  crest: {
+    behind: 0.4232,
+    fat: -0.0029,
+    widest: 0.5261,
+    depth: 0.686,
+    breadth: 0.7339,
+    front: 1.4418,
+    back: 2.8781,
   },
-  front: {
-    spine: 0.0375,
-    spineFat: 0.3,
-    buttock: 0.006,
-    buttockToWaist: 0,
-    iliac: 1.1,
-    navel: 0.8309,
-    pubis: 0.0699,
-    costal: 0.2843,
-    fold: 0,
-    axilla: 0,
+  waist: {
+    behind: 0.3696,
+    fat: -0.0064,
+    widest: 0.5004,
+    skew: -0.434,
   },
-  back: {
-    fold: 0.0652,
-    upperButtock: 0,
-    upperBack: 0.1329,
+  underbust: {
+    behind: 0.2905,
+    fat: -0.0047,
+    widest: 0.4081,
+    front: 2.0070,
+    back: 3.7661,
+    depth: 0.2468,
   },
-  half: {
-    gluteal: 0.8,
-    trochanter: 0.0044,
-    crestBelow: 0.0157,
-    crest: 0.5715,
-    costal: 0.95,
-    axilla: 1.08,
-    axillaMuscle: 0.05,
+  chest: {
+    behind: 0.2969,
+    fat: -0.0081,
+    widest: 0.2858,
+    front: 2.1949,
+    back: 2.6364,
+  },
+  axilla: {
+    behind: 0.306,
+    fat: -0.0059,
+    widest: 0.2748,
+    depth: 0.992,
+    breadth: 1.1052,
+    front: 3.3999,
+    back: 3.0489,
+  },
+  clavicle: {
+    front: 0.212,
+    fat: -0.0015,
+    back: 0.128,
+  },
+  crotch: {
+    front: 0.996,
+    fat: -0.0046,
+    back: 0.04,
+    breadth: 1.031,
+    recess: 0.16,
   },
   gluteal: {
-    projection: 0.2449,
-    across: 0.4233,
-    below: 0.004,
-    width: 0.3039,
-    above: 0.0364,
-    under: 0.032,
-    outward: 0.3,
+    front: 0.987,
+    fat: -0.0013,
+    back: 0.082,
+    breadth: 1.041,
   },
-  breast: {
-    projection: 0.1,
-    angle: 43.8656,
-    spread: 17.5672,
-    fill: 0.613,
-    above: 0.0499,
-    below: 0.01,
-    drop: 0.5,
-    lateral: 0.25,
-  },
-  thigh: {
-    breadth: 0.5,
-    front: 0.0047,
-    medial: 3.289,
-    lateral: 1.6,
-  },
-  collar: 0.012,
 };

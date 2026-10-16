@@ -67,3 +67,27 @@ The first stick hand set the four finger roots on a near-straight line from conv
 - Adult finger lengths: only the 1977 adolescents were read.
 - Finger abduction ranges and the coupling of DIP to PIP flexion: no source read.
 - How the hand maps to `AutoMovieHumanoidBone`: the finger metacarpals two to five have no bones, so palm arching (cupping) cannot be posed; whether `interface` needs metacarpal bones or Human keeps an internal palm arch.
+
+
+## Campaign 2831: shared finger masses and web boundaries
+
+The unchanged committed source has a numerical self-intersection beyond the index-middle web, not merely a lighting defect. The four finger axes are parallel with equal centre spacing of 0.25 hand breadth, while the two largest PIP breadths already consume 0.249 hand breadth per half-pair. The proximal section then multiplies the joint breadth by 1.04. Those independently declared masses overlap before subdivision. Rows and tolerances cannot repair that input.
+
+The rejected ring-count trials did not repair this cause. A whole 12-to-20 transition creates two valence-six vertices: adjacent reduction blocks coincide at one, and a reduction corner coincides with the thumb opening at the other. Four 3-to-5 quarter bands remove the first but retain the second. Adding a plain collar row separates the latter, but worsens the fixed-ray 95th-percentile dorsal error in some gates. None of these trials is accepted.
+
+The new candidate retains the original 12-to-18-to-26 cage. One joint-breadth definition now feeds both the finger skin and the skeleton. The skeleton packs those unequal MCP skin-breadth proxies within the measured full hand breadth, allocating only the remainder equally to the three spaces; the outer metacarpale landmarks follow the same packing, preserving their full breadth and the middle-finger axis. Equal spacing of the residual is a conventional packing rule, not measured interdigital spacing. The shaft and its adjacent web read one external proximal-section definition. Each web's boundary comes from its two shaft-section intersections with one palmar floor, rather than an independent width in hand lengths. The floor's halfway placement in the shallower palmar half is also conventional.
+
+The independent numerical experiment freezes all Human, engine and interface source at commit `9f135607`, applies only the listed candidate files in a separate scratch snapshot, and evaluates the engine's level-three Catmull-Clark limit with relief disabled. It reads no mutable compiled library. For each adjacent pair, 31 distal levels run from 1 mm beyond the measured web crotch to the nearer PIP and 25 palmar levels span -0.075 to +0.125 hand breadth. Rays run along the hand's radial direction. Only identical physical rays that hit both digit branches in both versions enter the comparison. Positive signed separation means that the two branch envelopes separate at that ray; this finite test is not a proof of global absence of self-intersections.
+
+| Gate | Index-middle minimum, baseline / candidate (mm) | Middle-ring minimum (mm) | Ring-little minimum (mm) |
+| --- | --- | --- | --- |
+| Slim woman | -1.490 / 1.126 | -0.377 / 1.436 | 1.847 / 2.270 |
+| Slim man | -1.654 / 1.266 | -0.409 / 1.619 | 2.092 / 2.574 |
+| Muscular woman | -1.467 / 1.115 | -0.369 / 1.421 | 1.823 / 2.244 |
+| Muscular man | -1.642 / 1.261 | -0.406 / 1.612 | 2.080 / 2.561 |
+
+There are 9,188 common physical rays across the four gates and three pairs. Baseline has 1,249 negative separations; the candidate has none. Both hands of all four gates retain the exact original cage connectivity and sampler patch UVs, the wrist ring has zero positional change, every cage vertex has valence at most five, Euler characteristic is one, the sole open boundary has eight edges, and no edge is nonmanifold. Level-three normals are finite and unit length, no rendered triangle is degenerate, and each hand still emits five nail attachments. These are numerical and structural checks, not clinical or visual acceptance. The Human atlas charts are unchanged; sampler patch-UV equality does not assert equality of anatomy-dependent semantic corner addresses.
+
+The valid committed baseline's four gate people were inspected in seven corrected external hand cameras, with surface, overlay, cage/sections and raking light. They still show knife-like webs, branch pinches and dorsal ridges. Reconstructed brown network curves are approximate under the construction-inspector audit and are not exact generator evidence. The candidate has not been rendered from a committed actual-consumer snapshot, and its gross form remains unverified. Canonical full build, evidence and joined-view acceptance must finish when the protected checkout can be used again.
+
+The web floor is currently a through-point constraint of each source curve. Two uniform chord-length samples do not generally pin the through point itself on the subdivision cage; baseline source-to-sampled-floor discrepancy reaches about 1.3 mm in the palmar direction. The shared mass candidate does not establish exact preservation of that control landmark. This sampling limitation belongs to the engine curve/topology boundary and remains distinct from the removed branch overlap.

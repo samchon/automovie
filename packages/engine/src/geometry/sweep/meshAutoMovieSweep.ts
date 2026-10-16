@@ -86,52 +86,76 @@ export const meshAutoMovieSweep: (props: {
           k === 0 ? 0 : k === spine.length - 1 ? 1 : chordShare(spine, k),
         );
   if (rows.length < 2 || rows[0] !== 0 || rows[rows.length - 1] !== 1)
-    throw new Error("sweep mesh rows must run from 0 to 1 with at least two rings");
+    throw new Error(
+      "sweep mesh rows must run from 0 to 1 with at least two rings",
+    );
   rows.forEach((u: number, k: number): void => {
     if (!Number.isFinite(u) || (k > 0 && !(u > rows[k - 1]!)))
-      throw new Error(`sweep mesh row ${k} must be finite and follow row ${k - 1}`);
+      throw new Error(
+        `sweep mesh row ${k} must be finite and follow row ${k - 1}`,
+      );
   });
   const columns: number = props.columns ?? COLUMNS;
   if (!Number.isSafeInteger(columns) || columns < 3)
     throw new Error("sweep mesh columns must be an integer of at least 3");
   // parameters of each loop's ring points: a polygon's corners under parameter correspondence, even otherwise
-  const parameters: number[][] = Array.from({ length: surface.loops }, (_: unknown, l: number): number[] => {
-    const first: IAutoMovieSweep.IStation = props.sweep.stations[0]!;
-    const section: IAutoMovieSweepSection = l === 0 ? first.section : first.holes![l - 1]!;
-    const n: number =
-      props.sweep.correspondence === "parameter" && section.type === "polygon" ? section.points.length : columns;
-    return Array.from({ length: n }, (__: unknown, k: number): number => k / n);
-  });
+  const parameters: number[][] = Array.from(
+    { length: surface.loops },
+    (_: unknown, l: number): number[] => {
+      const first: IAutoMovieSweep.IStation = props.sweep.stations[0]!;
+      const section: IAutoMovieSweepSection =
+        l === 0 ? first.section : first.holes![l - 1]!;
+      const n: number =
+        props.sweep.correspondence === "parameter" && section.type === "polygon"
+          ? section.points.length
+          : columns;
+      return Array.from(
+        { length: n },
+        (__: unknown, k: number): number => k / n,
+      );
+    },
+  );
   const length: number = surface.path.length;
   const rings: IRing[] = rows.map((u: number, r: number): IRing => {
-    const loops: IAutoMovieProfilePoint[][] = parameters.map((ts: number[], l: number): IAutoMovieProfilePoint[] =>
-      ts.map((t: number): IAutoMovieProfilePoint => surface.section(u, t, l)),
+    const loops: IAutoMovieProfilePoint[][] = parameters.map(
+      (ts: number[], l: number): IAutoMovieProfilePoint[] =>
+        ts.map((t: number): IAutoMovieProfilePoint => surface.section(u, t, l)),
     );
-    const plan: Omit<IAutoMovieRegionTriangulation, "triangles"> = canonicalRegion(
-      loops[0]!,
-      loops.slice(1),
-      `sweep mesh ring ${r}`,
-    );
+    const plan: Omit<IAutoMovieRegionTriangulation, "triangles"> =
+      canonicalRegion(loops[0]!, loops.slice(1), `sweep mesh ring ${r}`);
     const frame: IAutoMovieSweepFrame = surface.frame(u);
     return {
       frame,
       along: u * length,
-      winding: loops.map((loop: IAutoMovieProfilePoint[]): number => Math.sign(signedArea(loop))),
+      winding: loops.map((loop: IAutoMovieProfilePoint[]): number =>
+        Math.sign(signedArea(loop)),
+      ),
       plan,
       points: plan.points.map(
         (p: IAutoMovieProfilePoint): IAutoMovieVector3 =>
-          Vector3.add(frame.origin, Vector3.add(Vector3.scale(frame.x, p.x), Vector3.scale(frame.y, p.y))),
+          Vector3.add(
+            frame.origin,
+            Vector3.add(
+              Vector3.scale(frame.x, p.x),
+              Vector3.scale(frame.y, p.y),
+            ),
+          ),
       ),
     };
   });
   rings.forEach((ring: IRing, r: number): void => {
     ring.winding.forEach((w: number, l: number): void => {
-      if (w !== rings[0]!.winding[l]) throw new Error(`sweep mesh ring ${r} loop ${l} winds the other way from ring 0`);
+      if (w !== rings[0]!.winding[l])
+        throw new Error(
+          `sweep mesh ring ${r} loop ${l} winds the other way from ring 0`,
+        );
     });
   });
 
   const walls: IAutoMovieMesh =
-    (props.shading ?? "flat") === "flat" ? flatWalls(rings) : smoothWalls(rings);
+    (props.shading ?? "flat") === "flat"
+      ? flatWalls(rings)
+      : smoothWalls(rings);
   if (!(props.caps ?? true)) return walls;
   const target: IAutoMovieMeshTarget = {
     positions: walls.positions,
@@ -148,7 +172,11 @@ export const meshAutoMovieSweep: (props: {
     const base: number = target.positions.length / 3;
     ring.points.forEach((p: IAutoMovieVector3, k: number): void => {
       target.positions.push(p.x, p.y, p.z);
-      target.normals.push(ring.frame.normal.x * outward, ring.frame.normal.y * outward, ring.frame.normal.z * outward);
+      target.normals.push(
+        ring.frame.normal.x * outward,
+        ring.frame.normal.y * outward,
+        ring.frame.normal.z * outward,
+      );
       target.uvs.push(ring.plan.points[k]!.x, ring.plan.points[k]!.y * outward);
     });
     for (let k: number = 0; k < triangles.length; k += 3)
@@ -175,7 +203,9 @@ const chordShare = (points: IAutoMovieVector3[], k: number): number => {
   let before: number = 0;
   let total: number = 0;
   for (let i: number = 1; i < points.length; ++i) {
-    const d: number = Vector3.length(Vector3.subtract(points[i]!, points[i - 1]!));
+    const d: number = Vector3.length(
+      Vector3.subtract(points[i]!, points[i - 1]!),
+    );
     total += d;
     if (i <= k) before += d;
   }
@@ -196,7 +226,9 @@ const flatWalls = (rings: IRing[]): IAutoMovieMesh => {
         const tail: number = span.start + ((step + 1) % span.count);
         const nearLength: number = gap(near, head, tail);
         const farLength: number = gap(far, head, tail);
-        const corners: ReadonlyArray<readonly [IAutoMovieVector3, number, number]> = [
+        const corners: ReadonlyArray<
+          readonly [IAutoMovieVector3, number, number]
+        > = [
           [far.points[head]!, farAround, far.along],
           [near.points[head]!, nearAround, near.along],
           [near.points[tail]!, nearAround + nearLength, near.along],
@@ -227,7 +259,8 @@ const smoothWalls = (rings: IRing[]): IAutoMovieMesh => {
         const p: IAutoMovieVector3 = ring.points[index]!;
         positions.push(p.x, p.y, p.z);
         uvs.push(around, ring.along);
-        if (step < span.count) around += gap(ring, index, span.start + ((step + 1) % span.count));
+        if (step < span.count)
+          around += gap(ring, index, span.start + ((step + 1) % span.count));
       }
       const row: number = positions.length / 3 - width;
       groups.push([row, row + span.count]);
@@ -236,7 +269,14 @@ const smoothWalls = (rings: IRing[]): IAutoMovieMesh => {
       for (let step: number = 0; step < span.count; ++step) {
         const nearHead: number = first + leg * width + step;
         const farHead: number = nearHead + width;
-        indices.push(farHead, nearHead, nearHead + 1, farHead, nearHead + 1, farHead + 1);
+        indices.push(
+          farHead,
+          nearHead,
+          nearHead + 1,
+          farHead,
+          nearHead + 1,
+          farHead + 1,
+        );
       }
   }
   return meshOf(positions, indices, uvs, groups);
@@ -244,4 +284,7 @@ const smoothWalls = (rings: IRing[]): IAutoMovieMesh => {
 
 /** Distance between two points of a ring in its section plane. */
 const gap = (ring: IRing, a: number, b: number): number =>
-  Math.hypot(ring.plan.points[b]!.x - ring.plan.points[a]!.x, ring.plan.points[b]!.y - ring.plan.points[a]!.y);
+  Math.hypot(
+    ring.plan.points[b]!.x - ring.plan.points[a]!.x,
+    ring.plan.points[b]!.y - ring.plan.points[a]!.y,
+  );
