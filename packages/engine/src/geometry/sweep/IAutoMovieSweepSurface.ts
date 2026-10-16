@@ -9,8 +9,8 @@ import { IAutoMovieSweepSection } from "./IAutoMovieSweepSection";
  * A sweep compiled for evaluation, from `compileAutoMovieSweep`.
  *
  * `u` is the chord-length parameter along the spine and `v` the turn around
- * it, both from 0 to 1; `u` outside its range is clamped and `v` wraps. The
- * surface is continuous in both. Every query is deterministic.
+ * it, both from 0 to 1; `u` outside its range is clamped and `v` wraps. Every query is deterministic. Angular linear reconstruction and a local
+ * feature nearest-branch change limit the smoothness guarantees.
  *
  * @evidence contracts/common.md#principled-implementation The queries a sampler, a bridge and a measurement need from a parametric surface: position, radius and its split into shape and scale, section frame, outward normal and the derivative along the spine.
  * @evidence contracts/common.md#clear-and-simple-design One record of closures over the compiled tables, so callers never repeat the compile.
@@ -59,6 +59,7 @@ export interface IAutoMovieSweepSurface {
    * @param v Round the loop
    * @param loop 0 for the section, `k` for hole `k - 1`; omitted, 0
    * @returns Metres along the plane's first and second axes
+   * @throws Error for a non-finite scaled result or a nonzero section point lost to arithmetic underflow
    *
    * @evidence contracts/common.md#principled-implementation The section point before the plane is placed, scaled by the profile.
    * @evidence contracts/common.md#clear-and-simple-design One query per loop point.
@@ -75,7 +76,7 @@ export interface IAutoMovieSweepSurface {
    *
    * @param u Along the spine
    * @param v Around it
-   * @returns Metres, positive
+   * @returns Metres, positive for direction correspondence; parameter correspondence permits zero at an authored origin point
    *
    * @evidence contracts/common.md#principled-implementation The outer loop's radius, the scale times the shape.
    * @evidence contracts/common.md#clear-and-simple-design One query.
@@ -92,7 +93,7 @@ export interface IAutoMovieSweepSurface {
    *
    * @param u Along the spine
    * @param v Around it
-   * @returns Metres, positive
+   * @returns Metres, positive for direction correspondence; parameter correspondence permits zero at an authored origin point
    *
    * @evidence contracts/common.md#principled-implementation The radius before the scale profile, the pose-invariant shape posing reuses.
    * @evidence contracts/common.md#clear-and-simple-design One query.

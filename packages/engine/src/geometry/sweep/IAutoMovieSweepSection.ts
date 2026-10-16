@@ -20,7 +20,7 @@
  *
  * @evidence contracts/common.md#principled-implementation A closed union whose members are the standard closed-curve forms named in the lofting scope, read through one polar radius function, which makes sections of different kinds correspond by direction.
  * @evidence contracts/common.md#clear-and-simple-design One discriminated union instead of a section interface per kind; `parameterizeAutoMovieSweepSection` evaluates the curves and `sampleAutoMovieSweepSection` reads them by direction.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing converts one kind into another silently; a curve that is not star-shaped about its origin is refused by the sampler.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing converts one kind into another silently; the sampler refuses a curve whose finite polar-angle walk detects a star-shape violation; unsampled intervals are not certified.
  * @evidence contracts/common.md#meaningful-documentation States the plane coordinates and unit, the origin, the star-shape requirement, the angle direction, and what each member is for.
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; sampling cost is answered on `sampleAutoMovieSweepSection`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record read by the sweep compiler once per station.

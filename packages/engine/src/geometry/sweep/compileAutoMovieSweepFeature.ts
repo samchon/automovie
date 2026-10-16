@@ -16,8 +16,8 @@ const NEWTON: number = 4;
  * shorter way round and a point repeating its predecessor dropped, continued
  * straight beyond its ends through reflected phantom points. Its knots are
  * spaced by the square root of each chord measured in metres, `u` by the
- * spine's length and angle by the sweep's mean radius, so the curve has no
- * cusp or loop however unevenly its points are spaced (Yuksel, Schaefer and
+ * spine's length and angle by the sweep's mean radius, so each segment has no
+ * cusp or self-intersection however unevenly its points are spaced (Yuksel, Schaefer and
  * Keyser 2011, Computer-Aided Design 43(7):747-755), and it is C1 in that
  * knot parameter. Its radius or offset follows the same parameter by
  * `interpolateAutoMovieSpline`, so it too runs smoothly along the curve. At a

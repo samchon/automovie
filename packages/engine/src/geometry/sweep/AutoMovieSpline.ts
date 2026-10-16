@@ -327,7 +327,7 @@ export namespace AutoMovieSpline {
         scratch[dp + r]! - scratch[cp + r]! * out[offset + r + 1]!;
   }
 
-  /** Whether no segment strays beyond its knots' range by more than the bound times the local variation. */
+  /** Whether the sampled fractions of every segment stay within the knot range plus the allowed local variation. */
   function within(
     xs: ArrayLike<number>,
     ys: ArrayLike<number>,

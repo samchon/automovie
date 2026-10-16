@@ -36,7 +36,7 @@ export interface IAutoMovieSurfaceCage {
     faces: number[][];
   };
 
-  /** Packed surface points `[x, y, z, ...]` the subdivision limit of each control vertex is fitted to, metres. */
+  /** Packed generating samples `[x, y, z, ...]`, metres: cell-averaged sweep samples, curve samples and blend controls. Free fitted vertices use these as limit targets; pinned rings and held blend interiors keep their declared control positions. */
   targets: number[];
 
   /** Whether each vertex is a pinned ring vertex, kept at its given position. */
