@@ -8,6 +8,7 @@ import { IAutoMovieSweepPath } from "./IAutoMovieSweepPath";
 import { IAutoMovieSweepSection } from "./IAutoMovieSweepSection";
 import { IAutoMovieSweepSurface } from "./IAutoMovieSweepSurface";
 import { IAutoMovieSweepTransport } from "./IAutoMovieSweepTransport";
+import { checkAutoMovieSweepFeature } from "./checkAutoMovieSweepFeature";
 import { compileAutoMovieSweepFeature } from "./compileAutoMovieSweepFeature";
 import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
 import { loadAutoMovieSweepSpine } from "./loadAutoMovieSweepSpine";
@@ -61,10 +62,10 @@ const STEP: number = 1e-4;
  *
  * Features next: each feature curve is the smooth curve through its points
  * that `compileAutoMovieSweepFeature` builds, and at a query point the radius
- * moves by the feature's residual at the curve's nearest point in the
- * surface's own metric, the declared radius less the guided radius there or
+ * moves by the feature's residual at the course point found by its
+ * dense-seeded local search in the cylindrical metric approximation, the declared radius less the guided radius there or
  * the declared offset, times `(1 - (d / width)^2)^3` within `width`. The
- * surface therefore passes exactly through each feature curve where no
+ * surface therefore follows each feature curve to the search's accuracy where no
  * other feature's band overlaps it, and the band has no crease along it.
  *
  * A scale profile, where the sweep gives one, multiplies the result last,
@@ -85,13 +86,13 @@ const STEP: number = 1e-4;
  * @returns The compiled surface.
  * @throws Error when the spine is refused by `frameAutoMovieSweepSpine`, a section by `sampleAutoMovieSweepSection`, a station, guide or feature is out of range, unordered or not finite, or two guides share a direction; and, when a row is first evaluated, when guides drive a radius to zero.
  *
- * @evidence contracts/common.md#principled-implementation Per-direction interpolation of key-section radii by a C2 spline under tension keeps curvature continuous through the stations and overshoot within a tenth of the local variation; guides form the Gordon surface of the station profiles and guide curves in radius, exact on every guide; features are pass-through constraints along smooth curves, applied as a compactly supported C2 bump of the residual in the surface's own metric; orientations follow the nlerp of key-section rotations from the sweep-based deformation literature. Limitation: overlapping feature bands add, so neither passes exactly through its curve there.
+ * @evidence contracts/common.md#principled-implementation Per-direction interpolation of key-section radii by a C2 spline under tension keeps curvature continuous through the stations and overshoot within a tenth of the local variation; guides form the Gordon surface of the station profiles and guide curves in radius, exact on every guide; features are pass-through constraints along smooth curves, applied as a compactly supported C2 bump of the residual in the local cylindrical metric approximation; orientations follow the nlerp of key-section rotations from the sweep-based deformation literature. Limitation: overlapping feature bands add, so neither passes exactly through its curve there.
  * @evidence contracts/common.md#clear-and-simple-design One compile owns the four layers in their fixed order; section evaluation, spine transport and orientation are delegated to their own modules, the last two shared with posed sweeps.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid stations, guides and features are refused rather than reordered or clamped, and nothing is tuned for a particular caller.
  * @evidence contracts/common.md#meaningful-documentation States each layer's rule and guarantee, the Gordon construction and how incompatible guides are resolved, the feature metric and kernel, the frame rule and its source, the overlap limitation and every refusal.
- * @evidence contracts/performance.md#efficient-algorithms For S stations, G guides, F feature segments and D = 512 directions: compile is O(S D) section sampling plus D interpolants; a new row costs O(D (log S + log G)); a point query costs O(1) on a cached row plus O(F) for features whose band reaches its `u`, with each feature's polyline unwrapped once at compile, so a query allocates nothing.
- * @evidence contracts/performance.md#reuse-equivalent-work Guided rows are cached by exact `u`, because sampling a grid queries every row at many `v`; a row depends only on the immutable compiled stations and guides, so the cache never invalidates.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The surface retains the station radii (S D numbers), the D interpolants, the spine's transport tables and at most 8,192 cached rows of D numbers, cleared when full; everything is released with the surface.
+ * @evidence contracts/performance.md#efficient-algorithms For S stations, G guides, F feature segments and D = 512 directions: compile is O(S D) section sampling plus D interpolants and each feature's O(n log n) seeds and O(n) per value-spline tension trial; a new row costs O(D (log S + log G)); a point query costs O(1) on a cached row plus O(F) for features whose band reaches its `u`, with each feature's course compiled and unwrapped once, scalar profile queries allocate nothing when every needed guided row is cached, while point and frame queries return small records.
+ * @evidence contracts/performance.md#reuse-equivalent-work The mean station radius is computed once for all feature compiles without a flattened copy. Guided rows are cached by exact `u`, because sampling a grid queries every row at many `v`; a row depends only on the immutable compiled stations and guides, so the cache never invalidates.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The surface retains the station radii (S D numbers), the D interpolants, O(16 F) feature seeds and coefficients, the spine's transport tables and at most 8,192 cached rows of D numbers, cleared when full; everything is released with the surface.
  */
 export const compileAutoMovieSweep: (
   sweep: IAutoMovieSweep,
@@ -172,23 +173,29 @@ export const compileAutoMovieSweep: (
     sweep.scale === undefined
       ? null
       : compileProfile(sweep.scale, "sweep scale");
-  (sweep.features ?? []).forEach(checkFeature);
-  const features: Array<
+  (sweep.features ?? []).forEach(checkAutoMovieSweepFeature);
+  const featureRadius: number =
+    (sweep.features?.length ?? 0) === 0
+      ? 0
+      : radii.reduce(
+          (sum: number, row: number[]): number =>
+            row.reduce(
+              (total: number, radius: number): number => total + radius,
+              sum,
+            ),
+          0,
+        ) / Math.max(1, radii.length * DIRECTIONS);
+  const features: ReturnType<typeof compileAutoMovieSweepFeature>[] = (
+    sweep.features ?? []
+  ).map(
     (
-      u: number,
-      angle: number,
-      local: number,
-      length: number,
-      guided: (u: number, angle: number) => number,
-    ) => number
-  > = (sweep.features ?? []).map((f: IAutoMovieSweep.IFeature) =>
-    compileAutoMovieSweepFeature(f, {
-      length: path.length,
-      // the sweep's mean station radius, which spaces a feature's knots in metres
-      radius:
-        radii.flat().reduce((sum: number, r: number): number => sum + r, 0) /
-        Math.max(1, radii.flat().length),
-    }),
+      f: IAutoMovieSweep.IFeature,
+    ): ReturnType<typeof compileAutoMovieSweepFeature> =>
+      compileAutoMovieSweepFeature(f, {
+        length: path.length,
+        // the sweep's mean station radius, which spaces a feature's knots in metres
+        radius: featureRadius,
+      }),
   );
 
   const cache: Map<number, Float64Array> = new Map();
@@ -216,7 +223,7 @@ export const compileAutoMovieSweep: (
     const own: number = guided(u, angle);
     let r: number = own;
     for (const feature of features)
-      r += feature(u, angle, own, path.length, guided);
+      r += feature.displacement(u, angle, own, path.length, guided);
     return r;
   };
   const scaleAt = (input: number): number =>
@@ -317,6 +324,14 @@ export const compileAutoMovieSweep: (
     path,
     step: STEP,
     loops: byParameter ? loops.length : 1,
+    feature: (index: number, t: number): { u: number; v: number } => {
+      const feature:
+        | ReturnType<typeof compileAutoMovieSweepFeature>
+        | undefined = features[index];
+      if (feature === undefined)
+        throw new Error(`sweep has no feature ${index}`);
+      return feature.point(t);
+    },
     radius,
     profile,
     scale: scaleAt,
@@ -364,7 +379,8 @@ const compileLoop = (
         throw new Error(
           `sweep station ${k} loop ${loop} must be a polygon of ${count} corners like station 0, or a curve like it`,
         );
-      const curve = parameterizeAutoMovieSweepSection(section);
+      const curve: ReturnType<typeof parameterizeAutoMovieSweepSection> =
+        parameterizeAutoMovieSweepSection(section);
       return Array.from(
         { length: count },
         (_: unknown, j: number): IAutoMovieSweepSection.IPoint =>
@@ -472,39 +488,3 @@ const guide = (
   }
   return out;
 };
-
-const checkFeature = (f: IAutoMovieSweep.IFeature, index: number): void => {
-  if (!(f.width > 0) || !Number.isFinite(f.width))
-    throw new Error(`sweep feature ${index} width must be positive and finite`);
-  if (f.points.length < 2)
-    throw new Error(`sweep feature ${index} needs at least two points`);
-  const relative: boolean = f.points[0]!.offset !== undefined;
-  f.points.forEach((p: IAutoMovieSweep.IFeaturePoint): void => {
-    if (
-      !Number.isFinite(p.at) ||
-      p.at < 0 ||
-      p.at > 1 ||
-      !Number.isFinite(p.angle)
-    )
-      throw new Error(
-        `sweep feature ${index} point lies off the surface's domain`,
-      );
-    if (
-      (p.offset !== undefined) !== relative ||
-      (p.radius !== undefined) === relative
-    )
-      throw new Error(
-        `sweep feature ${index} must give every point either a radius or an offset`,
-      );
-    if (
-      relative
-        ? !Number.isFinite(p.offset!)
-        : !Number.isFinite(p.radius!) || p.radius! <= 0
-    )
-      throw new Error(
-        `sweep feature ${index} radius must be positive and offsets finite`,
-      );
-  });
-};
-
-/** Radius change one feature makes at a query point. */

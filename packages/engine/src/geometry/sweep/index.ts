@@ -1,5 +1,6 @@
 export type { AutoMovieSurfaceTier } from "./AutoMovieSurfaceTier";
 export type { IAutoMovieSurfaceCage } from "./IAutoMovieSurfaceCage";
+export type { IAutoMovieSurfaceConstruction } from "./IAutoMovieSurfaceConstruction";
 export type { IAutoMovieSurfaceCoordinate } from "./IAutoMovieSurfaceCoordinate";
 export type { IAutoMovieSurfaceLocation } from "./IAutoMovieSurfaceLocation";
 export type { IAutoMovieSurfaceNetwork } from "./IAutoMovieSurfaceNetwork";

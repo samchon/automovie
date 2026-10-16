@@ -21,49 +21,38 @@ const NEWTON: number = 4;
  * Keyser 2011, Computer-Aided Design 43(7):747-755), and it is C1 in that
  * knot parameter. Its radius or offset follows the same parameter by
  * `interpolateAutoMovieSpline`, so it too runs smoothly along the curve. At a
- * query point the nearest point of the curve is found in the surface's own
- * metric, `u` scaled by the spine's length and angle by the query's radius
- * before features, from 16 samples a segment refined by four Newton steps on
- * the knot parameter, so the distance is the distance to the smooth curve and
- * its field has no crease where a polyline would turn; it creases only inside
- * a bend tighter than the band is wide, where two arms of the curve lie
- * equally near, so keep a band narrower than its curve's radius of
- * curvature. The radius moves by the residual there, the declared radius less
+ * query point a nearest candidate on the curve is searched in a local cylindrical
+ * metric: `u` scaled by the spine's length and angle by the query's radius
+ * before features. This approximates surface distance; it is not the arc
+ * metric of a noncircular section. The search seeds sixteen times the number
+ * of segments uniformly over the knot span and refines the nearest seed by
+ * four Newton steps. It keeps the seed if refinement moves further away;
+ * this local search does not guarantee the global nearest point. Its smooth
+ * course removes polyline corners, though a nearest-branch change inside a
+ * bend tighter than the band can still crease the field. The radius moves by the residual there, the declared radius less
  * the surface's radius at the curve or the declared offset, times
  * `(1 - (d / width)^2)^3` within `width`, a falloff with continuous curvature
  * at the band's edge.
  *
  * @param feature The feature, validated, only read.
  * @param scale The spine's length and the sweep's mean radius, metres, which set the knot spacing.
- * @returns The displacement at `u` and `angle`, given the local radius, the spine's length and the surface's radius before features.
+ * @returns The shared course in domain coordinates and the displacement at `u` and `angle`, given the local radius, spine length and pre-feature radius.
  *
- * @evidence contracts/common.md#principled-implementation A pass-through constraint along a smooth curve: the centripetal Catmull-Rom curve, which has no cusp or self-intersection within a segment, with values on the same knot parameter, the exact nearest point by Newton's method from a dense seed, and a compactly supported C2 falloff of the residual in the surface's own metric.
+ * @evidence contracts/common.md#principled-implementation A pass-through constraint along a smooth curve: the centripetal Catmull-Rom curve, which has no cusp or self-intersection within a segment, with values on the same knot parameter, a dense-seeded Newton search for a nearby course point, and a compactly supported C2 falloff in a local cylindrical metric. The metric approximates arc distance off a circle, and the local search does not guarantee a global minimum.
  * @evidence contracts/common.md#clear-and-simple-design The curve, its values and its seed samples are built once; a query is a reject on the band's `u` range, a seed scan and a short refinement.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The curve passes through every declared point and value; only a point repeating its predecessor, which adds no shape, is dropped.
- * @evidence contracts/common.md#meaningful-documentation States the curve and its knots and source, the dropped repeats, its values, the metric, the nearest-point search, the crease limitation, the residual and the falloff.
- * @evidence contracts/performance.md#efficient-algorithms For n points: compile O(n); a query outside the band's `u` range is O(1), otherwise O(16 n) for the seed plus four Newton steps, with no allocation.
+ * @evidence contracts/common.md#meaningful-documentation States the curve and its knots and source, the dropped repeats, its values, the approximate metric, the local search and its limits, the residual and the falloff.
+ * @evidence contracts/performance.md#efficient-algorithms For n points: O(n log n) seed construction plus the value spline's O(n) work per tension trial. A displacement query outside the band's `u` range is O(1), otherwise O(16 n) for the necessary nearest-seed scan plus four O(log n) Newton steps, without allocating in the displacement evaluator itself; the supplied guided-radius query owns any cache misses. A course point uses two O(log n) segment searches and allocates one domain record.
  * @evidence contracts/performance.md#reuse-equivalent-work The curve coefficients, seed samples and value spline are built once per sweep compile.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains O(16 n) seed samples, 6 n coordinates and coefficients, and the value spline, released with the sweep.
  */
 export const compileAutoMovieSweepFeature: (
   feature: IAutoMovieSweep.IFeature,
   scale: { length: number; radius: number },
-) => (
-  u: number,
-  angle: number,
-  local: number,
-  length: number,
-  guided: (u: number, angle: number) => number,
-) => number = (
+) => IOutput = (
   feature: IAutoMovieSweep.IFeature,
   scale: { length: number; radius: number },
-): ((
-  u: number,
-  angle: number,
-  local: number,
-  length: number,
-  guided: (u: number, angle: number) => number,
-) => number) => {
+): IOutput => {
   // unwrap the angles so consecutive points take the shorter way round, and drop repeats
   const relative: boolean = feature.points[0]!.offset !== undefined;
   const points: Array<{ at: number; angle: number; value: number }> = [];
@@ -149,7 +138,12 @@ export const compileAutoMovieSweepFeature: (
   ): number => {
     if (n === 1) return order === 0 ? array[0]! : 0;
     let k: number = 0;
-    while (k < n - 2 && knots[k + 1]! <= s) ++k;
+    let upper: number = n - 2;
+    while (k < upper) {
+      const middle: number = Math.ceil((k + upper) / 2);
+      if (knots[middle]! <= s) k = middle;
+      else upper = middle - 1;
+    }
     const width: number = knots[k + 1]! - knots[k]!;
     const t: number = (s - knots[k]!) / width;
     const p0: number = array[k]!;
@@ -194,7 +188,7 @@ export const compileAutoMovieSweepFeature: (
   const high: number = Math.max(...seedU);
   const wrap = (a: number): number =>
     a - 2 * Math.PI * Math.round(a / (2 * Math.PI));
-  return (
+  const displacement = (
     u: number,
     angle: number,
     local: number,
@@ -257,4 +251,26 @@ export const compileAutoMovieSweepFeature: (
       : value(s) - guided(on, direction);
     return residual * (1 - x * x) ** 3;
   };
+  return {
+    displacement,
+    point: (t: number): { u: number; v: number } => {
+      const s: number = Math.min(1, Math.max(0, t)) * end;
+      return { u: curve(xs, 0, s, 0), v: curve(ys, 1, s, 0) / (2 * Math.PI) };
+    },
+  };
 };
+
+/** The shared domain course and field, retaining the producer's compiled coefficients. */
+interface IOutput {
+  /** Displacement in metres at a domain point, given local radius, spine length and the pre-feature radius evaluator. */
+  displacement: (
+    u: number,
+    angle: number,
+    local: number,
+    length: number,
+    guided: (u: number, angle: number) => number,
+  ) => number;
+
+  /** Domain point at a clamped share of the centripetal knot span; v is in unwrapped turns and a collapsed course is constant. */
+  point: (t: number) => { u: number; v: number };
+}

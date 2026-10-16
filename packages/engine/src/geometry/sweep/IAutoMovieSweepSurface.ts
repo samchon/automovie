@@ -35,6 +35,24 @@ export interface IAutoMovieSweepSurface {
   loops: number;
 
   /**
+   * The defining course of a feature in the sweep's domain.
+   *
+   * @param index Feature index in the sweep's declaration
+   * @param t Clamped share of the complete centripetal knot span, 0 to 1
+   * @returns u along the spine and v in unwrapped turns
+   * @throws Error when the feature index does not exist
+   *
+   * @evidence contracts/common.md#principled-implementation Reads the exact domain spline the compiled displacement field uses.
+   * @evidence contracts/common.md#clear-and-simple-design One query without another feature compile.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The input polyline is never substituted for the smooth course.
+   * @evidence contracts/common.md#meaningful-documentation Gives the index, knot parameter, units and refusal.
+   * @evidence contracts/performance.md#efficient-algorithms Two O(log n) segment searches and cubic evaluations for n feature points; returns one domain record.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The surface retains the shared feature coefficients.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature; the compiled surface owns the coefficients.
+   */
+  feature(index: number, t: number): { u: number; v: number };
+
+  /**
    * Point of a loop in the section plane at a spine parameter, before the plane is placed.
    *
    * @param u Along the spine

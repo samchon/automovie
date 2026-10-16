@@ -86,11 +86,13 @@ export function test_geometry_sweep_displacement(): void {
   const expected = (u: number, v: number): number[] => {
     const e: number = 1e-4;
     const at: number = Math.min(1 - e, Math.max(e, u));
+    const before: number[] = point(at - e, v);
+    const after: number[] = point(at, v - e);
     const a: number[] = point(at + e, v).map(
-      (x: number, k: number): number => x - point(at - e, v)[k]!,
+      (x: number, k: number): number => x - before[k]!,
     );
     const b: number[] = point(at, v + e).map(
-      (x: number, k: number): number => x - point(at, v - e)[k]!,
+      (x: number, k: number): number => x - after[k]!,
     );
     const n: number[] = [
       b[1]! * a[2]! - b[2]! * a[1]!,
