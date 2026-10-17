@@ -1,6 +1,6 @@
 # Nose
 
-Covers the nose module of #2799: bridge, dorsum, tip, alae and nostrils.
+Covers the bridge, dorsum, tip, alae and nostrils.
 
 ## Dimensions by population
 

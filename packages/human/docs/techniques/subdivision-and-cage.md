@@ -8,4 +8,4 @@ Semi-sharp creases support tight turns without infinite sharpness. [The hybrid s
 
 Refined control points differ from limit points. Positions, normals, landmarks and measurements need a declared common surface meaning; a measurement of cage controls does not establish the displayed dimension. Regular bicubic evaluation and extraordinary-region evaluation have different requirements. Boundary interpolation also affects intentional openings, so a smooth interior premise cannot be applied unchanged at a lid or mouth boundary.
 
-Subdivision smoothness alone does not establish anatomical form or deformation quality. Actual viewer observation and operating policy belong to the [Human skill](../../../../.agents/skills/human/SKILL.md).
+Subdivision smoothness alone does not establish anatomical form or deformation quality.

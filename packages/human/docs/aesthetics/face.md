@@ -1,6 +1,6 @@
 # Face aesthetics
 
-What makes a generated face read as attractive, and which classic rules are not supported. Feeds the beauty judgement of #2804 and the defaults of #2798 and #2799.
+What makes a generated face read as attractive, and which classic rules are not supported. These findings inform face defaults and appearance judgment.
 
 ## Findings
 
@@ -17,7 +17,7 @@ Rules for Human (derived from the table):
 1. The default face for an identity is the population mean for its sex, age and pigmentation-linked reference population; every departure from the mean is an explicit parameter. Averageness is the one robust beauty rule, and it is free when the defaults are means.
 2. Female faces gain from femininity (smaller jaw and brow ridge relative to face size, the female values in `../anatomy/head.md`); male faces do not need exaggerated masculinity.
 3. Symmetry needs no special treatment beyond keeping generated asymmetry small and natural.
-4. Skin maps of young identities stay homogeneous; age adds patchiness (`../anatomy/skin.md`).
+4. Colour homogeneity is a perception cue; an age-driven pigment field needs its own regional scale and amplitude evidence ([skin appearance](../anatomy/skin.md)).
 5. Ratios are checks on a finished face, never generators.
 
 ## Classic ratios that the data reject

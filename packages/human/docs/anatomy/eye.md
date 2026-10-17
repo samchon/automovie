@@ -1,6 +1,6 @@
 # Eye
 
-Covers the eye module of #2799 (globe, cornea, iris, lids, canthi, fold, socket transition), the lash and brow attachment lines used by #2801, and the lid and brow motions of #2802.
+Covers the globe, cornea, iris, lids, canthi, fold and socket transition, lash and brow attachment lines, and lid and brow motions.
 
 ## Globe and cornea
 
@@ -16,7 +16,9 @@ Covers the eye module of #2799 (globe, cornea, iris, lids, canthi, fold, socket 
 | Corneal apex in front of the lateral orbital rim | adults 15.7 (1.8) mm; age 10, 13.7; elderly 15.3 | 2,010 Han Chinese, Hertel | measured | `../sources/wu-2015-hertel-chinese.md` |
 | Orbital margin | height 41 to 43 mm, width 35 to 36 mm, depth 48 mm | CT, as above | measured | Bekerman 2014 |
 
-Construction (derived): the globe is a slightly oblate ellipsoid of about 24.2 × 23.7 × 23.4 mm, sex- and age-independent in adults. The cornea is a spherical cap of radius 7.6 to 7.7 mm whose base circle is the limbus (diameter = iris diameter about 11.4 to 12.1 mm). Cap height h = r - √(r² - (d/2)²) gives about 2.8 mm for r 7.64 mm and d 11.8 mm, close to the 3 mm anterior chamber depth that places the iris plane behind the corneal apex. The corneal bulge is what moves the upper lid as the eye looks around; it must be geometry in the eyeball mesh, not a texture. The globe's forward position comes from the Hertel value relative to the lateral orbital rim.
+Construction (derived): the globe is a slightly oblate ellipsoid of about 24.2 × 23.7 × 23.4 mm, sex- and age-independent in adults. Its forward position comes from the Hertel value relative to the lateral orbital rim.
+
+The cornea is a spherical cap of radius 7.6 to 7.7 mm whose base circle is the limbus (diameter = iris diameter about 11.4 to 12.1 mm). Cap height h = r - √(r² - (d/2)²) gives about 2.8 mm for r 7.64 mm and d 11.8 mm, close to the 3 mm anterior chamber depth that places the iris plane behind the corneal apex. The corneal bulge moves the upper lid as the eye looks around, so it must be geometry in the eyeball mesh, not a texture.
 
 Globe size barely varies with face size (transverse 21 to 27 mm across all adults; no sex or age effect), so a small face reads as having large eyes. Children's globes were not covered by the sources read.
 

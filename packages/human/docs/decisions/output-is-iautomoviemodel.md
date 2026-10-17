@@ -13,4 +13,4 @@ Public input types live in `packages/human/src/structures` and stay typed end to
 ## Consequences
 
 - Anything Human needs to express in its output that `IAutoMovieModel` cannot carry is a core gap; the [core survey](../core/gaps.md) separates implemented capabilities from remaining proposals.
-- The archetype recipe retirement (#2805) is migration history. Current work follows the [workspace checkpoint](../README.md), rather than waiting for that retirement again.
+- The archetype recipe retirement is migration history, not a prerequisite for generating or consuming the output model.

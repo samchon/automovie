@@ -1,6 +1,6 @@
 # Skinning
 
-Human's joined skin uses placeholder distance-based weights. A valid joint angle does not establish acceptable tissue deformation. [#2843](https://github.com/samchon/automovie/issues/2843) leaves the choice among posed tube re-sweeps, branch/face weights and anatomical correctives unresolved.
+Human's joined skin uses placeholder distance-based weights. A valid joint angle does not establish acceptable tissue deformation. The choice among posed tube re-sweeps, branch/face weights and anatomical correctives remains unresolved.
 
 ## Choice of deformation
 
@@ -17,4 +17,4 @@ No blend alone supplies elbow, knee, shoulder or hip tissue folds. [SMPL](../sou
 
 [Pinocchio](../sources/baran-popovic-2007-pinocchio.md) derives weights from heat equilibrium, [bounded biharmonic weights](../sources/jacobson-2011-bounded-biharmonic-weights.md) from constrained smoothness, and [geodesic voxel binding](../sources/maya-geodesic-voxel-binding.md) from volumetric distance. Their geometry and boundary assumptions differ from formulas using known part, station and angular semantics. Neither family has been established as Human's replacement.
 
-Four influence slots limit the delivered weights. Keeping and normalizing the largest four can discard meaningful branch influence; the slot count does not establish deformation quality. DQS rotation limits concern actual relative influenced-bone rotations, not merely each admitted joint angle. Viewer observation and operating policy belong to the [Human skill](../../../../.agents/skills/human/SKILL.md).
+Four influence slots limit the delivered weights. Keeping and normalizing the largest four can discard meaningful branch influence; the slot count does not establish deformation quality. DQS rotation limits concern actual relative influenced-bone rotations, not merely each admitted joint angle.

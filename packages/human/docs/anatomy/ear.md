@@ -1,6 +1,6 @@
 # Ear
 
-Covers the ear part of #2799: a separate part joined at its attachment ring through #2795, generated from ear length, breadth and protrusion.
+The ear is a separate part joined at its attachment ring, generated from ear length, breadth and protrusion.
 
 ## Morphology (Gray 1918, conventional)
 

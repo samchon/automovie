@@ -16,4 +16,4 @@ Paper copyright ACM, posted by permission for personal use. Human takes the meth
 
 ## What Human takes
 
-DQS as the base blend, with antipodality resolved, rigid joints only, and the flip excluded by the admitted range of motion (`../techniques/skinning.md`).
+DQS as a comparison baseline for rigid joint transforms, with antipodality resolved. Considering scale or shear would require separate non-rigid handling. The flip restriction concerns relative influenced-bone rotations; per-joint admission alone does not establish it. DQS also leaves tissue folds and joint bulging unresolved; see [skinning research](../techniques/skinning.md).

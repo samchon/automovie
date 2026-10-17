@@ -28,6 +28,10 @@ Elbow centre is 13.9 to 16.8 mm proximal to radiale and the wrist centre 1.5 to 
 
 The ANSUR arm girths are contracted; a relaxed rest-pose arm must use NHANES mid-upper arm circumference. Per BMI unit the flexed biceps girth gains about 7 mm and the wrist about 1.2 mm (`body-composition.md`), so the arm tapers more steeply as adiposity rises.
 
+## Carrying angle
+
+Kaewpornsawan et al. 2018 (`../sources/kaewpornsawan-2018-carrying-angle.md`) supplies `carryingAngle` per arm: slightly varus at birth, about 6 degrees at 2 to 6 years and 11 from 15, girls 8.5 against boys 6.9. No adult series by sex was read, so adults hold the 16-year value (12.3 women, 10.0 men).
+
 ## Superficial muscles
 
 From Gray 1918 and Bridgman (`../sources/gray-1918.md`, `../sources/bridgman-1920.md`), conventional.
@@ -55,7 +59,6 @@ From Gray 1918 and Bridgman (`../sources/gray-1918.md`, `../sources/bridgman-192
 
 ## Open questions
 
-- Carrying angle: now `carryingAngle` per arm from Kaewpornsawan et al. 2018 (`../sources/kaewpornsawan-2018-carrying-angle.md`), slightly varus at birth, about 6 degrees at 2 to 6 years and 11 from 15, girls 8.5 against boys 6.9; no adult series by sex was read, so adults hold the 16-year value (12.3 women, 10.0 men).
 - The longitudinal girth profile (where each girth peaks between elbow and wrist, and between the cut and the elbow) has no measured source; it must follow from muscle placement and be checked against the ANSUR and NHANES girths.
 - Relaxed versus contracted biceps girth difference: not read.
-- Forearm pronation and supination twist the forearm cross-section; how the radius crossing the ulna changes the surface needs a source (#2800).
+- Forearm pronation and supination twist the forearm cross-section; how the radius crossing the ulna changes the surface needs a source.

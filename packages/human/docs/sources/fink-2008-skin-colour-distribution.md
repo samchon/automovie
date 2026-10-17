@@ -10,4 +10,4 @@ Grade: measured perception, abstract level.
 
 ## What Human takes
 
-Colour homogeneity is an age and attractiveness cue independent of shape and relief: pigment and hemoglobin maps of young identities stay even, and age adds patchiness.
+Colour homogeneity is an age and attractiveness cue independent of shape and relief. The perception study does not calibrate individual pigment or hemoglobin fields, regional variation or an age-only patchiness rule; see [skin appearance](../anatomy/skin.md).

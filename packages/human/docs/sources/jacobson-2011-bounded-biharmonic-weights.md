@@ -13,4 +13,4 @@ Paper copyright ACM. Read for technique comparison only.
 
 ## What Human takes
 
-Nothing for generation; listed with heat diffusion and geodesic voxel binding as the automatic-weight family Human replaces with analytic weights (`../techniques/skinning.md`).
+A candidate weight construction to compare with heat diffusion, geodesic voxel binding and semantic analytic weights in [skinning research](../techniques/skinning.md).

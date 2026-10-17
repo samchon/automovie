@@ -15,4 +15,4 @@ Paper copyright ACM. The paper states that the model "is available for research 
 
 ## What Human takes
 
-The evidence that correctives are needed with either blend, and the form of a corrective driven by rotation elements, which Human writes as formulas instead of learning (`../techniques/skinning.md`).
+The evidence that correctives are needed with either blend, and their formulation in rotation elements, inform candidate formula-generated correctives in [skinning research](../techniques/skinning.md).

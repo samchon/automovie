@@ -15,4 +15,4 @@ Product documentation under Autodesk's terms. Read for technique comparison only
 
 ## What Human takes
 
-Nothing for generation. Human's cage is closed, manifold and semantic, so weights come from formulas (`../techniques/skinning.md`).
+A candidate to compare with analytic weights derived from part, station and angular semantics. A semantic cage alone does not establish a suitable weight field; [skinning research](../techniques/skinning.md) compares the deformation premises.

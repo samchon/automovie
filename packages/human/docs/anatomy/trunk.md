@@ -81,7 +81,7 @@ Biacromial / bicristal breadth 1.344 (women) against 1.513 (men); bideltoid / hi
 - Muscle relief depth per muscularity level: no source quantifies how far each belly stands above the fat layer.
 - The shape of each cross-section beyond breadth, depth and perimeter needs source-specific calibration. Reference data can supply offline section and feature-curve fits; only named coefficients enter the package, with population and protocol limits retained, never reference mesh or morph data.
 - Clavicle and scapula dimensions for the shoulder girdle form were not read.
-- How the armpit and groin hollows deform under abduction belongs to #2800 and has no source yet.
+- How the armpit and groin hollows deform under abduction has no source yet.
 
 ## Fold-plane correspondence
 

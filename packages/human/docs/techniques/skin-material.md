@@ -8,4 +8,4 @@ Regional tint can follow the joined surface without assigning separate anatomica
 
 Micro-relief uses a rest-millimetre procedural field baked into a detail normal atlas. Its periodic source, axes, dimensions and depth remain conventions. A normal map changes shading without papule silhouette displacement, and unresolved normal variance is not calibrated roughness. [Procedural skin fields](procedural-skin-fields.md) owns the units, sampling assumptions and remaining limits.
 
-Generated images travel with the model, but image delivery alone does not establish appearance, filtering or save/resume behavior. Viewer observation and operating policy belong to the [Human skill](../../../../.agents/skills/human/SKILL.md).
+Generated images travel with the model, but image delivery alone does not establish appearance, filtering or save/resume behavior.

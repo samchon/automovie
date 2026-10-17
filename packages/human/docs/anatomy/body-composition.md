@@ -45,7 +45,11 @@ Appendicular lean mass index (men, White): 8.87 kg/m2 at 20, 9.12 at 40, 8.44 at
 
 ## Fat and lean apart
 
-Adiposity and muscularity each move body fat and the appendicular lean mass index by two of their DXA reference's standard deviations per unit (Kelly et al. 2009 σ columns; Zemel et al. 2023 S times M), and BMI follows as FFMI / (1 - fat) with FFMI scaled from the median person by limb lean mass. Girths read fat and lean apart, in cross-sectional area: ANSUR II girths are fitted as `girth² / stature` on BMI and age, so at fixed composition a girth grows as the square root of stature and composition adds area. In the sample's tall, slim corner (BMI under 20.5, tallest quarter) girths linear in stature came out 9 to 17 mm too wide at the buttock and thigh and the area form within 2, at equal R². The fat and lean split comes from our NHANES fits (2017-2018 waist, hip, arm; 1999-2004 thigh, calf; adults 18 to 40) of `girth² / stature` on fat mass index and appendicular lean mass index, as multiples of the same form's BMI coefficient:
+Adiposity and muscularity each move body fat and the appendicular lean mass index by two of their DXA reference's standard deviations per unit (Kelly et al. 2009 σ columns; Zemel et al. 2023 S times M). BMI follows as FFMI / (1 - fat), with FFMI scaled from the median person by limb lean mass.
+
+Girths read fat and lean apart, in cross-sectional area: ANSUR II girths are fitted as `girth² / stature` on BMI and age, so at fixed composition a girth grows as the square root of stature and composition adds area. In the sample's tall, slim corner (BMI under 20.5, tallest quarter), girths linear in stature came out 9 to 17 mm too wide at the buttock and thigh and the area form within 2, at equal R².
+
+The fat and lean split comes from our NHANES fits (2017-2018 waist, hip, arm; 1999-2004 thigh, calf; adults 18 to 40) of `girth² / stature` on fat mass index and appendicular lean mass index, as multiples of the same form's BMI coefficient:
 
 | Site | Men fat / lean | Women fat / lean |
 | --- | --- | --- |

@@ -1,6 +1,6 @@
 # Human research
 
-Research notes on anatomical measurements, source protocols, reconstruction methods and rejected approaches. Package usage is in the [Human README](../README.md).
+Research notes on anatomical measurements, source protocols, reconstruction methods and rejected approaches. For package usage, read the [Human README](../README.md); for viewer inspection and operating policy, read the [Human skill](../../../.agents/skills/human/SKILL.md).
 
 | Directory | Contents |
 | --- | --- |

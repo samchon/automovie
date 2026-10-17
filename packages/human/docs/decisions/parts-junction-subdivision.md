@@ -2,7 +2,7 @@
 
 ## Decision
 
-Build the skeleton first on `AutoMovieHumanoidBone` and `HUMANOID_REST_FRAME`. Part generators emit quad control cages with typed boundary rings. One junction module joins rings on cages, and one Catmull-Clark subdivision runs over the whole joined cage. Landmarks are semantic coordinates, never vertex indices. This preserves the construction decision; the [current checkpoint](../README.md) separates its implementation from remaining anatomy and visual acceptance.
+Build the skeleton first on `AutoMovieHumanoidBone` and `HUMANOID_REST_FRAME`. Part generators emit quad control cages with typed boundary rings. One junction module joins rings on cages, and one Catmull-Clark subdivision runs over the whole joined cage. Landmarks are semantic coordinates, never vertex indices. This construction decision does not establish anatomical form or visual acceptance.
 
 A part is a region of one continuous mass, cut only where the cross-section is a simple tube: mid upper arm, mid thigh, wrist, ankle, neck, and the ear attachment. The shoulder, armpit, hip and groin stay inside the trunk because the deltoid, trapezius and gluteus maximus cross them. Facial features are generator modules that shape one continuous face surface; eyeballs, teeth, tongue, nails and hair are separate meshes.
 

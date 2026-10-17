@@ -1,6 +1,6 @@
 # Mouth, teeth and tongue
 
-Covers the mouth module of #2799 (lips, vermilion, cupid's bow, philtrum, commissures) and the teeth and tongue meshes sized from the jaw.
+Covers lips, vermilion, cupid's bow, philtrum and commissures, and the teeth and tongue meshes sized from the jaw.
 
 ## Lips and philtrum
 

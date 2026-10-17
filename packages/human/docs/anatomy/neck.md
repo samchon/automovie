@@ -1,6 +1,6 @@
 # Neck
 
-Covers the neck part of #2798: circumference and length, sternocleidomastoid and trapezius form, the laryngeal prominence, and the joins to the trunk and head through #2795.
+Covers neck circumference and length, sternocleidomastoid and trapezius form, the laryngeal prominence, and the joins to the trunk and head.
 
 ## Circumference
 

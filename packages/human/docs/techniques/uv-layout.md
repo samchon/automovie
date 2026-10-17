@@ -12,4 +12,4 @@ The current hand separates logical texture coordinates from physical sweep addre
 
 Equal logical bands, rectangular web/cap domains and the palmar texture cut are chart conventions, not anatomical measurements. Additional cuts create render aliases without changing the physical skin. The legacy layout remains explicitly addressable for existing textures.
 
-Hand chart invariance does not establish invariance for every other part. Filtering across separate web/cap rectangles, mip behavior and physical stretch remain material-appearance limits. Actual viewer observation and operating policy belong to the [Human skill](../../../../.agents/skills/human/SKILL.md).
+Hand chart invariance does not establish invariance for every other part. Filtering across separate web/cap rectangles, mip behavior and physical stretch remain material-appearance limits.

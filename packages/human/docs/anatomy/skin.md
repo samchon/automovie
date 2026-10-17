@@ -1,6 +1,6 @@
 # Skin appearance
 
-Covers the skin half of #2801: pigmentation parameters, colour, translucency, specular and micro-relief, as values. Rendering technique and delivery live in `../techniques/skin-material.md`.
+Covers pigmentation parameters, colour, translucency, specular and micro-relief, as values. Rendering technique and delivery live in `../techniques/skin-material.md`.
 
 ## Layered optical model
 

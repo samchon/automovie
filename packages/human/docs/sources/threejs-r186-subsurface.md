@@ -25,4 +25,6 @@ Exposes sheen (colour, roughness), anisotropy (strength, rotation, map), specula
 
 ## What Human takes
 
-Back-lit translucency of the ear and nostril rim needs a spatially varying thickness, while `IAutoMovieMaterial.thickness` is one scalar for dielectric transmission and the viewer's `subsurfaceRadius` approximation handles only lateral diffusion of front light. Anisotropy for hair and sheen for vellus and lashes exist in the renderer but not in the interface.
+`IAutoMovieMaterial` exposes transmission thickness and a thickness texture, plus anisotropy and sheen; `packages/viewer/src/buildMaterial.ts` maps them to the physical material. These channels do not establish Human's thickness field, hair or vellus appearance.
+
+Back-lit translucency of the ear and nostril rim needs spatially varying optical thickness and suitable transport. The viewer's separate curvature-based `subsurfaceRadius` approximation is not measured lateral diffusion; see [skin material](../techniques/skin-material.md).

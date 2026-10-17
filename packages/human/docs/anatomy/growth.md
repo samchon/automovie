@@ -1,6 +1,6 @@
 # Growth and ageing
 
-Human must build a person of any age from the same parameters, with age-dependent proportions taken from growth data rather than from scaling an adult (#2793). This file collects how stature, proportions, breadths and posture change from birth to old age.
+Human must build a person of any age from the same parameters, with age-dependent proportions taken from growth data rather than from scaling an adult. This file collects how stature, proportions, breadths and posture change from birth to old age.
 
 ## Stature for age
 

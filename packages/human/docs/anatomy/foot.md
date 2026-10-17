@@ -1,6 +1,6 @@
 # Foot
 
-The foot is a separate part joined at the ankle (#2797). `AutoMovieHumanoidBone` gives one `leftFoot`/`rightFoot` and one `leftToes`/`rightToes` per side, so the five toes share one bone.
+The foot is a separate part joined at the ankle. `AutoMovieHumanoidBone` gives one `leftFoot`/`rightFoot` and one `leftToes`/`rightToes` per side, so the five toes share one bone.
 
 ## Dimensions
 
@@ -41,7 +41,7 @@ Soucie et al. (`../sources/soucie-2011.md`, measured): ankle dorsiflexion 13.8 (
 
 ## Toe joints
 
-The single toes bone can carry the metatarsophalangeal bend shared by all toes (the push-off hinge along the line of the metatarsal heads, through the first MTP at 0.74 of foot length; the fifth MTP position, and so the obliquity of the line, is an open question). Individual toe flexion would need Human-internal joints; #2797 decides whether they exist.
+The single toes bone can carry the metatarsophalangeal bend shared by all toes (the push-off hinge along the line of the metatarsal heads, through the first MTP at 0.74 of foot length; the fifth MTP position, and so the obliquity of the line, is an open question). Individual toe flexion would need Human-internal joints; their design remains unresolved.
 
 ## Open questions
 
