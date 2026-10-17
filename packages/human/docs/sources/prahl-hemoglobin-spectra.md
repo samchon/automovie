@@ -1,6 +1,6 @@
 # Prahl, optical absorption of hemoglobin
 
-Prahl S. "Optical Absorption of Hemoglobin." Oregon Medical Laser Center, compiled 1999 from several sources. Read at https://omlc.org/spectra/hemoglobin/ and the tabulated data https://omlc.org/spectra/hemoglobin/summary.html.
+Prahl S. "Optical Absorption of Hemoglobin." Oregon Medical Laser Center, compiled 1999 from several sources. [Overview](https://omlc.org/spectra/hemoglobin/) and [tabulated data](https://omlc.org/spectra/hemoglobin/summary.html).
 
 ## Licence
 

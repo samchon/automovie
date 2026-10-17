@@ -9,11 +9,11 @@ import { IAutoMovieHumanHeadForm } from "./IAutoMovieHumanHeadForm";
 import { capAutoMovieHumanHead } from "./capAutoMovieHumanHead";
 import { columnAutoMovieHumanHead } from "./columnAutoMovieHumanHead";
 import { layoutAutoMovieHumanFaceRows } from "./layoutAutoMovieHumanFaceRows";
-import { rowsAutoMovieHumanFace } from "./rowsAutoMovieHumanFace";
 import { locateAutoMovieHumanHeadRing } from "./locateAutoMovieHumanHeadRing";
 import { loopAutoMovieHumanEyelids } from "./loopAutoMovieHumanEyelids";
 import { loopAutoMovieHumanLips } from "./loopAutoMovieHumanLips";
 import { pinAutoMovieHumanHeadRing } from "./pinAutoMovieHumanHeadRing";
+import { rowsAutoMovieHumanFace } from "./rowsAutoMovieHumanFace";
 
 /**
  * Lay the head's quads over its sweep: the same connectivity for every person, placed by the person's anatomy.
@@ -70,7 +70,11 @@ export function layoutAutoMovieHumanHead(props: {
     (_: unknown, k: number): number => (hairline * k) / ROWS.vault,
   );
   const faceRows: number[] = rowsAutoMovieHumanFace({
-    domain, head, form: props.form, hairline, counts: ROWS,
+    domain,
+    head,
+    form: props.form,
+    hairline,
+    counts: ROWS,
   });
   const previous: number = faceRows[faceRows.length - 1]!;
   // the chin's rows end on the jawline, the plane through gnathion, and the reductions and the ring's row share the chin's underside
@@ -115,18 +119,28 @@ export function layoutAutoMovieHumanHead(props: {
       ),
   );
   // the face block over lines 12 to 48, its top row the vault's last
-  const face: AutoMovieHumanHeadNetwork.IPoint[][] = layoutAutoMovieHumanFaceRows({
-    domain, network, head, form: props.form, rows: faceRows,
-    columns: lines.slice(12, 12 + FRONT + 1),
-    vault: vault[ROWS.vault]!.slice(12, 12 + FRONT + 1),
-    nasalStart: ROWS.forehead + ROWS.eyes, nasalCount: ROWS.nose,
-  });
+  const face: AutoMovieHumanHeadNetwork.IPoint[][] =
+    layoutAutoMovieHumanFaceRows({
+      domain,
+      network,
+      head,
+      form: props.form,
+      rows: faceRows,
+      columns: lines.slice(12, 12 + FRONT + 1),
+      vault: vault[ROWS.vault]!.slice(12, 12 + FRONT + 1),
+      nasalStart: ROWS.forehead + ROWS.eyes,
+      nasalCount: ROWS.nose,
+    });
   // the side block from line 48 round the back to line 12, its top row the vault's last
   const sideLine: (m: number) => number = (m: number): number => (48 + m) % C;
   // Every face row continues into the side; toward the ears and back, the same rows take the ears' spacing.
   const edgeRow: (s: number) => number = (s: number): number =>
     along(
-      face.map((row: AutoMovieHumanHeadNetwork.IPoint[]): AutoMovieHumanHeadNetwork.IPoint => row[FRONT]!),
+      face.map(
+        (
+          row: AutoMovieHumanHeadNetwork.IPoint[],
+        ): AutoMovieHumanHeadNetwork.IPoint => row[FRONT]!,
+      ),
       false,
       (s * R) / S,
     ).u;
@@ -141,10 +155,14 @@ export function layoutAutoMovieHumanHead(props: {
         (_: unknown, m: number): AutoMovieHumanHeadNetwork.IPoint =>
           s === 0
             ? vault[ROWS.vault]![sideLine(m)]!
-            : m === 0 ? face[s]![FRONT]! : m === SIDE ? face[s]![0]! : network.on(
-                edgeRow(s) + (u - edgeRow(s)) * toEar(m),
-                lines[sideLine(m)]!,
-              ),
+            : m === 0
+              ? face[s]![FRONT]!
+              : m === SIDE
+                ? face[s]![0]!
+                : network.on(
+                    edgeRow(s) + (u - edgeRow(s)) * toEar(m),
+                    lines[sideLine(m)]!,
+                  ),
       ),
   );
   const at: (

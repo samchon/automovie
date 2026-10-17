@@ -35,23 +35,32 @@ export function curveAutoMovieHumanNose(props: {
     );
     return (
       frame.nasion.z +
-      (zTip - frame.nasion.z) * Math.pow(t, form.dorsumCurve) * (1 + form.dorsumCurve * (1 - t))
+      (zTip - frame.nasion.z) *
+        Math.pow(t, form.dorsumCurve) *
+        (1 + form.dorsumCurve * (1 - t))
     );
   };
   // The meridian's two endpoint values and zero tip/base slopes determine
   // the unique cubic underside; a square-root cutoff had an infinite base slope.
   const tipHeight: number = zTip - profile.front(yTip);
-  const nose: (x: number, y: number) => number = (x: number, y: number): number => {
+  const nose: (x: number, y: number) => number = (
+    x: number,
+    y: number,
+  ): number => {
     if (y > yNasion || y < ySub) return 0;
     const s: number = (yNasion - y) / (yNasion - ySub);
     const height: number =
       s <= tipShare
         ? Math.max(0, dorsum(y) - profile.front(y))
-        : Math.max(0, zTip + (profile.subnasale.z - zTip) *
-          smooth(0, 1, (s - tipShare) / (1 - tipShare)) - profile.front(y));
+        : Math.max(
+            0,
+            zTip +
+              (profile.subnasale.z - zTip) *
+                smooth(0, 1, (s - tipShare) / (1 - tipShare)) -
+              profile.front(y),
+          );
     const half: number =
-      f.noseWidth *
-      lerp(form.bridge, form.ala, smooth(0, tipShare, s));
+      f.noseWidth * lerp(form.bridge, form.ala, smooth(0, tipShare, s));
     const t: number = Math.abs(x) / half;
     const ridge: number =
       t >= 1
@@ -75,7 +84,11 @@ export function curveAutoMovieHumanNose(props: {
     return Math.max(ridge, ala);
   };
 
-  return { tip: { y: yTip, z: zTip }, alarY: (yTip + ySub) / 2, displacement: nose };
+  return {
+    tip: { y: yTip, z: zTip },
+    alarY: (yTip + ySub) / 2,
+    displacement: nose,
+  };
 }
 /** Output contract of the named physical source courses. */
 export namespace curveAutoMovieHumanNose {
@@ -94,7 +107,9 @@ export namespace curveAutoMovieHumanNose {
     displacement: (x: number, y: number) => number;
   }
 }
-function lerp(a: number, b: number, t: number): number { return a + (b - a) * t; }
+function lerp(a: number, b: number, t: number): number {
+  return a + (b - a) * t;
+}
 function smooth(a: number, b: number, x: number): number {
   const t: number = Math.min(1, Math.max(0, (x - a) / (b - a)));
   return t * t * (3 - 2 * t);

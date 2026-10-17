@@ -4,7 +4,7 @@ Epic Games, "Working with Modular Characters", https://dev.epicgames.com/documen
 
 ## Licence
 
-Documentation under Epic's terms. Read for practice only.
+Documentation under Epic's terms; technique reference only.
 
 ## What it says
 

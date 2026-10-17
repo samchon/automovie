@@ -16,7 +16,11 @@ export function profileAutoMovieHumanTrunk(
 ): profileAutoMovieHumanTrunk.IProfile {
   const F: IAutoMovieHumanTrunkForm = AUTOMOVIE_HUMAN_TRUNK_FORM;
   const L: IAutoMovieHumanTrunkFrame.ILevels = frame.levels;
-  const lerp: (a: number, b: number, t: number) => number = (a: number, b: number, t: number): number => a + (b - a) * t;
+  const lerp: (a: number, b: number, t: number) => number = (
+    a: number,
+    b: number,
+    t: number,
+  ): number => a + (b - a) * t;
   const B: IAutoMovieHumanTrunkFrame.ISection = frame.buttock;
   const W: IAutoMovieHumanTrunkFrame.ISection = frame.waist;
   const C: IAutoMovieHumanTrunkFrame.ISection = frame.chest;
@@ -56,39 +60,60 @@ export function profileAutoMovieHumanTrunk(
     breadth: F.hip.breadth * B.breadth,
     back: lerp(buttock.back, crest.back, F.hip.level),
     widest: lerp(buttock.widest, crest.widest, F.hip.level),
-    front: Math.exp(lerp(Math.log(buttock.front), Math.log(crest.front), F.hip.level)),
-    rear: Math.exp(lerp(Math.log(buttock.rear), Math.log(crest.rear), F.hip.level)),
+    front: Math.exp(
+      lerp(Math.log(buttock.front), Math.log(crest.front), F.hip.level),
+    ),
+    rear: Math.exp(
+      lerp(Math.log(buttock.rear), Math.log(crest.rear), F.hip.level),
+    ),
   };
   function fork(y: number, form: IAutoMovieHumanTrunkForm.IFork): IKey {
     const back: number = buttock.back + form.back * buttock.depth;
-    const front: number = buttock.back +
+    const front: number =
+      buttock.back +
       (form.front + form.fat * (frame.fat - REFERENCE_FAT)) * buttock.depth;
-    return {y, back, depth:front-back, breadth:form.breadth*B.breadth,
-      widest:0.5, front:buttock.front, rear:buttock.rear};
+    return {
+      y,
+      back,
+      depth: front - back,
+      breadth: form.breadth * B.breadth,
+      widest: 0.5,
+      front: buttock.front,
+      rear: buttock.rear,
+    };
   }
   const family: interpolateAutoMovieHumanTrunkSection.IFamily =
-    interpolateAutoMovieHumanTrunkSection([
-      fork(L.gluteal, F.gluteal), fork(L.crotch, F.crotch), ...keys, hip,
-    ].map((key: IKey): interpolateAutoMovieHumanTrunkSection.ISection => ({
-      height:key.y, centre:key.back + key.widest*key.depth,
-      forward:(1-key.widest)*key.depth, backward:key.widest*key.depth,
-      half:key.breadth/2, frontExponent:key.front, backExponent:key.rear,
-    })));
+    interpolateAutoMovieHumanTrunkSection(
+      [fork(L.gluteal, F.gluteal), fork(L.crotch, F.crotch), ...keys, hip].map(
+        (key: IKey): interpolateAutoMovieHumanTrunkSection.ISection => ({
+          height: key.y,
+          centre: key.back + key.widest * key.depth,
+          forward: (1 - key.widest) * key.depth,
+          backward: key.widest * key.depth,
+          half: key.breadth / 2,
+          frontExponent: key.front,
+          backExponent: key.rear,
+        }),
+      ),
+    );
   return {
     ...family,
     front: (y: number): number => {
-      const section: interpolateAutoMovieHumanTrunkSection.ISection = family.at(y);
+      const section: interpolateAutoMovieHumanTrunkSection.ISection =
+        family.at(y);
       return section.centre + section.forward;
     },
     back: (y: number): number => {
-      const section: interpolateAutoMovieHumanTrunkSection.ISection = family.at(y);
+      const section: interpolateAutoMovieHumanTrunkSection.ISection =
+        family.at(y);
       return section.centre - section.backward;
     },
     half: (y: number): number => family.at(y).half,
     widest: (y: number): number => family.at(y).centre,
-    squareness: (y: number): {front:number;back:number} => {
-      const section: interpolateAutoMovieHumanTrunkSection.ISection = family.at(y);
-      return {front:section.frontExponent,back:section.backExponent};
+    squareness: (y: number): { front: number; back: number } => {
+      const section: interpolateAutoMovieHumanTrunkSection.ISection =
+        family.at(y);
+      return { front: section.frontExponent, back: section.backExponent };
     },
   };
 }
@@ -99,7 +124,8 @@ export namespace profileAutoMovieHumanTrunk {
    *
    * @author Samchon
    */
-  export interface IProfile extends interpolateAutoMovieHumanTrunkSection.IFamily {
+  export interface IProfile
+    extends interpolateAutoMovieHumanTrunkSection.IFamily {
     /** Front of the midline at a height. */
     front: (y: number) => number;
 
@@ -141,13 +167,23 @@ interface IKey {
 const REFERENCE_FAT: number = 15;
 
 /** Share of the depth the back lies behind the column at the frame's body fat. */
-const behindOf: (frame: IAutoMovieHumanTrunkFrame, form: IAutoMovieHumanTrunkForm.IPlacement) => number = (
+const behindOf: (
+  frame: IAutoMovieHumanTrunkFrame,
+  form: IAutoMovieHumanTrunkForm.IPlacement,
+) => number = (
   frame: IAutoMovieHumanTrunkFrame,
   form: IAutoMovieHumanTrunkForm.IPlacement,
 ): number => form.behind + form.fat * (frame.fat - REFERENCE_FAT);
 
 /** A key level whose squareness is solved from its circumference. */
-const measured: (frame: IAutoMovieHumanTrunkFrame, y: number, depth: number, breadth: number, girth: number, form: IAutoMovieHumanTrunkForm.IMeasured) => IKey = (
+const measured: (
+  frame: IAutoMovieHumanTrunkFrame,
+  y: number,
+  depth: number,
+  breadth: number,
+  girth: number,
+  form: IAutoMovieHumanTrunkForm.IMeasured,
+) => IKey = (
   frame: IAutoMovieHumanTrunkFrame,
   y: number,
   depth: number,
@@ -189,7 +225,13 @@ const measured: (frame: IAutoMovieHumanTrunkFrame, y: number, depth: number, bre
 };
 
 /** A key level whose breadth is solved so its section's perimeter is the girth at the given squareness. */
-const encircled: (frame: IAutoMovieHumanTrunkFrame, y: number, depth: number, girth: number, form: IAutoMovieHumanTrunkForm.IEncircled) => IKey = (
+const encircled: (
+  frame: IAutoMovieHumanTrunkFrame,
+  y: number,
+  depth: number,
+  girth: number,
+  form: IAutoMovieHumanTrunkForm.IEncircled,
+) => IKey = (
   frame: IAutoMovieHumanTrunkFrame,
   y: number,
   depth: number,
@@ -222,7 +264,13 @@ const encircled: (frame: IAutoMovieHumanTrunkFrame, y: number, depth: number, gi
 const BREADTH: { low: number; high: number } = { low: 0.5, high: 4 };
 
 /** A key level whose squareness is given. */
-const derived: (frame: IAutoMovieHumanTrunkFrame, y: number, depth: number, breadth: number, form: IAutoMovieHumanTrunkForm.IDerived) => IKey = (
+const derived: (
+  frame: IAutoMovieHumanTrunkFrame,
+  y: number,
+  depth: number,
+  breadth: number,
+  form: IAutoMovieHumanTrunkForm.IDerived,
+) => IKey = (
   frame: IAutoMovieHumanTrunkFrame,
   y: number,
   depth: number,
@@ -239,7 +287,11 @@ const derived: (frame: IAutoMovieHumanTrunkFrame, y: number, depth: number, brea
 });
 
 /** Length of the superellipse quarter `x = a cos^(2/n) t`, `y = b sin^(2/n) t` for `t` from 0 to a right angle. */
-const quarter: (a: number, b: number, n: number) => number = (a: number, b: number, n: number): number => {
+const quarter: (a: number, b: number, n: number) => number = (
+  a: number,
+  b: number,
+  n: number,
+): number => {
   let length: number = 0;
   let px: number = a;
   let py: number = 0;

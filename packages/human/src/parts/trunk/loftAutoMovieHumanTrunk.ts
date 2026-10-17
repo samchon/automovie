@@ -59,10 +59,16 @@ const GUSSET: number = 1 / 18;
 /**
  * The front and back strips' columns at the crotch and above the lower abdomen. Below the abdomen each strip carries two more columns, which the gusset between the thighs needs; a transition band two rows above the buttock level sheds them, where the sweep is gently curved along the spine and the references carry poles in the lower abdomen and the lower back.
  */
-const LOWER_COLUMNS: { readonly below: 6; readonly above: 4 } = { below: 6, above: 4 } as const;
+const LOWER_COLUMNS: { readonly below: 6; readonly above: 4 } = {
+  below: 6,
+  above: 4,
+} as const;
 
 /** The row above the buttock level where the transition band starts, and its rows. */
-const LOWER_TRANSITION: { readonly row: 2; readonly rows: 2 } = { row: 2, rows: 2 } as const;
+const LOWER_TRANSITION: { readonly row: 2; readonly rows: 2 } = {
+  row: 2,
+  rows: 2,
+} as const;
 
 /** One straight support row between the pinned thigh collar and shared ring. */
 const HIP_ROWS: number = 1;
@@ -87,7 +93,10 @@ const HIP_LEFT: Array<{ v: [number, number]; columns: number }> = [
   { v: [6 / 12, 12 / 12], columns: 6 },
 ];
 
-const networkOf: (measurements: IAutoMovieHumanMeasurements, skeleton: IAutoMovieHumanSkeleton) => IAutoMovieHumanTrunkNetwork = (
+const networkOf: (
+  measurements: IAutoMovieHumanMeasurements,
+  skeleton: IAutoMovieHumanSkeleton,
+) => IAutoMovieHumanTrunkNetwork = (
   measurements: IAutoMovieHumanMeasurements,
   skeleton: IAutoMovieHumanSkeleton,
 ): IAutoMovieHumanTrunkNetwork => {
@@ -100,7 +109,10 @@ const networkOf: (measurements: IAutoMovieHumanMeasurements, skeleton: IAutoMovi
   );
   const profile: profileAutoMovieHumanTrunk.IProfile =
     profileAutoMovieHumanTrunk(frame);
-  const ring: (site: "neckBase" | "upperArm" | "thigh", side: AutoMovieHumanSide | null) => IAutoMovieHumanRingShape = (
+  const ring: (
+    site: "neckBase" | "upperArm" | "thigh",
+    side: AutoMovieHumanSide | null,
+  ) => IAutoMovieHumanRingShape = (
     site: "neckBase" | "upperArm" | "thigh",
     side: AutoMovieHumanSide | null,
   ): IAutoMovieHumanRingShape =>
@@ -131,11 +143,21 @@ const networkOf: (measurements: IAutoMovieHumanMeasurements, skeleton: IAutoMovi
       trunk: body.sweep,
       neck,
       frame,
-      rightFrame: measureAutoMovieHumanTrunkFrame(measurements, skeleton, "right"),
+      rightFrame: measureAutoMovieHumanTrunkFrame(
+        measurements,
+        skeleton,
+        "right",
+      ),
     });
   const tube: {
-    arm: Record<AutoMovieHumanSide, ReturnType<typeof sweepAutoMovieHumanTrunkArm>>;
-    thigh: Record<AutoMovieHumanSide, ReturnType<typeof sweepAutoMovieHumanTrunkThigh>>;
+    arm: Record<
+      AutoMovieHumanSide,
+      ReturnType<typeof sweepAutoMovieHumanTrunkArm>
+    >;
+    thigh: Record<
+      AutoMovieHumanSide,
+      ReturnType<typeof sweepAutoMovieHumanTrunkThigh>
+    >;
   } = {
     arm: {
       left: sweepAutoMovieHumanTrunkArm({
@@ -251,26 +273,39 @@ const networkOf: (measurements: IAutoMovieHumanMeasurements, skeleton: IAutoMovi
     });
   const hipStrips: Record<string, typeof HIP_LEFT> = {
     leftHip: HIP_LEFT,
-    rightHip: [...HIP_LEFT].reverse().map((s: { v: [number, number]; columns: number }): { v: [number, number]; columns: number } => ({
-      v: [1 - s.v[1], 1 - s.v[0]] as [number, number],
-      columns: s.columns,
-    })),
+    rightHip: [...HIP_LEFT]
+      .reverse()
+      .map(
+        (s: {
+          v: [number, number];
+          columns: number;
+        }): { v: [number, number]; columns: number } => ({
+          v: [1 - s.v[1], 1 - s.v[0]] as [number, number],
+          columns: s.columns,
+        }),
+      ),
   };
   for (const name of ["leftHip", "rightHip"])
-    hipStrips[name]!.forEach((s: { v: [number, number]; columns: number }, k: number): void => {
-      patches.push({
-        type: "sweep",
-        name: `${name}.${k}`,
-        sweep: name,
-        u: [0, 1],
-        v: s.v,
-        rows: fixed(HIP_ROWS),
-        columns: fixed(s.columns),
-      });
-    });
+    hipStrips[name]!.forEach(
+      (s: { v: [number, number]; columns: number }, k: number): void => {
+        patches.push({
+          type: "sweep",
+          name: `${name}.${k}`,
+          sweep: name,
+          u: [0, 1],
+          v: s.v,
+          rows: fixed(HIP_ROWS),
+          columns: fixed(s.columns),
+        });
+      },
+    );
 
   // The opening starts at its anterior lower corner, one eighth-turn from the tube's anterior axis.
-  const start: (side: AutoMovieHumanSide) => IAutoMovieSurfaceNetwork.IEdge[] = (side: AutoMovieHumanSide): IAutoMovieSurfaceNetwork.IEdge[] => {
+  const start: (
+    side: AutoMovieHumanSide,
+  ) => IAutoMovieSurfaceNetwork.IEdge[] = (
+    side: AutoMovieHumanSide,
+  ): IAutoMovieSurfaceNetwork.IEdge[] => {
     const name: string = `${side}Shoulder`;
     const phase: number = S.SHOULDER_PHASE[side];
     return [edge(name, [0, phase], [0, 1 + phase], 8)];
@@ -299,9 +334,14 @@ const networkOf: (measurements: IAutoMovieHumanMeasurements, skeleton: IAutoMovi
       tension: 0.8,
     },
   );
-  const hipStart: (name: string) => IAutoMovieSurfaceNetwork.IEdge[] = (name: string): IAutoMovieSurfaceNetwork.IEdge[] =>
+  const hipStart: (name: string) => IAutoMovieSurfaceNetwork.IEdge[] = (
+    name: string,
+  ): IAutoMovieSurfaceNetwork.IEdge[] =>
     hipStrips[name]!.map(
-      (s: { v: [number, number]; columns: number }): IAutoMovieSurfaceNetwork.IEdge =>
+      (s: {
+        v: [number, number];
+        columns: number;
+      }): IAutoMovieSurfaceNetwork.IEdge =>
         edge(name, [0, s.v[0]], [0, s.v[1]], s.columns),
     );
   patches.push(
@@ -365,7 +405,11 @@ const networkOf: (measurements: IAutoMovieHumanMeasurements, skeleton: IAutoMovi
       ],
     },
   );
-  const collar: (shape: IAutoMovieHumanRingShape, share: number, length: number) => IAutoMovieVector3[] = (
+  const collar: (
+    shape: IAutoMovieHumanRingShape,
+    share: number,
+    length: number,
+  ) => IAutoMovieVector3[] = (
     shape: IAutoMovieHumanRingShape,
     share: number,
     length: number,
@@ -393,16 +437,24 @@ const networkOf: (measurements: IAutoMovieHumanMeasurements, skeleton: IAutoMovi
     rings: [
       // the measured girths, held exactly by the limit surface along their rows
       ...body.girths.map(
-        ({ row, girth }: { row: number; girth: number }, k: number): IAutoMovieSurfaceNetwork.IRing => {
+        (
+          { row, girth }: { row: number; girth: number },
+          k: number,
+        ): IAutoMovieSurfaceNetwork.IRing => {
           const u: number = body.rows[row]!;
-          const columns: (strip: { columns: number }) => number = (strip: { columns: number }): number =>
+          const columns: (strip: { columns: number }) => number = (strip: {
+            columns: number;
+          }): number =>
             strip.columns === LOWER_COLUMNS.above && u <= transition.u[0]
               ? LOWER_COLUMNS.below
               : strip.columns;
           return {
             name: `girth.${k}`,
             edges: STRIPS.map(
-              (strip: { v: [number, number]; columns: number }): IAutoMovieSurfaceNetwork.ISweepEdge =>
+              (strip: {
+                v: [number, number];
+                columns: number;
+              }): IAutoMovieSurfaceNetwork.ISweepEdge =>
                 edge("trunk", [u, strip.v[0]], [u, strip.v[1]], columns(strip)),
             ),
             perimeter: S.metres(girth),
@@ -414,38 +466,33 @@ const networkOf: (measurements: IAutoMovieHumanMeasurements, skeleton: IAutoMovi
         edges: upper.neckEdges,
         positions: neck.positions.map(toMetres),
       },
-      ...(["left", "right"] as const).flatMap((side: AutoMovieHumanSide): IAutoMovieSurfaceNetwork.IRing[] => [
-        {
-          name: `upperArm.${side}`,
-          edges: [edge(`${side}Shoulder`, [1, 0], [1, 1], 8)],
-          positions: arms[side].positions.map(toMetres),
-        },
-        {
-          name: `thigh.${side}`,
-          edges: [edge(`${side}Hip`, [1, 0.5], [1, 1.5], 12)],
-          positions: thighs[side].positions.map(toMetres),
-        },
-        // the loop one row before each ring, pinned to the ring moved back along its axis, so the trunk's share of the joined girth is the ring's own
-        {
-          name: `upperArm.${side}.collar`,
-          edges: [
-            edge(`${side}Shoulder`, [S.COLLAR.arm, 0], [S.COLLAR.arm, 1], 8),
-          ],
-          positions: collar(arms[side], S.COLLAR.arm, tube.arm[side].length),
-        },
-        {
-          name: `thigh.${side}.collar`,
-          edges: [
-            edge(
-              `${side}Hip`,
-              [0, 0.5],
-              [0, 1.5],
-              12,
-            ),
-          ],
-          positions: S.collarOf(thighs[side], tube.thigh[side].collar),
-        },
-      ]),
+      ...(["left", "right"] as const).flatMap(
+        (side: AutoMovieHumanSide): IAutoMovieSurfaceNetwork.IRing[] => [
+          {
+            name: `upperArm.${side}`,
+            edges: [edge(`${side}Shoulder`, [1, 0], [1, 1], 8)],
+            positions: arms[side].positions.map(toMetres),
+          },
+          {
+            name: `thigh.${side}`,
+            edges: [edge(`${side}Hip`, [1, 0.5], [1, 1.5], 12)],
+            positions: thighs[side].positions.map(toMetres),
+          },
+          // the loop one row before each ring, pinned to the ring moved back along its axis, so the trunk's share of the joined girth is the ring's own
+          {
+            name: `upperArm.${side}.collar`,
+            edges: [
+              edge(`${side}Shoulder`, [S.COLLAR.arm, 0], [S.COLLAR.arm, 1], 8),
+            ],
+            positions: collar(arms[side], S.COLLAR.arm, tube.arm[side].length),
+          },
+          {
+            name: `thigh.${side}.collar`,
+            edges: [edge(`${side}Hip`, [0, 0.5], [0, 1.5], 12)],
+            positions: S.collarOf(thighs[side], tube.thigh[side].collar),
+          },
+        ],
+      ),
     ],
   };
   return {

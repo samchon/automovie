@@ -10,7 +10,7 @@ References are for comparison and calibration outside the package. Their geometr
 ## Use
 
 - Extract sections, silhouettes, feature curves, and face loops from a reference, fit the formula's named coefficients to them in scratch tooling, and keep only those coefficients, cited with their reference, in the code.
-- A reference is not ground truth. Fit on the reference bodies closest to the gate identities, keep only coefficients that hold across all of them by sex, height, build, and ancestry, and use a reference only for what it models.
+- A reference is not ground truth. Fit on the reference bodies closest to the [calibration bodies](verification.md#calibration-bodies), keep only coefficients that hold across all of them by sex, height, build, and ancestry, and use a reference only for what it models.
 - Check a reference's measure against population data before fitting a gap to it, because the gap may be the reference's styling.
 - Run every comparison on a committed snapshot, never on uncommitted edits or a cache another run shares.
 

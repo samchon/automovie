@@ -1,6 +1,6 @@
 # US 6,222,553, hybrid subdivision in computer graphics
 
-Pixar patent US6222553B1, "Hybrid subdivision in computer graphics" (DeRose, Kass, Truong). Read at https://patents.google.com/patent/US6222553 (the first 100,000 characters of the page).
+Pixar patent US6222553B1, "Hybrid subdivision in computer graphics" (DeRose, Kass, Truong), https://patents.google.com/patent/US6222553.
 
 ## Licence and status
 
@@ -17,7 +17,3 @@ Google Patents lists it as "Expired - Lifetime", anticipated expiration 2017-08-
 ## What Human takes
 
 Semi-sharp crease rules for the lip border, eyelid margin, nail fold and alar groove (`../techniques/subdivision-and-cage.md`).
-
-## Not read
-
-The SIGGRAPH 1998 paper "Subdivision surfaces in character animation" by the same authors could not be opened: the Pixar copy returned an HTML page and the University of Washington copy required a sign-in.

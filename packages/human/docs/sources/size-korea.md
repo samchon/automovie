@@ -1,6 +1,6 @@
 # Size Korea (Korean national anthropometric survey)
 
-Korean Agency for Technology and Standards (KATS, 국가기술표준원), Size Korea, https://sizekorea.kr/. Read: the home page, its menu and the data-download consent text. No data or report was downloaded (download requires a member login), so no values are taken yet.
+Korean Agency for Technology and Standards (KATS, 국가기술표준원), Size Korea, https://sizekorea.kr/. This note covers the public catalogue and data-use consent only. Data access requires a member login; Human has no numeric reference from this source.
 
 ## Terms of use for data (the download consent, translated)
 

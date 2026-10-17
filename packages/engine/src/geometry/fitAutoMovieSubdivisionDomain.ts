@@ -63,32 +63,83 @@ export function fitAutoMovieSubdivisionDomain(props: {
 } {
   let level: ISubdivisionLevel = admitSubdivisionCage(props.cage);
   const old: number = level.topology.vertexCount;
-  if (props.controlPositions.length !== 3 * old || props.controlPositions.some((x: number): boolean => !Number.isFinite(x))) throw new Error("fitting control positions must be finite source vertex triples");
-  if (props.anchors.length !== old || props.limitTargets.length !== old) throw new Error("fitting constraints must match the source vertex count");
+  if (
+    props.controlPositions.length !== 3 * old ||
+    props.controlPositions.some((x: number): boolean => !Number.isFinite(x))
+  )
+    throw new Error(
+      "fitting control positions must be finite source vertex triples",
+    );
+  if (props.anchors.length !== old || props.limitTargets.length !== old)
+    throw new Error("fitting constraints must match the source vertex count");
   for (let i: number = 0; i < old; i++)
-    if (typeof props.anchors[i] !== "boolean" || props.limitTargets[i] === undefined) throw new Error("fitting constraints must be dense boolean anchors and target rows");
+    if (
+      typeof props.anchors[i] !== "boolean" ||
+      props.limitTargets[i] === undefined
+    )
+      throw new Error(
+        "fitting constraints must be dense boolean anchors and target rows",
+      );
   for (const target of props.limitTargets)
-    if (target !== null && (target.length !== 3 || target.some((x: number): boolean => !Number.isFinite(x)))) throw new Error("fitting limit target must be a finite metre triple");
+    if (
+      target !== null &&
+      (target.length !== 3 ||
+        target.some((x: number): boolean => !Number.isFinite(x)))
+    )
+      throw new Error("fitting limit target must be a finite metre triple");
   for (let e: number = 0; e < level.topology.edgeSharpness.length; e++) {
-    if (level.topology.edgeSharpness[e] === 0 || level.topology.edgeCorners[2 * e + 1] === -1) continue;
+    if (
+      level.topology.edgeSharpness[e] === 0 ||
+      level.topology.edgeCorners[2 * e + 1] === -1
+    )
+      continue;
     for (let end: number = 0; end < 2; end++) {
       const vertex: number = level.topology.edgeVertices[2 * e + end]!;
-      if (props.limitTargets[vertex] !== null) throw new Error(`fitting limit target ${vertex} is incident to an unsupported interior crease`);
+      if (props.limitTargets[vertex] !== null)
+        throw new Error(
+          `fitting limit target ${vertex} is incident to an unsupported interior crease`,
+        );
     }
   }
   for (const face of props.regionFaces)
-    if (!Number.isSafeInteger(face) || face < 0 || face >= props.cage.faces.length) throw new Error("fitting region face is out of range");
-  const coarseStencil: IAutoMovieSubdivisionStencil = stencilAutoMovieSubdivisionLimit(props.cage.faces, old);
-  let refinement: Array<Map<number, number>> = Array.from({ length: old }, (_: unknown, i: number): Map<number, number> => new Map([[i, 1]]));
+    if (
+      !Number.isSafeInteger(face) ||
+      face < 0 ||
+      face >= props.cage.faces.length
+    )
+      throw new Error("fitting region face is out of range");
+  const coarseStencil: IAutoMovieSubdivisionStencil =
+    stencilAutoMovieSubdivisionLimit(props.cage.faces, old);
+  let refinement: Array<Map<number, number>> = Array.from(
+    { length: old },
+    (_: unknown, i: number): Map<number, number> => new Map([[i, 1]]),
+  );
   for (let step: number = 0; step < 2; step++) {
     refinement = refineSubdivisionStencils(level.topology, refinement);
     level = refineSubdivisionLevel(level);
   }
   const count: number = level.topology.vertexCount;
-  const fineFaces: number[][] = Array.from({ length: level.topology.faceOffsets.length - 1 }, (_: unknown, f: number): number[] => level.topology.faceVertices.slice(level.topology.faceOffsets[f], level.topology.faceOffsets[f + 1]));
-  const fineStencil: IAutoMovieSubdivisionStencil = stencilAutoMovieSubdivisionLimit(fineFaces, count);
-  const equalities: Array<{ terms: Map<number, number>; target: readonly number[] }> = [];
-  const stencil: (input: IAutoMovieSubdivisionStencil, i: number) => Map<number, number> = (input: IAutoMovieSubdivisionStencil, i: number): Map<number, number> => {
+  const fineFaces: number[][] = Array.from(
+    { length: level.topology.faceOffsets.length - 1 },
+    (_: unknown, f: number): number[] =>
+      level.topology.faceVertices.slice(
+        level.topology.faceOffsets[f],
+        level.topology.faceOffsets[f + 1],
+      ),
+  );
+  const fineStencil: IAutoMovieSubdivisionStencil =
+    stencilAutoMovieSubdivisionLimit(fineFaces, count);
+  const equalities: Array<{
+    terms: Map<number, number>;
+    target: readonly number[];
+  }> = [];
+  const stencil: (
+    input: IAutoMovieSubdivisionStencil,
+    i: number,
+  ) => Map<number, number> = (
+    input: IAutoMovieSubdivisionStencil,
+    i: number,
+  ): Map<number, number> => {
     const terms: Map<number, number> = new Map();
     for (let k: number = input.offsets[i]!; k < input.offsets[i + 1]!; k++) {
       const j: number = input.indices[k]!;
@@ -97,60 +148,121 @@ export function fitAutoMovieSubdivisionDomain(props: {
     return terms;
   };
   for (let i: number = 0; i < old; i++) {
-    const target: readonly [number, number, number] | null = props.limitTargets[i]!;
+    const target: readonly [number, number, number] | null =
+      props.limitTargets[i]!;
     if (target !== null) {
       const terms: Map<number, number> = stencil(coarseStencil, i);
       for (const [j, weight] of stencil(fineStencil, i))
         if (j >= old) terms.set(j, (terms.get(j) ?? 0) + weight);
       equalities.push({ terms, target });
     }
-    if (props.anchors[i]) equalities.push({ terms: new Map([[i, 1]]), target: props.controlPositions.slice(3 * i, 3 * i + 3) });
+    if (props.anchors[i])
+      equalities.push({
+        terms: new Map([[i, 1]]),
+        target: props.controlPositions.slice(3 * i, 3 * i + 3),
+      });
   }
   const outside: Set<number> = new Set();
   fineFaces.forEach((face: number[], f: number): void => {
-    if (!props.regionFaces.has(Math.floor(f / 16))) for (const vertex of face) outside.add(vertex);
+    if (!props.regionFaces.has(Math.floor(f / 16)))
+      for (const vertex of face) outside.add(vertex);
   });
   refinement.forEach((row: Map<number, number>, i: number): void => {
-    const pureAnchor: boolean = [...row.keys()].every((j: number): boolean => props.anchors[j]!);
-    if (i >= old && pureAnchor) equalities.push({ terms: new Map([[i, 1]]), target: [0, 0, 0] });
+    const pureAnchor: boolean = [...row.keys()].every(
+      (j: number): boolean => props.anchors[j]!,
+    );
+    if (i >= old && pureAnchor)
+      equalities.push({ terms: new Map([[i, 1]]), target: [0, 0, 0] });
     else if (outside.has(i) && !(i < old && pureAnchor)) {
       const terms: Map<number, number> = new Map(row);
       if (i >= old) terms.set(i, 1);
-      equalities.push({ terms, target: [0, 1, 2].map((axis: number): number => [...row].reduce((sum: number, [j, weight]: [number, number]): number => sum + weight * props.controlPositions[3 * j + axis]!, 0)) });
+      equalities.push({
+        terms,
+        target: [0, 1, 2].map((axis: number): number =>
+          [...row].reduce(
+            (sum: number, [j, weight]: [number, number]): number =>
+              sum + weight * props.controlPositions[3 * j + axis]!,
+            0,
+          ),
+        ),
+      });
     }
   });
-  const energy: Array<Map<number, number>> = subdivisionBendingRows(level).map((row: Map<number, number>): Map<number, number> => {
-    const terms: Map<number, number> = new Map();
-    for (const [i, weight] of row) {
-      for (const [j, coefficient] of refinement[i]!) terms.set(j, (terms.get(j) ?? 0) + weight * coefficient);
-      if (i >= old) terms.set(i, (terms.get(i) ?? 0) + weight);
-    }
-    return terms;
-  });
-  const rows: IAutoMovieQuadraticRow[] = [...equalities.map((row: { terms: Map<number, number>; target: readonly number[] }): IAutoMovieQuadraticRow => ({ indices: [...row.terms.keys()], weights: [...row.terms.values()], lower: 0, upper: 0 })), ...energy.map((row: Map<number, number>, i: number): IAutoMovieQuadraticRow => ({ indices: [...row.keys(), count + i], weights: [...row.values()].map((x: number): number => -x).concat(1), lower: 0, upper: 0 }))];
-  const diagonal: number[] = [...new Array<number>(count).fill(0), ...new Array<number>(count).fill(1)];
+  const energy: Array<Map<number, number>> = subdivisionBendingRows(level).map(
+    (row: Map<number, number>): Map<number, number> => {
+      const terms: Map<number, number> = new Map();
+      for (const [i, weight] of row) {
+        for (const [j, coefficient] of refinement[i]!)
+          terms.set(j, (terms.get(j) ?? 0) + weight * coefficient);
+        if (i >= old) terms.set(i, (terms.get(i) ?? 0) + weight);
+      }
+      return terms;
+    },
+  );
+  const rows: IAutoMovieQuadraticRow[] = [
+    ...equalities.map(
+      (row: {
+        terms: Map<number, number>;
+        target: readonly number[];
+      }): IAutoMovieQuadraticRow => ({
+        indices: [...row.terms.keys()],
+        weights: [...row.terms.values()],
+        lower: 0,
+        upper: 0,
+      }),
+    ),
+    ...energy.map(
+      (row: Map<number, number>, i: number): IAutoMovieQuadraticRow => ({
+        indices: [...row.keys(), count + i],
+        weights: [...row.values()].map((x: number): number => -x).concat(1),
+        lower: 0,
+        upper: 0,
+      }),
+    ),
+  ];
+  const diagonal: number[] = [
+    ...new Array<number>(count).fill(0),
+    ...new Array<number>(count).fill(1),
+  ];
   const linear: number[] = new Array<number>(2 * count).fill(0);
   const coordinates: number[] = new Array<number>(3 * count).fill(0);
   const iterations: number[] = [];
   let maximumEqualityError: number = 0;
   for (let axis: number = 0; axis < 3; axis++) {
-    equalities.forEach((row: { terms: Map<number, number>; target: readonly number[] }, i: number): void => {
-      rows[i]!.lower = row.target[axis]!;
-      rows[i]!.upper = row.target[axis]!;
-    });
-    const solved: ReturnType<typeof solveAutoMovieQuadraticProgram> = solveAutoMovieQuadraticProgram({ diagonal, linear, rows });
-    if (solved.status !== 1) throw new Error(`subdivision fitting solve incomplete: ${solved.status}`);
-    maximumEqualityError = Math.max(maximumEqualityError, solved.maximumViolation);
+    equalities.forEach(
+      (
+        row: { terms: Map<number, number>; target: readonly number[] },
+        i: number,
+      ): void => {
+        rows[i]!.lower = row.target[axis]!;
+        rows[i]!.upper = row.target[axis]!;
+      },
+    );
+    const solved: ReturnType<typeof solveAutoMovieQuadraticProgram> =
+      solveAutoMovieQuadraticProgram({ diagonal, linear, rows });
+    if (solved.status !== 1)
+      throw new Error(`subdivision fitting solve incomplete: ${solved.status}`);
+    maximumEqualityError = Math.max(
+      maximumEqualityError,
+      solved.maximumViolation,
+    );
     iterations.push(solved.iterations);
-    for (let i: number = 0; i < count; i++) coordinates[3 * i + axis] = solved.primal[i]!;
+    for (let i: number = 0; i < count; i++)
+      coordinates[3 * i + axis] = solved.primal[i]!;
   }
   const positions: number[] = new Array<number>(3 * count).fill(0);
   refinement.forEach((row: Map<number, number>, i: number): void => {
     for (let axis: number = 0; axis < 3; axis++) {
       let value: number = i >= old ? coordinates[3 * i + axis]! : 0;
-      for (const [j, weight] of row) value += weight * coordinates[3 * j + axis]!;
+      for (const [j, weight] of row)
+        value += weight * coordinates[3 * j + axis]!;
       positions[3 * i + axis] = value;
     }
   });
-  return { level: { ...level, positions }, coarseControls: coordinates.slice(0, 3 * old), maximumEqualityError, iterations };
+  return {
+    level: { ...level, positions },
+    coarseControls: coordinates.slice(0, 3 * old),
+    maximumEqualityError,
+    iterations,
+  };
 }

@@ -4,13 +4,13 @@
  * The skeleton uses these also as MCP skin-breadth proxies, following the explicit modelling assumption of Rogers et al. 2008, Ergonomics 51:511-526, section 2.5.2, https://stacks.cdc.gov/view/cdc/188402/cdc_188402_DS1.pdf; that use is conventional rather than a measurement of metacarpal heads. Adult ratios are held across ages.
  */
 export const AUTOMOVIE_HUMAN_FINGER_JOINT_BREADTH: {
-    readonly Index: 0.252;
-    readonly Middle: 0.246;
-    readonly Ring: 0.234;
-    readonly Little: 0.21;
+  readonly Index: 0.252;
+  readonly Middle: 0.246;
+  readonly Ring: 0.234;
+  readonly Little: 0.21;
 } = {
-    Index: 0.252,
-    Middle: 0.246,
-    Ring: 0.234,
-    Little: 0.21,
+  Index: 0.252,
+  Middle: 0.246,
+  Ring: 0.234,
+  Little: 0.21,
 } as const;

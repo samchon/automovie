@@ -28,7 +28,10 @@ export class AutoMovieHumanHeadDomain {
     loft: sweepAutoMovieHumanHead.IOutput,
     frame: frameAutoMovieHumanHead.IFrame,
     profile: profileAutoMovieHumanHead.IProfile,
-    source: { anterior: (point: IAutoMovieVector3) => number; eyeRadius: number },
+    source: {
+      anterior: (point: IAutoMovieVector3) => number;
+      eyeRadius: number;
+    },
   ) {
     this.surface = surface;
     this.loft = loft;
@@ -65,7 +68,10 @@ export class AutoMovieHumanHeadDomain {
    */
   public point(u: number, v: number): IAutoMovieVector3 {
     const point: IAutoMovieVector3 = this.basePoint(u, v);
-    return { ...point, z: point.z + this.loft.featureWeight(u) * this.anterior_(point) };
+    return {
+      ...point,
+      z: point.z + this.loft.featureWeight(u) * this.anterior_(point),
+    };
   }
 
   /** The underlying loft point before the forward face source is applied. */
@@ -143,17 +149,26 @@ export class AutoMovieHumanHeadDomain {
    */
   public onFace(x: number, y: number): { u: number; v: number } {
     let lo: number = this.profile.lateral(y);
-    let hi: number = this.profile.front(y) + Math.abs(this.profile.front(y) - this.profile.back(y));
-    let at: {u: number; v: number} = this.locate({x, y, z: hi});
+    let hi: number =
+      this.profile.front(y) +
+      Math.abs(this.profile.front(y) - this.profile.back(y));
+    let at: { u: number; v: number } = this.locate({ x, y, z: hi });
     let closest: number = Infinity;
     // Radial plane addresses seed the physical inverse; they do not prove it.
     // Keep the closest candidate when tilted planes have several ray roots.
     for (let seed: number = 0; seed < 48; ++seed) {
       const depth: number = (lo + hi) / 2;
-      const candidate: {u: number; v: number} = this.locate({x, y, z: depth});
+      const candidate: { u: number; v: number } = this.locate({
+        x,
+        y,
+        z: depth,
+      });
       const value: IAutoMovieVector3 = this.basePoint(candidate.u, candidate.v);
       const distance: number = Math.hypot(value.x - x, value.y - y);
-      if (distance < closest) { at = candidate; closest = distance; }
+      if (distance < closest) {
+        at = candidate;
+        closest = distance;
+      }
       if (distance <= 1e-5) break;
       if (value.z > depth) lo = depth;
       else hi = depth;
@@ -184,8 +199,12 @@ export class AutoMovieHumanHeadDomain {
       let accepted: boolean = false;
       for (let line: number = 0; line < 24; ++line) {
         const scale: number = 2 ** -line;
-        const next: {u: number; v: number} = {u: at.u - scale * du, v: at.v - scale * dv};
-        if (next.u < 0 || next.u > 1 || next.v < 0.25 || next.v > 0.75) continue;
+        const next: { u: number; v: number } = {
+          u: at.u - scale * du,
+          v: at.v - scale * dv,
+        };
+        if (next.u < 0 || next.u > 1 || next.v < 0.25 || next.v > 0.75)
+          continue;
         const value: IAutoMovieVector3 = this.basePoint(next.u, next.v);
         if (Math.hypot(value.x - x, value.y - y) >= error) continue;
         at = next;

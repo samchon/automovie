@@ -1,10 +1,10 @@
 # Virdi 2019, Kenyan-African face
 
-Virdi SS, Wertheim D, Naini FB. "Normative anthropometry and proportions of the Kenyan-African face and comparative anthropometry in relation to African Americans and North American Whites." *Maxillofacial Plastic and Reconstructive Surgery* 41:9, 2019, doi:10.1186/s40902-019-0191-7. Read in full as PMC6384287 (NCBI efetch).
+Virdi SS, Wertheim D, Naini FB. "Normative anthropometry and proportions of the Kenyan-African face and comparative anthropometry in relation to African Americans and North American Whites." *Maxillofacial Plastic and Reconstructive Surgery* 41:9, 2019, doi:10.1186/s40902-019-0191-7. [Full text](https://pmc.ncbi.nlm.nih.gov/articles/PMC6384287/).
 
 ## Licence
 
-CC BY 4.0. Numbers are facts.
+CC BY 4.0.
 
 ## Population and protocol
 

@@ -34,13 +34,62 @@ const FORMS: ReadonlyArray<{
   half: number;
   depth: number;
 }> = [
-  { name: "middle head", from: 0.08, to: 0.85, angles: [90, 90], half: 16, depth: 2.2 },
-  { name: "anterior head", from: 0.1, to: 0.8, angles: [38, 78], half: 14, depth: 1.6 },
-  { name: "posterior head", from: 0.1, to: 0.8, angles: [142, 102], half: 14, depth: 1.6 },
-  { name: "furrow between the anterior and middle heads", from: 0.18, to: 0.75, angles: [64, 86], half: 4, depth: -1.2 },
-  { name: "furrow between the middle and posterior heads", from: 0.18, to: 0.75, angles: [116, 94], half: 4, depth: -1.2 },
-  { name: "deltopectoral groove", from: 0.05, to: 0.7, angles: [12, 40], half: 5, depth: -1.5 },
-  { name: "hollow below the insertion", from: 0.95, to: 1.35, angles: [90, 90], half: 10, depth: -2 },
+  {
+    name: "middle head",
+    from: 0.08,
+    to: 0.85,
+    angles: [90, 90],
+    half: 16,
+    depth: 2.2,
+  },
+  {
+    name: "anterior head",
+    from: 0.1,
+    to: 0.8,
+    angles: [38, 78],
+    half: 14,
+    depth: 1.6,
+  },
+  {
+    name: "posterior head",
+    from: 0.1,
+    to: 0.8,
+    angles: [142, 102],
+    half: 14,
+    depth: 1.6,
+  },
+  {
+    name: "furrow between the anterior and middle heads",
+    from: 0.18,
+    to: 0.75,
+    angles: [64, 86],
+    half: 4,
+    depth: -1.2,
+  },
+  {
+    name: "furrow between the middle and posterior heads",
+    from: 0.18,
+    to: 0.75,
+    angles: [116, 94],
+    half: 4,
+    depth: -1.2,
+  },
+  {
+    name: "deltopectoral groove",
+    from: 0.05,
+    to: 0.7,
+    angles: [12, 40],
+    half: 5,
+    depth: -1.5,
+  },
+  {
+    name: "hollow below the insertion",
+    from: 0.95,
+    to: 1.35,
+    angles: [90, 90],
+    half: 10,
+    depth: -2,
+  },
 ];
 
 /**

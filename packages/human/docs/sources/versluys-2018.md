@@ -1,6 +1,6 @@
 # Versluys et al. 2017 and 2018, limb proportions and male attractiveness
 
-Versluys T.M.M., Skylark W.J. "The effect of leg-to-body ratio on male attractiveness depends on the ecological validity of the figures." *Royal Society Open Science* 4:170399, 2017 (PMC5666244, CC BY); read: abstract. Versluys T.M.M., Foley R.A., Skylark W.J. "The influence of leg-to-body ratio, arm-to-body ratio and intra-limb ratio on male human attractiveness." *Royal Society Open Science* 5:171790, 2018 (PMC5990728, CC BY); read in full via the Europe PMC full-text API.
+Versluys T.M.M., Skylark W.J. "The effect of leg-to-body ratio on male attractiveness depends on the ecological validity of the figures." *Royal Society Open Science* 4:170399, 2017 ([PMC5666244](https://pmc.ncbi.nlm.nih.gov/articles/PMC5666244/), CC BY), abstract-level evidence. Versluys T.M.M., Foley R.A., Skylark W.J. "The influence of leg-to-body ratio, arm-to-body ratio and intra-limb ratio on male human attractiveness." *Royal Society Open Science* 5:171790, 2018 ([Full text](https://pmc.ncbi.nlm.nih.gov/articles/PMC5990728/), CC BY).
 
 ## Population and protocol
 

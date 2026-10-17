@@ -50,13 +50,21 @@ export function fitAutoMovieSubdivisionRegions(props: {
   }>;
 }): { level: ISubdivisionLevel; maximumEqualityError: number } {
   const requested: number = props.levels ?? 2;
-  if (!Number.isSafeInteger(requested) || requested < 2 || requested > 6) throw new Error("fitted subdivision levels must be an integer from 2 to 6");
+  if (!Number.isSafeInteger(requested) || requested < 2 || requested > 6)
+    throw new Error("fitted subdivision levels must be an integer from 2 to 6");
   const source: ISubdivisionLevel = admitSubdivisionCage(props.cage);
   const levels: ISubdivisionLevel[] = [source];
-  for (let step: number = 0; step < 2; step++) levels.push(refineSubdivisionLevel(levels[step]!));
-  let output: ISubdivisionLevel = { ...levels[2]!, positions: [...levels[2]!.positions] };
+  for (let step: number = 0; step < 2; step++)
+    levels.push(refineSubdivisionLevel(levels[step]!));
+  let output: ISubdivisionLevel = {
+    ...levels[2]!,
+    positions: [...levels[2]!.positions],
+  };
   const faceCount: number = props.cage.faces.length;
-  const adjacency: Array<Set<number>> = Array.from({ length: faceCount }, (): Set<number> => new Set());
+  const adjacency: Array<Set<number>> = Array.from(
+    { length: faceCount },
+    (): Set<number> => new Set(),
+  );
   for (let e: number = 0; e < source.topology.edgeSharpness.length; e++) {
     const left: number = source.topology.edgeCorners[2 * e]!;
     const right: number = source.topology.edgeCorners[2 * e + 1]!;
@@ -71,25 +79,39 @@ export function fitAutoMovieSubdivisionRegions(props: {
   for (const region of props.regions) {
     const inside: Set<number> = new Set();
     for (const f of region.faces) {
-      if (!Number.isSafeInteger(f) || f < 0 || f >= faceCount || owned.has(f)) throw new Error("fitting regions must name disjoint valid source faces");
+      if (!Number.isSafeInteger(f) || f < 0 || f >= faceCount || owned.has(f))
+        throw new Error(
+          "fitting regions must name disjoint valid source faces",
+        );
       owned.add(f);
       for (const vertex of props.cage.faces[f]!) inside.add(vertex);
     }
-    if (!region.faces.size) throw new Error("fitting region must contain a face");
-    for (const vertex of [...region.samples.keys(), ...region.limitTargets.keys(), ...region.anchors])
-      if (!inside.has(vertex)) throw new Error("fitting region constraint is outside its source vertices");
+    if (!region.faces.size)
+      throw new Error("fitting region must contain a face");
+    for (const vertex of [
+      ...region.samples.keys(),
+      ...region.limitTargets.keys(),
+      ...region.anchors,
+    ])
+      if (!inside.has(vertex))
+        throw new Error(
+          "fitting region constraint is outside its source vertices",
+        );
     const selected: Set<number> = new Set(region.faces);
     let front: number[] = [...region.faces];
     for (let ring: number = 0; ring < 4; ring++) {
       const next: number[] = [];
-      for (const f of front) for (const other of adjacency[f]!) {
-        if (selected.has(other)) continue;
-        selected.add(other);
-        next.push(other);
-      }
+      for (const f of front)
+        for (const other of adjacency[f]!) {
+          if (selected.has(other)) continue;
+          selected.add(other);
+          next.push(other);
+        }
       front = next;
     }
-    const globalFaces: number[] = [...selected].sort((a: number, b: number): number => a - b);
+    const globalFaces: number[] = [...selected].sort(
+      (a: number, b: number): number => a - b,
+    );
     const globalVertices: number[] = [];
     const localVertex: Map<number, number> = new Map();
     const index: (v: number) => number = (v: number): number => {
@@ -101,34 +123,66 @@ export function fitAutoMovieSubdivisionRegions(props: {
       }
       return found;
     };
-    const faces: number[][] = globalFaces.map((f: number): number[] => props.cage.faces[f]!.map(index));
+    const faces: number[][] = globalFaces.map((f: number): number[] =>
+      props.cage.faces[f]!.map(index),
+    );
     const cropEdges: Set<string> = new Set();
-    for (const face of faces) face.forEach((a: number, k: number): void => {
-      const b: number = face[(k + 1) % 4]!;
-      cropEdges.add(`${Math.min(a, b)},${Math.max(a, b)}`);
-    });
-    const creases: NonNullable<IAutoMovieSubdivisionCage["creases"]>[number][] = [];
+    for (const face of faces)
+      face.forEach((a: number, k: number): void => {
+        const b: number = face[(k + 1) % 4]!;
+        cropEdges.add(`${Math.min(a, b)},${Math.max(a, b)}`);
+      });
+    const creases: NonNullable<IAutoMovieSubdivisionCage["creases"]>[number][] =
+      [];
     for (const crease of props.cage.creases ?? []) {
       const a: number | undefined = localVertex.get(crease.from);
       const b: number | undefined = localVertex.get(crease.to);
-      if (a !== undefined && b !== undefined && cropEdges.has(`${Math.min(a, b)},${Math.max(a, b)}`)) creases.push({ from: a, to: b, sharpness: crease.sharpness });
+      if (
+        a !== undefined &&
+        b !== undefined &&
+        cropEdges.has(`${Math.min(a, b)},${Math.max(a, b)}`)
+      )
+        creases.push({ from: a, to: b, sharpness: crease.sharpness });
     }
-    const controls: number[] = globalVertices.flatMap((v: number): number[] => props.cage.positions.slice(3 * v, 3 * v + 3));
-    const samples: number[] = globalVertices.flatMap((v: number): number[] => [...(region.samples.get(v) ?? props.cage.positions.slice(3 * v, 3 * v + 3))]);
-    const anchors: boolean[] = globalVertices.map((v: number): boolean => !inside.has(v) || region.anchors.has(v));
+    const controls: number[] = globalVertices.flatMap((v: number): number[] =>
+      props.cage.positions.slice(3 * v, 3 * v + 3),
+    );
+    const samples: number[] = globalVertices.flatMap((v: number): number[] => [
+      ...(region.samples.get(v) ??
+        props.cage.positions.slice(3 * v, 3 * v + 3)),
+    ]);
+    const anchors: boolean[] = globalVertices.map(
+      (v: number): boolean => !inside.has(v) || region.anchors.has(v),
+    );
     globalFaces.forEach((f: number, local: number): void => {
-      if (!region.faces.has(f)) for (const v of faces[local]!) anchors[v] = true;
+      if (!region.faces.has(f))
+        for (const v of faces[local]!) anchors[v] = true;
     });
-    const regionFaces: Set<number> = new Set(globalFaces.flatMap((f: number, i: number): number[] => region.faces.has(f) ? [i] : []));
-    const fitted: ReturnType<typeof fitAutoMovieSubdivisionDomain> = fitAutoMovieSubdivisionDomain({
-      cage: { positions: samples, faces, creases },
-      controlPositions: controls,
-      anchors,
-      limitTargets: globalVertices.map((v: number): readonly [number, number, number] | null => region.limitTargets.get(v) ?? null),
-      regionFaces,
+    const regionFaces: Set<number> = new Set(
+      globalFaces.flatMap((f: number, i: number): number[] =>
+        region.faces.has(f) ? [i] : [],
+      ),
+    );
+    const fitted: ReturnType<typeof fitAutoMovieSubdivisionDomain> =
+      fitAutoMovieSubdivisionDomain({
+        cage: { positions: samples, faces, creases },
+        controlPositions: controls,
+        anchors,
+        limitTargets: globalVertices.map(
+          (v: number): readonly [number, number, number] | null =>
+            region.limitTargets.get(v) ?? null,
+        ),
+        regionFaces,
+      });
+    maximumEqualityError = Math.max(
+      maximumEqualityError,
+      fitted.maximumEqualityError,
+    );
+    let crop: ISubdivisionLevel = admitSubdivisionCage({
+      positions: controls,
+      faces,
+      creases,
     });
-    maximumEqualityError = Math.max(maximumEqualityError, fitted.maximumEqualityError);
-    let crop: ISubdivisionLevel = admitSubdivisionCage({ positions: controls, faces, creases });
     let vertexMap: number[] = globalVertices;
     let faceMap: number[] = globalFaces;
     for (let step: number = 0; step < 2; step++) {
@@ -139,19 +193,28 @@ export function fitAutoMovieSubdivisionRegions(props: {
         for (let k: number = 0; k < 4; k++) {
           const lc: number = crop.topology.faceOffsets[local]! + k;
           const gc: number = whole.topology.faceOffsets[f]! + k;
-          nextVertices[crop.topology.vertexCount + crop.topology.cornerEdges[lc]!] = whole.topology.vertexCount + whole.topology.cornerEdges[gc]!;
+          nextVertices[
+            crop.topology.vertexCount + crop.topology.cornerEdges[lc]!
+          ] = whole.topology.vertexCount + whole.topology.cornerEdges[gc]!;
           nextFaces[4 * local + k] = gc;
         }
-        nextVertices[crop.topology.vertexCount + crop.topology.edgeSharpness.length + local] = whole.topology.vertexCount + whole.topology.edgeSharpness.length + f;
+        nextVertices[
+          crop.topology.vertexCount + crop.topology.edgeSharpness.length + local
+        ] =
+          whole.topology.vertexCount + whole.topology.edgeSharpness.length + f;
       });
       crop = refineSubdivisionLevel(crop);
       vertexMap = nextVertices;
       faceMap = nextFaces;
     }
     vertexMap.forEach((global: number, local: number): void => {
-      for (let axis: number = 0; axis < 3; axis++) output.positions[3 * global + axis]! += fitted.level.positions[3 * local + axis]! - crop.positions[3 * local + axis]!;
+      for (let axis: number = 0; axis < 3; axis++)
+        output.positions[3 * global + axis]! +=
+          fitted.level.positions[3 * local + axis]! -
+          crop.positions[3 * local + axis]!;
     });
   }
-  for (let step: number = 2; step < requested; step++) output = refineSubdivisionLevel(output);
+  for (let step: number = 2; step < requested; step++)
+    output = refineSubdivisionLevel(output);
   return { level: output, maximumEqualityError };
 }

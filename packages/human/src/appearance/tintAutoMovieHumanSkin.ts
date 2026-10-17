@@ -4,8 +4,11 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AUTOMOVIE_HUMAN_LIP_FORM } from "../junction/AUTOMOVIE_HUMAN_LIP_FORM";
 import { IAutoMovieHumanRingLayout } from "../junction/IAutoMovieHumanRingLayout";
 import { IAutoMovieHumanRingShape } from "../junction/IAutoMovieHumanRingShape";
+import { curveAutoMovieHumanLips } from "../junction/curveAutoMovieHumanLips";
+import { frameAutoMovieHumanHead } from "../junction/frameAutoMovieHumanHead";
 import { layoutAutoMovieHumanRing } from "../junction/layoutAutoMovieHumanRing";
 import { shapeAutoMovieHumanRing } from "../junction/shapeAutoMovieHumanRing";
 import { IAutoMovieHumanMeasurements } from "../measure/IAutoMovieHumanMeasurements";
@@ -13,9 +16,6 @@ import { AutoMovieHumanVector } from "../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanSkeleton } from "../skeleton/IAutoMovieHumanSkeleton";
 import { IAutoMovieHumanIdentity } from "../structures/IAutoMovieHumanIdentity";
 import { pigmentAutoMovieHumanSkin } from "./pigmentAutoMovieHumanSkin";
-import { AUTOMOVIE_HUMAN_LIP_FORM } from "../junction/AUTOMOVIE_HUMAN_LIP_FORM";
-import { frameAutoMovieHumanHead } from "../junction/frameAutoMovieHumanHead";
-import { curveAutoMovieHumanLips } from "../junction/curveAutoMovieHumanLips";
 
 /**
  * Give the skin regional linear albedo from its physical rest position and limit normal, independently of the published UV atlas.
@@ -41,7 +41,10 @@ export function tintAutoMovieHumanSkin(props: {
   const V: typeof AutoMovieHumanVector = AutoMovieHumanVector;
   const pigmentation: IAutoMovieHumanIdentity.IPigmentation =
     props.measurements.identity.pigmentation;
-  const pigment: (melanin: number, haemoglobin: number) => number[] = (melanin: number, haemoglobin: number): number[] => {
+  const pigment: (melanin: number, haemoglobin: number) => number[] = (
+    melanin: number,
+    haemoglobin: number,
+  ): number[] => {
     const c: ReturnType<typeof pigmentAutoMovieHumanSkin> =
       pigmentAutoMovieHumanSkin({
         melanin: Math.min(0.5, melanin),
@@ -60,8 +63,10 @@ export function tintAutoMovieHumanSkin(props: {
     flush: pigment(pigmentation.melanin, 2 * pigmentation.haemoglobin),
     ear: pigment(pigmentation.melanin, 1.6 * pigmentation.haemoglobin),
   };
-  const hands: Array<{ frame: IAutoMovieHumanRingLayout["frame"]; radius: number }> =
-    [];
+  const hands: Array<{
+    frame: IAutoMovieHumanRingLayout["frame"];
+    radius: number;
+  }> = [];
   const ears: Array<{
     ring: IAutoMovieHumanRingShape;
     ear: IAutoMovieHumanIdentity.IEar;
@@ -78,7 +83,10 @@ export function tintAutoMovieHumanSkin(props: {
       side === "left"
         ? props.measurements.identity.body.leftArm
         : props.measurements.identity.body.rightArm;
-    hands.push({ frame: wrist.frame, radius: arm.wristCircumference / (2 * Math.PI) });
+    hands.push({
+      frame: wrist.frame,
+      radius: arm.wristCircumference / (2 * Math.PI),
+    });
     const ring: IAutoMovieHumanRingShape = shapeAutoMovieHumanRing({
       measurements: props.measurements,
       skeleton: props.skeleton,
@@ -98,23 +106,30 @@ export function tintAutoMovieHumanSkin(props: {
   const head: IAutoMovieHumanIdentity.IHead = props.measurements.identity.head;
   const k: number = head.faceHeight / 120;
   const stomion: IAutoMovieVector3 = props.skeleton.landmarks.stomion.position;
-  const headFrame: frameAutoMovieHumanHead.IFrame = frameAutoMovieHumanHead(props.skeleton);
+  const headFrame: frameAutoMovieHumanHead.IFrame = frameAutoMovieHumanHead(
+    props.skeleton,
+  );
   const lips: curveAutoMovieHumanLips.ICurve = curveAutoMovieHumanLips({
-    head, stomion: headFrame.stomion.y, form: AUTOMOVIE_HUMAN_LIP_FORM,
+    head,
+    stomion: headFrame.stomion.y,
+    form: AUTOMOVIE_HUMAN_LIP_FORM,
   });
   const ankle: number =
-    0.5 * Math.min(
+    0.5 *
+    Math.min(
       props.measurements.identity.body.leftLeg.ankleHeight,
       props.measurements.identity.body.rightLeg.ankleHeight,
     );
   const cheeks: IAutoMovieVector3[] = (["left", "right"] as const).map(
     (side: "left" | "right"): IAutoMovieVector3 => {
-      const z: IAutoMovieVector3 = props.skeleton.landmarks[side].zygion.position;
+      const z: IAutoMovieVector3 =
+        props.skeleton.landmarks[side].zygion.position;
       return V.of(z.x * 0.72, z.y - 8 * k, z.z + 0.5 * (stomion.z - z.z));
     },
   );
   return props.parts.map((part: IAutoMovieModelPart): IAutoMovieModelPart => {
-    if (part.geometry.type !== "mesh" || !part.id.startsWith("skin")) return part;
+    if (part.geometry.type !== "mesh" || !part.id.startsWith("skin"))
+      return part;
     const mesh: IAutoMovieMesh = part.geometry.mesh;
     const colors: number[] = [];
     for (let i: number = 0; i < mesh.positions.length / 3; ++i) {
@@ -126,15 +141,23 @@ export function tintAutoMovieHumanSkin(props: {
       const normal: IAutoMovieVector3 =
         mesh.normals === null
           ? V.of(0, 0, 0)
-          : V.of(mesh.normals[3 * i]!, mesh.normals[3 * i + 1]!, mesh.normals[3 * i + 2]!);
+          : V.of(
+              mesh.normals[3 * i]!,
+              mesh.normals[3 * i + 1]!,
+              mesh.normals[3 * i + 2]!,
+            );
       const w: Record<Region, number> = {
-        palm: smooth((-normal.y - 0.3) / 0.4) * smooth((ankle - position.y) / 6),
+        palm:
+          smooth((-normal.y - 0.3) / 0.4) * smooth((ankle - position.y) / 6),
         lips: 0,
         flush: 0,
         ear: 0,
       };
       for (const hand of hands) {
-        const d: IAutoMovieVector3 = V.offset(position, [hand.frame.origin, -1]);
+        const d: IAutoMovieVector3 = V.offset(position, [
+          hand.frame.origin,
+          -1,
+        ]);
         const along: number = V.dot(d, hand.frame.normal);
         const facing: number = V.dot(normal, hand.frame.reference);
         w.palm = Math.max(
@@ -142,13 +165,17 @@ export function tintAutoMovieHumanSkin(props: {
           smooth((facing - 0.05) / 0.6) * smooth(along / hand.radius),
         );
       }
-      const face: IAutoMovieVector3 = frameAutoMovieHumanHead.toLocal(headFrame, position);
+      const face: IAutoMovieVector3 = frameAutoMovieHumanHead.toLocal(
+        headFrame,
+        position,
+      );
       // The same physical border as the lip loops, in the same head frame.
       // Its finite commissure allowance supplies the pigment-edge transition;
       // this is a conventional albedo fade, not a measured skin transition.
       if (Math.abs(face.x) < lips.halfWidth && face.z > headFrame.tragion.z) {
         const margin: number = AUTOMOVIE_HUMAN_LIP_FORM.commissure;
-        w.lips = smooth((lips.border(face.x, true) - face.y) / margin) *
+        w.lips =
+          smooth((lips.border(face.x, true) - face.y) / margin) *
           smooth((face.y - lips.border(face.x, false)) / margin);
       }
       for (const cheek of cheeks) {
@@ -156,18 +183,24 @@ export function tintAutoMovieHumanSkin(props: {
         w.flush = Math.max(w.flush, smooth(1.4 * (1 - distance * distance)));
       }
       for (const ear of ears) {
-        const d: IAutoMovieVector3 = V.offset(position, [ear.ring.frame.origin, -1]);
+        const d: IAutoMovieVector3 = V.offset(position, [
+          ear.ring.frame.origin,
+          -1,
+        ]);
         const outward: number = V.dot(d, ear.ring.frame.normal);
-        const up: number = V.dot(d, ear.ring.frame.reference) / (ear.ear.earLength / 2);
+        const up: number =
+          V.dot(d, ear.ring.frame.reference) / (ear.ear.earLength / 2);
         const across: number = V.dot(d, ear.across) / (ear.ear.earBreadth / 2);
         w.ear = Math.max(
           w.ear,
-          smooth(outward / ear.ear.earProtrusion) * smooth(1 - up * up - across * across),
+          smooth(outward / ear.ear.earProtrusion) *
+            smooth(1 - up * up - across * across),
         );
       }
       for (let c: number = 0; c < 3; ++c) {
         let value: number = body[c]!;
-        for (const region of REGIONS) value += w[region] * (regions[region][c]! - body[c]!);
+        for (const region of REGIONS)
+          value += w[region] * (regions[region][c]! - body[c]!);
         colors.push(Math.min(1, Math.max(0, value)));
       }
     }

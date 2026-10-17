@@ -1,5 +1,6 @@
 import {
   IAutoMovieHumanAppearance,
+  IAutoMovieHumanCurveSupplement,
   IAutoMovieHumanExpression,
   IAutoMovieHumanIdentity,
   IAutoMovieHumanPose,
@@ -42,4 +43,22 @@ export interface IHumanViewerSession {
 
   /** Surface appearance the model is generated with. */
   appearance: IAutoMovieHumanAppearance;
+
+  /** Optional separate curve inspection state; it never changes skin admission. */
+  curveDesign?: {
+    /** Visible construction source, restored with the physical measurements. */
+    source: "current-skin" | "curve-design";
+
+    /** Named physical measurements, without source frames or control vectors. */
+    detailed?: IAutoMovieHumanCurveSupplement;
+
+    /** Whether independently generated existing skin is compared with the design. */
+    compareExistingSurface: boolean;
+
+    /** Whether the ordinary inspection draws cage vertices and control polygons; omission preserves their visible default. */
+    showControlPoints?: boolean;
+
+    /** Explicit candidate representation; omission preserves the existing external R6b design. */
+    pelvisRepresentation?: "external-r6b" | "pants-r6";
+  };
 }

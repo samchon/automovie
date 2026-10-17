@@ -62,7 +62,11 @@ export function shapeAutoMovieHumanEar(
   const helix: number[] = stations(
     form.outline.map((k: IOutlineKey): IPoint => ({ x: k.helix, y: 0, h: 0 })),
   ).map((p: IPoint): number => Math.min(1, Math.max(0, p.x)));
-  const along: (j: number, depth: number, rise: number) => IPoint = (j: number, depth: number, rise: number): IPoint => {
+  const along: (j: number, depth: number, rise: number) => IPoint = (
+    j: number,
+    depth: number,
+    rise: number,
+  ): IPoint => {
     const o: IPoint = outline[j]!;
     const d: number = Math.hypot(centre.x - o.x, centre.y - o.y);
     return {
@@ -181,7 +185,12 @@ export function shapeAutoMovieHumanEar(
     }
     return { ...middle };
   };
-  const back: (j: number, t: number, lift: number, from?: IPoint) => IPoint = (j: number, t: number, lift: number, from?: IPoint): IPoint => {
+  const back: (j: number, t: number, lift: number, from?: IPoint) => IPoint = (
+    j: number,
+    t: number,
+    lift: number,
+    from?: IPoint,
+  ): IPoint => {
     const o: IPoint = rimBack[j]!;
     const r: IPoint = from ?? foot(o);
     const low: number = 0.7 * Math.max(window(j, 4.5, 3), window(j, 11, 2.5));
@@ -439,9 +448,11 @@ function range(n: number): number[] {
 function stations(keys: IPoint[]): IPoint[] {
   return range(24).map((j: number): IPoint => {
     if (j % 2 === 0) return keys[j / 2]!;
-    const at: (o: number) => IPoint = (o: number): IPoint => keys[((j - 1) / 2 + o + 12) % 12]!;
-    const mid: (f: (p: IPoint) => number) => number = (f: (p: IPoint) => number): number =>
-      (-f(at(-1)) + 9 * f(at(0)) + 9 * f(at(1)) - f(at(2))) / 16;
+    const at: (o: number) => IPoint = (o: number): IPoint =>
+      keys[((j - 1) / 2 + o + 12) % 12]!;
+    const mid: (f: (p: IPoint) => number) => number = (
+      f: (p: IPoint) => number,
+    ): number => (-f(at(-1)) + 9 * f(at(0)) + 9 * f(at(1)) - f(at(2))) / 16;
     return {
       x: mid((p: IPoint): number => p.x),
       y: mid((p: IPoint): number => p.y),

@@ -1,6 +1,6 @@
 # Meta (Oculus) Lipsync viseme reference
 
-Meta. "Viseme Reference" for Oculus Lipsync (Unity). Read at https://developers.meta.com/horizon/documentation/unity/audio-ovrlipsync-viseme-reference/ on 2026-10-15. The page states it is no longer updated and refers to the MPEG-4 viseme standard.
+Meta. "Viseme Reference" for Oculus Lipsync (Unity). Read at https://developers.meta.com/horizon/documentation/unity/audio-ovrlipsync-viseme-reference/. The page states it is no longer updated and refers to the MPEG-4 viseme standard.
 
 ## Licence
 

@@ -77,4 +77,3 @@ const FORK: Record<"drop" | "inset" | "half" | "lip" | "lipInset", number> = {
   lip: 0.6,
   lipInset: 0.06,
 };
-

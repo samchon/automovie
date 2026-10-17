@@ -1,15 +1,15 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
+import { curveAutoMovieHumanLips } from "../../junction/curveAutoMovieHumanLips";
 import { IAutoMovieHumanIdentity } from "../../structures/IAutoMovieHumanIdentity";
 import { AUTOMOVIE_HUMAN_FACIAL_TISSUE } from "./AUTOMOVIE_HUMAN_FACIAL_TISSUE";
 import { IAutoMovieHumanHeadForm } from "./IAutoMovieHumanHeadForm";
+import { curveAutoMovieHumanNose } from "./curveAutoMovieHumanNose";
+import { curveAutoMovieHumanOrbit } from "./curveAutoMovieHumanOrbit";
+import { curveAutoMovieHumanPhiltrum } from "./curveAutoMovieHumanPhiltrum";
 import { frameAutoMovieHumanHead } from "./frameAutoMovieHumanHead";
 import { profileAutoMovieHumanHead } from "./profileAutoMovieHumanHead";
 import { reliefAutoMovieHumanOrbit } from "./reliefAutoMovieHumanOrbit";
-import { curveAutoMovieHumanLips } from "../../junction/curveAutoMovieHumanLips";
-import { curveAutoMovieHumanOrbit } from "./curveAutoMovieHumanOrbit";
-import { curveAutoMovieHumanNose } from "./curveAutoMovieHumanNose";
-import { curveAutoMovieHumanPhiltrum } from "./curveAutoMovieHumanPhiltrum";
 
 /**
  * The head-frame gross form sources, with radial side masses separated from anterior facial heights.
@@ -32,7 +32,11 @@ export function reliefAutoMovieHumanHead(props: {
   profile: profileAutoMovieHumanHead.IProfile;
   form: IAutoMovieHumanHeadForm.IRelief;
   lips: IAutoMovieHumanHeadForm.ILips;
-  eye: { radius: number; margin: number; form: IAutoMovieHumanHeadForm.IEyelids };
+  eye: {
+    radius: number;
+    margin: number;
+    form: IAutoMovieHumanHeadForm.IEyelids;
+  };
 }): reliefAutoMovieHumanHead.IOutput {
   const { frame, head, profile }: typeof props = props;
   const form: IAutoMovieHumanHeadForm.IRelief = props.form;
@@ -57,23 +61,38 @@ export function reliefAutoMovieHumanHead(props: {
   );
 
   const nose: curveAutoMovieHumanNose.ICurve = curveAutoMovieHumanNose({
-    frame, head, profile, form: form.nose,
+    frame,
+    head,
+    profile,
+    form: form.nose,
   });
   const lips: curveAutoMovieHumanLips.ICurve = curveAutoMovieHumanLips({
-    head, stomion: frame.stomion.y, form: props.lips,
+    head,
+    stomion: frame.stomion.y,
+    form: props.lips,
   });
 
-  const philtrum: curveAutoMovieHumanPhiltrum.ICurve = curveAutoMovieHumanPhiltrum({
-    head, lips, span: props.lips.philtrum, subnasaleY: profile.subnasale.y,
-  });
+  const philtrum: curveAutoMovieHumanPhiltrum.ICurve =
+    curveAutoMovieHumanPhiltrum({
+      head,
+      lips,
+      span: props.lips.philtrum,
+      subnasaleY: profile.subnasale.y,
+    });
 
   // the soft tissue over each site, and how much of a bony or muscular term of a given breadth shows through it: a bump of
   // half-width w under a layer t deep reaches the skin as the bump blurred over the layer's depth, w' = sqrt(w^2 + t^2), its height
   // falling by (w / w')^2 over an area and by w / w' along a ridge
-  const tissue: (site: keyof typeof AUTOMOVIE_HUMAN_FACIAL_TISSUE) => number = (site: keyof typeof AUTOMOVIE_HUMAN_FACIAL_TISSUE): number =>
+  const tissue: (site: keyof typeof AUTOMOVIE_HUMAN_FACIAL_TISSUE) => number = (
+    site: keyof typeof AUTOMOVIE_HUMAN_FACIAL_TISSUE,
+  ): number =>
     AUTOMOVIE_HUMAN_FACIAL_TISSUE[site].lean +
     AUTOMOVIE_HUMAN_FACIAL_TISSUE[site].gain * fat;
-  const through: (width: number, depth: number, ridge: boolean) => { width: number; height: number } = (
+  const through: (
+    width: number,
+    depth: number,
+    ridge: boolean,
+  ) => { width: number; height: number } = (
     width: number,
     depth: number,
     ridge: boolean,
@@ -84,23 +103,43 @@ export function reliefAutoMovieHumanHead(props: {
   // the skeleton's and muscles' prominence follows lean mass, the robust brow, zygoma and jaw of a muscular build
   const robust: number = form.robust + (1 - form.robust) * lean;
 
-  const orbitalCourses: ReturnType<typeof curveAutoMovieHumanOrbit> = curveAutoMovieHumanOrbit({frame,features:f,form:props.eye.form,eyeRadius:props.eye.radius});
+  const orbitalCourses: ReturnType<typeof curveAutoMovieHumanOrbit> =
+    curveAutoMovieHumanOrbit({
+      frame,
+      features: f,
+      form: props.eye.form,
+      eyeRadius: props.eye.radius,
+    });
   const orbit: (p: IAutoMovieVector3) => number = reliefAutoMovieHumanOrbit({
-    frame, head, form, robust, tissue, through, eye: props.eye,
+    frame,
+    head,
+    form,
+    robust,
+    tissue,
+    through,
+    eye: props.eye,
   });
   // masses on the side of the face, each a bump over the side's own height and depth, faded in from the face's front
   // a child's face is small under its vault: the share it falls short of the adult's face height over head height
   const youth: number =
     Math.max(0, ADULT_FACE_SHARE - fh / head.headHeight) / ADULT_FACE_SHARE;
   const z: IAutoMovieVector3 = frame.zygion;
-  const bump: (p: IAutoMovieVector3, y: number, depth: number, ry: number, rz: number) => number = (
+  const bump: (
+    p: IAutoMovieVector3,
+    y: number,
+    depth: number,
+    ry: number,
+    rz: number,
+  ) => number = (
     p: IAutoMovieVector3,
     y: number,
     depth: number,
     ry: number,
     rz: number,
   ): number => Math.exp(-(((p.y - y) / ry) ** 2) - ((p.z - depth) / rz) ** 2);
-  const side: (p: IAutoMovieVector3) => number = (p: IAutoMovieVector3): number =>
+  const side: (p: IAutoMovieVector3) => number = (
+    p: IAutoMovieVector3,
+  ): number =>
     smooth(0.45, 0.75, Math.abs(p.x) / Math.max(1, profile.breadth(p.y)));
   const malarY: number =
     frame.eye.y - form.malar.below * f.palpebralFissureLength;
@@ -109,7 +148,11 @@ export function reliefAutoMovieHumanHead(props: {
     tissue("zygion"),
     false,
   );
-  const archRidge: { width: number; height: number } = through(form.arch.width * fh, tissue("zygion"), true);
+  const archRidge: { width: number; height: number } = through(
+    form.arch.width * fh,
+    tissue("zygion"),
+    true,
+  );
   const templeHollow: { width: number; height: number } = through(
     form.temple.spread * fh,
     tissue("frontal"),
@@ -120,7 +163,9 @@ export function reliefAutoMovieHumanHead(props: {
     tissue("gonion"),
     false,
   );
-  const masses: (p: IAutoMovieVector3) => number = (p: IAutoMovieVector3): number => {
+  const masses: (p: IAutoMovieVector3) => number = (
+    p: IAutoMovieVector3,
+  ): number => {
     const malar: number =
       form.malar.height *
       fh *
@@ -194,43 +239,80 @@ export function reliefAutoMovieHumanHead(props: {
     radial: (p: IAutoMovieVector3): number =>
       p.z <= frame.tragion.z - 10 ? 0 : masses(p),
     anterior: (p: IAutoMovieVector3): number =>
-      p.z <= frame.tragion.z - 10 ? 0 :
-        nose.displacement(p.x, p.y) +
-        philtrum.displacement(p.x, p.y) + orbit(p),
+      p.z <= frame.tragion.z - 10
+        ? 0
+        : nose.displacement(p.x, p.y) +
+          philtrum.displacement(p.x, p.y) +
+          orbit(p),
     guides: [
-      ...([-1,1] as const).flatMap((side:number):reliefAutoMovieHumanHead.IGuide[] =>
-        [true,false].map((upper:boolean):reliefAutoMovieHumanHead.IGuide=>({
-          name:`orbit.${side > 0 ? "left" : "right"}.${upper ? "upper" : "lower"}`,
-          closed:false,
-          at:(t:number):{x:number;y:number}=>{
-            const p:IAutoMovieVector3=orbitalCourses.envelope(t,upper);
-            return {x:side*p.x,y:p.y};
-          },
-        })),
+      ...([-1, 1] as const).flatMap(
+        (side: number): reliefAutoMovieHumanHead.IGuide[] =>
+          [true, false].map(
+            (upper: boolean): reliefAutoMovieHumanHead.IGuide => ({
+              name: `orbit.${side > 0 ? "left" : "right"}.${upper ? "upper" : "lower"}`,
+              closed: false,
+              at: (t: number): { x: number; y: number } => {
+                const p: IAutoMovieVector3 = orbitalCourses.envelope(t, upper);
+                return { x: side * p.x, y: p.y };
+              },
+            }),
+          ),
       ),
-      { name: "nose.dorsum", closed: false, at: (t: number): { x: number; y: number } => ({ x: 0, y: frame.nasion.y + (nose.tip.y - frame.nasion.y) * t }) },
-      { name: "nose.underside", closed: false, at: (t: number): { x: number; y: number } => ({ x: 0, y: nose.tip.y + (profile.subnasale.y - nose.tip.y) * t }) },
-      ...([-1, 1] as const).flatMap((side: number): reliefAutoMovieHumanHead.IGuide[] => [
-        { name: `nose.ala.${side < 0 ? "right" : "left"}`, closed: false, at: (t: number): { x: number; y: number } => ({ x: side * form.nose.alaOffset * f.noseWidth, y: nose.tip.y + (profile.subnasale.y - nose.tip.y) * t }) },
-      ]),
+      {
+        name: "nose.dorsum",
+        closed: false,
+        at: (t: number): { x: number; y: number } => ({
+          x: 0,
+          y: frame.nasion.y + (nose.tip.y - frame.nasion.y) * t,
+        }),
+      },
+      {
+        name: "nose.underside",
+        closed: false,
+        at: (t: number): { x: number; y: number } => ({
+          x: 0,
+          y: nose.tip.y + (profile.subnasale.y - nose.tip.y) * t,
+        }),
+      },
+      ...([-1, 1] as const).flatMap(
+        (side: number): reliefAutoMovieHumanHead.IGuide[] => [
+          {
+            name: `nose.ala.${side < 0 ? "right" : "left"}`,
+            closed: false,
+            at: (t: number): { x: number; y: number } => ({
+              x: side * form.nose.alaOffset * f.noseWidth,
+              y: nose.tip.y + (profile.subnasale.y - nose.tip.y) * t,
+            }),
+          },
+        ],
+      ),
     ],
   };
 }
 
 /** Body fat percentages between which the face's soft tissue goes from the lean young adult's depth to the overweight one's (body mass index under 25 and over), and between which the buccal fat goes from lean to full, and the temporal hollow from empty to filled. Conventional. */
-const FAT: Readonly<{ lean: number; full: number }> = { lean: 12, full: 32 } as const;
+const FAT: Readonly<{ lean: number; full: number }> = {
+  lean: 12,
+  full: 32,
+} as const;
 
 /** Appendicular lean mass indices between which the masseter goes from slight to full, kilograms per square metre. Conventional, about the NHANES female and male means at 20 (Kelly et al. 2009). */
-const LEAN: Readonly<{ low: number; high: number }> = { low: 6.5, high: 9.5 } as const;
+const LEAN: Readonly<{ low: number; high: number }> = {
+  low: 6.5,
+  high: 9.5,
+} as const;
 
 /** The adult face's share of head height, morphological face height over head height: about 119 over 222 mm (3D Facial Norms and the converter's adults). Derived. */
 const ADULT_FACE_SHARE: number = 0.54;
 
-const smooth: (a: number, b: number, x: number) => number = (a: number, b: number, x: number): number => {
+const smooth: (a: number, b: number, x: number) => number = (
+  a: number,
+  b: number,
+  x: number,
+): number => {
   const t: number = Math.min(1, Math.max(0, (x - a) / (b - a)));
   return t * t * (3 - 2 * t);
 };
-
 
 /** Directional output of the shared facial source. */
 export namespace reliefAutoMovieHumanHead {

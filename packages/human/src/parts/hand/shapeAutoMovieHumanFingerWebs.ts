@@ -16,10 +16,14 @@ export function shapeAutoMovieHumanFingerWebs(props: {
   length: number;
 }): shapeAutoMovieHumanFingerWebs.IWeb[] {
   const fingers: readAutoMovieHumanHand.IDigit[] = FINGERS.map(
-    (finger: readAutoMovieHumanHand.IFinger): readAutoMovieHumanHand.IDigit => props.hand.fingers[finger],
+    (finger: readAutoMovieHumanHand.IFinger): readAutoMovieHumanHand.IDigit =>
+      props.hand.fingers[finger],
   );
   const sections: sectionAutoMovieHumanFingerShaft.ISection[] = FINGERS.map(
-    (finger: readAutoMovieHumanHand.IFinger): sectionAutoMovieHumanFingerShaft.ISection => sectionAutoMovieHumanFingerShaft(finger, props.breadth),
+    (
+      finger: readAutoMovieHumanHand.IFinger,
+    ): sectionAutoMovieHumanFingerShaft.ISection =>
+      sectionAutoMovieHumanFingerShaft(finger, props.breadth),
   );
   return [0, 1, 2].map((i: number): shapeAutoMovieHumanFingerWebs.IWeb => {
     const a: sectionAutoMovieHumanFingerShaft.ISection = sections[i]!;
@@ -27,9 +31,12 @@ export function shapeAutoMovieHumanFingerWebs(props: {
     const palmar: number = Math.min(a.palmar, b.palmar) / 2;
     const ulnar: number = fingers[i + 1]!.points[0]!.z + b.halfBreadth(palmar);
     const radial: number = fingers[i]!.points[0]!.z - a.halfBreadth(palmar);
-    if (!(radial > ulnar)) throw new Error("Finger-shaft web boundaries overlap");
+    if (!(radial > ulnar))
+      throw new Error("Finger-shaft web boundaries overlap");
     return {
-      distal: (fingers[i]!.crease + fingers[i + 1]!.crease) / 2 + AUTOMOVIE_HUMAN_HAND_FORM.webs[i]! * props.length,
+      distal:
+        (fingers[i]!.crease + fingers[i + 1]!.crease) / 2 +
+        AUTOMOVIE_HUMAN_HAND_FORM.webs[i]! * props.length,
       palmar,
       ulnar,
       radial,
@@ -56,4 +63,9 @@ export namespace shapeAutoMovieHumanFingerWebs {
 }
 
 /** Fingers in radial-to-ulnar order. */
-const FINGERS: readAutoMovieHumanHand.IFinger[] = ["Index", "Middle", "Ring", "Little"];
+const FINGERS: readAutoMovieHumanHand.IFinger[] = [
+  "Index",
+  "Middle",
+  "Ring",
+  "Little",
+];

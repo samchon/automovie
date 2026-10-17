@@ -4,7 +4,7 @@ Walt Disney Animation Studios, Ptex overview, https://ptex.us/overview.html.
 
 ## Licence
 
-The software licence was not checked; Human uses no Ptex code and reads the overview for comparison only.
+Technique comparison only; Human uses no Ptex code. Its software licence is outside this note.
 
 ## What it says
 

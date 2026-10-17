@@ -35,7 +35,12 @@ import { IAutoMovieHumanRingLayout } from "./IAutoMovieHumanRingLayout";
  * @returns The ring's count, start, frame and vertex directions for that part
  * @throws {Error} When the side does not match the site's laterality or the part does not meet at the site
  */
-export const layoutAutoMovieHumanRing: (props: { skeleton: IAutoMovieHumanSkeleton; site: AutoMovieHumanJunctionSite; side: AutoMovieHumanSide | null; part: AutoMovieHumanPart; }) => IAutoMovieHumanRingLayout = (props: {
+export const layoutAutoMovieHumanRing: (props: {
+  skeleton: IAutoMovieHumanSkeleton;
+  site: AutoMovieHumanJunctionSite;
+  side: AutoMovieHumanSide | null;
+  part: AutoMovieHumanPart;
+}) => IAutoMovieHumanRingLayout = (props: {
   skeleton: IAutoMovieHumanSkeleton;
   site: AutoMovieHumanJunctionSite;
   side: AutoMovieHumanSide | null;
@@ -113,12 +118,18 @@ const TOWARD: Partial<Record<AutoMovieHumanDirection, IAutoMovieVector3>> = {
 /** The T-pose palm faces down, so the wrist's anterior, palmar surface faces -Y. */
 const PALMAR: IAutoMovieVector3 = AutoMovieHumanVector.of(0, -1, 0);
 
-const cutSite: (skeleton: IAutoMovieHumanSkeleton, site: AutoMovieHumanJunctionSite, side: AutoMovieHumanSide | null) => ICut = (
+const cutSite: (
+  skeleton: IAutoMovieHumanSkeleton,
+  site: AutoMovieHumanJunctionSite,
+  side: AutoMovieHumanSide | null,
+) => ICut = (
   skeleton: IAutoMovieHumanSkeleton,
   site: AutoMovieHumanJunctionSite,
   side: AutoMovieHumanSide | null,
 ): ICut => {
-  const joint: (bone: AutoMovieHumanoidBone) => IAutoMovieVector3 = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 => {
+  const joint: (bone: AutoMovieHumanoidBone) => IAutoMovieVector3 = (
+    bone: AutoMovieHumanoidBone,
+  ): IAutoMovieVector3 => {
     const found: IAutoMovieHumanSkeleton.IJoint | undefined =
       skeleton.joints.find(
         (j: IAutoMovieHumanSkeleton.IJoint): boolean => j.bone === bone,
@@ -129,8 +140,9 @@ const cutSite: (skeleton: IAutoMovieHumanSkeleton, site: AutoMovieHumanJunctionS
   const landmarks: IAutoMovieHumanLandmarks = skeleton.landmarks;
   const lateral: IAutoMovieHumanLandmarks.ISide =
     side === "right" ? landmarks.right : landmarks.left;
-  const bone: (name: string) => AutoMovieHumanoidBone = (name: string): AutoMovieHumanoidBone =>
-    `${side}${name}` as AutoMovieHumanoidBone;
+  const bone: (name: string) => AutoMovieHumanoidBone = (
+    name: string,
+  ): AutoMovieHumanoidBone => `${side}${name}` as AutoMovieHumanoidBone;
   const anterior: IAutoMovieVector3 = TOWARD.anterior!;
   switch (site) {
     case "neckBase":
@@ -228,7 +240,11 @@ const cutSite: (skeleton: IAutoMovieHumanSkeleton, site: AutoMovieHumanJunctionS
 };
 
 /** Cut perpendicular to the bone from `from` to `to`, through the projection of `at` on its axis. */
-const axisCut: (from: IAutoMovieVector3, to: IAutoMovieVector3, at: IAutoMovieVector3) => Omit<ICut, "toward"> = (
+const axisCut: (
+  from: IAutoMovieVector3,
+  to: IAutoMovieVector3,
+  at: IAutoMovieVector3,
+) => Omit<ICut, "toward"> = (
   from: IAutoMovieVector3,
   to: IAutoMovieVector3,
   at: IAutoMovieVector3,
@@ -251,7 +267,13 @@ const axisCut: (from: IAutoMovieVector3, to: IAutoMovieVector3, at: IAutoMovieVe
 /**
  * Cut in the plane through three points, oriented along the bone from `from` to `to`, with its origin where that bone's axis crosses the plane.
  */
-const planeCut: (from: IAutoMovieVector3, to: IAutoMovieVector3, a: IAutoMovieVector3, b: IAutoMovieVector3, c: IAutoMovieVector3) => Omit<ICut, "toward"> = (
+const planeCut: (
+  from: IAutoMovieVector3,
+  to: IAutoMovieVector3,
+  a: IAutoMovieVector3,
+  b: IAutoMovieVector3,
+  c: IAutoMovieVector3,
+) => Omit<ICut, "toward"> = (
   from: IAutoMovieVector3,
   to: IAutoMovieVector3,
   a: IAutoMovieVector3,

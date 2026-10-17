@@ -48,6 +48,19 @@ export namespace IAutoMovieHumanConstructionNet {
     /** What the curve is. */
     kind: Kind;
 
+    /** Optional curve-design role; absent on historical skin-construction nets. It describes use, not clinical or exterior-surface acceptance. */
+    designRole?:
+      | "section"
+      | "guide"
+      | "feature"
+      | "engineering-closure"
+      | "atlas-boundary"
+      | "connection-rail"
+      | "unspecified";
+
+    /** Owner's meaning and approximation limits for a design course; absent on historical skin nets. */
+    designQualification?: string;
+
     /** Name of the sweep, curve or ring it belongs to. */
     name: string;
 
@@ -64,6 +77,9 @@ export namespace IAutoMovieHumanConstructionNet {
    * @author Samchon
    */
   export interface ICage {
+    /** Meaning of the displayed control edges; Bezier handles are coefficients, not through-points or subdivision-skin cage vertices. */
+    controlRole?: "bezier-controls" | "skin-cage" | "unspecified";
+
     /** Vertex positions, metres, flattened as x, y, z. */
     positions: number[];
 

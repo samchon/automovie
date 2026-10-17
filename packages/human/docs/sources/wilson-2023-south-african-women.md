@@ -1,10 +1,10 @@
 # Wilson 2023, young Black South African woman
 
-Wilson SP, Medapati V, Segwapa K. "Facial Anthropometric Norms of the Young Black South African Woman." *Plastic and Reconstructive Surgery Global Open* 11(4):e4942, 2023, doi:10.1097/GOX.0000000000004942. Read as PMC10146544 (NCBI efetch).
+Wilson SP, Medapati V, Segwapa K. "Facial Anthropometric Norms of the Young Black South African Woman." *Plastic and Reconstructive Surgery Global Open* 11(4):e4942, 2023, doi:10.1097/GOX.0000000000004942. [Full text](https://pmc.ncbi.nlm.nih.gov/articles/PMC10146544/).
 
 ## Licence
 
-CC BY-NC-ND 4.0. Numbers are facts.
+CC BY-NC-ND 4.0.
 
 ## Population and protocol
 

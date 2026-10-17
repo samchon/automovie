@@ -32,6 +32,9 @@ export interface IAutoMovieHumanTraits {
   /** Reference population whose means the converter starts from. */
   population: AutoMovieHumanPopulation;
 
+  /** Skin pigmentation independent of population: 0 is pale (melanin fraction 0.013), 1 is dark (0.43), interpolated logarithmically. Omitted, preserve the converter's established population default; detailed identities can additionally set eumelanin share and haemoglobin. This is a conventional authoring scale, not a clinical phototype. */
+  skinTone?: number & tags.Minimum<0> & tags.Maximum<1>;
+
   /** Build offsets from the population mean. */
   build: IAutoMovieHumanTraits.IBuild;
 }

@@ -20,14 +20,19 @@ import { limitSubdivisionLevel } from "./limitSubdivisionLevel";
  * @evidence contracts/performance.md#reuse-equivalent-work Completed topology and UV arrays are shared read-only with the returned surface, and each physical vertex chooses its parameter once. Limit geometry is evaluated once for both render and construction consumers.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The result shares level arrays rather than duplicating them, and owns new limit and parameter arrays. No module state or completed request is retained.
  */
-export function evaluateSubdivisionLevel(level: ISubdivisionLevel): IAutoMovieSubdivisionSurface {
-  const limit: ReturnType<typeof limitSubdivisionLevel> = limitSubdivisionLevel(level);
-  const parameters: IAutoMovieSubdivisionParameter[] = new Array<IAutoMovieSubdivisionParameter>(level.topology.vertexCount);
+export function evaluateSubdivisionLevel(
+  level: ISubdivisionLevel,
+): IAutoMovieSubdivisionSurface {
+  const limit: ReturnType<typeof limitSubdivisionLevel> =
+    limitSubdivisionLevel(level);
+  const parameters: IAutoMovieSubdivisionParameter[] =
+    new Array<IAutoMovieSubdivisionParameter>(level.topology.vertexCount);
   level.topology.faceVertices.forEach((v: number, c: number): void => {
     if (parameters[v] !== undefined) return;
     parameters[v] = {
       face: level.parameterFaces[c]!,
-      corner: level.parameterCorners[c] === -1 ? null : level.parameterCorners[c]!,
+      corner:
+        level.parameterCorners[c] === -1 ? null : level.parameterCorners[c]!,
       u: level.parameterU[c]!,
       v: level.parameterV[c]!,
     };

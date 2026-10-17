@@ -36,7 +36,10 @@ export function sweepAutoMovieHumanTrunkThigh(props: {
     1,
     Math.max(0, (L.gluteal - y) / (L.gluteal - ring.frame.origin.y)),
   );
-  const lerp: (a: number, b: number) => number = (a: number, b: number): number => a + (b - a) * w;
+  const lerp: (a: number, b: number) => number = (
+    a: number,
+    b: number,
+  ): number => a + (b - a) * w;
   const xs: number[] = ring.positions.map(
     (p: IAutoMovieVector3): number => p.x,
   );
@@ -61,7 +64,8 @@ export function sweepAutoMovieHumanTrunkThigh(props: {
     centre - shift.z,
   );
   const collar: number =
-    (1 - S.COLLAR.thigh) * AutoMovieHumanVector.distance(start, ring.frame.origin);
+    (1 - S.COLLAR.thigh) *
+    AutoMovieHumanVector.distance(start, ring.frame.origin);
   const normal: IAutoMovieVector3 = AutoMovieHumanVector.normalize(
     ring.frame.normal,
   );

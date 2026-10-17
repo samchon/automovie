@@ -55,8 +55,6 @@ Adiposity and muscularity each move body fat and the appendicular lean mass inde
 | Mid-thigh | 0.92 / 2.30 | 0.93 / 2.34 |
 | Calf | 0.95 / 2.19 | 0.94 / 2.26 |
 
-Gate identity targets are in `../sources/gate-identity-targets.md`.
-
 ## Children
 
 Children take their own medians (`estimateAutoMovieHumanComposition`): body fat from the NHANES pediatric DXA tables (Kelly et al. 2009, Table S9, White medians: boys 26.5% at 8, 23.8 at 14, 21.3 at 16; girls 31.6 at 8 rising to 34.3 at 18), extended to 5.5 years by the BMDCS fat mass index course, and the appendicular lean mass index from the BMDCS (`../sources/zemel-2023-bmdcs-body-composition.md`: 4.2 girls and 4.55 boys at 5, 6.7 and 8.6 at 19), which meets Kelly's adults at 20. Below 5.5 both hold. A child no longer receives an adult's lean mass and muscle relief.
@@ -74,6 +72,6 @@ Breast and buttock are body volume on the trunk cross-sections, not separate par
 
 - Subcutaneous fat thickness per site (skinfolds or ultrasound by region) was not read; the trunk-to-limb ratios split fat by region only coarsely.
 - A breast volume relation to bust and underbust girths and to age (ptosis) has no measured source read.
-- ANSUR II is a military sample with narrowed adiposity tails; NHANES microdata (thigh, calf and arm girths for 1999 to 2006 with DXA) would extend the fits to the civilian range but were not downloaded.
-- Women's appendicular lean mass index past 65 was unreadable in the supplement (20 to 65 now read: 6.81 to 6.67); infant composition below 5 years was not read.
+- ANSUR II is a military sample with narrowed adiposity tails; transfer of its girth fits to civilian extremes remains unverified.
+- Women's appendicular lean mass index past 65 lacks a retained readable source (20 to 65: 6.81 to 6.67 kg/m2); infant composition below 5 years was not read.
 - How muscularity (lean mass) should be distributed across muscles: no regional muscle-volume source read.

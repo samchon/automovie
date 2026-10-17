@@ -31,33 +31,35 @@ Hemoglobin absorption from Prahl's compilation: σa(λ) = 0.0054 · e(λ) cm⁻�
 | Blood oxygenation γ | 0.6 to 0.8, fixed 0.75 | relayed | conventional | Donner-Jensen |
 | Oiliness ρs | 0 to 1, with Beckmann roughness m = 0.35 | model | conventional | Donner-Jensen |
 
-Ancestry and individual variation live in Cm and βm; an identity stores these, never an RGB colour. Melanin is constant across expressions for one person; hemoglobin varies (Jimenez 2010).
+An identity describes individual pigmentation with Cm and βm, rather than an RGB colour. Conventional population defaults do not measure an individual's optical quantities. Melanin is constant across expressions for one person; hemoglobin varies (Jimenez 2010).
 
 ## Dynamic colour
 
-From `../sources/jimenez-2010-dynamic-facial-color.md` (measured on four adults): expression-induced hemoglobin changes are highly repeatable per expression; compressed skin drains and stretched or flushed regions gain blood; global states scale hemoglobin (the paper's renders used 127 percent for anger, 81 percent for fear). Rendering uses a 2D lookup of colour over (Cm, Chd) at fixed βm and Che = 0.25 Chd, so per-pixel cost is one texture fetch. For Human the expression document drives a per-region hemoglobin scale; identity sets the neutral maps.
+From `../sources/jimenez-2010-dynamic-facial-color.md` (measured on four adults under the paper's protocol): expression-induced hemoglobin changes were repeatable; compressed, stretched and flushed regions changed differently. The paper's renders used 127 percent for anger and 81 percent for fear. Its renderer uses a 2D colour lookup over (Cm, Chd) at fixed βm and Che = 0.25 Chd. These are the source's observations and modeling choices, not universal expression multipliers.
+
+An expression-driven regional hemoglobin field is proposed for Human. Current `AutoMovieHuman.express` validates input and returns neutral expression; it does not drive a pigment or blood map. The current material consumes neutral identity fractions and conventional regional tint factors.
 
 ## Translucency
 
 - Lateral diffusion: d'Eon and Luebke's six-Gaussian skin profile (`../sources/deon-luebke-2007-skin-rendering.md`), variances 0.0064, 0.0484, 0.187, 0.567, 1.99, 7.41 mm² with red weights 0.233, 0.100, 0.118, 0.113, 0.358, 0.078; green 0.455, 0.336, 0.198, 0.007, 0.004, 0; blue 0.649, 0.344, 0, 0.007, 0, 0. Weighted standard deviation per channel (derived): red 1.18 mm, green 0.26 mm, blue 0.16 mm, the obvious starting values for the viewer's `subsurfaceRadius` (in metres: 0.00118, 0.00026, 0.00016).
-- Back-lit transmission through thin parts (ear, nostril rim, eyelids): three.js's translucency shader (`../sources/threejs-r186-subsurface.md`) adds (pow(saturate(V·-(L + N·0.1)), 2) · 10 + ambient) · thickness · 0.1 to direct diffuse; it needs a per-surface thickness, which the generator knows exactly (ear cartilage plate, alar wall, lid).
+- Back-lit transmission through thin parts (ear, nostril rim, eyelids): three.js's example translucency shader (`../sources/threejs-r186-subsurface.md`) adds (pow(saturate(V·-(L + N·0.1)), 2) · 10 + ambient) · thickness · 0.1 to direct diffuse. A Human thickness field would need to be derived from the actual emitted geometry and validated for the supported light directions and thin structures. Construction offsets are not exact optical path lengths. The current skin material does not publish that spatial thickness field, and its curvature-based approximation does not establish thin-part transmission.
 
 ## Specular
 
-F0 = 0.028 from index 1.4, white specular colour (`../sources/deon-luebke-2007-skin-rendering.md`); Beckmann roughness about 0.35 (Donner-Jensen), with ρs scaling oiliness. Weyrich 2006's per-region roughness and intensity (ten facial regions, 149 faces) are cited by d'Eon and Jimenez but were not read; the nose and lips are shinier per d'Eon.
+F0 = 0.028 from index 1.4, white specular colour (`../sources/deon-luebke-2007-skin-rendering.md`); Beckmann roughness about 0.35 (Donner-Jensen), with ρs scaling oiliness. [Weyrich 2006](../sources/weyrich-2006-skin-reflectance.md) reports measured regional reflectance: ten facial regions have differing reflectance distributions. These measurements do not directly calibrate GGX roughness, the current oiliness mapping or whole-body values.
 
 ## Homogeneity and age
 
-Even skin colour distribution, independent of shape and relief, draws attention and reads younger and more attractive (`../sources/fink-2008-skin-colour-distribution.md`, abstract). Young identities get smooth melanin and hemoglobin maps; age adds low-frequency patchiness in both.
+The Fink perception study relates colour homogeneity to perceived age and attractiveness (`../sources/fink-2008-skin-colour-distribution.md`, abstract). It does not establish universally smooth young skin or an age-only pigment-patch distribution. Any procedural variation needs independently stated scale, amplitude and regional assumptions.
 
 ## Micro-relief
 
-Procedural pores and fine wrinkles as normal maps are described in `../techniques/skin-material.md` (cellular noise after Worley 1996). Wrinkle maps masked by expression zones and combined as partial-derivative normals are the Jimenez 2010 renderer's method. No measured pore density, pore size or wrinkle depth was found in the sources read.
+Procedural pores and fine wrinkles as normal maps are described in `../techniques/skin-material.md` (cellular noise after Worley 1996). Wrinkle maps masked by expression zones and combined as partial-derivative normals are the Jimenez 2010 renderer's method. [Skin-feature distribution sources](../sources/skin-feature-distribution.md) records measured cheek-visible depressions and site-specific follicles with their distinct protocols. These do not calibrate the current universal pore tile; no general depth or wrinkle-depth distribution was found.
 
 ## Open questions
 
-- Regional pigment and blood for lips, palms, soles, nail beds, areas around the eyes and the ear: no measured values read. These carry visible colour differences and need sources.
-- Pore density and diameter by facial region, and fine-wrinkle spacing and depth by age.
+- Calibrated regional chromophore fractions for lips, palms, soles, nail beds, areas around the eyes and the ear: cell counts and colour measurements read so far do not directly supply these values.
+- Pore entities, density and diameter beyond the specific protocols now read, and fine-wrinkle spacing and depth by age.
 - The reflectance formula from (Cm, βm, Ch) to RGB: the multipole model (Donner and Jensen 2005) was not read; a simpler two-layer formula would need its own validation against the paper's figures.
-- Weyrich 2006 regional specular values.
+- A mapping from the directly read Weyrich regional reflectance measurements to the installed renderer's material parameters.
 - Vellus hair (peach fuzz) sheen on cheeks and its age and sex dependence.

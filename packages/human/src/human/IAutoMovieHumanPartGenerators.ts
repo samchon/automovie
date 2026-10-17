@@ -1,4 +1,5 @@
 import { AutoMovieHumanPart } from "../junction/AutoMovieHumanPart";
+import { IAutoMovieHumanEyeHairHost } from "../junction/IAutoMovieHumanEyeHairHost";
 import { IAutoMovieHumanPartGenerator } from "../parts/IAutoMovieHumanPartGenerator";
 
 /**
@@ -8,4 +9,12 @@ import { IAutoMovieHumanPartGenerator } from "../parts/IAutoMovieHumanPartGenera
  */
 export type IAutoMovieHumanPartGenerators = {
   readonly [Part in AutoMovieHumanPart]: IAutoMovieHumanPartGenerator<Part>;
+} & {
+  /** The selected head may expose the eye-hair attachment capability it actually generates. */
+  readonly head: IAutoMovieHumanPartGenerator<"head"> & {
+    /** Resolve that head's live lid owner for these person inputs; absent means unsupported eye-hair appearance. */
+    eyeHairHost?: (
+      props: IAutoMovieHumanPartGenerator.IProps<"head">,
+    ) => IAutoMovieHumanEyeHairHost;
+  };
 };

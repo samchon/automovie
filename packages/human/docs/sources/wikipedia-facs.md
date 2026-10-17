@@ -1,10 +1,10 @@
 # Wikipedia, Facial Action Coding System
 
-"Facial Action Coding System." Wikipedia, English, read as wikitext from https://en.wikipedia.org/w/index.php?title=Facial_Action_Coding_System&action=raw on 2026-10-15.
+"Facial Action Coding System." [Wikipedia](https://en.wikipedia.org/wiki/Facial_Action_Coding_System), secondary summary.
 
 ## Licence
 
-Text CC BY-SA 4.0. The FACS manual itself (Ekman and Friesen 1978; Ekman, Friesen and Hager 2002, over 500 pages) is copyrighted and was not read. Only the AU numbers, names and muscular basis are taken, as facts; the article's wording is not copied into code.
+Text CC BY-SA 4.0. The FACS manual (Ekman and Friesen 1978; Ekman, Friesen and Hager 2002) is copyrighted; this note relies on the secondary summary. Only the AU numbers, names and muscular basis are taken, as facts; the article's wording is not copied into code.
 
 ## Content used
 

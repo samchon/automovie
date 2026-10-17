@@ -1,6 +1,6 @@
 # WHO Child Growth Standards, head circumference for age
 
-World Health Organization. WHO Child Growth Standards: head-circumference-for-age, birth to 5 years (2006/2007). Read the z-score workbooks from https://www.who.int/tools/child-growth-standards/standards/head-circumference-for-age (`hcfa-boys-0-5-zscores.xlsx`, `hcfa-girls-0-5-zscores.xlsx`).
+World Health Organization. WHO Child Growth Standards: head-circumference-for-age, birth to 5 years (2006/2007). Z-score workbooks: https://www.who.int/tools/child-growth-standards/standards/head-circumference-for-age (`hcfa-boys-0-5-zscores.xlsx`, `hcfa-girls-0-5-zscores.xlsx`).
 
 ## Licence
 
@@ -8,7 +8,7 @@ WHO publication; tables are freely downloadable reference data, cite WHO.
 
 ## Population and protocol
 
-WHO standard curves published as LMS parameters per month; L = 1 for head circumference in both workbooks, so each month is a normal distribution. The study population and protocol were not read here. Grade: measured, then population-fitted.
+WHO standard curves published as LMS parameters per month; L = 1 for head circumference in both workbooks, so each month is a normal distribution. The cited workbook evidence does not establish the study population or measurement protocol. Grade: measured, then population-fitted.
 
 ## Medians and SD (cm)
 

@@ -89,7 +89,11 @@ export const rigAutoMovieSurfaceNetwork: (props: {
 }): IAutoMovieSurfaceRig => {
   const { network, tier }: typeof props = props;
   const bindings: NonNullable<typeof props.bindings> = props.bindings ?? {};
-  function known(names: string[], record: object | undefined, what: string): void {
+  function known(
+    names: string[],
+    record: object | undefined,
+    what: string,
+  ): void {
     for (const name of Object.keys(record ?? {}))
       if (!names.includes(name))
         throw new Error(`binding names unknown ${what} ${name}`);
@@ -200,7 +204,9 @@ export const rigAutoMovieSurfaceNetwork: (props: {
       const point: IAutoMovieSurfacePoint & { key: string } = {
         key: sweepKey(n.sweep, n.u, n.v),
         write: (): void => {
-          throw new Error("a geometric node was read before registry finalization");
+          throw new Error(
+            "a geometric node was read before registry finalization",
+          );
         },
         probe: null,
       };
@@ -210,7 +216,11 @@ export const rigAutoMovieSurfaceNetwork: (props: {
           point.write = resolved?.write ?? rig.sample(n.u, n.v, [0, 0, 0, 0]);
           point.probe = {
             rig,
-            slot: rig.probe(resolved?.u ?? n.u, resolved?.v ?? n.v, resolved?.cell),
+            slot: rig.probe(
+              resolved?.u ?? n.u,
+              resolved?.v ?? n.v,
+              resolved?.cell,
+            ),
           };
         },
       );
@@ -466,7 +476,10 @@ export const rigAutoMovieSurfaceNetwork: (props: {
     },
     targets: Array.from(targets),
     pinned,
-    limitTargetMask: Array.from(free, (value: number): boolean => fit && value === 1),
+    limitTargetMask: Array.from(
+      free,
+      (value: number): boolean => fit && value === 1,
+    ),
     corners: layout.corners,
     patches: layout.grids,
     rings,

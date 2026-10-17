@@ -1,6 +1,6 @@
 # Rajput 2021, hair transplant for eyebrow restoration
 
-Rajput RJ. "Hair Transplant for Eyebrow Restoration." *Indian Journal of Plastic Surgery* 54(4):489-494, 2021, doi:10.1055/s-0041-1739253. Read as PMC8719974 (NCBI efetch).
+Rajput RJ. "Hair Transplant for Eyebrow Restoration." *Indian Journal of Plastic Surgery* 54(4):489-494, 2021, doi:10.1055/s-0041-1739253. [Full text](https://pmc.ncbi.nlm.nih.gov/articles/PMC8719974/).
 
 ## Licence
 

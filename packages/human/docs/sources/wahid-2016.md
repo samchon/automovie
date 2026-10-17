@@ -1,6 +1,6 @@
 # Wahid 2016 thesis, restatement of the Bell, Davis and Harrington hip equations
 
-Wahid A. Engineering PhD thesis, University of Sheffield, 2016, https://etheses.whiterose.ac.uk/id/eprint/16065/1/Wahid_A_Engineering_PhD_2016.pdf. Read pages 79 to 82 (equations 29 to 43). This is a secondary restatement. The originals (Bell et al. 1982 and 1990, Davis et al. 1991, Harrington et al. 2007) were not read, and the thesis orders the axes differently from `hara-2016.md`.
+Wahid A. Engineering PhD thesis, University of Sheffield, 2016, https://etheses.whiterose.ac.uk/id/eprint/16065/1/Wahid_A_Engineering_PhD_2016.pdf. Pages 79 to 82, equations 29 to 43. Secondary restatements of Bell et al. 1982 and 1990, Davis et al. 1991 and Harrington et al. 2007; the original papers are not independent evidence here. The thesis orders the axes differently from `hara-2016.md`.
 
 ## Licence
 

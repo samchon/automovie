@@ -16,17 +16,23 @@ export function depthAutoMovieHumanOrbit(props: {
   upper: boolean;
 }): number {
   const s: number = props.share;
-  const c: {medial: number; middle: number; lateral: number} = props.upper
-    ? DEPTH.upper : DEPTH.lower;
-  return props.margin + props.length * (
-    2 * (s - 0.5) * (s - 1) * c.medial
-    + 4 * s * (1 - s) * c.middle
-    + 2 * s * (s - 0.5) * c.lateral
+  const c: { medial: number; middle: number; lateral: number } = props.upper
+    ? DEPTH.upper
+    : DEPTH.lower;
+  return (
+    props.margin +
+    props.length *
+      (2 * (s - 0.5) * (s - 1) * c.medial +
+        4 * s * (1 - s) * c.middle +
+        2 * s * (s - 0.5) * c.lateral)
   );
 }
 
 /** Pooled normalized reference-course depth; protocol is stated above. */
-const DEPTH: Record<"upper" | "lower", {medial: number; middle: number; lateral: number}> = {
-  upper: {medial: 0.0277, middle: -0.0078, lateral: -0.0941},
-  lower: {medial: 0.0251, middle: 0.0027, lateral: -0.0895},
+const DEPTH: Record<
+  "upper" | "lower",
+  { medial: number; middle: number; lateral: number }
+> = {
+  upper: { medial: 0.0277, middle: -0.0078, lateral: -0.0941 },
+  lower: { medial: 0.0251, middle: 0.0027, lateral: -0.0895 },
 };

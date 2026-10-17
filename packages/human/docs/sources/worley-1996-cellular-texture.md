@@ -1,6 +1,6 @@
 # Worley 1996, cellular texture basis function
 
-Worley S. "A Cellular Texture Basis Function." SIGGRAPH 1996, pp. 291-294. Read from https://cedric.cnam.fr/~cubaud/PROCEDURAL/worley.pdf (abstract and the computation section).
+Worley S. "A Cellular Texture Basis Function." SIGGRAPH 1996, pp. 291-294. [Paper](https://cedric.cnam.fr/~cubaud/PROCEDURAL/worley.pdf), abstract and computation section.
 
 ## Licence
 

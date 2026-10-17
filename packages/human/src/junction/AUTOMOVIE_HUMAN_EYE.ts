@@ -5,7 +5,40 @@
  *
  * @author Samchon
  */
-export const AUTOMOVIE_HUMAN_EYE: { readonly transverse: 24.24; readonly vertical: 23.78; readonly axial: 23.49; readonly cornealRadius: 7.64; readonly limbus: 11.73; readonly anteriorChamber: 3.03; readonly pupil: 4; readonly cornealIndex: 1.38; readonly growth: { readonly circumference: readonly [469, 492, 505, 515, 524, 529, 539, 551, 555]; readonly axial: readonly [20.6, 21.34, 21.77, 22.32, 22.82, 23.06, 23.25, 23.42, 23.49]; }; } = {
+export const AUTOMOVIE_HUMAN_EYE: {
+  readonly transverse: 24.24;
+  readonly vertical: 23.78;
+  readonly axial: 23.49;
+  readonly cornealRadius: 7.64;
+  readonly limbus: 11.73;
+  readonly anteriorChamber: 3.03;
+  readonly pupil: 4;
+  readonly cornealIndex: 1.38;
+  readonly growth: {
+    readonly circumference: readonly [
+      469,
+      492,
+      505,
+      515,
+      524,
+      529,
+      539,
+      551,
+      555,
+    ];
+    readonly axial: readonly [
+      20.6,
+      21.34,
+      21.77,
+      22.32,
+      22.82,
+      23.06,
+      23.25,
+      23.42,
+      23.49,
+    ];
+  };
+} = {
   /**
    * Transverse globe diameter, sclera to sclera: 24.16 and 24.32 mm right and left, medians of 250 healthy adults on CT, Israel (Bekerman, Gottlieb and Vaiman 2014, J Ophthalmol 2014:503645, Table 1). Grade: measured, both sides pooled.
    */

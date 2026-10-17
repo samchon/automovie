@@ -1,6 +1,6 @@
 # Schenck 2018, superficial facial fat compartments
 
-Schenck TL, Koban KC, Schlattau A, Frank K, Sykes JM, Targosinski S, Erlbacher K, Cotofana S. "The Functional Anatomy of the Superficial Fat Compartments of the Face: A Detailed Imaging Study." *Plastic and Reconstructive Surgery*, 2018, doi:10.1097/PRS.0000000000004364. Abstract only (Europe PMC REST API).
+Schenck TL, Koban KC, Schlattau A, Frank K, Sykes JM, Targosinski S, Erlbacher K, Cotofana S. "The Functional Anatomy of the Superficial Fat Compartments of the Face: A Detailed Imaging Study." *Plastic and Reconstructive Surgery*, 2018, doi:10.1097/PRS.0000000000004364. [Abstract](https://doi.org/10.1097/PRS.0000000000004364) only.
 
 ## Population and protocol (abstract)
 
@@ -12,4 +12,4 @@ Distinct subcutaneous compartments exist. Under added volume, the superficial na
 
 ## What Human takes
 
-The compartment names and their two behaviours (sliding versus projecting) as the units of facial fat volume by age and adiposity. Rohrich and Pessa 2007, the original compartment description, was not accessible.
+The compartment names and their two behaviours (sliding versus projecting) as the units of facial fat volume by age and adiposity. The original Rohrich and Pessa 2007 compartment description is not independent evidence in this note.

@@ -43,8 +43,6 @@ Readings:
 
 ## Shoulder and neck height for age
 
-The first stick render put a one-year-old's acromion 18 mm below the jugular notch, the clavicles sloping about 25 degrees, because the child's cervicale and acromion were held at adult head-height distances below the vertex. Growth data say the opposite: the notch, and the shoulders with it, sit high under a child's head.
-
 Vertex to suprasternale, fitted by us from the 1977 individual records (`../sources/snyder-1977.md`), means of per-subject (stature − suprasternale height) / stature by bin, then in head heights with the bin's heads per stature. Grade: population-fitted.
 
 | Age (y) | 2 | 4 | 6 | 8 | 10 | 12 | 14 | 16 | 17–18 | Adult (ANSUR II) |
@@ -56,7 +54,7 @@ Vertex to suprasternale, fitted by us from the 1977 individual records (`../sour
 
 Bins hold 11 to 53 children (the notch was measured on one of the survey's two measurement sets). The 1975 survey (`../sources/snyder-1975.md`) agrees independently: its sitting mid-shoulder height subtracted from crown-rump sitting height puts the top of the shoulder 203 mm (girls) and 205 mm (boys) below the vertex at 25 to 30 months, about 1.2 head heights, rising to 272 mm (girls, 1.33 head heights) at 13.
 
-In adults the acromion stands level with the notch (ANSUR II means: acromion 5.4 mm above suprasternale in women, 2.1 mm in men) and cervicale 66.0 and 78.7 mm above it. As built: suprasternale height is an identity measurement; a child's notch hangs the fitted head heights below the vertex (the 2-to-3-year value held below 2.5 years), and its cervicale and acromion keep the adult distances above the notch in head heights (0.322 and 0.026 women, 0.360 and 0.010 men). The clavicle line from the sternoclavicular joint to the shoulder joint centre then drops about 7 degrees at one year instead of 25, and about 11 degrees in adults, where the shoulder joint centre lies 34 mm below the acromion.
+ANSUR II adult means place acromion 5.4 mm above suprasternale in women and 2.1 mm in men; cervicale is 66.0 and 78.7 mm above it. Holding those adult offsets in head heights for children (cervicale/acromion 0.322/0.026 women, 0.360/0.010 men) and holding the youngest measured notch course below 2.5 years are modelling conventions, not measured infant neck/shoulder proportions.
 
 ## Old age
 

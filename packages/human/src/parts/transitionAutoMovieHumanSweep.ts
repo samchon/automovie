@@ -1,4 +1,7 @@
-import { IAutoMovieSurfaceNetwork, layoutAutoMovieSurfaceTransition } from "@automovie/engine";
+import {
+  IAutoMovieSurfaceNetwork,
+  layoutAutoMovieSurfaceTransition,
+} from "@automovie/engine";
 
 import { gridAutoMovieHumanSweep } from "./gridAutoMovieHumanSweep";
 
@@ -28,7 +31,10 @@ export function transitionAutoMovieHumanSweep(props: {
   layoutAutoMovieSurfaceTransition(props.start, props.end, props.rows).forEach(
     (quad: Array<{ s: number; t: number }>, index: number): void => {
       const points: IAutoMovieSurfaceNetwork.IDomainPoint[] = quad.map(
-        (point: { s: number; t: number }): IAutoMovieSurfaceNetwork.IDomainPoint => {
+        (point: {
+          s: number;
+          t: number;
+        }): IAutoMovieSurfaceNetwork.IDomainPoint => {
           const u: number = props.u[0] + (props.u[1] - props.u[0]) * point.t;
           return { u, v: props.turn(u, point.s) };
         },
