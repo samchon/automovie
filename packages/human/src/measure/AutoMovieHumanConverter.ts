@@ -21,6 +21,7 @@ import { estimateAutoMovieHumanSpinalLoss } from "./estimateAutoMovieHumanSpinal
 import { estimateAutoMovieHumanThyroidAngle } from "./estimateAutoMovieHumanThyroidAngle";
 import { estimateAutoMovieHumanTrunkSections } from "./estimateAutoMovieHumanTrunkSections";
 import { estimateAutoMovieHumanWaistHeight } from "./estimateAutoMovieHumanWaistHeight";
+import { resolveAutoMovieHumanSkinAppearance } from "./resolveAutoMovieHumanSkinAppearance";
 
 /**
  * Mean body mass index of the ANSUR II working databases (Gordon et al. 2014, NATICK/TR-15/007), kilograms per square metre: 25.5 for women and 27.7 for men. The adult regressions were fitted around it, so the converter's mean person sits at the centre of their sample. Grade: measured.
@@ -45,6 +46,8 @@ const REFERENCE_BMI: Record<AutoMovieHumanSex, number> = {
  * 8. Spinal loss subtracted from stature, sitting height, cervicale, suprasternale and acromial height; every limb keeps its peak length.
  *
  * Age is unrestricted. Beyond the oldest sample of a source the converter holds that sample's value, and below its youngest it holds or, where a source states the trend, extends it; each estimator says which. Both arms and both legs get the same values. Population reaches only the head and face, the only measurements read by population; cuteness is not read yet. Pigmentation follows the population as a conventional choice inside the measured melanosome volume fractions of Jacques (1998, "Skin Optics", Oregon Medical Laser Center News): melanin 0.04 for a European population within the lightly pigmented 0.013 to 0.063, 0.10 for an East Asian population between the lightly and the moderately pigmented ranges, and 0.30 for an African population within the darkly pigmented 0.18 to 0.43; the eumelanin share is the 0.7 Donner and Jensen illustrate (2006, Eurographics Symposium on Rendering, pp. 409-417) and the dermal haemoglobin 0.01, inside their typical 0.001 to 0.1; the iris is brown.
+ *
+ * An explicit `skinTone` overrides only the melanin fallback, logarithmically from 0.013 to 0.43 independently of population. The detailed identity also exposes melanin directly. These are optical appearance inputs, not ancestry or clinical classifications.
  *
  * @author Samchon
  */
@@ -151,7 +154,10 @@ export class AutoMovieHumanConverter implements IAutoMovieHumanConverter {
       head,
       composition,
       pigmentation: {
-        melanin: MELANIN[traits.population],
+        melanin:
+          traits.skinTone === undefined
+            ? MELANIN[traits.population]
+            : 0.013 * Math.pow(0.43 / 0.013, traits.skinTone),
         eumelaninShare: 0.7,
         haemoglobin: 0.01,
         iris: "brown",
@@ -164,7 +170,7 @@ export class AutoMovieHumanConverter implements IAutoMovieHumanConverter {
    *
    * - Hair: a short cut for a boy or man, with temples receding from 40 years; a bob for a girl or woman; a crop under three years. Black, straight hair for an East Asian population, black coiled hair for an African one, brown and gently waved for a European one; grey from 60 years.
    * - Brows and lashes take the natural hair colour, grey from 70 years; lashes 10 mm long for a woman, 9 for a man and 8 for a child, below the 12 mm natural lashes rarely exceed.
-   * - Mid-range skin oil, and fine wrinkles that deepen linearly from 25 to 75 years; underwear by sex (briefs for a male person, briefs and a bra for a female person) in white.
+   * - Mid-range skin oil, and fine wrinkles that deepen linearly from 25 to 75 years; editable seed and mark controls with zero freckle/acne density. Underwear by sex (briefs for a male person, briefs and a bra for a female person) in white.
    */
   public toAppearance(
     traits: IAutoMovieHumanTraits,
@@ -176,10 +182,10 @@ export class AutoMovieHumanConverter implements IAutoMovieHumanConverter {
       traits.age < 3 ? "crop" : female ? "bob" : "short";
     return {
       version: 1,
-      skin: {
+      skin: resolveAutoMovieHumanSkinAppearance({
         oiliness: 0.5,
         wrinkles: Math.min(1, Math.max(0, (traits.age - 25) / 50)),
-      },
+      }),
       hair: {
         style,
         color: traits.age >= 60 ? "gray" : natural,
@@ -215,7 +221,7 @@ export class AutoMovieHumanConverter implements IAutoMovieHumanConverter {
   }
 }
 
-/** Default melanin volume fraction by population; see {@link AutoMovieHumanConverter}. */
+/** Established fallback only when no independent skinTone override is authored; conventional, not an ancestry constraint. */
 const MELANIN: Record<AutoMovieHumanPopulation, number> = {
   european: 0.04,
   eastAsian: 0.1,

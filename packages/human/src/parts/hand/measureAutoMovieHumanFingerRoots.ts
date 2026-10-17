@@ -8,8 +8,17 @@ import { AUTOMOVIE_HUMAN_HAND_SHAPE } from "./AUTOMOVIE_HUMAN_HAND_SHAPE";
  * @param length Hand length, millimetres
  * @returns Index, middle, ring and little shaft-root levels
  */
-export function measureAutoMovieHumanFingerRoots(crotch: number[], length: number): number[] {
-  return [0, 1, 2, 3].map((i: number): number =>
-    Math.max(...[i - 1, i].filter((w: number): boolean => w >= 0 && w < 3).map((w: number): number => crotch[w]!)) + AUTOMOVIE_HUMAN_HAND_SHAPE.layout.root * length,
+export function measureAutoMovieHumanFingerRoots(
+  crotch: number[],
+  length: number,
+): number[] {
+  return [0, 1, 2, 3].map(
+    (i: number): number =>
+      Math.max(
+        ...[i - 1, i]
+          .filter((w: number): boolean => w >= 0 && w < 3)
+          .map((w: number): number => crotch[w]!),
+      ) +
+      AUTOMOVIE_HUMAN_HAND_SHAPE.layout.root * length,
   );
 }

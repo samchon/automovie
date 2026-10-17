@@ -28,7 +28,12 @@ export function patchAutoMovieHumanLimb(props: {
     const narrow: number = wideFirst ? at[i + 1]! : at[i]!;
     return rows[i] === 1 ? wide : narrow + (wide - narrow) / rows[i]!;
   };
-  const band: (name: string, u: [number, number], count: number, rowCount: number) => void = (
+  const band: (
+    name: string,
+    u: [number, number],
+    count: number,
+    rowCount: number,
+  ) => void = (
     name: string,
     u: [number, number],
     count: number,
@@ -77,8 +82,14 @@ export function patchAutoMovieHumanLimb(props: {
       );
     const uNarrow: number = wideFirst ? at[i + 1]! : at[i]!;
     const uWide: number = wideAt(i);
-    const t: (j: number) => IDomain = (j: number): IDomain => ({ u: uWide, v: j / W });
-    const b: (k: number) => IDomain = (k: number): IDomain => ({ u: uNarrow, v: k / N });
+    const t: (j: number) => IDomain = (j: number): IDomain => ({
+      u: uWide,
+      v: j / W,
+    });
+    const b: (k: number) => IDomain = (k: number): IDomain => ({
+      u: uNarrow,
+      v: k / N,
+    });
     for (let half: number = 0; half < 2; ++half) {
       const q: number = N / 4;
       // q straight spans, three wide spans into one narrow span, then q - 1 straight spans
@@ -166,7 +177,9 @@ export namespace patchAutoMovieHumanLimb {
 type IDomain = patchAutoMovieHumanLimb.IDomain;
 
 /** The same count at every tier: the human profile samples one tier until resolution tiers reach every part. */
-const fixed: (n: number) => IAutoMovieSurfaceNetwork.ICounts = (n: number): IAutoMovieSurfaceNetwork.ICounts => ({
+const fixed: (n: number) => IAutoMovieSurfaceNetwork.ICounts = (
+  n: number,
+): IAutoMovieSurfaceNetwork.ICounts => ({
   lowest: n,
   low: n,
   medium: n,
@@ -174,7 +187,9 @@ const fixed: (n: number) => IAutoMovieSurfaceNetwork.ICounts = (n: number): IAut
 });
 
 /** A quad's corners counterclockwise in the `(v, u)` plane, which winds the face outward; the domain's `v` runs about the distal axis. */
-const counterclockwise: (quad: IDomain[]) => IDomain[] = (quad: IDomain[]): IDomain[] => {
+const counterclockwise: (quad: IDomain[]) => IDomain[] = (
+  quad: IDomain[],
+): IDomain[] => {
   let area: number = 0;
   for (let k: number = 0; k < quad.length; ++k) {
     const a: IDomain = quad[k]!;

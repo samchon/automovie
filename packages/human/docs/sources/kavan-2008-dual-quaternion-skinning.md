@@ -4,7 +4,7 @@ Kavan L, Collins S, Žára J, O'Sullivan C. "Geometric Skinning with Approximate
 
 ## Licence
 
-Paper copyright ACM, posted by permission for personal use. Human takes the method, reimplemented from the text (#2800 names this paper).
+Paper copyright ACM, posted by permission for personal use. Human takes the method, reimplemented from the text.
 
 ## What it says
 

@@ -38,7 +38,7 @@ export class AutoMovieHumanHeadSurface {
       if (mesh.uvs === null || mesh.normals === null || mesh.indices === null)
         continue;
       const local: Map<number, number> = new Map();
-      const take = (i: number): number => {
+      const take: (i: number) => number = (i: number): number => {
         let found: number | undefined = local.get(i);
         if (found === undefined) {
           found = this.positions_.length / 3;
@@ -70,7 +70,28 @@ export class AutoMovieHumanHeadSurface {
             y <= chart.y + chart.height + 1e-9
           );
         });
-        if (inside) this.triangles_.push(...corners.map(take));
+        if (inside) {
+          const a: number[] = mesh.positions.slice(
+            3 * corners[0]!,
+            3 * corners[0]! + 3,
+          );
+          const b: number[] = mesh.positions.slice(
+            3 * corners[1]!,
+            3 * corners[1]! + 3,
+          );
+          const c: number[] = mesh.positions.slice(
+            3 * corners[2]!,
+            3 * corners[2]! + 3,
+          );
+          const area: number[] = cross(
+            b.map((v: number, k: number): number => v - a[k]!),
+            c.map((v: number, k: number): number => v - a[k]!),
+          );
+          // An exactly collapsed source triangle has no surface point. Keep
+          // at() consistent with ray casting; no size threshold excludes skin.
+          if (area.some((v: number): boolean => v !== 0))
+            this.triangles_.push(...corners.map(take));
+        }
       }
     }
     if (this.triangles_.length === 0)
@@ -83,8 +104,14 @@ export class AutoMovieHumanHeadSurface {
       const ys: number[] = [0, 1, 2].map(
         (k: number): number => this.charts_[2 * this.triangles_[t + k]! + 1]!,
       );
-      const [x0, x1] = [cell(Math.min(...xs)), cell(Math.max(...xs))];
-      const [y0, y1] = [cell(Math.min(...ys)), cell(Math.max(...ys))];
+      const [x0, x1]: [number, number] = [
+        cell(Math.min(...xs)),
+        cell(Math.max(...xs)),
+      ];
+      const [y0, y1]: [number, number] = [
+        cell(Math.min(...ys)),
+        cell(Math.max(...ys)),
+      ];
       for (let y: number = y0; y <= y1; ++y)
         for (let x: number = x0; x <= x1; ++x)
           this.buckets_[y * GRID + x]!.push(t);
@@ -218,19 +245,22 @@ export class AutoMovieHumanHeadSurface {
         p[i + 2]! - centre[2]!,
       ];
       const r: number = Math.hypot(d[0]!, d[1]!, d[2]!);
-      const [y, x] = cellOf(d, r, rows, cols);
+      const [y, x]: [number, number] = cellOf(d, r, rows, cols);
       const at: number =
         Math.min(rows - 1, Math.floor(y)) * cols + (Math.floor(x) % cols);
       table[at] = Math.max(table[at]!, r);
     }
     return (direction: readonly number[]): number => {
-      const [y, x] = cellOf(direction, 1, rows, cols);
+      const [y, x]: [number, number] = cellOf(direction, 1, rows, cols);
       const i0: number = Math.max(0, Math.min(rows - 2, Math.floor(y - 0.5)));
       const j0: number = ((Math.floor(x - 0.5) % cols) + cols) % cols;
       const j1: number = (j0 + 1) % cols;
       const fy: number = Math.max(0, Math.min(1, y - 0.5 - i0));
       const fx: number = x - 0.5 - Math.floor(x - 0.5);
-      const v = (i: number, j: number): number => table[i * cols + j]!;
+      const v: (i: number, j: number) => number = (
+        i: number,
+        j: number,
+      ): number => table[i * cols + j]!;
       const corners: number[] = [
         v(i0, j0),
         v(i0, j1),
@@ -320,7 +350,11 @@ function barycentric(
   x: number,
   y: number,
 ): [number, number, number] | null {
-  const [a, b, c] = [triangles[t]!, triangles[t + 1]!, triangles[t + 2]!];
+  const [a, b, c]: [number, number, number] = [
+    triangles[t]!,
+    triangles[t + 1]!,
+    triangles[t + 2]!,
+  ];
   const ax: number = charts[2 * a]!;
   const ay: number = charts[2 * a + 1]!;
   const v0x: number = charts[2 * b]! - ax;

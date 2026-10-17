@@ -4,7 +4,7 @@ Epic Games, "Hair Card Generator for Grooms in Unreal Engine" (5.8, experimental
 
 ## Licence
 
-Documentation under Epic's terms. Read for practice only.
+Documentation under Epic's terms; technique reference only.
 
 ## What it says
 

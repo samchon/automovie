@@ -44,7 +44,13 @@ import { layoutAutoMovieHumanRing } from "./layoutAutoMovieHumanRing";
  * @returns The ring's layout with every vertex's radius and position
  * @throws {Error} When `layoutAutoMovieHumanRing` refuses the site, side or part
  */
-export const shapeAutoMovieHumanRing: (props: { skeleton: IAutoMovieHumanSkeleton; measurements: IAutoMovieHumanMeasurements; site: AutoMovieHumanJunctionSite; side: AutoMovieHumanSide | null; part: AutoMovieHumanPart; }) => IAutoMovieHumanRingShape = (props: {
+export const shapeAutoMovieHumanRing: (props: {
+  skeleton: IAutoMovieHumanSkeleton;
+  measurements: IAutoMovieHumanMeasurements;
+  site: AutoMovieHumanJunctionSite;
+  side: AutoMovieHumanSide | null;
+  part: AutoMovieHumanPart;
+}) => IAutoMovieHumanRingShape = (props: {
   skeleton: IAutoMovieHumanSkeleton;
   measurements: IAutoMovieHumanMeasurements;
   site: AutoMovieHumanJunctionSite;
@@ -52,7 +58,15 @@ export const shapeAutoMovieHumanRing: (props: { skeleton: IAutoMovieHumanSkeleto
   part: AutoMovieHumanPart;
 }): IAutoMovieHumanRingShape => {
   const layout: IAutoMovieHumanRingLayout = layoutAutoMovieHumanRing(props);
-  const { origin, radius, girth }: { origin: IAutoMovieVector3; radius: (d: IAutoMovieVector3) => number; girth: number | null; } = section(props, layout);
+  const {
+    origin,
+    radius,
+    girth,
+  }: {
+    origin: IAutoMovieVector3;
+    radius: (d: IAutoMovieVector3) => number;
+    girth: number | null;
+  } = section(props, layout);
   const n: number = layout.count;
   const binormal: IAutoMovieVector3 = AutoMovieHumanVector.cross(
     layout.frame.normal,
@@ -80,7 +94,9 @@ export const shapeAutoMovieHumanRing: (props: { skeleton: IAutoMovieHumanSkeleto
     layout.directions.map(radius),
     Math.cos((2 * Math.PI) / n),
   );
-  const place: (radii: number[]) => IAutoMovieVector3[] = (radii: number[]): IAutoMovieVector3[] =>
+  const place: (radii: number[]) => IAutoMovieVector3[] = (
+    radii: number[],
+  ): IAutoMovieVector3[] =>
     layout.directions.map(
       (d: IAutoMovieVector3, k: number): IAutoMovieVector3 =>
         AutoMovieHumanVector.offset(origin, [d, radii[k]!]),
@@ -104,7 +120,18 @@ export const shapeAutoMovieHumanRing: (props: { skeleton: IAutoMovieHumanSkeleto
 /** Directions sampled round a section to measure its own perimeter. */
 const SAMPLES: number = 720;
 
-const section: (props: { skeleton: IAutoMovieHumanSkeleton; measurements: IAutoMovieHumanMeasurements; side: AutoMovieHumanSide | null; }, layout: IAutoMovieHumanRingLayout) => { origin: IAutoMovieVector3; radius: (d: IAutoMovieVector3) => number; girth: number | null; } = (
+const section: (
+  props: {
+    skeleton: IAutoMovieHumanSkeleton;
+    measurements: IAutoMovieHumanMeasurements;
+    side: AutoMovieHumanSide | null;
+  },
+  layout: IAutoMovieHumanRingLayout,
+) => {
+  origin: IAutoMovieVector3;
+  radius: (d: IAutoMovieVector3) => number;
+  girth: number | null;
+} = (
   props: {
     skeleton: IAutoMovieHumanSkeleton;
     measurements: IAutoMovieHumanMeasurements;
@@ -118,22 +145,38 @@ const section: (props: { skeleton: IAutoMovieHumanSkeleton; measurements: IAutoM
 } => {
   const body: IAutoMovieHumanIdentity.IBody = props.measurements.identity.body;
   const landmarks: IAutoMovieHumanLandmarks = props.skeleton.landmarks;
-  const joint: (bone: string) => IAutoMovieVector3 = (bone: string): IAutoMovieVector3 =>
+  const joint: (bone: string) => IAutoMovieVector3 = (
+    bone: string,
+  ): IAutoMovieVector3 =>
     props.skeleton.joints.find(
       (j: IAutoMovieHumanSkeleton.IJoint): boolean => j.bone === bone,
     )!.position;
   const origin: IAutoMovieVector3 = layout.frame.origin;
   const reference: IAutoMovieVector3 = layout.frame.reference;
-  const across: (d: IAutoMovieVector3) => [number, number] = (d: IAutoMovieVector3): [number, number] => {
+  const across: (d: IAutoMovieVector3) => [number, number] = (
+    d: IAutoMovieVector3,
+  ): [number, number] => {
     const c: number = AutoMovieHumanVector.dot(d, reference);
     return [c, Math.sqrt(Math.max(0, 1 - c * c))];
   };
   // four quarter ellipses about the cut origin, half axes in mean radii toward the front, back, medial and lateral sides; the ring is scaled to its girth afterwards
-  const quarters: (girth: number, half: { front: number; back: number; medial: number; lateral: number; }, toward: IAutoMovieVector3) => { origin: IAutoMovieVector3; radius: (d: IAutoMovieVector3) => number; girth: number; } = (
+  const quarters: (
     girth: number,
     half: { front: number; back: number; medial: number; lateral: number },
     toward: IAutoMovieVector3,
-  ): { origin: IAutoMovieVector3; radius: (d: IAutoMovieVector3) => number; girth: number; } => {
+  ) => {
+    origin: IAutoMovieVector3;
+    radius: (d: IAutoMovieVector3) => number;
+    girth: number;
+  } = (
+    girth: number,
+    half: { front: number; back: number; medial: number; lateral: number },
+    toward: IAutoMovieVector3,
+  ): {
+    origin: IAutoMovieVector3;
+    radius: (d: IAutoMovieVector3) => number;
+    girth: number;
+  } => {
     const medial: IAutoMovieVector3 = AutoMovieHumanVector.normalize(
       AutoMovieHumanVector.offset(toward, [
         layout.frame.normal,
@@ -193,7 +236,9 @@ const section: (props: { skeleton: IAutoMovieHumanSkeleton; measurements: IAutoM
         AutoMovieHumanVector.offset(joint("head"), [joint("neck"), -1]),
       );
       const normal: IAutoMovieVector3 = layout.frame.normal;
-      const inPlane: (p: IAutoMovieVector3) => [number, number] = (p: IAutoMovieVector3): [number, number] => {
+      const inPlane: (p: IAutoMovieVector3) => [number, number] = (
+        p: IAutoMovieVector3,
+      ): [number, number] => {
         const d: IAutoMovieVector3 = AutoMovieHumanVector.offset(p, [
           origin,
           -1,
@@ -236,16 +281,22 @@ const section: (props: { skeleton: IAutoMovieHumanSkeleton; measurements: IAutoM
       const [, chin]: [number, number] = inPlane(
         AutoMovieHumanVector.of(nasion.x, gnathionY, gnathionZ),
       );
-      const [jawU, jawW]: [number, number] = inPlane(landmarks.left.gonion.position);
+      const [jawU, jawW]: [number, number] = inPlane(
+        landmarks.left.gonion.position,
+      );
       const tilt: number = Math.abs(AutoMovieHumanVector.dot(normal, axis));
-      const column: { across: number; front: number; back: number; } = {
+      const column: { across: number; front: number; back: number } = {
         across: AUTOMOVIE_HUMAN_NECK_COLUMN.across * mean,
         front: AUTOMOVIE_HUMAN_NECK_COLUMN.front * mean,
         back: (AUTOMOVIE_HUMAN_NECK_COLUMN.back * mean) / Math.max(0.5, tilt),
       };
       const n: number = AUTOMOVIE_HUMAN_JAWLINE.exponent;
       // the jawline: a superellipse quadrant from the chin back to the gonion, its centre level with the gonion
-      const onJaw: (rho: number, c: number, s: number) => number = (rho: number, c: number, s: number): number =>
+      const onJaw: (rho: number, c: number, s: number) => number = (
+        rho: number,
+        c: number,
+        s: number,
+      ): number =>
         Math.pow(Math.max(0, (rho * c - jawW) / (chin - jawW)), n) +
         Math.pow((rho * s) / jawU, n) -
         1;
@@ -307,7 +358,9 @@ const section: (props: { skeleton: IAutoMovieHumanSkeleton; measurements: IAutoM
       const axis: IAutoMovieVector3 = AutoMovieHumanVector.normalize(
         AutoMovieHumanVector.offset(knee, [hip, -1]),
       );
-      const along: (p: IAutoMovieVector3) => number = (p: IAutoMovieVector3): number =>
+      const along: (p: IAutoMovieVector3) => number = (
+        p: IAutoMovieVector3,
+      ): number =>
         AutoMovieHumanVector.dot(
           AutoMovieHumanVector.offset(p, [hip, -1]),
           axis,
@@ -377,17 +430,27 @@ const section: (props: { skeleton: IAutoMovieHumanSkeleton; measurements: IAutoM
 };
 
 /** Ramanujan's perimeter of an ellipse with semi-axes `a` and `b`. */
-const ramanujan: (a: number, b: number) => number = (a: number, b: number): number =>
-  Math.PI * (3 * (a + b) - Math.sqrt((3 * a + b) * (a + 3 * b)));
+const ramanujan: (a: number, b: number) => number = (
+  a: number,
+  b: number,
+): number => Math.PI * (3 * (a + b) - Math.sqrt((3 * a + b) * (a + 3 * b)));
 
 /** Polynomial smooth maximum (Quilez). */
-const smoothMax: (a: number, b: number, k: number) => number = (a: number, b: number, k: number): number => {
+const smoothMax: (a: number, b: number, k: number) => number = (
+  a: number,
+  b: number,
+  k: number,
+): number => {
   const h: number = Math.max(k - Math.abs(a - b), 0) / k;
   return Math.max(a, b) + (h * h * k) / 4;
 };
 
 /** Root of a monotone function by bisection. */
-const solve: (f: (x: number) => number, lo: number, hi: number) => number = (f: (x: number) => number, lo: number, hi: number): number => {
+const solve: (f: (x: number) => number, lo: number, hi: number) => number = (
+  f: (x: number) => number,
+  lo: number,
+  hi: number,
+): number => {
   let a: number = lo;
   let b: number = hi;
   const fa: number = f(a);

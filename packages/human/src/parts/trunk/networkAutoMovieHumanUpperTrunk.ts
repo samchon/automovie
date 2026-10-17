@@ -34,7 +34,10 @@ export function networkAutoMovieHumanUpperTrunk(props: {
   const count: number = 12;
   if (props.neck.count !== count)
     throw new Error("the human upper trunk needs twelve shared neck controls");
-  const side: Record<"left" | "right", { path: IAutoMovieSweepPath; at: number }> = {
+  const side: Record<
+    "left" | "right",
+    { path: IAutoMovieSweepPath; at: number }
+  > = {
     left: lateral(0.25, props.frame.acromion),
     right: lateral(0.75, {
       ...props.rightFrame.acromion,
@@ -101,8 +104,7 @@ export function networkAutoMovieHumanUpperTrunk(props: {
     };
     for (let band: number = 0; band < 2; ++band) {
       // The two flank columns on each side remain the shoulder openings.
-      if (band === 0 && ((k >= 2 && k < 4) || (k >= 8 && k < 10)))
-        continue;
+      if (band === 0 && ((k >= 2 && k < 4) || (k >= 8 && k < 10))) continue;
       const name: string = `upper.patch.${band}.${k}`;
       patches.push({
         type: "coons",
@@ -218,7 +220,9 @@ export function networkAutoMovieHumanUpperTrunk(props: {
       point(Math.min(1, t + h), v),
       [point(Math.max(0, t - h), v), -1],
     );
-    return AutoMovieHumanVector.normalize(AutoMovieHumanVector.cross(across, up));
+    return AutoMovieHumanVector.normalize(
+      AutoMovieHumanVector.cross(across, up),
+    );
   }
 
   function wrap(k: number): number {

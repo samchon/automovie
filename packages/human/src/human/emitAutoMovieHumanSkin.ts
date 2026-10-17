@@ -27,23 +27,41 @@ import { reliefAutoMovieHumanSkin } from "./reliefAutoMovieHumanSkin";
  * @param generators The generator of each part
  * @returns The skin part, id `skin`
  */
-export function emitAutoMovieHumanSkin(measurements: IAutoMovieHumanMeasurements, skeleton: IAutoMovieHumanSkeleton, levels: number, generators: IAutoMovieHumanPartGenerators, prepared?: { cage: IAutoMovieHumanCage; output: meshAutoMovieHumanCage.IOutput }): IAutoMovieModelPart {
-  const cage: IAutoMovieHumanCage = prepared?.cage ?? joinAutoMovieHumanCages(
-    measurements,
-    skeleton,
-    generators,
-  );
-  const output: meshAutoMovieHumanCage.IOutput = prepared?.output ?? meshAutoMovieHumanCage({
-    cage,
-    levels,
-    domain: "skin",
-    relief: reliefAutoMovieHumanSkin(measurements, skeleton, generators),
-  });
+export function emitAutoMovieHumanSkin(
+  measurements: IAutoMovieHumanMeasurements,
+  skeleton: IAutoMovieHumanSkeleton,
+  levels: number,
+  generators: IAutoMovieHumanPartGenerators,
+  prepared?: {
+    cage: IAutoMovieHumanCage;
+    output: meshAutoMovieHumanCage.IOutput;
+  },
+): IAutoMovieModelPart {
+  const cage: IAutoMovieHumanCage =
+    prepared?.cage ??
+    joinAutoMovieHumanCages(measurements, skeleton, generators);
+  const output: meshAutoMovieHumanCage.IOutput =
+    prepared?.output ??
+    meshAutoMovieHumanCage({
+      cage,
+      levels,
+      domain: "skin",
+      relief: reliefAutoMovieHumanSkin(measurements, skeleton, generators),
+    });
   const mesh: IAutoMovieMesh = output.mesh;
   const joints: AutoMovieHumanoidBone[] = [];
   const jointIndex: Map<AutoMovieHumanoidBone, number> = new Map();
   const segments: Map<AutoMovieHumanoidBone, IAutoMovieHumanSkeleton.IJoint> =
-    new Map(skeleton.joints.map((j: IAutoMovieHumanSkeleton.IJoint): [AutoMovieHumanoidBone, IAutoMovieHumanSkeleton.IJoint] => [j.bone, j]));
+    new Map(
+      skeleton.joints.map(
+        (
+          j: IAutoMovieHumanSkeleton.IJoint,
+        ): [AutoMovieHumanoidBone, IAutoMovieHumanSkeleton.IJoint] => [
+          j.bone,
+          j,
+        ],
+      ),
+    );
   const boneIndices: number[] = [];
   const weights: number[] = [];
   const cache: Map<number, Array<[number, number]>> = new Map();
@@ -52,29 +70,43 @@ export function emitAutoMovieHumanSkin(measurements: IAutoMovieHumanMeasurements
     if (influences === undefined) {
       const face: IAutoMovieHumanCage.IFace =
         cage.faces[output.surface.parameters[v]!.face]!;
-      const { part, side }: IAutoMovieHumanCage.IFace["coordinates"][number] = face.coordinates[0];
+      const { part, side }: IAutoMovieHumanCage.IFace["coordinates"][number] =
+        face.coordinates[0];
       const p: IAutoMovieVector3 = {
         x: output.surface.limitPositions[3 * v]! * 1000,
         y: output.surface.limitPositions[3 * v + 1]! * 1000,
         z: output.surface.limitPositions[3 * v + 2]! * 1000,
       };
-      const ranked: Array<[AutoMovieHumanoidBone, number]> = candidates(part, side)
+      const ranked: Array<[AutoMovieHumanoidBone, number]> = candidates(
+        part,
+        side,
+      )
         .map((bone: AutoMovieHumanoidBone): [AutoMovieHumanoidBone, number] => {
           const d: number = distance(p, segments.get(bone)!);
           return [bone, 1 / Math.pow(d * d + 1, 2)];
         })
-        .sort((a: [AutoMovieHumanoidBone, number], b: [AutoMovieHumanoidBone, number]): number => b[1] - a[1])
+        .sort(
+          (
+            a: [AutoMovieHumanoidBone, number],
+            b: [AutoMovieHumanoidBone, number],
+          ): number => b[1] - a[1],
+        )
         .slice(0, 4);
-      const total: number = ranked.reduce((s: number, [, w]: [AutoMovieHumanoidBone, number]): number => s + w, 0);
-      influences = ranked.map(([bone, w]: [AutoMovieHumanoidBone, number]): [number, number] => {
-        let index: number | undefined = jointIndex.get(bone);
-        if (index === undefined) {
-          index = joints.length;
-          joints.push(bone);
-          jointIndex.set(bone, index);
-        }
-        return [index, w / total];
-      });
+      const total: number = ranked.reduce(
+        (s: number, [, w]: [AutoMovieHumanoidBone, number]): number => s + w,
+        0,
+      );
+      influences = ranked.map(
+        ([bone, w]: [AutoMovieHumanoidBone, number]): [number, number] => {
+          let index: number | undefined = jointIndex.get(bone);
+          if (index === undefined) {
+            index = joints.length;
+            joints.push(bone);
+            jointIndex.set(bone, index);
+          }
+          return [index, w / total];
+        },
+      );
       while (influences.length < 4) influences.push([0, 0]);
       cache.set(v, influences);
     }
@@ -97,8 +129,13 @@ export function emitAutoMovieHumanSkin(measurements: IAutoMovieHumanMeasurements
 }
 
 /** Bones a vertex of a part may follow under the placeholder weights. */
-function candidates(part: AutoMovieHumanPart, side: AutoMovieHumanSide | null): AutoMovieHumanoidBone[] {
-  function s(name: string): AutoMovieHumanoidBone { return `${side}${name}` as AutoMovieHumanoidBone; }
+function candidates(
+  part: AutoMovieHumanPart,
+  side: AutoMovieHumanSide | null,
+): AutoMovieHumanoidBone[] {
+  function s(name: string): AutoMovieHumanoidBone {
+    return `${side}${name}` as AutoMovieHumanoidBone;
+  }
   switch (part) {
     case "trunk":
       return [
@@ -144,7 +181,10 @@ function candidates(part: AutoMovieHumanPart, side: AutoMovieHumanSide | null): 
 }
 
 /** Distance from a point to a bone's segment from its joint centre to its tail, millimetres. */
-function distance(p: IAutoMovieVector3, joint: IAutoMovieHumanSkeleton.IJoint): number {
+function distance(
+  p: IAutoMovieVector3,
+  joint: IAutoMovieHumanSkeleton.IJoint,
+): number {
   const a: IAutoMovieVector3 = joint.position;
   const d: IAutoMovieVector3 = {
     x: joint.tail.x - a.x,

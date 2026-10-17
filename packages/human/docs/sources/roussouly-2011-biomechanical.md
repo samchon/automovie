@@ -1,6 +1,6 @@
 # Roussouly and Pinheiro-Franco 2011, sagittal parameters of the spine
 
-Roussouly P., Pinheiro-Franco J.L. "Sagittal parameters of the spine: biomechanical approach." *European Spine Journal* 20(Suppl 5):578-585, 2011. Read at https://pmc.ncbi.nlm.nih.gov/articles/PMC3175922.
+Roussouly P., Pinheiro-Franco J.L. "Sagittal parameters of the spine: biomechanical approach." *European Spine Journal* 20(Suppl 5):578-585, 2011. [Full text](https://pmc.ncbi.nlm.nih.gov/articles/PMC3175922/).
 
 ## Licence
 

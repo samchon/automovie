@@ -2,6 +2,7 @@ import { IAutoMovieSurfaceNetwork } from "@automovie/engine";
 import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { IAutoMovieHumanRing } from "./IAutoMovieHumanRing";
+import { IAutoMovieHumanSkinDomain } from "./IAutoMovieHumanSkinDomain";
 import { IAutoMovieHumanSurfaceCoordinate } from "./IAutoMovieHumanSurfaceCoordinate";
 
 /**
@@ -60,6 +61,9 @@ export namespace IAutoMovieHumanCage {
    * @author Samchon
    */
   export interface IFace {
+    /** Source skin role carried into texture eligibility; omitted retains the legacy uniform engineering field, not anatomical certification. */
+    skin?: IAutoMovieHumanSkinDomain.Role;
+
     /** Vertex indices of the four corners. */
     vertices: [number, number, number, number];
 
@@ -144,11 +148,13 @@ export namespace IAutoMovieHumanCage {
    * @param network The network
    * @returns Its construction
    */
-  export function inModel(network: IAutoMovieSurfaceNetwork): IConstruction { return ({
-    network,
-    origin: { x: 0, y: 0, z: 0 },
-    x: { x: 1000, y: 0, z: 0 },
-    y: { x: 0, y: 1000, z: 0 },
-    z: { x: 0, y: 0, z: 1000 },
-  }); }
+  export function inModel(network: IAutoMovieSurfaceNetwork): IConstruction {
+    return {
+      network,
+      origin: { x: 0, y: 0, z: 0 },
+      x: { x: 1000, y: 0, z: 0 },
+      y: { x: 0, y: 1000, z: 0 },
+      z: { x: 0, y: 0, z: 1000 },
+    };
+  }
 }

@@ -5,7 +5,10 @@
  *
  * The section is deeper than broad, independently consistent with standing 16- to 18.5-year-olds in Snyder et al. 1977 (UM-HSRI-77-17, NIST AnthroKids, measurements 83 and 84 at https://math.nist.gov/~SRessler/anthrokids/data1977/descrip.htm): mean individual minimum breadth/minimum girth 0.26639 in 77 males and 0.25661 in 76 females, against 1/pi for a circle. Those two minima need not be at one height, so they bound the approximation rather than set the cut. The ellipse keeps the identity's girth by its own perimeter. Other ages retain this profile's conventional shape; their girths remain their own measurements.
  */
-export const AUTOMOVIE_HUMAN_ANKLE_SECTION: { readonly aboveSphyrion: 0.505; readonly depthOverBreadth: 1.464; } = {
+export const AUTOMOVIE_HUMAN_ANKLE_SECTION: {
+  readonly aboveSphyrion: 0.505;
+  readonly depthOverBreadth: 1.464;
+} = {
   /** Height above the medial malleolus tip, in lateral malleolus heights. */
   aboveSphyrion: 0.505,
   /** Depth of the minimum section over its breadth. */

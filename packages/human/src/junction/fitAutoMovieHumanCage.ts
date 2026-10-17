@@ -30,33 +30,64 @@ export function fitAutoMovieHumanCage(props: {
   levels: number;
 }): IAutoMovieSubdivisionSurface | null {
   const groups: Map<string, Set<number>> = new Map();
-  props.source.faces.forEach((face: IAutoMovieHumanCage.IFace, f: number): void => {
-    if (face.fitting === undefined) return;
-    let group: Set<number> | undefined = groups.get(face.fitting);
-    if (group === undefined) {
-      group = new Set();
-      groups.set(face.fitting, group);
-    }
-    group.add(f);
-  });
+  props.source.faces.forEach(
+    (face: IAutoMovieHumanCage.IFace, f: number): void => {
+      if (face.fitting === undefined) return;
+      let group: Set<number> | undefined = groups.get(face.fitting);
+      if (group === undefined) {
+        group = new Set();
+        groups.set(face.fitting, group);
+      }
+      group.add(f);
+    },
+  );
   if (groups.size === 0) return null;
-  const metres: (point: IAutoMovieVector3) => [number, number, number] = (point: IAutoMovieVector3): [number, number, number] => [point.x / 1000, point.y / 1000, point.z / 1000];
-  const regions: Parameters<typeof fitAutoMovieSubdivisionRegions>[0]["regions"] = [...groups.values()].map((faces: Set<number>): Parameters<typeof fitAutoMovieSubdivisionRegions>[0]["regions"][number] => {
-    const vertices: Set<number> = new Set([...faces].flatMap((f: number): number[] => props.source.faces[f]!.vertices));
-    const samples: Map<number, [number, number, number]> = new Map();
-    const limitTargets: Map<number, [number, number, number]> = new Map();
-    const anchors: Set<number> = new Set();
-    for (const i of vertices) {
-      const value: IAutoMovieHumanCage.IVertex["fitting"] = props.source.vertices[i]!.fitting;
-      if (value === undefined) throw new Error(`fitting region has no source constraints at vertex ${i}`);
-      samples.set(i, metres(value.sample));
-      if (value.target !== null) limitTargets.set(i, metres(value.target));
-      if (value.anchor) anchors.add(i);
-    }
-    return { faces, samples, limitTargets, anchors };
-  });
-  const fitted: ReturnType<typeof fitAutoMovieSubdivisionRegions> = fitAutoMovieSubdivisionRegions({ cage: props.cage, regions, levels: props.levels });
-  const surface: IAutoMovieSubdivisionSurface = evaluateSubdivisionLevel(fitted.level);
+  const metres: (point: IAutoMovieVector3) => [number, number, number] = (
+    point: IAutoMovieVector3,
+  ): [number, number, number] => [
+    point.x / 1000,
+    point.y / 1000,
+    point.z / 1000,
+  ];
+  const regions: Parameters<
+    typeof fitAutoMovieSubdivisionRegions
+  >[0]["regions"] = [...groups.values()].map(
+    (
+      faces: Set<number>,
+    ): Parameters<
+      typeof fitAutoMovieSubdivisionRegions
+    >[0]["regions"][number] => {
+      const vertices: Set<number> = new Set(
+        [...faces].flatMap(
+          (f: number): number[] => props.source.faces[f]!.vertices,
+        ),
+      );
+      const samples: Map<number, [number, number, number]> = new Map();
+      const limitTargets: Map<number, [number, number, number]> = new Map();
+      const anchors: Set<number> = new Set();
+      for (const i of vertices) {
+        const value: IAutoMovieHumanCage.IVertex["fitting"] =
+          props.source.vertices[i]!.fitting;
+        if (value === undefined)
+          throw new Error(
+            `fitting region has no source constraints at vertex ${i}`,
+          );
+        samples.set(i, metres(value.sample));
+        if (value.target !== null) limitTargets.set(i, metres(value.target));
+        if (value.anchor) anchors.add(i);
+      }
+      return { faces, samples, limitTargets, anchors };
+    },
+  );
+  const fitted: ReturnType<typeof fitAutoMovieSubdivisionRegions> =
+    fitAutoMovieSubdivisionRegions({
+      cage: props.cage,
+      regions,
+      levels: props.levels,
+    });
+  const surface: IAutoMovieSubdivisionSurface = evaluateSubdivisionLevel(
+    fitted.level,
+  );
   for (const region of regions) {
     let extent: number = 0;
     for (let axis: number = 0; axis < 3; axis++) {
@@ -72,11 +103,21 @@ export function fitAutoMovieHumanCage(props: {
     // of region extent, checked on the final joined limit rather than status.
     const tolerance: number = 1e-6 * extent;
     for (const [i, target] of region.limitTargets) {
-      const error: number = Math.hypot(...target.map((value: number, axis: number): number => surface.limitPositions[3 * i + axis]! - value));
-      if (!(error <= tolerance)) throw new Error(`joined generating fit misses its source target at ${i}: ${error} metres`);
+      const error: number = Math.hypot(
+        ...target.map(
+          (value: number, axis: number): number =>
+            surface.limitPositions[3 * i + axis]! - value,
+        ),
+      );
+      if (!(error <= tolerance))
+        throw new Error(
+          `joined generating fit misses its source target at ${i}: ${error} metres`,
+        );
     }
-    if (!(fitted.maximumEqualityError <= tolerance)) throw new Error(`joined generating equality residual exceeds ${tolerance} metres`);
+    if (!(fitted.maximumEqualityError <= tolerance))
+      throw new Error(
+        `joined generating equality residual exceeds ${tolerance} metres`,
+      );
   }
   return surface;
 }
-

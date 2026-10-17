@@ -19,9 +19,9 @@ Book chapter published free online by NVIDIA. Human takes numbers and methods, c
 
 Specular constants (F0 0.028, white specular), the per-region roughness idea, and normal-map usage (`../techniques/skin-material.md`). Weyrich et al. 2006 itself was not read.
 
-## Sum-of-Gaussians skin profile (added; read from Figure 14-13, https://developer.download.nvidia.com/books/gpugems3/14fig13.jpg)
+## Sum-of-Gaussians skin profile
 
-The figure image carries the numbers that the page text omits. Each Gaussian is a 2D normalized Gaussian of variance v (mm²); the diffusion profile per channel is Σ wᵢ G(vᵢ, r). Grade: fitted by the authors to the three-layer Donner-Jensen profile for skin (derived).
+[Figure 14-13](https://developer.download.nvidia.com/books/gpugems3/14fig13.jpg) supplies the weights and variances. Each Gaussian is a 2D normalized Gaussian of variance v (mm²); the diffusion profile per channel is Σ wᵢ G(vᵢ, r). Grade: fitted by the authors to the three-layer Donner-Jensen profile for skin (derived).
 
 | Variance (mm²) | Red | Green | Blue |
 | --- | --- | --- | --- |

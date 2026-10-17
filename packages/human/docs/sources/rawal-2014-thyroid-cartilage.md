@@ -1,10 +1,10 @@
 # Rawal 2014, thyroid cartilage morphometry
 
-Rawal JD, Kariya VB, Doshi BD, Jadav HR. "Morphometric Study of Thyroid Cartilage in Indian Cadavers." *National Journal of Integrated Research in Medicine* 5(3), 2014. Read the article page at https://nicpd.ac.in/ojs-/index.php/njirm/article/view/732 (abstract-level results via the page; the full PDF was not read).
+Rawal JD, Kariya VB, Doshi BD, Jadav HR. "Morphometric Study of Thyroid Cartilage in Indian Cadavers." *National Journal of Integrated Research in Medicine* 5(3), 2014. [Article page](https://nicpd.ac.in/ojs-/index.php/njirm/article/view/732), abstract-level evidence.
 
 ## Licence
 
-Open-access journal page. Numbers are facts.
+Open-access journal page.
 
 ## Population and protocol
 

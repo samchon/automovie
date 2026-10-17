@@ -1,5 +1,14 @@
-import { createAutoMovieMeshRayCaster, IAutoMovieMeshRayCaster } from "@automovie/engine";
-import { IAutoMovieImage, IAutoMovieMaterial, IAutoMovieMesh, IAutoMovieModelPart, } from "@automovie/interface";
+import {
+  IAutoMovieMeshRayCaster,
+  createAutoMovieMeshRayCaster,
+} from "@automovie/engine";
+import {
+  IAutoMovieImage,
+  IAutoMovieMaterial,
+  IAutoMovieMesh,
+  IAutoMovieModelPart,
+} from "@automovie/interface";
+
 import { AutoMovieHumanSide } from "../junction/AutoMovieHumanSide";
 import { AutoMovieHumanTissue } from "../junction/AutoMovieHumanTissue";
 import { meshAutoMovieHumanCage } from "../junction/meshAutoMovieHumanCage";
@@ -8,6 +17,7 @@ import { IAutoMovieHumanPartGenerator } from "../parts/IAutoMovieHumanPartGenera
 import { IAutoMovieHumanSkeleton } from "../skeleton/IAutoMovieHumanSkeleton";
 import { AUTOMOVIE_HUMAN_PART_INSTANCES } from "./AUTOMOVIE_HUMAN_PART_INSTANCES";
 import { IAutoMovieHumanPartGenerators } from "./IAutoMovieHumanPartGenerators";
+
 /**
  * Emit every part's separate meshes, such as nail plates and eyeballs, as their own model parts, each riding its bone.
  *
@@ -23,114 +33,143 @@ import { IAutoMovieHumanPartGenerators } from "./IAutoMovieHumanPartGenerators";
  * @returns The attachment parts, their materials and the images those sample
  * @throws {Error} When an attachment rides a bone the skeleton lacks, has neither or both of a cage and a mesh, or has a tissue without a placeholder and no appearance
  */
-export const emitAutoMovieHumanAttachments: (measurements: IAutoMovieHumanMeasurements, skeleton: IAutoMovieHumanSkeleton, levels: number, generators: IAutoMovieHumanPartGenerators, skin: readonly IAutoMovieModelPart[]) => {
-    parts: IAutoMovieModelPart[];
-    materials: IAutoMovieMaterial[];
-    images: IAutoMovieImage[];
-} = (measurements: IAutoMovieHumanMeasurements, skeleton: IAutoMovieHumanSkeleton, levels: number, generators: IAutoMovieHumanPartGenerators, skin: readonly IAutoMovieModelPart[]): {
-    parts: IAutoMovieModelPart[];
-    materials: IAutoMovieMaterial[];
-    images: IAutoMovieImage[];
+export const emitAutoMovieHumanAttachments: (
+  measurements: IAutoMovieHumanMeasurements,
+  skeleton: IAutoMovieHumanSkeleton,
+  levels: number,
+  generators: IAutoMovieHumanPartGenerators,
+  skin: readonly IAutoMovieModelPart[],
+) => {
+  parts: IAutoMovieModelPart[];
+  materials: IAutoMovieMaterial[];
+  images: IAutoMovieImage[];
+} = (
+  measurements: IAutoMovieHumanMeasurements,
+  skeleton: IAutoMovieHumanSkeleton,
+  levels: number,
+  generators: IAutoMovieHumanPartGenerators,
+  skin: readonly IAutoMovieModelPart[],
+): {
+  parts: IAutoMovieModelPart[];
+  materials: IAutoMovieMaterial[];
+  images: IAutoMovieImage[];
 } => {
-    const casters: Map<IAutoMovieMesh, IAutoMovieMeshRayCaster> = new Map();
-    const skinRayCaster: (mesh: IAutoMovieMesh) => IAutoMovieMeshRayCaster = (mesh: IAutoMovieMesh): IAutoMovieMeshRayCaster => {
-      let caster: IAutoMovieMeshRayCaster | undefined = casters.get(mesh);
-      if (caster === undefined) {
-        caster = createAutoMovieMeshRayCaster(mesh);
-        casters.set(mesh, caster);
-      }
-      return caster;
-    };
-    const parts: IAutoMovieModelPart[] = [];
-    const materials: Map<string, IAutoMovieMaterial> = new Map();
-    const images: Map<string, IAutoMovieImage> = new Map();
-    for (const [part, side] of AUTOMOVIE_HUMAN_PART_INSTANCES) {
-        const generator: {
-            attachments?(props: {
-                measurements: IAutoMovieHumanMeasurements;
-                skeleton: IAutoMovieHumanSkeleton;
-                side: AutoMovieHumanSide | null;
-                skin: readonly IAutoMovieModelPart[];
-                skinRayCaster: (mesh: IAutoMovieMesh) => IAutoMovieMeshRayCaster;
-            }): IAutoMovieHumanPartGenerator.IAttachment[];
-        } = generators[part] as {
-            attachments?(props: {
-                measurements: IAutoMovieHumanMeasurements;
-                skeleton: IAutoMovieHumanSkeleton;
-                side: AutoMovieHumanSide | null;
-                skin: readonly IAutoMovieModelPart[];
-                skinRayCaster: (mesh: IAutoMovieMesh) => IAutoMovieMeshRayCaster;
-            }): IAutoMovieHumanPartGenerator.IAttachment[];
-        };
-        if (generator.attachments === undefined)
-            continue;
-        const prefix: string = side === null ? part : `${part}.${side}`;
-        for (const attachment of generator.attachments({
-            measurements,
-            skeleton,
-            side,
-            skin,
-            skinRayCaster,
-        })) {
-            const joint: IAutoMovieHumanSkeleton.IJoint | undefined = skeleton.joints.find((j: IAutoMovieHumanSkeleton.IJoint): boolean => j.bone === attachment.bone);
-            if (joint === undefined)
-                throw new Error(`${prefix}.${attachment.name} rides ${attachment.bone}, which the skeleton lacks`);
-            const id: string = `${prefix}.${attachment.name}`;
-            if ((attachment.cage === null) === (attachment.mesh === undefined))
-                throw new Error(`${id} must give exactly one of a cage and a mesh`);
-            const mesh: IAutoMovieMesh = attachment.cage !== null
-                ? meshAutoMovieHumanCage({
-                    cage: attachment.cage,
-                    levels,
-                    domain: id,
-                }).mesh
-                : {
-                    ...attachment.mesh!,
-                    positions: attachment.mesh!.positions.map((x: number): number => x / 1000),
-                };
-            const material: IAutoMovieMaterial | undefined = attachment.appearance?.material ?? TISSUE_MATERIALS[attachment.tissue];
-            if (material === undefined)
-                throw new Error(`${id} is ${attachment.tissue}, which has no placeholder material`);
-            materials.set(material.id, material);
-            for (const image of attachment.appearance?.images ?? [])
-                images.set(image.id, image);
-            const origin: number[] = [
-                joint.position.x / 1000,
-                joint.position.y / 1000,
-                joint.position.z / 1000,
-            ];
-            parts.push({
-                id,
-                name: `${side === null ? "" : `${side} `}${part} ${attachment.name}`,
-                geometry: {
-                    type: "mesh",
-                    mesh: {
-                        ...mesh,
-                        positions: mesh.positions.map((x: number, i: number): number => x - origin[i % 3]!),
-                    },
-                },
-                material: material.id,
-                attachedBone: attachment.bone,
-                transform: null,
-            });
-        }
+  const casters: Map<IAutoMovieMesh, IAutoMovieMeshRayCaster> = new Map();
+  const skinRayCaster: (mesh: IAutoMovieMesh) => IAutoMovieMeshRayCaster = (
+    mesh: IAutoMovieMesh,
+  ): IAutoMovieMeshRayCaster => {
+    let caster: IAutoMovieMeshRayCaster | undefined = casters.get(mesh);
+    if (caster === undefined) {
+      caster = createAutoMovieMeshRayCaster(mesh);
+      casters.set(mesh, caster);
     }
-    return {
-        parts,
-        materials: [...materials.values()],
-        images: [...images.values()],
+    return caster;
+  };
+  const parts: IAutoMovieModelPart[] = [];
+  const materials: Map<string, IAutoMovieMaterial> = new Map();
+  const images: Map<string, IAutoMovieImage> = new Map();
+  for (const [part, side] of AUTOMOVIE_HUMAN_PART_INSTANCES) {
+    const generator: {
+      attachments?(props: {
+        measurements: IAutoMovieHumanMeasurements;
+        skeleton: IAutoMovieHumanSkeleton;
+        side: AutoMovieHumanSide | null;
+        skin: readonly IAutoMovieModelPart[];
+        skinRayCaster: (mesh: IAutoMovieMesh) => IAutoMovieMeshRayCaster;
+      }): IAutoMovieHumanPartGenerator.IAttachment[];
+    } = generators[part] as {
+      attachments?(props: {
+        measurements: IAutoMovieHumanMeasurements;
+        skeleton: IAutoMovieHumanSkeleton;
+        side: AutoMovieHumanSide | null;
+        skin: readonly IAutoMovieModelPart[];
+        skinRayCaster: (mesh: IAutoMovieMesh) => IAutoMovieMeshRayCaster;
+      }): IAutoMovieHumanPartGenerator.IAttachment[];
     };
+    if (generator.attachments === undefined) continue;
+    const prefix: string = side === null ? part : `${part}.${side}`;
+    for (const attachment of generator.attachments({
+      measurements,
+      skeleton,
+      side,
+      skin,
+      skinRayCaster,
+    })) {
+      const joint: IAutoMovieHumanSkeleton.IJoint | undefined =
+        skeleton.joints.find(
+          (j: IAutoMovieHumanSkeleton.IJoint): boolean =>
+            j.bone === attachment.bone,
+        );
+      if (joint === undefined)
+        throw new Error(
+          `${prefix}.${attachment.name} rides ${attachment.bone}, which the skeleton lacks`,
+        );
+      const id: string = `${prefix}.${attachment.name}`;
+      if ((attachment.cage === null) === (attachment.mesh === undefined))
+        throw new Error(`${id} must give exactly one of a cage and a mesh`);
+      const mesh: IAutoMovieMesh =
+        attachment.cage !== null
+          ? meshAutoMovieHumanCage({
+              cage: attachment.cage,
+              levels,
+              domain: id,
+            }).mesh
+          : {
+              ...attachment.mesh!,
+              positions: attachment.mesh!.positions.map(
+                (x: number): number => x / 1000,
+              ),
+            };
+      const material: IAutoMovieMaterial | undefined =
+        attachment.appearance?.material ?? TISSUE_MATERIALS[attachment.tissue];
+      if (material === undefined)
+        throw new Error(
+          `${id} is ${attachment.tissue}, which has no placeholder material`,
+        );
+      materials.set(material.id, material);
+      for (const image of attachment.appearance?.images ?? [])
+        images.set(image.id, image);
+      const origin: number[] = [
+        joint.position.x / 1000,
+        joint.position.y / 1000,
+        joint.position.z / 1000,
+      ];
+      parts.push({
+        id,
+        name: `${side === null ? "" : `${side} `}${part} ${attachment.name}`,
+        geometry: {
+          type: "mesh",
+          mesh: {
+            ...mesh,
+            positions: mesh.positions.map(
+              (x: number, i: number): number => x - origin[i % 3]!,
+            ),
+          },
+        },
+        material: material.id,
+        attachedBone: attachment.bone,
+        transform: null,
+      });
+    }
+  }
+  return {
+    parts,
+    materials: [...materials.values()],
+    images: [...images.values()],
+  };
 };
 /** Placeholder material of each tissue until the appearance stage decides it; a tissue whose part always gives its own appearance has none. */
-const TISSUE_MATERIALS: Partial<Record<AutoMovieHumanTissue, IAutoMovieMaterial>> = {
-    nail: {
-        id: "nail",
-        name: "nail",
-        baseColor: { r: 0.93, g: 0.8, b: 0.78, a: null, hex: null },
-        metallic: 0,
-        roughness: 0.3,
-        emissive: null,
-        opacity: 1,
-        baseColorTexture: null,
-    },
+const TISSUE_MATERIALS: Partial<
+  Record<AutoMovieHumanTissue, IAutoMovieMaterial>
+> = {
+  nail: {
+    id: "nail",
+    name: "nail",
+    baseColor: { r: 0.93, g: 0.8, b: 0.78, a: null, hex: null },
+    metallic: 0,
+    roughness: 0.3,
+    emissive: null,
+    opacity: 1,
+    baseColorTexture: null,
+  },
 };

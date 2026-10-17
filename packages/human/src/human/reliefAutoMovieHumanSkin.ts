@@ -4,8 +4,8 @@ import { AutoMovieHumanPart } from "../junction/AutoMovieHumanPart";
 import { AutoMovieHumanSide } from "../junction/AutoMovieHumanSide";
 import { IAutoMovieHumanSurfaceCoordinate } from "../junction/IAutoMovieHumanSurfaceCoordinate";
 import { IAutoMovieHumanMeasurements } from "../measure/IAutoMovieHumanMeasurements";
-import { IAutoMovieHumanSkeleton } from "../skeleton/IAutoMovieHumanSkeleton";
 import { IAutoMovieHumanPartGenerator } from "../parts/IAutoMovieHumanPartGenerator";
+import { IAutoMovieHumanSkeleton } from "../skeleton/IAutoMovieHumanSkeleton";
 import { AUTOMOVIE_HUMAN_PART_INSTANCES } from "./AUTOMOVIE_HUMAN_PART_INSTANCES";
 import { IAutoMovieHumanPartGenerators } from "./IAutoMovieHumanPartGenerators";
 
@@ -35,7 +35,9 @@ export function reliefAutoMovieHumanSkin(
     }) => number
   > = new Map();
   for (const [part, side] of AUTOMOVIE_HUMAN_PART_INSTANCES) {
-    const generator = generators[part] as unknown as IAutoMovieHumanPartGenerator<AutoMovieHumanPart>;
+    const generator = generators[
+      part
+    ] as unknown as IAutoMovieHumanPartGenerator<AutoMovieHumanPart>;
     if (generator.relief === undefined) continue;
     fields.set(
       key(part, side),
@@ -53,9 +55,10 @@ export function reliefAutoMovieHumanSkin(
     coordinate: IAutoMovieHumanSurfaceCoordinate;
     position: IAutoMovieVector3;
   }): number =>
-    fields.get(key(point.coordinate.part, point.coordinate.side))?.(point) ??
-    0;
+    fields.get(key(point.coordinate.part, point.coordinate.side))?.(point) ?? 0;
 }
 
-const key = (part: AutoMovieHumanPart, side: AutoMovieHumanSide | null): string =>
-  side === null ? part : `${part}.${side}`;
+const key = (
+  part: AutoMovieHumanPart,
+  side: AutoMovieHumanSide | null,
+): string => (side === null ? part : `${part}.${side}`);

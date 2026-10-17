@@ -51,6 +51,7 @@ const LAYERS: Array<[string, string[]]> = [
   ["structures", []],
   ["measure", ["structures"]],
   ["skeleton", ["structures", "measure"]],
+  ["curves", ["structures", "measure", "skeleton"]],
   ["junction", ["structures", "measure", "skeleton"]],
   ["parts", ["structures", "measure", "skeleton", "junction"]],
   ["rig", ["structures", "measure", "skeleton", "junction"]],

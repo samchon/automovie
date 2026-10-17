@@ -2,12 +2,12 @@ import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieHumanVector } from "../skeleton/AutoMovieHumanVector";
 import { AutoMovieHumanCageFrame } from "./AutoMovieHumanCageFrame";
-import { capAutoMovieHumanCage } from "./capAutoMovieHumanCage";
 import { AutoMovieHumanPart } from "./AutoMovieHumanPart";
 import { AutoMovieHumanSide } from "./AutoMovieHumanSide";
 import { IAutoMovieHumanCage } from "./IAutoMovieHumanCage";
 import { IAutoMovieHumanRingLayout } from "./IAutoMovieHumanRingLayout";
 import { IAutoMovieHumanRingShape } from "./IAutoMovieHumanRingShape";
+import { capAutoMovieHumanCage } from "./capAutoMovieHumanCage";
 
 /**
  * Assembles one part's control cage from stations, the closed loops of vertices a tube-like part is made of, with each face's corners addressed on the part's chart.
@@ -175,12 +175,16 @@ export class AutoMovieHumanCageBuilder {
     const wrap: boolean = Math.max(...vs) - Math.min(...vs) > 0.5;
     this.faces_.push({
       vertices,
-      coordinates: coordinates.map((c: AutoMovieHumanCageBuilder.IChart): IAutoMovieHumanCage.IFace["coordinates"][number] => ({
-        part: this.part,
-        side: this.side,
-        u: c.u,
-        v: wrap && c.v < 0.5 ? c.v + 1 : c.v,
-      })) as IAutoMovieHumanCage.IFace["coordinates"],
+      coordinates: coordinates.map(
+        (
+          c: AutoMovieHumanCageBuilder.IChart,
+        ): IAutoMovieHumanCage.IFace["coordinates"][number] => ({
+          part: this.part,
+          side: this.side,
+          u: c.u,
+          v: wrap && c.v < 0.5 ? c.v + 1 : c.v,
+        }),
+      ) as IAutoMovieHumanCage.IFace["coordinates"],
     });
   }
 
@@ -284,11 +288,15 @@ export class AutoMovieHumanCageBuilder {
         (_: unknown, s: number): number => (i + s) % n,
       );
       const b: [number, number] = [j, (j + 1) % m];
-      const fc: (s: number) => AutoMovieHumanCageBuilder.IChart = (s: number): AutoMovieHumanCageBuilder.IChart =>
+      const fc: (s: number) => AutoMovieHumanCageBuilder.IChart = (
+        s: number,
+      ): AutoMovieHumanCageBuilder.IChart =>
         s === 0
           ? from.coordinates[a[0]!]!
           : wrapped(from.coordinates, a[0]!, a[s]!);
-      const tc: (s: number) => AutoMovieHumanCageBuilder.IChart = (s: number): AutoMovieHumanCageBuilder.IChart =>
+      const tc: (s: number) => AutoMovieHumanCageBuilder.IChart = (
+        s: number,
+      ): AutoMovieHumanCageBuilder.IChart =>
         s === 0 ? to.coordinates[b[0]]! : wrapped(to.coordinates, b[0], b[1]);
       if (span === 1)
         this.face(
@@ -385,13 +393,21 @@ export class AutoMovieHumanCageBuilder {
           sharpness: c.sharpness,
         }),
       ),
-      rings: this.rings_.map(({ layout, vertices }: { layout: IAutoMovieHumanRingLayout; vertices: number[] }): IAutoMovieHumanCage["rings"][number] => ({
-        site: layout.site,
-        side: layout.side,
-        vertices: vertices.map(map),
-        start: layout.start,
-        frame: layout.frame,
-      })),
+      rings: this.rings_.map(
+        ({
+          layout,
+          vertices,
+        }: {
+          layout: IAutoMovieHumanRingLayout;
+          vertices: number[];
+        }): IAutoMovieHumanCage["rings"][number] => ({
+          site: layout.site,
+          side: layout.side,
+          vertices: vertices.map(map),
+          start: layout.start,
+          frame: layout.frame,
+        }),
+      ),
     };
   }
 }
@@ -423,30 +439,40 @@ export namespace AutoMovieHumanCageBuilder {
   }
 
   /** Layout indices in the site axis's build order; only the distal part reverses the shared ring winding. */
-  export const buildOrder: typeof AutoMovieHumanCageFrame.buildOrder = AutoMovieHumanCageFrame.buildOrder;
+  export const buildOrder: typeof AutoMovieHumanCageFrame.buildOrder =
+    AutoMovieHumanCageFrame.buildOrder;
 
   /** Shared ring unit directions in build order, retaining the layout's model frame. */
-  export const buildDirections: typeof AutoMovieHumanCageFrame.buildDirections = AutoMovieHumanCageFrame.buildDirections;
+  export const buildDirections: typeof AutoMovieHumanCageFrame.buildDirections =
+    AutoMovieHumanCageFrame.buildDirections;
 
   /** Station positions from a common origin and directional radii; lengths retain the caller's one unit and frame. */
-  export const around: typeof AutoMovieHumanCageFrame.around = AutoMovieHumanCageFrame.around;
+  export const around: typeof AutoMovieHumanCageFrame.around =
+    AutoMovieHumanCageFrame.around;
 
   /** Right-handed rotation in radians about a unit axis, retaining the input vector's unit and frame. */
-  export const rotate: typeof AutoMovieHumanCageFrame.rotate = AutoMovieHumanCageFrame.rotate;
+  export const rotate: typeof AutoMovieHumanCageFrame.rotate =
+    AutoMovieHumanCageFrame.rotate;
 
   /** Signed radians between perpendicular directions around their common unit axis, in (-pi, pi]. */
-  export const angle: typeof AutoMovieHumanCageFrame.angle = AutoMovieHumanCageFrame.angle;
+  export const angle: typeof AutoMovieHumanCageFrame.angle =
+    AutoMovieHumanCageFrame.angle;
 
   /** Physical ellipse radius along a polar angle in radians; both semi-axes use the caller's one length unit. */
-  export const ellipse: typeof AutoMovieHumanCageFrame.ellipse = AutoMovieHumanCageFrame.ellipse;
+  export const ellipse: typeof AutoMovieHumanCageFrame.ellipse =
+    AutoMovieHumanCageFrame.ellipse;
 
   /** Counterclockwise unit directions in the common axis/reference frame; reference is perpendicular to the unit axis. */
-  export const turn: typeof AutoMovieHumanCageFrame.turn = AutoMovieHumanCageFrame.turn;
-
+  export const turn: typeof AutoMovieHumanCageFrame.turn =
+    AutoMovieHumanCageFrame.turn;
 }
 
 /** Coordinate of vertex `l` as seen from vertex `k` of the same station, 1 instead of 0 when the span closes the loop. */
-const wrapped: (coordinates: AutoMovieHumanCageBuilder.IChart[], k: number, l: number) => AutoMovieHumanCageBuilder.IChart = (
+const wrapped: (
+  coordinates: AutoMovieHumanCageBuilder.IChart[],
+  k: number,
+  l: number,
+) => AutoMovieHumanCageBuilder.IChart = (
   coordinates: AutoMovieHumanCageBuilder.IChart[],
   k: number,
   l: number,

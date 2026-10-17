@@ -117,7 +117,9 @@ export namespace IAutoMovieHumanPartGenerator {
    * Its model-frame positions are metres; it is borrowed without mutation.
    * Regenerating an independent part would lose joined fitting and relief.
    */
-  export interface IAttachmentProps<Part extends AutoMovieHumanPart> extends IProps<Part> {
+  export interface IAttachmentProps<
+    Part extends AutoMovieHumanPart,
+  > extends IProps<Part> {
     /** Actual skin parts emitted for this model, before appearance dressing. */
     skin: readonly IAutoMovieModelPart[];
     /** Borrow one lazy immutable caster per emitted skin mesh, shared by attachments during this emission. */

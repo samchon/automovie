@@ -1,10 +1,10 @@
 import { AutoMovieHumanSex } from "../structures/AutoMovieHumanSex";
 import { IAutoMovieHumanIdentity } from "../structures/IAutoMovieHumanIdentity";
+import { AutoMovieHumanGirthGrowth } from "./AutoMovieHumanGirthGrowth";
+import { AutoMovieHumanGirthRegression } from "./AutoMovieHumanGirthRegression";
 import { IAutoMovieHumanConversionContext } from "./IAutoMovieHumanConversionContext";
 import { estimateAutoMovieHumanMedianStature } from "./estimateAutoMovieHumanMedianStature";
 import { interpolateAutoMovieHumanGrowthCurve } from "./interpolateAutoMovieHumanGrowthCurve";
-import { AutoMovieHumanGirthGrowth } from "./AutoMovieHumanGirthGrowth";
-import { AutoMovieHumanGirthRegression } from "./AutoMovieHumanGirthRegression";
 
 /**
  * Girths of one person.
@@ -20,7 +20,10 @@ export function estimateAutoMovieHumanGirths(
   context: IAutoMovieHumanConversionContext,
 ): estimateAutoMovieHumanGirths.IOutput {
   const { sex, age }: IAutoMovieHumanConversionContext = context;
-  const read: (curve: AutoMovieHumanGirthGrowth.ISexCurve, at: number) => number = (
+  const read: (
+    curve: AutoMovieHumanGirthGrowth.ISexCurve,
+    at: number,
+  ) => number = (
     curve: AutoMovieHumanGirthGrowth.ISexCurve,
     at: number,
   ): number => interpolateAutoMovieHumanGrowthCurve(curve[sex], at);
@@ -30,7 +33,12 @@ export function estimateAutoMovieHumanGirths(
   ): IGirths => adultGirths(context, atAge, stature, read);
   const weight: number = Math.min(
     1,
-    Math.max(0, (age - AutoMovieHumanGirthGrowth.ADULT_FROM[0]) / (AutoMovieHumanGirthGrowth.ADULT_FROM[1] - AutoMovieHumanGirthGrowth.ADULT_FROM[0])),
+    Math.max(
+      0,
+      (age - AutoMovieHumanGirthGrowth.ADULT_FROM[0]) /
+        (AutoMovieHumanGirthGrowth.ADULT_FROM[1] -
+          AutoMovieHumanGirthGrowth.ADULT_FROM[0]),
+    ),
   );
   const grown: IGirths | null =
     weight === 0 ? null : adult(age, context.peakStature);
@@ -135,11 +143,15 @@ function adultGirths(
   );
   // ANSUR II at the median person's BMI, moved by fat and limb lean mass each by their own reach
   const referenceBmi: number = context.bmi - context.bmiOffset;
-  const composed: (key: keyof typeof AutoMovieHumanGirthRegression.ANSUR_II) => number = (
+  const composed: (
+    key: keyof typeof AutoMovieHumanGirthRegression.ANSUR_II,
+  ) => number = (
     key: keyof typeof AutoMovieHumanGirthRegression.ANSUR_II,
   ): number => {
     const split: { fat: number; lean: number } =
-      AutoMovieHumanGirthRegression.COMPOSITION_SPLIT[AutoMovieHumanGirthRegression.SPLIT_SITE[key]][sex];
+      AutoMovieHumanGirthRegression.COMPOSITION_SPLIT[
+        AutoMovieHumanGirthRegression.SPLIT_SITE[key]
+      ][sex];
     return (
       referenceBmi +
       split.fat * context.fatIndexOffset +
@@ -155,17 +167,26 @@ function adultGirths(
     atStature: number,
     bmi: number,
   ): number => {
-    const r: AutoMovieHumanGirthRegression.IRegression = AutoMovieHumanGirthRegression.ANSUR_II[key][sex];
+    const r: AutoMovieHumanGirthRegression.IRegression =
+      AutoMovieHumanGirthRegression.ANSUR_II[key][sex];
     return atStature * (r.area + r.bmi * bmi + r.age * sampleAge);
   };
-  const fit: (key: keyof typeof AutoMovieHumanGirthRegression.ANSUR_II) => number = (
+  const fit: (
+    key: keyof typeof AutoMovieHumanGirthRegression.ANSUR_II,
+  ) => number = (
     key: keyof typeof AutoMovieHumanGirthRegression.ANSUR_II,
   ): number => Math.sqrt(area(key, stature, composed(key)));
   const late: number = AutoMovieHumanGirthRegression.ANSUR_AGES[1];
   const limbAgeing: number =
-    atAge > late ? read(AutoMovieHumanGirthGrowth.NHANES_ARM, atAge) / read(AutoMovieHumanGirthGrowth.NHANES_ARM, late) : 1;
+    atAge > late
+      ? read(AutoMovieHumanGirthGrowth.NHANES_ARM, atAge) /
+        read(AutoMovieHumanGirthGrowth.NHANES_ARM, late)
+      : 1;
   const waistAgeing: number =
-    atAge > late ? read(AutoMovieHumanGirthGrowth.NHANES_WAIST, atAge) / read(AutoMovieHumanGirthGrowth.NHANES_WAIST, late) : 1;
+    atAge > late
+      ? read(AutoMovieHumanGirthGrowth.NHANES_WAIST, atAge) /
+        read(AutoMovieHumanGirthGrowth.NHANES_WAIST, late)
+      : 1;
 
   // natural waist: the 1988 survey's relation to the navel waist and the buttock girth
   const natural: { intercept: number; navel: number; buttock: number } =
@@ -216,29 +237,47 @@ function childGirths(
   const { sex, age }: IAutoMovieHumanConversionContext = context;
   const reference: IGirths = adult(
     AutoMovieHumanGirthGrowth.REFERENCE_AGE,
-    estimateAutoMovieHumanMedianStature(sex, AutoMovieHumanGirthGrowth.REFERENCE_AGE),
+    estimateAutoMovieHumanMedianStature(
+      sex,
+      AutoMovieHumanGirthGrowth.REFERENCE_AGE,
+    ),
   );
-  const firstWaist: number = AutoMovieHumanGirthGrowth.NHANES_WAIST[sex].ages[0]!;
+  const firstWaist: number =
+    AutoMovieHumanGirthGrowth.NHANES_WAIST[sex].ages[0]!;
   const trunkGrowth: number =
     (age < firstWaist
       ? (read(AutoMovieHumanGirthGrowth.NHANES_WAIST, firstWaist) *
           estimateAutoMovieHumanMedianStature(sex, age)) /
         estimateAutoMovieHumanMedianStature(sex, firstWaist)
-      : read(AutoMovieHumanGirthGrowth.NHANES_WAIST, age)) / read(AutoMovieHumanGirthGrowth.NHANES_WAIST, AutoMovieHumanGirthGrowth.REFERENCE_AGE);
+      : read(AutoMovieHumanGirthGrowth.NHANES_WAIST, age)) /
+    read(
+      AutoMovieHumanGirthGrowth.NHANES_WAIST,
+      AutoMovieHumanGirthGrowth.REFERENCE_AGE,
+    );
   const limbGrowth: number =
-    read(AutoMovieHumanGirthGrowth.NHANES_ARM, age) / read(AutoMovieHumanGirthGrowth.NHANES_ARM, AutoMovieHumanGirthGrowth.REFERENCE_AGE);
+    read(AutoMovieHumanGirthGrowth.NHANES_ARM, age) /
+    read(
+      AutoMovieHumanGirthGrowth.NHANES_ARM,
+      AutoMovieHumanGirthGrowth.REFERENCE_AGE,
+    );
   const tall: number = context.stature / context.medianStature;
   const trunk: number = trunkGrowth * tall;
   const limb: number = limbGrowth * tall;
   // each girth the 1977 survey measured grows by its own course; below its first bin, by the arm's
-  const own: (key: keyof typeof AutoMovieHumanGirthGrowth.SNYDER_LIMB) => number = (
+  const own: (
+    key: keyof typeof AutoMovieHumanGirthGrowth.SNYDER_LIMB,
+  ) => number = (
     key: keyof typeof AutoMovieHumanGirthGrowth.SNYDER_LIMB,
   ): number => {
-    const curve: AutoMovieHumanGirthGrowth.ISexCurve = AutoMovieHumanGirthGrowth.SNYDER_LIMB[key];
+    const curve: AutoMovieHumanGirthGrowth.ISexCurve =
+      AutoMovieHumanGirthGrowth.SNYDER_LIMB[key];
     const first: number = curve[sex].ages[0]!;
     const last: number = curve[sex].ages[curve[sex].ages.length - 1]!;
     const infancy: number =
-      age < first ? read(AutoMovieHumanGirthGrowth.NHANES_ARM, age) / read(AutoMovieHumanGirthGrowth.NHANES_ARM, first) : 1;
+      age < first
+        ? read(AutoMovieHumanGirthGrowth.NHANES_ARM, age) /
+          read(AutoMovieHumanGirthGrowth.NHANES_ARM, first)
+        : 1;
     return ((read(curve, age) * infancy) / read(curve, last)) * tall;
   };
   const buttock: number = reference.buttock * trunk;
@@ -248,7 +287,8 @@ function childGirths(
   return {
     neck: reference.neck * limb,
     chest: reference.chest * trunk,
-    naturalWaist: read(AutoMovieHumanGirthGrowth.NATURAL_WAIST_TO_HIP, age) * buttock,
+    naturalWaist:
+      read(AutoMovieHumanGirthGrowth.NATURAL_WAIST_TO_HIP, age) * buttock,
     buttock,
     upperArm,
     forearm: relaxedForearm(sex, upperArm, wrist),

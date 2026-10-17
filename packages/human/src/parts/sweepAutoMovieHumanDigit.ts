@@ -74,6 +74,7 @@ export function sweepAutoMovieHumanDigit(props: {
       ),
     },
     at: ats,
+    padTurn: props.pad / (2 * Math.PI),
     length: total,
     dome: radius,
     tip: [(total - radius) / total, (total - NEAR * radius) / total],
@@ -109,6 +110,9 @@ export namespace sweepAutoMovieHumanDigit {
    * @author Samchon
    */
   export interface IOutput {
+    /** Actual palmar/plantar pad direction used by every section, turns from its first source axis; metadata only. */
+    padTurn: number;
+
     /** The sweep, metres. */
     sweep: IAutoMovieSweep;
 
@@ -141,14 +145,19 @@ const NEAR: number = 0.15;
 /** Corners of each section polygon. */
 const CORNERS: number = 48;
 
-const metres = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
+const metres: (p: IAutoMovieVector3) => IAutoMovieVector3 = (
+  p: IAutoMovieVector3,
+): IAutoMovieVector3 => ({
   x: p.x / 1000,
   y: p.y / 1000,
   z: p.z / 1000,
 });
 
 /** The station's rounded box, its pad `pad` radians from the first axis, metres. */
-const section = (
+const section: (
+  s: sweepAutoMovieHumanDigit.IStation,
+  pad: number,
+) => IAutoMovieSweepSection.IPolygon = (
   s: sweepAutoMovieHumanDigit.IStation,
   pad: number,
 ): IAutoMovieSweepSection.IPolygon => ({

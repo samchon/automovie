@@ -1,15 +1,21 @@
 import { IAutoMovieMeshRayCaster } from "@automovie/engine";
-import { AutoMovieHumanoidBone, IAutoMovieModelPart, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieHumanoidBone,
+  IAutoMovieModelPart,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
 import { AutoMovieHumanBranch } from "../../junction/AutoMovieHumanBranch";
 import { IAutoMovieHumanCage } from "../../junction/IAutoMovieHumanCage";
 import { IAutoMovieHumanSurfaceCoordinate } from "../../junction/IAutoMovieHumanSurfaceCoordinate";
+import { shapeAutoMovieHumanRing } from "../../junction/shapeAutoMovieHumanRing";
 import { IAutoMovieHumanPartGenerator } from "../../parts/IAutoMovieHumanPartGenerator";
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { AutoMovieHumanHandChart } from "./AutoMovieHumanHandChart";
 import { loftAutoMovieHumanHand } from "./loftAutoMovieHumanHand";
 import { placeAutoMovieHumanNails } from "./placeAutoMovieHumanNails";
-import { shapeAutoMovieHumanRing } from "../../junction/shapeAutoMovieHumanRing";
 import { readAutoMovieHumanHand } from "./readAutoMovieHumanHand";
+
 /**
  * The hand from the wrist ring: the palm with its thenar and hypothenar eminences, four fingers and the thumb, lofted as one surface network of fixed connectivity.
  *
@@ -24,15 +30,16 @@ import { readAutoMovieHumanHand } from "./readAutoMovieHumanHand";
  * @author Samchon
  */
 export class AutoMovieHumanHandGenerator implements IAutoMovieHumanPartGenerator<"hand"> {
-    /** The part this generator produces. */
-    public readonly part: IAutoMovieHumanPartGenerator<"hand">["part"] = "hand" as const;
-    /**
-     * Generate one hand's cage.
-     *
-     * @param props Measurements, skeleton and the side of the hand
-     * @returns Cage in the skeleton's model frame and millimetres, with the `wrist` ring
-     */
-    public generate(
+  /** The part this generator produces. */
+  public readonly part: IAutoMovieHumanPartGenerator<"hand">["part"] =
+    "hand" as const;
+  /**
+   * Generate one hand's cage.
+   *
+   * @param props Measurements, skeleton and the side of the hand
+   * @returns Cage in the skeleton's model frame and millimetres, with the `wrist` ring
+   */
+  public generate(
     props: IAutoMovieHumanPartGenerator.IProps<"hand">,
   ): IAutoMovieHumanCage {
     const lofted: loftAutoMovieHumanHand.IOutput =
@@ -55,7 +62,11 @@ export class AutoMovieHumanHandGenerator implements IAutoMovieHumanPartGenerator
           const sample: IAutoMovieVector3 = modelSample(i);
           return {
             position: model(hand, p),
-            fitting: { sample, target: lofted.sampled.limitTargetMask[i] ? { ...sample } : null, anchor: lofted.sampled.pinned[i]! },
+            fitting: {
+              sample,
+              target: lofted.sampled.limitTargetMask[i] ? { ...sample } : null,
+              anchor: lofted.sampled.pinned[i]!,
+            },
           };
         },
       ),
@@ -66,6 +77,7 @@ export class AutoMovieHumanHandGenerator implements IAutoMovieHumanPartGenerator
             : [0, 3, 2, 1];
           return {
             fitting: `hand.${props.side}`,
+            skin: face.skin,
             uvs: AutoMovieHumanHandChart.pack(
               props.side,
               keep,
@@ -119,86 +131,138 @@ export class AutoMovieHumanHandGenerator implements IAutoMovieHumanPartGenerator
       },
     };
   }
-    /**
-     * Generate the hand's nail plates, separate meshes resting on its skin.
-     *
-     * @param props Measurements, skeleton, side and actual emitted rest skin
-     * @returns One closed cage per digit, thumb first, each riding its distal phalanx
-     * @throws {Error} When the emitted skin is missing or a nail ray misses it
-     */
-    public attachments(props: IAutoMovieHumanPartGenerator.IAttachmentProps<"hand">): IAutoMovieHumanPartGenerator.IAttachment[] {
-        const hand: readAutoMovieHumanHand.IHand = readAutoMovieHumanHand(props.skeleton, props.side, shapeAutoMovieHumanRing({ ...props, site: "wrist", part: "hand" }));
-        const host: IAutoMovieModelPart | undefined = props.skin.find((part: IAutoMovieModelPart): boolean => part.id === "skin" || part.id === `skin.hand.${props.side}`);
-        if (host === undefined || host.geometry.type !== "mesh")
-            throw new Error("Hand nail placement needs its emitted skin mesh");
-        const caster: IAutoMovieMeshRayCaster = props.skinRayCaster(host.geometry.mesh);
-        const keep: boolean = hand.mirrored;
-        const breadth: number = (props.side === "left" ? props.measurements.identity.body.leftArm : props.measurements.identity.body.rightArm).handBreadth;
-        return placeAutoMovieHumanNails({
-            hand,
-            breadth,
-            skin: {
-                project: (origin: IAutoMovieVector3, ray: IAutoMovieVector3): number | null => {
-                    const start: IAutoMovieVector3 = model(hand, origin);
-                    const direction: IAutoMovieVector3 = AutoMovieHumanVector.offset(AutoMovieHumanVector.of(0, 0, 0), [hand.distal, ray.x], [hand.palmar, ray.y], [hand.radial, ray.z]);
-                    // Reverse the existing 40 mm ray interval: nearest from its far end
-                    // is the farthest outgoing crossing from the digit axis.
-                    const maximum: number = 0.04;
-                    const hit: number | null = caster.nearest([start.x / 1000 + maximum * direction.x, start.y / 1000 + maximum * direction.y, start.z / 1000 + maximum * direction.z], [-direction.x, -direction.y, -direction.z], maximum);
-                    return hit === null || hit === 0 || hit === maximum ? null : (maximum - hit) * 1000;
-                },
-            },
-        }).map(({ positions, quads }: {
-            positions: IAutoMovieVector3[];
-            quads: Array<[
+  /**
+   * Generate the hand's nail plates, separate meshes resting on its skin.
+   *
+   * @param props Measurements, skeleton, side and actual emitted rest skin
+   * @returns One closed cage per digit, thumb first, each riding its distal phalanx
+   * @throws {Error} When the emitted skin is missing or a nail ray misses it
+   */
+  public attachments(
+    props: IAutoMovieHumanPartGenerator.IAttachmentProps<"hand">,
+  ): IAutoMovieHumanPartGenerator.IAttachment[] {
+    const hand: readAutoMovieHumanHand.IHand = readAutoMovieHumanHand(
+      props.skeleton,
+      props.side,
+      shapeAutoMovieHumanRing({ ...props, site: "wrist", part: "hand" }),
+    );
+    const host: IAutoMovieModelPart | undefined = props.skin.find(
+      (part: IAutoMovieModelPart): boolean =>
+        part.id === "skin" || part.id === `skin.hand.${props.side}`,
+    );
+    if (host === undefined || host.geometry.type !== "mesh")
+      throw new Error("Hand nail placement needs its emitted skin mesh");
+    const caster: IAutoMovieMeshRayCaster = props.skinRayCaster(
+      host.geometry.mesh,
+    );
+    const keep: boolean = hand.mirrored;
+    const breadth: number = (
+      props.side === "left"
+        ? props.measurements.identity.body.leftArm
+        : props.measurements.identity.body.rightArm
+    ).handBreadth;
+    return placeAutoMovieHumanNails({
+      hand,
+      breadth,
+      skin: {
+        project: (
+          origin: IAutoMovieVector3,
+          ray: IAutoMovieVector3,
+        ): number | null => {
+          const start: IAutoMovieVector3 = model(hand, origin);
+          const direction: IAutoMovieVector3 = AutoMovieHumanVector.offset(
+            AutoMovieHumanVector.of(0, 0, 0),
+            [hand.distal, ray.x],
+            [hand.palmar, ray.y],
+            [hand.radial, ray.z],
+          );
+          // Reverse the existing 40 mm ray interval: nearest from its far end
+          // is the farthest outgoing crossing from the digit axis.
+          const maximum: number = 0.04;
+          const hit: number | null = caster.nearest(
+            [
+              start.x / 1000 + maximum * direction.x,
+              start.y / 1000 + maximum * direction.y,
+              start.z / 1000 + maximum * direction.z,
+            ],
+            [-direction.x, -direction.y, -direction.z],
+            maximum,
+          );
+          return hit === null || hit === 0 || hit === maximum
+            ? null
+            : (maximum - hit) * 1000;
+        },
+      },
+    }).map(
+      (
+        {
+          positions,
+          quads,
+        }: {
+          positions: IAutoMovieVector3[];
+          quads: Array<[number, number, number, number]>;
+        },
+        digit: number,
+      ): IAutoMovieHumanPartGenerator.IAttachment => {
+        const branch: AutoMovieHumanBranch<"hand"> = DIGITS[digit]!;
+        const address: IAutoMovieHumanSurfaceCoordinate = {
+          part: "hand",
+          side: props.side,
+          branch,
+          u: 1,
+          v: 0.5,
+        };
+        return {
+          name: `nail.${branch}`,
+          bone: `${props.side}${BONES[digit]!}Distal` as AutoMovieHumanoidBone,
+          tissue: "nail",
+          cage: {
+            vertices: positions.map(
+              (p: IAutoMovieVector3): IAutoMovieHumanCage.IVertex => ({
+                position: model(hand, p),
+              }),
+            ),
+            // the plates wind outward in the hand frame taken as right-handed, as the skin does
+            faces: quads.map(
+              ([a, b, c, d]: [
                 number,
                 number,
                 number,
-                number
-            ]>;
-        }, digit: number): IAutoMovieHumanPartGenerator.IAttachment => {
-            const branch: AutoMovieHumanBranch<"hand"> = DIGITS[digit]!;
-            const address: IAutoMovieHumanSurfaceCoordinate = {
-                part: "hand",
-                side: props.side,
-                branch,
-                u: 1,
-                v: 0.5,
-            };
-            return {
-                name: `nail.${branch}`,
-                bone: `${props.side}${BONES[digit]!}Distal` as AutoMovieHumanoidBone,
-                tissue: "nail",
-                cage: {
-                    vertices: positions.map((p: IAutoMovieVector3): IAutoMovieHumanCage.IVertex => ({
-                        position: model(hand, p),
-                    })),
-                    // the plates wind outward in the hand frame taken as right-handed, as the skin does
-                    faces: quads.map(([a, b, c, d]: [
-                        number,
-                        number,
-                        number,
-                        number
-                    ]): IAutoMovieHumanCage.IFace => ({
-                        vertices: keep ? [a, b, c, d] : [a, d, c, b],
-                        coordinates: [address, address, address, address],
-                    })),
-                    creases: [],
-                    rings: [],
-                },
-            };
-        });
-    }
+                number,
+              ]): IAutoMovieHumanCage.IFace => ({
+                vertices: keep ? [a, b, c, d] : [a, d, c, b],
+                coordinates: [address, address, address, address],
+              }),
+            ),
+            creases: [],
+            rings: [],
+          },
+        };
+      },
+    );
+  }
 }
 /** Model point of a hand-frame point. */
-const model: (hand: readAutoMovieHumanHand.IHand, p: IAutoMovieVector3) => IAutoMovieVector3 = (hand: readAutoMovieHumanHand.IHand, p: IAutoMovieVector3): IAutoMovieVector3 => AutoMovieHumanVector.offset(hand.origin, [hand.distal, p.x], [hand.palmar, p.y], [hand.radial, p.z]);
+const model: (
+  hand: readAutoMovieHumanHand.IHand,
+  p: IAutoMovieVector3,
+) => IAutoMovieVector3 = (
+  hand: readAutoMovieHumanHand.IHand,
+  p: IAutoMovieVector3,
+): IAutoMovieVector3 =>
+  AutoMovieHumanVector.offset(
+    hand.origin,
+    [hand.distal, p.x],
+    [hand.palmar, p.y],
+    [hand.radial, p.z],
+  );
 /** The digit each nail plate rests on, in the order `placeAutoMovieHumanNails` returns them. */
 const DIGITS: AutoMovieHumanBranch<"hand">[] = [
-    "thumb",
-    "index",
-    "middle",
-    "ring",
-    "little",
+  "thumb",
+  "index",
+  "middle",
+  "ring",
+  "little",
 ];
 /** Bone name stems of the digits, in the same order. */
 const BONES: string[] = ["Thumb", "Index", "Middle", "Ring", "Little"];

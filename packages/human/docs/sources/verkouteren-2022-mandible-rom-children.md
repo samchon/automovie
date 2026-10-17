@@ -1,10 +1,10 @@
 # Verkouteren 2022, mandibular range of motion in healthy children
 
-Verkouteren DRC, de Sonnaville WFC, Zuithoff NPA, Wulffraat NM, Steenks MH, Rosenberg AJWP, et al. "Growth curves for mandibular range of motion and maximum voluntary bite force in healthy children." *European Journal of Oral Sciences* 130(3):e12869, 2022, doi:10.1111/eos.12869. Read as PMC9321901 (NCBI efetch).
+Verkouteren DRC, de Sonnaville WFC, Zuithoff NPA, Wulffraat NM, Steenks MH, Rosenberg AJWP, et al. "Growth curves for mandibular range of motion and maximum voluntary bite force in healthy children." *European Journal of Oral Sciences* 130(3):e12869, 2022, doi:10.1111/eos.12869. [Full text](https://pmc.ncbi.nlm.nih.gov/articles/PMC9321901/).
 
 ## Licence
 
-CC BY-NC-ND 4.0. Numbers are facts.
+CC BY-NC-ND 4.0.
 
 ## Population and protocol
 

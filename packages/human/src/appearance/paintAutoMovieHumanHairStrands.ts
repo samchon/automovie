@@ -4,17 +4,29 @@ import { IAutoMovieImage } from "@automovie/interface";
 /**
  * Paint the strand atlas every hair, brow and lash card samples: coverage in alpha and per-strand brightness in grey, which the hair material's colour tints.
  *
- * A card stands for a lock of parallel strands, the "base texture for the fine structure of a hair bundle" with an opacity map that breaks up its outline of Scheuermann (2004, "Practical Real-Time Hair Rendering and Shading", SIGGRAPH sketch). Each strand is a band of smooth cross-section running from the root at texture `y = 0`, the first image row, to its own tip, tapering over the last part of its length; neighbouring strands overlap, differ in brightness and end at different lengths, so the card's outline is ragged and its colour streaked along the strand as hair is. Columns, as {@link paintAutoMovieHumanHairStrands.COLUMNS} lists them: four lock variants for scalp hair, one lone strand for brow hairs, a cluster of three lashes, and an opaque band for the scalp cap, which a card samples at its middle so the average of a smaller mip level, where the band meets the transparent texels beside it, never drops it below the alpha test. Positions, widths and lengths come from an integer hash, so the image is the same in every run and on every platform. Sizes are in texels and chosen to read as hair at face scale; grade: conventional.
+ * A card stands for a lock of parallel strands, the "base texture for the fine structure of a hair bundle" with an opacity map that breaks up its outline of Scheuermann (2004, "Practical Real-Time Hair Rendering and Shading", SIGGRAPH sketch). Each strand is a band of smooth cross-section running from the root at texture `y = 0`, the first image row, to its own tip, tapering over the last part of its length; neighbouring strands overlap, differ in brightness and end at different lengths, so the card's outline is ragged and its colour streaked along the strand as hair is. Columns, as {@link paintAutoMovieHumanHairStrands.COLUMNS} lists them: four lock variants for scalp hair, one lone strand for brow hairs, one fine lash, and an opaque band for the scalp cap, which a card samples at its middle so the average of a smaller mip level, where the band meets the transparent texels beside it, never drops it below the alpha test. Positions, widths and lengths come from an integer hash, so the image is the same in every run and on every platform. Sizes are in texels and chosen to read as hair at face scale; grade: conventional.
  *
  * @returns The atlas, RGBA, id `human.hair.strands`
  */
 export function paintAutoMovieHumanHairStrands(): IAutoMovieImage {
   const pixels: Uint8Array = new Uint8Array(WIDTH * HEIGHT * 4);
-  const C = paintAutoMovieHumanHairStrands.COLUMNS;
+  const C: typeof paintAutoMovieHumanHairStrands.COLUMNS =
+    paintAutoMovieHumanHairStrands.COLUMNS;
   for (let k: number = 0; k < 4; ++k)
-    lock(pixels, C.locks[k]!, 15, 0.7, 2.6, k);
-  lock(pixels, C.single, 1, 1, 13, 10);
-  lock(pixels, C.lashes, 3, 0.8, 5, 11);
+    lock(
+      pixels,
+      C.locks[k]!,
+      15,
+      paintAutoMovieHumanHairStrands.LOCK_SHAPE.shortestTip,
+      1.6,
+      k,
+    );
+  // The finite-width cards carry transparent gaps rather than a solid bundle.
+  // These are conventional texel widths, not measured follicle diameters.
+  lock(pixels, C.single, 1, 1, 8, 10);
+  // A lone subtexel fibre vanishes into alternating dashes after mip/filter
+  // reduction. Four source texels remain one strand within the 16-texel lane.
+  lock(pixels, C.lashes, 1, 1, 4, 11);
   for (let y: number = 0; y < HEIGHT; ++y)
     for (let x: number = Math.ceil(C.solid[0] * WIDTH); x < WIDTH; ++x) {
       const at: number = 4 * (y * WIDTH + x);
@@ -36,8 +48,19 @@ export function paintAutoMovieHumanHairStrands(): IAutoMovieImage {
  * Layout of the strand atlas.
  */
 export namespace paintAutoMovieHumanHairStrands {
+  /** Authored lock coverage; a blunt cut samples before every strand's taper. */
+  export const LOCK_SHAPE: {
+    readonly shortestTip: number;
+    readonly taperShare: number;
+  } = { shortestTip: 0.7, taperShare: 0.25 };
+
   /** Texture `x` ranges of the atlas columns. */
-  export const COLUMNS = {
+  export const COLUMNS: {
+    locks: ReadonlyArray<readonly [number, number]>;
+    single: readonly [number, number];
+    lashes: readonly [number, number];
+    solid: readonly [number, number];
+  } = {
     /** Four variants of a lock of scalp hair. */
     locks: [
       [0, 0.1875],
@@ -49,7 +72,7 @@ export namespace paintAutoMovieHumanHairStrands {
     /** One strand, centred, for brow hairs. */
     single: [0.75, 0.8125] as readonly [number, number],
 
-    /** Three lashes side by side. */
+    /** One fine lash per card, avoiding a repeated triangular bundle. */
     lashes: [0.8125, 0.875] as readonly [number, number],
 
     /** Opaque, for the scalp cap; 32 texels wide so its middle stays opaque down to the 8-texel mip level. */
@@ -86,7 +109,11 @@ function lock(
     for (let y: number = 0; y < HEIGHT; ++y) {
       const t: number = (y + 0.5) / HEIGHT;
       if (t > tip) break;
-      const taper: number = Math.min(1, (tip - t) / (0.25 * tip));
+      const taper: number = Math.min(
+        1,
+        (tip - t) /
+          (paintAutoMovieHumanHairStrands.LOCK_SHAPE.taperShare * tip),
+      );
       const c: number = centre + sway * t * t * half * 2;
       const h: number = Math.max(0.5, half * (0.35 + 0.65 * taper));
       for (

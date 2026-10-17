@@ -38,7 +38,10 @@ export function planAutoMovieHumanLeg(props: {
     planAutoMovieHumanLegStations(props);
   const last: number = stations.length - 1;
   // a junction station on its ring's axis, at its own level
-  const junction: (s: IAutoMovieHumanLegStation, ring: IAutoMovieHumanRingShape) => Pick<IAutoMovieHumanLimbPlan.IStation, "centre" | "anterior"> = (
+  const junction: (
+    s: IAutoMovieHumanLegStation,
+    ring: IAutoMovieHumanRingShape,
+  ) => Pick<IAutoMovieHumanLimbPlan.IStation, "centre" | "anterior"> = (
     s: IAutoMovieHumanLegStation,
     ring: IAutoMovieHumanRingShape,
   ): Pick<IAutoMovieHumanLimbPlan.IStation, "centre" | "anterior"> => ({
@@ -58,7 +61,10 @@ export function planAutoMovieHumanLeg(props: {
         s: IAutoMovieHumanLegStation,
         i: number,
       ): IAutoMovieHumanLimbPlan.IStation => {
-        const common: Pick<IAutoMovieHumanLimbPlan.IStation, "name" | "axis" | "columns" | "rows"> = {
+        const common: Pick<
+          IAutoMovieHumanLimbPlan.IStation,
+          "name" | "axis" | "columns" | "rows"
+        > = {
           name: s.name,
           axis: s.axis,
           columns: s.count,

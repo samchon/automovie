@@ -3,8 +3,8 @@ import { IAutoMovieVector3 } from "@automovie/interface";
 import { IAutoMovieHumanIdentity } from "../../structures/IAutoMovieHumanIdentity";
 import { AutoMovieHumanHeadDomain } from "./AutoMovieHumanHeadDomain";
 import { AutoMovieHumanHeadNetwork } from "./AutoMovieHumanHeadNetwork";
-import { curveAutoMovieHumanOrbit } from "./curveAutoMovieHumanOrbit";
 import { IAutoMovieHumanHeadForm } from "./IAutoMovieHumanHeadForm";
+import { curveAutoMovieHumanOrbit } from "./curveAutoMovieHumanOrbit";
 
 /**
  * Fill each eye's opening with a geometric orbital envelope and the lid-margin loops of orbicularis oculi.
@@ -28,7 +28,13 @@ export function loopAutoMovieHumanEyelids(props: {
 }): void {
   const { domain, network, features, form }: typeof props = props;
   const frame: AutoMovieHumanHeadDomain["frame"] = domain.frame;
-  const curve: ReturnType<typeof curveAutoMovieHumanOrbit> = curveAutoMovieHumanOrbit({frame,features,form,eyeRadius:domain.eyeRadius});
+  const curve: ReturnType<typeof curveAutoMovieHumanOrbit> =
+    curveAutoMovieHumanOrbit({
+      frame,
+      features,
+      form,
+      eyeRadius: domain.eyeRadius,
+    });
   for (const side of ["left", "right"] as const) {
     const sign: number = side === "left" ? 1 : -1;
     const rim: AutoMovieHumanHeadNetwork.IPoint[] = props.rims[side];
@@ -44,9 +50,11 @@ export function loopAutoMovieHumanEyelids(props: {
       const fromFirst: number = upper ? t : 1 - t;
       return lateralFirst ? 1 - fromFirst : fromFirst;
     };
-    const lid: typeof curve.lid = (...args: Parameters<typeof curve.lid>): IAutoMovieVector3 => {
+    const lid: typeof curve.lid = (
+      ...args: Parameters<typeof curve.lid>
+    ): IAutoMovieVector3 => {
       const p: IAutoMovieVector3 = curve.lid(...args);
-      return {...p,x:sign*p.x};
+      return { ...p, x: sign * p.x };
     };
     const loop: (
       make: (s: number, upper: boolean) => IAutoMovieVector3,
@@ -71,16 +79,27 @@ export function loopAutoMovieHumanEyelids(props: {
         },
       );
     // The field and this XY course consume one reference-relative definition.
-    const envelope: AutoMovieHumanHeadNetwork.IPoint[] = loop((s: number, upper: boolean): IAutoMovieVector3 => {
-      const p: IAutoMovieVector3 = curve.envelope(s,upper);
-      return {...p,x:sign*p.x};
-    },null);
-    const middle: AutoMovieHumanHeadNetwork.IPoint[] = rim.map((point: AutoMovieHumanHeadNetwork.IPoint,k:number):AutoMovieHumanHeadNetwork.IPoint=>{
-      const a: IAutoMovieVector3=network.point(point);
-      const b: IAutoMovieVector3=network.point(envelope[k]!);
-      const at:{u:number;v:number}=domain.onFace(a.x+form.orbit*(b.x-a.x),a.y+form.orbit*(b.y-a.y));
-      return network.on(at.u,at.v);
-    });
+    const envelope: AutoMovieHumanHeadNetwork.IPoint[] = loop(
+      (s: number, upper: boolean): IAutoMovieVector3 => {
+        const p: IAutoMovieVector3 = curve.envelope(s, upper);
+        return { ...p, x: sign * p.x };
+      },
+      null,
+    );
+    const middle: AutoMovieHumanHeadNetwork.IPoint[] = rim.map(
+      (
+        point: AutoMovieHumanHeadNetwork.IPoint,
+        k: number,
+      ): AutoMovieHumanHeadNetwork.IPoint => {
+        const a: IAutoMovieVector3 = network.point(point);
+        const b: IAutoMovieVector3 = network.point(envelope[k]!);
+        const at: { u: number; v: number } = domain.onFace(
+          a.x + form.orbit * (b.x - a.x),
+          a.y + form.orbit * (b.y - a.y),
+        );
+        return network.on(at.u, at.v);
+      },
+    );
     const anterior: AutoMovieHumanHeadNetwork.IPoint[] = loop(
       (s: number, upper: boolean): IAutoMovieVector3 =>
         lid(s, upper, 1, 0, form.marginThickness),
@@ -91,16 +110,7 @@ export function loopAutoMovieHumanEyelids(props: {
         lid(s, upper, form.posteriorOpen, -0.3, form.contact),
       "lid.posterior",
     );
-    network.bands(
-      [
-        rim,
-        middle,
-        envelope,
-        anterior,
-        posterior,
-      ],
-      `eye.${side}`,
-    );
+    network.bands([rim, middle, envelope, anterior, posterior], `eye.${side}`);
     network.ring(`orbit.opening.${side}`, rim);
     network.ring(`orbit.envelope.${side}`, envelope);
   }

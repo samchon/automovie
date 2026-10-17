@@ -24,7 +24,6 @@ export const AUTOMOVIE_HUMAN_LIP_OUTLINE: Readonly<{
 
   /** Transverse shape of the shared oral-arch depth course. */
   archExponent: number;
-
 }> = {
   bowRise: 0.071991,
   upperExponent: 0.951344,

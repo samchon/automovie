@@ -11,14 +11,21 @@ export function curveAutoMovieHumanNasolabial(props: {
   nose: { alarY: number };
 }): curveAutoMovieHumanNasolabial.ICurve {
   const alar: number = props.head.features.noseWidth / 2;
-  const oral: number = ORAL_REACH * props.head.features.mouthWidth / 2;
+  const oral: number = (ORAL_REACH * props.head.features.mouthWidth) / 2;
   const height: number = props.nose.alarY - props.stomionY;
-  const width: (t: number) => number = (t: number): number => alar + (oral - alar) * t;
+  const width: (t: number) => number = (t: number): number =>
+    alar + (oral - alar) * t;
   return {
     point: (t: number, side: number): { x: number; y: number } => ({
-      x: side * width(t), y: props.nose.alarY - height * t,
+      x: side * width(t),
+      y: props.nose.alarY - height * t,
     }),
-    extent: (y: number): number => width(height > 0 ? Math.min(1, Math.max(0, (props.nose.alarY - y) / height)) : 0),
+    extent: (y: number): number =>
+      width(
+        height > 0
+          ? Math.min(1, Math.max(0, (props.nose.alarY - y) / height))
+          : 0,
+      ),
   };
 }
 

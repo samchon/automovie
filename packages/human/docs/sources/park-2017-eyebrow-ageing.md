@@ -1,10 +1,10 @@
 # Park 2017, eyebrow position and movement with ageing
 
-Park J, Yun S, Son D. "Changes in Eyebrow Position and Movement with Aging." *Archives of Plastic Surgery* 44(1):65-71, 2017, doi:10.5999/aps.2017.44.1.65. Read as PMC5300927 (NCBI efetch).
+Park J, Yun S, Son D. "Changes in Eyebrow Position and Movement with Aging." *Archives of Plastic Surgery* 44(1):65-71, 2017, doi:10.5999/aps.2017.44.1.65. [Full text](https://pmc.ncbi.nlm.nih.gov/articles/PMC5300927/).
 
 ## Licence
 
-CC BY-NC 4.0. Numbers are facts.
+CC BY-NC 4.0.
 
 ## Population and protocol
 

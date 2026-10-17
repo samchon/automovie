@@ -1,6 +1,6 @@
 # Weinberg 2016, 3D Facial Norms database (FaceBase)
 
-Weinberg SM, Raffensperger ZD, Kesterke MJ, et al. "The 3D Facial Norms Database: Part 1. A Web-Based Craniofacial Anthropometric and Image Repository for the Clinical and Research Community." *Cleft Palate-Craniofacial Journal* 53(6):e185-e197, 2016, doi:10.1597/15-199. Read as the NIH author manuscript PMC4841760 (via NCBI efetch). Summary statistics read from the FaceBase CSV `https://www.facebase.org/resources/human/facial_norms/summary/tdfn_gui_summary.csv` and measure definitions from `tdfn_measures.JSON` in the same folder (column 5: 1 male, 2 female, 3 pooled).
+Weinberg SM, Raffensperger ZD, Kesterke MJ, et al. "The 3D Facial Norms Database: Part 1. A Web-Based Craniofacial Anthropometric and Image Repository for the Clinical and Research Community." *Cleft Palate-Craniofacial Journal* 53(6):e185-e197, 2016, doi:10.1597/15-199. [Full text](https://pmc.ncbi.nlm.nih.gov/articles/PMC4841760/). Summary statistics: [FaceBase CSV](https://www.facebase.org/resources/human/facial_norms/summary/tdfn_gui_summary.csv); definitions: [measure JSON](https://www.facebase.org/resources/human/facial_norms/summary/tdfn_measures.JSON) (column 5: 1 male, 2 female, 3 pooled).
 
 ## Licence
 

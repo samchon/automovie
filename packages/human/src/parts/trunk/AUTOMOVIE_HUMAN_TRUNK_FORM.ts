@@ -37,7 +37,7 @@ export const AUTOMOVIE_HUMAN_TRUNK_FORM: IAutoMovieHumanTrunkForm = {
     behind: 0.2905,
     fat: -0.0047,
     widest: 0.4081,
-    front: 2.0070,
+    front: 2.007,
     back: 3.7661,
     depth: 0.2468,
   },

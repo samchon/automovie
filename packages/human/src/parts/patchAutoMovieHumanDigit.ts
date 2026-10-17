@@ -1,5 +1,7 @@
 import { IAutoMovieSurfaceNetwork } from "@automovie/engine";
+
 import { sweepAutoMovieHumanDigit } from "./sweepAutoMovieHumanDigit";
+
 /**
  * Patch one digit onto its part: a bridge from its loop on the part to the digit's first section, the digit's sweep in bands, and a cap over its tip.
  *
@@ -17,108 +19,140 @@ import { sweepAutoMovieHumanDigit } from "./sweepAutoMovieHumanDigit";
  * @returns The patches in order, bridge, bands and cap, and each one's place map
  */
 export function patchAutoMovieHumanDigit(props: {
-    name: string;
-    digit: sweepAutoMovieHumanDigit.IOutput;
-    loop: IAutoMovieSurfaceNetwork.IEdge[];
-    marks: number[];
-    rows: number[];
-    tension: number;
-    share: number;
+  name: string;
+  digit: sweepAutoMovieHumanDigit.IOutput;
+  loop: IAutoMovieSurfaceNetwork.IEdge[];
+  marks: number[];
+  rows: number[];
+  tension: number;
+  share: number;
 }): patchAutoMovieHumanDigit.IOutput {
-    const { name, share }: typeof props = props;
-    const root: number = props.marks[0]!;
-    const edge: (from: IAutoMovieSurfaceNetwork.IDomainPoint, to: IAutoMovieSurfaceNetwork.IDomainPoint, segments: number) => IAutoMovieSurfaceNetwork.ISweepEdge = (from: IAutoMovieSurfaceNetwork.IDomainPoint, to: IAutoMovieSurfaceNetwork.IDomainPoint, segments: number): IAutoMovieSurfaceNetwork.ISweepEdge => ({
-        type: "sweep",
-        sweep: name,
-        from,
-        to,
-        segments: fixed(segments),
-    });
-    const patches: IAutoMovieSurfaceNetwork.IPatch[] = [
-        {
-            type: "bridge",
-            name: `${name}.bridge`,
-            from: { edges: props.loop, tangent: "across" },
-            to: {
-                edges: [edge({ u: root, v: 0 }, { u: root, v: 1 }, 8)],
-                tangent: "forward",
-            },
-            rows: fixed(2),
-            tension: props.tension,
-        },
-    ];
-    const places: patchAutoMovieHumanDigit.IPlace[] = [
-        (s: number, t: number): {
-            u: number;
-            v: number;
-        } => ({ u: share * t, v: wrap(s) }),
-    ];
-    props.rows.forEach((rows: number, i: number): void => {
-        const u: [
-            number,
-            number
-        ] = [props.marks[i]!, props.marks[i + 1]!];
-        patches.push({
-            type: "sweep",
-            name: `${name}.${i}`,
-            sweep: name,
-            u,
-            v: [0, 1],
-            rows: fixed(rows),
-            columns: fixed(8),
-        });
-        places.push((s: number, t: number): {
-            u: number;
-            v: number;
-        } => ({
-            u: share + (1 - share) * ((u[0] + (u[1] - u[0]) * t - root) / (1 - root)),
-            v: s,
-        }));
-    });
+  const { name, share }: typeof props = props;
+  const root: number = props.marks[0]!;
+  const edge: (
+    from: IAutoMovieSurfaceNetwork.IDomainPoint,
+    to: IAutoMovieSurfaceNetwork.IDomainPoint,
+    segments: number,
+  ) => IAutoMovieSurfaceNetwork.ISweepEdge = (
+    from: IAutoMovieSurfaceNetwork.IDomainPoint,
+    to: IAutoMovieSurfaceNetwork.IDomainPoint,
+    segments: number,
+  ): IAutoMovieSurfaceNetwork.ISweepEdge => ({
+    type: "sweep",
+    sweep: name,
+    from,
+    to,
+    segments: fixed(segments),
+  });
+  const patches: IAutoMovieSurfaceNetwork.IPatch[] = [
+    {
+      type: "bridge",
+      name: `${name}.bridge`,
+      from: { edges: props.loop, tangent: "across" },
+      to: {
+        edges: [edge({ u: root, v: 0 }, { u: root, v: 1 }, 8)],
+        tangent: "forward",
+      },
+      rows: fixed(2),
+      tension: props.tension,
+    },
+  ];
+  const places: patchAutoMovieHumanDigit.IPlace[] = [
+    (
+      s: number,
+      t: number,
+    ): {
+      u: number;
+      v: number;
+    } => ({ u: share * t, v: wrap(s) }),
+  ];
+  props.rows.forEach((rows: number, i: number): void => {
+    const u: [number, number] = [props.marks[i]!, props.marks[i + 1]!];
     patches.push({
-        type: "coons",
-        name: `${name}.cap`,
-        sides: [0, 1, 2, 3].map((q: number): IAutoMovieSurfaceNetwork.ISweepEdge => edge({ u: 1, v: q / 4 }, { u: 1, v: (q + 1) / 4 }, 2)) as [
-            IAutoMovieSurfaceNetwork.IEdge,
-            IAutoMovieSurfaceNetwork.IEdge,
-            IAutoMovieSurfaceNetwork.IEdge,
-            IAutoMovieSurfaceNetwork.IEdge
-        ],
+      type: "sweep",
+      name: `${name}.${i}`,
+      sweep: name,
+      u,
+      v: [0, 1],
+      rows: fixed(rows),
+      columns: fixed(8),
     });
-    places.push((s: number, t: number): {
+    places.push(
+      (
+        s: number,
+        t: number,
+      ): {
         u: number;
         v: number;
+      } => ({
+        u:
+          share +
+          (1 - share) * ((u[0] + (u[1] - u[0]) * t - root) / (1 - root)),
+        v: s,
+      }),
+    );
+  });
+  patches.push({
+    type: "coons",
+    name: `${name}.cap`,
+    sides: [0, 1, 2, 3].map(
+      (q: number): IAutoMovieSurfaceNetwork.ISweepEdge =>
+        edge({ u: 1, v: q / 4 }, { u: 1, v: (q + 1) / 4 }, 2),
+    ) as [
+      IAutoMovieSurfaceNetwork.IEdge,
+      IAutoMovieSurfaceNetwork.IEdge,
+      IAutoMovieSurfaceNetwork.IEdge,
+      IAutoMovieSurfaceNetwork.IEdge,
+    ],
+  });
+  places.push(
+    (
+      s: number,
+      t: number,
+    ): {
+      u: number;
+      v: number;
     } => ({
-        u: 1,
-        v: s === 0.5 && t === 0.5
-            ? Number.NaN
-            : wrap((Math.atan2(t - 0.5, s - 0.5) + (3 * Math.PI) / 4) / (2 * Math.PI)),
-    }));
-    return { patches, places };
+      u: 1,
+      v:
+        s === 0.5 && t === 0.5
+          ? Number.NaN
+          : wrap(
+              (Math.atan2(t - 0.5, s - 0.5) + (3 * Math.PI) / 4) /
+                (2 * Math.PI),
+            ),
+    }),
+  );
+  return { patches, places };
 }
 /** Output types of {@link patchAutoMovieHumanDigit}. */
 export namespace patchAutoMovieHumanDigit {
-    /** A patch point's place on the digit's chart by its patch coordinates. */
-    export type IPlace = (s: number, t: number) => {
-        u: number;
-        v: number;
-    };
-    /**
-     * The digit's patches.
-     *
-     * @author Samchon
-     */
-    export interface IOutput {
-        /** Bridge, bands and cap. */
-        patches: IAutoMovieSurfaceNetwork.IPatch[];
-        /** Each patch's place map, in patch order. */
-        places: IPlace[];
-    }
+  /** A patch point's place on the digit's chart by its patch coordinates. */
+  export type IPlace = (
+    s: number,
+    t: number,
+  ) => {
+    u: number;
+    v: number;
+  };
+  /**
+   * The digit's patches.
+   *
+   * @author Samchon
+   */
+  export interface IOutput {
+    /** Bridge, bands and cap. */
+    patches: IAutoMovieSurfaceNetwork.IPatch[];
+    /** Each patch's place map, in patch order. */
+    places: IPlace[];
+  }
 }
-const fixed: (n: number) => IAutoMovieSurfaceNetwork.ICounts = (n: number): IAutoMovieSurfaceNetwork.ICounts => ({
-    lowest: n,
-    low: n,
-    medium: n,
-    high: n,
+const fixed: (n: number) => IAutoMovieSurfaceNetwork.ICounts = (
+  n: number,
+): IAutoMovieSurfaceNetwork.ICounts => ({
+  lowest: n,
+  low: n,
+  medium: n,
+  high: n,
 });
 const wrap: (v: number) => number = (v: number): number => ((v % 1) + 1) % 1;

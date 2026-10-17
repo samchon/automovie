@@ -119,6 +119,11 @@
         <div id="views"></div>
       </details>
       <details>
+        <summary>구조선 출처와 실제 측정 치수</summary>
+        <div id="curve-design"></div>
+        <div id="construction-key"></div>
+      </details>
+      <details>
         <summary>Parts</summary>
         <div id="parts"></div>
       </details>
@@ -151,6 +156,9 @@
         <div id="json"></div>
       </details>
     </div>
-    <script type="module" src="/src/human-view.ts"></script>
+    <script type="module">
+      import { mountHumanViewerPage } from "/src/mountHumanViewerPage.ts";
+      mountHumanViewerPage();
+    </script>
   </body>
 </html>

@@ -46,6 +46,47 @@ export namespace IAutoMovieHumanAppearance {
      * Depth of the fine wrinkles that cut the skin's surface into plateaus, from the faint lines of young skin (0) to the deep furrows of old, sun-exposed skin (1), dimensionless; it deepens the furrow network of the generated micro-relief. A converter raises it with age.
      */
     wrinkles: number & tags.Minimum<0> & tags.Maximum<1>;
+
+    /** Stable unsigned 32-bit seed for surface marks; omitted, zero. Independent of identity, ancestry and mesh sampling. */
+    seed?: number & tags.Type<"uint32">;
+
+    /** Freckle pigment marks; omitted or zero density/contrast emits no mark image. */
+    freckles?: IFreckles;
+
+    /** Inflamed spots and shallow normal-map papules; omitted or zero density/severity emits none. This is an appearance control, not a diagnosis or scar model. */
+    acne?: IAcne;
+  }
+
+  /**
+   * Authorable freckle field; sizes and distribution are artistic conventions, not clinical population statistics.
+   *
+   * @author Samchon
+   */
+  export interface IFreckles {
+    /** Expected sphere intersections per square centimetre of a locally planar surface, 0 to 40. Curvature and finite patches change the observed count. */
+    density: number & tags.Minimum<0> & tags.Maximum<40>;
+
+    /** Maximum spot diameter in rest-surface millimetres, 2 to 6; off-centre sphere sections are smaller. The finite atlas can soften or omit subtexel sections. */
+    diameterMm: number & tags.Minimum<2> & tags.Maximum<6>;
+
+    /** Pigment coverage from invisible (0) to full local pigment replacement (1). */
+    contrast: number & tags.Minimum<0> & tags.Maximum<1>;
+  }
+
+  /**
+   * Authorable inflamed spot field with the same deterministic physical-domain distribution as freckles.
+   *
+   * @author Samchon
+   */
+  export interface IAcne {
+    /** Expected spot intersections per square centimetre of a locally planar surface, 0 to 10. */
+    density: number & tags.Minimum<0> & tags.Maximum<10>;
+
+    /** Maximum inflamed spot diameter in rest-surface millimetres, 3 to 10. */
+    diameterMm: number & tags.Minimum<3> & tags.Maximum<10>;
+
+    /** Redness coverage and shallow papule slope, 0 to 1; maximum height is conventionally 0.25 mm. No silhouette displacement is emitted. */
+    severity: number & tags.Minimum<0> & tags.Maximum<1>;
   }
 
   /**

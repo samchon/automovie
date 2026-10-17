@@ -1,10 +1,10 @@
 # Wu 2015, Hertel exophthalmometry in Han Chinese
 
-Wu D, Liu X, Wu D, Di X, Guan H, Shan Z, Teng W. "Normal values of Hertel exophthalmometry in a Chinese Han population from Shenyang, Northeast China." *Scientific Reports* 5:8526, 2015, doi:10.1038/srep08526. Read as PMC4336939 (NCBI efetch).
+Wu D, Liu X, Wu D, Di X, Guan H, Shan Z, Teng W. "Normal values of Hertel exophthalmometry in a Chinese Han population from Shenyang, Northeast China." *Scientific Reports* 5:8526, 2015, doi:10.1038/srep08526. [Full text](https://pmc.ncbi.nlm.nih.gov/articles/PMC4336939/).
 
 ## Licence
 
-CC BY 4.0. Numbers are facts.
+CC BY 4.0.
 
 ## Population and protocol
 

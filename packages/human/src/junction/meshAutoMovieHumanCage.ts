@@ -10,6 +10,7 @@ import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 import { AUTOMOVIE_HUMAN_UV_LAYOUT_V3 } from "./AUTOMOVIE_HUMAN_UV_LAYOUT_V3";
 import { AutoMovieHumanUvLayout } from "./AutoMovieHumanUvLayout";
 import { IAutoMovieHumanCage } from "./IAutoMovieHumanCage";
+import { IAutoMovieHumanSkinDomain } from "./IAutoMovieHumanSkinDomain";
 import { IAutoMovieHumanSurfaceCoordinate } from "./IAutoMovieHumanSurfaceCoordinate";
 import { fitAutoMovieHumanCage } from "./fitAutoMovieHumanCage";
 
@@ -74,13 +75,19 @@ export function meshAutoMovieHumanCage(props: {
     ]),
     uvs,
     uvFaces,
-    creases: props.cage.creases.map((c: IAutoMovieHumanCage.ICrease): NonNullable<IAutoMovieSubdivisionCage["creases"]>[number] => ({
-      from: c.edge[0],
-      to: c.edge[1],
-      sharpness: c.sharpness,
-    })),
+    creases: props.cage.creases.map(
+      (
+        c: IAutoMovieHumanCage.ICrease,
+      ): NonNullable<IAutoMovieSubdivisionCage["creases"]>[number] => ({
+        from: c.edge[0],
+        to: c.edge[1],
+        sharpness: c.sharpness,
+      }),
+    ),
   };
-  const smooth: IAutoMovieSubdivisionSurface = fitAutoMovieHumanCage({ source: props.cage, cage, levels: props.levels }) ?? subdivideAutoMovieSurface({ cage, levels: props.levels });
+  const smooth: IAutoMovieSubdivisionSurface =
+    fitAutoMovieHumanCage({ source: props.cage, cage, levels: props.levels }) ??
+    subdivideAutoMovieSurface({ cage, levels: props.levels });
   const relief: typeof props.relief = props.relief;
   const surface: IAutoMovieSubdivisionSurface =
     relief === undefined
@@ -139,7 +146,19 @@ export function meshAutoMovieHumanCage(props: {
     ];
     indices.push(a!, b!, c!, a!, c!, d!);
   }
+  const trianglesPerFace: number = 2 * 4 ** props.levels;
+  if (props.cage.faces.length * trianglesPerFace * 3 !== indices.length)
+    throw new Error(
+      "Skin roles require the actual quad refinement triangle order",
+    );
   return {
+    skinDomain: {
+      faces: props.cage.faces.map(
+        (face: IAutoMovieHumanCage.IFace): IAutoMovieHumanSkinDomain.Role =>
+          face.skin ?? "ordinary",
+      ),
+      trianglesPerFace,
+    },
     mesh: {
       positions,
       normals,
@@ -149,7 +168,10 @@ export function meshAutoMovieHumanCage(props: {
       physicalVertices: {
         sources: Array.from(
           { length: surface.limitPositions.length / 3 },
-          (_: unknown, id: number): { domain: string; id: number } => ({ domain: props.domain, id }),
+          (_: unknown, id: number): { domain: string; id: number } => ({
+            domain: props.domain,
+            id,
+          }),
         ),
         vertices: sources,
       },
@@ -159,7 +181,10 @@ export function meshAutoMovieHumanCage(props: {
   };
 }
 /** A subdivided vertex's chart address: the bilinear blend of its cage face's corner addresses at its face coordinates, the corners of one face lying on one chart. */
-function addressOf(cage: IAutoMovieHumanCage, at: IAutoMovieSubdivisionParameter): IAutoMovieHumanSurfaceCoordinate {
+function addressOf(
+  cage: IAutoMovieHumanCage,
+  at: IAutoMovieSubdivisionParameter,
+): IAutoMovieHumanSurfaceCoordinate {
   const corners: IAutoMovieHumanCage.IFace["coordinates"] =
     cage.faces[at.face]!.coordinates;
   const w: [number, number, number, number] = [
@@ -168,11 +193,15 @@ function addressOf(cage: IAutoMovieHumanCage, at: IAutoMovieSubdivisionParameter
     at.u * at.v,
     (1 - at.u) * at.v,
   ];
-  function blend(read: (c: IAutoMovieHumanSurfaceCoordinate) => number): number { return corners.reduce(
+  function blend(
+    read: (c: IAutoMovieHumanSurfaceCoordinate) => number,
+  ): number {
+    return corners.reduce(
       (sum: number, c: IAutoMovieHumanSurfaceCoordinate, k: number): number =>
         sum + w[k]! * read(c),
       0,
-    ); }
+    );
+  }
   return {
     ...corners[0],
     u: blend((c: IAutoMovieHumanSurfaceCoordinate): number => c.u),
@@ -188,6 +217,9 @@ export namespace meshAutoMovieHumanCage {
    * @author Samchon
    */
   export interface IOutput {
+    /** Source roles beside actual triangle ordinals; no anatomical data is embedded in the public mesh. */
+    skinDomain: IAutoMovieHumanSkinDomain;
+
     /** Render mesh in metres with limit normals, without skin. */
     mesh: IAutoMovieMesh;
 

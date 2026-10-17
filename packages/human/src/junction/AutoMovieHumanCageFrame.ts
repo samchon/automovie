@@ -149,5 +149,6 @@ export namespace AutoMovieHumanCageFrame {
 }
 
 /** Whether a layout belongs to its site's distal part. */
-const isDistal: (layout: IAutoMovieHumanRingLayout) => boolean = (layout: IAutoMovieHumanRingLayout): boolean =>
-  AUTOMOVIE_HUMAN_RINGS[layout.site].distal === layout.part;
+const isDistal: (layout: IAutoMovieHumanRingLayout) => boolean = (
+  layout: IAutoMovieHumanRingLayout,
+): boolean => AUTOMOVIE_HUMAN_RINGS[layout.site].distal === layout.part;
