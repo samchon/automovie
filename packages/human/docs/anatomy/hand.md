@@ -1,6 +1,6 @@
 # Hand
 
-The hand is a separate part joined at the wrist (#2797). Its skeleton uses the VRM finger bones of `AutoMovieHumanoidBone`: thumb metacarpal, proximal and distal; index to little proximal, intermediate and distal. The metacarpals of fingers two to five have no bones and live inside the `leftHand`/`rightHand` mass.
+The hand is a separate part joined at the wrist. Its skeleton uses the VRM finger bones of `AutoMovieHumanoidBone`: thumb metacarpal, proximal and distal; index to little proximal, intermediate and distal. The metacarpals of fingers two to five have no bones and live inside the `leftHand`/`rightHand` mass.
 
 ## Overall dimensions
 
@@ -59,7 +59,7 @@ Measurement basis:
 
 ## Open questions
 
-- Phalanx and metacarpal lengths as fractions of hand length for each finger (Buchholz et al. 1992, Buryanov and Kotiuk 2010): not read, both inaccessible. Joint centre positions per digit therefore rest on crease rules only.
+- Phalanx lengths as fractions of hand length for each finger (Buchholz et al. 1992, Buryanov and Kotiuk 2010): not read, both inaccessible. Reddy's metacarpal measurements above constrain the knuckle arc; metacarpal base placement and phalanx joint positions still require the stated construction and crease assumptions.
 - Nail plate dimensions and curvature: no source read.
 - The 2D:4D ratio by sex: the Army survey's means give index over ring 0.964 (women) and 0.951 (men), but the skeleton reads no sex and averages them.
 - Positions of the metacarpal bases (the carpometacarpal line) and of the thumb's carpometacarpal joint: no measured source; bases are taken level.

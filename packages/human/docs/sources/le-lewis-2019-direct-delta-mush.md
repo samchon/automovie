@@ -14,4 +14,4 @@ Paper copyright ACM. Read for technique comparison only.
 
 ## What Human takes
 
-A comparison point for the skinning choice (`../techniques/skinning.md`). Delta Mush solves weight authoring, which Human already avoids with analytic weights, so it is not the first choice. The original Delta Mush paper (Mancewicz et al. 2014) was not opened.
+A comparison point for the [skinning choice](../techniques/skinning.md). Avoiding manual weight painting does not remove deformation artifacts, so candidate analytic weights alone are not grounds to reject Delta Mush. Its per-vertex representation and runtime work must be compared with the other methods. The original Delta Mush paper (Mancewicz et al. 2014) was not opened.

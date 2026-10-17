@@ -1,6 +1,6 @@
 # Hair, brows and lashes
 
-Covers the hair half of #2801: hairline and scalp coverage, scalp hair, brows and lashes, as values and direction rules. Card construction and shading are in `../techniques/hair-cards.md`.
+Covers hairline and scalp coverage, scalp hair, brows and lashes, as values and direction rules. Card construction and shading are in `../techniques/hair-cards.md`.
 
 ## Hairline
 
@@ -14,7 +14,9 @@ Contour classes (`../sources/zhang-2026-female-hairline.md`, after Suzan et al.;
 | Bell-shaped | Normal forehead width, midline point about 2 cm higher than average |
 | Triangular | Nearly straight line descending from the central forehead to the temples, vellus hairs along the edge |
 
-Preferred proportions for women: hair-bearing height over trichion-glabella forehead height 0.505, width ratio 0.373. Forehead height tr-g: Kenyan men 61.4 mm, women 55.4; South African women 60.2 mm; tr-n Kenyan 72.2 and 67.5 mm, Nigerian 69.1 mm (`../sources/virdi-2019-kenyan-face.md`, `../sources/wilson-2023-south-african-women.md`, `../sources/adekunle-2022-nigerian-3d.md`). No European or East Asian forehead height was found in the sources read.
+Preferred proportions for women: hair-bearing height over trichion-glabella forehead height 0.505, width ratio 0.373.
+
+Forehead height tr-g: Kenyan men 61.4 mm, women 55.4; South African women 60.2 mm; tr-n Kenyan 72.2 and 67.5 mm, Nigerian 69.1 mm (`../sources/virdi-2019-kenyan-face.md`, `../sources/wilson-2023-south-african-women.md`, `../sources/adekunle-2022-nigerian-3d.md`). Virdi also relays North American white tr-n values, which do not supply the same tr-g protocol.
 
 ## Scalp coverage
 
@@ -54,7 +56,7 @@ From `../sources/aumond-2018-eyelash.md` (measured, relayed) and Gray 1918: uppe
 
 ## Open questions
 
-- European and East Asian forehead height (trichion position) by sex and age; male pattern recession by age (Norwood stages) was not researched in open sources.
+- European-ancestry tr-g and East Asian forehead height (trichion position) by sex and age; male pattern recession by age (Norwood stages) was not researched in open sources.
 - Scalp density data come from one Thai study with secondary comparison values; a primary multi-ethnic source is needed.
 - L'Oréal curl class thresholds.
 - Lash length distribution by lid position (centre longer than ends) and lift angles by ancestry; the Thibaut study cited by Aumond was not read.

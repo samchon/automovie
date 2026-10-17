@@ -1,6 +1,6 @@
 # Skeleton
 
-The skeleton is generated first (#2793): joint centres, bone lengths and palpable landmarks from named measurements, on `AutoMovieHumanoidBone`. Measurements are taken in the anthropometric standing posture (arms hanging, palms in), so joint centres are solved there and then expressed in `HUMANOID_REST_FRAME` (T-pose), never measured in it.
+The skeleton is generated first: joint centres, bone lengths and palpable landmarks from named measurements, on `AutoMovieHumanoidBone`. Measurements are taken in the anthropometric standing posture (arms hanging, palms in), so joint centres are solved there and then expressed in `HUMANOID_REST_FRAME` (T-pose), never measured in it.
 
 ## Joint centre heights (adults)
 
@@ -82,7 +82,9 @@ The posture model uses pelvic tilt (PT), sacral slope (SS), thoracic kyphosis T2
 | `../sources/asai-2017-wakayama.md` | under 50 to 80+, by sex | PT 11.5 to 19.7 (men), 14.5 to 25.2 (women); SS = PI - PT; TK 33 to 40-44; SVA -11/-19 to +39/+52 mm |
 | `../sources/zarate-tejero-2024-cva.md` | 18-75, by sex | CVA 47.5 (men), 50.1 (women) at 45, -1.6 a decade |
 
-Geometry (`curveAutoMovieHumanSpine`): column heights from the identity (sacral plate 1.25 lumbar segments under the crest, lumbar segment 18/46/5 of the C7-S1 height from Gray's column lengths, C7 at cervicale); the plate's midpoint behind the hip axis by PT; tangent SS at the plate; Roussouly's arcs (`../sources/roussouly-2011-biomechanical.md`) with the lumbar apex at L3-4, the inflection at mid-T12 and the thoracic apex at T7 (Gray 1918: thoracic curve from mid-T2 to mid-T12, most prominent behind at T7; lumbar curve from mid-T12, lower three vertebrae most convex; the lumbar curve forms at 12 to 18 months with walking). Lordosis is solved so C7 stands at the identity's SVA over the plate's posterior superior corner. The head is carried so the line from the cervicale skin point to tragion rises at the CVA; the shoulders stand in the coronal plane of the jugular notch (conventional).
+Geometry (`curveAutoMovieHumanSpine`): column heights come from the identity (sacral plate 1.25 lumbar segments under the crest, lumbar segment 18/46/5 of the C7-S1 height from Gray's column lengths, C7 at cervicale). PT places the plate's midpoint behind the hip axis and SS sets its tangent. Roussouly's arcs (`../sources/roussouly-2011-biomechanical.md`) place the lumbar apex at L3-4, the inflection at mid-T12 and the thoracic apex at T7. Gray 1918 describes the thoracic curve from mid-T2 to mid-T12, most prominent behind at T7, and the lumbar curve from mid-T12, with the lower three vertebrae most convex; the lumbar curve forms at 12 to 18 months with walking. Lordosis is solved so C7 stands at the identity's SVA over the plate's posterior superior corner.
+
+The head is carried so the line from the cervicale skin point to tragion rises at the CVA. The shoulders stand in the coronal plane of the jugular notch (conventional).
 
 Finding: with Asai's angles the arc model needs a lordosis 15 to 20 degrees larger than Asai measured (solved 64-73 against 48-52 in adults under 50; 47-53 against 39 at 80+) to put C7 at the measured SVA. The measured balance and kyphosis are honoured and the lordosis absorbs the model's error; a measured distribution of curvature per level (segmental angles) would remove it. The rib cage and pelvis are rigid masses that bend, twist and tilt against each other through the lumbar spine (`../sources/bridgman-1920.md`, conventional); at rest the thorax leans back over the lordosis while the pelvis tilts forward, which gives the counter-tilt the trunk generator expects.
 
@@ -139,7 +141,7 @@ From Gray 1918 surface anatomy (`../sources/gray-1918.md`), conventional for a l
 - Segmental angles of the lumbar and thoracic curves (where the arcs really turn): no source read; the solved lordosis exceeds the survey's.
 - Old-age posture in children's and European samples, and infants below 3 years standing: not read; the youngest child group holds below 3 years.
 - Hara's equations need ASIS-to-medial-malleolus leg length; ANSUR II has no iliospinale height, so the ASIS height must come from another source or a fitted offset from trochanterion and iliocristale heights.
-- Clavicle length, scapula dimensions and the scapulohumeral rhythm (ratio of glenohumeral to scapulothoracic elevation): no source read.
-- Carrying angle of the elbow and knee valgus by sex: no numeric source read (Goldfarb 2012 reports a larger carrying angle in females, abstract only).
+- Clavicle length and scapula dimensions: no source read. [Ludewig's adult shoulder measurements](../sources/ludewig-2009-shoulder-complex.md) cover scapulohumeral rhythm under their elevation protocol; they do not establish a growth course or the full hanging-to-T conversion.
+- Adult carrying angle and knee valgus by sex: no numeric source read. [Kaewpornsawan's childhood carrying-angle measurements](../sources/kaewpornsawan-2018-carrying-angle.md) supply the age course used in [upper limb](upper-limb.md); holding the final child value in adults remains an inference. Goldfarb 2012 reports a larger female carrying angle at abstract level.
 - Whether `interface` needs a scapula bone or a Human-internal scapula driven by the shoulder bone.
 - How the T-pose rest frame relates to the measured standing posture, including where the acromion and the shoulder joint centre move during abduction.

@@ -14,4 +14,4 @@ Paper copyright ACM. Human takes the formulation only.
 
 ## What Human takes
 
-The definition of a corrective as a rest-pose displacement driven by pose, which Human computes by formula from joint angles (`../techniques/skinning.md`).
+Rest-pose displacements driven by pose provide the formulation for candidate formula-generated anatomical correctives in [skinning research](../techniques/skinning.md).

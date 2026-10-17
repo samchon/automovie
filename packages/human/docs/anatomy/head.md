@@ -1,6 +1,6 @@
 # Head: cranial vault and face mass
 
-Covers #2798 (cranium, face mass, landmarks as semantic coordinates) and the measurements every face feature in #2799 reads. Jaw articulation is in `jaw.md`, the neck in `neck.md`.
+Covers the cranium, face mass, landmarks as semantic coordinates and the measurements each face feature reads. Jaw articulation is in `jaw.md`, the neck in `neck.md`.
 
 ## Landmarks
 
@@ -76,7 +76,9 @@ Sex effect at equal stature and weight (NIOSH regression, population-fitted): fa
 
 ## Growth
 
-From the 3DFN per-age means (derived fractions of the 20-40 male mean): at age 3-4 the vault is 88 percent of adult length and 93 percent of breadth, but face height is 73 percent, face width 83 percent, nasal protrusion 66 percent and mouth width 71 percent. The child face is small under a large vault; the vault nearly finishes early while the face grows downward and forward through adolescence (male face height 109.9 mm at 10-11 to 120.8 at 14-15). Head circumference from the WHO standard rises from 34.5 cm (boys) and 33.9 cm (girls) at birth to 46.1 and 44.9 at one year and 50.7 and 49.9 at five, reaching 61, 81 and 89 percent of the adult male circumference (`../sources/who-2006-head-circumference.md`). Mendelson relays Enlow: with growth the glabella protrudes, the supraorbital ridges expand and the orbits move laterally (`../sources/mendelson-2012-facial-skeleton-ageing.md`).
+From the 3DFN per-age means (derived fractions of the 20-40 male mean): at age 3-4 the vault is 88 percent of adult length and 93 percent of breadth, but face height is 73 percent, face width 83 percent, nasal protrusion 66 percent and mouth width 71 percent. The child face is small under a large vault; the vault nearly finishes early while the face grows downward and forward through adolescence (male face height 109.9 mm at 10-11 to 120.8 at 14-15). Mendelson relays Enlow: with growth the glabella protrudes, the supraorbital ridges expand and the orbits move laterally (`../sources/mendelson-2012-facial-skeleton-ageing.md`).
+
+Head circumference from the WHO standard rises from 34.5 cm (boys) and 33.9 cm (girls) at birth to 46.1 and 44.9 at one year and 50.7 and 49.9 at five, reaching 61, 81 and 89 percent of the adult male circumference (`../sources/who-2006-head-circumference.md`).
 
 | Measure (mm, M / F) | 3-4 | 6-7 | 10-11 | 14-15 | 20-40 |
 | --- | --- | --- | --- | --- | --- |

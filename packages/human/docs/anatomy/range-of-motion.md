@@ -1,6 +1,6 @@
 # Range of motion
 
-Human admits only poses a living body can take (#2800), with limits from clinical norms by age and sex, and flexion limits that soft tissue sets derived from the person's own volumes. This file compares the sources with the engine's current `DEFAULT_HUMANOID_ROM` (`packages/engine/src/rom/constants/DEFAULT_HUMANOID_ROM.ts`).
+Pose admission must permit only states a living body can take, using clinical norms by age and sex and deriving soft-tissue flexion limits from the person's own volumes. This file compares the sources with the engine's `DEFAULT_HUMANOID_ROM` (`packages/engine/src/rom/constants/DEFAULT_HUMANOID_ROM.ts`).
 
 ## Measured norms
 
@@ -54,7 +54,7 @@ Derivation the generator can do: pose the joined cage at increasing flexion and 
 
 ## Coupled limits
 
-Per-axis limits cannot express two-joint muscles (hamstrings limit hip flexion when the knee is straight; the finger flexors and extensors couple wrist and finger flexion, as Bridgman notes that the fingers cannot close with the wrist fully flexed) or contact between non-adjacent segments (hand to trunk, thigh to thigh, arm across the chest). #2800 already reports non-adjacent contacts; the two-joint couplings need either a coupled constraint in `interface` or a Human-side check.
+Per-axis limits cannot express two-joint muscles (hamstrings limit hip flexion when the knee is straight; the finger flexors and extensors couple wrist and finger flexion, as Bridgman notes that the fingers cannot close with the wrist fully flexed) or contact between non-adjacent segments (hand to trunk, thigh to thigh, arm across the chest). [Archived pose observations](https://github.com/samchon/automovie/issues/2800) report non-adjacent contacts; the two-joint couplings need either a coupled constraint in `interface` or a Human-side check.
 
 ## Open questions
 

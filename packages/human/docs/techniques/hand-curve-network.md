@@ -15,5 +15,3 @@ Semantic sections define feature positions independently of sampling rows. More 
 Exact triangle-plane cuts retain every connected component; a millimetre-wide slab is only a flow illustration. Native reference transverse dimensions and rig-marker offsets remain in registered references, so their absolute perimeters are not individual fitting targets. The four lean adult registrations do not establish range coverage or clinical joint-centre accuracy.
 
 The actual joined viewer still showed palm and thenar plates, root lobes, web ends, a wrist ridge and nail-tip defects recorded in [#2840](https://github.com/samchon/automovie/issues/2840). A private source preview's reduced finite-mesh crossings does not establish correction of those rendered defects. Anatomical form, material appearance and motion remain unresolved.
-
-Viewer observation and operating policy belong to the [Human skill](../../../../.agents/skills/human/SKILL.md).

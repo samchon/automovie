@@ -1,6 +1,6 @@
 # Jaw
 
-Covers the articulated mandible of #2798 and the jaw half of AU26 and AU27 in #2802.
+Covers the articulated mandible and the jaw motion of AU26 and AU27.
 
 ## Kinematics
 
@@ -49,5 +49,5 @@ Bigonial width is in `head.md`. Ageing (`../sources/mendelson-2012-facial-skelet
 
 - Adult opening, protrusion and laterotrusion norms by sex and age past 18 were not found open; Mehl's sample is eight people without a sex split.
 - The articular eminence slope, which turns the condylar translation into a downward path, has no value here.
-- The incisal point's distance from the rotation centre needs the mandible geometry from #2798; it is a derived check, not a parameter.
+- The incisal point's distance from the rotation centre needs the mandible geometry; it is a derived check, not a parameter.
 - Whether the expression document should carry the jaw angle in degrees or the incisal opening in millimetres (millimetres are what the norms bound).

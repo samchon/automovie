@@ -14,4 +14,4 @@ Paper copyright ACM. Human takes the method only.
 
 ## What Human takes
 
-An offline check for Human's analytic weights: a large difference from the heat solution at the same vertex marks a formula to inspect (`../techniques/skinning.md`).
+A candidate offline comparison for semantic analytic weights: a large difference from the heat solution at the same vertex marks a formula and its assumptions to inspect. Method selection remains in [skinning research](../techniques/skinning.md).

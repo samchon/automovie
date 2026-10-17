@@ -6,4 +6,4 @@ Human generates cards directly because it has no stored strand groom to cluster.
 
 Root-to-tip widths, curl radius, pitch and scalp clearance need physical lengths; segmentation approximates those curves rather than defining their dimensions. Head weights suffice for short attached hair. Long hair reaching the neck or shoulders needs a different deformation premise than a rigid head attachment.
 
-Current cards and procedural strand images exist, but attachment, coverage and appearance remain unresolved in [#2844](https://github.com/samchon/automovie/issues/2844). Anisotropy and double-sided material channels alone do not establish convincing hair or correct transparent fringes. Viewer observation and operating policy belong to the [Human skill](../../../../.agents/skills/human/SKILL.md).
+Current cards and procedural strand images exist, but attachment, coverage and appearance remain unresolved. Anisotropy and double-sided material channels alone do not establish convincing hair or correct transparent fringes.

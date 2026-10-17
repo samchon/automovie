@@ -14,4 +14,4 @@ Specification text published by the VRM Consortium. `AutoMovieHumanoidBone` alre
 
 ## What Human takes
 
-The model-declared choice between bone gaze and expression gaze that automovie lacks (`../core/gaps.md`). Human's eyeballs are separate meshes on `leftEye` and `rightEye`, so gaze should rotate bones.
+The model-declared choice between bone gaze and expression gaze is carried by `IAutoMovieLookAt` and consumed by engine `resolveLookAt` through the viewer player; see the [core survey](../core/gaps.md). Human's separate eyeballs on `leftEye` and `rightEye` motivate bone gaze, but that shared path does not establish Human's eye signs, lid following or rendered behavior.

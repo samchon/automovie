@@ -17,7 +17,7 @@ Book chapter published free online by NVIDIA. Human takes numbers and methods, c
 
 ## What Human takes
 
-Specular constants (F0 0.028, white specular), the per-region roughness idea, and normal-map usage (`../techniques/skin-material.md`). Weyrich et al. 2006 itself was not read.
+Specular constants (F0 0.028, white specular), the per-region roughness idea, and normal-map usage (`../techniques/skin-material.md`). The direct [Weyrich reading](weyrich-2006-skin-reflectance.md) records the measured regions and limits of transferring them to Human's material.
 
 ## Sum-of-Gaussians skin profile
 
