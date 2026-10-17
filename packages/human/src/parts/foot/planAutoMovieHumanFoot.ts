@@ -128,9 +128,6 @@ export function planAutoMovieHumanFoot(props: {
       forefoot: (metatarsalMedial.x + metatarsalLateral.x) / 2,
       at: ((metatarsalMedial.z + metatarsalLateral.z) / 2 - heel) / L,
     },
-    relief: FORM.relief,
-    hollow: { ...FORM.hollow },
-    tendon: { ...FORM.tendon },
     ankle: props.ankle,
     medial: {
       stations: [heelAt, 0.12, 0.17, 0.23, 0.3, 0.38, 0.47, 0.56, 0.65, 0.74],

@@ -59,3 +59,31 @@ Four selected adult synthetic bodies supplied closed shank sections perpendicula
 Native and skeleton-carried references were measured separately. Selection includes surrogate breadth protocols, and no equally muscular female reference exists. Standing adolescent breadth/girth ratios in `../sources/snyder-1977.md` constrain circularity but do not locate a same-level adult ellipse. The common-level seated adult protocol in `../sources/schneider-1983-ankle.md` differs in posture and perimeter. Transfer to standing adults or other ages remains unverified.
 
 The ankle boundary is an eight-control periodic cubic B-spline. Its four axis radii do not uniquely reproduce that curve as a quarter ellipse. Sweep, source column and collar must consume the same section representation. A collar span of 0.025 foot lengths is a conventional junction constraint, not an anatomical measurement; angular sampling approximates the curve and does not establish an exact signed distance field.
+
+## Ankle column below the minimum section
+
+The skeleton places the lateral malleolus landmark and sphyrion on the skin, 0.136 foot lengths either side of the ankle axis, so their spacing is the ANSUR II bimalleolar breadth (0.272 F, 0.276 M). Sphyrion stands 1.2 lateral malleolus heights high and 0.04 foot lengths forward of the lateral landmark, a convention for Gray's "higher and further forward".
+
+Below the collar the foot solid keeps the shared ring's B-spline section and scales its four semi-axes, taken along the line through the two landmarks and across it. Each scale follows quintic steps with zero first and second derivatives at both ends: sideways from 1 at the collar to the landmark at its own height, then to the heel's side (heel half breadth less a quarter of the slab fillet) at the heel's side rim; behind to the heel's back at its back rim; in front 0.15 over the talus. The generated breadth at the malleoli then equals the bimalleolar breadth (calibration people: 71.0, 76.9, 68.1 and 75.4 mm against 71.4, 77.4, 68.3 and 75.8 from 0.274 L), and the posterior contour falls monotonically from the ring into the heel. Grade: the landmark spacing is measured; the heights, the quintic steps and the heel targets are conventional.
+
+Two approaches were rejected. Malleoli as ellipsoids smooth-joined onto a column of the minimum section, with the column ending at 0.8 lateral malleolus heights in a rounded rim, rose out of the column as a closed band 30 mm tall and left a waist and posterolateral hollows under it (lateral radius 30 to 39 to 25 mm on the muscular man). Reading the plan's profiles with a smoothstep that is flat at every key terraced each falling profile into shelves across the dorsum and along the borders; the solid now reads them with Fritsch and Carlson's monotone cubic, which is flat only at extrema.
+
+A source-to-skin trace of horizontal cuts from the ring down to the heel found the field, the compiled foot sweep and the emitted joined skin within 1 to 3 mm per direction through the ankle band, so the ankle's form is decided in the solid, not lost in sampling. Narrow posterior features (calcaneal tendon, retromalleolar hollows) are not modeled: the ring's 8 columns grow to 32 only through the transition rows across this band, and a feature narrower than the column spacing would be lost or flanked by grooves.
+
+Open: the depth of the submalleolar hollow and the heel's lateral bulge below it have no source read; the medial malleolus height above the lateral is a convention.
+
+### Comparison with the reference feet
+
+Horizontal cuts of the four private reference meshes' left feet (native frame, foot frame turned by each foot's toe-out of 5 to 9 degrees), breadth across the foot within 0.15 foot lengths of the ankle joint, over foot length L, at height h above the floor. The cut is centre-free, so a skeleton pivot offset cannot bias it.
+
+| h / L | f20-model | m20-model | f20-muscular | m20-muscular |
+| --- | --- | --- | --- | --- |
+| 0.19 | 0.253 | 0.244 | 0.253 | 0.255 |
+| 0.22 | 0.252 | 0.247 | 0.239 | 0.258 |
+| 0.25 | 0.262 | 0.244 | 0.241 | 0.261 |
+| 0.28 | 0.271 | 0.233 | 0.246 | 0.259 |
+| 0.31 | 0.272 | 0.220 | 0.246 | 0.258 |
+| 0.37 | 0.251 | 0.201 | 0.223 | 0.246 |
+| 0.46 | 0.222 | 0.191 | 0.191 | 0.234 |
+
+The references peak at 0.22 to 0.31 L, dip 0.006 to 0.020 L below the peak (none in m20-model), and narrow by 0.027 to 0.056 L from the peak to 0.46 L. The generated column (m20-muscular identity) peaks at 0.274 L between 0.23 and 0.32 L, dips 0.009 L below it and narrows by 0.057 L to the ring: the peak follows ANSUR bimalleolar breadth rather than the narrower male references, and the steeper narrowing comes from the shared minimum section. The posterior contour at 0.31 L lies 0.040 L in front of the heel's back, inside the references' 0.028 to 0.062 L. This is a comparison against the column's measured inputs, not a least-squares fit: the column has no free shape coefficient other than the front deepening.
