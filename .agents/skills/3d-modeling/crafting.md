@@ -41,6 +41,8 @@ On a subdivision surface, place extraordinary vertices where curvature is low an
 
 ## Order Of Work
 
-Block out the whole form first. Then treat each finer detail as the block-out of a smaller region, and fit each scale before zooming into the next. Apply [Correction Rounds](visual-debugging.md#correction-rounds) at every scale.
+Build the whole form first, then each finer detail as the block-out of a smaller region placed on the coarser form, so a coarse change carries its details with it.
+
+Scale orders construction and inspection, never correction. Each [correction round](visual-debugging.md#correction-rounds) inspects the whole form and every finer region, neighbor and close-up, then fixes every cause it found in one combined change; a traced cause at a finer scale is fixed in that round, not saved for a later round or scale.
 
 Measure on the geometry that is displayed, such as a subdivision limit surface rather than its cage. Regenerate anything derived when its basis changes, and repair an unsound representation at its foundation instead of stacking corrections on it.

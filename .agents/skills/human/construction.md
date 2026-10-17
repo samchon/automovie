@@ -8,9 +8,17 @@ Build the skeleton first, on the shared humanoid skeleton and rest frame, and ge
 
 The rest form is the T-pose, joints straight and no flesh folded. Convert each posture-dependent measurement to it explicitly, such as the lateral chest, axilla, and shoulder top of the raised arm.
 
+## Parameter-Driven Curves
+
+Generate the curves themselves from the current detailed parameters. Derive local origins, axes and physical scales from the shared skeleton and named measurements, then compute stations, control points and tangents through relative positions, dimensionless ratios and dimensional formulas in those frames. The same rules apply to every admitted identity; world coordinates are generated results, not stored person-specific controls.
+
+Where reference planes, anatomical boundaries, endpoints, tangents and continuity conditions determine a curve, solve those constraints to generate its Bezier controls. Use fitted shape coefficients for the remaining independent traits; a scaled reference control polygon does not replace this derivation.
+
+Preserve independent lengths, breadths, depths, girths and local shape traits rather than coupling them through a fixed proportion. Name each rule's measured, derived, fitted or conventional quantities and its supported range. Share junction frames and continuity constraints under Parts And Junctions. Absolute-coordinate reference observations belong to research; transfer their recovered shared rules and coefficients into Human, not per-person curve tables or normalized copies of them. Follow [Reverse Analysis](reverse-analysis.md) when recovering those rules, and verify their response to changed parameters through the actual generated curves and surface.
+
 ## Lofting
 
-Work from the whole body through regions, masses and borders. At each scale, inspect and correct front, side and top generating curves with their neighbors before lofting; establish gross form before relief, bony landmarks or aesthetic detail.
+Work from the whole body through regions, masses and borders, generating gross form before relief, bony landmarks or aesthetic detail. Inspect front, side and top generating curves at every scale with their neighbors, then correct every curve cause the round found in one change before lofting.
 
 Build continuous skin from curve networks: closed sections along an axis or bone chain, steered by silhouette guides and feature curves. Apply [Lofting](../3d-modeling/lofting.md) to the section family and its fitting. Trunk sections lie level because anthropometry measures them level.
 

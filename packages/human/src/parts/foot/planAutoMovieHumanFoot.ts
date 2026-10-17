@@ -8,7 +8,9 @@ import { AUTOMOVIE_HUMAN_TOE_FORM } from "./AUTOMOVIE_HUMAN_TOE_FORM";
 import { IAutoMovieHumanFootPlan } from "./IAutoMovieHumanFootPlan";
 
 /**
- * Heel breadth over foot length: ANSUR II means 0.273 in women and 0.268 in men (Gordon et al. 2014, NATICK/TR-15/007), pooled. Grade: measured.
+ * Legacy heel breadth over foot length. The retained ANSUR note does not identify
+ * the heel-specific page, numerator, caliper or loading protocol. The value 0.27
+ * is an uncalibrated construction convention, not a pooled population estimate.
  */
 const HEEL_BREADTH: number = 0.27;
 
@@ -20,7 +22,7 @@ const HEEL_AT: number = AUTOMOVIE_HUMAN_FOOT_FORM.heel.reach;
  *
  * Independent length, breadth and arch height come from the identity. The heel follows pternion and the envelope centre flows to the metatarsal boundary. Toe roots follow the shared Toes fulcrum with common reference-fitted offsets, and their free breadths, directions and lengths belong to the same fan family; those modelled-joint offsets are not clinical MTP measurements. The longest projected tip follows acropodion. The old outline ratios are normalized to the independent breadth rather than letting length define width.
  *
- * Heights shape the form Gray describes ("Surface Anatomy of the Lower Extremity", Anatomy of the Human Body, 1918): the dorsum is convex, highest along a crest over the head of the talus, the navicular, the second cuneiform and the second metatarsal, "falling slowly to the lateral border and steeply to the medial"; the lateral border is lower and rests on the ground, while the medial border rises into the longitudinal arch, whose height is the identity's navicular height. Every profile is a fraction of foot length or of navicular height, so a child's foot keeps its own measured breadth and arch rather than a scaled adult's. The profile values are the coefficients of `AUTOMOVIE_HUMAN_FOOT_FORM`, fitted against reference feet across sex and age.
+ * Gray's qualitative surface description motivates a convex dorsum, lower lateral border and medial arch. The retained border and ridge profiles remain normalized historical construction coefficients. Mapping the identity's bony navicular height into skin profiles does not establish independently measured dorsal height or plantar clearance. The earlier attribution of these coefficients to references across sex and age has no bound generating source/input/output record here and does not qualify current skin or child morphology.
  *
  * @param props.leg The leg's measurements
  * @param props.landmarks The side's landmarks
@@ -128,9 +130,6 @@ export function planAutoMovieHumanFoot(props: {
       forefoot: (metatarsalMedial.x + metatarsalLateral.x) / 2,
       at: ((metatarsalMedial.z + metatarsalLateral.z) / 2 - heel) / L,
     },
-    relief: FORM.relief,
-    hollow: { ...FORM.hollow },
-    tendon: { ...FORM.tendon },
     ankle: props.ankle,
     medial: {
       stations: [heelAt, 0.12, 0.17, 0.23, 0.3, 0.38, 0.47, 0.56, 0.65, 0.74],

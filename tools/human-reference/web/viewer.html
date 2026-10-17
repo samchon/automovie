@@ -1,0 +1,183 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Reference lines view</title>
+<style>
+  body { margin: 0; background: #e4e6e9; color: #18222e; font: 13px/1.35 Consolas, monospace; }
+  #title { height: 58px; padding: 6px 10px; font-size: 11.5px; box-sizing: border-box; white-space: pre; overflow: hidden; }
+  #foot { height: 22px; padding: 3px 10px; box-sizing: border-box; font-size: 11px; color: #3a4654; }
+  canvas { display: block; }
+  .sw { display: inline-block; width: 22px; height: 4px; vertical-align: middle; margin: 0 3px 0 10px; }
+</style>
+<script type="importmap">{ "imports": { "three": "/three/build/three.module.js", "three/addons/": "/three/examples/jsm/" } }</script>
+</head>
+<body>
+<div id="title"></div>
+<div id="stage"></div>
+<div id="foot"></div>
+<script type="module">
+import * as THREE from "three";
+import { AutoMovieReferenceBridge as bridge } from "/automovie-viewer.js";
+import { Line2 } from "three/addons/lines/Line2.js";
+import { LineGeometry } from "three/addons/lines/LineGeometry.js";
+import { LineMaterial } from "three/addons/lines/LineMaterial.js";
+
+const panelCount=new URLSearchParams(location.search).get("panels")==="4"?4:2; const W=window.innerWidth,PH=window.innerHeight-140,PW=W/panelCount;
+const canvas=document.createElement('canvas');canvas.style.width=W+'px';canvas.style.height=PH+'px';document.querySelector('#stage').appendChild(canvas);
+const scenes = [0, 1, 2, 3].map(() => {
+  const s = new THREE.Scene();
+  s.background = new THREE.Color("#e4e6e9");
+  return s;
+});
+let activeCamera=null, completedFrame;
+function drawComposite(){
+  if(!activeCamera)throw new Error('No camera has completed an original viewer draw');
+  for(let i=0;i<panelCount;i++){renderer.setViewport(i*PW,0,PW,PH);renderer.setScissor(i*PW,0,PW,PH);bridge.renderAutoMovieScenePass(renderer,scenes[i],activeCamera,null,'beauty');}
+  completedFrame={scene:scenes[0],camera:activeCamera,pass:'reference-comparison',elapsedSeconds:0,facts:{panels:scenes.slice(0,panelCount),snapshot:window.runtimeManifest?.id, applicationPath:["IAutoMovieModel","buildModel","buildGeometry","mountViewer","renderAutoMovieScenePass","captureViewerSnapshot"], engine:window.currentLoftProvenance,operators:window.currentLoftProvenance}};
+}
+const mount=bridge.mountViewer(canvas,scenes[0],new THREE.PerspectiveCamera(50,W/PH,.001,20),()=>true,{pixelRatio:1,preserveDrawingBuffer:true,completedFrame:()=>completedFrame,redrawCompleted:drawComposite});
+const renderer=mount.renderer;renderer.setScissorTest(true);renderer.outputColorSpace=THREE.SRGBColorSpace;
+window.captureAutoMovieReference=()=>{if(!activeCamera)throw new Error('No completed comparison');return bridge.captureViewerSnapshot({domElement:canvas,render:drawComposite},scenes[0],activeCamera);};
+const stop=bridge.createAutoMovieResourceRetirement([()=>mount.stop(),()=>clear('mesh'),()=>clear('lines')]);window.addEventListener('pagehide',()=>{void stop().catch(error=>console.error('Viewer retirement failed',error));});
+const gl = renderer.getContext();
+const dbg = gl.getExtension("WEBGL_debug_renderer_info");
+window.gpu = {
+  vendor: dbg ? gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL) : gl.getParameter(gl.VENDOR),
+  renderer: dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER),
+  version: gl.getParameter(gl.VERSION),
+};
+
+const lights = [];
+for (const i of [0, 1, 2]) {
+  scenes[i].add(new THREE.HemisphereLight(0xffffff, 0x4a5566, 0.6));
+  const target = new THREE.Object3D();
+  scenes[i].add(target);
+  const key = new THREE.DirectionalLight(0xffffff, 3.2);
+  key.target = target;
+  scenes[i].add(key);
+  const fill = new THREE.DirectionalLight(0xdfe8ff, 0.45);
+  fill.target = target;
+  scenes[i].add(fill);
+  const under = new THREE.DirectionalLight(0xfff4e0, 0.0); // enabled for low views (soles, perineum)
+  under.target = target;
+  scenes[i].add(under);
+  lights.push({ key, fill, under, target });
+}
+let meshKey = "", lineMats = [], allBounds = null, legendHtml = "";
+
+const failedRetirements=new Set();
+function clear(tag){
+ const resources=new Set();for(const scene of scenes)for(const object of [...scene.children])if(object.userData.tag===tag){scene.remove(object);if(tag==='mesh')for(const resource of bridge.collectAutoMovieOwnedResources(object))resources.add(resource);else{if(object.geometry)resources.add(object.geometry);for(const material of Array.isArray(object.material)?object.material:object.material?[object.material]:[])resources.add(material);}}
+ const failures=[];for(const resource of resources)try{resource.dispose();failedRetirements.delete(resource)}catch(error){failedRetirements.add(resource);failures.push(error)}if(failures.length)throw new AggregateError(failures,'Comparison resources did not retire cleanly');
+}
+window.loadMesh=async(gate,pose)=>{
+ if(gate!==window.runtimeManifest.inputs.gate||pose!==window.runtimeManifest.inputs.pose)throw new Error("Viewer identity is fixed by its immutable input manifest"); const key=`${gate}/${pose}`;if(key===meshKey)return{cached:true};clear('mesh');
+ const source=await(await fetch(`/mesh/${gate}/${pose}`)).json();const response=await fetch(`/loft/${gate}`);
+ if(!response.ok)throw new Error('Actual engine reconstruction is unavailable; reference substitution is prohibited');
+ const artifact=await response.json();if(artifact.schema!=='human-reference-engine-model-v1'||!artifact.model||!artifact.provenance?.engineOperators?.length)throw new Error('Actual engine-generated interface model is required');
+ const sourceModel=bridge.referenceModel(source);const model={...artifact.model,materials:sourceModel.materials,parts:artifact.model.parts.map(part=>({...part,material:'neutral'}))};
+ const admission=[bridge.validateModel({model:sourceModel}),bridge.validateModel({model})];window.modelAdmission=admission;
+ if(admission.some(result=>!result.success))throw new Error('Engine model admission refused the comparison: '+JSON.stringify(admission));
+ const sourceGroups=[],generatedGroups=[],meshObjects=[];try{
+ for(const i of [0]){const group=bridge.buildModel(sourceModel).object;group.userData.tag='mesh';scenes[i].add(group);sourceGroups.push(group)}
+ for(const i of [1,2]){const group=bridge.buildModel(model).object;group.userData.tag='mesh';scenes[i].add(group);generatedGroups.push(group)}
+ meshObjects.push(...[...sourceGroups,...generatedGroups].flatMap(group=>{const result=[];group.traverse(object=>{if(object.isMesh)result.push(object)});return result}));
+ for(const mesh of meshObjects){mesh.geometry.computeVertexNormals();mesh.geometry.userData.geometricNormals=mesh.geometry.getAttribute('normal').clone();mesh.material.polygonOffset=true;mesh.material.polygonOffsetFactor=2;mesh.material.polygonOffsetUnits=4;}
+ }catch(error){try{clear("mesh")}catch(cleanup){throw new AggregateError([error,cleanup],"Model build and cleanup failed")};throw error;} window.currentLoftProvenance=artifact.provenance; window.comparisonScope=window.runtimeManifest.inputs.metadata?.scope??"Declared reconstruction extent only";
+ window.setComparison=mode=>{if(mode!==true)throw new Error('A reconstruction panel cannot substitute the reference mesh');window.compareMode=true;for(const group of generatedGroups)group.visible=true;document.querySelector('#panel-mode').textContent=mode?'원본 vs 엔진 곡선 재생 표면':'원본 관측';};
+ window.setNormalMode=mode=>{if(mode==='observed')throw new Error('Source normal replay is not a reconstructed-form display mode');for(const mesh of meshObjects){mesh.geometry.setAttribute('normal',mesh.geometry.userData.geometricNormals);mesh.material.flatShading=mode==='flat';mesh.material.needsUpdate=true;}window.normalMode=mode;};
+ window.setGeometric=flat=>window.setNormalMode(flat?'flat':'derived');window.hasLoft=true;window.setComparison(true);window.setNormalMode(window.normalMode??'derived');meshKey=key;
+ return{sourceVertices:source.vertices.length/3,generatedVertices:artifact.counts.vertices};
+};
+window.loadLines = async (gate, region, pose, suffix = "") => {
+  clear("lines");
+  lineMats = [];
+  const d = await (await fetch(window.compareMode ? `/replay/${gate}` : `/lines/${gate}/${region}/${pose}${suffix}`)).json();
+  const coordinateScale=d.units==="m"?1:.001; const box = new THREE.Box3();
+  const legend = new Map();
+  const stride = +(document.querySelector("#stride")?.value??5); if(!Number.isSafeInteger(stride)||stride<1)throw new Error("Section display stride must be a positive integer"); window.generatorCoverage={available:d.lines.length,displayed:d.lines.filter(l=>l.station===undefined||l.station%stride===0).length,stride}; for (const l of d.lines) {if(l.station!==undefined&&l.station%stride!==0)continue;
+    const evaluated=l.points.map(p=>p.map(v=>v*coordinateScale)); const pts = l.closed ? [...evaluated,evaluated[0]] : evaluated;
+    for (const p of evaluated) box.expandByPoint(new THREE.Vector3(...p));
+    legend.set(l.cls, l.color);
+    const geo = new LineGeometry();
+    geo.setPositions(pts.flat());
+    for (const i of [2, 3]) {
+      const mat = new LineMaterial({ color: l.color, linewidth: l.width, worldUnits: false, depthTest: i === 2, transparent: i === 3, opacity: i === 3 ? 0.9 : 1 });
+      mat.resolution.set(PW, PH);
+      lineMats.push(mat);
+      const line = new Line2(geo, mat);
+      line.computeLineDistances();
+      line.userData.tag = "lines";
+      line.renderOrder = l.cls === "other" || l.cls === "merged" ? 1 : 2;
+      scenes[i].add(line);
+    }
+  }
+  if (d.points.length) {
+    const g = new THREE.BufferGeometry().setFromPoints(d.points.map((p) => new THREE.Vector3(...p.p).multiplyScalar(coordinateScale)));
+    for (const i of [2, 3]) {
+      const pm = new THREE.Points(g, new THREE.PointsMaterial({ color: 0x111111, size: 9, sizeAttenuation: false, depthTest: i === 2 }));
+      pm.userData.tag = "lines";
+      pm.renderOrder = 3;
+      scenes[i].add(pm);
+      const pm2 = new THREE.Points(g, new THREE.PointsMaterial({ color: 0xffd000, size: 6, sizeAttenuation: false, depthTest: i === 2 }));
+      pm2.userData.tag = "lines";
+      pm2.renderOrder = 4;
+      scenes[i].add(pm2);
+    }
+    legend.set("landmark", "#ffd000");
+  }
+  allBounds = box;
+  legendHtml = [...legend.entries()].map(([k, c]) => `<span class="sw" style="background:${c}"></span>${k}`).join("");
+  return { lines: d.lines.length, points: d.points.length, bounds: [box.min.toArray(), box.max.toArray()] };
+};
+window.renderView = ({ gate, region, pose, view, azimuth, elevation, focus, span, note, clip, clips }) => {
+  const activeClips=clips??(clip?[clip]:[]); if(activeClips.some(p=>!Array.isArray(p.n)||p.n.length!==3||p.n.some(v=>!Number.isFinite(v))||!Number.isFinite(p.d)))throw new Error("Invalid diagnostic clipping plane"); renderer.clippingPlanes = activeClips.map(p=>new THREE.Plane(new THREE.Vector3(...p.n),p.d/1000));
+  const box = allBounds;
+  const c = focus ? new THREE.Vector3(...focus).multiplyScalar(.001) : box.getCenter(new THREE.Vector3());
+  const a = (azimuth * Math.PI) / 180, e = (elevation * Math.PI) / 180;
+  const dir = new THREE.Vector3(Math.sin(a) * Math.cos(e), Math.sin(e), Math.cos(a) * Math.cos(e));
+  // fit: project box corners onto the camera's right/up axes
+  const up0 = Math.abs(e) > 1.4 ? new THREE.Vector3(0, 0, -1) : new THREE.Vector3(0, 1, 0);
+  const right = new THREE.Vector3().crossVectors(up0, dir).normalize();
+  const up = new THREE.Vector3().crossVectors(dir, right).normalize();
+  let halfW, halfH;
+  if (span) {
+    halfH = span / 2000;
+    halfW = (halfH * PW) / PH;
+  } else {
+    let mw = 0, mh = 0;
+    for (const x of [box.min.x, box.max.x]) for (const y of [box.min.y, box.max.y]) for (const z of [box.min.z, box.max.z]) {
+      const v = new THREE.Vector3(x, y, z).sub(c);
+      mw = Math.max(mw, Math.abs(v.dot(right)));
+      mh = Math.max(mh, Math.abs(v.dot(up)));
+    }
+    halfH = Math.max(mh, (mw * PH) / PW) * 1.08 + .01;
+    halfW = (halfH * PW) / PH;
+  }
+  const camera = new THREE.OrthographicCamera(-halfW, halfW, halfH, -halfH, .001, 20);
+  camera.up.copy(up0);
+  camera.position.copy(c).addScaledVector(dir, 6);
+  camera.lookAt(c);
+  const ka = a - (60 * Math.PI) / 180, ke = (25 * Math.PI) / 180;
+  const keyDir = new THREE.Vector3(Math.sin(ka) * Math.cos(ke), Math.sin(ke), Math.cos(ka) * Math.cos(ke));
+  if (elevation < -10) keyDir.y = -Math.abs(keyDir.y);
+  const fa = a + (50 * Math.PI) / 180;
+  const fillDir = new THREE.Vector3(Math.sin(fa), 0.2, Math.cos(fa)).normalize();
+  for (const L of lights) {
+    L.target.position.copy(c);
+    L.key.position.copy(c).addScaledVector(keyDir, 4);
+    L.fill.position.copy(c).addScaledVector(fillDir, 4);
+    L.under.position.copy(c).addScaledVector(new THREE.Vector3(dir.x * 0.5, -1, dir.z * 0.5).normalize(), 4);
+    L.under.intensity = elevation < -10 ? 1.6 : 0.35;
+  }
+  activeCamera=camera; drawComposite(); mount.completeFrame(0);
+  document.querySelector("#title").innerHTML =
+    `${gate} | ${region} | ${pose} | ${view} (az ${azimuth}, el ${elevation}) | ortho height ${(2000 * halfH).toFixed(0)} mm${activeClips.length?` | diagnostic clips: ${activeClips.map(p=>p.label).join(", ")}`:""} | ${panelCount===2?"원본 vs 독립 곡선 재생 표면":window.compareMode?"원본 | 복원 | 복원+생성 단면 | 생성 단면 단독":"원본 | 원본 | 원본+관측 | 관측 단독"} | normal ${window.normalMode??"derived"}\n` + legendHtml;
+  document.querySelector("#foot").textContent = (note ? note+" | "+window.comparisonScope : window.comparisonScope) || "Reference inputs and camera controls use millimetres; interface meshes and render world use metres. +X subject-left, +Y up, +Z front.";
+  return { snapshot:window.runtimeManifest?.id, applicationPath:["IAutoMovieModel","buildModel","buildGeometry","mountViewer","renderAutoMovieScenePass","captureViewerSnapshot"], engine:window.currentLoftProvenance, generatorCoverage:window.generatorCoverage, panels:panelCount, clipping:activeClips, normalMode:window.normalMode??"derived", material:{linearRgb:[.6,.6,.6],roughness:.8,metallic:0,opacity:1,doubleSided:true,normalMap:false}, camera: camera.position.toArray(), cameraUnits:"m", target: c.toArray(), targetMm:c.toArray().map(v=>v*1000), heightMm: 2000 * halfH, keyDir: keyDir.toArray(), renderer: window.gpu, renderedAt: new Date().toISOString() };
+};
+window.runtimeManifest=await(await fetch("/manifest")).json(); window.ready = true;
+</script>
+<!--CONTROLS--></body>
+</html>

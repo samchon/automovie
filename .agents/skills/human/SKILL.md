@@ -51,8 +51,9 @@ Read the relevant technical guide before its task:
 
 - [Anatomy](anatomy.md) owns anatomical grounds and modeled tissue.
 - [Parameters](parameters.md) owns parameter meaning and admission.
-- [Construction](construction.md) owns generation, parts, junctions, and the core boundary.
+- [Construction](construction.md) owns parameter-driven curves, generation, parts, junctions, and the core boundary.
 - [References](references.md) owns reference use and comparison.
+- [Reverse analysis](reverse-analysis.md) owns reference curve extraction, shared formula identification and actual reverse-rendered comparison. Read it before reverse analysis or reverse rendering.
 - [Verification](verification.md) owns calibration bodies and form judgment.
 
 Read the research workspace, `packages/human/docs`, before researching a value or technique, and update it when research changes, so sources and abandoned approaches are not repeated.
