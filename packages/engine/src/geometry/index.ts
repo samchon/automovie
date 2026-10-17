@@ -1,4 +1,5 @@
 /** Geometry operations and their contracts, also re-exported by the engine root. */
+export * from "./curve";
 export * from "./IAutoMovieMeshAssembly";
 export * from "./IAutoMovieMeshClearanceWitness";
 export * from "./IAutoMovieMeshAttachmentCap";
@@ -73,3 +74,5 @@ export * from "./triangleIndicesOf";
 export * from "./sweep";
 export * from "./fitAutoMovieSubdivisionRegions";
 export * from "./evaluateSubdivisionLevel";
+export * from "./intersectAutoMovieConvexPolygons";
+export * from "./integrateAutoMovieRadialField";

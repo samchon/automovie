@@ -50,7 +50,10 @@ export const registerAutoMovieSurfaceVertices: (
     index.set(key, i);
     return i;
   }
-  function vertex(key: string, make: () => (out: Float64Array, at: number) => void): number {
+  function vertex(
+    key: string,
+    make: () => (out: Float64Array, at: number) => void,
+  ): number {
     open();
     let i: number | undefined = index.get(key);
     if (i === undefined) {
@@ -108,7 +111,10 @@ export const registerAutoMovieSurfaceVertices: (
       pending.clear();
     }
   }
-  function bindSweep(key: string, bind: (sample: IAutoMovieSurfaceRegistry.ISweep | null) => void): void {
+  function bindSweep(
+    key: string,
+    bind: (sample: IAutoMovieSurfaceRegistry.ISweep | null) => void,
+  ): void {
     open();
     bindings.push({ key, bind });
   }

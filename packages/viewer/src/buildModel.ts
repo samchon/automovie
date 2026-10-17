@@ -56,13 +56,19 @@ import { applyReliefWeights } from "./reliefWeightShading/index.js";
  * retires those owned objects, including objects not yet attached to the group;
  * successful return transfers them to the caller. Texture wrappers stay with
  * the resolver's owner. A nested producer retires its own failed allocation.
+ * An anisotropic rigid mesh without morph targets or normal maps receives
+ * native computed tangents when its indexed normal/UV geometry supports them.
+ * Mapped and deforming meshes retain their derivative frame: a rest tangent
+ * cannot follow a morph or replace a transformed normal-map frame. This
+ * changes no source arrays or material coefficients, is not a MikkTSpace bake
+ * guarantee and leaves degenerate UVs on their existing fallback.
  *
  * @author Samchon
- * @evidence contracts/common.md#principled-implementation Builds admitted semantic bone rest TR and part TRS, binds skin joints or rigid attached bones, selects linear or dual quaternion skinning per skin through the material shader patch and matching shadow materials, and realizes geometry/PBR through their canonical owners; attachedBone intentionally takes precedence over skin, bone rest scale is unit by engine convention and complete finite/unique hierarchy/material admission remains upstream.
+ * @evidence contracts/common.md#principled-implementation Builds admitted semantic bone rest TR and part TRS, binds skin joints or rigid attached bones, selects linear or dual quaternion skinning per skin through the material shader patch and matching shadow materials, realizes geometry/PBR through their canonical owners and derives vertex tangents only for anisotropic rigid, morph-free, normal-map-free indexed normal/UV geometry. Nonfinite/zero derived axes discard the new attribute; mapped/deforming or unsupported geometry retains its existing derivative-frame limitations. Consistent source normals remain a premise; this is not a MikkTSpace bake guarantee. AttachedBone intentionally takes precedence over skin, bone rest scale is unit by engine convention and complete finite/unique hierarchy/material admission remains upstream.
  * @evidence contracts/common.md#clear-and-simple-design Owns one model graph plus semantic bone/part registries and shares material variants by definition id with vertex-color/relief/skinning-method flags and one patched shadow pair per dual quaternion mesh; geometry, physical-vertex mapping, material shading and imported appearances remain separate producers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing referenced skin/attached bones throw rather than producing frozen geometry; missing material definitions currently select the ordinary default material, so this producer is not a substitute for complete source admission. No anatomical fixture names, patched Three methods or extra UV channels choose output.
  * @evidence contracts/common.md#meaningful-documentation Documents rigid-versus-skin precedence, the dual quaternion material and shadow variants, morph target naming and the driven-target record, bone lookup, texture resolver/binding-private ownership, first-acquisition rollback and result transfer; comments give the shared engine unit bone-scale convention.
- * @evidence contracts/performance.md#efficient-algorithms Builds B bones and P parts with id maps, one geometry per part and one material per encountered definition/colored/weighted/skinning-method variant plus two shadow materials per dual quaternion skinned part; typed buffer work scales with vertices/indices, and skin binding updates the graph for each skinned part, so repeated skin parts may add repeated hierarchy work.
+ * @evidence contracts/performance.md#efficient-algorithms Builds B bones and P parts with id maps, one geometry per part and one material per encountered definition/colored/weighted/skinning-method variant plus two shadow materials per dual quaternion skinned part. Typed buffer work scales with vertices/indices; eligible anisotropic geometry adds one O(V+I) native tangent pass, an owned four-component attribute and O(V) temporary accumulation. Skin binding updates the graph for each skinned part, so repeated skin parts may add repeated hierarchy work.
  * @evidence contracts/performance.md#reuse-equivalent-work Shares existing material variants across matching part flags and borrows primed texture bindings; each bone/part graph is independent because Object3D parent/pose state cannot be reused across placements without explicit clone ownership.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Registers created geometry/material/shadow material/skeleton immediately within construction rollback and transfers the complete model graph/registries on success; resolver textures stay externally owned. The returned record provides no universal disposer, so its scene/runtime owner must enumerate physical resources including skin skeleton state when retiring it.
  */
@@ -169,6 +175,41 @@ export const buildModel: (
             if (dualQuaternion) applyDualQuaternionSkinning(mat);
             variants.set(key, mat);
           } else mat = cached;
+        }
+        // A supplied tangent also changes normal-map projection. Keep mapped
+        // and deforming meshes on their prior derivative frame, rather than
+        // replacing transformed UVs or a moving morph with UV0 rest tangents.
+        const morphed: boolean =
+          part.geometry.type === "mesh" &&
+          (part.geometry.mesh.targets?.length ?? 0) > 0;
+        if (
+          (definition?.anisotropy?.strength ?? 0) > 0 &&
+          skin === null &&
+          !morphed &&
+          mat.normalMap === null &&
+          geo.index !== null &&
+          geo.hasAttribute("normal") &&
+          geo.hasAttribute("uv")
+        ) {
+          geo.computeTangents();
+          const tangent:
+            | THREE.BufferAttribute
+            | THREE.InterleavedBufferAttribute = geo.getAttribute("tangent");
+          for (let k: number = 0; k < tangent.count; ++k) {
+            const length: number = Math.hypot(
+              tangent.getX(k),
+              tangent.getY(k),
+              tangent.getZ(k),
+            );
+            if (
+              !Number.isFinite(tangent.getW(k)) ||
+              !Number.isFinite(length) ||
+              length === 0
+            ) {
+              geo.deleteAttribute("tangent");
+              break;
+            }
+          }
         }
         const mesh: THREE.Mesh<
           THREE.BufferGeometry<
