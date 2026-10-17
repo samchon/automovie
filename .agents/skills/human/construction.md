@@ -10,7 +10,7 @@ The rest form is the T-pose, joints straight and no flesh folded. Convert each p
 
 ## Lofting
 
-Work from the whole body through regions, masses and borders. At each scale, inspect and correct front, side and top generating curves with their neighbors before lofting; establish gross form before relief, bony landmarks or aesthetic detail.
+Work from the whole body through regions, masses and borders, generating gross form before relief, bony landmarks or aesthetic detail. Inspect front, side and top generating curves at every scale with their neighbors, then correct every curve cause the round found in one change before lofting.
 
 Build continuous skin from curve networks: closed sections along an axis or bone chain, steered by silhouette guides and feature curves. Apply [Lofting](../3d-modeling/lofting.md) to the section family and its fitting. Trunk sections lie level because anthropometry measures them level.
 

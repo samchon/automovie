@@ -12,4 +12,4 @@ Apply [Correction Rounds](../3d-modeling/visual-debugging.md#correction-rounds) 
 
 Keep numerical, clinical, and visual judgments distinct.
 
-When two consecutive matching renders show no gain, change the source, correspondence, or representation, not a solver or tolerance.
+When two consecutive correction rounds show no gain on matching renders, change the source, correspondence, or representation, not a solver or tolerance.
