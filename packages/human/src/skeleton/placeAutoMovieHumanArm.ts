@@ -89,9 +89,7 @@ export function placeAutoMovieHumanArm(
   // acromion-radiale is a straight length, so radiale drops the length's vertical share below the acromion
   const radialeY: number =
     body.acromialHeight -
-    Math.sqrt(
-      arm.upperArmLength ** 2 - (acromion.x - x) ** 2,
-    );
+    Math.sqrt(arm.upperArmLength ** 2 - (acromion.x - x) ** 2);
   const radiale: IAutoMovieVector3 = V.of(x, radialeY, depth);
   const stylion: IAutoMovieVector3 = V.of(
     x,

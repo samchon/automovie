@@ -18,7 +18,9 @@ export function frameAutoMovieHumanHead(
   skeleton: IAutoMovieHumanSkeleton,
 ): frameAutoMovieHumanHead.IFrame {
   const landmarks: IAutoMovieHumanLandmarks = skeleton.landmarks;
-  const joint: (bone: string) => IAutoMovieHumanSkeleton.IJoint = (bone: string): IAutoMovieHumanSkeleton.IJoint => {
+  const joint: (bone: string) => IAutoMovieHumanSkeleton.IJoint = (
+    bone: string,
+  ): IAutoMovieHumanSkeleton.IJoint => {
     const found: IAutoMovieHumanSkeleton.IJoint | undefined =
       skeleton.joints.find(
         (j: IAutoMovieHumanSkeleton.IJoint): boolean => j.bone === bone,
@@ -46,8 +48,9 @@ export function frameAutoMovieHumanHead(
   );
   const z: IAutoMovieVector3 = AutoMovieHumanVector.cross(x, y);
   const frame: frameAutoMovieHumanHead.IAxes = { origin, x, y, z };
-  const local: (p: IAutoMovieVector3) => IAutoMovieVector3 = (p: IAutoMovieVector3): IAutoMovieVector3 =>
-    frameAutoMovieHumanHead.toLocal(frame, p);
+  const local: (p: IAutoMovieVector3) => IAutoMovieVector3 = (
+    p: IAutoMovieVector3,
+  ): IAutoMovieVector3 => frameAutoMovieHumanHead.toLocal(frame, p);
   const eye: IAutoMovieHumanSkeleton.IJoint = joint("leftEye");
   return {
     ...frame,

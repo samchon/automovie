@@ -1,6 +1,6 @@
 # Soucie et al. 2011, CDC normal joint range of motion study
 
-Soucie J.M., Wang C., Forsyth A., Funk S., Denney M., Roach K.E., Boone D., and the Hemophilia Treatment Center Network. "Range of motion measurements: reference values and a database for comparison studies." *Haemophilia* 17(3), 2011 (e-pub November 2010). Read: the CDC study page with the full reference table, https://archive.cdc.gov/www_cdc_gov/ncbddd/jointrom/index.html. The article and the 201-page methods document were not read.
+Soucie J.M., Wang C., Forsyth A., Funk S., Denney M., Roach K.E., Boone D., and the Hemophilia Treatment Center Network. "Range of motion measurements: reference values and a database for comparison studies." *Haemophilia* 17(3), 2011 (e-pub November 2010). [CDC study page and reference table](https://archive.cdc.gov/www_cdc_gov/ncbddd/jointrom/index.html); the values below are from this summary.
 
 ## Licence and terms
 
@@ -8,7 +8,7 @@ CDC public-use data under Section 308(d) of the Public Health Service Act: use o
 
 ## Population and protocol
 
-More than 600 people from the general US population without conditions affecting joint mobility, measured November 2003 to July 2006 at hemophilia treatment centres; goniometry (positions in the unread methods document). Grade: measured. Values are means (95% CI) in degrees.
+More than 600 people from the general US population without conditions affecting joint mobility, measured November 2003 to July 2006 at hemophilia treatment centres; goniometry; measurement positions are not established by the cited summary. Grade: measured. Values are means (95% CI) in degrees.
 
 ## Values
 

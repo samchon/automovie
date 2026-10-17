@@ -1,6 +1,6 @@
 # Vitruvius, De architectura, Book III chapter 1
 
-Vitruvius Pollio. *The Ten Books on Architecture*, translated by M.H. Morgan, Harvard University Press, 1914. Read: Book III, chapter 1, "On symmetry: in temples and in the human body," Project Gutenberg eBook 20239, https://www.gutenberg.org/cache/epub/20239/pg20239.txt.
+Vitruvius Pollio. *The Ten Books on Architecture*, translated by M.H. Morgan, Harvard University Press, 1914. Book III, chapter 1, "On symmetry: in temples and in the human body," Project Gutenberg eBook 20239, https://www.gutenberg.org/cache/epub/20239/pg20239.txt.
 
 ## Licence
 

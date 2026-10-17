@@ -211,7 +211,9 @@ function admitLight(
     return undefined;
   }
   if (typeof input !== "object" || input === null || Array.isArray(input)) {
-    errors.push("light must be a preset name or { azimuth, elevation, relative }");
+    errors.push(
+      "light must be a preset name or { azimuth, elevation, relative }",
+    );
     return undefined;
   }
   const record: Record<string, unknown> = input as Record<string, unknown>;

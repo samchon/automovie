@@ -1,6 +1,6 @@
 # Scheuermann 2004, practical real-time hair rendering
 
-Scheuermann T. "Practical Real-Time Hair Rendering and Shading." SIGGRAPH 2004 Sketches, ATI Research. Read from https://history.siggraph.org/wp-content/uploads/2022/12/2004-Talks-Scheuermann_Practical-Real-Time-Hair-Rendering-and-Shading.pdf (the full two-page sketch).
+Scheuermann T. "Practical Real-Time Hair Rendering and Shading." SIGGRAPH 2004 Sketches, ATI Research. [Two-page sketch](https://history.siggraph.org/wp-content/uploads/2022/12/2004-Talks-Scheuermann_Practical-Real-Time-Hair-Rendering-and-Shading.pdf).
 
 ## Licence
 

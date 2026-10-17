@@ -1,6 +1,6 @@
 # Schectman et al. 2005, maximal angle of duction by age
 
-Schectman D., Shallo-Hoffmann J., Rumsey J., Riordan-Eva P., Hardigan P.C. "Maximal angle of duction during visual fixation as a function of age." *Strabismus* 13(1):21-26, 2005. Read: the abstract on NSUWorks, https://nsuworks.nova.edu/hpd_com_faculty_articles/397. The full text was not read.
+Schectman D., Shallo-Hoffmann J., Rumsey J., Riordan-Eva P., Hardigan P.C. "Maximal angle of duction during visual fixation as a function of age." *Strabismus* 13(1):21-26, 2005. [NSUWorks abstract](https://nsuworks.nova.edu/hpd_com_faculty_articles/397), abstract-level evidence.
 
 ## Population and protocol
 
@@ -12,4 +12,4 @@ Maximum duction fell with age in all four directions (p < 0.001), with a step de
 
 ## What Human takes
 
-Nothing numeric yet: the eye ranges stay the engine's conventional ±30 vertical and ±45 horizontal until absolute angles are read; these percentages are the age term to apply then.
+Relative age effects only; without absolute angles, this source does not calibrate the engine's conventional ±30 vertical and ±45 horizontal eye ranges.

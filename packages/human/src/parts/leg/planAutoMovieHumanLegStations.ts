@@ -4,8 +4,8 @@ import { AUTOMOVIE_HUMAN_THIGH_GIRTH } from "../../junction/AUTOMOVIE_HUMAN_THIG
 import { AutoMovieHumanSide } from "../../junction/AutoMovieHumanSide";
 import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
 import { measureAutoMovieHumanAnkleCollar } from "../../junction/measureAutoMovieHumanAnkleCollar";
-import { thighAutoMovieHumanCollar } from "../../junction/thighAutoMovieHumanCollar";
 import { shapeAutoMovieHumanRing } from "../../junction/shapeAutoMovieHumanRing";
+import { thighAutoMovieHumanCollar } from "../../junction/thighAutoMovieHumanCollar";
 import { IAutoMovieHumanLandmarks } from "../../measure/IAutoMovieHumanLandmarks";
 import { IAutoMovieHumanMeasurements } from "../../measure/IAutoMovieHumanMeasurements";
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
@@ -93,7 +93,9 @@ export function planAutoMovieHumanLegStations(props: {
     side === "left" ? identity.body.leftLeg : identity.body.rightLeg;
   const landmarks: IAutoMovieHumanLandmarks.ISide =
     side === "left" ? skeleton.landmarks.left : skeleton.landmarks.right;
-  const joint: (name: string) => IAutoMovieVector3 = (name: string): IAutoMovieVector3 => {
+  const joint: (name: string) => IAutoMovieVector3 = (
+    name: string,
+  ): IAutoMovieVector3 => {
     const found: IAutoMovieHumanSkeleton.IJoint | undefined =
       skeleton.joints.find(
         (j: IAutoMovieHumanSkeleton.IJoint): boolean =>
@@ -120,7 +122,8 @@ export function planAutoMovieHumanLegStations(props: {
     part: "leg",
   });
 
-  const thighCollar: ReturnType<typeof thighAutoMovieHumanCollar> = thighAutoMovieHumanCollar({ ...props, ring: thighRing });
+  const thighCollar: ReturnType<typeof thighAutoMovieHumanCollar> =
+    thighAutoMovieHumanCollar({ ...props, ring: thighRing });
   const ankleSupport: number = measureAutoMovieHumanAnkleCollar(leg.footLength);
 
   // levels along the leg, as heights in the standing rest pose
@@ -141,7 +144,11 @@ export function planAutoMovieHumanLegStations(props: {
         Math.max(0, (height - supra) / (furrow - supra)),
         AUTOMOVIE_HUMAN_THIGH_GIRTH.exponent,
       );
-  const lerp: (a: number, b: number, t: number) => number = (a: number, b: number, t: number): number => a + (b - a) * t;
+  const lerp: (a: number, b: number, t: number) => number = (
+    a: number,
+    b: number,
+    t: number,
+  ): number => a + (b - a) * t;
   const kneeGirth: number = GIRTH.knee * leg.lowerThighCircumference;
   const calfToAnkle: (share: number) => number = (share: number): number =>
     lerp(leg.ankleCircumference, leg.calfCircumference, share);
@@ -238,7 +245,9 @@ export function planAutoMovieHumanLegStations(props: {
     ) /
     2 /
     (landmarks.trochanterion.position.y - knee.y);
-  const pointAt: (height: number) => IAutoMovieVector3 = (height: number): IAutoMovieVector3 =>
+  const pointAt: (height: number) => IAutoMovieVector3 = (
+    height: number,
+  ): IAutoMovieVector3 =>
     height >= knee.y
       ? AutoMovieHumanVector.offset(hip, [
           AutoMovieHumanVector.offset(knee, [hip, -1]),
@@ -261,7 +270,10 @@ export function planAutoMovieHumanLegStations(props: {
           : i === levels.length - 1
             ? ankleRing.frame.origin
             : i === levels.length - 2
-              ? AutoMovieHumanVector.offset(ankleRing.frame.origin, [ankleRing.frame.normal, -ankleSupport])
+              ? AutoMovieHumanVector.offset(ankleRing.frame.origin, [
+                  ankleRing.frame.normal,
+                  -ankleSupport,
+                ])
               : pointAt(l.height),
   );
   const stations: IAutoMovieHumanLegStation[] = levels.map(

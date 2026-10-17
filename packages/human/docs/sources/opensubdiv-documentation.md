@@ -1,10 +1,10 @@
 # OpenSubdiv documentation
 
-Pixar Animation Studios, OpenSubdiv documentation, pages "Subdivision Surfaces" and "Modeling Tips". The hosted pages at graphics.pixar.com now redirect, so they were read from the repository sources: https://raw.githubusercontent.com/PixarAnimationStudios/OpenSubdiv/release/documentation/subdivision_surfaces.rst and https://raw.githubusercontent.com/PixarAnimationStudios/OpenSubdiv/release/documentation/mod_notes.rst.
+Pixar Animation Studios, OpenSubdiv documentation, pages "Subdivision Surfaces" and "Modeling Tips". Repository sources: https://raw.githubusercontent.com/PixarAnimationStudios/OpenSubdiv/release/documentation/subdivision_surfaces.rst and https://raw.githubusercontent.com/PixarAnimationStudios/OpenSubdiv/release/documentation/mod_notes.rst.
 
 ## Licence
 
-The code licence was not checked; Human reads the documentation for technique only and links no OpenSubdiv code.
+Technique reference only; no OpenSubdiv code is linked or copied. Its code licence is outside this note.
 
 ## What it says
 

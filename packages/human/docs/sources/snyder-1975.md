@@ -1,6 +1,6 @@
 # Snyder et al. 1975, physical characteristics of children (AnthroKids)
 
-Snyder R.G., Spencer M.L., Owings C.L., Schneider L.W. *Physical Characteristics of Children as Related to Death and Injury for Consumer Product Design and Use*, UM-HSRI-BI-75-5, Highway Safety Research Institute, University of Michigan, for the US Consumer Product Safety Commission, May 1975. Read through the NIST AnthroKids site: the measurement list `datatoc75.htm` and the summary tables `data1975/66.txt`, `67.txt` (sitting height, crown-rump, girls and boys) and `70.txt`, `71.txt` (sitting mid-shoulder height, girls and boys), https://math.nist.gov/~SRessler/anthrokids/.
+Snyder R.G., Spencer M.L., Owings C.L., Schneider L.W. *Physical Characteristics of Children as Related to Death and Injury for Consumer Product Design and Use*, UM-HSRI-BI-75-5, Highway Safety Research Institute, University of Michigan, for the US Consumer Product Safety Commission, May 1975. NIST AnthroKids sources: the measurement list `datatoc75.htm` and the summary tables `data1975/66.txt`, `67.txt` (sitting height, crown-rump, girls and boys) and `70.txt`, `71.txt` (sitting mid-shoulder height, girls and boys), https://math.nist.gov/~SRessler/anthrokids/.
 
 ## Licence
 

@@ -36,7 +36,11 @@ export function emitAutoMovieHumanTrunk(
   for (let k: number = 0; k < positions.length; k += 3) {
     const sample: IAutoMovieHumanCage.IVertex["position"] = modelSample(k);
     vertices.push({
-      fitting: { sample, target: sampled.limitTargetMask[k / 3] ? { ...sample } : null, anchor: sampled.pinned[k / 3]! },
+      fitting: {
+        sample,
+        target: sampled.limitTargetMask[k / 3] ? { ...sample } : null,
+        anchor: sampled.pinned[k / 3]!,
+      },
       position: {
         x: AutoMovieHumanTrunkSweep.millimetres(positions[k]!),
         y: AutoMovieHumanTrunkSweep.millimetres(positions[k + 1]!),
@@ -48,7 +52,12 @@ export function emitAutoMovieHumanTrunk(
   const faces: IAutoMovieHumanCage.IFace[] = sampled.cage.faces.map(
     (face: number[], f: number): IAutoMovieHumanCage.IFace => ({
       vertices: [face[0]!, face[1]!, face[2]!, face[3]!],
-      fitting: /^(upper\.patch\.|(?:left|right)Shoulder|join(?:Left|Right)Shoulder)/.test(patches[sampled.corners[f]![0].patch]!.name) ? "upper" : undefined,
+      fitting:
+        /^(upper\.patch\.|(?:left|right)Shoulder|join(?:Left|Right)Shoulder)/.test(
+          patches[sampled.corners[f]![0].patch]!.name,
+        )
+          ? "upper"
+          : undefined,
       coordinates: unwrap(
         sampled.corners[f]!.map(
           (
@@ -65,7 +74,10 @@ export function emitAutoMovieHumanTrunk(
     }),
   );
   const rings: IAutoMovieHumanRing[] = network.shapes.map(
-    ({ ring, shape }: IAutoMovieHumanTrunkNetwork["shapes"][number]): IAutoMovieHumanRing => ({
+    ({
+      ring,
+      shape,
+    }: IAutoMovieHumanTrunkNetwork["shapes"][number]): IAutoMovieHumanRing => ({
       site: shape.site,
       side: shape.side,
       vertices: sampled.rings[ring]!,
@@ -77,7 +89,9 @@ export function emitAutoMovieHumanTrunk(
 }
 
 /** The branch a patch belongs to, by its name, or none for the trunk's own sweep patches. */
-const branchOf: (name: string) => AutoMovieHumanBranch<"trunk"> | null = (name: string): AutoMovieHumanBranch<"trunk"> | null =>
+const branchOf: (name: string) => AutoMovieHumanBranch<"trunk"> | null = (
+  name: string,
+): AutoMovieHumanBranch<"trunk"> | null =>
   name.startsWith("leftShoulder") || name === "joinLeftShoulder"
     ? "leftShoulder"
     : name.startsWith("rightShoulder") || name === "joinRightShoulder"
@@ -89,14 +103,21 @@ const branchOf: (name: string) => AutoMovieHumanBranch<"trunk"> | null = (name: 
           : null;
 
 /** The chart address of a patch point: the trunk's main chart, or the branch chart of a shoulder or hip tube and its bridge. */
-const addressOf: (patch: IAutoMovieSurfaceNetwork.IPatch, s: number, t: number, chart: { u: [number, number]; v: [number, number] } | undefined) => IAutoMovieHumanSurfaceCoordinate.IOn<"trunk"> = (
+const addressOf: (
+  patch: IAutoMovieSurfaceNetwork.IPatch,
+  s: number,
+  t: number,
+  chart: { u: [number, number]; v: [number, number] } | undefined,
+) => IAutoMovieHumanSurfaceCoordinate.IOn<"trunk"> = (
   patch: IAutoMovieSurfaceNetwork.IPatch,
   s: number,
   t: number,
   chart: { u: [number, number]; v: [number, number] } | undefined,
 ): IAutoMovieHumanSurfaceCoordinate.IOn<"trunk"> => {
-  const lerp: (r: [number, number], x: number) => number = (r: [number, number], x: number): number =>
-    r[0] + (r[1] - r[0]) * x;
+  const lerp: (r: [number, number], x: number) => number = (
+    r: [number, number],
+    x: number,
+  ): number => r[0] + (r[1] - r[0]) * x;
   const wrap: (v: number) => number = (v: number): number => ((v % 1) + 1) % 1;
   const branch: AutoMovieHumanBranch<"trunk"> | null = branchOf(patch.name);
   if (chart !== undefined)
@@ -144,7 +165,9 @@ const addressOf: (patch: IAutoMovieSurfaceNetwork.IPatch, s: number, t: number, 
 };
 
 /** Keep one face's corners within half a turn: a face across the wrap meridian writes 1 where it would write 0. */
-const unwrap: (corners: IAutoMovieHumanSurfaceCoordinate.IOn<"trunk">[]) => IAutoMovieHumanSurfaceCoordinate.IOn<"trunk">[] = (
+const unwrap: (
+  corners: IAutoMovieHumanSurfaceCoordinate.IOn<"trunk">[],
+) => IAutoMovieHumanSurfaceCoordinate.IOn<"trunk">[] = (
   corners: IAutoMovieHumanSurfaceCoordinate.IOn<"trunk">[],
 ): IAutoMovieHumanSurfaceCoordinate.IOn<"trunk">[] => {
   const vs: number[] = corners.map(

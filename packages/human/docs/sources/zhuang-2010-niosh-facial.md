@@ -1,10 +1,10 @@
 # Zhuang 2010, NIOSH facial anthropometric differences
 
-Zhuang Z, Landsittel D, Benson S, Roberge R, Shaffer R. "Facial Anthropometric Differences among Gender, Ethnicity, and Age Groups." *Annals of Occupational Hygiene* 54(4):391-402, 2010, doi:10.1093/annhyg/meq007. Read from the CDC Stacks PDF https://stacks.cdc.gov/view/cdc/187926/cdc_187926_DS1.pdf (Tables 1 to 4, text). The rotated Table 4 was reconstructed from word coordinates; its minus signs did not survive extraction, so signs below come from the text or the layout rendering.
+Zhuang Z, Landsittel D, Benson S, Roberge R, Shaffer R. "Facial Anthropometric Differences among Gender, Ethnicity, and Age Groups." *Annals of Occupational Hygiene* 54(4):391-402, 2010, doi:10.1093/annhyg/meq007. [CDC Stacks PDF](https://stacks.cdc.gov/view/cdc/187926/cdc_187926_DS1.pdf), Tables 1 to 4 and text.
 
 ## Licence
 
-Journal article with NIOSH authors, published by Oxford University Press. Numbers are facts.
+Journal article with NIOSH authors, published by Oxford University Press.
 
 ## Population and protocol
 
@@ -29,7 +29,7 @@ Journal article with NIOSH authors, published by Oxford University Press. Number
 | Lip length | ch-ch | 48.6 | -2.1 | | | |
 | Neck circumference | tape | 397.6 | -50.1 | | | +9.0 |
 
-Empty cells were not recovered with a reliable sign. The text states that women are smaller in every dimension, African-Americans have "shorter, wider, and shallower noses", the mainly Asian group has wider faces and noses, and workers 45 and older have "larger and longer narrower faces".
+Empty cells have no reliably established sign and must not be treated as zero. The text states that women are smaller in every dimension, African-Americans have "shorter, wider, and shallower noses", the mainly Asian group has wider faces and noses, and workers 45 and older have "larger and longer narrower faces".
 
 ## What Human takes
 

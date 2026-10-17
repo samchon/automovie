@@ -32,15 +32,19 @@ export function sweepAutoMovieHumanTrunkBody(props: {
   const { frame, profile }: typeof props = props;
   const S: typeof AutoMovieHumanTrunkSweep = AutoMovieHumanTrunkSweep;
   const L: IAutoMovieHumanTrunkFrame.ILevels = frame.levels;
-  const levels: number[] = Array.from(new Set([
-    L.crotch,
-    ...profile.heights.filter((y: number): boolean => y >= L.crotch && y <= L.axilla),
-    ...Array.from(
-      { length: STEPS + 1 },
-      (_: unknown, k: number): number =>
-        L.buttock + ((L.axilla - L.buttock) * k) / STEPS,
-    ),
-  ])).sort((a: number,b: number): number => a-b);
+  const levels: number[] = Array.from(
+    new Set([
+      L.crotch,
+      ...profile.heights.filter(
+        (y: number): boolean => y >= L.crotch && y <= L.axilla,
+      ),
+      ...Array.from(
+        { length: STEPS + 1 },
+        (_: unknown, k: number): number =>
+          L.buttock + ((L.axilla - L.buttock) * k) / STEPS,
+      ),
+    ]),
+  ).sort((a: number, b: number): number => a - b);
   const thighFront: number = Math.max(
     ...props.thighs.flatMap((t: IAutoMovieHumanRingShape): number[] =>
       t.positions.map((p: IAutoMovieVector3): number => p.z),
@@ -60,32 +64,43 @@ export function sweepAutoMovieHumanTrunkBody(props: {
   const stations: Array<{
     centre: IAutoMovieVector3;
     section: IAutoMovieSweepSection;
-  }> = levels.map((
-    y: number,
-    k: number,
-  ): { centre: IAutoMovieVector3; section: IAutoMovieSweepSection } => {
-    if (k === 0)
+  }> = levels.map(
+    (
+      y: number,
+      k: number,
+    ): { centre: IAutoMovieVector3; section: IAutoMovieSweepSection } => {
+      if (k === 0)
+        return {
+          centre: AutoMovieHumanVector.of(0, y, crotch.centre),
+          section: sectionAutoMovieHumanTrunkCrotch({
+            depth: crotch.depth,
+            half: crotch.half,
+            exponent: S.FORK_EXPONENT,
+            medial: S.MEDIAL_EXPONENT,
+            recess:
+              AUTOMOVIE_HUMAN_TRUNK_FORM.crotch.recess * frame.buttock.depth,
+          }),
+        };
+      const state: ReturnType<profileAutoMovieHumanTrunk.IProfile["at"]> =
+        profile.at(y);
       return {
-        centre: AutoMovieHumanVector.of(0, y, crotch.centre),
-        section: sectionAutoMovieHumanTrunkCrotch({
-          depth: crotch.depth,
-          half: crotch.half,
-          exponent: S.FORK_EXPONENT,
-          medial: S.MEDIAL_EXPONENT,
-          recess: AUTOMOVIE_HUMAN_TRUNK_FORM.crotch.recess * frame.buttock.depth,
-        }),
+        centre: AutoMovieHumanVector.of(0, y, state.centre),
+        section: {
+          type: "superellipse",
+          right: S.metres(state.forward),
+          up: S.metres(state.half),
+          left: S.metres(state.backward),
+          down: S.metres(state.half),
+          exponents: [
+            state.frontExponent,
+            state.backExponent,
+            state.backExponent,
+            state.frontExponent,
+          ],
+        },
       };
-    const state: ReturnType<profileAutoMovieHumanTrunk.IProfile["at"]> = profile.at(y);
-    return {
-      centre: AutoMovieHumanVector.of(0, y, state.centre),
-      section: {
-        type: "superellipse",
-        right: S.metres(state.forward), up: S.metres(state.half),
-        left: S.metres(state.backward), down: S.metres(state.half),
-        exponents: [state.frontExponent,state.backExponent,state.backExponent,state.frontExponent],
-      },
-    };
-  });
+    },
+  );
   const keys: number[] = [
     L.crotch,
     L.buttock,
@@ -96,23 +111,39 @@ export function sweepAutoMovieHumanTrunkBody(props: {
     L.axilla,
   ];
   const points: IAutoMovieVector3[] = stations.map(
-    (s: { centre: IAutoMovieVector3; section: IAutoMovieSweepSection }): IAutoMovieVector3 =>
-      S.toMetres(s.centre),
+    (s: {
+      centre: IAutoMovieVector3;
+      section: IAutoMovieSweepSection;
+    }): IAutoMovieVector3 => S.toMetres(s.centre),
   );
   const ats: number[] = S.chordShares(points);
   // Axial and diagonal meridians all consume the same section definitions,
   // including the shared pelvic boundary. No guide owns a separate shape table.
   const guideRadii: number[][] = stations.map(
-    (station: { centre: IAutoMovieVector3; section: IAutoMovieSweepSection }): number[] =>
-      sampleAutoMovieSweepSection({section:station.section,count:GUIDE_DIRECTIONS}),
+    (station: {
+      centre: IAutoMovieVector3;
+      section: IAutoMovieSweepSection;
+    }): number[] =>
+      sampleAutoMovieSweepSection({
+        section: station.section,
+        count: GUIDE_DIRECTIONS,
+      }),
   );
   const bare: IAutoMovieSweep = {
     spine: { points, normal: { x: 0, y: 0, z: 1 } },
     orientation: "fixed",
-    guides: Array.from({length:GUIDE_DIRECTIONS},(_:unknown,direction:number):IAutoMovieSweep.IGuide=>({
-      angle:2*Math.PI*direction/GUIDE_DIRECTIONS,
-      radii:ats.map((at:number,k:number):IAutoMovieSweep.IKnot=>({at,value:guideRadii[k]![direction]!})),
-    })),
+    guides: Array.from(
+      { length: GUIDE_DIRECTIONS },
+      (_: unknown, direction: number): IAutoMovieSweep.IGuide => ({
+        angle: (2 * Math.PI * direction) / GUIDE_DIRECTIONS,
+        radii: ats.map(
+          (at: number, k: number): IAutoMovieSweep.IKnot => ({
+            at,
+            value: guideRadii[k]![direction]!,
+          }),
+        ),
+      }),
+    ),
     stations: stations.map(
       (
         s: { centre: IAutoMovieVector3; section: IAutoMovieSweepSection },
@@ -138,10 +169,18 @@ export function sweepAutoMovieHumanTrunkBody(props: {
     girths: [
       { level: L.waist, girth: frame.waist.girth },
       { level: L.chestPoint, girth: frame.chest.girth },
-    ].map(({ level, girth }: { level: number; girth: number }): { row: number; girth: number } => ({
-      row: rowOf(keys, level),
-      girth,
-    })),
+    ].map(
+      ({
+        level,
+        girth,
+      }: {
+        level: number;
+        girth: number;
+      }): { row: number; girth: number } => ({
+        row: rowOf(keys, level),
+        girth,
+      }),
+    ),
     row: (L.buttock - L.crotch) / S.LOWER_ROWS[0]!,
     crotch,
     furrow: contour(L.gluteal),
@@ -201,7 +240,10 @@ export namespace sweepAutoMovieHumanTrunkBody {
  * @param levels The key levels, millimetres, from the crotch to the axilla
  * @returns The rows' spine parameters, increasing
  */
-const rowsOf: (surface: IAutoMovieSweepSurface, levels: number[]) => number[] = (
+const rowsOf: (
+  surface: IAutoMovieSweepSurface,
+  levels: number[],
+) => number[] = (
   surface: IAutoMovieSweepSurface,
   levels: number[],
 ): number[] => {
@@ -236,7 +278,10 @@ const rowsOf: (surface: IAutoMovieSweepSurface, levels: number[]) => number[] = 
  * @param level One of them
  * @returns Its row's index in `rowsOf`'s output
  */
-const rowOf: (keys: number[], level: number) => number = (keys: number[], level: number): number => {
+const rowOf: (keys: number[], level: number) => number = (
+  keys: number[],
+  level: number,
+): number => {
   const rank: number = [...keys]
     .sort((a: number, b: number): number => a - b)
     .indexOf(level);
@@ -254,4 +299,3 @@ const STEPS: number = 16;
 
 /** The four section axes and their diagonals, all derived from one section family. */
 const GUIDE_DIRECTIONS: number = 8;
-

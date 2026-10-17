@@ -1,6 +1,6 @@
 # Zemel et al. 2023, DXA body composition reference ranges (BMDCS)
 
-Zemel B.S., Shepherd J.A., Grant S.F.A., Lappe J.M., Oberfield S.E., Mitchell J.A., Winer K.K., Kelly A., Kalkwarf H.J. "Reference ranges for body composition indices by dual energy X-ray absorptiometry from the Bone Mineral Density in Childhood Study Cohort." *Am J Clin Nutr* 118(4):792-803, 2023. Read: full text through Europe PMC (PMC10579045), methods and Table 3.
+Zemel B.S., Shepherd J.A., Grant S.F.A., Lappe J.M., Oberfield S.E., Mitchell J.A., Winer K.K., Kelly A., Kalkwarf H.J. "Reference ranges for body composition indices by dual energy X-ray absorptiometry from the Bone Mineral Density in Childhood Study Cohort." *Am J Clin Nutr* 118(4):792-803, 2023. [Full text](https://pmc.ncbi.nlm.nih.gov/articles/PMC10579045/), methods and Table 3.
 
 ## Licence
 

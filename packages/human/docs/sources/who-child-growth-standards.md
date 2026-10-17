@@ -1,14 +1,14 @@
 # WHO Child Growth Standards (2006) and Growth Reference 5–19 years (2007), stature
 
-World Health Organization. Read: the overview page https://www.who.int/tools/child-growth-standards; the length/height-for-age z-score workbooks `lhfa_{boys,girls}_0-to-2-years_zscores.xlsx` and `lhfa_{boys,girls}_2-to-5-years_zscores.xlsx` linked from https://www.who.int/tools/child-growth-standards/standards/length-height-for-age; the 5–19 height-for-age workbooks `hfa-{boys,girls}-z-who-2007-exp.xlsx` linked from https://www.who.int/tools/growth-reference-data-for-5to19-years/indicators/height-for-age. The methods reports were not read. Head circumference is in `who-2006-head-circumference.md`.
+World Health Organization. Sources: the overview page https://www.who.int/tools/child-growth-standards; the length/height-for-age z-score workbooks `lhfa_{boys,girls}_0-to-2-years_zscores.xlsx` and `lhfa_{boys,girls}_2-to-5-years_zscores.xlsx` linked from https://www.who.int/tools/child-growth-standards/standards/length-height-for-age; the 5–19 height-for-age workbooks `hfa-{boys,girls}-z-who-2007-exp.xlsx` linked from https://www.who.int/tools/growth-reference-data-for-5to19-years/indicators/height-for-age. These values come from the workbooks, without the methods reports. Head circumference is in `who-2006-head-circumference.md`.
 
 ## Licence
 
-WHO reference data, freely downloadable; the page links WHO's general terms of use, and no licence specific to the tables was read. Cite WHO.
+WHO reference data, freely downloadable under the site's general terms; no table-specific licence is established here. Cite WHO.
 
 ## Population and protocol
 
-0 to 5 years: built from the WHO Multicentre Growth Reference Study (the page states no more; its population was not read). 5 to 19 years: the 2007 reference, whose population was not read. Recumbent length is used to 24 months and standing height from 24 months. Workbooks give LMS parameters per month (L = 1 for stature, so each month is normal). Grade: measured, then population-fitted (LMS smoothing).
+0 to 5 years: WHO Multicentre Growth Reference Study. 5 to 19 years: the 2007 reference. Population details are outside the cited workbook evidence. Recumbent length is used to 24 months and standing height from 24 months. Workbooks give LMS parameters per month (L = 1 for stature, so each month is normal). Grade: measured, then population-fitted (LMS smoothing).
 
 ## Medians (SD), cm
 

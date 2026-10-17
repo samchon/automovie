@@ -25,7 +25,7 @@ Copyright the authors and the Eurographics Association. Human takes the paramete
 
 The pigmentation parameters of the identity and their ranges, converted to viewer material values by a documented formula (`../techniques/skin-material.md`).
 
-## Absorption and scattering formulas (added; read from sections 3.3 to 3.5 of the same PDF)
+## Absorption and scattering formulas (sections 3.3 to 3.5)
 
 λ in nanometres, coefficients in mm⁻¹. Grade: fits to published measurements (population-fitted), the rest conventional modelling choices.
 

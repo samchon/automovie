@@ -14,6 +14,7 @@ import { AutoMovieHumanSide } from "../../junction/AutoMovieHumanSide";
 import { IAutoMovieHumanCage } from "../../junction/IAutoMovieHumanCage";
 import { IAutoMovieHumanRingShape } from "../../junction/IAutoMovieHumanRingShape";
 import { IAutoMovieHumanSurfaceCoordinate } from "../../junction/IAutoMovieHumanSurfaceCoordinate";
+import { classifyAutoMovieHumanSkinSide } from "../../junction/classifyAutoMovieHumanSkinSide";
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanPartGenerator } from "../IAutoMovieHumanPartGenerator";
 import { IAutoMovieHumanFootPlan } from "./IAutoMovieHumanFootPlan";
@@ -107,6 +108,12 @@ export class AutoMovieHumanFootGenerator implements IAutoMovieHumanPartGenerator
           const wrap: boolean = Math.max(...vs) - Math.min(...vs) > 0.5;
           return {
             fitting: `foot.${side}`,
+            skin: classifyAutoMovieHumanSkinSide(
+              raw.map(
+                (c: networkAutoMovieHumanFoot.IPoint): number | null =>
+                  c.padSide,
+              ),
+            ),
             vertices: order.map(
               (k: number): number => face[k]!,
             ) as IAutoMovieHumanCage.IFace["vertices"],

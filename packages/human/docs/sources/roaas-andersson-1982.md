@@ -1,6 +1,6 @@
 # Roaas and Andersson 1982, hip, knee and ankle range of motion in men aged 30 to 40
 
-Roaas A., Andersson G.B.J. "Normal range of motion of the hip, knee and ankle joints in male subjects, 30–40 years of age." *Acta Orthopaedica Scandinavica* 53:205-208, 1982. Read in full from the scanned copy at https://actaorthop.org/actao/article/download/28654/33535/82106.
+Roaas A., Andersson G.B.J. "Normal range of motion of the hip, knee and ankle joints in male subjects, 30–40 years of age." *Acta Orthopaedica Scandinavica* 53:205-208, 1982. [Scanned article](https://actaorthop.org/actao/article/download/28654/33535/82106).
 
 ## Licence
 

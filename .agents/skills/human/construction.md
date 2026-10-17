@@ -1,5 +1,7 @@
 # Construction
 
+Generate every person through code and formulas. The package holds no mesh, morph target, landmark index, or baked data; small named constants citing primary sources are allowed, and the build guard rejects the rest. Genitals and nipples are not modeled.
+
 ## Skeleton And Rest Form
 
 Build the skeleton first, on the shared humanoid skeleton and rest frame, and generate every part from it. Never reconcile independently sourced geometry at run time.
@@ -24,4 +26,4 @@ Within a profile every identity shares one topology and one published UV layout.
 
 ## Core Boundary
 
-A capability any generated or imported model could use, such as skeleton axes, skinning, morph targets, materials, or general geometry, belongs in core; anatomy, measurements, proportions, and the Human parameter vocabulary belong in Human. When core lacks one, change core on the Human branch in its own commits, never work around it in Human.
+A capability any generated or imported model could use, such as skeleton axes, skinning, morph targets, materials, or general geometry, belongs in core; anatomy, measurements, proportions, and the Human parameter vocabulary belong in Human. Add missing shared capabilities to core rather than working around them in Human.

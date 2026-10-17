@@ -1,10 +1,10 @@
 # Reddy et al. 2024, CT morphometry of the metacarpals
 
-Reddy M.V., Pai G M.P., Kumar M.M., Bhat A.K., Annapareddy A., Thatte M.R. "Indian Hand Anthropometry: Computer Tomography-Based Morphometric Analysis of Metacarpal." *Indian Journal of Plastic Surgery* 57(4):270-277, 2024, doi:10.1055/s-0044-1787688. Read at https://pmc.ncbi.nlm.nih.gov/articles/PMC11436343 (population, protocol, Table 4).
+Reddy M.V., Pai G M.P., Kumar M.M., Bhat A.K., Annapareddy A., Thatte M.R. "Indian Hand Anthropometry: Computer Tomography-Based Morphometric Analysis of Metacarpal." *Indian Journal of Plastic Surgery* 57(4):270-277, 2024, doi:10.1055/s-0044-1787688. [Full text](https://pmc.ncbi.nlm.nih.gov/articles/PMC11436343/), population, protocol and Table 4.
 
 ## Licence
 
-Open access (Thieme, PMC). Numbers are facts.
+Open access (Thieme, PMC).
 
 ## Population and protocol
 

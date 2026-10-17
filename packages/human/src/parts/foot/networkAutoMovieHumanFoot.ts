@@ -86,6 +86,9 @@ export function networkAutoMovieHumanFoot(props: {
   ): networkAutoMovieHumanFoot.IPoint => ({
     u: BODY * u,
     v: wrap(v),
+    // The ankle/heel turn has no measured glabrous transition. The authored
+    // foot-body half-section and toes below retain their actual pad direction.
+    padSide: u < GRID ? null : -Math.cos(2 * Math.PI * v),
   });
   patches.push({
     type: "sweep",
@@ -197,10 +200,15 @@ export function networkAutoMovieHumanFoot(props: {
       (place: patchAutoMovieHumanDigit.IPlace, k: number): void => {
         addresses.push(
           k === toePatches.places.length - 1
-            ? (): { u: number; v: number } => ({ u: 1, v: toeV })
-            : (s: number, t2: number): { u: number; v: number } => ({
+            ? (s: number, t2: number): networkAutoMovieHumanFoot.IPoint => ({
+                u: 1,
+                v: toeV,
+                padSide: Math.cos(2 * Math.PI * (place(s, t2).v - out.padTurn)),
+              })
+            : (s: number, t2: number): networkAutoMovieHumanFoot.IPoint => ({
                 u: BODY + (1 - BODY) * place(s, t2).u,
                 v: wrap(toeV + SPREAD * (s - 0.5)),
+                padSide: Math.cos(2 * Math.PI * (place(s, t2).v - out.padTurn)),
               }),
         );
       },
@@ -263,6 +271,9 @@ export namespace networkAutoMovieHumanFoot {
    * @author Samchon
    */
   export interface IPoint {
+    /** Actual plantar pad-facing cosine before toe phase compression; null means unclassified ankle transition, while NaN is a true cap apex without a turn. */
+    padSide: number | null;
+
     /** From the ankle ring (0) to the toe tips (1). */
     u: number;
 

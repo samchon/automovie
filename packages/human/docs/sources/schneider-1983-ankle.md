@@ -1,6 +1,6 @@
 # Schneider et al. 1983, adult ankle sections in a driving posture
 
-Schneider L.W., Robbins D.H., Pflug M.A., Snyder R.G. *Development of Anthropometrically Based Design Specifications for an Advanced Adult Anthropomorphic Dummy Family, Volume 1: Procedures, Summary Findings, and Appendices*. UMTRI-83-53-1, December 1983; DOT HS 806 715. Primary PDF: https://mreed.umtri.umich.edu/mreed/downloads/anthro/amvo/AMVOvol1.pdf . Read the original scanned pages: section 3.8.1, page 73; section 3.8.3, page 77; Table 3.13, page 89; Appendix H-81 to H-83, PDF pages 327 to 329. Numbers are facts from a US government-sponsored report.
+Schneider L.W., Robbins D.H., Pflug M.A., Snyder R.G. *Development of Anthropometrically Based Design Specifications for an Advanced Adult Anthropomorphic Dummy Family, Volume 1: Procedures, Summary Findings, and Appendices*. UMTRI-83-53-1, December 1983; DOT HS 806 715. [Primary PDF](https://mreed.umtri.umich.edu/mreed/downloads/anthro/amvo/AMVOvol1.pdf): section 3.8.1, page 73; section 3.8.3, page 77; Table 3.13, page 89; Appendix H-81 to H-83, PDF pages 327 to 329. US government-sponsored report.
 
 ## Population and protocol
 
@@ -22,4 +22,4 @@ The ratios are derived from reported group means, not individual ratios. The lar
 
 The same-level breadth and depth establish a section deeper than broad under this supported seated protocol. They do not directly set Human's standing section or its minimum-girth height. An ellipse at those breadths and depths has a perimeter about 6 to 7% below the measured tape girth, so all three cannot be imposed exactly as one ellipse. The summary data do not establish whether that difference comes from section shape, caliper compression, sample composition or posture.
 
-No coefficient was taken from this study. It records why a seated ratio must not be applied to the standing Human cut without a matched-posture comparison; the standing adolescent measurements and the campaign's adult reference sections supply the current candidate's separate bounds and fit.
+Human takes no coefficient from this study: applying its seated ratio to a standing section requires evidence from a matching posture.

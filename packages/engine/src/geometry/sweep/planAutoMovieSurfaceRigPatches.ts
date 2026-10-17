@@ -265,18 +265,27 @@ export function planAutoMovieSurfaceRigPatches(props: {
         joined(x, `${what} to loop`),
       );
       const probes: number[] = new Array<number>(2 * n).fill(-1);
-      [...a, ...b].forEach((point: IAutoMovieSurfaceSample, slot: number): void => {
-        if (point.sweep === null) return;
-        const sweep: NonNullable<IAutoMovieSurfaceSample["sweep"]> = point.sweep;
-        registry.bindSweep(
-          point.key,
-          (resolved: IAutoMovieSurfaceRegistry.ISweep | null): void => {
-            if (resolved === null)
-              throw new Error("a bridge probe needs a registered geometric sweep sample");
-            probes[slot] = sweep.rig.probe(resolved.u, resolved.v, resolved.cell);
-          },
-        );
-      });
+      [...a, ...b].forEach(
+        (point: IAutoMovieSurfaceSample, slot: number): void => {
+          if (point.sweep === null) return;
+          const sweep: NonNullable<IAutoMovieSurfaceSample["sweep"]> =
+            point.sweep;
+          registry.bindSweep(
+            point.key,
+            (resolved: IAutoMovieSurfaceRegistry.ISweep | null): void => {
+              if (resolved === null)
+                throw new Error(
+                  "a bridge probe needs a registered geometric sweep sample",
+                );
+              probes[slot] = sweep.rig.probe(
+                resolved.u,
+                resolved.v,
+                resolved.cell,
+              );
+            },
+          );
+        },
+      );
       const grid: number[][] = Array.from(
         { length: rows + 1 },
         (): number[] => new Array<number>(n),

@@ -1,10 +1,10 @@
 # Pallett 2010, new golden ratios for facial beauty
 
-Pallett PM, Link S, Lee K. "New 'golden' ratios for facial beauty." *Vision Research* 50(2):149-154, 2010, doi:10.1016/j.visres.2009.11.003. Read as the NIH author manuscript PMC2814183 (NCBI efetch).
+Pallett PM, Link S, Lee K. "New 'golden' ratios for facial beauty." *Vision Research* 50(2):149-154, 2010, doi:10.1016/j.visres.2009.11.003. [Full text](https://pmc.ncbi.nlm.nih.gov/articles/PMC2814183/).
 
 ## Licence
 
-Copyright Elsevier; author manuscript. Findings are facts.
+Copyright Elsevier; author manuscript.
 
 ## Protocol
 

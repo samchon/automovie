@@ -1,13 +1,25 @@
 # @automovie/human
 
-Generates a human figure from typed parameters by code: named measurements, physiological motions and closed-set choices go in, and an `IAutoMovieModel` comes out. The package holds no mesh, morph target or baked data.
+Generates a human figure from typed measurements and appearance parameters, returning an `IAutoMovieModel` for the automovie engine and viewer. Use beginner traits for a default person or an `IAutoMovieHumanIdentity` for detailed measurements.
 
-The package is being rebuilt under [#2788](https://github.com/samchon/automovie/issues/2788). Today it admits the documents, converts traits for any age and either sex from published anthropometry, generates the full 55-bone humanoid skeleton with landmarks and per-joint ranges of motion, and emits it as a stick figure with a skin joined from one generator per part, `getModel({ appearance, assembly: "joined" })` for one skinned surface or `"parts"` for each part alone; the real parts, face, hair and underwear arrive stage by stage.
+## Installation
+
+Requires Node.js 22.23.2 or later.
+
+```bash
+pnpm add @automovie/human
+```
 
 ## Usage
 
+The [Human viewer](../playground/src/human/installHumanViewerSession.ts) uses this conversion and model-generation flow with the [default traits](../playground/src/human/HumanViewerPage.ts):
+
 ```typescript
-import { AutoMovieHuman, AutoMovieHumanConverter, IAutoMovieHumanTraits } from "@automovie/human";
+import {
+  AutoMovieHuman,
+  AutoMovieHumanConverter,
+  IAutoMovieHumanTraits,
+} from "@automovie/human";
 
 const traits: IAutoMovieHumanTraits = {
   version: 1,
@@ -17,34 +29,32 @@ const traits: IAutoMovieHumanTraits = {
   population: "european",
   build: { adiposity: 0, muscularity: 0, slimness: 0, cuteness: 0 },
 };
-const human: AutoMovieHuman = AutoMovieHuman.fromTraits({ id: "person", traits });
+const converter = new AutoMovieHumanConverter();
+const human = AutoMovieHuman.fromTraits({ id: "human", traits, converter });
+const identity = human.getIdentity();
+const appearance = converter.toAppearance(traits);
 const model = human.getModel({
-  appearance: new AutoMovieHumanConverter().toAppearance(traits),
-});
-const pose = human.pose({
-  pose: {
-    version: 1,
-    joints: [{ bone: "leftLowerArm", flexion: 90, abduction: 0, twist: 0 }],
-  },
+  appearance,
+  assembly: "parts",
+  skinFinish: "plain",
 });
 ```
 
-`new AutoMovieHuman({ id, identity })` builds a person from a detailed `IAutoMovieHumanIdentity` directly; save `human.getIdentity()`, not the traits, as the person. `human.measure()` measures the generated skeleton back in the anthropometric posture and returns the identity's stature, heights, breadths and segment lengths. An inadmissible document throws `AutoMovieHumanAdmissionError`, whose `errors` name each field, bound and cause.
+Save the identity and appearance to reproduce a person; traits alone depend on the converter version. Restore with `new AutoMovieHuman({ id, identity })`. Identity measurements use millimetres; the emitted model and skeleton use metres. `getModel()` defaults to isolated part skin and authored skin finish; `assembly: "joined"` joins the skin, while `skinFinish: "plain"` skips generated skin detail textures.
 
-## Public Surface
+## API
 
-| Export | Role |
+| API | Purpose |
 | --- | --- |
-| `AutoMovieHuman` | One person: skeleton, model, posing and expression |
-| `IAutoMovieHumanIdentity` | Detailed measurements, composition and pigmentation; the only input modeling reads |
-| `IAutoMovieHumanTraits`, `IAutoMovieHumanConverter`, `AutoMovieHumanConverter` | Beginner inputs and their deterministic expansion into an identity |
-| `IAutoMovieHumanSkeleton`, `IAutoMovieHumanLandmarks` | The generated skeleton with declared joint axes and ranges, and its palpable landmarks |
-| `measureAutoMovieHumanSkeleton`, `measureAutoMovieHumanLandmarks`, `IAutoMovieHumanSkeletalMeasurements` | Measuring a skeleton or landmarks by the survey definitions |
-| `IAutoMovieHumanPose`, `IAutoMovieHumanExpression`, `IAutoMovieHumanAppearance` | Pose, FACS expression and surface appearance documents |
-| `validateAutoMovieHuman*` | Admission returning typia's `IValidation` |
-| `IAutoMovieHumanPartGenerator`, `IAutoMovieHumanJunction`, `IAutoMovieHumanCage`, `IAutoMovieHumanRing` | Contracts for skin part generators and the junction that joins them |
-| `AUTOMOVIE_HUMAN_RINGS`, `layoutAutoMovieHumanRing`, `AutoMovieHumanCageBuilder` | The ring every junction site fixes, resolved against a skeleton, and the builder parts open rings with |
-| `AutoMovieHumanJunction`, `meshAutoMovieHumanCage`, `AUTOMOVIE_HUMAN_UV_LAYOUT` | Welding rings, one engine subdivision into a mesh with limit normals, and the versioned UV layout |
-| `AUTOMOVIE_HUMAN_PART_GENERATORS`, `IAutoMovieHumanPartGenerators` | The profile's generator per part; `AutoMovieHuman` accepts replacements through `parts` |
+| `AutoMovieHuman.fromTraits({ id, traits, converter? })` | Convert beginner traits into a person |
+| `new AutoMovieHuman({ id, identity, parts? })` | Build from detailed measurements, optionally replacing part generators |
+| `getIdentity()`, `getSkeleton()`, `measure()` | Read the saved identity, engine skeleton and skeletal measurements |
+| `getModel({ appearance, assembly?, skinFinish? })` | Generate the model, materials and images |
+| `pose({ pose })`, `express({ expression })` | Convert Human documents into engine pose and expression documents |
+| `validateAutoMovieHuman*` | Validate input documents and return typia `IValidation` results |
 
-The build first runs `scripts/guard.ts`, which refuses a file other than TypeScript, Markdown and the package's own configuration, a file above 256 KiB, and an array literal under `src` holding more than 64 numbers. Lint keeps the source layers one-way, as listed in `lint.config.ts`. After compiling, `checks/checkAutoMovieHumanJunctions.ts` joins the skin for both sexes from infancy to old age and adults at either end of stature, and fails the build, naming each site and gap, when any part's ring is off the shared ring shape or the joined surface's girth along the upper arm, wrist, thigh or ankle ring is more than a millimetre off the measured girth.
+Invalid documents throw `AutoMovieHumanAdmissionError` from construction and document-consuming methods; its `errors` identify refused fields and causes. The [public entry](src/index.ts) also exports document types, measurement functions, part generators and junction utilities.
+
+## Limitations
+
+Human is incomplete. Joined skin uses provisional distance-based weights, `express()` returns a neutral expression, and teeth and underwear are not emitted. The default converter does not yet apply `build.cuteness`. Generated form and deformation remain under development.

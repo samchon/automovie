@@ -1,137 +1,130 @@
 import { encodeAutoMoviePng } from "@automovie/engine";
-import { IAutoMovieImage } from "@automovie/interface";
+import {
+  IAutoMovieImage,
+  IAutoMovieModelPart,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { IAutoMovieHumanSkinDomain } from "../junction/IAutoMovieHumanSkinDomain";
+import { AutoMovieHumanSkinFeatureField } from "./AutoMovieHumanSkinFeatureField";
+import { AutoMovieHumanSkinMicroHeight } from "./AutoMovieHumanSkinMicroHeight";
+import { AutoMovieHumanSkinTextureAtlas } from "./AutoMovieHumanSkinTextureAtlas";
+import { writeAutoMovieHumanSkinNormal } from "./writeAutoMovieHumanSkinNormal";
 
 /**
- * Paint the skin's micro-relief, pores and the fine furrow network, as one seamlessly tiling tangent-space normal map.
+ * Bake the existing cellular height convention over actual rest-mm texel footprints.
  *
- * Relief comes from Worley's cellular basis (1996, SIGGRAPH '96, pp. 291-294): space is cut into cells, each holding feature points from a hash of its integer address, so the texture needs no table and is the same in every run and on every platform. Two fields of it make the height:
+ * The shared atlas owner intersects each texel with its actual triangles and transports their source roles. The height owner integrates its piecewise bilinear physical field along each polygon boundary; no fixed 4x4 sample grid is treated as sufficient. The encoded mean latent slope is approximate after smooth shading, quantization, normal composition, mip filtering and posing. It does not preserve unresolved normal variance as a calibrated BRDF.
  *
- * - Pores: a pit of Gaussian profile at every feature point of a fine field, about one pore per 0.62 mm square cell, with radius jittered per pore.
- * - Furrows: the edges of a coarser field, where the distances to the nearest and the second nearest feature point are equal, which cut the skin into the irregular polygonal plateaus of the surface's primary lines; their depth grows with `furrows`.
+ * The default 512-square normal atlas bounds raw retained pixels to 0.75 MiB and base64 to about 1 MiB before temporary PNG storage. Its purpose is filtered mean relief, not individual visible submillimetre pits across a whole person. Increasing resolution changes that approximation, never physical cell size. Source glabrous, vermilion, oral and unknown roles are flat here; anatomical palm creases and regional density maps are not supplied by this convention. Omitted role metadata retains legacy uniform eligibility for direct callers. Unsupported/ambiguous UV domains remain flat and their counts are returned.
  *
- * No measured pore density, pore diameter or furrow depth was read, so sizes and depths are conventional values chosen to read as skin at face scale. Cell addresses wrap at the tile's edge, so the tile repeats without a seam. The normal is the height's gradient in texel units, X along +u and Y along +v, encoded from `[-1, 1]` to `[0, 255]`, which is the tangent frame the viewer derives from the texture coordinates.
- *
- * @param props.furrows Depth of the furrow network from faint (0) to deep (1), dimensionless
- * @returns The normal image, linear RGB, its id naming the depth so images of equal content share it
+ * @param props Actual emitted rest parts, matching role metadata, wrinkle depth and optional atlas edge
+ * @returns A linear normal image and this actual bake's domain diagnostics
  */
 export function paintAutoMovieHumanSkinRelief(props: {
+  parts: readonly IAutoMovieModelPart[];
   furrows: number;
-}): IAutoMovieImage {
-  const N: number = SIZE;
-  // quantized to hundredths, so the id names the content exactly
-  const furrows: number = Math.round(props.furrows * 100) / 100;
-  const height: Float64Array = new Float64Array(N * N);
-  for (let y: number = 0; y < N; ++y)
-    for (let x: number = 0; x < N; ++x) {
-      const pore: number = poreDepth(x, y);
-      const furrow: number = furrowDepth(x, y);
-      height[y * N + x] = -pore - (0.25 + 0.5 * furrows) * furrow;
+  domains?: ReadonlyMap<string, IAutoMovieHumanSkinDomain>;
+  /** Integer atlas edge, 16 to 2048; composition uses 512. */
+  size?: number;
+}): paintAutoMovieHumanSkinRelief.IOutput {
+  const size: number = props.size ?? 512;
+  if (!Number.isInteger(size) || size < 16 || size > 2048)
+    throw new Error(
+      "Skin relief atlas edge must be an integer from 16 to 2048",
+    );
+  const height: AutoMovieHumanSkinMicroHeight =
+    new AutoMovieHumanSkinMicroHeight(props.furrows);
+  const field: AutoMovieHumanSkinTextureAtlas.IField = {
+    sample: (
+      point: IAutoMovieVector3,
+    ): ReturnType<AutoMovieHumanSkinFeatureField["sample"]> => ({
+      freckles: 0,
+      acne: 0,
+      gradient: height.gradient(point),
+    }),
+    prepare:
+      (
+        _triangle: readonly IAutoMovieVector3[],
+      ): NonNullable<
+        ReturnType<AutoMovieHumanSkinTextureAtlas.IField["prepare"]>
+      > =>
+      (
+        polygon: readonly IAutoMovieVector3[],
+      ): ReturnType<AutoMovieHumanSkinFeatureField["sample"]> | null => {
+        const gradient: IAutoMovieVector3 | null = height.integrate(polygon);
+        return gradient === null ? null : { freckles: 0, acne: 0, gradient };
+      },
+  };
+  const atlas: AutoMovieHumanSkinTextureAtlas =
+    new AutoMovieHumanSkinTextureAtlas({ ...props, size, field });
+  const pixels: Uint8Array = new Uint8Array(size * size * 3);
+  const stats: paintAutoMovieHumanSkinRelief.IOutput["stats"] = {
+    edge: size,
+    sampledTexels: 0,
+    ambiguousTexels: 0,
+    degenerateUvTriangles: 0,
+    unsupportedTexels: 0,
+    excludedTexels: 0,
+    paddingTexels: 0,
+  };
+  for (let pixel: number = 0; pixel < size * size; ++pixel) {
+    pixels[3 * pixel] = 128;
+    pixels[3 * pixel + 1] = 128;
+    pixels[3 * pixel + 2] = 255;
+    const footprint: AutoMovieHumanSkinTextureAtlas.IOutput | null =
+      atlas.sample(pixel % size, Math.floor(pixel / size));
+    if (footprint === null) continue;
+    if (footprint.ambiguous) {
+      ++stats.ambiguousTexels;
+      continue;
     }
-  const pixels: Uint8Array = new Uint8Array(N * N * 3);
-  for (let y: number = 0; y < N; ++y)
-    for (let x: number = 0; x < N; ++x) {
-      const h = (i: number, j: number): number =>
-        height[((j + N) % N) * N + ((i + N) % N)]!;
-      const dx: number = (h(x + 1, y) - h(x - 1, y)) / 2;
-      const dy: number = (h(x, y + 1) - h(x, y - 1)) / 2;
-      const nx: number = -dx * RELIEF;
-      const ny: number = -dy * RELIEF;
-      const length: number = Math.hypot(nx, ny, 1);
-      const at: number = 3 * (y * N + x);
-      pixels[at] = Math.round(127.5 * (nx / length + 1));
-      pixels[at + 1] = Math.round(127.5 * (ny / length + 1));
-      pixels[at + 2] = Math.round(127.5 * (1 / length + 1));
-    }
+    ++stats.sampledTexels;
+    writeAutoMovieHumanSkinNormal(
+      pixels,
+      pixel,
+      footprint.triangle.p,
+      footprint.triangle.uv,
+      footprint.value.gradient,
+    );
+  }
+  Object.assign(stats, atlas.stats);
+  let fingerprint: number = 0x811c9dc5;
+  for (const value of pixels)
+    fingerprint = Math.imul(fingerprint ^ value, 0x01000193);
   return {
-    id: `human.skin.relief.${Math.round(furrows * 100)}`,
-    mimeType: "image/png",
-    data: encodeAutoMoviePng({ width: N, height: N, channels: 3, pixels }),
+    image: {
+      id: `human.skin.relief.physical.${size}.${(fingerprint >>> 0).toString(16)}`,
+      mimeType: "image/png",
+      data: encodeAutoMoviePng({
+        width: size,
+        height: size,
+        channels: 3,
+        pixels,
+      }),
+    },
+    stats,
   };
 }
-/** The tile scale {@link paintAutoMovieHumanSkinRelief} paints at, which the skin material repeats it by. */
-/**
- * Types and constants of {@link paintAutoMovieHumanSkinRelief}.
- */
+
+/** Actual relief bake output, owned and cached by one immutable person and assembly. */
 export namespace paintAutoMovieHumanSkinRelief {
-  /** Skin length one tile spans, metres; the material repeats the tile at this scale. */
-  export const TILE: number = 0.02;
-}
-
-/** Edge of the tile, texels. */
-const SIZE: number = 256;
-
-/** Pore cells per tile edge: 0.62 mm cells, about 260 pores per square centimetre; conventional. */
-const PORE_CELLS: number = 32;
-
-/** Furrow cells per tile edge: 1 mm plateaus, the scale of the skin's primary lines; conventional. */
-const FURROW_CELLS: number = 20;
-
-/** Slope gain from height units per texel to the normal's tilt. */
-const RELIEF: number = 1.0;
-
-/** Depth of a pore pit at a texel, height units. */
-function poreDepth(x: number, y: number): number {
-  const cell: number = SIZE / PORE_CELLS;
-  const cx: number = Math.floor(x / cell);
-  const cy: number = Math.floor(y / cell);
-  let depth: number = 0;
-  for (let j: number = -1; j <= 1; ++j)
-    for (let i: number = -1; i <= 1; ++i) {
-      const [px, py, r] = feature(cx + i, cy + j, PORE_CELLS, 1);
-      const dx: number = x - (cx + i + px) * cell;
-      const dy: number = y - (cy + j + py) * cell;
-      const radius: number = (0.9 + 0.9 * r) * (cell / 8);
-      depth = Math.max(
-        depth,
-        Math.exp(-(dx * dx + dy * dy) / (2 * radius * radius)),
-      );
-    }
-  return depth;
-}
-
-/** Depth of the furrow network at a texel, height units: one on a cell edge, falling to zero over about a texel and a half. */
-function furrowDepth(x: number, y: number): number {
-  const cell: number = SIZE / FURROW_CELLS;
-  const cx: number = Math.floor(x / cell);
-  const cy: number = Math.floor(y / cell);
-  let first: number = Infinity;
-  let second: number = Infinity;
-  for (let j: number = -2; j <= 2; ++j)
-    for (let i: number = -2; i <= 2; ++i) {
-      const [px, py] = feature(cx + i, cy + j, FURROW_CELLS, 2);
-      const d: number = Math.hypot(
-        x - (cx + i + px) * cell,
-        y - (cy + j + py) * cell,
-      );
-      if (d < first) {
-        second = first;
-        first = d;
-      } else if (d < second) second = d;
-    }
-  const gap: number = (second - first) / 2;
-  return Math.exp(-(gap * gap) / (2 * 1.5 * 1.5));
-}
-
-/** Feature point of a wrapped cell, its offset within the cell and a third random value, all in `[0, 1)`. */
-function feature(
-  i: number,
-  j: number,
-  cells: number,
-  seed: number,
-): [number, number, number] {
-  const wi: number = ((i % cells) + cells) % cells;
-  const wj: number = ((j % cells) + cells) % cells;
-  return [hash(wi, wj, seed, 0), hash(wi, wj, seed, 1), hash(wi, wj, seed, 2)];
-}
-
-/** Integer hash of a cell address to `[0, 1)`, a 32-bit avalanche mix. */
-function hash(i: number, j: number, seed: number, k: number): number {
-  let h: number =
-    Math.imul(i, 0x27d4eb2d) ^
-    Math.imul(j, 0x165667b1) ^
-    Math.imul(seed * 4 + k, 0x9e3779b9);
-  h = Math.imul(h ^ (h >>> 15), 0x85ebca6b);
-  h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35);
-  h ^= h >>> 16;
-  return (h >>> 0) / 4294967296;
+  /**
+   * One generated image and counts from its actual inverse domain.
+   *
+   * @author Samchon
+   */
+  export interface IOutput {
+    /** Linear cotangent-frame normal image with a content-derived local id. */
+    image: IAutoMovieImage;
+    /** Counts qualify coverage; they do not certify the displayed material. */
+    stats: AutoMovieHumanSkinTextureAtlas["stats"] & {
+      /** Atlas edge in pixels. */
+      edge: number;
+      /** Supported inverse-domain texels, including explicit padding. */
+      sampledTexels: number;
+      /** Suppressed nonlocal or role-disagreeing UV overlaps. */
+      ambiguousTexels: number;
+    };
+  }
 }

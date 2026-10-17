@@ -4,7 +4,7 @@ The foot is a separate part joined at the ankle (#2797). `AutoMovieHumanoidBone`
 
 ## Dimensions
 
-ANSUR II (`../sources/ansur-ii.md`), measured; ratios ours.
+ANSUR II (`../sources/ansur-ii.md`), measured; ratios ours, subject to the heel-breadth qualification below.
 
 | Quantity | Women | Men |
 | --- | --- | --- |
@@ -20,6 +20,8 @@ ANSUR II (`../sources/ansur-ii.md`), measured; ratios ours.
 | Foot length fit | 37.9 + 0.118 S + 0.239 m (R2 0.55) | 44.9 + 0.120 S + 0.173 m (R2 0.54) |
 
 The first metatarsophalangeal joint lies at 0.74 of foot length from the heel; the ball is a little more than a third of foot length wide. Foot proportions barely differ by sex once scaled to foot length. In children (`../sources/snyder-1977.md`) the foot is relatively broader: breadth / length 0.41 at 2 to 4 years, 0.39 at 16 to 18.
+
+Heel-breadth/foot-length ratios 0.273 (women) and 0.268 (men) are unverified derived quantities. The retained ANSUR note lacks a heel-specific table/page, numerator, caliper definition and loading/posture protocol; general measurement conventions cannot supply them. Attribution needs the original [methods and summary report](https://tools.openlab.psu.edu/publicData/ANSURII-TR15-007.pdf) or per-sex data. The population was U.S. Army adults aged 17 to 58, and the [database memorandum](https://tools.openlab.psu.edu/publicData/ANSURII-MFR.pdf) requires separate sex analyses. A fallback heel breadth of 0.27 foot lengths is an uncalibrated convention, not a pooled population estimate; independent heel breadth in millimetres remains a physical input.
 
 ## Form
 
@@ -50,23 +52,10 @@ The single toes bone can carry the metatarsophalangeal bend shared by all toes (
 - Ankle joint axis inclination (it runs obliquely, below the malleoli tips): no source read; de Leva only gives the ankle centre 12.6 mm below sphyrion.
 
 
-## Candidate minimum ankle section in #2831
+## Reference-fitted minimum ankle section
 
-The earlier circular ankle ring was placed at sphyrion plus one lateral malleolus height. On the four gate identities that put the cut 31.6 to 39.5 mm above the matched reference sections' minimum tape-girth levels. Minimum-section and same-ring-height comparisons gave different aspects, so the minimum aspect was not applied at the old cut.
+Four selected adult synthetic bodies supplied closed shank sections perpendicular to their knee-to-ankle axes at 53 fractions from 0.72 to 0.98. The smallest convex-hull perimeter selected each minimum section. The fitted cut is sphyrion plus 0.505 lateral malleolus heights; the ellipse depth/breadth is 1.464. Leave-one-reference-out cut ratios were 0.495140 to 0.511778 and aspects 1.439829 to 1.486634. Grade: fitted to modelled references, not population measurements.
 
-The candidate shared cut is sphyrion plus 0.505 lateral malleolus heights, and the shared ellipse's depth/breadth is 1.464. These are small named coefficients fitted offline to the four selected adult reference bodies: closed shank sections perpendicular to their knee-to-ankle axis at 53 fractions from 0.72 to 0.98, selecting the smallest convex-hull perimeter. The cut ratio averaged 0.504985, leaving one identity out 0.495140 to 0.511778; depth/breadth averaged 1.464002, leaving one out 1.439829 to 1.486634. Native and skeleton-carried references were measured separately. Reference selection by input dimensions includes surrogate breadth protocols, so it remains a sensitivity choice rather than validated anatomical correspondence. No muscular female reference exists, so her comparison carries ordinary lean form. Grade: fitted to modelled references, not population measurements.
+Native and skeleton-carried references were measured separately. Selection includes surrogate breadth protocols, and no equally muscular female reference exists. Standing adolescent breadth/girth ratios in `../sources/snyder-1977.md` constrain circularity but do not locate a same-level adult ellipse. The common-level seated adult protocol in `../sources/schneider-1983-ankle.md` differs in posture and perimeter. Transfer to standing adults or other ages remains unverified.
 
-Standing adolescent minimum breadth/girth ratios in `../sources/snyder-1977.md` independently rule out the old circle but do not locate a same-level adult ellipse. The seated adult measurements in `../sources/schneider-1983-ankle.md` use one common level, but their posture and perimeter discrepancy preclude copying their aspect into the standing cut. The current fit does not establish clinical accuracy or the shape at every age; those remain separate geometry and render checks.
-
-The earlier cut candidate normalized the four axis radii by the ring's girth. That still reconstructed an ellipse rather than the declared B-spline and is superseded by the shared-boundary representation below.
-
-
-## Shared ankle boundary representation audit in #2831
-
-The minimum-cut candidate exposed a representation discrepancy: the junction and pinned collar use an eight-control periodic cubic B-spline, while the former foot source column rebuilt its section from four axis radii as a quarter ellipse. Its source zero crossing did not lie on the declared boundary even when the malleolar union was diagnostically omitted. The broad circular section hid most of that disagreement.
-
-The replacement defines the section once in the foot network and passes that same B-spline to both the foot sweep and the source column. The column uses the engine's `compileAutoMovieSweep.radius` with the actual ankle-to-column-bottom extrusion, so no Human polar sampler or radius interpolation is copied. The engine still samples 512 angular directions; this is an approximation of the B-spline, not an exact analytic distance field.
-
-The existing pinned collar distance, 0.025 foot lengths, is one shared conventional constant. The source column remains the shared section through that span. Below it the column's depth grows with a quintic endpoint interpolation, and the slab/malleolar union is admitted by a quintic weight from the collar to the higher malleolar mass centre. Both endpoint weights have zero first and second derivatives. These are explicit junction constraints rather than population measurements or independently fitted shape offsets. The remaining slab and knob smooth-min is C1; this change does not assert a globally C2 foot or a true signed distance field.
-
-Four-gate source-field and actual whole joined level-2, production-relief-on measurements live in the campaign workspace. They are numerical evidence only. The minimum-cut coefficients retain their earlier source/population/protocol caveats. Native full build, final source admission, exact committed construction and 14-direction matching renders are separate requirements before acceptance. The dorsal profile still uses its originally fitted zero-slope cubic key interpolation; changing it without refitting and complete comparisons remains unverified.
+The ankle boundary is an eight-control periodic cubic B-spline. Its four axis radii do not uniquely reproduce that curve as a quarter ellipse. Sweep, source column and collar must consume the same section representation. A collar span of 0.025 foot lengths is a conventional junction constraint, not an anatomical measurement; angular sampling approximates the curve and does not establish an exact signed distance field.

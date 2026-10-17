@@ -1,15 +1,13 @@
 import { IAutoMovieSurfaceNetwork, IAutoMovieSweep } from "@automovie/engine";
 import { IAutoMovieVector3 } from "@automovie/interface";
 
+import { IAutoMovieHumanSkinDomain } from "../../junction/IAutoMovieHumanSkinDomain";
 import { AutoMovieHumanHeadDomain } from "./AutoMovieHumanHeadDomain";
 
 /**
  * Shared head source corners, free anatomical loops.
  *
- * Ordinary source corners evaluate the same head-frame directional source used
- * by the facial guides. Their connecting curves define Coons patches; a patch
- * interior is their interpolation, rather than an exact analytic field sample.
- * Positions are model-frame metres; layout coordinates only orient the quads.
+ * Ordinary source corners evaluate the same head-frame directional source used by the facial guides. Their connecting curves define Coons patches; a patch interior is their interpolation, rather than an exact analytic field sample. Positions are model-frame metres; layout coordinates only orient the quads.
  */
 export class AutoMovieHumanHeadNetwork {
   private readonly nodes_: Record<string, IAutoMovieSurfaceNetwork.INode> = {};
@@ -17,6 +15,10 @@ export class AutoMovieHumanHeadNetwork {
     {};
   private readonly patches_: IAutoMovieSurfaceNetwork.IPatch[] = [];
   private readonly rings_: IAutoMovieSurfaceNetwork.IRing[] = [];
+  private readonly skinRoles_: Map<
+    IAutoMovieSurfaceNetwork.IPatch,
+    IAutoMovieHumanSkinDomain.Role
+  > = new Map();
   private readonly names_: Map<IAutoMovieSurfaceNetwork.IPatch, string> =
     new Map();
 
@@ -38,14 +40,13 @@ export class AutoMovieHumanHeadNetwork {
   /**
    * Read the authored source corner in head-local millimetres.
    *
-   * Free anatomical courses keep their actual XYZ position. Their layout
-   * address orients patches; it cannot reconstruct an authored height.
-   * A sweep corner instead evaluates the domain source that owns it.
+   * Free anatomical courses keep their actual XYZ position. Their layout address orients patches; it cannot reconstruct an authored height. A sweep corner instead evaluates the domain source that owns it.
    */
   public point(point: AutoMovieHumanHeadNetwork.IPoint): IAutoMovieVector3 {
     if (point.type === "sweep") return this.domain_.point(point.u, point.v);
     const node: IAutoMovieSurfaceNetwork.INode = this.nodes_[point.name]!;
-    if (node.type !== "point") throw new Error("Head source point has no physical position");
+    if (node.type !== "point")
+      throw new Error("Head source point has no physical position");
     return this.domain_.toHead(node.position);
   }
 
@@ -58,7 +59,11 @@ export class AutoMovieHumanHeadNetwork {
    */
   public on(u: number, v: number): AutoMovieHumanHeadNetwork.IPoint {
     const wrapped: number = ((v % 1) + 1) % 1;
-    return this.free(`source.${u.toFixed(9)}.${wrapped.toFixed(9)}`, this.domain_.toModel(this.domain_.point(u, wrapped)), { u, v: wrapped });
+    return this.free(
+      `source.${u.toFixed(9)}.${wrapped.toFixed(9)}`,
+      this.domain_.toModel(this.domain_.point(u, wrapped)),
+      { u, v: wrapped },
+    );
   }
 
   /**
@@ -96,8 +101,14 @@ export class AutoMovieHumanHeadNetwork {
     ],
     group: string,
     orient: boolean = true,
+    skin: IAutoMovieHumanSkinDomain.Role = "ordinary",
   ): IAutoMovieSurfaceNetwork.ICoonsPatch {
-    const ordered: [AutoMovieHumanHeadNetwork.IPoint, AutoMovieHumanHeadNetwork.IPoint, AutoMovieHumanHeadNetwork.IPoint, AutoMovieHumanHeadNetwork.IPoint] =
+    const ordered: [
+      AutoMovieHumanHeadNetwork.IPoint,
+      AutoMovieHumanHeadNetwork.IPoint,
+      AutoMovieHumanHeadNetwork.IPoint,
+      AutoMovieHumanHeadNetwork.IPoint,
+    ] =
       !orient || area(corners) >= 0
         ? corners
         : ([corners[0], corners[3], corners[2], corners[1]] as typeof corners);
@@ -113,6 +124,7 @@ export class AutoMovieHumanHeadNetwork {
     };
     this.patches_.push(patch);
     this.names_.set(patch, group);
+    this.skinRoles_.set(patch, skin);
     return patch;
   }
 
@@ -128,7 +140,10 @@ export class AutoMovieHumanHeadNetwork {
   public bands(
     loops: AutoMovieHumanHeadNetwork.IPoint[][],
     group: string,
+    skin?: readonly IAutoMovieHumanSkinDomain.Role[],
   ): boolean {
+    if (skin !== undefined && skin.length !== loops.length - 1)
+      throw new Error("Each head source band needs exactly one skin role");
     const n: number = loops[0]!.length;
     const a: AutoMovieHumanHeadNetwork.IPoint[] = loops[0]!;
     const b: AutoMovieHumanHeadNetwork.IPoint[] = loops[1]!;
@@ -146,7 +161,12 @@ export class AutoMovieHumanHeadNetwork {
           AutoMovieHumanHeadNetwork.IPoint,
           AutoMovieHumanHeadNetwork.IPoint,
         ] = [outer[m]!, outer[(m + 1) % n]!, inner[(m + 1) % n]!, inner[m]!];
-        this.quad(forward ? q : [q[0], q[3], q[2], q[1]], group, false);
+        this.quad(
+          forward ? q : [q[0], q[3], q[2], q[1]],
+          group,
+          false,
+          skin?.[k] ?? "ordinary",
+        );
       }
     }
     return forward;
@@ -185,6 +205,16 @@ export class AutoMovieHumanHeadNetwork {
   public groups(): string[] {
     return this.patches_.map(
       (p: IAutoMovieSurfaceNetwork.IPatch): string => this.names_.get(p)!,
+    );
+  }
+
+  /** Source-owned roles in actual network patch order, independent of names and fitted regions. */
+  public skinRoles(): IAutoMovieHumanSkinDomain.Role[] {
+    return this.patches_.map(
+      (
+        patch: IAutoMovieSurfaceNetwork.IPatch,
+      ): IAutoMovieHumanSkinDomain.Role =>
+        this.skinRoles_.get(patch) ?? "ordinary",
     );
   }
 
@@ -282,7 +312,9 @@ const ONE: IAutoMovieSurfaceNetwork.ICounts = {
 };
 
 /** Signed area of a quad in the domain, `v` across and `u` up, the seam unwrapped about the first corner. */
-const area: (corners: AutoMovieHumanHeadNetwork.IPoint[]) => number = (corners: AutoMovieHumanHeadNetwork.IPoint[]): number => {
+const area: (corners: AutoMovieHumanHeadNetwork.IPoint[]) => number = (
+  corners: AutoMovieHumanHeadNetwork.IPoint[],
+): number => {
   const v0: number = corners[0]!.domain.v;
   const pts: Array<[number, number]> = corners.map(
     (c: AutoMovieHumanHeadNetwork.IPoint): [number, number] => {

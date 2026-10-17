@@ -32,7 +32,10 @@ export function profileAutoMovieHumanHead(props: {
   const top: number = frame.vertex.y;
   // depth in front of tragion of a midline point at a height, from its straight distance to tragion
   const tn: number = AutoMovieHumanVector.distance(frame.nasion, frame.tragion);
-  const depth: (ratio: number, y: number) => number = (ratio: number, y: number): number =>
+  const depth: (ratio: number, y: number) => number = (
+    ratio: number,
+    y: number,
+  ): number =>
     Math.sqrt(
       Math.max(
         0,
@@ -55,7 +58,12 @@ export function profileAutoMovieHumanHead(props: {
     y: frame.menton.y + form.pogonionAboveMenton * fh,
     z: subnasale.z - form.pogonionBehindSubnasale * fh,
   };
-  const arc: (from: IPoint, to: IPoint, exponent: number, count: number) => IPoint[] = (
+  const arc: (
+    from: IPoint,
+    to: IPoint,
+    exponent: number,
+    count: number,
+  ) => IPoint[] = (
     from: IPoint,
     to: IPoint,
     exponent: number,
@@ -113,7 +121,9 @@ export function profileAutoMovieHumanHead(props: {
     { y: frame.tragion.y, z: frame.tragion.z },
     { y: top, z: frame.vertex.z },
   ];
-  const curve: (points: IPoint[]) => (y: number) => number = (points: IPoint[]): ((y: number) => number) => {
+  const curve: (points: IPoint[]) => (y: number) => number = (
+    points: IPoint[],
+  ): ((y: number) => number) => {
     const sorted: IPoint[] = [...points].sort(
       (a: IPoint, b: IPoint): number => a.y - b.y,
     );
@@ -126,14 +136,23 @@ export function profileAutoMovieHumanHead(props: {
       values: kept.map((p: IPoint): number => p.z),
     });
   };
-  const guides: { front: (y: number) => number; back: (y: number) => number; breadth: (y: number) => number; lateral: (y: number) => number } = {
+  const guides: {
+    front: (y: number) => number;
+    back: (y: number) => number;
+    breadth: (y: number) => number;
+    lateral: (y: number) => number;
+  } = {
     front: curve(front),
     back: curve(back),
     breadth: curve(breadth),
     lateral: curve(lateral),
   };
   // the exponent that carries a quadrant through a point at its own height
-  const solve: (x: number, z: number, fallback: number) => number = (x: number, z: number, fallback: number): number => {
+  const solve: (x: number, z: number, fallback: number) => number = (
+    x: number,
+    z: number,
+    fallback: number,
+  ): number => {
     if (!(x > 0 && x < 1 && z > 0 && z < 1)) return fallback;
     let lo: number = 1.05;
     let hi: number = 20;
@@ -144,13 +163,19 @@ export function profileAutoMovieHumanHead(props: {
     }
     return (lo + hi) / 2;
   };
-  const throughFront: (p: IAutoMovieVector3, fallback: number) => number = (p: IAutoMovieVector3, fallback: number): number =>
+  const throughFront: (p: IAutoMovieVector3, fallback: number) => number = (
+    p: IAutoMovieVector3,
+    fallback: number,
+  ): number =>
     solve(
       Math.abs(p.x) / guides.breadth(p.y),
       (p.z - guides.lateral(p.y)) / (guides.front(p.y) - guides.lateral(p.y)),
       fallback,
     );
-  const throughBack: (p: IAutoMovieVector3, fallback: number) => number = (p: IAutoMovieVector3, fallback: number): number =>
+  const throughBack: (p: IAutoMovieVector3, fallback: number) => number = (
+    p: IAutoMovieVector3,
+    fallback: number,
+  ): number =>
     solve(
       Math.abs(p.x) / guides.breadth(p.y),
       (guides.lateral(p.y) - p.z) / (guides.lateral(p.y) - guides.back(p.y)),

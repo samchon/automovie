@@ -19,9 +19,13 @@ import { IAutoMovieVector3 } from "@automovie/interface";
 export function interpolateAutoMovieHumanTrunkSection(
   keys: readonly interpolateAutoMovieHumanTrunkSection.ISection[],
 ): interpolateAutoMovieHumanTrunkSection.IFamily {
-  const ordered: interpolateAutoMovieHumanTrunkSection.ISection[] = [...keys].sort(
-    (a: interpolateAutoMovieHumanTrunkSection.ISection,
-      b: interpolateAutoMovieHumanTrunkSection.ISection): number => a.height - b.height,
+  const ordered: interpolateAutoMovieHumanTrunkSection.ISection[] = [
+    ...keys,
+  ].sort(
+    (
+      a: interpolateAutoMovieHumanTrunkSection.ISection,
+      b: interpolateAutoMovieHumanTrunkSection.ISection,
+    ): number => a.height - b.height,
   );
   const knots: number[] = ordered.map(
     (key: interpolateAutoMovieHumanTrunkSection.ISection): number => key.height,
@@ -32,41 +36,66 @@ export function interpolateAutoMovieHumanTrunkSection(
   const half: (height: number) => number = positive("half");
   const front: (height: number) => number = positive("frontExponent");
   const back: (height: number) => number = positive("backExponent");
-  function channel(name: keyof interpolateAutoMovieHumanTrunkSection.ISection): (height: number) => number {
-    return interpolateAutoMovieSpline({knots, values: ordered.map(
-      (key: interpolateAutoMovieHumanTrunkSection.ISection): number => key[name],
-    )});
+  function channel(
+    name: keyof interpolateAutoMovieHumanTrunkSection.ISection,
+  ): (height: number) => number {
+    return interpolateAutoMovieSpline({
+      knots,
+      values: ordered.map(
+        (key: interpolateAutoMovieHumanTrunkSection.ISection): number =>
+          key[name],
+      ),
+    });
   }
-  function positive(name: keyof interpolateAutoMovieHumanTrunkSection.ISection): (height: number) => number {
+  function positive(
+    name: keyof interpolateAutoMovieHumanTrunkSection.ISection,
+  ): (height: number) => number {
     const reference: number = ordered[0]![name];
     if (!(reference > 0) || !Number.isFinite(reference))
       throw new Error("trunk section dimensions must be positive and finite");
-    const values: number[] = ordered.map((key: interpolateAutoMovieHumanTrunkSection.ISection): number => {
-      if (!(key[name] > 0) || !Number.isFinite(key[name]))
-        throw new Error("trunk section dimensions must be positive and finite");
-      return Math.log(key[name] / reference);
+    const values: number[] = ordered.map(
+      (key: interpolateAutoMovieHumanTrunkSection.ISection): number => {
+        if (!(key[name] > 0) || !Number.isFinite(key[name]))
+          throw new Error(
+            "trunk section dimensions must be positive and finite",
+          );
+        return Math.log(key[name] / reference);
+      },
+    );
+    const curve: (height: number) => number = interpolateAutoMovieSpline({
+      knots,
+      values,
     });
-    const curve: (height: number) => number = interpolateAutoMovieSpline({knots,values});
     return (height: number): number => reference * Math.exp(curve(height));
   }
   function at(height: number): interpolateAutoMovieHumanTrunkSection.ISection {
-    return {height,centre:centre(height),forward:forward(height),backward:backward(height),
-      half:half(height),frontExponent:front(height),backExponent:back(height)};
+    return {
+      height,
+      centre: centre(height),
+      forward: forward(height),
+      backward: backward(height),
+      half: half(height),
+      frontExponent: front(height),
+      backExponent: back(height),
+    };
   }
   return {
     heights: Object.freeze([...knots]),
     at,
     point: (height: number, angle: number): IAutoMovieVector3 => {
-      const section: interpolateAutoMovieHumanTrunkSection.ISection = at(height);
+      const section: interpolateAutoMovieHumanTrunkSection.ISection =
+        at(height);
       const c: number = Math.cos(angle);
       const s: number = Math.sin(angle);
       const depth: number = c >= 0 ? section.forward : section.backward;
-      const exponent: number = c >= 0 ? section.frontExponent : section.backExponent;
+      const exponent: number =
+        c >= 0 ? section.frontExponent : section.backExponent;
       const radius: number = Math.pow(
         Math.pow(Math.abs(c) / depth, exponent) +
-        Math.pow(Math.abs(s) / section.half, exponent), -1 / exponent,
+          Math.pow(Math.abs(s) / section.half, exponent),
+        -1 / exponent,
       );
-      return {x:radius*s,y:height,z:section.centre+radius*c};
+      return { x: radius * s, y: height, z: section.centre + radius * c };
     },
   };
 }

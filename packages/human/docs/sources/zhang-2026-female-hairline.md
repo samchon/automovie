@@ -1,6 +1,6 @@
 # Zhang 2026, ideal anterior hairline in Chinese women
 
-Zhang Y, Tang D, Zhang L, Wu J, Cheng F, Cheng H. "Defining ideal anterior hairline contour and hair-bearing proportion via a morphometric analysis in Chinese women." *Frontiers in Surgery* 13:1946150, 2026, doi:10.3389/fsurg.2026.1946150. Read as PMC13597767 (NCBI efetch).
+Zhang Y, Tang D, Zhang L, Wu J, Cheng F, Cheng H. "Defining ideal anterior hairline contour and hair-bearing proportion via a morphometric analysis in Chinese women." *Frontiers in Surgery* 13:1946150, 2026, doi:10.3389/fsurg.2026.1946150. [Full text](https://pmc.ncbi.nlm.nih.gov/articles/PMC13597767/).
 
 ## Licence
 

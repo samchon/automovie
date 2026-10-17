@@ -1,13 +1,18 @@
-import { IAutoMovieSweepSection, interpolateAutoMovieMonotone } from "@automovie/engine";
+import {
+  IAutoMovieSweepSection,
+  interpolateAutoMovieMonotone,
+} from "@automovie/engine";
 import { IAutoMovieVector3 } from "@automovie/interface";
+
 import { AUTOMOVIE_HUMAN_WRIST_SECTION } from "../../junction/AUTOMOVIE_HUMAN_WRIST_SECTION";
 import { AutoMovieHumanVector } from "../../skeleton/AutoMovieHumanVector";
 import { AUTOMOVIE_HUMAN_HAND_FORM } from "./AUTOMOVIE_HUMAN_HAND_FORM";
 import { AUTOMOVIE_HUMAN_HAND_SHAPE } from "./AUTOMOVIE_HUMAN_HAND_SHAPE";
 import { measureAutoMovieHumanFingerRoots } from "./measureAutoMovieHumanFingerRoots";
-import { shapeAutoMovieHumanFingerWebs } from "./shapeAutoMovieHumanFingerWebs";
-import { sectionAutoMovieHumanFingerShaft } from "./sectionAutoMovieHumanFingerShaft";
 import { readAutoMovieHumanHand } from "./readAutoMovieHumanHand";
+import { sectionAutoMovieHumanFingerShaft } from "./sectionAutoMovieHumanFingerShaft";
+import { shapeAutoMovieHumanFingerWebs } from "./shapeAutoMovieHumanFingerWebs";
+
 /**
  * The palm as a slab between two height fields over the hand's plane, and its slices by the palm sweep's station planes.
  *
@@ -21,337 +26,453 @@ import { readAutoMovieHumanHand } from "./readAutoMovieHumanHand";
  * @returns The palm's field
  */
 export function sliceAutoMovieHumanPalm(props: {
-    hand: readAutoMovieHumanHand.IHand;
-    breadth: number;
-    length: number;
-    wristCircumference: number;
-    dorsalFat: number;
+  hand: readAutoMovieHumanHand.IHand;
+  breadth: number;
+  length: number;
+  wristCircumference: number;
+  dorsalFat: number;
 }): sliceAutoMovieHumanPalm.IField {
-    const F: typeof AUTOMOVIE_HUMAN_HAND_FORM = AUTOMOVIE_HUMAN_HAND_FORM;
-    const P: typeof AUTOMOVIE_HUMAN_HAND_SHAPE.palm = AUTOMOVIE_HUMAN_HAND_SHAPE.palm;
-    const hand: readAutoMovieHumanHand.IHand = props.hand;
-    const b: number = props.breadth;
-    const L: number = props.length;
-    const fingers: readAutoMovieHumanHand.IDigit[] = FINGERS.map((f: readAutoMovieHumanHand.IFinger): readAutoMovieHumanHand.IDigit => hand.fingers[f]);
-    const widths: number[] = FINGERS.map((f: readAutoMovieHumanHand.IFinger): number => F.fingers[f].pip * b);
-    const aw: number = (AUTOMOVIE_HUMAN_WRIST_SECTION.breadth * props.wristCircumference) / 2;
-    const cw: number = aw * AUTOMOVIE_HUMAN_WRIST_SECTION.depth;
-    const thickness: number = enclose(b / 2, 2 + P.arch, F.circumference * b);
-    const base: number = hand.thumb.points[0]!.x;
-    // A shared MCP course through all four joints and the independently measured skin borders.
-    // Only its representative slicing-plane tilt uses the outer joint chord.
-    const index: IAutoMovieVector3 = fingers[0]!.points[0]!;
-    const little: IAutoMovieVector3 = fingers[3]!.points[0]!;
-    const slope: number = (index.x - little.x) / (index.z - little.z);
-    const heads: IAutoMovieVector3[] = [
-        hand.metacarpaleV,
-        ...fingers.map((finger: readAutoMovieHumanHand.IDigit): IAutoMovieVector3 => finger.points[0]!).reverse(),
-        hand.metacarpaleII,
-    ];
-    const knuckle: (z: number) => number = interpolateAutoMovieMonotone({
-        knots: heads.map((point: IAutoMovieVector3): number => point.z),
-        values: heads.map((point: IAutoMovieVector3): number => point.x),
+  const F: typeof AUTOMOVIE_HUMAN_HAND_FORM = AUTOMOVIE_HUMAN_HAND_FORM;
+  const P: typeof AUTOMOVIE_HUMAN_HAND_SHAPE.palm =
+    AUTOMOVIE_HUMAN_HAND_SHAPE.palm;
+  const hand: readAutoMovieHumanHand.IHand = props.hand;
+  const b: number = props.breadth;
+  const L: number = props.length;
+  const fingers: readAutoMovieHumanHand.IDigit[] = FINGERS.map(
+    (f: readAutoMovieHumanHand.IFinger): readAutoMovieHumanHand.IDigit =>
+      hand.fingers[f],
+  );
+  const widths: number[] = FINGERS.map(
+    (f: readAutoMovieHumanHand.IFinger): number => F.fingers[f].pip * b,
+  );
+  const aw: number =
+    (AUTOMOVIE_HUMAN_WRIST_SECTION.breadth * props.wristCircumference) / 2;
+  const cw: number = aw * AUTOMOVIE_HUMAN_WRIST_SECTION.depth;
+  const thickness: number = enclose(b / 2, 2 + P.arch, F.circumference * b);
+  const base: number = hand.thumb.points[0]!.x;
+  // A shared MCP course through all four joints and the independently measured skin borders.
+  // Only its representative slicing-plane tilt uses the outer joint chord.
+  const index: IAutoMovieVector3 = fingers[0]!.points[0]!;
+  const little: IAutoMovieVector3 = fingers[3]!.points[0]!;
+  const slope: number = (index.x - little.x) / (index.z - little.z);
+  const heads: IAutoMovieVector3[] = [
+    hand.metacarpaleV,
+    ...fingers
+      .map(
+        (finger: readAutoMovieHumanHand.IDigit): IAutoMovieVector3 =>
+          finger.points[0]!,
+      )
+      .reverse(),
+    hand.metacarpaleII,
+  ];
+  const knuckle: (z: number) => number = interpolateAutoMovieMonotone({
+    knots: heads.map((point: IAutoMovieVector3): number => point.z),
+    values: heads.map((point: IAutoMovieVector3): number => point.x),
+  });
+  const shafts: sectionAutoMovieHumanFingerShaft.ISection[] = FINGERS.map(
+    (
+      finger: readAutoMovieHumanHand.IFinger,
+    ): sectionAutoMovieHumanFingerShaft.ISection =>
+      sectionAutoMovieHumanFingerShaft(finger, b),
+  );
+  const roots: number[] = measureAutoMovieHumanFingerRoots(
+    shapeAutoMovieHumanFingerWebs({ hand, breadth: b, length: L }).map(
+      (web: shapeAutoMovieHumanFingerWebs.IWeb): number => web.distal,
+    ),
+    L,
+  );
+  // Extend each course to the independently measured skin borders with its
+  // outer finger's value; the anatomical sections themselves are unchanged.
+  const course: (values: number[]) => (z: number) => number = (
+    values: number[],
+  ): ((z: number) => number) =>
+    interpolateAutoMovieMonotone({
+      knots: heads.map((point: IAutoMovieVector3): number => point.z),
+      values: [values[3]!, ...values.slice().reverse(), values[0]!],
     });
-    const shafts: sectionAutoMovieHumanFingerShaft.ISection[] = FINGERS.map((finger: readAutoMovieHumanHand.IFinger): sectionAutoMovieHumanFingerShaft.ISection => sectionAutoMovieHumanFingerShaft(finger, b));
-    const roots: number[] = measureAutoMovieHumanFingerRoots(shapeAutoMovieHumanFingerWebs({ hand, breadth: b, length: L }).map((web: shapeAutoMovieHumanFingerWebs.IWeb): number => web.distal), L);
-    // Extend each course to the independently measured skin borders with its
-    // outer finger's value; the anatomical sections themselves are unchanged.
-    const course: (values: number[]) => ((z: number) => number) = (values: number[]): ((z: number) => number) => interpolateAutoMovieMonotone({
-        knots: heads.map((point: IAutoMovieVector3): number => point.z),
-        values: [values[3]!, ...values.slice().reverse(), values[0]!],
-    });
-    const shaftDorsal: (z: number) => number = course(shafts.map((section: sectionAutoMovieHumanFingerShaft.ISection): number => section.dorsal));
-    const shaftPalmar: (z: number) => number = course(shafts.map((section: sectionAutoMovieHumanFingerShaft.ISection): number => section.palmar));
-    const shaftRoot: (z: number) => number = course(roots);
-    const branch: (x: number, z: number) => number = (x: number, z: number): number => smooth(Math.min(1, Math.max(0, (x - knuckle(z)) / (shaftRoot(z) - knuckle(z)))));
-    const tilt: number = Math.atan(slope);
-    // beyond the heads the borders run to the outer fingers' flanks over a tenth of the hand length
-    const flank: {
-        radial: number;
-        ulnar: number;
-    } = {
-        radial: index.z + 0.55 * widths[0]!,
-        ulnar: little.z - 0.55 * widths[3]!,
-    };
-    const level: (x: number, z: number) => number = (x: number, z: number): number => Math.min(1, Math.max(0, x / knuckle(z)));
-    const beyond: (x: number, z: number) => number = (x: number, z: number): number => smooth(Math.min(1, Math.max(0, (x - knuckle(z)) / (0.1 * L))));
-    const edges: (x: number) => {
-        ulnar: number;
-        radial: number;
-    } = (x: number): {
-        ulnar: number;
-        radial: number;
-    } => {
-        const radialGrowth: number = 1 - Math.pow(1 - level(x, hand.metacarpaleII.z), P.widen);
-        const ulnarGrowth: number = 1 - Math.pow(1 - level(x, hand.metacarpaleV.z), P.widen);
-        const radial: number = aw + (hand.metacarpaleII.z - aw) * radialGrowth;
-        const ulnar: number = -aw + (hand.metacarpaleV.z + aw) * ulnarGrowth;
-        return {
-            radial: radial + (flank.radial - radial) * beyond(x, hand.metacarpaleII.z),
-            ulnar: ulnar + (flank.ulnar - ulnar) * beyond(x, hand.metacarpaleV.z),
-        };
-    };
-    const zeta: (x: number, z: number) => number = (x: number, z: number): number => {
-        const e: {
-            ulnar: number;
-            radial: number;
-        } = edges(x);
-        return (2 * z - e.radial - e.ulnar) / (e.radial - e.ulnar);
-    };
-    // each finger's line across the heads, in the normalised breadth
-    const lines: number[] = fingers.map((f: readAutoMovieHumanHand.IDigit): number => (2 * f.points[0]!.z - hand.metacarpaleII.z - hand.metacarpaleV.z) /
-        (hand.metacarpaleII.z - hand.metacarpaleV.z));
-    const profile: (x: number, z: number, ζ: number) => number = (x: number, z: number, ζ: number): number => {
-        const n: number = 2 + P.arch * level(x, z);
-        return Math.pow(Math.max(0, 1 - Math.pow(Math.min(1, Math.abs(ζ)), n)), 1 / n);
-    };
-    // Both longitudinal depth scales use the shared MCP-to-shaft root course.
-    // The transverse palm profile below still rounds them toward its borders;
-    // this is not a claim that the whole palm section equals four shaft tubes.
-    // Keeping dorsal depth at palm size forced the digit bridge to carry the
-    // entire descent onto its much shallower section.
-    const dorsalHeight: (x: number, z: number) => number = (x: number, z: number): number => {
-        const palm: number = cw + (thickness * P.dorsal - cw) * level(x, z);
-        return palm + (shaftDorsal(z) - palm) * branch(x, z);
-    };
-    const palmarDepth: (x: number, z: number) => number = (x: number, z: number): number => {
-        const palm: number = cw + (thickness * (1 - P.dorsal) - cw) * level(x, z);
-        return palm + (shaftPalmar(z) - palm) * branch(x, z);
-    };
-    const gauss: (d: number, sigma: number) => number = (d: number, sigma: number): number => Math.exp(-((d / sigma) ** 2));
-    // the share of the way from the carpometacarpal line to the heads, and the thenar's rise from the wrist
-    const along: (x: number, z: number) => number = (x: number, z: number): number => Math.min(1, Math.max(0, (x - base) / (knuckle(z) - base)));
-    const rise: (x: number) => number = (x: number): number => smooth(Math.min(1, Math.max(0, x / base)));
-    const relief: (x: number, z: number, ζ: number) => number = (x: number, z: number, ζ: number): number => {
-        const t: number = along(x, z);
-        const arc: number = Math.sin(t * Math.PI);
-        return (P.thenar * (1 - t) * rise(x) * gauss(ζ - lines[0]!, 0.3) -
-            P.hollow * arc * gauss(ζ - (lines[1]! + lines[2]!) / 2, 0.35) +
-            P.hypothenar *
-                Math.max(arc, 0.6 * (1 - t) * rise(x)) *
-                gauss(ζ - lines[3]!, 0.25) +
-            P.border * arc * gauss(ζ + 0.9, 0.12));
-    };
-    const loss: number = Math.max(0, F.dorsalFat - props.dorsalFat);
-    // each knuckle's crest over its metacarpal head, the middle one highest
-    const crest: (x: number, z: number) => number = (x: number, z: number): number => fingers.reduce((sum: number, f: readAutoMovieHumanHand.IDigit, i: number): number => sum +
-        (P.knuckle * (i === 1 ? P.middleKnuckle : 1) - 1) *
-            gauss(z - f.points[0]!.z, 0.45 * widths[i]!) *
-            gauss(x - f.points[0]!.x, 0.06 * L), 0);
-    const palmar: (x: number, z: number) => number = (x: number, z: number): number => {
-        const ζ: number = zeta(x, z);
-        return palmarDepth(x, z) * profile(x, z, ζ) * (1 + relief(x, z, ζ));
-    };
-    const dorsal: (x: number, z: number) => number = (x: number, z: number): number => {
-        const ζ: number = zeta(x, z);
-        // the lost fat thins the back of the hand over the metacarpals, fading with the profile to the borders and never past half its height
-        const p: number = profile(x, z, ζ);
-        return (-dorsalHeight(x, z) * p * (1 + crest(x, z)) +
-            Math.min(loss * level(x, z), 0.5 * dorsalHeight(x, z)) * p);
-    };
-    const slice: (plane: sliceAutoMovieHumanPalm.IPlane) => sliceAutoMovieHumanPalm.ISlice = (plane: sliceAutoMovieHumanPalm.IPlane): sliceAutoMovieHumanPalm.ISlice => {
-        const axis: IAutoMovieVector3 = AutoMovieHumanVector.of(Math.sin(plane.tilt), 0, Math.cos(plane.tilt));
-        const at: (s: number) => {
-            x: number;
-            z: number;
-        } = (s: number): {
-            x: number;
-            z: number;
-        } => ({
-            x: plane.origin + s * axis.x,
-            z: s * axis.z,
-        });
-        // the borders along the plane's radial axis, where |ζ| reaches 1
-        const border: (sign: 1 | -1) => number = (sign: 1 | -1): number => {
-            let lo: number = 0;
-            let hi: number = sign * 4 * L;
-            for (let k: number = 0; k < 60; ++k) {
-                const mid: number = (lo + hi) / 2;
-                const p: {
-                    x: number;
-                    z: number;
-                } = at(mid);
-                if (sign * zeta(p.x, p.z) < 1)
-                    lo = mid;
-                else
-                    hi = mid;
-            }
-            return (lo + hi) / 2;
-        };
-        const radial: number = border(1);
-        const ulnar: number = border(-1);
-        const middle: number = (radial + ulnar) / 2;
-        const m: {
-            x: number;
-            z: number;
-        } = at(middle);
-        const height: number = (palmar(m.x, m.z) + dorsal(m.x, m.z)) / 2;
-        const centre: IAutoMovieVector3 = AutoMovieHumanVector.of(m.x, height, m.z);
-        // samples across, denser toward the borders where the outline turns
-        const across: number[] = Array.from({ length: SAMPLES + 1 }, (_: unknown, k: number): number => ulnar +
-            ((radial - ulnar) * (1 - Math.cos((Math.PI * k) / SAMPLES))) / 2);
-        const point: (s: number, y: number) => IAutoMovieSweepSection.IPoint = (s: number, y: number): IAutoMovieSweepSection.IPoint => ({
-            x: y - height,
-            y: s - middle,
-        });
-        const polygon: IAutoMovieSweepSection.IPoint[] = [
-            ...across.map((s: number): IAutoMovieSweepSection.IPoint => {
-                const p: {
-                    x: number;
-                    z: number;
-                } = at(s);
-                return point(s, palmar(p.x, p.z));
-            }),
-            ...across
-                .slice(1, -1)
-                .reverse()
-                .map((s: number): IAutoMovieSweepSection.IPoint => {
-                const p: {
-                    x: number;
-                    z: number;
-                } = at(s);
-                return point(s, dorsal(p.x, p.z));
-            }),
-        ];
-        return {
-            centre,
-            axis,
-            section: { type: "polygon", points: polygon },
-            palmar: (s: number): IAutoMovieVector3 => {
-                const p: {
-                    x: number;
-                    z: number;
-                } = at(middle + s);
-                return AutoMovieHumanVector.of(p.x, palmar(p.x, p.z), p.z);
-            },
-            dorsal: (s: number): IAutoMovieVector3 => {
-                const p: {
-                    x: number;
-                    z: number;
-                } = at(middle + s);
-                return AutoMovieHumanVector.of(p.x, dorsal(p.x, p.z), p.z);
-            },
-            half: { radial: radial - middle, ulnar: middle - ulnar },
-        };
-    };
+  const shaftDorsal: (z: number) => number = course(
+    shafts.map(
+      (section: sectionAutoMovieHumanFingerShaft.ISection): number =>
+        section.dorsal,
+    ),
+  );
+  const shaftPalmar: (z: number) => number = course(
+    shafts.map(
+      (section: sectionAutoMovieHumanFingerShaft.ISection): number =>
+        section.palmar,
+    ),
+  );
+  const shaftRoot: (z: number) => number = course(roots);
+  const branch: (x: number, z: number) => number = (
+    x: number,
+    z: number,
+  ): number =>
+    smooth(
+      Math.min(1, Math.max(0, (x - knuckle(z)) / (shaftRoot(z) - knuckle(z)))),
+    );
+  const tilt: number = Math.atan(slope);
+  // beyond the heads the borders run to the outer fingers' flanks over a tenth of the hand length
+  const flank: {
+    radial: number;
+    ulnar: number;
+  } = {
+    radial: index.z + 0.55 * widths[0]!,
+    ulnar: little.z - 0.55 * widths[3]!,
+  };
+  const level: (x: number, z: number) => number = (
+    x: number,
+    z: number,
+  ): number => Math.min(1, Math.max(0, x / knuckle(z)));
+  const beyond: (x: number, z: number) => number = (
+    x: number,
+    z: number,
+  ): number => smooth(Math.min(1, Math.max(0, (x - knuckle(z)) / (0.1 * L))));
+  const edges: (x: number) => {
+    ulnar: number;
+    radial: number;
+  } = (
+    x: number,
+  ): {
+    ulnar: number;
+    radial: number;
+  } => {
+    const radialGrowth: number =
+      1 - Math.pow(1 - level(x, hand.metacarpaleII.z), P.widen);
+    const ulnarGrowth: number =
+      1 - Math.pow(1 - level(x, hand.metacarpaleV.z), P.widen);
+    const radial: number = aw + (hand.metacarpaleII.z - aw) * radialGrowth;
+    const ulnar: number = -aw + (hand.metacarpaleV.z + aw) * ulnarGrowth;
     return {
-        thickness,
-        tilt,
-        knuckle,
-        edges,
-        palmar,
-        dorsal,
-        slice,
+      radial:
+        radial + (flank.radial - radial) * beyond(x, hand.metacarpaleII.z),
+      ulnar: ulnar + (flank.ulnar - ulnar) * beyond(x, hand.metacarpaleV.z),
     };
+  };
+  const zeta: (x: number, z: number) => number = (
+    x: number,
+    z: number,
+  ): number => {
+    const e: {
+      ulnar: number;
+      radial: number;
+    } = edges(x);
+    return (2 * z - e.radial - e.ulnar) / (e.radial - e.ulnar);
+  };
+  // each finger's line across the heads, in the normalised breadth
+  const lines: number[] = fingers.map(
+    (f: readAutoMovieHumanHand.IDigit): number =>
+      (2 * f.points[0]!.z - hand.metacarpaleII.z - hand.metacarpaleV.z) /
+      (hand.metacarpaleII.z - hand.metacarpaleV.z),
+  );
+  const profile: (x: number, z: number, ζ: number) => number = (
+    x: number,
+    z: number,
+    ζ: number,
+  ): number => {
+    const n: number = 2 + P.arch * level(x, z);
+    return Math.pow(
+      Math.max(0, 1 - Math.pow(Math.min(1, Math.abs(ζ)), n)),
+      1 / n,
+    );
+  };
+  // Both longitudinal depth scales use the shared MCP-to-shaft root course.
+  // The transverse palm profile below still rounds them toward its borders;
+  // this is not a claim that the whole palm section equals four shaft tubes.
+  // Keeping dorsal depth at palm size forced the digit bridge to carry the
+  // entire descent onto its much shallower section.
+  const dorsalHeight: (x: number, z: number) => number = (
+    x: number,
+    z: number,
+  ): number => {
+    const palm: number = cw + (thickness * P.dorsal - cw) * level(x, z);
+    return palm + (shaftDorsal(z) - palm) * branch(x, z);
+  };
+  const palmarDepth: (x: number, z: number) => number = (
+    x: number,
+    z: number,
+  ): number => {
+    const palm: number = cw + (thickness * (1 - P.dorsal) - cw) * level(x, z);
+    return palm + (shaftPalmar(z) - palm) * branch(x, z);
+  };
+  const gauss: (d: number, sigma: number) => number = (
+    d: number,
+    sigma: number,
+  ): number => Math.exp(-((d / sigma) ** 2));
+  // the share of the way from the carpometacarpal line to the heads, and the thenar's rise from the wrist
+  const along: (x: number, z: number) => number = (
+    x: number,
+    z: number,
+  ): number => Math.min(1, Math.max(0, (x - base) / (knuckle(z) - base)));
+  const rise: (x: number) => number = (x: number): number =>
+    smooth(Math.min(1, Math.max(0, x / base)));
+  const relief: (x: number, z: number, ζ: number) => number = (
+    x: number,
+    z: number,
+    ζ: number,
+  ): number => {
+    const t: number = along(x, z);
+    const arc: number = Math.sin(t * Math.PI);
+    return (
+      P.thenar * (1 - t) * rise(x) * gauss(ζ - lines[0]!, 0.3) -
+      P.hollow * arc * gauss(ζ - (lines[1]! + lines[2]!) / 2, 0.35) +
+      P.hypothenar *
+        Math.max(arc, 0.6 * (1 - t) * rise(x)) *
+        gauss(ζ - lines[3]!, 0.25) +
+      P.border * arc * gauss(ζ + 0.9, 0.12)
+    );
+  };
+  const loss: number = Math.max(0, F.dorsalFat - props.dorsalFat);
+  // each knuckle's crest over its metacarpal head, the middle one highest
+  const crest: (x: number, z: number) => number = (
+    x: number,
+    z: number,
+  ): number =>
+    fingers.reduce(
+      (sum: number, f: readAutoMovieHumanHand.IDigit, i: number): number =>
+        sum +
+        (P.knuckle * (i === 1 ? P.middleKnuckle : 1) - 1) *
+          gauss(z - f.points[0]!.z, 0.45 * widths[i]!) *
+          gauss(x - f.points[0]!.x, 0.06 * L),
+      0,
+    );
+  const palmar: (x: number, z: number) => number = (
+    x: number,
+    z: number,
+  ): number => {
+    const ζ: number = zeta(x, z);
+    return palmarDepth(x, z) * profile(x, z, ζ) * (1 + relief(x, z, ζ));
+  };
+  const dorsal: (x: number, z: number) => number = (
+    x: number,
+    z: number,
+  ): number => {
+    const ζ: number = zeta(x, z);
+    // the lost fat thins the back of the hand over the metacarpals, fading with the profile to the borders and never past half its height
+    const p: number = profile(x, z, ζ);
+    return (
+      -dorsalHeight(x, z) * p * (1 + crest(x, z)) +
+      Math.min(loss * level(x, z), 0.5 * dorsalHeight(x, z)) * p
+    );
+  };
+  const slice: (
+    plane: sliceAutoMovieHumanPalm.IPlane,
+  ) => sliceAutoMovieHumanPalm.ISlice = (
+    plane: sliceAutoMovieHumanPalm.IPlane,
+  ): sliceAutoMovieHumanPalm.ISlice => {
+    const axis: IAutoMovieVector3 = AutoMovieHumanVector.of(
+      Math.sin(plane.tilt),
+      0,
+      Math.cos(plane.tilt),
+    );
+    const at: (s: number) => {
+      x: number;
+      z: number;
+    } = (
+      s: number,
+    ): {
+      x: number;
+      z: number;
+    } => ({
+      x: plane.origin + s * axis.x,
+      z: s * axis.z,
+    });
+    // the borders along the plane's radial axis, where |ζ| reaches 1
+    const border: (sign: 1 | -1) => number = (sign: 1 | -1): number => {
+      let lo: number = 0;
+      let hi: number = sign * 4 * L;
+      for (let k: number = 0; k < 60; ++k) {
+        const mid: number = (lo + hi) / 2;
+        const p: {
+          x: number;
+          z: number;
+        } = at(mid);
+        if (sign * zeta(p.x, p.z) < 1) lo = mid;
+        else hi = mid;
+      }
+      return (lo + hi) / 2;
+    };
+    const radial: number = border(1);
+    const ulnar: number = border(-1);
+    const middle: number = (radial + ulnar) / 2;
+    const m: {
+      x: number;
+      z: number;
+    } = at(middle);
+    const height: number = (palmar(m.x, m.z) + dorsal(m.x, m.z)) / 2;
+    const centre: IAutoMovieVector3 = AutoMovieHumanVector.of(m.x, height, m.z);
+    // samples across, denser toward the borders where the outline turns
+    const across: number[] = Array.from(
+      { length: SAMPLES + 1 },
+      (_: unknown, k: number): number =>
+        ulnar +
+        ((radial - ulnar) * (1 - Math.cos((Math.PI * k) / SAMPLES))) / 2,
+    );
+    const point: (s: number, y: number) => IAutoMovieSweepSection.IPoint = (
+      s: number,
+      y: number,
+    ): IAutoMovieSweepSection.IPoint => ({
+      x: y - height,
+      y: s - middle,
+    });
+    const polygon: IAutoMovieSweepSection.IPoint[] = [
+      ...across.map((s: number): IAutoMovieSweepSection.IPoint => {
+        const p: {
+          x: number;
+          z: number;
+        } = at(s);
+        return point(s, palmar(p.x, p.z));
+      }),
+      ...across
+        .slice(1, -1)
+        .reverse()
+        .map((s: number): IAutoMovieSweepSection.IPoint => {
+          const p: {
+            x: number;
+            z: number;
+          } = at(s);
+          return point(s, dorsal(p.x, p.z));
+        }),
+    ];
+    return {
+      centre,
+      axis,
+      section: { type: "polygon", points: polygon },
+      palmar: (s: number): IAutoMovieVector3 => {
+        const p: {
+          x: number;
+          z: number;
+        } = at(middle + s);
+        return AutoMovieHumanVector.of(p.x, palmar(p.x, p.z), p.z);
+      },
+      dorsal: (s: number): IAutoMovieVector3 => {
+        const p: {
+          x: number;
+          z: number;
+        } = at(middle + s);
+        return AutoMovieHumanVector.of(p.x, dorsal(p.x, p.z), p.z);
+      },
+      half: { radial: radial - middle, ulnar: middle - ulnar },
+    };
+  };
+  return {
+    thickness,
+    tilt,
+    knuckle,
+    edges,
+    palmar,
+    dorsal,
+    slice,
+  };
 }
 /** Field, plane and slice types of {@link sliceAutoMovieHumanPalm}. */
 export namespace sliceAutoMovieHumanPalm {
+  /**
+   * The palm's two height fields and its slicer.
+   *
+   * @author Samchon
+   */
+  export interface IField {
+    /** Thickness of the palm at the metacarpal heads, millimetres. */
+    thickness: number;
+    /** Angle of the knuckle line from the hand's radial axis toward its distal axis, radians; the index's knuckle lies distal of the little finger's. */
+    tilt: number;
     /**
-     * The palm's two height fields and its slicer.
+     * Level of the shared MCP course at a radial position.
      *
-     * @author Samchon
+     * @param z Radial position, millimetres
+     * @returns Its `x` on the shape-preserving course through all four metacarpophalangeal joints and both skin borders
      */
-    export interface IField {
-        /** Thickness of the palm at the metacarpal heads, millimetres. */
-        thickness: number;
-        /** Angle of the knuckle line from the hand's radial axis toward its distal axis, radians; the index's knuckle lies distal of the little finger's. */
-        tilt: number;
-        /**
-         * Level of the shared MCP course at a radial position.
-         *
-         * @param z Radial position, millimetres
-         * @returns Its `x` on the shape-preserving course through all four metacarpophalangeal joints and both skin borders
-         */
-        knuckle(z: number): number;
-        /**
-         * Ulnar and radial borders at a level.
-         *
-         * @param x Level, millimetres
-         * @returns Their `z`
-         */
-        edges(x: number): {
-            ulnar: number;
-            radial: number;
-        };
-        /**
-         * Palmar surface.
-         *
-         * @param x Level
-         * @param z Radial position
-         * @returns Its `y`, millimetres
-         */
-        palmar(x: number, z: number): number;
-        /**
-         * Dorsal surface.
-         *
-         * @param x Level
-         * @param z Radial position
-         * @returns Its `y`, millimetres, negative toward the back of the hand
-         */
-        dorsal(x: number, z: number): number;
-        /**
-         * Slice the palm by a station plane.
-         *
-         * @param plane The plane
-         * @returns The section and where it lies
-         */
-        slice(plane: IPlane): ISlice;
-    }
+    knuckle(z: number): number;
     /**
-     * A station plane: through `(origin, 0, 0)`, containing the palmar direction, its radial axis turned `tilt` toward distal.
+     * Ulnar and radial borders at a level.
      *
-     * @author Samchon
+     * @param x Level, millimetres
+     * @returns Their `z`
      */
-    export interface IPlane {
-        /** Where the plane crosses the hand's axis, millimetres. */
-        origin: number;
-        /** Turn of its radial axis toward distal, radians. */
-        tilt: number;
-    }
+    edges(x: number): {
+      ulnar: number;
+      radial: number;
+    };
     /**
-     * One slice of the palm.
+     * Palmar surface.
      *
-     * @author Samchon
+     * @param x Level
+     * @param z Radial position
+     * @returns Its `y`, millimetres
      */
-    export interface ISlice {
-        /** The slice's middle, the sweep's spine point, hand frame. */
-        centre: IAutoMovieVector3;
-        /** The plane's radial axis, hand frame, unit. */
-        axis: IAutoMovieVector3;
-        /** The outline in the plane: `x` palmar and `y` radial from the centre, millimetres, counterclockwise. */
-        section: IAutoMovieSweepSection.IPolygon;
-        /**
-         * Point of the palmar surface in the plane.
-         *
-         * @param s Radial offset from the centre along the plane, millimetres
-         * @returns The point, hand frame
-         */
-        palmar(s: number): IAutoMovieVector3;
-        /**
-         * Point of the dorsal surface in the plane.
-         *
-         * @param s Radial offset from the centre along the plane, millimetres
-         * @returns The point, hand frame
-         */
-        dorsal(s: number): IAutoMovieVector3;
-        /** Distance of the radial and ulnar borders from the centre along the plane, millimetres. */
-        half: {
-            radial: number;
-            ulnar: number;
-        };
-    }
+    palmar(x: number, z: number): number;
+    /**
+     * Dorsal surface.
+     *
+     * @param x Level
+     * @param z Radial position
+     * @returns Its `y`, millimetres, negative toward the back of the hand
+     */
+    dorsal(x: number, z: number): number;
+    /**
+     * Slice the palm by a station plane.
+     *
+     * @param plane The plane
+     * @returns The section and where it lies
+     */
+    slice(plane: IPlane): ISlice;
+  }
+  /**
+   * A station plane: through `(origin, 0, 0)`, containing the palmar direction, its radial axis turned `tilt` toward distal.
+   *
+   * @author Samchon
+   */
+  export interface IPlane {
+    /** Where the plane crosses the hand's axis, millimetres. */
+    origin: number;
+    /** Turn of its radial axis toward distal, radians. */
+    tilt: number;
+  }
+  /**
+   * One slice of the palm.
+   *
+   * @author Samchon
+   */
+  export interface ISlice {
+    /** The slice's middle, the sweep's spine point, hand frame. */
+    centre: IAutoMovieVector3;
+    /** The plane's radial axis, hand frame, unit. */
+    axis: IAutoMovieVector3;
+    /** The outline in the plane: `x` palmar and `y` radial from the centre, millimetres, counterclockwise. */
+    section: IAutoMovieSweepSection.IPolygon;
+    /**
+     * Point of the palmar surface in the plane.
+     *
+     * @param s Radial offset from the centre along the plane, millimetres
+     * @returns The point, hand frame
+     */
+    palmar(s: number): IAutoMovieVector3;
+    /**
+     * Point of the dorsal surface in the plane.
+     *
+     * @param s Radial offset from the centre along the plane, millimetres
+     * @returns The point, hand frame
+     */
+    dorsal(s: number): IAutoMovieVector3;
+    /** Distance of the radial and ulnar borders from the centre along the plane, millimetres. */
+    half: {
+      radial: number;
+      ulnar: number;
+    };
+  }
 }
 /** The four fingers, radial to ulnar. */
 const FINGERS: readAutoMovieHumanHand.IFinger[] = [
-    "Index",
-    "Middle",
-    "Ring",
-    "Little",
+  "Index",
+  "Middle",
+  "Ring",
+  "Little",
 ];
 /** Samples across each face of a slice. */
 const SAMPLES: number = 48;
 /** Smoothstep from 0 to 1. */
-const smooth: (t: number) => number = (t: number): number => t * t * (3 - 2 * t);
+const smooth: (t: number) => number = (t: number): number =>
+  t * t * (3 - 2 * t);
 /**
  * Thickness of a superellipse of a given half breadth and exponent whose perimeter is a given length, by bisection on the perimeter of 256 chords.
  *
@@ -360,31 +481,35 @@ const smooth: (t: number) => number = (t: number): number => t * t * (3 - 2 * t)
  * @param perimeter Perimeter to enclose, millimetres
  * @returns Full thickness, millimetres
  */
-const enclose: (half: number, exponent: number, perimeter: number) => number = (half: number, exponent: number, perimeter: number): number => {
-    const length: (depth: number) => number = (depth: number): number => {
-        let sum: number = 0;
-        let px: number = half;
-        let py: number = 0;
-        for (let i: number = 1; i <= 256; ++i) {
-            const t: number = (2 * Math.PI * i) / 256;
-            const c: number = Math.cos(t);
-            const s: number = Math.sin(t);
-            const x: number = half * Math.sign(c) * Math.pow(Math.abs(c), 2 / exponent);
-            const y: number = depth * Math.sign(s) * Math.pow(Math.abs(s), 2 / exponent);
-            sum += Math.hypot(x - px, y - py);
-            px = x;
-            py = y;
-        }
-        return sum;
-    };
-    let lo: number = 0;
-    let hi: number = 2 * half;
-    for (let k: number = 0; k < 50; ++k) {
-        const mid: number = (lo + hi) / 2;
-        if (length(mid) < perimeter)
-            lo = mid;
-        else
-            hi = mid;
+const enclose: (half: number, exponent: number, perimeter: number) => number = (
+  half: number,
+  exponent: number,
+  perimeter: number,
+): number => {
+  const length: (depth: number) => number = (depth: number): number => {
+    let sum: number = 0;
+    let px: number = half;
+    let py: number = 0;
+    for (let i: number = 1; i <= 256; ++i) {
+      const t: number = (2 * Math.PI * i) / 256;
+      const c: number = Math.cos(t);
+      const s: number = Math.sin(t);
+      const x: number =
+        half * Math.sign(c) * Math.pow(Math.abs(c), 2 / exponent);
+      const y: number =
+        depth * Math.sign(s) * Math.pow(Math.abs(s), 2 / exponent);
+      sum += Math.hypot(x - px, y - py);
+      px = x;
+      py = y;
     }
-    return lo + hi;
+    return sum;
+  };
+  let lo: number = 0;
+  let hi: number = 2 * half;
+  for (let k: number = 0; k < 50; ++k) {
+    const mid: number = (lo + hi) / 2;
+    if (length(mid) < perimeter) lo = mid;
+    else hi = mid;
+  }
+  return lo + hi;
 };

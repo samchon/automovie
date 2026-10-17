@@ -1,5 +1,5 @@
-import { IAutoMovieHumanIdentity } from "../../structures/IAutoMovieHumanIdentity";
 import { curveAutoMovieHumanLips } from "../../junction/curveAutoMovieHumanLips";
+import { IAutoMovieHumanIdentity } from "../../structures/IAutoMovieHumanIdentity";
 
 /**
  * Paired philtral columns, joining the shared cupid crests to the nasal base.
@@ -36,8 +36,14 @@ export function curveAutoMovieHumanPhiltrum(props: {
       // gives two positive ridges around the medial interval; sin² closes
       // both longitudinal endpoints with zero slope. Only height is fitted.
       const q: number = x / halfSpan;
-      return COLUMN_HEIGHT * head.features.upperVermilionHeight *
-        Math.sin(Math.PI * t) ** 2 * q * q * Math.exp(1 - q * q);
+      return (
+        COLUMN_HEIGHT *
+        head.features.upperVermilionHeight *
+        Math.sin(Math.PI * t) ** 2 *
+        q *
+        q *
+        Math.exp(1 - q * q)
+      );
     },
   };
 }

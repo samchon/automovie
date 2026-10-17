@@ -163,8 +163,16 @@ export function sectionAutoMovieHumanArm(
       ]),
       level,
     );
-  const levels: number[] = [LEVELS[0]!, collars.upperArm, ...LEVELS.slice(1, -1), collars.wrist, LEVELS[LEVELS.length - 1]!];
-  const build: (level: number) => sectionAutoMovieHumanArm.ISection = (level: number): sectionAutoMovieHumanArm.ISection => {
+  const levels: number[] = [
+    LEVELS[0]!,
+    collars.upperArm,
+    ...LEVELS.slice(1, -1),
+    collars.wrist,
+    LEVELS[LEVELS.length - 1]!,
+  ];
+  const build: (level: number) => sectionAutoMovieHumanArm.ISection = (
+    level: number,
+  ): sectionAutoMovieHumanArm.ISection => {
     const thickness: number[] = fat(level);
     const girth: number = profile(level);
     const shape: number[] = deepShape(level);
@@ -205,17 +213,20 @@ export function sectionAutoMovieHumanArm(
   // endpoint section model for girth and deep-radius consumers, while the
   // collar's physical level still comes from its shared support distance.
   const proximal: sectionAutoMovieHumanArm.ISection = build(LEVELS[0]!);
-  const distal: sectionAutoMovieHumanArm.ISection = build(LEVELS[LEVELS.length - 1]!);
-  return levels.map((level: number): sectionAutoMovieHumanArm.ISection =>
-    level === collars.upperArm
-      ? { ...proximal, level }
-      : level === collars.wrist
-        ? { ...distal, level }
-        : level === LEVELS[0]!
-          ? proximal
-          : level === LEVELS[LEVELS.length - 1]!
-            ? distal
-            : build(level),
+  const distal: sectionAutoMovieHumanArm.ISection = build(
+    LEVELS[LEVELS.length - 1]!,
+  );
+  return levels.map(
+    (level: number): sectionAutoMovieHumanArm.ISection =>
+      level === collars.upperArm
+        ? { ...proximal, level }
+        : level === collars.wrist
+          ? { ...distal, level }
+          : level === LEVELS[0]!
+            ? proximal
+            : level === LEVELS[LEVELS.length - 1]!
+              ? distal
+              : build(level),
   );
 }
 /** Section type of {@link sectionAutoMovieHumanArm}, one per station. */
@@ -274,7 +285,10 @@ const deepShape: (level: number) => number[] = (level: number): number[] => {
 };
 
 /** Fat thickness at the eight directions of one level, millimetres. */
-const fatAround: (level: number, tissue: estimateAutoMovieHumanArmTissue.IOutput) => number[] = (
+const fatAround: (
+  level: number,
+  tissue: estimateAutoMovieHumanArmTissue.IOutput,
+) => number[] = (
   level: number,
   tissue: estimateAutoMovieHumanArmTissue.IOutput,
 ): number[] => {
@@ -304,7 +318,14 @@ const fatAround: (level: number, tissue: estimateAutoMovieHumanArmTissue.IOutput
 /**
  * Scale the deep shape so the section through its radii plus the fat has the target girth, holding pinned radii and pinning any radius that crosses its floor or ceiling there; returns the radii and the deep shape's scale.
  */
-const fitGirth: (shape: number[], fat: number[], girth: number, pinned: Map<number, number>, floor: Map<number, number>, ceiling: Map<number, number>) => { radii: number[]; scale: number } = (
+const fitGirth: (
+  shape: number[],
+  fat: number[],
+  girth: number,
+  pinned: Map<number, number>,
+  floor: Map<number, number>,
+  ceiling: Map<number, number>,
+) => { radii: number[]; scale: number } = (
   shape: number[],
   fat: number[],
   girth: number,
@@ -400,7 +421,12 @@ const perimeter: (radii: number[]) => number = (radii: number[]): number => {
 };
 
 /** Smooth bump along the arm: 0 outside `from` to `to`, 1 at `peak`, cosine on each side. */
-const bump: (x: number, from: number, peak: number, to: number) => number = (x: number, from: number, peak: number, to: number): number => {
+const bump: (x: number, from: number, peak: number, to: number) => number = (
+  x: number,
+  from: number,
+  peak: number,
+  to: number,
+): number => {
   if (x <= from || x >= to) return 0;
   const t: number =
     x < peak ? (x - from) / (peak - from) : (to - x) / (to - peak);
@@ -408,7 +434,10 @@ const bump: (x: number, from: number, peak: number, to: number) => number = (x: 
 };
 
 /** Piecewise linear interpolation over ascending knots, held beyond the ends. */
-const interpolate: (knots: Array<[number, number]>, x: number) => number = (knots: Array<[number, number]>, x: number): number => {
+const interpolate: (knots: Array<[number, number]>, x: number) => number = (
+  knots: Array<[number, number]>,
+  x: number,
+): number => {
   if (x <= knots[0]![0]) return knots[0]![1];
   for (let i: number = 1; i < knots.length; ++i) {
     const [x1, y1]: [number, number] = knots[i]!;

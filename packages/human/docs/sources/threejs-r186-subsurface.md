@@ -1,6 +1,6 @@
 # three.js r186, subsurface and physical material
 
-three.js 0.186.0 as installed in `packages/viewer/node_modules/three`: `examples/jsm/shaders/SubsurfaceScatteringShader.js` and `src/materials/MeshPhysicalMaterial.js`. Read in the repository.
+three.js 0.186.0 as installed in `packages/viewer/node_modules/three`: `examples/jsm/shaders/SubsurfaceScatteringShader.js` and `src/materials/MeshPhysicalMaterial.js`.
 
 ## Licence
 

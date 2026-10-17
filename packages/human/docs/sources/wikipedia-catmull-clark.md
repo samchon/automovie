@@ -1,6 +1,6 @@
 # Wikipedia, Catmull-Clark subdivision surface
 
-https://en.wikipedia.org/wiki/Catmull%E2%80%93Clark_subdivision_surface, read 2026-10-15.
+https://en.wikipedia.org/wiki/Catmull%E2%80%93Clark_subdivision_surface.
 
 ## Licence
 

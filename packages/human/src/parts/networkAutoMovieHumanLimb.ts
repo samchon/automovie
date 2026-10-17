@@ -10,9 +10,9 @@ import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { IAutoMovieHumanRingShape } from "../junction/IAutoMovieHumanRingShape";
 import { AutoMovieHumanVector } from "../skeleton/AutoMovieHumanVector";
 import { IAutoMovieHumanLimbPlan } from "./IAutoMovieHumanLimbPlan";
+import { fieldAutoMovieHumanLimbRelief } from "./fieldAutoMovieHumanLimbRelief";
 import { measureAutoMovieHumanLimbRow } from "./measureAutoMovieHumanLimbRow";
 import { patchAutoMovieHumanLimb } from "./patchAutoMovieHumanLimb";
-import { fieldAutoMovieHumanLimbRelief } from "./fieldAutoMovieHumanLimbRelief";
 
 /** The tier the human profile samples; one tier keeps one topology until resolution tiers reach every part. */
 const TIER: "medium" = "medium" as const;
@@ -74,11 +74,14 @@ export function networkAutoMovieHumanLimb(
         : ends.find((e: IEnd): boolean => e.stations.includes(i))!.section,
   );
 
+  const features: IAutoMovieSweep.IFeature[] = fieldAutoMovieHumanLimbRelief(
+    plan,
+    at,
+  );
 
-  const features: IAutoMovieSweep.IFeature[] =
-    fieldAutoMovieHumanLimbRelief(plan, at);
-
-  const network: (scales: number[]) => IAutoMovieSurfaceNetwork = (scales: number[]): IAutoMovieSurfaceNetwork => ({
+  const network: (scales: number[]) => IAutoMovieSurfaceNetwork = (
+    scales: number[],
+  ): IAutoMovieSurfaceNetwork => ({
     sweeps: {
       limb: {
         spine: {
@@ -229,7 +232,13 @@ interface IEnd {
  *
  * The ring runs counterclockwise about its own normal, which points out of the part: along the limb's distal axis at the distal ring and against it at the proximal one. Vertex `k` of the ring therefore lies at `v = k / count` at the distal end and `v = -k / count` at the proximal end, the loop the ring's edge walks in layout order.
  */
-const end: (shape: IAutoMovieHumanRingShape, ring: IAutoMovieHumanLimbPlan.IStation, collar: IAutoMovieHumanLimbPlan.IStation, ringIndex: number, collarIndex: number) => IEnd = (
+const end: (
+  shape: IAutoMovieHumanRingShape,
+  ring: IAutoMovieHumanLimbPlan.IStation,
+  collar: IAutoMovieHumanLimbPlan.IStation,
+  ringIndex: number,
+  collarIndex: number,
+) => IEnd = (
   shape: IAutoMovieHumanRingShape,
   ring: IAutoMovieHumanLimbPlan.IStation,
   collar: IAutoMovieHumanLimbPlan.IStation,
@@ -273,19 +282,27 @@ const end: (shape: IAutoMovieHumanRingShape, ring: IAutoMovieHumanLimbPlan.IStat
 };
 
 /** Polar angle of a section point within one turn from 0. */
-const turn: (p: IAutoMovieSweepSection.IPoint) => number = (p: IAutoMovieSweepSection.IPoint): number => {
+const turn: (p: IAutoMovieSweepSection.IPoint) => number = (
+  p: IAutoMovieSweepSection.IPoint,
+): number => {
   const a: number = Math.atan2(p.y, p.x);
   return a < -1e-12 ? a + 2 * Math.PI : Math.max(0, a);
 };
 
 /** Rotation taking `+X` to the station's anterior, `+Y` to its axis crossed with that and `+Z` to its axis. */
-const rotationOf: (s: IAutoMovieHumanLimbPlan.IStation) => IAutoMovieQuaternion = (
+const rotationOf: (
+  s: IAutoMovieHumanLimbPlan.IStation,
+) => IAutoMovieQuaternion = (
   s: IAutoMovieHumanLimbPlan.IStation,
 ): IAutoMovieQuaternion =>
   quaternionOf(s.anterior, V.cross(s.axis, s.anterior), s.axis);
 
 /** The unit quaternion of the rotation whose matrix columns are `x`, `y`, `z`, read from the matrix's largest diagonal term for stability. */
-const quaternionOf: (x: IAutoMovieVector3, y: IAutoMovieVector3, z: IAutoMovieVector3) => IAutoMovieQuaternion = (
+const quaternionOf: (
+  x: IAutoMovieVector3,
+  y: IAutoMovieVector3,
+  z: IAutoMovieVector3,
+) => IAutoMovieQuaternion = (
   x: IAutoMovieVector3,
   y: IAutoMovieVector3,
   z: IAutoMovieVector3,
@@ -328,8 +345,12 @@ const quaternionOf: (x: IAutoMovieVector3, y: IAutoMovieVector3, z: IAutoMovieVe
 };
 
 /** A section given in millimetres, in metres. */
-const metresOf: (section: IAutoMovieSweepSection) => IAutoMovieSweepSection = (section: IAutoMovieSweepSection): IAutoMovieSweepSection => {
-  const point: (p: IAutoMovieSweepSection.IPoint) => IAutoMovieSweepSection.IPoint = (
+const metresOf: (section: IAutoMovieSweepSection) => IAutoMovieSweepSection = (
+  section: IAutoMovieSweepSection,
+): IAutoMovieSweepSection => {
+  const point: (
+    p: IAutoMovieSweepSection.IPoint,
+  ) => IAutoMovieSweepSection.IPoint = (
     p: IAutoMovieSweepSection.IPoint,
   ): IAutoMovieSweepSection.IPoint => ({
     x: metres(p.x),
@@ -359,7 +380,9 @@ const metresOf: (section: IAutoMovieSweepSection) => IAutoMovieSweepSection = (s
 };
 
 /** Each point's share of the polyline's chord length, 0 at the first and 1 at the last. */
-const chordShares: (points: IAutoMovieVector3[]) => number[] = (points: IAutoMovieVector3[]): number[] => {
+const chordShares: (points: IAutoMovieVector3[]) => number[] = (
+  points: IAutoMovieVector3[],
+): number[] => {
   const lengths: number[] = [0];
   for (let k: number = 1; k < points.length; ++k)
     lengths.push(lengths[k - 1]! + V.distance(points[k - 1]!, points[k]!));
@@ -368,7 +391,9 @@ const chordShares: (points: IAutoMovieVector3[]) => number[] = (points: IAutoMov
 };
 
 /** The same count at every tier. */
-const fixed: (n: number) => IAutoMovieSurfaceNetwork.ICounts = (n: number): IAutoMovieSurfaceNetwork.ICounts => ({
+const fixed: (n: number) => IAutoMovieSurfaceNetwork.ICounts = (
+  n: number,
+): IAutoMovieSurfaceNetwork.ICounts => ({
   lowest: n,
   low: n,
   medium: n,
@@ -377,7 +402,9 @@ const fixed: (n: number) => IAutoMovieSurfaceNetwork.ICounts = (n: number): IAut
 
 const metres: (mm: number) => number = (mm: number): number => mm / 1000;
 const millimetres: (m: number) => number = (m: number): number => m * 1000;
-const toMetres: (p: IAutoMovieVector3) => IAutoMovieVector3 = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
+const toMetres: (p: IAutoMovieVector3) => IAutoMovieVector3 = (
+  p: IAutoMovieVector3,
+): IAutoMovieVector3 => ({
   x: metres(p.x),
   y: metres(p.y),
   z: metres(p.z),

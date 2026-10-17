@@ -1,6 +1,6 @@
 # Zárate-Tejero et al. 2024, craniovertebral angle reference values
 
-Zárate-Tejero C.A., Rodríguez-Rubio P.R., Brandt L., Krauss J., Hernández-Secorún M., Hidalgo-García C., Lucha-López O. "Measuring Craniovertebral Angle Reference Values in Adults Using Kinovea Software." *Applied Sciences* 14(19):8639, 2024, doi:10.3390/app14198639. Read: the full PDF from the University of Zaragoza repository (https://zaguan.unizar.es/record/145251).
+Zárate-Tejero C.A., Rodríguez-Rubio P.R., Brandt L., Krauss J., Hernández-Secorún M., Hidalgo-García C., Lucha-López O. "Measuring Craniovertebral Angle Reference Values in Adults Using Kinovea Software." *Applied Sciences* 14(19):8639, 2024, doi:10.3390/app14198639. [University of Zaragoza repository](https://zaguan.unizar.es/record/145251), full PDF.
 
 ## Licence
 

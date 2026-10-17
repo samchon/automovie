@@ -12,7 +12,9 @@ export namespace AutoMovieHumanGirthGrowth {
   export const NHANES_WAIST: ISexCurve = {
     male: {
       ages: [2.5, 5.5, 10.5, 15.5, 19.5, 25, 35, 45, 55, 65, 75, 85],
-      values: [488, 550, 704, 850, 895, 942, 1026, 1041, 1051, 1073, 1074, 1043],
+      values: [
+        488, 550, 704, 850, 895, 942, 1026, 1041, 1051, 1073, 1074, 1043,
+      ],
     },
     female: {
       ages: [2.5, 5.5, 10.5, 15.5, 19.5, 25, 35, 45, 55, 65, 75, 85],
@@ -51,7 +53,10 @@ export namespace AutoMovieHumanGirthGrowth {
   /**
    * Mean relaxed limb girths by age, millimetres, from the 1977 US child survey's individual records (Snyder et al. 1977, UM-HSRI-77-17; NIST AnthroKids), our means at the centres of one-year bins (the last spanning 17 to 18.5 years; 12 to 157 children per bin), all standing: the wrist the minimum above the ulnar styloid, the thigh horizontal at the gluteal furrow, the calf the maximum and the ankle the minimum above the malleoli. Read only as ratios between ages, they carry how each girth grows: the wrist and ankle grow far less than the arm through childhood (wrist 112 to 149 mm in girls against an upper arm of 156 to 248), so scaling them by the arm's growth would make a child's wrist and ankle too thin. Grade: measured.
    */
-  export const SNYDER_LIMB: Record<"wrist" | "thigh" | "calf" | "ankle", ISexCurve> = {
+  export const SNYDER_LIMB: Record<
+    "wrist" | "thigh" | "calf" | "ankle",
+    ISexCurve
+  > = {
     wrist: {
       male: {
         ages: [

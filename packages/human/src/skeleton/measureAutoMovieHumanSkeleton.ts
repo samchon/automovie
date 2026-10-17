@@ -18,8 +18,7 @@ export function measureAutoMovieHumanSkeleton(
   const { left, right }: IAutoMovieHumanLandmarks = skeleton.landmarks;
   const measured: IAutoMovieHumanSkeletalMeasurements.IHanging =
     measureAutoMovieHumanLandmarks(
-      abductAutoMovieHumanArms(skeleton, "lower")
-        .landmarks,
+      abductAutoMovieHumanArms(skeleton, "lower").landmarks,
     );
   return {
     ...measured,

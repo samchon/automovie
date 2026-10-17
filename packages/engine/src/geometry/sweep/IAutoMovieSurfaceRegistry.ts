@@ -182,4 +182,3 @@ export namespace IAutoMovieSurfaceRegistry {
     readonly write: (out: Float64Array, at: number) => void;
   }
 }
-

@@ -1,10 +1,10 @@
 # Rogers et al. 2008, 3D anthropometric hand model
 
-Rogers M.S., Barr A.B., Kasemsontitum B., Rempel D.M. "A three-dimensional anthropometric solid model of the hand based on landmark measurements." *Ergonomics* 51(4):511-526, 2008, doi:10.1080/00140130701710994. Read: the author manuscript on CDC Stacks, https://stacks.cdc.gov/view/cdc/188402, methods and Tables 1 and 3.
+Rogers M.S., Barr A.B., Kasemsontitum B., Rempel D.M. "A three-dimensional anthropometric solid model of the hand based on landmark measurements." *Ergonomics* 51(4):511-526, 2008, doi:10.1080/00140130701710994. [Author manuscript](https://stacks.cdc.gov/view/cdc/188402), methods and Tables 1 and 3.
 
 ## Population and protocol
 
-100 subjects, palmar landmarks digitised in four postures; calliper measurements by the US Army definitions (Greiner 1992, "Hand anthropometry of U.S. Army personnel", NATICK/TR-92/011, not read itself). Grade: measured.
+100 subjects, palmar landmarks digitised in four postures; calliper measurements by the US Army definitions (Greiner 1992, "Hand anthropometry of U.S. Army personnel", NATICK/TR-92/011, cited through Rogers). Grade: measured.
 
 ## Values
 
@@ -15,9 +15,8 @@ Rogers M.S., Barr A.B., Kasemsontitum B., Rempel D.M. "A three-dimensional anthr
 
 ## What Human takes
 
-The hand breadth definition that places the metacarpale II and V landmarks; the per-digit joint size ratios for the hand part (#2797).
+The hand breadth definition that places the metacarpale II and V landmarks, and the per-digit joint size ratios.
 
-
-## Campaign 2831 method reread
+## Modeling assumptions and limits
 
 Section 2.5.2 explicitly sets MCP breadth equal to PIP breadth as a modelling assumption. Section 2.5.3 defines the web from adjacent phalangeal sections and the palmar crease, with its width depending on their relative posture. These support a shared section-and-web definition, not a measured uniform finger spacing or a complete calibration target. The 66 digitized landmark positions are not imported into Human.

@@ -1,6 +1,6 @@
 # Snyder et al. 1977, anthropometry of US infants, children and youths (AnthroKids)
 
-Snyder R.G., Schneider L.W., Owings C.L., Reynolds H.M., Golomb D.H., Schork M.A. *Anthropometry of Infants, Children and Youths to Age 18 for Product Safety Design*, UM-HSRI-77-17, Highway Safety Research Institute, University of Michigan, for the US Consumer Product Safety Commission, 1977. Read through the NIST AnthroKids site (https://math.nist.gov/~SRessler/anthrokids/): the measurement descriptions page `data1977/descrip.htm`, the male head-height table `data1977/175m.htm`, and the individual records `orig77/individuals.csv` (3,900 subjects, 123 columns), which were downloaded and fitted. The report itself (DeepBlue handle 2027.42/684, a 37 MB scan) was not read.
+Snyder R.G., Schneider L.W., Owings C.L., Reynolds H.M., Golomb D.H., Schork M.A. *Anthropometry of Infants, Children and Youths to Age 18 for Product Safety Design*, UM-HSRI-77-17, Highway Safety Research Institute, University of Michigan, for the US Consumer Product Safety Commission, 1977. NIST AnthroKids sources: [measurement definitions](https://math.nist.gov/~SRessler/anthrokids/data1977/descrip.htm), [male head-height table](https://math.nist.gov/~SRessler/anthrokids/data1977/175m.htm), and [individual records](https://math.nist.gov/~SRessler/anthrokids/orig77/individuals.csv), 3,900 subjects and 123 columns. The ratios below are derived from these records, not quoted from the report.
 
 ## Licence
 
@@ -8,7 +8,7 @@ A US Government-funded survey published by NIST and the CPSC; the site states th
 
 ## Population and protocol
 
-US children from two weeks to 18 years, measured 1975 to 1977 across the United States by two teams with automated anthropometers; 87 dimensions. Zero means missing. `SEX` 1 is male (checked: our mean head height of sex 1 at 2 to 3 years, 173 mm, matches the published male table, 17.6 cm at 2.0 to 3.5 years). Infants under two have supine stature and no standing measures. Definitions used below: erect sitting height, sitting surface to vertex with the head in the Frankfort plane; head height, menton to vertex perpendicular to the Frankfort plane; hand length, wrist crease to the tip of the middle finger; hand breadth, across the knuckles; thumb, index and middle finger lengths, from the skin crease at the finger base to the tip; foot breadth, maximum across the ball.
+US children from two weeks to 18 years, measured 1975 to 1977 across the United States by two teams with automated anthropometers; 87 dimensions. Zero means missing. `SEX` 1 is male. Infants under two have supine stature and no standing measures. Definitions used below: erect sitting height, sitting surface to vertex with the head in the Frankfort plane; head height, menton to vertex perpendicular to the Frankfort plane; hand length, wrist crease to the tip of the middle finger; hand breadth, across the knuckles; thumb, index and middle finger lengths, from the skin crease at the finger base to the tip; foot breadth, maximum across the ball.
 
 ## Fitted values (ours, population-fitted: means of per-subject ratios by age bin)
 
@@ -50,10 +50,9 @@ Bins are one year wide from the stated age (n 55 to 157 per cell; the last spans
 
 Age curves from 2 to 18 years for sitting-height ratio, heads per stature, shoulder and pelvic breadth fractions, limb segment fractions, natural-waist-to-hip ratio and hand and foot proportions. The 1970s US sample is shorter and leaner than today's (compare `nhanes-2015-2018.md`), so Human takes ratios, not absolute sizes.
 
+## Minimum ankle section
 
-## Minimum ankle section, read for #2831
-
-Measurement 83 is the minimum horizontal right-ankle circumference above the malleoli, with an automated tape, standing with weight evenly distributed; measurement 84 is the minimum horizontal breadth above the malleoli with an automated sliding caliper. The definitions do not require both minima to occur at one height. Read the same NIST descriptions and individual records again on 2026-10-16.
+Measurement 83 is the minimum horizontal right-ankle circumference above the malleoli, with an automated tape, standing with weight evenly distributed; measurement 84 is the minimum horizontal breadth above the malleoli with an automated sliding caliper. The definitions do not require both minima to occur at one height.
 
 Ages 16.0 to below 18.5 years, from `AGE IN MONTHS / 12`, with both ankle measurements positive. The ratio below is the mean of each person's breadth/circumference, not the ratio of the group means. Grade: measured inputs, ratios derived.
 
@@ -62,4 +61,4 @@ Ages 16.0 to below 18.5 years, from `AGE IN MONTHS / 12`, with both ankle measur
 | Male | 77 | 60.4805 | 227.2338 | 0.266390 | 0.015979 |
 | Female | 76 | 53.8684 | 209.7895 | 0.256611 | 0.013152 |
 
-This is evidence against a circular minimum section, whose breadth/circumference is 1/pi, rather than an adult same-level ellipse fit. Adult extension and a cut's height require independent comparison. Human's fixed minimum-ankle section was fitted to the campaign's adult reference sections, checked against these standing ratios, and remains a conventional shape outside that calibration.
+These standing ratios argue against a circular minimum section, whose breadth/circumference is 1/pi; they do not determine an adult ellipse at one height. Human's minimum-ankle shape remains a convention outside its adult reference calibration.

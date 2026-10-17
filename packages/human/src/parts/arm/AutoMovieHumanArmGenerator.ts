@@ -1,24 +1,29 @@
 import { IAutoMovieHumanCage } from "../../junction/IAutoMovieHumanCage";
+import { IAutoMovieHumanLimbPlan } from "../IAutoMovieHumanLimbPlan";
 import { IAutoMovieHumanPartGenerator } from "../IAutoMovieHumanPartGenerator";
 import { fieldAutoMovieHumanDeltoid } from "../fieldAutoMovieHumanDeltoid";
 import { loftAutoMovieHumanLimb } from "../loftAutoMovieHumanLimb";
-import { IAutoMovieHumanLimbPlan } from "../IAutoMovieHumanLimbPlan";
 import { planAutoMovieHumanArm } from "./planAutoMovieHumanArm";
 
 /** Share of the stations' chord length at station `i`. */
-const arcShare: (plan: IAutoMovieHumanLimbPlan, i: number) => number = (plan: IAutoMovieHumanLimbPlan, i: number): number => {
+const arcShare: (plan: IAutoMovieHumanLimbPlan, i: number) => number = (
+  plan: IAutoMovieHumanLimbPlan,
+  i: number,
+): number => {
   let to: number = 0;
   let total: number = 0;
-  plan.stations.forEach((s: IAutoMovieHumanLimbPlan.IStation, k: number): void => {
-    if (k === 0) return;
-    const d: number = Math.hypot(
-      s.centre.x - plan.stations[k - 1]!.centre.x,
-      s.centre.y - plan.stations[k - 1]!.centre.y,
-      s.centre.z - plan.stations[k - 1]!.centre.z,
-    );
-    total += d;
-    if (k <= i) to += d;
-  });
+  plan.stations.forEach(
+    (s: IAutoMovieHumanLimbPlan.IStation, k: number): void => {
+      if (k === 0) return;
+      const d: number = Math.hypot(
+        s.centre.x - plan.stations[k - 1]!.centre.x,
+        s.centre.y - plan.stations[k - 1]!.centre.y,
+        s.centre.z - plan.stations[k - 1]!.centre.z,
+      );
+      total += d;
+      if (k <= i) to += d;
+    },
+  );
   return to / total;
 };
 
@@ -59,10 +64,13 @@ export class AutoMovieHumanArmGenerator implements IAutoMovieHumanPartGenerator<
     props: IAutoMovieHumanPartGenerator.IProps<"arm">,
   ): (point: IAutoMovieHumanPartGenerator.IReliefPoint<"arm">) => number {
     const plan: IAutoMovieHumanLimbPlan = planAutoMovieHumanArm(props);
-    const deltoid: ReturnType<typeof fieldAutoMovieHumanDeltoid> = fieldAutoMovieHumanDeltoid(props);
+    const deltoid: ReturnType<typeof fieldAutoMovieHumanDeltoid> =
+      fieldAutoMovieHumanDeltoid(props);
     // the shoulder branch does not read the deltoid yet, so the arm takes it in over the rows next to the ring instead of stepping at the ring
     const start: number = plan.stations[2]!.rows > 0 ? arcShare(plan, 2) : 0;
-    return (point: IAutoMovieHumanPartGenerator.IReliefPoint<"arm">): number => {
+    return (
+      point: IAutoMovieHumanPartGenerator.IReliefPoint<"arm">,
+    ): number => {
       const t: number = Math.min(1, Math.max(0, point.coordinate.u / start));
       return t * t * (3 - 2 * t) * deltoid(point.position);
     };

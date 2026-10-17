@@ -2,6 +2,9 @@
  * Public entry of `@automovie/human`: the person class, its input documents, the converter contract and default, admission, and the part and junction contracts that part generators implement.
  */
 export * from "./human/AutoMovieHuman";
+export * from "./structures/IAutoMovieHumanCurveSupplement";
+export * from "./curves/inspectAutoMovieHumanCurveDesign";
+export * from "./measure/validateAutoMovieHumanCurveSupplement";
 export * from "./human/AUTOMOVIE_HUMAN_PART_GENERATORS";
 export * from "./human/IAutoMovieHumanPartGenerators";
 
