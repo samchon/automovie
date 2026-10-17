@@ -1,52 +1,70 @@
 ---
 name: human
-description: Governs main-agent supervision, instruction-compliance audits, and thirty-minute reporting for Human work. Use with the 3d-modeling skill before working on packages/human, a human figure, or the Human viewer.
+description: Directs Human campaign work, author responsibilities, scientific iteration, main-agent compliance audits, and thirty-minute reporting. Use with 3d-modeling before working on packages/human, a human figure, or the Human viewer.
 ---
 
 # Human
 
-## Supervision
+## Mission And Lifetime
 
-The main agent owns instruction compliance throughout Human work. Before assigning or starting work, read the applicable skills and linked procedures, identify the rules that govern it, and name the author responsible for each source surface and shared boundary. Delegation requires the user's authorization.
+This is a temporary overall directive for Human campaign work. The main agent owns allocation, instruction-compliance audits and reporting; each author owns implementation and visual judgment. Campaign issues own the concrete scope, acceptance cases, dependencies, source checkpoints and local input inventories. Keep those changing facts out of this skill. When the campaign ends, delete or rewrite this directive and update its entry points and links.
 
-Audit evidence that the author read and followed those instructions, inspected the actual viewer, and completed correction rounds. The main agent does not approve visual quality, act as an independent visual reviewer, or impose a start or approval gate before the author can proceed. The author owns implementation, enlarged viewer inspection, and self-review.
+Complete the work in dependency order:
 
-An audit records the governing instruction, its evidence, any breach, the responsible owner, and the correction. Assign missing or invalid evidence to its owner and report it honestly; a claim of compliance alone is insufficient. A serious result or instruction breach is reported immediately.
+1. Complete the assembled neutral person, including procedural skin, eyes, hair, nails, basic underwear and saved public documents.
+2. Vary neutral parameters to make curve and loft logic scientifically justified, rational, reusable, modular and economical, then complete joint, gaze and facial articulation across poses.
+3. Extend those foundations across ages and body types and complete the parametric editor.
 
-## Author Workflow
+Read the campaign's current issues, children and comments before allocating work. Parallel work may proceed where its actual source and boundary dependencies permit. A merged handoff is not a completed person; retired issues and historical status files do not reactivate old assignments or approval gates.
 
-The author inspects the current assembled person in the actual Human viewer, enlarges each affected region, records the round's defects, and traces them through all affected parts and shared boundaries. Follow [Visual Debugging](../3d-modeling/visual-debugging.md) and [Verification](verification.md), fix the round's common causes together, then inspect the complete result again. Collect a self-review round's findings before fixing them together under [Review](../review/SKILL.md).
+## Start And Allocation
 
-Coordinate source, build, viewer-runtime, and capture ownership before using shared resources. Record and respect the active owner's lock and source snapshot; wait for release or an explicit handoff rather than modifying another owner's input or stopping their process. The main agent audits this coordination and does not take over the author's build or capture work.
+Read AGENTS.md, every triggered skill and its applicable procedures before starting or assigning a task. Follow them fully even when costly. Request a revision with the exact clause, observed cost and proposed wording rather than silently weakening a rule.
 
-Preserve the last valid state when an operation fails. If code and formulas cannot reach the required quality, report that limit instead of substituting another generation route.
+Check the actual checkout, source snapshot, working changes, live processes and local inputs. Preserve user-owned changes, read-only comparison checkouts, original references, editor projects and other owners' processes. Recover input paths and provenance from the campaign's current inventory, verify their actual presence, and reuse sufficient exports instead of repeating extraction. Follow [References](references.md) for private data and comparison conditions.
 
-## Inspection And Reporting
+Use subagents when authorized by the user. Assign genuine product responsibilities with one named author for each source surface and shared boundary; keep a compact current ownership and dependency record. Parallelize independent geometry, appearance and hair work where their contracts permit. Authors coordinate shared boundaries directly and reuse working execution paths; do not add dedicated approval, capture or coordination intermediaries.
 
-During active Human work, the main agent audits compliance and reports to the user in Korean every thirty minutes from the work's start. Keep that schedule fixed: intermediate updates and immediate reports do not reset it.
-
-Each scheduled report includes the actual viewer's current full-body screenshot as an absolute-path image, its source snapshot and capture time, the author's enlarged inspection and correction evidence, unresolved defects, and instruction-compliance findings with their owners. Distinguish the image's capture time from the report time. If a current capture is unavailable, report that gap and its owner without presenting an old capture as current.
-
-When the user requests a percentage, give the author's estimated development progress with its basis and scope; never present it as accuracy or test coverage.
-
-Identify a `.shots` file's current use before deleting it. Keep only images needed for the current judgment in `.shots/output`, including the active before-and-after pair; keep metadata and logs outside it.
-
-## Human Tests
-
-Do not write, restore, or work around test code for Human or the Human viewer, regardless of the reason, including by renaming or relocating it into another package, helper, or check. Runtime admission, source guards, and compiler checks remain separate production responsibilities; they must not conceal replacement test code. Use actual-viewer inspection for visual evidence.
+The main agent identifies blocked work, its cause and owner, and assigns useful independent work or a coherent alternative. It audits compliance without taking over product implementation, builds or captures. Do not let advanced skin research block geometry; retain a simple deterministic procedural finish when needed and keep unfinished appearance explicit.
 
 ## Technical Guides
 
-Read the relevant technical guide before its task:
+Read `packages/human/docs` before researching a value or method and update useful findings when research changes. Use [Anatomy](anatomy.md) and [Parameters](parameters.md) for primary-source grounds, measurement meaning, admission and uncertainty; distinguish measured facts, derived relations and design conventions. Avoid repeating abandoned approaches or adding an experiment chronicle.
 
-- [Anatomy](anatomy.md) owns anatomical grounds and modeled tissue.
-- [Parameters](parameters.md) owns parameter meaning and admission.
-- [Construction](construction.md) owns generation, parts, junctions, and the core boundary.
-- [References](references.md) owns reference use and comparison.
-- [Verification](verification.md) owns calibration bodies and form judgment.
+Follow [Lofting](../3d-modeling/lofting.md): inspect whole-body front, side and top curves, refine regions with their neighbors, then add linked sections and guides progressively. Use anatomical Bezier spans and suitable oval or elliptical arcs from dimensions, relative frames, ratios and common tangents. The author completes the curve correction round before advancing to its loft layer; neither a giant circumference polynomial nor a hardcoded point catalogue replaces those rules.
 
-Read the research workspace, `packages/human/docs`, before researching a value or technique, and update it when research changes, so sources and abandoned approaches are not repeated.
+Read [Construction](construction.md), [Crafting](../3d-modeling/crafting.md) and [Modularization](../3d-modeling/modularization.md) before choosing the representation and shared boundaries. Necessary engine, interface and viewer changes are allowed under their package ownership. Reuse valid work and justified principles from the reference checkout without freezing an unsuitable legacy topology or algorithm.
 
-## Documentation
+Use [Verification](verification.md) for calibration bodies and form judgment. State the proposed mechanism, measurement conditions, correspondence and practical error/cost criteria before controlled fitting. Preserve independent dimensions and reserve observations for validation. Trace source curves through sampling, fitting and refinement to the actual emitted skin. Fix the stage that loses the intended form rather than compensating in unrelated anatomy.
+
+Each author opens the assembled person in the actual hardware Human viewer, enlarges affected regions and neighbors, collects the full round's defects, and traces their common causes across consumers. Follow [Visual Debugging](../3d-modeling/visual-debugging.md) and [Review](../review/SKILL.md), fix those causes together and inspect the complete result again until a fresh complete self-review finds no unresolved findings. The author proceeds on its own responsibility; there is no independent reviewer, main-agent visual approval, START permission or report-reading gate.
+
+Prefer the least costly representation that preserves anatomy, independent controls and deterministic output. Measure actual generation and display costs before optimizing. When matched renders stop improving, follow Verification's criterion for changing the source, correspondence or representation instead of endless coefficient or tolerance tuning. Preserve the last valid state on failure and report an unattained quality limit rather than substituting another generation route.
+
+## Shared Transactions
+
+Before a shared native build, check, commit or immutable freeze, the responsible author atomically acquires `.shots/build.lock` with an owner token and actual PID. Check the live owner and source snapshot; wait for release or an explicit handoff rather than modifying its input or stopping its process. Coordinate build, GPU, viewer-runtime and capture ownership directly.
+
+Record failures, recover only owned resources, and release only the matching own lock in `finally`. A removed main-agent approval gate does not waive this lock. Run comparisons on committed snapshots under References; a historical hash without a committed comparison source is insufficient.
+
+## Compliance Audits And Reporting
+
+During active implementation, the main agent establishes or resumes a recurring thirty-minute audit and Korean report through the scheduler. Record the fixed next target from the work's start or the existing schedule; intermediate reports do not reset it. Verify the automation's actual existence and current instructions rather than assuming an old loop remains active.
+
+Audit instruction compliance and actual evidence, not aesthetics or permission to proceed. For each breach record the governing clause, observed fact, responsible author and correction evidence; assign missing evidence to its owner and verify the correction. Inspect delays and coordination overhead at each audit and give the owner a concrete remedy. A claim of compliance alone is insufficient.
+
+Before each report, the responsible author captures and directly inspects the current actual-viewer front full-body image. Embed it by absolute-path Markdown with its source snapshot and capture time, add needed side, oblique and enlarged regional views with neighboring parts, and report author inspection/correction evidence, unresolved defects and audit findings. Distinguish capture time from report time. If a fresh image is unavailable, name the gap and owner and label any reused image's actual source and time; a CPU plot or atlas is not a viewer render.
+
+Report overall and regional progress as the responsible authors' estimated development percentages with scope, basis and remaining work, not measured accuracy, test coverage or main-agent approval. Attribute visual conclusions to their author and scope. Report significant results, including completed eye, appearance or hair work, and serious instruction breaches immediately with actual viewer evidence where applicable; keep the scheduled reports separately.
+
+Identify a `.shots` file's current use before deleting it. Keep only images needed for current judgment in `.shots/output`, including the active before-and-after pair; metadata and logs belong elsewhere.
+
+## Human Tests
+
+Do not write, restore, or work around test code for Human or the Human viewer, regardless of the reason, including by renaming or relocating it into another package, helper, scratch file or check. Remove any remaining such tests without replacing them. Runtime admission, source guards and compiler checks retain their production responsibilities and must not conceal replacement tests. Use actual-viewer inspection for visual evidence. The 500 ms boundary concerns unit tests, not Human generation or task duration.
+
+## Documentation And Delivery
 
 Apply [Meaningful documentation](../contracts/common.md#meaningful-documentation) to Human's public declarations and implementation comments, citing anatomical primary sources directly. `packages/human/docs` is the developers' research workspace, not a manual, and may be deleted when the rebuild completes, so no code or JSDoc refers to it.
+
+Follow [Issue Campaign](../issue-campaign/SKILL.md) and [Pull Request](../pull-request/SKILL.md) for scoped draft delivery, author self-review, applicable final native checks and authorized merge. An issue does not require its own PR. Close completed work with actual consumer evidence; transfer unfinished requirements with successor links rather than calling them complete.
