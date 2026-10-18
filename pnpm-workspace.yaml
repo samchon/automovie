@@ -2,6 +2,8 @@ packages:
   - config
   - experimental/*
   - packages/*
+  - tools/human-reference
+  - tools/recovery
   - test
   - website
 

@@ -1,0 +1,13 @@
+{
+  "name": "@automovie/reference-geometry-tools",
+  "private": true,
+  "type": "module",
+  "description": "Generic geometric observation helpers used by recovery tools",
+  "engines": {
+    "node": ">=22.23.2"
+  },
+  "scripts": {
+    "build": "ttsc --noEmit -p tsconfig.json",
+    "evidence": "evidence --cwd ."
+  }
+}
