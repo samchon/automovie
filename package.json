@@ -5,11 +5,11 @@
   "description": "Coding-agent-native deterministic filmmaking: tracked authoring, compilation, rendering, review, and delivery.",
   "packageManager": "pnpm@10.6.4",
   "scripts": {
-    "build": "pnpm --filter=./packages/** -r build",
+    "build": "pnpm --filter=./packages/** --filter=./tools/recovery --filter=./tools/human-reference -r build",
     "test": "pnpm --filter @automovie/test start",
     "format": "prettier --write \"**/*.{ts,cts,mts}\"",
     "format:check": "prettier --check \"**/*.{ts,cts,mts}\"",
-    "evidence": "pnpm --filter=./packages/** --filter=./test --no-bail --no-sort -r evidence"
+    "evidence": "pnpm --filter=./packages/** --filter=./tools/recovery --filter=./tools/human-reference --filter=./test --no-bail --no-sort -r evidence"
   },
   "keywords": [
     "coding-agent",
