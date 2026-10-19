@@ -18,6 +18,7 @@ const SCAFFOLD: string = resolve(HERE, "../scaffold");
 const SHARED: readonly string[] = [
   ".agents/skills/3d-modeling",
   ".agents/skills/contracts/common.md",
+  ".agents/skills/contracts/testing.md",
   ".agents/skills/development/repair.md",
   ".agents/skills/documentation/writing.md",
 ];
