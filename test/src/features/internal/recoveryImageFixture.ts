@@ -2,12 +2,13 @@ import type { IAutoMovieRecoveryImageInput } from "@automovie/interface/recovery
 
 /**
  * Rasterize analytic opaque sections independently of recovery and atlas code.
- * Cubic half-axes and quadratic translating centres have closed-form support
- * under the supplied orthographic chart; box support is a distinct negative.
+ * Cubic half-axes and translating centres have closed-form support under the
+ * supplied orthographic chart; an optional independent interval formula supplies
+ * other analytic sections. Box support is a distinct ellipse-family negative.
  *
  * @evidence contracts/testing.md#behavioral-verification Supplies real RGB8 pixel populations whose support must be extracted rather than injecting expected observed rows or fitted controls.
  * @evidence contracts/testing.md#independent-expectations Raster inclusion uses analytic ellipse or box support and explicit pixel centres, with no recovery fitter, spline evaluator, atlas generator or renderer import.
- * @evidence contracts/testing.md#distinguishing-cases Parameterized size, angle, pixel pitch and ellipse/box shape allow scale/chart and unsupported-family controls; admission failures are authored by the calling tests.
+ * @evidence contracts/testing.md#distinguishing-cases Parameterized angle, pixel pitch, ellipse/box shape and an optional analytic interval allow scale/chart and distinct section-family controls; admission failures are authored by the calling tests.
  * @evidence contracts/testing.md#execution-ownership This portable fixture owns only small resident typed arrays and deterministic arithmetic; it starts no process, filesystem, browser or GPU.
  */
 export function recoveryImageFixture(
@@ -16,6 +17,7 @@ export function recoveryImageFixture(
     angles?: number[];
     pitchMm?: number;
     profile?: (t: number) => [number, number, number, number];
+    support?: (t: number, azimuth: number) => [number, number];
   } = {},
 ): IAutoMovieRecoveryImageInput {
   const pitch: number = input.pitchMm ?? 0.25;
@@ -57,8 +59,17 @@ export function recoveryImageFixture(
             input.kind === "box"
               ? Math.abs(c) * a + Math.abs(s) * b
               : Math.hypot(c * a, s * b);
+          const interval: [number, number] | undefined = input.support?.(
+            t,
+            angle,
+          );
           for (let column: number = 0; column < width; column++)
-            if (Math.abs((column + 0.5 - 128) * pitch - centre) <= support) {
+            if (
+              interval
+                ? (column + 0.5 - 128) * pitch >= interval[0] &&
+                  (column + 0.5 - 128) * pitch <= interval[1]
+                : Math.abs((column + 0.5 - 128) * pitch - centre) <= support
+            ) {
               const at: number = 3 * (row * width + column);
               pixels[at] = 30;
               pixels[at + 1] = 80;

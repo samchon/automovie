@@ -1,4 +1,4 @@
-import type { IAutoMovieRecoveryImageLoft } from "@automovie/interface/recovery";
+import type { AutoMovieRecoveryImageRecipe } from "@automovie/interface/recovery";
 import {
   type IAutoMovieViewerCompletedFrame,
   captureAutoMovieMetricFrame,
@@ -200,7 +200,7 @@ export function mountRecoveryViewerPage(root: HTMLElement): {
     try {
       const ticket: number = ++version;
       const candidate: Candidate = await createRecoveryViewerCandidate(text);
-      const recipe: IAutoMovieRecoveryImageLoft = candidate.recipe;
+      const recipe: AutoMovieRecoveryImageRecipe = candidate.recipe;
       if (closed || ticket !== version) {
         await candidate.retire();
         return;
@@ -380,7 +380,7 @@ export function mountRecoveryViewerPage(root: HTMLElement): {
       report(async (): Promise<void> => {
         if (!current)
           throw new Error("Load a recipe before editing dimensions");
-        const recipe: IAutoMovieRecoveryImageLoft = structuredClone(
+        const recipe: AutoMovieRecoveryImageRecipe = structuredClone(
           current.recipe,
         );
         for (const field of [

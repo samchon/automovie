@@ -3,9 +3,9 @@ import type { IAutoMovieRecoveryImageObservation } from "@automovie/interface/re
 
 import type { IAutoMovieRecoveryImageFit } from "./IAutoMovieRecoveryImageFit";
 import type { IAutoMovieRecoveryOperation } from "./IAutoMovieRecoveryOperation";
-import { assertRecoveryImageChart } from "./internal/assertRecoveryImageChart";
 import { createRecoveryImageDirectionSolver } from "./internal/createRecoveryImageDirectionSolver";
 import { fitRecoveryImageProfiles } from "./internal/fitRecoveryImageProfiles";
+import { prepareRecoveryImageSupports } from "./internal/prepareRecoveryImageSupports";
 
 /**
  * Infer aligned elliptical sections from calibrated horizontal silhouette supports.
@@ -85,79 +85,14 @@ export function fitAutoMovieRecoveryImageLoft(
       throw new Error(
         "invalid-image-fit: explicit family, observations, residual/rank thresholds and finite budgets required",
       );
-    const names: Set<string> = new Set();
-    let rowCount: number = 0,
-      lower: number = -Infinity,
-      upper: number = Infinity;
-    for (let index: number = 0; index < observation.views.length; index++) {
-      const view: IAutoMovieRecoveryImageObservation["views"][number] =
-        observation.views[index];
-      if (
-        !view ||
-        typeof view.id !== "string" ||
-        !view.id ||
-        names.has(view.id) ||
-        typeof view.sourceSha256 !== "string" ||
-        !/^[a-f0-9]{64}$/i.test(view.sourceSha256) ||
-        typeof view.pixelProvenance !== "string" ||
-        !view.pixelProvenance ||
-        !Number.isSafeInteger(view.width) ||
-        view.width < 1 ||
-        !Number.isSafeInteger(view.height) ||
-        view.height < 1 ||
-        !view.camera ||
-        view.camera.type !== "horizontal-orthographic" ||
-        view.camera.calibration !== "supplied" ||
-        !Number.isFinite(view.camera.azimuthRadians) ||
-        !Number.isFinite(view.camera.pixelPitchMm) ||
-        view.camera.pixelPitchMm <= 0 ||
-        !Array.isArray(view.camera.principalPointPx) ||
-        view.camera.principalPointPx.length !== 2 ||
-        !Number.isFinite(view.camera.principalPointPx[0]) ||
-        !Number.isFinite(view.camera.principalPointPx[1]) ||
-        view.quantizationMm !== view.camera.pixelPitchMm / 2 ||
-        !Array.isArray(view.rows) ||
-        view.rows.length < 4
-      )
-        throw new Error(
-          `invalid-observation: supplied camera and dense support rows required at ${index}`,
-        );
-      rowCount += view.rows.length;
-      if (!Number.isSafeInteger(rowCount) || rowCount > policy.maxRows)
-        throw new Error("budget-exhausted: observed rows exceed maxRows");
-      names.add(view.id);
-      const chart: ReturnType<typeof assertRecoveryImageChart> =
-        assertRecoveryImageChart(view);
-      for (let row: number = 0; row < view.rows.length; row++) {
-        const current: (typeof view.rows)[number] = view.rows[row];
-        if (
-          !current ||
-          !Number.isFinite(current.yMm) ||
-          !Number.isFinite(current.lowerMm) ||
-          !Number.isFinite(current.upperMm) ||
-          !(current.lowerMm < current.upperMm) ||
-          (row > 0 && !(view.rows[row - 1].yMm < current.yMm))
-        )
-          throw new Error(
-            "invalid-observation: finite, ordered, positive-width support rows required",
-          );
-        chart.assertRow(current, row > 0 ? view.rows[row - 1] : undefined);
-      }
-      lower = Math.max(lower, view.rows[0].yMm);
-      upper = Math.min(upper, view.rows.at(-1)!.yMm);
-    }
-    if (!(lower < upper) || !Number.isFinite(upper - lower))
-      throw new Error(
-        "missing-common-support: views have no shared finite physical station interval",
-      );
-    const directions: { c: number; s: number }[] = observation.views.map(
-      (
-        view: IAutoMovieRecoveryImageObservation["views"][number],
-      ): { c: number; s: number } => ({
-        c: Math.cos(view.camera.azimuthRadians),
-        s: Math.sin(view.camera.azimuthRadians),
-      }),
-    );
+    const {
+      lower,
+      upper,
+      directions,
+      stations,
+      supports,
+    }: ReturnType<typeof prepareRecoveryImageSupports> =
+      prepareRecoveryImageSupports(observation, policy);
     const unique: number[] = [];
     for (const direction of directions) {
       const squared: number = direction.c * direction.c;
@@ -192,51 +127,6 @@ export function fitAutoMovieRecoveryImageLoft(
           ],
         ),
         policy.minimumDirectionRatio,
-      );
-    const stations: number[] = [
-      ...new Set(
-        observation.views.flatMap(
-          (
-            view: IAutoMovieRecoveryImageObservation["views"][number],
-          ): number[] =>
-            view.rows
-              .filter(
-                (row: (typeof view.rows)[number]): boolean =>
-                  row.yMm >= lower && row.yMm <= upper,
-              )
-              .map((row: (typeof view.rows)[number]): number => row.yMm),
-        ),
-      ),
-    ].sort((a: number, b: number): number => a - b);
-    if (stations.length < 4)
-      throw new Error(
-        "insufficient-common-support: four common-domain stations required",
-      );
-    const supports: { lowerMm: number; upperMm: number }[][] =
-      observation.views.map(
-        (
-          view: IAutoMovieRecoveryImageObservation["views"][number],
-        ): { lowerMm: number; upperMm: number }[] => {
-          let cursor: number = 0;
-          return stations.map(
-            (station: number): { lowerMm: number; upperMm: number } => {
-              while (
-                cursor + 1 < view.rows.length &&
-                view.rows[cursor + 1].yMm < station
-              )
-                cursor++;
-              const a: (typeof view.rows)[number] = view.rows[cursor],
-                b: (typeof view.rows)[number] =
-                  view.rows[Math.min(cursor + 1, view.rows.length - 1)];
-              const t: number =
-                a.yMm === b.yMm ? 0 : (station - a.yMm) / (b.yMm - a.yMm);
-              return {
-                lowerMm: a.lowerMm * (1 - t) + b.lowerMm * t,
-                upperMm: a.upperMm * (1 - t) + b.upperMm * t,
-              };
-            },
-          );
-        },
       );
     let familyResidual: number = 0;
     const samples: { yMm: number; values: [number, number, number, number] }[] =

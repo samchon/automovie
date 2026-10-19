@@ -36,6 +36,7 @@ export namespace IAutoMovieRecoveryOperation {
           | "registered-triangles-v1"
           | "orthographic-images-v1"
           | "image-elliptic-loft-v1"
+          | "image-support-loft-v1"
           | "json-publication-v1";
         status: "complete" | "partial";
         value: T;
@@ -48,6 +49,7 @@ export namespace IAutoMovieRecoveryOperation {
           | "registered-triangles-v1"
           | "orthographic-images-v1"
           | "image-elliptic-loft-v1"
+          | "image-support-loft-v1"
           | "json-publication-v1";
         status: "refused" | "failed" | "cancelled";
         diagnostics: string[];

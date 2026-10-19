@@ -38,6 +38,8 @@ Use Node.js 22.23.2 or newer. The root entrypoint owns resident operations; `@au
 | `observeAutoMovieRecoveryImages` | Extract physical row support from bounded resident RGB8 images and supplied metric cameras |
 | `fitAutoMovieRecoveryImageLoft` | Fit compact cubic centre/radius profiles under an explicit aligned-ellipse hypothesis |
 | `compileAutoMovieRecoveryImageLoft` | Generate an ordinary bicubic model and its construction from a saved image-loft recipe alone |
+| `fitAutoMovieRecoveryImageSupportLoft` | Fit cubic finite-view support profiles and qualify their continuous boundary events without an ellipse prior |
+| `compileAutoMovieRecoverySupportLoft` | Generate new mesh geometry, analytic normal fans and construction from a saved support recipe alone |
 | `IAutoMovieRecoveryOperation` | Versioned terminal outcomes, progress and cooperative cancellation |
 | `IAutoMovieRecoveryDomainLedger` | Declared domains, emitted ranges and explicitly unknown processing stages |
 | `publishAutoMovieRecoveryArtifact` from `/node` | Publish an immutable JSON artifact with an exact byte hash |
@@ -80,3 +82,9 @@ The fitter currently tests aligned elliptical XZ sections with cubic axial centr
 `IAutoMovieRecoveryImageFiles` from `/node` describes a versioned fixed P6 sRGB manifest with per-image SHA-256, charts and aggregate observation budgets. The `images` host takes `observe|fit|realize input.json new-output.json maxInputBytes` after its source-epoch option. Observation reads that manifest; fitting reads `{observation, policy}`; realization reads `{recipe, budget}` and consults no image path. Each command publishes a new immutable artifact with input hash, source epoch, terminal operation and value.
 
 The `automovie-recovery-image-loft-v1` recipe contains only generating coefficients, frame/identity, three dimension scales and coverage labels. Coefficients use metres; width/depth scale X/Z about the frame origin and height scales Y about the first saved station. Scale values lie in `[0.25, 4]`. Generated lateral surfaces remain inferred, with open unobserved ends and interior, so fit and compilation return `partial`. Hidden concavities, branches, general topology and photographic performance remain outside this qualified experiment.
+
+The `finite-view-convex-support` policy fits both oriented support limits of every supplied view with a common cubic spline space. It checks the implied intersection's support as well as each fitted offset. Its `generation` budget contains `tolerance`, `maxPlanes`, `maxEvents`, `maxCells`, `maxVertices` and `minimumDirectionSine`; the engine uses feasible cubic boundary events rather than assuming a fixed polygon along height. Invalid rows, weak directions, inconsistent supports and exhausted budgets refuse.
+
+The resulting `automovie-recovery-support-loft-v1` recipe saves support planes and cubic offsets, independently of source rows or mesh data. The same `[0.25,4]` coordinate edits use inverse-transformed support planes and newly derived normals. Its explicit coverage retains unknown caps, interior and hidden concavities, supplied cameras and an uncertified enclosure; a convex section hull does not establish physical convexity. Face interpolation error, numerical event isolation, boundary roundoff and source fit are separate qualifications.
+
+`AutoMovieRecoveryImageRecipe` is the closed union of these two saved forms. The file host's `images fit` dispatches the explicit policy family and `images realize` dispatches the saved schema. The ordinary `recovery.html` inspector accepts either form, with the same dimension controls, reference comparison and generating construction.

@@ -20,7 +20,9 @@
     "./geometry/curve": "./src/geometry/curve/index.ts",
     "./geometry/realizeAutoMovieBicubicAtlas64": "./src/geometry/realizeAutoMovieBicubicAtlas64.ts",
     "./geometry/createAutoMovieEllipticLoftAtlas": "./src/geometry/createAutoMovieEllipticLoftAtlas.ts",
-    "./geometry/curve/compileAutoMovieNormalizedPhases64": "./src/geometry/curve/compileAutoMovieNormalizedPhases64.ts"
+    "./geometry/curve/compileAutoMovieNormalizedPhases64": "./src/geometry/curve/compileAutoMovieNormalizedPhases64.ts",
+    "./geometry/realizeAutoMovieConvexSupportLoft": "./src/geometry/realizeAutoMovieConvexSupportLoft.ts",
+    "./geometry/evaluateAutoMovieSupportSection": "./src/geometry/evaluateAutoMovieSupportSection.ts"
   },
   "scripts": {
     "build": "rimraf lib && ttsc",
@@ -112,6 +114,14 @@
       "./geometry/curve/compileAutoMovieNormalizedPhases64": {
         "types": "./lib/geometry/curve/compileAutoMovieNormalizedPhases64.d.ts",
         "default": "./lib/geometry/curve/compileAutoMovieNormalizedPhases64.js"
+      },
+      "./geometry/realizeAutoMovieConvexSupportLoft": {
+        "types": "./lib/geometry/realizeAutoMovieConvexSupportLoft.d.ts",
+        "default": "./lib/geometry/realizeAutoMovieConvexSupportLoft.js"
+      },
+      "./geometry/evaluateAutoMovieSupportSection": {
+        "types": "./lib/geometry/evaluateAutoMovieSupportSection.d.ts",
+        "default": "./lib/geometry/evaluateAutoMovieSupportSection.js"
       }
     },
     "typesVersions": {
@@ -160,6 +170,12 @@
         ],
         "geometry/curve/compileAutoMovieNormalizedPhases64": [
           "lib/geometry/curve/compileAutoMovieNormalizedPhases64.d.ts"
+        ],
+        "geometry/realizeAutoMovieConvexSupportLoft": [
+          "lib/geometry/realizeAutoMovieConvexSupportLoft.d.ts"
+        ],
+        "geometry/evaluateAutoMovieSupportSection": [
+          "lib/geometry/evaluateAutoMovieSupportSection.d.ts"
         ]
       }
     }
@@ -221,6 +237,12 @@
       ],
       "geometry/curve/compileAutoMovieNormalizedPhases64": [
         "src/geometry/curve/compileAutoMovieNormalizedPhases64.ts"
+      ],
+      "geometry/realizeAutoMovieConvexSupportLoft": [
+        "src/geometry/realizeAutoMovieConvexSupportLoft.ts"
+      ],
+      "geometry/evaluateAutoMovieSupportSection": [
+        "src/geometry/evaluateAutoMovieSupportSection.ts"
       ]
     }
   }
