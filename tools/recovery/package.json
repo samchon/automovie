@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "build": "ttsc --noEmit",
-    "evidence": "evidence --cwd ."
+    "evidence": "evidence --cwd .",
+    "verify:package": "node --experimental-strip-types src/verifyAutoMovieRecoveryPackage.ts"
   },
   "dependencies": {
     "@automovie/recovery": "workspace:^"

@@ -10,7 +10,9 @@ import { verifyAutoMovieRecoveryRegisteredConsumer } from "./verifyAutoMovieReco
 
 /**
  * Verify actual packed recovery imports, installed bin and immutable publication.
- * Run after the workspace build through pnpm with scripts disabled during packing.
+ * Run after the workspace build with the recovery-tools verify:package script.
+ * That pnpm run host supplies npm_execpath; an explicit driver override remains
+ * available to controlled hosts. Packing disables lifecycle scripts.
  * The external consumer installs only exact interface, engine and recovery tarballs;
  * its package store and temporary paths are run-owned. No registry is consulted.
  * Source-free runtime checks use Node's filesystem permissions, admitting only the
@@ -85,7 +87,9 @@ export function verifyAutoMovieRecoveryPackage(): void {
   const driver: string | undefined =
     process.env.npm_execpath ?? process.env.AUTOMOVIE_PNPM_DRIVER;
   if (!driver || !fs.existsSync(driver))
-    throw new Error("Run through pnpm or provide AUTOMOVIE_PNPM_DRIVER");
+    throw new Error(
+      "Run the recovery-tools verify:package script or provide AUTOMOVIE_PNPM_DRIVER",
+    );
   const run: (
     command: string,
     args: string[],

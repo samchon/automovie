@@ -6,8 +6,15 @@ import { nclose } from "./nclose";
 
 /** Authored straight-cubic prism fixtures and independent area, winding and exposed-edge measurements for the public source-free scenario. No result snapshot defines the expected surface. */
 export namespace recoveryPrismOracle {
+  /** Saved source-free input accepted by the public reconstruction operation. */
   export type Input = Parameters<typeof reconstructAutoMovieRecoveryModel>[0];
   type Curve = Input["loft"]["sections"][number]["loops"][number]["curve"];
+  /**
+   * Author one closed 3-mm square at millimetre station y and lateral offset x.
+   * Four linear cubic spans retain the supplied name; the enclosing fixture
+   * declares positive material winding.
+   * The returned controls and phase widths are owned by the scenario.
+   */
   export const ring: (y: number, x: number, name: string) => Curve = (
     y: number,
     x: number,
@@ -39,6 +46,12 @@ export namespace recoveryPrismOracle {
       ),
     };
   };
+  /**
+   * Author two 3-mm square rings 2 mm apart with explicit ordinary continuation.
+   * The optional second domain is displaced by 10 mm and explicitly unsupported;
+   * it must remain in coverage without contributing geometry to the valid prism.
+   * Each call owns fresh records and controls, independently of generated output.
+   */
   export const makeInput: (unsupported: boolean) => Input = (
     unsupported: boolean,
   ): Input => {
@@ -121,6 +134,14 @@ export namespace recoveryPrismOracle {
       },
     };
   };
+  /**
+   * Check generated prism walls against independent physical area and boundaries.
+   * Require 24e-6 square metres, outward winding, opposed interior edge incidence
+   * and two open 0.012-metre perimeters while allowing adaptive subdivisions.
+   * Exact output-position keys measure this authored prism's physical incidence;
+   * they change no mesh and make no claim about arbitrary coincident surfaces.
+   * Throws on a missing value or violated invariant and borrows output unchanged.
+   */
   export const measure: (
     result: ReturnType<typeof reconstructAutoMovieRecoveryModel>,
   ) => void = (

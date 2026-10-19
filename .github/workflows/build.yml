@@ -32,7 +32,7 @@ jobs:
       - run: pnpm run build
       - run: pnpm run evidence
       - run: pnpm exec ttsc --noEmit -p tools/recovery/tsconfig.json
-      - run: pnpm exec node --experimental-strip-types tools/recovery/src/verifyAutoMovieRecoveryPackage.ts
+      - run: pnpm --filter @automovie/recovery-tools run verify:package
         id: recovery_package
       - run: pnpm exec ttsc --noEmit -p "${{ steps.recovery_package.outputs.typeConfig }}"
       # The website bundles the productions without type-checking them.
