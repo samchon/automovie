@@ -56,7 +56,7 @@ import { generateAutoMovieHumanRest } from "./generateAutoMovieHumanRest";
  *
  * Construction admits an immutable identity and resolves its measurements and skeleton once. Explicit physical rest targets are separate request documents; successful model emission selects their corresponding inspection state. A different identity creates a new instance. The instance owns its caches, and a host keeps the previous display when input admission or generation is refused.
  *
- * The output contract with films is `IAutoMovieModel`, with `origin: "generated"`. The generated rest-field route consumes explicit T-rest physical observations and owns both skin and construction. Its current anatomical layout is partial; `inspectSurface` reports actual open boundaries and missing regions. Without that explicit selection, the previous cage assembly remains a separately identified route.
+ * The output contract with films is `IAutoMovieModel`, with `origin: "generated"`. The generated rest-field route uses detailed identity, the common skeleton and optional physical observations for both skin and construction. Automatic support planes and unmeasured aspects remain qualified rest conventions. Its current anatomical layout is partial; `inspectSurface` reports actual open boundaries and missing regions. Without that explicit selection, the previous cage assembly remains a separately identified route.
  *
  * The model includes the generated skin and a stick inspection figure. Skin finish and seeded surface marks follow the admitted appearance; teeth and underwear remain incomplete. Methods refuse inadmissible documents with {@link AutoMovieHumanAdmissionError}, naming each field, bound and cause.
  *

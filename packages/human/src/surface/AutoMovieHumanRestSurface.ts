@@ -11,6 +11,7 @@ import type { IAutoMovieHumanSurfaceMeasurements } from "../structures/IAutoMovi
 import { generateAutoMovieHumanSurfaceDefinition } from "./generateAutoMovieHumanSurfaceDefinition";
 import { inspectAutoMovieHumanSurface } from "./inspectAutoMovieHumanSurface";
 import { realizeAutoMovieHumanSurface64 } from "./realizeAutoMovieHumanSurface64";
+import { resolveAutoMovieHumanSurfaceTargets } from "./resolveAutoMovieHumanSurfaceTargets";
 
 /**
  * Own one successful parameter-generated rest field for an immutable person.
@@ -37,13 +38,16 @@ export class AutoMovieHumanRestSurface {
   /** Admit/generate one physical target document; every returned net restricts this field. */
   public inspect(input: IAutoMovieHumanSurfaceMeasurements): AutoMovieHumanRestSurface.Result {
     const snapshot: IAutoMovieHumanSurfaceMeasurements = structuredClone(input);
-    // Preserve unknown undefined-valued keys so a refused document cannot hit
-    // an admitted document's cache by JSON's ordinary property omission.
-    const key: string = JSON.stringify(snapshot,
-      (_key: string, value: unknown): unknown => value === undefined ? null : value);
+    // Admission precedes serialization and cache lookup. Optional undefined
+    // observations and malformed null values must never alias a valid entry.
+    const targets: ReturnType<typeof resolveAutoMovieHumanSurfaceTargets> =
+      resolveAutoMovieHumanSurfaceTargets({measurements: this.person.measurements,
+        skeleton: this.person.skeleton, observations: snapshot});
+    const key: string = JSON.stringify(snapshot);
     if (this.cached?.key === key) return structuredClone(this.cached.value);
     const definition: ReturnType<typeof generateAutoMovieHumanSurfaceDefinition> =
-      generateAutoMovieHumanSurfaceDefinition({skeleton: this.person.skeleton, measurements: snapshot});
+      generateAutoMovieHumanSurfaceDefinition({skeleton: this.person.skeleton,
+        identity: this.person.measurements, targets});
     const surface: ReturnType<typeof realizeAutoMovieHumanSurface64> =
       realizeAutoMovieHumanSurface64(definition);
     const part: IAutoMovieModelPart = {
@@ -87,7 +91,7 @@ export class AutoMovieHumanRestSurface {
     return {
       id: props.id, name: "Generated rest surface (partial)", origin: "generated",
       parts: dressed.parts, skeleton: props.skeleton, body: null, asset: null,
-      materials: [{...dressed.material, name: "skin, physical-rest-field-1 (plain)"}], images: dressed.images,
+      materials: [{...dressed.material, name: `skin, ${rest.revision} (plain)`}], images: dressed.images,
     };
   }
 }

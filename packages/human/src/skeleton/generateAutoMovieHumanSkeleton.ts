@@ -15,7 +15,7 @@ import { placeAutoMovieHumanTrunk } from "./placeAutoMovieHumanTrunk";
  *
  * Generation runs in the anthropometric posture the measurements were taken in, then converts once:
  *
- * 1. Legs: ankle, knee and hip centres from the stacked leg lengths and de Leva's landmark offsets, the hip centres spread by Hara's CT regression on leg length, the foot and toes from foot length and breadth.
+ * 1. Legs: ankle, knee and hip centres from the stacked leg lengths and de Leva's landmark offsets; lateral hip centres use supplied mechanical breadth or the explicit Hara inter-ASIS/bicristal prior, independently of leg length; the foot and toes use foot length and breadth.
  * 2. Trunk: the root midway between the hip centres, the spine bones at ANSUR II trunk levels as fractions of the hip-to-cervicale span, on the vertebral column curved in the side view by the identity's posture (pelvic tilt, sacral slope, thoracic kyphosis, the neck's balance over the sacrum and the lordosis that balance solves).
  * 3. Head: carried forward of the neck by the craniovertebral angle, the head joint at the hard-palate level, eyes, jaw at its measured centre of rotation, and the craniofacial landmarks from the head measurements; the neck runs from cervicale on the column to the head joint.
  * 4. Arms: clavicles from the jugular notch, retracted as a resting clavicle is so the shoulders stand behind the notch, the arm hanging below the humeral head's centre, just medial of the acromion, so its landmarks reproduce acromion-radiale, radiale-stylion and hand length, joint centres at de Leva's offsets, fingers and thumb from hand length and breadth.

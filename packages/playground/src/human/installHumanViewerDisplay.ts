@@ -32,6 +32,9 @@ type IAccepted = HumanViewerPage.IAccepted;
  */
 export function installHumanViewerDisplay(page: HumanViewerPage): void {
   let issued: WeakMap<THREE.Texture, AutoMovieTextureBinding> = new WeakMap();
+  const overlayDepth: WeakMap<THREE.Material, {
+    enabled: boolean; factor: number; units: number;
+  }> = new WeakMap();
   page.observeTextures = (): IHumanViewerTextureState => {
     const current: IHumanViewerTextureState = structuredClone(
       page.textureState,
@@ -198,6 +201,30 @@ export function installHumanViewerDisplay(page: HumanViewerPage): void {
       const mesh: THREE.Mesh = node as THREE.Mesh;
       if (mesh.isMesh !== true) return;
       mesh.userData.surfaceMaterial ??= mesh.material;
+      const surface: THREE.Material | THREE.Material[] =
+        mesh.userData.surfaceMaterial as THREE.Material | THREE.Material[];
+      // The actual analytic restrictions and their tessellated triangles have
+      // different chord errors. A raster-depth bias exposes the near-side lines
+      // without moving either field or disabling occlusion of far-side lines.
+      for (const material of Array.isArray(surface) ? surface : [surface]) {
+        let original: {enabled: boolean; factor: number; units: number} | undefined =
+          overlayDepth.get(material);
+        if (page.displayMode === "overlay" && !designOnly &&
+            page.current.session.surfaceMeasurements !== undefined) {
+          if (original === undefined) {
+            original = {enabled: material.polygonOffset,
+              factor: material.polygonOffsetFactor, units: material.polygonOffsetUnits};
+            overlayDepth.set(material, original);
+          }
+          material.polygonOffset = true;
+          material.polygonOffsetFactor = 1;
+          material.polygonOffsetUnits = 1;
+        } else if (original !== undefined) {
+          material.polygonOffset = original.enabled;
+          material.polygonOffsetFactor = original.factor;
+          material.polygonOffsetUnits = original.units;
+        }
+      }
       mesh.material =
         designOnly || page.displayMode === "construction"
           ? page.CONSTRUCTION_ONLY

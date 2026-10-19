@@ -86,6 +86,11 @@ export namespace IAutoMovieHumanIdentity {
     bicristalBreadth: number & tags.Minimum<50> & tags.Maximum<500>;
 
     /**
+     * Horizontal distance between the two hip joint centres in the common rest frame, millimetres. This mechanical breadth is distinct from the palpable iliac-crest breadth and soft-tissue hip breadth. A supplied value remains independent of leg lengths. When absent, the skeleton uses Hara et al. (2016, Scientific Reports 6:37707, Table 2) inter-ASIS prediction with the declared inter-ASIS/bicristal convention; that fallback is an unverified placement prior, not a measurement.
+     */
+    hipJointCentreBreadth?: number & tags.ExclusiveMinimum<0> & tags.Maximum<800>;
+
+    /**
      * Hip breadth: between the most lateral points of the buttocks standing, including soft tissue, millimetres.
      */
     hipBreadth: number & tags.Minimum<80> & tags.Maximum<800>;

@@ -111,6 +111,6 @@ export function realizeAutoMovieHumanSurface64(definition: D): {
     triangleParameters: parameters, headCoordinates,
     complete: realized.complete,
     approximationQualified: realized.approximationQualified,
-    diagnostics: [...definition.qualifications, ...realized.diagnostics],
+    diagnostics: [...new Set([...definition.qualifications, ...realized.diagnostics])],
   };
 }

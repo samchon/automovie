@@ -16,12 +16,11 @@ const ABOVE_LANDMARK: Record<"hip" | "knee" | "patella", number> = {
 };
 
 /**
- * Hip joint centre in the pelvis from leg length LL (anterior superior iliac spine to medial malleolus), millimetres, from CT of 157 people aged 5 to 40 of both sexes, one equation for both (Hara et al. 2016, Sci Rep 6:37707): the centre lies 11 − 0.063 LL anterior (negative: posterior), 8 + 0.086 LL lateral and −9 − 0.078 LL superior (negative: inferior) to the midpoint of the anterior superior iliac spines. Younger and older ages are an extrapolation of the published fit. Grade: measured, population-fitted.
+ * Hip joint centre in the pelvis from leg length LL (anterior superior iliac spine to medial malleolus), millimetres, from CT of 157 people aged 5 to 40 of both sexes, one equation for both (Hara et al. 2016, Sci Rep 6:37707): 11 − 0.063 LL anterior and −9 − 0.078 LL superior to the midpoint of the anterior superior iliac spines. Younger and older ages are an extrapolation of the published fit. Lateral placement uses the independent mechanical breadth or the inter-ASIS predictor below, so changing leg length does not change pelvis width. Grade: measured, population-fitted.
  */
-const HARA_2016: Record<"anterior" | "lateral" | "superior", [number, number]> =
+const HARA_2016: Record<"anterior" | "superior", [number, number]> =
   {
     anterior: [11, -0.063],
-    lateral: [8, 0.086],
     superior: [-9, -0.078],
   };
 
@@ -29,6 +28,9 @@ const HARA_2016: Record<"anterior" | "lateral" | "superior", [number, number]> =
  * Anterior superior iliac spine from the midline as a fraction of bicristal breadth: Hara's inter-spine relation (hip centre lateral = 10 + 0.329 × inter-spine distance) inverted at the ANSUR II mean leg lengths gives 219 mm (women) and 232 mm (men) between the spines, 0.80 and 0.84 of the mean bicristal breadths, so each spine sits 0.41 of the crest breadth from the midline. Grade: derived.
  */
 const ILIOSPINALE_PER_BICRISTAL: number = 0.41;
+
+/** Hara et al. 2016, Table 2: lateral hip centre = 10 + 0.329 * inter-ASIS distance, mm. The weaker inter-ASIS fit is used only when mechanical breadth is absent; substituting the 0.82 bicristal prior compounds uncertainty and is not clinical correspondence. */
+const HARA_INTER_ASIS_LATERAL: readonly [number, number] = [10, 0.329];
 
 /**
  * Half the ankle's bimalleolar breadth as a fraction of foot length: ANSUR II bimalleolar breadth over foot length is 0.272 (women) and 0.276 (men), so each malleolus lies 0.136 foot lengths from the ankle centre. Grade: derived.
@@ -75,7 +77,7 @@ const CONVENTIONAL: Record<
 /**
  * Place one leg in the rest pose, which for the leg is the anthropometric standing posture.
  *
- * Heights come straight from the identity: lateral malleolus height is the ankle joint centre (de Leva's shank endpoint), tibiale and trochanterion heights stack the shank and thigh lengths on it, and the knee and hip centres sit above tibiale and trochanterion by de Leva's offsets. The hip centre's lateral position comes from leg length by Hara's CT equation, with leg length solved from the same equation's vertical term so the spine and the hip centre agree. Each ankle stands directly below its hip centre, feet parallel and pointing forward: the canonical rest stance rather than ANSUR's heels-together stance, which changes no measured height.
+ * Heights come straight from the identity: lateral malleolus height is the ankle joint centre (de Leva's shank endpoint), tibiale and trochanterion heights stack the shank and thigh lengths on it, and the knee and hip centres sit above tibiale and trochanterion by de Leva's offsets. The lateral hip centre is half the supplied mechanical breadth; missing breadth uses the explicitly uncertain inter-ASIS prediction from bicristal breadth. Leg length still resolves the vertical/anterior spine relation, but does not move either hip laterally. Each ankle stands directly below its hip centre, feet parallel and pointing forward: the canonical rest stance rather than ANSUR's heels-together stance, which changes no measured height.
  *
  * Axes follow clinical signs on each side: hip flexion carries the thigh forward, knee flexion the shank backward, ankle flexion is dorsiflexion, toe flexion curls the toes down; abduction carries a limb away from the midline and twist turns its front outward.
  *
@@ -103,8 +105,10 @@ export function placeAutoMovieHumanLeg(
   // Hara: hip height = spine height + (-9 - 0.078 LL), and LL = spine height - malleolus height
   const legLength: number =
     (hipHeight - HARA_2016.superior[0] - ankle) / (1 + HARA_2016.superior[1]);
-  const lateral: number =
-    HARA_2016.lateral[0] + HARA_2016.lateral[1] * legLength;
+  const lateral: number = body.hipJointCentreBreadth === undefined
+    ? HARA_INTER_ASIS_LATERAL[0] + HARA_INTER_ASIS_LATERAL[1] *
+      (2 * ILIOSPINALE_PER_BICRISTAL * body.bicristalBreadth)
+    : body.hipJointCentreBreadth / 2;
   const x: number = s * lateral;
   const hip: IAutoMovieVector3 = v(x, hipHeight, 0);
   const knee: IAutoMovieVector3 = v(x, kneeHeight, 0);

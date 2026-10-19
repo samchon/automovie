@@ -52,6 +52,8 @@ export class AutoMovieHumanSurfaceBuilder64 {
     grid: readonly (readonly C.Vector[])[];
     identities: readonly (readonly string[])[];
     owner: D.Patch;
+    /** A strip publishes its own physical-mm restrictions instead. */
+    inspection?: boolean;
   }): void {
     if (
       this.owners.has(props.id) ||
@@ -86,6 +88,16 @@ export class AutoMovieHumanSurfaceBuilder64 {
       }
     this.patches.push({ id: props.id, controlIds: ids });
     this.owners.set(props.id, props.owner);
+    if (props.inspection !== false)
+      for (const phase of [0, 0.5, 1]) {
+        const controls: C.Span = props.grid.map((row: readonly C.Vector[]): C.Vector =>
+          B.value(row.map((p: C.Vector): B.Vec => [...p]), phase),
+        ) as unknown as C.Span;
+        this.courses.push({name: `${props.id}/u${phase}`, part: props.owner.part,
+          side: props.owner.side, role: "guide", patches: [props.id],
+          curve: {type: "cubicBezier", name: `${props.id}/u${phase}`, closed: false,
+            unit: "mm", phaseUnit: "normalized", phaseIntervals: [1], spans: [controls]}});
+      }
   }
 
   /**
@@ -152,7 +164,7 @@ export class AutoMovieHumanSurfaceBuilder64 {
           (1-u)*(1-v)*head![0][axis]! + u*(1-v)*head![1][axis]! +
           u*v*head![2][axis]! + (1-u)*v*head![3][axis]!,
       ) as unknown as readonly [number, number];
-      this.patch({ id, grid, identities, owner: {
+      this.patch({ id, grid, identities, inspection: false, owner: {
         ...props.owner,
         headChart: head === null ? null : [
           headAt(phaseStart/totalPhase, 0), headAt(phaseEnd/totalPhase, 0),

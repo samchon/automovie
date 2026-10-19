@@ -119,6 +119,14 @@ export function validateAutoMovieHumanIdentity(
     `narrower than hip breadth (${millimetres(body.hipBreadth)})`,
     "hip breadth spans the greater trochanters and the soft tissue over the bony pelvis, which the compressed iliac crest breadth excludes",
   );
+  if (body.hipJointCentreBreadth !== undefined)
+    check(
+      body.hipJointCentreBreadth < body.hipBreadth,
+      "$input.body.hipJointCentreBreadth",
+      body.hipJointCentreBreadth,
+      `narrower than soft-tissue hip breadth (${millimetres(body.hipBreadth)})`,
+      "the mechanical hip centres lie inside the enclosing pelvic soft tissue",
+    );
 
   check(
     body.bideltoidBreadth > body.biacromialBreadth,
