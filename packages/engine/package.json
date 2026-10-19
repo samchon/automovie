@@ -16,7 +16,10 @@
     "./geometry/assertAutoMovieDeformedTriangles": "./src/geometry/assertAutoMovieDeformedTriangles.ts",
     "./populationRuntime/summarizeCompiledSlotChunks": "./src/populationRuntime/summarizeCompiledSlotChunks.ts",
     "./render/assertAutoMovieSemanticMaskCapacity": "./src/render/assertAutoMovieSemanticMaskCapacity.ts",
-    "./validation/channelValueWidth": "./src/validation/channelValueWidth.ts"
+    "./validation/channelValueWidth": "./src/validation/channelValueWidth.ts",
+    "./geometry/curve": "./src/geometry/curve/index.ts",
+    "./geometry/realizeAutoMovieBicubicAtlas64": "./src/geometry/realizeAutoMovieBicubicAtlas64.ts",
+    "./geometry/curve/compileAutoMovieNormalizedPhases64": "./src/geometry/curve/compileAutoMovieNormalizedPhases64.ts"
   },
   "scripts": {
     "build": "rimraf lib && ttsc",
@@ -92,6 +95,18 @@
       "./validation/channelValueWidth": {
         "types": "./lib/validation/channelValueWidth.d.ts",
         "default": "./lib/validation/channelValueWidth.js"
+      },
+      "./geometry/curve": {
+        "types": "./lib/geometry/curve/index.d.ts",
+        "default": "./lib/geometry/curve/index.js"
+      },
+      "./geometry/realizeAutoMovieBicubicAtlas64": {
+        "types": "./lib/geometry/realizeAutoMovieBicubicAtlas64.d.ts",
+        "default": "./lib/geometry/realizeAutoMovieBicubicAtlas64.js"
+      },
+      "./geometry/curve/compileAutoMovieNormalizedPhases64": {
+        "types": "./lib/geometry/curve/compileAutoMovieNormalizedPhases64.d.ts",
+        "default": "./lib/geometry/curve/compileAutoMovieNormalizedPhases64.js"
       }
     },
     "typesVersions": {
@@ -128,6 +143,15 @@
         ],
         "validation/channelValueWidth": [
           "lib/validation/channelValueWidth.d.ts"
+        ],
+        "geometry/curve": [
+          "lib/geometry/curve/index.d.ts"
+        ],
+        "geometry/realizeAutoMovieBicubicAtlas64": [
+          "lib/geometry/realizeAutoMovieBicubicAtlas64.d.ts"
+        ],
+        "geometry/curve/compileAutoMovieNormalizedPhases64": [
+          "lib/geometry/curve/compileAutoMovieNormalizedPhases64.d.ts"
         ]
       }
     }
@@ -177,6 +201,15 @@
       ],
       "validation/channelValueWidth": [
         "src/validation/channelValueWidth.ts"
+      ],
+      "geometry/curve": [
+        "src/geometry/curve/index.ts"
+      ],
+      "geometry/realizeAutoMovieBicubicAtlas64": [
+        "src/geometry/realizeAutoMovieBicubicAtlas64.ts"
+      ],
+      "geometry/curve/compileAutoMovieNormalizedPhases64": [
+        "src/geometry/curve/compileAutoMovieNormalizedPhases64.ts"
       ]
     }
   }

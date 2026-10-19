@@ -29,6 +29,7 @@ npm run evidence
 | [`@automovie/archetypes`](./packages/archetypes) | Typed producers of shipped model groups and the humanoid gait tables |
 | [`@automovie/human`](./packages/human) | A human figure generated from typed parameters by code (being rebuilt) |
 | [`@automovie/ingest`](./packages/ingest) | Deterministic import of glTF, GLB, VRM, and WAVE inputs |
+| [`@automovie/recovery`](./packages/recovery) | Registered-mesh observation, saved-curve reconstruction, and immutable artifact hosts |
 | [`@automovie/viewer`](./packages/viewer) | Three.js display, capture, and inspection |
 | [`@automovie/render`](./packages/render) | Frame, sequence, and video render planning |
 | [`@automovie/template`](./packages/template) | The scaffold every production starts from |

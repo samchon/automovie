@@ -14,11 +14,11 @@ Generate the curves themselves from the current detailed parameters. Derive loca
 
 Where reference planes, anatomical boundaries, endpoints, tangents and continuity conditions determine a curve, solve those constraints to generate its Bezier controls. Use fitted shape coefficients for the remaining independent traits; a scaled reference control polygon does not replace this derivation.
 
-Preserve independent lengths, breadths, depths, girths and local shape traits rather than coupling them through a fixed proportion. Name each rule's measured, derived, fitted or conventional quantities and its supported range. Share junction frames and continuity constraints under Parts And Junctions. Absolute-coordinate reference observations belong to research; transfer their recovered shared rules and coefficients into Human, not per-person curve tables or normalized copies of them. Follow [Reverse Analysis](reverse-analysis.md) when recovering those rules, and verify their response to changed parameters through the actual generated curves and surface.
+Preserve independent lengths, breadths, depths, girths and local shape traits rather than coupling them through a fixed proportion. Name each rule's measured, derived, fitted or conventional quantities and its supported range. Share junction frames and continuity constraints under Parts And Junctions. Absolute-coordinate reference observations belong to research; transfer their recovered shared rules and coefficients into Human, not per-person curve tables or normalized copies of them. Use those observations to derive the actual generating rules through [Reverse Analysis](reverse-analysis.md), replacing existing curve rules when needed, and verify their response to changed parameters through the actual generated curves and surface.
 
 ## Lofting
 
-Work from the whole body through regions, masses and borders, generating gross form before relief, bony landmarks or aesthetic detail. Inspect front, side and top generating curves at every scale with their neighbors, then correct every curve cause the round found in one change before lofting.
+Inspect front, side and top generating curves across the whole body, regions, masses and borders with their neighbors, then correct every curve cause the round found in one change before lofting. Existing recovered detail need not pass through a new block-out before fitting shared rules.
 
 Build continuous skin from curve networks: closed sections along an axis or bone chain, steered by silhouette guides and feature curves. Apply [Lofting](../3d-modeling/lofting.md) to the section family and its fitting. Trunk sections lie level because anthropometry measures them level.
 
@@ -36,4 +36,4 @@ Within a profile every identity shares one topology and one published UV layout.
 
 ## Core Boundary
 
-A capability any generated or imported model could use, such as skeleton axes, skinning, morph targets, materials, or general geometry, belongs in core; anatomy, measurements, proportions, and the Human parameter vocabulary belong in Human. Add missing shared capabilities to core rather than working around them in Human.
+Follow the project's [package boundaries](../project/SKILL.md#packages) for shared capabilities. Anatomy, measurements, proportions and the Human parameter vocabulary belong in Human; extend the responsible shared package rather than working around it in Human.

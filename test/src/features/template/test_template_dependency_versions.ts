@@ -15,7 +15,7 @@ import { TestValidator } from "@nestia/e2e";
  *
  * @evidence contracts/testing.md#behavioral-verification Calls resolveAutoMovieTemplateDependencyVersions and compares the complete returned table, detecting an omitted or misowned dependency, changed workspace range, missed scalar alias, or caret and tilde stripping applied to the wrong dependency group.
  * @evidence contracts/testing.md#independent-expectations The expected table is written from the supplied workspace package ranges and literal catalog entries; only the three documented fixed-runtime entries lose a leading caret or tilde. Distinct external version numbers identify catalog mapping mistakes without reading generated versions or resolver output.
- * @evidence contracts/testing.md#distinguishing-cases One complete document covers all nine workspace ranges and eighteen external mappings, shared aliases, caret and tilde exact conversion, an already exact runtime version, and preserved compiler and evidence ranges. Missing or malformed YAML and ownership refusals belong to test_template_catalog_resolution.
+ * @evidence contracts/testing.md#distinguishing-cases One complete document covers all ten workspace ranges and eighteen external mappings, shared aliases, caret and tilde exact conversion, an already exact runtime version, and preserved compiler and evidence ranges. Missing or malformed YAML and ownership refusals belong to test_template_catalog_resolution.
  * @evidence contracts/testing.md#execution-ownership The discoverable exported test_template_dependency_versions entry resolves caller-supplied text in-process and asserts one returned record; it reads no workspace file, installs no generated consumer and starts no process or native host.
  */
 export function test_template_dependency_versions(): void {
@@ -26,6 +26,7 @@ export function test_template_dependency_versions(): void {
     human: "^2.0.0",
     ingest: "^2.0.0",
     interface: "^2.0.0",
+    recovery: "^2.0.0",
     render: "^2.0.0",
     template: "^2.0.0",
     viewer: "^2.0.0",

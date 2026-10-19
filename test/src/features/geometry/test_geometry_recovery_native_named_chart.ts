@@ -1,12 +1,14 @@
+import {
+  AutoMovieRecoveryEventCurve as E,
+  type IAutoMovieRecoveryEventChartInput,
+  compileAutoMovieRecoveryNativeNamedChart as compile,
+  prepareAutoMovieRecoveryAnnularChart,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { AutoMovieBernstein64 as B } from "../../../../packages/engine/src/geometry/curve/AutoMovieBernstein64";
 import type { IAutoMovieCurve64 as C } from "../../../../packages/engine/src/geometry/curve/IAutoMovieCurve64";
 import { realizeAutoMovieBicubicAtlas64 } from "../../../../packages/engine/src/geometry/realizeAutoMovieBicubicAtlas64";
-import type { RecoveryEventChartInput } from "../../../../tools/recovery/src/RecoveryEventChartInput";
-import { RecoveryEventCurve as E } from "../../../../tools/recovery/src/RecoveryEventCurve";
-import { compileRecoveryNativeNamedChart as compile } from "../../../../tools/recovery/src/compileRecoveryNativeNamedChart";
-import { prepareRecoveryAnnularChart } from "../../../../tools/recovery/src/prepareRecoveryAnnularChart";
 
 /**
  * Native interval recipes survive actual canonical boundary admission and realization.
@@ -61,7 +63,7 @@ export function test_geometry_recovery_native_named_chart(): void {
         );
         const bottom: E.Arc = curves[0]!,
           top: E.Arc = curves[1]!;
-        const input: RecoveryEventChartInput = {
+        const input: IAutoMovieRecoveryEventChartInput = {
           id: "native-strip",
           winding,
           chart: {
@@ -148,8 +150,12 @@ export function test_geometry_recovery_native_named_chart(): void {
       ),
     });
   };
-  const chart: ReturnType<typeof prepareRecoveryAnnularChart> =
-    prepareRecoveryAnnularChart(loop("lower", 0), loop("upper", 3), "annulus");
+  const chart: ReturnType<typeof prepareAutoMovieRecoveryAnnularChart> =
+    prepareAutoMovieRecoveryAnnularChart(
+      loop("lower", 0),
+      loop("upper", 3),
+      "annulus",
+    );
   const aliasRight: E.Arc = {
     ...chart.right,
     pieces: chart.right.pieces.map(

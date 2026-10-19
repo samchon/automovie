@@ -1,6 +1,6 @@
 # Diffusion
 
-A diffusion model's image or mesh is source material; turn it into an asset the engine owns.
+A diffusion model's image or mesh is source material; turn it into a reproducible authored asset.
 
 This covers generated forms; repainting rendered frames into video is a separate lane.
 
@@ -19,8 +19,8 @@ Place a generated mesh as it is only when it never deforms, never comes close to
 ## Rebuild
 
 1. Normalize the source to the engine's unit, frame, and rest pose, and segment it into the asset's parts.
-2. Extract sections, silhouettes, feature curves, and landmarks from it.
-3. Craft it again by [Crafting](crafting.md), fitted to those extracts.
+2. For a fixed mesh, follow [Recovery](recovery.md) to extract and reconstruct its numerical shape. Image-only sources need a separate image-to-geometry method before mesh recovery applies.
+3. When the asset must vary, derive the shared dimensions and formulas under [Crafting](crafting.md); recovered source coefficients alone do not establish parameter behavior.
 4. Remove the baked lighting from its texture and split it into the renderer's material channels.
 5. Rig a moving asset on the engine's skeleton for its kind, treating any generated rig or weights as a first guess.
 

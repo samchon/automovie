@@ -1,7 +1,7 @@
+import { transportAutoMovieRecoveryObservationChart as transport } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import type { IAutoMovieCurve64 as C } from "../../../../packages/engine/src/geometry/curve/IAutoMovieCurve64";
-import { transportRecoveryObservationChart as transport } from "../../../../tools/recovery/src/transportRecoveryObservationChart";
 import { nclose } from "../internal/nclose";
 
 /**

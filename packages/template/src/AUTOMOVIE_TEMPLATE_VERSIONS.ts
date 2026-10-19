@@ -9,6 +9,7 @@ export const AUTOMOVIE_TEMPLATE_VERSIONS: Record<string, string> = {
   human: "^0.1.0",
   ingest: "^0.1.0",
   interface: "^0.1.0",
+  recovery: "^0.1.0",
   render: "^0.1.0",
   template: "^0.1.5",
   viewer: "^0.1.0",

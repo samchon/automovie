@@ -1,10 +1,9 @@
+import { archiveAutoMovieRecoveryModel } from "@automovie/recovery/node";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { gunzipSync } from "node:zlib";
-
-import { archiveRecoveryModel } from "../../../../tools/recovery/src/archiveRecoveryModel";
 
 /**
  * Lossless model storage preserves logical bytes and limits served-file retirement.
@@ -47,12 +46,12 @@ export async function test_geometry_model_archive(): Promise<void> {
     return { output, path: model, bytes: bytes.length, sha256 };
   };
   const refuses: (
-    input: Parameters<typeof archiveRecoveryModel>[0],
+    input: Parameters<typeof archiveAutoMovieRecoveryModel>[0],
   ) => Promise<boolean> = async (
-    input: Parameters<typeof archiveRecoveryModel>[0],
+    input: Parameters<typeof archiveAutoMovieRecoveryModel>[0],
   ): Promise<boolean> => {
     try {
-      await archiveRecoveryModel(input);
+      await archiveAutoMovieRecoveryModel(input);
       return false;
     } catch (error) {
       return error instanceof Error;
@@ -65,8 +64,8 @@ export async function test_geometry_model_archive(): Promise<void> {
     fs.writeFileSync(path.join(spool, "positions.0.json"), "[1,2,3]");
     const unrelated: string = path.join(first.output, "retained.json");
     fs.writeFileSync(unrelated, "retained");
-    const archive: Awaited<ReturnType<typeof archiveRecoveryModel>> =
-      await archiveRecoveryModel(first);
+    const archive: Awaited<ReturnType<typeof archiveAutoMovieRecoveryModel>> =
+      await archiveAutoMovieRecoveryModel(first);
     const compressed: Buffer = fs.readFileSync(archive.path);
     const decoded: Buffer = gunzipSync(compressed);
     TestValidator.equals(

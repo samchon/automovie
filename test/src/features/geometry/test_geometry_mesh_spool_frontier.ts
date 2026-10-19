@@ -1,12 +1,14 @@
+import {
+  createAutoMovieRecoveryMeshSpool,
+  readAutoMovieRecoveryMeshFrontier,
+  writeAutoMovieRecoveryArtifact,
+} from "@automovie/recovery/node";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
 import type { tessellateAutoMovieLocalHermite64 as T } from "../../../../packages/engine/src/geometry/curve/tessellateAutoMovieLocalHermite64";
-import { RecoveryMeshSpool } from "../../../../tools/recovery/src/RecoveryMeshSpool";
-import { readRecoveryMeshFrontier } from "../../../../tools/recovery/src/readRecoveryMeshFrontier";
-import { writeRecoveryArtifact } from "../../../../tools/recovery/src/writeRecoveryArtifact";
 
 /**
  * Batched source-free channels retain one complete indexed publication frontier.
@@ -88,9 +90,8 @@ export function test_geometry_mesh_spool_frontier(): void {
     ],
   });
   try {
-    const spool: ReturnType<typeof RecoveryMeshSpool> = RecoveryMeshSpool(
-      path.join(root, "spool"),
-    );
+    const spool: ReturnType<typeof createAutoMovieRecoveryMeshSpool> =
+      createAutoMovieRecoveryMeshSpool(path.join(root, "spool"));
     const binding: object = {
       sourceEpoch: "generic-frontier",
       inputSha256: "0".repeat(64),
@@ -123,7 +124,7 @@ export function test_geometry_mesh_spool_frontier(): void {
     });
     const row: Frontier = read(first);
     const limits: Omit<
-      Parameters<typeof readRecoveryMeshFrontier>[0],
+      Parameters<typeof readAutoMovieRecoveryMeshFrontier>[0],
       "frontier"
     > = {
       directory: path.join(root, "spool"),
@@ -187,7 +188,7 @@ export function test_geometry_mesh_spool_frontier(): void {
     );
     TestValidator.equals(
       "uncommitted flushed files do not change the served prefix",
-      readRecoveryMeshFrontier({ ...limits, frontier: first }).counts,
+      readAutoMovieRecoveryMeshFrontier({ ...limits, frontier: first }).counts,
       { vertices: 96, triangles: 32, chunks: 32 },
     );
     expectedPositions.push(...next.positions);
@@ -215,12 +216,12 @@ export function test_geometry_mesh_spool_frontier(): void {
         ),
       ),
     );
-    const reader: Parameters<typeof readRecoveryMeshFrontier>[0] = {
+    const reader: Parameters<typeof readAutoMovieRecoveryMeshFrontier>[0] = {
       ...limits,
       frontier: second,
     };
-    const recovered: ReturnType<typeof readRecoveryMeshFrontier> =
-      readRecoveryMeshFrontier(reader);
+    const recovered: ReturnType<typeof readAutoMovieRecoveryMeshFrontier> =
+      readAutoMovieRecoveryMeshFrontier(reader);
     TestValidator.equals(
       "verified recovery reaches the whole frontier",
       recovered.counts,
@@ -229,7 +230,7 @@ export function test_geometry_mesh_spool_frontier(): void {
     const recoveredPositions: unknown[] = [],
       recoveredIndices: unknown[] = [];
     const recoveredPath: string = path.join(root, "recovered.json");
-    writeRecoveryArtifact(
+    writeAutoMovieRecoveryArtifact(
       recoveredPath,
       { positions: recoveredPositions, indices: recoveredIndices },
       new Map([
@@ -260,7 +261,7 @@ export function test_geometry_mesh_spool_frontier(): void {
     TestValidator.error(
       "another source cannot inherit a frontier",
       (): void => {
-        readRecoveryMeshFrontier({
+        readAutoMovieRecoveryMeshFrontier({
           ...reader,
           expectedBinding: { sourceEpoch: "different" },
         });
@@ -269,7 +270,7 @@ export function test_geometry_mesh_spool_frontier(): void {
     TestValidator.error(
       "journal read budget refuses without partial promotion",
       (): void => {
-        readRecoveryMeshFrontier({ ...reader, maxJournals: 1 });
+        readAutoMovieRecoveryMeshFrontier({ ...reader, maxJournals: 1 });
       },
     );
     const output: string = path.join(root, "model.json");
@@ -320,14 +321,14 @@ export function test_geometry_mesh_spool_frontier(): void {
     const original: Buffer = fs.readFileSync(changed.path);
     fs.writeFileSync(changed.path, "[]");
     TestValidator.error("changed committed data refuses recovery", (): void => {
-      readRecoveryMeshFrontier(reader);
+      readAutoMovieRecoveryMeshFrontier(reader);
     });
     fs.writeFileSync(changed.path, original);
     const text: string = "曲線".repeat(200_000);
-    const large: ReturnType<typeof RecoveryMeshSpool> = RecoveryMeshSpool(
-      path.join(root, "large-spool"),
-      [{ text }],
-    );
+    const large: ReturnType<typeof createAutoMovieRecoveryMeshSpool> =
+      createAutoMovieRecoveryMeshSpool(path.join(root, "large-spool"), [
+        { text },
+      ]);
     const largePath: string = path.join(root, "large.json");
     large.publish(largePath, { construction: large.construction });
     TestValidator.equals(

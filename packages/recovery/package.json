@@ -1,0 +1,79 @@
+{
+  "name": "@automovie/recovery",
+  "version": "0.1.0",
+  "description": "Source-independent recovery workflows and Node artifact commands",
+  "main": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json",
+    "./node": "./src/node/index.ts"
+  },
+  "scripts": {
+    "build": "rimraf lib && ttsc",
+    "prepack": "pnpm run build",
+    "evidence": "evidence"
+  },
+  "keywords": [],
+  "author": "Samchon",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/samchon/automovie"
+  },
+  "files": [
+    "lib",
+    "src",
+    "package.json",
+    "LICENSE",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "main": "lib/index.js",
+    "types": "lib/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./lib/index.d.ts",
+        "default": "./lib/index.js"
+      },
+      "./package.json": "./package.json",
+      "./node": {
+        "types": "./lib/node/index.d.ts",
+        "default": "./lib/node/index.js"
+      }
+    },
+    "typesVersions": {
+      "*": {
+        "node": [
+          "lib/node/index.d.ts"
+        ]
+      }
+    }
+  },
+  "dependencies": {
+    "@automovie/engine": "workspace:^",
+    "@automovie/interface": "workspace:^"
+  },
+  "devDependencies": {
+    "rimraf": "catalog:utils",
+    "ttsc": "catalog:samchon",
+    "typescript": "catalog:typescript",
+    "@ttsc/lint": "catalog:samchon",
+    "@wrtnlabs/evidence": "catalog:samchon",
+    "@ttsc/evidence": "catalog:samchon",
+    "@types/node": "catalog:utils"
+  },
+  "bin": {
+    "automovie-recovery": "lib/node/cli.js"
+  },
+  "typesVersions": {
+    "*": {
+      "node": [
+        "src/node/index.ts"
+      ]
+    }
+  },
+  "engines": {
+    "node": ">=22.23.2"
+  }
+}

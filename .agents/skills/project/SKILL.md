@@ -28,6 +28,7 @@ Decided exclusions, each recorded in the JSDoc of the closest type with its reop
 The [root README](../../../README.md#packages) and package READMEs own inventories. Boundaries:
 
 - `interface` is the pure-type authoring AST; `engine` owns deterministic computation and runtime admission.
+- `recovery` owns reference-mesh reconstruction algorithms, policy, workflows, APIs and hosts. Its shared declarative input contracts stay in `interface`, existing reusable mathematics and surface generation stay in `engine`, and display stays in `viewer`; recovery-specific algorithms do not move into `engine`.
 - `viewer` is the only library importing `three.js` (GPU display, capture, inspection transport); `playground` mounts it, owns example parameter sets and the Human page `human.html` (part isolation, preset views, document controls, save/resume), and `pnpm --filter @automovie/playground human:capture` writes that page's preset views to `.shots/output`.
 - `human` owns the human figure generated from typed parameters by code.
 - `archetypes` owns the shipped figure and prop catalogue; a customer's own content stays in its production.
