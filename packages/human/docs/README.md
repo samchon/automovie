@@ -2,6 +2,8 @@
 
 Research notes on anatomical measurements, source protocols, reconstruction methods and rejected approaches. For package usage, read the [Human README](../README.md); for viewer inspection and operating policy, read the [Human skill](../../../.agents/skills/human/SKILL.md).
 
+Read the [frozen reference input ledger](references/frozen-reference-inputs.md) before using reference measurements. It separates requested controls, saved native state, geometric observations and unrecorded values; native A-pose observations need explicit correspondence before constraining clinical measurements or T-pose geometry.
+
 | Directory | Contents |
 | --- | --- |
 | [sources](sources/) | Source readings, licences, populations and measurement protocols |
