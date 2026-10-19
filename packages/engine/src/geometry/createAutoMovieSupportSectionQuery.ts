@@ -12,7 +12,7 @@ import { determinantAutoMovieMatrix3 } from "../math/determinantAutoMovieMatrix3
  * @evidence contracts/common.md#clear-and-simple-design This generic engine preparation owner serves repeated physical sections in inverse fitting and continuous planning; the existing one-shot query delegates to it without a second implementation.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No offset result, coordinate weld, source geometry or specimen condition supplies an intersection. Weak pairs are not discarded before actual feasibility is known, and copied directions cannot change through the caller's arrays.
  * @evidence contracts/common.md#meaningful-documentation States admitted unit/chart premises, copied direction ownership, offset independence, deferred weak refusal and caller-owned preparation lifetime.
- * @evidence contracts/performance.md#efficient-algorithms For P bounded planes, preparation costs and retains O(P squared) pair records; Q changing-offset queries cost O(Q P cubed) and retain O(P squared) query scratch each. Fixed determinant preparation no longer repeats per offset set.
+ * @evidence contracts/performance.md#efficient-algorithms For P bounded planes, preparation costs and retains O(P squared) pair records; Q changing-offset queries cost O(Q P cubed) and retain O(P squared) query scratch each. Fixed determinant preparation no longer repeats per offset set; rejected pairs retain scalar scratch rather than allocating vertex and incidence arrays.
  * @evidence contracts/performance.md#reuse-equivalent-work One caller-owned query reuses copied normal values and their exact nonparallel determinants while those fixed directions remain equivalent. Changing offsets always produce fresh intersections/incidence and never reuse an earlier result.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned CPU closure retains only O(P squared) fixed direction records until the caller releases it. Each query transfers fresh vertices and discards its maps; no image, file, worker or global input-dependent cache is retained.
  */
@@ -67,25 +67,21 @@ export function createAutoMovieSupportSectionQuery(input: {
         determinant: number = pair.determinant;
       const a: readonly [number, number] = normals[i],
         b: readonly [number, number] = normals[j];
-      const point: [number, number] = [
-        (offsets[i] * b[1] - a[1] * offsets[j]) / determinant,
-        (a[0] * offsets[j] - offsets[i] * b[0]) / determinant,
-      ];
-      if (!point.every(Number.isFinite))
+      const x: number = (offsets[i] * b[1] - a[1] * offsets[j]) / determinant;
+      const z: number = (a[0] * offsets[j] - offsets[i] * b[0]) / determinant;
+      if (!Number.isFinite(x) || !Number.isFinite(z))
         throw new Error(
           "nonfinite-support-intersection: chart exceeds binary64 coordinates",
         );
       const epsilon: number =
-        (512 *
-          Number.EPSILON *
-          Math.max(scale, Math.abs(point[0]), Math.abs(point[1]))) /
+        (512 * Number.EPSILON * Math.max(scale, Math.abs(x), Math.abs(z))) /
         determinant ** 2;
-      const tight: number[] = [i, j];
+      let tight: number[] | undefined;
       let feasible: boolean = true;
       for (let k: number = 0; k < normals.length; k++) {
         if (k === i || k === j) continue;
         const residual: number =
-          normals[k][0] * point[0] + normals[k][1] * point[1] - offsets[k];
+          normals[k][0] * x + normals[k][1] * z - offsets[k];
         const sign: number =
           Math.abs(residual) > epsilon
             ? Math.sign(residual)
@@ -107,16 +103,21 @@ export function createAutoMovieSupportSectionQuery(input: {
           feasible = false;
           break;
         }
-        if (sign === 0) tight.push(k);
+        if (sign === 0) {
+          tight ??= [i, j];
+          tight.push(k);
+        }
       }
       if (!feasible) continue;
       if (Math.abs(determinant) < minimumDirectionSine)
         throw new Error(
           "weak-support-boundary: feasible plane pair is unresolved",
         );
+      tight ??= [i, j];
       tight.sort((a: number, b: number): number => a - b);
       const key: string = tight.join(":");
-      if (!vertices.has(key)) vertices.set(key, { pair: [i, j], tight, point });
+      if (!vertices.has(key))
+        vertices.set(key, { pair: [i, j], tight, point: [x, z] });
     }
     const result: ReturnType<
       ReturnType<typeof createAutoMovieSupportSectionQuery>

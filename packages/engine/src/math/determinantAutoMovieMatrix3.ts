@@ -21,7 +21,7 @@ const PRODUCTS: readonly (readonly [number, number, number, number])[] = [
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No determinant epsilon replacement, guessed zero, coordinate weld or fixture-specific sign is returned. Nonfinite input and unrepresentable nonzero magnitudes refuse.
  * @evidence contracts/common.md#meaningful-documentation States row-major ordering, adaptive versus exact-sign paths, rounded magnitude, binary64 input meaning and underflow/overflow refusal.
  * @evidence contracts/performance.md#efficient-algorithms A fixed-size filter is constant work. The fallback multiplies six fixed-count binary64 mantissas and aligns a bounded exponent range, so BigInt work/storage are bounded by the input format rather than geometry size.
- * @evidence contracts/performance.md#reuse-equivalent-work The six module-private Leibniz permutation/sign tuples are fixed mathematical constants reused across queries; no input-dependent result survives or requires invalidation.
+ * @evidence contracts/performance.md#reuse-equivalent-work The six module-private Leibniz permutation/sign tuples are fixed mathematical constants reused across queries; each nonzero input is decomposed at most once within a fallback, and no input-dependent result survives or requires invalidation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only one number escapes; the optional eight-byte view, six integer terms and aligned sum expire synchronously. The fixed six-entry mathematical index table is module-owned, without handles or global input-dependent state.
  */
 export function determinantAutoMovieMatrix3(matrix: readonly number[]): number {
@@ -32,7 +32,8 @@ export function determinantAutoMovieMatrix3(matrix: readonly number[]): number {
     )
   )
     throw new Error("A complete finite row-major 3 by 3 matrix is required");
-  const terms: number[] = [];
+  let value: number = 0,
+    permanent: number = 0;
   const minimumNormal: number = 2 ** -1022;
   let filterSafe: boolean = true;
   for (const indices of PRODUCTS) {
@@ -41,7 +42,8 @@ export function determinantAutoMovieMatrix3(matrix: readonly number[]): number {
       c: number = matrix[indices[2]];
     const pair: number = a * b,
       product: number = pair * c;
-    terms.push(indices[3] * product);
+    value += indices[3] * product;
+    permanent += Math.abs(product);
     // A lost intermediate product can become significant after multiplication
     // by c. A normal total permanent alone cannot bound that missing term.
     if (
@@ -55,14 +57,6 @@ export function determinantAutoMovieMatrix3(matrix: readonly number[]): number {
     )
       filterSafe = false;
   }
-  const value: number = terms.reduce(
-    (sum: number, term: number): number => sum + term,
-    0,
-  );
-  const permanent: number = terms.reduce(
-    (sum: number, term: number): number => sum + Math.abs(term),
-    0,
-  );
   if (
     filterSafe &&
     Number.isFinite(permanent) &&
@@ -85,29 +79,28 @@ export function determinantAutoMovieMatrix3(matrix: readonly number[]): number {
       exponent: exponent ? exponent - 1075 : -1074,
     };
   };
+  const decomposed: ({ integer: bigint; exponent: number } | undefined)[] =
+    new Array(9);
   const exact: { integer: bigint; exponent: number }[] = [];
   for (const indices of PRODUCTS) {
-    const factors: { integer: bigint; exponent: number }[] = indices
-      .slice(0, 3)
-      .map((i: number): { integer: bigint; exponent: number } =>
-        parts(matrix[i]),
-      );
-    const integer: bigint =
-      BigInt(indices[3]) *
-      factors.reduce(
-        (product: bigint, factor: (typeof factors)[number]): bigint =>
-          product * factor.integer,
-        1n,
-      );
-    if (integer)
-      exact.push({
-        integer,
-        exponent: factors.reduce(
-          (sum: number, factor: (typeof factors)[number]): number =>
-            sum + factor.exponent,
-          0,
-        ),
-      });
+    // A zero factor makes this exact product zero, even if another product
+    // overflows or underflows. Each nonzero input is decomposed at most once.
+    if (
+      matrix[indices[0]] === 0 ||
+      matrix[indices[1]] === 0 ||
+      matrix[indices[2]] === 0
+    )
+      continue;
+    const a: { integer: bigint; exponent: number } = (decomposed[indices[0]] ??=
+      parts(matrix[indices[0]]));
+    const b: { integer: bigint; exponent: number } = (decomposed[indices[1]] ??=
+      parts(matrix[indices[1]]));
+    const c: { integer: bigint; exponent: number } = (decomposed[indices[2]] ??=
+      parts(matrix[indices[2]]));
+    exact.push({
+      integer: BigInt(indices[3]) * a.integer * b.integer * c.integer,
+      exponent: a.exponent + b.exponent + c.exponent,
+    });
   }
   if (!exact.length) return 0;
   const exponent: number = Math.min(

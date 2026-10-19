@@ -22,7 +22,7 @@ import { prepareRecoveryImageSupports } from "./internal/prepareRecoveryImageSup
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No ellipse prior, fixed polygon correspondence, per-row saved contour, discarded view, inferred cap, original mesh/normal or camera estimate supplies the result. Exhausted residual/rank/event/geometry budgets refuse without changing thresholds.
  * @evidence contracts/common.md#meaningful-documentation States support rather than material correspondence, cubic candidate order, common-domain comparison, implied-hull checks, supplied cameras, partial unknown coverage and numerical rather than certified enclosure status.
  * @evidence contracts/performance.md#efficient-algorithms For N common rows, V views and K=spans+3, each candidate costs O(N K squared + N K V + N V cubed), plus the generic engine's bounded continuous planning/emission. maxViews/maxRows/maxSpans and event/cell/vertex budgets bound all retained populations before their owning allocations.
- * @evidence contracts/performance.md#reuse-equivalent-work One common chart and fixed-direction section query serve every candidate; one shared factorization per candidate serves all 2V offset fields. Accepted engine diagnostics accompany the same coefficient field without retaining the generated acquisition-time mesh.
+ * @evidence contracts/performance.md#reuse-equivalent-work One common chart and fixed-direction section query serve every candidate; one shared factorization per candidate serves all 2V offset fields. Per-row Bernstein weights are shared across all offset fields, and implied support reductions retain scalar scratch. Accepted engine diagnostics accompany the same coefficient field without retaining the generated acquisition-time mesh.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Local observation, fit and temporary engine scratch expires synchronously; only compact coefficients, source identities and scalar diagnostics transfer. Cancellation is checked between candidates and before transfer, with no file, worker or global cache acquired.
  */
 export function fitAutoMovieRecoveryImageSupportLoft(
@@ -167,22 +167,24 @@ export function fitAutoMovieRecoveryImageSupportLoft(
           ) ?? loft.spans[loft.spans.length - 1];
         const t: number =
           (y - span.interval[0]) / (span.interval[1] - span.interval[0]);
+        const u: number = 1 - t;
+        const w0: number = u * u * u,
+          w1: number = 3 * t * u * u,
+          w2: number = 3 * t * t * u,
+          w3: number = t * t * t;
         const offsets: number[] = span.offsets.map(
           (q: number[]): number =>
-            q[0] * (1 - t) ** 3 +
-            3 * q[1] * t * (1 - t) ** 2 +
-            3 * q[2] * t * t * (1 - t) +
-            q[3] * t ** 3,
+            q[0] * w0 + q[1] * w1 + q[2] * w2 + q[3] * w3,
         );
         const section: ReturnType<typeof query> = query(offsets);
         for (let plane: number = 0; plane < normals.length; plane++) {
-          const support: number = Math.max(
-            ...section.map(
-              (vertex: (typeof section)[number]): number =>
-                normals[plane][0] * vertex.point[0] +
+          let support: number = -Infinity;
+          for (const vertex of section)
+            support = Math.max(
+              support,
+              normals[plane][0] * vertex.point[0] +
                 normals[plane][1] * vertex.point[1],
-            ),
-          );
+            );
           const pitch: number =
             observation.views[plane % observation.views.length].camera
               .pixelPitchMm;
