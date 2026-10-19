@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import { verifyAutoMovieRecoveryOpenFailures } from "./verifyAutoMovieRecoveryOpenFailures";
+import { verifyAutoMovieRecoveryOpenFailures } from "./verifyAutoMovieRecoveryOpenFailures.ts";
 
 /**
  * Exercise the installed open-continuation command without any original mesh.
