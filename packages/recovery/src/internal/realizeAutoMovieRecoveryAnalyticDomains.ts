@@ -3,6 +3,7 @@ import { realizeAutoMovieBicubicAtlas64 as realize } from "@automovie/engine/geo
 import type { IAutoMovieModel } from "@automovie/interface";
 import type { RecoveryAnalyticDomainsInput as Input } from "./RecoveryAnalyticDomainsInput";
 import type { AutoMovieRecoveryOpenContinuation as O } from "./AutoMovieRecoveryOpenContinuation";
+import { readRecoveryMetadata as read } from "./readRecoveryMetadata";
 
 /**
  * Admit source-free analytic ownership and retain every finite native result.
@@ -60,13 +61,26 @@ export function realizeAutoMovieRecoveryAnalyticDomains(
   const register: (curve: L.ISection["loops"][number]["curve"]) => void = (
     curve: L.ISection["loops"][number]["curve"],
   ): void => {
-    if (curves.has(curve.name)) ambiguous.add(curve.name);
-    else curves.set(curve.name, curve);
+    const name: unknown = read(curve, ["name"]);
+    if (typeof name !== "string" || name.length === 0) return;
+    if (curves.has(name)) ambiguous.add(name);
+    else curves.set(name, curve);
   };
   for (const section of bundle.loft.sections)
     for (const loop of section.loops) register(loop.curve);
-  for (const row of bundle.reports)
-    for (const arc of row.open) register(arc.curve);
+  for (const row of bundle.reports) {
+    const open: unknown = read(row, ["open"]);
+    if (Array.isArray(open)) for (const [ordinal, arc] of open.entries()) {
+      const curve: unknown = read(arc, ["curve"]);
+      const name: unknown = read(curve, ["name"]);
+      if (typeof name === "string" && name.length > 0) {
+        // The name registry borrows the declared typed curve only. Domain
+        // coefficient admission remains inside the per-domain boundary below.
+        const saved: (typeof row.open)[number] | undefined = row.open[ordinal];
+        if (saved !== undefined) register(saved.curve);
+      }
+    }
+  }
   const occupied: Set<string> = new Set(
     (bundle.tensorFamilies ?? []).flatMap(
       (family: NonNullable<typeof bundle.tensorFamilies>[number]): string[] =>

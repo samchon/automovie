@@ -48,6 +48,9 @@ export interface RecoveryLocalRunReport {
   /** Saved course fits that missed their original positional request. */
   fitTargetMisses: number;
 
-  /** Maximum saved curve-to-observed-polyline upper estimate, millimetres. */
-  fitPolylineUpperEstimateMaximumMm: number;
+  /** Courses whose saved fit flag or finite nonnegative estimate is unavailable. */
+  unqualifiedFitMetadata: number;
+
+  /** Maximum saved curve-to-observed-polyline upper estimate in millimetres, or null when any estimate is unavailable. */
+  fitPolylineUpperEstimateMaximumMm: number | null;
 }

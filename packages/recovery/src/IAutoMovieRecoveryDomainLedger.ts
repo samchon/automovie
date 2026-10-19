@@ -18,6 +18,9 @@ export interface IAutoMovieRecoveryDomainLedger {
   /** Version of this membership record, independent of the curve schema. */
   schema: "automovie-recovery-domain-ledger-v1";
 
+  /** Unbound reports or malformed inventories; original operator reports remain in the result. */
+  diagnostics: string[];
+
   /** Actual contour ranges whose exact declared owner could not be identified. */
   unattributed: { part: string; firstTriangle: number; triangleCount: number; beforeMm: number; afterMm: number; group: number }[];
 

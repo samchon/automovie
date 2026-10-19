@@ -73,7 +73,7 @@ export function reconstructRecovery(
     intervals: bundle.loft.intervals.map(
       (interval: L.IInterval, i: number): L.IInterval => ({
         ...interval,
-        groups: interval.groups.map(
+        groups: Array.isArray(interval.groups) ? interval.groups.map(
           (
             group: L.IInterval["groups"][number],
             j: number,
@@ -85,7 +85,7 @@ export function reconstructRecovery(
                   reason: `Saved domain delegated to analytic owner ${replacements.get(`${i}:${j}`)}`,
                 }
               : group,
-        ),
+        ) : interval.groups,
       }),
     ),
     observeWork: options.observeWork ?? false,

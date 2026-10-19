@@ -3,6 +3,7 @@ import type { realizeAutoMovieRecoveryTensorFamilies } from "./internal/realizeA
 import type { IAutoMovieRecoveryOperation } from "./IAutoMovieRecoveryOperation";
 import type { IAutoMovieRecoveryDomainLedger } from "./IAutoMovieRecoveryDomainLedger";
 import { describeRecoveryDomains } from "./internal/describeRecoveryDomains";
+import { readRecoveryMetadata as read } from "./internal/readRecoveryMetadata";
 
 /**
  * Reconstruct saved cubic and domain coefficients without access to source geometry.
@@ -14,7 +15,7 @@ import { describeRecoveryDomains } from "./internal/describeRecoveryDomains";
  * @evidence contracts/common.md#clear-and-simple-design Terminal outcomes wrap the recovery orchestration result; Node admission and publication are separate and existing engine surface computation remains delegated.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No source positions, source normals, original topology, rounding or forced closure is accepted.
  * @evidence contracts/common.md#meaningful-documentation Documents version, source-free input, partial domain coverage and numerical quality limits.
- * @evidence contracts/performance.md#efficient-algorithms Delegated contour DP and analytic realization dominate work; the wrapper adds O(R) diagnostic and omission scans.
+ * @evidence contracts/performance.md#efficient-algorithms Delegated contour DP and analytic realization dominate work; the wrapper adds linear declared-domain, range and diagnostic scans.
  * @evidence contracts/performance.md#reuse-equivalent-work One generated model supplies CPU and display consumers; no hidden reconstruction is repeated.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returned model and construction arrays transfer to the caller; no I/O or retained cache exists.
 
@@ -39,8 +40,32 @@ export function reconstructAutoMovieRecoveryModel(
     options.onProgress?.("reconstruction", 1, 1);
     if (options.signal?.aborted)
       return { schema, operator, status: "cancelled", diagnostics: ["Cancelled before publication"] };
-    const partial: boolean = input.coverage?.complete === false || input.topologyGaps.length > 0 || input.unconsumedEvents.length > 0 || input.reports.some((report: realizeAutoMovieRecoveryTensorFamilies.Input["reports"][number]): boolean => report.open.length > 0 || report.isolatedContactsMm.length > 0) || value.unresolved.length > 0 || value.tensorReports.some((report: (typeof value.tensorReports)[number]): boolean => !report.complete) || value.analyticReports.some((report: (typeof value.analyticReports)[number]): boolean => !report.admitted || !report.complete || !report.observationComplete || report.unrepresentedDomains.length > 0);
-    return { schema, operator, status: partial ? "partial" : "complete", value: { ...value, membership: describeRecoveryDomains(input, value) }, diagnostics: value.diagnostics.slice() };
+    const membership: IAutoMovieRecoveryDomainLedger = describeRecoveryDomains(input, value);
+    const diagnostics: string[] = [...value.diagnostics, ...membership.diagnostics];
+    let omitted: boolean = false;
+    for (const field of ["topologyGaps", "unconsumedEvents"] as const) {
+      const inventory: unknown = read(input, [field]);
+      if (!Array.isArray(inventory)) {
+        diagnostics.push(`Declared ${field} inventory is unavailable; coverage remains unknown`);
+        omitted = true;
+      } else if (inventory.length > 0) omitted = true;
+    }
+    for (const [ordinal, report] of input.reports.entries())
+      for (const field of ["open", "isolatedContactsMm"] as const) {
+        const inventory: unknown = read(report, [field]);
+        if (!Array.isArray(inventory)) {
+          diagnostics.push(`Section ${ordinal} ${field} inventory is unavailable; coverage remains unknown`);
+          omitted = true;
+        } else if (inventory.length > 0) omitted = true;
+      }
+    const coverage: unknown = read(input, ["coverage"]);
+    const complete: unknown = read(coverage, ["complete"]);
+    if (coverage !== undefined && typeof complete !== "boolean") {
+      diagnostics.push("Declared coverage completion is unavailable; coverage remains unknown");
+      omitted = true;
+    }
+    const partial: boolean = complete === false || omitted || membership.diagnostics.length > 0 || membership.unattributed.length > 0 || membership.members.some((member: IAutoMovieRecoveryDomainLedger["members"][number]): boolean => member.admitted !== true) || value.unresolved.length > 0 || value.tensorReports.some((report: (typeof value.tensorReports)[number]): boolean => !report.complete) || value.analyticReports.some((report: (typeof value.analyticReports)[number]): boolean => !report.admitted || !report.complete || !report.observationComplete || report.unrepresentedDomains.length > 0);
+    return { schema, operator, status: partial ? "partial" : "complete", value: { ...value, membership }, diagnostics };
   } catch (failure: unknown) {
     return { schema, operator, status: options.signal?.aborted ? "cancelled" : "failed", diagnostics: [failure instanceof Error ? failure.message : String(failure)] };
   }

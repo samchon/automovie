@@ -30,7 +30,7 @@ Saved curves retain cubic Bernstein coefficients, span widths and their declared
 
 Operations return `automovie-recovery-operation-v1`. `complete` and `partial` carry a value; `refused`, `failed` and `cancelled` carry diagnostics without one. `complete` describes the declared processing scope. Unsupported domains, incomplete prefixes and unconsumed courses remain explicit rather than becoming successful coverage.
 
-The domain ledger preserves declared addresses and actual emitted ranges. Unknown attempted or admitted stages remain `null`; unattributed ranges remain visible. A memory result has not been written or loaded merely because geometry exists.
+The domain ledger preserves declared addresses and actual emitted ranges. Unknown attempted or admitted stages remain `null`; unattributed ranges remain visible. Named owners bind only when the declared and reported identities are both unique. Missing or ambiguous names, ports and inventories remain diagnostics, and the original operator reports and retained geometry stay available. Such unresolved membership remains partial. A memory result has not been written or loaded merely because geometry exists.
 
 Cancellation is checked at documented synchronous checkpoints. A signal cannot interrupt an arithmetic block while JavaScript owns the thread. Progress callbacks may throw; public operation wrappers return a failed outcome. Limits apply to the selected operation and do not establish a universal asset size bound.
 

@@ -1,6 +1,8 @@
 import type { IAutoMovieRecoveryDomainLedger } from "../IAutoMovieRecoveryDomainLedger";
 import type { realizeAutoMovieRecoveryTensorFamilies } from "./realizeAutoMovieRecoveryTensorFamilies";
 import type { reconstructRecovery } from "./reconstructRecovery";
+import { describeRecoveryNamedDomains } from "./describeRecoveryNamedDomains";
+import { readRecoveryMetadata as read } from "./readRecoveryMetadata";
 
 /**
  * Bind declared saved-domain identities to actual returned ownership records.
@@ -14,7 +16,7 @@ import type { reconstructRecovery } from "./reconstructRecovery";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unreported admission remains null, delegated groups do not borrow their owner's whole triangle range, and legacy unresolved reasons are not guessed onto equally sized groups.
  * @evidence contracts/common.md#meaningful-documentation States exact unique interval addressing, unknown stages, delegation and absence of geometric changes.
  * @evidence contracts/performance.md#efficient-algorithms Maps index S saved sections, R actual contour ranges and G reports once; member assembly costs O(S+G+R+C) for saved sections, declared groups, ranges and curve references, with O(S+G+R+C) storage.
- * @evidence contracts/performance.md#reuse-equivalent-work The original engine reports supply observed stages and emitted ranges; no numerical generation or mesh scan is repeated.
+ * @evidence contracts/performance.md#reuse-equivalent-work The original operator reports supply observed stages and emitted ranges; no numerical generation or mesh scan is repeated.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Call-local indexes expire after returning the ledger; outputs own metadata only and hold no mesh buffers or external resources.
  */
 export function describeRecoveryDomains(
@@ -22,8 +24,10 @@ export function describeRecoveryDomains(
   result: ReturnType<typeof reconstructRecovery>,
 ): IAutoMovieRecoveryDomainLedger {
   type Member = IAutoMovieRecoveryDomainLedger["members"][number];
-  const members: Member[] = [];
-  const owners: Map<string, string> = new Map();
+  const named: ReturnType<typeof describeRecoveryNamedDomains> = describeRecoveryNamedDomains(input, result);
+  const members: Member[] = named.members;
+  const owners: Map<string, string> = named.owners;
+  const diagnostics: string[] = named.diagnostics;
   const ranges: Map<string, Member["emitted"]> = new Map();
   const intervals: Map<string, number[]> = new Map();
   const savedSections: Map<number, (typeof input.loft.sections)[number]> = new Map(
@@ -49,26 +53,11 @@ export function describeRecoveryDomains(
     list.push({ part: "recovery.curve-loft", firstTriangle: range.firstTriangle, triangleCount: range.triangleCount, patch: null });
     ranges.set(key, list);
   }
-  for (const [ordinal, report] of result.tensorReports.entries()) {
-    const id: string = `tensor-family:${ordinal}:${report.id}`;
-    for (const address of report.delegatedGroups) owners.set(`${address.interval}:${address.group}`, id);
-    members.push({ id, kind: "tensor-family", address: null, curves: report.endCurves.slice(), attempted: true, admitted: true, delegatedTo: null,
-      emitted: report.primitiveRanges.filter((range: (typeof report.primitiveRanges)[number]): boolean => range.triangleCount > 0).map((range: (typeof report.primitiveRanges)[number]): Member["emitted"][number] => ({ part: report.id, firstTriangle: range.firstTriangle, triangleCount: range.triangleCount, patch: range.patch })),
-      written: "not-performed", loaded: "not-performed", diagnostics: report.diagnostics.slice() });
-  }
-  for (const [ordinal, report] of result.analyticReports.entries()) {
-    const id: string = `analytic-domain:${ordinal}:${report.id}`;
-    const domain: NonNullable<typeof input.analyticDomains>[number] | undefined = input.analyticDomains?.[ordinal];
-    if (report.admitted && domain) for (const address of domain.closedGroups) owners.set(`${address.interval}:${address.group}`, id);
-    const curves: string[] = [];
-    if (Array.isArray(domain?.ports)) for (const port of domain.ports)
-      if (typeof port?.curveName === "string") curves.push(port.curveName);
-    members.push({ id, kind: "analytic-domain", address: null, curves, attempted: report.admitted ? true : null, admitted: report.admitted, delegatedTo: null,
-      emitted: report.primitiveRanges.filter((range: (typeof report.primitiveRanges)[number]): boolean => range.triangleCount > 0).map((range: (typeof report.primitiveRanges)[number]): Member["emitted"][number] => ({ part: report.id, firstTriangle: range.firstTriangle, triangleCount: range.triangleCount, patch: range.patch })),
-      written: "not-performed", loaded: "not-performed", diagnostics: report.diagnostics.slice() });
-  }
   for (const [interval, slab] of (input.loft.intervals ?? []).entries()) {
-    if (!Array.isArray(slab.groups)) continue;
+    if (!Array.isArray(slab.groups)) {
+      diagnostics.push(`Interval ${interval} group inventory is unavailable; no membership is inferred`);
+      continue;
+    }
     for (const [group, declared] of slab.groups.entries()) {
       const key: string = `${interval}:${group}`;
       const emitted: Member["emitted"] = ranges.get(key) ?? [];
@@ -76,32 +65,45 @@ export function describeRecoveryDomains(
       const beforeSection: (typeof input.loft.sections)[number] | undefined = savedSections.get(slab.beforeMm);
       const afterSection: (typeof input.loft.sections)[number] | undefined = savedSections.get(slab.afterMm);
       const curves: string[] = [];
-      const diagnostics: string[] = typeof declared?.reason === "string" ? [declared.reason] : [];
+      const reason: unknown = read(declared, ["reason"]);
+      const local: string[] = typeof reason === "string" ? [reason] : [];
       for (const side of [0, 1] as const) {
-        const ids: readonly number[] | undefined = side === 0 ? declared?.before : declared?.after;
+        const ids: unknown = read(declared, [side === 0 ? "before" : "after"]);
         const section: typeof beforeSection = side === 0 ? beforeSection : afterSection;
         if (!Array.isArray(ids)) {
-          diagnostics.push(`Declared side ${side} incidence is unavailable; no coefficient identity is inferred`);
+          local.push(`Declared side ${side} incidence is unavailable; no coefficient identity is inferred`);
+          diagnostics.push(`Closed group ${interval}:${group} side ${side} has unknown incidence metadata`);
           continue;
         }
         for (const loop of ids) {
-          const name: string | undefined = Number.isSafeInteger(loop) && loop >= 0 ? section?.loops[loop]?.curve.name : undefined;
-          if (name !== undefined) curves.push(name);
-          else diagnostics.push(`Declared side ${side} loop ${String(loop)} has no saved coefficient identity`);
+          const name: unknown = typeof loop === "number" && Number.isSafeInteger(loop) && loop >= 0 ? read(section?.loops[loop], ["curve", "name"]) : undefined;
+          if (typeof name === "string" && name.length > 0) curves.push(name);
+          else {
+            local.push(`Declared side ${side} has a loop without a saved coefficient identity`);
+            diagnostics.push(`Closed group ${interval}:${group} side ${side} has an unknown coefficient identity`);
+          }
         }
       }
       members.push({ id: `closed-group:${interval}:${group}`, kind: "closed-group", address: { interval, group }, curves,
-        attempted: delegatedTo !== null ? null : declared?.supported === false ? false : emitted.length > 0 ? true : null,
-        admitted: delegatedTo !== null || emitted.length > 0 ? true : declared?.supported === false ? false : null,
+        attempted: delegatedTo !== null ? null : read(declared, ["supported"]) === false ? false : emitted.length > 0 ? true : null,
+        admitted: delegatedTo !== null || emitted.length > 0 ? true : read(declared, ["supported"]) === false ? false : null,
         delegatedTo, emitted, written: "not-performed", loaded: "not-performed",
-        diagnostics });
+        diagnostics: local });
     }
   }
-  for (const [section, report] of input.reports.entries())
-    for (const [arc, observed] of report.open.entries())
-      members.push({ id: `open-course:${section}:${arc}`, kind: "open-course", address: null, curves: [observed.curve.name], attempted: false, admitted: false,
+  for (const [section, report] of input.reports.entries()) {
+    const open: unknown = read(report, ["open"]);
+    if (!Array.isArray(open)) {
+      diagnostics.push(`Section ${section} open-course inventory is unavailable`);
+      continue;
+    }
+    for (const [arc, observed] of open.entries()) {
+      const name: unknown = read(observed, ["curve", "name"]);
+      members.push({ id: `open-course:${section}:${arc}`, kind: "open-course", address: null, curves: typeof name === "string" && name.length > 0 ? [name] : [], attempted: false, admitted: false,
         delegatedTo: null, emitted: [], written: "not-performed", loaded: "not-performed",
-        diagnostics: ["This contour-only memory operation does not consume the separate open-continuation graph"] });
+        diagnostics: ["This contour-only memory operation does not consume the separate open-continuation graph", ...(typeof name === "string" && name.length > 0 ? [] : ["The observed open course has no saved coefficient identity"])] });
+    }
+  }
   for (let interval: number = 0; interval + 1 < input.loft.sections.length; interval++) {
     const before: (typeof input.loft.sections)[number] = input.loft.sections[interval]!;
     const after: (typeof input.loft.sections)[number] = input.loft.sections[interval + 1]!;
@@ -111,12 +113,14 @@ export function describeRecoveryDomains(
       const claimed: Set<number> = new Set();
       const groups: NonNullable<typeof input.loft.intervals>[number]["groups"] | undefined = declared?.length === 1 ? input.loft.intervals?.[declared[0]!]?.groups : undefined;
       if (Array.isArray(groups)) for (const group of groups) {
-        const ids: readonly number[] | undefined = side === 0 ? group?.before : group?.after;
-        if (Array.isArray(ids)) for (const ordinal of ids) if (Number.isSafeInteger(ordinal) && ordinal >= 0) claimed.add(ordinal);
+        const ids: unknown = read(group, [side === 0 ? "before" : "after"]);
+        if (Array.isArray(ids)) for (const ordinal of ids) if (typeof ordinal === "number" && Number.isSafeInteger(ordinal) && ordinal >= 0) claimed.add(ordinal);
       }
-      for (const [loop, saved] of section.loops.entries())
-        if (!claimed.has(loop)) members.push({ id: `unassigned-boundary:${interval}:${side}:${loop}`, kind: "unassigned-boundary", address: null, curves: [saved.curve.name], attempted: null, admitted: false, delegatedTo: null, emitted: [], written: "not-performed", loaded: "not-performed", diagnostics: ["No unique declared adjacent group owns this saved boundary occurrence"] });
+      for (const [loop, saved] of section.loops.entries()) {
+        const name: unknown = read(saved, ["curve", "name"]);
+        if (!claimed.has(loop)) members.push({ id: `unassigned-boundary:${interval}:${side}:${loop}`, kind: "unassigned-boundary", address: null, curves: typeof name === "string" && name.length > 0 ? [name] : [], attempted: null, admitted: false, delegatedTo: null, emitted: [], written: "not-performed", loaded: "not-performed", diagnostics: ["No unique declared adjacent group owns this saved boundary occurrence", ...(typeof name === "string" && name.length > 0 ? [] : ["The saved boundary has no coefficient identity"])] });
+      }
     }
   }
-  return { schema: "automovie-recovery-domain-ledger-v1", members, unattributed };
+  return { schema: "automovie-recovery-domain-ledger-v1", members, unattributed, diagnostics };
 }

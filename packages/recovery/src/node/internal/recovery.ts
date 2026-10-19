@@ -166,7 +166,7 @@ export function recovery(args: string[], sourceEpoch: string): void {
       membership: result.membership,
       model: result.model,
       construction: { units: "m", lines: result.construction },
-      diagnostics: result.diagnostics,
+      diagnostics: reconstructed.diagnostics,
       unresolved: result.unresolved,
       stripObservations: result.stripObservations,
       primitiveRanges: result.primitiveRanges,
@@ -208,7 +208,7 @@ export function recovery(args: string[], sourceEpoch: string): void {
     console.log(
       JSON.stringify({
         parts: result.model.parts.length,
-        diagnostics: result.diagnostics.length,
+        diagnostics: reconstructed.diagnostics.length,
         unresolved: result.unresolved.length,
         displayedUnqualifiedStrips: result.stripObservations.filter(
           (strip: (typeof result.stripObservations)[number]): boolean =>

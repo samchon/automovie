@@ -1,5 +1,7 @@
 import type { IAutoMovieRecoveryMemoryUsage } from "./IAutoMovieRecoveryMemoryUsage";
 import path from "node:path";
+import { describeRecoveryNamedDomains } from "../../internal/describeRecoveryNamedDomains";
+import { readRecoveryMetadata as read } from "../../internal/readRecoveryMetadata";
 
 import type { createAutoMovieRecoveryMeshSpool } from "./createAutoMovieRecoveryMeshSpool";
 import type { AutoMovieRecoveryOpenContinuation as O } from "../../internal/AutoMovieRecoveryOpenContinuation";
@@ -15,7 +17,7 @@ import type { reconstructRecovery } from "../../internal/reconstructRecovery";
  * @evidence contracts/common.md#clear-and-simple-design Artifact shape and provenance have one owner; source observation, generation and disk-spool writing remain separate.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No copied source geometry, quality promotion, geometry filtering or missing-region substitution enters metadata assembly.
  * @evidence contracts/common.md#meaningful-documentation States current-report ownership and the separate tensor, open, source and geometry qualifications.
- * @evidence contracts/performance.md#efficient-algorithms Assembly visits interval diagnostics and tensor reports in linear passes; exact planned and observed family-ID sets use O(F) transient storage. Bulk geometry and report arrays are referenced rather than copied. The publication writer owns serialization costs.
+ * @evidence contracts/performance.md#efficient-algorithms Assembly visits interval diagnostics and tensor reports in linear passes; exact declared and reported family-ID binding uses O(F) transient storage. Bulk geometry and report arrays are referenced rather than copied. The publication writer owns serialization costs.
  * @evidence contracts/performance.md#reuse-equivalent-work The existing model, spool construction and ownership arrays feed checkpoints and final publication without regeneration.
  * @evidence contracts/performance.md#bound-retention-and-release-resources One returned plain record belongs to the publication invocation. This helper owns no handles, cache or retained geometry beyond its caller's arrays.
  */
@@ -78,35 +80,15 @@ export function createAutoMovieRecoveryArtifact(input: {
     peaks,
   }: typeof input = input;
   const generated: ReturnType<typeof counts> = counts();
-  const plannedTensorFamilies: number = bundle.tensorFamilies?.length ?? 0;
-  const plannedTensorIds: Set<string> = new Set(
-    (bundle.tensorFamilies ?? []).map(
-      (family: NonNullable<typeof bundle.tensorFamilies>[number]): string =>
-        family.id,
-    ),
+  const named: ReturnType<typeof describeRecoveryNamedDomains> = describeRecoveryNamedDomains(bundle, base);
+  const tensorMembers: typeof named.members = named.members.filter((member: (typeof named.members)[number]): boolean => member.kind === "tensor-family");
+  const analyticMembers: typeof named.members = named.members.filter((member: (typeof named.members)[number]): boolean => member.kind === "analytic-domain");
+  const plannedTensorFamilies: number = tensorMembers.length;
+  const analyticComplete: boolean = named.diagnostics.length === 0 && analyticMembers.every((member: (typeof named.members)[number]): boolean => member.admitted === true) && base.analyticReports.every(
+    (report: (typeof base.analyticReports)[number]): boolean => report.admitted && report.complete && report.observationComplete && report.unrepresentedDomains.length === 0,
   );
-  const observedTensorIds: Set<string> = new Set(
-    base.tensorReports.map(
-      (report: (typeof base.tensorReports)[number]): string => report.id,
-    ),
-  );
-  const plannedAnalyticIds: Set<string> = new Set(
-    (bundle.analyticDomains ?? []).map(
-      (domain: NonNullable<typeof bundle.analyticDomains>[number]): string =>
-        domain.id,
-    ),
-  );
-  const analyticComplete: boolean =
-    plannedAnalyticIds.size === (bundle.analyticDomains?.length ?? 0) &&
-    base.analyticReports.length === plannedAnalyticIds.size &&
-    base.analyticReports.every(
-      (report: (typeof base.analyticReports)[number]): boolean =>
-        plannedAnalyticIds.has(report.id) &&
-        report.admitted &&
-        report.complete &&
-        report.observationComplete &&
-        report.unrepresentedDomains.length === 0,
-    );
+  const declaredAnalytic: unknown = read(bundle, ["analyticDomains"]);
+  const analyticDeclarations: readonly unknown[] = Array.isArray(declaredAnalytic) ? declaredAnalytic : [];
   const retainedDomainComplete: boolean =
     analyticComplete &&
     complete &&
@@ -117,17 +99,16 @@ export function createAutoMovieRecoveryArtifact(input: {
     unsupportedGroups === 0 &&
     base.unresolved.length === 0 &&
     base.tensorReports.length === plannedTensorFamilies &&
-    plannedTensorIds.size === plannedTensorFamilies &&
-    observedTensorIds.size === plannedTensorFamilies &&
+    tensorMembers.every((member: (typeof named.members)[number]): boolean => member.admitted === true) &&
     base.tensorReports.every(
       (report: (typeof base.tensorReports)[number]): boolean =>
-        plannedTensorIds.has(report.id) && report.complete,
+        report.complete,
     );
   return {
     schema: "human-reference-engine-model-v1",
     model: base.model,
     construction: { units: "m", lines: spool.construction },
-    diagnostics: base.diagnostics,
+    diagnostics: [...base.diagnostics, ...named.diagnostics],
     unresolved: base.unresolved,
     unresolvedScope:
       "Closed-only observations retained independently of open surfaces; they are not an additive whole-model hole count.",
@@ -137,18 +118,24 @@ export function createAutoMovieRecoveryArtifact(input: {
     openPrimitiveOwnership: spool.ownership,
     tensorReports: base.tensorReports,
     analyticReports: base.analyticReports,
-    analyticOwnership: (bundle.analyticDomains ?? []).map(
-      (domain: NonNullable<typeof bundle.analyticDomains>[number]): object => ({
-        id: domain.id,
-        admitted: base.analyticReports.some(
-          (report: (typeof base.analyticReports)[number]): boolean =>
-            report.id === domain.id && report.admitted,
-        ),
-        closedGroups: domain.closedGroups,
-        openPairs: domain.openPairs,
-        openUnresolved: domain.openUnresolved,
-        polygonalBoundaryConformityQualified: false,
-      }),
+    analyticOwnership: analyticMembers.map(
+      (member: (typeof named.members)[number], ordinal: number): object => {
+        const domain: unknown = analyticDeclarations[ordinal];
+        const id: unknown = read(domain, ["id"]);
+        const closedGroups: unknown = read(domain, ["closedGroups"]);
+        const openPairs: unknown = read(domain, ["openPairs"]);
+        const openUnresolved: unknown = read(domain, ["openUnresolved"]);
+        return {
+          id: typeof id === "string" && id.length > 0 ? id : null,
+          occurrence: member.id,
+          admitted: member.admitted,
+          closedGroups: Array.isArray(closedGroups) ? closedGroups : null,
+          openPairs: Array.isArray(openPairs) ? openPairs : null,
+          openUnresolved: Array.isArray(openUnresolved) ? openUnresolved : null,
+          diagnostics: member.diagnostics,
+          polygonalBoundaryConformityQualified: false,
+        };
+      },
     ),
     coefficientPublication: bundle.coefficientPublication ?? null,
     openReports: {
@@ -179,7 +166,7 @@ export function createAutoMovieRecoveryArtifact(input: {
       processingComplete: retainedDomainComplete,
       retainedDomainComplete,
       generatedTriangles: generated.triangles,
-      plannedAnalyticDomains: plannedAnalyticIds.size,
+      plannedAnalyticDomains: analyticMembers.length,
       observedAnalyticDomains: base.analyticReports.length,
       analyticDomainsComplete: analyticComplete,
       plannedTensorFamilies,

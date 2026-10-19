@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import { verifyAutoMovieRecoveryOpenFailures } from "./verifyAutoMovieRecoveryOpenFailures";
 
 /**
  * Exercise the installed open-continuation command without any original mesh.
@@ -21,7 +22,7 @@ export function verifyAutoMovieRecoveryOpenConsumer(input: {
   cli: string;
   sourceEpoch: string;
   run: (command: string, args: string[], cwd: string) => string;
-}): { area: number; triangles: number; generatedRuns: number; sourceMeshProvided: false } {
+}): { area: number; triangles: number; generatedRuns: number; sourceMeshProvided: false; localFailures: ReturnType<typeof verifyAutoMovieRecoveryOpenFailures> } {
   const curveFile: string = path.join(input.consumer, "outputs", "open-curves.json"),
     graphFile: string = path.join(input.consumer, "outputs", "open-graph.json"),
     output: string = path.join(input.consumer, "outputs", "open-model.json");
@@ -54,5 +55,6 @@ export function verifyAutoMovieRecoveryOpenConsumer(input: {
   }
   if (!Number.isFinite(area) || Math.abs(area - 6e-6) > 1e-12 || !triangles || result.openReports.generatedRuns !== 1)
     throw new Error("Installed ordinary open run did not preserve the independent planar area");
-  return { area, triangles, generatedRuns: result.openReports.generatedRuns, sourceMeshProvided: false };
+  const localFailures: ReturnType<typeof verifyAutoMovieRecoveryOpenFailures> = verifyAutoMovieRecoveryOpenFailures({ ...input, curves });
+  return { area, triangles, generatedRuns: result.openReports.generatedRuns, sourceMeshProvided: false, localFailures };
 }

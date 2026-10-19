@@ -2,6 +2,7 @@ import type { IAutoMovieContourLoft64 as L } from "@automovie/engine/geometry/cu
 import { realizeAutoMovieBicubicAtlas64 as realize } from "@automovie/engine/geometry/realizeAutoMovieBicubicAtlas64";
 import type { IAutoMovieModel } from "@automovie/interface";
 import type { RecoveryTensorFamiliesInput } from "./RecoveryTensorFamiliesInput";
+import { readRecoveryMetadata as read } from "./readRecoveryMetadata";
 
 /**
  * Admit ordinary-family ownership and generate saved analytic tensors through the engine.
@@ -50,9 +51,11 @@ export function realizeAutoMovieRecoveryTensorFamilies(bundle: realizeAutoMovieR
   const curves: Map<string, L.ISection["loops"][number]["curve"]> = new Map();
   for (const section of bundle.loft.sections)
     for (const loop of section.loops) {
-      if (curves.has(loop.curve.name))
+      const name: unknown = read(loop, ["curve", "name"]);
+      if (typeof name !== "string" || name.length === 0) continue;
+      if (curves.has(name))
         throw new Error("One saved curve name has multiple coefficient owners");
-      curves.set(loop.curve.name, loop.curve);
+      curves.set(name, loop.curve);
     }
   const replacements: Map<string, string> = new Map(),
     names: Set<string> = new Set();

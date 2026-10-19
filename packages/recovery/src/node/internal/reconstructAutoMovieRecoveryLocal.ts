@@ -13,6 +13,7 @@ import type { realizeAutoMovieRecoveryTensorFamilies } from "../../internal/real
 import { normalizeRecoveryCourse } from "../../internal/normalizeRecoveryCourse";
 import { prepareRecoveryLocalContinuation } from "../../internal/prepareRecoveryLocalContinuation";
 import { reconstructRecovery } from "../../internal/reconstructRecovery";
+import { describeRecoveryOpenRun } from "../../internal/describeRecoveryOpenRun";
 
 /**
  * Generate saved tensor ordinary domains, retained closed domains and bounded open surfaces.
@@ -268,13 +269,13 @@ export function reconstructAutoMovieRecoveryLocal(
       current = outgoing.get(key(current.after));
     }
     const id: string = `recovery.local.${key(nodes[0]!)}`;
+    const metadata: ReturnType<typeof describeRecoveryOpenRun> = describeRecoveryOpenRun(bundle, nodes);
+    base.diagnostics.push(...metadata.diagnostics.map((message: string): string => `${id}: ${message}`));
     const record: RunReport = {
       id,
       firstSection: nodes[0]!.section,
       lastSection: nodes.at(-1)!.section,
-      curves: nodes.map(
-        (n: Node): string => bundle.reports[n.section]!.open[n.arc]!.curve.name,
-      ),
+      curves: metadata.curves,
       generated: false,
       reason: null,
       intervals: nodes.length - 1,
@@ -286,18 +287,9 @@ export function reconstructAutoMovieRecoveryLocal(
           graph.orientations[n.section]![n.arc] === null ||
           graph.orientations[n.section]![n.arc]! < 0 !== reversals[i],
       ).length,
-      fitTargetMisses: nodes.filter(
-        (n: Node): boolean =>
-          !bundle.reports[n.section]!.open[n.arc]!.toleranceMet,
-      ).length,
-      fitPolylineUpperEstimateMaximumMm: nodes.reduce(
-        (maximum: number, n: Node): number =>
-          Math.max(
-            maximum,
-            bundle.reports[n.section]!.open[n.arc]!.polylineUpperEstimateMm,
-          ),
-        0,
-      ),
+      fitTargetMisses: metadata.fitTargetMisses,
+      unqualifiedFitMetadata: metadata.unqualifiedFitMetadata,
+      fitPolylineUpperEstimateMaximumMm: metadata.fitPolylineUpperEstimateMaximumMm,
     };
     runs.push(record);
     const runStartChunks: number = spool.counts.chunks,
@@ -313,12 +305,7 @@ export function reconstructAutoMovieRecoveryLocal(
             bundle.loft.sections[record.firstSection]!.coordinateMm,
             bundle.loft.sections[record.lastSection]!.coordinateMm,
           ],
-          sourceSpans: nodes.reduce(
-            (n: number, node: Node): number =>
-              n +
-              bundle.reports[node.section]!.open[node.arc]!.curve.spans.length,
-            0,
-          ),
+          sourceSpans: metadata.sourceSpans,
           memory: memory(),
           elapsedMs: performance.now() - started,
         }),
