@@ -122,7 +122,7 @@ export async function test_viewer_generating_construction(): Promise<void> {
     ],
   ];
   const sparse: number[] = variants[0][0].points[1];
-  delete sparse[1];
+  Reflect.deleteProperty(sparse, "1");
   for (const invalid of variants) {
     let refused: boolean = false;
     try {

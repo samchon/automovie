@@ -20,8 +20,10 @@ export interface IAutoMovieRecoveryImageLoft {
   /** Explicit supported hypothesis rather than unrestricted topology. */
   family: "aligned-elliptical-sections";
 
-  /** Object identity and supplied metric-frame provenance, without a source address. */
+  /** Object identity without a source address. */
   objectId: string;
+
+  /** Supplied metric-frame provenance, without acquisition paths. */
   frame: string;
 
   /** Generating coefficients in metres, before independent edits. */

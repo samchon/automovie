@@ -38,3 +38,5 @@ A source-linked `ttsx -P tsconfig.json` consumer should use an ESM compiler conf
 ## Ownership
 
 The viewer releases what it creates and leaves what the caller passes in. `dispose` functions free viewer-owned geometry, materials, textures and compositor targets, never a caller's renderer, scene or numerical source. Render-budget hosts read texture and render-target facts from the actual objects (`AutoMovieTextureCache.describeSources`, `readAutoMovieRenderTextureTarget`) and pass them to `assessAutoMovieRenderBudget`, which refuses a frame whose memory it cannot bound.
+
+`buildAutoMovieConstruction` displays supplied open or closed generating polylines in metres under an explicit point budget, with one owned disposer. `createAutoMovieMetricOrthographicCamera` maps a supplied horizontal metric pixel chart to a native camera. `captureAutoMovieMetricFrame` captures the current scene in physical pixels as a surface or structural silhouette pass, then restores borrowed renderer and scene state. The host owns subject visibility, admission budgets and redrawing its ordinary camera; these operations perform no reconstruction or camera estimation.

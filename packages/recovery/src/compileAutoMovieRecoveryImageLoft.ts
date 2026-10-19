@@ -37,9 +37,10 @@ export function compileAutoMovieRecoveryImageLoft(
   }[];
   arcDeviationBoundMeters: number;
 }> {
-  const schema: "automovie-recovery-operation-v1" =
+  const schema: IAutoMovieRecoveryOperation.Result<unknown>["schema"] =
     "automovie-recovery-operation-v1";
-  const operator: "image-elliptic-loft-v1" = "image-elliptic-loft-v1";
+  const operator: IAutoMovieRecoveryOperation.Result<unknown>["operator"] =
+    "image-elliptic-loft-v1";
   try {
     if (
       !recipe ||

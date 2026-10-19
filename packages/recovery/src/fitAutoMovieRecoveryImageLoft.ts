@@ -41,9 +41,10 @@ export function fitAutoMovieRecoveryImageLoft(
   },
   options: IAutoMovieRecoveryOperation.Options = {},
 ): IAutoMovieRecoveryOperation.Result<IAutoMovieRecoveryImageFit> {
-  const schema: "automovie-recovery-operation-v1" =
+  const schema: IAutoMovieRecoveryOperation.Result<unknown>["schema"] =
     "automovie-recovery-operation-v1";
-  const operator: "image-elliptic-loft-v1" = "image-elliptic-loft-v1";
+  const operator: IAutoMovieRecoveryOperation.Result<unknown>["operator"] =
+    "image-elliptic-loft-v1";
   const cancelled: () => boolean = (): boolean =>
     options.signal?.aborted === true;
   if (cancelled())
@@ -307,7 +308,7 @@ export function fitAutoMovieRecoveryImageLoft(
         loft.spans.find(
           (candidate: IAutoMovieEllipticLoft["spans"][number]): boolean =>
             y <= candidate.interval[1],
-        ) ?? loft.spans.at(-1)!;
+        ) ?? loft.spans[loft.spans.length - 1];
       const t: number =
         (y - span.interval[0]) / (span.interval[1] - span.interval[0]);
       const weights: number[] = [

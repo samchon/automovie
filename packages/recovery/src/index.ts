@@ -1,8 +1,8 @@
-export { IAutoMovieRecoveryMeshSections } from "./internal/IAutoMovieRecoveryMeshSections";
+export type { IAutoMovieRecoveryMeshSections } from "./internal/IAutoMovieRecoveryMeshSections";
 export { AutoMovieRecoveryMeshSections } from "./internal/AutoMovieRecoveryMeshSections";
 export { AutoMovieRecoveryOpenContinuation } from "./internal/AutoMovieRecoveryOpenContinuation";
 export { observeAutoMovieRecoveryAtlas } from "./internal/observeAutoMovieRecoveryAtlas";
-export { IAutoMovieRecoveryEventChartInput } from "./internal/IAutoMovieRecoveryEventChartInput";
+export type { IAutoMovieRecoveryEventChartInput } from "./internal/IAutoMovieRecoveryEventChartInput";
 export { AutoMovieRecoveryEventCurve } from "./internal/AutoMovieRecoveryEventCurve";
 export { compileAutoMovieRecoveryNativeNamedChart } from "./internal/compileAutoMovieRecoveryNativeNamedChart";
 export { prepareAutoMovieRecoveryAnnularChart } from "./internal/prepareAutoMovieRecoveryAnnularChart";

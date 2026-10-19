@@ -78,7 +78,7 @@ export function test_recovery_image_loft(): void {
       recipe.loft.spans.find(
         (part: IAutoMovieRecoveryImageLoft["loft"]["spans"][number]): boolean =>
           y <= part.interval[1],
-      ) ?? recipe.loft.spans.at(-1)!;
+      ) ?? recipe.loft.spans[recipe.loft.spans.length - 1];
     const t: number =
       (y - span.interval[0]) / (span.interval[1] - span.interval[0]);
     return (["radiusX", "radiusZ", "centreX", "centreZ"] as const).map(
@@ -245,7 +245,7 @@ export function test_recovery_image_loft(): void {
   const malformed: IAutoMovieRecoveryImageObservation = observe(
     recoveryImageFixture(),
   );
-  delete malformed.views[0].rows[2];
+  Reflect.deleteProperty(malformed.views[0].rows, "2");
   TestValidator.equals(
     "sparse observation rows refuse",
     fitAutoMovieRecoveryImageLoft(malformed, policy).status,
@@ -257,8 +257,18 @@ export function test_recovery_image_loft(): void {
       .status,
     "refused",
   );
-  const illConditioned: ReturnType<typeof fitAutoMovieRecoveryImageLoft> = fitAutoMovieRecoveryImageLoft(observation, {...policy, minimumSplineRatio:0.9999});
-  TestValidator.predicate("spline rank refusal preserves its cause", illConditioned.status === "refused" && illConditioned.diagnostics.some((message:string):boolean=>message.includes("ill-conditioned-fit")));
+  const illConditioned: ReturnType<typeof fitAutoMovieRecoveryImageLoft> =
+    fitAutoMovieRecoveryImageLoft(observation, {
+      ...policy,
+      minimumSplineRatio: 0.9999,
+    });
+  TestValidator.predicate(
+    "spline rank refusal preserves its cause",
+    illConditioned.status === "refused" &&
+      illConditioned.diagnostics.some((message: string): boolean =>
+        message.includes("ill-conditioned-fit"),
+      ),
+  );
   const oscillating: IAutoMovieRecoveryImageObservation = observe(
     recoveryImageFixture({
       profile: (t: number): [number, number, number, number] => [

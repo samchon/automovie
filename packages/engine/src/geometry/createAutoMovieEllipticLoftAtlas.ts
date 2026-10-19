@@ -137,24 +137,43 @@ export function createAutoMovieEllipticLoftAtlas(input: {
       patches.push({ id: `span.${index}.quarter.${quarter}`, controlIds });
     }
   }
-  const boundaryAuthorities: NonNullable<IAutoMovieBicubicAtlasGeometry["boundaryAuthorities"]> = [];
-  const boundaryBindings: NonNullable<IAutoMovieBicubicAtlasGeometry["boundaryBindings"]> = [];
-  const authorities: Map<string,string> = new Map();
-  const sides: readonly (readonly number[])[] = [[0,1,2,3],[3,7,11,15],[12,13,14,15],[0,4,8,12]];
+  const boundaryAuthorities: NonNullable<
+    IAutoMovieBicubicAtlasGeometry["boundaryAuthorities"]
+  > = [];
+  const boundaryBindings: NonNullable<
+    IAutoMovieBicubicAtlasGeometry["boundaryBindings"]
+  > = [];
+  const authorities: Map<string, string> = new Map();
+  const sides: readonly (readonly number[])[] = [
+    [0, 1, 2, 3],
+    [3, 7, 11, 15],
+    [12, 13, 14, 15],
+    [0, 4, 8, 12],
+  ];
   for (const patch of patches)
     for (let side: number = 0; side < 4; side++) {
-      const ids: number[] = sides[side].map((slot:number):number=>patch.controlIds[slot]);
+      const ids: number[] = sides[side].map(
+        (slot: number): number => patch.controlIds[slot],
+      );
       const reversed: boolean = ids[0] > ids[3];
-      const canonical: [number,number,number,number] = (reversed ? [...ids].reverse() : ids) as [number,number,number,number];
+      const canonical: [number, number, number, number] = (
+        reversed ? [...ids].reverse() : ids
+      ) as [number, number, number, number];
       const key: string = canonical.join(":");
       let authority: string | undefined = authorities.get(key);
       if (authority === undefined) {
         authority = `edge.${authorities.size}`;
-        authorities.set(key,authority);
-        boundaryAuthorities.push({id:authority,controlIds:canonical});
+        authorities.set(key, authority);
+        boundaryAuthorities.push({ id: authority, controlIds: canonical });
       }
-      boundaryBindings.push({patch:patch.id,side:side as 0|1|2|3,authority,
-        start:reversed?1:0,end:reversed?0:1,normalFan:patch.id});
+      boundaryBindings.push({
+        patch: patch.id,
+        side: side as 0 | 1 | 2 | 3,
+        authority,
+        start: reversed ? 1 : 0,
+        end: reversed ? 0 : 1,
+        normalFan: patch.id,
+      });
     }
   return {
     geometry: {

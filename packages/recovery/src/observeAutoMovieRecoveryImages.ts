@@ -26,9 +26,10 @@ export function observeAutoMovieRecoveryImages(
   input: IAutoMovieRecoveryImageInput,
   options: IAutoMovieRecoveryOperation.Options = {},
 ): IAutoMovieRecoveryOperation.Result<IAutoMovieRecoveryImageObservation> {
-  const schema: "automovie-recovery-operation-v1" =
+  const schema: IAutoMovieRecoveryOperation.Result<unknown>["schema"] =
     "automovie-recovery-operation-v1";
-  const operator: "orthographic-images-v1" = "orthographic-images-v1";
+  const operator: IAutoMovieRecoveryOperation.Result<unknown>["operator"] =
+    "orthographic-images-v1";
   const cancelled: () => boolean = (): boolean =>
     options.signal?.aborted === true;
   if (cancelled())

@@ -110,7 +110,7 @@ export function test_recovery_image_observation(): void {
       name: "sparse background",
       make: (value: IAutoMovieRecoveryImageInput): void => {
         const channels: number[] = value.background.rgb;
-        delete channels[1];
+        Reflect.deleteProperty(channels, "1");
       },
       reason: "invalid-background",
     },
@@ -118,14 +118,14 @@ export function test_recovery_image_observation(): void {
       name: "sparse camera",
       make: (value: IAutoMovieRecoveryImageInput): void => {
         const point: number[] = value.views[0].camera.principalPointPx;
-        delete point[1];
+        Reflect.deleteProperty(point, "1");
       },
       reason: "invalid-view",
     },
     {
       name: "sparse view",
       make: (value: IAutoMovieRecoveryImageInput): void => {
-        delete value.views[1];
+        Reflect.deleteProperty(value.views, "1");
       },
       reason: "invalid-view",
     },

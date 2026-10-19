@@ -45,7 +45,13 @@ export function captureAutoMovieMetricFrame(input: {
   const maximum: number = input.renderer
     .getContext()
     .getParameter(input.renderer.getContext().MAX_RENDERBUFFER_SIZE) as number;
-  if (!Number.isSafeInteger(maximum) || maximum <= 0 || input.renderer.getContext().isContextLost() || input.width > maximum || input.height > maximum)
+  if (
+    !Number.isSafeInteger(maximum) ||
+    maximum <= 0 ||
+    input.renderer.getContext().isContextLost() ||
+    input.width > maximum ||
+    input.height > maximum
+  )
     throw new Error("Metric capture exceeds native renderbuffer dimensions");
   const size: THREE.Vector2 = input.renderer.getSize(new THREE.Vector2());
   const ratio: number = input.renderer.getPixelRatio();

@@ -6,7 +6,7 @@ This package preserves the reconstruction baseline's algorithms and limitations.
 
 ## Installation and saved-curve reconstruction
 
-Use matching `@automovie/recovery`, `@automovie/engine` and `@automovie/interface` distributions with Node.js 22.23.2 or newer. The initial package has been checked by installing those three local tarballs outside this repository, with install scripts disabled and exact file dependencies and overrides. That check is not a registry release.
+Use matching `@automovie/recovery`, `@automovie/engine`, `@automovie/interface` and `@automovie/ingest` distributions with Node.js 22.23.2 or newer. The initial mesh package was checked by installing its three local tarballs outside this repository, with install scripts disabled and exact file dependencies and overrides. That earlier check does not cover the added image host or constitute a registry release.
 
 The following CommonJS consumer reads an existing `automovie-recovery-curves-v1` document and publishes a new immutable JSON artifact. It uses the same installed API calls exercised by the external package consumer. Save it as `reconstruct.cjs` beside `curves.json`; `model.json` must not exist.
 
@@ -35,6 +35,9 @@ Use Node.js 22.23.2 or newer. The root entrypoint owns resident operations; `@au
 | `prepareAutoMovieRecoveryInput` | Admit already registered indexed triangles and explicit registration metadata |
 | `observeAutoMovieRecovery` | Observe resident registered triangles and fit saved cubic curves |
 | `reconstructAutoMovieRecoveryModel` | Reconstruct a model and domain ledger from a saved curve bundle |
+| `observeAutoMovieRecoveryImages` | Extract physical row support from bounded resident RGB8 images and supplied metric cameras |
+| `fitAutoMovieRecoveryImageLoft` | Fit compact cubic centre/radius profiles under an explicit aligned-ellipse hypothesis |
+| `compileAutoMovieRecoveryImageLoft` | Generate an ordinary bicubic model and its construction from a saved image-loft recipe alone |
 | `IAutoMovieRecoveryOperation` | Versioned terminal outcomes, progress and cooperative cancellation |
 | `IAutoMovieRecoveryDomainLedger` | Declared domains, emitted ranges and explicitly unknown processing stages |
 | `publishAutoMovieRecoveryArtifact` from `/node` | Publish an immutable JSON artifact with an exact byte hash |
@@ -60,10 +63,20 @@ The Node writer stages in the destination directory, closes the staging file and
 
 ## Commands and saved documents
 
-The installed executable is `automovie-recovery`. Its `--help` lists the `recovery`, `recoveryOpen`, `recoveryLocal`, `recoveryAtlas` and `recoveryContourPath` command families. Commands require an explicit `--source-epoch` generating commit hash. Exit code 0 means processing ended, 2 rejects an unknown command family or malformed source-epoch option, and 1 reports a delegated command or input failure; inspect operation and coverage diagnostics before treating an artifact as complete.
+The installed executable is `automovie-recovery`. Its `--help` lists the `recovery`, `recoveryOpen`, `recoveryLocal`, `recoveryAtlas`, `recoveryContourPath` and `images` command families. Commands require an explicit `--source-epoch` generating commit hash. Exit code 0 means processing ended, 2 rejects an unknown command family or malformed source-epoch option, and 1 reports a delegated command or input failure; inspect operation and coverage diagnostics before treating an artifact as complete.
 
 The primary command accepts the saved curve schema `automovie-recovery-curves-v1` and publishes `automovie-recovery-model-v1`. Continuation and atlas documents retain their own versioned schemas. Historical local/open model discriminators remain readable baseline compatibility fields and do not select a Human generator. Repository command shims under `tools/recovery` retain the old `RUN_SOURCE_EPOCH` environment handoff; installed consumers use the explicit option.
 
 Ordinary closed groups, supported closed events and selected ordinary open continuations have distinct contracts. Open split/merge/cavity changes, mixed open/closed events, closed/ruled seam coupling and general physical C1/G1 joins remain unsupported. Approximation bounds do not establish injectivity, appearance or missing-region coverage.
 
 Input meshes, saved subject assets, private observations and benchmark captures are not distributed. The package contains general algorithms, declarations and hosts.
+
+## Calibrated image section experiment
+
+Use the image path for an opaque rigid object against a declared fixed RGB background, with supplied horizontal orthographic cameras. Each occupied row must contain one contiguous foreground interval and remain inside the image. The observer records pixel-cell edge support in millimetres, not corresponding material points across silhouettes. Pixel centres are `(column + 0.5, row + 0.5)`; image U is `cos(a) X + sin(a) Z`, image V is `-Y`, and the principal point uses pixel-edge coordinates. Camera estimation, perspective rectification and rigidity verification are separate acquisition work.
+
+The fitter currently tests aligned elliptical XZ sections with cubic axial centre and radius profiles. At least three separated squared-support directions test this prior; contradictory or nonellipse support, weak direction geometry, invalid measured rows and exhausted residual/span budgets refuse. Different row charts are linearly interpolated only within their common measured interval. Residuals are conditional on the segmentation and supplied cameras, and do not certify unseen shape.
+
+`IAutoMovieRecoveryImageFiles` from `/node` describes a versioned fixed P6 sRGB manifest with per-image SHA-256, charts and aggregate observation budgets. The `images` host takes `observe|fit|realize input.json new-output.json maxInputBytes` after its source-epoch option. Observation reads that manifest; fitting reads `{observation, policy}`; realization reads `{recipe, budget}` and consults no image path. Each command publishes a new immutable artifact with input hash, source epoch, terminal operation and value.
+
+The `automovie-recovery-image-loft-v1` recipe contains only generating coefficients, frame/identity, three dimension scales and coverage labels. Coefficients use metres; width/depth scale X/Z about the frame origin and height scales Y about the first saved station. Scale values lie in `[0.25, 4]`. Generated lateral surfaces remain inferred, with open unobserved ends and interior, so fit and compilation return `partial`. Hidden concavities, branches, general topology and photographic performance remain outside this qualified experiment.

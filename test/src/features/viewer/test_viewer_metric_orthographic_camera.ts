@@ -94,7 +94,7 @@ export function test_viewer_metric_orthographic_camera(): void {
   const sparse: Parameters<typeof createAutoMovieMetricOrthographicCamera>[0] =
     { ...base, principalPointPx: [133, 201] };
   const tuple: number[] = sparse.principalPointPx;
-  delete tuple[0];
+  Reflect.deleteProperty(tuple, "0");
   for (const input of [
     { ...base, pixelPitchMeters: 0 },
     { ...base, farMeters: base.nearMeters },
