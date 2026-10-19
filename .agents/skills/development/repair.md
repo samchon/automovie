@@ -10,4 +10,4 @@ Read the implementation, its callers, contracts, and tests until you know why th
 
 Fix each cause at its owner and delete the compensations the fix makes unnecessary. Put non-obvious invariants in nearby comments.
 
-Verify every case the trace reached, including corrected behavior and behavior that must remain, under [Validation](validation.md).
+Verify every case the trace reached, including corrected behavior and behavior that must remain, with the checks the [development skill](SKILL.md) names.

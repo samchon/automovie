@@ -5,7 +5,7 @@ description: Writes and trims automovie's prompts for agents, namely AGENTS.md, 
 
 # Prompting
 
-A prompt follows the [documentation skill](../documentation/SKILL.md)'s Writing and Paragraphs And Lists rules. Before editing one, fetch and read [Prompting Claude Opus 5.5](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5-5) in full rather than relying on memory, because it changes with each model. Where it disagrees with the user's rules in this repository, the user's rules win.
+A prompt follows the documentation skill's [Writing](../documentation/writing.md) rules. Before editing one, fetch and read [Prompting Claude Opus 5.5](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5-5) in full rather than relying on memory, because it changes with each model. Where it disagrees with the user's rules in this repository, the user's rules win.
 
 Write only facts the code does not show, rules the user set, and mistakes an agent made, and leave dates and history to git.
 
