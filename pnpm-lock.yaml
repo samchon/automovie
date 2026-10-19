@@ -539,6 +539,9 @@ importers:
       '@automovie/interface':
         specifier: workspace:^
         version: link:../interface
+      '@automovie/recovery':
+        specifier: workspace:^
+        version: link:../recovery
       '@automovie/render':
         specifier: workspace:^
         version: link:../render
@@ -600,6 +603,9 @@ importers:
       '@automovie/engine':
         specifier: workspace:^
         version: link:../engine
+      '@automovie/ingest':
+        specifier: workspace:^
+        version: link:../ingest
       '@automovie/interface':
         specifier: workspace:^
         version: link:../interface

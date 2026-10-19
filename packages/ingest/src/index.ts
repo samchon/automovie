@@ -20,3 +20,4 @@ export * from "./IAutoMovieExternalMotionRetargetHandoff";
 export * from "./IAutoMovieExternalMotionAdoption";
 export * from "./adoptAutoMovieExternalMotion";
 export * from "./IAutoMovieIngestResult";
+export * from "./decodeAutoMoviePpmImage";

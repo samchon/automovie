@@ -1,4 +1,5 @@
 export * from "./AutoMovieAssetOrigin";
+export * from "./IAutoMovieEllipticLoft";
 export * from "./IAutoMovieAffordance";
 export * from "./IAutoMovieBody";
 export * from "./AutoMoviePrimitiveShape";

@@ -26,3 +26,5 @@ Every public function takes typed records and returns either a result or a viola
 | `architecture`, `space`, `service`, `drawing`, `analysis` | Built environments, spaces, service networks, drawings, and environmental analyses |
 | `render`, `effectRuntime`, `populationRuntime`, `sound`, `text` | Render facts, runtime effects and populations, sound and text |
 | `validation`, `constants` | Shared admission and constants |
+
+`createAutoMovieEllipticLoftAtlas` in `geometry` converts ordered cubic centre/radius profiles into an open shared bicubic atlas in metres. Four tangent-matching cubic quarter arcs approximate each ellipse, with a separate radial deviation bound of `0.000273 * maximumRadius`; atlas tessellation has its own tolerance and budgets. Adjacent spans share exact endpoint coefficients and retain independent normal limits at C0 creases. The producer performs no image fitting and adds no end caps.
