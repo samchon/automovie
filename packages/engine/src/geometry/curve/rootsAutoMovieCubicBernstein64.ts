@@ -1,7 +1,7 @@
 /**
  * Approximate the isolated roots of four finite scalar cubic Bernstein coefficients on [0,1]. Critical points partition sign-monotone intervals; near-zero values use 64 epsilon times max(1, coefficient magnitude), sign changes receive 58 bisections, and roots within 1e-10 merge. The identically zero polynomial returns no discrete roots. These are binary64 construction rules, not interval certificates.
  *
- * @evidence contracts/common.md#principled-implementation Converts the cubic to power coefficients, partitions at the derivative's real roots and bisects every remaining sign-changing interval.
+ * @evidence contracts/common.md#principled-implementation Converts the cubic to power coefficients, obtains derivative roots with a cancellation-resistant quadratic formula and partitions before bisecting every remaining sign-changing interval.
  * @evidence contracts/common.md#clear-and-simple-design One scalar root operation owns the critical-point, tolerance, bisection and duplicate-root policies used by geometric intersections.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Caller-admitted four finite coefficients are required; no sampled fitting, anatomical offset or zero-polynomial continuum is reported as an isolated root.
  * @evidence contracts/common.md#meaningful-documentation States the closed domain, exact numerical tolerances, iteration count, degeneracy and lack of an interval-proof claim.
@@ -30,10 +30,10 @@ export function rootsAutoMovieCubicBernstein64(q: readonly number[]): number[] {
   } else {
     const disc: number = bb * bb - 4 * aa * c;
     if (disc >= 0) {
-      critical.push(
-        (-bb - Math.sqrt(disc)) / (2 * aa),
-        (-bb + Math.sqrt(disc)) / (2 * aa),
-      );
+      const radical: number = Math.sqrt(disc);
+      const numerator: number = -0.5 * (bb + (bb >= 0 ? radical : -radical));
+      if (numerator === 0) critical.push(-bb / (2 * aa));
+      else critical.push(numerator / aa, c / numerator);
     }
   }
   const cuts: number[] = critical

@@ -3,7 +3,8 @@ import type { IAutoMovieConvexSupportLoft } from "@automovie/interface";
 /**
  * Call-local algebraic plan for a convex support section family.
  * Curves retain complete cubic XZ coefficients in metres and registry plane-pair
- * identities. Event incidence joins their physical endpoints; no coordinate
+ * identities, with their fixed normal determinant. Event incidence joins their
+ * physical endpoints; no coordinate
  * welding or sampled source data supplies that relationship.
  *
  * @evidence contracts/common.md#principled-implementation Plane-pair cubic coefficients, feasible triple-plane events and open-interval incidence describe the same admitted support field before tessellation.
@@ -21,7 +22,10 @@ export interface IAutoMovieSupportLoftPlan64 {
   /** Ordered polynomial fields and their actual algebraic event partitions. */
   spans: {
     field: IAutoMovieConvexSupportLoft["spans"][number];
-    curves: Map<string, { pair: [number, number]; x: number[]; z: number[] }>;
+    curves: Map<
+      string,
+      { pair: [number, number]; determinant: number; x: number[]; z: number[] }
+    >;
     stations: { phase: number; triples: [number, number, number][] }[];
     continuities: [number, number, number][];
     intervals: {

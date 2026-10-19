@@ -12,11 +12,12 @@ import { nclose } from "../internal/nclose";
  * 1. A rectangular section has outward triangle winding, unit normals and shared physical vertices with separate normal fans.
  * 2. A diagonal moving plane vanishes at an independently known Y event without a cap, crack or zero normal.
  * 3. Adjacent spans share physical boundaries while retaining their own normal fans.
- * 4. Sparse/nonunit/unbounded fields, weak feasible intersections, complete collapse and exhausted budgets refuse.
+ * 4. A cubic diagonal is redundant at both ends but active inside, creating two independently known boundary events.
+ * 5. Sparse/nonunit/unbounded fields, weak feasible intersections, complete collapse and exhausted budgets refuse.
  *
  * @evidence contracts/testing.md#behavioral-verification Runs the public engine producer, checks actual output positions against their independent face equations, analytical normals, triangle winding, physical alias equality and event diagnostics. Invalid inputs throw without an accepted partial mesh.
- * @evidence contracts/testing.md#independent-expectations Constant half-axes .02/.01 metres fix the box boundary. A fifth plane with offset (a+b)/sqrt(2)+.004(t-.5) meets the positive corner at t=.5, so one feasible event occurs at Y=.05 metres. Analytic plane gradients determine outward normals independently of emitted triangles.
- * @evidence contracts/testing.md#distinguishing-cases Covers no events, one vanishing face, adjacent spans, exact physical aliases and distinct analytic normal fans, open ends, positive triangle orientation, nonunit/sparse/reversed/unbounded fields, a feasible near-parallel pair hidden by ordinary cancellation, complete interior collapse and event/cell/vertex budget refusals.
+ * @evidence contracts/testing.md#independent-expectations Constant half-axes .02/.01 metres fix the box boundary. A fifth plane with offset (a+b)/sqrt(2)+.004(t-.5) meets the positive corner at t=.5, so one feasible event occurs at Y=.05 metres. For a unit-half-axis square, h(t)=2-6t(1-t) crosses sqrt(2) twice despite being redundant at both ends. Analytic plane gradients determine outward normals independently of emitted triangles.
+ * @evidence contracts/testing.md#distinguishing-cases Covers no events, one vanishing face, interior-only face activation with two events, adjacent spans, exact physical aliases and distinct analytic normal fans, open ends, positive triangle orientation, nonunit/sparse/reversed/unbounded fields, a feasible near-parallel pair hidden by ordinary cancellation, complete interior collapse and event/cell/vertex budget refusals.
  * @evidence contracts/testing.md#execution-ownership This portable test_geometry_convex_support_loft entry owns bounded engine CPU arrays only; it builds no native artifact, starts no process/browser/GPU and replaces no foreign method.
  */
 export function test_geometry_convex_support_loft(): void {
@@ -231,6 +232,37 @@ export function test_geometry_convex_support_loft(): void {
               nclose(p[2], 0.01, 1e-12),
           ),
       );
+  }
+  const interior: Parameters<typeof realizeAutoMovieConvexSupportLoft>[0] =
+    make(false);
+  interior.loft.spans[0].offsets = interior.loft.planes.map(
+    (): [number, number, number, number] => [1, 1, 1, 1],
+  );
+  interior.loft.planes.push({
+    id: "interior-diagonal",
+    normal: [Math.SQRT1_2, Math.SQRT1_2],
+  });
+  interior.loft.spans[0].offsets.push([2, 0, 0, 2]);
+  interior.tolerance = 0.01;
+  interior.maxCells = 5000;
+  interior.maxVertices = 20000;
+  const crossed: ReturnType<typeof realizeAutoMovieConvexSupportLoft> =
+    realizeAutoMovieConvexSupportLoft(interior);
+  TestValidator.equals(
+    "interior-only active face retains both events",
+    crossed.events,
+    2,
+  );
+  for (const sign of [-1, 1]) {
+    const phase: number =
+      (1 + sign * Math.sqrt(1 - (2 * (2 - Math.SQRT2)) / 3)) / 2;
+    TestValidator.predicate(
+      "independent quadratic event height is emitted",
+      crossed.mesh.positions.some(
+        (value: number, index: number): boolean =>
+          index % 3 === 1 && nclose(value, phase * 0.1, 1e-10),
+      ),
+    );
   }
   const delta: number = 2 ** -48,
     diagonal: number = Math.SQRT1_2;

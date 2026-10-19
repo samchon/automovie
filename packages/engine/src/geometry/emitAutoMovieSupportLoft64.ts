@@ -1,6 +1,5 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
 
-import { determinantAutoMovieMatrix3 } from "../math/determinantAutoMovieMatrix3";
 import type { IAutoMovieSupportLoftPlan64 } from "./IAutoMovieSupportLoftPlan64";
 import { AutoMovieBernsteinAlgebra64 as B } from "./curve/AutoMovieBernsteinAlgebra64";
 
@@ -17,7 +16,7 @@ import { AutoMovieBernsteinAlgebra64 as B } from "./curve/AutoMovieBernsteinAlge
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No coordinate welding, source mesh/normal, per-row table or missing cap supplies output. Canonical endpoint disagreement beyond the stated binary64 conditioning allowance refuses; exact zero-area triangles remain counted omissions.
  * @evidence contracts/common.md#meaningful-documentation States metre coordinates, plane-derived normal limits, physical versus normal-fan identity, collapsed triangles, numerical boundary diagnostics and open ends.
  * @evidence contracts/performance.md#efficient-algorithms For C strips, P planes, S spans, E events and T triple-incidence visits at their stations, geometry emission costs O(C); canonical union lookups have a conservative O(T P squared) bound and compress visited paths. T is bounded by O((S+E+1) P cubed). Local point/union maps retain O(C + (S+E+1) P squared) records; maxVertices precedes output allocation.
- * @evidence contracts/performance.md#reuse-equivalent-work Canonical physical points are evaluated once per station/pair-equivalence key and reused across adjoining faces and spans. The same evaluated rows supply construction without another fit or mesh scan.
+ * @evidence contracts/performance.md#reuse-equivalent-work The planner's fixed pair determinant serves every point roundoff bound. Canonical physical points are evaluated once per station/pair-equivalence key and reused across adjoining faces and spans. The same evaluated rows supply construction without another fit or mesh scan.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Mesh, physical source table, construction and diagnostics transfer to the caller; local point/union maps expire after this synchronous operation, without GPU, I/O or retained worker.
  */
 export function emitAutoMovieSupportLoft64(input: {
@@ -148,11 +147,7 @@ export function emitAutoMovieSupportLoft64(input: {
               phase * (span.field.interval[1] - span.field.interval[0]),
         B.scalar(curve.z, phase),
       ];
-      const a: readonly [number, number] = plan.normals[curve.pair[0]],
-        b: readonly [number, number] = plan.normals[curve.pair[1]];
-      const sine: number = Math.abs(
-        determinantAutoMovieMatrix3([a[0], a[1], 0, b[0], b[1], 0, 0, 0, 1]),
-      );
+      const sine: number = Math.abs(curve.determinant);
       const roundoff: number =
         (2048 * Number.EPSILON * Math.max(...own.map(Math.abs), offsetScale)) /
         sine;

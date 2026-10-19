@@ -21,7 +21,7 @@ import { rootsAutoMovieCubicBernstein64 } from "./curve/rootsAutoMovieCubicBerns
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No row sampling determines events, fixed polygon correspondence hides changing constraints, determinant is replaced or coordinate weld supplies incidence. Numerically unresolved continua or close events refuse.
  * @evidence contracts/common.md#meaningful-documentation States cubic event derivation, normalized solver limitations, exact/uncertain continua, phase merging qualification, metre curvature bound and budget refusal before output allocation.
  * @evidence contracts/performance.md#efficient-algorithms For P bounded planes, S spans and E events, pair coefficients cost O(S P squared), cubic triples/feasibility O(S P to the fourth), and interval incidence O((S+E) P cubed). Retention is O(S P cubed + (S+E) P), including continuous/event triple incidences. maxPlanes bounds those raw triple populations, maxEvents bounds stations, and maxCells bounds planned strips before mesh allocation.
- * @evidence contracts/performance.md#reuse-equivalent-work Each pair's four X/Z coefficients serves all triple queries and output intervals; interval incidence and curvature bounds are planned once for the emitter.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each pair's fixed determinant and four X/Z coefficients serve all triple queries and output intervals. A separated four-control positive-slack witness, confirmed by exact signs, excludes that pair's triples over the entire interval by the Bernstein convex-hull property; endpoint samples never supply this exclusion. Unproved pairs retain the full event calculation; interval incidence and curvature bounds are planned once for the emitter.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Call-local O(S P cubed + (S+E) P) curve/triple/interval records transfer to one synchronous emitter; budget refusal returns no partial mesh or retained resource.
  */
 export function planAutoMovieSupportLoft64(input: {
@@ -93,8 +93,61 @@ export function planAutoMovieSupportLoft64(input: {
           throw new Error(
             "nonfinite-support-curve: plane intersection overflow",
           );
-        span.curves.set(`${i}:${j}`, { pair: [i, j], x, z });
+        span.curves.set(`${i}:${j}`, { pair: [i, j], determinant, x, z });
       }
+    const excluded: Set<string> = new Set();
+    for (const [key, curve] of span.curves) {
+      const i: number = curve.pair[0],
+        j: number = curve.pair[1];
+      for (let k: number = 0; k < normals.length; k++) {
+        if (k === i || k === j) continue;
+        let separated: boolean = true;
+        for (let q: number = 0; q < 4; q++) {
+          const slack: number =
+            normals[k][0] * curve.x[q] +
+            normals[k][1] * curve.z[q] -
+            field.offsets[k][q];
+          const allowance: number =
+            (512 *
+              Number.EPSILON *
+              Math.max(scale, Math.abs(curve.x[q]), Math.abs(curve.z[q]))) /
+            curve.determinant ** 2;
+          if (!(slack > allowance)) {
+            separated = false;
+            break;
+          }
+        }
+        if (!separated) continue;
+        // Positive Bernstein slack controls exclude the whole cubic interval,
+        // not merely its ends. Exact determinant signs confirm the original
+        // field, independently of the rounded pair-curve coefficient screen.
+        for (let q: number = 0; q < 4; q++)
+          if (
+            !(
+              -Math.sign(curve.determinant) *
+                determinantAutoMovieMatrix3([
+                  normals[i][0],
+                  normals[i][1],
+                  field.offsets[i][q],
+                  normals[j][0],
+                  normals[j][1],
+                  field.offsets[j][q],
+                  normals[k][0],
+                  normals[k][1],
+                  field.offsets[k][q],
+                ]) >
+              0
+            )
+          ) {
+            separated = false;
+            break;
+          }
+        if (separated) {
+          excluded.add(key);
+          break;
+        }
+      }
+    }
     const feasible: (
       pair: string,
       phase: number,
@@ -130,6 +183,7 @@ export function planAutoMovieSupportLoft64(input: {
       for (let j: number = i + 1; j < normals.length; j++)
         for (let k: number = j + 1; k < normals.length; k++) {
           const keys: string[] = [`${i}:${j}`, `${i}:${k}`, `${j}:${k}`];
+          if (keys.some((key: string): boolean => excluded.has(key))) continue;
           const pair: string | undefined = keys.find((key: string): boolean =>
             span.curves.has(key),
           );

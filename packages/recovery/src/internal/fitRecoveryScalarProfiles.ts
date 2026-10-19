@@ -11,7 +11,7 @@
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No normal-equation inverse, expected coefficient, ridge term, endpoint clamp or dropped scalar field supplies a fit; unresolved rank and nonfinite coefficients refuse.
  * @evidence contracts/common.md#meaningful-documentation States physical units, cubic knot space, shared factorization, exact polynomial conversion, operational rank limits and caller-owned field semantics.
  * @evidence contracts/performance.md#efficient-algorithms For N rows, K=spans+3 coefficients and F fields, dense QR costs O(N K squared + N K F), retaining O(N K + N F). Bernstein conversion costs O(spans K F) for fixed degree three.
- * @evidence contracts/performance.md#reuse-equivalent-work All F fields share basis rows and Householder reflectors; each previous interval supplies the exact shared endpoint coefficient of its successor.
+ * @evidence contracts/performance.md#reuse-equivalent-work The original design and all F right-hand sides use contiguous binary64 columns, so each Householder target scans one vector without per-row layout branches. Arithmetic order is unchanged; all F fields share basis values and reflectors; each previous interval supplies the exact shared endpoint coefficient of its successor.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Design/right-hand-side scratch expires synchronously; only O(spans F) controls and the scalar rank diagnostic transfer, without a global cache, image or file handle.
  */
 export function fitRecoveryScalarProfiles(
@@ -84,19 +84,32 @@ export function fitRecoveryScalarProfiles(
     }
     return current;
   };
-  const matrix: number[][] = samples.map(
-    (sample: (typeof samples)[number]): number[] =>
-      basis(knots, 3, (sample.yMm - lower) / length),
+  const matrix: Float64Array[] = Array.from(
+    { length: count },
+    (): Float64Array => new Float64Array(samples.length),
   );
-  const right: number[][] = samples.map(
-    (sample: (typeof samples)[number]): number[] => [...sample.values],
+  const right: Float64Array[] = Array.from(
+    { length: fields },
+    (): Float64Array => new Float64Array(samples.length),
   );
+  for (let row: number = 0; row < samples.length; row++) {
+    const weights: number[] = basis(
+      knots,
+      3,
+      (samples[row].yMm - lower) / length,
+    );
+    for (let column: number = 0; column < count; column++)
+      matrix[column][row] = weights[column];
+    for (let field: number = 0; field < fields; field++)
+      right[field][row] = samples[row].values[field];
+  }
   let maximum: number = 0,
     minimum: number = Infinity;
   for (let column: number = 0; column < count; column++) {
     let norm: number = 0;
-    for (let row: number = column; row < matrix.length; row++)
-      norm = Math.hypot(norm, matrix[row][column]);
+    const current: Float64Array = matrix[column];
+    for (let row: number = column; row < samples.length; row++)
+      norm = Math.hypot(norm, current[row]);
     if (!(norm > 0) || !Number.isFinite(norm))
       throw new Error(
         "rank-deficient-fit: a spline column has no independent support",
@@ -107,39 +120,37 @@ export function fitRecoveryScalarProfiles(
       throw new Error(
         "ill-conditioned-fit: spline QR diagonal ratio is below the admitted threshold",
       );
-    const alpha: number = matrix[column][column] >= 0 ? -norm : norm;
-    const reflector: number[] = [];
+    const alpha: number = current[column] >= 0 ? -norm : norm;
+    const reflector: Float64Array = new Float64Array(samples.length - column);
     let squared: number = 0;
-    for (let row: number = column; row < matrix.length; row++) {
-      const value: number = matrix[row][column] - (row === column ? alpha : 0);
-      reflector.push(value);
+    for (let row: number = column; row < samples.length; row++) {
+      const value: number = current[row] - (row === column ? alpha : 0);
+      reflector[row - column] = value;
       squared += value * value;
     }
     if (!(squared > 0) || !Number.isFinite(squared))
       throw new Error("nonfinite-fit: unresolved Householder reflector");
     for (let target: number = column + 1; target < count + fields; target++) {
+      const values: Float64Array =
+        target < count ? matrix[target] : right[target - count];
       let dot: number = 0;
-      for (let row: number = column; row < matrix.length; row++)
-        dot +=
-          reflector[row - column] *
-          (target < count ? matrix[row][target] : right[row][target - count]);
+      for (let row: number = column; row < samples.length; row++)
+        dot += reflector[row - column] * values[row];
       const factor: number = (2 * dot) / squared;
-      for (let row: number = column; row < matrix.length; row++)
-        if (target < count)
-          matrix[row][target] -= factor * reflector[row - column];
-        else right[row][target - count] -= factor * reflector[row - column];
+      for (let row: number = column; row < samples.length; row++)
+        values[row] -= factor * reflector[row - column];
     }
-    matrix[column][column] = alpha;
-    for (let row: number = column + 1; row < matrix.length; row++)
-      matrix[row][column] = 0;
+    current[column] = alpha;
+    for (let row: number = column + 1; row < samples.length; row++)
+      current[row] = 0;
   }
   const profiles: number[][] = [];
   for (let field: number = 0; field < fields; field++) {
     const coefficients: number[] = new Array<number>(count).fill(0);
     for (let row: number = count - 1; row >= 0; row--) {
-      let value: number = right[row][field];
+      let value: number = right[field][row];
       for (let column: number = row + 1; column < count; column++)
-        value -= matrix[row][column] * coefficients[column];
+        value -= matrix[column][row] * coefficients[column];
       coefficients[row] = value / matrix[row][row];
       if (!Number.isFinite(coefficients[row]))
         throw new Error("nonfinite-fit: spline coefficient overflow");
