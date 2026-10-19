@@ -7,7 +7,7 @@ import { IAutoMovieCurve64 } from "./IAutoMovieCurve64";
  * Coordinates and terminals are millimetres; the generated mesh uses metres.
  * Events name section-loop relationships, never source mesh addresses.
  * Sections must have increasing coordinates and use one consistent cutting-plane orientation.
- * Ordinary intervals use nearest geometric continuation; declared events own every topology change.
+ * Optional explicit intervals own ordinary continuation; absent them, legacy intervals use nearest geometric continuation. Declared events own every topology change.
  * This representation neither identifies anatomical equations nor certifies a surface without folds.
  *
  * @evidence contracts/common.md#principled-implementation Complete cubic coefficients and signed event incidence define a contour loft independently of any source mesh.
@@ -26,11 +26,45 @@ export interface IAutoMovieContourLoft64 {
   /** Explicit topology relationships with incident loops on both sides of each critical level. */
   events: readonly IAutoMovieContourLoft64.IEvent[];
 
+  /** Optional complete adjacency partition. When supplied, every adjacent saved-section pair and every loop must occur exactly once; no nearest continuation fills missing relationships. */
+  intervals?: readonly IAutoMovieContourLoft64.IInterval[];
+
+  /** Explicitly measure strip-search elapsed time; omitted or false leaves elapsedMs null. Mesh and qualification arithmetic do not depend on this observation. */
+  observeWork?: boolean;
+
   /** Positive chord-error tolerance for cubic tessellation, millimetres; not a surface-error bound. */
   chordToleranceMm: number;
 }
 
 export namespace IAutoMovieContourLoft64 {
+  /**
+   * Explicit source-independent continuation between adjacent physical cuts.
+   * Each loop belongs to exactly one group. Unsupported groups remain local
+   * gaps, including a zero-boundary unsupported group for an active hidden component and open-contour or critical-cluster evidence retained by the
+   * observation producer. A supported flag does not certify embedding or C1.
+   *
+   * @evidence contracts/common.md#principled-implementation Exact saved-cut coordinates and local curve ordinals carry observed incidence without source mesh addresses or geometric rematching.
+   * @evidence contracts/common.md#clear-and-simple-design One interval partitions both boundary loop lists into independent surface groups.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Unsupported groups carry an explicit reason and are never silently assigned to a nearby contour or capped.
+   * @evidence contracts/common.md#meaningful-documentation States complete coverage, local indices, physical millimetres and the limits of a supported declaration.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms A structural relationship performs no traversal.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Generation owns boundary reuse.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Input records belong to the caller and retain no source mesh.
+   */
+  export interface IInterval {
+    /** Exact lower saved-section coordinate in millimetres. */
+    beforeMm: number;
+    /** Exact next saved-section coordinate in millimetres. */
+    afterMm: number;
+    /** Complete, disjoint partition of both saved loop lists. */
+    groups: readonly {
+      before: readonly number[];
+      after: readonly number[];
+      supported: boolean;
+      reason: string | null;
+    }[];
+  }
+
   /**
    * One cut's independently defined cubic boundaries; outer and cavity senses use the same plane frame.
    *
@@ -108,7 +142,53 @@ export namespace IAutoMovieContourLoft64 {
    * @author Samchon
    */
   export interface IResult {
-    /** Engine-generated indexed geometry in metres, with its own unit vertex normals. */
+    /** Actual retained generated triangles, addressed by zero-based mesh triangle ordinal and source-free incidence group. Omission means this kernel did not publish ownership; it never authorizes inferred attribution. */
+    primitiveRanges?: {
+      firstTriangle: number;
+      triangleCount: number;
+      beforeMm: number;
+      afterMm: number;
+      group: number;
+      kind: "strip" | "cap";
+      eventNames: string[];
+    }[];
+    /** Pass-local source-leaf interaction work before shared-boundary emission. Refinements count contact-driven leaf splits; chordPairs and exactOrientationTests count actual visited pairs and exact determinant calls. Timing is null without observeWork. Pass qualification is separate from retained historical diagnostics. */
+    interactionObservations?: {
+      beforeMm: number;
+      afterMm: number;
+      group: number;
+      pass: number;
+      side: "before" | "after";
+      qualified: boolean;
+      refinements: number;
+      chordPairs: number;
+      exactOrientationTests: number;
+      elapsedMs: number | null;
+      diagnostics: string[];
+    }[];
+    /** Source-free strip qualification and work observations. A finite emitted candidate remains displayable when topology/link/orientation qualification fails; qualified does not certify injectivity, C1 or visual quality. Timing is null unless observeWork was requested. */
+    stripObservations?: {
+      beforeMm: number;
+      afterMm: number;
+      /** Ordinal of the independently emitted group in this interval. */
+      group: number;
+      /** First oriented input-walk node count after slit expansion, including repeated sheet occurrences. */
+      n: number;
+      /** Second oriented input-walk node count under the same convention. */
+      m: number;
+      /** Four-state DP solves for distinct forbidden-transition conditions, including infeasible solves. */
+      dpCalls: number;
+      /** Popped candidates that failed qualification and generated alternative branches. */
+      expandedConflicts: number;
+      /** Maximum queued feasible candidates, excluding the currently popped candidate. */
+      peakQueue: number;
+      /** Actual strip admission, construction, search and emission time, milliseconds; null without explicit observeWork. */
+      elapsedMs: number | null;
+      qualified: boolean;
+      diagnostics: string[];
+    }[];
+
+    /** Engine-generated indexed geometry in metres. Normals derive from its emitted faces and are unit vectors when accumulation is nonzero; a vanishing accumulated normal remains zero without deleting geometry. */
     mesh: IAutoMovieMesh;
 
     /** Actual evaluated section curves, in metres, retaining their own sheet identities. */
@@ -116,6 +196,8 @@ export namespace IAutoMovieContourLoft64 {
       id: string;
       closed: true;
       points: [number, number, number][];
+      /** Original generating curve parameters aligned with points, when published. Reversed winding may decrease this sequence; constant trace quotients preserve phase gaps. These are not measured arc lengths. */
+      phases?: number[];
     }[];
 
     /** Boundaries for which the declared event relationships did not establish a valid closure. */
@@ -124,6 +206,8 @@ export namespace IAutoMovieContourLoft64 {
       afterMm: number;
       incoming: number;
       outgoing: number;
+      /** Explicit unsupported relationship or arithmetic reason, when available. */
+      reason?: string;
     }[];
   }
 }

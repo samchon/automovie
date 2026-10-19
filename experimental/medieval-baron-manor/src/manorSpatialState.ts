@@ -3,7 +3,7 @@ import {
   Quaternion,
   builtInstanceSetPlacementBounds,
   builtSpaceContainsPoint,
-  tessellateToMesh,
+  realizeAutoMovieGeometry,
   transformAutoMovieMesh,
   triangulateAutoMovieRegion,
 } from "@automovie/engine";
@@ -529,10 +529,8 @@ export function manorSpatialState(
         !/^(lower-tread-|upper-tread-|turn-landing$)/.test(part.id)
       )
         continue;
-      const mesh =
-        part.geometry.type === "primitive"
-          ? tessellateToMesh(part.geometry.shape)
-          : part.geometry.mesh;
+      const mesh: import("@automovie/interface").IAutoMovieMesh =
+        realizeAutoMovieGeometry(part.geometry).mesh;
       const world = transformAutoMovieMesh(
         transformAutoMovieMesh(mesh, part.transform ?? identity()),
         root,

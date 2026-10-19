@@ -1,0 +1,6 @@
+{
+  "name": "@automovie/recovery-tools",
+  "private": true,
+  "type": "module",
+  "scripts": { "evidence": "evidence --cwd ." }
+}

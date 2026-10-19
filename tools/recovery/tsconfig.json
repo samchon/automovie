@@ -1,0 +1,14 @@
+{
+  "extends": "../../config/tsconfig.json",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "types": ["node"],
+    "paths": { "@automovie/interface": ["../../packages/interface/src/index.ts"] },
+    "typeRoots": ["../../node_modules/@types"],
+    "plugins": [{ "transform": "@ttsc/lint", "configFile": "lint.config.ts" }]
+  },
+  "include": ["src"]
+}

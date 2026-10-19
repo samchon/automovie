@@ -30,4 +30,7 @@ export interface IAutoMovieRenderModelCost {
 
   /** Estimated device bytes of vertex attributes and indices. */
   geometryBytes: number;
+
+  /** Present for recipe geometry: processing completeness and retained realization findings, independently of drawable cost and quality. */
+  geometryRealization?: { complete: boolean; diagnostics: string[] };
 }

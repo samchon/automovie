@@ -1,5 +1,5 @@
 // Project-owned material/UV decisions. No loader or renderer state is authored here.
-import { tessellate } from "@automovie/engine";
+import { realizeAutoMovieGeometry } from "@automovie/engine";
 import type { IAutoMovieModel } from "@automovie/interface";
 import { families } from "./families";
 
@@ -28,11 +28,11 @@ const longest: (positions: number[]) => (0 | 1)[]=(positions: number[]): (0 | 1)
  const sizes: number[]=hi.map((v: number,k: number): number =>v-lo[k]),axis: number=sizes.indexOf(Math.max(...sizes));return [0,1,2].map((k: number): 0 | 1 =>k===axis?1:0);
 };
 
-/** Tessellates primitive geometry when needed and derives surface-meter UVs from supplied normals and mapping options; missing mesh normals are refused, while authored developed UVs are retained on the applicable branch. */
+/** Realizes geometry through the public engine and derives surface-meter UVs from supplied normals and mapping options; missing mesh normals are refused, while authored developed UVs are retained on the applicable branch. */
 export function metricGeometry(geometry: ManorGeometry, material: string, {grainAxis,origin,faceFrames,developed=false,projected=false,cylindrical=false}: MetricMapping = {}): ManorGeometry{
  const family: "wood" | "stone" | "plaster" | "tile" | "cloth" | "bark" | "soil"=families[material];if(!family)return geometry;
  const woodLike: boolean=family==='wood'||family==='bark';
- const data: import("@automovie/interface").IAutoMovieMesh=geometry.type==='primitive'?{...tessellate(geometry.shape),uvs:null,skin:null}:geometry.mesh;
+ const data: import("@automovie/interface").IAutoMovieMesh=realizeAutoMovieGeometry(geometry).mesh;
  if (data.normals === null) throw new Error("Manor metric UVs require the authored mesh normals.");
  const authoredNormals: number[] = data.normals;
  if(developed||!projected&&!woodLike&&data.uvs!==null&&data.uvs!==undefined)return {type:'mesh',mesh:data};

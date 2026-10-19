@@ -1,4 +1,0 @@
-{
-  "extends": "./tsconfig.json",
-  "include": ["src/nosemouth", "src/headneck/P.ts", "src/headneck/arcLen.ts", "src/headneck/polyLen.ts", "src/headneck/subArc.ts", "src/headneck/locate.ts", "src/headneck/walkFrom.ts", "src/headneck/curvature2.ts"]
-}

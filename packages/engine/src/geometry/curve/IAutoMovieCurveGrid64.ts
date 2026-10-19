@@ -68,7 +68,7 @@ export namespace IAutoMovieCurveGrid64 {
    * @author Samchon
    */
   export interface Result {
-    /** Engine-generated metre mesh with triangle-derived normals and explicit physical identities. */
+    /** Engine-generated metre mesh with triangle-derived unit normals where accumulation is resolved, zero normals otherwise, and explicit physical identities. */
     mesh: IAutoMovieMesh;
 
     /** Actual surface courses and isocurves, in metres. */
@@ -103,6 +103,12 @@ export namespace IAutoMovieCurveGrid64 {
       vertices: number;
       triangles: number;
       omittedZeroAreaTriangles: number;
+      /** Generated vertices with zero or nonfinite accumulated normals, retained with zero normal. */
+      unresolvedVertexNormals: number;
+      /** Subset of unresolved normals with no incident emitted triangle. */
+      isolatedVertices: number;
+      /** Subset of unresolved normals whose accumulated length is nonfinite. */
+      nonfiniteNormalSums: number;
       minimumTriangleAreaMm2: number;
     };
   }

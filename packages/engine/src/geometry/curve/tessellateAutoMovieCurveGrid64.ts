@@ -8,6 +8,7 @@ import { AutoMoviePchipField64 } from "./AutoMoviePchipField64";
 import type { IAutoMovieCurve64 } from "./IAutoMovieCurve64";
 import type { IAutoMovieCurveGrid64 as C } from "./IAutoMovieCurveGrid64";
 import { assertAutoMovieCurve64 } from "./assertAutoMovieCurve64";
+import { compileAutoMovieNormalizedPhases64 } from "./compileAutoMovieNormalizedPhases64";
 
 type Row = { interval: number; t: number; station: number };
 type SpanFamily = { grids: B.Grid[] };
@@ -15,15 +16,15 @@ type SpanFamily = { grids: B.Grid[] };
 /**
  * Generate a metre mesh from complete corresponding cubic courses. Exact common-span restrictions feed componentwise PCHIP control fields and longitudinal Bernstein Hermite grids. Periodic fields use three copies and the central period, sharing the seam derivative. The representation preserves source courses before floating rounding; station interpolation is coefficientwise, not pointwise PCHIP or an injectivity guarantee.
  *
- * Sampling uses course control-polygon length and longitudinal control displacement to choose requested display density, then includes declared guide parameters. It is not an adaptive surface-error bound and may miss an unrequested narrow feature. Normals come from generated triangles. Zero-area triangles are counted and omitted; isolated vertices or unresolved arithmetic reject rather than acquiring an invented normal.
+ * Sampling uses course control-polygon length and longitudinal control displacement to choose requested display density, then includes declared guide parameters. It is not an adaptive surface-error bound and may miss an unrequested narrow feature. Normals come from generated triangles. Zero-area triangles are counted and omitted; zero or nonfinite accumulated vertex normals remain zero with explicit counts, retaining finite generated faces without inventing a normal. Other unresolved geometric arithmetic still rejects.
  *
  * @evidence contracts/common.md#principled-implementation De Casteljau restrictions preserve each supplied cubic; shared Fritsch-Butland derivative fields construct complete Hermite tensor coefficients, evaluated by engine Bernstein operators into new mesh buffers.
  * @evidence contracts/common.md#clear-and-simple-design The operator owns geometry, admission, sampling and actual construction; source observation and fitting remain caller responsibilities.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No source vertex/index/normal arrays, anatomy branches, clamped overshoot or through-point refit supply the surface; independent contact sheets retain explicit topology domains.
  * @evidence contracts/common.md#meaningful-documentation States coordinate conversion, periodic derivative ownership, coefficientwise interpolation, sampling limits and failure behavior.
- * @evidence contracts/performance.md#efficient-algorithms Admission and partition union cost O(K log K) for K input boundaries; O(S U) support probes use logarithmic source-span lookup. Each sampled common span restricts S courses with logarithmic lookup and constructs O(S) tensor data. Output evaluation and face-normal accumulation are linear in requested vertices and triangles; the explicit vertex budget rejects excess before buffer allocation.
+ * @evidence contracts/performance.md#efficient-algorithms Admission and partition union cost O(K log K) for K input boundaries; O(S U) support probes use logarithmic source-span lookup. Each sampled common span restricts S courses with logarithmic lookup and constructs O(S) tensor data. Guide membership is prepared once in O(G) storage and queried in constant expected time. Output evaluation and face-normal accumulation are linear in requested vertices and triangles; the explicit vertex budget rejects excess before buffer allocation, with the unavoidable station-row lower bound checked before displacement probes.
  * @evidence contracts/performance.md#reuse-equivalent-work Sorted course sampling retains only the current common-span tensor family, reused across every station sample and guide at that parameter; station PCHIP coefficients are constructed once per visited common span.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary tensor storage is O(S), partition storage O(K), and returned mesh/construction storage O(V+S U); no process-wide cache or external handle survives the invocation.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary tensor storage is O(S), partition and guide storage O(K+G), and returned mesh/construction storage O(V+S U); no process-wide cache or external handle survives the invocation.
  */
 export function tessellateAutoMovieCurveGrid64(input: C.Input): C.Result {
   const courses: readonly IAutoMovieCurve64.Cubic[] = input.courses;
@@ -82,16 +83,10 @@ export function tessellateAutoMovieCurveGrid64(input: C.Input): C.Result {
         course.phaseUnit !== "normalized"
       )
         throw new Error("Open normalized millimetre cubic courses required");
-      const knots: number[] = [0];
-      for (const width of course.phaseIntervals)
-        knots.push(knots.at(-1)! + width);
-      if (Math.abs(knots.at(-1)! - 1) > 32 * Number.EPSILON)
-        throw new Error(
-          "Every course must cover the same normalized unit chart",
-        );
-      // Only the summed chart endpoint is canonicalized; interior boundaries retain their supplied arithmetic.
-      knots[knots.length - 1] = 1;
-      return knots;
+      return compileAutoMovieNormalizedPhases64(
+        course.phaseIntervals,
+        course.spans.length,
+      );
     },
   );
   const common: number[] = [...new Set(partitions.flat())].sort(
@@ -157,6 +152,11 @@ export function tessellateAutoMovieCurveGrid64(input: C.Input): C.Result {
       ),
     ]),
   ].sort((a: number, b: number): number => a - b);
+  // Every admitted station contributes at least one output row, independently
+  // of displacement refinement and additional station samples.
+  if (count * us.length > input.maxVertices)
+    throw new Error("Requested station sampling exceeds vertex budget");
+  const guides: Set<number> = new Set(input.guides);
   const intervalCount: number = count - (periodic ? 0 : 1);
   const stationAt: (index: number) => number = (index: number): number =>
     stations[index % count]! + Math.floor(index / count) * period;
@@ -216,6 +216,7 @@ export function tessellateAutoMovieCurveGrid64(input: C.Input): C.Result {
   const vertexCount: number = rows.length * us.length;
   const positions: number[] = new Array<number>(vertexCount * 3);
   const normalSums: number[] = new Array<number>(vertexCount * 3).fill(0);
+  const incidences: Uint32Array = new Uint32Array(vertexCount);
   const indices: number[] = [];
   const boundaries: C.Result["boundaries"] = {
     courseStart: { positions: [], coursePartials: [], stationPartials: [] },
@@ -300,7 +301,7 @@ export function tessellateAutoMovieCurveGrid64(input: C.Input): C.Result {
     }
     const t: number = (u - common[span]!) / (common[span + 1]! - common[span]!);
     const guide: C.Result["construction"]["lines"][number] | undefined =
-      input.guides.includes(u)
+      guides.has(u)
         ? { id: `${input.name}.guide.${u}`, closed: periodic, points: [] }
         : undefined;
     for (let j: number = 0; j < count; j++)
@@ -377,9 +378,11 @@ export function tessellateAutoMovieCurveGrid64(input: C.Input): C.Result {
     }
     minimumTriangleAreaMm2 = Math.min(minimumTriangleAreaMm2, norm(n) * 500000);
     indices.push(a, b, c);
-    for (const index of [a, b, c])
+    for (const index of [a, b, c]) {
+      incidences[index] = incidences[index]! + 1;
       for (let axis: number = 0; axis < 3; axis++)
         normalSums[index * 3 + axis]! += n[axis]!;
+    }
   };
   for (let r: number = 0; r < rows.length - (periodic ? 0 : 1); r++)
     for (let i: number = 0; i < us.length - 1; i++) {
@@ -389,13 +392,20 @@ export function tessellateAutoMovieCurveGrid64(input: C.Input): C.Result {
       emit(a + 1, c + 1, c);
     }
   const normals: number[] = new Array<number>(positions.length);
+  let unresolvedVertexNormals: number = 0;
+  let isolatedVertices: number = 0;
+  let nonfiniteNormalSums: number = 0;
   for (let i: number = 0; i < vertexCount; i++) {
     const n: B.Vec = V.clone(normalSums.slice(i * 3, i * 3 + 3));
     const length: number = norm(n);
-    if (!Number.isFinite(length) || length === 0)
-      throw new Error("Unresolved geometric vertex normal");
+    const regular: boolean = Number.isFinite(length) && length > 0;
+    if (!regular) {
+      unresolvedVertexNormals++;
+      if (incidences[i] === 0) isolatedVertices++;
+      if (!Number.isFinite(length)) nonfiniteNormalSums++;
+    }
     for (let axis: number = 0; axis < 3; axis++)
-      normals[i * 3 + axis] = n[axis]! / length;
+      normals[i * 3 + axis] = regular ? n[axis]! / length : 0;
   }
   const mesh: IAutoMovieMesh = {
     positions,
@@ -443,6 +453,9 @@ export function tessellateAutoMovieCurveGrid64(input: C.Input): C.Result {
       vertices: vertexCount,
       triangles: indices.length / 3,
       omittedZeroAreaTriangles,
+      unresolvedVertexNormals,
+      isolatedVertices,
+      nonfiniteNormalSums,
       minimumTriangleAreaMm2,
     },
   };

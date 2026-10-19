@@ -1,7 +1,7 @@
 import {
   builtEnvironmentBuildingCensus,
   lowerBuiltEnvironment,
-  tessellateToMesh,
+  realizeAutoMovieGeometry,
 } from "@automovie/engine";
 import type {
   IAutoMovieHeightRule,
@@ -51,9 +51,7 @@ export const createViewerPayload = () => {
       return {
         id: part.id,
         material: part.material,
-        mesh: part.geometry.type === "mesh"
-          ? part.geometry.mesh
-          : tessellateToMesh(part.geometry.shape),
+        mesh: realizeAutoMovieGeometry(part.geometry).mesh,
       };
     }),
   }));

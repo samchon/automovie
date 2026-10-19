@@ -6,7 +6,7 @@ import {
 
 import { autoMovieModelPartMatrices } from "./autoMovieModelPartMatrices";
 import { transformAutoMovieDrawingPoint } from "./drawing/transformAutoMovieDrawingPoint";
-import { tessellate } from "./geometry/tessellate";
+import { realizeAutoMovieGeometry } from "./geometry/realizeAutoMovieGeometry";
 import { Matrix4 } from "./math/Matrix4";
 
 /**
@@ -34,7 +34,10 @@ import { Matrix4 } from "./math/Matrix4";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Recomputed per call from the given model; the subject describer memoizes the result per model for one description pass, because the artifact is the caller's value.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The resolved pose and tessellations are released on return; the caller owns the returned map and list, each bounded by the model's vertex count and sharing the same point objects.
  */
-export const autoMovieModelPartPoints = (
+export const autoMovieModelPartPoints: (model: IAutoMovieModel) => {
+  parts: Map<IAutoMovieModelPart, IAutoMovieVector3[]>;
+  all: IAutoMovieVector3[];
+} = (
   model: IAutoMovieModel,
 ): {
   parts: Map<IAutoMovieModelPart, IAutoMovieVector3[]>;
@@ -45,10 +48,8 @@ export const autoMovieModelPartPoints = (
   const parts: Map<IAutoMovieModelPart, IAutoMovieVector3[]> = new Map();
   const all: IAutoMovieVector3[] = [];
   for (const part of model.parts) {
-    const positions: readonly number[] =
-      part.geometry.type === "mesh"
-        ? part.geometry.mesh.positions
-        : tessellate(part.geometry.shape).positions;
+    const positions: readonly number[] = realizeAutoMovieGeometry(part.geometry)
+      .mesh.positions;
     const matrix: number[] = matrices.get(part) ?? Matrix4.identity();
     const points: IAutoMovieVector3[] = [];
     for (let index: number = 0; index + 2 < positions.length; index += 3) {

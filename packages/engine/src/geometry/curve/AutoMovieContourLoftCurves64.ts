@@ -1,5 +1,6 @@
 import { AutoMovieBernstein64 as B } from "./AutoMovieBernstein64";
 import { AutoMovieBernsteinSubdivision64 as S } from "./AutoMovieBernsteinSubdivision64";
+import { AutoMovieContourSlit64 as Slit } from "./AutoMovieContourSlit64";
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
 import { IAutoMovieCurve64 as C } from "./IAutoMovieCurve64";
 import { assertAutoMovieCurve64 } from "./assertAutoMovieCurve64";
@@ -9,9 +10,8 @@ const add: typeof M.add = M.add,
   sub: typeof M.sub = M.sub,
   mul: typeof M.scale = M.scale;
 /** Three-dimensional projection helpers in one common physical chart. */
-const dot: (a: M.V, b: M.V) => number = (a: M.V, b: M.V): number =>
-  a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-/** Euclidean distance, used only within the enclosing millimetre chart. */
+/** Stable private binding preserves internal call ownership across the public facade. */
+const closestPoint: typeof Slit.closest = Slit.closest;
 const dist: (a: M.V, b: M.V) => number = (a: M.V, b: M.V): number =>
   Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
 
@@ -136,77 +136,8 @@ export namespace AutoMovieContourLoftCurves64 {
     return mul(sum, 1 / points.length);
   }
 
-  /**
-   * Open oriented loops along one closest continuous segment-to-segment slit.
-   *
-   * @evidence contracts/common.md#principled-implementation Endpoint projections and the interior segment-pair solution locate a continuous closest slit; oriented boundary walks traverse it in opposite directions.
-   * @evidence contracts/common.md#clear-and-simple-design This helper owns the named curve operation and composes only the shared vector and Bernstein owners.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No anatomy, source surface topology, copied normal field or coordinate rescaling enters this operation.
-   * @evidence contracts/common.md#meaningful-documentation States the curve chart, boundary meaning or degeneracy relevant to this operation.
-   * @evidence contracts/performance.md#efficient-algorithms N by M segment pairs are examined once; the returned joined walk has O(N+M) points.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure local curve operation owns no cross-request cache.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Local scratch expires on return; only the declared result transfers to the caller.
-   */
-  export function join(
-    a: M.V[],
-    b: M.V[],
-    inserted: (p: M.V, a: M.V, b: M.V, t: number) => void,
-  ): M.V[] {
-    let ai: number = 0,
-      bi: number = 0,
-      ta: number = 0,
-      tb: number = 0,
-      best: number = Infinity;
-    const accept = (i: number, j: number, u: number, v: number): void => {
-      const p: M.V = add(a[i], mul(sub(a[(i + 1) % a.length], a[i]), u));
-      const q: M.V = add(b[j], mul(sub(b[(j + 1) % b.length], b[j]), v));
-      const d: number = dist(p, q);
-      if (d < best) {
-        best = d;
-        ai = i;
-        bi = j;
-        ta = u;
-        tb = v;
-      }
-    };
-    for (let i: number = 0; i < a.length; i++)
-      for (let j: number = 0; j < b.length; j++) {
-        const an: M.V = a[(i + 1) % a.length],
-          bn: M.V = b[(j + 1) % b.length];
-        accept(i, j, 0, closest(a[i], b[j], bn).t);
-        accept(i, j, 1, closest(an, b[j], bn).t);
-        accept(i, j, closest(b[j], a[i], an).t, 0);
-        accept(i, j, closest(bn, a[i], an).t, 1);
-        const x: M.V = sub(an, a[i]),
-          y: M.V = sub(bn, b[j]),
-          z: M.V = sub(b[j], a[i]);
-        const xx: number = dot(x, x),
-          yy: number = dot(y, y),
-          xy: number = dot(x, y);
-        const xz: number = dot(x, z),
-          yz: number = dot(y, z),
-          den: number = xx * yy - xy * xy;
-        if (den > 0) {
-          const u: number = (xz * yy - yz * xy) / den,
-            v: number = (xz * xy - yz * xx) / den;
-          if (u >= 0 && u <= 1 && v >= 0 && v <= 1) accept(i, j, u, v);
-        }
-      }
-    const p: M.V = add(a[ai], mul(sub(a[(ai + 1) % a.length], a[ai]), ta));
-    const q: M.V = add(b[bi], mul(sub(b[(bi + 1) % b.length], b[bi]), tb));
-    inserted(p, a[ai], a[(ai + 1) % a.length], ta);
-    inserted(q, b[bi], b[(bi + 1) % b.length], tb);
-    return [
-      p,
-      ...a.slice(ai + 1),
-      ...a.slice(0, ai + 1),
-      p,
-      q,
-      ...b.slice(bi + 1),
-      ...b.slice(0, bi + 1),
-      q,
-    ];
-  }
+  /** Original join operation owned by the continuous contour slit helper. */
+  export const join: typeof Slit.join = Slit.join;
 
   /**
    * An evaluated curve point and its inherited source phase, distinct from a control.
@@ -226,41 +157,192 @@ export namespace AutoMovieContourLoftCurves64 {
 
     /** Inherited parameter in the primitive's declared phase chart. */
     phase: number;
+
+    /** Retained outgoing positive-orientation source restriction; absent for an unsupported diagnostic knot. */
+    leaf?: Leaf;
   }
 
   /**
-   * Projects onto a finite segment; a zero-length segment remains its endpoint.
+   * An exact algebraic Bernstein restriction before binary64 rounding.
    *
-   * @evidence contracts/common.md#principled-implementation Clamped orthogonal projection gives the nearest point of a finite segment, retaining its endpoint for zero length.
-   * @evidence contracts/common.md#clear-and-simple-design This helper owns the named curve operation and composes only the shared vector and Bernstein owners.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No anatomy, source surface topology, copied normal field or coordinate rescaling enters this operation.
-   * @evidence contracts/common.md#meaningful-documentation States the curve chart, boundary meaning or degeneracy relevant to this operation.
-   * @evidence contracts/performance.md#efficient-algorithms A fixed number of three-component dot products and affine operations is used.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure local curve operation owns no cross-request cache.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Local scratch expires on return; only the declared result transfers to the caller.
+   * @evidence contracts/common.md#principled-implementation An immutable original span and recorded half path, or a materialized child net, preserve the generating restriction independently of its display chord.
+   * @evidence contracts/common.md#clear-and-simple-design One leaf is shared by initial sampling and interaction-driven refinement.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts This record is not a fitted control table or a source mesh witness.
+   * @evidence contracts/common.md#meaningful-documentation Fields state source orientation, inherited phase and arithmetic scope.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This record performs no arithmetic.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The caller owns source-restriction reuse.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The invocation owns the descriptor and any materialized copy; the caller keeps referenced original controls immutable.
    */
-  export function closest(
-    p: M.V,
-    a: M.V,
-    b: M.V,
-  ): { p: M.V; t: number; distance: number } {
-    const ab: M.V = sub(b, a);
-    const t: number = Math.max(
-      0,
-      Math.min(1, dot(sub(p, a), ab) / (dot(ab, ab) || 1)),
-    );
-    const q: M.V = add(a, mul(ab, t));
-    return { p: q, t, distance: dist(p, q) };
+  export interface Leaf {
+    /** Materialized positive source restriction; absent until needed for a compact half-path leaf. */
+    net?: M.V[];
+    /** Immutable original cubic authority for lazy materialization. */
+    original?: C.Span;
+    /** Binary left/right half path from the original span, with length depth. */
+    path?: number;
+    /** Inherited source phase of its first control. */
+    start: number;
+    /** Inherited source phase of its last control, before any constant-interval quotient. */
+    end: number;
+    /** Subdivision depth; a compact original half path has exactly this many bits. */
+    depth: number;
   }
 
   /**
-   * De Casteljau subdivision bounds the complete cubic's chord error in mm.
+   * Materialize a compact source leaf through its original De Casteljau half path.
    *
-   * @evidence contracts/common.md#principled-implementation Admitted cubic coefficients are split by the existing Bernstein subdivision operator until their control hull lies within the physical chord tolerance.
+   * @evidence contracts/common.md#principled-implementation Original controls and the exact recorded left/right half path reproduce the restriction's subdivision arithmetic; an explicitly supplied child net is reused.
+   * @evidence contracts/common.md#clear-and-simple-design All leaf consumers resolve one coefficient authority through this accessor.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No sampled fit, source mesh or new coefficient definition replaces the saved cubic.
+   * @evidence contracts/common.md#meaningful-documentation States lazy ownership and the retained arithmetic path.
+   * @evidence contracts/performance.md#efficient-algorithms A previously unmaterialized leaf takes O(depth) constant-degree splits, with depth at most thirty for original sampling.
+   * @evidence contracts/performance.md#reuse-equivalent-work Contacted leaves cache their resolved net; ordinary leaves retain only the original span reference and half-path metadata.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Only contacted leaf nets remain materialized in the invocation; immutable caller controls are never mutated.
+   */
+  export function controls(leaf: Leaf): M.V[] {
+    if (leaf.net !== undefined) return leaf.net;
+    if (
+      leaf.original === undefined ||
+      leaf.path === undefined ||
+      !Number.isSafeInteger(leaf.path) ||
+      leaf.path < 0 ||
+      leaf.path >= 2 ** leaf.depth ||
+      !Number.isInteger(leaf.depth) ||
+      leaf.depth < 0 ||
+      leaf.depth > 30
+    )
+      throw new Error("Source leaf lacks its generating restriction");
+    const path: number = leaf.path;
+    let net: M.V[] = leaf.original.map((p: C.Vector): M.V => M.clone(p));
+    for (let level: number = leaf.depth - 1; level >= 0; level--)
+      net = S.split(net, 0.5)[Math.floor(path / 2 ** level) % 2];
+    leaf.net = net;
+    return net;
+  }
+
+  /**
+   * Partition one source restriction under the unchanged physical chord condition.
+   * Exact restrictions of an already qualified explicit net may carry deeper
+   * ancestry without requiring another adaptive half subdivision. The thirty-level
+   * limit still refuses additional adaptive work, not an already satisfied bound.
+   *
+   * @evidence contracts/common.md#principled-implementation Exact De Casteljau children retain their source phases and controls; nonconstant zero-chord restrictions split even under a coarse physical tolerance.
+   * @evidence contracts/common.md#clear-and-simple-design Initial tessellation and later geometric interaction refinement use the same adaptive owner.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No minimum population, changed tolerance, fitted child or positional snap supplies a restriction.
+   * @evidence contracts/common.md#meaningful-documentation Separates exact-restriction ancestry from additional adaptive work; compressed half-path addresses retain their thirty-level representation limit.
+   * @evidence contracts/performance.md#efficient-algorithms Constant-degree tests visit K retained leaves. Adaptive half subdivision stops at depth thirty; deeper explicit restrictions can only be retained when their current physical bound already passes.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each restriction is evaluated once by this recursive partition.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returned child nets transfer to the caller; recursive scratch expires on return.
+   */
+  export function partition(leaf: Leaf, toleranceMm: number): Leaf[] {
+    if (
+      !(toleranceMm > 0 && Number.isFinite(toleranceMm)) ||
+      !(
+        Number.isFinite(leaf.start) &&
+        Number.isFinite(leaf.end) &&
+        leaf.end > leaf.start
+      ) ||
+      !Number.isSafeInteger(leaf.depth) ||
+      leaf.depth < 0 ||
+      (leaf.depth > 30 && leaf.original !== undefined)
+    )
+      throw new Error(
+        "A finite increasing source restriction and positive chord tolerance are required",
+      );
+    if (
+      leaf.original !== undefined &&
+      (leaf.path === undefined ||
+        !Number.isSafeInteger(leaf.path) ||
+        leaf.path < 0 ||
+        leaf.path >= 2 ** leaf.depth)
+    )
+      throw new Error("Source half-path metadata is unresolved");
+    const result: Leaf[] = [];
+    const visit: (current: Leaf) => void = (current: Leaf): void => {
+      const p: M.V[] = controls(current);
+      const error: number = Math.max(
+        closestPoint(p[1], p[0], p[3]).distance,
+        closestPoint(p[2], p[0], p[3]).distance,
+      );
+      const constant: boolean = p.every((q: M.V): boolean =>
+        q.every((x: number, k: number): boolean => x === p[0][k]),
+      );
+      if (error <= toleranceMm && (dist(p[0], p[3]) > 0 || constant)) {
+        result.push(current);
+        return;
+      }
+      if (current.depth >= 30)
+        throw new Error("Cubic tessellation reached numeric subdivision limit");
+      const mid: number = (current.start + current.end) / 2;
+      if (!(mid > current.start && mid < current.end))
+        throw new Error("Cubic subdivision phase is unresolved");
+      const halves: [B.Poly, B.Poly] = S.split(p, 0.5);
+      visit({
+        net: halves[0],
+        start: current.start,
+        end: mid,
+        depth: current.depth + 1,
+        ...(current.original === undefined
+          ? {}
+          : { original: current.original, path: current.path! * 2 }),
+      });
+      visit({
+        net: halves[1],
+        start: mid,
+        end: current.end,
+        depth: current.depth + 1,
+        ...(current.original === undefined
+          ? {}
+          : { original: current.original, path: current.path! * 2 + 1 }),
+      });
+    };
+    visit(leaf);
+    return result;
+  }
+
+  /** Original closest operation owned by the continuous contour slit helper. */
+  export const closest: typeof Slit.closest = Slit.closest;
+
+  /**
+   * Whether physical samples span an affine plane rather than one line or point.
+   *
+   * @evidence contracts/common.md#principled-implementation A nonzero chord and a nonzero cross product establish affine rank at least two under binary64 arithmetic; nonfinite arithmetic rejects rather than certifies a rank.
+   * @evidence contracts/common.md#clear-and-simple-design One linear rank check is shared by cubic boundary representation and downstream tile admission.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No coordinate merge, distance epsilon or sample population floor establishes area.
+   * @evidence contracts/common.md#meaningful-documentation States affine-rank meaning and numerical scope; this does not establish simple-curve embedding or nonzero signed area.
+   * @evidence contracts/performance.md#efficient-algorithms Two linear scans use constant extra vector storage for N points.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This pure per-boundary query retains no cache.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Only a boolean escapes; vector scratch expires on return.
+   */
+  export function hasArea(points: readonly M.V[]): boolean {
+    if (points.length < 3) return false;
+    const origin: M.V = points[0];
+    const endpoint: M.V | undefined = points.find((p: M.V): boolean =>
+      p.some((x: number, k: number): boolean => x !== origin[k]),
+    );
+    if (endpoint === undefined) return false;
+    const axis: M.V = sub(endpoint, origin);
+    return points.some((p: M.V): boolean => {
+      const q: M.V = sub(p, origin);
+      const normal: M.V = [
+        axis[1] * q[2] - axis[2] * q[1],
+        axis[2] * q[0] - axis[0] * q[2],
+        axis[0] * q[1] - axis[1] * q[0],
+      ];
+      if (!normal.every(Number.isFinite))
+        throw new Error("Unresolved boundary affine rank");
+      return normal.some((x: number): boolean => x !== 0);
+    });
+  }
+
+  /**
+   * De Casteljau subdivision bounds chord error and retains a two-dimensional closed boundary.
+   *
+   * @evidence contracts/common.md#principled-implementation C0-closed coefficients are split by Bernstein subdivision until control-hull chord error meets tolerance. Exact constant leaf intervals are quotiented from the cyclic trace; a wholly constant source retains one diagnostic knot. A nonconstant zero-chord leaf must split; a rank-one closed graph is refined at a source leaf carrying omitted transverse extent. Collinear sources remain rank deficient for local diagnostics.
    * @evidence contracts/common.md#clear-and-simple-design This helper owns the named curve operation and composes only the shared vector and Bernstein owners.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No anatomy, source surface topology, copied normal field or coordinate rescaling enters this operation.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Exact source subdivision supplies every new knot with its inherited phase. No minimum sampling density, tolerance change, artificial point, coordinate weld or source coefficient change repairs a collapsed cyclic polygon.
    * @evidence contracts/common.md#meaningful-documentation States the curve chart, boundary meaning or degeneracy relevant to this operation.
-   * @evidence contracts/performance.md#efficient-algorithms Each visited cubic subproblem has constant degree and work; O(K) leaves and at most 30 recursive levels bound temporary depth.
+   * @evidence contracts/performance.md#efficient-algorithms Each cubic subproblem has constant degree; K retained leaves use O(K) storage and at most 30 recursive levels. R topology refinements inspect O(RK) leaf data and use the same adaptive chord test on exact children.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure local curve operation owns no cross-request cache.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Local scratch expires on return; only the declared result transfers to the caller.
    */
@@ -270,35 +352,121 @@ export namespace AutoMovieContourLoftCurves64 {
       throw new Error(
         "Closed cubic and positive physical chord tolerance required",
       );
-    const output: Knot[] = [];
-    const visit = (p: M.V[], t0: number, t1: number, depth: number): void => {
-      const error: number = Math.max(
-        closest(p[1], p[0], p[3]).distance,
-        closest(p[2], p[0], p[3]).distance,
+    if (
+      primitive.spans.some((span: C.Span, i: number): boolean =>
+        span[3].some(
+          (x: number, k: number): boolean =>
+            x !== primitive.spans[(i + 1) % primitive.spans.length][0][k],
+        ),
+      )
+    )
+      throw new Error(
+        "A closed contour requires exact C0-connected source spans",
       );
-      if (error <= toleranceMm) {
-        output.push({ p: M.clone(p[0]), phase: t0 });
-        return;
-      }
-      if (depth >= 30)
-        throw new Error("Cubic tessellation reached numeric subdivision limit");
-      const halves: [B.Poly, B.Poly] = S.split(p, 0.5);
-      const mid: number = (t0 + t1) / 2;
-      visit(halves[0], t0, mid, depth + 1);
-      visit(halves[1], mid, t1, depth + 1);
-    };
+    let leaves: Leaf[] = [];
     let phase: number = 0;
     primitive.spans.forEach((span: C.Span, i: number): void => {
       const width: number = primitive.phaseIntervals[i]!;
-      visit(
-        span.map((p: C.Vector): M.V => M.clone(p)),
-        phase,
-        phase + width,
-        0,
-      );
+      for (const leaf of partition(
+        {
+          net: span.map((p: C.Vector): M.V => M.clone(p)),
+          original: span,
+          path: 0,
+          start: phase,
+          end: phase + width,
+          depth: 0,
+        },
+        toleranceMm,
+      ))
+        leaves.push(leaf);
       phase += width;
     });
-    return output;
+    const moving: typeof leaves = leaves.filter(
+      (leaf: Leaf): boolean =>
+        !controls(leaf).every((p: M.V): boolean =>
+          p.every(
+            (x: number, k: number): boolean => x === controls(leaf)[0][k],
+          ),
+        ),
+    );
+    leaves = moving.length ? moving : leaves.slice(0, 1);
+    while (!hasArea(leaves.map((leaf: Leaf): M.V => controls(leaf)[0]))) {
+      const origin: M.V = controls(leaves[0])[0];
+      const endpoint: M.V | undefined = leaves
+        .map((leaf: Leaf): M.V => controls(leaf)[0])
+        .find((p: M.V): boolean =>
+          p.some((x: number, k: number): boolean => x !== origin[k]),
+        );
+      const axis: M.V | undefined =
+        endpoint === undefined ? undefined : sub(endpoint, origin);
+      const at: number = leaves.findIndex((leaf: Leaf): boolean =>
+        controls(leaf).some((p: M.V): boolean => {
+          if (axis === undefined)
+            return p.some((x: number, k: number): boolean => x !== origin[k]);
+          const q: M.V = sub(p, origin);
+          return [
+            axis[1] * q[2] - axis[2] * q[1],
+            axis[2] * q[0] - axis[0] * q[2],
+            axis[0] * q[1] - axis[1] * q[0],
+          ].some((x: number): boolean => x !== 0);
+        }),
+      );
+      if (at < 0) break; // The source control hull itself has no transverse extent.
+      const leaf: (typeof leaves)[number] = leaves[at];
+      const mid: number = (leaf.start + leaf.end) / 2;
+      if (leaf.depth >= 30 || !(mid > leaf.start && mid < leaf.end))
+        throw new Error(
+          "Closed boundary representation reached numeric subdivision limit",
+        );
+      const halves: [B.Poly, B.Poly] = S.split(controls(leaf), 0.5);
+      const replacement: Leaf[] = [
+        ...partition(
+          {
+            net: halves[0],
+            start: leaf.start,
+            end: mid,
+            depth: leaf.depth + 1,
+            ...(leaf.original === undefined
+              ? {}
+              : { original: leaf.original, path: leaf.path! * 2 }),
+          },
+          toleranceMm,
+        ),
+        ...partition(
+          {
+            net: halves[1],
+            start: mid,
+            end: leaf.end,
+            depth: leaf.depth + 1,
+            ...(leaf.original === undefined
+              ? {}
+              : { original: leaf.original, path: leaf.path! * 2 + 1 }),
+          },
+          toleranceMm,
+        ),
+      ];
+      leaves = [
+        ...leaves.slice(0, at),
+        ...replacement,
+        ...leaves.slice(at + 1),
+      ];
+    }
+    return leaves.map(
+      (leaf: Leaf): Knot => ({
+        p: M.clone(controls(leaf)[0]),
+        phase: leaf.start,
+        leaf:
+          leaf.original === undefined
+            ? leaf
+            : {
+                original: leaf.original,
+                path: leaf.path,
+                start: leaf.start,
+                end: leaf.end,
+                depth: leaf.depth,
+              },
+      }),
+    );
   }
 
   /**

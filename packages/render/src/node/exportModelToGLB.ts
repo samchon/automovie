@@ -1,7 +1,8 @@
-import { ITessellation, tessellate } from "@automovie/engine";
+import { ITessellation, realizeAutoMovieGeometry } from "@automovie/engine";
 import type {
   IAutoMovieBone,
   IAutoMovieMaterial,
+  IAutoMovieMesh,
   IAutoMovieModel,
   IAutoMovieModelPart,
   IAutoMovieTransform,
@@ -20,7 +21,7 @@ import { loadModelGltfCore } from "./loadModelGltfCore";
 /**
  * Serialize an `IAutoMovieModel` into binary glTF 2.0 (`.glb`) bytes with all geometry in one embedded buffer.
  *
- * Each skeleton bone becomes a node under its parent, or under the scene for a root, carrying rest translation and rotation with unit scale. Each part becomes a mesh node with its own transform under its `attachedBone`, or under the scene when unattached. Engine tessellation exports a capsule's hemispheres and cylindrical body; authored meshes export positions, normals, vertex colors as `COLOR_0`, and indices.
+ * Each skeleton bone becomes a node under its parent, or under the scene for a root, carrying rest translation and rotation with unit scale. Each part becomes a mesh node with its own transform under its `attachedBone`, or under the scene when unattached. The canonical engine owner realizes primitive and bicubic atlas recipes; authored meshes retain their positions, normals, vertex colors as `COLOR_0`, and indices. Atlas budgets can retain finite partial geometry; this export does not turn processing status into a coverage or quality certificate.
  *
  * Materials use glTF metallic-roughness, authored alpha mode or an opacity-derived default, mask cutoff 0.5 by default, and authored sidedness. Exported base alpha is `(baseColor.a ?? 1) * opacity`; the live viewer currently uses opacity alone, so authored base alpha can produce a different appearance.
  *
@@ -28,11 +29,11 @@ import { loadModelGltfCore } from "./loadModelGltfCore";
  *
  * Call with an engine-validated model whose numeric attributes are representable by the exported Float32/Uint32 arrays. Missing parent, material and attached-bone references throw; this function does not repeat graph or numeric validation, and the serializer can also reject its document.
  *
- * @evidence contracts/common.md#principled-implementation glTF nodes carry the represented rest hierarchy and transforms, while accessors and metallic-roughness materials carry the emitted static surface facts. Engine tessellation and indexed normal accumulation supply geometry; Float32/Uint32 conversion assumes validated representable inputs. The documented alpha difference and omitted skin, texture and extension fields prevent claiming complete live-viewer equivalence.
+ * @evidence contracts/common.md#principled-implementation glTF nodes carry the represented rest hierarchy and transforms, while accessors and metallic-roughness materials carry the emitted static surface facts. Canonical engine realization and indexed normal accumulation supply geometry; Float32/Uint32 conversion assumes validated representable inputs. Partial atlas output does not certify coverage. The documented alpha difference and omitted skin, texture and extension fields prevent claiming complete live-viewer equivalence.
  * @evidence contracts/common.md#clear-and-simple-design Materials, bones and parts are visited in dependency order, with helpers for material conversion, geometry, part transforms, indexed normals and bone-rest transforms. The Node entry exposes this exporter, and its callers receive bytes without file writing; the serializer is loaded only when export is requested.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Deferred SDK loading is a load-time boundary, not a patch of the serializer, and no model, part or material id is special-cased; every rule applies to the field it reads.
  * @evidence contracts/common.md#meaningful-documentation The doc names the validated-model premise, emitted hierarchy and attributes, material defaults and alpha difference, omitted capabilities, Float32/Uint32 conversion, reference refusals and serializer failure boundary. Callers get static GLB bytes rather than a validated visual delivery or animation.
- * @evidence contracts/performance.md#efficient-algorithms Local work visits M materials, B bones, P parts and their V attribute elements plus I triangle indices, using maps for expected constant-time reference lookup and linear indexed normal accumulation. Typed arrays, document objects and the serialized binary coexist during writing; the SDK's graph bookkeeping and serialization add their own work and allocations, so neither a total linear bound nor a fixed peak multiplier is asserted. Input and output size have no independent quota here.
+ * @evidence contracts/performance.md#efficient-algorithms Canonical recipe realization owns its adaptive work before export. Export-local work visits M materials, B bones, P parts and their V attribute elements plus I triangle indices, using maps for expected constant-time reference lookup and linear indexed normal accumulation. Typed arrays, document objects and the serialized binary coexist during writing; the SDK's graph bookkeeping and serialization add their own work and allocations, so neither a total linear bound nor a fixed peak multiplier is asserted. Input and output size have no independent quota here.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call serializes one caller-owned model into fresh bytes; the module loader's cache already shares the deferred `@gltf-transform/core` module across calls, and no export result is cached.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The pending module import or binary write can retain the invocation, document, maps and typed arrays until settlement; this function adds no timeout or cancellation. After settlement it keeps no result cache or persistent document handle, while the module loader retains the loaded serializer and the caller owns the returned bytes. No output file is opened.
  * @author Samchon
@@ -144,21 +145,16 @@ const toPrimitive: (
   buffer: GLTFBuffer,
   part: IAutoMovieModelPart,
 ): Primitive => {
-  const geometry: ITessellation =
-    part.geometry.type === "primitive"
-      ? tessellate(part.geometry.shape)
-      : {
-          positions: part.geometry.mesh.positions,
-          normals:
-            part.geometry.mesh.normals ??
-            (part.geometry.mesh.indices === null
-              ? []
-              : computeSmoothNormals(
-                  part.geometry.mesh.positions,
-                  part.geometry.mesh.indices,
-                )),
-          indices: part.geometry.mesh.indices ?? [],
-        };
+  const mesh: IAutoMovieMesh = realizeAutoMovieGeometry(part.geometry).mesh;
+  const geometry: ITessellation = {
+    positions: mesh.positions,
+    normals:
+      mesh.normals ??
+      (mesh.indices === null
+        ? []
+        : computeSmoothNormals(mesh.positions, mesh.indices)),
+    indices: mesh.indices ?? [],
+  };
   const prim: Primitive = doc
     .createPrimitive()
     .setAttribute(

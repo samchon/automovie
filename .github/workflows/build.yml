@@ -31,7 +31,6 @@ jobs:
           key: ttsc-build-${{ hashFiles('pnpm-lock.yaml') }}
       - run: pnpm run build
       - run: pnpm run evidence
-      - run: pnpm exec ttsc --noEmit -p tools/human-reference/tsconfig.json
-      - run: pnpm exec evidence --cwd tools/human-reference
+      - run: pnpm exec ttsc --noEmit -p tools/recovery/tsconfig.json
       # The website bundles the productions without type-checking them.
       - run: pnpm --filter "./experimental/**" -r lint
