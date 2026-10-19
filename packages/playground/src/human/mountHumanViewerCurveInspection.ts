@@ -36,7 +36,7 @@ export function mountHumanViewerCurveInspection(page: HumanViewerPage): void {
     physical === undefined ? undefined : page.current.human.inspectSurface({measurements: physical});
   const surface: ReturnType<typeof mountHumanSurfaceControls> = mountHumanSurfaceControls({
     container, initial: physical, diagnostics: generated?.diagnostics ?? [],
-    apply: (measurements: IHumanViewerSession["surfaceMeasurements"]): boolean =>
+    selectSurface: (measurements: IHumanViewerSession["surfaceMeasurements"]): boolean =>
       page.accept({...page.current.session, surfaceMeasurements: measurements,
         curveDesign: {source: "current-skin", compareExistingSurface: false}},
       measurements === undefined ? "기존 피부 경로 선택" : "새 물리 외피 선택"),

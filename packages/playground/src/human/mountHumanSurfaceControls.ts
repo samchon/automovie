@@ -18,7 +18,7 @@ export function mountHumanSurfaceControls(props: {
   container: HTMLElement;
   initial?: M;
   diagnostics: readonly string[];
-  apply: (input: M | undefined) => boolean;
+  selectSurface: (input: M | undefined) => boolean;
 }): {dispose: () => void} {
   const field: HTMLFieldSetElement = document.createElement("fieldset");
   const legend: HTMLLegendElement = document.createElement("legend");
@@ -40,7 +40,7 @@ export function mountHumanSurfaceControls(props: {
   function submit(): void {
     try {
       const next: M = JSON.parse(input.value) as M;
-      if (!props.apply(next))
+      if (!props.selectSurface(next))
         message.textContent = "외피 입력 거부: 이전 유효 표시를 유지합니다. 오류 원인을 확인하세요.";
     } catch (cause: unknown) {
       message.textContent = "입력 거부: 이전 유효 표시 유지. " +
@@ -48,7 +48,7 @@ export function mountHumanSurfaceControls(props: {
     }
   }
   /** This is an explicit source change, never an automatic geometry fallback. */
-  function choosePrevious(): void { props.apply(undefined); }
+  function choosePrevious(): void { props.selectSurface(undefined); }
   apply.addEventListener("click", submit);
   previous.addEventListener("click", choosePrevious);
   field.append(legend, input, apply, previous, message);

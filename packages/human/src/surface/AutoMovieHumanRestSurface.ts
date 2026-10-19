@@ -36,10 +36,14 @@ export class AutoMovieHumanRestSurface {
 
   /** Admit/generate one physical target document; every returned net restricts this field. */
   public inspect(input: IAutoMovieHumanSurfaceMeasurements): AutoMovieHumanRestSurface.Result {
-    const key: string = JSON.stringify(input);
+    const snapshot: IAutoMovieHumanSurfaceMeasurements = structuredClone(input);
+    // Preserve unknown undefined-valued keys so a refused document cannot hit
+    // an admitted document's cache by JSON's ordinary property omission.
+    const key: string = JSON.stringify(snapshot,
+      (_key: string, value: unknown): unknown => value === undefined ? null : value);
     if (this.cached?.key === key) return structuredClone(this.cached.value);
     const definition: ReturnType<typeof generateAutoMovieHumanSurfaceDefinition> =
-      generateAutoMovieHumanSurfaceDefinition({skeleton: this.person.skeleton, measurements: input});
+      generateAutoMovieHumanSurfaceDefinition({skeleton: this.person.skeleton, measurements: snapshot});
     const surface: ReturnType<typeof realizeAutoMovieHumanSurface64> =
       realizeAutoMovieHumanSurface64(definition);
     const part: IAutoMovieModelPart = {
@@ -56,7 +60,7 @@ export class AutoMovieHumanRestSurface {
     };
     const value: AutoMovieHumanRestSurface.Result = {
       status: "partial", revision: definition.revision,
-      measurements: structuredClone(input), parts: [part],
+      measurements: snapshot, parts: [part],
       construction: inspectAutoMovieHumanSurface(definition),
       boundaries: structuredClone(definition.boundaries),
       realizationComplete: surface.complete,
@@ -82,7 +86,7 @@ export class AutoMovieHumanRestSurface {
     });
     return {
       id: props.id, name: "Generated rest surface (partial)", origin: "generated",
-      parts: dressed.parts, skeleton: props.skeleton, body: null,
+      parts: dressed.parts, skeleton: props.skeleton, body: null, asset: null,
       materials: [{...dressed.material, name: "skin, physical-rest-field-1 (plain)"}], images: dressed.images,
     };
   }

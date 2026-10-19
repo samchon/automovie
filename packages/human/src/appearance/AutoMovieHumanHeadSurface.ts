@@ -78,7 +78,7 @@ export class AutoMovieHumanHeadSurface {
           mesh.indices[t + 2]!,
         ];
         const explicit: readonly number[] | null | undefined = supplied?.[t / 3];
-        if (supplied !== undefined && explicit === null) continue;
+        if (explicit === null) continue;
         if (supplied !== undefined &&
             (explicit === undefined || explicit.length !== 6 || !explicit.every(Number.isFinite)))
           throw new Error("Six finite actual head-chart corner values required");

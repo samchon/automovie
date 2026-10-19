@@ -54,7 +54,7 @@ import { generateAutoMovieHumanRest } from "./generateAutoMovieHumanRest";
 /**
  * One person, generated from a detailed identity by code: the skeleton, the model films use, posing and expression.
  *
- * Construction admits the identity, resolves its measurements and generates the skeleton once; every later call reads those, so a person never changes after it is built and a host keeps the previous person when a new identity is refused. A different identity is a new instance. The instance holds all its state; the package keeps no module state.
+ * Construction admits an immutable identity and resolves its measurements and skeleton once. Explicit physical rest targets are separate request documents; successful model emission selects their corresponding inspection state. A different identity creates a new instance. The instance owns its caches, and a host keeps the previous display when input admission or generation is refused.
  *
  * The output contract with films is `IAutoMovieModel`, with `origin: "generated"`. The generated rest-field route consumes explicit T-rest physical observations and owns both skin and construction. Its current anatomical layout is partial; `inspectSurface` reports actual open boundaries and missing regions. Without that explicit selection, the previous cage assembly remains a separately identified route.
  *
@@ -240,14 +240,15 @@ export class AutoMovieHuman {
     if (admitted.success === false)
       throw new AutoMovieHumanAdmissionError("appearance", admitted.errors);
     if (props.surfaceMeasurements !== undefined) {
+      const selected: IAutoMovieHumanSurfaceMeasurements = structuredClone(props.surfaceMeasurements);
       this.surface_ ??= new AutoMovieHumanRestSurface({
         measurements: this.measurements_, skeleton: this.skeleton_,
       });
       const model: IAutoMovieModel = this.surface_.model({
-        id: this.id_, input: props.surfaceMeasurements,
+        id: this.id_, input: selected,
         appearance: admitted.data, skeleton: this.getSkeleton(),
       });
-      this.inspectionSurface_ = structuredClone(props.surfaceMeasurements);
+      this.inspectionSurface_ = selected;
       return model;
     }
     const eyeHairHost: IAutoMovieHumanEyeHairHost | undefined =
@@ -394,7 +395,6 @@ export class AutoMovieHuman {
   private skeletonId(): string {
     return `${this.id_}.skeleton`;
   }
-
   /** Immutable source cages and at most two assembly-specific rest results, retained by this person; failures are not cached. */
   private rest(
     assembly: "parts" | "joined",
