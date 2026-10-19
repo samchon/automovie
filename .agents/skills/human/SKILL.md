@@ -1,6 +1,6 @@
 ---
 name: human
-description: Governs main-agent supervision, instruction-compliance audits, and thirty-minute reporting for Human work. Use with the 3d-modeling skill before working on packages/human, a human figure, or the Human viewer.
+description: Governs main-agent supervision, instruction-compliance audits, and fifteen-minute reporting for Human work. Use with the 3d-modeling skill before working on packages/human, a human figure, or the Human viewer.
 ---
 
 # Human
@@ -15,19 +15,25 @@ Audit evidence that authors read and followed the instructions, inspected the ac
 
 At each audit, identify blocked work and unnecessary coordination, name their causes and owners, and direct concrete corrections.
 
+## Delegation
+
+Divide delegated work by independent responsibility, not anatomical labels or available agent slots. Parallelize research, mathematical derivation, measurement and inspection; keep a coupled generating model and its shared boundaries under one integration author. Give independent implementations separate write ownership only when their contracts and consumers are defined.
+
+Contributors send the integration author their proposed equations, assumptions, evidence and affected consumers without editing that author's source. The integration author understands the common model from parameters through curves to the displayed surface, reconciles proposals and writes the coherent change; copying patches together is not integration. This author owns the assembled result under Author Workflow.
+
 ## Author Workflow
 
 Inspect the current assembled person in the actual Human viewer and enlarge affected regions under [Visual Debugging](../3d-modeling/visual-debugging.md) and [Verification](verification.md). Record the full round's defects and trace them through affected parts and shared boundaries.
 
-Collect the round's findings under [Review](../review/SKILL.md), fix their common causes together, then inspect the complete result again.
+Collect the round's findings under [Review](../review/SKILL.md), applying [Correction Rounds](../3d-modeling/visual-debugging.md#correction-rounds) and [Prohibited Implementation Shortcuts](../contracts/common.md#prohibited-implementation-shortcuts).
 
-Coordinate source, build, viewer-runtime and capture ownership before using shared resources. Record and respect the active owner's lock and source snapshot; wait for release or an explicit handoff rather than modifying their input or stopping their process.
+Coordinate source, build, viewer-runtime and capture ownership before using shared resources. Keep one compiler owner on the shared `ttsc --watch` process; this owner forwards each completed cycle's diagnostics, file locations and source snapshot to the responsible author. Record and respect the active owner's lock and source snapshot; wait for release or an explicit handoff rather than modifying their input or stopping their process.
 
-Preserve the last valid state when an operation fails. If code and formulas cannot reach the required quality, report that limit instead of substituting another generation route.
+Generation and downstream runtime inspection, measurement or correction failures must preserve displayable authored geometry and a usable viewer. Isolate local failures with diagnostics and partial status; label a retained previous display and keep invalid primitives out of the renderer. If code and formulas cannot reach the required quality, report that limit instead of substituting another generation route.
 
 ## Inspection And Reporting
 
-At the start of active Human work, establish or resume the thirty-minute compliance audit and Korean report schedule. Verify its active configuration and record the next target from the work's start or existing schedule. Intermediate updates and immediate reports do not reset that target.
+At the start of active Human work, establish or resume the fifteen-minute compliance audit and Korean report schedule. Verify its active configuration and record the next target from the work's start or existing schedule. Intermediate updates and immediate reports do not reset that target.
 
 Each scheduled report includes the actual viewer's current full-body screenshot as an absolute-path image, its source snapshot and capture time. Distinguish capture time from report time. If a current capture is unavailable, name the gap and owner without presenting an old capture as current.
 
@@ -53,7 +59,7 @@ Read the relevant technical guide before its task:
 - [Parameters](parameters.md) owns parameter meaning and admission.
 - [Construction](construction.md) owns parameter-driven curves, generation, parts, junctions, and the core boundary.
 - [References](references.md) owns reference use and comparison.
-- [Reverse analysis](reverse-analysis.md) owns reference curve extraction, shared formula identification and actual reverse-rendered comparison. Read it before reverse analysis or reverse rendering.
+- [Reverse analysis](reverse-analysis.md) owns anatomical correspondence, shared formula identification and validation across people. Read it before transferring recovered reference geometry into Human; [Recovery](../3d-modeling/recovery.md) owns the common extraction and reverse-rendering procedure.
 - [Verification](verification.md) owns calibration bodies and form judgment.
 
 Read the research workspace, `packages/human/docs`, before researching a value or technique, and update it when research changes, so sources and abandoned approaches are not repeated.

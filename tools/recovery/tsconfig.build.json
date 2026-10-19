@@ -1,21 +1,6 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "noEmit": false,
-    "allowImportingTsExtensions": true,
-    "rewriteRelativeImportExtensions": true,
-    "declaration": false,
-    "rootDir": "../..",
-    "outDir": "lib",
-    "sourceMap": true
-  },
-  "files": [
-    "src/recovery.ts",
-    "src/recoveryOpen.ts",
-    "src/recoveryLocal.ts",
-    "src/writeRecoveryModuleBoundaries.ts"
-  ],
-  "include": []
+    "noEmit": true
+  }
 }

@@ -3,9 +3,9 @@ import fs from "node:fs";
 import path from "node:path";
 
 import type { IAutoMovieCurve64 as C } from "../../../../packages/engine/src/geometry/curve/IAutoMovieCurve64";
-import { RecoveryAnalyticDomains } from "../../../../tools/recovery/src/RecoveryAnalyticDomains";
-import { applyRecoveryAnalyticPublication } from "../../../../tools/recovery/src/applyRecoveryAnalyticPublication";
-import { reconstructRecoveryLocal } from "../../../../tools/recovery/src/reconstructRecoveryLocal";
+import { realizeAutoMovieRecoveryAnalyticDomains, applyAutoMovieRecoveryAnalyticPublication } from "@automovie/recovery";
+
+import { reconstructAutoMovieRecoveryLocal } from "@automovie/recovery/node";
 import { nclose } from "../internal/nclose";
 
 /**
@@ -24,8 +24,8 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/testing.md#execution-ownership This named portable CPU test imports the maintained recovery and engine seams, starts no host or process and performs no source observation or fit. Its owned working-directory scratch tree is removed in finally; no fixture or Human asset is read.
  */
 export function test_geometry_recovery_analytic_domains(): void {
-  type Input = Parameters<typeof reconstructRecoveryLocal>[0];
-  type Graph = NonNullable<Parameters<typeof RecoveryAnalyticDomains>[1]>;
+  type Input = Parameters<typeof reconstructAutoMovieRecoveryLocal>[0];
+  type Graph = NonNullable<Parameters<typeof realizeAutoMovieRecoveryAnalyticDomains>[1]>;
   type Domain = NonNullable<Input["analyticDomains"]>[number];
   const curve: (name: string, y: number, offset: number) => C.Cubic = (
     name: string,
@@ -185,12 +185,12 @@ export function test_geometry_recovery_analytic_domains(): void {
   const original: string = JSON.stringify(bundle);
   TestValidator.equals(
     "absent analytic extension",
-    RecoveryAnalyticDomains(bundle, graph).reports.length,
+    realizeAutoMovieRecoveryAnalyticDomains(bundle, graph).reports.length,
     0,
   );
   const values: Domain[] = [domain(0), domain(1)];
-  const valid: ReturnType<typeof RecoveryAnalyticDomains> =
-    RecoveryAnalyticDomains({ ...bundle, analyticDomains: values }, graph);
+  const valid: ReturnType<typeof realizeAutoMovieRecoveryAnalyticDomains> =
+    realizeAutoMovieRecoveryAnalyticDomains({ ...bundle, analyticDomains: values }, graph);
   TestValidator.predicate(
     "two admitted independent pair owners",
     valid.parts.length === 2 &&
@@ -234,8 +234,8 @@ export function test_geometry_recovery_analytic_domains(): void {
         ports: bad[0]!.ports,
         curveBindings: [],
       };
-    const result: ReturnType<typeof RecoveryAnalyticDomains> =
-      RecoveryAnalyticDomains({ ...bundle, analyticDomains: bad }, graph);
+    const result: ReturnType<typeof realizeAutoMovieRecoveryAnalyticDomains> =
+      realizeAutoMovieRecoveryAnalyticDomains({ ...bundle, analyticDomains: bad }, graph);
     TestValidator.predicate(
       `local ${mode} refusal`,
       mode === "duplicate"
@@ -263,8 +263,8 @@ export function test_geometry_recovery_analytic_domains(): void {
       normalFan: "wrong-side",
     },
   ];
-  const partial: ReturnType<typeof RecoveryAnalyticDomains> =
-    RecoveryAnalyticDomains({ ...bundle, analyticDomains: conflict }, graph);
+  const partial: ReturnType<typeof realizeAutoMovieRecoveryAnalyticDomains> =
+    realizeAutoMovieRecoveryAnalyticDomains({ ...bundle, analyticDomains: conflict }, graph);
   TestValidator.predicate(
     "native conflict is local explicit partial",
     partial.parts.length === 1 &&
@@ -273,7 +273,7 @@ export function test_geometry_recovery_analytic_domains(): void {
       !partial.reports[0]!.complete &&
       partial.reports[1]!.complete,
   );
-  const publication: Parameters<typeof applyRecoveryAnalyticPublication>[1] = {
+  const publication: Parameters<typeof applyAutoMovieRecoveryAnalyticPublication>[1] = {
     schema: "automovie-recovery-analytic-publication-v1",
     sourceCommit: "a".repeat(40),
     curveBundleSha256: "b".repeat(64),
@@ -283,18 +283,18 @@ export function test_geometry_recovery_analytic_domains(): void {
     ],
     analyticDomains: values,
   };
-  const hashes: Parameters<typeof applyRecoveryAnalyticPublication>[2] = {
+  const hashes: Parameters<typeof applyAutoMovieRecoveryAnalyticPublication>[2] = {
     curveBundleSha256: publication.curveBundleSha256,
     continuationSha256: publication.continuationSha256,
   };
   TestValidator.predicate(
     "publication preserves original report scope",
-    applyRecoveryAnalyticPublication(bundle, publication, hashes)
+    applyAutoMovieRecoveryAnalyticPublication(bundle, publication, hashes)
       .coefficientPublication!.originalReportsRetained,
   );
   let refused: boolean = false;
   try {
-    applyRecoveryAnalyticPublication(bundle, publication, {
+    applyAutoMovieRecoveryAnalyticPublication(bundle, publication, {
       ...hashes,
       curveBundleSha256: "d".repeat(64),
     });
@@ -307,8 +307,8 @@ export function test_geometry_recovery_analytic_domains(): void {
   );
   try {
     const output: string = path.join(directory, "model.json");
-    const reconstruction: ReturnType<typeof reconstructRecoveryLocal> =
-      reconstructRecoveryLocal(
+    const reconstruction: ReturnType<typeof reconstructAutoMovieRecoveryLocal> =
+      reconstructAutoMovieRecoveryLocal(
         { ...bundle, analyticDomains: values },
         graph,
         output,
@@ -366,7 +366,7 @@ export function test_geometry_recovery_analytic_domains(): void {
       base.counts.triangles > 0 && base.openReports.visitedPairs === 0,
     );
     const retainedOutput: string = path.join(directory, "retained.json");
-    reconstructRecoveryLocal(
+    reconstructAutoMovieRecoveryLocal(
       { ...bundle, analyticDomains: [values[0]!] },
       graph,
       retainedOutput,

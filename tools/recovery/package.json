@@ -2,5 +2,11 @@
   "name": "@automovie/recovery-tools",
   "private": true,
   "type": "module",
-  "scripts": { "evidence": "evidence --cwd ." }
+  "scripts": {
+    "build": "ttsc --noEmit",
+    "evidence": "evidence --cwd ."
+  },
+  "dependencies": {
+    "@automovie/recovery": "workspace:^"
+  }
 }

@@ -1,8 +1,8 @@
 import { TestValidator } from "@nestia/e2e";
 
 import type { IAutoMovieCurve64 as C } from "../../../../packages/engine/src/geometry/curve/IAutoMovieCurve64";
-import { RecoveryEventCurve as E } from "../../../../tools/recovery/src/RecoveryEventCurve";
-import { prepareRecoveryAnnularChart } from "../../../../tools/recovery/src/prepareRecoveryAnnularChart";
+import { AutoMovieRecoveryEventCurve as E, prepareAutoMovieRecoveryAnnularChart } from "@automovie/recovery";
+
 
 /**
  * Native occurrence direction determines endpoint names and the annular seam.
@@ -40,8 +40,8 @@ export function test_geometry_recovery_event_curve(): void {
   });
   const bottom: E.Arc = E.fromCurve(curve("lower", 0));
   const top: E.Arc = E.reverse(E.fromCurve(curve("upper", 3)));
-  const chart: ReturnType<typeof prepareRecoveryAnnularChart> =
-    prepareRecoveryAnnularChart(bottom, top, "domain");
+  const chart: ReturnType<typeof prepareAutoMovieRecoveryAnnularChart> =
+    prepareAutoMovieRecoveryAnnularChart(bottom, top, "domain");
   TestValidator.equals("one shared seam", chart.left === chart.right, true);
   TestValidator.equals(
     "forward native endpoint",
@@ -104,7 +104,7 @@ export function test_geometry_recovery_event_curve(): void {
     E.fromCurve(broken);
   });
   TestValidator.error("zero-length seam rejected", (): void => {
-    prepareRecoveryAnnularChart(bottom, bottom, "collapsed");
+    prepareAutoMovieRecoveryAnnularChart(bottom, bottom, "collapsed");
   });
   const canonical: E.Arc = E.fromCurve({
     ...curve("phase", 0),

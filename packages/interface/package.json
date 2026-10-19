@@ -5,14 +5,21 @@
   "main": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./recovery": "./src/recovery/index.ts"
   },
   "scripts": {
     "build": "rimraf lib && ttsc",
     "prepack": "pnpm run build",
     "evidence": "evidence"
   },
-  "keywords": ["animation", "filmmaking", "production", "typescript", "types"],
+  "keywords": [
+    "animation",
+    "filmmaking",
+    "production",
+    "typescript",
+    "types"
+  ],
   "author": "Samchon",
   "license": "MIT",
   "repository": {
@@ -35,7 +42,18 @@
         "types": "./lib/index.d.ts",
         "default": "./lib/index.js"
       },
-      "./package.json": "./package.json"
+      "./package.json": "./package.json",
+      "./recovery": {
+        "types": "./lib/recovery/index.d.ts",
+        "default": "./lib/recovery/index.js"
+      }
+    },
+    "typesVersions": {
+      "*": {
+        "recovery": [
+          "lib/recovery/index.d.ts"
+        ]
+      }
     }
   },
   "devDependencies": {
@@ -45,5 +63,12 @@
     "@ttsc/lint": "catalog:samchon",
     "@wrtnlabs/evidence": "catalog:samchon",
     "@ttsc/evidence": "catalog:samchon"
+  },
+  "typesVersions": {
+    "*": {
+      "recovery": [
+        "src/recovery/index.ts"
+      ]
+    }
   }
 }

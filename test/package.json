@@ -34,7 +34,8 @@
     "onnxruntime-node": "catalog:media",
     "pngjs": "catalog:media",
     "three": "catalog:three",
-    "typia": "catalog:samchon"
+    "typia": "catalog:samchon",
+    "@automovie/recovery": "workspace:^"
   },
   "devDependencies": {
     "@ttsc/evidence": "catalog:samchon",

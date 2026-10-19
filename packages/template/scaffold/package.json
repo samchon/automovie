@@ -53,6 +53,7 @@
     "@automovie/human": "{{version:human}}",
     "@automovie/ingest": "{{version:ingest}}",
     "@automovie/interface": "{{version:interface}}",
+    "@automovie/recovery": "{{version:recovery}}",
     "@automovie/render": "{{version:render}}"
   },
   "devDependencies": {

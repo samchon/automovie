@@ -2,9 +2,9 @@ import { TestValidator } from "@nestia/e2e";
 
 import type { IAutoMovieCurve64 as C } from "../../../../packages/engine/src/geometry/curve/IAutoMovieCurve64";
 import { realizeAutoMovieBicubicAtlas64 } from "../../../../packages/engine/src/geometry/realizeAutoMovieBicubicAtlas64";
-import type { RecoveryEventChartInput } from "../../../../tools/recovery/src/RecoveryEventChartInput";
-import { RecoveryEventCurve as E } from "../../../../tools/recovery/src/RecoveryEventCurve";
-import { compileRecoveryEventDomain } from "../../../../tools/recovery/src/compileRecoveryEventDomain";
+import { type IAutoMovieRecoveryEventChartInput, AutoMovieRecoveryEventCurve as E, compileAutoMovieRecoveryEventDomain } from "@automovie/recovery";
+
+
 import { nclose } from "../internal/nclose";
 
 /**
@@ -25,7 +25,7 @@ export function test_geometry_recovery_event_domain(): void {
     b: C.Vector = [3, 0, 0],
     c: C.Vector = [0, 3, 0],
     d: C.Vector = [3, 3, 0];
-  const input: RecoveryEventChartInput = {
+  const input: IAutoMovieRecoveryEventChartInput = {
     id: "square",
     winding: 1,
     chart: {
@@ -35,19 +35,19 @@ export function test_geometry_recovery_event_domain(): void {
       right: E.line(b, d, "right"),
     },
   };
-  const policy: Parameters<typeof compileRecoveryEventDomain>[1] = {
+  const policy: Parameters<typeof compileAutoMovieRecoveryEventDomain>[1] = {
     maxPatches: 8,
     maxCells: 128,
     maxVertices: 1024,
     toleranceMm: 0.01,
     nativeParentBindings: true,
   };
-  const inspect: (value: RecoveryEventChartInput, patches: number) => void = (
-    value: RecoveryEventChartInput,
+  const inspect: (value: IAutoMovieRecoveryEventChartInput, patches: number) => void = (
+    value: IAutoMovieRecoveryEventChartInput,
     patches: number,
   ): void => {
-    const compiled: ReturnType<typeof compileRecoveryEventDomain> =
-      compileRecoveryEventDomain(value, policy);
+    const compiled: ReturnType<typeof compileAutoMovieRecoveryEventDomain> =
+      compileAutoMovieRecoveryEventDomain(value, policy);
     if (!compiled.complete)
       throw new Error("The declared affine domain fits its patch budget");
     TestValidator.equals(
@@ -100,7 +100,7 @@ export function test_geometry_recovery_event_domain(): void {
     ],
     "bottom-composite",
   );
-  const divided: RecoveryEventChartInput = {
+  const divided: IAutoMovieRecoveryEventChartInput = {
     ...input,
     id: "divided",
     chart: { ...input.chart, bottom: splitBottom },
@@ -121,8 +121,8 @@ export function test_geometry_recovery_event_domain(): void {
     },
     4,
   );
-  const refused: ReturnType<typeof compileRecoveryEventDomain> =
-    compileRecoveryEventDomain(divided, { ...policy, maxPatches: 1 });
+  const refused: ReturnType<typeof compileAutoMovieRecoveryEventDomain> =
+    compileAutoMovieRecoveryEventDomain(divided, { ...policy, maxPatches: 1 });
   TestValidator.equals(
     "finite patch budget retains refusal",
     refused.complete,
@@ -132,7 +132,7 @@ export function test_geometry_recovery_event_domain(): void {
     throw new Error("Two native cells cannot fit one patch budget");
   TestValidator.equals("required cell denominator", refused.requiredPatches, 2);
   TestValidator.error("different corner coefficients refused", (): void => {
-    compileRecoveryEventDomain(
+    compileAutoMovieRecoveryEventDomain(
       {
         ...input,
         chart: { ...input.chart, left: E.line([0.01, 0, 0], c, "wrong-left") },

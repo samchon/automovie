@@ -4,8 +4,8 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { RecoveryLocalArtifact } from "../../../../tools/recovery/src/RecoveryLocalArtifact";
-import { writeRecoveryArtifact } from "../../../../tools/recovery/src/writeRecoveryArtifact";
+import { createAutoMovieRecoveryArtifact, writeAutoMovieRecoveryArtifact } from "@automovie/recovery/node";
+
 import { createBicubicPlaneRecipe } from "../internal/createBicubicPlaneRecipe";
 
 /**
@@ -50,8 +50,8 @@ export function test_geometry_artifact_publication(): void {
       numeric: [0, 1 / 3, -2],
       nested: { active: true, absent: null },
     };
-    const publication: ReturnType<typeof writeRecoveryArtifact> =
-      writeRecoveryArtifact(first, value);
+    const publication: ReturnType<typeof writeAutoMovieRecoveryArtifact> =
+      writeAutoMovieRecoveryArtifact(first, value);
     const bytes: Buffer = fs.readFileSync(first);
     TestValidator.equals(
       "exact plain JSON encoding",
@@ -71,7 +71,7 @@ export function test_geometry_artifact_publication(): void {
     TestValidator.predicate(
       "immutable overwrite refuses",
       refuses((): void => {
-        writeRecoveryArtifact(first, { replacement: true });
+        writeAutoMovieRecoveryArtifact(first, { replacement: true });
       }),
     );
     TestValidator.equals(
@@ -90,18 +90,18 @@ export function test_geometry_artifact_publication(): void {
     TestValidator.predicate(
       "cycle refuses after staged prefix",
       refuses((): void => {
-        writeRecoveryArtifact(failed, cycle);
+        writeAutoMovieRecoveryArtifact(failed, cycle);
       }),
     );
-    writeRecoveryArtifact(failed, { recovered: true });
+    writeAutoMovieRecoveryArtifact(failed, { recovered: true });
     TestValidator.equals(
       "failed destination retries cleanly",
       fs.readFileSync(failed).toString("utf8"),
       '{"recovered":true}',
     );
 
-    const fragmentPublication: ReturnType<typeof writeRecoveryArtifact> =
-      writeRecoveryArtifact(fragment, [1, 2, 3]);
+    const fragmentPublication: ReturnType<typeof writeAutoMovieRecoveryArtifact> =
+      writeAutoMovieRecoveryArtifact(fragment, [1, 2, 3]);
     const placeholder: unknown[] = [];
     const sources: Map<
       readonly unknown[],
@@ -112,13 +112,13 @@ export function test_geometry_artifact_publication(): void {
     TestValidator.predicate(
       "wrong fragment byte hash refuses",
       refuses((): void => {
-        writeRecoveryArtifact(assembled, { values: placeholder }, sources);
+        writeAutoMovieRecoveryArtifact(assembled, { values: placeholder }, sources);
       }),
     );
     sources.set(placeholder, [
       { path: fragment, sha256: fragmentPublication.sha256, items: 3 },
     ]);
-    writeRecoveryArtifact(assembled, { values: placeholder }, sources);
+    writeAutoMovieRecoveryArtifact(assembled, { values: placeholder }, sources);
     TestValidator.equals(
       "bound fragment preserves values",
       fs.readFileSync(assembled).toString("utf8"),
@@ -136,7 +136,7 @@ export function test_geometry_artifact_publication(): void {
       fs.unlinkSync(path.join(directory, name));
     fs.rmdirSync(directory);
   }
-  type Input = Parameters<typeof RecoveryLocalArtifact>[0];
+  type Input = Parameters<typeof createAutoMovieRecoveryArtifact>[0];
   const mesh: Input["spool"]["mesh"] = {
     positions: [0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0],
     indices: [0, 1, 2, 0, 2, 3],
@@ -251,10 +251,10 @@ export function test_geometry_artifact_publication(): void {
   };
   const coverage: (
     value: Input,
-  ) => ReturnType<typeof RecoveryLocalArtifact>["coverage"] = (
+  ) => ReturnType<typeof createAutoMovieRecoveryArtifact>["coverage"] = (
     value: Input,
-  ): ReturnType<typeof RecoveryLocalArtifact>["coverage"] =>
-    RecoveryLocalArtifact(value).coverage;
+  ): ReturnType<typeof createAutoMovieRecoveryArtifact>["coverage"] =>
+    createAutoMovieRecoveryArtifact(value).coverage;
   TestValidator.predicate(
     "complete finite declared domain",
     coverage(input).attemptComplete &&

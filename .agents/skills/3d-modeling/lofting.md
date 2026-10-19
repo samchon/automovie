@@ -2,9 +2,11 @@
 
 Choose the [representation](crafting.md#representation) by the form and organize ownership by [Modularization](modularization.md).
 
+For a fixed mesh or ordered line source, follow [Recovery](recovery.md) before fitting the section family.
+
 ## One Section Family
 
-Define one section family in the part's local frame from independent [dimensions](crafting.md#dimensions) and physical stations. Derive Bezier or oval spans from corresponding feature parameters, constrain their joins, and derive guides from that section family.
+Define one section family in the part's local frame from independent [dimensions](crafting.md#dimensions) and physical stations. Derive supported curve spans from corresponding feature parameters, constrain their joins, and derive guides from that section family.
 
 Reconcile measured guide intersections before interpolation, using sections and obliques alongside front and side envelopes. Distinguish the generating operator's interpolation waypoints, control points and evaluated points.
 
