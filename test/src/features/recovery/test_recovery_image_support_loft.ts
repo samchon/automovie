@@ -1,4 +1,4 @@
-import { evaluateAutoMovieSupportSection } from "@automovie/engine/geometry/evaluateAutoMovieSupportSection";
+import { createAutoMovieSupportSectionQuery } from "@automovie/engine/geometry/createAutoMovieSupportSectionQuery";
 import type {
   IAutoMovieRecoveryImageObservation,
   IAutoMovieRecoverySupportLoft,
@@ -103,6 +103,14 @@ export function test_recovery_image_support_loft(): void {
       );
     if (!("value" in reserve)) throw new Error(reserve.diagnostics.join("; "));
     const recipe: IAutoMovieRecoverySupportLoft = fitted.value.recipe;
+    const query: ReturnType<typeof createAutoMovieSupportSectionQuery> =
+      createAutoMovieSupportSectionQuery({
+        normals: recipe.loft.planes.map(
+          (p: (typeof recipe.loft.planes)[number]): [number, number] =>
+            p.normal,
+        ),
+        minimumDirectionSine: 0.0001,
+      });
     for (const view of reserve.value.views)
       for (const row of view.rows.filter(
         (_: (typeof view.rows)[number], i: number): boolean => i % 37 === 0,
@@ -111,21 +119,15 @@ export function test_recovery_image_support_loft(): void {
         const t: number =
           (row.yMm * 0.001 - field.interval[0]) /
           (field.interval[1] - field.interval[0]);
-        const vertices: ReturnType<typeof evaluateAutoMovieSupportSection> =
-          evaluateAutoMovieSupportSection({
-            normals: recipe.loft.planes.map(
-              (p: (typeof recipe.loft.planes)[number]): [number, number] =>
-                p.normal,
-            ),
-            offsets: field.offsets.map(
-              (q: number[]): number =>
-                q[0] * (1 - t) ** 3 +
-                3 * q[1] * t * (1 - t) ** 2 +
-                3 * q[2] * t * t * (1 - t) +
-                q[3] * t ** 3,
-            ),
-            minimumDirectionSine: 0.0001,
-          });
+        const vertices: ReturnType<typeof query> = query(
+          field.offsets.map(
+            (q: number[]): number =>
+              q[0] * (1 - t) ** 3 +
+              3 * q[1] * t * (1 - t) ** 2 +
+              3 * q[2] * t * t * (1 - t) +
+              q[3] * t ** 3,
+          ),
+        );
         const projections: number[] = vertices.map(
           (v: (typeof vertices)[number]): number =>
             1000 *

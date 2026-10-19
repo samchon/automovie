@@ -82,3 +82,4 @@ export * from "./integrateAutoMovieRadialField";
 export * from "./admitAutoMovieBicubicAtlas";
 export * from "./realizeAutoMovieBicubicAtlas64";
 export * from "./realizeAutoMovieGeometry";
+export * from "./createAutoMovieSupportSectionQuery";

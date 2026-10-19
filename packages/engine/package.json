@@ -22,7 +22,8 @@
     "./geometry/createAutoMovieEllipticLoftAtlas": "./src/geometry/createAutoMovieEllipticLoftAtlas.ts",
     "./geometry/curve/compileAutoMovieNormalizedPhases64": "./src/geometry/curve/compileAutoMovieNormalizedPhases64.ts",
     "./geometry/realizeAutoMovieConvexSupportLoft": "./src/geometry/realizeAutoMovieConvexSupportLoft.ts",
-    "./geometry/evaluateAutoMovieSupportSection": "./src/geometry/evaluateAutoMovieSupportSection.ts"
+    "./geometry/evaluateAutoMovieSupportSection": "./src/geometry/evaluateAutoMovieSupportSection.ts",
+    "./geometry/createAutoMovieSupportSectionQuery": "./src/geometry/createAutoMovieSupportSectionQuery.ts"
   },
   "scripts": {
     "build": "rimraf lib && ttsc",
@@ -122,6 +123,10 @@
       "./geometry/evaluateAutoMovieSupportSection": {
         "types": "./lib/geometry/evaluateAutoMovieSupportSection.d.ts",
         "default": "./lib/geometry/evaluateAutoMovieSupportSection.js"
+      },
+      "./geometry/createAutoMovieSupportSectionQuery": {
+        "types": "./lib/geometry/createAutoMovieSupportSectionQuery.d.ts",
+        "default": "./lib/geometry/createAutoMovieSupportSectionQuery.js"
       }
     },
     "typesVersions": {
@@ -176,6 +181,9 @@
         ],
         "geometry/evaluateAutoMovieSupportSection": [
           "lib/geometry/evaluateAutoMovieSupportSection.d.ts"
+        ],
+        "geometry/createAutoMovieSupportSectionQuery": [
+          "lib/geometry/createAutoMovieSupportSectionQuery.d.ts"
         ]
       }
     }
@@ -243,6 +251,9 @@
       ],
       "geometry/evaluateAutoMovieSupportSection": [
         "src/geometry/evaluateAutoMovieSupportSection.ts"
+      ],
+      "geometry/createAutoMovieSupportSectionQuery": [
+        "src/geometry/createAutoMovieSupportSectionQuery.ts"
       ]
     }
   }

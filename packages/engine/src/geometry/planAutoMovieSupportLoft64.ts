@@ -2,9 +2,9 @@ import type { IAutoMovieConvexSupportLoft } from "@automovie/interface";
 
 import { determinantAutoMovieMatrix3 } from "../math/determinantAutoMovieMatrix3";
 import type { IAutoMovieSupportLoftPlan64 } from "./IAutoMovieSupportLoftPlan64";
+import { createAutoMovieSupportSectionQuery } from "./createAutoMovieSupportSectionQuery";
 import { AutoMovieBernsteinAlgebra64 as B } from "./curve/AutoMovieBernsteinAlgebra64";
 import { rootsAutoMovieCubicBernstein64 } from "./curve/rootsAutoMovieCubicBernstein64";
-import { evaluateAutoMovieSupportSection } from "./evaluateAutoMovieSupportSection";
 
 /**
  * Plan continuous plane-pair boundary curves and feasible incidence events.
@@ -41,6 +41,11 @@ export function planAutoMovieSupportLoft64(input: {
     events: 0,
     tolerance: input.tolerance,
   };
+  const query: ReturnType<typeof createAutoMovieSupportSectionQuery> =
+    createAutoMovieSupportSectionQuery({
+      normals,
+      minimumDirectionSine: input.minimumDirectionSine,
+    });
   let cells: number = 0;
   for (const field of input.loft.spans) {
     const span: IAutoMovieSupportLoftPlan64["spans"][number] = {
@@ -55,11 +60,7 @@ export function planAutoMovieSupportLoft64(input: {
     };
     const scale: number = Math.max(...field.offsets.flat().map(Math.abs));
     for (const phase of [0, 1])
-      evaluateAutoMovieSupportSection({
-        normals,
-        offsets: field.offsets.map((q: number[]): number => B.scalar(q, phase)),
-        minimumDirectionSine: input.minimumDirectionSine,
-      });
+      query(field.offsets.map((q: number[]): number => B.scalar(q, phase)));
     for (let i: number = 0; i < normals.length; i++)
       for (let j: number = i + 1; j < normals.length; j++) {
         const a: readonly [number, number] = normals[i];
@@ -212,14 +213,9 @@ export function planAutoMovieSupportLoft64(input: {
         throw new Error(
           "unresolved-support-events: interval midpoint is unrepresentable",
         );
-      const section: ReturnType<typeof evaluateAutoMovieSupportSection> =
-        evaluateAutoMovieSupportSection({
-          normals,
-          offsets: field.offsets.map((q: number[]): number =>
-            B.scalar(q, middle),
-          ),
-          minimumDirectionSine: input.minimumDirectionSine,
-        });
+      const section: ReturnType<typeof query> = query(
+        field.offsets.map((q: number[]): number => B.scalar(q, middle)),
+      );
       const pairs: string[] = section.map(
         (vertex: (typeof section)[number]): string => vertex.pair.join(":"),
       );

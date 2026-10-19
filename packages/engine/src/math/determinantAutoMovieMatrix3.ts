@@ -1,3 +1,12 @@
+const PRODUCTS: readonly (readonly [number, number, number, number])[] = [
+  [0, 4, 8, 1],
+  [1, 5, 6, 1],
+  [2, 3, 7, 1],
+  [2, 4, 6, -1],
+  [1, 3, 8, -1],
+  [0, 5, 7, -1],
+];
+
 /**
  * Evaluate a finite row-major 3 by 3 determinant with an exact-sign fallback.
  * A conservative forward-error filter accepts a separated binary64 value.
@@ -12,8 +21,8 @@
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No determinant epsilon replacement, guessed zero, coordinate weld or fixture-specific sign is returned. Nonfinite input and unrepresentable nonzero magnitudes refuse.
  * @evidence contracts/common.md#meaningful-documentation States row-major ordering, adaptive versus exact-sign paths, rounded magnitude, binary64 input meaning and underflow/overflow refusal.
  * @evidence contracts/performance.md#efficient-algorithms A fixed-size filter is constant work. The fallback multiplies six fixed-count binary64 mantissas and aligns a bounded exponent range, so BigInt work/storage are bounded by the input format rather than geometry size.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work The pure scalar query reads nine supplied values once and retains no cross-query cache.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Only one number escapes; the optional eight-byte view, six integer terms and aligned sum expire synchronously without handles or global state.
+ * @evidence contracts/performance.md#reuse-equivalent-work The six module-private Leibniz permutation/sign tuples are fixed mathematical constants reused across queries; no input-dependent result survives or requires invalidation.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only one number escapes; the optional eight-byte view, six integer terms and aligned sum expire synchronously. The fixed six-entry mathematical index table is module-owned, without handles or global input-dependent state.
  */
 export function determinantAutoMovieMatrix3(matrix: readonly number[]): number {
   if (
@@ -23,18 +32,10 @@ export function determinantAutoMovieMatrix3(matrix: readonly number[]): number {
     )
   )
     throw new Error("A complete finite row-major 3 by 3 matrix is required");
-  const products: [number, number, number, number][] = [
-    [0, 4, 8, 1],
-    [1, 5, 6, 1],
-    [2, 3, 7, 1],
-    [2, 4, 6, -1],
-    [1, 3, 8, -1],
-    [0, 5, 7, -1],
-  ];
   const terms: number[] = [];
   const minimumNormal: number = 2 ** -1022;
   let filterSafe: boolean = true;
-  for (const indices of products) {
+  for (const indices of PRODUCTS) {
     const a: number = matrix[indices[0]],
       b: number = matrix[indices[1]],
       c: number = matrix[indices[2]];
@@ -85,7 +86,7 @@ export function determinantAutoMovieMatrix3(matrix: readonly number[]): number {
     };
   };
   const exact: { integer: bigint; exponent: number }[] = [];
-  for (const indices of products) {
+  for (const indices of PRODUCTS) {
     const factors: { integer: bigint; exponent: number }[] = indices
       .slice(0, 3)
       .map((i: number): { integer: bigint; exponent: number } =>
