@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import type { IAutoMovieRecoveryRegistration } from "@automovie/interface/recovery";
 
 import type { AutoMovieRecoveryMeshSections as R } from "../../internal/AutoMovieRecoveryMeshSections";
 import { AutoMovieRecoveryOpenContinuation as O } from "../../internal/AutoMovieRecoveryOpenContinuation";
@@ -63,10 +64,10 @@ export function recoveryOpen(args: string[], sourceEpoch: string): void {
     };
     const bundle: R.Bundle & {
       provenance: { inputHash: string; sourceEpoch: string };
-      registration: { units: string; frame: string; pose: string };
+      registration: IAutoMovieRecoveryRegistration | { units: string; frame: string; pose: string };
     } = saved.value as R.Bundle & {
       provenance: { inputHash: string; sourceEpoch: string };
-      registration: { units: string; frame: string; pose: string };
+      registration: IAutoMovieRecoveryRegistration | { units: string; frame: string; pose: string };
     };
     if (
       spec.units !== "mm" ||
@@ -76,7 +77,7 @@ export function recoveryOpen(args: string[], sourceEpoch: string): void {
       bundle.provenance.inputHash !== registered.sha256 ||
       bundle.registration.units !== spec.units ||
       bundle.registration.frame !== spec.frame ||
-      bundle.registration.pose !== spec.pose
+      ("evaluatedPose" in bundle.registration ? bundle.registration.evaluatedPose : bundle.registration.pose) !== spec.pose
     )
       throw new Error(
         "The saved curve publication must bind these exact fixed source and registration bytes",
@@ -213,4 +214,3 @@ export function recoveryOpen(args: string[], sourceEpoch: string): void {
     writeAutoMovieRecoveryArtifact(output, artifact);
   console.log(JSON.stringify({ file: output, ...publication }));
 }
-

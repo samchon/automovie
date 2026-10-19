@@ -234,7 +234,7 @@ export function RecoveryAtlasObservationPublish(context: {
       unknownControls: fit.joint.unknownControls,
       physicalJetRows: fit.joint.physicalJetRows,
       iterations: fit.joint.iterations,
-      
+
     });
   }
   let assembly:

@@ -13,10 +13,11 @@ import { nclose } from "../internal/nclose";
  * 2. Every boundary edge belongs to one of the two known square ends.
  * 3. A disjoint unsupported domain retains the valid surface and reports partial.
  * 4. Explicit prefix coverage remains partial even with successful retained geometry.
+ * 5. Malformed local incidence or analytic metadata cannot erase the independent valid surface.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls the public source-free reconstruction API and measures generated indexed triangles, finite physical positions, side area, directed edge incidence, exposed end perimeter, retained primitive ownership and input nonmutation. A missing wall, invented cap, dropped independent domain or false complete terminal fails.
  * @evidence contracts/testing.md#independent-expectations Authored linear Bernstein controls define two 3-mm squares separated by 2 mm; four rectangular walls give 24e-6 m² and the two open ends give 24e-3 m of boundary. Edge incidence follows an uncapped annulus independently of triangulation choice; this does not prove arbitrary surface embedding or appearance.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts complete declared continuation with a separate unsupported group and incomplete prefix metadata while preserving the same valid domain. Assertions allow adaptive subdivisions and render-vertex duplication, avoiding exact triangle counts and generated snapshots. Terminal refusal, cancellation and observer failure belong to test_recovery_public_lifecycle.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts complete declared continuation with a separate unsupported group, incomplete prefix and malformed local incidence or analytic metadata while preserving the same valid domain. Assertions allow adaptive subdivisions and render-vertex duplication, avoiding exact triangle counts and generated snapshots. Terminal refusal, cancellation and observer failure belong to test_recovery_public_lifecycle.
  * @evidence contracts/testing.md#execution-ownership The portable test_recovery_source_free entry owns small saved-coefficient fixtures and CPU measurements only, imports supported public packages and an existing scalar comparison helper, and opens no source, filesystem, process, renderer or native artifact. Central validation owns execution and the strict under-500-ms scenario budget.
  */
 export function test_recovery_source_free(): void {
@@ -143,7 +144,10 @@ export function test_recovery_source_free(): void {
     complete: false, plannedSections: 3, retainedSections: 2, sourceRangeMm: [0, 4],
     observedStationRangeMm: [0, 2], unobservedStationRangeMm: [2, 4], missingSourceRangeMm: [2, 4],
   } };
-  for (const input of [completeInput, partialInput, prefixInput]) {
+  const malformedGroup: Input = makeInput(false);
+  malformedGroup.loft.intervals![0]!.groups.push(JSON.parse('{"supported":true,"reason":null}'));
+  const malformedDomain: Input = { ...makeInput(false), analyticDomains: [JSON.parse('{"id":"malformed-domain"}')] };
+  for (const input of [completeInput, partialInput, prefixInput, malformedGroup, malformedDomain]) {
     const original: string = JSON.stringify(input);
     const result: ReturnType<typeof reconstructAutoMovieRecoveryModel> = reconstructAutoMovieRecoveryModel(input);
     TestValidator.equals("declared coverage determines terminal", result.status, input === completeInput ? "complete" : "partial");
@@ -154,6 +158,18 @@ export function test_recovery_source_free(): void {
           nclose(record.beforeMm, 0, 1e-12) && nclose(record.afterMm, 2, 1e-12) &&
           record.reason === "General domain intentionally unsupported",
       ));
+    if (input === malformedGroup && "value" in result) {
+      const member: (typeof result.value.membership.members)[number] | undefined = result.value.membership.members.find(
+        (record: (typeof result.value.membership.members)[number]): boolean => record.id === "closed-group:0:1",
+      );
+      TestValidator.predicate("malformed group keeps its declared identity without inventing curve names", member !== undefined && member.curves.length === 0 && member.diagnostics.length > 0 && member.attempted === null);
+    }
+    if (input === malformedDomain && "value" in result) {
+      const member: (typeof result.value.membership.members)[number] | undefined = result.value.membership.members.find(
+        (record: (typeof result.value.membership.members)[number]): boolean => record.kind === "analytic-domain",
+      );
+      TestValidator.predicate("unobserved analytic generation remains unknown after local refusal", member !== undefined && member.admitted === false && member.attempted === null && member.curves.length === 0 && member.emitted.length === 0);
+    }
     TestValidator.equals("saved coefficient authority is unchanged", JSON.stringify(input), original);
   }
 }

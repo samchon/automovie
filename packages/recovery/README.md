@@ -38,7 +38,7 @@ The Node writer stages in the destination directory, closes the staging file and
 
 ## Commands and saved documents
 
-The installed executable is `automovie-recovery`. Its `--help` lists the `recovery`, `recoveryOpen`, `recoveryLocal`, `recoveryAtlas` and `recoveryContourPath` command families. Commands require an explicit `--source-epoch` generating commit hash. Exit code 0 means processing ended, 2 means command admission failed, and 1 means execution failed; inspect operation and coverage diagnostics before treating an artifact as complete.
+The installed executable is `automovie-recovery`. Its `--help` lists the `recovery`, `recoveryOpen`, `recoveryLocal`, `recoveryAtlas` and `recoveryContourPath` command families. Commands require an explicit `--source-epoch` generating commit hash. Exit code 0 means processing ended, 2 rejects an unknown command family or malformed source-epoch option, and 1 reports a delegated command or input failure; inspect operation and coverage diagnostics before treating an artifact as complete.
 
 The primary command accepts the saved curve schema `automovie-recovery-curves-v1` and publishes `automovie-recovery-model-v1`. Continuation and atlas documents retain their own versioned schemas. Historical local/open model discriminators remain readable baseline compatibility fields and do not select a Human generator. Repository command shims under `tools/recovery` retain the old `RUN_SOURCE_EPOCH` environment handoff; installed consumers use the explicit option.
 

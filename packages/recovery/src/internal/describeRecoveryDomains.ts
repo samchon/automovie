@@ -38,12 +38,12 @@ export function describeRecoveryDomains(
   }
   for (const range of result.primitiveRanges) {
     const declared: number[] | undefined = intervals.get(JSON.stringify([range.beforeMm, range.afterMm]));
-    const owner: NonNullable<typeof input.loft.intervals>[number] | undefined = declared?.length === 1 ? input.loft.intervals?.[declared[0]!] : undefined;
-    if (owner === undefined || owner.groups[range.group] === undefined) {
+    const interval: number | undefined = declared?.length === 1 ? declared[0] : undefined;
+    const owner: NonNullable<typeof input.loft.intervals>[number] | undefined = interval === undefined ? undefined : input.loft.intervals?.[interval];
+    if (interval === undefined || owner === undefined || !Array.isArray(owner.groups) || owner.groups[range.group] === undefined) {
       unattributed.push({ part: "recovery.curve-loft", firstTriangle: range.firstTriangle, triangleCount: range.triangleCount, beforeMm: range.beforeMm, afterMm: range.afterMm, group: range.group });
       continue;
     }
-    const interval: number = declared[0]!;
     const key: string = `${interval}:${range.group}`;
     const list: Member["emitted"] = ranges.get(key) ?? [];
     list.push({ part: "recovery.curve-loft", firstTriangle: range.firstTriangle, triangleCount: range.triangleCount, patch: null });
@@ -60,27 +60,43 @@ export function describeRecoveryDomains(
     const id: string = `analytic-domain:${ordinal}:${report.id}`;
     const domain: NonNullable<typeof input.analyticDomains>[number] | undefined = input.analyticDomains?.[ordinal];
     if (report.admitted && domain) for (const address of domain.closedGroups) owners.set(`${address.interval}:${address.group}`, id);
-    members.push({ id, kind: "analytic-domain", address: null, curves: domain?.ports.map((port: NonNullable<typeof domain>["ports"][number]): string => port.curveName) ?? [], attempted: report.admitted, admitted: report.admitted, delegatedTo: null,
+    const curves: string[] = [];
+    if (Array.isArray(domain?.ports)) for (const port of domain.ports)
+      if (typeof port?.curveName === "string") curves.push(port.curveName);
+    members.push({ id, kind: "analytic-domain", address: null, curves, attempted: report.admitted ? true : null, admitted: report.admitted, delegatedTo: null,
       emitted: report.primitiveRanges.filter((range: (typeof report.primitiveRanges)[number]): boolean => range.triangleCount > 0).map((range: (typeof report.primitiveRanges)[number]): Member["emitted"][number] => ({ part: report.id, firstTriangle: range.firstTriangle, triangleCount: range.triangleCount, patch: range.patch })),
       written: "not-performed", loaded: "not-performed", diagnostics: report.diagnostics.slice() });
   }
-  for (const [interval, slab] of (input.loft.intervals ?? []).entries())
+  for (const [interval, slab] of (input.loft.intervals ?? []).entries()) {
+    if (!Array.isArray(slab.groups)) continue;
     for (const [group, declared] of slab.groups.entries()) {
       const key: string = `${interval}:${group}`;
       const emitted: Member["emitted"] = ranges.get(key) ?? [];
       const delegatedTo: string | null = owners.get(key) ?? null;
       const beforeSection: (typeof input.loft.sections)[number] | undefined = savedSections.get(slab.beforeMm);
       const afterSection: (typeof input.loft.sections)[number] | undefined = savedSections.get(slab.afterMm);
-      const curves: string[] = [
-        ...declared.before.map((loop: number): string => beforeSection?.loops[loop]?.curve.name ?? `unresolved-before:${loop}`),
-        ...declared.after.map((loop: number): string => afterSection?.loops[loop]?.curve.name ?? `unresolved-after:${loop}`),
-      ];
+      const curves: string[] = [];
+      const diagnostics: string[] = typeof declared?.reason === "string" ? [declared.reason] : [];
+      for (const side of [0, 1] as const) {
+        const ids: readonly number[] | undefined = side === 0 ? declared?.before : declared?.after;
+        const section: typeof beforeSection = side === 0 ? beforeSection : afterSection;
+        if (!Array.isArray(ids)) {
+          diagnostics.push(`Declared side ${side} incidence is unavailable; no coefficient identity is inferred`);
+          continue;
+        }
+        for (const loop of ids) {
+          const name: string | undefined = Number.isSafeInteger(loop) && loop >= 0 ? section?.loops[loop]?.curve.name : undefined;
+          if (name !== undefined) curves.push(name);
+          else diagnostics.push(`Declared side ${side} loop ${String(loop)} has no saved coefficient identity`);
+        }
+      }
       members.push({ id: `closed-group:${interval}:${group}`, kind: "closed-group", address: { interval, group }, curves,
-        attempted: delegatedTo !== null ? null : !declared.supported ? false : emitted.length > 0 ? true : null,
-        admitted: delegatedTo !== null || emitted.length > 0 ? true : !declared.supported ? false : null,
+        attempted: delegatedTo !== null ? null : declared?.supported === false ? false : emitted.length > 0 ? true : null,
+        admitted: delegatedTo !== null || emitted.length > 0 ? true : declared?.supported === false ? false : null,
         delegatedTo, emitted, written: "not-performed", loaded: "not-performed",
-        diagnostics: declared.reason === null ? [] : [declared.reason] });
+        diagnostics });
     }
+  }
   for (const [section, report] of input.reports.entries())
     for (const [arc, observed] of report.open.entries())
       members.push({ id: `open-course:${section}:${arc}`, kind: "open-course", address: null, curves: [observed.curve.name], attempted: false, admitted: false,
@@ -93,9 +109,11 @@ export function describeRecoveryDomains(
     for (const side of [0, 1] as const) {
       const section: typeof before = side === 0 ? before : after;
       const claimed: Set<number> = new Set();
-      if (declared?.length === 1)
-        for (const group of input.loft.intervals![declared[0]!]!.groups)
-          for (const ordinal of side === 0 ? group.before : group.after) claimed.add(ordinal);
+      const groups: NonNullable<typeof input.loft.intervals>[number]["groups"] | undefined = declared?.length === 1 ? input.loft.intervals?.[declared[0]!]?.groups : undefined;
+      if (Array.isArray(groups)) for (const group of groups) {
+        const ids: readonly number[] | undefined = side === 0 ? group?.before : group?.after;
+        if (Array.isArray(ids)) for (const ordinal of ids) if (Number.isSafeInteger(ordinal) && ordinal >= 0) claimed.add(ordinal);
+      }
       for (const [loop, saved] of section.loops.entries())
         if (!claimed.has(loop)) members.push({ id: `unassigned-boundary:${interval}:${side}:${loop}`, kind: "unassigned-boundary", address: null, curves: [saved.curve.name], attempted: null, admitted: false, delegatedTo: null, emitted: [], written: "not-performed", loaded: "not-performed", diagnostics: ["No unique declared adjacent group owns this saved boundary occurrence"] });
     }

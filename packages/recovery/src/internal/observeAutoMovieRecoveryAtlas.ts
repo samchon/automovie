@@ -463,7 +463,7 @@ export function observeAutoMovieRecoveryAtlas(
       charts: charts.length,
       patches: patches.length,
       unsupportedComponents,
-      
+
     });
   }
   return RecoveryAtlasObservationPublish({
