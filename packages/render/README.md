@@ -14,3 +14,4 @@ npm install @automovie/render
 | --- | --- |
 | `@automovie/render` | Frame and sequence planning (`planSequenceRender`, `frameTimes`, `ffmpegArgs`), adapter-driven rendering (`renderVideo`, `renderSequenceVideo`), and the render-budget preflight (`assessAutoMovieRenderBudget`); safe in a browser bundle |
 | `@automovie/render/node` | Node-only edges such as `exportModelToGLB` |
+| `@automovie/render/node/chrome` | `DEFAULT_CHROME_EXECUTABLE`, the `CHROME` environment override or platform preference, without loading model export and media orchestration |
