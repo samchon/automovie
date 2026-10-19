@@ -142,6 +142,89 @@ export namespace AutoMovieCurveMath64 {
   ];
 
   /**
+   * Convert exactly four cubic Bernstein controls to endpoint Hermite data on a
+   * positive finite chart width. Derivatives are dP/ds, not unit directions or
+   * unit-parameter derivatives. Endpoints and derivatives own fresh triples.
+   * The inverse is algebraic in real arithmetic; finite evaluation does not
+   * promise bitwise round trips or recover handles already lost to rounding.
+   * Nonfinite input, a noncubic net and unresolved binary64 derivatives throw.
+   * Existing endpoint evaluation is tried first, then fixed equivalent quotient
+   * orders for unresolved components. This is not an arbitrary-precision
+   * guarantee for every mathematically representable derivative.
+   *
+   * @evidence contracts/common.md#principled-implementation Cubic endpoint derivatives are 3(B1-B0)/dy and 3(B3-B2)/dy. Positive finite dy selects the same chart convention as hermite; no fit, normalization or degree reduction supplies missing information.
+   * @evidence contracts/common.md#clear-and-simple-design One endpoint record is the inverse input of hermite. It reuses the existing derivative evaluator before finite endpoint-specific quotient orders; the existing evaluator keeps its original arithmetic and admission.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Exactly four finite three-component controls are required. A quartic is not truncated and zero derivatives remain zero rather than becoming invented unit tangents.
+   * @evidence contracts/common.md#meaningful-documentation States derivative units, width admission, fresh ownership, finite arithmetic failures and the absence of bitwise or higher-degree equivalence claims.
+   * @evidence contracts/performance.md#efficient-algorithms Two endpoint differences and four fixed three-component outputs cost O(1) work and storage.
+   * @evidence contracts/performance.md#reuse-equivalent-work Existing cubic derivative evaluation supplies the ordinary endpoint result. Only unresolved components try equivalent finite quotient orders, without parameter sampling or fitting.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Four new vectors belong to the returned record, including when input endpoints alias; source arrays and cross-call state are not retained.
+   */
+  export function toHermite(
+    span: readonly (readonly number[])[],
+    dy: number,
+  ): { start: V; end: V; startDerivative: V; endDerivative: V } {
+    if (!(dy > 0 && Number.isFinite(dy)))
+      throw new Error(
+        "A positive finite cubic Hermite chart width is required",
+      );
+    if (
+      span.length !== 4 ||
+      ![0, 1, 2, 3].every(
+        (i: number): boolean =>
+          Object.hasOwn(span, i) &&
+          Array.isArray(span[i]) &&
+          span[i]!.length === 3 &&
+          [0, 1, 2].every(
+            (axis: number): boolean =>
+              Object.hasOwn(span[i]!, axis) && Number.isFinite(span[i]![axis]),
+          ),
+      )
+    )
+      throw new Error(
+        "Exactly four finite three-component cubic Bernstein controls are required",
+      );
+    return {
+      start: clone(span[0]!),
+      end: clone(span[3]!),
+      startDerivative: endpointDerivative(span as readonly V[], 0, dy),
+      endDerivative: endpointDerivative(span as readonly V[], 1, dy),
+    };
+  }
+
+  /**
+   * Reuse ordinary endpoint evaluation on an already admitted cubic, then try
+   * endpoint-specific quotient orders only for unresolved components. Inactive
+   * zero-times-overflow terms in the old polynomial formula therefore do not
+   * reject a finite endpoint difference. A remaining nonfinite result or loss
+   * of a nonzero difference to zero refuses conversion. These fixed binary64
+   * orders are not an arbitrary-precision representability decision procedure.
+   * The public conversion comment owns this private helper's Evidence answers.
+   */
+  function endpointDerivative(
+    span: readonly V[],
+    endpoint: 0 | 1,
+    dy: number,
+  ): V {
+    const ordinary: V = derivative(span, endpoint, dy);
+    const a: V = span[endpoint === 0 ? 0 : 2]!,
+      b: V = span[endpoint === 0 ? 1 : 3]!;
+    return [0, 1, 2].map((axis: number): number => {
+      const delta: number = b[axis]! - a[axis]!;
+      let value: number = ordinary[axis]!;
+      if (!Number.isFinite(value) || (value === 0 && a[axis] !== b[axis]))
+        value = (3 * delta) / dy;
+      if (!Number.isFinite(value) || (value === 0 && a[axis] !== b[axis]))
+        value = 3 * (delta / dy);
+      if (!Number.isFinite(value) || (value === 0 && a[axis] !== b[axis]))
+        value = 3 * (b[axis]! / dy - a[axis]! / dy);
+      if (!Number.isFinite(value) || (value === 0 && a[axis] !== b[axis]))
+        throw new Error("Cubic endpoint derivative is unresolved in binary64");
+      return value;
+    }) as V;
+  }
+
+  /**
    * Evaluate the four-coefficient cubic Bernstein formula at dimensionless t; the caller owns range checks and the coefficient units.
    *
    * @evidence contracts/common.md#principled-implementation Evaluates the four cubic Bernstein basis terms in the retained arithmetic order.
@@ -165,7 +248,7 @@ export namespace AutoMovieCurveMath64 {
     ) as V;
 
   /**
-   * Evaluate the cubic derivative divided by dy, yielding derivative per physical or phase unit rather than per unit t; callers must supply nonzero chart width.
+   * Evaluate the cubic derivative divided by dy, yielding derivative per physical or phase unit rather than per unit t; callers must supply nonzero chart width. Signed widths and extrapolated t retain the same basis arithmetic. This evaluator adds no admission or finite-result exception; inverse conversion separately admits its stricter endpoint record.
    *
    * @evidence contracts/common.md#principled-implementation Differentiates the cubic Bernstein terms and divides by the supplied chart width.
    * @evidence contracts/common.md#clear-and-simple-design The physical-width scale stays with derivative evaluation.
