@@ -14,6 +14,10 @@ export { applyAutoMovieRecoveryAnalyticPublication } from "./internal/applyAutoM
 export { transportAutoMovieRecoveryObservationChart } from "./internal/transportAutoMovieRecoveryObservationChart";
 export { compileAutoMovieRecoveryAtlas } from "./internal/compileAutoMovieRecoveryAtlas";
 export { observeAutoMovieRecovery } from "./observeAutoMovieRecovery";
+export { observeAutoMovieRecoveryImages } from "./observeAutoMovieRecoveryImages";
+export { fitAutoMovieRecoveryImageLoft } from "./fitAutoMovieRecoveryImageLoft";
+export { compileAutoMovieRecoveryImageLoft } from "./compileAutoMovieRecoveryImageLoft";
+export type { IAutoMovieRecoveryImageFit } from "./IAutoMovieRecoveryImageFit";
 export { reconstructAutoMovieRecoveryModel } from "./reconstructAutoMovieRecoveryModel";
 export type { IAutoMovieRecoveryOperation } from "./IAutoMovieRecoveryOperation";
 export { prepareAutoMovieRecoveryInput } from "./prepareAutoMovieRecoveryInput";

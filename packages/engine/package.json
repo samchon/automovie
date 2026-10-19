@@ -19,6 +19,7 @@
     "./validation/channelValueWidth": "./src/validation/channelValueWidth.ts",
     "./geometry/curve": "./src/geometry/curve/index.ts",
     "./geometry/realizeAutoMovieBicubicAtlas64": "./src/geometry/realizeAutoMovieBicubicAtlas64.ts",
+    "./geometry/createAutoMovieEllipticLoftAtlas": "./src/geometry/createAutoMovieEllipticLoftAtlas.ts",
     "./geometry/curve/compileAutoMovieNormalizedPhases64": "./src/geometry/curve/compileAutoMovieNormalizedPhases64.ts"
   },
   "scripts": {
@@ -104,6 +105,10 @@
         "types": "./lib/geometry/realizeAutoMovieBicubicAtlas64.d.ts",
         "default": "./lib/geometry/realizeAutoMovieBicubicAtlas64.js"
       },
+      "./geometry/createAutoMovieEllipticLoftAtlas": {
+        "types": "./lib/geometry/createAutoMovieEllipticLoftAtlas.d.ts",
+        "default": "./lib/geometry/createAutoMovieEllipticLoftAtlas.js"
+      },
       "./geometry/curve/compileAutoMovieNormalizedPhases64": {
         "types": "./lib/geometry/curve/compileAutoMovieNormalizedPhases64.d.ts",
         "default": "./lib/geometry/curve/compileAutoMovieNormalizedPhases64.js"
@@ -149,6 +154,9 @@
         ],
         "geometry/realizeAutoMovieBicubicAtlas64": [
           "lib/geometry/realizeAutoMovieBicubicAtlas64.d.ts"
+        ],
+        "geometry/createAutoMovieEllipticLoftAtlas": [
+          "lib/geometry/createAutoMovieEllipticLoftAtlas.d.ts"
         ],
         "geometry/curve/compileAutoMovieNormalizedPhases64": [
           "lib/geometry/curve/compileAutoMovieNormalizedPhases64.d.ts"
@@ -207,6 +215,9 @@
       ],
       "geometry/realizeAutoMovieBicubicAtlas64": [
         "src/geometry/realizeAutoMovieBicubicAtlas64.ts"
+      ],
+      "geometry/createAutoMovieEllipticLoftAtlas": [
+        "src/geometry/createAutoMovieEllipticLoftAtlas.ts"
       ],
       "geometry/curve/compileAutoMovieNormalizedPhases64": [
         "src/geometry/curve/compileAutoMovieNormalizedPhases64.ts"

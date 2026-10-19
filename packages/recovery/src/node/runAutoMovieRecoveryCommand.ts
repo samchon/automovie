@@ -1,6 +1,7 @@
 import { recovery } from "./internal/recovery";
 import { recoveryAtlas } from "./internal/recoveryAtlas";
 import { recoveryContourPath } from "./internal/recoveryContourPath";
+import { recoveryImages } from "./internal/recoveryImages";
 import { recoveryLocal } from "./internal/recoveryLocal";
 import { recoveryOpen } from "./internal/recoveryOpen";
 
@@ -24,7 +25,8 @@ export async function runAutoMovieRecoveryCommand(
 ): Promise<number> {
   if (args.length === 0 || args[0] === "--help") {
     console.log(
-      "automovie-recovery <recovery|recoveryOpen|recoveryLocal|recoveryAtlas|recoveryContourPath> --source-epoch <git-or-source-sha> <arguments>\n" +
+      "automovie-recovery <recovery|recoveryOpen|recoveryLocal|recoveryAtlas|recoveryContourPath|images> --source-epoch <git-or-source-sha> <arguments>\n" +
+        "images: observe|fit|realize input.json new-output.json maxInputBytes\n" +
         "recovery: extract|extract-prefix|reconstruct input.json output.json [prefixSections]\n" +
         "recoveryOpen: observe spec.json curves.json graph.json | reconstruct curves.json graph.json model.json\n" +
         "recoveryLocal: curves.json graph.json model.json ruled|quadratic [final-only|final-only-gzip] [analytic.json]\n" +
@@ -54,6 +56,7 @@ export async function runAutoMovieRecoveryCommand(
       "recoveryLocal",
       "recoveryAtlas",
       "recoveryContourPath",
+      "images",
     ].includes(command ?? "")
   ) {
     console.error(
@@ -81,6 +84,9 @@ export async function runAutoMovieRecoveryCommand(
         break;
       case "recoveryContourPath":
         recoveryContourPath(parameters, sourceEpoch);
+        break;
+      case "images":
+        recoveryImages(parameters, sourceEpoch);
         break;
     }
     return 0;

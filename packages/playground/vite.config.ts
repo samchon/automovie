@@ -33,6 +33,7 @@ export default defineConfig({
         impact: resolve(__dirname, "impact.html"),
         trampoline: resolve(__dirname, "trampoline.html"),
         human: resolve(__dirname, "human.html"),
+        recovery: resolve(__dirname, "recovery.html"),
       },
     },
   },

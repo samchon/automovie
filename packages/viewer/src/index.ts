@@ -1,4 +1,7 @@
 export * from "./analysisOverlay.js";
+export * from "./buildAutoMovieConstruction.js";
+export * from "./createAutoMovieMetricOrthographicCamera.js";
+export * from "./captureAutoMovieMetricFrame.js";
 export * from "./AutoMovieTextureCache.js";
 export * from "./collectAutoMovieOwnedResources.js";
 export * from "./createAutoMovieResourceRetirement.js";
