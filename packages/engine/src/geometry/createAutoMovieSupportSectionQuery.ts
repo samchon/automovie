@@ -16,7 +16,7 @@ import { determinantAutoMovieMatrix3 } from "../math/determinantAutoMovieMatrix3
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No offset result, coordinate weld, source geometry or specimen condition supplies an intersection. Cached combinatorics are never accepted without all-plane feasibility, and every tight weak pair refuses even when absent from the seed. Copied directions cannot change through the caller's arrays.
  * @evidence contracts/common.md#meaningful-documentation States admitted unit/chart premises, copied direction ownership, cyclic certificate and fallback, offset independence, deferred weak refusal and caller-owned preparation lifetime.
  * @evidence contracts/performance.md#efficient-algorithms For P bounded planes, preparation costs and retains O(P squared) pair records. Each query preflights O(P squared) coordinates; a valid A-corner seed checks O(A P) inequalities plus its exact tight-pair incidences, while a failed seed costs O(P cubed) full enumeration. Query scratch is O(P squared); fixed determinants and rejected-corner allocations do not repeat.
- * @evidence contracts/performance.md#reuse-equivalent-work One caller-owned query reuses copied normals, exact nonparallel determinants and only the previous successful polygon's cyclic edge-pair indices. Every changing offset set recomputes all pair coordinates and proves current corner feasibility before reusing that combinatorics. Failure replaces the seed only after a successful full result; returned coordinates/incidence are fresh.
+ * @evidence contracts/performance.md#reuse-equivalent-work One caller-owned query reuses copied normals, exact nonparallel determinants, a numeric plane-pair index matrix and only the previous successful polygon's cyclic edge-pair indices. The matrix replaces repeated pair-string construction without changing registry/canonical order. Every changing offset set recomputes all pair coordinates and proves current corner feasibility before reusing that combinatorics. Failure replaces the seed only after a successful full result; returned coordinates/incidence are fresh.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned CPU closure retains O(P squared) fixed direction records and at most P active-edge pair indices until released. Each query discards its coordinates/maps and transfers fresh vertices; no offsets, image, file, worker or global input-dependent cache is retained.
  */
 export function createAutoMovieSupportSectionQuery(input: {
@@ -52,9 +52,12 @@ export function createAutoMovieSupportSectionQuery(input: {
       ]);
       if (determinant !== 0) pairs.push({ i, j, determinant });
     }
-  const pairIndices: Map<string, number> = new Map();
+  const pairIndices: (number | undefined)[][] = Array.from(
+    { length: normals.length },
+    (): (number | undefined)[] => new Array(normals.length),
+  );
   for (let index: number = 0; index < pairs.length; index++)
-    pairIndices.set(`${pairs[index].i}:${pairs[index].j}`, index);
+    pairIndices[pairs[index].i][pairs[index].j] = index;
   let previous: number[] | undefined;
   return (
     offsets: readonly number[],
@@ -142,9 +145,8 @@ export function createAutoMovieSupportSectionQuery(input: {
       let canonical: number = index;
       for (let first: number = 0; first < tight.length; first++)
         for (let second: number = first + 1; second < tight.length; second++) {
-          const candidate: number | undefined = pairIndices.get(
-            `${tight[first]}:${tight[second]}`,
-          );
+          const candidate: number | undefined =
+            pairIndices[tight[first]][tight[second]];
           if (candidate === undefined) continue;
           if (Math.abs(pairs[candidate].determinant) < minimumDirectionSine)
             throw new Error(
@@ -180,7 +182,7 @@ export function createAutoMovieSupportSectionQuery(input: {
       ReturnType<typeof createAutoMovieSupportSectionQuery>
     > = [...vertices.values()].sort(
       (a: (typeof result)[number], b: (typeof result)[number]): number =>
-        pairIndices.get(a.pair.join(":"))! - pairIndices.get(b.pair.join(":"))!,
+        pairIndices[a.pair[0]][a.pair[1]]! - pairIndices[b.pair[0]][b.pair[1]]!,
     );
     if (result.length < 3)
       throw new Error(
@@ -226,9 +228,7 @@ export function createAutoMovieSupportSectionQuery(input: {
           faces[(index + faces.length - 1) % faces.length];
         return before === undefined || face === undefined
           ? undefined
-          : pairIndices.get(
-              `${Math.min(before, face)}:${Math.max(before, face)}`,
-            );
+          : pairIndices[Math.min(before, face)][Math.max(before, face)];
       },
     );
     const angles: number[] = faces

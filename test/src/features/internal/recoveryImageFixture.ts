@@ -7,7 +7,7 @@ import type { IAutoMovieRecoveryImageInput } from "@automovie/interface/recovery
  * other analytic sections. Box support is a distinct ellipse-family negative.
  *
  * @evidence contracts/testing.md#behavioral-verification Supplies real RGB8 pixel populations whose support must be extracted rather than injecting expected observed rows or fitted controls.
- * @evidence contracts/testing.md#independent-expectations Raster inclusion uses analytic ellipse or box support and explicit pixel centres, with no recovery fitter, spline evaluator, atlas generator or renderer import. One fixed pixel-centre vector serves every row/view; an explicit interval supplies the selected formula instead of computing an unused default ellipse.
+ * @evidence contracts/testing.md#independent-expectations Raster inclusion uses analytic ellipse or box support and explicit pixel centres, with no recovery fitter, spline evaluator, atlas generator or renderer import. One fixed pixel-centre vector serves every row/view; supplied intervals use two binary searches of the same inclusive comparisons on an increasing chart, then fill every accepted pixel. Other charts/default formulas retain their direct inclusion scan.
  * @evidence contracts/testing.md#distinguishing-cases Parameterized angle, pixel pitch, ellipse/box shape and an optional analytic interval allow scale/chart and distinct section-family controls; admission failures are authored by the calling tests.
  * @evidence contracts/testing.md#execution-ownership This portable fixture owns only small resident typed arrays and deterministic arithmetic; it starts no process, filesystem, browser or GPU.
  */
@@ -69,7 +69,27 @@ export function recoveryImageFixture(
                 ? Math.abs(c) * profile[0] + Math.abs(s) * profile[1]
                 : Math.hypot(c * profile[0], s * profile[1]);
           }
-          for (let column: number = 0; column < width; column++)
+          let first: number = 0,
+            end: number = width;
+          if (interval !== undefined && pitch > 0 && Number.isFinite(pitch)) {
+            let lower: number = 0,
+              upper: number = width;
+            while (lower < upper) {
+              const middle: number = Math.floor((lower + upper) / 2);
+              if (pixelX[middle] >= interval[0]) upper = middle;
+              else lower = middle + 1;
+            }
+            first = lower;
+            lower = 0;
+            upper = width;
+            while (lower < upper) {
+              const middle: number = Math.floor((lower + upper) / 2);
+              if (pixelX[middle] <= interval[1]) lower = middle + 1;
+              else upper = middle;
+            }
+            end = lower;
+          }
+          for (let column: number = first; column < end; column++)
             if (
               interval
                 ? pixelX[column] >= interval[0] && pixelX[column] <= interval[1]
