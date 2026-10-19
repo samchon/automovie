@@ -1,4 +1,4 @@
-import type { IAutoMovieBicubicAtlasGeometry } from "../../../interface/src/model/IAutoMovieBicubicAtlasGeometry";
+import type { IAutoMovieBicubicAtlasGeometry } from "@automovie/interface";
 
 /**
  * Admit the global recipe and identify its structurally usable patch occurrences.

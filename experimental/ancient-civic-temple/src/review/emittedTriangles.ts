@@ -1,11 +1,11 @@
-import { tessellateToMesh } from "@automovie/engine";
+import { realizeAutoMovieGeometry } from "@automovie/engine";
 import type { IAutoMovieBuiltEnvironment } from "@automovie/interface";
 import { Point } from "./Point";
 import { Triangle } from "./Triangle";
 
 
 /**
- * Every triangle of every placed element in world coordinates, primitives tessellated. Throws for
+ * Every triangle of every placed element in world coordinates, recipes realized by the public engine. Throws for
  * an incomplete triangle list.
  */
 export const emittedTriangles = (environment: IAutoMovieBuiltEnvironment): Triangle[] => {
@@ -15,7 +15,7 @@ export const emittedTriangles = (environment: IAutoMovieBuiltEnvironment): Trian
     const model = element.model === null ? undefined : models.get(element.model);
     if (model === undefined) continue;
     for (const part of model.parts) {
-      const mesh = part.geometry.type === "mesh" ? part.geometry.mesh : tessellateToMesh(part.geometry.shape);
+      const mesh: import("@automovie/interface").IAutoMovieMesh = realizeAutoMovieGeometry(part.geometry).mesh;
       if (mesh.positions.length % 9 !== 0 && mesh.indices === null) throw new Error(`address coverage: non-indexed triangle count for ${part.id}`);
       const indices = mesh.indices ?? Array.from({ length: mesh.positions.length / 3 }, (_, i) => i);
       if (indices.length % 3 !== 0) throw new Error(`address coverage: incomplete triangle for ${part.id}`);

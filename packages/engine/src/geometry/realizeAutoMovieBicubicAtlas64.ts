@@ -1,5 +1,8 @@
-import type { IAutoMovieBicubicAtlasGeometry } from "../../../interface/src/model/IAutoMovieBicubicAtlasGeometry";
-import type { IAutoMovieMesh } from "../../../interface/src/model/IAutoMovieMesh";
+import type {
+  IAutoMovieBicubicAtlasGeometry,
+  IAutoMovieMesh,
+} from "@automovie/interface";
+
 import { admitAutoMovieBicubicAtlas } from "./admitAutoMovieBicubicAtlas";
 import { tessellateAutoMovieBicubicAtlas64 as T } from "./curve/tessellateAutoMovieBicubicAtlas64";
 

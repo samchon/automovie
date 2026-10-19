@@ -7,7 +7,7 @@ import {
   type IAutoMovieMeshTransform,
   Matrix4,
   resolveFrame,
-  tessellateToMesh,
+  realizeAutoMovieGeometry,
   transformAutoMovieMesh,
 } from "@automovie/engine";
 
@@ -62,10 +62,8 @@ export function lowerViewerModels(
         throw new Error(
           `model instance must keep metric UV scale: ${instance.id}`,
         );
-      const source =
-        part.geometry.type === "mesh"
-          ? part.geometry.mesh
-          : tessellateToMesh(part.geometry.shape);
+      const source: import("@automovie/interface").IAutoMovieMesh =
+        realizeAutoMovieGeometry(part.geometry).mesh;
       const local =
         part.transform === null
           ? source

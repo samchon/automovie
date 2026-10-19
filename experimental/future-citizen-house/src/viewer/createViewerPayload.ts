@@ -5,7 +5,7 @@ import {
   lowerBuiltEnvironment,
   materializeCompiledInstanceSet,
   srgbHexToLinearColor,
-  tessellateToMesh,
+  realizeAutoMovieGeometry,
 } from "@automovie/engine";
 import type {
   IAutoMovieColor,
@@ -72,10 +72,7 @@ export function createViewerPayload(state: State = initialState) {
           id: part.id,
           material: part.material,
           transform: part.transform,
-          mesh:
-            part.geometry.type === "mesh"
-              ? part.geometry.mesh
-              : tessellateToMesh(part.geometry.shape),
+          mesh: realizeAutoMovieGeometry(part.geometry).mesh,
         };
       }),
     };
