@@ -4,6 +4,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { verifyAutoMovieRecoveryOpenConsumer } from "./verifyAutoMovieRecoveryOpenConsumer.ts";
 
 /**
  * Verify actual packed recovery imports, installed bin and immutable publication.
@@ -152,6 +153,7 @@ console.log(JSON.stringify({node:process.version,version,area,status:result.stat
   let cliArea: number = 0;
   for (const part of model.model.parts) {
     const mesh: (typeof part.geometry)["mesh"] = part.geometry.mesh;
+    if (!mesh.positions.every(Number.isFinite) || !mesh.indices.every((index: number): boolean => Number.isSafeInteger(index) && index >= 0 && index * 3 + 2 < mesh.positions.length)) throw new Error("Installed closed consumer returned invalid finite indexed geometry");
     for (let i: number = 0; i < mesh.indices.length; i += 3) {
       const points: number[][] = mesh.indices.slice(i, i + 3).map((index: number): number[] => mesh.positions.slice(index * 3, index * 3 + 3));
       const a: number[] = points[0]!, b: number[] = points[1]!, c: number[] = points[2]!;
@@ -159,7 +161,7 @@ console.log(JSON.stringify({node:process.version,version,area,status:result.stat
       cliArea += Math.hypot(u[1]! * v[2]! - u[2]! * v[1]!, u[2]! * v[0]! - u[0]! * v[2]!, u[0]! * v[1]! - u[1]! * v[0]!) / 2;
     }
   }
-  if (model.schema !== "automovie-recovery-model-v1" || model.operation.status !== "complete" || model.provenance.sourceCommit !== sourceEpoch || Math.abs(cliArea - 24e-6) > 1e-12)
+  if (model.schema !== "automovie-recovery-model-v1" || model.operation.status !== "complete" || model.provenance.sourceCommit !== sourceEpoch || !Number.isFinite(cliArea) || Math.abs(cliArea - 24e-6) > 1e-12)
     throw new Error("Installed CLI source-free reconstruction changed the declared physical surface or provenance");
   const meshBytes: Buffer = Buffer.from(JSON.stringify({ vertices: [[0,0,0],[3,0,0],[3,3,0],[0,3,0],[0,0,3],[3,0,3],[3,3,3],[0,3,3]], triangles: [[0,2,1],[0,3,2],[4,5,6],[4,6,7],[0,1,5],[0,5,4],[1,2,6],[1,6,5],[3,7,6],[3,6,2],[0,4,7],[0,7,3]] }));
   fs.writeFileSync(path.join(consumer, "outputs", "mesh.json"), meshBytes);
@@ -171,6 +173,7 @@ console.log(JSON.stringify({node:process.version,version,area,status:result.stat
   const graph: { schema: string; provenance: { curveBundleSha256: string } } = JSON.parse(fs.readFileSync(graphFile, "utf8"));
   if (graph.schema !== "automovie-recovery-open-continuation-v1" || graph.provenance.curveBundleSha256 !== createHash("sha256").update(fs.readFileSync(observedFile)).digest("hex"))
     throw new Error("Installed continuation observation lost the exact registered saved-curve authority");
+  const openConsumer: ReturnType<typeof verifyAutoMovieRecoveryOpenConsumer> = verifyAutoMovieRecoveryOpenConsumer({ consumer, cli: packageCli, sourceEpoch, run });
   fs.writeFileSync(path.join(consumer, "consumer-types.mts"), `import { observeAutoMovieRecovery, reconstructAutoMovieRecoveryModel } from "@automovie/recovery";
 import { publishAutoMovieRecoveryArtifact } from "@automovie/recovery/node";
 import type { IAutoMovieRecoveryInput } from "@automovie/interface/recovery";
@@ -182,7 +185,7 @@ export function consume(input: IAutoMovieRecoveryInput, saved: Parameters<typeof
 `);
   const typeConfig: string = path.join(consumer, "tsconfig.json");
   fs.writeFileSync(typeConfig, JSON.stringify({ compilerOptions: { target: "ES2022", module: "NodeNext", moduleResolution: "NodeNext", strict: true, noEmit: true, skipLibCheck: false, types: [] }, files: ["consumer-types.mts"] }, null, 2));
-  const receipt: object = { schema: "automovie-recovery-packed-consumer-v1", sourceEpoch, node: process.version, platform: process.platform, packs: packs.map((pack: (typeof packs)[number]): Omit<typeof pack, "file"> => ({ name: pack.name, bytes: pack.bytes, sha256: pack.sha256 })), runtime: JSON.parse(stdout), installedBinHelp: true, installedCli: { sourceFreeReconstruction: true, area: cliArea, schema: model.schema, registeredObservationAndContinuation: true }, version: version.trim(), refusedExit: refused.status, declarationCheck: "pending-owning-compiler", typeConfig };
+  const receipt: object = { schema: "automovie-recovery-packed-consumer-v1", sourceEpoch, node: process.version, platform: process.platform, packs: packs.map((pack: (typeof packs)[number]): Omit<typeof pack, "file"> => ({ name: pack.name, bytes: pack.bytes, sha256: pack.sha256 })), runtime: JSON.parse(stdout), installedBinHelp: true, installedCli: { sourceFreeReconstruction: true, area: cliArea, schema: model.schema, registeredObservationAndContinuation: true, openConsumer }, version: version.trim(), refusedExit: refused.status, declarationCheck: "pending-owning-compiler", typeConfig };
   fs.writeFileSync(path.join(scratch, "receipt.json"), JSON.stringify(receipt, null, 2));
   if (process.env.GITHUB_OUTPUT)
     fs.appendFileSync(process.env.GITHUB_OUTPUT, `typeConfig=${typeConfig}\n`);

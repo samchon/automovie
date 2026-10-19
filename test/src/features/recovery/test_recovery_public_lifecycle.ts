@@ -11,10 +11,11 @@ import { TestValidator } from "@nestia/e2e";
  * 3. A caller progress exception becomes a structured failed terminal outcome.
  * 4. Cancellation accepted at a progress point returns no generated value.
  * 5. Valid cube observation retains saved courses and borrows its input unchanged.
+ * 6. Unknown curve schemas refuse and undeclared caller mesh payloads never enter saved policy.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls only the public memory operations and observes terminal tags, diagnostics, value absence, callback population, retained courses and input nonmutation; cancellation or a thrown observer must not appear as successful completion.
  * @evidence contracts/testing.md#independent-expectations Caller-owned AbortController state and a literal observer error independently determine cancellation and failure. The cube has closed interior cuts, so a usable observation must retain section courses; no fitting residual, triangle snapshot or appearance oracle is inferred from this test.
- * @evidence contracts/testing.md#distinguishing-cases Separates pre-work cancellation, representation refusal, admitted callback failure, cooperative cancellation and valid observation. Reconstruction geometry, local unsupported-domain preservation and physical area belong to test_recovery_source_free; Node publication and installed CLI belong to host integration.
+ * @evidence contracts/testing.md#distinguishing-cases Separates pre-work cancellation, missing continuation or unknown-version refusal, admitted callback failure, cooperative cancellation and valid observation carrying extra caller metadata. Reconstruction geometry, local unsupported-domain preservation and physical area belong to test_recovery_source_free; Node publication and installed CLI belong to host integration.
  * @evidence contracts/testing.md#execution-ownership The portable test_recovery_public_lifecycle entry owns all cases, uses resident general arrays and synchronous callbacks, and starts no process, filesystem operation, timer, renderer or native build. Its tiny cube is intended for the strict under-500-ms scenario budget; execution remains with the central validator.
  */
 export function test_recovery_public_lifecycle(): void {
@@ -54,6 +55,7 @@ export function test_recovery_public_lifecycle(): void {
     },
     summary: { observations: 0, spans: 0, sections: 0, events: 0, aliases: 0 },
   };
+  Object.assign(input, { unregisteredPositions: input.verticesMm, unregisteredFaces: input.triangles });
   const original: string = JSON.stringify(input);
   const emptyOriginal: string = JSON.stringify(empty);
   const controller: AbortController = new AbortController();
@@ -81,6 +83,11 @@ export function test_recovery_public_lifecycle(): void {
   TestValidator.predicate("refusal has no value", !("value" in refused));
   TestValidator.predicate("refusal is explained", refused.diagnostics.length > 0);
   TestValidator.equals("refusal starts no work observer", progress, 0);
+  const futureInput: typeof empty = { ...empty };
+  Object.assign(futureInput, { schema: "automovie-recovery-curves-unknown" });
+  const future: ReturnType<typeof reconstructAutoMovieRecoveryModel> = reconstructAutoMovieRecoveryModel(futureInput, { onProgress: observeProgress });
+  TestValidator.equals("unknown saved schema refuses", future.status, "refused");
+  TestValidator.predicate("unknown version creates no value or progress", !("value" in future) && progress === 0);
 
   const failed: ReturnType<typeof reconstructAutoMovieRecoveryModel> =
     reconstructAutoMovieRecoveryModel(empty, {
@@ -111,6 +118,7 @@ export function test_recovery_public_lifecycle(): void {
   );
   if (!("value" in observed))
     throw new Error("The valid cube returned no saved observation");
+  TestValidator.predicate("undeclared source populations cannot enter saved policy", !Object.values(observed.value.policy).some((value: unknown): boolean => value === input.verticesMm || value === input.triangles));
   TestValidator.predicate(
     "closed cube interior produces saved closed courses",
     observed.value.loft.sections.some(
@@ -118,7 +126,7 @@ export function test_recovery_public_lifecycle(): void {
         section.coordinateMm > 0 && section.coordinateMm < 3 && section.loops.length > 0,
     ),
   );
-  for (const result of [cancelledObservation, cancelledReconstruction, refused, failed, cancelledDuring, observed]) {
+  for (const result of [cancelledObservation, cancelledReconstruction, refused, future, failed, cancelledDuring, observed]) {
     TestValidator.equals("operation schema is explicit", result.schema, "automovie-recovery-operation-v1");
     TestValidator.equals("operator is explicit", result.operator, "legacy-contour-v1");
   }

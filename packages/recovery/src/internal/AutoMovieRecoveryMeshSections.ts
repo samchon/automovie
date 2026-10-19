@@ -11,6 +11,7 @@ import { signedArea } from "./mesh-observations/signedArea";
 import { sourceOrientation } from "./mesh-observations/sourceOrientation";
 import { prepareRecoveryCriticalBrackets } from "./prepareRecoveryCriticalBrackets";
 import { prepareRecoveryMeshIncidence } from "./prepareRecoveryMeshIncidence";
+import { createRecoveryObservationPolicy } from "./createRecoveryObservationPolicy";
 
 /**
  * Automatic section extraction and source-independent cubic publication.
@@ -427,11 +428,7 @@ export namespace AutoMovieRecoveryMeshSections {
       if (i % 64 === 0 || i === entries.length - 1)
         progress?.("slabs", i, entries.length - 1);
     }
-    const {
-      verticesMm: _vertices,
-      triangles: _triangles,
-      ...policy
-    }: Input = input;
+    const policy: Bundle["policy"] = createRecoveryObservationPolicy(input);
     const coverage: Bundle["coverage"] =
       sectionLimit === undefined
         ? undefined

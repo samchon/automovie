@@ -105,6 +105,8 @@ export function recovery(args: string[], sourceEpoch: string): void {
     if (spec.registration !== undefined) {
       const admitted: ReturnType<typeof prepareAutoMovieRecoveryInput> = prepareAutoMovieRecoveryInput({ registration: spec.registration, verticesMm, triangles, policy: spec.policy });
       if (!("value" in admitted)) throw new Error(admitted.diagnostics.join("; "));
+      if (admitted.value.registration.units !== spec.units || admitted.value.registration.frame !== spec.frame || admitted.value.registration.evaluatedPose !== spec.pose)
+        throw new Error("The explicit registration must agree with the source specification units, frame and evaluated pose");
       admittedInput = admitted.value.observation;
     }
     const observed: ReturnType<typeof observeAutoMovieRecovery> = observeAutoMovieRecovery(

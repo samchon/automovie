@@ -144,8 +144,12 @@ export function test_recovery_source_free(): void {
     complete: false, plannedSections: 3, retainedSections: 2, sourceRangeMm: [0, 4],
     observedStationRangeMm: [0, 2], unobservedStationRangeMm: [2, 4], missingSourceRangeMm: [2, 4],
   } };
-  const malformedGroup: Input = makeInput(false);
-  malformedGroup.loft.intervals![0]!.groups.push(JSON.parse('{"supported":true,"reason":null}'));
+  const groupSource: Input = makeInput(false);
+  const malformedGroup: Input = { ...groupSource, loft: { ...groupSource.loft,
+    intervals: groupSource.loft.intervals!.map((interval: NonNullable<Input["loft"]["intervals"]>[number]): NonNullable<Input["loft"]["intervals"]>[number] => ({
+      ...interval, groups: [...interval.groups, JSON.parse('{"supported":true,"reason":null}')],
+    })),
+  } };
   const malformedDomain: Input = { ...makeInput(false), analyticDomains: [JSON.parse('{"id":"malformed-domain"}')] };
   for (const input of [completeInput, partialInput, prefixInput, malformedGroup, malformedDomain]) {
     const original: string = JSON.stringify(input);

@@ -13,7 +13,7 @@ import type { reconstructRecovery } from "./reconstructRecovery";
  * @evidence contracts/common.md#clear-and-simple-design One metadata producer exposes lifecycle observations while each numerical owner keeps its existing output and qualification.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unreported admission remains null, delegated groups do not borrow their owner's whole triangle range, and legacy unresolved reasons are not guessed onto equally sized groups.
  * @evidence contracts/common.md#meaningful-documentation States exact unique interval addressing, unknown stages, delegation and absence of geometric changes.
- * @evidence contracts/performance.md#efficient-algorithms Maps index R actual contour ranges and G reports once; member assembly costs O(G+R+C) for declared groups, ranges and curve references, with O(G+R+C) output storage.
+ * @evidence contracts/performance.md#efficient-algorithms Maps index S saved sections, R actual contour ranges and G reports once; member assembly costs O(S+G+R+C) for saved sections, declared groups, ranges and curve references, with O(S+G+R+C) storage.
  * @evidence contracts/performance.md#reuse-equivalent-work The original engine reports supply observed stages and emitted ranges; no numerical generation or mesh scan is repeated.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Call-local indexes expire after returning the ledger; outputs own metadata only and hold no mesh buffers or external resources.
  */
