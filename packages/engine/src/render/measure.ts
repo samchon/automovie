@@ -4,8 +4,7 @@ import {
   IAutoMovieRenderModelCost,
 } from "@automovie/interface";
 
-import { tessellate } from "../geometry/tessellate";
-import type { ITessellation } from "./../geometry/ITessellation";
+import { realizeAutoMovieGeometry } from "../geometry/realizeAutoMovieGeometry";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 import { AUTOMOVIE_INDEX_BYTES } from "./constants/AUTOMOVIE_INDEX_BYTES";
 import { AUTOMOVIE_NORMAL_BYTES } from "./constants/AUTOMOVIE_NORMAL_BYTES";
@@ -21,8 +20,10 @@ import { AUTOMOVIE_UV_BYTES } from "./constants/AUTOMOVIE_UV_BYTES";
  * source of truth for how many triangles a sphere has, and the day the
  * tessellator's ring count changes, the budget would still be checking the old
  * number.
+ * Bicubic recipes use the same retained finite engine geometry as display;
+ * geometryRealization records their incomplete processing independently of cost.
  *
- * @evidence contracts/common.md#principled-implementation Measure actual primitive tessellation or mesh attribute/index lengths into the declared geometry byte model; a request-owned model-id cache shares equivalent model costs and clears tier attribution when citations disagree.
+ * @evidence contracts/common.md#principled-implementation Measure canonical primitive or bicubic realization, or stated mesh attribute/index lengths, into the declared geometry byte model; a request-owned model-id cache shares equivalent model costs and clears tier attribution when citations disagree.
  * @evidence contracts/common.md#clear-and-simple-design This canonical prototype measurement owns topology/attribute arithmetic while population multipliers and frame passes remain in inventory phases.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Primitive counts come from tessellate rather than a second formula table; model ids must uniquely denote unchanged definitions for the cache lifetime. Bytes describe the declared prototype buffer profile, not every native clone or instance stream.
  * @evidence contracts/common.md#meaningful-documentation Docs identify shared model cost, canonical tessellation and tier ambiguity; cached rows are mutable request-owned records returned by reference.
@@ -49,20 +50,21 @@ export const measure: (
   let vertices: number = 0;
   let triangles: number = 0;
   let geometryBytes: number = 0;
+  let recipeComplete: boolean = true,
+    hasRecipe: boolean = false;
+  const recipeDiagnostics: string[] = [];
   const materials: Set<string> = new Set<string>();
   for (const part of model.parts) {
     if (part.material !== null) materials.add(part.material);
-    if (part.geometry.type === "primitive") {
-      const mesh: ITessellation = tessellate(part.geometry.shape);
-      const count: number = mesh.positions.length / 3;
-      vertices += count;
-      triangles += mesh.indices.length / 3;
-      geometryBytes +=
-        count * (AUTOMOVIE_POSITION_BYTES + AUTOMOVIE_NORMAL_BYTES) +
-        mesh.indices.length * AUTOMOVIE_INDEX_BYTES;
-      continue;
+    const realized: ReturnType<typeof realizeAutoMovieGeometry> =
+      realizeAutoMovieGeometry(part.geometry);
+    if (part.geometry.type === "bicubic-atlas") {
+      hasRecipe = true;
+      recipeComplete &&= realized.complete;
+      for (const message of realized.diagnostics)
+        recipeDiagnostics.push(`${part.id}: ${message}`);
     }
-    const mesh: IAutoMovieMesh = part.geometry.mesh;
+    const mesh: IAutoMovieMesh = realized.mesh;
     const count: number = mesh.positions.length / 3;
     vertices += count;
     triangles += mesh.indices === null ? count / 3 : mesh.indices.length / 3;
@@ -86,6 +88,14 @@ export const measure: (
     triangles,
     materials: [...materials].sort(compareAutoMovieRenderIds),
     geometryBytes,
+    ...(hasRecipe
+      ? {
+          geometryRealization: {
+            complete: recipeComplete,
+            diagnostics: recipeDiagnostics,
+          },
+        }
+      : {}),
   };
   cache.set(model.id, cost);
   return cost;

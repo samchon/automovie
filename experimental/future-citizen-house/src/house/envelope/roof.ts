@@ -1,4 +1,4 @@
-import { Quaternion, tessellateToMesh } from "@automovie/engine";
+import { Quaternion, realizeAutoMovieGeometry } from "@automovie/engine";
 import type { IAutoMovieModelPart } from "@automovie/interface";
 
 import { partitionSurfaceRegions } from "../../materials/partitionSurfaceRegions";
@@ -89,10 +89,8 @@ export function roof(a: Assembly): void {
       // wall continuation. Select its actual world region in unit box local
       // coordinates and keep the rest of the bearing ring as exterior stone.
       const parts = model.parts.flatMap((part) => {
-        const source =
-          part.geometry.type === "mesh"
-            ? part.geometry.mesh
-            : tessellateToMesh(part.geometry.shape);
+        const source: import("@automovie/interface").IAutoMovieMesh =
+          realizeAutoMovieGeometry(part.geometry).mesh;
         return partitionSurfaceRegions(source, part.material!, [
           {
             finish: "plaster-paint",

@@ -5,8 +5,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ITessellation } from "../geometry/ITessellation";
-import { tessellate } from "../geometry/tessellate";
+import { realizeAutoMovieGeometry } from "../geometry/realizeAutoMovieGeometry";
 import { Matrix4 } from "../math/Matrix4";
 import { IAutoMovieDrawingTriangle } from "./IAutoMovieDrawingTriangle";
 import { transformAutoMovieDrawingPoint } from "./transformAutoMovieDrawingPoint";
@@ -18,7 +17,8 @@ import { transformAutoMovieDrawingPoint } from "./transformAutoMovieDrawingPoint
  * A primitive is tessellated by the engine's own kernel, so the drawing and
  * the renderer read one description of a box. An imported mesh is taken as
  * written, indexed or not, and its winding is kept because the silhouette pass
- * reads it.
+ * reads it. Bicubic recipes use the same canonical engine realization as display,
+ * including finite partial output; processing qualification is not a drawing gate.
  *
  * Throws an `Error` naming the model and part when the position array is not
  * whole `x, y, z` triples, the index array is not whole triangles, or an index
@@ -31,7 +31,7 @@ import { transformAutoMovieDrawingPoint } from "./transformAutoMovieDrawingPoint
  * @returns The part's triangles in model-frame metres.
  *
  * @evidence contracts/common.md#principled-implementation Reads the mesh's flat position and index arrays as the glTF-style triangle list they are, composing the part's TRS with `Matrix4.compose` as the renderer does; the premises are a whole-triple position array and in-range integer indices, which this function checks before reading any corner.
- * @evidence contracts/common.md#clear-and-simple-design One function turns a part record into triangles for every drawing consumer, delegating primitive tessellation to `tessellate` and point placement to `transformAutoMovieDrawingPoint`.
+ * @evidence contracts/common.md#clear-and-simple-design One function turns a part record into triangles for every drawing consumer, delegating recipe realization to realizeAutoMovieGeometry and point placement to transformAutoMovieDrawingPoint.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No model, part or primitive is special-cased; malformed arrays throw instead of being truncated to the prefix that divides evenly.
  * @evidence contracts/common.md#meaningful-documentation The comment states the output frame, the primitive and imported-mesh sources, that winding is kept and why, every refused input and the failure type.
  * @evidence contracts/performance.md#efficient-algorithms Linear in the vertex and index counts: one tessellation for a primitive, one pass over the indices, and a fresh index list only for an unindexed mesh, whose order defines its triangles.
@@ -39,14 +39,14 @@ import { transformAutoMovieDrawingPoint } from "./transformAutoMovieDrawingPoint
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns a fresh array owned by the caller; the tessellated mesh and index list are temporaries released when the call returns.
  * @author Samchon
  */
-export const autoMovieDrawingPartTriangles = (
+export const autoMovieDrawingPartTriangles: (
+  model: IAutoMovieModel,
+  part: IAutoMovieModelPart,
+) => IAutoMovieDrawingTriangle[] = (
   model: IAutoMovieModel,
   part: IAutoMovieModelPart,
 ): IAutoMovieDrawingTriangle[] => {
-  const source: ITessellation | IAutoMovieMesh =
-    part.geometry.type === "primitive"
-      ? tessellate(part.geometry.shape)
-      : part.geometry.mesh;
+  const source: IAutoMovieMesh = realizeAutoMovieGeometry(part.geometry).mesh;
   const positions: readonly number[] = source.positions;
   if (positions.length % 3 !== 0)
     throw new Error(
@@ -63,7 +63,9 @@ export const autoMovieDrawingPartTriangles = (
     throw new Error(
       `model "${model.id}" part "${part.id}" has ${indices.length} indices, which is not a multiple of 3`,
     );
-  const corner = (index: number): IAutoMovieVector3 => {
+  const corner: (index: number) => IAutoMovieVector3 = (
+    index: number,
+  ): IAutoMovieVector3 => {
     if (!Number.isInteger(index) || index < 0 || index >= vertexCount)
       throw new Error(
         `model "${model.id}" part "${part.id}" index ${index} is outside its ${vertexCount} vertices`,
@@ -82,7 +84,9 @@ export const autoMovieDrawingPartTriangles = (
           part.transform.rotation,
           part.transform.scale,
         );
-  const place = (point: IAutoMovieVector3): IAutoMovieVector3 =>
+  const place: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
+    point: IAutoMovieVector3,
+  ): IAutoMovieVector3 =>
     matrix === null ? point : transformAutoMovieDrawingPoint(matrix, point);
   const triangles: IAutoMovieDrawingTriangle[] = [];
   for (let index: number = 0; index < indices.length; index += 3)

@@ -1,6 +1,6 @@
 import { AutoMovieBernstein64 as B } from "../../../packages/engine/src/geometry/curve/AutoMovieBernstein64.ts";
 import { AutoMovieCurveMath64 as M } from "../../../packages/engine/src/geometry/curve/AutoMovieCurveMath64.ts";
-import { IAutoMovieCurve64 as C } from "../../../packages/engine/src/geometry/curve/IAutoMovieCurve64.ts";
+import type { IAutoMovieCurve64 as C } from "../../../packages/engine/src/geometry/curve/IAutoMovieCurve64.ts";
 
 /** Shared engine vector arithmetic retains the physical coefficient chart. */
 const add: typeof M.add = M.add,
@@ -160,7 +160,7 @@ export namespace RecoveryBezierFit {
     let sampleMaximumMm: number = 0,
       polylineUpperEstimateMm: number = 0;
     let handleFallbacks: number = 0;
-    const tangent = (at: number): B.Vec => {
+    const tangent: (at: number) => B.Vec = (at: number): B.Vec => {
       if (!input.closed && at === 0) return unit(sub(points[1]!, points[0]!));
       if (!input.closed && at === n - 1)
         return unit(sub(points[n - 1]!, points[n - 2]!));

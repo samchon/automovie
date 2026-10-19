@@ -2,12 +2,15 @@ import { IAutoMovieContourLoft64 as L } from "../../../packages/engine/src/geome
 import { IAutoMovieCurve64 as C } from "../../../packages/engine/src/geometry/curve/IAutoMovieCurve64.ts";
 import { cutExact } from "../../human-reference/src/geometry/cutExact.ts";
 import { planeFrame } from "../../human-reference/src/geometry/planeFrame.ts";
+import { signedArea } from "../../human-reference/src/geometry/signedArea.ts";
 import { critical } from "../../human-reference/src/observations/critical.ts";
 import { sourceOrientation } from "../../human-reference/src/observations/sourceOrientation.ts";
 import type { IRecoveryMeshSections } from "./IRecoveryMeshSections.ts";
+import { RecoveryBezierFit as F } from "./RecoveryBezierFit.ts";
 import { RecoveryScalarIndex as S } from "./RecoveryScalarIndex.ts";
 import { RecoverySlabGraph as G } from "./RecoverySlabGraph.ts";
-import { observeRecoverySection } from "./observeRecoverySection.ts";
+import { prepareRecoveryCriticalBrackets } from "./prepareRecoveryCriticalBrackets.ts";
+import { prepareRecoveryMeshIncidence } from "./prepareRecoveryMeshIncidence.ts";
 
 /**
  * Automatic section extraction and source-independent cubic publication.
@@ -21,26 +24,28 @@ import { observeRecoverySection } from "./observeRecoverySection.ts";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No persistent resources exist.
  */
 export namespace RecoveryMeshSections {
-  /** Generic private mesh observation contract; original registration and budgets are unchanged.
+  /**
+   * Immutable registered observations and automatic section policy.
    *
-   * @evidence contracts/common.md#principled-implementation The original input shape is retained by a type alias.
-   * @evidence contracts/common.md#clear-and-simple-design The record owner separates input/publication schemas from extraction.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No geometry or source-specific defaults enter this alias.
-   * @evidence contracts/common.md#meaningful-documentation The owning declaration states units, ranges and observation-only source use.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A type performs no computation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A type owns no cache.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns all input arrays.
+   * @evidence contracts/common.md#principled-implementation The borrowed input preserves source positions, original incidence and declared millimetre policy.
+   * @evidence contracts/common.md#clear-and-simple-design The existing public alias borrows the type-only owner without duplicating its structural declaration.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The alias adds no defaults, validation bypass or geometric transformation.
+   * @evidence contracts/common.md#meaningful-documentation The type owner documents physical units, input premises and returned ownership.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms An erased alias performs no computation.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work An erased alias coordinates no cache.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Runtime lifetimes remain with the original operation and its caller.
    */
   export type Input = IRecoveryMeshSections.Input;
-  /** Original coefficient/publication contract; source arrays are absent.
+  /**
+   * Source-free saved coefficients, continuation evidence and coverage accounting.
    *
-   * @evidence contracts/common.md#principled-implementation The original bundle shape is retained by a type alias.
-   * @evidence contracts/common.md#clear-and-simple-design One record owner supplies the public saved-curve schema.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No source mesh can be supplied through this coefficient schema.
-   * @evidence contracts/common.md#meaningful-documentation The owning declaration distinguishes diagnostics from full recovery.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A type performs no computation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A type owns no cache.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The artifact owner retains its arrays.
+   * @evidence contracts/common.md#principled-implementation The borrowed bundle publishes fitted curves and named relationships while keeping source mesh arrays private.
+   * @evidence contracts/common.md#clear-and-simple-design The existing public alias borrows the type-only owner without duplicating its structural declaration.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The alias adds no defaults, validation bypass or geometric transformation.
+   * @evidence contracts/common.md#meaningful-documentation The type owner documents physical units, input premises and returned ownership.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms An erased alias performs no computation.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work An erased alias coordinates no cache.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Runtime lifetimes remain with the original operation and its caller.
    */
   export type Bundle = IRecoveryMeshSections.Bundle;
 
@@ -101,39 +106,16 @@ export namespace RecoveryMeshSections {
       )
     )
       throw new Error("Valid source triangle addresses required");
-    const aliases: Map<string, number> = new Map();
-    const canon: Int32Array = Int32Array.from(
-      vertices.map((p: C.Vector, i: number): number => {
-        if (!input.exactCoordinateAliases) return i;
-        const key: string = JSON.stringify(p);
-        if (!aliases.has(key)) aliases.set(key, i);
-        return aliases.get(key)!;
-      }),
-    );
-    const mesh: {
-      vertices: typeof vertices;
-      triangles: typeof input.triangles;
-      canon: Int32Array;
-    } = { vertices, triangles: input.triangles, canon };
-    const faceEdges: Map<string, Set<number>> = new Map();
-    const vertexFaces: Map<number, Set<number>> = new Map();
-    const edgeKey: (a: number, b: number) => string = (
-      a: number,
-      b: number,
-    ): string => (a < b ? `${a},${b}` : `${b},${a}`);
-    for (let ti: number = 0; ti < mesh.triangles.length; ti++) {
-      const t: [number, number, number] = mesh.triangles[ti]!;
-      for (let k: number = 0; k < 3; k++) {
-        const a: number = canon[t[k]!]!,
-          b: number = canon[t[(k + 1) % 3]!]!;
-        const key: string = edgeKey(a, b);
-        if (!faceEdges.has(key)) faceEdges.set(key, new Set());
-        if (!vertexFaces.has(a)) vertexFaces.set(a, new Set());
-        faceEdges.get(key)!.add(ti);
-        vertexFaces.get(a)!.add(ti);
-      }
-    }
-    const project = (p: C.Vector): number =>
+    const {
+      aliases,
+      canon,
+      mesh,
+      faceEdges,
+      vertexFaces,
+      edgeKey,
+    }: ReturnType<typeof prepareRecoveryMeshIncidence> =
+      prepareRecoveryMeshIncidence(input, vertices);
+    const project: (p: C.Vector) => number = (p: C.Vector): number =>
       p[0] * frame.n[0] + p[1] * frame.n[1] + p[2] * frame.n[2];
     const scalarHeights: number[] = vertices.map(project);
     const scalarIndex: ReturnType<typeof S.create> = S.create(
@@ -180,58 +162,18 @@ export namespace RecoveryMeshSections {
       scalarHeights,
       input.criticalPolicy,
     );
-    const unsupportedVertices: Set<number> = new Set();
-    const bracketed: {
-      event: (typeof criticals)[number];
-      before: number;
-      after: number;
-    }[] = [];
-    for (const event of criticals) {
-      let lo: number = 0,
-        hi: number = heights.length;
-      while (lo < hi) {
-        const mid: number = (lo + hi) >> 1;
-        if (heights[mid]! < event.level) lo = mid + 1;
-        else hi = mid;
-      }
-      const epsilon: number = Math.min(
-        input.stepMm / 100,
-        (event.level - (heights[lo - 1] ?? event.level - input.stepMm)) / 4,
-        ((heights[lo + 1] ?? event.level + input.stepMm) - event.level) / 4,
+    const {
+      unsupportedVertices,
+      bracketed,
+    }: ReturnType<typeof prepareRecoveryCriticalBrackets> =
+      prepareRecoveryCriticalBrackets(
+        criticals,
+        heights,
+        input.stepMm,
+        levels,
+        diagnostics,
+        topologyGaps,
       );
-      if (!(epsilon > 4e-9)) {
-        const reason: string = `Unresolved critical precision at ${event.level} mm`;
-        diagnostics.push(reason);
-        unsupportedVertices.add(event.vertex);
-        topologyGaps.push({
-          beforeMm: event.level - input.stepMm / 100,
-          afterMm: event.level + input.stepMm / 100,
-          reason,
-        });
-        continue;
-      }
-      const before: number = event.level - epsilon,
-        after: number = event.level + epsilon;
-      levels.add(before);
-      levels.add(after);
-      bracketed.push({ event, before, after });
-      const simple: boolean =
-        (event.lower === 0 && event.upper === 1) ||
-        (event.lower === 1 && event.upper === 0) ||
-        (event.lower === 2 && event.upper === 2);
-      if (event.flat || !event.manifold || !simple) {
-        const reason: string = `Unresolved ${event.flat ? "plateau" : !event.manifold ? "unqualified non-cycle link" : "higher-order critical link"} at ${event.level} mm`;
-        diagnostics.push(reason);
-        topologyGaps.push({ beforeMm: before, afterMm: after, reason });
-        unsupportedVertices.add(event.vertex);
-      }
-    }
-    // Critical bracket cuts replace nominal stations inside their physical interval.
-    // Their incident loop numbers therefore address the actual adjacent saved pair.
-    for (const bracket of bracketed)
-      for (const level of levels)
-        if (level > bracket.before && level < bracket.after)
-          levels.delete(level);
     if (levels.size > input.maxSections)
       throw new Error("Critical section budget exhausted");
     const orientation: ReturnType<typeof sourceOrientation> = sourceOrientation(
@@ -272,20 +214,126 @@ export namespace RecoveryMeshSections {
         coordinateMm,
         scalarIndex.cut(coordinateMm),
       );
-      const observed: ReturnType<typeof observeRecoverySection> =
-        observeRecoverySection({
-          coordinateMm,
-          plane,
-          contours,
-          faceEdges,
-          vertexFaces,
-          orientation,
-          policy: input,
-        });
-      const { section, report, supports, faces, defects }: typeof observed =
-        observed;
-      observations += observed.observations;
-      spans += observed.spans;
+      const section: L.ISection = { coordinateMm, loops: [] };
+      const report: Bundle["reports"][number] = {
+        coordinateMm,
+        fits: [],
+        open: [],
+        isolatedContactsMm: [],
+        diagnostics: [],
+      };
+      const supports: Set<number>[] = [];
+      const faces: Set<number>[] = [],
+        defects: Set<number>[] = [];
+      for (let ci: number = 0; ci < contours.length; ci++) {
+        const contour: (typeof contours)[number] = contours[ci]!;
+        const faceSupport: Set<number> = new Set();
+        for (const point of contour.pts) {
+          const incident: Set<number> | undefined =
+            point.a === point.b
+              ? vertexFaces.get(point.a)
+              : faceEdges.get(edgeKey(point.a, point.b));
+          if (incident) for (const ti of incident) faceSupport.add(ti);
+        }
+        try {
+          let points: [number, number, number][] = contour.pts.map(
+            (p: (typeof contour.pts)[number]): [number, number, number] => [
+              ...p.p,
+            ],
+          );
+          if (points.length < (contour.closed ? 3 : 2)) {
+            report.diagnostics.push(
+              "Degenerate contour or isolated contact retained as unsupported",
+            );
+            for (const point of points) report.isolatedContactsMm.push(point);
+            defects.push(faceSupport);
+            continue;
+          }
+          let winding: 1 | -1 = 1;
+          if (contour.closed) {
+            winding = orientation(plane, contour) as 1 | -1;
+            const area: number = signedArea(
+              points.map((p: C.Vector): [number, number] => [
+                (p[0] - plane.origin[0]) * plane.u[0] +
+                  (p[1] - plane.origin[1]) * plane.u[1] +
+                  (p[2] - plane.origin[2]) * plane.u[2],
+                (p[0] - plane.origin[0]) * plane.v[0] +
+                  (p[1] - plane.origin[1]) * plane.v[1] +
+                  (p[2] - plane.origin[2]) * plane.v[2],
+              ]),
+            );
+            if (area < 0) points = points.reverse();
+          }
+          const corners: number[] = [];
+          for (
+            let i: number = contour.closed ? 0 : 1;
+            i < points.length - (contour.closed ? 0 : 1);
+            i++
+          ) {
+            const a: C.Vector =
+                points[(i + points.length - 1) % points.length]!,
+              b: C.Vector = points[i]!,
+              c: C.Vector = points[(i + 1) % points.length]!;
+            const u: number[] = b.map(
+                (x: number, k: number): number => x - a[k]!,
+              ),
+              v: number[] = c.map((x: number, k: number): number => x - b[k]!);
+            const cosine: number =
+              u.reduce(
+                (s: number, x: number, k: number): number => s + x * v[k]!,
+                0,
+              ) /
+              (Math.hypot(...u) * Math.hypot(...v));
+            if (
+              (Math.acos(Math.max(-1, Math.min(1, cosine))) * 180) / Math.PI >=
+              input.cornerDegrees
+            )
+              corners.push(i);
+          }
+          const fit: F.Result = F.fit({
+            name: `section.${coordinateMm}.contour.${ci}`,
+            pointsMm: points,
+            closed: contour.closed,
+            corners,
+            toleranceMm: input.toleranceMm,
+            maxSpans: input.maxSpans,
+            parameterization: "chord",
+          });
+          observations += points.length;
+          spans += fit.curve.spans.length;
+          if (contour.closed) {
+            (section.loops as { curve: C.Cubic; winding: 1 | -1 }[]).push({
+              curve: fit.curve,
+              winding,
+            });
+            const { curve: _curve, ...quality }: F.Result = fit;
+            report.fits.push(quality);
+            supports.push(
+              new Set(
+                contour.pts.flatMap(
+                  (p: (typeof contour.pts)[number]): number[] => [p.a, p.b],
+                ),
+              ),
+            );
+            faces.push(faceSupport);
+          } else {
+            report.open.push(fit);
+            defects.push(faceSupport);
+            report.diagnostics.push(
+              "Open source contour: no surface bridge or cap is authorized for its slab component",
+            );
+          }
+          if (!fit.toleranceMet)
+            report.diagnostics.push(
+              `Fitting tolerance unresolved for ${fit.curve.name}`,
+            );
+        } catch (failure: unknown) {
+          defects.push(faceSupport);
+          report.diagnostics.push(
+            `Contour ${ci} unresolved: ${failure instanceof Error ? failure.message : String(failure)}`,
+          );
+        }
+      }
       cache.set(coordinateMm, { section, report, supports, faces, defects });
       if (cache.size % 64 === 0 || cache.size === retainedLevels.length)
         progress?.("sections", cache.size, retainedLevels.length);

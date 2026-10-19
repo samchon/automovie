@@ -4,6 +4,7 @@ import { AutoMovieCurveMath64 as V } from "./AutoMovieCurveMath64";
 import { AutoMovieLocalHermiteField64 as F } from "./AutoMovieLocalHermiteField64";
 import type { IAutoMovieLocalHermiteStream64 } from "./IAutoMovieLocalHermiteStream64";
 import { planAutoMovieLocalHermite64 } from "./planAutoMovieLocalHermite64";
+import { triangulateAutoMovieParameterCell64 } from "./triangulateAutoMovieParameterCell64";
 
 type Plan = ReturnType<ReturnType<typeof planAutoMovieLocalHermite64>["plan"]>;
 type Leaf = Plan["leaves"][number];
@@ -30,9 +31,12 @@ type StreamSummary = tessellateAutoMovieLocalHermite64.Summary;
  * Exact tensor restrictions are refined until Muu/8+Muv/4+Mvv/8 <= toleranceMm,
  * using maxima of Bernstein second-derivative coefficient norms on each local unit
  * cell. Taylor's formula and barycentric coordinate variances <=1/4 bound the
- * same-parameter affine error of every center-fan triangle in exact arithmetic.
+ * same-parameter affine error of each parameter triangle in exact arithmetic.
  * Binary64 estimates are not outward-rounded certificates. This bound concerns the
  * new Hermite field, not source-surface distance, monotonicity or injectivity.
+ * Bottom/top boundary chains are zipped and exterior hanging edges subdivided
+ * using existing samples only. Identical translated polygons with matching phase
+ * samples retain station-parallel face planes; general normal error is unbounded.
  *
  * Corners use right-sided analytic normals (u=1 left-sided); unresolved normals remain
  * zero with diagnostics. Zero-area triangles are counted and omitted. Resource limits
@@ -42,11 +46,11 @@ type StreamSummary = tessellateAutoMovieLocalHermite64.Summary;
  * Quadratic mode C1 requires same-chart C1 input courses;
  * crease/G1 input does not acquire parametric C1 from station interpolation.
  *
- * @evidence contracts/common.md#principled-implementation Exact local Hermite tensors, Bernstein derivative bounds, adaptive binary restrictions and parameter-cell fans preserve the supplied curves and conforming shared boundaries before binary64 rounding.
+ * @evidence contracts/common.md#principled-implementation Exact local Hermite tensors, Bernstein derivative bounds, adaptive binary restrictions and shared parameter-boundary triangulation preserve supplied curves and shared boundaries before binary64 rounding. Matching extruded polygons use fiber edges rather than an additional curved center.
  * @evidence contracts/common.md#clear-and-simple-design Two-interval lookahead owns station edge samples; local line registries insert hanging corners without propagating a global phase partition.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No source mesh, coordinate weld, omitted source knot, hidden limiter, arbitrary run split or fallback normal supplies the result.
  * @evidence contracts/common.md#meaningful-documentation States units, append-only indexing, approximation bound, derivative authority, failure effects and separate geometric qualifications.
- * @evidence contracts/performance.md#efficient-algorithms Field admission is O(N+S); local interval construction uses at most four source partitions. For L retained cells, refinement is O(L), line sorting O(L log L), and emission proportional to actual fan output plus logarithmic line queries, without S times global-knot storage.
+ * @evidence contracts/performance.md#efficient-algorithms Field admission is O(N+S); local interval construction uses at most four source partitions. For L retained cells, refinement is O(L), line sorting O(L log L), and each ordered cell perimeter triangulates in linear sample count before evaluations and logarithmic line queries, without S times global-knot storage.
  * @evidence contracts/performance.md#reuse-equivalent-work Adjacent interval plans share one station sample union and one position/normal/index owner. Local vertex identity, not coordinate equality, reuses internal boundary vertices.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The generator retains source admission, two bounded interval plans, current-interval vertices and two station edge maps, plus one vertex-bounded output chunk. Completed interval maps are released; yielded chunks belong to the consumer. Cancellation releases generator-owned state and no external handles exist.
  */
@@ -278,30 +282,18 @@ export function* tessellateAutoMovieLocalHermite64(
             .slice(1, -1)
             .map((t: number): [number, number] => [cell.u0, t]),
         ];
-        const center: [number, number] = [
-          (cell.u0 + cell.u1) / 2,
-          (cell.t0 + cell.t1) / 2,
-        ];
-        const interior: boolean =
-          center[0] > cell.u0 &&
-          center[0] < cell.u1 &&
-          center[1] > cell.t0 &&
-          center[1] < cell.t1;
-        // A convex boundary fan also works when binary64 has no representable center.
-        const origin: [number, number] = interior ? center : boundary[0]!;
-        for (
-          let k: number = interior ? 0 : 1;
-          k < boundary.length - (interior ? 0 : 1);
-          k++
-        ) {
+        for (const samples of triangulateAutoMovieParameterCell64(
+          boundary,
+          (sample: [number, number]): [number, number] => sample,
+        )) {
           if (chunk.counts.vertices + 3 > input.maxVerticesPerChunk) {
             qualify();
             yield chunk;
             chunk = fresh();
           }
-          const a: Vertex = vertex(...origin),
-            b: Vertex = vertex(...boundary[k]!),
-            c: Vertex = vertex(...boundary[(k + 1) % boundary.length]!);
+          const a: Vertex = vertex(...samples[0]),
+            b: Vertex = vertex(...samples[1]),
+            c: Vertex = vertex(...samples[2]);
           let range: FaceRange | undefined = chunk.faceRanges.at(-1);
           if (
             !range ||

@@ -22,3 +22,4 @@ export * from "./IAutoMovieMeshPhysicalVertices";
 export * from "./IAutoMoviePlaneShape";
 export * from "./IAutoMoviePrimitiveGeometry";
 export * from "./IAutoMovieSphereShape";
+export * from "./IAutoMovieBicubicAtlasGeometry";

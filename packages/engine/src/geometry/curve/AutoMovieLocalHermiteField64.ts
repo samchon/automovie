@@ -4,6 +4,7 @@ import { AutoMovieBernsteinSubdivision64 as S } from "./AutoMovieBernsteinSubdiv
 import { AutoMovieCurveMath64 as V } from "./AutoMovieCurveMath64";
 import type { IAutoMovieCurve64 as C } from "./IAutoMovieCurve64";
 import { assertAutoMovieCurve64 } from "./assertAutoMovieCurve64";
+import { compileAutoMovieNormalizedPhases64 } from "./compileAutoMovieNormalizedPhases64";
 
 /**
  * Local physical-station cubic Hermite fields from complete normalized open courses.
@@ -148,15 +149,10 @@ export namespace AutoMovieLocalHermiteField64 {
         course.unit !== "mm"
       )
         throw new Error("Open normalized millimetre cubic courses required");
-      const out: number[] = [0];
-      for (const width of course.phaseIntervals) out.push(out.at(-1)! + width);
-      if (Math.abs(out.at(-1)! - 1) > 32 * Number.EPSILON)
-        throw new Error("A complete normalized unit chart is required");
-      out[out.length - 1] = 1;
-      if (!(out.at(-1)! > out.at(-2)!))
-        throw new Error(
-          "Canonical unit endpoint must preserve the final phase interval",
-        );
+      const out: number[] = compileAutoMovieNormalizedPhases64(
+        course.phaseIntervals,
+        course.spans.length,
+      );
       for (let k: number = 1; k < course.spans.length; k++)
         if (
           course.spans[k - 1]![3].some(

@@ -110,17 +110,19 @@ export namespace AutoMovieBernsteinAlgebra64 {
     return v;
   }
   /**
-   * Evaluate scalar Bernstein coefficients by De Casteljau at local parameter t.
+   * Evaluate scalar Bernstein coefficients, preserving supplied coefficients at t=0 and t=1.
    *
-   * @evidence contracts/common.md#principled-implementation Scalar De Casteljau levels use a+t(b-a) on neighboring coefficients.
+   * @evidence contracts/common.md#principled-implementation Bernstein endpoint identities select the first or last coefficient directly; other parameters use scalar De Casteljau levels a+t(b-a). Canonical boundaries compare shared endpoint identities exactly, so repeating affine arithmetic at an endpoint must not invent a different coefficient.
    * @evidence contracts/common.md#clear-and-simple-design Evaluation owns a private coefficient row instead of mutating the polynomial.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No sampling fit, parameter clamp or degree reduction is performed.
-   * @evidence contracts/common.md#meaningful-documentation Evaluate scalar Bernstein coefficients by De Casteljau at local parameter t.
-   * @evidence contracts/performance.md#efficient-algorithms Degree n requires O(n²) affine blends; each level reads the preceding row.
+   * @evidence contracts/common.md#meaningful-documentation States exact endpoint coefficient identity and the unchanged De Casteljau path for other parameters, including extrapolation; the coefficient array is nonempty.
+   * @evidence contracts/performance.md#efficient-algorithms Endpoint selection is constant work; other parameters require O(n²) affine blends for degree n.
    * @evidence contracts/performance.md#reuse-equivalent-work The current row is shared by all coefficients of its next level; no cross-parameter cache is retained.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Local level arrays expire after evaluation and only a scalar escapes.
    */
   export function scalar(c: readonly number[], t: number): number {
+    if (t === 0) return c[0]!;
+    if (t === 1) return c.at(-1)!;
     let row: number[] = [...c];
     while (row.length > 1)
       row = row
@@ -129,17 +131,19 @@ export namespace AutoMovieBernsteinAlgebra64 {
     return row[0]!;
   }
   /**
-   * Evaluate vector Bernstein coefficients by De Casteljau without sampling or degree reduction.
+   * Evaluate nonempty vector Bernstein coefficients with copied exact endpoints.
    *
-   * @evidence contracts/common.md#principled-implementation Vector De Casteljau repeats the same affine coefficient operation in all three coordinates.
+   * @evidence contracts/common.md#principled-implementation The Bernstein identities at t=0 and t=1 return a clone of the supplied endpoint. All other parameters repeat the same affine De Casteljau operation in all three coordinates. This retains the coefficient identity required by canonical boundary incidence without changing interior or extrapolation arithmetic.
    * @evidence contracts/common.md#clear-and-simple-design The input net is cloned before reduction through neighboring rows.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No sampled cubic or coordinate normalization replaces the supplied degree.
-   * @evidence contracts/common.md#meaningful-documentation Evaluate vector Bernstein coefficients by De Casteljau without sampling or degree reduction.
-   * @evidence contracts/performance.md#efficient-algorithms Degree n requires O(n²) three-component blends.
+   * @evidence contracts/common.md#meaningful-documentation States the nonempty input, exact endpoint identity, unchanged nonterminal arithmetic and alias-free returned vector.
+   * @evidence contracts/performance.md#efficient-algorithms Endpoint evaluation copies one vector; other parameters require O(n²) three-component blends for degree n.
    * @evidence contracts/performance.md#reuse-equivalent-work Each reduction row supplies the complete next level in the same evaluation.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The returned vector belongs to the local cloned/evaluated net, with no input alias.
    */
   export function value(c: readonly Vec[], t: number): Vec {
+    if (t === 0) return V.clone(c[0]!);
+    if (t === 1) return V.clone(c.at(-1)!);
     let row: Vec[] = c.map(V.clone);
     while (row.length > 1)
       row = row

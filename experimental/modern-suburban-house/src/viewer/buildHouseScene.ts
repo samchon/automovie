@@ -28,6 +28,7 @@ import { PALETTE } from "../spaces/PALETTE";
 import {
   linearColorToSrgbHex,
   lowerBuiltEnvironment,
+  realizeAutoMovieGeometry,
   tessellateToMesh,
   transformAutoMovieMesh,
 } from "@automovie/engine";
@@ -98,9 +99,7 @@ export function buildHouseScene(
       throw new Error(`set piece ${piece.node} has no emitted part or model`);
     for (const member of model.parts) {
       const sourceMesh: import("@automovie/interface").IAutoMovieMesh =
-        member.geometry.type === "mesh"
-          ? member.geometry.mesh
-          : tessellateToMesh(member.geometry.shape);
+        realizeAutoMovieGeometry(member.geometry).mesh;
       const localMesh: import("@automovie/interface").IAutoMovieMesh =
         member.transform === null
           ? sourceMesh

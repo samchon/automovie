@@ -2,13 +2,5 @@
   "name": "@automovie/recovery-tools",
   "private": true,
   "type": "module",
-  "description": "Generic fixed-mesh observations and source-free saved-cubic reconstruction tools",
-  "engines": {
-    "node": ">=22.23.2"
-  },
-  "scripts": {
-    "build": "ttsc -p tsconfig.build.json && node --experimental-strip-types src/writeRecoveryModuleBoundaries.ts ../.. lib",
-    "check": "ttsc --noEmit -p tsconfig.json",
-    "evidence": "evidence --cwd ."
-  }
+  "scripts": { "evidence": "evidence --cwd ." }
 }
