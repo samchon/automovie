@@ -10,9 +10,9 @@ Inspect the actual consumer with current source on a hardware renderer, recordin
 
 ## Correction Rounds
 
-Before editing, inspect the whole affected asset and record every observed defect with its construction and comparison conditions. Trace causes through generation and display, including shared boundaries and derived outputs, and map each proposed change to all defects and parts it affects.
+Before editing, inspect the whole affected asset at every scale, moving the camera freely through whole views, regions, neighbors and close-ups from every needed direction, and record every observed defect with its construction and comparison conditions. Trace causes through generation and display, including shared boundaries and derived outputs. Where causes or their interactions are unclear, run controlled comparisons before changing the source. Map each proposed change to all defects and parts it affects.
 
-Fix all identified causes in the round together at their source, coordinating coupled changes across part boundaries. Use controlled comparisons to distinguish causes and interactions, then judge the complete correction on the assembled asset.
+Fix all identified causes in one combined change at their sources, and judge it on the assembled asset. A cause that crosses a part boundary is changed by both owners in the same round. Editing after each observed defect, rendering after each single fix, and leaving a traced cause to a later round or finer scale are the whack-a-mole patterns this procedure replaces.
 
 Rerun the original comparison across every affected part, view, identity, resolution and motion state, checking both the recorded defects and regressions. Account for every recorded defect before accepting the round; new or unexplained defects keep it open.
 
@@ -45,4 +45,4 @@ Judge form under raking light with fine material detail such as normal maps turn
 
 Compare the render with the engine result to separate calculation from display faults, and compare before and after under matching conditions.
 
-After every correction, render again and look yourself. Stale, blank, or unobserved output stays unverified.
+After each round's combined correction, render again and look yourself. Stale, blank, or unobserved output stays unverified.

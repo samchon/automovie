@@ -1,5 +1,5 @@
-import type { critical } from "../../human-reference/src/observations/critical.ts";
 import type { IRecoveryMeshSections } from "./IRecoveryMeshSections.ts";
+import type { critical } from "./internal/mesh-observations/critical.ts";
 
 /**
  * Prepare critical physical brackets and retain explicit unresolvable gaps.

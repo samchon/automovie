@@ -1,16 +1,16 @@
-import { CutPoint } from "../geometry/CutPoint.ts";
-import { Plane } from "../geometry/Plane.ts";
-import { Polyline } from "../geometry/Polyline.ts";
-import { Skin } from "../geometry/Skin.ts";
-import { V2 } from "../geometry/V2.ts";
-import { V3 } from "../geometry/V3.ts";
-import { cross } from "../geometry/cross.ts";
-import { dist } from "../geometry/dist.ts";
-import { dot } from "../geometry/dot.ts";
-import { mul } from "../geometry/mul.ts";
-import { signedArea } from "../geometry/signedArea.ts";
-import { sub } from "../geometry/sub.ts";
-import { to2 } from "../geometry/to2.ts";
+import { CutPoint } from "./CutPoint.ts";
+import { IAutoMovieRecoveryIndexedMesh } from "./IAutoMovieRecoveryIndexedMesh.ts";
+import { Plane } from "./Plane.ts";
+import { Polyline } from "./Polyline.ts";
+import { V2 } from "./V2.ts";
+import { V3 } from "./V3.ts";
+import { cross } from "./cross.ts";
+import { dist } from "./dist.ts";
+import { dot } from "./dot.ts";
+import { mul } from "./mul.ts";
+import { signedArea } from "./signedArea.ts";
+import { sub } from "./sub.ts";
+import { to2 } from "./to2.ts";
 
 /**
  * Builds a private supporting-face orientation witness; its result distinguishes outer from cavity contours.
@@ -26,12 +26,14 @@ import { to2 } from "../geometry/to2.ts";
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned closure owns its source and edge adjacency until its extraction operation ends; it is never globally cached.
  */
 export function sourceOrientation(
-  skin: Pick<Skin, "vertices" | "triangles" | "canon">,
+  skin: IAutoMovieRecoveryIndexedMesh,
   orientation: "signed-volume" | 1 | -1 = "signed-volume",
 ): (plane: Plane, polyline: Polyline) => number {
   const edges: Map<string, number[]> = new Map();
-  const key = (a: number, b: number): string =>
-    a < b ? `${a},${b}` : `${b},${a}`;
+  const key: (a: number, b: number) => string = (
+    a: number,
+    b: number,
+  ): string => (a < b ? `${a},${b}` : `${b},${a}`);
   let volume: number = 0;
   skin.triangles.forEach((t: [number, number, number], i: number): void => {
     volume += dot(

@@ -1,10 +1,10 @@
 import type { IAutoMovieCurve64 as C } from "../../../packages/engine/src/geometry/curve/IAutoMovieCurve64.ts";
-import { cutExact } from "../../human-reference/src/geometry/cutExact.ts";
-import { planeFrame } from "../../human-reference/src/geometry/planeFrame.ts";
-import { critical } from "../../human-reference/src/observations/critical.ts";
 import type { RecoveryMeshSections as R } from "./RecoveryMeshSections.ts";
 import { RecoveryOpenSlabGraph as O } from "./RecoveryOpenSlabGraph.ts";
 import { RecoveryScalarIndex as S } from "./RecoveryScalarIndex.ts";
+import { critical } from "./internal/mesh-observations/critical.ts";
+import { cutExact } from "./internal/mesh-observations/cutExact.ts";
+import { planeFrame } from "./internal/mesh-observations/planeFrame.ts";
 
 /**
  * Source observation of open-curve continuation without repeating numerical fitting.

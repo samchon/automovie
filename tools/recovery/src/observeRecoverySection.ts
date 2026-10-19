@@ -1,11 +1,11 @@
 import type { IAutoMovieContourLoft64 as L } from "../../../packages/engine/src/geometry/curve/IAutoMovieContourLoft64.ts";
 import type { IAutoMovieCurve64 as C } from "../../../packages/engine/src/geometry/curve/IAutoMovieCurve64.ts";
-import type { cutExact } from "../../human-reference/src/geometry/cutExact.ts";
-import type { planeFrame } from "../../human-reference/src/geometry/planeFrame.ts";
-import { signedArea } from "../../human-reference/src/geometry/signedArea.ts";
-import type { sourceOrientation } from "../../human-reference/src/observations/sourceOrientation.ts";
 import { RecoveryBezierFit as F } from "./RecoveryBezierFit.ts";
 import type { RecoveryMeshSections as R } from "./RecoveryMeshSections.ts";
+import type { cutExact } from "./internal/mesh-observations/cutExact.ts";
+import type { planeFrame } from "./internal/mesh-observations/planeFrame.ts";
+import { signedArea } from "./internal/mesh-observations/signedArea.ts";
+import type { sourceOrientation } from "./internal/mesh-observations/sourceOrientation.ts";
 
 /**
  * Observe and fit every contour on one fixed private section.

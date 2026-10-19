@@ -39,21 +39,6 @@ export const AUTOMOVIE_HUMAN_FOOT_FORM: {
     readonly side: number;
   };
   readonly toeHeight: readonly [number, number, number, number, number];
-  readonly relief: number;
-  readonly hollow: {
-    readonly depth: number;
-    readonly at: number;
-    readonly spread: number;
-    readonly angle: number;
-    readonly width: number;
-  };
-  readonly tendon: {
-    readonly depth: number;
-    readonly at: number;
-    readonly spread: number;
-    readonly angle: number;
-    readonly width: number;
-  };
   readonly toeRidge: {
     readonly hallux: number;
     readonly lesser: number;
@@ -100,16 +85,6 @@ export const AUTOMOVIE_HUMAN_FOOT_FORM: {
 
   /** Dorsal height of each toe's free part, hallux to fifth: the hallux and second toe fitted, the third to fifth falling laterally, conventional, since the old cage's fitted values for them (a third toe a quarter of the second's height) served its four-sided toe tubes and flattened a swept toe. */
   toeHeight: [0.1092, 0.0685, 0.064, 0.06, 0.056],
-
-  /** Scale of the malleoli, the hollows beside the calcaneal tendon and the tendon's line, 1 as fitted and set against renders. */
-  relief: 1,
-
-  /** The hollows either side of the calcaneal tendon: depth of foot length, middle and spread in height of lateral malleolus height, angle from the front and its spread in degrees. */
-  hollow: { depth: 0.072, at: 1.31, spread: 0.95, angle: 95, width: 62 },
-
-  /** The tendon's line set in from the heel's bulge, in the same terms as `hollow`. */
-  tendon: { depth: 0.045, at: 0.99, spread: 0.41, angle: 212.5, width: 42.5 },
-
   /** The dorsum's descent onto the toes past the line of the metatarsophalangeal joints: the ridge over each toe at its root, of the toe's height (the old cage's dorsal heights at the base of the free toe), its half-breadth, of the toe's breadth, the share of the toes' mean length over which the dorsum comes down onto them, and the webs' height between the toes, of their mean height. */
   toeRidge: {
     hallux: 1.055,

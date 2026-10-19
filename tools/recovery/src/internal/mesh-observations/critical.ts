@@ -1,8 +1,8 @@
-import { Skin } from "../geometry/Skin.ts";
-import { V3 } from "../geometry/V3.ts";
-import { dot } from "../geometry/dot.ts";
-import { norm } from "../geometry/norm.ts";
 import { CriticalVertex } from "./CriticalVertex.ts";
+import { IAutoMovieRecoveryIndexedMesh } from "./IAutoMovieRecoveryIndexedMesh.ts";
+import { V3 } from "./V3.ts";
+import { dot } from "./dot.ts";
+import { norm } from "./norm.ts";
 
 /**
  * Classifies generic PL height vertices by connected lower and upper links.
@@ -25,7 +25,7 @@ import { CriticalVertex } from "./CriticalVertex.ts";
  * @evidence contracts/performance.md#bound-retention-and-release-resources All source qualification maps and link graphs are call-local and released after returning private events. No cross-call cache exists; callers discard source addresses before serialization.
  */
 export function critical(
-  skin: Pick<Skin, "vertices" | "triangles" | "canon">,
+  skin: IAutoMovieRecoveryIndexedMesh,
   axis: V3 = [0, 1, 0],
   scalarHeights?: readonly number[],
   policy:
@@ -87,7 +87,11 @@ export function critical(
     }
   }
   const links: Map<number, Map<number, Set<number>>> = new Map();
-  const edge = (vertex: number, a: number, b: number): void => {
+  const edge: (vertex: number, a: number, b: number) => void = (
+    vertex: number,
+    a: number,
+    b: number,
+  ): void => {
     if (!links.has(vertex)) links.set(vertex, new Map());
     const link: Map<number, Set<number>> = links.get(vertex)!;
     if (!link.has(a)) link.set(a, new Set());

@@ -1,7 +1,7 @@
 import { CutPoint } from "./CutPoint.ts";
+import { IAutoMovieRecoveryIndexedMesh } from "./IAutoMovieRecoveryIndexedMesh.ts";
 import { Plane } from "./Plane.ts";
 import { Polyline } from "./Polyline.ts";
-import { Skin } from "./Skin.ts";
 import { V3 } from "./V3.ts";
 
 /**
@@ -14,7 +14,7 @@ import { V3 } from "./V3.ts";
  * its signs and edge fractions use height minus level without reprojecting an origin.
  *
  * @evidence contracts/common.md#principled-implementation Signed linear interpolation and canonical source-edge incidence build the plane intersection multigraph. Only two opposite coplanar incidences whose triangles lie on opposite sides of their edge cancel as a patch interior; edge visitation preserves every remaining contribution. Equal-position canonical aliases must already be qualified by registration.
- * @evidence contracts/common.md#clear-and-simple-design The operator owns source observation only and returns the existing Polyline contract; the legacy cut remains the default for existing consumers.
+ * @evidence contracts/common.md#clear-and-simple-design The operator owns source observation only and returns the existing Polyline contract; callers own source registration and generated-surface reconstruction.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No distance epsilon, positional weld, invented closure, component selection or generated surface is introduced. Canonical identities must already be supplied by registration.
  * @evidence contracts/common.md#meaningful-documentation States exact-zero convention, coplanar boundaries, isolated contacts, maximal chains and binary64 predicate limits.
  * @evidence contracts/performance.md#efficient-algorithms For V positions and T triangles, signed distances, edge incidence and graph walks require expected O(V+T) time and O(V+T) temporary storage.
@@ -22,7 +22,7 @@ import { V3 } from "./V3.ts";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Graph maps and visited edges expire on return; only ordered physical observations with private source support addresses escape.
  */
 export function cutExact(
-  skin: Pick<Skin, "vertices" | "triangles" | "canon">,
+  skin: IAutoMovieRecoveryIndexedMesh,
   plane: Plane,
   select?: (triangle: number) => boolean,
   chart?: { heights: readonly number[]; level: number },
@@ -66,7 +66,7 @@ export namespace cutExact {
    * The supplied plane retains the physical chart, while heights minus level own predicates.
    */
   export function prepare(
-    skin: Pick<Skin, "vertices" | "triangles" | "canon">,
+    skin: IAutoMovieRecoveryIndexedMesh,
     heights: readonly number[],
   ): (
     plane: Plane,
@@ -198,13 +198,11 @@ export namespace cutExact {
             if (a === b) continue;
             const id: string = key(a, b);
             if (!coplanar.has(id)) coplanar.set(id, []);
-            coplanar
-              .get(id)!
-              .push({
-                ends: [a, b],
-                triangle: ti,
-                opposite: skin.vertices[t[(k + 2) % 3]!]!,
-              });
+            coplanar.get(id)!.push({
+              ends: [a, b],
+              triangle: ti,
+              opposite: skin.vertices[t[(k + 2) % 3]!]!,
+            });
           }
           continue;
         }

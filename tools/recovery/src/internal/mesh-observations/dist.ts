@@ -13,4 +13,5 @@ import { sub } from "./sub.ts";
  * @evidence contracts/performance.md#reuse-equivalent-work Each call depends directly on its arguments; no retained cache or effectful shared work exists.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary and result scalars become unreachable after return.
  */
-export const dist = (a: V3, b: V3): number => len(sub(a, b));
+export const dist: (a: V3, b: V3) => number = (a: V3, b: V3): number =>
+  len(sub(a, b));

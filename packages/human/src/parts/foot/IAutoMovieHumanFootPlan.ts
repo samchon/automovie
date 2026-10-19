@@ -25,16 +25,6 @@ export interface IAutoMovieHumanFootPlan {
 
   /** Shared envelope-centre family from the heel to the metatarsal boundary, local millimetres; at is the forefoot station as a fraction of L. */
   axis: { heel: number; forefoot: number; at: number };
-
-  /** Scale of the bony and tendinous relief, 1 as anatomy gives it and 0 for the bare block-out of the form. */
-  relief: number;
-
-  /** The hollows either side of the calcaneal tendon, between it and the malleoli, where the heel narrows into the tendon. */
-  hollow: IAutoMovieHumanFootPlan.IHollow;
-
-  /** The tendon's own line, set in from the heel's bulge behind it. */
-  tendon: IAutoMovieHumanFootPlan.IHollow;
-
   /** The ankle ring's section. */
   ankle: IAutoMovieHumanFootPlan.IAnkle;
 
@@ -53,37 +43,15 @@ export interface IAutoMovieHumanFootPlan {
   /** Toes from the hallux to the fifth. */
   toes: IAutoMovieHumanFootPlan.IToe[];
 
-  /** Lowest point of the lateral malleolus. */
+  /** The lateral malleolus landmark on the skin at lateral malleolus height, the bone's most lateral point. */
   lateralMalleolus: IAutoMovieVector3;
 
   /** Tip of the medial malleolus, sphyrion. */
   medialMalleolus: IAutoMovieVector3;
 }
 export namespace IAutoMovieHumanFootPlan {
-  /** Pairs of `f` and a value as a fraction of foot length, read by `interpolateAutoMovieHumanFootProfile`. */
+  /** Pairs of `f` and a value as a fraction of foot length: the foot solid reads them by a monotone cubic, the toe sweep by `interpolateAutoMovieHumanFootProfile`. */
   export type IProfile = ReadonlyArray<readonly [number, number]>;
-
-  /**
-   * An inward relief behind the ankle: a Gaussian in the angle about the ankle and in height.
-   *
-   * @author Samchon
-   */
-  export interface IHollow {
-    /** Depth toward the ankle's axis, of foot length. */
-    depth: number;
-
-    /** Height of its middle, of lateral malleolus height. */
-    at: number;
-
-    /** Its spread in height, of lateral malleolus height. */
-    spread: number;
-
-    /** Its angle from the front about the ankle, degrees, on both sides. */
-    angle: number;
-
-    /** Its spread in angle, degrees. */
-    width: number;
-  }
 
   /**
    * The ankle ring's section, the junction's shared shape seen from the foot: the origin and the distance of each ring vertex, in the left foot's order counterclockwise about +y from the anterior one.

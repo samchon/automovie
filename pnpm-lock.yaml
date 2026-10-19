@@ -839,8 +839,6 @@ importers:
         specifier: catalog:vite
         version: 5.4.21(@types/node@22.19.20)
 
-  tools/human-reference: {}
-
   tools/recovery: {}
 
   website:
