@@ -5,6 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { installAutoMovieRecoveryConsumerToolchain } from "./installAutoMovieRecoveryConsumerToolchain.ts";
 import { verifyAutoMovieRecoveryOpenConsumer } from "./verifyAutoMovieRecoveryOpenConsumer.ts";
 import { verifyAutoMovieRecoveryRegisteredConsumer } from "./verifyAutoMovieRecoveryRegisteredConsumer.ts";
 
@@ -14,7 +15,9 @@ import { verifyAutoMovieRecoveryRegisteredConsumer } from "./verifyAutoMovieReco
  * That pnpm run host supplies npm_execpath; an explicit driver override remains
  * available to controlled hosts. Packing disables lifecycle scripts.
  * The external consumer installs only exact interface, engine and recovery tarballs;
- * its package store and temporary paths are run-owned. No registry is consulted.
+ * its package store and temporary paths are run-owned. Runtime installation is
+ * offline. After runtime checks, the consumer normally installs the workspace
+ * TypeScript version as a development dependency for the separate declaration check.
  * Source-free runtime checks use Node's filesystem permissions, admitting only the
  * external consumer tree. The generated type-consumer config is returned for the
  * owning compiler or CI; runtime stripping alone is not a declaration-type check.
@@ -419,6 +422,15 @@ export function consume(input: IAutoMovieRecoveryInput, saved: Parameters<typeof
       2,
     ),
   );
+  const declarationToolchain: ReturnType<
+    typeof installAutoMovieRecoveryConsumerToolchain
+  > = installAutoMovieRecoveryConsumerToolchain({
+    repository,
+    consumer,
+    dependencies,
+    store: path.join(scratch, "store"),
+    pnpm,
+  });
   const receipt: object = {
     schema: "automovie-recovery-packed-consumer-v1",
     sourceEpoch,
@@ -443,6 +455,12 @@ export function consume(input: IAutoMovieRecoveryInput, saved: Parameters<typeof
     version: version.trim(),
     refusedExit: refused.status,
     declarationCheck: "pending-owning-compiler",
+    declarationToolchain: {
+      ...declarationToolchain,
+      strict: true,
+      skipLibCheck: false,
+      sourceFallback: false,
+    },
     typeConfig,
   };
   fs.writeFileSync(
