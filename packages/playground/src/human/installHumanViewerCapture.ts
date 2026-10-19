@@ -322,8 +322,10 @@ export function installHumanViewerCapture(page: HumanViewerPage): void {
               page.curveDisplay?.surface === "hidden" || mode === "construction"
                 ? "hidden"
                 : mode === "net"
-                  ? "ghosted-existing-skin"
-                  : "existing-skin",
+                  ? (capturedSession.surfaceMeasurements === undefined
+                    ? "ghosted-existing-skin" : "ghosted-generated-rest-surface")
+                  : (capturedSession.surfaceMeasurements === undefined
+                    ? "existing-skin" : "generated-rest-surface"),
             displayedConstruction:
               mode === "surface" && page.curveDisplay?.surface !== "hidden"
                 ? "none"
@@ -331,7 +333,9 @@ export function installHumanViewerCapture(page: HumanViewerPage): void {
             comparisonQualification:
               constructionMetadata.constructionSource === "curve-design"
                 ? "Existing skin is generated independently from these design curves."
-                : "Current skin and its own generating construction.",
+                : capturedSession.surfaceMeasurements === undefined
+                  ? "Current skin and its own generating construction."
+                  : "Partial physical-rest surface and construction share generated coefficients; missing charts remain open.",
             view: page.view.view,
             scale: page.view.scale,
             focus: page.view.scale === "whole" ? null : page.view.focus,
@@ -371,7 +375,7 @@ export function installHumanViewerCapture(page: HumanViewerPage): void {
           documentsHash,
           documents: capturedSession,
           construction: constructionMetadata,
-          assembly: page.assembly,
+          assembly: capturedSession.surfaceMeasurements === undefined ? page.assembly : "generated-rest-field",
           hand: page.hand,
           showStick: page.showStick,
           showBones: page.showBones,

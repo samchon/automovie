@@ -58,7 +58,9 @@ export class AutoMovieHumanSkinTextureAtlas {
       );
       if (
         domain !== undefined &&
-        domain.faces.length * domain.trianglesPerFace * 3 !== count
+        ("triangles" in domain
+          ? domain.triangles.length * 3
+          : domain.faces.length * domain.trianglesPerFace * 3) !== count
       )
         throw new Error(
           `Skin source roles do not match actual triangle order on ${part.id}`,
@@ -90,7 +92,9 @@ export class AutoMovieHumanSkinTextureAtlas {
           filter: undefined,
           eligible:
             domain === undefined ||
-            domain.faces[Math.floor(at / 3 / domain.trianglesPerFace)] ===
+            ("triangles" in domain
+              ? domain.triangles[at / 3]
+              : domain.faces[Math.floor(at / 3 / domain.trianglesPerFace)]) ===
               "ordinary",
         };
         const loX: number = Math.max(

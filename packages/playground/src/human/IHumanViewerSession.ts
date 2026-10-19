@@ -5,10 +5,12 @@ import {
   IAutoMovieHumanIdentity,
   IAutoMovieHumanPose,
   IAutoMovieHumanTraits,
+  IAutoMovieHumanSurfaceMeasurements,
 } from "@automovie/human";
 
 /**
- * The saved state of the Human page: the four documents a person is rendered from, plus the traits that last produced the identity.
+ * The saved state of the Human page: identity, pose, expression, appearance,
+ * optional physical-rest surface targets and the traits that produced identity.
  *
  * The identity, pose, expression and appearance are the canonical state, admitted by `@automovie/human` before the page accepts them, so a resumed session renders the same person; the traits are editing history and never override a saved identity. The page writes this shape to local storage and to downloaded files, and refuses a file of another `format` or `version`.
  *
@@ -43,6 +45,9 @@ export interface IHumanViewerSession {
 
   /** Surface appearance the model is generated with. */
   appearance: IAutoMovieHumanAppearance;
+
+  /** Explicit generated T-rest field targets. Omission selects the previous cage model; missing charts in this route remain partial and open. */
+  surfaceMeasurements?: IAutoMovieHumanSurfaceMeasurements;
 
   /** Optional separate curve inspection state; it never changes skin admission. */
   curveDesign?: {

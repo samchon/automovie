@@ -3,6 +3,7 @@
  */
 export * from "./human/AutoMovieHuman";
 export * from "./structures/IAutoMovieHumanCurveSupplement";
+export * from "./structures/IAutoMovieHumanSurfaceMeasurements";
 export * from "./curves/inspectAutoMovieHumanCurveDesign";
 export * from "./measure/validateAutoMovieHumanCurveSupplement";
 export * from "./human/AUTOMOVIE_HUMAN_PART_GENERATORS";

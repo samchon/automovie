@@ -116,6 +116,7 @@ export function installHumanViewerSession(page: HumanViewerPage): void {
         appearance: appearance.data,
         assembly: page.assembly,
         skinFinish: page.skinFinish,
+        surfaceMeasurements: session.surfaceMeasurements,
       }),
       skeleton: human.getSkeleton(),
       pose,
@@ -129,7 +130,11 @@ export function installHumanViewerSession(page: HumanViewerPage): void {
     try {
       if (page.closed) throw new Error("The Human page is closed.");
       page.show(page.admit(candidate));
-      page.status(note);
+      const generated: ReturnType<AutoMovieHuman["inspectSurface"]> | undefined =
+        candidate.surfaceMeasurements === undefined ? undefined :
+          page.current.human.inspectSurface({measurements: candidate.surfaceMeasurements});
+      page.status(generated === undefined ? note :
+        `${note} Partial generated rest surface (${generated.revision}): ${generated.diagnostics.join("; ")}`);
       return true;
     } catch (cause) {
       page.error(cause);

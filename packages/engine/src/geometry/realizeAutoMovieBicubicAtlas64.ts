@@ -18,6 +18,10 @@ import { tessellateAutoMovieBicubicAtlas64 as T } from "./curve/tessellateAutoMo
  * After streaming ends, unreferenced render vertices left by a local omission
  * are compacted out. Triangle ordinals and physical domain/ID pairs remain the
  * same; only the returned render indices and source-table slots are remapped.
+ * Requested triangle parameters retain actual chart coordinates per corner,
+ * aligned with triangle ordinals and primitiveRanges, through that compaction.
+ * A shared render vertex can have different incident chart coordinates; these
+ * records are not per-vertex UV0, skin weights or semantic surface addresses.
  *
  * @evidence contracts/common.md#principled-implementation Complete Bernstein coefficients and shared control identities feed the adaptive atlas operator; unit conversion is explicit and returned indices are appended without coordinate matching.
  * @evidence contracts/common.md#clear-and-simple-design One public-recipe adapter serves viewer, measurements and artifact compilation, separating structural admission from polynomial evaluation.
@@ -25,12 +29,18 @@ import { tessellateAutoMovieBicubicAtlas64 as T } from "./curve/tessellateAutoMo
  * @evidence contracts/common.md#meaningful-documentation States units, physical identity, budget cancellation, partial realization and the absence of source-fidelity certification.
  * @evidence contracts/performance.md#efficient-algorithms Admission scans controls, patches and canonical declarations and sorts retained control IDs; conversion is linear in those retained values. The kernel owns adaptive costs. Appending and final omission compaction cost O(V+F), without regeneration or coordinate comparison.
  * @evidence contracts/performance.md#reuse-equivalent-work Each geometry call realizes one recipe once; callers own reuse across unchanged model records.
- * @evidence contracts/performance.md#bound-retention-and-release-resources One bounded generator chunk and at most maxVertices output vertices are retained. O(V) scalar remapping scratch is allocated only after a local omission or zero-area output. Cancellation closes the generator; compacted mesh, ownership and diagnostics transfer to the caller.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources One bounded generator chunk and at most maxVertices output vertices are retained. Requested triangle parameters add six numbers per retained output triangle and no buffer when disabled. O(V) scalar remapping scratch is allocated only after a local omission or zero-area output. Cancellation closes the generator; compacted mesh, ownership, optional parameters and diagnostics transfer to the caller.
  */
 export function realizeAutoMovieBicubicAtlas64(
   input: IAutoMovieBicubicAtlasGeometry,
+  options: {
+    /** Retain actual patch-local triangle-corner parameters for downstream surface consumers; omitted allocates none. */
+    retainTriangleParameters?: boolean;
+  } = {},
 ): {
   mesh: IAutoMovieMesh;
+  /** Requested [u0,v0,u1,v1,u2,v2] per retained triangle, with patch ownership in primitiveRanges. */
+  triangleParameters?: number[];
   complete: boolean;
   approximationQualified: boolean;
   diagnostics: string[];
@@ -51,8 +61,15 @@ export function realizeAutoMovieBicubicAtlas64(
     approximationBoundMm: number;
   }[];
 } {
+  if (
+    options.retainTriangleParameters !== undefined &&
+    typeof options.retainTriangleParameters !== "boolean"
+  )
+    throw new Error("Triangle parameter retention must be boolean");
   const admitted: ReturnType<typeof admitAutoMovieBicubicAtlas> =
     admitAutoMovieBicubicAtlas(input);
+  const triangleParameters: number[] | undefined =
+    options.retainTriangleParameters ? [] : undefined;
   const mesh: IAutoMovieMesh = {
     positions: [],
     normals: [],
@@ -86,6 +103,7 @@ export function realizeAutoMovieBicubicAtlas64(
   if (!admitted.patches.length)
     return {
       mesh,
+      ...(triangleParameters === undefined ? {} : { triangleParameters }),
       complete: false,
       approximationQualified: false,
       diagnostics,
@@ -133,6 +151,7 @@ export function realizeAutoMovieBicubicAtlas64(
     cellBudgetPolicy: input.cellBudgetPolicy,
     maxVerticesPerChunk: Math.min(4096, input.maxVertices),
     vertexOffset: 0,
+    retainTriangleParameters: options.retainTriangleParameters,
   });
   const physical: Map<string, number> = new Map();
   let complete: boolean = admitted.patches.length === input.patches.length;
@@ -153,6 +172,8 @@ export function realizeAutoMovieBicubicAtlas64(
         chunk.vertexStart !== vertexCount ||
         chunk.positions.length !== chunk.normals.length ||
         chunk.positions.length / 3 !== chunk.physicalVertexIds.length ||
+        (triangleParameters !== undefined &&
+          chunk.triangleParameters?.length !== chunk.indices.length * 2) ||
         chunk.indices.some(
           (index: number): boolean =>
             !Number.isSafeInteger(index) ||
@@ -167,6 +188,9 @@ export function realizeAutoMovieBicubicAtlas64(
       for (const value of chunk.positions) mesh.positions.push(value);
       for (const value of chunk.normals) mesh.normals!.push(value);
       for (const value of chunk.indices) mesh.indices!.push(value);
+      if (triangleParameters !== undefined)
+        for (const value of chunk.triangleParameters!)
+          triangleParameters.push(value);
       for (let i: number = 0; i < chunk.physicalVertexIds.length; i++) {
         const id: number = vertexCount + i;
         const identity: string = chunk.physicalVertexIds[i]!;
@@ -267,6 +291,7 @@ export function realizeAutoMovieBicubicAtlas64(
   }
   return {
     mesh,
+    ...(triangleParameters === undefined ? {} : { triangleParameters }),
     complete,
     approximationQualified,
     diagnostics,

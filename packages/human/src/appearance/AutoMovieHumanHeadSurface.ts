@@ -6,7 +6,12 @@ import { AutoMovieHumanUvLayout } from "../junction/AutoMovieHumanUvLayout";
 /**
  * The head's generated skin as a surface hair, brows and lashes are placed on: looked up by the head chart's semantic coordinates, or hit by a ray.
  *
- * The surface is read back from the emitted skin, whatever its assembly, rather than from the head generator: every triangle whose texture coordinates lie in the head's rectangle of the published UV layout is the head's, and the layout is a fixed function of each corner's semantic address, so inverting it returns the chart coordinates `u` (from the bottom of the head's chart to the vertex) and `v` (a turn counterclockwise about the vertical from the anterior midline). Placement therefore follows whatever form the head generator gives the person, and needs no index of any vertex. Positions are millimetres in the model frame at rest.
+ * Explicit generated triangle addresses, when supplied, own chart membership
+ * independently of UV packing. Otherwise the legacy published head rectangle
+ * is inverted. Both paths read actual emitted skin positions and normals.
+ * Addresses are `u` from chart bottom to vertex and `v` a turn from the anterior
+ * midline. Positions are millimetres in the model frame at rest. Missing exact
+ * generated chart coverage remains missing rather than using a spherical guess.
  *
  * @author Samchon
  */
@@ -23,7 +28,14 @@ export class AutoMovieHumanHeadSurface {
    * @param parts The skin parts, in metres, each a mesh with texture coordinates; other parts are skipped
    * @throws {Error} When no triangle lies on the head's chart
    */
-  public constructor(parts: readonly IAutoMovieModelPart[]) {
+  public constructor(parts: readonly IAutoMovieModelPart[], addresses?: {
+    /** Turn at the semantic chart cut; independent of packed texture layout. */
+    seam: number;
+    /** Per-part actual triangle [v-seam,u] corner pairs; null excludes a non-head triangle. */
+    triangles: ReadonlyMap<string, readonly (readonly number[] | null)[]>;
+  }) {
+    if (addresses !== undefined && !Number.isFinite(addresses.seam))
+      throw new Error("Finite generated head-chart seam required");
     const chart: AutoMovieHumanUvLayout.IChart =
       AUTOMOVIE_HUMAN_UV_LAYOUT.charts.find(
         (c: AutoMovieHumanUvLayout.IChart): boolean => c.part === "head",
@@ -35,22 +47,27 @@ export class AutoMovieHumanHeadSurface {
     for (const part of parts) {
       if (part.geometry.type !== "mesh") continue;
       const mesh: IAutoMovieMesh = part.geometry.mesh;
-      if (mesh.uvs === null || mesh.normals === null || mesh.indices === null)
+      const supplied: readonly (readonly number[] | null)[] | undefined =
+        addresses?.triangles.get(part.id);
+      if (addresses !== undefined && supplied === undefined) continue;
+      if ((addresses === undefined && mesh.uvs === null) || mesh.normals === null || mesh.indices === null)
         continue;
-      const local: Map<number, number> = new Map();
-      const take: (i: number) => number = (i: number): number => {
-        let found: number | undefined = local.get(i);
+      if (supplied !== undefined && supplied.length * 3 !== mesh.indices.length)
+        throw new Error("Head chart ownership must match actual triangle order");
+      const local: Map<string, number> = new Map();
+      const take: (i: number, x: number, y: number) => number = (
+        i: number, x: number, y: number,
+      ): number => {
+        const key: string = JSON.stringify([i,x,y]);
+        let found: number | undefined = local.get(key);
         if (found === undefined) {
           found = this.positions_.length / 3;
-          local.set(i, found);
+          local.set(key, found);
           for (let k: number = 0; k < 3; ++k) {
             this.positions_.push(mesh.positions[3 * i + k]! * 1000);
             this.normals_.push(mesh.normals![3 * i + k]!);
           }
-          this.charts_.push(
-            (mesh.uvs![2 * i]! - chart.x) / chart.width,
-            (mesh.uvs![2 * i + 1]! - chart.y) / chart.height,
-          );
+          this.charts_.push(x, y);
         }
         return found;
       };
@@ -60,7 +77,12 @@ export class AutoMovieHumanHeadSurface {
           mesh.indices[t + 1]!,
           mesh.indices[t + 2]!,
         ];
-        const inside: boolean = corners.every((i: number): boolean => {
+        const explicit: readonly number[] | null | undefined = supplied?.[t / 3];
+        if (supplied !== undefined && explicit === null) continue;
+        if (supplied !== undefined &&
+            (explicit === undefined || explicit.length !== 6 || !explicit.every(Number.isFinite)))
+          throw new Error("Six finite actual head-chart corner values required");
+        const inside: boolean = supplied !== undefined || corners.every((i: number): boolean => {
           const x: number = mesh.uvs![2 * i]!;
           const y: number = mesh.uvs![2 * i + 1]!;
           return (
@@ -90,7 +112,11 @@ export class AutoMovieHumanHeadSurface {
           // An exactly collapsed source triangle has no surface point. Keep
           // at() consistent with ray casting; no size threshold excludes skin.
           if (area.some((v: number): boolean => v !== 0))
-            this.triangles_.push(...corners.map(take));
+            this.triangles_.push(...corners.map((index: number, k: number): number => take(
+              index,
+              explicit?.[2*k] ?? (mesh.uvs![2*index]!-chart.x)/chart.width,
+              explicit?.[2*k+1] ?? (mesh.uvs![2*index+1]!-chart.y)/chart.height,
+            )));
         }
       }
     }
@@ -116,10 +142,12 @@ export class AutoMovieHumanHeadSurface {
         for (let x: number = x0; x <= x1; ++x)
           this.buckets_[y * GRID + x]!.push(t);
     }
-    this.seam_ = chart.seam;
+    this.seam_ = addresses?.seam ?? chart.seam;
+    this.canonicalFallback_ = addresses === undefined;
   }
 
   private readonly seam_: number;
+  private readonly canonicalFallback_: boolean;
 
   /**
    * The surface point at a head chart address.
@@ -161,6 +189,7 @@ export class AutoMovieHumanHeadSurface {
   ): AutoMovieHumanHeadSurface.IPoint | null {
     const found: AutoMovieHumanHeadSurface.IPoint | null = this.at(u, v);
     if (found !== null) return found;
+    if (!this.canonicalFallback_) return null;
     const latitude: number = Math.PI * (u - 0.5);
     const turn: number = 2 * Math.PI * v;
     return this.cast(

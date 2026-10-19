@@ -41,6 +41,8 @@ import { IAutoMovieHumanExpression } from "../structures/IAutoMovieHumanExpressi
 import { IAutoMovieHumanIdentity } from "../structures/IAutoMovieHumanIdentity";
 import { IAutoMovieHumanPose } from "../structures/IAutoMovieHumanPose";
 import { IAutoMovieHumanTraits } from "../structures/IAutoMovieHumanTraits";
+import type { IAutoMovieHumanSurfaceMeasurements } from "../structures/IAutoMovieHumanSurfaceMeasurements";
+import { AutoMovieHumanRestSurface } from "../surface/AutoMovieHumanRestSurface";
 import { AUTOMOVIE_HUMAN_PART_GENERATORS } from "./AUTOMOVIE_HUMAN_PART_GENERATORS";
 import { AUTOMOVIE_HUMAN_SKIN_MATERIAL } from "./AUTOMOVIE_HUMAN_SKIN_MATERIAL";
 import { IAutoMovieHumanPartGenerators } from "./IAutoMovieHumanPartGenerators";
@@ -54,20 +56,7 @@ import { generateAutoMovieHumanRest } from "./generateAutoMovieHumanRest";
  *
  * Construction admits the identity, resolves its measurements and generates the skeleton once; every later call reads those, so a person never changes after it is built and a host keeps the previous person when a new identity is refused. A different identity is a new instance. The instance holds all its state; the package keeps no module state.
  *
- * The package is laid out as layers, each importing only those below it, so generation runs one way from parameters to geometry:
- *
- * - `structures`: the public input documents, identity, traits, pose, expression and appearance.
- * - `measure`: admission of identities and traits, the traits-to-identity converter, and resolved measurements.
- * - `skeleton`: joint centres, axes and range of motion on the shared humanoid bones, in the canonical T-pose.
- * - `junction`: the control cage, boundary rings and the joining of two parts' rings before one subdivision.
- * - `parts/<part>`: one generator per skin part, emitting a cage with rings; parts never import each other.
- * - `rig`: skin weights, posing and facial articulation.
- * - `appearance`: skin, hair, brows and lashes materials and geometry.
- * - `garment`: binding garments to the skin, underwear first.
- * - `export`: static glTF and GLB.
- * - `human`: this class, which composes them.
- *
- * The output contract with films is `IAutoMovieModel` alone, with `origin: "generated"`; Human never enters films through archetype recipes or their string-keyed parameters. Every method takes one object argument, so the class can be exposed as function-calling tools.
+ * The output contract with films is `IAutoMovieModel`, with `origin: "generated"`. The generated rest-field route consumes explicit T-rest physical observations and owns both skin and construction. Its current anatomical layout is partial; `inspectSurface` reports actual open boundaries and missing regions. Without that explicit selection, the previous cage assembly remains a separately identified route.
  *
  * The model includes the generated skin and a stick inspection figure. Skin finish and seeded surface marks follow the admitted appearance; teeth and underwear remain incomplete. Methods refuse inadmissible documents with {@link AutoMovieHumanAdmissionError}, naming each field, bound and cause.
  *
@@ -78,6 +67,8 @@ export class AutoMovieHuman {
   private readonly measurements_: IAutoMovieHumanMeasurements;
   private readonly skeleton_: IAutoMovieHumanSkeleton;
   private readonly generators_: IAutoMovieHumanPartGenerators;
+  private surface_: AutoMovieHumanRestSurface | undefined;
+  private inspectionSurface_: IAutoMovieHumanSurfaceMeasurements | undefined;
   /** Independent curve inspection cache sharing this person's resolved measurements and rest skeleton. */
   private curveDesign_: AutoMovieHumanCurveDesign | undefined;
   private rest_: Partial<
@@ -183,12 +174,15 @@ export class AutoMovieHuman {
    *
    * Hair construction, when available, is the same latest successful getModel emission for the selected assembly. Before its first model there is no hair net; another assembly does not borrow that appearance's cards.
    *
-   * @param props.assembly Assembly to inspect; omitted, the last successfully emitted model assembly, or parts before the first model.
+   * @param props.assembly Previous cage assembly; omitted, the last selected assembly. surfaceMeasurements instead inspects the generated physical field, as does the last successful generated model.
    * @returns One net per lofted part instance
    */
   public inspect(
-    props: { assembly?: "parts" | "joined" } = {},
+    props: { assembly?: "parts" | "joined"; surfaceMeasurements?: IAutoMovieHumanSurfaceMeasurements } = {},
   ): IAutoMovieHumanConstructionNet[] {
+    const surface: IAutoMovieHumanSurfaceMeasurements | undefined =
+      props.surfaceMeasurements ?? (props.assembly === undefined ? this.inspectionSurface_ : undefined);
+    if (surface !== undefined) return this.inspectSurface({measurements: surface}).construction;
     const assembly: "parts" | "joined" =
       props.assembly ?? this.inspectionAssembly_;
     return structuredClone([
@@ -206,12 +200,21 @@ export class AutoMovieHuman {
   public measure(): IAutoMovieHumanSkeletalMeasurements {
     return measureAutoMovieHumanSkeleton(this.skeleton_);
   }
+  /** Generate/inspect the same explicit physical rest definition as getModel's surfaceMeasurements selection. Missing charts remain partial; a refused input throws without replacing the last successful cache. */
+  public inspectSurface(props: {
+    measurements: IAutoMovieHumanSurfaceMeasurements;
+  }): AutoMovieHumanRestSurface.Result {
+    this.surface_ ??= new AutoMovieHumanRestSurface({
+      measurements: this.measurements_, skeleton: this.skeleton_,
+    });
+    return this.surface_.inspect(props.measurements);
+  }
   /**
    * The person as a model films place and pose like any other.
    *
    * The model holds the stick figure of the skeleton, a capsule from each joint centre to the bone's end and a sphere at each joint, every bone including fingers, eyes and jaw, coloured grey on the midline, red on the person's left and blue on the right, and the skin. With `assembly: "parts"`, the default while the parts are being built, the skin is every part's own cage subdivided alone, one static model part each with id `skin.<part>` or `skin.<part>.<side>`, so the viewer can isolate a part and judge it before joining. With `assembly: "joined"` the skin is the person: every part's cage joined through its rings, subdivided once as one surface, and emitted as one skinned mesh `skin` with limit normals and the published UV layout. Separate meshes a part carries, such as the nail plates and the eyeballs, are their own parts riding one bone each, id `<part>[.<side>].<name>`, and the model carries the images their materials sample, such as each iris. The skin's material follows the identity's pigmentation and the appearance's finish and samples a generated relief image the model carries. Nail plates show the nail bed of the person's pigmentation with a pale free edge. Scalp hair, brows and lashes are cards grown on the emitted head's surface, parts `hair`, `brows` and `lashes` riding the head bone; teeth and underwear follow as their generators land. The appearance is admitted already, so a document that will be refused later is refused now.
    *
-   * Plain finish bypasses both skin-field bakers and publishes no skin detail/mark images or bindings. It retains the same rest surface, pigmentation, nails, eyes and hair; it is a provisional material choice, not a generated curve surface.
+   * surfaceMeasurements selects the parameter-generated partial field and its plain material. Missing charts emit no old skin or attachments. inspectSurface reports its open boundaries and limitations. Otherwise plain finish skips only the previous skin's normal/mark bakers.
    *
    * @param props The appearance to wear, skin assembly and optional provisional finish
    * @returns Model with `origin: "generated"`
@@ -223,6 +226,8 @@ export class AutoMovieHuman {
     assembly?: "parts" | "joined";
     /** Authored finish retains the normal/mark atlas path; plain keeps pigmentation and coarse material only, skipping those bakers. */
     skinFinish?: "authored" | "plain";
+    /** Explicit physical T-rest surface route. It emits implemented charts only, with plain finish and no attachment from missing charts; inspectSurface reports its partial state. */
+    surfaceMeasurements?: IAutoMovieHumanSurfaceMeasurements;
   }): IAutoMovieModel {
     if (
       props.skinFinish !== undefined &&
@@ -234,6 +239,17 @@ export class AutoMovieHuman {
       validateAutoMovieHumanAppearance(props.appearance);
     if (admitted.success === false)
       throw new AutoMovieHumanAdmissionError("appearance", admitted.errors);
+    if (props.surfaceMeasurements !== undefined) {
+      this.surface_ ??= new AutoMovieHumanRestSurface({
+        measurements: this.measurements_, skeleton: this.skeleton_,
+      });
+      const model: IAutoMovieModel = this.surface_.model({
+        id: this.id_, input: props.surfaceMeasurements,
+        appearance: admitted.data, skeleton: this.getSkeleton(),
+      });
+      this.inspectionSurface_ = structuredClone(props.surfaceMeasurements);
+      return model;
+    }
     const eyeHairHost: IAutoMovieHumanEyeHairHost | undefined =
       this.generators_.head.eyeHairHost?.({
         measurements: this.measurements_,
@@ -309,6 +325,7 @@ export class AutoMovieHuman {
       ...hair.images,
     ];
     this.inspectionAssembly_ = props.assembly ?? "parts";
+    this.inspectionSurface_ = undefined;
     this.hairInspection_[this.inspectionAssembly_] = hair.inspect;
     return {
       id: this.id_,
@@ -461,9 +478,7 @@ export namespace AutoMovieHuman {
     id: string;
     /** The detailed identity; it is admitted and copied. */
     identity: IAutoMovieHumanIdentity;
-    /**
-     * Generators replacing the human profile's for some parts, such as another species' ear; omitted parts keep `AUTOMOVIE_HUMAN_PART_GENERATORS`. A replacement opens the same rings, so it joins without any other part changing.
-     */
+    /** Overrides of the previous cage route; the explicit generated physical field does not consume these generators. */
     parts?: Partial<IAutoMovieHumanPartGenerators>;
   }
   /**

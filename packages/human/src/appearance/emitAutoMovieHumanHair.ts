@@ -47,6 +47,8 @@ export function emitAutoMovieHumanHair(props: {
   appearance: IAutoMovieHumanAppearance;
   skin: readonly IAutoMovieModelPart[];
   eyeHairHost: IAutoMovieHumanEyeHairHost;
+  /** Same generated rest skin's exact chart/contact owner; omitted retains the legacy skin-chart adapter. */
+  surface?: AutoMovieHumanHeadSurface;
 }): {
   parts: IAutoMovieModelPart[];
   materials: IAutoMovieMaterial[];
@@ -70,9 +72,8 @@ export function emitAutoMovieHumanHair(props: {
       (j: IAutoMovieHumanSkeleton.IJoint): boolean => j.bone === "head",
     );
   if (head === undefined) throw new Error("the skeleton lacks the head bone");
-  const surface: AutoMovieHumanHeadSurface = new AutoMovieHumanHeadSurface(
-    props.skin,
-  );
+  const surface: AutoMovieHumanHeadSurface = props.surface ??
+    new AutoMovieHumanHeadSurface(props.skin);
   const scalp: frameAutoMovieHumanScalp.IScalp = frameAutoMovieHumanScalp({
     measurements: props.measurements,
     skeleton: props.skeleton,

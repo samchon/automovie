@@ -1,17 +1,25 @@
 /**
  * Source-owned skin roles carried beside one emitted rest mesh, never inferred from its UV packing.
  *
- * Each coarse quad owns one role. The existing Catmull-Clark emitter writes 2*4^levels consecutive triangles per coarse face, so this compact sidecar follows actual triangle ordinals through seam vertex splitting without a per-render-corner table. The owner validates the expected triangle count. The source's conventional region boundaries are not clinical segmentation.
+ * A uniform subdivision emitter may repeat one coarse-face role over its fixed
+ * triangle count. An adaptive generated field instead supplies exactly one role
+ * per actual triangle. Both follow emitted triangle ordinals through UV/normal
+ * vertex splitting; neither infers anatomy from a packed texture rectangle.
+ * The owner validates the expected triangle count. Conventional role boundaries
+ * are not clinical segmentation.
  *
  * @author Samchon
  */
-export interface IAutoMovieHumanSkinDomain {
+export type IAutoMovieHumanSkinDomain = {
   /** Coarse source roles in exactly the cage's face order. */
   faces: IAutoMovieHumanSkinDomain.Role[];
 
   /** Consecutive emitted triangles per coarse face, a positive integer. */
   trianglesPerFace: number;
-}
+} | {
+  /** Actual generated triangle roles in emitted index order, including partial realization. */
+  triangles: IAutoMovieHumanSkinDomain.Role[];
+};
 
 /** Categorical eligibility of ordinary follicular-looking pits and engineering marks. */
 export namespace IAutoMovieHumanSkinDomain {

@@ -112,6 +112,7 @@ export function* AutoMovieBicubicAtlasEmit64(
       normals: [],
       physicalVertexIds: [],
       indices: [],
+      ...(input.retainTriangleParameters ? { triangleParameters: [] } : {}),
       faceRanges: [],
       diagnostics: [],
       counts: {
@@ -368,6 +369,9 @@ export function* AutoMovieBicubicAtlasEmit64(
             range.omittedZeroAreaTriangles++;
           } else {
             chunk.indices.push(a.index, b.index, c.index);
+            if (chunk.triangleParameters !== undefined)
+              for (const sample of samples)
+                chunk.triangleParameters.push(sample.u, sample.v);
             chunk.counts.triangles++;
             range.triangleCount++;
             summary.triangles++;

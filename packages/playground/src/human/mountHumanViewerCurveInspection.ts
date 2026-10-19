@@ -4,13 +4,14 @@ import type { HumanCurveDesignInspectionState } from "./HumanCurveDesignInspecti
 import type { HumanViewerPage } from "./HumanViewerPage";
 import type { IHumanViewerSession } from "./IHumanViewerSession";
 import { mountHumanCurveDesignControls } from "./mountHumanCurveDesignControls";
+import { mountHumanSurfaceControls } from "./mountHumanSurfaceControls";
 
 /** Connect the visible selector to this page's actual admitted Human.
  * Measurement refusal is an inspection result and does not invalidate identity.
  * Reusing the same Human and selection retains the last valid design cache.
  *
- * @evidence contracts/common.md#principled-implementation Calls inspectCurveDesign on the currently accepted Human with named detailed measurements only; current skin inspection remains a distinct source.
- * @evidence contracts/common.md#clear-and-simple-design This adapter connects one mounted editor to scene selection, session persistence and capture metadata.
+ * @evidence contracts/common.md#principled-implementation The explicit physical-rest route uses inspectSurface on the same Human/getModel input; the previous route separately calls inspectCurveDesign with its named measurements.
+ * @evidence contracts/common.md#clear-and-simple-design This adapter mounts the physical surface editor and, only on the previous route, the separate curve inspector; each follows actual scene/session/capture state.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No source/control geometry, reference loader or fallback skin is supplied to curve generation.
  * @evidence contracts/common.md#meaningful-documentation Explains identity refusal separation and the same-instance cache key.
  * @evidence contracts/performance.md#efficient-algorithms Rebuilds the editor only when its Human or restored selection changes, and retains generated nets between display-mode changes.
@@ -20,7 +21,7 @@ import { mountHumanCurveDesignControls } from "./mountHumanCurveDesignControls";
 export function mountHumanViewerCurveInspection(page: HumanViewerPage): void {
   const selection: IHumanViewerSession["curveDesign"] =
     page.current.session.curveDesign;
-  const key: string = JSON.stringify(selection ?? null);
+  const key: string = JSON.stringify([selection ?? null, page.current.session.surfaceMeasurements ?? null]);
   if (page.curveHuman === page.current.human && page.curveSessionKey === key) {
     page.curveControls?.refresh();
     return;
@@ -30,7 +31,34 @@ export function mountHumanViewerCurveInspection(page: HumanViewerPage): void {
   page.curveSessionKey = key;
   page.curveDisplay = null;
   const container: HTMLElement = document.querySelector("#curve-design")!;
-  page.curveControls = mountHumanCurveDesignControls({
+  const physical: IHumanViewerSession["surfaceMeasurements"] = page.current.session.surfaceMeasurements;
+  const generated: ReturnType<typeof page.current.human.inspectSurface> | undefined =
+    physical === undefined ? undefined : page.current.human.inspectSurface({measurements: physical});
+  const surface: ReturnType<typeof mountHumanSurfaceControls> = mountHumanSurfaceControls({
+    container, initial: physical, diagnostics: generated?.diagnostics ?? [],
+    apply: (measurements: IHumanViewerSession["surfaceMeasurements"]): boolean =>
+      page.accept({...page.current.session, surfaceMeasurements: measurements,
+        curveDesign: {source: "current-skin", compareExistingSurface: false}},
+      measurements === undefined ? "기존 피부 경로 선택" : "새 물리 외피 선택"),
+  });
+  if (generated !== undefined) {
+    page.nets = generated.construction;
+    const legend: HTMLElement | null = document.querySelector("#construction-key");
+    if (legend !== null) legend.textContent =
+      "부분 생성 외피: 피부·단면·가이드가 같은 곡면 계수를 사용합니다. 열린 경계와 미구현 영역을 포함합니다.";
+    page.curveControls = {
+      captureMetadata: (): Record<string, unknown> => ({
+        constructionSource: "generated-rest-surface", surfaceRevision: generated.revision,
+        surfaceStatus: generated.status, realizationComplete: generated.realizationComplete,
+        approximationQualified: generated.approximationQualified, diagnostics: generated.diagnostics,
+      }),
+      savedDetailed: (): null => null,
+      refresh: (): void => { page.applyDisplayMode(); }, dispose: surface.dispose,
+    };
+    page.applyDisplayMode();
+    return;
+  }
+  const curves: ReturnType<typeof mountHumanCurveDesignControls> = mountHumanCurveDesignControls({
     container,
     identityKey: page.current.identityKey,
     inspect: (
@@ -61,11 +89,14 @@ export function mountHumanViewerCurveInspection(page: HumanViewerPage): void {
     },
     onChange: (next: NonNullable<IHumanViewerSession["curveDesign"]>): void => {
       page.current.session.curveDesign = next;
-      page.curveSessionKey = JSON.stringify(next);
+      page.curveSessionKey = JSON.stringify([next, null]);
       const json: HTMLTextAreaElement | null =
         document.querySelector("#json textarea");
       if (json !== null && document.activeElement !== json)
         json.value = JSON.stringify(page.current.session, null, 2);
     },
   });
+  page.curveControls = {...curves, dispose: (): void => {
+    curves.dispose(); surface.dispose();
+  }};
 }
