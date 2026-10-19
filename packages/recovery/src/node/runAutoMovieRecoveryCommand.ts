@@ -19,7 +19,9 @@ import { recoveryOpen } from "./internal/recoveryOpen";
  * @evidence contracts/performance.md#reuse-equivalent-work One command executes once with the supplied epoch and arguments; there is no result or effect cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The dispatcher acquires no handle and awaits the asynchronous local writer before returning; delegated hosts own their declared files and staging.
  */
-export async function runAutoMovieRecoveryCommand(args: readonly string[]): Promise<number> {
+export async function runAutoMovieRecoveryCommand(
+  args: readonly string[],
+): Promise<number> {
   if (args.length === 0 || args[0] === "--help") {
     console.log(
       "automovie-recovery <recovery|recoveryOpen|recoveryLocal|recoveryAtlas|recoveryContourPath> --source-epoch <git-or-source-sha> <arguments>\n" +
@@ -33,8 +35,12 @@ export async function runAutoMovieRecoveryCommand(args: readonly string[]): Prom
     return 0;
   }
   if (args.length === 1 && args[0] === "--version") {
-    const metadata: { version: string } = require("../../package.json") as { version: string };
-    console.log(`@automovie/recovery ${metadata.version}; operation schema automovie-recovery-operation-v1; legacy-contour-v1`);
+    const metadata: { version: string } = require("../../package.json") as {
+      version: string;
+    };
+    console.log(
+      `@automovie/recovery ${metadata.version}; operation schema automovie-recovery-operation-v1; legacy-contour-v1`,
+    );
     return 0;
   }
   const [command, flag, sourceEpoch, ...parameters]: readonly string[] = args;
@@ -42,22 +48,49 @@ export async function runAutoMovieRecoveryCommand(args: readonly string[]): Prom
     flag !== "--source-epoch" ||
     !sourceEpoch ||
     !/^[a-f0-9]{40,64}$/i.test(sourceEpoch) ||
-    !["recovery", "recoveryOpen", "recoveryLocal", "recoveryAtlas", "recoveryContourPath"].includes(command ?? "")
+    ![
+      "recovery",
+      "recoveryOpen",
+      "recoveryLocal",
+      "recoveryAtlas",
+      "recoveryContourPath",
+    ].includes(command ?? "")
   ) {
-    console.error(JSON.stringify({ status: "refused", reason: "Use --help for commands; an explicit 40 to 64 digit hexadecimal source epoch is required" }));
+    console.error(
+      JSON.stringify({
+        status: "refused",
+        reason:
+          "Use --help for commands; an explicit 40 to 64 digit hexadecimal source epoch is required",
+      }),
+    );
     return 2;
   }
   try {
     switch (command) {
-      case "recovery": recovery(parameters, sourceEpoch); break;
-      case "recoveryOpen": recoveryOpen(parameters, sourceEpoch); break;
-      case "recoveryLocal": await recoveryLocal(parameters, sourceEpoch); break;
-      case "recoveryAtlas": recoveryAtlas(parameters, sourceEpoch); break;
-      case "recoveryContourPath": recoveryContourPath(parameters, sourceEpoch); break;
+      case "recovery":
+        recovery(parameters, sourceEpoch);
+        break;
+      case "recoveryOpen":
+        recoveryOpen(parameters, sourceEpoch);
+        break;
+      case "recoveryLocal":
+        await recoveryLocal(parameters, sourceEpoch);
+        break;
+      case "recoveryAtlas":
+        recoveryAtlas(parameters, sourceEpoch);
+        break;
+      case "recoveryContourPath":
+        recoveryContourPath(parameters, sourceEpoch);
+        break;
     }
     return 0;
   } catch (failure: unknown) {
-    console.error(JSON.stringify({ status: "failed", reason: failure instanceof Error ? failure.message : String(failure) }));
+    console.error(
+      JSON.stringify({
+        status: "failed",
+        reason: failure instanceof Error ? failure.message : String(failure),
+      }),
+    );
     return 1;
   }
 }

@@ -1,6 +1,6 @@
-import type { observeAutoMovieRecoveryAtlas } from "./observeAutoMovieRecoveryAtlas";
 import { RecoveryChartBatch as B } from "./RecoveryChartBatch";
 import { RecoveryEventRegion } from "./RecoveryEventRegion";
+import type { observeAutoMovieRecoveryAtlas } from "./observeAutoMovieRecoveryAtlas";
 
 type Prepared = Parameters<typeof B>[0]["charts"][number];
 type Pending = {

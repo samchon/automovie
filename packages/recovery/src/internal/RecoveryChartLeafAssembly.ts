@@ -1,6 +1,9 @@
-import { AutoMovieBernstein64 as S, type IAutoMovieCurve64 as C } from "@automovie/engine/geometry/curve";
-
+import {
+  type IAutoMovieCurve64 as C,
+  AutoMovieBernstein64 as S,
+} from "@automovie/engine/geometry/curve";
 import type { IAutoMovieBicubicAtlasGeometry as G } from "@automovie/interface";
+
 import type { RecoveryChartBoundary } from "./RecoveryChartBoundary";
 import type { RecoveryChartLeafFit } from "./RecoveryChartLeafFit";
 

@@ -12,11 +12,15 @@
  * @evidence contracts/performance.md#reuse-equivalent-work No mesh traversal or numerical generation occurs.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a borrowed field value is returned; no cache, getter, handle or listener is retained.
  */
-export function readRecoveryMetadata(value: unknown, keys: readonly string[]): unknown {
+export function readRecoveryMetadata(
+  value: unknown,
+  keys: readonly string[],
+): unknown {
   let current: unknown = value;
   for (const key of keys) {
     if (current === null || typeof current !== "object") return undefined;
-    const descriptor: PropertyDescriptor | undefined = Object.getOwnPropertyDescriptor(current, key);
+    const descriptor: PropertyDescriptor | undefined =
+      Object.getOwnPropertyDescriptor(current, key);
     if (descriptor === undefined || !("value" in descriptor)) return undefined;
     current = descriptor.value;
   }

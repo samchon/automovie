@@ -1,9 +1,13 @@
-import { IAutoMovieContourLoft64 as L, IAutoMovieCurve64 as C } from "@automovie/engine/geometry/curve";
+import {
+  IAutoMovieCurve64 as C,
+  IAutoMovieContourLoft64 as L,
+} from "@automovie/engine/geometry/curve";
 
 import type { IAutoMovieRecoveryMeshSections } from "./IAutoMovieRecoveryMeshSections";
 import { RecoveryBezierFit as F } from "./RecoveryBezierFit";
 import { RecoveryScalarIndex as S } from "./RecoveryScalarIndex";
 import { RecoverySlabGraph as G } from "./RecoverySlabGraph";
+import { createRecoveryObservationPolicy } from "./createRecoveryObservationPolicy";
 import { critical } from "./mesh-observations/critical";
 import { cutExact } from "./mesh-observations/cutExact";
 import { planeFrame } from "./mesh-observations/planeFrame";
@@ -11,7 +15,6 @@ import { signedArea } from "./mesh-observations/signedArea";
 import { sourceOrientation } from "./mesh-observations/sourceOrientation";
 import { prepareRecoveryCriticalBrackets } from "./prepareRecoveryCriticalBrackets";
 import { prepareRecoveryMeshIncidence } from "./prepareRecoveryMeshIncidence";
-import { createRecoveryObservationPolicy } from "./createRecoveryObservationPolicy";
 
 /**
  * Automatic section extraction and source-independent cubic publication.

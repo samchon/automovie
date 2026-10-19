@@ -1,7 +1,7 @@
 import type { IAutoMovieRecoveryInput } from "@automovie/interface/recovery";
 
-import { AutoMovieRecoveryMeshSections } from "./internal/AutoMovieRecoveryMeshSections";
 import type { IAutoMovieRecoveryOperation } from "./IAutoMovieRecoveryOperation";
+import { AutoMovieRecoveryMeshSections } from "./internal/AutoMovieRecoveryMeshSections";
 
 /**
  * Observe a registered mesh and return source-free cubic coefficients and incidence.
@@ -22,23 +22,74 @@ export function observeAutoMovieRecovery(
   input: IAutoMovieRecoveryInput,
   options: IAutoMovieRecoveryOperation.Options = {},
 ): IAutoMovieRecoveryOperation.Result<AutoMovieRecoveryMeshSections.Bundle> {
-  const schema: IAutoMovieRecoveryOperation.Result<never>["schema"] = "automovie-recovery-operation-v1";
-  const operator: IAutoMovieRecoveryOperation.Result<never>["operator"] = "legacy-contour-v1";
+  const schema: IAutoMovieRecoveryOperation.Result<never>["schema"] =
+    "automovie-recovery-operation-v1";
+  const operator: IAutoMovieRecoveryOperation.Result<never>["operator"] =
+    "legacy-contour-v1";
   if (options.signal?.aborted)
-    return { schema, operator, status: "cancelled", diagnostics: ["Cancelled before observation"] };
-  if (!input || !Array.isArray(input.verticesMm) || !Array.isArray(input.triangles))
-    return { schema, operator, status: "refused", diagnostics: ["Registered millimetre vertices and oriented triangle arrays are required"] };
+    return {
+      schema,
+      operator,
+      status: "cancelled",
+      diagnostics: ["Cancelled before observation"],
+    };
+  if (
+    !input ||
+    !Array.isArray(input.verticesMm) ||
+    !Array.isArray(input.triangles)
+  )
+    return {
+      schema,
+      operator,
+      status: "refused",
+      diagnostics: [
+        "Registered millimetre vertices and oriented triangle arrays are required",
+      ],
+    };
   try {
-    const value: AutoMovieRecoveryMeshSections.Bundle = AutoMovieRecoveryMeshSections.extract(input,
-      (phase: string, completed: number, total: number): void => {
-        if (options.signal?.aborted) throw new Error("Observation cancelled");
-        options.onProgress?.(phase, completed, total);
-      }, options.sectionLimit);
+    const value: AutoMovieRecoveryMeshSections.Bundle =
+      AutoMovieRecoveryMeshSections.extract(
+        input,
+        (phase: string, completed: number, total: number): void => {
+          if (options.signal?.aborted) throw new Error("Observation cancelled");
+          options.onProgress?.(phase, completed, total);
+        },
+        options.sectionLimit,
+      );
     if (options.signal?.aborted)
-      return { schema, operator, status: "cancelled", diagnostics: ["Cancelled before publication"] };
-    const partial: boolean = value.coverage?.complete === false || value.topologyGaps.length > 0 || value.unconsumedEvents.length > 0 || value.reports.some((report: AutoMovieRecoveryMeshSections.Bundle["reports"][number]): boolean => report.open.length > 0 || report.isolatedContactsMm.length > 0 || report.diagnostics.length > 0);
-    return { schema, operator, status: partial ? "partial" : "complete", value, diagnostics: value.diagnostics.slice() };
+      return {
+        schema,
+        operator,
+        status: "cancelled",
+        diagnostics: ["Cancelled before publication"],
+      };
+    const partial: boolean =
+      value.coverage?.complete === false ||
+      value.topologyGaps.length > 0 ||
+      value.unconsumedEvents.length > 0 ||
+      value.reports.some(
+        (
+          report: AutoMovieRecoveryMeshSections.Bundle["reports"][number],
+        ): boolean =>
+          report.open.length > 0 ||
+          report.isolatedContactsMm.length > 0 ||
+          report.diagnostics.length > 0,
+      );
+    return {
+      schema,
+      operator,
+      status: partial ? "partial" : "complete",
+      value,
+      diagnostics: value.diagnostics.slice(),
+    };
   } catch (failure: unknown) {
-    return { schema, operator, status: options.signal?.aborted ? "cancelled" : "failed", diagnostics: [failure instanceof Error ? failure.message : String(failure)] };
+    return {
+      schema,
+      operator,
+      status: options.signal?.aborted ? "cancelled" : "failed",
+      diagnostics: [
+        failure instanceof Error ? failure.message : String(failure),
+      ],
+    };
   }
 }

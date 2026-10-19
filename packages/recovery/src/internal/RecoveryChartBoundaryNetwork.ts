@@ -1,4 +1,5 @@
 import type { IAutoMovieCurve64 as C } from "@automovie/engine/geometry/curve";
+
 import type { RecoveryChartBoundary } from "./RecoveryChartBoundary";
 import { RecoveryChartBoundaryNetworkAugment } from "./RecoveryChartBoundaryNetworkAugment";
 import { RecoveryChartBoundaryNetworkBindings } from "./RecoveryChartBoundaryNetworkBindings";

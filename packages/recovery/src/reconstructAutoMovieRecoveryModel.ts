@@ -1,9 +1,9 @@
-import { reconstructRecovery } from "./internal/reconstructRecovery";
-import type { realizeAutoMovieRecoveryTensorFamilies } from "./internal/realizeAutoMovieRecoveryTensorFamilies";
-import type { IAutoMovieRecoveryOperation } from "./IAutoMovieRecoveryOperation";
 import type { IAutoMovieRecoveryDomainLedger } from "./IAutoMovieRecoveryDomainLedger";
+import type { IAutoMovieRecoveryOperation } from "./IAutoMovieRecoveryOperation";
 import { describeRecoveryDomains } from "./internal/describeRecoveryDomains";
 import { readRecoveryMetadata as read } from "./internal/readRecoveryMetadata";
+import type { realizeAutoMovieRecoveryTensorFamilies } from "./internal/realizeAutoMovieRecoveryTensorFamilies";
+import { reconstructRecovery } from "./internal/reconstructRecovery";
 
 /**
  * Reconstruct saved cubic and domain coefficients without access to source geometry.
@@ -23,30 +23,79 @@ import { readRecoveryMetadata as read } from "./internal/readRecoveryMetadata";
 export function reconstructAutoMovieRecoveryModel(
   input: realizeAutoMovieRecoveryTensorFamilies.Input,
   options: IAutoMovieRecoveryOperation.Options = {},
-): IAutoMovieRecoveryOperation.Result<ReturnType<typeof reconstructRecovery> & { membership: IAutoMovieRecoveryDomainLedger }> {
-  const schema: IAutoMovieRecoveryOperation.Result<never>["schema"] = "automovie-recovery-operation-v1";
-  const operator: IAutoMovieRecoveryOperation.Result<never>["operator"] = "legacy-contour-v1";
+): IAutoMovieRecoveryOperation.Result<
+  ReturnType<typeof reconstructRecovery> & {
+    membership: IAutoMovieRecoveryDomainLedger;
+  }
+> {
+  const schema: IAutoMovieRecoveryOperation.Result<never>["schema"] =
+    "automovie-recovery-operation-v1";
+  const operator: IAutoMovieRecoveryOperation.Result<never>["operator"] =
+    "legacy-contour-v1";
   if (options.signal?.aborted)
-    return { schema, operator, status: "cancelled", diagnostics: ["Cancelled before reconstruction"] };
-  if (!input || input.schema !== "automovie-recovery-curves-v1" || !Array.isArray(input.loft?.sections) || !Array.isArray(input.loft.intervals))
-    return { schema, operator, status: "refused", diagnostics: ["A versioned saved cubic bundle with explicit interval incidence is required"] };
+    return {
+      schema,
+      operator,
+      status: "cancelled",
+      diagnostics: ["Cancelled before reconstruction"],
+    };
+  if (
+    !input ||
+    input.schema !== "automovie-recovery-curves-v1" ||
+    !Array.isArray(input.loft?.sections) ||
+    !Array.isArray(input.loft.intervals)
+  )
+    return {
+      schema,
+      operator,
+      status: "refused",
+      diagnostics: [
+        "A versioned saved cubic bundle with explicit interval incidence is required",
+      ],
+    };
   try {
     options.onProgress?.("reconstruction", 0, 1);
     if (options.signal?.aborted)
-      return { schema, operator, status: "cancelled", diagnostics: ["Cancelled before reconstruction"] };
-    const value: ReturnType<typeof reconstructRecovery> = reconstructRecovery(input, { observeWork: options.observeWork });
+      return {
+        schema,
+        operator,
+        status: "cancelled",
+        diagnostics: ["Cancelled before reconstruction"],
+      };
+    const value: ReturnType<typeof reconstructRecovery> = reconstructRecovery(
+      input,
+      { observeWork: options.observeWork },
+    );
     if (options.signal?.aborted)
-      return { schema, operator, status: "cancelled", diagnostics: ["Cancelled before publication"] };
+      return {
+        schema,
+        operator,
+        status: "cancelled",
+        diagnostics: ["Cancelled before publication"],
+      };
     options.onProgress?.("reconstruction", 1, 1);
     if (options.signal?.aborted)
-      return { schema, operator, status: "cancelled", diagnostics: ["Cancelled before publication"] };
-    const membership: IAutoMovieRecoveryDomainLedger = describeRecoveryDomains(input, value);
-    const diagnostics: string[] = [...value.diagnostics, ...membership.diagnostics];
+      return {
+        schema,
+        operator,
+        status: "cancelled",
+        diagnostics: ["Cancelled before publication"],
+      };
+    const membership: IAutoMovieRecoveryDomainLedger = describeRecoveryDomains(
+      input,
+      value,
+    );
+    const diagnostics: string[] = [
+      ...value.diagnostics,
+      ...membership.diagnostics,
+    ];
     let omitted: boolean = false;
     for (const field of ["topologyGaps", "unconsumedEvents"] as const) {
       const inventory: unknown = read(input, [field]);
       if (!Array.isArray(inventory)) {
-        diagnostics.push(`Declared ${field} inventory is unavailable; coverage remains unknown`);
+        diagnostics.push(
+          `Declared ${field} inventory is unavailable; coverage remains unknown`,
+        );
         omitted = true;
       } else if (inventory.length > 0) omitted = true;
     }
@@ -54,19 +103,56 @@ export function reconstructAutoMovieRecoveryModel(
       for (const field of ["open", "isolatedContactsMm"] as const) {
         const inventory: unknown = read(report, [field]);
         if (!Array.isArray(inventory)) {
-          diagnostics.push(`Section ${ordinal} ${field} inventory is unavailable; coverage remains unknown`);
+          diagnostics.push(
+            `Section ${ordinal} ${field} inventory is unavailable; coverage remains unknown`,
+          );
           omitted = true;
         } else if (inventory.length > 0) omitted = true;
       }
     const coverage: unknown = read(input, ["coverage"]);
     const complete: unknown = read(coverage, ["complete"]);
     if (coverage !== undefined && typeof complete !== "boolean") {
-      diagnostics.push("Declared coverage completion is unavailable; coverage remains unknown");
+      diagnostics.push(
+        "Declared coverage completion is unavailable; coverage remains unknown",
+      );
       omitted = true;
     }
-    const partial: boolean = complete === false || omitted || membership.diagnostics.length > 0 || membership.unattributed.length > 0 || membership.members.some((member: IAutoMovieRecoveryDomainLedger["members"][number]): boolean => member.admitted !== true) || value.unresolved.length > 0 || value.tensorReports.some((report: (typeof value.tensorReports)[number]): boolean => !report.complete) || value.analyticReports.some((report: (typeof value.analyticReports)[number]): boolean => !report.admitted || !report.complete || !report.observationComplete || report.unrepresentedDomains.length > 0);
-    return { schema, operator, status: partial ? "partial" : "complete", value: { ...value, membership }, diagnostics };
+    const partial: boolean =
+      complete === false ||
+      omitted ||
+      membership.diagnostics.length > 0 ||
+      membership.unattributed.length > 0 ||
+      membership.members.some(
+        (member: IAutoMovieRecoveryDomainLedger["members"][number]): boolean =>
+          member.admitted !== true,
+      ) ||
+      value.unresolved.length > 0 ||
+      value.tensorReports.some(
+        (report: (typeof value.tensorReports)[number]): boolean =>
+          !report.complete,
+      ) ||
+      value.analyticReports.some(
+        (report: (typeof value.analyticReports)[number]): boolean =>
+          !report.admitted ||
+          !report.complete ||
+          !report.observationComplete ||
+          report.unrepresentedDomains.length > 0,
+      );
+    return {
+      schema,
+      operator,
+      status: partial ? "partial" : "complete",
+      value: { ...value, membership },
+      diagnostics,
+    };
   } catch (failure: unknown) {
-    return { schema, operator, status: options.signal?.aborted ? "cancelled" : "failed", diagnostics: [failure instanceof Error ? failure.message : String(failure)] };
+    return {
+      schema,
+      operator,
+      status: options.signal?.aborted ? "cancelled" : "failed",
+      diagnostics: [
+        failure instanceof Error ? failure.message : String(failure),
+      ],
+    };
   }
 }

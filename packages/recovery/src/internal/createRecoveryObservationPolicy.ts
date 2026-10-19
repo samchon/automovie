@@ -18,11 +18,18 @@ export function createRecoveryObservationPolicy(
   input: IAutoMovieRecoveryInput,
 ): Omit<IAutoMovieRecoveryInput, "verticesMm" | "triangles"> {
   return {
-    axis: input.axis, reference: input.reference, stepMm: input.stepMm,
-    toleranceMm: input.toleranceMm, chordToleranceMm: input.chordToleranceMm,
-    maxSections: input.maxSections, maxSpans: input.maxSpans,
+    axis: input.axis,
+    reference: input.reference,
+    stepMm: input.stepMm,
+    toleranceMm: input.toleranceMm,
+    chordToleranceMm: input.chordToleranceMm,
+    maxSections: input.maxSections,
+    maxSpans: input.maxSpans,
     exactCoordinateAliases: input.exactCoordinateAliases,
-    sourceOrientationSign: input.sourceOrientationSign, cornerDegrees: input.cornerDegrees,
-    ...(input.criticalPolicy === undefined ? {} : { criticalPolicy: input.criticalPolicy }),
+    sourceOrientationSign: input.sourceOrientationSign,
+    cornerDegrees: input.cornerDegrees,
+    ...(input.criticalPolicy === undefined
+      ? {}
+      : { criticalPolicy: input.criticalPolicy }),
   };
 }

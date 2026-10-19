@@ -22,38 +22,163 @@ export function verifyAutoMovieRecoveryOpenFailures(input: {
   curves: Buffer;
   run: (command: string, args: string[], cwd: string) => string;
 }): { command: string; area: number; failedRuns: number }[] {
-  const bundle: { reports: { open: unknown[] }[]; analyticDomains?: unknown[] } = JSON.parse(input.curves.toString("utf8"));
+  const bundle: {
+    reports: { open: unknown[] }[];
+    analyticDomains?: unknown[];
+  } = JSON.parse(input.curves.toString("utf8"));
   for (const report of bundle.reports) report.open.push({});
   bundle.analyticDomains = [null];
   const bytes: Buffer = Buffer.from(JSON.stringify(bundle));
-  const curves: string = path.join(input.consumer, "outputs", "open-malformed-curves.json");
-  const graph: string = path.join(input.consumer, "outputs", "open-malformed-graph.json");
+  const curves: string = path.join(
+    input.consumer,
+    "outputs",
+    "open-malformed-curves.json",
+  );
+  const graph: string = path.join(
+    input.consumer,
+    "outputs",
+    "open-malformed-graph.json",
+  );
   fs.writeFileSync(curves, bytes);
-  fs.writeFileSync(graph, JSON.stringify({ schema: "automovie-recovery-open-continuation-v1", criticalPolicy: "boundary-regular-path-v1", intervals: [{ beforeSection: 0, afterSection: 1, pairs: [{ before: 0, after: 0, reverseAfter: false }, { before: 1, after: 1, reverseAfter: false }], unresolved: [] }], orientations: [[1, 1], [1, 1]], diagnostics: [], resolutionMm: 1, maxVerticesPerRun: 1000, provenance: { curveBundleSha256: createHash("sha256").update(bytes).digest("hex") } }));
+  fs.writeFileSync(
+    graph,
+    JSON.stringify({
+      schema: "automovie-recovery-open-continuation-v1",
+      criticalPolicy: "boundary-regular-path-v1",
+      intervals: [
+        {
+          beforeSection: 0,
+          afterSection: 1,
+          pairs: [
+            { before: 0, after: 0, reverseAfter: false },
+            { before: 1, after: 1, reverseAfter: false },
+          ],
+          unresolved: [],
+        },
+      ],
+      orientations: [
+        [1, 1],
+        [1, 1],
+      ],
+      diagnostics: [],
+      resolutionMm: 1,
+      maxVerticesPerRun: 1000,
+      provenance: {
+        curveBundleSha256: createHash("sha256").update(bytes).digest("hex"),
+      },
+    }),
+  );
   const receipts: { command: string; area: number; failedRuns: number }[] = [];
   for (const command of ["recoveryOpen", "recoveryLocal"]) {
-    const output: string = path.join(input.consumer, "outputs", `${command}-malformed-model.json`);
-    input.run(process.execPath, ["--permission", `--allow-fs-read=${input.consumer}`, `--allow-fs-write=${path.join(input.consumer, "outputs")}`, input.cli, command, "--source-epoch", input.sourceEpoch, ...(command === "recoveryOpen" ? ["reconstruct", curves, graph, output] : [curves, graph, output, "ruled", "final-only"])], input.consumer);
-    const model: { model: { parts: { geometry: { type: string; mesh: { positions: number[]; indices: number[] } } }[] }; openReports: { runs: { generated: boolean; reason: string | null; curves: string[]; unqualifiedFitMetadata?: number; fitPolylineUpperEstimateMaximumMm?: number | null }[] }; analyticOwnership?: { admitted: boolean | null; id: string | null }[] } = JSON.parse(fs.readFileSync(output, "utf8"));
+    const output: string = path.join(
+      input.consumer,
+      "outputs",
+      `${command}-malformed-model.json`,
+    );
+    input.run(
+      process.execPath,
+      [
+        "--permission",
+        `--allow-fs-read=${input.consumer}`,
+        `--allow-fs-write=${path.join(input.consumer, "outputs")}`,
+        input.cli,
+        command,
+        "--source-epoch",
+        input.sourceEpoch,
+        ...(command === "recoveryOpen"
+          ? ["reconstruct", curves, graph, output]
+          : [curves, graph, output, "ruled", "final-only"]),
+      ],
+      input.consumer,
+    );
+    const model: {
+      model: {
+        parts: {
+          geometry: {
+            type: string;
+            mesh: { positions: number[]; indices: number[] };
+          };
+        }[];
+      };
+      openReports: {
+        runs: {
+          generated: boolean;
+          reason: string | null;
+          curves: string[];
+          unqualifiedFitMetadata?: number;
+          fitPolylineUpperEstimateMaximumMm?: number | null;
+        }[];
+      };
+      analyticOwnership?: { admitted: boolean | null; id: string | null }[];
+    } = JSON.parse(fs.readFileSync(output, "utf8"));
     let area: number = 0;
     for (const part of model.model.parts) {
       const mesh: (typeof part.geometry)["mesh"] = part.geometry.mesh;
-      if (part.geometry.type !== "mesh" || mesh.positions.length % 3 || mesh.indices.length % 3 || !mesh.positions.every(Number.isFinite) || !mesh.indices.every((index: number): boolean => Number.isSafeInteger(index) && index >= 0 && index * 3 + 2 < mesh.positions.length))
-        throw new Error("Malformed metadata erased valid finite indexed plane geometry");
+      if (
+        part.geometry.type !== "mesh" ||
+        mesh.positions.length % 3 ||
+        mesh.indices.length % 3 ||
+        !mesh.positions.every(Number.isFinite) ||
+        !mesh.indices.every(
+          (index: number): boolean =>
+            Number.isSafeInteger(index) &&
+            index >= 0 &&
+            index * 3 + 2 < mesh.positions.length,
+        )
+      )
+        throw new Error(
+          "Malformed metadata erased valid finite indexed plane geometry",
+        );
       for (let i: number = 0; i < mesh.indices.length; i += 3) {
-        const p: number[][] = mesh.indices.slice(i, i + 3).map((index: number): number[] => mesh.positions.slice(index * 3, index * 3 + 3));
-        const a: number[] = p[0]!, b: number[] = p[1]!, c: number[] = p[2]!;
-        const u: number[] = b.map((value: number, axis: number): number => value - a[axis]!), v: number[] = c.map((value: number, axis: number): number => value - a[axis]!);
-        area += Math.hypot(u[1]! * v[2]! - u[2]! * v[1]!, u[2]! * v[0]! - u[0]! * v[2]!, u[0]! * v[1]! - u[1]! * v[0]!) / 2;
+        const p: number[][] = mesh.indices
+          .slice(i, i + 3)
+          .map((index: number): number[] =>
+            mesh.positions.slice(index * 3, index * 3 + 3),
+          );
+        const a: number[] = p[0]!,
+          b: number[] = p[1]!,
+          c: number[] = p[2]!;
+        const u: number[] = b.map(
+            (value: number, axis: number): number => value - a[axis]!,
+          ),
+          v: number[] = c.map(
+            (value: number, axis: number): number => value - a[axis]!,
+          );
+        area +=
+          Math.hypot(
+            u[1]! * v[2]! - u[2]! * v[1]!,
+            u[2]! * v[0]! - u[0]! * v[2]!,
+            u[0]! * v[1]! - u[1]! * v[0]!,
+          ) / 2;
       }
     }
-    const failed: (typeof model.openReports.runs) = model.openReports.runs.filter((run: (typeof model.openReports.runs)[number]): boolean => !run.generated);
-    if (!Number.isFinite(area) || Math.abs(area - 6e-6) > 1e-12 || failed.length !== 1 || failed[0]!.reason === null || failed[0]!.curves.length !== 0)
-      throw new Error("Installed malformed open run lost independent area or its explicit local failure");
-    if (command === "recoveryLocal" && (failed[0]!.unqualifiedFitMetadata !== 2 || failed[0]!.fitPolylineUpperEstimateMaximumMm !== null || model.analyticOwnership?.length !== 1 || model.analyticOwnership[0]!.admitted !== null || model.analyticOwnership[0]!.id !== null))
-      throw new Error("Unknown streamed fit or analytic ownership metadata was fabricated");
+    const failed: typeof model.openReports.runs = model.openReports.runs.filter(
+      (run: (typeof model.openReports.runs)[number]): boolean => !run.generated,
+    );
+    if (
+      !Number.isFinite(area) ||
+      Math.abs(area - 6e-6) > 1e-12 ||
+      failed.length !== 1 ||
+      failed[0]!.reason === null ||
+      failed[0]!.curves.length !== 0
+    )
+      throw new Error(
+        "Installed malformed open run lost independent area or its explicit local failure",
+      );
+    if (
+      command === "recoveryLocal" &&
+      (failed[0]!.unqualifiedFitMetadata !== 2 ||
+        failed[0]!.fitPolylineUpperEstimateMaximumMm !== null ||
+        model.analyticOwnership?.length !== 1 ||
+        model.analyticOwnership[0]!.admitted !== null ||
+        model.analyticOwnership[0]!.id !== null)
+    )
+      throw new Error(
+        "Unknown streamed fit or analytic ownership metadata was fabricated",
+      );
     receipts.push({ command, area, failedRuns: failed.length });
   }
-  if (!fs.readFileSync(curves).equals(bytes)) throw new Error("Saved malformed input was mutated");
+  if (!fs.readFileSync(curves).equals(bytes))
+    throw new Error("Saved malformed input was mutated");
   return receipts;
 }

@@ -25,7 +25,24 @@ export interface IAutoMovieRecoveryRegistration {
   handedness: "right-handed";
 
   /** Already applied source-to-registered homogeneous matrix, column-major. */
-  sourceToRegistered: [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number];
+  sourceToRegistered: [
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+  ];
 
   /** Description or identity of the pose evaluated by the source loader. */
   evaluatedPose: string;

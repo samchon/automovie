@@ -1,10 +1,12 @@
+import {
+  type IAutoMovieRecoveryEventChartInput as Chart,
+  AutoMovieRecoveryEventCurve as E,
+  assembleAutoMovieRecoveryFieldComplex as assemble,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import type { IAutoMovieCurve64 as C } from "../../../../packages/engine/src/geometry/curve/IAutoMovieCurve64";
 import { realizeAutoMovieBicubicAtlas64 as realize } from "../../../../packages/engine/src/geometry/realizeAutoMovieBicubicAtlas64";
-import { type IAutoMovieRecoveryEventChartInput as Chart, AutoMovieRecoveryEventCurve as E, assembleAutoMovieRecoveryFieldComplex as assemble } from "@automovie/recovery";
-
-
 import { nclose } from "../internal/nclose";
 
 /**

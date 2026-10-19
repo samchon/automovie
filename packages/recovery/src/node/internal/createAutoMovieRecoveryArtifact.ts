@@ -1,12 +1,12 @@
-import type { IAutoMovieRecoveryMemoryUsage } from "./IAutoMovieRecoveryMemoryUsage";
 import path from "node:path";
+
+import type { AutoMovieRecoveryOpenContinuation as O } from "../../internal/AutoMovieRecoveryOpenContinuation";
 import { describeRecoveryNamedDomains } from "../../internal/describeRecoveryNamedDomains";
 import { readRecoveryMetadata as read } from "../../internal/readRecoveryMetadata";
-
-import type { createAutoMovieRecoveryMeshSpool } from "./createAutoMovieRecoveryMeshSpool";
-import type { AutoMovieRecoveryOpenContinuation as O } from "../../internal/AutoMovieRecoveryOpenContinuation";
 import type { realizeAutoMovieRecoveryTensorFamilies } from "../../internal/realizeAutoMovieRecoveryTensorFamilies";
 import type { reconstructRecovery } from "../../internal/reconstructRecovery";
+import type { IAutoMovieRecoveryMemoryUsage } from "./IAutoMovieRecoveryMemoryUsage";
+import type { createAutoMovieRecoveryMeshSpool } from "./createAutoMovieRecoveryMeshSpool";
 
 /**
  * Build the current recovery artifact metadata around already generated geometry.
@@ -80,15 +80,36 @@ export function createAutoMovieRecoveryArtifact(input: {
     peaks,
   }: typeof input = input;
   const generated: ReturnType<typeof counts> = counts();
-  const named: ReturnType<typeof describeRecoveryNamedDomains> = describeRecoveryNamedDomains(bundle, base);
-  const tensorMembers: typeof named.members = named.members.filter((member: (typeof named.members)[number]): boolean => member.kind === "tensor-family");
-  const analyticMembers: typeof named.members = named.members.filter((member: (typeof named.members)[number]): boolean => member.kind === "analytic-domain");
-  const plannedTensorFamilies: number = tensorMembers.length;
-  const analyticComplete: boolean = named.diagnostics.length === 0 && analyticMembers.every((member: (typeof named.members)[number]): boolean => member.admitted === true) && base.analyticReports.every(
-    (report: (typeof base.analyticReports)[number]): boolean => report.admitted && report.complete && report.observationComplete && report.unrepresentedDomains.length === 0,
+  const named: ReturnType<typeof describeRecoveryNamedDomains> =
+    describeRecoveryNamedDomains(bundle, base);
+  const tensorMembers: typeof named.members = named.members.filter(
+    (member: (typeof named.members)[number]): boolean =>
+      member.kind === "tensor-family",
   );
+  const analyticMembers: typeof named.members = named.members.filter(
+    (member: (typeof named.members)[number]): boolean =>
+      member.kind === "analytic-domain",
+  );
+  const plannedTensorFamilies: number = tensorMembers.length;
+  const analyticComplete: boolean =
+    named.diagnostics.length === 0 &&
+    analyticMembers.every(
+      (member: (typeof named.members)[number]): boolean =>
+        member.admitted === true,
+    ) &&
+    base.analyticReports.every(
+      (report: (typeof base.analyticReports)[number]): boolean =>
+        report.admitted &&
+        report.complete &&
+        report.observationComplete &&
+        report.unrepresentedDomains.length === 0,
+    );
   const declaredAnalytic: unknown = read(bundle, ["analyticDomains"]);
-  const analyticDeclarations: readonly unknown[] = Array.isArray(declaredAnalytic) ? declaredAnalytic : [];
+  const analyticDeclarations: readonly unknown[] = Array.isArray(
+    declaredAnalytic,
+  )
+    ? declaredAnalytic
+    : [];
   const retainedDomainComplete: boolean =
     analyticComplete &&
     complete &&
@@ -99,10 +120,12 @@ export function createAutoMovieRecoveryArtifact(input: {
     unsupportedGroups === 0 &&
     base.unresolved.length === 0 &&
     base.tensorReports.length === plannedTensorFamilies &&
-    tensorMembers.every((member: (typeof named.members)[number]): boolean => member.admitted === true) &&
+    tensorMembers.every(
+      (member: (typeof named.members)[number]): boolean =>
+        member.admitted === true,
+    ) &&
     base.tensorReports.every(
-      (report: (typeof base.tensorReports)[number]): boolean =>
-        report.complete,
+      (report: (typeof base.tensorReports)[number]): boolean => report.complete,
     );
   return {
     schema: "human-reference-engine-model-v1",

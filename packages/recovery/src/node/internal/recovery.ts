@@ -1,7 +1,7 @@
+import type { IAutoMovieRecoveryRegistration } from "@automovie/interface/recovery";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import type { IAutoMovieRecoveryRegistration } from "@automovie/interface/recovery";
 
 import { AutoMovieRecoveryMeshSections as R } from "../../internal/AutoMovieRecoveryMeshSections";
 import { observeAutoMovieRecovery } from "../../observeAutoMovieRecovery";
@@ -103,37 +103,57 @@ export function recovery(args: string[], sourceEpoch: string): void {
     );
     let admittedInput: R.Input = { ...spec.policy, verticesMm, triangles };
     if (spec.registration !== undefined) {
-      const admitted: ReturnType<typeof prepareAutoMovieRecoveryInput> = prepareAutoMovieRecoveryInput({ registration: spec.registration, verticesMm, triangles, policy: spec.policy });
-      if (!("value" in admitted)) throw new Error(admitted.diagnostics.join("; "));
-      if (admitted.value.registration.units !== spec.units || admitted.value.registration.frame !== spec.frame || admitted.value.registration.evaluatedPose !== spec.pose)
-        throw new Error("The explicit registration must agree with the source specification units, frame and evaluated pose");
+      const admitted: ReturnType<typeof prepareAutoMovieRecoveryInput> =
+        prepareAutoMovieRecoveryInput({
+          registration: spec.registration,
+          verticesMm,
+          triangles,
+          policy: spec.policy,
+        });
+      if (!("value" in admitted))
+        throw new Error(admitted.diagnostics.join("; "));
+      if (
+        admitted.value.registration.units !== spec.units ||
+        admitted.value.registration.frame !== spec.frame ||
+        admitted.value.registration.evaluatedPose !== spec.pose
+      )
+        throw new Error(
+          "The explicit registration must agree with the source specification units, frame and evaluated pose",
+        );
       admittedInput = admitted.value.observation;
     }
-    const observed: ReturnType<typeof observeAutoMovieRecovery> = observeAutoMovieRecovery(
-      admittedInput,
-      { sectionLimit, onProgress: (phase: string, completed: number, total: number): void => {
-        console.error(
-          JSON.stringify({
-            phase,
-            completed,
-            total,
-            elapsedMs: performance.now() - loaded,
-          }),
-        );
-      } },
-    );
-    if (!("value" in observed)) throw new Error(observed.diagnostics.join("; "));
+    const observed: ReturnType<typeof observeAutoMovieRecovery> =
+      observeAutoMovieRecovery(admittedInput, {
+        sectionLimit,
+        onProgress: (phase: string, completed: number, total: number): void => {
+          console.error(
+            JSON.stringify({
+              phase,
+              completed,
+              total,
+              elapsedMs: performance.now() - loaded,
+            }),
+          );
+        },
+      });
+    if (!("value" in observed))
+      throw new Error(observed.diagnostics.join("; "));
     const bundle: R.Bundle = observed.value;
     const extracted: number = performance.now();
     artifact = {
       ...bundle,
-      operation: { schema: observed.schema, operator: observed.operator, status: observed.status },
+      operation: {
+        schema: observed.schema,
+        operator: observed.operator,
+        status: observed.status,
+      },
       registration: spec.registration ?? {
         units: spec.units,
         frame: spec.frame,
         pose: spec.pose,
         uncertainty: spec.uncertainty ?? [],
-        qualification: "legacy registration does not record applied transforms or evaluated component policy",
+        qualification:
+          "legacy registration does not record applied transforms or evaluated component policy",
       },
       provenance: {
         sourceEpoch,
@@ -154,15 +174,18 @@ export function recovery(args: string[], sourceEpoch: string): void {
     console.log(JSON.stringify(bundle.summary));
   } else {
     const bundle: R.Bundle = JSON.parse(bytes.toString("utf8"));
-    const reconstructed: ReturnType<typeof reconstructAutoMovieRecoveryModel> = reconstructAutoMovieRecoveryModel(
-      bundle,
-      { observeWork: true },
-    );
-    if (!("value" in reconstructed)) throw new Error(reconstructed.diagnostics.join("; "));
+    const reconstructed: ReturnType<typeof reconstructAutoMovieRecoveryModel> =
+      reconstructAutoMovieRecoveryModel(bundle, { observeWork: true });
+    if (!("value" in reconstructed))
+      throw new Error(reconstructed.diagnostics.join("; "));
     const result: typeof reconstructed.value = reconstructed.value;
     artifact = {
       schema: "automovie-recovery-model-v1",
-      operation: { schema: reconstructed.schema, operator: reconstructed.operator, status: reconstructed.status },
+      operation: {
+        schema: reconstructed.schema,
+        operator: reconstructed.operator,
+        status: reconstructed.status,
+      },
       membership: result.membership,
       model: result.model,
       construction: { units: "m", lines: result.construction },
@@ -217,7 +240,8 @@ export function recovery(args: string[], sourceEpoch: string): void {
       }),
     );
   }
-  const publication: ReturnType<typeof writeAutoMovieRecoveryArtifact> = writeAutoMovieRecoveryArtifact(outputPath, artifact);
+  const publication: ReturnType<typeof writeAutoMovieRecoveryArtifact> =
+    writeAutoMovieRecoveryArtifact(outputPath, artifact);
   console.log(
     JSON.stringify({
       file: outputPath,

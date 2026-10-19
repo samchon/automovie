@@ -22,17 +22,47 @@ export function publishAutoMovieRecoveryArtifact(
   output: string,
   artifact: object,
   options: { signal?: AbortSignal } = {},
-): IAutoMovieRecoveryOperation.Result<{ path: string; sha256: string; bytes: number }> {
-  const schema: IAutoMovieRecoveryOperation.Result<never>["schema"] = "automovie-recovery-operation-v1";
-  const operator: IAutoMovieRecoveryOperation.Result<never>["operator"] = "json-publication-v1";
+): IAutoMovieRecoveryOperation.Result<{
+  path: string;
+  sha256: string;
+  bytes: number;
+}> {
+  const schema: IAutoMovieRecoveryOperation.Result<never>["schema"] =
+    "automovie-recovery-operation-v1";
+  const operator: IAutoMovieRecoveryOperation.Result<never>["operator"] =
+    "json-publication-v1";
   if (options.signal?.aborted)
-    return { schema, operator, status: "cancelled", diagnostics: ["Cancelled before publication"] };
+    return {
+      schema,
+      operator,
+      status: "cancelled",
+      diagnostics: ["Cancelled before publication"],
+    };
   if (!output || artifact === null || typeof artifact !== "object")
-    return { schema, operator, status: "refused", diagnostics: ["An output path and plain data artifact are required"] };
+    return {
+      schema,
+      operator,
+      status: "refused",
+      diagnostics: ["An output path and plain data artifact are required"],
+    };
   try {
-    const publication: ReturnType<typeof writeAutoMovieRecoveryArtifact> = writeAutoMovieRecoveryArtifact(output, artifact);
-    return { schema, operator, status: "complete", value: { path: output, ...publication }, diagnostics: [] };
+    const publication: ReturnType<typeof writeAutoMovieRecoveryArtifact> =
+      writeAutoMovieRecoveryArtifact(output, artifact);
+    return {
+      schema,
+      operator,
+      status: "complete",
+      value: { path: output, ...publication },
+      diagnostics: [],
+    };
   } catch (failure: unknown) {
-    return { schema, operator, status: "failed", diagnostics: [failure instanceof Error ? failure.message : String(failure)] };
+    return {
+      schema,
+      operator,
+      status: "failed",
+      diagnostics: [
+        failure instanceof Error ? failure.message : String(failure),
+      ],
+    };
   }
 }

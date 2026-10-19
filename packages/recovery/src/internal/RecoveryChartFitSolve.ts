@@ -1,4 +1,5 @@
 import type { IAutoMovieCurve64 as C } from "@automovie/engine/geometry/curve";
+
 import { RecoveryChartBoxSolve as S } from "./RecoveryChartBoxSolve";
 import type { RecoveryChartFit } from "./RecoveryChartFit";
 import type { RecoveryChartFitPrepare } from "./RecoveryChartFitPrepare";

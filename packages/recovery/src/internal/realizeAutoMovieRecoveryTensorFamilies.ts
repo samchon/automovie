@@ -1,6 +1,7 @@
 import type { IAutoMovieContourLoft64 as L } from "@automovie/engine/geometry/curve";
 import { realizeAutoMovieBicubicAtlas64 as realize } from "@automovie/engine/geometry/realizeAutoMovieBicubicAtlas64";
 import type { IAutoMovieModel } from "@automovie/interface";
+
 import type { RecoveryTensorFamiliesInput } from "./RecoveryTensorFamiliesInput";
 import { readRecoveryMetadata as read } from "./readRecoveryMetadata";
 
@@ -21,7 +22,9 @@ import { readRecoveryMetadata as read } from "./readRecoveryMetadata";
  * @evidence contracts/performance.md#reuse-equivalent-work One curve-name registry serves all boundary comparisons, and each engine result supplies the model part and its quality and ownership reports without regeneration for camera changes.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Family recipes belong to the caller; local registries and realization scratch expire on return. Returned geometry, construction and reports remain owned by the reconstruction invocation, with no global cache.
  */
-export function realizeAutoMovieRecoveryTensorFamilies(bundle: realizeAutoMovieRecoveryTensorFamilies.Input): {
+export function realizeAutoMovieRecoveryTensorFamilies(
+  bundle: realizeAutoMovieRecoveryTensorFamilies.Input,
+): {
   parts: IAutoMovieModel["parts"];
   construction: {
     id: string;
@@ -199,9 +202,12 @@ export function realizeAutoMovieRecoveryTensorFamilies(bundle: realizeAutoMovieR
     }
   }
   const parts: IAutoMovieModel["parts"] = [],
-    construction: ReturnType<typeof realizeAutoMovieRecoveryTensorFamilies>["construction"] =
-      [];
-  const reports: ReturnType<typeof realizeAutoMovieRecoveryTensorFamilies>["reports"] = [];
+    construction: ReturnType<
+      typeof realizeAutoMovieRecoveryTensorFamilies
+    >["construction"] = [];
+  const reports: ReturnType<
+    typeof realizeAutoMovieRecoveryTensorFamilies
+  >["reports"] = [];
   for (const family of bundle.tensorFamilies ?? []) {
     const generated: ReturnType<typeof realize> = realize(family.geometry);
     if (generated.mesh.indices!.length)

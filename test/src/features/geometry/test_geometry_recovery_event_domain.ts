@@ -1,10 +1,12 @@
+import {
+  AutoMovieRecoveryEventCurve as E,
+  type IAutoMovieRecoveryEventChartInput,
+  compileAutoMovieRecoveryEventDomain,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import type { IAutoMovieCurve64 as C } from "../../../../packages/engine/src/geometry/curve/IAutoMovieCurve64";
 import { realizeAutoMovieBicubicAtlas64 } from "../../../../packages/engine/src/geometry/realizeAutoMovieBicubicAtlas64";
-import { type IAutoMovieRecoveryEventChartInput, AutoMovieRecoveryEventCurve as E, compileAutoMovieRecoveryEventDomain } from "@automovie/recovery";
-
-
 import { nclose } from "../internal/nclose";
 
 /**
@@ -42,7 +44,10 @@ export function test_geometry_recovery_event_domain(): void {
     toleranceMm: 0.01,
     nativeParentBindings: true,
   };
-  const inspect: (value: IAutoMovieRecoveryEventChartInput, patches: number) => void = (
+  const inspect: (
+    value: IAutoMovieRecoveryEventChartInput,
+    patches: number,
+  ) => void = (
     value: IAutoMovieRecoveryEventChartInput,
     patches: number,
   ): void => {

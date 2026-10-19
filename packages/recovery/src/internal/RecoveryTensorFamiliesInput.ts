@@ -1,4 +1,5 @@
 import type { IAutoMovieBicubicAtlasGeometry } from "@automovie/interface";
+
 import type { RecoveryAnalyticDomainsInput } from "./RecoveryAnalyticDomainsInput";
 
 /**

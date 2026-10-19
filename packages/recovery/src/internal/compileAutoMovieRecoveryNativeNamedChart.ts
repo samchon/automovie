@@ -1,5 +1,6 @@
 import type { IAutoMovieCurve64 as C } from "@automovie/engine/geometry/curve";
 import type { IAutoMovieBicubicAtlasGeometry as Geometry } from "@automovie/interface";
+
 import { AutoMovieRecoveryEventCurve as E } from "./AutoMovieRecoveryEventCurve";
 import { compileAutoMovieRecoveryEventDomain as compile } from "./compileAutoMovieRecoveryEventDomain";
 

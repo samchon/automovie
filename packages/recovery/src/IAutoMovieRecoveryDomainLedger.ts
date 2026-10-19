@@ -22,7 +22,14 @@ export interface IAutoMovieRecoveryDomainLedger {
   diagnostics: string[];
 
   /** Actual contour ranges whose exact declared owner could not be identified. */
-  unattributed: { part: string; firstTriangle: number; triangleCount: number; beforeMm: number; afterMm: number; group: number }[];
+  unattributed: {
+    part: string;
+    firstTriangle: number;
+    triangleCount: number;
+    beforeMm: number;
+    afterMm: number;
+    group: number;
+  }[];
 
   /** Every declared group, analytic owner and otherwise unconsumed open course. */
   members: {
@@ -30,7 +37,12 @@ export interface IAutoMovieRecoveryDomainLedger {
     id: string;
 
     /** The representation owner of this planned occurrence. */
-    kind: "closed-group" | "tensor-family" | "analytic-domain" | "open-course" | "unassigned-boundary";
+    kind:
+      | "closed-group"
+      | "tensor-family"
+      | "analytic-domain"
+      | "open-course"
+      | "unassigned-boundary";
 
     /** Original interval/group address, when this is a closed occurrence. */
     address: { interval: number; group: number } | null;
@@ -48,7 +60,12 @@ export interface IAutoMovieRecoveryDomainLedger {
     delegatedTo: string | null;
 
     /** Actual published ranges only; empty does not fabricate a zero-face success. */
-    emitted: { part: string; firstTriangle: number; triangleCount: number; patch: string | null }[];
+    emitted: {
+      part: string;
+      firstTriangle: number;
+      triangleCount: number;
+      patch: string | null;
+    }[];
 
     /** Memory reconstruction writes no artifact; a host receipt owns that stage. */
     written: "not-performed";

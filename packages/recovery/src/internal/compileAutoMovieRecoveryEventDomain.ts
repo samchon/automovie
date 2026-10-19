@@ -1,8 +1,11 @@
-import { AutoMovieBernstein64 as B, type IAutoMovieCurve64 as C } from "@automovie/engine/geometry/curve";
-
+import {
+  AutoMovieBernstein64 as B,
+  type IAutoMovieCurve64 as C,
+} from "@automovie/engine/geometry/curve";
 import type { IAutoMovieBicubicAtlasGeometry as Geometry } from "@automovie/interface";
-import type { IAutoMovieRecoveryEventChartInput } from "./IAutoMovieRecoveryEventChartInput";
+
 import { AutoMovieRecoveryEventCurve as E } from "./AutoMovieRecoveryEventCurve";
+import type { IAutoMovieRecoveryEventChartInput } from "./IAutoMovieRecoveryEventChartInput";
 
 /**
  * Compile declared cubic sides into a piecewise bicubic Coons coefficient atlas.
@@ -54,8 +57,12 @@ export function compileAutoMovieRecoveryEventDomain(
     throw new Error(
       "A named oriented chart and positive physical tolerance are required",
     );
-  const { bottom, top, left, right }: IAutoMovieRecoveryEventChartInput["chart"] =
-    input.chart;
+  const {
+    bottom,
+    top,
+    left,
+    right,
+  }: IAutoMovieRecoveryEventChartInput["chart"] = input.chart;
   const u: number[] = [...new Set([...E.knots(bottom), ...E.knots(top)])].sort(
     (a: number, b: number): number => a - b,
   );

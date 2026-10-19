@@ -1,19 +1,21 @@
+import {
+  type IAutoMovieCurve64 as C,
+  tessellateAutoMovieLocalHermite64 as T,
+} from "@automovie/engine/geometry/curve";
 import { createHash } from "node:crypto";
 import path from "node:path";
 
-import { type IAutoMovieCurve64 as C, tessellateAutoMovieLocalHermite64 as T } from "@automovie/engine/geometry/curve";
-
-import { realizeAutoMovieRecoveryAnalyticDomains } from "../../internal/realizeAutoMovieRecoveryAnalyticDomains";
-import { createAutoMovieRecoveryArtifact } from "./createAutoMovieRecoveryArtifact";
+import type { AutoMovieRecoveryOpenContinuation as O } from "../../internal/AutoMovieRecoveryOpenContinuation";
 import type { RecoveryLocalResult } from "../../internal/RecoveryLocalResult";
 import type { RecoveryLocalRunReport } from "../../internal/RecoveryLocalRunReport";
-import { createAutoMovieRecoveryMeshSpool } from "./createAutoMovieRecoveryMeshSpool";
-import type { AutoMovieRecoveryOpenContinuation as O } from "../../internal/AutoMovieRecoveryOpenContinuation";
-import type { realizeAutoMovieRecoveryTensorFamilies } from "../../internal/realizeAutoMovieRecoveryTensorFamilies";
+import { describeRecoveryOpenRun } from "../../internal/describeRecoveryOpenRun";
 import { normalizeRecoveryCourse } from "../../internal/normalizeRecoveryCourse";
 import { prepareRecoveryLocalContinuation } from "../../internal/prepareRecoveryLocalContinuation";
+import { realizeAutoMovieRecoveryAnalyticDomains } from "../../internal/realizeAutoMovieRecoveryAnalyticDomains";
+import type { realizeAutoMovieRecoveryTensorFamilies } from "../../internal/realizeAutoMovieRecoveryTensorFamilies";
 import { reconstructRecovery } from "../../internal/reconstructRecovery";
-import { describeRecoveryOpenRun } from "../../internal/describeRecoveryOpenRun";
+import { createAutoMovieRecoveryArtifact } from "./createAutoMovieRecoveryArtifact";
+import { createAutoMovieRecoveryMeshSpool } from "./createAutoMovieRecoveryMeshSpool";
 
 /**
  * Generate saved tensor ordinary domains, retained closed domains and bounded open surfaces.
@@ -104,10 +106,8 @@ export function reconstructAutoMovieRecoveryLocal(
       memory: process.memoryUsage(),
     }),
   );
-  const spool: ReturnType<typeof createAutoMovieRecoveryMeshSpool> = createAutoMovieRecoveryMeshSpool(
-    `${output}.spool`,
-    base.construction,
-  );
+  const spool: ReturnType<typeof createAutoMovieRecoveryMeshSpool> =
+    createAutoMovieRecoveryMeshSpool(`${output}.spool`, base.construction);
   base.construction.length = 0;
   const closedCounts: { vertices: number; triangles: number } = {
     vertices: 0,
@@ -269,8 +269,13 @@ export function reconstructAutoMovieRecoveryLocal(
       current = outgoing.get(key(current.after));
     }
     const id: string = `recovery.local.${key(nodes[0]!)}`;
-    const metadata: ReturnType<typeof describeRecoveryOpenRun> = describeRecoveryOpenRun(bundle, nodes);
-    base.diagnostics.push(...metadata.diagnostics.map((message: string): string => `${id}: ${message}`));
+    const metadata: ReturnType<typeof describeRecoveryOpenRun> =
+      describeRecoveryOpenRun(bundle, nodes);
+    base.diagnostics.push(
+      ...metadata.diagnostics.map(
+        (message: string): string => `${id}: ${message}`,
+      ),
+    );
     const record: RunReport = {
       id,
       firstSection: nodes[0]!.section,
@@ -289,7 +294,8 @@ export function reconstructAutoMovieRecoveryLocal(
       ).length,
       fitTargetMisses: metadata.fitTargetMisses,
       unqualifiedFitMetadata: metadata.unqualifiedFitMetadata,
-      fitPolylineUpperEstimateMaximumMm: metadata.fitPolylineUpperEstimateMaximumMm,
+      fitPolylineUpperEstimateMaximumMm:
+        metadata.fitPolylineUpperEstimateMaximumMm,
     };
     runs.push(record);
     const runStartChunks: number = spool.counts.chunks,

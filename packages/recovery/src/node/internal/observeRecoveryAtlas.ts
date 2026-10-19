@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { observeAutoMovieRecoveryAtlas as O } from "../../internal/observeAutoMovieRecoveryAtlas";
+import { readRecoveryFixedReference as read } from "./readRecoveryFixedReference";
 import { writeAutoMovieRecoveryArtifact } from "./writeAutoMovieRecoveryArtifact";
 
 /**
@@ -31,19 +32,6 @@ export function observeRecoveryAtlas(
   sourceEpoch: string,
 ): string {
   type Ref = { path: string; sha256: string };
-  const read: (
-    reference: Ref,
-    relativeTo: string,
-  ) => { bytes: Buffer; file: string } = (
-    reference: Ref,
-    relativeTo: string,
-  ): { bytes: Buffer; file: string } => {
-    const file: string = path.resolve(relativeTo, reference.path),
-      bytes: Buffer = fs.readFileSync(file);
-    if (createHash("sha256").update(bytes).digest("hex") !== reference.sha256)
-      throw new Error(`Fixed atlas-observation hash mismatch: ${file}`);
-    return { bytes, file };
-  };
   const bytes: Buffer = fs.readFileSync(inputFile),
     inputSha256: string = createHash("sha256").update(bytes).digest("hex"),
     base: string = path.dirname(path.resolve(inputFile));
@@ -388,11 +376,14 @@ export function observeRecoveryAtlas(
       return { ...chart, joint };
     });
   const witnessPublication: ReturnType<typeof writeAutoMovieRecoveryArtifact> =
-    writeAutoMovieRecoveryArtifact(path.join(output, "private-fit-witnesses.json"), {
-      schema: "automovie-recovery-private-fit-witnesses-v1",
-      provenance,
-      witnesses: privateFitWitnesses,
-    });
+    writeAutoMovieRecoveryArtifact(
+      path.join(output, "private-fit-witnesses.json"),
+      {
+        schema: "automovie-recovery-private-fit-witnesses-v1",
+        provenance,
+        witnesses: privateFitWitnesses,
+      },
+    );
   const publicFile: string = path.join(output, "atlas.json");
   const publication: ReturnType<typeof writeAutoMovieRecoveryArtifact> =
     writeAutoMovieRecoveryArtifact(publicFile, {
@@ -461,14 +452,17 @@ export function observeRecoveryAtlas(
     },
   );
   const ledger: ReturnType<typeof writeAutoMovieRecoveryArtifact> =
-    writeAutoMovieRecoveryArtifact(path.join(output, "private-source-ledger.json"), {
-      schema: "automovie-recovery-private-cell-ledger-v1",
-      provenance,
-      coverage: result.coverage,
-      witnessAccounting,
-      queryAccounting,
-      intervals: result.privateLedger,
-    });
+    writeAutoMovieRecoveryArtifact(
+      path.join(output, "private-source-ledger.json"),
+      {
+        schema: "automovie-recovery-private-cell-ledger-v1",
+        provenance,
+        coverage: result.coverage,
+        witnessAccounting,
+        queryAccounting,
+        intervals: result.privateLedger,
+      },
+    );
   writeAutoMovieRecoveryArtifact(path.join(output, "observation.json"), {
     schema: "automovie-recovery-atlas-observation-result-v1",
     provenance,

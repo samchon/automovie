@@ -1,8 +1,11 @@
-import { IAutoMovieContourLoft64 as L, tessellateAutoMovieContourLoft64 } from "@automovie/engine/geometry/curve";
-
+import {
+  IAutoMovieContourLoft64 as L,
+  tessellateAutoMovieContourLoft64,
+} from "@automovie/engine/geometry/curve";
 import type { IAutoMovieModel } from "@automovie/interface";
-import { realizeAutoMovieRecoveryAnalyticDomains } from "./realizeAutoMovieRecoveryAnalyticDomains";
+
 import { AutoMovieRecoveryMeshSections as R } from "./AutoMovieRecoveryMeshSections";
+import { realizeAutoMovieRecoveryAnalyticDomains } from "./realizeAutoMovieRecoveryAnalyticDomains";
 import { realizeAutoMovieRecoveryTensorFamilies } from "./realizeAutoMovieRecoveryTensorFamilies";
 
 /**
@@ -31,14 +34,20 @@ export function reconstructRecovery(
   } = {},
 ): {
   model: IAutoMovieModel;
-  construction: ReturnType<typeof realizeAutoMovieRecoveryTensorFamilies>["construction"];
+  construction: ReturnType<
+    typeof realizeAutoMovieRecoveryTensorFamilies
+  >["construction"];
   diagnostics: string[];
   unresolved: L.IResult["unresolved"];
   stripObservations: NonNullable<L.IResult["stripObservations"]>;
   primitiveRanges: NonNullable<L.IResult["primitiveRanges"]>;
   interactionObservations: NonNullable<L.IResult["interactionObservations"]>;
-  tensorReports: ReturnType<typeof realizeAutoMovieRecoveryTensorFamilies>["reports"];
-  analyticReports: ReturnType<typeof realizeAutoMovieRecoveryAnalyticDomains>["reports"];
+  tensorReports: ReturnType<
+    typeof realizeAutoMovieRecoveryTensorFamilies
+  >["reports"];
+  analyticReports: ReturnType<
+    typeof realizeAutoMovieRecoveryAnalyticDomains
+  >["reports"];
 } {
   if (
     bundle.schema !== "automovie-recovery-curves-v1" ||
@@ -73,19 +82,21 @@ export function reconstructRecovery(
     intervals: bundle.loft.intervals.map(
       (interval: L.IInterval, i: number): L.IInterval => ({
         ...interval,
-        groups: Array.isArray(interval.groups) ? interval.groups.map(
-          (
-            group: L.IInterval["groups"][number],
-            j: number,
-          ): L.IInterval["groups"][number] =>
-            replacements.has(`${i}:${j}`)
-              ? {
-                  ...group,
-                  supported: false,
-                  reason: `Saved domain delegated to analytic owner ${replacements.get(`${i}:${j}`)}`,
-                }
-              : group,
-        ) : interval.groups,
+        groups: Array.isArray(interval.groups)
+          ? interval.groups.map(
+              (
+                group: L.IInterval["groups"][number],
+                j: number,
+              ): L.IInterval["groups"][number] =>
+                replacements.has(`${i}:${j}`)
+                  ? {
+                      ...group,
+                      supported: false,
+                      reason: `Saved domain delegated to analytic owner ${replacements.get(`${i}:${j}`)}`,
+                    }
+                  : group,
+            )
+          : interval.groups,
       }),
     ),
     observeWork: options.observeWork ?? false,

@@ -1,4 +1,5 @@
 import type { IAutoMovieBicubicAtlasGeometry } from "@automovie/interface";
+
 import type { AutoMovieRecoveryMeshSections as R } from "./AutoMovieRecoveryMeshSections";
 
 /**

@@ -1,8 +1,9 @@
 import type { IAutoMovieContourLoft64 as L } from "@automovie/engine/geometry/curve";
 import { realizeAutoMovieBicubicAtlas64 as realize } from "@automovie/engine/geometry/realizeAutoMovieBicubicAtlas64";
 import type { IAutoMovieModel } from "@automovie/interface";
-import type { RecoveryAnalyticDomainsInput as Input } from "./RecoveryAnalyticDomainsInput";
+
 import type { AutoMovieRecoveryOpenContinuation as O } from "./AutoMovieRecoveryOpenContinuation";
+import type { RecoveryAnalyticDomainsInput as Input } from "./RecoveryAnalyticDomainsInput";
 import { readRecoveryMetadata as read } from "./readRecoveryMetadata";
 
 /**
@@ -70,16 +71,18 @@ export function realizeAutoMovieRecoveryAnalyticDomains(
     for (const loop of section.loops) register(loop.curve);
   for (const row of bundle.reports) {
     const open: unknown = read(row, ["open"]);
-    if (Array.isArray(open)) for (const [ordinal, arc] of open.entries()) {
-      const curve: unknown = read(arc, ["curve"]);
-      const name: unknown = read(curve, ["name"]);
-      if (typeof name === "string" && name.length > 0) {
-        // The name registry borrows the declared typed curve only. Domain
-        // coefficient admission remains inside the per-domain boundary below.
-        const saved: (typeof row.open)[number] | undefined = row.open[ordinal];
-        if (saved !== undefined) register(saved.curve);
+    if (Array.isArray(open))
+      for (const [ordinal, arc] of open.entries()) {
+        const curve: unknown = read(arc, ["curve"]);
+        const name: unknown = read(curve, ["name"]);
+        if (typeof name === "string" && name.length > 0) {
+          // The name registry borrows the declared typed curve only. Domain
+          // coefficient admission remains inside the per-domain boundary below.
+          const saved: (typeof row.open)[number] | undefined =
+            row.open[ordinal];
+          if (saved !== undefined) register(saved.curve);
+        }
       }
-    }
   }
   const occupied: Set<string> = new Set(
     (bundle.tensorFamilies ?? []).flatMap(

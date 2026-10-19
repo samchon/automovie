@@ -1,10 +1,12 @@
+import {
+  createAutoMovieRecoveryArtifact,
+  writeAutoMovieRecoveryArtifact,
+} from "@automovie/recovery/node";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-
-import { createAutoMovieRecoveryArtifact, writeAutoMovieRecoveryArtifact } from "@automovie/recovery/node";
 
 import { createBicubicPlaneRecipe } from "../internal/createBicubicPlaneRecipe";
 
@@ -100,8 +102,9 @@ export function test_geometry_artifact_publication(): void {
       '{"recovered":true}',
     );
 
-    const fragmentPublication: ReturnType<typeof writeAutoMovieRecoveryArtifact> =
-      writeAutoMovieRecoveryArtifact(fragment, [1, 2, 3]);
+    const fragmentPublication: ReturnType<
+      typeof writeAutoMovieRecoveryArtifact
+    > = writeAutoMovieRecoveryArtifact(fragment, [1, 2, 3]);
     const placeholder: unknown[] = [];
     const sources: Map<
       readonly unknown[],
@@ -112,7 +115,11 @@ export function test_geometry_artifact_publication(): void {
     TestValidator.predicate(
       "wrong fragment byte hash refuses",
       refuses((): void => {
-        writeAutoMovieRecoveryArtifact(assembled, { values: placeholder }, sources);
+        writeAutoMovieRecoveryArtifact(
+          assembled,
+          { values: placeholder },
+          sources,
+        );
       }),
     );
     sources.set(placeholder, [

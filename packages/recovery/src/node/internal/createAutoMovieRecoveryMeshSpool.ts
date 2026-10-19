@@ -1,8 +1,8 @@
+import type { tessellateAutoMovieLocalHermite64 as T } from "@automovie/engine/geometry/curve";
+import type { IAutoMovieMesh } from "@automovie/interface";
 import fs from "node:fs";
 import path from "node:path";
 
-import type { tessellateAutoMovieLocalHermite64 as T } from "@automovie/engine/geometry/curve";
-import type { IAutoMovieMesh } from "@automovie/interface";
 import { writeAutoMovieRecoveryArtifact } from "./writeAutoMovieRecoveryArtifact";
 
 /**

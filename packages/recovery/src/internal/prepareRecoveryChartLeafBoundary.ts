@@ -1,4 +1,7 @@
-import { AutoMovieBernstein64 as S, type IAutoMovieCurve64 as C } from "@automovie/engine/geometry/curve";
+import {
+  type IAutoMovieCurve64 as C,
+  AutoMovieBernstein64 as S,
+} from "@automovie/engine/geometry/curve";
 
 import type { IRecoveryChartLeafFit } from "./IRecoveryChartLeafFit";
 import type { RecoveryChartLeafControls as K } from "./RecoveryChartLeafControls";

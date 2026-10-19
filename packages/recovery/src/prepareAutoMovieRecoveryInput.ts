@@ -1,4 +1,7 @@
-import type { IAutoMovieRecoveryInput, IAutoMovieRecoveryRegistration } from "@automovie/interface/recovery";
+import type {
+  IAutoMovieRecoveryInput,
+  IAutoMovieRecoveryRegistration,
+} from "@automovie/interface/recovery";
 
 import type { IAutoMovieRecoveryOperation } from "./IAutoMovieRecoveryOperation";
 
@@ -26,12 +29,19 @@ export function prepareAutoMovieRecoveryInput(input: {
   observation: IAutoMovieRecoveryInput;
   registration: IAutoMovieRecoveryRegistration;
 }> {
-  const schema: IAutoMovieRecoveryOperation.Result<never>["schema"] = "automovie-recovery-operation-v1";
-  const operator: IAutoMovieRecoveryOperation.Result<never>["operator"] = "registered-triangles-v1";
-  const registration: IAutoMovieRecoveryRegistration | undefined = input?.registration;
-  const finiteTuple: (value: unknown, length: number) => boolean = (value: unknown, length: number): boolean => {
+  const schema: IAutoMovieRecoveryOperation.Result<never>["schema"] =
+    "automovie-recovery-operation-v1";
+  const operator: IAutoMovieRecoveryOperation.Result<never>["operator"] =
+    "registered-triangles-v1";
+  const registration: IAutoMovieRecoveryRegistration | undefined =
+    input?.registration;
+  const finiteTuple: (value: unknown, length: number) => boolean = (
+    value: unknown,
+    length: number,
+  ): boolean => {
     if (!Array.isArray(value) || value.length !== length) return false;
-    for (let i: number = 0; i < length; i++) if (!Number.isFinite(value[i])) return false;
+    for (let i: number = 0; i < length; i++)
+      if (!Number.isFinite(value[i])) return false;
     return true;
   };
   const stringList: (value: unknown) => boolean = (value: unknown): boolean => {
@@ -40,30 +50,83 @@ export function prepareAutoMovieRecoveryInput(input: {
     return true;
   };
   if (
-    !registration || registration.schema !== "automovie-recovery-registration-v1" ||
-    registration.units !== "mm" || registration.handedness !== "right-handed" ||
-    typeof registration.frame !== "string" || !registration.frame.trim() ||
-    typeof registration.evaluatedPose !== "string" || !registration.evaluatedPose.trim() ||
+    !registration ||
+    registration.schema !== "automovie-recovery-registration-v1" ||
+    registration.units !== "mm" ||
+    registration.handedness !== "right-handed" ||
+    typeof registration.frame !== "string" ||
+    !registration.frame.trim() ||
+    typeof registration.evaluatedPose !== "string" ||
+    !registration.evaluatedPose.trim() ||
     registration.componentPolicy !== "all-evaluated" ||
     !stringList(registration.uncertainty) ||
     !finiteTuple(registration.sourceToRegistered, 16)
-  ) return { schema, operator, status: "refused", diagnostics: ["Explicit supported millimetre registration, evaluated pose, component policy and finite applied transform are required"] };
-  if (!Array.isArray(input.verticesMm) || !input.verticesMm.length || !Array.isArray(input.triangles) || !input.triangles.length)
-    return { schema, operator, status: "refused", diagnostics: ["Nonempty evaluated position and triangle arrays are required"] };
+  )
+    return {
+      schema,
+      operator,
+      status: "refused",
+      diagnostics: [
+        "Explicit supported millimetre registration, evaluated pose, component policy and finite applied transform are required",
+      ],
+    };
+  if (
+    !Array.isArray(input.verticesMm) ||
+    !input.verticesMm.length ||
+    !Array.isArray(input.triangles) ||
+    !input.triangles.length
+  )
+    return {
+      schema,
+      operator,
+      status: "refused",
+      diagnostics: [
+        "Nonempty evaluated position and triangle arrays are required",
+      ],
+    };
   for (let i: number = 0; i < input.verticesMm.length; i++) {
-    const point: IAutoMovieRecoveryInput["verticesMm"][number] = input.verticesMm[i]!;
+    const point: IAutoMovieRecoveryInput["verticesMm"][number] =
+      input.verticesMm[i]!;
     if (!finiteTuple(point, 3))
-      return { schema, operator, status: "refused", diagnostics: [
-        `verticesMm[${i}] must be a finite millimetre triple`,
-      ] };
+      return {
+        schema,
+        operator,
+        status: "refused",
+        diagnostics: [`verticesMm[${i}] must be a finite millimetre triple`],
+      };
   }
   for (let i: number = 0; i < input.triangles.length; i++) {
-    const face: IAutoMovieRecoveryInput["triangles"][number] = input.triangles[i]!;
-    if (!Array.isArray(face) || face.length !== 3 || [0, 1, 2].some((slot: number): boolean => !Number.isSafeInteger(face[slot]) || face[slot]! < 0 || face[slot]! >= input.verticesMm.length))
-      return { schema, operator, status: "refused", diagnostics: [`triangles[${i}] must address three existing vertices`] };
+    const face: IAutoMovieRecoveryInput["triangles"][number] =
+      input.triangles[i]!;
+    if (
+      !Array.isArray(face) ||
+      face.length !== 3 ||
+      [0, 1, 2].some(
+        (slot: number): boolean =>
+          !Number.isSafeInteger(face[slot]) ||
+          face[slot]! < 0 ||
+          face[slot]! >= input.verticesMm.length,
+      )
+    )
+      return {
+        schema,
+        operator,
+        status: "refused",
+        diagnostics: [`triangles[${i}] must address three existing vertices`],
+      };
   }
-  return { schema, operator, status: "complete", value: {
-    observation: { ...input.policy, verticesMm: input.verticesMm, triangles: input.triangles },
-    registration,
-  }, diagnostics: registration.uncertainty.slice() };
+  return {
+    schema,
+    operator,
+    status: "complete",
+    value: {
+      observation: {
+        ...input.policy,
+        verticesMm: input.verticesMm,
+        triangles: input.triangles,
+      },
+      registration,
+    },
+    diagnostics: registration.uncertainty.slice(),
+  };
 }

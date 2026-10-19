@@ -1,5 +1,6 @@
 import type { IAutoMovieCurve64 as C } from "@automovie/engine/geometry/curve";
 import type { IAutoMovieBicubicAtlasGeometry as Geometry } from "@automovie/interface";
+
 import type { IAutoMovieRecoveryEventChartInput } from "./IAutoMovieRecoveryEventChartInput";
 import { compileAutoMovieRecoveryNativeNamedChart as compile } from "./compileAutoMovieRecoveryNativeNamedChart";
 
@@ -72,7 +73,10 @@ export function assembleAutoMovieRecoveryFieldComplex(
   type Point = Geometry["controls"][number];
   type Diagnostic = { id: string; reason: string; detail?: unknown };
   type Compiled = Extract<ReturnType<typeof compile>, { complete: true }>;
-  type Candidate = { chart: IAutoMovieRecoveryEventChartInput; result: Compiled };
+  type Candidate = {
+    chart: IAutoMovieRecoveryEventChartInput;
+    result: Compiled;
+  };
   type Owner = {
     net: readonly C.Vector[];
     incidents: Set<number>;
@@ -187,12 +191,12 @@ export function assembleAutoMovieRecoveryFieldComplex(
   for (const map of [native, endpoints])
     for (const [authority, owner] of map)
       if (owner.conflict) {
-        const incident: IAutoMovieRecoveryEventChartInput[] = [...owner.incidents].map(
-          (i: number): IAutoMovieRecoveryEventChartInput => {
-            invalid.add(i);
-            return charts[i]!;
-          },
-        );
+        const incident: IAutoMovieRecoveryEventChartInput[] = [
+          ...owner.incidents,
+        ].map((i: number): IAutoMovieRecoveryEventChartInput => {
+          invalid.add(i);
+          return charts[i]!;
+        });
         reject(
           incident,
           "Distinct coefficients claim one named boundary owner",

@@ -1,8 +1,8 @@
 import { reconstructAutoMovieRecoveryModel } from "@automovie/recovery";
-import type { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
+import { recoveryPrismOracle as prism } from "../internal/recoveryPrismOracle";
 
 /**
  * Saved square rings generate new metre geometry without any source mesh input.
@@ -22,194 +22,310 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/testing.md#execution-ownership The portable test_recovery_source_free entry owns small saved-coefficient fixtures and CPU measurements only, imports supported public packages and an existing scalar comparison helper, and opens no source, filesystem, process, renderer or native artifact. Central validation owns execution and the strict under-500-ms scenario budget.
  */
 export function test_recovery_source_free(): void {
-  type Input = Parameters<typeof reconstructAutoMovieRecoveryModel>[0];
-  type Curve = Input["loft"]["sections"][number]["loops"][number]["curve"];
-  const ring: (y: number, x: number, name: string) => Curve = (
-    y: number, x: number, name: string,
-  ): Curve => {
-    const corners: [number, number, number][] = [
-      [x, y, 0], [x, y, 3], [x + 3, y, 3], [x + 3, y, 0],
-    ];
-    return {
-      type: "cubicBezier", name, closed: true, unit: "mm", phaseUnit: "mm",
-      phaseIntervals: [3, 3, 3, 3],
-      spans: corners.map((p: [number, number, number], i: number): Curve["spans"][number] => {
-        const q: [number, number, number] = corners[(i + 1) % 4]!;
-        return [p,
-          [p[0] + (q[0] - p[0]) / 3, y, p[2] + (q[2] - p[2]) / 3],
-          [p[0] + 2 * (q[0] - p[0]) / 3, y, p[2] + 2 * (q[2] - p[2]) / 3], q];
+  type Input = prism.Input;
+  const completeInput: Input = prism.makeInput(false);
+  const partialInput: Input = prism.makeInput(true);
+  const prefixInput: Input = {
+    ...prism.makeInput(false),
+    coverage: {
+      complete: false,
+      plannedSections: 3,
+      retainedSections: 2,
+      sourceRangeMm: [0, 4],
+      observedStationRangeMm: [0, 2],
+      unobservedStationRangeMm: [2, 4],
+      missingSourceRangeMm: [2, 4],
+    },
+  };
+  const groupSource: Input = prism.makeInput(false);
+  const malformedGroup: Input = {
+    ...groupSource,
+    loft: {
+      ...groupSource.loft,
+      intervals: groupSource.loft.intervals!.map(
+        (
+          interval: NonNullable<Input["loft"]["intervals"]>[number],
+        ): NonNullable<Input["loft"]["intervals"]>[number] => ({
+          ...interval,
+          groups: [
+            ...interval.groups,
+            JSON.parse('{"supported":true,"reason":null}'),
+          ],
+        }),
+      ),
+    },
+  };
+  const malformedDomain: Input = {
+    ...prism.makeInput(false),
+    analyticDomains: [JSON.parse('{"id":"malformed-domain"}')],
+  };
+  const mixedBase: Input = prism.makeInput(false);
+  const mixedSource: Input = {
+    ...mixedBase,
+    loft: {
+      ...mixedBase.loft,
+      sections: mixedBase.loft.sections.map(
+        (
+          section: Input["loft"]["sections"][number],
+        ): Input["loft"]["sections"][number] => ({
+          ...section,
+          loops: [...section.loops, JSON.parse('{"winding":1}')],
+        }),
+      ),
+    },
+    reports: mixedBase.reports.map(
+      (report: Input["reports"][number]): Input["reports"][number] => ({
+        ...report,
+        fits: [...report.fits, report.fits[0]!],
+        open: JSON.parse("[{}]"),
       }),
-    };
+    ),
   };
-  const makeInput: (unsupported: boolean) => Input = (unsupported: boolean): Input => {
-    const sections: Input["loft"]["sections"] = [0, 2].map(
-      (y: number): Input["loft"]["sections"][number] => {
-        const loops: Input["loft"]["sections"][number]["loops"][number][] = [
-          { curve: ring(y, 0, `square.${y}`), winding: 1 },
-        ];
-        if (unsupported)
-          loops.push({ curve: ring(y, 10, `omitted.${y}`), winding: 1 });
-        return { coordinateMm: y, loops };
-      },
-    );
-    return {
-      schema: "automovie-recovery-curves-v1",
-      loft: { sections, events: [], chordToleranceMm: 0.01,
-        intervals: [{ beforeMm: 0, afterMm: 2, groups: [
-          { before: [0], after: [0], supported: true, reason: null },
-          ...(unsupported ? [{ before: [1], after: [1], supported: false, reason: "General domain intentionally unsupported" }] : []),
-        ] }],
-      },
-      reports: sections.map((section: Input["loft"]["sections"][number]): Input["reports"][number] => ({
-        coordinateMm: section.coordinateMm,
-        fits: section.loops.map((): Input["reports"][number]["fits"][number] => ({
-          sampleMaximumMm: 0, polylineUpperEstimateMm: 0, toleranceMet: true,
-          observationsPerSpan: 2, handleFallbacks: 0,
-        })),
-        open: [], isolatedContactsMm: [], diagnostics: [],
-      })),
-      diagnostics: [], topologyGaps: [], unconsumedEvents: [],
-      policy: { axis: [0, 1, 0], reference: [1, 0, 0], stepMm: 2,
-        toleranceMm: 0.01, chordToleranceMm: 0.01, maxSections: 8, maxSpans: 8,
-        exactCoordinateAliases: false, sourceOrientationSign: 1, cornerDegrees: 45 },
-      summary: { observations: unsupported ? 32 : 16, spans: unsupported ? 16 : 8,
-        sections: 2, events: 0, aliases: 0 },
-    };
+  const mixedDomains: Input = {
+    ...mixedSource,
+    analyticDomains: JSON.parse(
+      '[{"id":"repeated"},{"id":"repeated"},null,{"id":17},{"id":"ports-invalid","ports":[null,{}, {"curveName":8}],"closedGroups":[null]}]',
+    ),
+    loft: {
+      ...mixedSource.loft,
+      intervals: mixedSource.loft.intervals!.map(
+        (
+          interval: NonNullable<Input["loft"]["intervals"]>[number],
+        ): NonNullable<Input["loft"]["intervals"]>[number] => ({
+          ...interval,
+          groups: [
+            ...interval.groups,
+            ...JSON.parse(
+              '[{"supported":true,"reason":null},{"before":[{}],"after":false,"supported":true,"reason":null}]',
+            ),
+          ],
+        }),
+      ),
+    },
   };
-  const measure: (result: ReturnType<typeof reconstructAutoMovieRecoveryModel>) => void = (
-    result: ReturnType<typeof reconstructAutoMovieRecoveryModel>,
-  ): void => {
-    if (!("value" in result)) throw new Error("Expected retained source-free geometry");
-    let area: number = 0;
-    const boundaryLengths: number[] = [0, 0];
-    const edges: Map<string, { count: number; balance: number; a: number[]; b: number[] }> = new Map();
-    for (const part of result.value.model.parts) {
-      if (part.geometry.type !== "mesh") throw new Error("Expected generated mesh geometry");
-      const mesh: IAutoMovieMesh = part.geometry.mesh;
-      if (mesh.indices === null) throw new Error("Expected indexed geometry");
-      TestValidator.predicate("metre positions are finite", mesh.positions.every((v: number): boolean => Number.isFinite(v)));
-      TestValidator.predicate("complete vertex and triangle tuples", mesh.positions.length % 3 === 0 && mesh.indices.length > 0 && mesh.indices.length % 3 === 0);
-      const point: (index: number) => number[] = (index: number): number[] => {
-        TestValidator.predicate("index addresses a complete vertex", Number.isSafeInteger(index) && index >= 0 && index * 3 + 2 < mesh.positions.length);
-        const p: number[] = mesh.positions.slice(index * 3, index * 3 + 3);
-        TestValidator.predicate(
-          "positions stay on the analytic prism walls in metres",
-          p[0]! >= -1e-12 && p[0]! <= 0.003 + 1e-12 &&
-            p[1]! >= -1e-12 && p[1]! <= 0.002 + 1e-12 &&
-            p[2]! >= -1e-12 && p[2]! <= 0.003 + 1e-12 &&
-            (nclose(p[0]!, 0, 1e-12) || nclose(p[0]!, 0.003, 1e-12) ||
-              nclose(p[2]!, 0, 1e-12) || nclose(p[2]!, 0.003, 1e-12)),
-        );
-        return p;
-      };
-      for (let i: number = 0; i < mesh.indices.length; i += 3) {
-        const vertices: number[][] = [point(mesh.indices[i]!), point(mesh.indices[i + 1]!), point(mesh.indices[i + 2]!)];
-        const a: number[] = vertices[0]!, b: number[] = vertices[1]!, c: number[] = vertices[2]!;
-        const u: number[] = b.map((v: number, j: number): number => v - a[j]!);
-        const v: number[] = c.map((value: number, j: number): number => value - a[j]!);
-        const cross: number[] = [u[1]! * v[2]! - u[2]! * v[1]!, u[2]! * v[0]! - u[0]! * v[2]!, u[0]! * v[1]! - u[1]! * v[0]!];
-        const triangleArea: number = Math.hypot(...cross) / 2;
-        TestValidator.predicate("every triangle has finite positive area", Number.isFinite(triangleArea) && triangleArea > 0);
-        TestValidator.predicate(
-          "positive outer winding points away from the prism interior",
-          cross[0]! * ((a[0]! + b[0]! + c[0]!) / 3 - 0.0015) +
-            cross[2]! * ((a[2]! + b[2]! + c[2]!) / 3 - 0.0015) > 0,
-        );
-        area += triangleArea;
-        for (let j: number = 0; j < 3; j++) {
-          const p: number[] = vertices[j]!, q: number[] = vertices[(j + 1) % 3]!;
-          const pKey: string = p.join(","), qKey: string = q.join(",");
-          const forward: boolean = pKey < qKey;
-          const key: string = forward ? `${pKey}|${qKey}` : `${qKey}|${pKey}`;
-          const edge: { count: number; balance: number; a: number[]; b: number[] } = edges.get(key) ?? { count: 0, balance: 0, a: p, b: q };
-          edge.count++; edge.balance += forward ? 1 : -1; edges.set(key, edge);
-        }
-      }
-    }
-    TestValidator.predicate("four walls have the analytic metre area", nclose(area, 24e-6, 1e-12));
-    for (const edge of edges.values()) {
-      TestValidator.predicate("annulus edge incidence", edge.count === 1 || (edge.count === 2 && edge.balance === 0));
-      if (edge.count !== 1) continue;
-      const lower: boolean = nclose(edge.a[1]!, 0, 1e-12) && nclose(edge.b[1]!, 0, 1e-12);
-      const upper: boolean = nclose(edge.a[1]!, 0.002, 1e-12) && nclose(edge.b[1]!, 0.002, 1e-12);
-      TestValidator.predicate("exposed edges lie on a declared open end", lower || upper);
-      const end: number = lower ? 0 : 1;
-      boundaryLengths[end] = boundaryLengths[end]! + Math.hypot(...edge.a.map((v: number, j: number): number => v - edge.b[j]!));
-    }
-    TestValidator.predicate("each open square perimeter remains", boundaryLengths.every((length: number): boolean => nclose(length, 0.012, 1e-12)));
-    TestValidator.predicate("retained primitive ownership names only the valid group", result.value.primitiveRanges.length > 0 && result.value.primitiveRanges.every((range: (typeof result.value.primitiveRanges)[number]): boolean => range.group === 0));
+  const missingCurveSource: Input = prism.makeInput(false);
+  const missingCurves: Input = {
+    ...missingCurveSource,
+    loft: {
+      ...missingCurveSource.loft,
+      sections: missingCurveSource.loft.sections.map(
+        (
+          section: Input["loft"]["sections"][number],
+        ): Input["loft"]["sections"][number] => ({
+          ...section,
+          loops: [...section.loops, JSON.parse('{"winding":1}')],
+        }),
+      ),
+    },
+    reports: missingCurveSource.reports.map(
+      (report: Input["reports"][number]): Input["reports"][number] => ({
+        ...report,
+        fits: [...report.fits, report.fits[0]!],
+      }),
+    ),
   };
-  const completeInput: Input = makeInput(false);
-  const partialInput: Input = makeInput(true);
-  const prefixInput: Input = { ...makeInput(false), coverage: {
-    complete: false, plannedSections: 3, retainedSections: 2, sourceRangeMm: [0, 4],
-    observedStationRangeMm: [0, 2], unobservedStationRangeMm: [2, 4], missingSourceRangeMm: [2, 4],
-  } };
-  const groupSource: Input = makeInput(false);
-  const malformedGroup: Input = { ...groupSource, loft: { ...groupSource.loft,
-    intervals: groupSource.loft.intervals!.map((interval: NonNullable<Input["loft"]["intervals"]>[number]): NonNullable<Input["loft"]["intervals"]>[number] => ({
-      ...interval, groups: [...interval.groups, JSON.parse('{"supported":true,"reason":null}')],
-    })),
-  } };
-  const malformedDomain: Input = { ...makeInput(false), analyticDomains: [JSON.parse('{"id":"malformed-domain"}')] };
-  const mixedBase: Input = makeInput(false);
-  const mixedSource: Input = { ...mixedBase, loft: { ...mixedBase.loft, sections: mixedBase.loft.sections.map((section: Input["loft"]["sections"][number]): Input["loft"]["sections"][number] => ({ ...section, loops: [...section.loops, JSON.parse('{"winding":1}')] })) },
-    reports: mixedBase.reports.map((report: Input["reports"][number]): Input["reports"][number] => ({ ...report, fits: [...report.fits, report.fits[0]!], open: JSON.parse('[{}]') })),
+  const unnamedOpen: Input = {
+    ...prism.makeInput(false),
+    reports: prism
+      .makeInput(false)
+      .reports.map(
+        (report: Input["reports"][number]): Input["reports"][number] => ({
+          ...report,
+          open: JSON.parse('[null,{}, {"curve":{"name":7}}]'),
+        }),
+      ),
   };
-  const mixedDomains: Input = { ...mixedSource, analyticDomains: JSON.parse('[{"id":"repeated"},{"id":"repeated"},null,{"id":17},{"id":"ports-invalid","ports":[null,{}, {"curveName":8}],"closedGroups":[null]}]'),
-    loft: { ...mixedSource.loft, intervals: mixedSource.loft.intervals!.map((interval: NonNullable<Input["loft"]["intervals"]>[number]): NonNullable<Input["loft"]["intervals"]>[number] => ({
-      ...interval, groups: [...interval.groups, ...JSON.parse('[{"supported":true,"reason":null},{"before":[{}],"after":false,"supported":true,"reason":null}]')],
-    })) },
+  const unknownInventories: Input = Object.assign(prism.makeInput(false), {
+    topologyGaps: null,
+    unconsumedEvents: {},
+    tensorFamilies: {},
+    analyticDomains: {},
+    reports: prism
+      .makeInput(false)
+      .reports.map(
+        (report: Input["reports"][number]): Input["reports"][number] =>
+          Object.assign({}, report, { open: null, isolatedContactsMm: null }),
+      ),
+  });
+  const missingGroupSource: Input = prism.makeInput(false);
+  const extraSection: Input["loft"]["sections"][number] = {
+    coordinateMm: 4,
+    loops: [{ curve: prism.ring(4, 10, "unconsumed.4"), winding: 1 }],
   };
-  const missingCurveSource: Input = makeInput(false);
-  const missingCurves: Input = { ...missingCurveSource, loft: { ...missingCurveSource.loft, sections: missingCurveSource.loft.sections.map((section: Input["loft"]["sections"][number]): Input["loft"]["sections"][number] => ({ ...section, loops: [...section.loops, JSON.parse('{"winding":1}')] })) }, reports: missingCurveSource.reports.map((report: Input["reports"][number]): Input["reports"][number] => ({ ...report, fits: [...report.fits, report.fits[0]!] })) };
-  const unnamedOpen: Input = { ...makeInput(false), reports: makeInput(false).reports.map((report: Input["reports"][number]): Input["reports"][number] => ({ ...report, open: JSON.parse('[null,{}, {"curve":{"name":7}}]') })) };
-  const unknownInventories: Input = Object.assign(makeInput(false), { topologyGaps: null, unconsumedEvents: {}, tensorFamilies: {}, analyticDomains: {}, reports: makeInput(false).reports.map((report: Input["reports"][number]): Input["reports"][number] => Object.assign({}, report, { open: null, isolatedContactsMm: null })) });
-  const missingGroupSource: Input = makeInput(false);
-  const extraSection: Input["loft"]["sections"][number] = { coordinateMm: 4, loops: [{ curve: ring(4, 10, "unconsumed.4"), winding: 1 }] };
-  const missingGroupInventory: Input = { ...missingGroupSource, loft: { ...missingGroupSource.loft,
-    sections: [...missingGroupSource.loft.sections, extraSection],
-    intervals: [...missingGroupSource.loft.intervals!, JSON.parse('{"beforeMm":2,"afterMm":4,"groups":null}')],
-  }, reports: [...missingGroupSource.reports, { ...missingGroupSource.reports[0]!, coordinateMm: 4 }] };
-  for (const input of [completeInput, partialInput, prefixInput, malformedGroup, malformedDomain, mixedDomains, missingCurves, unnamedOpen, unknownInventories, missingGroupInventory]) {
+  const missingGroupInventory: Input = {
+    ...missingGroupSource,
+    loft: {
+      ...missingGroupSource.loft,
+      sections: [...missingGroupSource.loft.sections, extraSection],
+      intervals: [
+        ...missingGroupSource.loft.intervals!,
+        JSON.parse('{"beforeMm":2,"afterMm":4,"groups":null}'),
+      ],
+    },
+    reports: [
+      ...missingGroupSource.reports,
+      { ...missingGroupSource.reports[0]!, coordinateMm: 4 },
+    ],
+  };
+  for (const input of [
+    completeInput,
+    partialInput,
+    prefixInput,
+    malformedGroup,
+    malformedDomain,
+    mixedDomains,
+    missingCurves,
+    unnamedOpen,
+    unknownInventories,
+    missingGroupInventory,
+  ]) {
     const original: string = JSON.stringify(input);
-    const result: ReturnType<typeof reconstructAutoMovieRecoveryModel> = reconstructAutoMovieRecoveryModel(input);
-    TestValidator.equals("declared coverage determines terminal", result.status, input === completeInput ? "complete" : "partial");
-    measure(result);
+    const result: ReturnType<typeof reconstructAutoMovieRecoveryModel> =
+      reconstructAutoMovieRecoveryModel(input);
+    TestValidator.equals(
+      "declared coverage determines terminal",
+      result.status,
+      input === completeInput ? "complete" : "partial",
+    );
+    prism.measure(result);
     if (input === partialInput && "value" in result)
-      TestValidator.predicate("unsupported independent domain remains explicit", result.value.unresolved.some(
-        (record: (typeof result.value.unresolved)[number]): boolean =>
-          nclose(record.beforeMm, 0, 1e-12) && nclose(record.afterMm, 2, 1e-12) &&
-          record.reason === "General domain intentionally unsupported",
-      ));
-    if (input === malformedGroup && "value" in result) {
-      const member: (typeof result.value.membership.members)[number] | undefined = result.value.membership.members.find(
-        (record: (typeof result.value.membership.members)[number]): boolean => record.id === "closed-group:0:1",
+      TestValidator.predicate(
+        "unsupported independent domain remains explicit",
+        result.value.unresolved.some(
+          (record: (typeof result.value.unresolved)[number]): boolean =>
+            nclose(record.beforeMm, 0, 1e-12) &&
+            nclose(record.afterMm, 2, 1e-12) &&
+            record.reason === "General domain intentionally unsupported",
+        ),
       );
-      TestValidator.predicate("malformed group keeps its declared identity without inventing curve names", member !== undefined && member.curves.length === 0 && member.diagnostics.length > 0 && member.attempted === null);
+    if (input === malformedGroup && "value" in result) {
+      const member:
+        | (typeof result.value.membership.members)[number]
+        | undefined = result.value.membership.members.find(
+        (record: (typeof result.value.membership.members)[number]): boolean =>
+          record.id === "closed-group:0:1",
+      );
+      TestValidator.predicate(
+        "malformed group keeps its declared identity without inventing curve names",
+        member !== undefined &&
+          member.curves.length === 0 &&
+          member.diagnostics.length > 0 &&
+          member.attempted === null,
+      );
     }
     if (input === malformedDomain && "value" in result) {
-      const member: (typeof result.value.membership.members)[number] | undefined = result.value.membership.members.find(
-        (record: (typeof result.value.membership.members)[number]): boolean => record.kind === "analytic-domain",
+      const member:
+        | (typeof result.value.membership.members)[number]
+        | undefined = result.value.membership.members.find(
+        (record: (typeof result.value.membership.members)[number]): boolean =>
+          record.kind === "analytic-domain",
       );
-      TestValidator.predicate("unobserved analytic generation remains unknown after local refusal", member !== undefined && member.admitted === false && member.attempted === null && member.curves.length === 0 && member.emitted.length === 0);
+      TestValidator.predicate(
+        "unobserved analytic generation remains unknown after local refusal",
+        member !== undefined &&
+          member.admitted === false &&
+          member.attempted === null &&
+          member.curves.length === 0 &&
+          member.emitted.length === 0,
+      );
     }
     if (input === mixedDomains && "value" in result) {
-      const domains: (typeof result.value.membership.members) = result.value.membership.members.filter((member: (typeof result.value.membership.members)[number]): boolean => member.kind === "analytic-domain");
-      TestValidator.equals("each malformed planned domain remains represented", domains.length, 5);
-      TestValidator.predicate("duplicate, missing and non-string identities have no inferred stages", domains.slice(0, 4).every((member: (typeof domains)[number]): boolean => member.admitted === null && member.attempted === null && member.emitted.length === 0 && member.delegatedTo === null && member.diagnostics.length > 0));
-      TestValidator.predicate("invalid ports cannot invent a saved curve name", domains[4]!.curves.length === 0 && domains[4]!.admitted === false);
-      TestValidator.predicate("unbound actual reports remain diagnosed and retained", result.value.membership.diagnostics.length >= 4 && result.value.analyticReports.length === 5);
-      TestValidator.predicate("independent valid group still has exact ownership", result.value.membership.members.some((member: (typeof domains)[number]): boolean => member.id === "closed-group:0:0" && member.admitted === true && member.emitted.length > 0));
+      const domains: typeof result.value.membership.members =
+        result.value.membership.members.filter(
+          (member: (typeof result.value.membership.members)[number]): boolean =>
+            member.kind === "analytic-domain",
+        );
+      TestValidator.equals(
+        "each malformed planned domain remains represented",
+        domains.length,
+        5,
+      );
+      TestValidator.predicate(
+        "duplicate, missing and non-string identities have no inferred stages",
+        domains
+          .slice(0, 4)
+          .every(
+            (member: (typeof domains)[number]): boolean =>
+              member.admitted === null &&
+              member.attempted === null &&
+              member.emitted.length === 0 &&
+              member.delegatedTo === null &&
+              member.diagnostics.length > 0,
+          ),
+      );
+      TestValidator.predicate(
+        "invalid ports cannot invent a saved curve name",
+        domains[4]!.curves.length === 0 && domains[4]!.admitted === false,
+      );
+      TestValidator.predicate(
+        "unbound actual reports remain diagnosed and retained",
+        result.value.membership.diagnostics.length >= 4 &&
+          result.value.analyticReports.length === 5,
+      );
+      TestValidator.predicate(
+        "independent valid group still has exact ownership",
+        result.value.membership.members.some(
+          (member: (typeof domains)[number]): boolean =>
+            member.id === "closed-group:0:0" &&
+            member.admitted === true &&
+            member.emitted.length > 0,
+        ),
+      );
     }
     if (input === missingCurves && "value" in result)
-      TestValidator.predicate("unassigned invalid coefficient identity stays unknown", result.value.membership.members.some((member: (typeof result.value.membership.members)[number]): boolean => member.kind === "unassigned-boundary" && member.curves.length === 0 && member.attempted === null && member.diagnostics.length > 0));
+      TestValidator.predicate(
+        "unassigned invalid coefficient identity stays unknown",
+        result.value.membership.members.some(
+          (member: (typeof result.value.membership.members)[number]): boolean =>
+            member.kind === "unassigned-boundary" &&
+            member.curves.length === 0 &&
+            member.attempted === null &&
+            member.diagnostics.length > 0,
+        ),
+      );
     if (input === unnamedOpen && "value" in result)
-      TestValidator.predicate("unconsumed malformed open metadata has no invented name", result.value.membership.members.filter((member: (typeof result.value.membership.members)[number]): boolean => member.kind === "open-course").every((member: (typeof result.value.membership.members)[number]): boolean => member.curves.length === 0 && member.admitted === false && member.diagnostics.length > 0));
+      TestValidator.predicate(
+        "unconsumed malformed open metadata has no invented name",
+        result.value.membership.members
+          .filter(
+            (
+              member: (typeof result.value.membership.members)[number],
+            ): boolean => member.kind === "open-course",
+          )
+          .every(
+            (
+              member: (typeof result.value.membership.members)[number],
+            ): boolean =>
+              member.curves.length === 0 &&
+              member.admitted === false &&
+              member.diagnostics.length > 0,
+          ),
+      );
     if (input === missingGroupInventory && "value" in result)
-      TestValidator.predicate("unknown group inventory cannot consume the independent slab", result.value.membership.diagnostics.some((message: string): boolean => message.includes("group inventory is unavailable")) && result.value.membership.members.some((member: (typeof result.value.membership.members)[number]): boolean => member.kind === "unassigned-boundary" && member.attempted === null));
+      TestValidator.predicate(
+        "unknown group inventory cannot consume the independent slab",
+        result.value.membership.diagnostics.some((message: string): boolean =>
+          message.includes("group inventory is unavailable"),
+        ) &&
+          result.value.membership.members.some(
+            (
+              member: (typeof result.value.membership.members)[number],
+            ): boolean =>
+              member.kind === "unassigned-boundary" &&
+              member.attempted === null,
+          ),
+      );
     if (input === unknownInventories)
-      TestValidator.predicate("missing omission inventories are explicit unknown coverage", result.diagnostics.some((message: string): boolean => message.includes("coverage remains unknown")));
-    TestValidator.equals("saved coefficient authority is unchanged", JSON.stringify(input), original);
+      TestValidator.predicate(
+        "missing omission inventories are explicit unknown coverage",
+        result.diagnostics.some((message: string): boolean =>
+          message.includes("coverage remains unknown"),
+        ),
+      );
+    TestValidator.equals(
+      "saved coefficient authority is unchanged",
+      JSON.stringify(input),
+      original,
+    );
   }
 }

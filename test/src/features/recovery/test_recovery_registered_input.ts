@@ -19,41 +19,105 @@ export function test_recovery_registered_input(): void {
   type Input = Parameters<typeof prepareAutoMovieRecoveryInput>[0];
   const makeInput: () => Input = (): Input => ({
     registration: {
-      schema: "automovie-recovery-registration-v1", units: "mm", frame: "registered-triangle",
-      handedness: "right-handed", sourceToRegistered: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 4, 5, 6, 1],
-      evaluatedPose: "fixed", componentPolicy: "all-evaluated", uncertainty: ["visibility is caller supplied"],
+      schema: "automovie-recovery-registration-v1",
+      units: "mm",
+      frame: "registered-triangle",
+      handedness: "right-handed",
+      sourceToRegistered: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 4, 5, 6, 1],
+      evaluatedPose: "fixed",
+      componentPolicy: "all-evaluated",
+      uncertainty: ["visibility is caller supplied"],
     },
-    verticesMm: [[4, 5, 6], [7, 5, 6], [4, 7, 6]], triangles: [[0, 1, 2]],
-    policy: { axis: [0, 1, 0], reference: [1, 0, 0], stepMm: 1, toleranceMm: 0.01,
-      chordToleranceMm: 0.01, maxSections: 16, maxSpans: 16, exactCoordinateAliases: false,
-      sourceOrientationSign: 1, cornerDegrees: 45 },
+    verticesMm: [
+      [4, 5, 6],
+      [7, 5, 6],
+      [4, 7, 6],
+    ],
+    triangles: [[0, 1, 2]],
+    policy: {
+      axis: [0, 1, 0],
+      reference: [1, 0, 0],
+      stepMm: 1,
+      toleranceMm: 0.01,
+      chordToleranceMm: 0.01,
+      maxSections: 16,
+      maxSpans: 16,
+      exactCoordinateAliases: false,
+      sourceOrientationSign: 1,
+      cornerDegrees: 45,
+    },
   });
   const input: Input = makeInput();
   const original: string = JSON.stringify(input);
-  const admitted: ReturnType<typeof prepareAutoMovieRecoveryInput> = prepareAutoMovieRecoveryInput(input);
-  TestValidator.equals("registered triangle admitted", admitted.status, "complete");
-  if (!("value" in admitted)) throw new Error("Expected registered triangle admission");
-  TestValidator.predicate("coordinates and topology are borrowed without a second transform", admitted.value.observation.verticesMm === input.verticesMm && admitted.value.observation.triangles === input.triangles && admitted.value.registration === input.registration);
-  TestValidator.equals("registration and geometry stay unchanged", JSON.stringify(input), original);
+  const admitted: ReturnType<typeof prepareAutoMovieRecoveryInput> =
+    prepareAutoMovieRecoveryInput(input);
+  TestValidator.equals(
+    "registered triangle admitted",
+    admitted.status,
+    "complete",
+  );
+  if (!("value" in admitted))
+    throw new Error("Expected registered triangle admission");
+  TestValidator.predicate(
+    "coordinates and topology are borrowed without a second transform",
+    admitted.value.observation.verticesMm === input.verticesMm &&
+      admitted.value.observation.triangles === input.triangles &&
+      admitted.value.registration === input.registration,
+  );
+  TestValidator.equals(
+    "registration and geometry stay unchanged",
+    JSON.stringify(input),
+    original,
+  );
   const variants: Input[] = [];
-  for (const target of ["matrix", "point", "face", "vertices", "triangles", "uncertainty"] as const) {
+  for (const target of [
+    "matrix",
+    "point",
+    "face",
+    "vertices",
+    "triangles",
+    "uncertainty",
+  ] as const) {
     const malformed: Input = makeInput();
-    const array: unknown[] = target === "matrix" ? malformed.registration.sourceToRegistered
-      : target === "point" ? malformed.verticesMm[0]!
-      : target === "face" ? malformed.triangles[0]!
-      : target === "vertices" ? malformed.verticesMm
-      : target === "triangles" ? malformed.triangles : malformed.registration.uncertainty;
+    const array: unknown[] =
+      target === "matrix"
+        ? malformed.registration.sourceToRegistered
+        : target === "point"
+          ? malformed.verticesMm[0]!
+          : target === "face"
+            ? malformed.triangles[0]!
+            : target === "vertices"
+              ? malformed.verticesMm
+              : target === "triangles"
+                ? malformed.triangles
+                : malformed.registration.uncertainty;
     Reflect.deleteProperty(array, "0");
     variants.push(malformed);
   }
-  const invalidIndex: Input = makeInput(); invalidIndex.triangles[0]![2] = 3; variants.push(invalidIndex);
-  const nonfinite: Input = makeInput(); nonfinite.verticesMm[0]![0] = Infinity; variants.push(nonfinite);
-  const wrongFrame: Input = makeInput(); Object.assign(wrongFrame.registration, { frame: 42 }); variants.push(wrongFrame);
-  const wrongVersion: Input = makeInput(); Object.assign(wrongVersion.registration, { schema: "unknown-registration" }); variants.push(wrongVersion);
+  const invalidIndex: Input = makeInput();
+  invalidIndex.triangles[0]![2] = 3;
+  variants.push(invalidIndex);
+  const nonfinite: Input = makeInput();
+  nonfinite.verticesMm[0]![0] = Infinity;
+  variants.push(nonfinite);
+  const wrongFrame: Input = makeInput();
+  Object.assign(wrongFrame.registration, { frame: 42 });
+  variants.push(wrongFrame);
+  const wrongVersion: Input = makeInput();
+  Object.assign(wrongVersion.registration, { schema: "unknown-registration" });
+  variants.push(wrongVersion);
   variants.push(JSON.parse("null"));
   for (const malformed of variants) {
-    const result: ReturnType<typeof prepareAutoMovieRecoveryInput> = prepareAutoMovieRecoveryInput(malformed);
-    TestValidator.equals("invalid registered representation refuses", result.status, "refused");
-    TestValidator.predicate("refusal has no value and explains admission", !("value" in result) && result.diagnostics.length > 0);
+    const result: ReturnType<typeof prepareAutoMovieRecoveryInput> =
+      prepareAutoMovieRecoveryInput(malformed);
+    TestValidator.equals(
+      "invalid registered representation refuses",
+      result.status,
+      "refused",
+    );
+    TestValidator.predicate(
+      "refusal has no value and explains admission",
+      !("value" in result) && result.diagnostics.length > 0,
+    );
   }
 }

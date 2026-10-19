@@ -1,6 +1,8 @@
-import { AutoMovieBernstein64 as B, AutoMovieCurveMath64 as V, type IAutoMovieCurve64 as C } from "@automovie/engine/geometry/curve";
-
-
+import {
+  AutoMovieBernstein64 as B,
+  type IAutoMovieCurve64 as C,
+  AutoMovieCurveMath64 as V,
+} from "@automovie/engine/geometry/curve";
 
 /**
  * Named cubic occurrences retain native coefficient owners and oriented parameter intervals.

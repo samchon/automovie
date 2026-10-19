@@ -1,7 +1,6 @@
+import { runAutoMovieRecoveryCommand } from "@automovie/recovery/node";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-
-import { runAutoMovieRecoveryCommand } from "@automovie/recovery/node";
 
 /**
  * Compatibility command forwarding to the installed recovery package.
@@ -17,8 +16,18 @@ import { runAutoMovieRecoveryCommand } from "@automovie/recovery/node";
  */
 export async function recoveryContourPath(args: string[]): Promise<number> {
   const sourceEpoch: string = process.env.RUN_SOURCE_EPOCH ?? "";
-  return runAutoMovieRecoveryCommand(["recoveryContourPath", "--source-epoch", sourceEpoch, ...args]);
+  return runAutoMovieRecoveryCommand([
+    "recoveryContourPath",
+    "--source-epoch",
+    sourceEpoch,
+    ...args,
+  ]);
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url))
-  void recoveryContourPath(process.argv.slice(2)).then((code: number): void => { process.exitCode = code; });
+if (
+  process.argv[1] &&
+  path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+)
+  void recoveryContourPath(process.argv.slice(2)).then((code: number): void => {
+    process.exitCode = code;
+  });

@@ -1,6 +1,8 @@
 import { realizeAutoMovieBicubicAtlas64 } from "@automovie/engine/geometry/realizeAutoMovieBicubicAtlas64";
-import { type IAutoMovieBicubicAtlasGeometry, type IAutoMovieModel } from "@automovie/interface";
-
+import {
+  type IAutoMovieBicubicAtlasGeometry,
+  type IAutoMovieModel,
+} from "@automovie/interface";
 
 /**
  * Compile one public coefficient authority into its recipe and generated-mesh models.

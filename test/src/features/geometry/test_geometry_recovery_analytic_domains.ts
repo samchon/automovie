@@ -1,11 +1,13 @@
+import {
+  applyAutoMovieRecoveryAnalyticPublication,
+  realizeAutoMovieRecoveryAnalyticDomains,
+} from "@automovie/recovery";
+import { reconstructAutoMovieRecoveryLocal } from "@automovie/recovery/node";
 import { TestValidator } from "@nestia/e2e";
 import fs from "node:fs";
 import path from "node:path";
 
 import type { IAutoMovieCurve64 as C } from "../../../../packages/engine/src/geometry/curve/IAutoMovieCurve64";
-import { realizeAutoMovieRecoveryAnalyticDomains, applyAutoMovieRecoveryAnalyticPublication } from "@automovie/recovery";
-
-import { reconstructAutoMovieRecoveryLocal } from "@automovie/recovery/node";
 import { nclose } from "../internal/nclose";
 
 /**
@@ -25,7 +27,9 @@ import { nclose } from "../internal/nclose";
  */
 export function test_geometry_recovery_analytic_domains(): void {
   type Input = Parameters<typeof reconstructAutoMovieRecoveryLocal>[0];
-  type Graph = NonNullable<Parameters<typeof realizeAutoMovieRecoveryAnalyticDomains>[1]>;
+  type Graph = NonNullable<
+    Parameters<typeof realizeAutoMovieRecoveryAnalyticDomains>[1]
+  >;
   type Domain = NonNullable<Input["analyticDomains"]>[number];
   const curve: (name: string, y: number, offset: number) => C.Cubic = (
     name: string,
@@ -190,7 +194,10 @@ export function test_geometry_recovery_analytic_domains(): void {
   );
   const values: Domain[] = [domain(0), domain(1)];
   const valid: ReturnType<typeof realizeAutoMovieRecoveryAnalyticDomains> =
-    realizeAutoMovieRecoveryAnalyticDomains({ ...bundle, analyticDomains: values }, graph);
+    realizeAutoMovieRecoveryAnalyticDomains(
+      { ...bundle, analyticDomains: values },
+      graph,
+    );
   TestValidator.predicate(
     "two admitted independent pair owners",
     valid.parts.length === 2 &&
@@ -235,7 +242,10 @@ export function test_geometry_recovery_analytic_domains(): void {
         curveBindings: [],
       };
     const result: ReturnType<typeof realizeAutoMovieRecoveryAnalyticDomains> =
-      realizeAutoMovieRecoveryAnalyticDomains({ ...bundle, analyticDomains: bad }, graph);
+      realizeAutoMovieRecoveryAnalyticDomains(
+        { ...bundle, analyticDomains: bad },
+        graph,
+      );
     TestValidator.predicate(
       `local ${mode} refusal`,
       mode === "duplicate"
@@ -264,7 +274,10 @@ export function test_geometry_recovery_analytic_domains(): void {
     },
   ];
   const partial: ReturnType<typeof realizeAutoMovieRecoveryAnalyticDomains> =
-    realizeAutoMovieRecoveryAnalyticDomains({ ...bundle, analyticDomains: conflict }, graph);
+    realizeAutoMovieRecoveryAnalyticDomains(
+      { ...bundle, analyticDomains: conflict },
+      graph,
+    );
   TestValidator.predicate(
     "native conflict is local explicit partial",
     partial.parts.length === 1 &&
@@ -273,7 +286,9 @@ export function test_geometry_recovery_analytic_domains(): void {
       !partial.reports[0]!.complete &&
       partial.reports[1]!.complete,
   );
-  const publication: Parameters<typeof applyAutoMovieRecoveryAnalyticPublication>[1] = {
+  const publication: Parameters<
+    typeof applyAutoMovieRecoveryAnalyticPublication
+  >[1] = {
     schema: "automovie-recovery-analytic-publication-v1",
     sourceCommit: "a".repeat(40),
     curveBundleSha256: "b".repeat(64),
@@ -283,7 +298,9 @@ export function test_geometry_recovery_analytic_domains(): void {
     ],
     analyticDomains: values,
   };
-  const hashes: Parameters<typeof applyAutoMovieRecoveryAnalyticPublication>[2] = {
+  const hashes: Parameters<
+    typeof applyAutoMovieRecoveryAnalyticPublication
+  >[2] = {
     curveBundleSha256: publication.curveBundleSha256,
     continuationSha256: publication.continuationSha256,
   };

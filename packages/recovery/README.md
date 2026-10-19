@@ -4,6 +4,28 @@ Observe registered triangle meshes as saved cubic curves and explicit continuati
 
 This package preserves the reconstruction baseline's algorithms and limitations. Packaging does not repair facial bands, missing regions, raised junction sheets or inconsistent joins. Processing completion does not establish visual quality, watertightness, embedding or source fidelity.
 
+## Installation and saved-curve reconstruction
+
+Use matching `@automovie/recovery`, `@automovie/engine` and `@automovie/interface` distributions with Node.js 22.23.2 or newer. The initial package has been checked by installing those three local tarballs outside this repository, with install scripts disabled and exact file dependencies and overrides. That check is not a registry release.
+
+The following CommonJS consumer reads an existing `automovie-recovery-curves-v1` document and publishes a new immutable JSON artifact. It uses the same installed API calls exercised by the external package consumer. Save it as `reconstruct.cjs` beside `curves.json`; `model.json` must not exist.
+
+```js
+const fs = require("node:fs");
+const { reconstructAutoMovieRecoveryModel } = require("@automovie/recovery");
+const { publishAutoMovieRecoveryArtifact } = require("@automovie/recovery/node");
+
+const input = JSON.parse(fs.readFileSync("curves.json", "utf8"));
+const result = reconstructAutoMovieRecoveryModel(input);
+if (!("value" in result)) throw new Error(result.diagnostics.join("; "));
+const publication = publishAutoMovieRecoveryArtifact("model.json", result.value);
+if (!("value" in publication))
+  throw new Error(publication.diagnostics.join("; "));
+console.log(result.status, publication.value.sha256);
+```
+
+Run `node reconstruct.cjs` and inspect `result.status`, `result.diagnostics` and the returned domain ledger. Partial geometry is preserved. This API example publishes the returned model record directly; the installed `recovery reconstruct` command additionally wraps it in the versioned model document and attaches input and generating-source provenance.
+
 ## Public boundaries
 
 Use Node.js 22.23.2 or newer. The root entrypoint owns resident operations; `@automovie/recovery/node` owns filesystem publication and commands. Recovery-specific observation, fitting, policy and reconstruction remain inside this package. `@automovie/interface/recovery` contains registration and observation input contracts, existing shared mathematics stays in `@automovie/engine`, and display stays in the viewer.

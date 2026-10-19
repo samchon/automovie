@@ -1,12 +1,14 @@
+import {
+  createAutoMovieRecoveryMeshSpool,
+  readAutoMovieRecoveryMeshFrontier,
+  writeAutoMovieRecoveryArtifact,
+} from "@automovie/recovery/node";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
 import type { tessellateAutoMovieLocalHermite64 as T } from "../../../../packages/engine/src/geometry/curve/tessellateAutoMovieLocalHermite64";
-import { createAutoMovieRecoveryMeshSpool, readAutoMovieRecoveryMeshFrontier, writeAutoMovieRecoveryArtifact } from "@automovie/recovery/node";
-
-
 
 /**
  * Batched source-free channels retain one complete indexed publication frontier.
@@ -88,9 +90,8 @@ export function test_geometry_mesh_spool_frontier(): void {
     ],
   });
   try {
-    const spool: ReturnType<typeof createAutoMovieRecoveryMeshSpool> = createAutoMovieRecoveryMeshSpool(
-      path.join(root, "spool"),
-    );
+    const spool: ReturnType<typeof createAutoMovieRecoveryMeshSpool> =
+      createAutoMovieRecoveryMeshSpool(path.join(root, "spool"));
     const binding: object = {
       sourceEpoch: "generic-frontier",
       inputSha256: "0".repeat(64),
@@ -324,10 +325,10 @@ export function test_geometry_mesh_spool_frontier(): void {
     });
     fs.writeFileSync(changed.path, original);
     const text: string = "曲線".repeat(200_000);
-    const large: ReturnType<typeof createAutoMovieRecoveryMeshSpool> = createAutoMovieRecoveryMeshSpool(
-      path.join(root, "large-spool"),
-      [{ text }],
-    );
+    const large: ReturnType<typeof createAutoMovieRecoveryMeshSpool> =
+      createAutoMovieRecoveryMeshSpool(path.join(root, "large-spool"), [
+        { text },
+      ]);
     const largePath: string = path.join(root, "large.json");
     large.publish(largePath, { construction: large.construction });
     TestValidator.equals(

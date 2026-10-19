@@ -1,8 +1,10 @@
+import {
+  type IAutoMovieBicubicAtlasGeometry,
+  type IAutoMovieMesh,
+} from "@automovie/interface";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-
-import { type IAutoMovieBicubicAtlasGeometry, type IAutoMovieMesh } from "@automovie/interface";
 
 import { compileAutoMovieRecoveryAtlas } from "../../internal/compileAutoMovieRecoveryAtlas";
 import { observeRecoveryAtlas } from "./observeRecoveryAtlas";

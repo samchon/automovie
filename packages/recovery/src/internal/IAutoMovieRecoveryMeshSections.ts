@@ -1,5 +1,8 @@
+import {
+  type IAutoMovieCurve64 as C,
+  type IAutoMovieContourLoft64 as L,
+} from "@automovie/engine/geometry/curve";
 import type { IAutoMovieRecoveryInput } from "@automovie/interface/recovery";
-import { type IAutoMovieContourLoft64 as L, type IAutoMovieCurve64 as C } from "@automovie/engine/geometry/curve";
 
 import type { RecoveryBezierFit as F } from "./RecoveryBezierFit";
 

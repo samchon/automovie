@@ -1,9 +1,9 @@
+import { tessellateAutoMovieContourPath64 as T } from "@automovie/engine/geometry/curve";
+import type { IAutoMovieModel } from "@automovie/interface";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
-import { tessellateAutoMovieContourPath64 as T } from "@automovie/engine/geometry/curve";
-import type { IAutoMovieModel } from "@automovie/interface";
 import { writeAutoMovieRecoveryArtifact } from "./writeAutoMovieRecoveryArtifact";
 
 /**

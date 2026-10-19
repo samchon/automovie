@@ -1,9 +1,12 @@
-import { type IAutoMovieCurve64 as C, tessellateAutoMovieCurveGrid64 } from "@automovie/engine/geometry/curve";
+import {
+  type IAutoMovieCurve64 as C,
+  tessellateAutoMovieCurveGrid64,
+} from "@automovie/engine/geometry/curve";
 
 import type { AutoMovieRecoveryMeshSections as R } from "./AutoMovieRecoveryMeshSections";
 import type { AutoMovieRecoveryOpenContinuation as O } from "./AutoMovieRecoveryOpenContinuation";
-import { reconstructRecovery } from "./reconstructRecovery";
 import { describeRecoveryOpenRun } from "./describeRecoveryOpenRun";
+import { reconstructRecovery } from "./reconstructRecovery";
 
 /**
  * Consume saved open cubics and their explicit adjacent endpoint transport through the engine.
@@ -206,8 +209,13 @@ export function reconstructRecoveryOpen(
       current = outgoing.get(key(current.after));
     }
     const id: string = `recovery.open.${key(nodes[0]!)}`;
-    const metadata: ReturnType<typeof describeRecoveryOpenRun> = describeRecoveryOpenRun(bundle, nodes);
-    diagnostics.push(...metadata.diagnostics.map((message: string): string => `${id}: ${message}`));
+    const metadata: ReturnType<typeof describeRecoveryOpenRun> =
+      describeRecoveryOpenRun(bundle, nodes);
+    diagnostics.push(
+      ...metadata.diagnostics.map(
+        (message: string): string => `${id}: ${message}`,
+      ),
+    );
     const record: (typeof openReports.runs)[number] = {
       id,
       firstSection: nodes[0]!.section,

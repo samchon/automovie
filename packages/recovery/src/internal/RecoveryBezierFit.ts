@@ -1,6 +1,8 @@
-import { AutoMovieBernstein64 as B, AutoMovieCurveMath64 as M, type IAutoMovieCurve64 as C } from "@automovie/engine/geometry/curve";
-
-
+import {
+  AutoMovieBernstein64 as B,
+  type IAutoMovieCurve64 as C,
+  AutoMovieCurveMath64 as M,
+} from "@automovie/engine/geometry/curve";
 
 /** Shared engine vector arithmetic retains the physical coefficient chart. */
 const add: typeof M.add = M.add,

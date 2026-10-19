@@ -1,7 +1,10 @@
-import { type IAutoMovieContourLoft64 as L, type IAutoMovieCurve64 as C } from "@automovie/engine/geometry/curve";
+import {
+  type IAutoMovieCurve64 as C,
+  type IAutoMovieContourLoft64 as L,
+} from "@automovie/engine/geometry/curve";
 
-import { RecoveryBezierFit as F } from "./RecoveryBezierFit";
 import type { AutoMovieRecoveryMeshSections as R } from "./AutoMovieRecoveryMeshSections";
+import { RecoveryBezierFit as F } from "./RecoveryBezierFit";
 import type { cutExact } from "./mesh-observations/cutExact";
 import type { planeFrame } from "./mesh-observations/planeFrame";
 import { signedArea } from "./mesh-observations/signedArea";

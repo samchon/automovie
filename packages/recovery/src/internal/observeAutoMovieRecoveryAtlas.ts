@@ -1,5 +1,6 @@
 import type { IAutoMovieCurve64 as C } from "@automovie/engine/geometry/curve";
 import type { IAutoMovieBicubicAtlasGeometry } from "@automovie/interface";
+
 import { RecoveryAtlasObservationChart } from "./RecoveryAtlasObservationChart";
 import { RecoveryAtlasObservationCreases } from "./RecoveryAtlasObservationCreases";
 import { RecoveryAtlasObservationFeatures } from "./RecoveryAtlasObservationFeatures";
@@ -463,7 +464,6 @@ export function observeAutoMovieRecoveryAtlas(
       charts: charts.length,
       patches: patches.length,
       unsupportedComponents,
-
     });
   }
   return RecoveryAtlasObservationPublish({

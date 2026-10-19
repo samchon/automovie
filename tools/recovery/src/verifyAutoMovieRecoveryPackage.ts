@@ -1,10 +1,12 @@
-import { spawnSync, type SpawnSyncReturns } from "node:child_process";
+import { type SpawnSyncReturns, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+
 import { verifyAutoMovieRecoveryOpenConsumer } from "./verifyAutoMovieRecoveryOpenConsumer.ts";
+import { verifyAutoMovieRecoveryRegisteredConsumer } from "./verifyAutoMovieRecoveryRegisteredConsumer.ts";
 
 /**
  * Verify actual packed recovery imports, installed bin and immutable publication.
@@ -26,60 +28,159 @@ import { verifyAutoMovieRecoveryOpenConsumer } from "./verifyAutoMovieRecoveryOp
  * @evidence contracts/performance.md#bound-retention-and-release-resources Every child is synchronous and time-bounded, has no install scripts and inherits run-owned temporary/cache paths. The caller owns packed and failed-run evidence and must retire it after collection; no worker remains after a settled child.
  */
 export function verifyAutoMovieRecoveryPackage(): void {
-  const repository: string = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
-  const parent: string = path.resolve(process.env.AUTOMOVIE_RECOVERY_PACKAGE_SCRATCH ?? os.tmpdir());
+  const repository: string = path.resolve(
+    path.dirname(fileURLToPath(import.meta.url)),
+    "../../..",
+  );
+  const parent: string = path.resolve(
+    process.env.AUTOMOVIE_RECOVERY_PACKAGE_SCRATCH ?? os.tmpdir(),
+  );
   const relative: string = path.relative(repository, parent);
-  if (relative === "" || (!relative.startsWith(".." + path.sep) && relative !== ".." && !path.isAbsolute(relative)))
-    throw new Error("The package consumer scratch directory must be outside the repository");
+  if (
+    relative === "" ||
+    (!relative.startsWith(".." + path.sep) &&
+      relative !== ".." &&
+      !path.isAbsolute(relative))
+  )
+    throw new Error(
+      "The package consumer scratch directory must be outside the repository",
+    );
   for (let ancestor: string = parent; ; ancestor = path.dirname(ancestor)) {
     if (fs.existsSync(path.join(ancestor, "node_modules")))
       throw new Error("External validation cannot inherit parent node_modules");
     if (path.dirname(ancestor) === ancestor) break;
   }
   fs.mkdirSync(parent, { recursive: true });
-  const scratch: string = fs.mkdtempSync(path.join(parent, "automovie-recovery-pack-"));
-  for (const directory of ["packs", "consumer", "tmp", "cache", "home", "store", "pnpm"])
+  const scratch: string = fs.mkdtempSync(
+    path.join(parent, "automovie-recovery-pack-"),
+  );
+  for (const directory of [
+    "packs",
+    "consumer",
+    "tmp",
+    "cache",
+    "home",
+    "store",
+    "pnpm",
+  ])
     fs.mkdirSync(path.join(scratch, directory));
   const consumer: string = path.join(scratch, "consumer");
   const env: NodeJS.ProcessEnv = {
     ...process.env,
     NODE_PATH: undefined,
     NODE_OPTIONS: undefined,
-    TEMP: path.join(scratch, "tmp"), TMP: path.join(scratch, "tmp"),
-    HOME: path.join(scratch, "home"), USERPROFILE: path.join(scratch, "home"),
+    TEMP: path.join(scratch, "tmp"),
+    TMP: path.join(scratch, "tmp"),
+    HOME: path.join(scratch, "home"),
+    USERPROFILE: path.join(scratch, "home"),
     XDG_CACHE_HOME: path.join(scratch, "cache"),
     PNPM_HOME: path.join(scratch, "pnpm"),
     npm_config_cache: path.join(scratch, "cache"),
     npm_config_ignore_scripts: "true",
-    PATH: path.dirname(process.execPath) + path.delimiter + (process.env.PATH ?? ""),
+    PATH:
+      path.dirname(process.execPath) +
+      path.delimiter +
+      (process.env.PATH ?? ""),
   };
-  const driver: string | undefined = process.env.npm_execpath ?? process.env.AUTOMOVIE_PNPM_DRIVER;
-  if (!driver || !fs.existsSync(driver)) throw new Error("Run through pnpm or provide AUTOMOVIE_PNPM_DRIVER");
-  const run: (command: string, args: string[], cwd: string, childEnv?: NodeJS.ProcessEnv) => string = (
-    command: string, args: string[], cwd: string, childEnv: NodeJS.ProcessEnv = env,
+  const driver: string | undefined =
+    process.env.npm_execpath ?? process.env.AUTOMOVIE_PNPM_DRIVER;
+  if (!driver || !fs.existsSync(driver))
+    throw new Error("Run through pnpm or provide AUTOMOVIE_PNPM_DRIVER");
+  const run: (
+    command: string,
+    args: string[],
+    cwd: string,
+    childEnv?: NodeJS.ProcessEnv,
+  ) => string = (
+    command: string,
+    args: string[],
+    cwd: string,
+    childEnv: NodeJS.ProcessEnv = env,
   ): string => {
     const result: SpawnSyncReturns<string> = spawnSync(command, args, {
-      cwd, env: childEnv, encoding: "utf8", timeout: 300_000, maxBuffer: 4 * 1024 * 1024,
+      cwd,
+      env: childEnv,
+      encoding: "utf8",
+      timeout: 300_000,
+      maxBuffer: 4 * 1024 * 1024,
     });
     if (result.error || result.status !== 0)
-      throw new Error(JSON.stringify({ command: path.basename(command), status: result.status, signal: result.signal, error: result.error?.message, stdout: result.stdout, stderr: result.stderr }));
+      throw new Error(
+        JSON.stringify({
+          command: path.basename(command),
+          status: result.status,
+          signal: result.signal,
+          error: result.error?.message,
+          stdout: result.stdout,
+          stderr: result.stderr,
+        }),
+      );
     return result.stdout;
   };
-  const pnpm: (args: string[], cwd: string) => string = (args: string[], cwd: string): string =>
+  const pnpm: (args: string[], cwd: string) => string = (
+    args: string[],
+    cwd: string,
+  ): string =>
     /\.[cm]?js$/i.test(driver)
       ? run(process.execPath, [driver, ...args], cwd)
       : run(driver, args, cwd);
-  const packs: { name: string; file: string; bytes: number; sha256: string }[] = [];
+  const packs: { name: string; file: string; bytes: number; sha256: string }[] =
+    [];
   for (const name of ["interface", "engine", "recovery"]) {
-    pnpm(["--config.ignore-scripts=true", "pack", "--pack-destination", path.join(scratch, "packs")], path.join(repository, "packages", name));
-    const metadata: { version: string } = JSON.parse(fs.readFileSync(path.join(repository, "packages", name, "package.json"), "utf8"));
-    const file: string = path.join(scratch, "packs", `automovie-${name}-${metadata.version}.tgz`);
+    pnpm(
+      [
+        "--config.ignore-scripts=true",
+        "pack",
+        "--pack-destination",
+        path.join(scratch, "packs"),
+      ],
+      path.join(repository, "packages", name),
+    );
+    const metadata: { version: string } = JSON.parse(
+      fs.readFileSync(
+        path.join(repository, "packages", name, "package.json"),
+        "utf8",
+      ),
+    );
+    const file: string = path.join(
+      scratch,
+      "packs",
+      `automovie-${name}-${metadata.version}.tgz`,
+    );
     const bytes: Buffer = fs.readFileSync(file);
-    packs.push({ name: `@automovie/${name}`, file, bytes: bytes.length, sha256: createHash("sha256").update(bytes).digest("hex") });
+    packs.push({
+      name: `@automovie/${name}`,
+      file,
+      bytes: bytes.length,
+      sha256: createHash("sha256").update(bytes).digest("hex"),
+    });
   }
-  const dependencies: Record<string, string> = Object.fromEntries(packs.map((pack: (typeof packs)[number]): [string, string] => [pack.name, `file:${pack.file.replaceAll("\\", "/")}`]));
-  fs.writeFileSync(path.join(consumer, "package.json"), JSON.stringify({ private: true, dependencies, pnpm: { overrides: dependencies } }, null, 2));
-  pnpm(["install", "--offline", "--ignore-scripts", "--ignore-workspace", "--lockfile=false", "--store-dir", path.join(scratch, "store")], consumer);
+  const dependencies: Record<string, string> = Object.fromEntries(
+    packs.map((pack: (typeof packs)[number]): [string, string] => [
+      pack.name,
+      `file:${pack.file.replaceAll("\\", "/")}`,
+    ]),
+  );
+  fs.writeFileSync(
+    path.join(consumer, "package.json"),
+    JSON.stringify(
+      { private: true, dependencies, pnpm: { overrides: dependencies } },
+      null,
+      2,
+    ),
+  );
+  pnpm(
+    [
+      "install",
+      "--offline",
+      "--ignore-scripts",
+      "--ignore-workspace",
+      "--lockfile=false",
+      "--store-dir",
+      path.join(scratch, "store"),
+    ],
+    consumer,
+  );
   fs.mkdirSync(path.join(consumer, "outputs"));
   const script: string = `
 const fs = require("node:fs");
@@ -135,46 +236,156 @@ fs.writeFileSync(path.join(__dirname,"outputs","curves.json"),JSON.stringify(bun
 console.log(JSON.stringify({node:process.version,version,area,status:result.status,immutablePublication:true,failureCleanup:true,preCancelledPublication:true}));
 `;
   fs.writeFileSync(path.join(consumer, "consumer.cjs"), script);
-  const stdout: string = run(process.execPath, ["--permission", `--allow-fs-read=${consumer}`, `--allow-fs-write=${path.join(consumer, "outputs")}`, path.join(consumer, "consumer.cjs")], consumer);
-  fs.writeFileSync(path.join(consumer, "consumer-esm.mjs"), 'import { reconstructAutoMovieRecoveryModel } from "@automovie/recovery"; if(typeof reconstructAutoMovieRecoveryModel!=="function")throw Error("ESM public import failed");\n');
+  const stdout: string = run(
+    process.execPath,
+    [
+      "--permission",
+      `--allow-fs-read=${consumer}`,
+      `--allow-fs-write=${path.join(consumer, "outputs")}`,
+      path.join(consumer, "consumer.cjs"),
+    ],
+    consumer,
+  );
+  fs.writeFileSync(
+    path.join(consumer, "consumer-esm.mjs"),
+    'import { reconstructAutoMovieRecoveryModel } from "@automovie/recovery"; if(typeof reconstructAutoMovieRecoveryModel!=="function")throw Error("ESM public import failed");\n',
+  );
   run(process.execPath, [path.join(consumer, "consumer-esm.mjs")], consumer);
-  const bin: string = path.join(consumer, "node_modules", ".bin", process.platform === "win32" ? "automovie-recovery.CMD" : "automovie-recovery");
-  const cli: SpawnSyncReturns<string> = spawnSync(bin, ["--help"], { cwd: consumer, env, encoding: "utf8", shell: process.platform === "win32", timeout: 30_000 });
-  if (cli.status !== 0 || !cli.stdout.includes("automovie-recovery")) throw new Error("Installed bin help failed: " + cli.stderr);
-  const packageCli: string = path.join(consumer, "node_modules", "@automovie", "recovery", "lib", "node", "cli.js");
-  const version: string = run(process.execPath, [packageCli, "--version"], consumer);
-  const refused: SpawnSyncReturns<string> = spawnSync(process.execPath, [packageCli, "unsupported"], { cwd: consumer, env, encoding: "utf8", timeout: 30_000 });
-  if (refused.status !== 2 || !refused.stderr.includes('"refused"')) throw new Error("Installed CLI refusal did not return status 2");
-  const sourceEpoch: string | undefined = process.env.AUTOMOVIE_RECOVERY_SOURCE_EPOCH ?? process.env.GITHUB_SHA;
-  if (!sourceEpoch || !/^[a-f0-9]{40,64}$/i.test(sourceEpoch)) throw new Error("A generating source epoch is required for the installed CLI behavior check");
+  const bin: string = path.join(
+    consumer,
+    "node_modules",
+    ".bin",
+    process.platform === "win32"
+      ? "automovie-recovery.CMD"
+      : "automovie-recovery",
+  );
+  const cli: SpawnSyncReturns<string> = spawnSync(bin, ["--help"], {
+    cwd: consumer,
+    env,
+    encoding: "utf8",
+    shell: process.platform === "win32",
+    timeout: 30_000,
+  });
+  if (cli.status !== 0 || !cli.stdout.includes("automovie-recovery"))
+    throw new Error("Installed bin help failed: " + cli.stderr);
+  const packageCli: string = path.join(
+    consumer,
+    "node_modules",
+    "@automovie",
+    "recovery",
+    "lib",
+    "node",
+    "cli.js",
+  );
+  const version: string = run(
+    process.execPath,
+    [packageCli, "--version"],
+    consumer,
+  );
+  const refused: SpawnSyncReturns<string> = spawnSync(
+    process.execPath,
+    [packageCli, "unsupported"],
+    { cwd: consumer, env, encoding: "utf8", timeout: 30_000 },
+  );
+  if (refused.status !== 2 || !refused.stderr.includes('"refused"'))
+    throw new Error("Installed CLI refusal did not return status 2");
+  const sourceEpoch: string | undefined =
+    process.env.AUTOMOVIE_RECOVERY_SOURCE_EPOCH ?? process.env.GITHUB_SHA;
+  if (!sourceEpoch || !/^[a-f0-9]{40,64}$/i.test(sourceEpoch))
+    throw new Error(
+      "A generating source epoch is required for the installed CLI behavior check",
+    );
   const modelFile: string = path.join(consumer, "outputs", "model.json");
-  run(process.execPath, ["--permission", `--allow-fs-read=${consumer}`, `--allow-fs-write=${path.join(consumer, "outputs")}`, packageCli, "recovery", "--source-epoch", sourceEpoch, "reconstruct", path.join(consumer, "outputs", "curves.json"), modelFile], consumer);
-  const model: { schema: string; operation: { status: string }; model: { parts: { geometry: { mesh: { positions: number[]; indices: number[] } } }[] }; provenance: { sourceCommit: string } } = JSON.parse(fs.readFileSync(modelFile, "utf8"));
+  run(
+    process.execPath,
+    [
+      "--permission",
+      `--allow-fs-read=${consumer}`,
+      `--allow-fs-write=${path.join(consumer, "outputs")}`,
+      packageCli,
+      "recovery",
+      "--source-epoch",
+      sourceEpoch,
+      "reconstruct",
+      path.join(consumer, "outputs", "curves.json"),
+      modelFile,
+    ],
+    consumer,
+  );
+  const model: {
+    schema: string;
+    operation: { status: string };
+    model: {
+      parts: {
+        geometry: { mesh: { positions: number[]; indices: number[] } };
+      }[];
+    };
+    provenance: { sourceCommit: string };
+  } = JSON.parse(fs.readFileSync(modelFile, "utf8"));
   let cliArea: number = 0;
   for (const part of model.model.parts) {
     const mesh: (typeof part.geometry)["mesh"] = part.geometry.mesh;
-    if (!mesh.positions.every(Number.isFinite) || !mesh.indices.every((index: number): boolean => Number.isSafeInteger(index) && index >= 0 && index * 3 + 2 < mesh.positions.length)) throw new Error("Installed closed consumer returned invalid finite indexed geometry");
+    if (
+      !mesh.positions.every(Number.isFinite) ||
+      !mesh.indices.every(
+        (index: number): boolean =>
+          Number.isSafeInteger(index) &&
+          index >= 0 &&
+          index * 3 + 2 < mesh.positions.length,
+      )
+    )
+      throw new Error(
+        "Installed closed consumer returned invalid finite indexed geometry",
+      );
     for (let i: number = 0; i < mesh.indices.length; i += 3) {
-      const points: number[][] = mesh.indices.slice(i, i + 3).map((index: number): number[] => mesh.positions.slice(index * 3, index * 3 + 3));
-      const a: number[] = points[0]!, b: number[] = points[1]!, c: number[] = points[2]!;
-      const u: number[] = b.map((value: number, axis: number): number => value - a[axis]!), v: number[] = c.map((value: number, axis: number): number => value - a[axis]!);
-      cliArea += Math.hypot(u[1]! * v[2]! - u[2]! * v[1]!, u[2]! * v[0]! - u[0]! * v[2]!, u[0]! * v[1]! - u[1]! * v[0]!) / 2;
+      const points: number[][] = mesh.indices
+        .slice(i, i + 3)
+        .map((index: number): number[] =>
+          mesh.positions.slice(index * 3, index * 3 + 3),
+        );
+      const a: number[] = points[0]!,
+        b: number[] = points[1]!,
+        c: number[] = points[2]!;
+      const u: number[] = b.map(
+          (value: number, axis: number): number => value - a[axis]!,
+        ),
+        v: number[] = c.map(
+          (value: number, axis: number): number => value - a[axis]!,
+        );
+      cliArea +=
+        Math.hypot(
+          u[1]! * v[2]! - u[2]! * v[1]!,
+          u[2]! * v[0]! - u[0]! * v[2]!,
+          u[0]! * v[1]! - u[1]! * v[0]!,
+        ) / 2;
     }
   }
-  if (model.schema !== "automovie-recovery-model-v1" || model.operation.status !== "complete" || model.provenance.sourceCommit !== sourceEpoch || !Number.isFinite(cliArea) || Math.abs(cliArea - 24e-6) > 1e-12)
-    throw new Error("Installed CLI source-free reconstruction changed the declared physical surface or provenance");
-  const meshBytes: Buffer = Buffer.from(JSON.stringify({ vertices: [[0,0,0],[3,0,0],[3,3,0],[0,3,0],[0,0,3],[3,0,3],[3,3,3],[0,3,3]], triangles: [[0,2,1],[0,3,2],[4,5,6],[4,6,7],[0,1,5],[0,5,4],[1,2,6],[1,6,5],[3,7,6],[3,6,2],[0,4,7],[0,7,3]] }));
-  fs.writeFileSync(path.join(consumer, "outputs", "mesh.json"), meshBytes);
-  const specFile: string = path.join(consumer, "outputs", "input.json");
-  fs.writeFileSync(specFile, JSON.stringify({ units: "mm", frame: "registered-box", pose: "fixed", registration: { schema: "automovie-recovery-registration-v1", units: "mm", frame: "registered-box", handedness: "right-handed", sourceToRegistered: [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1], evaluatedPose: "fixed", componentPolicy: "all-evaluated", uncertainty: [] }, meshes: [{ path: "mesh.json", sha256: createHash("sha256").update(meshBytes).digest("hex") }], policy: { axis:[0,1,0], reference:[1,0,0], stepMm:1, toleranceMm:0.01, chordToleranceMm:0.01, maxSections:32, maxSpans:32, exactCoordinateAliases:false, sourceOrientationSign:1, cornerDegrees:45 } }));
-  const observedFile: string = path.join(consumer, "outputs", "observed.json"), graphFile: string = path.join(consumer, "outputs", "continuation.json");
-  run(process.execPath, [packageCli, "recovery", "--source-epoch", sourceEpoch, "extract", specFile, observedFile], consumer);
-  run(process.execPath, [packageCli, "recoveryOpen", "--source-epoch", sourceEpoch, "observe", specFile, observedFile, graphFile], consumer);
-  const graph: { schema: string; provenance: { curveBundleSha256: string } } = JSON.parse(fs.readFileSync(graphFile, "utf8"));
-  if (graph.schema !== "automovie-recovery-open-continuation-v1" || graph.provenance.curveBundleSha256 !== createHash("sha256").update(fs.readFileSync(observedFile)).digest("hex"))
-    throw new Error("Installed continuation observation lost the exact registered saved-curve authority");
-  const openConsumer: ReturnType<typeof verifyAutoMovieRecoveryOpenConsumer> = verifyAutoMovieRecoveryOpenConsumer({ consumer, cli: packageCli, sourceEpoch, run });
-  fs.writeFileSync(path.join(consumer, "consumer-types.mts"), `import { observeAutoMovieRecovery, reconstructAutoMovieRecoveryModel } from "@automovie/recovery";
+  if (
+    model.schema !== "automovie-recovery-model-v1" ||
+    model.operation.status !== "complete" ||
+    model.provenance.sourceCommit !== sourceEpoch ||
+    !Number.isFinite(cliArea) ||
+    Math.abs(cliArea - 24e-6) > 1e-12
+  )
+    throw new Error(
+      "Installed CLI source-free reconstruction changed the declared physical surface or provenance",
+    );
+  verifyAutoMovieRecoveryRegisteredConsumer({
+    consumer,
+    cli: packageCli,
+    sourceEpoch,
+    run,
+  });
+  const openConsumer: ReturnType<typeof verifyAutoMovieRecoveryOpenConsumer> =
+    verifyAutoMovieRecoveryOpenConsumer({
+      consumer,
+      cli: packageCli,
+      sourceEpoch,
+      run,
+    });
+  fs.writeFileSync(
+    path.join(consumer, "consumer-types.mts"),
+    `import { observeAutoMovieRecovery, reconstructAutoMovieRecoveryModel } from "@automovie/recovery";
 import { publishAutoMovieRecoveryArtifact } from "@automovie/recovery/node";
 import type { IAutoMovieRecoveryInput } from "@automovie/interface/recovery";
 export function consume(input: IAutoMovieRecoveryInput, saved: Parameters<typeof reconstructAutoMovieRecoveryModel>[0]): void {
@@ -182,15 +393,71 @@ export function consume(input: IAutoMovieRecoveryInput, saved: Parameters<typeof
  const generated: ReturnType<typeof reconstructAutoMovieRecoveryModel> = reconstructAutoMovieRecoveryModel(saved);
  if ("value" in observed && "value" in generated) publishAutoMovieRecoveryArtifact("unused.json", {observed:observed.value,model:generated.value.model});
 }
-`);
+`,
+  );
   const typeConfig: string = path.join(consumer, "tsconfig.json");
-  fs.writeFileSync(typeConfig, JSON.stringify({ compilerOptions: { target: "ES2022", module: "NodeNext", moduleResolution: "NodeNext", strict: true, noEmit: true, skipLibCheck: false, types: [] }, files: ["consumer-types.mts"] }, null, 2));
-  const receipt: object = { schema: "automovie-recovery-packed-consumer-v1", sourceEpoch, node: process.version, platform: process.platform, packs: packs.map((pack: (typeof packs)[number]): Omit<typeof pack, "file"> => ({ name: pack.name, bytes: pack.bytes, sha256: pack.sha256 })), runtime: JSON.parse(stdout), installedBinHelp: true, installedCli: { sourceFreeReconstruction: true, area: cliArea, schema: model.schema, registeredObservationAndContinuation: true, openConsumer }, version: version.trim(), refusedExit: refused.status, declarationCheck: "pending-owning-compiler", typeConfig };
-  fs.writeFileSync(path.join(scratch, "receipt.json"), JSON.stringify(receipt, null, 2));
+  fs.writeFileSync(
+    typeConfig,
+    JSON.stringify(
+      {
+        compilerOptions: {
+          target: "ES2022",
+          module: "NodeNext",
+          moduleResolution: "NodeNext",
+          strict: true,
+          noEmit: true,
+          skipLibCheck: false,
+          types: [],
+        },
+        files: ["consumer-types.mts"],
+      },
+      null,
+      2,
+    ),
+  );
+  const receipt: object = {
+    schema: "automovie-recovery-packed-consumer-v1",
+    sourceEpoch,
+    node: process.version,
+    platform: process.platform,
+    packs: packs.map(
+      (pack: (typeof packs)[number]): Omit<typeof pack, "file"> => ({
+        name: pack.name,
+        bytes: pack.bytes,
+        sha256: pack.sha256,
+      }),
+    ),
+    runtime: JSON.parse(stdout),
+    installedBinHelp: true,
+    installedCli: {
+      sourceFreeReconstruction: true,
+      area: cliArea,
+      schema: model.schema,
+      registeredObservationAndContinuation: true,
+      openConsumer,
+    },
+    version: version.trim(),
+    refusedExit: refused.status,
+    declarationCheck: "pending-owning-compiler",
+    typeConfig,
+  };
+  fs.writeFileSync(
+    path.join(scratch, "receipt.json"),
+    JSON.stringify(receipt, null, 2),
+  );
   if (process.env.GITHUB_OUTPUT)
     fs.appendFileSync(process.env.GITHUB_OUTPUT, `typeConfig=${typeConfig}\n`);
-  console.log(JSON.stringify({ scratch, receipt: path.join(scratch, "receipt.json"), typeConfig }));
+  console.log(
+    JSON.stringify({
+      scratch,
+      receipt: path.join(scratch, "receipt.json"),
+      typeConfig,
+    }),
+  );
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url))
+if (
+  process.argv[1] &&
+  path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+)
   verifyAutoMovieRecoveryPackage();

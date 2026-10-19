@@ -3,8 +3,8 @@ import fs from "node:fs";
 import path from "node:path";
 
 import type { AutoMovieRecoveryOpenContinuation as O } from "../../internal/AutoMovieRecoveryOpenContinuation";
-import type { realizeAutoMovieRecoveryTensorFamilies } from "../../internal/realizeAutoMovieRecoveryTensorFamilies";
 import { applyAutoMovieRecoveryAnalyticPublication } from "../../internal/applyAutoMovieRecoveryAnalyticPublication";
+import type { realizeAutoMovieRecoveryTensorFamilies } from "../../internal/realizeAutoMovieRecoveryTensorFamilies";
 import { archiveAutoMovieRecoveryModel } from "./archiveAutoMovieRecoveryModel";
 import { reconstructAutoMovieRecoveryLocal } from "./reconstructAutoMovieRecoveryLocal";
 
@@ -23,7 +23,10 @@ import { reconstructAutoMovieRecoveryLocal } from "./reconstructAutoMovieRecover
  * @evidence contracts/performance.md#reuse-equivalent-work Existing coefficients and endpoint graph are reused without observation or fitting. Actual emitted fragments serve checkpoint and final output.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Parsed bundle and graph are call-owned. Read buffers expire after admission; the consumer releases emitted chunks to bounded disk staging. File handles close synchronously and existing publications remain immutable.
  */
-export async function recoveryLocal(args: string[], sourceEpoch: string): Promise<void> {
+export async function recoveryLocal(
+  args: string[],
+  sourceEpoch: string,
+): Promise<void> {
   const [
     curves,
     continuation,
@@ -102,7 +105,9 @@ export async function recoveryLocal(args: string[], sourceEpoch: string): Promis
     const extension: ReturnType<typeof read> = read(analytic);
     bundle = applyAutoMovieRecoveryAnalyticPublication(
       bundle,
-      extension.value as Parameters<typeof applyAutoMovieRecoveryAnalyticPublication>[1],
+      extension.value as Parameters<
+        typeof applyAutoMovieRecoveryAnalyticPublication
+      >[1],
       { curveBundleSha256: saved.sha256, continuationSha256: topology.sha256 },
     );
     analyticPublicationSha256 = extension.sha256;
@@ -116,7 +121,9 @@ export async function recoveryLocal(args: string[], sourceEpoch: string): Promis
       publishCheckpoints: publication === undefined,
       analyticPublicationSha256,
     });
-  const archive: Awaited<ReturnType<typeof archiveAutoMovieRecoveryModel>> | undefined =
+  const archive:
+    | Awaited<ReturnType<typeof archiveAutoMovieRecoveryModel>>
+    | undefined =
     publication === "final-only-gzip"
       ? await archiveAutoMovieRecoveryModel({
           output: path.dirname(path.resolve(output)),
