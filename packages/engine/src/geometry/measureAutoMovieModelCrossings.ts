@@ -22,7 +22,7 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * placement, the placement `autoMovieModelPartMatrices` owns; a part with
  * neither keeps its coordinates exactly. Bicubic recipes use the canonical
  * engine's retained finite mesh, including declared partial output; primitives
- * remain outside this mesh crossing query. A pair appears once, in model part order, only when at least
+ * and unrecognized geometry remain outside this mesh crossing query. A pair appears once, in model part order, only when at least
  * one triangle on either side is crossed, with each side's crossed triangle
  * count and their combined coplanar count. Touching is not crossing: the
  * underlying `measureAutoMovieMeshCrossings` test is strict, so shells meeting
@@ -54,7 +54,7 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * @evidence contracts/common.md#clear-and-simple-design Placement comes from `autoMovieModelPartMatrices`, the triangle census from `measureAutoMovieMeshCrossings`; this function only places parts, prunes pairs by box and aggregates counts into `IAutoMovieModelCrossing` records.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unplaced parts keep exact coordinates rather than passing through an identity multiply, no part or pair is exempted by name, and the documentation says the count is evidence for comparison against a rest pose rather than a verdict.
  * @evidence contracts/common.md#meaningful-documentation States the placement rule, skipped parts, the pair and count semantics, the strict touching rule, how to read the result and what it cannot tell, the `withinParts` entry and its use, and the refusals.
- * @evidence contracts/performance.md#efficient-algorithms Placement and boxes are linear in vertices; a pair whose boxes are disjoint costs one box test, and an overlapping pair runs the census in both directions, so cost follows how much the model overlaps itself, with `withinParts` adding one self census per part.
+ * @evidence contracts/performance.md#efficient-algorithms Canonical recipe realization owns its adaptive work. Placement and boxes are linear in realized vertices; a pair whose boxes are disjoint costs one box test, and an overlapping pair runs the census in both directions, so cost follows how much the model overlaps itself, with `withinParts` adding one self census per part.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call measures one model in its current pose; a caller comparing poses keeps the rest report itself.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Holds one placed copy of each transformed mesh part's positions and one box per part for the call, and returns one small record per crossing pair; the per-direction crossing lists are released after counting.
  * @author Samchon
@@ -70,7 +70,11 @@ export function measureAutoMovieModelCrossings(
     autoMovieModelPartMatrices(model);
   const parts: IPlacedPart[] = [];
   for (const part of model.parts) {
-    if (part.geometry.type === "primitive") continue;
+    if (
+      part.geometry.type !== "mesh" &&
+      part.geometry.type !== "bicubic-atlas"
+    )
+      continue;
     const mesh: IAutoMovieMesh = place(
       realizeAutoMovieGeometry(part.geometry).mesh,
       matrices.get(part) ?? null,
