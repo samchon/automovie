@@ -11,7 +11,7 @@
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No normal-equation inverse, expected coefficient, ridge term, endpoint clamp or dropped scalar field supplies a fit; unresolved rank and nonfinite coefficients refuse.
  * @evidence contracts/common.md#meaningful-documentation States physical units, cubic knot space, shared factorization, exact polynomial conversion, operational rank limits and caller-owned field semantics.
  * @evidence contracts/performance.md#efficient-algorithms For N rows, K=spans+3 coefficients and F fields, dense QR costs O(N K squared + N K F), retaining O(N K + N F). Bernstein conversion costs O(spans K F) for fixed degree three.
- * @evidence contracts/performance.md#reuse-equivalent-work The original design and all F right-hand sides use contiguous binary64 columns, so each Householder target scans one vector without per-row layout branches. Arithmetic order is unchanged; all F fields share basis values and reflectors; each previous interval supplies the exact shared endpoint coefficient of its successor.
+ * @evidence contracts/performance.md#reuse-equivalent-work The original design and all F right-hand sides use contiguous binary64 columns. An ascending in-place Cox-de Boor pass reads each old right neighbour before overwriting it, reusing one basis vector instead of one allocation per degree. Arithmetic order is unchanged; all F fields share basis values and reflectors; each previous interval supplies its successor's exact shared endpoint.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Design/right-hand-side scratch expires synchronously; only O(spans F) controls and the scalar rank diagnostic transfer, without a global cache, image or file handle.
  */
 export function fitRecoveryScalarProfiles(
@@ -64,25 +64,25 @@ export function fitRecoveryScalarProfiles(
       result[size - 1] = 1;
       return result;
     }
-    let current: number[] = Array.from(
+    const current: Float64Array = Float64Array.from(
       { length: chart.length - 1 },
       (_: unknown, index: number): number =>
         chart[index] <= t && t < chart[index + 1] ? 1 : 0,
     );
+    let length: number = current.length;
     for (let order: number = 1; order <= degree; order++) {
-      const next: number[] = new Array<number>(current.length - 1).fill(0);
-      for (let index: number = 0; index < next.length; index++) {
+      for (let index: number = 0; index < length - 1; index++) {
         const a: number = chart[index + order] - chart[index];
         const b: number = chart[index + order + 1] - chart[index + 1];
-        next[index] =
+        current[index] =
           (a > 0 ? ((t - chart[index]) / a) * current[index] : 0) +
           (b > 0
             ? ((chart[index + order + 1] - t) / b) * current[index + 1]
             : 0);
       }
-      current = next;
+      length--;
     }
-    return current;
+    return Array.from(current.subarray(0, size));
   };
   const matrix: Float64Array[] = Array.from(
     { length: count },

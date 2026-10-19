@@ -20,12 +20,12 @@ import { prepareRecoveryImageSupports } from "./internal/prepareRecoveryImageSup
  * is generated. Increasing uniform cubic spline spaces are tried in order until
  * every compared support meets the pixel budget or maxSpans is exhausted.
  *
- * @evidence contracts/common.md#principled-implementation Unweighted two-column linear section equations establish centre and squared-radius initial observations under the explicit aligned-ellipse hypothesis. Direction singular-value ratios reject weak geometry before Householder cubic fitting; all original in-common-domain rows participate in the union chart and final pixel-residual check.
+ * @evidence contracts/common.md#principled-implementation Unweighted two-column linear section equations establish centre and squared-radius initial observations under the explicit aligned-ellipse hypothesis. Direction singular-value ratios reject weak geometry before Householder cubic fitting; all original in-common-domain rows enter the union chart and accepted fits check every support. A violating family row is sufficient refusal evidence.
  * @evidence contracts/common.md#clear-and-simple-design This owner coordinates qualified camera support, physical row interpolation and bounded profile candidates; the profile helper owns spline algebra and the engine owns recipe-to-atlas geometry.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No contour-point triangulation, copied mesh, manually placed curve, fixture coefficient or hidden completion supplies a result. Contradictory support, nonpositive radii, inadequate directions and exhausted fit budgets refuse rather than increasing a budget or silently dropping observations.
  * @evidence contracts/common.md#meaningful-documentation Gives projection/support equations, family and camera assumptions, interpolation domain, rank limits, fit termination, pixel residual meaning and explicit unobserved regions.
  * @evidence contracts/performance.md#efficient-algorithms For V views and R total rows, admission and union sorting cost O(R log R). N common stations cost O(N V), and trying S=1 through maxSpans costs the sum of O(N (S+3) squared) QR work. All loops are bounded by caller-supplied maxViews, maxRows and maxSpans before candidate allocation.
- * @evidence contracts/performance.md#reuse-equivalent-work Camera trigonometry, two direction QR factorizations and interpolated support are reused across all spline candidates; each candidate factors one basis for all four fields.
+ * @evidence contracts/performance.md#reuse-equivalent-work Camera trigonometry, two direction QR factorizations and interpolated support are reused across all spline candidates; each candidate factors one basis for all four fields. One measured row disproving the ellipse hypothesis terminates that rejected fit; successful hypotheses still check every row before spline fitting.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Local O(N V) support and O(N (maxSpans+3)) fit scratch expire synchronously. Only compact coefficients, source identities and scalar diagnostics transfer to the caller; no image arrays, file handles or global cache remain.
  */
 export function fitAutoMovieRecoveryImageLoft(
@@ -179,12 +179,12 @@ export function fitAutoMovieRecoveryImageLoft(
                 observation.views[view].camera.pixelPitchMm,
             );
           }
+          if (!(familyResidual <= policy.maximumResidualPx))
+            throw new Error(
+              `unsupported-family: section support residual at least ${familyResidual} px exceeds ${policy.maximumResidualPx} px`,
+            );
           return { yMm, values };
         },
-      );
-    if (!(familyResidual <= policy.maximumResidualPx))
-      throw new Error(
-        `unsupported-family: section support residual ${familyResidual} px exceeds ${policy.maximumResidualPx} px`,
       );
     const evaluate: (
       loft: IAutoMovieEllipticLoft,

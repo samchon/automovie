@@ -22,7 +22,7 @@ import { prepareRecoveryImageSupports } from "./internal/prepareRecoveryImageSup
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No ellipse prior, fixed polygon correspondence, per-row saved contour, discarded view, inferred cap, original mesh/normal or camera estimate supplies the result. Exhausted residual/rank/event/geometry budgets refuse without changing thresholds.
  * @evidence contracts/common.md#meaningful-documentation States support rather than material correspondence, cubic candidate order, common-domain comparison, implied-hull checks, supplied cameras, partial unknown coverage and numerical rather than certified enclosure status.
  * @evidence contracts/performance.md#efficient-algorithms For N common rows, V views and K=spans+3, each candidate costs O(N K squared + N K V + N V cubed), plus the generic engine's bounded continuous planning/emission. maxViews/maxRows/maxSpans and event/cell/vertex budgets bound all retained populations before their owning allocations.
- * @evidence contracts/performance.md#reuse-equivalent-work One common chart and fixed-direction section query serve every candidate; one shared factorization per candidate serves all 2V offset fields. Per-row Bernstein weights are shared across all offset fields, and implied support reductions retain scalar scratch. Accepted engine diagnostics accompany the same coefficient field without retaining the generated acquisition-time mesh.
+ * @evidence contracts/performance.md#reuse-equivalent-work One common chart and fixed-direction section query serve every candidate; one factorization serves all 2V fields. A maximum residual can only grow, so one violating row rejects that candidate without scanning its remaining rows; acceptance still checks every row and view. Per-row Bernstein weights are shared, and accepted engine diagnostics retain no acquisition-time mesh.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Local observation, fit and temporary engine scratch expires synchronously; only compact coefficients, source identities and scalar diagnostics transfer. Cancellation is checked between candidates and before transfer, with no file, worker or global cache acquired.
  */
 export function fitAutoMovieRecoveryImageSupportLoft(
@@ -195,12 +195,13 @@ export function fitAutoMovieRecoveryImageSupportLoft(
             Math.abs(1000 * support - samples[row].values[plane]) / pitch,
           );
         }
+        if (!(residual <= policy.maximumResidualPx)) break;
       }
       callback = true;
       options.onProgress?.("support-profile-candidate", count, policy.maxSpans);
       callback = false;
       if (!(residual <= policy.maximumResidualPx)) {
-        last = `Implied support residual ${residual} px`;
+        last = `Implied support residual at least ${residual} px`;
         continue;
       }
       const generated: ReturnType<typeof realizeAutoMovieConvexSupportLoft> =

@@ -21,11 +21,11 @@ import { recoverySupportFixture } from "../internal/recoverySupportFixture";
  * 1. Box, rotated-box and smooth asymmetric images fit the general support path while the ellipse prior refuses.
  * 2. Six angles never supplied to fitting agree with independent RGB support within two pixels.
  * 3. Saved coefficients generate new geometry without observations; combined independent edits and exact return preserve their coordinate semantics.
- * 4. Contradictory calibrated supports and disconnected visible rows refuse instead of discarding a view or filling a gap.
+ * 4. Contradictory calibrated supports, including a violation only in the final row, and disconnected visible rows refuse instead of discarding a view or filling a gap.
  * 5. Inadequate directions, event/row budgets, malformed coverage/scales and cancellation refuse or cancel explicitly.
  *
  * @evidence contracts/testing.md#behavioral-verification Exercises public RGB observation, support fitting, independent source-free compilation and actual engine mesh/normals. It checks held-out analytic raster support, compact coefficients, boundary events and independent edits rather than source arrangement or private helper snapshots.
- * @evidence contracts/testing.md#independent-expectations Analytic box and strictly convex harmonic support formulas rasterize independent truth. Six reserved angles enter only evaluation, with a fixed .5 mm support bound. The 0/90 degree half-widths a,b cap 45 degree support at (a+b)/sqrt(2), so a wider middle image contradicts them. Coordinate scaling equations and exact return define edit expectations independently of the generated field.
+ * @evidence contracts/testing.md#independent-expectations Analytic box and strictly convex harmonic support formulas rasterize independent truth. Six reserved angles enter only evaluation, with a fixed .5 mm support bound. The 0/90 degree half-widths a,b cap 45 degree support at (a+b)/sqrt(2). A four-row circular control has all half-widths 10 mm; changing only its final 45-degree half-width to 28 mm contradicts that bound. Coordinate scaling equations and exact return define edit expectations independently of the generated field.
  * @evidence contracts/testing.md#distinguishing-cases Covers sharp active-boundary changes versus smooth sections, translated cubic profiles, an unsupported ellipse hypothesis, contradictory supports, disconnected visible rows, scalar compactness, withheld directions, explicit unknown hidden topology, malformed coverage/unit normals/scales and row/event limits. Actual hardware appearance and installed consumer isolation are separate host checks, not inferred from this analytic unit.
  * @evidence contracts/testing.md#execution-ownership This portable test_recovery_image_support_loft entry owns bounded resident RGB arrays and CPU-generated mesh only, without process, filesystem, native build, renderer, GPU or Human imports.
  */
@@ -144,6 +144,60 @@ export function test_recovery_image_support_loft(): void {
   }
   if (!saved || !observation)
     throw new Error("Expected saved support coefficients");
+  const lateSource: IAutoMovieRecoveryImageObservation = observation;
+  const late: IAutoMovieRecoveryImageObservation = {
+    ...lateSource,
+    views: [0, 3, 6].map(
+      (index: number): (typeof lateSource.views)[number] => ({
+        ...lateSource.views[index],
+        rows: lateSource.views[index].rows
+          .slice(0, 4)
+          .map(
+            (
+              row: (typeof lateSource.views)[number]["rows"][number],
+            ): typeof row => ({
+              ...row,
+              lowerMm: -10,
+              upperMm: 10,
+            }),
+          ),
+      }),
+    ),
+  };
+  TestValidator.equals(
+    "four-row circular supports are an accepted control",
+    fitAutoMovieRecoveryImageSupportLoft(late, { ...policy, maxSpans: 1 })
+      .status,
+    "partial",
+  );
+  const lateEllipsePolicy: Parameters<typeof fitAutoMovieRecoveryImageLoft>[1] =
+    {
+      family: "aligned-elliptical-sections",
+      maxViews: 3,
+      maxRows: 12,
+      maxSpans: 1,
+      maximumResidualPx: 2,
+      minimumDirectionRatio: 0.001,
+      minimumSplineRatio: 1e-8,
+    };
+  TestValidator.equals(
+    "four-row circular supports also satisfy the ellipse control",
+    fitAutoMovieRecoveryImageLoft(late, lateEllipsePolicy).status,
+    "partial",
+  );
+  late.views[1].rows[3].lowerMm = -28;
+  late.views[1].rows[3].upperMm = 28;
+  TestValidator.equals(
+    "a last-row contradiction cannot evade full acceptance checking",
+    fitAutoMovieRecoveryImageSupportLoft(late, { ...policy, maxSpans: 1 })
+      .status,
+    "refused",
+  );
+  TestValidator.equals(
+    "ellipse family checks also reach a last-row contradiction",
+    fitAutoMovieRecoveryImageLoft(late, lateEllipsePolicy).status,
+    "refused",
+  );
   const original: ReturnType<typeof compileAutoMovieRecoverySupportLoft> =
     compileAutoMovieRecoverySupportLoft(saved, generation);
   if (!("value" in original)) throw new Error(original.diagnostics.join("; "));

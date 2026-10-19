@@ -10,12 +10,12 @@ import { recoveryImageFixture } from "../internal/recoveryImageFixture";
  *
  * Scenarios:
  * 1. Three calibrated images yield four hundred ordered physical rows per view.
- * 2. Exact-threshold foreground in each RGB channel remains admitted. Empty, border-clipped, holed and disconnected foreground refuse; diagonal eight-connected support remains admitted.
+ * 2. Every byte in each RGB channel obeys integral/fractional thresholds, including exact equality. Empty, clipped, holed and disconnected support refuse; eight-connected diagonals remain admitted.
  * 3. Sparse camera/background/view arrays, wrong byte populations, unrepresentable pixel charts and exhausted budgets refuse.
  * 4. Cancellation and a failing progress observer preserve terminal outcome semantics.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls the public RGB observer and asserts physical row coordinates, edge limits, cloned camera ownership, explicit rejection reasons and callback/cancellation outcomes rather than source arrangement.
- * @evidence contracts/testing.md#independent-expectations Analytic pixel-centre raster truth fixes the first row at 0.125 mm and the last at 99.875 mm. Ideal measured edge error is at most half the 0.25 mm pitch; refusal follows the supported opaque one-interval contract.
+ * @evidence contracts/testing.md#independent-expectations Analytic pixel-centre raster truth fixes the first row at 0.125 mm and the last at 99.875 mm. Ideal measured edge error is at most half the 0.25 mm pitch. On a four-by-four inset square, abs(byte-background) >= threshold independently determines complete versus empty support for all 256 values of each channel at thresholds .5, 20, 20.5 and 255.
  * @evidence contracts/testing.md#distinguishing-cases Covers valid extent, colour threshold, empty support, horizontal and vertical clipping/connectivity, eight-connected diagonals versus disjoint consecutive row intervals, sparse tuples/populations, exact byte length, pixel/row/view budgets and terminal callbacks. Inverse fit and independent surface generation have separate tests.
  * @evidence contracts/testing.md#execution-ownership The discoverable portable test_recovery_image_observation entry uses resident arrays and caller-owned AbortControllers only, with no process, filesystem, renderer, native artifact or foreign-method replacement.
  */
@@ -91,6 +91,41 @@ export function test_recovery_image_observation(): void {
       observeAutoMovieRecoveryImages(diagonal).status,
       "complete",
     );
+  }
+  const tiny: IAutoMovieRecoveryImageInput = {
+    ...input,
+    background: { rgb: [0, 127, 255], threshold: 20 },
+    budget: { maxPixels: 108, maxViews: 3, maxRows: 12 },
+    views: input.views.map(
+      (view: (typeof input.views)[number]): (typeof input.views)[number] => ({
+        ...view,
+        width: 6,
+        height: 6,
+        rgb8: new Uint8Array(108),
+        camera: { ...view.camera, principalPointPx: [3, 5] },
+      }),
+    ),
+  };
+  for (let channel: number = 0; channel < 3; channel++) {
+    for (const view of tiny.views)
+      for (let at: number = 0; at < view.rgb8.length; at += 3)
+        view.rgb8.set(tiny.background.rgb, at);
+    for (const distance of [0.5, 20, 20.5, 255]) {
+      tiny.background.threshold = distance;
+      for (let value: number = 0; value < 256; value++) {
+        for (const view of tiny.views)
+          for (let row: number = 1; row <= 4; row++)
+            for (let column: number = 1; column <= 4; column++)
+              view.rgb8[3 * (row * 6 + column) + channel] = value;
+        TestValidator.equals(
+          `channel ${channel}, byte ${value}, threshold ${distance} follows the declared distance predicate`,
+          observeAutoMovieRecoveryImages(tiny).status,
+          Math.abs(value - tiny.background.rgb[channel]) >= distance
+            ? "complete"
+            : "refused",
+        );
+      }
+    }
   }
   const variants: {
     name: string;

@@ -7,7 +7,7 @@ import type { IAutoMovieRecoveryImageInput } from "@automovie/interface/recovery
  * other analytic sections. Box support is a distinct ellipse-family negative.
  *
  * @evidence contracts/testing.md#behavioral-verification Supplies real RGB8 pixel populations whose support must be extracted rather than injecting expected observed rows or fitted controls.
- * @evidence contracts/testing.md#independent-expectations Raster inclusion uses analytic ellipse or box support and explicit pixel centres, with no recovery fitter, spline evaluator, atlas generator or renderer import.
+ * @evidence contracts/testing.md#independent-expectations Raster inclusion uses analytic ellipse or box support and explicit pixel centres, with no recovery fitter, spline evaluator, atlas generator or renderer import. One fixed pixel-centre vector serves every row/view; an explicit interval supplies the selected formula instead of computing an unused default ellipse.
  * @evidence contracts/testing.md#distinguishing-cases Parameterized angle, pixel pitch, ellipse/box shape and an optional analytic interval allow scale/chart and distinct section-family controls; admission failures are authored by the calling tests.
  * @evidence contracts/testing.md#execution-ownership This portable fixture owns only small resident typed arrays and deterministic arithmetic; it starts no process, filesystem, browser or GPU.
  */
@@ -23,6 +23,10 @@ export function recoveryImageFixture(
   const pitch: number = input.pitchMm ?? 0.25;
   const width: number = 256,
     height: number = 480;
+  const pixelX: Float64Array = Float64Array.from(
+    { length: width },
+    (_: unknown, column: number): number => (column + 0.5 - 128) * pitch,
+  );
   return {
     schema: "automovie-recovery-images-v1",
     objectId: "analytic-section-family",
@@ -44,31 +48,32 @@ export function recoveryImageFixture(
           const y: number = (440 - row - 0.5) * pitch;
           const t: number = y / 100;
           if (t < 0 || t > 1) continue;
-          const profile: [number, number, number, number] = input.profile?.(
-            t,
-          ) ?? [
-            18 + 8 * t - 12 * t * t + 5 * t * t * t,
-            10 + 7 * t + 4 * t * t - 3 * t * t * t,
-            2 - 4 * t + 2 * t * t,
-            -1 + 3 * t - 2 * t * t,
-          ];
-          const a: number = profile[0],
-            b: number = profile[1];
-          const centre: number = c * profile[2] + s * profile[3];
-          const support: number =
-            input.kind === "box"
-              ? Math.abs(c) * a + Math.abs(s) * b
-              : Math.hypot(c * a, s * b);
           const interval: [number, number] | undefined = input.support?.(
             t,
             angle,
           );
+          let centre: number = 0,
+            support: number = 0;
+          if (interval === undefined) {
+            const profile: [number, number, number, number] = input.profile?.(
+              t,
+            ) ?? [
+              18 + 8 * t - 12 * t * t + 5 * t * t * t,
+              10 + 7 * t + 4 * t * t - 3 * t * t * t,
+              2 - 4 * t + 2 * t * t,
+              -1 + 3 * t - 2 * t * t,
+            ];
+            centre = c * profile[2] + s * profile[3];
+            support =
+              input.kind === "box"
+                ? Math.abs(c) * profile[0] + Math.abs(s) * profile[1]
+                : Math.hypot(c * profile[0], s * profile[1]);
+          }
           for (let column: number = 0; column < width; column++)
             if (
               interval
-                ? (column + 0.5 - 128) * pitch >= interval[0] &&
-                  (column + 0.5 - 128) * pitch <= interval[1]
-                : Math.abs((column + 0.5 - 128) * pitch - centre) <= support
+                ? pixelX[column] >= interval[0] && pixelX[column] <= interval[1]
+                : Math.abs(pixelX[column] - centre) <= support
             ) {
               const at: number = 3 * (row * width + column);
               pixels[at] = 30;
