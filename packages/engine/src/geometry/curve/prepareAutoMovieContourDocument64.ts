@@ -1,6 +1,7 @@
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
 import type { IAutoMovieContourLoft64 } from "./IAutoMovieContourLoft64";
 import type { IAutoMovieCurve64 } from "./IAutoMovieCurve64";
+import { admitAutoMovieContourEvents64 } from "./admitAutoMovieContourEvents64";
 
 type V3 = M.V;
 interface Observation {
@@ -26,8 +27,10 @@ interface Critical {
   upperLinkComponents: number;
   manifoldLink: boolean;
   equalHeightNeighbour: boolean;
+  unsupported?: string;
 }
 interface Document {
+  declaredEvents: IAutoMovieContourLoft64.IEvent[];
   slices: Slice[];
   events: Critical[];
 }
@@ -35,9 +38,9 @@ interface Document {
 /**
  * Admit saved contour events and build the local physical section document.
  *
- * @evidence contracts/common.md#principled-implementation The unchanged finite-station and explicit event-incidence checks precede exact field mapping; terminals remain declared generating observations.
+ * @evidence contracts/common.md#principled-implementation Finite saved stations and exact event brackets remain global admission. Addressable malformed incidence retains a sanitized local diagnostic while independent declared groups survive; terminals remain declared generating observations.
  * @evidence contracts/common.md#clear-and-simple-design The contour tessellator delegates structural admission and event mapping to one owner.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Existing arithmetic, admission, coefficient authority and explicit failure meanings remain unchanged; no source geometry fallback is added.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No missing incidence, terminal, continuation or source geometry fallback is invented; unsupported event ownership remains explicit.
  * @evidence contracts/common.md#meaningful-documentation States the owned stage and immutable inputs; output qualification remains with the caller.
  * @evidence contracts/performance.md#efficient-algorithms For K sections and E event incidences the original section lookups and incidence traversal are retained.
  * @evidence contracts/performance.md#reuse-equivalent-work Each call reuses its prepared data for the same original lifetime without a new cross-call cache.
@@ -56,61 +59,18 @@ export function prepareAutoMovieContourDocument64(
     )
   )
     throw new Error("Finite increasing section coordinates required");
-  const coordinates: Set<number> = new Set(
-    input.sections.map(
-      (section: IAutoMovieContourLoft64.ISection): number =>
-        section.coordinateMm,
-    ),
-  );
-  const names: Set<string> = new Set();
-  for (const event of input.events) {
-    if (
-      !event.name ||
-      names.has(event.name) ||
-      !Number.isFinite(event.coordinateMm) ||
-      !(
-        event.beforeMm < event.coordinateMm &&
-        event.coordinateMm < event.afterMm
-      ) ||
-      !coordinates.has(event.beforeMm) ||
-      !coordinates.has(event.afterMm)
-    )
-      throw new Error(
-        "A named event must lie between its declared saved sections",
-      );
-    names.add(event.name);
-    if (event.kind !== "saddle" && event.terminal === null)
-      throw new Error("An extremum requires its explicit generating terminal");
-    if (event.terminal !== null && !event.terminal.every(Number.isFinite))
-      throw new Error("Finite event terminal coordinates required");
-    if (event.before.length + event.after.length === 0)
-      throw new Error("A topology event requires incident contours");
-    for (const [coordinate, indices] of [
-      [event.beforeMm, event.before],
-      [event.afterMm, event.after],
-    ] as [number, readonly number[]][]) {
-      const section: IAutoMovieContourLoft64.ISection = input.sections.find(
-        (candidate: IAutoMovieContourLoft64.ISection): boolean =>
-          candidate.coordinateMm === coordinate,
-      )!;
-      if (
-        indices.some(
-          (index: number): boolean =>
-            !Number.isInteger(index) ||
-            index < 0 ||
-            index >= section.loops.length,
-        )
-      )
-        throw new Error("Event contour index leaves its declared section");
-    }
-  }
+  const admittedEvents: ReturnType<typeof admitAutoMovieContourEvents64> =
+    admitAutoMovieContourEvents64(input);
+  const events: IAutoMovieContourLoft64.IEvent[] = admittedEvents.events;
   const document: Document = {
+    declaredEvents: events,
     slices: input.sections
       .filter(
         (section: IAutoMovieContourLoft64.ISection): boolean =>
           section.loops.length > 0 ||
-          !input.events.some(
-            (event: IAutoMovieContourLoft64.IEvent): boolean =>
+          !events.some(
+            (event: IAutoMovieContourLoft64.IEvent, i: number): boolean =>
+              admittedEvents.unsupported[i] === undefined &&
               event.coordinateMm === section.coordinateMm,
           ),
       )
@@ -124,8 +84,8 @@ export function prepareAutoMovieContourDocument64(
           ),
         }),
       ),
-    events: input.events.map(
-      (event: IAutoMovieContourLoft64.IEvent): Critical => ({
+    events: events.map(
+      (event: IAutoMovieContourLoft64.IEvent, i: number): Critical => ({
         y: event.coordinateMm,
         y0: event.beforeMm,
         y1: event.afterMm,
@@ -152,6 +112,9 @@ export function prepareAutoMovieContourDocument64(
         upperLinkComponents: event.kind === "maximum" ? 0 : 1,
         manifoldLink: event.regular,
         equalHeightNeighbour: !event.regular,
+        ...(admittedEvents.unsupported[i] === undefined
+          ? {}
+          : { unsupported: admittedEvents.unsupported[i] }),
       }),
     ),
   };

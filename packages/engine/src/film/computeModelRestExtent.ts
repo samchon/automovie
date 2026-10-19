@@ -5,7 +5,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { tessellate } from "../geometry/tessellate";
+import { realizeAutoMovieGeometry } from "../geometry/realizeAutoMovieGeometry";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { placeTransformedPoint } from "./placeTransformedPoint";
@@ -14,14 +14,14 @@ import { skeletonRestFrames } from "./skeletonRestFrames";
 /**
  * A model's rest-pose box in model space: the axis-aligned range, in metres, of its portable part geometry, on all three axes. External asset bytes are not opened here, so proxy parts do not establish the imported asset's pixel extent.
  *
- * Every vertex is placed the way the renderer places it: by its part's own transform through {@link placeTransformedPoint}, then by the rest frame of the bone the part rides, or left in model space when it rides none. Primitives are measured through {@link tessellate}, the code that produces their vertices, so measurement follows those portable primitives. A trailing partial `x, y, z` triple in a mesh is ignored.
+ * Every vertex is placed the way the renderer places it: by its part's own transform through {@link placeTransformedPoint}, then by the rest frame of the bone the part rides, or left in model space when it rides none. The canonical geometry realizer supplies primitive and bicubic recipe vertices, retaining finite partial output, so framing does not reject an otherwise displayable recipe. A trailing partial `x, y, z` triple in a mesh is ignored.
  *
  * {@link computeModelRestExtentY} is this box read on the vertical axis. The horizontal half is what a subject wider than it is tall is framed and graded from: a 60 m facade authored outward from its element origin has a drawn box of `x 0…60, y 0…24, z −1…1`, where the vertical read alone reports `y 0…24`.
  *
  * Returns null when no part has a vertex, leaving the caller's own fallback in charge rather than inventing an extent. Throws, through {@link skeletonRestFrames}, when the model's skeleton is malformed.
  *
  * @evidence contracts/common.md#principled-implementation A running axis-aligned min and max over every vertex after the renderer's placement, part TRS then the bone's composed rest frame at unit scale; it relies on model validation having bound every `attachedBone` to a bone of the model's own skeleton, so a part found on no frame is one that rides no bone.
- * @evidence contracts/common.md#clear-and-simple-design Composes the shared pieces, `tessellate` for primitives, `placeTransformedPoint` for the part transform that `nodeSubjectBox` also applies, and `skeletonRestFrames` for the bone frames `computeRestHeight` reads, and owns only the bound accumulation.
+ * @evidence contracts/common.md#clear-and-simple-design Composes canonical geometry realization, placeTransformedPoint for the part transform that nodeSubjectBox also applies, and skeletonRestFrames for the bone frames computeRestHeight reads, and owns only the bound accumulation.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No model, part kind or bone is special-cased; an empty model answers null by the stated rule instead of a stand-in box, and the subject-height default belongs to the callers.
  * @evidence contracts/common.md#meaningful-documentation States the frame and unit, the per-vertex placement order and its sources, the partial-triple rule, the vertical reading, why the horizontal extent matters, the null case and the throwing case.
  * @evidence contracts/performance.md#efficient-algorithms Linear in the drawn vertex count V plus one O(B) rest-frame walk for B bones and one tessellation per primitive part; the bounds stream in constant extra space rather than collecting placed points.
@@ -39,10 +39,8 @@ export function computeModelRestExtent(
   const min: IAutoMovieVector3 = { x: Infinity, y: Infinity, z: Infinity };
   const max: IAutoMovieVector3 = { x: -Infinity, y: -Infinity, z: -Infinity };
   for (const part of model.parts) {
-    const positions: readonly number[] =
-      part.geometry.type === "primitive"
-        ? tessellate(part.geometry.shape).positions
-        : part.geometry.mesh.positions;
+    const positions: readonly number[] = realizeAutoMovieGeometry(part.geometry)
+      .mesh.positions;
     const local: IAutoMovieTransform | null = part.transform;
     const frame:
       | Pick<IAutoMovieTransform, "translation" | "rotation">

@@ -222,12 +222,15 @@ export namespace AutoMovieContourLoftCurves64 {
 
   /**
    * Partition one source restriction under the unchanged physical chord condition.
+   * Exact restrictions of an already qualified explicit net may carry deeper
+   * ancestry without requiring another adaptive half subdivision. The thirty-level
+   * limit still refuses additional adaptive work, not an already satisfied bound.
    *
    * @evidence contracts/common.md#principled-implementation Exact De Casteljau children retain their source phases and controls; nonconstant zero-chord restrictions split even under a coarse physical tolerance.
    * @evidence contracts/common.md#clear-and-simple-design Initial tessellation and later geometric interaction refinement use the same adaptive owner.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No minimum population, changed tolerance, fitted child or positional snap supplies a restriction.
-   * @evidence contracts/common.md#meaningful-documentation States physical chord authority and the explicit phase/depth arithmetic limit.
-   * @evidence contracts/performance.md#efficient-algorithms Constant-degree tests visit K retained leaves, with at most thirty recursive levels from the original span.
+   * @evidence contracts/common.md#meaningful-documentation Separates exact-restriction ancestry from additional adaptive work; compressed half-path addresses retain their thirty-level representation limit.
+   * @evidence contracts/performance.md#efficient-algorithms Constant-degree tests visit K retained leaves. Adaptive half subdivision stops at depth thirty; deeper explicit restrictions can only be retained when their current physical bound already passes.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each restriction is evaluated once by this recursive partition.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returned child nets transfer to the caller; recursive scratch expires on return.
    */
@@ -239,9 +242,9 @@ export namespace AutoMovieContourLoftCurves64 {
         Number.isFinite(leaf.end) &&
         leaf.end > leaf.start
       ) ||
-      !Number.isInteger(leaf.depth) ||
+      !Number.isSafeInteger(leaf.depth) ||
       leaf.depth < 0 ||
-      leaf.depth > 30
+      (leaf.depth > 30 && leaf.original !== undefined)
     )
       throw new Error(
         "A finite increasing source restriction and positive chord tolerance are required",
@@ -255,7 +258,7 @@ export namespace AutoMovieContourLoftCurves64 {
     )
       throw new Error("Source half-path metadata is unresolved");
     const result: Leaf[] = [];
-    const visit = (current: Leaf): void => {
+    const visit: (current: Leaf) => void = (current: Leaf): void => {
       const p: M.V[] = controls(current);
       const error: number = Math.max(
         closestPoint(p[1], p[0], p[3]).distance,

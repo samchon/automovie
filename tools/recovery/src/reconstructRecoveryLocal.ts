@@ -1,26 +1,38 @@
+import { createHash } from "node:crypto";
 import path from "node:path";
 
 import type { IAutoMovieCurve64 as C } from "../../../packages/engine/src/geometry/curve/IAutoMovieCurve64.ts";
 import { tessellateAutoMovieLocalHermite64 as T } from "../../../packages/engine/src/geometry/curve/tessellateAutoMovieLocalHermite64.ts";
-import type { RecoveryMeshSections as R } from "./RecoveryMeshSections.ts";
+import { RecoveryAnalyticDomains } from "./RecoveryAnalyticDomains.ts";
+import { RecoveryLocalArtifact } from "./RecoveryLocalArtifact.ts";
+import type { RecoveryLocalResult } from "./RecoveryLocalResult.ts";
+import type { RecoveryLocalRunReport } from "./RecoveryLocalRunReport.ts";
 import { RecoveryMeshSpool } from "./RecoveryMeshSpool.ts";
 import type { RecoveryOpenContinuation as O } from "./RecoveryOpenContinuation.ts";
-import { prepareRecoveryOpenRuns } from "./prepareRecoveryOpenRuns.ts";
+import type { RecoveryTensorFamilies } from "./RecoveryTensorFamilies.ts";
+import { normalizeRecoveryCourse } from "./normalizeRecoveryCourse.ts";
+import { prepareRecoveryLocalContinuation } from "./prepareRecoveryLocalContinuation.ts";
 import { reconstructRecovery } from "./reconstructRecovery.ts";
 
 /**
- * Generate a bounded open surface from saved coefficients and explicit graph transport, using ruled or local quadratic interpolation instead of coefficientwise PCHIP. Shared global mesh indices and spool-backed checkpoints preserve finite geometry and explicit incompletion.
+ * Generate saved tensor ordinary domains, retained closed domains and bounded open surfaces.
+ * Explicit ruled or local quadratic interpolation differs from coefficientwise PCHIP.
+ * Its exact source edges and conforming local cells share actual global mesh indices.
+ * Spool-backed checkpoints retain all emitted finite geometry and explicit incompletion.
+ * The immutable analytic-and-retained-closed base is published before the first open chunk,
+ * even when repeated standalone open checkpoints are disabled. Joint spool frontiers
+ * persist channel bindings and source-free run cursors independently of rendering.
  *
- * @evidence contracts/common.md#principled-implementation Declared ordinary arc transport fixes maximal runs and orientation; complete cubic controls feed the engine's local Hermite operator, while its shared global indices are appended unchanged to the interface mesh.
+ * @evidence contracts/common.md#principled-implementation One analytic realization owns its declared closed and open occurrences; the closed adapter dispatches tensor families and retained curve-only domains. Declared ordinary open-arc transport fixes maximal runs and orientation; cubic controls feed the local Hermite engine, whose shared global indices are appended unchanged.
  * @evidence contracts/common.md#clear-and-simple-design Graph admission, run ownership, engine streaming and immutable artifact publication are separate stages. Generated triangle ranges retain run, saved curves and local patch ownership.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No source geometry, positional weld, hidden closure, hand-selected station, nonlinear limiter or sample reduction enters reconstruction. Unsupported branches remain explicit graph records.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No source geometry, positional weld, hidden closure, hand-selected station, nonlinear limiter or sample reduction enters reconstruction. Analytic domains own explicitly delegated occurrences; all other unsupported branches remain graph records.
  * @evidence contracts/common.md#meaningful-documentation States the changed operator, coefficient authority, approximation budget, streamed indexing and independent qualification of coverage, regularity and source fidelity.
  * @evidence contracts/performance.md#efficient-algorithms Graph admission is O(P+A); each supported arc belongs to one maximal run. The engine uses local four-course partitions, while disk assembly is linear in emitted data per publication; checkpoints explicitly incur rereads of earlier chunks.
  * @evidence contracts/performance.md#reuse-equivalent-work Each shared station edge and its analytic normal are generated once. The same immutable engine fragments supply unfinished checkpoints and final model, without repeated fitting or reconstruction for camera changes.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Source-free bundle and graph remain caller-owned. Output numeric retention is bounded by engine plans, one chunk and spool staging; closed-engine buffers and scalar run reports remain retained. Completed open chunks transfer to disk, and generator cancellation releases local state on exceptions.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Source-free bundle and graph remain caller-owned. Open output retention is bounded by plans, one chunk and spool staging; closed, analytic and tensor meshes and scalar reports remain retained until publication. Completed open chunks transfer to disk, and cancellation releases local state on exceptions.
  */
 export function reconstructRecoveryLocal(
-  bundle: R.Bundle,
+  bundle: RecoveryTensorFamilies.Input,
   graph: O.Continuation,
   output: string,
   binding: {
@@ -28,13 +40,33 @@ export function reconstructRecoveryLocal(
     curveBundleSha256: string;
     continuationSha256: string;
     operator: "quadratic" | "ruled";
+    publishCheckpoints?: boolean;
+    analyticPublicationSha256?: string;
   },
-): {
-  sha256: string;
-  bytes: number;
-  counts: { vertices: number; triangles: number };
-  checkpoints: { path: string; sha256: string; bytes: number }[];
-} {
+): RecoveryLocalResult {
+  if (
+    (binding.operator !== "quadratic" && binding.operator !== "ruled") ||
+    !(
+      bundle.policy.toleranceMm > 0 &&
+      Number.isFinite(bundle.policy.toleranceMm)
+    )
+  )
+    throw new Error(
+      "Explicit interpolation and a positive physical approximation budget required",
+    );
+  if (
+    graph.schema !== "automovie-recovery-open-continuation-v1" ||
+    graph.intervals.length !== bundle.reports.length - 1 ||
+    graph.orientations.length !== bundle.reports.length ||
+    !(graph.resolutionMm > 0 && Number.isFinite(graph.resolutionMm)) ||
+    !Number.isSafeInteger(graph.maxVerticesPerRun) ||
+    graph.maxVerticesPerRun < 4
+  )
+    throw new Error(
+      "A complete source-free open-continuation sidecar is required",
+    );
+  const analytic: ReturnType<typeof RecoveryAnalyticDomains> =
+    RecoveryAnalyticDomains(bundle, graph);
   type Node = { section: number; arc: number };
   type Edge = {
     before: Node;
@@ -42,15 +74,15 @@ export function reconstructRecoveryLocal(
     reverse: boolean;
     pairOrdinal: number;
   };
-  const key: (n: Node) => string = (n: Node): string => `${n.section}:${n.arc}`;
-  const prepared: ReturnType<typeof prepareRecoveryOpenRuns> =
-    prepareRecoveryOpenRuns(bundle, graph, binding.operator);
-  const outgoing: Map<string, Edge> = prepared.outgoing,
-    incoming: Map<string, Edge> = prepared.incoming;
-  const pairs: number = prepared.pairs,
-    unsupportedGroups: number = prepared.unsupportedGroups,
-    unsupportedGroupsWithOpenArcs: number =
-      prepared.unsupportedGroupsWithOpenArcs;
+  const {
+    key,
+    outgoing,
+    incoming,
+    pairs,
+    unsupportedGroups,
+    unsupportedGroupsWithOpenArcs,
+  }: ReturnType<typeof prepareRecoveryLocalContinuation> =
+    prepareRecoveryLocalContinuation(bundle, graph, analytic);
   const started: number = performance.now();
   console.error(
     JSON.stringify({
@@ -61,7 +93,7 @@ export function reconstructRecoveryLocal(
   );
   const base: ReturnType<typeof reconstructRecovery> = reconstructRecovery(
     bundle,
-    { observeWork: true },
+    { observeWork: true, analytic },
   );
   for (const diagnostic of graph.diagnostics) base.diagnostics.push(diagnostic);
   console.error(
@@ -93,21 +125,7 @@ export function reconstructRecoveryLocal(
     attachedBone: null,
     transform: null,
   });
-  type RunReport = {
-    id: string;
-    firstSection: number;
-    lastSection: number;
-    curves: string[];
-    generated: boolean;
-    reason: string | null;
-    intervals: number;
-    omittedIntervals: number;
-    vertices: number;
-    triangles: number;
-    unqualifiedSourceOrientations: number;
-    fitTargetMisses: number;
-    fitPolylineUpperEstimateMaximumMm: number;
-  };
+  type RunReport = RecoveryLocalRunReport;
   const runs: RunReport[] = [],
     checkpoints: { path: string; sha256: string; bytes: number }[] = [];
   let completedPairs: number = 0,
@@ -133,171 +151,84 @@ export function reconstructRecoveryLocal(
   const publish: (
     file: string,
     complete: boolean,
-  ) => { sha256: string; bytes: number } = (
+    role?: string,
+  ) => {
+    sha256: string;
+    bytes: number;
+    completion: ReturnType<typeof RecoveryLocalArtifact>["coverage"];
+  } = (
     file: string,
     complete: boolean,
-  ): { sha256: string; bytes: number } =>
-    spool.publish(file, {
-      schema: "human-reference-engine-model-v1",
-      model: base.model,
-      construction: { units: "m", lines: spool.construction },
-      diagnostics: base.diagnostics,
-      unresolved: base.unresolved,
-      unresolvedScope:
-        "Closed-only observations retained independently of open surfaces; they are not an additive whole-model hole count.",
-      stripObservations: base.stripObservations,
-      primitiveRanges: base.primitiveRanges,
-      interactionObservations: base.interactionObservations,
-      openPrimitiveOwnership: spool.ownership,
-      openReports: {
+    role: string = "generated-prefix",
+  ): {
+    sha256: string;
+    bytes: number;
+    completion: ReturnType<typeof RecoveryLocalArtifact>["coverage"];
+  } => {
+    const artifact: ReturnType<typeof RecoveryLocalArtifact> =
+      RecoveryLocalArtifact({
+        base,
+        spool,
+        bundle,
+        graph,
+        binding,
         runs,
         pairs,
-        visitedPairs: completedPairs,
+        completedPairs,
         failedRunPairs,
         omittedIntervals,
         unsupportedGroups,
         unsupportedGroupsWithOpenArcs,
-        zeroOpenArcObservationGroups:
-          unsupportedGroups - unsupportedGroupsWithOpenArcs,
-        unresolved: graph.intervals.map(
-          (row: O.Continuation["intervals"][number]): object => ({
-            beforeSection: row.beforeSection,
-            afterSection: row.afterSection,
-            groups: row.unresolved,
-          }),
-        ),
-      },
-      coverage: {
-        complete: false,
-        observation: bundle.coverage ?? {
-          complete: true,
-          sections: bundle.reports.length,
-        },
-        processingComplete: complete,
-        openPairs: pairs,
-        visitedOpenPairs: completedPairs,
-        publishedOpenPairs: publishedPairs,
-        generatedOpenIntervals: completedPairs - omittedIntervals,
-        omittedIntervals,
-        failedRunPairs,
-        qualification:
-          "Open branches, mixed events and unrepresented groups remain unsupported; all-source surface recovery is unverified.",
-      },
-      counts: counts(),
-      provenance: {
-        ...binding,
-        sourceCommit: binding.sourceEpoch,
-        inputKeys: ["curveBundle", "openContinuation"],
-        inputHashes: {
-          curveBundle: binding.curveBundleSha256,
-          openContinuation: binding.continuationSha256,
-        },
-        operator:
-          binding.operator === "ruled"
-            ? "two-course-ruled-v1"
-            : "local-linear-physical-hermite-v1",
-        phaseConvention:
-          "Normalized saved span widths; independent fitting and Newton correspondence do not establish material transport or true arc-length parameterization.",
-        approximation: {
-          toleranceMm: bundle.policy.toleranceMm,
-          bound:
-            "binary64 Taylor Hessian upper estimate for analytic-field-to-PL distance only; not source distance",
-        },
-        engineOperators: [
-          "tessellateAutoMovieContourLoft64",
-          "AutoMovieLocalHermiteField64.prepare",
-          "tessellateAutoMovieLocalHermite64",
-        ],
-        callPath: [
-          "recoveryLocal",
-          "reconstructRecoveryLocal",
-          "IAutoMovieCurve64.Cubic + source-free ordinary continuation",
-          "AutoMovieLocalHermiteField64.prepare",
-          "tessellateAutoMovieLocalHermite64",
-          "RecoveryMeshSpool",
-          "IAutoMovieModel.parts[].geometry.mesh",
-          "viewer input",
-        ],
-        support: {
-          closed: "existing contour engine",
-          openOrdinary:
-            binding.operator === "ruled"
-              ? "two-course ruled, station C0 only; shared normals right-sided, final station left-sided"
-              : "local Hermite",
-          openSplitMergeCavity: "unsupported and preserved in graph",
-          mixedOpenClosed: "unsupported",
-        },
-        publicationOrder:
-          "descending total physical span of supported open-only intervals; stable saved section/arc tie break",
-        checkpointPolicy: {
-          firstCompletedGraphPairs: 5,
-          followingChunkThreshold: "2048 then doubling",
-          publishedPairs,
-        },
-        resourcePolicy: {
-          maxCellsPerInterval: 200_000,
-          maxVerticesPerChunk: 32_768,
-          legacyGraphMaxVerticesPerRun: graph.maxVerticesPerRun,
-          legacyGraphRunBudgetApplied: false,
-          note: "This explicit streamed operator bounds interval planning and chunk retention; output fragments grow on disk rather than enforcing the former whole-grid vertex allocation limit.",
-        },
-        generatedAt: new Date().toISOString(),
-        elapsedMs: performance.now() - started,
-        memory: {
-          current: memory(),
-          observedPeakHeapBytes: peakHeap,
-          observedPeakRssBytes: peakRss,
-          processMaximumRssKiB: process.resourceUsage().maxRSS,
-        },
-        spoolDirectory: path.resolve(`${output}.spool`),
-        observeWork: true,
-      },
-    });
-  const normalized: (curve: C.Cubic, reverse: boolean) => C.Cubic = (
-    curve: C.Cubic,
-    reverse: boolean,
-  ): C.Cubic => {
-    if (
-      curve.closed ||
-      curve.unit !== "mm" ||
-      curve.phaseIntervals.length !== curve.spans.length
-    )
-      throw new Error("Saved open cubic millimetre authority required");
-    const widths: number[] = reverse
-      ? [...curve.phaseIntervals].reverse()
-      : [...curve.phaseIntervals];
-    const total: number = widths.reduce(
-      (sum: number, h: number): number => sum + h,
-      0,
-    );
-    if (!(total > 0 && Number.isFinite(total)))
-      throw new Error("Open curve phase cannot be normalized");
-    let prefix: number = 0;
-    const phaseIntervals: number[] = widths.map(
-      (width: number, i: number): number => {
-        const value: number =
-          i + 1 === widths.length ? 1 - prefix : width / total;
-        if (!(value > 0 && Number.isFinite(value)))
-          throw new Error(
-            "Normalized open phase interval is not representable",
-          );
-        prefix += value;
-        return value;
-      },
-    );
-    const spans: C.Span[] = reverse
-      ? [...curve.spans]
-          .reverse()
-          .map((span: C.Span): C.Span => [span[3], span[2], span[1], span[0]])
-      : [...curve.spans];
+        publishedPairs,
+        complete,
+        started,
+        output,
+        counts,
+        memory,
+        peaks: (): { heap: number; rss: number } => ({
+          heap: peakHeap,
+          rss: peakRss,
+        }),
+      });
     return {
-      ...curve,
-      closed: false,
-      phaseUnit: "normalized",
-      phaseIntervals,
-      spans,
+      ...spool.publish(file, { ...artifact, publicationRole: role }),
+      completion: artifact.coverage,
     };
   };
+  const baseFile: string = `${output}.base.json`;
+  const baseSaved: ReturnType<typeof publish> = publish(
+    baseFile,
+    false,
+    "analytic-and-retained-closed-base",
+  );
+  const baseCheckpoint: { path: string; sha256: string; bytes: number } = {
+    path: path.resolve(baseFile),
+    sha256: baseSaved.sha256,
+    bytes: baseSaved.bytes,
+  };
+  let frontier: ReturnType<typeof spool.commit> = spool.commit(
+    `${output}.frontier-0.json`,
+    {
+      binding,
+      baseCheckpoint,
+      runs: [],
+      completedPairs,
+      publishedPairs,
+      failedRunPairs,
+      omittedIntervals,
+      currentRun: null,
+    },
+  );
+  let nextFrontier: number = 2048;
+  console.log(
+    JSON.stringify({
+      phase: "local-base-checkpoint",
+      ...baseCheckpoint,
+      counts: counts(),
+      frontier,
+      processingComplete: false,
+    }),
+  );
   const starters: { edge: Edge; openOnlySpanMm: number }[] = [];
   for (const edge of outgoing.values()) {
     if (incoming.has(key(edge.before))) continue;
@@ -369,6 +300,9 @@ export function reconstructRecoveryLocal(
       ),
     };
     runs.push(record);
+    const runStartChunks: number = spool.counts.chunks,
+      preRunVertexOffset: number = spool.counts.vertices;
+    const runDigest: ReturnType<typeof createHash> = createHash("sha256");
     if (runs.length === 1 || runs.length % 128 === 0)
       console.error(
         JSON.stringify({
@@ -394,7 +328,7 @@ export function reconstructRecoveryLocal(
     try {
       const courses: C.Cubic[] = nodes.map(
         (n: Node, i: number): C.Cubic =>
-          normalized(
+          normalizeRecoveryCourse(
             bundle.reports[n.section]!.open[n.arc]!.curve,
             reversals[i]!,
           ),
@@ -422,6 +356,7 @@ export function reconstructRecoveryLocal(
           curves: record.curves,
           pairs: pairOrdinals,
         });
+        runDigest.update(JSON.stringify(chunk));
         outputOperation = false;
         record.vertices += chunk.counts.vertices;
         record.triangles += chunk.counts.triangles;
@@ -429,7 +364,45 @@ export function reconstructRecoveryLocal(
         result = iterator.next();
         if (result.done || result.value.interval !== chunk.interval)
           publishedPairs++;
+        if (spool.counts.chunks >= nextFrontier && !result.done) {
+          outputOperation = true;
+          frontier = spool.commit(
+            `${output}.frontier-${spool.counts.chunks}.json`,
+            {
+              binding,
+              baseCheckpoint,
+              runs,
+              completedPairs,
+              publishedPairs,
+              failedRunPairs,
+              omittedIntervals,
+              currentRun: {
+                id,
+                firstSection: record.firstSection,
+                curves: record.curves,
+                nodes,
+                reversals,
+                pairOrdinals,
+                emittedRunChunks: spool.counts.chunks - runStartChunks,
+                preRunVertexOffset,
+                emittedChunkSha256: runDigest.copy().digest("hex"),
+                iteratorDone: false,
+              },
+            },
+          );
+          outputOperation = false;
+          console.log(
+            JSON.stringify({
+              phase: "local-spool-frontier",
+              ...frontier,
+              counts: counts(),
+              processingComplete: false,
+            }),
+          );
+          nextFrontier = spool.counts.chunks + 2048;
+        }
         if (
+          binding.publishCheckpoints !== false &&
           spool.counts.triangles > 0 &&
           ((!checkpoints.length && publishedPairs >= 5) ||
             spool.counts.chunks >= nextCheckpoint)
@@ -493,6 +466,20 @@ export function reconstructRecoveryLocal(
       });
     }
   }
-  const saved: ReturnType<typeof publish> = publish(output, true);
-  return { ...saved, counts: counts(), checkpoints };
+  frontier = spool.commit(`${output}.frontier-final.json`, {
+    binding,
+    baseCheckpoint,
+    runs,
+    completedPairs,
+    publishedPairs,
+    failedRunPairs,
+    omittedIntervals,
+    currentRun: null,
+  });
+  const saved: ReturnType<typeof publish> = publish(
+    output,
+    true,
+    "final-attempt",
+  );
+  return { ...saved, counts: counts(), checkpoints, baseCheckpoint, frontier };
 }

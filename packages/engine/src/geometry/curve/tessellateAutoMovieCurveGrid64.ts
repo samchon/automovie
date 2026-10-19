@@ -8,6 +8,7 @@ import { AutoMoviePchipField64 } from "./AutoMoviePchipField64";
 import type { IAutoMovieCurve64 } from "./IAutoMovieCurve64";
 import type { IAutoMovieCurveGrid64 as C } from "./IAutoMovieCurveGrid64";
 import { assertAutoMovieCurve64 } from "./assertAutoMovieCurve64";
+import { compileAutoMovieNormalizedPhases64 } from "./compileAutoMovieNormalizedPhases64";
 
 type Row = { interval: number; t: number; station: number };
 type SpanFamily = { grids: B.Grid[] };
@@ -82,16 +83,10 @@ export function tessellateAutoMovieCurveGrid64(input: C.Input): C.Result {
         course.phaseUnit !== "normalized"
       )
         throw new Error("Open normalized millimetre cubic courses required");
-      const knots: number[] = [0];
-      for (const width of course.phaseIntervals)
-        knots.push(knots.at(-1)! + width);
-      if (Math.abs(knots.at(-1)! - 1) > 32 * Number.EPSILON)
-        throw new Error(
-          "Every course must cover the same normalized unit chart",
-        );
-      // Only the summed chart endpoint is canonicalized; interior boundaries retain their supplied arithmetic.
-      knots[knots.length - 1] = 1;
-      return knots;
+      return compileAutoMovieNormalizedPhases64(
+        course.phaseIntervals,
+        course.spans.length,
+      );
     },
   );
   const common: number[] = [...new Set(partitions.flat())].sort(

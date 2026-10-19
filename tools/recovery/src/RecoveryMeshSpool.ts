@@ -15,9 +15,9 @@ import { writeRecoveryArtifact } from "./writeRecoveryArtifact.ts";
  * @evidence contracts/common.md#clear-and-simple-design One closure owns generated mesh placeholders, bounded pending arrays, fragment bindings and prefix publication.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No source mesh, coordinate weld, numeric rounding, chunk-local duplicated boundary or replacement of existing output is permitted.
  * @evidence contracts/common.md#meaningful-documentation States units, append-only indices, generated ownership and immutable prefix semantics.
- * @evidence contracts/performance.md#efficient-algorithms Appending and final serialization are linear in generated values; each published prefix rereads its immutable fragments to verify bytes and produce a standalone viewer artifact.
+ * @evidence contracts/performance.md#efficient-algorithms Appending and final serialization are linear in generated values. Each frontier serializes only new fragment bindings plus its caller-supplied context; repeated context has its own cumulative cost. Each standalone prefix rereads its immutable fragments to verify bytes and assemble the artifact.
  * @evidence contracts/performance.md#reuse-equivalent-work The same generated fragments serve successive explicit prefixes and final output; shared vertices are written once rather than copied into separate mesh parts.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Pending arrays flush at 8192 values plus the current bounded engine chunk; retained fragment descriptors grow with output chunks, not output numeric buffers. Publication owns temporary descriptors through the writer; immutable spool files remain lineage artifacts.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources All seven pending channels flush at 8192 items or a one-MiB encoded-size upper estimate, plus one indivisible admitted record. Fragment and frontier descriptors grow with persisted output. Publication owns temporary descriptors through the writer; immutable spool and journal files remain lineage artifacts.
  */
 export function RecoveryMeshSpool(
   directory: string,
@@ -36,6 +36,11 @@ export function RecoveryMeshSpool(
       pairs: readonly number[];
     },
   ) => void;
+  /** Flush every channel and publish new fragment bindings, the exact predecessor and plain caller-owned provenance. This persists a finite prefix, not a resumed iterator. */
+  commit: (
+    output: string,
+    context: object,
+  ) => { path: string; sha256: string; bytes: number };
   publish: (
     output: string,
     artifact: object,
@@ -44,10 +49,13 @@ export function RecoveryMeshSpool(
   if (fs.existsSync(directory))
     throw new Error("A generating mesh spool must be new");
   fs.mkdirSync(directory, { recursive: true });
-  type Binding = { path: string; sha256: string; items: number };
+  type Binding = { path: string; sha256: string; bytes: number; items: number };
   type Channel = {
     target: unknown[];
     pending: unknown[];
+    pendingBytes: number;
+    items: number;
+    committedFiles: number;
     files: Binding[];
     name: string;
   };
@@ -70,6 +78,9 @@ export function RecoveryMeshSpool(
     (target: unknown[], i: number): Channel => ({
       target,
       pending: [],
+      pendingBytes: 2,
+      items: 0,
+      committedFiles: 0,
       files: [],
       name: [
         "positions",
@@ -95,6 +106,8 @@ export function RecoveryMeshSpool(
     triangles: 0,
     chunks: 0,
   };
+  let previous: { path: string; sha256: string; bytes: number } | null = null;
+  let sequence: number = 0;
   const flush: (channel: Channel) => void = (channel: Channel): void => {
     if (!channel.pending.length) return;
     const file: string = path.join(
@@ -104,22 +117,35 @@ export function RecoveryMeshSpool(
     const published: ReturnType<typeof writeRecoveryArtifact> =
       writeRecoveryArtifact(file, channel.pending);
     channel.files.push({
-      path: file,
-      sha256: published.sha256,
+      path: path.resolve(file),
+      ...published,
       items: channel.pending.length,
     });
     channel.pending = [];
+    channel.pendingBytes = 2;
   };
   const appendValues: (channel: Channel, values: readonly unknown[]) => void = (
     channel: Channel,
     values: readonly unknown[],
   ): void => {
     for (const value of values) {
+      // A finite binary64 JSON number occupies at most 25 ASCII bytes. Structured
+      // records need their actual UTF-8 size; their indivisible size is caller-owned.
+      const bytes: number =
+        typeof value === "number"
+          ? 25
+          : Buffer.byteLength(JSON.stringify(value) ?? "null", "utf8");
+      if (
+        channel.pending.length &&
+        channel.pendingBytes + bytes + 1 > 1_048_576
+      )
+        flush(channel);
       channel.pending.push(value);
-      if (channel.pending.length >= 8192) flush(channel);
+      channel.pendingBytes += bytes + 1;
+      channel.items++;
+      if (channel.pending.length >= 8192 || channel.pendingBytes >= 1_048_576)
+        flush(channel);
     }
-    if (channel.target === construction || channel.target === ownership)
-      flush(channel);
   };
   appendValues(channels[5]!, initialConstruction);
   return {
@@ -191,6 +217,45 @@ export function RecoveryMeshSpool(
       counts.vertices += count;
       counts.triangles += chunk.indices.length / 3;
       counts.chunks++;
+    },
+    commit: (
+      output: string,
+      context: object,
+    ): { path: string; sha256: string; bytes: number } => {
+      for (const channel of channels) flush(channel);
+      if (
+        channels[0]!.items !== counts.vertices * 3 ||
+        channels[1]!.items !== counts.vertices * 3 ||
+        channels[2]!.items !== counts.triangles * 3 ||
+        channels[3]!.items !== counts.vertices ||
+        channels[4]!.items !== counts.vertices ||
+        channels[6]!.items !== counts.chunks
+      )
+        throw new Error(
+          "A mesh frontier requires every channel at the same admitted chunk",
+        );
+      const record: object = {
+        schema: "recovery-mesh-spool-frontier-v1",
+        directory: path.resolve(directory),
+        sequence,
+        previous,
+        counts: { ...counts },
+        context,
+        channels: channels.map((channel: Channel): object => ({
+          name: channel.name,
+          items: channel.items,
+          files: channel.files.slice(channel.committedFiles),
+        })),
+        qualification:
+          "All referenced channels end at one complete admitted engine chunk. Context retains source and run provenance; generator resumption requires separate verified replay.",
+      };
+      const saved: ReturnType<typeof writeRecoveryArtifact> =
+        writeRecoveryArtifact(output, record);
+      previous = { path: path.resolve(output), ...saved };
+      sequence++;
+      for (const channel of channels)
+        channel.committedFiles = channel.files.length;
+      return { ...previous };
     },
     publish: (
       output: string,

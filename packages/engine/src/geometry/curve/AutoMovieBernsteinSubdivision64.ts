@@ -18,17 +18,20 @@ import { AutoMovieCurveMath64 as V } from "./AutoMovieCurveMath64";
  */
 export namespace AutoMovieBernsteinSubdivision64 {
   /**
-   * Split a vector polynomial at t by De Casteljau, preserving both parameter restrictions.
+   * Split a nonempty vector polynomial, preserving exact endpoint restrictions at t=0 and t=1.
    *
-   * @evidence contracts/common.md#principled-implementation Every De Casteljau level contributes its first and last value to the two child nets.
+   * @evidence contracts/common.md#principled-implementation At t=0 or t=1, one child is the copied original polynomial and the other is the repeated endpoint coefficient of the same degree. Other parameters use one De Casteljau triangle for both child nets, preserving the existing interior arithmetic and common junction.
    * @evidence contracts/common.md#clear-and-simple-design Both restrictions share one reduction triangle.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No curve sampling, degree reduction or implicit chart reversal occurs.
-   * @evidence contracts/common.md#meaningful-documentation Split a vector polynomial at t by De Casteljau, preserving both parameter restrictions.
-   * @evidence contracts/performance.md#efficient-algorithms Degree n takes O(n²) vector blends and linear child storage.
+   * @evidence contracts/common.md#meaningful-documentation States the nonempty input, exact degenerate endpoint restrictions, preserved degree and independently owned child arrays.
+   * @evidence contracts/performance.md#efficient-algorithms Endpoint splits copy O(n) vectors; other parameters take O(n²) vector blends with linear child storage.
    * @evidence contracts/performance.md#reuse-equivalent-work The same reduction levels produce both children rather than evaluating them independently.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Each child owns its copied controls and the temporary levels expire.
    */
   export function split(c: readonly B.Vec[], t: number): [B.Poly, B.Poly] {
+    if (t === 0) return [c.map((): B.Vec => V.clone(c[0]!)), c.map(V.clone)];
+    if (t === 1)
+      return [c.map(V.clone), c.map((): B.Vec => V.clone(c.at(-1)!))];
     let row: B.Poly = c.map(V.clone);
     const a: B.Poly = [V.clone(row[0]!)],
       b: B.Poly = [V.clone(row.at(-1)!)];

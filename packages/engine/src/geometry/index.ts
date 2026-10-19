@@ -76,3 +76,6 @@ export * from "./fitAutoMovieSubdivisionRegions";
 export * from "./evaluateSubdivisionLevel";
 export * from "./intersectAutoMovieConvexPolygons";
 export * from "./integrateAutoMovieRadialField";
+export * from "./admitAutoMovieBicubicAtlas";
+export * from "./realizeAutoMovieBicubicAtlas64";
+export * from "./realizeAutoMovieGeometry";

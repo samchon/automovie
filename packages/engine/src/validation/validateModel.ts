@@ -18,6 +18,7 @@ import type {
   IAutoMovieValidation,
 } from "@automovie/interface";
 
+import { admitAutoMovieBicubicAtlas } from "../geometry/admitAutoMovieBicubicAtlas";
 import { validateJointAxesBasis } from "../kinematics/validateJointAxesBasis";
 import { ViolationCollector } from "./ViolationCollector";
 import { collectNonEmptyId } from "./collectNonEmptyId";
@@ -177,6 +178,27 @@ export const validateModel: (props: {
           boneNames,
           collector,
         );
+        break;
+      case "bicubic-atlas":
+        try {
+          for (const diagnostic of admitAutoMovieBicubicAtlas(part.geometry)
+            .diagnostics)
+            collector.push(
+              "type",
+              `${pp}.geometry`,
+              diagnostic,
+              part.geometry,
+              undefined,
+              "warning",
+            );
+        } catch (cause: unknown) {
+          collector.push(
+            "type",
+            `${pp}.geometry`,
+            cause instanceof Error ? cause.message : String(cause),
+            part.geometry,
+          );
+        }
         break;
       default: {
         const unknown: { type: unknown } = part.geometry as { type: unknown };

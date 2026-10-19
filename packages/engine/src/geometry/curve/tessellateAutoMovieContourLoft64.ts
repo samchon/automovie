@@ -1,13 +1,14 @@
-import { AutoMovieBernsteinSubdivision64 as S } from "./AutoMovieBernsteinSubdivision64";
 import { AutoMovieContourLoftCurves64 as curves } from "./AutoMovieContourLoftCurves64";
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
 import { IAutoMovieContourLoft64 } from "./IAutoMovieContourLoft64";
 import type { IAutoMovieContourLoftWork64 } from "./IAutoMovieContourLoftWork64";
-import { IAutoMovieCurve64 } from "./IAutoMovieCurve64";
+import { computeAutoMovieContourNormals64 } from "./computeAutoMovieContourNormals64";
 import { planAutoMovieContourSlabs64 } from "./planAutoMovieContourSlabs64";
 import { planAutoMovieContourWalks64 } from "./planAutoMovieContourWalks64";
 import { prepareAutoMovieContourBoundaries64 } from "./prepareAutoMovieContourBoundaries64";
 import { prepareAutoMovieContourDocument64 } from "./prepareAutoMovieContourDocument64";
+import { sampleAutoMovieContourRing64 } from "./sampleAutoMovieContourRing64";
+import { splitAutoMovieContourLeaf64 } from "./splitAutoMovieContourLeaf64";
 import { tessellateAutoMovieContourStrip64 } from "./tessellateAutoMovieContourStrip64";
 
 /** Physical mutable vector used only during this generation. */
@@ -18,8 +19,7 @@ type StripObservation = Omit<
   "beforeMm" | "afterMm" | "group"
 >;
 /** Local vector operations retain the engine's binary64 arithmetic and input units. */
-const add: typeof M.add = M.add,
-  sub: typeof M.sub = M.sub,
+const sub: typeof M.sub = M.sub,
   mul: typeof M.scale = M.scale;
 /** Oriented three-dimensional area vector in the supplied common chart. */
 const cross: (a: V3, b: V3) => V3 = (a: V3, b: V3): V3 => [
@@ -52,7 +52,11 @@ type Slab = IAutoMovieContourLoftWork64.Slab;
  * Unrepresentable curve boundaries or source identities remain local unresolved groups.
  * Finite positive-area tiles remain displayable when incidence, links or orientation are unqualified.
  * Strip observations distinguish quality diagnostics and computational work from missing geometry.
- * A failed curve representation retains its finite generating endpoint in construction only.
+ * A failed millimetre cubic retains its dense finite endpoint in construction only; an untrusted endpoint leaves empty construction. Addressable malformed events remain local diagnostics.
+ * A closest polygon-chord slit selects a source phase; its actual point and child
+ * restrictions come from that saved polynomial. Child chord bounds and shared
+ * ring interactions are re-established before emission. The final bridge is not
+ * certified globally closest, nonintersecting or embedded.
  *
  * @evidence contracts/common.md#principled-implementation Original Bernstein leaves retain their source restrictions; interaction-driven subdivision reaches one shared preparation state before slit selection. Signed incidence and conflict-constrained tiling seek qualified connectivity. Interior phases advance within the actual source leaf, including constant-interval quotients. Source identity failures remain unresolved; finite tiles survive quality failures with actual primitive ranges and separate work observations.
  * @evidence contracts/common.md#clear-and-simple-design The caller supplies curves and topology only; one operation owns correspondence, shared slit refinement, new mesh emission and its actual construction.
@@ -67,6 +71,7 @@ export function tessellateAutoMovieContourLoft64(
 ): IAutoMovieContourLoft64.IResult {
   const document: ReturnType<typeof prepareAutoMovieContourDocument64> =
     prepareAutoMovieContourDocument64(input);
+  const events: IAutoMovieContourLoft64.IEvent[] = document.declaredEvents;
   const vertices: V3[] = [],
     triangles: [number, number, number][] = [];
   const unresolved: IAutoMovieContourLoft64.IResult["unresolved"] = [];
@@ -81,7 +86,10 @@ export function tessellateAutoMovieContourLoft64(
   const keys: WeakMap<V3, string> = new WeakMap();
   const phases: WeakMap<V3, number> = new WeakMap();
   const leaves: WeakMap<V3, curves.Leaf> = new WeakMap();
-  const register = (ring: Ring, knot: curves.Knot): void => {
+  const register: (ring: Ring, knot: curves.Knot) => void = (
+    ring: Ring,
+    knot: curves.Knot,
+  ): void => {
     owners.set(knot.p, ring);
     phases.set(knot.p, knot.phase);
     keys.set(knot.p, `${ring.id}:phase:${knot.phase}`);
@@ -91,43 +99,15 @@ export function tessellateAutoMovieContourLoft64(
   const allRings: Ring[][] = document.slices.map(
     (slice: Slice, si: number): Ring[] =>
       slice.loops.map((loop: Observation, li: number): Ring => {
-        let knots: curves.Knot[];
-        let unsupported: string | undefined;
-        try {
-          knots = curves.tessellate(loop.curve, sampleToleranceMm);
-        } catch (failure: unknown) {
-          const endpoint: IAutoMovieCurve64.Vector | undefined =
-            loop.curve.spans[0]?.[0];
-          if (endpoint === undefined || !endpoint.every(Number.isFinite))
-            throw failure;
-          knots = [{ p: M.clone(endpoint), phase: 0 }];
-          unsupported = `Generating curve representation unresolved: ${failure instanceof Error ? failure.message : String(failure)}`;
-        }
-        const points: V3[] = knots.map((k: curves.Knot): V3 => k.p);
-        try {
-          if (
-            unsupported === undefined &&
-            (!curves.hasArea(points) ||
-              points.some((p: V3, i: number): boolean =>
-                p.every(
-                  (x: number, k: number): boolean =>
-                    x === points[(i + 1) % points.length][k],
-                ),
-              ))
-          )
-            unsupported =
-              "Generating closed curve has no noncollapsed two-dimensional sampled boundary";
-        } catch (failure: unknown) {
-          unsupported = `Generating curve rank unresolved: ${failure instanceof Error ? failure.message : String(failure)}`;
-        }
+        const sampled: ReturnType<typeof sampleAutoMovieContourRing64> =
+          sampleAutoMovieContourRing64(loop.curve, sampleToleranceMm);
+        const { knots, unsupported }: typeof sampled = sampled;
+        const points: V3[] = knots.map((knot: curves.Knot): V3 => knot.p);
         const ring: Ring = {
-          id: `${loop.curve.name}.section.${si}.loop.${li}`,
+          id: `${sampled.name || "unresolved"}.section.${si}.loop.${li}`,
           points: loop.winding < 0 ? [...points].reverse() : points,
           winding: loop.winding,
-          period: loop.curve.phaseIntervals.reduce(
-            (a: number, b: number): number => a + b,
-            0,
-          ),
+          period: sampled.period,
           ...(unsupported === undefined ? {} : { unsupported }),
         };
         knots.forEach((k: curves.Knot): void => register(ring, k));
@@ -135,7 +115,7 @@ export function tessellateAutoMovieContourLoft64(
       }),
   );
 
-  const index = (p: V3): number => {
+  const index: (p: V3) => number = (p: V3): number => {
     const key: string | undefined = keys.get(p);
     if (key === undefined)
       throw new Error(
@@ -147,14 +127,23 @@ export function tessellateAutoMovieContourLoft64(
     }
     return vertexMap.get(key)!;
   };
-  const triangle = (a: V3, b: V3, c: V3): void => {
+  const triangle: (a: V3, b: V3, c: V3) => void = (
+    a: V3,
+    b: V3,
+    c: V3,
+  ): void => {
     const ia: number = index(a),
       ib: number = index(b),
       ic: number = index(c);
     triangles.push([ia, ib, ic]);
   };
   let contourMutable: boolean = true;
-  const inserted = (p: V3, a: V3, b: V3, t: number): void => {
+  const inserted: (p: V3, a: V3, b: V3, t: number) => void = (
+    p: V3,
+    a: V3,
+    b: V3,
+    t: number,
+  ): void => {
     const owner: Ring | undefined = owners.get(a);
     if (!owner || owners.get(b) !== owner)
       throw new Error(
@@ -204,16 +193,6 @@ export function tessellateAutoMovieContourLoft64(
     const existing: V3 | undefined = owner.points.find(
       (q: V3): boolean => keys.get(q) === key,
     );
-    if (
-      existing !== undefined &&
-      existing.some((x: number, k: number): boolean => x !== p[k])
-    )
-      throw new Error(
-        "One contour source phase has conflicting physical slit points",
-      );
-    owners.set(p, owner);
-    phases.set(p, phase);
-    keys.set(p, key);
     if (t > 0 && t < 1 && existing === undefined) {
       if (!contourMutable)
         throw new Error(
@@ -222,25 +201,53 @@ export function tessellateAutoMovieContourLoft64(
       const at: number = owner.points.indexOf(a);
       if (at < 0 || owner.points[(at + 1) % owner.points.length] !== b)
         throw new Error("Generating contour subdivision lost adjacency");
-      if (source !== undefined) {
-        const halves: ReturnType<typeof S.split> = S.split(
-          curves.controls(source),
-          owner.winding > 0 ? t : 1 - t,
+      if (source === undefined)
+        throw new Error(
+          "Interior source slit has no retained polynomial restriction",
         );
-        leaves.set(positiveStart, {
-          net: halves[0],
-          start: source.start,
-          end: unwrapped,
-          depth: source.depth + 1,
-        });
-        leaves.set(p, {
-          net: halves[1],
-          start: unwrapped,
-          end: source.end,
-          depth: source.depth + 1,
-        });
+      const split: ReturnType<typeof splitAutoMovieContourLeaf64> =
+        splitAutoMovieContourLeaf64(source, unwrapped, sampleToleranceMm);
+      // join owns this fresh point. Its chord fraction chooses a phase, while
+      // the source restriction owns the physical point used by every incident walk.
+      for (let axis: number = 0; axis < 3; axis++) p[axis] = split.point[axis];
+      const children: curves.Leaf[] = [...split.before, ...split.after];
+      const knots: curves.Knot[] = children.slice(1).map(
+        (child: curves.Leaf): curves.Knot => ({
+          p: child.start === unwrapped ? p : M.clone(curves.controls(child)[0]),
+          phase: child.start,
+          leaf: child,
+        }),
+      );
+      for (const knot of knots) {
+        const previous: V3 | undefined = owner.points.find(
+          (point: V3): boolean =>
+            keys.get(point) === `${owner.id}:phase:${knot.phase}`,
+        );
+        if (previous !== undefined)
+          throw new Error(
+            "Source slit child phase already has a distinct contour occurrence",
+          );
       }
-      owner.points.splice(at + 1, 0, p);
+      leaves.set(positiveStart, children[0]);
+      for (const knot of knots) register(owner, knot);
+      owner.points.splice(
+        at + 1,
+        0,
+        ...(owner.winding > 0 ? knots : [...knots].reverse()).map(
+          (knot: curves.Knot): V3 => knot.p,
+        ),
+      );
+    } else {
+      if (
+        existing !== undefined &&
+        existing.some((x: number, k: number): boolean => x !== p[k])
+      )
+        throw new Error(
+          "One contour source phase has conflicting physical slit points",
+        );
+      owners.set(p, owner);
+      phases.set(p, phase);
+      keys.set(p, key);
     }
   };
   const walks: ReturnType<typeof planAutoMovieContourWalks64<Ring>> =
@@ -253,7 +260,7 @@ export function tessellateAutoMovieContourLoft64(
     slices: document.slices,
     rings: allRings,
     events: document.events,
-    declaredEvents: input.events,
+    declaredEvents: events,
     intervals: input.intervals,
   });
 
@@ -292,7 +299,11 @@ export function tessellateAutoMovieContourLoft64(
       const pendingFaces: Set<string> = new Set();
       const pendingEdges: Map<string, { uses: number; orientation: number }> =
         new Map();
-      const stage = (p: V3, q: V3, r: V3): void => {
+      const stage: (p: V3, q: V3, r: V3) => void = (
+        p: V3,
+        q: V3,
+        r: V3,
+      ): void => {
         const ids: (string | undefined)[] = [
           keys.get(p),
           keys.get(q),
@@ -398,7 +409,7 @@ export function tessellateAutoMovieContourLoft64(
             kind: group.a.length && group.b.length ? "strip" : "cap",
             eventNames: group.critical.map(
               (event: Critical): string =>
-                input.events[document.events.indexOf(event)].name,
+                events[document.events.indexOf(event)].name,
             ),
           });
         if (observation !== undefined || quality.size) {
@@ -449,18 +460,10 @@ export function tessellateAutoMovieContourLoft64(
         });
       }
     }
-  const geometricNormals: V3[] = vertices.map((): V3 => [0, 0, 0]);
-  for (const t of triangles) {
-    const n: V3 = cross(
-      sub(vertices[t[1]], vertices[t[0]]),
-      sub(vertices[t[2]], vertices[t[0]]),
-    );
-    for (const i of t) geometricNormals[i] = add(geometricNormals[i], n);
-  }
-  const normals: number[] = geometricNormals.flatMap((normal: V3): V3 => {
-    const length: number = Math.hypot(...normal);
-    return length > 0 ? mul(normal, 1 / length) : [0, 0, 0];
-  });
+  const normals: number[] = computeAutoMovieContourNormals64(
+    vertices,
+    triangles,
+  );
   return {
     primitiveRanges,
     interactionObservations: prepared.observations,

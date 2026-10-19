@@ -4,13 +4,24 @@ These tools observe a fixed oriented triangle mesh, publish independent cubic cu
 
 The observer input supplies mesh file paths and complete-byte hashes, millimetre units, registration frame, pose uncertainty and a fixed automatic section/fitting policy. Curve and continuation publications retain their input hashes. Set RUN_SOURCE_EPOCH to the generating source commit before invoking the CLI. Existing outputs are immutable.
 
-Build from the repository with `pnpm run build` on Node 22.23.2 or later. NodeNext and generated package boundaries retain the tools' ESM and the numerical packages' declared module kinds. The recovery package emits ESM entrypoints under lib/tools/recovery/src. The following command arguments are the same declared operation sequence used by the frozen reconstruction run:
+Use Node 22.23.2 or later. These private workspace tools are not a distributable recovery package. Their default TypeScript configuration checks source without emitting a CLI; `pnpm run build` alone does not create the following entrypoints. For an explicit local CLI build, retain NodeNext, rewrite relative TypeScript extensions and restore the relocated numerical packages' declared module kinds:
+
+```sh
+pnpm exec ttsc -p tools/recovery/tsconfig.json --noEmit false --rootDir . --outDir tools/recovery/lib --rewriteRelativeImportExtensions
+node --experimental-strip-types tools/recovery/src/writeRecoveryModuleBoundaries.ts . tools/recovery/lib
+```
+
+Set `RUN_SOURCE_EPOCH` to the complete generating commit hash. The saved-curve operation sequence is:
 
 ```sh
 node tools/recovery/lib/tools/recovery/src/recovery.js extract input.json curves.json
 node tools/recovery/lib/tools/recovery/src/recoveryOpen.js observe input.json curves.json continuation.json
 node tools/recovery/lib/tools/recovery/src/recoveryLocal.js curves.json continuation.json model.json ruled
 ```
+
+`recoveryLocal` also accepts `quadratic`, a `final-only` or `final-only-gzip` publication mode and an optional analytic publication after that mode. An analytic publication binds the exact curve and continuation byte hashes, replaces explicitly named coefficient authorities once and preserves retained courses outside its declared ownership. Gzip mode requires a new `model.json`, reverse-verifies the archive and reports compressed and logical byte identities separately.
+
+The public `bicubic-atlas` geometry carries model-metre Bernstein controls, explicit chart and boundary identities, approximation limits and cell budgets. The engine generates metre geometry through `realizeAutoMovieBicubicAtlas64`; CPU geometry consumers and the viewer use that same owner. `recoveryAtlas` separates source observation from source-free recipe compilation. The event, field-complex, chart fitting and transport helpers have bounded synthetic regression coverage; the complete experimental upstream producer chain has not been promoted into this maintained tool. This snapshot does not reproduce every experimental whole-object result from an original mesh.
 
 The historical `human-reference-engine-model-v1` artifact discriminator identifies the existing generic engine-model envelope; it does not select a Human generator. The returned document contains an existing interface model with mesh parts, generated engine normals and explicit processing/coverage diagnostics. The existing viewer mesh path consumes that model. Construction and physical vertex ownership are part of the original publication; a derived surface-only transport must declare omitted fields rather than claim full document identity.
 

@@ -25,3 +25,5 @@ export * from "./tessellateAutoMovieContourLoft64";
 export * from "./tessellateAutoMovieContourStrip64";
 export * from "./tessellateAutoMovieCurveGrid64";
 export * from "./tessellateAutoMovieLocalHermite64";
+export * from "./tessellateAutoMovieBicubicAtlas64";
+export * from "./tessellateAutoMovieContourPath64";

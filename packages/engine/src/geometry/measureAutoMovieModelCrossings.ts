@@ -10,6 +10,7 @@ import { transformAutoMovieDrawingPoint } from "../drawing/transformAutoMovieDra
 import { IAutoMovieMeshCrossing } from "./IAutoMovieMeshCrossing";
 import { IAutoMovieModelCrossing } from "./IAutoMovieModelCrossing";
 import { measureAutoMovieMeshCrossings } from "./measureAutoMovieMeshCrossings";
+import { realizeAutoMovieGeometry } from "./realizeAutoMovieGeometry";
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
 /**
@@ -19,8 +20,9 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * Each mesh part is first carried into the model frame by its own transform
  * and, when attached to a bone the rest pose resolves, by that bone's rest
  * placement, the placement `autoMovieModelPartMatrices` owns; a part with
- * neither keeps its coordinates exactly. Parts whose geometry is not a mesh
- * are skipped. A pair appears once, in model part order, only when at least
+ * neither keeps its coordinates exactly. Bicubic recipes use the canonical
+ * engine's retained finite mesh, including declared partial output; primitives
+ * remain outside this mesh crossing query. A pair appears once, in model part order, only when at least
  * one triangle on either side is crossed, with each side's crossed triangle
  * count and their combined coplanar count. Touching is not crossing: the
  * underlying `measureAutoMovieMeshCrossings` test is strict, so shells meeting
@@ -68,9 +70,9 @@ export function measureAutoMovieModelCrossings(
     autoMovieModelPartMatrices(model);
   const parts: IPlacedPart[] = [];
   for (const part of model.parts) {
-    if (part.geometry.type !== "mesh") continue;
+    if (part.geometry.type === "primitive") continue;
     const mesh: IAutoMovieMesh = place(
-      part.geometry.mesh,
+      realizeAutoMovieGeometry(part.geometry).mesh,
       matrices.get(part) ?? null,
       part.id,
     );
@@ -148,7 +150,11 @@ interface IPlacedPart {
 }
 
 /** A mesh with its positions carried into the model frame. */
-const place = (
+const place: (
+  mesh: IAutoMovieMesh,
+  matrix: number[] | null,
+  id: string,
+) => IAutoMovieMesh = (
   mesh: IAutoMovieMesh,
   matrix: number[] | null,
   id: string,
@@ -168,7 +174,10 @@ const place = (
 };
 
 /** The componentwise extrema of a mesh's positions. */
-const bounds = (mesh: IAutoMovieMesh): { low: number[]; high: number[] } => {
+const bounds: (mesh: IAutoMovieMesh) => {
+  low: number[];
+  high: number[];
+} = (mesh: IAutoMovieMesh): { low: number[]; high: number[] } => {
   const low: number[] = [Infinity, Infinity, Infinity];
   const high: number[] = [-Infinity, -Infinity, -Infinity];
   for (let at: number = 0; at < mesh.positions.length; at += 3)

@@ -14,7 +14,8 @@ interface Plans<R extends Ring> {
 /**
  * Freezes branch slit choices before emission and expands them through shared contour refinements.
  * All prepare calls must finish before the first resolve; ring order and point identities remain fixed.
- * Closest slits are chosen once. Subsequent cuts of the same sheet edge enrich that walk without
+ * Polygon-chord slit parameters are chosen once; the insertion callback supplies
+ * the actual source-authoritative endpoint. Subsequent cuts of the same sheet edge enrich that walk without
  * recomputing a nearest point or welding separate sheets by their coordinates.
  *
  * @evidence contracts/common.md#principled-implementation A fixed slit walk retains declared point identity while later shared boundary insertions are expanded in the original oriented sheet order.
@@ -38,9 +39,15 @@ export function planAutoMovieContourWalks64<R extends Ring>(
   const walks: Map<string, AutoMovieCurveMath64.V[]> = new Map();
   const indices: Map<R, Map<string, number>> = new Map();
   let resolving: boolean = false;
-  const name = (rings: R[], selection: number[]): string =>
+  const name: (rings: R[], selection: number[]) => string = (
+    rings: R[],
+    selection: number[],
+  ): string =>
     JSON.stringify(selection.map((index: number): string => rings[index].id));
-  const prepare = (rings: R[], selection: number[]): void => {
+  const prepare: (rings: R[], selection: number[]) => void = (
+    rings: R[],
+    selection: number[],
+  ): void => {
     if (resolving)
       throw new Error("Contour walk preparation followed surface resolution");
     if (selection.length < 2) return;
@@ -55,7 +62,10 @@ export function planAutoMovieContourWalks64<R extends Ring>(
       );
     walks.set(key, points);
   };
-  const resolve = (
+  const resolve: (
+    rings: R[],
+    selection: number[],
+  ) => AutoMovieCurveMath64.V[] = (
     rings: R[],
     selection: number[],
   ): AutoMovieCurveMath64.V[] => {

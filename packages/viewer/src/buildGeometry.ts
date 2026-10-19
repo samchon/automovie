@@ -1,4 +1,8 @@
-import { type ITessellation, tessellate } from "@automovie/engine";
+import {
+  type ITessellation,
+  realizeAutoMovieBicubicAtlas64,
+  tessellate,
+} from "@automovie/engine";
 import {
   IAutoMovieGeometry,
   type IAutoMovieMesh,
@@ -11,7 +15,7 @@ import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResou
 
 /**
  * Build a `three.js` geometry from a automovie geometry node: tessellating a
- * parametric primitive (via the engine) or uploading raw mesh arrays. Morph
+ * parametric primitive or bicubic atlas through its engine owner, or uploading raw mesh arrays. Finite partial atlas output remains drawable with its processing diagnostics. Morph
  * targets become relative `morphAttributes` named after their targets, which a
  * mesh constructed on the geometry lists in `morphTargetDictionary`.
  * Its buffer object is owned before tessellation or attribute initialization;
@@ -58,7 +62,16 @@ export const buildGeometry: (
         geo.setIndex(t.indices);
         return geo;
       }
-      const mesh: IAutoMovieMesh = geometry.mesh;
+      let mesh: IAutoMovieMesh;
+      if (geometry.type === "bicubic-atlas") {
+        const realized: ReturnType<typeof realizeAutoMovieBicubicAtlas64> =
+          realizeAutoMovieBicubicAtlas64(geometry);
+        mesh = realized.mesh;
+        geo.userData.automovieAtlasRealization = {
+          complete: realized.complete,
+          diagnostics: realized.diagnostics,
+        };
+      } else mesh = geometry.mesh;
       geo.setAttribute(
         "position",
         new THREE.Float32BufferAttribute(mesh.positions, 3),
