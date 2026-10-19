@@ -255,8 +255,8 @@ export function mountRecoveryViewerPage(root: HTMLElement): {
       .getContext()
       .getParameter(mount.renderer.getContext().VERSION),
   });
-  const report: (work: () => Promise<void> | void) => void = (
-    work: () => Promise<void> | void,
+  const report: (work: (() => Promise<void>) | (() => void)) => void = (
+    work: (() => Promise<void>) | (() => void),
   ): void => {
     Promise.resolve()
       .then(work)

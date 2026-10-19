@@ -130,7 +130,7 @@ export async function createRecoveryViewerCandidate(text: string): Promise<{
       byte.toString(16).padStart(2, "0"),
     ).join("");
   };
-  const retirements: (() => void | Promise<void>)[] = [];
+  const retirements: ((() => void) | (() => Promise<void>))[] = [];
   try {
     const generated: ReturnType<typeof buildModel> = buildModel(
       compiled.value.model,
