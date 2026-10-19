@@ -1,9 +1,11 @@
 import type { IAutoMovieRecoveryImageLoft } from "@automovie/interface/recovery";
 import {
+  type IAutoMovieViewerCompletedFrame,
   captureAutoMovieMetricFrame,
   createAutoMovieMetricOrthographicCamera,
   createAutoMovieResourceRetirement,
   mountViewer,
+  updateAutoMovieComparisonCamera,
 } from "@automovie/viewer";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
@@ -16,10 +18,13 @@ import { readRecoveryViewerDocument } from "./readRecoveryViewerDocument";
  * independent reference model. Surface, overlay and construction use identical
  * cameras and the same generating coefficients; reference and generated subjects
  * retain their own normals under the same neutral light/material conditions.
+ * Paired subjects share one parallel projection and screen-right separation;
+ * single-subject inspection retains the ordinary perspective controls.
+ * This static inspector's authored time is zero; receipts record UTC capture time.
  * Invalid loads preserve the last valid displayed resources. This host performs
  * no image fitting and makes no photographic or unseen-surface fidelity claim.
  *
- * @evidence contracts/common.md#principled-implementation Public recipe compilation and viewer model/construction builders supply one inspected candidate. OrbitControls and numeric preset operations share the same camera; file bytes, generated model identity, view, pass and capture time are recorded from the actual loaded state.
+ * @evidence contracts/common.md#principled-implementation Public recipe compilation and viewer model/construction builders supply one inspected candidate. OrbitControls and presets define one pose; single/pair draws select the actual perspective/parallel camera, reported with file/model identity, projection, display transforms, pass and capture time.
  * @evidence contracts/common.md#clear-and-simple-design This playground host owns controls and inspection receipts; recovery owns saved-coefficient admission, the engine owns geometry and the viewer owns native drawing/resource builders.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Capture uses the displayed canvas and current subjects without substituting an overlay or capture-only model. A missing reference stays absent, invalid loads do not retire the valid candidate and no Human code or native renderer method is replaced.
  * @evidence contracts/common.md#meaningful-documentation States source-free input, optional independent reference, same-view construction passes, actual byte/model hashes, last-valid preservation, resource ownership and the limits of visual evidence.
@@ -69,6 +74,9 @@ export function mountRecoveryViewerPage(root: HTMLElement): {
     10,
   );
   const controls: OrbitControls = new OrbitControls(camera, canvas);
+  const comparison: THREE.OrthographicCamera = new THREE.OrthographicCamera();
+  const comparisonOffset: THREE.Vector3 = new THREE.Vector3();
+  let activeCamera: THREE.PerspectiveCamera | THREE.OrthographicCamera = camera;
   const hemisphere: THREE.HemisphereLight = new THREE.HemisphereLight(
     0xffffff,
     0x778396,
@@ -86,10 +94,21 @@ export function mountRecoveryViewerPage(root: HTMLElement): {
     canvas,
     scene,
     camera,
-    (): void => {
+    (): boolean => {
       controls.update();
+      activeCamera = camera;
+      return compareFrame();
     },
-    { preserveDrawingBuffer: true, pixelRatio: 1 },
+    {
+      preserveDrawingBuffer: true,
+      pixelRatio: 1,
+      completedFrame: (): Omit<IAutoMovieViewerCompletedFrame, "control"> => ({
+        scene,
+        camera: activeCamera,
+        pass: "beauty",
+        elapsedSeconds: 0,
+      }),
+    },
   );
   type Candidate = Awaited<ReturnType<typeof createRecoveryViewerCandidate>>;
   let current: Candidate | undefined,
@@ -102,9 +121,26 @@ export function mountRecoveryViewerPage(root: HTMLElement): {
     radius: number = 0.08;
   const draw: () => void = (): void => {
     if (closed) throw new Error("Recovery inspector is closed");
-    mount.renderer.render(scene, camera);
+    activeCamera = camera;
+    if (!compareFrame()) mount.renderer.render(scene, camera);
     mount.completeFrame();
   };
+  function compareFrame(): boolean {
+    if (subject !== "both" || !current) return false;
+    updateAutoMovieComparisonCamera({
+      perspective: camera,
+      comparison,
+      target: controls.target,
+      halfSeparation: radius * 0.65,
+      offset: comparisonOffset,
+    });
+    current.generated.position.copy(comparisonOffset);
+    current.construction.object.position.copy(comparisonOffset);
+    current.reference!.position.copy(comparisonOffset).multiplyScalar(-1);
+    activeCamera = comparison;
+    mount.renderer.render(scene, comparison);
+    return true;
+  }
   const visibility: () => void = (): void => {
     if (!current) return;
     if (
@@ -112,11 +148,10 @@ export function mountRecoveryViewerPage(root: HTMLElement): {
       current.reference === null
     )
       throw new Error("No independent reference model is loaded");
-    const offset: number = subject === "both" ? radius * 0.65 : 0;
-    current.generated.position.x = subject === "both" ? offset : 0;
-    current.construction.object.position.x = current.generated.position.x;
+    current.generated.position.set(0, 0, 0);
+    current.construction.object.position.set(0, 0, 0);
     if (current.reference) {
-      current.reference.position.x = -offset;
+      current.reference.position.set(0, 0, 0);
       current.reference.visible =
         subject !== "generated" && pass !== "construction";
     }
@@ -231,12 +266,29 @@ export function mountRecoveryViewerPage(root: HTMLElement): {
     referenceConstruction: "unavailable",
     pass,
     subject,
+    displayTransforms: {
+      generated: current?.generated.position.toArray() ?? null,
+      reference: current?.reference?.position.toArray() ?? null,
+      construction: current?.construction.object.position.toArray() ?? null,
+    },
     camera: {
-      position: camera.position.toArray(),
+      type: activeCamera.type,
+      position: activeCamera.position.toArray(),
       target: controls.target.toArray(),
-      fov: camera.fov,
-      near: camera.near,
-      far: camera.far,
+      fov: activeCamera === camera ? camera.fov : null,
+      orthographicFrustum:
+        activeCamera === comparison
+          ? [
+              comparison.left,
+              comparison.right,
+              comparison.top,
+              comparison.bottom,
+            ]
+          : null,
+      projectionMatrix: activeCamera.projectionMatrix.toArray(),
+      matrixWorld: activeCamera.matrixWorld.toArray(),
+      near: activeCamera.near,
+      far: activeCamera.far,
       aspect: camera.aspect,
     },
     resolution: [canvas.width, canvas.height],

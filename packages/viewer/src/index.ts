@@ -116,3 +116,4 @@ export * from "./IAutoMovieViewerDisplayMetadata.js";
 export * from "./IAutoMovieViewerCompletedFrame.js";
 export * from "./publishViewerCompletedFrame.js";
 export * from "./createViewerCameraState.js";
+export * from "./updateAutoMovieComparisonCamera.js";
