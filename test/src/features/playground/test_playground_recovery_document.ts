@@ -31,15 +31,21 @@ export async function test_playground_recovery_document(): Promise<void> {
   TestValidator.equals(
     "known HTTP length preserves exact bytes",
     await readRecoveryViewerDocument(
-      new Response(bytes, { headers: { "content-length": String(bytes.length) } }),
+      new Response(bytes, {
+        headers: { "content-length": String(bytes.length) },
+      }),
     ),
     text,
   );
   const variants: Response[] = [
     new Response(new Uint8Array([0xff])),
     new Response(bytes, { headers: { "content-length": "0" } }),
-    new Response(bytes, { headers: { "content-length": String(bytes.length - 1) } }),
-    new Response(bytes, { headers: { "content-length": String(bytes.length + 1) } }),
+    new Response(bytes, {
+      headers: { "content-length": String(bytes.length - 1) },
+    }),
+    new Response(bytes, {
+      headers: { "content-length": String(bytes.length + 1) },
+    }),
   ];
   for (const source of variants) {
     let refused: boolean = false;

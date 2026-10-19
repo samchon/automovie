@@ -162,13 +162,21 @@ export function test_recovery_image_loft(): void {
       defect <= 0.5,
     );
   }
-  for (const mutation of ["fractional", "gap"]) {
+  for (const mutation of ["fractional", "gap", "disconnected"]) {
     const corrupted: IAutoMovieRecoveryImageObservation = observe(
-      recoveryImageFixture(),
+      recoveryImageFixture(
+        mutation === "disconnected"
+          ? { profile: (): [number, number, number, number] => [2, 1, 0, 0] }
+          : {},
+      ),
     );
     if (mutation === "fractional")
       corrupted.views[0].rows[2].lowerMm += 0.03125;
-    else corrupted.views[0].rows.splice(2, 1);
+    else if (mutation === "gap") corrupted.views[0].rows.splice(2, 1);
+    else {
+      corrupted.views[0].rows[200].lowerMm += 5;
+      corrupted.views[0].rows[200].upperMm += 5;
+    }
     const refusal: ReturnType<typeof fitAutoMovieRecoveryImageLoft> =
       fitAutoMovieRecoveryImageLoft(corrupted, policy);
     TestValidator.predicate(

@@ -3,8 +3,9 @@ import type { IAutoMovieRecoveryImageInput } from "./IAutoMovieRecoveryImageInpu
 /**
  * Recorded foreground support intervals in supplied camera charts.
  * Row support is a silhouette envelope, never a persistent material-edge track.
- * The initial family requires one opaque interval per occupied row; holes,
- * disconnected support, clipped foreground and missing interior rows refuse.
+ * The initial family requires one opaque interval per occupied row and one
+ * eight-connected component; holes, disconnected support, clipped foreground
+ * and missing interior rows refuse.
  *
  * @evidence contracts/common.md#principled-implementation Physical Y rows retain measured support limits, view charts and half-pixel quantization needed by inverse section fitting.
  * @evidence contracts/common.md#clear-and-simple-design Dense observations remain separate from compact generation coefficients and qualification reports.

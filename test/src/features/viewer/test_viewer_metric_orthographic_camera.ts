@@ -10,11 +10,11 @@ import { nclose } from "../internal/nclose";
  * Scenarios:
  * 1. Multiple azimuths, noncentral principal points and unequal image dimensions project independent world points correctly at ordinary and tiny positive camera distances.
  * 2. Native inverse projection returns the same pixel and parallel viewing direction at different depths.
- * 3. Invalid pitch, sparse principal points, collapsed frusta and unordered depth limits refuse.
+ * 3. Invalid pitch, sparse principal points, collapsed native inverses and unordered depth limits refuse.
  *
  * @evidence contracts/testing.md#behavioral-verification Builds actual native orthographic cameras and uses native project/unproject transforms to assert pixel coordinates and inverse-ray consistency, rather than comparing implementation matrices to themselves.
  * @evidence contracts/testing.md#independent-expectations The declared affine chart independently fixes U=u0+(cos(a)X+sin(a)Z)/pitch and V=v0-Y/pitch. Parallel rays and equality of projected pixels at different depths follow from orthographic image formation.
- * @evidence contracts/testing.md#distinguishing-cases Covers cardinal/opposite/oblique angles, off-centre principal point, physical offsets, unequal viewport sides, inverse near/far samples, sparse/nonfinite/zero numeric admission and finite-frustum overflow. GPU pixel alignment is qualified separately on the actual host.
+ * @evidence contracts/testing.md#distinguishing-cases Covers cardinal/opposite/oblique angles, off-centre principal point, physical offsets, unequal viewport sides, inverse near/far samples, sparse/nonfinite/zero numeric admission, finite-frustum overflow and a finite projection whose native inverse collapses at an extreme gauge. GPU pixel alignment is qualified separately on the actual host.
  * @evidence contracts/testing.md#execution-ownership This portable test_viewer_metric_orthographic_camera entry uses CPU native camera/vector algebra without a renderer, browser, GPU, file, native artifact or Human source.
  */
 export function test_viewer_metric_orthographic_camera(): void {
@@ -31,7 +31,10 @@ export function test_viewer_metric_orthographic_camera(): void {
   for (const sample of [1, 1e-200].flatMap(
     (distance: number): { distance: number; angle: number }[] =>
       [0, Math.PI / 2, Math.PI, 0.37, -1.13].map(
-        (angle: number): { distance: number; angle: number } => ({ distance, angle }),
+        (angle: number): { distance: number; angle: number } => ({
+          distance,
+          angle,
+        }),
       ),
   )) {
     const angle: number = sample.angle;
@@ -100,6 +103,15 @@ export function test_viewer_metric_orthographic_camera(): void {
     { ...base, farMeters: base.nearMeters },
     { ...base, azimuthRadians: NaN },
     { ...base, pixelPitchMeters: 1e308 },
+    {
+      ...base,
+      width: 2,
+      height: 2,
+      principalPointPx: [1, 1] as [number, number],
+      pixelPitchMeters: 1e110,
+      nearMeters: 1,
+      farMeters: 1e110,
+    },
     sparse,
   ]) {
     let refused: boolean = false;

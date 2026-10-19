@@ -141,7 +141,7 @@ export function fitAutoMovieRecoveryImageLoft(
           throw new Error(
             "invalid-observation: finite, ordered, positive-width support rows required",
           );
-        chart.assertRow(current, row > 0 ? view.rows[row - 1].yMm : undefined);
+        chart.assertRow(current, row > 0 ? view.rows[row - 1] : undefined);
       }
       lower = Math.max(lower, view.rows[0].yMm);
       upper = Math.min(upper, view.rows.at(-1)!.yMm);

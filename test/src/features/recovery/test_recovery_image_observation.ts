@@ -10,13 +10,13 @@ import { recoveryImageFixture } from "../internal/recoveryImageFixture";
  *
  * Scenarios:
  * 1. Three calibrated images yield four hundred ordered physical rows per view.
- * 2. Empty, border-clipped, holed and vertically disconnected foreground refuse.
+ * 2. Empty, border-clipped, holed and disconnected foreground refuse; diagonal eight-connected support remains admitted.
  * 3. Sparse camera/background/view arrays, wrong byte populations, unrepresentable pixel charts and exhausted budgets refuse.
  * 4. Cancellation and a failing progress observer preserve terminal outcome semantics.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls the public RGB observer and asserts physical row coordinates, edge limits, cloned camera ownership, explicit rejection reasons and callback/cancellation outcomes rather than source arrangement.
  * @evidence contracts/testing.md#independent-expectations Analytic pixel-centre raster truth fixes the first row at 0.125 mm and the last at 99.875 mm. Ideal measured edge error is at most half the 0.25 mm pitch; refusal follows the supported opaque one-interval contract.
- * @evidence contracts/testing.md#distinguishing-cases Covers valid extent, colour threshold, empty support, horizontal and vertical clipping/connectivity, sparse tuples/populations, exact byte length, pixel/row/view budgets and terminal callbacks. Inverse fit and independent surface generation have separate tests.
+ * @evidence contracts/testing.md#distinguishing-cases Covers valid extent, colour threshold, empty support, horizontal and vertical clipping/connectivity, eight-connected diagonals versus disjoint consecutive row intervals, sparse tuples/populations, exact byte length, pixel/row/view budgets and terminal callbacks. Inverse fit and independent surface generation have separate tests.
  * @evidence contracts/testing.md#execution-ownership The discoverable portable test_recovery_image_observation entry uses resident arrays and caller-owned AbortControllers only, with no process, filesystem, renderer, native artifact or foreign-method replacement.
  */
 export function test_recovery_image_observation(): void {
@@ -69,6 +69,17 @@ export function test_recovery_image_observation(): void {
     observeAutoMovieRecoveryImages(threshold).status,
     "refused",
   );
+  const diagonal: IAutoMovieRecoveryImageInput = recoveryImageFixture();
+  for (const view of diagonal.views) {
+    view.rgb8.fill(240);
+    for (let row: number = 100; row < 104; row++)
+      view.rgb8[3 * (row * view.width + row)] = 0;
+  }
+  TestValidator.equals(
+    "diagonal occupied cells retain eight-connected support",
+    observeAutoMovieRecoveryImages(diagonal).status,
+    "complete",
+  );
   const variants: {
     name: string;
     make: (value: IAutoMovieRecoveryImageInput) => void;
@@ -105,6 +116,19 @@ export function test_recovery_image_observation(): void {
         value.views[0].rgb8.fill(240, 3 * 100 * 256, 3 * 101 * 256);
       },
       reason: "unsupported-support",
+    },
+    {
+      name: "disconnected consecutive rows",
+      make: (value: IAutoMovieRecoveryImageInput): void => {
+        const view: (typeof value.views)[number] = value.views[0];
+        view.rgb8.fill(240);
+        for (let row: number = 100; row < 108; row++) {
+          const first: number = row < 104 ? 50 : 180;
+          for (let column: number = first; column < first + 20; column++)
+            view.rgb8[3 * (row * view.width + column)] = 0;
+        }
+      },
+      reason: "invalid-pixel-support",
     },
     {
       name: "sparse background",

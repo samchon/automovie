@@ -272,8 +272,9 @@ export function mountRecoveryViewerPage(root: HTMLElement): {
       const file: File | undefined =
         element<HTMLInputElement>("#open").files?.[0];
       if (file)
-        report(async (): Promise<void> =>
-          load(await readRecoveryViewerDocument(file)),
+        report(
+          async (): Promise<void> =>
+            load(await readRecoveryViewerDocument(file)),
         );
     },
     { signal: events.signal },
@@ -380,6 +381,7 @@ export function mountRecoveryViewerPage(root: HTMLElement): {
     },
     mode: "surface" | "silhouette",
   ): { png: string; receipt: object } => {
+    if (closed) throw new Error("Recovery inspector is closed");
     if (!current) throw new Error("No generated model is loaded");
     if (subject === "both" || pass !== "surface")
       throw new Error(

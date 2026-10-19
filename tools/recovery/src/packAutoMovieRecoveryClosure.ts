@@ -9,6 +9,8 @@ import path from "node:path";
  * copied from the immutable installed distribution into run-owned staging before
  * lifecycle-disabled packing. Exact file overrides then allow a fresh offline
  * consumer store without registry metadata, ancestor dependencies or source aliases.
+ * Already-published external distributions use the host package manager only for
+ * packing; their original source-build manager is neither enforced nor downloaded.
  * Optional/platform dependencies are not silently omitted: this host refuses them.
  *
  * @evidence contracts/common.md#principled-implementation Declared runtime dependencies select the full closure, including ingest's external codec dependencies; every installed artifact is packed, hashed and pinned to its actual versioned bytes.
@@ -92,6 +94,12 @@ export function packAutoMovieRecoveryClosure(input: {
     input.pnpm(
       [
         "--config.ignore-scripts=true",
+        ...(metadata.name.startsWith("@automovie/")
+          ? []
+          : [
+              "--config.package-manager-strict=false",
+              "--config.manage-package-manager-versions=false",
+            ]),
         "pack",
         "--pack-destination",
         input.packs,

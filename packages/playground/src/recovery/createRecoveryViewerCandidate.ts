@@ -122,10 +122,7 @@ export async function createRecoveryViewerCandidate(text: string): Promise<{
   const hash: (value: Uint8Array<ArrayBuffer>) => Promise<string> = async (
     value: Uint8Array<ArrayBuffer>,
   ): Promise<string> => {
-    const digest: ArrayBuffer = await crypto.subtle.digest(
-      "SHA-256",
-      value,
-    );
+    const digest: ArrayBuffer = await crypto.subtle.digest("SHA-256", value);
     return Array.from(new Uint8Array(digest), (byte: number): string =>
       byte.toString(16).padStart(2, "0"),
     ).join("");
@@ -192,7 +189,9 @@ export async function createRecoveryViewerCandidate(text: string): Promise<{
       retire: createAutoMovieResourceRetirement(retirements),
       recipe,
       documentHash: await hash(bytes.subarray(0, encoded.written)),
-      modelHash: await hash(encoder.encode(JSON.stringify(compiled.value.model))),
+      modelHash: await hash(
+        encoder.encode(JSON.stringify(compiled.value.model)),
+      ),
       referenceHash: neutral
         ? await hash(encoder.encode(JSON.stringify(neutral)))
         : null,

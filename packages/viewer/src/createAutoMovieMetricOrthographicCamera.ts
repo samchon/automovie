@@ -6,7 +6,8 @@ import * as THREE from "three";
  * image V projects negative Y, with pitch in metres per pixel and principal
  * point in pixel-edge coordinates. No image distortion, pose estimation or
  * resizing is performed. Distance and near/far only select orthographic depth
- * admission; image scale is supplied independently by pitch.
+ * admission; image scale is supplied independently by pitch. Native projection
+ * and inverse matrices must remain finite and nonsingular at the supplied gauge.
  *
  * @evidence contracts/common.md#principled-implementation Native frustum bounds are calibrated pixel-edge limits in metres; right is (cos(a),0,sin(a)), up is +Y and position lies on their cross product. Native rotation about Y and updateProjectionMatrix preserve the supplied affine projection without a custom override or distance-dependent lookAt normalization.
  * @evidence contracts/common.md#clear-and-simple-design This generic viewer owner maps one explicit metric chart to native Three camera fields while inverse geometry fitting and image acquisition remain independent.
@@ -82,10 +83,13 @@ export function createAutoMovieMetricOrthographicCamera(input: {
   camera.updateProjectionMatrix();
   if (
     !camera.projectionMatrix.elements.every(Number.isFinite) ||
-    !camera.matrixWorld.elements.every(Number.isFinite)
+    !camera.matrixWorld.elements.every(Number.isFinite) ||
+    !camera.matrixWorldInverse.elements.every(Number.isFinite) ||
+    !camera.projectionMatrixInverse.elements.every(Number.isFinite) ||
+    camera.projectionMatrix.determinant() === 0
   )
     throw new Error(
-      "Metric orthographic native projection exceeded finite matrix arithmetic",
+      "Metric orthographic native projection or inverse is nonfinite or singular",
     );
   return camera;
 }

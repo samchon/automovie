@@ -73,17 +73,29 @@ export function captureAutoMovieMetricFrame(input: {
   const restore: (() => void)[] = [
     (): void => {
       input.scene.background = background;
+    },
+    (): void => {
       input.scene.overrideMaterial = override;
     },
     (): void => {
       input.renderer.setPixelRatio(ratio);
+    },
+    (): void => {
       input.renderer.setSize(size.x, size.y, false);
     },
     (): void => {
       input.renderer.setRenderTarget(target);
+    },
+    (): void => {
       input.renderer.setViewport(viewport);
+    },
+    (): void => {
       input.renderer.setScissor(scissor);
+    },
+    (): void => {
       input.renderer.setScissorTest(scissorTest);
+    },
+    (): void => {
       input.renderer.autoClear = autoClear;
     },
     (): void => {

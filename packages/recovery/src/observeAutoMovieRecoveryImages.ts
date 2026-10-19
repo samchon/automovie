@@ -197,7 +197,7 @@ export function observeAutoMovieRecoveryImages(
             "nonfinite-chart: pixel-to-metric conversion exceeded finite arithmetic",
           );
         const measured: (typeof rows)[number] = { yMm, lowerMm, upperMm };
-        chart.assertRow(measured, rows.at(-1)?.yMm);
+        chart.assertRow(measured, rows.at(-1));
         rows.push(measured);
         previousRow = row;
       }

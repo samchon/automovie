@@ -2,11 +2,12 @@ import type { IAutoMovieRecoveryImageInput } from "@automovie/interface/recovery
 
 /**
  * Admit the finite metric pixel chart and verify measured row/cell coordinates.
+ * Adjacent occupied rows must form one eight-connected foreground component.
  * The relative binary64 bound covers arithmetic roundoff, not segmentation or
  * camera uncertainty. A chart whose frame offset overwhelms pixel increments
  * refuses instead of publishing aliased stations as calibrated measurements.
  *
- * @evidence contracts/common.md#principled-implementation Finite distinct image-edge bounds and a pixel-to-frame scale test precede inverse mapping of row centres and support-cell edges. Round-trip integer/chart bounds and adjacent-row spacing preserve the fixed-background observation schema.
+ * @evidence contracts/common.md#principled-implementation Finite distinct image-edge bounds and a pixel-to-frame scale test precede inverse mapping of row centres and support-cell edges. Round-trip integer/chart bounds, adjacent-row spacing and eight-connected interval adjacency preserve the fixed-background observation schema.
  * @evidence contracts/common.md#clear-and-simple-design Observation and saved-observation fitting share one numerical chart admission owner rather than applying different camera/pixel conventions.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No coordinate rounding changes observations, missing row is interpolated into a claimed measured row or epsilon denominator repairs a collapsed chart.
  * @evidence contracts/common.md#meaningful-documentation States millimetres, pixel centres/edges, conditional roundoff tolerance, contiguous support and refusal for unrepresentable frame gauges.
@@ -22,13 +23,17 @@ export function assertRecoveryImageChart(
 ): {
   assertRow: (
     row: { yMm: number; lowerMm: number; upperMm: number },
-    previousY?: number,
+    previous?: { yMm: number; lowerMm: number; upperMm: number },
   ) => void;
 } {
   const pitch: number = view.camera.pixelPitchMm;
   const [u0, v0]: [number, number] = view.camera.principalPointPx;
   const scale: number = Math.max(
-    1, Math.abs(u0), Math.abs(v0), view.width, view.height,
+    1,
+    Math.abs(u0),
+    Math.abs(v0),
+    view.width,
+    view.height,
   );
   if (
     !(pitch * 0.001 > 0) ||
@@ -56,7 +61,7 @@ export function assertRecoveryImageChart(
   return {
     assertRow: (
       row: { yMm: number; lowerMm: number; upperMm: number },
-      previousY?: number,
+      previous?: { yMm: number; lowerMm: number; upperMm: number },
     ): void => {
       const r: number = v0 - row.yMm / pitch - 0.5,
         left: number = u0 + row.lowerMm / pitch,
@@ -72,11 +77,13 @@ export function assertRecoveryImageChart(
         Math.round(left) < 1 ||
         Math.round(right) > view.width - 1 ||
         !(Math.round(left) < Math.round(right)) ||
-        (previousY !== undefined &&
-          Math.abs(Math.abs((row.yMm - previousY) / pitch) - 1) > epsilon)
+        (previous !== undefined &&
+          (Math.abs(Math.abs((row.yMm - previous.yMm) / pitch) - 1) > epsilon ||
+            Math.round(left) > Math.round(u0 + previous.upperMm / pitch) ||
+            Math.round(right) < Math.round(u0 + previous.lowerMm / pitch)))
       )
         throw new Error(
-          "invalid-pixel-support: occupied rows and cell limits must match the contiguous supplied pixel chart",
+          "invalid-pixel-support: occupied rows and cell limits must form one eight-connected component in the supplied pixel chart",
         );
     },
   };
