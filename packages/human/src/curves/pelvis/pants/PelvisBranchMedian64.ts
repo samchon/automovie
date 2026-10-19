@@ -103,7 +103,7 @@ export class PelvisBranchMedian64 {
       anteriorShoulder: zs[3]!,
       anteriorFloor: zs[4]!,
     };
-    this.roots = {} as typeof this.roots;
+    this.roots = {} as PelvisBranchMedian64["roots"];
     for (const side of ["left", "right"] as const)
       this.roots[side] = Object.fromEntries(
         ["posteriorShoulder", "lowPoint", "anteriorShoulder"].map(

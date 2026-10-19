@@ -5,8 +5,32 @@ import zlib from "node:zlib";
 
 import { AutoMovieCurveMath64 as M } from "../../../engine/src/geometry/curve/AutoMovieCurveMath64";
 
+/** JSON values retained without geometry reconstruction or field coercion. */
 type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
+/** A parsed record whose named fields are admitted before use. */
 type ObjectValue = { [key: string]: Json };
+
+/** Counts and native-width extrema for one declared parameter unit. */
+type ParameterCounts = {
+  curves: number;
+  spans: number;
+  minimumWidth: number;
+  maximumWidth: number;
+};
+
+/** Explicit input, publication and process budgets for one serial conversion. */
+type ResourceLimits = {
+  originalCurveBytes: number;
+  continuationBytes: number;
+  publicationBytes: number;
+  publicationLogicalBytes: number;
+  recordBytes: number;
+  outputLogicalBytes: number;
+  outputGzipBytes: number;
+  receiptBytes: number;
+  diskFloorBytes: number;
+  maximumRssKiB: number;
+};
 
 /**
  * Convert one hash-bound saved specimen without fitting or reading source geometry.
@@ -27,8 +51,8 @@ export function convertReferenceCurvesToHermite(): void {
   const hash: (bytes: crypto.BinaryLike) => string = (
     bytes: crypto.BinaryLike,
   ): string => crypto.createHash("sha256").update(bytes).digest("hex");
-  const MiB = 1024 * 1024;
-  const limits = {
+  const MiB: number = 1024 * 1024;
+  const limits: ResourceLimits = {
     originalCurveBytes: 160 * MiB, continuationBytes: 16 * MiB,
     publicationBytes: 16 * MiB, publicationLogicalBytes: 80 * MiB,
     recordBytes: 4 * MiB, outputLogicalBytes: 512 * MiB,
@@ -36,20 +60,23 @@ export function convertReferenceCurvesToHermite(): void {
     diskFloorBytes: 3 * 1024 * MiB,
     maximumRssKiB: 4 * 1024 * 1024,
   };
-  const initialSpace = fs.statfsSync(path.dirname(outputPath!));
+  const initialSpace: fs.StatsFs = fs.statfsSync(path.dirname(outputPath!));
   if (initialSpace.bavail * initialSpace.bsize <
       limits.diskFloorBytes + limits.outputGzipBytes + limits.receiptBytes)
     throw new Error("Initial publication budget must retain the free-space floor");
-  const readRecord = (record: ObjectValue, maximum: number): ObjectValue => {
+  const readRecord: (record: ObjectValue, maximum: number) => ObjectValue = (
+    record: ObjectValue,
+    maximum: number,
+  ): ObjectValue => {
     if (!record || typeof record.path !== "string" ||
         typeof record.sha256 !== "string" || !/^[0-9a-f]{64}$/.test(record.sha256) ||
         typeof record.bytes !== "number" || !Number.isSafeInteger(record.bytes) ||
         record.bytes <= 0 || record.bytes > maximum ||
         fs.statSync(record.path).size !== record.bytes)
       throw new Error("Bounded artifact path, exact bytes and SHA-256 required");
-    const bytes = fs.readFileSync(record.path);
+    const bytes: Buffer = fs.readFileSync(record.path);
     if (hash(bytes) !== record.sha256) throw new Error("Artifact identity mismatch");
-    let logical = bytes;
+    let logical: Buffer = bytes;
     if (record.codec !== undefined) {
       if (record.codec !== "gzip" || typeof record.logicalBytes !== "number" ||
           !Number.isSafeInteger(record.logicalBytes) ||
@@ -77,21 +104,21 @@ export function convertReferenceCurvesToHermite(): void {
   );
   if (selected.length !== 1) throw new Error("Unique saved subject required");
   const summaryRecord: ObjectValue = selected[0]!.summary as ObjectValue;
-  const summary = readRecord(summaryRecord, limits.recordBytes);
+  const summary: ObjectValue = readRecord(summaryRecord, limits.recordBytes);
   if (summary.schema !== "whole-shared-ordinary-event-reconstruction-v1" ||
       summary.subject !== subject || summary.sourceCommit !== handoff.sourceCommit)
     throw new Error("Summary subject, schema and consuming epoch must agree");
   const curveRecord: ObjectValue = summary.originalCurve as ObjectValue;
-  const bundle = readRecord(curveRecord, limits.originalCurveBytes);
+  const bundle: ObjectValue = readRecord(curveRecord, limits.originalCurveBytes);
   if (bundle.schema !== "automovie-recovery-curves-v1")
     throw new Error("Versioned cubic observation bundle required");
-  const continuationRecord = summary.originalContinuation as ObjectValue;
-  const continuation = readRecord(continuationRecord, limits.continuationBytes);
-  const publicationRecord = selected[0]!.analyticPublication as ObjectValue;
-  const publication = readRecord(publicationRecord, limits.publicationBytes);
-  const selectionRecord = selected[0]!.selection as ObjectValue;
-  const selection = readRecord(selectionRecord, limits.recordBytes);
-  const continuationProvenance = continuation.provenance as ObjectValue;
+  const continuationRecord: ObjectValue = summary.originalContinuation as ObjectValue;
+  const continuation: ObjectValue = readRecord(continuationRecord, limits.continuationBytes);
+  const publicationRecord: ObjectValue = selected[0]!.analyticPublication as ObjectValue;
+  const publication: ObjectValue = readRecord(publicationRecord, limits.publicationBytes);
+  const selectionRecord: ObjectValue = selected[0]!.selection as ObjectValue;
+  const selection: ObjectValue = readRecord(selectionRecord, limits.recordBytes);
+  const continuationProvenance: ObjectValue = continuation.provenance as ObjectValue;
   if (continuation.schema !== "automovie-recovery-open-continuation-v1" ||
       continuationProvenance?.curveBundleSha256 !== curveRecord.sha256 ||
       publication.schema !== "automovie-recovery-analytic-publication-v1" ||
@@ -101,18 +128,18 @@ export function convertReferenceCurvesToHermite(): void {
       selection.sourceCommit !== publication.sourceCommit ||
       summary.coefficientSourceCommit !== publication.sourceCommit)
     throw new Error("Original observations, continuation and consumed coefficient epochs disagree");
-  const overrides = publication.curveOverrides as ObjectValue[];
-  const overrideNames = selected[0]!.curveOverrideNames as string[];
+  const overrides: ObjectValue[] = publication.curveOverrides as ObjectValue[];
+  const overrideNames: string[] = selected[0]!.curveOverrideNames as string[];
   if (!Array.isArray(overrides) || !Array.isArray(overrideNames) ||
       overrides.length !== overrideNames.length ||
       new Set(overrideNames).size !== overrideNames.length ||
       selection.selectedCurveOverrides !== overrides.length ||
-      overrides.some((row, i) => (row.curve as ObjectValue)?.name !== overrideNames[i]))
+      overrides.some((row: ObjectValue, i: number): boolean => (row.curve as ObjectValue)?.name !== overrideNames[i]))
     throw new Error("Consumed override inventory differs from the handoff");
-  const domains = publication.analyticDomains as ObjectValue[];
-  const recipes = selected[0]!.recipes as ObjectValue[];
+  const domains: ObjectValue[] = publication.analyticDomains as ObjectValue[];
+  const recipes: ObjectValue[] = selected[0]!.recipes as ObjectValue[];
   if (!Array.isArray(domains) || !Array.isArray(recipes) || recipes.length !== domains.length ||
-      recipes.some((recipe, i) => recipe.domainId !== domains[i]!.id ||
+      recipes.some((recipe: ObjectValue, i: number): boolean => recipe.domainId !== domains[i]!.id ||
         recipe.jsonPointer !== `/analyticDomains/${i}/geometry` ||
         recipe.recipeSha256 !== hash(JSON.stringify(domains[i]!.geometry))))
     throw new Error("Consumed analytic recipe coefficients differ from the handoff");
@@ -148,7 +175,7 @@ export function convertReferenceCurvesToHermite(): void {
 
   let curves: number = 0;
   let spans: number = 0;
-  const parameterUnits: Record<string, { curves: number; spans: number; minimumWidth: number; maximumWidth: number }> = {};
+  const parameterUnits: Record<string, ParameterCounts> = {};
   let maximumControlResidualMm: number = 0;
   let sampleMaximumResidualMm: number = 0;
   let horizontalSpans: number = 0;
@@ -170,14 +197,14 @@ export function convertReferenceCurvesToHermite(): void {
       if (!Array.isArray(controls) || !Array.isArray(widths) ||
           controls.length === 0 || controls.length !== widths.length)
         throw new Error("Each native span requires its own parameter width");
-      const unit = value.phaseUnit as string;
-      const unitCounts = parameterUnits[unit] ??= { curves: 0, spans: 0, minimumWidth: Infinity, maximumWidth: 0 };
+      const unit: string = value.phaseUnit as string;
+      const unitCounts: ParameterCounts = parameterUnits[unit] ??= { curves: 0, spans: 0, minimumWidth: Infinity, maximumWidth: 0 };
       ++unitCounts.curves;
-      const knots = value.canonicalKnots as number[] | undefined;
+      const knots: number[] | undefined = value.canonicalKnots as number[] | undefined;
       if (knots !== undefined && (!Array.isArray(knots) ||
-          knots.length !== widths.length + 1 || knots.some((x) => !Number.isFinite(x))))
+          knots.length !== widths.length + 1 || knots.some((x: number): boolean => !Number.isFinite(x))))
         throw new Error("Saved canonical knots must cover every native span");
-      let parameter = knots?.[0] ?? 0;
+      let parameter: number = knots?.[0] ?? 0;
       const converted: Json[] = controls.map((net: M.Span, i: number): Json => {
         const width: number = widths[i]!;
         const jets: ReturnType<typeof M.toHermite> = M.toHermite(net, width);
@@ -226,11 +253,11 @@ export function convertReferenceCurvesToHermite(): void {
     return value;
   };
   const converted: Json = visit(bundle);
-  const originalObservationCounts = { curves, spans };
-  const convertedPublication = visit(publication);
-  const consumedOverrideCounts = { curves: curves - originalObservationCounts.curves, spans: spans - originalObservationCounts.spans };
+  const originalObservationCounts: { curves: number; spans: number } = { curves, spans };
+  const convertedPublication: Json = visit(publication);
+  const consumedOverrideCounts: { curves: number; spans: number } = { curves: curves - originalObservationCounts.curves, spans: spans - originalObservationCounts.spans };
   if (consumedOverrideCounts.curves !== overrides.length ||
-      recipes.some((recipe, i) => recipe.recipeSha256 !== hash(JSON.stringify(domains[i]!.geometry))))
+      recipes.some((recipe: ObjectValue, i: number): boolean => recipe.recipeSha256 !== hash(JSON.stringify(domains[i]!.geometry))))
     throw new Error("Curve conversion must retain every override and unchanged bicubic recipe");
   if (curves === 0) throw new Error("No supported observed curves found");
   bundle.schema = "automovie-reference-hermite-bundle-v1";
@@ -246,8 +273,8 @@ export function convertReferenceCurvesToHermite(): void {
     loadedDependencies: [
       "../../../engine/src/geometry/curve/AutoMovieCurveMath64",
       "../../../engine/src/geometry/curve/AutoMoviePchip64",
-    ].map((specifier) => {
-      const loaded = require.resolve(specifier);
+    ].map((specifier: string): ObjectValue => {
+      const loaded: string = require.resolve(specifier);
       return { path: loaded, sha256: hash(fs.readFileSync(loaded)) };
     }),
     subject: subject!,
@@ -308,8 +335,8 @@ export function convertReferenceCurvesToHermite(): void {
     maximumRssKiB: process.resourceUsage().maxRSS,
     resourceLimits: limits,
   };
-  const receiptBytes = Buffer.from(JSON.stringify(receipt, null, 2) + "\n");
-  const space = fs.statfsSync(path.dirname(outputPath!));
+  const receiptBytes: Buffer = Buffer.from(JSON.stringify(receipt, null, 2) + "\n");
+  const space: fs.StatsFs = fs.statfsSync(path.dirname(outputPath!));
   if (receiptBytes.length > limits.receiptBytes ||
       process.resourceUsage().maxRSS > limits.maximumRssKiB ||
       space.bavail * space.bsize - compressed.length - receiptBytes.length < limits.diskFloorBytes)

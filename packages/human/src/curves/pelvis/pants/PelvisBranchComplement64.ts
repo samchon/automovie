@@ -33,7 +33,7 @@ export class PelvisBranchComplement64 {
       /** Near/floor endpoint tangent directions with positive mutual inner product. */
       directions: Record<string, [V.V, V.V]>;
     }
-  > = {} as typeof this.sides;
+  > = {} as PelvisBranchComplement64["sides"];
 
   /** Derive complementary near curves and floor rails from the same roof and merged/paired operators. */
   public constructor(
@@ -266,7 +266,7 @@ export class PelvisBranchComplement64 {
     atFloorCollapsedPieces: number[];
   } {
     const owner: Roof["base"]["owner"] = this.roof.base.owner,
-      data: typeof this.sides.left = this.sides[side];
+      data: PelvisBranchComplement64["sides"][P.Side] = this.sides[side];
     if (!(height >= owner.near && height <= owner.floor))
       throw new Error("No complementary level extrapolation");
     const t: number = (height - owner.near) / owner.height,
