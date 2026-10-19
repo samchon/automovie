@@ -40,12 +40,14 @@
   "include": [
     "lint.config.ts",
     "evidence.config.ts",
-    "src"
+    "src",
+    "test"
   ],
   "scripts": {
     "lint": "ttsc --cache-dir node_modules/.cache/ttsc --noEmit -p package.json",
     "format": "ttsc format --cache-dir node_modules/.cache/ttsc -p package.json",
-    "evidence": "evidence"
+    "evidence": "evidence",
+    "test": "ttsx --cache-dir node_modules/.cache/ttsc -P package.json test/index.ts"
   },
   "dependencies": {
     "@automovie/archetypes": "{{version:archetypes}}",
