@@ -1,4 +1,4 @@
-import { decodeAutoMoviePpmImage } from "@automovie/ingest";
+import { decodeAutoMoviePpmImage } from "@automovie/ingest/ppm";
 import { TestValidator } from "@nestia/e2e";
 
 /**

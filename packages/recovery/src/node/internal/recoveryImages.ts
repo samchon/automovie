@@ -1,4 +1,4 @@
-import { decodeAutoMoviePpmImage } from "@automovie/ingest";
+import { decodeAutoMoviePpmImage } from "@automovie/ingest/ppm";
 import type {
   IAutoMovieRecoveryImageInput,
   IAutoMovieRecoveryImageLoft,

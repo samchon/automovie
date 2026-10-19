@@ -19,4 +19,4 @@ npm install @automovie/ingest
 
 A structural defect, such as an unknown attached bone, is refused with its cause; nothing is guessed or substituted.
 
-The P6 decoder accepts maxval 255 and exactly one whitespace delimiter after it. It retains raster bytes, including whitespace and `#`, without gamma conversion or orientation changes. Supply `maxPixels` and `maxHeaderBytes`; P3, 16-bit samples, multiple images, trailing bytes and truncated rasters refuse. Filesystem paths and expected byte hashes belong to the calling host.
+The standalone `@automovie/ingest/ppm` entry exports `decodeAutoMoviePpmImage` without importing the glTF SDK or its declaration-library requirements. The P6 decoder accepts maxval 255 and exactly one whitespace delimiter after it. It retains raster bytes, including whitespace and `#`, without gamma conversion or orientation changes. Supply `maxPixels` and `maxHeaderBytes`; P3, 16-bit samples, multiple images, trailing bytes and truncated rasters refuse. Filesystem paths and expected byte hashes belong to the calling host.

@@ -379,7 +379,7 @@ console.log(JSON.stringify({node:process.version,version,area,status:result.stat
 import { publishAutoMovieRecoveryArtifact } from "@automovie/recovery/node";
 import type { IAutoMovieRecoveryInput, IAutoMovieRecoveryImageInput, IAutoMovieRecoveryImageLoft } from "@automovie/interface/recovery";
 import { observeAutoMovieRecoveryImages, fitAutoMovieRecoveryImageLoft, compileAutoMovieRecoveryImageLoft } from "@automovie/recovery";
-import { decodeAutoMoviePpmImage } from "@automovie/ingest";
+import { decodeAutoMoviePpmImage } from "@automovie/ingest/ppm";
 export function consume(input: IAutoMovieRecoveryInput, saved: Parameters<typeof reconstructAutoMovieRecoveryModel>[0]): void {
  const observed: ReturnType<typeof observeAutoMovieRecovery> = observeAutoMovieRecovery(input);
  const generated: ReturnType<typeof reconstructAutoMovieRecoveryModel> = reconstructAutoMovieRecoveryModel(saved);
