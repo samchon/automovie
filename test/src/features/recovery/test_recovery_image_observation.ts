@@ -10,7 +10,7 @@ import { recoveryImageFixture } from "../internal/recoveryImageFixture";
  *
  * Scenarios:
  * 1. Three calibrated images yield four hundred ordered physical rows per view.
- * 2. Empty, border-clipped, holed and disconnected foreground refuse; diagonal eight-connected support remains admitted.
+ * 2. Exact-threshold foreground in each RGB channel remains admitted. Empty, border-clipped, holed and disconnected foreground refuse; diagonal eight-connected support remains admitted.
  * 3. Sparse camera/background/view arrays, wrong byte populations, unrepresentable pixel charts and exhausted budgets refuse.
  * 4. Cancellation and a failing progress observer preserve terminal outcome semantics.
  *
@@ -80,6 +80,18 @@ export function test_recovery_image_observation(): void {
     observeAutoMovieRecoveryImages(diagonal).status,
     "complete",
   );
+  for (const channel of [1, 2]) {
+    for (const view of diagonal.views) {
+      view.rgb8.fill(240);
+      for (let row: number = 100; row < 104; row++)
+        view.rgb8[3 * (row * view.width + row) + channel] = 220;
+    }
+    TestValidator.equals(
+      `exact threshold in channel ${channel} establishes foreground`,
+      observeAutoMovieRecoveryImages(diagonal).status,
+      "complete",
+    );
+  }
   const variants: {
     name: string;
     make: (value: IAutoMovieRecoveryImageInput) => void;

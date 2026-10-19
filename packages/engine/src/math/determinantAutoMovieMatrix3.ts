@@ -25,12 +25,10 @@ const PRODUCTS: readonly (readonly [number, number, number, number])[] = [
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only one number escapes; the optional eight-byte view, six integer terms and aligned sum expire synchronously. The fixed six-entry mathematical index table is module-owned, without handles or global input-dependent state.
  */
 export function determinantAutoMovieMatrix3(matrix: readonly number[]): number {
-  if (
-    matrix.length !== 9 ||
-    ![0, 1, 2, 3, 4, 5, 6, 7, 8].every((i: number): boolean =>
-      Number.isFinite(matrix[i]),
-    )
-  )
+  let finite: boolean = matrix.length === 9;
+  for (let index: number = 0; index < 9 && finite; index++)
+    finite = Number.isFinite(matrix[index]);
+  if (!finite)
     throw new Error("A complete finite row-major 3 by 3 matrix is required");
   let value: number = 0,
     permanent: number = 0;

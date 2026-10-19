@@ -3,18 +3,21 @@ import { determinantAutoMovieMatrix3 } from "../math/determinantAutoMovieMatrix3
 /**
  * Prepare fixed half-plane directions for independent changing-offset queries.
  * Copy the admitted finite unit normals and compute every exact nonparallel pair
- * once. A weak pair remains in the plan: its feasibility depends on each query's
- * offsets, so only a feasible weak intersection refuses. Offsets and resulting
- * vertices are never cached or shared between queries.
+ * once. A successful polygon supplies only a cyclic active-edge seed. Its next
+ * intersections must satisfy every current inequality before that seed can be
+ * reused; otherwise full pair enumeration replaces it. Bounded active normals
+ * and feasible cyclic corners prove the seed polygon equals the intersection.
+ * Every tight nonparallel pair still receives the weak-direction check.
+ * Offsets and output vertices are never cached or shared between queries.
  * Callers bound the plane population and supply bounded section charts.
  *
- * @evidence contracts/common.md#principled-implementation Fixed normal-pair determinants are invariant under changing offsets. Each query performs the same line intersections, exact-sign inequality classification, incidence identities and XZ winding as the one-shot section query, with feasible weak-direction refusal.
+ * @evidence contracts/common.md#principled-implementation Fixed normal-pair determinants are invariant under changing offsets. A bounded cyclic active-edge intersection whose corners satisfy every half-plane equals the complete intersection, so that certificate permits coherent queries without enumerating rejected corners. Failed certificates use full enumeration; all exact tight incidences and feasible weak pairs remain checked.
  * @evidence contracts/common.md#clear-and-simple-design This generic engine preparation owner serves repeated physical sections in inverse fitting and continuous planning; the existing one-shot query delegates to it without a second implementation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No offset result, coordinate weld, source geometry or specimen condition supplies an intersection. Weak pairs are not discarded before actual feasibility is known, and copied directions cannot change through the caller's arrays.
- * @evidence contracts/common.md#meaningful-documentation States admitted unit/chart premises, copied direction ownership, offset independence, deferred weak refusal and caller-owned preparation lifetime.
- * @evidence contracts/performance.md#efficient-algorithms For P bounded planes, preparation costs and retains O(P squared) pair records; Q changing-offset queries cost O(Q P cubed) and retain O(P squared) query scratch each. Fixed determinant preparation no longer repeats per offset set; rejected pairs retain scalar scratch rather than allocating vertex and incidence arrays.
- * @evidence contracts/performance.md#reuse-equivalent-work One caller-owned query reuses copied normal values and their exact nonparallel determinants while those fixed directions remain equivalent. Changing offsets always produce fresh intersections/incidence and never reuse an earlier result.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The returned CPU closure retains only O(P squared) fixed direction records until the caller releases it. Each query transfers fresh vertices and discards its maps; no image, file, worker or global input-dependent cache is retained.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No offset result, coordinate weld, source geometry or specimen condition supplies an intersection. Cached combinatorics are never accepted without all-plane feasibility, and every tight weak pair refuses even when absent from the seed. Copied directions cannot change through the caller's arrays.
+ * @evidence contracts/common.md#meaningful-documentation States admitted unit/chart premises, copied direction ownership, cyclic certificate and fallback, offset independence, deferred weak refusal and caller-owned preparation lifetime.
+ * @evidence contracts/performance.md#efficient-algorithms For P bounded planes, preparation costs and retains O(P squared) pair records. Each query preflights O(P squared) coordinates; a valid A-corner seed checks O(A P) inequalities plus its exact tight-pair incidences, while a failed seed costs O(P cubed) full enumeration. Query scratch is O(P squared); fixed determinants and rejected-corner allocations do not repeat.
+ * @evidence contracts/performance.md#reuse-equivalent-work One caller-owned query reuses copied normals, exact nonparallel determinants and only the previous successful polygon's cyclic edge-pair indices. Every changing offset set recomputes all pair coordinates and proves current corner feasibility before reusing that combinatorics. Failure replaces the seed only after a successful full result; returned coordinates/incidence are fresh.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The returned CPU closure retains O(P squared) fixed direction records and at most P active-edge pair indices until released. Each query discards its coordinates/maps and transfers fresh vertices; no offsets, image, file, worker or global input-dependent cache is retained.
  */
 export function createAutoMovieSupportSectionQuery(input: {
   normals: readonly (readonly [number, number])[];
@@ -49,6 +52,10 @@ export function createAutoMovieSupportSectionQuery(input: {
       ]);
       if (determinant !== 0) pairs.push({ i, j, determinant });
     }
+  const pairIndices: Map<string, number> = new Map();
+  for (let index: number = 0; index < pairs.length; index++)
+    pairIndices.set(`${pairs[index].i}:${pairs[index].j}`, index);
+  let previous: number[] | undefined;
   return (
     offsets: readonly number[],
   ): {
@@ -61,18 +68,39 @@ export function createAutoMovieSupportSectionQuery(input: {
       { pair: [number, number]; tight: number[]; point: [number, number] }
     > = new Map();
     const scale: number = Math.max(...offsets.map(Math.abs));
-    for (const pair of pairs) {
+    const coordinates: Float64Array = new Float64Array(2 * pairs.length);
+    for (let index: number = 0; index < pairs.length; index++) {
+      const pair: (typeof pairs)[number] = pairs[index];
+      const a: readonly [number, number] = normals[pair.i],
+        b: readonly [number, number] = normals[pair.j];
+      const x: number =
+        (offsets[pair.i] * b[1] - a[1] * offsets[pair.j]) / pair.determinant;
+      const z: number =
+        (a[0] * offsets[pair.j] - offsets[pair.i] * b[0]) / pair.determinant;
+      if (!Number.isFinite(x) || !Number.isFinite(z))
+        throw new Error(
+          "nonfinite-support-intersection: chart exceeds binary64 coordinates",
+        );
+      coordinates[2 * index] = x;
+      coordinates[2 * index + 1] = z;
+    }
+    const evaluate: (
+      index: number,
+    ) =>
+      | { pair: [number, number]; tight: number[]; point: [number, number] }
+      | undefined = (
+      index: number,
+    ):
+      | { pair: [number, number]; tight: number[]; point: [number, number] }
+      | undefined => {
+      const pair: (typeof pairs)[number] = pairs[index];
       const i: number = pair.i,
         j: number = pair.j,
         determinant: number = pair.determinant;
       const a: readonly [number, number] = normals[i],
         b: readonly [number, number] = normals[j];
-      const x: number = (offsets[i] * b[1] - a[1] * offsets[j]) / determinant;
-      const z: number = (a[0] * offsets[j] - offsets[i] * b[0]) / determinant;
-      if (!Number.isFinite(x) || !Number.isFinite(z))
-        throw new Error(
-          "nonfinite-support-intersection: chart exceeds binary64 coordinates",
-        );
+      const x: number = coordinates[2 * index],
+        z: number = coordinates[2 * index + 1];
       const epsilon: number =
         (512 * Number.EPSILON * Math.max(scale, Math.abs(x), Math.abs(z))) /
         determinant ** 2;
@@ -108,20 +136,52 @@ export function createAutoMovieSupportSectionQuery(input: {
           tight.push(k);
         }
       }
-      if (!feasible) continue;
-      if (Math.abs(determinant) < minimumDirectionSine)
-        throw new Error(
-          "weak-support-boundary: feasible plane pair is unresolved",
-        );
+      if (!feasible) return undefined;
       tight ??= [i, j];
       tight.sort((a: number, b: number): number => a - b);
-      const key: string = tight.join(":");
-      if (!vertices.has(key))
-        vertices.set(key, { pair: [i, j], tight, point: [x, z] });
+      let canonical: number = index;
+      for (let first: number = 0; first < tight.length; first++)
+        for (let second: number = first + 1; second < tight.length; second++) {
+          const candidate: number | undefined = pairIndices.get(
+            `${tight[first]}:${tight[second]}`,
+          );
+          if (candidate === undefined) continue;
+          if (Math.abs(pairs[candidate].determinant) < minimumDirectionSine)
+            throw new Error(
+              "weak-support-boundary: feasible plane pair is unresolved",
+            );
+          canonical = Math.min(canonical, candidate);
+        }
+      return {
+        pair: [pairs[canonical].i, pairs[canonical].j],
+        tight,
+        point: [coordinates[2 * canonical], coordinates[2 * canonical + 1]],
+      };
+    };
+    let seedFeasible: boolean = previous !== undefined;
+    if (previous)
+      for (const index of previous) {
+        const vertex: ReturnType<typeof evaluate> = evaluate(index);
+        if (vertex === undefined) {
+          seedFeasible = false;
+          break;
+        }
+        vertices.set(vertex.tight.join(":"), vertex);
+      }
+    if (!seedFeasible || vertices.size < 3) {
+      seedFeasible = false;
+      vertices.clear();
+      for (let index: number = 0; index < pairs.length; index++) {
+        const vertex: ReturnType<typeof evaluate> = evaluate(index);
+        if (vertex !== undefined) vertices.set(vertex.tight.join(":"), vertex);
+      }
     }
     const result: ReturnType<
       ReturnType<typeof createAutoMovieSupportSectionQuery>
-    > = [...vertices.values()];
+    > = [...vertices.values()].sort(
+      (a: (typeof result)[number], b: (typeof result)[number]): number =>
+        pairIndices.get(a.pair.join(":"))! - pairIndices.get(b.pair.join(":"))!,
+    );
     if (result.length < 3)
       throw new Error(
         "unsupported-support-section: finite positive-area polygon required",
@@ -151,6 +211,47 @@ export function createAutoMovieSupportSectionQuery(input: {
     }
     if (!(area > 0) || !Number.isFinite(area))
       throw new Error("unsupported-support-section: unresolved signed area");
+    // With distinct feasible corners, the same bounded cyclic edge system still
+    // owns the polygon. Only a collapse or full search requires a new seed.
+    if (seedFeasible && result.length === previous!.length) return result;
+    const faces: (number | undefined)[] = result.map(
+      (vertex: (typeof result)[number], index: number): number | undefined =>
+        vertex.tight.find((plane: number): boolean =>
+          result[(index + 1) % result.length].tight.includes(plane),
+        ),
+    );
+    const seed: (number | undefined)[] = faces.map(
+      (face: number | undefined, index: number): number | undefined => {
+        const before: number | undefined =
+          faces[(index + faces.length - 1) % faces.length];
+        return before === undefined || face === undefined
+          ? undefined
+          : pairIndices.get(
+              `${Math.min(before, face)}:${Math.max(before, face)}`,
+            );
+      },
+    );
+    const angles: number[] = faces
+      .filter((face: number | undefined): face is number => face !== undefined)
+      .map((face: number): number =>
+        Math.atan2(normals[face][1], normals[face][0]),
+      )
+      .sort((a: number, b: number): number => a - b);
+    const bounded: boolean = angles.every(
+      (angle: number, index: number): boolean =>
+        (index + 1 === angles.length
+          ? angles[0] + 2 * Math.PI
+          : angles[index + 1]) -
+          angle <
+        Math.PI,
+    );
+    previous =
+      bounded &&
+      seed.every(
+        (index: number | undefined): index is number => index !== undefined,
+      )
+        ? seed
+        : undefined;
     return result;
   };
 }

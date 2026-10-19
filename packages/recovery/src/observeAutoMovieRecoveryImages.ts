@@ -19,7 +19,7 @@ import { assertRecoveryImageChart } from "./internal/assertRecoveryImageChart";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Empty, clipped, disconnected and holed support refuses rather than being filled, cropped or assigned to a chosen object; no trained model, specimen name, mesh or camera inference changes pixels.
  * @evidence contracts/common.md#meaningful-documentation States fixed-background premises, pixel-cell and row-centre interpretation, borrowed input lifetime, unsupported masks and the conditional meaning of half-pixel quantization.
  * @evidence contracts/performance.md#efficient-algorithms Admission scans V view records before O(P) pixel work, where P is total admitted pixels. Output has O(R) occupied rows bounded by maxRows; no image-sized mask or depth volume is allocated.
- * @evidence contracts/performance.md#reuse-equivalent-work Each pixel is classified once and each measured row supplies both silhouette limits; the operation has no cache or file effect to share across requests.
+ * @evidence contracts/performance.md#reuse-equivalent-work Fixed background channels and threshold are read once; the equivalent maximum-channel predicate short-circuits as soon as a channel establishes foreground. Each pixel is classified once and each measured row supplies both silhouette limits; the operation has no cache or file effect to share across requests.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only O(R+V) observation records escape; pixel arrays are borrowed during the call, copied camera metadata belongs to the result and no global state or event listener survives.
  */
 export function observeAutoMovieRecoveryImages(
@@ -135,6 +135,10 @@ export function observeAutoMovieRecoveryImages(
       assertRecoveryImageChart(view);
       identities.add(view.id);
     }
+    const red: number = input.background.rgb[0],
+      green: number = input.background.rgb[1],
+      blue: number = input.background.rgb[2],
+      threshold: number = input.background.threshold;
     const views: IAutoMovieRecoveryImageObservation["views"] = [];
     let retained: number = 0;
     for (const view of input.views) {
@@ -156,12 +160,12 @@ export function observeAutoMovieRecoveryImages(
           count: number = 0;
         for (let column: number = 0; column < view.width; column++) {
           const at: number = 3 * (row * view.width + column);
-          const distance: number = Math.max(
-            Math.abs(view.rgb8[at] - input.background.rgb[0]),
-            Math.abs(view.rgb8[at + 1] - input.background.rgb[1]),
-            Math.abs(view.rgb8[at + 2] - input.background.rgb[2]),
-          );
-          if (distance < input.background.threshold) continue;
+          if (
+            Math.abs(view.rgb8[at] - red) < threshold &&
+            Math.abs(view.rgb8[at + 1] - green) < threshold &&
+            Math.abs(view.rgb8[at + 2] - blue) < threshold
+          )
+            continue;
           if (count === 0) first = column;
           last = column;
           count++;
