@@ -1,14 +1,14 @@
 import { IAutoMovieContourLoft64 as L } from "../../../packages/engine/src/geometry/curve/IAutoMovieContourLoft64.ts";
 import { IAutoMovieCurve64 as C } from "../../../packages/engine/src/geometry/curve/IAutoMovieCurve64.ts";
-import { cutExact } from "../../human-reference/src/geometry/cutExact.ts";
-import { planeFrame } from "../../human-reference/src/geometry/planeFrame.ts";
-import { signedArea } from "../../human-reference/src/geometry/signedArea.ts";
-import { critical } from "../../human-reference/src/observations/critical.ts";
-import { sourceOrientation } from "../../human-reference/src/observations/sourceOrientation.ts";
 import type { IRecoveryMeshSections } from "./IRecoveryMeshSections.ts";
 import { RecoveryBezierFit as F } from "./RecoveryBezierFit.ts";
 import { RecoveryScalarIndex as S } from "./RecoveryScalarIndex.ts";
 import { RecoverySlabGraph as G } from "./RecoverySlabGraph.ts";
+import { critical } from "./internal/mesh-observations/critical.ts";
+import { cutExact } from "./internal/mesh-observations/cutExact.ts";
+import { planeFrame } from "./internal/mesh-observations/planeFrame.ts";
+import { signedArea } from "./internal/mesh-observations/signedArea.ts";
+import { sourceOrientation } from "./internal/mesh-observations/sourceOrientation.ts";
 import { prepareRecoveryCriticalBrackets } from "./prepareRecoveryCriticalBrackets.ts";
 import { prepareRecoveryMeshIncidence } from "./prepareRecoveryMeshIncidence.ts";
 
