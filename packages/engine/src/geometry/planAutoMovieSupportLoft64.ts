@@ -16,10 +16,10 @@ import { rootsAutoMovieCubicBernstein64 } from "./curve/rootsAutoMovieCubicBerns
  * Near event phases can share one phase only when all their plane equations
  * hold there within the same relative arithmetic bound; otherwise they refuse.
  *
- * @evidence contracts/common.md#principled-implementation Linear intersection maps offset Bernstein coefficients to cubic boundary curves. Feasible triple-plane roots partition changes of active constraints; a section query fixes each open interval's incidence. The second-derivative bound h squared times sup(norm(r''))/8 bounds linear interpolation of every face endpoint curve and hence its ruled face.
+ * @evidence contracts/common.md#principled-implementation Linear intersection maps offset Bernstein coefficients to cubic boundary curves. Feasible triple-plane roots partition changes of active constraints; every numerical event station receives the same section admission as the endpoints and open intervals, including isolated weak incidences. The second-derivative bound h squared times sup(norm(r''))/8 bounds linear interpolation of every face endpoint curve and hence its ruled face.
  * @evidence contracts/common.md#clear-and-simple-design This generic engine planner owns continuous algebra and work budgets, while its caller admits the saved fields and the emitter owns mesh/normal/physical identities.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No row sampling determines events, fixed polygon correspondence hides changing constraints, determinant is replaced or coordinate weld supplies incidence. Numerically unresolved continua or close events refuse.
- * @evidence contracts/common.md#meaningful-documentation States cubic event derivation, normalized solver limitations, exact/uncertain continua, phase merging qualification, metre curvature bound and budget refusal before output allocation.
+ * @evidence contracts/common.md#meaningful-documentation States cubic event derivation, normalized solver limitations, exact/uncertain continua, event-station admission, phase merging qualification, metre curvature bound and budget refusal before output allocation.
  * @evidence contracts/performance.md#efficient-algorithms For P bounded planes, S spans and E events, pair coefficients cost O(S P squared), cubic triples/feasibility O(S P to the fourth), and interval incidence O((S+E) P cubed). Retention is O(S P cubed + (S+E) P), including continuous/event triple incidences. maxPlanes bounds those raw triple populations, maxEvents bounds stations, and maxCells bounds planned strips before mesh allocation.
  * @evidence contracts/performance.md#reuse-equivalent-work Each pair's fixed determinant and four X/Z coefficients serve all triple queries and output intervals. A separated four-control positive-slack witness, confirmed by exact signs, excludes that pair's triples over the entire interval by the Bernstein convex-hull property; endpoint samples never supply this exclusion. Unproved pairs retain the full event calculation; interval incidence and curvature bounds are planned once for the emitter.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Call-local O(S P cubed + (S+E) P) curve/triple/interval records transfer to one synchronous emitter; budget refusal returns no partial mesh or retained resource.
@@ -242,6 +242,28 @@ export function planAutoMovieSupportLoft64(input: {
         b: (typeof span.stations)[number],
       ): number => a.phase - b.phase,
     );
+    for (const station of span.stations) {
+      // Endpoints were admitted before planning. An isolated redundant weak
+      // pair can become feasible only at an interior event, so open-interval
+      // queries cannot establish the station's numerical admission.
+      if (station.phase === 0 || station.phase === 1) continue;
+      try {
+        query(
+          field.offsets.map((q: number[]): number =>
+            B.scalar(q, station.phase),
+          ),
+        );
+      } catch (failure: unknown) {
+        if (
+          failure instanceof Error &&
+          failure.message.startsWith("unsupported-support-section:")
+        )
+          throw new Error(
+            "unsupported-support-collapse: event section has no finite positive area",
+          );
+        throw failure;
+      }
+    }
     for (
       let interval: number = 1;
       interval < span.stations.length;

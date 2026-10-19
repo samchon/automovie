@@ -13,11 +13,11 @@ import { nclose } from "../internal/nclose";
  * 2. A diagonal moving plane vanishes at an independently known Y event without a cap, crack or zero normal.
  * 3. Adjacent spans share physical boundaries while retaining their own normal fans.
  * 4. A cubic diagonal is redundant at both ends but active inside, creating two independently known boundary events.
- * 5. Sparse/nonunit/unbounded fields, weak feasible intersections, complete collapse and exhausted budgets refuse.
+ * 5. Sparse/nonunit/unbounded fields, weak feasible intersections including an isolated interior tie, complete collapse and exhausted budgets refuse.
  *
  * @evidence contracts/testing.md#behavioral-verification Runs the public engine producer, checks actual output positions against their independent face equations, analytical normals, triangle winding, physical alias equality and event diagnostics. Invalid inputs throw without an accepted partial mesh.
- * @evidence contracts/testing.md#independent-expectations Constant half-axes .02/.01 metres fix the box boundary. A fifth plane with offset (a+b)/sqrt(2)+.004(t-.5) meets the positive corner at t=.5, so one feasible event occurs at Y=.05 metres. For a unit-half-axis square, h(t)=2-6t(1-t) crosses sqrt(2) twice despite being redundant at both ends. Analytic plane gradients determine outward normals independently of emitted triangles.
- * @evidence contracts/testing.md#distinguishing-cases Covers no events, one vanishing face, interior-only face activation with two events, adjacent spans, exact physical aliases and distinct analytic normal fans, open ends, positive triangle orientation, nonunit/sparse/reversed/unbounded fields, a feasible near-parallel pair hidden by ordinary cancellation, complete interior collapse and event/cell/vertex budget refusals.
+ * @evidence contracts/testing.md#independent-expectations Constant half-axes .02/.01 metres fix the box boundary. A fifth plane with offset (a+b)/sqrt(2)+.004(t-.5) meets the positive corner at t=.5, so one feasible event occurs at Y=.05 metres. For a unit-half-axis square, h(t)=2-6t(1-t) crosses sqrt(2) twice despite being redundant at both ends. Two positive-diagonal bounds h(t)=3(1-2t)^2/256 are redundant on [-1,0] squared, but their weak nonparallel intersection touches exactly at the origin only at t=.5 and must receive the same refusal as a direct section. Analytic plane gradients determine outward normals independently of emitted triangles.
+ * @evidence contracts/testing.md#distinguishing-cases Covers no events, one vanishing face, interior-only face activation with two events, adjacent spans, exact physical aliases and distinct analytic normal fans, open ends, positive triangle orientation, nonunit/sparse/reversed/unbounded fields, a feasible near-parallel pair hidden by ordinary cancellation, an isolated interior weak tie versus the same strictly lifted redundant bounds, complete interior collapse and event/cell/vertex budget refusals.
  * @evidence contracts/testing.md#execution-ownership This portable test_geometry_convex_support_loft entry owns bounded engine CPU arrays only; it builds no native artifact, starts no process/browser/GPU and replaces no foreign method.
  */
 export function test_geometry_convex_support_loft(): void {
@@ -285,6 +285,48 @@ export function test_geometry_convex_support_loft(): void {
   TestValidator.predicate(
     "exact nonparallel feasible pair cannot be skipped as parallel",
     weakRefusal,
+  );
+  const interiorWeak: Parameters<typeof realizeAutoMovieConvexSupportLoft>[0] =
+    make(false);
+  interiorWeak.loft.planes.push(
+    { id: "interior-weak-a", normal: [diagonal, diagonal * (1 + delta)] },
+    { id: "interior-weak-b", normal: [diagonal * (1 - delta), diagonal] },
+  );
+  interiorWeak.loft.spans[0].offsets = [
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [1, 1, 1, 1],
+    [1, 1, 1, 1],
+    [3 / 256, -1 / 256, -1 / 256, 3 / 256],
+    [3 / 256, -1 / 256, -1 / 256, 3 / 256],
+  ];
+  const separatedWeak: typeof interiorWeak = structuredClone(interiorWeak);
+  for (const coefficients of separatedWeak.loft.spans[0].offsets.slice(4))
+    for (let i: number = 0; i < coefficients.length; i++)
+      coefficients[i] += 1 / 256;
+  const separated: ReturnType<typeof realizeAutoMovieConvexSupportLoft> =
+    realizeAutoMovieConvexSupportLoft(separatedWeak);
+  TestValidator.predicate(
+    "strictly redundant weak bounds preserve the independent square",
+    separated.events === 0 &&
+      separated.mesh.positions.length > 0 &&
+      separated.mesh.positions.every(
+        (coordinate: number, index: number): boolean =>
+          index % 3 === 1 ||
+          nclose(coordinate, -1, 1e-12) ||
+          nclose(coordinate, 0, 1e-12),
+      ),
+  );
+  let interiorWeakRefusal: boolean = false;
+  try {
+    realizeAutoMovieConvexSupportLoft(interiorWeak);
+  } catch (error: unknown) {
+    interiorWeakRefusal =
+      error instanceof Error && error.message.includes("weak-support-boundary");
+  }
+  TestValidator.predicate(
+    "isolated interior weak incidence obeys the same section admission",
+    interiorWeakRefusal,
   );
   const collapse: Parameters<typeof realizeAutoMovieConvexSupportLoft>[0] =
     make(false);
