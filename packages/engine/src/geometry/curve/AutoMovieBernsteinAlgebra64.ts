@@ -113,16 +113,36 @@ export namespace AutoMovieBernsteinAlgebra64 {
    * Evaluate scalar Bernstein coefficients, preserving supplied coefficients at t=0 and t=1.
    *
    * @evidence contracts/common.md#principled-implementation Bernstein endpoint identities select the first or last coefficient directly; other parameters use scalar De Casteljau levels a+t(b-a). Canonical boundaries compare shared endpoint identities exactly, so repeating affine arithmetic at an endpoint must not invent a different coefficient.
-   * @evidence contracts/common.md#clear-and-simple-design Evaluation reduces one private coefficient row instead of mutating the polynomial or allocating each intermediate level.
+   * @evidence contracts/common.md#clear-and-simple-design Degrees up to three use scalar locals for the same De Casteljau levels; higher degrees reduce one private coefficient row. Neither path mutates the supplied polynomial.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No sampling fit, parameter clamp or degree reduction is performed.
    * @evidence contracts/common.md#meaningful-documentation States exact endpoint coefficient identity and the unchanged De Casteljau path for other parameters, including extrapolation; the coefficient array is nonempty.
-   * @evidence contracts/performance.md#efficient-algorithms Endpoint selection is constant work; other parameters require O(n²) affine blends and one O(n) coefficient copy for degree n, without per-level allocation.
-   * @evidence contracts/performance.md#reuse-equivalent-work Ascending indices read each previous level's right neighbour before overwriting it, preserving the same a+t(b-a) arithmetic in one row. No cross-parameter cache is retained.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The one private coefficient row expires after evaluation and only a scalar escapes.
+   * @evidence contracts/performance.md#efficient-algorithms Endpoint selection is constant work. Degrees zero through three use at most six affine blends without a heap row; higher degrees require O(n²) blends and one O(n) coefficient copy for degree n, without per-level allocation.
+   * @evidence contracts/performance.md#reuse-equivalent-work Short nets keep successive levels in scalar locals, with the quadratic tail shared by degrees two and three. Ascending indices for higher degrees read each previous level's right neighbour before overwriting it. Both retain the same a+t(b-a) arithmetic and read original controls once; no cross-parameter cache survives.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Short nets retain at most four scalar locals; the private row for higher degrees expires after evaluation. Only a scalar escapes.
    */
   export function scalar(c: readonly number[], t: number): number {
     if (t === 0) return c[0]!;
     if (t === 1) return c.at(-1)!;
+    if (c.length === 1) return c[0]!;
+    if (c.length === 2) {
+      const first: number = c[0]!,
+        second: number = c[1]!;
+      return first + t * (second - first);
+    }
+    if (c.length === 3 || c.length === 4) {
+      let first: number = c[0]!,
+        second: number = c[1]!,
+        third: number = c[2]!;
+      if (c.length === 4) {
+        const fourth: number = c[3]!;
+        first = first + t * (second - first);
+        second = second + t * (third - second);
+        third = third + t * (fourth - third);
+      }
+      first = first + t * (second - first);
+      second = second + t * (third - second);
+      return first + t * (second - first);
+    }
     const row: number[] = [...c];
     for (let length: number = row.length; length > 1; length--)
       for (let i: number = 0; i + 1 < length; i++)
