@@ -29,7 +29,7 @@ export async function runAutoMovieRecoveryCommand(
     console.log(
       "automovie-recovery <recovery|recoveryOpen|recoveryLocal|recoveryAtlas|recoveryContourPath|images|cameras> --source-epoch <git-or-source-sha> <arguments>\n" +
         "images: observe|fit|realize input.json new-output.json maxInputBytes\n" +
-        "cameras: estimate input.json new-output.json maxInputBytes\n" +
+        "cameras: estimate|map input.json new-output.json maxInputBytes\n" +
         "recovery: extract|extract-prefix|reconstruct input.json output.json [prefixSections] [--curve-format bezier|hermite]\n" +
         "recoveryOpen: observe spec.json curves.json graph.json | reconstruct curves.json graph.json model.json\n" +
         "recoveryLocal: curves.json graph.json model.json ruled|quadratic [final-only|final-only-gzip] [analytic.json]\n" +

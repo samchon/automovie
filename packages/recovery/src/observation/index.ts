@@ -6,3 +6,4 @@ export { observeAutoMovieRecoveryImages } from "./observeAutoMovieRecoveryImages
 export { prepareAutoMovieRecoveryInput } from "./prepareAutoMovieRecoveryInput";
 export { transportAutoMovieRecoveryObservationChart } from "./transportAutoMovieRecoveryObservationChart";
 export { estimateAutoMovieRecoveryCameraPair } from "./estimateAutoMovieRecoveryCameraPair";
+export { estimateAutoMovieRecoveryCameraMap } from "./estimateAutoMovieRecoveryCameraMap";

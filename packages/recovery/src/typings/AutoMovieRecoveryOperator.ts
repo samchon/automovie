@@ -16,4 +16,5 @@ export type AutoMovieRecoveryOperator =
   | "image-elliptic-loft-v1"
   | "image-support-loft-v1"
   | "calibrated-image-pair-v1"
+  | "calibrated-three-camera-map-v1"
   | "json-publication-v1";

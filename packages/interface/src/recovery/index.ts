@@ -20,3 +20,6 @@ export type { IAutoMovieRecoveryCameraBudget } from "./IAutoMovieRecoveryCameraB
 export type { IAutoMovieRecoveryCameraCalibration } from "./IAutoMovieRecoveryCameraCalibration";
 export type { IAutoMovieRecoveryCameraPolicy } from "./IAutoMovieRecoveryCameraPolicy";
 export type { IAutoMovieRecoveryCameraView } from "./IAutoMovieRecoveryCameraView";
+export type { IAutoMovieRecoveryCameraMapInput } from "./IAutoMovieRecoveryCameraMapInput";
+export type { IAutoMovieRecoveryCameraMapPolicy } from "./IAutoMovieRecoveryCameraMapPolicy";
+export type { IAutoMovieRecoveryCameraMapBudget } from "./IAutoMovieRecoveryCameraMapBudget";
