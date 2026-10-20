@@ -4,6 +4,10 @@ import type {
 } from "@automovie/interface/recovery";
 
 import type { IAutoMovieRecoveryMapPose } from "../structures/image/IAutoMovieRecoveryMapPose";
+import type { IAutoMovieRecoveryResectionConsensus } from "../structures/internal/IAutoMovieRecoveryResectionConsensus";
+import type { IAutoMovieRecoveryResectionDesignTrace } from "../structures/internal/IAutoMovieRecoveryResectionDesignTrace";
+import type { IAutoMovieRecoveryResectionScore } from "../structures/internal/IAutoMovieRecoveryResectionScore";
+import type { IAutoMovieRecoveryResectionTrace } from "../structures/internal/IAutoMovieRecoveryResectionTrace";
 import { fitRecoveryResectionDesign } from "./fitRecoveryResectionDesign";
 import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
 import { refineRecoveryResection } from "./refineRecoveryResection";
@@ -17,12 +21,14 @@ import { sampleRecoveryCameraIndices } from "./sampleRecoveryCameraIndices";
  * support must stabilize and satisfy its recomputed conditional trial target.
  * onProposal runs exactly once before each six-point draw; checkpoint also runs
  * around refinement and therefore does not count proposals.
+ * Optional diagnostic events snapshot actual intermediate results outside the
+ * numerical catches; observer errors propagate and no event history is retained.
  *
  * @evidence contracts/common.md#principled-implementation Deterministic unique-six sampling, proper DLT projection, positive-depth Euclidean pixel support and fixed-subset SO3 refinement implement calibrated 3D-to-2D consensus. Complete scores compare inlier count then squared clipped residual; final refits and ideal finite-population confidence are separate qualification gates.
  * @evidence contracts/common.md#clear-and-simple-design This owner chooses robust support and a conditional camera; point generation, track uniqueness admission and joint map refinement remain with callers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No raw winner suppresses an eligible refinement inside its explicit budget, no truth/filename camera is consulted, and no changed final support inherits an older trial target. Only declared numerical proposal errors are counted; checkpoints and unexpected errors propagate.
- * @evidence contracts/common.md#meaningful-documentation States distinct-track caller premise, six-point nonplanar initializer, pixel scoring, local-attempt budget, stable support and conditional confidence versus physical correctness.
- * @evidence contracts/performance.md#efficient-algorithms T proposals over N landmarks use bounded twelve-column DLT plus O(N) scoring. At most L proposals and three final refits receive bounded six-coordinate refinement. O(N) current/best evidence is retained.
+ * @evidence contracts/common.md#meaningful-documentation States distinct-track caller premise, six-point nonplanar initializer, pixel scoring, local-attempt budget, stable support and conditional confidence versus physical correctness. Opt-in snapshots isolate observer mutation and observer errors propagate outside numerical catches.
+ * @evidence contracts/performance.md#efficient-algorithms T proposals over N landmarks use bounded twelve-column DLT plus O(N) scoring. At most L proposals and three final refits receive bounded six-coordinate refinement. Opt-in observation copies at most O(N) already computed evidence per event; observer work and retained history belong to its consumer. Disabled tracing allocates no event or design trace.
  * @evidence contracts/performance.md#reuse-equivalent-work Fixed 3D/pixel observations serve all proposals; unchanged final index support ends refitting. No descriptors, pixels or triangulations are recomputed.
  * @evidence contracts/performance.md#bound-retention-and-release-resources One owned accepted pose or null, index list and scalar counters return; proposal scratch and callbacks expire without cache, file or external process.
  */
@@ -35,26 +41,20 @@ export function fitRecoveryResectionConsensus(
   budget: IAutoMovieRecoveryCameraMapBudget,
   checkpoint: () => void,
   onProposal: () => void = (): void => {},
-): {
-  pose: IAutoMovieRecoveryMapPose | null;
-  indices: number[];
-  trials: number;
-  requiredTrials: number | null;
-  localRefinements: number;
-  numericalRefusals: number;
-  finalRefits: number;
-  stable: boolean;
-  refusalReasons: string[];
-  refinement: ReturnType<typeof refineRecoveryResection> | null;
-} {
+  onTrace?: (event: IAutoMovieRecoveryResectionTrace) => void,
+): IAutoMovieRecoveryResectionConsensus {
   if (points.length !== pixels.length)
     throw new Error("camera-map: paired resection population required");
-  const score: (pose: IAutoMovieRecoveryMapPose) => {
-    indices: number[];
-    cost: number;
-  } = (
+  const emit: ((event: IAutoMovieRecoveryResectionTrace) => void) | undefined =
+    onTrace
+      ? (event: IAutoMovieRecoveryResectionTrace): void =>
+          onTrace(structuredClone(event))
+      : undefined;
+  const score: (
     pose: IAutoMovieRecoveryMapPose,
-  ): { indices: number[]; cost: number } => {
+  ) => IAutoMovieRecoveryResectionScore = (
+    pose: IAutoMovieRecoveryMapPose,
+  ): IAutoMovieRecoveryResectionScore => {
     const indices: number[] = [];
     let cost: number = 0;
     for (let at: number = 0; at < points.length; at++) {
@@ -99,7 +99,10 @@ export function fitRecoveryResectionConsensus(
       0x504e5052,
       trials++,
     );
-    let candidate: IAutoMovieRecoveryMapPose;
+    const diagnostic: IAutoMovieRecoveryResectionDesignTrace | undefined =
+      onTrace ? { stage: "admission" } : undefined;
+    let designError: string | null = null;
+    let candidate: IAutoMovieRecoveryMapPose | null = null;
     try {
       candidate = fitRecoveryResectionDesign(
         sample.map(
@@ -109,19 +112,42 @@ export function fitRecoveryResectionConsensus(
         inverse,
         policy,
         budget,
+        diagnostic,
       ).pose;
     } catch (error: unknown) {
       if (!numerical(error)) throw error;
       numericalRefusals++;
+      designError = error instanceof Error ? error.message : String(error);
+    }
+    if (candidate === null) {
+      emit?.({
+        phase: "proposal",
+        index: trials - 1,
+        sample,
+        design: diagnostic!,
+        error: designError,
+        beforePose: null,
+        before: null,
+        refinementAttempted: false,
+        refinement: null,
+        afterPose: null,
+        after: null,
+        stable: null,
+      });
       continue;
     }
     let measured: ReturnType<typeof score> = score(candidate);
+    const beforePose: IAutoMovieRecoveryMapPose = candidate;
+    const before: IAutoMovieRecoveryResectionScore = measured;
+    let local: ReturnType<typeof refineRecoveryResection> | null = null;
+    let localError: string | null = null;
+    let refinementAttempted: boolean = false;
     if (
       measured.indices.length >= 6 &&
       localRefinements < budget.maxLocalRefinements
     ) {
       localRefinements++;
-      let local: ReturnType<typeof refineRecoveryResection> | null = null;
+      refinementAttempted = true;
       // Checkpoints stay outside speculative numerical catches.
       try {
         local = refineRecoveryResection(
@@ -140,6 +166,7 @@ export function fitRecoveryResectionConsensus(
       } catch (error: unknown) {
         if (!numerical(error)) throw error;
         numericalRefusals++;
+        localError = error instanceof Error ? error.message : String(error);
       }
       checkpoint();
       if (local?.converged) {
@@ -154,6 +181,20 @@ export function fitRecoveryResectionConsensus(
         }
       }
     }
+    emit?.({
+      phase: "proposal",
+      index: trials - 1,
+      sample,
+      design: diagnostic!,
+      error: localError,
+      beforePose,
+      before,
+      refinementAttempted,
+      refinement: local,
+      afterPose: candidate,
+      after: measured,
+      stable: null,
+    });
     if (
       measured.indices.length > best.indices.length ||
       (measured.indices.length === best.indices.length &&
@@ -172,8 +213,12 @@ export function fitRecoveryResectionConsensus(
   while (pose !== null && best.indices.length >= 6 && finalRefits < 3) {
     checkpoint();
     finalRefits++;
+    const beforePose: IAutoMovieRecoveryMapPose = pose;
+    const before: IAutoMovieRecoveryResectionScore = best;
+    let finalError: string | null = null;
+    let finalFit: ReturnType<typeof refineRecoveryResection> | null = null;
     try {
-      refinement = refineRecoveryResection(
+      finalFit = refineRecoveryResection(
         pose,
         best.indices.map(
           (at: number): readonly [number, number, number] => points[at]!,
@@ -189,10 +234,44 @@ export function fitRecoveryResectionConsensus(
     } catch (error: unknown) {
       if (!numerical(error)) throw error;
       numericalRefusals++;
+      finalError = error instanceof Error ? error.message : String(error);
+    }
+    if (finalError !== null) {
+      emit?.({
+        phase: "final-refit",
+        index: finalRefits - 1,
+        sample: before.indices,
+        design: null,
+        error: finalError,
+        beforePose,
+        before,
+        refinementAttempted: true,
+        refinement: null,
+        afterPose: null,
+        after: null,
+        stable: null,
+      });
       break;
     }
+    refinement = finalFit!;
     checkpoint();
-    if (!refinement.converged) break;
+    if (!refinement.converged) {
+      emit?.({
+        phase: "final-refit",
+        index: finalRefits - 1,
+        sample: before.indices,
+        design: null,
+        error: null,
+        beforePose,
+        before,
+        refinementAttempted: true,
+        refinement,
+        afterPose: null,
+        after: null,
+        stable: null,
+      });
+      break;
+    }
     const next: ReturnType<typeof score> = score(refinement.pose);
     stable =
       next.indices.length === best.indices.length &&
@@ -201,6 +280,20 @@ export function fitRecoveryResectionConsensus(
       );
     pose = refinement.pose;
     best = next;
+    emit?.({
+      phase: "final-refit",
+      index: finalRefits - 1,
+      sample: before.indices,
+      design: null,
+      error: null,
+      beforePose,
+      before,
+      refinementAttempted: true,
+      refinement,
+      afterPose: pose,
+      after: best,
+      stable,
+    });
     if (stable) break;
   }
   required = requiredRecoveryCameraTrials(

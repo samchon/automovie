@@ -5,7 +5,8 @@ import type {
   IAutoMovieRecoveryCameraMapPolicy,
 } from "@automovie/interface/recovery";
 
-import type { IAutoMovieRecoveryMapPose } from "../structures/image/IAutoMovieRecoveryMapPose";
+import type { IAutoMovieRecoveryResectionDesign } from "../structures/internal/IAutoMovieRecoveryResectionDesign";
+import type { IAutoMovieRecoveryResectionDesignTrace } from "../structures/internal/IAutoMovieRecoveryResectionDesignTrace";
 
 /**
  * Initialize a calibrated nonplanar resection from at least six 3D/pixel pairs.
@@ -14,6 +15,8 @@ import type { IAutoMovieRecoveryMapPose } from "../structures/image/IAutoMovieRe
  * This nonminimal initializer does not support planar or rank-unresolved designs.
  * The DLT/nonplanar distinction is described by OpenCV's official solvePnP guide:
  * https://docs.opencv.org/4.x/d5/d1f/calib3d_solvePnP.html
+ * An optional fresh caller-owned trace receives computed stage evidence only;
+ * diagnostic projective or pre-gate rigid coefficients never imply acceptance.
  *
  * @evidence contracts/common.md#principled-implementation Cross-product ray equations give a homogeneous projective design without forming its normal matrix. Independent 3D span, eleven resolved design directions, null separation and scaled proper-rotation discrepancy qualify the initializer before any pixel scoring.
  * @evidence contracts/common.md#clear-and-simple-design This recovery owner only initializes a world-to-camera pose; robust proposal selection and local pixel refinement remain separate.
@@ -21,7 +24,7 @@ import type { IAutoMovieRecoveryMapPose } from "../structures/image/IAutoMovieRe
  * @evidence contracts/common.md#meaningful-documentation States isotropic normalization and reversal, original-design rank/null gates, row-major world-to-camera output, nonplanar support boundary and unknown metric scale.
  * @evidence contracts/performance.md#efficient-algorithms N pairs use bounded 12-column original-design SVD O(S*N*12^2), plus three-column span and rotation decompositions; explicit linear-entry limits precede designs.
  * @evidence contracts/performance.md#reuse-equivalent-work Centered points and calibrated rays serve normalization and the same design; one rotation-block factorization supplies scale, proper projection and discrepancy.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Only one owned pose and scalar diagnostics return; O(N) normalized coordinates and factors expire without image, cache or external resource.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources One owned pose and scalar diagnostics return; an optional fresh caller-owned trace retains at most twelve projective coefficients, one fixed-size projected pose and stage scalars. O(N) normalized coordinates and factors expire without image, cache or external resource; no trace history is retained here.
  */
 export function fitRecoveryResectionDesign(
   points: readonly (readonly [number, number, number])[],
@@ -29,12 +32,9 @@ export function fitRecoveryResectionDesign(
   inverse: readonly number[],
   policy: IAutoMovieRecoveryCameraMapPolicy,
   budget: IAutoMovieRecoveryCameraMapBudget,
-): {
-  pose: IAutoMovieRecoveryMapPose;
-  designRatio: number;
-  nullRatio: number;
-  projectionError: number;
-} {
+  trace?: IAutoMovieRecoveryResectionDesignTrace,
+): IAutoMovieRecoveryResectionDesign {
+  if (trace) trace.stage = "admission";
   if (
     points.length < 6 ||
     points.length !== pixels.length ||
@@ -49,6 +49,7 @@ export function fitRecoveryResectionDesign(
     maxSweeps: budget.maxSingularSweeps,
     orthogonalityTolerance: 1e-12,
   };
+  if (trace) trace.stage = "normalization";
   const centroid: number[] = [0, 0, 0];
   const rays: [number, number][] = pixels.map(
     (pixel: readonly [number, number]): [number, number] => {
@@ -98,8 +99,13 @@ export function fitRecoveryResectionDesign(
   const normalized: number[][] = centred.map((point: number[]): number[] =>
     point.map((value: number): number => value * scale3),
   );
+  if (trace) trace.stage = "span-factorization";
   const span: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
     decomposeAutoMovieSingularMatrix(normalized, options);
+  if (trace) {
+    trace.stage = "span";
+    trace.spanRatio = span.singularValues[2]! / span.singularValues[0]!;
+  }
   if (
     !(
       span.singularValues[2]! / span.singularValues[0]! >=
@@ -131,12 +137,18 @@ export function fitRecoveryResectionDesign(
       ...x.map((value: number): number => -v * value),
     ]);
   }
+  if (trace) trace.stage = "design-factorization";
   const factors: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
     decomposeAutoMovieSingularMatrix(rows, options);
   const designRatio: number =
       factors.singularValues[10]! / factors.singularValues[0]!,
     nullRatio: number =
       factors.singularValues[11]! / factors.singularValues[10]!;
+  if (trace) {
+    trace.stage = "design-rank";
+    trace.designRatio = designRatio;
+    trace.nullRatio = nullRatio;
+  }
   if (
     !(designRatio >= policy.minimumDesignSingularRatio) ||
     !(nullRatio <= policy.maximumDltNullRatio)
@@ -170,6 +182,10 @@ export function fitRecoveryResectionDesign(
             ),
     );
   }
+  if (trace) {
+    trace.stage = "rotation-block";
+    trace.projective = denormalized.slice();
+  }
   let block: number[] = [0, 1, 2, 4, 5, 6, 8, 9, 10].map(
     (at: number): number => denormalized[at]!,
   );
@@ -181,11 +197,16 @@ export function fitRecoveryResectionDesign(
     throw new Error("camera-resection: unresolved rotation block");
   const sign: number = determinant < 0 ? -1 : 1;
   block = block.map((value: number): number => sign * value);
+  if (trace) {
+    trace.stage = "rotation-factorization";
+    trace.projectiveSign = sign;
+  }
   const rotationFactors: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
     decomposeAutoMovieSingularMatrix(
       [block.slice(0, 3), block.slice(3, 6), block.slice(6, 9)],
       options,
     );
+  if (trace) trace.stage = "rotation-rank";
   if (rotationFactors.numericalRank !== 3)
     throw new Error("camera-resection: unresolved rotation projection");
   const rotation: number[] = new Array<number>(9).fill(0);
@@ -205,6 +226,18 @@ export function fitRecoveryResectionDesign(
         (value: number, at: number): number => value - scale * rotation[at]!,
       ),
     ) / Math.hypot(...block);
+  if (trace) {
+    trace.stage = "projection";
+    trace.projectionError = projectionError;
+    const diagnosticTranslation: [number, number, number] = [3, 7, 11].map(
+      (at: number): number => (sign * denormalized[at]!) / scale,
+    ) as [number, number, number];
+    if ([...rotation, ...diagnosticTranslation].every(Number.isFinite))
+      trace.projectedPose = {
+        rotation: rotation.slice(),
+        translation: diagnosticTranslation,
+      };
+  }
   if (
     !(scale > 0) ||
     !(projectionError <= policy.maximumRotationProjectionError)
@@ -213,8 +246,10 @@ export function fitRecoveryResectionDesign(
   const translation: [number, number, number] = [3, 7, 11].map(
     (at: number): number => (sign * denormalized[at]!) / scale,
   ) as [number, number, number];
+  if (trace) trace.stage = "pose";
   if (![...rotation, ...translation].every(Number.isFinite))
     throw new Error("camera-resection: nonrepresentable pose");
+  if (trace) trace.stage = "complete";
   return {
     pose: { rotation, translation },
     designRatio,
