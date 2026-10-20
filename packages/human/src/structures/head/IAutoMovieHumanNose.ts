@@ -1,6 +1,6 @@
 import { tags } from "typia";
 
-/** Nose measurements between the Farkas landmarks, in millimetres. */
+/** Euclidean three-dimensional distances between the Farkas landmarks, in millimetres, following the [FaceBase inter-landmark protocol](https://www.facebase.org/resources/human/facial_norms/notes/). */
 export interface IAutoMovieHumanNose {
   /** Alare to alare. */
   width: number & tags.Minimum<10> & tags.Maximum<70>;

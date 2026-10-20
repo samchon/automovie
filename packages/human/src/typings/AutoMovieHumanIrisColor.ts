@@ -1,7 +1,7 @@
 /**
  * Iris colour, as a closed choice ordered from the lightest to the darkest iris.
  *
- * The eye generator turns a choice into stroma colour and pattern. The choice is a category because no continuous measurement of iris pigment was read; a measured quantity replaces it when one is.
+ * The choice describes an iris colour category rather than a measured pigment concentration or a stroma pattern.
  */
 export const enum AutoMovieHumanIrisColor {
   /** Blue iris. */

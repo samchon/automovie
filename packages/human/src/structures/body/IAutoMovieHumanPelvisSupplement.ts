@@ -14,10 +14,4 @@ export interface IAutoMovieHumanPelvisSupplement {
 
   /** Standing height of the internal roof crown, mm; an internal construction dimension, not a clinical event claim. */
   perinealCrownHeightMm: number;
-
-  /** Left thigh transverse breadth divided by fore-aft depth; dimensionless. */
-  leftThighBreadthOverDepth: number;
-
-  /** Right thigh transverse breadth divided by fore-aft depth; dimensionless. */
-  rightThighBreadthOverDepth: number;
 }

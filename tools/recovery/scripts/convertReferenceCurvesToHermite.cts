@@ -15,7 +15,7 @@ interface ObjectValue {
 }
 
 /** Curve and span inventory at a conversion boundary. */
-interface CurveCounts {
+interface CurveCounts extends ObjectValue {
   curves: number;
   spans: number;
 }
@@ -83,7 +83,7 @@ export function convertReferenceCurvesToHermite(): void {
     outputLogicalBytes: 512 * MiB,
     outputGzipBytes: 128 * MiB,
     receiptBytes: 32 * 1024,
-    diskFloorBytes: 3 * 1024 * MiB,
+    diskFloorBytes: (3 * 1024 + 100) * MiB,
     maximumRssKiB: 4 * 1024 * 1024,
   };
   const initialSpace: fs.StatsFs = fs.statfsSync(path.dirname(outputPath!));

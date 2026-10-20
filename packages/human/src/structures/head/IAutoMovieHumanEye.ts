@@ -1,8 +1,8 @@
 import { tags } from "typia";
 
-/** One eye opening measured between the Farkas landmarks, in millimetres. */
+/** One eye opening measured between the Farkas landmarks, in millimetres. Fissure length follows the [FaceBase inter-landmark protocol](https://www.facebase.org/resources/human/facial_norms/notes/). */
 export interface IAutoMovieHumanEye {
-  /** Endocanthion to exocanthion. */
+  /** Euclidean three-dimensional distance from endocanthion to exocanthion. */
   palpebralFissureLength: number & tags.Minimum<10> & tags.Maximum<50>;
 
   /** Upper to lower lid margin at the pupil, eye open at rest. */

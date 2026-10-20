@@ -10,7 +10,7 @@ export interface IAutoMovieHumanFace {
   /** Eye openings; equal values retain a shared bilateral measurement. */
   eyePair: IAutoMovieHumanPair<IAutoMovieHumanEye>;
 
-  /** Endocanthion to endocanthion, millimetres. */
+  /** Euclidean three-dimensional distance between the two endocanthia, millimetres. */
   intercanthalWidth: number & tags.Minimum<10> & tags.Maximum<60>;
 
   /** Nose dimensions. */

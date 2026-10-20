@@ -5,7 +5,7 @@ import path from "node:path";
 
 /**
  * Install the actual workspace TypeScript version in the external type consumer.
- * Invoke only after the separate three-tarball offline runtime checks finish.
+ * Invoke only after the separate packed-closure offline runtime checks finish.
  * The normal development dependency includes its platform package; the compiler
  * owner still performs the actual strict declaration check against that consumer.
  *

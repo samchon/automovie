@@ -3,7 +3,7 @@ import { tags } from "typia";
 /**
  * One leg, measured standing.
  *
- * The three lengths stack: their sum is the trochanterion height of that leg, the top of the greater trochanter above the standing surface, which lies within a few millimetres of the hip joint centre height.
+ * Thigh length, shank length and ankle height are vertical height intervals in the same standing-surface datum. Their sum is the trochanterion height of that leg, the top of the greater trochanter above the standing surface.
  */
 export interface IAutoMovieHumanLegIdentity {
   /**
@@ -30,7 +30,7 @@ export interface IAutoMovieHumanLegIdentity {
   footBreadth: number & tags.Minimum<20> & tags.Maximum<180>;
 
   /**
-   * Navicular height: the navicular tuberosity, the bony prominence in front of and below the medial malleolus, above the standing surface with full weight on the foot, millimetres. It sets the height of the medial longitudinal arch: about 0.20 of foot length in Dutch adults and 0.17 in Malawian adults (Stolwijk et al. 2013, PLoS ONE 8(2):e57209), and lower in young children, 15.8 mm at 2 years and 27.0 mm at 6 (Chang et al. 2012, Biomed Eng Online 11:76).
+   * Navicular height: the navicular tuberosity, the bony prominence in front of and below the medial malleolus, above the standing surface with full weight on the foot, millimetres. Reported navicular heights are about 0.20 of foot length in Dutch adults and 0.17 in Malawian adults (Stolwijk et al. 2013, PLoS ONE 8(2):e57209), and lower in young children, 15.8 mm at 2 years and 27.0 mm at 6 (Chang et al. 2012, Biomed Eng Online 11:76).
    */
   navicularHeight: number & tags.Minimum<5> & tags.Maximum<100>;
 
@@ -40,7 +40,7 @@ export interface IAutoMovieHumanLegIdentity {
   thighCircumference: number & tags.Minimum<120> & tags.Maximum<1300>;
 
   /**
-   * Lower thigh circumference at suprapatella, the upper border of the patella, perpendicular to the thigh axis, millimetres, as ANSUR II measures it. With the thigh circumference it fixes how the thigh tapers to the knee.
+   * Lower thigh circumference at suprapatella, the upper border of the patella, perpendicular to the thigh axis, millimetres, as ANSUR II measures it.
    */
   lowerThighCircumference: number & tags.Minimum<80> & tags.Maximum<900>;
 

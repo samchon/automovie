@@ -1,6 +1,6 @@
 import { tags } from "typia";
 
-/** Resting mouth measurements with closed lips, in millimetres. */
+/** Euclidean three-dimensional distances on the resting mouth with closed lips, in millimetres, following the [FaceBase inter-landmark protocol](https://www.facebase.org/resources/human/facial_norms/notes/). */
 export interface IAutoMovieHumanMouth {
   /** Cheilion to cheilion. */
   width: number & tags.Minimum<15> & tags.Maximum<90>;

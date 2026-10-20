@@ -6,3 +6,4 @@ export { createAutoMovieRecoveryMeshSpool } from "./internal/createAutoMovieReco
 export { writeAutoMovieRecoveryArtifact } from "./internal/writeAutoMovieRecoveryArtifact";
 export { runAutoMovieRecoveryCommand } from "./runAutoMovieRecoveryCommand";
 export { publishAutoMovieRecoveryArtifact } from "./publishAutoMovieRecoveryArtifact";
+export type { IAutoMovieRecoveryImageFiles } from "./IAutoMovieRecoveryImageFiles";

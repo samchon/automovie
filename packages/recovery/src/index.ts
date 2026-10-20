@@ -1,8 +1,8 @@
-export { IAutoMovieRecoveryMeshSections } from "./internal/IAutoMovieRecoveryMeshSections";
+export type { IAutoMovieRecoveryMeshSections } from "./internal/IAutoMovieRecoveryMeshSections";
 export { AutoMovieRecoveryMeshSections } from "./internal/AutoMovieRecoveryMeshSections";
 export { AutoMovieRecoveryOpenContinuation } from "./internal/AutoMovieRecoveryOpenContinuation";
 export { observeAutoMovieRecoveryAtlas } from "./internal/observeAutoMovieRecoveryAtlas";
-export { IAutoMovieRecoveryEventChartInput } from "./internal/IAutoMovieRecoveryEventChartInput";
+export type { IAutoMovieRecoveryEventChartInput } from "./internal/IAutoMovieRecoveryEventChartInput";
 export { AutoMovieRecoveryEventCurve } from "./internal/AutoMovieRecoveryEventCurve";
 export { compileAutoMovieRecoveryNativeNamedChart } from "./internal/compileAutoMovieRecoveryNativeNamedChart";
 export { prepareAutoMovieRecoveryAnnularChart } from "./internal/prepareAutoMovieRecoveryAnnularChart";
@@ -14,6 +14,13 @@ export { applyAutoMovieRecoveryAnalyticPublication } from "./internal/applyAutoM
 export { transportAutoMovieRecoveryObservationChart } from "./internal/transportAutoMovieRecoveryObservationChart";
 export { compileAutoMovieRecoveryAtlas } from "./internal/compileAutoMovieRecoveryAtlas";
 export { observeAutoMovieRecovery } from "./observeAutoMovieRecovery";
+export { observeAutoMovieRecoveryImages } from "./observeAutoMovieRecoveryImages";
+export { fitAutoMovieRecoveryImageLoft } from "./fitAutoMovieRecoveryImageLoft";
+export { compileAutoMovieRecoveryImageLoft } from "./compileAutoMovieRecoveryImageLoft";
+export type { IAutoMovieRecoveryImageFit } from "./IAutoMovieRecoveryImageFit";
+export { compileAutoMovieRecoverySupportLoft } from "./compileAutoMovieRecoverySupportLoft";
+export type { IAutoMovieRecoverySupportFit } from "./IAutoMovieRecoverySupportFit";
+export { fitAutoMovieRecoveryImageSupportLoft } from "./fitAutoMovieRecoveryImageSupportLoft";
 export { reconstructAutoMovieRecoveryModel } from "./reconstructAutoMovieRecoveryModel";
 export type { IAutoMovieRecoveryOperation } from "./IAutoMovieRecoveryOperation";
 export { prepareAutoMovieRecoveryInput } from "./prepareAutoMovieRecoveryInput";

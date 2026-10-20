@@ -25,7 +25,7 @@ export interface IAutoMovieHumanArmIdentity {
   handBreadth: number & tags.Minimum<20> & tags.Maximum<160>;
 
   /**
-   * Palm length: stylion to the palmar crease at the base of the middle finger, millimetres, as ANSUR II measures it. Hand length less palm length is the middle finger from its crease, which grows faster than the palm through childhood (0.42 of hand length at 2 to 4 years against 0.44 at 16 to 18; Snyder et al. 1977, UM-HSRI-77-17), so it places the knuckles.
+   * Palm length: stylion to the palmar crease at the base of the middle finger, millimetres, as ANSUR II measures it. This endpoint is the skin crease; its correspondence to a metacarpophalangeal joint centre is not specified.
    */
   palmLength: number & tags.Minimum<20> & tags.Maximum<200>;
 

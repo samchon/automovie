@@ -6,16 +6,11 @@ import { IAutoMovieHumanNeutralTrunk } from "./IAutoMovieHumanNeutralTrunk";
 import { IAutoMovieHumanPair } from "../common/IAutoMovieHumanPair";
 
 /**
- * Physical measurements of one neutral figure, without a clinical-identity
- * conversion. Lengths and offsets are millimetres, mechanical directions use
- * degrees, +X is subject-left, +Y up and +Z anterior. The retained root
- * datum need not lie on the lowest exported vertex. A source-neutral A posture
- * is a rest configuration, not an observed tissue conversion to T posture.
+ * Physical measurements of one neutral figure, without a clinical-identity conversion. Lengths and offsets are millimetres, mechanical directions use degrees, +X is subject-left, +Y up and +Z anterior. The retained root datum need not lie on the lowest exported vertex. A source-neutral A posture is a rest configuration, not an observed tissue conversion to T posture.
  *
- * Inputs name mechanical supports, measurement sites and envelope dimensions;
- * they contain no mesh, curve, patch, fitted specimen controls or source indices.
- * Clinical stature, palpable landmarks, body composition and demographic traits
- * are not inferred from these geometric observations.
+ * Inputs name mechanical supports, measurement sites and envelope dimensions; they contain no mesh, curve, patch, fitted specimen controls or source indices. Clinical stature, palpable landmarks, body composition and demographic traits are not inferred from these geometric observations.
+ *
+ * Section origins and signed local axes belong to the supplying measurement protocol; retain that protocol when comparing or locating these scalar observations.
  */
 export interface IAutoMovieHumanNeutral {
   /** The posture used for these measurements. */

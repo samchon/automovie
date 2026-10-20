@@ -29,6 +29,13 @@ packages/*/src/**/*.js
 packages/*/src/**/*.js.map
 # declarations emitted beside a source are compiler output, just like JavaScript.
 packages/*/src/**/*.d.ts
+# repository instructions the scaffold mirrors; packages/template/build/syncScaffoldInstructions.ts
+# regenerates them on prepare and build, and its SHARED list must match these paths
+packages/template/scaffold/.agents/skills/3d-modeling/
+packages/template/scaffold/.agents/skills/contracts/common.md
+packages/template/scaffold/.agents/skills/contracts/testing.md
+packages/template/scaffold/.agents/skills/development/repair.md
+packages/template/scaffold/.agents/skills/documentation/writing.md
 # the scaffold nests a whole project, so its own sources need the same rule
 packages/template/scaffold/src/**/*.js
 packages/template/scaffold/src/**/*.js.map
@@ -41,3 +48,7 @@ test/src/**/*.d.ts
 
 # Python bytecode
 __pycache__/
+
+# Local reference experiment runner and captured artifacts.
+test/src/executable/
+test/.shots/

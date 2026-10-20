@@ -1,20 +1,22 @@
 import { type SpawnSyncReturns, spawnSync } from "node:child_process";
-import { createHash } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { installAutoMovieRecoveryConsumerToolchain } from "./installAutoMovieRecoveryConsumerToolchain.ts";
+import { packAutoMovieRecoveryClosure } from "./packAutoMovieRecoveryClosure.ts";
+import { verifyAutoMovieRecoveryImageConsumer } from "./verifyAutoMovieRecoveryImageConsumer.ts";
 import { verifyAutoMovieRecoveryOpenConsumer } from "./verifyAutoMovieRecoveryOpenConsumer.ts";
 import { verifyAutoMovieRecoveryRegisteredConsumer } from "./verifyAutoMovieRecoveryRegisteredConsumer.ts";
+import { verifyAutoMovieRecoverySupportConsumer } from "./verifyAutoMovieRecoverySupportConsumer.ts";
 
 /**
  * Verify actual packed recovery imports, installed bin and immutable publication.
  * Run after the workspace build with the recovery-tools verify:package script.
  * That pnpm run host supplies npm_execpath; an explicit driver override remains
  * available to controlled hosts. Packing disables lifecycle scripts.
- * The external consumer installs only exact interface, engine and recovery tarballs;
+ * The external consumer installs the exact packed recovery runtime closure;
  * its package store and temporary paths are run-owned. Runtime installation is
  * offline. After runtime checks, the consumer normally installs the workspace
  * TypeScript version as a development dependency for the separate declaration check.
@@ -29,7 +31,7 @@ import { verifyAutoMovieRecoveryRegisteredConsumer } from "./verifyAutoMovieReco
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No source alias, parent dependency, NODE_PATH, compiler hook, source mesh, global replacement or private tool supplies the consumer's runtime.
  * @evidence contracts/common.md#meaningful-documentation States build prerequisites, offline exact tarballs, Node permissions, type-check distinction and evidence-retention ownership.
  * @evidence contracts/performance.md#efficient-algorithms Packing and installation traverse the distribution bytes once per operation; the numerical consumer uses constant-size generic curves and writes only small artifacts.
- * @evidence contracts/performance.md#reuse-equivalent-work The same three packed byte artifacts are installed and hashed; geometry is generated once for its independent physical checks and publication.
+ * @evidence contracts/performance.md#reuse-equivalent-work The same packed closure artifacts are installed and hashed; geometry is generated once for its independent physical checks and publication.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Every child is synchronous and time-bounded, has no install scripts and inherits run-owned temporary/cache paths. The caller owns packed and failed-run evidence and must retire it after collection; no worker remains after a settled child.
  */
 export function verifyAutoMovieRecoveryPackage(): void {
@@ -131,37 +133,12 @@ export function verifyAutoMovieRecoveryPackage(): void {
     /\.[cm]?js$/i.test(driver)
       ? run(process.execPath, [driver, ...args], cwd)
       : run(driver, args, cwd);
-  const packs: { name: string; file: string; bytes: number; sha256: string }[] =
-    [];
-  for (const name of ["interface", "engine", "recovery"]) {
-    pnpm(
-      [
-        "--config.ignore-scripts=true",
-        "pack",
-        "--pack-destination",
-        path.join(scratch, "packs"),
-      ],
-      path.join(repository, "packages", name),
-    );
-    const metadata: { version: string } = JSON.parse(
-      fs.readFileSync(
-        path.join(repository, "packages", name, "package.json"),
-        "utf8",
-      ),
-    );
-    const file: string = path.join(
-      scratch,
-      "packs",
-      `automovie-${name}-${metadata.version}.tgz`,
-    );
-    const bytes: Buffer = fs.readFileSync(file);
-    packs.push({
-      name: `@automovie/${name}`,
-      file,
-      bytes: bytes.length,
-      sha256: createHash("sha256").update(bytes).digest("hex"),
+  const packs: ReturnType<typeof packAutoMovieRecoveryClosure> =
+    packAutoMovieRecoveryClosure({
+      repository,
+      packs: path.join(scratch, "packs"),
+      pnpm,
     });
-  }
   const dependencies: Record<string, string> = Object.fromEntries(
     packs.map((pack: (typeof packs)[number]): [string, string] => [
       pack.name,
@@ -390,15 +367,45 @@ console.log(JSON.stringify({node:process.version,version,area,status:result.stat
       sourceEpoch,
       run,
     });
+  const imageConsumer: ReturnType<typeof verifyAutoMovieRecoveryImageConsumer> =
+    verifyAutoMovieRecoveryImageConsumer({
+      consumer,
+      cli: packageCli,
+      sourceEpoch,
+      run,
+    });
+  const supportConsumer: ReturnType<
+    typeof verifyAutoMovieRecoverySupportConsumer
+  > = verifyAutoMovieRecoverySupportConsumer({
+    consumer,
+    cli: packageCli,
+    sourceEpoch,
+    run,
+  });
   fs.writeFileSync(
     path.join(consumer, "consumer-types.mts"),
     `import { observeAutoMovieRecovery, reconstructAutoMovieRecoveryModel } from "@automovie/recovery";
 import { publishAutoMovieRecoveryArtifact } from "@automovie/recovery/node";
-import type { IAutoMovieRecoveryInput } from "@automovie/interface/recovery";
+import type { IAutoMovieRecoveryInput, IAutoMovieRecoveryImageInput, IAutoMovieRecoveryImageLoft } from "@automovie/interface/recovery";
+import { observeAutoMovieRecoveryImages, fitAutoMovieRecoveryImageLoft, compileAutoMovieRecoveryImageLoft } from "@automovie/recovery";
+import { decodeAutoMoviePpmImage } from "@automovie/ingest/ppm";
+import { fitAutoMovieRecoveryImageSupportLoft, compileAutoMovieRecoverySupportLoft } from "@automovie/recovery";
+import type { IAutoMovieRecoveryImageObservation, IAutoMovieRecoverySupportLoft } from "@automovie/interface/recovery";
+export function consumeSupport(observation: IAutoMovieRecoveryImageObservation, recipe: IAutoMovieRecoverySupportLoft): void {
+ const generation: Parameters<typeof compileAutoMovieRecoverySupportLoft>[1]={tolerance:.00005,maxPlanes:32,maxEvents:128,maxCells:20000,maxVertices:30000,minimumDirectionSine:.0001};
+ fitAutoMovieRecoveryImageSupportLoft(observation,{family:"finite-view-convex-support",maxViews:12,maxRows:2000,maxSpans:4,maximumResidualPx:2,minimumSplineRatio:1e-8,generation});
+ compileAutoMovieRecoverySupportLoft(recipe,generation);
+}
 export function consume(input: IAutoMovieRecoveryInput, saved: Parameters<typeof reconstructAutoMovieRecoveryModel>[0]): void {
  const observed: ReturnType<typeof observeAutoMovieRecovery> = observeAutoMovieRecovery(input);
  const generated: ReturnType<typeof reconstructAutoMovieRecoveryModel> = reconstructAutoMovieRecoveryModel(saved);
  if ("value" in observed && "value" in generated) publishAutoMovieRecoveryArtifact("unused.json", {observed:observed.value,model:generated.value.model});
+}
+export function consumeImages(input: IAutoMovieRecoveryImageInput, recipe: IAutoMovieRecoveryImageLoft, bytes: Uint8Array): void {
+ const observed: ReturnType<typeof observeAutoMovieRecoveryImages> = observeAutoMovieRecoveryImages(input);
+ if ("value" in observed) fitAutoMovieRecoveryImageLoft(observed.value, {family:"aligned-elliptical-sections",maxViews:4,maxRows:400,maxSpans:4,maximumResidualPx:2,minimumDirectionRatio:.001,minimumSplineRatio:1e-8});
+ compileAutoMovieRecoveryImageLoft(recipe,{tolerance:.0001,maxCells:20000,maxVertices:30000});
+ decodeAutoMoviePpmImage(bytes,{maxPixels:150000,maxHeaderBytes:128,transfer:"srgb"});
 }
 `,
   );
@@ -451,6 +458,8 @@ export function consume(input: IAutoMovieRecoveryInput, saved: Parameters<typeof
       schema: model.schema,
       registeredObservationAndContinuation: true,
       openConsumer,
+      imageConsumer,
+      supportConsumer,
     },
     version: version.trim(),
     refusedExit: refused.status,

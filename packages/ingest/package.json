@@ -5,7 +5,13 @@
   "main": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
+    "./ppm": "./src/decodeAutoMoviePpmImage.ts",
     "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "ppm": ["src/decodeAutoMoviePpmImage.ts"]
+    }
   },
   "scripts": {
     "build": "rimraf lib && ttsc",
@@ -35,7 +41,16 @@
         "types": "./lib/index.d.ts",
         "default": "./lib/index.js"
       },
+      "./ppm": {
+        "types": "./lib/decodeAutoMoviePpmImage.d.ts",
+        "default": "./lib/decodeAutoMoviePpmImage.js"
+      },
       "./package.json": "./package.json"
+    },
+    "typesVersions": {
+      "*": {
+        "ppm": ["lib/decodeAutoMoviePpmImage.d.ts"]
+      }
     }
   },
   "dependencies": {

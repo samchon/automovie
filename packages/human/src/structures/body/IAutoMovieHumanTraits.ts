@@ -9,14 +9,14 @@ import { IAutoMovieHumanBuildTraits } from "./IAutoMovieHumanBuildTraits";
  *
  * This is an authored parameter description. No converter or statistical expansion is supplied.
  *
- * Build traits are normalized offsets: zero is the reference population's mean for the given sex and age, the sign states the direction, and one is a large but living departure that a converter documents in its own units.
+ * Build traits are normalized authoring offsets: zero denotes the requested reference population's mean for the given sex and age, and the sign states the direction. These offsets do not define a conversion to physical measurements.
  */
 export interface IAutoMovieHumanTraits {
   /** Sex category associated with the requested reference statistics. */
   sex: AutoMovieHumanSex;
 
   /**
-   * Age in years, fractional for infants. No upper limit is imposed; a converter documents the ages its data covers and how it treats the rest.
+   * Age in years, fractional for infants. No upper limit or reference-survey coverage is implied by this field.
    */
   age: number & tags.Minimum<0>;
 

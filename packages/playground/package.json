@@ -23,6 +23,7 @@
     "@automovie/archetypes": "workspace:^",
     "@automovie/engine": "workspace:^",
     "@automovie/interface": "workspace:^",
+    "@automovie/recovery": "workspace:^",
     "@automovie/render": "workspace:^",
     "@automovie/viewer": "workspace:^",
     "three": "catalog:three"

@@ -26,12 +26,12 @@ export interface IAutoMovieHumanHeadIdentity {
   circumference: number & tags.Minimum<300> & tags.Maximum<700>;
 
   /**
-   * Head height: vertex to menton, the lowest point of the chin, head in the Frankfurt plane, millimetres. Stature over head height is about 5.3 at age 2 and 8.0 in late adolescence (Snyder et al. 1977, UM-HSRI-77-17).
+   * Head height: menton-to-vertex separation measured perpendicular to the Frankfort plane, millimetres, following [Snyder et al. 1977, measurement 25](https://math.nist.gov/~SRessler/anthrokids/data1977/descrip.htm). Stature over head height is about 5.3 at age 2 and 8.0 in late adolescence (UM-HSRI-77-17).
    */
   height: number & tags.Minimum<80> & tags.Maximum<320>;
 
   /**
-   * Morphological face height: nasion to gnathion, millimetres.
+   * Morphological face height: Euclidean three-dimensional distance from nasion to gnathion, millimetres, following the [FaceBase inter-landmark protocol](https://www.facebase.org/resources/human/facial_norms/notes/).
    */
   faceHeight: number & tags.Minimum<40> & tags.Maximum<180>;
 

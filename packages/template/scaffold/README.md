@@ -17,14 +17,15 @@ The blank project contains no production content.
 | Command | Purpose |
 | --- | --- |
 | `npm run lint` | TypeScript and source correctness |
-| `npm run evidence` | Checklist answers of every exported declaration under `src` |
+| `npm run evidence` | Checklist answers of every exported declaration under `src` and every exported function of a `test_*.ts` file under `test` |
+| `npm test` | Every exported `test_*` function under `test`; passes when there is none |
 | `npm run format` | Source formatting |
 
 The project uses ES modules with `verbatimModuleSyntax` and `isolatedModules`: mark type-only imports and exports with `type`, and keep each file transformable on its own.
 
 ## Ownership
 
-- `src` holds executable source, including viewer and command entries; `public` holds HTML and static assets.
-- `lint.config.ts` configures source lint; `evidence.config.ts` selects the checklist in `.agents/skills/contracts`.
+- `src` holds executable source, including viewer and command entries; `test` holds tests and their runner; `public` holds HTML and static assets.
+- `lint.config.ts` configures source lint; `evidence.config.ts` selects the checklists in `.agents/skills/contracts`.
 - `package.json` owns dependencies, commands, and compiler settings.
 - Installation is one-way: these files are project-owned, and package upgrades never overwrite them.

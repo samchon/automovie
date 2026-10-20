@@ -8,29 +8,29 @@ import { IAutoMovieHumanPosture } from "./IAutoMovieHumanPosture";
 /**
  * Body heights, breadths and circumferences, with one record per limb.
  *
- * Heights are measured from the standing surface. Segment proportions are parameters of their own rather than functions of stature: in ANSUR II, joint-centre heights regressed on stature leave residual standard deviations of 13 to 26 mm, so two people of equal stature differ that much in each segment.
+ * Heights are measured from the standing surface. Surface landmarks, mechanical joint centres and support-to-support chord lengths have distinct measurement protocols. Measurements taken at different respiratory states or tissue pressures remain independent observations.
  */
 export interface IAutoMovieHumanBodyIdentity {
   /** Stature: vertex of the head to the standing surface, millimetres. */
   stature: number & tags.Minimum<400> & tags.Maximum<2500>;
 
   /**
-   * Sitting height: vertex to the sitting surface, sitting erect, millimetres. Together with stature it fixes the trunk-to-leg proportion.
+   * Sitting height: vertex to the sitting surface, sitting erect, millimetres. Sitting height and standing stature retain their respective postures.
    */
   sittingHeight: number & tags.Minimum<200> & tags.Maximum<1400>;
 
   /**
-   * Cervicale height: the most prominent spinous process of the seventh cervical vertebra to the standing surface, millimetres. It places the root of the neck.
+   * Cervicale height: the most prominent spinous process of the seventh cervical vertebra to the standing surface, millimetres.
    */
   cervicaleHeight: number & tags.Minimum<250> & tags.Maximum<2200>;
 
   /**
-   * Suprasternale height: the jugular notch, the midline notch at the top of the sternum between the clavicles, to the standing surface, millimetres. It places the sternoclavicular joints where the clavicles start, so with acromial height it sets how the clavicles slope.
+   * Suprasternale height: the jugular notch, the midline notch at the top of the sternum between the clavicles, to the standing surface, millimetres.
    */
   suprasternaleHeight: number & tags.Minimum<200> & tags.Maximum<2150>;
 
   /**
-   * Acromial height: the right acromion, the point of the shoulder, to the standing surface, millimetres. It places the shoulder joints.
+   * Acromial height: the right acromion, the point of the shoulder, to the standing surface, millimetres.
    */
   acromialHeight: number & tags.Minimum<200> & tags.Maximum<2150>;
 
@@ -85,12 +85,12 @@ export interface IAutoMovieHumanBodyIdentity {
   chestBreadth: number & tags.Minimum<40> & tags.Maximum<700>;
 
   /**
-   * Chest depth at the level of the chest circumference, from the most anterior point of the chest, the bust in women, to the back, millimetres. With breadth and circumference it fixes how round or square the section is.
+   * Chest depth at the level of the chest circumference, from the most anterior point of the chest, the bust in women, to the back, millimetres.
    */
   chestDepth: number & tags.Minimum<30> & tags.Maximum<700>;
 
   /**
-   * Underbust circumference, horizontal just below the breasts at the inframammary fold, millimetres. Its difference from the chest circumference is the girth the breasts add; equal values mean no breast volume.
+   * Underbust circumference, horizontal just below the breasts at the inframammary fold, millimetres. It records this section independently of the chest circumference.
    */
   underbustCircumference: number & tags.Minimum<150> & tags.Maximum<2000>;
 
@@ -116,7 +116,7 @@ export interface IAutoMovieHumanBodyIdentity {
   buttockCircumference: number & tags.Minimum<200> & tags.Maximum<2200>;
 
   /**
-   * Buttock depth at the level of the buttock circumference, from the abdomen to the maximum posterior protrusion of the buttocks, standing, millimetres. With hip breadth and the circumference it fixes the section's shape.
+   * Buttock depth at the level of the buttock circumference, from the abdomen to the maximum posterior protrusion of the buttocks, standing, millimetres.
    */
   buttockDepth: number & tags.Minimum<30> & tags.Maximum<800>;
 

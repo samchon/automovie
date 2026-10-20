@@ -1,5 +1,8 @@
 /** Geometry operations and their contracts, also re-exported by the engine root. */
 export * from "./curve";
+export * from "./createAutoMovieEllipticLoftAtlas";
+export * from "./realizeAutoMovieConvexSupportLoft";
+export * from "./evaluateAutoMovieSupportSection";
 export * from "./IAutoMovieMeshAssembly";
 export * from "./IAutoMovieMeshClearanceWitness";
 export * from "./IAutoMovieMeshAttachmentCap";
@@ -79,3 +82,4 @@ export * from "./integrateAutoMovieRadialField";
 export * from "./admitAutoMovieBicubicAtlas";
 export * from "./realizeAutoMovieBicubicAtlas64";
 export * from "./realizeAutoMovieGeometry";
+export * from "./createAutoMovieSupportSectionQuery";

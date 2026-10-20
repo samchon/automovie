@@ -23,7 +23,7 @@ export interface IAutoMovieHumanLandmarks {
   /** Midline of the closed lips, the level of the incisal edges. */
   stomion: IAutoMovieHumanLandmark;
 
-  /** Lowest midline point of the chin; this skeleton places gnathion at it. */
+  /** Lowest midline point of the chin. */
   menton: IAutoMovieHumanLandmark;
 
   /** Most prominent spinous process of the seventh cervical vertebra. */

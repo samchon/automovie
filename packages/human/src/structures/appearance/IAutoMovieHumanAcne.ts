@@ -10,6 +10,6 @@ export interface IAutoMovieHumanAcne {
   /** Maximum inflamed spot diameter in rest-surface millimetres, 3 to 10. */
   diameterMm: number & tags.Minimum<3> & tags.Maximum<10>;
 
-  /** Redness coverage and shallow papule slope, 0 to 1; maximum height is conventionally 0.25 mm. No silhouette displacement is emitted. */
+  /** Redness coverage and shallow papule slope, 0 to 1; the appearance convention limits requested relief to 0.25 mm, without a silhouette-shape control. */
   severity: number & tags.Minimum<0> & tags.Maximum<1>;
 }
