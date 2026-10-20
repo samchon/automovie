@@ -123,10 +123,10 @@ export interface IAutoMovieRecoveryCameraPairEstimate {
     /** Proposal models refused by their declared numerical owners. */
     numericalRefusals: number;
 
-    /** Improving proposals receiving local refinement, bounded by the declared proposal-refinement budget. */
+    /** Eligible proposals refined in draw order before winner comparison, bounded by the declared local budget. */
     localRefinements: number;
 
-    /** Local proposal or final re-estimation failures; unexpected runtime errors fail the operation instead. */
+    /** Nonconverged local proposals or final re-estimation failures, including provisional changing subsets. Unexpected runtime errors fail the operation instead. */
     localRefinementRefusals: number;
 
     /** Final re-estimations, including repeats after a changed sampling target. */

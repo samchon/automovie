@@ -146,7 +146,7 @@ export interface IAutoMovieRecoveryCameraPairInput {
     /** Minimum proposals before adaptive conditional-confidence stopping. */
     minimumRansacTrials: number;
 
-    /** Maximum improving calibrated proposals receiving local refinement. */
+    /** Maximum proposals with at least eight calibrated inliers refined in draw order before winner comparison. Exhaustion can miss a better basin. */
     maxLocalRefinements: number;
 
     /** Maximum local pose iterations per refit; at most three inlier refits are attempted. */

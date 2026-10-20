@@ -13,14 +13,17 @@ import { scoreRecoveryCameraResiduals } from "./scoreRecoveryCameraResiduals";
 /**
  * Estimate a calibrated pixel epipolar consensus with bounded local refinement.
  * Every proposal is projected to the supplied-calibration essential manifold
- * before scoring. Final re-estimation invalidates an older sampling target;
+ * before scoring. The first bounded proposals with at least eight calibrated
+ * inliers receive local refinement before comparison with the current winner;
+ * a raw score cannot bound the result of local optimization. Final re-estimation
+ * invalidates an older sampling target;
  * any larger target resumes proposals within the same total trial budget.
  *
- * @evidence contracts/common.md#principled-implementation Original-design normalized eight-point proposals, equal-singular essential projection and signed pixel Sampson support define one calibrated objective. Improving candidates may receive bounded five-coordinate local optimization, and the winning population is re-estimated before its finite-population conditional sampling target is checked again. Neither fit residual nor ideal sampling target proves material correspondence or camera truth.
+ * @evidence contracts/common.md#principled-implementation Original-design normalized eight-point proposals, equal-singular essential projection and signed pixel Sampson support define one calibrated objective. Up to the caller's L eligible proposals receive five-coordinate local optimization before winner comparison, because raw support is not an upper bound on refined support. A still-changing subset may supply a provisional hypothesis only when every continuous fit converged; independent final refits must stabilize before qualification. Neither fit residual nor ideal sampling target proves material correspondence or camera truth.
  * @evidence contracts/common.md#clear-and-simple-design This owner coordinates reproducible proposal identity, full-population scores and local-subset convergence; final physical pose selection, planar ambiguity and source publication remain separate responsibilities.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No uncalibrated-F residual qualifies a pose, no older inlier fraction supplies final confidence, and no truth camera, normal equations, exhausted optimizer or ignored unexpected error becomes a winning local refinement.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No raw winner suppresses an eligible local attempt within the explicit budget. No uncalibrated-F residual qualifies a pose, no older inlier fraction supplies final confidence, and no truth camera, normal equations, exhausted optimizer or ignored unexpected error becomes a winning local refinement. A provisional changing subset does not inherit final convergence.
  * @evidence contracts/common.md#meaningful-documentation States calibrated scoring order, domain-separated seed, minimum/maximum trials, local proposal budget, final-target continuation, numerical refusal counts and conditional sampling limitations.
- * @evidence contracts/performance.md#efficient-algorithms T proposals over M matches require bounded nine-column SVD plus O(M log M) scoring per proposal. At most the declared L improving proposals receive three bounded local fits; final target readjustments strictly advance trial work, so at most T final re-estimations occur. O(M) current/best scratch and only the last refit's diagnostics are retained.
+ * @evidence contracts/performance.md#efficient-algorithms T proposals over M matches require bounded nine-column SVD plus O(M log M) scoring per proposal. At most the declared L proposals with eight calibrated inliers receive three bounded local fits in draw order, independent of winner score; final target readjustments strictly advance trial work, so at most T final re-estimations occur. O(M) current/best scratch and only the last refit's diagnostics are retained. Exhausting the local budget can miss a better basin and the ideal sampling target does not bound that risk.
  * @evidence contracts/performance.md#reuse-equivalent-work Each calibrated proposal scores all tentative matches once. Successful local work replaces a proposal only on a better complete score, and unchanged final support terminates immediately; changed support updates the conditional target before any further draw.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The synchronous owner returns one best matrix, O(M) indices, the last at-most-three fit summaries and scalar counters; replaced proposals and local arrays expire without images, handles, callbacks or global state.
  */
@@ -73,15 +76,17 @@ export function fitRecoveryEpipolarConsensus(
         if (!isRecoveryCameraNumericalRefusal(error)) throw error;
         numericalRefusals++; continue;
       }
-      if (candidateScore.indices.length < score.indices.length ||
-        (candidateScore.indices.length === score.indices.length &&
-          (candidateScore.medianPx ?? Infinity) >= (score.medianPx ?? Infinity))) continue;
       if (candidateScore.indices.length >= 8 && localRefinements < budget.maxLocalRefinements) {
         localRefinements++;
         try {
           const refined: ReturnType<typeof refineRecoveryEpipolarModel> = refineRecoveryEpipolarModel(
             candidate, candidateScore, firstPoints, secondPoints, first, second, policy, budget);
-          if (refined.converged && (refined.score.indices.length > candidateScore.indices.length ||
+          // Subset stability belongs to final qualification, not hypothesis
+          // discovery. A spent continuous optimizer still cannot compete.
+          const provisional: boolean = refined.converged ||
+            (refined.refusal === "inlier-refit-budget" && refined.fits.length > 0 &&
+              refined.fits.every((fit: typeof refined.fits[number]): boolean => fit.converged));
+          if (provisional && (refined.score.indices.length > candidateScore.indices.length ||
             (refined.score.indices.length === candidateScore.indices.length &&
               (refined.score.medianPx ?? Infinity) < (candidateScore.medianPx ?? Infinity)))) {
             candidate = refined.matrix; candidateScore = refined.score;
@@ -92,6 +97,9 @@ export function fitRecoveryEpipolarConsensus(
           localRefinementRefusals++;
         }
       }
+      if (candidateScore.indices.length < score.indices.length ||
+        (candidateScore.indices.length === score.indices.length &&
+          (candidateScore.medianPx ?? Infinity) >= (score.medianPx ?? Infinity))) continue;
       matrix = candidate; score = candidateScore;
       required = requiredRecoveryCameraTrials(firstPoints.length, score.indices.length, 8, policy.samplingConfidence);
     }
