@@ -10,8 +10,9 @@ import type { IAutoMovieRecoveryMapPose } from "../structures/image/IAutoMovieRe
 import type { IAutoMovieRecoverySceneLandmark } from "../structures/image/IAutoMovieRecoverySceneLandmark";
 import type { IAutoMovieRecoverySceneWork } from "../structures/image/IAutoMovieRecoverySceneWork";
 import type { IAutoMovieRecoverySceneCheckpoint } from "../structures/internal/IAutoMovieRecoverySceneCheckpoint";
-import type { createRecoveryCameraChart } from "./createRecoveryCameraChart";
+import type { IAutoMovieRecoverySceneCheckpointTrace } from "../structures/internal/IAutoMovieRecoverySceneCheckpointTrace";
 import { assertRecoverySceneLinearRetention } from "./assertRecoverySceneLinearRetention";
+import type { createRecoveryCameraChart } from "./createRecoveryCameraChart";
 import { evaluateRecoveryScenePoint } from "./evaluateRecoveryScenePoint";
 import { growRecoverySceneLandmarks } from "./growRecoverySceneLandmarks";
 import type { linkRecoveryCameraTracks } from "./linkRecoveryCameraTracks";
@@ -23,6 +24,8 @@ import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
  * After each fit, newly admissible points/measurements cause another fit. Only
  * strict finite population growth repeats; every fit and linear action is
  * charged. Failure leaves committing or retaining the old checkpoint to caller.
+ * An optional observer receives owned complete compact states before and after
+ * each joint fit. Observer errors propagate, and ordinary calls retain no trace.
  *
  * @evidence contracts/common.md#principled-implementation Compact active source indices preserve first-pose and single-baseline gauge while admitting landmarks unseen in the seed. Original undamped ranks, common-population descent, all retained point gates and gauge checks independently qualify each transaction; closure adds no observation without another joint fit.
  * @evidence contracts/common.md#clear-and-simple-design This transaction owner groups proposed poses, points, measurement completion, refinement and final qualification; immutable global tracks and accepted checkpoint ownership remain with the scene coordinator.
@@ -30,7 +33,7 @@ import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
  * @evidence contracts/common.md#meaningful-documentation States compact versus global indices, strict growth closure, last-pass diagnostics, logical retention bound and rollback responsibility.
  * @evidence contracts/performance.md#efficient-algorithms For E retained observations, L landmarks and C active camera coordinates, admitted scalar-slot bounds cover retained blocks and dense reduced factors before fitting. Delegated bounded QR/SVD costs O(I*(E*C^2+S*C^3)); strict population growth and aggregate fit/work ceilings bound closure.
  * @evidence contracts/performance.md#reuse-equivalent-work Accepted global observations and current numerical estimates seed each fit. No pixel/feature/matching acquisition is repeated; only a changed proposed population requires another joint objective.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Only a detached qualified proposal or explicit failed diagnostics returns. Unaccepted factors, closures and proposals expire; consumed shared work remains, and no image or external handle is retained.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only a detached qualified proposal or explicit failed diagnostics returns. Optional observers own O(V+L+E) cloned state per event and its history; absent observers allocate no snapshots. Unaccepted factors, closures and proposals expire; consumed shared work remains, and no image or external handle is retained.
  */
 export function completeRecoverySceneCheckpoint(
   initialPoses: readonly (IAutoMovieRecoveryMapPose | null)[],
@@ -46,6 +49,7 @@ export function completeRecoverySceneCheckpoint(
     observations: number,
     report: IAutoMovieRecoveryMapJointFit | null,
   ) => void = (): void => {},
+  onTrace?: (trace: IAutoMovieRecoverySceneCheckpointTrace) => void,
 ): IAutoMovieRecoverySceneCheckpoint {
   let poses: (IAutoMovieRecoveryMapPose | null)[] = initialPoses.map(
     (
@@ -79,6 +83,7 @@ export function completeRecoverySceneCheckpoint(
       checkpoint,
     );
   let lastJoint: IAutoMovieRecoveryMapJointFit | null = null;
+  let pass: number = 0;
   while (true) {
     checkpoint();
     const count: number = proposal.landmarks.reduce(
@@ -111,6 +116,18 @@ export function completeRecoverySceneCheckpoint(
         ),
       }),
     );
+    onTrace?.(
+      structuredClone({
+        phase: "before-joint",
+        pass,
+        activeViews: active,
+        poses: active.map(
+          (view: number): IAutoMovieRecoveryMapPose => poses[view]!,
+        ),
+        landmarks: compact,
+        joint: null,
+      }),
+    );
     const refined: ReturnType<typeof refineRecoveryCameraMap> =
       refineRecoveryCameraMap(
         active.map((view: number): IAutoMovieRecoveryMapPose => poses[view]!),
@@ -126,6 +143,16 @@ export function completeRecoverySceneCheckpoint(
           spendRecoverySceneWork(work, budget, "linearWork", amount),
       );
     lastJoint = refined.report;
+    onTrace?.(
+      structuredClone({
+        phase: "after-joint",
+        pass,
+        activeViews: active,
+        poses: refined.poses,
+        landmarks: refined.landmarks,
+        joint: lastJoint,
+      }),
+    );
     onProposal(proposal.landmarks.length, count, lastJoint);
     const nextPoses: (IAutoMovieRecoveryMapPose | null)[] = poses.map(
       (): null => null,
@@ -224,5 +251,6 @@ export function completeRecoverySceneCheckpoint(
       };
     poses = nextPoses;
     proposal = completed;
+    pass++;
   }
 }
