@@ -9,7 +9,6 @@ import { IAutoMovieModel } from "../model/IAutoMovieModel";
  * @evidence contracts/common.md#clear-and-simple-design The entry pairs a join key with a whole model record, so model validation stays with `validateModel` and the forge adds only the casting rules and the performer's skeleton requirement.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A boneless model is refused rather than accepted as a prop, and a mismatched id is refused rather than renamed to the node.
  * @evidence contracts/common.md#meaningful-documentation States the join between node and model id and why it exists, which cast members may be forged, and every requirement the model must meet.
- * @author Samchon
  */
 export interface IAutoMovieForgeEntry {
   /**

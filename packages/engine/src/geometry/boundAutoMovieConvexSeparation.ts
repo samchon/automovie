@@ -48,7 +48,6 @@ import { boundAutoMovieProjectionSeparation } from "./boundAutoMovieProjectionSe
  * @evidence contracts/performance.md#efficient-algorithms For vertex counts n and m, triples cost C(n,3) + C(m,3) directions and pairs C(n,2) times C(m,2) closest-point solves, each followed by an O(n + m) projection, so the worst case is quartic in the larger run; features are three-vertex fans or short shaft rings, the resident run is one triangle whose single normal usually proves the target first, and `spend` lets the caller cap the total.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of two runs; the separation query reuses its compiled triangles across calls, and verdict reuse belongs to the ribbon fit.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Allocates only short-lived direction vectors and closest-point records per candidate and keeps one running scalar; nothing outlives the call, which returns a number.
- * @author Samchon
  */
 export function boundAutoMovieConvexSeparation(
   a: readonly IAutoMovieVector3[],

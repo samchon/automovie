@@ -14,7 +14,6 @@ import { footprintRing } from "./footprintRing";
  * @evidence contracts/performance.md#efficient-algorithms The full decomposition cost precedes one scan of returned vertices for piece areas and one scan of the winning piece for its mean; the decomposition allocation dominates storage.
  * @evidence contracts/performance.md#reuse-equivalent-work One completed decomposition serves area ranking and anchor selection within the call; no stale mutable-footprint anchor cache is retained.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the fresh scalar point or null; piece populations and temporary sums leave scope, with no source mutation or external resource acquisition.
- * @author Samchon
  */
 export const footprintInteriorPoint: (
   footprint: IAutoMovieFootprint,

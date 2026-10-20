@@ -7,7 +7,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design This materialized member projection contains the fields consumers need without embedding the whole formation or duplicating its placement algorithm.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Null actor means anonymous, not a fabricated actor id; named heroes retain the formation's declared model group and deterministic slot placement.
  * @evidence contracts/common.md#meaningful-documentation Defines zero-based slot, compiler node identity, nullable hero, world-meter position, degree heading and normalized phase.
- * @author Samchon
  */
 export interface IAutoMovieFormationSlot {
   /** Zero-based deterministic slot index. */

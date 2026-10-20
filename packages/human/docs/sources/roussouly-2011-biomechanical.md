@@ -15,7 +15,3 @@ Springer, open access via PMC. Statements and numbers cited.
 - "The top of thoracic curve on C7 is very stable over the sacrum": spinal tilt 90.8 +- 3.4 degrees and spino-sacral angle 130.4 +- 8.1 in 709 asymptomatic adults (Mac-Thiong et al., as cited).
 
 Grade: established biomechanical account with cited measurements.
-
-## What Human takes
-
-The arc construction of the spine's side view (`../anatomy/skeleton.md`).

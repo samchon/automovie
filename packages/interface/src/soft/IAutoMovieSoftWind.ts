@@ -11,7 +11,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design One uniform acceleration vector and scalar wave parameters express the implemented draught without introducing a spatial fluid field.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The force is not normal-dependent lift or drag; zero frequency holds the positive gust peak rather than silently disabling its amplitude.
  * @evidence contracts/common.md#meaningful-documentation Members state normalized-direction input, acceleration units, nonnegative gust amplitude/frequency and the zero-frequency behavior.
- * @author Samchon
  */
 export interface IAutoMovieSoftWind {
   /** Direction the draught pushes; non-zero and need not be unit. */

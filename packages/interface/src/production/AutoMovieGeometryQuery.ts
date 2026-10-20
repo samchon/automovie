@@ -8,7 +8,6 @@ import { IAutoMovieGeometrySelector } from "./IAutoMovieGeometrySelector";
  * @evidence contracts/common.md#clear-and-simple-design Each arm carries only its question's selectors and time, keeping render capture separate from numerical geometry; optional shot identity disambiguates actors without making every world query name a shot.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A stale compile, missing selector or ambiguous actor is refused rather than measured from a guessed shot; camera root projection is not presented as an occlusion measurement.
  * @evidence contracts/common.md#meaningful-documentation Gives each query's operands, shot-local second units and default times, exact global frame input, actor disambiguation and the root-projection visibility limitation.
- * @author Samchon
  */
 export type AutoMovieGeometryQuery =
   | {

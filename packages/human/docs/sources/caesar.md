@@ -5,7 +5,3 @@ A 3D scan and traditional anthropometry survey coordinated by SAE International 
 ## Terms as read
 
 The WEAR page states that "SAE owns the name CAESAR", that its 3D data set is "the same data, just organized and packaged" differently, sold for 1,095 EUR (595 EUR for members), and that for commercial use "Once you have it you can do anything you like with it"; it says nothing on redistribution.
-
-## What Human takes
-
-Nothing. CAESAR's value is its 3D scans, which the no-external-data rule excludes, and its licence is commercial. Its published summary statistics could serve as a comparison only after SAE's terms are read.

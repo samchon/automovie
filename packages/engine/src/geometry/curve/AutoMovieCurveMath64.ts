@@ -3,7 +3,6 @@ import { AutoMoviePchip64 } from "./AutoMoviePchip64";
 /**
  * Binary64 vector and cubic Bernstein operations for three-component coefficient fields. PCHIP supplies shape-preserving scalar station derivatives; subdivision retains the requested arithmetic path rather than promising symbolic exactness.
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Binary64 vector, cubic and periodic coefficient operations share an explicit three-component layout.
  * @evidence contracts/common.md#clear-and-simple-design One stateless namespace owns coefficient arithmetic and delegates monotone slopes to AutoMoviePchip64.

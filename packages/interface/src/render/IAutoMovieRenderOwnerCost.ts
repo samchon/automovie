@@ -7,7 +7,6 @@ import { AutoMovieRenderMetric } from "./AutoMovieRenderMetric";
  * @evidence contracts/common.md#clear-and-simple-design Optional kind preserves older own-row spelling while explicit pass/runtime rows retain full attribution without contaminating editable contributor ranking.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Shared bytes are counted by resource ownership rather than once per node, and runtime/pass costs stay in totals and omitted accounting instead of becoming false source-edit advice.
  * @evidence contracts/common.md#meaningful-documentation Defines owner/source authority, metric units, own/pass/runtime distinctions and legacy absent-kind interpretation.
- * @author Samchon
  */
 export interface IAutoMovieRenderOwnerCost {
   /**

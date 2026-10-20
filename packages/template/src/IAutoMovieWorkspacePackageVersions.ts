@@ -10,7 +10,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record of ten strings chooses no algorithm.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record is read once to build one version table and coordinates no work.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record holds ten strings and no handle.
- * @author Samchon
  */
 export interface IAutoMovieWorkspacePackageVersions {
   /** Range of `@automovie/archetypes`. */

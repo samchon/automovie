@@ -1,39 +1,27 @@
 # Construction
 
-Generate every person through code and formulas. The package holds no mesh, morph target, landmark index, or baked data; small named constants citing primary sources are allowed, and the build guard rejects the rest. Genitals and nipples are not modeled.
+## One Generating Authority
 
-## Skeleton And Rest Form
+Generate the skeleton, local frames, planes, principal curves and recursively derived intermediate curves from current physical parameters and the common rules identified by [Reverse Analysis](reverse-analysis.md). The displayed skin and construction consume this same curve network. Keep controls, interpolation constraints and evaluated points distinguishable.
 
-Build the skeleton first, on the shared humanoid skeleton and rest frame, and generate every part from it. Never reconcile independently sourced geometry at run time.
+Use [Lofting](../3d-modeling/lofting.md) for interpolation and [Modularization](../3d-modeling/modularization.md) for parts and shared ownership. Human owns anatomical and parameter meaning; reusable geometry and recovery capabilities stay with their [package owners](../project/SKILL.md#packages). Read an operator's actual contract before attributing a defect to it.
 
-The rest form is the T-pose, joints straight and no flesh folded. Convert each posture-dependent measurement to it explicitly, such as the lateral chest, axilla, and shoulder top of the raised arm.
+The parameter model need not copy a reference tool's storage layout or inefficient control organization. Preserve the meaning and independently supported controls while deriving an efficient common generator. Existing sculpting, cages and curve generators impose no preservation requirement when the user authorizes replacement; never restore discarded shaping code to bypass the new derivation.
 
-## Parameter-Driven Curves
+Keep original meshes, morph targets, landmark-index tables and baked per-person geometry outside the package. Common named shape coefficients carry their derivation under [Reverse Analysis](reverse-analysis.md). Genitals and nipples remain outside the modeled surface.
 
-Generate the curves themselves from the current detailed parameters. Derive local origins, axes and physical scales from the shared skeleton and named measurements, then compute stations, control points and tangents through relative positions, dimensionless ratios and dimensional formulas in those frames. The same rules apply to every admitted identity; world coordinates are generated results, not stored person-specific controls.
+## Regional Methods
 
-Where reference planes, anatomical boundaries, endpoints, tangents and continuity conditions determine a curve, solve those constraints to generate its Bezier controls. Use fitted shape coefficients for the remaining independent traits; a scaled reference control polygon does not replace this derivation.
+Choose representations by region: limb sections along bone chains, trunk layers guided by silhouette and volume, hand and foot networks with their own features, and facial loops and feature curves. Derive each choice from the recovered material and the anatomy it represents. One interpolation operator need not fit every region.
 
-Preserve independent lengths, breadths, depths, girths and local shape traits rather than coupling them through a fixed proportion. Name each rule's measured, derived, fitted or conventional quantities and its supported range. Share junction frames and continuity constraints under Parts And Junctions. Absolute-coordinate reference observations belong to research; transfer their recovered shared rules and coefficients into Human, not per-person curve tables or normalized copies of them. Use those observations to derive the actual generating rules through [Reverse Analysis](reverse-analysis.md), replacing existing curve rules when needed, and verify their response to changed parameters through the actual generated curves and surface.
+Treat branches, contacts, openings, cavities and contour births or deaths as structural events. Describe incident curves, endpoint correspondence and surface domains explicitly instead of forcing a loop pairing or silently closing an open arc. The waist-to-pelvis transition, for example, needs a common station and feature rule with its neighboring curves, not only interpolation between two girths.
 
-## Lofting
+Research and implement regional methods in parallel under [Ownership And Supervision](SKILL.md#ownership-and-supervision), then generate the assembled body under one skeleton and shared boundary authority. Separate meshes are appropriate where the represented anatomy calls for them, not as a repair for incompatible skin patches. Account for the entire body, including hands, feet and face; a regional result does not establish whole-body completion.
 
-Inspect front, side and top generating curves across the whole body, regions, masses and borders with their neighbors, then correct every curve cause the round found in one change before lofting. Existing recovered detail need not pass through a new block-out before fitting shared rules.
+## Shared Boundaries
 
-Build continuous skin from curve networks: closed sections along an axis or bone chain, steered by silhouette guides and feature curves. Apply [Lofting](../3d-modeling/lofting.md) to the section family and its fitting. Trunk sections lie level because anthropometry measures them level.
+Publish one boundary curve and compatible transverse behavior for each join. Transform derivatives with the actual parameter mapping, orientation and physical scale. Matching positions establishes positional continuity only; matching a few normals does not establish a regular shared tangent plane throughout the join. Preserve intended creases and diagnose degenerate points separately.
 
-The face is a curve network of loops around the eyes and mouth and feature lines, filled by patches.
+Derive vertices, faces and normals from the generated representation. Original mesh positions, topology or normals are not fallback output. Do not hand-author source-specific curve controls, round coordinates to hide discrepancies or introduce a per-person trait to repair a wrong common model.
 
-## Parts And Junctions
-
-A part is a region of one continuous mass. Cut only where the section is a simple tube, such as mid upper arm, mid thigh, wrist, ankle, and neck; the shoulder, armpit, hip, and groin stay inside the trunk because muscles cross them. Eyeballs, teeth, tongue, nails, and hair are separate meshes, and the ear is a separate part.
-
-Choose separate meshes' representations by [Crafting](../3d-modeling/crafting.md#representation), such as textured cards for hair where their silhouette and motion hold.
-
-Apply [Modularization](../3d-modeling/modularization.md) to the source and generated person: refine each part alone, preserve shared boundary and continuity definitions when joining, and judge the joined person. When using subdivision, build junctions on shared control cages and subdivide the joined cage once.
-
-Within a profile every identity shares one topology and one published UV layout.
-
-## Core Boundary
-
-Follow the project's [package boundaries](../project/SKILL.md#packages) for shared capabilities. Anatomy, measurements, proportions and the Human parameter vocabulary belong in Human; extend the responsible shared package rather than working around it in Human.
+Keep parameter-driven layer subdivision separate from mesh sampling. Increasing tessellation can refine display of an existing curve field; it cannot repair missing features, incorrect correspondence or an invalid surface domain.

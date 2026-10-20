@@ -12,8 +12,6 @@ import { createSparClip } from "./createSparClip";
  * @evidence contracts/performance.md#efficient-algorithms Projection creates O(m) frame/pose wrappers for m moments and borrows the joint/root records; engine sampling and rendering retain their own cost.
  * @evidence contracts/performance.md#reuse-equivalent-work This side reads the same authored moment list as blue, preserving exact timing without independently generating a second choreography.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns clip wrappers and must preserve borrowed timeline records; the module retains its fixed choreography, while the page owns player/GPU lifetimes.
- *
- * @author Samchon
  */
 export function redClip(skeleton: string): IAutoMovieMotion {
   return createSparClip(skeleton, "red");

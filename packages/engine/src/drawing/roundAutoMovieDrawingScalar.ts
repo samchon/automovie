@@ -22,7 +22,6 @@ const FACTOR: number = 10 ** AUTOMOVIE_DRAWING_DECIMALS;
  * @evidenceExclude contracts/performance.md#efficient-algorithms A multiplication, a rounding and a division, so there is no algorithm to choose; the factor is computed once at module load.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One multiply, round and divide per value; memoizing scalars would grow a table without bound to save three operations.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Works on one number and a module constant fixed at load, so there is no per-call state to bound or free.
- * @author Samchon
  */
 export const roundAutoMovieDrawingScalar = (value: number): number => {
   const rounded: number = Math.round(value * FACTOR) / FACTOR;

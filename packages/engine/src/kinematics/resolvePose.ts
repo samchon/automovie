@@ -57,7 +57,6 @@ import { skeletonJointAxes } from "./skeletonJointAxes";
  * @evidence contracts/performance.md#efficient-algorithms Linear in joints plus bones: one scan for declared axes, one articulation per joint, then one composition per reachable bone; building the topology when none is passed is also linear in the bone count.
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses a caller-supplied topology across poses of one skeleton instead of rebuilding it; equivalence is the unchanged skeleton object, which the caller owns, and omitting the topology always rebuilds.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the articulation map is local to the call and the returned bones, one per reachable bone, are owned by the caller.
- * @author Samchon
  */
 export const resolvePose: (
   pose: IAutoMoviePose,

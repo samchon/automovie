@@ -1,4 +1,4 @@
-﻿import { validNodeIndex } from "./validNodeIndex";
+import { validNodeIndex } from "./validNodeIndex";
 
 /**
  * Admit an optional or required index into an already declared inventory.
@@ -10,7 +10,6 @@
  * @evidence contracts/performance.md#efficient-algorithms The helper performs constant-time predicates independent of the inventory population.
  * @evidence contracts/performance.md#reuse-equivalent-work All reference-array validation delegates this same gate without a separate range implementation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources No inventory is copied or retained, and no resource is acquired by index admission.
- * @author Samchon
  */
 export const integerIndex: (
   value: unknown,

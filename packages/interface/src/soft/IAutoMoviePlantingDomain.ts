@@ -17,7 +17,6 @@ import { IAutoMoviePruningEnvelope } from "./IAutoMoviePruningEnvelope";
  * @evidence contracts/common.md#clear-and-simple-design Structure, growth, pruning, foliage and caps are independent authored laws rather than species presets or an animation timeline.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Validation admits contraction ratios, positive growth span and bounded full-tree cost before derivation; cap overflow throws instead of truncating a plant into an undisclosed shape.
  * @evidence contracts/common.md#meaningful-documentation Defines meter units, safe seed, growth-as-state, optional bare foliage and independent recipe budgets.
- * @author Samchon
  */
 export interface IAutoMoviePlantingDomain {
   /** Schema version. */

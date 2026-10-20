@@ -8,8 +8,6 @@ import { isMesh } from "./isMesh";
 
 /**
  * One admitted material key and its entry-local copied geometry fragments.
- *
- * @author Samchon
  */
 interface IBakeGroup {
   /** Borrowed source material whose clone supplies the merged shader. */

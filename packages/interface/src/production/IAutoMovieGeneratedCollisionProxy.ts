@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Two closed recipe arms carry only the dimensions their primitive consumes, and external asset resolution and runtime model materialization remain outside this data contract.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The record declares no visual-mesh inference or substitute proxy. Its presence establishes neither materialization nor physical collision correctness; an explicit host must construct and validate any geometry it adopts.
  * @evidence contracts/common.md#meaningful-documentation Defines explicit proxy ownership, supported recipes, meter units, full box extents and the capsule's cylindrical-body height.
- * @author Samchon
  */
 export type IAutoMovieGeneratedCollisionProxy =
   | {

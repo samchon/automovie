@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Three reported identity fields keep graphics authority separate from settings and dependency bytes without embedding a native context object.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown is not a verified hardware identity and equal reported strings do not guarantee identical drivers or pixels; the full capture runtime supplies additional installed closure when needed.
  * @evidence contracts/common.md#meaningful-documentation Defines API family and host-withheld vendor/device meaning for target identity.
- * @author Samchon
  */
 export interface IAutoMovieRenderTargetRenderer {
   /** Graphics API family, such as `webgl2`. */

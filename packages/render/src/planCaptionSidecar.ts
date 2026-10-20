@@ -33,7 +33,6 @@ import { shotBeat } from "./shotBeat";
  * @evidence contracts/performance.md#efficient-algorithms For S supplied shots, F output frames, E cut entries and N script-tree nodes, timeline indexing, caption indexing and the cursor sweep take O(S+F+E+N) work. The schedule holds F times, the returned range list can also reach F entries, and each range joins the beat index once without retaining a separate playback-sample array.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The planner computes one sidecar per call from caller-supplied values and coordinates no phases; a host that also plans the render recomputes the shared schedule, which is cheap arithmetic.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The frame schedule, cursor and beat index are local and released on return; the returned sidecar, owned by the caller, holds one entry per run of consecutive frames of one beat, at most F.
- * @author Samchon
  */
 export const planCaptionSidecar: (props: {
   script: IAutoMovieScript;

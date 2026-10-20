@@ -7,7 +7,6 @@ import { IAutoMovieColor } from "../color/IAutoMovieColor";
  * @evidence contracts/common.md#clear-and-simple-design Lighting image and presentation controls share scene ownership, overriding a global render specification where their appearance decision actually belongs.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Asset closure refuses contradictory decoding intent; contextual shadow admission refuses enabled VSM point shadows. Header facts do not prove complete decoding or transfer functions. Unresolved viewer images leave lighting unset, pcfSoft aliases PCF, and disabled shadows price no map work.
  * @evidence contracts/common.md#meaningful-documentation Defines image/background nulls, color decoding, physical intensity and rotation, exposure authority and effective shadow policy.
- * @author Samchon
  */
 export interface IAutoMovieSceneEnvironment {
   /**

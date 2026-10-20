@@ -21,7 +21,3 @@ CC BY 4.0.
 | Triangular | Nearly straight line descending from the central forehead to the temples, with vellus hairs along the edge |
 
 Round, triangular and M-shaped were preferred over rectangular and bell-shaped. Preferred height ratio (hair-bearing height over trichion-glabella forehead height) 0.505 (IQR 0.455 to 0.584); width ratio 0.373 (IQR 0.356 to 0.387).
-
-## What Human takes
-
-The closed set of hairline contour choices and their geometric definitions for the scalp generator.

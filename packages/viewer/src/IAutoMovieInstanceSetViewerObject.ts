@@ -12,8 +12,6 @@ import type { IAutoMovieInstanceSetViewerStats } from "./IAutoMovieInstanceSetVi
  * @evidenceExclude contracts/performance.md#efficient-algorithms This runtime interface selects no culling algorithm; buildInstancedInstanceSet owns chunk and prototype traversal.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The handle defines operations but coordinates no shared request or invalidation itself.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The producer retains chunk meshes and prototype representations until dispose; successful closure clears runtime maps while failed closure retains its actual retirement operations and original failure.
- *
- * @author Samchon
  */
 export interface IAutoMovieInstanceSetViewerObject {
   /** Add this group to the current scene. */

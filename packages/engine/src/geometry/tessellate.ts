@@ -31,8 +31,6 @@ import { PRIMITIVE_SPHERE_RINGS } from "./constants/PRIMITIVE_SPHERE_RINGS";
  * @evidence contracts/performance.md#efficient-algorithms Box construction is constant size, radial primitives use O(S) positions and indices for S angular segments, and spheres and capsules use O(S times R) for R latitude rings, with one additional capsule equator ring; both resolution values are fixed here and each output element is emitted once.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Callers receive mutable fresh buffers, so the tessellator shares no arrays across calls; consumers such as the drawing index own any model-part memoization.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The builders retain no cache, handle or task; positions, normals and indices belong to the returned tessellation and temporary face tables are released on return.
- *
- * @author Samchon
  */
 export const tessellate: (shape: AutoMoviePrimitiveShape) => ITessellation = (
   shape: AutoMoviePrimitiveShape,

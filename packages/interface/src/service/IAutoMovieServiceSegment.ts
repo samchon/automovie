@@ -9,7 +9,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design Route geometry and its two-port topology stay together, with boundary-owned sleeves referenced rather than embedded into each run.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Endpoint and section tolerances are explicit. Crossings inspect route vertices rather than every point of a leg, and shared-node run pairs are exempt from clash comparison; axis-aligned swept bounds do not establish exact cylindrical separation or hydraulic performance.
  * @evidence contracts/common.md#meaningful-documentation Defines system and direction-compatible ports, world route endpoints, positive radius/section and sleeve references.
- * @author Samchon
  */
 export interface IAutoMovieServiceSegment {
   /** Stable segment identity within the network. */

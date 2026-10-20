@@ -13,7 +13,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms Has no code of its own; the comparison costs one sum over the layers validation already walks, answered on `validateAutoMovieMaterialAssembly`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The caller supplies it per validation or resolution call, and neither reader remembers a host or the layer sum computed against it.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A single number owned by the caller's argument object; neither the validator nor the resolver keeps a reference to it after returning.
- * @author Samchon
  */
 export interface IAutoMovieAssemblyHost {
   /** Nominal host thickness along the assembly's stacking axis, in metres. */

@@ -21,7 +21,6 @@ import { IAutoMovieQuadraticConstraintBasis } from "./IAutoMovieQuadraticConstra
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data record with no runtime body; the factorization cost is answered on `solveAutoMovieQuadraticWorkingSetStep`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A fresh record per polishing iteration; the next iteration's working set differs, so nothing in it is reused.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Dense vectors of the variable and working-row counts plus one basis, owned by the polisher for one iteration and dropped when the next step replaces it.
- * @author Samchon
  */
 export interface IAutoMovieQuadraticWorkingSetStep {
   /**

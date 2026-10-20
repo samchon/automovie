@@ -4,7 +4,7 @@ Karčiauskas K., Peters J., Reif U. "Shape characterization of subdivision surfa
 
 ## Licence
 
-Paper copyright Elsevier. Human takes only the analysis results.
+Paper copyright Elsevier.
 
 ## What it says
 
@@ -13,7 +13,3 @@ Paper copyright Elsevier. Human takes only the analysis results.
 - Valence 4: C2, with both hyperbolic and elliptic shape possible.
 - Valence above 4: at least one principal curvature diverges near the point, and by Lemma 3.2 the point is hyperbolic in the limit for generic input, so elliptic surfaces cannot be modeled. "Only if the designer can make sure that all extraordinary points intended to be hyperbolic (and none intended to be elliptic) are of valence n > 4 does Catmull-Clark subdivision deliver the expected shape."
 - Curvature-bounded variants (Loop's and Sabin's) cause flatness and a concentric wave pattern of curvature near extraordinary points. The authors give scheme modifications and a chart for detecting undesirable curvature early.
-
-## What Human takes
-
-Pole valence chosen by the intended curvature sign of the region ([subdivision and cage](../techniques/subdivision-and-cage.md#extraordinary-vertices-and-curvature-sign)).

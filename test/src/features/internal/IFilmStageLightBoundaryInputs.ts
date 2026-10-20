@@ -6,8 +6,6 @@ import type {
 
 /**
  * Existing staging and refusal readers carried into the light boundary assertion group; runtime malformed writes reach the product validator through the owning entry's explicit ingress cast.
- *
- * @author Samchon
  */
 export interface IFilmStageLightBoundaryInputs {
   /** Stage the original duel with the supplied light list. */

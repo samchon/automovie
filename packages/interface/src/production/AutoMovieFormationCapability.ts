@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design A closed vocabulary annotates formation design without becoming another motion-command language or duplicating the authored motion segments.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Capability labels never substitute for measured source behavior, and no formation name selects a movement preset or bypasses review evidence.
  * @evidence contracts/common.md#meaningful-documentation Explicitly identifies review-facing intent and states that the labels do not infer or restrict source motion.
- * @author Samchon
  */
 export type AutoMovieFormationCapability =
   | "hold"

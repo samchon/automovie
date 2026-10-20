@@ -23,7 +23,6 @@ import { IAutoMovieEnvelopeLayer } from "./IAutoMovieEnvelopeLayer";
  * @evidenceExclude contracts/performance.md#efficient-algorithms Input record; each assembly costs one pass over its layers inside `analyzeAutoMovieEnvelope`, answered there.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Solved once per envelope study; no transmittance is cached across studies because films and layers are the request's own.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owned by the request for one call; assemblies are capped at `AUTOMOVIE_ANALYSIS_MAX_SAMPLES` per study while layers per assembly have no bound of their own.
- * @author Samchon
  */
 export interface IAutoMovieEnvelopeAssembly {
   /** Stable assembly identity, unique within the request and reused as sample id. */

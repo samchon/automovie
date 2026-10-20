@@ -11,7 +11,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Four closed literals, one per resolution path, carried beside the box so overlap and support results report their own measurement quality without a second lookup.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A body without vertices is reported as a point with its own label instead of being given an invented extent, and the degenerate-box rule that also labels coincident drawn vertices is stated rather than hidden.
  * @evidence contracts/common.md#meaningful-documentation States what each basis measured, what a point basis means for overlaps and gaps, and the exact rule that assigns `element-origin-point`.
- * @author Samchon
  */
 export type AutoMovieBuiltPlacementBasis =
   | "element-geometry-bounds"

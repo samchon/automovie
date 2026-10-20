@@ -125,8 +125,6 @@ export const autoMoviePatternInstanceTransforms: (props: {
 
 /**
  * One panel's approximate orthonormal world basis and developed anchor.
- *
- * @author Samchon
  */
 interface IResolvedPanel {
   /** Face-local metre point {@link origin} sits at. */

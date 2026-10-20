@@ -37,7 +37,6 @@ const NO_JOINT_AXES: Partial<
  * @evidence contracts/performance.md#efficient-algorithms One scan of the bones; a copy of the table is made only when a bone declares axes, linear in the table and bone counts.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of its two arguments; callers that resolve many poses of one rig can hold the result.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the returned table borrows the declared axis records.
- * @author Samchon
  */
 export const skeletonJointAxes: (
   skeleton: IAutoMovieSkeleton,

@@ -12,8 +12,6 @@ import { AutoMovieHumanoidBone } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms This identity record contains no geometric solve or skeleton indexing strategy.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A named chain may be reused as input, but resolved geometry equivalence is owned by the prepared-chain operation.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Three bone-slot values hold no target history, cached matrices or solver workspace.
- *
- * @author Samchon
  */
 export interface IAutoMoviePlantChain {
   /** End-effector bone driven onto the pinned target (foot / hand). */

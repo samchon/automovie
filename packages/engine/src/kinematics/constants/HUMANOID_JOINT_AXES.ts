@@ -68,8 +68,6 @@ const HAND: readonly string[] = [
  * declares its own `axes` keeps them, and a bone absent from both uses
  * {@link DEFAULT_JOINT_AXES}. The canonical rest pose itself is stated on
  * `HUMANOID_REST_FRAME`.
- *
- * @author Samchon
  */
 export const HUMANOID_JOINT_AXES: Partial<
   Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>

@@ -8,8 +8,6 @@
  * @evidence contracts/performance.md#efficient-algorithms The record chooses no traversal; framing consumes its fixed-size numbers and generation scales with plan size.
  * @evidence contracts/performance.md#reuse-equivalent-work Directions can be reused across subjects, but world poses depend on each current box, lens and multiplier.
  * @evidence contracts/performance.md#bound-retention-and-release-resources This scalar/text record owns no native resources; plan and capture consumers control reference lifetime.
- *
- * @author Samchon
  */
 export interface IAutoMovieViewerViewpoint {
   /**

@@ -15,7 +15,6 @@ import { passExtension } from "./guidePassesInternal/passExtension";
  * @evidence contracts/performance.md#efficient-algorithms Constructing the numbered input pattern costs linear time in the chosen extension and resulting string length, with no frame traversal.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call formats one short pattern, so caching would cost more than formatting.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The pattern string goes straight into an ffmpeg argument list owned by the caller; this function starts no ffmpeg process and keeps no reference.
- * @author Samchon
  */
 export const guidePassFramePattern: (
   pass: AutoMovieGuidePass,

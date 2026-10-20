@@ -7,6 +7,5 @@
  * @evidence contracts/common.md#clear-and-simple-design Four semantic exposure grades describe waterproofing responsibility without embedding a measured water-volume threshold.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Grade order is ordinal, not liters or a simulated flooding result; rendered tile appearance cannot prove membrane or sealed-sleeve obligations.
  * @evidence contracts/common.md#meaningful-documentation Defines ordered expected exposure and differing-grade boundary meaning.
- * @author Samchon
  */
 export type AutoMovieWetGrade = "dry" | "damp" | "wet" | "immersed";

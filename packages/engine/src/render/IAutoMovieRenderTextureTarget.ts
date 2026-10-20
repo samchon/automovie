@@ -14,7 +14,6 @@ import type { IAutoMovieRenderTextureSource } from "./IAutoMovieRenderTextureSou
  * @evidence contracts/performance.md#efficient-algorithms The profile is proportional to attachment count; target measurement uses mip extent arithmetic and separate multisample/depth terms, not per-pixel buffers.
  * @evidence contracts/performance.md#reuse-equivalent-work Targets allocate independently of source identity; the same stable target owner denotes a retained allocation only while host facts and context ownership remain valid.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The capture host removes actually retired target rows and releases native scene/camera caches; this interface neither disposes nor retains the framebuffer itself.
- * @author Samchon
  */
 export interface IAutoMovieRenderTextureTarget {
   /** Stable host target owner, unique among retained targets in one context. */

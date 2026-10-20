@@ -12,42 +12,30 @@ import { IAutoMovieRenderAdapters } from "./IAutoMovieRenderAdapters";
  * @evidenceExclude contracts/performance.md#efficient-algorithms This erased request chooses no algorithm for its spec, seconds or output paths; renderAndSee and renderVideo own orchestration work.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The request shape performs no sharing of capture or encoding effects; renderAndSee executes the supplied adapters once per invocation.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The erased request performs no capture or encoding; renderAndSee borrows its spec and adapters, whose host implementations own acquired resources and output-file cleanup.
- *
- * @author Samchon
  */
 export interface IAutoMovieRenderAndSeeRequest {
   /**
    * Render spec for the target shot or sequence.
-   *
-   * @author Samchon
    */
   spec: IAutoMovieRenderSpec;
 
   /**
    * Target duration in seconds.
-   *
-   * @author Samchon
    */
   durationSeconds: number;
 
   /**
    * Directory where captured frames are written.
-   *
-   * @author Samchon
    */
   frameDir: string;
 
   /**
    * Requested encoded video path.
-   *
-   * @author Samchon
    */
   outputPath: string;
 
   /**
    * Capture and encode adapters owned by the host.
-   *
-   * @author Samchon
    */
   adapters: IAutoMovieRenderAdapters;
 }

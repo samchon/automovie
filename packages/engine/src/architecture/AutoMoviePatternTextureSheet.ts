@@ -20,7 +20,6 @@ import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A tagged record type with no runtime code; its consumer spends constant arithmetic per placement on it.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record type erased at compile time; the consumer reads one sheet per call and has no prior placement result to reuse.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A caller-owned record; the consumer keeps no reference to the sheet or its origin.
- * @author Samchon
  */
 export type AutoMoviePatternTextureSheet =
   | {

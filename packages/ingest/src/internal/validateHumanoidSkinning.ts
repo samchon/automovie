@@ -1,4 +1,4 @@
-﻿import type { IAccessorSource } from "./IAccessorSource";
+import type { IAccessorSource } from "./IAccessorSource";
 import type { IExternalModelAccessorReader } from "./IExternalModelAccessorReader";
 import { accessorReader } from "./accessorReader";
 import { integerIndex } from "./integerIndex";
@@ -17,7 +17,6 @@ import { requiredArray } from "./requiredArray";
  * @evidence contracts/performance.md#efficient-algorithms Cost is O(N plus unique bound mesh/skin vertex counts), with four weight reads and up to four joint-index reads per vertex, using expected constant-time membership sets.
  * @evidence contracts/performance.md#reuse-equivalent-work Repeated nodes binding the identical mesh/skin pair reuse completed checks within immutable synchronous inspection only.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The per-call pair set and weighted-joint set scale with bindings and joints; no mesh bytes or running resources survive.
- * @author Samchon
  */
 export const validateHumanoidSkinning: (props: {
   nodes: unknown[];

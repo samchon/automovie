@@ -11,7 +11,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design Four model-owned properties remain independent of optical materials and skeletons. Null body omits authored quantities, and null centre selects the centre helper's uniform-density primitive estimate without defining every detector's behavior.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No named object selects mass or grip presets; an authored centre overrides uniform-density geometric estimation, and physical advice remains distinct from rejecting malformed numeric inputs.
  * @evidence contracts/common.md#meaningful-documentation Defines authored kilograms, local metre centre and contact coefficients, distinct null-body helper behavior, friction's unread status and current detector wiring limits.
- * @author Samchon
  */
 export interface IAutoMovieBody {
   /**

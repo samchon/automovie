@@ -14,7 +14,6 @@ import { type IScaffoldPublicationFailure } from "./IScaffoldPublicationFailure"
  * @evidenceExclude contracts/performance.md#efficient-algorithms The receipt is the result record; the loop that fills it is answered on `publishScaffoldCandidate`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A receipt documents a single attempt and is never shared between attempts.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The receipt retains the whole planned candidate, including every file's bytes, for as long as the caller keeps it; that is bounded by the candidate size and holds no descriptor.
- * @author Samchon
  */
 export interface IScaffoldPublicationReceipt {
   /** Entries completed before publication stopped, in candidate order. */

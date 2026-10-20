@@ -10,8 +10,6 @@ import type * as THREE from "three";
  * @evidence contracts/performance.md#efficient-algorithms The handle shape performs no instancing algorithm; its builder scales matrix work with placement times branch/leaf populations.
  * @evidence contracts/performance.md#reuse-equivalent-work Batches share one geometry/prototype per role and the dispose callback represents one handle's restoration outcome rather than a cross-cluster cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns scene placement/removal, while the handle owns generated geometry/default materials/instance allocations and must stop rendering them before disposal.
- *
- * @author Samchon
  */
 export interface IAutoMoviePlantingObject {
   /** Add this group to the current scene. */

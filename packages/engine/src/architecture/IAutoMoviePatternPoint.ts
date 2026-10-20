@@ -10,7 +10,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A value type with no behaviour; operations on points are costed where they run.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Points are authored or computed values, not results of shared work, so nothing about them can be reused across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Two numbers held by value inside whichever candidate, placement or outline contains the point.
- * @author Samchon
  */
 export interface IAutoMoviePatternPoint {
   /** Distance along the face's local U axis, in metres. */

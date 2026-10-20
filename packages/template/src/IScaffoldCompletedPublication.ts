@@ -10,7 +10,6 @@ import { type IScaffoldPublicationEntry } from "./IScaffoldPublicationEntry";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A completed pair is two references and performs no traversal or allocation of its own.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The pair shares the planned entry object with `planned` instead of copying it, which is a reference, not reused work.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller can retain this pair directly or through a receipt, keeping the shared entry and its bytes and the parent identity alive; no descriptor or task belongs to the pair.
- * @author Samchon
  */
 export interface IScaffoldCompletedPublication {
   /** Planned entry whose bytes passed final readback. */

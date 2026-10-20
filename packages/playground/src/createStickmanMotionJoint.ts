@@ -13,8 +13,6 @@ import type {
  * @evidence contracts/performance.md#efficient-algorithms Three scalar defaults and one joint record require constant work/storage; full clip construction and sampling remain caller/engine costs.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call creates mutable authored data and retains no numerical or record cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned joint record is caller-owned and no handle, timer, worker or cross-call state is retained.
- *
- * @author Samchon
  */
 export function createStickmanMotionJoint(
   bone: AutoMovieHumanoidBone,

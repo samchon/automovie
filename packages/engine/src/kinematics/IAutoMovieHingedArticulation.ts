@@ -16,7 +16,6 @@ import { IAutoMovieQuaternion } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; the sweep's cost is answered on `hingedArmArticulation`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each arm reach chooses its own candidate for its own target, so a result is never shared between reaches.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Two quaternions and a number, released with the caller's pose.
- * @author Samchon
  */
 export interface IAutoMovieHingedArticulation {
   /** Bone-local articulation delta for the chain-root joint (the shoulder). */

@@ -19,7 +19,6 @@ const MAX_TAIL_SECONDS: number = 2;
  * @evidence contracts/performance.md#efficient-algorithms N interleaved samples and T<=32 taps cost O(N*T) same-room work with O(N+sampleRate*tail*channels) output storage; outdoor/partition paths scan/copy O(N).
  * @evidence contracts/performance.md#reuse-equivalent-work Each delayed tap gain/offset is computed once for its full sample traversal, and one supplied response serves the whole generation; no PCM or response cache persists between calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the fresh PCM result, input is read without mutation, and local tap state retains no decoder, adopted bytes, process or audio device.
- * @author Samchon
  */
 export const applyAutoMovieInteriorAcousticResponse: (props: {
   samples: Float32Array<ArrayBufferLike>;

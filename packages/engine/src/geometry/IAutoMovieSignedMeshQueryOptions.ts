@@ -14,7 +14,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms An options record; the admission pass it selects is answered on `createAutoMovieSignedMeshQuery`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Read once when the query is compiled; nothing is shared through it.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A single string field the compiler reads once and does not keep.
- * @author Samchon
  */
 export interface IAutoMovieSignedMeshQueryOptions {
   /**

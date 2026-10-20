@@ -7,7 +7,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design Child identity and two placement inputs form the reusable branching law without species-specific angles or hierarchy objects.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Zero vectors and out-of-range offsets refuse; direction need not already be unit and no named plant selects a hidden branching preset.
  * @evidence contracts/common.md#meaningful-documentation Defines stable child id, parent-axis coordinate convention and closed-unit emergence fraction.
- * @author Samchon
  */
 export interface IAutoMoviePlantingChild {
   /** Stable child identity within the structure. */

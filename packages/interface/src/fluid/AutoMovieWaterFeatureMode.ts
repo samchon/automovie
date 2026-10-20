@@ -9,6 +9,5 @@
  * @evidence contracts/common.md#clear-and-simple-design Three values separate a frozen pool from a solved one and mark the solved one for ripple scrolling; a separate surface-animation flag would duplicate the third distinction.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Flowing and simulated differ only in viewer metadata, without changing the shared same-time solve; static deliberately selects another step. No stock shader consumes the flowing flag and no production shot-frame caller wires the lowering/viewer pair.
  * @evidence contracts/common.md#meaningful-documentation States the zero-versus-snapped step choice, the same-time premise for solved modes, permitted static/solved disagreement, flowing metadata, closed admission and absent per-frame shot wiring.
- * @author Samchon
  */
 export type AutoMovieWaterFeatureMode = "static" | "flowing" | "simulated";

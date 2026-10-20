@@ -12,7 +12,6 @@ import { IAutoMovieMaterial } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms An input record selects no algorithm; the fixed-size build it feeds is costed on `createAutoMovieStickman`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A plain argument record coordinates no work across calls or consumers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns the record; the producer keeps only the material reference inside the returned model.
- * @author Samchon
  */
 export interface IAutoMovieStickmanProps {
   /** Non-blank model id, also used as the skeleton id that poses and motions cite. */

@@ -36,7 +36,6 @@ import { SPACE_GROUP_NAME } from "./SPACE_GROUP_NAME.js";
  * `validateSpace`, but a hand-built space may still carry one) encloses no area
  * and contributes no mesh rather than an invalid geometry.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Uses the engine's actual footprint decomposition, height-rule tessellation, +Y winding and shared smooth normals, then realizes Float32 indexed geometry; admitted metre/Y-up surfaces satisfy engine premises, and bilinear cell interiors remain planar approximations rather than exact grounding geometry.
  * @evidence contracts/common.md#clear-and-simple-design Owns only the Three group/geometry realization of semantic support surfaces; the engine owns tessellation and guide passes own material replacement, while beauty/depth writes of the ordinary material are disabled.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Draws every nondegenerate declared surface through the same tessellator without fixture paths or replacement height rules; invisible beauty material reflects semantic-support versus authored physical floor responsibilities.

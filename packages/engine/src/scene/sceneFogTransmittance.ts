@@ -21,8 +21,6 @@ import { IAutoMovieFog } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms Two products, one negation and one exponential take constant time with no geometry traversal or allocation.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Density and depth define one independent scalar query, so the function coordinates no repeated scene work or cache.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The returned primitive retains no fog record, shader, renderer or temporary object after computation.
- *
- * @author Samchon
  */
 export const sceneFogTransmittance: (
   fog: IAutoMovieFog | null | undefined,

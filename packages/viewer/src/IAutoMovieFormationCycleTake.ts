@@ -19,8 +19,6 @@ import type * as THREE from "three";
  * @evidenceExclude contracts/performance.md#efficient-algorithms This take record selects no bake or interpolation algorithm; its producer and consumers own those operations.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Matrix arrays and textures are shared by reference, but this interface coordinates no asynchronous bake or cache invalidation.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The formation representation owns this take's matrix bytes and DataTexture until its disposer releases them; the type itself acquires nothing.
- *
- * @author Samchon
  */
 export interface IAutoMovieFormationCycleTake {
   /** Name of the gait this take was baked from. */

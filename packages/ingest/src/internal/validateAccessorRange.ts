@@ -1,4 +1,4 @@
-﻿import { accessorElementByteLength } from "./accessorElementByteLength";
+import { accessorElementByteLength } from "./accessorElementByteLength";
 import { object } from "./object";
 
 /**
@@ -13,7 +13,6 @@ import { object } from "./object";
  * @evidence contracts/performance.md#efficient-algorithms Constant-time arithmetic resolves one view and shape without visiting accessor elements.
  * @evidence contracts/performance.md#reuse-equivalent-work Padded element sizing is shared with sparse validation and component readers; no computed payload values are cached.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The gate borrows metadata for the duration of one call and owns no reader or resident bytes.
- * @author Samchon
  */
 export const validateAccessorRange: (
   accessor: Record<string, unknown>,

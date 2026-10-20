@@ -4,4 +4,4 @@ Karastergiou K., Smith S.R., Greenberg A.S., Fried S.K. "Sex differences in huma
 
 Women have more body fat than men and a pear-shaped, gluteal-femoral distribution, against the central (abdominal) distribution typical of men; the review attributes the difference to intrinsic depot properties of preadipocytes and adipocytes, sex steroids, the depot microenvironment and development. Grade: established physiological account.
 
-Human takes the qualitative rule that female adiposity is placed first on hips, buttocks and thighs and male adiposity first on the abdomen; the quantities come from `kelly-2009.md` and `ansur-ii.md`.
+The review describes sex-dependent adipose distribution; it does not supply an individual geometry model.

@@ -20,8 +20,6 @@ import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A rig description contains no FK walk; its producer resolves rest span and builds slot maps.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Clinical entries may be shared by reference with supplied tables, but this type neither invalidates nor caches mutable skeleton measurements.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Map entries are bounded by declared humanoid slots and held by the returned characterization; source geometry and playback tasks are not retained.
- *
- * @author Samchon
  */
 export interface IAutoMovieHumanoidRigCharacterization {
   /** Skeleton id the characterization was derived from. */

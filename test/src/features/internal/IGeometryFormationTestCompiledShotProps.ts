@@ -5,8 +5,6 @@ import type {
 } from "@automovie/interface";
 
 /** Formation and banner inputs for the existing compiled shot scenarios.
- *
- * @author Samchon
  */
 export interface IGeometryFormationTestCompiledShotProps {
   /** Shot identity, also used to name its compiled scene. */

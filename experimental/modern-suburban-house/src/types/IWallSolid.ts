@@ -3,8 +3,6 @@ import type { IWallFace } from "./IWallFace";
 
 /**
  * One caller-owned cut wall mesh paired with the face and void record from which it was produced. Geometry emitters and part assembly carry the physical body and inspection boundary together; this erased pair neither builds geometry nor assigns another wall author.
- *
- * @author Samchon
  */
 export interface IWallSolid {
   /** The assigned wall's emitted world-space mesh around its rough voids. */

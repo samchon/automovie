@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Three booleans select components instead of a component list, and the copy works on local values in the same sampled map clips write, so no world compose is needed before it.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Nonboolean flags, invalid influence, enabled-component reads of missing nodes and wrong sampled widths throw. Dependency ordering excludes a driver's own one-step input/output and refuses reciprocal cycles; finite derived blends are not separately gated, and local copying does not promise world-space agreement across different parents.
  * @evidence contracts/common.md#meaningful-documentation States the pass and its order relative to limits, what value the owner starts from, the blend per component, when the result matches in world space, and every throw.
- * @author Samchon
  */
 export interface IAutoMovieCopyDriver {
   /** Discriminator. */

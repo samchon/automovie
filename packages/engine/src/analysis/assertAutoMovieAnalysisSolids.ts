@@ -32,7 +32,6 @@ import { validateSolidPlanes } from "./validateSolidPlanes";
  * @evidence contracts/performance.md#efficient-algorithms Linear in solids N plus their planes P with one `Set` of ids, O(N + ΣP); the per-solid collector keeps each solid's violations separate so the first one names the right solid.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Validates one caller list once per study; no verdict is cached because each study passes its own shades.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The id set holds at most N ids and each collector lives for one solid's iteration; all are released when the call returns or throws, and nothing is retained.
- * @author Samchon
  */
 export const assertAutoMovieAnalysisSolids: (
   solids: readonly IAutoMovieAnalysisSolid[],

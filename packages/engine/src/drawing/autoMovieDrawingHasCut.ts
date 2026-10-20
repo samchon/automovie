@@ -19,7 +19,6 @@ import { AutoMovieDrawingProjection } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms One string comparison, so there is no algorithm to choose.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A constant-time pure predicate evaluated once per derivation; there is no work to share.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Compares one string and returns a boolean, so no object, handle or task exists to release.
- * @author Samchon
  */
 export const autoMovieDrawingHasCut = (
   projection: AutoMovieDrawingProjection,

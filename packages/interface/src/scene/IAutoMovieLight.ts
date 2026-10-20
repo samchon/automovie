@@ -14,7 +14,6 @@ import { IAutoMovieSpotLight } from "./IAutoMovieSpotLight";
  * @evidence contracts/common.md#clear-and-simple-design Four specialized light shapes share common identity, linear color and transform while keeping range, cone and area dimensions with their owning kinds.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Area has no punctual glTF counterpart or supported shadow map; union membership does not permit another kind's unused range or cone fields.
  * @evidence contracts/common.md#meaningful-documentation Defines rest state, kind distinction, runtime mapping, shot-local motion and the current opening-only story inheritance boundary.
- * @author Samchon
  */
 export type IAutoMovieLight =
   | IAutoMovieDirectionalLight

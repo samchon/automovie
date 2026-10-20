@@ -44,7 +44,6 @@ import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKe
  * @evidenceExclude contracts/performance.md#efficient-algorithms Constant arithmetic for five metrics plus target validation and matching linear in the declared targets, with no algorithm or strategy to choose.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One request yields one run; nothing it computes serves another request or phase.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Builds five metrics, a warning list and one settings string for the sealed run and retains nothing after returning it.
- * @author Samchon
  */
 export const analyzeAutoMovieSpaceAir: (props: {
   request: IAutoMovieSpaceAirRequest;

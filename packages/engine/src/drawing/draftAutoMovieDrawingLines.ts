@@ -71,7 +71,6 @@ interface IDrawable {
  * @evidence contracts/performance.md#efficient-algorithms Linear in the drawn triangles for distance, section, clip and silhouette, with the depth range folded from a generator instead of a flattened array; deduplication is a hash map over strokes and the final sort is `O(L log L)` in the line count, which the canonical order requires.
  * @evidence contracts/performance.md#reuse-equivalent-work Element geometry comes from the design index, so a model placed many times is tessellated once per derivation; each drawable's triangles are computed once and shared by its classification, cut and silhouette passes.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The drawable list, drafted strokes and deduplication map live for the call and are released on return; the retained population is bounded by the drawn triangles, and only the returned lines, owned by the caller, survive.
- * @author Samchon
  */
 export const draftAutoMovieDrawingLines = (props: {
   environment: IAutoMovieBuiltEnvironment;

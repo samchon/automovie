@@ -113,6 +113,18 @@ export function* AutoMovieBicubicAtlasEmit64(
       physicalVertexIds: [],
       indices: [],
       ...(input.retainTriangleParameters ? { triangleParameters: [] } : {}),
+      ...(input.retainPatchCoefficients && plan.grid.length === 4
+        ? {
+            patchCoefficients: plan.grid.map(
+              (row: B.Poly): [number, number, number][] =>
+                row.map((point: B.Vec): [number, number, number] => [
+                  point[0],
+                  point[1],
+                  point[2],
+                ]),
+            ),
+          }
+        : {}),
       faceRanges: [],
       diagnostics: [],
       counts: {

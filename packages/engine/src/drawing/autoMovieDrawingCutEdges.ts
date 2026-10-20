@@ -32,7 +32,6 @@ import { AUTOMOVIE_DRAWING_EPSILON } from "./constants/AUTOMOVIE_DRAWING_EPSILON
  * @evidence contracts/performance.md#efficient-algorithms One pass over `t` triangles with three distance evaluations each, linear time and at most `t` output segments; every triangle must be visited because any of them may straddle the plane.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function called once per drawable per cut view, so nothing equivalent repeats.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns a fresh array owned by the caller and keeps nothing after returning.
- * @author Samchon
  */
 export const autoMovieDrawingCutEdges = (
   frame: IAutoMovieDrawingFrame,

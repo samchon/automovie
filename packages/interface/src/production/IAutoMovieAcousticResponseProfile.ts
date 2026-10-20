@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Separate arms keep solver identity on derived analysis and artifact identity plus mappings on adopted data, with a shared stable profile id connecting the selected source to returned acoustic observations.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The engine does not fabricate adopted impulse-response results without resident bytes; it reports not-run, and descriptive provider metadata cannot establish authoritative room mapping.
  * @evidence contracts/common.md#meaningful-documentation States production ownership of selection, the fixed analysis tier, manifest path and digest, positive sample rate, explicit room mappings and the current adopted-byte consumption gap.
- * @author Samchon
  */
 export type IAutoMovieAcousticResponseProfile =
   | {

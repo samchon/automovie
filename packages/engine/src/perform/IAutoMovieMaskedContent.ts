@@ -13,7 +13,6 @@ import {
  * @evidence contracts/performance.md#efficient-algorithms The type performs no scan; mask production visits authored joints and sorts only distinct discarded bone names.
  * @evidence contracts/performance.md#reuse-equivalent-work The same filtering pass produces the masked motion and this loss record, avoiding a later content comparison.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the small diagnostic record and bone array; it keeps ids rather than whole source clips and acquires no external resource.
- * @author Samchon
  */
 export interface IAutoMovieMaskedContent {
   /** Index into the action list {@link compilePerformance} was given. */

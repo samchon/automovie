@@ -21,7 +21,6 @@ import { IAutoMovieTravelMotion } from "./IAutoMovieTravelMotion";
  * @evidence contracts/common.md#clear-and-simple-design The panel names an element, a leaf size, and one motion; the element hierarchy supplies placement and chaining, so a folding leaf is another panel parented under the first rather than a new record kind.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A second element driver and an observed rest-rectangle fit failure are refused instead of overwritten or clipped. Fit discards depth and is skipped without a usable profile/face; an arc-envelope hull may contain space outside the authored arc. Sweeping varies only this panel's travel with ancestors at their current state, not every configuration of a folding chain.
  * @evidence contracts/common.md#meaningful-documentation States the local frame of axis, pivot, and leaf rectangle, the natural door authoring, the rest-pose fit rule against the void hull, the one-driver rule, where the element must sit, and the units of the extents.
- * @author Samchon
  */
 export interface IAutoMovieMovablePanel {
   /** Stable, non-blank panel identity, unique within the opening. */

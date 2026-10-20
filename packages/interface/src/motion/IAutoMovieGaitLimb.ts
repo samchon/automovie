@@ -8,7 +8,6 @@ import { AutoMovieEasing } from "./AutoMovieEasing";
  * @evidence contracts/common.md#clear-and-simple-design One row drives one bone axis, defaulting to flexion, while gaitMotion folds different axes of a bone into one joint and refuses repeated bone-axis rows rather than overwriting them.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Creature names do not select footfall timing or joint limits; phase and duty express nominal stance/swing timing without proving foot contact, and the resulting motion still faces the skeleton's range-of-motion validation. Finite cubic y controls may overshoot the amplitude endpoints; direct gait evaluation leaves CSS x-control admission to its caller.
  * @evidence contracts/common.md#meaningful-documentation Gives phase turns and wrapping, open duty bounds, degree amplitude and neutral, default axis and linear easing, cubic control ownership and the per-phase fallback when controls are absent.
- * @author Samchon
  */
 export interface IAutoMovieGaitLimb {
   /** The bone this limb's swing drives (a leg's upper bone). */

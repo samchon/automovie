@@ -11,8 +11,6 @@ import type * as THREE from "three";
  * @evidenceExclude contracts/performance.md#efficient-algorithms The built-scene record runs no node construction or light lookup strategy.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work References expose one existing built scene and do not coordinate repeated construction requests.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Scene builders and hosts own contained resource lifetimes; returning this record acquires no additional renderer or render loop.
- *
- * @author Samchon
  */
 export interface IAutoMovieSceneObject {
   /**

@@ -8,7 +8,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms This interface is a type with no runtime code; the conversion it describes runs in `decodeProductionAudioAsset`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The lineage record is written once per decode and read by plan validation, with no computation of its own to reuse.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type allocates nothing; decoder-produced records carry one matrix row of one or two numbers, while the structural array type itself imposes no size bound or resource lifetime.
- * @author Samchon
  */
 export interface IAutoMovieProductionAudioProcessing {
   /** Stages applied, in source order: `copy` for mono at the target rate, `downmix` for stereo at the target rate, `resample` for mono at another rate, and `downmix-resample` for stereo at another rate. */

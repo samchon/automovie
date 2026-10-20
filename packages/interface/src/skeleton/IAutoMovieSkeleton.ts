@@ -11,7 +11,6 @@ import { IAutoMovieBone } from "./IAutoMovieBone";
  * @evidence contracts/common.md#clear-and-simple-design Rig existence and rest/constraint data are independent from pose and motion channels, allowing one normalized representation across acquisition paths.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Generic model validation requires one connected root but does not require every VRM mandatory bone or guarantee arbitrary-avatar retargeting; mapping, rest basis and target ROM remain separately admitted.
  * @evidence contracts/common.md#meaningful-documentation Defines stable rig identity, unique bone population, connected single-root graph and the separation from stricter VRM import requirements.
- * @author Samchon
  */
 export interface IAutoMovieSkeleton {
   /** Stable id so poses, motions, and scene nodes can cite this rig. */

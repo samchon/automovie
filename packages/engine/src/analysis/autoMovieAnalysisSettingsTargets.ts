@@ -16,7 +16,6 @@ import { IAutoMovieAnalysisTarget } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms One map over the T targets allocating one four-field record each, with no algorithm or strategy to choose.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each analyzer calls it once per study while building that study's settings text; no other phase needs the projection.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns T new records that the caller serializes into the settings text and then drops; this function retains nothing.
- * @author Samchon
  */
 export const autoMovieAnalysisSettingsTargets: (
   targets: readonly IAutoMovieAnalysisTarget[],

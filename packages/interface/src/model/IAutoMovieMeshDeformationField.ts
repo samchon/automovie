@@ -7,7 +7,6 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design Centre and radii locate support while displacement and dimensionless stretch describe its local effect; mesh buffers and optional per-vertex influences stay inputs of the compiled deformer rather than fields of this reusable definition.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The same smooth kernel applies to every feature without named-anatomy exceptions; zero displacement and stretch are neutral, and invalid vectors or nonpositive radii are refused during compilation instead of clamped.
  * @evidence contracts/common.md#meaningful-documentation Gives compact support and smooth boundary behavior, mesh-local metre coordinates, strictly positive radii, centre displacement and dimensionless stretch offsets with neutral zero.
- * @author Samchon
  */
 export interface IAutoMovieMeshDeformationField {
   /** Centre in mesh-local metres. All coordinates must be finite. */

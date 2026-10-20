@@ -4,7 +4,7 @@ Donner C, Jensen HW. "A Spectral BSSRDF for Shading Human Skin." Eurographics Sy
 
 ## Licence
 
-Copyright the authors and the Eurographics Association. Human takes the parameterization and quoted ranges, citing the paper.
+Copyright the authors and the Eurographics Association.
 
 ## What it says
 
@@ -20,10 +20,6 @@ Copyright the authors and the Eurographics Association. Human takes the paramete
 | ρs | Oiliness | 0 to 1 |
 
 - Surface: Torrance-Sparrow BRDF with a Beckmann distribution; roughness m in 0.2 to 0.4 "give good results for skin", m = 0.35 for all results, oiliness controlled by ρs.
-
-## What Human takes
-
-The pigmentation parameters of the identity and their ranges, converted to viewer material values by a documented formula (`../techniques/skin-material.md`).
 
 ## Absorption and scattering formulas (sections 3.3 to 3.5)
 

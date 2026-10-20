@@ -13,7 +13,6 @@
     "render:see": "ttsx --no-plugins scripts/render-and-see.ts --",
     "render:sequence": "ttsx --no-plugins scripts/render-sequence-and-see.ts --",
     "shots": "ttsx --no-plugins scripts/capture-shots.ts --",
-    "human:capture": "ttsx --no-plugins scripts/capture-human.ts --",
     "preview": "vite preview --port 4173 --strictPort",
     "smoke:capture": "ttsx --no-plugins scripts/capture-smoke.ts --",
     "evidence": "evidence"
@@ -23,7 +22,6 @@
   "dependencies": {
     "@automovie/archetypes": "workspace:^",
     "@automovie/engine": "workspace:^",
-    "@automovie/human": "workspace:^",
     "@automovie/interface": "workspace:^",
     "@automovie/render": "workspace:^",
     "@automovie/viewer": "workspace:^",

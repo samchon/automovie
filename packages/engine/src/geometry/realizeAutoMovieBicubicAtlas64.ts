@@ -22,6 +22,10 @@ import { tessellateAutoMovieBicubicAtlas64 as T } from "./curve/tessellateAutoMo
  * aligned with triangle ordinals and primitiveRanges, through that compaction.
  * A shared render vertex can have different incident chart coordinates; these
  * records are not per-vertex UV0, skin weights or semantic surface addresses.
+ * Optional patch coefficients are the actual post-binding kernel grids in mm,
+ * filtered to patches with retained triangles. They let construction consume
+ * that same field instead of re-evaluating a pre-binding recipe. Omitted/false
+ * retains no coefficient snapshots; invalid retention flags reject before work.
  *
  * @evidence contracts/common.md#principled-implementation Complete Bernstein coefficients and shared control identities feed the adaptive atlas operator; unit conversion is explicit and returned indices are appended without coordinate matching.
  * @evidence contracts/common.md#clear-and-simple-design One public-recipe adapter serves viewer, measurements and artifact compilation, separating structural admission from polynomial evaluation.
@@ -36,11 +40,15 @@ export function realizeAutoMovieBicubicAtlas64(
   options: {
     /** Retain actual patch-local triangle-corner parameters for downstream surface consumers; omitted allocates none. */
     retainTriangleParameters?: boolean;
+    /** Retain actual canonically bound grids for construction and field consumers; omitted allocates none. */
+    retainPatchCoefficients?: boolean;
   } = {},
 ): {
   mesh: IAutoMovieMesh;
   /** Requested [u0,v0,u1,v1,u2,v2] per retained triangle, with patch ownership in primitiveRanges. */
   triangleParameters?: number[];
+  /** Requested prepared coefficient grids in mm; only patches with retained triangles are included. */
+  patchCoefficients?: NonNullable<T.Summary["patchCoefficients"]>;
   complete: boolean;
   approximationQualified: boolean;
   diagnostics: string[];
@@ -66,6 +74,13 @@ export function realizeAutoMovieBicubicAtlas64(
     typeof options.retainTriangleParameters !== "boolean"
   )
     throw new Error("Triangle parameter retention must be boolean");
+  if (
+    options.retainPatchCoefficients !== undefined &&
+    typeof options.retainPatchCoefficients !== "boolean"
+  )
+    throw new Error("Patch coefficient retention must be boolean");
+  let patchCoefficients: T.Summary["patchCoefficients"] =
+    options.retainPatchCoefficients ? [] : undefined;
   const admitted: ReturnType<typeof admitAutoMovieBicubicAtlas> =
     admitAutoMovieBicubicAtlas(input);
   const triangleParameters: number[] | undefined =
@@ -104,6 +119,7 @@ export function realizeAutoMovieBicubicAtlas64(
     return {
       mesh,
       ...(triangleParameters === undefined ? {} : { triangleParameters }),
+      ...(patchCoefficients === undefined ? {} : { patchCoefficients }),
       complete: false,
       approximationQualified: false,
       diagnostics,
@@ -117,6 +133,9 @@ export function realizeAutoMovieBicubicAtlas64(
     ]),
   );
   const iterator: ReturnType<typeof T> = T({
+    ...(options.retainPatchCoefficients
+      ? { retainPatchCoefficients: true }
+      : {}),
     topologyDomain: input.topologyDomain,
     controlsMm: admitted.controls.map(
       (id: number): [number, number, number] => {
@@ -185,6 +204,20 @@ export function realizeAutoMovieBicubicAtlas64(
           "Atlas engine violated append-only shared mesh identity",
         );
       const firstTriangle: number = mesh.indices!.length / 3;
+      if (
+        patchCoefficients !== undefined &&
+        chunk.indices.length > 0 &&
+        chunk.patchCoefficients !== undefined &&
+        !patchCoefficients.some(
+          (
+            patch: NonNullable<T.Summary["patchCoefficients"]>[number],
+          ): boolean => patch.patch === chunk.patch,
+        )
+      )
+        patchCoefficients.push({
+          patch: chunk.patch,
+          gridMm: chunk.patchCoefficients,
+        });
       for (const value of chunk.positions) mesh.positions.push(value);
       for (const value of chunk.normals) mesh.normals!.push(value);
       for (const value of chunk.indices) mesh.indices!.push(value);
@@ -227,6 +260,18 @@ export function realizeAutoMovieBicubicAtlas64(
       result = iterator.next();
     }
     if (result.done) {
+      if (patchCoefficients !== undefined) {
+        const retained: Set<string> = new Set(
+          primitiveRanges.map(
+            (range: (typeof primitiveRanges)[number]): string => range.patch,
+          ),
+        );
+        patchCoefficients = (result.value.patchCoefficients ?? []).filter(
+          (
+            patch: NonNullable<T.Summary["patchCoefficients"]>[number],
+          ): boolean => retained.has(patch.patch),
+        );
+      }
       complete &&= result.value.omittedPatches === 0;
       approximationQualified = result.value.approximationQualified && complete;
       for (const diagnostic of result.value.diagnostics)
@@ -291,6 +336,7 @@ export function realizeAutoMovieBicubicAtlas64(
   }
   return {
     mesh,
+    ...(patchCoefficients === undefined ? {} : { patchCoefficients }),
     ...(triangleParameters === undefined ? {} : { triangleParameters }),
     complete,
     approximationQualified,

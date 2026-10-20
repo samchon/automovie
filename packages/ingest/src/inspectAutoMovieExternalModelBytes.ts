@@ -51,7 +51,6 @@ import { isAutoMovieExternalModelIngestProfile } from "./isAutoMovieExternalMode
  * @evidence contracts/performance.md#efficient-algorithms Work follows container bytes for UTF-8/JSON and duplicate scanning, declared entries and name text, skinned components, motion values and encoded data URIs, plus full caller resolver work per external URI entry; resource/extension sorting uses O(U log U) and O(X log X) prefix-scanning comparisons. Per-accessor readers resolve views/strides once, and the BIN slice borrows container storage.
  * @evidence contracts/performance.md#reuse-equivalent-work Within one inspection, a motion accessor is decoded once per accessor and type and shared by every channel that cites it, each track receiving its own copy, and a mesh and skin pair bound on several nodes is weight-checked once; the key is the accessor index or pair, which is valid because the document is immutable during the synchronous call.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The decoded JSON, payload list, readers and caches live only for the call and are released on return or throw; the result retains copies proportional to resources, slots and motion data, and keeps neither the container nor sidecar bytes.
- * @author Samchon
  */
 export const inspectAutoMovieExternalModelBytes: (props: {
   /** Exact project-relative source path. */

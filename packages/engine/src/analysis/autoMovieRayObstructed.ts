@@ -18,7 +18,6 @@ import { autoMovieSolidBlocks } from "./autoMovieSolidBlocks";
  * @evidence contracts/performance.md#efficient-algorithms O(N·P) per ray for N solids of P planes with a short circuit at the first blocker; no bounding volume or spatial index prunes solids, so the daylight study pays the full solid count on every one of its cells × (sky directions + luminaires + 1) unobstructed rays.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call answers one ray; rays differ in origin or direction, so no answer is equivalent to another's.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing; the only allocation is one short-lived props object per solid tested, released when the test returns.
- * @author Samchon
  */
 export const autoMovieRayObstructed: (props: {
   origin: IAutoMovieVector3;

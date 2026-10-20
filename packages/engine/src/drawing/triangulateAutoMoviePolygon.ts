@@ -33,7 +33,6 @@ import { autoMoviePlanarRegionFailure } from "../geometry/autoMoviePlanarRegionF
  * @evidence contracts/performance.md#efficient-algorithms For `n` corners, the initial coverage counts cost `O(n^2)`, and each of the `n - 3` passes costs `O(n)`: one scan for the best score, one containment test of the clipped corner against every other triangle to decrement the counts it leaves, and a full recount for only the two neighbours whose triangles change, so the whole clip is `O(n^2)` with linear extra space.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function called once per face-only boundary per drawing; the scores it maintains are reused across its own passes and nothing outlives the call.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The ring, turn and coverage arrays are allocated per call and released when it returns; only the returned triples survive.
- * @author Samchon
  */
 export const triangulateAutoMoviePolygon = (
   polygon: readonly IAutoMoviePlanarPoint[],

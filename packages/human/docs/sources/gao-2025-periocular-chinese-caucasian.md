@@ -35,10 +35,6 @@ CC BY-NC-ND 4.0. Numbers are facts.
 
 Canthal tilt as an elevation of the exocanthion above the intercanthal line is 180 minus the 2D angle (derived): Chinese about 5 to 6 degrees, Caucasian about 1 to 2.4 degrees. The fold measures are distances from the upper lid crease (fold) to the lid margin, so they are the visible pretarsal show, not the crease height on a closed lid.
 
-## What Human takes
-
-Iris diameter, fissure height and width, canthal angles and tilt, fold show and brow position for two ancestries, all from one protocol.
-
 ## Limits
 
 Small Chinese groups living abroad; young adults only.

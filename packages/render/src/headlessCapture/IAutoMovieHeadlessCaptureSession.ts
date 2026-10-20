@@ -15,7 +15,6 @@ import type { IAutoMovieRenderAdapters } from "../IAutoMovieRenderAdapters";
  * @evidenceExclude contracts/performance.md#efficient-algorithms The interface declares two call shapes and runs nothing; per-frame cost is answered on the factory.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The interface describes one session's operations, while the reuse of the loaded route across frames is answered on `createHeadlessCaptureAdapter`.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The session holds one page handle, acquired from the caller at creation and released by `close`; it holds no frame bytes between calls.
- * @author Samchon
  */
 export interface IAutoMovieHeadlessCaptureSession {
   /**

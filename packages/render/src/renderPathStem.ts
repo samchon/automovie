@@ -48,7 +48,6 @@ const WINDOWS_RESERVED_NAMES: ReadonlySet<string> = new Set<string>([
  * @evidence contracts/performance.md#efficient-algorithms Two regular-expression passes and one split are linear in the target length, and the device-name check is a constant-time set lookup.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call maps one short id, cheaper than caching.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The function returns a new string and retains nothing; the device-name set is a fixed module constant.
- * @author Samchon
  */
 export const renderPathStem: (target: string) => string = (
   target: string,

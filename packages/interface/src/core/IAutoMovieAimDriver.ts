@@ -20,7 +20,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design One record names the owner, the target and three directions plus a blend, and the solve lives in the shared world-space pass with parent and IK drivers rather than in a separate look-at system.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Degenerate geometry follows the math (no twist when up is parallel, identity arc for a zero direction) instead of a hand-picked fallback, and invalid axes or influence throw rather than being normalized away.
  * @evidence contracts/common.md#meaningful-documentation States the pass the driver runs in, the exact rotation it computes, what is preserved, its interaction with limits, every throw, and both degenerate cases.
- * @author Samchon
  */
 export interface IAutoMovieAimDriver {
   /** Discriminator. */

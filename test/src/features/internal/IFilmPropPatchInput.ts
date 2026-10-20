@@ -1,7 +1,5 @@
 /**
  * Original square support patch inputs in metres; the fixture evaluates their plane without adding a new admission policy.
- *
- * @author Samchon
  */
 export interface IFilmPropPatchInput {
   /** Half width of the square. */

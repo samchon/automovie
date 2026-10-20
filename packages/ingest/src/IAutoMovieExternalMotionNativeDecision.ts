@@ -12,7 +12,6 @@ import type { IAutoMovieExternalMotionBoneMapping } from "./IAutoMovieExternalMo
  * @evidenceExclude contracts/performance.md#efficient-algorithms The decision is input data; validation cost is counted on `adoptAutoMovieExternalMotion`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work No work is attached to the decision record.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns the decision; adoption deep-copies what it keeps, so the record's lifetime is the caller's.
- * @author Samchon
  */
 export interface IAutoMovieExternalMotionNativeDecision {
   /** Mode discriminator. */

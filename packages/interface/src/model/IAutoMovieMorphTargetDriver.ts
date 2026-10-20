@@ -18,7 +18,6 @@ import { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
  * @evidence contracts/common.md#clear-and-simple-design A bone, an axis and the existing {@link IAutoMovieDrivenCurve} reuse the clip driver's curve semantics instead of a second mapping type, and live on the target they drive.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Admission requires a skeleton bone, a known axis and a nonempty finite strictly increasing curve, and refuses a driven target whose name an expression also writes, so neither silently overwrites the other.
  * @evidence contracts/common.md#meaningful-documentation States the angle's source, unit and neutral reading, the duplicate-joint rule, the curve evaluation and extension, the unclamped weight and when the viewer applies it.
- * @author Samchon
  */
 export interface IAutoMovieMorphTargetDriver {
   /** Skeleton bone whose joint angle drives the weight. */

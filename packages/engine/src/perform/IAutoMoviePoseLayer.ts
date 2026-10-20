@@ -10,7 +10,6 @@ import { IAutoMoviePose } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms The type has no runtime cost; blendPoses' work scales with total supplied joint entries and distinct bones.
  * @evidence contracts/performance.md#reuse-equivalent-work Layers reference existing sampled poses instead of copying motion curves; no identity cache or sampling operation belongs to this record.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the layer list and weights, while poses/root values are borrowed; the type holds no external resource.
- * @author Samchon
  */
 export interface IAutoMoviePoseLayer {
   /** Borrowed clinical control values; null axes contribute no weight. */

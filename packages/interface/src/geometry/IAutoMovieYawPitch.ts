@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Two angles are the whole look state of a roll-free gaze, so the record carries no vector or quaternion and the rig mapping stays in the synthesizer that owns the neck and head.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The degenerate zero-length aim answers a stated `0, 0` rather than `NaN`, and non-finite inputs are refused by `aimYawPitch` before any angle is computed.
  * @evidence contracts/common.md#meaningful-documentation States frame, formulas, yaw's signed branch endpoints, pitch range, angle signs, zero-aim convention, absent roll and the synthesis consumer's joint mapping.
- * @author Samchon
  */
 export interface IAutoMovieYawPitch {
   /** Turn off straight-ahead in degrees: 0 ahead, +90 the actor's left. */

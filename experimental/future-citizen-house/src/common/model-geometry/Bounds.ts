@@ -1,7 +1,5 @@
 /**
  * Mutable local Cartesian intervals in metres used by draft mesh recipes. Callers supply finite ordered endpoints; this erased record performs no checks or copying.
- *
- * @author Samchon
  */
 export interface Bounds {
   /** Local X minimum and maximum in metres. */

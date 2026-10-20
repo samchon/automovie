@@ -12,7 +12,6 @@ import type { IAutoMovieExternalMotionBoneMapping } from "./IAutoMovieExternalMo
  * @evidenceExclude contracts/performance.md#efficient-algorithms The record is caller input with no code of its own.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work No computation hangs off the retarget record.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller keeps ownership; the handoff copies its two scalars and deep-copies the rig.
- * @author Samchon
  */
 export interface IAutoMovieExternalMotionRetargetDecision {
   /** Mode discriminator. */

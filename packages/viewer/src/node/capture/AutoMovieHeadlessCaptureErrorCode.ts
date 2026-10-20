@@ -16,7 +16,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A string literal union is erased at compile time and runs no computation.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The union names failure categories and coordinates no work that could be shared between captures.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A code is one immutable string on the error instance and owns no handle, buffer or task.
- * @author Samchon
  */
 export type AutoMovieHeadlessCaptureErrorCode =
   | "route"

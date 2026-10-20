@@ -49,7 +49,6 @@ interface SequenceCaptureSession {
  * @evidence contracts/performance.md#efficient-algorithms For F frames of W by H pixels and T transitions, encoding scans O(FWH) pixels; diagnostics scan frames per transition and decode three PNGs per selected transition.
  * @evidence contracts/performance.md#reuse-equivalent-work One browser page and metadata snapshot serve the sequence; saved mixed-frame PNGs are reused by encoding and diagnostics instead of recapturing mixed frames.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Browser, page/session and encoder release in finally paths preserve operation and cleanup causes. Output files persist; frame-path maps grow O(F), and each diagnostic releases its decoded images after use.
- * @author Samchon
  */
 export const captureSequenceRenderAndSee: (
   options: IAutoMoviePageSequenceRenderOptions,

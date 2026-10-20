@@ -7,6 +7,5 @@
  * @evidence contracts/common.md#clear-and-simple-design Two closed values cover reflecting and spilling edges; an inflow edge is not offered because declared sources already admit water at a counted cell.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An open edge is the ordinary dry-neighbour rule of the solver rather than a separate absorbing condition, so outflow passes through the same positivity limiter and ledger as interior flow.
  * @evidence contracts/common.md#meaningful-documentation States what each value does to velocity and volume, where spilled volume is counted, that nothing enters through an open edge, and the validator's refusal of other strings.
- * @author Samchon
  */
 export type AutoMovieFluidBoundaryKind = "wall" | "open";

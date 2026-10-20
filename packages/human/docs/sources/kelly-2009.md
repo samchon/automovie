@@ -26,7 +26,3 @@ NHANES 1999 to 2004 whole-body DXA (Hologic fan-beam scanners), US population sa
 | 85 | 31.6 | 42.1 | 1.048 | 0.872 | 1.271 | 0.949 | 7.72 |
 
 Women's appendicular lean mass index at 20 is 6.81 kg/m2. The text states fat is about 24% of body weight in men and 38% in women at 25, and %fat and fat mass index rise until about 80 in men and 65 in women. Fat mass index 6 (men) and 9 (women) kg/m2 match the prevalence of BMI 25 at age 25; 9 and 13 match BMI 30.
-
-## What Human takes
-
-The sex difference and age course of fat distribution: women carry relatively more fat on the legs (trunk-to-leg %fat ratio 0.76 at 20 against 0.88 in men); both sexes shift fat to the trunk until about 65, while limb lean mass falls after about 45 in men. These ratios drive how adiposity is split between trunk and limb cross-sections.

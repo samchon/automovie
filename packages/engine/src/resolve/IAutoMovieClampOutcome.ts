@@ -11,7 +11,6 @@ import { IAutoMovieClampViolation } from "./IAutoMovieClampViolation";
  * @evidence contracts/performance.md#efficient-algorithms W components require O(W) result/diagnostic storage in the producer; this interface adds no evaluation or retained cache.
  * @evidence contracts/performance.md#reuse-equivalent-work The resolver uses the completed clamped value and violations together; altered value/limit inputs require a new outcome.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns both arrays and no channel buffer, graph handle or background task is retained by the type.
- * @author Samchon
  */
 export interface IAutoMovieClampOutcome {
   /** The value after clamping, same length as the input. */

@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Stored channel layout is one closed field beside the separate alpha, colour-space and bit-depth observations, so palette images are not mislabeled as RGBA after decoder expansion.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Filename extensions and requested capture settings do not establish channel layout; the probe reports the actual PNG header's supported colour model.
  * @evidence contracts/common.md#meaningful-documentation States that this is a header-observed channel model and distinguishes it from decoding colour space and component precision.
- * @author Samchon
  */
 export type AutoMovieProductionPngColor =
   | "gray"

@@ -12,7 +12,6 @@ import type { IAutoMovieCaptionEntry } from "./IAutoMovieCaptionEntry";
  * @evidenceExclude contracts/performance.md#efficient-algorithms The sidecar type is data with no code; the cost of producing and slicing it is answered on its producer and slicer.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type coordinates no work across phases; consumers receive the value the planner returned.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The erased sidecar type allocates no spans; planCaptionSidecar returns at most one span per scheduled output frame, and sliceCaptionSidecar creates the overlapping subset for its caller. Frame count and caption text have no cap in this schema.
- * @author Samchon
  */
 export interface IAutoMovieCaptionSidecar {
   /** Id of the sequence this sidecar captions. */

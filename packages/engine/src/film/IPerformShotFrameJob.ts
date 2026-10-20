@@ -16,7 +16,6 @@ import { IAutoMovieCameraAction } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms Type-only: one pair is written per resolved frame action, and the in-place sort that orders them is costed on the overlap gate.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built once per frame action and read by later stages of the same call.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Lives for one `performShot` call and references the caller's action object.
- * @author Samchon
  */
 export interface IPerformShotFrameJob {
   /** The `frame` action, the same object as in the action list. */

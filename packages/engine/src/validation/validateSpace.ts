@@ -27,7 +27,6 @@ const MIN_RING_DOUBLE_AREA: number = 1e-9;
 /**
  * Admit ids/kinds, simple finite XZ footprint rings, strictly interior disjoint holes and exactly one supported ground statement.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Admit ids/kinds, simple finite XZ footprint rings, strictly interior disjoint holes and exactly one supported ground statement.
  * @evidence contracts/common.md#clear-and-simple-design Polygon and footprint owners handle geometric predicates; surface/height variants own their scalar rules.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Plan Y is ignored, area/ramp thresholds are absolute policies, and finite admission alone does not guarantee overflow-free extreme arithmetic.

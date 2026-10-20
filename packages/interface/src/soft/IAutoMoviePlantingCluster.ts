@@ -11,7 +11,6 @@ import { IAutoMoviePlantingScaleRange } from "./IAutoMoviePlantingScaleRange";
  * @evidence contracts/common.md#clear-and-simple-design One cluster defines recipe repetition and placement variability independently from recursive growth and architecture installation.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Acceptance depends on earlier accepted slots in stable authored order; exhausted attempts produce counted refusal rather than overlap or an invented requested count.
  * @evidence contracts/common.md#meaningful-documentation Defines count, world anchor and half-extents, safe seed, spacing and attempt bounds, axis scale and normalized-quaternion yaw jitter.
- * @author Samchon
  */
 export interface IAutoMoviePlantingCluster {
   /** Stable cluster identity within the production. */

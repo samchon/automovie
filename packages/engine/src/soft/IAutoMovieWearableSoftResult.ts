@@ -12,7 +12,6 @@ import { IAutoMovieWearableSoftBudget } from "./IAutoMovieWearableSoftBudget";
  * @evidenceExclude contracts/performance.md#efficient-algorithms This wrapper performs no solve; boundary preparation and integration costs belong to its producing functions.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One seek result owns its state and budget, while callers decide whether unchanged domain/step inputs justify retaining it.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns particle position/velocity arrays and primitive budget facts, with no primary-motion snapshots or host handles retained by the wrapper.
- * @author Samchon
  */
 export interface IAutoMovieWearableSoftResult {
   /** Deterministic CPU-reference cloth state. */

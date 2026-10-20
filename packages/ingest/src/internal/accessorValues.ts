@@ -15,7 +15,6 @@ import type { Accessor } from "@gltf-transform/core";
  * @evidence contracts/performance.md#efficient-algorithms Linear in count times element size, with one plain-number result array and one reused element buffer for normalized data; Array.from copies the resident typed array into plain numbers for the non-normalized path.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call creates an independent array; shared animation samplers are deliberately read again per track, and mutable Document data prevents a retained cache without a caller-owned invalidation contract.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The element buffer is released on return; the result array, proportional to the accessor's component count, is owned by the caller and nothing is retained by the helper.
- * @author Samchon
  */
 export const accessorValues: (accessor: Accessor) => number[] | null = (
   accessor: Accessor,

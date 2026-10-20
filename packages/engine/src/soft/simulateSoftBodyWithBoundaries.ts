@@ -18,8 +18,6 @@ import { simulateSoftBodyCore } from "./simulateSoftBodyCore";
  * @evidence contracts/performance.md#efficient-algorithms For K samples, A authored moving anchors and B capsules, admission scans samples and their target records using sets; replay adds O(P*K*(I+C+B+A)) in its moving-anchor find path, with O(P+A+B) local working storage excluding supplied history.
  * @evidence contracts/performance.md#reuse-equivalent-work Authored moving particle/capsule sets are reused across all samples, and the core reuses prepared lattice data across steps; different boundary histories are not treated as equivalent cached trajectories.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Admission sets are call-local, boundary rows are read only, and only fresh state arrays survive successful integration; refusal acquires no actor, animation cursor or render host.
- *
- * @author Samchon
  */
 export const simulateSoftBodyWithBoundaries: (
   domain: IAutoMovieSoftBodyDomain,

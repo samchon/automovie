@@ -10,7 +10,6 @@ import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms The record incurs no algorithm; producing it adds constant rigid-transform arithmetic after motion sampling.
  * @evidence contracts/performance.md#reuse-equivalent-work A sampled frame may be reused for equal shot time and unchanged context/motion; the type provides no revision key or cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The producer/caller owns each frame's values; no retained rig, task or resource handle is part of this representation.
- * @author Samchon
  */
 export interface IAutoMovieActorWorldFrame {
   /** Actor-root world position in metres at the sampled shot time. */

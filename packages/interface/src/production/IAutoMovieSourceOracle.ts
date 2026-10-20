@@ -8,7 +8,6 @@ import { IAutoMovieInstanceSlot } from "./IAutoMovieInstanceSlot";
  * @evidence contracts/common.md#clear-and-simple-design Four methods provide source-local measurements without exposing a second scene builder or expanding compact populations into dense nodes.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing compiled population ids, including inherited object keys, refuse; no surface means explicit zero ground height, and borrowed records are not deep-frozen or copied into a hidden stale cache.
  * @evidence contracts/common.md#meaningful-documentation Defines meter-based distance and ground answers, compiled record ownership, exact slot regeneration and missing-id or range failure.
- * @author Samchon
  */
 export interface IAutoMovieSourceOracle {
   /**

@@ -18,7 +18,6 @@ import { IAutoMovieFormationGrounding } from "./IAutoMovieFormationGrounding";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A type alias; per-slot placement cost is constant per slot and is answered on `formationSlotPosition`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Has no behavior to share; placement caches keyed by such a record, like the ground gate's member list, are owned by their gates.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A view onto a design or compiled formation record that the caller owns; using the alias copies nothing and holds nothing.
- * @author Samchon
  */
 export type IAutoMovieFormationPlacement = Pick<
   IAutoMovieFormationDesign,

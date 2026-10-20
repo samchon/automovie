@@ -12,7 +12,6 @@ import type { AutoMovieRecoveryEventCurve } from "./AutoMovieRecoveryEventCurve"
  * @evidenceExclude contracts/performance.md#efficient-algorithms A structural type performs no evaluation or partitioning.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Coefficient identity and interval sharing remain explicit in each native source record.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns the records and their immutable native coefficient arrays.
- * @author Samchon
  */
 export interface IAutoMovieRecoveryEventChartInput {
   /** Stable nonempty domain name, used as a prefix for actual patch IDs. */

@@ -7,7 +7,6 @@ import { IAutoMovieStorySyncPoint } from "./IAutoMovieStorySyncPoint";
  * @evidence contracts/common.md#clear-and-simple-design Keeps individual measurements, aggregate spread and verdict beside one deterministic diagnostic account, without involving edit positions or image observations.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing pins, missing or non-finite realizations and mapped overflow leave null spread and fail; an empty claim also fails rather than passing a vacuous synchronization assertion.
  * @evidence contracts/common.md#meaningful-documentation Defines addressed points, nullable widest gap, story-second tolerance, all-resolved verdict and deterministic extreme-or-refusal summary.
- * @author Samchon
  */
 export interface IAutoMovieStorySyncOutcome {
   /** Every addressed event and where it landed on the story clock. */

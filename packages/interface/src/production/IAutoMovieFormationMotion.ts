@@ -11,7 +11,6 @@ import { IAutoMovieFormationMotionState } from "./IAutoMovieFormationMotionState
  * @evidence contracts/common.md#clear-and-simple-design One cue owns its participant, interval, endpoints and easing; gait names remain in the member profile instead of a second gait vocabulary.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No capability label creates a cue or per-slot curve. Sequential reform retains the prior completed target and layout-free cues preserve it; this assumes admitted cue chronology and does not add a visual-quality guarantee.
  * @evidence contracts/common.md#meaningful-documentation Fields identify interval endpoint conventions, profile-owned gait selection and the current layout interpolation origin.
- * @author Samchon
  */
 export interface IAutoMovieFormationMotion {
   /** Stable cue id, unique inside one shot. */

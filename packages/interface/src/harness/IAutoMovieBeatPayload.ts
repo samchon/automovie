@@ -13,7 +13,6 @@ import { IAutoMovieDialogueLine } from "./IAutoMovieDialogueLine";
  * @evidence contracts/common.md#clear-and-simple-design Direction, dialogue and caption are the prose a beat carries for people and exporters; timing, staging and actions stay in the shot program, so this record holds no computed field.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A blank caption is refused rather than read as no caption, so `null` is the only spelling of absence, and no compiler stage parses the direction to derive actions.
  * @evidence contracts/common.md#meaningful-documentation States the join to the beat list and the shot id, every refusal from the tree validator and project validation, and per member its readers, its ordering, and what `null` means.
- * @author Samchon
  */
 export interface IAutoMovieBeatPayload {
   /** Id of the flat {@link IAutoMovieScript.beats} entry this node refines. */

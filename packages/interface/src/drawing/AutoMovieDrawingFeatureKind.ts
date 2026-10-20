@@ -13,7 +13,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Five families cover the points a drafter pins to, and each resolves to one point plus an optional direction, so dimensions and notes share a single resolver.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The vertex mean is named as such instead of being presented as a true centroid, and no family falls back to another when its index is out of range.
  * @evidence contracts/common.md#meaningful-documentation States the world point each family resolves to, the welding precision, which families carry a direction, and how the centroid differs from an area or volume centroid.
- * @author Samchon
  */
 export type AutoMovieDrawingFeatureKind =
   | "vertex"

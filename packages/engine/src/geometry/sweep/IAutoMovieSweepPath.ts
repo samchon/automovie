@@ -16,7 +16,6 @@ import { IAutoMovieSweepFrame } from "./IAutoMovieSweepFrame";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record; costs are answered on `frameAutoMovieSweepSpine`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record; it is the reuse.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A record whose closures retain the transport table its producer states.
- * @author Samchon
  */
 export interface IAutoMovieSweepPath {
   /** Length of the spine's point polygon in metres, the chord-length scale of `u`. */

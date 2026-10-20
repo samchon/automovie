@@ -12,7 +12,6 @@ import { IAutoMovieCameraAction } from "../harness/IAutoMovieCameraAction";
  * @evidence contracts/common.md#clear-and-simple-design `framing` and `move` index into `IAutoMovieCameraAction` so the recorded vocabulary is the authored one, and the lens fields are nullable members rather than optional ones so every span states whether the author chose them.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The focus is resolved at the opening instead of per span and is documented so, rather than presented as a tracked point, and no lens value is invented when the action named none.
  * @evidence contracts/common.md#meaningful-documentation States that the record is guide metadata the solve ignores, the time at which focus is resolved, the seconds and millimetre units, the bounds, and what each `null` means.
- * @author Samchon
  */
 export interface IAutoMovieCameraIntent {
   /** Shot-local start in seconds of the frame span, within the shot. */

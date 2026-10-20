@@ -22,7 +22,6 @@ import { IAutoMovieHeightSurface } from "../space/IAutoMovieHeightSurface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape with no runtime body; building it is one transform and one hull per stack-top, or a footprint per patch, answered on `propSupportFace`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built per relation during one validation or support query and used immediately by `propSupportGap`; no face is cached across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A patch face references the authored surface record as its height rule and owns a fresh footprint; a prop or built face owns fresh rings and a fresh rule; both are released when the caller's measurement ends.
- * @author Samchon
  */
 export interface IAutoMoviePropSupportFace {
   /**

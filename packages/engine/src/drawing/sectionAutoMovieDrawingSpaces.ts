@@ -42,7 +42,6 @@ import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
  * @evidence contracts/performance.md#efficient-algorithms The finish table is built in one pass over the boundaries and the parts of their realizing elements' models instead of once per cell, and each cell is sectioned once in time quadratic in its plane count at worst; the final sort is `O(R log R)` in the region count.
  * @evidence contracts/performance.md#reuse-equivalent-work Every cell of a space shares that space's one finish from the table, and element and model lookups come from the design index rather than scans.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The finish table and material sets live for the call and are released on return; they are bounded by the space count and the distinct materials per space, and only the returned regions and ids, owned by the caller, survive.
- * @author Samchon
  */
 export const sectionAutoMovieDrawingSpaces = (props: {
   environment: IAutoMovieBuiltEnvironment;

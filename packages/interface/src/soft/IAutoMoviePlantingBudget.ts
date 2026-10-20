@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Derived worst-case demand remains separate from authored branch/leaf caps so validation compares a recipe's actual bound with its declared affordability.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Leaf cost is not copied from maxLeaves and bare foliage has zero leaves; admitted depth bounds are a premise so an unbounded declared tree cannot exhaust the budget computation itself.
  * @evidence contracts/common.md#meaningful-documentation Defines recipe attribution, unpruned full-growth bounds, declared caps and standalone-versus-cluster member multiplication.
- * @author Samchon
  */
 export interface IAutoMoviePlantingBudget {
   /** Identity of the measured recipe. */

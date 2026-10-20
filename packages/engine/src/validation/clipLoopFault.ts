@@ -10,7 +10,6 @@ import { IAutoMovieClipShapeFault } from "./IAutoMovieClipShapeFault";
  * @evidence contracts/performance.md#efficient-algorithms One type check is constant work; refusal additionally allocates a message/fault and can invoke authored value string conversion.
  * @evidence contracts/performance.md#reuse-equivalent-work Sampler and artifact callers reuse this policy rather than independent truthiness checks; no loop verdict is cached.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a fresh fault/value reference or null transfers, with no clip, playback cursor or host resource acquired.
- * @author Samchon
  */
 export const clipLoopFault: (
   loop: unknown,

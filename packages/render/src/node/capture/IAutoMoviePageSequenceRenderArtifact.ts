@@ -12,7 +12,6 @@ import type { IAutoMovieSequenceDissolvePixelCheck } from "./IAutoMovieSequenceD
  * @evidence contracts/performance.md#efficient-algorithms The erased result computes nothing; its producer performs the sequence capture and observation.
  * @evidence contracts/performance.md#reuse-equivalent-work The producer reuses its canonical plan and frame records in this artifact.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the result arrays and paths; no browser page or encoder handle is retained in the artifact.
- * @author Samchon
  */
 export interface IAutoMoviePageSequenceRenderArtifact extends IAutoMovieSequenceRenderAndSeeResult {
   /** Fully resolved headless route, including capture query parameters. */

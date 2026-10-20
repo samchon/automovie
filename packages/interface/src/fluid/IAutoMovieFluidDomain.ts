@@ -22,7 +22,6 @@ import { IAutoMovieFluidSpray } from "./IAutoMovieFluidSpray";
  * @evidence contracts/common.md#clear-and-simple-design The domain owns only lattice, solver settings, edges, per-cell arrays and declared flows; its placement in a building is a separate `IAutoMovieWaterFeature` binding, so the same record serves a building basin and a building-free world.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Initial face velocities are zero and motion derives from surface/flow inputs. Caller-run validation rejects its stated field violations without rewriting them, but the integrator assumes admission, clamps nonpositive depth and does not independently close every derived-arithmetic gap.
  * @evidence contracts/common.md#meaningful-documentation States why the domain is independent of architecture, the model and what it does not resolve, the normative CPU state, the row-major layout, the at-rest initial state, and the validation preconditions; members give units, lengths, datums and caps.
- * @author Samchon
  */
 export interface IAutoMovieFluidDomain {
   /** Schema version; the validator accepts only `1`. */

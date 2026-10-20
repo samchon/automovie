@@ -10,7 +10,6 @@ import { IAutoMoviePose } from "../pose/IAutoMoviePose";
  * @evidence contracts/common.md#clear-and-simple-design World placement and performed state remain node-owned while geometry, skeleton and material definitions stay on the referenced model.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Mutual exclusion and compatible rig/state remain caller obligations because the current scene-artifact gate does not inspect motion or pose. The low-level viewer scene builder applies neither field; its host owns posing and playback instead of claiming that graph construction performed them.
  * @evidence contracts/common.md#meaningful-documentation Defines placement/model identity, world transform, motion-versus-pose exclusivity and rest null semantics.
- * @author Samchon
  */
 export interface IAutoMovieSceneNode {
   /** Stable id for this placement. */

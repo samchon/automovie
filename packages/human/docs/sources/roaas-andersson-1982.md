@@ -28,7 +28,3 @@ A random sample of men aged 30 to 40 from the Göteborg population registry, wit
 | Inversion | 27.7 (6.9) | 33 forefoot + 5 hindfoot | 36.2 (4.2) |
 
 Ranges observed: hip flexion 90 to 150, knee flexion 115 to 160, abduction 15 to 55 deg. Left and right sides did not differ. The authors attribute the disagreement between references to passive versus active measurement, position (prone versus seated hip rotation) and observer.
-
-## What Human takes
-
-Passive limits for adult men and their spread, as the maximum the skeleton admits; the contrast with active norms (Boone and Azen) shows why Human states whether a limit is active or passive.

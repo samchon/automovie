@@ -20,7 +20,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms Input record; each fitting costs one occlusion test per grid point inside `analyzeAutoMovieDaylight`, answered there.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A fitting is read for one study; its occlusion result depends on each sample point, so nothing is shared between points or studies.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources An id, a position and a number owned by the request; the analysis records only the warning id it raised.
- * @author Samchon
  */
 export interface IAutoMovieAnalysisLuminaire {
   /** Stable luminaire identity, unique among the request's luminaires. */

@@ -19,7 +19,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record without behavior; placing stations costs the containment probes of `builtSpaceObservationStations`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Describes one station of one call; the producer recomputes the population from the record each time.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owns three small vectors at most; the caller's station list owns it and is bounded by eight plus the space's opening count.
- * @author Samchon
  */
 export interface IAutoMovieSpaceObservationStation {
   /**

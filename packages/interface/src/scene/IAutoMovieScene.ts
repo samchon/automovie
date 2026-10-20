@@ -15,7 +15,6 @@ import { IAutoMovieSpace } from "./IAutoMovieSpace";
  * @evidence contracts/common.md#clear-and-simple-design Scene placement stays separate from reusable rigs and structured buildings, whose lowering contributes ordinary scene nodes and support surfaces to the same world frame.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Omitted space, fog and environment preserve documented legacy paths rather than inventing current authored conditions; structural guides bypass appearance fog and tone mapping.
  * @evidence contracts/common.md#meaningful-documentation Defines composition ownership, default viewpoint, model placements and optional environment/space/fog state and guide-pass effects.
- * @author Samchon
  */
 export interface IAutoMovieScene {
   /** Stable id. */

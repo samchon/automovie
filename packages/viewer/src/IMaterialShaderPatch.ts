@@ -5,7 +5,6 @@ import type * as THREE from "three";
  * program configuration to each operation, including fields an external
  * material patch may need beyond shader source and uniforms.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Pairs one structural program-cache identity with an operation on Three's complete program parameters/uniforms; the key must distinguish source structure, while mutable uniform values can share a compiled program without being encoded as new structure.
  * @evidence contracts/common.md#clear-and-simple-design A key plus mutation callback is the registration unit consumed by the ordered composer, avoiding a second restricted shader projection that would discard native fields.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Patch operations use the native compile extension point and complete input; key collisions or ambiguous key concatenation remain caller/composer limitations rather than assumed fixture equivalence.

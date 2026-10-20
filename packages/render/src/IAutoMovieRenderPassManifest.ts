@@ -12,7 +12,6 @@ import { AutoMovieGuidePass } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms The manifest is a data shape with no logic; building it is linear in chunks and is answered on the planner.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work This type shares no work across phases; a host reads it once to walk a pass.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased manifest interface acquires no array, handle or task. planChunkedSequenceRender creates two chunk-count string arrays per requested pass, retained in the caller-owned plan; actual file reads and encoder lifetime remain host responsibilities.
- * @author Samchon
  */
 export interface IAutoMovieRenderPassManifest {
   /** The guide pass this manifest walks. */

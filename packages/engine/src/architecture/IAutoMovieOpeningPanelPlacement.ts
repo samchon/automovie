@@ -17,7 +17,6 @@ import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape; the per-call matrix table and one decomposition per panel are answered on `builtOpeningPanelPlacements`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One matrix table per call serves every panel of the opening, and placements are not cached between states.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds fresh vectors and strings, owned by the caller's list; the matrix table is discarded when the producer returns.
- * @author Samchon
  */
 export interface IAutoMovieOpeningPanelPlacement {
   /** Panel id inside its opening. */

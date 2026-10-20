@@ -23,7 +23,6 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * @evidence contracts/performance.md#efficient-algorithms Linear in vertices and triangles: one finiteness pass per attribute without concatenating them, and one hashed edge count per triangle edge keyed by welded corner strings.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call measures the mesh it is given and keeps nothing, so a caller that needs the report twice keeps the first one.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Call-local storage includes at most three edge keys per triangle, a generated index run for nonindexed input and the optional physical-vertex correspondence. Only the returned degenerate ordinal list and scalar report survive; no mesh or topology cache is retained.
- * @author Samchon
  */
 export const inspectAutoMovieMeshTopology: (
   mesh: IAutoMovieMesh,

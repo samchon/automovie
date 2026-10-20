@@ -13,8 +13,6 @@ import { IAutoMovieForgedCast } from "./IAutoMovieForgedCast";
 
 /**
  * A cast member with the index it was first declared at.
- *
- * @author Samchon
  */
 interface IDeclaredMember {
   /** The script's first declaration of the node. */

@@ -15,7 +15,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record; the single pass over triangles and attributes that fills it is answered on `inspectAutoMovieMeshTopology`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Measured fresh per call because the mesh may change between calls; the record is never cached by its producer.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Owns scalars and one ordinal array whose length is the degenerate triangle count, at most the triangle count; nothing references the measured mesh.
- * @author Samchon
  */
 export interface IAutoMovieMeshTopology {
   /** Triangle count, including degenerate ones. */

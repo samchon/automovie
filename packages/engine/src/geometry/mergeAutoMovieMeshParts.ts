@@ -38,7 +38,6 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * @evidence contracts/performance.md#efficient-algorithms Linear in the total vertices and indices: one id pass, one index admission and at most one transform per part, then the linear merge.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call assembles one set of parts; an untransformed member is passed to the merge by reference rather than copied.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns the merged mesh and one small group record per part; transformed member meshes are temporaries released after the merge copies them.
- * @author Samchon
  */
 export const mergeAutoMovieMeshParts = (
   parts: readonly IAutoMovieMeshPart[],

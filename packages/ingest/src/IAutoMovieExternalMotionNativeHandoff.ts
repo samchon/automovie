@@ -12,7 +12,6 @@ import type { IAutoMovieExternalMotionBoneMapping } from "./IAutoMovieExternalMo
  * @evidenceExclude contracts/performance.md#efficient-algorithms This interface only shapes adoption output; its construction cost is counted on adoption.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work No work is performed by the type itself.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The handoff holds copies owned by the receipt; it shares no storage with the decision.
- * @author Samchon
  */
 export interface IAutoMovieExternalMotionNativeHandoff {
   /** Mode discriminator. */

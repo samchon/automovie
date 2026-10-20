@@ -11,7 +11,6 @@ import { IAutoMovieChannelLimit, IAutoMovieDriver } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms Storage is O(L+D) references/records for limits and drivers, with binding cost owned by bindProfile rather than the type.
  * @evidence contracts/performance.md#reuse-equivalent-work A frame resolver can reuse a bound profile while its authored profile and concrete node mapping remain unchanged; no identity-only invalidation guarantee is encoded here.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The resolver/caller owns bound arrays for its shot lifetime; no node graph, handle or driver task is retained by the declaration.
- * @author Samchon
  */
 export interface IAutoMovieBoundProfile {
   /** The profile's limits with every node reference made concrete. */

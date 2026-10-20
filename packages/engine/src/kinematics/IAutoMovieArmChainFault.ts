@@ -16,7 +16,6 @@ import { AutoMovieHumanoidBone } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; the constant-time test is answered on `armChainFault`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built fresh each time `armChainFault` is asked about one arm, and nothing is cached because the rig may change between questions.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Two short strings and a side literal, released with the diagnostic that quotes them.
- * @author Samchon
  */
 export interface IAutoMovieArmChainFault {
   /** Arm the fault was found on. */

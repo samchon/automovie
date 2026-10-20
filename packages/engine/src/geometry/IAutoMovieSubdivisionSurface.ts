@@ -26,7 +26,6 @@ import { IAutoMovieSubdivisionParameter } from "./IAutoMovieSubdivisionParameter
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data record with no runtime body; the refinement cost is answered on `subdivideAutoMovieSurface`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A fresh result per call; nothing is cached on it.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Owns its arrays, which grow by four times the face count per level: about `F * 4^L` quads for `F` cage faces at level `L`.
- * @author Samchon
  */
 export interface IAutoMovieSubdivisionSurface {
   /** Packed refined control positions `[x, y, z, ...]` in metres. */

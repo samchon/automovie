@@ -14,7 +14,6 @@ import {
  * @evidenceExclude contracts/performance.md#efficient-algorithms This result row performs neither integration nor surface construction; those algorithms are answered by its producers.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work State and surface belong to one sampled furnishing result and this record coordinates no prior-frame reuse.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Caller-owned particle and mesh populations dominate retention; the wrapper holds no runtime host or external simulation task.
- * @author Samchon
  */
 export interface IAutoMovieSoftFurnishingFrame {
   /** Identity of the furnishing the frame belongs to. */

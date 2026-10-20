@@ -10,8 +10,6 @@ import { type IBoundChild } from "./IBoundChild";
  * @evidenceExclude contracts/performance.md#efficient-algorithms The exclusive reservation result declaration chooses no executable algorithm.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The exclusive reservation result type coordinates no request or cached work.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The exclusive reservation result schema acquires no runtime handles, bytes or tasks.
- *
- * @author Samchon
  */
 export type ICreateResult =
   | {

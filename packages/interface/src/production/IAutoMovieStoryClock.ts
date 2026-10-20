@@ -9,7 +9,6 @@
  * @evidence contracts/common.md#clear-and-simple-design The clock defines only units and epoch while each shot owns its origin and rate, keeping narrative chronology separate from film presentation placement.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Story time is not inferred from edit order; absent clock means pins and cross-shot criteria are inadmissible rather than silently sharing an invented epoch.
  * @evidence contracts/common.md#meaningful-documentation Defines epoch, second units, independent chronology and the admission effect of declaring or omitting the clock.
- * @author Samchon
  */
 export interface IAutoMovieStoryClock {
   /** Story-clock unit. */

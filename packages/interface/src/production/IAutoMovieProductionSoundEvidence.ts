@@ -10,7 +10,6 @@ import { IAutoMovieProductionTtsReceipt } from "./IAutoMovieProductionTtsReceipt
  * @evidence contracts/common.md#clear-and-simple-design Separates semantic intent, measured PCM, dialogue provenance and encoded audio while fixing the measurement source and algorithm in a small explicit record.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Pre-encode measurements do not claim decoded-final-audio loudness, and event-window analysis cannot isolate event energy; callers must establish that the claimed sibling identity matches final bytes because this DTO performs no admission.
  * @evidence contracts/common.md#meaningful-documentation Defines evidence epoch, current plan, pre-encode analysis source, synthesis receipt population, sibling audio identity and closed measurement algorithm.
- * @author Samchon
  */
 export interface IAutoMovieProductionSoundEvidence {
   /** Complete evidence schema epoch. */

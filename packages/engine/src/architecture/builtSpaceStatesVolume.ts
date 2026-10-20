@@ -17,7 +17,6 @@ import { IAutoMovieBuiltSpace } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms Checks the cell list length and the shell field, O(1), leaving nothing to optimize.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Reads two fields of one supplied space and coordinates no equivalent multi-consumer work; no cross-call cache is retained.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds no state, handle or task; the space passed in is only read.
- * @author Samchon
  */
 export const builtSpaceStatesVolume: (
   space: IAutoMovieBuiltSpace,

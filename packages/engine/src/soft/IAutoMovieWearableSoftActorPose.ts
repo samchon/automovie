@@ -10,7 +10,6 @@ import { IAutoMovieResolvedBone } from "../kinematics/IAutoMovieResolvedBone";
  * @evidenceExclude contracts/performance.md#efficient-algorithms This snapshot contains no kinematic walk; bone resolution and subsequent target lookup are costed on their callers.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Several anchors/capsules may read the same immutable snapshot, but this data record schedules no duplicated actor evaluation.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The supplying snapshot owns its readonly bone array and nested frames, with no reference to an animation host or rendered actor.
- * @author Samchon
  */
 export interface IAutoMovieWearableSoftActorPose {
   /** Stable actor participant identity. */

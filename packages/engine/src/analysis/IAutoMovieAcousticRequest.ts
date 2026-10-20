@@ -21,7 +21,6 @@ import { IAutoMovieAcousticSurface } from "./IAutoMovieAcousticSurface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms Input record; the study is linear in the members plus receivers times sources, answered on `analyzeAutoMovieAcoustics`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The request is the identity of a run through its settings digest, but the analyzer recomputes on every call and no run cache is keyed by it.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owned by the caller for one analysis call; the receivers list is bounded by `AUTOMOVIE_ANALYSIS_MAX_SAMPLES` while the other lists have no bound beyond the caller's.
- * @author Samchon
  */
 export interface IAutoMovieAcousticRequest {
   /** Stable run identity; non-blank. */

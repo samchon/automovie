@@ -37,7 +37,6 @@ import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
  * @evidenceExclude contracts/performance.md#efficient-algorithms No code; each facet is resolved once and looked up per occurrence by zone, answered on `autoMoviePatternInstanceTransforms`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A facet's resolved basis is shared by every occurrence of its zone within one call.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Caller-owned; the instancer holds its resolved facets in a map only during the call.
- * @author Samchon
  */
 export interface IAutoMoviePatternFacet {
   /** Zone whose pieces sit on this panel. */

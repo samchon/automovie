@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Two scalar provenance fields let an ordinary non-looping motion retain stride continuity without retaining its source gait or creating a special cyclic clip representation.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A composite whose ending motion has no compatible stride drops the metadata instead of fabricating continuity, and invalid carried period or phase yields no resumable cycle rather than NaN.
  * @evidence contracts/common.md#meaningful-documentation Gives second units, positive period, normalized initial phase, composition offset formula and the distinction between explicit cycle metadata and the looping-duration fallback.
- * @author Samchon
  */
 export interface IAutoMovieGaitCycle {
   /** The source gait's cycle length, seconds. Strictly positive. */

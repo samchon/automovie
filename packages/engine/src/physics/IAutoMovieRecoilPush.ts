@@ -7,8 +7,6 @@
  * @evidence contracts/performance.md#efficient-algorithms At most three scalars are stored; chain traversal and constraint projection are owned by impactRecoil.
  * @evidence contracts/performance.md#reuse-equivalent-work The producer returns a new intent record; callers may supply one record to multiple recoil evaluations but this type defines no cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The intent retains no bone list or resource; its scalar storage lasts only as long as the caller retains it.
- *
- * @author Samchon
  */
 export interface IAutoMovieRecoilPush {
   /** Flexion target in degrees; absent or zero authors no flexion response. */

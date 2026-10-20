@@ -7,8 +7,6 @@ import type {
 
 /**
  * Inputs to the formation-framing unit's real performShot call. The owning entry varies authored group action, compact formations, member geometry and motion cues to compare explicit extent arithmetic; this record adds no admission, rendering observation or independently discovered assertion.
- *
- * @author Samchon
  */
 export interface IFilmFormationPerformanceInput {
   /** The original authored camera action. */

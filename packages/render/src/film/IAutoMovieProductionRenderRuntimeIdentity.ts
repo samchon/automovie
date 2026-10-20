@@ -18,7 +18,6 @@ import type { IAutoMovieProductionEncoderIdentity } from "./IAutoMovieProduction
  * @evidenceExclude contracts/performance.md#efficient-algorithms Joining capture and encoder facts is a static record; its size, dominated by the capture package closure list, enters each chunk digest in `planProductionRenderJob`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A plain record coordinates no phases or requests; equivalence of renders is decided by the chunk ids that digest it.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The runtime identity describes a browser and encoder without holding a browser page, process or file; the plan's `runtimeIdentity` field keeps one instance shared by all chunk identities.
- * @author Samchon
  */
 export interface IAutoMovieProductionRenderRuntimeIdentity {
   /** Schema of this record; changes when its meaning changes. */

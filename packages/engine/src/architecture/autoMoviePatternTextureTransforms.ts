@@ -132,8 +132,6 @@ export const autoMoviePatternTextureTransforms: (props: {
 
 /**
  * A two-component UV quantity: a matrix row or sheet point, in turns.
- *
- * @author Samchon
  */
 interface IUvRow {
   /** First component. */

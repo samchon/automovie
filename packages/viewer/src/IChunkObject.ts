@@ -8,7 +8,6 @@ import type * as THREE from "three";
 /**
  * Describes one compiled chunk and its resident display-selection state.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Binds one compiled formation chunk's bounds/anonymous placements to tier instance buffers and prior tier selection; metre-space radius supports culling, while selected null means no previous admitted tier and removed counts cue-taken members.
  * @evidence contracts/common.md#clear-and-simple-design Keeps per-chunk culling/hysteresis and resident buffer references together, separate from tier-wide shared geometry/material/cycle ownership.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Anonymous membership comes from compiled slots and cue removal, not promoted-hero fixture assumptions or full-population per-member objects.

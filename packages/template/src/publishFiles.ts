@@ -32,7 +32,6 @@ import { writeScaffoldFile } from "./writeScaffoldFile";
  * @evidence contracts/performance.md#efficient-algorithms Planning encodes all content and checks each target and ancestor key with costs driven by bytes, path lengths and depths. Publishing performs a constant number of directory captures per traversed segment and writes and reads back each attempted file once; the no-force emptiness probe reads one entry rather than listing the root.
  * @evidence contracts/performance.md#reuse-equivalent-work Directory captures are cached per absolute path for this call only, and a cached directory is revalidated by identity before each use, so a replaced directory is refused rather than reused; captures are never shared across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The call-local cache contains one capture per candidate directory; the emptiness probe attempts close in finally, while file adapters attempt every acquired handle's release and report failures. No close-error outcome proves release, and the receipt retains candidate bytes for its caller.
- * @author Samchon
  */
 export const publishFiles: (
   location: string,

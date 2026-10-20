@@ -14,8 +14,6 @@ import { IAutoMovieFootPlant } from "./IAutoMovieFootPlant";
  * @evidenceExclude contracts/performance.md#efficient-algorithms The result contains no stance-detection or chain-fitting algorithm; plantStanceFeet and its stages own that work.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Beat continuity reuses explicitly returned targets rather than re-detecting them, and no cross-motion cache is defined by this type.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The result owns corrected keyframes and one record per detected stance run, with population bounded by the sampled frame and leg counts.
- *
- * @author Samchon
  */
 export interface IAutoMoviePlantedFeet {
   /** The corrected clip: dense keyframes at the pass sample rate. */

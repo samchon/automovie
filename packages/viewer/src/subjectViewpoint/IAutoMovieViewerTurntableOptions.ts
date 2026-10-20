@@ -8,8 +8,6 @@
  * @evidence contracts/performance.md#efficient-algorithms For E rings and A samples the owning generator creates O(E*A) viewpoints; these inputs have no practical size cap.
  * @evidence contracts/performance.md#reuse-equivalent-work The caller may reuse an unchanged plan, but generation returns fresh records and does not cache or claim they were rendered.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The options borrow elevation values and own no scene or task; generated arrays remain the consumer's retained population.
- *
- * @author Samchon
  */
 export interface IAutoMovieViewerTurntableOptions {
   /**

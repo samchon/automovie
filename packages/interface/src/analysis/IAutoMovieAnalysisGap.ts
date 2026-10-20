@@ -13,7 +13,6 @@ import { AutoMovieAnalysisDomain } from "./AutoMovieAnalysisDomain";
  * @evidence contracts/common.md#clear-and-simple-design A single list instead of separate unsupported-run, missing-metric and missing-domain lists, so the report bounds and digests one sequence.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Staleness has no status of its own and is reported as `not-run` with a re-run remedy, a stated mapping rather than a hidden one; reasons and remedies are copied from validated runs or written by the summarizer, never left blank.
  * @evidence contracts/common.md#meaningful-documentation Gives the three granularities, what null `run` and `metric` mean, which situations map to each status, and that reason and remedy are non-blank.
- * @author Samchon
  */
 export interface IAutoMovieAnalysisGap {
   /** Run this gap came from, or null when no run answered for the domain. */

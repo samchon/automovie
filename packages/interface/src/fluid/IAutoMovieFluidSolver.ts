@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Six scalars are everything the fixed-step solver reads; the step cap lives here because it bounds the cost of a seek through the same clock.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No step is chosen for the author and inflow is not silently clamped to design depth. A derived NaN Courant value can escape the greater-than-one comparison, and sources can exceed the depth used by the one-time bound; these unresolved limits are not a stable-solve guarantee.
  * @evidence contracts/common.md#meaningful-documentation States scalar admission, the computed comparison and NaN gap, reference-depth limitation, units, wet/dry and drag rules, and the absolute seek budget.
- * @author Samchon
  */
 export interface IAutoMovieFluidSolver {
   /** Integration step in seconds; strictly positive. */

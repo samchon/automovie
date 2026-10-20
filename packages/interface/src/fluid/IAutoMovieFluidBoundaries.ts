@@ -9,7 +9,6 @@ import { AutoMovieFluidBoundaryKind } from "./AutoMovieFluidBoundaryKind";
  * @evidence contracts/common.md#clear-and-simple-design Four named fields, one per axis-aligned edge of the rectangular lattice, need no per-face list because every face on one edge shares its condition.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No edge has a default; all four are required, so an author states the condition of each rim instead of the solver assuming a wall.
  * @evidence contracts/common.md#meaningful-documentation States that edges are independent with an example, the validator's refusal, and how solid cells relate; members say which faces each edge governs by column or row index.
- * @author Samchon
  */
 export interface IAutoMovieFluidBoundaries {
   /** Edge on the `-x` side: the faces before cell column `0`. */

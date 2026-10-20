@@ -9,7 +9,6 @@
  * @evidence contracts/common.md#clear-and-simple-design This pure record carries host assertions without a decoder, renderer, filesystem or numerical dependency.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The record supplies no automatic pose, hidden component filtering, frame guess or source normal fallback.
  * @evidence contracts/common.md#meaningful-documentation States millimetres, handedness, transform layout, evaluated pose and uncertainty limits.
- * @author Samchon
  */
 export interface IAutoMovieRecoveryRegistration {
   /** Current supported evaluated-triangle handoff schema. */

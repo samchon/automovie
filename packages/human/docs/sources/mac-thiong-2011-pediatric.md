@@ -14,7 +14,3 @@ Springer, open access via PMC. Numbers cited.
 | 10-18 y | 45.8 +- 10.4 | 57.7 +- 11.1 | 46.9 +- 11.4 | 7.7 +- 8.3 | 39.1 +- 7.6 | same |
 
 C7 plumb line to the posterior superior S1 corner (Cil et al. 2005, Spine 30(1):93-100, as reported): +2.5 +- 4.3 cm at 3-6 years, +0.7 at 7-9, -0.1 at 10-12, -0.9 at 13-15. Spinal tilt 92 +- 6 (3-10 y), 94 +- 4 (10-18 y), 91 +- 3 adults. Grade: measured (cited).
-
-## What Human takes
-
-Children's pelvic tilt, sacral slope, kyphosis (sexes pooled) and the children's SVA.

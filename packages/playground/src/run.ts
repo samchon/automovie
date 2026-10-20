@@ -19,8 +19,6 @@ import { createStickmanMotionRoot as root } from "./createStickmanMotionRoot";
  * @evidence contracts/performance.md#efficient-algorithms Five bounded poses/keys and two phase factories give constant construction; actual model sampling/FK and rendering retain their downstream costs.
  * @evidence contracts/performance.md#reuse-equivalent-work Lean joint records are shared among local frames and phase formulas are reused; output clips are not cached across callers and travel baking reuses its supplied base.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned frames borrow their call's lean vocabulary, which must not be mutated independently through one frame; no runtime task or graphics handle is retained here.
- *
- * @author Samchon
  */
 export const run: (sk: string) => IAutoMovieMotion = (
   sk: string,

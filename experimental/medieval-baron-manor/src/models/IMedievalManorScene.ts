@@ -49,8 +49,6 @@ interface ManorArea { footprint: number; upperOpening: number; servicePenetratio
 
 /**
  * Same authored manor geometry, assembly and observations delivered by its native producer.
- *
- * @author Samchon
  */
 export interface IMedievalManorScene {
   /** Visual branch's Three scene; the geometry-only overload does not return this capability. */

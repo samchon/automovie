@@ -15,7 +15,6 @@ import { AutoMovieGrammarDiagnosticCode } from "./AutoMovieGrammarDiagnosticCode
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record; the measurements are answered on `readFilmGrammar`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built fresh per reading; nothing caches findings across edits.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Strings held by value; one reading files at most one pacing finding, one shot-size finding per shot, and at most five per cut, one per cut family.
- * @author Samchon
  */
 export interface IAutoMovieGrammarDiagnostic {
   /** Diagnostic family. */

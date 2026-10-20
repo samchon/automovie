@@ -13,7 +13,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Three sorted id lists, the question, its reach, and the complement, so a caller checks `invalidated` and `unaffected` partition the derived artifacts without a second query.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An unknown changed id throws instead of being dropped, and an invalid lineage throws before the walk, so a typo cannot produce an empty and falsely clean impact.
  * @evidence contracts/common.md#meaningful-documentation States why the complement is reported, the code-unit ordering, deduplication of `changed`, that a changed artifact is itself invalidated, and the error on an unknown id.
- * @author Samchon
  */
 export interface IAutoMovieDesignImpact {
   /**

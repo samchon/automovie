@@ -9,7 +9,6 @@
  * @evidence contracts/performance.md#efficient-algorithms The erased record runs no planning or encoding algorithm.
  * @evidence contracts/performance.md#reuse-equivalent-work Each capture uses its supplied options independently; this type implements no cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The options retain no browser or encoder handles; captureSequenceRenderAndSee owns their release.
- * @author Samchon
  */
 export interface IAutoMoviePageSequenceRenderOptions {
   /** Vite page exposing the sequence capture hooks. */

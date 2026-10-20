@@ -22,7 +22,6 @@ import { AutoMovieAnalysisComparison } from "./AutoMovieAnalysisComparison";
  * @evidence contracts/common.md#clear-and-simple-design Key, unit, value and direction are the whole requirement; no unit table or conversion layer exists, since exact string matching is the stated contract.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An inapplicable target is never silently passed: a unit mismatch and an unknown key each emit a named warning, and a metric judged against a mismatched target reads `untargeted` rather than `meets`.
  * @evidence contracts/common.md#meaningful-documentation States why the unit is declared, the two warning codes for inapplicable targets, the exact-string matching rule, and every condition that refuses a target list.
- * @author Samchon
  */
 export interface IAutoMovieAnalysisTarget {
   /** Metric key this target applies to; unique within the target list. */

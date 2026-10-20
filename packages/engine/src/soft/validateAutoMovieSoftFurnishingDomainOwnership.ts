@@ -15,8 +15,6 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * @evidence contracts/performance.md#efficient-algorithms For F furnishings across D domains, grouping costs expected O(F); key and per-group sorting cost O(D log D+sum(Fd log Fd)), with O(F+D) working and conflict storage.
  * @evidence contracts/performance.md#reuse-equivalent-work One domain group is sorted once and its first owner is reused across all conflict findings; mutable input lists are not cached between validation attempts.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Groups retain source references only locally; the returned ordered validation findings keep id/value scalars, with no domain geometry or host retained.
- *
- * @author Samchon
  */
 export const validateAutoMovieSoftFurnishingDomainOwnership: (
   furnishings: readonly IAutoMovieSoftFurnishing[],

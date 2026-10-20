@@ -12,7 +12,6 @@ import { IAutoMovieLightOverride } from "./IAutoMovieLightOverride";
  * @evidence contracts/performance.md#efficient-algorithms Each table row is fixed-size; carries/write/valueFault costs depend on their concrete fixed-width implementations, not a type-level traversal.
  * @evidence contracts/performance.md#reuse-equivalent-work Light staging, track admission and shot application reuse the same property table; changed animation samples are evaluated rather than cached by property name.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The constant table owns callback references; this shape acquires no light, sampled buffer, native handle or running task.
- * @author Samchon
  */
 export interface IAutoMovieLightChannelProperty {
   /**

@@ -19,7 +19,6 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data record with no runtime body; the deformer reads each sample once per vertex.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Read once per deformation call; nothing is cached.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Caller-owned and read only; the deformer retains no reference after it returns.
- * @author Samchon
  */
 export interface IAutoMovieMeshDeformationInfluence {
   /** Dimensionless mask in [0, 1]; zero retains the resident position. */

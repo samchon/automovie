@@ -15,7 +15,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms Input record; each source adds one constant-time term per receiver inside `analyzeAutoMovieAcoustics`, answered there.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The analyzer converts each source's `10^(Lw/10)` power once per study and shares it across every receiver and the diffuse term; nothing is shared across studies.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources An id, one position and two numbers owned by the request; the study references none of them after sealing the run.
- * @author Samchon
  */
 export interface IAutoMovieAcousticSource {
   /** Stable source identity, unique among the request's sources. */

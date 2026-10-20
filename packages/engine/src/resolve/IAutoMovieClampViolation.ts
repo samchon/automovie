@@ -9,7 +9,6 @@
  * @evidence contracts/performance.md#efficient-algorithms One violation is fixed-size scalar storage; aggregate rows grow with crossed components in the clamp producer.
  * @evidence contracts/performance.md#reuse-equivalent-work The same row is reused in frame diagnostics after clamping; the type owns no cross-request equality or cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only scalar facts are retained for the caller's reporting lifetime, with no value vector, node graph, handle or task owned.
- * @author Samchon
  */
 export interface IAutoMovieClampViolation {
   /** Index of the offending component within the channel value vector. */

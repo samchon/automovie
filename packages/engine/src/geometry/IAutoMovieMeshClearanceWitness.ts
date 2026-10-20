@@ -18,7 +18,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data record with no runtime body; clipping cost is answered on `measureAutoMovieMeshClearance`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built once per overlap vertex and handed to the visitor; nothing is cached.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owns two three-element arrays; a visitor that retains witnesses holds one per overlap vertex, bounded by the overlapping triangle pairs times the clipped polygon size.
- * @author Samchon
  */
 export interface IAutoMovieMeshClearanceWitness {
   /** Front triangle ordinal, before any spatial indexing. */

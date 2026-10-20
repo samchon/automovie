@@ -14,7 +14,6 @@ import { IAutoMovieSurfaceSample } from "./IAutoMovieSurfaceSample";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record; costs are on its producer.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record; it is the reuse.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A record owned by its rig.
- * @author Samchon
  */
 export interface IAutoMovieSurfaceRegistry {
   /** Writers in registration order, each filling its vertices into a target buffer. */
@@ -153,7 +152,6 @@ export namespace IAutoMovieSurfaceRegistry {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A record whose producer performs resolution.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Shared by the emitted vertex and dependent geometric node writers.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Sample writers are owned by their rig; the registry clears its compile map.
-   * @author Samchon
    */
   export interface ISweep {
     /** Exact registered sweep coordinate along the spine, before identity rounding; probes differentiate at this coordinate. */

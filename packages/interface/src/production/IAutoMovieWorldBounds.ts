@@ -7,7 +7,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design Two vectors specify a zone independently from its recipe, seed and activation timing, which stay on their respective records.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The volume is explicitly authored rather than inferred from a landmark or visible mesh. Materialization copies extents without repairing or completely admitting them, so callers must establish ordered representable bounds.
  * @evidence contracts/common.md#meaningful-documentation Defines world-meter corner coordinates and effect-volume ownership.
- * @author Samchon
  */
 export interface IAutoMovieWorldBounds {
   /** Component-wise minimum world corner in meters. */

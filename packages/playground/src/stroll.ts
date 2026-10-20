@@ -13,8 +13,6 @@ import { walk } from "./walk";
  * @evidence contracts/performance.md#efficient-algorithms A five-key base and six-cycle O(CK) bake produce twenty-five keys after seam removal; sampling/FK and rendering retain their actual consumer costs.
  * @evidence contracts/performance.md#reuse-equivalent-work All six cycles reuse one supplied walk's articulation while travelMotion creates each placed root and carries one stride clock; calls do not share mutable output clips.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned travel keys/roots belong to the caller and borrow local base joints; there is no running simulation, timer or GPU allocation in this wrapper.
- *
- * @author Samchon
  */
 export const stroll: (sk: string) => IAutoMovieMotion = (
   sk: string,

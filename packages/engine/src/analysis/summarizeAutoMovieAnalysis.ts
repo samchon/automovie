@@ -50,7 +50,6 @@ import { validateAutoMovieAnalysisRun } from "./validateAutoMovieAnalysisRun";
  * @evidence contracts/performance.md#efficient-algorithms Linear in runs plus their metrics and samples, dominated by the validator rehashing every run, which is required because a deserialized run must be re-proven unedited; run-id uniqueness and required-domain membership are hashed lookups.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call folds the runs it is handed into one report; no validation verdict or digest is kept across calls because the runs may have been edited since.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Listed gaps are retained only up to the bound and later ones are counted, so gap memory is O(maxGaps) rather than O(total gaps); the id set grows with run count and the rollup map is fixed at six rows, all call-local except the returned report, which keeps the rows and the listed slice.
- * @author Samchon
  */
 export const summarizeAutoMovieAnalysis: (props: {
   runs: readonly IAutoMovieAnalysisRun[];

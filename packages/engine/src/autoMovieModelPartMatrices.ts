@@ -26,7 +26,6 @@ import { Matrix4 } from "./math/Matrix4";
  * @evidence contracts/performance.md#efficient-algorithms Linear in the part count plus at most one rest-pose resolution and one bone search per attached part over the resolved bones.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Recomputed per call from the given model; each caller derives it once per model it measures or describes.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one sixteen-number matrix or `null` per part; the resolved pose is released on return.
- * @author Samchon
  */
 export const autoMovieModelPartMatrices = (
   model: IAutoMovieModel,

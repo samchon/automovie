@@ -15,7 +15,6 @@ import { IAutoMoviePatternTextureTransform } from "./IAutoMoviePatternTextureTra
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape; producing it is linear in placements, answered on `autoMoviePatternTextureTransforms`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Produced per call for one sheet; a multi-material caller calls again per material, and no store shares results between those calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Two arrays the caller owns; the transforms inside are fresh and the sheared list holds id strings only.
- * @author Samchon
  */
 export interface IAutoMoviePatternTexturing {
   /** One transform per expressible occurrence, in placement order. */

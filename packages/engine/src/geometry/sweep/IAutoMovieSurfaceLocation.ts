@@ -23,7 +23,6 @@ import { IAutoMovieSurfaceCoordinate } from "./IAutoMovieSurfaceCoordinate";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A location record; the linear chart-composition pass is owned by `locateAutoMovieSurfaceVertices`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A location record; callers reuse the producer's result across poses.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A location record with no resource lifetime; its producer returns caller-owned records.
- * @author Samchon
  */
 export interface IAutoMovieSurfaceLocation {
   /** The vertex's patch and patch coordinates. */

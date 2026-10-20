@@ -10,7 +10,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms The record executes no hull or nearest-segment operation; those costs belong to the support detector.
  * @evidence contracts/performance.md#reuse-equivalent-work One nearest-edge result supplies both pivot and direction, with no retained support-result cache in the row.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the fresh direction and scalar; edge endpoints borrow input support references and no solver or scene task is acquired.
- * @author Samchon
  */
 export interface IAutoMovieToppling {
   /** One end of the pivot edge (the nearest support hull edge). */

@@ -15,7 +15,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A two-field record; the early-exit walk is answered on `IAutoMovieMeshSeparationQuery.separated`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A fresh record per call; the ribbon fit caches only its `certified` boolean under its own exact key.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A boolean and an ordinal with no reference to the snapshot, released with the caller's value.
- * @author Samchon
  */
 export interface IAutoMovieMeshSeparationVerdict {
   /**

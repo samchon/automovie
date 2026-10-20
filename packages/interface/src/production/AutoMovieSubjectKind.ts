@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design A single kind discriminator identifies the ownership scope of a subject description without making a space falsely own its building's external envelope.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Building inspection cannot be replaced by a union of rooms, which would omit unassigned envelope and foundation; compact populations retain instance-set and prototype identities rather than fabricating member nodes.
  * @evidence contracts/common.md#meaningful-documentation Identifies compiled stable-subject scope and explains why building is independent of the logical-space index and its room membership.
- * @author Samchon
  */
 export type AutoMovieSubjectKind =
   | "building"

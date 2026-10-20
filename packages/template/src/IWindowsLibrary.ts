@@ -13,8 +13,6 @@ import { type IWindowsFileInformation } from "./IWindowsFileInformation";
  * @evidenceExclude contracts/performance.md#efficient-algorithms The Windows native binding contract declaration chooses no executable algorithm.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The Windows native binding contract type coordinates no request or cached work.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The Windows native binding contract schema acquires no runtime handles, bytes or tasks.
- *
- * @author Samchon
  */
 export interface IWindowsLibrary {
   /**

@@ -37,7 +37,6 @@ const PLANE_EPSILON: number = 1e-12;
  * @evidence contracts/performance.md#efficient-algorithms One pass over the P planes, O(P), with two dot products and one normal length each and no allocation, returning early on a separating parallel plane or an emptied interval.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call tests one ray against one solid; rays differ in origin or direction, so there is no equivalent result to share, and the caller decides how often it runs.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Keeps only the entry and exit parameters as locals while scanning the caller's planes, holding no reference after it returns.
- * @author Samchon
  */
 export const autoMovieSolidBlocks: (props: {
   origin: IAutoMovieVector3;

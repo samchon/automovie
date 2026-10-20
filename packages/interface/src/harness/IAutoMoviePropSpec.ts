@@ -11,7 +11,6 @@ import { IAutoMoviePropPlacement } from "./IAutoMoviePropPlacement";
  * @evidence contracts/common.md#clear-and-simple-design Four concerns, each in its own member: the model with body and contact points, the articulation, the optional placement, and the optional external-appearance reference; the gates live in `forgeProp` and `validatePropPlacements`, not in this record.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A model carrying a skeleton is refused; an imported appearance needs a structurally coherent rigid closure, whose digest strings are checked without reading bytes. Registry resolution and byte provenance belong to production. The forge gate assumes typed nested records and checks articulation references, not every joint transform, profile numeric value or rendered host capability; success returns the caller's mutable spec rather than a deep immutable seal.
  * @evidence contracts/common.md#meaningful-documentation States what carries the prop's meaning, every `forgeProp` rule with its reason, the staging requirement, and what omitting `placement` or `modelRef` means.
- * @author Samchon
  */
 export interface IAutoMoviePropSpec {
   /** Scene node this prop occupies; non-blank and equal to `model.id`. */

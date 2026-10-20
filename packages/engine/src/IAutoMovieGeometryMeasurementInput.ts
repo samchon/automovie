@@ -18,8 +18,6 @@ import {
  * @evidence contracts/performance.md#efficient-algorithms This type performs no traversal; measureAutoMovieGeometry's selected branch owns query work.
  * @evidence contracts/performance.md#reuse-equivalent-work Readonly maps express borrowed access rather than cache equivalence; callers replace or update snapshots and establish freshness.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The input owns no disposal-capable resource; its map populations remain caller-owned and are not copied or retained by the measurement dispatcher.
- *
- * @author Samchon
  */
 export interface IAutoMovieGeometryMeasurementInput {
   /** One compact geometry question. */

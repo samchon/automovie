@@ -22,7 +22,6 @@ import { normalizeAutoMovieShadowFilter } from "./normalizeAutoMovieShadowFilter
  * unique asset paths and SHA spellings are admitted here. Closed policy and
  * boolean field shapes are a caller structural-admission premise.
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Admit renderer strings, numeric settings, canonical shadow policy and unique SHA-bound assets, sort paths, then hash fixed-position JSON tuples; embedded tabs/newlines remain injective field content instead of stream delimiters.
  * @evidence contracts/common.md#clear-and-simple-design One seal owns target identity and delegates SHA spelling, shadow compatibility and code-unit order to their canonical owners; texture identity selects the existing v1/v2 protocol.

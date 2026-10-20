@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design One owner, source and cost record tells authors where to reduce their own complexity without duplicating metric and status already carried by the finding.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Shared resources use their own resource identity rather than charging bytes to every drawing node; frame passes and runtime storage remain omitted accounting rather than false editable-owner recommendations.
  * @evidence contracts/common.md#meaningful-documentation Defines semantic versus shared-resource ownership, editable source location and metric-specific contribution units.
- * @author Samchon
  */
 export interface IAutoMovieRenderContributor {
   /**

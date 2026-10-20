@@ -4,7 +4,7 @@ Bommes D, Lévy B, Pietroni N, Puppo E, Silva C, Tarini M, Zorin D. "Quad-Mesh G
 
 ## Licence
 
-Copyright the authors, the Eurographics Association and Wiley. Human takes design principles only.
+Copyright the authors, the Eurographics Association and Wiley.
 
 ## What it says
 
@@ -14,7 +14,3 @@ Copyright the authors, the Eurographics Association and Wiley. Human takes desig
 - In cylinder-like regions, edges aligned with principal curvature give flatter quads and better approximation. Langer's lines are cited as feature lines for animatable human models.
 - Resolution transitions need extra irregular vertices unless T-junctions are allowed.
 - Good placement of irregular vertices "is crucial", is a modeller's skill, is "especially stereotyped" for human heads and bodies, and depends on the intended use.
-
-## What Human takes
-
-Cage design principles and one UV rectangle per patch (`../techniques/subdivision-and-cage.md`, `../techniques/uv-layout.md`).

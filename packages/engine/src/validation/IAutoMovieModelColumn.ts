@@ -8,7 +8,6 @@
  * @evidence contracts/performance.md#efficient-algorithms The three-scalar record measures nothing itself; autoMovieModelColumns owns shape and ancestry traversal.
  * @evidence contracts/performance.md#reuse-equivalent-work Consumers may reuse an immutable model's measured columns, but the record provides no mutation-aware cache or recomputation policy.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only three numbers are retained per column, with no source part, skeleton, mesh or host handle owned by the result.
- * @author Samchon
  */
 export interface IAutoMovieModelColumn {
   /**

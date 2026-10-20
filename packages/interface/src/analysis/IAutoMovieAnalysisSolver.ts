@@ -10,7 +10,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Three strings and no parameter list; what the solver was configured with travels separately as the run's settings digest.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing parses the model text or treats a solver id specially in validation or reporting; the accuracy of the stated model rests on the solver that writes it, such as `automovie.envelope.steady-state-1d`.
  * @evidence contracts/common.md#meaningful-documentation States why the model must be stated, when the version must change, that all three fields are non-blank and digested, and an example identity.
- * @author Samchon
  */
 export interface IAutoMovieAnalysisSolver {
   /** Stable solver identity such as `automovie.daylight.isotropic-sky`. */

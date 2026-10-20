@@ -10,7 +10,6 @@ import { AutoMovieCanonicalJsonErrorCategory } from "./AutoMovieCanonicalJsonErr
  * @evidence contracts/performance.md#efficient-algorithms Construction formats one detail string and creates the host error/stack with runtime-dependent cost; it does not traverse the rejected value.
  * @evidence contracts/performance.md#reuse-equivalent-work All domain checks reuse this failure shape, while each refusal gets its own message/category instead of a shared mutable Error.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The catcher owns the error and its host stack until discarded; no source graph, partial output or active task is retained explicitly.
- * @author Samchon
  */
 export class AutoMovieCanonicalJsonError extends TypeError {
   /** Stable machine-readable diagnostic code. */

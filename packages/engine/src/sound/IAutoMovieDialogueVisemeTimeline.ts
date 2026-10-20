@@ -10,7 +10,6 @@ import { IAutoMovieDialogueMouthRange } from "./IAutoMovieDialogueMouthRange";
  * @evidence contracts/performance.md#efficient-algorithms V receipt intervals yield at most 2V+1 ranges, taking O(V) retained storage; frame sampling is O(R) over the resulting R ranges.
  * @evidence contracts/performance.md#reuse-equivalent-work Ranges are compiled once per line/binding/receipt and reused across arbitrary seeks, with no independent pose or frame cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the fresh array and records for the lifetime of the compilation; no synthesized audio or scene node is retained.
- * @author Samchon
  */
 export interface IAutoMovieDialogueVisemeTimeline {
   /** Joined dialogue line identity. */

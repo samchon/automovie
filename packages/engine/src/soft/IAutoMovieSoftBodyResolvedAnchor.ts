@@ -10,7 +10,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms This target row performs no frame resolution or integration; those costs belong to wearable resolution and the solver.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One target belongs to one step, and reuse of immutable resolved storage is the supplying sampler's responsibility.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The supplying boundary owns the position reference and particle scalar; this row acquires no rig, animation cursor or host task.
- * @author Samchon
  */
 export interface IAutoMovieSoftBodyResolvedAnchor {
   /** Anchored row-major particle index. */

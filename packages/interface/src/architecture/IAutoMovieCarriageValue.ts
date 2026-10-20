@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design A carriage reference, one scalar, and one nullable stop are the whole per-carriage entry, so a state is a flat list of these and the run's direction stays on the state rather than on each value.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A stop is checked only when the served space or a descendant states a volume, the documented rule for semantic containers, and `null` is the declared way for a counterweight to claim no stop rather than an exemption by carriage name.
  * @evidence contracts/common.md#meaningful-documentation States that the carriage is listed once per state, the radian and metre units of the value and its range, which spaces `serves` may name, how the stop is tested, when the test is skipped, and what null means.
- * @author Samchon
  */
 export interface IAutoMovieCarriageValue {
   /**

@@ -10,8 +10,6 @@ import { IAutoMovieRetargetHandContact } from "./IAutoMovieRetargetHandContact";
  * @evidenceExclude contracts/performance.md#efficient-algorithms This structural policy does not run stance detection; preserveRetargetContacts owns keyframe FK and per-chain contact work.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The ground callback and hand records are borrowed policy inputs, not cached results; the pass samples ground at current source effector positions.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The policy holds at most the caller's callback and declared hand list and acquires no resource; the retarget call retains neither after completion.
- *
- * @author Samchon
  */
 export interface IAutoMovieRetargetContactProps {
   /**

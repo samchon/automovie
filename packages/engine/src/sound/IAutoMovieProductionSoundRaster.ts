@@ -8,7 +8,6 @@
  * @evidence contracts/performance.md#efficient-algorithms A W by H result retains exactly 4WH bytes plus its wrapper; spectrogram evaluates each of at most min(H,127) frequency bins once per column, then maps the reused levels to pixels.
  * @evidence contracts/performance.md#reuse-equivalent-work The pixel buffer is reusable by consumers for this completed drawing; changed PCM or dimensions require a new drawing, and mutable bytes are not digest identity.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the fresh Uint8Array until discarded or transferred to an encoder; dimensions and allocation capacity bound bytes, with no separate application budget or GPU handle here.
- * @author Samchon
  */
 export interface IAutoMovieProductionSoundRaster {
   /** Raster width in pixels. */

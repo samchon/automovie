@@ -16,7 +16,6 @@ import { IAutoMovieFootprintRing } from "./IAutoMovieFootprintRing";
  * @evidence contracts/performance.md#efficient-algorithms For N vertices, hygiene is O(N^2), the convex-turn walk O(N), hull construction O(N log N), and the slab sweep scans/sorts crossings over up to N cuts in O(N^2 log N), with up to O(N^2) returned piece vertices.
  * @evidence contracts/performance.md#reuse-equivalent-work One sorted cut population and each slab's sorted crossings serve all bands in that slab; source projections are reused but mutable region results are not cached.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns returned piece arrays; slab points are fresh, while the convex fast path retains original hull point references. Call-local rings, cuts and crossings leave scope without renderer handles.
- * @author Samchon
  */
 export const footprintConvexPieces: (
   footprint: IAutoMovieFootprint,

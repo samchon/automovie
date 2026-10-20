@@ -25,7 +25,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Four literals select two booleans inside one derivation instead of four drafting algorithms, so every view uses the same clipping, silhouette and rounding code.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Direction and plane come only from the view's vectors; the literal never adjusts them, and an inconsistent pairing such as a `plan` looking sideways is drawn as stated rather than corrected.
  * @evidence contracts/common.md#meaningful-documentation States what each literal removes, cuts and mirrors, how `overhead` and `depth` apply, and that the literal is not checked against the direction.
- * @author Samchon
  */
 export type AutoMovieDrawingProjection =
   | "plan"

@@ -31,7 +31,6 @@ const DEFAULT_FOOT_BONES: readonly ["leftFoot", "rightFoot"] = [
 /**
  * Sample FK and compare configured foot points and valid capsule endpoints to scalar/height-source ground minus tolerance.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Sample FK and compare configured foot points and valid capsule endpoints to scalar/height-source ground minus tolerance.
  * @evidence contracts/common.md#clear-and-simple-design groundFunction, shared sampleTimes and validateCapsule own the height adapter, clock and usable endpoint contract.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing foot bones are skipped, capsules require reachable endpoints, and endpoint checks do not solve penetration against arbitrary curved heightfields.
@@ -257,8 +256,6 @@ export const validateGroundContact: (props: {
  * The endpoint reduction keeps the currently deepest row for reporting.
  *
  * Rows live only inside one sampled capsule reduction and no body resource is retained.
- *
- * @author Samchon
  */
 interface IPenetration {
   surfaceY: number;

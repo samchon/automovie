@@ -57,7 +57,6 @@ const SPAN_EPSILON: number = 1e-9;
  * @evidence contracts/performance.md#efficient-algorithms At most two branches times 360 swivel steps, each one quaternion product plus one `score` call, so cost is constant per solve and dominated by `score`; the step is a resolution choice among equally exact poses, and the solve runs once per authored arm action.
  * @evidence contracts/performance.md#reuse-equivalent-work Each hinge branch computes its mid direction and aim once for the whole swivel sweep; scores cannot be shared because the caller evaluates distinct shoulder rotations under its own constraints.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Keeps only the current best candidate during the sweep and retains nothing after it; the caller owns the returned rotations.
- * @author Samchon
  */
 export const hingedArmArticulation: (props: {
   upper: IAutoMovieChainBone;

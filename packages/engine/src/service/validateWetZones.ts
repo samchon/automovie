@@ -59,8 +59,6 @@ const WASTE_MEDIUM: string = "waste-water";
  * @evidence contracts/performance.md#efficient-algorithms Lookup maps are built once; each zone scans enclosing boundaries and its citations/drains, giving worst-case O(Z B plus P) work with linear network/environment maps and diagnostic output.
  * @evidence contracts/performance.md#reuse-equivalent-work Boundary, node, system and first-grade lookups serve every zone check in one call; no previous build's mutable declaration results are cached.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Collector and lookup maps are call-local; returned validation owns its findings while source geometry and service records remain unchanged and unretained by this gate.
- *
- * @author Samchon
  */
 export const validateWetZones: (props: {
   network: IAutoMovieServiceNetwork;

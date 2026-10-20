@@ -31,7 +31,6 @@ import { AUTOMOVIE_DRAWING_ARC_STEP } from "./constants/AUTOMOVIE_DRAWING_ARC_ST
  * @evidence contracts/performance.md#efficient-algorithms Linear in the edge count plus the emitted chord points, at most sixteen per half-turn arc, so output size bounds the work.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function called once per drawn opening per derivation; nothing equivalent repeats.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The drafted ring is handed to the caller, which projects and rounds it at once; the arc records made per edge die with the loop iteration.
- * @author Samchon
  */
 export const autoMovieOpeningOutlinePoints = (
   profile: IAutoMovieOpeningProfile,

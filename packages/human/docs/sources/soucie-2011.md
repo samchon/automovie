@@ -4,7 +4,7 @@ Soucie J.M., Wang C., Forsyth A., Funk S., Denney M., Roach K.E., Boone D., and 
 
 ## Licence and terms
 
-CDC public-use data under Section 308(d) of the Public Health Service Act: use only for statistical reporting and analysis, no attempt to identify persons, no linkage to identifiable data. Human cites the published means.
+CDC public-use data under Section 308(d) of the Public Health Service Act: use only for statistical reporting and analysis, no attempt to identify persons, no linkage to identifiable data.
 
 ## Population and protocol
 
@@ -25,7 +25,3 @@ More than 600 people from the general US population without conditions affecting
 | Elbow extension (hyperextension) | 6.8 | 2.2 | 6.4 | 5.3 | 4.7 | 0.8 | 3.6 | -0.7 |
 | Forearm pronation | 84.6 | 79.6 | 81.2 | 79.8 | 82.0 | 76.9 | 80.8 | 77.7 |
 | Forearm supination | 93.7 | 86.4 | 90.0 | 87.8 | 90.6 | 85.0 | 87.2 | 82.4 |
-
-## What Human takes
-
-Age- and sex-specific means for the eleven motions, replacing single adult norms. Women exceed men in every flexion and hyperextension; ROM falls with age; children aged 2 to 8 have the largest hip flexion, knee flexion and dorsiflexion.

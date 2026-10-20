@@ -8,7 +8,6 @@ import type * as THREE from "three";
  * changes vertex attributes, opaque source IDs, nullable legacy incidence or
  * caller-owned imported records. Identity is not an anatomical certification.
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Generated records are copied and admitted by resolveAutoMovieMeshPhysicalVertices; static glTF pairs decode unsigned low/high words into one-based source references, reserving zero for null and reading interleaved accessors component by component.
  * @evidence contracts/common.md#clear-and-simple-design Read and owned-write paths share copying and engine validation; imported wire namespaces stay readonly while generated metadata is published only after admission succeeds.

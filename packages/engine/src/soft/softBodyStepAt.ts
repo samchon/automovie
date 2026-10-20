@@ -9,8 +9,6 @@ import { IAutoMovieSoftBodyDomain } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms A finite check, clamp, division and floor take constant time and space.
  * @evidence contracts/performance.md#reuse-equivalent-work One quantizer serves both callers; no table of seconds or prior-frame cursor is needed for an absolute calculation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only number or null transfers; no input record, clock handle or playback state is retained.
- *
- * @author Samchon
  */
 export const softBodyStepAt: (
   domain: IAutoMovieSoftBodyDomain,

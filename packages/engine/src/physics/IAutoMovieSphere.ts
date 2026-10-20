@@ -10,8 +10,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms One vector and one scalar are fixed-size; the intersection uses constant arithmetic independent of model complexity.
  * @evidence contracts/performance.md#reuse-equivalent-work The same borrowed collider can be tested against successive trajectory chords while the caller keeps its values unchanged; no identity cache is implied.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller retains the collider as needed; the type opens no resource and stores no intersection history.
- *
- * @author Samchon
  */
 export interface IAutoMovieSphere {
   /** Borrowed world-space center in metres; intersection admits finite values. */

@@ -20,7 +20,6 @@ import { AUTOMOVIE_OPENING_BULGE_EPSILON } from "./constants/AUTOMOVIE_OPENING_B
  * @evidence contracts/performance.md#efficient-algorithms One short-circuiting pass over the bulges, linear in the edge count at worst.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure predicate evaluated once per drawn opening; nothing equivalent repeats.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates and retains nothing beyond an empty array for an absent bulge list.
- * @author Samchon
  */
 export const autoMovieOpeningHasArc = (
   profile: IAutoMovieOpeningProfile,

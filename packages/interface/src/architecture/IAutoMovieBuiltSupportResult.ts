@@ -11,7 +11,6 @@ import { AutoMovieBuiltPlacementBasis } from "./AutoMovieBuiltPlacementBasis";
  * @evidence contracts/common.md#clear-and-simple-design One status union plus the numeric gap, the unresolved sides, and the two bases, with each null documented by the case that produces it, so no second result shape exists for suspension or unresolved claims.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An unresolved side yields `unresolved` with a null gap rather than a guessed default, and the subject basis is narrowed to body bases because only a support can be a surface.
  * @evidence contracts/common.md#meaningful-documentation States when each status is chosen, the gap's metre unit, sign, deepest-probe rule and null cases, when `unresolved` is empty, and when each basis is null.
- * @author Samchon
  */
 export interface IAutoMovieBuiltSupportResult {
   /**

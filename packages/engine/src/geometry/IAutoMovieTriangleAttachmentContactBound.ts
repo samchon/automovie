@@ -17,7 +17,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record; the constant-time slab computation is answered on `boundAutoMovieTriangleAttachmentContact`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Computed once per attachment support per separation query and reduced at once to an attachment cap.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources One boolean and three numbers with no reference to the fan or support, released when the query reduces it.
- * @author Samchon
  */
 export interface IAutoMovieTriangleAttachmentContactBound {
   /**

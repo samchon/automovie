@@ -16,7 +16,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms No code; checking a frame is constant time once per call or facet, answered on `autoMoviePatternInstanceTransforms`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Resolved once per call or facet into a basis shared by every occurrence placed on it.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Three caller-owned vectors; the resolved basis aliases `origin` and the axes only during the call.
- * @author Samchon
  */
 export interface IAutoMoviePatternFaceFrame {
   /** World point the face-local origin sits at. */

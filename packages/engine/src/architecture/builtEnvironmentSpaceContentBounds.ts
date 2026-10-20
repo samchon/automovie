@@ -33,7 +33,6 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * @evidence contracts/performance.md#efficient-algorithms Pays the linear space subtree walk, full world staging, model indexing and element/population scans. Selected elements add their procedural tessellation and vertex folds; selected populations add placement validation and corner folds, including all stored explicit transforms. These delegated costs are not bounded by population count alone.
  * @evidence contracts/performance.md#reuse-equivalent-work One staging pass and one model index are shared by every element in the subtree within the call; nothing is cached across calls because the record is the caller's and may change.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Allocates the subtree set, staged matrices, model index and one box per measured part for one call and drops them on return; the caller owns the single returned box.
- * @author Samchon
  */
 export const builtEnvironmentSpaceContentBounds: (
   environment: IAutoMovieBuiltEnvironment,

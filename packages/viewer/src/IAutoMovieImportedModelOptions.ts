@@ -24,8 +24,6 @@ type BoneMapInput =
  * @evidenceExclude contracts/performance.md#efficient-algorithms The options interface performs no loading or bone normalization; the adapter owns those costs.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Callback and root references are supplied inputs and define no shared loader or request equivalence.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Hosts retain loaded appearance and SDK lifetime ownership; the options record opens no I/O or GPU allocation.
- *
- * @author Samchon
  */
 export interface IAutoMovieImportedModelOptions {
   /**

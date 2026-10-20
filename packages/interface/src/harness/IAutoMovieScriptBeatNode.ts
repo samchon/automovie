@@ -10,7 +10,6 @@ import { IAutoMovieScriptNodeBase } from "./IAutoMovieScriptNodeBase";
  * @evidence contracts/common.md#clear-and-simple-design The shared node fields plus the `beat` discriminator and the beat payload; timing and motion stay on the flat beat and its shot.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A beat missing from the tree is refused rather than rendered without its direction, and a doubly claimed beat is refused rather than resolved to the first node.
  * @evidence contracts/common.md#meaningful-documentation States the allowed parents, that it is a leaf, the one-to-one join and its refusals, and how feedback finds it; members give the discriminator and payload roles.
- * @author Samchon
  */
 export interface IAutoMovieScriptBeatNode extends IAutoMovieScriptNodeBase {
   /** Selects a beat node. */

@@ -76,7 +76,6 @@ const shareOf: (need: number, range: IAutoMovieAngleRange | null) => number = (
  * @evidence contracts/performance.md#efficient-algorithms Two linear searches of the rig's bones and constant arithmetic for two axes; it allocates only the returned joints.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one aim and rig that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned joints.
- * @author Samchon
  */
 export const gazeChainJoints: (props: {
   rig: IAutoMovieSkeleton | null;

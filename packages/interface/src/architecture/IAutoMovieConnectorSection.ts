@@ -10,7 +10,6 @@
  * @evidence contracts/common.md#clear-and-simple-design One station is a fraction and the two usable dimensions, and the list is the only spelling of a varying passage, so a constant passage keeps its two scalar fields on the connector.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Both or neither spellings are refused rather than one being preferred, and an unanchored or non-increasing station list is refused instead of being sorted or clamped.
  * @evidence contracts/common.md#meaningful-documentation States the either-or spelling rule, the list's anchoring, length and ordering rules, the interpolation between stations, the arc-length meaning of `at`, and the metre units and positivity of both dimensions.
- * @author Samchon
  */
 export interface IAutoMovieConnectorSection {
   /**

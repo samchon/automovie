@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Require an actual JSON array at a named external-document path.
  *
  * @evidence contracts/common.md#principled-implementation Array.isArray admits only array values; rejected inputs report their owning JSON path.
@@ -8,7 +8,6 @@
  * @evidence contracts/performance.md#efficient-algorithms One Array.isArray check is constant-time without scanning or copying elements.
  * @evidence contracts/performance.md#reuse-equivalent-work All optional-array handling delegates this same identity check when a value is present.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The helper allocates no collection and returns the caller's existing array reference.
- * @author Samchon
  */
 export const requiredArray: (value: unknown, path: string) => unknown[] = (
   value: unknown,

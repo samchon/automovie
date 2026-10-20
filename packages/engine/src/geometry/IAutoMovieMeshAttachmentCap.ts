@@ -14,7 +14,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data record with no runtime body; the bound is computed in constant time per support by its producer.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A fresh record per support per query; nothing is cached.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Two scalars; the result holds one record per declared attachment support.
- * @author Samchon
  */
 export interface IAutoMovieMeshAttachmentCap {
   /** Original resident support triangle ordinal, one of the attachment's declared supports. */

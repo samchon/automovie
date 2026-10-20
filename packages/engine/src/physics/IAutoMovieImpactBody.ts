@@ -10,7 +10,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms The type has constant-size input storage and no algorithm; collision producer cost is constant normal-response arithmetic.
  * @evidence contracts/performance.md#reuse-equivalent-work The same borrowed body inputs serve admission and impact calculation, with no duplicate material lookup or body-state cache in the type.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns body and velocity lifetime; this representation retains no collider, physical world or task handle.
- * @author Samchon
  */
 export interface IAutoMovieImpactBody {
   /** Finite strictly positive kilograms, admitted by resolveImpact. */

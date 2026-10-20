@@ -11,7 +11,6 @@ import { IAutoMovieDrawingSchedulePlace } from "./IAutoMovieDrawingSchedulePlace
  * @evidence contracts/common.md#clear-and-simple-design Shared type columns, a bounded member sample with its remainder, the measurement basis and one place make a row self-sufficient for reading a schedule, while the full per-member data stays in the design.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unmeasured sizes are `null` with basis `unmeasured` instead of zero, and grouping includes the basis so a void-measured type never merges with a leaf-measured one; `place` is always derived, with no reserved absent state.
  * @evidence contracts/common.md#meaningful-documentation States the grouping columns and which fields vary per member; members give the mark's derivation and stability, when `model` is `null`, the metre unit and per-subject meaning of the sizes, the member bound and remainder, what each basis measured, and whose place a type row carries.
- * @author Samchon
  */
 export interface IAutoMovieDrawingScheduleRow {
   /**

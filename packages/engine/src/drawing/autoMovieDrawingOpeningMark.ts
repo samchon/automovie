@@ -38,7 +38,6 @@ import { roundAutoMovieDrawingPoint } from "./roundAutoMovieDrawingPoint";
  * @evidence contracts/performance.md#efficient-algorithms Linear in the profile's drafted points, or in the fill model's triangles through the shared sizing rule; the host boundary is a map lookup.
  * @evidence contracts/performance.md#reuse-equivalent-work A fill model's tessellation is reused through the design index across every opening it fills within one derivation.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns one mark owned by the caller; the drafted outline points are temporaries.
- * @author Samchon
  */
 export const autoMovieDrawingOpeningMark = (
   design: IAutoMovieDrawingDesignIndex,

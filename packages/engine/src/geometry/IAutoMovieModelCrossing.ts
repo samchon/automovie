@@ -22,7 +22,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record; the bounds rejection and per-pair crossing measurement are answered on `measureAutoMovieModelCrossings`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built per measurement; callers such as the face panel keep their own earlier reading to compare against.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Two identity strings and three counts with no reference to the model's meshes, released with the caller's report.
- * @author Samchon
  */
 export interface IAutoMovieModelCrossing {
   /** Part whose triangles are counted in `triangles`. */

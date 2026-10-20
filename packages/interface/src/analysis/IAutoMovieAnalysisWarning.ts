@@ -10,7 +10,6 @@
  * @evidence contracts/common.md#clear-and-simple-design A string code rather than a closed union, because warnings are advisory and the summarizer neither counts nor branches on them.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A warning cannot stand in for a failure: an input that makes a metric unmeasurable must produce a gap, and only the solved arm of an outcome has a warning list.
  * @evidence contracts/common.md#meaningful-documentation States where warnings may appear, that statuses ignore them, the codes the engine emits today, and when the subject is null.
- * @author Samchon
  */
 export interface IAutoMovieAnalysisWarning {
   /** Non-blank stable warning code such as `target-unit-mismatch`. */

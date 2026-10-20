@@ -11,7 +11,6 @@ import { IAutoMoviePlanarPoint } from "./IAutoMoviePlanarPoint";
  * @evidence contracts/common.md#clear-and-simple-design One outline with optional per-edge bulges covers rectangles, arches, and circles, and absent bulges mean straight edges, so no opening-type enum or second arc record exists.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Winding and bulge sign determine each arc's conservative ring treatment without shape-specific sampling; arcs past a half turn and zero-area bulge-free two-point outlines refuse, with no invented corner or separate arc-intersection proof.
  * @evidence contracts/common.md#meaningful-documentation States edge indexing, inward/outward and zero-winding policies, hull-versus-circular-simplicity limits, planar units, analytic area versus drawing chords, and the bulge's magnitude/sign/half-turn limit.
- * @author Samchon
  */
 export interface IAutoMovieOpeningProfile {
   /**

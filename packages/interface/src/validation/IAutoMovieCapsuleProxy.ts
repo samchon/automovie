@@ -9,7 +9,6 @@ import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
  * @evidence contracts/common.md#clear-and-simple-design The shared endpoint/radius record lets body validation and soft contact use the same authored proxy rather than separate capsule vocabularies.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A missing or unreachable bone is a structural error rather than an invented endpoint; this proxy approximates body geometry and does not assert exact mesh collision.
  * @evidence contracts/common.md#meaningful-documentation Members identify actor-local bone endpoints and metre radius, while consumers retain responsibility for actor and world-pose resolution.
- * @author Samchon
  */
 export interface IAutoMovieCapsuleProxy {
   /** Humanoid bone at the first end of the actor-local segment. */

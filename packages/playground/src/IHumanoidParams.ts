@@ -8,8 +8,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms This pure input interface chooses no primitive assembly, shortest-arc or rendering algorithm.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The input fields implement no model cache or equality/reuse policy.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This dimensional record owns no worker, timer or GPU handle; the builder/page own resulting model data and uploads.
- *
- * @author Samchon
  */
 export interface IHumanoidParams {
   /** Pelvis height off the floor (≈ leg length). */

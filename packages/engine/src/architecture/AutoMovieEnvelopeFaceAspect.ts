@@ -17,6 +17,5 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A string literal union with no runtime code; the two comparisons that choose a member run inside each envelope face build.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A literal union that erases at compile time, so there is no computed result to share between faces.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A type that erases at compile time and holds no storage.
- * @author Samchon
  */
 export type AutoMovieEnvelopeFaceAspect = "facade" | "roof" | "underside";

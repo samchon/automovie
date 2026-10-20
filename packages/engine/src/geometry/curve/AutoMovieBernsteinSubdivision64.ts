@@ -6,7 +6,6 @@ import { AutoMovieCurveMath64 as V } from "./AutoMovieCurveMath64";
  *
  * Every operation preserves the algebraic polynomial on each child domain before floating-point rounding; none samples, fits or reduces degree. Callers own parameter-domain admission beyond the stated ordered-interval check.
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation De Casteljau reduction levels supply both child nets of a split; restriction and thirds compose splits on the same arithmetic path.
  * @evidence contracts/common.md#clear-and-simple-design Subdivision is separated from the coefficient algebra it consumes, and scalar variants embed into the one vector operation.

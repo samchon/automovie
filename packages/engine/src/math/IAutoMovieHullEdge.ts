@@ -16,7 +16,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A result record with no algorithm; the edge search is answered on `nearestHullEdge`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A nearest boundary edge belongs to one hull and horizontal query; changing the centre of mass requires a new edge search.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds references to two of the caller's hull vertices and one number; nothing else is retained.
- * @author Samchon
  */
 export interface IAutoMovieHullEdge {
   /** First endpoint of the edge, in world metres; the hull's vertex object. */

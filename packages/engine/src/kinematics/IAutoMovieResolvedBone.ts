@@ -19,7 +19,6 @@ import {
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; the walk's cost is answered on `resolvePose`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One record per bone per resolve; callers that sample many poses reuse the topology index, answered on `IAutoMovieSkeletonTopology`.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Two quaternions and a vector per bone, released with the caller's resolved pose.
- * @author Samchon
  */
 export interface IAutoMovieResolvedBone {
   /** The bone this transform belongs to. */

@@ -31,7 +31,6 @@ import { validateAutoMovieEnvironmentContext } from "./validateAutoMovieEnvironm
  * @evidence contracts/performance.md#efficient-algorithms Linear in the context, assemblies A with their layers, bridges B and targets, with hashed uniqueness and reference checks instead of pairwise scans.
  * @evidence contracts/performance.md#reuse-equivalent-work The instant lookup is done once here and handed to the analyzer, which uses it for both the settings text and the exterior temperature.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The assembly, layer and bridge id sets are call-local and grow with A, the largest assembly's layers and B; the returned instant is a reference into the caller's context.
- * @author Samchon
  */
 export const resolveAutoMovieEnvelopeRequest: (
   request: IAutoMovieEnvelopeRequest,

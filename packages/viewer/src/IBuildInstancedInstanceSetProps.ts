@@ -10,7 +10,6 @@ import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
  * caller-owned; construction flattens rigid representations before making
  * the viewer's own chunk meshes, materials and per-frame accounting state.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Supplies compiled compact placements/LOD and model-id registries; sources must describe rigid single-material representations because flattening rejects skin/morph/multi-material input rather than silently changing their deformation.
  * @evidence contracts/common.md#clear-and-simple-design Keeps optional loaded prototypes beside portable models so the builder can borrow a loaded object or construct a missing representation without a second scene registry.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing prototype entries use the declared model, not fixture-specific fallbacks; referenced missing models and unsupported representations are refused by the builder.

@@ -13,7 +13,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design Panels and carriages both reference this one record, and each variant carries only the fields its joint needs, so a slide has no pivot and neither variant repeats the per-state values that `IAutoMovieCarriageValue` and the opening states own.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No joint is special-cased by element kind; the axis length is ignored by normalization rather than reinterpreted as a gain, and a degenerate axis or empty range is refused by the validator instead of being clamped.
  * @evidence contracts/common.md#meaningful-documentation States that values are displacements from the rest pose at `0`, the local frame of axis and pivot, radians for revolute and metres for prismatic travel, the sign bounds on `min` and `max`, and the full-turn limit.
- * @author Samchon
  */
 export type IAutoMovieTravelMotion =
   | IAutoMovieTravelMotion.IRevolute
@@ -29,7 +28,6 @@ export namespace IAutoMovieTravelMotion {
    * @evidence contracts/common.md#clear-and-simple-design Axis, pivot and the two range ends are the whole hinge; the angle for each named state lives on the state, so the joint stores only what every state shares.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The full-turn limit carries a `1e-6` radian slack that validation shares with the swept-envelope solver, whose critical-angle walk that cap bounds, so the two cannot disagree; no hinge orientation or member kind gets a different rule.
    * @evidence contracts/common.md#meaningful-documentation States the rotation sense, the local frame of axis and pivot, radian units, that `min` is at most rest and `max` at least rest, and that the range spans at most one turn.
-   * @author Samchon
    */
   export interface IRevolute {
     /** Selects the hinge joint. */
@@ -60,7 +58,6 @@ export namespace IAutoMovieTravelMotion {
    * @evidence contracts/common.md#clear-and-simple-design Axis and the two range ends are the whole slide; it has no pivot because a translation has no fixed point to name.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The slide has no turn limit and no special case for vertical travel, so a lift car and a sliding door take the same rule.
    * @evidence contracts/common.md#meaningful-documentation States the local frame of the axis, that only its direction matters, metre units along the unit axis, and the sign bounds on `min` and `max`.
-   * @author Samchon
    */
   export interface IPrismatic {
     /** Selects the slide joint. */

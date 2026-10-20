@@ -72,7 +72,6 @@ interface IOccurrence {
  * @evidence contracts/performance.md#efficient-algorithms Full environment validation precedes derivation. Opening/connector scans include profile edges, placed fill triangles or section samples; each room invokes graph/bounds queries whose repeated scans scale with spaces times design size. Every bucket and its member ids are sorted before prefix truncation, as are rows, so ordering costs O(N log N) overall in occurrences, plus encoded text and canonical key sorts.
  * @evidence contracts/performance.md#reuse-equivalent-work The opening subject builds one design index that shares id lookups, world matrices and part tessellations across opening rows. Room queries keep their own request-local work and connector rows need no index; no cross-call cache can conceal a mutable environment edit.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The index, occurrences and grouping map are owned by the call and released on return, bounded by the design's size; only the returned schedule, owned by the caller, survives.
- * @author Samchon
  */
 export const deriveAutoMovieDrawingSchedule: (props: {
   environment: IAutoMovieBuiltEnvironment;

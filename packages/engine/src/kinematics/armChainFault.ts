@@ -55,7 +55,6 @@ const PARALLEL_SINE: number = 1e-6;
  * @evidence contracts/performance.md#efficient-algorithms One linear search of the skeleton's bones for the hand, then constant vector arithmetic; the message is built only for a faulted rig.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one rig and side that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned fault.
- * @author Samchon
  */
 export const armChainFault: (
   skeleton: IAutoMovieSkeleton,

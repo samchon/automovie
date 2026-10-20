@@ -15,8 +15,6 @@ import { createStickmanMotionRoot as root } from "./createStickmanMotionRoot";
  * @evidence contracts/performance.md#efficient-algorithms Three bounded pose/root records and five keys bound assembly; rendering and interpolated FK remain ordinary engine/viewer costs.
  * @evidence contracts/performance.md#reuse-equivalent-work Repeated stand/crouch frames share the same authored pose records within one clip; calls return fresh vocabulary rather than cached mutable output.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Caller-owned frames retain shared local poses/roots, so consumers preserve those shared values; no physics task, timer or GPU handle is acquired.
- *
- * @author Samchon
  */
 export const hop: (sk: string) => IAutoMovieMotion = (
   sk: string,

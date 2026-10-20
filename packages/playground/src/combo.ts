@@ -16,8 +16,6 @@ import { walk } from "./walk";
  * @evidence contracts/performance.md#efficient-algorithms Six fixed component builds plus one pass over their total k keyframes cost O(k) time/output, including repeated walk/run construction; later sampling/FK/rendering remains downstream work.
  * @evidence contracts/performance.md#reuse-equivalent-work Sequencing borrows each part's pose records while copying shifted keys. Repeated components are independently constructed mutable vocabularies; no numerical or cross-call motion cache is retained.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the combined keys while nested part poses remain borrowed by them; no player, worker, clock or GPU handle is started here.
- *
- * @author Samchon
  */
 export const combo: (sk: string) => IAutoMovieMotion = (
   sk: string,

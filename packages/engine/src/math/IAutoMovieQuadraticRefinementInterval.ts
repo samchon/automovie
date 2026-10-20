@@ -17,7 +17,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A grouping record with no algorithm; the grouping cost is answered on `refineAutoMovieQuadraticProgram`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built once per refinement and read by that refinement's polishing; nothing persists across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owned by the refinement call, with one member entry per original row and one coefficient pair per row term.
- * @author Samchon
  */
 export interface IAutoMovieQuadraticRefinementInterval {
   /** Variable indices of the shared coefficients, ascending. */

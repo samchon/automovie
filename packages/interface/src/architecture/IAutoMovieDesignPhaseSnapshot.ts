@@ -15,7 +15,6 @@ import { IAutoMovieDesignPhaseState } from "./IAutoMovieDesignPhaseState";
  * @evidence contracts/common.md#clear-and-simple-design The snapshot is the asked phase plus one flat state list; the role and presence rules live in their own union types, and filtering records is left to `designLineageProject` rather than embedded here.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Absent subjects are listed with their presence rather than dropped, and the documentation says plainly that no scene, drawing, schedule, or render consumes the snapshot yet instead of implying they agree.
  * @evidence contracts/common.md#meaningful-documentation States that every declared subject appears once in code-unit order, who calls the producer today and who does not, and what a null phase means.
- * @author Samchon
  */
 export interface IAutoMovieDesignPhaseSnapshot {
   /**

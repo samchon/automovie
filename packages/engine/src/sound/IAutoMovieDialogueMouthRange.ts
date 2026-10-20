@@ -10,7 +10,6 @@ import { IAutoMovieProductionViseme } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms Each interval has constant size; joining V receipt intervals creates at most 2V+1 fresh ranges and sampling scans the retained ranges linearly.
  * @evidence contracts/performance.md#reuse-equivalent-work Joined emission intervals are reused for arbitrary frame queries until receipt or line timing changes; there is no per-range cached pose.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The containing timeline owns these scalar records, whose count follows the receipt; discarding it releases the range collection without host resources.
- * @author Samchon
  */
 export interface IAutoMovieDialogueMouthRange {
   /** Inclusive film-global emission frame. */

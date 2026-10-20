@@ -11,7 +11,6 @@ import { IAutoMovieLightShadow } from "../scene/IAutoMovieLightShadow";
  * @evidence contracts/common.md#clear-and-simple-design Shared identity, colour and intensity intersect a union discriminated by light type; every arm requires its physical inputs and marks inapplicable fields never, while the directional arm alone permits omission of type for the established sun-light default.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Defaults exist only where the family defines one, a `range` of `0`, a 45 degree cone and neutral white, and an area panel's extent has no default because an unstated window size is an undecided design, not a usual softbox.
  * @evidence contracts/common.md#meaningful-documentation States the per-family requirement of every optional field, the default each omission takes, intensity units per family, that `role` is never read, and why an area light takes neither `range` nor a shadow.
- * @author Samchon
  */
 export type IAutoMovieStageLight = {
   /** Non-blank light identity, unique across every node of the stage. */

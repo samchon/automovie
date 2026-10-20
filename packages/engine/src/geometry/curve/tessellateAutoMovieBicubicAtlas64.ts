@@ -59,6 +59,10 @@ const CORNERS: readonly (readonly [number, number, number])[] = [
  * coincide; zero-area triangles remain counted omissions. An inverse that
  * cannot represent an interior coordinate omits that request with a local diagnostic,
  * preserving other requests and patches without welding or altering coefficients.
+ * Optional coefficient retention copies the actual post-binding root grids into
+ * the terminal summary and streamed chunks in mm. Omission or false allocates no snapshot and leaves
+ * emitted geometry unchanged. A prepared grid can exist for an omitted region;
+ * the public realizer separately filters snapshots to retained triangle owners.
  * Position owners are independent of render normal fans, preserving both crease
  * banks' analytic normals without averaging. This establishes no G1 certificate.
  * Canonical endpoint values must agree exactly across declared corner aliases.
@@ -82,20 +86,52 @@ const CORNERS: readonly (readonly [number, number, number])[] = [
 export function* tessellateAutoMovieBicubicAtlas64(
   input: AtlasInput,
 ): Generator<AtlasChunk, AtlasSummary, void> {
-  if (input.retainTriangleParameters !== undefined &&
-      typeof input.retainTriangleParameters !== "boolean")
+  if (
+    input.retainTriangleParameters !== undefined &&
+    typeof input.retainTriangleParameters !== "boolean"
+  )
     throw new Error("Triangle parameter retention must be boolean");
+  if (
+    input.retainPatchCoefficients !== undefined &&
+    typeof input.retainPatchCoefficients !== "boolean"
+  )
+    throw new Error("Patch coefficient retention must be boolean");
   const prepared: ReturnType<typeof AutoMovieBicubicAtlasPlan64> =
     AutoMovieBicubicAtlasPlan64(input, SIDES, CORNERS);
   const registered: ReturnType<typeof AutoMovieBicubicAtlasRegistry64> =
     AutoMovieBicubicAtlasRegistry64(input, prepared, SIDES, CORNERS);
-  return yield* AutoMovieBicubicAtlasEmit64(
+  const summary: AtlasSummary = yield* AutoMovieBicubicAtlasEmit64(
     input,
     prepared,
     registered,
     SIDES,
     CORNERS,
   );
+  return {
+    ...summary,
+    ...(input.retainPatchCoefficients
+      ? {
+          patchCoefficients: prepared.plans.flatMap(
+            (
+              plan: (typeof prepared.plans)[number],
+              i: number,
+            ): NonNullable<AtlasSummary["patchCoefficients"]> =>
+              plan.grid.length === 4
+                ? [
+                    {
+                      patch: input.patches[i]!.id,
+                      gridMm: plan.grid.map((row: number[][]): C.Vector[] =>
+                        row.map(
+                          (p: number[]): C.Vector => [p[0]!, p[1]!, p[2]!],
+                        ),
+                      ),
+                    },
+                  ]
+                : [],
+          ),
+        }
+      : {}),
+  };
 }
 
 /**
@@ -155,6 +191,8 @@ export namespace tessellateAutoMovieBicubicAtlas64 {
 
     /** Retain six patch-local numbers per accepted triangle, in index-corner order; omitted allocates none. */
     retainTriangleParameters?: boolean;
+    /** Retain the actual prepared grids after canonical binding, in mm; omitted allocates no snapshots. */
+    retainPatchCoefficients?: boolean;
   };
   /**
    * Metre vertex suffix, global indices, patch-local parameter face ranges and diagnostics.
@@ -183,6 +221,8 @@ export namespace tessellateAutoMovieBicubicAtlas64 {
 
     /** Requested actual [u0,v0,u1,v1,u2,v2] for each emitted triangle; not per shared vertex and not a packed texture chart. */
     triangleParameters?: number[];
+    /** Requested actual post-binding root grid, mm; supports a cancelled finite prefix. */
+    patchCoefficients?: C.Vector[][];
     /** Patch-local parameter attribution with chunk-relative triangle offsets. */
     faceRanges: Range[];
     /** Actual retained cell and output arithmetic counts. */
@@ -199,9 +239,11 @@ export namespace tessellateAutoMovieBicubicAtlas64 {
    * States partial omission scope.
    * A type computes no totals.
    * A type owns no cache.
-   * Only scalar totals and explicit limitations remain at completion.
+   * Requested prepared coefficient snapshots transfer alongside scalar totals.
    */
   export type Summary = {
+    /** Requested actual bound field coefficients, independent of tessellation completeness. */
+    patchCoefficients?: { patch: string; gridMm: C.Vector[][] }[];
     /** Total admitted analytic patches in this run. */
     patches: number;
     /** Patches with at least one unprocessed region. */

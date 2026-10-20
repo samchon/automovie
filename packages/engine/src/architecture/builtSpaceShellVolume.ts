@@ -17,7 +17,6 @@ import { IAutoMovieSpaceShell, IAutoMovieVector3 } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms One pass over the triangle indices with constant extra space, linear in the triangle count.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure sum over one shell value that coordinates no work across calls or consumers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates nothing beyond scalars and retains nothing.
- * @author Samchon
  */
 export const builtSpaceShellVolume: (shell: IAutoMovieSpaceShell) => number = (
   shell: IAutoMovieSpaceShell,

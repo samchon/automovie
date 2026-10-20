@@ -28,7 +28,6 @@ const DEFAULT_MAX_HORIZONTAL_SPEED: number = 0.02;
 /**
  * Sample admitted contact windows, resolve FK and warn when adjacent foot XZ displacement divided by elapsed seconds exceeds the declared speed.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Sample admitted contact windows, resolve FK and warn when adjacent foot XZ displacement divided by elapsed seconds exceeds the declared speed.
  * @evidence contracts/common.md#clear-and-simple-design Shared window clock and reachability prevent missing FK lookups and mismatched physics sample times.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts physicsIntent suppresses skate warnings only; finite positive rate and valid reachable bone/window/speed remain mandatory errors.

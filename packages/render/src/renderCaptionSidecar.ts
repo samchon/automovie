@@ -10,7 +10,6 @@ import type { IAutoMovieCaptionSidecar } from "./IAutoMovieCaptionSidecar";
  * @evidence contracts/performance.md#efficient-algorithms One stringify pass is linear in the number of spans and their text length.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Serialization of one value per call coordinates no phases or consumers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The only allocation is the returned string, owned by the caller, and no handle or task is opened.
- * @author Samchon
  */
 export const renderCaptionSidecar: (
   sidecar: IAutoMovieCaptionSidecar,

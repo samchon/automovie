@@ -21,7 +21,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; frame cost is answered on `frameAutoMovieSweepSpine`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record compiled once per sweep.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its sweep.
- * @author Samchon
  */
 export interface IAutoMovieSweepSpine {
   /** Points the path passes through, in metres, at least two, no two consecutive ones equal. */

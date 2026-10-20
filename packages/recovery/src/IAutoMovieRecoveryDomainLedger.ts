@@ -12,7 +12,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms An erased record performs no traversal; its producer documents assembly cost.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work This type owns no cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns ledger arrays and strings; geometry is referenced by identity rather than retained again.
- * @author Samchon
  */
 export interface IAutoMovieRecoveryDomainLedger {
   /** Version of this membership record, independent of the curve schema. */

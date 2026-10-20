@@ -34,8 +34,6 @@ import { IAutoMovieServiceCheckReport } from "./IAutoMovieServiceCheckReport";
  * @evidence contracts/performance.md#efficient-algorithms Discipline deduplication is bounded by the closed discipline count; checking located spaces and sleeve faces scans spaces plus worst-case penetration-times-boundary lookup work, with a bounded rule population.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The report describes the supplied network and building now; no capability cache assumes those mutable geometry declarations stay equivalent.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Fresh string/status rows transfer to the caller, retaining neither network nor building objects and acquiring no solver task.
- *
- * @author Samchon
  */
 export const serviceAnalysisSupport: (props: {
   network: IAutoMovieServiceNetwork;

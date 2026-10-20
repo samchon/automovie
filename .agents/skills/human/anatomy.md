@@ -1,15 +1,15 @@
 # Anatomy
 
-## Grounds
+## Interpreting The Reference
 
-Ground each anatomical value in a source you read, with its quantity, protocol, population, and conditions, and grade it measured, derived, population-fitted, or conventional.
+Use recovered curves as geometric observations. Assign anatomical meaning only with a supported correspondence: a contour extremum, rig marker, skin landmark and joint centre are not interchangeable. State the physical frame, posture and measurement protocol before comparing their locations.
 
-Extending a value beyond the population, site, direction, or state it was measured at is a new inference that needs its own grounds and a geometry check.
+Use primary anatomical sources for claims about skeleton, palpable landmarks, superficial muscles, fat distribution and craniofacial structure. Record the quantity, population and conditions, distinguishing measurements, derivations, fitted relations, conventions and hypotheses. A small set of reference people does not identify population, age, muscle or body-fat laws.
 
-Turn anatomical relationships into construction constraints and algorithms for axes, section placement, curve direction, volume and tissue transitions. State the assumptions of inferred rules, distinguish their construction choices from measured anatomy, and check their generated curves and surface under changed parameters.
+## From Anatomy To Rules
 
-## What Is Modeled
+Translate supported anatomy into constraints on axes, layer locations, feature directions, volume and tissue transitions. Generate parts from the shared skeleton and declared rest frame; convert posture-dependent observations explicitly rather than assuming the source's pose is another pose.
 
-Model what shapes the visible surface: skeleton, palpable bony landmarks, superficial muscles, fat distribution, and craniofacial form. Hidden tissue informs formulas and is not emitted as geometry.
+Model the structures that shape the visible surface. Hidden tissue may inform a rule without being emitted as geometry. Relief or soft-tissue hypotheses need their own evidence and supported parameter range; a geometric control is not a clinical measurement by virtue of its name.
 
-Relief takes its belly size from lean mass and its visibility from the regional subcutaneous fat over it.
+Keep uncertainty visible without making clinical confirmation a gate for implementing the reference's broad silhouette and proportions. Verify inferred anatomical rules on their generated curves and surfaces when the corresponding parameters change.

@@ -47,7 +47,6 @@ import { resolvePose } from "./resolvePose";
  * @evidence contracts/performance.md#efficient-algorithms One forward-kinematics pass over the parent skeleton, linear in its bone count, then a linear search for the bone and constant composition; the full pass is needed because the bone's frame depends on every ancestor.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one pose that coordinates no work across calls; each sampled frame resolves a different pose.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the resolved bones are local to the call and the returned transform, including its copied scale, is owned by the caller.
- * @author Samchon
  */
 export const resolveAttachment: (
   parentPose: IAutoMoviePose,

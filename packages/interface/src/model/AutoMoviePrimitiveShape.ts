@@ -16,7 +16,6 @@ import { IAutoMovieSphereShape } from "./IAutoMovieSphereShape";
  * @evidence contracts/common.md#clear-and-simple-design The six shape records keep unrelated dimensions out of each arm, while mesh geometry owns free-form topology; resolution is an engine concern rather than another authoring parameter.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The union declares geometric shapes independently of fixtures or subjects; the capsule's cylindrical body and hemispherical ends retain their declared dimensions in engine tessellation.
  * @evidence contracts/common.md#meaningful-documentation States the concise recipe-versus-explicit-mesh distinction, type discriminator, metre dimensions and strict positivity, with each arm documenting its axes and parameter meaning.
- * @author Samchon
  */
 export type AutoMoviePrimitiveShape =
   | IAutoMovieBoxShape

@@ -12,8 +12,6 @@ import type * as THREE from "three";
  * @evidenceExclude contracts/performance.md#efficient-algorithms These public field projections perform no shadow-map sizing or traversal themselves.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Current renderer policy fields are inputs, not a reusable result or cache key contract.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No drawing capability, GPU context or target ownership is acquired by declaring the observer boundary.
- *
- * @author Samchon
  */
 export interface IAutoMovieShadowTextureHost {
   /** Current host shadow switch and native allocator family. */

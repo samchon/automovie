@@ -20,7 +20,3 @@ The Cornell scan states "There are no known copyright restrictions in the United
 - Foot: the outer side is lower and shorter, the inner side higher; the inner arches are successively higher, forming half of a transverse arch completed by the other foot.
 - Hand: wrist width is twice its thickness; "there is always a step-down from the back of the arm, over the wrist, to the hand"; the knuckles arch concentric around the base of the thumb; the middle knuckle is largest and highest; fingers spread radiate from the base of the thumb and their tips lie on a curve centred there; each finger segment steps down to the next, bridged by a wedge; the palmar web reaches the middle of the first phalanx; finger pads on the palm side are of equal length, so creases do not all sit opposite the joints.
 - Wrist extension and flexion each almost a right angle, "total movement... slightly less than two right angles"; the fingers cannot close when the wrist is fully flexed.
-
-## What Human takes
-
-The block-and-wedge reading of the figure (rib cage and pelvis as rigid masses that tilt, twist and bend against each other), the profile rhythm of the torso, the overlap wedges of arm and forearm masses, the arch and step-down rules of hand and foot. Each becomes a check on generated silhouettes in `../aesthetics/body.md`.

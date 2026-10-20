@@ -12,7 +12,6 @@ import { IAutoMovieAnalysisGap } from "./IAutoMovieAnalysisGap";
  * @evidence contracts/common.md#clear-and-simple-design Fixed rollup rows plus a bounded gap list and an omitted count keep the artifact readable at a glance, and the digest field seals it without a separate signature record.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Valid unsupported/not-run outcomes, stale runs, value-less metrics and unanswered required domains become gaps; malformed runs throw instead of becoming gaps. A miss outranks gaps, warnings and untargeted values do not prevent meets, and the digest covers the omitted count but not omitted gap text or each originating run seal.
  * @evidence contracts/common.md#meaningful-documentation States the status precedence and exact meaning of `meets`, the gap bound and its default, gap ordering, the omitted count, the non-blank revision, and which fields the digest covers.
- * @author Samchon
  */
 export interface IAutoMovieAnalysisReport {
   /** Schema version. */

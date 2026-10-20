@@ -14,7 +14,6 @@ import { AUTOMOVIE_GUIDE_PASSES } from "./AUTOMOVIE_GUIDE_PASSES";
  * @evidence contracts/performance.md#efficient-algorithms Membership scans at most the registry's six entries and allocates no lookup structure per request; the fixed supported population bounds the comparisons.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure membership test on one string coordinates no phases, so there is no work to share.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The six-name list is a module constant shared by all calls, and the membership test allocates nothing per call, so retention is fixed at that list.
- * @author Samchon
  */
 export const isGuidePass: (value: string) => value is AutoMovieGuidePass = (
   value: string,

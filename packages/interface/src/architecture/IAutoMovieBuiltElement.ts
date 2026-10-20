@@ -11,7 +11,6 @@ import { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
  * @evidence contracts/common.md#clear-and-simple-design Identity, kind, parent, transform, model and space only; geometry stays in models and grouping is a null model, so one node type serves both drawn members and pure frames.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Matrix failures beyond the shared round-trip tolerance are refused, including in interacting named states; small residuals and continuous intermediate configurations are outside that guarantee. A modelReference is checked as a declared id without opening its bytes here, and `space` is a semantic citation rather than an admission proof that all model geometry lies inside it. Element kind remains an open label/filter rather than a geometry generator.
  * @evidence contracts/common.md#meaningful-documentation States how lowering stages elements, what a null model means, the root and cycle rules, the transform constraints and the shear rule, and where a model id may resolve.
- * @author Samchon
  */
 export interface IAutoMovieBuiltElement {
   /** Stable element identity. */

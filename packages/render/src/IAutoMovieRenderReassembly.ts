@@ -10,7 +10,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms This interface is a data shape whose construction cost belongs to the chunk planner.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The reassembly plan coordinates no repeated work; the host runs it once after every chunk is encoded.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased reassembly interface acquires no list file or process. planChunkedSequenceRender creates chunk-count paths and concat lines retained by its caller; the host owns writing that list and the ffmpeg process and must complete their cleanup.
- * @author Samchon
  */
 export interface IAutoMovieRenderReassembly {
   /** Final video path, the whole plan's `outputPath`. */

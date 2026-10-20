@@ -24,7 +24,6 @@ import { IPerformShotProps } from "./IPerformShotProps";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record with no runtime body; its tables are built once per shot by `performShot`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record is itself the reuse: one set of tables per shot shared by every gate, discarded with the call.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Lives for one `performShot` call; its maps hold one entry per staged placement or compiled formation.
- * @author Samchon
  */
 export interface IPerformShotGateContext {
   /** Collector every gate reports into, in gate order. */

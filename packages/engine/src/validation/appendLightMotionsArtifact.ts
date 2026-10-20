@@ -28,7 +28,6 @@ import { validateUniqueIds } from "./validateUniqueIds";
  * @evidence contracts/performance.md#efficient-algorithms For C clips, T tracks and K stored scalars/times, shared admission plus key/extrema traversal is linear in those populations and message sizes; address rows and findings require O(T+F) storage.
  * @evidence contracts/performance.md#reuse-equivalent-work Shared property bounds and channel width feed both key and cubic checks, and each Hermite extremum uses the canonical evaluator; mutable clip records have no retained verdict cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only appended findings and their offending values persist in the caller array; temporary target rows, slices and roots are local and no lighting/GPU host is acquired.
- * @author Samchon
  */
 export const appendLightMotionsArtifact: (
   lightMotions: unknown,

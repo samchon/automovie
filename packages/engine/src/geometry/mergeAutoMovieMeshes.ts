@@ -49,7 +49,6 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * @evidence contracts/performance.md#efficient-algorithms Linear in total vertices and indices: one admission pass and one append pass per member, plus one hash lookup per physical vertex when any member declares physical sources.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call builds one new mesh from its members; a caller that merges the same members twice can keep the result.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns new buffers equal in size to the members' combined buffers plus one physical source table bounded by the distinct declared pairs; the pair lookup map is released on return.
- * @author Samchon
  */
 export const mergeAutoMovieMeshes = (
   meshes: readonly IAutoMovieMesh[],

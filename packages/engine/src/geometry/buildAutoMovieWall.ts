@@ -27,7 +27,6 @@ import { positive } from "./positive";
  * @evidence contracts/performance.md#efficient-algorithms For k openings the lattice has at most (2k+1)^2 cells; overlap admission is O(k^2), cut sorting O(k log k), standing classification O(k) per cell and emission constant per cell. The worst case is cubic in openings, with no workload cap or measured speed claim.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One mesh per wall description; a caller placing identical walls can keep the returned mesh.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns new position, normal and index arrays bounded by six quads per standing cell; the id set, cut lists and standing flags are released on return.
- * @author Samchon
  */
 export const buildAutoMovieWall: (props: {
   width: number;

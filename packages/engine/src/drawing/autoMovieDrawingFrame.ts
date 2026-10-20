@@ -35,7 +35,6 @@ import { AUTOMOVIE_DRAWING_EPSILON } from "./constants/AUTOMOVIE_DRAWING_EPSILON
  * @evidenceExclude contracts/performance.md#efficient-algorithms Constant time: a fixed number of checks, two cross products and two normalizations.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Called once per derived drawing for its one view, so there is no repeated request to share.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns four small vectors owned by the caller and keeps nothing.
- * @author Samchon
  */
 export const autoMovieDrawingFrame = (
   view: IAutoMovieDrawingView,

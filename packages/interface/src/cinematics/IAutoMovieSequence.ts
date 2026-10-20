@@ -17,7 +17,6 @@ import { IAutoMovieSequenceEntry } from "./IAutoMovieSequenceEntry";
  * @evidence contracts/common.md#clear-and-simple-design The sequence is an id, a name, one ordered entry list and a nominal rate; timing is derived on demand rather than stored, so there is no second copy of the timeline to keep consistent.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An invalid cut is refused by `cutSequence` with a path rather than repaired by shortening a transition or clamping a trim, and `sequenceTimeline` throws on an empty list or a missing shot instead of skipping the entry.
  * @evidence contracts/common.md#meaningful-documentation States derived timing, admission and layout responsibilities, accumulated-clock finiteness, cursor ordering premises, null names and the distinction between nominal and delivered frame rate.
- * @author Samchon
  */
 export interface IAutoMovieSequence {
   /** Stable, non-blank id. */

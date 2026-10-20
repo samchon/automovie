@@ -10,7 +10,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms This interface only shapes one span and executes no algorithm; building spans is answered on `planCaptionSidecar`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A span record shares no work between phases; it is plain data written once by the planner or the slicer.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased span type acquires no caption or frame; planCaptionSidecar and sliceCaptionSidecar produce interval records whose enclosing sidecar caller retains their beat, caption and slug strings.
- * @author Samchon
  */
 export interface IAutoMovieCaptionEntry {
   /**

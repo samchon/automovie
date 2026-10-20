@@ -32,8 +32,6 @@ import { serviceSystemReach } from "./serviceSystemReach";
  * @evidence contracts/performance.md#efficient-algorithms Node/port and segment scans plus route projection are linear in their populations, with reach inheriting its queue-removal worst case; result storage scales with selected points and nodes.
  * @evidence contracts/performance.md#reuse-equivalent-work One owner lookup resolves all selected edges and the projected edge lengths are reused for totalLength; no report survives mutable network equivalence.
  * @evidence contracts/performance.md#bound-retention-and-release-resources New drawing rows and point arrays transfer to the caller while temporary ownership/reach maps release without a source-network cache.
- *
- * @author Samchon
  */
 export const serviceNetworkSchematic: (props: {
   network: IAutoMovieServiceNetwork;

@@ -22,7 +22,6 @@ import { validateUniqueIds } from "./validateUniqueIds";
 /**
  * Admit shot/scene/camera references, performances, motion clips, metadata and delivered-camera clearance correspondence.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Admit shot/scene/camera references, performances, motion clips, metadata and delivered-camera clearance correspondence.
  * @evidence contracts/common.md#clear-and-simple-design Clip shape and metadata/light owners supply leaf checks while this entry owns scene cross references.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A null motion registry defers compiled-motion existence; performance/object-clip walks report absent slots rather than silently skipping them. Clearance rows remain metadata rather than recomputed sweeps.

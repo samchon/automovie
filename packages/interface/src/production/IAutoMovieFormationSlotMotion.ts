@@ -14,7 +14,6 @@ import { IAutoMovieFormationSlotState } from "./IAutoMovieFormationSlotState";
  * @evidence contracts/common.md#clear-and-simple-design Shares timing and easing with formation-wide motion; stored exceptions scale with authored cues and slot references, while member-query and population execution costs remain with their consumers. Hero promotion stays separate.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Slot membership is explicit and range-validated; removal is the present channel rather than deletion of the designed slot or automatic promotion to a named actor.
  * @evidence contracts/common.md#meaningful-documentation Explains sparse ownership, retained endpoints, identity before cues, shared-slot timing and the distinction from hero actors; start and end use shot-local seconds.
- * @author Samchon
  */
 export interface IAutoMovieFormationSlotMotion {
   /** Stable cue id, unique inside one shot. */

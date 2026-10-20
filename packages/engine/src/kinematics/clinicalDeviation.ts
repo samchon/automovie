@@ -19,7 +19,6 @@ import { IAutoMovieResolvedJointAngles } from "./IAutoMovieResolvedJointAngles";
  * @evidence contracts/performance.md#efficient-algorithms Three multiplications and two additions with no allocation, called once per joint per swivel candidate.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Swivel candidates have different clinical angles, so their squared neutral distances are evaluated separately without a score cache.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Three squared angle values are summed directly, allocating no vector and retaining no candidate joint.
- * @author Samchon
  */
 export const clinicalDeviation: (
   joint: IAutoMovieResolvedJointAngles,

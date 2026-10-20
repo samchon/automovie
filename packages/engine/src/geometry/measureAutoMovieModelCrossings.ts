@@ -57,7 +57,6 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * @evidence contracts/performance.md#efficient-algorithms Canonical recipe realization owns its adaptive work. Placement and boxes are linear in realized vertices; a pair whose boxes are disjoint costs one box test, and an overlapping pair runs the census in both directions, so cost follows how much the model overlaps itself, with `withinParts` adding one self census per part.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call measures one model in its current pose; a caller comparing poses keeps the rest report itself.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Holds one placed copy of each transformed mesh part's positions and one box per part for the call, and returns one small record per crossing pair; the per-direction crossing lists are released after counting.
- * @author Samchon
  */
 export function measureAutoMovieModelCrossings(
   model: IAutoMovieModel,
@@ -70,10 +69,7 @@ export function measureAutoMovieModelCrossings(
     autoMovieModelPartMatrices(model);
   const parts: IPlacedPart[] = [];
   for (const part of model.parts) {
-    if (
-      part.geometry.type !== "mesh" &&
-      part.geometry.type !== "bicubic-atlas"
-    )
+    if (part.geometry.type !== "mesh" && part.geometry.type !== "bicubic-atlas")
       continue;
     const mesh: IAutoMovieMesh = place(
       realizeAutoMovieGeometry(part.geometry).mesh,

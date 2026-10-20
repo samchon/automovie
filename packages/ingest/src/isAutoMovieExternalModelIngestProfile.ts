@@ -16,7 +16,6 @@ import type { AutoMovieExternalModelIngestProfile } from "./AutoMovieExternalMod
  * @evidence contracts/performance.md#efficient-algorithms One type check and at most four literal comparisons per call require constant time without allocating another profile inventory.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A constant-time check has nothing worth reusing.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The guard retains nothing and reads a module constant.
- * @author Samchon
  */
 export const isAutoMovieExternalModelIngestProfile: (
   value: unknown,

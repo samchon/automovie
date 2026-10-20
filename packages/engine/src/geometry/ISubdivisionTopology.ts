@@ -23,7 +23,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; the construction cost is answered on `buildSubdivisionTopology`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built once per level and read by every rule of that level.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Integer arrays linear in corners, edges and vertices of one level, held by that level until the next level is built and the subdivider returns.
- * @author Samchon
  */
 export interface ISubdivisionTopology {
   /** Number of vertices. */

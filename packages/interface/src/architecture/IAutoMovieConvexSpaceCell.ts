@@ -9,7 +9,6 @@ import { IAutoMovieHalfSpacePlane } from "./IAutoMovieHalfSpacePlane";
  * @evidence contracts/common.md#clear-and-simple-design An id and a plane list are the whole cell, and the region's union, hierarchy, and fidelity stay on `IAutoMovieBuiltSpace`, so the cell carries no bounds or vertices that could disagree with its planes.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Four planes is the minimum any bounded convex polyhedron needs, not a fixture-chosen count, and the unproven boundedness is stated in the prose rather than masked by clipping to an assumed box.
  * @evidence contracts/common.md#meaningful-documentation States that cells union into the space, the inside test and that a point on a plane counts as inside, what validation checks and does not prove, and how an unbounded cell behaves.
- * @author Samchon
  */
 export interface IAutoMovieConvexSpaceCell {
   /** Stable cell identity, unique within its logical space. */

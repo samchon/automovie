@@ -14,7 +14,6 @@ import {
  * @evidenceExclude contracts/performance.md#efficient-algorithms This result type runs no growth or arrangement algorithm; their costs belong to the respective producers.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Frame data joins one installation result and coordinates no retained cross-installation derivation cache.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Caller-owned plant and arrangement populations determine retained size; the record itself acquires no host or simulation task.
- * @author Samchon
  */
 export interface IAutoMoviePlantingFrame {
   /** Identity of the installation the frame belongs to. */

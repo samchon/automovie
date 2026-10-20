@@ -22,7 +22,6 @@ import {
  * @evidenceExclude contracts/performance.md#efficient-algorithms A type with no runtime body; the validation and lowering cost is answered on `stageScene`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One result per `stageScene` call; `compileDefinedShot` stages again only when a previous beat changes the stage, and nothing caches staged sets.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Ownership is stated per variant; the result is released with the caller's compile.
- * @author Samchon
  */
 export type IAutoMovieStagedSet =
   | IAutoMovieStagedSet.ISuccess

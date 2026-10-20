@@ -8,8 +8,6 @@ import { ViolationCollector } from "./ViolationCollector";
 
 /**
  * The first declaration of a node id, preserving its authored diagnostic location during one tree validation.
- *
- * @author Samchon
  */
 interface IIndexedNode {
   /** Borrowed node kept by the first-declaration id index. */

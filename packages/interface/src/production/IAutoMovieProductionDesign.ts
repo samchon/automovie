@@ -25,7 +25,6 @@ import type { IAutoMovieRepaintRequestEvidence } from "./capture/IAutoMovieRepai
  * @evidence contracts/common.md#clear-and-simple-design Related optional sound, repaint, tier and simulation decisions stay grouped with the global frame and art contract; their implementations and per-shot performance remain in the responsible engine and host packages.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts This record chooses no provider, asset or physical threshold on the author's behalf. Explicit-argument budget/live-soft helpers and host-supplied repaint options are distinct from automatic consumption of similarly shaped design fields; documented absent wiring is not a passed execution gate.
  * @evidence contracts/common.md#meaningful-documentation Defines production identity, shared units and limits, optional-state effects, policy ownership, explicit adoptions and the separation between deterministic technical truth and rendition delivery.
- * @author Samchon
  */
 export interface IAutoMovieProductionDesign {
   /** Non-blank stable production id; film-level acceptance targets use it. */

@@ -11,7 +11,6 @@ import { IAutoMoviePlantingSupport } from "./IAutoMoviePlantingSupport";
  * @evidence contracts/common.md#clear-and-simple-design Building responsibility and branch/leaf materials stay on the binding while independent recipe and cluster laws remain reusable outside architecture.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Semantic spaces lacking volume receive no invented containment proof; null irrigation remains an explicit unbound supply and kind does not alter growth geometry.
  * @evidence contracts/common.md#meaningful-documentation Defines architecture/cluster joins, support, nullable default materials and unresolved irrigation ownership.
- * @author Samchon
  */
 export interface IAutoMoviePlantingInstallation {
   /** Stable installation identity within the production. */

@@ -1,4 +1,4 @@
-﻿import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
 import { humanoidBoneOfName } from "../internal/humanoidBoneOfName";
 import type { IHumanoidSlot } from "./IHumanoidSlot";
@@ -17,7 +17,6 @@ import { requiredArray } from "./requiredArray";
  * @evidence contracts/performance.md#efficient-algorithms Work follows skins, their joint entries, nodes and eligible node-name text, with expected constant-time membership and slot lookups.
  * @evidence contracts/performance.md#reuse-equivalent-work Each eligible node name is resolved once; the inspector separately shares mesh/skin weight checks.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary membership sets die with the call; returned slot records are bounded by the recognized humanoid vocabulary.
- * @author Samchon
  */
 export const gltfHumanoidBones: (
   nodes: unknown[],

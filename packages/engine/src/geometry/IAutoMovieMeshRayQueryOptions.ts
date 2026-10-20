@@ -15,7 +15,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms An options record; the per-triangle set lookup it causes is part of the caster's traversal cost.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Supplied per query; a caller may reuse one set for many queries, as the body layer does per origin vertex, and the caster keeps no copy.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caster reads the caller's set during one query and never stores it, so the set lives exactly as long as the caller keeps it.
- * @author Samchon
  */
 export interface IAutoMovieMeshRayQueryOptions {
   /**

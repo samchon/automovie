@@ -14,8 +14,6 @@ import type * as THREE from "three";
  * @evidence contracts/performance.md#efficient-algorithms The handle holds one mesh and closures; actual canonical copying, same-size reuse and topology transfer cost remains with the builder.
  * @evidence contracts/performance.md#reuse-equivalent-work Equivalent buffer representation is reused in place while changed dimensions/index width transfer geometry ownership; equal domain/status alone does not authorize stale surface reuse.
  * @evidence contracts/performance.md#bound-retention-and-release-resources At most current plus one failed predecessor geometry is retained after a refused transfer, with further updates blocked; owned default material retires independently and supplied material stays borrowed.
- *
- * @author Samchon
  */
 export interface IAutoMovieSoftBodyObject {
   /** Add this mesh to the current scene. */

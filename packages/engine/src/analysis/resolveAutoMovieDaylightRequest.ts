@@ -41,7 +41,6 @@ const EPSILON: number = 1e-12;
  * @evidence contracts/performance.md#efficient-algorithms Linear in the context, luminaires L, shades with their planes, and targets, with hashed id uniqueness; the grid cell count is checked by one product instead of enumerating cells.
  * @evidence contracts/performance.md#reuse-equivalent-work The instant lookup and the frame normalization are done once here and handed to the analyzer, which reuses them for every cell instead of repeating them.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The luminaire id set and the context validation result are call-local; the returned record holds three new vectors and a reference to the context's instant, owned by the caller.
- * @author Samchon
  */
 export const resolveAutoMovieDaylightRequest: (
   request: IAutoMovieDaylightRequest,

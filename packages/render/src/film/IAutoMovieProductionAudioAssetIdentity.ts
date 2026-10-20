@@ -22,7 +22,6 @@ import type { IAutoMovieProductionAudioAssetIdentityBase } from "./IAutoMoviePro
  * @evidenceExclude contracts/performance.md#efficient-algorithms A union type runs no algorithm; validation cost is answered on `normalizeAudioAssets` and `validWaveAudioIdentity`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The provenance union is data passed into one planning call; deciding whether two decoded assets are the same is the digest's job, not this type's.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources An asset identity references no file or decoder handle; the plan's `tracks.audioAssets` copy owns each instance for the plan's lifetime.
- * @author Samchon
  */
 export type IAutoMovieProductionAudioAssetIdentity =
   IAutoMovieProductionAudioAssetIdentityBase &

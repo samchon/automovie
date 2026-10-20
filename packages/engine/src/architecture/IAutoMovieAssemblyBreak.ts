@@ -13,7 +13,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms An interface with no runtime body; the matcher fills it during its single pass over each side's layers, and that linear cost is answered on `matchAutoMovieAssemblyJunction`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each break is a new record per junction query and the engine caches no junction answer, so there is no completed work this shape could let a later call share.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds one string, one side literal and one number by value; the junction's `broken` array is its only owner and it references no layer record.
- * @author Samchon
  */
 export interface IAutoMovieAssemblyBreak {
   /** The role only one side declares. */

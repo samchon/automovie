@@ -9,7 +9,6 @@ import { AutoMovieBuiltPlacementBodyLocator } from "./AutoMovieBuiltPlacementBod
  * @evidence contracts/common.md#clear-and-simple-design A union over the existing body locator plus one arm, so a support may be any body the overlap queries already address or an authored surface, without a parallel element or population arm.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Multi-part selection minimizes absolute top-to-subject-underside distance among strictly overlapping XZ boxes, retaining the first equal-distance candidate; it can choose a part above the underside. With no positive-area overlap it uses the first part for the subsequent probe, not an invented union face. A surface with no convex footprint piece is unresolved, and all faces remain static box/height proxies rather than physical load-bearing certificates.
  * @evidence contracts/common.md#meaningful-documentation States how each arm finds its bearing face, the part choice for multi-part elements including the no-overlap case, and when a surface support is unresolved.
- * @author Samchon
  */
 export type AutoMovieBuiltPlacementSupportLocator =
   | AutoMovieBuiltPlacementBodyLocator

@@ -4,7 +4,7 @@ Weinberg SM, Raffensperger ZD, Kesterke MJ, et al. "The 3D Facial Norms Database
 
 ## Licence
 
-Summary-level data are "non-controlled and open to all users" under the FaceBase Terms of Use and Data Use Certification, with attribution to FaceBase and NIDCR grant U01-DE020078. Individual-level data and the 2,454 surfaces are controlled access and are not used. Means and SDs are facts; Human may cite them as named constants.
+Summary-level data are "non-controlled and open to all users" under the FaceBase Terms of Use and Data Use Certification, with attribution to FaceBase and NIDCR grant U01-DE020078. Individual-level data and the 2,454 surfaces are controlled access and are not used. Means and SDs are facts;
 
 ## Population and protocol
 
@@ -89,10 +89,6 @@ Pooled with the exact formula N = Σn, M = Σ(n·m)/N, V = Σ((n-1)s² + n(m-M)�
 | Nasal protrusion | 13.8 (1.1) | 14.1 (1.3) | 15.5 (1.3) | 15.5 (1.2) | 17.3 (1.9) | 16.9 (1.3) | 20.4 (1.6) | 18.5 (1.4) |
 | Nasal height | 40.9 (3.3) | 40.7 (2.8) | 45.8 (3.9) | 44.9 (3.0) | 50.0 (4.0) | 48.4 (2.6) | 54.5 (3.2) | 51.1 (3.8) |
 | Labial fissure width | 36.2 (3.1) | 34.3 (3.3) | 37.9 (3.0) | 37.2 (3.0) | 42.9 (3.0) | 42.5 (4.0) | 45.1 (5.2) | 45.0 (3.2) |
-
-## What Human takes
-
-The default adult and child face and vault for European ancestry, and the growth shape of each measure from 3 to 40: the cranium is about 88 percent of adult length at age 3 while morphological face height is about 73 percent, nose protrusion 66 percent and mouth width 71 percent, so the face grows out of a large vault. Every 3D measure is a straight landmark distance, so a generated surface is checked by the same distance, not a projection.
 
 ## Limits
 

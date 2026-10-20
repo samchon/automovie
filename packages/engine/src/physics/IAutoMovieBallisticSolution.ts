@@ -10,7 +10,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms The type has constant-size storage and no algorithm; launch solution and moving-target iteration cost belong to their producers.
  * @evidence contracts/performance.md#reuse-equivalent-work compileLaunch reuses the velocity/time for trajectory and landing evaluation rather than solving again; the type introduces no trajectory cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the result vector/record, with no persistent solver workspace or running simulation task.
- * @author Samchon
  */
 export interface IAutoMovieBallisticSolution {
   /** Initial world velocity in metres/second; its magnitude is the requested launch speed within solver precision. */

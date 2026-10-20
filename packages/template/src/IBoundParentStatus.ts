@@ -8,8 +8,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms The held parent status record declaration chooses no executable algorithm.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The held parent status record type coordinates no request or cached work.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The held parent status record schema acquires no runtime handles, bytes or tasks.
- *
- * @author Samchon
  */
 export interface IBoundParentStatus {
   /** Whether the held handle names a directory rather than a child file or unsupported entry. */

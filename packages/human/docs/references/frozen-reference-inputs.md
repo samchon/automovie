@@ -1,6 +1,6 @@
 # Frozen reference input ledger
 
-The four reference meshes seed representation research. They do not establish Human's anatomical equations, clinical correspondence, population coverage or completed appearance. Read this ledger before comparing a source observation with a detailed Human measurement.
+The four reference meshes seed representation research. They do not establish Human's anatomical equations, clinical correspondence, population coverage or completed appearance.
 
 ## Authoring inputs
 
@@ -45,9 +45,9 @@ A bbox extent uses every exported component's extrema. The native Height definit
 
 Rig joint centres, source API controls, extrema and clinical surface landmarks remain distinct observations. Final API arrays contain 85, 79, 90 and 84 points in the table's subject order. Equal numeric indices do not establish shared anatomical meaning. The historical nearest-vertex correspondence record uses older V3 geometry for the two additional identities, so it does not qualify their frozen V5C/V4 correspondence. A zero nearest-vertex residual proves contact with the recorded version's mesh, not clinical identity.
 
-A geometric section records its physical plane, component selection, contour identity and orientation. It becomes an anatomical measurement only after its landmark, posture and tissue or tape protocol are established. Preserve multiple loops, cavities, contacts and unknown correspondence. Skin arclength and convex-tape perimeter are separate observations. An A-pose cut cannot silently become a T-pose or clinical cut.
+A geometric section records its physical plane, component selection, contour identity and orientation. It becomes an anatomical measurement only after its landmark, posture and tissue or tape protocol are established. Multiple loops, cavities and contacts are separate observations. Skin arclength and convex-tape perimeter are separate observations. An A-pose cut cannot silently become a T-pose or clinical cut.
 
-All four identities have already been exposed to fitting. More sections add geometric observations, not independent people. Leave-one-identity-out analysis probes seed sensitivity; it does not create an untouched identity reserve. Reserve physical intervals, oblique directions and later independent identities before fitting shared rules. The earlier research's muscular reference set and ratios do not describe this fixed four-person set.
+All four identities have already been exposed to fitting. More sections add geometric observations, not independent people. Leave-one-identity-out analysis probes seed sensitivity; it does not create an untouched identity reserve. The earlier research's muscular reference set and ratios do not describe this fixed four-person set.
 
 ## Provenance
 

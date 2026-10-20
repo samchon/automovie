@@ -28,7 +28,6 @@ import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A function signature with no body; the engine calls it once per lattice cell, at most one million cells per zone.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A signature with no body; the engine never memoizes a cell because each cell is visited exactly once per run.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A signature with no body; the engine keeps none of the returned arrays after copying each candidate's centre and size into a placement.
- * @author Samchon
  */
 export type AutoMovieSurfacePatternGenerator = (cell: {
   /** Integer lattice column along the face's U axis. */

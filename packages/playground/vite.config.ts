@@ -32,7 +32,6 @@ export default defineConfig({
         showcase: resolve(__dirname, "showcase.html"),
         impact: resolve(__dirname, "impact.html"),
         trampoline: resolve(__dirname, "trampoline.html"),
-        human: resolve(__dirname, "human.html"),
       },
     },
   },

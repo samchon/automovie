@@ -7,7 +7,6 @@ import { AutoMovieRenderMetric } from "./AutoMovieRenderMetric";
  * @evidence contracts/common.md#clear-and-simple-design Metric, bound and observed value explain one disagreement without embedding the complete report or choosing a new production limit.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing or duplicate report bounds and null, nonfinite or negative observations remain unchecked rather than assumed agreement; drawing less is valid after culling and does not create a breach. The comparison accepts supplied numbers without verifying report status, target freshness, digest authenticity or renderer provenance; current audit callers are tests.
  * @evidence contracts/common.md#meaningful-documentation Defines report-bound versus actual renderer value and the strict-over-bound breach condition.
- * @author Samchon
  */
 export interface IAutoMovieRenderObservationBreach {
   /** Metric whose observation exceeded its bound. */

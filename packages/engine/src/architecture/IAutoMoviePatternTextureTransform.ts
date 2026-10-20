@@ -11,7 +11,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms No code; each transform is constant-time, answered on `autoMoviePatternTextureTransforms`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Computed per call against one material sheet and tile size, both inputs, so no transform is kept for another call.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Fresh numbers and an id string, owned by the texturing result's `transforms` array.
- * @author Samchon
  */
 export interface IAutoMoviePatternTextureTransform {
   /** Occurrence id, `"<zone>/<module>"`, this transform samples for. */

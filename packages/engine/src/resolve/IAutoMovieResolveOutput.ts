@@ -12,7 +12,6 @@ import { IAutoMovieResolveViolation } from "./IAutoMovieResolveViolation";
  * @evidence contracts/performance.md#efficient-algorithms Output grows with N composed nodes, sampled weights, crossed components and deferred drivers; matrix storage is sixteen numbers per node.
  * @evidence contracts/performance.md#reuse-equivalent-work Completed frame maps are returned directly; a changed time, graph, policy or spring state requires new resolution rather than identity-only reuse.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns result maps/arrays for its frame lifetime; no native buffer, GPU node or asynchronous task is retained by the type.
- * @author Samchon
  */
 export interface IAutoMovieResolveOutput {
   /** Node id → world matrix (`number[16]`, column-major). */

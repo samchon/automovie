@@ -58,7 +58,6 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * @evidence contracts/performance.md#efficient-algorithms For f first and s second triangles, the second hierarchy costs O(s log^2 s) and each first triangle collects only candidates whose boxes overlap its own, sorting them in O(k log k), with a constant-time narrow phase per candidate; the default mode stops at the first transverse witness.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call measures one pair of meshes in their current positions; the model census calls it per part pair and nothing is cached across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Holds both meshes' triangle records and the second hierarchy for the call and returns one record per crossing; the point classifier receives a fresh array per strict intersection only when supplied.
- * @author Samchon
  */
 export function measureAutoMovieMeshCrossings(
   first: IAutoMovieMesh,

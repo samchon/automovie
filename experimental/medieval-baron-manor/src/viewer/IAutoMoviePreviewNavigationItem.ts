@@ -2,8 +2,6 @@
 
 /**
  * One authored room, object, or camera destination.
- *
- * @author Samchon
  */
 export interface IAutoMoviePreviewNavigationItem {
   /** Stable authored destination passed to the apply callback. */

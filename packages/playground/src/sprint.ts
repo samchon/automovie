@@ -13,8 +13,6 @@ import { run } from "./run";
  * @evidence contracts/performance.md#efficient-algorithms Five base keys over nine cycles produce thirty-seven keys after seam removal with O(CK) baking work/storage; later playback/FK/rendering stays consumer work.
  * @evidence contracts/performance.md#reuse-equivalent-work One base run supplies all repeated articulation and one carried stride period, while each output root is newly placed; no cross-call model/clip cache is retained.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns travel keys/roots and borrowed base joint arrays for playback; this wrapper acquires no timer, worker, solver task or renderer handle.
- *
- * @author Samchon
  */
 export const sprint: (sk: string) => IAutoMovieMotion = (
   sk: string,

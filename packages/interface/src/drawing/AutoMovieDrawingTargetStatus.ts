@@ -7,6 +7,5 @@
  * @evidence contracts/common.md#clear-and-simple-design Two literals keep the outcome binary; the specific cause lives in the record's `reason`, so consumers branch once and read the text only when they need it.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A target that no longer resolves is never moved to the nearest surviving feature; it is reported stale with its position withheld.
  * @evidence contracts/common.md#meaningful-documentation Lists every cause of `stale` and states what a stale record keeps and loses.
- * @author Samchon
  */
 export type AutoMovieDrawingTargetStatus = "resolved" | "stale";

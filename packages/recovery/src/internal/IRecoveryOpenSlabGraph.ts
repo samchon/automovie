@@ -20,7 +20,6 @@ export namespace IRecoveryOpenSlabGraph {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A record executes no operation.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record owns no cache.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The query caller owns these transient supports.
-   * @author Samchon
    */
   export interface Arc {
     /** Supporting original source faces, discarded before publication. */
@@ -40,7 +39,6 @@ export namespace IRecoveryOpenSlabGraph {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A record performs no graph computation.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The result retains no source cache.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns these small ordinal arrays and strings.
-   * @author Samchon
    */
   export interface Result {
     /** Ordinary local arc correspondence; reversal is relative to both saved directions. */
@@ -63,7 +61,6 @@ export namespace IRecoveryOpenSlabGraph {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A record performs no admission.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Reuse belongs to prepare.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The extraction caller retains source ownership.
-   * @author Samchon
    */
   export interface Source {
     /** Original finite millimetre positions; never returned. */
@@ -89,7 +86,6 @@ export namespace IRecoveryOpenSlabGraph {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A record computes no query.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The query borrows one prepared immutable source.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns transient support sets.
-   * @author Samchon
    */
   export interface Query {
     /** Finite increasing physical section coordinates, in millimetres. */

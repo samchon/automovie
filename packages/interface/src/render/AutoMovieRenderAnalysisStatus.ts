@@ -10,6 +10,5 @@
  * @evidence contracts/common.md#clear-and-simple-design Two closed gap states separate capability absence from execution absence without mixing either with measured budget outcomes.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Neither state is coerced to zero or within, so absent texture dimensions or unsupported physical rendering cannot produce a false clearance.
  * @evidence contracts/common.md#meaningful-documentation Defines unsupported versus not-run and their nonnumeric, nonpassing effect on budget reporting.
- * @author Samchon
  */
 export type AutoMovieRenderAnalysisStatus = "unsupported" | "not-run";

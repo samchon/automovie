@@ -31,7 +31,6 @@ import type { IAutoMovieHeadlessCaptureSession } from "./IAutoMovieHeadlessCaptu
  * @evidence contracts/performance.md#efficient-algorithms Creation costs one navigation, at most two hook waits and one style injection; each frame costs one seek plus, for P distinct passes, at most P pass switches, P screenshots and P writes, which is the minimum because every pass is a distinct picture; folding repeats keeps P from counting a pass twice.
  * @evidence contracts/performance.md#reuse-equivalent-work The loaded route, the hook checks, the injected style and the locator are produced once and shared by every frame, and the single seek per frame is shared by all of its passes; screenshots are never shared because each frame and pass is a different picture.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The session closures retain options, page and folded passes for as long as the session is held; close delegates page-resource release but does not clear those JavaScript references. Under the required non-overlapping captures, at most one screenshot buffer is in flight, becoming collectable after its awaited write; the writer may independently retain bytes or files. This adapter adds no timeout, cancellation or automatic failure teardown.
- * @author Samchon
  */
 export const createHeadlessCaptureAdapter: (
   options: IAutoMovieHeadlessCaptureOptions,

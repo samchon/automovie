@@ -1,4 +1,4 @@
-﻿import type { IAutoMovieExternalModelResource } from "../IAutoMovieExternalModelResource";
+import type { IAutoMovieExternalModelResource } from "../IAutoMovieExternalModelResource";
 import { compareCodeUnits } from "./compareCodeUnits";
 import { object } from "./object";
 
@@ -22,7 +22,6 @@ const externalUri: (value: unknown, path: string) => string | null = (
  * @evidence contracts/performance.md#efficient-algorithms B buffers and I images cause B+I expected map operations over exact URI strings; U distinct resources require O(U log U) comparisons, each scanning at most the compared shared prefix, with string identity/hash work dependent on URI text.
  * @evidence contracts/performance.md#reuse-equivalent-work One map coordinates exact URI conflict checks and the final unique inventory; repeated declarations replace their scalar row, while byte resolution remains a separate effectful payload owner.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only U scalar resource records survive in the result; the temporary map retains no resident sidecar bytes.
- * @author Samchon
  */
 export const collectExternalResources: (
   buffers: unknown[],

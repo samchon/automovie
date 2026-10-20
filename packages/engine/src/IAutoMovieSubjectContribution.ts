@@ -54,7 +54,6 @@ import type {
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape; merging costs one pass over every contributed element, answered on `mergeAutoMovieSubjectContributions`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A contribution is produced per render call for one shot context and no operation on this type keys or shares it across shots.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Read-only arrays owned by the subject that returned them; their size is whatever the subject authored, with no bound of its own, and the merge copies element references out.
- * @author Samchon
  */
 export interface IAutoMovieSubjectContribution {
   /** Source-authored models this subject makes available to the shot. */

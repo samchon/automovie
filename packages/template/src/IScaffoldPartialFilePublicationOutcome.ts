@@ -10,7 +10,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms The partial variant reports a count and an identity and computes neither.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A partial slot is the effect of one write; there is no equivalent work to share with another.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This record acquires no handle; the adapter attempts release before reporting and preserves any close failure, which cannot establish that the native handle was released.
- * @author Samchon
  */
 export interface IScaffoldPartialFilePublicationOutcome {
   /**

@@ -19,7 +19,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms Nine multiplications and nine additions, so there is no algorithm to choose.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Eighteen arithmetic operations per corner; the reusable unit is a part tessellation, which the design index already caches upstream.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Reads the matrix without keeping a reference and hands the new corner to the triangle or feature that requested it.
- * @author Samchon
  */
 export const transformAutoMovieDrawingPoint = (
   matrix: readonly number[],

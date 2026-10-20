@@ -6,8 +6,6 @@ import type { IWallFace } from "./IWallFace";
  * An emitting space owner's solid record, transported to house assembly, material binding, measurements and the viewer. Geometry uses right-handed Y-up world metres; the record preserves the caller's identity, source ownership, surface role, colour and mesh rather than assigning or producing a second surface.
  *
  * Room owners supply their floor and ceiling finishes; envelope, roof, porch, site and chimney owners supply their own bodies. Optional wall data carries that body's rough openings, while pendingMapGround records a provisional displayed bottom rather than resolving terrain contact. This erased helper represents supplied geometry and allocates no runtime resource.
- *
- * @author Samchon
  */
 export interface IHousePart {
   /** Emitted part address used by the mesh and boundary census. */

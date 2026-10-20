@@ -16,49 +16,35 @@ import type { IAutoMovieSequenceRenderAdapters } from "./IAutoMovieSequenceRende
  * @evidenceExclude contracts/performance.md#efficient-algorithms The sequence inspection request declares data and chooses no runtime algorithm; its producer documents construction cost.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work This erased request shares no host effects; renderSequenceAndSee owns one planning/capture invocation over its caller-supplied shots, spec and adapters.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased sequence request opens no host resource; renderSequenceAndSee borrows its sequence/spec/adapters and the supplied implementations retain cleanup ownership.
- *
- * @author Samchon
  */
 export interface IAutoMovieSequenceRenderAndSeeRequest {
   /**
    * Sequence being rendered.
-   *
-   * @author Samchon
    */
   sequence: IAutoMovieSequence;
 
   /**
    * Committed shots referenced by the sequence.
-   *
-   * @author Samchon
    */
   shots: IAutoMovieShot[];
 
   /**
    * Render parameters whose target must equal `sequence.id`.
-   *
-   * @author Samchon
    */
   spec: IAutoMovieRenderSpec;
 
   /**
    * Directory where captured frames are written.
-   *
-   * @author Samchon
    */
   frameDir: string;
 
   /**
    * Requested encoded video path.
-   *
-   * @author Samchon
    */
   outputPath: string;
 
   /**
    * Capture and encode adapters owned by the host.
-   *
-   * @author Samchon
    */
   adapters: IAutoMovieSequenceRenderAdapters;
 }

@@ -29,7 +29,6 @@ export namespace AutoMovieRecoveryOpenContinuation {
    * @evidenceExclude contracts/performance.md#efficient-algorithms This record performs no traversal.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work This record owns no cache.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns returned arrays.
-   * @author Samchon
    */
   export interface Continuation {
     /** Versioned observation policy; station generation keeps the original bundle policy. */

@@ -12,7 +12,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record of two numbers with no runtime code.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record type with no runtime code; the one dew point derived from it is shared by every assembly's condensation margin.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Two numbers owned by the envelope request; nothing is retained from them.
- * @author Samchon
  */
 export interface IAutoMovieIndoorCondition {
   /** Dry-bulb air temperature in degrees Celsius; finite. */

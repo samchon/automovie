@@ -8,7 +8,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record of three strings chooses no algorithm; capture cost belongs to the functions that build it.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record is the reused value itself; `ensureScaffoldFileDirectory` decides when a cached one may be reused.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The record holds three strings and no descriptor; the descriptor that produced the identity is closed before the record exists.
- * @author Samchon
  */
 export interface IScaffoldPhysicalDirectory {
   /**

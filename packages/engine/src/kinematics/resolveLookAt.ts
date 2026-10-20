@@ -82,7 +82,6 @@ const GAZE_CHANNELS: ReadonlySet<AutoMovieArkitChannel> = new Set([
  * @evidence contracts/performance.md#efficient-algorithms Linear in the pose's joints and the expression's blendshapes: one pass to read the eight channel weights, one to strip them, and one to rewrite at most two joints.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure per-sample conversion that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the returned sample is owned by the caller and borrows the unchanged parts of the input.
- * @author Samchon
  */
 export const resolveLookAt: (
   sample: IAutoMovieMotionSample,

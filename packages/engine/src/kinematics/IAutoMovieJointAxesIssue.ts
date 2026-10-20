@@ -14,7 +14,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A located issue record; the per-axis validation pass that fills it is constant work for three axes.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built per validation call; nothing is cached.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Two strings and a reference to the offending value, at most a handful per basis, released with the caller's report.
- * @author Samchon
  */
 export interface IAutoMovieJointAxesIssue {
   /**

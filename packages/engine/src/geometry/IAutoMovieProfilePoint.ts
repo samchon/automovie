@@ -15,7 +15,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A two-number record with no runtime body.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work An authored value; builders copy it into their own buffers and share nothing through it.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Two numbers owned by whoever authored the profile; builders keep no reference after emitting geometry.
- * @author Samchon
  */
 export interface IAutoMovieProfilePoint {
   /** First profile coordinate in metres, mapped by the consuming builder. */

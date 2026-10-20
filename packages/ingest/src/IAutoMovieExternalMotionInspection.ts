@@ -13,7 +13,6 @@ import type { IAutoMovieExternalMotionNodeInspection } from "./IAutoMovieExterna
  * @evidenceExclude contracts/performance.md#efficient-algorithms The motion record is a result type with no code.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Motion facts are a data shape; the inspector shares decoded accessors while building them.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retained size is proportional to nodes and keyframe values, owned by the inspection result; no handle or task.
- * @author Samchon
  */
 export interface IAutoMovieExternalMotionInspection {
   /** Path whose suffix selected the decoder, repeated for adoption checks. */

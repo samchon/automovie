@@ -14,8 +14,6 @@ import { IAutoMovieClip, IAutoMovieNode } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms This bridge record performs no bake; motionToClip chooses the clock and builds track values.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The hierarchy and clip share node-address semantics but the result type defines no cross-actor or cross-bake cache.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns node and track arrays sized by skeleton and sample counts; the bridge retains no GPU object or playback task.
- *
- * @author Samchon
  */
 export interface IAutoMovieMotionClipBridge {
   /** The baked clip: rotation tracks per articulated bone (+ root TRS). */

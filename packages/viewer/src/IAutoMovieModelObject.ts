@@ -17,8 +17,6 @@ import type { IAutoMovieViewerFrame } from "./IAutoMovieViewerFrame.js";
  * @evidenceExclude contracts/performance.md#efficient-algorithms The built-model shape performs no object traversal or forward kinematics.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Maps expose existing runtime identity but the type coordinates no build cache or asynchronous request.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Builders or importing hosts own root geometry/material lifetime; this interface creates no loop, renderer or loaded asset.
- *
- * @author Samchon
  */
 export interface IAutoMovieModelObject {
   /** Root group; add this to a scene (or a node group) to display the model. */

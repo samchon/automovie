@@ -18,8 +18,6 @@ import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
  * @evidence contracts/performance.md#efficient-algorithms Five bounded poses/keys require constant construction; consumer motion sampling/FK and any rendered model complexity retain their separate costs.
  * @evidence contracts/performance.md#reuse-equivalent-work Factories consistently share the authored phase formulas within this call, while fresh mutable pose/joint arrays avoid a hidden cross-call cache. Travel wrappers reuse the resulting base clip during baking.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned clip owns local frame/pose records and acquires no timer, player, worker or GPU object; page and travel consumers own any longer-lived clips/playback.
- *
- * @author Samchon
  */
 export const walk: (sk: string) => IAutoMovieMotion = (
   sk: string,

@@ -7,7 +7,6 @@ import { IAutoMovieGeneratedMeasurementProxy } from "./IAutoMovieGeneratedMeasur
  * @evidence contracts/common.md#clear-and-simple-design The kind union distinguishes external byte ownership from inline builder parameters without duplicating the measurement recipe union.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing bytes and invalid dimensions have no automatic admission or repair through this type. The metadata supplies no appearance-mesh inference, skeletal reach or actor-root distance measurement.
  * @evidence contracts/common.md#meaningful-documentation Defines the two ownership paths, exact typed JSON asset reference and generated recipe selection.
- * @author Samchon
  */
 export type IAutoMovieMeasurementProxyReference =
   | {

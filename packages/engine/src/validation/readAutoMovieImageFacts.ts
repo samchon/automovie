@@ -3,7 +3,6 @@ import { IAutoMovieTextureImageFacts } from "./IAutoMovieTextureImageFacts";
 /**
  * Probe PNG, JPEG, WebP and Radiance dimension headers in order, returning media/edge facts or null.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Probe PNG, JPEG, WebP and Radiance dimension headers in order, returning media/edge facts or null.
  * @evidence contracts/common.md#clear-and-simple-design Small header readers avoid full pixel decoding for texture-ledger metadata.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A recognized header does not certify checksums, complete payloads or decodability; malformed bytes outside the inspected prefix can remain undetected.

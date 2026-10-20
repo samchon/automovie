@@ -14,7 +14,6 @@ import { IAutoMovieLight } from "./IAutoMovieLight";
  * @evidence contracts/common.md#clear-and-simple-design One production light population and motion list establish cross-shot authority without duplicating a clock or repeating the same source on every shot.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unpinned shots inherit no invented epoch state, and absent production lighting preserves the shot-only path; motion ids and channels still owe existing light admission.
  * @evidence contracts/common.md#meaningful-documentation Defines epoch state, story-second channels, pin mapping, omission and current opening-only inheritance; shot-local tracks own continued animation.
- * @author Samchon
  */
 export interface IAutoMovieProductionLighting {
   /** Stable id. */

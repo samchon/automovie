@@ -37,8 +37,6 @@ const SALT_LEAF_ROLL: number = 0x726f6c6c;
  * @evidence contracts/performance.md#efficient-algorithms For B visited branches, C child definitions, L leaves and depth D, emission costs O(B*C+L) scalar work plus O(B*D+L*D) path-id/string storage; final stem support/leaf-card envelope takes O(B+L) time and constant extra live storage.
  * @evidence contracts/performance.md#reuse-equivalent-work Child path keys make random draws independent of unrelated emission order; the same parent full length is reused by its children and one leaf alignment is reused for its blades. Changed stages/pruning/recipe values require a fresh derivation without a tree cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources All output arrays and complete recipe-local canopy bounds belong to the caller; recursion is bounded by admitted depth, temporary frames and rotated corners are local, and cap failure retains no partially published tree or host task.
- *
- * @author Samchon
  */
 export const growPlanting: (
   domain: IAutoMoviePlantingDomain,

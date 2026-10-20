@@ -13,7 +13,3 @@ Documentation under Epic's terms; technique reference only.
 - Flyaways are single-strand cards for detail.
 - Card textures form an atlas of texture islands; the number of unique islands per filter is a setting; textures can be compressed along the strand direction.
 - Each LOD is its own generation setting.
-
-## What Human takes
-
-Card structure (clumps of three, curvature-adaptive segments, flyaways) and the atlas idea, generated from style formulas instead of strands (`../techniques/hair-cards.md`).

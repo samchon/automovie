@@ -10,7 +10,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Three variants avoid optional payloads; domain admission refuses an empty observed list even though string[] can express one. Non-observed attempts go to skipped by status; an observed attempt's candidates still pass their separate ordered promotion gates, so observed does not itself imply promoted geometry.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The three status literals are the contract's discriminants, and `promoteDesignObservations` copies a non-observed reason verbatim into `skipped` instead of rewording or dropping it.
  * @evidence contracts/common.md#meaningful-documentation States which variant carries readings, how unsupported differs from not-run, that candidates come from the analysed frame only and are named once, and that reasons are non-blank.
- * @author Samchon
  */
 export type IAutoMovieDesignAnalysisOutcome =
   | {

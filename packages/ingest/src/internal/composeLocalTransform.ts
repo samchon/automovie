@@ -18,7 +18,6 @@ import type { IAutoMovieTransform } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms Fixed scalar arithmetic allocates one transform with three component records and no intermediate vectors, independent of rig size.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A constant-time pure function has nothing worth caching; callers fold each helper once per bone.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The function retains nothing; its single result object belongs to the caller.
- * @author Samchon
  */
 export const composeLocalTransform: (
   parent: IAutoMovieTransform,

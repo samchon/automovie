@@ -16,7 +16,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record; the per-point enclosure, linear in the point count, is answered on `measureAutoMovieProjectionIntervals`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Produced per direction and consumed at once by the separation or contact bound that asked for it.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Owns one two-number tuple per input point and no reference to the points, so its size is the caller's point count and it is dropped by the bound that consumes it.
- * @author Samchon
  */
 export interface IAutoMovieProjectionIntervals {
   /**

@@ -12,7 +12,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record; costs are on `rigAutoMovieSurfaceCurve`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record; it is the reuse.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A record owned by its rig.
- * @author Samchon
  */
 export interface IAutoMovieSurfaceCurveRig {
   /**

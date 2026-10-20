@@ -10,7 +10,6 @@
  * @evidence contracts/performance.md#efficient-algorithms Each collider is a fixed scalar/string row; resolving C attachments and testing J joints against them costs work in the world pass/spring owner.
  * @evidence contracts/performance.md#reuse-equivalent-work All springs in the frame share the completed world-space collider population; changed world transforms require new centre resolution.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The input caller owns collider descriptors, with no collision handle, mesh, worker or task retained by this type.
- * @author Samchon
  */
 export interface IAutoMovieSpringCollider {
   /** Node whose world position centers the sphere. */

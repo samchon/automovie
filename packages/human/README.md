@@ -1,60 +1,28 @@
 # @automovie/human
 
-Generates a human figure from typed measurements and appearance parameters, returning an `IAutoMovieModel` for the automovie engine and viewer. Use beginner traits for a default person or an `IAutoMovieHumanIdentity` for detailed measurements.
+Human currently contains parameter types and closed value enums. It has no geometry generator, converter, editor, validator, measurement implementation or viewer connection.
 
-## Installation
+## Body parameters
 
-Requires Node.js 22.23.2 or later.
+`IAutoMovieHumanBodyParameters` is the primary body-authoring document. It separates 28 named control values with pins, 25 independent course measurements and two read-only height diagnostics. Unknown values are null.
 
-```bash
-pnpm add @automovie/human
-```
-
-## Usage
-
-The [Human viewer](../playground/src/human/installHumanViewerSession.ts) uses this conversion and model-generation flow with the [default traits](../playground/src/human/HumanViewerPage.ts):
-
-```typescript
-import {
-  AutoMovieHuman,
-  AutoMovieHumanConverter,
-  IAutoMovieHumanTraits,
-} from "@automovie/human";
-
-const traits: IAutoMovieHumanTraits = {
-  version: 1,
-  sex: "female",
-  age: 30,
-  stature: null,
-  population: "european",
-  build: { adiposity: 0, muscularity: 0, slimness: 0, cuteness: 0 },
-};
-const converter = new AutoMovieHumanConverter();
-const human = AutoMovieHuman.fromTraits({ id: "human", traits, converter });
-const identity = human.getIdentity();
-const appearance = converter.toAppearance(traits);
-const model = human.getModel({
-  appearance,
-  assembly: "parts",
-  skinFinish: "plain",
-});
-```
-
-Save the identity and appearance to reproduce a person; traits alone depend on the converter version. Restore with `new AutoMovieHuman({ id, identity })`. Identity measurements use millimetres; the emitted model and skeleton use metres. `getModel()` defaults to isolated part skin and authored skin finish; `assembly: "joined"` joins the skin, while `skinFinish: "plain"` skips generated skin detail textures.
-
-## API
-
-| API | Purpose |
+| Group | Channels |
 | --- | --- |
-| `AutoMovieHuman.fromTraits({ id, traits, converter? })` | Convert beginner traits into a person |
-| `new AutoMovieHuman({ id, identity, parts? })` | Build from detailed measurements, optionally replacing part generators |
-| `getIdentity()`, `getSkeleton()`, `measure()` | Read the saved identity, engine skeleton and skeletal measurements |
-| `getModel({ appearance, assembly?, skinFinish? })` | Generate the model, materials and images |
-| `pose({ pose })`, `express({ expression })` | Convert Human documents into engine pose and expression documents |
-| `validateAutoMovieHuman*` | Validate input documents and return typia `IValidation` results |
+| Global | Height, Fat, Masculine/Feminine, Muscularity |
+| Upper torso | Chest, Bust Span, Underbust, Front Interscye Length, Neck to Waist, Across Shoulder, Shoulder to Apex |
+| Lower torso | Waist, Hip, High Hip |
+| Neck | Neck Base, Neck, Neck Length |
+| Arms | Upper Arm Length, Lower Arm Length, Bicep, Elbow, Wrist, Forearm |
+| Legs | Inseam, Thigh, Knee, Calf |
+| Hands | Hand Circumference |
+| Diagnostics | Rise, Shoulder Height; read-only |
 
-Invalid documents throw `AutoMovieHumanAdmissionError` from construction and document-consuming methods; its `errors` identify refused fields and causes. The [public entry](src/index.ts) also exports document types, measurement functions, part generators and junction utilities.
+All length values use mm. Fat, Masculine/Feminine and Muscularity are unitless authoring coordinates, not clinical composition or the older traits' normalized offsets. Source-unit conversion belongs at an import boundary; there is no public alternative length unit.
 
-## Limitations
+A control value is not an independent measurement. A pin states that the authored value should be fixed by a future implementation; no current code edits values, fits constraints or checks feasibility. UI ranges and request history are not part of the body document. Course names alone do not establish clinical landmarks, posture conversion or left/right correspondence.
 
-Human is incomplete. Joined skin uses provisional distance-based weights, `express()` returns a neutral expression, and teeth and underwear are not emitted. The default converter does not yet apply `build.cuteness`. Generated form and deformation remain under development.
+## Other contracts
+
+`IAutoMovieHumanIdentity` retains detailed physical measurements and appearance semantics. `IAutoMovieHumanTraits` describes beginner inputs but has no current converter. Pose, expression, appearance and measurement types remain declarations only. No automatic conversion between these contracts and the body-authoring document is supplied.
+
+The public entry exports named interfaces from `structures` and closed value enums from `typings`. Field documentation defines units and measurement meanings. Runtime behavior has been removed.

@@ -50,7 +50,6 @@ const EYES: readonly AutoMovieHumanoidBone[] = ["leftEye", "rightEye"];
  * @evidence contracts/performance.md#efficient-algorithms Two linear bone lookups, then a constant number of comparisons.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure admission step that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing beyond the violations appended to the caller's collector.
- * @author Samchon
  */
 export const validateLookAt: (
   lookAt: IAutoMovieLookAt,

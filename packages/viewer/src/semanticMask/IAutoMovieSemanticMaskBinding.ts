@@ -13,8 +13,6 @@ import type {
  * @evidence contracts/performance.md#efficient-algorithms Two references represent this handoff; actual index construction, traversal and material work belongs to the mapper and palette producer.
  * @evidence contracts/performance.md#reuse-equivalent-work Multiple pass callers can borrow the same binding while it still describes the same live design/palette; a rebuilt or changed production must replace the binding.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The interface owns no disposer or cache; the scene/caller retains these document references and controls scene retirement or binding replacement.
- *
- * @author Samchon
  */
 export interface IAutoMovieSemanticMaskBinding {
   /**

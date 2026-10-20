@@ -14,7 +14,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record without behavior; the per-particle hashing cost belongs to `sampleCompiledEffect`, which builds one of these per live spawn.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each sample recreates its particles from the seed, and since a particle depends on the sampled time no earlier particle can stand in for a later one.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owns one position vector and four numbers; the containing sample's list owns it and is bounded by the recipe's particle budget.
- * @author Samchon
  */
 export interface IAutoMovieEffectParticle {
   /**

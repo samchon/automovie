@@ -9,7 +9,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Subject, aspect, and the two nullable values are the whole record, and the shared revision and variant ids sit once on the enclosing comparison instead of on every row.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The base value is never fabricated for an untouched side, null stands for it as documented, and two equal values never produce a row.
  * @evidence contracts/common.md#meaningful-documentation States what null means on either side, that the base value is never read, that at least one side is non-null, and that the two sides always differ.
- * @author Samchon
  */
 export interface IAutoMovieDesignDifference {
   /** The lineage subject id both alternatives are talking about. */

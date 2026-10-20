@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Core prompt, seed and preservation controls remain explicit while an optional scalar map carries adapter-defined values rather than executable configuration; string values are not credential-screened here.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Seed does not promise identical external output; the retained record performs no dispatch, retry or immutable request preservation.
  * @evidence contracts/common.md#meaningful-documentation Defines prompt presence, optional negative prompt, safe seed, strength range and adapter-defined scalar controls with reproducibility limits.
- * @author Samchon
  */
 export interface IAutoMovieRepaintParameters {
   /** Non-blank positive prompt. */

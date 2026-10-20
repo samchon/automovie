@@ -19,7 +19,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms Plain record; producing the list costs one sort of the unit's cues and one pass over them in `formationCadenceSegments`, answered there.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each segment list is rebuilt from the cue list and the time; the type has no identity that would let one list stand for another time.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Four scalars; a list holds at most two segments per cue started before the time plus one trailing gap, and its caller owns it.
- * @author Samchon
  */
 export interface IAutoMovieFormationCadenceSegment {
   /**

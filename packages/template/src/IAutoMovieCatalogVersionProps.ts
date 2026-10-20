@@ -8,7 +8,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms An input record of three strings chooses no algorithm.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record describes one lookup; repeated lookups over one manifest reuse its parse through `createAutoMovieCatalogVersionResolver`.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The record holds the manifest text and two names for one call and no handle.
- * @author Samchon
  */
 export interface IAutoMovieCatalogVersionProps {
   /** Catalog name, a direct child of the top-level `catalogs` mapping. */

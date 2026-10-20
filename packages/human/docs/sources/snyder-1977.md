@@ -4,7 +4,7 @@ Snyder R.G., Schneider L.W., Owings C.L., Reynolds H.M., Golomb D.H., Schork M.A
 
 ## Licence
 
-A US Government-funded survey published by NIST and the CPSC; the site states the data are accessible for free. Human cites summary ratios computed from it.
+A US Government-funded survey published by NIST and the CPSC; the site states the data are accessible for free.
 
 ## Population and protocol
 
@@ -46,10 +46,6 @@ Bins are one year wide from the stated age (n 55 to 157 per cell; the last spans
 | 10 to 12 | F | 156 | 0.447 | 0.358 | 0.398 | 0.437 | 0.381 | 0.700 |
 | 16 to 18 | F | 172 | 0.439 | 0.359 | 0.399 | 0.439 | 0.385 | 0.725 |
 
-## What Human takes
-
-Age curves from 2 to 18 years for sitting-height ratio, heads per stature, shoulder and pelvic breadth fractions, limb segment fractions, natural-waist-to-hip ratio and hand and foot proportions. The 1970s US sample is shorter and leaner than today's (compare `nhanes-2015-2018.md`), so Human takes ratios, not absolute sizes.
-
 ## Minimum ankle section
 
 Measurement 83 is the minimum horizontal right-ankle circumference above the malleoli, with an automated tape, standing with weight evenly distributed; measurement 84 is the minimum horizontal breadth above the malleoli with an automated sliding caliper. The definitions do not require both minima to occur at one height.
@@ -61,4 +57,4 @@ Ages 16.0 to below 18.5 years, from `AGE IN MONTHS / 12`, with both ankle measur
 | Male | 77 | 60.4805 | 227.2338 | 0.266390 | 0.015979 |
 | Female | 76 | 53.8684 | 209.7895 | 0.256611 | 0.013152 |
 
-These standing ratios argue against a circular minimum section, whose breadth/circumference is 1/pi; they do not determine an adult ellipse at one height. Human's minimum-ankle shape remains a convention outside its adult reference calibration.
+These standing ratios argue against a circular minimum section, whose breadth/circumference is 1/pi; they do not determine an adult ellipse at one height. These pediatric data do not establish adult minimum-ankle shape.

@@ -12,7 +12,6 @@ import { AutoMovieDesignPresence } from "./AutoMovieDesignPresence";
  * @evidence contracts/common.md#clear-and-simple-design Phase-independent classification and phase-dependent presence are two separate members, so a consumer comparing snapshots reads only the field that can change.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A subject on an incomparable branch is reported `pending` rather than ordered against the asked phase by position, and the graph name is copied from the declaration rather than guessed from the id.
  * @evidence contracts/common.md#meaningful-documentation States which member is constant across snapshots and which varies, how an incomparable branch reads, and where the graph name comes from.
- * @author Samchon
  */
 export interface IAutoMovieDesignPhaseState {
   /** Declared subject id. */

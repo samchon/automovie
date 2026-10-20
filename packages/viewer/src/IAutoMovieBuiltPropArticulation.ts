@@ -10,8 +10,6 @@ import type * as THREE from "three";
  * @evidenceExclude contracts/performance.md#efficient-algorithms The articulation handle describes a registry and callback; the builder and restore implementation choose their traversal.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work No repeated requests run in this interface; its producer captures rest transforms once for successive resets.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The handle's referenced scene objects remain scene-owned; declaring the callback acquires no additional native resource.
- *
- * @author Samchon
  */
 export interface IAutoMovieBuiltPropArticulation {
   /**

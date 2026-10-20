@@ -14,8 +14,6 @@ import type { IAutoMovieSectionRenderer } from "./IAutoMovieSectionRenderer.js";
  * @evidenceExclude contracts/performance.md#efficient-algorithms This props interface performs no plane conversion or scene traversal; its consumer owns those costs.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record coordinates no execution; its consumer shares one converted plane set across materials.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Props borrow existing objects and readonly plane records without acquiring GPU resources or defining a new lifetime.
- *
- * @author Samchon
  */
 export interface IApplyAutoMovieSectionPlanesProps {
   /**

@@ -48,7 +48,6 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * @evidence contracts/performance.md#efficient-algorithms Construction sorts each node's span, O(n log^2 n) for n triangles; a query visits only nodes whose slab interval meets the running nearest travel, following the triangles near the ray with an O(n) worst case, and `blocked` stops at its first admitted hit.
  * @evidence contracts/performance.md#reuse-equivalent-work The hierarchy, the edge table and the traversal stack are built once per caster and reused by every query, which is what lets the hair builder compile one caster per host skin and share it across all strands.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The queries retain nine float64 edge values and one ordinal per triangle, six bounds and four integers per node with fewer nodes than triangles, and a stack of twice the node count; the corner table and the construction lists live only in the build helpers and are garbage after creation, and nothing grows per query.
- * @author Samchon
  */
 export function createAutoMovieMeshRayCaster(
   mesh: IAutoMovieMesh,

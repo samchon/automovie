@@ -12,7 +12,6 @@ import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
  * refused. Candidate and property order cannot affect either the result or the
  * diagnostic.
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Collect all models' matching material ids, sort model ids and compare recursively key-ordered structural signatures; absent or conflicting definitions throw while identical duplicate definitions return the first borrowed record.
  * @evidence contracts/common.md#clear-and-simple-design Cross-model simulated-surface lookup is separate from ordinary model-local material binding, with one canonical structural equality owner.

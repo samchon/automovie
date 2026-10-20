@@ -10,7 +10,6 @@ import { IAutoMovieScriptNodeBase } from "./IAutoMovieScriptNodeBase";
  * @evidence contracts/common.md#clear-and-simple-design The shared node fields plus the `intent` discriminator and its own two-field payload; nothing else distinguishes the root.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A forest or a second root is refused rather than merged under an invented intent.
  * @evidence contracts/common.md#meaningful-documentation States the root and uniqueness rules, and which output reads its payload in place of the flat script fields; members give the discriminator and payload roles.
- * @author Samchon
  */
 export interface IAutoMovieScriptIntentNode extends IAutoMovieScriptNodeBase {
   /** Selects the intent root. */

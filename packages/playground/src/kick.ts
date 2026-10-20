@@ -14,8 +14,6 @@ import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
  * @evidence contracts/performance.md#efficient-algorithms Three bounded pose arrays and five frame wrappers give constant construction; actual interpolation/FK and scene drawing retain their costs.
  * @evidence contracts/performance.md#reuse-equivalent-work Stand and windup records are reused for return frames within the clip; each call creates fresh vocabulary with no shared mutable output cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Caller-owned frames share local pose records, which consumers preserve across the return cycle; the producer acquires no task or external handle.
- *
- * @author Samchon
  */
 export const kick: (sk: string) => IAutoMovieMotion = (
   sk: string,

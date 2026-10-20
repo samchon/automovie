@@ -30,7 +30,6 @@ import { applyTransform } from "./applyTransform.js";
  * time: a light nothing addresses is written back to where the scene staged it
  * rather than holding wherever the previous frame left it.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Maps admitted TRS, linear RGB/intensity, point/spot range, degree cone half-angle to radians and area metre extent to Three fields; target class must match the authored kind for kind-specific properties, while this writer neither reconstructs aim children nor updates shadow configuration.
  * @evidence contracts/common.md#clear-and-simple-design Owns the same field conversion for buildLight and absolute frame writes; existing applyTransform owns quaternion/TRS realization and buildLight owns class/aim/shadow acquisition.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads authored/resolved values without time/id-specific substitutions or renderer monkeypatches; class guards limit which real Three properties are touched, rather than coercing an incompatible host object.

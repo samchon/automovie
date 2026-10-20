@@ -35,7 +35,6 @@ import { validateAutoMovieAnalysisRunContents } from "./validateAutoMovieAnalysi
  * @evidence contracts/performance.md#efficient-algorithms Hashes settings before admission, then checks contents and hashes the canonical run text only for an admitted draft. Work scales with encoded string/byte lengths plus metrics, samples and warnings; a refused draft incurs no run-text hash.
  * @evidence contracts/performance.md#reuse-equivalent-work The run digest is computed once and the contents are checked once; the former second hash, which the public validator would spend recomputing a digest this call just wrote from the same draft, is not paid.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The collector is call-local; the caller owns the returned run, retaining header strings, the borrowed solver/outcome objects and the settings/run digest strings. No source settings text or validation session is retained by this function.
- * @author Samchon
  */
 export const sealAutoMovieAnalysisRun: (props: {
   id: string;

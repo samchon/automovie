@@ -31,7 +31,6 @@ const AXIS_EPSILON: number = 1e-12;
  * @evidence contracts/performance.md#efficient-algorithms O(N) time and memory for N=count: radical inversion reads at most 32 unsigned index bits per direction. The basis is computed once, followed by two square roots and a sine-cosine pair per direction; oversized counts may fail host allocation before completion.
  * @evidence contracts/performance.md#reuse-equivalent-work The daylight analyzer builds the set once per study and shares it across every grid cell, which is valid because the set depends only on the plane normal and `diffuseSamples`, both fixed for the study.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one new array of N vectors owned by the caller and retains nothing; N is the caller's `diffuseSamples`, which nothing caps beyond being a safe integer, so that allocation has no bound.
- * @author Samchon
  */
 export const autoMovieHemisphereDirections: (props: {
   normal: IAutoMovieVector3;

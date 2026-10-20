@@ -9,6 +9,5 @@
  * @evidence contracts/common.md#clear-and-simple-design Only the two one-sided directions; a target list holds one target per metric key, so a two-sided band on one metric is not expressible, and no range member exists without a consumer.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No tolerance or epsilon is folded into the comparison, and `assertAutoMovieAnalysisTargets` refuses any other string before a solver runs.
  * @evidence contracts/common.md#meaningful-documentation Gives what each direction accepts and that both bounds are inclusive, which decides the verdict at exact equality.
- * @author Samchon
  */
 export type AutoMovieAnalysisComparison = "at-least" | "at-most";

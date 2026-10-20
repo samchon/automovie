@@ -13,7 +13,6 @@
  * @evidence contracts/common.md#clear-and-simple-design A closed string union is the whole vocabulary with no wrapper or registry, and it is the only structural constraint on `IAutoMovieBlendshapeChannel.channel`, with magnitudes left to the validator.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No channel is renamed or added for a particular avatar; the remaining weakness is that the engine and viewer name lists are type-checked only as subsets of the union, so nothing but review keeps them complete when a channel is added here.
  * @evidence contracts/common.md#meaningful-documentation States the standard behind the names, the `[0, 1]` range and who enforces it, the exact or case-insensitive morph matching in the viewer, the duplicated runtime lists that must change together, and the upstream reference.
- * @author Samchon
  */
 export type AutoMovieArkitChannel =
   // eyes (14)

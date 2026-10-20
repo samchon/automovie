@@ -32,7 +32,6 @@ interface IEdgeUse {
  * @evidence contracts/performance.md#efficient-algorithms For T triangles and B boundary vertices, the edge index, flood and separation check are O(T + B) with one string key per edge, and the final sort is O(K log K) for K selected triangles; the flood visits each triangle once and each edge twice at most.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call answers one mesh and boundary; the portrait builder calls it once per loop, so there is no repeated work to share.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing; the edge map, per-triangle edge keys, barrier set and work queue are sized by T and released on return, and only the selected ordinal array is returned.
- * @author Samchon
  */
 export function selectAutoMovieTriangleRegion(props: {
   indices: readonly number[];

@@ -19,7 +19,6 @@ import type {
  * @evidenceExclude contracts/performance.md#efficient-algorithms This interface declares expected video facts and computes nothing; the checking cost belongs to `assertProductionVideoProfile`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A video profile is a value passed to checks and coordinates no work between them.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The profile is a fixed-size record and owns no handle, buffer or task.
- * @author Samchon
  */
 export interface IAutoMovieProductionVideoProfile {
   /** Coded and displayed picture width in pixels. */

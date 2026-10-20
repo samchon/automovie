@@ -9,7 +9,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design Boundary-owned penetration is separate from segment route so fire, acoustic and waterproof closure share one authored hole record.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A faceless boundary permits only run-relative checks and reports unsupported geometric proof; sealed is an authored assertion rather than a simulated leakage result.
  * @evidence contracts/common.md#meaningful-documentation Defines boundary and optional opening ownership, world-meter center, positive clearance radius and sealed-annulus purpose with missing-face limits.
- * @author Samchon
  */
 export interface IAutoMovieServicePenetration {
   /** Stable penetration identity within the network. */

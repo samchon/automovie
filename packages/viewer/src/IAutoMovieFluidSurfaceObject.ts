@@ -11,8 +11,6 @@ import type * as THREE from "three";
  * @evidence contracts/performance.md#efficient-algorithms Updates allocate Float32 attributes proportional to vertices and flow entries and replace indices. This record introduces no traversal beyond its builder's upload.
  * @evidence contracts/performance.md#reuse-equivalent-work Mesh, geometry identity and material persist across updates, while numerical buffers are copied anew. Equal step metadata does not suppress a changed surface upload.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller detaches the node and invokes dispose. Geometry and the default material are attempted independently in that order; supplied material stays borrowed. Repeated invocations still repeat public disposal calls, without a closed-state or physical-release guarantee.
- *
- * @author Samchon
  */
 export interface IAutoMovieFluidSurfaceObject {
   /** Add this mesh to the current scene. */

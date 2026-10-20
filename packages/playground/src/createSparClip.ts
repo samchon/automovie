@@ -16,8 +16,6 @@ import { SPAR_MOMENTS } from "./SPAR_MOMENTS";
  * @evidence contracts/performance.md#efficient-algorithms One pass over m shared moments creates O(m) keyframe/pose wrappers; joint arrays and root transforms are borrowed rather than rebuilt, and engine sampling/rendering occurs later.
  * @evidence contracts/performance.md#reuse-equivalent-work Red/blue clips share one module timeline and duration so authored instants cannot drift through independent timing generation; each clip receives new outer/keyframe/pose wrappers.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the clip wrappers, while module moments and the identity root remain page/module-lifetime data. Borrowed joint/root records must not be mutated by consumers; no worker, timer or GPU handle is acquired.
- *
- * @author Samchon
  */
 export function createSparClip(
   skeleton: string,

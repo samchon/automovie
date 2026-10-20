@@ -17,8 +17,6 @@ import type { IAutoMoviePlantChain } from "./IAutoMoviePlantChain";
  * @evidenceExclude contracts/performance.md#efficient-algorithms The record itself performs no FK; preparation scans the current rig once and candidate evaluation uses these fixed fields.
  * @evidence contracts/performance.md#reuse-equivalent-work One prepared record is reused for all bend candidates of one unchanged pose/chain/mapping; it must be rebuilt when those inputs change and is not a cross-frame cache.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources One solve owns a fixed-size record referencing its chain/domains and resolved frames; releasing the solve releases it with no native or renderer resources.
- *
- * @author Samchon
  */
 export interface IPreparedChainPlant {
   /** Ordered root, mid and effector identities from the caller's chain. */

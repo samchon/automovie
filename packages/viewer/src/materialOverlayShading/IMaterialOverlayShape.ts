@@ -8,8 +8,6 @@
  * @evidence contracts/performance.md#efficient-algorithms The type performs no shader expansion; its consumer maps O(L) ordered layers into structural keys and source statements.
  * @evidence contracts/performance.md#reuse-equivalent-work Equivalent ordered shapes may select an equivalent program source while each material keeps its own actual uniform values.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Boolean/string structure fields own no texture, material or program handle and retain no layer cache.
- *
- * @author Samchon
  */
 export interface IMaterialOverlayShape {
   /** Whether the colour tints the base colour or replaces it. */

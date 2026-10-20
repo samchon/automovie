@@ -16,7 +16,6 @@ import { IAutoMovieObservedPrimitive } from "./IAutoMovieObservedPrimitive";
  * @evidence contracts/common.md#clear-and-simple-design Frames, primitives, analyses, candidates, and issues are five separate lists so seeing, reading, proposing, and doubting stay distinct layers, and only `promoteDesignObservations` turns any of them into metres.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No reading or scale is invented by Engine admission, which assumes typed nested containers and does not read asset bytes. Cross-shot canonical merging/conflicting-id refusal no longer has a production host; callers must preserve consistent document identities without treating a declared digest as verified content.
  * @evidence contracts/common.md#meaningful-documentation States evidence-only use, building citations, explicit byte-verification ownership, nonempty frames, retained empty analyses and host-owned cross-shot identity consistency.
- * @author Samchon
  */
 export interface IAutoMovieDesignReference {
   /** Schema version; validation accepts only `1`. */

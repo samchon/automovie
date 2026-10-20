@@ -12,7 +12,6 @@ import { IAutoMovieProductionWebVttCue } from "./IAutoMovieProductionWebVttCue";
  * @evidence contracts/common.md#clear-and-simple-design The kind union exposes the exact fact set for each media class and composes existing audio and video probe contracts for a feature containing both tracks.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Declared filename or media type alone supplies no facts; malformed bytes, wrong track populations, unequal feature runtimes and invalid sidecar identity refuse rather than being repaired into a probe.
  * @evidence contracts/common.md#meaningful-documentation Defines each parsed media kind, pixel and second units, ordered caption text and cues, complete track facts and byte-grounded JSON sidecar records.
- * @author Samchon
  */
 export type IAutoMovieProductionMediaProbe =
   | {

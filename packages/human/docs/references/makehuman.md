@@ -1,6 +1,6 @@
 # MakeHuman
 
-MakeHuman is the comparison reference for "one fixed template plus offsets". This historical survey read documentation, the FAQ, the licence statement and the target-folder listing, as recorded in #2788; it did not read implementation code. Current [reference instructions](../../../../.agents/skills/human/references.md) allow reading MakeHuman and MPFB methods while prohibiting code copying, and permit their CC0 data for offline comparison. The old blanket reading prohibition is retired.
+This survey read the documentation, FAQ, licence statement and target-folder listing linked below; implementation code was not examined.
 
 ## Base mesh
 
@@ -29,11 +29,6 @@ MakeHuman is the comparison reference for "one fixed template plus offsets". Thi
 
 - Code: AGPL-3.0 (MakeHuman) and GPL-3.0 (MPFB2).
 - Assets, including the base mesh, targets and proxies, are CC0 since 2020, and exports are CC0.
-
-## Use in the rebuild
-
-- MakeHuman CC0 data may serve as an offline comparison reference only, never shipped or loaded.
-- The proxy binding (barycentric coordinates plus offset on a body triangle) is the same family of technique as the garment binding in `../techniques/garment-binding.md`; Human takes it from the published cage-coordinate literature, not from MakeHuman.
 
 ## Sources
 

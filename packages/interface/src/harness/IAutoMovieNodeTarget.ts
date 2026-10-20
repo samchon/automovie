@@ -10,7 +10,6 @@
  * @evidence contracts/common.md#clear-and-simple-design One id is the whole target; position, rig and motion belong to the staged node, so the record copies none of them.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An unknown id is refused with a located violation instead of resolving to the origin, and the documentation states which consumers follow motion and which do not.
  * @evidence contracts/common.md#meaningful-documentation States when to prefer it, the refusals, and per consumer where the position comes from and whether it moves; the member says which ids it accepts.
- * @author Samchon
  */
 export interface IAutoMovieNodeTarget {
   /** Selects a staged scene node as the target representation. */

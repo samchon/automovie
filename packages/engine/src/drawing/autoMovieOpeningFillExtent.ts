@@ -26,7 +26,6 @@ import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
  * @evidence contracts/performance.md#efficient-algorithms Three folds over the `n` corners through `autoMovieDrawingRange`, linear time with no argument spread, so a mesh of any size is measured without overflowing the stack.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function called once per filled opening or room; nothing equivalent repeats.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Streams the corner coordinates through generators and retains nothing.
- * @author Samchon
  */
 export const autoMovieOpeningFillExtent = (
   corners: readonly IAutoMovieVector3[],

@@ -9,7 +9,6 @@ import { IAutoMovieMeshPhysicalSource } from "./IAutoMovieMeshPhysicalSource";
  * @evidence contracts/common.md#clear-and-simple-design The source table stores physical identities once and the aligned reference array maps attribute-split vertices to them; table indices carry no meaning outside this indirection.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An invalid explicit mapping is refused rather than silently downgraded to position welding; producers must rebind newly created vertices, and neither metadata nor repeated source rows excuse invalid geometry.
  * @evidence contracts/common.md#meaningful-documentation Defines reference alignment, null position welding, table-index meaning, composition survival and producer responsibility for newly generated incidence, distinct from geometry admission.
- * @author Samchon
  */
 export interface IAutoMovieMeshPhysicalVertices {
   /** Source points referenced by `vertices`. */

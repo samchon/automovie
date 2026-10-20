@@ -4,7 +4,7 @@ Lévy B, Petitjean S, Ray N, Maillot J. "Least Squares Conformal Maps for Automa
 
 ## Licence
 
-Paper copyright ACM. Human takes principles only.
+Paper copyright ACM.
 
 ## What it says
 
@@ -12,7 +12,3 @@ Paper copyright ACM. Human takes principles only.
 - The LSCM objective minimizes angle deformation; its minimum is unique, independent of a similarity and of mesh resolution, and it cannot flip triangles.
 - Chart boundaries go where discontinuities do not cause texture artifacts: high-curvature zones, where shading varies anyway, and not flat zones.
 - A user decomposes a model "into parts resembling cylinders"; the automatic segmentation mimics that.
-
-## What Human takes
-
-The seam placement criterion, and the cylinder decomposition Human's tube parts already give (`../techniques/uv-layout.md`). Human does not run LSCM, because its parameter domains are given by construction.

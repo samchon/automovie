@@ -15,7 +15,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms Input record; evaluating all receivers costs receivers times sources inside `analyzeAutoMovieAcoustics`, answered there.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A receiver is read for one study and its level is computed once in that study; nothing persists for reuse.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources One id and one vector owned by the request; at most `AUTOMOVIE_ANALYSIS_MAX_SAMPLES` of them per study.
- * @author Samchon
  */
 export interface IAutoMovieAcousticReceiver {
   /** Stable receiver identity, unique among receivers and reused as sample id. */

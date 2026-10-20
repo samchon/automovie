@@ -15,7 +15,6 @@ import type { IAutoMoviePoseKeypointActor } from "./IAutoMoviePoseKeypointActor"
  * @evidenceExclude contracts/performance.md#efficient-algorithms An interface describes data and runs no algorithm; building frames is answered on `planPoseKeypointSidecar`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A frame record is written once per output frame by the planner and coordinates no work between phases.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased frame schema acquires no actor or pose; planPoseKeypointSidecar creates each frame's actor list and projected joints, whose enclosing sidecar caller retains them.
- * @author Samchon
  */
 export interface IAutoMoviePoseKeypointFrame {
   /** Output frame index, from 0, on the sidecar's `fps` clock. */

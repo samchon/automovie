@@ -11,7 +11,6 @@ import { type ScaffoldFilePublicationOutcome } from "./ScaffoldFilePublicationOu
  * @evidenceExclude contracts/performance.md#efficient-algorithms The failure record is two references with no algorithm.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Only one failure can exist per receipt, so there is nothing equivalent to share.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The record retains the planned entry, including its bytes, and the outcome with its error for as long as a caller holds the record, directly or through a receipt; it acquires no handle or task.
- * @author Samchon
  */
 export interface IScaffoldPublicationFailure {
   /** Planned entry where publication stopped. */

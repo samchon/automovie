@@ -13,7 +13,6 @@ import { IAutoMovieCameraIntent } from "./IAutoMovieCameraIntent";
  * @evidence contracts/common.md#clear-and-simple-design A take repeats only the three per-camera fields of the hero take (camera, move, intent) and inherits everything else from the shot, so the cut and the performances exist once.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The hero camera and a duplicate camera are refused rather than collapsed into one take, and coverage never becomes a separate timeline entry.
  * @evidence contracts/common.md#meaningful-documentation States what a take is for, which cameras it may and may not use, what a null move and an empty intent list mean, and that it reuses the hero take's grammar.
- * @author Samchon
  */
 export interface IAutoMovieShotCoverage {
   /**

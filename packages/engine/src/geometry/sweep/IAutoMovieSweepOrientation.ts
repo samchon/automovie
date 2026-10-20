@@ -13,7 +13,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record; costs are on `orientAutoMovieSweep`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record; it is the reuse.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A record whose arrays its producer sizes.
- * @author Samchon
  */
 export interface IAutoMovieSweepOrientation {
   /** Each station's plane rotation `[x, y, z, w]` in the model frame, four numbers per station, read where `given` is 1. */

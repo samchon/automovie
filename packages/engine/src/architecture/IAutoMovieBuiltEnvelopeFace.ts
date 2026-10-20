@@ -22,7 +22,6 @@ import { AutoMovieEnvelopeFaceAspect } from "./AutoMovieEnvelopeFaceAspect";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape; deriving it costs one outline transform, one centroid and one containment probe per boundary, answered on `builtEnvironmentEnvelopeFaces`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call rebuilds the face list from the record; the census and corner finder each call the producer, and nothing stores faces across environments or edits.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owns fresh vectors and a vertex array per face, released with the caller's list; no field aliases the boundary record.
- * @author Samchon
  */
 export interface IAutoMovieBuiltEnvelopeFace {
   /** Boundary whose face this is. */

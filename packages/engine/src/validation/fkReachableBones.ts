@@ -8,7 +8,6 @@ import { IAutoMovieSkeletonTopology, reachableBoneNames } from "../kinematics";
 /**
  * Return reachableBoneNames' fresh copy of root-reachable bone names, using a supplied unchanged-skeleton topology or building one.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Return reachableBoneNames' fresh copy of root-reachable bone names, using a supplied unchanged-skeleton topology or building one.
  * @evidence contracts/common.md#clear-and-simple-design The alias keeps FK reachability with the kinematics owner rather than a second validator traversal.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Declared but detached bones stay absent; a supplied topology must match the current skeleton.

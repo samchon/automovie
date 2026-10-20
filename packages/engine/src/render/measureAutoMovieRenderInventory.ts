@@ -84,7 +84,6 @@ import { sumAutoMovieRenderTextureAllocations } from "./sumAutoMovieRenderTextur
  * of every drawable that preceded it rather than the owner's own complexity, so
  * the report keeps its attribution without ranking it as an editable owner.
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Measure populations then simulations with one model cache, complete resource closure, material resolution and shadow/outline/background passes, preserving phase addition order and explicit unknown totals. Frame bounds maximize supported tiers; geometryBytes covers declared prototype/surface buffers rather than all native chunk clones/instance streams.
  * @evidence contracts/common.md#clear-and-simple-design Population/simulation/resource policy owners feed one orchestrator and semantic node index, keeping owner attribution aligned with the mask without embedding a renderer or simulation host.

@@ -18,7 +18,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record type with no runtime code; extraction emits at most one edge per welded mesh edge or cut triangle.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record type with no runtime code; each edge is produced once per drawable and drafted once.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A record of two points owned by the edge list that holds it; drafting retains only the projected line.
- * @author Samchon
  */
 export interface IAutoMovieDrawingEdge {
   /** One endpoint, in world metres. */

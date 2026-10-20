@@ -9,7 +9,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Three angles plus an order enum cover every intrinsic Tait-Bryan convention without a matrix or quaternion field, and the type stays the single parameter shape of `fromEuler` rather than a structural copy at the engine.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No caller special-cases an order; both instance-set callers state `"XYZ"` explicitly, and the composition never normalizes angles or wraps them into a range it would then have to document.
  * @evidence contracts/common.md#meaningful-documentation States the unit, the composition rule with the `"XYZ"` example, that angles are not range-checked, the actual callers, and why character joints use semantic angles instead; members give the axis and unit.
- * @author Samchon
  */
 export interface IAutoMovieEuler {
   /** Rotation about the local X axis, degrees. */

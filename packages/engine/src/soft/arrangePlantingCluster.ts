@@ -26,8 +26,6 @@ const SALT_PLACE_SCALE: number = 0x73636c00;
  * @evidence contracts/performance.md#efficient-algorithms For N slots and A attempts, fixed nine-cell lookup still costs each visited bucket population; worst-case O(N*A*N) comparisons and O(N) placement/grid storage, with no unmeasured universal speedup claim.
  * @evidence contracts/performance.md#reuse-equivalent-work Accepted origins populate one per-call grid reused across later candidates; slot/path seeded yaw is shared code, while mutable cluster inputs invalidate the entire arrangement and have no retained cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Placements and bounds are fresh caller-owned records; the grid and intermediate origin list are discarded, with no instances or GPU handles retained.
- *
- * @author Samchon
  */
 export const arrangePlantingCluster: (
   cluster: IAutoMoviePlantingCluster,

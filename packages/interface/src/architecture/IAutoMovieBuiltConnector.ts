@@ -21,7 +21,6 @@ import { IAutoMovieConnectorSteps } from "./IAutoMovieConnectorSteps";
  * @evidence contracts/common.md#clear-and-simple-design One record per run with optional facets (landings, orientations, sections, slope, steps, operation) that each default to the plain two-ended static route when absent, so a simple passage states only kind, endpoints, route, width, clearance and elements.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Slope/steps are checked claims, not geometry overrides; missing or competing section spellings refuse. Endpoint/landing space ids do not force the corresponding route points inside those volumes, orientation is authored metadata and drive is validated without animating a run. A family outside the closed set uses `other`; this relation does not certify physical passage, collision clearance or evacuation.
  * @evidence contracts/common.md#meaningful-documentation States each member's unit, ordering, tolerance and exclusivity rule, the meaning of every optional member when absent, the one-way stop order, and the slope formula and range.
- * @author Samchon
  */
 export interface IAutoMovieBuiltConnector {
   /** Stable connector identity. */

@@ -5,7 +5,6 @@ import { AutoMovieBernsteinAlgebra64 as B } from "./AutoMovieBernsteinAlgebra64"
  *
  * The inner (cross-course) coefficients of every row survive each operation, so a grid value or derivative is a complete polynomial course rather than sparse samples.
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Cubic Hermite rows in the outer parameter built from elevated endpoint and derivative courses, evaluated and differentiated column by column.
  * @evidence contracts/common.md#clear-and-simple-design Grid construction and evaluation are separated from the polynomial algebra they compose.

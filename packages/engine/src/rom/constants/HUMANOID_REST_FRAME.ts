@@ -51,8 +51,6 @@ const REVERSED: IAutoMovieAxisFrame = { sign: -1, neutral: 0 };
  * The arm abduction frames were calibrated on the stickman (left sign +1, right −1, neutral 90) and are kept as they were. The spine, neck, head and jaw are single bones on the midline and keep the default reading: flexion bends forward, abduction bends toward the figure's right and twist turns its face toward its left. The eyes are left out on purpose: they turn together, a gaze to one side turning both eyes the same way, so they share one reading rather than a mirrored one.
  *
  * Reference: VRM 1.0 T-pose (https://github.com/vrm-c/vrm-specification/blob/master/specification/VRMC_vrm-1.0/tpose.md).
- *
- * @author Samchon
  */
 export const HUMANOID_REST_FRAME: Partial<
   Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>

@@ -16,7 +16,6 @@ import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
  * @evidenceExclude contracts/performance.md#efficient-algorithms No code; each candidate is validated and cornered in constant time inside the run, whose cost is answered on `generateAutoMovieSurfacePattern`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The run consumes each candidate once per cell and keeps none, so there is no generator output to share across runs.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The author's generator returns it and the run copies the fields it keeps into a placement, retaining no reference to the candidate.
- * @author Samchon
  */
 export interface IAutoMoviePatternCandidate {
   /** Stable module identity, unique inside its zone. */

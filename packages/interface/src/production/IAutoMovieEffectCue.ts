@@ -7,7 +7,6 @@ import { AutoMovieFilmTime } from "./AutoMovieFilmTime";
  * @evidence contracts/common.md#clear-and-simple-design Zone identity, timing and strength are the whole cue; emission, motion, appearance and hard budgets remain on the reusable world effect recipe.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts This authoring record performs no time-grid or film-duration check. The explicit normalized Engine materializer rejects missing zones/recipes and unsafe or nonpositive intervals rather than substituting an emitter; the host must normalize time and enforce total-film extent.
  * @evidence contracts/common.md#meaningful-documentation Gives stable cue and registered zone identity, the supported world-zone family, film-global exact timing and normalized bounded strength.
- * @author Samchon
  */
 export interface IAutoMovieEffectCue {
   /** Stable cue id. */

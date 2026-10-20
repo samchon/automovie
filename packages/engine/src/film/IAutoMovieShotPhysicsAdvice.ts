@@ -31,7 +31,6 @@ interface IAutoMovieShotPhysicsAdviceBase {
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape with no runtime body; validation is one pass with a canonical JSON comparison per item, answered on `compileDefinedShot`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Supplied once per shot compilation and deep-cloned onto its result; the engine computes no advice for this record and caches none.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns the input items; the compiled result owns its own `structuredClone` of them, including any recoil pose, so neither aliases the other.
- * @author Samchon
  */
 export type IAutoMovieShotPhysicsAdvice =
   | (IAutoMovieShotPhysicsAdviceBase & {

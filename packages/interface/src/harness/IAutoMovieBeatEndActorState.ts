@@ -20,7 +20,6 @@ import { IAutoMovieMountBinding } from "./IAutoMovieMountBinding";
  * @evidence contracts/common.md#clear-and-simple-design One record per scene node holds the placement, the articulation and the four resumable facts, with `null` for an inapplicable fact rather than separate record shapes for props, walkers and riders.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The state is measured from the compiled shot rather than copied from the authored program, so a prop left in a hand ends where the baked clip put it; the pose root is cleared instead of being applied a second time by the next beat.
  * @evidence contracts/common.md#meaningful-documentation States the two producers and instants, the root folding and clearing, and the null convention; members give each value's frame, unit, sampling rule and window, and when each is null.
- * @author Samchon
  */
 export interface IAutoMovieBeatEndActorState {
   /** Scene node and cast id of the actor. */

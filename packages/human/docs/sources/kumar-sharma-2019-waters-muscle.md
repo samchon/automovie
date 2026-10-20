@@ -14,7 +14,3 @@ Copyright SCITEPRESS; method description only.
 - The authors replaced the linear muscles around the mouth with sphincters because they produced unrealistic expressions, and used three sphincters (both eyes and mouth).
 
 Grade: conventional (graphics method).
-
-## What Human takes
-
-The two muscle primitives for the expression deformer: a linear muscle (bone attachment, skin insertion, angular and radial falloff) and an elliptical sphincter with a protected centre and out-of-plane bulge. Waters 1987 itself and his 1988 thesis were not accessible.

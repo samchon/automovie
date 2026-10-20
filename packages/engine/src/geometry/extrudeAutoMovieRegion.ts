@@ -46,7 +46,6 @@ import { triangulateRegion } from "./triangulateRegion";
  * @evidence contracts/performance.md#efficient-algorithms After triangulation, whose cost is answered on the triangulator, emission is linear in the point count n: two caps of n vertices and one four-vertex quad per ring edge.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One mesh per authored region and depth; a caller that places the same solid repeatedly can keep the returned mesh.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns the target's four arrays, holding 6n vertices for n region points, as the mesh's own buffers; the triangulation is released on return.
- * @author Samchon
  */
 export const extrudeAutoMovieRegion = (props: {
   /** Outer boundary in local XY metres. */

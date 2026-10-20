@@ -13,7 +13,6 @@ import { engineDiagnostic } from "./engineDiagnostic";
 /**
  * Validate cue ids, intervals, intensities, compiled stream correspondence, event inclusion and same-zone ordering.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Validate cue ids, intervals, intensities, compiled stream correspondence, event inclusion and same-zone ordering.
  * @evidence contracts/common.md#clear-and-simple-design Shot-local maps index events/samples while deterministic zone/start/id sorting exposes interval checks.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The 128-cue policy reports excess without truncating; stream existence is metadata admission, not provider simulation.

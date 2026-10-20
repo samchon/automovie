@@ -20,7 +20,6 @@ import { IAutoMovieSubdivisionCrease } from "./IAutoMovieSubdivisionCrease";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data record with no runtime body; the refinement cost is answered on `subdivideAutoMovieSurface`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Read once while the cage is admitted; nothing is cached on it.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Caller-owned and read only; the subdivider copies every value into its own level buffers.
- * @author Samchon
  */
 export interface IAutoMovieSubdivisionCage {
   /** Packed vertex positions `[x, y, z, ...]` in metres, finite. */

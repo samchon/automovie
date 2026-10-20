@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Decode an RFC 2397 data URI into exact payload octets.
  *
  * Canonical base64 spelling includes zero unused padding bits under RFC 4648 section 3.5 (https://www.rfc-editor.org/rfc/rfc4648.html#section-3.5); complete percent-octet escapes determine bytes, and literal Unicode chunks are encoded as UTF-8.
@@ -10,7 +10,6 @@
  * @evidence contracts/performance.md#efficient-algorithms Metadata and payload text drive O(N) work over URI length; percent chunks plus final concatenation retain O(N) temporary bytes, while base64 also creates an intermediate binary string.
  * @evidence contracts/performance.md#reuse-equivalent-work Each declared data URI is decoded during its own payload admission; resolver effects and mutable sources are not cached.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Decoded arrays transfer to the inspector's call-local payload owner; chunk arrays and encoded literals die on return.
- * @author Samchon
  */
 export const decodeDataUri: (uri: string, path: string) => Uint8Array = (
   uri: string,

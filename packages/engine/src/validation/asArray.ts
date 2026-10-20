@@ -8,7 +8,6 @@
  * @evidence contracts/performance.md#efficient-algorithms A single array test and at most one empty allocation take constant work independent of element count.
  * @evidence contracts/performance.md#reuse-equivalent-work One shared shape projection avoids duplicate coercion policies; mutable arrays are neither copied nor memoized.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned accepted array remains caller-owned; the fallback transfers fresh empty storage and no input object or handle is otherwise retained.
- * @author Samchon
  */
 export const asArray: (value: unknown) => unknown[] = (
   value: unknown,

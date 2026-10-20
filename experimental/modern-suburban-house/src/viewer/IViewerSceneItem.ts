@@ -2,8 +2,6 @@ import type { HousePartRole } from "../types/HousePartRole";
 
 /**
  * One triangle mesh placed in world space by translation only.
- *
- * @author Samchon
  */
 export interface IViewerSceneItem {
   /** Stable id used in inspection output and capture records. */

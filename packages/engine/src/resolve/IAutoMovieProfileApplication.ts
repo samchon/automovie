@@ -18,7 +18,6 @@ import {
  * @evidence contracts/performance.md#efficient-algorithms This wrapper adds constant references plus prefix text; binding allocates records proportional to profile limits/drivers and their node references.
  * @evidence contracts/performance.md#reuse-equivalent-work Authored profile data can serve multiple bindings; cached concrete results are valid only while policy, mapping and prefix remain unchanged.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The resolve input borrows application records for the frame/shot; the type owns no graph, bound-result cache, host handle or task.
- * @author Samchon
  */
 export interface IAutoMovieProfileApplication {
   /** The profile being applied. */

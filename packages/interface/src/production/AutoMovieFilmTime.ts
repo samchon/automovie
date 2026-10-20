@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Two authoring forms share one time type without carrying an independent frame rate per timestamp; the production's frame format owns that conversion.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Seconds do not authorize approximate cuts between frames, and no clip-specific frame clock overrides the production grid; callers must supply one time representation.
  * @evidence contracts/common.md#meaningful-documentation Gives zero-based frames, nonnegative time, safe-integer frame counts and exact grid-aligned seconds, with the production owning the frame rate.
- * @author Samchon
  */
 export type AutoMovieFilmTime =
   | {

@@ -11,7 +11,6 @@ import { IAutoMovieWearableSoftActorPose } from "./IAutoMovieWearableSoftActorPo
  * @evidenceExclude contracts/performance.md#efficient-algorithms A snapshot interface executes no sampling or boundary conversion; those costs belong to the producing caller and wearable resolver.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each step's snapshot can be borrowed by all its moving bindings, but this row owns no temporal cache policy.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns readonly snapshot arrays and their frame references; no viewer, motion cursor or live solver task is embedded.
- * @author Samchon
  */
 export interface IAutoMovieWearableSoftFrame {
   /** Absolute fixed-step index. */

@@ -8,7 +8,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design Required placement coordinates are separate from optional per-entry differences, so an explicit set can reuse its prototype table and default palette without repeating them on every member.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing explicit prototype ids throw. Declared trait names, finite overrides, palette encoding and unit rotation are caller premises; instanceSlot merges explicit traits without enforcing their declared names or finiteness. Building admission checks transform coordinates, positive scale and quaternion norm within 1e-6, not those appearance and identity premises.
  * @evidence contracts/common.md#meaningful-documentation Gives set-scoped identity, anchor-relative metre translation, glTF quaternion order, positive scale and omission semantics for prototype, visibility, palette and numeric traits.
- * @author Samchon
  */
 export interface IAutoMovieExplicitInstanceTransform {
   /** Stable non-blank identity unique inside the set. */

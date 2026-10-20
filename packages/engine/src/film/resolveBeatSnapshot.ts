@@ -144,8 +144,6 @@ export function resolveBeatSnapshot(
 
 /**
  * A borrowed performance and its original shot-list position, held by the snapshot's per-call node index.
- *
- * @author Samchon
  */
 interface IPerformanceEntry {
   /** Motion reference and startOffset defining this node's pose-local clock. */
@@ -157,8 +155,6 @@ interface IPerformanceEntry {
 
 /**
  * The per-call lookups one actor's state derives from.
- *
- * @author Samchon
  */
 interface IResolveContext {
   /** Shot-local seconds the snapshot is taken at. */
@@ -185,8 +181,6 @@ interface IResolveContext {
 
 /**
  * A baked world transform and its trailing velocity, overriding the fold.
- *
- * @author Samchon
  */
 interface IWorldOverride {
   /** Effective world TRS composed from the shot-local object-channel authority. */

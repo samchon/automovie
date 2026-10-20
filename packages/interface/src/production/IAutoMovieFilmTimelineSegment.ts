@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design One record contains only the shot mapping and its two boundary transitions; shot content stays in the compiled shot and non-video placements stay in the timeline tracks.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Cut has no duration and fade or dissolve carries an explicit frame count; the record does not fabricate missing source frames or substitute another shot.
  * @evidence contracts/common.md#meaningful-documentation States inclusive and exclusive source and film endpoints, handle units and the normalized transition fields.
- * @author Samchon
  */
 export interface IAutoMovieFilmTimelineSegment {
   /** Current compiled shot id. */

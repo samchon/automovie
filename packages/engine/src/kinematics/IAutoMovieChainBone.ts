@@ -14,7 +14,6 @@ import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A pair of world-frame values read by the solvers; no computation happens on this record itself.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A view of forward-kinematics output; the caller decides how often to resolve.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds a vector and a quaternion by reference for the duration of one solve.
- * @author Samchon
  */
 export interface IAutoMovieChainBone {
   /** Bone origin, the joint centre, in model-space metres. */

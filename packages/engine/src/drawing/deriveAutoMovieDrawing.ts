@@ -58,7 +58,6 @@ import { sectionAutoMovieDrawingSpaces } from "./sectionAutoMovieDrawingSpaces";
  * @evidence contracts/performance.md#efficient-algorithms Includes full environment validation, model tessellation/placement and linear triangle drafting, quadratic clipping in each cell's plane count, and feature-local corner/edge sorting for each dimension end or annotation. Output arrays and canonical object keys are sorted before text encoding/hashing; unknown filter ids use a shared set rather than repeated space scans.
  * @evidence contracts/performance.md#reuse-equivalent-work One design index serves every stage, so element lookups, world matrices and part tessellations are computed once and shared by drafting, opening marks and every dimension end and note; the index is built per call because the environment is the caller's mutable record.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The design index and stage temporaries are owned by this call and released when it returns, bounded by the design's size; only the returned drawing, owned by the caller, survives.
- * @author Samchon
  */
 export const deriveAutoMovieDrawing: (props: {
   environment: IAutoMovieBuiltEnvironment;

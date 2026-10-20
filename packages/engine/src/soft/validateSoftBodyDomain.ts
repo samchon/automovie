@@ -32,7 +32,6 @@ import { validateSoftVector as vector } from "./validateSoftVector";
  * @evidence contracts/performance.md#efficient-algorithms For P rest particles, A anchors, R state poses and K colliders, validation scans arrays/structural edges and reference sets, while static embedding is O(P*K); local sets and findings grow with those supplied populations, even when an over-budget input is reported.
  * @evidence contracts/performance.md#reuse-equivalent-work One shortest structural-edge scan supplies the travel measure, and canonical primitive admission helpers replace duplicate rules; mutable rest arrays and references are rescanned rather than cached.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The collector and reference sets belong to the call; returned findings can retain authored offending values, while no integrated states, actor poses or host resources are retained.
- * @author Samchon
  */
 export const validateSoftBodyDomain: (props: {
   domain: IAutoMovieSoftBodyDomain;

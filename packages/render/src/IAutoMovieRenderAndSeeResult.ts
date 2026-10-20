@@ -12,21 +12,15 @@ import { IAutoMovieRenderResult } from "./IAutoMovieRenderResult";
  * @evidenceExclude contracts/performance.md#efficient-algorithms This erased extension of IAutoMovieRenderResult chooses no algorithm; renderAndSee owns capture delegation and the shallow spec-envelope construction.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The erased artifact shape executes no equivalent-work lookup; renderAndSee publishes one completed render with requested seconds and a shallow spec snapshot.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased result acquires no media resource; renderAndSee creates the inspectable artifact and shares nested spec/frame values into caller-owned output, while adapters own files.
- *
- * @author Samchon
  */
 export interface IAutoMovieRenderAndSeeResult extends IAutoMovieRenderResult {
   /**
    * Render spec snapshot used for the capture.
-   *
-   * @author Samchon
    */
   spec: IAutoMovieRenderSpec;
 
   /**
    * Target duration in seconds.
-   *
-   * @author Samchon
    */
   durationSeconds: number;
 }

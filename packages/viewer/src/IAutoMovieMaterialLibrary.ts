@@ -10,8 +10,6 @@ import type * as THREE from "three";
  * @evidenceExclude contracts/performance.md#efficient-algorithms The library interface executes no declaration search or material build.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work It exposes shared materials, but identity admission and cache behavior belong to buildAutoMovieMaterialLibrary.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type acquires no material; its producer and dispose callback own the shot's runtime material lifetime.
- *
- * @author Samchon
  */
 export interface IAutoMovieMaterialLibrary {
   /**

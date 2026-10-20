@@ -24,8 +24,6 @@ import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
 
 /**
  * A resolved support: the face it bears on and how that face was derived.
- *
- * @author Samchon
  */
 interface IResolvedSupport {
   /** Polygon and height rule sampled by the gap query. */
@@ -59,7 +57,6 @@ interface IResolvedSupport {
  * @evidence contracts/performance.md#efficient-algorithms Pays each selected body's resolution cost, then an O(P) bearing-part scan for a P-part support body. A surface support instead adds its surface lookup, footprint construction and convex decomposition. The final `propSupportGap` call adds polygon containment and height-rule sampling costs for every retained probe; those costs are not bounded by the support's part count.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Judges one authored relation per call and retains no staging. Subject and support element resolutions each stage independently; `builtEnvironmentSupportSweep` shares staging for its separate nearest-bounds classification and does not replace authored relation checks.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the resolved boxes and face only for the call; the caller owns the returned verdict.
- * @author Samchon
  */
 export const builtEnvironmentSupportStatus: (props: {
   environment: IAutoMovieBuiltEnvironment;

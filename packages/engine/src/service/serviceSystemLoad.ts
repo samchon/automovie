@@ -34,8 +34,6 @@ import {
  * @evidence contracts/performance.md#efficient-algorithms Every node's ports are filtered and summed once, O(P) time for P ports, with temporary filtered arrays bounded by individual node port counts.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One load is derived per requested system from its current port demands; cross-system demand tables are not cached by this scalar owner.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Temporary filtered lists release on return and the output is a primitive, so no graph record remains retained.
- *
- * @author Samchon
  */
 export const serviceSystemLoad: (props: {
   network: IAutoMovieServiceNetwork;

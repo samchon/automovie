@@ -8,7 +8,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Three fields restate the analysis outcome in the promotion result, so a caller reads every empty reading from one list without walking the reference again.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The reason is carried verbatim rather than rewritten into a generic message, and an empty analysis is listed rather than filtered out of the result.
  * @evidence contracts/common.md#meaningful-documentation States which analyses produce an entry and in what order, the two statuses an entry can carry, and that the reason is the analysis' own text.
- * @author Samchon
  */
 export interface IAutoMovieDesignSkippedAnalysis {
   /** Analysis that produced no reading. */

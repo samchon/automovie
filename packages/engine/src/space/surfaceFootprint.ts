@@ -13,7 +13,6 @@ import { footprintRing } from "./footprintRing";
  * @evidence contracts/performance.md#efficient-algorithms E total outer/hole vertices and H hole records take O(E+H) work and owned projection/wrapper storage.
  * @evidence contracts/performance.md#reuse-equivalent-work Each ring is projected once for this footprint, which preparation callers reuse; fresh source revisions require rebuilding rather than identity-based caching.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the fresh footprint and plans retaining authored world rings until discarded; no GPU or host resource is acquired.
- * @author Samchon
  */
 export const surfaceFootprint: (
   surface: IAutoMovieSurface,

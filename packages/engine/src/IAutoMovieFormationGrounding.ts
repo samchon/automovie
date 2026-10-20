@@ -23,7 +23,6 @@ import { IAutoMovieWorldSurface } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record field only; the ground lookup per member is `worldGroundHeight` over the listed polygons inside `formationGroundRelief`, answered there.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type shares nothing itself; the anchor datum reuse keyed by this record object belongs to `formationGroundRelief`, which never invalidates an entry, hence the documented rule that a placed record keeps its anchor and ground.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources References a read-only surface array owned by the compiled formation or the world design; the anchor-height cache entry keyed by it is weak and dies with the record.
- * @author Samchon
  */
 export interface IAutoMovieFormationGrounding {
   /**

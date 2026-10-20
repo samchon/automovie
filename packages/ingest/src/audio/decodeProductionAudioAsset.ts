@@ -23,7 +23,6 @@ import type { IAutoMovieDecodedProductionAudioAsset } from "./IAutoMovieDecodedP
  * @evidence contracts/performance.md#efficient-algorithms Time follows RIFF chunk headers, source frames times channels and output samples; storage follows source and output frames, each encoded sample is read once through one DataView, and the mono buffer becomes the result when rates match.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The decoder is a pure function of one call's bytes and rate and coordinates no work across requests; any caching of decoded assets would belong to its caller.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The call owns source-frame mono storage and, on resampling, rate-ratio-sized output storage; no product memory budget bounds a requested allocation. Temporary buffers become collectable on return/throw, the returned buffer transfers to its caller, and no raw bytes, handles or tasks are retained.
- * @author Samchon
  */
 export const decodeProductionAudioAsset: (props: {
   /** Diagnostic identity only; the decoder opens no file. */

@@ -55,7 +55,6 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * @evidence contracts/performance.md#efficient-algorithms O(V F) for V vertices and F fields, each field rejected by its bounding box before any ellipsoid arithmetic, plus a linear triangle check; fields are few local features, so a spatial index over them would cost more than it saves.
  * @evidence contracts/performance.md#reuse-equivalent-work Field packing happens once per compiled deformer and is reused by every call; each call's result depends on its own mesh and influence, so nothing else is shared.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The deformer retains only the packed fields, four three-number arrays each; a call holds one nine-number cofactor matrix per vertex until the triangle check finishes and returns new position, normal and physical buffers.
- * @author Samchon
  */
 export function createAutoMovieMeshDeformer(
   fields: readonly IAutoMovieMeshDeformationField[],

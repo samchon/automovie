@@ -18,7 +18,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A type; the partition cost is answered on `buildAutoMovieMeshQueryHierarchy` and each walk on its query.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A query compiles one tree per resident surface and every later call walks that same tree.
  * @evidence contracts/performance.md#bound-retention-and-release-resources A tree of n > 12 entries holds at most n/3 nodes, since every leaf keeps at least six entries, each with two three-number arrays, plus references to the caller's entries; it lives as long as the compiled query or envelope that built it.
- * @author Samchon
  */
 export type IAutoMovieMeshQueryHierarchy<
   T extends IAutoMovieMeshQueryHierarchy.IEntry,

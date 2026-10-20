@@ -15,7 +15,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape; projecting and checking it are answered on `projectProductionShotEffectFilmIntervals` and `materializeProductionFilmEffects`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built per projection call from the current timeline and shot set; nothing keeps intervals between builds.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Three strings and two integers by value, owned by the projection's result array.
- * @author Samchon
  */
 export interface IAutoMovieShotEffectFilmInterval {
   /** Shot-owned cue id, unique inside its shot. */

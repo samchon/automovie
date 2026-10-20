@@ -7,7 +7,6 @@ import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 /**
  * Wrap an imported runtime object as an {@link IAutoMovieModelObject}.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Always adds the supplied loaded root beneath a new runtime group so pose-root TRS does not overwrite the imported root's authored local TRS; normalized semantic bone map drops null/undefined entries and imported bytes have no generated part-id registry. Reparenting uses add, so an already-parented root's previous world placement is not preserved.
  * @evidence contracts/common.md#clear-and-simple-design Adapts one loaded root and optional bone/expression/frame ports into the same model handle as generated assets; loader/byte/native ownership remains with the caller and no duplicate decoded model is built.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Wrapping is uniform for every Object3D class rather than a fixture/instanceof root exception; semantic-map casts rely on admitted keys and no missing bones/parts or expression hooks are fabricated.

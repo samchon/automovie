@@ -11,7 +11,6 @@ import { IAutoMovieOnHitReaction } from "./IAutoMovieOnHitReaction";
  * @evidence contracts/common.md#clear-and-simple-design The projectile, aim, speed and optional reaction are the whole launch; gravity and arc are engine defaults, and the recoil is an ordinary `react` action injected into the performance rather than a launch-specific motion.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An unreachable or more-than-1e-9-seconds-late flight is refused rather than trimmed; point/group onHit cannot be silently discarded and the launcher receives no invented throw. Sequence playback gives flight tracks no authority before start and holds their landing afterward; injected recoil is exempt from ordinary region-overlap refusal, and fall events do not prove falling motion.
  * @evidence contracts/common.md#meaningful-documentation States the reactive-timing purpose, every refusal, where the flight starts and how it is solved and led, how the clip covers the shot, the events, and that the shooter does not move; members give the projectile requirement, aim kinds, the speed unit and bounds, and the reaction's effect.
- * @author Samchon
  */
 export interface IAutoMovieLaunchAction extends IAutoMovieActionBase {
   /** Selects a projectile launch as the action family. */

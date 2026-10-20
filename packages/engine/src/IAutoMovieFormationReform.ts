@@ -21,7 +21,6 @@ import { IAutoMovieFormationDesign } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms This record only borrows up to two layouts and one number; blending evaluates source/target local points per member inside formationSlotPosition.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Rebuilt each time motion is sampled, and the record carries no identity a later sample could reuse.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The sampled reform borrows its target and optional previous completed layout from the caller's cue/design records; the caller owns that population and discards the wrapper with its sample. No host handle or task is acquired.
- * @author Samchon
  */
 export interface IAutoMovieFormationReform {
   /** The arrangement the unit is in when the cue ends, in the unit's own frame. */

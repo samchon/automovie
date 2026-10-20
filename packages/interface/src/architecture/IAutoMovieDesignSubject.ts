@@ -9,7 +9,6 @@
  * @evidence contracts/common.md#clear-and-simple-design An id plus an open graph name is the whole coupling, so a new graph opts into lineage by publishing ids rather than by widening this type or importing the lineage module.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unpublished ids are refused at build rather than ignored; the remaining gap is that an imported subject's digest is authored and not compared with the asset manifest, which the `digest` documentation states.
  * @evidence contracts/common.md#meaningful-documentation States why the record is graph-agnostic, exactly which published ids a subject may bind to, when a digest is required and when it must be null, and that the digest is unverified against the manifest.
- * @author Samchon
  */
 export interface IAutoMovieDesignSubject {
   /** Stable id of one record in some other graph, unique within the lineage. */

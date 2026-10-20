@@ -19,7 +19,6 @@ import {
  * @evidenceExclude contracts/performance.md#efficient-algorithms Record of derived values; building one is constant work in `worldBlock`, and the pairwise overlap check over blocks is answered on `assertWorldPlacements`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call to `worldBlock` builds a new block from its inputs; nothing keyed by a block is cached across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A fixed-size record of one single-part model, one node and two corner vectors, owned by the authored source that built it.
- * @author Samchon
  */
 export interface IAutoMovieWorldBlock {
   /** Stable block identity, also used as the node id and, under the runtime model namespace, as the model id. */

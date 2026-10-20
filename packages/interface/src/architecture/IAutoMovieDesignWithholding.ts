@@ -10,7 +10,6 @@
  * @evidence contracts/common.md#clear-and-simple-design One closed reason plus an engine-written detail per candidate, so a caller can branch on the reason and show the detail without parsing either.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A candidate with rivals is withheld rather than resolved by picking the most confident one, and only the first reason is reported instead of a list a caller might read as a checklist.
  * @evidence contracts/common.md#meaningful-documentation States the gate order, that only the first failing reason is recorded, and what facts the detail sentence names for each reason.
- * @author Samchon
  */
 export interface IAutoMovieDesignWithholding {
   /** Candidate that stays an observation. */

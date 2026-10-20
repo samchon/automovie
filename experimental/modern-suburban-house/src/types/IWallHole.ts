@@ -1,7 +1,5 @@
 /**
  * A caller-authored rectangular rough void in its assigned wall's running/world-height metre frame. The stable opening id and four bounds travel into wall and room bindings; door/window frame, leaf and glazing models retain their separate owners. This erased record does not validate ordering, clearance or structural support.
- *
- * @author Samchon
  */
 export interface IWallHole {
   /** House-wide rough-opening address shared by the host wall and room bindings. */

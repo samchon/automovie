@@ -10,7 +10,6 @@ import { IAutoMovieActionTarget } from "./IAutoMovieActionTarget";
  * @evidence contracts/common.md#clear-and-simple-design A hand and a target on the shared base are the whole verb; arm lengths, rest frames and joint ranges come from the actor's rig, so no angle or IK option is exposed.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A supplied rig with an unbendable arm and an unresolved target are refused; the arm gate skips a missing rig, and missing actor/rig context can still yield no synthesized motion. Out-of-range solutions remain for ROM refusal rather than being clamped into an invented contact, and a geometrically unreachable target reaches only the shell.
  * @evidence contracts/common.md#meaningful-documentation States the rig the verb needs, each refusal and why, the solver and its out-of-range behavior, the reach point of a node target, the clip shape, when it is resampled, the `"auto"` length and the default region; members give the arm side and the target requirement.
- * @author Samchon
  */
 export interface IAutoMovieReachAction extends IAutoMovieActionBase {
   /** Selects a reach as the action family. */

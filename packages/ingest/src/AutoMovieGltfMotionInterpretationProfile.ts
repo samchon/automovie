@@ -8,7 +8,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms Interpretation typing performs no coordinate conversion or animation sampling.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work This literal vocabulary stores no reusable transformed motion computation.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The compile-time spatial label retains no node transforms, track buffers or runtime resources.
- * @author Samchon
  */
 export type AutoMovieGltfMotionInterpretationProfile =
   "gltf-2.0-meter-right-handed-y-up";

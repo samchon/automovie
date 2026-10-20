@@ -8,7 +8,6 @@
  * @evidence contracts/performance.md#efficient-algorithms The erased union costs no runtime work; image probing and decoding costs belong to their owners.
  * @evidence contracts/performance.md#reuse-equivalent-work Consumers share the same closed label set, while runtime accepted subsets remain explicit in material/environment gates.
  * @evidence contracts/performance.md#bound-retention-and-release-resources A label owns no image bytes, decoded pixels, texture or decoder lifetime.
- * @author Samchon
  */
 export type AutoMovieTextureMediaType =
   | "image/png"

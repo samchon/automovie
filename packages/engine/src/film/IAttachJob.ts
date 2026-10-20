@@ -15,7 +15,6 @@ import { IAutoMovieActionCall } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape; the grouping and ordering of jobs are answered on `coupleObjects`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built per `performShot` call from that shot's actions and consumed in the same call.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources References the caller's action record and holds one number; the job list lives only for the shot compilation.
- * @author Samchon
  */
 export interface IAttachJob {
   /** Validated attachment action; the same object as in the shot's actions. */

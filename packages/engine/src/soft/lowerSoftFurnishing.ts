@@ -23,8 +23,6 @@ import { validateSoftBodyDomain } from "./validateSoftBodyDomain";
  * @evidence contracts/performance.md#efficient-algorithms Validation and mesh derivation scan P particles; simulated mode adds O(P*K*(I+C)) replay, while rest mode still allocates anchored configuration and surface arrays. Storage includes O(P) result and temporary geometry.
  * @evidence contracts/performance.md#reuse-equivalent-work The selected state and computed particle field serve one surface derivation; no prior frame is reused under mutable domain/state/time assumptions.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Fresh mesh/state arrays and analysis rows transfer to the caller; failed admission retains no geometry, and thrown simulation retains no playback cursor or render task.
- *
- * @author Samchon
  */
 export const lowerSoftFurnishing: (props: {
   furnishing: IAutoMovieSoftFurnishing;

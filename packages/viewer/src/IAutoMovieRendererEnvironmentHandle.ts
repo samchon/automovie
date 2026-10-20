@@ -8,8 +8,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms This lifecycle interface performs no renderer configuration strategy itself.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Restoration memoization is implemented by applyRendererEnvironment, not by the erased handle type.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The handle borrows the host renderer and acquires no context or native target.
- *
- * @author Samchon
  */
 export interface IAutoMovieRendererEnvironmentHandle {
   /**

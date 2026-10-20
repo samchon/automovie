@@ -27,7 +27,6 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * @evidence contracts/performance.md#efficient-algorithms Three axis checks plus at most one swing-cone check and a sum over at most four violations, constant per call; the short-lived collector is the gate's own message-building path, accepted so the score cannot drift from the gate.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one joint and constraint that coordinates no work across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Owns one `ViolationCollector` holding at most four violations for the duration of the call; it is unreachable after the sum returns, and nothing is retained.
- * @author Samchon
  */
 export const jointRomOvershoot: (
   joint: IAutoMovieJointPose,

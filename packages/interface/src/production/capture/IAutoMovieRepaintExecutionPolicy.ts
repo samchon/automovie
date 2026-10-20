@@ -7,7 +7,6 @@ import { AutoMovieRepaintRetryableFailureClass } from "./AutoMovieRepaintRetryab
  * @evidence contracts/common.md#clear-and-simple-design One policy groups attempt, elapsed-time and cost limits with retry classes and backoff values, keeping the intended execution envelope explicit.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The retry vocabulary omits cancellation, stale input and budget exhaustion. No current execution host implements charging, cancellation or deadline enforcement for this retained policy.
  * @evidence contracts/common.md#meaningful-documentation Defines attempts, millisecond deadlines and total ceiling, adapter cost units, backoff population and explicit retry classes.
- * @author Samchon
  */
 export interface IAutoMovieRepaintExecutionPolicy {
   /** Positive safe-integer maximum provider calls belonging to one request. */

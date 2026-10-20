@@ -10,8 +10,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms The transport record performs no capture, encoding or filesystem work.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Fact serialization and publication equivalence are decided by display owners, not by this extensible record type.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Metadata holds provenance values without owning a framebuffer, bitmap or GPU context.
- *
- * @author Samchon
  */
 export interface IAutoMovieViewerDisplayMetadata {
   /** Actual loaded application source identity. */

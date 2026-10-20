@@ -15,7 +15,6 @@ import { IAutoMovieMeshSkin } from "./IAutoMovieMeshSkin";
  * @evidence contracts/common.md#clear-and-simple-design Positions and triangle addressing are the geometry core, with nullable shading and skin buffers and optional correspondence, colour, relief and morph target attributes; each optional attribute states its own neutral absence rather than requiring placeholder arrays.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Explicit buffers come from adopted bytes or an authored generator, without a source-identity exemption from existing admission. Physical correspondence supplies topology; incidence and winding checks alone do not certify nonzero triangle area or absence of geometric intersections.
  * @evidence contracts/common.md#meaningful-documentation Defines flat tuple layouts, metre positions, attribute alignment, indexed and non-indexed ordering, null shading and skin semantics, physical-source ownership and optional colour and relief defaults and export limits.
- * @author Samchon
  */
 export interface IAutoMovieMesh {
   /**

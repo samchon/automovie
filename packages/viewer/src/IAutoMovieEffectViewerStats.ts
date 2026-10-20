@@ -1,7 +1,6 @@
 /**
  * Current bounded numerical summary for one deterministic effect cue.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Records the actual fixed-step sample's active flag/intensity and live count after LOD/cap, with the configured capacity retained separately; counts describe sampler/instance population, not observed fragments or a GPU-budget receipt.
  * @evidence contracts/common.md#clear-and-simple-design One small mutable summary sits beside the emitter mesh so callers inspect current sampling without rebuilding particle lists or reading native buffers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Fields follow actual sample values and declared cap, without fixture target counts, native resource replacement or invented render-success flags.

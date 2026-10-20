@@ -8,7 +8,6 @@ import { IAutoMovieSoftStiffness } from "./IAutoMovieSoftStiffness";
  * @evidence contracts/common.md#clear-and-simple-design Numerical settings and bounded seek work live beside the domain instead of being inferred from playback frame rate.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts referenceSpeed is an author-supplied design speed used in admission, not a runtime speed clamp or a continuous collision certificate; maxSpeed reports the resulting solve separately.
  * @evidence contracts/common.md#meaningful-documentation Members give seconds, acceleration, inverse-second drag, dimensionless stiffness, iteration count and the maximum absolute integration step.
- * @author Samchon
  */
 export interface IAutoMovieSoftSolver {
   /** Integration step in seconds; strictly positive. */

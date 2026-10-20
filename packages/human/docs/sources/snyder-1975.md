@@ -19,7 +19,3 @@ US children from birth to 13 years, measured in the early 1970s; summary tables 
 | 145-156 | 80.8 | 53.6 | 76.8 | 50.2 |
 
 Vertex to the top of the shoulder is therefore 20.3 and 20.5 cm at 25 to 30 months, 22.8 and 23.2 cm at 6 years.
-
-## What Human takes
-
-A check on the shoulder height the 1977 suprasternale fit gives young children (`../anatomy/growth.md`), not a constant: mid-shoulder is a soft-tissue point above the acromion.

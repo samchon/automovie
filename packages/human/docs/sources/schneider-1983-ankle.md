@@ -20,6 +20,6 @@ The ratios are derived from reported group means, not individual ratios. The lar
 
 ## Limits and use
 
-The same-level breadth and depth establish a section deeper than broad under this supported seated protocol. They do not directly set Human's standing section or its minimum-girth height. An ellipse at those breadths and depths has a perimeter about 6 to 7% below the measured tape girth, so all three cannot be imposed exactly as one ellipse. The summary data do not establish whether that difference comes from section shape, caliper compression, sample composition or posture.
+The same-level breadth and depth establish a section deeper than broad under this supported seated protocol. They do not establish a standing section or its minimum-girth height. An ellipse at those breadths and depths has a perimeter about 6 to 7% below the measured tape girth, so all three cannot be imposed exactly as one ellipse. The summary data do not establish whether that difference comes from section shape, caliper compression, sample composition or posture.
 
-Human takes no coefficient from this study: applying its seated ratio to a standing section requires evidence from a matching posture.
+Applying the seated ratio to a standing section lacks evidence from a matching posture.

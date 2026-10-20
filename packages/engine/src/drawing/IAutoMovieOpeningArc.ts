@@ -14,7 +14,6 @@ import { IAutoMoviePlanarPoint } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A four-field arc record that computes nothing; `autoMovieOpeningArc` states the cost of producing it.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A value record produced per edge; there is no work to share.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds four numbers and owns no handle or task.
- * @author Samchon
  */
 export interface IAutoMovieOpeningArc {
   /** Centre of the arc's circle, in profile-frame metres. */

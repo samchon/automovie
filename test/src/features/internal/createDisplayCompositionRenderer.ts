@@ -2,7 +2,6 @@ import * as THREE from "three";
 
 /**
  * One native compositor draw, retaining the selected target by object identity.
- * @author Samchon
  */
 interface IDisplayCompositionRecord {
   target: THREE.WebGLRenderTarget | null;
@@ -19,7 +18,6 @@ interface IDisplayCompositionRecord {
 
 /**
  * Configured raster state and its effective pixel rectangles; target is a local scalar identity.
- * @author Samchon
  */
 interface IDisplayCompositionSnapshot {
   target: number | null;
@@ -38,7 +36,6 @@ interface IDisplayCompositionSnapshot {
 
 /**
  * Existing controls and observations borrowed by portable display tests.
- * @author Samchon
  */
 interface IDisplayCompositionResult {
   renderer: THREE.WebGLRenderer;

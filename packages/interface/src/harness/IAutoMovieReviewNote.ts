@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Four fields share correction structure between visual grammar findings and persisted review notes, so each producer supplies the same located correction without per-reviewer payloads.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Grammar adaptation drops severity and shot fields and relies on the supplied beat to preserve location; storage accepts a structurally valid note without proving beat membership, review provenance or the truth of its text. Numerical proxy findings remain claims for a reviewer, with no text-quality grade.
  * @evidence contracts/common.md#meaningful-documentation States who files notes and through which gate, which tier the engine uses and for what, and every refusal; members give the beat rule, the tier meanings, and what the two texts must say.
- * @author Samchon
  */
 export interface IAutoMovieReviewNote {
   /** Script beat id the note is filed on; non-blank. */

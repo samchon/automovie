@@ -31,7 +31,6 @@ import { applyLightState } from "./applyLightState.js";
  * clip addressing a light the scene does not stage, so the only way to arrive
  * here unresolved is a host that built a subset of the scene.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Resolves all staged lights through engine absolute-time clip authority and writes matching borrowed Three targets by semantic id; admitted light channels and matching target classes are premises, and unresolved host-subset targets are skipped while unaddressed fields return to staged values.
  * @evidence contracts/common.md#clear-and-simple-design Keeps light interpolation/rest authority in resolveShotLighting and concrete Three field mapping in applyLightState; id lookup avoids dependency on top-level scene child indices used by segmentation.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses every actual resolved light without fixture candle times or positional targeting; skips missing host objects by the partial-scene contract rather than manufacturing substitute geometry/light.

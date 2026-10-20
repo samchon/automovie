@@ -13,7 +13,6 @@ import {
  * @evidence contracts/performance.md#efficient-algorithms The record has constant size; its sampler scans R joined ranges in O(R) time and allocates one result and one mouth object.
  * @evidence contracts/performance.md#reuse-equivalent-work Authored emotion is shared unchanged while mouth state is recomputed from frame and ranges, so random seeks require no mutable playback cursor.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the fresh result and mouth object; authored retains the supplied expression until the result is discarded, with no process or renderer handle.
- * @author Samchon
  */
 export interface IAutoMovieDialogueExpressionLayers {
   /** Unchanged authored expression layer. */

@@ -18,8 +18,6 @@ import type * as THREE from "three";
  * @evidenceExclude contracts/performance.md#efficient-algorithms The formation inputs perform no slot regeneration, bake or culling strategy.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The builder decides table/tier sharing and captures membership; this props type coordinates no repeated request.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Runtime maps and promoted objects remain caller-owned; the props record allocates no anonymous instance buffer or gait texture.
- *
- * @author Samchon
  */
 export interface IBuildInstancedFormationProps {
   /** Compiled compact identity, layout, anchor and available tiers. */

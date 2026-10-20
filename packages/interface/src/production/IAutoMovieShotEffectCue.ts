@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design The cue owns activation and envelope while the world zone owns spatial bounds, recipe, seed and budget, keeping authored timing separate from deterministic effect materialization.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing compiled counterparts and absent or numerically out-of-cue event samples produce diagnostics when validation is explicitly called. The bare materializer drops unresolved world references; this type installs no automatic validator or complete event-realization gate.
  * @evidence contracts/common.md#meaningful-documentation Defines unique cue and zone identity, inclusive/exclusive seconds, intensity endpoints and optional authoritative event binding.
- * @author Samchon
  */
 export interface IAutoMovieShotEffectCue {
   /** Stable cue id, unique inside one shot. */

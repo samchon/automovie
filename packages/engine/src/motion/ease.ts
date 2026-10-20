@@ -15,8 +15,6 @@ import { AutoMovieEasing } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms Curve selection and each fixed polynomial/step formula take constant work and allocate no arrays or lookup structures.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work These scalar formulas have no retained cache; each current progress is evaluated directly.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns one scalar and retains neither progress nor any external resource after completion or throw.
- *
- * @author Samchon
  */
 export const ease: (curve: AutoMovieEasing, t: number) => number = (
   curve: AutoMovieEasing,

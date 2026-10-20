@@ -13,7 +13,6 @@ import { IAutoMovieShotSourceOutput } from "./IAutoMovieShotSourceOutput";
  * @evidence contracts/common.md#clear-and-simple-design Extending shot output preserves its scene and motion representation, while compiler-only resolution and provenance fields stay on the compiled artifact rather than expanding the source authoring API.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Render and measurement consume the supplied artifact without executing acceptance exports. This type supplies no source-owner admission, review/final publication gate or automatic formation-cue validation after production retirement; the host owns those checks.
  * @evidence contracts/common.md#meaningful-documentation States host composition, optional unverified source/acceptance attribution, model and compact-population membership, explicit cue admission ownership and deterministic effect records.
- * @author Samchon
  */
 export interface IAutoMovieCompiledShotSource extends IAutoMovieShotSourceOutput {
   /**

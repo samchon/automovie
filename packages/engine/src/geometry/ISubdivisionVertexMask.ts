@@ -13,7 +13,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its construction is answered on `subdivisionVertexMask`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each level computes one mask per vertex and reuses it for positions and UVs.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Two short arrays sized by the vertex valence, released with the level.
- * @author Samchon
  */
 export interface ISubdivisionVertexMask {
   /** Weight of the parent vertex. */

@@ -27,8 +27,6 @@ import { IAutoMovieGait } from "@automovie/interface";
  * anatomical motion capacities. Module-owned rows are shared by profile and
  * playground contexts; the engine validates and samples them. Fixed table
  * construction happens once and retains no per-frame task or host resource.
- *
- * @author Samchon
  */
 export const HUMANOID_GAITS: Record<
   "walk" | "run" | "sprint" | "sneak" | "march",

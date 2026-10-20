@@ -18,8 +18,6 @@ import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
  * @evidence contracts/performance.md#efficient-algorithms Three fixed poses/keys and bounded joint lists give constant assembly cost; actual sampled articulation and rendering remain player/viewer work.
  * @evidence contracts/performance.md#reuse-equivalent-work The opposite-arm stance record is shared across this clip's frames; equal endpoint values are newly wrapped and there is no cross-call motion cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the clip and local arrays, which borrow the shared stance joint within this call; no running playback or renderer resource is retained by the producer.
- *
- * @author Samchon
  */
 export const wave: (sk: string) => IAutoMovieMotion = (
   sk: string,

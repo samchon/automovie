@@ -40,7 +40,6 @@ const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
  * @evidence contracts/performance.md#efficient-algorithms Linear in the shell's vertex count, folded per axis without spreading, or in the cells' total plane count, with an early `null` on the first refused cell.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function called once per space per room schedule; nothing equivalent repeats.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates a few small vectors and a corner list bounded by twice the cell count, all released on return.
- * @author Samchon
  */
 export const autoMovieDrawingSpaceBox = (
   space: IAutoMovieBuiltSpace,

@@ -9,7 +9,6 @@ import { IAutoMovieDrawingScheduleBox } from "./IAutoMovieDrawingScheduleBox";
  * @evidence contracts/common.md#clear-and-simple-design One place record gathers delegated hierarchy, box, content, adjacency and connector answers. Bounds are rounded and named contents truncated after sorting, while fidelity remains an authored metadata fold rather than an accuracy measurement; the record does not authenticate a source revision.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Contents come from the declared `space` of elements and populations, never from id prefixes, and a population is named once by its owner id rather than expanded or sampled.
  * @evidence contracts/common.md#meaningful-documentation States the one-query-per-field rule and why two boxes exist; members give when each nullable field is `null`, the descendant folding of `content`, `fidelity` and `contents`, the id spellings and bound of `contents`, how to recover the full count, and the exact-match rule of `connectors`.
- * @author Samchon
  */
 export interface IAutoMovieDrawingSpacePlace {
   /** Discriminant naming the subject this place describes. */

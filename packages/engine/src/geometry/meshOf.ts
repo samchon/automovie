@@ -28,7 +28,6 @@ import { Vector3 } from "../math/Vector3";
  * @evidence contracts/performance.md#efficient-algorithms Linear in triangles, grouped vertices and vertices: one accumulation pass with scalar cross products, one pass per group, and one normalization per vertex.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each builder call produces one new mesh, and its normals depend on that call's positions.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Allocates one normals array the size of `positions` and adopts the caller's arrays into the returned mesh without copying.
- * @author Samchon
  */
 export const meshOf = (
   positions: number[],

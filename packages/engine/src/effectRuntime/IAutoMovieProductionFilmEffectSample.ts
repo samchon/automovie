@@ -19,7 +19,6 @@ import { IAutoMovieEffectSample } from "../IAutoMovieEffectSample";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape; the per-runtime digest recomputation and particle sampling are answered on `sampleProductionFilmEffects`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built fresh for each sampled frame; no sample is cached because the frame and camera distance are inputs of every particle position.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources `runtime` is a deep clone the caller owns, so mutating it never edits the persisted array, and `sample` is a new record; nothing else references either.
- * @author Samchon
  */
 export interface IAutoMovieProductionFilmEffectSample {
   /** Deep copy of the validated, current persisted runtime that was sampled. */

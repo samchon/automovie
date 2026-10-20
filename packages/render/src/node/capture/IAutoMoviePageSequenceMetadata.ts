@@ -11,7 +11,6 @@ import type { IAutoMovieSequence, IAutoMovieShot } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms The erased shape performs no work; the reader copies metadata and maps shot ids only when absent.
  * @evidence contracts/performance.md#reuse-equivalent-work The capture session reads one metadata snapshot and reuses it for planning and the artifact.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the copied sequence, shot array and ids; the type acquires no page or file handle.
- * @author Samchon
  */
 export interface IAutoMoviePageSequenceMetadata {
   /** Readiness marker asserted only after all capture hooks are installed. */

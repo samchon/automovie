@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Two minimal id arms keep performance membership distinct from compact crowd membership without embedding either runtime representation in the contract.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A named scene node alone cannot discharge a performing-actor obligation, and a formation label cannot stand in for its contiguous chunks and exact materialized member count.
  * @evidence contracts/common.md#meaningful-documentation Defines participant kind and the exact actor or formation identity required by the owning shot.
- * @author Samchon
  */
 export type IAutoMovieShotParticipant =
   | {

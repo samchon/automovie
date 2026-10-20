@@ -10,7 +10,6 @@ import {
  * boundary. Missing source values default to the first authored source point,
  * so nonlinear curves do not depend on the linear driver's `inRange`.
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Validate a nonempty finite strictly increasing point list, select endpoint clamps or piecewise-linear interpolation, and use the first authored source when the input is absent.
  * @evidence contracts/common.md#clear-and-simple-design Curve validation and scalar evaluation share one owner; resolveDrivers separately chooses null/absent curve as the linear-range mode.

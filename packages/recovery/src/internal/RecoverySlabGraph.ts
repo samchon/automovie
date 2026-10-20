@@ -20,7 +20,6 @@ export namespace RecoverySlabGraph {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A record computes no graph.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record owns no cache.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns its small index arrays.
-   * @author Samchon
    */
   export interface Group {
     /** Local boundary-support indices at the lower cut. */

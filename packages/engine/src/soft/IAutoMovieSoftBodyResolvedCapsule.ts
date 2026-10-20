@@ -12,7 +12,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms Capsule rows declare no nearest-segment or contact algorithm; collision projection belongs to the integration owner.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A resolved proxy describes one step and owns no cross-frame geometry cache or equivalence claim.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The boundary owns two position records and primitive metadata; no source actor or bone collection is retained in this row.
- * @author Samchon
  */
 export interface IAutoMovieSoftBodyResolvedCapsule {
   /** Stable source capsule identity. */

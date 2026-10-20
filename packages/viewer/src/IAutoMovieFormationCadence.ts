@@ -10,8 +10,6 @@ import type { IAutoMovieFormationCycleTake } from "./IAutoMovieFormationCycleTak
  * @evidenceExclude contracts/performance.md#efficient-algorithms This result interface performs no segment folding or gait lookup.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The cadence value describes shared inputs but does not itself coordinate cache equivalence or execution.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Cadence borrows its take from the formation repertoire and acquires no new table texture.
- *
- * @author Samchon
  */
 export interface IAutoMovieFormationCadence {
   /** Take playing at the sampled time. */

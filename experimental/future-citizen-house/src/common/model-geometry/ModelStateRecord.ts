@@ -3,8 +3,6 @@ import type { ModelPartRecord } from "./ModelPartRecord";
 
 /**
  * Caller-owned draft state consumed by mesh recipes and catalog audits. Optional maps are indexed by local part ID; absence leaves the associated recipe unavailable. This erased shape neither validates numeric domains nor copies catalog data.
- *
- * @author Samchon
  */
 export interface ModelStateRecord {
   /** Exact state token; plant recipes also parse it as millimetres of overall height. */

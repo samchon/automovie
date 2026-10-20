@@ -15,7 +15,6 @@ import { AutoMovieSurfaceKind } from "./AutoMovieSurfaceKind";
  * @evidence contracts/common.md#clear-and-simple-design Semantic label remains independent from footprint and height, while explicit void rings express one slab without splitting its support ownership into neighbouring patches.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Conflicting or missing height statements refuse; hole rims belong to the closed slab and invalid rings refuse. The gate requires absolute double plan area above 1e-9 square metres and legacy squared ramp span at least 1e-9 square metres. Finite fields do not guarantee finite derived heights, and multi-valued ground and true curved footprints remain unsupported.
  * @evidence contracts/common.md#meaningful-documentation Defines XZ and ignored-y ownership, concavity and hole rules, mutually exclusive height/anchor spelling and single-valued-ground limitations.
- * @author Samchon
  */
 export interface IAutoMovieSurface {
   /** Stable id; `IAutoMovieSpace.walkable` cites surfaces by this. */

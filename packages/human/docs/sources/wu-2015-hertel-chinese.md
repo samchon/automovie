@@ -21,10 +21,6 @@ CC BY 4.0.
 
 No sex difference in this sample. Left-right difference is at most 2 mm. The discussion cites a general pattern: protrusion grows over the first two decades, holds or declines slightly in adulthood and declines from the seventh decade.
 
-## What Human takes
-
-Corneal apex 15 to 16 mm in front of the lateral orbital rim for an East Asian adult, 13.7 mm at age 10; this fixes the globe's forward position relative to the bony orbit.
-
 ## Limits
 
 Northern Chinese only; the paper notes Taiwanese and Hong Kong studies differ.

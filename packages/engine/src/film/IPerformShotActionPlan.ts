@@ -21,7 +21,6 @@ import { IPerformShotLaunchJob } from "./IPerformShotLaunchJob";
  * @evidenceExclude contracts/performance.md#efficient-algorithms Type-only: the action pass fills its lists in one walk over the actions, which is that function's cost to state.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built once per call and read by every later stage of the same call.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Lives for one `performShot` call, bounded by the action count plus one injected recoil per launch.
- * @author Samchon
  */
 export interface IPerformShotActionPlan {
   /**

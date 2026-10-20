@@ -15,7 +15,6 @@ import {
  * @evidence contracts/performance.md#efficient-algorithms For S spans and K spans overlapping one window, bisection plus clipping costs O(log(S+1) + K). For C contiguous chunk windows that partition the coverage, each internal boundary adds at most one repeated span visit, so total work is O(C log(S+1) + S); a single long span can still appear in all C outputs, and no span or chunk count cap is imposed.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call slices one window; chunk windows are disjoint, so there is no equivalent result to reuse between calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The function retains nothing; the returned sidecar, owned by the caller, holds exactly the K overlapping spans as new objects and never aliases the input's spans.
- * @author Samchon
  */
 export const sliceCaptionSidecar: (
   sidecar: IAutoMovieCaptionSidecar,

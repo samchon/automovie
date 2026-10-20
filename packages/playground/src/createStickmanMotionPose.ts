@@ -14,8 +14,6 @@ import type {
  * @evidence contracts/performance.md#efficient-algorithms Constant-size wrapper creation borrows the supplied joint array/root rather than traversing or copying its population.
  * @evidence contracts/performance.md#reuse-equivalent-work Shared authored pose vocabulary can borrow the same joint/root records; output wrappers remain independent and callers preserve their read-only sharing premise.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the wrapper and supplied records' lifetime; this constructor retains no cross-call state or external resource.
- *
- * @author Samchon
  */
 export function createStickmanMotionPose(
   skeleton: string,

@@ -15,7 +15,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms An interface runs no algorithm; the validation cost is answered on `normalizeAudioAssets`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Six scalar facts about one asset carry no computation of their own; the shared base exists to avoid restating fields, not to share work.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Path, digest and counts are plain values that keep no file open; they live inside whichever asset identity extends them.
- * @author Samchon
  */
 export interface IAutoMovieProductionAudioAssetIdentityBase {
   /** Project-relative path of the builder-declared asset, unique in a plan. */

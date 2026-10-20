@@ -8,8 +8,6 @@ import type {
 import type { IGeometryFormationTestContract } from "./IGeometryFormationTestContract";
 
 /** Current records and optional selectors for the existing formation measurements.
- *
- * @author Samchon
  */
 export interface IGeometryFormationTestMeasureProps {
   /** Current compiled shots keyed by their authored identity. */

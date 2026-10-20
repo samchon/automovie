@@ -57,8 +57,6 @@ const DUR: number = 9;
 // speed, and a 1-D vertical projectile arc carries the figure to the next.
 /**
  * One precomputed trampoline flight interval and its upward launch velocity.
- *
- * @author Samchon
  */
 interface Arc {
   start: number;

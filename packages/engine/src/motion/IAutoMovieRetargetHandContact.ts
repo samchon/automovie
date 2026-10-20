@@ -11,8 +11,6 @@ import { AutoMovieHumanoidBone } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms This record performs no scan; the contact pass tests each existing keyframe against its declared span and resolves reachable chains once.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work No derived target is cached in this input; mapped positions depend on the current source pose and rootScale at the owning retarget call.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Five scalar fields belong to one caller-owned declaration; the contact pass's temporary frame pins own any expanded storage and acquire no handles.
- *
- * @author Samchon
  */
 export interface IAutoMovieRetargetHandContact {
   /** Hand end-effector bone held on its source contact. */

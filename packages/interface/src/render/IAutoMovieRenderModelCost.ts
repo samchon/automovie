@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design A reusable per-model row avoids charging shared geometry storage once per scene placement, while the inventory separately counts submitted instances and whole-frame passes.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Geometry bytes are estimates rather than observed GPU allocation, and one part's submission count does not include extra shadow or guide passes by itself.
  * @evidence contracts/common.md#meaningful-documentation Defines runtime id, nullable direct-placement tier, parts, vertices, triangles, materials and estimated storage units.
- * @author Samchon
  */
 export interface IAutoMovieRenderModelCost {
   /** Runtime model id. */

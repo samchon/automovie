@@ -11,7 +11,6 @@ import { IAutoMovieProductionFrameRate } from "./IAutoMovieProductionFrameRate";
  * @evidence contracts/common.md#clear-and-simple-design Segments own video mapping while three inline track arrays own audio, captions and effects; the optional exact frame-rate record preserves fractional identity separately from numeric fps.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Integer legacy timelines may omit frameRate and mean fps/1 under resolveProductionFrameRate. Declared inputFingerprint/sourceDigest are not independent current-byte proof; no surviving production manifest parser supplies that fence automatically.
  * @evidence contracts/common.md#meaningful-documentation Defines generated identity, half-open segment mapping, frame units, exact frame-rate compatibility and each non-video track's source and destination fields.
- * @author Samchon
  */
 export interface IAutoMovieFilmTimeline {
   /** Generated timeline format. */

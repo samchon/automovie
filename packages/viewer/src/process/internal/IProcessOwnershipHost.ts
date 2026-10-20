@@ -8,8 +8,6 @@
  * @evidence contracts/performance.md#efficient-algorithms The interface chooses no native query implementation; actual snapshot and termination costs scale with discovered/admitted processes in the Node host.
  * @evidence contracts/performance.md#reuse-equivalent-work Creation facts must be current for each requested stop, while original-child expected stamps are shared only by controller capture ownership.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The concrete host owns transient process handles/transports and disposes them; the interface itself retains no OS object or background task.
- *
- * @author Samchon
  */
 export interface IProcessOwnershipHost {
   /** Whether stop must admit a Windows snapshot instead of a POSIX root signal. */

@@ -14,6 +14,5 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A type.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A type.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A type.
- * @author Samchon
  */
 export type AutoMovieSurfaceTier = "lowest" | "low" | "medium" | "high";

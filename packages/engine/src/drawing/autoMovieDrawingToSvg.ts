@@ -53,7 +53,6 @@ type Attribute = [string, string];
  * @evidence contracts/performance.md#efficient-algorithms One pass over each array of the drawing emitting one element each, so time and output are linear in the drawing's size; the body is joined once at the end instead of by repeated concatenation.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure serializer called once per sheet; nothing equivalent repeats within a call.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Builds the body strings for one call and returns one string owned by the caller; nothing is retained.
- * @author Samchon
  */
 export const autoMovieDrawingToSvg = (props: {
   /** Drawing to serialize. */

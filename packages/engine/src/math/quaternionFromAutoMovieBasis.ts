@@ -16,7 +16,6 @@ import { Quaternion } from "./Quaternion";
  * @evidence contracts/performance.md#efficient-algorithms Nine entries, one selected square root and one normalization take constant work without allocating a matrix.
  * @evidence contracts/performance.md#reuse-equivalent-work Column coordinates feed one extraction directly; a changed frame requires a fresh quaternion rather than a cached basis reading.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Scalar entries and one temporary quaternion are local; the returned normalized record keeps no column references.
- * @author Samchon
  */
 export function quaternionFromAutoMovieBasis(
   x: IAutoMovieVector3,

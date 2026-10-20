@@ -15,7 +15,6 @@ import { AutoMovieRenderMetric } from "./AutoMovieRenderMetric";
  * @evidence contracts/common.md#clear-and-simple-design A versioned tier and partial metric map express agreed cost limits without letting budgeting choose or disable renderer-owned passes.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Omitted metrics remain unbudgeted and no limit is inferred from current cost. Invalid fractional or nonfinite limit values throw, but untyped unknown metric keys with valid numbers do not enter fixed-metric evaluation; callers must preserve the declared vocabulary and supply valid measured inventory.
  * @evidence contracts/common.md#meaningful-documentation Defines production ownership, tier selection, inclusive limits, omitted metrics, render-time preflight and whole-frame pass accounting.
- * @author Samchon
  */
 export interface IAutoMovieRenderBudget {
   /** Budget format. */

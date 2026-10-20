@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design A nullable node and one angle cover both a pole target and a pure roll of the current plane, so no separate roll-only driver field is needed.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A collinear configuration takes a deterministic perpendicular rather than the previous frame's plane, and a non-finite angle throws rather than being treated as zero.
  * @evidence contracts/common.md#meaningful-documentation States how the bend axis is built, what a null node means, the angle unit and finiteness rule, the collinear fallback, and which solvers ignore the pole.
- * @author Samchon
  */
 export interface IAutoMovieIKPole {
   /**

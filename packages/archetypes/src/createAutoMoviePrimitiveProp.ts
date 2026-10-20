@@ -18,7 +18,6 @@ import { IAutoMoviePrimitivePropProps } from "./IAutoMoviePrimitivePropProps";
  * @evidence contracts/performance.md#efficient-algorithms Constant work: one shape copy, one part and one model record per call.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call must hand its caller an unshared mutable model, so equal props are rebuilt rather than served from a cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The producer retains nothing; the returned model, which references the caller's material record, transfers to the caller at return.
- * @author Samchon
  */
 export const createAutoMoviePrimitiveProp: (
   props: IAutoMoviePrimitivePropProps,

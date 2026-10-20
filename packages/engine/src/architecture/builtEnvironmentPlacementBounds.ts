@@ -27,7 +27,6 @@ import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
  * @evidence contracts/performance.md#efficient-algorithms An element pays the element/model scans, world staging and part tessellation/fold of `builtEnvironmentElementPartBounds`, then its part union. A population pays an O(R) scan of R populations plus `builtInstanceSetPlacementBounds`, including validation of all stored explicit transforms and a fold over the first count transforms.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answers one locator per call and caches nothing across calls; the building-wide sweep resolves every body from one part table instead of calling this per body.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Keeps nothing after returning; the caller owns the returned box.
- * @author Samchon
  */
 export const builtEnvironmentPlacementBounds: (props: {
   environment: IAutoMovieBuiltEnvironment;

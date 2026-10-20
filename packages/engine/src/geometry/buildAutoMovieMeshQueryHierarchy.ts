@@ -30,7 +30,6 @@ import type { IAutoMovieMeshQueryHierarchy } from "./IAutoMovieMeshQueryHierarch
  * @evidence contracts/performance.md#efficient-algorithms For n entries each level sorts its span once, O(n log n) per level over O(log n) levels, so O(n log^2 n) time and O(n log n) transient allocation from the per-level slices; a selection-based median would save a log factor but would lose the stable tie order the queries' deterministic witnesses rely on.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Called once per compiled query or envelope; the tree is the reused artifact and is answered on its owners.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains only the returned tree, at most n/3 nodes for n above twelve with two three-number arrays each and leaf arrays of entry references; the per-level slices of internal nodes are garbage once their children are built.
- * @author Samchon
  */
 export function buildAutoMovieMeshQueryHierarchy<
   T extends IAutoMovieMeshQueryHierarchy.IEntry,

@@ -18,7 +18,6 @@ import type { IAutoMovieMeshSeparationAttachment } from "./IAutoMovieMeshSeparat
  * @evidenceExclude contracts/performance.md#efficient-algorithms An options record; how clearance and attachment change the walk is answered on the separation query.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built per call by hair fitting; verdict reuse keyed on clearance and attachment presence is the ribbon fit's own cache, not this record's.
  * @evidence contracts/performance.md#bound-retention-and-release-resources References the caller's budget and attachment, mutating only the budget's count; the query keeps no reference after it returns.
- * @author Samchon
  */
 export interface IAutoMovieMeshSeparationOptions {
   /**

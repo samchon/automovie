@@ -20,8 +20,6 @@ import type {
  * @evidenceExclude contracts/performance.md#efficient-algorithms This alias implements no stage, synthesis or cut algorithm; its concrete producer owns all costs.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The signature supplies no compilation cache or cross-input equivalence.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The alias acquires no resource; returned data and actual page/viewer lifetimes belong to their implementations.
- *
- * @author Samchon
  */
 export type ICompilePursuitFilm = (
   props: ICompilePursuitFilm.IProps,
@@ -38,8 +36,6 @@ export namespace ICompilePursuitFilm {
    * @evidenceExclude contracts/performance.md#efficient-algorithms This input interface implements no validation or compilation traversal.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work It declares no matching key/cache for authored input combinations.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Input arrays are caller-owned; concrete compilation/result owners decide which records are copied or borrowed.
-   *
-   * @author Samchon
    */
   export interface IProps {
     /** Cast and beats every later step resolves against. */
@@ -65,8 +61,6 @@ export namespace ICompilePursuitFilm {
    * @evidenceExclude contracts/performance.md#efficient-algorithms The interface performs no primitive or FK work.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record shape implements no rig cache or sharing algorithm.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Concrete builder/caller owns documents and borrowed engine constraints; renderer uploads are separate viewer resources.
-   *
-   * @author Samchon
    */
   export interface IRig {
     /** Skeleton the performance poses. */
@@ -86,8 +80,6 @@ export namespace ICompilePursuitFilm {
    * @evidenceExclude contracts/performance.md#efficient-algorithms The interface performs no scene, lookup or timeline algorithm itself.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Reuse of staged/model/motion data is implemented by the concrete producer and page, not this schema.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returned data/lookup closures belong to the caller and acquire no renderer or task through this type.
-   *
-   * @author Samchon
    */
   export interface IResult {
     /** Successful staging result shared by every shot. */

@@ -14,7 +14,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms An interface runs no algorithm; admission and projection costs are answered on their functions.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Three tier fields are copied into every chunk identity rather than computed, so no tier-level result exists to reuse.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A tier is three scalars with no handle; the plan's `tier` field and each chunk digest input hold copies whose lifetime is the plan's.
- * @author Samchon
  */
 export interface IAutoMovieProductionRenderTier {
   /** Tier name, used in chunk slots and publication paths. */

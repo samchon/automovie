@@ -4,7 +4,7 @@ Gordon C.C., Churchill T., Clauser C.E., Bradtmiller B., McConville J.T., Tebbet
 
 ## Licence
 
-"Approved for public release; distribution unlimited." A US Government work. Human cites summary values and our fits as small named constants and never ships the rows.
+"Approved for public release; distribution unlimited." A US Government work.
 
 ## Population and protocol
 
@@ -30,7 +30,3 @@ Natural waist landmark: "Level of the greatest indentation on the right side of 
 - Natural waist over buttock circumference: 0.750 (SD 0.043) women, 0.853 (0.042) men.
 - Natural waist = 83.76 + 0.569 omphalion waist + 0.1978 buttock (women, R2 0.80, RSD 28.1 mm); 106.84 + 0.7868 omphalion + 0.0554 buttock (men, R2 0.92, RSD 21.1 mm).
 - Natural waist height as a fraction of trochanterion-to-cervicale: 0.3564 (SD 0.0335) women, 0.3361 (0.0218) men.
-
-## What Human takes
-
-The natural (narrowest) waist girth from ANSUR II's navel waist and buttock girth, and its height on the trunk. The natural waist lies at or just above the tenth rib, not midway down to the iliac crest.

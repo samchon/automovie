@@ -30,7 +30,6 @@ import type { IAutoMovieRenderSpec } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms Building a fixed argument array chooses no algorithm.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each encode builds its vector once, cheaper than caching.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The function returns an array of strings and starts no process; the caller owns the ffmpeg process it may start.
- * @author Samchon
  */
 export const ffmpegArgs: (
   spec: IAutoMovieRenderSpec,

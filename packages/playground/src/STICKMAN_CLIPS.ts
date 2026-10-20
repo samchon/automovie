@@ -24,8 +24,6 @@ import { wave } from "./wave";
  * @evidence contracts/performance.md#efficient-algorithms Construction includes every producer's total key/pose work, repeated component builds and travel/sequence passes, requiring O(k) resulting data for the fixed catalogue's total key population; actual rendering cost belongs to the selected player.
  * @evidence contracts/performance.md#reuse-equivalent-work All entries share the supplied skeleton name and each producer's documented local vocabulary; separate entry construction retains independent mutable clip records rather than a hidden global catalogue cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The page retains twelve clip records while its selector/player needs them; externally retained maps remain caller-owned. The catalogue starts no clock, worker or GPU allocation and has no cross-call retained history.
- *
- * @author Samchon
  */
 export const STICKMAN_CLIPS: (
   sk: string,

@@ -10,7 +10,6 @@ import type { IAutoMovieCapsuleProxy } from "../validation/IAutoMovieCapsuleProx
  * @evidence contracts/common.md#clear-and-simple-design The union distinguishes authored static geometry from actor-local moving capsule references without importing building geometry into the solver.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Each unanchored particle visits static colliders in authored order, then resolved moving capsules in boundary order; this is not one interleaved union order. There is no friction or continuous sweep, and a later projection can leave an earlier collider unsatisfied.
  * @evidence contracts/common.md#meaningful-documentation Each arm states its frame and geometry parameters; body capsules require evaluated actor boundaries rather than static solver inference.
- * @author Samchon
  */
 export type IAutoMovieSoftCollider =
   | IAutoMovieSoftCollider.IPlane
@@ -25,7 +24,6 @@ export namespace IAutoMovieSoftCollider {
    * @evidence contracts/common.md#clear-and-simple-design Normal and offset describe one infinite plane without a mesh or redundant point representation.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The plane is infinite and frictionless; its projection does not pretend to model a finite tabletop edge.
    * @evidence contracts/common.md#meaningful-documentation The inequality identifies the allowed side, normalization convention and world-space metre offset.
-   * @author Samchon
    */
   export interface IPlane {
     /** Discriminator. */
@@ -48,7 +46,6 @@ export namespace IAutoMovieSoftCollider {
    * @evidence contracts/common.md#clear-and-simple-design Centre and radius are sufficient for the sphere contact calculation; id preserves the authored collider identity.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The exact-centre tie-break is a geometric degeneracy rule, not a fixture path; discrete projection does not detect passage through the ball between steps.
    * @evidence contracts/common.md#meaningful-documentation Fields state world centre, positive metre radius and domain-local identity.
-   * @author Samchon
    */
   export interface ISphere {
     /** Discriminator. */
@@ -71,7 +68,6 @@ export namespace IAutoMovieSoftCollider {
    * @evidence contracts/common.md#clear-and-simple-design Two corners express the supported unrotated box, leaving oriented geometry outside this arm.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Mid-plane ties can break mirror symmetry and ordered collider projections need not satisfy every overlapping box; no relaxation certificate is claimed.
    * @evidence contracts/common.md#meaningful-documentation Members identify world coordinates and strictly ordered corners, while the evidence states the tie and discrete-contact limits.
-   * @author Samchon
    */
   export interface IBox {
     /** Discriminator. */
@@ -94,7 +90,6 @@ export namespace IAutoMovieSoftCollider {
    * @evidence contracts/common.md#clear-and-simple-design This arm references an actor and the existing capsule proxy instead of maintaining a second body-collision shape schema.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts simulateSoftBody refuses body capsules without resolved moving boundaries; an actor name is not replaced by a static origin capsule.
    * @evidence contracts/common.md#meaningful-documentation Fields separate domain collider identity, actor participant identity and the actor-local capsule from the resolved world contact shape.
-   * @author Samchon
    */
   export interface IBodyCapsule {
     /** Body-following capsule discriminator. */

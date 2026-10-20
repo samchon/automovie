@@ -18,7 +18,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A result record with no algorithm; the closest-pair search is answered on `closestPointsBetweenSegments`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The witness pair belongs to the two segments supplied to one query; the distance-only adapter consumes that same pair without storing it for later coordinates.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Two points and one number owned by the caller; nothing else is retained.
- * @author Samchon
  */
 export interface IAutoMovieClosestSegmentPoints {
   /** Point on the first segment `a→b`. */

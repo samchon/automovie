@@ -21,7 +21,6 @@ import { IAutoMovieColor } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms Three transfer evaluations and fixed-width conversions take constant work for a seven-character swatch.
  * @evidence contracts/performance.md#reuse-equivalent-work Each current color channel is encoded once; mutable color records have no shared label cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Three temporary channel strings form the returned swatch, and the input color is not retained.
- * @author Samchon
  */
 export const linearColorToSrgbHex: (
   color: Pick<IAutoMovieColor, "r" | "g" | "b">,

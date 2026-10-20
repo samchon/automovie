@@ -18,7 +18,6 @@ import { IAutoMovieResolvedBone } from "../../kinematics/IAutoMovieResolvedBone"
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record; costs are on `bufferAutoMovieBones`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record; it is the reuse.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A record whose arrays its producer sizes.
- * @author Samchon
  */
 export interface IAutoMovieBoneBuffer {
   /** The rest bones' names, in the order `update` expects the posed list. */

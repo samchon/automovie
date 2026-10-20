@@ -42,7 +42,6 @@ import { IAutoMovieSweep } from "./IAutoMovieSweep";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; sampling cost is answered on `sampleAutoMovieSurfaceNetwork`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record sampled once per tier.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
- * @author Samchon
  */
 export interface IAutoMovieSurfaceNetwork {
   /** Sweeps by name. */
@@ -71,7 +70,6 @@ export namespace IAutoMovieSurfaceNetwork {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `rigAutoMovieSurfaceNetwork`.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
-   * @author Samchon
    */
   export type ICounts = Record<AutoMovieSurfaceTier, number>;
 
@@ -85,7 +83,6 @@ export namespace IAutoMovieSurfaceNetwork {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `rigAutoMovieSurfaceNetwork`.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
-   * @author Samchon
    */
   export type INode = IFreeNode | ISweepNode;
 
@@ -99,7 +96,6 @@ export namespace IAutoMovieSurfaceNetwork {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `rigAutoMovieSurfaceNetwork`.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
-   * @author Samchon
    */
   export interface IFreeNode {
     /** Discriminator. */
@@ -119,7 +115,6 @@ export namespace IAutoMovieSurfaceNetwork {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `rigAutoMovieSurfaceNetwork`.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
-   * @author Samchon
    */
   export interface ISweepNode {
     /** Discriminator. */
@@ -145,7 +140,6 @@ export namespace IAutoMovieSurfaceNetwork {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `rigAutoMovieSurfaceNetwork`.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
-   * @author Samchon
    */
   export interface ICurve {
     /** Start node. */
@@ -177,7 +171,6 @@ export namespace IAutoMovieSurfaceNetwork {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `rigAutoMovieSurfaceNetwork`.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
-   * @author Samchon
    */
   export type IEdge = ISweepEdge | ICurveEdge;
 
@@ -191,7 +184,6 @@ export namespace IAutoMovieSurfaceNetwork {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `rigAutoMovieSurfaceNetwork`.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
-   * @author Samchon
    */
   export interface ISweepEdge {
     /** Discriminator. */
@@ -220,7 +212,6 @@ export namespace IAutoMovieSurfaceNetwork {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `rigAutoMovieSurfaceNetwork`.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
-   * @author Samchon
    */
   export interface IDomainPoint {
     /** Along the spine. */
@@ -240,7 +231,6 @@ export namespace IAutoMovieSurfaceNetwork {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `rigAutoMovieSurfaceNetwork`.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
-   * @author Samchon
    */
   export interface ICurveEdge {
     /** Discriminator. */
@@ -263,7 +253,6 @@ export namespace IAutoMovieSurfaceNetwork {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `rigAutoMovieSurfaceNetwork`.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
-   * @author Samchon
    */
   export type IPatch =
     | ISweepPatch
@@ -281,7 +270,6 @@ export namespace IAutoMovieSurfaceNetwork {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `rigAutoMovieSurfaceNetwork`.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
-   * @author Samchon
    */
   export interface ISweepPatch {
     /** Discriminator. */
@@ -323,7 +311,6 @@ export namespace IAutoMovieSurfaceNetwork {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `rigAutoMovieSurfaceNetwork`.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
-   * @author Samchon
    */
   export interface ITransitionPatch {
     /** Discriminator. */
@@ -364,7 +351,6 @@ export namespace IAutoMovieSurfaceNetwork {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `rigAutoMovieSurfaceNetwork`.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
-   * @author Samchon
    */
   export interface ICoonsPatch {
     /** Discriminator. */
@@ -394,7 +380,6 @@ export namespace IAutoMovieSurfaceNetwork {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `rigAutoMovieSurfaceNetwork`.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
-   * @author Samchon
    */
   export interface IBridgePatch {
     /** Discriminator. */
@@ -429,7 +414,6 @@ export namespace IAutoMovieSurfaceNetwork {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `rigAutoMovieSurfaceNetwork`.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
-   * @author Samchon
    */
   export interface ILoop {
     /** Edges in order, each starting where the previous ends, the last ending where the first starts. Their points must already belong to sweep or Coons patches. */
@@ -451,7 +435,6 @@ export namespace IAutoMovieSurfaceNetwork {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `rigAutoMovieSurfaceNetwork`.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
-   * @author Samchon
    */
   export interface IRing {
     /** Name unique among the rings. */
@@ -479,7 +462,6 @@ export namespace IAutoMovieSurfaceNetwork {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `rigAutoMovieSurfaceNetwork`.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
-   * @author Samchon
    */
   export interface IUvRect {
     /** Texture `u` at `s` 0 and 1. */

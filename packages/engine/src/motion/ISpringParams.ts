@@ -8,8 +8,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms Two numbers contain no integration algorithm; dampedSpring owns constant-cost semi-implicit Euler stepping.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Coefficients may be reused by independent spring axes, but this input records no cached trajectory or equivalence key.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Caller-owned coefficients hold no resource or evolving history and need no release action.
- *
- * @author Samchon
  */
 export interface ISpringParams {
   /** How hard the spring pulls toward the target. Higher = snappier. */

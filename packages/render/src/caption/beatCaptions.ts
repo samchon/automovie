@@ -24,7 +24,6 @@ import type { IAutoMovieBeatCaption } from "./IAutoMovieBeatCaption";
  * @evidence contracts/performance.md#efficient-algorithms Time and space are linear in the node count N: one pass builds the adjacency map and the walk visits each reachable node once with a constant-time slug format per scene, which is the minimum for reading every beat.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The function computes one fresh index per call for one script and coordinates no phases; `planCaptionSidecar` calls it once per plan.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The adjacency map is local and released on return, and the returned map, owned by the caller, holds one record per distinct beat id, bounded by the tree's beat count; recursion depth is bounded by the tree's depth.
- * @author Samchon
  */
 export const beatCaptions: (
   script: IAutoMovieScript,

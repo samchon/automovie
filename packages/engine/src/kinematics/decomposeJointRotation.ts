@@ -97,7 +97,6 @@ const assertFiniteQuaternion: (q: IAutoMovieQuaternion) => void = (
  * @evidence contracts/performance.md#efficient-algorithms Constant time: one basis validation, three vector rotations and at most a dozen dot products, plus, with a domain, three ROM scorings; no matrix is built.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one rotation that coordinates no work across calls; the arm solve calls it per candidate with a different rotation each time.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned angles.
- * @author Samchon
  */
 export const decomposeJointRotation: (
   q: IAutoMovieQuaternion,

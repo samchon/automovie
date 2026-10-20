@@ -9,7 +9,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design The driver holds only the per-chain parameters while the cross-frame memory lives in the caller's `IAutoMovieSpringState`, so the record stays plain data and one state can serve every spring in a scene.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid authored parameters refuse and absent state defers the driver. Centre transport is keyed by the centre/ordered-chain tuple, so distinct chains do not consume each other's shared-centre translation; joint history remains keyed by joint id. Collision projection follows length projection and can stretch a segment, and later failure does not roll back prior state writes.
  * @evidence contracts/common.md#meaningful-documentation States when the driver steps, the order of the integration terms, units of gravity and radius, the valid ranges, which joints are written and which are not, the center compensation and its limit, and each throwing case.
- * @author Samchon
  */
 export interface IAutoMovieSpringDriver {
   /** Selects the spring driver. */

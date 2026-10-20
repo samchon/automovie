@@ -185,8 +185,6 @@ export function reviewVisualRead(props: {
 
 /**
  * A performance whose node and motion both resolved.
- *
- * @author Samchon
  */
 interface IPerformer {
   /** Scene-node identity used in advisory note text. */

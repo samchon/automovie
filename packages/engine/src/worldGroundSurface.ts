@@ -12,7 +12,6 @@ import { worldSurfaceContains } from "./worldSurfaceContains";
  * @evidence contracts/performance.md#efficient-algorithms It scans visited footprint edges until the first hit, using constant selector state plus per-edge projection records in the shared predicate.
  * @evidence contracts/performance.md#reuse-equivalent-work Callers share this precedence owner, while each query reads the current borrowed list and caches no classification across mutations.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned surface is borrowed from the caller's list; no list, point, watcher or host resource survives through this selector.
- * @author Samchon
  */
 export const worldGroundSurface: (
   surfaces: readonly IAutoMovieWorldSurface[],

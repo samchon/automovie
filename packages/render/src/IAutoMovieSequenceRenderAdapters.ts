@@ -11,8 +11,6 @@ import { IAutoMovieSequenceRenderPlan } from "./IAutoMovieSequenceRenderPlan";
  * @evidenceExclude contracts/performance.md#efficient-algorithms The sequence host callback schema declares data and chooses no runtime algorithm; its producer documents construction cost.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work This erased port shares no in-flight capture or encode; renderSequenceVideo supplies one common manifest and waits for distinct host effects.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The erased sequence callback port acquires nothing; host implementations own capture and encoding sessions and must release them on completion or rejection, independently of this signature.
- *
- * @author Samchon
  */
 export interface IAutoMovieSequenceRenderAdapters {
   /**
@@ -25,8 +23,6 @@ export interface IAutoMovieSequenceRenderAdapters {
    * @evidenceExclude contracts/performance.md#efficient-algorithms This erased signature selects no scene or blend rendering algorithm. renderSequenceVideo owns O(F) scheduling and shallow metadata copies; the host owns actual per-frame drawing and writing cost.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The declaration coordinates no capture cache. The orchestration shares one unchanged manifest across calls, while each scheduled capture remains a distinct host effect whose reuse needs host-specific equivalence.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased member acquires no drawing session or file. The concrete host owns capture resources and failure cleanup; renderSequenceVideo preserves supplied sample fields with the reported path in its caller-owned result records.
-   *
-   * @author Samchon
    */
   captureFrame: (
     frame: IAutoMovieSequenceRenderFrame,
@@ -43,8 +39,6 @@ export interface IAutoMovieSequenceRenderAdapters {
    * @evidenceExclude contracts/performance.md#efficient-algorithms This erased member chooses no encoder algorithm. Input frame reads, compression and output writes belong to the concrete host; renderSequenceVideo only schedules and awaits one encode call.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The signature coordinates no shared encoding work; the host needs complete input and encoding equivalence before reuse, and the sequence orchestrator performs one encode per attempt.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased member opens no process or stream. The host owns encoder lifetime and cleanup on completion or rejection; the orchestrator returns the reported path alongside the shared manifest and caller-owned frame metadata.
-   *
-   * @author Samchon
    */
   encode: (args: string[], outputPath: string) => Promise<string>;
 }

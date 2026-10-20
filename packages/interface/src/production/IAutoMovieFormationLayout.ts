@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Each algorithm owns the parameters it reads; formed layouts alone accept bounded seeded dressing, while scatter carries its own radius and seed without unused grid spacing.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Count capacity is required for line, column and wedge; one-member arcs use their middle angle and zero dressing means exact geometry rather than fixture-specific placement.
  * @evidence contracts/common.md#meaningful-documentation Defines algorithm-specific dimensions, local lateral and depth units, capacity rules, dressing omission and deterministic seed ranges.
- * @author Samchon
  */
 export type IAutoMovieFormationLayout =
   | {

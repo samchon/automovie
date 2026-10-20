@@ -12,7 +12,6 @@ import { IAutoMovieClip, IAutoMovieLight } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms The wrapper borrows L lights and C clips; per-clip key/value validation and sampling, then per-light lookup/reconstruction, own the actual work and output populations.
  * @evidence contracts/performance.md#reuse-equivalent-work Unchanged lights pass through by identity; changed samples rebuild touched lights while retaining unanimated nested fields.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns lights/clips and returned light array; this declaration acquires no renderer light, timer or background task.
- * @author Samchon
  */
 export interface IAutoMovieShotLightingInput {
   /** The scene's staged lights, in staging order. */

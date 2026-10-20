@@ -14,7 +14,6 @@ import { segmentSphere } from "./segmentSphere";
  * test exact per segment (the projectile is smooth, so a modest `steps`
  * resolves the contact time closely).
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Subdivide [0,tMax] into equal time chords, use segmentSphere for the first chord entry, and interpolate its point and time. This approximates a curved ballistic path and can miss curvature between samples.
  * @evidence contracts/common.md#clear-and-simple-design The time loop owns sampling while projectileAt and segmentSphere own motion and analytic chord intersection; no collision engine is embedded.

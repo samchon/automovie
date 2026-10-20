@@ -8,8 +8,6 @@
  * @evidence contracts/performance.md#efficient-algorithms The projection performs no discovery algorithm or process scan; controller checks use its fixed fields.
  * @evidence contracts/performance.md#reuse-equivalent-work Only the original object can match its weak captured stamp; this type defines no cross-object lifecycle cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Readonly facts borrow the actual child object and acquire no subprocess, file or retained native handle.
- *
- * @author Samchon
  */
 export interface IProcessChildObservation {
   /** PID assigned by spawn, absent when no child process was created. */

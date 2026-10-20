@@ -26,4 +26,4 @@ A README is for the package's user: what it is, when to use it, installation, th
 
 ## Doc Comments
 
-JSDoc follows the Writing and Paragraphs And Lists rules above, and interface types close with `@author Samchon`. What a public declaration's comment must say is the contracts [Meaningful documentation](../contracts/common.md#meaningful-documentation) chapter.
+JSDoc follows the Writing and Paragraphs And Lists rules above. What a public declaration's comment must say is the contracts [Meaningful documentation](../contracts/common.md#meaningful-documentation) chapter.

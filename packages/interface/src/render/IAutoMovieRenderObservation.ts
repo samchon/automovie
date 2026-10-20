@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Nullable measurements distinguish observed facts from unsupported per-frame statistics, leaving budget selection and inventory-bound comparison to the render audit.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Scene membership and process-wide allocation counts cannot substitute for post-culling frame observations; null is unchecked rather than zero agreement.
  * @evidence contracts/common.md#meaningful-documentation Defines already-drawn-frame measurements, nullable unreported dimensions and separation from budget verdicts and preflight estimates.
- * @author Samchon
  */
 export interface IAutoMovieRenderObservation {
   /** Rendered mesh count. */

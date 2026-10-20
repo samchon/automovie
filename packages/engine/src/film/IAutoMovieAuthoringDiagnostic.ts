@@ -16,7 +16,6 @@ import { IAutoMovieConstraintViolation } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape; the gates that produce diagnostics are answered on `compileDefinedShot` and the stage, blocking and performance validators.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built per compile attempt; nothing caches diagnostics between attempts.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Strings plus an optional reference to the violation record the lower gate created, owned by the caller's diagnostic list.
- * @author Samchon
  */
 export interface IAutoMovieAuthoringDiagnostic {
   /**

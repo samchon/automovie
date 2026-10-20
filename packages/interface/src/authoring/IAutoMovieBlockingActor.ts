@@ -9,7 +9,6 @@ import { IAutoMovieTimingAnchor } from "../harness/IAutoMovieTimingAnchor";
  * @evidence contracts/common.md#clear-and-simple-design The record is a node join key, one prose field and an optional anchor list; timing alignment lives in the engine gates, so the intent stores no derived action spans.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Equal anchor times are accepted because simultaneous moments are ordinary staging, and no node, cue text or actor kind changes the rule; `beats` is declared unchecked rather than parsed for verbs.
  * @evidence contracts/common.md#meaningful-documentation States which node the intent may name, that the prose is never read, that list order is causal order, the inclusive time window, and that each anchor must be covered by one of the actor's actions.
- * @author Samchon
  */
 export interface IAutoMovieBlockingActor {
   /**

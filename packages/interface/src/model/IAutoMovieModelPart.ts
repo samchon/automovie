@@ -11,7 +11,6 @@ import { IAutoMovieGeometry } from "./IAutoMovieGeometry";
  * @evidence contracts/common.md#clear-and-simple-design Geometry, appearance reference and attachment remain separate fields, allowing primitive and mesh parts in one model without duplicating materials or embedding world placement here.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Material and bone ids resolve through their owning model rather than descriptive part names; a null material selects the viewer's ordinary default material instead of implying an unlit special case.
  * @evidence contracts/common.md#meaningful-documentation States model-scoped identity and material lookup, rigid-versus-skinned attachment, and the bone-or-root local transform with null identity, including default material behavior.
- * @author Samchon
  */
 export interface IAutoMovieModelPart {
   /** Stable id within the model. */

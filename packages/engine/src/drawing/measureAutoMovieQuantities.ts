@@ -98,7 +98,6 @@ const FIXED_GAPS: readonly IAutoMovieDrawingGap[] = [
  * @evidence contracts/performance.md#efficient-algorithms Includes full environment validation, then linear surface/profile/route/element/shell walks, O(p^4) plane-triple admission plus face hulls per convex cell, and O(o log o) owner sorting per subject. Canonical encoding sorts object keys and hashes the complete output text; bounding listed contributors does not bound the preceding tallies or scans.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each record is measured once in its own pass and no measured value is needed twice, so there is no repeated work to share; nothing is cached across calls because the environment is the caller's mutable record.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Call-local owner tallies grow with distinct owners and are released on return. The caller owns the report, whose named contributors are bounded per finding; full gap strings can still name every faceted space and are bounded by authored design size rather than the contributor limit.
- * @author Samchon
  */
 export const measureAutoMovieQuantities: (props: {
   environment: IAutoMovieBuiltEnvironment;
