@@ -22,8 +22,8 @@ import { prepareRecoveryImageSupports } from "./internal/prepareRecoveryImageSup
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No ellipse prior, fixed polygon correspondence, per-row saved contour, discarded view, inferred cap, original mesh/normal or camera estimate supplies the result. Exhausted residual/rank/event/geometry budgets refuse without changing thresholds.
  * @evidence contracts/common.md#meaningful-documentation States support rather than material correspondence, cubic candidate order, common-domain comparison, implied-hull checks, supplied cameras, partial unknown coverage and numerical rather than certified enclosure status.
  * @evidence contracts/performance.md#efficient-algorithms For N common rows, V views and K=spans+3, each candidate costs O(N K squared + N K V + N V cubed), plus the generic engine's bounded continuous planning/emission. maxViews/maxRows/maxSpans and event/cell/vertex budgets bound all retained populations before their owning allocations.
- * @evidence contracts/performance.md#reuse-equivalent-work One common chart and fixed-direction section query serve every candidate; one factorization serves all 2V fields. Each view's opposite normals share one vertex projection scan while both offset and implied-support residuals remain checked. A maximum residual can only grow, so one violating row rejects that candidate without scanning its remaining rows; acceptance still checks every row and view. Per-row Bernstein weights are shared, and accepted engine diagnostics retain no acquisition-time mesh.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Local observation, fit and temporary engine scratch expires synchronously; only compact coefficients, source identities and scalar diagnostics transfer. Cancellation is checked between candidates and before transfer, with no file, worker or global cache acquired.
+ * @evidence contracts/performance.md#reuse-equivalent-work One common chart and fixed-direction section query serve every candidate; one factorization serves all 2V fields. A reusable offset vector is overwritten before each synchronous query, which retains no offsets. Each returned section is copied once into call-local binary64 coordinate scratch for indexed projection scans; each view's exact opposite normals share that scan while both offset and implied-support residuals remain checked. A maximum residual can only grow, so one violating row rejects that candidate without scanning its remaining rows; acceptance still checks every row and view. Per-row Bernstein weights are shared, and accepted engine diagnostics retain no acquisition-time mesh.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Local observation, fit and temporary engine scratch expires synchronously; only compact coefficients, source identities and scalar diagnostics transfer. The coordinate buffer holds at most two scalars per plane pair, bounding every section query's possible output; the offset vector holds 2V scalars. Both are call-owned and reused without retaining rows or query output. Cancellation is checked between candidates and before transfer, with no file, worker or global cache acquired.
  */
 export function fitAutoMovieRecoveryImageSupportLoft(
   observation: IAutoMovieRecoveryImageObservation,
@@ -108,6 +108,10 @@ export function fitAutoMovieRecoveryImageSupportLoft(
         normals,
         minimumDirectionSine: policy.generation.minimumDirectionSine,
       });
+    const offsets: number[] = new Array<number>(normals.length);
+    const coordinates: Float64Array = new Float64Array(
+      normals.length * (normals.length - 1),
+    );
     const samples: { yMm: number; values: number[] }[] = prepared.stations.map(
       (yMm: number, row: number): { yMm: number; values: number[] } => ({
         yMm,
@@ -172,21 +176,26 @@ export function fitAutoMovieRecoveryImageSupportLoft(
           w1: number = 3 * t * u * u,
           w2: number = 3 * t * t * u,
           w3: number = t * t * t;
-        const offsets: number[] = span.offsets.map(
-          (q: number[]): number =>
-            q[0] * w0 + q[1] * w1 + q[2] * w2 + q[3] * w3,
-        );
+        for (let plane: number = 0; plane < normals.length; plane++) {
+          const q: number[] = span.offsets[plane];
+          offsets[plane] = q[0] * w0 + q[1] * w1 + q[2] * w2 + q[3] * w3;
+        }
         const section: ReturnType<typeof query> = query(offsets);
+        for (let vertex: number = 0; vertex < section.length; vertex++) {
+          coordinates[2 * vertex] = section[vertex].point[0];
+          coordinates[2 * vertex + 1] = section[vertex].point[1];
+        }
         for (let view: number = 0; view < observation.views.length; view++) {
           const opposite: number = view + observation.views.length;
+          const nx: number = normals[view][0],
+            nz: number = normals[view][1];
           let upper: number = -Infinity,
             negativeLower: number = -Infinity;
-          for (const vertex of section) {
+          for (let vertex: number = 0; vertex < section.length; vertex++) {
             // The second field uses the exact negative of this fixed normal.
             // One projection therefore supplies both directional extrema.
             const projection: number =
-              normals[view][0] * vertex.point[0] +
-              normals[view][1] * vertex.point[1];
+              nx * coordinates[2 * vertex] + nz * coordinates[2 * vertex + 1];
             upper = Math.max(upper, projection);
             negativeLower = Math.max(negativeLower, -projection);
           }

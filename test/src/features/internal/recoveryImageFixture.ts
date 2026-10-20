@@ -7,7 +7,7 @@ import type { IAutoMovieRecoveryImageInput } from "@automovie/interface/recovery
  * other analytic sections. Box support is a distinct ellipse-family negative.
  *
  * @evidence contracts/testing.md#behavioral-verification Supplies real RGB8 pixel populations whose support must be extracted rather than injecting expected observed rows or fitted controls.
- * @evidence contracts/testing.md#independent-expectations Raster inclusion uses analytic ellipse or box support and explicit pixel centres, with no recovery fitter, spline evaluator, atlas generator or renderer import. One fixed pixel-centre vector serves every row/view; supplied intervals use two binary searches of the same inclusive comparisons on an increasing chart, then fill every accepted pixel. Other charts/default formulas retain their direct inclusion scan.
+ * @evidence contracts/testing.md#independent-expectations Raster inclusion uses analytic ellipse or box support and explicit pixel centres, with no recovery fitter, spline evaluator, atlas generator or renderer import. One fixed pixel-centre vector serves every row/view; supplied intervals use two binary searches of the same inclusive comparisons on an increasing chart, then copy the fixed RGB triplet into that exact contiguous range. Other charts/default formulas retain their direct inclusion scan.
  * @evidence contracts/testing.md#distinguishing-cases Parameterized angle, pixel pitch, ellipse/box shape and an optional analytic interval allow scale/chart and distinct section-family controls; admission failures are authored by the calling tests.
  * @evidence contracts/testing.md#execution-ownership This portable fixture owns only small resident typed arrays and deterministic arithmetic; it starts no process, filesystem, browser or GPU.
  */
@@ -27,6 +27,12 @@ export function recoveryImageFixture(
     { length: width },
     (_: unknown, column: number): number => (column + 0.5 - 128) * pitch,
   );
+  const foreground: Uint8Array = new Uint8Array(3 * width);
+  for (let column: number = 0; column < width; column++) {
+    foreground[3 * column] = 30;
+    foreground[3 * column + 1] = 80;
+    foreground[3 * column + 2] = 130;
+  }
   return {
     schema: "automovie-recovery-images-v1",
     objectId: "analytic-section-family",
@@ -88,6 +94,12 @@ export function recoveryImageFixture(
               else upper = middle;
             }
             end = lower;
+            if (first < end)
+              pixels.set(
+                foreground.subarray(0, 3 * (end - first)),
+                3 * (row * width + first),
+              );
+            continue;
           }
           for (let column: number = first; column < end; column++)
             if (
