@@ -15,4 +15,5 @@ export type AutoMovieRecoveryOperator =
   | "orthographic-images-v1"
   | "image-elliptic-loft-v1"
   | "image-support-loft-v1"
+  | "calibrated-image-pair-v1"
   | "json-publication-v1";

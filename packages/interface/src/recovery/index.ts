@@ -15,3 +15,8 @@ export type { IAutoMovieRecoveryInput } from "./IAutoMovieRecoveryInput";
 export type { IAutoMovieRecoveryRegistration } from "./IAutoMovieRecoveryRegistration";
 export type { IAutoMovieRecoverySupportLoft } from "./IAutoMovieRecoverySupportLoft";
 export type { IAutoMovieRecoverySupportLoftCoverage } from "./IAutoMovieRecoverySupportLoftCoverage";
+export type { IAutoMovieRecoveryCameraPairInput } from "./IAutoMovieRecoveryCameraPairInput";
+export type { IAutoMovieRecoveryCameraBudget } from "./IAutoMovieRecoveryCameraBudget";
+export type { IAutoMovieRecoveryCameraCalibration } from "./IAutoMovieRecoveryCameraCalibration";
+export type { IAutoMovieRecoveryCameraPolicy } from "./IAutoMovieRecoveryCameraPolicy";
+export type { IAutoMovieRecoveryCameraView } from "./IAutoMovieRecoveryCameraView";

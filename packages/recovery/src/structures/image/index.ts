@@ -14,3 +14,13 @@ export type { IAutoMovieRecoverySupportGeneration } from "./IAutoMovieRecoverySu
 export type { IAutoMovieRecoverySupportLoftBudget } from "./IAutoMovieRecoverySupportLoftBudget";
 export type { IAutoMovieRecoverySupportRealization } from "./IAutoMovieRecoverySupportRealization";
 export type { IAutoMovieRecoverySupportRealizationMetrics } from "./IAutoMovieRecoverySupportRealizationMetrics";
+export type { IAutoMovieRecoveryCameraConsensus } from "./IAutoMovieRecoveryCameraConsensus";
+export type { IAutoMovieRecoveryCameraFeaturePopulation } from "./IAutoMovieRecoveryCameraFeaturePopulation";
+export type { IAutoMovieRecoveryCameraFile } from "./IAutoMovieRecoveryCameraFile";
+export type { IAutoMovieRecoveryCameraFiles } from "./IAutoMovieRecoveryCameraFiles";
+export type { IAutoMovieRecoveryCameraHomographyConsensus } from "./IAutoMovieRecoveryCameraHomographyConsensus";
+export type { IAutoMovieRecoveryCameraMatch } from "./IAutoMovieRecoveryCameraMatch";
+export type { IAutoMovieRecoveryCameraOptimizerFit } from "./IAutoMovieRecoveryCameraOptimizerFit";
+export type { IAutoMovieRecoveryCameraPairEstimate } from "./IAutoMovieRecoveryCameraPairEstimate";
+export type { IAutoMovieRecoveryCameraRelativePose } from "./IAutoMovieRecoveryCameraRelativePose";
+export type { IAutoMovieRecoveryCameraSource } from "./IAutoMovieRecoveryCameraSource";

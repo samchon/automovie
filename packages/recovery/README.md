@@ -66,6 +66,7 @@ The root entrypoint exports observation, fitting, reconstruction, compilation an
 | `convertAutoMovieRecoveryCurves` | Change the saved cubic coefficient basis |
 | `reconstructAutoMovieRecoveryModel` | Generate geometry, construction and a domain ledger |
 | `observeAutoMovieRecoveryImages` | Measure row support from calibrated RGB images |
+| `estimateAutoMovieRecoveryCameraPair` | Observe automatic correspondences and qualify a relative camera under supplied intrinsics |
 | `fitAutoMovieRecoveryImageLoft` / `compileAutoMovieRecoveryImageLoft` | Fit and realize an aligned elliptical section model |
 | `fitAutoMovieRecoveryImageSupportLoft` / `compileAutoMovieRecoverySupportLoft` | Fit and realize finite-view convex section support |
 | `publishAutoMovieRecoveryArtifact` from `/node` | Publish immutable JSON and its byte hash |
@@ -78,3 +79,16 @@ Operations carrying `complete` or `partial` return a value; `refused`, `failed` 
 The image path requires supplied horizontal orthographic cameras, a fixed RGB background and one connected opaque foreground interval per occupied row. It measures pixel-cell edge support in millimetres. Camera estimation, perspective rectification and hidden geometry are outside that observation contract.
 
 The elliptical fitter uses aligned section centres and radii; the finite-view support fitter uses cubic support offsets and bounded boundary-event generation. Their saved recipes generate new geometry and construction without reopening images. Dimension scales range from 0.25 to 4. Unobserved caps, interiors and hidden concavities remain unknown, so realized surfaces retain partial coverage. The `images observe|fit|realize` commands and `recovery.html` inspector expose these paths.
+
+## Relative camera observations
+
+
+`estimateAutoMovieRecoveryCameraPair` accepts two unchanged resident RGB8 images through `IAutoMovieRecoveryCameraPairInput`. Supply independently known corrected pinhole intrinsics for each original pixel chart, a static scene assertion, source provenance, explicit thresholds and finite work budgets. Integer `(column,row)` denotes the pixel centre, with X right, Y down and camera Z forward. This perspective convention differs from the section observer's pixel-edge chart.
+
+The `harris-gradient-calibrated-eight-point` family observes multiscale corners and oriented gradient descriptors, proposes unique mutual appearance matches and fits calibrated relative geometry. Final qualification checks the completed sampling target, local numerical convergence, original-design rank, pixel residuals, four-pose depth/parallax and a competing homography. Repeated texture, occlusion, broad viewpoint changes, weak baseline or planar ambiguity can leave the camera unobservable. Supplied focal calibration, distortion correction and scene rigidity remain caller assertions.
+
+This is a limited experimental operating point. Its octave-spaced Harris detector does not select continuous scale extrema. In the [frozen TempleSparseRing confirmation](https://github.com/samchon/automovie/issues/2874#issuecomment-6284424010), two of four reserved pairs were accepted, failing the registered three-pair coverage target. Their rotation errors were 0.724 and 3.530 degrees and signed translation-direction errors 0.674 and 5.306 degrees. The other pairs were refused for insufficient appearance matches or weak depth/parallax. These exposed confirmation images establish neither arbitrary-photo reliability nor a reconstructed surface; they are not a fresh holdout for later changes.
+
+A completed observation returns a `partial` operation containing `automovie-recovery-camera-pair-estimate-v1`. Its own `status` is `accepted-relative-pose` or `refused`, with measured populations and every observed refusal. Only an accepted pose exposes row-major R and unit t in `X2 = R X1 + t`; the first camera is identity and physical scale is unknown. Match support and image hull fractions describe image evidence, not object coverage or verified correspondence truth. Independent camera accuracy, covariance, global multiview registration and photographic surface reconstruction remain separate work.
+
+The `IAutoMovieRecoveryCameraFiles` contract is exported from both public entrypoints. The Node `cameras` host accepts `estimate input.json new-output.json maxInputBytes` after its explicit source-epoch option. Its `automovie-recovery-camera-files-v1` manifest supplies exactly two hashed P6 sRGB sources and the resident policy/calibration records. Acquisition verifies source bytes and preserves the decoded chart without crop, rotation, resize or rectification. The host publishes one new `automovie-recovery-camera-artifact-v1` containing input/source identities and the operation result. A completed camera refusal still has exit 0 and retained evidence; invalid, cancelled or failed work without a value publishes nothing.

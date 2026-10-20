@@ -5,3 +5,4 @@ export { observeAutoMovieRecoveryAtlas } from "./observeAutoMovieRecoveryAtlas";
 export { observeAutoMovieRecoveryImages } from "./observeAutoMovieRecoveryImages";
 export { prepareAutoMovieRecoveryInput } from "./prepareAutoMovieRecoveryInput";
 export { transportAutoMovieRecoveryObservationChart } from "./transportAutoMovieRecoveryObservationChart";
+export { estimateAutoMovieRecoveryCameraPair } from "./estimateAutoMovieRecoveryCameraPair";
