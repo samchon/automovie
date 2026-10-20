@@ -6,3 +6,7 @@ export type { IAutoMovieRecoveryImageObservation } from "./IAutoMovieRecoveryIma
 export type { IAutoMovieRecoveryImageLoft } from "./IAutoMovieRecoveryImageLoft";
 export type { IAutoMovieRecoverySupportLoft } from "./IAutoMovieRecoverySupportLoft";
 export type { AutoMovieRecoveryImageRecipe } from "./AutoMovieRecoveryImageRecipe";
+export type { IAutoMovieRecoveryCameraCalibration } from "./IAutoMovieRecoveryCameraCalibration";
+export type { IAutoMovieRecoveryCameraView } from "./IAutoMovieRecoveryCameraView";
+export type { IAutoMovieRecoveryCameraPolicy } from "./IAutoMovieRecoveryCameraPolicy";
+export type { IAutoMovieRecoveryCameraBudget } from "./IAutoMovieRecoveryCameraBudget";

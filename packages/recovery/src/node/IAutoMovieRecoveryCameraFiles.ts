@@ -1,5 +1,7 @@
 import type { IAutoMovieRecoveryCameraPairInput } from "@automovie/interface/recovery";
 
+import type { IAutoMovieRecoveryCameraFile } from "../structures/image/IAutoMovieRecoveryCameraFile";
+
 /**
  * Fixed-byte P6 sRGB file acquisition for the calibrated camera-pair operation.
  * Paths resolve relative to this manifest. Decoding preserves every pixel and
@@ -28,20 +30,5 @@ export interface IAutoMovieRecoveryCameraFiles {
   maxHeaderBytes: number;
 
   /** Exactly two explicit views in the order defining the first-camera gauge. */
-  views: {
-    /** Unique resident acquisition identity. */
-    id: string;
-
-    /** Image path relative to this manifest, or an explicitly supplied absolute path. */
-    path: string;
-
-    /** Lowercase SHA-256 of the exact acquired P6 bytes. */
-    sha256: string;
-
-    /** Declared capture/decoding history, including original hashes when this source is a lossless derivative. */
-    pixelProvenance: string;
-
-    /** Corrected pinhole intrinsics in this exact unchanged integer-pixel-centre chart. */
-    camera: IAutoMovieRecoveryCameraPairInput["views"][number]["camera"];
-  }[];
+  views: IAutoMovieRecoveryCameraFile[];
 }
