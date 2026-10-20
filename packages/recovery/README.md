@@ -1,8 +1,8 @@
 # @automovie/recovery
 
-Observe registered triangle meshes as saved cubic curves and explicit continuation relationships, then reconstruct new geometry from those saved documents. Reconstruction reads coefficients and declared relationships without opening the original mesh or copying its normals or faces.
+Observe registered triangle meshes as saved cubic curves and explicit continuation relationships, then reconstruct new geometry from those saved documents. Reconstruction reads coefficients and declared relationships without opening the original mesh or copying its normals or faces. Separate image operations observe supplied-camera section support or estimate a relative camera from two images with supplied intrinsics.
 
-This package preserves the reconstruction baseline's algorithms and limitations. Packaging does not repair facial bands, missing regions, raised junction sheets or inconsistent joins. Processing completion does not establish visual quality, watertightness, embedding or source fidelity.
+Mesh reconstruction preserves the baseline's algorithms and limitations. Packaging does not repair facial bands, missing regions, raised junction sheets or inconsistent joins. Processing completion does not establish visual quality, watertightness, embedding or source fidelity.
 
 ## Installation and saved-curve reconstruction
 
@@ -40,10 +40,13 @@ Use Node.js 22.23.2 or newer. The root entrypoint owns resident operations; `@au
 | `compileAutoMovieRecoveryImageLoft` | Generate an ordinary bicubic model and its construction from a saved image-loft recipe alone |
 | `fitAutoMovieRecoveryImageSupportLoft` | Fit cubic finite-view support profiles and qualify their continuous boundary events without an ellipse prior |
 | `compileAutoMovieRecoverySupportLoft` | Generate new mesh geometry, analytic normal fans and construction from a saved support recipe alone |
+| `estimateAutoMovieRecoveryCameraPair` | Observe automatic appearance matches and qualify a relative pose under supplied pinhole intrinsics |
+| `IAutoMovieRecoveryCameraPairEstimate` | Retained image evidence, explicit camera refusals and an optional unit-baseline pose |
 | `IAutoMovieRecoveryOperation` | Versioned terminal outcomes, progress and cooperative cancellation |
 | `IAutoMovieRecoveryDomainLedger` | Declared domains, emitted ranges and explicitly unknown processing stages |
 | `publishAutoMovieRecoveryArtifact` from `/node` | Publish an immutable JSON artifact with an exact byte hash |
 | `runAutoMovieRecoveryCommand` from `/node` | Run the installed command dispatcher |
+| `IAutoMovieRecoveryCameraFiles` from `/node` | Fixed-byte two-image P6 acquisition with supplied intrinsics and explicit observation budgets |
 
 The root also exports the baseline's event, atlas, field-complex and analytic publication operations. Their declarations state the admitted inputs and limitations. Low-level exports do not make every experimental producer chain available or certify complete source coverage.
 
@@ -65,7 +68,7 @@ The Node writer stages in the destination directory, closes the staging file and
 
 ## Commands and saved documents
 
-The installed executable is `automovie-recovery`. Its `--help` lists the `recovery`, `recoveryOpen`, `recoveryLocal`, `recoveryAtlas`, `recoveryContourPath` and `images` command families. Commands require an explicit `--source-epoch` generating commit hash. Exit code 0 means processing ended, 2 rejects an unknown command family or malformed source-epoch option, and 1 reports a delegated command or input failure; inspect operation and coverage diagnostics before treating an artifact as complete.
+The installed executable is `automovie-recovery`. Its `--help` lists the `recovery`, `recoveryOpen`, `recoveryLocal`, `recoveryAtlas`, `recoveryContourPath`, `images` and `cameras` command families. Commands require an explicit `--source-epoch` generating commit hash. Exit code 0 means processing ended, 2 rejects an unknown command family or malformed source-epoch option, and 1 reports a delegated command or input failure; inspect operation and coverage diagnostics before treating an artifact as complete.
 
 The primary command accepts the saved curve schema `automovie-recovery-curves-v1` and publishes `automovie-recovery-model-v1`. Continuation and atlas documents retain their own versioned schemas. Historical local/open model discriminators remain readable baseline compatibility fields and do not select a Human generator. Repository command shims under `tools/recovery` retain the old `RUN_SOURCE_EPOCH` environment handoff; installed consumers use the explicit option.
 
@@ -88,3 +91,13 @@ The `finite-view-convex-support` policy fits both oriented support limits of eve
 The resulting `automovie-recovery-support-loft-v1` recipe saves support planes and cubic offsets, independently of source rows or mesh data. The same `[0.25,4]` coordinate edits use inverse-transformed support planes and newly derived normals. Its explicit coverage retains unknown caps, interior and hidden concavities, supplied cameras and an uncertified enclosure; a convex section hull does not establish physical convexity. Face interpolation error, numerical event isolation, boundary roundoff and source fit are separate qualifications.
 
 `AutoMovieRecoveryImageRecipe` is the closed union of these two saved forms. The file host's `images fit` dispatches the explicit policy family and `images realize` dispatches the saved schema. The ordinary `recovery.html` inspector accepts either form, with the same dimension controls, reference comparison and generating construction.
+
+## Relative camera observations
+
+`estimateAutoMovieRecoveryCameraPair` accepts two unchanged resident RGB8 images through `IAutoMovieRecoveryCameraPairInput`. Supply independently known corrected pinhole intrinsics for each original pixel chart, a static scene assertion, source provenance, explicit thresholds and finite work budgets. Integer `(column,row)` denotes the pixel centre, with X right, Y down and camera Z forward. This perspective convention differs from the section observer's pixel-edge chart.
+
+The `harris-gradient-calibrated-eight-point` family observes multiscale corners and oriented gradient descriptors, proposes unique mutual appearance matches and fits calibrated relative geometry. Final qualification checks the completed sampling target, local numerical convergence, original-design rank, pixel residuals, four-pose depth/parallax and a competing homography. Repeated texture, occlusion, broad viewpoint changes, weak baseline or planar ambiguity can leave the camera unobservable. Supplied focal calibration, distortion correction and scene rigidity remain caller assertions.
+
+A completed observation returns a `partial` operation containing `automovie-recovery-camera-pair-estimate-v1`. Its own `status` is `accepted-relative-pose` or `refused`, with measured populations and every observed refusal. Only an accepted pose exposes row-major R and unit t in `X2 = R X1 + t`; the first camera is identity and physical scale is unknown. Match support and image hull fractions describe image evidence, not object coverage or verified correspondence truth. Independent camera accuracy, covariance, global multiview registration and photographic surface reconstruction remain separate work.
+
+The Node `cameras` host accepts `estimate input.json new-output.json maxInputBytes` after its explicit source-epoch option. Its `automovie-recovery-camera-files-v1` manifest supplies exactly two hashed P6 sRGB sources and the resident policy/calibration records. Acquisition verifies source bytes and preserves the decoded chart without crop, rotation, resize or rectification. The host publishes one new `automovie-recovery-camera-artifact-v1` containing input/source identities and the operation result. A completed camera refusal still has exit 0 and retained evidence; invalid, cancelled or failed work without a value publishes nothing.

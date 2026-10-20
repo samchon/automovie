@@ -21,6 +21,8 @@ export type { IAutoMovieRecoveryImageFit } from "./IAutoMovieRecoveryImageFit";
 export { compileAutoMovieRecoverySupportLoft } from "./compileAutoMovieRecoverySupportLoft";
 export type { IAutoMovieRecoverySupportFit } from "./IAutoMovieRecoverySupportFit";
 export { fitAutoMovieRecoveryImageSupportLoft } from "./fitAutoMovieRecoveryImageSupportLoft";
+export { estimateAutoMovieRecoveryCameraPair } from "./estimateAutoMovieRecoveryCameraPair";
+export type { IAutoMovieRecoveryCameraPairEstimate } from "./IAutoMovieRecoveryCameraPairEstimate";
 export { reconstructAutoMovieRecoveryModel } from "./reconstructAutoMovieRecoveryModel";
 export type { IAutoMovieRecoveryOperation } from "./IAutoMovieRecoveryOperation";
 export { prepareAutoMovieRecoveryInput } from "./prepareAutoMovieRecoveryInput";

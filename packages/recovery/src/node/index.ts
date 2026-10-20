@@ -7,3 +7,4 @@ export { writeAutoMovieRecoveryArtifact } from "./internal/writeAutoMovieRecover
 export { runAutoMovieRecoveryCommand } from "./runAutoMovieRecoveryCommand";
 export { publishAutoMovieRecoveryArtifact } from "./publishAutoMovieRecoveryArtifact";
 export type { IAutoMovieRecoveryImageFiles } from "./IAutoMovieRecoveryImageFiles";
+export type { IAutoMovieRecoveryCameraFiles } from "./IAutoMovieRecoveryCameraFiles";
