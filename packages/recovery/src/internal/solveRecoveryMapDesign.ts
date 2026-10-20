@@ -2,6 +2,8 @@ import { decomposeAutoMovieSingularMatrix } from "@automovie/engine/math/decompo
 import { reduceAutoMovieQrDesign } from "@automovie/engine/math/reduceAutoMovieQrDesign";
 import type { IAutoMovieRecoveryCameraMapBudget } from "@automovie/interface/recovery";
 
+import type { IAutoMovieRecoveryMapDesignFit } from "../structures/internal/IAutoMovieRecoveryMapDesignFit";
+
 /**
  * Solve a column-scaled original least-squares design with optional damping.
  * Independent undamped rank is checked first; damping controls a step and never
@@ -21,7 +23,7 @@ export function solveRecoveryMapDesign(
   minimumRatio: number,
   damping: number,
   budget: IAutoMovieRecoveryCameraMapBudget,
-): { step: number[]; designRatio: number; gradient: number } {
+): IAutoMovieRecoveryMapDesignFit {
   const width: number = design[0]?.length ?? 0;
   if (
     width < 1 ||

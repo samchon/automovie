@@ -25,7 +25,10 @@ export function evaluateRecoveryScenePoint(
   point: readonly [number, number, number],
   observations: readonly IAutoMovieRecoveryMapObservation[],
   poses: readonly (IAutoMovieRecoveryMapPose | null)[],
-  charts: readonly ReturnType<typeof createRecoveryCameraChart>[],
+  charts: readonly Pick<
+    ReturnType<typeof createRecoveryCameraChart>,
+    "matrix"
+  >[],
   policy: IAutoMovieRecoveryCameraMapPolicy,
 ): IAutoMovieRecoveryScenePointEvaluation {
   const reasons: Set<string> = new Set();
@@ -45,7 +48,7 @@ export function evaluateRecoveryScenePoint(
   for (const observation of observations) {
     const pose: IAutoMovieRecoveryMapPose | null | undefined =
       poses[observation.viewIndex];
-    const chart: ReturnType<typeof createRecoveryCameraChart> | undefined =
+    const chart: (typeof charts)[number] | undefined =
       charts[observation.viewIndex];
     if (!pose || !chart) {
       reasons.add("unregistered-observation");

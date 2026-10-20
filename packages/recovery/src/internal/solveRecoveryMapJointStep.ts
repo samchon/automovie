@@ -1,6 +1,10 @@
 import { decomposeAutoMovieSingularMatrix } from "@automovie/engine/math/decomposeAutoMovieSingularMatrix";
 import type { IAutoMovieRecoveryCameraMapBudget } from "@automovie/interface/recovery";
 
+import type { IAutoMovieRecoveryMapJointStep } from "../structures/internal/IAutoMovieRecoveryMapJointStep";
+import type { IAutoMovieRecoveryMapJointBlock } from "../structures/internal/IAutoMovieRecoveryMapJointBlock";
+import type { IAutoMovieRecoveryMapElimination } from "../structures/internal/IAutoMovieRecoveryMapElimination";
+import { createRecoveryMapMetric } from "./createRecoveryMapMetric";
 import { solveRecoveryMapDesign } from "./solveRecoveryMapDesign";
 
 /**
@@ -8,6 +12,8 @@ import { solveRecoveryMapDesign } from "./solveRecoveryMapDesign";
  * Point-local Givens QR retains the caller's gauge-fixed camera columns.
  * This is orthogonal variable elimination,
  * avoiding the squared conditioning of a normal-matrix Schur complement.
+ * Optional metric retention exposes inverse/transpose actions from the same
+ * damped arrowhead design; the caller separately admits and charges its factor.
  *
  * @evidence contracts/common.md#principled-implementation Every point's undamped three-column design and the undamped reduced camera design are independently rank checked. Identical point/camera column scaling and augmented damping define one full least-squares problem; orthogonal elimination and back substitution solve it without constructing a dense all-point design.
  * @evidence contracts/common.md#clear-and-simple-design The helper owns only the block linear step; observation derivatives, robust weighting, gauge construction and nonlinear acceptance stay with the joint optimizer.
@@ -15,24 +21,15 @@ import { solveRecoveryMapDesign } from "./solveRecoveryMapDesign";
  * @evidence contracts/common.md#meaningful-documentation States variable gauge-fixed camera coordinates, point-local elimination, consistent damping, unscaled returned steps and independent undamped rank diagnostics.
  * @evidence contracts/performance.md#efficient-algorithms With E observations, L points and C admitted camera columns, point elimination costs O((E+L)*C); reduced QR/SVD costs O(E*C^2+S*C^3). Storage is O(E*C+L*C+C^2), avoiding a dense (C+3L)-column factorization. Actual variable-width sizes are admitted before allocations.
  * @evidence contracts/performance.md#reuse-equivalent-work Current weighted blocks supply global camera scales, per-point scales and both undamped qualification and damped elimination. The stored triangular block recovers each point step after one reduced camera solve.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Only camera/point step arrays and scalar diagnostics escape. All transformed blocks and factors expire without borrowed observations, cache or external handles.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Camera/point steps and scalar diagnostics transfer. Explicit metric retention additionally holds O(L*C+C^2) owned current factors/scales for the feasible consumer; ordinary calls retain none. No borrowed observations, global cache or external handles remain.
  */
 export function solveRecoveryMapJointStep(
-  blocks: readonly {
-    pointRows: number[][];
-    cameraRows: number[][];
-    right: number[];
-  }[],
+  blocks: readonly IAutoMovieRecoveryMapJointBlock[],
   minimumRatio: number,
   damping: number,
   budget: IAutoMovieRecoveryCameraMapBudget,
-): {
-  cameraStep: number[];
-  pointSteps: [number, number, number][];
-  cameraDesignRatio: number;
-  minimumPointDesignRatio: number;
-  gradient: number;
-} {
+  retainMetric: boolean = false,
+): IAutoMovieRecoveryMapJointStep {
   const totalRows: number = blocks.reduce(
     (sum: number, block: (typeof blocks)[number]): number =>
       sum + block.right.length,
@@ -146,13 +143,9 @@ export function solveRecoveryMapJointStep(
           block.right[row]!;
     gradient = Math.max(gradient, Math.abs(component));
   }
-  const eliminate: (amount: number) => {
-    rows: number[][];
-    right: number[];
-    triangular: number[][][];
-  } = (
+  const eliminate: (amount: number) => IAutoMovieRecoveryMapElimination = (
     amount: number,
-  ): { rows: number[][]; right: number[]; triangular: number[][][] } => {
+  ): IAutoMovieRecoveryMapElimination => {
     const reduced: number[][] = [],
       right: number[] = [],
       triangular: number[][][] = [];
@@ -257,5 +250,16 @@ export function solveRecoveryMapJointStep(
     cameraDesignRatio: qualified.designRatio,
     minimumPointDesignRatio,
     gradient,
+    ...(retainMetric
+      ? {
+          metric: createRecoveryMapMetric(
+            damped.triangular,
+            damped.rows,
+            pointScales,
+            cameraScales,
+            budget,
+          ),
+        }
+      : {}),
   };
 }

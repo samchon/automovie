@@ -13,8 +13,15 @@ export interface IAutoMovieRecoveryMapJointFit {
   /** Local numerical stopping condition, not global accuracy or uncertainty. */
   converged: boolean;
 
-  /** Numerical stop; iteration-budget is explicitly nonconverged. */
-  termination: "gradient" | "step" | "cost" | "iteration-budget";
+  /** Numerical stop; pixel-kkt is normal constrained stationarity, while direction-incomplete, abnormal-or-stalled and iteration-budget are nonconverged. */
+  termination:
+    | "gradient"
+    | "step"
+    | "cost"
+    | "iteration-budget"
+    | "pixel-kkt"
+    | "direction-incomplete"
+    | "abnormal-or-stalled";
 
   /** Accepted and rejected nonlinear iterations combined. */
   iterations: number;

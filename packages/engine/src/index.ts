@@ -9,6 +9,10 @@ export { decomposeAutoMovieSingularMatrix } from "./math/decomposeAutoMovieSingu
 export type { IAutoMovieSingularDecomposition } from "./math/IAutoMovieSingularDecomposition";
 export type { IAutoMovieSingularMatrixBudget } from "./math/IAutoMovieSingularMatrixBudget";
 export { reduceAutoMovieQrDesign } from "./math/reduceAutoMovieQrDesign";
+export { minimizeAutoMovieSimplexQuadratic } from "./math/minimizeAutoMovieSimplexQuadratic";
+export type { IAutoMovieSimplexAtom } from "./math/IAutoMovieSimplexAtom";
+export type { IAutoMovieSimplexBudget } from "./math/IAutoMovieSimplexBudget";
+export type { IAutoMovieSimplexMinimum } from "./math/IAutoMovieSimplexMinimum";
 export type { IAutoMovieQrDesignBudget } from "./math/IAutoMovieQrDesignBudget";
 export type { IAutoMovieQrDesignReduction } from "./math/IAutoMovieQrDesignReduction";
 export { AutoMovieMatrix3 } from "./math/AutoMovieMatrix3";

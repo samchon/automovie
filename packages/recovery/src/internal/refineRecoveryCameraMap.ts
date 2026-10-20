@@ -3,11 +3,15 @@ import type {
   IAutoMovieRecoveryCameraMapPolicy,
 } from "@automovie/interface/recovery";
 
-import type { IAutoMovieRecoveryMapJointFit } from "../structures/image/IAutoMovieRecoveryMapJointFit";
 import type { IAutoMovieRecoveryMapLandmark } from "../structures/image/IAutoMovieRecoveryMapLandmark";
 import type { IAutoMovieRecoveryMapPose } from "../structures/image/IAutoMovieRecoveryMapPose";
+import type { IAutoMovieRecoveryFeasibleJointOptions } from "../structures/internal/IAutoMovieRecoveryFeasibleJointOptions";
+import type { IAutoMovieRecoveryMapJointResult } from "../structures/internal/IAutoMovieRecoveryMapJointResult";
+import type { IAutoMovieRecoveryMapJointBlock } from "../structures/internal/IAutoMovieRecoveryMapJointBlock";
+import type { IAutoMovieRecoveryMapEvaluation } from "../structures/internal/IAutoMovieRecoveryMapEvaluation";
 import { createRecoveryMapTangent } from "./createRecoveryMapTangent";
 import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
+import { refineRecoveryCameraMapFeasible } from "./refineRecoveryCameraMapFeasible";
 import { solveRecoveryMapJointStep } from "./solveRecoveryMapJointStep";
 import { stepRecoveryMapPose } from "./stepRecoveryMapPose";
 import { stepRecoveryRelativePose } from "./stepRecoveryRelativePose";
@@ -18,12 +22,14 @@ import { stepRecoveryRelativePose } from "./stepRecoveryRelativePose";
  * translation remains on its unit sphere,
  * and all later translations have three unrestricted coordinates. Fixed landmark
  * observations retain the same robust objective throughout every trial.
+ * Internal feasible options select the separately bounded hard-pixel method;
+ * ordinary calls retain this unconstrained local optimizer.
  *
  * @evidence contracts/common.md#principled-implementation Analytic pinhole derivatives, complete-vector soft-L1 weights and original-design point-local QR solve C=6N-7 gauge-fixed camera coordinates. Independent point/reduced-camera ranks precede damping, and actual same-population descent accepts an SO3/sphere/Euclidean retraction.
  * @evidence contracts/common.md#clear-and-simple-design This nonlinear owner keeps fixed population, gauge, damping and local termination together; projection and block-linear algebra have separate numerical owners, and final map qualification belongs to the coordinator.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No first/second full-pose double anchoring, independent normalization of third translation, covariance claim, dropped measurement or damping-derived rank supplies a map. Nonpositive trial depths reject the step, and iteration exhaustion remains nonconverged.
  * @evidence contracts/common.md#meaningful-documentation States seven removed gauge freedoms, fixed known calibration, robust vector weighting, common population, 1e-8 local stops and separation of robust versus unweighted squared cost.
- * @evidence contracts/performance.md#efficient-algorithms E observations, L landmarks, C=6N-7 camera columns and I bounded iterations cost O(I*(E*C^2+S*C^3)) with O(E*C+L*C+C^2) storage. No dense all-landmark Jacobian is materialized; entry bounds and optional work charging precede each allocation/factorization.
+ * @evidence contracts/performance.md#efficient-algorithms Ordinary E-observation, L-landmark, C=6N-7 camera refinement costs O(I*(E*C^2+S*C^3)). Internal feasible selection additionally charges row whitening, full point qualification sum(k_point^2) per trial and at most J sparse direction passes of O(E*C+L) per model. Both methods admit O(E*C+L*C+C^2) simultaneous factors/rows/scratch before allocation; no dense all-point Jacobian is formed.
  * @evidence contracts/performance.md#reuse-equivalent-work Each current projection supplies residual, robust weight and both point/camera derivatives. Fixed features, intrinsics and measurements are reused across iterations; only changed numerical poses/points are reevaluated.
  * @evidence contracts/performance.md#bound-retention-and-release-resources New pose/landmark arrays and scalar report transfer to the caller. Call-local block scratch, callbacks and rejected trials expire without input mutation, image retention or external resources.
  */
@@ -35,11 +41,19 @@ export function refineRecoveryCameraMap(
   budget: IAutoMovieRecoveryCameraMapBudget,
   checkpoint: () => void,
   charge: (work: number) => void = (): void => {},
-): {
-  poses: IAutoMovieRecoveryMapPose[];
-  landmarks: IAutoMovieRecoveryMapLandmark[];
-  report: IAutoMovieRecoveryMapJointFit;
-} {
+  feasible?: IAutoMovieRecoveryFeasibleJointOptions,
+): IAutoMovieRecoveryMapJointResult {
+  if (feasible !== undefined)
+    return refineRecoveryCameraMapFeasible(
+      initialPoses,
+      initialLandmarks,
+      intrinsics,
+      policy,
+      budget,
+      feasible,
+      checkpoint,
+      charge,
+    );
   if (
     initialPoses.length < 2 ||
     intrinsics.length !== initialPoses.length ||
@@ -124,26 +138,14 @@ export function refineRecoveryCameraMap(
   const evaluate: (
     cameras: readonly IAutoMovieRecoveryMapPose[],
     points: readonly IAutoMovieRecoveryMapLandmark[],
-  ) => {
-    cost: number;
-    squared: number;
-    blocks: Parameters<typeof solveRecoveryMapJointStep>[0];
-  } | null = (
+  ) => IAutoMovieRecoveryMapEvaluation | null = (
     cameras: readonly IAutoMovieRecoveryMapPose[],
     points: readonly IAutoMovieRecoveryMapLandmark[],
-  ): {
-    cost: number;
-    squared: number;
-    blocks: Parameters<typeof solveRecoveryMapJointStep>[0];
-  } | null => {
+  ): IAutoMovieRecoveryMapEvaluation | null => {
     const tangent: [number, number, number][] = createRecoveryMapTangent(
       cameras[1]!.translation,
     );
-    const blocks: {
-      pointRows: number[][];
-      cameraRows: number[][];
-      right: number[];
-    }[] = [];
+    const blocks: IAutoMovieRecoveryMapJointBlock[] = [];
     let cost: number = 0,
       squared: number = 0;
     for (const landmark of points) {
@@ -213,7 +215,7 @@ export function refineRecoveryCameraMap(
     acceptedSteps: number = 0,
     minimumCameraDesignRatio: number = Infinity,
     minimumPointDesignRatio: number = Infinity;
-  let termination: IAutoMovieRecoveryMapJointFit["termination"] =
+  let termination: IAutoMovieRecoveryMapJointResult["report"]["termination"] =
     "iteration-budget";
   for (; iterations < budget.maxRefinementIterations; iterations++) {
     checkpoint();

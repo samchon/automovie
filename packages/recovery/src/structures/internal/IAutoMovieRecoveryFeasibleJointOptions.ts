@@ -1,0 +1,20 @@
+import type { IAutoMovieSimplexBudget } from "@automovie/engine/math/IAutoMovieSimplexBudget";
+
+/**
+ * Explicit opt-in resource limits for the experimental feasible joint method.
+ *
+ * @evidence contracts/common.md#principled-implementation The same fixed population and geometric thresholds receive additional admitted direction-work and simultaneous-retention bounds, without changing outer nonlinear trial limits.
+ * @evidence contracts/common.md#clear-and-simple-design Internal method selection keeps the ordinary public map/scene behavior unchanged while the bounded method receives principled analytic and transaction evaluation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Limits are fixed before fitting; no specimen, rejected observation or expected pose is carried by this option.
+ * @evidence contracts/common.md#meaningful-documentation Members distinguish per-direction sparse work from total owner charging and logical simultaneous retention.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms This erased input performs no fit.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work It defines no result cache.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Scalar ceilings acquire no resource.
+ */
+export interface IAutoMovieRecoveryFeasibleJointOptions {
+  /** Per-direction pairwise iteration, input-plus-scratch scalar and visit ceilings. */
+  directionBudget: IAutoMovieSimplexBudget;
+
+  /** Maximum simultaneous logical joint/model/direction scalars, excluding JS overhead and images. */
+  maxResidentLinearEntries: number;
+}

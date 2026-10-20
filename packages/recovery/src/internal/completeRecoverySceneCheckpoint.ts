@@ -9,6 +9,7 @@ import type { IAutoMovieRecoveryMapObservation } from "../structures/image/IAuto
 import type { IAutoMovieRecoveryMapPose } from "../structures/image/IAutoMovieRecoveryMapPose";
 import type { IAutoMovieRecoverySceneLandmark } from "../structures/image/IAutoMovieRecoverySceneLandmark";
 import type { IAutoMovieRecoverySceneWork } from "../structures/image/IAutoMovieRecoverySceneWork";
+import type { IAutoMovieRecoveryFeasibleJointOptions } from "../structures/internal/IAutoMovieRecoveryFeasibleJointOptions";
 import type { IAutoMovieRecoverySceneCheckpoint } from "../structures/internal/IAutoMovieRecoverySceneCheckpoint";
 import type { IAutoMovieRecoverySceneCheckpointTrace } from "../structures/internal/IAutoMovieRecoverySceneCheckpointTrace";
 import { assertRecoverySceneLinearRetention } from "./assertRecoverySceneLinearRetention";
@@ -31,7 +32,7 @@ import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
  * @evidence contracts/common.md#clear-and-simple-design This transaction owner groups proposed poses, points, measurement completion, refinement and final qualification; immutable global tracks and accepted checkpoint ownership remain with the scene coordinator.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No point-only deletion is called requalification, no failed fit commits a subset, no zero-weight/damping rank supplies observability, and a changed-population cost is not reported as descent of one objective.
  * @evidence contracts/common.md#meaningful-documentation States compact versus global indices, strict growth closure, last-pass diagnostics, logical retention bound and rollback responsibility.
- * @evidence contracts/performance.md#efficient-algorithms For E retained observations, L landmarks and C active camera coordinates, admitted scalar-slot bounds cover retained blocks and dense reduced factors before fitting. Delegated bounded QR/SVD costs O(I*(E*C^2+S*C^3)); strict population growth and aggregate fit/work ceilings bound closure.
+ * @evidence contracts/performance.md#efficient-algorithms For E observations, L landmarks and C active camera coordinates, admitted simultaneous slots cover blocks and reduced factors. QR/SVD costs O(I*(E*C^2+S*C^3)); internal feasible selection also admits physical/whitened rows and sparse direction scratch, charges O(E*C^2+L*C) whitening per model, J bounded O(E*C+L) direction passes and complete point qualification sum(k_point^2) per trial. Strict population growth and cumulative fit/work ceilings bound every closure.
  * @evidence contracts/performance.md#reuse-equivalent-work Accepted global observations and current numerical estimates seed each fit. No pixel/feature/matching acquisition is repeated; only a changed proposed population requires another joint objective.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a detached qualified proposal or explicit failed diagnostics returns. Optional observers own O(V+L+E) cloned state per event and its history; absent observers allocate no snapshots. Unaccepted factors, closures and proposals expire; consumed shared work remains, and no image or external handle is retained.
  */
@@ -50,6 +51,7 @@ export function completeRecoverySceneCheckpoint(
     report: IAutoMovieRecoveryMapJointFit | null,
   ) => void = (): void => {},
   onTrace?: (trace: IAutoMovieRecoverySceneCheckpointTrace) => void,
+  feasible?: IAutoMovieRecoveryFeasibleJointOptions,
 ): IAutoMovieRecoverySceneCheckpoint {
   let poses: (IAutoMovieRecoveryMapPose | null)[] = initialPoses.map(
     (
@@ -141,6 +143,7 @@ export function completeRecoverySceneCheckpoint(
         },
         (amount: number): void =>
           spendRecoverySceneWork(work, budget, "linearWork", amount),
+        feasible,
       );
     lastJoint = refined.report;
     onTrace?.(
