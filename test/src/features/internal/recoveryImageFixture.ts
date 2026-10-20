@@ -2,12 +2,13 @@ import type { IAutoMovieRecoveryImageInput } from "@automovie/interface/recovery
 
 /**
  * Rasterize analytic opaque sections independently of recovery and atlas code.
- * Cubic half-axes and quadratic translating centres have closed-form support
- * under the supplied orthographic chart; box support is a distinct negative.
+ * Cubic half-axes and translating centres have closed-form support under the
+ * supplied orthographic chart; an optional independent interval formula supplies
+ * other analytic sections. Box support is a distinct ellipse-family negative.
  *
  * @evidence contracts/testing.md#behavioral-verification Supplies real RGB8 pixel populations whose support must be extracted rather than injecting expected observed rows or fitted controls.
- * @evidence contracts/testing.md#independent-expectations Raster inclusion uses analytic ellipse or box support and explicit pixel centres, with no recovery fitter, spline evaluator, atlas generator or renderer import.
- * @evidence contracts/testing.md#distinguishing-cases Parameterized size, angle, pixel pitch and ellipse/box shape allow scale/chart and unsupported-family controls; admission failures are authored by the calling tests.
+ * @evidence contracts/testing.md#independent-expectations Raster inclusion uses analytic ellipse or box support and explicit pixel centres, with no recovery fitter, spline evaluator, atlas generator or renderer import. One fixed pixel-centre vector serves every row/view; supplied intervals use two binary searches of the same inclusive comparisons on an increasing chart, then copy the fixed RGB triplet into that exact contiguous range. Other charts/default formulas retain their direct inclusion scan.
+ * @evidence contracts/testing.md#distinguishing-cases Parameterized angle, pixel pitch, ellipse/box shape and an optional analytic interval allow scale/chart and distinct section-family controls; admission failures are authored by the calling tests.
  * @evidence contracts/testing.md#execution-ownership This portable fixture owns only small resident typed arrays and deterministic arithmetic; it starts no process, filesystem, browser or GPU.
  */
 export function recoveryImageFixture(
@@ -16,11 +17,22 @@ export function recoveryImageFixture(
     angles?: number[];
     pitchMm?: number;
     profile?: (t: number) => [number, number, number, number];
+    support?: (t: number, azimuth: number) => [number, number];
   } = {},
 ): IAutoMovieRecoveryImageInput {
   const pitch: number = input.pitchMm ?? 0.25;
   const width: number = 256,
     height: number = 480;
+  const pixelX: Float64Array = Float64Array.from(
+    { length: width },
+    (_: unknown, column: number): number => (column + 0.5 - 128) * pitch,
+  );
+  const foreground: Uint8Array = new Uint8Array(3 * width);
+  for (let column: number = 0; column < width; column++) {
+    foreground[3 * column] = 30;
+    foreground[3 * column + 1] = 80;
+    foreground[3 * column + 2] = 130;
+  }
   return {
     schema: "automovie-recovery-images-v1",
     objectId: "analytic-section-family",
@@ -42,23 +54,59 @@ export function recoveryImageFixture(
           const y: number = (440 - row - 0.5) * pitch;
           const t: number = y / 100;
           if (t < 0 || t > 1) continue;
-          const profile: [number, number, number, number] = input.profile?.(
+          const interval: [number, number] | undefined = input.support?.(
             t,
-          ) ?? [
-            18 + 8 * t - 12 * t * t + 5 * t * t * t,
-            10 + 7 * t + 4 * t * t - 3 * t * t * t,
-            2 - 4 * t + 2 * t * t,
-            -1 + 3 * t - 2 * t * t,
-          ];
-          const a: number = profile[0],
-            b: number = profile[1];
-          const centre: number = c * profile[2] + s * profile[3];
-          const support: number =
-            input.kind === "box"
-              ? Math.abs(c) * a + Math.abs(s) * b
-              : Math.hypot(c * a, s * b);
-          for (let column: number = 0; column < width; column++)
-            if (Math.abs((column + 0.5 - 128) * pitch - centre) <= support) {
+            angle,
+          );
+          let centre: number = 0,
+            support: number = 0;
+          if (interval === undefined) {
+            const profile: [number, number, number, number] = input.profile?.(
+              t,
+            ) ?? [
+              18 + 8 * t - 12 * t * t + 5 * t * t * t,
+              10 + 7 * t + 4 * t * t - 3 * t * t * t,
+              2 - 4 * t + 2 * t * t,
+              -1 + 3 * t - 2 * t * t,
+            ];
+            centre = c * profile[2] + s * profile[3];
+            support =
+              input.kind === "box"
+                ? Math.abs(c) * profile[0] + Math.abs(s) * profile[1]
+                : Math.hypot(c * profile[0], s * profile[1]);
+          }
+          let first: number = 0,
+            end: number = width;
+          if (interval !== undefined && pitch > 0 && Number.isFinite(pitch)) {
+            let lower: number = 0,
+              upper: number = width;
+            while (lower < upper) {
+              const middle: number = Math.floor((lower + upper) / 2);
+              if (pixelX[middle] >= interval[0]) upper = middle;
+              else lower = middle + 1;
+            }
+            first = lower;
+            lower = 0;
+            upper = width;
+            while (lower < upper) {
+              const middle: number = Math.floor((lower + upper) / 2);
+              if (pixelX[middle] <= interval[1]) lower = middle + 1;
+              else upper = middle;
+            }
+            end = lower;
+            if (first < end)
+              pixels.set(
+                foreground.subarray(0, 3 * (end - first)),
+                3 * (row * width + first),
+              );
+            continue;
+          }
+          for (let column: number = first; column < end; column++)
+            if (
+              interval
+                ? pixelX[column] >= interval[0] && pixelX[column] <= interval[1]
+                : Math.abs(pixelX[column] - centre) <= support
+            ) {
               const at: number = 3 * (row * width + column);
               pixels[at] = 30;
               pixels[at + 1] = 80;

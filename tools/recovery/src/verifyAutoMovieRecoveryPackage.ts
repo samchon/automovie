@@ -9,6 +9,7 @@ import { packAutoMovieRecoveryClosure } from "./packAutoMovieRecoveryClosure.ts"
 import { verifyAutoMovieRecoveryImageConsumer } from "./verifyAutoMovieRecoveryImageConsumer.ts";
 import { verifyAutoMovieRecoveryOpenConsumer } from "./verifyAutoMovieRecoveryOpenConsumer.ts";
 import { verifyAutoMovieRecoveryRegisteredConsumer } from "./verifyAutoMovieRecoveryRegisteredConsumer.ts";
+import { verifyAutoMovieRecoverySupportConsumer } from "./verifyAutoMovieRecoverySupportConsumer.ts";
 
 /**
  * Verify actual packed recovery imports, installed bin and immutable publication.
@@ -373,6 +374,14 @@ console.log(JSON.stringify({node:process.version,version,area,status:result.stat
       sourceEpoch,
       run,
     });
+  const supportConsumer: ReturnType<
+    typeof verifyAutoMovieRecoverySupportConsumer
+  > = verifyAutoMovieRecoverySupportConsumer({
+    consumer,
+    cli: packageCli,
+    sourceEpoch,
+    run,
+  });
   fs.writeFileSync(
     path.join(consumer, "consumer-types.mts"),
     `import { observeAutoMovieRecovery, reconstructAutoMovieRecoveryModel } from "@automovie/recovery";
@@ -380,6 +389,13 @@ import { publishAutoMovieRecoveryArtifact } from "@automovie/recovery/node";
 import type { IAutoMovieRecoveryInput, IAutoMovieRecoveryImageInput, IAutoMovieRecoveryImageLoft } from "@automovie/interface/recovery";
 import { observeAutoMovieRecoveryImages, fitAutoMovieRecoveryImageLoft, compileAutoMovieRecoveryImageLoft } from "@automovie/recovery";
 import { decodeAutoMoviePpmImage } from "@automovie/ingest/ppm";
+import { fitAutoMovieRecoveryImageSupportLoft, compileAutoMovieRecoverySupportLoft } from "@automovie/recovery";
+import type { IAutoMovieRecoveryImageObservation, IAutoMovieRecoverySupportLoft } from "@automovie/interface/recovery";
+export function consumeSupport(observation: IAutoMovieRecoveryImageObservation, recipe: IAutoMovieRecoverySupportLoft): void {
+ const generation: Parameters<typeof compileAutoMovieRecoverySupportLoft>[1]={tolerance:.00005,maxPlanes:32,maxEvents:128,maxCells:20000,maxVertices:30000,minimumDirectionSine:.0001};
+ fitAutoMovieRecoveryImageSupportLoft(observation,{family:"finite-view-convex-support",maxViews:12,maxRows:2000,maxSpans:4,maximumResidualPx:2,minimumSplineRatio:1e-8,generation});
+ compileAutoMovieRecoverySupportLoft(recipe,generation);
+}
 export function consume(input: IAutoMovieRecoveryInput, saved: Parameters<typeof reconstructAutoMovieRecoveryModel>[0]): void {
  const observed: ReturnType<typeof observeAutoMovieRecovery> = observeAutoMovieRecovery(input);
  const generated: ReturnType<typeof reconstructAutoMovieRecoveryModel> = reconstructAutoMovieRecoveryModel(saved);
@@ -443,6 +459,7 @@ export function consumeImages(input: IAutoMovieRecoveryImageInput, recipe: IAuto
       registeredObservationAndContinuation: true,
       openConsumer,
       imageConsumer,
+      supportConsumer,
     },
     version: version.trim(),
     refusedExit: refused.status,

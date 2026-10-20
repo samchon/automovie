@@ -1,4 +1,4 @@
-import type { IAutoMovieRecoveryImageLoft } from "@automovie/interface/recovery";
+import type { AutoMovieRecoveryImageRecipe } from "@automovie/interface/recovery";
 import {
   type IAutoMovieViewerCompletedFrame,
   captureAutoMovieMetricFrame,
@@ -29,7 +29,7 @@ import { readRecoveryViewerDocument } from "./readRecoveryViewerDocument";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Capture uses the displayed canvas and current subjects without substituting an overlay or capture-only model. A missing reference stays absent, invalid loads do not retire the valid candidate and no Human code or native renderer method is replaced.
  * @evidence contracts/common.md#meaningful-documentation States source-free input, optional independent reference, same-view construction passes, actual byte/model hashes, last-valid preservation, resource ownership and the limits of visual evidence.
  * @evidence contracts/performance.md#efficient-algorithms Each load compiles/builds one candidate and hashes O(B) document/model bytes once; frame work is ordinary controls and rendering. Construction and atlas tessellation retain their explicit budgets, and camera changes perform no reconstruction.
- * @evidence contracts/performance.md#reuse-equivalent-work The loaded model and construction serve all camera, subject and pass changes. One version counter prevents a late load from replacing a newer valid request and each retirement shares one completion promise.
+ * @evidence contracts/performance.md#reuse-equivalent-work The loaded model and construction serve all camera, subject and pass changes. Idle frames preserve the authored camera instead of repeating spherical integration; OrbitControls updates ordinary gestures itself, while presets and enabled damping/auto-rotation retain their updates. One version counter prevents a late load from replacing a newer valid request and each retirement shares one completion promise.
  * @evidence contracts/performance.md#bound-retention-and-release-resources One renderer/RAF, one controls instance, one current candidate and at most one synchronously built incoming candidate are owned. Failed/stale loads retire incoming allocations; replacement retires prior resources, and dispose aborts UI listeners, ends controls/mount and attempts all current native retirements.
  */
 export function mountRecoveryViewerPage(root: HTMLElement): {
@@ -95,7 +95,7 @@ export function mountRecoveryViewerPage(root: HTMLElement): {
     scene,
     camera,
     (): boolean => {
-      controls.update();
+      if (controls.enableDamping || controls.autoRotate) controls.update();
       activeCamera = camera;
       return compareFrame();
     },
@@ -200,7 +200,7 @@ export function mountRecoveryViewerPage(root: HTMLElement): {
     try {
       const ticket: number = ++version;
       const candidate: Candidate = await createRecoveryViewerCandidate(text);
-      const recipe: IAutoMovieRecoveryImageLoft = candidate.recipe;
+      const recipe: AutoMovieRecoveryImageRecipe = candidate.recipe;
       if (closed || ticket !== version) {
         await candidate.retire();
         return;
@@ -380,7 +380,7 @@ export function mountRecoveryViewerPage(root: HTMLElement): {
       report(async (): Promise<void> => {
         if (!current)
           throw new Error("Load a recipe before editing dimensions");
-        const recipe: IAutoMovieRecoveryImageLoft = structuredClone(
+        const recipe: AutoMovieRecoveryImageRecipe = structuredClone(
           current.recipe,
         );
         for (const field of [

@@ -1,7 +1,10 @@
 import { validateModel } from "@automovie/engine";
 import type { IAutoMovieModel } from "@automovie/interface";
-import type { IAutoMovieRecoveryImageLoft } from "@automovie/interface/recovery";
-import { compileAutoMovieRecoveryImageLoft } from "@automovie/recovery";
+import type { AutoMovieRecoveryImageRecipe } from "@automovie/interface/recovery";
+import {
+  compileAutoMovieRecoveryImageLoft,
+  compileAutoMovieRecoverySupportLoft,
+} from "@automovie/recovery";
 import {
   buildAutoMovieConstruction,
   buildModel,
@@ -22,7 +25,7 @@ import type * as THREE from "three";
  * @evidence contracts/common.md#clear-and-simple-design This transactional loader owns admission, construction and hashing while the page owns request serialization, scene attachment, camera controls and replacement.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No image or source mesh supplies generated geometry; optional reference meshes remain a separate bounded subject with their own normals. Invalid input fails before transfer and no old displayed candidate is retired here.
  * @evidence contracts/common.md#meaningful-documentation States supported static reference meshes, neutral appearance, exact identity hashes, explicit document/geometry budgets and incoming-resource rollback ownership.
- * @evidence contracts/performance.md#efficient-algorithms Hashing/parsing are O(B) in bounded document bytes; reference validation is O(V+F) in bounded source geometry. One bounded atlas realization and one construction build create the candidate, without camera-dependent regeneration.
+ * @evidence contracts/performance.md#efficient-algorithms Hashing/parsing are O(B) in bounded document bytes; reference validation is O(V+F) in bounded source geometry. One bounded recipe compilation/geometry realization and construction build create the candidate, without camera-dependent regeneration; each generating owner documents its plane/event or atlas costs.
  * @evidence contracts/performance.md#reuse-equivalent-work The returned candidate and its single retirement promise serve every page view/pass until replacement; hashing does not repeat fitting or geometry construction.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Every completed child builder transfers its actual resource identities immediately into local rollback. Failed loads attempt all accumulated retirements; success transfers one candidate and its disposer to the serializing page with no global cache or renderer acquired.
  */
@@ -32,7 +35,7 @@ export async function createRecoveryViewerCandidate(text: string): Promise<{
   referenceModel: IAutoMovieModel | undefined;
   construction: ReturnType<typeof buildAutoMovieConstruction>;
   retire: () => Promise<void>;
-  recipe: IAutoMovieRecoveryImageLoft;
+  recipe: AutoMovieRecoveryImageRecipe;
   documentHash: string;
   modelHash: string;
   referenceHash: string | null;
@@ -50,14 +53,14 @@ export async function createRecoveryViewerCandidate(text: string): Promise<{
   if (encoded.read !== text.length)
     throw new Error("Inspection document exceeds the 16 MiB byte limit");
   const parsed:
-    | IAutoMovieRecoveryImageLoft
-    | { recipe: IAutoMovieRecoveryImageLoft; reference?: IAutoMovieModel } =
+    | AutoMovieRecoveryImageRecipe
+    | { recipe: AutoMovieRecoveryImageRecipe; reference?: IAutoMovieModel } =
     JSON.parse(text) as
-      | IAutoMovieRecoveryImageLoft
-      | { recipe: IAutoMovieRecoveryImageLoft; reference?: IAutoMovieModel };
+      | AutoMovieRecoveryImageRecipe
+      | { recipe: AutoMovieRecoveryImageRecipe; reference?: IAutoMovieModel };
   if (parsed === null || typeof parsed !== "object")
     throw new Error("A saved recipe or recipe/reference document is required");
-  const recipe: IAutoMovieRecoveryImageLoft =
+  const recipe: AutoMovieRecoveryImageRecipe =
     "recipe" in parsed ? parsed.recipe : parsed;
   const reference: IAutoMovieModel | undefined =
     "recipe" in parsed ? parsed.reference : undefined;
@@ -112,12 +115,23 @@ export async function createRecoveryViewerCandidate(text: string): Promise<{
         `Invalid independent reference: ${JSON.stringify(validation.violations)}`,
       );
   }
-  const compiled: ReturnType<typeof compileAutoMovieRecoveryImageLoft> =
-    compileAutoMovieRecoveryImageLoft(recipe, {
-      tolerance: 0.0001,
-      maxCells: 50_000,
-      maxVertices: 80_000,
-    });
+  const compiled:
+    | ReturnType<typeof compileAutoMovieRecoveryImageLoft>
+    | ReturnType<typeof compileAutoMovieRecoverySupportLoft> =
+    recipe?.schema === "automovie-recovery-support-loft-v1"
+      ? compileAutoMovieRecoverySupportLoft(recipe, {
+          tolerance: 0.00005,
+          maxPlanes: 64,
+          maxEvents: 256,
+          maxCells: 50_000,
+          maxVertices: 80_000,
+          minimumDirectionSine: 0.0001,
+        })
+      : compileAutoMovieRecoveryImageLoft(recipe, {
+          tolerance: 0.0001,
+          maxCells: 50_000,
+          maxVertices: 80_000,
+        });
   if (!("value" in compiled)) throw new Error(compiled.diagnostics.join("; "));
   const hash: (value: Uint8Array<ArrayBuffer>) => Promise<string> = async (
     value: Uint8Array<ArrayBuffer>,

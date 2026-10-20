@@ -13,10 +13,11 @@ import { nclose } from "../internal/nclose";
  * 3. Full restrictions and endpoint splits retain the original net or a constant endpoint net of the same degree.
  * 4. Strict-interior evaluation and extrapolation remain unclamped, and an interior split retains one common junction.
  * 5. Two endpoint authorities with the same raw coefficient agree under reversal; a genuinely different raw coefficient still conflicts.
+ * 6. Quadratic and cubic monomials retain their independent values at interior and extrapolated parameters in higher-degree coefficient nets without mutating frozen controls.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls scalar/vector evaluation, vector/scalar subdivision and the actual canonical boundary preparer. Exact endpoint and no-alias assertions catch repeated affine rounding and overflow before canonical incidence, while strict conflict checks retain disagreement detection.
- * @evidence contracts/testing.md#independent-expectations Bernstein basis values at zero and one are exactly the first and last supplied coefficients. Endpoint subdivision yields the original net and a degree-preserving constant net. A linear Bernstein polynomial evaluates to its parameter, including extrapolation. Identical declared endpoint coefficients are consistent, while 0.3 and its next representable value are distinct authorities.
- * @evidence contracts/testing.md#distinguishing-cases Covers degrees zero through cubic, 0.3 rounding, catastrophic cancellation, finite subtraction overflow, reversed nets and intervals, signed zero, independent clones, exact full restriction, interior and extrapolated parameters, and positive versus genuinely conflicting canonical endpoints. This establishes endpoint identity, not interior error bounds or geometric regularity.
+ * @evidence contracts/testing.md#independent-expectations Bernstein basis values at zero and one are exactly the first and last supplied coefficients. Endpoint subdivision yields the original net and a degree-preserving constant net. Linear controls evaluate to the parameter, and falling-factorial controls (i)_p/(n)_p evaluate to t^p for p=2 or 3, including extrapolation. Identical declared endpoint coefficients are consistent, while 0.3 and its next representable value are distinct authorities.
+ * @evidence contracts/testing.md#distinguishing-cases Covers degrees zero through cubic plus seven and twelve, 0.3 rounding, catastrophic cancellation, finite subtraction overflow, reversed nets and intervals, signed zero, frozen inputs, independent clones, exact full restriction, interior and extrapolated parameters, and positive versus genuinely conflicting canonical endpoints. This establishes the stated polynomial values and endpoint identities, not general interior error bounds or geometric regularity.
  * @evidence contracts/testing.md#execution-ownership This portable discoverable entry owns all coefficient fixtures and calls engine source without a host, native build, renderer, Human data or method replacement. Every endpoint observation is collected before the first aggregate assertion.
  */
 export function test_geometry_bernstein_endpoint_authority(): void {
@@ -144,6 +145,23 @@ export function test_geometry_bernstein_endpoint_authority(): void {
     "strict interior split shares its exact junction",
     equalVector(halves[0].at(-1)!, halves[1][0]!),
   );
+  for (const degree of [2, 3, 7, 12])
+    for (const power of [2, 3]) {
+      if (power > degree) continue;
+      const coefficients: readonly number[] = Object.freeze(
+        Array.from({ length: degree + 1 }, (_: unknown, i: number): number => {
+          let value: number = 1;
+          for (let factor: number = 0; factor < power; factor++)
+            value *= (i - factor) / (degree - factor);
+          return value;
+        }),
+      );
+      for (const t of [-0.25, 0.125, 0.5, 0.875, 1.25])
+        TestValidator.predicate(
+          "arbitrary-degree scalar reduction preserves independent monomials",
+          nclose(B.scalar(coefficients, t), t ** power, 1e-11),
+        );
+    }
 
   const controls: B.Poly = Array.from(
     { length: 16 },

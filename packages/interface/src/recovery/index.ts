@@ -3,3 +3,5 @@ export type { IAutoMovieRecoveryRegistration } from "./IAutoMovieRecoveryRegistr
 export type { IAutoMovieRecoveryImageInput } from "./IAutoMovieRecoveryImageInput";
 export type { IAutoMovieRecoveryImageObservation } from "./IAutoMovieRecoveryImageObservation";
 export type { IAutoMovieRecoveryImageLoft } from "./IAutoMovieRecoveryImageLoft";
+export type { IAutoMovieRecoverySupportLoft } from "./IAutoMovieRecoverySupportLoft";
+export type { AutoMovieRecoveryImageRecipe } from "./AutoMovieRecoveryImageRecipe";
