@@ -1,10 +1,11 @@
+import type { IAutoMovieRecoveryMeshSections } from "../structures/mesh/IAutoMovieRecoveryMeshSections";
+import type { IAutoMovieRecoveryOpenContinuation } from "../structures/curve/IAutoMovieRecoveryOpenContinuation";
 import {
   type IAutoMovieCurve64 as C,
   tessellateAutoMovieCurveGrid64,
 } from "@automovie/engine/geometry/curve";
 
-import type { AutoMovieRecoveryMeshSections as R } from "./AutoMovieRecoveryMeshSections";
-import type { AutoMovieRecoveryOpenContinuation as O } from "./AutoMovieRecoveryOpenContinuation";
+
 import { describeRecoveryOpenRun } from "./describeRecoveryOpenRun";
 import { reconstructRecovery } from "./reconstructRecovery";
 
@@ -22,8 +23,8 @@ import { reconstructRecovery } from "./reconstructRecovery";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Graph maps and converted course records are call-local. Returned model and actual construction own generated buffers; no source mesh, cross-call cache or external handle exists.
  */
 export function reconstructRecoveryOpen(
-  bundle: R.Bundle,
-  graph: O.Continuation,
+  bundle: IAutoMovieRecoveryMeshSections,
+  graph: IAutoMovieRecoveryOpenContinuation,
 ): Omit<ReturnType<typeof reconstructRecovery>, "construction"> & {
   construction: { id: string; closed: boolean; points: C.Vector[] }[];
   openReports: {
@@ -47,7 +48,6 @@ export function reconstructRecoveryOpen(
   };
 } {
   if (
-    graph.schema !== "automovie-recovery-open-continuation-v1" ||
     graph.intervals.length !== bundle.reports.length - 1 ||
     graph.orientations.length !== bundle.reports.length ||
     !(graph.resolutionMm > 0 && Number.isFinite(graph.resolutionMm)) ||
@@ -78,7 +78,7 @@ export function reconstructRecoveryOpen(
       );
   };
   for (let i: number = 0; i < graph.intervals.length; i++) {
-    const interval: O.Continuation["intervals"][number] = graph.intervals[i]!;
+    const interval: IAutoMovieRecoveryOpenContinuation["intervals"][number] = graph.intervals[i]!;
     if (
       interval.beforeSection !== i ||
       interval.afterSection !== i + 1 ||

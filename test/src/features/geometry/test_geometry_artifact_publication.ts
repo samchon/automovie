@@ -197,7 +197,6 @@ export function test_geometry_artifact_publication(): void {
       },
     },
     bundle: {
-      schema: "automovie-recovery-curves-v1",
       loft: { sections: [], events: [], intervals: [], chordToleranceMm: 1 },
       reports: [],
       diagnostics: [],
@@ -224,7 +223,6 @@ export function test_geometry_artifact_publication(): void {
       },
     },
     graph: {
-      schema: "automovie-recovery-open-continuation-v1",
       criticalPolicy: "boundary-regular-path-v1",
       intervals: [],
       orientations: [],

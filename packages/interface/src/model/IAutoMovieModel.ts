@@ -1,11 +1,11 @@
 import { IAutoMovieProfile } from "../core/IAutoMovieProfile";
 import { IAutoMovieImage } from "../material/IAutoMovieImage";
 import { IAutoMovieMaterial } from "../material/IAutoMovieMaterial";
-import { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 import { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
 import { AutoMovieAssetOrigin } from "./AutoMovieAssetOrigin";
 import { IAutoMovieAffordance } from "./IAutoMovieAffordance";
 import { IAutoMovieBody } from "./IAutoMovieBody";
+import type { IAutoMovieImportedModel } from "./IAutoMovieImportedModel";
 import { IAutoMovieLookAt } from "./IAutoMovieLookAt";
 import { IAutoMovieModelPart } from "./IAutoMovieModelPart";
 
@@ -72,58 +72,7 @@ export interface IAutoMovieModel {
    *
    * The viewer loads only this digest closure. Humanoid node indices come from ingest or authoritative VRM metadata, never a runtime name guess.
    */
-  imported?: {
-    /** Fixed normalization profile proved from the resident model bytes. */
-    profile: "gltf-static-v1" | "gltf-humanoid-v1" | "vrm-humanoid-v1";
-
-    /** Exact manifest-owned LOD members in near-to-far order. */
-    lod: Array<{
-      /** Closed LOD identity. */
-      level: "hero" | "near" | "far";
-
-      /** Manifest-owned model path. */
-      asset: string;
-
-      /** SHA-256 of the model bytes compiled for this level. */
-      digest: string;
-
-      /** Fixed normalization profile proved for this level. */
-      profile: "gltf-static-v1" | "gltf-humanoid-v1" | "vrm-humanoid-v1";
-
-      /** Level-local authoritative humanoid mapping. */
-      humanoidBones: Array<{
-        /** Normalized automovie/VRM humanoid slot. */
-        bone: AutoMovieHumanoidBone;
-
-        /** Non-negative glTF node index. */
-        node: number;
-
-        /** Whether inspected JOINTS_0/WEIGHTS_0 data contains a positive influence on this bone; no pixel visibility or anatomical proof. */
-        weighted: boolean;
-      }>;
-    }>;
-
-    /** Every model, sidecar and proxy byte identity this binding may request. */
-    assets: Array<{
-      /** Canonical project-relative path. */
-      path: string;
-
-      /** SHA-256 sealed by the builder. */
-      digest: string;
-    }>;
-
-    /** Authoritative normalized humanoid slot to glTF node index mapping. */
-    humanoidBones: Array<{
-      /** Normalized automovie/VRM humanoid slot. */
-      bone: AutoMovieHumanoidBone;
-
-      /** Non-negative glTF node index. */
-      node: number;
-
-      /** Whether inspected JOINTS_0/WEIGHTS_0 data contains a positive influence on this bone; no pixel visibility or anatomical proof. */
-      weighted: boolean;
-    }>;
-  };
+  imported?: IAutoMovieImportedModel;
 
   /**
    * Declarative profiles bound to this runtime model.

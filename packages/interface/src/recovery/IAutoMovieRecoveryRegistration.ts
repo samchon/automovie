@@ -11,9 +11,6 @@
  * @evidence contracts/common.md#meaningful-documentation States millimetres, handedness, transform layout, evaluated pose and uncertainty limits.
  */
 export interface IAutoMovieRecoveryRegistration {
-  /** Current supported evaluated-triangle handoff schema. */
-  schema: "automovie-recovery-registration-v1";
-
   /** Positions reaching recovery are already millimetres. */
   units: "mm";
 

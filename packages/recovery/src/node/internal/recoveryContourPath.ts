@@ -4,7 +4,7 @@ import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
-import { writeAutoMovieRecoveryArtifact } from "./writeAutoMovieRecoveryArtifact";
+import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
 
 /**
  * Compile a bounded saved polygon/path publication through the engine.

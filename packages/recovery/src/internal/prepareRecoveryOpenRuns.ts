@@ -1,5 +1,6 @@
-import type { AutoMovieRecoveryMeshSections as R } from "./AutoMovieRecoveryMeshSections";
-import type { AutoMovieRecoveryOpenContinuation as O } from "./AutoMovieRecoveryOpenContinuation";
+import type { IAutoMovieRecoveryMeshSections } from "../structures/mesh/IAutoMovieRecoveryMeshSections";
+import type { IAutoMovieRecoveryOpenContinuation } from "../structures/curve/IAutoMovieRecoveryOpenContinuation";
+
 
 type Node = { section: number; arc: number };
 type Edge = {
@@ -20,8 +21,8 @@ type Edge = {
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returned maps live for one reconstruction call; source geometry is never read or retained.
  */
 export function prepareRecoveryOpenRuns(
-  bundle: R.Bundle,
-  graph: O.Continuation,
+  bundle: IAutoMovieRecoveryMeshSections,
+  graph: IAutoMovieRecoveryOpenContinuation,
   operator: "quadratic" | "ruled",
 ): {
   outgoing: Map<string, Edge>;
@@ -42,7 +43,6 @@ export function prepareRecoveryOpenRuns(
       "Explicit interpolation and a positive physical approximation budget required",
     );
   if (
-    graph.schema !== "automovie-recovery-open-continuation-v1" ||
     graph.intervals.length !== bundle.reports.length - 1 ||
     graph.orientations.length !== bundle.reports.length ||
     !(graph.resolutionMm > 0 && Number.isFinite(graph.resolutionMm)) ||
@@ -71,7 +71,7 @@ export function prepareRecoveryOpenRuns(
       );
   };
   for (let i: number = 0; i < graph.intervals.length; i++) {
-    const interval: O.Continuation["intervals"][number] = graph.intervals[i]!;
+    const interval: IAutoMovieRecoveryOpenContinuation["intervals"][number] = graph.intervals[i]!;
     if (
       interval.beforeSection !== i ||
       interval.afterSection !== i + 1 ||

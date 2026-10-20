@@ -1,6 +1,7 @@
-import type { AutoMovieRecoveryOpenContinuation as O } from "./AutoMovieRecoveryOpenContinuation";
-import type { realizeAutoMovieRecoveryAnalyticDomains } from "./realizeAutoMovieRecoveryAnalyticDomains";
-import type { realizeAutoMovieRecoveryTensorFamilies } from "./realizeAutoMovieRecoveryTensorFamilies";
+import type { IAutoMovieRecoveryTensorFamiliesInput } from "../structures/domain/IAutoMovieRecoveryTensorFamiliesInput";
+import type { IAutoMovieRecoveryOpenContinuation } from "../structures/curve/IAutoMovieRecoveryOpenContinuation";
+
+import type { realizeAutoMovieRecoveryAnalyticDomains } from "../reconstruction/realizeAutoMovieRecoveryAnalyticDomains";
 
 type Node = { section: number; arc: number };
 type Edge = {
@@ -22,8 +23,8 @@ type Edge = {
  * @evidence contracts/performance.md#bound-retention-and-release-resources Input bundle, graph and analytic ownership remain borrowed; returned local maps and key closure transfer to the reconstruction call.
  */
 export function prepareRecoveryLocalContinuation(
-  bundle: realizeAutoMovieRecoveryTensorFamilies.Input,
-  graph: O.Continuation,
+  bundle: IAutoMovieRecoveryTensorFamiliesInput,
+  graph: IAutoMovieRecoveryOpenContinuation,
   analytic: ReturnType<typeof realizeAutoMovieRecoveryAnalyticDomains>,
 ): {
   key: (n: Node) => string;
@@ -53,7 +54,7 @@ export function prepareRecoveryLocalContinuation(
       );
   };
   for (let i: number = 0; i < graph.intervals.length; i++) {
-    const interval: O.Continuation["intervals"][number] = graph.intervals[i]!;
+    const interval: IAutoMovieRecoveryOpenContinuation["intervals"][number] = graph.intervals[i]!;
     if (
       interval.beforeSection !== i ||
       interval.afterSection !== i + 1 ||

@@ -1,0 +1,14 @@
+export type { IAutoMovieRecoveryConstructionLine } from "./IAutoMovieRecoveryConstructionLine";
+export type { IAutoMovieRecoveryCurveFit } from "./IAutoMovieRecoveryCurveFit";
+export type { IAutoMovieRecoveryCurveOverride } from "./IAutoMovieRecoveryCurveOverride";
+export type { IAutoMovieRecoveryEventCurveArc } from "./IAutoMovieRecoveryEventCurveArc";
+export type { IAutoMovieRecoveryEventCurveCoefficients } from "./IAutoMovieRecoveryEventCurveCoefficients";
+export type { IAutoMovieRecoveryEventCurvePiece } from "./IAutoMovieRecoveryEventCurvePiece";
+export type { IAutoMovieRecoveryEventCurveSource } from "./IAutoMovieRecoveryEventCurveSource";
+export type { IAutoMovieRecoveryHermiteCurve } from "./IAutoMovieRecoveryHermiteCurve";
+export type { IAutoMovieRecoveryHermiteSpan } from "./IAutoMovieRecoveryHermiteSpan";
+export type { IAutoMovieRecoveryOpenContinuation } from "./IAutoMovieRecoveryOpenContinuation";
+export type { IAutoMovieRecoveryOpenContinuationInterval } from "./IAutoMovieRecoveryOpenContinuationInterval";
+export type { IAutoMovieRecoveryOpenCurveGroup } from "./IAutoMovieRecoveryOpenCurveGroup";
+export type { IAutoMovieRecoveryOpenCurvePair } from "./IAutoMovieRecoveryOpenCurvePair";
+export type { IAutoMovieRecoveryTensorConstruction } from "./IAutoMovieRecoveryTensorConstruction";

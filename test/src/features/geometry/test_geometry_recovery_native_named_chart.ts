@@ -1,9 +1,13 @@
 import {
+  type IAutoMovieRecoveryEventCurvePiece,
+  type IAutoMovieRecoveryEventCurveArc,
   AutoMovieRecoveryEventCurve as E,
   type IAutoMovieRecoveryEventChartInput,
   compileAutoMovieRecoveryNativeNamedChart as compile,
   prepareAutoMovieRecoveryAnnularChart,
 } from "@automovie/recovery";
+
+
 import { TestValidator } from "@nestia/e2e";
 
 import { AutoMovieBernstein64 as B } from "../../../../packages/engine/src/geometry/curve/AutoMovieBernstein64";
@@ -39,8 +43,8 @@ export function test_geometry_recovery_native_named_chart(): void {
   for (const scale of [1, 1 / 256])
     for (const origin of [0, 1000])
       for (const winding of [1, -1] as const) {
-        const curves: E.Arc[] = [0.13, 0.51].map(
-          (q: number, row: number): E.Arc => {
+        const curves: IAutoMovieRecoveryEventCurveArc[] = [0.13, 0.51].map(
+          (q: number, row: number): IAutoMovieRecoveryEventCurveArc => {
             const y: number = origin + (row * scale) / 1024;
             const net: B.Poly = [
               [0.3 * scale, y, 0.3 * scale],
@@ -61,8 +65,8 @@ export function test_geometry_recovery_native_named_chart(): void {
             });
           },
         );
-        const bottom: E.Arc = curves[0]!,
-          top: E.Arc = curves[1]!;
+        const bottom: IAutoMovieRecoveryEventCurveArc = curves[0]!,
+          top: IAutoMovieRecoveryEventCurveArc = curves[1]!;
         const input: IAutoMovieRecoveryEventChartInput = {
           id: "native-strip",
           winding,
@@ -70,13 +74,13 @@ export function test_geometry_recovery_native_named_chart(): void {
             bottom,
             top,
             left: E.line(
-              bottom.pieces[0]!.net[0],
-              top.pieces[0]!.net[0],
+              E.controls(bottom.pieces[0]!)[0],
+              E.controls(top.pieces[0]!)[0],
               "left",
             ),
             right: E.line(
-              bottom.pieces.at(-1)!.net[3],
-              top.pieces.at(-1)!.net[3],
+              E.controls(bottom.pieces.at(-1)!)[3],
+              E.controls(top.pieces.at(-1)!)[3],
               "right",
             ),
           },
@@ -126,10 +130,10 @@ export function test_geometry_recovery_native_named_chart(): void {
           false,
         );
       }
-  const loop: (name: string, y: number) => E.Arc = (
+  const loop: (name: string, y: number) => IAutoMovieRecoveryEventCurveArc = (
     name: string,
     y: number,
-  ): E.Arc => {
+  ): IAutoMovieRecoveryEventCurveArc => {
     const points: C.Vector[] = [
       [0, y, 0],
       [3, y, 0],
@@ -145,8 +149,7 @@ export function test_geometry_recovery_native_named_chart(): void {
       phaseIntervals: [1, 1, 1, 1],
       spans: points.map(
         (point: C.Vector, i: number): C.Span =>
-          E.line(point, points[(i + 1) % 4]!, `${name}-edge${i}`).pieces[0]!
-            .net,
+          E.controls(E.line(point, points[(i + 1) % 4]!, `${name}-edge${i}`).pieces[0]!),
       ),
     });
   };
@@ -156,10 +159,10 @@ export function test_geometry_recovery_native_named_chart(): void {
       loop("upper", 3),
       "annulus",
     );
-  const aliasRight: E.Arc = {
+  const aliasRight: IAutoMovieRecoveryEventCurveArc = {
     ...chart.right,
     pieces: chart.right.pieces.map(
-      (piece: E.Piece): E.Piece => ({
+      (piece: IAutoMovieRecoveryEventCurvePiece): IAutoMovieRecoveryEventCurvePiece => ({
         ...piece,
         source: {
           ...piece.source,
@@ -197,10 +200,10 @@ export function test_geometry_recovery_native_named_chart(): void {
     realizeAutoMovieBicubicAtlas64(periodic.recipe).complete,
     true,
   );
-  const wrongLeft: E.Arc = {
+  const wrongLeft: IAutoMovieRecoveryEventCurveArc = {
     ...chart.left,
     pieces: chart.left.pieces.map(
-      (piece: E.Piece): E.Piece => ({
+      (piece: IAutoMovieRecoveryEventCurvePiece): IAutoMovieRecoveryEventCurvePiece => ({
         ...piece,
         source: {
           ...piece.source,
@@ -229,7 +232,7 @@ export function test_geometry_recovery_native_named_chart(): void {
     lo * 0.001,
     hi * 0.001,
   );
-  const ulpBottom: E.Arc = E.line([lo, 0, 0], [hi, 0, 0], "ulp-bottom");
+  const ulpBottom: IAutoMovieRecoveryEventCurveArc = E.line([lo, 0, 0], [hi, 0, 0], "ulp-bottom");
   ulpBottom.pieces[0]!.source.endpointAuthorities = [
     "false-raw-alias",
     "false-raw-alias",

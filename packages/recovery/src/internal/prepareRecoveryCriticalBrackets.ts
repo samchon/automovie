@@ -1,4 +1,4 @@
-import type { IAutoMovieRecoveryMeshSections } from "./IAutoMovieRecoveryMeshSections";
+import type { IAutoMovieRecoveryMeshSections } from "../structures/mesh/IAutoMovieRecoveryMeshSections";
 import type { critical } from "./mesh-observations/critical";
 
 /**
@@ -18,7 +18,7 @@ export function prepareRecoveryCriticalBrackets(
   stepMm: number,
   levels: Set<number>,
   diagnostics: string[],
-  topologyGaps: IAutoMovieRecoveryMeshSections.Bundle["topologyGaps"],
+  topologyGaps: IAutoMovieRecoveryMeshSections["topologyGaps"],
 ): {
   unsupportedVertices: Set<number>;
   bracketed: {

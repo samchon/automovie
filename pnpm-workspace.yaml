@@ -2,7 +2,6 @@ packages:
   - config
   - experimental/*
   - packages/*
-  - tools/recovery
   - test
   - website
 

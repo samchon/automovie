@@ -14,11 +14,11 @@ import { TestValidator } from "@nestia/e2e";
  * 3. A caller progress exception becomes a structured failed terminal outcome.
  * 4. Cancellation accepted at a progress point returns no generated value.
  * 5. Valid cube observation retains saved courses and borrows its input unchanged.
- * 6. Unknown curve schemas refuse and undeclared caller mesh payloads never enter saved policy.
+ * 6. Undeclared caller mesh payloads never enter saved policy.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls only the public memory operations and observes terminal tags, diagnostics, value absence, callback population, retained courses and input nonmutation; cancellation or a thrown observer must not appear as successful completion.
  * @evidence contracts/testing.md#independent-expectations Caller-owned AbortController state and a literal observer error independently determine cancellation and failure. The cube has closed interior cuts, so a usable observation must retain section courses; no fitting residual, triangle snapshot or appearance oracle is inferred from this test.
- * @evidence contracts/testing.md#distinguishing-cases Separates pre-work cancellation, missing continuation or unknown-version refusal, admitted callback failure, cooperative cancellation and valid observation carrying extra caller metadata. Reconstruction geometry, local unsupported-domain preservation and physical area belong to test_recovery_source_free; Node publication and installed CLI belong to host integration.
+ * @evidence contracts/testing.md#distinguishing-cases Separates pre-work cancellation, missing continuation refusal, admitted callback failure, cooperative cancellation and valid observation carrying extra caller metadata. Reconstruction geometry, local unsupported-domain preservation and physical area belong to test_recovery_source_free; Node publication has separate host coverage.
  * @evidence contracts/testing.md#execution-ownership The portable test_recovery_public_lifecycle entry owns all cases, uses resident general arrays and synchronous callbacks, and starts no process, filesystem operation, timer, renderer or native build. Its tiny cube is intended for the strict under-500-ms scenario budget; execution remains with the central validator.
  */
 export function test_recovery_public_lifecycle(): void {
@@ -59,7 +59,6 @@ export function test_recovery_public_lifecycle(): void {
     cornerDegrees: 45,
   };
   const empty: Parameters<typeof reconstructAutoMovieRecoveryModel>[0] = {
-    schema: "automovie-recovery-curves-v1",
     loft: { sections: [], intervals: [], events: [], chordToleranceMm: 0.01 },
     reports: [],
     diagnostics: [],
@@ -136,22 +135,6 @@ export function test_recovery_public_lifecycle(): void {
     refused.diagnostics.length > 0,
   );
   TestValidator.equals("refusal starts no work observer", progress, 0);
-  const futureInput: typeof empty = { ...empty };
-  Object.assign(futureInput, { schema: "automovie-recovery-curves-unknown" });
-  const future: ReturnType<typeof reconstructAutoMovieRecoveryModel> =
-    reconstructAutoMovieRecoveryModel(futureInput, {
-      onProgress: observeProgress,
-    });
-  TestValidator.equals(
-    "unknown saved schema refuses",
-    future.status,
-    "refused",
-  );
-  TestValidator.predicate(
-    "unknown version creates no value or progress",
-    !("value" in future) && progress === 0,
-  );
-
   const failed: ReturnType<typeof reconstructAutoMovieRecoveryModel> =
     reconstructAutoMovieRecoveryModel(empty, {
       onProgress: (): void => {
@@ -217,16 +200,10 @@ export function test_recovery_public_lifecycle(): void {
     cancelledObservation,
     cancelledReconstruction,
     refused,
-    future,
     failed,
     cancelledDuring,
     observed,
   ]) {
-    TestValidator.equals(
-      "operation schema is explicit",
-      result.schema,
-      "automovie-recovery-operation-v1",
-    );
     TestValidator.equals(
       "operator is explicit",
       result.operator,

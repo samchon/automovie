@@ -1,5 +1,7 @@
-import type { IAutoMovieRecoveryOperation } from "../IAutoMovieRecoveryOperation";
-import { writeAutoMovieRecoveryArtifact } from "./internal/writeAutoMovieRecoveryArtifact";
+import type { IAutoMovieRecoveryPublication } from "../structures/operation/IAutoMovieRecoveryPublication";
+import type { IAutoMovieRecoveryPublicationOptions } from "../structures/operation/IAutoMovieRecoveryPublicationOptions";
+import type { IAutoMovieRecoveryResult } from "../typings/IAutoMovieRecoveryResult";
+import { writeAutoMovieRecoveryArtifact } from "./artifact/writeAutoMovieRecoveryArtifact";
 
 /**
  * Publish one plain data artifact atomically without replacing an existing file.
@@ -21,26 +23,18 @@ import { writeAutoMovieRecoveryArtifact } from "./internal/writeAutoMovieRecover
 export function publishAutoMovieRecoveryArtifact(
   output: string,
   artifact: object,
-  options: { signal?: AbortSignal } = {},
-): IAutoMovieRecoveryOperation.Result<{
-  path: string;
-  sha256: string;
-  bytes: number;
-}> {
-  const schema: IAutoMovieRecoveryOperation.Result<never>["schema"] =
-    "automovie-recovery-operation-v1";
-  const operator: IAutoMovieRecoveryOperation.Result<never>["operator"] =
+  options: IAutoMovieRecoveryPublicationOptions = {},
+): IAutoMovieRecoveryResult<IAutoMovieRecoveryPublication> {
+  const operator: IAutoMovieRecoveryResult<never>["operator"] =
     "json-publication-v1";
   if (options.signal?.aborted)
     return {
-      schema,
       operator,
       status: "cancelled",
       diagnostics: ["Cancelled before publication"],
     };
   if (!output || artifact === null || typeof artifact !== "object")
     return {
-      schema,
       operator,
       status: "refused",
       diagnostics: ["An output path and plain data artifact are required"],
@@ -49,7 +43,6 @@ export function publishAutoMovieRecoveryArtifact(
     const publication: ReturnType<typeof writeAutoMovieRecoveryArtifact> =
       writeAutoMovieRecoveryArtifact(output, artifact);
     return {
-      schema,
       operator,
       status: "complete",
       value: { path: output, ...publication },
@@ -57,7 +50,6 @@ export function publishAutoMovieRecoveryArtifact(
     };
   } catch (failure: unknown) {
     return {
-      schema,
       operator,
       status: "failed",
       diagnostics: [
