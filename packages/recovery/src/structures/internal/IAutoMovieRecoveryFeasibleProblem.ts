@@ -9,7 +9,7 @@ import type { IAutoMovieRecoveryFeasibleModel } from "./IAutoMovieRecoveryFeasib
  * @evidence contracts/common.md#meaningful-documentation Members state immutable input, null feasibility, same-population cost and model/work ownership.
  * @evidence contracts/performance.md#efficient-algorithms The owning problem admits and charges evaluation, retraction and linearization costs, which differ between analytic and camera charts.
  * @evidence contracts/performance.md#reuse-equivalent-work A linearization is rebuilt only after accepted state changes; rejected backtracks reuse the current model and direction.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Borrowed callbacks and initial state live for one fit. Detached trials expire on rejection; only the last feasible owned state returns.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Borrowed callbacks and initial state live for one fit. Owners admit current/base/checkpoint retention and at most four detached comparison candidates beside their model before copying; unselected states expire and only the last feasible owned state returns.
  */
 export interface IAutoMovieRecoveryFeasibleProblem<State> {
   /** Feasible initial state, borrowed without mutation. */
@@ -50,7 +50,20 @@ export interface IAutoMovieRecoveryFeasibleProblem<State> {
    * @evidence contracts/common.md#meaningful-documentation Borrows state/step and returns a detached trial; feasibility is checked separately by evaluate.
    * @evidence contracts/performance.md#efficient-algorithms The camera owner charges O(V+L+E) detached-state copying and chart updates; analytic charts copy their finite coordinate vector.
    * @evidence contracts/performance.md#reuse-equivalent-work The unchanged current state/model is reused for halved trial steps without refitting observations.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Rejected trial state expires; only an accepted detached trial becomes current, with borrowed inputs unchanged.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources At most four detached same-base candidates coexist with the current and borrowed checkpoint states; the owner admits this peak before allocation. Only one selected trial becomes current, with borrowed inputs unchanged.
    */
   retract: (state: State, step: readonly number[]) => State;
+
+  /**
+   * Measure selected original inequalities at one actual failed full trial.
+   *
+   * @evidence contracts/common.md#principled-implementation Same-order raw g values supply a current-base curvature correction; projection must remain meaningful beyond the pixel gate.
+   * @evidence contracts/common.md#clear-and-simple-design This optional owner action measures geometry only; working factors, actual trials and normal termination have separate owners.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No clamped residual, deleted selected row, invented depth or trial-pose Jacobian replaces actual original constraints.
+   * @evidence contracts/common.md#meaningful-documentation Borrows trial and increasing original row IDs excluding objective zero; returns owned raw g values or null when measurement is unsupported.
+   * @evidence contracts/performance.md#efficient-algorithms The camera owner precharges O(E+n+H) traversal and selected projection; this action runs at most once per current direction model.
+   * @evidence contracts/performance.md#reuse-equivalent-work Fixed observation order and calibration are reused without extracting, matching, relinearizing or refactoring at the trial.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources At most H scalars transfer for one correction; no rejected geometry or measurement history is cached.
+   */
+  constraintValues?: (state: State, rows: readonly number[]) => number[] | null;
 }

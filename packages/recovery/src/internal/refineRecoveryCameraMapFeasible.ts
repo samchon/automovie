@@ -29,9 +29,9 @@ import { stepRecoveryRelativePose } from "./stepRecoveryRelativePose";
  * @evidence contracts/common.md#clear-and-simple-design This camera owner connects generic bounded direction work to the actual projection, rank, gauge, observation identities and joint report; ordinary public calls retain the existing method until explicitly selected internally.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No observation deletion, failed-point filtering, new pixel tolerance, extra nonlinear trial allowance, initial-state success fallback or independent later-translation normalization supplies an accepted map. Data rank is checked without damping or inequalities.
  * @evidence contracts/common.md#meaningful-documentation States normalized disk model, physical KKT tolerance 1e-8, fixed positive metric damping 1e-3, strict nonpixel-interior limitation, same-population objective and incomplete termination.
- * @evidence contracts/performance.md#efficient-algorithms For E observations, L landmarks and C=6N-7 camera columns, metric QR/SVD costs O(E*C^2+S*C^3), all sparse-row whitening O(E*C^2+L*C), and each bounded direction pass O(E*C+L). Complete gates additionally cost sum(k_point^2). Admission bounds simultaneous rows/factors before allocation and charges each phase and actual trial.
+ * @evidence contracts/performance.md#efficient-algorithms For E observations, L landmarks and C=6N-7 camera columns, metric QR/SVD costs O(E*C^2+S*C^3), whitening O(E*C^2+L*C), sparse passes O(E*C+L), and full point gates sum(k_point^2). Optional q-by-H original working transpose adds O(S*(q+H)*H^2+q*H^2); its admitted inverse actions, selected-trial projections and every actual arc/backtrack also consume original work/trial ceilings.
  * @evidence contracts/performance.md#reuse-equivalent-work The current weighted blocks supply original rank and one arrowhead metric shared by every current inequality. Backtracks retain this model until a feasible state is accepted; no image extraction, matching or prior fitted answer is repeated.
- * @evidence contracts/performance.md#bound-retention-and-release-resources A preallocation scalar bound includes detached states, weighted blocks, metric factors, physical/whitened rows and direction scratch. Only the last feasible owned state/report returns, with rejected trials/factors released and no image, native reactor or external handle.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The owner first admits borrowed/current states plus four detached candidates, blocks, current metric and physical/whitened rows. Optional working factor copies, coordinates, step/correction and trial g arrays are then jointly admitted against the remaining same resident/direction ceiling before allocation. Candidate slots alias best/current roles; no image, native reactor or history is retained.
  */
 export function refineRecoveryCameraMapFeasible(
   initialPoses: readonly IAutoMovieRecoveryMapPose[],
@@ -61,11 +61,14 @@ export function refineRecoveryCameraMapFeasible(
   const directionRows: number = observations + 1;
   const directionEntries: number = 2 * directionCoefficients + 3 * directionRows + 2 * width + 128;
   const minimumDirectionWork: number = 288 * directionCoefficients + 1058 * directionRows + 137 * width + 1025;
+  // Four detached candidates share observations with the current state; this
+  // additional conservative scalar reserve also covers fully copied rows.
   const retained: number =
     24 * observations * (cameraWidth + 20) +
     24 * cameraWidth * cameraWidth +
     24 * points * (cameraWidth + 4) +
-    16 * width + 128;
+    16 * width + 128 +
+    64 * (observations + points + cameras + 1);
   const evaluationWork: number =
     8 * observations * (cameraWidth + 4) +
     32 *
@@ -232,6 +235,7 @@ export function refineRecoveryCameraMapFeasible(
           physicalRows: local.rows,
           width,
           fromMetric: metric.unwhiten,
+          toPhysicalCovector: metric.toPhysicalCovector,
         };
       },
       retract: (
@@ -274,12 +278,52 @@ export function refineRecoveryCameraMapFeasible(
           ),
         };
       },
+      constraintValues: options.sqpAcceleration === true ? (
+        state: IAutoMovieRecoveryMapState,
+        selected: readonly number[],
+      ): number[] | null => {
+        charge(32 * (observations + width + selected.length));
+        if (selected.some((row: number, at: number): boolean =>
+          !Number.isSafeInteger(row) || row < 1 || row > observations ||
+          (at > 0 && row <= selected[at - 1]!),
+        )) throw new Error("camera-sqp: ordered original inequality rows required");
+        if (Math.abs(Math.hypot(...state.poses[1]!.translation) - 1) > 1e-10)
+          return null;
+        const values: number[] = [];
+        let row: number = 0, at: number = 0;
+        for (const landmark of state.landmarks)
+          for (const observation of landmark.observations) {
+            row++;
+            if (selected[at] !== row) continue;
+            const projected: ReturnType<typeof projectRecoveryMapPoint> =
+              projectRecoveryMapPoint(state.poses[observation.viewIndex]!, landmark.point, intrinsics[observation.viewIndex]!);
+            if (projected === null) return null;
+            const norm: number = Math.hypot(
+              projected.pixel[0] - observation.pixel[0], projected.pixel[1] - observation.pixel[1],
+            );
+            const value: number = (norm / policy.maximumReprojectionErrorPx) ** 2 - 1;
+            if (!Number.isFinite(value)) return null;
+            values.push(value);
+            at++;
+          }
+        if (values.length !== selected.length)
+          throw new Error("camera-sqp: unchanged original observation population required");
+        return values;
+      } : undefined,
     },
     budget.maxRefinementIterations,
     1e-8,
     options.directionBudget,
     checkpoint,
     charge,
+    options.sqpAcceleration === true ? {
+      maxSweeps: budget.maxSingularSweeps,
+      minimumSingularRatio: policy.minimumDesignSingularRatio,
+      maxEntries: options.directionBudget.maxEntries,
+      maxResidentEntries: options.maxResidentLinearEntries,
+      retainedEntries: retained,
+      maxWork: options.directionBudget.maxWork,
+    } : undefined,
   );
   charge(evaluationWork);
   return {

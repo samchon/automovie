@@ -23,10 +23,10 @@ export interface IAutoMovieRecoveryMapJointFit {
     | "direction-incomplete"
     | "abnormal-or-stalled";
 
-  /** Accepted and rejected nonlinear iterations combined. */
+  /** Nonlinear attempts; feasible mode counts every actual evaluation, including qualified unselected and rejected candidates. */
   iterations: number;
 
-  /** Trials decreasing the actual complete-population robust objective. */
+  /** Selected state updates decreasing the actual complete-population robust objective; qualified unselected evaluations are excluded. */
   acceptedSteps: number;
 
   /** Same observations used in both initial and final objectives; none is silently dropped during this fit. */

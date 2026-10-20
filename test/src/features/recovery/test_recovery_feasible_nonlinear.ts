@@ -17,10 +17,11 @@ import type { IRecoveryFeasibleObservation } from "../internal/IRecoveryFeasible
  * 2. Residuals x+2, three copies of x-1 and y-1 start at (0,0); the old outward x/y direction cannot take a feasible positive step, but the new method reaches the unique constrained minimum (0,1).
  * 3. A circular residual (x,y), three scalar x-3 residuals and y-1 start at (2,0); every positive tangent-only y step is infeasible, while a strict inward method reaches the independently determined curved-boundary optimum.
  * 4. The singleton constraint x^2<=0 at zero with objective -x has only abnormal zero duals and must remain nonconverged; exhausting one actual trial also cannot certify convergence.
+ * 5. The same three normal problems exercise optional complete-affine-QP mixing/curvature and same-base full/half selection with the original100 actual trials, population, gates and independent expected optima; qualified unselected evaluations remain in that horizon.
  *
  * @evidence contracts/testing.md#behavioral-verification Exercises the source-owned feasible nonlinear controller and bounded direction solver with actual complete-population norm-at-most-two checks on every accepted/rejected trial. Normal termination requires original-coordinate KKT, while abnormality and insufficient trial budget remain incomplete.
  * @evidence contracts/testing.md#independent-expectations Convex scalar derivatives give exact endpoints (2) and (0,1). On the circle, independent bisection of the authored objective restricted to x=2*cos(theta),y=2*sin(theta) gives the unique boundary optimum. No source output supplies expected states; source certificate checks supplement rather than replace these expectations.
- * @evidence contracts/testing.md#distinguishing-cases Separates a nonzero raw gradient at a valid boundary optimum, a feasible tangent alternative to an outward direction, nonlinear curved-boundary feasibility, abnormal zero and explicit outer exhaustion. This is analytic method evidence, not map rank/gauge, photographic support or scene registration evidence.
+ * @evidence contracts/testing.md#distinguishing-cases Runs baseline and optional SQP/curvature on the same three authored problems, separates QP/mixed/normal status, nonlinear curved feasibility, abnormal zero and actual outer exhaustion. This is analytic method evidence, not photographic registration or point accuracy.
  * @evidence contracts/testing.md#execution-ownership The portable test_recovery_feasible_nonlinear entry uses resident scalar arrays and source numerical helpers only, with no host, native build, image, process, browser or GPU.
  */
 export function test_recovery_feasible_nonlinear(): void {
@@ -126,12 +127,17 @@ export function test_recovery_feasible_nonlinear(): void {
             physicalRows: rows,
             width: state.length,
             fromMetric: (step: readonly number[]): number[] => step.slice(),
+            toPhysicalCovector: (value: readonly number[]): number[] => value.slice(),
           };
         },
         retract: (state: number[], step: readonly number[]): number[] =>
           state.map(
             (value: number, axis: number): number => value + step[axis]!,
           ),
+        constraintValues: (state: number[], selected: readonly number[]): number[] => {
+          const residuals: number[][] = specification.residuals(state);
+          return selected.map((row: number): number => Math.hypot(...residuals[row - 1]!) ** 2 / 4 - 1);
+        },
       }),
     );
   const results: IAutoMovieRecoveryFeasibleFit<number[]>[] = problems.map(
@@ -157,6 +163,17 @@ export function test_recovery_feasible_nonlinear(): void {
       );
     },
   );
+  const accelerated: IAutoMovieRecoveryFeasibleFit<number[]>[] = problems.map(
+    (problem: IAutoMovieRecoveryFeasibleProblem<number[]>): IAutoMovieRecoveryFeasibleFit<number[]> => {
+      const row: IRecoveryFeasibleObservation = { work: 0, checkpoints: 0 };
+      observed.push(row);
+      return refineRecoveryFeasibleState(problem, 100, 1e-8,
+        { maxIterations: 10000, maxEntries: 10000, maxWork: 10000000 },
+        (): void => { row.checkpoints++; }, (work: number): void => { row.work += work; },
+        { maxSweeps: 64, minimumSingularRatio: 1e-8, maxEntries: 10000, maxResidentEntries: 10000, retainedEntries: 0, maxWork: 10000000 },
+      );
+    },
+  );
   let lower: number = 0,
     upper: number = Math.PI / 6;
   for (let iteration: number = 0; iteration < 80; iteration++) {
@@ -174,21 +191,23 @@ export function test_recovery_feasible_nonlinear(): void {
     [0, 1],
     [2 * Math.cos((lower + upper) / 2), 2 * Math.sin((lower + upper) / 2)],
   ];
-  const normalChecks: boolean[] = results.map(
+  const normalChecks: boolean[] = [...results, ...accelerated].map(
     (result: IAutoMovieRecoveryFeasibleFit<number[]>, at: number): boolean =>
         result.converged &&
           result.normalKktQualified &&
           result.termination === "kkt" &&
           result.state.every((value: number, axis: number): boolean =>
-            nclose(value, expected[at]![axis]!, 1e-5),
+            nclose(value, expected[at % 3]![axis]!, 1e-5),
           ) &&
-          problems[at]!.evaluate(result.state) !== null &&
+          problems[at % 3]!.evaluate(result.state) !== null &&
           result.finalCost < result.initialCost &&
           result.stationarity !== null &&
           result.complementarity !== null &&
           result.complementarity <= 1e-8 &&
           result.iterations === observed[at]!.checkpoints &&
-          result.directionWork === observed[at]!.work,
+          result.directionWork + result.trials.work === observed[at]!.work &&
+          result.trials.baseline + result.trials.nominal + result.trials.numerical + result.trials.corrected + result.trials.half === result.iterations &&
+          result.trials.qualifiedUnselected + result.trials.infeasible + result.trials.nondecreasing + result.trials.armijo === result.iterations - result.acceptedSteps,
   );
   const abnormalRows: IAutoMovieSimplexAtom[] = [
     { indices: [0], values: [-1], offset: 0 },
@@ -239,7 +258,7 @@ export function test_recovery_feasible_nonlinear(): void {
         problems[2]!.evaluate([2, step]) === null,
     );
   TestValidator.predicate(
-    `complete analytic cases: ${JSON.stringify({ normal: results, abnormal, exhausted })}`,
+    `complete analytic cases: ${JSON.stringify({ normal: results, accelerated, abnormal, exhausted })}`,
     normalChecks.every((value: boolean): boolean => value) && incompleteCheck && tangentCheck,
   );
 }

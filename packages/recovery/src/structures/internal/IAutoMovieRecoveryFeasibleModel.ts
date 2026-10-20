@@ -33,4 +33,17 @@ export interface IAutoMovieRecoveryFeasibleModel {
    * @evidence contracts/performance.md#bound-retention-and-release-resources The current model closure retains factors for its lifetime; each returned vector transfers to the controller without mutating the borrowed step.
    */
   fromMetric: (step: readonly number[]) => number[];
+
+  /**
+   * Push a metric covector into the original physical tangent units.
+   *
+   * @evidence contracts/common.md#principled-implementation The inverse-transpose of fromMetric maps quadratic stationarity back without forming a normal matrix.
+   * @evidence contracts/common.md#clear-and-simple-design Optional acceleration uses this current factor action; the baseline direction needs no additional action.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing support cannot be replaced by an identity action or a damped data-rank claim.
+   * @evidence contracts/common.md#meaningful-documentation Borrows a metric covector and returns an owned width-vector; undefined disables optional SQP support.
+   * @evidence contracts/performance.md#efficient-algorithms Camera factors cost O(L*C+C^2), bounded and charged by the optional owner's conservative action reserve.
+   * @evidence contracts/performance.md#reuse-equivalent-work The same current arrowhead QR supplies this multiplication and both triangular solves.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources One factor closure lives with the model; each owned returned vector is call-local.
+   */
+  toPhysicalCovector?: (value: readonly number[]) => number[];
 }

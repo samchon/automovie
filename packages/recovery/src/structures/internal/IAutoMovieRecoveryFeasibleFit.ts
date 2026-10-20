@@ -1,4 +1,6 @@
 import type { IAutoMovieRecoveryFeasibleDirectionReport } from "./IAutoMovieRecoveryFeasibleDirectionReport";
+import type { IAutoMovieRecoverySqpReport } from "./IAutoMovieRecoverySqpReport";
+import type { IAutoMovieRecoveryFeasibleTrials } from "./IAutoMovieRecoveryFeasibleTrials";
 
 /**
  * Last feasible state and explicit normal or incomplete termination.
@@ -25,10 +27,10 @@ export interface IAutoMovieRecoveryFeasibleFit<State> {
     | "direction-incomplete"
     | "abnormal-or-stalled";
 
-  /** Accepted and rejected nonlinear trials combined. */
+  /** All actual nonlinear evaluations, including qualified unselected candidates. */
   iterations: number;
 
-  /** Actual feasible Armijo decreases in the unchanged objective. */
+  /** Selected local state updates passing actual feasibility and Armijo; qualified unselected evaluations do not count as updates or convergence. */
   acceptedSteps: number;
 
   /** Actual cost at the initial feasible state. */
@@ -52,6 +54,12 @@ export interface IAutoMovieRecoveryFeasibleFit<State> {
   /** Combined conservative scalar visits in all direction solves and certificates. */
   directionWork: number;
 
-  /** Actual last inner model's scalar stop and residuals, null before a model completes. */
+  /** Last baseline pure-QP scalar stop and residuals, distinct from any applied mixture or curvature step. */
   lastDirection: IAutoMovieRecoveryFeasibleDirectionReport | null;
+
+  /** Latest optional working-space/arc evidence, distinct from the baseline QP certificate. */
+  lastSqp: IAutoMovieRecoverySqpReport | null;
+
+  /** Fixed-size actual path/failure counts, without geometry or trial history. */
+  trials: IAutoMovieRecoveryFeasibleTrials;
 }

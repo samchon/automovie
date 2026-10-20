@@ -17,4 +17,7 @@ export interface IAutoMovieRecoveryFeasibleJointOptions {
 
   /** Maximum simultaneous logical joint/model/direction scalars, excluding JS overhead and images. */
   maxResidentLinearEntries: number;
+
+  /** Select SQP mixing/curvature and same-base qualified full/half cost comparison; original KKT and the actual trial horizon still apply. */
+  sqpAcceleration?: boolean;
 }

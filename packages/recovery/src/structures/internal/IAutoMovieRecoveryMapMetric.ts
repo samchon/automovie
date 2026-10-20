@@ -40,4 +40,17 @@ export interface IAutoMovieRecoveryMapMetric {
    * @evidence contracts/performance.md#bound-retention-and-release-resources Output transfers without retaining the borrowed input; current factors expire with their model closure.
    */
   unwhiten: (step: readonly number[]) => number[];
+
+  /**
+   * Multiply by the physical metric factor transpose, in camera-first order.
+   *
+   * @evidence contracts/common.md#principled-implementation Global physical column scales multiply the same point/camera upper-factor transpose used by whitening.
+   * @evidence contracts/common.md#clear-and-simple-design This inverse-whitening action supports original-unit optional QP stationarity without exposing factor arrays.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No inverse, Gram matrix, second column scaling or singular floor supplies a covector.
+   * @evidence contracts/common.md#meaningful-documentation Borrows a width metric covector and returns an owned physical covector; nonfinite output throws.
+   * @evidence contracts/performance.md#efficient-algorithms Point-camera products and the camera tail cost O(L*C+C^2), without a full-width squared factor.
+   * @evidence contracts/performance.md#reuse-equivalent-work The current retained point triangles, camera upper factor and global scales are reused.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Only one owned width-vector is added per action; no cross-model state or external handle is acquired.
+   */
+  toPhysicalCovector: (value: readonly number[]) => number[];
 }

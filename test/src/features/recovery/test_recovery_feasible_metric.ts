@@ -16,6 +16,7 @@ import { nclose } from "../internal/nclose";
  * 2. Dense and one-point sparse covectors satisfy independent transpose duality with that inverse action, including camera/point column scales and ordering.
  * 3. The actual joint consumer accepts an already exact nonplanar map by normal pixel KKT, preserving first pose, unit seed scale, every observation and a nonunit later baseline.
  * 4. Insufficient direction entries, direction work and total resident entries refuse before numerical materialization, charging only bounded input metadata.
+ * 5. Pushing a metric covector matches independently assembled J^T*J*p plus unchanged column-scaled damping in original physical units.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls actual rank-qualified block factorization with metric retention and the actual opt-in map joint consumer. Independent direct original-design products catch mismatched column scales, point/camera permutation, wrong triangular transpose or dropped damping.
  * @evidence contracts/testing.md#independent-expectations Direct authored Jacobian rows and global column norms give ||J*physicalStep||^2+lambda*||scaledStep||^2=||metricStep||^2. Direct covector dot physicalStep must equal whitened covector dot metricStep. Exact scalar-projected fixture geometry supplies the zero-fit map expectation, independently of the optimizer.
@@ -129,6 +130,23 @@ export function test_recovery_feasible_metric(): void {
       nclose(actual, expected, 1e-10) && whitened.offset === atom.offset,
     );
   }
+  const pushed: number[] = metric.toPhysicalCovector(metricStep);
+  const expectedGradient: number[] = physical.map(
+    (value: number, at: number): number => damping * scales[at]! * scales[at]! * value,
+  );
+  for (let point: number = 0; point < blocks.length; point++) {
+    const block: (typeof blocks)[number] = blocks[point]!;
+    for (let row: number = 0; row < block.right.length; row++) {
+      let value: number = 0;
+      for (let axis: number = 0; axis < cameraWidth; axis++) value += block.cameraRows[row]![axis]! * physical[axis]!;
+      for (let axis: number = 0; axis < 3; axis++) value += block.pointRows[row]![axis]! * physical[cameraWidth + 3 * point + axis]!;
+      for (let axis: number = 0; axis < cameraWidth; axis++) expectedGradient[axis]! += block.cameraRows[row]![axis]! * value;
+      for (let axis: number = 0; axis < 3; axis++) expectedGradient[cameraWidth + 3 * point + axis]! += block.pointRows[row]![axis]! * value;
+    }
+  }
+  TestValidator.predicate("physical covector push matches direct original damped design",
+    pushed.every((value: number, at: number): boolean => nclose(value, expectedGradient[at]!, 1e-9)),
+  );
   const intrinsics: number[][] = fixture.input.views.map(
     (view: (typeof fixture.input.views)[number]): number[] => createRecoveryCameraChart(view).matrix,
   );
