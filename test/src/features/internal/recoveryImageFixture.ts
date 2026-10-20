@@ -1,5 +1,14 @@
 import type { IAutoMovieRecoveryImageInput } from "@automovie/interface/recovery";
 
+/** Analytic section parameters supplied independently of the recovery fitter. */
+interface RecoveryImageFixtureInput {
+  kind?: "ellipse" | "box";
+  angles?: number[];
+  pitchMm?: number;
+  profile?: (t: number) => [number, number, number, number];
+  support?: (t: number, azimuth: number) => [number, number];
+}
+
 /**
  * Rasterize analytic opaque sections independently of recovery and atlas code.
  * Cubic half-axes and translating centres have closed-form support under the
@@ -12,13 +21,7 @@ import type { IAutoMovieRecoveryImageInput } from "@automovie/interface/recovery
  * @evidence contracts/testing.md#execution-ownership This portable fixture owns only small resident typed arrays and deterministic arithmetic; it starts no process, filesystem, browser or GPU.
  */
 export function recoveryImageFixture(
-  input: {
-    kind?: "ellipse" | "box";
-    angles?: number[];
-    pitchMm?: number;
-    profile?: (t: number) => [number, number, number, number];
-    support?: (t: number, azimuth: number) => [number, number];
-  } = {},
+  input: RecoveryImageFixtureInput = {},
 ): IAutoMovieRecoveryImageInput {
   const pitch: number = input.pitchMm ?? 0.25;
   const width: number = 256,
@@ -34,7 +37,6 @@ export function recoveryImageFixture(
     foreground[3 * column + 2] = 130;
   }
   return {
-    schema: "automovie-recovery-images-v1",
     objectId: "analytic-section-family",
     frame: "analytic-millimetres",
     rigidity: "asserted-fixed",

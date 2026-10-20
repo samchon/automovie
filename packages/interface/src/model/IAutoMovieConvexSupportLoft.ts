@@ -1,3 +1,6 @@
+import type { IAutoMovieConvexSupportLoftPlane } from "./IAutoMovieConvexSupportLoftPlane";
+import type { IAutoMovieConvexSupportLoftSpan } from "./IAutoMovieConvexSupportLoftSpan";
+
 /**
  * A section family defined by cubic offsets of fixed oriented support planes.
  * At physical Y, the XZ section is the intersection of nx X + nz Z <= h(Y).
@@ -13,14 +16,8 @@
  */
 export interface IAutoMovieConvexSupportLoft {
   /** Unique plane identities with outward [nx,nz] unit normals in XZ. */
-  planes: { id: string; normal: [number, number] }[];
+  planes: IAutoMovieConvexSupportLoftPlane[];
 
   /** Increasing exactly adjacent physical Y intervals and their offset fields. */
-  spans: {
-    /** Lower and upper physical Y, in metres. */
-    interval: [number, number];
-
-    /** Four Bernstein offsets per plane, in registry order; neighbours share endpoint values exactly. */
-    offsets: [number, number, number, number][];
-  }[];
+  spans: IAutoMovieConvexSupportLoftSpan[];
 }

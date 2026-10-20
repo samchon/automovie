@@ -1,8 +1,10 @@
 import {
+  type IAutoMovieRecoveryEventCurveArc,
   AutoMovieRecoveryEventCurve as E,
   type IAutoMovieRecoveryEventChartInput,
   compileAutoMovieRecoveryEventDomain,
 } from "@automovie/recovery";
+
 import { TestValidator } from "@nestia/e2e";
 
 import type { IAutoMovieCurve64 as C } from "../../../../packages/engine/src/geometry/curve/IAutoMovieCurve64";
@@ -98,7 +100,7 @@ export function test_geometry_recovery_event_domain(): void {
   };
   inspect(input, 1);
   inspect({ ...input, id: "negative", winding: -1 }, 1);
-  const splitBottom: E.Arc = E.concatenate(
+  const splitBottom: IAutoMovieRecoveryEventCurveArc = E.concatenate(
     [
       E.line(a, [1.5, 0, 0], "bottom-first"),
       E.line([1.5, 0, 0], b, "bottom-second"),
@@ -111,7 +113,7 @@ export function test_geometry_recovery_event_domain(): void {
     chart: { ...input.chart, bottom: splitBottom },
   };
   inspect(divided, 2);
-  const splitLeft: E.Arc = E.concatenate(
+  const splitLeft: IAutoMovieRecoveryEventCurveArc = E.concatenate(
     [
       E.line(a, [0, 1.5, 0], "left-first"),
       E.line([0, 1.5, 0], c, "left-second"),

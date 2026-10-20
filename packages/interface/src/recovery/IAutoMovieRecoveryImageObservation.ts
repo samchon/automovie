@@ -1,4 +1,4 @@
-import type { IAutoMovieRecoveryImageInput } from "./IAutoMovieRecoveryImageInput";
+import type { IAutoMovieRecoveryImageObservationView } from "./IAutoMovieRecoveryImageObservationView";
 
 /**
  * Recorded foreground support intervals in supplied camera charts.
@@ -13,9 +13,6 @@ import type { IAutoMovieRecoveryImageInput } from "./IAutoMovieRecoveryImageInpu
  * @evidence contracts/common.md#meaningful-documentation States millimetres, support rather than material correspondence, supplied-camera provenance and quantization limits.
  */
 export interface IAutoMovieRecoveryImageObservation {
-  /** Versioned silhouette-support schema. */
-  schema: "automovie-recovery-image-support-v1";
-
   /** Same fixed-object capture identity. */
   objectId: string;
 
@@ -29,13 +26,5 @@ export interface IAutoMovieRecoveryImageObservation {
   method: "fixed-background-channel-distance-v1";
 
   /** Fixed-image and supplied-camera provenance per view. */
-  views: (Pick<
-    IAutoMovieRecoveryImageInput["views"][number],
-    "id" | "sourceSha256" | "pixelProvenance" | "width" | "height" | "camera"
-  > & {
-    /** Pixel-cell limits at row-centre Y, in increasing Y order. */
-    rows: { yMm: number; lowerMm: number; upperMm: number }[];
-    /** Half the pitch, covering ideal quantization rather than unknown segmentation or calibration errors. */
-    quantizationMm: number;
-  })[];
+  views: IAutoMovieRecoveryImageObservationView[];
 }

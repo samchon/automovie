@@ -2,6 +2,15 @@ import type { IAutoMovieRecoveryImageInput } from "@automovie/interface/recovery
 
 import { recoveryImageFixture } from "./recoveryImageFixture";
 
+/** Fixed angular factors in the independent analytic support formula. */
+interface RecoverySupportDirection {
+  c: number;
+  s: number;
+  harmonic: number;
+  boxX: number;
+  boxZ: number;
+}
+
 /**
  * Independent nonelliptical RGB section fixtures with known cameras.
  * A rotated box uses analytic support; the smooth asymmetric family uses
@@ -20,10 +29,7 @@ export function recoverySupportFixture(
     (_: unknown, i: number): number => i * 15,
   ),
 ): IAutoMovieRecoveryImageInput {
-  const directions: Map<
-    number,
-    { c: number; s: number; harmonic: number; boxX: number; boxZ: number }
-  > = new Map();
+  const directions: Map<number, RecoverySupportDirection> = new Map();
   for (const degrees of angles) {
     const azimuth: number = (degrees * Math.PI) / 180;
     for (const angle of [azimuth, azimuth + Math.PI]) {

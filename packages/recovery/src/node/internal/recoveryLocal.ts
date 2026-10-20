@@ -1,12 +1,14 @@
+import type { IAutoMovieRecoveryTensorFamiliesInput } from "../../structures/domain/IAutoMovieRecoveryTensorFamiliesInput";
+import type { IAutoMovieRecoveryOpenContinuation } from "../../structures/curve/IAutoMovieRecoveryOpenContinuation";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
-import type { AutoMovieRecoveryOpenContinuation as O } from "../../internal/AutoMovieRecoveryOpenContinuation";
-import { applyAutoMovieRecoveryAnalyticPublication } from "../../internal/applyAutoMovieRecoveryAnalyticPublication";
-import type { realizeAutoMovieRecoveryTensorFamilies } from "../../internal/realizeAutoMovieRecoveryTensorFamilies";
-import { archiveAutoMovieRecoveryModel } from "./archiveAutoMovieRecoveryModel";
-import { reconstructAutoMovieRecoveryLocal } from "./reconstructAutoMovieRecoveryLocal";
+import { restoreRecoveryCurveBasis } from "../../internal/restoreRecoveryCurveBasis";
+
+import { applyAutoMovieRecoveryAnalyticPublication } from "../../reconstruction/applyAutoMovieRecoveryAnalyticPublication";
+import { archiveAutoMovieRecoveryModel } from "../artifact/archiveAutoMovieRecoveryModel";
+import { reconstructAutoMovieRecoveryLocal } from "../reconstruction/reconstructAutoMovieRecoveryLocal";
 
 /**
  * Consume immutable absolute curves and source-free graph with the local Hermite engine.
@@ -76,8 +78,8 @@ export async function recoveryLocal(
   };
   const saved: ReturnType<typeof read> = read(curves),
     topology: ReturnType<typeof read> = read(continuation);
-  const graph: O.Continuation & { provenance: { curveBundleSha256: string } } =
-    topology.value as O.Continuation & {
+  const graph: IAutoMovieRecoveryOpenContinuation & { provenance: { curveBundleSha256: string } } =
+    topology.value as IAutoMovieRecoveryOpenContinuation & {
       provenance: { curveBundleSha256: string };
     };
   if (graph.provenance.curveBundleSha256 !== saved.sha256)
@@ -94,8 +96,8 @@ export async function recoveryLocal(
       elapsedMs: performance.now() - started,
     }),
   );
-  let bundle: realizeAutoMovieRecoveryTensorFamilies.Input =
-    saved.value as realizeAutoMovieRecoveryTensorFamilies.Input;
+  let bundle: IAutoMovieRecoveryTensorFamiliesInput =
+    restoreRecoveryCurveBasis(saved.value) as IAutoMovieRecoveryTensorFamiliesInput;
   let analyticPublicationSha256: string | undefined;
   if (analytic) {
     if (fs.statSync(analytic).size > 256 * 1024 * 1024)
@@ -105,7 +107,7 @@ export async function recoveryLocal(
     const extension: ReturnType<typeof read> = read(analytic);
     bundle = applyAutoMovieRecoveryAnalyticPublication(
       bundle,
-      extension.value as Parameters<
+      restoreRecoveryCurveBasis(extension.value) as Parameters<
         typeof applyAutoMovieRecoveryAnalyticPublication
       >[1],
       { curveBundleSha256: saved.sha256, continuationSha256: topology.sha256 },

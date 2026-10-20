@@ -1,6 +1,5 @@
+import type { IAutoMovieRecoveryInput } from "@automovie/interface/recovery";
 import type { IAutoMovieCurve64 as C } from "@automovie/engine/geometry/curve";
-
-import type { IAutoMovieRecoveryMeshSections } from "./IAutoMovieRecoveryMeshSections";
 
 /**
  * Prepare declared source aliases and original edge/vertex face incidence.
@@ -14,8 +13,8 @@ import type { IAutoMovieRecoveryMeshSections } from "./IAutoMovieRecoveryMeshSec
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returned maps borrow source arrays and remain owned by one extraction call; no handles or global cache are created.
  */
 export function prepareRecoveryMeshIncidence(
-  input: IAutoMovieRecoveryMeshSections.Input,
-  vertices: IAutoMovieRecoveryMeshSections.Input["verticesMm"],
+  input: IAutoMovieRecoveryInput,
+  vertices: IAutoMovieRecoveryInput["verticesMm"],
 ): {
   aliases: Map<string, number>;
   canon: Int32Array;

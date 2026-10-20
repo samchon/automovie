@@ -1,10 +1,10 @@
 import type { IAutoMovieBicubicAtlasGeometry } from "@automovie/interface";
 
+import type { observeAutoMovieRecoveryAtlas } from "../observation/observeAutoMovieRecoveryAtlas";
 import type { RecoveryAtlasObservationTypes } from "./RecoveryAtlasObservationTypes";
 import { RecoveryChartAssembly } from "./RecoveryChartAssembly";
 import { RecoveryChartBatch as B } from "./RecoveryChartBatch";
 import { RecoveryChartBoundary } from "./RecoveryChartBoundary";
-import type { observeAutoMovieRecoveryAtlas } from "./observeAutoMovieRecoveryAtlas";
 import { selectRecoveryScalarIntervals } from "./selectRecoveryScalarIntervals";
 
 type Input = RecoveryAtlasObservationTypes["Input"];

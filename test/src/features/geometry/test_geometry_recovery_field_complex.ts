@@ -1,8 +1,10 @@
 import {
+  type IAutoMovieRecoveryEventCurvePiece,
   type IAutoMovieRecoveryEventChartInput as Chart,
   AutoMovieRecoveryEventCurve as E,
   assembleAutoMovieRecoveryFieldComplex as assemble,
 } from "@automovie/recovery";
+
 import { TestValidator } from "@nestia/e2e";
 
 import type { IAutoMovieCurve64 as C } from "../../../../packages/engine/src/geometry/curve/IAutoMovieCurve64";
@@ -163,18 +165,19 @@ export function test_geometry_recovery_field_complex(): void {
       ...second.chart,
       left: {
         ...second.chart.left,
-        pieces: second.chart.left.pieces.map((piece: E.Piece): E.Piece => {
+        pieces: second.chart.left.pieces.map((piece: IAutoMovieRecoveryEventCurvePiece): IAutoMovieRecoveryEventCurvePiece => {
+          const parent: C.Span = E.fullparentControls(piece.source);
           const net: C.Span = [
-            piece.source.parent[0],
+            parent[0],
             [
-              piece.source.parent[1][0] + 1,
-              piece.source.parent[1][1],
-              piece.source.parent[1][2],
+              parent[1][0] + 1,
+              parent[1][1],
+              parent[1][2],
             ],
-            piece.source.parent[2],
-            piece.source.parent[3],
+            parent[2],
+            parent[3],
           ];
-          return { ...piece, source: { ...piece.source, parent: net } };
+          return { ...piece, source: { ...piece.source, curve: { ...piece.source.curve, spans: [net] } } };
         }),
       },
     },

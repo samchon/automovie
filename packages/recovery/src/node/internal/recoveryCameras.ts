@@ -3,10 +3,10 @@ import type { IAutoMovieRecoveryCameraPairInput } from "@automovie/interface/rec
 import { createHash } from "node:crypto";
 import path from "node:path";
 
-import { estimateAutoMovieRecoveryCameraPair } from "../../estimateAutoMovieRecoveryCameraPair";
-import type { IAutoMovieRecoveryCameraFiles } from "../IAutoMovieRecoveryCameraFiles";
+import { estimateAutoMovieRecoveryCameraPair } from "../../observation/estimateAutoMovieRecoveryCameraPair";
+import type { IAutoMovieRecoveryCameraFiles } from "../../structures/image/IAutoMovieRecoveryCameraFiles";
 import { readAutoMovieRecoveryBoundedFile } from "./readAutoMovieRecoveryBoundedFile";
-import { writeAutoMovieRecoveryArtifact } from "./writeAutoMovieRecoveryArtifact";
+import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
 
 /**
  * Run the installed automatic calibrated camera-pair estimator on fixed files.
@@ -138,7 +138,6 @@ export function recoveryCameras(args: string[], sourceEpoch: string): void {
     sourceEpoch,
     inputSha256,
     operation: {
-      schema: outcome.schema,
       operator: outcome.operator,
       status: outcome.status,
       diagnostics: outcome.diagnostics,

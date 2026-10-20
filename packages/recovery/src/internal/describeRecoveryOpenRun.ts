@@ -1,4 +1,4 @@
-import type { AutoMovieRecoveryMeshSections as R } from "./AutoMovieRecoveryMeshSections";
+import type { IAutoMovieRecoveryMeshSections } from "../structures/mesh/IAutoMovieRecoveryMeshSections";
 import { readRecoveryMetadata as read } from "./readRecoveryMetadata";
 
 /**
@@ -15,7 +15,7 @@ import { readRecoveryMetadata as read } from "./readRecoveryMetadata";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returned scalar metadata belongs to the run caller; no curve buffers, cache or external resources are retained.
  */
 export function describeRecoveryOpenRun(
-  bundle: R.Bundle,
+  bundle: IAutoMovieRecoveryMeshSections,
   nodes: readonly { section: number; arc: number }[],
 ): {
   curves: string[];

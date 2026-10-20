@@ -1,13 +1,25 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
-import type { reconstructAutoMovieRecoveryModel } from "@automovie/recovery";
+import {
+  type reconstructAutoMovieRecoveryModel,
+  type IAutoMovieRecoveryTensorFamiliesInput,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
+
 import { nclose } from "./nclose";
+
+/** Geometric incidence accumulated from generated prism edges. */
+interface RecoveryPrismEdge {
+  count: number;
+  balance: number;
+  a: number[];
+  b: number[];
+}
 
 /** Authored straight-cubic prism fixtures and independent area, winding and exposed-edge measurements for the public source-free scenario. No result snapshot defines the expected surface. */
 export namespace recoveryPrismOracle {
   /** Saved source-free input accepted by the public reconstruction operation. */
-  export type Input = Parameters<typeof reconstructAutoMovieRecoveryModel>[0];
+  export type Input = IAutoMovieRecoveryTensorFamiliesInput;
   type Curve = Input["loft"]["sections"][number]["loops"][number]["curve"];
   /**
    * Author one closed 3-mm square at millimetre station y and lateral offset x.
@@ -66,7 +78,6 @@ export namespace recoveryPrismOracle {
       },
     );
     return {
-      schema: "automovie-recovery-curves-v1",
       loft: {
         sections,
         events: [],
@@ -151,10 +162,7 @@ export namespace recoveryPrismOracle {
       throw new Error("Expected retained source-free geometry");
     let area: number = 0;
     const boundaryLengths: number[] = [0, 0];
-    const edges: Map<
-      string,
-      { count: number; balance: number; a: number[]; b: number[] }
-    > = new Map();
+    const edges: Map<string, RecoveryPrismEdge> = new Map();
     for (const part of result.value.model.parts) {
       if (part.geometry.type !== "mesh")
         throw new Error("Expected generated mesh geometry");
@@ -230,12 +238,12 @@ export namespace recoveryPrismOracle {
             qKey: string = q.join(",");
           const forward: boolean = pKey < qKey;
           const key: string = forward ? `${pKey}|${qKey}` : `${qKey}|${pKey}`;
-          const edge: {
-            count: number;
-            balance: number;
-            a: number[];
-            b: number[];
-          } = edges.get(key) ?? { count: 0, balance: 0, a: p, b: q };
+          const edge: RecoveryPrismEdge = edges.get(key) ?? {
+            count: 0,
+            balance: 0,
+            a: p,
+            b: q,
+          };
           edge.count++;
           edge.balance += forward ? 1 : -1;
           edges.set(key, edge);

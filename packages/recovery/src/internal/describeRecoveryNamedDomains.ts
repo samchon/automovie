@@ -1,6 +1,6 @@
-import type { IAutoMovieRecoveryDomainLedger } from "../IAutoMovieRecoveryDomainLedger";
+import type { IAutoMovieRecoveryTensorFamiliesInput } from "../structures/domain/IAutoMovieRecoveryTensorFamiliesInput";
+import type { IAutoMovieRecoveryDomainLedger } from "../structures/domain/IAutoMovieRecoveryDomainLedger";
 import { readRecoveryMetadata as read } from "./readRecoveryMetadata";
-import type { realizeAutoMovieRecoveryTensorFamilies } from "./realizeAutoMovieRecoveryTensorFamilies";
 import type { reconstructRecovery } from "./reconstructRecovery";
 
 /**
@@ -18,7 +18,7 @@ import type { reconstructRecovery } from "./reconstructRecovery";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Call-local name and binding maps expire on return; returned metadata owns strings and ranges without retaining mesh buffers.
  */
 export function describeRecoveryNamedDomains(
-  input: realizeAutoMovieRecoveryTensorFamilies.Input,
+  input: IAutoMovieRecoveryTensorFamiliesInput,
   result: ReturnType<typeof reconstructRecovery>,
 ): {
   members: IAutoMovieRecoveryDomainLedger["members"];
@@ -160,8 +160,6 @@ export function describeRecoveryNamedDomains(
         admitted,
         delegatedTo: null,
         emitted,
-        written: "not-performed",
-        loaded: "not-performed",
         diagnostics: local,
       });
     }

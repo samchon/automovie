@@ -2,7 +2,7 @@ import { convexHull2D } from "@automovie/engine/math/convexHull2D";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { IAutoMovieRecoveryCameraPairInput } from "@automovie/interface/recovery";
 
-import type { IAutoMovieRecoveryCameraPairEstimate } from "../IAutoMovieRecoveryCameraPairEstimate";
+import type { IAutoMovieRecoveryCameraPairEstimate } from "../structures/image/IAutoMovieRecoveryCameraPairEstimate";
 import type { createRecoveryCameraChart } from "./createRecoveryCameraChart";
 import type { extractRecoveryImageFeatures } from "./extractRecoveryImageFeatures";
 import { fitRecoveryEpipolarConsensus } from "./fitRecoveryEpipolarConsensus";

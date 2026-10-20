@@ -1,7 +1,7 @@
-import type { IAutoMovieRecoveryDomainLedger } from "../IAutoMovieRecoveryDomainLedger";
+import type { IAutoMovieRecoveryTensorFamiliesInput } from "../structures/domain/IAutoMovieRecoveryTensorFamiliesInput";
+import type { IAutoMovieRecoveryDomainLedger } from "../structures/domain/IAutoMovieRecoveryDomainLedger";
 import { describeRecoveryNamedDomains } from "./describeRecoveryNamedDomains";
 import { readRecoveryMetadata as read } from "./readRecoveryMetadata";
-import type { realizeAutoMovieRecoveryTensorFamilies } from "./realizeAutoMovieRecoveryTensorFamilies";
 import type { reconstructRecovery } from "./reconstructRecovery";
 
 /**
@@ -20,7 +20,7 @@ import type { reconstructRecovery } from "./reconstructRecovery";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Call-local indexes expire after returning the ledger; outputs own metadata only and hold no mesh buffers or external resources.
  */
 export function describeRecoveryDomains(
-  input: realizeAutoMovieRecoveryTensorFamilies.Input,
+  input: IAutoMovieRecoveryTensorFamiliesInput,
   result: ReturnType<typeof reconstructRecovery>,
 ): IAutoMovieRecoveryDomainLedger {
   type Member = IAutoMovieRecoveryDomainLedger["members"][number];
@@ -148,8 +148,6 @@ export function describeRecoveryDomains(
               : null,
         delegatedTo,
         emitted,
-        written: "not-performed",
-        loaded: "not-performed",
         diagnostics: local,
       });
     }
@@ -173,8 +171,6 @@ export function describeRecoveryDomains(
         admitted: false,
         delegatedTo: null,
         emitted: [],
-        written: "not-performed",
-        loaded: "not-performed",
         diagnostics: [
           "This contour-only memory operation does not consume the separate open-continuation graph",
           ...(typeof name === "string" && name.length > 0
@@ -229,8 +225,6 @@ export function describeRecoveryDomains(
             admitted: false,
             delegatedTo: null,
             emitted: [],
-            written: "not-performed",
-            loaded: "not-performed",
             diagnostics: [
               "No unique declared adjacent group owns this saved boundary occurrence",
               ...(typeof name === "string" && name.length > 0
@@ -242,7 +236,6 @@ export function describeRecoveryDomains(
     }
   }
   return {
-    schema: "automovie-recovery-domain-ledger-v1",
     members,
     unattributed,
     diagnostics,

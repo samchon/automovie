@@ -28,7 +28,6 @@ export function prepareRecoveryImageSupports(
 } {
   if (
     !observation ||
-    observation.schema !== "automovie-recovery-image-support-v1" ||
     observation.method !== "fixed-background-channel-distance-v1" ||
     typeof observation.objectId !== "string" ||
     !observation.objectId.trim() ||
@@ -45,7 +44,7 @@ export function prepareRecoveryImageSupports(
     observation.views.length > limits.maxViews
   )
     throw new Error(
-      "invalid-image-support: versioned measured rows and finite budgets required",
+      "invalid-image-support: measured rows and finite budgets required",
     );
   const names: Set<string> = new Set();
   let rowCount: number = 0,
