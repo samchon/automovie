@@ -1,4 +1,5 @@
 import type { IAutoMovieSingularDecomposition } from "./IAutoMovieSingularDecomposition";
+import type { IAutoMovieSingularMatrixBudget } from "./IAutoMovieSingularMatrixBudget";
 
 /**
  * Decompose original rows by cyclic one-sided Jacobi column rotations.
@@ -21,16 +22,7 @@ import type { IAutoMovieSingularDecomposition } from "./IAutoMovieSingularDecomp
  */
 export function decomposeAutoMovieSingularMatrix(
   rows: readonly (readonly number[])[],
-  budget: {
-    /** Maximum entries in each of the input and square right-basis arrays, separately. */
-    maxEntries: number;
-
-    /** Positive maximum complete cyclic sweeps, including the final convergence check. */
-    maxSweeps: number;
-
-    /** Relative active-column correlation threshold, from 64 machine epsilons through .01. */
-    orthogonalityTolerance: number;
-  },
+  budget: IAutoMovieSingularMatrixBudget,
 ): IAutoMovieSingularDecomposition {
   const height: number = rows.length;
   const width: number = rows[0]?.length ?? 0;

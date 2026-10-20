@@ -7,6 +7,7 @@ export * from "./geometry";
 export * from "./math/adjacentAutoMovieFloat64";
 export { decomposeAutoMovieSingularMatrix } from "./math/decomposeAutoMovieSingularMatrix";
 export type { IAutoMovieSingularDecomposition } from "./math/IAutoMovieSingularDecomposition";
+export type { IAutoMovieSingularMatrixBudget } from "./math/IAutoMovieSingularMatrixBudget";
 export { AutoMovieMatrix3 } from "./math/AutoMovieMatrix3";
 export * from "./math/interpolateAutoMovieTrianglePoint";
 export * from "./AutoMovieSubject";

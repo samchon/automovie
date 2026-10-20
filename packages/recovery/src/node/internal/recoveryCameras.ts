@@ -5,8 +5,8 @@ import path from "node:path";
 
 import { estimateAutoMovieRecoveryCameraPair } from "../../observation/estimateAutoMovieRecoveryCameraPair";
 import type { IAutoMovieRecoveryCameraFiles } from "../../structures/image/IAutoMovieRecoveryCameraFiles";
-import { readAutoMovieRecoveryBoundedFile } from "./readAutoMovieRecoveryBoundedFile";
 import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
+import { readAutoMovieRecoveryBoundedFile } from "./readAutoMovieRecoveryBoundedFile";
 
 /**
  * Run the installed automatic calibrated camera-pair estimator on fixed files.

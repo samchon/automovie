@@ -85,7 +85,13 @@ export async function runAutoMovieRecoveryCommand(
         command !== "recovery" ||
         (value !== "bezier" && value !== "hermite")
       ) {
-        console.error(JSON.stringify({ status: "refused", reason: "Use one --curve-format bezier|hermite option with recovery extraction" }));
+        console.error(
+          JSON.stringify({
+            status: "refused",
+            reason:
+              "Use one --curve-format bezier|hermite option with recovery extraction",
+          }),
+        );
         return 2;
       }
       selected = true;
@@ -96,7 +102,13 @@ export async function runAutoMovieRecoveryCommand(
       operands[0] !== "extract" &&
       operands[0] !== "extract-prefix"
     ) {
-      console.error(JSON.stringify({ status: "refused", reason: "Curve format selects extraction output; reconstruction reads its saved basis" }));
+      console.error(
+        JSON.stringify({
+          status: "refused",
+          reason:
+            "Curve format selects extraction output; reconstruction reads its saved basis",
+        }),
+      );
       return 2;
     }
     switch (command) {
