@@ -23,3 +23,5 @@ export type { IAutoMovieRecoveryCameraView } from "./IAutoMovieRecoveryCameraVie
 export type { IAutoMovieRecoveryCameraMapInput } from "./IAutoMovieRecoveryCameraMapInput";
 export type { IAutoMovieRecoveryCameraMapPolicy } from "./IAutoMovieRecoveryCameraMapPolicy";
 export type { IAutoMovieRecoveryCameraMapBudget } from "./IAutoMovieRecoveryCameraMapBudget";
+export type { IAutoMovieRecoveryCameraSceneInput } from "./IAutoMovieRecoveryCameraSceneInput";
+export type { IAutoMovieRecoveryCameraSceneBudget } from "./IAutoMovieRecoveryCameraSceneBudget";

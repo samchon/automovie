@@ -13,17 +13,17 @@ import { stepRecoveryMapPose } from "./stepRecoveryMapPose";
 import { stepRecoveryRelativePose } from "./stepRecoveryRelativePose";
 
 /**
- * Jointly refine three calibrated cameras and seed landmarks in one gauge.
+ * Jointly refine calibrated cameras and registered landmarks in one gauge.
  * The first pose must be identity at the origin and stays fixed; the seed
  * translation remains on its unit sphere,
- * and the third translation has three unrestricted coordinates. Fixed landmark
+ * and all later translations have three unrestricted coordinates. Fixed landmark
  * observations retain the same robust objective throughout every trial.
  *
- * @evidence contracts/common.md#principled-implementation Analytic pinhole derivatives, complete-vector soft-L1 weights and original-design point-local QR solve a gauge-fixed eleven-camera-coordinate bundle step. Independent point/reduced-camera ranks precede damping, and actual same-population descent accepts an SO3/sphere/Euclidean retraction.
+ * @evidence contracts/common.md#principled-implementation Analytic pinhole derivatives, complete-vector soft-L1 weights and original-design point-local QR solve C=6N-7 gauge-fixed camera coordinates. Independent point/reduced-camera ranks precede damping, and actual same-population descent accepts an SO3/sphere/Euclidean retraction.
  * @evidence contracts/common.md#clear-and-simple-design This nonlinear owner keeps fixed population, gauge, damping and local termination together; projection and block-linear algebra have separate numerical owners, and final map qualification belongs to the coordinator.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No first/second full-pose double anchoring, independent normalization of third translation, covariance claim, dropped measurement or damping-derived rank supplies a map. Nonpositive trial depths reject the step, and iteration exhaustion remains nonconverged.
  * @evidence contracts/common.md#meaningful-documentation States seven removed gauge freedoms, fixed known calibration, robust vector weighting, common population, 1e-8 local stops and separation of robust versus unweighted squared cost.
- * @evidence contracts/performance.md#efficient-algorithms N landmarks and I bounded accepted/rejected iterations use O(I*S*N*11^2) reduced-camera work and O(N) point-block work/storage; no dense all-landmark Jacobian is materialized.
+ * @evidence contracts/performance.md#efficient-algorithms E observations, L landmarks, C=6N-7 camera columns and I bounded iterations cost O(I*(E*C^2+S*C^3)) with O(E*C+L*C+C^2) storage. No dense all-landmark Jacobian is materialized; entry bounds and optional work charging precede each allocation/factorization.
  * @evidence contracts/performance.md#reuse-equivalent-work Each current projection supplies residual, robust weight and both point/camera derivatives. Fixed features, intrinsics and measurements are reused across iterations; only changed numerical poses/points are reevaluated.
  * @evidence contracts/performance.md#bound-retention-and-release-resources New pose/landmark arrays and scalar report transfer to the caller. Call-local block scratch, callbacks and rejected trials expire without input mutation, image retention or external resources.
  */
@@ -34,19 +34,20 @@ export function refineRecoveryCameraMap(
   policy: IAutoMovieRecoveryCameraMapPolicy,
   budget: IAutoMovieRecoveryCameraMapBudget,
   checkpoint: () => void,
+  charge: (work: number) => void = (): void => {},
 ): {
   poses: IAutoMovieRecoveryMapPose[];
   landmarks: IAutoMovieRecoveryMapLandmark[];
   report: IAutoMovieRecoveryMapJointFit;
 } {
   if (
-    initialPoses.length !== 3 ||
-    intrinsics.length !== 3 ||
+    initialPoses.length < 2 ||
+    intrinsics.length !== initialPoses.length ||
     initialLandmarks.length < 6 ||
     initialLandmarks.length > budget.maxTracks
   )
     throw new Error(
-      "camera-map: three cameras and bounded seed landmarks required",
+      "camera-map: at least two cameras and bounded landmarks required",
     );
   if (
     initialPoses[0]!.rotation.length !== 9 ||
@@ -84,7 +85,23 @@ export function refineRecoveryCameraMap(
       sum + landmark.observations.length,
     0,
   );
-  if (observationCount > budget.maxObservations)
+  const cameraWidth: number = 6 * poses.length - 7;
+  const localEntries: number =
+    Math.max(2 * observationCount, 2 * poses.length + 3) * (cameraWidth + 4);
+  const reducedEntries: number =
+    (2 * observationCount + 2 * cameraWidth) * cameraWidth;
+  const sweepWork: number =
+    4 * (2 * observationCount + landmarks.length) * cameraWidth * cameraWidth +
+    4 * budget.maxSingularSweeps * cameraWidth * cameraWidth * cameraWidth +
+    54 * budget.maxSingularSweeps * (observationCount + landmarks.length);
+  if (
+    observationCount > budget.maxObservations ||
+    !Number.isSafeInteger(localEntries) ||
+    !Number.isSafeInteger(reducedEntries) ||
+    !Number.isSafeInteger(sweepWork) ||
+    localEntries > budget.maxLinearEntries ||
+    reducedEntries > budget.maxLinearEntries
+  )
     throw new Error("camera-map: joint observation budget exceeded");
   for (const landmark of landmarks) {
     const views: number[] = landmark.observations.map(
@@ -93,17 +110,15 @@ export function refineRecoveryCameraMap(
     );
     if (
       views.length < 2 ||
-      views.length > 3 ||
-      !views.includes(0) ||
-      !views.includes(1) ||
+      views.length > poses.length ||
       new Set(views).size !== views.length ||
       views.some(
         (view: number): boolean =>
-          view < 0 || view > 2 || !Number.isSafeInteger(view),
+          view < 0 || view >= poses.length || !Number.isSafeInteger(view),
       )
     )
       throw new Error(
-        "camera-map: distinct seed observations required per landmark",
+        "camera-map: distinct registered observations required per landmark",
       );
   }
   const evaluate: (
@@ -156,7 +171,7 @@ export function refineRecoveryCameraMap(
         cost += norm * (norm / (hypotenuse + 1));
         squared += norm * norm;
         for (let axis: number = 0; axis < 2; axis++) {
-          const row: number[] = new Array<number>(11).fill(0),
+          const row: number[] = new Array<number>(cameraWidth).fill(0),
             local: number[] = projected.cameraJacobian[axis]!;
           if (view === 1) {
             for (let column: number = 0; column < 3; column++)
@@ -167,9 +182,9 @@ export function refineRecoveryCameraMap(
                   sum + value * local[3 + at]!,
                 0,
               );
-          } else if (view === 2)
+          } else if (view >= 2)
             for (let column: number = 0; column < 6; column++)
-              row[5 + column] = local[column]!;
+              row[5 + 6 * (view - 2) + column] = local[column]!;
           block.cameraRows.push(
             row.map((value: number): number => value * weight),
           );
@@ -187,6 +202,7 @@ export function refineRecoveryCameraMap(
       throw new Error("camera-map: nonrepresentable joint objective");
     return { cost, squared, blocks };
   };
+  charge(2 * observationCount * (cameraWidth + 4));
   let current: ReturnType<typeof evaluate> = evaluate(poses, landmarks);
   if (current === null)
     throw new Error("camera-map: nonpositive initial landmark depth");
@@ -201,6 +217,7 @@ export function refineRecoveryCameraMap(
     "iteration-budget";
   for (; iterations < budget.maxRefinementIterations; iterations++) {
     checkpoint();
+    charge(sweepWork);
     const solution: ReturnType<typeof solveRecoveryMapJointStep> =
       solveRecoveryMapJointStep(
         current.blocks,
@@ -227,7 +244,18 @@ export function refineRecoveryCameraMap(
         createRecoveryMapTangent(poses[1]!.translation),
         solution.cameraStep.slice(0, 5),
       ),
-      stepRecoveryMapPose(poses[2]!, solution.cameraStep.slice(5)),
+      ...poses
+        .slice(2)
+        .map(
+          (
+            pose: IAutoMovieRecoveryMapPose,
+            at: number,
+          ): IAutoMovieRecoveryMapPose =>
+            stepRecoveryMapPose(
+              pose,
+              solution.cameraStep.slice(5 + 6 * at, 11 + 6 * at),
+            ),
+        ),
     ];
     const trialPoints: IAutoMovieRecoveryMapLandmark[] = landmarks.map(
       (
@@ -252,10 +280,12 @@ export function refineRecoveryCameraMap(
       current = trial;
       acceptedSteps++;
       damping /= 3;
-      const maximumStep: number = Math.max(
-        Math.hypot(...solution.cameraStep),
-        ...solution.pointSteps.map((point: [number, number, number]): number =>
-          Math.hypot(...point),
+      const maximumStep: number = solution.pointSteps.reduce(
+        (maximum: number, point: [number, number, number]): number =>
+          Math.max(maximum, Math.hypot(...point)),
+        solution.cameraStep.reduce(
+          (norm: number, value: number): number => Math.hypot(norm, value),
+          0,
         ),
       );
       if (maximumStep <= 1e-8) {

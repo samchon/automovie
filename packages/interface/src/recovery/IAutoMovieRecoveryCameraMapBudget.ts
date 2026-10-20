@@ -1,5 +1,5 @@
 /**
- * Positive integer work limits for a three-view camera map.
+ * Positive integer work limits for calibrated camera-map phases.
  * Seed observation and epipolar work retain their separate pair budget.
  *
  * @evidence contracts/common.md#principled-implementation Aggregate pixels, automatic comparisons, tracks, observations, proposals and linear entries are distinct bounded work populations.
@@ -8,10 +8,10 @@
  * @evidence contracts/common.md#meaningful-documentation Members distinguish aggregate, retained and per-solve limits including the separate minimum trial requirement.
  */
 export interface IAutoMovieRecoveryCameraMapBudget {
-  /** Aggregate resident pixels across all three supplied views. */
+  /** Aggregate resident pixels across every supplied view in the owning operation. */
   maxPixels: number;
 
-  /** Aggregate descriptor pairs over all three unordered image pairs. */
+  /** Aggregate directed descriptor comparisons over all admitted image pairs. */
   maxDescriptorPairs: number;
 
   /** Maximum linked feature components before conflict or geometry filtering. */

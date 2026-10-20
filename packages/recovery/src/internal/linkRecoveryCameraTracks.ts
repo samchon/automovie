@@ -5,7 +5,7 @@ import type { extractRecoveryImageFeatures } from "./extractRecoveryImageFeature
 import type { matchRecoveryImageFeatures } from "./matchRecoveryImageFeatures";
 
 /**
- * Link bidirectionally ratio-qualified feature identities across three images.
+ * Link bidirectionally ratio-qualified feature identities across fixed images.
  * A component containing two feature indices from one image is explicitly
  * conflicting and is withheld; even a conflict-free component is tentative
  * appearance linkage rather than material truth or a geometric landmark.

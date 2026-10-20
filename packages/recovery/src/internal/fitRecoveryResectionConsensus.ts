@@ -15,6 +15,8 @@ import { sampleRecoveryCameraIndices } from "./sampleRecoveryCameraIndices";
  * Six unique-index samples initialize nonplanar DLT poses before pixel scoring;
  * eligible proposals receive bounded local refinement in draw order. Final
  * support must stabilize and satisfy its recomputed conditional trial target.
+ * onProposal runs exactly once before each six-point draw; checkpoint also runs
+ * around refinement and therefore does not count proposals.
  *
  * @evidence contracts/common.md#principled-implementation Deterministic unique-six sampling, proper DLT projection, positive-depth Euclidean pixel support and fixed-subset SO3 refinement implement calibrated 3D-to-2D consensus. Complete scores compare inlier count then squared clipped residual; final refits and ideal finite-population confidence are separate qualification gates.
  * @evidence contracts/common.md#clear-and-simple-design This owner chooses robust support and a conditional camera; point generation, track uniqueness admission and joint map refinement remain with callers.
@@ -32,6 +34,7 @@ export function fitRecoveryResectionConsensus(
   policy: IAutoMovieRecoveryCameraMapPolicy,
   budget: IAutoMovieRecoveryCameraMapBudget,
   checkpoint: () => void,
+  onProposal: () => void = (): void => {},
 ): {
   pose: IAutoMovieRecoveryMapPose | null;
   indices: number[];
@@ -88,6 +91,7 @@ export function fitRecoveryResectionConsensus(
     (trials < budget.minimumResectionTrials || trials < required)
   ) {
     checkpoint();
+    onProposal();
     const sample: number[] = sampleRecoveryCameraIndices(
       points.length,
       6,

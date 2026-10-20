@@ -1,4 +1,5 @@
 import { decomposeAutoMovieSingularMatrix } from "@automovie/engine/math/decomposeAutoMovieSingularMatrix";
+import { reduceAutoMovieQrDesign } from "@automovie/engine/math/reduceAutoMovieQrDesign";
 import type { IAutoMovieRecoveryCameraMapBudget } from "@automovie/interface/recovery";
 
 /**
@@ -6,11 +7,11 @@ import type { IAutoMovieRecoveryCameraMapBudget } from "@automovie/interface/rec
  * Independent undamped rank is checked first; damping controls a step and never
  * supplies evidence of local observability. The right side is minus residual.
  *
- * @evidence contracts/common.md#principled-implementation Scaling columns preserves physical parameter units on back substitution. Original-design SVD measures rank, then an augmented identity design implements Levenberg damping without squaring the design's condition.
+ * @evidence contracts/common.md#principled-implementation Scaling columns preserves physical parameter units on back substitution. Tall original designs are compressed by orthogonal Givens QR before SVD measures the same singular spectrum. An augmented identity design implements Levenberg damping without squaring condition or changing the least-squares step.
  * @evidence contracts/common.md#clear-and-simple-design This recovery numerical helper serves resection and reduced joint camera systems; model derivatives, robust loss and actual-cost acceptance belong to callers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No normal-equation inverse, singular floor, damped-rank claim or unconverged decomposition supplies a step.
  * @evidence contracts/common.md#meaningful-documentation States right-side sign, unscaled returned coordinates, dimensionless damping, original rank and preallocation entry bound.
- * @evidence contracts/performance.md#efficient-algorithms For m rows and n parameters, two bounded SVDs cost O(S*m*n^2+S*n^3), with O(m*n+n^2) storage; each admitted map solve has a small fixed camera width.
+ * @evidence contracts/performance.md#efficient-algorithms For m rows and n parameters, tall QR costs O(m*n^2), followed by square original-design SVDs costing O(S*n^3), with O(m*n+n^2) storage. Variable camera width remains explicitly bounded; compression supplies no measured host-speed guarantee.
  * @evidence contracts/performance.md#reuse-equivalent-work Column norms serve normalization and final unscaling, and undamped factors solve the zero-damping case directly.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only an owned step and scalar diagnostics return; call-local factors expire with no mutable global cache or external resource.
  */
@@ -55,8 +56,17 @@ export function solveRecoveryMapDesign(
     maxSweeps: budget.maxSingularSweeps,
     orthogonalityTolerance: 1e-12,
   };
+  const compressed: ReturnType<typeof reduceAutoMovieQrDesign> | null =
+    rows.length >= 2 * width
+      ? reduceAutoMovieQrDesign(rows, right, {
+          maxEntries: budget.maxLinearEntries,
+          maxWork: rows.length * width * (width + 1),
+        })
+      : null;
+  const solveRows: number[][] = compressed?.rows ?? rows;
+  const solveRight: readonly number[] = compressed?.right ?? right;
   const rank: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
-    decomposeAutoMovieSingularMatrix(rows, options);
+    decomposeAutoMovieSingularMatrix(solveRows, options);
   const designRatio: number =
     rank.singularValues[width - 1]! / rank.singularValues[0]!;
   if (!(designRatio >= minimumRatio))
@@ -73,7 +83,7 @@ export function solveRecoveryMapDesign(
         ),
       ),
     );
-  const augmented: number[][] = rows.slice();
+  const augmented: number[][] = solveRows.slice();
   if (damping > 0)
     for (let row: number = 0; row < width; row++)
       augmented.push(
@@ -86,7 +96,7 @@ export function solveRecoveryMapDesign(
   const step: number[] = new Array<number>(width).fill(0);
   for (let component: number = 0; component < width; component++) {
     const coefficient: number =
-      right.reduce(
+      solveRight.reduce(
         (sum: number, value: number, at: number): number =>
           sum + factors.leftColumns[component]![at]! * value,
         0,

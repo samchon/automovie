@@ -4,16 +4,16 @@ import type { IAutoMovieRecoveryCameraMapBudget } from "@automovie/interface/rec
 import { solveRecoveryMapDesign } from "./solveRecoveryMapDesign";
 
 /**
- * Eliminate independent landmark coordinates from a triad's original design.
- * Point-local Givens QR leaves eleven camera columns: five seed pose coordinates
- * and six third-camera coordinates. This is orthogonal variable elimination,
+ * Eliminate independent landmark coordinates from an original bundle design.
+ * Point-local Givens QR retains the caller's gauge-fixed camera columns.
+ * This is orthogonal variable elimination,
  * avoiding the squared conditioning of a normal-matrix Schur complement.
  *
  * @evidence contracts/common.md#principled-implementation Every point's undamped three-column design and the undamped reduced camera design are independently rank checked. Identical point/camera column scaling and augmented damping define one full least-squares problem; orthogonal elimination and back substitution solve it without constructing a dense all-point design.
  * @evidence contracts/common.md#clear-and-simple-design The helper owns only the block linear step; observation derivatives, robust weighting, gauge construction and nonlinear acceptance stay with the joint optimizer.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No damped rank, epsilon inverse, normal equations, dropped residual or separately normalized camera supplies observability. Unresolved point blocks or the reduced camera design throw before a step is returned.
- * @evidence contracts/common.md#meaningful-documentation States eleven gauge-fixed camera coordinates, point-local elimination, consistent damping, unscaled returned steps and independent undamped rank diagnostics.
- * @evidence contracts/performance.md#efficient-algorithms For N landmarks with at most six rows each, local elimination costs O(N*3*14^2); the fixed eleven-column reduced SVD costs O(S*N*11^2). Storage is O(N), avoiding a dense (11+3N)-column factorization.
+ * @evidence contracts/common.md#meaningful-documentation States variable gauge-fixed camera coordinates, point-local elimination, consistent damping, unscaled returned steps and independent undamped rank diagnostics.
+ * @evidence contracts/performance.md#efficient-algorithms With E observations, L points and C admitted camera columns, point elimination costs O((E+L)*C); reduced QR/SVD costs O(E*C^2+S*C^3). Storage is O(E*C+L*C+C^2), avoiding a dense (C+3L)-column factorization. Actual variable-width sizes are admitted before allocations.
  * @evidence contracts/performance.md#reuse-equivalent-work Current weighted blocks supply global camera scales, per-point scales and both undamped qualification and damped elimination. The stored triangular block recovers each point step after one reduced camera solve.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only camera/point step arrays and scalar diagnostics escape. All transformed blocks and factors expire without borrowed observations, cache or external handles.
  */
@@ -38,33 +38,47 @@ export function solveRecoveryMapJointStep(
       sum + block.right.length,
     0,
   );
+  const cameraWidth: number = blocks[0]?.cameraRows[0]?.length ?? 0;
+  const localWidth: number = cameraWidth + 4;
+  const maximumLocalEntries: number =
+    blocks.reduce(
+      (maximum: number, block: (typeof blocks)[number]): number =>
+        Math.max(maximum, block.right.length + 3),
+      totalRows,
+    ) * localWidth;
+  const maximumReducedEntries: number =
+    (totalRows + 2 * cameraWidth) * cameraWidth;
   if (
     blocks.length < 1 ||
-    totalRows * 15 > budget.maxLinearEntries ||
+    cameraWidth < 1 ||
+    !Number.isSafeInteger(maximumLocalEntries) ||
+    !Number.isSafeInteger(maximumReducedEntries) ||
+    maximumLocalEntries > budget.maxLinearEntries ||
+    maximumReducedEntries > budget.maxLinearEntries ||
     !(damping >= 0) ||
     !Number.isFinite(damping)
   )
     throw new Error("camera-map: bounded joint blocks required");
-  const cameraScales: number[] = new Array<number>(11).fill(0);
+  const cameraScales: number[] = new Array<number>(cameraWidth).fill(0);
   const pointScales: number[][] = [];
   let minimumPointDesignRatio: number = Infinity,
     gradient: number = 0;
   for (const block of blocks) {
     if (
       block.right.length < 4 ||
-      block.right.length > 6 ||
+      block.right.length % 2 !== 0 ||
       block.pointRows.length !== block.right.length ||
       block.cameraRows.length !== block.right.length ||
       !block.right.every(Number.isFinite)
     )
       throw new Error(
-        "camera-map: two or three observations per landmark required",
+        "camera-map: at least two complete observations per landmark required",
       );
     const scales: number[] = [0, 0, 0];
     for (let row: number = 0; row < block.right.length; row++) {
       if (
         block.pointRows[row]!.length !== 3 ||
-        block.cameraRows[row]!.length !== 11 ||
+        block.cameraRows[row]!.length !== cameraWidth ||
         ![...block.pointRows[row]!, ...block.cameraRows[row]!].every(
           Number.isFinite,
         )
@@ -77,7 +91,7 @@ export function solveRecoveryMapJointStep(
           scales[column]!,
           block.pointRows[row]![column]!,
         );
-      for (let column: number = 0; column < 11; column++)
+      for (let column: number = 0; column < cameraWidth; column++)
         cameraScales[column] = Math.hypot(
           cameraScales[column]!,
           block.cameraRows[row]![column]!,
@@ -123,7 +137,7 @@ export function solveRecoveryMapJointStep(
     )
   )
     throw new Error("camera-map: unresolved joint camera direction");
-  for (let column: number = 0; column < 11; column++) {
+  for (let column: number = 0; column < cameraWidth; column++) {
     let component: number = 0;
     for (const block of blocks)
       for (let row: number = 0; row < block.right.length; row++)
@@ -160,8 +174,10 @@ export function solveRecoveryMapJointStep(
       if (amount > 0)
         for (let column: number = 0; column < 3; column++)
           rows.push(
-            Array.from({ length: 15 }, (_: unknown, index: number): number =>
-              index === column ? Math.sqrt(amount) : 0,
+            Array.from(
+              { length: localWidth },
+              (_: unknown, index: number): number =>
+                index === column ? Math.sqrt(amount) : 0,
             ),
           );
       for (let column: number = 0; column < 3; column++)
@@ -172,7 +188,7 @@ export function solveRecoveryMapJointStep(
           const norm: number = Math.hypot(a, b),
             cosine: number = a / norm,
             sine: number = b / norm;
-          for (let index: number = column; index < 15; index++) {
+          for (let index: number = column; index < localWidth; index++) {
             const first: number = rows[column]![index]!,
               second: number = rows[row]![index]!;
             rows[column]![index] = cosine * first + sine * second;
@@ -181,15 +197,17 @@ export function solveRecoveryMapJointStep(
         }
       triangular.push(rows.slice(0, 3));
       for (const row of rows.slice(3)) {
-        reduced.push(row.slice(3, 14));
-        right.push(row[14]!);
+        reduced.push(row.slice(3, 3 + cameraWidth));
+        right.push(row[3 + cameraWidth]!);
       }
     }
     if (amount > 0)
-      for (let row: number = 0; row < 11; row++) {
+      for (let row: number = 0; row < cameraWidth; row++) {
         reduced.push(
-          Array.from({ length: 11 }, (_: unknown, column: number): number =>
-            column === row ? Math.sqrt(amount) : 0,
+          Array.from(
+            { length: cameraWidth },
+            (_: unknown, column: number): number =>
+              column === row ? Math.sqrt(amount) : 0,
           ),
         );
         right.push(0);
@@ -218,8 +236,8 @@ export function solveRecoveryMapJointStep(
     (rows: number[][], at: number): [number, number, number] => {
       const scaled: number[] = [0, 0, 0];
       for (let row: number = 2; row >= 0; row--) {
-        let right: number = rows[row]![14]!;
-        for (let column: number = 0; column < 11; column++)
+        let right: number = rows[row]![3 + cameraWidth]!;
+        for (let column: number = 0; column < cameraWidth; column++)
           right -= rows[row]![3 + column]! * solution.step[column]!;
         for (let column: number = row + 1; column < 3; column++)
           right -= rows[row]![column]! * scaled[column]!;
