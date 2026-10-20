@@ -1,9 +1,10 @@
+import type { IAutoMovieRecoveryInput } from "@automovie/interface/recovery";
+import type { IAutoMovieRecoveryMeshSections } from "../structures/mesh/IAutoMovieRecoveryMeshSections";
 import {
   type IAutoMovieCurve64 as C,
   type IAutoMovieContourLoft64 as L,
 } from "@automovie/engine/geometry/curve";
 
-import type { AutoMovieRecoveryMeshSections as R } from "./AutoMovieRecoveryMeshSections";
 import { RecoveryBezierFit as F } from "./RecoveryBezierFit";
 import type { cutExact } from "./mesh-observations/cutExact";
 import type { planeFrame } from "./mesh-observations/planeFrame";
@@ -28,10 +29,10 @@ export function observeRecoverySection(input: {
   faceEdges: ReadonlyMap<string, ReadonlySet<number>>;
   vertexFaces: ReadonlyMap<number, ReadonlySet<number>>;
   orientation: ReturnType<typeof sourceOrientation>;
-  policy: Pick<R.Input, "cornerDegrees" | "toleranceMm" | "maxSpans">;
+  policy: Pick<IAutoMovieRecoveryInput, "cornerDegrees" | "toleranceMm" | "maxSpans">;
 }): {
   section: L.ISection;
-  report: R.Bundle["reports"][number];
+  report: IAutoMovieRecoveryMeshSections["reports"][number];
   supports: Set<number>[];
   faces: Set<number>[];
   defects: Set<number>[];
@@ -54,7 +55,7 @@ export function observeRecoverySection(input: {
     b: number,
   ): string => (a < b ? `${a},${b}` : `${b},${a}`);
   const section: L.ISection = { coordinateMm, loops: [] };
-  const report: R.Bundle["reports"][number] = {
+  const report: IAutoMovieRecoveryMeshSections["reports"][number] = {
     coordinateMm,
     fits: [],
     open: [],

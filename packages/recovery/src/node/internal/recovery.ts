@@ -1,13 +1,16 @@
-import type { IAutoMovieRecoveryRegistration } from "@automovie/interface/recovery";
+import type { IAutoMovieRecoveryInput, IAutoMovieRecoveryRegistration } from "@automovie/interface/recovery";
+import type { IAutoMovieRecoveryMeshSections } from "../../structures/mesh/IAutoMovieRecoveryMeshSections";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
-import { AutoMovieRecoveryMeshSections as R } from "../../internal/AutoMovieRecoveryMeshSections";
-import { observeAutoMovieRecovery } from "../../observeAutoMovieRecovery";
-import { prepareAutoMovieRecoveryInput } from "../../prepareAutoMovieRecoveryInput";
-import { reconstructAutoMovieRecoveryModel } from "../../reconstructAutoMovieRecoveryModel";
-import { writeAutoMovieRecoveryArtifact } from "./writeAutoMovieRecoveryArtifact";
+import { convertAutoMovieRecoveryCurves } from "../../curves/convertAutoMovieRecoveryCurves";
+import { observeAutoMovieRecovery } from "../../observation/observeAutoMovieRecovery";
+import { prepareAutoMovieRecoveryInput } from "../../observation/prepareAutoMovieRecoveryInput";
+import { reconstructAutoMovieRecoveryModel } from "../../reconstruction/reconstructAutoMovieRecoveryModel";
+import type { AutoMovieRecoveryCurveFormat } from "../../typings/AutoMovieRecoveryCurveFormat";
+import type { IAutoMovieRecoveryResult } from "../../typings/IAutoMovieRecoveryResult";
+import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
 
 /**
  * Generic command seam for fixed meshes to saved cubics and saved cubics to engine models.
@@ -15,17 +18,22 @@ import { writeAutoMovieRecoveryArtifact } from "./writeAutoMovieRecoveryArtifact
  * path/sha256, and the AutoMovieRecoveryMeshSections policy. Mesh JSON contains vertices and triangles.
  * extract-prefix accepts a fourth argument giving a fixed automatic station count and explicitly
  * publishes incomplete coverage. Reconstruction opens only the saved curve artifact.
- * source epoch argument identifies a frozen source commit.
+ * source epoch argument identifies a frozen source commit. curveFormat selects all
+ * saved cubic occurrences; reconstruction admits either saved cubic basis.
  *
  * @evidence contracts/common.md#principled-implementation Complete-byte hashes admit each fixed input; independent extract and reconstruct commands make source-free geometry consumption observable.
  * @evidence contracts/common.md#clear-and-simple-design The CLI owns byte admission and atomic publication, public recovery operations own terminal states and orchestration, and existing engine operations retain shared curve and surface computation.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No subject name, rig field, source control table or normal field is read. Existing output bytes are never overwritten.
- * @evidence contracts/common.md#meaningful-documentation States full extraction, explicit incomplete prefix extraction and curve-only reconstruction, with input schema, physical units and pre-execution source epoch requirement.
+ * @evidence contracts/common.md#meaningful-documentation States full extraction, explicit incomplete prefix extraction and curve-only reconstruction, with input structure, physical units and pre-execution source epoch requirement.
  * @evidence contracts/performance.md#efficient-algorithms JSON parsing and mesh assembly are linear in input bytes and geometry; downstream operators document extraction and tessellation costs.
  * @evidence contracts/performance.md#reuse-equivalent-work Each input is read and hashed once; the generated model and construction share one completed engine result.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Synchronous reads close their handles; arrays live for one command and immutable outputs are caller-owned.
  */
-export function recovery(args: string[], sourceEpoch: string): void {
+export function recovery(
+  args: string[],
+  sourceEpoch: string,
+  curveFormat: AutoMovieRecoveryCurveFormat = "bezier",
+): void {
   const [command, inputPath, outputPath, prefixCount]: string[] = args;
   if (
     !inputPath ||
@@ -58,7 +66,7 @@ export function recovery(args: string[], sourceEpoch: string): void {
       uncertainty?: string[];
       registration?: IAutoMovieRecoveryRegistration;
       meshes: { path: string; sha256: string }[];
-      policy: R.Bundle["policy"];
+      policy: IAutoMovieRecoveryMeshSections["policy"];
     } = JSON.parse(bytes.toString("utf8"));
     if (
       spec.units !== "mm" ||
@@ -69,8 +77,8 @@ export function recovery(args: string[], sourceEpoch: string): void {
       throw new Error(
         "Explicit millimetre registration, pose and fixed mesh files are required",
       );
-    const verticesMm: R.Input["verticesMm"] = [],
-      triangles: R.Input["triangles"] = [];
+    const verticesMm: IAutoMovieRecoveryInput["verticesMm"] = [],
+      triangles: IAutoMovieRecoveryInput["triangles"] = [];
     for (const source of spec.meshes) {
       const sourcePath: string = path.resolve(
         path.dirname(inputPath),
@@ -82,8 +90,8 @@ export function recovery(args: string[], sourceEpoch: string): void {
       )
         throw new Error("Fixed source mesh hash mismatch");
       const mesh: {
-        vertices: R.Input["verticesMm"];
-        triangles: R.Input["triangles"];
+        vertices: IAutoMovieRecoveryInput["verticesMm"];
+        triangles: IAutoMovieRecoveryInput["triangles"];
       } = JSON.parse(sourceBytes.toString("utf8"));
       const offset: number = verticesMm.length;
       for (const vertex of mesh.vertices) verticesMm.push(vertex);
@@ -101,7 +109,7 @@ export function recovery(args: string[], sourceEpoch: string): void {
         elapsedMs: loaded - started,
       }),
     );
-    let admittedInput: R.Input = { ...spec.policy, verticesMm, triangles };
+    let admittedInput: IAutoMovieRecoveryInput = { ...spec.policy, verticesMm, triangles };
     if (spec.registration !== undefined) {
       const admitted: ReturnType<typeof prepareAutoMovieRecoveryInput> =
         prepareAutoMovieRecoveryInput({
@@ -122,7 +130,7 @@ export function recovery(args: string[], sourceEpoch: string): void {
         );
       admittedInput = admitted.value.observation;
     }
-    const observed: ReturnType<typeof observeAutoMovieRecovery> =
+    const observed: IAutoMovieRecoveryResult<IAutoMovieRecoveryMeshSections> =
       observeAutoMovieRecovery(admittedInput, {
         sectionLimit,
         onProgress: (phase: string, completed: number, total: number): void => {
@@ -138,12 +146,11 @@ export function recovery(args: string[], sourceEpoch: string): void {
       });
     if (!("value" in observed))
       throw new Error(observed.diagnostics.join("; "));
-    const bundle: R.Bundle = observed.value;
+    const bundle: IAutoMovieRecoveryMeshSections = observed.value;
     const extracted: number = performance.now();
     artifact = {
       ...bundle,
       operation: {
-        schema: observed.schema,
         operator: observed.operator,
         status: observed.status,
       },
@@ -173,16 +180,14 @@ export function recovery(args: string[], sourceEpoch: string): void {
     };
     console.log(JSON.stringify(bundle.summary));
   } else {
-    const bundle: R.Bundle = JSON.parse(bytes.toString("utf8"));
+    const bundle: IAutoMovieRecoveryMeshSections = JSON.parse(bytes.toString("utf8"));
     const reconstructed: ReturnType<typeof reconstructAutoMovieRecoveryModel> =
       reconstructAutoMovieRecoveryModel(bundle, { observeWork: true });
     if (!("value" in reconstructed))
       throw new Error(reconstructed.diagnostics.join("; "));
     const result: typeof reconstructed.value = reconstructed.value;
     artifact = {
-      schema: "automovie-recovery-model-v1",
       operation: {
-        schema: reconstructed.schema,
         operator: reconstructed.operator,
         status: reconstructed.status,
       },
@@ -241,7 +246,12 @@ export function recovery(args: string[], sourceEpoch: string): void {
     );
   }
   const publication: ReturnType<typeof writeAutoMovieRecoveryArtifact> =
-    writeAutoMovieRecoveryArtifact(outputPath, artifact);
+    writeAutoMovieRecoveryArtifact(
+      outputPath,
+      curveFormat === "hermite"
+        ? convertAutoMovieRecoveryCurves(artifact, curveFormat)
+        : artifact,
+    );
   console.log(
     JSON.stringify({
       file: outputPath,

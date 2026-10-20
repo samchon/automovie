@@ -1,7 +1,11 @@
 import {
+  type IAutoMovieRecoveryEventCurvePiece,
+  type IAutoMovieRecoveryEventCurveArc,
   AutoMovieRecoveryEventCurve as E,
   prepareAutoMovieRecoveryAnnularChart,
 } from "@automovie/recovery";
+
+
 import { TestValidator } from "@nestia/e2e";
 
 import type { IAutoMovieCurve64 as C } from "../../../../packages/engine/src/geometry/curve/IAutoMovieCurve64";
@@ -40,8 +44,8 @@ export function test_geometry_recovery_event_curve(): void {
       ],
     ],
   });
-  const bottom: E.Arc = E.fromCurve(curve("lower", 0));
-  const top: E.Arc = E.reverse(E.fromCurve(curve("upper", 3)));
+  const bottom: IAutoMovieRecoveryEventCurveArc = E.fromCurve(curve("lower", 0));
+  const top: IAutoMovieRecoveryEventCurveArc = E.reverse(E.fromCurve(curve("upper", 3)));
   const chart: ReturnType<typeof prepareAutoMovieRecoveryAnnularChart> =
     prepareAutoMovieRecoveryAnnularChart(bottom, top, "domain");
   TestValidator.equals("one shared seam", chart.left === chart.right, true);
@@ -61,7 +65,7 @@ export function test_geometry_recovery_event_curve(): void {
     top.pieces[0]!.source.endpointAuthorities[1],
   );
   TestValidator.equals("three-dimensional boundary retained", chart.top, top);
-  const restricted: E.Arc = E.portion(bottom, 0.13, 0.27);
+  const restricted: IAutoMovieRecoveryEventCurveArc = E.portion(bottom, 0.13, 0.27);
   TestValidator.equals(
     "proper native start has no endpoint name",
     E.endpointAuthority(restricted.pieces[0]!, 0),
@@ -72,22 +76,17 @@ export function test_geometry_recovery_event_curve(): void {
     E.endpointAuthority(E.reverse(restricted).pieces[0]!, 0),
     null,
   );
-  const end: E.Arc = E.portion(bottom, 0.13, 1 / 3);
+  const end: IAutoMovieRecoveryEventCurveArc = E.portion(bottom, 0.13, 1 / 3);
   TestValidator.equals(
     "proper interval retains exact native end",
     E.endpointAuthority(end.pieces[0]!, 1),
     "lower.knot1",
   );
-  const wrong: E.Piece = {
+  const wrong: IAutoMovieRecoveryEventCurvePiece = {
     ...top.pieces[0]!,
-    net: [
-      bottom.pieces[0]!.net[0],
-      top.pieces[0]!.net[1],
-      top.pieces[0]!.net[2],
-      top.pieces[0]!.net[3],
-    ],
+    source: { ...top.pieces[0]!.source, start: 0, end: 0 },
   };
-  TestValidator.error("false endpoint coordinates rejected", (): void => {
+  TestValidator.error("empty native orientation cannot claim an endpoint", (): void => {
     E.endpointAuthority(wrong, 0);
   });
   const broken: C.Cubic = {
@@ -108,7 +107,7 @@ export function test_geometry_recovery_event_curve(): void {
   TestValidator.error("zero-length seam rejected", (): void => {
     prepareAutoMovieRecoveryAnnularChart(bottom, bottom, "collapsed");
   });
-  const canonical: E.Arc = E.fromCurve({
+  const canonical: IAutoMovieRecoveryEventCurveArc = E.fromCurve({
     ...curve("phase", 0),
     canonicalKnots: [0, 0.13, 1],
   });
@@ -122,7 +121,7 @@ export function test_geometry_recovery_event_curve(): void {
     E.knots(E.reverse(canonical)),
     [0, 0.87, 1],
   );
-  const shifted: E.Arc = E.rotateAtKnot(canonical, 1);
+  const shifted: IAutoMovieRecoveryEventCurveArc = E.rotateAtKnot(canonical, 1);
   TestValidator.equals(
     "rotation retains native endpoint owner",
     E.endpointAuthority(shifted.pieces[0]!, 0),
@@ -131,14 +130,14 @@ export function test_geometry_recovery_event_curve(): void {
   TestValidator.equals(
     "rotation retains actual first coefficient",
     E.evaluate(shifted, 0),
-    canonical.pieces[1]!.net[0],
+    E.controls(canonical.pieces[1]!)[0],
   );
   TestValidator.error("one cubic cannot cross a native knot", (): void => {
     E.piece(bottom, 0.2, 0.7);
   });
-  const first: E.Arc = E.line([0.3, 0, 0], [1, 0, 0], "first");
-  const second: E.Arc = E.line([1, 0, 0], [2, 0, 0], "second");
-  const combined: E.Arc = E.concatenate([first, second], "combined");
+  const first: IAutoMovieRecoveryEventCurveArc = E.line([0.3, 0, 0], [1, 0, 0], "first");
+  const second: IAutoMovieRecoveryEventCurveArc = E.line([1, 0, 0], [2, 0, 0], "second");
+  const combined: IAutoMovieRecoveryEventCurveArc = E.concatenate([first, second], "combined");
   TestValidator.equals(
     "composite retains both native pieces",
     combined.pieces.length,

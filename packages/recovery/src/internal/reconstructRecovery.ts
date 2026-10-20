@@ -1,12 +1,16 @@
+import type { IAutoMovieRecoveryMeshSections } from "../structures/mesh/IAutoMovieRecoveryMeshSections";
+import type { IAutoMovieRecoveryTensorFamiliesInput } from "../structures/domain/IAutoMovieRecoveryTensorFamiliesInput";
+import type { IAutoMovieRecoveryReconstruction } from "../structures/domain/IAutoMovieRecoveryReconstruction";
+import type { IAutoMovieRecoveryTensorRealization } from "../structures/domain/IAutoMovieRecoveryTensorRealization";
+import type { IAutoMovieRecoveryAnalyticRealization } from "../structures/domain/IAutoMovieRecoveryAnalyticRealization";
 import {
   IAutoMovieContourLoft64 as L,
   tessellateAutoMovieContourLoft64,
 } from "@automovie/engine/geometry/curve";
 import type { IAutoMovieModel } from "@automovie/interface";
 
-import { AutoMovieRecoveryMeshSections as R } from "./AutoMovieRecoveryMeshSections";
-import { realizeAutoMovieRecoveryAnalyticDomains } from "./realizeAutoMovieRecoveryAnalyticDomains";
-import { realizeAutoMovieRecoveryTensorFamilies } from "./realizeAutoMovieRecoveryTensorFamilies";
+import { realizeAutoMovieRecoveryAnalyticDomains } from "../reconstruction/realizeAutoMovieRecoveryAnalyticDomains";
+import { realizeAutoMovieRecoveryTensorFamilies } from "../reconstruction/realizeAutoMovieRecoveryTensorFamilies";
 
 /**
  * Generate saved ordinary tensor families and retained curve-only event or legacy domains.
@@ -27,30 +31,13 @@ import { realizeAutoMovieRecoveryTensorFamilies } from "./realizeAutoMovieRecove
  * @evidence contracts/performance.md#bound-retention-and-release-resources Generated model buffers, actual construction and diagnostics transfer to the caller; the adapter retains no source mesh, cache or handle.
  */
 export function reconstructRecovery(
-  bundle: realizeAutoMovieRecoveryTensorFamilies.Input,
+  bundle: IAutoMovieRecoveryTensorFamiliesInput,
   options: {
     observeWork?: boolean;
-    analytic?: ReturnType<typeof realizeAutoMovieRecoveryAnalyticDomains>;
+    analytic?: IAutoMovieRecoveryAnalyticRealization;
   } = {},
-): {
-  model: IAutoMovieModel;
-  construction: ReturnType<
-    typeof realizeAutoMovieRecoveryTensorFamilies
-  >["construction"];
-  diagnostics: string[];
-  unresolved: L.IResult["unresolved"];
-  stripObservations: NonNullable<L.IResult["stripObservations"]>;
-  primitiveRanges: NonNullable<L.IResult["primitiveRanges"]>;
-  interactionObservations: NonNullable<L.IResult["interactionObservations"]>;
-  tensorReports: ReturnType<
-    typeof realizeAutoMovieRecoveryTensorFamilies
-  >["reports"];
-  analyticReports: ReturnType<
-    typeof realizeAutoMovieRecoveryAnalyticDomains
-  >["reports"];
-} {
+): IAutoMovieRecoveryReconstruction {
   if (
-    bundle.schema !== "automovie-recovery-curves-v1" ||
     bundle.reports.length !== bundle.loft.sections.length ||
     !bundle.loft.intervals
   )
@@ -59,7 +46,7 @@ export function reconstructRecovery(
     );
   const diagnostics: string[] = [...bundle.diagnostics];
   for (let i: number = 0; i < bundle.loft.sections.length; i++) {
-    const report: R.Bundle["reports"][number] = bundle.reports[i]!;
+    const report: IAutoMovieRecoveryMeshSections["reports"][number] = bundle.reports[i]!;
     const section: L.ISection = bundle.loft.sections[i]!;
     if (
       report.coordinateMm !== section.coordinateMm ||
@@ -71,9 +58,9 @@ export function reconstructRecovery(
     for (const diagnostic of report.diagnostics)
       diagnostics.push(`${section.coordinateMm} mm: ${diagnostic}`);
   }
-  const tensor: ReturnType<typeof realizeAutoMovieRecoveryTensorFamilies> =
+  const tensor: IAutoMovieRecoveryTensorRealization =
     realizeAutoMovieRecoveryTensorFamilies(bundle);
-  const analytic: ReturnType<typeof realizeAutoMovieRecoveryAnalyticDomains> =
+  const analytic: IAutoMovieRecoveryAnalyticRealization =
     options.analytic ?? realizeAutoMovieRecoveryAnalyticDomains(bundle);
   const replacements: Map<string, string> = new Map(tensor.replacements);
   for (const [key, id] of analytic.closedGroups) replacements.set(key, id);
@@ -112,9 +99,7 @@ export function reconstructRecovery(
     asset: null,
   };
   model.parts.push(...tensor.parts, ...analytic.parts);
-  const construction: ReturnType<
-    typeof realizeAutoMovieRecoveryTensorFamilies
-  >["construction"] = [
+  const construction: IAutoMovieRecoveryTensorRealization["construction"] = [
     ...generated.construction,
     ...tensor.construction,
     ...analytic.construction,

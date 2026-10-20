@@ -118,7 +118,7 @@ export async function createRecoveryViewerCandidate(text: string): Promise<{
   const compiled:
     | ReturnType<typeof compileAutoMovieRecoveryImageLoft>
     | ReturnType<typeof compileAutoMovieRecoverySupportLoft> =
-    recipe?.schema === "automovie-recovery-support-loft-v1"
+    recipe?.family === "finite-view-convex-support"
       ? compileAutoMovieRecoverySupportLoft(recipe, {
           tolerance: 0.00005,
           maxPlanes: 64,

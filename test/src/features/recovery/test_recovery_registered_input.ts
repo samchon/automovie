@@ -7,19 +7,18 @@ import { TestValidator } from "@nestia/e2e";
  * Scenarios:
  * 1. Explicit applied registration admits a small triangle and borrows its arrays unchanged.
  * 2. Sparse applied matrices, coordinate tuples, face tuples and outer arrays refuse.
- * 3. Invalid indices, nonfinite values, metadata types and unknown registration versions refuse.
+ * 3. Invalid indices, nonfinite values and malformed registration metadata refuse.
  * 4. A JSON null input returns refusal without escaping the public operation.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls public registration admission and observes terminal outcomes, diagnostics, reference identity and input nonmutation. Deleting an own array slot must not bypass finite or index checks through sparse-array iteration.
- * @evidence contracts/testing.md#independent-expectations A registered triangle uses explicit finite millimetre triples and indices zero through two. Its already applied translation metadata must not transform its coordinates again; a missing slot, invalid address or unknown version cannot supply that physical record.
- * @evidence contracts/testing.md#distinguishing-cases Covers valid borrowing, sparse matrix/tuple/outer populations, nonfinite and out-of-range numbers, malformed string metadata and an unknown schema. Observation, fitting and reconstruction are separate tests; no surface-quality claim follows from admission.
+ * @evidence contracts/testing.md#independent-expectations A registered triangle uses explicit finite millimetre triples and indices zero through two. Its already applied translation metadata must not transform its coordinates again; a missing slot or invalid address cannot supply that physical record.
+ * @evidence contracts/testing.md#distinguishing-cases Covers valid borrowing, sparse matrix/tuple/outer populations, nonfinite and out-of-range numbers, malformed string metadata. Observation, fitting and reconstruction are separate tests; no surface-quality claim follows from admission.
  * @evidence contracts/testing.md#execution-ownership The portable test_recovery_registered_input entry uses small resident arrays and own-record mutations only, with no source file, renderer, process, global replacement or host installation.
  */
 export function test_recovery_registered_input(): void {
   type Input = Parameters<typeof prepareAutoMovieRecoveryInput>[0];
   const makeInput: () => Input = (): Input => ({
     registration: {
-      schema: "automovie-recovery-registration-v1",
       units: "mm",
       frame: "registered-triangle",
       handedness: "right-handed",
@@ -103,9 +102,6 @@ export function test_recovery_registered_input(): void {
   const wrongFrame: Input = makeInput();
   Object.assign(wrongFrame.registration, { frame: 42 });
   variants.push(wrongFrame);
-  const wrongVersion: Input = makeInput();
-  Object.assign(wrongVersion.registration, { schema: "unknown-registration" });
-  variants.push(wrongVersion);
   variants.push(JSON.parse("null"));
   for (const malformed of variants) {
     const result: ReturnType<typeof prepareAutoMovieRecoveryInput> =

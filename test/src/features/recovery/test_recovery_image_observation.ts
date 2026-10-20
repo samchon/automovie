@@ -5,6 +5,13 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../internal/nclose";
 import { recoveryImageFixture } from "../internal/recoveryImageFixture";
 
+/** An independently authored malformed pixel or camera input. */
+interface RecoveryImageMutation {
+  name: string;
+  make: (value: IAutoMovieRecoveryImageInput) => void;
+  reason: string;
+}
+
 /**
  * Fixed-background RGB observation preserves support and refuses unsupported masks.
  *
@@ -127,11 +134,7 @@ export function test_recovery_image_observation(): void {
       }
     }
   }
-  const variants: {
-    name: string;
-    make: (value: IAutoMovieRecoveryImageInput) => void;
-    reason: string;
-  }[] = [
+  const variants: RecoveryImageMutation[] = [
     {
       name: "empty",
       make: (value: IAutoMovieRecoveryImageInput): void => {

@@ -873,12 +873,6 @@ importers:
         specifier: catalog:vite
         version: 5.4.21(@types/node@22.19.20)
 
-  tools/recovery:
-    dependencies:
-      '@automovie/recovery':
-        specifier: workspace:^
-        version: link:../../packages/recovery
-
   website:
     dependencies:
       '@automovie/viewer':

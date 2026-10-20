@@ -6,9 +6,9 @@ import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
-import { compileAutoMovieRecoveryAtlas } from "../../internal/compileAutoMovieRecoveryAtlas";
+import { compileAutoMovieRecoveryAtlas } from "../../reconstruction/compileAutoMovieRecoveryAtlas";
 import { observeRecoveryAtlas } from "./observeRecoveryAtlas";
-import { writeAutoMovieRecoveryArtifact } from "./writeAutoMovieRecoveryArtifact";
+import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
 
 /**
  * Compile a source-free public atlas recipe into independently generated geometry.

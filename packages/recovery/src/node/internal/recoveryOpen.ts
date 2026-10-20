@@ -1,12 +1,14 @@
-import type { IAutoMovieRecoveryRegistration } from "@automovie/interface/recovery";
+import type { IAutoMovieRecoveryInput, IAutoMovieRecoveryRegistration } from "@automovie/interface/recovery";
+import type { IAutoMovieRecoveryMeshSections } from "../../structures/mesh/IAutoMovieRecoveryMeshSections";
+import type { IAutoMovieRecoveryOpenContinuation } from "../../structures/curve/IAutoMovieRecoveryOpenContinuation";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
-import type { AutoMovieRecoveryMeshSections as R } from "../../internal/AutoMovieRecoveryMeshSections";
-import { AutoMovieRecoveryOpenContinuation as O } from "../../internal/AutoMovieRecoveryOpenContinuation";
+import { restoreRecoveryCurveBasis } from "../../internal/restoreRecoveryCurveBasis";
 import { reconstructRecoveryOpen } from "../../internal/reconstructRecoveryOpen";
-import { writeAutoMovieRecoveryArtifact } from "./writeAutoMovieRecoveryArtifact";
+import { AutoMovieRecoveryOpenContinuation as O } from "../../reconstruction/AutoMovieRecoveryOpenContinuation";
+import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
 
 /**
  * Observe endpoint transport into a separate graph, then reconstruct from saved curves and graph.
@@ -54,20 +56,20 @@ export function recoveryOpen(args: string[], sourceEpoch: string): void {
       frame: string;
       pose: string;
       meshes: { path: string; sha256: string }[];
-      policy: R.Bundle["policy"];
+      policy: IAutoMovieRecoveryMeshSections["policy"];
     } = registered.value as {
       units: string;
       frame: string;
       pose: string;
       meshes: { path: string; sha256: string }[];
-      policy: R.Bundle["policy"];
+      policy: IAutoMovieRecoveryMeshSections["policy"];
     };
-    const bundle: R.Bundle & {
+    const bundle: IAutoMovieRecoveryMeshSections & {
       provenance: { inputHash: string; sourceEpoch: string };
       registration:
         | IAutoMovieRecoveryRegistration
         | { units: string; frame: string; pose: string };
-    } = saved.value as R.Bundle & {
+    } = restoreRecoveryCurveBasis(saved.value) as IAutoMovieRecoveryMeshSections & {
       provenance: { inputHash: string; sourceEpoch: string };
       registration:
         | IAutoMovieRecoveryRegistration
@@ -88,8 +90,8 @@ export function recoveryOpen(args: string[], sourceEpoch: string): void {
       throw new Error(
         "The saved curve publication must bind these exact fixed source and registration bytes",
       );
-    const verticesMm: R.Input["verticesMm"] = [],
-      triangles: R.Input["triangles"] = [];
+    const verticesMm: IAutoMovieRecoveryInput["verticesMm"] = [],
+      triangles: IAutoMovieRecoveryInput["triangles"] = [];
     for (const source of spec.meshes) {
       const admitted: ReturnType<typeof read> = read(
         path.resolve(path.dirname(first), source.path),
@@ -97,11 +99,11 @@ export function recoveryOpen(args: string[], sourceEpoch: string): void {
       if (admitted.sha256 !== source.sha256)
         throw new Error("Fixed source hash mismatch");
       const mesh: {
-        vertices: R.Input["verticesMm"];
-        triangles: R.Input["triangles"];
+        vertices: IAutoMovieRecoveryInput["verticesMm"];
+        triangles: IAutoMovieRecoveryInput["triangles"];
       } = admitted.value as {
-        vertices: R.Input["verticesMm"];
-        triangles: R.Input["triangles"];
+        vertices: IAutoMovieRecoveryInput["verticesMm"];
+        triangles: IAutoMovieRecoveryInput["triangles"];
       };
       const offset: number = verticesMm.length;
       for (const p of mesh.vertices) verticesMm.push(p);
@@ -109,7 +111,7 @@ export function recoveryOpen(args: string[], sourceEpoch: string): void {
         triangles.push([t[0] + offset, t[1] + offset, t[2] + offset]);
     }
     const admittedAt: number = performance.now();
-    const graph: O.Continuation = O.observe(
+    const graph: IAutoMovieRecoveryOpenContinuation = O.observe(
       { ...spec.policy, verticesMm, triangles },
       bundle,
       (completed: number, total: number): void => {
@@ -144,12 +146,12 @@ export function recoveryOpen(args: string[], sourceEpoch: string): void {
       JSON.stringify({
         intervals: graph.intervals.length,
         pairs: graph.intervals.reduce(
-          (sum: number, x: O.Continuation["intervals"][number]): number =>
+          (sum: number, x: IAutoMovieRecoveryOpenContinuation["intervals"][number]): number =>
             sum + x.pairs.length,
           0,
         ),
         unsupportedGroups: graph.intervals.reduce(
-          (sum: number, x: O.Continuation["intervals"][number]): number =>
+          (sum: number, x: IAutoMovieRecoveryOpenContinuation["intervals"][number]): number =>
             sum + x.unresolved.length,
           0,
         ),
@@ -158,10 +160,10 @@ export function recoveryOpen(args: string[], sourceEpoch: string): void {
   } else {
     const saved: ReturnType<typeof read> = read(first),
       topology: ReturnType<typeof read> = read(second);
-    const bundle: R.Bundle = saved.value as R.Bundle;
-    const graph: O.Continuation & {
+    const bundle: IAutoMovieRecoveryMeshSections = restoreRecoveryCurveBasis(saved.value) as IAutoMovieRecoveryMeshSections;
+    const graph: IAutoMovieRecoveryOpenContinuation & {
       provenance: { curveBundleSha256: string };
-    } = topology.value as O.Continuation & {
+    } = topology.value as IAutoMovieRecoveryOpenContinuation & {
       provenance: { curveBundleSha256: string };
     };
     if (graph.provenance.curveBundleSha256 !== saved.sha256)

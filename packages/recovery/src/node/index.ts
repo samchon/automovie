@@ -1,9 +1,6 @@
-export { archiveAutoMovieRecoveryModel } from "./internal/archiveAutoMovieRecoveryModel";
-export { readAutoMovieRecoveryMeshFrontier } from "./internal/readAutoMovieRecoveryMeshFrontier";
-export { reconstructAutoMovieRecoveryLocal } from "./internal/reconstructAutoMovieRecoveryLocal";
-export { createAutoMovieRecoveryArtifact } from "./internal/createAutoMovieRecoveryArtifact";
-export { createAutoMovieRecoveryMeshSpool } from "./internal/createAutoMovieRecoveryMeshSpool";
-export { writeAutoMovieRecoveryArtifact } from "./internal/writeAutoMovieRecoveryArtifact";
+export * from "./artifact";
+export * from "./mesh";
+export * from "./reconstruction";
 export { runAutoMovieRecoveryCommand } from "./runAutoMovieRecoveryCommand";
 export { publishAutoMovieRecoveryArtifact } from "./publishAutoMovieRecoveryArtifact";
-export type { IAutoMovieRecoveryImageFiles } from "./IAutoMovieRecoveryImageFiles";
+export type { IAutoMovieRecoveryImageFiles } from "../structures/image/IAutoMovieRecoveryImageFiles";

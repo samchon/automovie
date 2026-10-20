@@ -1,4 +1,6 @@
 import type { IAutoMovieConvexSupportLoft } from "../model/IAutoMovieConvexSupportLoft";
+import type { IAutoMovieRecoveryDimensionScales } from "./IAutoMovieRecoveryDimensionScales";
+import type { IAutoMovieRecoverySupportLoftCoverage } from "./IAutoMovieRecoverySupportLoftCoverage";
 
 /**
  * Source-independent finite-view support approximation with editable dimensions.
@@ -13,9 +15,6 @@ import type { IAutoMovieConvexSupportLoft } from "../model/IAutoMovieConvexSuppo
  * @evidence contracts/common.md#meaningful-documentation States metre coefficients, scale anchors, finite-view convex interpretation, lack of enclosure certification, unknown ends/interior/concavity and supplied camera provenance.
  */
 export interface IAutoMovieRecoverySupportLoft {
-  /** Version of the independently generative support field. */
-  schema: "automovie-recovery-support-loft-v1";
-
   /** Explicit section representation, without a physical convexity assertion. */
   family: "finite-view-convex-support";
 
@@ -29,15 +28,8 @@ export interface IAutoMovieRecoverySupportLoft {
   loft: IAutoMovieConvexSupportLoft;
 
   /** Independent finite scale ratios in [0.25,4], at the documented anchors. */
-  dimensions: { widthScale: number; depthScale: number; heightScale: number };
+  dimensions: IAutoMovieRecoveryDimensionScales;
 
   /** Conditional inference remains distinct from measured or visible physical shape. */
-  coverage: {
-    lateralSurface: "inferred-finite-view-convex-support";
-    endCaps: "unobserved";
-    interior: "unobserved";
-    hiddenConcavities: "unobserved";
-    cameras: "supplied";
-    enclosure: "not-certified";
-  };
+  coverage: IAutoMovieRecoverySupportLoftCoverage;
 }

@@ -52,7 +52,6 @@ export function test_geometry_recovery_analytic_domains(): void {
     ],
   });
   const bundle: Input = {
-    schema: "automovie-recovery-curves-v1",
     loft: {
       sections: [0, 3].map(
         (coordinateMm: number): Input["loft"]["sections"][number] => ({
@@ -103,7 +102,6 @@ export function test_geometry_recovery_analytic_domains(): void {
     summary: { observations: 8, spans: 4, sections: 2, events: 0, aliases: 0 },
   };
   const graph: Graph = {
-    schema: "automovie-recovery-open-continuation-v1",
     criticalPolicy: "boundary-regular-path-v1",
     intervals: [
       {
@@ -289,7 +287,6 @@ export function test_geometry_recovery_analytic_domains(): void {
   const publication: Parameters<
     typeof applyAutoMovieRecoveryAnalyticPublication
   >[1] = {
-    schema: "automovie-recovery-analytic-publication-v1",
     sourceCommit: "a".repeat(40),
     curveBundleSha256: "b".repeat(64),
     continuationSha256: "c".repeat(64),

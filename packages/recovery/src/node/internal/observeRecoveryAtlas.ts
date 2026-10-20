@@ -2,9 +2,9 @@ import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
-import { observeAutoMovieRecoveryAtlas as O } from "../../internal/observeAutoMovieRecoveryAtlas";
+import { observeAutoMovieRecoveryAtlas as O } from "../../observation/observeAutoMovieRecoveryAtlas";
 import { readRecoveryFixedReference as read } from "./readRecoveryFixedReference";
-import { writeAutoMovieRecoveryArtifact } from "./writeAutoMovieRecoveryArtifact";
+import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
 
 /**
  * Publish fitted atlas coefficients and a separate private source-ownership ledger.
