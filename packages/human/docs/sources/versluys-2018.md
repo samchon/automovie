@@ -16,7 +16,3 @@ Heterosexual US women rated rendered male figures (Daz Studio "Michael 3", 175 c
 | IR, arms | 0.817 | 0.032 |
 
 The most attractive LBR was about +0.5 SD above the mean (replicating the 2017 study, where silhouettes peaked fractionally below the mean and detailed renders about 0.5 SD above). ABR had no effect; IR had a weak effect peaking at the mean.
-
-## What Human takes
-
-Leg length slightly above the population mean, by about half a standard deviation, is the measured attractive optimum for men; arm length and limb segment ratios should stay at the population mean. Departures beyond about +-2 SD read as less attractive, which supports narrow admitted ranges for proportions.

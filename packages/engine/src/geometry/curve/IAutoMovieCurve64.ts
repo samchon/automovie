@@ -8,7 +8,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms The namespace contains type declarations only.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Runtime frame and boundary sharing belongs to AutoMovieCurveParentContext.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No coefficient arrays or publications are retained by the namespace.
- * @author Samchon
  */
 export namespace IAutoMovieCurve64 {
   /**
@@ -60,7 +59,6 @@ export namespace IAutoMovieCurve64 {
    * @evidenceExclude contracts/performance.md#efficient-algorithms The cubic record is a type; evaluators own admission and traversal costs.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work No admitted partition is cached by this declaration.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The interface gives no runtime retention or freezing policy.
-   * @author Samchon
    */
   export interface Cubic {
     /** Closed representation tag selecting the actual coefficient evaluator and its units. */
@@ -95,7 +93,6 @@ export namespace IAutoMovieCurve64 {
    * @evidenceExclude contracts/performance.md#efficient-algorithms The ellipse record performs no trigonometric evaluation.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type owns no ellipse-sampling cache.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The interface retains no axis or center objects at runtime.
-   * @author Samchon
    */
   export interface Oval {
     /** Closed representation tag selecting the actual coefficient evaluator and its units. */
@@ -139,7 +136,6 @@ export namespace IAutoMovieCurve64 {
    * @evidenceExclude contracts/performance.md#efficient-algorithms Interval metadata performs no numerical work.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Provenance fields do not coordinate evaluation reuse.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The interface owns no retained interval state.
-   * @author Samchon
    */
   export interface PieceMetadata {
     /** Optional descriptive source interval; evaluation still returns derivatives per normalized local t. */
@@ -219,7 +215,6 @@ export namespace IAutoMovieCurve64 {
    * @evidenceExclude contracts/performance.md#efficient-algorithms This record declares coefficients; admission and evaluation perform the scans.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The declaration does not retain a precomputed partition.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No runtime coefficient ownership policy is imposed by this interface.
-   * @author Samchon
    */
   export interface Bernstein {
     /** Closed representation tag selecting the actual coefficient evaluator and its units. */
@@ -267,7 +262,6 @@ export namespace IAutoMovieCurve64 {
    * @evidenceExclude contracts/performance.md#efficient-algorithms The frame interface does not resolve a hierarchy.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Resolved world-frame reuse belongs to the parent context.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This type retains no frame map.
-   * @author Samchon
    */
   export interface Frame {
     /** Actual owning node key, resolved by the shared context before controls are generated. */
@@ -293,7 +287,6 @@ export namespace IAutoMovieCurve64 {
    * @evidenceExclude contracts/performance.md#efficient-algorithms An edge record performs no dependency scan.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work An edge is routing data rather than a work-sharing cache.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type does not retain publications.
-   * @author Samchon
    */
   export interface Edge {
     /** Stable declared boundary or node identity, not a selector for a body catalogue. */
@@ -322,7 +315,6 @@ export namespace IAutoMovieCurve64 {
    * @evidenceExclude contracts/performance.md#efficient-algorithms The boundary record itself computes no compatibility proof.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Sharing a published boundary is owned by context publication, not by the interface.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Readonly fields do not themselves deep-freeze or retain a boundary.
-   * @author Samchon
    */
   export interface Boundary {
     /** Stable declared boundary or node identity, not a selector for a body catalogue. */
@@ -351,7 +343,6 @@ export namespace IAutoMovieCurve64 {
    * @evidenceExclude contracts/performance.md#efficient-algorithms The token interface performs no authentication scan.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Actual shared operator reuse is enforced by the context map.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The declaration owns no publication lifetime.
-   * @author Samchon
    */
   export interface Operator {
     /** Frozen routing record of the edge that authorized this publication. */

@@ -12,7 +12,6 @@ import { IAutoMovieRenderTarget } from "./IAutoMovieRenderTarget";
  * @evidence contracts/common.md#clear-and-simple-design Fixed metrics and caller-selected top-K attribution bound new finding records while omitted counts and costs preserve remaining attribution; borrowed target assets and string bytes still determine full retained or serialized report size.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts All-unbudgeted within means no agreed threshold, not universal clearance. Explicit gaps cannot become measured success. Finite inventory values and current mask/target digests are caller premises: evaluation neither remeasures a frame nor independently checks attribution totals or reseals the borrowed target.
  * @evidence contracts/common.md#meaningful-documentation Defines state precedence, unbudgeted aggregate meaning, fixed metric order, bounded attribution and mask/target/digest binding.
- * @author Samchon
  */
 export interface IAutoMovieRenderReport {
   /** Report format. */

@@ -15,8 +15,6 @@ import { IAutoMoviePropBox, IAutoMovieServiceNode } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms Six corner additions and two new corner records require constant time and storage for any node.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work An envelope depends on current node position and local bounds; no prior equipment-placement result is cached.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A present envelope owns new min/max coordinates and retains neither source box nor node record.
- *
- * @author Samchon
  */
 export const serviceMaintenanceBounds: (
   node: IAutoMovieServiceNode,

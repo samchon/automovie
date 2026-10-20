@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Identity, source index, optional name and duration describe the inventory entry without embedding channels or selecting an adoption target.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Duplicate or missing display names do not select another take, and adoption cannot choose an animation absent from the source-index inventory.
  * @evidence contracts/common.md#meaningful-documentation Gives asset-scoped stable id, zero-based animation index, null unnamed semantics and inspected duration in seconds.
- * @author Samchon
  */
 export interface IAutoMovieExternalMotionTake {
   /** Stable take id within this asset record. */

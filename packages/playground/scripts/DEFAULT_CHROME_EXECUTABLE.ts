@@ -1,1 +1,1 @@
-export { DEFAULT_CHROME_EXECUTABLE } from "@automovie/render/node";
+export { DEFAULT_CHROME_EXECUTABLE } from "@automovie/render/node/chrome";

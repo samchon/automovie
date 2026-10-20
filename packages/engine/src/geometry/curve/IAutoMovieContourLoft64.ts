@@ -17,7 +17,6 @@ import { IAutoMovieCurve64 } from "./IAutoMovieCurve64";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A structural contract performs no sampling or correspondence computation.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type owns no admission cache or evaluated surface.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Runtime arrays belong to the caller and the tessellator's returned result.
- * @author Samchon
  */
 export interface IAutoMovieContourLoft64 {
   /** Ordered physical section coordinates and their oriented closed curves. */
@@ -75,7 +74,6 @@ export namespace IAutoMovieContourLoft64 {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A section record performs no evaluation.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Sampling reuse belongs to the tessellator.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A section owns no runtime cache or handle.
-   * @author Samchon
    */
   export interface ISection {
     /** Physical coordinate along the common cutting direction, millimetres. */
@@ -97,7 +95,6 @@ export namespace IAutoMovieContourLoft64 {
    * @evidenceExclude contracts/performance.md#efficient-algorithms Event relationships perform no graph traversal.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work An event record schedules no repeated evaluation.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record owns no source mesh or retained runtime process.
-   * @author Samchon
    */
   export interface IEvent {
     /** Stable event identifier within this loft. */
@@ -139,7 +136,6 @@ export namespace IAutoMovieContourLoft64 {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A result record performs no arithmetic.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The tessellator transfers one completed result to its caller.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns mesh buffers, construction samples and diagnostics; no global owner retains them.
-   * @author Samchon
    */
   export interface IResult {
     /** Actual retained generated triangles, addressed by zero-based mesh triangle ordinal and source-free incidence group. Omission means this kernel did not publish ownership; it never authorizes inferred attribution. */

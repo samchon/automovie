@@ -13,7 +13,6 @@ import {
  * @evidence contracts/performance.md#efficient-algorithms For F failed findings and their message lengths, traversal and diagnostic allocation are linear; successful validation takes constant work.
  * @evidence contracts/performance.md#reuse-equivalent-work Existing validation output is consumed once without rerunning a model gate or constructing another validation result.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller's diagnostic array retains newly allocated rows and strings; no offending input record, model, renderer or validation task is retained by this adapter.
- * @author Samchon
  */
 export const appendValidation: (
   diagnostics: IAutoMovieDiagnostic[],

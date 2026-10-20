@@ -63,7 +63,6 @@ interface IWeldedEdge {
  * @evidence contracts/performance.md#efficient-algorithms Linear in the element's triangle count to place and weld its corners, plus `O(V log V)` or `O(E log E)` to order the welded vertices or edges, with grid coordinates computed once per corner instead of inside the comparator.
  * @evidence contracts/performance.md#reuse-equivalent-work Accepts the caller's design index so every dimension end and note in one derivation shares the element lookups, world matrices and part tessellations; without one, it indexes the environment for this call only, since a standalone call has nothing to share.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The placed triangles and welding maps live for the call and are released on return; only a small resolution record survives.
- * @author Samchon
  */
 export const resolveAutoMovieDrawingFeature = (
   environment: IAutoMovieBuiltEnvironment,

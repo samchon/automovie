@@ -13,7 +13,6 @@ import { IAutoMovieOpeningProfile } from "./IAutoMovieOpeningProfile";
  * @evidence contracts/common.md#clear-and-simple-design Geometry and operation are optional members owned by the opening rather than by the boundary it cuts, so a relation-only door still validates and a boundary stays a plain separation without a list of holes.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A void on a faceless host is refused rather than placed in an assumed plane, an operation without a fill is refused rather than guessing the moving element, and a leaf smaller than its void is allowed because paired leaves and sashes are ordinary designs.
  * @evidence contracts/common.md#meaningful-documentation States that boundary and fill must resolve, what a null fill and an omitted profile or operation mean, what a profile demands of the host face, that an operation needs a fill, and that each panel at rest must fit its void.
- * @author Samchon
  */
 export interface IAutoMovieBuiltOpening {
   /** Stable opening identity, unique among the environment's openings. */

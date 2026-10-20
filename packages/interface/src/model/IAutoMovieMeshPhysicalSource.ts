@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design A domain establishes instance scope and an id identifies the point inside it; render-vertex references live in the correspondence table rather than making this source depend on mesh array order.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Coordinate contact is not evidence of shared identity, and a biological label or normal island cannot substitute for an actual physical-instance domain; large safe ids remain opaque identities rather than allocation sizes.
  * @evidence contracts/common.md#meaningful-documentation States the physical alias meaning, cross-mesh assertion, nonblank instance context and nonnegative safe-integer bounds, including which apparent groupings are not source identity.
- * @author Samchon
  */
 export interface IAutoMovieMeshPhysicalSource {
   /**

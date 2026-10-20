@@ -8,8 +8,6 @@
  * @evidence contracts/performance.md#efficient-algorithms Six scalar coordinates choose no scanning strategy; Engine derivation and any current scene validation retain their own costs.
  * @evidence contracts/performance.md#reuse-equivalent-work Bounds may be reused only while geometry, placement and population resolution remain equivalent; the shape carries no invalidation mechanism.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The value record owns no geometry or native buffer; its caller owns current derivation and references.
- *
- * @author Samchon
  */
 export interface IAutoMovieViewerSubjectBounds {
   /**

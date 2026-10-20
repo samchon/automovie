@@ -20,7 +20,6 @@ import {
  * @evidenceExclude contracts/performance.md#efficient-algorithms A type with no runtime body; the performance pipeline cost is answered on `performShot`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call performs one shot; `compileDefinedShot` calls it once per compile and nothing caches the result.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The union adds no storage of its own; the success branch owns the shot, clips and plant runs and the failure branch its violation list, as each member states.
- * @author Samchon
  */
 export type IAutoMoviePerformedShot =
   | IAutoMoviePerformedShot.ISuccess
@@ -38,7 +37,6 @@ export namespace IAutoMoviePerformedShot {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A record; its contents are produced by `performShot`.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A fresh value per performance; nothing shares it across shots.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owns the shot, one clip per performing node, and one plant run per planted actor; the shot references the staged scene's camera and node ids only by string, so releasing the result releases them all.
-   * @author Samchon
    */
   export interface ISuccess {
     /** Discriminator. */
@@ -80,7 +78,6 @@ export namespace IAutoMoviePerformedShot {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A record; violations are pushed during the producer's gates.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work `compileDefinedShot` maps these violations into authoring diagnostics once and discards the list; a corrected program performs again from scratch.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owns the violation array, bounded by the gates run per action, clip and camera.
-   * @author Samchon
    */
   export interface IFailure {
     /** Discriminator. */

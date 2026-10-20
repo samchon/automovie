@@ -7,8 +7,6 @@ import type {
 
 /**
  * Existing mutable room-response input constructors borrowed by portable audio units.
- *
- * @author Samchon
  */
 interface IInteriorAcousticTestInputs {
   /** Declared matching revision string, not a recomputed physical-input digest. */

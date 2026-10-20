@@ -11,8 +11,6 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms The configuration performs no spring integration or joint traversal.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Parameters are inputs and establish no completed-work cache or shared effect.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The config retains a joint list and scalar parameters only; player state and lifecycle remain with AutoMoviePlayer.
- *
- * @author Samchon
  */
 export interface IAutoMovieSpringConfig {
   /**

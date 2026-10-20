@@ -85,7 +85,6 @@ const hideNonMeshRenderables: (scene: THREE.Scene) => () => void = (
  *
  * Direct embedders can override depthRange and edgeWidth. The bundled __afPass capture path uses the defaults, keeping the camera-space depth normalization consistent while preserving differences caused by camera pose. Depth beyond the default range clamps to black; changing that range requires a direct call.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Selects the requested supported guide projection, excludes existing nonmesh beauty renderables, suspends fog/image lighting and returns a reversible handle; uses attached semantic masks when present and documented positional fallback otherwise. Depth/edge numeric options remain caller premises and anonymous instanced members have no bone graph for the pose overlay.
  * @evidence contracts/common.md#clear-and-simple-design This boundary owns temporary scene atmosphere/helper suspension and mode dispatch; each builder owns its pass resources and the shared restore coordinator attempts independent release without hiding failure.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Resolves an unknown mode before mutation and restores boundary suspensions if its builder throws; default range/width and legacy mask are explicit supported conventions, not fixture branches or substitute foreign methods. Builder-internal partial mutations are not automatically undone by boundary suspension cleanup.

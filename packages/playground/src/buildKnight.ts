@@ -54,8 +54,6 @@ const mat: (
  * @evidence contracts/performance.md#efficient-algorithms A fixed stick figure and ten extras bound assembly/filter work; primitive tessellation, animation and upload occur in the viewer and retain their full cost.
  * @evidence contracts/performance.md#reuse-equivalent-work One fresh stick figure per call supplies all base geometry and eye/pupil materials; added model shells borrow those arrays' members and no numerical build is cached across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned model and shared skeleton data belong to the page or GLB exporter, with no producer-owned worker/GPU/timer. Viewer consumers own upload disposal.
- *
- * @author Samchon
  */
 export const buildKnight: (opts?: {
   /** Include the three-part lance unless explicitly false; helmet, plume and shield remain present. */

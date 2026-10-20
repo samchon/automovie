@@ -1,4 +1,4 @@
-﻿import { utf8Bytes } from "./utf8Bytes";
+import { utf8Bytes } from "./utf8Bytes";
 
 /**
  * SHA-256 over a UTF-8 string, in pure TypeScript.
@@ -20,7 +20,6 @@
  * endianness, word size, and floating-point behavior cannot make one platform
  * disagree with another.
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Encode UTF-8 with lone-surrogate replacement, pad 512-bit blocks with the full bit length, and run SHA-256's 64-word schedule/rounds using normalized 32-bit arithmetic. Node oracle tests cover padding and Unicode boundaries.
  * @evidence contracts/common.md#clear-and-simple-design Synchronous pure TypeScript hashing serves both browser engine and capture identity paths without Node crypto or asynchronous secure-context dependencies.

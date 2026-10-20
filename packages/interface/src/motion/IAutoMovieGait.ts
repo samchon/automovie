@@ -8,7 +8,6 @@ import { IAutoMovieGaitRootBob } from "./IAutoMovieGaitRootBob";
  * @evidence contracts/common.md#clear-and-simple-design Name and period surround the limb list and optional rootBob; each limb owns its axis and phase behavior, while gait binding owns the target rig and travel owns horizontal movement.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Creature labels do not select motion branches, and no unread style hints promise crouch or weight behavior; sampled joint oscillations and optional root bob do not establish planted-foot contact, balance or rig-specific ROM compliance.
  * @evidence contracts/common.md#meaningful-documentation Describes loop synthesis, profile collection and target binding, stride seconds, per-limb ownership, and the exact vertical bob formula with unauthored root on omission.
- * @author Samchon
  */
 export interface IAutoMovieGait {
   /** Stable name (`"walk"`, `"trot"`, `"gallop"`, `"stalk"`). */

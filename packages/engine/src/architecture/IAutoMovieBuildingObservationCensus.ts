@@ -17,7 +17,6 @@ import { IAutoMovieBuiltEnvelopeFace } from "./IAutoMovieBuiltEnvelopeFace";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape; the census cost, envelope derivation once per environment followed by per-building filters and descendant walks, is answered on `builtEnvironmentBuildingCensus`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The census derives faces once, passes those faces to `builtEnvelopeFaceCorners` and filters both lists per building; no census is cached across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources References the face and corner records built for this call plus fresh id arrays, all owned by the caller's census list and released with it.
- * @author Samchon
  */
 export interface IAutoMovieBuildingObservationCensus {
   /** Building unit identity within its environment. */

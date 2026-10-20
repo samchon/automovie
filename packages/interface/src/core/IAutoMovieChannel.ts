@@ -26,7 +26,6 @@ import { IAutoMoviePointerChannel } from "./IAutoMoviePointerChannel";
  * @evidence contracts/common.md#clear-and-simple-design A two-member union discriminated on `kind`, so the common node case needs no pointer parsing and every other property goes through one pointer form instead of a member per property family.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A node path spelled as a pointer is kept distinct rather than aliased to the node, and the documentation states which consumers actually apply pointer values instead of implying all of them do.
  * @evidence contracts/common.md#meaningful-documentation States the two forms and when to use each, which consumers apply pointer values today, and that the namespaces are disjoint.
- * @author Samchon
  */
 export type IAutoMovieChannel =
   | IAutoMovieNodeChannel

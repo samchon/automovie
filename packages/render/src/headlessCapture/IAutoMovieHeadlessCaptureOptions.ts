@@ -18,7 +18,6 @@ import type { IAutoMovieHeadlessPage } from "./IAutoMovieHeadlessPage";
  * @evidenceExclude contracts/performance.md#efficient-algorithms An options record holds values and runs no computation.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record is read once at session creation and coordinates nothing to share.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The session closures keep this record, including `page` and `writeFrame`, for as long as the caller keeps the session; the page is released by the session's `close`.
- * @author Samchon
  */
 export interface IAutoMovieHeadlessCaptureOptions {
   /** The page to drive; the session owns it once creation succeeds. */

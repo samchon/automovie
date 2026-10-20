@@ -58,7 +58,6 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * @evidence contracts/performance.md#efficient-algorithms Compilation is linear in triangles plus the hierarchy build and one link walk per vertex; a query visits nodes nearest-first and skips any node or triangle whose box is farther than the running best, so for a walking caller seeded by its previous winner it reads a few leaves rather than all n triangles, O(n) at worst.
  * @evidence contracts/performance.md#reuse-equivalent-work The welded snapshot, per-triangle terms, pseudonormals and hierarchy are compiled once and reused by every query; the only per-query carry-over is the previous winning triangle, used as a warm start and never as an answer.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The closure retains the triangles with their precomputed terms and segments, the vertex pseudonormals, the rim vertex set and the hierarchy, all sized by the mesh at compile time, plus one reference to the last winner; the weld map, the position copy, the vertex identities and the vertex links are released after compilation because no callback captures them, and each query allocates one working record and its returned hit.
- * @author Samchon
  */
 export function createAutoMovieSignedMeshQuery(
   mesh: IAutoMovieMesh,

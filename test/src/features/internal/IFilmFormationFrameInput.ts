@@ -1,7 +1,5 @@
 /**
  * The formation-framing unit's optional node/formation ids and static/follow choice. Its authored group lists isolate node, compact formation and union extents; the owning entry supplies the layout arithmetic and cued/uncued expectations, and this fixture type proves no camera result itself.
- *
- * @author Samchon
  */
 export interface IFilmFormationFrameInput {
   /** Staged node ids, defaulting to an empty list in the frame constructor. */

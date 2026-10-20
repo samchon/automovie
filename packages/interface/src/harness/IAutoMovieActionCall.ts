@@ -33,7 +33,6 @@ import { IAutoMovieReactAction } from "./IAutoMovieReactAction";
  * @evidence contracts/common.md#clear-and-simple-design Eleven verbs share `IAutoMovieActionBase` and add only what their motion needs, so the authored record stays thin and every dense detail is the engine's to compute.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Null synthesis is skipped rather than substituted; admitted action presence alone therefore does not prove an actor performed it. Enact uses the same mask/composite ROM path at performShot, while direct compilePerformance alone owns assembly rather than shot admission. Layered motion uses sampled union/boundary times and can interpolate short transitions instead of preserving every source curve continuously.
  * @evidence contracts/common.md#meaningful-documentation States the model-versus-engine division, the discriminator, how actions compose into one clip, that the camera is an actor, which verbs the reference synthesizer animates, which have their own passes, and what happens to an unanswered verb.
- * @author Samchon
  */
 export type IAutoMovieActionCall =
   | IAutoMovieLocomoteAction

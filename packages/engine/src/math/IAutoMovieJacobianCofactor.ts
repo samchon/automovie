@@ -16,7 +16,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A result record with no algorithm; the evaluation is answered on `cofactorAutoMovieJacobian`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The determinant and cofactor share one Jacobian evaluation; consumers reuse this pair only while applying that unchanged local deformation map.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources One number and a nine-entry array owned by the caller.
- * @author Samchon
  */
 export interface IAutoMovieJacobianCofactor {
   /** Finite positive determinant of the Jacobian. */

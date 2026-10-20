@@ -12,8 +12,6 @@ import { applyTransform } from "./applyTransform.js";
 
 /**
  * One prop joint's rest placement, restored before every frame.
- *
- * @author Samchon
  */
 interface IJointRest {
   /** Joint object mutated by playback and restored before the next sample. */
@@ -73,7 +71,6 @@ interface IJointRest {
  * channels a clip carries move here, exactly as {@link applyObjectMotions}
  * states for every other object it drives.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Builds all admitted local joint frames before parenting and resolves engine-lowered joint names/named model parts, using native attach to preserve existing world placement; acyclic unique joint data and transform hierarchies compatible with Three attach (no unsupported nonuniform scale decomposition) are premises. Profile drivers are not evaluated here.
  * @evidence contracts/common.md#clear-and-simple-design Owns the joint-to-existing-part lowering and saved local rests, leaving portable joint/driver solving to engine resolveFrame and sampled object-channel writes to the host; no current production host is wired to this producer.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing placement/parent/part refuses instead of fabricating a mesh, and placementChildNode supplies canonical names; first prop spec per node wins and partial scene reparenting before a later refusal has no rollback, both requiring upstream admission rather than a hidden repair.

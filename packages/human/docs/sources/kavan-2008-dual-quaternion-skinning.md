@@ -4,7 +4,7 @@ Kavan L, Collins S, Žára J, O'Sullivan C. "Geometric Skinning with Approximate
 
 ## Licence
 
-Paper copyright ACM, posted by permission for personal use. Human takes the method, reimplemented from the text.
+Paper copyright ACM, posted by permission for personal use.
 
 ## What it says
 
@@ -13,7 +13,3 @@ Paper copyright ACM, posted by permission for personal use. Human takes the meth
 - Antipodality: q and -q are the same transform, so signs must be made consistent before blending (section 4.1).
 - Dual quaternions cannot represent scale or shear; non-rigid joint transforms need a separate first phase with extra 3 x 4 matrices (section 4.2).
 - A "flipping artifact" occurs with joint rotations of more than 180 degrees; joint constraints usually prevent such rotations.
-
-## What Human takes
-
-DQS as a comparison baseline for rigid joint transforms, with antipodality resolved. Considering scale or shear would require separate non-rigid handling. The flip restriction concerns relative influenced-bone rotations; per-joint admission alone does not establish it. DQS also leaves tissue folds and joint bulging unresolved; see [skinning research](../techniques/skinning.md).

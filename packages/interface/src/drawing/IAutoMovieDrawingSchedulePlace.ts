@@ -19,7 +19,6 @@ import { IAutoMovieDrawingSpacePlace } from "./IAutoMovieDrawingSpacePlace";
  * @evidence contracts/common.md#clear-and-simple-design Three variants keep fields that only mean something for one subject, such as a room's boxes or an opening's host boundary, off the other two, instead of one wide record of mostly `null` fields.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Membership and location come only from declared references; no variant matches id prefixes, and none carries review progress that would make the same design schedule to different bytes.
  * @evidence contracts/common.md#meaningful-documentation States the discriminant and its tie to the subject, where each variant's answers come from, and why review state is excluded.
- * @author Samchon
  */
 export type IAutoMovieDrawingSchedulePlace =
   | IAutoMovieDrawingSpacePlace

@@ -46,7 +46,6 @@ import { buildSpaceObject } from "./buildSpace.js";
  *
  * The cited refusal contribution covers the supplied shadow profile and unresolved node model. Complete hierarchy, material and numeric admission, lowering receipts and structured safe-retry policy remain with their corresponding owners.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Preserves authored node order under placement groups, admits the shadow profile, builds native lights/cameras, optional semantic support, fog and environment; each resolver call must supply a distinct mutable model object and valid admitted TRS. Static pose/props/compiled populations are not lowered here and current production pages assemble their own graph rather than calling this producer.
  * @evidence contracts/common.md#clear-and-simple-design Owns the scene graph join and camera/light lookup result while model loading/building, articulation, temporal sampling and rendering remain external; leading node-child order exposes the existing positional semantic-mask dependency.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses unresolved models rather than dropping an authored child and shifting mask indices; no fixture nodes/lights are invented, but complete admission and partial-construction rollback are not supplied by this scene wrapper.

@@ -14,8 +14,6 @@ import type * as THREE from "three";
  * @evidenceExclude contracts/performance.md#efficient-algorithms This representation does no merging; flattenRigidParts owns vertex, index and group construction.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Material references preserve identity but the type coordinates no cache lookup or repeated merge request.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The consumer owns merged geometry release while source material lifetime follows the documented entry-point owner; the interface acquires nothing itself.
- *
- * @author Samchon
  */
 export interface IAutoMovieInstancedGeometry {
   /**

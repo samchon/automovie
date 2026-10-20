@@ -10,7 +10,6 @@ import type { IAutoMovieRecoverySupportLoft } from "./IAutoMovieRecoverySupportL
  * @evidence contracts/common.md#clear-and-simple-design One pure union supplies real file/viewer consumers without coupling them to acquisition reports.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No open plugin arm, specimen switch, source mesh or inferred completion replaces an unsupported recipe.
  * @evidence contracts/common.md#meaningful-documentation States closed dispatch and preserved family/coverage semantics for saved-coefficient consumers.
- * @author Samchon
  */
 export type AutoMovieRecoveryImageRecipe =
   | IAutoMovieRecoveryImageLoft

@@ -12,7 +12,6 @@ import { IAutoMovieJointConstraint } from "./IAutoMovieJointConstraint";
  * @evidence contracts/common.md#clear-and-simple-design One record keeps neutral geometry, pose admission and articulation axes local to the bone without embedding clinical defaults or animation channels.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Null bone constraint is default-or-unconstrained, distinct from a null axis inside a supplied constraint, and a named parent must exist in the admitted single-root connected graph.
  * @evidence contracts/common.md#meaningful-documentation Defines unique semantic identity, parent/rest basis, default-versus-override ROM behavior and the axes fallback order.
- * @author Samchon
  */
 export interface IAutoMovieBone {
   /**

@@ -13,7 +13,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms This interface only shapes a map value and runs no algorithm; the tree walk that fills it is answered on `beatCaptions`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A two-field record type coordinates no requests or phases, so there is no completed work for it to share.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources It holds no handle or task; each record lives exactly as long as the map that `beatCaptions` hands to its caller.
- * @author Samchon
  */
 export interface IAutoMovieBeatCaption {
   /** The beat's authored shot caption, or null when the beat authored none. */

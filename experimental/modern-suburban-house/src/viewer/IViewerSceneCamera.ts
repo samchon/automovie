@@ -2,8 +2,6 @@
 
 /**
  * Perspective camera the client starts from and returns to on reset.
- *
- * @author Samchon
  */
 export interface IViewerSceneCamera {
   /** Eye position, meters. */

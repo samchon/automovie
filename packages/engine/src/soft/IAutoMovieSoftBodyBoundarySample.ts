@@ -11,7 +11,6 @@ import { IAutoMovieSoftBodyResolvedCapsule } from "./IAutoMovieSoftBodyResolvedC
  * @evidenceExclude contracts/performance.md#efficient-algorithms This boundary record executes no collision or sampling algorithm; producer and fixed-step solver own those costs.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A sample applies to one absolute step, and sharing immutable boundary storage is the supplying sampler's decision.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Arrays are caller-owned readonly views; releasing the current boundary reference releases this record's reach to resolved geometry.
- * @author Samchon
  */
 export interface IAutoMovieSoftBodyBoundarySample {
   /** Absolute solver step. */

@@ -14,7 +14,6 @@ import { TRACK_INTERPOLATIONS } from "./constants/TRACK_INTERPOLATIONS";
  * @evidence contracts/performance.md#efficient-algorithms K times and V values require O(K+V) passes and O(F) findings, with constant stride arithmetic and output message work; no repeated scan per sampled key occurs within this call.
  * @evidence contracts/performance.md#reuse-equivalent-work Canonical interpolation and width owners serve both gate and sampler; the same borrowed arrays drive all shape decisions without a retained admission cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Most faults retain scalar values/counts, while empty-array faults retain their original array; no clip cursor, sampled frames or host task survives through the helper.
- * @author Samchon
  */
 export const clipTrackShapeFaults: (
   track: {

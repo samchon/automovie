@@ -10,7 +10,6 @@ import { IAutoMovieConstraintViolation } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms Each fault has fixed fields but its value can retain a larger authored object; generating faults pays the shared track/timing scan cost.
  * @evidence contracts/performance.md#reuse-equivalent-work Sampler and artifact gate consume the same fault owners, preventing duplicated shape policies without caching mutable track admission.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns each fault until consumed or discarded; an offending value can retain source data, with no playback task or host resource.
- * @author Samchon
  */
 export interface IAutoMovieClipShapeFault {
   /** Violation kind the artifact gate reports this fault as. */

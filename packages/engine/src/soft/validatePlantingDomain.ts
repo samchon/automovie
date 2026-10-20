@@ -28,7 +28,6 @@ import { validateSoftVector as vector } from "./validateSoftVector";
  * @evidence contracts/performance.md#efficient-algorithms C child records and depth D take O(C+D) validation/budget work plus identity storage; foliage budgeting uses the same level walk and this pass never emits the full tree.
  * @evidence contracts/performance.md#reuse-equivalent-work Scalar, integer, vector and sibling-id policies are shared with soft-domain validation, while each pass owns its sets and recipe-specific limits; no mutable-recipe result cache is retained.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The fresh collector and child-id set are local; returned findings retain offending values, and no emitted plant, viewer handle or task is acquired.
- * @author Samchon
  */
 export const validatePlantingDomain: (props: {
   domain: IAutoMoviePlantingDomain;

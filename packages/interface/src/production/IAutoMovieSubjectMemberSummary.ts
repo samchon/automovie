@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Four fields distinguish cardinality, bounded identities, page start and omitted count without a dense response; formation's hero-only sample remains distinguishable by its surrounding subject kind rather than an invented paging capability.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A bounded page is not the whole population and omitted is not a remaining-page count; formation review may list only named heroes while total still counts every designed slot.
  * @evidence contracts/common.md#meaningful-documentation Defines total, sample ordering, ordinary pagination, formation hero-only offset-zero exception and whole-population omission count.
- * @author Samchon
  */
 export interface IAutoMovieSubjectMemberSummary {
   /** Exact number of members represented by the summary. */

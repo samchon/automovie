@@ -8,7 +8,6 @@
  * @evidence contracts/performance.md#efficient-algorithms Dispatch is constant time and space; actual query cost belongs to the supplied callback.
  * @evidence contracts/performance.md#reuse-equivalent-work Callable inputs are reused by identity, while each scalar adaptation creates its own immutable-value closure.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned closure retains only its scalar, or the caller retains its original function; no geometry, task or host handle is acquired.
- * @author Samchon
  */
 export const groundFunction: (
   ground: number | ((x: number, z: number) => number),

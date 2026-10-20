@@ -18,7 +18,6 @@ import {
  * @evidence contracts/performance.md#efficient-algorithms At most six supported fields occupy constant-size storage; channel population and interpolation costs belong to the shot resolver.
  * @evidence contracts/performance.md#reuse-equivalent-work A shot reuses staged references for fields absent from the override; changed time/samples require a fresh accumulation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources resolveShotLighting owns the per-light override map for one call; returned light records borrow untouched nested fields and no renderer handle is held.
- * @author Samchon
  */
 export interface IAutoMovieLightOverride {
   /** Radiant intensity, when an `intensity` track wrote one. */

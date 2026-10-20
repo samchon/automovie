@@ -10,7 +10,6 @@ import { AutoMovieDrawingFeatureKind } from "./AutoMovieDrawingFeatureKind";
  * @evidence contracts/common.md#clear-and-simple-design Element, optional part, family, index and optional count form a coordinate-free positional address. The count detects size changes in the addressed family, not arbitrary replacements; stable feature identity or geometry-version tracking is not stored.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A changed feature count makes the target stale instead of relocating it onto whichever feature inherited the index, and an unresolvable target never snaps to the nearest surviving feature.
  * @evidence contracts/common.md#meaningful-documentation States what places the feature, when `part` is ignored, which families renumber under reordering and which do not, the legal index for `axis` and `centroid`, and what the authored count protects against.
- * @author Samchon
  */
 export interface IAutoMovieDrawingFeature {
   /** Building element the feature belongs to; its world matrix places it. */

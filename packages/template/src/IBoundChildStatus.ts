@@ -8,8 +8,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms The held child status schema declaration chooses no executable algorithm.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The held child status schema type coordinates no request or cached work.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The held child status schema acquires no runtime handles, bytes or tasks.
- *
- * @author Samchon
  */
 export interface IBoundChildStatus {
   /** Whether the held child is a symbolic link or Windows reparse point. */

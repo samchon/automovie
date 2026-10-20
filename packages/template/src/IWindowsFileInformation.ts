@@ -8,8 +8,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms The Windows handle information record declaration chooses no executable algorithm.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The Windows handle information record type coordinates no request or cached work.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The Windows handle information record schema acquires no runtime handles, bytes or tasks.
- *
- * @author Samchon
  */
 export interface IWindowsFileInformation {
   /** Unsigned Windows file-attribute bits read from BY_HANDLE_FILE_INFORMATION. */

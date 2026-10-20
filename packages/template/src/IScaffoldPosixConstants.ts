@@ -8,8 +8,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A native flag record implements no algorithm or syscall sequence.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Open-flag metadata schedules no requests or cached work.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Integer flag fields acquire no native handle or retained task.
- *
- * @author Samchon
  */
 export interface IScaffoldPosixConstants {
   /** Close the descriptor when a new program image is executed. */

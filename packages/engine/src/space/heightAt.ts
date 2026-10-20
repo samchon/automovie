@@ -15,7 +15,6 @@ import { surfaceHeightAt } from "./surfaceHeightAt";
  * @evidence contracts/performance.md#efficient-algorithms Preparing costs O(E) total ring vertices when omitted; a query scans surface edges and W walkable ids, then evaluates the selected height again, with constant additional storage.
  * @evidence contracts/performance.md#reuse-equivalent-work A supplied prepared space avoids rebuilding projections across queries; source mutation requires fresh preparation and no height result is retained.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The result is a scalar or null; only a default call's temporary prepared geometry lives until completion, without host resources.
- * @author Samchon
  */
 export const heightAt: (
   space: IAutoMovieSpace,

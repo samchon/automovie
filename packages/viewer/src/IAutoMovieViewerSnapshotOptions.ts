@@ -8,8 +8,6 @@
  * @evidence contracts/performance.md#efficient-algorithms Two optional scalar values are fixed metadata, while encoding work scales with actual canvas pixels/format.
  * @evidence contracts/performance.md#reuse-equivalent-work Options can be borrowed repeatedly but matching MIME/quality does not make different rendered pixels equivalent or cacheable.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The record holds no canvas/image/native handle and acquires no resource; returned encoded payload lifetime belongs to its snapshot consumer.
- *
- * @author Samchon
  */
 export interface IAutoMovieViewerSnapshotOptions {
   /** Image MIME type. Defaults to `image/png`. */

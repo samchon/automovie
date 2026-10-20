@@ -37,7 +37,6 @@ const CHANNEL_VALUE_WIDTHS: Partial<
  * @evidence contracts/performance.md#efficient-algorithms Fixed discriminator/table lookup takes constant scalar work with no keyframe traversal or output allocation.
  * @evidence contracts/performance.md#reuse-equivalent-work One width table serves all consumers without per-track recomputation of shape formulas or cached mutable channel verdicts.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a scalar or undefined should transfer; no channel record, model, keyframe array or host handle is retained.
- * @author Samchon
  */
 export const channelValueWidth: (channel: unknown) => number | undefined = (
   channel: unknown,

@@ -11,8 +11,6 @@ import { softBodyParticleDistance } from "./softBodyParticleDistance";
  * @evidence contracts/performance.md#efficient-algorithms With P admitted lattice particles, at most two outgoing edges per particle make O(P) time and constant extra storage; a length mismatch takes constant time.
  * @evidence contracts/performance.md#reuse-equivalent-work Each edge is considered once; a changed rest field or dimensions require a new minimum, so no cross-call cache is used.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a scalar is returned; the authored rest array is read without copying, mutating or retaining it.
- *
- * @author Samchon
  */
 export const shortestRestLength: (
   domain: IAutoMovieSoftBodyDomain,

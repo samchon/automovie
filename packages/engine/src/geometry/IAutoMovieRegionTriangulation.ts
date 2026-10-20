@@ -18,7 +18,6 @@ import { IAutoMovieRegionRing } from "./IAutoMovieRegionRing";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record; validation and ear clipping costs are answered on `autoMoviePlanarRegionFailure` and the triangulation entry.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built per call; a loft reuses its section layouts and triangulates only its two caps, which is answered on the loft.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Owns copies of every point and integer arrays linear in the point count, with no reference to the authored rings, so it lives exactly as long as its caller keeps it.
- * @author Samchon
  */
 export interface IAutoMovieRegionTriangulation {
   /**

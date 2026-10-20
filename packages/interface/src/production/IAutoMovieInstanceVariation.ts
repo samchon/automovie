@@ -7,7 +7,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design Keeps shared variation laws on the compact set while regenerated slots carry their resolved values; optional axis scale, Euler offsets and visibility extend the basic scale, palette and traits.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Palette entries are actual sRGB swatches decoded before linear shading, not labels or linear triples; omission of enhanced channels preserves the legacy slot shape rather than injecting extra fields.
  * @evidence contracts/common.md#meaningful-documentation Defines positive scale ranges, degree Euler order, visibility probability, exact color encoding and named trait bounds with explicit override behavior.
- * @author Samchon
  */
 export interface IAutoMovieInstanceVariation {
   /** Inclusive uniform scale range, both strictly above zero. */

@@ -4,7 +4,7 @@ d'Eon E, Luebke D. "Advanced Techniques for Realistic Real-Time Skin Rendering."
 
 ## Licence
 
-Book chapter published free online by NVIDIA. Human takes numbers and methods, citing the chapter.
+Book chapter published free online by NVIDIA.
 
 ## What it says
 
@@ -14,10 +14,6 @@ Book chapter published free online by NVIDIA. Human takes numbers and methods, c
 - Diffusion profiles as sums of Gaussians; skin needs six Gaussians to fit the three-layer model of Donner and Jensen 2005; the six weights per channel sum to 1, so the diffuse colour map sets the tone.
 - Texture-space diffusion with separable seven-tap blurs and a stretch-correction texture.
 - "The true normal information should be used for both specular and diffuse computations".
-
-## What Human takes
-
-Specular constants (F0 0.028, white specular), the per-region roughness idea, and normal-map usage (`../techniques/skin-material.md`). The direct [Weyrich reading](weyrich-2006-skin-reflectance.md) records the measured regions and limits of transferring them to Human's material.
 
 ## Sum-of-Gaussians skin profile
 

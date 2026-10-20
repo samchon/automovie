@@ -9,7 +9,6 @@
  * @evidence contracts/common.md#clear-and-simple-design One record names staged nodes and compact formations together, so a captain and his company are one subject without listing slots, and the consuming verb decides whether it needs an extent or a point.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An unknown node or formation cannot disappear from the target; formation point verbs and group onHit declarations are refused rather than collapsing a crowd to an invented struck actor.
  * @evidence contracts/common.md#meaningful-documentation States camera extent and cue-following behavior, compact formation addressing, complete-member centroid resolution, missing and empty target refusals, and the single-struck-actor restriction for launch reactions.
- * @author Samchon
  */
 export interface IAutoMovieGroupTarget {
   /** Selects a multi-subject extent as the target representation. */

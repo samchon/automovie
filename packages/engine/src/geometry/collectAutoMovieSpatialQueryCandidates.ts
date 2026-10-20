@@ -34,7 +34,6 @@ import type { IAutoMovieSpatialQueryEntry } from "./IAutoMovieSpatialQueryEntry"
  * @evidence contracts/performance.md#efficient-algorithms For n resident entries and k qualifying ones, the walk visits only nodes whose boxes reach the subject, O(k log n) for a local subject and O(n) at worst, then sorts k candidates in O(k log k) with at most three cell divisions per comparison side.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call answers one subject; the tree it walks is the reused, compiled artifact of its caller.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Holds a stack of at most the tree's node count and the candidate array, both released or handed to the caller on return; entries are returned by reference, not copied.
- * @author Samchon
  */
 export function collectAutoMovieSpatialQueryCandidates<
   T extends IAutoMovieSpatialQueryEntry,

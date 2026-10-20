@@ -15,7 +15,6 @@ import { IAutoMovieMaterialOverlay } from "./IAutoMovieMaterialOverlay";
  * @evidence contracts/common.md#clear-and-simple-design One optical record owns reflectance, alpha, lobes and texture slots, each multi-parameter lobe grouped in one optional record; physical density and construction layers use separate substance and assembly types, and image bytes stay behind image or asset references.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No finish name selects a numerical preset; explicit alpha mode overrides opacity-derived defaults. Shader approximations make no measured subsurface-response claim, and lobe omission keeps the renderer's neutral value rather than a guessed finish.
  * @evidence contracts/common.md#meaningful-documentation States coefficient bounds, linear colour, texture slot colour and channel roles, alpha defaults, normal-map composition, lobe directions and omission defaults, metre-valued transmission and subsurface properties, image resolution order and resolver ownership.
- * @author Samchon
  */
 export interface IAutoMovieMaterial {
   /** Stable id so meshes / scene nodes can cite this material. */

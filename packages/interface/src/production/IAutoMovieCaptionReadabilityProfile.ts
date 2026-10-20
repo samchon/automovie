@@ -10,7 +10,6 @@ import { IAutoMovieCaptionReadabilityBoundary } from "./IAutoMovieCaptionReadabi
  * @evidence contracts/common.md#clear-and-simple-design One profile owns all readability choices for one language, separating user-selected thresholds from actual measurement runtime and from byte-stable compiled caption timing.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Render infers no threshold preset or registry preferred language value and returns no verdict without a matching profile; this DTO does not enforce unique profile languages, so callers must prevent duplicate identities that render's map would overwrite.
  * @evidence contracts/common.md#meaningful-documentation Gives production ownership, profile version, retained language spelling and identity limits, segmentation revision and the units and directions of all five explicit thresholds.
- * @author Samchon
  */
 export interface IAutoMovieCaptionReadabilityProfile {
   /** Stable profile identity within the production. */

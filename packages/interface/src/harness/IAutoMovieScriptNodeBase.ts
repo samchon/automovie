@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design The shared fields live once here and each node kind adds only its `kind` and payload, so the validator and the walkers read the edges without per-kind code.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Self cross references refuse, while repeated interaction ids and cross-edge cycles are not rejected or given runtime meaning. The low-level graph validator assumes declared record/array shapes and can skip sparse forEach slots or throw on malformed nested values; project shape admission remains a separate boundary, and prose meaning is not graded.
  * @evidence contracts/common.md#meaningful-documentation States every validator rule on the shared fields, which edge has consumers and who they are, and that the cross edges are only checked; members give each edge's direction and what `null` means.
- * @author Samchon
  */
 export interface IAutoMovieScriptNodeBase {
   /** Non-blank id, unique across the whole tree. */

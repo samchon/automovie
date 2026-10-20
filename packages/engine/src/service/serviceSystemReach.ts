@@ -33,8 +33,6 @@ import { portOwners } from "./portOwners";
  * @evidence contracts/performance.md#efficient-algorithms Adjacency construction scans ports and segments; each reached edge is visited once, but Array.shift can make queue removal quadratic in reached nodes in engines that move remaining entries.
  * @evidence contracts/performance.md#reuse-equivalent-work Forward/backward adjacency and the owner map serve the entire current reach walk, with no retained index across network mutations.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Graph maps, queue and visited ids are call-local and linear in input population; output retains only declaration-ordered node ids.
- *
- * @author Samchon
  */
 export const serviceSystemReach: (props: {
   network: IAutoMovieServiceNetwork;

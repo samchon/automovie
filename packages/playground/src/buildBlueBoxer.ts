@@ -12,8 +12,6 @@ import { buildSparBoxer } from "./buildSparBoxer";
  * @evidence contracts/performance.md#efficient-algorithms The constant wrapper invokes one fixed-size stick/material assembly; later tessellation and upload remain viewer costs.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A fresh actor remains independent from the red actor and previous calls; no mutable model result is cached.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The page owns returned actor data and GPU disposal after upload; this function retains no handle or running task.
- *
- * @author Samchon
  */
 export function buildBlueBoxer(): {
   /** Blue actor's rig wrapper, shared with model.skeleton and independently constructed from the red actor. */

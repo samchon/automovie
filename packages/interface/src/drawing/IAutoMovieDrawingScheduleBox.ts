@@ -9,7 +9,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design Two corner vectors are the smallest form of an axis-aligned box and match the shape of the content bounds it is copied from, so the declared and content boxes of a space place read the same way.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A cell with multiple above-threshold normal components or an unclosed finite axis limit yields null for the declared space box. Near-axis components, endpoint folding and grid rounding remain approximation boundaries; this record does not certify the exact half-space intersection or a rendered-frame enclosure.
  * @evidence contracts/common.md#meaningful-documentation States the world frame, the metre unit, the six-decimal rounding and its reason, and the corner ordering.
- * @author Samchon
  */
 export interface IAutoMovieDrawingScheduleBox {
   /** Lower corner in world metres. */

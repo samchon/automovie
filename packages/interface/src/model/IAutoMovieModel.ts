@@ -23,7 +23,6 @@ import { IAutoMovieModelPart } from "./IAutoMovieModelPart";
  * @evidence contracts/common.md#clear-and-simple-design One model groups reusable geometry and capabilities separately from scene placement; each part owns a geometry representation, origin owns provenance, and optional body, contacts and profiles add their respective semantic inputs.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Generated meshes must come from reviewed generators, and imported visual bytes do not invent physics or inherit traits; the deterministic proxy and sealed asset ledger remain the owners of those distinct facts.
  * @evidence contracts/common.md#meaningful-documentation Explains rigged-versus-rigid subjects, optional gaze through eye bones, part, material and carried-image ownership, provenance, null physics and skeleton meanings, optional affordances and profiles, and compiler-owned asset digests and bone mapping.
- * @author Samchon
  */
 export interface IAutoMovieModel {
   /** Stable model id cited by scene placements; poses and motions separately cite the skeleton id. */

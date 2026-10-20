@@ -14,7 +14,6 @@ import { IAutoMovieWallOpening } from "../geometry/IAutoMovieWallOpening";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape; its producer pays boundary lookup, face-outline scanning, the full opening-list scan and the summed point counts of selected opening-profile hulls. Runtime cost belongs to `builtBoundaryWallCut`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Produced on demand per boundary; the engine keeps no wall cut between calls, so a changed environment is never answered from a stale panel.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources `rotation` aliases the boundary face's quaternion inside the environment record, so mutating it edits the record; every other field is a fresh value or array the caller owns.
- * @author Samchon
  */
 export interface IAutoMovieBoundaryWallCut {
   /** Panel extent along the boundary's local X, in metres. */

@@ -12,7 +12,6 @@ import type { IAutoMovieExternalMotionBoneMapping } from "./IAutoMovieExternalMo
  * @evidenceExclude contracts/performance.md#efficient-algorithms The retarget handoff is a data-only record that executes no code.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The retarget handoff coordinates no work between requests or consumers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Two scalars plus copies owned by the receipt; no handle or task.
- * @author Samchon
  */
 export interface IAutoMovieExternalMotionRetargetHandoff {
   /** Mode discriminator. */

@@ -8,7 +8,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms This completed variant is a two-field record with no algorithm; the verification cost belongs to the adapter that produces it.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A completion record shares nothing across requests; each one describes exactly one file write.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record holds the parent identity string and no descriptor, because the adapter closes the file before reporting completion.
- * @author Samchon
  */
 export interface IScaffoldCompletedFilePublicationOutcome {
   /**

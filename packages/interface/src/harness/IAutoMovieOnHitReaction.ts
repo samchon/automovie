@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Two fields mirror the `react` verb's force and unbalance, because the engine expands this record into a `react` and reuses that verb's synthesis and range-of-motion gate.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A point or group does not identify which actor was struck, so the gate refuses that onHit declaration rather than silently dropping it or choosing a group member; a camera cannot receive actor recoil.
  * @evidence contracts/common.md#meaningful-documentation States react expansion, impact timing and incoming source, the single-struck-actor requirement and point, group and camera refusals; members give force bounds and the limits of unbalance behavior.
- * @author Samchon
  */
 export interface IAutoMovieOnHitReaction {
   /**

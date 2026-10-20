@@ -11,7 +11,6 @@ import type { IAutoMovieSequenceRenderTransitionSpan } from "../../index.js";
  * @evidence contracts/performance.md#efficient-algorithms The erased type performs no image decoding or pixel traversal.
  * @evidence contracts/performance.md#reuse-equivalent-work Each observation is a distinct transition result; this record coordinates no cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned values retain only numbers, strings and transition identity, without decoded PNG buffers or browser handles.
- * @author Samchon
  */
 export interface IAutoMovieSequenceDissolvePixelCheck {
   /** Outgoing and incoming shots with the transition's film interval. */

@@ -22,7 +22,6 @@ import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PAT
  * @evidence contracts/performance.md#efficient-algorithms Profile/digest admission is bounded string work, followed by the analyzer's surface/source/receiver/partition scans and its fixed-size metric lookups; no repeated acoustic solve is hidden behind this receipt.
  * @evidence contracts/performance.md#reuse-equivalent-work Shared analysis and the canonical SHA-256 format owner supply one physical/digest policy; changed request/profile/input revision causes fresh derivation, with no completed response cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The analysis and metric objects are call-local; the returned receipt retains only scalar/profile/revision facts or a refusal reason, without room geometry, adopted audio or solver tasks.
- * @author Samchon
  */
 export const deriveAutoMovieInteriorAcousticResponse: (props: {
   sourceSpace: string | null;

@@ -13,7 +13,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A two-scalar record; the traversal that produces it is answered on the caster's `nearestHit`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Allocated fresh per query and never shared with later queries, so a caller may keep or change it.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Two numbers with no reference into the caster's snapshot, released with whatever holds the record.
- * @author Samchon
  */
 export interface IAutoMovieMeshRayHit {
   /**

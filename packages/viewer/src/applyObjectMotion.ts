@@ -23,7 +23,6 @@ import { applySampledObjectMotion } from "./applySampledObjectMotion.js";
  * must restore staged bases itself (the engine's `resolveFrame` falls back to
  * rest instead: it owns node rests; this helper does not).
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Uses the engine's sampleClip interpolation and applies its admitted node vectors to Three local transforms or indexed morph influences; clips must satisfy engine widths/quaternion conventions and the target parent frame must match their coordinates. Absent channels retain host state rather than restoring a rest pose.
  * @evidence contracts/common.md#clear-and-simple-design This single-clip entry delegates to the same sampled-channel writer as the sequence entry, so transform and morph semantics have one owner; it does not allocate or own a scene.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Resolves each authored node id through the supplied scene lookup and skips unresolved/non-node channels by contract; no fixture ids, substituted methods or numeric compensations select behavior.

@@ -130,8 +130,6 @@ const blob: (
  * @evidence contracts/performance.md#efficient-algorithms Seventeen bones and twelve parts bound assembly work/storage independently of proportion values; the renderer's primitive tessellation and GPU upload costs occur later and are not excluded by this fixed-size producer.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each editor rebuild returns fresh mutable model/bone/part data for new proportions; the builder retains no model cache or GPU resource.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returned skeleton/model data belong to the page and share the returned model's skeleton reference. No worker, timer or renderer is acquired; the viewer/page must dispose uploads from superseded models.
- *
- * @author Samchon
  */
 export const buildHumanoid: (p: IHumanoidParams) => {
   /** Caller-owned conventional rig wrapper shared with model.skeleton; bone constraints are absent. */

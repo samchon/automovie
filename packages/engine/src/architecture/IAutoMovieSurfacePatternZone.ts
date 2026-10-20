@@ -16,7 +16,6 @@ import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A declaration without behavior; the lattice enumeration it drives is answered on `generateAutoMovieSurfacePattern`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure input record; the generator is called once per lattice cell per run and nothing is cached between runs.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owns its region points and a reference to the author's generator; the pattern owns the zone, and each run visits at most `AUTOMOVIE_MAX_PATTERN_CELLS` cells.
- * @author Samchon
  */
 export interface IAutoMovieSurfacePatternZone {
   /** Stable, non-blank zone id, unique inside one pattern. */

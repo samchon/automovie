@@ -14,7 +14,6 @@ import { verifyAutoMovieSemanticMask } from "./verifyAutoMovieSemanticMask";
  * colours off today's pixels. The bytes are the same convention the caption and
  * pose-keypoint sidecars use, so a host writes all three the same way.
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Verify the current mask schema/digest, project through the shared complete canonical payload and pretty-print explicit field order with exactly one trailing newline.
  * @evidence contracts/common.md#clear-and-simple-design Verification owns runtime refusal, canonicalAutoMovieSemanticMaskPayload owns field/order identity and this function owns portable sidecar formatting.

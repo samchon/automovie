@@ -15,7 +15,6 @@ import type { AutoMovieProductionPngRole } from "./AutoMovieProductionPngRole";
  * @evidenceExclude contracts/performance.md#efficient-algorithms This interface only describes expected picture facts; the comparison cost is answered on `assertProductionPngPicture`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A PNG profile value is plain data and shares no work across phases.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The profile is a small fixed-size record with no handle or task.
- * @author Samchon
  */
 export interface IAutoMovieProductionPngProfile {
   /** Profile schema version. */

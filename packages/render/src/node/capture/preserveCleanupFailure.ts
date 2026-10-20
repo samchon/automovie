@@ -12,7 +12,6 @@ import type { IAutoMoviePageOperationFailure } from "./IAutoMoviePageOperationFa
  * @evidence contracts/performance.md#efficient-algorithms The helper awaits exactly one cleanup and allocates an AggregateError only when both causes exist, O(1) work.
  * @evidence contracts/performance.md#reuse-equivalent-work Effectful cleanup runs once per call and is never cached or merged.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the resource; this helper awaits release and retains its two causes only in the thrown aggregate when release fails.
- * @author Samchon
  */
 export const preserveCleanupFailure: (
   failure: IAutoMoviePageOperationFailure | undefined,

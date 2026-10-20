@@ -14,7 +14,3 @@ Kaewpornsawan K., Kamegaya M., Udompunturak S., Eamsophana P., Ariyawatkul T. "T
 | SD | 1.7 | 2.5 | 2.4 | 2.6 | 2.4 | 3.2 | 2.4 | 3.4 | 2.3 | 2.7 | 2.7 | 2.7 | 2.7 | 2.1 | 2.5 | 3.2 | 2.7 |
 
 Boys 6.9 (SD 3.8) and girls 8.5 (4.1) over all ages, 7.8 pooled (Table 2); no side difference; stabilisation at 15.
-
-## What Human takes
-
-The carrying angle's age course and the sex ratio, held from 16 into adulthood.

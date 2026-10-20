@@ -8,7 +8,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms The reader-input type executes no accessor decoding or payload-range traversal.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type carries already admitted inventories reused by motion and skin readers without owning computation.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This input record owns no payload allocation or handle; the synchronous inspector bounds reference lifetime.
- * @author Samchon
  */
 export interface IAccessorSource {
   /** Admitted glTF accessor records in source index order. */

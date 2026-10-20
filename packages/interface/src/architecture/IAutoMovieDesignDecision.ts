@@ -11,7 +11,6 @@
  * @evidence contracts/common.md#clear-and-simple-design A decision references variants by id and records the choice as one nullable id, leaving each alternative's changes on its variant, so selecting never copies or moves design data.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Rejected options are kept rather than pruned, and a selection outside the options or a mixed-revision option list is refused instead of being coerced.
  * @evidence contracts/common.md#meaningful-documentation States that selection keeps the rejected options, the shared configuration and phase rule for derived artifacts, the at-least-two, distinct, and one-revision option rules, the non-blank question, and what a null selection means.
- * @author Samchon
  */
 export interface IAutoMovieDesignDecision {
   /** Stable decision identity, unique within the lineage. */

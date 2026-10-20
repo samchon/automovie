@@ -12,7 +12,6 @@ import { AutoMovieImpactKind } from "./AutoMovieImpactKind";
  * @evidence contracts/performance.md#efficient-algorithms The record has fixed vector/scalar size and no processing; resolveImpact's arithmetic is constant with respect to scene size.
  * @evidence contracts/performance.md#reuse-equivalent-work Collision response uses this exact impulse rather than recomputing contact; normal and velocities are carried once in the result.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns produced vectors and must preserve any borrowed separating-contact velocities; no solver state or task is retained.
- * @author Samchon
  */
 export interface IAutoMovieImpact {
   /** Normalized world contact direction from a toward b. */

@@ -10,7 +10,6 @@ import { IAutoMovieInstanceSetDesign } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms Cost follows the supplied base/layout graph sizes and allocates their clones; it is independent of instance count until a downstream owner places members.
  * @evidence contracts/performance.md#reuse-equivalent-work Each graph is copied once per call without a persistent design cache, so changed nested input values are read afresh.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the fresh cloned base and layout; no member buffer, renderer, task or source watcher is retained.
- * @author Samchon
  */
 export const worldGrid: (
   base: Omit<IAutoMovieInstanceSetDesign, "layout">,

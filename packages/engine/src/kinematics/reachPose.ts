@@ -71,7 +71,6 @@ interface IAutoMovieClinicalJoint extends IAutoMovieResolvedJointAngles {
  * @evidence contracts/performance.md#efficient-algorithms Three linear bone lookups and one rest-pose forward-kinematics pass, linear in the bone count, then the hinge solve's at most 720 candidates, each two decompositions and two ROM scorings; the candidate sweep dominates and is constant per call.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one rig, side and target; per-frame callers pass a different target each time, so no result is shared across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing after returning; the rest-pose bones and candidate scores are local to the call, and the caller owns the returned pose.
- * @author Samchon
  */
 export const reachPose: (
   skeleton: IAutoMovieSkeleton,

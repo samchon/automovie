@@ -17,7 +17,6 @@ import { IAutoMovieBuiltFloatingBody } from "./IAutoMovieBuiltFloatingBody";
  * @evidence contracts/common.md#clear-and-simple-design Grounded count, borne count and floating-list length partition measured bodies, with unresolved locators beside them. Empty findings identify only this proxy classification's outcome; they do not prove structural support or absence of real mesh contact defects.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Ground height comes from the caller's argument rather than an assumed environment field, bodies sunk below ground count as grounded as documented, and unresolved bodies are reported rather than skipped.
  * @evidence contracts/common.md#meaningful-documentation States that the three counts partition `measured`, where the ground height comes from and its default, what `compared` excludes, the grounded and borne thresholds, and the order of the floating list.
- * @author Samchon
  */
 export interface IAutoMovieBuiltSupportSweepReport {
   /** Bodies whose extent resolved and were therefore judged. */

@@ -18,8 +18,6 @@ import {
  * All material texture consumers reuse this common row representation.
  *
  * The enumeration caller owns wrappers and the material owns referenced binding data.
- *
- * @author Samchon
  */
 interface IMaterialTextureSlot {
   /** Path under the material, such as `.normalTexture` or `.overlays[1].baseColorTexture`. */

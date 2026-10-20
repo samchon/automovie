@@ -10,7 +10,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms The record is a three-field type with no runtime code.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work This interface carries no work that two consumers could share.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Three scalar fields per sidecar URI; the record never holds the resolved bytes.
- * @author Samchon
  */
 export interface IAutoMovieExternalModelResource {
   /** URI exactly as the glTF declares it, unresolved and undecoded. */

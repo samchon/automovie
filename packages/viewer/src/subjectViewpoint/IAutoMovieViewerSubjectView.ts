@@ -12,8 +12,6 @@ import type { IAutoMovieViewerSubjectPose } from "./IAutoMovieViewerSubjectPose.
  * @evidence contracts/performance.md#efficient-algorithms This shape chooses no rendering strategy; synchronous draw/encoding and image-sized storage belong to the capture operation.
  * @evidence contracts/performance.md#reuse-equivalent-work Subject and pose references are borrowed and can be mutated later; the returned record is not an immutable provenance snapshot.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The consumer retains the encoded data URL and borrowed metadata references; the shape owns no browser or GPU lifetime.
- *
- * @author Samchon
  */
 export interface IAutoMovieViewerSubjectView {
   /**

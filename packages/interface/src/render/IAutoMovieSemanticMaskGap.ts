@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Set id, slot count, cause and remedy expose one bounded identity gap without listing every unallocated member.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The set remains addressable as a whole, but its missing slot colors are not claimed complete or approximated as distinct slot evidence.
  * @evidence contracts/common.md#meaningful-documentation Defines compiled set identity, unaddressed slot count and exact allocation cause and correction.
- * @author Samchon
  */
 export interface IAutoMovieSemanticMaskGap {
   /** Compiled instance-set id. */

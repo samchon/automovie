@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Four fields, an id, a title, a prose brief and a length hint, hold what a later stage needs to block the shot, with staging and dialogue kept in the script tree's beat payload.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The duration hint is not copied into the shot's duration by any stage, so a rough guess never silently becomes a timing fact; case collisions are refused before a file could be clobbered.
  * @evidence contracts/common.md#meaningful-documentation States what the id names and why its rules exist, every field rule project validation applies, and which consumer reads each field; members restate the unit and purpose of each.
- * @author Samchon
  */
 export interface IAutoMovieBeat {
   /** Stable id, referenced by the shot built from it. */

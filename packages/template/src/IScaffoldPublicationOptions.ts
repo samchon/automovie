@@ -8,7 +8,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms An options record with one boolean chooses no algorithm.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The force switch only changes admission and coordinates no work to share.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This options object holds no state beyond its single boolean and owns no resource.
- * @author Samchon
  */
 export interface IScaffoldPublicationOptions {
   /**

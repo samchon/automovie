@@ -28,8 +28,6 @@ const params: IHumanoidParams = { ...DEFAULT_PARAMS };
 
 /**
  * Clinical joint angles retained by the humanoid editor's pose state.
- *
- * @author Samchon
  */
 interface JointState {
   flexion: number;
@@ -205,8 +203,6 @@ const rebuild: () => void = (): void => {
 // ── editor UI ───────────────────────────────────────────────────────────────
 /**
  * One numerical editor slider and its original value read/write ports.
- *
- * @author Samchon
  */
 interface SliderSpec {
   label: string;

@@ -13,7 +13,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design One vector is the whole target, and it reuses the shared `IAutoMovieVector3` rather than three loose numbers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A non-finite point is refused rather than clamped, and the point is never snapped to a nearby node.
  * @evidence contracts/common.md#meaningful-documentation States when to use it and when not, how it resolves, the refusals and how a camera frames it; the member gives the frame and unit.
- * @author Samchon
  */
 export interface IAutoMoviePointTarget {
   /** Selects a fixed world-space point as the target representation. */

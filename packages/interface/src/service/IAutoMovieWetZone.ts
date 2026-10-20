@@ -11,7 +11,6 @@ import { AutoMovieWetGrade } from "./AutoMovieWetGrade";
  * @evidence contracts/common.md#clear-and-simple-design Architecture owns spatial extent and boundaries while the service graph owns drains; the zone adds their coordination obligations without duplicating geometry.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Membrane, slope and sealed sleeves are explicit checked declarations rather than simulated leak proof or a conclusion drawn from tiled appearance.
  * @evidence contracts/common.md#meaningful-documentation Defines environment-space joins, ordinal exposure, membrane and meter upturn, dimensionless fall, drain ownership and drier-boundary thresholds.
- * @author Samchon
  */
 export interface IAutoMovieWetZone {
   /** Stable zone identity within the network. */

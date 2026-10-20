@@ -31,7 +31,6 @@ const acosDeg: (x: number) => number = (x: number): number =>
  * @evidence contracts/performance.md#efficient-algorithms Three input validations, a fixed-size magnitude test and at most three rescaling divisions precede two bounded arccosines, using constant time and scalar storage.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Chain lengths and requested distance determine this angle pair; target-dependent calls share no previously clamped reach solution.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned record.
- * @author Samchon
  */
 export const solveTwoBoneIK: (
   upper: number,

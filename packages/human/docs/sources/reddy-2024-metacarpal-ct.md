@@ -19,10 +19,6 @@ Open access (Thieme, PMC).
 
 Ratios to MC3 (ours, sexes pooled): MC1 0.711, MC2 1.039, MC4 0.883, MC5 0.797. The second metacarpal is the longest in both sexes. The table's female MC1 articular length (48.4) contradicts its Table 3 (41.6) and is not used.
 
-## What Human takes
-
-Where the knuckles lie: with the metacarpal bases level across the distal carpal row, each head sits its metacarpal length beyond the base, so the knuckles form an arc with the index and middle nearly level and the ring and little stepping back. MC3 is 0.773 (men) and 0.774 (women) of de Leva's wrist-centre-to-third-metacarpale distance, which fixes the carpus between.
-
 ## Limits
 
 An Indian hospital sample; no children. Holding the ratios in children is an inference.

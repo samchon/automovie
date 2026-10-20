@@ -6,7 +6,6 @@
  * @evidence contracts/common.md#clear-and-simple-design A named pair instead of a two-element tuple, so an author cannot swap input and output by position.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A point equal to or below its predecessor's source throws rather than being reordered or merged with it.
  * @evidence contracts/common.md#meaningful-documentation States the mapping each point expresses, the finiteness rule, and the strict ordering against the previous point.
- * @author Samchon
  */
 export interface IAutoMovieDrivenCurvePoint {
   /**

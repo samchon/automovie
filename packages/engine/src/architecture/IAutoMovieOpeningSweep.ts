@@ -12,7 +12,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape; the producer stages one matrix table per call and walks a bounded set of critical angles per panel corner, answered on `builtOpeningSweepEnvelope`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The producer shares one staged matrix table and element index across panels, deriving each rest frame from its parent's staged matrix and its own rest transform without copying the table; no envelope is retained.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Two fresh vectors and two strings, owned by the caller's sweep list.
- * @author Samchon
  */
 export interface IAutoMovieOpeningSweep {
   /** Panel id inside its opening. */

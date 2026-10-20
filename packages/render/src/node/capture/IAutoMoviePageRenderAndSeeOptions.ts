@@ -11,7 +11,6 @@ import type { AutoMovieGuidePass } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms The erased shape performs no computation; sampling and encoding costs belong to captureRenderAndSee.
  * @evidence contracts/performance.md#reuse-equivalent-work The type performs no sharing; each capture invocation consumes its own options.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The record owns strings, numbers and pass names; browser, page and encoder release belong to captureRenderAndSee.
- * @author Samchon
  */
 export interface IAutoMoviePageRenderAndSeeOptions {
   /** Vite page loaded for the capture. */

@@ -6,7 +6,3 @@ Cooperstein R., Haneline M., Young M. "The location of the inferior angle of the
 
 - Pooling five imaging-referenced studies, the upright inferior scapular angle aligns on average with the T8 spinous process, range T4 to T11, not the conventional T7. Grade: measured, meta-analysed.
 - Across 31 studies, imaged iliac crests lie nearest the L4-5 interspace in women and the L4 spinous process in men; palpated crests lie 0.7 (men) to 1.0 (women) levels higher, because the examiner's fingers meet the soft tissue above the crest.
-
-## What Human takes
-
-The inferior scapular angle at T8 at rest, moving with scapular rotation (the textbook T7 rule is conventional and loses to this), and the bony crest top at L4 in men and L4-5 in women.

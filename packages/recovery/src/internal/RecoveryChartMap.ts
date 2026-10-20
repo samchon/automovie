@@ -21,7 +21,6 @@ export namespace RecoveryChartMap {
    * @evidenceExclude contracts/performance.md#efficient-algorithms This record performs no solve.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work No cache is owned by the record.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The observation caller owns all arrays.
-   * @author Samchon
    */
   export interface Input {
     /** Number of private observation vertices, including clipped edge observations. */
@@ -50,7 +49,6 @@ export namespace RecoveryChartMap {
    * @evidenceExclude contracts/performance.md#efficient-algorithms This record performs no traversal.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Coordinates are reused by fitting for this same private chart only.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns returned parameters and failed-face addresses.
-   * @author Samchon
    */
   export interface Result {
     /** Normalized chart coordinates in private input-vertex order. */

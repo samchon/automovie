@@ -18,7 +18,6 @@ import { IAutoMovieDrawingPoint } from "./IAutoMovieDrawingPoint";
  * @evidence contracts/common.md#clear-and-simple-design One region per cell avoids a polygon union and retains space/cell/kind identity. Overlapping cells can yield overlapping regions; the finish is the one distinct non-null material collected from realizing boundary elements' held model parts, rather than agreement proved for every boundary or a construction assembly.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An unbounded cell is reported as `unbounded-space-cell` instead of drawing the clipping square as a room, a shelled space is reported as `shelled-space-section` instead of being approximated, and a finish that the realizing elements disagree on is `null` instead of the first material found.
  * @evidence contracts/common.md#meaningful-documentation States what a region is and is not, when regions exist and which spaces produce none, and the sort order; members give the polygon's convexity, winding and minimum size, the area unit and rounding, and how `finish` is resolved and when it is `null`.
- * @author Samchon
  */
 export interface IAutoMovieDrawingRegion {
   /** Logical space this cross-section belongs to. */

@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design A stable id, centerline and allowed width describe route authority without embedding per-member transforms or timing.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts At least two points and finite positive route length are required by placement, and declared width is a constraint rather than an inferred road mesh measurement.
  * @evidence contracts/common.md#meaningful-documentation Defines ordered meter coordinates, minimum point population, route identity and finite positive width.
- * @author Samchon
  */
 export interface IAutoMovieWorldRoute {
   /** Stable route id. */

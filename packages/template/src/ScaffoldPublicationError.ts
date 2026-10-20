@@ -12,7 +12,6 @@ import { type IScaffoldPublicationReceipt } from "./IScaffoldPublicationReceipt"
  * @evidence contracts/performance.md#efficient-algorithms Building the message visits the completed list once and serializes its paths and parent identities plus the stopping details; work and allocated text depend on their total string lengths, with runtime-dependent Error stack capture.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each failed publication raises its own error; there is no repeated work for the constructor to share.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The error keeps the receipt, and with it every planned file's bytes, alive for as long as the error object is held; it holds no descriptor.
- * @author Samchon
  */
 export class ScaffoldPublicationError extends Error {
   /** Receipt of the publication that did not complete. */

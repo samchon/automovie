@@ -12,7 +12,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms Two arccosines per solve, computed in constant time by `solveTwoBoneIK`, with no algorithm to choose.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Three values per law-of-cosines call, recomputed per distance because each call asks about a different reach.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Two angles and a reach flag, held by the caller only while it orients the chain.
- * @author Samchon
  */
 export interface ITwoBoneIK {
   /**

@@ -54,8 +54,6 @@ const WASTE_MEDIUM: string = "waste-water";
  * @evidence contracts/performance.md#efficient-algorithms A system map and node/port scan are linear, but each drain node lookup scans nodes and each derived-id collision check scans authored entries, yielding their product costs without a retained index.
  * @evidence contracts/performance.md#reuse-equivalent-work The system lookup is built once for all ports; per-cell placement serves every derived row at a node, and no composition result persists across domain edits.
  * @evidence contracts/performance.md#bound-retention-and-release-resources New source/drain lists and rows transfer to the caller; untouched domain records remain source aliases, and temporary system/candidate arrays retain no independent simulation state.
- *
- * @author Samchon
  */
 export const lowerWetZoneDrainage: (props: {
   network: IAutoMovieServiceNetwork;

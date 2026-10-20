@@ -16,7 +16,6 @@ import { IAutoMovieSpringDriver } from "./IAutoMovieSpringDriver";
  * @evidence contracts/common.md#clear-and-simple-design A six-member union discriminated on `type`, where each member carries only its own solve's inputs and the pass a driver runs in follows from its type rather than from a flag.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Supported world/stateful descriptors that this pass does not execute remain deferred; unknown driver types and reciprocal value-driver cycles throw. A driver's own input/output identity is excluded from dependency edges under the existing one-step policy.
  * @evidence contracts/common.md#meaningful-documentation States the two passes and their order relative to limits and composition, the profile-first ordering, which drivers are deferred and when, the throws, and why limits are not drivers.
- * @author Samchon
  */
 export type IAutoMovieDriver =
   | IAutoMovieCopyDriver

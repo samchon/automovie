@@ -10,7 +10,6 @@ import { IAutoMovieClipShapeFault } from "./IAutoMovieClipShapeFault";
  * @evidence contracts/performance.md#efficient-algorithms Fixed scalar tests take constant work; constructing a fault and rendering its value adds message-conversion cost.
  * @evidence contracts/performance.md#reuse-equivalent-work Canonical duration admission serves sampler consumers without another per-track duration rule or persistent result cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources A fresh fault may retain the offending value; accepted input returns null, with no clip buffers, clock cursor or task retained.
- * @author Samchon
  */
 export const clipDurationFault: (
   duration: unknown,

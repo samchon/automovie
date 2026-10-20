@@ -1,4 +1,4 @@
-﻿import { deriveAutoMovieSemanticMask } from "@automovie/engine";
+import { deriveAutoMovieSemanticMask } from "@automovie/engine";
 import type { IAutoMovieSceneEnvironment } from "@automovie/interface";
 import {
   applyRendererEnvironment,
@@ -27,7 +27,6 @@ const environment: IAutoMovieSceneEnvironment = {
 
 /**
  * Four mutable policy values observed through the renderer's supplied property port.
- * @author Samchon
  */
 interface IEnvironmentState {
   /** Native tone curve enumeration. */
@@ -42,7 +41,6 @@ interface IEnvironmentState {
 
 /**
  * Existing local policy seam; failures and attempts expose independent setter behavior.
- * @author Samchon
  */
 interface IEnvironmentHost {
   /** Structural port supplied to the actual viewer coordinator. */

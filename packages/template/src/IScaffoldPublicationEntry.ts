@@ -10,7 +10,6 @@
  * @evidence contracts/performance.md#efficient-algorithms The byte array spends one array element per byte instead of one byte, a linear memory cost in file size that buys freezability; it is paid once by the planner per file.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A file entry is plain data and coordinates no work; reuse of whole frozen entries is decided by `publishScaffoldCandidate`.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The entry retains its byte array and two path strings while referenced directly, by a candidate, or by a receipt; storage grows with that file's byte and path lengths, and it owns no handle or task.
- * @author Samchon
  */
 export interface IScaffoldPublicationEntry {
   /** UTF-8 bytes of the file content, fixed before any mutation begins. */

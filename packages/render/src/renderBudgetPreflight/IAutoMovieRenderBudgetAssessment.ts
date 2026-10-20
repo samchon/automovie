@@ -15,14 +15,10 @@ import {
  * @evidenceExclude contracts/performance.md#efficient-algorithms The per-shot assessment schema declares data and chooses no runtime algorithm; its producer documents construction cost.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The attributed measurement data describes an identity boundary and performs no request coordination or result caching.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The erased assessment type acquires no GPU; assessAutoMovieRenderBudget returns report/inventory/mask/target values whose lifetime belongs to the preflight caller.
- *
- * @author Samchon
  */
 export interface IAutoMovieRenderBudgetAssessment {
   /**
    * Compiled shot the measurement belongs to.
-   *
-   * @author Samchon
    */
   shot: string;
 
@@ -30,43 +26,31 @@ export interface IAutoMovieRenderBudgetAssessment {
    * The verdict, including the two that are not a pass.
    *
    * `not-run` is this record's own: no report exists because no renderer identity was supplied. A report's `incomplete` retains its measured findings while one or more analyses have unresolved inputs or bounds; neither state is clearance.
-   *
-   * @author Samchon
    */
   status: IAutoMovieRenderReport["status"] | "not-run";
 
   /**
    * Why no report exists, or `null` when one does.
-   *
-   * @author Samchon
    */
   reason: string | null;
 
   /**
    * The bounded verdict, or `null` when the assessment did not run.
-   *
-   * @author Samchon
    */
   report: IAutoMovieRenderReport | null;
 
   /**
    * The measured cost, or `null` when the assessment did not run.
-   *
-   * @author Samchon
    */
   inventory: IAutoMovieRenderInventory | null;
 
   /**
    * The palette the report's owners resolve in, or `null` as above.
-   *
-   * @author Samchon
    */
   mask: IAutoMovieSemanticMask | null;
 
   /**
    * The sealed target, or `null` when the renderer was never identified.
-   *
-   * @author Samchon
    */
   target: IAutoMovieRenderTarget | null;
 }

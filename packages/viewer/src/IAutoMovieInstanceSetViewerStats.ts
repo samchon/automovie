@@ -10,8 +10,6 @@ import type { IAutoMovieCompiledFormationLod } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms Count fields execute no LOD selection or slot traversal.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The per-frame summary is a value and coordinates no cached calculation.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The statistics retain only a fixed number of numeric counts, with no mesh or member resource references.
- *
- * @author Samchon
  */
 export interface IAutoMovieInstanceSetViewerStats {
   /** Slots assigned to currently visible batches by automatic LOD tier, without measuring native submissions or pixels. */

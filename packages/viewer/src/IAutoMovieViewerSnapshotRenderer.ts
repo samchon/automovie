@@ -10,8 +10,6 @@ import type * as THREE from "three";
  * @evidence contracts/performance.md#efficient-algorithms The interface stores host operations and canvas values only; actual native draw and image encoding dominate capture cost.
  * @evidence contracts/performance.md#reuse-equivalent-work Borrowed host operations may be reused across live frames, but each requested capture executes a fresh original draw/encode rather than reusing equal metadata.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The type acquires no renderer/context/canvas owner and exposes no disposer; its caller keeps the host live and retires native resources outside snapshot readout.
- *
- * @author Samchon
  */
 export interface IAutoMovieViewerSnapshotRenderer {
   /**

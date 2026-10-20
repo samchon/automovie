@@ -10,7 +10,6 @@ import type { AutoMovieGuidePass } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms The erased interface performs no computation.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The factory implements page reuse.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The session owns one page until explicit close; writers independently own retained bytes.
- * @author Samchon
  */
 export interface IViewerCaptureSession {
   /**

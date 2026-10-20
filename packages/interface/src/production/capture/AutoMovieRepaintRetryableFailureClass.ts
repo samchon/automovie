@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design A narrowed union separates potential retry classes from the broader immutable terminal failure vocabulary.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Listing a class does not execute a retry; the retained type has no execution host enforcing policy membership, request identity or hard stops.
  * @evidence contracts/common.md#meaningful-documentation Defines retry eligibility, hard stops and the explicit-reroll requirement for rejected generated output.
- * @author Samchon
  */
 export type AutoMovieRepaintRetryableFailureClass =
   | "timeout"

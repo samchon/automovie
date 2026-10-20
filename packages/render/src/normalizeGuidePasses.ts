@@ -14,7 +14,6 @@ import { isGuidePass } from "./isGuidePass";
  * @evidence contracts/performance.md#efficient-algorithms One pass over the P requested names with constant-time set and list membership, O(P) time and at most six retained passes.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call validates its supplied request independently and returns first-occurrence order; the shared constant registry carries the only invariant data between calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The seen-set is local and released on return; the returned list, owned by the caller, holds at most six passes.
- * @author Samchon
  */
 export const normalizeGuidePasses: (
   passes: readonly string[],

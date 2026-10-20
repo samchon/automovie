@@ -14,7 +14,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data record with no runtime body; the callback runs once per strict intersection inside the census, whose cost is answered there.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Read once per query; the census caches no callback result.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Caller-owned and read only; the census retains no reference after it returns.
- * @author Samchon
  */
 export interface IAutoMovieMeshCrossingOptions {
   /** Retain every crossing pair; omitted reports one pair per first triangle. */

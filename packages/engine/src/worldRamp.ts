@@ -10,7 +10,6 @@ import { IAutoMovieWorldSurface } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms Fixed scalar arithmetic and four fresh footprint points take constant time/space plus id validation; no lattice or mesh is generated.
  * @evidence contracts/performance.md#reuse-equivalent-work One centerline length supplies both width offset and plane coefficients; no cheap coefficient cache is retained across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns fresh footprint/rule records, while input endpoints and any host resources are not retained; current helper callers are tests.
- * @author Samchon
  */
 export const worldRamp: (input: {
   id: string;

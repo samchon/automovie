@@ -10,7 +10,6 @@ import { IAutoMovieProductionFrameRate } from "./IAutoMovieProductionFrameRate";
  * @evidence contracts/common.md#clear-and-simple-design The existing effect stream remains the simulation input, while the envelope owns global edit authority and frame mapping, preventing preview proxies from introducing another effect clock.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A content-valid runtime still needs current owner and edit identities; changing the frame rate or inner step cannot be hidden by replaying a digest from another timeline.
  * @evidence contracts/common.md#meaningful-documentation States explicit film authority, full-rate timeline clock, current builder identities, reduced rational rate, inclusive/exclusive frames and inner-plus-envelope digest coverage.
- * @author Samchon
  */
 export interface IAutoMovieCompiledFilmEffect {
   /** Film-effect runtime format. */

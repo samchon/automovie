@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Separates codec facts from profile acceptance so a structurally valid non-delivery Opus entry can be reported accurately before the host rejects its unsupported profile.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Family zero has implied mono or stereo order and null stream counts; nonzero families keep their explicit mapping and null unexpanded speaker order rather than guessing channel meaning.
  * @evidence contracts/common.md#meaningful-documentation Defines observed codec fields, sample units, informational input rate, signed Q7.8 gain and family-dependent mapping nulls and arrays.
- * @author Samchon
  */
 export interface IAutoMovieProductionOpusDescription {
   /** Closed parsed sample-entry family. */

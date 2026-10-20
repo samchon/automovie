@@ -12,7 +12,6 @@ import { IAutoMovieSurface } from "../scene/IAutoMovieSurface";
  * @evidence contracts/common.md#clear-and-simple-design A pair of the owning logical space id and the unchanged scene surface, the same space-beside-thing shape `IAutoMovieBuiltPopulation` uses, with no building-specific surface fields.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Lowering filters `walkable` per generated scene space by the surfaces that space owns rather than copying the whole list into each, and an unresolved space id is a validation error instead of a fallback space.
  * @evidence contracts/common.md#meaningful-documentation States where lowering puts the surface, which ids `walkable` and a support locator cite, and that the space id must resolve.
- * @author Samchon
  */
 export interface IAutoMovieBuiltSurface {
   /** Logical space containing the support patch; it must resolve. */

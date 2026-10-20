@@ -42,7 +42,6 @@ import { accessorValues } from "./internal/accessorValues";
  * @evidence contracts/performance.md#efficient-algorithms Work follows nodes and child links, meshes, cameras, skins and joints, animations and channels, and all per-track copied keyframe components; resource-index maps are built once and lookups use expected constant-time hash operations.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Maps are reused within one call over a mutable Document; a sampler shared by channels is copied per track so each track owns its arrays, and no cache coordinates separate calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The lookup maps are local and released on return or throw; the result retains new node records and per-track copies of keyframe data proportional to the document's animation size, owned by the caller, and no handle or task.
- * @author Samchon
  */
 export const ingestDocument: (doc: Document) => IAutoMovieIngestResult = (
   doc: Document,

@@ -25,7 +25,6 @@ import {
  * @evidence contracts/performance.md#efficient-algorithms Builds the children index in one pass and visits each included space once, so time is linear in the space count, where a repeated fixpoint scan would be quadratic in the hierarchy depth.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Called once per derivation; the set it returns is shared by every stage of that derivation.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The children index and queue are released on return, and the caller owns the returned set, bounded by the space count plus the filter's names.
- * @author Samchon
  */
 export const autoMovieDrawingIncludedSpaces = (
   environment: IAutoMovieBuiltEnvironment,

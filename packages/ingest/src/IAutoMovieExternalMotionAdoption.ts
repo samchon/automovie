@@ -15,7 +15,6 @@ import type { IAutoMovieExternalMotionSource } from "./IAutoMovieExternalMotionS
  * @evidenceExclude contracts/performance.md#efficient-algorithms The receipt is the result type of adoption and runs no code.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work No work is attached to the receipt.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The receipt owns its copies and is retained by its caller; the cost of building it is counted on `adoptAutoMovieExternalMotion`.
- * @author Samchon
  */
 export interface IAutoMovieExternalMotionAdoption {
   /** Copy of the source identity that was checked against the inspection. */

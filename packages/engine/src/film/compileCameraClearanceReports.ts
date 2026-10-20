@@ -38,8 +38,6 @@ type IObstacleState = IEvaluation["samples"][number]["obstacles"][number];
 
 /**
  * A staged node with its measured bound.
- *
- * @author Samchon
  */
 interface IMeasuredObstacle {
   /** The staged node. */
@@ -54,8 +52,6 @@ interface IMeasuredObstacle {
 
 /**
  * One camera that plays in the shot and declares a clearance envelope.
- *
- * @author Samchon
  */
 interface ITake {
   /** The staged camera, with its envelope. */

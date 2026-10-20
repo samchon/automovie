@@ -5,8 +5,6 @@ import { IAutoMovieResolvedAssembly } from "./IAutoMovieResolvedAssembly";
 
 /**
  * The hull and summed thickness of layers sharing one role.
- *
- * @author Samchon
  */
 interface IRoleSpan {
   /** Least signed layer endpoint. */

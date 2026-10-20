@@ -27,7 +27,6 @@ const UNIT_QUATERNION_EPSILON: number = 1e-6;
  * @evidence contracts/performance.md#efficient-algorithms Individual predicates have scalar/string costs, appending F findings uses O(F) storage, and toValidation scans until an error or the end; labels and retained offending values add their own size.
  * @evidence contracts/performance.md#reuse-equivalent-work Canonical scalar/vector/quaternion methods and violation/result owners serve all gates; mutable value verdicts are not cached across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The collector and its aliased result own the same finding array for as long as callers retain it, including referenced offending objects; no external handle is acquired or released by this sink.
- * @author Samchon
  */
 export class ViolationCollector {
   /** Violations accumulated in insertion order. */

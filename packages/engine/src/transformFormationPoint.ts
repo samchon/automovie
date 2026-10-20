@@ -13,7 +13,6 @@ import {
  * @evidence contracts/performance.md#efficient-algorithms Each point takes constant trigonometric/scalar work and one fresh vector; bounds callers pay this cost for each of eight corners.
  * @evidence contracts/performance.md#reuse-equivalent-work Consumers share this canonical transform, but per-call angles are recomputed and no pose result is retained across mutable motion inputs.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the fresh vector; input point, anchor and state are not retained and no host resources are acquired.
- * @author Samchon
  */
 export const transformFormationPoint: (
   point: IAutoMovieVector3,

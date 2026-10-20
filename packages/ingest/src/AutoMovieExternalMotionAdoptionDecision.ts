@@ -11,7 +11,6 @@ import type { IAutoMovieExternalMotionRetargetDecision } from "./IAutoMovieExter
  * @evidenceExclude contracts/performance.md#efficient-algorithms A union alias has no runtime code.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The decision alias only names two record shapes and performs no work to share.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The alias exists only at compile time, so it allocates and retains nothing at run time.
- * @author Samchon
  */
 export type AutoMovieExternalMotionAdoptionDecision =
   | IAutoMovieExternalMotionNativeDecision

@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design A type-only ordering contract permits one engine runtime array without adding values or runtime dependencies to interface.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The engine spells its array explicitly under this type rather than deriving values from erased types; no locale or inventory traversal order changes report position.
  * @evidence contracts/common.md#meaningful-documentation Defines complete fixed metric order and its type-only versus runtime ownership.
- * @author Samchon
  */
 export type AutoMovieRenderMetricOrder = [
   "triangles",

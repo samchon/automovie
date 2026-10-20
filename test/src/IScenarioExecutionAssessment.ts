@@ -2,8 +2,6 @@ import type { DynamicExecutor } from "@nestia/e2e";
 
 /**
  * Runner acceptance preserves the executor's original record and reports timing failure independently of its assertion error; the record remains shared and mutable by its owner.
- *
- * @author Samchon
  */
 export interface IScenarioExecutionAssessment {
   /** Original executor record, retained by reference without clearing its assertion error. */

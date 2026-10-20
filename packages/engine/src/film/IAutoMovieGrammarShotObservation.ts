@@ -24,7 +24,6 @@ import { IAutoMovieGrammarSubjectObservation } from "./IAutoMovieGrammarSubjectO
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record; the analyzer's per-shot and per-cut cost is answered on `readFilmGrammar`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built once per placed shot by the caller for one reading; nothing caches it.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owns two camera samples and one record per observed subject; the analyzer copies the arrays it normalizes and keeps nothing after the call.
- * @author Samchon
  */
 export interface IAutoMovieGrammarShotObservation {
   /** Shot id, non-blank and unique in the input. */

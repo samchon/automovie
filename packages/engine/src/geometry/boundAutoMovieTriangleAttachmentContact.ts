@@ -42,7 +42,6 @@ import { measureAutoMovieProjectionIntervals } from "./measureAutoMovieProjectio
  * @evidence contracts/performance.md#efficient-algorithms Constant work: one cross product, one six-point projection and two three-axis L1 sums.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function evaluated once per attachment support by each separation call; the caller keeps the resulting caps.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns an owned four-field record and keeps no reference to either triangle.
- * @author Samchon
  */
 export function boundAutoMovieTriangleAttachmentContact(
   fan: readonly IAutoMovieVector3[],

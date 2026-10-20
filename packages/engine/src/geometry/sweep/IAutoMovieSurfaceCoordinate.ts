@@ -13,7 +13,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A record.
- * @author Samchon
  */
 export interface IAutoMovieSurfaceCoordinate {
   /** Index of the patch in the network's patch list. */

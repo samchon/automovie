@@ -9,7 +9,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms This report computes nothing itself; selection and boundary resolution own the checks that fill these fields.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Budget scalars describe one seek and hold no request scheduling or cross-subject cache.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Five primitive numbers retain no domain, frame array or simulation allocation after their producing call.
- * @author Samchon
  */
 export interface IAutoMovieWearableSoftBudget {
   /** Zero-based admitted subject slot. */

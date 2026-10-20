@@ -1,4 +1,4 @@
-﻿import type { IAccessorSource } from "./IAccessorSource";
+import type { IAccessorSource } from "./IAccessorSource";
 import type { IExternalModelAccessorReader } from "./IExternalModelAccessorReader";
 import { SHAPE_COMPONENTS } from "./SHAPE_COMPONENTS";
 import { accessorReader } from "./accessorReader";
@@ -16,7 +16,6 @@ import { object } from "./object";
  * @evidence contracts/performance.md#efficient-algorithms Count times shape width drives time and output space; one reader and DataView serve the entire accessor copy.
  * @evidence contracts/performance.md#reuse-equivalent-work The inspector caches this complete decoded accessor by index and expected shape within one immutable input revision.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The output array belongs to its caller; the reader's borrowed payload reference ends when decoding completes.
- * @author Samchon
  */
 export const readMotionAccessor: (
   source: IAccessorSource,

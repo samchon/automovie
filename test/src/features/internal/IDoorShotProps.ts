@@ -6,8 +6,6 @@ import {
 
 /**
  * What one door-fixture compile varies.
- *
- * @author Samchon
  */
 export interface IDoorShotProps {
   /** The clips the source authors, or omitted for a shot that authors none. */

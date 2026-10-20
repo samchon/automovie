@@ -7,7 +7,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design Two vector corners serve both compact population kinds without coupling the bound to a prototype or viewer representation.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No radius or body size is inferred from these corners; a one-slot range legitimately has equal minimum and maximum positions.
  * @evidence contracts/common.md#meaningful-documentation Gives world-meter units, corner meaning and the exclusion of model extents and instantaneous motion.
- * @author Samchon
  */
 export interface IAutoMovieFormationBounds {
   /** Minimum world-space corner. */

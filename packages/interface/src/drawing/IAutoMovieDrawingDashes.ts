@@ -10,7 +10,6 @@ import { AutoMovieDrawingRole } from "./AutoMovieDrawingRole";
  * @evidence contracts/common.md#clear-and-simple-design The mapped type requires an array for every known role. It exposes missing members to TypeScript without providing runtime exact-key admission, and the serializer reads the fixed role list rather than arbitrary extra keys.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A zero, negative or non-finite entry throws at serialization rather than being dropped or replaced with a default pattern.
  * @evidence contracts/common.md#meaningful-documentation States the page-millimetre unit, the solid meaning of an empty array, the alternation rule, and the serializer's refusal.
- * @author Samchon
  */
 export type IAutoMovieDrawingDashes = {
   [role in AutoMovieDrawingRole]: number[];

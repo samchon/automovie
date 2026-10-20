@@ -22,7 +22,3 @@ CC BY 4.0. Numbers are facts.
 No sex difference. Density falls with age (frontal 156.2 in the 20s to 146.7 in the 60s) while diameter stays near 80 μm.
 
 Quoted comparison (hairs/cm²): Caucasian frontal 230 (33), vertex 226 (20), occipital 214 (28); African 160 (27), 149 (23), 148 (25); Hispanic 174 (32), 178 (33), 169 (31).
-
-## What Human takes
-
-Scalp coverage density by site, age and ancestry for hair-card count and scalp show; strand diameter for strand texture scale.

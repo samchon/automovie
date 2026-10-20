@@ -14,7 +14,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record; `sequenceTimeline` builds all entries in one pass over the sequence.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built per timeline; the render plan, caption plan and frame sampler each reuse one timeline across all their frames, which is answered on those callers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources One string and four numbers held by value, owned by the timeline's entry array and released with it.
- * @author Samchon
  */
 export interface IAutoMoviePlaybackEntry {
   /** Index of this entry in `sequence.shots`. */

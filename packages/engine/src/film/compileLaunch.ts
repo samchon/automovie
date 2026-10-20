@@ -38,7 +38,6 @@ function firstActor(action: IAutoMovieLaunchAction): string | null {
  *
  * Returns null when the target is out of range at that speed. Throws `RangeError` when `onHit` has no non-blank `targetNode`, because no actor can perform that requested reaction.
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Solves the closed-form ballistic aim, or its fixed-point lead against a moving target sampled at `action.start` plus flight time, samples the closed-form flight so there is no integration drift, and derives the recoil source one metre up the incoming velocity, falling back to the sightline when the projectile arrives still.
  * @evidence contracts/common.md#clear-and-simple-design Orchestrates the physics primitives and owns only what joins them into a verb: the react, the events and their ids; shifting the clip onto the shot clock and suffixing repeated flights stay with `performShot`, which owns the shot's object-motion list.

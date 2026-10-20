@@ -13,8 +13,6 @@ import {
  * @evidence contracts/performance.md#efficient-algorithms At most A anchors plus C colliders are scanned, with early exit and constant extra storage.
  * @evidence contracts/performance.md#reuse-equivalent-work Both selection decisions reuse the same predicate; mutable arrays are evaluated rather than retained behind an identity cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a boolean survives; domain arrays are unmodified and unretained.
- *
- * @author Samchon
  */
 export const productionSoftBodyUsesMovingBoundary: (
   domain: Pick<IAutoMovieSoftBodyDomain, "anchors" | "colliders">,

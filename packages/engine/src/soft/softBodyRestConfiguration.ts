@@ -11,8 +11,6 @@ import { softBodyRestBuffer } from "./softBodyRestBuffer";
  * @evidence contracts/performance.md#efficient-algorithms For P coordinate values, A anchors, S states and T named poses, buffer setup plus plain conversion costs O(P+A+S+T), retaining O(P+T) local/result storage.
  * @evidence contracts/performance.md#reuse-equivalent-work Target indexing is performed once in the shared owner; no persistent configuration assumes equivalence of a mutable domain and named state.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The typed working buffer and target map are temporary; a fresh number array transfers to the caller without retaining source coordinate or target records.
- *
- * @author Samchon
  */
 export const softBodyRestConfiguration: (
   domain: IAutoMovieSoftBodyDomain,

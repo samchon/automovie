@@ -36,7 +36,6 @@ const ENVIRONMENT_MEDIA: ReadonlySet<AutoMovieTextureMediaType> = new Set([
 /**
  * Cross-check every sampled material/environment image with manifest registration, production consumer authorization, media/edge facts and consistent color intent. A binding that names an image its model carries skips the ledger, which holds project files only, and joins the colour-intent check under that model.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Cross-check every sampled material/environment project image with manifest registration, production consumer authorization, media/edge facts and consistent color intent; model-carried images resolve first, skip the ledger and keep a model-scoped intent check.
  * @evidence contracts/common.md#clear-and-simple-design materialTextureSlots owns consumer slots and facts is the host-provided header-fact seam; byte digest ownership stays with the manifest gate.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Facts do not prove full decoding, and this validator does not reread or redigest bytes.

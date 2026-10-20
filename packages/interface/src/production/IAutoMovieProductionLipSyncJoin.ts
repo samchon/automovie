@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design The union separates usable actor composition metadata from a missing-join fact, leaving the viseme timeline and actual expression sampling in their own records.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Speaker identity is not guessed from cast order, external audio receives no fabricated phonemes, and mouth motion is not shifted to delayed listener arrival.
  * @evidence contracts/common.md#meaningful-documentation Defines explicit supplied-binding selection, emission clock, intended mouth composition, unavailable-binding reasons and current actor-application/host limits.
- * @author Samchon
  */
 export type IAutoMovieProductionLipSyncJoin =
   | {

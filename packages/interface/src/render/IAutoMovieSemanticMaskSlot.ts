@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Two fields identify one instanced member without embedding its transform, model or variation in the semantic palette.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The index is a stable slot identity rather than current draw order or visible instance ordinal; capacity gaps cannot be filled by another slot's color.
  * @evidence contracts/common.md#meaningful-documentation Defines compiled set ownership and zero-based deterministic slot indexing.
- * @author Samchon
  */
 export interface IAutoMovieSemanticMaskSlot {
   /** Compiled instance-set id. */

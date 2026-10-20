@@ -14,7 +14,3 @@ Product documentation under Autodesk's terms. Read for practice only.
 - `dropoff`: per-influence dropoff rates.
 - `falloffMode`: volume-based (3D distance from the influence) or surface-based (distance across the surface).
 - `weightThreshold`: below it no deformation takes place.
-
-## What Human takes
-
-The industry baseline for garment binding and its weakness for Human: distance-based weights pick up nearby but unrelated surfaces, which a semantic skin coordinate avoids (`../techniques/garment-binding.md`).

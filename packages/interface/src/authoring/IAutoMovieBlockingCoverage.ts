@@ -9,7 +9,6 @@ import { IAutoMovieBlockingCamera } from "./IAutoMovieBlockingCamera";
  * @evidence contracts/common.md#clear-and-simple-design Extends the shared camera grammar with only the camera id, because a take differs from the hero intent solely in which staged camera renders it and in having no timing of its own.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A take never joins the hero election, so a coverage camera cannot silently become a second live camera; no camera id or framing is treated differently.
  * @evidence contracts/common.md#meaningful-documentation States that the take spans the whole beat, that it has no focus or lens intent, and which cameras its id may and may not name.
- * @author Samchon
  */
 export interface IAutoMovieBlockingCoverage extends IAutoMovieBlockingCamera {
   /**

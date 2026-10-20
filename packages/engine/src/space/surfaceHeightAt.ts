@@ -15,7 +15,6 @@ const MIN_RAMP_AXIS: number = 1e-9;
  * @evidence contracts/performance.md#efficient-algorithms A height query uses constant scalar work and at most four indexed lattice samples regardless of grid population; no grid scan or emitted geometry is allocated.
  * @evidence contracts/performance.md#reuse-equivalent-work All consumers reuse the same rule implementation and supplied grid; no scalar-height or mutable-grid result cache is retained.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a number escapes; local cell records leave scope and the borrowed surface/grid is not retained by the query.
- * @author Samchon
  */
 export const surfaceHeightAt: (
   surface: IAutoMovieHeightSurface,

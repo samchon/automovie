@@ -14,7 +14,6 @@ import { AutoMovieAnalysisDomain } from "./AutoMovieAnalysisDomain";
  * @evidence contracts/common.md#clear-and-simple-design Plain counts per domain with no embedded run list, so a report stays one fixed-size row per domain however many runs were submitted; run-level detail lives in the report's gap list.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A stale run's outcome is never counted as solved or its metrics as measured, and a required domain with zero runs keeps `runs: 0` beside `required: true` instead of being omitted.
  * @evidence contracts/common.md#meaningful-documentation States the counting identity, which runs feed the metric counters, why untargeted metrics have no field, and what each counter includes.
- * @author Samchon
  */
 export interface IAutoMovieAnalysisDomainRollup {
   /** Domain this row answers for. */

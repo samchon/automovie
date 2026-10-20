@@ -30,8 +30,6 @@ import { nclose } from "../internal/predicates";
  * @evidence contracts/testing.md#independent-expectations Two 0.7-second input holds and the documented 0.6-second second-entry overlap independently imply 0.8 seconds, checked with nclose; own-key membership and one blocking per performance are the source contract. Existing output-order/runtime-correspondence assertions add consistency checks without serving as the sole numerical oracle.
  * @evidence contracts/testing.md#distinguishing-cases Covers known/unknown/inherited rig keys, missing/extra pair counts, preserved valid pairs, distinct actor ownership, skeletonless set and staging/blocking/perform/cut failures. It does not judge appearance, anatomy, contact, GPU retirement or all engine-stage validation cases, which have separate owners.
  * @evidence contracts/testing.md#execution-ownership The discoverable named test invokes maintained source through its supported package subpath using in-memory typed authoring data. It starts no process, browser, native render or new validation driver; the configured test runner owns discovery and execution.
- *
- * @author Samchon
  */
 export function test_playground_film_compilation(): void {
   const inputs: Parameters<typeof compilePursuitFilm>[0] = {

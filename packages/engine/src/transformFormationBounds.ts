@@ -16,7 +16,6 @@ import { transformFormationPoint } from "./transformFormationPoint";
  * @evidence contracts/performance.md#efficient-algorithms Eight point transforms plus fixed coordinate reductions take constant work and storage; repeated trig evaluations and small mapped arrays are paid within this owner.
  * @evidence contracts/performance.md#reuse-equivalent-work The same point rule is shared across all corners and consumers; no cheap fixed-size coefficient cache or mutable-bounds result cache is introduced.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns fresh min/max vectors; corner and reduction arrays leave scope after completion and no renderer handle is retained.
- * @author Samchon
  */
 export const transformFormationBounds: (
   bounds: IAutoMovieFormationBounds,

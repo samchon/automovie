@@ -17,7 +17,6 @@ import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape with no runtime body; sampling it is one clip evaluation answered on `resolveCameraAt`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Resolved per queried instant by the caller; nothing caches a camera placement across instants or shots.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds two small records; for a static camera or a missing track they are the staged base's own objects by reference, so a caller must copy before mutating.
- * @author Samchon
  */
 export interface IAutoMovieResolvedCamera {
   /** Lens position in world space, metres. */

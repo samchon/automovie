@@ -13,7 +13,6 @@
  * @evidence contracts/common.md#clear-and-simple-design A style tag and a length are all the edit needs; the overlap placement and blend weight are derived by the timeline instead of being stored per entry.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The documentation states that `fade` samples like a dissolve instead of implying a fade-through-black the sampler does not perform, and an over-long transition is refused rather than shortened.
  * @evidence contracts/common.md#meaningful-documentation States the overlap semantics, every refusal, the blend weight, and that the kind is not yet distinguished by frame sampling.
- * @author Samchon
  */
 export interface IAutoMovieTransition {
   /**

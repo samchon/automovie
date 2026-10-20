@@ -10,7 +10,6 @@ import { IAutoMovieDiagnostic } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms One result object and strings cost their combined lengths, independent of shot geometry or clip population.
  * @evidence contracts/performance.md#reuse-equivalent-work Callers reuse the same diagnostic vocabulary without another gate or cached failure record.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only fresh scalar strings and fixed fields transfer to the caller; no shot, source input object, playback task or renderer is retained.
- * @author Samchon
  */
 export const engineDiagnostic: (
   id: string,

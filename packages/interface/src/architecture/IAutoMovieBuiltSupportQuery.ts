@@ -14,7 +14,6 @@ import { AutoMovieBuiltPlacementSupportLocator } from "./AutoMovieBuiltPlacement
  * @evidence contracts/common.md#clear-and-simple-design A claim is subject, support, kind, and optional tolerance; the query reuses the prop placement kernel's support gap rather than carrying a building-specific probe rule.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A negative or non-finite tolerance throws a `RangeError` instead of being replaced by the default, and `suspended` is accepted without measurement as the documented limit rather than faked with a hanging test.
  * @evidence contracts/common.md#meaningful-documentation States what each kind measures, that the result is not structural analysis, the metre unit and default of the tolerance, and that an invalid tolerance throws.
- * @author Samchon
  */
 export interface IAutoMovieBuiltSupportQuery {
   /** The element or compact population whose placement is being reviewed. */

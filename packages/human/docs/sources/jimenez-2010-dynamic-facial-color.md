@@ -4,7 +4,7 @@ Jimenez J, Scully T, Barbosa N, Donner C, Alvarez X, Vieira T, Matts P, Orvalho 
 
 ## Licence
 
-Copyright ACM; author-hosted copy. Human takes the parameterization and observations, citing the paper.
+Copyright ACM; author-hosted copy.
 
 ## Population and protocol
 
@@ -26,7 +26,3 @@ Four Caucasian subjects (one woman 33, men 26, 33, 35), polarized imaging decomp
 | Chd | Dermal hemoglobin fraction | 0 to 0.32 |
 
 The real-time renderer precomputes skin colour into a 2D lookup texture indexed by melanin and hemoglobin (Figure 9 axes: Cm 0, 0.002, 0.0135, 0.0425, 0.1, 0.185, 0.32, 0.5; Chd 0.003 to 0.32), with βm fixed at 0.61 (61 percent eumelanin) and Che at 25 percent of Chd. Subsurface scattering is the screen-space separable sum-of-Gaussians of Jimenez 2009, applied to diffuse light only, with albedo applied after scattering. Specular is Kelemen/Szirmay-Kalos with spatially varying roughness and intensity after Weyrich 2006. Wrinkles are masked zones that add partial-derivative normal maps.
-
-## What Human takes
-
-The appearance rig: identity sets melanin, the expression state scales a hemoglobin map per region (flush in anger, pallor in fear, local blanching where skin is compressed), and colour comes from a 2D lookup over (melanin, hemoglobin) rather than a spectral evaluation per frame.

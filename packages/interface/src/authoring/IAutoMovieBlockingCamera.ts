@@ -11,7 +11,6 @@ import { IAutoMoviePointTarget } from "../harness/IAutoMoviePointTarget";
  * @evidence contracts/common.md#clear-and-simple-design Three fields carry the whole intent; the camera id lives only on `IAutoMovieBlockingCoverage`, because the hero camera is elected by the performance's first `frame` action rather than named by the plan.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The documented gap stays visible: the hero `on` is checked for placement only and never compared with the performed subject, instead of being claimed as verified.
  * @evidence contracts/common.md#meaningful-documentation States the shared vocabulary, which gates read each field for the hero and for a coverage take, what an `on` node may name, and the subject comparison gap.
- * @author Samchon
  */
 export interface IAutoMovieBlockingCamera {
   /** Shot size the compiled camera must deliver, in `frame` vocabulary. */

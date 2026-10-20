@@ -49,8 +49,6 @@ const DEFAULT_SIDES: number = 8;
  * @evidence contracts/performance.md#efficient-algorithms Validation precedes one sweep per run; regular sections cost O(sides) and emitted vertices scale with route length times sides, with underlying network checks retaining their own pairwise costs.
  * @evidence contracts/performance.md#reuse-equivalent-work Both gates run once before the loop, while every run's radius/route needs its own section and sweep; no mutable mesh is cached across networks.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Fresh models, set pieces and mesh buffers transfer to the contribution caller; no GPU object, validator collector or source network reference is retained.
- *
- * @author Samchon
  */
 export const lowerServiceNetwork: (props: {
   network: IAutoMovieServiceNetwork;

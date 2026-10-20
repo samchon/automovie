@@ -10,7 +10,6 @@ import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms This frame record executes no animation sampling or anchor transformation; consumers own those fixed-dimensional calculations.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A frame describes one absolute snapshot and contains no playback cursor or cache for future steps.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Snapshot ownership covers its position/quaternion references, while the record retains no scene graph object or renderer.
- * @author Samchon
  */
 export interface IAutoMovieSoftNodeTransform {
   /** Stable scene-node identity. */

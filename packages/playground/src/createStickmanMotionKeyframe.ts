@@ -10,8 +10,6 @@ import type { IAutoMovieKeyframe, IAutoMoviePose } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms Constant wrapper work borrows the pose without scanning its joints; actual motion sampling and rendering occur later.
  * @evidence contracts/performance.md#reuse-equivalent-work Repeated keyframes may reference the same authored pose vocabulary; no sampled-pose cache is maintained here.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned keyframe belongs to its clip while pose records remain borrowed; no external handle or running task is acquired.
- *
- * @author Samchon
  */
 export function createStickmanMotionKeyframe(
   time: number,

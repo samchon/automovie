@@ -65,7 +65,6 @@ const EPSILON: number = 1e-12;
  * @evidence contracts/performance.md#efficient-algorithms Cost is O(R·S) for R receivers (at most 4096) and S sources, paid once: each source's power `10^(Lw/10)` is computed once instead of per receiver, and the receiver-source distance pass both refuses coincidence and accumulates the direct field; other work is linear in surfaces, partitions and metrics times targets.
  * @evidence contracts/performance.md#reuse-equivalent-work Within one study the absorption area and room constant serve the reverberation, room-constant and level metrics, the summed source power serves every receiver's diffuse term, and the receiver levels serve the mean, the maximum and the samples; nothing is shared across studies.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Allocates per-call arrays of S powers and R direct terms and levels, bounded by the receiver limit and the declared sources, and keeps none of them after returning the sealed run, which owns its samples.
- * @author Samchon
  */
 export const analyzeAutoMovieAcoustics: (props: {
   request: IAutoMovieAcousticRequest;

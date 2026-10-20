@@ -8,7 +8,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms Edge data performs no route projection or norm; those scans are owned by the schematic producer.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A derived edge represents one current run and stores no cross-run drawing cache or shared computation.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The edge owns a new point array and scalar/string fields, without retaining original route points or port records.
- * @author Samchon
  */
 export interface IAutoMovieServiceSchematicEdge {
   /** Stable segment identity. */

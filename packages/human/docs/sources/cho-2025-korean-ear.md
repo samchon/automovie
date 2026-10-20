@@ -30,10 +30,6 @@ Lobule types by the angle between the auricle base and the line through the supe
 
 The introduction cites a Korean study in which ear length and width reach 90 percent of adult size at 14 to 15 years, against 9 to 12 years in Western populations.
 
-## What Human takes
-
-Ear size by sex and age (the ear keeps lengthening through adulthood), protrusion distances at two heights, the lobule-type angle and its frequencies.
-
 ## Limits
 
 CT patients rather than a random sample; large SDs suggest landmark variability.

@@ -24,7 +24,6 @@ import { validateJointAxesBasis } from "./validateJointAxesBasis";
  * @evidence contracts/performance.md#efficient-algorithms Constant work: one validation of three axes and three normalizations, allocating the returned basis only.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each requested basis is validated before normalization, and mutable authored axis records have no shared validated identity across conversions.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned basis.
- * @author Samchon
  */
 export const normalizeJointAxes: (
   axes: IAutoMovieJointAxes,

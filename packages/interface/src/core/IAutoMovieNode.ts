@@ -25,7 +25,6 @@ import { AutoMovieNodeKind } from "./AutoMovieNodeKind";
  * @evidence contracts/common.md#clear-and-simple-design One flat record per node with a single parent reference keeps the hierarchy a forest the engine can index in one pass, and payloads are ids rather than nested objects so meshes, cameras and lights stay owned by their own tables.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No node kind is special-cased by the resolver, which reads only id, parent and transform; multi-parent relationships are expressed as drivers rather than patched into the hierarchy. The descriptive `kind` and payload ids are not cross-checked, a gap stated here rather than hidden.
  * @evidence contracts/common.md#meaningful-documentation States the parent-local frame of the transform, the single-parent forest rule, what `composeScene` refuses and does not check, which fields the resolver reads, and that a transform is the rest pose when no channel animates it.
- * @author Samchon
  */
 export interface IAutoMovieNode {
   /**

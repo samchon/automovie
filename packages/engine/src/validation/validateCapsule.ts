@@ -8,7 +8,6 @@ import { ViolationCollector } from "./ViolationCollector";
 /**
  * Require distinct skeleton endpoints that are declared and FK-reachable, plus finite positive radius.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Require distinct skeleton endpoints that are declared and FK-reachable, plus finite positive radius.
  * @evidence contracts/common.md#clear-and-simple-design One canonical interface capsule serves collision, self-intersection and ground-contact gates.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Failure appends errors and returns false, so an unusable endpoint is not replaced by a guessed pose.

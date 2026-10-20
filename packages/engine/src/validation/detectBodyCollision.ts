@@ -58,7 +58,6 @@ interface IPenetration {
  * @evidence contracts/performance.md#efficient-algorithms For F frames, J resolved bones and A/B capsules, pose maps cost O(F*J), pair checks O(F*A*B), and deepest-contact sorting O(E log E) for E penetrations; storage is O(F*J+E).
  * @evidence contracts/performance.md#reuse-equivalent-work Each actor pose resolves once per frame and its map serves all capsule pairs; one retained penetration list supplies events, warnings and deepest response without a cross-call motion cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Local pose maps and penetration rows are discarded; fresh events, validation and response transfer to the caller without retaining sampled poses or owning a physics/render task.
- * @author Samchon
  */
 export const detectBodyCollision: (props: {
   a: IAutoMovieCollisionActor;

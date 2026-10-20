@@ -8,8 +8,6 @@
  * @evidence contracts/performance.md#efficient-algorithms The union chooses no traversal; parser membership and actual subject lookup retain their own costs.
  * @evidence contracts/performance.md#reuse-equivalent-work Categories are shared static vocabulary; equal categories do not establish equal subject ids or revisions.
  * @evidence contracts/performance.md#bound-retention-and-release-resources This erased type owns no scene, renderer or task; consumers own any resolved object population.
- *
- * @author Samchon
  */
 export type AutoMovieViewerSubjectKind =
   | "built-environment"

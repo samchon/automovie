@@ -7,7 +7,6 @@ import { AutoMovieRenderMetric } from "./AutoMovieRenderMetric";
  * @evidence contracts/common.md#clear-and-simple-design One complete metric map serves inventory and budget evaluation without optional missing keys that could silently omit unsupported costs.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Null is not zero and cannot produce measured within clearance; each number retains its metric-specific measurement interpretation rather than claiming observed GPU statistics.
  * @evidence contracts/common.md#meaningful-documentation Defines complete metric coverage, preflight numeric meaning and unmeasured null state.
- * @author Samchon
  */
 export type IAutoMovieRenderTotals = {
   [metric in AutoMovieRenderMetric]: number | null;

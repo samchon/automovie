@@ -24,7 +24,3 @@ WHO standard curves published as LMS parameters per month; L = 1 for head circum
 | 60 | 50.74 | 1.49 | 49.92 | 1.42 |
 
 Formula: HC(z) = M + z·SD, with M and S per month in the workbook (SD = M·S).
-
-## What Human takes
-
-Infant and toddler head size: 61 percent of an adult man's 56.7 to 56.8 cm circumference at birth (Zhuang 2010, Du 2008), 81 percent at one year, 89 percent at five (derived). The head grows fastest in the first year, the cue that makes infants read as infants.

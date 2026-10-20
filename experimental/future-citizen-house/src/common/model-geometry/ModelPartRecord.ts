@@ -1,7 +1,5 @@
 /**
  * One authored local part recipe consumed by ModelRepresentation. Bounds are metres and remain caller-owned; a shape token chooses a draft recipe rather than proving design-face or contact completion.
- *
- * @author Samchon
  */
 export interface ModelPartRecord {
   /** Local identity copied into the model part and used to find optional state recipe data. */

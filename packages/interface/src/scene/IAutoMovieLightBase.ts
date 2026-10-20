@@ -9,7 +9,6 @@ import { IAutoMovieLightShadow } from "./IAutoMovieLightShadow";
  * @evidence contracts/common.md#clear-and-simple-design Common fields avoid duplicating identity and color across light kinds, with shadow tuning linked explicitly to castShadow rather than implicit host presets.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Area shadow flags refuse, shadow controls are required exactly for casting punctual sources, and authored light flags do not override a disabled scene shadow policy.
  * @evidence contracts/common.md#meaningful-documentation Defines transform and channel ownership, linear color, lux/candela/nit units and requested versus actually rendered shadow state.
- * @author Samchon
  */
 export interface IAutoMovieLightBase {
   /** Stable id. */

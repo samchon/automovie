@@ -12,7 +12,6 @@ import type { IAutoMoviePoseKeypointSidecar } from "./IAutoMoviePoseKeypointSide
  * @evidence contracts/performance.md#efficient-algorithms One `JSON.stringify` pass is linear in the sidecar's size.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A host serializes a sidecar once to write it.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned string, about the sidecar's serialized size, is the caller's; nothing is retained and no file is opened, since the host writes it.
- * @author Samchon
  */
 export const renderPoseKeypointSidecar: (
   sidecar: IAutoMoviePoseKeypointSidecar,

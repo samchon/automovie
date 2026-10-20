@@ -10,7 +10,6 @@ import { ViolationCollector } from "./ViolationCollector";
  * @evidence contracts/performance.md#efficient-algorithms Nonstring input takes constant work; a string costs its trim traversal and at most one finding allocation.
  * @evidence contracts/performance.md#reuse-equivalent-work One shared predicate/message form serves different resource labels without a cache of mutable author records.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a refused value and newly allocated finding are retained in the supplied collector; any trim result is temporary and no resource handle is acquired.
- * @author Samchon
  */
 export const collectNonEmptyId: (
   value: unknown,

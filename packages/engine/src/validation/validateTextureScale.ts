@@ -16,7 +16,6 @@ const SCALE_EPSILON: number = 1e-9;
 /**
  * Measure mesh UV bounding spans, reject normalized spans over1+1e-9 and warn when repeating surface-metre tile size exceeds the span.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Measure mesh UV bounding spans, reject normalized spans over1+1e-9 and warn when repeating surface-metre tile size exceeds the span.
  * @evidence contracts/common.md#clear-and-simple-design materialTextureSlots enumerates bindings and surfaceSpan reads UVs; each model indexes material ids once.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Primitives, absent/degenerate UVs, legacy ids, omitted/source-uv coordinates and clamped axes are intentionally exempt.

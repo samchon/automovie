@@ -31,7 +31,6 @@ import {
  * @evidence contracts/performance.md#efficient-algorithms O(K + T) for K reported keys and T targets: one set build and one hashed lookup per target instead of a scan of the keys per target.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call checks one study's targets once; the envelope analyzer, the only multi-run caller, now calls it once and copies the result into both runs instead of repeating it per run.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The key set is call-local and released on return; the appended warnings, at most one per target, belong to the caller's sink.
- * @author Samchon
  */
 export const warnAutoMovieAnalysisTargetKeys: (props: {
   targets: readonly IAutoMovieAnalysisTarget[];

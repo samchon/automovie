@@ -17,7 +17,6 @@ import { IAutoMovieDesignVariant } from "./IAutoMovieDesignVariant";
  * @evidence contracts/common.md#clear-and-simple-design One record holds the seven lists a lineage answers from, each owned by its own member type, and points at foreign graphs only through subject ids, so no building type gains a phase or variant field.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Explicit coherence validation refuses stale recorded derivations and invents no lifecycle. Cross-shot canonical merging and conflicting-id refusal no longer have a production host, so callers must preserve consistent shared identities.
  * @evidence contracts/common.md#meaningful-documentation States foreign identity annotation, absence semantics, coherence and binding gates, artifact head stamps, minimum revisions and canonical-equality sharing with conflicting-id refusal.
- * @author Samchon
  */
 export interface IAutoMovieDesignLineage {
   /** Schema version; validation accepts only `1`. */

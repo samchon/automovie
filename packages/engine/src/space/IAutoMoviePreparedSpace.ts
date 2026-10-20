@@ -12,7 +12,6 @@ import { IAutoMoviePreparedSurface } from "./IAutoMoviePreparedSurface";
  * @evidence contracts/performance.md#efficient-algorithms S surfaces with E total ring vertices need O(S+E) preparation time/storage; a query may scan all surfaces and their region edges.
  * @evidence contracts/performance.md#reuse-equivalent-work Explicit prepared arguments share completed projections/areas across queries; there is no global cache, source revision check or mutation watcher.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the prepared surface collection, which retains the source space/surfaces and their vertices until discarded; no renderer or background task is acquired.
- * @author Samchon
  */
 export interface IAutoMoviePreparedSpace {
   /** The source space this prepared index was built from. */

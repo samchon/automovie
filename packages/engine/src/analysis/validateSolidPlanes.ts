@@ -30,7 +30,6 @@ import { AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES } from "./constants/AUTOMOVIE_ANALY
  * @evidence contracts/performance.md#efficient-algorithms One O(P) pass performs fixed scalar/vector checks per plane with constant live scratch, plus path/diagnostic text proportional to its length. No pairwise plane or enclosure solve proves boundedness; only caller-owned findings accumulate.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure check of one plane list per call; each caller passes a different solid, and no verdict exists to share between calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing and opens no handle; the violations go into the caller-owned collector, whose lifetime the caller controls.
- * @author Samchon
  */
 export const validateSolidPlanes: (
   planes: readonly IAutoMovieHalfSpacePlane[],

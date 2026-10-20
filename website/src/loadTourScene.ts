@@ -11,8 +11,6 @@ import type { TourData } from "./tourData";
 
 /**
  * The native temple material fields needed to decode its authored albedo binding.
- *
- * @author Samchon
  */
 interface TempleMaterial {
   /** Native material identity used by uploadTemple's texture lookup. */

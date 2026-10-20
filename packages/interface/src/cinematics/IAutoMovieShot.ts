@@ -26,7 +26,6 @@ import { IAutoMovieShotPerformance } from "./IAutoMovieShotPerformance";
  * @evidence contracts/common.md#clear-and-simple-design The shot references its scene, camera and motions by id and keeps camera, object and light motion in three clip lists split by applier, while guide metadata (events, intent, coverage, clearance) rides in optional fields that no solve reads back.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unsupported channels are refused rather than silently stored. The performing producer refuses blocked or stale clearance evaluation; structural artifact admission inspects carried reports without rerunning that evaluation. Absent optional fields remain absent rather than receiving invented defaults.
  * @evidence contracts/common.md#meaningful-documentation States the shot clock, which channels each clip field admits and why, the absent-versus-empty meaning of every optional list, the event order, the coverage and clearance rules, and the duration's range.
- * @author Samchon
  */
 export interface IAutoMovieShot {
   /** Stable, non-blank id. */

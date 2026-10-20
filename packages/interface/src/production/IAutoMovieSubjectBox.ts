@@ -7,7 +7,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design Two vectors contain only geometry extents, with coordinate-space authority retained by the surrounding subject bounds record.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A box carries no inferred body radius or volume and does not erase a planar extent by imposing positive thickness.
  * @evidence contracts/common.md#meaningful-documentation Defines inclusive meter corners, axis alignment and the enclosing coordinate-space authority.
- * @author Samchon
  */
 export interface IAutoMovieSubjectBox {
   /** Inclusive minimum corner in metres. */

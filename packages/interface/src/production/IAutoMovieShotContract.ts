@@ -13,7 +13,6 @@ import { IAutoMovieShotStoryTime } from "./IAutoMovieShotStoryTime";
  * @evidence contracts/common.md#clear-and-simple-design Separates narrative identity and source binding from measurable opening, closing, camera and event obligations, leaving dense motion and scene construction to the source and engine pipeline.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Echoed ids and camera intent prose do not prove realization; occlusion ratio remains an external current-frame review requirement rather than a builder-measured mask statistic, and style intent suppresses only its named heuristic.
  * @evidence contracts/common.md#meaningful-documentation Defines source path admission, shot seconds and frame clock, independent story pin, participant and predicate obligations, camera limits and required visual evidence.
- * @author Samchon
  */
 export interface IAutoMovieShotContract {
   /** Non-blank stable shot id, unique under portable case folding. */

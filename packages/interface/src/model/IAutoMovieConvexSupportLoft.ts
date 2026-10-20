@@ -10,7 +10,6 @@
  * @evidence contracts/common.md#clear-and-simple-design One plane registry and ordered offset spans own both generated surfaces and construction; generation budgets and observation uncertainty belong to their respective callers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No source positions, triangle indices, normals, per-row polygon table or hidden cap supplies the section field. A convex intersection does not identify a hidden concavity or certify an enclosure of unknown true geometry.
  * @evidence contracts/common.md#meaningful-documentation States metre units, outward unit normals, inequality sign, Bernstein ordering, shared endpoints, convex-section interpretation and open/unsupported regions.
- * @author Samchon
  */
 export interface IAutoMovieConvexSupportLoft {
   /** Unique plane identities with outward [nx,nz] unit normals in XZ. */

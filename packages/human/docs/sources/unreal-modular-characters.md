@@ -12,7 +12,3 @@ Documentation under Epic's terms; technique reference only.
 - Leader pose children must be "a subset with the exact matching structure"; extra or skipped joints render in the reference pose.
 - The merge path does not transfer morph targets.
 - The page does not discuss normals, vertex matching or where to split parts.
-
-## What Human takes
-
-The contrast that motivates joining at the cage (`../techniques/junction-and-seams.md`): game practice leaves seams to separately authored meshes that share a skeleton.

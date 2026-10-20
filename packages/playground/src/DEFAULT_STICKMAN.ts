@@ -6,8 +6,6 @@ import type { IStickmanParams } from "./IStickmanParams";
  * Consumers copy or read this sixteen-field record and the canonical builder owns geometry/constraint assembly. Reusing initial data does not cache a numerical model, validate physiology or supply missing Human source assets.
  *
  * One module-level record lives with the page or model-export process and owns no GPU handle, worker or timer. Returned models and later uploaded resources retain their ordinary page/viewer owners.
- *
- * @author Samchon
  */
 export const DEFAULT_STICKMAN: IStickmanParams = {
   hipHeight: 0.92,

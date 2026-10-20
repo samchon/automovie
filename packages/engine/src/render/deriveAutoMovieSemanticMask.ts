@@ -63,7 +63,6 @@ const SEMANTIC_MASK_PROTOCOL: string = "automovie.semantic-mask.v2";
  * @evidence contracts/performance.md#efficient-algorithms Entity/node/binding scans and sorting precede output-bounded slot expansion; N claims require O(N log N) ordering plus hash bytes and probing, whose worst case can approach O(N^2), rather than a guaranteed collision-free hash claim.
  * @evidence contracts/performance.md#reuse-equivalent-work Shared node naming, capacity, FNV and canonical digest owners define one law; no palette cache survives changed claims, id collisions, ownership or fields.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Claim maps/sets are call-owned and the complete mask transfers to the caller; retained output is bounded by palette policy, with no color buffer, renderer handle or task.
- * @author Samchon
  */
 export const deriveAutoMovieSemanticMask: (
   subject: IAutoMovieRenderSubject,
@@ -102,8 +101,6 @@ export const deriveAutoMovieSemanticMask: (
 
 /**
  * One entity awaiting a colour.
- *
- * @author Samchon
  */
 interface IClaim {
   id: string;

@@ -27,7 +27,6 @@ import type { IAutoMovieMeshRayQueryOptions } from "./IAutoMovieMeshRayQueryOpti
  * @evidence contracts/performance.md#efficient-algorithms A query visits only hierarchy nodes whose slab interval meets the running nearest travel, so cost follows the triangles near the ray rather than the n resident triangles, with an O(n) worst case for a ray grazing everything; `blocked` additionally ends at its first admitted hit.
  * @evidence contracts/performance.md#reuse-equivalent-work The hierarchy, the corner and edge tables and the traversal stack are built once per caster and reused by every query; the hair builder compiles one caster per host skin and shares it across all strands.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caster retains nine float64 edge values and one ordinal per triangle, typed bounds and links for fewer hierarchy nodes than triangles, and a stack of twice the node count, all fixed at construction, while the corner table and construction lists are released once creation returns; nothing grows per query and everything is released when the caller drops the caster.
- * @author Samchon
  */
 export interface IAutoMovieMeshRayCaster {
   /**

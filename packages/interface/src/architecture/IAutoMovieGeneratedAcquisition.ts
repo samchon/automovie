@@ -9,7 +9,6 @@
  * @evidence contracts/common.md#clear-and-simple-design The record holds only facts a generator returns or a caller sends, with the prompt text optional beside its always-present digest, so a private prompt is still identified without being published.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No URL or seed is invented for sampled output; production asset admission validates generation metadata and the published prompt hash, comparing generator output with current bytes only when no processing changed those bytes.
  * @evidence contracts/common.md#meaningful-documentation Defines recorded generator identity, nullable prompt and request, reference order, safe-integer seed consistency without replay proof, UTF-8 prompt hashing and the processed-byte identity limitation.
- * @author Samchon
  */
 export interface IAutoMovieGeneratedAcquisition {
   /** Non-blank service or tool identity that produced the bytes. */

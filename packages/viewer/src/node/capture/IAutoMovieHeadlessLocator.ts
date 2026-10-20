@@ -12,7 +12,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms An interface declares a call shape and runs no algorithm; screenshot cost belongs to the host implementation.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The locator itself is the shared result, obtained once per session by the adapter; the interface declares nothing further to reuse.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The locator owns no resource of its own; the page that backs it is released by the session's `close`.
- * @author Samchon
  */
 export interface IAutoMovieHeadlessLocator {
   /**

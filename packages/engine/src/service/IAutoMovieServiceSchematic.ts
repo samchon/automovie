@@ -22,7 +22,6 @@ import { IAutoMovieServiceSchematicNode } from "./IAutoMovieServiceSchematicNode
  * @evidenceExclude contracts/performance.md#efficient-algorithms This interface declares no algorithm; projection, traversal and total cost are answered by serviceNetworkSchematic.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The producer creates one report per current system, and this data type coordinates no repeated projection work.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Fresh schematic arrays and primitive metadata belong to the caller, containing no live map or network object handle.
- * @author Samchon
  */
 export interface IAutoMovieServiceSchematic {
   /** Identity of the system this schematic projects. */

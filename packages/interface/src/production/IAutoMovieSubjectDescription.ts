@@ -11,7 +11,6 @@ import { IAutoMovieSubjectMemberSummary } from "./IAutoMovieSubjectMemberSummary
  * @evidence contracts/common.md#clear-and-simple-design Shared structural fields allow one inspection and diff vocabulary while semanticKind preserves the compiled domain label; formations use a separate review description because their crowd motion semantics are distinct.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown references stay null or empty where the projection contract permits them rather than guessed geometry or materials; revision is caller-qualified and instance-set bounds are positions, not a full mesh envelope.
  * @evidence contracts/common.md#meaningful-documentation Defines namespaced identity, revision, semantic role, prototype versus placement and owner relations, transform and extent basis, material ordering and bounded member population.
- * @author Samchon
  */
 export interface IAutoMovieSubjectDescription {
   /** Description schema version. */

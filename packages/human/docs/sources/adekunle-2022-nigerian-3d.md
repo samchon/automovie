@@ -25,7 +25,3 @@ Journal article; NIH public-access manuscript. Numbers are facts.
 ## Findings
 
 All vertical measures are larger in men; women have slightly larger palpebral fissure width (not significant). BMI predicts interpupillary distance, face width and jaw width; age predicts upper facial height, upper lip height and mouth width. The authors state that Nigerian faces have a longer upper and lower face with a short midface and nose, and do not follow the neoclassical equal thirds.
-
-## What Human takes
-
-West African adult reference for intercanthal width, face width and the short midface; the BMI effect on soft-tissue widths.

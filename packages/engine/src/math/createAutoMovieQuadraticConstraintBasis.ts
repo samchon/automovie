@@ -19,7 +19,6 @@ import { IAutoMovieQuadraticRow } from "./IAutoMovieQuadraticRow";
  * @evidence contracts/performance.md#efficient-algorithms For N variables and K working rows, QR costs O(N times K squared); complete basis reconstruction costs O(N squared times K), with O(N squared plus K squared) dense storage.
  * @evidence contracts/performance.md#reuse-equivalent-work The same reflectors reconstruct the particular point and all basis columns; a changed working set requires new factors.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returned factors belong to the caller; normalized columns and reflectors become unreachable on success or refusal, with no retained row cache.
- * @author Samchon
  */
 export function createAutoMovieQuadraticConstraintBasis(
   rows: readonly IAutoMovieQuadraticRow[],

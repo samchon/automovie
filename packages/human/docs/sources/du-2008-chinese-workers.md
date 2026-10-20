@@ -31,10 +31,6 @@ Journal article with NIOSH co-authors. Numbers are facts.
 
 Men also: subnasale-sellion 50.7 (2.9) mm, stature 1703.1 (49.3) mm, weight 66.9 (8.1) kg. Cephalic index from the means (derived): men 157.2 / 185.7 = 84.7, women 85.2.
 
-## What Human takes
-
-An East Asian adult head and face reference taken with the same instruments as Zhuang 2010. The abstract states the comparison directly: shorter face length, smaller nose protrusion, larger face width and longer lip length than American subjects.
-
 ## Limits
 
 Workers only; the female sample is half the male one; the female subnasale-sellion row was not extracted from the PDF.

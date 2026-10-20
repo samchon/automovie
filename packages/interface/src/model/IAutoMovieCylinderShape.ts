@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design One shared radius and one height encode the circular solid; tapering belongs to the cone arm and placement belongs to the enclosing part.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The same circular side and closed-end construction applies to every cylinder, with no named prop changing its radius or cap policy.
  * @evidence contracts/common.md#meaningful-documentation Gives closure, midpoint origin, local Y alignment and finite positive metre radius and full height rather than a half-height parameter.
- * @author Samchon
  */
 export interface IAutoMovieCylinderShape {
   /** Discriminator. */

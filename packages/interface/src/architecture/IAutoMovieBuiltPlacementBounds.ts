@@ -10,7 +10,6 @@ import { AutoMovieBuiltPlacementBasis } from "./AutoMovieBuiltPlacementBasis";
  * @evidence contracts/common.md#clear-and-simple-design Two corners plus the basis label are the whole answer; the label travels with the box so every overlap and support query built on it can report what kind of extent it measured.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The basis excludes `surface-height-rule` because only body locators resolve to a box, and a vertex-less element is labelled `element-origin-point` instead of being given an invented extent.
  * @evidence contracts/common.md#meaningful-documentation States world metres, inclusive corners, current-state placement, static CPU/prototype measurement limits and finite-result premises. The point basis means equal corners, whether from unavailable geometry or coincident vertices.
- * @author Samchon
  */
 export interface IAutoMovieBuiltPlacementBounds {
   /** Inclusive world-space minimum corner, in metres. */

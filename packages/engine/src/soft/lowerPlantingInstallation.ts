@@ -21,8 +21,6 @@ import { validatePlantingDomain } from "./validatePlantingDomain";
  * @evidence contracts/performance.md#efficient-algorithms Validation plus one B-branch/L-leaf derivation and N-member/A-attempt arrangement are charged together; no per-member tree is grown, but actual spacing bucket occupancy determines arrangement comparison work.
  * @evidence contracts/performance.md#reuse-equivalent-work One derived plant serves all returned member placements; recipe, cluster and installation mutation do not have a retained cross-call result cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Fresh tree/placement arrays transfer with the analysis; admission failure returns no geometry and no renderer/native task is acquired.
- *
- * @author Samchon
  */
 export const lowerPlantingInstallation: (props: {
   installation: IAutoMoviePlantingInstallation;

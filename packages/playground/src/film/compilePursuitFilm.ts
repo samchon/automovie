@@ -35,8 +35,6 @@ import type { ICompilePursuitFilm } from "./ICompilePursuitFilm";
  * @evidence contracts/performance.md#efficient-algorithms Two fixed rig builds and one set model precede linear node indexing; each shot retains its full blocking, action synthesis, geometry/camera/stance validation and keyframe-construction cost, including repeated script/scene scans. The final cut pass is linear in shots/entries and output storage grows with all generated motions rather than disappearing behind the façade.
  * @evidence contracts/performance.md#reuse-equivalent-work One staged scene, node/context maps, gait record and model registry serve all shots in this compile; separate actors have fresh rig data despite the common compatibility id, and set placements reuse the unit block. Calls keep no cross-input compiled cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returned rigs, staged/shot/cut records and motion maps belong to the film page/test caller; staging and sequence retain their documented borrowed input fields. Local compiler/synthesizer maps expire after return/throw, and no process, worker, GPU handle or running task is acquired. Authored performance/keyframe populations have no local cap.
- *
- * @author Samchon
  */
 export const compilePursuitFilm: ICompilePursuitFilm = (
   props: ICompilePursuitFilm.IProps,

@@ -16,7 +16,6 @@
  * @evidence contracts/performance.md#efficient-algorithms Time and space are O(N) in the frame count, one division per frame, which is the size of the schedule returned.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each plan builds its schedule once per call, and the arithmetic is cheaper than keying a cache by rate and duration.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned array of N numbers is the caller's and nothing else is retained; N is bounded only by the caller's duration and rate, and a count past the engine's array limit throws a `RangeError`.
- * @author Samchon
  */
 export const frameTimes: (fps: number, durationSeconds: number) => number[] = (
   fps: number,

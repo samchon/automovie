@@ -11,7 +11,6 @@ import type { IAutoMovieTextureReference } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms One source record stores fixed upload facts plus token strings; storage measurement folds integer-halved mip extents rather than allocating texels.
  * @evidence contracts/performance.md#reuse-equivalent-work Opaque tokens establish equality only during the host observation lifetime; equivalent upload keys share allocation, while UV transformations are shader state and do not allocate new source storage.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The host owns decoded textures and native release; records carry no disposal handle, and changed/retired conversion observations must invalidate allocation authority.
- * @author Samchon
  */
 export interface IAutoMovieRenderTextureSource {
   /**

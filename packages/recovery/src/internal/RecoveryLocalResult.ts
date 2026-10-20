@@ -9,7 +9,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A return type performs no computation.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The producer owns every receipt and does not regenerate geometry for this record.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Only scalar metadata and paths are retained, without mesh arrays or handles.
- * @author Samchon
  */
 export interface RecoveryLocalResult {
   /** SHA-256 of the final UTF-8 model JSON, before any separate archive operation. */

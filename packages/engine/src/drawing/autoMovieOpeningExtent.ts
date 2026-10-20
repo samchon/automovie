@@ -29,7 +29,6 @@ import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
  * @evidence contracts/performance.md#efficient-algorithms Linear in the outline's edge count: one hull pass and one bounds pass.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function called once per opening per drawing or schedule; nothing equivalent repeats within one call.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The hull is a temporary released when the call returns; only a two-number record is returned.
- * @author Samchon
  */
 export const autoMovieOpeningExtent = (
   profile: IAutoMovieOpeningProfile,

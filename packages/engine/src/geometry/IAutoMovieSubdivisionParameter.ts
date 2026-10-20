@@ -18,7 +18,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data record with no runtime body.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Produced once per output vertex; nothing is cached on it.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Four numbers owned by the returned surface.
- * @author Samchon
  */
 export interface IAutoMovieSubdivisionParameter {
   /** Index of the cage face in `IAutoMovieSubdivisionCage.faces`. */

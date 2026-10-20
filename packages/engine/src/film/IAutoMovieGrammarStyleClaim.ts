@@ -14,7 +14,6 @@ import { AutoMovieGrammarStyleIntent } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record built in constant time per declared intent.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built fresh per reading; nothing caches claims.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources One string and one literal held by value, bounded by the intents declared across the shots.
- * @author Samchon
  */
 export interface IAutoMovieGrammarStyleClaim {
   /** Id of the shot whose contract declared the exception. */

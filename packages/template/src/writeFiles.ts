@@ -20,7 +20,6 @@ import { publishFiles } from "./publishFiles";
  * @evidence contracts/performance.md#efficient-algorithms Beyond `publishFiles`, the cost is one map and one comparison sort of the written paths, n log n in file count.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work This wrapper performs one publication per call; repeating a call repeats its writes as the effects require.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The receipt is released when the function returns unless it travels inside the thrown error; only the path array is returned, and `publishFiles` owns every descriptor.
- * @author Samchon
  */
 export const writeFiles: (
   location: string,

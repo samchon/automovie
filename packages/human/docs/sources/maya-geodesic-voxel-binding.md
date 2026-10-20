@@ -12,7 +12,3 @@ Product documentation under Autodesk's terms. Read for technique comparison only
 - Several meshes are treated as one volume, so weighting is continuous across them; weights work with linear blend or dual quaternion skinning.
 - Designed for meshes that are non-manifold, non-watertight, self-intersecting or in several components.
 - All joint influences must lie inside the mesh volume, and front faces must point outward.
-
-## What Human takes
-
-A candidate to compare with analytic weights derived from part, station and angular semantics. A semantic cage alone does not establish a suitable weight field; [skinning research](../techniques/skinning.md) compares the deformation premises.

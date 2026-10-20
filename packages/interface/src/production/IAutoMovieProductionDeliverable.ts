@@ -7,7 +7,6 @@ import { AutoMovieGuidePass } from "../cinematics/AutoMovieGuidePass";
  * @evidence contracts/common.md#clear-and-simple-design One record selects an output class without embedding renderer settings or byte receipts, which belong to production render configuration and delivered-file records.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Legacy guide records alone may omit pass and retain pose; current contracts name one pass explicitly, and required outputs cannot be discharged by another deliverable kind.
  * @evidence contracts/common.md#meaningful-documentation Defines unique identity, output class, required completion and structural-pass ownership with the legacy pose default.
- * @author Samchon
  */
 export interface IAutoMovieProductionDeliverable {
   /** Non-blank id, unique within this production. */

@@ -277,8 +277,6 @@ function crossesActionAxisOnScreen(
 
 /**
  * Signed screen offset of a target from a subject, per axis.
- *
- * @author Samchon
  */
 interface IScreenRelation {
   /** Positive when the target is screen-right of the subject. */

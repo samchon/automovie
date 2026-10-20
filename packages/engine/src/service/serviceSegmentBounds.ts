@@ -21,8 +21,6 @@ import {
  * @evidence contracts/performance.md#efficient-algorithms R route vertices require three coordinate comparisons each, O(R) time with fixed two-corner working storage.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A bound belongs to the current radius and route; no geometry-version cache or cross-segment reuse is maintained.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Working and returned corners contain scalar copies only, so releasing the result leaves no source-route references.
- *
- * @author Samchon
  */
 export const serviceSegmentBounds: (
   segment: IAutoMovieServiceSegment,

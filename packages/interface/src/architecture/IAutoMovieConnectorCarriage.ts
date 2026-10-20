@@ -16,7 +16,6 @@ import { IAutoMovieTravelMotion } from "./IAutoMovieTravelMotion";
  * @evidence contracts/common.md#clear-and-simple-design Identity, driven element, and motion are the whole record; the travel per state lives on `IAutoMovieCarriageValue` and the run membership on the connector, so the carriage repeats neither.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An element already driven by another carriage or panel is refused by name instead of letting the later member overwrite the shared displacement, and an element outside the run's declared elements is refused.
  * @evidence contracts/common.md#meaningful-documentation States that the element's transform is the rest pose, which elements a carriage may drive, the one-driver-per-element rule and its reason, and the scope of the id's uniqueness.
- * @author Samchon
  */
 export interface IAutoMovieConnectorCarriage {
   /** Stable carriage identity, unique within the connector's operation. */

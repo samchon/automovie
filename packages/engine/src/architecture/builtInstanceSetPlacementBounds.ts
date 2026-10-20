@@ -43,7 +43,6 @@ type IGridLayout = Extract<
  * @evidence contracts/performance.md#efficient-algorithms Compact grid, lattice and scatter corner folds are independent of count. An explicit layout validates all T stored transforms, then folds eight corners for each of the first count transforms, costing O(T + count) time and O(count) temporary corner storage, plus any violation records produced by validation.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call bounds one population from its own record; the record is the caller's mutable data, so a cached box could not prove it still matches.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Compact layouts allocate a bounded corner set; explicit layouts allocate O(count) transformed corners and validation can collect O(T) findings. These temporaries and the collector become unreachable on return or throw; only the returned box escapes.
- * @author Samchon
  */
 export const builtInstanceSetPlacementBounds: (
   set: IAutoMovieInstanceSetDesign,

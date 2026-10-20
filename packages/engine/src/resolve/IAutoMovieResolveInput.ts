@@ -18,7 +18,6 @@ import { IAutoMovieResolveSprings } from "./IAutoMovieResolveSprings";
  * @evidence contracts/performance.md#efficient-algorithms Input storage references N nodes, tracks, L limits and D drivers; resolver scans and matrix/channel allocations are owned by resolveFrame, not bounded by this wrapper.
  * @evidence contracts/performance.md#reuse-equivalent-work Profiles and scene data may be reused while contents stay equivalent; the clip/time/state combination determines new sampled and spring results.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns borrowed inputs and spring maps across frames; the input declaration creates no resource handles or independent running work.
- * @author Samchon
  */
 export interface IAutoMovieResolveInput {
   /** The scene graph: nodes with parent-local rest transforms. */

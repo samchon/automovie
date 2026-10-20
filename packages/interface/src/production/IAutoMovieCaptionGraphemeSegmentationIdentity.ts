@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Requested-resolved locale and locale-neutral are separate arms, preventing a locale-sensitive segmenter from omitting either part of its actual execution context.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Locale neutrality cannot hide a runtime locale input, and a different installed segmenter does not silently satisfy a profile naming another revision or resolved locale.
  * @evidence contracts/common.md#meaningful-documentation States complete execution identity, versioned segmentation behavior, requested and resolved locale ownership, and the condition under which locale neutrality can be claimed.
- * @author Samchon
  */
 export interface IAutoMovieCaptionGraphemeSegmentationIdentity {
   /** Non-blank algorithm identity; render compares it with the supplied runtime identity. */

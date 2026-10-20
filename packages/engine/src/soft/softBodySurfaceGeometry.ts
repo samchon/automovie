@@ -13,8 +13,6 @@ import {
  * @evidence contracts/performance.md#efficient-algorithms For P particles and Q quads, UVs, indices, triangle-normal accumulation, normalization and indexed bounds cost O(P+Q) with O(P+Q) output and O(P) temporary accumulation.
  * @evidence contracts/performance.md#reuse-equivalent-work Each face cross product is computed once and shared by its three vertices; dynamic state positions require fresh normals/bounds rather than a stale mesh cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources All returned arrays and bounds are fresh caller-owned values; source state positions are copied, accumulation is discarded, and no GPU resource is acquired.
- *
- * @author Samchon
  */
 export const softBodySurfaceGeometry: (props: {
   domain: IAutoMovieSoftBodyDomain;

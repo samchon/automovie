@@ -8,7 +8,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms The refusal variant only names a reason and its cause; it runs nothing.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work No refused outcome is shared; the receipt keeps the single one that stopped the candidate.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources It retains only the cause object, whose lifetime follows the receipt that holds it.
- * @author Samchon
  */
 export interface IScaffoldRefusedFilePublicationOutcome {
   /** Original native or validation error, kept for the caller. */

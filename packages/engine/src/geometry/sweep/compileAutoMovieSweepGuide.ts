@@ -31,8 +31,6 @@ export function compileAutoMovieSweepGuide(
 
 /**
  * Wrapped direction and its independently compiled radius profile.
- *
- * @author Samchon
  */
 interface IOutput {
   /** Radians in one turn. */

@@ -84,7 +84,6 @@ interface IAssemblyMargin {
  * @evidence contracts/performance.md#efficient-algorithms Linear in assemblies A (at most 4096), their layers and bridges, plus metrics times targets for target lookup; the A bound keeps the spread `Math.min` and `Math.max` calls within engine argument limits.
  * @evidence contracts/performance.md#reuse-equivalent-work Solves each assembly once for both runs' metrics and samples, computes one dew point for every margin, builds one settings string for both seals, and collects the unknown-target warnings once and copies them into both runs, since both runs report against the same union of keys.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Allocates per-call arrays proportional to A and keeps none of them after returning the two runs, which own their metrics, samples and warnings.
- * @author Samchon
  */
 export const analyzeAutoMovieEnvelope: (props: {
   request: IAutoMovieEnvelopeRequest;

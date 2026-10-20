@@ -11,8 +11,6 @@ import { shortestRestLength } from "./shortestRestLength";
  * @evidence contracts/performance.md#efficient-algorithms The shortest structural-edge scan dominates at O(P) time for P lattice particles, with constant extra storage.
  * @evidence contracts/performance.md#reuse-equivalent-work Shared shortest-edge arithmetic serves the solver and budget; mutable rest geometry must be rescanned and has no retained minimum cache here.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The ratio is returned by value; domain arrays are read without copying or retaining them.
- *
- * @author Samchon
  */
 export const softBodyTravelNumber: (
   domain: IAutoMovieSoftBodyDomain,

@@ -25,7 +25,6 @@ import { IAutoMovieModelColumn } from "./IAutoMovieModelColumn";
  * @evidence contracts/performance.md#efficient-algorithms For B bones and P parts, repeated settling can take O(B^2) and part lookup O(P), with O(B+P) working/output storage; this is not a single linear parent walk.
  * @evidence contracts/performance.md#reuse-equivalent-work One ancestry-height map serves all parts; each core and outer-envelope admission is computed once per part, without a retained cache of mutable model generations.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Fresh scalar column rows transfer to the caller; the height map is discarded and no part, skeleton, appearance asset or host handle is retained.
- * @author Samchon
  */
 export const autoMovieModelColumns: (
   model: Pick<IAutoMovieModel, "parts" | "skeleton">,

@@ -15,7 +15,6 @@ import { ViolationCollector } from "./ViolationCollector";
  * @evidence contracts/performance.md#efficient-algorithms For V vertices and T faces, welding and edge population construction take expected O(V+T), followed by O(T) incidence/direction/boundary scans, with O(V+T) maps/rows; diagnostic label work follows emitted findings.
  * @evidence contracts/performance.md#reuse-equivalent-work One resolved coordinate weld and physical partition serve every face, while shared edge keys and edge rows accumulate incidence without rebuilding strings on successful edges.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The supplied collector retains only findings, and call-local weld/maps/directions are discarded; mesh buffers are borrowed without mutation and no native mesh resource is acquired.
- * @author Samchon
  */
 export const appendMeshTopology: (
   mesh: IAutoMovieMesh,

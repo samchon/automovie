@@ -9,7 +9,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Subject id and digest form one direct byte-input citation beside the artifact stamp. Alternatives retain distinct variant fields while fairness compares their configuration/phase; citations remain specific to each artifact's declared direct inputs.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The duplicate digest is the signal rather than redundancy to reconcile, and the prose states the remaining gap that no gate hashes the asset bytes against the subject's digest.
  * @evidence contracts/common.md#meaningful-documentation States why imported bytes need their own citation, why the digest is deliberately duplicated, when a disagreement appears, which hashing nobody performs, and that the subject must be an input of the citing artifact.
- * @author Samchon
  */
 export interface IAutoMovieDesignAssetCitation {
   /**

@@ -68,7 +68,6 @@ export namespace AutoMovieBernstein64 {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A coefficient type performs no arithmetic.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type owns no memoization or work coordination.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type retains no coefficient array at runtime.
-   * @author Samchon
    */
   export interface RecordV {
     /** Homogeneous vector numerator coefficients. */
@@ -87,7 +86,6 @@ export namespace AutoMovieBernstein64 {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A coefficient type performs no arithmetic.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type owns no memoization or work coordination.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type retains no coefficient array at runtime.
-   * @author Samchon
    */
   export interface RecordS {
     /** Homogeneous scalar numerator coefficients. */

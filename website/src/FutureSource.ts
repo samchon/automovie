@@ -10,8 +10,6 @@ import type { Vector } from "./Vector";
  * @evidenceExclude contracts/performance.md#efficient-algorithms This erased source projection executes no station traversal.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work This type coordinates no requests or effects.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This type acquires no station or scene resources.
- *
- * @author Samchon
  */
 export interface FutureSource {
   /** Source station ids and spaces with optional world poses; section observations remain in the native inspector. */

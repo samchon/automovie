@@ -7,7 +7,6 @@ import { AutoMovieProductionPngColor } from "./AutoMovieProductionPngColor";
  * @evidence contracts/common.md#clear-and-simple-design The record describes observed picture identity while delivery acceptance belongs to assertProductionPngPicture, preserving the distinction between a valid PNG and the supported delivery profile.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Contradictory or repeated color declarations refuse; EXIF presence does not claim decoded orientation, and unidentified color remains explicit instead of being assumed sRGB.
  * @evidence contracts/common.md#meaningful-documentation Defines raster precision, channel and alpha form, scan mode, color identity, pixel-aspect metadata and the limited orientation observation.
- * @author Samchon
  */
 export interface IAutoMovieProductionPngPicture {
   /** Decoded pixel width. */

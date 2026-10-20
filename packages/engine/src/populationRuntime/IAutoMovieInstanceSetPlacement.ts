@@ -20,8 +20,6 @@ import {
  * @evidence contracts/performance.md#efficient-algorithms The type aliases existing fields instead of allocating members; placement costs remain with instanceSlot and its route/prototype scans.
  * @evidence contracts/performance.md#reuse-equivalent-work The same resolved placement record supplies slot regeneration; mutable layouts, routes, variation and choices forbid implicit identity-only result caching.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The holder owns the referenced law and route/prototype tables; no expanded population, resource handle or background task is introduced.
- *
- * @author Samchon
  */
 export type IAutoMovieInstanceSetPlacement = Pick<
   IAutoMovieCompiledInstanceSet,

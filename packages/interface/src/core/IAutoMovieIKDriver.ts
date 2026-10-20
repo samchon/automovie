@@ -9,7 +9,6 @@ import { IAutoMovieIKPole } from "./IAutoMovieIKPole";
  * @evidence contracts/common.md#clear-and-simple-design One driver type selects among three solvers by a tag, sharing the chain, goal, influence and the rotation write-back, with the pole and iteration fields read only by the solvers that need them.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Iterative solves use positive safe-integer budgets, not a wall-clock cutoff, and unsupported twoBone chain lengths are deferred rather than switched to another solver. Zero-length segments refuse, but tiny positive lengths can invert the existing 1e-5 analytic reach shell without a separate shell-admission check.
  * @evidence contracts/common.md#meaningful-documentation States the pass, what each solver accepts and ignores, the reach clamp, what is preserved and blended, the deferral case, the default and stopping rule for iterations, and every throw.
- * @author Samchon
  */
 export interface IAutoMovieIKDriver {
   /** Discriminator. */

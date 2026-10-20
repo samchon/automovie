@@ -36,7 +36,6 @@ import { signedArea } from "./signedArea";
  * @evidence contracts/performance.md#efficient-algorithms For N points over all rings, per-ring checks are linear, self-crossing is quadratic in each ring and ring contact quadratic across ring pairs, so the worst case is O(N^2) with no allocation inside the pair loops; inputs are authored profiles, footprints and skin loops of tens to hundreds of points, where a sweep-line intersection test would cost more than it saves, and the early return stops at the first failure.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure validation of the rings passed in; callers validate each region once, and portrait skin reservation calls it per candidate loop because each loop differs.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Allocates one array of ring labels and one of rings per call and releases both on return; the caller's rings are only read.
- * @author Samchon
  */
 export const autoMoviePlanarRegionFailure = (props: {
   outer: readonly IAutoMoviePlanarPoint[];

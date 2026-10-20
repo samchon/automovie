@@ -13,8 +13,6 @@ import type { V3 } from "./V3";
  * @evidenceExclude contracts/performance.md#efficient-algorithms An erased structural declaration chooses no runtime algorithm.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work An erased declaration caches no source or observation.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The consuming operation and caller own borrowed arrays and prepared closures.
- *
- * @author Samchon
  */
 export interface IAutoMovieRecoveryIndexedMesh {
   /** Positions in the common declared Cartesian frame and physical units. */

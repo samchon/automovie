@@ -8,7 +8,6 @@
  * @evidence contracts/performance.md#efficient-algorithms Text length drives O(N) parsing and duplicate scan; object name sets and scope stack scale with input members and depth.
  * @evidence contracts/performance.md#reuse-equivalent-work Syntax is parsed once and reused by the duplicate scan's valid-text premise; escaped names alone require local JSON string decoding.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Text, scope stack and key sets are temporary; only the caller-owned parsed JSON tree survives return.
- * @author Samchon
  */
 export const decodeJson: (bytes: Uint8Array) => unknown = (
   bytes: Uint8Array,

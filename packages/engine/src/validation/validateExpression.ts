@@ -10,7 +10,6 @@ import { AUTOMOVIE_EXPRESSION_PRESETS } from "./constants/AUTOMOVIE_EXPRESSION_P
 /**
  * Admit preset/channel membership, intensity/weight ranges and duplicate ARKit channels.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Admit preset/channel membership, intensity/weight ranges and duplicate ARKit channels.
  * @evidence contracts/common.md#clear-and-simple-design Module-fixed vocabularies and a request-local seen set separate closed menus from per-expression uniqueness.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts This validates weights rather than generating facial geometry or certifying the resulting face's appearance.

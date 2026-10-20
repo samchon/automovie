@@ -13,7 +13,6 @@ import { preparedSurfaceContains } from "./preparedSurfaceContains";
  * @evidence contracts/performance.md#efficient-algorithms E ring vertices require O(E) projection, area and membership work with O(E) temporary plan storage per call.
  * @evidence contracts/performance.md#reuse-equivalent-work No prepared generation is retained across calls; repeated queries should reuse the explicit prepared seam when source geometry is unchanged.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a boolean escapes; the fresh preparation is released with the call and no retained handle or task is acquired.
- * @author Samchon
  */
 export const surfaceContains: (
   surface: IAutoMovieSurface,

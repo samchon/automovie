@@ -10,7 +10,6 @@ import { IAutoMovieConstraintViolation } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms The type has no runtime work; each gate is invoked per inspected channel and its traversal/allocations belong to that supplied implementation.
  * @evidence contracts/performance.md#reuse-equivalent-work A field's gate can be reused across clips, but effectful calls are executed independently and not cached from equal channel values.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The validator owns the passed collector and callers own the callable; this signature acquires no retained record, task or host handle.
- * @author Samchon
  */
 export type IAutoMovieClipChannelGate = (
   channel: Record<string, unknown>,

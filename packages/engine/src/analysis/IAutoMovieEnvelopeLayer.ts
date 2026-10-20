@@ -12,7 +12,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record type with no runtime code; the analyzer reads each layer once in its assembly's resistance sum.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record type with no runtime code; each layer contributes one term to one assembly in one study.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A record of an id and two numbers owned by its assembly; nothing derived from it is retained.
- * @author Samchon
  */
 export interface IAutoMovieEnvelopeLayer {
   /** Stable layer identity, unique within its assembly. */

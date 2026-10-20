@@ -25,8 +25,6 @@ import {
  * @evidence contracts/performance.md#efficient-algorithms R points emit at most R-minus-one boxes in O(R) time and output space, proportional to the authored route population.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Pairwise consumers can reuse these boxes within their call; this query retains no span table across route mutations.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Every emitted corner is a new scalar record and the caller owns the array, without source-route retention.
- *
- * @author Samchon
  */
 export const serviceSegmentSpanBounds: (
   segment: IAutoMovieServiceSegment,

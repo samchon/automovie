@@ -7,7 +7,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design A paired minimum and maximum expresses one box; empty producers return a nullable box rather than independently missing corners.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts This record does not claim all producers measure the same geometry or inflate a box into a collision certificate.
  * @evidence contracts/common.md#meaningful-documentation The owning result determines the frame and measured extent; corner coordinates share that frame and metre units.
- * @author Samchon
  */
 export interface IAutoMovieSoftBounds {
   /** Minimum corner. */

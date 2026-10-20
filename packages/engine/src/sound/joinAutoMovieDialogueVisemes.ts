@@ -27,7 +27,6 @@ const DIALOGUE_VISEMES: Set<"rest" | "aa" | "ih" | "ou" | "ee" | "oh"> =
  * @evidence contracts/performance.md#efficient-algorithms B bindings and V visemes require O(B+V) time; the matching subset is temporary and successful output has at most 2V+1 ranges.
  * @evidence contracts/performance.md#reuse-equivalent-work The completed fresh timeline can be sampled repeatedly under arbitrary seeks; changed receipt, line timing or binding requires joining again, without a mutable playback or actor registry.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the outcome and fresh ranges; input receipts and binding records are read but not retained, and no audio, scene node or host task is acquired.
- * @author Samchon
  */
 export const joinAutoMovieDialogueVisemes: (props: {
   line: IAutoMovieProductionDialogueLine;

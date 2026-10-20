@@ -17,7 +17,6 @@ import { IAutoMovieProfileBinding } from "../core/IAutoMovieProfileBinding";
  * @evidence contracts/common.md#clear-and-simple-design Three fields split structure, capability and application: the joint nodes, the profile, and the binding that maps the profile's semantic keys onto those nodes, so one profile can serve every prop with the same mechanism.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing semantic mappings are refused at forge time. Observed driven-channel limit violations become refusals instead of treating the resolver's clamped result as authored success; undriven rest channels and unsearched nonlinear extrema are outside that refusal guarantee. An empty joint frame is not evidence that a visible part or a production host actually moves.
  * @evidence contracts/common.md#meaningful-documentation States the purpose, the `null` convention, every forge refusal, the lowered id form, how clips and limits act on the joints, and that drivers are gated but not drawn; members give the parent rule, the part reference that makes a joint visible, and the mapping requirement.
- * @author Samchon
  */
 export interface IAutoMoviePropArticulation {
   /**

@@ -10,7 +10,6 @@ import { IAutoMovieSoftBounds } from "./IAutoMovieSoftBounds";
  * @evidence contracts/common.md#clear-and-simple-design The surface references its solved domain and step and keeps vertex indices identical to particle indices; the viewer consumes this engine-derived mesh.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A one-row or one-column cord emits no invented sliver triangles and has null surface bounds; degenerate normal sums use the documented up-vector fallback.
  * @evidence contracts/common.md#meaningful-documentation Fields state triangulation, indexing, stable lattice UVs and bounds of indexed vertices rather than a particle-only cord extent.
- * @author Samchon
  */
 export interface IAutoMovieSoftBodySurface {
   /** Identity of the domain the surface was derived from. */

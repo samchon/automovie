@@ -19,8 +19,6 @@ import { validateSoftVector as vector } from "./validateSoftVector";
  * @evidence contracts/performance.md#efficient-algorithms A fixed field set and three scale axes take constant work and bounded finding storage, independent of requested member count.
  * @evidence contracts/performance.md#reuse-equivalent-work One collector and scalar predicate owner serve all fields within the call; mutable cluster records are not retained behind an identity verdict cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only validation findings transfer; input fields are read without mutation and no placement grid or geometry is allocated.
- *
- * @author Samchon
  */
 export const validatePlantingCluster: (props: {
   cluster: IAutoMoviePlantingCluster;

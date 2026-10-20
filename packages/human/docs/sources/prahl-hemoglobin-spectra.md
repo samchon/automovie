@@ -24,7 +24,3 @@ Compilation published freely by the author; values are facts, cite the page.
 | 700 | 290 | 1,794.28 |
 
 Grade: measured spectra (compiled).
-
-## What Human takes
-
-The spectral shape that makes blood red: absorption falls by two orders of magnitude from 576 to 650 nm, so red light penetrates and scatters widely while green and blue are absorbed near the surface. A precomputed (melanin, hemoglobin) colour table can be generated from these numbers and the melanin power law without shipping images.

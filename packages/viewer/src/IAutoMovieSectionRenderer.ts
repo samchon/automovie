@@ -13,8 +13,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A boolean renderer projection selects no clipping or traversal algorithm.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The shape declares mutable host state and coordinates no reusable computation.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This projection transfers no context, target, material or drawing ownership.
- *
- * @author Samchon
  */
 export interface IAutoMovieSectionRenderer {
   /** Whether per-material clipping planes are in force. */

@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Package closure, browser selection, platform, launch mode and graphics are separate record groups, exposing which observation supplies each part of capture reproducibility.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Version strings alone do not prove byte identity, and system channels explicitly declare an unsealed boundary. Render planning validates its outer source/dialogue digests but does not independently inspect every capture package, browser executable or graphics observation in this metadata.
  * @evidence contracts/common.md#meaningful-documentation Describes package and browser-support digests with file and byte counts, executable selection and unavailability, host architecture, device scale, requested backend and actual graphics identity.
- * @author Samchon
  */
 export interface IAutoMovieCaptureRuntimeIdentity {
   /** Capture identity schema and semantics. */

@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design A single-cell point outflow with a rate cap, a sill and a time window covers floor drains, overflow weirs and timed returns without a pump or pipe model.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Drain and face fluxes share the same held-volume limiter and ledger path, without a drain-specific depth clamp. An overflowed request can produce a NaN scaled removal, so the current implementation does not establish the intended bounded-removal identity for every finite authored rate.
  * @evidence contracts/common.md#meaningful-documentation States the validation rules and where removed volume is counted; members give units, index ranges, how the realized rate is limited, the sill comparison and the half-open activity window.
- * @author Samchon
  */
 export interface IAutoMovieFluidDrain {
   /** Stable drain identity within the domain. */

@@ -13,7 +13,3 @@ MDPI, CC BY.
 ## Values
 
 Mean 48.76 (SD 6.77); men 47.46 (6.71), women 50.07 (6.63); adjusted sex difference -2.46. Age: -1.92 degrees a decade unadjusted, -1.6 (95% CI 0.93 to 2.27) adjusted for sex and medication.
-
-## What Human takes
-
-The head's carriage in front of the neck by age and sex: the tragus stands where the line from C7 rises at this angle.

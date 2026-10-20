@@ -9,6 +9,5 @@ import { IAutoMovieTextureReference } from "./IAutoMovieTextureReference";
  * @evidence contracts/common.md#clear-and-simple-design The existing reference owns all sampling fields, while the string form carries only identity; viewer resolution dispatches on the same primitive distinction.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A string does not pretend to declare physical texture scale: `validateTextureScale` skips its unstated coordinate units, and no asset name selects alternate validation.
  * @evidence contracts/common.md#meaningful-documentation Explains the defaults inherited by an asset-only binding, its absent coordinate-source claim and when the structured form is required.
- * @author Samchon
  */
 export type AutoMovieTextureBinding = string | IAutoMovieTextureReference;

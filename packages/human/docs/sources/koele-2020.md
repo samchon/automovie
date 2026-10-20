@@ -20,7 +20,3 @@ Frontiers, CC BY. A narrative review; the values below are its citations of prim
 | Heritability | 54 to 61% | Stone 2015; Yau 2016 |
 
 Named causes: vertebral fractures (present in at least 40% of hyperkyphosis), disc degeneration with loss of anterior disc height, and back extensor weakness.
-
-## What Human takes
-
-Thoracic kyphosis as an age-dependent skeleton parameter: about 25 deg in young adults, about 37 deg at 65 and over, admissible up to the hyperkyphotic range for old identities.

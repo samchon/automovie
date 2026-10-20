@@ -1,7 +1,5 @@
 /**
  * Per-limb-group rest-offset multipliers for the existing synthetic rig; each defaults to one.
- *
- * @author Samchon
  */
 export interface IProportions {
   /** Multiplier for the existing leg-bone offsets. */

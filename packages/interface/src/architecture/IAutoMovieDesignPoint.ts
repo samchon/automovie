@@ -9,7 +9,6 @@
  * @evidence contracts/common.md#clear-and-simple-design A bare two-number record in source units, with the frame owning every unit and placement decision, so a corrected scale never rewrites an observed point.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Points are stored as read, with no y flip or rescale applied for a particular container, and a point outside its sheet is refused rather than clamped onto it.
  * @evidence contracts/common.md#meaningful-documentation States the units per container kind, the inclusive range each coordinate must stay in, and that the y direction is whatever the source uses.
- * @author Samchon
  */
 export interface IAutoMovieDesignPoint {
   /** Finite source-space x. */

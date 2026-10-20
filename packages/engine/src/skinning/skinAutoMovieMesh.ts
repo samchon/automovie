@@ -55,7 +55,6 @@ import { Quaternion } from "../math/Quaternion";
  * @evidence contracts/performance.md#efficient-algorithms O(J + T V) for J skin joints, V vertices and T weighted targets: one transform per joint, one delta pass per weighted target, then four influences per vertex with constant temporary storage beyond the returned array.
  * @evidence contracts/performance.md#reuse-equivalent-work Joint transforms are shared by every vertex of the call; a different pose needs a new call, and nothing is cached across calls because bone lists carry no identity key.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing; the per-joint tables and the morphed rest copy, 3V numbers, are local, and the returned array, 3V numbers, belongs to the caller.
- * @author Samchon
  */
 export const skinAutoMovieMesh: (
   mesh: IAutoMovieMesh,

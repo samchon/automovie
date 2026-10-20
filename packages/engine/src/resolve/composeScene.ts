@@ -43,7 +43,6 @@ const indexNodes: (
  * concatenation, so a non-uniformly scaled parent rotating a child shears
  * correctly instead of approximately.
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Admit unique ids and existing parents, recursively resolve parent-first matrices with cycle detection and memoization, and multiply full matrices so nonuniform-scale shear survives composition.
  * @evidence contracts/common.md#clear-and-simple-design An id index owns graph admission and one resolver closure owns rest/override local composition independent of input ordering.

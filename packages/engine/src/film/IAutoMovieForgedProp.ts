@@ -16,7 +16,6 @@ import {
  * @evidenceExclude contracts/performance.md#efficient-algorithms A type with no runtime body; the gates are answered on `forgeProp`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call builds a fresh result; `gateAuthoredObjectMotions` re-forges each registry spec per shot and caches nothing.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The union adds no storage of its own; the success branch aliases the caller's spec and the failure branch owns a violation list, as each member states.
- * @author Samchon
  */
 export type IAutoMovieForgedProp =
   | IAutoMovieForgedProp.ISuccess
@@ -35,7 +34,6 @@ export namespace IAutoMovieForgedProp {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A wrapper holding one reference to the accepted spec; `forgeProp` allocates it in constant time after its gates ran.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A fresh wrapper per call around the caller's spec; nothing is cached.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains the caller's spec by reference and nothing else.
-   * @author Samchon
    */
   export interface ISuccess {
     /** Discriminator. */
@@ -56,7 +54,6 @@ export namespace IAutoMovieForgedProp {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A record; violations are pushed during the producer's checks.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work `validatePropPlacements`, `gateAuthoredObjectMotions` and `AutoMovieProject` each forge the spec again and read only `success` or the list; no violation list is cached between them.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owns the violation array, bounded by the spec's parts, joints, sealed assets, LOD levels and profile keys.
-   * @author Samchon
    */
   export interface IFailure {
     /** Discriminator. */

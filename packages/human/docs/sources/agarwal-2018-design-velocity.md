@@ -4,14 +4,10 @@ Agarwal D., Robinson T.T., Armstrong C.G., et al. "Parametric design velocity co
 
 ## Licence
 
-Paper copyright Springer. Human takes only the definition.
+Paper copyright Springer.
 
 ## What it says
 
 - The normal component of design velocity is the outward normal movement of a boundary point caused by perturbing one parameter.
 - It is computed by finite differences on faceted models: each parameter is perturbed, the perturbed geometry is faceted and compared with the original, giving one velocity field per parameter in seconds per evaluation. Results were validated against analytical and finite-difference values.
 - Combined with an adjoint sensitivity map it gives the gradient of an objective with respect to every parameter from one adjoint analysis.
-
-## What Human takes
-
-Attributing a surface defect to the named coefficient whose velocity field matches it ([surface interrogation](../techniques/surface-interrogation.md#attribution)).

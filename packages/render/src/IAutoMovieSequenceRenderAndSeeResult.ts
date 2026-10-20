@@ -12,21 +12,15 @@ import type { IAutoMovieSequenceRenderResult } from "./IAutoMovieSequenceRenderR
  * @evidenceExclude contracts/performance.md#efficient-algorithms The sequence inspection envelope declares data and chooses no runtime algorithm; its producer documents construction cost.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The authored sequence identity snapshot describes an identity boundary and performs no request coordination or result caching.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The erased artifact type retains nothing itself; renderSequenceAndSee transfers render metadata and shared spec values to the result caller, without taking ownership of host-written files.
- *
- * @author Samchon
  */
 export interface IAutoMovieSequenceRenderAndSeeResult extends IAutoMovieSequenceRenderResult {
   /**
    * Render spec snapshot used for the sequence render.
-   *
-   * @author Samchon
    */
   spec: IAutoMovieRenderSpec;
 
   /**
    * Sequence identity and authored fps snapshot.
-   *
-   * @author Samchon
    */
   sequence: { id: string; fps: number };
 }

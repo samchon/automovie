@@ -17,7 +17,6 @@
  * @evidence contracts/common.md#clear-and-simple-design One literal per measured question with its unit and owner granularity fixed by the subject, so a finding needs no per-row unit or grouping field to be read.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An absent quantity is a stated zero rather than a missing row, and what the design cannot support is reported as a gap instead of being estimated.
  * @evidence contracts/common.md#meaningful-documentation States for each subject its unit, what is measured and what owns a contribution, and that every subject is always reported.
- * @author Samchon
  */
 export type AutoMovieQuantitySubject =
   | "space-floor-area"

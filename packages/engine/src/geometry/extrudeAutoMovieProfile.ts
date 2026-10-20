@@ -34,7 +34,6 @@ import { positive } from "./positive";
  * @evidence contracts/performance.md#efficient-algorithms O(n log n) for the n-corner hull, then linear emission of 2n vertices and 4n - 4 triangles.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call builds one mesh from its own profile; a caller placing the same prism repeatedly can keep the returned mesh.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns new position, index and normal arrays sized by the corner count; the hull and its lifted points are released on return.
- * @author Samchon
  */
 export const extrudeAutoMovieProfile = (props: {
   /** Strictly convex outline in local XY metres. */

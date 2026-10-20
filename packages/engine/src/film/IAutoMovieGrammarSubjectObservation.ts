@@ -18,7 +18,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A measurement record; the analyzer projects each boundary point a constant number of times per check, and builds an id map per shot to find the primary subject, answered on `readFilmGrammar`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built per placed shot by the caller for one reading; nothing caches it.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Two to four vectors, two numbers and an id, owned by the shot observation.
- * @author Samchon
  */
 export interface IAutoMovieGrammarSubjectObservation {
   /** Scene-node or formation id, non-blank and unique within the shot. */

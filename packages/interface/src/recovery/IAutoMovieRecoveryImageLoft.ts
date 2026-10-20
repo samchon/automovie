@@ -11,7 +11,6 @@ import type { IAutoMovieEllipticLoft } from "../model/IAutoMovieEllipticLoft";
  * @evidence contracts/common.md#clear-and-simple-design Generation authority, semantic edit controls and coverage labels share one versioned recipe while acquisition evidence remains outside it.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The recipe carries no source image, dense measurement, triangle array, copied normal, hidden cap or learned completion and does not call an inferred lateral surface measured truth.
  * @evidence contracts/common.md#meaningful-documentation States coefficient units, axis-scale anchors, edit independence, source isolation and the limits of the inferred surface and unobserved ends/interior.
- * @author Samchon
  */
 export interface IAutoMovieRecoveryImageLoft {
   /** Versioned source-independent section-family recipe. */

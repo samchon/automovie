@@ -7,8 +7,6 @@
  * @evidence contracts/performance.md#efficient-algorithms For N selected slots and L total string units, indexed admission, trimming and Set membership take expected O(N+L) time and O(N) output/temporary storage.
  * @evidence contracts/performance.md#reuse-equivalent-work One Set validates the full list once and is reused across entries; different mutable input arrays do not share a cached admission result.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The Set is local and a fresh string array transfers to the caller; no original array, actor or runtime handle is retained.
- *
- * @author Samchon
  */
 export const readProductionLiveWearableSoftBodies: (
   selected: unknown,

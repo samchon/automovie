@@ -8,8 +8,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A callback signature chooses no channel-reset or morph-target traversal algorithm.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The sink represents effectful writes and defines no cache or shared request completion.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The host supplies and owns the imported runtime; the interface allocates no manager or expression resource.
- *
- * @author Samchon
  */
 export interface IAutoMovieExpressionTarget {
   /**

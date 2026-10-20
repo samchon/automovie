@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Five scalar controls describe common shadow state without exposing renderer camera objects or selecting the scene's master filter policy.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Shadow tuning cannot enable unsupported area maps or override disabled scene shadows; near/far remain explicit rather than guessed from one fixture.
  * @evidence contracts/common.md#meaningful-documentation Defines resolution, depth and normal bias and positive ordered clip distances.
- * @author Samchon
  */
 export interface IAutoMovieLightShadow {
   /** Square shadow-map resolution, a positive safe integer. */

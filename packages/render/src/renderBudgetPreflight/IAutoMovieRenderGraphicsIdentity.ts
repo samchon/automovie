@@ -13,28 +13,20 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms The graphics observation schema declares data and chooses no runtime algorithm; its producer documents construction cost.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The observed device-string identity describes an identity boundary and performs no request coordination or result caching.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The erased graphics identity allocates no WebGL context; callers supply descriptive renderer strings and autoMovieRenderTargetRendererOfGraphics projects them into target identity without owning the host context.
- *
- * @author Samchon
  */
 export interface IAutoMovieRenderGraphicsIdentity {
   /**
    * Graphics API family the context reported, such as `webgl2`.
-   *
-   * @author Samchon
    */
   api: string;
 
   /**
    * `UNMASKED_VENDOR_WEBGL`, or the plain `VENDOR` when it is masked.
-   *
-   * @author Samchon
    */
   vendor: string;
 
   /**
    * `UNMASKED_RENDERER_WEBGL`, or the plain `RENDERER` when it is masked.
-   *
-   * @author Samchon
    */
   renderer: string;
 }

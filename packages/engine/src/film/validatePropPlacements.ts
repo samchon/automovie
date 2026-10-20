@@ -19,8 +19,6 @@ import { validatePropSupportCycles } from "./validatePropSupportCycles";
 
 /**
  * A borrowed registry record and its original authored diagnostic position.
- *
- * @author Samchon
  */
 interface IIndexed<Value> {
   /** Borrowed record from the registry bucket. */

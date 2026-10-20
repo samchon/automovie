@@ -11,7 +11,6 @@ import { IAutoMovieScriptNode } from "./IAutoMovieScriptNode";
  * @evidence contracts/common.md#clear-and-simple-design The flat beats are what the pipeline runs on and the tree is optional authoring structure over them, so a script without a tree is complete and the tree adds no field the stages need.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Duplicate ids are refused rather than resolved by position, and a tree that forgets a beat is refused rather than rendered without it.
  * @evidence contracts/common.md#meaningful-documentation States what the stages join on and which gates refuse duplicates, the shot id convention, and every stored-script refusal; members give each list's role and what an absent tree means.
- * @author Samchon
  */
 export interface IAutoMovieScript {
   /**

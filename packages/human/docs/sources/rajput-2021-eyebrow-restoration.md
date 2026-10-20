@@ -15,7 +15,3 @@ CC BY-NC-ND. Surgical technique paper; the anatomy is the author's clinical desc
 | Tail (lateral) | 20 to 25 percent, 1.2 to 1.7 cm | Above the orbital margin, beyond the lateral canthus | More horizontal and outward, then sloping down |
 
 Men's brows 5 to 6 cm long and 1 to 1.5 cm wide; women's 4.5 to 5 cm long. Density falls laterally. Hairs lie flush to the skin; a hair standing at even a slight angle "grows out like canopies and looks unacceptable". A restoration takes 70 to 120 single-hair grafts.
-
-## What Human takes
-
-The brow direction field for the brow card generator: vertical at the head, a crossing herringbone in the body converging on the axis, flattening and descending in the tail, every hair nearly tangent to the skin.

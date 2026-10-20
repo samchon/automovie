@@ -2,8 +2,6 @@ import type { ModelStateRecord } from "./ModelStateRecord";
 
 /**
  * Catalog identity and ordered draft states. Catalog owners retain these mutable records for module lifetime and expose them without cloning; exact state lookup and mesh construction belong to ModelRepresentation.
- *
- * @author Samchon
  */
 export interface ModelPrototype {
   /** Exact lookup token passed to material resolution, silhouette dispatch and model-ID construction. */

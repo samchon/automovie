@@ -14,7 +14,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design One direction and one offset define the analysis reference; terrain geometry and materials stay with their scene owners instead of being duplicated here.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The horizon is taken through each sample point rather than at the stated elevation, which the documentation names as the current limitation instead of implying a height test that no solver performs.
  * @evidence contracts/common.md#meaningful-documentation States the plane's role, the scope exclusion, which field the solvers read, the exact ground-ray test, the elevation equation and unit, and that elevation is not yet evaluated.
- * @author Samchon
  */
 export interface IAutoMovieReferenceGround {
   /** World direction pointing from the ground into the sky; finite, non-zero. */

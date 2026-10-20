@@ -16,7 +16,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data record with no runtime body; the hierarchy query is answered on `measureAutoMovieMeshCrossings`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A fresh record per reported pair; nothing is cached.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Three scalars; the result holds at most one per first triangle by default and at most one per crossing pair with `allPairs`.
- * @author Samchon
  */
 export interface IAutoMovieMeshCrossing {
   /** First-mesh triangle ordinal, before any spatial indexing. */

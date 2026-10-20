@@ -13,7 +13,6 @@ import { IAutoMovieDrawingPoint } from "./IAutoMovieDrawingPoint";
  * @evidence contracts/common.md#clear-and-simple-design The resolved note mirrors its spec's id and text and adds only the outcome, so a reader reconciles sheet and view by id without consulting the view.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A stale note keeps its text but loses its position instead of staying at the last known point, and the text extent is declared as a gap rather than estimated.
  * @evidence contracts/common.md#meaningful-documentation States when each member is null, the page units of the anchor, that the text extent is not measured, and where the reason comes from.
- * @author Samchon
  */
 export interface IAutoMovieDrawingAnnotation {
   /** Annotation id, copied from the view. */

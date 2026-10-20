@@ -44,7 +44,6 @@ import { validateUniqueValues } from "./validateUniqueValues";
 /**
  * Assemble id/reference, primitive/mesh, skeleton (with declared joint axes), gaze, transform, body/profile/affordance and material checks in stable order.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Assemble id/reference, primitive/mesh, skeleton with declared joint-axes bases, the gaze declaration against the eye bones, transform (uniform scale under a dual-quaternion skin), body/profile/affordance and material checks in stable order.
  * @evidence contracts/common.md#clear-and-simple-design Leaf owners append to one local collector; model orchestration owns cross-reference sets.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Typed record/list shape is a premise; scalar/reference success does not certify visual quality or repair bad geometry.

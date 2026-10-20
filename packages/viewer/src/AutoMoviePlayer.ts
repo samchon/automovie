@@ -25,8 +25,6 @@ import { applyPose } from "./applyPose.js";
 
 /**
  * One joint's three solver states, retained in this player's spring map.
- *
- * @author Samchon
  */
 interface IAxisSprings {
   /** Flexion value and velocity carried between bounded solver updates. */
@@ -61,8 +59,6 @@ interface IAxisSprings {
  * @evidence contracts/performance.md#efficient-algorithms Each update samples the clip, walks pose joints and configured spring joints, then resolves the skeleton; spring membership uses Sets and state uses bone-keyed Maps, with linear per-frame temporary pose storage.
  * @evidence contracts/performance.md#reuse-equivalent-work Per-bone spring values and velocities carry between updates; clip replacement preserves those states for follow-through while pose and expression are resampled because time and clip determine new output.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The instance retains its target, skeleton, current clip, latest sample and at most one three-axis spring state per humanoid-bone key; the host owns their lifetime and no animation task or GPU allocation is started.
- *
- * @author Samchon
  */
 export class AutoMoviePlayer {
   private lastSample: IAutoMovieMotionSample | null = null;

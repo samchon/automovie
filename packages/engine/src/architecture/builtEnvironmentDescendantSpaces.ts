@@ -18,7 +18,6 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * @evidence contracts/performance.md#efficient-algorithms Linear in the space count for the walk plus k log k to sort the k members of the subtree.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Recomputed per call from the caller's mutable record; no cached population could prove it still matches the hierarchy.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Keeps nothing after returning; the caller owns the sorted id list, bounded by the space count.
- * @author Samchon
  */
 export const builtEnvironmentDescendantSpaces: (
   environment: IAutoMovieBuiltEnvironment,

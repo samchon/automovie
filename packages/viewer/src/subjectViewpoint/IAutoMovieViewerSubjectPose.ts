@@ -10,8 +10,6 @@ import type { IAutoMovieViewerSubjectLens } from "./IAutoMovieViewerSubjectLens.
  * @evidence contracts/performance.md#efficient-algorithms Fixed scalar pose data chooses no geometry traversal; numerical construction and camera updates retain their own costs.
  * @evidence contracts/performance.md#reuse-equivalent-work Equivalent poses can describe repeated observations only with equivalent scene/population/source and renderer state, not from coordinates alone.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Pose and nested lens references remain caller owned; the type acquires no render target, native handle or task.
- *
- * @author Samchon
  */
 export interface IAutoMovieViewerSubjectPose {
   /**

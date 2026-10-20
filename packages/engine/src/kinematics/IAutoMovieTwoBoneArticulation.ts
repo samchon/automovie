@@ -16,7 +16,6 @@ import { IAutoMovieQuaternion } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; the constant-time solve is answered on `twoBoneChainArticulation`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One pair of deltas per planted chain and frame, each for a different target, so there is nothing to share.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Two quaternions, released with the caller's pose.
- * @author Samchon
  */
 export interface IAutoMovieTwoBoneArticulation {
   /** Bone-local articulation delta for the chain-root joint, such as a hip or shoulder. */

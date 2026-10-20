@@ -10,8 +10,6 @@ import { type IBoundChildStatus } from "./IBoundChildStatus";
  * @evidenceExclude contracts/performance.md#efficient-algorithms The held child operation contract declaration chooses no executable algorithm.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The held child operation contract type coordinates no request or cached work.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The held child operation contract schema acquires no runtime handles, bytes or tasks.
- *
- * @author Samchon
  */
 export interface IBoundChild {
   /**

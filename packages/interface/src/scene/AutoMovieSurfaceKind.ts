@@ -5,6 +5,5 @@
  * @evidence contracts/common.md#clear-and-simple-design Semantic kind stays separate from terrain shape and walkability so one label cannot silently infer dimensions or physical traversal rules.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A ramp label does not synthesize stairs or a slope; the authored height rule supplies geometry and supported validators decide traversal.
  * @evidence contracts/common.md#meaningful-documentation Defines floor, raised platform and sloped-connector meaning and their separation from geometry.
- * @author Samchon
  */
 export type AutoMovieSurfaceKind = "floor" | "platform" | "ramp";

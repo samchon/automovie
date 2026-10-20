@@ -18,7 +18,6 @@ import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
  * @evidence contracts/performance.md#efficient-algorithms The record itself has no runtime algorithm; gait lookup and IK cost live in the synthesizer, and the number of gaits/bones drives those operations.
  * @evidence contracts/performance.md#reuse-equivalent-work Gaits, rest pose, rig and rest frames are borrowed across actions; replacement on a resumed beat happens through a new context record rather than mutation of this record.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The host owns context data for the shot and any resumed snapshots; the interface retains no renderer, native solver or task.
- * @author Samchon
  */
 export interface IAutoMovieActorContext {
   /** Id shared by the actor's poses, gaits and optional rig. */

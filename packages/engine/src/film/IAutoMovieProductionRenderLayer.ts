@@ -16,7 +16,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape with no runtime body; computing it is constant work answered on `sampleProductionRenderFrame`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A layer is part of one frame record and is never recomputed separately; pass selection copies it with `structuredClone` so one pass cannot alter what another reads.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds a string and two numbers by value; its frame record is its only owner.
- * @author Samchon
  */
 export interface IAutoMovieProductionRenderLayer {
   /** Id of the compiled shot this layer renders, as the timeline names it. */

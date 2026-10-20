@@ -18,7 +18,6 @@ import { IAutoMovieDrawingPoint } from "./IAutoMovieDrawingPoint";
  * @evidence contracts/common.md#clear-and-simple-design A line carries only its owner, space, layer, role and two points; the pen weight and dash come from the view's style by role at serialization, so a line never stores a styling decision.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A face-only boundary takes the first space it separates rather than whichever space the view filter matched, which is a stated rule of the record and not a per-sheet adjustment; no owner kind receives special handling.
  * @evidence contracts/common.md#meaningful-documentation States the rounding, endpoint orientation, zero-length and duplicate rules, the sort order, and when the owner is a boundary; each member says what it names and when `space` is `null`.
- * @author Samchon
  */
 export interface IAutoMovieDrawingLine {
   /**

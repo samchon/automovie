@@ -8,7 +8,6 @@
  * @evidence contracts/performance.md#efficient-algorithms Work is bounded by the compared common prefix and string lengths, with constant additional storage and no key materialization.
  * @evidence contracts/performance.md#reuse-equivalent-work Consumers reuse the same comparator rather than copied locale-sensitive order rules; no comparison result is cached across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only -1, 0 or 1 escapes and input strings are not retained; no runtime locale object or external handle is acquired.
- * @author Samchon
  */
 export const compareCodeUnits: (a: string, b: string) => number = (
   a: string,

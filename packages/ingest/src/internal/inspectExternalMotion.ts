@@ -1,4 +1,4 @@
-﻿import type { IAutoMovieClip, IAutoMovieTrack } from "@automovie/interface";
+import type { IAutoMovieClip, IAutoMovieTrack } from "@automovie/interface";
 
 import { AUTOMOVIE_GLTF_MOTION_INTERPRETATION_PROFILE } from "../AUTOMOVIE_GLTF_MOTION_INTERPRETATION_PROFILE";
 import type { IAutoMovieExternalMotionInspection } from "../IAutoMovieExternalMotionInspection";
@@ -39,7 +39,6 @@ const MOTION_OUTPUT_TYPES: Readonly<
  * @evidence contracts/performance.md#efficient-algorithms Cost follows node/channel counts and decoded/copied keyframe values; shared accessors are decoded once but each track owns a copy.
  * @evidence contracts/performance.md#reuse-equivalent-work Accessor index plus expected shape keys per-call decoding; immutable source/payload dependencies justify reuse and track arrays remain independent.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The decode cache lives only for one inspection; returned clips retain arrays proportional to keyframe counts without raw payload bytes.
- * @author Samchon
  */
 export const inspectExternalMotion: (props: {
   path: string;

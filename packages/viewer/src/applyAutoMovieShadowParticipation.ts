@@ -34,7 +34,6 @@ import { SPACE_GROUP_NAME } from "./buildSpace.js";
  * so these flags are inert until a production turns shadows on, and only such a
  * production sees its frames change.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Marks actual mesh/skinned/instanced geometry as caster/receiver except descendants of the reserved semantic-space group; declared support patches have no physical volume and are structural-guide geometry, while renderer/light owners separately enable actual shadow rendering.
  * @evidence contracts/common.md#clear-and-simple-design Owns object participation once for built and manually assembled scene hosts, keeping light shadow configuration and renderer policy with their own declarations.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Reserved SPACE_GROUP_NAME is a structural viewer identity rather than a fixture name; this uniformly overwrites mesh flags by role and does not emulate a shadow with dark geometry or replace Three internals.

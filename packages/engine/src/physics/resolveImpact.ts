@@ -87,7 +87,6 @@ const assertImpactBody: (
  * transfers); a hard, bouncy pair **bounces**; otherwise it **deflects**.
  * Bodies already separating yield a pure `deflect` with no impulse.
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Normalize the supplied normal and apply a two-mass normal impulse using product restitution; penetration/speed thresholds choose through, embed, bounce or deflect. This heuristic omits friction and angular response, and extreme finite arithmetic can overflow.
  * @evidence contracts/common.md#clear-and-simple-design One collision response owner admits masses, velocities and material coefficients, then returns impulse and both post-impact velocities for pose consumers.

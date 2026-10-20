@@ -32,7 +32,6 @@ const validArc: (arc: string) => arc is "direct" | "high" = (
  * when the intercept is out of range at that speed (or the speed is
  * non-positive).
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Iterate targetAt(t), solve a ballistic launch and replace t with its flight time, returning the closest visited residual unless it falls below 1e-6 seconds. Finite iteration is a fixed-point heuristic, not a guaranteed intercept or global optimum.
  * @evidence contracts/common.md#clear-and-simple-design This owner coordinates the target callback and solveBallisticLaunch without embedding trajectory integration or modifying the target.

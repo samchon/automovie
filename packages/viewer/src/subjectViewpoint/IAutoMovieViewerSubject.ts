@@ -10,8 +10,6 @@ import type { AutoMovieViewerSubjectKind } from "./AutoMovieViewerSubjectKind.js
  * @evidence contracts/performance.md#efficient-algorithms The record chooses no lookup algorithm; key encoding copies id/revision text and scene resolution is outside this shape.
  * @evidence contracts/performance.md#reuse-equivalent-work Matching records may name the same intended subject only with the same actual source; mutable scene or revision changes invalidate that premise.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Records retain only scalar text; capture returns the same subject reference and no independent revision store or resource owner.
- *
- * @author Samchon
  */
 export interface IAutoMovieViewerSubject {
   /**

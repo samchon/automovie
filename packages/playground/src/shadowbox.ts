@@ -35,8 +35,6 @@ const GUARD: IAutoMovieJointPose[] = [
  * @evidence contracts/performance.md#efficient-algorithms The fixed technique/beat population bounds guard-Map construction and total key generation; sequencing traverses all k keys in O(k) time/storage, with later model FK and rendering retained by consumers.
  * @evidence contracts/performance.md#reuse-equivalent-work Guard records and named technique poses are reused by multiple local beats, while sequencing copies shifted keys and borrows pose data; each call independently assembles its authored motion.
  * @evidence contracts/performance.md#bound-retention-and-release-resources One fixed module guard vocabulary persists and returned keys borrow local/shared joint and root records, which consumers must not mutate through one beat. No physics task, playback clock, worker or GPU handle is acquired.
- *
- * @author Samchon
  */
 export const shadowbox: (sk: string) => IAutoMovieMotion = (
   sk: string,

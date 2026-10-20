@@ -22,7 +22,6 @@ import { IAutoMovieDrawingTriangle } from "./IAutoMovieDrawingTriangle";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record type with no algorithm of its own; `indexAutoMovieDrawingDesign` states the cost of building it.
  * @evidence contracts/performance.md#reuse-equivalent-work `partTriangles` shares each part's tessellation across every element, opening fill and feature of one derivation, keyed by part identity; a new derivation builds a new index, so an edited environment never reads a stale entry.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The derivation that builds the index owns it and drops it when it returns; it holds three id maps, one matrix per element and at most one triangle list per tessellated part, all bounded by the design's size.
- * @author Samchon
  */
 export interface IAutoMovieDrawingDesignIndex {
   /** Every element by id. */

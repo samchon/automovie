@@ -22,7 +22,6 @@ import {
  * @evidence contracts/performance.md#efficient-algorithms One O(I) scan over the I instants that stops at the first match; a context declares a handful of instants and each study resolves one, so an id index would cost more to build than the scan.
  * @evidence contracts/performance.md#reuse-equivalent-work Each study resolves its instant once, in its request check, and passes the instant forward to the solve instead of looking it up again.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns a reference into the caller's context and allocates or retains nothing.
- * @author Samchon
  */
 export const autoMovieEnvironmentInstant: (
   context: IAutoMovieEnvironmentContext,

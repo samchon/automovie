@@ -15,7 +15,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape with no code; its min, max and overlap arithmetic is constant per role inside the matcher, which answers the traversal over both layer lists.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built fresh for each junction query from two resolved assemblies the caller already holds; no engine layer keys or stores continuity records between queries.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owns two small span objects and three scalars by value, reachable only from the `continuous` list the caller receives.
- * @author Samchon
  */
 export interface IAutoMovieAssemblyContinuity {
   /** The role both sides declare. */

@@ -10,7 +10,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms The profile union is a type and has no runtime cost.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A literal union of profile names coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The union allocates nothing; its runtime list is a frozen four-element constant.
- * @author Samchon
  */
 export type AutoMovieExternalModelIngestProfile =
   | "gltf-static-v1"

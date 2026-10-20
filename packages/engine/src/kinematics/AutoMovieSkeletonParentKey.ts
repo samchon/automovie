@@ -14,6 +14,5 @@ import { AutoMovieHumanoidBone } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A type alias with no runtime body.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A compile-time key type; the topology map that uses it is built and reused by its own owner.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A type alias holds nothing at runtime.
- * @author Samchon
  */
 export type AutoMovieSkeletonParentKey = AutoMovieHumanoidBone | "__root__";

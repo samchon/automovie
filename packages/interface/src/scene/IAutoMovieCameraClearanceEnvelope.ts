@@ -9,7 +9,6 @@ import { IAutoMovieCameraClearanceSphere } from "./IAutoMovieCameraClearanceSphe
  * @evidence contracts/common.md#clear-and-simple-design Separate body and parentRig volumes distinguish optical hardware from an independently collidable mount without importing renderer geometry.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Null parentRig declares no separate support, not a guessed zero-size rig; every supplied radius remains a positive conservative physical extent.
  * @evidence contracts/common.md#meaningful-documentation Defines carried camera hardware, optional parent support and the physical ownership of both local envelopes.
- * @author Samchon
  */
 export interface IAutoMovieCameraClearanceEnvelope {
   /** Optical body, lens, cage, and immediately carried camera hardware. */

@@ -15,8 +15,6 @@ import type {
  * @evidenceExclude contracts/performance.md#efficient-algorithms This candidate data type executes neither the two-link solve nor clinical-angle decomposition.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Upper and lower candidates share prepared geometry through their producer; the result defines no candidate cache.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The candidate owns two joint records and one hinge reference, with no retained search task or external resource.
- *
- * @author Samchon
  */
 export interface IAutoMovieSolvedChainPlant {
   /** Root joint's selected clinical coordinate chart. */

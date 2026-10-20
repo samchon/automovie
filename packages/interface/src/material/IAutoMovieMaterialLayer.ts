@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design One layer owns thickness, substance citation, finish and reveal wrapping; stack direction, host dimension and end exposure stay on the assembly rather than being repeated here.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Roles remain production-authored strings matched across junctions, without a built-in construction catalogue; a buried finish or disconnected wrapping run is reported rather than made visible by reordering layers.
  * @evidence contracts/common.md#meaningful-documentation Describes stable layer identity, junction role matching, the three substance cases, thickness units, cavity null material, exposed finish reachability and contiguous reveal wrapping.
- * @author Samchon
  */
 export interface IAutoMovieMaterialLayer {
   /** Stable id, unique inside one assembly. */

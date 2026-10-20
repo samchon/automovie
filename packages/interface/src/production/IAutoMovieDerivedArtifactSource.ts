@@ -7,7 +7,6 @@ import { AutoMovieDerivedArtifactEncoding } from "./AutoMovieDerivedArtifactEnco
  * @evidence contracts/common.md#clear-and-simple-design Source context receives an explicit host-prepared value without a filesystem or generator API; arbitrary subject code still has its ordinary ambient capabilities.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No surviving coordinator automatically regenerates or refuses stale artifacts through this type. Hosts must preserve binary payloads with base64 rather than lossy text decoding and verify the bytes they declare; the context is no sandbox.
  * @evidence contracts/common.md#meaningful-documentation Defines intended current-output identity, the two encoding meanings and host ownership of payload preparation and verification.
- * @author Samchon
  */
 export interface IAutoMovieDerivedArtifactSource {
   /** Current output digest verified before context publication. */

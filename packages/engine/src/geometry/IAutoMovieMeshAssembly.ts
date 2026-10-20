@@ -14,7 +14,6 @@ import { IAutoMovieMeshGroup } from "./IAutoMovieMeshGroup";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data record with no runtime body; the merge cost is answered on `mergeAutoMovieMeshParts`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each merge returns a fresh assembly and caches none.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owns the merged buffers and one group per member, bounded by the member count and their summed vertices and indices.
- * @author Samchon
  */
 export interface IAutoMovieMeshAssembly {
   /** The merged rigid mesh, members placed by their transforms and concatenated in declaration order. */

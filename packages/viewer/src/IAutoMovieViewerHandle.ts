@@ -11,8 +11,6 @@ import type * as THREE from "three";
  * @evidenceExclude contracts/performance.md#efficient-algorithms This handle performs no animation-loop or compositor algorithm itself.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Loop and close deduplication are implemented by the mount owner rather than this erased interface.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The mount owns renderer and compositor lifetimes represented by this handle; stop is their explicit release boundary.
- *
- * @author Samchon
  */
 export interface IAutoMovieViewerHandle {
   /**

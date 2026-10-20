@@ -9,7 +9,6 @@
  * @evidence contracts/common.md#clear-and-simple-design A closed two-variant union where only the bone variant carries ranges, since an expression gaze drives morphs at the authored weight and has nothing to scale.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts VRM's `inputMaxValue` and `offsetFromHeadBone` are not carried: the first normalizes a gaze angle into the unit weight that automovie's channels already are, and the second serves a look-at target, which the head's gaze owns.
  * @evidence contracts/common.md#meaningful-documentation States which channels count as gaze, what each variant drives, why bone gaze exists, the VRM reference and the fields deliberately left out.
- * @author Samchon
  */
 export type IAutoMovieLookAt =
   | IAutoMovieLookAt.IBone
@@ -26,7 +25,6 @@ export namespace IAutoMovieLookAt {
    * @evidence contracts/common.md#clear-and-simple-design Four scalars, one per VRM range map, keep each direction's reach independent without a curve or a per-eye duplicate.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The ranges are admitted against the eye bones' range of motion rather than clamped at playback, so a gaze the rig cannot hold is refused when the model is admitted.
    * @evidence contracts/common.md#meaningful-documentation States the axis and sign each direction writes, the weight-to-angle law, inner and outer per eye, composition with authored eye angles, units and admission.
-   * @author Samchon
    */
   export interface IBone {
     /** Selects bone gaze. */
@@ -52,7 +50,6 @@ export namespace IAutoMovieLookAt {
    * @evidence contracts/common.md#clear-and-simple-design Only the discriminant, because an expression gaze has nothing to scale or rotate.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts VRM's expression weight caps are not modeled; the authored weights reach the morphs unchanged.
    * @evidence contracts/common.md#meaningful-documentation States what the variant drives and that it equals omitting the record.
-   * @author Samchon
    */
   export interface IExpression {
     /** Selects expression gaze. */

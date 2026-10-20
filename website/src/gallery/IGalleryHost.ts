@@ -8,8 +8,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms An erased effect contract chooses no implementation algorithm.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work This interface defines effects but performs no sharing or caching.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type owns no native dialog or listener; mountGallery implements those lifetimes.
- *
- * @author Samchon
  */
 export interface IGalleryHost<Opener> {
   /** Native modal availability; false retains ordinary authored links. */

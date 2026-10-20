@@ -17,7 +17,6 @@ import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape; composing every element's world matrix once per call and decomposing one per carriage is answered on `builtConnectorCarriagePlacements`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The producer builds one matrix table per call and shares it across that run's carriages; no placement is cached between states or calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds fresh vectors and strings only, owned by the caller's placement list; the producer's matrix table is dropped when it returns.
- * @author Samchon
  */
 export interface IAutoMovieConnectorCarriagePlacement {
   /** Carriage id inside its connector. */

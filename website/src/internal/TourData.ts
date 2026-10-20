@@ -11,8 +11,6 @@ import type { TourView } from "../TourView";
  * @evidenceExclude contracts/performance.md#efficient-algorithms This erased envelope performs no traversal or decoding.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work This type defines no request cache or effect-sharing policy.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This type acquires no renderer resources or transport tasks.
- *
- * @author Samchon
  */
 export interface TourData {
   /** Production identity checked when the network payload is read. */

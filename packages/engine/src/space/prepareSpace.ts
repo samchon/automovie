@@ -13,7 +13,6 @@ import { prepareSurface } from "./prepareSurface";
  * @evidence contracts/performance.md#efficient-algorithms S surfaces with E total ring vertices take O(S+E) work and owned projection storage, required to prepare every query candidate.
  * @evidence contracts/performance.md#reuse-equivalent-work The resulting generation can serve multiple queries; callers rebuild after source mutation rather than relying on identity alone as a revision key.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the result and projected arrays, which retain source space and surfaces until discarded; there are no active tasks or handles.
- * @author Samchon
  */
 export const prepareSpace: (
   space: IAutoMovieSpace,

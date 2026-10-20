@@ -12,7 +12,6 @@ import { IAutoMovieWorldSurface } from "./IAutoMovieWorldSurface";
  * @evidence contracts/common.md#clear-and-simple-design Each spatial population keeps its own shape and responsibility, separating terrain lookup, navigation width, effect regions and non-formation placement from shot performance.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Optional instanceSets preserves older world records as an empty population. Missing instance routes refuse during regeneration, while materializeCompiledEffects drops unresolved zone or recipe cues; this type supplies no universal missing-reference refusal or invented geometry.
  * @evidence contracts/common.md#meaningful-documentation Defines world identity and meter units, every spatial population and the backward-compatible empty instance-set omission.
- * @author Samchon
  */
 export interface IAutoMovieWorldDesign {
   /** Non-blank stable world id. */

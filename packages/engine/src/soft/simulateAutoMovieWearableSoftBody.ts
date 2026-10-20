@@ -26,8 +26,6 @@ import { simulateSoftBodyWithBoundaries } from "./simulateSoftBodyWithBoundaries
  * @evidence contracts/performance.md#efficient-algorithms For K frames with N nodes, R actors, A moving anchors, B capsules and J scanned bone rows per query, resolution costs O(K*(N+R+(A+B)*J)); boundary storage O(K*(A+B)) precedes the shared P-particle solver replay cost.
  * @evidence contracts/performance.md#reuse-equivalent-work Node/actor indexes are built once per frame and reused for all targets; required bone scans preserve duplicate detection. Snapshots, domain and budget are not assumed equivalent across calls for a retained solve cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Frame maps and resolved histories are local; only fresh solved arrays and budget scalars transfer, without retaining subject maps, rig callbacks or a host task.
- *
- * @author Samchon
  */
 export const simulateAutoMovieWearableSoftBody: (props: {
   domain: IAutoMovieSoftBodyDomain;

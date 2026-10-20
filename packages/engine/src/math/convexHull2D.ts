@@ -17,7 +17,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms For N points, deduplication is linear, sorting is O(N log N), and each point enters and leaves each stack once, using O(N) storage.
  * @evidence contracts/performance.md#reuse-equivalent-work One deduplicated sort supplies both chains; mutable input populations have no shared cached hull.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Maps and chains are released after construction; output owns its order while retaining references to caller point records.
- * @author Samchon
  */
 export const convexHull2D: (
   points: readonly IAutoMovieVector3[],

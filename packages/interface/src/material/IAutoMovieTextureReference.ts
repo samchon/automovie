@@ -7,7 +7,6 @@ import { AutoMovieTextureCoordinateSource } from "./AutoMovieTextureCoordinateSo
  * @evidence contracts/common.md#clear-and-simple-design Transform and sampler each group one optional sampling concern next to the asset citation; physical UV units are a separate optional declaration consumed by texture-scale validation.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No image dimensions or asset name imply UV units; omitting coordinateSource makes no scale claim, and requesting another UV set is refused because this mesh representation carries only UV0.
  * @evidence contracts/common.md#meaningful-documentation Describes asset ownership, decoding, UV0 and the packed-atlas exclusion with reopening conditions, coordinate-source omission, physical repeat formulas, and origin-based transform units.
- * @author Samchon
  */
 export interface IAutoMovieTextureReference {
   /** Project asset id. */

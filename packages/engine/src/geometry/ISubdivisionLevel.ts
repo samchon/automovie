@@ -16,7 +16,6 @@ import { ISubdivisionTopology } from "./ISubdivisionTopology";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; refinement cost is answered on `refineSubdivisionLevel`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each level is built once from its parent.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Arrays linear in the level's vertices, UV values and corners; the subdivider keeps only the current level, so a parent is released once its child exists.
- * @author Samchon
  */
 export interface ISubdivisionLevel {
   /** Connectivity and edge sharpness. */

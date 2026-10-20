@@ -11,8 +11,6 @@ import type * as THREE from "three";
  * @evidence contracts/performance.md#efficient-algorithms This is a fixed-size scalar and tuple payload; capture and restore each handle constant-size state aside from native camera clone's possible child subtree.
  * @evidence contracts/performance.md#reuse-equivalent-work Each capture copies current mutable camera state. The type defines no state cache and restore cannot substitute a previous lens for a newly supplied payload.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The payload retains scalar values and copied arrays/view fields with no renderer, scene or native handle. Its lifetime transfers to the snapshot consumer and ends when its references become unreachable.
- *
- * @author Samchon
  */
 export interface IViewerCameraStateSnapshot {
   /** Native camera class identity; restore requires the same current class. */

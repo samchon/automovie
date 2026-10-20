@@ -13,8 +13,6 @@ import { IAutoMovieExpression, IAutoMoviePose } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms The sampled record runs no interpolation; joint maps and segment search are chosen by sampleMotion.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A sample carries one time's body and face but defines no cross-time sampling cache.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns the sample wrapper and any newly interpolated values; borrowed endpoint data remains owned by the source clip.
- *
- * @author Samchon
  */
 export interface IAutoMovieMotionSample {
   /** Interpolated body pose at the sampled instant. */

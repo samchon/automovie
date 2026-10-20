@@ -10,7 +10,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record; the surface rig owns sampling cost.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A returned snapshot without mutable evaluator state.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns the returned packed arrays.
- * @author Samchon
  */
 export interface IAutoMovieSurfaceConstruction {
   /** The primitive being shown. */
@@ -38,7 +37,6 @@ export namespace IAutoMovieSurfaceConstruction {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A sampling request record.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A sampling request record.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A caller-owned record without resource handles.
-   * @author Samchon
    */
   export interface ISamples {
     /** Segments around a closed station, at least three. */

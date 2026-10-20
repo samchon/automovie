@@ -9,7 +9,6 @@
  * @evidence contracts/common.md#clear-and-simple-design This pure capture record contains resident pixels, camera provenance and the declared non-trained background test; fitting policy and saved coefficients belong to separate records.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts One asserted rigid object and one cohort identify the capture; no hidden camera estimation, learned mask, manual curve, resampling or mesh reference is represented.
  * @evidence contracts/common.md#meaningful-documentation Documents pixel centres, axis signs, millimetres, supplied calibration, RGB interpretation, byte provenance and borrowed-array lifetime.
- * @author Samchon
  */
 export interface IAutoMovieRecoveryImageInput {
   /** Version of the known-camera RGB capture. */

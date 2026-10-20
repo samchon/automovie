@@ -1,4 +1,4 @@
-﻿import { COMPONENT_BYTES } from "./COMPONENT_BYTES";
+import { COMPONENT_BYTES } from "./COMPONENT_BYTES";
 import { SHAPE_COMPONENTS } from "./SHAPE_COMPONENTS";
 
 /**
@@ -11,7 +11,6 @@ import { SHAPE_COMPONENTS } from "./SHAPE_COMPONENTS";
  * @evidence contracts/performance.md#efficient-algorithms Fixed shape lookup and at most three padding branches require constant time without reading elements.
  * @evidence contracts/performance.md#reuse-equivalent-work All accessor consumers reuse equivalent storage sizing from the same two fixed vocabulary tables.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The function owns no arrays, byte views or retained state and returns one scalar size.
- * @author Samchon
  */
 export const accessorElementByteLength: (
   componentType: number,

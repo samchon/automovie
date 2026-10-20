@@ -4,7 +4,7 @@ Loper M, Mahmood N, Romero J, Pons-Moll G, Black MJ. "SMPL: A Skinned Multi-Pers
 
 ## Licence
 
-Paper copyright ACM. The paper states that the model "is available for research purposes"; its learned data is unusable here both for that reason and under the no-external-data decision. Human takes only the formulation.
+Paper copyright ACM. The paper states that the model "is available for research purposes"; this note does not establish permission to redistribute learned model data.
 
 ## What it says
 
@@ -12,7 +12,3 @@ Paper copyright ACM. The paper states that the model "is available for research 
 - Pose-dependent blend shapes are a linear function of the elements of the pose rotation matrices minus the rest-pose rotations, (R(θ) - R(θ*)), with 23 joints giving 207 elements.
 - LBS and DQBS without correctives "produce serious artifacts at the knees, elbows, shoulders and hips"; the default SMPL uses DQBS with the correctives.
 - At most four parts influence a vertex.
-
-## What Human takes
-
-The evidence that correctives are needed with either blend, and their formulation in rotation elements, inform candidate formula-generated correctives in [skinning research](../techniques/skinning.md).

@@ -14,7 +14,6 @@ import { IAutoMovieSpaceShell } from "./IAutoMovieSpaceShell";
  * @evidence contracts/common.md#clear-and-simple-design One nullable parent id states hierarchy and `builtSpaceContainsPoint` shares the own-volume predicate. Bounds, volume and drawing sections have representation-specific readers; descendant membership is a separate subtree fold, so a volume-less parent contains no point itself while an environment query can still include its children's volumes.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Cells and shell together are refused instead of merged, `fidelity` on a volume-less space is refused, and `faceted` is an authored declaration that no code infers from the geometry.
  * @evidence contracts/common.md#meaningful-documentation States the one-spelling rule and the meaning of neither, the parent and root rules, the convexity and world frame of cells, when to use a shell, and what `exact`, `faceted`, and absence of `fidelity` mean for derived answers.
- * @author Samchon
  */
 export interface IAutoMovieBuiltSpace {
   /** Stable logical-space identity, unique within the environment. */

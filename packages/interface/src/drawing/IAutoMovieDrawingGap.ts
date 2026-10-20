@@ -17,7 +17,6 @@ import { AutoMovieDrawingGapStatus } from "./AutoMovieDrawingGapStatus";
  * @evidence contracts/common.md#clear-and-simple-design Subject, status, reason and remedy name omitted work, its producer-assigned category, explanation and suggested next action. One shape serves all three derivations; it does not independently validate the explanation or establish fault ownership.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Subjects are an open string owned by the deriving engine functions rather than a closed union, so nothing checks their spelling; subjects shared by two derivations currently agree in spelling and status, which only review enforces.
  * @evidence contracts/common.md#meaningful-documentation States why gaps exist, which records emit them, their order and uniqueness, the always-present subjects, and what each member must say.
- * @author Samchon
  */
 export interface IAutoMovieDrawingGap {
   /**

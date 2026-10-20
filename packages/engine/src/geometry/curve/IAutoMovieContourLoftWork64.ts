@@ -23,7 +23,6 @@ export namespace IAutoMovieContourLoftWork64 {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A type performs no computation.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A type owns no cache.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns all arrays and records.
-   * @author Samchon
    */
   export interface Ring {
     /** Stable generated ring identity. */
@@ -47,7 +46,6 @@ export namespace IAutoMovieContourLoftWork64 {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A type performs no computation.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A type owns no cache.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns all arrays and records.
-   * @author Samchon
    */
   export interface Group {
     /** Lower-section local ring ordinals. */
@@ -69,7 +67,6 @@ export namespace IAutoMovieContourLoftWork64 {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A type performs no computation.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A type owns no cache.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns all arrays and records.
-   * @author Samchon
    */
   export interface Slab {
     /** Lower saved-section ordinal. */

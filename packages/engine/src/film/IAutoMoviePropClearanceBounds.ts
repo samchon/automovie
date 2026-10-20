@@ -18,7 +18,6 @@ import { IAutoMoviePropBox, IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape with no runtime body; producing it costs eight corner transforms per clearance, answered on `propClearanceBounds`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built once per staged prop per validation pass; nothing caches clearance bounds across passes.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds an id and two fresh corner vectors, released with the producer's array after the overlap check; it references no authored clearance object.
- * @author Samchon
  */
 export interface IAutoMoviePropClearanceBounds extends IAutoMoviePropBox {
   /** Id of the `placement.clearance` entry this box came from. */

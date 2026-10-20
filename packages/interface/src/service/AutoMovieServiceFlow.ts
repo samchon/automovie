@@ -5,6 +5,5 @@
  * @evidence contracts/common.md#clear-and-simple-design Three graph traversal choices express supply, return and ring topology without implying a physical flow solver.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Root orientation is explicit and not inferred from discipline or port order; declaration reachability is distinct from closed-valve operating reach.
  * @evidence contracts/common.md#meaningful-documentation Defines forward, reverse and bidirectional root traversal semantics.
- * @author Samchon
  */
 export type AutoMovieServiceFlow = "from-root" | "to-root" | "undirected";

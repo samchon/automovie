@@ -9,7 +9,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A structural record performs no traversal.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The generating caller owns report updates and serialization.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns strings and scalar counts; the record retains no mesh buffers or handles.
- * @author Samchon
  */
 export interface RecoveryLocalRunReport {
   /** Stable generated run identity. */

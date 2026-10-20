@@ -33,7 +33,6 @@ export namespace RecoveryBezierFit {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A record performs no arithmetic.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The caller owns immutable inputs during one fit.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This record owns no resources.
-   * @author Samchon
    */
   export interface Input {
     /** Semantic curve name carried into engine construction. */
@@ -62,7 +61,6 @@ export namespace RecoveryBezierFit {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A result record computes nothing.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The same curve is consumed by reconstruction and construction inspection.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns coefficient arrays and diagnostics; the fitter retains nothing.
-   * @author Samchon
    */
   export interface Result {
     /** Actual fitted coefficients, physical widths and shared endpoints. */

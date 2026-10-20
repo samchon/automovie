@@ -9,7 +9,6 @@ import { IAutoMovieSurface } from "./IAutoMovieSurface";
  * @evidence contracts/common.md#clear-and-simple-design Support geometry is separated from logical rooms, boundaries and connectors owned by the built environment, permitting direct outdoor authoring without duplicating architecture topology.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A standable patch omitted from walkable can support props but not locomotion; semantic surface kind does not infer traversal permission or replace its actual height law.
  * @evidence contracts/common.md#meaningful-documentation Defines surface ownership and walkable references, forbidden standable tops and the division from logical architecture.
- * @author Samchon
  */
 export interface IAutoMovieSpace {
   /** Stable id. */

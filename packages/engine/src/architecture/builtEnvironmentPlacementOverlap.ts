@@ -26,7 +26,6 @@ import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
  * @evidence contracts/performance.md#efficient-algorithms Each side pays its selected body-resolution cost: element/model scans, full world staging and tessellation for an element, or a population scan and placement fold for a population. The final box test costs O(P₁P₂) for the two part counts, with an early exit on the first overlap.
  * @evidence contracts/performance.md#reuse-equivalent-work Each side's part boxes are measured once and serve both as its reported box and as its solids, where the earlier form measured every element side twice; nothing is cached across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Keeps nothing after returning; the caller owns the small result record.
- * @author Samchon
  */
 export const builtEnvironmentPlacementOverlap: (props: {
   environment: IAutoMovieBuiltEnvironment;

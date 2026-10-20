@@ -7,7 +7,6 @@ import { IAutoMovieHeightRule } from "../geometry/IAutoMovieHeightRule";
  * @evidence contracts/common.md#clear-and-simple-design Footprint, height and walkability keep geometric sampling distinct from performer permission without baking terrain into dense mesh samples in this contract.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Ground queries do not validate self-intersections, repeated vertices or area. No containing surface means the nullable ground-query absence result rather than fabricated walkable terrain; the source oracle explicitly converts that absence to zero height.
  * @evidence contracts/common.md#meaningful-documentation Defines stable id, simple XZ polygon requirements, meter coordinates, height-law ownership and explicit walkability.
- * @author Samchon
  */
 export interface IAutoMovieWorldSurface {
   /** Stable surface id. */

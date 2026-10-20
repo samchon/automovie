@@ -9,7 +9,6 @@
  * @evidence contracts/common.md#clear-and-simple-design The performance references the node and motion by id and adds one offset, so the motion stays a reusable clip and the shot only says when it starts.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Every consumer applies the same clamp at zero instead of extrapolating before the start, and a second performance for one node is refused rather than merged.
  * @evidence contracts/common.md#meaningful-documentation States how the offset maps shot time to motion time, what the node shows before it, what a null motion means, the per-node uniqueness, and the offset's range.
- * @author Samchon
  */
 export interface IAutoMovieShotPerformance {
   /** Id of the scene node performing; each node appears at most once. */

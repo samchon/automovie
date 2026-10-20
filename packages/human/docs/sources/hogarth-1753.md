@@ -10,7 +10,3 @@ Public domain.
 
 - The waving line, "composed of two curves contrasted," is "the line of beauty"; the serpentine line, waving and winding different ways at once, is "the line of grace" and is the line of "the human form".
 - The serpentine line "leads the eye in a pleasing manner along the continuity of its variety"; Hogarth illustrates it as a wire twisted round a cone.
-
-## What Human takes
-
-A conventional (aesthetic) statement of what art anatomy later makes concrete: body contours should alternate convex and concave and twist around the limb axis rather than run straight or repeat one curvature. Human treats it as a check, with the anatomical basis in staggered muscle bellies (`../aesthetics/body.md`).

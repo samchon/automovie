@@ -14,7 +14,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design Two corners describe the volume, and `IAutoMovieClearanceBox` extends this record with an id, so footprints and clearances share one corner rule and one transform.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A flat, inverted or non-finite box is refused rather than widened by a tolerance or reordered.
  * @evidence contracts/common.md#meaningful-documentation States the frame and unit, where the box is used, the corner rule and its validator, and how staging transforms it; members give each corner's role and bound.
- * @author Samchon
  */
 export interface IAutoMoviePropBox {
   /** Model-local minimum corner. */

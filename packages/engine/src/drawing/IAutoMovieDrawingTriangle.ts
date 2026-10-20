@@ -19,7 +19,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record type with no runtime code; producers emit one per mesh or shell triangle.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record type with no runtime code; the design index tessellates each model part once and every placement of it reuses those model-frame triangles.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A record of three points owned by the triangle list that holds it; it retains nothing itself.
- * @author Samchon
  */
 export interface IAutoMovieDrawingTriangle {
   /** First corner, in metres. */

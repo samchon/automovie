@@ -10,7 +10,6 @@ import { IAutoMovieChannel } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms Type selection adds no runtime traversal or per-keyframe allocation.
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses the authoring channel definition directly so a new canonical node arm is not independently recopied here.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The alias acquires no runtime storage, clip cursor or resource lifetime.
- * @author Samchon
  */
 export type IAutoMovieNodeChannel = Extract<
   IAutoMovieChannel,

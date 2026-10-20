@@ -22,7 +22,6 @@ import { IAutoMovieDesignScaleCandidate } from "./IAutoMovieDesignScaleCandidate
  * @evidence contracts/common.md#clear-and-simple-design The frame owns every placement fact for its sheet and primitives own none, so correcting a scale, axis, or north is one edit here and never a rewrite of observed points.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Axes retain authored skew and an unknown scale stays null. Up/north/level/view are informational to mapping/promotion. The production byte gate is retired, so single-page family restrictions and measured-sheet bounds require explicit host checks; the Engine frame gate does not reconstruct container page geometry.
  * @evidence contracts/common.md#meaningful-documentation States the exact mapping formula and its order, that axes may be skewed, which members the mapping ignores, the units and ranges of the extent and anchor, the page rule for single-page containers, and the measured-sheet limit.
- * @author Samchon
  */
 export interface IAutoMovieDesignSourceFrame {
   /** Stable, non-blank frame identity, unique within the document. */

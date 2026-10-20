@@ -24,7 +24,6 @@ const assertFiniteVector: (name: string, vector: IAutoMovieVector3) => void = (
  * that falls within the segment. A degenerate segment (`a == b`) reduces to a
  * point-in-sphere test.
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Solve the segment-sphere quadratic and select its first entry in [0,1], including tangency and zero for starts inside. A zero-length segment hits only when inside; extreme finite coordinates can overflow or lose root precision.
  * @evidence contracts/common.md#clear-and-simple-design This scalar parameter predicate owns analytic chord geometry and leaves trajectory time conversion to projectileSphereHit.

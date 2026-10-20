@@ -13,7 +13,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms Input record; summing the absorption area is one reduction over surfaces inside `analyzeAutoMovieAcoustics`, answered there.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Read once for one study's absorption sums; no derived value is kept for another study.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources An id and two numbers held by the request for the duration of the call.
- * @author Samchon
  */
 export interface IAutoMovieAcousticSurface {
   /** Stable surface identity, unique among the request's surfaces. */

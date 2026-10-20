@@ -1,7 +1,6 @@
 /**
  * Compiler-owned runtime identity for one project model group.
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Prefix the unchanged model group id with automovie:model: so every identical group reference addresses the same production runtime model and different identifiers remain distinct.
  * @evidence contracts/common.md#clear-and-simple-design One naming owner is shared by population tiers and production model materialization without a registry or host-specific rewrite.

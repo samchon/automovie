@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design This erased input owns registration and observation policy independently of engine implementation types.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No original normal, rig, subject identity or source-specific station table is accepted.
  * @evidence contracts/common.md#meaningful-documentation Members state millimetres, sign convention, alias policy and numerical budget meanings.
- * @author Samchon
  */
 export interface IAutoMovieRecoveryInput {
   /** Source positions already converted once to millimetres. */

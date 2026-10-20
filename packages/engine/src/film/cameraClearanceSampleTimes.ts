@@ -80,8 +80,6 @@ export function cameraClearanceSampleTimes(props: {
 
 /**
  * One motion sequence whose key boundaries refine the fixed clock.
- *
- * @author Samchon
  */
 interface ISequence {
   /** Sequence length in seconds; one loop cycle when it loops. */

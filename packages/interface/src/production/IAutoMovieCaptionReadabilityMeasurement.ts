@@ -7,7 +7,6 @@ import { IAutoMovieCaptionGraphemeSegmentationIdentity } from "./IAutoMovieCapti
  * @evidence contracts/common.md#clear-and-simple-design Measurements retain cue and actual segmentation identity beside raw counts and timing, allowing a profile verdict to remain a separate outcome rather than baking thresholds into these observations.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts UTF-16 code units do not substitute for grapheme clusters, and a missing preceding cue has null gap rather than a fabricated large gap that would automatically pass a minimum.
  * @evidence contracts/common.md#meaningful-documentation Identifies canonical text and language, exact segmenter, authored line counts, frame duration and same-language gap, and graphemes-per-second units.
- * @author Samchon
  */
 export interface IAutoMovieCaptionReadabilityMeasurement {
   /** Exact caption cue id. */

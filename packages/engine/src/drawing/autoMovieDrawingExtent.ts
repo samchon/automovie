@@ -27,7 +27,6 @@ import {
  * @evidence contracts/performance.md#efficient-algorithms One fold over every placed point with four running extremes, linear time and constant extra space, without building a combined point array.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Called once per derivation over that derivation's own content; nothing equivalent repeats.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds four numbers during the fold and returns one small record.
- * @author Samchon
  */
 export const autoMovieDrawingExtent = (
   drawing: Pick<

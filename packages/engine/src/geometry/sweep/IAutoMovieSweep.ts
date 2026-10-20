@@ -42,7 +42,6 @@ import { IAutoMovieSweepSpine } from "./IAutoMovieSweepSpine";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; evaluation cost is answered on `compileAutoMovieSweep`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record compiled once per sampling.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
- * @author Samchon
  */
 export interface IAutoMovieSweep {
   /** The path the sections travel along. */
@@ -81,7 +80,6 @@ export namespace IAutoMovieSweep {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `compileAutoMovieSweep`.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
-   * @author Samchon
    */
   export interface IStation {
     /** Chord-length parameter of the station on the spine, from 0 to 1. */
@@ -111,7 +109,6 @@ export namespace IAutoMovieSweep {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `compileAutoMovieSweep`.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
-   * @author Samchon
    */
   export interface IGuide {
     /** Direction in the section plane, radians counterclockwise from the first axis; guides of one sweep have distinct directions. */
@@ -131,7 +128,6 @@ export namespace IAutoMovieSweep {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `compileAutoMovieSweep`.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
-   * @author Samchon
    */
   export interface IKnot {
     /** Chord-length parameter on the spine. */
@@ -153,7 +149,6 @@ export namespace IAutoMovieSweep {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `compileAutoMovieSweep`.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
-   * @author Samchon
    */
   export interface IFeature {
     /** Points of the curve, at least two, each with the radius the surface takes there. */
@@ -173,7 +168,6 @@ export namespace IAutoMovieSweep {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `compileAutoMovieSweep`.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
-   * @author Samchon
    */
   export interface IFeaturePoint {
     /** Chord-length parameter on the spine, from 0 to 1. */

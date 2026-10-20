@@ -7,7 +7,6 @@ import { IAutoMovieShotPredicate } from "./IAutoMovieShotPredicate";
  * @evidence contracts/common.md#clear-and-simple-design Separates narrative explanation from executable predicates while using the same state shape for opening and closing requirements.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Description text is never measured as proof. Nonempty predicates are an authoring requirement; realizeShotContract applies every and an empty list passes vacuously, so callers must establish the list and predicate domains without the retired production gate.
  * @evidence contracts/common.md#meaningful-documentation Defines boundary-state identity, descriptive contract and the independent machine-checkable evidence obligation.
- * @author Samchon
  */
 export interface IAutoMovieNamedState {
   /** Stable state id. */

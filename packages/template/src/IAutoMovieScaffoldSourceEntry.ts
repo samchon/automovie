@@ -10,7 +10,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record of a path and a text chooses no algorithm; rendering cost belongs to `renderScaffoldEntries`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each entry is one source read once; the record coordinates no work.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller-owned entry retains its full source text and path while referenced; renderScaffoldEntries keeps no cross-call reference to it, and the record holds no handle or task.
- * @author Samchon
  */
 export interface IAutoMovieScaffoldSourceEntry {
   /** File text before line-ending normalization and token rendering. */

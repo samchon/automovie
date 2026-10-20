@@ -25,7 +25,6 @@ import type { IAutoMovieMeshSeparationVerdict } from "./IAutoMovieMeshSeparation
  * @evidence contracts/performance.md#efficient-algorithms Box pruning makes a query read only triangles whose boxes do not already prove the target, and each triangle bound stops at its first sufficient direction; worst case is every node plus every triangle, each at cost up to quartic in the feature's vertex count, all capped by the budget.
  * @evidence contracts/performance.md#reuse-equivalent-work The snapshot, its per-triangle boxes and the hierarchy are compiled once and reused by every call and by both operations; reuse of whole verdicts across identical rows is the ribbon fit's cache keyed on exact coordinates, clearance and attachment presence.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The query retains two copies of each triangle's corners (represented and binary64 reference), its box and centre, a map from ordinal to triangle, and the hierarchy, all sized by the resident triangle count at compile time and released when the caller drops the query.
- * @author Samchon
  */
 export interface IAutoMovieMeshSeparationQuery {
   /** Measure one feature completely against every resident triangle. */

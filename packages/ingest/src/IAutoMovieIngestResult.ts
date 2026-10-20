@@ -12,7 +12,6 @@ import type { IAutoMovieClip, IAutoMovieNode } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms The interface types the mapper's return value and runs no code.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A result type has no work of its own that could be shared.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type allocates nothing; the arrays it names are created by `ingestDocument` and owned by its caller.
- * @author Samchon
  */
 export interface IAutoMovieIngestResult {
   /** Every glTF node in document order as a core node whose `parent` names the node that lists it as a child, or `null` for a root. */

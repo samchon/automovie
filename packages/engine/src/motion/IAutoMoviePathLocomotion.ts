@@ -14,8 +14,6 @@ import { IAutoMoviePathFrame } from "./IAutoMoviePathFrame";
  * @evidenceExclude contracts/performance.md#efficient-algorithms These result fields do not choose path traversal or repeat allocation; the path baker owns those costs.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Stored baseline frames avoid consumer re-derivation at authored bake times, without a result cache for changed waypoints or gait data.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returned motion keyframes and baseline frames grow together with cycle count times gait keyframes; the caller owns both arrays.
- *
- * @author Samchon
  */
 export interface IAutoMoviePathLocomotion {
   /** The baked non-looping clip. */

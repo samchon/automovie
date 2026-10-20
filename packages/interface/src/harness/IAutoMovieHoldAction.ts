@@ -14,7 +14,6 @@ import { IAutoMovieActionBase } from "./IAutoMovieActionBase";
  * @evidence contracts/common.md#clear-and-simple-design The verb adds no field to the shared base beyond narrowing `duration` to a number, since a stillness has no natural length for `"auto"` to choose.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The held pose is the context's declared rest or the measured prior beat end, never a pose guessed from the preceding action, and the documentation states that limit.
  * @evidence contracts/common.md#meaningful-documentation States which pose is held and when, what is not held, the no-context outcome, the checks and the default mask; the members give the discriminator and the span's unit and why it is numeric.
- * @author Samchon
  */
 export interface IAutoMovieHoldAction extends IAutoMovieActionBase {
   /** Selects a pose hold as the action family. */

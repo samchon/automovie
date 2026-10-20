@@ -22,7 +22,6 @@ import { IAutoMovieHalfSpacePlane } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms Input record; the slab test is linear in the planes of one solid, answered on `autoMovieSolidBlocks`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Read for one study; the solids list is assembled once per study and its occlusion verdicts depend on each ray.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources An id and a plane array the caller owns; the plane count has no upper bound beyond what the caller authored.
- * @author Samchon
  */
 export interface IAutoMovieAnalysisSolid {
   /** Stable identity of the blocker within its own list (occluders or shades). */

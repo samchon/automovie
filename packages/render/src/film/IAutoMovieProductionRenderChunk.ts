@@ -13,7 +13,6 @@ import type { AutoMovieGuidePass } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms An interface runs no algorithm; the planning and digest cost is answered on `planProductionRenderJob`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work This erased type performs no cache lookup or completed-encode reuse. The retained planner derives ids, and any actual resident output reuse would require a consuming host's currentness and byte checks.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record holds no handle or task; its frame array lives as long as the plan that holds it.
- * @author Samchon
  */
 export interface IAutoMovieProductionRenderChunk {
   /**

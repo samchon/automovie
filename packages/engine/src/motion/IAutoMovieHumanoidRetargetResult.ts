@@ -16,8 +16,6 @@ import { IAutoMovieHumanoidRetargetCharacterization } from "./IAutoMovieHumanoid
  * @evidenceExclude contracts/performance.md#efficient-algorithms The result envelope executes no validation or retarget solve itself.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Borrowed unchanged source pose fields preserve existing data identity without defining cross-request retarget reuse.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller retains findings, an optional motion and two rig descriptions; resource and keyframe allocation belong to their producer, not this type.
- *
- * @author Samchon
  */
 export interface IAutoMovieHumanoidRetargetResult {
   /** Validation envelope containing field-located failures. */

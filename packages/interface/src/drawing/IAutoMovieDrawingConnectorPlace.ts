@@ -11,7 +11,6 @@
  * @evidence contracts/common.md#clear-and-simple-design The place is one arm of the schedule's place union, discriminated by `kind`, and holds only the stop list and the derived unit, so a connector row needs no geometry to say where it is.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A run between two units answers `null` instead of picking the first unit found, and no stop is inferred from the route's geometry.
  * @evidence contracts/common.md#meaningful-documentation States which declarations become stops, their order and deduplication, the exact-match rule, and when `building` is null.
- * @author Samchon
  */
 export interface IAutoMovieDrawingConnectorPlace {
   /** Discriminant naming the subject this place describes. */

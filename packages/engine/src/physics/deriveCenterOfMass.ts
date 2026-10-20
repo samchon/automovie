@@ -21,7 +21,6 @@ import { primitiveVolume } from "./primitiveVolume";
  * weigh (a mesh-only or all-degenerate model), which is the caller's signal
  * that `centerOfMass` must be declared explicitly.
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Sum each supported primitive's volume-weighted centroid after part scale, rotation and translation, using positive scale product as the volume Jacobian. Density is uniform; articulated bone placement and overflowing weighted sums remain limitations.
  * @evidence contracts/common.md#clear-and-simple-design The part scan delegates formulas to primitiveVolume and primitiveCentroid, keeping aggregate weighting in this function.

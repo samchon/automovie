@@ -12,7 +12,6 @@ import { IAutoMovieFootprintRing } from "./IAutoMovieFootprintRing";
  * @evidence contracts/performance.md#efficient-algorithms E vertices require O(E) projection and area work with O(E) owned plan storage.
  * @evidence contracts/performance.md#reuse-equivalent-work Prepared plan and area serve subsequent queries of the same point generation; borrowed source mutation invalidates both and is not watched.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the fresh wrapper and projection, which retain the supplied points until discarded; there are no tasks or host handles.
- * @author Samchon
  */
 export const footprintRing: (
   points: readonly IAutoMovieVector3[],

@@ -10,7 +10,6 @@ import { IAutoMovieBoundaryFace } from "./IAutoMovieBoundaryFace";
  * @evidence contracts/common.md#clear-and-simple-design Relation and geometry are separable: the required members state which spaces are separated, and the optional face carries location only when the work needs openings or envelope geometry on it.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An opening that states a void on a boundary without a face is refused rather than placed on an assumed plane, and the space count is checked instead of padded with an implicit exterior.
  * @evidence contracts/common.md#meaningful-documentation States what one and two cited spaces mean, the resolution and uniqueness of both lists, the meaning of an empty element list, and what an absent face leaves out.
- * @author Samchon
  */
 export interface IAutoMovieBuiltBoundary {
   /** Stable boundary identity. */

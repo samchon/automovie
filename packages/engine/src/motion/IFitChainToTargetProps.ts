@@ -22,8 +22,6 @@ import type { IAutoMoviePlantChain } from "./IAutoMoviePlantChain";
  * @evidenceExclude contracts/performance.md#efficient-algorithms This type contains no search; fitChainToTarget owns bounded bend-plane candidate evaluation and prepared-chain FK scoring.
  * @evidence contracts/performance.md#reuse-equivalent-work Caller-supplied topology and clinical tables are reused throughout this solve; equivalence requires the same unchanged skeleton and semantic mappings, not merely matching bone names.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The input borrows the rig, poses and topology for a synchronous solve; no timer, resource handle or cross-call cache is owned here.
- *
- * @author Samchon
  */
 export interface IFitChainToTargetProps {
   /** Rig whose ROM and rest transforms constrain the solve. */

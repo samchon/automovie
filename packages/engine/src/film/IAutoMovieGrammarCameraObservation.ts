@@ -17,7 +17,6 @@ import { IAutoMovieResolvedCamera } from "./IAutoMovieResolvedCamera";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A lens sample with no runtime body; `readFilmGrammar` computes `tan(fovY / 2)` from it once per projection call, a constant-time read.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built per shot boundary by the caller and read once per check; nothing caches it.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A position, a quaternion and two numbers, owned by the shot observation.
- * @author Samchon
  */
 export interface IAutoMovieGrammarCameraObservation extends IAutoMovieResolvedCamera {
   /** Vertical field of view in degrees, in `(0, 180)`. */

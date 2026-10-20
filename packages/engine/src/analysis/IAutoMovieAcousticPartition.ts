@@ -14,7 +14,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms Input record; the composite is one reduction over the partitions inside `analyzeAutoMovieAcoustics`, answered there.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Read once per acoustic study; the type carries no result that a later study could reuse.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Two numbers and an id owned by the request; the analysis copies them into the settings digest and keeps no reference.
- * @author Samchon
  */
 export interface IAutoMovieAcousticPartition {
   /** Stable partition identity, unique among the request's partitions. */

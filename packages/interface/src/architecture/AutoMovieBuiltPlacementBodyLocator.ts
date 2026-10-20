@@ -8,7 +8,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Two arms holding only a kind and an id, so the overlap and support queries and their sweeps share one addressing type instead of passing raw element or population records.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Compact layouts are bounded without expanding realized members; explicit layouts still inspect their stored transforms. A missing locator becomes unresolved, while errors deriving a present body's bounds propagate. Runtime-model references can resolve to a labelled origin point without proving any external mesh extent.
  * @evidence contracts/common.md#meaningful-documentation States what each arm addresses, which id a population arm uses, and how an unknown id or a transform-only group is reported.
- * @author Samchon
  */
 export type AutoMovieBuiltPlacementBodyLocator =
   | {

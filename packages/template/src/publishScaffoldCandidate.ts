@@ -19,7 +19,6 @@ import { type ScaffoldFilePublicationOutcome } from "./ScaffoldFilePublicationOu
  * @evidence contracts/performance.md#efficient-algorithms One pass over the candidate calls the publisher once per entry; a frozen entry with frozen bytes is reused instead of copying its bytes, so the planner's output adds no per-byte work here.
  * @evidence contracts/performance.md#reuse-equivalent-work A frozen entry is shared with the receipt because neither its fields nor its frozen byte array can change; equivalence is that immutability, not a matching path, and every publish call still runs since each write is an effect.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The function holds no descriptor; it retains the planned entries and one completed record per finished file in the returned receipt, bounded by the candidate length, and releases nothing because the caller owns the receipt.
- * @author Samchon
  */
 export const publishScaffoldCandidate: (props: {
   candidate: readonly IScaffoldPublicationEntry[];

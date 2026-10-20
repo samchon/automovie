@@ -13,7 +13,6 @@ import { IAutoMovieSequenceRenderPlan } from "./sequenceRenderPlan";
  * @evidenceExclude contracts/performance.md#efficient-algorithms The chunk plan type runs no code; producing it is answered on `planChunkedSequenceRender`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A chunk plan is a value handed to a host and coordinates no shared work itself.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased plan schema acquires no chunk or capture session; planChunkedSequenceRender creates relabelled frame records, chunk and pass lists, and reassembly strings retained by its caller. Actual capture and encoder lifetime belong to the supplied host.
- * @author Samchon
  */
 export interface IAutoMovieRenderChunkPlan {
   /** Render target identity, copied from the whole plan. */

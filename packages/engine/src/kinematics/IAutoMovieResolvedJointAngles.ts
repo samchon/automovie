@@ -15,7 +15,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms Three angles produced by a constant-time closed-form extraction answered on `decomposeJointRotation`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built once per decomposition; nothing is cached.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Three numbers, released with the caller's pose.
- * @author Samchon
  */
 export interface IAutoMovieResolvedJointAngles {
   /** Flexion or extension coordinate, degrees in the conversion owner's frame. */

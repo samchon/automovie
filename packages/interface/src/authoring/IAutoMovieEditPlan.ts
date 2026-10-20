@@ -10,7 +10,6 @@ import { IAutoMovieEditEntry } from "./IAutoMovieEditEntry";
  * @evidence contracts/common.md#clear-and-simple-design The plan is the sequence identity, frame rate, ordered entries and two prose fields; the output sequence keeps the same entries, so the plan adds only the rationale the sequence does not carry.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Pacing and continuity are declared unchecked prose instead of being given a heuristic score, and the display name is passed through without a check that would only test formatting.
  * @evidence contracts/common.md#meaningful-documentation States which function consumes the plan, which fields are checked and how, the frame-rate unit, that order is playback order, and that the prose fields are never read.
- * @author Samchon
  */
 export interface IAutoMovieEditPlan {
   /**

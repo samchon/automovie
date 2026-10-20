@@ -27,8 +27,6 @@ type ParentPath = (t: number) => IAutoMovieTransform | null;
 
 /**
  * The per-node lookups and sinks a follow bake shares within one call.
- *
- * @author Samchon
  */
 interface ICoupleContext {
   /** Scene nodes by id; every coupling parent is one. */

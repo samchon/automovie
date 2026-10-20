@@ -16,7 +16,6 @@ import { IAutoMovieSemanticMaskGap } from "./IAutoMovieSemanticMaskGap";
  * @evidence contracts/common.md#clear-and-simple-design Entries join semantic hierarchy to drawable node or slot identity while unaddressed records expose bounded per-slot gaps rather than silently losing the logical instance-set address.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Scene reordering preserves palette identity, but adding a genuinely colliding earlier id can shift an existing color; allocation is not universally insertion-invariant, and capacity overflow or duplicate semantic claims refuse.
  * @evidence contracts/common.md#meaningful-documentation Defines versioned palette, reserved black background, exact RGB representation, sorted entries, bounded slot gaps and complete canonical digest coverage.
- * @author Samchon
  */
 export interface IAutoMovieSemanticMask {
   /** Mask format. */

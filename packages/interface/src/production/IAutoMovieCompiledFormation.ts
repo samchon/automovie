@@ -13,7 +13,6 @@ import { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
  * @evidence contracts/common.md#clear-and-simple-design The runtime stores compact placement laws and bounded chunk summaries instead of every anonymous member; explicit heroes and representation tiers add only the exceptions and view choices consumers need.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Viewer and oracle read the compiled terrain snapshot rather than mutable world design, hero slots leave anonymous batches, and phase seed changes cycle position without inventing an unrelated cadence.
  * @evidence contracts/common.md#meaningful-documentation Gives compact storage ownership, safe seed and count, metre anchor and slot bounds, terrain-order semantics, hero exclusion, LOD inputs, phase-only generation and complete digest coverage.
- * @author Samchon
  */
 export interface IAutoMovieCompiledFormation {
   /** Generated formation format. */

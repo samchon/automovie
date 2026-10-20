@@ -9,8 +9,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms The record has two fixed-size vectors; evaluating the equations belongs to projectileAt rather than the type.
  * @evidence contracts/performance.md#reuse-equivalent-work projectileAt returns fresh state vectors for each requested instant; the type supplies no memoization or shared mutable history.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the two vectors for its state lifetime; the declaration owns no handle, worker or retained collection.
- *
- * @author Samchon
  */
 export interface IAutoMovieProjectileState {
   /** Projectile position in world meters. */

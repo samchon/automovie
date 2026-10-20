@@ -8,7 +8,6 @@ import { IAutoMovieRepaintRuntimeIdentity } from "./IAutoMovieRepaintRuntimeIden
  * @evidence contracts/common.md#clear-and-simple-design Separates implementation identity from descriptive generator context in one retained adoption record without adding an execution service.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts This record selects no provider and verifies no adoption; optional source, license and terms date remain descriptive metadata rather than verified legal-review evidence.
  * @evidence contracts/common.md#meaningful-documentation Defines exact adapter identity and the required cost/consumer context with optional descriptive provenance limits.
- * @author Samchon
  */
 export interface IAutoMovieRepaintGeneratorAdoption {
   /** Provider, model, version, and execution boundary the adapter must report. */

@@ -8,7 +8,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A one-field input record chooses no algorithm.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A props record is read once by one render and coordinates no work.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record holds one string and no handle.
- * @author Samchon
  */
 export interface IAutoMovieScaffoldProps {
   /**

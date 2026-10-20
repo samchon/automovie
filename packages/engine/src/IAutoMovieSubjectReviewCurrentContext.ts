@@ -21,7 +21,6 @@ import { IAutoMovieSubjectReviewTarget } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms Carries values only; the fold validates it once per call with two regex tests and compares it per observation in constant time.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Passed by the caller for one fold; the type defines no operation, and no result keyed by this context is stored for a later fold.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Six strings and one target record owned by the caller for the duration of one fold; nothing grows with the number of observations.
- * @author Samchon
  */
 export interface IAutoMovieSubjectReviewCurrentContext {
   /** Production namespace that owns the inspection; non-blank. */

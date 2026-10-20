@@ -6,6 +6,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./node": "./src/node/index.ts",
+    "./node/chrome": "./src/node/capture/DEFAULT_CHROME_EXECUTABLE.ts",
     "./package.json": "./package.json",
     "./film/equalOrderedScalars": "./src/film/equalOrderedScalars.ts",
     "./node/equalRational": "./src/node/equalRational.ts",
@@ -41,6 +42,10 @@
       "./node": {
         "types": "./lib/node/index.d.ts",
         "default": "./lib/node/index.js"
+      },
+      "./node/chrome": {
+        "types": "./lib/node/capture/DEFAULT_CHROME_EXECUTABLE.d.ts",
+        "default": "./lib/node/capture/DEFAULT_CHROME_EXECUTABLE.js"
       },
       "./package.json": "./package.json",
       "./film/equalOrderedScalars": {

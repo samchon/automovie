@@ -1,4 +1,4 @@
-﻿import { integerIndex } from "./integerIndex";
+import { integerIndex } from "./integerIndex";
 import { requiredArray } from "./requiredArray";
 
 /**
@@ -11,7 +11,6 @@ import { requiredArray } from "./requiredArray";
  * @evidence contracts/performance.md#efficient-algorithms An N-reference array costs O(N) with no new result array and constant work per index.
  * @evidence contracts/performance.md#reuse-equivalent-work Each reference is checked once using the shared single-index admission rule.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The enumeration borrows its array for the call and retains no graph or payload resource.
- * @author Samchon
  */
 export const integerIndices: (
   value: unknown,

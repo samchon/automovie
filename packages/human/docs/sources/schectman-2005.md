@@ -9,7 +9,3 @@ Schectman D., Shallo-Hoffmann J., Rumsey J., Riordan-Eva P., Hardigan P.C. "Maxi
 ## Values
 
 Maximum duction fell with age in all four directions (p < 0.001), with a step decline from the sixth decade. From 14-19 to 80-95 years: abduction -21%, adduction -24%, supraduction -35%, infraduction -26%. Absolute angles are not in the abstract.
-
-## What Human takes
-
-Relative age effects only; without absolute angles, this source does not calibrate the engine's conventional ±30 vertical and ±45 horizontal eye ranges.

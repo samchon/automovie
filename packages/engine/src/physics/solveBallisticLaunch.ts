@@ -32,7 +32,6 @@ const validArc: (arc: string) => arc is "direct" | "high" = (
  * - 2h·s²))) / (g·d)`; a purely vertical target is handled on its own (no
  *   horizontal direction to aim along).
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Resolve displacement into axes relative to constant gravity and solve the fixed-speed ballistic quadratic; direct/high selects the lower/higher arc. Near-zero gravity and vertical displacement have dedicated analytic degeneracy branches; binary64 overflow/cancellation remain limits.
  * @evidence contracts/common.md#clear-and-simple-design One solver returns velocity and hit time; projectileAt owns subsequent state evaluation and moving-target iteration remains separate.

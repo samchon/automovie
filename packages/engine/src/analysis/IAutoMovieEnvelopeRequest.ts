@@ -24,7 +24,6 @@ import { IAutoMovieIndoorCondition } from "./IAutoMovieIndoorCondition";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record type with no runtime code; solving it is linear in assemblies, layers and bridges, a cost the analyzer states.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record type with no runtime code; the analyzer solves it once per call, and both runs read that one solution.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owned by the caller; the analyzer keeps nothing derived from it after returning the two runs.
- * @author Samchon
  */
 export interface IAutoMovieEnvelopeRequest {
   /** Stable study identity; the runs are `<id>.thermal` and `<id>.moisture`. */

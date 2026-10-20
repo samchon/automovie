@@ -8,7 +8,6 @@
  * @evidence contracts/performance.md#efficient-algorithms Two scalar fields have constant storage.
  * @evidence contracts/performance.md#reuse-equivalent-work Pairwise and film consumers share the same admitted representation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the small record, with no snapshot or host handle retained.
- * @author Samchon
  */
 export interface IAutoMovieContinuityTolerances {
   /** Allowed nonnegative world-space position drift in metres. */

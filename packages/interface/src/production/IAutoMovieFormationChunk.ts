@@ -8,7 +8,6 @@ import { IAutoMovieFormationBounds } from "./IAutoMovieFormationBounds";
  * @evidence contracts/common.md#clear-and-simple-design Range metadata lets workers regenerate members from the compiled formation rather than serializing every anonymous scene node.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Heroes are excluded from instanced drawing by their explicit slots; bounds and centroid still summarize all designed positions rather than pretending to measure only currently visible members.
  * @evidence contracts/common.md#meaningful-documentation States index and range conventions, anonymous hero exclusion and the position-only bounds and centroid meaning.
- * @author Samchon
  */
 export interface IAutoMovieFormationChunk {
   /** Zero-based stable chunk index. */

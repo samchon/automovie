@@ -13,7 +13,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape with no runtime body; `deliveryCropNdc` fills it in constant time.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record resolved per call by its consumer; nothing caches it across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds six numbers and a flag by value and references nothing.
- * @author Samchon
  */
 export interface IAutoMovieDeliveryCropNdc {
   /** Left crop edge in NDC, from −1 at the uncropped gate's left edge. */

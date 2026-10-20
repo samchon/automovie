@@ -7,7 +7,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design One segment record serves rendering and quantity inspection without storing a separate visual branch hierarchy.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Pruned reports an actual shortened branch rather than a renderer-only invisible tail, and missing branches beyond the envelope are not emitted as zero-length fabricated growth.
  * @evidence contracts/common.md#meaningful-documentation Defines stable path identity, hierarchy and level, recipe-meter endpoints, radii and pruning effect.
- * @author Samchon
  */
 export interface IAutoMoviePlantingBranch {
   /**

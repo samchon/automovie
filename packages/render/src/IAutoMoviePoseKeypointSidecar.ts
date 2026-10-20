@@ -12,7 +12,6 @@ import type { IAutoMoviePoseKeypointFrame } from "./IAutoMoviePoseKeypointFrame"
  * @evidenceExclude contracts/performance.md#efficient-algorithms An interface describes data and runs no algorithm; planning cost is answered on `planPoseKeypointSidecar`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The sidecar is the planner's result, built once per render and handed to the host; the type itself shares no work.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased sidecar type opens no file; planPoseKeypointSidecar creates frame/actor/joint records retained by its caller, with storage driven by output samples and their observed populations.
- * @author Samchon
  */
 export interface IAutoMoviePoseKeypointSidecar {
   /** Id of the sequence the sidecar tracks. */

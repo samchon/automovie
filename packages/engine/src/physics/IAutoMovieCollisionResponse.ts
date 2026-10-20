@@ -13,7 +13,6 @@ import { IAutoMovieRecoilPush } from "./IAutoMovieRecoilPush";
  * @evidence contracts/performance.md#efficient-algorithms The representation has no computation; producing it costs constant impact arithmetic plus the supplied chain's ROM traversal when recoil is requested.
  * @evidence contracts/performance.md#reuse-equivalent-work The single resolved impact's impulse feeds one push and optional recoil solve; consumers reuse the proposal rather than resolving an identical collision again.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the suggestion and nested result values; no persistent collision world, rig handle or task is retained.
- * @author Samchon
  */
 export interface IAutoMovieCollisionResponse {
   /** Resolved normal impulse and qualitative collision advice. */

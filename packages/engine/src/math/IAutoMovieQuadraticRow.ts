@@ -15,7 +15,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data record with no runtime body; the sparse layout's cost is answered on `assembleAutoMovieQuadraticProgram`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record a caller builds per constraint; nothing about it is cached or shared.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds two caller-owned arrays and two scalars; the program solvers only read them and keep no reference after returning.
- * @author Samchon
  */
 export interface IAutoMovieQuadraticRow {
   /**

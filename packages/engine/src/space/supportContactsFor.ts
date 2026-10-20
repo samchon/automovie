@@ -19,7 +19,6 @@ import { surfaceHeightAt } from "./surfaceHeightAt";
  * @evidence contracts/performance.md#efficient-algorithms Preparation costs O(E) total edges, followed by F full surface membership scans and a second selected-height evaluation per supported point; result size is at most F.
  * @evidence contracts/performance.md#reuse-equivalent-work One preparation serves all supplied points in the call; repeated calls rebuild and retain no source-revision cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the fresh point array; temporary preparations and source references leave scope, without simulation or host resources.
- * @author Samchon
  */
 export const supportContactsFor: (
   space: IAutoMovieSpace,

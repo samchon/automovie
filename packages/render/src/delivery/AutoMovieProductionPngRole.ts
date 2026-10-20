@@ -13,7 +13,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A string-literal union carries no executable logic, so it has no algorithm to choose.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The union names roles only and coordinates no work between consumers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A role literal holds no state, handle or task.
- * @author Samchon
  */
 export type AutoMovieProductionPngRole =
   | "preview"

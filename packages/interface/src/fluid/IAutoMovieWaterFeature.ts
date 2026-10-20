@@ -30,7 +30,6 @@ import { AutoMovieWaterFeatureMode } from "./AutoMovieWaterFeatureMode";
  * @evidence contracts/common.md#clear-and-simple-design The binding holds only ids, a label, a mode and a material, so neither the architecture record nor the fluid domain knows about the other and this record is the single place their agreement is checked.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A basin that states no volume and a domain that already failed its own validation are skipped by the containment test on stated grounds rather than given an invented extent; feature ids are compared only within one building, and when two features bind one domain the render subject takes the owner and material of the one whose id sorts first.
  * @evidence contracts/common.md#meaningful-documentation States which half the building owns, that geometry is never restated, how the builder groups features for the validator, every refusal with the corner-or-every-cell rule, and per member the id scope, the rim conditions, the mode effects and what a `null` material means.
- * @author Samchon
  */
 export interface IAutoMovieWaterFeature {
   /**

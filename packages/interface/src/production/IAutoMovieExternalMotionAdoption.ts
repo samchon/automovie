@@ -11,7 +11,6 @@ import { IAutoMovieExternalMotionMappingEntry } from "./IAutoMovieExternalMotion
  * @evidence contracts/common.md#clear-and-simple-design Asset and take selection, actor ownership, exposed clip and mapping are declared once, with retarget-only translation scale confined to the mode union.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No automatic asset/take selection or name-derived mapping is declared. Actor/clip exclusivity and actual enactment are intended obligations without a surviving production enforcement gate; retaining this metadata does not create a converted clip.
  * @evidence contracts/common.md#meaningful-documentation Identifies user ownership of every adoption choice, manifest and inspected take addressing, shot and actor scope, exposed clip identity and byte-grounded source characterization.
- * @author Samchon
  */
 export interface IAutoMovieExternalMotionAdoption {
   /** Stable adoption identity. */

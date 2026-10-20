@@ -26,7 +26,6 @@ import { builtEnvironmentElementPartBounds } from "./builtEnvironmentElementPart
  * @evidence contracts/performance.md#efficient-algorithms Pays the part query's element/model scans, full world staging, procedural tessellation and vertex fold, then O(P) to union its P part boxes. Its cost is not solely element count plus vertex count.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answers one element over the caller's mutable record and caches nothing; building-wide reuse is `builtEnvironmentPartBoxes`.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Keeps nothing after returning; the caller owns the one returned box.
- * @author Samchon
  */
 export const builtEnvironmentElementBounds: (
   environment: IAutoMovieBuiltEnvironment,

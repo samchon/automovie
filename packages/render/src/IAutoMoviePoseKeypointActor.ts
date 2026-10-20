@@ -17,7 +17,6 @@ import type { IAutoMoviePoseKeypoint } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms An interface describes data and runs no algorithm; the projection cost is answered on `planPoseKeypointSidecar`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One actor's keypoint record is plain data written once by the planner and shared by no phase.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased actor schema acquires no pose or frame; planPoseKeypointSidecar creates the actor and joint records whose enclosing sidecar caller owns their lifetime.
- * @author Samchon
  */
 export interface IAutoMoviePoseKeypointActor {
   /** Id of the performing actor's scene node. */

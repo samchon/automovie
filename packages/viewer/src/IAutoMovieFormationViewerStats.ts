@@ -10,8 +10,6 @@ import type { IAutoMovieCompiledFormationLod } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms These numeric fields choose no culling or LOD algorithm; buildInstancedFormation computes them.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A per-frame count value coordinates no retained computation across frames.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The summary has fixed numeric storage and no member references, handles or asynchronous tasks.
- *
- * @author Samchon
  */
 export interface IAutoMovieFormationViewerStats {
   /**

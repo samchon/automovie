@@ -27,8 +27,6 @@ import { serviceSegmentSpanBounds } from "./serviceSegmentSpanBounds";
  * @evidence contracts/performance.md#efficient-algorithms Span tables are built once for O(R) route storage; for S runs and their leg counts, worst-case pair comparisons sum all cross-run leg products, quadratic in total spans.
  * @evidence contracts/performance.md#reuse-equivalent-work Every run's span boxes and endpoint-node set are computed once and reused across its candidate pairs within this network query.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary port, endpoint and span tables are released after scanning; only the caller-owned clash-id rows escape.
- *
- * @author Samchon
  */
 export const serviceSegmentClashes: (
   network: IAutoMovieServiceNetwork,

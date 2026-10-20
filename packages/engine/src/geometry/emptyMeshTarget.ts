@@ -17,7 +17,6 @@ import { IAutoMovieMeshTarget } from "./IAutoMovieMeshTarget";
  * @evidenceExclude contracts/performance.md#efficient-algorithms Allocates four empty arrays; there is no algorithm to choose.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Sharing buffers across builder calls would alias their meshes, so every call must allocate.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing itself; the builder that called it owns the buffers and transfers them to its returned mesh.
- * @author Samchon
  */
 export const emptyMeshTarget = (): IAutoMovieMeshTarget => ({
   positions: [],

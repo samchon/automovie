@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design One flat record of derived numbers serves both the render metrics and a reviewer, with the refusal thresholds kept in `validateFluidDomain` rather than duplicated as fields here.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Counts model uncached replay and stored scalar-array payload, excluding per-step scratch arrays, JavaScript container overhead and physical runtime duration. The reported Courant value uses direct arithmetic and can be nonfinite; this record is neither domain admission nor a measured memory/runtime bound.
  * @evidence contracts/common.md#meaningful-documentation States the producer, that no step is integrated, every limit the validator enforces, and which consumer reads which fields; members give each formula, its unit, and what it leaves out.
- * @author Samchon
  */
 export interface IAutoMovieFluidBudget {
   /** Id of the measured domain. */

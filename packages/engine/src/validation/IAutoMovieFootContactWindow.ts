@@ -10,7 +10,6 @@ import { AutoMovieHumanoidBone } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms The data record is constant size; its consumer pays sampled pose resolution and adjacent-pair speed work over the window.
  * @evidence contracts/performance.md#reuse-equivalent-work The declared window is reused for its sampled points, with no inferred gait state or retained foot-motion cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the window, and validation retains sampled positions only for the call without host resources or running tasks.
- * @author Samchon
  */
 export interface IAutoMovieFootContactWindow {
   /** Foot bone that should stay planted through the window. */

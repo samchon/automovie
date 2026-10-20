@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design One analysis record accompanies the exact PCM generation before encoding, keeping parser-derived encoded-media facts and the semantic sound plan separate.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Null loudness means no measurable integrated level and clippingSamples is zero by the preceding finite-PCM limiter invariant; eventAlignment cannot attribute energy to one event or prove its absence outside the searched window.
  * @evidence contracts/common.md#meaningful-documentation Defines the pre-encode measurement source, PCM clock and units, nullable loudness, limiter-derived clipping count and the mixed-window limitation of event alignment.
- * @author Samchon
  */
 export interface IAutoMovieProductionSoundAnalysis {
   /** Analysis schema. */

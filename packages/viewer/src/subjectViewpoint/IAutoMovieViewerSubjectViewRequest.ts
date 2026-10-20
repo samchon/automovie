@@ -15,8 +15,6 @@ import type { IAutoMovieViewerSubjectPose } from "./IAutoMovieViewerSubjectPose.
  * @evidence contracts/performance.md#efficient-algorithms The request chooses no population algorithm; actual callback cost scales with supported populations and capture cost scales with draw/encoding.
  * @evidence contracts/performance.md#reuse-equivalent-work Each request performs its own pose mutation, resolution and draw; equal metadata alone cannot share these effects.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller keeps scene/camera/renderer alive and retires them; capture acquires no browser or worker and leaves applied state even on later failure.
- *
- * @author Samchon
  */
 export interface IAutoMovieViewerSubjectViewRequest {
   /**

@@ -12,8 +12,6 @@ import { AutoMovieHumanoidBone } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms Three semantic bone fields perform no chain traversal or inverse-kinematics computation.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Bone identities describe a leg but cache neither resolved transforms nor fitted articulations.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The leg descriptor retains only three bone strings; FK samples and stance targets belong to the planting operation.
- *
- * @author Samchon
  */
 export interface IAutoMovieFootLeg {
   /** Foot end-effector bone (the ground-contact point that is pinned). */

@@ -36,7 +36,6 @@ import { triangulateAutoMoviePolygon } from "./triangulateAutoMoviePolygon";
  * @evidence contracts/performance.md#efficient-algorithms Linear in the corner count `n` for placing `2n` corners and `2n` side triangles; the dominant cost is the cap triangulation, which is quadratic in `n` and runs once for both caps because they share one index list.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one face; the drafter calls it once per face-only boundary per derivation, so there is no repeated request to share.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns a fresh array owned by the caller and keeps no state, handle or task after returning.
- * @author Samchon
  */
 export const autoMovieBoundaryShellTriangles = (
   face: IAutoMovieBoundaryFace,

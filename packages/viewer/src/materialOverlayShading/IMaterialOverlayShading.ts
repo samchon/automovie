@@ -10,8 +10,6 @@ import * as THREE from "three";
  * @evidence contracts/performance.md#efficient-algorithms The shape chooses no composition algorithm; applying overlays scales with ordered layer count and shader/image work in its actual consumer.
  * @evidence contracts/performance.md#reuse-equivalent-work Texture references may be shared by their cache owners, but equivalence depends on texture content/sampling and full overlay parameters rather than this type alone.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Textures are borrowed references and the shape acquires/disposes no GPU resource; material/cache ownership governs their retained lifetime.
- *
- * @author Samchon
  */
 export interface IMaterialOverlayShading {
   /** sRGB colour, coverage in alpha. */

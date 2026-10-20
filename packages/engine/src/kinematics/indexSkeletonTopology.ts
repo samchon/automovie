@@ -30,7 +30,6 @@ import { SKELETON_ROOT_PARENT } from "./constants/SKELETON_ROOT_PARENT";
  * @evidence contracts/performance.md#efficient-algorithms One pass to group the bones and one walk over the reachable ones, linear in the bone count in time and space; the walk recurses to the skeleton's depth.
  * @evidence contracts/performance.md#reuse-equivalent-work Produces the reusable index itself: callers pass it to `resolvePose` and `reachableBoneNames` across poses, and equivalence is the unchanged skeleton object, which the snapshot note makes the caller's responsibility.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned index is owned by the caller and holds one entry per bone plus one set entry per reachable bone, bounded by the skeleton's bone count; nothing is retained here.
- * @author Samchon
  */
 export const indexSkeletonTopology: (
   skeleton: IAutoMovieSkeleton,

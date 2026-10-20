@@ -41,10 +41,6 @@ CC BY-NC-ND 4.0.
 
 Nostril type after Porter (2003): oval base with horizontal axis 55.1 percent, trapezoidal base with inverted axis 26.3 percent, triangular base with vertical axis 18.6 percent.
 
-## What Human takes
-
-Southern African female reference with angles, nostril-type frequencies and lip projection, which the 3D norms lack.
-
 ## Limits
 
 Photographic; young women only.

@@ -19,7 +19,6 @@ import {
  * @evidenceExclude contracts/performance.md#efficient-algorithms Type-only: the coverage gate writes at most one per intent, and the camera compile that reads it owns the work.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built once per intent and read by the framing-camera gate and the coverage compile of the same call.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Lives for one `performShot` call and references the caller's intent and the staged camera.
- * @author Samchon
  */
 export interface IPerformShotCoverageJob {
   /** The blocking's coverage intent. */

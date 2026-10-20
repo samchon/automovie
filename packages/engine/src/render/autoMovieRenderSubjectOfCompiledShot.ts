@@ -36,7 +36,6 @@ import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
  * record, so the geometry metrics report `not-run` rather than approve a
  * triangle count this repository invented.
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Read every compiled fluid/soft domain and planting cluster, index binding ownership by smallest id and join planting recipes; missing planting recipes refuse. Domain rows carry ownership while unknown renderer prototype geometry stays null.
  * @evidence contracts/common.md#clear-and-simple-design One canonical compiled-shot conversion delegates ordinary scene/population fields to autoMovieRenderSubjectOfShot and adds simulated drawables once for mask and inventory consumers.

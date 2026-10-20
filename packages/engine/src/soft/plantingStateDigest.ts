@@ -9,8 +9,6 @@ import { IAutoMoviePlantingState } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms For B branches and L leaves, flattening and byte hashing cost O(B+L) time and temporary numeric storage, with one reused eight-byte view.
  * @evidence contracts/performance.md#reuse-equivalent-work The per-call view is reused across all scalars; changed tree order or geometry requires recomputation without a persistent digest cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only fixed-size hex output transfers; temporary values and view are released, and no branch/leaf object is retained.
- *
- * @author Samchon
  */
 export const plantingStateDigest: (state: IAutoMoviePlantingState) => string = (
   state: IAutoMoviePlantingState,

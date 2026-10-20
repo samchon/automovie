@@ -6,8 +6,6 @@ import { buildKnight } from "../src/buildKnight";
 
 /**
  * Serialize the knight rider AST to `.shots/knight/knight.glb` through the existing Node exporter. The returned bytes and their file describe static rest geometry; this operation performs no readback or appearance check. The CLI reports a rejected build/export/write and sets exitCode 1.
- *
- * @author Samchon
  */
 const main: () => Promise<void> = async (): Promise<void> => {
   const { model }: ReturnType<typeof buildKnight> = buildKnight();

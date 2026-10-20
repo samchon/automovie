@@ -10,7 +10,6 @@ import { IAutoMovieInstanceSetDesign } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms Work and allocation scale with the cloned base and layout graphs, not the declared instance count; no member coordinates are generated.
  * @evidence contracts/performance.md#reuse-equivalent-work Each input graph is cloned once and no mutable design is cached between calls; actual route-placement reuse is owned by downstream materialization.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns both cloned graphs in the result, while source references are not deliberately retained; no route watcher, host handle or task is acquired.
- * @author Samchon
  */
 export const worldAlongRoute: (
   base: Omit<IAutoMovieInstanceSetDesign, "layout">,

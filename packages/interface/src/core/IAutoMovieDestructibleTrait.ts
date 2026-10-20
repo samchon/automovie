@@ -9,7 +9,6 @@ import { IAutoMovieImpactBody } from "./IAutoMovieImpactBody";
  * @evidence contracts/common.md#clear-and-simple-design A discriminated trait with one budget and one material record, kept beside the mountable trait in the profile's `traits` list so capabilities are additive rather than flags on the profile.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No verb is faked to consume the trait; the documentation states that it only constrains validation until one exists.
  * @evidence contracts/common.md#meaningful-documentation States what the trait claims, which validators enforce it and how, the one-per-profile rule, and that no engine verb reads it yet.
- * @author Samchon
  */
 export interface IAutoMovieDestructibleTrait {
   /** Trait discriminator. */

@@ -10,7 +10,6 @@
  * @evidence contracts/common.md#clear-and-simple-design A two-number record shared by boundary face outlines and opening profiles, so both are measured in the same face frame and compared without conversion.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Repeated consecutive corners are refused rather than deduplicated, so an outline is validated as written and never silently rewritten before area or containment tests.
  * @evidence contracts/common.md#meaningful-documentation States the frame and unit, how a world point is brought into it, the finiteness rule, and the minimum spacing between consecutive corners.
- * @author Samchon
  */
 export interface IAutoMoviePlanarPoint {
   /** Coordinate along the host frame's local X axis. */

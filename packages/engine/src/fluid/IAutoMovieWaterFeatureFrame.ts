@@ -14,7 +14,6 @@ import {
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data record with no runtime body; the derivation costs are answered on `lowerWaterFeature`'s callees.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The interface coordinates no runtime reuse; lowerWaterFeature shares its one state within a call and caches no frames.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Declares no resource lifetime operation; a produced frame transfers fresh state/surface/spray arrays to its caller, bounded per admitted domain but not across caller-retained frames.
- * @author Samchon
  */
 export interface IAutoMovieWaterFeatureFrame {
   /** Id of the `IAutoMovieWaterFeature` the frame belongs to. */

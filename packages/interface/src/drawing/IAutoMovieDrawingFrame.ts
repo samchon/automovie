@@ -15,7 +15,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design Origin plus three unit vectors is the complete affine frame, and the cut plane reuses the same origin and normal, so no separate plane record is needed.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The mirror for a reflected ceiling plan is the single negation of `right`, stated as making the basis left-handed, rather than a flip applied later in a serializer.
  * @evidence contracts/common.md#meaningful-documentation States how each axis is derived, the reflected handedness, that the origin is both page origin and cut-plane point, and the rounding precision.
- * @author Samchon
  */
 export interface IAutoMovieDrawingFrame {
   /**

@@ -16,7 +16,6 @@ import { IAutoMovieAnalysisTarget } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record type with no runtime code; solving it is constant work apart from matching targets.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record type with no runtime code; it is solved once into one run.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owned by the caller; the analyzer keeps nothing after sealing the run.
- * @author Samchon
  */
 export interface IAutoMovieSpaceAirRequest {
   /** Stable run identity; non-blank. */

@@ -20,7 +20,6 @@ import { polygonDoubleArea } from "../architecture/polygonDoubleArea";
  * @evidence contracts/performance.md#efficient-algorithms One pass over the `n` corners, linear time and constant space, which is the minimum for an area that depends on every corner.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function evaluated once per drafted region; nothing equivalent repeats.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Delegates to a fold that keeps one running sum on the stack, so the area call holds no object between invocations.
- * @author Samchon
  */
 export const autoMovieDrawingPolygonArea = (
   polygon: readonly IAutoMovieDrawingPoint[],

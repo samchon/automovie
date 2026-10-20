@@ -12,7 +12,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms One template interpolation of the pad and extension chooses no algorithm.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pattern is formatted once per encode, cheaper than caching it.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The pattern string goes to the caller's argument list and nothing is kept or opened.
- * @author Samchon
  */
 export const framePattern: (ext?: string, pad?: number) => string = (
   ext: string = "png",

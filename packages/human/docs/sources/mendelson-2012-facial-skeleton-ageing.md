@@ -17,7 +17,3 @@ CC BY. Review of CT and cephalometric studies; numbers are relayed from them.
 - Males have more prominent brow ridges, a larger piriform aperture and a larger jaw.
 
 Grade: measured in the cited studies, relayed by a review.
-
-## What Human takes
-
-Age as a skeletal input, not only a soft-tissue one: retrude the maxilla and lower piriform rim, enlarge the orbit at two quadrants, open the mandibular angle and shorten the ramus with age.

@@ -18,7 +18,6 @@ import { IAutoMovieExplicitInstanceTransform } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape; one constant-time slot per whole occurrence, answered on `autoMoviePatternInstanceTransforms`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Slots are built per call from the run result and not retained between calls or frames.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns both arrays, and every slot's translation, rotation and scale is computed fresh, so no slot aliases the frame or a placement.
- * @author Samchon
  */
 export interface IAutoMoviePatternInstancing {
   /** One computed full-TRS slot per whole occurrence, in placement order. */

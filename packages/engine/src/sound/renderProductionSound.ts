@@ -25,7 +25,6 @@ import { productionSoundEventTone } from "./productionSoundEventTone";
  * @evidence contracts/performance.md#efficient-algorithms N master samples plus summed event/cue/dialogue durations drive mixing; each room-response event also allocates/scans a film-length dry buffer and sparse taps, while loudness allocates O(N) filter storage and event windows add O(E*sampleRate/fps) work.
  * @evidence contracts/performance.md#reuse-equivalent-work Cue ranges are calculated once, adopted buffers are validated once per referenced id and per-event gains are shared across samples; the selected tone owner evaluates only the event's expression rather than every palette formula per sample.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns fresh master/analysis; dry, responded, fitted and loudness arrays leave scope after completion/failure, with film-duration-driven storage and no decoder, process, audio device or completed-mix cache.
- * @author Samchon
  */
 export const renderProductionSound: (props: {
   plan: IAutoMovieProductionSoundPlan;

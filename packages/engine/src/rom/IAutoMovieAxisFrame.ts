@@ -8,7 +8,6 @@
  * @evidence contracts/performance.md#efficient-algorithms Two scalars require fixed storage and conversion uses constant arithmetic.
  * @evidence contracts/performance.md#reuse-equivalent-work Forward, inverse and interval owners share the frame meaning; changed sign/neutral requires new results.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The rig/caller owns frame records and this type retains no pose history, handle or task.
- * @author Samchon
  */
 export interface IAutoMovieAxisFrame {
   /** Axis direction relative to the clinical convention. */

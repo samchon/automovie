@@ -22,7 +22,6 @@ import { IAutoMovieAnalysisTarget } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms One pass over the T targets with a `Set` of seen keys, so duplicate detection is O(T) instead of a pairwise O(T²) scan.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each analyzer calls it once per study on that study's own targets; no verdict outlives the call to be shared.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The seen-key set grows to at most T entries and is released when the call returns or throws; nothing is retained.
- * @author Samchon
  */
 export const assertAutoMovieAnalysisTargets: (
   targets: readonly IAutoMovieAnalysisTarget[],

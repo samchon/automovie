@@ -7,7 +7,6 @@ import { AutoMovieRepaintReferenceRole } from "./AutoMovieRepaintReferenceRole";
  * @evidence contracts/common.md#clear-and-simple-design A role and path express selection without duplicating provenance, digest or bytes in each authored reference.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The record provides no external discovery mechanism, but path containment, current bytes and role preservation require a consumer; no retained generation host enforces them.
  * @evidence contracts/common.md#meaningful-documentation Defines exact manifest-relative reference addressing and the non-collapsible authored adapter purpose.
- * @author Samchon
  */
 export interface IAutoMovieRepaintReferenceInput {
   /** How the adapter must use this reference. */

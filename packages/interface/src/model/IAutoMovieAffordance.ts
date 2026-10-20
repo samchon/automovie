@@ -11,7 +11,6 @@ import { AutoMovieAffordanceKind } from "./AutoMovieAffordanceKind";
  * @evidence contracts/common.md#clear-and-simple-design Contact identity, kind, frame and extent form one record beside the model's body; bone attachments use their own skeleton-based representation rather than mixing rig references into a model contact.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Point contacts require null extent. Stack-top admission checks finite XZ points and a noncollinear convex hull, without certifying the authored order as a simple convex polygon; propSupportFace constructs the transformed hull, so an authored concavity is not preserved as a support notch.
  * @evidence contracts/common.md#meaningful-documentation States model-local frame ownership, contact-axis convention, coincident seating, model-scoped ids and the stack-top convex XZ extent with null for point contacts.
- * @author Samchon
  */
 export interface IAutoMovieAffordance {
   /** Stable id, unique within the model; action targets cite it by this. */

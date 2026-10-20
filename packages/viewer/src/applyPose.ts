@@ -42,7 +42,6 @@ import { morphTargetDriversOf } from "./morphTargetDriversOf.js";
  * MEANT to map, so a typo in the bone map is distinguishable from an
  * intentional gap instead of both silently not articulating.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Delegates admitted semantic/clinical joint angles and skeleton/rest-axis conventions to engine forward kinematics, writes resolved local quaternions by humanoid bone id, writes engine-resolved driven morph weights by exact target name, then applies root translation/rotation with unit scale; unmapped bones are reported and null root resets to identity rather than retaining the last pose.
  * @evidence contracts/common.md#clear-and-simple-design Keeps pose and driver mathematics in resolvePose and resolveMorphTargetWeights and only copies their outputs into borrowed model bones, morph influences and root; caller-supplied partial bone mapping remains explicit instead of inventing missing joints.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unit root scale is the engine rig convention, not a visual compensation; all mapped bones follow one FK result and missing bones are returned without fixture-specific tolerances or replaced solvers.

@@ -10,7 +10,6 @@ import { IAutoMovieWorldSurface } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms C columns and R rows require C*R callback evaluations/storage plus footprint cloning; callback cost is additional and individually safe dimensions do not bound their product or memory use.
  * @evidence contracts/performance.md#reuse-equivalent-work Every lattice point is sampled once and the result serves future queries; effectful callbacks are not memoized or retried and changed terrain needs a new bake.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the fresh sample buffer, rule and copied polygon; the callback and input footprint are not retained after success or failure, with no background sampler.
- * @author Samchon
  */
 export const worldHeightfield: (input: {
   id: string;

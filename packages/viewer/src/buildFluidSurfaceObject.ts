@@ -22,8 +22,6 @@ import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceReti
  * @evidence contracts/performance.md#efficient-algorithms Upload copies vertex, normal, UV, flow and index arrays with linear time and space in their lengths; wet-bound sphere construction is constant work. A full upload is needed because this API accepts a complete new surface rather than dirty ranges.
  * @evidence contracts/performance.md#reuse-equivalent-work Mesh, geometry identity and material persist across updates; attributes are recreated for each supplied surface. Domain guards identity but does not prove that equal step values imply unchanged bytes.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns scene attachment and disposal; geometry and only the default material belong to this object. Each invocation independently attempts geometry then the default material; ordered causes follow the existing reporter, including its unresolved diagnostic-coercion limit. Repeat and post-disposal update behavior remains unchanged. Latest attributes replace old references, while constructor rollback and physical GPU retirement are unproven. Maintained callers are owning tests rather than a production fluid scene host.
- *
- * @author Samchon
  */
 export const buildFluidSurfaceObject: (props: {
   surface: IAutoMovieFluidSurface;

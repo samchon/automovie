@@ -1,7 +1,5 @@
 /**
  * In-memory node declarations shared by the existing model-admission scenarios.
- *
- * @author Samchon
  */
 export interface IExternalModelHierarchyNode {
   /** Optional authored node label. */

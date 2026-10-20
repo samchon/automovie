@@ -4,7 +4,7 @@ de Leva P. "Adjustments to Zatsiorsky-Seluyanov's segment inertia parameters." *
 
 ## Licence
 
-Journal article, copyright Elsevier. Numeric parameters are facts; Human may cite them as small named constants with this citation.
+Journal article, copyright Elsevier. Numeric parameters are facts;
 
 ## Population and protocol
 
@@ -48,10 +48,6 @@ Longitudinal offset of each joint centre from a palpable landmark, positive prox
 
 Table 1 notes that acromion-radiale measured with the arm abducted 90 degrees (235.9 F, 244.8 M mm) is markedly shorter than with the arm adducted, because the acromion moves toward the radiale: a joint centre placed at a fixed offset below the acromion only holds in the adducted rest posture. Table 2 marks the shoulder and elbow offsets as estimated for the adducted arm; adducted acromion-radiale is therefore the Table 4 shoulder-to-elbow length plus both offsets, 322.7 (F) and 330.5 (M) mm, and the abducted length is 0.731 and 0.741 of it (Table 1 also lists radiale-stylion 247.1 / 251.3 and stylion-dactylion 172.0 / 189.9 mm).
 
-## What Human takes
-
-Segment mass fractions, centres of mass and radii of gyration for physics outputs, scaled by the identity's own segment lengths and mass. Joint-centre offsets from landmarks give a second, independent placement of shoulder, elbow, wrist, hip, knee and ankle centres to check the skeleton against ANSUR landmark heights.
-
 ## Limits
 
-Young, lean, athletic Russian sample; 15 women only. Mass fractions do not follow adiposity or age; a heavier abdomen or an infant's large head needs another source (see `../anatomy/body-composition.md` and `../anatomy/growth.md`). Hip joint vertical offset from trochanterion is small but its mediolateral position is not given here; use the pelvic regressions in `hara-2016.md`.
+Young, lean, athletic Russian sample; 15 women only. Mass fractions do not follow adiposity or age; a heavier abdomen or an infant's large head needs another source. Hip joint vertical offset from trochanterion is small but its mediolateral position is not given here; the pelvic regressions in [Hara 2016](hara-2016.md) address another measurement protocol.

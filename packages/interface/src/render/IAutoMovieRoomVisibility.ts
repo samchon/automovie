@@ -9,7 +9,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Camera classification, visible/hidden partition and explicit inconclusive reason separate geometric placement from proof of exclusion.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Exterior, ambiguous or unknown leaf extents hide nothing, and an opening remains a possible portal even with a movable door leaf; no unproved closed-door state drives aggressive culling.
  * @evidence contracts/common.md#meaningful-documentation Defines leaf-camera ownership, placement classification, sorted complementary populations and incomplete-proof reason.
- * @author Samchon
  */
 export interface IAutoMovieRoomVisibility {
   /** Hint format. */

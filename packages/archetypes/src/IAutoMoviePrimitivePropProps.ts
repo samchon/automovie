@@ -15,7 +15,6 @@ import {
  * @evidenceExclude contracts/performance.md#efficient-algorithms An input record selects no algorithm; the constant build it feeds is costed on `createAutoMoviePrimitiveProp`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A plain argument record coordinates no work across calls or consumers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns the record; the producer keeps only the shape copy and material reference inside the returned model.
- * @author Samchon
  */
 export interface IAutoMoviePrimitivePropProps {
   /** Non-blank model id that scene nodes and populations cite. */

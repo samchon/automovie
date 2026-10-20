@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Holds only the scale-dependent values a generic builder would otherwise guess, keyed by node; geometry, skeleton and gait curves stay with the model, and position and facing stay with the stage.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No default speed or eye height is supplied for a missing or invalid value; the host refuses the entry and names the field instead.
  * @evidence contracts/common.md#meaningful-documentation States what each value drives, its unit and bounds, which node the entry may name, and that resolving the model is the host's job with the refusals it applies.
- * @author Samchon
  */
 export interface IAutoMovieShotActorProgram {
   /** Non-blank `stage.actors` node, named by at most one entry. */

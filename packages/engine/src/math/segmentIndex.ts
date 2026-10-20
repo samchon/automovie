@@ -24,7 +24,6 @@
  * @evidence contracts/performance.md#efficient-algorithms Each iteration halves the candidate range, giving O(log N) accessor calls and constant storage.
  * @evidence contracts/performance.md#reuse-equivalent-work The accessor reads existing keys rather than copying equivalent times; no index cache survives key-sequence changes.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only low/high/midpoint indices are live; callback and key storage are not retained after the result returns.
- * @author Samchon
  */
 export const segmentIndex: (
   length: number,

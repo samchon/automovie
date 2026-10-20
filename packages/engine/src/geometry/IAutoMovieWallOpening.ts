@@ -15,7 +15,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record; overlap checks and the cut lattice are answered on `buildAutoMovieWall`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Supplied per wall build; nothing derived from an opening is cached across builds.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources An identity string and four numbers, caller-owned and never retained by the built mesh.
- * @author Samchon
  */
 export interface IAutoMovieWallOpening {
   /** Opening identity, non-blank and unique per wall, named in diagnostics. */

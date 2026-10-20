@@ -35,7 +35,6 @@ import { humanoidBoneOfName } from "./internal/humanoidBoneOfName";
  * @evidence contracts/performance.md#efficient-algorithms Work follows skins and joints, joint-name text normalization, nodes and child links, and each mapped bone's walk to the nearest mapped ancestor; hash lookups have expected constant cost, while each helper walk may revisit ancestors.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Slot and parent maps are call-local; repeated ancestor walks remain bounded by mapped slots and document depth, while mutable Document contents and the requested skeleton id preclude a retained identity-only cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The slot and parent maps and the helper arrays are local and released on return or throw; the returned skeleton holds new transform objects proportional to the mapped bones, at most the humanoid slot count, owned by the caller.
- * @author Samchon
  */
 export const humanoidSkeleton: (
   doc: Document,

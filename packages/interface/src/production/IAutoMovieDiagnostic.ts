@@ -7,7 +7,6 @@ import { AutoMovieDiagnosticCode } from "./AutoMovieDiagnosticCode";
  * @evidence contracts/common.md#clear-and-simple-design Machine classification and human correction prose occupy separate fields, allowing clients to group findings without parsing messages or losing the exact author action.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An unchanged retry cannot substitute for the stated correction, and a null file explicitly denotes a finding with no single file owner rather than inventing a misleading path.
  * @evidence contracts/common.md#meaningful-documentation Gives typed code ownership, intended blocking category, correction phase, stable target, optional project-relative location and actionable cause-plus-correction message semantics.
- * @author Samchon
  */
 export interface IAutoMovieDiagnostic {
   /** Machine-readable diagnostic code from the shipped closed catalog. */

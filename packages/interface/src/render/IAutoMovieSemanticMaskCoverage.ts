@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Two directional gap fields distinguish missing expected drawables from unexpected actual meshes without pretending palette validity alone proves runtime coverage.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Neither gap is normalized away; both must be empty for the coverage classifier to call this complete. A group root can resolve without containing a rendered mesh, individual slot entries need no root, and cached coverage requires renewal after graph changes; zero gaps alone proves no visibility or frame freshness.
  * @evidence contracts/common.md#meaningful-documentation Defines expected-but-unresolved ids and actual-unaddressed mesh count from the same built scene.
- * @author Samchon
  */
 export interface IAutoMovieSemanticMaskCoverage {
   /** Semantic entry ids with drawable-node claims or instance-set kind but no resolved object root, in the admitted palette's ascending order. */

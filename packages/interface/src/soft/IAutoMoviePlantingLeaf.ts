@@ -10,7 +10,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design An occurrence exposes the complete generated placement fields without embedding the branch recipe or renderer instance object.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Leaf orientation and anisotropic scale are preserved instead of silently reduced to yaw or one scale; identity names the actual derived bearing branch.
  * @evidence contracts/common.md#meaningful-documentation Defines stable leaf/branch identity, recipe-meter origin, glTF quaternion order and positive prototype-axis scale.
- * @author Samchon
  */
 export interface IAutoMoviePlantingLeaf {
   /** Stable leaf identity within the derived structure. */

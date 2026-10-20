@@ -34,7 +34,3 @@ WHO reference data, freely downloadable under the site's general terms; no table
 | 17 | 175.2 (7.6) | 162.9 (6.7) |
 | 18 | 176.1 (7.5) | 163.1 (6.6) |
 | 19 | 176.5 (7.3) | 163.2 (6.5) |
-
-## What Human takes
-
-Stature for age and sex from birth to 19 as a smooth monthly LMS curve: the default stature of a child identity and the admitted stature range at each age (for example +-3 SD). Girls are taller than boys from about 10 to 13 years and stop growing about two years earlier.

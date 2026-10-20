@@ -23,8 +23,6 @@ import type { IAutoMovieFormationCycleUniforms } from "./IAutoMovieFormationCycl
  * @evidenceExclude contracts/performance.md#efficient-algorithms The repertoire interface runs no bake; bakeFormationCycle owns costs in gait count, part count and cycle samples.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type describes shared tables, while formation representation ownership decides which LOD/material consumers can reuse them.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The interface acquires no texture; formation representation disposal owns every retained take table and its GPU texture.
- *
- * @author Samchon
  */
 export interface IAutoMovieFormationCycle {
   /** Even samples across one cycle; sample `samples` wraps to sample zero. */

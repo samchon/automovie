@@ -18,7 +18,6 @@ import { IAutoMovieProductionRenderLayer } from "./IAutoMovieProductionRenderLay
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape with no runtime body; the segment lookup that fills it is answered on `sampleProductionRenderFrame`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each record is computed for one frame number, and `planProductionRenderJob` builds the frame list once per job and shares it across every deliverable's chunks rather than resampling per chunk.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds three numbers and one or two layer records by value; the job plan's chunks own the list, which grows with the job's output frame count and is released with the plan.
- * @author Samchon
  */
 export interface IAutoMovieProductionRenderFrame {
   /**

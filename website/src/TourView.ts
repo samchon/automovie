@@ -10,8 +10,6 @@ import type { Point } from "./Point";
  * @evidenceExclude contracts/performance.md#efficient-algorithms This erased camera record chooses no algorithm.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work This type coordinates no work across camera selections.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This type owns no camera or renderer lifetime.
- *
- * @author Samchon
  */
 export interface TourView {
   /** Stable authored camera address used by query links and selection. */

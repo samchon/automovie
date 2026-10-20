@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design A single-cell constant-rate inflow with a time window covers taps, jets and supply ports, and `lowerWetZoneDrainage` produces these records from service-network supply ports without a second flow model.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No current-depth or referenceDepth cap discards authored inflow. Rising beyond the stability design depth and nonfinite derived ledger arithmetic remain the solver/state types' documented limits rather than a universal conservation guarantee.
  * @evidence contracts/common.md#meaningful-documentation States the validation rules and where added volume is counted; members give units, index ranges, that the full amount arrives however deep the cell is, and the half-open activity window.
- * @author Samchon
  */
 export interface IAutoMovieFluidSource {
   /** Stable source identity within the domain. */

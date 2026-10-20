@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Two unitless scalars express authored growth state without a time integration model or species-specific maturation table.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Onset times deepest level must remain below one so no declared branch order is permanently unreachable; invalid spans refuse rather than being clamped into a different growth law.
  * @evidence contracts/common.md#meaningful-documentation Defines closed-unit stage, onset range, emergence formula and positive deepest-level span.
- * @author Samchon
  */
 export interface IAutoMoviePlantingGrowth {
   /**

@@ -3,8 +3,6 @@ import type { IAutoMovieActionCall } from "@automovie/interface";
 
 /**
  * Original positional-target performance and diagnostic readers.
- *
- * @author Samchon
  */
 export interface IFilmPositionalTargetAssertionsInput {
   /** Execute the original staged draft. */

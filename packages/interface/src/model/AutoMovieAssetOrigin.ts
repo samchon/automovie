@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design The two provenance states belong to the model, leaving primitive-versus-mesh representation on each part; a deterministic generator can therefore emit mesh geometry without becoming imported.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No filename or mesh presence substitutes for provenance, and imported appearance does not acquire semantic traits without its registered deterministic proxy.
  * @evidence contracts/common.md#meaningful-documentation Distinguishes generated and user-supplied geometry and explains the explicit generation-versus-import pipeline branch rather than implying that triangle data proves origin.
- * @author Samchon
  */
 export type AutoMovieAssetOrigin =
   /** Geometry assembled by automovie's generation phase. */

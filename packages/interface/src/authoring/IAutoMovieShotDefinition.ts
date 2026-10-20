@@ -10,7 +10,6 @@ import { IAutoMovieShotProgram } from "./IAutoMovieShotProgram";
  * @evidence contracts/common.md#clear-and-simple-design This record is the single declaration of scene, contract and builder; `IAutoMovieDefinedShot` extends it with only the id, so the two halves cannot document or type the same member differently.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The builder is opaque code the engine never inspects; correctness is judged only from the program it returns, so no source pattern or fixture is recognized specially.
  * @evidence contracts/common.md#meaningful-documentation States when the builder runs, how often, with what argument, that it must return synchronously, how a throw is reported, and that `scene` and the contract bind the returned program.
- * @author Samchon
  */
 export interface IAutoMovieShotDefinition<Context = undefined> {
   /**

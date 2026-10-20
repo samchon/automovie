@@ -39,8 +39,6 @@ const SRGB_HEX_SWATCH: RegExp = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i;
  * @evidenceExclude contracts/performance.md#efficient-algorithms A fixed six-digit parse and three scalar transfer evaluations require constant time and no collection strategy.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Decodes one immutable swatch per call without coordinating requests or retaining a mutable color cache.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Capture groups and the temporary triple are call-local, and the caller owns the returned linear color and normalized label.
- *
- * @author Samchon
  */
 export const srgbHexToLinearColor: (hex: string) => IAutoMovieColor = (
   hex: string,

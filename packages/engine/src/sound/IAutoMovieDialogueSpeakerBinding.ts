@@ -8,7 +8,6 @@
  * @evidence contracts/performance.md#efficient-algorithms One pair has constant storage; join matching scans B supplied pairs in O(B) time and stores the matching subset temporarily.
  * @evidence contracts/performance.md#reuse-equivalent-work Matching pairs are used only for that line's join, with no retained speaker registry or cache that could conceal changed bindings.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the input binding collection; the completed timeline retains the selected actor string rather than the binding object or scene.
- * @author Samchon
  */
 export interface IAutoMovieDialogueSpeakerBinding {
   /** Authored speaker identity carried by the dialogue line. */

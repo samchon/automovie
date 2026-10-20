@@ -15,7 +15,6 @@ import { closestPointsBetweenSegments } from "./closestPointsBetweenSegments";
  * @evidence contracts/performance.md#efficient-algorithms The fixed candidate solver costs constant time; extracting its distance adds no traversal.
  * @evidence contracts/performance.md#reuse-equivalent-work One completed witness calculation supplies the distance without independently recomputing another segment formula.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Witness records become unreachable after the scalar returns; no segment pair or collision history is retained.
- * @author Samchon
  */
 export const segmentSegmentDistance: (
   a: IAutoMovieVector3,

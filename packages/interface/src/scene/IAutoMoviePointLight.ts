@@ -7,7 +7,6 @@ import { IAutoMovieLightBase } from "./IAutoMovieLightBase";
  * @evidence contracts/common.md#clear-and-simple-design Adds only range to the shared light contract because no aimed cone or rectangular extent belongs to a point source.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Zero range is the explicit infinite-range state rather than an inferred scene scale; unsupported VSM point-shadow combinations refuse under scene policy.
  * @evidence contracts/common.md#meaningful-documentation Defines omnidirectional emission, world position and meter range with zero meaning infinity.
- * @author Samchon
  */
 export interface IAutoMoviePointLight extends IAutoMovieLightBase {
   /** Discriminator. */

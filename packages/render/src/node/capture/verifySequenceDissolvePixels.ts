@@ -20,7 +20,6 @@ import type { IAutoMovieSequenceDissolvePixelCheck } from "./IAutoMovieSequenceD
  * @evidence contracts/performance.md#efficient-algorithms For T transitions and F frames, sample selection costs O(TF); each selected check scans three W by H decoded images, O(TWH) pixel work.
  * @evidence contracts/performance.md#reuse-equivalent-work The observer reads the existing mixed-frame PNG and asks the borrowed session only for the two isolated shots; it does not recapture mixed frames.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns saved PNGs and the borrowed session; each iteration retains three decoded images until its check completes and the returned O(T) array holds numeric metadata only.
- * @author Samchon
  */
 export const verifySequenceDissolvePixels: (props: {
   /** Saved mixed-frame PNG paths keyed by their canonical sequence frame index. */

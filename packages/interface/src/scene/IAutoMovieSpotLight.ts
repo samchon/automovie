@@ -7,7 +7,6 @@ import { IAutoMovieLightBase } from "./IAutoMovieLightBase";
  * @evidence contracts/common.md#clear-and-simple-design Range and cone are the only extra fields because shadow controls and common emission remain inherited light state.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Cone is a half-angle in degrees, not a guessed full angle; zero range explicitly means unbounded influence rather than a missing field default.
  * @evidence contracts/common.md#meaningful-documentation Defines aimed cone geometry, meter range and infinite-zero and half-angle bounds.
- * @author Samchon
  */
 export interface IAutoMovieSpotLight extends IAutoMovieLightBase {
   /** Discriminator. */

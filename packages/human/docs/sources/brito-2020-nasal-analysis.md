@@ -16,7 +16,3 @@ CC BY-NC-ND 4.0. Surgical aesthetic guidance from the cited literature. Grade: c
 | Tip rotation (nasolabial angle) | about 90 to 95 degrees in men, 95 to 110 in women |
 | Tip | Divergence angle 30 degrees, domal arc 4 mm or less, tip-defining points 5 to 6 mm apart; broader and less defined in men |
 | Alar base width | about the intercanthal distance, one-fifth of face width, or 70 percent of nasal height |
-
-## What Human takes
-
-Shape rules for the nose generator (tip-defining points, columella-lobule relation) and the ideals as a contrast to measured population means; ideals are not defaults.

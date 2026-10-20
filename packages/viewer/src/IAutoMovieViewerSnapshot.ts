@@ -8,8 +8,6 @@
  * @evidence contracts/performance.md#efficient-algorithms Fixed metadata accompanies an encoded string proportional to image bytes; consumers must account for that payload rather than treating the record as constant-size storage.
  * @evidence contracts/performance.md#reuse-equivalent-work A snapshot represents its own completed draw/readout and is not reused by equal dimensions or request MIME alone.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only copied scalar fields/string escape, no native disposer is carried and consumer references determine encoded-image retention.
- *
- * @author Samchon
  */
 export interface IAutoMovieViewerSnapshot {
   /** Canvas pixel width. */

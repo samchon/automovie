@@ -8,7 +8,6 @@ import { AutoMovieRenderMetric } from "./AutoMovieRenderMetric";
  * @evidence contracts/common.md#clear-and-simple-design Metric, status, reason and remedy give the evaluator enough information for an incomplete finding without inventing a number.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A gap cannot be replaced by zero or an inferred budget success; the remedy describes required capability or input rather than fitting a constant to the expected report.
  * @evidence contracts/common.md#meaningful-documentation Defines unmeasured metric, missing-capability versus unexecuted-analysis status, exact cause and corrective requirement.
- * @author Samchon
  */
 export interface IAutoMovieRenderAnalysisGap {
   /** Metric left without a measurement. */

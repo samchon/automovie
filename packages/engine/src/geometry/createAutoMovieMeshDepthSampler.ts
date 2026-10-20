@@ -30,7 +30,6 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * @evidence contracts/performance.md#efficient-algorithms Creation is linear in triangles plus the grid cells each projected box covers; a query reads one cell, so its cost is that cell's triangle count, small for the evenly spread surfaces it serves and at worst every triangle when one triangle spans the whole grid.
  * @evidence contracts/performance.md#reuse-equivalent-work The projected triangles and the grid are built once per sampler and reused by every query; the sampler itself is the caller's to keep for as long as the mesh is resident.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The closure retains the projected corners of every non-degenerate triangle and a map of at most 1,024 cells holding triangle references, all sized at creation and released when the caller drops the sampler; no callback captures the caller's mesh, so it is not kept alive.
- * @author Samchon
  */
 export function createAutoMovieMeshDepthSampler(
   mesh: IAutoMovieMesh,

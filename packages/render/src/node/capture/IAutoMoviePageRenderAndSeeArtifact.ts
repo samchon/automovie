@@ -11,7 +11,6 @@ import type { IAutoMovieRenderAndSeeResult } from "../../index.js";
  * @evidence contracts/performance.md#efficient-algorithms The erased extension computes nothing; the capture operation constructs the artifact after rendering.
  * @evidence contracts/performance.md#reuse-equivalent-work The artifact shares the completed Render result rather than rebuilding its frame schedule.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned metadata is caller-owned and references frame records and paths; browser and encoder handles are released before return.
- * @author Samchon
  */
 export interface IAutoMoviePageRenderAndSeeArtifact extends IAutoMovieRenderAndSeeResult {
   /** Fully resolved headless route, including capture query parameters. */

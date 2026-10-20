@@ -13,7 +13,6 @@ import type { IAutoMovieProductionWaveSourceFormat } from "./IAutoMovieProductio
  * @evidenceExclude contracts/performance.md#efficient-algorithms This interface is a type with no runtime code; decoding cost belongs to `decodeProductionAudioAsset`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The decoded-asset record is produced fresh by each decode call and carries no shared computation; caching decoded assets would be the caller's choice.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type allocates nothing; the sample buffer it names is created by the decoder and owned by the caller that holds the record.
- * @author Samchon
  */
 export interface IAutoMovieDecodedProductionAudioAsset {
   /** Source rate in samples per second, before resampling. */

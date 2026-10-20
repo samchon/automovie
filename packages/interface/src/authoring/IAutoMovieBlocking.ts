@@ -11,7 +11,6 @@ import { IAutoMovieBlockingCoverage } from "./IAutoMovieBlockingCoverage";
  * @evidence contracts/common.md#clear-and-simple-design One record holds the beat-level plan, with per-actor intent, the hero camera and each alternate take as their own types, so the gates that read each part own its rules and the review prose sits beside the facts it explains.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts `analysis` and `rationale` are documented as unchecked prose rather than given a fake verifier, and a `static` hero intent accepting no `frame` action is the documented locked-off case, not an exemption for a fixture.
  * @evidence contracts/common.md#meaningful-documentation States which gate checks each field, that the prose fields are never read, the hero camera's comparison rule and its static case, the coverage camera distinctness rule, and the duration unit and matching tolerance.
- * @author Samchon
  */
 export interface IAutoMovieBlocking {
   /** Non-blank script beat id realized by this plan; it must name a beat. */

@@ -29,7 +29,6 @@ import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
  * @evidence contracts/performance.md#efficient-algorithms Pays one batch part-table measurement, each body's union or population placement fold, and O(R²) worst-case population lookup work for R populations. For B resolved bodies, sorting costs O(B log B); active-list scanning and splice shifts cost O(B²) worst case, in addition to admitted part-count products and O(Q log Q) sorting of Q findings. `compared` counts candidate comparisons, not all this work.
  * @evidence contracts/performance.md#reuse-equivalent-work The part table is built once per call and every body's reported box and solids are read from it, so no element is staged or measured twice; nothing is reused across calls because the record is the caller's and may change.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The part table, body list and active list live for one call; the active list holds at most the resolved body count, and the caller owns the returned report, bounded by the admitted pair count.
- * @author Samchon
  */
 export const builtEnvironmentPlacementOverlapSweep: (props: {
   environment: IAutoMovieBuiltEnvironment;
@@ -132,8 +131,6 @@ export const builtEnvironmentPlacementOverlapSweep: (props: {
 
 /**
  * One resolved body with its locator and its position in body order.
- *
- * @author Samchon
  */
 interface ISweptBody extends IAutoMovieBuiltPlacementBody {
   /** The locator the body was resolved from. */

@@ -24,7 +24,6 @@ const DEFAULT_MARGIN: number = 0.02;
  * @evidence contracts/performance.md#efficient-algorithms For S support points, hull construction costs O(S log S) and distance/nearest-edge scans O(S), with O(S) hull storage and fixed result/event allocation.
  * @evidence contracts/performance.md#reuse-equivalent-work One prepared hull serves distance and pivot queries, and one nearest point supplies event and fall direction; no stale support verdict is cached across mutable inputs.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Fresh findings/event/direction transfer to the caller while pivot endpoints borrow support records; no support population is otherwise retained and no physics task is acquired.
- * @author Samchon
  */
 export const detectSupportToppling: (props: {
   node?: string | undefined;

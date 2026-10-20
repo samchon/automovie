@@ -48,3 +48,7 @@ test/src/**/*.d.ts
 
 # Python bytecode
 __pycache__/
+
+# Local reference experiment runner and captured artifacts.
+test/src/executable/
+test/.shots/

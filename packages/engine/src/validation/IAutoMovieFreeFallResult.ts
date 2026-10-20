@@ -14,7 +14,6 @@ import {
  * @evidence contracts/performance.md#efficient-algorithms This record performs no projectile sampling; duration, frame population and trajectory costs belong to detectFreeFall and projectileTrajectory.
  * @evidence contracts/performance.md#reuse-equivalent-work The same detector outcome supplies its event and trajectory without an independent cached physical verdict in this wrapper.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns returned findings, events and clip; event points may borrow the supplied center-of-mass reference, and the wrapper acquires no playback task.
- * @author Samchon
  */
 export interface IAutoMovieFreeFallResult {
   /** Warning-severity feedback (or an error for bad input). */

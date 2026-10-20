@@ -60,8 +60,6 @@ const FINGER = constraint(range(-20, 100), null, null);
  * pure-plane 180° (arm straight overhead) must stay legal, so no cap below 180
  * is possible without rejecting canonical overhead poses. The value documents
  * the sourced anatomical bound rather than gating anything.
- *
- * @author Samchon
  */
 export const DEFAULT_HUMANOID_ROM: Partial<
   Record<AutoMovieHumanoidBone, IAutoMovieJointConstraint>

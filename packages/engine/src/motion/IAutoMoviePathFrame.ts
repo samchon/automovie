@@ -15,8 +15,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A path sample performs no polyline lookup or corner-window interpolation; followPathMotion owns both.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Downstream consumers may reuse recorded baseline facts at that time, while the type stores no interpolation cache across frames.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Each output frame owns two vectors and scalar timing/facing values, bounded by the bake's emitted keyframe count.
- *
- * @author Samchon
  */
 export interface IAutoMoviePathFrame {
   /** Seconds into the baked clip. */

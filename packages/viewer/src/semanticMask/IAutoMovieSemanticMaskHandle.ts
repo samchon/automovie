@@ -8,8 +8,6 @@
  * @evidence contracts/performance.md#efficient-algorithms The handle holds fixed counts, unresolved-id references and the mapper closer; traversal/color/material costs remain attributed to the owning installation.
  * @evidence contracts/performance.md#reuse-equivalent-work One installed pass shares its original restore attempt/outcome, while another scene/pass must acquire an independent snapshot and resource owner.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The closer retains originals, created materials and copied instance colors until the handle is unreachable; it attempts their supported restoration/disposal and cannot independently retire an externally-created temporary instanceColor native buffer.
- *
- * @author Samchon
  */
 export interface IAutoMovieSemanticMaskHandle {
   /**

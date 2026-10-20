@@ -17,7 +17,6 @@ import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
  * @evidenceExclude contracts/performance.md#efficient-algorithms No code; the run clips each surviving piece against every exclusion, answered on `generateAutoMovieSurfacePattern`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The canonical hull of each exclusion is built once per run and reused for every zone and piece in it.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns the authored polygon; the run keeps its canonical copy only for the call's duration.
- * @author Samchon
  */
 export interface IAutoMoviePatternExclusion {
   /** Stable exclusion id, unique inside one pattern. */

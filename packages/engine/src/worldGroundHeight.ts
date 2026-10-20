@@ -13,7 +13,6 @@ import { worldSurfaceHeight } from "./worldSurfaceHeight";
  * @evidence contracts/performance.md#efficient-algorithms Cost is the visited footprint-edge scan plus constant height-rule evaluation on the first hit, with constant live storage outside delegated edge records.
  * @evidence contracts/performance.md#reuse-equivalent-work The selected record serves both presence and height in one call; mutable lists are rescanned and no terrain-height cache persists.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a scalar or null escapes and the borrowed surface list is not retained, with no host handle or active sampler.
- * @author Samchon
  */
 export const worldGroundHeight: (
   surfaces: readonly IAutoMovieWorldSurface[],

@@ -12,8 +12,6 @@ import { buildSparBoxer } from "./buildSparBoxer";
  * @evidence contracts/performance.md#efficient-algorithms Wrapper work is constant and retains the shared producer's fixed model/material traversal plus the viewer's later upload cost.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call produces a fresh mutable actor; this fixed wrapper caches no model or frame.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returned data belongs to the page, which owns eventual GPU uploads/disposal; this wrapper acquires no renderer, worker or timer.
- *
- * @author Samchon
  */
 export function buildRedBoxer(): {
   /** Red actor's rig wrapper, shared with model.skeleton and independently constructed from the blue actor. */

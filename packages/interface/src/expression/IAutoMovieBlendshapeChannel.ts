@@ -11,7 +11,6 @@ import { AutoMovieArkitChannel } from "./AutoMovieArkitChannel";
  * @evidence contracts/common.md#clear-and-simple-design A name and a weight are the whole control atom; ordering, layering over the preset and interpolation belong to `IAutoMovieExpression` and its consumers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A weight outside the range is reported by validation instead of being silently clamped at authoring time; the viewer's clamp only guards rendering of an unvalidated value.
  * @evidence contracts/common.md#meaningful-documentation States what a list of channels represents, the validator's three refusals, and the replace-not-add rule over the preset; members give the closed name menu and the weight's range and endpoints.
- * @author Samchon
  */
 export interface IAutoMovieBlendshapeChannel {
   /** ARKit channel, from the closed 52-name menu. */

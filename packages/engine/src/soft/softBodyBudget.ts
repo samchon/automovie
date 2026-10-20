@@ -14,8 +14,6 @@ import { softBodyTravelNumber } from "./softBodyTravelNumber";
  * @evidence contracts/performance.md#efficient-algorithms Topology formulas take constant work but travel scans P rest particles; total O(P) time and constant extra storage plus the fixed result record.
  * @evidence contracts/performance.md#reuse-equivalent-work Canonical travel/shortest-edge owners prevent budget policy drift; a report is recomputed for changed domains without caching cheap formulas.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The fresh scalar report belongs to the caller and retains no mesh, state buffer or integration task.
- *
- * @author Samchon
  */
 export const softBodyBudget: (
   domain: IAutoMovieSoftBodyDomain,

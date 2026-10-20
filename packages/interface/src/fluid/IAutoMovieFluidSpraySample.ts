@@ -9,7 +9,6 @@ import { IAutoMovieFluidSprayParticle } from "./IAutoMovieFluidSprayParticle";
  * @evidence contracts/common.md#clear-and-simple-design One flat particle list ordered by emitter and spawn index serves the viewer's single point cloud, with the emitter id on each particle instead of a nested per-emitter structure.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The clock is never re-derived from a shot second here, and the refusals for a foreign state or a non-finite distance replace what would otherwise be an empty or misplaced sample.
  * @evidence contracts/common.md#meaningful-documentation States the producer, whose clock the sample uses, and both refusals; members give the step and time meaning and the particle order, bounds and empty case.
- * @author Samchon
  */
 export interface IAutoMovieFluidSpraySample {
   /** Absolute integer step index sampled. */

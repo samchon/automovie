@@ -17,7 +17,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms No code; one answer costs a linear scan over the section stations, answered on `builtConnectorSection`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answered per fraction; nothing caches sections because each call is a different point on the route.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Two numbers owned by the caller; the producer keeps no reference.
- * @author Samchon
  */
 export interface IAutoMovieConnectorSectionAt {
   /** Usable width in metres. */

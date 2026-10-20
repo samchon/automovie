@@ -10,7 +10,6 @@ import { IAutoMovieMountableTrait } from "./IAutoMovieMountableTrait";
  * @evidence contracts/common.md#clear-and-simple-design Each capability keeps its fields on its own variant and the union only names the set, so adding a capability is one new variant rather than optional fields on a shared record.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Locomotion stays on `gaits` rather than being duplicated as a marker trait, and no capability is inferred from a model or profile name.
  * @evidence contracts/common.md#meaningful-documentation States the discriminant, the one-per-kind rule and which validators enforce it, and that locomotion lives elsewhere.
- * @author Samchon
  */
 export type IAutoMovieProfileTrait =
   | IAutoMovieMountableTrait

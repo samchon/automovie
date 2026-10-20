@@ -10,7 +10,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data record with no runtime body; the merge computes each range in one pass over the members.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A fresh record per member per merge; nothing is cached.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Three scalar fields and no reference to the member's buffers.
- * @author Samchon
  */
 export interface IAutoMovieMeshGroup {
   /** The contributing member's `IAutoMovieMeshPart.id`, unique within its assembly. */

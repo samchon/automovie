@@ -8,8 +8,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms This erased source shape computes no camera projection.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work This type has no runtime cache or effect coordination.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This type owns no native payload, renderer or texture lifetime.
- *
- * @author Samchon
  */
 export interface ModernSource {
   /** Authored starting world pose, vertical lens degrees and clip distances in meters. */

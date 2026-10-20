@@ -16,7 +16,6 @@ import { IAutoMovieRenderTotals } from "./IAutoMovieRenderTotals";
  * @evidence contracts/common.md#clear-and-simple-design Per-kind rows aid inspection while complete totals, attribution and gaps also include simulations and frame-wide renderer work that those rows do not decompose.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Preflight is not observed GPU work and per-kind rows omit simulated costs. The separately available observation-audit helper currently has no repository product caller; this type creates neither runtime comparison nor a measured frame.
  * @evidence contracts/common.md#meaningful-documentation Defines preflight source, each sorted population, complete totals and owner/gap accounting and the distinction from already-drawn frame observations.
- * @author Samchon
  */
 export interface IAutoMovieRenderInventory {
   /** Inventory format. */
