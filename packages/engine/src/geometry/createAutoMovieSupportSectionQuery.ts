@@ -8,6 +8,8 @@ import { determinantAutoMovieMatrix3 } from "../math/determinantAutoMovieMatrix3
  * reused; otherwise full pair enumeration replaces it. Bounded active normals
  * and feasible cyclic corners prove the seed polygon equals the intersection.
  * Every tight nonparallel pair still receives the weak-direction check.
+ * A conservative fixed-normal range certificate admits lazy coordinates only
+ * when every pair is finite; uncertified offsets retain full preflight.
  * Offsets and output vertices are never cached or shared between queries.
  * Callers bound the plane population and supply bounded section charts.
  *
@@ -15,8 +17,8 @@ import { determinantAutoMovieMatrix3 } from "../math/determinantAutoMovieMatrix3
  * @evidence contracts/common.md#clear-and-simple-design This generic engine preparation owner serves repeated physical sections in inverse fitting and continuous planning; the existing one-shot query delegates to it without a second implementation.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No offset result, coordinate weld, source geometry or specimen condition supplies an intersection. Cached combinatorics are never accepted without all-plane feasibility, and every tight weak pair refuses even when absent from the seed. Copied directions cannot change through the caller's arrays.
  * @evidence contracts/common.md#meaningful-documentation States admitted unit/chart premises, copied direction ownership, cyclic certificate and fallback, offset independence, deferred weak refusal and caller-owned preparation lifetime.
- * @evidence contracts/performance.md#efficient-algorithms For P bounded planes, preparation costs and retains O(P squared) pair records. Each query preflights O(P squared) coordinates; a valid A-corner seed checks O(A P) inequalities plus its exact tight-pair incidences, while a failed seed costs O(P cubed) full enumeration. Query scratch is O(P squared); fixed determinants and rejected-corner allocations do not repeat.
- * @evidence contracts/performance.md#reuse-equivalent-work One caller-owned query reuses copied normals, exact nonparallel determinants, a numeric plane-pair index matrix and only the previous successful polygon's cyclic edge-pair indices. The matrix replaces repeated pair-string construction without changing registry/canonical order. Every changing offset set recomputes all pair coordinates and proves current corner feasibility before reusing that combinatorics. Failure replaces the seed only after a successful full result; returned coordinates/incidence are fresh.
+ * @evidence contracts/performance.md#efficient-algorithms For P bounded planes, preparation costs and retains O(P squared) pair records and a fixed-normal finite-coordinate bound. Certified offsets compute only demanded coordinates; uncertified offsets retain O(P squared) full preflight. A valid A-corner seed checks O(A P) inequalities plus its exact tight-pair incidences, while a failed seed costs O(P cubed) full enumeration. Query scratch is O(P squared); every demanded coordinate is computed at most once per offset set.
+ * @evidence contracts/performance.md#reuse-equivalent-work One caller-owned query reuses copied normals, exact nonparallel determinants, their conservative range bound, a numeric plane-pair index matrix and only the previous successful polygon's cyclic edge-pair indices. Current offsets must satisfy the range bound or receive full coordinate preflight, and every reused corner must prove current all-plane feasibility. The bound changes scheduling, not admission or arithmetic. Failure replaces the seed only after a successful full result; returned coordinates/incidence are fresh.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned CPU closure retains O(P squared) fixed direction records and at most P active-edge pair indices until released. Each query discards its coordinates/maps and transfers fresh vertices; no offsets, image, file, worker or global input-dependent cache is retained.
  */
 export function createAutoMovieSupportSectionQuery(input: {
@@ -58,6 +60,24 @@ export function createAutoMovieSupportSectionQuery(input: {
   );
   for (let index: number = 0; index < pairs.length; index++)
     pairIndices[pairs[index].i][pairs[index].j] = index;
+  const normalScale: number = Math.max(
+    1,
+    ...normals.flatMap((normal: [number, number]): number[] =>
+      normal.map(Math.abs),
+    ),
+  );
+  // If |h| <= (MAX / 16 / C) min(1, |d|), both products, their
+  // difference and division by d remain finite with rounding headroom.
+  // An unprovable bound merely falls back to the original full preflight.
+  const finiteOffsetLimit: number = pairs.reduce(
+    (limit: number, pair: (typeof pairs)[number]): number =>
+      Math.min(
+        limit,
+        (Number.MAX_VALUE / 16 / normalScale) *
+          Math.min(1, Math.abs(pair.determinant)),
+      ),
+    Number.MAX_VALUE,
+  );
   let previous: number[] | undefined;
   return (
     offsets: readonly number[],
@@ -72,7 +92,9 @@ export function createAutoMovieSupportSectionQuery(input: {
     > = new Map();
     const scale: number = Math.max(...offsets.map(Math.abs));
     const coordinates: Float64Array = new Float64Array(2 * pairs.length);
-    for (let index: number = 0; index < pairs.length; index++) {
+    const computed: Uint8Array = new Uint8Array(pairs.length);
+    const coordinate: (index: number) => void = (index: number): void => {
+      if (computed[index]) return;
       const pair: (typeof pairs)[number] = pairs[index];
       const a: readonly [number, number] = normals[pair.i],
         b: readonly [number, number] = normals[pair.j];
@@ -86,7 +108,11 @@ export function createAutoMovieSupportSectionQuery(input: {
         );
       coordinates[2 * index] = x;
       coordinates[2 * index + 1] = z;
-    }
+      computed[index] = 1;
+    };
+    if (!(finiteOffsetLimit > 0 && scale <= finiteOffsetLimit))
+      for (let index: number = 0; index < pairs.length; index++)
+        coordinate(index);
     const evaluate: (
       index: number,
     ) =>
@@ -96,6 +122,7 @@ export function createAutoMovieSupportSectionQuery(input: {
     ):
       | { pair: [number, number]; tight: number[]; point: [number, number] }
       | undefined => {
+      coordinate(index);
       const pair: (typeof pairs)[number] = pairs[index];
       const i: number = pair.i,
         j: number = pair.j,
@@ -154,6 +181,7 @@ export function createAutoMovieSupportSectionQuery(input: {
             );
           canonical = Math.min(canonical, candidate);
         }
+      coordinate(canonical);
       return {
         pair: [pairs[canonical].i, pairs[canonical].j],
         tight,
