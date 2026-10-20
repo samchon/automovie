@@ -21,7 +21,6 @@ import {
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; the two-candidate scoring cost is answered on `decomposeJointRotation`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built by the caller per joint; nothing is computed here.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A bone name and a reference to the caller's constraint.
- * @author Samchon
  */
 export interface IAutoMovieJointRotationDomain {
   /** Rig bone whose coordinates the inverse reports, used to name the scored joint. */

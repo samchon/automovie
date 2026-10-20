@@ -13,7 +13,6 @@ import { IAutoMovieFootprint } from "./IAutoMovieFootprint";
  * @evidence contracts/performance.md#efficient-algorithms E total vertices take O(E) preparation time and planar storage, while repeated containment remains O(E) edge work without new projection arrays.
  * @evidence contracts/performance.md#reuse-equivalent-work The footprint's projections and signed areas are reused while source vertices remain unchanged; identity and height continue to come from the borrowed surface record.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the prepared footprint and retains source surface/point references through it; discarding the pair releases those references without host resources.
- * @author Samchon
  */
 export interface IAutoMoviePreparedSurface {
   /** The source surface whose height/identity remains authoritative. */

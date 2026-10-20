@@ -24,7 +24,6 @@ import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
  * @evidenceExclude contracts/performance.md#efficient-algorithms An input record with no runtime body; the snapshot cost is answered on `resolveBeatSnapshot`, which both entry points call.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built once per compiled shot and handed to both snapshots, which each index it independently through `resolveBeatSnapshot`; nothing caches a snapshot.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources References scene, shot, motions, mounts and plants without copying. Snapshot indexes and sampled-channel maps live for one call; returned states shallow-copy non-null poses with root cleared, borrow joints, selected plants and mounts, and own or borrow transforms according to the sampled branch.
- * @author Samchon
  */
 export interface IResolveBeatProps {
   /** Beat id the shot realizes, stamped onto both snapshots. */

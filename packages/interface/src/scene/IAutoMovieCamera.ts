@@ -15,7 +15,6 @@ import { IAutoMovieCameraDepthPrecisionConstraint } from "./IAutoMovieCameraDept
  * @evidence contracts/common.md#clear-and-simple-design Delivery viewpoint and its physical constraints stay on the camera; inspection-owned section planes remain separate because their cutaway observations are not delivered-shot evidence.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Near must be positive and far exceed near, missing depth capability cannot be assumed, and a cutaway inspection cannot satisfy film visibility by removing an authored wall.
  * @evidence contracts/common.md#meaningful-documentation Defines world placement and local viewing direction, degree FOV, meter clips, explicit depth precision, optional legacy clearance and inspection-only cutaways.
- * @author Samchon
  */
 export interface IAutoMovieCamera {
   /** Stable id. */

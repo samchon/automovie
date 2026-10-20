@@ -23,7 +23,6 @@ const assertFiniteVector: (name: string, vector: IAutoMovieVector3) => void = (
  * velocity also gives the flight direction, so a renderer can orient the arrow
  * along its arc (e.g. via `aimRotation`).
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Evaluate p0+v0*t+g*t^2/2 and v0+g*t for constant world acceleration. Inputs and time must be finite; finite arithmetic can still overflow, and negative finite time evaluates the same equations backwards.
  * @evidence contracts/common.md#clear-and-simple-design One analytic state evaluation is shared by launch and trajectory callers, avoiding an integration state machine.

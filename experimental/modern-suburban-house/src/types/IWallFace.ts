@@ -5,8 +5,6 @@ import type { IWallHole } from "./IWallHole";
  * The assigned wall body's pre-cut face, shared by emitted geometry and built-environment opening/junction inspection. Outline vertices use the wall's running coordinate and world height; holes remain rough wall voids rather than frame, leaf or glazing models.
  *
  * A partition retains one body and its opening host; the garage/main exterior contact may retain its separately assigned lower wall and upper siding faces. This erased record preserves those caller decisions without creating a second boundary or validating the supplied polygon.
- *
- * @author Samchon
  */
 export interface IWallFace {
   /** World horizontal axis along which the wall runs. */

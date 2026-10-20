@@ -46,8 +46,6 @@ const formationGroundMemberCache: WeakMap<
  * Directional selection shares one row per slot across its16 support directions.
  *
  * Cached rows are owned by the formation identity cache while callers borrow them.
- *
- * @author Samchon
  */
 interface IFormationGroundMember {
   /** Zero-based slot this point belongs to. */
@@ -289,7 +287,6 @@ const formationGroundEscape: (
 /**
  * Sample actual placed members against authored space coverage and height, reporting the first void or sink per formation.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Sample actual placed members against authored space coverage and height, reporting the first void or sink per formation.
  * @evidence contracts/common.md#clear-and-simple-design Runtime placement and heightAt own positions/support; directional members and sparse slot exceptions bound the sampled population.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Directional/time sampling can miss unsampled escapes, the 360-step cap coarsens travel, and cross-request identity cache correctness assumes placement data stays unchanged.

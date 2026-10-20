@@ -10,7 +10,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms A sphere occupies fixed vector/scalar storage; the producer/stepper performs O(C) creation and O(J*C) collision checks.
  * @evidence contracts/performance.md#reuse-equivalent-work One resolved sphere list is shared by spring drivers within the same frame, with no assumption that later frames have identical centres.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Frame-local sphere records retain no source nodes, native collision bodies or running tasks; the caller releases the array after stepping.
- * @author Samchon
  */
 export interface IAutoMovieSpringSphere {
   /** Sphere center in world space. */

@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design One plain three-number record serves points, directions and scale factors, with meaning stated at each field rather than split into nominal point and direction types that interface's no-wrapper rule forbids.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The type promises no unit length or finiteness it cannot enforce; each owning validator, such as `validateTransformScalars` for a transform, checks the values its field needs.
  * @evidence contracts/common.md#meaningful-documentation States the frame and handedness, that one shape carries several meanings decided by the field, and where ranges are enforced; members give each axis's direction relative to a character at zero heading.
- * @author Samchon
  */
 export interface IAutoMovieVector3 {
   /** X: toward the left (+) of a character facing +Z, its right (−). */

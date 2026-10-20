@@ -16,7 +16,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape; the sampling cost is answered on `compileCameraClearanceReports`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Supplied per shot compilation; the engine keeps no clearance answer keyed by revision, which the production builder's freshness key owns.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Two strings and a number owned by the caller; the reports copy the values rather than referencing the record.
- * @author Samchon
  */
 export interface IAutoMovieCameraClearanceRuntime {
   /** Opaque geometry revision from which the staged models were materialized. */

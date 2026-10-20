@@ -15,7 +15,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record; costs are answered on `transportAutoMovieSweepSpine`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record; it is the reuse.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A record whose arrays its producer sizes.
- * @author Samchon
  */
 export interface IAutoMovieSweepTransport {
   /** Number of spine points. */

@@ -45,8 +45,6 @@ const FOLLOW_HZ: number = 4;
 
 /**
  * One camera key: shot-local seconds, world position and world rotation.
- *
- * @author Samchon
  */
 interface IKey {
   /** Shot-local seconds. */

@@ -10,8 +10,6 @@ import { IAutoMovieSubjectMemberSummary } from "./IAutoMovieSubjectMemberSummary
  * @evidence contracts/common.md#clear-and-simple-design Shares only review identity and member summary with other subject descriptions while retaining the existing compact formation record rather than inventing a second formation model.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses the builder-owned formation and actual member count, not sampled geometry promoted to a structural description or an estimated crowd size.
  * @evidence contracts/common.md#meaningful-documentation Defines revision ownership, namespaced identity, distinct kind, exact compiled record and bounded hero sample.
- *
- * @author Samchon
  */
 export interface IAutoMovieFormationSubjectReviewDescription {
   /** Revision of the compiled shot artifact that owns the formation. */

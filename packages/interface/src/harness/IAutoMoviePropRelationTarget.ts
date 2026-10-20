@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Six arms, one per kind of record a relation can cite, each carrying only the two ids that locate that record, so the relation table and the anchor dispatch switch on `kind` without optional fields.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No geometry is copied into the target. `propAnchorFrame` uses first-match lookups on admitted registries and returns a rest-placement TRS; nested nonuniform scale can produce unrepresented shear, and numerical decomposition failures may throw instead of returning null. No environment or prop id selects a special rule.
  * @evidence contracts/common.md#meaningful-documentation States that targets cite ids rather than geometry, which record owns each kind, the resolution and same-environment refusals, and how the anchor function answers a space or missing target; members name the list each id must appear in.
- * @author Samchon
  */
 export type IAutoMoviePropRelationTarget =
   | IAutoMoviePropRelationTarget.ISpace
@@ -26,7 +25,6 @@ export namespace IAutoMoviePropRelationTarget {
    * @evidence contracts/common.md#clear-and-simple-design Two ids are the whole citation; the space's cells and units stay on the environment record.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No anchor frame is invented for a region, and an unresolved space is refused rather than treated as the whole building.
    * @evidence contracts/common.md#meaningful-documentation States which relation kind accepts it, why it has no anchor frame, how containment uses it, and which list each id must appear in.
-   * @author Samchon
    */
   export interface ISpace {
     /** Selects a logical-space target. */
@@ -48,7 +46,6 @@ export namespace IAutoMoviePropRelationTarget {
    * @evidence contracts/common.md#clear-and-simple-design Two ids are the whole citation; the element's transform and hierarchy stay on the environment record.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts A fixing to an element is currently checked as a citation only; its model geometry does not cause this consumer to measure contact or solve a joint. The anchor is a rest transform, not an operating-state attachment trajectory.
    * @evidence contracts/common.md#meaningful-documentation States which relation kinds accept it, that its anchor is the rest pose, and which list each id must appear in.
-   * @author Samchon
    */
   export interface IElement {
     /** Selects a building-element target. */
@@ -70,7 +67,6 @@ export namespace IAutoMoviePropRelationTarget {
    * @evidence contracts/common.md#clear-and-simple-design Two ids are the whole citation; which elements realize the boundary stays on the boundary record.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Standing against a boundary is currently checked as a citation, without a bearing measurement. The boundary's optional face does not change that consumer path; its anchor comes from the first realizing element.
    * @evidence contracts/common.md#meaningful-documentation States which relation kind accepts it, where its anchor comes from, and which list each id must appear in.
-   * @author Samchon
    */
   export interface IBoundary {
     /** Selects a boundary target. */
@@ -92,7 +88,6 @@ export namespace IAutoMoviePropRelationTarget {
    * @evidence contracts/common.md#clear-and-simple-design Two ids are the whole citation; the reveal and the fill element stay on the opening record.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts An open cut answers no anchor rather than a frame guessed from the boundary.
    * @evidence contracts/common.md#meaningful-documentation States which relation kind accepts it, the anchor and its `null` case, and which list each id must appear in.
-   * @author Samchon
    */
   export interface IOpening {
     /** Selects an opening target. */
@@ -114,7 +109,6 @@ export namespace IAutoMoviePropRelationTarget {
    * @evidence contracts/common.md#clear-and-simple-design Two ids are the whole citation; footprint and height stay on the surface record.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The anchor is an interior point of a convex piece rather than a vertex mean, which can fall outside an L-shaped or holed surface.
    * @evidence contracts/common.md#meaningful-documentation States which relation kind accepts it, that bearing is measured, the anchor and its `null` case, and which id the surface field matches.
-   * @author Samchon
    */
   export interface ISurface {
     /** Selects a support-surface target. */
@@ -136,7 +130,6 @@ export namespace IAutoMoviePropRelationTarget {
    * @evidence contracts/common.md#clear-and-simple-design Two ids are the whole citation; the contact frame and its kind stay on the cited prop's model.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts A self-citation, an ambiguous prop or an affordance of the wrong kind is refused rather than resolved to the nearest usable one.
    * @evidence contracts/common.md#meaningful-documentation States which relation kinds accept it, every refusal, the affordance kind each relation needs, that resting is measured, and where the anchor comes from.
-   * @author Samchon
    */
   export interface IPropAffordance {
     /** Selects another prop's affordance as the target. */

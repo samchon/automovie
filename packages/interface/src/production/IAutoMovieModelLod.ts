@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design This record owns one threshold-to-group edge while the declaring population owns tier order and the viewer owns hysteretic runtime selection.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Self-reference is valid, while a missing-group marker is not proof that its model exists. Declaring LOD metadata does not promise geometry construction or automatic tier switching for ordinary scene nodes.
  * @evidence contracts/common.md#meaningful-documentation Defines supported tiers, meter limits, terminal null, model group identity and the population consumer scope.
- * @author Samchon
  */
 export interface IAutoMovieModelLod {
   /** Detail tier. */

@@ -8,8 +8,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms The pure input interface chooses no rig/primitive assembly or tessellation algorithm.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work It implements no model-result cache or dimensional equality policy.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Scalar fields own no handle/task; resulting documents and uploads belong to builder/page/viewer implementations.
- *
- * @author Samchon
  */
 export interface IStickmanParams {
   /** Pelvis height off the floor (≈ leg length). */

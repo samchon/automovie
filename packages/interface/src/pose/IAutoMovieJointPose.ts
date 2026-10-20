@@ -13,7 +13,6 @@ import { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
  * @evidence contracts/common.md#clear-and-simple-design A bone identity and three nullable scalar angles expose articulation without mixing rest transforms, root movement or quaternion storage into the authored joint.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Limits come from the effective target constraint rather than an actor or fixture; nonzero motion on an unavailable axis is reported, while neutral null and zero are deliberately equivalent.
  * @evidence contracts/common.md#meaningful-documentation Defines clinical axis signs, degree units, composition over the rest transform and neutral-null semantics, including the restriction for immovable axes.
- * @author Samchon
  */
 export interface IAutoMovieJointPose {
   /** Which bone this articulation applies to. */

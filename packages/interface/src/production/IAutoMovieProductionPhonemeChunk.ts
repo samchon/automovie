@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Keeps native sample timing beside phoneme text rather than prematurely rounding every phoneme to a production frame or duplicating synthesized PCM.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts These are model stream chunks, not independently measured phoneme onset timestamps; bounded frame binning may group several tokens into one mouth target.
  * @evidence contracts/common.md#meaningful-documentation Defines synthesis order and inclusive-start exclusive-end offsets on the model-native PCM sample clock.
- * @author Samchon
  */
 export interface IAutoMovieProductionPhonemeChunk {
   /** Chunk phonemes in synthesis order. */

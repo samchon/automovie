@@ -25,7 +25,6 @@ import { autoMovieAnalysisRampColor } from "./autoMovieAnalysisRampColor.js";
  * are all equal is drawn at the middle of the ramp rather than dividing by a
  * zero span.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Requires a solved run, present nongapped metric and its spatial samples, then maps metric values linearly into a clamped blue/green/red ramp and Float32 point attributes; engine artifacts supply finite sample coordinates/values and meaningful units. Flat domains map to the middle; extreme finite domain subtraction and spread-argument limits remain unsupported numeric/population cases.
  * @evidence contracts/common.md#clear-and-simple-design Builds one Points object directly from the analysis artifact and attaches run/metric/unit/domain identity; the portable artifact owns measurement, while this declaration owns visualization and distinguishes borrowed from created point material.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses missing analysis/metric/field instead of manufacturing a successful image; ramp midpoint for a zero span is an explicit scale convention, and no fixture ids or foreign method replacement affect admission or color.

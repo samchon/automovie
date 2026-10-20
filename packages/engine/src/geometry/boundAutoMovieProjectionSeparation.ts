@@ -35,7 +35,6 @@ import { measureAutoMovieProjectionIntervals } from "./measureAutoMovieProjectio
  * @evidence contracts/performance.md#efficient-algorithms Linear in the combined vertex count: one projection pass over both runs and one pass for each run's extrema, with one concatenated input array as the only allocation besides the intervals.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function called once per candidate direction; the convex bound stops calling it once a direction suffices.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns a number; the concatenated run and intervals are released on return.
- * @author Samchon
  */
 export function boundAutoMovieProjectionSeparation(
   a: readonly IAutoMovieVector3[],

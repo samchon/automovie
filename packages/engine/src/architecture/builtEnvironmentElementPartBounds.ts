@@ -26,7 +26,6 @@ import { builtPlacedPartBoxes } from "./builtPlacedPartBoxes";
  * @evidence contracts/performance.md#efficient-algorithms O(E + M + W + P + V) for the element and model scans, world staging cost W, model parts P and their vertices V, including tessellation cost for procedural parts. The batch query shares staging and a model index when many elements are measured.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answers one element per call over the caller's mutable record and keeps no staging between calls; building-wide reuse is `builtEnvironmentPartBoxes`.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The staged matrices are dropped on return; the caller owns the returned boxes, one per drawn part.
- * @author Samchon
  */
 export const builtEnvironmentElementPartBounds: (
   environment: IAutoMovieBuiltEnvironment,

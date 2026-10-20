@@ -133,8 +133,6 @@ export function integrateAutoMovieRadialField(props: {
  */
 export namespace integrateAutoMovieRadialField {
   /** Area integrals before any image quantization or material layering; fields retain the caller's coordinate units.
-   *
-   * @author Samchon
    */
   export interface IOutput {
     /** Integral of q^power, squared coordinate units. */

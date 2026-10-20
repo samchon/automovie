@@ -30,8 +30,6 @@ const assertFinite: (label: string, value: number) => void = (
  * @evidence contracts/performance.md#efficient-algorithms Each step performs fixed scalar arithmetic and admission checks with constant auxiliary storage, independent of the number of prior frames.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work No trajectory cache exists: the caller explicitly feeds the prior value and velocity along with the current target and timestep.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Only the returned value/velocity object survives a step; the integrator owns no retained history, timer or physics handle.
- *
- * @author Samchon
  */
 export const dampedSpring: (
   current: number,

@@ -12,8 +12,6 @@ import { IAutoMovieMotion } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A timeline entry performs no scheduling search or keyframe copying itself.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The entry references an existing clip without promising result reuse across differently timed placements.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Its containing schedule retains one motion reference per placement; the descriptor acquires no independent task or playback resource.
- *
- * @author Samchon
  */
 export interface IAutoMoviePlacement {
   /** Seconds into the shot this clip begins. */

@@ -39,7 +39,6 @@ const FURNISHING_MODES: Set<string> = new Set(["rest", "simulated"]);
  * @evidence contracts/performance.md#efficient-algorithms For D domains and F furnishings, indexing plus domain validation precede support scans and O(P) held-configuration/containment checks per furnishing; repeated bindings can rebuild the same configuration and room tests include their architecture cost.
  * @evidence contracts/performance.md#reuse-equivalent-work Maps and sets share identity resolution within this pass and held particles reuse the canonical rest owner; no configuration cache is retained across changed domain/state/room records.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Fresh maps, reference sets and held buffers leave scope when the pass ends; the returned violation list alone retains offending inputs/points, without simulation history or viewer handles.
- * @author Samchon
  */
 export const validateSoftFurnishings: (props: {
   environment: IAutoMovieBuiltEnvironment;

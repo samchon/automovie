@@ -7,7 +7,6 @@ import { AutoMovieCurveMath64 as V } from "./AutoMovieCurveMath64";
  *
  * Quotients require a positive evaluated denominator and reject otherwise; no epsilon denominator or polynomial quotient fit replaces the homogeneous representation.
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Homogeneous numerator/denominator records evaluated by N/Q and (N'Q-NQ')/Q², partitioned by the same subdivision as polynomials.
  * @evidence contracts/common.md#clear-and-simple-design Rational records are separated from the polynomial algebra and subdivision they compose.

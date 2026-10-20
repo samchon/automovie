@@ -12,8 +12,6 @@
  * @evidence contracts/performance.md#efficient-algorithms Constant-degree Horner evaluation inside fixed eight/32 iteration bounds gives constant time and scalar storage, without constructing sampled curve tables.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The same control values serve cubic and derivative evaluation within one inversion; no cache assumes mutable control tuples remain unchanged between calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Only a numeric eased progress escapes; all coefficients and search bounds are call-local with no handles or retained tables.
- *
- * @author Samchon
  */
 export const cubicBezierEasing: (
   control: readonly [number, number, number, number],

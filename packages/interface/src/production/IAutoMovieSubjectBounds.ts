@@ -7,7 +7,6 @@ import { IAutoMovieSubjectBox } from "./IAutoMovieSubjectBox";
  * @evidence contracts/common.md#clear-and-simple-design Two nullable boxes and one shared coordinate-space discriminator expose declaration versus observation without inventing a single merged envelope.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No absent declaration or empty content receives a guessed box, and instance position bounds must not be interpreted as the full occupied geometry envelope.
  * @evidence contracts/common.md#meaningful-documentation Defines declared and content ownership, null meaning, shared basis and the compact-position-bound limitation.
- * @author Samchon
  */
 export interface IAutoMovieSubjectBounds {
   /** Authored or builder-declared extent, or null when none exists. */

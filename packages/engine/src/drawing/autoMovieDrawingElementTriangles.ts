@@ -29,7 +29,6 @@ import { transformAutoMovieDrawingTriangles } from "./transformAutoMovieDrawingT
  * @evidence contracts/performance.md#efficient-algorithms Linear in the selected parts' triangle count: one concatenation and one transform per triangle, with tessellation reused from the index.
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses each part's tessellation through `design.partTriangles`, keyed by part identity within one derivation; the world placement is not cached because each element has its own matrix.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns a fresh array owned by the caller; the concatenated model-frame list is a temporary.
- * @author Samchon
  */
 export const autoMovieDrawingElementTriangles = (
   design: IAutoMovieDrawingDesignIndex,

@@ -10,7 +10,6 @@ import { IAutoMovieScriptNodeBase } from "./IAutoMovieScriptNodeBase";
  * @evidence contracts/common.md#clear-and-simple-design The shared node fields plus the `scene` discriminator and the slug payload; the staged set is a separate scene record.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No stage derives a set, light or camera from the slug; it is authoring text.
  * @evidence contracts/common.md#meaningful-documentation States the allowed parents and the two readers of its slug, including how the caption label is inherited; members give the discriminator and payload roles.
- * @author Samchon
  */
 export interface IAutoMovieScriptSceneNode extends IAutoMovieScriptNodeBase {
   /** Selects a scene node. */

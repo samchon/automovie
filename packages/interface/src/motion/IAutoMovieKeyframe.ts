@@ -11,7 +11,6 @@ import { AutoMovieEasing } from "./AutoMovieEasing";
  * @evidence contracts/common.md#clear-and-simple-design Pose and expression retain their own structures while time, easing and cubic controls add only segment information; the surrounding motion owns rig identity, duration and looping.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Null expression interpolates from neutral rather than snapping an authored far expression into the whole segment; cubic controls are required only for their curve and stray controls on other curves are refused.
  * @evidence contracts/common.md#meaningful-documentation Defines outgoing easing, finite ordered beat-independent seconds, neutral-expression fades, cubic control ordering and the monotone-time x bounds with unconstrained finite y overshoot.
- * @author Samchon
  */
 export interface IAutoMovieKeyframe {
   /**

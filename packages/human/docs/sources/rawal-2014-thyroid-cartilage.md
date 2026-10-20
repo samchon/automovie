@@ -18,10 +18,6 @@ Open-access journal page.
 | Lamina height | right 26.56 (2.88), left 26.60 (2.84) mm | 24.20 (3.89) mm |
 | Lamina width | right 36.83 (3.60), left 37.07 (3.67) mm | 31.85 (3.69) mm |
 
-## What Human takes
-
-The laryngeal prominence follows from the lamina angle: a narrower male angle projects the anterior notch forward. The angle and lamina size give a sex-dependent prominence on the front of the neck instead of a free "Adam's apple" slider.
-
 ## Limits
 
 Ten female larynges; one population; embalmed tissue.

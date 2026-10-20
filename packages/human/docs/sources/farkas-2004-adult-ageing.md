@@ -12,7 +12,3 @@ Farkas LG, Eiben OG, Sivkov S, Tompson B, Katic MJ, Forrest CR. "Anthropometric 
 - In late adulthood (71-90) upper and lower jaw measures mostly increased on skin and bone.
 - Face width was the most stable measurement and had the thinnest soft-tissue cover.
 - Soft tissue was thickest over the midface and thinned moderately with age; over the lower jaw it thickened in early adulthood and thinned in late adulthood.
-
-## What Human takes
-
-Face width held across adult age; jaw soft tissue thinning late. Values not available.

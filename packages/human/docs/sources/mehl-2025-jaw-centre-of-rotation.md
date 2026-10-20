@@ -23,10 +23,6 @@ Eight healthy adults with nearly full dentition and no TMJ history (University o
 
 The relation between condylar rotation and translation is close to linear over the whole opening, with a slight sigmoid near maximum opening in some subjects. No subject showed pure rotation in early opening. Centres of rotation lie near the occlusal plane (coordinates in an occlusal-plane frame with the incisal point at the origin).
 
-## What Human takes
-
-Jaw opening as one degree of freedom: rotation of the mandible about an axis about 32 mm below the condyles near the occlusal plane, which is equivalent to condyles that glide forward 0.55 mm per degree; a hinge-then-glide two-phase model is not supported.
-
 ## Limits
 
 Eight subjects; no sex or age split.

@@ -54,7 +54,6 @@
     "@types/node": "catalog:utils"
   },
   "dependencies": {
-    "@automovie/engine": "workspace:^",
     "@automovie/interface": "workspace:^",
     "typia": "catalog:samchon"
   }

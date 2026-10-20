@@ -10,7 +10,6 @@ import { IAutoMovieAxisFrame } from "./IAutoMovieAxisFrame";
  * @evidence contracts/performance.md#efficient-algorithms At most three fixed axis records occupy constant storage; conversions own evaluation cost.
  * @evidence contracts/performance.md#reuse-equivalent-work Unchanged rig frames can serve multiple angles, without encoding a result cache or invalidation guarantee.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns borrowed frame records and no joint history, native rig or task is retained.
- * @author Samchon
  */
 export interface IAutoMovieRestFrame {
   /** Rest-frame mapping for the flexion axis. */

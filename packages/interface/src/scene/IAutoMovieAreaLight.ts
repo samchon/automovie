@@ -13,7 +13,6 @@ import { IAutoMovieLightBase } from "./IAutoMovieLightBase";
  * @evidence contracts/common.md#clear-and-simple-design Extends shared light identity and placement with only area discriminator and panel dimensions, leaving supported material response and renderer implementation at the light consumer.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Area lights support physically based materials and no shadow map, so cast-shadow and punctual range semantics cannot be used to imitate another light kind.
  * @evidence contracts/common.md#meaningful-documentation Defines emitting plane and direction, meter extents, area-source intensity and material/shadow limitations.
- * @author Samchon
  */
 export interface IAutoMovieAreaLight extends IAutoMovieLightBase {
   /** Discriminator. */

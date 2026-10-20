@@ -16,7 +16,6 @@ import type { IAutoMovieExternalMotionInspection } from "./IAutoMovieExternalMot
  * @evidenceExclude contracts/performance.md#efficient-algorithms The interface types the inspector's result and has no code; inspection cost is answered on `inspectAutoMovieExternalModelBytes`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A plain result record has nothing to share between consumers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record holds new arrays proportional to extensions, resources, slots and motion data, owned by the caller, and no reference to the container bytes.
- * @author Samchon
  */
 export interface IAutoMovieExternalModelInspection {
   /** Profile the caller selected and the inspection enforced. */

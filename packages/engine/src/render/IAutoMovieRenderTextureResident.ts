@@ -15,7 +15,6 @@ import type { IAutoMovieRenderTextureSource } from "./IAutoMovieRenderTextureSou
  * @evidence contracts/performance.md#efficient-algorithms Storage scales with material/source facts rather than pixels; closure work scans each scope's required slots and groups equivalent uploads.
  * @evidence contracts/performance.md#reuse-equivalent-work A resident's unchanged actual sources can share uploads with matching identity/state in other live scopes; equal asset names alone do not prove sharing.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The capture host excludes disposed shots and owns cache/context disposal; this borrowed record does not retain native textures independently.
- * @author Samchon
  */
 export interface IAutoMovieRenderTextureResident {
   /**

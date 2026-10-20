@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Carries only shared line content and placement, leaving generated audio, phonemes, visemes and actor joins in their own receipt and runtime records.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Omitted speaker remains unspecified. The separately available join helper returns not-run for absent or ambiguous bindings, but currently has only test callers; ProductionDesign.speakerBindings supplies no wired mouth application.
  * @evidence contracts/common.md#meaningful-documentation Defines caption ownership, spoken text, authored language and speaker labels, and inclusive-start exclusive-end film frames.
- * @author Samchon
  */
 export interface IAutoMovieProductionDialogueLine {
   /** Exact builder-owned caption id. */

@@ -5,7 +5,6 @@ import { AutoMovieCurveMath64 as V } from "./AutoMovieCurveMath64";
  *
  * Degree elevation, multiplication, addition and differentiation preserve the algebraic polynomial before floating-point rounding; no sampled fit or cubic replacement is used. This internal algebra is shared by subdivision, longitudinal grids and the legacy public facade without circular initialization.
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Bernstein evaluation, degree elevation, products and derivatives operate directly on coefficient arrays.
  * @evidence contracts/common.md#clear-and-simple-design A stateless namespace composes the scalar and vector coefficient operations without an anatomical dependency.
@@ -65,7 +64,6 @@ export namespace AutoMovieBernsteinAlgebra64 {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A coefficient type performs no arithmetic.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type owns no memoization or work coordination.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type retains no coefficient array at runtime.
-   * @author Samchon
    */
   export interface RecordV {
     /** Homogeneous vector numerator coefficients. */
@@ -84,7 +82,6 @@ export namespace AutoMovieBernsteinAlgebra64 {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A coefficient type performs no arithmetic.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type owns no memoization or work coordination.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type retains no coefficient array at runtime.
-   * @author Samchon
    */
   export interface RecordS {
     /** Homogeneous scalar numerator coefficients. */

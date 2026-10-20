@@ -8,8 +8,6 @@ import { autoMovieStoryTime } from "./autoMovieStoryTime";
 
 /**
  * One addressed event's measurement, with why it has no story time.
- *
- * @author Samchon
  */
 interface IStorySyncEntry {
   /** The event as reported in the outcome. */

@@ -10,7 +10,6 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A two-field row type declares data and runs no code of its own.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The row is plain data with no work behind it to share.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Each row is two strings held by its decision or handoff array and owns nothing else.
- * @author Samchon
  */
 export interface IAutoMovieExternalMotionBoneMapping {
   /** Inspected node id such as `node_3`; it must exist in the inspection. */

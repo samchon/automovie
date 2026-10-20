@@ -8,8 +8,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms This result performs no integration; the owning spring step computes both numbers in constant work.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Carrying velocity is required physical state rather than a cache; changed targets still use the previous step's momentum.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Each result owns two scalar values and retains no earlier state, handle or task.
- *
- * @author Samchon
  */
 export interface ISpringStep {
   /** The sprung value this step. */

@@ -24,7 +24,3 @@ CT scans (Philips Brilliance iCT 256, 3 mm slices) of 250 consecutive adults wit
 | Orbit depth, cornea to optic canal | 47.73 ± 4.6 | 48.40 ± 4.7 |
 
 The abstract concludes "approximately 24.2 mm (transverse) × 23.7 mm (sagittal) × 22.0-24.8 mm (axial)", transverse range 21 to 27 mm, with no significant difference by sex, age or the ethnic backgrounds studied; transverse diameter correlates with orbit width (r = 0.88). Myopia and hypermetropia change only the axial diameter.
-
-## What Human takes
-
-Globe size as a near-constant adult quantity, slightly oblate rather than spherical, scaled with orbit width rather than with face size.

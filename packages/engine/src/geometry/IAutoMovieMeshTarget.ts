@@ -16,7 +16,6 @@ import { ITessellation } from "./ITessellation";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record; the append cost is answered on `pushFlatTriangle` and the builders.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each builder call fills a fresh target that becomes its returned mesh.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Owns four number arrays that grow with the emitted vertex and triangle counts and are handed over, not copied, to the returned mesh.
- * @author Samchon
  */
 export interface IAutoMovieMeshTarget extends ITessellation {
   /** Packed metric `u, v` texture coordinates, one pair per vertex. */

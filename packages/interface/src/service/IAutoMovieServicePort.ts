@@ -12,7 +12,6 @@ import { AutoMovieServiceUnit } from "./AutoMovieServiceUnit";
  * @evidence contracts/common.md#clear-and-simple-design Typed connection facts stay on the port while the node owns equipment placement and the system owns root, capacity and traversal direction.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Passing fittings declare zero demand to avoid counting terminal load twice, and null section imposes no inferred cross-section; port/world position must not silently move into another logical space.
  * @evidence contracts/common.md#meaningful-documentation Defines network-unique id, system/medium/unit equality, node-relative flow, demand ownership and units, nullable square-meter section and exact world anchoring.
- * @author Samchon
  */
 export interface IAutoMovieServicePort {
   /** Stable port identity, unique across the whole network. */

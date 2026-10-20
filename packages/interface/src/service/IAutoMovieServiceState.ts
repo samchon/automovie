@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Human state name and numeric opening separate semantic labeling from the shared topological isolation rule.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Current reachability only distinguishes zero from nonzero opening and does not solve proportional flow or pressure; closed state remains valid design topology.
  * @evidence contracts/common.md#meaningful-documentation Defines author-named state, opening range, exact-zero isolation and the quantitative-flow limitation.
- * @author Samchon
  */
 export interface IAutoMovieServiceState {
   /** Author-named state such as `open`, `closed`, or `throttled`. */

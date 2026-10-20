@@ -15,7 +15,6 @@ import { IAutoMovieDrawingStyle } from "./IAutoMovieDrawingStyle";
  * @evidence contracts/common.md#clear-and-simple-design The view holds only the parameters of the question and no geometry of its own, and the pen sits in a nested style the serializer alone reads, so derivation and presentation stay separate.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown space ids produce one view-space-filter gap containing sorted distinct names; an unmatched open kind remains an empty selection. Duplicate dimension/annotation ids throw, but the view is not otherwise admitted as an arbitrary runtime object or exhaustively checked for id/text/style/projection values. Discipline selects nothing, and projection intent does not enforce a cardinal viewing direction.
  * @evidence contracts/common.md#meaningful-documentation States that the view holds no geometry, its relation to design references and the placement/id admission boundaries; members give units, axis conventions, which origin components place the cut, the null meanings of depth and overhead, how each filter selects and what it leaves alone, and draw order.
- * @author Samchon
  */
 export interface IAutoMovieDrawingView {
   /** Stable view identity within the production; the drawing repeats it. */

@@ -17,7 +17,6 @@ import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A placement record; applying it is one linear pass answered on `transformAutoMovieMesh`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Supplied by the caller per placement; the transform itself does no work that could be shared.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the caller's vector and quaternion by reference; the placed mesh copies nothing from it but the arithmetic result.
- * @author Samchon
  */
 export interface IAutoMovieMeshTransform {
   /** Metres added after scale and rotation; omitted means no translation. */

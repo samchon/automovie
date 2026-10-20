@@ -29,7 +29,6 @@ import { evaluateDrivenCurve } from "../resolve/evaluateDrivenCurve";
  * @evidence contracts/performance.md#efficient-algorithms O(J + T P) for J pose joints, T targets and P curve points: one map of the joints, then one lookup and one curve evaluation per driven target.
  * @evidence contracts/performance.md#reuse-equivalent-work The joint map is built once per call and shared by every target; poses change every frame, so nothing is cached across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing; the joint map is local and the returned map, one entry per driven target, belongs to the caller.
- * @author Samchon
  */
 export const resolveMorphTargetWeights: (
   targets: readonly Pick<IAutoMovieMeshMorphTarget, "name" | "driver">[],

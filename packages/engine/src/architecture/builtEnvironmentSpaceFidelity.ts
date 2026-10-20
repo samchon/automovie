@@ -20,7 +20,6 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * @evidence contracts/performance.md#efficient-algorithms Linear in the space count for the walk and the scan, with the scan stopping at the first faceted volume.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The fold is recomputed from the subtree on every call, since a space's stated volume or fidelity may change in the caller's record and no cached verdict could detect that.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The subtree set is dropped on return; the answer is a string literal.
- * @author Samchon
  */
 export const builtEnvironmentSpaceFidelity: (
   environment: IAutoMovieBuiltEnvironment,

@@ -28,8 +28,6 @@ import { createAutoMovieQuadraticConstraintBasis } from "./createAutoMovieQuadra
  * @evidence contracts/performance.md#efficient-algorithms Dense constraint and objective bases dominate cost in variables, working rows and nullity; QR factorization and triangular solves reuse each basis, while candidate projection scans each dense nullspace vector. This owner supports finite-memory dense working spaces, not unbounded full-row scalability.
  * @evidence contracts/performance.md#reuse-equivalent-work One constraint basis is shared by origin projection, normal dual reconstruction and primal candidate lifting; the reduced curvature basis is built once per step, and mutable rows prevent sharing across refinement calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Dense origin, gradient, objective rows and coordinates are call-local; the returned candidate retains its basis and optional primal/dual vectors. Allocation or arithmetic refusal returns the existing result object without retaining a running solver or external handle.
- *
- * @author Samchon
  */
 export function solveAutoMovieQuadraticWorkingSetStep(
   diagonal: readonly number[],

@@ -9,7 +9,7 @@ Gordon C.C. et al., *2012 Anthropometric Survey of U.S. Army Personnel: Methods 
 
 ## Licence
 
-The memorandum states the working databases and the memorandum "have been reviewed and cleared for UNLIMITED PUBLIC RELEASE"; the report is "Approved for public release; distribution is unlimited". Both are US Government works. The 3D whole-body, head and foot scans are not public. Human may cite summary values and our own regressions fitted to the public CSVs as small named constants; it never ships the rows.
+The memorandum states the working databases and the memorandum "have been reviewed and cleared for UNLIMITED PUBLIC RELEASE"; the report is "Approved for public release; distribution is unlimited". Both are US Government works. The 3D whole-body, head and foot scans are not public.
 
 ## Population and protocol
 
@@ -17,7 +17,7 @@ The working databases hold 4,082 men and 1,986 women, stratified-random subsampl
 
 Ninety-three directly measured dimensions, right side, in millimetres to the nearest millimetre, standing erect with heels together and measurement at the maximum point of quiet respiration unless stated. Weight is stored as kg x 10 in column `weightkg`. `Heightin` and `Weightlbs` are self-reported and must not be used.
 
-## Levels and definitions that matter for Human
+## Measurement levels and definitions
 
 | Measurement | Level or endpoints (report wording, condensed) |
 | --- | --- |
@@ -179,10 +179,6 @@ Hand breadth on stature and mass: 41.6 + 0.0176 S + 0.118 m (women), 46.6 + 0.01
 | Chest depth / breadth | 0.918 (0.076) | 0.877 (0.075) |
 | Buttock depth / hip breadth | 0.658 (0.047) | 0.710 (0.050) |
 | BMI | 25.5 (3.5; 20.3 to 31.7) | 27.7 (4.0; 21.4 to 34.8) |
-
-## What Human takes
-
-Adult default measurements and the dependence of girths, breadths and depths on stature, BMI and age; sex-specific ratios for the admission range; the landmark heights that place cross-section stations. Cross-sections at chest point, omphalion, buttock point, gluteal furrow, suprapatella, maximum calf and minimum ankle come with breadth and depth at three of them (chest, waist, buttock), which fixes an ellipse-like aspect per station.
 
 ## Limits
 

@@ -7,7 +7,6 @@ import { AutoMovieGuidePass } from "../cinematics/AutoMovieGuidePass";
  * @evidence contracts/common.md#clear-and-simple-design A stable review id, time and pass list specify visual evidence without embedding PNG bytes or mixing the review request with a capture receipt.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Declaring a frame does not prove capture or reviewer observation; exact current bundle identity and actual media checks remain required for its evidence.
  * @evidence contracts/common.md#meaningful-documentation Defines stable review-frame identity, shot-local second/frame-grid timing and the nonempty unique pass list.
- * @author Samchon
  */
 export interface IAutoMovieShotReviewFrame {
   /** Stable frame-contract id. */

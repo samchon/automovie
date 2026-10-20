@@ -26,7 +26,6 @@ import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
  * @evidence contracts/performance.md#efficient-algorithms One pass over the `n` outline edges plus the shoelace pass, linear time and constant extra space.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function called once per opening per quantity report; nothing equivalent repeats.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates one small arc record per bulged edge and retains nothing.
- * @author Samchon
  */
 export const autoMovieOpeningArea = (
   profile: IAutoMovieOpeningProfile,

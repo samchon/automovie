@@ -13,7 +13,3 @@ Public code review records. Cited for a fact about V8's behaviour.
 
 - V8 imported "fdlibm versions of acos, acosh, asin and asinh, which are more precise and produce the same result across platforms".
 - V8 imported `base::ieee754::cos()` and `base::ieee754::sin()` from fdlibm and built TurboFan operators on them, "similar to what we do for Float64Log".
-
-## What Human takes
-
-That one V8 version computes these functions with its own fdlibm port rather than the operating system's libm, so Windows and Linux agree for the same Node or Chromium version; nothing promises agreement across V8 versions (`../techniques/determinism.md`).

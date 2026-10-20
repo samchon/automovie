@@ -9,7 +9,6 @@
  * @evidence contracts/common.md#clear-and-simple-design One scalar per panel is enough because each panel has exactly one degree of freedom, whose kind decides the unit, so the value needs no vector or unit field.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An out-of-range or non-finite value is refused by validation rather than clamped into the panel's travel, and a value naming an unknown panel is refused rather than skipped.
  * @evidence contracts/common.md#meaningful-documentation States that the value is relative to the rest pose, its unit per motion kind, its range, and which panel ids it may name.
- * @author Samchon
  */
 export interface IAutoMoviePanelValue {
   /** Panel id inside the same operation. */

@@ -15,8 +15,6 @@ import { compareCodeUnits } from "../text/compareCodeUnits";
 
 /**
  * An inclusive world-space axis-aligned box, in metres.
- *
- * @author Samchon
  */
 interface IBox {
   /** Smallest corner. */
@@ -28,8 +26,6 @@ interface IBox {
 
 /**
  * One current world-space obstacle bound at one fixed-clock instant.
- *
- * @author Samchon
  */
 interface IAutoMovieCameraClearanceObstacleState {
   /** Stable resolved scene-node identity. */
@@ -41,8 +37,6 @@ interface IAutoMovieCameraClearanceObstacleState {
 
 /**
  * Camera and obstacle state read at one fixed-clock instant.
- *
- * @author Samchon
  */
 interface IAutoMovieCameraClearanceSample {
   /** Shot-local sample time in seconds. */
@@ -57,8 +51,6 @@ interface IAutoMovieCameraClearanceSample {
 
 /**
  * Complete deterministic input for one camera take.
- *
- * @author Samchon
  */
 interface IAutoMovieCameraClearanceEvaluation {
   /** Resolved camera identity. */

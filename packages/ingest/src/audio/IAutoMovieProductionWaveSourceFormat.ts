@@ -10,7 +10,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms This interface is a type with no runtime code; parsing happens in `decodeProductionAudioAsset`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Parsed envelope facts are copied from one decode into one plan identity, so no work exists here to share.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record holds a fixed handful of scalars and one GUID string and owns no handle or task.
- * @author Samchon
  */
 export interface IAutoMovieProductionWaveSourceFormat {
   /** Media-family discriminant; WAVE is the only decoded family. */

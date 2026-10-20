@@ -13,7 +13,6 @@ import type { IAutoMovieHeadlessPage } from "./IAutoMovieHeadlessPage.js";
  * @evidenceExclude contracts/performance.md#efficient-algorithms An erased input record chooses no algorithm.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The factory owns reuse, not this record.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns page until creation resolves; the returned session then owns release.
- * @author Samchon
  */
 export interface IViewerCaptureOptions {
   /** Transfers to the session only after successful creation. */

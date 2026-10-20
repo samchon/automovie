@@ -51,7 +51,6 @@ const AXIS_PAIRS: readonly (readonly [
  * @evidence contracts/performance.md#efficient-algorithms Constant work: nine finiteness checks, three lengths and, when usable, three normalizations and three dot products.
  * @evidence contracts/performance.md#reuse-equivalent-work Unit copies of the three admitted axes serve all three pairwise dot checks inside the call; issues are rebuilt for the current values and diagnostic path.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned issues.
- * @author Samchon
  */
 export const validateJointAxesBasis: (
   axes: IAutoMovieJointAxes,

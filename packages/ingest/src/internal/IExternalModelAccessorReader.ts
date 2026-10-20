@@ -8,7 +8,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms The reader type executes no byte lookup or accessor traversal by itself.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type retains no decoded values or equivalence cache for multiple reads.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A function signature acquires no payload bytes or handles; its factory owns closure lifetime.
- * @author Samchon
  */
 export type IExternalModelAccessorReader = (
   element: number,

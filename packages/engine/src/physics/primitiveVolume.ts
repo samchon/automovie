@@ -8,7 +8,6 @@ import { AutoMoviePrimitiveShape } from "@automovie/interface";
  * The physics layer weighs real shapes. A `plane` is a degenerate solid and
  * contributes no volume.
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Use closed-form solid volumes for box, sphere, cylinder, cone, capsule and torus in cubic metres; plane and mesh contribute zero because no closed solid volume is declared.
  * @evidence contracts/common.md#clear-and-simple-design One primitive-kind dispatch keeps volume semantics independent of triangulation and aggregate placement.

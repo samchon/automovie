@@ -11,9 +11,5 @@ Methods only; no code is copied.
 - Fritsch and Carlson give necessary and sufficient conditions on the endpoint derivatives, relative to the secant slope, for a cubic Hermite segment to be monotone; initial tangents that violate them are reduced, and the tangent is zero where the data is flat.
 - Fritsch and Butland's weighted harmonic mean slopes underlie MATLAB `pchip` and SciPy `PchipInterpolator`; the slope is zero at a data point that is a local extremum.
 - Steffen's method allows no minimum or maximum between adjacent data points; its first derivative is continuous everywhere.
-- Akima's slopes are weighted averages of neighbouring secant slopes from five points. The modified makima weights avoid the overshoot in SciPy's illustrated flat-run example; this does not establish general monotonicity. The explicit increasing-data counterexample is recorded in [station channels](../techniques/parametric-curve-family.md#station-channels).
+- Akima's slopes are weighted averages of neighbouring secant slopes from five points. The modified makima weights avoid the overshoot in SciPy's illustrated flat-run example; this does not establish general monotonicity. The explicit increasing-data counterexample is recorded in [station channels](../techniques/parametric-curve-family.md).
 - These methods construct piecewise cubics with continuous first derivatives. They do not generally ensure continuous second derivatives; a particular dataset can still produce matching second derivatives.
-
-## What Human takes
-
-Channel interpolation choices along a lofting axis and their curvature cost ([parametric curve families](../techniques/parametric-curve-family.md#station-channels)).

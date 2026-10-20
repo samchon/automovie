@@ -23,7 +23,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design One vertex list and one flat index list hold the outer boundary and every void, so containment and volume are each one loop over faces with no case for holes.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing is repaired. Missing/duplicated edge pairings, unusable facets and nonpositive aggregate volume are refused; positive aggregate volume does not prove every disconnected component's orientation, manifold vertex topology or absence of self-intersection. Solid-angle and volume arithmetic can round, cancel or overflow, and surface tests reuse one slack at different geometric scales rather than certifying exact contact.
  * @evidence contracts/common.md#meaningful-documentation States why voids share the list, the closure and winding the mesh must already have, what validation does and does not check, the minimum counts, the index layout, and the cells-or-shell exclusivity.
- * @author Samchon
  */
 export interface IAutoMovieSpaceShell {
   /** Finite world-space vertices, in metres, the triangles index; at least four. */

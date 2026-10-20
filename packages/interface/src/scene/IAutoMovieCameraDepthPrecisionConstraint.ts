@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Capability and accepted quantization error remain authored together while actual required subject depth range comes from compiled camera grading.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts More actual bits are permitted, fewer are refused, and logarithmic or reversed-depth implementations cannot masquerade as this standard metric.
  * @evidence contracts/common.md#meaningful-documentation Defines safe exact code-count premise, minimum bits, meter threshold and equality acceptance.
- * @author Samchon
  */
 export interface IAutoMovieCameraDepthPrecisionConstraint {
   /**

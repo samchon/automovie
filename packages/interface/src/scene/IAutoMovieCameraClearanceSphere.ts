@@ -9,7 +9,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design Center offset accommodates asymmetric bodies and rear mounts using one portable primitive rather than renderer meshes.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Radius is authored physical extent and does not shrink with view orientation or get inferred from the optical near plane.
  * @evidence contracts/common.md#meaningful-documentation Defines camera-local meter center, positive conservative radius and the asymmetrical placement purpose.
- * @author Samchon
  */
 export interface IAutoMovieCameraClearanceSphere {
   /** Camera-local centre in metres. */

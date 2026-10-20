@@ -9,7 +9,6 @@ import { AutoMovieTextureBinding } from "./AutoMovieTextureBinding";
  * @evidence contracts/common.md#clear-and-simple-design Each overlay owns its image, blend, optional colour and relief factors and strength; the enclosing material owns list order and the four-layer budget, while texture references reuse the normal material sampling representation.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No use selects a special shader branch; the same multiply or replace rule applies to any authored image, and an unavailable colour image applies no overlay instead of fabricating coverage.
  * @evidence contracts/common.md#meaningful-documentation Defines colour coverage, edge texels, ordered blend formulas, multiply-normal alpha/zero-strength limits, finite factors and defaults, and the missing glTF counterpart without a physical-response guarantee.
- * @author Samchon
  */
 export interface IAutoMovieMaterialOverlay {
   /**

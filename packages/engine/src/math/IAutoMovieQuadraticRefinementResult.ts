@@ -19,7 +19,6 @@ import { IAutoMovieQuadraticRefinementNativeCall } from "./IAutoMovieQuadraticRe
  * @evidenceExclude contracts/performance.md#efficient-algorithms A result record with no algorithm; the cost is answered on `refineAutoMovieQuadraticProgram`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The refinement report carries one native call and its optional polishing trace, all measured against the same original coefficients; it coordinates no solver sharing across programs.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owned by the caller: vectors of the variable and row counts, one ordinal per row in `rowGroups`, and the optional polishing traces bounded by the budget.
- * @author Samchon
  */
 export interface IAutoMovieQuadraticRefinementResult {
   /** Returned primal, one value per program variable. */

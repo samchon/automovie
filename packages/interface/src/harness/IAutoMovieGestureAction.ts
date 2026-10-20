@@ -18,7 +18,6 @@ import { IAutoMovieActionTarget } from "./IAutoMovieActionTarget";
  * @evidence contracts/common.md#clear-and-simple-design A kind, an optional note and an optional target are the whole gesture; timing comes from the shared base and the motion from the engine, so no keyframe or joint field is exposed.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts `reachPose` extends the arm toward a far target but never clamps joint angles into the rig's ranges, so an impossible pose fails the range-of-motion gate instead of being hidden, and `note` is never parsed to choose different motion.
  * @evidence contracts/common.md#meaningful-documentation States the intent-only contract, the arm, target and refusal rules of `point` and `strike`, their hold and snap shapes, the `"auto"` length, and where per-kind coverage is listed; members say who reads `note` and which kinds read `at`.
- * @author Samchon
  */
 export interface IAutoMovieGestureAction extends IAutoMovieActionBase {
   /** Selects a gesture as the action family. */

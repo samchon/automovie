@@ -28,7 +28,6 @@ export namespace IAutoMovieRecoveryMeshSections {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A structural record computes nothing.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Inputs are stable for one extraction call.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns input arrays.
-   * @author Samchon
    */
   export type Input = IAutoMovieRecoveryInput;
 
@@ -42,7 +41,6 @@ export namespace IAutoMovieRecoveryMeshSections {
    * @evidenceExclude contracts/performance.md#efficient-algorithms This type performs no traversal.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The reconstruction consumer reads this sole coefficient authority.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The artifact owns its bounded coefficient and diagnostic arrays; source maps are not retained.
-   * @author Samchon
    */
   export interface Bundle {
     /** Versioned generic curve artifact, not a population parameter family. */

@@ -2,8 +2,6 @@ import type { IAutoMoviePreviewNavigationItem } from "./IAutoMoviePreviewNavigat
 
 /**
  * Camera destinations and the production callback that applies one.
- *
- * @author Samchon
  */
 export interface IAutoMoviePreviewNavigation {
   /** Authored destinations displayed in the supplied order. */

@@ -29,7 +29,6 @@ import { AUTOMOVIE_DRAWING_EPSILON } from "./constants/AUTOMOVIE_DRAWING_EPSILON
  * @evidence contracts/performance.md#efficient-algorithms One pass over the `t` triangles with constant work each, emitting at most three triangles per input, the third only when a corner within tolerance of the plane also contributes a crossing point, so time and output are linear in `t`; every triangle must be visited because any may straddle the plane.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function called once per drawable and role per derivation; nothing equivalent repeats.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Each triangle's clipped polygon is a temporary; only the returned array, owned by the caller, survives.
- * @author Samchon
  */
 export const clipAutoMovieDrawingTriangles = (
   frame: IAutoMovieDrawingFrame,

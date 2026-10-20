@@ -13,8 +13,6 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
 
 /**
  * Counts of indexed UV determinant signs, independent of any three-dimensional tangent frame.
- *
- * @author Samchon
  */
 interface IHandedness {
   /**

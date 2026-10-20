@@ -36,7 +36,6 @@ import { loadModelGltfCore } from "./loadModelGltfCore";
  * @evidence contracts/performance.md#efficient-algorithms Canonical recipe realization owns its adaptive work before export. Export-local work visits M materials, B bones, P parts and their V attribute elements plus I triangle indices, using maps for expected constant-time reference lookup and linear indexed normal accumulation. Typed arrays, document objects and the serialized binary coexist during writing; the SDK's graph bookkeeping and serialization add their own work and allocations, so neither a total linear bound nor a fixed peak multiplier is asserted. Input and output size have no independent quota here.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call serializes one caller-owned model into fresh bytes; the module loader's cache already shares the deferred `@gltf-transform/core` module across calls, and no export result is cached.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The pending module import or binary write can retain the invocation, document, maps and typed arrays until settlement; this function adds no timeout or cancellation. After settlement it keeps no result cache or persistent document handle, while the module loader retains the loaded serializer and the caller owns the returned bytes. No output file is opened.
- * @author Samchon
  */
 export const exportModelToGLB: (
   model: IAutoMovieModel,

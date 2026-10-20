@@ -16,7 +16,6 @@ import {
  * @evidenceExclude contracts/performance.md#efficient-algorithms A type with no runtime code; the gate's checks are answered on `blockBeat`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One result per `blockBeat` call; nothing caches blocking verdicts.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The variants reference the caller's blocking and end-state records or a new violation list; ownership is described on each variant.
- * @author Samchon
  */
 export type IAutoMovieBlockedBeat =
   | IAutoMovieBlockedBeat.ISuccess

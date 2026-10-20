@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Identity and optional human name suffice for structural inspection, leaving full shading channels in the compiled material record.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An unresolved or uncited part material is omitted rather than fabricated, and a whole-model declaration list does not claim every declared material is visibly used by a part.
  * @evidence contracts/common.md#meaningful-documentation Defines model-scoped material id and nullable compiled name, with actual selection scope owned by the subject description.
- * @author Samchon
  */
 export interface IAutoMovieSubjectMaterial {
   /** Stable material id inside its model. */

@@ -15,7 +15,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms No code; finding both runs and summing them is linear in the layer count inside `autoMovieAssemblyOpeningReveal`, which answers that cost.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each reveal answers one structural opening size per call, and nothing shares a reveal between openings cut through the same build-up, since the size is part of the input.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds six numbers and a new array of layer id strings that the caller owns once the producer returns.
- * @author Samchon
  */
 export interface IAutoMovieAssemblyReveal {
   /** Finished clear width in metres once the lining runs reach the jamb. */

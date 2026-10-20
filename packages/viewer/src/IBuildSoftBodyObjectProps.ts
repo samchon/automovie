@@ -14,8 +14,6 @@ import type * as THREE from "three";
  * @evidence contracts/performance.md#efficient-algorithms The input holds surface/material references and a status tag; actual attribute copying and native projection cost belongs to buildSoftBodyObject.
  * @evidence contracts/performance.md#reuse-equivalent-work Separate projections may borrow the same canonical surface/material while each owns its geometry lifetime; equal status or domain text is not surface equivalence.
  * @evidence contracts/performance.md#bound-retention-and-release-resources This type acquires no resource; the builder owns generated geometry/default material and never disposes a supplied material.
- *
- * @author Samchon
  */
 export interface IBuildSoftBodyObjectProps {
   /** Surface emitted by the Engine, including its drawn-panel bounds. */

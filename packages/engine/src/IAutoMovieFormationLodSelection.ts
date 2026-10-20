@@ -13,7 +13,6 @@ import { IAutoMovieCompiledFormationLod } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms Result record; producing it costs the selector's scans over the tier list, answered on `selectFormationLod`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A fresh decision per call; the only reuse, hysteresis toward the previous tier, is driven by the caller passing the previous tier back.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds one reference into the caller's tier array and one number; it extends no lifetime beyond that array's.
- * @author Samchon
  */
 export interface IAutoMovieFormationLodSelection {
   /** Selected compiled tier, the same object as one element of the input `lod`. */

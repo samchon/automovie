@@ -19,7 +19,6 @@ import { IAutoMovieCameraFrameEntry } from "./IAutoMovieCameraFrameEntry";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape; compiling the move is answered on `compileCameraCoverage` and `compileCameraMove`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built per coverage camera per shot and consumed in the same call.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds fresh action, subject and intent records created by `performShot`; the compiled take's `cameraIntent` references those same intent objects, and the entry itself is dropped after compilation.
- * @author Samchon
  */
 export interface IAutoMovieCameraCoverageEntry extends IAutoMovieCameraFrameEntry {
   /**

@@ -10,7 +10,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A request record chooses no algorithm; the adapter's cost belongs to `publishNativeScaffoldFile`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A request describes one exclusive create, which is an effect and is never shared.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the request and referenced byte array; publishNativeScaffoldFile views those bytes during its synchronous call and retains no request afterward. Keeping the request elsewhere keeps its bytes alive, and this record holds no handle.
- * @author Samchon
  */
 export interface IScaffoldParentPublicationRequest {
   /**

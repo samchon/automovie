@@ -14,7 +14,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms An options record with no algorithm; the budget's effect is answered on `polishAutoMovieQuadraticProgram`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A per-call input that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Two numbers read by the refinement; nothing is retained.
- * @author Samchon
  */
 export interface IAutoMovieQuadraticRefinementOptions {
   /** Admission threshold for every residual; positive and finite. */

@@ -7,7 +7,6 @@ import { IAutoMovieProductionOpusDescription } from "./IAutoMovieProductionOpusD
  * @evidence contracts/common.md#clear-and-simple-design Separates convenient scalar audio facts from raw integer clocks and the complete codec entry so delivery checks can compare exact timebases and codec identity without reparsing bytes.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Values come from parsed bytes rather than render-manifest claims; packet count is not PCM sample count, and priming is retained instead of folded silently into presentation duration.
  * @evidence contracts/common.md#meaningful-documentation Defines audio class, MP4 container, seconds, channels, sample rate, packet count, priming samples and movie versus media tick domains.
- * @author Samchon
  */
 export interface IAutoMovieProductionAudioProbe {
   /** Parsed media class. */

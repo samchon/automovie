@@ -15,8 +15,6 @@ import type { IViewerSceneItem } from "./IViewerSceneItem";
 
 /**
  * Complete payload of `GET /scene`.
- *
- * @author Samchon
  */
 export interface IViewerScene {
   /** Authored portable physical lights; calibration retains its own simple rig. */

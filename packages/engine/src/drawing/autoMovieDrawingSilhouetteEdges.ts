@@ -42,7 +42,6 @@ interface IEdgeOwners {
  * @evidence contracts/performance.md#efficient-algorithms One pass over the `t` triangles with a hash map keyed by welded edge, so time and space are linear in `t`; each triangle builds its three corner keys once and reuses them for its three edges, and the map is needed because an edge's verdict depends on every triangle sharing it.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function called once per drawable and role per derivation; the welding map serves only that call.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The owner map is created per call, grows to at most three entries per triangle, and is released when the call returns; only the returned edge array, owned by the caller, survives.
- * @author Samchon
  */
 export const autoMovieDrawingSilhouetteEdges = (
   frame: IAutoMovieDrawingFrame,

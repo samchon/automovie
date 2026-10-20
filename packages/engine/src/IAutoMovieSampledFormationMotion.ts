@@ -16,7 +16,6 @@ import { IAutoMovieFormationReform } from "./IAutoMovieFormationReform";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A result type; sampling sorts and scans the unit's cues once per call inside `sampleFormationMotion`, answered there.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each sample is recomputed from the cue list and time; the type exposes no key under which a sample could be shared.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds new vectors plus an optional reform referencing the cue's layout; the caller owns the record and the cue list owns the layout.
- * @author Samchon
  */
 export interface IAutoMovieSampledFormationMotion extends IAutoMovieFormationMotionState {
   /**

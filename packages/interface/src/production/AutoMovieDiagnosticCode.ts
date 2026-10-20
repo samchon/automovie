@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design The pure authoring package owns the erased code constraint and Engine producers choose their findings explicitly, without importing a runtime catalog into this type.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The union remains closed after removal of the obsolete prose-grader reservation; code membership constrains producers without widening to string or proving every declared code has a current producer.
  * @evidence contracts/common.md#meaningful-documentation Defines closed machine identity and distinguishes representable legacy codes from current producers and user-facing correction prose.
- * @author Samchon
  */
 export type AutoMovieDiagnosticCode =
   | "acceptance-story-sync-failed"

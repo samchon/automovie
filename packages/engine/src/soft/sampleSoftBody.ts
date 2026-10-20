@@ -15,8 +15,6 @@ import { softBodyStepAt } from "./softBodyStepAt";
  * @evidence contracts/performance.md#efficient-algorithms Quantization is constant work, followed by the static solver's O(P*K*(I+C)) replay and O(P) state storage at requested step K.
  * @evidence contracts/performance.md#reuse-equivalent-work The quantizer and replay owners are shared; same-step requests still replay because no equivalence-safe persistent trajectory cache exists.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The fresh solver result transfers to the caller; this sampler retains no domain, prior frame or animation task.
- *
- * @author Samchon
  */
 export const sampleSoftBody: (
   domain: IAutoMovieSoftBodyDomain,

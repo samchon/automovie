@@ -15,7 +15,6 @@ import { IAutoMovieEffectParticle } from "./IAutoMovieEffectParticle";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A result shape only; candidate generation and thinning cost is answered on `sampleCompiledEffect`, which returns one sample per call.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type stores no sample cache; two requests in one step recompute the same sample, which `sampleCompiledEffect` documents as deterministic rather than shared.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns the returned sample; its particle array is capped at the recipe's `budget.maxParticles`, so its size never grows with elapsed time.
- * @author Samchon
  */
 export interface IAutoMovieEffectSample {
   /**

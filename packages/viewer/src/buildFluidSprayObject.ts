@@ -18,8 +18,6 @@ import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceReti
  * @evidence contracts/performance.md#efficient-algorithms Upload builds three arrays and Float32 attributes and scans bounds, all linear in particle count. These complete copies match a complete replacement sample rather than a sparse-update protocol.
  * @evidence contracts/performance.md#reuse-equivalent-work Points, geometry identity and material persist across updates; each supplied sample rebuilds buffers and bounds. Matching step metadata is not used as a cache key for particle equivalence.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller detaches the node and disposes owned geometry and the optional default material; supplied material stays borrowed. Each invocation independently attempts geometry then default material; ordered causes follow the existing reporter, including its unresolved diagnostic-coercion limit. Disposal remains unmemoized and later updates remain admitted. Engine sampling bounds population but this type imposes no byte cap, and public events are not physical GPU release proof. Maintained callers are tests rather than a production spray scene host.
- *
- * @author Samchon
  */
 export const buildFluidSprayObject: (props: {
   sample: IAutoMovieFluidSpraySample;

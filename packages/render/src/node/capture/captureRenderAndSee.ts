@@ -28,7 +28,6 @@ import { preserveCleanupFailure } from "./preserveCleanupFailure.js";
  * @evidence contracts/performance.md#efficient-algorithms For F frames, P passes and W by H pixels, capture performs O(FP) screenshots and encoding scans O(FWH) pixels; frame paths retain O(F) entries.
  * @evidence contracts/performance.md#reuse-equivalent-work One loaded page and session serve all frames; the canonical schedule is reused for ordered PNG encoding, while distinct frame effects are not cached.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Browser, page/session and encoder are closed or deleted in finally paths, preserving cleanup failures. Captured files persist at caller destinations and O(F) path entries live until the call ends.
- * @author Samchon
  */
 export const captureRenderAndSee: (
   options: IAutoMoviePageRenderAndSeeOptions,

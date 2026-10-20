@@ -75,7 +75,6 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * @evidence contracts/performance.md#efficient-algorithms Compilation is linear in triangles plus the hierarchy build; a call visits only boxes that do not already prove the target and bounds only their triangles, each stopping at its first sufficient direction, with every node and triangle as the budget-capped worst case.
  * @evidence contracts/performance.md#reuse-equivalent-work The snapshot, triangle boxes, ordinal map and hierarchy are compiled once and reused by every call and both operations; reuse of whole verdicts across identical rows belongs to the hair fit, which keys them on exact coordinates, clearance and attachment presence.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The query retains two copies of each triangle's corners, its box and centre, an ordinal map and the hierarchy, all sized by the triangle count at compile time, and no reference to the caller's mesh; a call allocates only its exemption set and cap list and spends the caller's budget, which it never resets.
- * @author Samchon
  */
 export function createAutoMovieMeshSeparationQuery(
   mesh: IAutoMovieMesh,

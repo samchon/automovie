@@ -13,8 +13,6 @@ import type {
  * @evidenceExclude contracts/performance.md#efficient-algorithms This frame value does not choose sampling, integration or application algorithms.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Every player update publishes its current frame; this shape coordinates no result reuse across different times or clip effects.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The frame contains numerical pose/expression records and acquires no render loop, skeleton object or native allocation.
- *
- * @author Samchon
  */
 export interface IAutoMovieViewerFrame {
   /** Absolute clip time, in seconds. */

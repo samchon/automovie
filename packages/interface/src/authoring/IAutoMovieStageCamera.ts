@@ -13,7 +13,6 @@ import { IAutoMovieCameraDepthPrecisionConstraint } from "../scene/IAutoMovieCam
  * @evidence contracts/common.md#clear-and-simple-design The record states the lens, clip range, precision demand and opening aim in the stage's own vocabulary; the resolved rotation and lowered envelope belong to the scene camera, so the author never writes a quaternion.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A camera aimed at its own position is refused rather than given an arbitrary rotation, and a node `lookAt` resolves to the target's placement point with no per-kind height offset.
  * @evidence contracts/common.md#meaningful-documentation States the id's role, the world frame and units, how `lookAt` resolves and what may be named, the strict field-of-view and clip bounds, and what an omitted clearance means.
- * @author Samchon
  */
 export interface IAutoMovieStageCamera {
   /** Non-blank unique scene camera identity that `frame` actions name. */

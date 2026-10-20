@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design The consumer identifies only the parent motion asset, while the containing provenance entry owns the sidecar path, bytes and digest.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Naming a motion asset does not authenticate an arbitrary sidecar. The host must establish dependency membership and current byte identity; no surviving ledger gate supplies them automatically.
  * @evidence contracts/common.md#meaningful-documentation Defines the sidecar consumer discriminator and exact manifest path of its owning external motion source.
- * @author Samchon
  */
 export interface IAutoMovieMotionResourceConsumer {
   /** External motion sidecar consumer discriminator. */

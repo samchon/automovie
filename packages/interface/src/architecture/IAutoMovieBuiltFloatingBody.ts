@@ -14,7 +14,6 @@ import { AutoMovieBuiltPlacementBodyLocator } from "./AutoMovieBuiltPlacementBod
  * @evidence contracts/common.md#clear-and-simple-design A floating finding is a locator, its basis, and one nullable nearest-body pair; the census counts and the cost live on `IAutoMovieBuiltSupportSweepReport`, so this record carries only what tells one finding from another.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The basis excludes `surface-height-rule` because the sweep's subjects are only elements and populations, and the clearance threshold is the caller's tolerance with no body kind or id treated differently.
  * @evidence contracts/common.md#meaningful-documentation States that the finding is a measurement rather than a support claim, what "under" means geometrically, that clearance is in metres and always above the tolerance, and that a null `below` means nothing measurable lies underneath.
- * @author Samchon
  */
 export interface IAutoMovieBuiltFloatingBody {
   /**

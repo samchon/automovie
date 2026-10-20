@@ -15,7 +15,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms One `padStart` over the decimal index chooses no algorithm.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call names a different frame, and formatting is cheaper than a lookup.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Each name is returned to the capture or encoder plan that uses it, and the function keeps no reference.
- * @author Samchon
  */
 export const frameName: (
   index: number,

@@ -24,8 +24,6 @@ type IImportedLod = IImportedClosure["lod"][number];
 
 /**
  * An articulation node with the index it was first declared at.
- *
- * @author Samchon
  */
 interface IDeclaredNode {
   /** The first declaration of the node id. */

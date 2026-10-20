@@ -16,7 +16,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; the step and limit costs are answered on their functions.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built once per vertex for its limit.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Arrays sized by one vertex's valence, released after its limit is written.
- * @author Samchon
  */
 export interface ISubdivisionRing {
   /** The vertex, as `[x, y, z]`. */

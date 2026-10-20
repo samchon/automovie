@@ -37,7 +37,6 @@ import { transformAutoMovieDrawingPoint } from "./transformAutoMovieDrawingPoint
  * @evidence contracts/performance.md#efficient-algorithms Linear in the vertex and index counts: one tessellation for a primitive, one pass over the indices, and a fresh index list only for an unindexed mesh, whose order defines its triangles.
  * @evidence contracts/performance.md#reuse-equivalent-work Pure in its arguments, so it caches nothing itself; `indexAutoMovieDrawingDesign` memoizes its result per part object for one derivation, so a model placed many times is tessellated once.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns a fresh array owned by the caller; the tessellated mesh and index list are temporaries released when the call returns.
- * @author Samchon
  */
 export const autoMovieDrawingPartTriangles: (
   model: IAutoMovieModel,

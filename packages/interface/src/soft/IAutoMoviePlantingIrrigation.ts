@@ -9,7 +9,6 @@ import { AutoMoviePlantingIrrigationMedium } from "./AutoMoviePlantingIrrigation
  * @evidence contracts/common.md#clear-and-simple-design Planting supply declaration stays separate from the full service graph because its current port field names an architectural element rather than a typed service port.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts This record verifies joins and declared demand, not actual service capacity or water delivery; nonaquatic fluid references and aquatic missing domains refuse.
  * @evidence contracts/common.md#meaningful-documentation Defines element-based supply, liters-per-day demand, medium and aquatic-only nullable fluid-domain ownership.
- * @author Samchon
  */
 export interface IAutoMoviePlantingIrrigation {
   /** Id of the environment element acting as the supply port. */

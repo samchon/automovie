@@ -15,7 +15,6 @@ import { AutoMovieBuiltPlacementBodyLocator } from "./AutoMovieBuiltPlacementBod
  * @evidence contracts/common.md#clear-and-simple-design Each body carries its locator and basis side by side, and the two numbers are the only grading the sweep sorts by, so no severity class or threshold is stored on the pair.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Parts of one body that overlap each other are counted for each, and the fraction is clamped to `1` for that reason; the clamp is documented on the member rather than hidden, and no body kind is exempt from the sweep.
  * @evidence contracts/common.md#meaningful-documentation States declaration order, cubic-metre pairwise volume sums, duplicate-part counting, ratio/clamp/zero-denominator rules and the finite-product premises behind positive volume and fraction range.
- * @author Samchon
  */
 export interface IAutoMovieBuiltPlacementOverlapPair {
   /**

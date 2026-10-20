@@ -9,7 +9,6 @@ import { IAutoMovieShotEventContract } from "./IAutoMovieShotEventContract";
  * @evidence contracts/common.md#clear-and-simple-design One event carries authoritative timing, spatial mass and bounded acoustic results so the pure mixer needs no scene traversal or policy selection while rendering PCM.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Population spread is a box-based source approximation rather than measured individual positions. Selecting an acoustic profile does not populate or require acousticResponse in the standalone planner or mixer; callers own any stronger response-admission policy.
  * @evidence contracts/common.md#meaningful-documentation Defines occurrence identity, film frame and seconds, world-meter source/listener positions, RMS spread, incoherent density, stereo pan and optional propagation and room-response effects.
- * @author Samchon
  */
 export interface IAutoMovieProductionSoundEvent {
   /** Stable occurrence id, including the owning film segment. */

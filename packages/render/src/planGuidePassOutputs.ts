@@ -17,7 +17,6 @@ import { normalizeGuidePasses } from "./normalizeGuidePasses";
  * @evidence contracts/performance.md#efficient-algorithms Cost is O(P) for P requested names plus three short strings per distinct pass, at most six.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call plans one frame directory from its own arguments, and the strings are cheaper to rebuild than to cache.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The function retains nothing after returning the plan its caller owns and opens no handle or task.
- * @author Samchon
  */
 export const planGuidePassOutputs: (props: {
   frameDir: string;

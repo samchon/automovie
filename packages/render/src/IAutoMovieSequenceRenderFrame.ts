@@ -8,49 +8,35 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms The sequence sample record declares data and chooses no runtime algorithm; its producer documents construction cost.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The resolved blend and live-shot identity describes an identity boundary and performs no request coordination or result caching.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased sample record owns no playback cursor or capture handle; planSequenceRender creates scalar/blend/path values retained by the plan caller.
- *
- * @author Samchon
  */
 export interface IAutoMovieSequenceRenderFrame {
   /**
    * Zero-based output frame index.
-   *
-   * @author Samchon
    */
   index: number;
 
   /**
    * Global output sample time in seconds.
-   *
-   * @author Samchon
    */
   timeSeconds: number;
 
   /**
    * Frame path that the capture host should write.
-   *
-   * @author Samchon
    */
   path: string;
 
   /**
    * Live shot id at this output frame.
-   *
-   * @author Samchon
    */
   shot: string;
 
   /**
    * Live shot-local time in seconds.
-   *
-   * @author Samchon
    */
   shotTimeSeconds: number;
 
   /**
    * Outgoing tail blended into this frame, or `null` for a hard cut.
-   *
-   * @author Samchon
    */
   blend: {
     /** Outgoing shot id. */

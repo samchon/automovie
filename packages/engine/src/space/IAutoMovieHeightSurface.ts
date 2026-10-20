@@ -10,7 +10,6 @@ import { IAutoMovieHeightRule, IAutoMovieVector3 } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms Constant/plane/anchor queries take constant scalar work; heightfields read four samples per query and retain their authored O(columns*rows) sample storage through the optional rule.
  * @evidence contracts/performance.md#reuse-equivalent-work One height function serves standing, support and terrain consumers; the structural view borrows the same rule rather than deriving a separate height grid.
  * @evidence contracts/performance.md#bound-retention-and-release-resources This record retains its supplied rule/anchor references without deep copying, caches or handles; the source owner controls their lifetime and mutation.
- * @author Samchon
  */
 export interface IAutoMovieHeightSurface {
   /** The general ground rule, when the surface states one. */

@@ -68,8 +68,6 @@ export namespace IAutoMovieRecoveryOperation {
    * @evidence contracts/performance.md#efficient-algorithms Checks are constant time per existing progress notification.
    * @evidence contracts/performance.md#reuse-equivalent-work Callbacks do not cache or share effectful operations.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the signal; no event listener or timer is registered.
-   * @author Samchon
-   *
    */
   export interface Options {
     /** Optional caller-owned cancellation token. */

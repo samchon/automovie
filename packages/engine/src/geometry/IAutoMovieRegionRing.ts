@@ -13,7 +13,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms Two integers with no runtime body; the layout pass that fills them is linear in the point count inside `canonicalRegion`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built once per canonical region and read by its consumers; nothing is shared across regions.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Two numbers, one record per ring, released with the region that owns them.
- * @author Samchon
  */
 export interface IAutoMovieRegionRing {
   /**

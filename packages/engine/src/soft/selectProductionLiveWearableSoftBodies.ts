@@ -12,8 +12,6 @@ import { readProductionLiveWearableSoftBodies } from "./readProductionLiveWearab
  * @evidence contracts/performance.md#efficient-algorithms For N selected ids and D shot domains with A anchors/C colliders, expected work is O(N+D+A+C), with O(N+D) lookup/result storage.
  * @evidence contracts/performance.md#reuse-equivalent-work One admitted order, selected-id Set and available-domain Map serve both compatibility checks and output selection; mutable shot records are not cached across builds.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Lookup collections are temporary; returned rows retain the caller-owned domain references and budget scalars until their consuming solve releases them.
- *
- * @author Samchon
  */
 export const selectProductionLiveWearableSoftBodies: <
   Domain extends Pick<IAutoMovieSoftBodyDomain, "id" | "anchors" | "colliders">,

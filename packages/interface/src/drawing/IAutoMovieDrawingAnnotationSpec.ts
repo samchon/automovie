@@ -10,7 +10,6 @@ import { IAutoMovieDrawingFeature } from "./IAutoMovieDrawingFeature";
  * @evidence contracts/common.md#clear-and-simple-design Three members, identity, text and target, are all a note needs; style comes from the view's pen and position from the target, so neither is stored here.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No page position is stored to fall back on; a repeated id within a view's notes is refused by the derivation rather than resolved twice.
  * @evidence contracts/common.md#meaningful-documentation States that the target is re-resolved on every derivation, that id and text are copied verbatim, and that a repeated id is refused.
- * @author Samchon
  */
 export interface IAutoMovieDrawingAnnotationSpec {
   /** Annotation id, unique among the view's notes. */

@@ -9,7 +9,6 @@ import { IAutoMovieActionCall } from "../harness/IAutoMovieActionCall";
  * @evidence contracts/common.md#clear-and-simple-design Draft, review and correction sit in one record so the self-review stays auditable beside what it changed, while only the selected list reaches the compiler, which keeps one action vocabulary for both rounds.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The draft is not merged with the correction or used as a fallback when `final` fails, and the prose fields are declared unread instead of being given a verifier.
  * @evidence contracts/common.md#meaningful-documentation States the execution rule and that a non-null `final` makes the draft inert, the escape hatch for keyframes, which fields are prose, how the beat names the shot when no id is supplied, and the duration unit and bounds.
- * @author Samchon
  */
 export interface IAutoMoviePerformance {
   /**

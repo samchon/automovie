@@ -20,7 +20,6 @@ import { AutoMovieInteractionEventSource } from "./AutoMovieInteractionEventSour
  * @evidence contracts/common.md#clear-and-simple-design One flat record with four nullable participant roles serves every producer, so a consumer reads contacts, handoffs and falls through the same fields instead of one type per kind.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown participants stay null; structural admission checks nonblank participant strings, not their existence or causal truth. It refuses times outside the clock plus its 1e-9 end allowance without clamping. Event-id uniqueness is unchecked, and formatted times or delimiter-containing participant ids can collide.
  * @evidence contracts/common.md#meaningful-documentation States the role of each participant field and what `null` means for it, who produces and who consumes the record, the clock and range of `time`, the frame of `point`, and that id uniqueness is not gated.
- * @author Samchon
  */
 export interface IAutoMovieInteractionEvent {
   /**

@@ -31,10 +31,6 @@ Journal article with NIOSH authors, published by Oxford University Press.
 
 Empty cells have no reliably established sign and must not be treated as zero. The text states that women are smaller in every dimension, African-Americans have "shorter, wider, and shallower noses", the mainly Asian group has wider faces and noses, and workers 45 and older have "larger and longer narrower faces".
 
-## What Human takes
-
-The size of ancestry and age effects relative to the sex effect with stature and weight held fixed: the female effect on head circumference is only -5.4 mm once stature is fixed, while neck circumference differs by 50 mm; nose breadth carries the largest ancestry effect; face length and nose length grow by about 2 mm after 45.
-
 ## Limits
 
 Regression coefficients, not group means; "other" is a mixed group; working-age adults only.

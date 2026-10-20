@@ -16,7 +16,6 @@ import { IAutoMovieTextureImageFacts } from "./IAutoMovieTextureImageFacts";
  * @evidence contracts/performance.md#efficient-algorithms The input record computes nothing; closure scans uses/ledger and pays supplied callback cost, which can repeat for repeated references.
  * @evidence contracts/performance.md#reuse-equivalent-work One shared closure representation serves builder bytes and unit facts without retaining a cross-call cache of mutable files or ledger entries.
  * @evidence contracts/performance.md#bound-retention-and-release-resources All lists and callback are caller-owned for synchronous validation; this record acquires no stream, image decoder, network task or GPU resource.
- * @author Samchon
  */
 export interface IAutoMovieTextureClosureInput {
   /** Exact production id whose ledger entries authorize these uses. */

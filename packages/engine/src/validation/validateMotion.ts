@@ -18,7 +18,6 @@ const MAX_ANGULAR_SPEED_DEG_PER_S: number = 900;
 /**
  * Admit motion identity/skeleton, positive duration, loop, ordered in-range times/easing, frame pose/expression and adjacent-axis speed.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Admit motion identity/skeleton, positive duration, loop, ordered in-range times/easing, frame pose/expression and adjacent-axis speed.
  * @evidence contracts/common.md#clear-and-simple-design Pose/expression owners retain their semantics, and motion owns temporal rules and bezier controls.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts 900deg/s is a policy threshold, not measured anatomy; sparse bezier tuple admission must inspect all four actual elements.

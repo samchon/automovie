@@ -10,7 +10,6 @@ import { IAutoMovieFootprintRing } from "./IAutoMovieFootprintRing";
  * @evidence contracts/performance.md#efficient-algorithms Storage follows E total ring vertices and H hole records; containment reads at most all E edges and area folds H cached double areas.
  * @evidence contracts/performance.md#reuse-equivalent-work Prepared projections and signed areas serve repeated region queries until authored vertices change; preparation must be repeated after mutation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns prepared arrays and retains the borrowed source vertices through each ring; discarding the footprint releases those references without a host resource.
- * @author Samchon
  */
 export interface IAutoMovieFootprint {
   /** The ring that bounds the region. */

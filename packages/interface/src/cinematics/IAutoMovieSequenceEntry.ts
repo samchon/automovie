@@ -13,7 +13,6 @@ import { IAutoMovieTrim } from "./IAutoMovieTrim";
  * @evidence contracts/common.md#clear-and-simple-design A shot id plus two nullable modifiers covers every placement; the shot itself is referenced, not copied, so a retimed shot needs no entry edit beyond its trim.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A transition on the first entry is refused by `cutSequence` and thrown by `sequenceTimeline` rather than silently dropped, and an unknown shot id is refused rather than skipped.
  * @evidence contracts/common.md#meaningful-documentation States how the played span and output start follow from the fields, what each `null` means, and that the first entry may not carry a transition.
- * @author Samchon
  */
 export interface IAutoMovieSequenceEntry {
   /** Id of the {@link IAutoMovieShot} played here; it must name a built shot. */

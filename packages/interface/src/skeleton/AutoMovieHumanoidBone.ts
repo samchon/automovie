@@ -13,7 +13,6 @@
  * @evidence contracts/common.md#clear-and-simple-design One named bone union serves pose, ROM, attachment and ingest contracts instead of free strings or duplicated per-avatar names.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A valid bone name does not imply that every avatar declares it or that copying angles alone retargets arbitrary rest bases; absent optional bones and differing target constraints remain explicit conversion concerns.
  * @evidence contracts/common.md#meaningful-documentation Defines semantic names, VRM specification reference, 15 required slots versus optional chest and articulation population and runtime membership limits.
- * @author Samchon
  */
 export type AutoMovieHumanoidBone =
   // ── torso (4) ──

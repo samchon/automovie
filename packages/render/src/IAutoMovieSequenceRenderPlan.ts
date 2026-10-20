@@ -12,112 +12,80 @@ import type { IAutoMovieSequenceRenderTransitionSpan } from "./IAutoMovieSequenc
  * @evidenceExclude contracts/performance.md#efficient-algorithms The sequence manifest contract declares data and chooses no runtime algorithm; its producer documents construction cost.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work This erased manifest performs no cache lookup or frame capture; planSequenceRender resolves one cut and renderSequenceVideo reuses that concrete plan during host execution.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The erased plan acquires no renderer; planSequenceRender creates frame and editorial-span arrays whose storage grows with output frames and entries and belongs to its caller.
- *
- * @author Samchon
  */
 export interface IAutoMovieSequenceRenderPlan {
   /**
    * Render target identity.
-   *
-   * @author Samchon
    */
   target: { kind: "sequence"; id: string };
 
   /**
    * Sequence fps as authored by the cut.
-   *
-   * @author Samchon
    */
   sequenceFps: number;
 
   /**
    * Output fps from the render spec.
-   *
-   * @author Samchon
    */
   renderFps: number;
 
   /**
    * Total output seconds after transition overlaps are subtracted.
-   *
-   * @author Samchon
    */
   durationSeconds: number;
 
   /**
    * Number of output frames.
-   *
-   * @author Samchon
    */
   frameCount: number;
 
   /**
    * Global output sample times, one per frame.
-   *
-   * @author Samchon
    */
   times: number[];
 
   /**
    * Shot spans on the output clock.
-   *
-   * @author Samchon
    */
   shots: IAutoMovieSequenceRenderShotSpan[];
 
   /**
    * Incoming transition spans on the output clock.
-   *
-   * @author Samchon
    */
   transitionSpans: IAutoMovieSequenceRenderTransitionSpan[];
 
   /**
    * Frame samples in capture order.
-   *
-   * @author Samchon
    */
   frames: IAutoMovieSequenceRenderFrame[];
 
   /**
    * Directory where frame files should be written.
-   *
-   * @author Samchon
    */
   frameDir: string;
 
   /**
    * First output frame path.
-   *
-   * @author Samchon
    */
   firstFrame: string;
 
   /**
    * Last output frame path.
-   *
-   * @author Samchon
    */
   lastFrame: string;
 
   /**
    * Ffmpeg input pattern for the frame sequence.
-   *
-   * @author Samchon
    */
   inputPattern: string;
 
   /**
    * Encoded video output path.
-   *
-   * @author Samchon
    */
   outputPath: string;
 
   /**
    * Exact ffmpeg argument vector for the encoded output.
-   *
-   * @author Samchon
    */
   ffmpegArgs: string[];
 }

@@ -45,8 +45,6 @@ const ENDPOINT_EPSILON: number = 1e-6;
  * @evidence contracts/performance.md#efficient-algorithms Maps index declared ids, but reference scans, per-system reach, route-space containment, run-pair span comparisons and node-run maintenance tests retain their actual product/quadratic worst cases; diagnostics and working tables scale with input populations.
  * @evidence contracts/performance.md#reuse-equivalent-work Space/element/boundary/system/port indexes and first port paths serve all phases once per validation; no prior build's mutable graph verdict is reused.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Lookup maps and the collector are call-local; only the validation envelope and its ordered finding values survive, with no host process, solver task or mesh cache retained.
- *
- * @author Samchon
  */
 export const validateServiceNetwork: (props: {
   network: IAutoMovieServiceNetwork;

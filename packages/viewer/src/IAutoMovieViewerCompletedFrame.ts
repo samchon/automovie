@@ -12,8 +12,6 @@ import type * as THREE from "three";
  * @evidenceExclude contracts/performance.md#efficient-algorithms This completion record performs no draw, readback or application transaction.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Producer change classification supplies facts for downstream saving decisions but is not itself proof that two draws are equivalent.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Scene, camera and controller are borrowed from the draw owner; the record acquires no framebuffer or playback task.
- *
- * @author Samchon
  */
 export interface IAutoMovieViewerCompletedFrame {
   /** Native camera used by the original draw; composite layer cameras belong in facts. */

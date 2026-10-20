@@ -12,7 +12,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Four literals discriminate the existing affordance record rather than assigning behavior from descriptive names; contact frames and the supporting footprint remain on that record.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Table, grip and lantern examples do not select runtime branches; a support relation with the wrong affordance kind is refused instead of relabelled to fit.
  * @evidence contracts/common.md#meaningful-documentation Explains all four contact roles, live stack-top placement support and the separate contact-helper wiring limit; handle contact supplies no finger-wrap IK.
- * @author Samchon
  */
 export type AutoMovieAffordanceKind =
   | "stack-top"

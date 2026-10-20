@@ -14,7 +14,3 @@ Ecma International specification text. Cited, not copied.
 - `Number::exponentiate` (so `**` and `Math.pow`), and `Math.acos`, `acosh`, `asin`, `asinh`, `atan`, `atanh`, `atan2`, `cbrt`, `cos`, `cosh`, `exp`, `expm1`, `hypot`, `log`, `log1p`, `log10`, `log2`, `sin`, `sinh`, `tan`, `tanh` return implementation-approximated values.
 - The spec recommends, without requiring, the fdlibm approximation algorithms.
 - `Math.fround` converts with roundTiesToEven, exactly.
-
-## What Human takes
-
-Which operations give identical bits on every engine and which do not (`../techniques/determinism.md`).

@@ -32,7 +32,6 @@ import { signedArea } from "./signedArea";
  * @evidence contracts/performance.md#efficient-algorithms Linear in the total point count after validation: one copy, one signed area and at most one reversal per ring, plus one area sum; validation cost is answered on `autoMoviePlanarRegionFailure`.
  * @evidence contracts/performance.md#reuse-equivalent-work The sweep mesher calls it once per ring and reuses each layout for that ring's walls and, at the ends, its cap, so no ring is validated or laid out twice.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns newly owned point, index and ring arrays linear in the input point count; the per-ring working copies become those arrays and nothing else is retained.
- * @author Samchon
  */
 export const canonicalRegion = (
   outer: readonly IAutoMovieProfilePoint[],

@@ -12,7 +12,6 @@ import { IAutoMovieDrivenCurve } from "./IAutoMovieDrivenCurve";
  * @evidence contracts/common.md#clear-and-simple-design One driver type covers both mappings, with the curve as an optional field that replaces the range triple, so a nonlinear driver need not invent a dead range.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Node TRS and existing multi-morph outputs refuse rather than being narrowed, and absent linear ranges throw. Finite source/range/control values do not certify every remap or interpolation intermediate: the scalar output has no separate finite-result gate before publication to the sampled map.
  * @evidence contracts/common.md#meaningful-documentation States both mappings and when each applies, the pass and ordering, the exact output and source width rules, the answer for an unsampled source and for equal range ends, the clamp default, and where a pointer output becomes visible.
- * @author Samchon
  */
 export interface IAutoMovieDrivenDriver {
   /** Discriminator. */

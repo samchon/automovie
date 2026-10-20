@@ -34,7 +34,6 @@ import { validateAutoMovieAnalysisRunContents } from "./validateAutoMovieAnalysi
  * @evidence contracts/performance.md#efficient-algorithms Linear in the run's metrics, samples and warnings for the contents pass, then one SHA-256 pass over the canonical text, which dominates and is required because only rehashing proves the contents unedited.
  * @evidence contracts/performance.md#reuse-equivalent-work No digest is cached on the run or across calls: a received run must be re-proven each time, and the seal path no longer calls this function, so a freshly sealed run is hashed once rather than twice.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The collector and the recomputed digest string are call-local; the returned validation, owned by the caller, holds the violations, which may reference fragments of the run.
- * @author Samchon
  */
 export const validateAutoMovieAnalysisRun: (props: {
   /** Run to check; it must already have the declared shape. */ run: IAutoMovieAnalysisRun;

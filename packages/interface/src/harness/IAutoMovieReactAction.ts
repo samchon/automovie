@@ -12,7 +12,6 @@ import { IAutoMovieActionTarget } from "./IAutoMovieActionTarget";
  * @evidence contracts/common.md#clear-and-simple-design A source, a scalar force and an unbalance flag are the whole verb; the chain, peak gain and clip shape are engine constants, and a launch's recoil is this same verb rather than a second record.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Shot admission refuses an unresolved source, but direct reference synthesis still has a backwards-flinch fallback for null. A horizontal separation below 1e-6 uses the actor's forward vector as the away direction, producing positive flexion; unbalance scales the flinch and produces no fall or dismount. Missing rig/context can yield null synthesis.
  * @evidence contracts/common.md#meaningful-documentation States who emits it and when to author it, each refusal, the rig requirement, how direction and magnitude become the flinch, the bone chain and range clamp, the clip timing, the coincident-source rule, the `"auto"` length and the default region; members give the source requirement, the force range and units, and what `unbalance` changes.
- * @author Samchon
  */
 export interface IAutoMovieReactAction extends IAutoMovieActionBase {
   /** Selects an impact reaction as the action family. */

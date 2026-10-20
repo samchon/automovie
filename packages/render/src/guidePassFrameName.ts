@@ -15,7 +15,6 @@ import { passExtension } from "./guidePassesInternal/passExtension";
  * @evidence contracts/performance.md#efficient-algorithms The call builds one short string in time linear in its length.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call formats one short name, so caching would cost more than formatting.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Each frame name is a new string the capture writer uses as a path once; nothing about the pass or index is cached, and no file is opened here.
- * @author Samchon
  */
 export const guidePassFrameName: (
   index: number,

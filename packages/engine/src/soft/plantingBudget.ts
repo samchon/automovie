@@ -15,8 +15,6 @@ import {
  * @evidence contracts/performance.md#efficient-algorithms For admitted depth D, a scalar recurrence computes counts in O(D) time and constant extra storage, regardless of the potentially exponential derived population.
  * @evidence contracts/performance.md#reuse-equivalent-work One level/maximum-reach recurrence supplies both branch and leaf bounds; cheap scalar reports are recomputed for changed recipe/cluster values rather than cached.
  * @evidence contracts/performance.md#bound-retention-and-release-resources A fixed fresh scalar report transfers to the caller; no tree, placement array or recipe handle is retained.
- *
- * @author Samchon
  */
 export const plantingBudget: (props: {
   domain: IAutoMoviePlantingDomain;

@@ -13,7 +13,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms No body; the producer folds zone placements and measures region/exclusion intersections with vertex-dependent clipping costs, as answered on `generateAutoMovieSurfacePattern`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Computed once per zone per run and reused by the pattern totals.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Numbers and one string owned by the run's quantities.
- * @author Samchon
  */
 export interface IAutoMoviePatternZoneQuantities {
   /** Zone these figures total, as declared on the pattern. */

@@ -10,7 +10,6 @@ import { IAutoMovieBuiltPlacementOverlapPair } from "./IAutoMovieBuiltPlacementO
  * @evidence contracts/common.md#clear-and-simple-design Census, proxy findings and unresolved locators travel together. Empty pairs with no unresolved bodies establishes only that this static box-volume sweep emitted no findings; it does not certify a clean rendered building, continuous collision freedom or structural correctness.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unresolved locators are listed and present-body derivation errors still propagate. No overlap threshold or fixture identity selects findings; volume <= 0 suppresses nonpositive computed intersections, while nonfinite grading remains the pair record's stated limitation. `compared` does not conceal a claim of total cost.
  * @evidence contracts/common.md#meaningful-documentation States resolved-body and candidate counters, batch sharing and excluded cost, proxy/numeric result limits, finite-metric pair sorting and declaration-order unresolved locators.
- * @author Samchon
  */
 export interface IAutoMovieBuiltPlacementOverlapReport {
   /** Bodies whose extent resolved and were therefore compared. */

@@ -16,7 +16,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A counter record; what each unit charges is answered on the separation query that spends it.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The counter is the shared state itself and is never cached or copied; reuse of verdicts belongs to callers such as the ribbon fit.
  * @evidence contracts/performance.md#bound-retention-and-release-resources This record is the work bound: one number the caller allocates and releases, which caps the geometry units every query sharing it may still spend.
- * @author Samchon
  */
 export interface IAutoMovieMeshQueryBudget {
   /**

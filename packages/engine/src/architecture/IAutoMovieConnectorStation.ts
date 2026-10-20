@@ -15,7 +15,6 @@ import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms No code; stations come from one cumulative-length pass over the route, answered on `builtConnectorGeometry`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built per geometry call and not memoized, since the route is read from the live record.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources References the connector record's own point and quaternion objects rather than copies, so the environment record keeps them alive and a mutation through a station edits the record.
- * @author Samchon
  */
 export interface IAutoMovieConnectorStation {
   /** World position of the station, the authored route point itself. */

@@ -10,8 +10,6 @@ import { AutoMovieHumanoidBone, IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A stance record contains no contact-detection algorithm; contiguous-mask traversal belongs to pinStanceTargets.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The fixed position is shared by frames of this run, while transfer to a later beat is explicit caller input rather than an implicit cache.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources One position and two times are owned by the planting result per detected run, with no process or resource handle.
- *
- * @author Samchon
  */
 export interface IAutoMovieFootPlant {
   /** The planted foot bone. */

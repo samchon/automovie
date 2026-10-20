@@ -11,7 +11,6 @@
  * @evidence contracts/common.md#clear-and-simple-design One closed union is the whole coarse vocabulary, typed into `IAutoMovieExpression.preset`; the per-preset channel table lives in the viewer that applies it, not in this type.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No preset is given avatar-specific handling; like the ARKit channels, the engine's runtime `Set` and the viewer's preset list are type-checked only as subsets of this union, so review alone keeps them complete.
  * @evidence contracts/common.md#meaningful-documentation States how presets relate to ARKit channels, which presets serve lip-sync, mood and eyes, how the viewer applies a preset to both target kinds and what `neutral` drives, the validator's refusal, and the upstream reference.
- * @author Samchon
  */
 export type AutoMovieExpressionPreset =
   // emotion

@@ -11,7 +11,6 @@ import {
  * cone with its wide base at `+Y` and apex at `-Y`, so that centroid is at
  * `+height/4`. Every other primitive is centered on its origin.
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Use symmetry for centered primitives and the solid cone centroid at +height/4 for the declared cone whose broad base is +Y; mesh positions and articulated placement are outside this primitive-local formula.
  * @evidence contracts/common.md#clear-and-simple-design The primitive-kind switch owns local centroids; aggregate TRS and mass weighting remain in deriveCenterOfMass.

@@ -17,7 +17,6 @@ import type { IAutoMovieRenderTextureTarget } from "./IAutoMovieRenderTextureTar
  * @evidence contracts/performance.md#efficient-algorithms R residents, runtime rows, compositors and targets require proportional fact storage; closure groups allocation-equivalent records instead of multiplying by consumers.
  * @evidence contracts/performance.md#reuse-equivalent-work Allocation sharing depends on observed Source/Texture identity and upload state; retention is reused only while actual host ownership remains live and equivalent.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The host removes disposed scopes, retains context-owned scratch until replacement/release and reports target disposal; the interface owns no native disposer and cannot certify a missing release observation.
- * @author Samchon
  */
 export interface IAutoMovieRenderTextureResidency {
   /** Stable owner of the current shot, distinct from other live residents. */

@@ -19,7 +19,6 @@ import { AutoMovieAnalysisComparison } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms One comparison with no algorithm, data structure or strategy to choose.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure scalar predicate that coordinates no work across requests or phases.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates and retains nothing and owns no handle.
- * @author Samchon
  */
 export const autoMovieAnalysisTargetMet: (
   value: number,

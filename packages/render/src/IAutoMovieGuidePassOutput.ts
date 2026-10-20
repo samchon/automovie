@@ -14,7 +14,6 @@ import type { AutoMovieGuidePass } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms The output record is produced, not computed over; the six-pass bound on how many exist per directory is answered on `planGuidePassOutputs`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each output record is four strings for one pass in one directory, and planning a new directory rebuilds them because their paths differ.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased output type opens no frame; planGuidePassOutputs produces first/last/pattern strings for the directory's selected passes, and its caller retains them independently of later host capture resources.
- * @author Samchon
  */
 export interface IAutoMovieGuidePassOutput {
   /** The guide pass these paths belong to. */

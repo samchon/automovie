@@ -26,7 +26,6 @@ import { Vector3 } from "../math/Vector3";
  * @evidenceExclude contracts/performance.md#efficient-algorithms Constant time: one normalization and one dot product, with no algorithm to choose.
  * @evidence contracts/performance.md#reuse-equivalent-work The daylight analyzer evaluates it once per sky direction per study and keeps the skyward subset for every cell, instead of re-testing each direction at every cell, which is valid because the answer depends only on the direction and the study's ground.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates one normalized vector per call and retains nothing.
- * @author Samchon
  */
 export const autoMovieSkyward: (
   direction: IAutoMovieVector3,

@@ -24,7 +24,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape with no runtime body; evaluating it is constant work per point answered on `autoMovieSectionPlaneDistance`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Declared by the inspecting caller and read in place; nothing derived from it is cached in the engine, and the viewer rebuilds its runtime planes on every apply.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Two caller-owned vectors; the evaluators read them during the call and retain nothing.
- * @author Samchon
  */
 export interface IAutoMovieSectionPlane {
   /** A point the plane passes through, in world space, metres; finite. */

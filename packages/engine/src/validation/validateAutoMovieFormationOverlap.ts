@@ -60,8 +60,6 @@ const FORMATION_OVERLAP_SAMPLE_LIMIT: number = 16;
  * One unit row is shared by all its placements within the overlap call.
  *
  * The validation owns wrappers while placement/model owners retain borrowed source data.
- *
- * @author Samchon
  */
 interface IFormationOverlapUnit {
   /** Position in the shot's own order, which is the order refusals come in. */
@@ -93,8 +91,6 @@ interface IFormationOverlapUnit {
  * Grid neighbor comparisons reuse the same placement row.
  *
  * Per-time grid/row owners release it after that sample, with no native body retained.
- *
- * @author Samchon
  */
 interface IFormationOverlapPlacement {
   /** Unit this member stands in. */
@@ -254,7 +250,6 @@ const formationOverlapClearance: (
 /**
  * Place sampled members in a spatial grid and compare both same-unit and cross-unit distances against height-overlapping runtime columns across every LOD pair.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Place sampled members in a spatial grid and compare same-unit and cross-unit distances against height-overlapping runtime columns across every LOD pair.
  * @evidence contracts/common.md#clear-and-simple-design autoMovieModelColumns owns occupied proxy dimensions and placeFormationSlot owns cue-aware placement.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Only the first 4096 slots and sampled times are checked. Primitive-core columns omit unsupported geometry, nonunit ancestral scales, nonisometric axial rotations and unrepresentable outer envelopes. Exact binary64 gain equality can omit mathematically unit rotations; GPU Float32 narrowing and animated deformation also remain outside this sampled rest-geometry gate.

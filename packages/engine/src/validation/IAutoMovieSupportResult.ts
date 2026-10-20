@@ -15,7 +15,6 @@ import { IAutoMovieToppling } from "./IAutoMovieToppling";
  * @evidence contracts/performance.md#efficient-algorithms This wrapper performs no hull construction or nearest-edge scan; the detector owns those population costs.
  * @evidence contracts/performance.md#reuse-equivalent-work Its findings and suggestion come from one support evaluation rather than unrelated independently cached poses.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns outcome containers and fresh event points; suggested pivot endpoints borrow input support references, without an acquired physics host.
- * @author Samchon
  */
 export interface IAutoMovieSupportResult {
   /** Warning-severity feedback (or an error for bad input). */

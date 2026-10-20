@@ -33,7 +33,6 @@ import { autoMovieAnalysisTargetMet } from "./autoMovieAnalysisTargetMet";
  * @evidence contracts/performance.md#efficient-algorithms One linear `find` over the T declared targets per metric, so resolving a run of M metrics costs O(M·T); a key index would cost a map per study for runs that resolve at most eleven metrics (the daylight run) against a handful of targets.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call resolves one metric of one run against that study's own targets; there is no completed or in-flight result another call could reuse.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns a new metric record and appends at most one warning to the caller-owned array, retaining nothing itself.
- * @author Samchon
  */
 export const autoMovieAnalysisMetric: (props: {
   key: string;

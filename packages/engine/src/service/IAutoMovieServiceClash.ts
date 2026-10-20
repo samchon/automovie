@@ -8,7 +8,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms No pair comparison runs in this interface; span scans belong to serviceSegmentClashes.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A clash row carries one computed pair and owns no cache shared with later network versions.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Only two primitive run ids are retained in the caller-owned result, without source node or span references.
- * @author Samchon
  */
 export interface IAutoMovieServiceClash {
   /** Id of the earlier-declared segment. */

@@ -47,7 +47,6 @@ interface IUnitPlane {
  * @evidence contracts/performance.md#efficient-algorithms For `p` distinct planes, enumeration solves `p^3 / 6` triples and checks each corner against every plane, so time is `O(p^4)`, followed by one hull per plane over the `v` vertices; this suits authored cells of a handful of planes, where a half-space intersection algorithm with better asymptotics would add a dual-hull construction for no measurable gain.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one cell's planes, called once per cell per quantity report, so no equivalent work repeats inside it or across its callers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates the plane, vertex and key collections for one call and returns a number; nothing outlives the call.
- * @author Samchon
  */
 export const autoMovieDrawingCellVolume = (
   planes: readonly IAutoMovieHalfSpacePlane[],

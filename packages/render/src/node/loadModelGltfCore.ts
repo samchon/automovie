@@ -8,7 +8,6 @@
  * @evidence contracts/performance.md#efficient-algorithms The helper adds fixed call overhead to Node's module resolution, dependency loading and evaluation work; package graph size and runtime module caching determine that cost rather than model vertex count.
  * @evidence contracts/performance.md#reuse-equivalent-work Node's module loader shares the resolved SDK module and its dependencies; the helper creates no separate namespace, model-byte or serialization-result cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The original pending import promise retains loader work until settlement, and the runtime module cache retains the loaded SDK. This helper acquires no output file, model buffer or host capture resource and adds no timeout or cancellation.
- * @author Samchon
  */
 export function loadModelGltfCore(): Promise<
   typeof import("@gltf-transform/core")

@@ -12,7 +12,6 @@ import { IAutoMovieRecoilPush } from "./IAutoMovieRecoilPush";
  * (one dominant flexion axis): it is an AI hint, not a solved contact
  * response.
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Euclidean impulse magnitude multiplied by a finite nonnegative degree-per-impulse gain becomes flexion; direction is deliberately discarded by this existing scalar response policy.
  * @evidence contracts/common.md#clear-and-simple-design Conversion of collision magnitude into a pose target is separate from resolveImpact's mechanics and impactRecoil's constraint projection.

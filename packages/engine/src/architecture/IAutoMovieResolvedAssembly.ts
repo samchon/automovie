@@ -17,7 +17,6 @@ import { IAutoMovieResolvedLayer } from "./IAutoMovieResolvedLayer";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape; resolution is linear in the layer count, answered on `resolveAutoMovieMaterialAssembly`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Resolved per call; the reveal and junction functions read the same resolved record rather than resolving again.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds numbers and a fresh layer array owned by the caller.
- * @author Samchon
  */
 export interface IAutoMovieResolvedAssembly {
   /** The contributing {@link IAutoMovieMaterialAssembly.id}. */

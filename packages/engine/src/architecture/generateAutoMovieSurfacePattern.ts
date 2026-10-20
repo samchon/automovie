@@ -24,8 +24,6 @@ const AREA_EPSILON: number = 1e-12;
 
 /**
  * The inclusive span of a face-local outline on both axes, in metres.
- *
- * @author Samchon
  */
 interface IPatternSpan {
   /** Least U coordinate. */

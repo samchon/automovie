@@ -11,7 +11,6 @@
  * @evidence contracts/common.md#clear-and-simple-design One angle field states a relative goal; distance and destination are left to the verb, so the record carries no coordinates the model would have to invent.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The engine does not guess a destination from the heading; the locomote synthesizer steps in place and `positionalTargetFault` refuses it elsewhere, and the gap is stated here.
  * @evidence contracts/common.md#meaningful-documentation States the frame and sign of the heading, the intended use, and exactly what each verb does with the unresolved target today; the member gives the unit and zero.
- * @author Samchon
  */
 export interface IAutoMovieDirectionTarget {
   /** Selects an actor-relative heading as the target representation. */

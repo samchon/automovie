@@ -17,6 +17,5 @@
  * @evidence contracts/common.md#clear-and-simple-design The union is exactly the glTF set, so an imported or exported clip needs no mode translation, and the per-mode value layout is stated here once for every track.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Gates that prove bounds only at keys refuse `cubicspline` rather than sampling it densely and hoping, and the exact-hit `step` rule follows glTF instead of lagging one sample.
  * @evidence contracts/common.md#meaningful-documentation States each mode's blend, the cubic value layout and tangent scaling, the exact `step` switch instant, and which gates refuse `cubicspline` and why.
- * @author Samchon
  */
 export type AutoMovieInterpolation = "linear" | "step" | "cubicspline";

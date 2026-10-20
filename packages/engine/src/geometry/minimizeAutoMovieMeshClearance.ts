@@ -43,7 +43,6 @@ import { measureAutoMovieMeshClearance } from "./measureAutoMovieMeshClearance";
  * @evidence contracts/performance.md#efficient-algorithms The measurement dominates for large meshes; mass lumping is one pass over the front triangles, row construction one pass over the witnesses, and the solve works only on vertices with a positive cap and the witness rows that touch them.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One solve per front and back pair in their current positions; a moved surface needs a new measurement and solve.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Holds every witness, one row per witness and per-variable arrays during the call, bounded by the overlap witness count and capped vertex count, and returns one record per moved vertex.
- * @author Samchon
  */
 export function minimizeAutoMovieMeshClearance(
   front: IAutoMovieMesh,

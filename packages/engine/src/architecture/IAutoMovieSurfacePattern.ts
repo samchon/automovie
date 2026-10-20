@@ -31,7 +31,6 @@ import { IAutoMovieSurfacePatternZone } from "./IAutoMovieSurfacePatternZone";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A declaration without behavior; laying and measuring it is answered on `generateAutoMovieSurfacePattern`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure input record; whether a caller reuses a run for equal declarations is the caller's decision.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owns its zone and exclusion arrays and the zones' generator references; the caller owns the record, and lattice size per zone is capped by `AUTOMOVIE_MAX_PATTERN_CELLS` during a run.
- * @author Samchon
  */
 export interface IAutoMovieSurfacePattern {
   /**

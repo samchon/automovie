@@ -15,7 +15,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record; partition and candidate costs are answered on the hierarchy builder and the candidate walk.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built once per indexed object when its owner compiles an index and reused by every query on that index.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Owns three three-element arrays per entry, retained by the hierarchy that holds the entry until its owner drops the index.
- * @author Samchon
  */
 export interface IAutoMovieSpatialQueryEntry {
   /** Ordinal in the owner's original resident population, unique per index. */

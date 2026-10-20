@@ -1,6 +1,6 @@
 # Size Korea (Korean national anthropometric survey)
 
-Korean Agency for Technology and Standards (KATS, 국가기술표준원), Size Korea, https://sizekorea.kr/. This note covers the public catalogue and data-use consent only. Data access requires a member login; Human has no numeric reference from this source.
+Korean Agency for Technology and Standards (KATS, 국가기술표준원), Size Korea, https://sizekorea.kr/. This note covers the public catalogue and data-use consent only. Data access requires a member login; No numeric data were read from this source.
 
 ## Terms of use for data (the download consent, translated)
 
@@ -11,7 +11,3 @@ Korean Agency for Technology and Standards (KATS, 국가기술표준원), Size K
 ## Contents listed
 
 Survey rounds 1 (1979) to 8 (2020 to 2023); standard body sizes and shapes by sex and age; obesity body types; foot shapes; standardised measurement terms and landmarks; 3D body shape search; product design guidelines (head, trunk, other).
-
-## What Human may take
-
-Published statistics and coefficients fitted to downloaded data, with attribution to KATS in the JSDoc; never the raw data or scans. Size Korea covers ages from childhood to old age in one protocol, which ANSUR II lacks, and an East Asian population for the ancestry converter.

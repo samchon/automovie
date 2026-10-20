@@ -15,7 +15,6 @@ import { IAutoMovieActionBase } from "./IAutoMovieActionBase";
  * @evidence contracts/common.md#clear-and-simple-design A named preset and one strength are enough to state an emotion; blendshape weights are left to the renderer's preset mapping instead of being authored per action.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The synthesized base has no ramp and out-of-range intensity is refused. Composite layering and rest lead-in can introduce linear boundary transitions over up to 1e-6 seconds; this base-clip shape therefore does not guarantee an exact discontinuous onset or offset in assembled playback. Visible morphing also requires matching model targets.
  * @evidence contracts/common.md#meaningful-documentation States the region and what an override does, the exact clip shape and `"auto"` length, the absent ramp, and the intensity refusal; members give the preset role and the intensity scale.
- * @author Samchon
  */
 export interface IAutoMovieEmoteAction extends IAutoMovieActionBase {
   /** Selects a facial expression as the action family. */

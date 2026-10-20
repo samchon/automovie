@@ -3,7 +3,6 @@ import type * as THREE from "three";
 /**
  * A viewer-owned field overlay bound to one analysis run.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Associates one Points object with its exact selected-sample count and normalization range; the count/range describe this overlay rather than claiming solver completeness or metric success independently of its admitted artifact.
  * @evidence contracts/common.md#clear-and-simple-design Exposes the scene attachment and small inspection/retirement surface; measurement stays in the analysis run and geometry/material creation stays in buildAnalysisOverlayObject.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Contains no fabricated verdict or fixture marker; borrowed-material distinction is explicit and no renderer method is replaced.

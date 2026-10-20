@@ -15,7 +15,6 @@ import { IAutoMovieInteractionEvent } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record; placement cost is answered on `sequenceEventTimeline`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built fresh per call; nothing caches placed events across sequences.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A shallow copy of the shot event plus four values; it shares the event's nested `point` object and is bounded by events times entries that play them.
- * @author Samchon
  */
 export interface IAutoMoviePlaybackEvent extends IAutoMovieInteractionEvent {
   /** Index of the playing entry in `sequence.shots`. */

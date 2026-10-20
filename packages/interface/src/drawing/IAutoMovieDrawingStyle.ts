@@ -18,7 +18,6 @@ import { IAutoMovieDrawingWeights } from "./IAutoMovieDrawingWeights";
  * @evidence contracts/common.md#clear-and-simple-design Styling lives on the view and is applied only at serialization, so drawing metadata and its digest stay independent of the pen. The serializer matches view id, not the complete original view; weight and dash maps supply every role but do not form runtime closed-object admission.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An invalid value throws before any SVG is written instead of being clamped or replaced with a default, and no role, layer or discipline gets a built-in pen.
  * @evidence contracts/common.md#meaningful-documentation States the page-millimetre unit and its reason, that derivation ignores the style, the serializer's refusal, and which pen strokes openings and dimensions; members restate the positivity rule, the solid meaning of an empty dash array, and that the text height sizes annotations only.
- * @author Samchon
  */
 export interface IAutoMovieDrawingStyle {
   /** Stroke width per role, in page millimetres; each must be positive. */

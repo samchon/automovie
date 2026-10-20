@@ -8,7 +8,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design The placement stores only an instance transform and identity, allowing one grown structure to serve every accepted member.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Rejected slots are absent rather than represented by invented placements; scale axes are retained rather than reduced to a scalar.
  * @evidence contracts/common.md#meaningful-documentation Members distinguish stable identity from authored slot and identify world translation, glTF quaternion order and positive scales.
- * @author Samchon
  */
 export interface IAutoMoviePlantingPlacement {
   /** Stable placement identity within the cluster. */

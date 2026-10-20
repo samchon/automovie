@@ -30,7 +30,6 @@ import { Vector3 } from "./Vector3";
  * @evidence contracts/performance.md#efficient-algorithms Two normalizations, one cross/dot pair and one axis-angle conversion take constant work and storage.
  * @evidence contracts/performance.md#reuse-equivalent-work Both angle coordinates reuse the normalized directions during the call; changing the target invalidates any prior turn.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Direction, cross/perpendicular and result records are bounded call-local values; no mesh, rig or driver state is retained.
- * @author Samchon
  */
 export const rotationBetween: (
   a: IAutoMovieVector3,

@@ -116,8 +116,6 @@ export function validatePropPlacementGeometry(props: {
 
 /**
  * A sound prop with the one piece staging it and its measured world occupancy, retained only during this validation call.
- *
- * @author Samchon
  */
 interface IStagedProp {
   /** Borrowed registry spec whose forging and unique staging join passed. */

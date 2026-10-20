@@ -17,7 +17,6 @@ import { IAutoMoviePatternPoint } from "./IAutoMoviePatternPoint";
  * @evidenceExclude contracts/performance.md#efficient-algorithms No code; producing a placement includes a zone clip and exclusion clips whose costs depend on outline vertex counts, plus id hashing. The run owns those costs.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The run builds placements once, and the instancer, texturer and take-off all read that one list rather than re-laying the pattern.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds fresh points and a fresh outline array owned by the run result.
- * @author Samchon
  */
 export interface IAutoMoviePatternPlacement {
   /** Occurrence identity, `"<zone>/<module>"`. */

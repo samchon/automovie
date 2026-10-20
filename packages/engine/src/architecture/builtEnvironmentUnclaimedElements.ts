@@ -29,7 +29,6 @@ import {
  * @evidence contracts/performance.md#efficient-algorithms One pass over the elements with constant work each, linear in the element count.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure filter over the given record that coordinates no work across calls or consumers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned id list.
- * @author Samchon
  */
 export const builtEnvironmentUnclaimedElements: (
   environment: IAutoMovieBuiltEnvironment,

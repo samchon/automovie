@@ -10,7 +10,6 @@ import { AutoMovieTextureMediaType } from "./AutoMovieTextureMediaType";
  * @evidence contracts/performance.md#efficient-algorithms This three-field record performs no byte scan or pixel allocation; its parser owns bounded header reads and format-specific traversal.
  * @evidence contracts/performance.md#reuse-equivalent-work The same facts structure serves byte-reader and closure tests, without an additional inferred-extension schema or image cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only media and dimension scalars survive; the row retains no original byte buffer, decoded pixels or renderer handle.
- * @author Samchon
  */
 export interface IAutoMovieTextureImageFacts {
   /** Media type recognized from supported header bytes. */

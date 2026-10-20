@@ -11,7 +11,6 @@ import { IAutoMovieAnalysisSolver } from "./IAutoMovieAnalysisSolver";
  * @evidence contracts/common.md#clear-and-simple-design Only the supplied canonical settings text's digest is stored; complete settings acquisition belongs to the producer. Solver and outcome stay nested records read in fixed order and are retained by reference by sealing, so later mutation requires resealing or renewed validation.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts JSON-array lines escape embedded separators without banning characters. Admission visits missing metric/sample/warning slots, but other nested containers and ordinary data fields remain typed premises and malformed host records can throw before returning violations; sealing is neither an exact-key schema check nor independent execution provenance.
  * @evidence contracts/common.md#meaningful-documentation States why the input revision makes a result stale, what the digest seals and that validation recomputes it, the digest text form, and the id uniqueness a report enforces.
- * @author Samchon
  */
 export interface IAutoMovieAnalysisRun {
   /** Schema version. */

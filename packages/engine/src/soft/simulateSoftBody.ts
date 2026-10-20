@@ -15,8 +15,6 @@ import { simulateSoftBodyCore } from "./simulateSoftBodyCore";
  * @evidence contracts/performance.md#efficient-algorithms For P particles, I sweeps, K steps and C static colliders, replay costs O(P*K*(I+C)+P+A+S+T), with O(P) working/result storage and state/anchor lookup costs A,S,T.
  * @evidence contracts/performance.md#reuse-equivalent-work Rest lengths and topology are prepared once per replay by the shared core; mutable domains and named states do not have a cross-call trajectory cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The core releases local buffers on return or throw; fresh plain arrays and scalar measurements belong to the caller, with no integration cursor or host task retained.
- *
- * @author Samchon
  */
 export const simulateSoftBody: (
   domain: IAutoMovieSoftBodyDomain,

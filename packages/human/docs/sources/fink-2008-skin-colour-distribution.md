@@ -7,7 +7,3 @@ Fink B, Matts PJ, Klingenberg H, Kuntze S, Weege B, Grammer K. "Visual attention
 39 viewers aged 13 to 45 were eye-tracked on shape- and topography-standardized female faces that differed only in skin colour distribution. Faces with the homogeneous colour distribution of young people drew more fixations and longer dwell, were judged younger and more attractive; attention correlated negatively with perceived age and positively with attractiveness.
 
 Grade: measured perception, abstract level.
-
-## What Human takes
-
-Colour homogeneity is an age and attractiveness cue independent of shape and relief. The perception study does not calibrate individual pigment or hemoglobin fields, regional variation or an age-only patchiness rule; see [skin appearance](../anatomy/skin.md).

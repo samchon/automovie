@@ -13,7 +13,6 @@ import {
  * @evidence contracts/performance.md#efficient-algorithms A assumptions require O(A) string validation; delay/gain/spectral calculations and the fresh result have constant scalar cost/storage.
  * @evidence contracts/performance.md#reuse-equivalent-work One computed arrival and distance feed the returned receipt consumed by the mix; changed profile or clock inputs require a new derivation rather than a retained stateful propagation cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The result transfers to the caller by value; the profile/request is not retained and no acoustic device, host handle or scheduled arrival task is acquired.
- * @author Samchon
  */
 export const deriveAutoMovieSoundPropagation: (props: {
   distanceMeters: number;

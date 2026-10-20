@@ -32,7 +32,6 @@ const CONTAINMENT_EPSILON: number = 1e-9;
  * @evidence contracts/performance.md#efficient-algorithms Linear in the summed plane count of the cells, stopping at the first containing cell, or in the shell's triangle count, stopping at the first triangle the point lies on; no acceleration structure is built because each call answers one point.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure test of one point against one space value that coordinates no work across calls or consumers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only temporary vectors and retains nothing.
- * @author Samchon
  */
 export const builtSpaceContainsPoint: (
   space: IAutoMovieBuiltSpace,

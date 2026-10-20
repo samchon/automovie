@@ -29,7 +29,6 @@ import { indexSkeletonTopology } from "./indexSkeletonTopology";
  * @evidence contracts/performance.md#efficient-algorithms Linear in the bone count: building the index when none is passed, then copying the reachable set so the caller's set cannot alias the shared index.
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses a caller-supplied topology across calls for the same skeleton instead of rebuilding it; equivalence is the unchanged skeleton object, which the caller owns, and omitting the topology always rebuilds.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned set, at most one entry per bone.
- * @author Samchon
  */
 export const reachableBoneNames: (
   skeleton: IAutoMovieSkeleton,

@@ -7,7 +7,6 @@
  * @evidence contracts/performance.md#efficient-algorithms Each row takes storage proportional to its three string lengths; aggregate drift traversal is owned by the target comparator.
  * @evidence contracts/performance.md#reuse-equivalent-work Summary and consumer logs reuse the comparator's drift rows instead of independently recomputing field differences.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns diagnostic strings for its report lifetime; no target resource, asset bytes or running task is retained.
- * @author Samchon
  */
 export interface IAutoMovieRenderTargetDrift {
   /** What changed: the renderer, one setting, or one asset's bytes. */

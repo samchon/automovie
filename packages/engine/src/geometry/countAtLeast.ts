@@ -17,7 +17,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms One integer predicate and one comparison per call, before any allocation.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each builder admits its own count once per call, so nothing repeats.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds nothing; only the thrown error is allocated on refusal.
- * @author Samchon
  */
 export const countAtLeast = (
   value: number,

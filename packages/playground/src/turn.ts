@@ -15,8 +15,6 @@ import { createStickmanMotionRoot as root } from "./createStickmanMotionRoot";
  * @evidence contracts/performance.md#efficient-algorithms Three constant-size quaternion/pose/key records bound production, with later motion sampling/FK and draw work retained by consumers.
  * @evidence contracts/performance.md#reuse-equivalent-work The pose factory uses one authored arm recipe for all yaw samples; each call creates independent transforms and keeps no result cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the resulting clip and fresh transform records; no loop, timer, worker or renderer is started here.
- *
- * @author Samchon
  */
 export const turn: (sk: string) => IAutoMovieMotion = (
   sk: string,

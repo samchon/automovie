@@ -12,7 +12,6 @@ import { IAutoMovieMaskedContent } from "./IAutoMovieMaskedContent";
  * @evidence contracts/performance.md#efficient-algorithms The type adds no processing; clip/keyframe population and mask count determine storage allocated by compilePerformance.
  * @evidence contracts/performance.md#reuse-equivalent-work Consumers reuse the compiled clips and report directly; the type introduces no duplicate motion representation or cross-shot cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the result and clips, including nested borrowed content documented by motion assembly; no background job or external handle is retained.
- * @author Samchon
  */
 export interface IAutoMovieCompiledPerformance {
   /** Per-actor performance motion, keyed by actor node id. */

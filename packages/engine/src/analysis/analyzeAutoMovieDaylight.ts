@@ -63,7 +63,6 @@ const EPSILON: number = 1e-12;
  * @evidence contracts/performance.md#efficient-algorithms After request validation and direction/settings construction, C cells cost O(C*(D+L+1)*(1+sum(P))) in the unobstructed worst case, plus fixed metric-to-target scans and encoded-text hashing. C is at most 4096; sky count D and luminaire/solid populations are unbounded. Skyward filtering is shared per study and each solid scan stops at the first blocker without a spatial index.
  * @evidence contracts/performance.md#reuse-equivalent-work One unit normal, one sky-direction set and its skyward subset, one solid list and one coincident-luminaire set are shared across every cell, valid because each depends only on the plane, the ground, the context and the shades fixed for the study; the sky set is not built for an artificial-light study that never reads it.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Call-local storage includes O(C) light/sample arrays, O(D) directions, a combined solid list and coincidence/warning populations growing with luminaires and targets. Only C has the sample cap; the caller owns returned samples/warnings and no study cache persists.
- * @author Samchon
  */
 export const analyzeAutoMovieDaylight: (props: {
   request: IAutoMovieDaylightRequest;

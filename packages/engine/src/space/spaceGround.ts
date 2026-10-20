@@ -14,7 +14,6 @@ import { prepareSpace } from "./prepareSpace";
  * @evidence contracts/performance.md#efficient-algorithms Creation prepares O(E) ring vertices; each callback query pays the full heightAt surface/edge and walkable-id scan.
  * @evidence contracts/performance.md#reuse-equivalent-work The closure reuses one prepared generation across queries, but borrowed geometry edits invalidate it and require recreating the adapter.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the closure retaining space, preparation and fallback until discarded; no watcher, task or renderer resource is acquired.
- * @author Samchon
  */
 export const spaceGround: (
   space: IAutoMovieSpace,

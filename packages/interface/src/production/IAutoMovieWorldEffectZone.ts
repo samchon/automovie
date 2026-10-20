@@ -7,7 +7,6 @@ import { IAutoMovieWorldBounds } from "./IAutoMovieWorldBounds";
  * @evidence contracts/common.md#clear-and-simple-design Spatial bounds and stream seed stay on the zone while recipe behavior and temporal cue intensity remain separate.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts materializeCompiledEffects drops cues with missing zones or recipes and copies other supplied zone fields without full bounds/seed admission. No region is inferred from a shot name or test-specific world arrangement; callers must establish the documented numeric domain.
  * @evidence contracts/common.md#meaningful-documentation Defines stable zone identity, existing recipe reference, world-meter volume and deterministic seed range.
- * @author Samchon
  */
 export interface IAutoMovieWorldEffectZone {
   /** Stable zone id. */

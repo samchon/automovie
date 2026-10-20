@@ -14,7 +14,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record; costs are on its producer and `solveAutoMovieSubdivisionLimit`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record; it is the reuse.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A record owned by its caller.
- * @author Samchon
  */
 export interface IAutoMovieSubdivisionStencil {
   /** Number of vertices. */

@@ -18,6 +18,5 @@
  * @evidence contracts/common.md#clear-and-simple-design Four roles are the line types a drafting convention distinguishes, and each maps to one pen in the view's style, so classification and styling stay separate.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The classification is drafting semantics and says so; it does not pretend to visibility, and no element kind receives a different rule.
  * @evidence contracts/common.md#meaningful-documentation States the per-element basis of the decision, the test behind each role, that an element can yield two roles, and the sort order.
- * @author Samchon
  */
 export type AutoMovieDrawingRole = "cut" | "projected" | "overhead" | "hidden";

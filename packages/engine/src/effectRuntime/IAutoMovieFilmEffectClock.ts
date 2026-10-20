@@ -17,7 +17,6 @@ import { IAutoMovieFilmTimeline } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A type alias with no runtime code; the frame searches over it are answered on `productionFilmFrameForShotTime` and `projectProductionShotEffectFilmIntervals`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Callers pass their own compiled timeline as this clock, and neither projection caches anything keyed by it between calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Names fields of a caller-owned timeline; the projections read the segment array in place and keep no reference after returning.
- * @author Samchon
  */
 export type IAutoMovieFilmEffectClock = Pick<
   IAutoMovieFilmTimeline,

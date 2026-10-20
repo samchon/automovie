@@ -16,8 +16,6 @@ import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
 
 /**
  * One resolved body of the building, with the locator that names it.
- *
- * @author Samchon
  */
 interface IResolvedBody {
   /** Declared identity retained in the report. */
@@ -29,8 +27,6 @@ interface IResolvedBody {
 
 /**
  * One solid a body fills, with the body that owns it.
- *
- * @author Samchon
  */
 interface ICandidateSolid {
   /** Axis-aligned part box whose top is considered for support. */
@@ -65,7 +61,6 @@ interface ICandidateSolid {
  * @evidence contracts/performance.md#efficient-algorithms Pays one batch part-table measurement, each body's union or population placement fold and O(R²) worst-case population lookups for R populations. With B resolved bodies and P part boxes, sorting is O(P log P), binary searches O(B log P), and scans O(BP) worst case. `compared` excludes self candidates and does not count resolution, sorting or search work.
  * @evidence contracts/performance.md#reuse-equivalent-work Within one sweep the single staging and part table are shared by every body's resolution instead of restaging the building per body; across calls nothing is cached because the record is the caller's mutable data.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The part table, resolved bodies and sorted candidates live only for the call and grow linearly with the element, population and part counts; the caller owns the returned report.
- * @author Samchon
  */
 export const builtEnvironmentSupportSweep: (props: {
   environment: IAutoMovieBuiltEnvironment;

@@ -9,8 +9,6 @@ import type {
 
 /**
  * Existing propagation inputs and partial planning carriers borrowed by portable sound units.
- *
- * @author Samchon
  */
 interface ISoundPropagationTestInputs {
   /** Declared identity string; this helper computes no content provenance. */

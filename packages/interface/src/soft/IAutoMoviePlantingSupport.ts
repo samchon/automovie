@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Each arm carries one stable reference instead of copying an architecture shape into planting authoring.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A missing support is a binding violation, not a fabricated floor or an automatic relocation.
  * @evidence contracts/common.md#meaningful-documentation Arm comments identify the referenced collection and the separation between dependency resolution and geometry placement.
- * @author Samchon
  */
 export type IAutoMoviePlantingSupport =
   | IAutoMoviePlantingSupport.ISurface
@@ -21,7 +20,6 @@ export namespace IAutoMoviePlantingSupport {
    * @evidence contracts/common.md#clear-and-simple-design A literal kind selects one surface id without duplicating patch coordinates.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Resolution does not substitute an arbitrary patch when the cited surface is absent.
    * @evidence contracts/common.md#meaningful-documentation The reference is an environment support-patch identity, not a material or a scene node.
-   * @author Samchon
    */
   export interface ISurface {
     /** Discriminator. */
@@ -38,7 +36,6 @@ export namespace IAutoMoviePlantingSupport {
    * @evidence contracts/common.md#clear-and-simple-design One element id preserves ownership of the shape in the building graph.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The reference does not synthesize planter geometry or prove contact with the support; only identity membership is checked here.
    * @evidence contracts/common.md#meaningful-documentation The element field names the environment-local reference; planting geometry remains in its independent recipe.
-   * @author Samchon
    */
   export interface IElement {
     /** Discriminator. */
@@ -55,7 +52,6 @@ export namespace IAutoMoviePlantingSupport {
    * @evidence contracts/common.md#clear-and-simple-design A boundary reference keeps separation geometry in the architecture owner.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Naming a boundary does not create a wall or imply the plant conforms to its entire surface.
    * @evidence contracts/common.md#meaningful-documentation The discriminator and boundary member distinguish this support from surfaces and visible elements.
-   * @author Samchon
    */
   export interface IBoundary {
     /** Discriminator. */

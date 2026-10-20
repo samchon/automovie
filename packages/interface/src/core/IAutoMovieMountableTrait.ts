@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Two scalars state the capacity claim, and the trait sits in the profile's `traits` list as one discriminated member beside the destructible trait.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The 1024 seat ceiling is a fixed contract bound applied to every profile, and no mounting behaviour is implied while no verb reads the trait.
  * @evidence contracts/common.md#meaningful-documentation States what the trait claims, the exact ranges and units, which validators enforce them, the one-per-profile rule, and that no engine verb reads it yet.
- * @author Samchon
  */
 export interface IAutoMovieMountableTrait {
   /** Trait discriminator. */

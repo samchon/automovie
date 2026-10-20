@@ -13,7 +13,6 @@ import { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
  * @evidence contracts/common.md#clear-and-simple-design Compact placement and variation laws serve both viewer and oracle, with reusable prototype tables and bounded chunk summaries rather than one persisted record per instance.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Along-route placement uses the compiled route snapshot instead of mutable design. Missing or unusable routes, nonfinite sampled position/scalar scale/procedural traits and an unavailable palette selection refuse regeneration; this does not certify all enhanced transforms, explicit traits, count limits or model references.
  * @evidence contracts/common.md#meaningful-documentation Describes optional prototype compatibility, route-null local layouts, world anchor and degree heading, seed and variation, slot-point bounds, radius expansion, chunks, tiers and digest coverage.
- * @author Samchon
  */
 export interface IAutoMovieCompiledInstanceSet {
   /** Generated instance-set format. */

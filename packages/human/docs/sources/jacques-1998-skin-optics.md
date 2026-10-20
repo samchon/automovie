@@ -25,7 +25,3 @@ Web article by the author. Formulas are facts; cite the page.
 | Anisotropy g | 0.7 to 0.95 |
 
 Rayleigh scattering dominates below about 650 nm, Mie above.
-
-## What Human takes
-
-The melanin power law and the measured melanosome fractions that bound the identity's melanin parameter; the low average blood fraction that a regional hemoglobin map multiplies. Donner and Jensen 2006 reuse these forms in mm⁻¹.

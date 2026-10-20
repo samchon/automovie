@@ -9,7 +9,6 @@
  * @evidence contracts/common.md#clear-and-simple-design A start and a duration rather than two endpoints, so the played span is read directly and cannot come out negative from swapped ends.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A trim reaching past the shot is refused with the overshoot as the violation amount rather than clamped to the shot end.
  * @evidence contracts/common.md#meaningful-documentation States the units, the range each field must satisfy, the containment rule and which producer refuses it.
- * @author Samchon
  */
 export interface IAutoMovieTrim {
   /** Shot-local seconds where the trim begins; finite and at least `0`. */

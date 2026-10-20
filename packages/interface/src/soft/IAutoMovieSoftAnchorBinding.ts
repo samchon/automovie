@@ -8,7 +8,6 @@ import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
  * @evidence contracts/common.md#clear-and-simple-design The discriminator separates node transforms from humanoid bone transforms without storing a competing static world coordinate.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The wearable resolver refuses missing subjects or bones rather than replacing them by rest positions. Static simulateSoftBody currently ignores binding metadata, so its output does not establish that an authored moving owner was followed; scene evaluation owns the supplied transform.
  * @evidence contracts/common.md#meaningful-documentation Each arm names its stable owner, local coordinate frame and metre offset; this record is authoring input rather than a resolved world pose.
- * @author Samchon
  */
 export type IAutoMovieSoftAnchorBinding =
   | {

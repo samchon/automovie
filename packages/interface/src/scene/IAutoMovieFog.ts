@@ -11,7 +11,6 @@ import { IAutoMovieColor } from "../color/IAutoMovieColor";
  * @evidence contracts/common.md#clear-and-simple-design One scene-wide density and linear target color describe the supported depth cue without per-region particle or volumetric simulation data.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts This squared-depth law is not physical Beer-Lambert extinction and treats opposite signed depths equally. Binary64 predictions do not prove exact GPU pixels, and structural guide passes suspend fog rather than tint their geometry projection.
  * @evidence contracts/common.md#meaningful-documentation Defines camera-axis depth, density units, transmittance and half-visibility formulas, zero state and linear color with unused alpha.
- * @author Samchon
  */
 export interface IAutoMovieFog {
   /**

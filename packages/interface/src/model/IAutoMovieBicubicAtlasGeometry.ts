@@ -18,7 +18,6 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design One coefficient registry owns all patch boundaries and interiors, and explicit tessellation budgets belong to the recipe.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No original source vertices, triangle topology, normals or external mesh reference are accepted as generation data.
  * @evidence contracts/common.md#meaningful-documentation States metres, row order, shared-boundary identity, approximation scope and partial resource semantics.
- * @author Samchon
  */
 export interface IAutoMovieBicubicAtlasGeometry {
   /** Geometry recipe discriminator. */

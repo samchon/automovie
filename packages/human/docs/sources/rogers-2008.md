@@ -13,10 +13,6 @@ Rogers M.S., Barr A.B., Kasemsontitum B., Rempel D.M. "A three-dimensional anthr
 - Joint breadth and depth of digits 3 to 5 relative to digit 2 (from Greiner): DIP breadth 1.00, 0.93, 0.85; PIP breadth 1.01, 0.94, 0.82; PIP depth 1.03, 0.97, 0.86.
 - Phalanx and metacarpal lengths are not given.
 
-## What Human takes
-
-The hand breadth definition that places the metacarpale II and V landmarks, and the per-digit joint size ratios.
-
 ## Modeling assumptions and limits
 
-Section 2.5.2 explicitly sets MCP breadth equal to PIP breadth as a modelling assumption. Section 2.5.3 defines the web from adjacent phalangeal sections and the palmar crease, with its width depending on their relative posture. These support a shared section-and-web definition, not a measured uniform finger spacing or a complete calibration target. The 66 digitized landmark positions are not imported into Human.
+Section 2.5.2 explicitly sets MCP breadth equal to PIP breadth as a modelling assumption. Section 2.5.3 defines the web from adjacent phalangeal sections and the palmar crease, with its width depending on their relative posture. These support a shared section-and-web definition, not a measured uniform finger spacing or a complete calibration target. The 66 digitized positions are model landmarks rather than individual anatomical predictions.

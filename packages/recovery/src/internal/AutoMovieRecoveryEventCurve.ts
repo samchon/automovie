@@ -27,7 +27,6 @@ export namespace AutoMovieRecoveryEventCurve {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A record performs no arithmetic.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The caller owns parent sharing.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This type owns no runtime cache.
-   * @author Samchon
    */
   export interface Source {
     /** Stable owner of all four native coefficients. */
@@ -52,7 +51,6 @@ export namespace AutoMovieRecoveryEventCurve {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A record performs no arithmetic.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A type coordinates no work.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Ownership belongs to its caller.
-   * @author Samchon
    */
   export interface Piece {
     /** Occurrence controls in its increasing local parameter. */
@@ -73,7 +71,6 @@ export namespace AutoMovieRecoveryEventCurve {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A record performs no traversal.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The caller may share native parents.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No hidden array lifetime is imposed.
-   * @author Samchon
    */
   export interface Arc {
     /** Stable named path. */

@@ -11,7 +11,6 @@ import type { IAutoMovieConvexSupportLoft } from "../model/IAutoMovieConvexSuppo
  * @evidence contracts/common.md#clear-and-simple-design One saved field and three independent coordinate scales own generation; dense observations, residuals and source hashes stay in separate fit evidence.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No original image, mesh, normal, per-row polygon table, inferred cap or hidden-concavity claim enters this recipe.
  * @evidence contracts/common.md#meaningful-documentation States metre coefficients, scale anchors, finite-view convex interpretation, lack of enclosure certification, unknown ends/interior/concavity and supplied camera provenance.
- * @author Samchon
  */
 export interface IAutoMovieRecoverySupportLoft {
   /** Version of the independently generative support field. */

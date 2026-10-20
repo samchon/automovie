@@ -21,7 +21,3 @@ PLoS ONE, CC BY. Numbers are facts.
 | 80 and over | 39.1 / 51.6 | 40.3 / 44.2 | 39.3 / 38.6 | 19.7 / 25.2 | 48.1 / 51.6 |
 
 SDs are large (SVA 23 to 58 mm). TK larger in men, LL, PT and PI larger in women. Age raised SVA, TK and PI-LL in a multiple regression adjusted for BMI.
-
-## What Human takes
-
-Adult pelvic tilt, sacral slope (PI - PT), thoracic kyphosis and SVA by age and sex. Japanese sample; no European sample with age groups was read.

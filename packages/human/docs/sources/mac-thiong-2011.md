@@ -20,7 +20,3 @@ Springer copyright; numeric results cited.
 | PT / PI | 0.24 +- 0.11 | |
 
 PI did not change with age (r = 0.03); PT rose slightly (r = 0.16) and SS fell slightly (r = -0.10). No sex difference in PI, PT or SS (mean differences under 0.5 deg). PI = PT + SS holds by geometry.
-
-## What Human takes
-
-The resting pelvic tilt and sacral slope of the standing skeleton and their spread: a fixed pelvic incidence per identity, with tilt as the posture variable that age shifts.

@@ -16,7 +16,6 @@ import type { IAutoMovieHeadlessLocator } from "./IAutoMovieHeadlessLocator.js";
  * @evidenceExclude contracts/performance.md#efficient-algorithms The interface declares call shapes only; navigation, script evaluation and rendering costs live in the host browser.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The interface itself coordinates nothing; the adapter's reuse of one navigation and one locator per session is answered on `createHeadlessCaptureAdapter`.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The page is one browser handle: the caller acquires it, ownership moves to the session when creation succeeds, and the session's `close` releases it; on a failed creation the caller still owns and releases it.
- * @author Samchon
  */
 export interface IAutoMovieHeadlessPage {
   /**

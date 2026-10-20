@@ -19,4 +19,5 @@ pnpm --filter @automovie/playground preview   # dist/ at http://127.0.0.1:4173
 | `launch.html`, `impact.html`, `attach.html`, `trampoline.html` | Projectile, impact, attachment and jump actions |
 | `spar.html` | Boxing scene |
 | `recovery.html` | Saved image-loft coefficients, independent dimension edits, matched surface/construction passes and an optional independent static mesh reference |
-| `human.html` | The current `@automovie/human` person: part isolation, preset views, controls bound to its documents and save/resume; it reads the package's browser build, so run `pnpm --filter @automovie/human build` first |
+
+The Human figure page is unavailable while `@automovie/human` contains parameter declarations only.

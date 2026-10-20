@@ -15,7 +15,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record; it is built in constant time per instant once the live entry is found, and finding it is answered on `resolveFromTimeline` and `playbackCursor`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A fresh value per output instant; nothing caches samples across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds strings and numbers by value; `playbackFrameSamples` retains one per output frame in its returned array, bounded by `round(runtime * fps)`.
- * @author Samchon
  */
 export interface IAutoMoviePlaybackSample {
   /** Id of the live (incoming) shot. */

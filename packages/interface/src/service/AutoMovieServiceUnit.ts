@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Closed units prevent incomparable capacity and demand sums without introducing wrapper numeric types or implicit conversion.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The validator performs no voltage or media conversion, and other medium accepts a declared supported unit without pretending to derive domain physics.
  * @evidence contracts/common.md#meaningful-documentation Defines the quantity basis used consistently for capacity and demand comparisons.
- * @author Samchon
  */
 export type AutoMovieServiceUnit =
   | "cubic-meter-per-second"

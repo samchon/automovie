@@ -19,8 +19,6 @@ import type { IPreparedChainPlant } from "./IPreparedChainPlant";
  * @evidenceExclude contracts/performance.md#efficient-algorithms This input runs no candidate solve; solvePreparedChainPlant owns analytic IK and clinical quaternion inversion under prepared domains.
  * @evidence contracts/performance.md#reuse-equivalent-work Multiple candidates borrow one prepared record while varying bend normal; semantic mappings must remain identical to preparation for that reuse to be valid.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The synchronous candidate input borrows a fixed-size prepared record and target; no results, resource handles or tasks are retained by the type.
- *
- * @author Samchon
  */
 export interface ISolvePreparedChainPlantProps {
   /** Shared pose-invariant chain frames and effective clinical domains. */

@@ -11,7 +11,6 @@ import { AutoMovieLightProperty } from "./AutoMovieLightProperty";
  * @evidence contracts/performance.md#efficient-algorithms Two string fields require space proportional to their text; parser work depends on pointer length rather than this record.
  * @evidence contracts/performance.md#reuse-equivalent-work Formatting and parsing share property semantics, but this type owns no parse cache or mutable light lookup.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The parser's caller owns the returned pair; no scene, transform, native light or task is retained.
- * @author Samchon
  */
 export interface IAutoMovieLightPointer {
   /** Id of the addressed scene light. */

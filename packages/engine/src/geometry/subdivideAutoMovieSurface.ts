@@ -56,7 +56,6 @@ const MAX_LEVELS: number = 6;
  * @evidence contracts/performance.md#efficient-algorithms For `F` cage corners and `L` levels, each level is linear in its size and the last has about `F * 4^(L - 1)` quads, so time and space are dominated by the final level, at most `1024 F` quads under the six-level cap; the limit adds one point refinement of that level and a bounded ring iteration per vertex, plus a fixed eigenvector iteration, quadratic in the ring size, at each dart or three-face crease side.
  * @evidence contracts/performance.md#reuse-equivalent-work Each level is computed once from the previous one, and the limit reuses one shared point refinement for every vertex.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the current level is held while refining; the returned surface owns arrays linear in the final level and nothing else is retained.
- * @author Samchon
  */
 export function subdivideAutoMovieSurface(props: {
   /** The control cage, only read. */

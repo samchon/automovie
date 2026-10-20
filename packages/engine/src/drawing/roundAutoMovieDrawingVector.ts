@@ -19,7 +19,6 @@ import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A world vector has three components, each rounded once by the scalar rule, a fixed cost with no strategy to pick.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Called a handful of times per derivation, for the four frame axes and each room's two box corners, so there is nothing worth sharing.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The rounded vector becomes part of the drawing frame or schedule box being assembled; the input vector is not referenced afterwards.
- * @author Samchon
  */
 export const roundAutoMovieDrawingVector = (
   vector: IAutoMovieVector3,

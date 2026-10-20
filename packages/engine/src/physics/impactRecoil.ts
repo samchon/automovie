@@ -56,7 +56,6 @@ const readPushAxis: (
  * The caller maps an {@link IAutoMovieImpact}'s impulse to the `push`
  * magnitude.
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Scale requested nonzero clinical axes along the chain by falloff^index, then clamp known bones through skeleton constraints and coupled ROM projection. Missing bones remain unclamped, and this is a pose heuristic rather than angular impulse integration.
  * @evidence contracts/common.md#clear-and-simple-design The chain defines spatial falloff while clampJointRom owns constraint semantics; absent or all-zero axes return null instead of authoring a rest pose.

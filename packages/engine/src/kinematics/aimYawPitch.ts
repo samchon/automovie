@@ -33,7 +33,6 @@ const VECTOR_AXES: readonly ["x", "y", "z"] = ["x", "y", "z"];
  * @evidence contracts/performance.md#efficient-algorithms Constant time: seven input finiteness checks, three difference checks, bounded coordinate rescaling, one sine and cosine, one hypot and two atan2 calls; field-label strings and the returned angle record have fixed size.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of two points and a heading that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned pair.
- * @author Samchon
  */
 export const aimYawPitch: (
   from: IAutoMovieVector3,

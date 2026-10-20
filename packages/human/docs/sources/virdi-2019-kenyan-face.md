@@ -42,10 +42,6 @@ Table 9 also prints nasion-menton as 101.8 mm for men and 117.1 mm for women, wh
 
 Forehead height exceeded nasal height in every subject; the orbital canon (en-en = ex-en) held in 33 percent of men and 27 percent of women; nasal width exceeded intercanthal width and a quarter of face width in every subject; mouth width equal to 1.5 nasal widths held in 6 and 11 percent.
 
-## What Human takes
-
-East African adult values with the NAW and AA norms side by side, and direct evidence that the equal-thirds and nose-to-eye canons fail as defaults.
-
 ## Limits
 
 72 students; NAW and AA values are secondary quotations of Farkas.

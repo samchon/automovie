@@ -1,4 +1,4 @@
-﻿import { optionalArray } from "./optionalArray";
+import { optionalArray } from "./optionalArray";
 
 /**
  * Read an omitted or nonblank-string glTF extension inventory.
@@ -10,7 +10,6 @@
  * @evidence contracts/performance.md#efficient-algorithms Cost is linear in element count plus trim scans of string lengths, with one returned array.
  * @evidence contracts/performance.md#reuse-equivalent-work Each name is checked once for this inventory; exact duplicate removal belongs to the downstream canonical inventory.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned string array survives; original arrays and validation metadata are not retained.
- * @author Samchon
  */
 export const optionalStringArray: (value: unknown, path: string) => string[] = (
   value: unknown,

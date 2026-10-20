@@ -25,7 +25,6 @@ import { IAutoMovieSubjectReviewCurrentContext } from "./IAutoMovieSubjectReview
  * @evidenceExclude contracts/performance.md#efficient-algorithms A type alias with no code; checking a record costs the fold's constant-time guard per observation, answered on `foldAutoMovieSubjectReviewCoverage`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Describes one verified receipt; no operation on this type shares work, and production rebuilds the projection from the reopened artifact on every verification.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds strings and references its nested pose and runtime records; the caller's observation list owns all of them, and the type keeps no handle.
- * @author Samchon
  */
 export type IAutoMovieCurrentSubjectReviewObservation =
   IAutoMovieSubjectReviewObservation & IAutoMovieSubjectReviewCurrentContext;

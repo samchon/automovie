@@ -11,8 +11,6 @@ import type { IAutoMovieTransform } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms One constant-time quaternion conversion and three fixed records bound work/storage; later root interpolation belongs to the engine.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each placement creates independent mutable transform data; no cross-clip result cache is retained.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned transform and its records, with no worker, GPU handle or running task acquired here.
- *
- * @author Samchon
  */
 export function createStickmanMotionRoot(
   x: number,

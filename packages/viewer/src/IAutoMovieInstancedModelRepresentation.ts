@@ -13,8 +13,6 @@ import type { IAutoMovieInstancedGeometry } from "./IAutoMovieInstancedGeometry.
  * @evidenceExclude contracts/performance.md#efficient-algorithms This composite result shape chooses no tessellation, merge or bake strategy.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Shared representation references are values; their producer/runtime decides reuse across chunks and tiers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Geometry/material ownership follows the inherited representation and cycle texture lifetime follows its owning formation representation.
- *
- * @author Samchon
  */
 export interface IAutoMovieInstancedModelRepresentation<
   Cycle extends IAutoMovieFormationCycle | null =

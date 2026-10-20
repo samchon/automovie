@@ -29,7 +29,6 @@ const DEFAULT_SAMPLE_RATE: number = 24;
 /**
  * Sample valid capsule pairs through FK and warn when segment distance is less than summed radii.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Sample valid capsule pairs through FK and warn when segment distance is less than summed radii.
  * @evidence contracts/common.md#clear-and-simple-design Shared sample clock, segmentSegmentDistance and validateCapsule own temporal, distance and endpoint semantics.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Capsule proxies approximate bodies; tangency is allowed and physicsIntent suppresses overlap warnings while malformed inputs stay errors.

@@ -15,7 +15,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms An access record with no algorithm; layout and copying are answered on `solveAutoMovieQuadraticKernel`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A per-call borrow that coordinates no work across calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing itself: each view is a short-lived object over memory the module owns, the workspace bytes are released by `withWorkspace` when the callback ends, and the module instance lives as long as its memory owner.
- * @author Samchon
  */
 export interface IAutoMovieQuadraticHeap {
   /** New float64 view of the whole current memory, indexed in doubles. */

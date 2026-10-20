@@ -14,8 +14,6 @@ import type * as THREE from "three";
  * @evidenceExclude contracts/performance.md#efficient-algorithms This input type performs no instance matrix generation or plant traversal.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Shared plant structure permits batching but this type supplies no independent cross-arrangement cache identity.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Supplied records/materials are borrowed; buildPlantingObject owns its created geometry, defaults and instance allocations.
- *
- * @author Samchon
  */
 export interface IBuildPlantingObjectProps {
   /** Derived local branches, leaves, domain and growth stage; numerical admission belongs to the plant owner. */

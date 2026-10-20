@@ -1,4 +1,4 @@
-﻿import type { IParsedContainer } from "./IParsedContainer";
+import type { IParsedContainer } from "./IParsedContainer";
 import { decodeJson } from "./decodeJson";
 
 const GLB_MAGIC: number = 0x46546c67;
@@ -17,7 +17,6 @@ const GLB_BIN_CHUNK: number = 0x004e4942;
  * @evidence contracts/performance.md#efficient-algorithms Header/chunk scanning is O(chunk count); JSON decoding is O(JSON bytes), and BIN bytes are not copied.
  * @evidence contracts/performance.md#reuse-equivalent-work The same decoded JSON owner serves both GLB and plain glTF; one BIN view is reused by downstream payload readers.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The parsed result borrows BIN bytes only during synchronous inspection; JSON objects and view references are call-local.
- * @author Samchon
  */
 export const decodeGlb: (
   bytes: Uint8Array,

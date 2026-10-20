@@ -2,8 +2,6 @@ import type { IExternalModelHierarchyNode } from "./IExternalModelHierarchyNode"
 
 /**
  * Owned resident glTF bytes and mutable declarations used by the existing hierarchy cases.
- *
- * @author Samchon
  */
 export interface IExternalModelHierarchyFixture {
   /** Resident sidecar buffer containing the original weights and rotation samples. */

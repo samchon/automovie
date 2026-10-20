@@ -9,8 +9,6 @@ import { test12MotionInspect } from "./test12MotionInspect";
 
 /**
  * Borrowed positive-control results and original refusal closures remain unit-local; factories register callbacks immediately, and those callbacks run only when the owning test invokes its facts.
- *
- * @author Samchon
  */
 export interface ITest12MotionAdoptionContext {
   /** Accepted resident-byte inspection shared by the original refusal callbacks. */

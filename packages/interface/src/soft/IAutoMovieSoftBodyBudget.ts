@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design The report separates raster triangles, solver constraints and declared seek work so equal counts do not imply equal responsibilities.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts stateBytes counts six Float64 components per particle only; it excludes working buffers, JavaScript array overhead and device allocations and is not total process memory.
  * @evidence contracts/common.md#meaningful-documentation Fields identify counts, bytes, maximum absolute step and the dimensionless travel admission estimate.
- * @author Samchon
  */
 export interface IAutoMovieSoftBodyBudget {
   /** Identity of the measured domain. */

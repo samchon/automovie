@@ -21,7 +21,6 @@ import { IAutoMovieGrammarSubjectObservation } from "./IAutoMovieGrammarSubjectO
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record with no runtime body; its sort and index cost is answered on `normalizeGrammarShot`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record is the reuse: `readFilmGrammar` builds one per shot and every inspector reads its index instead of rebuilding a map per check.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds a sorted copy of the subject array, one map entry per subject and a copy of the intents, referencing the caller's subject and camera objects; it lives only for one `readFilmGrammar` call.
- * @author Samchon
  */
 export interface IAutoMovieNormalizedGrammarShot extends Omit<
   IAutoMovieGrammarShotObservation,

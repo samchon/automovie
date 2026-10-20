@@ -9,7 +9,6 @@ import { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
  * @evidence contracts/common.md#clear-and-simple-design The compiled record resolves recipe and zone references once and carries the inputs needed by both visual sampling and numerical effect queries, leaving film-global ownership to its separate envelope.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The stream carries copied recipe and bounds rather than consulting mutable world data. Shot materialization drops unresolved references unless a host separately validates them; film materialization explicitly refuses them. Sampling assumes admitted recipe ranges and step and does not authenticate this record's digest itself.
  * @evidence contracts/common.md#meaningful-documentation Gives recipe and zone authority, world bounds, deterministic seed, half-open second interval, intensity envelope, optional event binding, fixed step and digest coverage.
- * @author Samchon
  */
 export interface IAutoMovieCompiledEffect {
   /** Generated effect format. */

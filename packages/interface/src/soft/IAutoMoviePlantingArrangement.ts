@@ -10,7 +10,6 @@ import { IAutoMovieSoftBounds } from "./IAutoMovieSoftBounds";
  * @evidence contracts/common.md#clear-and-simple-design The result separates requested cluster/recipe identity from accepted positions, refusal count and nullable placement-origin bounds.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Refused members are counted rather than squeezed into overlaps, and bounds concern accepted placement origins rather than the full grown plant geometry.
  * @evidence contracts/common.md#meaningful-documentation Defines cluster/domain attribution, authored slot order, spacing refusal and empty nullable origin bounds.
- * @author Samchon
  */
 export interface IAutoMoviePlantingArrangement {
   /** Identity of the cluster this arrangement was derived from. */

@@ -10,7 +10,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design A heading covers upright props and a full quaternion covers sloped or vertical architecture, so the common case needs no quaternion; scale is either one number or a per-axis vector expanded by `setPieceScale`.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A zero scale axis is refused because it collapses volume and can leave planar geometry, and a negative axis mirrors orientation; a rotation outside the unit-norm tolerance is refused rather than normalized.
  * @evidence contracts/common.md#meaningful-documentation States what lowering produces, how a shot can still move the piece, the world frame and units, the heading default, the exclusivity of heading and rotation, and the scale bounds and default.
- * @author Samchon
  */
 export interface IAutoMovieStageSetPiece {
   /** Non-blank scene-node identity, unique across every node of the stage. */

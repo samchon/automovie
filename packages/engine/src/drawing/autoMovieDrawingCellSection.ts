@@ -36,7 +36,6 @@ import { AUTOMOVIE_DRAWING_EPSILON } from "./constants/AUTOMOVIE_DRAWING_EPSILON
  * @evidence contracts/performance.md#efficient-algorithms Time is the plane count times the current polygon size, which grows by at most one corner per plane, so it is quadratic in the plane count at worst and linear for an ordinary box cell; the clip stops as soon as the polygon empties.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one frame and one cell, called once per cell per drawing, so no equivalent request repeats within a derivation.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Each clip allocates a fresh polygon that the next clip replaces, and only the final one is returned to the caller; nothing is retained.
- * @author Samchon
  */
 export const autoMovieDrawingCellSection = (
   frame: IAutoMovieDrawingFrame,

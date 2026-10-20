@@ -10,8 +10,6 @@ import { IAutoMovieCut } from "./IAutoMovieCut";
 
 /**
  * A built shot with the index it was first supplied at.
- *
- * @author Samchon
  */
 interface IBuiltShot {
   /** The first shot supplied under the id. */

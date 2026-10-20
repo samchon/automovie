@@ -14,7 +14,6 @@ import { IAutoMovieDialogueVisemeTimeline } from "./IAutoMovieDialogueVisemeTime
  * @evidence contracts/performance.md#efficient-algorithms R ranges require O(R) worst-case linear search and constant fresh output storage; the first matching range short-circuits traversal.
  * @evidence contracts/performance.md#reuse-equivalent-work Prepared ranges are reused across independent frame queries, and no previous cursor or cached pose can alter a backward seek.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the fresh wrapper/mouth pair, which retains the supplied authored expression reference until discarded; no scene, GPU or audio resource is retained.
- * @author Samchon
  */
 export const sampleAutoMovieDialogueExpression: (props: {
   timeline: IAutoMovieDialogueVisemeTimeline;

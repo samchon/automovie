@@ -18,7 +18,6 @@ import { IAutoMovieConnectorStation } from "./IAutoMovieConnectorStation";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape; its figures cost two linear passes over the route points plus one segment walk per landing, answered on `builtConnectorGeometry`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Computed per call from the connector record; no geometry is stored, so an edited route never reads a stale measurement.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Station `position` and `rotation` alias the connector record's own objects; the record and the landing positions are otherwise fresh and owned by the caller.
- * @author Samchon
  */
 export interface IAutoMovieConnectorGeometry {
   /** Signed net climb from the first station to the last, in metres. */

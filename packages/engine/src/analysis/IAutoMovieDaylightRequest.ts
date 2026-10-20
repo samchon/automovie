@@ -26,7 +26,6 @@ import { IAutoMovieAnalysisWorkplane } from "./IAutoMovieAnalysisWorkplane";
  * @evidenceExclude contracts/performance.md#efficient-algorithms Input record; the study costs grid cells times sky samples times solids, answered on `analyzeAutoMovieDaylight`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The analyzer builds the sky directions once per study and shares them across cells; the request itself carries no cached result.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns it for one call; cells are capped at `AUTOMOVIE_ANALYSIS_MAX_SAMPLES`, but `diffuseSamples` has no upper bound, so the analyzer's direction array grows with it unchecked.
- * @author Samchon
  */
 export interface IAutoMovieDaylightRequest {
   /** Stable run identity; non-blank. */

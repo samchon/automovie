@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design The short citation keeps reason and address together while canonical prose and claim verification remain with their authored owners.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A citation is traceability rather than proof that a continuity claim passed or a shot realized the scene; similar prose cannot substitute for the referenced stable identity.
  * @evidence contracts/common.md#meaningful-documentation Defines dependency reason, existing scene id and the optional claim's separate proof ownership.
- * @author Samchon
  */
 export interface IAutoMovieSceneEvidence {
   /** Why this downstream record depends on the cited scene. */

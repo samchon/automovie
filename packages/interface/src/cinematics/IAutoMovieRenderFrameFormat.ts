@@ -13,7 +13,6 @@ import { IAutoMovieDeliveryCrop } from "./IAutoMovieDeliveryCrop";
  * @evidence contracts/common.md#clear-and-simple-design Clock, raster and optional crop sit in one value nested under `IAutoMovieRenderSpec.frameFormat`, separate from the encoder settings, because the sidecars need the former and never the latter.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Nothing rounds an odd dimension up behind the caller; the remaining gap is that the plain render path does not check evenness or integrality, which the `width` documentation states, while the production render job checks evenness of its own frame format.
  * @evidence contracts/common.md#meaningful-documentation States what the clock sets, the units and parity rule of each dimension and why, who must enforce it, and that an omitted or whole-frame crop changes nothing.
- * @author Samchon
  */
 export interface IAutoMovieRenderFrameFormat {
   /**

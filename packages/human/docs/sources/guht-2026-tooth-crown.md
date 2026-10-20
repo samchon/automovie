@@ -24,10 +24,6 @@ Digital scans of orthodontic patients (calibration scans from Bonn; author affil
 
 Left-side values differ by under 0.1 mm. Sum of the six upper anterior teeth (derived): 2 × (9.05 + 7.18 + 8.21) = 48.9 mm along the arch.
 
-## What Human takes
-
-Crown widths for the teeth mesh, which set the dental arch perimeter and the visible smile width.
-
 ## Limits
 
 Orthodontic patients; widths only, no crown heights.

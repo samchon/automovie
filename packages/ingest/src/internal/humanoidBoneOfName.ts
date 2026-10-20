@@ -15,7 +15,6 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms Cost is linear in the name length for two regular-expression passes and one lowercase copy, then one hash lookup.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each invocation normalizes its supplied name; a joint shared by several skins may be revisited, and this helper retains no cache over mutable source revisions.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The module-level table is a fixed forty-entry constant; a call retains nothing.
- * @author Samchon
  */
 export const humanoidBoneOfName: (
   name: string,

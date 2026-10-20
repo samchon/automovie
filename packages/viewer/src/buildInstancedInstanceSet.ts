@@ -29,8 +29,6 @@ import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceReti
 
 /**
  * One chunk's prototype tier meshes and the hysteretic tier selected by its last update.
- *
- * @author Samchon
  */
 interface IInstancePrototypeChunkObject {
   /** Supplied unscaled prototype radius estimate used by projected-size LOD. */
@@ -51,8 +49,6 @@ interface IInstancePrototypeChunkObject {
 
 /**
  * One flattened prototype tier ready to be cloned into a chunk batch.
- *
- * @author Samchon
  */
 interface IInstanceRepresentation {
   /** Flattened rest geometry cloned separately for each chunk batch. */
@@ -64,8 +60,6 @@ interface IInstanceRepresentation {
 
 /**
  * One compiled chunk and its persistent prototype visibility state.
- *
- * @author Samchon
  */
 interface IInstanceChunkObject {
   /** Immutable compiled member span, bounds and centroid. */

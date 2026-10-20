@@ -9,7 +9,6 @@ import { AutoMovieBuiltPlacementBasis } from "./AutoMovieBuiltPlacementBasis";
  * @evidence contracts/common.md#clear-and-simple-design A three-way status, the unresolved sides, and both bases cover what a caller needs to read a verdict, and no shared volume is computed because the named-pair query answers only whether the bodies meet.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An unresolved operand yields `unresolved` and names its side instead of throwing or reading as `separate`, and both bases are narrowed to body bases because neither operand can be a surface.
  * @evidence contracts/common.md#meaningful-documentation States operand boxing, exterior contact versus internal degenerate-box behavior, the pair/sweep distinction, static numerical limits, missing-side reporting and nullable bases.
- * @author Samchon
  */
 export interface IAutoMovieBuiltPlacementOverlapResult {
   /**

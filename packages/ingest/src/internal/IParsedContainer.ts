@@ -8,7 +8,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms Container-result typing performs no JSON parsing or binary-chunk traversal.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type coordinates no cached decoding and carries the current call's parsed container only.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources It declares borrowed BIN ownership rather than retaining a file handle or independent byte copy.
- * @author Samchon
  */
 export interface IParsedContainer {
   /** Strictly parsed JSON document awaiting structural/profile admission. */

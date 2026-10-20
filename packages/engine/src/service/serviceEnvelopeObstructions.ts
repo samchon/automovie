@@ -25,8 +25,6 @@ import { serviceMaintenanceBounds } from "./serviceMaintenanceBounds";
  * @evidence contracts/performance.md#efficient-algorithms N nodes receive one constant-size envelope and overlap check, O(N) time and up to N output ids.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each obstruction box asks a different access query and no mutable node-placement cache is stored here.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Filtered node aliases and temporary bounds are released on return; only a fresh id array belongs to the caller.
- *
- * @author Samchon
  */
 export const serviceEnvelopeObstructions: (props: {
   network: IAutoMovieServiceNetwork;

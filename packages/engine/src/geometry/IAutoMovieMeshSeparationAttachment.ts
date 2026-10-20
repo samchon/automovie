@@ -20,7 +20,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A registration record; admission and contact-cap costs are answered on the separation query.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built once per hair curve and passed to every rooted query of that curve; the record itself computes and caches nothing.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Holds the caller's weight and support arrays by reference for the duration of each query; the query keeps neither after it returns.
- * @author Samchon
  */
 export interface IAutoMovieMeshSeparationAttachment {
   /** Original resident triangle ordinal carrying the canonical root seat. */

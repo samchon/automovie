@@ -12,7 +12,6 @@ import { IAutoMovieKeyframe } from "./IAutoMovieKeyframe";
  * @evidence contracts/common.md#clear-and-simple-design The clip owns identity, target skeleton, duration and loop semantics around reusable keyframes; optional gait-cycle provenance adds continuity without altering the general sampler representation.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Frame rate belongs to the consumer rather than the stored animation, and a missing cyclic provenance record is not inferred from a gait name; the author remains responsible for a looping clip's endpoint continuity.
  * @evidence contracts/common.md#meaningful-documentation States second-based timing, at least two ordered keyframes, one target rig, loop wrapping and author-owned seam continuity, and gait-cycle absence and beat-handoff behavior.
- * @author Samchon
  */
 export interface IAutoMovieMotion {
   /** Stable id so scenes and exports can cite this clip. */

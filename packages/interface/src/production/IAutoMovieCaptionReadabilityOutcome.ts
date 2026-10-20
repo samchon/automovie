@@ -7,7 +7,6 @@ import { IAutoMovieCaptionGraphemeSegmentationIdentity } from "./IAutoMovieCapti
  * @evidence contracts/common.md#clear-and-simple-design The status union keeps passed and breaches exclusively on evaluated results, while not-run carries only the requested identity and why no judgment occurred.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Measurements alone cannot become passing readability evidence, and a segmentation mismatch cannot fall back to the resident runtime under the requested profile's name.
  * @evidence contracts/common.md#meaningful-documentation States both non-evaluation cases, profile and segmentation ownership, applicable-boundary acceptance including the skipped null gap, and each breach category.
- * @author Samchon
  */
 export type IAutoMovieCaptionReadabilityOutcome =
   | {

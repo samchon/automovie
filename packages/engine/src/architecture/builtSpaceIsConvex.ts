@@ -17,7 +17,6 @@ import { IAutoMovieBuiltSpace } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms Reads whether a shell is present and the cell count, O(1), so no algorithm or structure is chosen.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Answers for one space value at a time and computes nothing a later convexity question could share.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Creates no object and keeps no reference to the space once it returns its boolean.
- * @author Samchon
  */
 export const builtSpaceIsConvex: (space: IAutoMovieBuiltSpace) => boolean = (
   space: IAutoMovieBuiltSpace,

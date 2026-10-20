@@ -10,7 +10,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms This interface declares data only; the comparisons that read it run in `adoptAutoMovieExternalMotion`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work No computation is attached to the source record, so nothing could be shared.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Three scalar fields hold no buffer, handle or task, and the receipt keeps a shallow copy.
- * @author Samchon
  */
 export interface IAutoMovieExternalMotionSource {
   /** Manifest path; it must be non-blank and equal the inspected path. */

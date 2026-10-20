@@ -21,7 +21,6 @@
  * @evidence contracts/performance.md#efficient-algorithms One pass over the `n` values with constant extra space, the minimum for extremes that depend on every value.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure fold over its argument; there is no repeated request to share.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds two numbers during the fold and returns them; nothing is retained.
- * @author Samchon
  */
 export const autoMovieDrawingRange = (
   values: Iterable<number>,

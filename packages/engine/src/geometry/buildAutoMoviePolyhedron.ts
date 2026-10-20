@@ -47,7 +47,6 @@ import { finiteVector } from "./finiteVector";
  * @evidence contracts/performance.md#efficient-algorithms Linear in the total corner count: each face takes one pass for the normal, one for planarity, one for turning and one to emit corners and fan indices.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One mesh per face list; a caller placing the same solid repeatedly can keep the returned mesh.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns new position, normal, UV and index arrays sized by the corner count; per-face normals and frames are released as each face finishes.
- * @author Samchon
  */
 export const buildAutoMoviePolyhedron = (
   faces: ReadonlyArray<readonly IAutoMovieVector3[]>,

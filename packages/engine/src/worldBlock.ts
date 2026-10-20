@@ -14,7 +14,6 @@ import { productionRuntimeModelId } from "./productionRuntimeModelId";
  * @evidence contracts/performance.md#efficient-algorithms For fixed vector fields, arithmetic and output size are constant plus id/color string work; the box is one primitive part, so declared volume allocates no mesh or render resources.
  * @evidence contracts/performance.md#reuse-equivalent-work The same supplied dimensions feed the part, translation and bounds within the call; no cheap scalar result cache or separately tunable extent is retained.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns fresh model/node/bounds records; no builder registry, renderer or background task is acquired.
- * @author Samchon
  */
 export const worldBlock: (input: {
   id: string;

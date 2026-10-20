@@ -10,7 +10,6 @@ import { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
  * @evidence contracts/common.md#clear-and-simple-design Four fields, foot, run bounds and pinned point, are what the next beat's planting needs; the engine's internal plant output is mirrored here so the beat-end record stays in `interface` without importing engine types.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A carried target is preserved through frame conversion only for actual opening stance; it does not invent stance for a lifted foot or guarantee a constrained chain reaches its target. Missing recognized feet produce no plants, and nonfinite new or carried target coordinates throw in the planting pass.
  * @evidence contracts/common.md#meaningful-documentation States the producer and when it produces plants, the world-space conversion, how the next beat consumes them and why; members give the clock, inclusivity, unit and frame of each field.
- * @author Samchon
  */
 export interface IAutoMovieBeatEndFootPlant {
   /** The planted foot bone. */

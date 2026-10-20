@@ -23,7 +23,6 @@ import { Vector3 } from "../math/Vector3";
  * @evidenceExclude contracts/performance.md#efficient-algorithms One subtraction and one dot product, so there is no algorithm to choose.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A constant-time pure function; caching a distance would cost more than computing it.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates one temporary vector and retains nothing.
- * @author Samchon
  */
 export const autoMovieDrawingPlaneDistance = (
   frame: IAutoMovieDrawingFrame,

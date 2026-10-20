@@ -14,8 +14,6 @@ import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
  * @evidence contracts/performance.md#efficient-algorithms Six bounded joint arrays and nine frame wrappers require constant construction work.
  * @evidence contracts/performance.md#reuse-equivalent-work Held poses are shared by their consecutive frames within one call; each invocation creates a fresh clip.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Caller-owned clip wrappers retain their local pose arrays; no timer, player, worker or GPU handle is acquired.
- *
- * @author Samchon
  */
 export const sides: (sk: string) => IAutoMovieMotion = (
   sk: string,

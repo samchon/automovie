@@ -14,7 +14,6 @@ import { IAutoMovieMorphTargetDriver } from "./IAutoMovieMorphTargetDriver";
  * @evidence contracts/common.md#clear-and-simple-design A name, two delta buffers and an optional driver: the name is the address expressions use, the buffers are the shape, and the driver is the one optional source of a pose-dependent weight.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing normal deltas leave normals unchanged rather than being estimated, and a mismatched buffer is refused instead of padded or truncated.
  * @evidence contracts/common.md#meaningful-documentation States the deformation formula, the order relative to skinning, the units and alignment of each buffer, how a weight is supplied and what null normals mean.
- * @author Samchon
  */
 export interface IAutoMovieMeshMorphTarget {
   /**

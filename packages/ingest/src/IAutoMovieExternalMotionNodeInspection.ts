@@ -10,7 +10,6 @@ import type { IAutoMovieTransform } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms This node record is data; the cost of producing it belongs to the inspector.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Node records are produced once per inspection and carry no work.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources One small transform object per source node, owned by the inspection result.
- * @author Samchon
  */
 export interface IAutoMovieExternalMotionNodeInspection {
   /** `node_{index}`, the id tracks and source-rig mappings cite. */

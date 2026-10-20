@@ -20,7 +20,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record; the solve reads it in constant time per key, and the cost of evaluating `at` is the producer's sampler cost, answered on `performShot`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built once per frame or coverage subject inside one `performShot` call and not cached across shots, because its `at` closure depends on that shot's motions.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The `at` closure retains the shot's motion, object-clip and formation tables for as long as the subject is referenced, which ends when the camera clip is compiled and the entries list is dropped.
- * @author Samchon
  */
 export interface IAutoMovieFramedSubject {
   /** World bottom-centre point of the subject at the move's start, in metres. */

@@ -9,6 +9,5 @@
  * @evidence contracts/common.md#clear-and-simple-design A finding totals one subject over many owners, so the basis is a per-finding label and the reason travels on the finding's `approximation` text rather than on each contributor.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The volume finding is labelled approximate for every design, including all-shell ones, rather than switching labels on what a particular design happens to contain; the over-conservative label for all-shell designs is a stated limitation.
  * @evidence contracts/common.md#meaningful-documentation States what each literal promises, which subject is approximate and why, and that the decision is per subject with the all-shell exception spelled out.
- * @author Samchon
  */
 export type AutoMovieQuantityBasis = "exact" | "approximate";

@@ -15,7 +15,6 @@ import { appendShotEventsArtifact } from "./appendShotEventsArtifact";
  * @evidence contracts/performance.md#efficient-algorithms Cost follows event, intent, coverage/clip and clearance/sample populations, including endpoint-inclusive clock generation and nested clip admission; finite safe interval counts still require allocatable sample plans.
  * @evidence contracts/performance.md#reuse-equivalent-work Canonical array/object/range/vector/clip and camera union owners are reused; sibling metadata shares the supplied duration and camera set without a cross-shot cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller retains appended violations and offending values; per-field sets/paths/sample grids are local, and no camera, event player or renderer task is acquired.
- * @author Samchon
  */
 export const appendShotMetadataArtifact: (
   shot: {

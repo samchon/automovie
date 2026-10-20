@@ -11,7 +11,6 @@ import { IAutoMovieChannel } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms Storage grows with vector width W and address text; interpolation/track-validation costs remain with the sampler.
  * @evidence contracts/performance.md#reuse-equivalent-work Resolution consumes the completed sample vector; repeated use does not imply another interpolation, while changed clip contents/time require resampling.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The consumer owns the value array for the frame and borrows channel metadata; no keyframe history, host animation object or task is acquired.
- * @author Samchon
  */
 export interface IAutoMovieSampledChannel {
   /** The channel this value belongs to. */

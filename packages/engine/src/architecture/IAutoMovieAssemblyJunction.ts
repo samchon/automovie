@@ -16,7 +16,6 @@ import { IAutoMovieAssemblyContinuity } from "./IAutoMovieAssemblyContinuity";
  * @evidenceExclude contracts/performance.md#efficient-algorithms The result shape only; building it is linear in both build-ups' layer counts with map lookups by role, answered on `matchAutoMovieAssemblyJunction`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call returns new lists, and the engine memoizes no junction for a pair of assemblies because the caller's tolerance is an input to every `aligned` flag.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owns its two arrays and their element records; the caller keeps them as long as it needs the answer and nothing else in the engine refers to them.
- * @author Samchon
  */
 export interface IAutoMovieAssemblyJunction {
   /** Roles both sides carry, in the left build-up's declaration order. */

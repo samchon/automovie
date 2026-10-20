@@ -13,7 +13,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design Position and value only, with the unit inherited from the named metric, so the unit is stated once per field instead of once per sample.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An oversized field is refused rather than thinned, so the overlay never shows a coarser study than the one that ran.
  * @evidence contracts/common.md#meaningful-documentation States the measured-key rule, the sample bound and its refusal behavior, the id scope, the position unit, and which unit the value is in.
- * @author Samchon
  */
 export interface IAutoMovieAnalysisSample {
   /** Non-blank stable sample identity, unique within the run. */

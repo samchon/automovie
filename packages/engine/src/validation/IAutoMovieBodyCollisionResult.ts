@@ -15,7 +15,6 @@ import { IAutoMovieCollisionResponse } from "../physics/IAutoMovieCollisionRespo
  * @evidence contracts/performance.md#efficient-algorithms The result holds at most one event per overlapping capsule pair per sampled frame plus findings and one response; detection retains both actors' sampled maps and scans every capsule pair.
  * @evidence contracts/performance.md#reuse-equivalent-work Events and the response derive from the same penetration population, avoiding a second collision solve; the record has no independent cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns arrays and the optional suggestion until discarded; the result carries no live physics solver or renderer handle.
- * @author Samchon
  */
 export interface IAutoMovieBodyCollisionResult {
   /** Sampled overlap warnings or admission errors; physicsIntent suppresses warnings. */

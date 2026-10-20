@@ -19,7 +19,6 @@ import { AutoMovieSkeletonParentKey } from "./AutoMovieSkeletonParentKey";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; building it is linear in the bone count inside `indexSkeletonTopology`.
  * @evidence contracts/performance.md#reuse-equivalent-work Shares the hierarchy across every pose resolved against one skeleton; equivalence holds while the skeleton's bone list and parent links are unchanged, and the caller invalidates it by building a new one.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Holds one map entry per parent and one set entry per reachable bone, bounded by the bone count, plus references to the skeleton's bone objects, and lives as long as the caller keeps it.
- * @author Samchon
  */
 export interface IAutoMovieSkeletonTopology {
   /** The skeleton's bones grouped by parent name, `"__root__"` for null-parent roots, in declaration order. */

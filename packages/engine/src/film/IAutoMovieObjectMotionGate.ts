@@ -20,7 +20,6 @@ import {
  * @evidenceExclude contracts/performance.md#efficient-algorithms An input record with no runtime body; the gate's lowering, key checks and constraint sweep are answered on `gateAuthoredObjectMotions`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built once per shot by `performShot` for a single gate call; nothing shares it across shots.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources References the caller's scene, registry, clip arrays and node set without copying; the gate holds them only for the duration of its call.
- * @author Samchon
  */
 export interface IAutoMovieObjectMotionGate {
   /**

@@ -16,7 +16,6 @@ import { FOOTPRINT_EPSILON } from "./constants/FOOTPRINT_EPSILON";
  * @evidence contracts/performance.md#efficient-algorithms E edges take O(E) worst-case distance and parity work with constant live query storage; rim discovery short-circuits.
  * @evidence contracts/performance.md#reuse-equivalent-work The ring's prepared plan is reused, while the query's projections are calculated afresh; no mutable geometry result is cached.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned literal escapes; the borrowed ring and call-local probe acquire no retained host resources.
- * @author Samchon
  */
 export const footprintRingPlacement: (
   ring: IAutoMovieFootprintRing,

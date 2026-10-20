@@ -1,7 +1,6 @@
 /**
  * Compiler-owned skeleton identity for one rigged project model group.
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Prefix the unchanged model group id with automovie:skeleton: so a rigged production model addresses its compiler-owned skeleton without conflating it with the model namespace.
  * @evidence contracts/common.md#clear-and-simple-design One naming function shares the exact namespace between production materialization and runtime profile binding.

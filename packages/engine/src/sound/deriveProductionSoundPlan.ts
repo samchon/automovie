@@ -39,7 +39,6 @@ import { deriveAutoMovieSoundPropagation } from "./deriveAutoMovieSoundPropagati
  * @evidence contracts/performance.md#efficient-algorithms For E event samples, each event can scan declared events, subject node/formation/instance lists and object motions; camera/source sampling plus final O(E log E) sort dominate, and event/cue/dialogue arrays use O(E+C+L) storage.
  * @evidence contracts/performance.md#reuse-equivalent-work Current contract/source maps share identity lookup and one camera/source mass serves each event's pan/attenuation/optional propagation; all object motions are still sampled per resolved event, with no cross-event pose cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns fresh plan arrays and copied profiles, while listener positions may retain static camera translations; local mass parts and sampled channels leave scope, and no audio assets or decoder handles are acquired.
- * @author Samchon
  */
 export const deriveProductionSoundPlan: (props: {
   timeline: IAutoMovieFilmTimeline;

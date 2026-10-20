@@ -17,7 +17,6 @@ import { IAutoMovieCompiledFormationLod } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms Input record; the selector's two linear scans over the few LOD tiers are answered on `selectFormationLod`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built per selection by the viewer from the current camera; the previous tier is the only carried state and is passed in explicitly rather than cached.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources References the compiled formation's tier array without copying it, plus three numbers; the viewer frame that builds it owns it.
- * @author Samchon
  */
 export interface IAutoMovieFormationLodInput {
   /**

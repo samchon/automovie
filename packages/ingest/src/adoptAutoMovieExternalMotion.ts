@@ -41,7 +41,6 @@ import { composeLocalTransform } from "./internal/composeLocalTransform";
  * @evidence contracts/performance.md#efficient-algorithms Copy cost follows the selected take's tracks/keyframes and source-rig size; hash-map setup follows the mapping and node counts. Mapping size M adds O(M log M) prefix-scanning node-id comparisons plus text-dependent identity/hash work; mapped bones times helper-chain lengths drive basis walks, and take lookup scans the declared take inventory without an assumed population bound.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Adoption validates one decision against one inspection per call and shares no work across calls; the inspection it reads is already the caller's reused result.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The temporary maps and sets die with the call; the receipt retains copies of the take, rig and mapping proportional to their size and is owned by the caller, with no handle or task.
- * @author Samchon
  */
 export const adoptAutoMovieExternalMotion: (props: {
   /** Unmodified result of inspecting the source's exact resident bytes. */

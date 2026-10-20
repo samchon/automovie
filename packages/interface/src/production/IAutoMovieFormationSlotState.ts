@@ -9,7 +9,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design Three channels cover sparse removal and displacement without copying the unit transform or rewriting immutable compact design metadata.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Absent members stop drawing and instantaneous measurement but remain in designed count, bounds and centroid; no rewritten design disguises a temporary exception.
  * @evidence contracts/common.md#meaningful-documentation Defines absence effects, immutable designed metadata, local-meter displacement and degree heading offset.
- * @author Samchon
  */
 export interface IAutoMovieFormationSlotState {
   /**

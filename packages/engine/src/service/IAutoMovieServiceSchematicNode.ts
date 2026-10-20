@@ -10,7 +10,6 @@ import { AutoMovieServiceNodeKind } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms Node records have no runtime algorithm; enumeration is costed on serviceNetworkSchematic.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work This projected row owns no cross-network lookup, request coordination or cached source conversion.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Primitive identity, kind and coordinates retain no source node, array or external resource after projection.
- * @author Samchon
  */
 export interface IAutoMovieServiceSchematicNode {
   /** Stable node identity. */

@@ -8,8 +8,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms These erased capture and encoder signatures choose no implementation algorithm; renderVideo owns scheduling and the supplied callbacks own drawing and encoding work.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The callback interface executes no coordination or cache; renderVideo schedules distinct captures and one encode, while implementations decide whether their host effects permit reuse.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased callback port opens no capture session or encoder; adapter implementations own those effects and their release on completion or failure, which this signature cannot enforce.
- *
- * @author Samchon
  */
 export interface IAutoMovieRenderAdapters {
   /**
@@ -22,8 +20,6 @@ export interface IAutoMovieRenderAdapters {
    * @evidenceExclude contracts/performance.md#efficient-algorithms This erased callback signature selects no drawing or filesystem algorithm. renderVideo owns its O(F) scheduling loop, and the concrete host owns each frame's capture and write costs.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The signature shares no capture work; renderVideo requests distinct scheduled frames, while the host must establish equivalence before reusing any rendered data or effect.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased member opens no session or file. The supplied capture implementation owns its drawing resources and written files, including cleanup after rejection; renderVideo retains the reported path in caller-owned result metadata and has no host cleanup capability.
-   *
-   * @author Samchon
    */
   captureFrame: (
     timeSeconds: number,
@@ -41,8 +37,6 @@ export interface IAutoMovieRenderAdapters {
    * @evidenceExclude contracts/performance.md#efficient-algorithms This erased encoder signature chooses no codec algorithm. The concrete implementation owns input-frame reading, codec work and output writing; renderVideo merely awaits one call.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The signature coordinates no encoder cache; a host cannot equate encoding effects solely by destination name, and renderVideo invokes this capability once per render attempt.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased member launches no process or output stream. The host owns encoder resources and cleanup on success or rejection, while renderVideo retains its reported output path and argument array in caller-owned metadata.
-   *
-   * @author Samchon
    */
   encode: (args: string[], outputPath: string) => Promise<string>;
 }

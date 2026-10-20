@@ -10,7 +10,6 @@ import { AutoMovieHumanoidBone } from "./AutoMovieHumanoidBone";
  * @evidence contracts/common.md#clear-and-simple-design Parent bone and local offset describe one cross-rig coupling while scene node identity and world placement belong to the surrounding attachment action.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing or unreachable parent bones throw, and the bone frame carries no inherited scale; renderer and resolver must use matching clinical axes and rest frames.
  * @evidence contracts/common.md#meaningful-documentation Defines parent-skeleton bone ownership, local offset composition and rigid following with model-versus-world placement distinction.
- * @author Samchon
  */
 export interface IAutoMovieAttachment {
   /**

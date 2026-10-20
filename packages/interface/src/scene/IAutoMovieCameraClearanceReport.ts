@@ -11,7 +11,6 @@ import { IAutoMovieCameraClearanceFinding } from "./IAutoMovieCameraClearanceFin
  * @evidence contracts/common.md#clear-and-simple-design Sample plan and contacts expose the evaluated bounds while revision identities remain evaluation inputs, preserving stable compiled bytes across publication.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Stale evaluation returns empty samples and findings and cannot publish through the performing producer. Carried clear spelling is no independent freshness certificate, and interval bounds do not establish exact continuous deforming-mesh collision detection.
  * @evidence contracts/common.md#meaningful-documentation Defines sample clock, exact ordered instants, interval count, current/stale states and interval-ordered findings.
- * @author Samchon
  */
 export interface IAutoMovieCameraClearanceReport {
   /** Scene camera identity evaluated. */

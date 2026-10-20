@@ -17,7 +17,6 @@ import { IAutoMoviePropRelation } from "./IAutoMoviePropRelation";
  * @evidence contracts/common.md#clear-and-simple-design Relations, the occupied volume and keep-out volumes are the three kinds of claim a prop makes; volumes are model-local so the staging transform is applied once, by the engine.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Registry order does not decide admitted identity. A placementless sound prop remains a clearance obstacle and affordance host, but pairwise occupancy overlap is checked only when both props declare placement; any prop-affordance relation between that pair exempts that overlap. Geometry uses the unique occupied environment or one environment shared by all building citations; no unique environment means no containment or passage measurement.
  * @evidence contracts/common.md#meaningful-documentation States the validator, the cite-not-copy rule, order independence, the staging requirement, and what an absent placement means; members give the relation limits, the footprint default and when to declare one, and the clearance purpose.
- * @author Samchon
  */
 export interface IAutoMoviePropPlacement {
   /**

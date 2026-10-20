@@ -89,7 +89,6 @@ const PRESET_CHANNELS: Partial<
  * Imported meshes with `morphTargetDictionary` receive exact or
  * case-insensitive matching names; generated primitive models simply no-op.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Expands semantic presets through the viewer's declared ARKit factor table, whose gaze rows are the engine's `GAZE_PRESET_CHANNELS` so morph and eye-bone gaze expand alike, clamps finite weights to [0,1] with nonfinite inputs treated as zero, lets explicit blendshapes override expanded channels and resolves morph names exact-first then case-insensitively; factors are illustrative expression mappings, not measured anatomical equivalence, and case-fold collisions depend on dictionary insertion order.
  * @evidence contracts/common.md#clear-and-simple-design One channel-weight map feeds native morph influences and optional VRM-style sinks; private helpers own preset expansion, supported-channel reset and name lookup without modifying engine pose or model topology.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Preset factors are explicit supported visual conventions rather than fixture-specific expected weights; no target method/global is replaced, and unsupported names remain untouched instead of inventing morph targets.

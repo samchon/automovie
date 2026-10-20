@@ -10,7 +10,6 @@ import { IAutoMovieChannel } from "./IAutoMovieChannel";
  * @evidence contracts/common.md#clear-and-simple-design Flat parallel arrays keep a track a direct copy of a glTF accessor pair, and the per-keyframe width comes from the channel rather than a stored stride, so one record shape serves every channel kind.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A malformed track throws its first fault rather than being skipped or padded, and the width of a `weights` channel, which the track cannot know, is reported as unchecked instead of assumed.
  * @evidence contracts/common.md#meaningful-documentation States the clock and units of `times`, the value layout and width rule including the cubic triplet and tangent units, the hold behavior outside the keys, each interpolation's evaluation, and what makes sampling throw.
- * @author Samchon
  */
 export interface IAutoMovieTrack {
   /** The channel this track animates; unique among one clip's tracks. */

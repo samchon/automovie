@@ -9,7 +9,6 @@ import { IAutoMovieSubjectDiffFanout } from "./IAutoMovieSubjectDiffFanout";
  * @evidence contracts/common.md#clear-and-simple-design One change record serves all structural categories while the containing diff defines the category, avoiding a dense per-instance change array for prototype consequences.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A common subject can appear in both moved and reshaped categories when both responsibilities changed; null is reserved for absence rather than failed measurement disguised as deletion.
  * @evidence contracts/common.md#meaningful-documentation Defines stable id and kind, addition/removal null semantics and aggregate placement/selection consequences.
- * @author Samchon
  */
 export interface IAutoMovieSubjectChange {
   /** Stable subject id shared with the non-null description. */

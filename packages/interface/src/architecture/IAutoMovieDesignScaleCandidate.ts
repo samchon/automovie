@@ -9,7 +9,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Competing scale readings are kept side by side on the frame and one is chosen by id, so changing the chosen scale is a one-field edit that leaves every reading intact.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No candidate is chosen automatically by highest confidence; a frame whose `scale` is null stays unscaled and its readings are withheld as `unknown-scale`.
  * @evidence contracts/common.md#meaningful-documentation States that only the named candidate converts points, that confidence is informational, the unit and positivity of the ratio, and what the basis records.
- * @author Samchon
  */
 export interface IAutoMovieDesignScaleCandidate {
   /** Stable, non-blank candidate identity, unique within the frame. */

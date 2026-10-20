@@ -11,7 +11,6 @@ import { IAutoMovieSpringState } from "./IAutoMovieSpringState";
  * @evidence contracts/performance.md#efficient-algorithms The wrapper has constant references; stepping cost grows with spring joints, descendants and collider tests, while state grows with visited joints/chains.
  * @evidence contracts/performance.md#reuse-equivalent-work Callers thread the same state across equivalent scene frames; replacing a scene or driver population requires their explicit reset decision.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The scene caller owns and discards state/collider records; no timer, physics worker or host collision object is acquired.
- * @author Samchon
  */
 export interface IAutoMovieResolveSprings {
   /** Cross-frame Verlet state, advanced in place. */

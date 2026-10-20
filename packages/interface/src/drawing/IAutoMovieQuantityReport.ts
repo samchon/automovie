@@ -12,7 +12,6 @@ import { IAutoMovieQuantityFinding } from "./IAutoMovieQuantityFinding";
  * @evidence contracts/common.md#clear-and-simple-design The report holds one finding per subject plus the gap list and identity fields; units, bounds and approximations stay on the findings that own them, and gaps reuse the drawing's gap record so one reader handles all three derivations.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Every subject is present, including zero totals when no owner contributes; known unavailable inputs and unsupported work use named gaps. The fixed gap list is not an exhaustive discovery of every quantity, modelling defect or numerical failure, and canonical encoding can refuse non-finite computed output.
  * @evidence contracts/common.md#meaningful-documentation States where quantities come from, the refusals, and why unmeasurable quantities are gaps; members give the fixed subject order and completeness, the gap order, and the digest's coverage.
- * @author Samchon
  */
 export interface IAutoMovieQuantityReport {
   /** Report format. */

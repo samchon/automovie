@@ -17,7 +17,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms The shape only; finding corners compares every facade pair of a building and every vertex pair between two facades, answered on `builtEnvironmentEnvelopeCorners`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Recomputed from the envelope faces on each call; a census call derives corners once and filters that one list per building.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds strings and two fresh vectors by value, with the caller's corner list as sole owner.
- * @author Samchon
  */
 export interface IAutoMovieBuiltEnvelopeCorner {
   /** Stable identity `"<first facade>+<second facade>"`, in code-unit order. */

@@ -10,7 +10,6 @@ import { IAutoMovieMesh } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms This input record performs no weld or edge scan; appendMeshTopology owns the population-dependent work.
  * @evidence contracts/performance.md#reuse-equivalent-work Both model and standalone validation delegate to one topology calculation, while this record carries no reusable verdict cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Caller-owned arrays remain borrowed for the synchronous pass, and the options retain no renderer, geometry allocation or native handle.
- * @author Samchon
  */
 export interface IAutoMovieMeshTopologyValidationProps {
   /** Resident mesh in its local metre frame; the check borrows its buffers. */

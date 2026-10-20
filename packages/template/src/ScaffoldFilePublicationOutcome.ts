@@ -14,7 +14,6 @@ import { type IScaffoldRefusedFilePublicationOutcome } from "./IScaffoldRefusedF
  * @evidenceExclude contracts/performance.md#efficient-algorithms This alias only names three record shapes for narrowing and executes nothing.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The union describes one entry's effect; whether results repeat is not a question a status alias can answer.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources No variant of the union holds a handle; resource release is the adapter's duty before it returns.
- * @author Samchon
  */
 export type ScaffoldFilePublicationOutcome =
   | IScaffoldCompletedFilePublicationOutcome

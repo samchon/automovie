@@ -20,7 +20,6 @@ import { adjacentAutoMovieFloat64 as outward } from "./adjacentAutoMovieFloat64"
  * @evidence contracts/performance.md#efficient-algorithms Three point checks, three outward additions and three vector accumulations take constant work and storage.
  * @evidence contracts/performance.md#reuse-equivalent-work The enclosure is admitted once before coordinate accumulation; changed points or weights invalidate any previous seat.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Weighted vectors are bounded by three corners, and the returned point retains no input array reference.
- * @author Samchon
  */
 export function interpolateAutoMovieTrianglePoint(
   points: readonly IAutoMovieVector3[],

@@ -11,8 +11,6 @@ import type * as THREE from "three";
  * @evidence contracts/performance.md#efficient-algorithms Upload and bounding-sphere calculation scale with particle count; count is a constant-time read of the last uploaded length.
  * @evidence contracts/performance.md#reuse-equivalent-work The same point node and material persist through updates, while attributes are copied anew. No time or step key suppresses upload.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller detaches and disposes the object; each invocation independently attempts owned geometry then the default material while supplied material stays borrowed. The API has no failed-completion memo, closed state or independently observed physical-release guarantee.
- *
- * @author Samchon
  */
 export interface IAutoMovieFluidSprayObject {
   /** Add these points to the current scene. */

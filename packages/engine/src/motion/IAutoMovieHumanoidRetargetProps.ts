@@ -22,8 +22,6 @@ import { IAutoMovieRetargetContactProps } from "./IAutoMovieRetargetContactProps
  * @evidenceExclude contracts/performance.md#efficient-algorithms The input interface selects no traversal or solve; retargetHumanoidMotion and preserveRetargetContacts own those costs.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Borrowed rig inputs do not establish equivalence across calls, and the interface promises no cached retargeted motion.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns motion, skeleton and optional table lifetimes; no task or native workspace is acquired by constructing these props.
- *
- * @author Samchon
  */
 export interface IAutoMovieHumanoidRetargetProps {
   /** Clip authored on `source`. */

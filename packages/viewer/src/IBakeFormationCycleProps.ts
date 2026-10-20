@@ -15,8 +15,6 @@ import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
  * @evidenceExclude contracts/performance.md#efficient-algorithms The props record performs no part traversal or gait-table construction.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Its inputs describe one bake, while representation creation decides reuse across anonymous members and tiers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Model and parts are borrowed for baking; ownership of emitted table textures transfers to the returned formation representation.
- *
- * @author Samchon
  */
 export interface IBakeFormationCycleProps {
   /** Caller-owned compiled figure carrying the skeleton and gait profiles. */

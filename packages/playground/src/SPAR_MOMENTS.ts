@@ -318,8 +318,6 @@ const flip: (e: Ex) => Ex = (e: Ex): Ex => ({
  * Module initialization builds a bounded three-round list using fixed guard Maps; both clip projections later traverse this single list. Vocabulary arrays and roots are intentionally shared across moments/projections and must remain unmodified by consumers.
  *
  * The fixed timeline, vocabulary arrays and transforms live for the page/module lifetime with no running task or GPU handle. Callers own clip wrappers while borrowing these authored records.
- *
- * @author Samchon
  */
 export const SPAR_MOMENTS: SparMoment[] = ((): SparMoment[] => {
   const out: SparMoment[] = [{ t: 0, red: P.guard(), blue: P.guard() }];

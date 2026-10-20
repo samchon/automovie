@@ -10,7 +10,6 @@ import { IAutoMovieWorldSurface } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms Cloning E footprint points takes O(E) work/storage; the constant rule adds fixed data independent of covered area.
  * @evidence contracts/performance.md#reuse-equivalent-work The copied ring can be reused by downstream queries of this design, while each construction copies current input rather than caching mutable source identity.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the copied footprint and fresh rule; no source callback, geometry buffer, renderer or watcher is acquired.
- * @author Samchon
  */
 export const worldTerrain: (input: {
   id: string;

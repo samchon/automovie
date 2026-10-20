@@ -10,56 +10,40 @@ import { IAutoMovieTransition } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms The transition interval shape declares data and chooses no runtime algorithm; its producer documents construction cost.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The editorial transition metadata describes an identity boundary and performs no request coordination or result caching.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased transition interval opens no capture handle; planSequenceRender creates span scalars retained with the result caller's editorial manifest.
- *
- * @author Samchon
  */
 export interface IAutoMovieSequenceRenderTransitionSpan {
   /**
    * Index of the incoming entry in `sequence.shots`.
-   *
-   * @author Samchon
    */
   entry: number;
 
   /**
    * Outgoing shot id.
-   *
-   * @author Samchon
    */
   from: string;
 
   /**
    * Incoming shot id.
-   *
-   * @author Samchon
    */
   to: string;
 
   /**
    * Transition style copied from the sequence entry.
-   *
-   * @author Samchon
    */
   kind: IAutoMovieTransition["kind"];
 
   /**
    * Global output second where the transition begins.
-   *
-   * @author Samchon
    */
   start: number;
 
   /**
    * Global output second where the transition ends.
-   *
-   * @author Samchon
    */
   end: number;
 
   /**
    * Transition overlap duration in seconds.
-   *
-   * @author Samchon
    */
   duration: number;
 }

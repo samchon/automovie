@@ -10,7 +10,6 @@ import { IAutoMovieFluidSurfaceBounds } from "./IAutoMovieFluidSurfaceBounds";
  * @evidence contracts/common.md#clear-and-simple-design The surface reuses the shared `IAutoMovieMesh` shape and adds only the domain, the step, the drawn extent and the per-vertex flow, which are the facts a viewer needs beyond plain geometry.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Dry vertices retain cell-index correspondence, while bounds reads only emitted triangle indices. Float32 upload is a numerical projection rather than exact-value or visual proof, and the stock viewer material does not consume flow for ripples.
  * @evidence contracts/common.md#meaningful-documentation Identifies the derivation and mismatch refusal, admitted-array and arithmetic limits, Float32 viewer projection, indexed drawn bounds, vertex/triangle/normal/UV conventions and unconsumed flow metadata.
- * @author Samchon
  */
 export interface IAutoMovieFluidSurface {
   /** Id of the domain the surface was derived from. */

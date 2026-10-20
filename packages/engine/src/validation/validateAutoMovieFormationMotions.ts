@@ -18,7 +18,6 @@ import { engineDiagnostic } from "./engineDiagnostic";
 /**
  * Check bounded formation cues against participating compiled formations, runtime gait repertoire, finite state, layout and nonoverlapping intervals.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Check bounded formation cues against participating compiled formations, runtime gait repertoire, finite state, layout and nonoverlapping intervals.
  * @evidence contracts/common.md#clear-and-simple-design Request-local runtime/repertoire maps share model gait reads across cues and deterministic ordering groups each unit.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The 256-cue cap is a diagnostic, not truncation; unknown runtime models contribute no repertoire rather than an invented gait.

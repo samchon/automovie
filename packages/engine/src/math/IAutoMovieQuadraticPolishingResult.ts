@@ -19,7 +19,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A result record with no algorithm; the correction cost is answered on `polishAutoMovieQuadraticProgram`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each diagnostic trace describes one polishing attempt from one native solution under its original rows and step budget; no candidate is cached for another program.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Owned by the caller; each trace grows by at most two entries per started step, so every trace is linear in `maximumRefinements`, and `activeRows` holds at most one working-row list per step; nothing else is retained.
- * @author Samchon
  */
 export interface IAutoMovieQuadraticPolishingResult {
   /** Whether the refinement's full-row admission adopted the candidate. */

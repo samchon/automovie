@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Shared operator, expected scalar and tolerance compose with joint-angle, position and distance measurement arms so comparison semantics have one owner.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unresolvable or nonfinite measurements fail with null actual. The evaluator does not independently admit expected values, tolerance or operator strings at runtime, and the retired production contract gate no longer supplies that admission to arbitrary direct callers.
  * @evidence contracts/common.md#meaningful-documentation Defines the three operators, selected-measurement units, finite expected value and non-negative absolute tolerance.
- * @author Samchon
  */
 export interface IAutoMovieScalarPredicate {
   /** Numeric comparison. */

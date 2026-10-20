@@ -16,7 +16,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record type with no runtime code; the resolver builds one per target.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record type with no runtime code; the resolver reuses one design index across targets, not results.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A record of at most two points, a count and a sentence, owned by the caller that asked for it.
- * @author Samchon
  */
 export interface IAutoMovieDrawingFeatureResolution {
   /** Whether the target still addresses a feature of the design. */

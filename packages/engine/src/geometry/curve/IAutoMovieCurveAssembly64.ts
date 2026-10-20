@@ -11,7 +11,6 @@ import type { IAutoMovieCurve64 as C } from "./IAutoMovieCurve64";
  * @evidenceExclude contracts/performance.md#efficient-algorithms The namespace declares contracts rather than traversing the graph.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Construct-once scheduling is implemented by generateAutoMovieCurveAssembly64.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources These types create no context or retained result maps.
- * @author Samchon
  */
 export namespace IAutoMovieCurveAssembly64 {
   /**
@@ -24,7 +23,6 @@ export namespace IAutoMovieCurveAssembly64 {
    * @evidenceExclude contracts/performance.md#efficient-algorithms The result interface performs no coefficient scan.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work It does not cache construction results itself.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller receives the result object; this declaration adds no retention.
-   * @author Samchon
    */
   export interface Result {
     /**
@@ -49,7 +47,6 @@ export namespace IAutoMovieCurveAssembly64 {
    * @evidenceExclude contracts/performance.md#efficient-algorithms The interface does not schedule callbacks or choose graph traversal.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The assembly owns construct-once execution, not the callback type.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type retains no callback or context.
-   * @author Samchon
    */
   export interface Factory<T extends Result> {
     /**
@@ -84,7 +81,6 @@ export namespace IAutoMovieCurveAssembly64 {
    * @evidenceExclude contracts/performance.md#efficient-algorithms The output type performs no map construction or traversal.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Consumers can reuse the returned results; no hidden global assembly cache exists.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns the completed context/maps and releases them by dropping references.
-   * @author Samchon
    */
   export interface Output<T extends Result> {
     /**

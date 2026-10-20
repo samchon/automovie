@@ -21,7 +21,6 @@ import { resolveImpact } from "./resolveImpact";
  * {@link detectBodyCollision}) attaches to a contact warning; it wires together
  * resolveImpact and impactRecoil, whose consumer was previously missing.
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Compose resolveImpact, magnitude-to-flexion conversion and optional chain recoil; the result predicts normal velocities and a constrained pose target rather than a coupled rigid-body animation.
  * @evidence contracts/common.md#clear-and-simple-design Each helper owns one responsibility: impact mechanics, gain conversion and skeletal constraint response; absent chain or skeleton gives a null flinch.

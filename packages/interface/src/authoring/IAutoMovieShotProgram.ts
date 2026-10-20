@@ -13,7 +13,6 @@ import { IAutoMovieStage } from "./IAutoMovieStage";
  * @evidence contracts/common.md#clear-and-simple-design The program bundles the inputs each pipeline gate already owns, script, stage, blocking and performance, and adds only the actor runtime facts and event samples that no gate input carries.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A mismatched beat, duration or scene is refused rather than overwritten from the contract, and an undeclared or repeated event sample is refused rather than ignored.
  * @evidence contracts/common.md#meaningful-documentation States each binding to the registration, which gate reads each member, the time unit and window rule for event samples, and what the actor facts cover.
- * @author Samchon
  */
 export interface IAutoMovieShotProgram {
   /**

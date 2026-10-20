@@ -12,7 +12,6 @@ import { IAutoMovieVector3 } from "./IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design Three named parts instead of a 4x4 matrix keep each part checkable on its own and decomposable without numerical fitting, and one shape serves every placed record so a single validator covers them all.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The admitted local record has no explicit shear, reflection or collapsed-scale field; this does not certify an arbitrary composed matrix as unsheared or numerically nonsingular. The owning record supplies parent identity and consumers retain their documented matrix/decomposition limits.
  * @evidence contracts/common.md#meaningful-documentation States application order, record owners, semantic joint distinction, unchanged scalar admission and derived-product/hierarchy limitations; members give metre translation, quaternion rotation and dimensionless scale.
- * @author Samchon
  */
 export interface IAutoMovieTransform {
   /** Translation in parent space, meters. */

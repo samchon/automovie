@@ -19,7 +19,6 @@ import { IAutoMovieFramedSubject } from "./IAutoMovieFramedSubject";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record with no runtime body; one entry is built per frame action in a single pass inside `performShot`, whose cost is answered there.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The entry is built and consumed within one `performShot` call and never cached; subject reuse across the hero and coverage takes happens in `framedSubject`, not in this record.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds a reference to the authored action and to the subject, whose `at` closure captures the shot's motion tables; the entries list is local to `performShot` and dropped when the camera clip is compiled.
- * @author Samchon
  */
 export interface IAutoMovieCameraFrameEntry {
   /**

@@ -13,7 +13,6 @@
  * @evidence contracts/common.md#clear-and-simple-design A numeric triple plus nullable alpha and label, so an authoring agent adjusts color numerically and the engine range-checks it, while the label stays an optional derived view rather than a second source of truth.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The triple is never re-derived from hex behind the author's back; shared validation refuses labels that differ from the quantized sRGB encoding instead of allowing material, light, fog and background slots to disagree about the same colour representation.
  * @evidence contracts/common.md#meaningful-documentation States linear channel authority and range, conversion helpers and eight-bit round trip, the unconverted-swatch error, nullable alpha, and case-insensitive agreement of an optional label with the quantized RGB swatch.
- * @author Samchon
  */
 export interface IAutoMovieColor {
   /** Linear red, `[0, 1]`. */

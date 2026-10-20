@@ -10,4 +10,4 @@ Each entry below was read as its abstract through the Europe PMC API; the full t
 | Kiire S. "Effect of Leg-to-Body Ratio on Body Shape Attractiveness." *Archives of Sexual Behavior*, 2016 (doi 10.1007/s10508-015-0635-9) | 22 3D stimuli rated by 40 women and 40 men in Japan; LBR = crotch height / stature | Inverted U with its peak at the average LBR; higher LBR rated more attractive in female figures, lower in male figures |
 | Karastergiou et al. 2012 | see `karastergiou-2012.md` | |
 
-Grade: measured preferences. Human takes: attractiveness rises with leanness (lower BMI, smaller waist) in women within the healthy range, with upper-body strength cues (shoulder and arm muscularity, leanness, stature) in men, with bilateral symmetry and with sex-typical proportions, and peaks at or slightly above the mean leg-to-body ratio.
+Grade: measured preferences.

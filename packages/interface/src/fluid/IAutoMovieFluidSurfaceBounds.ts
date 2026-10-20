@@ -9,7 +9,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design Two corners are the whole box; it exists only inside the nullable `IAutoMovieFluidSurface.bounds`, so an empty surface has no box instead of an infinite or inverted one.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unreferenced dry cells do not enlarge this box. A sphere derived from the box may include drained or otherwise empty surrounding space; neither this record nor that sphere proves wet coverage or pixel equality.
  * @evidence contracts/common.md#meaningful-documentation States world metre units, indexed numerical membership, finite-position premise and the difference between this hull, a derived enclosing sphere and GPU projection; members identify each corner.
- * @author Samchon
  */
 export interface IAutoMovieFluidSurfaceBounds {
   /** Minimum corner, in world metres. */

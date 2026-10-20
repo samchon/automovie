@@ -41,7 +41,6 @@ import { isAutoMovieAnalysisDomain } from "./isAutoMovieAnalysisDomain";
  * @evidence contracts/performance.md#efficient-algorithms One indexed pass visits M metric, S sample and W warning slots, even when missing; hashed uniqueness and measured-key lookups avoid pairwise scans. The sample bound raises a violation without truncating the walk. String trimming, hashing and diagnostic construction additionally depend on authored text lengths; three call-local key sets hold at most M+S ids/keys.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call checks the one run it is handed; the seal and the public validator call it on different occasions, and no verdict is cached because a deserialized run must be re-proven.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The key sets are call-local and released on return; violations appended to the caller's collector may reference fragments of the run, and the caller owns the collector.
- * @author Samchon
  */
 export const validateAutoMovieAnalysisRunContents: (
   run: Omit<IAutoMovieAnalysisRun, "digest">,

@@ -12,7 +12,6 @@ import { AutoMovieSoftFurnishingMode } from "./AutoMovieSoftFurnishingMode";
  * @evidence contracts/common.md#clear-and-simple-design The building-owned binding holds room and support references while the domain retains all cloth computation inputs.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The semantic kind selects no solver template. Referencing supports records dependencies but does not itself animate anchors from those element transforms.
  * @evidence contracts/common.md#meaningful-documentation Members distinguish mode, selected named state, dependency ids and nullable material; unsupported or unexecuted lowering is reported separately.
- * @author Samchon
  */
 export interface IAutoMovieSoftFurnishing {
   /** Stable furnishing identity within the production. */

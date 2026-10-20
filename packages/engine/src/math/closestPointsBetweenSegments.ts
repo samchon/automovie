@@ -39,7 +39,6 @@ import { clampAutoMovieUnitInterval } from "./clampAutoMovieUnitInterval";
  * @evidence contracts/performance.md#efficient-algorithms Four boundary candidates and at most one stationary-line candidate use constant-dimensional arithmetic and bounded storage.
  * @evidence contracts/performance.md#reuse-equivalent-work Local differences and scaled dot products serve every candidate once; changed endpoints require a new query.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Candidate records are temporary; only two new witness points and their scalar distance escape to the caller.
- * @author Samchon
  */
 export const closestPointsBetweenSegments: (
   a: IAutoMovieVector3,

@@ -11,7 +11,6 @@ import { footprintContains } from "./footprintContains";
  * @evidence contracts/performance.md#efficient-algorithms E footprint edges take O(E) worst-case work and constant additional query storage, without rebuilding projections.
  * @evidence contracts/performance.md#reuse-equivalent-work Completed ring projections and areas remain available across independent queries; changed source geometry requires a new preparation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The borrowed preparation is not retained by this call and only a boolean escapes, with no task or host handle.
- * @author Samchon
  */
 export const preparedSurfaceContains: (
   prepared: IAutoMoviePreparedSurface,

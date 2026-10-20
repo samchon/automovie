@@ -15,8 +15,6 @@ import { performShotActors } from "./performShotActors";
 
 /**
  * What one action's clip carries after its region mask, cached by action only while that actor's overlap pairs are compared.
- *
- * @author Samchon
  */
 interface ICarriedContent {
   /** Bones authored by at least one key and retained by the action's region. */

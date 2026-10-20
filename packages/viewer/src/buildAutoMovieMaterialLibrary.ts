@@ -38,8 +38,6 @@ import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceReti
  * @evidence contracts/performance.md#efficient-algorithms Deduplicates requested ids before engine resolution and builds each admitted material once; definition admission searches model/material declarations per requested id, texture prime deduplicates assets, and retirement visits each built material once.
  * @evidence contracts/performance.md#reuse-equivalent-work One material object per requested id is lent to all surfaces in the shot; the supplied cache shares decoded assets, and completed disposal or its stored failure is reused without native retries.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned owner retains its material Map until dispose; successful releases remove entries while failed entries and their original completion remain retained. Construction rollback attempts every earlier built material, and texture lifetimes stay with the external shot cache.
- *
- * @author Samchon
  */
 export const buildAutoMovieMaterialLibrary: (
   props: IBuildAutoMovieMaterialLibraryProps,

@@ -11,7 +11,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Depth on cells and velocity on faces is the whole state the next step needs, plus four ledger totals that let a caller audit conservation without re-solving.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No result cache makes seek results independent of earlier calls for unchanged inputs. The nonpositive-depth assignment follows limiting but also hides NaN intermediates, and ledger/time overflow is not independently refused; these remain unresolved numerical admission gaps rather than guaranteed roundoff-only corrections.
  * @evidence contracts/common.md#meaningful-documentation States replay ownership and cost, step refusal, exact scope and limits of finite-state checks, array layouts and the intended finite-arithmetic ledger relation; members give units, indices and each total's meaning.
- * @author Samchon
  */
 export interface IAutoMovieFluidState {
   /** Id of the domain this state belongs to. */

@@ -10,7 +10,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms Storage grows with visited joint ids and centre/chain tuples; map lookup is expected O(1), with key creation proportional to chain-id text.
  * @evidence contracts/performance.md#reuse-equivalent-work resolveFrame reuses post-spring positions across freshly composed frames and stepSpring reuses prior history; changed scene/driver identity requires caller-controlled reset.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The scene caller owns the maps and discards/replaces them when finished; removed chains remain retained until that reset, with no intrinsic population bound or host handle.
- * @author Samchon
  */
 export interface IAutoMovieSpringState {
   /**

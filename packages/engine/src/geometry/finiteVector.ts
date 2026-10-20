@@ -18,7 +18,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms Three component tests that short-circuit, allocating nothing on success.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Every path point or corner is admitted once by the operation that reads it.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Reads the vector and returns; no state survives the call.
- * @author Samchon
  */
 export const finiteVector = (point: IAutoMovieVector3, label: string): void => {
   if (

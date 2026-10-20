@@ -16,7 +16,6 @@ import type { IAutoMovieMeshAttachmentCap } from "./IAutoMovieMeshAttachmentCap"
  * @evidenceExclude contracts/performance.md#efficient-algorithms A result record; the walk that fills it is answered on the separation query.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built once per call and never shared with a later call; the query keeps no reference to it.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Owns scalars plus one cap record per admitted attachment support, at most the attachment's support count, released with the caller's result.
- * @author Samchon
  */
 export interface IAutoMovieMeshSeparationResult {
   /** Whether the complete feature proved at least the requested separation. */

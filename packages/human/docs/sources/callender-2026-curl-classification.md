@@ -10,10 +10,6 @@ CC BY 4.0. Authors disclose L'Oréal funding.
 
 Four systems are in use: André Walker, LOIS, FIA and the L'Oréal Curl Classification. The L'Oréal system defines eight types (I to VIII) from four geometric measures of the fibre: curve diameter, curl index, number of waves and number of twists; types I to IV are separated by curve diameter, V to VIII additionally by curl index, waves and twists; V to VIII are curly and coily. It classifies without reference to ancestry. Grade: conventional (classification), built on measured fibre geometry.
 
-## What Human takes
-
-Hair curl as a closed choice of eight types, each mapped to a curve diameter and curl index for the guide-curve helix, instead of an ancestry label.
-
 ## Limits
 
 The type thresholds themselves were not in the text read.

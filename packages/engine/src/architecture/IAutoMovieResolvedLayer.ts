@@ -10,7 +10,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms No code; each layer is placed in constant time while the resolver accumulates the cursor along the axis.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Resolved once per assembly resolution and shared by every query on that result.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Strings and numbers owned by the resolved assembly's layer array.
- * @author Samchon
  */
 export interface IAutoMovieResolvedLayer {
   /** The contributing {@link IAutoMovieMaterialLayer.id}. */

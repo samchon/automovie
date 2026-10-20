@@ -2,8 +2,6 @@
 
 /**
  * Light rig recorded with the scene so a capture names its conditions.
- *
- * @author Samchon
  */
 export interface IViewerSceneLighting {
   /** Direction the key light comes FROM, as a world vector (not normalized). */

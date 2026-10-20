@@ -10,7 +10,6 @@ import { AutoMovieHumanoidBone } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms The record is data only; its consumer pays sampled FK, resolved-joint weighting and support-hull/distance work for every window frame.
  * @evidence contracts/performance.md#reuse-equivalent-work The same authored contacts and resolved skeleton law feed each sampled frame; the type introduces no retained pose or cached physical conclusion.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the window and support-bone list, which the validator borrows during inspection without host handles or active tasks.
- * @author Samchon
  */
 export interface IAutoMovieBalanceSupportWindow {
   /**

@@ -1,4 +1,4 @@
-﻿import type { AutoMovieHumanoidBone } from "@automovie/interface";
+import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
 import type { IHumanoidSlot } from "./IHumanoidSlot";
 import { compareCodeUnits } from "./compareCodeUnits";
@@ -19,7 +19,6 @@ import { validNodeIndex } from "./validNodeIndex";
  * @evidence contracts/performance.md#efficient-algorithms Work follows mapping entries and name text; 1.0 metadata enumerates B keys before O(B log B) prefix-scanning comparisons, while 0.x uses expected constant-time slot lookups after name admission.
  * @evidence contracts/performance.md#reuse-equivalent-work Each metadata mapping is resolved once during its inspector call; mutable documents prevent persistent equivalence caching.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Result slot records scale with declared mappings; temporary entries and uniqueness sets die on return or throw.
- * @author Samchon
  */
 export const vrmHumanoidBones: (
   document: Record<string, unknown>,

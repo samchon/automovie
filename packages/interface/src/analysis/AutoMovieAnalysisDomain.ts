@@ -13,7 +13,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Plain literals with no per-domain metadata; ordering and the guard live in the engine table, keeping this package free of runtime values.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Membership makes no adapter or completeness claim: the envelope solver emits a solved moisture run with an unsupported interstitial-condensation metric. A wholly unavailable adapter is reported as unsupported rather than a fabricated measurement.
  * @evidence contracts/common.md#meaningful-documentation States why the list is closed, that membership does not imply an adapter exists, and which table fixes the rollup order.
- * @author Samchon
  */
 export type AutoMovieAnalysisDomain =
   | "daylight"

@@ -18,7 +18,6 @@ import { IAutoMovieActionTarget } from "./IAutoMovieActionTarget";
  * @evidence contracts/common.md#clear-and-simple-design One target on the shared base is the whole verb; eye height, rig range and the actor's frame come from the actor context, so no angle or joint field is exposed.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A target with no point is refused rather than aimed at a default direction, and a prop or camera keeps its own placement as the aim point instead of an invented eye height.
  * @evidence contracts/common.md#meaningful-documentation States the refusals, the eye-to-eye aim and its exception, how the angles are spread, when the gaze is held or resampled, the `"auto"` length and the default region; the member says what the gaze is directed at.
- * @author Samchon
  */
 export interface IAutoMovieLookAtAction extends IAutoMovieActionBase {
   /** Selects gaze tracking as the action family. */

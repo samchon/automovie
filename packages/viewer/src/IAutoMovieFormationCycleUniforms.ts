@@ -10,8 +10,6 @@ import type * as THREE from "three";
  * @evidenceExclude contracts/performance.md#efficient-algorithms The uniform shape performs no texture lookup or shader evaluation.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Cell references permit material sharing, but equivalent-work admission is owned by the formation runtime rather than this type.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Uniforms borrow the active take's texture; formation representation disposal owns its GPU release.
- *
- * @author Samchon
  */
 export interface IAutoMovieFormationCycleUniforms {
   /** Baked part-matrix table of the take playing now. */

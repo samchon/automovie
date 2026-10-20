@@ -21,7 +21,6 @@ import { transformAutoMovieDrawingPoint } from "./transformAutoMovieDrawingPoint
  * @evidence contracts/performance.md#efficient-algorithms One pass over the `t` triangles with constant work each, linear time and one output triangle per input.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function; reuse of the untransformed tessellation happens in `indexAutoMovieDrawingDesign`, which caches the input this function places.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Each placed triangle belongs to the returned list the caller owns; the source list is only read and never retained.
- * @author Samchon
  */
 export const transformAutoMovieDrawingTriangles = (
   matrix: readonly number[],

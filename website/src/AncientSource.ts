@@ -10,8 +10,6 @@ import type { Vector } from "./Vector";
  * @evidenceExclude contracts/performance.md#efficient-algorithms This erased projection selects no runtime algorithm.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work This record coordinates no completed work or effects.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This record acquires no source payload or GPU resources.
- *
- * @author Samchon
  */
 export interface AncientSource {
   /** Authored vertical lens degrees and clip distances in meters. */

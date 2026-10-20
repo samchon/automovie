@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design A revision is an id, one optional parent, and a digest, enough to name a state and its predecessor without carrying the source text or a version-control model.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Digest spelling does not authenticate source bytes or enforce immutable records; callers own preserving a revision's meaning. Multiple roots and a head with recorded descendants are allowed, and one parent cannot express a merge. The gate does not prove the head is a unique newest leaf or that every revision reaches it.
  * @evidence contracts/common.md#meaningful-documentation States that the digest is authored and unverified, that several roots are allowed, that merges are unrepresentable, and what a null parent means.
- * @author Samchon
  */
 export interface IAutoMovieDesignRevision {
   /** Stable, non-blank revision identity, unique within the lineage. */

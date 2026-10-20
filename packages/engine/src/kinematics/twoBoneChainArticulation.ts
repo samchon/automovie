@@ -44,7 +44,6 @@ const POLE_FALLBACK: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  * @evidence contracts/performance.md#efficient-algorithms Constant time: a few vector differences, one `solveTwoBoneIK`, two `aimRotation` calls and a handful of quaternion products.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Segment lengths and rest directions are derived once for the supplied resolved chain; another pose or target changes those frames and has no reusable cached articulation here.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned rotations.
- * @author Samchon
  */
 export const twoBoneChainArticulation: (props: {
   upper: IAutoMovieChainBone;

@@ -9,7 +9,6 @@ import { deriveCenterOfMass } from "./deriveCenterOfMass";
  * primitive volume to weigh). The single entry point support/balance checks use
  * so an explicit COM (a weighted base) always wins over the geometric one.
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation An authored body.centerOfMass takes precedence; otherwise deriveCenterOfMass estimates a uniform-density primitive aggregate. Mesh-only or zero-volume geometry has no derived center.
  * @evidence contracts/common.md#clear-and-simple-design One precedence decision delegates geometry mathematics to its canonical owner and leaves missing-body policy to the caller.

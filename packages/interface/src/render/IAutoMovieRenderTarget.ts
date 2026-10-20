@@ -15,7 +15,6 @@ import { IAutoMovieRenderTargetSettings } from "./IAutoMovieRenderTargetSettings
  * @evidence contracts/common.md#clear-and-simple-design Separates implementation identity, frame configuration and byte dependencies so a report can compare the complete cost basis rather than only design or compile revision.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Version-one omission cannot certify decoded texture facts and reported unknown hardware remains explicit; tuple positions and JSON escaping preserve embedded separators. Asset completeness, current byte identity and closed boolean/tone-mapping shapes are caller premises; neither sealing nor comparison independently proves an observed frame or freezes the target.
  * @evidence contracts/common.md#meaningful-documentation Defines protocol compatibility, optional host texture facts, sorted exact assets and the dependence of reuse on current target equality.
- * @author Samchon
  */
 export interface IAutoMovieRenderTarget {
   /** Versioned fingerprint protocol. */

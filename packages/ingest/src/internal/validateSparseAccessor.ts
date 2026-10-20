@@ -1,4 +1,4 @@
-﻿import { COMPONENT_BYTES } from "./COMPONENT_BYTES";
+import { COMPONENT_BYTES } from "./COMPONENT_BYTES";
 import { accessorElementByteLength } from "./accessorElementByteLength";
 import { integerIndex } from "./integerIndex";
 import { nonNegativeInteger } from "./nonNegativeInteger";
@@ -17,7 +17,6 @@ import { positiveInteger } from "./positiveInteger";
  * @evidence contracts/performance.md#efficient-algorithms One sparse accessor requires constant-size field checks and two range calculations independent of sparse element count.
  * @evidence contracts/performance.md#reuse-equivalent-work Subview metadata is read once per sparse payload; no byte decoding is performed or cached here.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The range gate creates temporary metadata references only and retains no payload, reader or handle.
- * @author Samchon
  */
 export const validateSparseAccessor: (
   accessor: Record<string, unknown>,

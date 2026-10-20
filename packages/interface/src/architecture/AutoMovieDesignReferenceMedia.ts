@@ -9,7 +9,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Standard media type strings rather than a private format enum, so a declared reference names its container the way the bytes are labelled elsewhere.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A supported string supplies no guessed sheet size, page box, raster recognition or full container-standard admission; explicit hosts own those observations.
  * @evidence contracts/common.md#meaningful-documentation States the closed declared families and distinguishes Engine string admission from absent automatic byte/extent inspection.
- * @author Samchon
  */
 export type AutoMovieDesignReferenceMedia =
   | "image/png"

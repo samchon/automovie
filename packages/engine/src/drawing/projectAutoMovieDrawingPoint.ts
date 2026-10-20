@@ -24,7 +24,6 @@ import { Vector3 } from "../math/Vector3";
  * @evidenceExclude contracts/performance.md#efficient-algorithms One subtraction and two dot products, so there is no algorithm to choose.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Two dot products per point; a cache keyed by point would cost a hash and an allocation to save less than it spends.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The temporary offset vector is dropped on return and the page point goes to the caller, which rounds it straight away.
- * @author Samchon
  */
 export const projectAutoMovieDrawingPoint = (
   frame: IAutoMovieDrawingFrame,

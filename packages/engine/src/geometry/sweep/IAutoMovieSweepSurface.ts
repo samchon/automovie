@@ -19,7 +19,6 @@ import { IAutoMovieSweepSection } from "./IAutoMovieSweepSection";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record; costs are answered on `compileAutoMovieSweep`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record; it is the reuse.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A record whose closures retain what their producer states.
- * @author Samchon
  */
 export interface IAutoMovieSweepSurface {
   /** The sweep this surface was compiled from, unchanged. */

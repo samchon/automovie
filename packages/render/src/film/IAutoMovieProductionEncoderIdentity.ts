@@ -17,7 +17,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms Five strings and three numbers describe an encoder without running it; hashing them into every chunk id is `planProductionRenderJob`'s cost.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A plain record coordinates no phases or requests; equivalence of encodes is decided by the chunk ids that digest it.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The encoder identity names a package and digest but holds no encoder process or file; the runtime identity inside the plan owns it.
- * @author Samchon
  */
 export interface IAutoMovieProductionEncoderIdentity {
   /** Installed encoder package name, such as `h264-mp4-encoder`. */

@@ -20,7 +20,7 @@ These sources justify regional skin rules within the populations and protocols b
 
 [Choi et al. 2013](https://pubmed.ncbi.nlm.nih.gov/22176122/) studies 914 acne patients using photographs, lesion counts and Sebumeter readings. Associations depend on lesion class, facial zone and demographics; oiliness is not a deterministic lesion generator. [Dréno et al. 2015](https://doi.org/10.1111/jdv.12757) finds multi-zone involvement in most of 374 adult women attending dermatology visits. Neither a fixed T-zone nor a jawline-only rule follows. Neither study provides a universal count, diameter or elevation prior.
 
-[Yamaguchi et al. 2004](https://pmc.ncbi.nlm.nih.gov/articles/PMC2172049/) compares one palm and four sole samples with matched trunk samples from five Asian adults ages 31–47. Lower melanogenesis and marker-positive melanocyte density justify a distinct palmoplantar pigment field, not the current quarter-melanin multiplier. Cell number, melanosome volume fraction, pigment concentration and rendered RGB are different quantities.
+[Yamaguchi et al. 2004](https://pmc.ncbi.nlm.nih.gov/articles/PMC2172049/) compares one palm and four sole samples with matched trunk samples from five Asian adults ages 31–47. Lower melanogenesis and marker-positive melanocyte density justify a distinct palmoplantar pigment field, without establishing a fixed quarter-melanin multiplier. Cell number, melanosome volume fraction, pigment concentration and rendered RGB are different quantities.
 
 ## Modeling boundary
 

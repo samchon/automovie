@@ -1,4 +1,4 @@
-﻿import { object } from "./object";
+import { object } from "./object";
 import { optionalArray } from "./optionalArray";
 
 /**
@@ -11,7 +11,6 @@ import { optionalArray } from "./optionalArray";
  * @evidence contracts/performance.md#efficient-algorithms N nodes and E child links cost O(N+E), since completed parent walks are marked and each node enters one unfinished path.
  * @evidence contracts/performance.md#reuse-equivalent-work The returned parent table is reused by scene-root admission and motion-node interpretation in the same inspector call.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Parent/state/path arrays are bounded by node count; only the returned table remains with its synchronous caller.
- * @author Samchon
  */
 export const inspectExternalModelHierarchy: (
   values: unknown[],

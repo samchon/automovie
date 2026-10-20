@@ -9,7 +9,6 @@ import { IAutoMovieForgeEntry } from "./IAutoMovieForgeEntry";
  * @evidence contracts/common.md#clear-and-simple-design One entry list is the whole plan; the cast and its `modelRef` choices stay on the script, so the plan states only the models it supplies.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A missing stand-in is reported rather than filled with a default rig, and a second entry for one node is refused rather than letting the later one win.
  * @evidence contracts/common.md#meaningful-documentation States which consumer reads the plan, what it returns, and the exact-cover rule over cast members with and without a `modelRef`.
- * @author Samchon
  */
 export interface IAutoMovieForgePlan {
   /**

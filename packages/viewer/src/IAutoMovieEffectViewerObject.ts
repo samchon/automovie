@@ -5,7 +5,6 @@ import type { IAutoMovieEffectViewerStats } from "./IAutoMovieEffectViewerStats.
 /**
  * Built deterministic billboard emitter.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Associates a native bounded InstancedMesh with current sampler summary and one absolute-time/camera update; the engine owns seeded fixed-step particle semantics and the viewer owns billboard projection.
  * @evidence contracts/common.md#clear-and-simple-design Exposes the actual mesh and summary/update seam rather than a second particle model; no current production host or complete close capability is supplied by the producer.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not expose a fabricated measured-success field or substitute a fixture stream; native resource references remain real caller retirement obligations.

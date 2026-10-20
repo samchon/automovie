@@ -14,7 +14,6 @@ import { IAutoMovieDrivenCurvePoint } from "./IAutoMovieDrivenCurvePoint";
  * @evidence contracts/common.md#clear-and-simple-design The curve is one ordered point list wrapped in an object, so a driven driver chooses between the linear remap and the curve by the presence of one field.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unsorted, duplicate or non-finite points throw rather than being sorted or dropped, and an unsampled source reads the curve's own first point instead of borrowing the linear driver's `inRange`.
  * @evidence contracts/common.md#meaningful-documentation States the interpolation, the behaviour outside the authored range, every validation the evaluator throws on, and the answer for an unsampled source.
- * @author Samchon
  */
 export interface IAutoMovieDrivenCurve {
   /** At least one control point, ordered by strictly increasing source. */

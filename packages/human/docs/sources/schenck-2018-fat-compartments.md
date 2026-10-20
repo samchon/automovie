@@ -9,7 +9,3 @@ Schenck TL, Koban KC, Schlattau A, Frank K, Sykes JM, Targosinski S, Erlbacher K
 ## Findings (abstract)
 
 Distinct subcutaneous compartments exist. Under added volume, the superficial nasolabial, middle cheek and jowl compartments displace downward, while the medial cheek, lateral cheek and superior and inferior temporal compartments gain projection without displacement.
-
-## What Human takes
-
-The compartment names and their two behaviours (sliding versus projecting) as the units of facial fat volume by age and adiposity. The original Rohrich and Pessa 2007 compartment description is not independent evidence in this note.

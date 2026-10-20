@@ -13,7 +13,6 @@ import { IAutoMovieSoftBounds } from "./IAutoMovieSoftBounds";
  * @evidence contracts/common.md#clear-and-simple-design One result separates structure derivation from cluster arrangement and includes its recipe identity and stage.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Bounds include maximum-end-radius stem support and all four transformed XY leaf-card corners, matching emitted geometry rather than guessing foliage width; this CPU envelope does not certify GPU rounding or continuous inclusion in a non-convex room union.
  * @evidence contracts/common.md#meaningful-documentation The recipe frame, stable branch/leaf order, nullable empty result and complete emitted stem/card envelope are stated for installation consumers composing member scale, rotation and translation.
- * @author Samchon
  */
 export interface IAutoMoviePlantingState {
   /** Identity of the recipe this structure was derived from. */

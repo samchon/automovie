@@ -23,7 +23,3 @@ CC BY-NC-ND 4.0.
 | Overjet | 3.0 (1.5) | 2.9 (1.4) |
 
 Model estimates: active opening 45.0 mm (boys) and 42.8 mm (girls) at 6, 55.3 and 50.5 mm at 18; laterotrusion 9.2 and 9.1 mm at 6, 10.4 and 10.3 mm at 18. Opening and protrusion flatten with age (quadratic terms).
-
-## What Human takes
-
-Admission bounds for the jaw by age and sex: maximum opening, protrusion and lateral excursion, plus resting overjet and overbite for incisor placement.

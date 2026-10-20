@@ -9,7 +9,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design Emitter id and spawn index identify the sample, while position, size and ageRatio supply projection attributes; velocity and launch direction stay with sampling rather than being duplicated here.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Size is copied from the emitter without age/distance scaling. Float32 projection may round values, and the default point material leaves per-particle size and age unused rather than implementing implicit fading.
  * @evidence contracts/common.md#meaningful-documentation Identifies producer, emitter-scoped spawn identity, ballistic metre position, size and age conventions, Float32 projection and default-material limitations.
- * @author Samchon
  */
 export interface IAutoMovieFluidSprayParticle {
   /** Id of the emitter that spawned it. */

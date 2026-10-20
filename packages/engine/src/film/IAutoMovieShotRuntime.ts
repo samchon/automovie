@@ -42,7 +42,6 @@ import { IAutoMovieShotPhysicsAdvice } from "./IAutoMovieShotPhysicsAdvice";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A capability record with no runtime body; the work done with each member is answered on `performShot`, `realizeShotContract` and `compileDefinedShot`.
  * @evidence contracts/performance.md#reuse-equivalent-work Built once per shot by the host and shared by every compile phase of that shot, so the model, formation and clip lists are handed over once; the engine caches no lookup answer, so a host whose rig or gait lookups are costly memoizes them itself.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The host owns every member; the compiled result copies the advice with `structuredClone` and holds no reference to the lookups, so the record is released when the host drops it after compilation.
- * @author Samchon
  */
 export interface IAutoMovieShotRuntime {
   /**

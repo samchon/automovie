@@ -12,6 +12,5 @@
  * @evidence contracts/common.md#clear-and-simple-design One literal per provenance lets a mark keep a single outline and size shape while a reader still knows which source produced them.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A filling element's extent is labelled `fill` and reported as a gap rather than passed off as the opening's size, and a missing source yields an empty mark instead of an invented one.
  * @evidence contracts/common.md#meaningful-documentation States what each basis draws and measures, when `none` applies, and which gap each substitute raises.
- * @author Samchon
  */
 export type AutoMovieDrawingOpeningBasis = "profile" | "fill" | "none";

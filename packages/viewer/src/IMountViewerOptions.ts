@@ -10,8 +10,6 @@ import type { IAutoMovieViewerCompletedFrame } from "./IAutoMovieViewerCompleted
  * @evidenceExclude contracts/performance.md#efficient-algorithms This options shape implements no render loop or framebuffer readback algorithm.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Equal context options do not establish equivalent scene/source/frame effects or authorize sharing one mount.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources These borrowed callbacks and scalars acquire no renderer; mountViewer owns the context and loop they configure.
- *
- * @author Samchon
  */
 export interface IMountViewerOptions {
   /** Creation-time multisample antialiasing, true by default; false avoids segment-edge blending without proving cross-GPU byte equality. */

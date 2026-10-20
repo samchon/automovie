@@ -8,8 +8,6 @@ import { AUTOMOVIE_OBSERVATION_EPSILON } from "./constants/AUTOMOVIE_OBSERVATION
 
 /**
  * A half-space `dot(normal, point) <= offset`.
- *
- * @author Samchon
  */
 interface IPlane {
   /** Outward normal; unit length once read through {@link unitPlane}. */

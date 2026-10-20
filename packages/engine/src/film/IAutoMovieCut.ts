@@ -14,7 +14,6 @@ import {
  * @evidenceExclude contracts/performance.md#efficient-algorithms A type with no runtime body; the single pass over shots and entries is answered on `cutSequence`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call builds a fresh result and nothing caches cuts across edit plans.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owns only the branch it carries; retention of each branch is stated on its member interface.
- * @author Samchon
  */
 export type IAutoMovieCut = IAutoMovieCut.ISuccess | IAutoMovieCut.IFailure;
 
@@ -32,7 +31,6 @@ export namespace IAutoMovieCut {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A record; `cutSequence` fills it after one pass over the entries.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A fresh value per call; the playground keeps the success branch beside its compiled film, and nothing shares it across plans.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The sequence holds new entry records that still reference the plan's `trim` and `transition` objects; it is released with the caller's result.
-   * @author Samchon
    */
   export interface ISuccess {
     /** Discriminator. */
@@ -59,7 +57,6 @@ export namespace IAutoMovieCut {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A record; the violations are pushed during the producer's single pass.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built fresh per call for one correction round and never cached.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owns the violation array, whose `actual` values may reference the plan's trim or transition objects; one violation per failed check bounds it by the entry and shot counts.
-   * @author Samchon
    */
   export interface IFailure {
     /** Discriminator. */

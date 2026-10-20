@@ -14,7 +14,6 @@ import type { AutoMovieHeadlessCaptureErrorCode } from "./AutoMovieHeadlessCaptu
  * @evidenceExclude contracts/performance.md#efficient-algorithms The constructor assigns three fields and performs no search, traversal or allocation beyond the error object itself.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each failure builds its own error for one thrown path, and no two throws describe the same work.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The instance retains only the wrapped `source` error, released when the caller drops the error; it opens no page, handle or task.
- * @author Samchon
  */
 export class AutoMovieHeadlessCaptureError extends Error {
   /** The capture step that failed; see `AutoMovieHeadlessCaptureErrorCode`. */

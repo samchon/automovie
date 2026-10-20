@@ -20,7 +20,6 @@ import { AUTOMOVIE_ANALYSIS_DOMAINS } from "./constants/AUTOMOVIE_ANALYSIS_DOMAI
  * @evidence contracts/performance.md#efficient-algorithms A linear `includes` over a fixed six-entry tuple, constant cost per call; a hashed set would add a second representation of the table for no asymptotic change.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure predicate over a constant table, coordinating no work across requests.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Reads the module-level domain tuple in place; no copy, set or handle is created per call.
- * @author Samchon
  */
 export const isAutoMovieAnalysisDomain: (
   value: unknown,

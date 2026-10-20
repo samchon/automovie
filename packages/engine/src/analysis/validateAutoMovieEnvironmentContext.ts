@@ -44,7 +44,6 @@ const AXIS_EPSILON: number = 1e-12;
  * @evidence contracts/performance.md#efficient-algorithms Time is O(R + I + O·P) for R reserved ids hashed into one set, I instants with constant work each, and O occluders of P planes; the ground up is normalized once per call rather than once per instant, and no pairwise comparison runs because uniqueness uses hashed sets.
  * @evidence contracts/performance.md#reuse-equivalent-work Nothing is memoized across calls: each daylight and envelope study and each production build validates the context it is handed, with its own `reserved` set, and a cache keyed on a mutable caller object could not prove the context unchanged.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The collector, the reserved, instant and occluder sets live only for the call; the returned validation holds the violations, which may reference fragments of the context, and is owned by the caller.
- * @author Samchon
  */
 export const validateAutoMovieEnvironmentContext: (props: {
   context: IAutoMovieEnvironmentContext;

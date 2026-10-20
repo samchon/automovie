@@ -25,7 +25,3 @@ Three samples: 106 US college women with 3D body measurements and attractiveness
 | Bust / waist | 1.24 | 1.29 | 1.51 | |
 
 In college women, attractiveness correlated with waist/stature -0.73, BMI -0.67, hip/stature -0.63, thigh/stature -0.73, arm/stature -0.62, WHR -0.52; with waist/stature in a regression, neither BMI nor WHR added significantly. The authors conclude waist size is the key cue and accounts for the BMI and WHR effects; hip size relative to stature varies little across attractiveness groups. The introduction summarises earlier work: women with WHR 0.60 to 0.70 are most consistently rated highly attractive and above 0.85 less so (citing Singh 1993 and others), and men in well-nourished populations prefer BMI 15 to 20.
-
-## What Human takes
-
-Within the realistic profile, the attractive female end is reached by a smaller waist relative to stature at an ordinary hip, not by enlarging hips; measured attractive women sit near WHR 0.68 to 0.72 and waist/stature 0.36 to 0.40. Imaginary-character values (WHR about 0.48 in 2D) lie outside the living range and belong to a stylised profile, never the realistic one.

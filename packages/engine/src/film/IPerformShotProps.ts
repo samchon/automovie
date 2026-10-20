@@ -35,7 +35,6 @@ import { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
  * @evidenceExclude contracts/performance.md#efficient-algorithms Type-only input shape; the per-call cost of turning it into lookup tables is stated on `performShot`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A call's input; `performShot` builds its lookup tables from it once per call.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owned by the caller; `performShot` keeps no reference past its return except through the returned shot's clips.
- * @author Samchon
  */
 export interface IPerformShotProps {
   /** The script whose beats the performance may realize. */

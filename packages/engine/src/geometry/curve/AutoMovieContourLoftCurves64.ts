@@ -38,7 +38,6 @@ export namespace AutoMovieContourLoftCurves64 {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A record type performs no arithmetic.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type owns no cache.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Runtime storage belongs to the caller.
-   * @author Samchon
    */
   export interface Curve {
     /** Ordered closed polygon samples in millimetres; the caller keeps them stable during evaluation. */
@@ -149,7 +148,6 @@ export namespace AutoMovieContourLoftCurves64 {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A record type performs no arithmetic.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type owns no cache.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Runtime storage belongs to the caller.
-   * @author Samchon
    */
   export interface Knot {
     /** Evaluated point in millimetres, distinct from an authored control. */

@@ -9,8 +9,6 @@ import { IAutoMovieSoftBodyState } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms For P position and V velocity scalars, flattening and eight-byte hashing cost O(P+V) time and O(P+V) temporary numeric storage, plus one eight-byte view.
  * @evidence contracts/performance.md#reuse-equivalent-work The byte view is reused for every scalar within a call; independent states are hashed anew and no identity cache assumes unchanged arrays.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Flattened values and the byte view are local; only a fixed eight-character hex string survives, without retaining the input arrays.
- *
- * @author Samchon
  */
 export const softBodyStateDigest: (state: IAutoMovieSoftBodyState) => string = (
   state: IAutoMovieSoftBodyState,

@@ -17,7 +17,6 @@ import {
  * @evidenceExclude contracts/performance.md#efficient-algorithms Type-only: the ballistic solve that consumes each job carries the cost, stated on the launch compile.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built once per launch action and consumed once by the launch compile.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Lives for one `performShot` call and references the caller's action and staged vectors.
- * @author Samchon
  */
 export interface IPerformShotLaunchJob {
   /** The `launch` action, the same object as in the action list. */

@@ -25,10 +25,6 @@ CC BY-NC-ND 4.0. Numbers are facts.
 
 Overall range 73.5 to 105.7. H-PMW about 53 to 54 percent of head height. The discussion notes that supine sleeping culture affects CI.
 
-## What Human takes
-
-The vault shape index for East Asian children, brachycephalic throughout childhood, against about 77 for European-ancestry adults in the 3D Facial Norms (`weinberg-2016-3d-facial-norms.md`).
-
 ## Limits
 
 Hospital CT population; bony or soft-tissue CT measurement differs from caliper CI.

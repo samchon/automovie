@@ -18,7 +18,6 @@ import { IAutoMovieGrammarStyleClaim } from "./IAutoMovieGrammarStyleClaim";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record; the pass and its suppression cost are answered on `readFilmGrammar`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built fresh per reading; nothing caches readings across edits.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owns two arrays bounded by the findings filed and by the style intents declared across the shots.
- * @author Samchon
  */
 export interface IAutoMovieGrammarReading {
   /**

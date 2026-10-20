@@ -104,8 +104,6 @@ const rod: (
  * @evidence contracts/performance.md#efficient-algorithms Seventeen bones and thirty-three parts bound assembly work/storage; actual primitive tessellation, GPU upload and per-frame FK retain their viewer/engine costs beyond this document producer.
  * @evidence contracts/performance.md#reuse-equivalent-work One skeleton wrapper is shared by the two returned references and default joint constraints are borrowed from the canonical engine table; each call creates fresh model/bone/part arrays rather than caching mutable actors.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns returned documents and must not mutate borrowed engine constraint records, whose immutability is a consumer premise rather than runtime enforcement. No GPU handle, timer or worker is acquired; page/viewer consumers dispose superseded uploads and retain model data for their actor lifetime.
- *
- * @author Samchon
  */
 export const buildStickman: (p: IStickmanParams) => {
   /** Caller-owned rig wrapper shared with model.skeleton; constraint rows borrow the engine's default table. */

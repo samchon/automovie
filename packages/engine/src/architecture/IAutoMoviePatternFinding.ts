@@ -24,7 +24,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms No code; findings come from one pass over placements and a bucketed neighbour scan, answered on `generateAutoMovieSurfacePattern`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Produced per run and not shared across runs, since every threshold is part of the pattern.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds strings and two numbers in fresh arrays owned by the run result.
- * @author Samchon
  */
 export interface IAutoMoviePatternFinding {
   /** What the run measured and found wanting. */

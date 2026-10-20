@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Available results retain profile and input identity with path-specific nullable metrics; unsupported and not-run results carry the classification and actionable reason without pretending to contain a response.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Incomplete indoor/outdoor binding is unsupported, missing analysis input is not-run, and adopted responses remain not-run until bytes are decoded and mapped; no guessed room response replaces those gaps.
  * @evidence contracts/common.md#meaningful-documentation Defines path classes, revision binding, seconds and energy versus amplitude metrics, path-dependent nulls and unavailable-response reasons.
- * @author Samchon
  */
 export type IAutoMovieProductionAcousticResponse =
   | {

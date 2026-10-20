@@ -8,8 +8,6 @@
  * @evidence contracts/performance.md#efficient-algorithms A two-scalar shape chooses no projection algorithm; framing and Three projection updates have fixed arithmetic cost.
  * @evidence contracts/performance.md#reuse-equivalent-work A lens can be shared while viewport aspect and fov remain unchanged; resize invalidates its correspondence to an actual canvas.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The record acquires no camera or renderer and retains no native projection resources.
- *
- * @author Samchon
  */
 export interface IAutoMovieViewerSubjectLens {
   /**

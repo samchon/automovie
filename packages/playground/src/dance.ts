@@ -15,8 +15,6 @@ import { createStickmanMotionRoot as root } from "./createStickmanMotionRoot";
  * @evidence contracts/performance.md#efficient-algorithms Three bounded pose/root/key constructions require constant work; engine sampling, FK and renderer cost remain with actual consumers.
  * @evidence contracts/performance.md#reuse-equivalent-work One beat formula governs both directions while calls create independent mutable records; no cached model or motion result crosses calls.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller retains this clip and its records for its player lifetime; no timer, worker or GPU resource is allocated by the producer.
- *
- * @author Samchon
  */
 export const dance: (sk: string) => IAutoMovieMotion = (
   sk: string,

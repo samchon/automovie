@@ -32,7 +32,6 @@ import {
  * @evidence contracts/performance.md#efficient-algorithms For F frames, C chunks and P requested passes the metadata work is O(F + C * (P + 1)): each frame is sliced and re-labelled once, while each chunk builds paths and arguments and repeats bounded distinct-pass planning. Path string lengths additionally drive formatting and concat escaping.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The planner builds one chunk plan from one whole plan per call and coordinates no phases or consumers whose results it could share.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller-owned plan holds F relabelled frame records plus O(C * (P + 1)) pass/chunk path records and strings, whose byte lengths depend on supplied paths. Frame spreads share original non-path fields; per-chunk slice arrays become collectable after mapping, and this planner opens no handle or task.
- * @author Samchon
  */
 export const planChunkedSequenceRender: (props: {
   plan: IAutoMovieSequenceRenderPlan;

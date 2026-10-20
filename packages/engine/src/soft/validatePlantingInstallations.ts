@@ -52,7 +52,6 @@ const IRRIGATION_MEDIA: Set<string> = new Set([
  * @evidence contracts/performance.md#efficient-algorithms For D domains, C clusters and I installations, map construction and validation precede per-installation arrangement/growth; repeated recipe/cluster checks and derivations are still paid, and each of P placements makes at most nine room-point queries plus one fluid-cell query.
  * @evidence contracts/performance.md#reuse-equivalent-work Maps share completed identity lookups and each installation derives one canopy for all its members; repeated installation recipe admission is not cached, and changed mutable inputs require a fresh pass.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Call-local maps, arrangements and canopies leave scope after validation; only returned findings retain offending records/points, with no renderer, fluid solver or background work acquired.
- * @author Samchon
  */
 export const validatePlantingInstallations: (props: {
   environment: IAutoMovieBuiltEnvironment;

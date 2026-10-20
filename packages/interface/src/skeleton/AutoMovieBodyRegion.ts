@@ -15,7 +15,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Fixed limb/head/face groups keep channel selection explicit; fullBody combines body bones while face owns expressions, and root retention follows the compiler's layering rule.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Region names alone do not guarantee disjoint content, especially fullBody overlaps; composition must inspect the masked surviving channels rather than permit concurrency by label only.
  * @evidence contracts/common.md#meaningful-documentation Defines each region's channels and the fullBody exception requiring actual disjoint surviving content.
- * @author Samchon
  */
 export type AutoMovieBodyRegion =
   | "lowerBody"

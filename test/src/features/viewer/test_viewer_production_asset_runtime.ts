@@ -41,8 +41,6 @@ import { namedFacts, nclose, throwsError } from "../internal/predicates";
  * @evidence contracts/testing.md#independent-expectations Literal bone names, authored expression overrides, metre translations, preserved baked yaw and elapsed timestamp differences define expectations. The existing snapshot port records request order and supplied metadata only, without proving a native image, VRM loader or rendered pixels.
  * @evidence contracts/testing.md#distinguishing-cases Covers skinned versus rigid precedence, missing joints, preset/explicit/non-expression channels, synchronized frame hooks, Group wrapping, rooted-to-null motion and snapshot ordering; broad imported-file admission and actual browser capture belong elsewhere.
  * @evidence contracts/testing.md#execution-ownership This named asynchronous unit uses its existing generic fixture builders, actual CPU-side Three objects and the already declared structural snapshot port; it imports maintained source and starts no browser, GPU, native process or new Human test driver.
- *
- * @author Samchon
  */
 export async function test_viewer_production_asset_runtime(): Promise<void> {
   const model: IAutoMovieModel = createProductionAssetModel();

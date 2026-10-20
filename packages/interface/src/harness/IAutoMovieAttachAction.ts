@@ -15,7 +15,6 @@ import { IAutoMovieActionBase } from "./IAutoMovieActionBase";
  * @evidence contracts/common.md#clear-and-simple-design The action adds only the parent node and bone to the shared base; the child is the action's actor, and the coupling becomes an ordinary node clip so the renderer needs no attachment concept.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No grip offset or per-prop correction hides an origin mismatch, and an unrigged parent is refused. Parent scale is ignored, matching staged unit-scale actor use; finite positive duration/fps and safe interval count are required, while feasible memory and distinct representable key times remain caller responsibilities.
  * @evidence contracts/common.md#meaningful-documentation States the use, where a persistent mount belongs instead, every refusal, how the clip is baked and held outside the span, the absent grip offset, and what `"auto"` means; members name the parent and bone requirements.
- * @author Samchon
  */
 export interface IAutoMovieAttachAction extends IAutoMovieActionBase {
   /** Selects an attachment as the action family. */

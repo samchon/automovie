@@ -22,7 +22,6 @@ import { IAutoMovieAnalysisSolid } from "./IAutoMovieAnalysisSolid";
  * @evidenceExclude contracts/performance.md#efficient-algorithms One map over the occluders allocating a two-field record each, with no algorithm or strategy to choose.
  * @evidence contracts/performance.md#reuse-equivalent-work Called once per daylight study, and the analyzer shares the resulting list across every ray of that study rather than rebuilding it per cell.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a new array of one record per occluder that references the context's plane arrays; the caller owns it, and this function keeps nothing.
- * @author Samchon
  */
 export const autoMovieContextSolids: (
   context: IAutoMovieEnvironmentContext,

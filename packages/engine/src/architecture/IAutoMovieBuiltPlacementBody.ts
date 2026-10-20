@@ -15,7 +15,6 @@ import {
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record without behavior; the resolver costs element part-box lookup/folding or population search and instance-bounds generation, as documented on `resolveBuiltPlacementBody`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Describes one body for one query; the sweep resolves each body once and the pairwise query once per side, which is where reuse is decided.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds one reported box and the part boxes the lookup returned; the querying call owns it and drops it on return.
- * @author Samchon
  */
 export interface IAutoMovieBuiltPlacementBody {
   /** The body's reported world box, labelled with how it was derived. */

@@ -30,7 +30,6 @@
  * @evidence contracts/performance.md#efficient-algorithms One pass over the t triangles with constant work each, three corner transports included, so O(t) time; the scalar locals and two three-element scratch buffers allocated once per call keep the loop free of per-triangle allocation.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Validates one deformed mesh per call; nothing in a later deformation repeats this mesh's cofactors.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Holds two three-element scratch buffers for the call and retains nothing after it returns or throws.
- * @author Samchon
  */
 export function assertAutoMovieDeformedTriangles(
   source: readonly number[],

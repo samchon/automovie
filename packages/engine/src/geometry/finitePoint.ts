@@ -17,7 +17,6 @@ import { IAutoMovieProfilePoint } from "./IAutoMovieProfilePoint";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A fixed pair of finiteness tests per point, with nothing to choose.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each authored profile corner is admitted exactly once by its builder.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Keeps no reference to the point; a refusal allocates only its error.
- * @author Samchon
  */
 export const finitePoint = (
   point: IAutoMovieProfilePoint,

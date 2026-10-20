@@ -15,7 +15,6 @@ import { IAutoMoviePropBox } from "./IAutoMoviePropBox";
  * @evidence contracts/common.md#clear-and-simple-design A clearance is a prop box plus an id, so it shares the occupancy box's corner rules and transform code and needs no shape of its own.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Each violation names the clearance and intruding prop instead of nudging either. This check excludes its own prop and building geometry; separate relation measurements are partial and do not establish that the keep-out box clears every building element. A declared prop contact exempts pairwise occupancy overlap, never a clearance intrusion.
  * @evidence contracts/common.md#meaningful-documentation States the id and corner refusals, how the volume is transformed and against which props it is tested, the face-contact rule, and the two things it is never tested against.
- * @author Samchon
  */
 export interface IAutoMovieClearanceBox extends IAutoMoviePropBox {
   /** Stable, non-blank clearance id, unique within the prop. */

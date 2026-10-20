@@ -8,8 +8,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms This scalar shape performs no blend or layer-list traversal.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Per-frame sampled weight values coordinate no reusable work.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A numeric contribution holds no texture, camera or other resource lifetime.
- *
- * @author Samchon
  */
 export interface IAutoMovieFilmBeautyLayer {
   /** Sampled contribution in `[0, 1]`, applied to source display bytes. */

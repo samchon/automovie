@@ -14,7 +14,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms Result record; `placeFormationSlot` computes it in constant time per member from two rotations, answered there.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A fresh placement per member and time; no placement is cached because both the unit and member states vary with time.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources One fresh position vector, one flag and one number owned by the caller; nothing references shared state.
- * @author Samchon
  */
 export interface IAutoMovieFormationSlotPlacement {
   /**

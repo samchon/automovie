@@ -12,7 +12,6 @@
  * @evidence contracts/common.md#clear-and-simple-design The citation lives on the design side and names document and candidates by id, so observation records stay unchanged and one design element can cite several documents through several citations.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unsettled and withheld candidates are citable by design rather than filtered, and the subject is only checked for being non-blank, a gap the member states instead of claiming resolution.
  * @evidence contracts/common.md#meaningful-documentation States citation direction, explicit Engine validation, unsettled-candidate allowance, unresolved subject ownership and the rationale's intended explanation.
- * @author Samchon
  */
 export interface IAutoMovieDesignEvidence {
   /**

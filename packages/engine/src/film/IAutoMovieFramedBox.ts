@@ -17,7 +17,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record with no runtime body; `framedBoxOf` fills it in constant time.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each box is a pure function of one subject box at one instant, and its callers keep it only as long as the framed subject or observation they build from it.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds one fresh vector and two numbers by value, aliasing nothing of the box it was derived from.
- * @author Samchon
  */
 export interface IAutoMovieFramedBox {
   /**

@@ -9,7 +9,6 @@ import { IAutoMovieSemanticMaskEntry } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms One result retains O(H) ancestor references for ownership depth H; lookup/traversal cost remains with resolveAutoMovieSemanticMask.
  * @evidence contracts/performance.md#reuse-equivalent-work Entries are borrowed from the supplied mask, which this lookup does not validate; changing entries or ownership requires new resolution rather than an identity-only persistent cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the ancestor array while entries remain mask-owned; no color buffer, handle or task is retained.
- * @author Samchon
  */
 export interface IAutoMovieSemanticMaskResolution {
   /** The entry that owns the colour. */

@@ -7,7 +7,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design Emission, appearance, motion and runtime budget form separate groups, with one closed effect-family discriminator and one supported alpha blend law.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Effect names select no hidden subject preset. With an admitted integer cap, sampling stops after maxParticles live outputs and far-distance thinning retains indices divisible by four; candidate arrays can exceed that cap, and the sampler does not validate malformed direct recipes.
  * @evidence contracts/common.md#meaningful-documentation States seed ownership, emission rate and duration, lifetime and metre size ranges, RGB appearance, opacity, metre-per-second transport and hard live-instance and LOD limits.
- * @author Samchon
  */
 export interface IAutoMovieEffectRecipe {
   /** Stable recipe id. */

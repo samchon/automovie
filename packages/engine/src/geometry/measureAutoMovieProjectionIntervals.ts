@@ -33,7 +33,6 @@ import type { IAutoMovieProjectionIntervals } from "./IAutoMovieProjectionInterv
  * @evidence contracts/performance.md#efficient-algorithms Linear in the point count n: one finiteness pass and, per point, at most three axis terms of a few adjacent-float steps each, allocating only the n result tuples.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of its arguments; each separation or contact bound asks for one direction once.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns owned tuples and a number and keeps no reference to the inputs; the shared adjacent-float buffer is answered on its owner.
- * @author Samchon
  */
 export function measureAutoMovieProjectionIntervals(
   points: readonly IAutoMovieVector3[],

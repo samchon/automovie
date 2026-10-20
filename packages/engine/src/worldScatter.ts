@@ -10,7 +10,6 @@ import { IAutoMovieInstanceSetDesign } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms Traversal and allocation follow base/layout graph size, not the declared scatter population; no sample is taken here.
  * @evidence contracts/performance.md#reuse-equivalent-work The supplied graphs are each cloned once and not retained in a result cache; downstream generation decides equivalence of placement inputs.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned cloned design, with no retained sampler cursor, source graph, process or GPU resource.
- * @author Samchon
  */
 export const worldScatter: (
   base: Omit<IAutoMovieInstanceSetDesign, "layout">,

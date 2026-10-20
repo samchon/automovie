@@ -13,7 +13,6 @@ import {
  * @evidence contracts/performance.md#efficient-algorithms T normalized code points require proportional token/bin traversal and retained text storage; Unicode normalization and repeated concatenation of tail chunks also incur their string-processing costs, which are not bounded here by an independent text budget.
  * @evidence contracts/performance.md#reuse-equivalent-work One normalized chunk token list and computed frame span are reused for that chunk's bins; changed chunk timing or frame range is recalculated with no retained phoneme cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns fresh scalar/text viseme rows; chunk objects and source audio are not retained, and no tokenizer model, network or decoder resource is acquired.
- * @author Samchon
  */
 export const productionPhonemesToVisemes: (props: {
   chunks: readonly IAutoMovieProductionPhonemeChunk[];

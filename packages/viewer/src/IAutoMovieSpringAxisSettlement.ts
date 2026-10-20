@@ -12,8 +12,6 @@ import type { ISpringStep } from "@automovie/engine";
  * @evidenceExclude contracts/performance.md#efficient-algorithms This axis result performs no integration; engine dampedSpring owns the numerical step.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The result describes one update; the player decides state reuse between timestamps.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Numeric state is retained only through the player's bounded per-bone spring map and carries no native resources.
- *
- * @author Samchon
  */
 export interface IAutoMovieSpringAxisSettlement {
   /**

@@ -34,7 +34,6 @@ import { Vector3 } from "../math/Vector3";
  * @evidence contracts/performance.md#efficient-algorithms E extent corners require O(E) fixed quaternion/vector operations and fresh point storage; no hull or model traversal is performed here.
  * @evidence contracts/performance.md#reuse-equivalent-work Canonical Quaternion.rotateVector and Vector3.add own the arithmetic; each call reads its current frames without retaining pose-dependent contacts across changed placement.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the fresh contact array and points; intermediate points leave scope and neither model, extent nor host handle is retained by the helper.
- * @author Samchon
  */
 export const affordanceSupportContacts: (props: {
   affordance: IAutoMovieAffordance;

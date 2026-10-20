@@ -9,7 +9,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Two scalars compose with each joint axis without importing default ROM tables into the pure type package.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Inverted ranges are malformed and cannot be swapped or clamped silently; declared rig constraints remain distinct from inferred physical possibility.
  * @evidence contracts/common.md#meaningful-documentation Defines degree units, inclusive endpoints, per-axis sign ownership and min-at-most-max admission.
- * @author Samchon
  */
 export interface IAutoMovieAngleRange {
   /** Lower bound, degrees (inclusive). */

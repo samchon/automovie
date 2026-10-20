@@ -79,8 +79,6 @@ const recoilChain: AutoMovieHumanoidBone[] = ["spine", "chest", "neck", "head"];
 
 /**
  * One timed projectile strike and its displayed physics inputs.
- *
- * @author Samchon
  */
 interface Shot {
   t0: number;
@@ -136,8 +134,6 @@ const DUR: number = 9;
 // with the torso centre as the fallback response point when no hit is returned.
 /**
  * One strike's precomputed contact time, point and impact response.
- *
- * @author Samchon
  */
 interface Resolved {
   shot: Shot;

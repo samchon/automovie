@@ -19,7 +19,3 @@ Public domain (Gutenberg licence for the file).
 | Navel | centre of the circle through outstretched hands and feet | navel height / stature 0.602 | 0.601 |
 
 Vitruvius also gives the face (chin to hairline) as 1/10 of stature, divided into three equal thirds (chin to nostrils, nostrils to brows, brows to hairline), which belongs to the face workspace.
-
-## What Human takes
-
-A historical canon to compare against, not a source of values: the hand, foot and forearm fractions miss the measured means by 7 to 10% each. The canon's surviving lesson is the method, measuring every member against one module.

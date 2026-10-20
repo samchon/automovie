@@ -14,7 +14,6 @@ import { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * @evidence contracts/common.md#clear-and-simple-design One normal and one offset express any half-space in the inequality form both consumers evaluate directly, so cells and occluders share this record instead of each defining a plane.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Cell containment keeps authored normal scale, so scaling an equivalent inequality changes its physical slack. Vertex enumeration separately normalizes and ignores normals at or below its 1e-6 observation tolerance, larger than validation's 1e-12 floor; admitted containment and enumerated bounds can therefore differ. Binary64 dot products can round or overflow and are not an exact numerical certificate.
  * @evidence contracts/common.md#meaningful-documentation States the inside convention, both consumers, the containment slack and how normal length scales it, the minimum plane count, and that boundedness is not validated.
- * @author Samchon
  */
 export interface IAutoMovieHalfSpacePlane {
   /** Finite, non-zero plane normal; it need not be normalized. */

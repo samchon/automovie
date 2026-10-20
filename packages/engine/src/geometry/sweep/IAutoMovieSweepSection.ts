@@ -25,7 +25,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; sampling cost is answered on `sampleAutoMovieSweepSection`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record read by the sweep compiler once per station.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its sweep.
- * @author Samchon
  */
 export type IAutoMovieSweepSection =
   | IAutoMovieSweepSection.ISuperellipse
@@ -44,7 +43,6 @@ export namespace IAutoMovieSweepSection {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `sampleAutoMovieSweepSection`.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
-   * @author Samchon
    */
   export interface IPoint {
     /** Metres along the section plane's first axis. */
@@ -67,7 +65,6 @@ export namespace IAutoMovieSweepSection {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `sampleAutoMovieSweepSection`.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
-   * @author Samchon
    */
   export interface ISuperellipse {
     /** Discriminator. */
@@ -104,7 +101,6 @@ export namespace IAutoMovieSweepSection {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `sampleAutoMovieSweepSection`.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
-   * @author Samchon
    */
   export interface IBSpline {
     /** Discriminator. */
@@ -126,7 +122,6 @@ export namespace IAutoMovieSweepSection {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `sampleAutoMovieSweepSection`.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
-   * @author Samchon
    */
   export interface IBezier {
     /** Discriminator. */
@@ -146,7 +141,6 @@ export namespace IAutoMovieSweepSection {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `sampleAutoMovieSweepSection`.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
-   * @author Samchon
    */
   export interface IPolygon {
     /** Discriminator. */
@@ -166,7 +160,6 @@ export namespace IAutoMovieSweepSection {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `sampleAutoMovieSweepSection`.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
-   * @author Samchon
    */
   export interface IRadial {
     /** Discriminator. */

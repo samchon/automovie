@@ -29,7 +29,6 @@ export namespace RecoveryChartFit {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A structural record performs no numerical work.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Input lifetime belongs to the caller.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record owns no handles.
-   * @author Samchon
    */
   export interface Input {
     /** Millimetre controls; non-null values remain bitwise unchanged. */
@@ -99,7 +98,6 @@ export namespace RecoveryChartFit {
    * @evidenceExclude contracts/performance.md#efficient-algorithms The record performs no solve.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Returned controls are the sole coefficient authority for downstream patches.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns output arrays and diagnostics.
-   * @author Samchon
    */
   export interface Result {
     /** Millimetre registry in input order, preserving all fixed entries exactly. */

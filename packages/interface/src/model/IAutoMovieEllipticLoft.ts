@@ -8,7 +8,6 @@
  * @evidence contracts/common.md#clear-and-simple-design One ordered span list owns both surface generation and construction evaluation.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Coefficients are generating controls rather than interpolation samples; no mesh, source normals, inferred cap or specimen identity enters the recipe.
  * @evidence contracts/common.md#meaningful-documentation States metre units, profile ordering, local axes, aligned-section premise, continuity ownership and open-end semantics.
- * @author Samchon
  */
 export interface IAutoMovieEllipticLoft {
   /** Increasing, adjacent physical Y intervals; neighbours share endpoint values exactly. */

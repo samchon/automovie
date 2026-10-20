@@ -9,7 +9,6 @@
  * @evidence contracts/common.md#clear-and-simple-design The address is the node id plus a closed path union, so the value shape follows from the path and needs no separate value-type field, unlike the pointer arm that names an arbitrary property.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The unknown morph-target count of a `weights` channel is stated as unchecked instead of guessed, and a channel naming a node absent from the frame throws rather than being skipped.
  * @evidence contracts/common.md#meaningful-documentation States the width and value order of every path, the slerp and renormalization of rotations, the key format, the missing-node failure, and when `node` is a semantic key mapped by a profile binding.
- * @author Samchon
  */
 export interface IAutoMovieNodeChannel {
   /** Selects the node arm of `IAutoMovieChannel`. */

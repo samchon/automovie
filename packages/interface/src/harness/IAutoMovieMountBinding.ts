@@ -11,7 +11,6 @@ import { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
  * @evidence contracts/common.md#clear-and-simple-design A parent id and a semantic bone are the whole binding; the rider is the staged actor that declares it, so the same record serves staging, the shot coupling and the beat-end state.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No seat offset or per-mount correction is applied, so a rider whose origin is not its seat shows the mismatch, and a rig-less parent or absent bone is refused rather than coupled to the parent's root.
  * @evidence contracts/common.md#meaningful-documentation States where it is declared, every refusal and its owner, how and over what span the rider is baked, the `attachTo` override, how it carries to the next beat, and the absent events; members name the parent and bone requirements.
- * @author Samchon
  */
 export interface IAutoMovieMountBinding {
   /** Placed actor node that carries the rider; a rigged node, not the rider itself. */

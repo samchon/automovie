@@ -18,7 +18,3 @@ UWSpace, author copyright; findings cited.
 - Starting angle correlated with maximum flexion (R 0.60 to 0.70): later contact allowed deeper flexion. Most girths correlated negatively with both.
 - Fitted starting angle: squatting SSA = 151.96 + 5.38 SX + 0.0432 MTC - 1.102 PCC + 11.19 HT; kneeling SKA = 171.87 + 4.15 SX + 0.33 MTC - 1.47 PCC (MTC maximal thigh and PCC proximal calf circumference in cm, HT height; the sex coding is not stated in the sections read). External validation R2 0.71 (RMSE 5.1 deg) and 0.60 (4.6 deg) on 10 held-out participants. PCC alone explained most kneeling variance (partial R2 0.39).
 - Zelle et al. 2007, as reported: thigh and calf circumference correlated with the contact starting angle (R -0.54 and -0.79).
-
-## What Human takes
-
-Knee flexion past about 126 deg is limited by thigh-calf soft tissue, not bone, and the onset angle falls as proximal calf girth rises, by about 1.1 to 1.5 deg per cm. Human derives the knee flexion limit from its own thigh and calf cross-sections by collision, using this as the check.

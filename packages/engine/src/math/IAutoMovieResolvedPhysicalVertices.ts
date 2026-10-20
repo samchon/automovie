@@ -15,7 +15,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data record with no runtime body; the interning cost is answered on `resolveAutoMovieMeshPhysicalVertices`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A fresh record per resolution of one mesh; reuse across consumers belongs to the callers that hold it.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources One number per render vertex and one string per identity, owned by the caller with no reference kept by the producer.
- * @author Samchon
  */
 export interface IAutoMovieResolvedPhysicalVertices {
   /**

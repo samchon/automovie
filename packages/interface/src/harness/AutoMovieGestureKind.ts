@@ -24,7 +24,6 @@ import { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
  * @evidence contracts/common.md#clear-and-simple-design Eighteen families with `note` for refinement and `custom` as the escape keep the vocabulary small enough to choose from while leaving variety to the free-text note the engine ignores.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Kinds the reference synthesizer cannot animate return no motion instead of borrowing another family's keyframes, and the documentation lists them so an author knows a host synthesizer must supply them.
  * @evidence contracts/common.md#meaningful-documentation States why the set is closed, how `note` and `custom` widen it, why creature families share the humanoid skeleton, exactly which kinds produce motion and under what condition, each kind's default region, and how to express an untargeted creature pose.
- * @author Samchon
  */
 export type AutoMovieGestureKind =
   // humanoid

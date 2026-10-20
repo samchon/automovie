@@ -8,7 +8,6 @@ import { IAutoMovieMotionResourceConsumer } from "./IAutoMovieMotionResourceCons
  * @evidence contracts/common.md#clear-and-simple-design The union reuses motion resource and adoption consumer records and otherwise pairs one kind with its natural identity; texture and design-reference comments explain why ownership belongs to a model or observation document.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts One shared texture need not invent per-slot uses, and a reference image's ledger use never turns it into built geometry. Engine texture closure reports absent/stale image consumers explicitly; other kinds require their host's own resolution rather than inheriting that guarantee.
  * @evidence contracts/common.md#meaningful-documentation Names every supported consumer and the exact identity it addresses, including hero-resource ownership, model-scoped texture use and observation-document design-reference use.
- * @author Samchon
  */
 export type IAutoMovieAssetConsumer =
   | {

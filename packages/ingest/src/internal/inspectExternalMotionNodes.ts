@@ -1,4 +1,4 @@
-﻿import type { IAutoMovieExternalMotionNodeInspection } from "../IAutoMovieExternalMotionNodeInspection";
+import type { IAutoMovieExternalMotionNodeInspection } from "../IAutoMovieExternalMotionNodeInspection";
 import { finiteTuple } from "./finiteTuple";
 import { object } from "./object";
 
@@ -14,7 +14,6 @@ import { object } from "./object";
  * @evidence contracts/performance.md#efficient-algorithms N nodes require O(N) time and output records, with fixed-size tuple work per node.
  * @evidence contracts/performance.md#reuse-equivalent-work The admitted parent table is reused from structural hierarchy checks; each node transform is interpreted once per inspection.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned node records own new fixed-size transforms; source JSON arrays and tuple temporaries are not retained.
- * @author Samchon
  */
 export const inspectExternalMotionNodes: (
   values: unknown[],

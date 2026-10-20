@@ -8,7 +8,6 @@ import { IAutoMovieSemanticMaskSlot } from "./IAutoMovieSemanticMaskSlot";
  * @evidence contracts/common.md#clear-and-simple-design Open domain label stays separate from computational kind while drawable nodes and optional slot connect the semantic graph to actual viewer objects.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Logical parents need not paint pixels themselves; one drawable resolves to its most specific entry and ascends owner links rather than collapsing a whole building into one color.
  * @evidence contracts/common.md#meaningful-documentation Defines stable qualified id, kind and open label, exact uppercase color, nullable owner and node-versus-slot addressing.
- * @author Samchon
  */
 export interface IAutoMovieSemanticMaskEntry {
   /**

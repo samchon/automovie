@@ -46,7 +46,6 @@ import { AUTOMOVIE_RENDER_REPORT_MAX_CONTRIBUTORS } from "./constants/AUTOMOVIE_
  * name first in every production that lights nothing, and that name is a guide
  * pass no production declares.
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Evaluate every fixed metric against an admitted nonnegative safe integer limit or explicit gap, preserving within/over/unbudgeted/unsupported/not-run and ranking own costs separately from passes/runtime. Aggregate over takes precedence over incomplete.
  * @evidence contracts/common.md#clear-and-simple-design Metric evaluation owns verdict/recovery, rank owns bounded editable attribution, and the report binds mask/target digests without measuring the scene again.

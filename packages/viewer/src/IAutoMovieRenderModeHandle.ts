@@ -12,8 +12,6 @@ import type { AutoMovieGuidePass } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms This handle chooses no scene traversal or pass algorithm; each render-mode implementation owns that work.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The handle represents an applied effect, while its restore implementation owns completed-call deduplication.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type itself acquires no override material; producer handles retain and release their exact temporary resources through restore.
- *
- * @author Samchon
  */
 export interface IAutoMovieRenderModeHandle {
   /** The pass this override draws. */

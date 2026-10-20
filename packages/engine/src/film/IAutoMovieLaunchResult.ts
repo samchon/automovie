@@ -22,7 +22,6 @@ import {
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record; the solve and the flight sampling are answered on `compileLaunch` and `projectileTrajectory`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built once per launch action inside one performance; nothing caches launch results across shots.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owns the clip, whose key count grows with flight time times the sample rate, plus at most three events; `performShot` keeps a time-shifted copy of the clip that still shares its value arrays, and copies of the events, then drops the result.
- * @author Samchon
  */
 export interface IAutoMovieLaunchResult {
   /**

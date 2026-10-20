@@ -31,7 +31,6 @@ import { triangulateAutoMovieRegion } from "./triangulateAutoMovieRegion";
  * @evidence contracts/performance.md#efficient-algorithms Linear in the region's point count after triangulation, whose cost is answered on `triangulateAutoMovieRegion`; one pass over the points appends each position, normal and UV.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call builds the mesh for one authored region; callers that place the same region twice can reuse the returned mesh.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns new position, normal and UV arrays sized by the point count and adopts the triangulation's index array; the triangulation's other arrays are released on return.
- * @author Samchon
  */
 export const buildAutoMovieRegionFace = (props: {
   /** Boundary of the visible region in local XY metres. */

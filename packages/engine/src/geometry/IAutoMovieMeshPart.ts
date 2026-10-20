@@ -20,7 +20,6 @@ import { IAutoMovieMeshTransform } from "./IAutoMovieMeshTransform";
  * @evidenceExclude contracts/performance.md#efficient-algorithms An input record with no runtime body; `mergeAutoMovieMeshParts` answers the cost of placing and concatenating members.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Supplied by the caller for one merge; reusing one mesh across several parts is the caller's choice, and the record caches nothing itself.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Holds the caller's mesh and transform by reference; the merge reads them and emits fresh buffers, so the part retains nothing beyond what its author keeps alive.
- * @author Samchon
  */
 export interface IAutoMovieMeshPart {
   /**

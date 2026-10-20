@@ -19,7 +19,6 @@ import { IAutoMovieRestFrame } from "../rom/IAutoMovieRestFrame";
  * @evidence contracts/performance.md#efficient-algorithms The record is borrowed data; detection samples both actors' FK maps and scans all cross-actor proxy pairs, retaining sampled maps during the solve.
  * @evidence contracts/performance.md#reuse-equivalent-work The detector reuses each sampled actor map across capsule pairs; changed motion, rig or remaps require a fresh inspection rather than a type-level cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns all actor inputs, while the detector's maps are call-local; the actor contract owns no scene node, solver task or renderer handle.
- * @author Samchon
  */
 export interface IAutoMovieCollisionActor {
   /** Scene node id, used to label emitted interaction events. */

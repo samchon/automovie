@@ -71,7 +71,6 @@ const readAngle: (
  * @evidence contracts/performance.md#efficient-algorithms Constant time: one basis validation and normalization, three axis-angle quaternions and two products.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one joint that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing; the caller owns the returned quaternion.
- * @author Samchon
  */
 export const jointToQuaternion: (
   joint: Pick<IAutoMovieJointPose, AutoMovieClinicalAxis>,

@@ -9,7 +9,6 @@
  * @evidence contracts/performance.md#efficient-algorithms The erased record chooses no algorithm; cleanup aggregation belongs to preserveCleanupFailure.
  * @evidence contracts/performance.md#reuse-equivalent-work The type coordinates no work or cache; each operation retains its own cause.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller retains one unknown cause through cleanup and can release the wrapper after settlement.
- * @author Samchon
  */
 export interface IAutoMoviePageOperationFailure {
   /** Original operation error that cleanup must not replace. */

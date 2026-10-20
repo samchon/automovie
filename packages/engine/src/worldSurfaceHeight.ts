@@ -12,7 +12,6 @@ import { surfaceHeightAt } from "./space/surfaceHeightAt";
  * @evidence contracts/performance.md#efficient-algorithms One query has constant scalar cost with at most four lattice sample reads, independent of stored grid population.
  * @evidence contracts/performance.md#reuse-equivalent-work The canonical height owner is reused across placement, ground validation and oracle queries; no cached height hides changed mutable samples.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a number escapes, and the borrowed surface/grid is not retained by this query or attached to a host task.
- * @author Samchon
  */
 export const worldSurfaceHeight: (
   surface: IAutoMovieWorldSurface,

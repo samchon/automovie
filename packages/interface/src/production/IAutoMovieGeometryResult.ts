@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Dedicated distance and ground fields expose their fixed units, while the measurement map carries heterogeneous named metrics for reach, formation, camera, effect, pose and film-time queries.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No containing ground surface yields the explicit zero-height, null-surface, non-walkable result; unresolved actors or landmarks throw rather than being returned as successful zero distances.
  * @evidence contracts/common.md#meaningful-documentation Defines result kinds, meter units, terrain absence and the query-dependent metric map whose individual units belong to the requested query.
- * @author Samchon
  */
 export type IAutoMovieGeometryResult =
   | {

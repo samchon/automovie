@@ -13,7 +13,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record; the overlap tests are answered on `propBlockedPassages`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built fresh per prop placement check; nothing caches blockages.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources One literal and one string by value; the list is bounded by the environment's openings plus connectors.
- * @author Samchon
  */
 export interface IAutoMoviePassageBlockage {
   /** Which passage family the blocked id belongs to. */

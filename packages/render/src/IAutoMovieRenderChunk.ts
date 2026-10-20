@@ -13,7 +13,6 @@ import { IAutoMovieSequenceRenderFrame } from "./sequenceRenderPlan";
  * @evidenceExclude contracts/performance.md#efficient-algorithms This interface only types one chunk's manifest and executes nothing; the slicing cost is answered on `planChunkedSequenceRender`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A chunk manifest is inert data and coordinates no work between phases or consumers.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased chunk interface acquires no file, handle or task. planChunkedSequenceRender constructs its relabelled frame list inside the caller-owned chunk plan; actual frame files and encoding processes belong to the supplied host.
- * @author Samchon
  */
 export interface IAutoMovieRenderChunk {
   /** Zero-based chunk ordinal in capture and concatenation order. */

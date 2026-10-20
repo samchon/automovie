@@ -13,7 +13,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms The alias is erased by the compiler and computes nothing at run time.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A navigation milestone is an option value forwarded once per session, with no derived result to share.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The value is a literal string held in the caller's options object and owns no page, socket or timer.
- * @author Samchon
  */
 export type AutoMovieHeadlessWaitUntil =
   | "commit"

@@ -10,7 +10,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms This row has no runtime body; capability enumeration costs belong to serviceAnalysisSupport.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Report rows describe one input network's capabilities and coordinate no solver or request reuse themselves.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Each row owns primitive status and strings; report-array lifetime belongs to its caller and carries no environment reference.
- * @author Samchon
  */
 export interface IAutoMovieServiceCheckReport {
   /** Stable rule identity. */

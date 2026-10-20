@@ -9,7 +9,6 @@
  * @evidence contracts/common.md#clear-and-simple-design A closed curve name stays on the outgoing keyframe, with explicit cubic controls on that keyframe rather than a second interpolation configuration hierarchy.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Curves depend on normalized time rather than frame number or actor identity; validateMotion checks a keyframe's cubic x controls before sampling, while direct cubic and gait callers must supply that same monotone-time domain themselves.
  * @evidence contracts/common.md#meaningful-documentation Identifies the outgoing segment, sparse sampling model and each named curve's start and stop behavior, with explicit control ownership for cubicBezier.
- * @author Samchon
  */
 export type AutoMovieEasing =
   /** Constant-rate linear blend. */

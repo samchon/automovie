@@ -38,7 +38,6 @@ const VECTOR_AXES: readonly ["x", "y", "z"] = ["x", "y", "z"];
  * @evidence contracts/performance.md#efficient-algorithms Six input finiteness checks precede the shared constant-time shortest-arc computation; direction normalization occurs only in rotationBetween.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of two vectors; callers that need it per frame or per candidate pass different vectors each time.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owns no temporary vectors or persistent state; the delegated computation's bounded direction and quaternion records leave no references here.
- * @author Samchon
  */
 export const aimRotation: (
   from: IAutoMovieVector3,

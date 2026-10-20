@@ -16,7 +16,3 @@ Public domain in the United States (Gutenberg).
 - The Egyptian canon (after Charles Blanc): stature 19 middle-finger lengths; Blanc thought Polykleitos' Doryphoros used it. Duval reports this, it is not a measurement.
 - Salvage and Malgaigne's formula (male trunk an ovoid with the broad end up, the female trunk an ellipse with hips as broad as shoulders) "exaggerates the real proportions of the hips in the female".
 - Vitruvius places the middle of the body at the navel; the artists' midpoint is the pubis.
-
-## What Human takes
-
-Heads-per-stature rises with stature, so a fixed eight-head canon is a tall ideal, not a rule; Human derives head size and stature independently and lets the head count follow. The fact that the sexes differ in proportion mainly through limb length and pelvis-to-shoulder breadth, not through equal hip and shoulder breadth.

@@ -15,7 +15,6 @@ import { validateTransformScalars } from "./validateTransformScalars";
 /**
  * Admit skeleton identity, optional root transform, duplicate/undeclared joint bones and effective rig/default ROM.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Admit skeleton identity, optional root transform, duplicate/undeclared joint bones and effective rig/default ROM.
  * @evidence contracts/common.md#clear-and-simple-design One by-bone map shares membership lookup; getConstraint/validateJointRom own angular policy.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Null joint angles mean rest and absent effective constraints skip ROM; typed record/list shape is a premise.

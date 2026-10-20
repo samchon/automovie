@@ -12,8 +12,6 @@ import { type ICreateResult } from "./ICreateResult";
  * @evidenceExclude contracts/performance.md#efficient-algorithms The held parent operation contract declaration chooses no executable algorithm.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The held parent operation contract type coordinates no request or cached work.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The held parent operation contract schema acquires no runtime handles, bytes or tasks.
- *
- * @author Samchon
  */
 export interface IBoundParent {
   /**

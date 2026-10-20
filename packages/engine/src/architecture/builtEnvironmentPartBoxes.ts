@@ -23,7 +23,6 @@ import { builtPlacedPartBoxes } from "./builtPlacedPartBoxes";
  * @evidence contracts/performance.md#efficient-algorithms O(W + M + E + P + V), where W is world staging, M models, E elements, P drawn parts and V their vertices, plus procedural tessellation cost. Each drawn instance is measured separately; the model index and staging are built once.
  * @evidence contracts/performance.md#reuse-equivalent-work Shares one world-matrix staging across every element and one model index across every lookup within the call; nothing is reused across calls because the record is the caller's and may have changed.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Staged matrices and the model index are dropped on return; the caller owns the map, bounded by the drawn element count times each model's part count.
- * @author Samchon
  */
 export const builtEnvironmentPartBoxes: (
   environment: IAutoMovieBuiltEnvironment,

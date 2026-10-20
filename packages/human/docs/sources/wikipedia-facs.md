@@ -14,7 +14,3 @@ Text CC BY-SA 4.0. The FACS manual (Ekman and Friesen 1978; Ekman, Friesen and H
 - EMFACS combinations: happiness 6+12; sadness 1+4+15; surprise 1+2+5B+26; fear 1+2+4+5+7+20+26; anger 4+5+7+23; disgust 9+15+17; contempt R12A+R14A.
 
 Grade: conventional (a coding standard).
-
-## What Human takes
-
-The closed AU vocabulary of the expression document, each AU tied to the muscle whose line of action Human models (`../anatomy/expression.md`).

@@ -25,7 +25,6 @@ const FORMATION_SLOT_EXCEPTION_LIMIT: number = 1_024;
 /**
  * Validate sparse member cue slots, states, ids, order and participant formation references.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Validate sparse member cue slots, states, ids, order and participant formation references.
  * @evidence contracts/common.md#clear-and-simple-design Per-formation/slot prior maps enforce exception scheduling while base formation admission stays separate.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts More than 256 cues or 1024 total named slot entries report excess without truncation; promoted hero slots are refused to preserve their explicit actor owner.

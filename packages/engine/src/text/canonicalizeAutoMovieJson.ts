@@ -11,7 +11,6 @@ import { compareCodeUnits } from "./compareCodeUnits";
  * @evidence contracts/performance.md#efficient-algorithms Traversal covers every encoded occurrence and string unit, plus sum(K log K) key sorting per object; repeated shared subtrees are re-encoded, intermediate text grows with output and recursion depth is unbounded.
  * @evidence contracts/performance.md#reuse-equivalent-work The comparator and Unicode admission are shared within encoding; ancestry is path-local rather than a memoization cache, so cycles fail and repeated references retain ordinary JSON tree expansion.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns returned text; the call-local ancestry set removes entered containers in finally on success or failure, and no partial text or host handle is published.
- * @author Samchon
  */
 export const canonicalizeAutoMovieJson: (value: unknown) => string = (
   value: unknown,

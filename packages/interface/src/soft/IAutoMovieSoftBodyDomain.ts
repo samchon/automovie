@@ -20,7 +20,6 @@ import { IAutoMovieSoftWind } from "./IAutoMovieSoftWind";
  * @evidence contracts/common.md#clear-and-simple-design The independent domain owns solver inputs; architecture furnishing references it rather than changing the cloth algorithm according to its room.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The tier has no self-collision or friction solve. Collider projection is discrete and ordered, and the declared referenceSpeed travel bound does not clamp measured speed or prove continuous collision avoidance.
  * @evidence contracts/common.md#meaningful-documentation Members specify row-major arrays, world metre coordinates, kilogram masses, hard anchors, named boundary states and the unsupported self-collision request.
- * @author Samchon
  */
 export interface IAutoMovieSoftBodyDomain {
   /** Schema version. */

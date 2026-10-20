@@ -14,8 +14,6 @@ import type { IAutoMovieFormationViewerStats } from "./IAutoMovieFormationViewer
  * @evidenceExclude contracts/performance.md#efficient-algorithms This handle declares operations but executes no culling or matrix traversal; buildInstancedFormation owns those choices.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The interface does not coordinate work; the runtime shares representations and table textures across its instance chunks.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The handle defines disposal ownership but acquires nothing itself; its producer owns chunk, tier, shadow and gait allocations until dispose.
- *
- * @author Samchon
  */
 export interface IAutoMovieFormationViewerObject {
   /** Add this group to the current scene. */

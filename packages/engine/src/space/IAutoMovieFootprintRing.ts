@@ -15,7 +15,6 @@ import { IAutoMoviePlanarPoint, IAutoMovieVector3 } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms Preparing E vertices takes O(E) time and fresh planar storage; subsequent boundary/parity queries remain O(E), while the stored area is read in constant time.
  * @evidence contracts/performance.md#reuse-equivalent-work The planar copy and area are reused across queries; mutation of borrowed source vertices invalidates both and requires a fresh preparation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The prepared ring owns its planar array and retains the authored point array; readonly is a caller discipline, with no watcher or invalidation task retained.
- * @author Samchon
  */
 export interface IAutoMovieFootprintRing {
   /** Borrowed authored world vertices; X and Z define the plan, while Y remains available to consumers. */

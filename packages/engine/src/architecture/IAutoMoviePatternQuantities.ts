@@ -16,7 +16,6 @@ import { IAutoMoviePatternZoneQuantities } from "./IAutoMoviePatternZoneQuantiti
  * @evidenceExclude contracts/performance.md#efficient-algorithms No code; totals are linear in the zone count, answered on `generateAutoMovieSurfacePattern`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built once per run from the zone records the run already summed.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds numbers and a copied zone array owned by the run result.
- * @author Samchon
  */
 export interface IAutoMoviePatternQuantities {
   /** Placed occurrences across every zone, whole and cut alike. */

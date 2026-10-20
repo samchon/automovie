@@ -12,7 +12,6 @@ import { AutoMovieServiceUnit } from "./AutoMovieServiceUnit";
  * @evidence contracts/common.md#clear-and-simple-design System-specific root and load authority share the common network graph, avoiding duplicated topology for every engineering discipline.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Bidirectional fitting ports are not counted as terminal demand, and declared load admits no diversity, head-loss or circuit simulation unless a separate solver supplies it.
  * @evidence contracts/common.md#meaningful-documentation Defines stable root identity, medium/unit rules, three reach directions and exact demand-bearing port convention for capacity.
- * @author Samchon
  */
 export interface IAutoMovieServiceSystem {
   /** Stable system identity within the network. */

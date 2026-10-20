@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design The plane carries no meaningless height parameter, and its position, orientation and material remain fields of the owning model part.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Zero height is the plane's geometric definition rather than an exception for a particular floor; the current tessellator's collapsed box faces remain a topology limitation.
  * @evidence contracts/common.md#meaningful-documentation States the XZ support plane, centred origin, zero height and finite positive full metre spans along X and Z.
- * @author Samchon
  */
 export interface IAutoMoviePlaneShape {
   /** Discriminator. */

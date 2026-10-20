@@ -10,7 +10,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data shape; its validation is two trims and two anchored pattern tests, answered on `validateProductionFilmEffectIdentity`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Supplied per call by the caller; the engine stores no identity between materialization and sampling calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Four strings owned by the caller; the writer copies them by value into each runtime and keeps no reference to the record.
- * @author Samchon
  */
 export interface IAutoMovieFilmEffectCurrentIdentity {
   /** Non-blank id of the production the runtimes belong to. */

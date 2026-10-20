@@ -1,4 +1,4 @@
-﻿import { COMPONENT_BYTES } from "./COMPONENT_BYTES";
+import { COMPONENT_BYTES } from "./COMPONENT_BYTES";
 import type { IAccessorSource } from "./IAccessorSource";
 import type { IExternalModelAccessorReader } from "./IExternalModelAccessorReader";
 import { accessorElementByteLength } from "./accessorElementByteLength";
@@ -16,7 +16,6 @@ import { object } from "./object";
  * @evidence contracts/performance.md#efficient-algorithms Reader setup is constant time; each requested component costs one address calculation and one scalar DataView read.
  * @evidence contracts/performance.md#reuse-equivalent-work One resolved view/stride/DataView serves every component of this accessor, avoiding repeated metadata resolution.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned closure borrows one payload until its owning profile finishes; it retains no global reader cache or handle.
- * @author Samchon
  */
 export const accessorReader: (
   source: IAccessorSource,

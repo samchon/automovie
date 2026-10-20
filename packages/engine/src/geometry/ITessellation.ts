@@ -16,7 +16,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; tessellation cost is answered on `tessellate` and `tessellateSurface`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built fresh per call; the drawing index memoizes tessellated parts per model part, which is answered there.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Owns three number arrays sized by the vertex and triangle counts of one shape, released with whoever holds the record.
- * @author Samchon
  */
 export interface ITessellation {
   /** Packed xyz vertex positions in metres. */

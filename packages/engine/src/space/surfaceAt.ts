@@ -15,7 +15,6 @@ import { surfaceHeightAt } from "./surfaceHeightAt";
  * @evidence contracts/performance.md#efficient-algorithms A query scans E edges across S surfaces with O(1) height arithmetic per candidate; default preparation adds O(E) owned storage and work.
  * @evidence contracts/performance.md#reuse-equivalent-work A supplied prepared space shares ring projections between queries; the space parameter is not checked against that generation and callers must keep them paired.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The winner is a borrowed source surface; call-local selection state and default preparation acquire no external resources.
- * @author Samchon
  */
 export const surfaceAt: (
   space: IAutoMovieSpace,

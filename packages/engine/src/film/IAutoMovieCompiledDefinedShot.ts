@@ -24,7 +24,6 @@ import { IAutoMovieShotPhysicsAdvice } from "./IAutoMovieShotPhysicsAdvice";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A type with no runtime body; the pipeline cost is answered on `compileDefinedShot` and the phases it calls.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call compiles one shot from its builder output; caching compiled shots across calls is the production builder's concern, not this result's.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The success branch owns fresh scene, motion, continuity and realization objects plus deep clones of the event samples and advice; it references no runtime capability object, so it is released with the caller's result.
- * @author Samchon
  */
 export type IAutoMovieCompiledDefinedShot =
   | {

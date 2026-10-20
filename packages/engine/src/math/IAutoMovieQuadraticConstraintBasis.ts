@@ -18,7 +18,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A result record with no algorithm; the factorization cost is answered on `createAutoMovieQuadraticConstraintBasis`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A per-call result for one working set; the polishing loop builds a new one whenever the set changes.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Dense arrays owned by the caller, `variables²` numbers for the two bases plus `rank²` for `R`; nothing else is retained.
- * @author Samchon
  */
 export interface IAutoMovieQuadraticConstraintBasis {
   /** Number of variables in the program; the length of every basis column. */

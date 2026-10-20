@@ -17,7 +17,6 @@ import { IAutoMovieSweepSurface } from "./IAutoMovieSweepSurface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record; costs are on `rigAutoMovieSweep`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record; it is the reuse.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A record whose arrays its producer sizes.
- * @author Samchon
  */
 export interface IAutoMovieSweepRig {
   /** The sweep compiled at rest; its shape before the scale profile is the shape in every pose. */

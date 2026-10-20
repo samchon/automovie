@@ -17,7 +17,6 @@ import { IAutoMovieWetZone } from "./IAutoMovieWetZone";
  * @evidence contracts/common.md#clear-and-simple-design Shared graph structure serves every discipline while architecture owns spaces/boundaries and domain analysis reports unsupported quantitative solvers separately.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Structural admission cannot prove hydraulic head loss, circuit behavior or duct pressure. Missing spatial cell/face facts limit applicability; `serviceAnalysisSupport` separately describes those limits as capability metadata and is not proof that a check ran or that a production report consumed it.
  * @evidence contracts/common.md#meaningful-documentation Defines meter units, environment ownership, rooted systems, nodes, two-port runs, sleeves and waterproofed zones.
- * @author Samchon
  */
 export interface IAutoMovieServiceNetwork {
   /** Schema version. */

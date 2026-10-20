@@ -12,7 +12,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record type with no runtime code; the analyzer sums the bridges once, linear in their count.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record type with no runtime code; its summed total is computed once per study and read by both the heat-loss and the bridge-share metrics.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A record of an id, a reference and two numbers owned by the request; the analyzer retains nothing from it after returning.
- * @author Samchon
  */
 export interface IAutoMovieEnvelopeBridge {
   /** Stable bridge identity, unique within the request. */

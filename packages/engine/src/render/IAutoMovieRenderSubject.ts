@@ -31,7 +31,6 @@ import { IAutoMovieRenderWaterBody } from "./IAutoMovieRenderWaterBody";
  * @evidence contracts/performance.md#efficient-algorithms The subject references existing populations/laws rather than expanding anonymous members; measurement costs scale with drawables, tiers, topology and texture closure separately.
  * @evidence contracts/performance.md#reuse-equivalent-work Mask and inventory reuse the same canonical subject conversion; mutable scene, domains and host residency facts prevent an identity-only report cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller retains the subject and its borrowed records; native textures and context resources remain owned by the capture host rather than this interface.
- * @author Samchon
  */
 export interface IAutoMovieRenderSubject {
   /** Staged scene: ordinary nodes, lights, and the render environment. */

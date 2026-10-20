@@ -19,7 +19,6 @@ import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A page point has two axes and each is rounded once, a fixed cost with nothing to choose between.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Two scalar roundings per stored page point, each cheaper than any lookup that could replace it.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The rounded point is stored in the drawing the caller is assembling; the unrounded input is not referenced afterwards.
- * @author Samchon
  */
 export const roundAutoMovieDrawingPoint = (
   point: IAutoMovieDrawingPoint,

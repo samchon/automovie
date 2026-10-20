@@ -12,7 +12,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Page coordinates stay in model metres so lengths and areas read off the page are model measurements, and scale belongs to the serializer alone, which keeps one drawing valid at every print scale.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No coordinate is shifted, clamped or flipped for a consumer here; the SVG flip and margin happen only in the serializer's own placement.
  * @evidence contracts/common.md#meaningful-documentation States the metre unit, the axes and origin, the upward `y`, the rounding and `-0` rule, and where scale and the SVG flip are applied.
- * @author Samchon
  */
 export interface IAutoMovieDrawingPoint {
   /** Distance along the page right axis from the view origin, in metres. */

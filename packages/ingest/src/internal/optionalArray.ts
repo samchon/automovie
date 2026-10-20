@@ -1,4 +1,4 @@
-﻿import { requiredArray } from "./requiredArray";
+import { requiredArray } from "./requiredArray";
 
 /**
  * Read an absent optional JSON array as an empty inventory.
@@ -10,7 +10,6 @@
  * @evidence contracts/performance.md#efficient-algorithms One omission check and constant-time array identity test run without scanning elements.
  * @evidence contracts/performance.md#reuse-equivalent-work The same required-array operation is reused for every present optional inventory.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only omitted input creates a new empty array; valid supplied arrays remain borrowed and unretained.
- * @author Samchon
  */
 export const optionalArray: (value: unknown, path: string) => unknown[] = (
   value: unknown,

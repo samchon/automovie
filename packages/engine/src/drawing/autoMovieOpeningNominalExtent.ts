@@ -34,7 +34,6 @@ import { autoMovieOpeningFillExtent } from "./autoMovieOpeningFillExtent";
  * @evidence contracts/performance.md#efficient-algorithms Linear in the profile's edges for a void, or in the fill model's triangles for a stand-in, measured in three folds without argument spreading.
  * @evidence contracts/performance.md#reuse-equivalent-work A fill model's tessellation is reused through the design index, so many openings filled by one leaf model tessellate it once per derivation.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The placed fill triangles and corner list are temporaries released when the call returns; only a small record is returned.
- * @author Samchon
  */
 export const autoMovieOpeningNominalExtent = (
   design: IAutoMovieDrawingDesignIndex,

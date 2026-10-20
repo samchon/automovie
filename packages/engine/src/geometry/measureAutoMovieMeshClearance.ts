@@ -36,7 +36,6 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * @evidence contracts/performance.md#efficient-algorithms For f front and b back triangles, building the back tree costs O(b log^2 b) and each front triangle visits only back triangles whose projected boxes overlap its own, clipping each in constant time, so the work follows the k overlapping pairs rather than f times b.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call measures one pair of surfaces in their current positions; a caller that repeats a pair after moving vertices needs a new measurement.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Holds the projected triangles and the back tree for the call and returns one small record per overlapping front triangle; each witness passed to `visit` owns its vertex and weight arrays, so the receiver may keep it.
- * @author Samchon
  */
 export function measureAutoMovieMeshClearance(
   front: IAutoMovieMesh,

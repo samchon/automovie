@@ -13,7 +13,6 @@ import { surfaceFootprint } from "./surfaceFootprint";
  * @evidence contracts/performance.md#efficient-algorithms E ring vertices require O(E) time and plan storage; no triangulation or emitted mesh is constructed.
  * @evidence contracts/performance.md#reuse-equivalent-work The footprint is reused across membership queries for the same source generation, with no automatic invalidation watcher.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the fresh wrapper and projections, retaining the supplied surface and world rings only until the result is discarded.
- * @author Samchon
  */
 export const prepareSurface: (
   surface: IAutoMovieSurface,

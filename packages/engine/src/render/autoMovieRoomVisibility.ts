@@ -54,7 +54,6 @@ const EXTERIOR: string = " exterior";
  *   Proving a closed door would hide more, and proving it belongs to the
  *   openings issue rather than to a guess made here.
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Build a conservative cell/portal graph from openings and every connector stop, include exterior connectivity and then add ancestors of reachable leaf cells. Outside, ambiguous or cell-less placement hides nothing; validated parent acyclicity is a premise.
  * @evidence contracts/common.md#clear-and-simple-design Leaf containment selects the camera cell and a separate closure owns reachability; container spaces are consequences of visible cells rather than routing shortcuts between sealed rooms.

@@ -11,7 +11,6 @@ import { IAutoMovieDrawingFeature } from "./IAutoMovieDrawingFeature";
  * @evidence contracts/common.md#clear-and-simple-design Two feature targets and one measure literal describe every linear dimension; its stroke comes from the view's pen and its value from the derivation, so neither is stored.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No typed or cached value can override the computed one; a repeated id within a view's dimensions is refused by the derivation rather than resolved twice.
  * @evidence contracts/common.md#meaningful-documentation States that both ends are re-resolved, what each measure computes and why both exist, and that a repeated id is refused.
- * @author Samchon
  */
 export interface IAutoMovieDrawingDimensionSpec {
   /** Dimension id, unique among the view's dimensions. */

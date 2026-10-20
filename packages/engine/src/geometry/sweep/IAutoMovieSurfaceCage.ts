@@ -21,7 +21,6 @@ import { IAutoMovieSurfaceCoordinate } from "./IAutoMovieSurfaceCoordinate";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record; sampling cost is answered on `sampleAutoMovieSurfaceNetwork`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A record owned by its caller.
- * @author Samchon
  */
 export interface IAutoMovieSurfaceCage {
   /** The tier sampled. */
@@ -75,7 +74,6 @@ export namespace IAutoMovieSurfaceCage {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A data record; its cost is answered on `sampleAutoMovieSurfaceNetwork`.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data record owned by its caller.
-   * @author Samchon
    */
   export interface IPatch {
     /** The patch's name. */

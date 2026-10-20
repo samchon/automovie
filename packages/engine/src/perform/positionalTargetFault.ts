@@ -14,7 +14,6 @@ function targetKindName(target: unknown): string {
  *
  * Accepts ordinary unknown payloads because callers differ in how much they have already validated: the perform gate reaches here past shape checks, while production geometry queries may supply malformed records. Identity conversion failures produce `an uninspectable value` instead of throwing; property accessors that throw and nonterminating conversion hooks remain outside this guarantee.
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Dispatches on the target discriminator only after the shared record guard, then describes the missing placement or structural context for that supported representation; group faults list authored identities without claiming every member is absent because the caller supplies no placement map here.
  * @evidence contracts/common.md#clear-and-simple-design Owns the explanatory clause reused by the film gate and target-dependent actor synthesis; shape classification uses the existing isRecord guard, while placement computation remains resolveTargetPoint's responsibility.

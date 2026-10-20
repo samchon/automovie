@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Require a non-null non-array JSON record at its owning path.
  *
  * @evidence contracts/common.md#principled-implementation Runtime type and null/array exclusions establish an object shape before fields are read.
@@ -8,7 +8,6 @@
  * @evidence contracts/performance.md#efficient-algorithms Object shape admission uses constant-time predicates rather than copying or traversing properties.
  * @evidence contracts/performance.md#reuse-equivalent-work Every optional-object path delegates this same gate for present values.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The helper returns the existing object and retains no metadata, payload or resource state.
- * @author Samchon
  */
 export const object: (
   value: unknown,

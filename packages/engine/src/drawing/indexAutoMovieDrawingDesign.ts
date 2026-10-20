@@ -33,7 +33,6 @@ import { autoMovieDrawingPartTriangles } from "./autoMovieDrawingPartTriangles";
  * @evidence contracts/performance.md#efficient-algorithms Linear in elements, models and boundaries for the maps plus linear staging of the element hierarchy; tessellation is deferred until a part is first asked for, so models nobody draws cost nothing.
  * @evidence contracts/performance.md#reuse-equivalent-work Shares each part's tessellation across every element placing its model, every opening filled by it and every feature resolved on it within one derivation; equivalence is part object identity in an environment that does not change during the derivation, and a new derivation builds a new index, so nothing stale survives an edit.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the index for one derivation; it holds three id maps, one matrix per element and at most one triangle list per tessellated part, bounded by the design's size, and all of it is released with the index when the derivation returns.
- * @author Samchon
  */
 export const indexAutoMovieDrawingDesign = (
   environment: IAutoMovieBuiltEnvironment,

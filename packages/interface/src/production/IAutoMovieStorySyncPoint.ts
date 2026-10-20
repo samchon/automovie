@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Nullable local and story fields distinguish absent realization from absent pin or mapped overflow without inventing a second event identity.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unavailable operands are retained in declared order rather than skipped; a null time cannot become zero and accidentally satisfy simultaneity.
  * @evidence contracts/common.md#meaningful-documentation Defines exact operand identities, local versus story-second units and missing-realization, missing-pin or overflow null meaning.
- * @author Samchon
  */
 export interface IAutoMovieStorySyncPoint {
   /** Owning shot id. */

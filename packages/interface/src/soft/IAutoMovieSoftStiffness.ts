@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Three scalar weights correspond directly to the supported neighbour families without a material-law abstraction the current solver does not evaluate.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts These values are relaxation weights rather than physical elastic moduli; increasing them does not certify inextensibility at a finite sweep count.
  * @evidence contracts/common.md#meaningful-documentation Member comments identify structural, diagonal and second-neighbour responsibilities and their dimensionless range.
- * @author Samchon
  */
 export interface IAutoMovieSoftStiffness {
   /** Row and column neighbours: resists stretching. */

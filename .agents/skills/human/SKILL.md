@@ -1,69 +1,39 @@
 ---
 name: human
-description: Governs main-agent supervision, instruction-compliance audits, and fifteen-minute reporting for Human work. Use with the 3d-modeling skill before working on packages/human, a human figure, or the Human viewer.
+description: Builds parameter-driven human figures from recovered reference curves through exact Hermite storage, hierarchical rule identification, and actual-viewer verification. Use with 3d-modeling before working on packages/human, a human figure, or the Human viewer.
 ---
 
 # Human
 
-## Supervision
+Recover the reference model's curve structure first, then derive a common parameter-driven generator from it. Attaching measurements to an independently invented body does not adopt the reference's shape rules. The reference supplies the broad silhouette, proportions, volumes and feature placement, without making every small residual a required target.
 
-The main agent owns instruction compliance throughout Human work. Before starting or assigning work, read applicable skills and procedures, identify governing rules and name the author for each source surface and shared boundary. Delegate only with the user's authorization.
+## Workflow
 
-The main agent audits instruction compliance and coordination. Authors own implementation, builds, captures, enlarged viewer inspection and self-review. The main agent does not take over their product work, judge or approve visual quality, or add independent review or start/approval gates.
+1. Extract the whole reference model's sections, longitudinal guides, obliques and feature curves through `recovery`, retaining their relationships under [References](references.md).
+2. Convert and save every recovered curve in an exact Hermite representation under [Hermite Storage](references.md#hermite-storage); publish omissions instead of presenting a selected subset as the whole body.
+3. Analyze the complete material to choose principal layers, axes, feature curves, branch relationships and parameter influences under [Reverse Analysis](reverse-analysis.md).
+4. Generate intermediate axes and layers by recursive interval subdivision, identifying common rules through constraints and suitable solvers under [Hierarchical Identification](reverse-analysis.md#hierarchical-identification).
+5. Repeat on the assembled body, independent parameter changes, interactions and return to the starting state under [Verification](verification.md).
+6. Find suitable methods for the trunk, limbs, hands, feet, head and face, while joining them through the common authority under [Construction](construction.md).
 
-Audit evidence that authors read and followed the instructions, inspected the actual viewer and completed correction rounds. Record the governing instruction, observed evidence, any breach, its owner and correction. Assign missing or invalid evidence to its owner and verify the correction; an unsupported compliance claim is insufficient.
+These steps organize work, not approval gates. Read [Parameters](parameters.md) before defining inputs and [Anatomy](anatomy.md) before assigning anatomical meaning. Apply [3D Modeling](../3d-modeling/SKILL.md), [Development](../development/SKILL.md), [Contracts](../contracts/SKILL.md) and [Review](../review/SKILL.md) for their own responsibilities.
 
-At each audit, identify blocked work and unnecessary coordination, name their causes and owners, and direct concrete corrections.
+## Ownership And Supervision
 
-## Delegation
+The main agent owns instruction compliance, ownership, resources, evidence and bottlenecks. Read the applicable instructions and skills before assigning work; the user's instructions take precedence. One integration author owns the common generator, shared boundaries, assembled actual-viewer inspection, captures and complete self-review.
 
-Divide delegated work by independent responsibility, not anatomical labels or available agent slots. Parallelize research, mathematical derivation, measurement and inspection; keep a coupled generating model and its shared boundaries under one integration author. Give independent implementations separate write ownership only when their contracts and consumers are defined.
+Use regional subagents for parallel research and implementation when the user authorizes parallel work. Define each region's source ownership, inputs, outputs, anatomical scope and shared-boundary contract before assigning it. Regional authors may implement their owned sources; they send equations, assumptions, evidence and affected consumers to the integration author, who reconciles the common model. Read-only research remains read-only. No two authors write the same source or independently redefine a shared boundary.
 
-Contributors send the integration author their proposed equations, assumptions, evidence and affected consumers without editing that author's source. The integration author understands the common model from parameters through curves to the displayed surface, reconciles proposals and writes the coherent change; copying patches together is not integration. This author owns the assembled result under Author Workflow.
+Keep one owner for shared compiler, watch, cache, HTTP and GPU resources. An author hands a coherent source snapshot directly to that owner, without waiting for the main agent to relay or approve it. Record process ownership and resource handoffs in the campaign ledger, not these permanent instructions. Preserve user files, valid shared mathematics and protected saved work.
 
-## Author Workflow
+While supervision is authorized and active, the main agent maintains the existing fifteen-minute Korean audit schedule without resetting its targets after a message, report or session recovery. If the user disables or pauses supervision, keep it inactive until they explicitly authorize its resumption. At each active audit, check the governing instruction, actual source and processes, evidence, hypothesis, uncertainty, next distinguishing observation and responsible owner. Report serious breaches immediately with the observation, correction and recheck. Supervision adds no independent visual approval gate.
 
-Inspect the current assembled person in the actual Human viewer and enlarge affected regions under [Visual Debugging](../3d-modeling/visual-debugging.md) and [Verification](verification.md). Record the full round's defects and trace them through affected parts and shared boundaries.
+Warn immediately on every instruction or skill violation regardless of its reason, naming the rule, observation, responsible owner and correction. Correct the cause and verify compliance again; do not automatically suspend or replace an owner. Correct a faulty skill under [Prompting](../prompting/SKILL.md) rather than unilaterally disregarding it; follow the user when their instruction conflicts with a skill.
 
-Collect the round's findings under [Review](../review/SKILL.md), applying [Correction Rounds](../3d-modeling/visual-debugging.md#correction-rounds) and [Prohibited Implementation Shortcuts](../contracts/common.md#prohibited-implementation-shortcuts).
+An explicit user stop prevents automatic resumption of modeling, builds or captures. Check compliance with that stop only while supervision itself remains authorized and active.
 
-Coordinate source, build, viewer-runtime and capture ownership before using shared resources. Keep one compiler owner on the shared `ttsc --watch` process; this owner forwards each completed cycle's diagnostics, file locations and source snapshot to the responsible author. Record and respect the active owner's lock and source snapshot; wait for release or an explicit handoff rather than modifying their input or stopping their process.
+## Boundaries
 
-Generation and downstream runtime inspection, measurement or correction failures must preserve displayable authored geometry and a usable viewer. Isolate local failures with diagnostics and partial status; label a retained previous display and keep invalid primitives out of the renderer. If code and formulas cannot reach the required quality, report that limit instead of substituting another generation route.
+Human and Human-viewer tests are forbidden: do not write, restore, run, rename or relocate them into another package, helper or general-mathematics check. Production admission and compiler diagnostics retain their real responsibilities and cannot conceal replacement tests. Use actual-viewer observation for visual evidence.
 
-## Inspection And Reporting
-
-At the start of active Human work, establish or resume the fifteen-minute compliance audit and Korean report schedule. Verify its active configuration and record the next target from the work's start or existing schedule. Intermediate updates and immediate reports do not reset that target.
-
-Each scheduled report includes the actual viewer's current full-body screenshot as an absolute-path image, its source snapshot and capture time. Distinguish capture time from report time. If a current capture is unavailable, name the gap and owner without presenting an old capture as current.
-
-Include the author's enlarged inspection and correction evidence, unresolved defects, and instruction-compliance findings with their owners.
-
-Report serious results or instruction breaches immediately, separately from scheduled reports.
-
-When the user requests a percentage, give the author's estimated development progress with its basis and scope; never present it as accuracy or test coverage.
-
-Identify a `.shots` file's current use before deleting it. Keep only images needed for the current judgment in `.shots/output`, including the active before-and-after pair; keep metadata and logs outside it.
-
-## Human Tests
-
-Do not write, restore, or work around test code for Human or the Human viewer, regardless of the reason, including by renaming or relocating it into another package, helper or check.
-
-Runtime admission, source guards and compiler checks retain their production responsibilities; they must not conceal replacement tests. Visual evidence comes from actual-viewer inspection.
-
-## Technical Guides
-
-Read the relevant technical guide before its task:
-
-- [Anatomy](anatomy.md) owns anatomical grounds and modeled tissue.
-- [Parameters](parameters.md) owns parameter meaning and admission.
-- [Construction](construction.md) owns parameter-driven curves, generation, parts, junctions, and the core boundary.
-- [References](references.md) owns reference use and comparison.
-- [Reverse analysis](reverse-analysis.md) owns anatomical correspondence, shared formula identification and validation across people. Read it before transferring recovered reference geometry into Human; [Recovery](../3d-modeling/recovery.md) owns the common extraction and reverse-rendering procedure.
-- [Verification](verification.md) owns calibration bodies and form judgment.
-
-Read the research workspace, `packages/human/docs`, before researching a value or technique, and update it when research changes, so sources and abandoned approaches are not repeated.
-
-## Documentation
-
-Apply [Meaningful documentation](../contracts/common.md#meaningful-documentation) to Human's public declarations and implementation comments, citing anatomical primary sources directly. `packages/human/docs` is the developers' research workspace, not a manual, and may be deleted when the rebuild completes, so no code or JSDoc refers to it.
+`packages/human/docs` contains only reference material and research analysis. Keep operational decisions, campaign status, failed execution procedures and executable tools elsewhere under their responsible owner. Public code and comments cite durable primary sources rather than depending on this disposable research directory. Apply [Documentation](../documentation/SKILL.md); omit author-attribution tags from Human declarations as the user requires.

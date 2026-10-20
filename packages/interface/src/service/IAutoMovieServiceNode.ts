@@ -13,7 +13,6 @@ import { IAutoMovieServiceState } from "./IAutoMovieServiceState";
  * @evidence contracts/common.md#clear-and-simple-design Computational role, element realization, typed ports and operating state share one node; maintenance extent remains explicit instead of inferred from equipment names.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Bare junctions intentionally have null element and nonmoving devices null state; missing room extent cannot yield a fabricated placement proof or quantitative equipment model.
  * @evidence contracts/common.md#meaningful-documentation Defines network identity, logical space and element joins, world-meter point, ports, nullable state and node-local maintenance box composition.
- * @author Samchon
  */
 export interface IAutoMovieServiceNode {
   /** Stable node identity within the network. */

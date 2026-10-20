@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Radius and height are the only shape inputs, with the part transform responsible for orienting the downward-pointing local cone in a scene.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts All cones share the positive-Y base convention regardless of their subject; no fixture-specific rotation changes which end the radius describes.
  * @evidence contracts/common.md#meaningful-documentation Locates the base and apex relative to the origin and specifies finite positive radius and full axial height in metres.
- * @author Samchon
  */
 export interface IAutoMovieConeShape {
   /** Discriminator. */

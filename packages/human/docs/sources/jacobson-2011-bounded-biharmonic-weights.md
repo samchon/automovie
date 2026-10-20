@@ -10,7 +10,3 @@ Paper copyright ACM. Read for technique comparison only.
 
 - Linear blending weights for points, bones and cages that give smooth, intuitive deformations.
 - The weights minimize the Laplacian energy subject to bound constraints, and spread "in a shape-aware and localized manner".
-
-## What Human takes
-
-A candidate weight construction to compare with heat diffusion, geodesic voxel binding and semantic analytic weights in [skinning research](../techniques/skinning.md).

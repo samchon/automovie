@@ -8,7 +8,6 @@
  * this declaration would make `instanceof` false for every error the verifier
  * actually throws, and every refusal would read as an unrelated exception.
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Carry one of unsupported, invalid or digest-mismatch on the Error so receipt consumers classify a verifier refusal by constructor identity and a typed reason rather than prose parsing.
  * @evidence contracts/common.md#clear-and-simple-design One canonical class is shared by verifyAutoMovieSemanticMask and autoMovieSemanticMaskVerificationFailure; duplicated constructors would break instanceof classification.

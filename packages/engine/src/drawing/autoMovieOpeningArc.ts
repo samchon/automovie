@@ -27,7 +27,6 @@ import { AUTOMOVIE_OPENING_BULGE_EPSILON } from "./constants/AUTOMOVIE_OPENING_B
  * @evidenceExclude contracts/performance.md#efficient-algorithms Constant time: a few square roots and trigonometric calls, with no algorithm to choose.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A constant-time pure function called once per edge by each consumer; caching would cost more than the arithmetic.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The arc record lives only for the edge being drafted or measured and is dropped by its caller in the same loop iteration.
- * @author Samchon
  */
 export const autoMovieOpeningArc = (
   from: IAutoMoviePlanarPoint,

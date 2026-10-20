@@ -11,7 +11,3 @@ Farkas LG, Katic MJ, Forrest CR, et al. "International anthropometric study of f
 - Forehead height, mouth width and ear height were identical to North American whites in 99.7 percent of comparisons in both sexes.
 - The orbital region varied most.
 - The nose was "very or extremely significantly wide" in Asian and Black groups of both sexes; Middle Eastern noses matched in width but were taller.
-
-## What Human takes
-
-Which features carry ancestry variation (nose width, orbits) and which barely do (mouth width, forehead height, ear height). Values come from the other sources.

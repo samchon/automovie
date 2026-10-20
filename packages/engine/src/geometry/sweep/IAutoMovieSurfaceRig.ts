@@ -26,7 +26,6 @@ import { IAutoMovieSurfaceConstruction } from "./IAutoMovieSurfaceConstruction";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record; costs are on `rigAutoMovieSurfaceNetwork`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record; it is the reuse.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A record whose buffers its producer sizes, stated above.
- * @author Samchon
  */
 export interface IAutoMovieSurfaceRig {
   /** The cage at rest: topology, UVs, coordinates, rings, targets and fitted positions. */

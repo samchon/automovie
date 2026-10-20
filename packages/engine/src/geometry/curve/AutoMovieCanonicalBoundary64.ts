@@ -131,6 +131,128 @@ export namespace AutoMovieCanonicalBoundary64 {
   }
 
   /**
+   * Order admitted exact phase keys without using their rounded numeric views.
+   * Distinct dyadics can have the same view; their identity and order remain distinct.
+   *
+   * @evidence contracts/common.md#principled-implementation Validated dyadics are aligned and subtracted exactly before taking their sign.
+   * @evidence contracts/common.md#clear-and-simple-design One scalar comparison serves schedule sorting and directed interval membership.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Rounded-value coincidence does not merge or reorder canonical addresses.
+   * @evidence contracts/common.md#meaningful-documentation States exact-key ordering and the distinction from numeric views.
+   * @evidence contracts/performance.md#efficient-algorithms Two bounded key parses and O(W)-bit aligned subtraction determine one sign.
+   * @evidence contracts/performance.md#reuse-equivalent-work Each key is parsed once per comparison.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Only a signed scalar escapes; parsed BigInts are call-local.
+   */
+  export function compare(
+    a: { value: number; key: string },
+    b: { value: number; key: string },
+  ): -1 | 0 | 1 {
+    const x: Dyadic = parse(a.key),
+      y: Dyadic = parse(b.key);
+    if (a.value !== rounded(x.n, 1n, x.e) || b.value !== rounded(y.n, 1n, y.e))
+      throw new Error("Canonical phase key and numeric value disagree");
+    const difference: bigint = subtract(x, y).n;
+    return difference < 0n ? -1 : difference > 0n ? 1 : 0;
+  }
+
+  /**
+   * Invert the supplied finite monotone map between its authored local anchors.
+   * Anchors include local 0 and 1 in increasing local order; their exact phases
+   * are strictly directed. Exact authored addresses retain their original local.
+   * Foreign phases are bracketed by those anchors and bisected in ordered positive
+   * binary64 bits until an exact hit or adjacent representable locals remain.
+   * An unattainable phase returns an interior bracketing local, with its original
+   * canonical identity retained by the caller. No continuous inverse is certified.
+   * A reversed map, inconsistent anchor, out-of-range target or unrepresentable
+   * interior inverse throws rather than moving an authored local coordinate.
+   *
+   * @evidence contracts/common.md#principled-implementation Exact phase comparisons bracket the same callback used for forward transport; ordered IEEE bit bisection terminates on its finite local domain.
+   * @evidence contracts/common.md#clear-and-simple-design One forward callback and its immutable authored anchors define both transports, avoiding an independently rounded inverse formula.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No phase epsilon, coordinate rounding, shape resampling, special address override or endpoint clamp changes canonical identity or authored locals.
+   * @evidence contracts/common.md#meaningful-documentation States directed anchors, finite inverse semantics, unattainable phases and explicit refusal cases.
+   * @evidence contracts/performance.md#efficient-algorithms A anchors cost O(A) forward evaluations and exact comparisons; at most 62 additional callback evaluations bisect the positive unit binary64 bit range, in addition to caller callback cost.
+   * @evidence contracts/performance.md#reuse-equivalent-work Caller-owned forward anchors are reused for interval selection and exact authored hits; each bisection evaluates its midpoint once.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Only one local scalar escapes; the fixed eight-byte DataView and phase brackets are call-local, with no retained callback or cache.
+   */
+  export function inverse(
+    forward: (local: number) => ReturnType<typeof phase>,
+    target: ReturnType<typeof phase>,
+    anchors: readonly { local: number; phase: ReturnType<typeof phase> }[],
+  ): number {
+    if (
+      anchors.length < 2 ||
+      anchors[0]!.local !== 0 ||
+      anchors[anchors.length - 1]!.local !== 1
+    )
+      throw new Error("A finite inverse requires complete local anchors");
+    const direction: number = compare(
+      anchors[anchors.length - 1]!.phase,
+      anchors[0]!.phase,
+    );
+    if (direction === 0)
+      throw new Error("Finite inverse endpoints must differ");
+    let bracket: number = -1,
+      authoredHit: number | undefined;
+    for (let i: number = 0; i < anchors.length; ++i) {
+      const anchor: (typeof anchors)[number] = anchors[i]!;
+      unit(anchor.local);
+      if (compare(forward(anchor.local), anchor.phase) !== 0)
+        throw new Error("Finite inverse anchor disagrees with its forward map");
+      if (
+        i > 0 &&
+        (anchor.local <= anchors[i - 1]!.local ||
+          compare(anchor.phase, anchors[i - 1]!.phase) * direction <= 0)
+      )
+        throw new Error("Finite inverse anchors must be strictly directed");
+      const relation: number = compare(target, anchor.phase) * direction;
+      if (relation === 0) authoredHit = anchor.local;
+      if (relation > 0) bracket = i;
+    }
+    if (authoredHit !== undefined) return authoredHit;
+    if (bracket < 0 || bracket + 1 >= anchors.length)
+      throw new Error("Finite inverse target is outside its anchors");
+    const first: (typeof anchors)[number] = anchors[bracket]!,
+      last: (typeof anchors)[number] = anchors[bracket + 1]!;
+    const view: DataView = new DataView(new ArrayBuffer(8));
+    view.setFloat64(0, first.local === 0 ? 0 : first.local, false);
+    let low: bigint = view.getBigUint64(0, false);
+    view.setFloat64(0, last.local, false);
+    let high: bigint = view.getBigUint64(0, false);
+    let loPhase: ReturnType<typeof phase> = first.phase,
+      hiPhase: ReturnType<typeof phase> = last.phase;
+    while (high - low > 1n) {
+      const middle: bigint = (low + high) >> 1n;
+      view.setBigUint64(0, middle, false);
+      const local: number = view.getFloat64(0, false),
+        mapped: ReturnType<typeof phase> = forward(local);
+      if (
+        compare(mapped, loPhase) * direction < 0 ||
+        compare(mapped, hiPhase) * direction > 0
+      )
+        throw new Error(
+          "Finite forward map reverses inside its inverse bracket",
+        );
+      const relation: number = compare(mapped, target) * direction;
+      if (relation === 0) return local;
+      if (relation < 0) {
+        low = middle;
+        loPhase = mapped;
+      } else {
+        high = middle;
+        hiPhase = mapped;
+      }
+    }
+    view.setBigUint64(0, low, false);
+    const lo: number = view.getFloat64(0, false);
+    view.setBigUint64(0, high, false);
+    const hi: number = view.getFloat64(0, false);
+    if (lo > first.local && lo < last.local) return lo;
+    if (hi > first.local && hi < last.local) return hi;
+    throw new Error(
+      "Finite inverse has no representable interior local coordinate",
+    );
+  }
+
+  /**
    * Partition each named authority at all declared binary64 endpoints.
    * Returned atoms are increasing open intervals, sorted by authority and start;
    * IDs within an atom are sorted. Input walk is the patch's coherent boundary

@@ -21,8 +21,6 @@ import { IAutoMovieImportedNodeBoneMapping } from "./IAutoMovieImportedNodeBoneM
  * @evidenceExclude contracts/performance.md#efficient-algorithms This input bundle performs no key-time union or quaternion decomposition; the converter owns those traversals.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Borrowing one selected take and skeleton creates no promise to reuse conversions after either mutable input changes.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns the clip, skeleton and mapping list for the conversion call; no copied keyframe buffer or native handle belongs to the props type.
- *
- * @author Samchon
  */
 export interface IAutoMovieImportedNodeMotionProps {
   /** Selected imported node-track take. */

@@ -11,7 +11,6 @@ import { IAutoMovieSurfaceCage } from "./IAutoMovieSurfaceCage";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record; costs are on its producer.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A record.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A record whose arrays the cage record takes over.
- * @author Samchon
  */
 export interface IAutoMovieSurfaceLayout {
   /** Quads as four vertex indices, counterclockwise seen from outside. */

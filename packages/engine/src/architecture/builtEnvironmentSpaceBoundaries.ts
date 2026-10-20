@@ -21,7 +21,6 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * @evidence contracts/performance.md#efficient-algorithms O(S + B + T) for the space lookup, B boundary records and T summed side entries, including empty side lists; no persistent index avoids the scan.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Returns references into the caller's boundary list rather than a cached copy, so a later edit to the record is seen by the next call; no work is shared between calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Allocates only the returned array, which references the record's own boundaries and is owned by the caller.
- * @author Samchon
  */
 export const builtEnvironmentSpaceBoundaries: (
   environment: IAutoMovieBuiltEnvironment,

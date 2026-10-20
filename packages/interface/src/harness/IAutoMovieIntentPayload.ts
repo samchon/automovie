@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design The root carries only the top-level statement; acts, scenes, groups and beats carry their own payloads, so no reasoning slot is shared across levels.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The renderer prints admitted prose verbatim; mismatched duplicate headers and blank fields refuse rather than selecting whichever representation a consumer happens to read.
  * @evidence contracts/common.md#meaningful-documentation Defines root ownership, screenplay header output and the nonblank exact-equality contract shared with the flat script fields.
- * @author Samchon
  */
 export interface IAutoMovieIntentPayload {
   /** One-sentence summary of the film. */

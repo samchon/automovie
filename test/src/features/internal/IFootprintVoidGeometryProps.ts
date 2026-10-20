@@ -8,7 +8,6 @@ import {
 
 /**
  * Original authored region inputs and numeric helpers shared with the owning footprint test's geometric and downstream-consumer assertions.
- * @author Samchon
  */
 export interface IFootprintVoidGeometryProps {
   /** Prepared outer and void rings for the authored plate. */

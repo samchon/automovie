@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design One row carries asset aliases or runtime identity, allocation cardinality, consumers and bounded bytes so shared texture storage is charged once while every dependency remains attributable.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Object tokens provide equality rather than portable names, uncertified residency cannot invent native counts, and depth renderbuffer bytes do not increase Texture cardinality; encoded and CPU bytes and driver overhead are outside this estimate.
  * @evidence contracts/common.md#meaningful-documentation Defines upload variant, asset/runtime ownership, alias and resident users, nullable allocation count, sorted material consumers and conservative device-byte gaps.
- * @author Samchon
  */
 export interface IAutoMovieRenderTextureCost {
   /**

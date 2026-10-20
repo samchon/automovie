@@ -9,7 +9,6 @@ import { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
  * @evidence contracts/common.md#clear-and-simple-design The record carries only the bone, two normalized coordinates and one visibility flag, so pixel scaling and confidence policy stay with the host that knows its raster.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Off-frame points are not snapped to edges, missing resolved bones are not invented, and zero-depth nonfinite projection is exposed rather than replaced. The membership flag makes no occlusion or observed-image claim.
  * @evidence contracts/common.md#meaningful-documentation States delivered-frame coordinates, default-FK compatibility premises, omission, unclamped and zero-depth results, and the depth/rectangle test without an occlusion guarantee.
- * @author Samchon
  */
 export interface IAutoMoviePoseKeypoint {
   /** The named humanoid bone this keypoint locates. */

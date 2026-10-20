@@ -14,8 +14,6 @@ import type { AutoMovieTextureCache } from "./AutoMovieTextureCache.js";
  * @evidenceExclude contracts/performance.md#efficient-algorithms The input record chooses no definition-search or material-build algorithm.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Repeated requested ids and texture assets are deduplicated by their owning builders/cache, not by this type.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources All supplied models and the optional shot cache remain caller-owned; the returned library owns only its new materials.
- *
- * @author Samchon
  */
 export interface IBuildAutoMovieMaterialLibraryProps {
   /**

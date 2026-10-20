@@ -16,7 +16,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms Construction assigns two fields after `Error`'s own constructor, so there is no algorithm to choose.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each refusal is a distinct thrown event; sharing error instances would mix stacks and messages.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds only its code, message and stack, released with the error when the catcher drops it.
- * @author Samchon
  */
 export class AutoMovieFilmEffectRuntimeError extends Error {
   /**

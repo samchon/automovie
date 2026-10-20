@@ -7,7 +7,6 @@ import { IAutoMovieShotPredicate } from "./IAutoMovieShotPredicate";
  * @evidence contracts/common.md#clear-and-simple-design A closed event family and explicit subjects describe semantic ownership, while predicates supply independent measurable facts instead of encoding motion in the contract.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Repeating the event id or prose is insufficient; missing, duplicate or out-of-window samples and unresolvable subjects fail rather than being silently dropped.
  * @evidence contracts/common.md#meaningful-documentation Defines stable event identity, family, inclusive second window, unique subjects and nonempty machine-checkable obligations.
- * @author Samchon
  */
 export interface IAutoMovieShotEventContract {
   /** Stable event id. */

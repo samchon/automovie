@@ -7,7 +7,6 @@ import { IAutoMovieShotPredicate } from "./IAutoMovieShotPredicate";
  * @evidence contracts/common.md#clear-and-simple-design Predicate, actual and passed preserve the obligation, observation and decision separately, allowing state and event realization lists to share the same grading representation.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing rigs, bones or selectors do not become zero-valued measurements, and authored expected values are never copied into actual to manufacture realization.
  * @evidence contracts/common.md#meaningful-documentation Identifies predicate authority, sampled scalar ownership, null unresolved semantics and the resulting failed comparison.
- * @author Samchon
  */
 export interface IAutoMovieCompiledPredicateResult {
   /** Exact authoritative predicate. */

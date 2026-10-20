@@ -17,7 +17,6 @@ import { IAutoMovieActionTarget } from "./IAutoMovieActionTarget";
  * @evidence contracts/common.md#clear-and-simple-design Framing, move and subject are closed choices the solver understands; the two lens intents are optional fields copied into `shot.cameraIntent` instead of a separate lens record the solve would also have to ignore.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Focus and focalLength leave the deterministic solve unchanged and produce no depth-of-field blur. Missing/invalid aspect uses a square-fit fallback at the low-level compiler, close keys within 1e-9 seconds merge with later values, and focus is resolved as a metadata point at the compiler's opening read rather than animated lens tracking.
  * @evidence contracts/common.md#meaningful-documentation States the camera-as-actor model, every refusal about actor, live camera, overlap and target kind, what `"auto"` means here, and the owner of each move's path; members give the closed values, units, bounds and that the lens fields only reach `shot.cameraIntent`.
- * @author Samchon
  */
 export interface IAutoMovieCameraAction extends IAutoMovieActionBase {
   /** Selects camera framing as the action family. */

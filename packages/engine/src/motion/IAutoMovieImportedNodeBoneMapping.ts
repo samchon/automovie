@@ -12,8 +12,6 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A correspondence pair performs no lookup or graph traversal itself.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The pair establishes semantic correspondence, not equivalence of imported takes or a converted-motion cache.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Each mapping list owns one node string and one bone slot per entry, with no source byte buffer retained by this record.
- *
- * @author Samchon
  */
 export interface IAutoMovieImportedNodeBoneMapping {
   /** Exact imported node identity. */

@@ -18,8 +18,6 @@ import { IAutoMovieHumanoidRigCharacterization } from "./IAutoMovieHumanoidRigCh
  * @evidenceExclude contracts/performance.md#efficient-algorithms This retarget receipt executes no rig characterization or contact solve itself.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Source and target tables are reused within one retarget operation; this result defines no mutable-rig cache across operations.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns two rig descriptions and a required-slot array bounded by the humanoid slot domain, with no solver handles retained.
- *
- * @author Samchon
  */
 export interface IAutoMovieHumanoidRetargetCharacterization {
   /** Source rig the clip was authored against. */

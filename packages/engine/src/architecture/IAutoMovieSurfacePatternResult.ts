@@ -14,7 +14,6 @@ import { IAutoMoviePatternQuantities } from "./IAutoMoviePatternQuantities";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A result shape without behavior; producing it is answered on `generateAutoMovieSurfacePattern`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The run caches nothing; a consumer reading instance and texture transforms passes this one result to both rather than re-running the pattern.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns the arrays. The per-zone cell cap does not cap callback output per cell or quadratic pair findings; retained size follows actual placements and findings.
- * @author Samchon
  */
 export interface IAutoMovieSurfacePatternResult {
   /** The pattern that produced this run. */

@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Two planar dimensions define placement support independently from grown plant height and per-member scale.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Extents are center-origin half-sizes, not full widths or inferred occupied foliage bounds; minimum spacing may still reject a degenerate domain.
  * @evidence contracts/common.md#meaningful-documentation Defines world axes, meter units and non-negative half-extent meaning.
- * @author Samchon
  */
 export interface IAutoMoviePlantingExtent {
   /** Half-extent along world `x` in metres; `>= 0`. */

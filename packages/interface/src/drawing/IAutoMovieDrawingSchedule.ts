@@ -13,7 +13,6 @@ import { IAutoMovieDrawingScheduleRow } from "./IAutoMovieDrawingScheduleRow";
  * @evidence contracts/common.md#clear-and-simple-design The record holds only the subject, its rows, the total, its gaps and identity fields; sizing, location and the member bound live on the row and place records that own them.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts `total` is the length of the design's own record array rather than a sum of rows, so the reconciliation is a property of the derivation, and what a subject cannot state is filed as a gap instead of being left out.
  * @evidence contracts/common.md#meaningful-documentation States the shared source with drawings, the meaning of `total` and the row-count identity, the grouping and member bound, and the ungrouped space rule; members give row and gap order, the subject's closed set, and the digest's coverage.
- * @author Samchon
  */
 export interface IAutoMovieDrawingSchedule {
   /** Schedule format. */

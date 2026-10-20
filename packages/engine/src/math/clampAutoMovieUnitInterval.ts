@@ -12,7 +12,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms Two scalar comparisons take constant time and allocate no interpolation table.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each projection reads its current fraction and keeps no previous sample result.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Only the projected number returns; no input object, buffer or task survives the call.
- * @author Samchon
  */
 export function clampAutoMovieUnitInterval(value: number): number {
   return Math.min(1, Math.max(0, value));

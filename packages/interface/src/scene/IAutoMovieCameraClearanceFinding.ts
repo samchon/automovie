@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Four scalar identity/timing fields expose one blocked interval without copying obstacle geometry into the report.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts This is bound intersection, not an exact collision time or penetrating mesh point; conservative continuous coverage depends on the evaluator's interpolation, obstacle-envelope and numerical premises.
  * @evidence contracts/common.md#meaningful-documentation Defines body-versus-rig ownership, stable obstacle id and inclusive shot-local second bounds.
- * @author Samchon
  */
 export interface IAutoMovieCameraClearanceFinding {
   /** Camera or parent-rig envelope that contacted scene geometry. */

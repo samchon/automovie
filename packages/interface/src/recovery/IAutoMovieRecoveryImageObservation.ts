@@ -11,7 +11,6 @@ import type { IAutoMovieRecoveryImageInput } from "./IAutoMovieRecoveryImageInpu
  * @evidence contracts/common.md#clear-and-simple-design Dense observations remain separate from compact generation coefficients and qualification reports.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No interpolated source mesh, manually associated silhouette points or unobserved cap is a measurement.
  * @evidence contracts/common.md#meaningful-documentation States millimetres, support rather than material correspondence, supplied-camera provenance and quantization limits.
- * @author Samchon
  */
 export interface IAutoMovieRecoveryImageObservation {
   /** Versioned silhouette-support schema. */

@@ -5,7 +5,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Keeps source token text, target expression and global interval in one record while actor identity and authored-expression composition remain in the lip-sync join.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Multiple phonemes may share one frame bin and unknown tokens map to rest; the record does not claim measured phoneme onset precision or invent speech analysis for arbitrary external audio.
  * @evidence contracts/common.md#meaningful-documentation Defines source token ownership, bounded mouth vocabulary, neutral rest and inclusive-start exclusive-end global frame timing.
- * @author Samchon
  */
 export interface IAutoMovieProductionViseme {
   /** Source phoneme or grapheme token. */

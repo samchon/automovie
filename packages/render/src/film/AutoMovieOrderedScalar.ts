@@ -14,6 +14,5 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A type alias runs no algorithm; the comparison cost is answered on `equalOrderedScalars`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A type alias coordinates no phases or requests, so there is no work for it to share.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A type alias holds no state, handle or task at run time.
- * @author Samchon
  */
 export type AutoMovieOrderedScalar = number | string;

@@ -15,7 +15,6 @@ import {
  * @evidenceExclude contracts/performance.md#efficient-algorithms A type with no runtime body; the per-entry checks are answered on `forgeCast`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call builds a fresh result and nothing caches forged casts.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The union adds no storage of its own; the success branch retains the plan's model objects and the failure branch its violation list, as each member states.
- * @author Samchon
  */
 export type IAutoMovieForgedCast =
   | IAutoMovieForgedCast.ISuccess
@@ -34,7 +33,6 @@ export namespace IAutoMovieForgedCast {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A record; `forgeCast` fills it in one pass over the plan's entries.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A fresh record per call; nothing shares it across scripts or plans.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds references to the forge plan's model objects without copying them, one per stand-in cast member, released with the caller's result.
-   * @author Samchon
    */
   export interface ISuccess {
     /** Discriminator. */
@@ -58,7 +56,6 @@ export namespace IAutoMovieForgedCast {
    * @evidenceExclude contracts/performance.md#efficient-algorithms A record; violations are pushed during the producer's single pass.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A refused forge is rebuilt from the corrected plan on the next call; nothing keeps an earlier violation list to compare against.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owns the violation array, bounded by the checks run per cast member and entry plus each model's own validation output.
-   * @author Samchon
    */
   export interface IFailure {
     /** Discriminator. */

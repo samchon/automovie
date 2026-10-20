@@ -13,7 +13,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record; the pruned nearest-feature traversal is answered on `createAutoMovieSignedMeshQuery`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A fresh record per reading; the query reuses only its last winning triangle as a starting bound, never a returned hit.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Owns two fresh three-element arrays and scalars with no reference into the compiled snapshot, so it is released with the caller's value.
- * @author Samchon
  */
 export interface IAutoMovieSignedMeshQueryHit {
   /** Nearest surface point, XYZ in mesh-local metres, owned by the caller. */

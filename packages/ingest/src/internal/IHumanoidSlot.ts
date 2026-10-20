@@ -10,7 +10,6 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms Slot-reference typing executes no name resolution, metadata traversal or weight scanning.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work This relation stores no computed skinning result or cross-document mapping cache.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record retains two scalar references and owns no rig buffers or resource handles.
- * @author Samchon
  */
 export interface IHumanoidSlot {
   /** Normalized humanoid semantic slot declared or resolved by the current profile. */

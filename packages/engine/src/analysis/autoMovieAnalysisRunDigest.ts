@@ -33,7 +33,6 @@ import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
  * @evidence contracts/performance.md#efficient-algorithms Linear in metrics M, samples S (at most 4096 in a valid run) and warnings W to build the text, then one pure-TypeScript SHA-256 pass over its UTF-8 bytes, which dominates; no part of the run is traversed twice.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of one run; reuse belongs to callers, and the seal now calls it once per run while a received run must be rehashed to be proven.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The line array, the joined text and the byte array exist only for the call, growing with M + S + W, and only the digest string is returned.
- * @author Samchon
  */
 export const autoMovieAnalysisRunDigest: (
   run: Omit<IAutoMovieAnalysisRun, "digest">,

@@ -14,8 +14,6 @@ import { createStickmanMotionPose as pose } from "./createStickmanMotionPose";
  * @evidence contracts/performance.md#efficient-algorithms Two bounded joint arrays and three frame wrappers require constant construction work; model FK, sampling and renderer work still occur in their ordinary consumers.
  * @evidence contracts/performance.md#reuse-equivalent-work First and last frames borrow the same closed pose in this call; each invocation creates a fresh clip/vocabulary rather than sharing mutable output across different callers.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Caller-owned clip wrappers retain their local pose arrays; shared endpoint pose records must not be independently mutated through one frame. No timer, player, worker or GPU handle is acquired.
- *
- * @author Samchon
  */
 export const jumpingJack: (sk: string) => IAutoMovieMotion = (
   sk: string,

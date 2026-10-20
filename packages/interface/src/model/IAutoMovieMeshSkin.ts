@@ -11,7 +11,6 @@ import { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
  * @evidence contracts/common.md#clear-and-simple-design A local joint palette separates skeleton bone names from compact per-vertex indices, while weights align with the mesh's position order instead of copying positions into the skin record; the blend is one optional closed union on the same record because it changes how these inputs combine, not what they are.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No bone name is guessed from imported vertex order; each stored index must address the declared joint palette, and missing or unnormalized influence groups are validation findings.
  * @evidence contracts/common.md#meaningful-documentation Gives the four-influence grouping, correct boneIndices field name, palette lookup and unit-interval weights summing to one per vertex, and each method's behaviour, default and part-scale premise.
- * @author Samchon
  */
 export interface IAutoMovieMeshSkin {
   /** The bones any vertex may be bound to (the skin's joint set). */

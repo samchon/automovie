@@ -22,7 +22,3 @@ Journal supplement, Wolters Kluwer; values cited.
 | Fingers II to V | MCP flexion 80, PIP 90, DIP 65, extensions 0 (from Richard and Parry, median right index finger) |
 
 Grade: conventional (a handbook norm whose population and protocol the handbook does not give, as Roaas and Andersson 1982 point out).
-
-## What Human takes
-
-The convention the engine's `DEFAULT_HUMANOID_ROM` approximates, and the finger joint norms, until a measured hand source is read.

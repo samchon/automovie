@@ -11,7 +11,6 @@ import { AutoMovieDrawingRole } from "./AutoMovieDrawingRole";
  * @evidence contracts/common.md#clear-and-simple-design The mapped type requires one numeric width for every role, so adding a role exposes missing members to TypeScript. Structural assignability is not runtime rejection of extra properties; the serializer reads only the known role keys.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A zero, negative or non-finite width throws at serialization rather than falling back to a hairline or a default weight.
  * @evidence contracts/common.md#meaningful-documentation States the page-millimetre unit, that every role is required, the serializer's refusal, and which roles' widths also stroke openings and dimensions.
- * @author Samchon
  */
 export type IAutoMovieDrawingWeights = {
   [role in AutoMovieDrawingRole]: number;

@@ -24,7 +24,6 @@ export namespace IAutoMovieCurveGrid64 {
    * @evidenceExclude contracts/performance.md#efficient-algorithms This input interface performs no interpolation.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Reuse belongs to the operator.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased interface owns no runtime arrays.
-   * @author Samchon
    */
   export interface Input {
     /** Stable construction identifier. */
@@ -65,7 +64,6 @@ export namespace IAutoMovieCurveGrid64 {
    * @evidenceExclude contracts/performance.md#efficient-algorithms This result interface performs no work.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work The operator owns representation reuse.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased interface owns no resources.
-   * @author Samchon
    */
   export interface Result {
     /** Engine-generated metre mesh with triangle-derived unit normals where accumulation is resolved, zero normals otherwise, and explicit physical identities. */

@@ -8,8 +8,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms The erased content record performs no DOM read or selection.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record itself coordinates no cache or effects.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The type acquires no image listeners or document handles.
- *
- * @author Samchon
  */
 export interface IGalleryContent {
   /** Authored display copy; a null native text value is preserved without coercion. */

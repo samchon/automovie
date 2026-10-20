@@ -14,7 +14,6 @@ import { prepareSpace } from "./prepareSpace";
  * @evidence contracts/performance.md#efficient-algorithms Cost is heightAt's full surface/edge and walkable-id scan plus O(E) preparation if omitted; the boolean wrapper adds constant work.
  * @evidence contracts/performance.md#reuse-equivalent-work Supplied prepared rings are reused through the canonical query, with no independent membership cache or playback state.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only a boolean is returned; default preparation is call-local and acquires no renderer, task or external handle.
- * @author Samchon
  */
 export const isWalkable: (
   space: IAutoMovieSpace,

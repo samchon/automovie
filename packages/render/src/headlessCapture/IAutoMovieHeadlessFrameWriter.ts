@@ -15,7 +15,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms The type declares a callback shape; the cost of writing belongs to the caller's implementation.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Every call persists a distinct frame and pass file, so there is no equivalent write to share.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Calls are awaited one at a time, so at most one frame's bytes are in flight; whether the implementation keeps them, as a test's in-memory map does, is the caller's retention.
- * @author Samchon
  */
 export type IAutoMovieHeadlessFrameWriter = (
   path: string,

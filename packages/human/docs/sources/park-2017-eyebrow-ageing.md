@@ -25,7 +25,3 @@ Korean women, 20 aged 20 to 30 (mean 24.8) and 20 aged 50 to 70 (mean 55.8), Kei
 | Range, highest to lowest | older | 5.76 | 6.70 | 5.01 | 2.55 |
 
 The brow peak is at the lateral limbus in every action. The lateral end moves about half as far as the rest.
-
-## What Human takes
-
-Brow arch shape (peak over the lateral limbus), brow travel for AU1, AU2 and AU4 by brow point, and the age effect: lower brows and roughly 40 percent less travel at 50 to 70.

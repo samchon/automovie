@@ -22,7 +22,6 @@ import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResou
  * an initialization refusal independently reports disposal and its original
  * cause rather than leaving an unreturned allocation with no owner.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Uses engine tessellation for primitives and realizes admitted raw position/normal/UV/color/relief/skin arrays as native typed attributes and morph targets as named relative morph attributes (zero normal deltas where a target has none but another does, as Three requires), computing normals only when absent and preserving physical-vertex identity through its owner helper; widths/index bounds and Float32/Uint16 representability are source premises, so numeric narrowing can differ from engine double precision.
  * @evidence contracts/common.md#clear-and-simple-design Owns one Three buffer realization, leaving primitive topology to tessellate, texture semantics to material builders and simulation/render vertex correspondence to AutoMovieGeometryPhysicalVertices.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Writes the actual artifact arrays without geometry-id exceptions, copied UV channels or generated placeholder primitives; missing normals use native computation, not fixture normal values.

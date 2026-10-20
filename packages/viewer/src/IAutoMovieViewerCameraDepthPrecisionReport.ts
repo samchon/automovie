@@ -1,7 +1,6 @@
 /**
  * Observable viewer capability result for one resolved production camera.
  *
- * @author Samchon
  * @evidence contracts/common.md#principled-implementation Records declared and realized clip planes, current draw-framebuffer depth bits and standard/log/reversed mode separately; null preserves an unavailable/non-finite observation instead of inventing capability, and passed reflects the evaluator's ordered admission checks.
  * @evidence contracts/common.md#clear-and-simple-design One portable value carries the evaluator result and assertion diagnostics; status distinguishes malformed source, clip mismatch, nonstandard metric and missing/insufficient actual bits without retaining renderer state.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Reports actual queried capability and exact clip equality, with no browser-brand exemption, default bit count or substitution of the requested capability for observation.

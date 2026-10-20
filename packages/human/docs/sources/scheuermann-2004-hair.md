@@ -4,7 +4,7 @@ Scheuermann T. "Practical Real-Time Hair Rendering and Shading." SIGGRAPH 2004 S
 
 ## Licence
 
-Copyright the author and ACM. Human takes the shading and ordering method only.
+Copyright the author and ACM.
 
 ## What it says
 
@@ -13,7 +13,3 @@ Copyright the author and ACM. Human takes the shading and ordering method only.
 - Specular: Kajiya-Kay with the strand tangent, two terms per light after Marschner et al.: the primary shifted toward the tip, the secondary coloured by pigment, shifted toward the root and modulated by noise. Shift: T' = normalize(T + s N), with s from a texture.
 - Ambient occlusion per vertex, precomputed.
 - Approximate back-to-front order without runtime sorting: patches pre-sorted by distance from the head, then four passes (opaque depth prime with alpha test, opaque shading at equal depth, transparent back faces, transparent front faces). This assumes the patches move little relative to each other.
-
-## What Human takes
-
-The material requirements for cards (alpha, double sides, tangent-based anisotropic specular) and the pass ordering a renderer needs (`../techniques/hair-cards.md`, `../core/gaps.md`).

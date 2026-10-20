@@ -10,7 +10,6 @@ import { IAutoMovieSceneEnvironment } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms The record performs no environment or texture scan; closure traversal scales with supplied uses.
  * @evidence contracts/performance.md#reuse-equivalent-work The original environment representation is reused, with no duplicate lighting schema or cached byte facts in this row.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the borrowed environment reference and shot string; no image decoder, scene or GPU handle is acquired.
- * @author Samchon
  */
 export interface IAutoMovieSceneEnvironmentUse {
   /** Exact shot id. */

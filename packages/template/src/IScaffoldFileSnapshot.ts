@@ -8,8 +8,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms The resident pathname snapshot declaration chooses no executable algorithm.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The resident pathname snapshot type coordinates no request or cached work.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The resident pathname snapshot schema acquires no runtime handles, bytes or tasks.
- *
- * @author Samchon
  */
 export interface IScaffoldFileSnapshot {
   /**

@@ -27,7 +27,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms Input record; the grid is walked once in `analyzeAutoMovieDaylight`, whose cost per cell is answered there.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The sky directions shared across the grid are built by the analyzer, not this type, and no grid point is cached across studies.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Three vectors and four numbers owned by the request; the cells it describes are capped at `AUTOMOVIE_ANALYSIS_MAX_SAMPLES`.
- * @author Samchon
  */
 export interface IAutoMovieAnalysisWorkplane {
   /** World-space corner the grid grows from, in metres; every axis finite. */

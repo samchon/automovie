@@ -30,7 +30,6 @@ const MAGNUS_B: number = 243.12;
  * @evidenceExclude contracts/performance.md#efficient-algorithms Constant time, one logarithm and a few arithmetic operations, with no algorithm to choose.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure scalar function; the envelope analyzer computes the one indoor dew point once per study and shares it across every assembly.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Works on two scalar arguments and one local, so no object, handle or task is created or kept.
- * @author Samchon
  */
 export const autoMovieDewPoint: (
   temperature: number,

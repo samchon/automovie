@@ -20,10 +20,6 @@ CC BY 4.0. Numbers are facts.
 
 Corneal radius from keratometric power (derived, standard keratometric index 1.3375): r = 337.5 / K mm, giving 7.64 mm overall, 7.70 mm for men and 7.58 mm for women.
 
-## What Human takes
-
-Corneal radius about 7.6 to 7.7 mm against a scleral radius of about 12 mm (`bekerman-2014-eyeball.md`), and anterior chamber depth about 3 mm: the cornea is a smaller sphere set into the globe, which is what makes the corneal bulge visible under the lid.
-
 ## Limits
 
 Older adults; anterior chamber depth falls with age in men.

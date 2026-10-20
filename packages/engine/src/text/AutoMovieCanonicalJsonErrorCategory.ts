@@ -8,7 +8,6 @@
  * @evidence contracts/performance.md#efficient-algorithms The type adds no runtime traversal or storage; classification cost belongs to the failing canonicalizer operation.
  * @evidence contracts/performance.md#reuse-equivalent-work The canonicalizer and its typed error share these exact category values; no translation table or cached classification is required.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The category is scalar data retained only with its owning error, with no graph, bytes or task ownership.
- * @author Samchon
  */
 export type AutoMovieCanonicalJsonErrorCategory =
   | "unsupported-value"

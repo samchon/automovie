@@ -17,7 +17,3 @@ CC BY-NC-ND 4.0. Review; numbers are quoted from cited studies (Thibaut 2010 and
 | Length | rarely exceeds 12 mm; over 12 mm is trichomegaly |
 
 All lashes are curved regardless of ethnicity, the curvature starting at the bulb; the follicle is asymmetric like that of curly scalp hair. A cited study measured lift-up and curl-up angles of upper lashes in Caucasian and Asian women by photograph.
-
-## What Human takes
-
-Lash count, row structure, maximum length and the rule that every lash curves from the root, for the lash strip generator.

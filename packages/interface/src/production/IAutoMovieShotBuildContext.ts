@@ -15,7 +15,6 @@ import { IAutoMovieWorldDesign } from "./IAutoMovieWorldDesign";
  * @evidence contracts/common.md#clear-and-simple-design Keeps authored design, model groups, compiled population runtimes and query helpers distinct so source can stage a thin program without reconstructing population placement or reading undeclared generated files.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Readonly tables do not deeply freeze nested records, isolate arbitrary subject code or certify deterministic effects. No surviving production evaluator supplies an implicit current-input fence for this context; hosts own deterministic input preparation.
  * @evidence contracts/common.md#meaningful-documentation Defines design versus generated-runtime ownership, host-verification premises for artifact paths, optional story lighting and the compile-time-only readonly limitation.
- * @author Samchon
  */
 export interface IAutoMovieShotBuildContext {
   /** Current shot contract. */

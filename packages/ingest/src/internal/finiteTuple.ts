@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Read a finite numeric tuple with a glTF default when omitted.
  *
  * Undefined copies the caller's fallback without validating it; motion-node callers supply finite three- or four-component glTF defaults. Present arrays must have the same length and finite numeric entries, or throw with the field/index path. Both branches return a fresh array.
@@ -10,7 +10,6 @@
  * @evidence contracts/performance.md#efficient-algorithms Tuple length K drives O(K) time and result space; current callers use only three or four components.
  * @evidence contracts/performance.md#reuse-equivalent-work The same tuple admission serves translation, rotation and scale without cross-call caching of mutable inputs.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned K-number array belongs to its caller and retains no reference to the source or fallback array.
- * @author Samchon
  */
 export const finiteTuple: (
   value: unknown,

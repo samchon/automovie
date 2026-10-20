@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design One field is the whole payload, following the refinement tree's rule that each node kind carries its own shape rather than shared reasoning slots.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Rationale is printed verbatim without being parsed into motion or rearranging children; blank prose refuses rather than producing an empty bracketed heading.
  * @evidence contracts/common.md#meaningful-documentation Defines group editorial ownership, bracketed screenplay output and the nonblank admission rule.
- * @author Samchon
  */
 export interface IAutoMovieGroupPayload {
   /** Nonblank prose explaining the grouping. */

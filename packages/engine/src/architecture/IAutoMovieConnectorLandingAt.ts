@@ -16,7 +16,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidenceExclude contracts/performance.md#efficient-algorithms No code; locating each landing walks the cumulative length table once, answered on `builtConnectorGeometry`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built per geometry call; the cumulative length table is shared with that call's stations and is not retained afterwards.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds a string, a number and a fresh vector, owned by the geometry's `landings` array.
- * @author Samchon
  */
 export interface IAutoMovieConnectorLandingAt {
   /** Logical space served at this stop. */

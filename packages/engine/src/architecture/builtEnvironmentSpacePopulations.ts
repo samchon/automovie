@@ -24,7 +24,6 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * @evidence contracts/performance.md#efficient-algorithms Linear in the space and population counts: one subtree walk and one filtered pass with a set lookup per population.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each call reads the population list of the record it is handed; a filtered list from an earlier call could not prove the record unchanged, so none is kept.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds the subtree set only for the call; the returned array is new but shares the record's own population objects.
- * @author Samchon
  */
 export const builtEnvironmentSpacePopulations: (
   environment: IAutoMovieBuiltEnvironment,

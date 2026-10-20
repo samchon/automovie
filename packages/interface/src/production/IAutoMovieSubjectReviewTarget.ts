@@ -7,7 +7,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Two identifiers provide artifact qualification without a frame index or an unrelated film-time target.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The shot address does not imply that its delivery camera observed this subject; viewpoint authority remains with inspection and missing subjects refuse resolution.
  * @evidence contracts/common.md#meaningful-documentation Defines compiled artifact qualification, stable namespaced subject identity and independence from the shot's camera.
- * @author Samchon
  */
 export interface IAutoMovieSubjectReviewTarget {
   /** Compiled shot artifact that contains the subject. */

@@ -15,7 +15,6 @@ import { IAutoMovieGrammarShotObservation } from "./IAutoMovieGrammarShotObserva
  * @evidenceExclude contracts/performance.md#efficient-algorithms An input record; the analyzer's cost is answered on `readFilmGrammar`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Built by the caller for one reading; the analyzer keeps nothing between calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources References the caller's shot observations without copying them; the analyzer holds them only during the call.
- * @author Samchon
  */
 export interface IAutoMovieGrammarInput {
   /** Observed shots in edited playback order; ids must be unique. */

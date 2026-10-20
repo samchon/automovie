@@ -11,7 +11,6 @@ import { IAutoMovieClampViolation } from "./IAutoMovieClampViolation";
  * @evidence contracts/performance.md#efficient-algorithms Each violation has fixed scalar fields plus strings; aggregate population is the number of crossed components in resolveFrame.
  * @evidence contracts/performance.md#reuse-equivalent-work The frame forwards the already computed clamp cause; the record owns no re-evaluation or cross-frame cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller retains diagnostic rows as needed and releases them with its report; no input graph, handle or active task is held.
- * @author Samchon
  */
 export interface IAutoMovieResolveViolation extends IAutoMovieClampViolation {
   /** The {@link channelKey} of the channel that was clamped. */

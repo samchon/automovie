@@ -15,7 +15,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms A result record with no algorithm; the solve is answered on `solveAutoMovieQuadraticProgram`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A per-call record that coordinates no work across calls.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owned by the caller; the optional vectors add one copy of the primal and dual only for an unsuccessful solve.
- * @author Samchon
  */
 export interface IAutoMovieQuadraticRefinementNativeCall {
   /** Native status: 1 is Solved; any other value is unsuccessful. */

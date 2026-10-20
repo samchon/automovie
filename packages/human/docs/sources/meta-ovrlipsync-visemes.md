@@ -27,7 +27,3 @@ Vendor documentation; the viseme set is a de facto convention. No licence statem
 | U | ou | book |
 
 Grade: conventional.
-
-## What Human takes
-
-The viseme vocabulary for speech, each viseme to be defined as an AU combination plus jaw opening and tongue position in `../anatomy/expression.md`, and the mapping from the interface's five VRM vowel presets (aa, ih, ou, ee, oh).

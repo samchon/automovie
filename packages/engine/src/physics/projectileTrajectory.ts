@@ -23,7 +23,6 @@ const PROJECTILE_FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  * Samples the closed-form solution, so there is no integration drift; the last
  * key lands exactly on `duration`.
  *
- * @author Samchon
  *
  * @evidence contracts/common.md#principled-implementation Sample constant-acceleration states at i*duration/round(duration*fps), including both endpoints; aimRotation aligns +Z to velocity. Requested fps is approximate after rounding, and linear clip interpolation approximates the continuous parabola.
  * @evidence contracts/common.md#clear-and-simple-design The producer writes clip buffers directly and delegates state and facing mathematics to their existing owners.

@@ -12,7 +12,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Three fields join a character description to a node and a model choice; placement belongs to staging and the forged geometry to the forge plan, so the cast record holds neither.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A member with a model reference offered a forged stand-in is refused rather than silently overridden, and a stand-in member without a forge entry is refused rather than drawn with a default figure.
  * @evidence contracts/common.md#meaningful-documentation States the node rules, both meanings of `modelRef` with the forging rule and the model id it yields, that references may be shared, and where the reference is checked; members give each field's reader and non-empty rule.
- * @author Samchon
  */
 export interface IAutoMovieCastMember {
   /** Id of the scene node, placed in staging, that embodies this character. */

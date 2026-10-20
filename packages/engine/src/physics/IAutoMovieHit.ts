@@ -10,7 +10,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
  * @evidence contracts/performance.md#efficient-algorithms The record is constant-size with no algorithm; projectileSphereHit's step count controls detection work and accuracy.
  * @evidence contracts/performance.md#reuse-equivalent-work The producer's detected contact point/time are reused directly instead of re-evaluating the projectile on the curved path.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the hit and point; no trajectory history, collision handle or simulation task remains.
- * @author Samchon
  */
 export interface IAutoMovieHit {
   /** Seconds since launch at first detected chord contact. */

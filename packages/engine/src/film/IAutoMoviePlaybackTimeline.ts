@@ -16,7 +16,6 @@ import { IAutoMoviePlaybackEntry } from "./IAutoMoviePlaybackEntry";
  * @evidenceExclude contracts/performance.md#efficient-algorithms A record; it is built in one pass over the sequence by `sequenceTimeline`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The reuse lives in its callers, which build one timeline per film and resolve every frame against it; the record itself caches nothing.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owns one entry per sequence entry, held by value and released with the caller's timeline.
- * @author Samchon
  */
 export interface IAutoMoviePlaybackTimeline {
   /** One placement per sequence entry, in sequence order. */

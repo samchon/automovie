@@ -9,7 +9,6 @@
  * @evidence contracts/common.md#clear-and-simple-design A closed union records the coordinate convention beside the texture reference instead of deriving it from image dimensions or transform magnitude.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Imported source UVs retain their authored unit and are not assigned a guessed physical tile size; metric and normalized bindings use their distinct scale relationships.
  * @evidence contracts/common.md#meaningful-documentation Explains each coordinate unit, the metric and normalized repeat formulas, and why image contents or scale alone cannot establish that unit.
- * @author Samchon
  */
 export type AutoMovieTextureCoordinateSource =
   | "surface-metres"
