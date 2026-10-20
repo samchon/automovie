@@ -21,7 +21,7 @@ import { rootsAutoMovieCubicBernstein64 } from "./curve/rootsAutoMovieCubicBerns
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No row sampling determines events, fixed polygon correspondence hides changing constraints, determinant is replaced or coordinate weld supplies incidence. Numerically unresolved continua or close events refuse.
  * @evidence contracts/common.md#meaningful-documentation States cubic event derivation, normalized solver limitations, exact/uncertain continua, event-station admission, phase merging qualification, metre curvature bound and budget refusal before output allocation.
  * @evidence contracts/performance.md#efficient-algorithms For P bounded planes, S spans and E events, pair coefficients cost O(S P squared), cubic triples/feasibility O(S P to the fourth), and interval incidence O((S+E) P cubed). Retention is O(S P cubed + (S+E) P), including continuous/event triple incidences. maxPlanes bounds those raw triple populations, maxEvents bounds stations, and maxCells bounds planned strips before mesh allocation.
- * @evidence contracts/performance.md#reuse-equivalent-work Each pair's fixed determinant and four X/Z coefficients serve all triple queries and output intervals. A separated four-control positive-slack witness, confirmed by exact signs, excludes that pair's triples over the entire interval by the Bernstein convex-hull property; endpoint samples never supply this exclusion. Unproved pairs retain the full event calculation; interval incidence and curvature bounds are planned once for the emitter.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each pair's fixed determinant and four X/Z coefficients serve all triple queries and output intervals. A separated four-control positive-slack witness, confirmed by exact signs, excludes that pair's triples over the entire interval by the Bernstein convex-hull property; endpoint samples never supply this exclusion. Unproved pairs retain the full event calculation. Interior stations and their following interval midpoints are queried in phase order so the section query can reuse nearby active-edge seeds; every station and midpoint still receives full admission. Interval incidence and curvature bounds are planned once for the emitter.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Call-local O(S P cubed + (S+E) P) curve/triple/interval records transfer to one synchronous emitter; budget refusal returns no partial mesh or retained resource.
  */
 export function planAutoMovieSupportLoft64(input: {
@@ -242,28 +242,6 @@ export function planAutoMovieSupportLoft64(input: {
         b: (typeof span.stations)[number],
       ): number => a.phase - b.phase,
     );
-    for (const station of span.stations) {
-      // Endpoints were admitted before planning. An isolated redundant weak
-      // pair can become feasible only at an interior event, so open-interval
-      // queries cannot establish the station's numerical admission.
-      if (station.phase === 0 || station.phase === 1) continue;
-      try {
-        query(
-          field.offsets.map((q: number[]): number =>
-            B.scalar(q, station.phase),
-          ),
-        );
-      } catch (failure: unknown) {
-        if (
-          failure instanceof Error &&
-          failure.message.startsWith("unsupported-support-section:")
-        )
-          throw new Error(
-            "unsupported-support-collapse: event section has no finite positive area",
-          );
-        throw failure;
-      }
-    }
     for (
       let interval: number = 1;
       interval < span.stations.length;
@@ -271,6 +249,25 @@ export function planAutoMovieSupportLoft64(input: {
     ) {
       const before: number = span.stations[interval - 1].phase;
       const after: number = span.stations[interval].phase;
+      // Endpoints were admitted before planning. Each interior event is the
+      // start of exactly one interval and still needs its own admission: an
+      // isolated weak pair may be feasible only at that event station.
+      if (before !== 0) {
+        try {
+          query(
+            field.offsets.map((q: number[]): number => B.scalar(q, before)),
+          );
+        } catch (failure: unknown) {
+          if (
+            failure instanceof Error &&
+            failure.message.startsWith("unsupported-support-section:")
+          )
+            throw new Error(
+              "unsupported-support-collapse: event section has no finite positive area",
+            );
+          throw failure;
+        }
+      }
       const middle: number = before + (after - before) / 2;
       const physicalBefore: number =
         field.interval[0] + before * (field.interval[1] - field.interval[0]);

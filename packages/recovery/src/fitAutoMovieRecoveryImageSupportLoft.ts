@@ -22,7 +22,7 @@ import { prepareRecoveryImageSupports } from "./internal/prepareRecoveryImageSup
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No ellipse prior, fixed polygon correspondence, per-row saved contour, discarded view, inferred cap, original mesh/normal or camera estimate supplies the result. Exhausted residual/rank/event/geometry budgets refuse without changing thresholds.
  * @evidence contracts/common.md#meaningful-documentation States support rather than material correspondence, cubic candidate order, common-domain comparison, implied-hull checks, supplied cameras, partial unknown coverage and numerical rather than certified enclosure status.
  * @evidence contracts/performance.md#efficient-algorithms For N common rows, V views and K=spans+3, each candidate costs O(N K squared + N K V + N V cubed), plus the generic engine's bounded continuous planning/emission. maxViews/maxRows/maxSpans and event/cell/vertex budgets bound all retained populations before their owning allocations.
- * @evidence contracts/performance.md#reuse-equivalent-work One common chart and fixed-direction section query serve every candidate; one factorization serves all 2V fields. A maximum residual can only grow, so one violating row rejects that candidate without scanning its remaining rows; acceptance still checks every row and view. Per-row Bernstein weights are shared, and accepted engine diagnostics retain no acquisition-time mesh.
+ * @evidence contracts/performance.md#reuse-equivalent-work One common chart and fixed-direction section query serve every candidate; one factorization serves all 2V fields. Each view's opposite normals share one vertex projection scan while both offset and implied-support residuals remain checked. A maximum residual can only grow, so one violating row rejects that candidate without scanning its remaining rows; acceptance still checks every row and view. Per-row Bernstein weights are shared, and accepted engine diagnostics retain no acquisition-time mesh.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Local observation, fit and temporary engine scratch expires synchronously; only compact coefficients, source identities and scalar diagnostics transfer. Cancellation is checked between candidates and before transfer, with no file, worker or global cache acquired.
  */
 export function fitAutoMovieRecoveryImageSupportLoft(
@@ -177,22 +177,28 @@ export function fitAutoMovieRecoveryImageSupportLoft(
             q[0] * w0 + q[1] * w1 + q[2] * w2 + q[3] * w3,
         );
         const section: ReturnType<typeof query> = query(offsets);
-        for (let plane: number = 0; plane < normals.length; plane++) {
-          let support: number = -Infinity;
-          for (const vertex of section)
-            support = Math.max(
-              support,
-              normals[plane][0] * vertex.point[0] +
-                normals[plane][1] * vertex.point[1],
-            );
-          const pitch: number =
-            observation.views[plane % observation.views.length].camera
-              .pixelPitchMm;
+        for (let view: number = 0; view < observation.views.length; view++) {
+          const opposite: number = view + observation.views.length;
+          let upper: number = -Infinity,
+            negativeLower: number = -Infinity;
+          for (const vertex of section) {
+            // The second field uses the exact negative of this fixed normal.
+            // One projection therefore supplies both directional extrema.
+            const projection: number =
+              normals[view][0] * vertex.point[0] +
+              normals[view][1] * vertex.point[1];
+            upper = Math.max(upper, projection);
+            negativeLower = Math.max(negativeLower, -projection);
+          }
+          const pitch: number = observation.views[view].camera.pixelPitchMm;
           residual = Math.max(
             residual,
-            Math.abs(1000 * offsets[plane] - samples[row].values[plane]) /
+            Math.abs(1000 * offsets[view] - samples[row].values[view]) / pitch,
+            Math.abs(1000 * upper - samples[row].values[view]) / pitch,
+            Math.abs(1000 * offsets[opposite] - samples[row].values[opposite]) /
               pitch,
-            Math.abs(1000 * support - samples[row].values[plane]) / pitch,
+            Math.abs(1000 * negativeLower - samples[row].values[opposite]) /
+              pitch,
           );
         }
         if (!(residual <= policy.maximumResidualPx)) break;
