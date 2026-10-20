@@ -35,44 +35,12 @@ export function observeAutoMovieRecovery<
 ): IAutoMovieRecoveryResult<
   AutoMovieRecoveryCurveData<IAutoMovieRecoveryMeshSections, Format>
 >;
-/**
- * Observe a registered mesh and return source-free cubic coefficients and incidence.
- * Inputs are borrowed and remain unchanged. Numerical fitting failures are reported
- * by the observation owner; unsupported local components retain their diagnostics.
- * No original position, triangle, normal or rig array enters the returned bundle.
- * curveFormat selects every nested cubic basis; omitted means bezier. Conversion
- * retains original phase widths and binary64 arithmetic limitations.
- *
- * @evidence contracts/common.md#principled-implementation Existing plane cuts, PL links and physical cubic fitting supply the sole observation result.
- * @evidence contracts/common.md#clear-and-simple-design The memory boundary owns terminal states while recovery owns observation and fitting; existing engine operations retain their shared curve and surface responsibilities.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts There is no source replacement, specimen branch, retry or automatic tolerance change.
- * @evidence contracts/common.md#meaningful-documentation States source lifetime, source-free output and declared coverage rather than fidelity.
- * @evidence contracts/performance.md#efficient-algorithms The delegated observation costs O(V+T+P) storage with indexed cut traversal and adaptive fitting; this wrapper adds only diagnostic scans.
- * @evidence contracts/performance.md#reuse-equivalent-work One extraction result supplies both value and coverage; no cross-call cache exists.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Borrowed source arrays live for the call, outputs transfer to the caller, and cancellation acquires no listener or handle.
 
- */
 export function observeAutoMovieRecovery(
   input: IAutoMovieRecoveryInput,
   options?: IAutoMovieRecoveryDefaultObservationOptions,
 ): IAutoMovieRecoveryResult<IAutoMovieRecoveryMeshSections>;
-/**
- * Observe a registered mesh and return source-free cubic coefficients and incidence.
- * Inputs are borrowed and remain unchanged. Numerical fitting failures are reported
- * by the observation owner; unsupported local components retain their diagnostics.
- * No original position, triangle, normal or rig array enters the returned bundle.
- * curveFormat selects every nested cubic basis; omitted means bezier. Conversion
- * retains original phase widths and binary64 arithmetic limitations.
- *
- * @evidence contracts/common.md#principled-implementation Existing plane cuts, PL links and physical cubic fitting supply the sole observation result.
- * @evidence contracts/common.md#clear-and-simple-design The memory boundary owns terminal states while recovery owns observation and fitting; existing engine operations retain their shared curve and surface responsibilities.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts There is no source replacement, specimen branch, retry or automatic tolerance change.
- * @evidence contracts/common.md#meaningful-documentation States source lifetime, source-free output and declared coverage rather than fidelity.
- * @evidence contracts/performance.md#efficient-algorithms The delegated observation costs O(V+T+P) storage with indexed cut traversal and adaptive fitting; this wrapper adds only diagnostic scans.
- * @evidence contracts/performance.md#reuse-equivalent-work One extraction result supplies both value and coverage; no cross-call cache exists.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Borrowed source arrays live for the call, outputs transfer to the caller, and cancellation acquires no listener or handle.
 
- */
 export function observeAutoMovieRecovery(
   input: IAutoMovieRecoveryInput,
   options: IAutoMovieRecoveryOptions,
@@ -82,23 +50,7 @@ export function observeAutoMovieRecovery(
     AutoMovieRecoveryCurveFormat
   >
 >;
-/**
- * Observe a registered mesh and return source-free cubic coefficients and incidence.
- * Inputs are borrowed and remain unchanged. Numerical fitting failures are reported
- * by the observation owner; unsupported local components retain their diagnostics.
- * No original position, triangle, normal or rig array enters the returned bundle.
- * curveFormat selects every nested cubic basis; omitted means bezier. Conversion
- * retains original phase widths and binary64 arithmetic limitations.
- *
- * @evidence contracts/common.md#principled-implementation Existing plane cuts, PL links and physical cubic fitting supply the sole observation result.
- * @evidence contracts/common.md#clear-and-simple-design The memory boundary owns terminal states while recovery owns observation and fitting; existing engine operations retain their shared curve and surface responsibilities.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts There is no source replacement, specimen branch, retry or automatic tolerance change.
- * @evidence contracts/common.md#meaningful-documentation States source lifetime, source-free output and declared coverage rather than fidelity.
- * @evidence contracts/performance.md#efficient-algorithms The delegated observation costs O(V+T+P) storage with indexed cut traversal and adaptive fitting; this wrapper adds only diagnostic scans.
- * @evidence contracts/performance.md#reuse-equivalent-work One extraction result supplies both value and coverage; no cross-call cache exists.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Borrowed source arrays live for the call, outputs transfer to the caller, and cancellation acquires no listener or handle.
 
- */
 export function observeAutoMovieRecovery(
   input: IAutoMovieRecoveryInput,
   options: IAutoMovieRecoveryOptions = {},

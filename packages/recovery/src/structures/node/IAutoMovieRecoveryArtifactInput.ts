@@ -67,12 +67,42 @@ export interface IAutoMovieRecoveryArtifactInput {
   /** Owning output directory. */
   output: string;
 
-  /** Sample current generated geometry counts. */
+  /**
+   * Sample current generated vertex and triangle populations.
+   *
+   * @evidence contracts/common.md#principled-implementation The implementation samples current run-owned counters without generating geometry.
+   * @evidence contracts/common.md#clear-and-simple-design The callback exposes the publication owner current observations.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No estimate, replacement geometry or inferred completion is supplied.
+   * @evidence contracts/common.md#meaningful-documentation States the sampled quantities and owner-defined lifetime.
+   * @evidence contracts/performance.md#efficient-algorithms Reads a fixed set of counters or host memory populations without traversing generated geometry.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the run counters and observed peaks rather than recounting geometry.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The callback belongs to the active reconstruction run and returns a fresh small record without retaining it.
+   */
   counts: () => IAutoMovieRecoveryModelCounts;
 
-  /** Sample current host byte populations. */
+  /**
+   * Sample host memory byte populations and update observed peaks.
+   *
+   * @evidence contracts/common.md#principled-implementation The implementation samples current run-owned counters without generating geometry.
+   * @evidence contracts/common.md#clear-and-simple-design The callback exposes the publication owner current observations.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No estimate, replacement geometry or inferred completion is supplied.
+   * @evidence contracts/common.md#meaningful-documentation States the sampled quantities and owner-defined lifetime.
+   * @evidence contracts/performance.md#efficient-algorithms Reads a fixed set of counters or host memory populations without traversing generated geometry.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the run counters and observed peaks rather than recounting geometry.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The callback belongs to the active reconstruction run and returns a fresh small record without retaining it.
+   */
   memory: () => IAutoMovieRecoveryMemoryUsage;
 
-  /** Read the observed host memory peaks. */
+  /**
+   * Read the run observed heap and resident byte peaks.
+   *
+   * @evidence contracts/common.md#principled-implementation The implementation samples current run-owned counters without generating geometry.
+   * @evidence contracts/common.md#clear-and-simple-design The callback exposes the publication owner current observations.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No estimate, replacement geometry or inferred completion is supplied.
+   * @evidence contracts/common.md#meaningful-documentation States the sampled quantities and owner-defined lifetime.
+   * @evidence contracts/performance.md#efficient-algorithms Reads a fixed set of counters or host memory populations without traversing generated geometry.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the run counters and observed peaks rather than recounting geometry.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The callback belongs to the active reconstruction run and returns a fresh small record without retaining it.
+   */
   peaks: () => IAutoMovieRecoveryMemoryPeaks;
 }

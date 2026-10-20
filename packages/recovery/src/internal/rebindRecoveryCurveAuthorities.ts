@@ -1,3 +1,4 @@
+import type { IRecoveryAuthorityRecord } from "./IRecoveryAuthorityRecord";
 import {
   type IAutoMovieCurve64 as C,
   AutoMovieCurveMath64 as M,
@@ -32,20 +33,20 @@ export function rebindRecoveryCurveAuthorities(
     throw new Error("Curve authority conversion requires a declared basis");
   const visited: WeakSet<object> = new WeakSet();
   const pending: Map<
-    RecoveryAuthorityRecord,
+    IRecoveryAuthorityRecord,
     Map<number, C.Vector>
   > = new Map();
   const curveCache: WeakMap<object, readonly C.Span[]> = new WeakMap();
-  const record: (value: unknown) => RecoveryAuthorityRecord | undefined = (
+  const record: (value: unknown) => IRecoveryAuthorityRecord | undefined = (
     value: unknown,
-  ): RecoveryAuthorityRecord | undefined =>
+  ): IRecoveryAuthorityRecord | undefined =>
     value !== null && typeof value === "object" && !Array.isArray(value)
-      ? (value as RecoveryAuthorityRecord)
+      ? (value as IRecoveryAuthorityRecord)
       : undefined;
-  const required: (value: unknown) => RecoveryAuthorityRecord = (
+  const required: (value: unknown) => IRecoveryAuthorityRecord = (
     value: unknown,
-  ): RecoveryAuthorityRecord => {
-    const row: RecoveryAuthorityRecord | undefined = record(value);
+  ): IRecoveryAuthorityRecord => {
+    const row: IRecoveryAuthorityRecord | undefined = record(value);
     if (!row)
       throw new Error("A bound curve publication requires plain records");
     return row;
@@ -60,7 +61,7 @@ export function rebindRecoveryCurveAuthorities(
   const canonical: (value: unknown) => readonly C.Span[] = (
     value: unknown,
   ): readonly C.Span[] => {
-    const row: RecoveryAuthorityRecord = required(value);
+    const row: IRecoveryAuthorityRecord = required(value);
     const previous: readonly C.Span[] | undefined = curveCache.get(row);
     if (previous) return previous;
     if (row.type === "cubicBezier") {
@@ -100,16 +101,16 @@ export function rebindRecoveryCurveAuthorities(
     original: C.Vector,
     converted: C.Vector,
   ): void => {
-    const geometry: RecoveryAuthorityRecord = required(originalGeometry);
-    const target: RecoveryAuthorityRecord = required(convertedGeometry);
+    const geometry: IRecoveryAuthorityRecord = required(originalGeometry);
+    const target: IRecoveryAuthorityRecord = required(convertedGeometry);
     if (typeof id !== "number" || !Number.isSafeInteger(id) || id < 0)
       throw new Error(
         "A curve binding requires an in-range integer control ID",
       );
-    const point: RecoveryAuthorityRecord = required(
+    const point: IRecoveryAuthorityRecord = required(
       array(geometry.controls)[id],
     );
-    const targetPoint: RecoveryAuthorityRecord = required(
+    const targetPoint: IRecoveryAuthorityRecord = required(
       array(target.controls)[id],
     );
     if (
@@ -149,11 +150,11 @@ export function rebindRecoveryCurveAuthorities(
     owners.set(id, next);
   };
   const publication: (
-    original: RecoveryAuthorityRecord,
-    converted: RecoveryAuthorityRecord,
+    original: IRecoveryAuthorityRecord,
+    converted: IRecoveryAuthorityRecord,
   ) => void = (
-    original: RecoveryAuthorityRecord,
-    converted: RecoveryAuthorityRecord,
+    original: IRecoveryAuthorityRecord,
+    converted: IRecoveryAuthorityRecord,
   ): void => {
     const originals: Map<string, unknown> = new Map();
     const targets: Map<string, unknown> = new Map();
@@ -161,8 +162,8 @@ export function rebindRecoveryCurveAuthorities(
       a: unknown,
       b: unknown,
     ): void => {
-      const curve: RecoveryAuthorityRecord = required(a);
-      const target: RecoveryAuthorityRecord = required(b);
+      const curve: IRecoveryAuthorityRecord = required(a);
+      const target: IRecoveryAuthorityRecord = required(b);
       if (
         typeof curve.name !== "string" ||
         !curve.name ||
@@ -232,12 +233,12 @@ export function rebindRecoveryCurveAuthorities(
         converted.tensorFamilies,
       );
       for (let i: number = 0; i < families.length; i++) {
-        const family: RecoveryAuthorityRecord = required(families[i]);
-        const targetFamily: RecoveryAuthorityRecord = required(
+        const family: IRecoveryAuthorityRecord = required(families[i]);
+        const targetFamily: IRecoveryAuthorityRecord = required(
           targetFamilies[i],
         );
         for (const value of array(family.boundaries)) {
-          const boundary: RecoveryAuthorityRecord = required(value);
+          const boundary: IRecoveryAuthorityRecord = required(value);
           const [before, after]: readonly [
             readonly C.Span[],
             readonly C.Span[],
@@ -269,21 +270,21 @@ export function rebindRecoveryCurveAuthorities(
         converted.analyticDomains,
       );
       for (let i: number = 0; i < domains.length; i++) {
-        const domain: RecoveryAuthorityRecord = required(domains[i]);
-        const targetDomain: RecoveryAuthorityRecord = required(
+        const domain: IRecoveryAuthorityRecord = required(domains[i]);
+        const targetDomain: IRecoveryAuthorityRecord = required(
           targetDomains[i],
         );
-        const owners: Map<unknown, RecoveryAuthorityRecord> = new Map();
+        const owners: Map<unknown, IRecoveryAuthorityRecord> = new Map();
         for (const value of array(
           required(domain.geometry).boundaryAuthorities,
         )) {
-          const owner: RecoveryAuthorityRecord = required(value);
+          const owner: IRecoveryAuthorityRecord = required(value);
           if (owners.has(owner.id))
             throw new Error("A native boundary authority must be unique");
           owners.set(owner.id, owner);
         }
         for (const value of array(domain.curveBindings)) {
-          const binding: RecoveryAuthorityRecord = required(value);
+          const binding: IRecoveryAuthorityRecord = required(value);
           // A standalone extension owns only its overrides. Unchanged external
           // curves remain the original bundle's authority and are checked on apply.
           if (
@@ -304,7 +305,7 @@ export function rebindRecoveryCurveAuthorities(
             !after[binding.span]
           )
             throw new Error("A native binding requires a declared curve span");
-          const owner: RecoveryAuthorityRecord = required(
+          const owner: IRecoveryAuthorityRecord = required(
             owners.get(binding.authority),
           );
           const ids: readonly unknown[] = array(owner.controlIds);
@@ -339,8 +340,8 @@ export function rebindRecoveryCurveAuthorities(
         visit(original[i], target[i]);
       return;
     }
-    const row: RecoveryAuthorityRecord = required(original);
-    const target: RecoveryAuthorityRecord = required(converted);
+    const row: IRecoveryAuthorityRecord = required(original);
+    const target: IRecoveryAuthorityRecord = required(converted);
     if (
       (row.tensorFamilies !== undefined || row.analyticDomains !== undefined) &&
       ((row.loft !== undefined && row.reports !== undefined) ||
@@ -360,24 +361,9 @@ export function rebindRecoveryCurveAuthorities(
   for (const [geometry, owners] of pending) {
     const controls: unknown[] = [...array(geometry.controls)];
     for (const [id, value] of owners) {
-      const point: RecoveryAuthorityRecord = required(controls[id]);
+      const point: IRecoveryAuthorityRecord = required(controls[id]);
       controls[id] = { ...point, x: value[0], y: value[1], z: value[2] };
     }
     geometry.controls = controls;
   }
-}
-
-/**
- * Plain admitted metadata used only during one authority conversion pass.
- *
- * @evidence contracts/common.md#principled-implementation Unknown values remain subject to field-specific binding checks before use.
- * @evidence contracts/common.md#clear-and-simple-design One private record names the generic copied-data boundary.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The record supplies no geometry or unchecked default coefficients.
- * @evidence contracts/common.md#meaningful-documentation States plain-data scope and conversion-local ownership.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This interface performs no traversal.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A declaration retains no cache.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The converter owns the referenced source and copy.
- */
-interface RecoveryAuthorityRecord {
-  [key: string]: unknown;
 }

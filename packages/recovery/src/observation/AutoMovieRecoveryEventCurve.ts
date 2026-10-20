@@ -8,6 +8,7 @@ import { readRecoveryEventCurveControls } from "../internal/readRecoveryEventCur
 import { readRecoveryEventCurveParent } from "../internal/readRecoveryEventCurveParent";
 import type { IAutoMovieRecoveryEventCurveArc } from "../structures/curve/IAutoMovieRecoveryEventCurveArc";
 import type { IAutoMovieRecoveryEventCurveCoefficients } from "../structures/curve/IAutoMovieRecoveryEventCurveCoefficients";
+import type { IAutoMovieRecoveryEventCurveSource } from "../structures/curve/IAutoMovieRecoveryEventCurveSource";
 import type { IAutoMovieRecoveryEventCurvePiece } from "../structures/curve/IAutoMovieRecoveryEventCurvePiece";
 
 /**
@@ -30,12 +31,13 @@ export namespace AutoMovieRecoveryEventCurve {
    * @evidence contracts/common.md#clear-and-simple-design Compilers and occurrence algebra use one coefficient derivation.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No stored duplicate net or fallback coefficient table is consulted.
    * @evidence contracts/common.md#meaningful-documentation The reader documents direction, width, units and optional native endpoint policy.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This exported reference performs no evaluation during initialization.
-   * @evidence contracts/performance.md#reuse-equivalent-work The existing stateless reader is shared without an additional wrapper.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The reference retains no caller data.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms Fixed-degree restriction and optional native endpoint evaluation have constant cost.
+   * @evidence contracts/performance.md#reuse-equivalent-work The existing stateless reader owns coefficient derivation; this entry retains no result.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The returned controls transfer to the caller; no caller data is retained.
    */
-  export const controls: typeof readRecoveryEventCurveControls =
-    readRecoveryEventCurveControls;
+  export function controls(piece: IAutoMovieRecoveryEventCurvePiece, nativeEndpoints: boolean = false): C.Span {
+    return readRecoveryEventCurveControls(piece, nativeEndpoints);
+  }
 
   /**
    * Read the original complete Bernstein coefficient owner.
@@ -44,12 +46,13 @@ export namespace AutoMovieRecoveryEventCurve {
    * @evidence contracts/common.md#clear-and-simple-design Native-parent compilers and occurrence restriction share the same admission.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No occurrence copy replaces the original coefficient tuple.
    * @evidence contracts/common.md#meaningful-documentation The reader documents execution basis and millimetre units.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This exported reference executes no admission during initialization.
-   * @evidence contracts/performance.md#reuse-equivalent-work The stateless reader is shared directly.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The reference retains no caller data.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms Admission reads one fixed-degree cubic and its width in constant time.
+   * @evidence contracts/performance.md#reuse-equivalent-work The shared reader returns the existing native coefficient tuple without copying.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The returned controls transfer to the caller; no caller data is retained.
    */
-  export const fullparentControls: typeof readRecoveryEventCurveParent =
-    readRecoveryEventCurveParent;
+  export function fullparentControls(source: IAutoMovieRecoveryEventCurveSource): C.Span {
+    return readRecoveryEventCurveParent(source);
+  }
 
   /**
    * Compare three coefficient components exactly, accepting either signed zero.
