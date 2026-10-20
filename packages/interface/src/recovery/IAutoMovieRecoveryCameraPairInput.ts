@@ -9,7 +9,6 @@
  * @evidence contracts/common.md#clear-and-simple-design Resident pixel acquisition, explicit operating thresholds and finite work limits share one input; observed features and estimated poses are returned separately from saved shape coefficients.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The input contains no truth pose, manual correspondence, mask, subject-specific control point, trained model or reference mesh. Static-scene and lens-correction assumptions remain assertions.
  * @evidence contracts/common.md#meaningful-documentation Gives borrowed RGB lifetime, calibration and pixel units, operating thresholds, budget populations and the difference from supplied orthographic cameras.
- * @author Samchon
  */
 export interface IAutoMovieRecoveryCameraPairInput {
   /** Version of the estimated-extrinsics resident image pair. */

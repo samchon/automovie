@@ -13,7 +13,6 @@ import type { IAutoMovieRecoveryCameraPairInput } from "@automovie/interface/rec
  * @evidence contracts/performance.md#efficient-algorithms The structural result adds no fitting work; producing functions document image, descriptor, proposal and optimizer costs.
  * @evidence contracts/performance.md#reuse-equivalent-work Source calibration, complete policy and budgets accompany the same measured evidence so consumers do not infer a different fitting identity; the type defines no cross-request cache.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns O(matches) plain records and fixed-size matrices/counters. No RGB, descriptor pyramid, process, callback, source file handle or external reference is retained.
- * @author Samchon
  */
 export interface IAutoMovieRecoveryCameraPairEstimate {
   /** Versioned automatic relative-camera observation artifact. */

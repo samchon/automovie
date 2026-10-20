@@ -13,7 +13,6 @@ import type { IAutoMovieRecoveryCameraPairInput } from "@automovie/interface/rec
  * @evidenceExclude contracts/performance.md#efficient-algorithms The erased manifest defines no traversal or decoding work; the command host owns those costs.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The type owns no acquisition effect or result cache.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Paths are declarations only; the Node host owns and closes acquired file descriptors and temporary buffers.
- * @author Samchon
  */
 export interface IAutoMovieRecoveryCameraFiles {
   /** Version of the fixed-byte two-view camera manifest. */

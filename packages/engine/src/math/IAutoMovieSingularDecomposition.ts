@@ -11,7 +11,6 @@
  * @evidenceExclude contracts/performance.md#efficient-algorithms This owned result performs no decomposition.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work It defines no cache or coordination.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns n singular values, n left columns of length m and n right columns of length n; there is no external handle.
- * @author Samchon
  */
 export interface IAutoMovieSingularDecomposition {
   /** Nonnegative descending values in the original matrix's units. */
