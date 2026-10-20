@@ -1,0 +1,243 @@
+import { decomposeAutoMovieSingularMatrix } from "@automovie/engine/math/decomposeAutoMovieSingularMatrix";
+import type { IAutoMovieRecoveryCameraMapBudget } from "@automovie/interface/recovery";
+
+import { solveRecoveryMapDesign } from "./solveRecoveryMapDesign";
+
+/**
+ * Eliminate independent landmark coordinates from a triad's original design.
+ * Point-local Givens QR leaves eleven camera columns: five seed pose coordinates
+ * and six third-camera coordinates. This is orthogonal variable elimination,
+ * avoiding the squared conditioning of a normal-matrix Schur complement.
+ *
+ * @evidence contracts/common.md#principled-implementation Every point's undamped three-column design and the undamped reduced camera design are independently rank checked. Identical point/camera column scaling and augmented damping define one full least-squares problem; orthogonal elimination and back substitution solve it without constructing a dense all-point design.
+ * @evidence contracts/common.md#clear-and-simple-design The helper owns only the block linear step; observation derivatives, robust weighting, gauge construction and nonlinear acceptance stay with the joint optimizer.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No damped rank, epsilon inverse, normal equations, dropped residual or separately normalized camera supplies observability. Unresolved point blocks or the reduced camera design throw before a step is returned.
+ * @evidence contracts/common.md#meaningful-documentation States eleven gauge-fixed camera coordinates, point-local elimination, consistent damping, unscaled returned steps and independent undamped rank diagnostics.
+ * @evidence contracts/performance.md#efficient-algorithms For N landmarks with at most six rows each, local elimination costs O(N*3*14^2); the fixed eleven-column reduced SVD costs O(S*N*11^2). Storage is O(N), avoiding a dense (11+3N)-column factorization.
+ * @evidence contracts/performance.md#reuse-equivalent-work Current weighted blocks supply global camera scales, per-point scales and both undamped qualification and damped elimination. The stored triangular block recovers each point step after one reduced camera solve.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only camera/point step arrays and scalar diagnostics escape. All transformed blocks and factors expire without borrowed observations, cache or external handles.
+ */
+export function solveRecoveryMapJointStep(
+  blocks: readonly {
+    pointRows: number[][];
+    cameraRows: number[][];
+    right: number[];
+  }[],
+  minimumRatio: number,
+  damping: number,
+  budget: IAutoMovieRecoveryCameraMapBudget,
+): {
+  cameraStep: number[];
+  pointSteps: [number, number, number][];
+  cameraDesignRatio: number;
+  minimumPointDesignRatio: number;
+  gradient: number;
+} {
+  const totalRows: number = blocks.reduce(
+    (sum: number, block: (typeof blocks)[number]): number =>
+      sum + block.right.length,
+    0,
+  );
+  if (
+    blocks.length < 1 ||
+    totalRows * 15 > budget.maxLinearEntries ||
+    !(damping >= 0) ||
+    !Number.isFinite(damping)
+  )
+    throw new Error("camera-map: bounded joint blocks required");
+  const cameraScales: number[] = new Array<number>(11).fill(0);
+  const pointScales: number[][] = [];
+  let minimumPointDesignRatio: number = Infinity,
+    gradient: number = 0;
+  for (const block of blocks) {
+    if (
+      block.right.length < 4 ||
+      block.right.length > 6 ||
+      block.pointRows.length !== block.right.length ||
+      block.cameraRows.length !== block.right.length ||
+      !block.right.every(Number.isFinite)
+    )
+      throw new Error(
+        "camera-map: two or three observations per landmark required",
+      );
+    const scales: number[] = [0, 0, 0];
+    for (let row: number = 0; row < block.right.length; row++) {
+      if (
+        block.pointRows[row]!.length !== 3 ||
+        block.cameraRows[row]!.length !== 11 ||
+        ![...block.pointRows[row]!, ...block.cameraRows[row]!].every(
+          Number.isFinite,
+        )
+      )
+        throw new Error(
+          "camera-map: finite point/camera Jacobian blocks required",
+        );
+      for (let column: number = 0; column < 3; column++)
+        scales[column] = Math.hypot(
+          scales[column]!,
+          block.pointRows[row]![column]!,
+        );
+      for (let column: number = 0; column < 11; column++)
+        cameraScales[column] = Math.hypot(
+          cameraScales[column]!,
+          block.cameraRows[row]![column]!,
+        );
+    }
+    if (
+      scales.some(
+        (value: number): boolean => !(value > 0) || !Number.isFinite(value),
+      )
+    )
+      throw new Error("camera-map: unresolved landmark direction");
+    const pointRows: number[][] = block.pointRows.map(
+      (row: number[]): number[] =>
+        row.map((value: number, at: number): number => value / scales[at]!),
+    );
+    const factors: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
+      decomposeAutoMovieSingularMatrix(pointRows, {
+        maxEntries: budget.maxLinearEntries,
+        maxSweeps: budget.maxSingularSweeps,
+        orthogonalityTolerance: 1e-12,
+      });
+    const ratio: number =
+      factors.singularValues[2]! / factors.singularValues[0]!;
+    if (!(ratio >= minimumRatio))
+      throw new Error("camera-map: rank-degenerate landmark block");
+    minimumPointDesignRatio = Math.min(minimumPointDesignRatio, ratio);
+    for (let column: number = 0; column < 3; column++)
+      gradient = Math.max(
+        gradient,
+        Math.abs(
+          pointRows.reduce(
+            (sum: number, row: number[], at: number): number =>
+              sum + row[column]! * block.right[at]!,
+            0,
+          ),
+        ),
+      );
+    pointScales.push(scales);
+  }
+  if (
+    cameraScales.some(
+      (value: number): boolean => !(value > 0) || !Number.isFinite(value),
+    )
+  )
+    throw new Error("camera-map: unresolved joint camera direction");
+  for (let column: number = 0; column < 11; column++) {
+    let component: number = 0;
+    for (const block of blocks)
+      for (let row: number = 0; row < block.right.length; row++)
+        component +=
+          (block.cameraRows[row]![column]! / cameraScales[column]!) *
+          block.right[row]!;
+    gradient = Math.max(gradient, Math.abs(component));
+  }
+  const eliminate: (amount: number) => {
+    rows: number[][];
+    right: number[];
+    triangular: number[][][];
+  } = (
+    amount: number,
+  ): { rows: number[][]; right: number[]; triangular: number[][][] } => {
+    const reduced: number[][] = [],
+      right: number[] = [],
+      triangular: number[][][] = [];
+    for (let at: number = 0; at < blocks.length; at++) {
+      const block: (typeof blocks)[number] = blocks[at]!;
+      const rows: number[][] = block.right.map(
+        (value: number, row: number): number[] => [
+          ...block.pointRows[row]!.map(
+            (entry: number, column: number): number =>
+              entry / pointScales[at]![column]!,
+          ),
+          ...block.cameraRows[row]!.map(
+            (entry: number, column: number): number =>
+              entry / cameraScales[column]!,
+          ),
+          value,
+        ],
+      );
+      if (amount > 0)
+        for (let column: number = 0; column < 3; column++)
+          rows.push(
+            Array.from({ length: 15 }, (_: unknown, index: number): number =>
+              index === column ? Math.sqrt(amount) : 0,
+            ),
+          );
+      for (let column: number = 0; column < 3; column++)
+        for (let row: number = rows.length - 1; row > column; row--) {
+          const a: number = rows[column]![column]!,
+            b: number = rows[row]![column]!;
+          if (b === 0) continue;
+          const norm: number = Math.hypot(a, b),
+            cosine: number = a / norm,
+            sine: number = b / norm;
+          for (let index: number = column; index < 15; index++) {
+            const first: number = rows[column]![index]!,
+              second: number = rows[row]![index]!;
+            rows[column]![index] = cosine * first + sine * second;
+            rows[row]![index] = -sine * first + cosine * second;
+          }
+        }
+      triangular.push(rows.slice(0, 3));
+      for (const row of rows.slice(3)) {
+        reduced.push(row.slice(3, 14));
+        right.push(row[14]!);
+      }
+    }
+    if (amount > 0)
+      for (let row: number = 0; row < 11; row++) {
+        reduced.push(
+          Array.from({ length: 11 }, (_: unknown, column: number): number =>
+            column === row ? Math.sqrt(amount) : 0,
+          ),
+        );
+        right.push(0);
+      }
+    return { rows: reduced, right, triangular };
+  };
+  const original: ReturnType<typeof eliminate> = eliminate(0);
+  const qualified: ReturnType<typeof solveRecoveryMapDesign> =
+    solveRecoveryMapDesign(
+      original.rows,
+      original.right,
+      minimumRatio,
+      0,
+      budget,
+    );
+  const damped: ReturnType<typeof eliminate> =
+    damping > 0 ? eliminate(damping) : original;
+  const solution: ReturnType<typeof solveRecoveryMapDesign> =
+    damping > 0
+      ? solveRecoveryMapDesign(damped.rows, damped.right, 0, 0, budget)
+      : qualified;
+  const cameraStep: number[] = solution.step.map(
+    (value: number, at: number): number => value / cameraScales[at]!,
+  );
+  const pointSteps: [number, number, number][] = damped.triangular.map(
+    (rows: number[][], at: number): [number, number, number] => {
+      const scaled: number[] = [0, 0, 0];
+      for (let row: number = 2; row >= 0; row--) {
+        let right: number = rows[row]![14]!;
+        for (let column: number = 0; column < 11; column++)
+          right -= rows[row]![3 + column]! * solution.step[column]!;
+        for (let column: number = row + 1; column < 3; column++)
+          right -= rows[row]![column]! * scaled[column]!;
+        scaled[row] = right / rows[row]![row]!;
+      }
+      return scaled.map(
+        (value: number, column: number): number =>
+          value / pointScales[at]![column]!,
+      ) as [number, number, number];
+    },
+  );
+  if (![...cameraStep, ...pointSteps.flat(), gradient].every(Number.isFinite))
+    throw new Error("camera-map: nonrepresentable joint step");
+  return {
+    cameraStep,
+    pointSteps,
+    cameraDesignRatio: qualified.designRatio,
+    minimumPointDesignRatio,
+    gradient,
+  };
+}

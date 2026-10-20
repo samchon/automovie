@@ -7,9 +7,10 @@ import { estimateAutoMovieRecoveryCameraPair } from "../../observation/estimateA
 import type { IAutoMovieRecoveryCameraFiles } from "../../structures/image/IAutoMovieRecoveryCameraFiles";
 import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
 import { readAutoMovieRecoveryBoundedFile } from "./readAutoMovieRecoveryBoundedFile";
+import { recoveryCameraMap } from "./recoveryCameraMap";
 
 /**
- * Run the installed automatic calibrated camera-pair estimator on fixed files.
+ * Dispatch map acquisition or run the calibrated pair estimator on fixed files.
  * estimate consumes a versioned two-image manifest and publishes one new JSON
  * evidence artifact. Completed observations may refuse a camera; the artifact's
  * status and reasons remain authoritative even when the command completes.
@@ -18,11 +19,15 @@ import { readAutoMovieRecoveryBoundedFile } from "./readAutoMovieRecoveryBounded
  * @evidence contracts/common.md#clear-and-simple-design The Node command owns explicit paths, codec dispatch, input/source provenance and immutable publication; the resident operation owns feature observation, camera fitting and qualification without filesystem access.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No source directory scan, unverified image, format fallback, synthetic camera, trained feature, changed budget or overwrite supplies a result. A cancelled/refused/failed resident operation without a value publishes nothing.
  * @evidence contracts/common.md#meaningful-documentation Gives command arguments, per-file byte bound, unchanged decoding chart, prior-history assertion, source epoch and computational completion versus conditional camera status.
- * @evidence contracts/performance.md#efficient-algorithms Two bounded sources require O(B) reading/hashing and O(P) raster copying before the resident operation's explicit numerical budgets. Aggregate pixel admission is decremented before each decoder allocation; JSON serialization costs O(O) in its bounded sparse observation artifact.
+ * @evidence contracts/performance.md#efficient-algorithms The pair branch reads/hashes two bounded sources in O(B) and copies O(P) raster bytes before its resident numerical budgets; the map branch delegates the same bounded acquisition principles over three sources plus its declared sparse-map costs. Each host decrements aggregate pixels before decoder allocation and serializes its bounded evidence once.
  * @evidence contracts/performance.md#reuse-equivalent-work Every source is read and hashed once, and one public operation supplies the complete artifact. Source/input digests and source epoch identify publication without sharing or resuming an effectful command.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Bounded readers close descriptors synchronously; at most two decoded arrays accumulate under the aggregate pixel limit and expire after estimation. The atomic artifact writer exclusively owns and cleans staging; no resident image buffer enters the JSON value.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Pair readers close their descriptors synchronously and retain at most two rasters under their aggregate pixel ceiling; the delegated map host owns at most three rasters under its separate aggregate ceiling. Both expire after estimation, the atomic writer owns staging cleanup, and no resident RGB enters JSON evidence.
  */
 export function recoveryCameras(args: string[], sourceEpoch: string): void {
+  if (args[0] === "map") {
+    recoveryCameraMap(args, sourceEpoch);
+    return;
+  }
   const [command, inputPath, outputPath, byteText]: string[] = args;
   const maxInputBytes: number = Number(byteText);
   if (

@@ -24,3 +24,10 @@ export type { IAutoMovieRecoveryCameraOptimizerFit } from "./IAutoMovieRecoveryC
 export type { IAutoMovieRecoveryCameraPairEstimate } from "./IAutoMovieRecoveryCameraPairEstimate";
 export type { IAutoMovieRecoveryCameraRelativePose } from "./IAutoMovieRecoveryCameraRelativePose";
 export type { IAutoMovieRecoveryCameraSource } from "./IAutoMovieRecoveryCameraSource";
+export type { IAutoMovieRecoveryCameraMapEstimate } from "./IAutoMovieRecoveryCameraMapEstimate";
+export type { IAutoMovieRecoveryCameraMapFiles } from "./IAutoMovieRecoveryCameraMapFiles";
+export type { IAutoMovieRecoveryMapPose } from "./IAutoMovieRecoveryMapPose";
+export type { IAutoMovieRecoveryMapObservation } from "./IAutoMovieRecoveryMapObservation";
+export type { IAutoMovieRecoveryMapLandmark } from "./IAutoMovieRecoveryMapLandmark";
+export type { IAutoMovieRecoveryMapJointFit } from "./IAutoMovieRecoveryMapJointFit";
+export type { IAutoMovieRecoveryMapResection } from "./IAutoMovieRecoveryMapResection";
