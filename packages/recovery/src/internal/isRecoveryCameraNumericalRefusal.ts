@@ -12,6 +12,11 @@
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Only a boolean returns; the borrowed error is never mutated or retained.
  */
 export function isRecoveryCameraNumericalRefusal(error: unknown): boolean {
-  return error instanceof Error && error.name === "Error" &&
-    /^(camera-(design|essential|refinement|pose|homography):|singular-matrix:|matrix3:)/.test(error.message);
+  return (
+    error instanceof Error &&
+    error.name === "Error" &&
+    /^(camera-(design|essential|refinement|pose|homography):|singular-matrix:|matrix3:)/.test(
+      error.message,
+    )
+  );
 }

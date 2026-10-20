@@ -1,6 +1,6 @@
 import { AutoMovieMatrix3 } from "@automovie/engine/math/AutoMovieMatrix3";
-import { decomposeAutoMovieSingularMatrix } from "@automovie/engine/math/decomposeAutoMovieSingularMatrix";
 import { Vector3 } from "@automovie/engine/math/Vector3";
+import { decomposeAutoMovieSingularMatrix } from "@automovie/engine/math/decomposeAutoMovieSingularMatrix";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { createRecoveryCameraChart } from "./createRecoveryCameraChart";
@@ -32,12 +32,15 @@ export function calibrateRecoveryEpipolarMatrix(
   relativeProjectionDiscrepancy: number;
   poses: { rotation: number[]; translation: [number, number, number] }[];
 } {
-  const raw: number[] = AutoMovieMatrix3.multiply(AutoMovieMatrix3.transpose(second.matrix),
-    AutoMovieMatrix3.multiply(fundamental, first.matrix));
-  const factors: ReturnType<typeof decomposeAutoMovieSingularMatrix> = decomposeAutoMovieSingularMatrix(
-    [raw.slice(0, 3), raw.slice(3, 6), raw.slice(6, 9)],
-    { maxEntries: 9, maxSweeps, orthogonalityTolerance: 1e-12 },
+  const raw: number[] = AutoMovieMatrix3.multiply(
+    AutoMovieMatrix3.transpose(second.matrix),
+    AutoMovieMatrix3.multiply(fundamental, first.matrix),
   );
+  const factors: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
+    decomposeAutoMovieSingularMatrix(
+      [raw.slice(0, 3), raw.slice(3, 6), raw.slice(6, 9)],
+      { maxEntries: 9, maxSweeps, orthogonalityTolerance: 1e-12 },
+    );
   const largest: number = factors.singularValues[0]!;
   const ratio: number = factors.singularValues[1]! / largest;
   if (!(ratio > factors.relativeNullCutoff) || !Number.isFinite(ratio))
@@ -47,34 +50,62 @@ export function calibrateRecoveryEpipolarMatrix(
     const a: number[] = columns[0]!;
     const b: number[] = columns[1]!;
     const cross: IAutoMovieVector3 = Vector3.cross(
-      { x: a[0]!, y: a[1]!, z: a[2]! }, { x: b[0]!, y: b[1]!, z: b[2]! },
+      { x: a[0]!, y: a[1]!, z: a[2]! },
+      { x: b[0]!, y: b[1]!, z: b[2]! },
     );
     const length: number = Math.hypot(cross.x, cross.y, cross.z);
     if (!(length > 0) || !Number.isFinite(length))
       throw new Error("camera-essential: unresolved orientation frame");
-    frames.push([a[0]!, b[0]!, cross.x / length, a[1]!, b[1]!, cross.y / length,
-      a[2]!, b[2]!, cross.z / length]);
+    frames.push([
+      a[0]!,
+      b[0]!,
+      cross.x / length,
+      a[1]!,
+      b[1]!,
+      cross.y / length,
+      a[2]!,
+      b[2]!,
+      cross.z / length,
+    ]);
   }
   const u: number[] = frames[0]!;
   const vt: number[] = AutoMovieMatrix3.transpose(frames[1]!);
-  const essential: number[] = AutoMovieMatrix3.multiply(u,
-    AutoMovieMatrix3.multiply([1, 0, 0, 0, 1, 0, 0, 0, 0], vt));
-  const pixel: number[] = AutoMovieMatrix3.multiply(AutoMovieMatrix3.transpose(second.inverse),
-    AutoMovieMatrix3.multiply(essential, first.inverse));
+  const essential: number[] = AutoMovieMatrix3.multiply(
+    u,
+    AutoMovieMatrix3.multiply([1, 0, 0, 0, 1, 0, 0, 0, 0], vt),
+  );
+  const pixel: number[] = AutoMovieMatrix3.multiply(
+    AutoMovieMatrix3.transpose(second.inverse),
+    AutoMovieMatrix3.multiply(essential, first.inverse),
+  );
   const pixelNorm: number = Math.hypot(...pixel);
   if (!(pixelNorm > 0) || !Number.isFinite(pixelNorm))
-    throw new Error("camera-essential: nonrepresentable calibrated pixel matrix");
+    throw new Error(
+      "camera-essential: nonrepresentable calibrated pixel matrix",
+    );
   const meanRatio: number = (1 + ratio) / 2;
   const thirdRatio: number = factors.singularValues[2]! / largest;
-  const relativeProjectionDiscrepancy: number = Math.hypot(1 - meanRatio, ratio - meanRatio, thirdRatio) /
+  const relativeProjectionDiscrepancy: number =
+    Math.hypot(1 - meanRatio, ratio - meanRatio, thirdRatio) /
     Math.hypot(1, ratio, thirdRatio);
-  const poses: { rotation: number[]; translation: [number, number, number] }[] = [];
+  const poses: { rotation: number[]; translation: [number, number, number] }[] =
+    [];
   const w: number[] = [0, -1, 0, 1, 0, 0, 0, 0, 1];
   for (const quarterTurn of [w, AutoMovieMatrix3.transpose(w)]) {
-    const rotation: number[] = AutoMovieMatrix3.multiply(u, AutoMovieMatrix3.multiply(quarterTurn, vt));
-    for (const sign of [1, -1]) poses.push({ rotation: rotation.slice(),
-      translation: [sign * u[2]!, sign * u[5]!, sign * u[8]!] });
+    const rotation: number[] = AutoMovieMatrix3.multiply(
+      u,
+      AutoMovieMatrix3.multiply(quarterTurn, vt),
+    );
+    for (const sign of [1, -1])
+      poses.push({
+        rotation: rotation.slice(),
+        translation: [sign * u[2]!, sign * u[5]!, sign * u[8]!],
+      });
   }
-  return { essential, fundamental: pixel.map((value: number): number => value / pixelNorm),
-    relativeProjectionDiscrepancy, poses };
+  return {
+    essential,
+    fundamental: pixel.map((value: number): number => value / pixelNorm),
+    relativeProjectionDiscrepancy,
+    poses,
+  };
 }

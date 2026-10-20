@@ -1,6 +1,6 @@
 import { AutoMovieMatrix3 } from "@automovie/engine/math/AutoMovieMatrix3";
-import { decomposeAutoMovieSingularMatrix } from "@automovie/engine/math/decomposeAutoMovieSingularMatrix";
 import { Vector3 } from "@automovie/engine/math/Vector3";
+import { decomposeAutoMovieSingularMatrix } from "@automovie/engine/math/decomposeAutoMovieSingularMatrix";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { createRecoveryCameraChart } from "./createRecoveryCameraChart";
@@ -26,7 +26,10 @@ export function triangulateRecoveryCameraPoint(
   secondPoint: readonly [number, number],
   first: ReturnType<typeof createRecoveryCameraChart>,
   second: ReturnType<typeof createRecoveryCameraChart>,
-  pose: { rotation: readonly number[]; translation: readonly [number, number, number] },
+  pose: {
+    rotation: readonly number[];
+    translation: readonly [number, number, number];
+  },
   minimumDesignRatio: number,
   maxSweeps: number,
 ): {
@@ -38,45 +41,115 @@ export function triangulateRecoveryCameraPoint(
   firstReprojectionPx: number;
   secondReprojectionPx: number;
 } | null {
-  const ray1: [number, number, number] = AutoMovieMatrix3.apply(first.inverse, [...firstPoint, 1]);
-  const ray2: [number, number, number] = AutoMovieMatrix3.apply(second.inverse, [...secondPoint, 1]);
+  const ray1: [number, number, number] = AutoMovieMatrix3.apply(first.inverse, [
+    ...firstPoint,
+    1,
+  ]);
+  const ray2: [number, number, number] = AutoMovieMatrix3.apply(
+    second.inverse,
+    [...secondPoint, 1],
+  );
   const r: readonly number[] = pose.rotation;
   const t: readonly number[] = pose.translation;
   const rows: number[][] = [
-    [-1, 0, ray1[0], 0], [0, -1, ray1[1], 0],
-    [ray2[0] * r[6]! - r[0]!, ray2[0] * r[7]! - r[1]!, ray2[0] * r[8]! - r[2]!, ray2[0] * t[2]! - t[0]!],
-    [ray2[1] * r[6]! - r[3]!, ray2[1] * r[7]! - r[4]!, ray2[1] * r[8]! - r[5]!, ray2[1] * t[2]! - t[1]!],
+    [-1, 0, ray1[0], 0],
+    [0, -1, ray1[1], 0],
+    [
+      ray2[0] * r[6]! - r[0]!,
+      ray2[0] * r[7]! - r[1]!,
+      ray2[0] * r[8]! - r[2]!,
+      ray2[0] * t[2]! - t[0]!,
+    ],
+    [
+      ray2[1] * r[6]! - r[3]!,
+      ray2[1] * r[7]! - r[4]!,
+      ray2[1] * r[8]! - r[5]!,
+      ray2[1] * t[2]! - t[1]!,
+    ],
   ];
-  const factors: ReturnType<typeof decomposeAutoMovieSingularMatrix> = decomposeAutoMovieSingularMatrix(rows,
-    { maxEntries: 16, maxSweeps, orthogonalityTolerance: 1e-12 });
+  const factors: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
+    decomposeAutoMovieSingularMatrix(rows, {
+      maxEntries: 16,
+      maxSweeps,
+      orthogonalityTolerance: 1e-12,
+    });
   const ratio: number = factors.singularValues[2]! / factors.singularValues[0]!;
   if (!Number.isFinite(ratio) || ratio < minimumDesignRatio) return null;
   const homogeneous: number[] = factors.rightColumns[3]!;
   if (homogeneous[3] === 0) return null;
-  const point: [number, number, number] = [homogeneous[0]! / homogeneous[3]!,
-    homogeneous[1]! / homogeneous[3]!, homogeneous[2]! / homogeneous[3]!];
+  const point: [number, number, number] = [
+    homogeneous[0]! / homogeneous[3]!,
+    homogeneous[1]! / homogeneous[3]!,
+    homogeneous[2]! / homogeneous[3]!,
+  ];
   if (!point.every(Number.isFinite)) return null;
   const rotated: [number, number, number] = AutoMovieMatrix3.apply(r, point);
-  const inSecond: [number, number, number] = [rotated[0] + t[0]!, rotated[1] + t[1]!, rotated[2] + t[2]!];
-  if (!inSecond.every(Number.isFinite) || point[2] === 0 || inSecond[2] === 0) return null;
+  const inSecond: [number, number, number] = [
+    rotated[0] + t[0]!,
+    rotated[1] + t[1]!,
+    rotated[2] + t[2]!,
+  ];
+  if (!inSecond.every(Number.isFinite) || point[2] === 0 || inSecond[2] === 0)
+    return null;
   // Direction comparison requires R-transpose, not a camera-centre displacement;
   // translation determines triangulation but does not transform a free ray.
-  const backRay: [number, number, number] = AutoMovieMatrix3.apply(AutoMovieMatrix3.transpose(r), ray2);
+  const backRay: [number, number, number] = AutoMovieMatrix3.apply(
+    AutoMovieMatrix3.transpose(r),
+    ray2,
+  );
   const norm1: number = Math.hypot(...ray1);
   const norm2: number = Math.hypot(...backRay);
-  if (!(norm1 > 0) || !(norm2 > 0) || !Number.isFinite(norm1) || !Number.isFinite(norm2)) return null;
-  const unit1: IAutoMovieVector3 = { x: ray1[0] / norm1, y: ray1[1] / norm1, z: ray1[2] / norm1 };
-  const unit2: IAutoMovieVector3 = { x: backRay[0] / norm2, y: backRay[1] / norm2, z: backRay[2] / norm2 };
+  if (
+    !(norm1 > 0) ||
+    !(norm2 > 0) ||
+    !Number.isFinite(norm1) ||
+    !Number.isFinite(norm2)
+  )
+    return null;
+  const unit1: IAutoMovieVector3 = {
+    x: ray1[0] / norm1,
+    y: ray1[1] / norm1,
+    z: ray1[2] / norm1,
+  };
+  const unit2: IAutoMovieVector3 = {
+    x: backRay[0] / norm2,
+    y: backRay[1] / norm2,
+    z: backRay[2] / norm2,
+  };
   const cross: IAutoMovieVector3 = Vector3.cross(unit1, unit2);
-  const parallaxRadians: number = Math.atan2(Math.hypot(cross.x, cross.y, cross.z), Vector3.dot(unit1, unit2));
-  const projection1: [number, number, number] = AutoMovieMatrix3.apply(first.matrix,
-    [point[0] / point[2], point[1] / point[2], 1]);
-  const projection2: [number, number, number] = AutoMovieMatrix3.apply(second.matrix,
-    [inSecond[0] / inSecond[2], inSecond[1] / inSecond[2], 1]);
-  const firstReprojectionPx: number = Math.hypot(projection1[0] - firstPoint[0], projection1[1] - firstPoint[1]);
-  const secondReprojectionPx: number = Math.hypot(projection2[0] - secondPoint[0], projection2[1] - secondPoint[1]);
-  if (![parallaxRadians, firstReprojectionPx, secondReprojectionPx].every(Number.isFinite)) return null;
-  return { point, firstDepth: point[2], secondDepth: inSecond[2],
-    positiveDepth: point[2] > 0 && inSecond[2] > 0, parallaxRadians,
-    firstReprojectionPx, secondReprojectionPx };
+  const parallaxRadians: number = Math.atan2(
+    Math.hypot(cross.x, cross.y, cross.z),
+    Vector3.dot(unit1, unit2),
+  );
+  const projection1: [number, number, number] = AutoMovieMatrix3.apply(
+    first.matrix,
+    [point[0] / point[2], point[1] / point[2], 1],
+  );
+  const projection2: [number, number, number] = AutoMovieMatrix3.apply(
+    second.matrix,
+    [inSecond[0] / inSecond[2], inSecond[1] / inSecond[2], 1],
+  );
+  const firstReprojectionPx: number = Math.hypot(
+    projection1[0] - firstPoint[0],
+    projection1[1] - firstPoint[1],
+  );
+  const secondReprojectionPx: number = Math.hypot(
+    projection2[0] - secondPoint[0],
+    projection2[1] - secondPoint[1],
+  );
+  if (
+    ![parallaxRadians, firstReprojectionPx, secondReprojectionPx].every(
+      Number.isFinite,
+    )
+  )
+    return null;
+  return {
+    point,
+    firstDepth: point[2],
+    secondDepth: inSecond[2],
+    positiveDepth: point[2] > 0 && inSecond[2] > 0,
+    parallaxRadians,
+    firstReprojectionPx,
+    secondReprojectionPx,
+  };
 }

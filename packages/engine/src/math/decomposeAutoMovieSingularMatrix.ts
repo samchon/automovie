@@ -35,15 +35,22 @@ export function decomposeAutoMovieSingularMatrix(
   const height: number = rows.length;
   const width: number = rows[0]?.length ?? 0;
   if (
-    !Number.isSafeInteger(budget?.maxEntries) || budget.maxEntries < 1 ||
-    !Number.isSafeInteger(budget.maxSweeps) || budget.maxSweeps < 1 ||
+    !Number.isSafeInteger(budget?.maxEntries) ||
+    budget.maxEntries < 1 ||
+    !Number.isSafeInteger(budget.maxSweeps) ||
+    budget.maxSweeps < 1 ||
     !Number.isFinite(budget.orthogonalityTolerance) ||
     budget.orthogonalityTolerance < 64 * Number.EPSILON ||
     budget.orthogonalityTolerance > 0.01 ||
-    height < 1 || width < 1 ||
+    height < 1 ||
+    width < 1 ||
     !Number.isSafeInteger(height * width) ||
-    height * width > budget.maxEntries || width * width > budget.maxEntries
-  ) throw new Error("singular-matrix: nonempty dimensions and finite work budgets required");
+    height * width > budget.maxEntries ||
+    width * width > budget.maxEntries
+  )
+    throw new Error(
+      "singular-matrix: nonempty dimensions and finite work budgets required",
+    );
   let scale: number = 0;
   for (const row of rows) {
     if (!Array.isArray(row) || row.length !== width)
@@ -56,16 +63,17 @@ export function decomposeAutoMovieSingularMatrix(
   }
   const columns: number[][] = Array.from(
     { length: width },
-    (_: unknown, column: number): number[] => rows.map(
-      (row: readonly number[]): number => scale === 0 ? 0 : row[column]! / scale,
-    ),
+    (_: unknown, column: number): number[] =>
+      rows.map((row: readonly number[]): number =>
+        scale === 0 ? 0 : row[column]! / scale,
+      ),
   );
   const right: number[][] = Array.from(
     { length: width },
-    (_: unknown, column: number): number[] => Array.from(
-      { length: width },
-      (_value: unknown, row: number): number => row === column ? 1 : 0,
-    ),
+    (_: unknown, column: number): number[] =>
+      Array.from({ length: width }, (_value: unknown, row: number): number =>
+        row === column ? 1 : 0,
+      ),
   );
   const nullCutoff: number = 8 * Number.EPSILON * Math.max(height, width);
   const norm: (column: readonly number[]) => number = (
@@ -86,37 +94,44 @@ export function decomposeAutoMovieSingularMatrix(
       for (const value of column) squared += value * value;
       largestSquaredNorm = Math.max(largestSquaredNorm, squared);
     }
-    const inactiveSquared: number = largestSquaredNorm * nullCutoff * nullCutoff;
+    const inactiveSquared: number =
+      largestSquaredNorm * nullCutoff * nullCutoff;
     let rotated: boolean = false;
     for (let first: number = 0; first < width; first++) {
       for (let second: number = first + 1; second < width; second++) {
         const a: number[] = columns[first]!;
         const b: number[] = columns[second]!;
-        let aa: number = 0, bb: number = 0, ab: number = 0;
+        let aa: number = 0,
+          bb: number = 0,
+          ab: number = 0;
         for (let row: number = 0; row < height; row++) {
           aa += a[row]! * a[row]!;
           bb += b[row]! * b[row]!;
           ab += a[row]! * b[row]!;
         }
         if (aa <= inactiveSquared || bb <= inactiveSquared) continue;
-        const correlation: number = Math.abs(ab) / Math.sqrt(aa) / Math.sqrt(bb);
+        const correlation: number =
+          Math.abs(ab) / Math.sqrt(aa) / Math.sqrt(bb);
         maximumCorrelation = Math.max(maximumCorrelation, correlation);
         if (correlation <= budget.orthogonalityTolerance) continue;
         const difference: number = bb - aa;
         // The small root of t^2 + ((bb-aa)/ab)t - 1 = 0 avoids
         // a subtraction of nearby values and never needs a squared ratio.
-        const denominator: number = difference +
+        const denominator: number =
+          difference +
           (difference < 0 ? -1 : 1) * Math.hypot(difference, 2 * ab);
-        const tangent: number = denominator === 0 ? 1 : 2 * ab / denominator;
+        const tangent: number = denominator === 0 ? 1 : (2 * ab) / denominator;
         const cosine: number = 1 / Math.hypot(1, tangent);
         const sine: number = cosine * tangent;
         for (let row: number = 0; row < height; row++) {
-          const x: number = a[row]!, y: number = b[row]!;
+          const x: number = a[row]!,
+            y: number = b[row]!;
           a[row] = cosine * x - sine * y;
           b[row] = sine * x + cosine * y;
         }
         for (let row: number = 0; row < width; row++) {
-          const x: number = right[first]![row]!, y: number = right[second]![row]!;
+          const x: number = right[first]![row]!,
+            y: number = right[second]![row]!;
           right[first]![row] = cosine * x - sine * y;
           right[second]![row] = sine * x + cosine * y;
         }
@@ -129,7 +144,8 @@ export function decomposeAutoMovieSingularMatrix(
     throw new Error("singular-matrix: orthogonality sweep budget exhausted");
   const lengths: number[] = columns.map(norm);
   const order: number[] = Array.from(
-    { length: width }, (_: unknown, index: number): number => index,
+    { length: width },
+    (_: unknown, index: number): number => index,
   ).sort((a: number, b: number): number => lengths[b]! - lengths[a]! || a - b);
   const singularValues: number[] = order.map(
     (column: number): number => lengths[column]! * scale,
@@ -141,31 +157,51 @@ export function decomposeAutoMovieSingularMatrix(
   for (const column of order) {
     let anchor: number = 0;
     for (let row: number = 1; row < width; row++)
-      if (Math.abs(right[column]![row]!) > Math.abs(right[column]![anchor]!)) anchor = row;
+      if (Math.abs(right[column]![row]!) > Math.abs(right[column]![anchor]!))
+        anchor = row;
     const sign: number = right[column]![anchor]! < 0 ? -1 : 1;
-    rightColumns.push(right[column]!.map((value: number): number => sign * value));
-    leftColumns.push(columns[column]!.map(
-      (value: number): number => lengths[column] === 0 ? 0 : sign * value / lengths[column]!,
-    ));
+    rightColumns.push(
+      right[column]!.map((value: number): number => sign * value),
+    );
+    leftColumns.push(
+      columns[column]!.map((value: number): number =>
+        lengths[column] === 0 ? 0 : (sign * value) / lengths[column]!,
+      ),
+    );
   }
-  let errorNorm: number = 0, originalNorm: number = 0;
+  let errorNorm: number = 0,
+    originalNorm: number = 0;
   for (let row: number = 0; row < height; row++) {
     for (let column: number = 0; column < width; column++) {
       let reconstructed: number = 0;
       for (let index: number = 0; index < width; index++)
-        reconstructed += leftColumns[index]![row]! * lengths[order[index]!]! * rightColumns[index]![column]!;
+        reconstructed +=
+          leftColumns[index]![row]! *
+          lengths[order[index]!]! *
+          rightColumns[index]![column]!;
       const original: number = scale === 0 ? 0 : rows[row]![column]! / scale;
       errorNorm = Math.hypot(errorNorm, reconstructed - original);
       originalNorm = Math.hypot(originalNorm, original);
     }
   }
-  const relativeResidual: number = originalNorm === 0 ? 0 : errorNorm / originalNorm;
-  if (!Number.isFinite(relativeResidual) || relativeResidual > 8 * budget.orthogonalityTolerance)
-    throw new Error("singular-matrix: measured reconstruction residual exceeds budget");
+  const relativeResidual: number =
+    originalNorm === 0 ? 0 : errorNorm / originalNorm;
+  if (
+    !Number.isFinite(relativeResidual) ||
+    relativeResidual > 8 * budget.orthogonalityTolerance
+  )
+    throw new Error(
+      "singular-matrix: measured reconstruction residual exceeds budget",
+    );
   return {
-    singularValues, leftColumns, rightColumns,
-    numericalRank: lengths.filter((value: number): boolean => value > nullCutoff * lengths[order[0]!]!).length,
-    relativeNullCutoff: nullCutoff, sweeps,
+    singularValues,
+    leftColumns,
+    rightColumns,
+    numericalRank: lengths.filter(
+      (value: number): boolean => value > nullCutoff * lengths[order[0]!]!,
+    ).length,
+    relativeNullCutoff: nullCutoff,
+    sweeps,
     orthogonalityTolerance: budget.orthogonalityTolerance,
     maximumActiveColumnCorrelation: maximumCorrelation,
     relativeReconstructionResidual: relativeResidual,

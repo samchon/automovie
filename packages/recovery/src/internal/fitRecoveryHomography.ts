@@ -24,42 +24,74 @@ export function fitRecoveryHomography(
 ): { matrix: number[]; inverse: number[]; designSingularRatio: number } {
   if (first.length !== second.length || first.length < 4)
     throw new Error("camera-homography: at least four paired points required");
-  const a: ReturnType<typeof normalizeRecoveryImagePoints> = normalizeRecoveryImagePoints(first);
-  const b: ReturnType<typeof normalizeRecoveryImagePoints> = normalizeRecoveryImagePoints(second);
+  const a: ReturnType<typeof normalizeRecoveryImagePoints> =
+    normalizeRecoveryImagePoints(first);
+  const b: ReturnType<typeof normalizeRecoveryImagePoints> =
+    normalizeRecoveryImagePoints(second);
   const rows: number[][] = [];
   for (let at: number = 0; at < first.length; at++) {
-    const x: number = a.points[at]![0], y: number = a.points[at]![1];
-    const u: number = b.points[at]![0], v: number = b.points[at]![1];
-    rows.push([-x, -y, -1, 0, 0, 0, u * x, u * y, u],
-      [0, 0, 0, -x, -y, -1, v * x, v * y, v]);
+    const x: number = a.points[at]![0],
+      y: number = a.points[at]![1];
+    const u: number = b.points[at]![0],
+      v: number = b.points[at]![1];
+    rows.push(
+      [-x, -y, -1, 0, 0, 0, u * x, u * y, u],
+      [0, 0, 0, -x, -y, -1, v * x, v * y, v],
+    );
   }
   const options: Parameters<typeof decomposeAutoMovieSingularMatrix>[1] = {
-    maxEntries: Math.max(81, rows.length * 9), maxSweeps, orthogonalityTolerance: 1e-12,
+    maxEntries: Math.max(81, rows.length * 9),
+    maxSweeps,
+    orthogonalityTolerance: 1e-12,
   };
-  const factors: ReturnType<typeof decomposeAutoMovieSingularMatrix> = decomposeAutoMovieSingularMatrix(rows, options);
+  const factors: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
+    decomposeAutoMovieSingularMatrix(rows, options);
   const ratio: number = factors.singularValues[7]! / factors.singularValues[0]!;
   if (!Number.isFinite(ratio) || ratio < minimumRatio)
     throw new Error("camera-homography: rank-degenerate design");
   // Hartley normalization is a similarity: its inverse can be written directly
   // without a general matrix inverse or fitting any additional observations.
   const bt: number[] = b.transform;
-  const inverseTransform: number[] = [1 / bt[0]!, 0, -bt[2]! / bt[0]!,
-    0, 1 / bt[4]!, -bt[5]! / bt[4]!, 0, 0, 1];
-  const raw: number[] = AutoMovieMatrix3.multiply(inverseTransform,
-    AutoMovieMatrix3.multiply(factors.rightColumns[8]!, a.transform));
+  const inverseTransform: number[] = [
+    1 / bt[0]!,
+    0,
+    -bt[2]! / bt[0]!,
+    0,
+    1 / bt[4]!,
+    -bt[5]! / bt[4]!,
+    0,
+    0,
+    1,
+  ];
+  const raw: number[] = AutoMovieMatrix3.multiply(
+    inverseTransform,
+    AutoMovieMatrix3.multiply(factors.rightColumns[8]!, a.transform),
+  );
   const norm: number = Math.hypot(...raw);
-  if (!(norm > 0) || !Number.isFinite(norm)) throw new Error("camera-homography: nonrepresentable map");
+  if (!(norm > 0) || !Number.isFinite(norm))
+    throw new Error("camera-homography: nonrepresentable map");
   const matrix: number[] = raw.map((value: number): number => value / norm);
-  const singular: ReturnType<typeof decomposeAutoMovieSingularMatrix> = decomposeAutoMovieSingularMatrix(
-    [matrix.slice(0, 3), matrix.slice(3, 6), matrix.slice(6, 9)], options);
-  if (!(singular.singularValues[2]! / singular.singularValues[0]! > singular.relativeNullCutoff))
+  const singular: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
+    decomposeAutoMovieSingularMatrix(
+      [matrix.slice(0, 3), matrix.slice(3, 6), matrix.slice(6, 9)],
+      options,
+    );
+  if (
+    !(
+      singular.singularValues[2]! / singular.singularValues[0]! >
+      singular.relativeNullCutoff
+    )
+  )
     throw new Error("camera-homography: unresolved inverse");
   const inverse: number[] = new Array<number>(9).fill(0);
   for (let row: number = 0; row < 3; row++)
     for (let column: number = 0; column < 3; column++)
       for (let at: number = 0; at < 3; at++)
-        inverse[row * 3 + column] += singular.rightColumns[at]![row]! *
-          singular.leftColumns[at]![column]! / singular.singularValues[at]!;
-  if (!inverse.every(Number.isFinite)) throw new Error("camera-homography: nonrepresentable inverse");
+        inverse[row * 3 + column] +=
+          (singular.rightColumns[at]![row]! *
+            singular.leftColumns[at]![column]!) /
+          singular.singularValues[at]!;
+  if (!inverse.every(Number.isFinite))
+    throw new Error("camera-homography: nonrepresentable inverse");
   return { matrix, inverse, designSingularRatio: ratio };
 }

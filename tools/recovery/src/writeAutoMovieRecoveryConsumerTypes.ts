@@ -62,7 +62,9 @@ export function consumeImages(input: IAutoMovieRecoveryImageInput, recipe: IAuto
       2,
     ),
   );
-  fs.appendFileSync(path.join(consumer, "consumer-types.mts"), `
+  fs.appendFileSync(
+    path.join(consumer, "consumer-types.mts"),
+    `
 import { estimateAutoMovieRecoveryCameraPair } from "@automovie/recovery";
 import type { IAutoMovieRecoveryCameraPairEstimate } from "@automovie/recovery";
 import type { IAutoMovieRecoveryCameraPairInput } from "@automovie/interface/recovery";
@@ -73,6 +75,7 @@ export function consumeCameras(input: IAutoMovieRecoveryCameraPairInput, manifes
  if ("value" in result) { const artifact: IAutoMovieRecoveryCameraPairEstimate = result.value; if(artifact.pose){const rotation:number[]=artifact.pose.rotation;void rotation;} return artifact; }
  return null;
 }
-`);
+`,
+  );
   return typeConfig;
 }

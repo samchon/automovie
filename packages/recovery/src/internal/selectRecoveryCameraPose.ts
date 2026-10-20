@@ -1,5 +1,5 @@
-import type { createRecoveryCameraChart } from "./createRecoveryCameraChart";
 import { calibrateRecoveryEpipolarMatrix } from "./calibrateRecoveryEpipolarMatrix";
+import type { createRecoveryCameraChart } from "./createRecoveryCameraChart";
 import { triangulateRecoveryCameraPoint } from "./triangulateRecoveryCameraPoint";
 
 /**
@@ -37,30 +37,54 @@ export function selectRecoveryCameraPose(
 } {
   if (firstPoints.length === 0 || firstPoints.length !== secondPoints.length)
     throw new Error("camera-pose: nonempty paired pose evidence required");
-  const calibrated: ReturnType<typeof calibrateRecoveryEpipolarMatrix> = calibrateRecoveryEpipolarMatrix(fundamental, first, second, maxSweeps);
+  const calibrated: ReturnType<typeof calibrateRecoveryEpipolarMatrix> =
+    calibrateRecoveryEpipolarMatrix(fundamental, first, second, maxSweeps);
   const counts: number[] = [];
-  let best: { pose: typeof calibrated.poses[number]; points: ReturnType<typeof triangulateRecoveryCameraPoint>[]; positive: number; angles: number[] } | null = null;
+  let best: {
+    pose: (typeof calibrated.poses)[number];
+    points: ReturnType<typeof triangulateRecoveryCameraPoint>[];
+    positive: number;
+    angles: number[];
+  } | null = null;
   for (const pose of calibrated.poses) {
     const points: ReturnType<typeof triangulateRecoveryCameraPoint>[] = [];
     const angles: number[] = [];
     for (let at: number = 0; at < firstPoints.length; at++) {
-      const point: ReturnType<typeof triangulateRecoveryCameraPoint> = triangulateRecoveryCameraPoint(
-        firstPoints[at]!, secondPoints[at]!, first, second, pose, minimumDesignRatio, maxSweeps,
-      );
+      const point: ReturnType<typeof triangulateRecoveryCameraPoint> =
+        triangulateRecoveryCameraPoint(
+          firstPoints[at]!,
+          secondPoints[at]!,
+          first,
+          second,
+          pose,
+          minimumDesignRatio,
+          maxSweeps,
+        );
       points.push(point);
       if (point?.positiveDepth) angles.push(point.parallaxRadians);
     }
     counts.push(angles.length);
-    if (best === null || angles.length > best.positive) best = { pose, points, positive: angles.length, angles };
+    if (best === null || angles.length > best.positive)
+      best = { pose, points, positive: angles.length, angles };
   }
   if (best === null)
     throw new Error("camera-pose: nonempty paired pose evidence required");
   best.angles.sort((a: number, b: number): number => a - b);
   const middle: number = (best.angles.length - 1) / 2;
-  return { ...best.pose, fundamental: calibrated.fundamental, points: best.points,
-    allPositiveDepthCounts: counts, positiveDepthFraction: best.positive / firstPoints.length,
-    medianParallaxRadians: best.angles.length === 0 ? null :
-      (best.angles[Math.floor(middle)]! + best.angles[Math.ceil(middle)]!) / 2,
-    uniqueWinner: counts.filter((count: number): boolean => count === best!.positive).length === 1,
-    relativeProjectionDiscrepancy: calibrated.relativeProjectionDiscrepancy };
+  return {
+    ...best.pose,
+    fundamental: calibrated.fundamental,
+    points: best.points,
+    allPositiveDepthCounts: counts,
+    positiveDepthFraction: best.positive / firstPoints.length,
+    medianParallaxRadians:
+      best.angles.length === 0
+        ? null
+        : (best.angles[Math.floor(middle)]! + best.angles[Math.ceil(middle)]!) /
+          2,
+    uniqueWinner:
+      counts.filter((count: number): boolean => count === best!.positive)
+        .length === 1,
+    relativeProjectionDiscrepancy: calibrated.relativeProjectionDiscrepancy,
+  };
 }

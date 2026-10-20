@@ -5,13 +5,13 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { installAutoMovieRecoveryConsumerToolchain } from "./installAutoMovieRecoveryConsumerToolchain.ts";
-import { writeAutoMovieRecoveryConsumerTypes } from "./writeAutoMovieRecoveryConsumerTypes.ts";
 import { packAutoMovieRecoveryClosure } from "./packAutoMovieRecoveryClosure.ts";
-import { verifyAutoMovieRecoveryImageConsumer } from "./verifyAutoMovieRecoveryImageConsumer.ts";
 import { verifyAutoMovieRecoveryCameraConsumer } from "./verifyAutoMovieRecoveryCameraConsumer.ts";
+import { verifyAutoMovieRecoveryImageConsumer } from "./verifyAutoMovieRecoveryImageConsumer.ts";
 import { verifyAutoMovieRecoveryOpenConsumer } from "./verifyAutoMovieRecoveryOpenConsumer.ts";
 import { verifyAutoMovieRecoveryRegisteredConsumer } from "./verifyAutoMovieRecoveryRegisteredConsumer.ts";
 import { verifyAutoMovieRecoverySupportConsumer } from "./verifyAutoMovieRecoverySupportConsumer.ts";
+import { writeAutoMovieRecoveryConsumerTypes } from "./writeAutoMovieRecoveryConsumerTypes.ts";
 
 /**
  * Verify actual packed recovery imports, installed bin and immutable publication.
@@ -385,8 +385,13 @@ console.log(JSON.stringify({node:process.version,version,area,status:result.stat
     run,
   });
   const typeConfig: string = writeAutoMovieRecoveryConsumerTypes(consumer);
-  const cameraConsumer: ReturnType<typeof verifyAutoMovieRecoveryCameraConsumer> = verifyAutoMovieRecoveryCameraConsumer({
-    repository, consumer, sourceEpoch, run,
+  const cameraConsumer: ReturnType<
+    typeof verifyAutoMovieRecoveryCameraConsumer
+  > = verifyAutoMovieRecoveryCameraConsumer({
+    repository,
+    consumer,
+    sourceEpoch,
+    run,
   });
   const declarationToolchain: ReturnType<
     typeof installAutoMovieRecoveryConsumerToolchain

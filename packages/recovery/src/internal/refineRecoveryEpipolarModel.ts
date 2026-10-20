@@ -34,40 +34,109 @@ export function refineRecoveryEpipolarModel(
   score: ReturnType<typeof scoreRecoveryCameraResiduals>;
   fits: ReturnType<typeof refineRecoveryCameraPose>[];
   converged: boolean;
-  refusal: "optimizer-termination" | "inlier-refit-budget" | "insufficient-refined-support" | null;
+  refusal:
+    | "optimizer-termination"
+    | "inlier-refit-budget"
+    | "insufficient-refined-support"
+    | null;
 } {
   let score: ReturnType<typeof scoreRecoveryCameraResiduals> = initialScore;
   let fittedMatrix: number[] = matrix.slice();
-  const initial: ReturnType<typeof selectRecoveryCameraPose> = selectRecoveryCameraPose(matrix,
-    score.indices.map((at: number): readonly [number, number] => firstPoints[at]!),
-    score.indices.map((at: number): readonly [number, number] => secondPoints[at]!),
-    first, second, policy.minimumDesignSingularRatio, budget.maxSingularSweeps);
+  const initial: ReturnType<typeof selectRecoveryCameraPose> =
+    selectRecoveryCameraPose(
+      matrix,
+      score.indices.map(
+        (at: number): readonly [number, number] => firstPoints[at]!,
+      ),
+      score.indices.map(
+        (at: number): readonly [number, number] => secondPoints[at]!,
+      ),
+      first,
+      second,
+      policy.minimumDesignSingularRatio,
+      budget.maxSingularSweeps,
+    );
   let pose: { rotation: number[]; translation: [number, number, number] } = {
-    rotation: initial.rotation, translation: initial.translation,
+    rotation: initial.rotation,
+    translation: initial.translation,
   };
   const fits: ReturnType<typeof refineRecoveryCameraPose>[] = [];
   for (let refit: number = 0; refit < 3; refit++) {
     if (score.indices.length < 8)
-      return { matrix: fittedMatrix, score, fits, converged: false, refusal: "insufficient-refined-support" };
-    const fit: ReturnType<typeof refineRecoveryCameraPose> = refineRecoveryCameraPose(pose,
-      score.indices.map((at: number): readonly [number, number] => firstPoints[at]!),
-      score.indices.map((at: number): readonly [number, number] => secondPoints[at]!), first, second, {
-        lossScalePx: policy.refinementLossScalePx, minimumDesignRatio: policy.minimumDesignSingularRatio,
-        maxIterations: budget.maxRefinementIterations, maxSweeps: budget.maxSingularSweeps,
-      });
-    fits.push(fit); fittedMatrix = fit.fundamental;
-    const errors: ReturnType<typeof measureRecoveryEpipolarErrors> = measureRecoveryEpipolarErrors(fittedMatrix, firstPoints, secondPoints);
-    const next: ReturnType<typeof scoreRecoveryCameraResiduals> = scoreRecoveryCameraResiduals(errors.map(
-      (error: typeof errors[number]): number | null => error?.signedSampsonPx ?? null,
-    ), policy.maximumSampsonErrorPx);
-    const unchanged: boolean = next.indices.length === score.indices.length &&
-      next.indices.every((value: number, at: number): boolean => value === score.indices[at]);
+      return {
+        matrix: fittedMatrix,
+        score,
+        fits,
+        converged: false,
+        refusal: "insufficient-refined-support",
+      };
+    const fit: ReturnType<typeof refineRecoveryCameraPose> =
+      refineRecoveryCameraPose(
+        pose,
+        score.indices.map(
+          (at: number): readonly [number, number] => firstPoints[at]!,
+        ),
+        score.indices.map(
+          (at: number): readonly [number, number] => secondPoints[at]!,
+        ),
+        first,
+        second,
+        {
+          lossScalePx: policy.refinementLossScalePx,
+          minimumDesignRatio: policy.minimumDesignSingularRatio,
+          maxIterations: budget.maxRefinementIterations,
+          maxSweeps: budget.maxSingularSweeps,
+        },
+      );
+    fits.push(fit);
+    fittedMatrix = fit.fundamental;
+    const errors: ReturnType<typeof measureRecoveryEpipolarErrors> =
+      measureRecoveryEpipolarErrors(fittedMatrix, firstPoints, secondPoints);
+    const next: ReturnType<typeof scoreRecoveryCameraResiduals> =
+      scoreRecoveryCameraResiduals(
+        errors.map(
+          (error: (typeof errors)[number]): number | null =>
+            error?.signedSampsonPx ?? null,
+        ),
+        policy.maximumSampsonErrorPx,
+      );
+    const unchanged: boolean =
+      next.indices.length === score.indices.length &&
+      next.indices.every(
+        (value: number, at: number): boolean => value === score.indices[at],
+      );
     score = next;
-    if (!fit.converged) return { matrix: fittedMatrix, score, fits, converged: false, refusal: "optimizer-termination" };
+    if (!fit.converged)
+      return {
+        matrix: fittedMatrix,
+        score,
+        fits,
+        converged: false,
+        refusal: "optimizer-termination",
+      };
     if (score.indices.length < 8)
-      return { matrix: fittedMatrix, score, fits, converged: false, refusal: "insufficient-refined-support" };
-    if (unchanged) return { matrix: fittedMatrix, score, fits, converged: true, refusal: null };
+      return {
+        matrix: fittedMatrix,
+        score,
+        fits,
+        converged: false,
+        refusal: "insufficient-refined-support",
+      };
+    if (unchanged)
+      return {
+        matrix: fittedMatrix,
+        score,
+        fits,
+        converged: true,
+        refusal: null,
+      };
     pose = { rotation: fit.rotation, translation: fit.translation };
   }
-  return { matrix: fittedMatrix, score, fits, converged: false, refusal: "inlier-refit-budget" };
+  return {
+    matrix: fittedMatrix,
+    score,
+    fits,
+    converged: false,
+    refusal: "inlier-refit-budget",
+  };
 }

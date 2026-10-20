@@ -41,56 +41,125 @@ export function fitRecoveryHomographyConsensus(
   refitRefusals: number;
 } {
   if (first.length !== second.length || first.length < 4)
-    throw new Error("camera-homography: four or more final epipolar inliers required");
-  const forbiddenSupport: number = Math.ceil(policy.maximumHomographyOverlapFraction * first.length);
-  const required: number = requiredRecoveryCameraTrials(first.length, forbiddenSupport, 4, policy.samplingConfidence);
-  let trials: number = 0, numericalRefusals: number = 0, refitRefusals: number = 0;
+    throw new Error(
+      "camera-homography: four or more final epipolar inliers required",
+    );
+  const forbiddenSupport: number = Math.ceil(
+    policy.maximumHomographyOverlapFraction * first.length,
+  );
+  const required: number = requiredRecoveryCameraTrials(
+    first.length,
+    forbiddenSupport,
+    4,
+    policy.samplingConfidence,
+  );
+  let trials: number = 0,
+    numericalRefusals: number = 0,
+    refitRefusals: number = 0;
   let model: ReturnType<typeof fitRecoveryHomography> | null = null;
-  let score: ReturnType<typeof scoreRecoveryCameraResiduals> = { indices: [], medianPx: null, p90Px: null };
-  while (trials < budget.maxRansacTrials &&
-    (trials < budget.minimumRansacTrials || trials < required) && score.indices.length < forbiddenSupport) {
+  let score: ReturnType<typeof scoreRecoveryCameraResiduals> = {
+    indices: [],
+    medianPx: null,
+    p90Px: null,
+  };
+  while (
+    trials < budget.maxRansacTrials &&
+    (trials < budget.minimumRansacTrials || trials < required) &&
+    score.indices.length < forbiddenSupport
+  ) {
     checkpoint(trials, budget.maxRansacTrials);
     // ASCII HOMO separates the planar stream from the epipolar proposal domain.
-    const sample: number[] = sampleRecoveryCameraIndices(first.length, 4, policy.samplingSeed, 0x484f4d4f, trials);
+    const sample: number[] = sampleRecoveryCameraIndices(
+      first.length,
+      4,
+      policy.samplingSeed,
+      0x484f4d4f,
+      trials,
+    );
     trials++;
     let candidate: ReturnType<typeof fitRecoveryHomography>;
     let candidateScore: ReturnType<typeof scoreRecoveryCameraResiduals>;
     try {
-      candidate = fitRecoveryHomography(sample.map((at: number): readonly [number, number] => first[at]!),
+      candidate = fitRecoveryHomography(
+        sample.map((at: number): readonly [number, number] => first[at]!),
         sample.map((at: number): readonly [number, number] => second[at]!),
-        policy.minimumDesignSingularRatio, budget.maxSingularSweeps);
-      candidateScore = scoreRecoveryCameraResiduals(measureRecoveryHomographyErrors(candidate, first, second), policy.maximumHomographyTransferPx);
+        policy.minimumDesignSingularRatio,
+        budget.maxSingularSweeps,
+      );
+      candidateScore = scoreRecoveryCameraResiduals(
+        measureRecoveryHomographyErrors(candidate, first, second),
+        policy.maximumHomographyTransferPx,
+      );
     } catch (error: unknown) {
       if (!isRecoveryCameraNumericalRefusal(error)) throw error;
-      numericalRefusals++; continue;
+      numericalRefusals++;
+      continue;
     }
-    if (candidateScore.indices.length < score.indices.length ||
+    if (
+      candidateScore.indices.length < score.indices.length ||
       (candidateScore.indices.length === score.indices.length &&
-        (candidateScore.medianPx ?? Infinity) >= (score.medianPx ?? Infinity))) continue;
-    for (let refit: number = 0; refit < 3 && candidateScore.indices.length >= 4; refit++) {
+        (candidateScore.medianPx ?? Infinity) >= (score.medianPx ?? Infinity))
+    )
+      continue;
+    for (
+      let refit: number = 0;
+      refit < 3 && candidateScore.indices.length >= 4;
+      refit++
+    ) {
       try {
         const refined: typeof candidate = fitRecoveryHomography(
-          candidateScore.indices.map((at: number): readonly [number, number] => first[at]!),
-          candidateScore.indices.map((at: number): readonly [number, number] => second[at]!),
-          policy.minimumDesignSingularRatio, budget.maxSingularSweeps);
-        const next: typeof candidateScore = scoreRecoveryCameraResiduals(measureRecoveryHomographyErrors(refined, first, second), policy.maximumHomographyTransferPx);
-        const unchanged: boolean = next.indices.length === candidateScore.indices.length &&
-          next.indices.every((value: number, at: number): boolean => value === candidateScore.indices[at]);
-        if (next.indices.length < candidateScore.indices.length ||
+          candidateScore.indices.map(
+            (at: number): readonly [number, number] => first[at]!,
+          ),
+          candidateScore.indices.map(
+            (at: number): readonly [number, number] => second[at]!,
+          ),
+          policy.minimumDesignSingularRatio,
+          budget.maxSingularSweeps,
+        );
+        const next: typeof candidateScore = scoreRecoveryCameraResiduals(
+          measureRecoveryHomographyErrors(refined, first, second),
+          policy.maximumHomographyTransferPx,
+        );
+        const unchanged: boolean =
+          next.indices.length === candidateScore.indices.length &&
+          next.indices.every(
+            (value: number, at: number): boolean =>
+              value === candidateScore.indices[at],
+          );
+        if (
+          next.indices.length < candidateScore.indices.length ||
           (next.indices.length === candidateScore.indices.length &&
-            (next.medianPx ?? Infinity) >= (candidateScore.medianPx ?? Infinity))) break;
-        candidate = refined; candidateScore = next;
+            (next.medianPx ?? Infinity) >=
+              (candidateScore.medianPx ?? Infinity))
+        )
+          break;
+        candidate = refined;
+        candidateScore = next;
         if (unchanged) break;
       } catch (error: unknown) {
         if (!isRecoveryCameraNumericalRefusal(error)) throw error;
-        refitRefusals++; break;
+        refitRefusals++;
+        break;
       }
     }
-    model = candidate; score = candidateScore;
+    model = candidate;
+    score = candidateScore;
   }
   checkpoint(trials, budget.maxRansacTrials);
-  return { model, score, population: first.length, forbiddenSupport, trials,
-    requiredTrialsAtForbiddenSupport: Number.isFinite(required) ? required : null,
-    conditionalTrialTargetMet: trials >= required && trials >= budget.minimumRansacTrials,
-    forbiddenOverlapFound: score.indices.length >= forbiddenSupport, numericalRefusals, refitRefusals };
+  return {
+    model,
+    score,
+    population: first.length,
+    forbiddenSupport,
+    trials,
+    requiredTrialsAtForbiddenSupport: Number.isFinite(required)
+      ? required
+      : null,
+    conditionalTrialTargetMet:
+      trials >= required && trials >= budget.minimumRansacTrials,
+    forbiddenOverlapFound: score.indices.length >= forbiddenSupport,
+    numericalRefusals,
+    refitRefusals,
+  };
 }

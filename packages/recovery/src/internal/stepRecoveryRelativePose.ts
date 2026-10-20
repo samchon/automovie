@@ -1,5 +1,8 @@
 import { Quaternion } from "@automovie/engine/math/Quaternion";
-import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
  * Apply a five-coordinate local step while retaining a rotation and unit t.
@@ -15,26 +18,46 @@ import type { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interfa
  * @evidence contracts/performance.md#bound-retention-and-release-resources New pose arrays transfer to the caller and no borrowed state, image, quaternion cache or external handle remains.
  */
 export function stepRecoveryRelativePose(
-  pose: { rotation: readonly number[]; translation: readonly [number, number, number] },
+  pose: {
+    rotation: readonly number[];
+    translation: readonly [number, number, number];
+  },
   tangent: readonly (readonly [number, number, number])[],
   step: readonly number[],
 ): { rotation: number[]; translation: [number, number, number] } {
   if (step.length !== 5 || !step.every(Number.isFinite) || tangent.length !== 2)
     throw new Error("camera-refinement: finite five-coordinate step required");
   const angle: number = Math.hypot(step[0]!, step[1]!, step[2]!);
-  if (!Number.isFinite(angle)) throw new Error("camera-refinement: nonrepresentable angular step");
+  if (!Number.isFinite(angle))
+    throw new Error("camera-refinement: nonrepresentable angular step");
   const quaternion: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-    { x: step[0]!, y: step[1]!, z: step[2]! }, angle * 180 / Math.PI);
+    { x: step[0]!, y: step[1]!, z: step[2]! },
+    (angle * 180) / Math.PI,
+  );
   const rotation: number[] = new Array<number>(9);
   for (let column: number = 0; column < 3; column++) {
-    const value: IAutoMovieVector3 = Quaternion.rotateVector(quaternion,
-      { x: pose.rotation[column]!, y: pose.rotation[3 + column]!, z: pose.rotation[6 + column]! });
-    rotation[column] = value.x; rotation[3 + column] = value.y; rotation[6 + column] = value.z;
+    const value: IAutoMovieVector3 = Quaternion.rotateVector(quaternion, {
+      x: pose.rotation[column]!,
+      y: pose.rotation[3 + column]!,
+      z: pose.rotation[6 + column]!,
+    });
+    rotation[column] = value.x;
+    rotation[3 + column] = value.y;
+    rotation[6 + column] = value.z;
   }
-  const direction: number[] = pose.translation.map((value: number, at: number): number =>
-    value + tangent[0]![at]! * step[3]! + tangent[1]![at]! * step[4]!);
+  const direction: number[] = pose.translation.map(
+    (value: number, at: number): number =>
+      value + tangent[0]![at]! * step[3]! + tangent[1]![at]! * step[4]!,
+  );
   const norm: number = Math.hypot(...direction);
   if (!rotation.every(Number.isFinite) || !(norm > 0) || !Number.isFinite(norm))
     throw new Error("camera-refinement: nonrepresentable pose update");
-  return { rotation, translation: [direction[0]! / norm, direction[1]! / norm, direction[2]! / norm] };
+  return {
+    rotation,
+    translation: [
+      direction[0]! / norm,
+      direction[1]! / norm,
+      direction[2]! / norm,
+    ],
+  };
 }

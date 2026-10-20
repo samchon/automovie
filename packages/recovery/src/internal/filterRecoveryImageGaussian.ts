@@ -29,13 +29,20 @@ export function filterRecoveryImageGaussian(
     total += value;
   }
   for (let at: number = 0; at < gaussian.length; at++) gaussian[at] /= total;
-  const differentiated: Float64Array = derivative === "none" ? gaussian : gaussian.map(
-    (weight: number, at: number): number => weight * ((at - radius) / (sigma * sigma)),
-  );
-  const verticalWeights: Float64Array = derivative === "y" ? differentiated : gaussian;
-  const horizontalWeights: Float64Array = derivative === "x" ? differentiated : gaussian;
+  const differentiated: Float64Array =
+    derivative === "none"
+      ? gaussian
+      : gaussian.map(
+          (weight: number, at: number): number =>
+            weight * ((at - radius) / (sigma * sigma)),
+        );
+  const verticalWeights: Float64Array =
+    derivative === "y" ? differentiated : gaussian;
+  const horizontalWeights: Float64Array =
+    derivative === "x" ? differentiated : gaussian;
   const reflected: (at: number, length: number) => number = (
-    at: number, length: number,
+    at: number,
+    length: number,
   ): number => {
     const period: number = 2 * length;
     const wrapped: number = ((at % period) + period) % period;
@@ -48,7 +55,9 @@ export function filterRecoveryImageGaussian(
     for (let x: number = 0; x < width; x++) {
       let value: number = 0;
       for (let offset: number = -radius; offset <= radius; offset++) {
-        value += source[reflected(y + offset, height) * width + x]! * verticalWeights[offset + radius]!;
+        value +=
+          source[reflected(y + offset, height) * width + x]! *
+          verticalWeights[offset + radius]!;
       }
       intermediate[y * width + x] = value;
     }
@@ -57,7 +66,9 @@ export function filterRecoveryImageGaussian(
     for (let x: number = 0; x < width; x++) {
       let value: number = 0;
       for (let offset: number = -radius; offset <= radius; offset++) {
-        value += intermediate[y * width + reflected(x + offset, width)]! * horizontalWeights[offset + radius]!;
+        value +=
+          intermediate[y * width + reflected(x + offset, width)]! *
+          horizontalWeights[offset + radius]!;
       }
       result[y * width + x] = value;
     }

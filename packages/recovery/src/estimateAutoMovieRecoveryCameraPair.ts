@@ -32,57 +32,124 @@ import { matchRecoveryImageFeatures } from "./internal/matchRecoveryImageFeature
  */
 export function estimateAutoMovieRecoveryCameraPair(
   input: IAutoMovieRecoveryCameraPairInput,
-  options: Pick<IAutoMovieRecoveryOperation.Options, "signal" | "onProgress"> = {},
+  options: Pick<
+    IAutoMovieRecoveryOperation.Options,
+    "signal" | "onProgress"
+  > = {},
 ): IAutoMovieRecoveryOperation.Result<IAutoMovieRecoveryCameraPairEstimate> {
-  const schema: IAutoMovieRecoveryOperation.Result<unknown>["schema"] = "automovie-recovery-operation-v1";
-  const operator: IAutoMovieRecoveryOperation.Result<unknown>["operator"] = "calibrated-image-pair-v1";
-  let admitted: boolean = false, callback: boolean = false;
-  const cancellation: Error = new Error("Camera observation cancelled at a cooperative checkpoint");
+  const schema: IAutoMovieRecoveryOperation.Result<unknown>["schema"] =
+    "automovie-recovery-operation-v1";
+  const operator: IAutoMovieRecoveryOperation.Result<unknown>["operator"] =
+    "calibrated-image-pair-v1";
+  let admitted: boolean = false,
+    callback: boolean = false;
+  const cancellation: Error = new Error(
+    "Camera observation cancelled at a cooperative checkpoint",
+  );
   try {
-    if (!options || typeof options !== "object" || Array.isArray(options) ||
-      Reflect.ownKeys(options).some((key: string | symbol): boolean => key !== "signal" && key !== "onProgress") ||
-      (options.onProgress !== undefined && typeof options.onProgress !== "function") ||
-      (options.signal !== undefined && (options.signal === null || typeof options.signal !== "object" ||
-        Array.isArray(options.signal) || typeof options.signal.aborted !== "boolean")))
-      throw new Error("invalid-camera-options: only signal and synchronous progress observer are supported");
+    if (
+      !options ||
+      typeof options !== "object" ||
+      Array.isArray(options) ||
+      Reflect.ownKeys(options).some(
+        (key: string | symbol): boolean =>
+          key !== "signal" && key !== "onProgress",
+      ) ||
+      (options.onProgress !== undefined &&
+        typeof options.onProgress !== "function") ||
+      (options.signal !== undefined &&
+        (options.signal === null ||
+          typeof options.signal !== "object" ||
+          Array.isArray(options.signal) ||
+          typeof options.signal.aborted !== "boolean"))
+    )
+      throw new Error(
+        "invalid-camera-options: only signal and synchronous progress observer are supported",
+      );
     const signal: AbortSignal | undefined = options.signal;
     const observer: typeof options.onProgress = options.onProgress;
     if (signal?.aborted) throw cancellation;
-    const prepared: ReturnType<typeof admitRecoveryCameraPair> = admitRecoveryCameraPair(input);
-    const stable: IAutoMovieRecoveryCameraPairInput = { ...input, policy: { ...input.policy }, budget: { ...input.budget },
-      views: input.views.map((view: typeof input.views[number]): typeof view => ({ ...view, camera: {
-        ...view.camera, focalPx: [...view.camera.focalPx], principalPointPx: [...view.camera.principalPointPx],
-      } })),
+    const prepared: ReturnType<typeof admitRecoveryCameraPair> =
+      admitRecoveryCameraPair(input);
+    const stable: IAutoMovieRecoveryCameraPairInput = {
+      ...input,
+      policy: { ...input.policy },
+      budget: { ...input.budget },
+      views: input.views.map(
+        (view: (typeof input.views)[number]): typeof view => ({
+          ...view,
+          camera: {
+            ...view.camera,
+            focalPx: [...view.camera.focalPx],
+            principalPointPx: [...view.camera.principalPointPx],
+          },
+        }),
+      ),
     };
     admitted = true;
-    const checkpoint: (phase: string, completed: number, total: number) => void = (
-      phase: string, completed: number, total: number,
-    ): void => {
+    const checkpoint: (
+      phase: string,
+      completed: number,
+      total: number,
+    ) => void = (phase: string, completed: number, total: number): void => {
       if (signal?.aborted) throw cancellation;
-      callback = true; observer?.(phase, completed, total); callback = false;
+      callback = true;
+      observer?.(phase, completed, total);
+      callback = false;
       if (signal?.aborted) throw cancellation;
     };
     const features: ReturnType<typeof extractRecoveryImageFeatures>[] = [];
     checkpoint("image-features", 0, 2);
     for (const view of stable.views) {
-      features.push(extractRecoveryImageFeatures(view, stable.policy, stable.budget));
+      features.push(
+        extractRecoveryImageFeatures(view, stable.policy, stable.budget),
+      );
       checkpoint("image-features", features.length, 2);
     }
     checkpoint("descriptor-matching", 0, 1);
-    const matches: ReturnType<typeof matchRecoveryImageFeatures> = matchRecoveryImageFeatures(
-      features[0]!.points, features[1]!.points, stable.policy.descriptorDistanceRatio, stable.budget.maxDescriptorPairs);
+    const matches: ReturnType<typeof matchRecoveryImageFeatures> =
+      matchRecoveryImageFeatures(
+        features[0]!.points,
+        features[1]!.points,
+        stable.policy.descriptorDistanceRatio,
+        stable.budget.maxDescriptorPairs,
+      );
     checkpoint("descriptor-matching", 1, 1);
-    const value: IAutoMovieRecoveryCameraPairEstimate = createRecoveryCameraEstimate(stable, features, matches, prepared.charts, checkpoint);
+    const value: IAutoMovieRecoveryCameraPairEstimate =
+      createRecoveryCameraEstimate(
+        stable,
+        features,
+        matches,
+        prepared.charts,
+        checkpoint,
+      );
     checkpoint("observations-ready", 1, 1);
-    return { schema, operator, status: "partial", value, diagnostics: [
-      value.status === "accepted-relative-pose" ? "Conditional calibrated relative pose accepted" : `Camera refused: ${value.refusalReasons.join(", ")}`,
-      "Supplied intrinsics and scene rigidity are assertions; metric scale, unseen geometry and a recovered surface remain unobserved",
-      "Deterministic sampling targets and local fit residuals do not establish physical correspondence truth or estimated covariance",
-    ] };
+    return {
+      schema,
+      operator,
+      status: "partial",
+      value,
+      diagnostics: [
+        value.status === "accepted-relative-pose"
+          ? "Conditional calibrated relative pose accepted"
+          : `Camera refused: ${value.refusalReasons.join(", ")}`,
+        "Supplied intrinsics and scene rigidity are assertions; metric scale, unseen geometry and a recovered surface remain unobserved",
+        "Deterministic sampling targets and local fit residuals do not establish physical correspondence truth or estimated covariance",
+      ],
+    };
   } catch (error: unknown) {
     if (error === cancellation && !callback)
-      return { schema, operator, status: "cancelled", diagnostics: [cancellation.message] };
-    return { schema, operator, status: admitted || callback ? "failed" : "refused",
-      diagnostics: [error instanceof Error ? error.message : String(error)] };
+      return {
+        schema,
+        operator,
+        status: "cancelled",
+        diagnostics: [cancellation.message],
+      };
+    return {
+      schema,
+      operator,
+      status: admitted || callback ? "failed" : "refused",
+      diagnostics: [error instanceof Error ? error.message : String(error)],
+    };
   }
 }

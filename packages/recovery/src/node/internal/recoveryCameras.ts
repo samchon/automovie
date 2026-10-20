@@ -25,46 +25,125 @@ import { writeAutoMovieRecoveryArtifact } from "./writeAutoMovieRecoveryArtifact
 export function recoveryCameras(args: string[], sourceEpoch: string): void {
   const [command, inputPath, outputPath, byteText]: string[] = args;
   const maxInputBytes: number = Number(byteText);
-  if (args.length !== 4 || command !== "estimate" || !inputPath || !outputPath ||
-    !Number.isSafeInteger(maxInputBytes) || maxInputBytes < 1)
-    throw new Error("Usage: cameras estimate input.json new-output.json maxInputBytes");
-  const bytes: Buffer = readAutoMovieRecoveryBoundedFile(inputPath, maxInputBytes);
+  if (
+    args.length !== 4 ||
+    command !== "estimate" ||
+    !inputPath ||
+    !outputPath ||
+    !Number.isSafeInteger(maxInputBytes) ||
+    maxInputBytes < 1
+  )
+    throw new Error(
+      "Usage: cameras estimate input.json new-output.json maxInputBytes",
+    );
+  const bytes: Buffer = readAutoMovieRecoveryBoundedFile(
+    inputPath,
+    maxInputBytes,
+  );
   const inputSha256: string = createHash("sha256").update(bytes).digest("hex");
-  const spec: IAutoMovieRecoveryCameraFiles = JSON.parse(bytes.toString("utf8")) as IAutoMovieRecoveryCameraFiles;
-  if (!spec || typeof spec !== "object" || Array.isArray(spec) ||
-    Object.keys(spec).length !== 5 || Object.keys(spec).some((key: string): boolean =>
-      !["schema", "encoding", "capture", "maxHeaderBytes", "views"].includes(key)) ||
-    spec.schema !== "automovie-recovery-camera-files-v1" || spec.encoding !== "ppm-srgb-rgb8-v1" ||
-    !spec.capture || typeof spec.capture !== "object" || Array.isArray(spec.capture) ||
-    Object.keys(spec.capture).length !== 6 || Object.keys(spec.capture).some((key: string): boolean =>
-      !["schema", "objectId", "rigidity", "cohort", "policy", "budget"].includes(key)) || !spec.capture.budget ||
-    !Number.isSafeInteger(spec.capture.budget.maxPixels) || spec.capture.budget.maxPixels < 1 ||
-    !Number.isSafeInteger(spec.maxHeaderBytes) || spec.maxHeaderBytes < 1 ||
-    !Array.isArray(spec.views) || spec.views.length !== 2)
-    throw new Error("A closed fixed-byte camera-pair manifest with explicit pixel/header budgets is required");
+  const spec: IAutoMovieRecoveryCameraFiles = JSON.parse(
+    bytes.toString("utf8"),
+  ) as IAutoMovieRecoveryCameraFiles;
+  if (
+    !spec ||
+    typeof spec !== "object" ||
+    Array.isArray(spec) ||
+    Object.keys(spec).length !== 5 ||
+    Object.keys(spec).some(
+      (key: string): boolean =>
+        !["schema", "encoding", "capture", "maxHeaderBytes", "views"].includes(
+          key,
+        ),
+    ) ||
+    spec.schema !== "automovie-recovery-camera-files-v1" ||
+    spec.encoding !== "ppm-srgb-rgb8-v1" ||
+    !spec.capture ||
+    typeof spec.capture !== "object" ||
+    Array.isArray(spec.capture) ||
+    Object.keys(spec.capture).length !== 6 ||
+    Object.keys(spec.capture).some(
+      (key: string): boolean =>
+        ![
+          "schema",
+          "objectId",
+          "rigidity",
+          "cohort",
+          "policy",
+          "budget",
+        ].includes(key),
+    ) ||
+    !spec.capture.budget ||
+    !Number.isSafeInteger(spec.capture.budget.maxPixels) ||
+    spec.capture.budget.maxPixels < 1 ||
+    !Number.isSafeInteger(spec.maxHeaderBytes) ||
+    spec.maxHeaderBytes < 1 ||
+    !Array.isArray(spec.views) ||
+    spec.views.length !== 2
+  )
+    throw new Error(
+      "A closed fixed-byte camera-pair manifest with explicit pixel/header budgets is required",
+    );
   const started: number = performance.now();
   const views: IAutoMovieRecoveryCameraPairInput["views"] = [];
   let pixels: number = 0;
   for (const view of spec.views) {
-    if (!view || typeof view !== "object" || Array.isArray(view) || Object.keys(view).length !== 5 ||
-      Object.keys(view).some((key: string): boolean => !["id", "path", "sha256", "pixelProvenance", "camera"].includes(key)) ||
-      typeof view.path !== "string" || !view.path || typeof view.sha256 !== "string" ||
-      !/^[0-9a-f]{64}$/.test(view.sha256) || typeof view.pixelProvenance !== "string" || !view.pixelProvenance.trim())
-      throw new Error("Every camera image requires a closed path/hash/provenance/calibration record");
-    const image: Buffer = readAutoMovieRecoveryBoundedFile(path.resolve(path.dirname(inputPath), view.path), maxInputBytes);
+    if (
+      !view ||
+      typeof view !== "object" ||
+      Array.isArray(view) ||
+      Object.keys(view).length !== 5 ||
+      Object.keys(view).some(
+        (key: string): boolean =>
+          !["id", "path", "sha256", "pixelProvenance", "camera"].includes(key),
+      ) ||
+      typeof view.path !== "string" ||
+      !view.path ||
+      typeof view.sha256 !== "string" ||
+      !/^[0-9a-f]{64}$/.test(view.sha256) ||
+      typeof view.pixelProvenance !== "string" ||
+      !view.pixelProvenance.trim()
+    )
+      throw new Error(
+        "Every camera image requires a closed path/hash/provenance/calibration record",
+      );
+    const image: Buffer = readAutoMovieRecoveryBoundedFile(
+      path.resolve(path.dirname(inputPath), view.path),
+      maxInputBytes,
+    );
     if (createHash("sha256").update(image).digest("hex") !== view.sha256)
       throw new Error(`Fixed camera image hash mismatch: ${view.id}`);
-    const decoded: ReturnType<typeof decodeAutoMoviePpmImage> = decodeAutoMoviePpmImage(image, {
-      maxPixels: spec.capture.budget.maxPixels - pixels, maxHeaderBytes: spec.maxHeaderBytes, transfer: "srgb",
-    });
+    const decoded: ReturnType<typeof decodeAutoMoviePpmImage> =
+      decodeAutoMoviePpmImage(image, {
+        maxPixels: spec.capture.budget.maxPixels - pixels,
+        maxHeaderBytes: spec.maxHeaderBytes,
+        transfer: "srgb",
+      });
     pixels += decoded.width * decoded.height;
-    views.push({ id: view.id, sourceSha256: view.sha256,
+    views.push({
+      id: view.id,
+      sourceSha256: view.sha256,
       pixelProvenance: `${view.pixelProvenance}; host decoded fixed P6 sRGB RGB8 without orientation, crop, resize or rectification`,
-      width: decoded.width, height: decoded.height, rgb8: decoded.rgb8, camera: view.camera });
+      width: decoded.width,
+      height: decoded.height,
+      rgb8: decoded.rgb8,
+      camera: view.camera,
+    });
   }
-  const outcome: ReturnType<typeof estimateAutoMovieRecoveryCameraPair> = estimateAutoMovieRecoveryCameraPair({ ...spec.capture, views });
+  const outcome: ReturnType<typeof estimateAutoMovieRecoveryCameraPair> =
+    estimateAutoMovieRecoveryCameraPair({ ...spec.capture, views });
   if (!("value" in outcome)) throw new Error(outcome.diagnostics.join("; "));
-  writeAutoMovieRecoveryArtifact(outputPath, { schema: "automovie-recovery-camera-artifact-v1", command,
-    sourceEpoch, inputSha256, operation: { schema: outcome.schema, operator: outcome.operator,
-      status: outcome.status, diagnostics: outcome.diagnostics }, value: outcome.value, elapsedMs: performance.now() - started });
+  writeAutoMovieRecoveryArtifact(outputPath, {
+    schema: "automovie-recovery-camera-artifact-v1",
+    command,
+    sourceEpoch,
+    inputSha256,
+    operation: {
+      schema: outcome.schema,
+      operator: outcome.operator,
+      status: outcome.status,
+      diagnostics: outcome.diagnostics,
+    },
+    value: outcome.value,
+    elapsedMs: performance.now() - started,
+  });
 }

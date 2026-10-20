@@ -20,21 +20,40 @@ export function measureRecoveryEpipolarErrors(
   first: readonly (readonly [number, number])[],
   second: readonly (readonly [number, number])[],
 ): ({ signedSampsonPx: number; symmetricPointLinePx: number } | null)[] {
-  if (first.length !== second.length) throw new Error("camera-error: paired points required");
+  if (first.length !== second.length)
+    throw new Error("camera-error: paired points required");
   const transpose: number[] = AutoMovieMatrix3.transpose(matrix);
-  return first.map((point: readonly [number, number], at: number): {
-    signedSampsonPx: number; symmetricPointLinePx: number;
-  } | null => {
-    const other: readonly [number, number] = second[at]!;
-    const line2: [number, number, number] = AutoMovieMatrix3.apply(matrix, [point[0], point[1], 1]);
-    const line1: [number, number, number] = AutoMovieMatrix3.apply(transpose, [other[0], other[1], 1]);
-    const incidence: number = other[0] * line2[0] + other[1] * line2[1] + line2[2];
-    const norm1: number = Math.hypot(line1[0], line1[1]);
-    const norm2: number = Math.hypot(line2[0], line2[1]);
-    if (!(norm1 > 0) || !(norm2 > 0) || !Number.isFinite(incidence)) return null;
-    const signedSampsonPx: number = incidence / Math.hypot(norm1, norm2);
-    const symmetricPointLinePx: number = (Math.abs(incidence) / norm1 + Math.abs(incidence) / norm2) / 2;
-    return Number.isFinite(signedSampsonPx) && Number.isFinite(symmetricPointLinePx) ?
-      { signedSampsonPx, symmetricPointLinePx } : null;
-  });
+  return first.map(
+    (
+      point: readonly [number, number],
+      at: number,
+    ): {
+      signedSampsonPx: number;
+      symmetricPointLinePx: number;
+    } | null => {
+      const other: readonly [number, number] = second[at]!;
+      const line2: [number, number, number] = AutoMovieMatrix3.apply(matrix, [
+        point[0],
+        point[1],
+        1,
+      ]);
+      const line1: [number, number, number] = AutoMovieMatrix3.apply(
+        transpose,
+        [other[0], other[1], 1],
+      );
+      const incidence: number =
+        other[0] * line2[0] + other[1] * line2[1] + line2[2];
+      const norm1: number = Math.hypot(line1[0], line1[1]);
+      const norm2: number = Math.hypot(line2[0], line2[1]);
+      if (!(norm1 > 0) || !(norm2 > 0) || !Number.isFinite(incidence))
+        return null;
+      const signedSampsonPx: number = incidence / Math.hypot(norm1, norm2);
+      const symmetricPointLinePx: number =
+        (Math.abs(incidence) / norm1 + Math.abs(incidence) / norm2) / 2;
+      return Number.isFinite(signedSampsonPx) &&
+        Number.isFinite(symmetricPointLinePx)
+        ? { signedSampsonPx, symmetricPointLinePx }
+        : null;
+    },
+  );
 }

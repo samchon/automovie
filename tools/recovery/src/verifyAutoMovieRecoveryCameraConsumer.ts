@@ -38,29 +38,82 @@ export function verifyAutoMovieRecoveryCameraConsumer(input: {
   const directory: string = path.join(input.consumer, "camera-acquisition");
   fs.mkdirSync(directory);
   const spec: IAutoMovieRecoveryCameraFiles = {
-    schema: "automovie-recovery-camera-files-v1", encoding: "ppm-srgb-rgb8-v1", maxHeaderBytes: 64,
-    capture: { schema: "automovie-recovery-camera-pair-v1", objectId: "packed-singleton-negative",
-      rigidity: "asserted-fixed-scene", cohort: "analytic",
-      policy: { family: "harris-gradient-calibrated-eight-point", minimumCornerResponse: 10, suppressionRobustness: 0.9,
-        descriptorDistanceRatio: 0.7, maximumSampsonErrorPx: 2, samplingConfidence: 0.999, samplingSeed: 17,
-        minimumInliers: 16, minimumInlierFraction: 0.35, maximumMedianErrorPx: 1.5, maximumP90ErrorPx: 3,
-        minimumPositiveDepthFraction: 0.9, minimumParallaxRadians: Math.PI / 180, maximumHomographyOverlapFraction: 0.9,
-        maximumHomographyTransferPx: 2, minimumDesignSingularRatio: 1e-8, refinementLossScalePx: 1 },
-      budget: { maxPixels: 2, maxCandidates: 5000, maxFeatures: 64, maxPyramidLevels: 1, maxDescriptorPairs: 4096,
-        maxRansacTrials: 128, minimumRansacTrials: 32, maxLocalRefinements: 4, maxRefinementIterations: 100, maxSingularSweeps: 64 },
-    }, views: [],
+    schema: "automovie-recovery-camera-files-v1",
+    encoding: "ppm-srgb-rgb8-v1",
+    maxHeaderBytes: 64,
+    capture: {
+      schema: "automovie-recovery-camera-pair-v1",
+      objectId: "packed-singleton-negative",
+      rigidity: "asserted-fixed-scene",
+      cohort: "analytic",
+      policy: {
+        family: "harris-gradient-calibrated-eight-point",
+        minimumCornerResponse: 10,
+        suppressionRobustness: 0.9,
+        descriptorDistanceRatio: 0.7,
+        maximumSampsonErrorPx: 2,
+        samplingConfidence: 0.999,
+        samplingSeed: 17,
+        minimumInliers: 16,
+        minimumInlierFraction: 0.35,
+        maximumMedianErrorPx: 1.5,
+        maximumP90ErrorPx: 3,
+        minimumPositiveDepthFraction: 0.9,
+        minimumParallaxRadians: Math.PI / 180,
+        maximumHomographyOverlapFraction: 0.9,
+        maximumHomographyTransferPx: 2,
+        minimumDesignSingularRatio: 1e-8,
+        refinementLossScalePx: 1,
+      },
+      budget: {
+        maxPixels: 2,
+        maxCandidates: 5000,
+        maxFeatures: 64,
+        maxPyramidLevels: 1,
+        maxDescriptorPairs: 4096,
+        maxRansacTrials: 128,
+        minimumRansacTrials: 32,
+        maxLocalRefinements: 4,
+        maxRefinementIterations: 100,
+        maxSingularSweeps: 64,
+      },
+    },
+    views: [],
   };
   for (const id of ["first", "second"]) {
-    const bytes: Buffer = Buffer.concat([Buffer.from("P6\n1 1\n255\n"), Buffer.from([37, 37, 37])]);
+    const bytes: Buffer = Buffer.concat([
+      Buffer.from("P6\n1 1\n255\n"),
+      Buffer.from([37, 37, 37]),
+    ]);
     const file: string = id + ".ppm";
     fs.writeFileSync(path.join(directory, file), bytes, { flag: "wx" });
-    spec.views.push({ id, path: file, sha256: createHash("sha256").update(bytes).digest("hex"),
-      pixelProvenance: "analytic constant singleton in unchanged integer-pixel-centre chart",
-      camera: { type: "pinhole", calibration: "supplied-intrinsics", distortion: "caller-corrected",
-        focalPx: [300, 310], skewPx: 0, principalPointPx: [0, 0], uncertaintyPx: null } });
+    spec.views.push({
+      id,
+      path: file,
+      sha256: createHash("sha256").update(bytes).digest("hex"),
+      pixelProvenance:
+        "analytic constant singleton in unchanged integer-pixel-centre chart",
+      camera: {
+        type: "pinhole",
+        calibration: "supplied-intrinsics",
+        distortion: "caller-corrected",
+        focalPx: [300, 310],
+        skewPx: 0,
+        principalPointPx: [0, 0],
+        uncertaintyPx: null,
+      },
+    });
   }
-  fs.writeFileSync(path.join(directory, "capture.json"), JSON.stringify(spec), { flag: "wx" });
-  const probe: string = path.join(input.repository, "packages", "recovery", "src", "estimateAutoMovieRecoveryCameraPair.ts");
+  fs.writeFileSync(path.join(directory, "capture.json"), JSON.stringify(spec), {
+    flag: "wx",
+  });
+  const probe: string = path.join(
+    input.repository,
+    "packages",
+    "recovery",
+    "src",
+    "estimateAutoMovieRecoveryCameraPair.ts",
+  );
   const script: string = `
 const fs=require("node:fs"),path=require("node:path"),assert=require("node:assert/strict");
 const recovery=require("@automovie/recovery"),host=require("@automovie/recovery/node"),engine=require("@automovie/engine");
@@ -92,7 +145,17 @@ const recovery=require("@automovie/recovery"),host=require("@automovie/recovery/
 `;
   const file: string = path.join(input.consumer, "camera-consumer.cjs");
   fs.writeFileSync(file, script, { flag: "wx" });
-  const output: string = input.run(process.execPath, ["--permission", `--allow-fs-read=${input.consumer}`,
-    `--allow-fs-write=${directory}`, file], input.consumer);
-  return JSON.parse(output.trim()) as ReturnType<typeof verifyAutoMovieRecoveryCameraConsumer>;
+  const output: string = input.run(
+    process.execPath,
+    [
+      "--permission",
+      `--allow-fs-read=${input.consumer}`,
+      `--allow-fs-write=${directory}`,
+      file,
+    ],
+    input.consumer,
+  );
+  return JSON.parse(output.trim()) as ReturnType<
+    typeof verifyAutoMovieRecoveryCameraConsumer
+  >;
 }

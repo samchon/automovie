@@ -50,46 +50,103 @@ export function fitRecoveryEpipolarConsensus(
   if (firstPoints.length !== secondPoints.length || firstPoints.length < 8)
     throw new Error("camera-design: at least eight tentative pairs required");
   let matrix: number[] | null = null;
-  let score: ReturnType<typeof scoreRecoveryCameraResiduals> = { indices: [], medianPx: null, p90Px: null };
-  let trials: number = 0, numericalRefusals: number = 0, localRefinements: number = 0;
-  let localRefinementRefusals: number = 0, finalReestimations: number = 0;
+  let score: ReturnType<typeof scoreRecoveryCameraResiduals> = {
+    indices: [],
+    medianPx: null,
+    p90Px: null,
+  };
+  let trials: number = 0,
+    numericalRefusals: number = 0,
+    localRefinements: number = 0;
+  let localRefinementRefusals: number = 0,
+    finalReestimations: number = 0;
   let required: number = Infinity;
-  let finalRefinement: ReturnType<typeof refineRecoveryEpipolarModel> | null = null;
+  let finalRefinement: ReturnType<typeof refineRecoveryEpipolarModel> | null =
+    null;
   while (trials < budget.maxRansacTrials) {
-    while (trials < budget.maxRansacTrials && (trials < budget.minimumRansacTrials || trials < required)) {
+    while (
+      trials < budget.maxRansacTrials &&
+      (trials < budget.minimumRansacTrials || trials < required)
+    ) {
       checkpoint(trials, budget.maxRansacTrials);
       // ASCII FUND gives this model a reproducible domain distinct from HOMO.
-      const sample: number[] = sampleRecoveryCameraIndices(firstPoints.length, 8, policy.samplingSeed, 0x46554e44, trials);
+      const sample: number[] = sampleRecoveryCameraIndices(
+        firstPoints.length,
+        8,
+        policy.samplingSeed,
+        0x46554e44,
+        trials,
+      );
       trials++;
       let candidate: number[];
       let candidateScore: typeof score;
       try {
-        const original: ReturnType<typeof fitRecoveryEpipolarMatrix> = fitRecoveryEpipolarMatrix(
-          sample.map((at: number): readonly [number, number] => firstPoints[at]!),
-          sample.map((at: number): readonly [number, number] => secondPoints[at]!),
-          policy.minimumDesignSingularRatio, budget.maxSingularSweeps);
-        candidate = calibrateRecoveryEpipolarMatrix(original.matrix, first, second, budget.maxSingularSweeps).fundamental;
-        const errors: ReturnType<typeof measureRecoveryEpipolarErrors> = measureRecoveryEpipolarErrors(candidate, firstPoints, secondPoints);
-        candidateScore = scoreRecoveryCameraResiduals(errors.map((error: typeof errors[number]): number | null =>
-          error?.signedSampsonPx ?? null), policy.maximumSampsonErrorPx);
+        const original: ReturnType<typeof fitRecoveryEpipolarMatrix> =
+          fitRecoveryEpipolarMatrix(
+            sample.map(
+              (at: number): readonly [number, number] => firstPoints[at]!,
+            ),
+            sample.map(
+              (at: number): readonly [number, number] => secondPoints[at]!,
+            ),
+            policy.minimumDesignSingularRatio,
+            budget.maxSingularSweeps,
+          );
+        candidate = calibrateRecoveryEpipolarMatrix(
+          original.matrix,
+          first,
+          second,
+          budget.maxSingularSweeps,
+        ).fundamental;
+        const errors: ReturnType<typeof measureRecoveryEpipolarErrors> =
+          measureRecoveryEpipolarErrors(candidate, firstPoints, secondPoints);
+        candidateScore = scoreRecoveryCameraResiduals(
+          errors.map(
+            (error: (typeof errors)[number]): number | null =>
+              error?.signedSampsonPx ?? null,
+          ),
+          policy.maximumSampsonErrorPx,
+        );
       } catch (error: unknown) {
         if (!isRecoveryCameraNumericalRefusal(error)) throw error;
-        numericalRefusals++; continue;
+        numericalRefusals++;
+        continue;
       }
-      if (candidateScore.indices.length >= 8 && localRefinements < budget.maxLocalRefinements) {
+      if (
+        candidateScore.indices.length >= 8 &&
+        localRefinements < budget.maxLocalRefinements
+      ) {
         localRefinements++;
         try {
-          const refined: ReturnType<typeof refineRecoveryEpipolarModel> = refineRecoveryEpipolarModel(
-            candidate, candidateScore, firstPoints, secondPoints, first, second, policy, budget);
+          const refined: ReturnType<typeof refineRecoveryEpipolarModel> =
+            refineRecoveryEpipolarModel(
+              candidate,
+              candidateScore,
+              firstPoints,
+              secondPoints,
+              first,
+              second,
+              policy,
+              budget,
+            );
           // Subset stability belongs to final qualification, not hypothesis
           // discovery. A spent continuous optimizer still cannot compete.
-          const provisional: boolean = refined.converged ||
-            (refined.refusal === "inlier-refit-budget" && refined.fits.length > 0 &&
-              refined.fits.every((fit: typeof refined.fits[number]): boolean => fit.converged));
-          if (provisional && (refined.score.indices.length > candidateScore.indices.length ||
-            (refined.score.indices.length === candidateScore.indices.length &&
-              (refined.score.medianPx ?? Infinity) < (candidateScore.medianPx ?? Infinity)))) {
-            candidate = refined.matrix; candidateScore = refined.score;
+          const provisional: boolean =
+            refined.converged ||
+            (refined.refusal === "inlier-refit-budget" &&
+              refined.fits.length > 0 &&
+              refined.fits.every(
+                (fit: (typeof refined.fits)[number]): boolean => fit.converged,
+              ));
+          if (
+            provisional &&
+            (refined.score.indices.length > candidateScore.indices.length ||
+              (refined.score.indices.length === candidateScore.indices.length &&
+                (refined.score.medianPx ?? Infinity) <
+                  (candidateScore.medianPx ?? Infinity)))
+          ) {
+            candidate = refined.matrix;
+            candidateScore = refined.score;
           }
           if (!refined.converged) localRefinementRefusals++;
         } catch (error: unknown) {
@@ -97,27 +154,67 @@ export function fitRecoveryEpipolarConsensus(
           localRefinementRefusals++;
         }
       }
-      if (candidateScore.indices.length < score.indices.length ||
+      if (
+        candidateScore.indices.length < score.indices.length ||
         (candidateScore.indices.length === score.indices.length &&
-          (candidateScore.medianPx ?? Infinity) >= (score.medianPx ?? Infinity))) continue;
-      matrix = candidate; score = candidateScore;
-      required = requiredRecoveryCameraTrials(firstPoints.length, score.indices.length, 8, policy.samplingConfidence);
+          (candidateScore.medianPx ?? Infinity) >= (score.medianPx ?? Infinity))
+      )
+        continue;
+      matrix = candidate;
+      score = candidateScore;
+      required = requiredRecoveryCameraTrials(
+        firstPoints.length,
+        score.indices.length,
+        8,
+        policy.samplingConfidence,
+      );
     }
     if (matrix === null || score.indices.length < 8) break;
     checkpoint(trials, budget.maxRansacTrials);
     finalReestimations++;
     try {
-      finalRefinement = refineRecoveryEpipolarModel(matrix, score, firstPoints, secondPoints, first, second, policy, budget);
+      finalRefinement = refineRecoveryEpipolarModel(
+        matrix,
+        score,
+        firstPoints,
+        secondPoints,
+        first,
+        second,
+        policy,
+        budget,
+      );
     } catch (error: unknown) {
       if (!isRecoveryCameraNumericalRefusal(error)) throw error;
-      localRefinementRefusals++; finalRefinement = null; break;
+      localRefinementRefusals++;
+      finalRefinement = null;
+      break;
     }
-    matrix = finalRefinement.matrix; score = finalRefinement.score;
-    required = requiredRecoveryCameraTrials(firstPoints.length, score.indices.length, 8, policy.samplingConfidence);
-    if (!finalRefinement.converged || trials >= Math.max(budget.minimumRansacTrials, required)) break;
+    matrix = finalRefinement.matrix;
+    score = finalRefinement.score;
+    required = requiredRecoveryCameraTrials(
+      firstPoints.length,
+      score.indices.length,
+      8,
+      policy.samplingConfidence,
+    );
+    if (
+      !finalRefinement.converged ||
+      trials >= Math.max(budget.minimumRansacTrials, required)
+    )
+      break;
   }
   checkpoint(trials, budget.maxRansacTrials);
-  return { matrix, score, trials, requiredTrialsAtFinalSupport: Number.isFinite(required) ? required : null,
-    conditionalTrialTargetMet: trials >= required && trials >= budget.minimumRansacTrials,
-    numericalRefusals, localRefinements, localRefinementRefusals, finalReestimations, finalRefinement };
+  return {
+    matrix,
+    score,
+    trials,
+    requiredTrialsAtFinalSupport: Number.isFinite(required) ? required : null,
+    conditionalTrialTargetMet:
+      trials >= required && trials >= budget.minimumRansacTrials,
+    numericalRefusals,
+    localRefinements,
+    localRefinementRefusals,
+    finalReestimations,
+    finalRefinement,
+  };
 }

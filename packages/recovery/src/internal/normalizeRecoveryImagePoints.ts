@@ -16,22 +16,53 @@
 export function normalizeRecoveryImagePoints(
   points: readonly (readonly [number, number])[],
 ): { points: [number, number][]; transform: number[] } {
-  if (points.length === 0) throw new Error("camera-design: empty point population");
-  let cx: number = 0, cy: number = 0;
-  for (const point of points) { cx += point[0]; cy += point[1]; }
-  cx /= points.length; cy /= points.length;
+  if (points.length === 0)
+    throw new Error("camera-design: empty point population");
+  let cx: number = 0,
+    cy: number = 0;
+  for (const point of points) {
+    cx += point[0];
+    cy += point[1];
+  }
+  cx /= points.length;
+  cy /= points.length;
   let distance: number = 0;
-  for (const point of points) distance += Math.hypot(point[0] - cx, point[1] - cy);
+  for (const point of points)
+    distance += Math.hypot(point[0] - cx, point[1] - cy);
   distance /= points.length;
   const scale: number = Math.SQRT2 / distance;
-  if (!(distance > 0) || !Number.isFinite(distance) || !(scale > 0) || !Number.isFinite(scale))
-    throw new Error("camera-design: coincident or unrepresentable normalization");
+  if (
+    !(distance > 0) ||
+    !Number.isFinite(distance) ||
+    !(scale > 0) ||
+    !Number.isFinite(scale)
+  )
+    throw new Error(
+      "camera-design: coincident or unrepresentable normalization",
+    );
   const normalized: [number, number][] = points.map(
-    (point: readonly [number, number]): [number, number] => [(point[0] - cx) * scale, (point[1] - cy) * scale],
+    (point: readonly [number, number]): [number, number] => [
+      (point[0] - cx) * scale,
+      (point[1] - cy) * scale,
+    ],
   );
-  const transform: number[] = [scale, 0, -scale * cx, 0, scale, -scale * cy, 0, 0, 1];
-  if (!transform.every(Number.isFinite) || normalized.some(
-    (point: [number, number]): boolean => !point.every(Number.isFinite),
-  )) throw new Error("camera-design: normalized chart is not finite");
+  const transform: number[] = [
+    scale,
+    0,
+    -scale * cx,
+    0,
+    scale,
+    -scale * cy,
+    0,
+    0,
+    1,
+  ];
+  if (
+    !transform.every(Number.isFinite) ||
+    normalized.some(
+      (point: [number, number]): boolean => !point.every(Number.isFinite),
+    )
+  )
+    throw new Error("camera-design: normalized chart is not finite");
   return { points: normalized, transform };
 }

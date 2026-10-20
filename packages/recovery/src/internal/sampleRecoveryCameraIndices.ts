@@ -6,7 +6,7 @@ import { seededValue } from "@automovie/engine/math/seededValue";
  * sample independently of previous invocations. Sampling models the entire
  * tentative-match population, with no location, object or expected-pose prior.
  *
- * @evidence contracts/common.md#principled-implementation A partial Fisher-Yates shuffle chooses each remaining index once using the engine's deterministic half-open pseudorandom sample. Finite32-bit output has discrete sampling bias and provides reproducibility rather than a cryptographic or exact continuous-random guarantee.
+ * @evidence contracts/common.md#principled-implementation A partial Fisher-Yates shuffle chooses each remaining index once using the engine's deterministic half-open pseudorandom sample. Finite 32-bit output has discrete sampling bias and provides reproducibility rather than a cryptographic or exact continuous-random guarantee.
  * @evidence contracts/common.md#clear-and-simple-design Model-domain and trial arguments keep homography and epipolar proposal streams distinct without a mutable global generator.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No ambient entropy, preferred feature, retry-until-unique loop or measured pose changes the sample; malformed populations refuse before allocation.
  * @evidence contracts/common.md#meaningful-documentation Gives subset uniqueness, deterministic identity, full-population premise and finite-generator limitation.
@@ -21,12 +21,26 @@ export function sampleRecoveryCameraIndices(
   domain: number,
   trial: number,
 ): number[] {
-  if (![population, sampleSize, seed, domain, trial].every(Number.isSafeInteger) ||
-    population < sampleSize || sampleSize < 1 || seed < 0 || seed > 0xffffffff || trial < 0)
-    throw new Error("camera-sampling: admitted finite sample identity required");
-  const indices: number[] = Array.from({ length: population }, (_: unknown, at: number): number => at);
+  if (
+    ![population, sampleSize, seed, domain, trial].every(
+      Number.isSafeInteger,
+    ) ||
+    population < sampleSize ||
+    sampleSize < 1 ||
+    seed < 0 ||
+    seed > 0xffffffff ||
+    trial < 0
+  )
+    throw new Error(
+      "camera-sampling: admitted finite sample identity required",
+    );
+  const indices: number[] = Array.from(
+    { length: population },
+    (_: unknown, at: number): number => at,
+  );
   for (let at: number = 0; at < sampleSize; at++) {
-    const selected: number = at + Math.floor(seededValue(seed, domain, trial, at) * (population - at));
+    const selected: number =
+      at + Math.floor(seededValue(seed, domain, trial, at) * (population - at));
     const previous: number = indices[at]!;
     indices[at] = indices[selected]!;
     indices[selected] = previous;
