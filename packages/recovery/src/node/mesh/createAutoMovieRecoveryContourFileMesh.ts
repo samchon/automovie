@@ -10,6 +10,7 @@ import path from "node:path";
 import type { IAutoMovieRecoveryArraySource } from "../../structures/node/IAutoMovieRecoveryArraySource";
 import type { IAutoMovieRecoveryContourFileMesh } from "../../structures/node/IAutoMovieRecoveryContourFileMesh";
 import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
+import { createRecoveryFileVectorTable } from "../internal/createRecoveryFileVectorTable";
 
 /**
  * Consume the actual contour kernel without retaining complete output channels.
@@ -24,9 +25,9 @@ import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecove
  * @evidence contracts/common.md#clear-and-simple-design One sink owns file-backed coordinates and normal accumulation, then returns exact fragment bindings for the ordinary artifact writer.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No source surface or normal, coordinate weld, omitted face, changed triangulation or placeholder validation substitutes for actual generation.
  * @evidence contracts/common.md#meaningful-documentation Separates bounded channel buffers from retained kernel metadata and canonical validation deferred status.
- * @evidence contracts/performance.md#efficient-algorithms Channel and normal passes cost O(V+T+K) scalar work and O(V+T+K) persisted bytes, in addition to unchanged kernel preparation and strip search. Random normal updates use fixed-width file I/O.
+ * @evidence contracts/performance.md#efficient-algorithms Channel and normal passes cost O(V+T+K) scalar work and O(V+T+K) persisted bytes, in addition to unchanged kernel preparation and strip search. Table misses transfer at most one valid page plus a dirty victim; nonlocal access can still cause repeated page I/O.
  * @evidence contracts/performance.md#reuse-equivalent-work Each original face contributes one cross product to all three original corner accumulators; immutable fragments serve model and sidecar publication.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Scalar channel buffers retain at most 8192 numbers each. Every structured generating ring flushes immediately, so at most one indivisible ring's copied points/phases are pending; its size is bounded by the original retained ring, independently of emitted-mesh limits. Two 24-byte scratch buffers and per-face vectors bound table I/O storage. Fragment descriptors and kernel reports grow with actual admitted output. Every acquired descriptor closes independently without replacing a primary failure.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Scalar channel buffers retain at most 8192 numbers each. Every structured generating ring flushes immediately, so at most one indivisible ring's copied points/phases are pending; its size is bounded by the original retained ring, independently of emitted-mesh limits. Each table owns at most three 65520-byte pages, totaling 393120 bytes across both tables, plus bounded headers and per-face triples. Dirty victims flush before reuse and both tables finish before success. Fragment descriptors and kernel reports grow with actual admitted output. Every acquired descriptor closes independently without replacing a primary failure.
  */
 export function createAutoMovieRecoveryContourFileMesh(
   input: L,
@@ -51,8 +52,6 @@ export function createAutoMovieRecoveryContourFileMesh(
   const positionPath: string = path.join(directory, "positions-mm.bin");
   const areaPath: string = path.join(directory, "accumulated-area.bin");
   const descriptors: number[] = [];
-  const scratch: Buffer = Buffer.alloc(24);
-  const zero: Buffer = Buffer.alloc(24);
   const placeholders: unknown[][] = [[], [], [], []];
   const pending: unknown[][] = [[], [], [], []];
   const sources: IAutoMovieRecoveryArraySource[][] = [[], [], [], []];
@@ -80,50 +79,6 @@ export function createAutoMovieRecoveryContourFileMesh(
     counts[channel]!++;
     if (channel === 3 || pending[channel]!.length === 8192) flush(channel);
   };
-  const transfer: (
-    descriptor: number,
-    offset: number,
-    writing: boolean,
-  ) => void = (descriptor: number, offset: number, writing: boolean): void => {
-    let done: number = 0;
-    while (done < 24) {
-      const count: number = writing
-        ? fs.writeSync(descriptor, scratch, done, 24 - done, offset + done)
-        : fs.readSync(descriptor, scratch, done, 24 - done, offset + done);
-      if (count <= 0) throw new Error("Contour table I/O made no progress");
-      done += count;
-    }
-  };
-  const load: (
-    descriptor: number,
-    index: number,
-  ) => [number, number, number] = (
-    descriptor: number,
-    index: number,
-  ): [number, number, number] => {
-    transfer(descriptor, index * 24, false);
-    return [
-      scratch.readDoubleLE(0),
-      scratch.readDoubleLE(8),
-      scratch.readDoubleLE(16),
-    ];
-  };
-  const store: (
-    descriptor: number,
-    index: number,
-    vector: readonly number[],
-  ) => void = (
-    descriptor: number,
-    index: number,
-    vector: readonly number[],
-  ): void => {
-    for (let axis: number = 0; axis < 3; axis++) {
-      if (!Number.isFinite(vector[axis]))
-        throw new Error("Generated contour table value is not finite");
-      scratch.writeDoubleLE(vector[axis]!, axis * 8);
-    }
-    transfer(descriptor, index * 24, true);
-  };
   let vertices: number = 0,
     triangles: number = 0;
   let emission: IAutoMovieContourLoftEmission64;
@@ -134,15 +89,38 @@ export function createAutoMovieRecoveryContourFileMesh(
     descriptors.push(positions);
     const area: number = fs.openSync(areaPath, "wx+");
     descriptors.push(area);
+    const table: (
+      descriptor: number,
+    ) => ReturnType<typeof createRecoveryFileVectorTable> = (
+      descriptor: number,
+    ): ReturnType<typeof createRecoveryFileVectorTable> =>
+      createRecoveryFileVectorTable({
+        maxRows: limits.maxVertices,
+        read: (
+          target: Buffer,
+          offset: number,
+          length: number,
+          position: number,
+        ): number => fs.readSync(descriptor, target, offset, length, position),
+        write: (
+          source: Buffer,
+          offset: number,
+          length: number,
+          position: number,
+        ): number => fs.writeSync(descriptor, source, offset, length, position),
+      });
+    const positionTable: ReturnType<typeof createRecoveryFileVectorTable> =
+      table(positions);
+    const areaTable: ReturnType<typeof createRecoveryFileVectorTable> =
+      table(area);
     emission = generateAutoMovieContourLoft64(input, {
       vertex: (index: number, point: C.Vector): void => {
         if (index !== vertices || vertices >= limits.maxVertices)
           throw new Error(
             "Contour vertex population exceeded its admitted output ceiling",
           );
-        store(positions, index, point);
-        scratch.set(zero);
-        transfer(area, index * 24, true);
+        positionTable.append(point);
+        areaTable.append([0, 0, 0]);
         for (const value of point) {
           const metre: number = value * 0.001;
           if (!Number.isFinite(metre) || !Number.isFinite(Math.fround(metre)))
@@ -164,9 +142,9 @@ export function createAutoMovieRecoveryContourFileMesh(
           throw new Error(
             "Contour face exceeds its admitted population or index range",
           );
-        const x: [number, number, number] = load(positions, a);
-        const y: [number, number, number] = load(positions, b);
-        const z: [number, number, number] = load(positions, c);
+        const x: [number, number, number] = positionTable.read(a);
+        const y: [number, number, number] = positionTable.read(b);
+        const z: [number, number, number] = positionTable.read(c);
         const u: [number, number, number] = [
           y[0] - x[0],
           y[1] - x[1],
@@ -183,8 +161,8 @@ export function createAutoMovieRecoveryContourFileMesh(
           u[0] * v[1] - u[1] * v[0],
         ];
         for (const index of [a, b, c]) {
-          const previous: [number, number, number] = load(area, index);
-          store(area, index, [
+          const previous: [number, number, number] = areaTable.read(index);
+          areaTable.update(index, [
             previous[0] + cross[0],
             previous[1] + cross[1],
             previous[2] + cross[2],
@@ -213,8 +191,9 @@ export function createAutoMovieRecoveryContourFileMesh(
       throw new Error(
         "Contour channel counts differ from actual kernel emission",
       );
+    positionTable.finish();
     for (let index: number = 0; index < vertices; index++) {
-      const normal: [number, number, number] = load(area, index);
+      const normal: [number, number, number] = areaTable.read(index);
       const length: number = Math.hypot(...normal);
       for (const value of normal) {
         const normalized: number = length > 0 ? value * (1 / length) : 0;
@@ -226,6 +205,7 @@ export function createAutoMovieRecoveryContourFileMesh(
         append(2, normalized);
       }
     }
+    areaTable.finish();
     for (let channel: number = 0; channel < pending.length; channel++)
       flush(channel);
     if (
