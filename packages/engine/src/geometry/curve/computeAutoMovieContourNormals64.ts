@@ -1,4 +1,5 @@
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
+import type { IAutoMovieCurve64 as C } from "./IAutoMovieCurve64";
 
 type V3 = M.V;
 const add: typeof M.add = M.add,
@@ -24,7 +25,7 @@ const cross: (a: V3, b: V3) => V3 = (a: V3, b: V3): V3 => [
  * @evidence contracts/performance.md#bound-retention-and-release-resources Inputs remain caller-owned; local area vectors expire on return and the flat normals array transfers to the generated mesh.
  */
 export function computeAutoMovieContourNormals64(
-  vertices: readonly V3[],
+  vertices: readonly C.Vector[],
   triangles: readonly (readonly [number, number, number])[],
 ): number[] {
   const geometricNormals: V3[] = vertices.map((): V3 => [0, 0, 0]);

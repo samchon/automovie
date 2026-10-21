@@ -11,6 +11,9 @@ import type { IAutoMovieRecoveryByteDigest } from "../../structures/node/IAutoMo
  * encoding. Nonplain objects are outside this publication contract. Input geometry
  * remains caller-owned; bounded staging does not bound the generating model's memory.
  * Process termination can leave a private temporary file but cannot publish its partial bytes.
+ * A failed encode/read/write/publication preserves its original thrown value even
+ * if descriptor or temporary-file cleanup also fails. Cleanup failure after an
+ * otherwise successful publication remains a failure, rather than a success digest.
  * Optional array sources bind engine-generated plain-array spool files to placeholder array
  * identities. Their complete SHA-256 and bracket bytes are checked while copying only their
  * interiors. Item populations are producer metadata, not a second JSON parsing certificate.
@@ -21,7 +24,7 @@ import type { IAutoMovieRecoveryByteDigest } from "../../structures/node/IAutoMo
  * @evidence contracts/common.md#meaningful-documentation States supported plain JSON values, encoding authority, immutable publication and the limited staging-memory guarantee.
  * @evidence contracts/performance.md#efficient-algorithms Traversal and UTF-8 writing cost O(N) for the artifact size. Shallow arrays use fixed-size JSON chunks rather than one full serialized array or one filesystem write per number.
  * @evidence contracts/performance.md#reuse-equivalent-work The same emitted chunks supply both the file and its incremental hash; the output needs no reread. Generating array sources are hash-verified during their required copy into each standalone publication.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Staging depends on fixed-size shallow-array chunks and the largest primitive string rather than the complete serialized artifact; nested bulk chunks accept at most sixteen primitives per child. The ancestor set is O(depth), and the caller still owns the complete input object. Finally closes descriptors and removes private temporary files on normal return and thrown exceptions; process termination can leave an unpublished temporary file.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Staging depends on fixed-size shallow-array chunks and the largest primitive string rather than the complete serialized artifact; nested bulk chunks accept at most sixteen primitives per child. The ancestor set is O(depth), and the caller still owns the complete input object. Independent guarded cleanup preserves a primary failure; normal cleanup errors propagate. Process termination can leave an unpublished temporary file.
  */
 export function writeAutoMovieRecoveryArtifact(
   output: string,
@@ -186,9 +189,15 @@ export function writeAutoMovieRecoveryArtifact(
             )
               throw new Error("Generating spool byte binding failed");
             written ||= source.items > 0;
-          } finally {
-            fs.closeSync(handle);
+          } catch (primary: unknown) {
+            try {
+              fs.closeSync(handle);
+            } catch {
+              // Closing a failed source must not replace its read/hash failure.
+            }
+            throw primary;
           }
+          fs.closeSync(handle);
         }
         emit("]");
         ancestors.delete(current);
@@ -266,15 +275,28 @@ export function writeAutoMovieRecoveryArtifact(
     }
     ancestors.delete(current);
   };
+  let result: IAutoMovieRecoveryByteDigest;
   try {
     encode(artifact);
     flush();
     fs.closeSync(descriptor);
     closed = true;
     fs.linkSync(temporary, output);
-    return { sha256: hash.digest("hex"), bytes };
-  } finally {
-    if (!closed) fs.closeSync(descriptor);
-    if (fs.existsSync(temporary)) fs.unlinkSync(temporary);
+    result = { sha256: hash.digest("hex"), bytes };
+  } catch (primary: unknown) {
+    if (!closed)
+      try {
+        fs.closeSync(descriptor);
+      } catch {
+        // Preserve the original value, including non-Error thrown values.
+      }
+    try {
+      if (fs.existsSync(temporary)) fs.unlinkSync(temporary);
+    } catch {
+      // A failed private staging cleanup is secondary to the primary failure.
+    }
+    throw primary;
   }
+  if (fs.existsSync(temporary)) fs.unlinkSync(temporary);
+  return result;
 }
