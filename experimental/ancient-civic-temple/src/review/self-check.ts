@@ -260,7 +260,7 @@ const unit = npmCli
       },
     );
 const unitFailure = unit.status === 0 ? 0 : 1;
-// Full scene compilation is an integration observation, not a <500ms unit.
+// Full scene compilation is an integration observation owned by this self-check.
 const viewerCheck = execFileSync(
   process.execPath,
   ["--import", "tsx", join(__dirname, "check-viewer-scene.ts")],

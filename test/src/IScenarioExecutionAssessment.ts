@@ -16,7 +16,7 @@ export interface IScenarioExecutionAssessment {
   /** Printable elapsed duration, or the literal invalid-timing label. */
   timingLabel: string;
 
-  /** Independent invalid-clock or at-least-500-ms failure, or null when timing meets the strict budget. */
+  /** Independent invalid or reversed clock failure, or null for any valid nonnegative duration. */
   timingFailure: string | null;
 
   /** True only when the original assertion error and the timing failure are both null. */
