@@ -3,7 +3,7 @@ import { TestValidator } from "@nestia/e2e";
 import { assessScenarioExecution } from "../../scenarioExecution";
 
 /**
- * A malformed or reversed executor clock record cannot masquerade as a fast
+ * A malformed or reversed executor clock record cannot masquerade as a valid
  * passing scenario, including when an assertion already failed.
  *
  * Scenarios:
@@ -14,7 +14,7 @@ import { assessScenarioExecution } from "../../scenarioExecution";
  *
  * @evidence contracts/testing.md#behavioral-verification Calls scenario assessment for invalid or reversed clock records, observing refused acceptance, null duration, explicit invalid-timing text and unchanged error identity; fabricated zero time, clamped reversal or swallowed assertion failure fails.
  * @evidence contracts/testing.md#independent-expectations Unparseable/empty/out-of-range timestamp literals and a completion exactly one millisecond before its start independently establish invalidity, while an authored Error provides the identity oracle; no real executor clock or captured assessment output is used.
- * @evidence contracts/testing.md#distinguishing-cases Crosses invalid start/end/both, empty endpoints, out-of-range endpoints and reversal with success/error twins; valid duration, offset equivalence and the strict budget boundary belong to the budget unit.
+ * @evidence contracts/testing.md#distinguishing-cases Crosses invalid start/end/both, empty endpoints, out-of-range endpoints and reversal with success/error twins; valid duration, offset equivalence and duration-independent acceptance belong to the budget-policy unit.
  * @evidence contracts/testing.md#execution-ownership The synchronous test_workspace_scenario_execution_timing entry owns direct portable runner-policy calls over resident timestamp records, with no executor discovery, host process or clock manipulation.
  */
 export function test_workspace_scenario_execution_timing(): void {

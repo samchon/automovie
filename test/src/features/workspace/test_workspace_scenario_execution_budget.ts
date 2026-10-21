@@ -3,23 +3,23 @@ import { TestValidator } from "@nestia/e2e";
 import { assessScenarioExecution } from "../../scenarioExecution";
 
 /**
- * Scenario acceptance requires both a successful assertion and a duration below
- * the repository's strict unit budget, without replacing the original error.
+ * Scenario durations are reported without an acceptance limit, while assertion
+ * errors remain failures with their original identity.
  *
  * Scenarios:
- * 1. Durations of 0 and 499 ms pass only without an assertion error.
- * 2. Durations of 500 and 501 ms fail even when the assertion succeeds.
- * 3. An assertion error and a budget failure remain independently observable.
+ * 1. Zero and the former 499/500/501-ms boundaries preserve assertion outcomes.
+ * 2. One minute, one day and the full valid timestamp range have no duration cap.
+ * 3. An assertion error remains observable at every valid duration.
  * 4. Different timestamp offsets denoting the same instant yield zero duration.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls scenario assessment and observes parsed milliseconds, printed labels, strict budget acceptance, independent timing/assertion failure and retained input identity; accepting 500 milliseconds or discarding an assertion cause fails.
- * @evidence contracts/testing.md#independent-expectations Literal UTC start time plus authored 0/499/500/501-millisecond offsets independently fixes each duration, and the strict under-500-ms contract fixes acceptance; the equivalent-offset pair names one instant without using the assessment to calculate its oracle.
- * @evidence contracts/testing.md#distinguishing-cases Crosses four exact budget boundaries with success/assertion-failure twins, input nonmutation and equivalent timezone offsets; malformed/reversed clocks belong to the timing unit and scheduler accuracy is not measured here.
+ * @evidence contracts/testing.md#behavioral-verification Calls scenario assessment and observes parsed milliseconds, printed labels, duration-independent acceptance and retained input/error identity; any elapsed-time cutoff or swallowed assertion cause fails.
+ * @evidence contracts/testing.md#independent-expectations Literal UTC instants and authored 0/499/500/501-ms, minute/day and full Date-range differences fix durations independently; every valid pair must preserve the assertion outcome without using assessment output as its oracle.
+ * @evidence contracts/testing.md#distinguishing-cases Crosses former boundaries and long valid durations with success/assertion-failure twins, input nonmutation, the full Date range and equivalent timezone offsets; malformed/reversed clocks belong to the timing unit and scheduler accuracy is not measured here.
  * @evidence contracts/testing.md#execution-ownership The synchronous test_workspace_scenario_execution_budget entry owns direct runner-policy assessment of resident records; it starts no scenario executor, process or wall-clock wait and does not claim measured runtime performance.
  */
 export function test_workspace_scenario_execution_budget(): void {
   const failure: Error = new Error("the assertion failed");
-  for (const elapsedMs of [0, 499, 500, 501])
+  for (const elapsedMs of [0, 499, 500, 501, 60_000, 86_400_000])
     for (const error of [null, failure]) {
       const execution: Parameters<typeof assessScenarioExecution>[0] = {
         name: `test_budget_${elapsedMs}`,
@@ -42,14 +42,12 @@ export function test_workspace_scenario_execution_budget(): void {
       TestValidator.equals(
         `${title}: acceptance`,
         result.passed,
-        error === null && elapsedMs < 500,
+        error === null,
       );
       TestValidator.equals(
         `${title}: timing failure`,
         result.timingFailure,
-        elapsedMs < 500
-          ? null
-          : `Scenario took ${elapsedMs} ms; every scenario must finish in under 500 ms.`,
+        null,
       );
       TestValidator.predicate(
         `${title}: original result and assertion error are retained`,
@@ -57,6 +55,30 @@ export function test_workspace_scenario_execution_budget(): void {
       );
       TestValidator.equals(`${title}: input is unchanged`, execution, snapshot);
     }
+  for (const error of [null, failure]) {
+    const execution: Parameters<typeof assessScenarioExecution>[0] = {
+      name: "test_full_timestamp_range",
+      error,
+      started_at: "-271821-04-20T00:00:00.000Z",
+      completed_at: "+275760-09-13T00:00:00.000Z",
+    };
+    const result: ReturnType<typeof assessScenarioExecution> =
+      assessScenarioExecution(execution);
+    TestValidator.equals(
+      "full valid Date range is reported without a duration cap",
+      [
+        result.elapsedMs,
+        result.timingLabel,
+        result.timingFailure,
+        result.passed,
+      ],
+      [17_280_000_000_000_000, "17280000000000000 ms", null, error === null],
+    );
+    TestValidator.predicate(
+      "full timestamp range retains the original assertion cause",
+      result.execution === execution && result.execution.error === error,
+    );
+  }
   const offset: ReturnType<typeof assessScenarioExecution> =
     assessScenarioExecution({
       name: "test_equal_instants",
