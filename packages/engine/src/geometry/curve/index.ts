@@ -34,3 +34,6 @@ export * from "./AutoMovieCanonicalBoundary64";
 export * from "./evaluateAutoMovieHermiteGregory64";
 export * from "./tessellateAutoMovieContourPath64";
 export * from "./evaluateAutoMovieImplicitProjection64";
+export { generateAutoMovieContourLoft64 } from "./generateAutoMovieContourLoft64";
+export type { IAutoMovieContourLoftEmission64 } from "./IAutoMovieContourLoftEmission64";
+export type { IAutoMovieContourLoftSink64 } from "./IAutoMovieContourLoftSink64";

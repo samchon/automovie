@@ -20,3 +20,4 @@ export type { IAutoMovieRecoveryMeshFrontierInput } from "./IAutoMovieRecoveryMe
 export type { IAutoMovieRecoveryMeshSpool } from "./IAutoMovieRecoveryMeshSpool";
 export type { IAutoMovieRecoveryMetadata } from "./IAutoMovieRecoveryMetadata";
 export type { IAutoMovieRecoveryModelCounts } from "./IAutoMovieRecoveryModelCounts";
+export type { IAutoMovieRecoveryContourFileMesh } from "./IAutoMovieRecoveryContourFileMesh";
