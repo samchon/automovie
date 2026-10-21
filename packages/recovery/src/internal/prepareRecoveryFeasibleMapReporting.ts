@@ -13,7 +13,7 @@ import { prepareRecoveryFeasibleReportCapacity } from "./prepareRecoveryFeasible
 /**
  * Admit original map work, then prepay its complete fixed diagnostic transfer.
  *
- * @evidence contracts/common.md#principled-implementation Original shape/configuration/gauge admission precedes valid report-capacity refusal, and the unchanged numerical retained bound must fit the shared remaining capacity.
+ * @evidence contracts/common.md#principled-implementation Original shape/configuration/gauge admission precedes valid report-capacity refusal. Numerical arrays and their separate64-slot map-chart scratch must fit the shared remaining capacity before fitting.
  * @evidence contracts/common.md#clear-and-simple-design Direct maps acquire their own scope; checkpoint/scene calls borrow one existing scope. The camera receives numerical work and capacity together.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No negative derived cap is fed into original positive-option validation, raw QP budget is raised, or completed report is lost to a new post-fit charge.
  * @evidence contracts/common.md#meaningful-documentation Setup256 applies only to a direct owner; each original-admitted fit prepays64 context-validation visits, then1984 projection/possible trace visits after report capacity qualifies. Their2048 total precedes fitting; rejected prefixes are not refunded. Existing original admission charges and exceptions remain intact.

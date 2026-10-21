@@ -11,26 +11,27 @@ import type { IAutoMovieRecoveryMapEvaluation } from "../structures/internal/IAu
 import type { IAutoMovieRecoveryMapJointBlock } from "../structures/internal/IAutoMovieRecoveryMapJointBlock";
 import type { IAutoMovieRecoveryMapJointResult } from "../structures/internal/IAutoMovieRecoveryMapJointResult";
 import { createRecoveryMapTangent } from "./createRecoveryMapTangent";
+import { differentiateRecoveryMapTangent } from "./differentiateRecoveryMapTangent";
 import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
 import { refineRecoveryCameraMapFeasible } from "./refineRecoveryCameraMapFeasible";
 import { solveRecoveryMapJointStep } from "./solveRecoveryMapJointStep";
 import { stepRecoveryMapPose } from "./stepRecoveryMapPose";
-import { stepRecoveryRelativePose } from "./stepRecoveryRelativePose";
+import { stepRecoveryMapSeedPose } from "./stepRecoveryMapSeedPose";
 
 /**
  * Jointly refine calibrated cameras and registered landmarks in one gauge.
  * The first pose must be identity at the origin and stays fixed; the seed
- * translation remains on its unit sphere,
+ * translation retains its admitted near-unit current radius,
  * and all later translations have three unrestricted coordinates. Fixed landmark
  * observations retain the same robust objective throughout every trial.
  * Internal feasible options select the separately bounded hard-pixel method;
  * ordinary calls retain this unconstrained local optimizer.
  *
- * @evidence contracts/common.md#principled-implementation Analytic pinhole derivatives, complete-vector soft-L1 weights and original-design point-local QR solve C=6N-7 gauge-fixed camera coordinates. Independent point/reduced-camera ranks precede damping, and actual same-population descent accepts an SO3/sphere/Euclidean retraction.
+ * @evidence contracts/common.md#principled-implementation Analytic pinhole derivatives, complete-vector soft-L1 weights and original-design point-local QR solve C=6N-7 gauge-fixed camera coordinates. Seed r*normalize(t+Bz) shares actual P_t B with the design; independent point/reduced-camera ranks precede damping and actual same-population SO3/sphere/Euclidean descent.
  * @evidence contracts/common.md#clear-and-simple-design This nonlinear owner keeps fixed population, gauge, damping and local termination together; projection and block-linear algebra have separate numerical owners, and final map qualification belongs to the coordinator.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No first/second full-pose double anchoring, independent normalization of third translation, covariance claim, dropped measurement or damping-derived rank supplies a map. Nonpositive trial depths reject the step, and iteration exhaustion remains nonconverged.
- * @evidence contracts/common.md#meaningful-documentation States seven removed gauge freedoms, fixed known calibration, robust vector weighting, common population, 1e-8 local stops and separation of robust versus unweighted squared cost. Explicit internal lagged-curvature options reach only the feasible owner; its GN-first fit-local multiplier seed and adaptive agreement restart independently per call. Ordinary/default public behavior is unchanged.
- * @evidence contracts/performance.md#efficient-algorithms Ordinary E-observation, L-landmark, C=6N-7 camera refinement costs O(I*(E*C^2+S*C^3)). Feasible selection additionally charges whitening, complete gates and sparse passes. Optional working factors cost O(S*(q+H)*H^2+q*H^2); adaptive agreement separately charges a current-design action. Explicit lagged curvature additionally prepays fixed admission/model/handoff/copy work and O(E+LC^2+C^3+EC^2+LC+C^2+n) current-model geometry/factor/whitening under its separate unchanged-ceiling envelope. Neither adds nonlinear actual trials. No dense all-point Jacobian is formed.
+ * @evidence contracts/common.md#meaningful-documentation States seven removed gauge freedoms, fixed known calibration, robust vector weighting, common population, 1e-8 local stops and separation of robust versus unweighted squared cost. Explicit internal lagged-curvature options reach only the feasible owner; its GN-first fit-local multiplier seed and adaptive agreement restart independently per call. Public schemas and default method selection are unchanged; both map methods use the current-radius chart and its added resource costs.
+ * @evidence contracts/performance.md#efficient-algorithms Ordinary E-observation, L-landmark, C=6N-7 camera refinement costs O(I*(E*C^2+S*C^3)). Current-radius differentiation prepays512 extra visits per ordinary design evaluation or feasible model and256 per seed trial in both paths. Feasible selection adds whitening, gates and sparse passes. Optional factors cost O(S*(q+H)*H^2+q*H^2); adaptive agreement and lagged geometry/factor/whitening retain separate envelopes without additional nonlinear trials. No dense all-point Jacobian is formed.
  * @evidence contracts/performance.md#reuse-equivalent-work Each current projection supplies residual, robust weight and both point/camera derivatives. Fixed features, intrinsics and measurements are reused across iterations; only changed numerical poses/points are reevaluated.
  * @evidence contracts/performance.md#bound-retention-and-release-resources New pose/landmark arrays and plain reports transfer. Feasible selection admits four candidates and exact increments beside current/checkpoints and factors. Adaptive design and lagged F/S/A reservations are separately admitted; old/new owned duals reset per fit, partial/unused factors expire before direction work, and no borrowed reaction argument or numeric history escapes. Ordinary calls allocate none of the optional curvature or coherent feasible-report state. Feasible calls borrow one reporting scope or admit a direct512 envelope; encoded/raw/previous/trace reporting overlap stays separate from numerical factors.
  */
@@ -145,9 +146,13 @@ export function refineRecoveryCameraMap(
     cameras: readonly IAutoMovieRecoveryMapPose[],
     points: readonly IAutoMovieRecoveryMapLandmark[],
   ): IAutoMovieRecoveryMapEvaluation | null => {
-    const tangent: [number, number, number][] = createRecoveryMapTangent(
-      cameras[1]!.translation,
-    );
+    const tangent: [number, number, number][] | null =
+      differentiateRecoveryMapTangent(
+        cameras[1]!.translation,
+        createRecoveryMapTangent(cameras[1]!.translation),
+      );
+    if (tangent === null)
+      throw new Error("camera-map-chart: nonrepresentable seed differential");
     const blocks: IAutoMovieRecoveryMapJointBlock[] = [];
     let cost: number = 0,
       squared: number = 0;
@@ -207,7 +212,7 @@ export function refineRecoveryCameraMap(
       throw new Error("camera-map: nonrepresentable joint objective");
     return { cost, squared, blocks };
   };
-  charge(2 * observationCount * (cameraWidth + 4));
+  charge(2 * observationCount * (cameraWidth + 4) + 512);
   let current: ReturnType<typeof evaluate> = evaluate(poses, landmarks);
   if (current === null)
     throw new Error("camera-map: nonpositive initial landmark depth");
@@ -242,9 +247,10 @@ export function refineRecoveryCameraMap(
       termination = "gradient";
       break;
     }
+    charge(256);
     const trialPoses: IAutoMovieRecoveryMapPose[] = [
       poses[0]!,
-      stepRecoveryRelativePose(
+      stepRecoveryMapSeedPose(
         poses[1]!,
         createRecoveryMapTangent(poses[1]!.translation),
         solution.cameraStep.slice(0, 5),
@@ -274,6 +280,7 @@ export function refineRecoveryCameraMap(
         ) as [number, number, number],
       }),
     );
+    charge(512);
     const trial: ReturnType<typeof evaluate> = evaluate(
       trialPoses,
       trialPoints,

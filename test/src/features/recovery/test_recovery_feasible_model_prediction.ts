@@ -16,10 +16,10 @@ import { nclose } from "../internal/nclose";
  * 1. Two nonsymmetric point blocks with unequal vector soft-L1 weights distinguish camera/point order, one weight per residual vector, cross terms and omission of damping.
  * 2. Malformed physical widths, row shape and nonfinite source inputs throw; finite arithmetic overflow returns unsupported null and zero increment predicts zero.
  * 3. A small nonzero perturbation of the independent nonplanar camera fixture exercises actual accepted-step prediction and fit-local report delivery while keeping the original gauge/population and all point gates.
- * 4. The authored numerical base remains119304 beneath mandatory reporting512. The same report-inclusive total119816 admits fixed initial normal but refuses adaptive-only retention at its original160-visit prefix; the old numerical-only total refuses reporting at480 visits without a fit. A prediction-owner charge error propagates after real trials.
+ * 4. Original numerical119304 remains beneath separate chart64 and reporting512. Total119880 admits fixed initial normal but refuses adaptive-only retention at160 visits. The original total refuses chart capacity at160; the chart-inclusive numerical-only total refuses reporting at480. A prediction-owner charge error propagates after real trials.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls the source original-design action and actual feasible camera owner, observing computed prediction, immutable inputs, selected-update reactions, admission and original error identity. This reaches nonzero robust residuals rather than only an already normal map.
- * @evidence contracts/testing.md#independent-expectations Explicit authored unweighted rows give four J*u expressions and g=J^T*r/hypot(1,norm/2); their squared weighted sum determines prediction independently. A deliberately added damping penalty differs. Scalar-projected fixture geometry supplies preserved identities and an exact map. V3/C11/L40/E120/n131 gives numerical119304 and adaptive-extra8504; total119816 minus reporting512 preserves numerical119304. Original-admission refusal costs4L=160; reporting refusal costs160+256+64=480 before unused1984 or fitting.
+ * @evidence contracts/testing.md#independent-expectations Explicit authored unweighted rows give four J*u expressions and g=J^T*r/hypot(1,norm/2); their squared weighted sum determines prediction independently. A deliberately added damping penalty differs. Scalar-projected fixture geometry supplies preserved identities and an exact map. V3/C11/L40/E120/n131 gives original numerical119304, chart64 and adaptive-extra8504; total119880 minus chart64 and reporting512 preserves original numerical119304. Raw refusal costs4L=160; reporting refusal costs160+256+64=480 before unused1984 or fitting.
  * @evidence contracts/testing.md#distinguishing-cases Covers unequal weights, both point blocks, zero and nonfinite prediction arithmetic, malformed input, adaptive on/off, no initial selected step, equal report-inclusive totals with distinct admission stages, the old numerical-only total's concrete capacity refusal and a real accepted-path work error. Generic poor-agreement reactions, original normal cases and half/SOC increment ownership have separate entries.
  * @evidence contracts/testing.md#execution-ownership The portable test_recovery_feasible_model_prediction entry uses resident numerical arrays and source fitting without filesystem, native compiler, processes, images read from disk, browser or GPU.
  */
@@ -234,7 +234,7 @@ export function test_recovery_feasible_model_prediction(): void {
     observations: number = 3 * points;
   const cameraWidth: number = 6 * cameras - 7,
     width: number = cameraWidth + 3 * points;
-  const numericalEntries: number =
+  const originalNumericalEntries: number =
     24 * observations * (cameraWidth + 20) +
     24 * cameraWidth * cameraWidth +
     24 * points * (cameraWidth + 4) +
@@ -243,6 +243,8 @@ export function test_recovery_feasible_model_prediction(): void {
     64 * (observations + points + cameras + 1);
   const adaptiveEntries: number =
     4 * observations * (cameraWidth + 4) + 8 * width + 256;
+  const chartEntries: number = 64;
+  const numericalEntries: number = originalNumericalEntries + chartEntries;
   const reportingEntries: number = 512;
   const totalEntries: number = numericalEntries + reportingEntries;
   TestValidator.predicate(
@@ -252,51 +254,59 @@ export function test_recovery_feasible_model_prediction(): void {
       points === 40 &&
       observations === 120 &&
       width === 131 &&
-      numericalEntries === 119304 &&
+      originalNumericalEntries === 119304 &&
+      numericalEntries === 119368 &&
       adaptiveEntries === 8504 &&
-      totalEntries === 119816 &&
+      totalEntries === 119880 &&
       totalEntries - reportingEntries === numericalEntries &&
+      totalEntries - reportingEntries - chartEntries ===
+        originalNumericalEntries &&
+      numericalEntries + adaptiveEntries === 127872 &&
       numericalEntries + adaptiveEntries > totalEntries,
   );
-  let oldCapacity: unknown = null,
-    oldWork: number = 0,
-    oldTrials: number = 0;
-  let oldResult: ReturnType<typeof refineRecoveryCameraMap> | null = null;
-  try {
-    oldResult = refineRecoveryCameraMap(
-      fixture.poses,
-      exact,
-      intrinsics,
-      fixture.input.policy,
-      fixture.input.budget,
-      (): void => {
-        oldTrials++;
-      },
-      (amount: number): void => {
-        oldWork += amount;
-      },
-      {
-        directionBudget: {
-          maxIterations: 1000,
-          maxEntries: 100000,
-          maxWork: 10000000,
+  for (const boundary of [
+    { entries: originalNumericalEntries, work: 4 * points },
+    { entries: numericalEntries, work: 4 * points + 256 + 64 },
+  ]) {
+    let oldCapacity: unknown = null,
+      oldWork: number = 0,
+      oldTrials: number = 0;
+    let oldResult: ReturnType<typeof refineRecoveryCameraMap> | null = null;
+    try {
+      oldResult = refineRecoveryCameraMap(
+        fixture.poses,
+        exact,
+        intrinsics,
+        fixture.input.policy,
+        fixture.input.budget,
+        (): void => {
+          oldTrials++;
         },
-        maxResidentLinearEntries: numericalEntries,
-        adaptiveRegularization: false,
-      },
+        (amount: number): void => {
+          oldWork += amount;
+        },
+        {
+          directionBudget: {
+            maxIterations: 1000,
+            maxEntries: 100000,
+            maxWork: 10000000,
+          },
+          maxResidentLinearEntries: boundary.entries,
+          adaptiveRegularization: false,
+        },
+      );
+    } catch (error: unknown) {
+      oldCapacity = error;
+    }
+    TestValidator.predicate(
+      `the numerical-only total ${boundary.entries} refuses its distinct missing envelope before fitting`,
+      oldCapacity instanceof RecoveryFeasibleCapacityError &&
+        oldCapacity.reason === "resident" &&
+        oldResult === null &&
+        oldTrials === 0 &&
+        oldWork === boundary.work,
     );
-  } catch (error: unknown) {
-    oldCapacity = error;
   }
-  TestValidator.predicate(
-    "the old numerical-only total refuses mandatory reporting before fitting",
-    oldCapacity instanceof RecoveryFeasibleCapacityError &&
-      oldCapacity.reason === "resident" &&
-      oldResult === null &&
-      oldTrials === 0 &&
-      oldWork === 480 &&
-      oldWork === 4 * points + 256 + 64,
-  );
   let refusedBeforeCopy: boolean = false,
     earlyWork: number = 0,
     earlyTrials: number = 0;

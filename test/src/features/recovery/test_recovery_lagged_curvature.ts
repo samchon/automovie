@@ -63,9 +63,10 @@ export function test_recovery_lagged_curvature(): void {
         [0, 1, 0],
       ],
     );
-  const anchoredDepth: number = 2 + seedNorm;
-  const anchoredHessian: number = 0.74 / (anchoredDepth ** 2 * seedNorm ** 2);
-  const actualZeroHessian: number = 0.74 / (9 * seedNorm ** 2);
+  const currentDepth: number = 2 + seedNorm;
+  const radiusHessian: number = 0.74 / (currentDepth ** 2 * seedNorm);
+  const previousAnchoredHessian: number =
+    0.74 / (currentDepth ** 2 * seedNorm ** 2);
   TestValidator.predicate(
     "independent quotient, rotation-point and general sphere derivatives",
     fixed !== null &&
@@ -77,11 +78,11 @@ export function test_recovery_lagged_curvature(): void {
       nclose(moving.hessians[0]![2]![6]!, 0.15, 1e-14) &&
       nclose(moving.hessians[1]![2]![6]!, 1.5, 1e-14) &&
       nclose(moving.hessians[0]![2]![2]!, -0.37, 1e-14) &&
-      nclose(sphere.hessians[0]![3]![3]!, -1 / (1 + 4e-11) ** 2, 1e-14) &&
+      nclose(sphere.hessians[0]![3]![3]!, -1 / seedNorm, 1e-14) &&
       depthSeed !== null &&
-      nclose(depthSeed.pixel[0], 0.74 / anchoredDepth + 0.1, 1e-15) &&
-      nclose(depthSeed.hessians[0]![3]![3]!, anchoredHessian, 1e-14) &&
-      Math.abs(anchoredHessian - actualZeroHessian) > 1e-13 &&
+      nclose(depthSeed.pixel[0], 0.74 / currentDepth + 0.1, 1e-15) &&
+      nclose(depthSeed.hessians[0]![3]![3]!, radiusHessian, 1e-14) &&
+      Math.abs(radiusHessian - previousAnchoredHessian) > 1e-13 &&
       differentiateRecoveryMapProjection(
         pose,
         [0, 0, 1e-200],

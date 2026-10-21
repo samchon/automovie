@@ -6,7 +6,7 @@ import type { IAutoMovieRecoveryCameraSceneBudget } from "@automovie/interface/r
  * a caller adds transient point or resection factors retained during growth.
  * These scalar slots exclude JS overhead and the separately bounded seed fit.
  *
- * @evidence contracts/common.md#principled-implementation For C=6N-7 active coordinates, 16E(C+4)+16C^2+12L(C+4) bounds the joint arrays and retained point copies. Additional transient slots cover factors formed before joint fitting; safe integer checks precede allocation.
+ * @evidence contracts/common.md#principled-implementation For C=6N-7 active coordinates, 16E(C+4)+16C^2+12L(C+4)+64 bounds joint arrays, retained point copies and fixed current-radius chart scratch. Additional transient slots cover growth/resection factors; safe integer checks precede allocation under the unchanged ceiling.
  * @evidence contracts/common.md#clear-and-simple-design One preallocation check serves growth, resection and joint owners without changing geometric gates or charging computational work.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No postallocation check, raised ceiling or byte/RSS interpretation supplies capacity. Failure uses the scene budget error so the accepted geometry remains unchanged.
  * @evidence contracts/common.md#meaningful-documentation Defines active width, retained versus transient slots, seed exclusion and logical-memory qualification.
@@ -26,7 +26,8 @@ export function assertRecoverySceneLinearRetention(
     16 * observations * (width + 4) +
     16 * width * width +
     12 * landmarks * (width + 4) +
-    transientEntries;
+    transientEntries +
+    64;
   if (
     cameras < 2 ||
     ![cameras, observations, landmarks, transientEntries, slots].every(

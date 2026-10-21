@@ -2,19 +2,20 @@ import { AutoMovieMatrix3 } from "@automovie/engine/math/AutoMovieMatrix3";
 
 import type { IAutoMovieRecoveryMapPose } from "../structures/image/IAutoMovieRecoveryMapPose";
 import type { IAutoMovieRecoveryMapLocalCurvature } from "../structures/internal/IAutoMovieRecoveryMapLocalCurvature";
+import { differentiateRecoveryMapTangent } from "./differentiateRecoveryMapTangent";
 
 /**
- * Differentiate an anchored numerical pinhole curvature chart at current pixels.
+ * Differentiate the map's current-radius pinhole chart at current pixels.
  * A null tangent denotes six ordinary camera coordinates; an empty tangent
  * denotes the fixed camera, and two directions denote the seed sphere chart.
  *
- * @evidence contracts/common.md#principled-implementation Quotient Hessians compose with left-Exp rotation, independent additive translation and world points. For a seed the anchored chart is Exp(omega)R(X+dX)+t+normalize(t+Bz)-normalize(t), with general first/second normalization derivatives. It coincides with the actual retraction chart at exact unit t; admitted Float norm/basis errors are not replaced by exact orthonormal identities.
+ * @evidence contracts/common.md#principled-implementation Quotient Hessians compose with left-Exp rotation, independent additive translation and world points. The seed uses Exp(omega)R(X+dX)+r*normalize(t+Bz), r=norm(t) fixed at the current base. Its actual first derivative is P_t B and second derivative r*D2N(t)[B_i,B_j]; current pixels remain RX+t without an exact-unit or exact-orthonormal assumption.
  * @evidence contracts/common.md#clear-and-simple-design This optional second-order geometry owner returns one at-most-nine-dimensional local record; the existing projection/linearization continues to own original physical rows and rank data.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No finite differences, known Hessian, pose differencing, depth clamp or exception catch supplies curvature. Nonrepresentable arithmetic returns null before model selection; malformed chart dimensions throw.
- * @evidence contracts/common.md#meaningful-documentation Local order is rotation, translation or seed tangent, then the world point. Seed pixels stay at RX+t even if actual Ret(0) would normalize an approximately unit t; general DN/D2N differentiate the explicitly anchored approximation. Physical first rows and actual retraction remain unchanged. This numerical curvature does not certify an exact Float Hessian, equality to actual-Ret0 derivatives or uniform accuracy.
+ * @evidence contracts/common.md#meaningful-documentation Local order is rotation, raw translation coefficients or additive translation, then world point. The seed shares the map's current-radius zero/first/second chart; lagged multipliers and Float arithmetic still supply no exact current-KKT Hessian, uniform accuracy or conditioning certificate.
  * @evidence contracts/performance.md#efficient-algorithms Fixed dimensions at most9 bound coordinate formation and two pixel Hessians by constant work per observation, within the caller's prepaid131072 visit allowance. Three-term coordinate and nine-term quotient contractions require no full-state matrix.
  * @evidence contracts/performance.md#reuse-equivalent-work Current rotated point, depth, quotient derivatives and one chart differential supply both pixels and all local first/second derivatives in this separately charged geometry pass.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Fixed scratch holds at most3x9 first and3x9x9 second coordinate entries beside two9x9 output Hessians. All scratch expires at return and the caller consumes one record before visiting the next observation.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Fixed scratch holds at most3x9 first and3x9x9 second coordinate entries beside two9x9 output Hessians and two3-coordinate seed differential tuples. This remains within the admitted optional local scratch; all scratch expires at return and the caller consumes one record before the next observation.
  */
 export function differentiateRecoveryMapProjection(
   pose: IAutoMovieRecoveryMapPose,
@@ -108,8 +109,7 @@ export function differentiateRecoveryMapProjection(
       const norm: number = Math.hypot(...pose.translation);
       if (!(norm > 0) || !Number.isFinite(norm)) return null;
       const squared: number = norm * norm,
-        cubed: number = squared * norm,
-        fifth: number = cubed * squared;
+        fourth: number = squared * squared;
       const products: number[] = tangent.map((row: readonly number[]): number =>
         row.reduce(
           (sum: number, value: number, axis: number): number =>
@@ -117,13 +117,13 @@ export function differentiateRecoveryMapProjection(
           0,
         ),
       );
-      if (![squared, cubed, fifth, ...products].every(Number.isFinite))
-        return null;
+      if (![squared, fourth, ...products].every(Number.isFinite)) return null;
+      const differential: [number, number, number][] | null =
+        differentiateRecoveryMapTangent(pose.translation, tangent);
+      if (differential === null) return null;
       for (let axis: number = 0; axis < 2; axis++)
         for (let component: number = 0; component < 3; component++) {
-          first[component]![3 + axis] =
-            tangent[axis]![component]! / norm -
-            (pose.translation[component]! * products[axis]!) / cubed;
+          first[component]![3 + axis] = differential[axis]![component]!;
           for (let other: number = 0; other < 2; other++) {
             const dot: number = tangent[axis]!.reduce(
               (sum: number, value: number, at: number): number =>
@@ -136,12 +136,12 @@ export function differentiateRecoveryMapProjection(
                 tangent[other]![component]! * products[axis]! +
                 pose.translation[component]! * dot
               ) /
-                cubed +
+                squared +
               (3 *
                 pose.translation[component]! *
                 products[axis]! *
                 products[other]!) /
-                fifth;
+                fourth;
           }
         }
     }
