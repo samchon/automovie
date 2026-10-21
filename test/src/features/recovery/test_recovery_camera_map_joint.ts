@@ -17,7 +17,7 @@ import { nclose } from "../internal/nclose";
  *
  * Scenarios:
  * 1. Undamped and damped block-QR steps agree with independently assembled full original-design SVD over all camera and point variables.
- * 2. Perturbed nonplanar cameras/points and missing third observations jointly converge toward prescribed geometry with the first pose and seed scale unchanged.
+ * 2. Perturbed nonplanar cameras/points and missing third observations jointly converge toward prescribed geometry with the first pose and seed scale unchanged. Every ordinary trial prepays256 chart-update and512 differential visits.
  * 3. Singular point blocks, an unobservable third camera, a nonorigin first-camera gauge and iteration exhaustion cannot become a completed accepted refinement.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls the actual block step and joint optimizer, comparing every camera/point delta and actual fixed-population cost, pose, baseline and work outcome. It detects inconsistent damping, omitted point terms, wrong gauge, extra translation normalization and falsely accepted unobservable fits.
@@ -166,6 +166,8 @@ export function test_recovery_camera_map_joint(): void {
       createRecoveryCameraChart(view).matrix,
   );
   const original: string = JSON.stringify({ initialPoses, landmarks });
+  let chartTrials: number = 0,
+    chartDesigns: number = 0;
   const result: ReturnType<typeof refineRecoveryCameraMap> =
     refineRecoveryCameraMap(
       initialPoses,
@@ -174,10 +176,16 @@ export function test_recovery_camera_map_joint(): void {
       fixture.input.policy,
       fixture.input.budget,
       (): void => {},
+      (amount: number): void => {
+        if (amount === 256) chartTrials++;
+        if (amount === 512) chartDesigns++;
+      },
     );
   TestValidator.predicate(
     "joint fit preserves gauge and complete retained population",
     result.report.converged &&
+      chartTrials > 0 &&
+      chartTrials === chartDesigns &&
       result.report.finalCost < result.report.initialCost &&
       result.report.observationCount === 110 &&
       result.landmarks.length === 40 &&

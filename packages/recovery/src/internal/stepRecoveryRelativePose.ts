@@ -9,7 +9,7 @@ import type {
  * The first three coordinates are a left rotation vector in radians; the final
  * two are coordinates in the supplied current translation tangent basis.
  *
- * @evidence contracts/common.md#principled-implementation Engine axis-angle rotation implements the SO3 exponential and rotates each current R column on the left. Normalizing t+B*delta is a local sphere retraction whose derivative at zero equals the orthonormal tangent basis used by the calibrated model.
+ * @evidence contracts/common.md#principled-implementation Engine axis-angle rotation implements the SO3 exponential and rotates each current R column on the left. Translation is normalize(t+B*delta), whose zero derivative is DN(t)B and equals B only for an exact unit tangent. Signed Sampson residuals cancel this positive normalization scale, so their model differentiates the complete quotient using raw B. Map owners separately preserve the current radius and differentiate that actual chart.
  * @evidence contracts/common.md#clear-and-simple-design One camera-update owner matches the optimizer's five local derivatives, while generic quaternion rotation remains in engine and the numerical state remains ordinary row-major arrays.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No Euler-angle clipping, affine rotation, fixed baseline length or forced sign supplies a camera. Nonrepresentable steps or a zero direction throw instead of returning the previous pose.
  * @evidence contracts/common.md#meaningful-documentation States radians-to-engine-degrees conversion, left composition, row-major columns and local sphere retraction with no metric scale.

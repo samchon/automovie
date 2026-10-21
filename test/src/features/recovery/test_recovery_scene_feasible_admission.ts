@@ -2,6 +2,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { RecoveryFeasibleCapacityError } from "../../../../packages/recovery/src/internal/RecoveryFeasibleCapacityError";
 import { admitRecoveryCameraScene } from "../../../../packages/recovery/src/internal/admitRecoveryCameraScene";
+import { assertRecoverySceneLinearRetention } from "../../../../packages/recovery/src/internal/assertRecoverySceneLinearRetention";
 import { prepareRecoveryFeasibleMapWork } from "../../../../packages/recovery/src/internal/prepareRecoveryFeasibleMapWork";
 import { prepareRecoverySceneFeasibleRouting } from "../../../../packages/recovery/src/internal/prepareRecoverySceneFeasibleRouting";
 import type { IAutoMovieRecoveryMapLandmark } from "../../../../packages/recovery/src/structures/image/IAutoMovieRecoveryMapLandmark";
@@ -15,11 +16,11 @@ import { createRecoverySceneNumericalFixture } from "../internal/createRecoveryS
  * Scenarios:
  * 1. Two owned budget records and nested options survive caller mutation, charge256 once and partition64 slots without changing reported ceilings.
  * 2. Unsafe, malformed, above-scene and lagged-without-SQP requests propagate; aggregate setup exhaustion is its original budget error.
- * 3. The prescribed two-camera24-point48-observation population admits exact independently calculated boundaries, with each adjacent insufficient capacity classified separately.
+ * 3. The prescribed two-camera24-point48-observation population admits original numerical40744 plus chart64, leaving raw direction minima unchanged. Scene numerical9904 plus chart64 admits9968 but refuses old/adjacent totals.
  * 4. Invalid identity gauge, sparse gauge coefficients and charge markers remain core errors even when a resource bound is also too small.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls the real routing snapshot and camera work owners, observing ownership, charged work, exact boundary admission and concrete error identity.
- * @evidence contracts/testing.md#independent-expectations The fixed record has17 budget fields; reserving64 from250000 leaves249936. C5,L24,E48 gives n77,Zw461, direction entries1351, minimum work196184 and base retention40744 by the published camera formulas, independently of helper outputs.
+ * @evidence contracts/testing.md#independent-expectations The fixed record has17 budget fields; reserving64 from250000 leaves249936. C5,L24,E48 gives n77,Zw461, direction entries1351 and minimum work196184. Original numerical40744 plus64 chart slots gives40808. S64 gives original model310208 plus512 chart visits=310720; evaluation remains6528. The scene array formula gives9904 plus64 chart slots=9968, independently of helper outputs.
  * @evidence contracts/testing.md#distinguishing-cases Covers accepted equality and each one-below bound, caller mutation, null/nested malformed records, unsafe numbers/flags, upper scene caps, invalid SQP combination, aggregate exhaustion, bad and hole gauge priority and original charge failure. Workflow routing and full proposal rollback are separate entries.
  * @evidence contracts/testing.md#execution-ownership The portable test_recovery_scene_feasible_admission entry uses resident analytic geometry and direct source calls without a host, compiler, filesystem, GPU, installation or photo fit.
  */
@@ -166,7 +167,7 @@ export function test_recovery_scene_feasible_admission(): void {
     );
   const exact: IAutoMovieRecoveryFeasibleJointOptions = {
     directionBudget: { maxIterations: 1, maxEntries: 1351, maxWork: 196184 },
-    maxResidentLinearEntries: 40744,
+    maxResidentLinearEntries: 40808,
   };
   let charged: number = 0;
   const accepted: ReturnType<typeof prepareRecoveryFeasibleMapWork> =
@@ -183,12 +184,41 @@ export function test_recovery_scene_feasible_admission(): void {
   TestValidator.predicate(
     "independent exact minimum capacity admits before any state clone",
     charged === 96 &&
-      accepted.retained === 40744 &&
+      accepted.retained === 40808 &&
+      fixture.input.budget.maxSingularSweeps === 64 &&
+      accepted.modelWork === 310720 &&
+      accepted.evaluationWork === 6528 &&
       accepted.observations === 48 &&
       accepted.width === 77,
   );
+  assertRecoverySceneLinearRetention(
+    { ...fixture.input.budget, maxResidentLinearEntries: 9968 },
+    2,
+    48,
+    24,
+  );
+  const chartRefusals: unknown[] = [];
+  for (const capacity of [9904, 9967])
+    try {
+      assertRecoverySceneLinearRetention(
+        { ...fixture.input.budget, maxResidentLinearEntries: capacity },
+        2,
+        48,
+        24,
+      );
+    } catch (error: unknown) {
+      chartRefusals.push(error);
+    }
+  TestValidator.predicate(
+    "scene admission reserves chart64 beyond original numerical9904 under the same ceiling",
+    chartRefusals.length === 2 &&
+      chartRefusals.every(
+        (error: unknown): boolean =>
+          error instanceof Error && error.name === "RecoverySceneBudget",
+      ),
+  );
   const small: IAutoMovieRecoveryFeasibleJointOptions[] = [
-    { ...exact, maxResidentLinearEntries: 40743 },
+    { ...exact, maxResidentLinearEntries: 40807 },
     {
       ...exact,
       directionBudget: { ...exact.directionBudget, maxEntries: 1350 },

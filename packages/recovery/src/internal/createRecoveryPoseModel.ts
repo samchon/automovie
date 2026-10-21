@@ -7,14 +7,15 @@ import type { createRecoveryCameraChart } from "./createRecoveryCameraChart";
 /**
  * Pixel epipolar model and its five local calibrated-pose derivatives.
  * Rotation increments act on the left in radians; translation increments use
- * an orthonormal tangent chart of the current unit direction. Each derivative
- * is evaluated at zero increment, so the direction's normalization derivative
- * is the tangent itself. No camera covariance or global optimum follows.
+ * two raw directions of the admitted near-unit translation. The complete signed
+ * Sampson quotient cancels the positive translation-normalization scale, so its
+ * derivative uses these raw directions even when DN(t)B differs from B.
+ * No camera covariance or global optimum follows.
  *
- * @evidence contracts/common.md#principled-implementation F=K2-inverse-transpose [t]cross R K1-inverse. Three left SO3 generators give dR=[axis]cross R; two perpendicular translation directions give dE=[basis]cross R. The least-aligned Cartesian axis constructs a resolved tangent basis without changing translation gauge.
+ * @evidence contracts/common.md#principled-implementation F=K2-inverse-transpose [t]cross R K1-inverse. Three left SO3 generators give dR=[axis]cross R; two raw translation directions give dE=[basis]cross R. Positive-scale invariance of the full signed Sampson quotient cancels the updater's normalization. The least-aligned axis resolves two directions; exact orthonormality requires exact unit t.
  * @evidence contracts/common.md#clear-and-simple-design One local model owns calibrated parameter derivatives and passes generic matrix/cross algebra to engine; the optimizer consumes the same pixel chart for residuals and Jacobians.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No finite-difference step, expected camera, metric baseline or unconstrained nine-entry matrix supplies a derivative. A nonunit translation or nonrepresentable map throws.
- * @evidence contracts/common.md#meaningful-documentation States local coordinate units, left-update order, tangent normalization derivative, calibrated F equation and absence of covariance/global-optimum authority.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No finite-difference step, expected camera, metric baseline or unconstrained nine-entry matrix supplies a derivative. A translation outside the admitted near-unit gauge or a nonrepresentable map throws.
+ * @evidence contracts/common.md#meaningful-documentation States local coordinate units, left-update order, raw-direction and Sampson-scale meaning, calibrated F equation and absence of covariance/global-optimum authority.
  * @evidence contracts/performance.md#efficient-algorithms Six fixed-size calibrated matrices and one tangent construction require constant work and storage, independent of point count.
  * @evidence contracts/performance.md#reuse-equivalent-work The translation cross matrix and inverse-transpose calibration serve every derivative, while the returned tangent basis also drives the optimizer's matching pose update.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only six owned matrices and two tangent vectors return; call-local algebra retains no image, mutable calibration, cache or external handle.
