@@ -1,4 +1,5 @@
 import type { IAutoMovieRecoveryCurvatureReport } from "./IAutoMovieRecoveryCurvatureReport";
+import type { IAutoMovieRecoveryFeasibleDiagnostics } from "./IAutoMovieRecoveryFeasibleDiagnostics";
 import type { IAutoMovieRecoveryRegularizationReport } from "./IAutoMovieRecoveryRegularizationReport";
 
 /**
@@ -10,7 +11,7 @@ import type { IAutoMovieRecoveryRegularizationReport } from "./IAutoMovieRecover
  * @evidence contracts/common.md#meaningful-documentation Fields give population, cost normalization, units, actual/selected counts and local-convergence limits. Optional fit-local regularization metadata reports computed accepted-step reactions independently of rank, normal KKT and accuracy.
  * @evidenceExclude contracts/performance.md#efficient-algorithms The report performs no fitting work.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work It defines no result cache.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Only plain values belong to the caller and no resource is acquired.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Plain reports retain no geometry or handle. A complete feasible report has at most102 properties and9 fixed objects; its camera/checkpoint/scene owner admits current overlap and accumulated attempt/trace copies under unchanged ceilings.
  */
 export interface IAutoMovieRecoveryMapJointFit {
   /** Local numerical stopping condition, not global accuracy or uncertainty. */
@@ -58,4 +59,7 @@ export interface IAutoMovieRecoveryMapJointFit {
 
   /** Present only for requested internal lagged curvature; fixed model-use counters are independent of original rank, actual selection and normal convergence. */
   curvature?: IAutoMovieRecoveryCurvatureReport;
+
+  /** Completed feasible-fit normal/QP/SQP/trial diagnostics; absent for ordinary fits and older artifacts, without implying no fit ran. Nonfinite values use explicit JSON sentinels. */
+  feasible?: IAutoMovieRecoveryFeasibleDiagnostics;
 }

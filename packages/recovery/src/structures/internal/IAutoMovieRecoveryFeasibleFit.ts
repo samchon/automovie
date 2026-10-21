@@ -1,6 +1,6 @@
 import type { IAutoMovieRecoveryFeasibleDirectionReport } from "./IAutoMovieRecoveryFeasibleDirectionReport";
-import type { IAutoMovieRecoverySqpReport } from "./IAutoMovieRecoverySqpReport";
 import type { IAutoMovieRecoveryFeasibleTrials } from "./IAutoMovieRecoveryFeasibleTrials";
+import type { IAutoMovieRecoverySqpReport } from "./IAutoMovieRecoverySqpReport";
 
 /**
  * Last feasible state and explicit normal or incomplete termination.
@@ -38,6 +38,12 @@ export interface IAutoMovieRecoveryFeasibleFit<State> {
 
   /** Actual cost at state over the same population. */
   finalCost: number;
+
+  /** Actual validated physical-normal tolerance; the inner QP uses its square. */
+  tolerance: number;
+
+  /** Last checked objective-row multiplier, distinct from the full private multiplier array. */
+  objectiveMultiplier: number | null;
 
   /** Last maximum original-coordinate Lagrangian gradient component; null without stable positive objective multiplier. */
   stationarity: number | null;

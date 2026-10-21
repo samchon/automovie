@@ -211,6 +211,47 @@ export function test_recovery_scene_feasible_closure(): void {
       (firstCompleted as IAutoMovieRecoveryMapJointFit).regularization!
         .lastUpdate !== null,
   );
+  const first: IAutoMovieRecoveryMapJointFit =
+    firstCompleted as unknown as IAutoMovieRecoveryMapJointFit;
+  const coherent: IAutoMovieRecoveryMapJointFit["feasible"] = first.feasible;
+  const paths: unknown[] =
+    coherent === undefined
+      ? []
+      : [
+          coherent.trials.baseline,
+          coherent.trials.nominal,
+          coherent.trials.numerical,
+          coherent.trials.corrected,
+          coherent.trials.half,
+        ];
+  const outcomes: unknown[] =
+    coherent === undefined
+      ? []
+      : [
+          coherent.trials.qualifiedUnselected,
+          coherent.trials.infeasible,
+          coherent.trials.nondecreasing,
+          coherent.trials.armijo,
+        ];
+  const total: (values: readonly unknown[]) => number = (
+    values: readonly unknown[],
+  ): number =>
+    values.reduce<number>(
+      (sum: number, value: unknown): number =>
+        typeof value === "number" && Number.isSafeInteger(value) && value >= 0
+          ? sum + value
+          : NaN,
+      0,
+    );
+  TestValidator.predicate(
+    `completed diagnostics preserve normal and separate nonzero trial marginals: ${diagnostic}`,
+    coherent?.normalKktQualified === true &&
+      coherent.lastDirection?.certified === true &&
+      paths.length === 5 &&
+      outcomes.length === 4 &&
+      total(paths) === first.iterations &&
+      total(outcomes) + first.acceptedSteps === first.iterations,
+  );
   TestValidator.predicate(
     `strict closure grows to the independently bounded next population: ${diagnostic}`,
     lastCount === 24 && work.jointFits === 2,
