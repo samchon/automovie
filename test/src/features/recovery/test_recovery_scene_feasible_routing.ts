@@ -10,7 +10,7 @@ import { nclose } from "../internal/nclose";
  * Explicit internal routing preserves complete scene checkpoints and defaults.
  *
  * Scenarios:
- * 1. Original five-view visibility data routes the method through seed and candidate fits under its unchanged250000 resident ceiling; a larger valid population refuses without discarding the accepted component.
+ * 1. Original five-view visibility data routes the method and coherent normal/QP reports through seed and candidate fits under its unchanged250000 resident ceiling; a larger valid population refuses without discarding the accepted component.
  * 2. A90000 fit cap admits the prescribed seed but refuses the next complete candidate; all proposed geometry rolls back while the consumed ledger survives.
  * 3. Callback mutation of caller options and scene budget cannot change the owned requested method or reported original ceiling.
  * 4. Seed capacity refusal has no accepted geometry, aggregate exhaustion remains budget-exhausted, and numerical-looking callback errors escape with original identity.
@@ -61,8 +61,11 @@ export function test_recovery_scene_feasible_routing(): void {
       routed.joint?.converged === true &&
       routed.joint.curvature !== undefined &&
       routed.joint.regularization !== undefined &&
+      routed.joint.feasible?.normalKktQualified === true &&
+      routed.joint.feasible.lastDirection?.certified === true &&
       routed.attempts[0]!.outcome === "accepted" &&
       routed.attempts[0]!.joint?.curvature !== undefined &&
+      routed.attempts[0]!.joint?.feasible?.normalKktQualified === true &&
       routed.attempts.some(
         (attempt: (typeof routed.attempts)[number]): boolean =>
           attempt.outcome === "joint-refused" &&
@@ -112,6 +115,8 @@ export function test_recovery_scene_feasible_routing(): void {
       bounded.joint?.converged === true &&
       bounded.joint.curvature !== undefined &&
       bounded.joint.regularization !== undefined &&
+      bounded.joint.feasible?.normalKktQualified === true &&
+      bounded.joint.feasible.lastDirection?.certified === true &&
       bounded.attempts.length === 1 &&
       bounded.attempts[0]!.outcome === "joint-refused" &&
       bounded.attempts[0]!.reasons.includes(

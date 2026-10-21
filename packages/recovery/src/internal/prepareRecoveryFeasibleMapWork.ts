@@ -5,6 +5,7 @@ import type { IAutoMovieRecoveryMapPose } from "../structures/image/IAutoMovieRe
 import type { IAutoMovieRecoveryFeasibleJointOptions } from "../structures/internal/IAutoMovieRecoveryFeasibleJointOptions";
 import type { IAutoMovieRecoveryFeasibleMapWork } from "../structures/internal/IAutoMovieRecoveryFeasibleMapWork";
 import { RecoveryFeasibleCapacityError } from "./RecoveryFeasibleCapacityError";
+import { isRecoveryMapIdentityGauge } from "./isRecoveryMapIdentityGauge";
 
 /**
  * Admit the original fixed-population camera-map work and retention bounds.
@@ -84,15 +85,7 @@ export function prepareRecoveryFeasibleMapWork(
     4 * (2 * observations + points) * cameraWidth * cameraWidth +
     4 * budget.maxSingularSweeps * cameraWidth ** 3 +
     54 * budget.maxSingularSweeps * (observations + points);
-  let identityGauge: boolean =
-    initialPoses[0]!.rotation.length === 9 &&
-    initialPoses[0]!.translation.length === 3;
-  for (let axis: number = 0; axis < 9; axis++)
-    identityGauge &&=
-      initialPoses[0]!.rotation[axis] ===
-      (axis === 0 || axis === 4 || axis === 8 ? 1 : 0);
-  for (let axis: number = 0; axis < 3; axis++)
-    identityGauge &&= initialPoses[0]!.translation[axis] === 0;
+  const identityGauge: boolean = isRecoveryMapIdentityGauge(initialPoses[0]!);
   if (
     cameras < 2 ||
     intrinsics.length !== cameras ||

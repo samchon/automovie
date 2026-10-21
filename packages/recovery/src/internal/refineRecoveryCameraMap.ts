@@ -6,6 +6,7 @@ import type {
 import type { IAutoMovieRecoveryMapLandmark } from "../structures/image/IAutoMovieRecoveryMapLandmark";
 import type { IAutoMovieRecoveryMapPose } from "../structures/image/IAutoMovieRecoveryMapPose";
 import type { IAutoMovieRecoveryFeasibleJointOptions } from "../structures/internal/IAutoMovieRecoveryFeasibleJointOptions";
+import type { IAutoMovieRecoveryFeasibleReportCapacity } from "../structures/internal/IAutoMovieRecoveryFeasibleReportCapacity";
 import type { IAutoMovieRecoveryMapEvaluation } from "../structures/internal/IAutoMovieRecoveryMapEvaluation";
 import type { IAutoMovieRecoveryMapJointBlock } from "../structures/internal/IAutoMovieRecoveryMapJointBlock";
 import type { IAutoMovieRecoveryMapJointResult } from "../structures/internal/IAutoMovieRecoveryMapJointResult";
@@ -31,7 +32,7 @@ import { stepRecoveryRelativePose } from "./stepRecoveryRelativePose";
  * @evidence contracts/common.md#meaningful-documentation States seven removed gauge freedoms, fixed known calibration, robust vector weighting, common population, 1e-8 local stops and separation of robust versus unweighted squared cost. Explicit internal lagged-curvature options reach only the feasible owner; its GN-first fit-local multiplier seed and adaptive agreement restart independently per call. Ordinary/default public behavior is unchanged.
  * @evidence contracts/performance.md#efficient-algorithms Ordinary E-observation, L-landmark, C=6N-7 camera refinement costs O(I*(E*C^2+S*C^3)). Feasible selection additionally charges whitening, complete gates and sparse passes. Optional working factors cost O(S*(q+H)*H^2+q*H^2); adaptive agreement separately charges a current-design action. Explicit lagged curvature additionally prepays fixed admission/model/handoff/copy work and O(E+LC^2+C^3+EC^2+LC+C^2+n) current-model geometry/factor/whitening under its separate unchanged-ceiling envelope. Neither adds nonlinear actual trials. No dense all-point Jacobian is formed.
  * @evidence contracts/performance.md#reuse-equivalent-work Each current projection supplies residual, robust weight and both point/camera derivatives. Fixed features, intrinsics and measurements are reused across iterations; only changed numerical poses/points are reevaluated.
- * @evidence contracts/performance.md#bound-retention-and-release-resources New pose/landmark arrays and plain reports transfer. Feasible selection admits four candidates and exact increments beside current/checkpoints and factors. Adaptive design and lagged F/S/A reservations are separately admitted; old/new owned duals reset per fit, partial/unused factors expire before direction work, and no borrowed reaction argument or numeric history escapes. Ordinary calls allocate none of the optional curvature state.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources New pose/landmark arrays and plain reports transfer. Feasible selection admits four candidates and exact increments beside current/checkpoints and factors. Adaptive design and lagged F/S/A reservations are separately admitted; old/new owned duals reset per fit, partial/unused factors expire before direction work, and no borrowed reaction argument or numeric history escapes. Ordinary calls allocate none of the optional curvature or coherent feasible-report state. Feasible calls borrow one reporting scope or admit a direct512 envelope; encoded/raw/previous/trace reporting overlap stays separate from numerical factors.
  */
 export function refineRecoveryCameraMap(
   initialPoses: readonly IAutoMovieRecoveryMapPose[],
@@ -42,6 +43,7 @@ export function refineRecoveryCameraMap(
   checkpoint: () => void,
   charge: (work: number) => void = (): void => {},
   feasible?: IAutoMovieRecoveryFeasibleJointOptions,
+  reportCapacity?: IAutoMovieRecoveryFeasibleReportCapacity,
 ): IAutoMovieRecoveryMapJointResult {
   if (feasible !== undefined)
     return refineRecoveryCameraMapFeasible(
@@ -53,6 +55,7 @@ export function refineRecoveryCameraMap(
       feasible,
       checkpoint,
       charge,
+      reportCapacity,
     );
   if (
     initialPoses.length < 2 ||
