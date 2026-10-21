@@ -18,7 +18,8 @@ import { nclose } from "../internal/nclose";
  * 2. A perturbed candidate undergoes a one-iteration joint fit without convergence; the detached transaction refuses and cannot mutate its input component.
  * 3. Unregistered views retain distinct necessary support and same-revision refusal states rather than becoming accepted poses.
  * 4. An aggregate proposal ceiling equal to the per-fit minimum admits the full three-view transaction; refinement checkpoints consume no extra proposals.
- * 5. A resident ceiling below the first point design refuses before triangulation or linear work starts.
+ * 5. A resident ceiling below the first point design refuses before triangulation or numerical linear work, retaining only the32 prepaid report-setup visits.
+ * 6. An accepted seed clears its temporary seed-report alias, while a refusal before fitting exposes no completed seed report.
  *
  * @evidence contracts/testing.md#behavioral-verification Exercises the actual scene budget path and detached completion owner, asserting atomic geometric rollback, attempted-work accounting, null candidate pose and explicit nonconvergence after a numerical step.
  * @evidence contracts/testing.md#independent-expectations Analytic source poses/points define the seed checkpoint independently; a deliberately perturbed pose and strict one-step budget must not be called converged merely because cost descends. Serialized inputs prove ownership, not geometry accuracy.
@@ -49,6 +50,8 @@ export function test_recovery_camera_scene_transactions(): void {
       result.stopReason === "budget-exhausted" &&
       result.registeredViews.join(",") === "0,1" &&
       result.landmarks.length === 24 &&
+      !Object.hasOwn(result, "refusedSeedJoint") &&
+      result.joint?.converged === true &&
       result.poses
         .slice(2)
         .every(
@@ -201,7 +204,8 @@ export function test_recovery_camera_scene_transactions(): void {
     bounded.stopReason === "budget-exhausted" &&
       bounded.landmarks.length === 0 &&
       bounded.work.triangulations === 0 &&
-      bounded.work.linearWork === 0 &&
+      bounded.work.linearWork === 32 &&
+      !Object.hasOwn(bounded, "refusedSeedJoint") &&
       bounded.work.jointFits === 0,
   );
 }
