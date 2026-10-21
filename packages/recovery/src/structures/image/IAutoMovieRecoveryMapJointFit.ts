@@ -1,10 +1,12 @@
+import type { IAutoMovieRecoveryRegularizationReport } from "./IAutoMovieRecoveryRegularizationReport";
+
 /**
  * Local joint-refinement diagnostics on one fixed observation population.
  *
  * @evidence contracts/common.md#principled-implementation Actual vector-wise soft-L1 pixel cost, independent undamped point/camera design ratios and explicit local termination distinguish descent from observability and convergence.
  * @evidence contracts/common.md#clear-and-simple-design One owned report accompanies the joint camera/point result without numerical scratch or expected values.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A lower objective does not imply physical truth, metric scale, covariance, global optimum or success after dropping measurements.
- * @evidence contracts/common.md#meaningful-documentation Fields give population, cost normalization, units, work counts and local-convergence limits.
+ * @evidence contracts/common.md#meaningful-documentation Fields give population, cost normalization, units, actual/selected counts and local-convergence limits. Optional fit-local regularization metadata reports computed accepted-step reactions independently of rank, normal KKT and accuracy.
  * @evidenceExclude contracts/performance.md#efficient-algorithms The report performs no fitting work.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work It defines no result cache.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Only plain values belong to the caller and no resource is acquired.
@@ -49,4 +51,7 @@ export interface IAutoMovieRecoveryMapJointFit {
 
   /** Smallest observed undamped column-scaled point-block singular ratio. */
   minimumPointDesignRatio: number;
+
+  /** Present only for internal accepted-agreement regularization; fit-local scalar reactions never replace normal convergence or data rank. */
+  regularization?: IAutoMovieRecoveryRegularizationReport;
 }

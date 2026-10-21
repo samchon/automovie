@@ -5,6 +5,8 @@ import type {
 
 import type { IAutoMovieRecoveryMapLandmark } from "../structures/image/IAutoMovieRecoveryMapLandmark";
 import type { IAutoMovieRecoveryMapPose } from "../structures/image/IAutoMovieRecoveryMapPose";
+import type { IAutoMovieRecoveryRegularizationReport } from "../structures/image/IAutoMovieRecoveryRegularizationReport";
+import type { IAutoMovieRecoveryMapJointBlock } from "../structures/internal/IAutoMovieRecoveryMapJointBlock";
 import type { IAutoMovieRecoveryFeasibleJointOptions } from "../structures/internal/IAutoMovieRecoveryFeasibleJointOptions";
 import type { IAutoMovieRecoveryFeasibleModel } from "../structures/internal/IAutoMovieRecoveryFeasibleModel";
 import type { IAutoMovieRecoveryMapJointResult } from "../structures/internal/IAutoMovieRecoveryMapJointResult";
@@ -13,10 +15,12 @@ import { createRecoveryMapTangent } from "./createRecoveryMapTangent";
 import { evaluateRecoveryScenePoint } from "./evaluateRecoveryScenePoint";
 import { linearizeRecoveryFeasibleMap } from "./linearizeRecoveryFeasibleMap";
 import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
+import { predictRecoveryMapDecrease } from "./predictRecoveryMapDecrease";
 import { refineRecoveryFeasibleState } from "./refineRecoveryFeasibleState";
-import { solveRecoveryMapJointStep } from "./solveRecoveryMapJointStep";
+import { factorRecoveryMapMetric } from "./factorRecoveryMapMetric";
 import { stepRecoveryMapPose } from "./stepRecoveryMapPose";
 import { stepRecoveryRelativePose } from "./stepRecoveryRelativePose";
+import { updateRecoveryRegularization } from "./updateRecoveryRegularization";
 
 /**
  * Refine a fixed camera map while retaining every hard pixel observation.
@@ -25,13 +29,13 @@ import { stepRecoveryRelativePose } from "./stepRecoveryRelativePose";
  * is claimed only while nonpixel gates remain strictly interior; other gate
  * blockage is incomplete, and the coordinator still owns atomic acceptance.
  *
- * @evidence contracts/common.md#principled-implementation A rank-qualified column-scaled point-first QR supplies an invertible damped metric. The pure tilted model gives objective descent and active-pixel inwardness, followed by actual SO3/sphere/Euclidean retraction and complete point gates. Original-coordinate normal KKT, not a tiny step or cost stop, terminates this method.
+ * @evidence contracts/common.md#principled-implementation Original point and reduced-camera rank qualification precedes the raw damped point-first QR metric, without synthesizing unused unconstrained LS answers. Pure tilted directions, actual SO3/sphere/Euclidean retraction and complete point gates remain independent. Optional selected-increment agreement prepares only the next existing metric; original-coordinate normal KKT alone terminates normally.
  * @evidence contracts/common.md#clear-and-simple-design This camera owner connects generic bounded direction work to the actual projection, rank, gauge, observation identities and joint report; ordinary public calls retain the existing method until explicitly selected internally.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No observation deletion, failed-point filtering, new pixel tolerance, extra nonlinear trial allowance, initial-state success fallback or independent later-translation normalization supplies an accepted map. Data rank is checked without damping or inequalities.
- * @evidence contracts/common.md#meaningful-documentation States normalized disk model, physical KKT tolerance 1e-8, fixed positive metric damping 1e-3, strict nonpixel-interior limitation, same-population objective and incomplete termination.
- * @evidence contracts/performance.md#efficient-algorithms For E observations, L landmarks and C=6N-7 camera columns, metric QR/SVD costs O(E*C^2+S*C^3), whitening O(E*C^2+L*C), sparse passes O(E*C+L), and full point gates sum(k_point^2). Optional q-by-H original working transpose adds O(S*(q+H)*H^2+q*H^2); its admitted inverse actions, selected-trial projections and every actual arc/backtrack also consume original work/trial ceilings.
- * @evidence contracts/performance.md#reuse-equivalent-work The current weighted blocks supply original rank and one arrowhead metric shared by every current inequality. Backtracks retain this model until a feasible state is accepted; no image extraction, matching or prior fitted answer is repeated.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The owner first admits borrowed/current states plus four detached candidates, blocks, current metric and physical/whitened rows. Optional working factor copies, coordinates, step/correction and trial g arrays are then jointly admitted against the remaining same resident/direction ceiling before allocation. Candidate slots alias best/current roles; no image, native reactor or history is retained.
+ * @evidence contracts/common.md#meaningful-documentation States normalized disks, physical KKT tolerance1e-8, initial damping1e-3 per fit and optional next-model reactions. Metric support requires original rank and finite used raw factors/actions, not the full LS operation's additional unused normalization/SVD/answer support. No such omitted computation is caught as success. Invalid computed agreement retains the previous coefficient; actual qualification and core errors remain independent.
+ * @evidence contracts/performance.md#efficient-algorithms For E observations, L landmarks and C=6N-7 camera columns, metric QR/SVD costs O(E*C^2+S*C^3), whitening O(E*C^2+L*C), sparse passes O(E*C+L), and full point gates sum(k_point^2). Optional working factors add O(S*(q+H)*H^2+q*H^2). Accepted agreement separately precharges32*(E*(C+4)+n+L+1) for one current-design prediction, without another factor, geometry trial or model.
+ * @evidence contracts/performance.md#reuse-equivalent-work Current weighted blocks supply original rank and one arrowhead metric shared by every current inequality. Actual evaluation borrows each complete point-gate projection's residual norm for the same global cost/SSE accumulation, discarding partial sums on any gate refusal and checking objective finiteness only after every point passes. Backtracks retain the model without repeated image extraction or matching.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Before copying, the owner admits borrowed/current states, four candidates and chosen increments beside rows, factors and optional working space. Adaptive mode additionally admits4*E*(C+4)+8*n+256 slots for current weighted blocks/gradient and bounded reaction metadata, releasing design references immediately after the selected-step reaction. Candidate roles alias existing states; only scalar regularization metadata transfers, without geometry history or handles.
  */
 export function refineRecoveryCameraMapFeasible(
   initialPoses: readonly IAutoMovieRecoveryMapPose[],
@@ -55,20 +59,24 @@ export function refineRecoveryCameraMapFeasible(
   );
   const cameraWidth: number = 6 * cameras - 7;
   const width: number = cameraWidth + 3 * points;
+  const adaptive: boolean = options.adaptiveRegularization === true;
+  const agreementEntries: number = adaptive ? 4 * observations * (cameraWidth + 4) + 8 * width + 256 : 0;
+  const agreementWork: number = adaptive ? 32 * (observations * (cameraWidth + 4) + width + points + 1) : 0;
   // Every whitened pixel row has at most C camera and three point entries;
   // the dense objective has width entries. Reserve both result step copies.
   const directionCoefficients: number = width + observations * (cameraWidth + 3);
   const directionRows: number = observations + 1;
   const directionEntries: number = 2 * directionCoefficients + 3 * directionRows + 2 * width + 128;
   const minimumDirectionWork: number = 288 * directionCoefficients + 1058 * directionRows + 137 * width + 1025;
-  // Four detached candidates share observations with the current state; this
-  // additional conservative scalar reserve also covers fully copied rows.
+  // Four detached pose/point records need at most48V+16L scalars. The two
+  // additionally retained best/mixed increments need2n=12V+6L-14; their
+  // total60V+22L is below64*(E+L+V+1). The current increment is in16n.
   const retained: number =
     24 * observations * (cameraWidth + 20) +
     24 * cameraWidth * cameraWidth +
     24 * points * (cameraWidth + 4) +
     16 * width + 128 +
-    64 * (observations + points + cameras + 1);
+    64 * (observations + points + cameras + 1) + agreementEntries;
   const evaluationWork: number =
     8 * observations * (cameraWidth + 4) +
     32 *
@@ -90,6 +98,8 @@ export function refineRecoveryCameraMapFeasible(
     points < 6 ||
     points > budget.maxTracks ||
     observations > budget.maxObservations ||
+    (adaptive && (!Number.isSafeInteger(agreementEntries) || agreementEntries <= 0 ||
+      !Number.isSafeInteger(agreementWork) || agreementWork <= 0)) ||
     ![
       retained,
       evaluationWork,
@@ -125,6 +135,14 @@ export function refineRecoveryCameraMapFeasible(
   let minimumPointDesignRatio: number = Infinity,
     minimumCameraDesignRatio: number = Infinity;
   let initialSquaredError: number | null = null;
+  let damping: number = 1e-3;
+  let currentBlocks: readonly IAutoMovieRecoveryMapJointBlock[] | null = null;
+  let currentGradient: readonly number[] | null = null;
+  let currentBase: IAutoMovieRecoveryMapState | null = null;
+  const regularization: IAutoMovieRecoveryRegularizationReport | null = adaptive ? {
+    initialDamping: damping, finalDamping: damping,
+    supportedUpdates: 0, unsupportedUpdates: 0, lastUpdate: null,
+  } : null;
   const squared: (state: IAutoMovieRecoveryMapState) => number = (
     state: IAutoMovieRecoveryMapState,
   ): number => {
@@ -158,6 +176,10 @@ export function refineRecoveryCameraMapFeasible(
           return null;
         let cost: number = 0,
           square: number = 0;
+        const observe: (norm: number) => void = (norm: number): void => {
+          cost += norm * (norm / (Math.hypot(1, norm / policy.lossScalePx) + 1));
+          square += norm * norm;
+        };
         for (const landmark of state.landmarks) {
           const qualification: ReturnType<typeof evaluateRecoveryScenePoint> =
             evaluateRecoveryScenePoint(
@@ -166,6 +188,7 @@ export function refineRecoveryCameraMapFeasible(
               state.poses,
               charts,
               policy,
+              observe,
             );
           if (
             !qualification.accepted ||
@@ -175,22 +198,6 @@ export function refineRecoveryCameraMapFeasible(
             )
           )
             return null;
-          for (const observation of landmark.observations) {
-            const projected: ReturnType<typeof projectRecoveryMapPoint> =
-              projectRecoveryMapPoint(
-                state.poses[observation.viewIndex]!,
-                landmark.point,
-                intrinsics[observation.viewIndex]!,
-              );
-            if (projected === null) return null;
-            const norm: number = Math.hypot(
-              projected.pixel[0] - observation.pixel[0],
-              projected.pixel[1] - observation.pixel[1],
-            );
-            cost +=
-              norm * (norm / (Math.hypot(1, norm / policy.lossScalePx) + 1));
-            square += norm * norm;
-          }
         }
         if (!Number.isFinite(cost) || !Number.isFinite(square))
           throw new Error("camera-feasible: nonrepresentable actual objective");
@@ -203,13 +210,12 @@ export function refineRecoveryCameraMapFeasible(
         charge(modelWork);
         const local: ReturnType<typeof linearizeRecoveryFeasibleMap> =
           linearizeRecoveryFeasibleMap(state, intrinsics, policy);
-        const solution: ReturnType<typeof solveRecoveryMapJointStep> =
-          solveRecoveryMapJointStep(
+        const solution: ReturnType<typeof factorRecoveryMapMetric> =
+          factorRecoveryMapMetric(
             local.blocks,
             policy.minimumDesignSingularRatio,
-            1e-3,
+            damping,
             budget,
-            true,
           );
         minimumPointDesignRatio = Math.min(
           minimumPointDesignRatio,
@@ -228,8 +234,12 @@ export function refineRecoveryCameraMapFeasible(
           throw new Error(
             "camera-feasible: strict original-rank interior required",
           );
-        const metric: NonNullable<(typeof solution)["metric"]> =
-          solution.metric!;
+        const metric: (typeof solution)["metric"] = solution.metric;
+        if (adaptive) {
+          currentBlocks = local.blocks;
+          currentGradient = local.rows[0]!.values;
+          currentBase = state;
+        }
         return {
           rows: local.rows.map(metric.whiten),
           physicalRows: local.rows,
@@ -310,6 +320,25 @@ export function refineRecoveryCameraMapFeasible(
           throw new Error("camera-sqp: unchanged original observation population required");
         return values;
       } : undefined,
+      accepted: adaptive ? (
+        base: IAutoMovieRecoveryMapState, increment: readonly number[], oldCost: number, newCost: number,
+      ): void => {
+        charge(agreementWork);
+        if (currentBase !== base || currentBlocks === null || currentGradient === null ||
+            increment.length !== width || !(Number.isFinite(oldCost) && Number.isFinite(newCost) && newCost < oldCost))
+          throw new Error("camera-regularization: selected current-base actual decrease required");
+        const prediction: number | null = predictRecoveryMapDecrease(currentBlocks, currentGradient, increment);
+        const update: NonNullable<IAutoMovieRecoveryRegularizationReport["lastUpdate"]> =
+          updateRecoveryRegularization(damping, oldCost - newCost, prediction);
+        damping = update.damping;
+        regularization!.finalDamping = damping;
+        if (update.supported) regularization!.supportedUpdates++;
+        else regularization!.unsupportedUpdates++;
+        regularization!.lastUpdate = update;
+        currentBlocks = null;
+        currentGradient = null;
+        currentBase = null;
+      } : undefined,
     },
     budget.maxRefinementIterations,
     1e-8,
@@ -340,6 +369,7 @@ export function refineRecoveryCameraMapFeasible(
       finalSquaredError: squared(fit.state),
       minimumCameraDesignRatio,
       minimumPointDesignRatio,
+      ...(regularization === null ? {} : { regularization: { ...regularization } }),
     },
   };
 }

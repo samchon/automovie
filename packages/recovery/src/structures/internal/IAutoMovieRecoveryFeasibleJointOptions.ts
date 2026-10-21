@@ -20,4 +20,7 @@ export interface IAutoMovieRecoveryFeasibleJointOptions {
 
   /** Select SQP mixing/curvature and same-base qualified full/half cost comparison; original KKT and the actual trial horizon still apply. */
   sqpAcceleration?: boolean;
+
+  /** Independently select fit-local accepted-agreement damping, starting at 1e-3 and changing only the next existing model; false or absent retains fixed damping. */
+  adaptiveRegularization?: boolean;
 }

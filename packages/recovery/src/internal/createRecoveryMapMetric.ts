@@ -11,7 +11,7 @@ import type { IAutoMovieRecoveryMapMetric } from "../structures/internal/IAutoMo
  * multiplication actions use the same original global column scales.
  *
  * @evidence contracts/common.md#principled-implementation Givens reduction produces the camera upper factor of the already point-eliminated damped design. Solving R^T*w=scaled-covector first resolves independent point blocks and then the camera tail; R*s=z reverses that order. No Gram matrix, inverse or second camera scaling changes coordinates.
- * @evidence contracts/common.md#clear-and-simple-design This owner retains the exact factor lifetime needed for feasible-direction whitening; independent original rank and the old unconstrained solve stay with solveRecoveryMapJointStep.
+ * @evidence contracts/common.md#clear-and-simple-design This owner retains raw factors for feasible-direction whitening. Shared preparation and original-design factorization qualify undamped rank for both factorRecoveryMapMetric and solveRecoveryMapJointStep; only the latter synthesizes the complete unconstrained answer.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No pivot floor or active inequality supplies missing data rank. Every nonrepresentable triangular action throws instead of returning a zero direction.
  * @evidence contracts/common.md#meaningful-documentation States camera/point ordering, scale direction and distinction between an invertible damped metric and undamped rank qualification.
  * @evidence contracts/performance.md#efficient-algorithms One camera QR costs O(E*C^2) and O(C^2) retained scalars. A covector touching k points costs O(k*C+C^2), and inverse action costs O(L*C+C^2); no full (C+3L)^2 factor is formed.

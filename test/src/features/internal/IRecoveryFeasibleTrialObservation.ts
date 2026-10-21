@@ -20,4 +20,10 @@ export interface IRecoveryFeasibleTrialObservation {
 
   /** Actual requests to the one-use authored curvature action. */
   corrections: number;
+
+  /** Exact arrays borrowed by retractions, retained only by this bounded resident test. */
+  increments: (readonly number[])[];
+
+  /** Original baseline and accelerated input directions stayed unchanged. */
+  directionsUnchanged: boolean;
 }

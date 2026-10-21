@@ -66,4 +66,17 @@ export interface IAutoMovieRecoveryFeasibleProblem<State> {
    * @evidence contracts/performance.md#bound-retention-and-release-resources At most H scalars transfer for one correction; no rejected geometry or measurement history is cached.
    */
   constraintValues?: (state: State, rows: readonly number[]) => number[] | null;
+
+  /**
+   * Notify the owner once about a selected qualified local update.
+   *
+   * @evidence contracts/common.md#principled-implementation The callback receives the unchanged base, exact actual chart increment and same-population old/new costs before the controller changes state; it may prepare only the next existing model.
+   * @evidence contracts/common.md#clear-and-simple-design Optional owner reactions keep objective-specific design and metric policy outside generic trial ordering and normal certification.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Qualified unselected candidates, refusals and initial KKT do not notify. Unexpected errors propagate without committing a substitute baseline or refunding consumed trials.
+   * @evidence contracts/common.md#meaningful-documentation Base and increment are borrowed immutable for this call; costs belong to the chosen actual evaluation. This local selection is neither normal convergence nor checkpoint acceptance.
+   * @evidence contracts/performance.md#efficient-algorithms The owner admits and charges its reaction before scans; camera agreement uses one O(E*(C+3)+n+L) undamped current-design action and no extra model or trial.
+   * @evidence contracts/performance.md#reuse-equivalent-work The current model and exact chosen increment are reused without geometry evaluation, pose differencing, trial reweighting or factorization.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The callback does not retain the borrowed increment or base; owner design references are released after reacting, and only bounded scalar metadata and the next coefficient remain.
+   */
+  accepted?: (base: State, increment: readonly number[], oldCost: number, newCost: number) => void;
 }

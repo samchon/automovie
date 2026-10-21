@@ -27,14 +27,16 @@ import { selectRecoveryFeasibleTrial } from "./selectRecoveryFeasibleTrial";
  * A mixture is not the baseline QP minimizer. Every evaluated candidate,
  * including qualified unselected candidates, consumes maxTrials allowance.
  * The last accepted endpoint receives a charged model check, not another step.
+ * An optional owner notification consumes the exact selected increment before
+ * changing the current state; it cannot replace candidate or normal checks.
  *
  * @evidence contracts/common.md#principled-implementation For C1 inequalities at a feasible state, negative objective derivative and strictly inward active derivatives admit sufficiently small feasible descent when other gates are interior. Optional complete-affine-QP mixing and a same-base minimum-metric correction are separate candidates, not a global or finite-trial convergence theorem. Baseline original KKT alone terminates normally.
- * @evidence contracts/common.md#clear-and-simple-design This owner coordinates direction and normal termination; a bounded same-base selector owns actual candidate ordering, while problem callbacks own metric/rank/gauge, full qualification and charged allocations. Rejected trials reuse the current direction without refitting observations.
+ * @evidence contracts/common.md#clear-and-simple-design This owner coordinates direction and normal termination; the same-base selector owns candidate ordering, while callbacks own metric/rank/gauge, qualification and charged allocations. A selected-step notification runs once before changing state/cost and may prepare the next existing model; rejected and qualified-unselected trials do not notify.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No boundary stalling, tiny accepted step, small objective decrease, initial-state fallback or abnormal multiplier is called convergence. No population, threshold, metric coefficient or budget is changed after refusal.
  * @evidence contracts/common.md#meaningful-documentation States physical KKT tolerance, multiplier support floor, mixed Armijo slope, same-base t*d+t^2*delta and order2.5. The selector compares Tfull, Mfull, only failed-M SOCfull and one qualified-path half; exact ties keep the earlier candidate. Nominal min(1,physical SQP norm squared) and at most one original-row-derived support coefficient remain separate from actual selection and normal KKT.
  * @evidence contracts/performance.md#efficient-algorithms At most maxTrials actual evaluations and maxTrials+1 charged direction models run. Optional working transpose costs O(S*(q+H)*H^2+q*H^2); its one correction reuses the factor. Scans, inverse actions and every selected/unselected/full/half/backtracked geometry evaluation are charged under existing ceilings. Selection reserves256 visits per model and128+12*width per actual trial in addition to owner geometry work.
  * @evidence contracts/performance.md#reuse-equivalent-work Backtracking retains one current model/direction until an actual state change. Every certificate uses every original physical row, without shared input-dependent result caches.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Current state and at most four detached comparison candidates coexist with borrowed checkpoints, current rows/metric and admitted thin factors/steps/correction. Problem owners admit that peak before copying. Unselected trials expire; only the last feasible state and bounded scalar reports transfer without history or external handles.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Current state, four detached candidates and chosen increments coexist with borrowed checkpoints, rows/metric and admitted factors. Owners admit that peak before copying and release any current design after the borrowed selected-step notification. Unselected trials expire; only the last feasible state and bounded reports transfer without history or handles.
  */
 export function refineRecoveryFeasibleState<State>(
   problem: IAutoMovieRecoveryFeasibleProblem<State>,
@@ -236,6 +238,9 @@ export function refineRecoveryFeasibleState<State>(
       if (selected.stalled) termination = "abnormal-or-stalled";
       break;
     }
+    if (selected.increment === null)
+      throw new Error("camera-feasible: selected actual increment required");
+    problem.accepted?.(state, selected.increment, cost, selected.cost);
     state = selected.state;
     cost = selected.cost;
     acceptedSteps++;

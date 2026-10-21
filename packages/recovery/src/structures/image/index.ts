@@ -36,4 +36,6 @@ export type { IAutoMovieRecoveryMapPose } from "./IAutoMovieRecoveryMapPose";
 export type { IAutoMovieRecoveryMapObservation } from "./IAutoMovieRecoveryMapObservation";
 export type { IAutoMovieRecoveryMapLandmark } from "./IAutoMovieRecoveryMapLandmark";
 export type { IAutoMovieRecoveryMapJointFit } from "./IAutoMovieRecoveryMapJointFit";
+export type { IAutoMovieRecoveryRegularizationReport } from "./IAutoMovieRecoveryRegularizationReport";
+export type { IAutoMovieRecoveryRegularizationUpdate } from "./IAutoMovieRecoveryRegularizationUpdate";
 export type { IAutoMovieRecoveryMapResection } from "./IAutoMovieRecoveryMapResection";

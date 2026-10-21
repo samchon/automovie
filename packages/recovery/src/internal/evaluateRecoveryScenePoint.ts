@@ -16,10 +16,10 @@ import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
  * @evidence contracts/common.md#principled-implementation Every retained measurement independently supplies positive depth and Euclidean pixel residual. World-space centre-to-point directions determine the strongest actual acute supporting pair, whose indices accompany the diagnostic.
  * @evidence contracts/common.md#clear-and-simple-design The same point gate serves triangulation and post-joint qualification, separating observed support from seed-camera membership.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No unregistered pose, invented missing observation, depth clamp, seed ray for an unseen point or low-error-only depth inference supplies acceptance.
- * @evidence contracts/common.md#meaningful-documentation States all-observation gates, strongest acute supporting pair, null metrics, tentative material identity and pairwise-angle cost.
- * @evidence contracts/performance.md#efficient-algorithms A track with k distinct observations needs O(k) projections and O(k^2) fixed-vector angle comparisons under the admitted view/observation bounds.
- * @evidence contracts/performance.md#reuse-equivalent-work Each projection supplies its depth and pixel residual; each centre-to-point unit vector is computed once for every pair comparison.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Only owned scalar diagnostics and two view indices return. Local directions expire without modifying poses, pixels, points or external resources.
+ * @evidence contracts/common.md#meaningful-documentation States all-observation gates, strongest acute supporting pair and null metrics. Optional synchronous observation receives each registered positive-depth projection's raw residual norm before final qualification; it can be nonfinite for invalid measurements, is not an acceptance notification, and must not mutate borrowed inputs. Observer errors propagate unchanged.
+ * @evidence contracts/performance.md#efficient-algorithms A track with k observations needs O(k) projections and O(k^2) angle comparisons, plus at most k observer calls whose work the caller admits and charges. The camera owner's O(1) scalar reduction per observation is included in its existing evaluation charge before traversal.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each complete projection supplies depth and one residual norm to the gate and optional numeric reduction, avoiding a duplicate projection or depth multiplication. Each centre-to-point unit vector is computed once for every pair comparison.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only scalar diagnostics and two view indices return. This evaluator retains neither observer nor projection history after return; any observer-owned retention belongs to its caller. The camera reduction retains two local scalars and discards them on later refusal. Local directions expire without input mutation or external resources.
  */
 export function evaluateRecoveryScenePoint(
   point: readonly [number, number, number],
@@ -30,6 +30,7 @@ export function evaluateRecoveryScenePoint(
     "matrix"
   >[],
   policy: IAutoMovieRecoveryCameraMapPolicy,
+  observe?: (norm: number) => void,
 ): IAutoMovieRecoveryScenePointEvaluation {
   const reasons: Set<string> = new Set();
   const directions: IAutoMovieRecoverySceneRay[] = [];
@@ -60,18 +61,13 @@ export function evaluateRecoveryScenePoint(
       reasons.add("nonpositive-depth");
       continue;
     }
-    const inCamera: [number, number, number] = AutoMovieMatrix3.apply(
-      pose.rotation,
-      point,
+    minimumDepth = Math.min(minimumDepth, projected.depth);
+    const normPx: number = Math.hypot(
+      projected.pixel[0] - observation.pixel[0],
+      projected.pixel[1] - observation.pixel[1],
     );
-    minimumDepth = Math.min(minimumDepth, inCamera[2] + pose.translation[2]);
-    maximumReprojectionPx = Math.max(
-      maximumReprojectionPx,
-      Math.hypot(
-        projected.pixel[0] - observation.pixel[0],
-        projected.pixel[1] - observation.pixel[1],
-      ),
-    );
+    maximumReprojectionPx = Math.max(maximumReprojectionPx, normPx);
+    observe?.(normPx);
     const centre: [number, number, number] = AutoMovieMatrix3.apply(
       AutoMovieMatrix3.transpose(pose.rotation),
       pose.translation.map((value: number): number => -value),

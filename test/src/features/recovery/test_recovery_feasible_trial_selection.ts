@@ -15,7 +15,7 @@ import { nclose } from "../internal/nclose";
  * 1. Independent quadratics distinguish full overshoot, a better full, exact ties, a cheaper gate failure, and a cheaper candidate failing its own Armijo test.
  * 2. A failed mixed full permits one correction; the same arc half uses .5*p+.25*delta and the original mixed slope. A failed half retains its qualified full.
  * 3. Remaining1/2/3/4 follows T/M/conditional correction/half prefixes; all-full failure continues original baseline halving and can consume five actual trials in one model.
- * 4. Qualified unselected candidates are neither accepted commits nor failures. Unexpected core errors propagate even after a qualified baseline is retained.
+ * 4. Qualified unselected candidates are neither accepted commits nor failures. The chosen result transfers the exact retraction increment, including corrected half and baseline halving; input directions stay unchanged. Unexpected core errors propagate even after a qualified baseline is retained.
  * 5. A two-variable quadratic has a cheaper qualified full mixture with a larger tangent gradient than baseline, limiting cost protection to its actual objective ordering.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls the maintained actual-trial selector with authored detached scalar retractions and original objective/gate callbacks. Observes every evaluated state, one chosen state, path/outcome counters, checkpoints and charges without fitting or replacing a foreign function.
@@ -33,6 +33,8 @@ export function test_recovery_feasible_trial_selection(): void {
     remaining: number, mode: string = "ordinary", scale: number = 1,
   ): IRecoveryFeasibleTrialObservation => {
     const states: number[] = [];
+    const increments: (readonly number[])[] = [];
+    const baselineVector: number[] = [baseline];
     let checkpoints: number = 0, work: number = 0, corrections: number = 0, retractions: number = 0;
     const trials: IAutoMovieRecoveryFeasibleTrials = {
       baseline: 0, nominal: 0, numerical: 0, corrected: 0, half: 0, qualifiedUnselected: 0,
@@ -52,6 +54,7 @@ export function test_recovery_feasible_trial_selection(): void {
       },
       linearize: (): never => { throw new Error("selector must reuse the caller's current model"); },
       retract: (x: number, step: readonly number[]): number => {
+        increments.push(step);
         retractions++;
         if (mode === "retract-throw" && retractions === 2) throw marker;
         return x + step[0]!;
@@ -75,8 +78,9 @@ export function test_recovery_feasible_trial_selection(): void {
         numericalMixSupported: false, correctionAttempted: false, correctionSupported: false, work: 0,
       },
     };
+    const directionsBefore: string = JSON.stringify({ baselineVector, mixed: arc?.step });
     const selected: IAutoMovieRecoveryFeasibleTrialSelection<number> = selectRecoveryFeasibleTrial(
-      problem, 1, costAt(1), [baseline], 2 * scale * baseline, arc,
+      problem, 1, costAt(1), baselineVector, 2 * scale * baseline, arc,
       mixed === null ? 0 : 2 * scale * mixed, remaining, trials,
       (): void => { if (++checkpoints === 2 && mode === "checkpoint-throw") throw marker; },
       (amount: number): void => {
@@ -84,7 +88,8 @@ export function test_recovery_feasible_trial_selection(): void {
         work += amount;
       },
     );
-    return { selected, trials, states, checkpoints, work, corrections };
+    return { selected, trials, states, checkpoints, work, corrections, increments,
+      directionsUnchanged: directionsBefore === JSON.stringify({ baselineVector, mixed: arc?.step }) };
   };
   const observations: IRecoveryFeasibleTrialObservation[] = [];
   const checks: boolean[] = [];
@@ -131,6 +136,8 @@ export function test_recovery_feasible_trial_selection(): void {
   for (const row of observations) checks.push(
     row.selected.accepted && !row.selected.stalled && row.checkpoints === row.selected.iterations &&
     row.states.length === row.selected.iterations && row.work === row.trials.work &&
+    row.directionsUnchanged && row.selected.increment === row.increments[row.states.indexOf(row.selected.state)] &&
+    row.selected.increment !== null && nclose(row.selected.increment[0]!, row.selected.state - 1, 1e-15) &&
     row.trials.baseline + row.trials.nominal + row.trials.numerical + row.trials.corrected + row.trials.half === row.selected.iterations &&
     1 + row.trials.qualifiedUnselected + row.trials.infeasible + row.trials.nondecreasing + row.trials.armijo === row.selected.iterations &&
     nclose(row.selected.cost, row.selected.state ** 2 * (row === overshoot ? 0.75 : row === full ? 0.5 : 1), 1e-12),
@@ -139,9 +146,9 @@ export function test_recovery_feasible_trial_selection(): void {
   const stalled: IRecoveryFeasibleTrialObservation = run(-Number.MIN_VALUE, null, null, 2);
   let invalidHorizon: boolean = false;
   try { run(-0.5, null, null, 0); } catch (error: unknown) { invalidHorizon = error instanceof Error; }
-  checks.push(!exhausted.selected.accepted && exhausted.selected.state === 1 && exhausted.selected.iterations === 1 &&
+  checks.push(!exhausted.selected.accepted && exhausted.selected.increment === null && exhausted.selected.state === 1 && exhausted.selected.iterations === 1 &&
     exhausted.trials.nondecreasing === 1 && !exhausted.selected.stalled &&
-    !stalled.selected.accepted && stalled.selected.state === 1 && stalled.selected.iterations === 1 &&
+    !stalled.selected.accepted && stalled.selected.increment === null && stalled.selected.state === 1 && stalled.selected.iterations === 1 &&
     stalled.selected.stalled && invalidHorizon);
   // At the same normal solution, a cheaper full mixture can retain a larger
   // v-gradient than baseline. Cost protection alone is not a KKT-rate theorem.

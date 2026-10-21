@@ -1,7 +1,8 @@
 import { decomposeAutoMovieSingularMatrix } from "@automovie/engine/math/decomposeAutoMovieSingularMatrix";
-import { reduceAutoMovieQrDesign } from "@automovie/engine/math/reduceAutoMovieQrDesign";
 import type { IAutoMovieRecoveryCameraMapBudget } from "@automovie/interface/recovery";
 
+import { factorRecoveryMapDesign } from "./factorRecoveryMapDesign";
+import type { IAutoMovieRecoveryMapDesignFactor } from "../structures/internal/IAutoMovieRecoveryMapDesignFactor";
 import type { IAutoMovieRecoveryMapDesignFit } from "../structures/internal/IAutoMovieRecoveryMapDesignFit";
 
 /**
@@ -10,11 +11,11 @@ import type { IAutoMovieRecoveryMapDesignFit } from "../structures/internal/IAut
  * supplies evidence of local observability. The right side is minus residual.
  *
  * @evidence contracts/common.md#principled-implementation Scaling columns preserves physical parameter units on back substitution. Tall original designs are compressed by orthogonal Givens QR before SVD measures the same singular spectrum. An augmented identity design implements Levenberg damping without squaring condition or changing the least-squares step.
- * @evidence contracts/common.md#clear-and-simple-design This recovery numerical helper serves resection and reduced joint camera systems; model derivatives, robust loss and actual-cost acceptance belong to callers.
+ * @evidence contracts/common.md#clear-and-simple-design Shared original factorization serves this complete resection/joint LS operation and a separate metric-only operation; model derivatives, robust loss and actual acceptance remain with callers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No normal-equation inverse, singular floor, damped-rank claim or unconverged decomposition supplies a step.
  * @evidence contracts/common.md#meaningful-documentation States right-side sign, unscaled returned coordinates, dimensionless damping, original rank and preallocation entry bound.
  * @evidence contracts/performance.md#efficient-algorithms For m rows and n parameters, tall QR costs O(m*n^2), followed by square original-design SVDs costing O(S*n^3), with O(m*n+n^2) storage. Variable camera width remains explicitly bounded; compression supplies no measured host-speed guarantee.
- * @evidence contracts/performance.md#reuse-equivalent-work Column norms serve normalization and final unscaling, and undamped factors solve the zero-damping case directly.
+ * @evidence contracts/performance.md#reuse-equivalent-work Shared original factors alias the same normalized/QR arrays for gradient and answer synthesis. Column norms restore units, and zero damping reuses the independently qualified SVD.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only an owned step and scalar diagnostics return; call-local factors expire with no mutable global cache or external resource.
  */
 export function solveRecoveryMapDesign(
@@ -24,55 +25,19 @@ export function solveRecoveryMapDesign(
   damping: number,
   budget: IAutoMovieRecoveryCameraMapBudget,
 ): IAutoMovieRecoveryMapDesignFit {
-  const width: number = design[0]?.length ?? 0;
-  if (
-    width < 1 ||
-    design.length !== right.length ||
-    !right.every(Number.isFinite) ||
-    !(damping >= 0) ||
-    !Number.isFinite(damping) ||
-    (design.length + width) * width > budget.maxLinearEntries ||
-    width * width > budget.maxLinearEntries
-  )
-    throw new Error(
-      "camera-map: inadmissible local design dimensions or damping",
-    );
-  const scales: number[] = new Array<number>(width).fill(0);
-  for (const row of design) {
-    if (row.length !== width || !row.every(Number.isFinite))
-      throw new Error("camera-map: finite rectangular local design required");
-    for (let column: number = 0; column < width; column++)
-      scales[column] = Math.hypot(scales[column]!, row[column]!);
-  }
-  if (
-    scales.some(
-      (value: number): boolean => !(value > 0) || !Number.isFinite(value),
-    )
-  )
-    throw new Error("camera-map: unresolved local direction");
-  const rows: number[][] = design.map((row: readonly number[]): number[] =>
-    row.map((value: number, at: number): number => value / scales[at]!),
-  );
+  if (!(damping >= 0) || !Number.isFinite(damping))
+    throw new Error("camera-map: inadmissible local design dimensions or damping");
+  const factor: IAutoMovieRecoveryMapDesignFactor = factorRecoveryMapDesign(design, right, minimumRatio, budget);
+  const width: number = factor.scales.length;
+  const scales: number[] = factor.scales;
+  const rows: number[][] = factor.rows;
+  const solveRows: number[][] = factor.solveRows;
+  const solveRight: readonly number[] = factor.solveRight;
+  const rank: IAutoMovieRecoveryMapDesignFactor["rank"] = factor.rank;
+  const designRatio: number = factor.designRatio;
   const options: Parameters<typeof decomposeAutoMovieSingularMatrix>[1] = {
-    maxEntries: budget.maxLinearEntries,
-    maxSweeps: budget.maxSingularSweeps,
-    orthogonalityTolerance: 1e-12,
+    maxEntries: budget.maxLinearEntries, maxSweeps: budget.maxSingularSweeps, orthogonalityTolerance: 1e-12,
   };
-  const compressed: ReturnType<typeof reduceAutoMovieQrDesign> | null =
-    rows.length >= 2 * width
-      ? reduceAutoMovieQrDesign(rows, right, {
-          maxEntries: budget.maxLinearEntries,
-          maxWork: rows.length * width * (width + 1),
-        })
-      : null;
-  const solveRows: number[][] = compressed?.rows ?? rows;
-  const solveRight: readonly number[] = compressed?.right ?? right;
-  const rank: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
-    decomposeAutoMovieSingularMatrix(solveRows, options);
-  const designRatio: number =
-    rank.singularValues[width - 1]! / rank.singularValues[0]!;
-  if (!(designRatio >= minimumRatio))
-    throw new Error("camera-map: rank-degenerate local design");
   let gradient: number = 0;
   for (let column: number = 0; column < width; column++)
     gradient = Math.max(
