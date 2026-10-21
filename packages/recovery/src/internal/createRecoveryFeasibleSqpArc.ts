@@ -4,6 +4,8 @@ import type { IAutoMovieSimplexAtom } from "@automovie/engine/math/IAutoMovieSim
 import type { IAutoMovieRecoveryFeasibleModel } from "../structures/internal/IAutoMovieRecoveryFeasibleModel";
 import type { IAutoMovieRecoverySqpArc } from "../structures/internal/IAutoMovieRecoverySqpArc";
 import type { IAutoMovieRecoverySqpOptions } from "../structures/internal/IAutoMovieRecoverySqpOptions";
+import type { IAutoMovieRecoverySqpTightening } from "../structures/internal/IAutoMovieRecoverySqpTightening";
+import { chooseRecoverySqpTightening } from "./chooseRecoverySqpTightening";
 import { mixRecoveryFeasibleSqpStep } from "./mixRecoveryFeasibleSqpStep";
 
 /**
@@ -12,11 +14,11 @@ import { mixRecoveryFeasibleSqpStep } from "./mixRecoveryFeasibleSqpStep";
  * row and physical quadratic stationarity still qualify the untilted step.
  * The mixture is not the pure tilted-QP minimizer or a nonlinear certificate.
  *
- * @evidence contracts/common.md#principled-implementation Thin SVD of the independent working transpose yields equality primal/dual without normal equations. One original-physical-residual refinement reuses it before complete inactive/dual/stationarity qualification. Nominal physical-norm mixing or one original-row-supported coefficient must pass raw signs; one actual-trial correction reuses the factor with negative order-2.5 targets.
+ * @evidence contracts/common.md#principled-implementation Thin SVD of the independent working transpose yields equality primal/dual without normal equations. One original-physical-residual refinement reuses it before complete inactive/dual/stationarity qualification. Nominal physical-norm mixing or one original-row-supported coefficient must pass raw signs. The same factor corrects a failed trial toward a strict negative target capped by current descent and original dual price, under the original norm(p)^2.5 ceiling.
  * @evidence contracts/common.md#clear-and-simple-design This optional current-model owner supplies directions only; actual trials, every geometry gate, Armijo decrease, normal termination and rollback remain with their existing owners.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No singular floor, truncated inverse, dual clipping, row deletion, independent translation scaling, new tolerance or successful initial-state fallback supplies a result. Unsupported auxiliary work leaves the qualified baseline direction available.
- * @evidence contracts/common.md#meaningful-documentation Distinguishes proposed working rows from nonlinear active observations, physical and metric coordinates, independent QP certificates, order-2.5 correction and absence of a finite-trial convergence guarantee.
- * @evidence contracts/performance.md#efficient-algorithms For H selected rows and q exact nonzero coordinates, thin original-design work costs O(S*(q+H)*H^2+q*H^2); complete row scans cost O(Z+n+m). Conservative reserves include transpose/SVD copies, one equality refinement, dual reconstruction, at most two mixture candidates, metric actions bounded by O(n^2), and one correction before scalable allocation.
+ * @evidence contracts/common.md#meaningful-documentation Separates independent QP, target arithmetic, correction and actual normal status. The cap has conditional order2.5 only with comparable steps, quadratic descent and bounded price; finite equality checks, numerical mixing and current GN do not certify local full feasibility, Armijo or a finite-trial rate.
+ * @evidence contracts/performance.md#efficient-algorithms For H selected rows and q exact nonzero coordinates, thin original-design work costs O(S*(q+H)*H^2+q*H^2); complete row scans cost O(Z+n+m). The prepaid 1024*(Z+physicalZ+n+m+H^2) linear reserve includes the additional objective dot and selected row-norm/price pass (at most 32*(physicalZ+n+m) visits), plus the existing correction's repeated selected norms. Transpose/SVD, equality refinement, dual reconstruction, two mixtures, O(n^2) metric actions and one correction remain reserved before allocation. No late correction charge changes report.work after the generic owner has accumulated it.
  * @evidence contracts/performance.md#reuse-equivalent-work The same current metric and thin factor supply the equality estimate, dual and one correction. No new Jacobian, image, matching, native solver, full nullspace or Gram factor is introduced.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Before scalable numerical allocation, input plus scratch, owner resident retention and conservative visits are admitted. Fixed refusal metadata is separate from numerical slots and JS object overhead; conservative 128 base and 1024 auxiliary slots cover fixed numerical state. One model retains factors/vectors, without previous-factor or rejected-trial caches.
  */
@@ -37,7 +39,8 @@ export function createRecoveryFeasibleSqpArc(
       stationarityResidual: null, stationarityScale: null, mixWeight: null,
       equalityBeforeRefinement: null, refinementAttempted: false, nominalMixWeight: null,
       numericalMixAttempted: false, numericalMixSupported: false,
-      correctionAttempted: false, correctionSupported: false, work: 0,
+      correctionAttempted: false, correctionSupported: false,
+      correctionTightening: null, correctionFailure: null, work: 0,
     },
   };
   const fail: (reason: string) => IAutoMovieRecoverySqpArc = (
@@ -239,15 +242,33 @@ export function createRecoveryFeasibleSqpArc(
   result.report.reason = mixture.numericalSupported ? "full-affine-qp-numerical-mixture" : "full-affine-qp-mixed";
   if (factor === null) return result;
   const retainedFactor: NonNullable<typeof factor> = factor;
-  const mixedNorm: number = length(mixed), tightening: number = mixedNorm ** 2.5;
+  const mixedNorm: number = length(mixed);
+  const tightening: IAutoMovieRecoverySqpTightening = chooseRecoverySqpTightening(
+    model.physicalRows, result.selected, lambda, mixed, norm, mixedNorm,
+  );
+  result.report.correctionTightening = tightening;
   result.correct = (values: readonly number[]): number[] | null => {
     if (result.report.correctionAttempted) throw new Error("camera-sqp: one correction per base model required");
     result.report.correctionAttempted = true;
-    if (values.length !== H || !values.every(Number.isFinite) || !(tightening > 0) || !Number.isFinite(tightening)) return null;
-    const right: number[] = result.selected.map((at: number, index: number): number =>
-      -values[index]! - length(model.physicalRows[at]!.values) * tightening,
-    );
-    if (!right.every(Number.isFinite)) return null;
+    if (values.length !== H || !values.every(Number.isFinite)) {
+      result.report.correctionFailure = "trial-values-unresolved";
+      return null;
+    }
+    if (tightening.value === null) {
+      result.report.correctionFailure = "target-unresolved";
+      return null;
+    }
+    const right: number[] = [];
+    for (let index: number = 0; index < H; index++) {
+      const margin: number = length(model.physicalRows[result.selected[index]!]!.values) * tightening.value;
+      const value: number = -values[index]! - margin;
+      // The desired negative margin must survive in this RHS; the RHS itself may be positive.
+      if (!(margin > 0) || !Number.isFinite(margin) || !Number.isFinite(value) || !(value < -values[index]!)) {
+        result.report.correctionFailure = "trial-target-unresolved";
+        return null;
+      }
+      right.push(value);
+    }
     const correction: number[] = new Array<number>(n).fill(0);
     for (let k: number = 0; k < H; k++) {
       let projection: number = 0;
@@ -256,12 +277,22 @@ export function createRecoveryFeasibleSqpArc(
       for (let at: number = 0; at < q; at++) correction[coordinates[at]!]! += retainedFactor.leftColumns[k]![at]! * amount;
     }
     const answer: number[] = model.fromMetric(correction);
-    if (answer.length !== n || !answer.every(Number.isFinite) || !(length(answer) <= mixedNorm)) return null;
+    if (answer.length !== n || !answer.every(Number.isFinite)) {
+      result.report.correctionFailure = "correction-unresolved";
+      return null;
+    }
+    if (!(length(answer) <= mixedNorm)) {
+      result.report.correctionFailure = "correction-too-large";
+      return null;
+    }
     for (let at: number = 0; at < H; at++) {
       const row: IAutoMovieSimplexAtom = model.physicalRows[result.selected[at]!]!;
       let value: number = -right[at]!;
       for (let entry: number = 0; entry < row.indices.length; entry++) value += row.values[entry]! * answer[row.indices[entry]!]!;
-      if (!Number.isFinite(value) || Math.abs(value) > tolerance * Math.max(1, Math.abs(right[at]!))) return null;
+      if (!Number.isFinite(value) || Math.abs(value) > tolerance * Math.max(1, Math.abs(right[at]!))) {
+        result.report.correctionFailure = "correction-equality-unresolved";
+        return null;
+      }
     }
     result.report.correctionSupported = true;
     return answer;

@@ -1,3 +1,5 @@
+import type { IAutoMovieRecoverySqpTightening } from "./IAutoMovieRecoverySqpTightening";
+
 /**
  * Latest optional working-space and curvature attempt, without a trajectory.
  *
@@ -60,6 +62,19 @@ export interface IAutoMovieRecoverySqpReport {
 
   /** Whether that single minimum-metric correction met its support conditions. */
   correctionSupported: boolean;
+
+  /** Prepared current-model scalar target; null without an independent correction factor. */
+  correctionTightening: IAutoMovieRecoverySqpTightening | null;
+
+  /** Latest one-use correction refusal, separate from the qualified mixed direction. */
+  correctionFailure:
+    | "trial-values-unresolved"
+    | "target-unresolved"
+    | "trial-target-unresolved"
+    | "correction-unresolved"
+    | "correction-too-large"
+    | "correction-equality-unresolved"
+    | null;
 
   /** Conservative visits charged before scans, factorization and correction. */
   work: number;

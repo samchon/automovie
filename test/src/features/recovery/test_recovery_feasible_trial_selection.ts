@@ -75,7 +75,8 @@ export function test_recovery_feasible_trial_selection(): void {
         designRatio: 1, maximumViolation: 0, equalityResidual: 0, stationarityResidual: 0,
         stationarityScale: 1, mixWeight: 0.5, equalityBeforeRefinement: 0,
         refinementAttempted: false, nominalMixWeight: 0.5, numericalMixAttempted: false,
-        numericalMixSupported: false, correctionAttempted: false, correctionSupported: false, work: 0,
+        numericalMixSupported: false, correctionAttempted: false, correctionSupported: false,
+        correctionTightening: null, correctionFailure: null, work: 0,
       },
     };
     const directionsBefore: string = JSON.stringify({ baselineVector, mixed: arc?.step });
@@ -169,7 +170,8 @@ export function test_recovery_feasible_trial_selection(): void {
       designRatio: 1, maximumViolation: 0, equalityResidual: 0, stationarityResidual: 0,
       stationarityScale: 1, mixWeight: rho, equalityBeforeRefinement: 0, refinementAttempted: false,
       nominalMixWeight: rho, numericalMixAttempted: false, numericalMixSupported: false,
-      correctionAttempted: false, correctionSupported: false, work: 0,
+      correctionAttempted: false, correctionSupported: false,
+      correctionTightening: null, correctionFailure: null, work: 0,
     },
   };
   const sideInitial: number[] = [0, e];

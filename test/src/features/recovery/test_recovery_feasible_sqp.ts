@@ -2,11 +2,13 @@ import { TestValidator } from "@nestia/e2e";
 
 import type { IAutoMovieSimplexAtom } from "../../../../packages/engine/src/math/IAutoMovieSimplexAtom";
 import { createRecoveryFeasibleSqpArc } from "../../../../packages/recovery/src/internal/createRecoveryFeasibleSqpArc";
+import { chooseRecoverySqpTightening } from "../../../../packages/recovery/src/internal/chooseRecoverySqpTightening";
 import { mixRecoveryFeasibleSqpStep } from "../../../../packages/recovery/src/internal/mixRecoveryFeasibleSqpStep";
 import { solveRecoveryFeasibleDirection } from "../../../../packages/recovery/src/internal/solveRecoveryFeasibleDirection";
 import type { IAutoMovieRecoveryFeasibleModel } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoveryFeasibleModel";
 import type { IAutoMovieRecoverySqpArc } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoverySqpArc";
 import type { IAutoMovieRecoverySqpOptions } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoverySqpOptions";
+import type { IAutoMovieRecoverySqpTightening } from "../../../../packages/recovery/src/structures/internal/IAutoMovieRecoverySqpTightening";
 import { nclose } from "../internal/nclose";
 
 /**
@@ -18,9 +20,11 @@ import { nclose } from "../internal/nclose";
  * 3. Empty, dependent and capacity/work-limited working spaces take their declared supported/refused branches without a normal success.
  * 4. A disk tangent trial fails before a negative-target correction, including a nondiagonal physical metric and an oversized correction refusal.
  * 5. Finite inputs whose physical dot overflows to NaN cannot receive a full affine certificate; bounded numerical mixing constructs a new strict vector instead of accepting a positive row error.
+ * 6. Known diagonal-QP duals distinguish objective cap, original ceiling, structural zero and conditional row scaling; positive-price underflow and unresolved division supply no target.
+ * 7. A known-curvature reference has a feasible cost-increasing mixed full; the capped same-factor correction has an independently derived target and actual feasible decrease. An RHS that absorbs its strict margin retains the valid mixed step but refuses correction.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls the actual sparse direction primitive, thin working-space adapter and retained correction. Input ownership, preallocation and one-use correction are checked at their numerical boundary.
- * @evidence contracts/testing.md#independent-expectations Authored W*z=b and z+c+W^T*lambda=0 give the off-axis solution and the two rejection examples. For a disk at (2,0), delta_x=-g(trial)-norm(step)^2.5 and delta_y=-M*delta_x follow directly from H=[[M^2+1,M],[M,1]].
+ * @evidence contracts/testing.md#independent-expectations Authored W*z=b and z+c+W^T*lambda=0 give the off-axis solution and rejection examples. Diagonal H with p=[0,.1], normal[1,0] and original dual1 gives closed scalar cap/ceiling values. Disk and curved-reference corrections use the authored inverse-H normal direction and independent physical f dot actual p, without using the target helper's output as an oracle. A single corrected descent is not a full-support or finite100 theorem.
  * @evidence contracts/testing.md#distinguishing-cases Separates equality estimates from complete affine-QP and nonlinear certificates, catches transpose/sign/permutation/scaling errors, and keeps every inactive row and hard disk. This is not photograph registration evidence.
  * @evidence contracts/testing.md#execution-ownership The portable test_recovery_feasible_sqp entry uses maintained numerical functions and authored arrays, without filesystem, process, compiler, browser, installation or GPU.
  */
@@ -112,7 +116,8 @@ export function test_recovery_feasible_sqp(): void {
     if (!arc.report.qualified || arc.step === null || arc.correct === null || arc.sqpStep === null) return false;
     const p: number[] = arc.step;
     const g: number = ((2 + p[0]!) ** 2 + p[1]! ** 2) / 4 - 1;
-    const expected: number = -g - Math.hypot(...p) ** 2.5;
+    const descent: number = -((-1 - M * t) * p[0]! - t * p[1]!);
+    const expected: number = -g - Math.min(Math.hypot(...p) ** 2.5, Math.sqrt(t) * descent);
     const correction: number[] | null = arc.correct([g]);
     if (M === 1000) return correction === null && !arc.report.correctionSupported;
     if (correction === null) return false;
@@ -124,6 +129,83 @@ export function test_recovery_feasible_sqp(): void {
     return g > 0 && actual < 0 && repeated && nclose(arc.sqpStep[0]!, 0, 1e-12) && nclose(arc.sqpStep[1]!, t, 1e-12) &&
       nclose(correction[0]!, expected, 1e-12) && nclose(correction[1]!, -M * expected, 1e-12);
   });
+  const scalarRows: (gradient: number[], normal: number[]) => IAutoMovieSimplexAtom[] = (
+    gradient: number[], normal: number[],
+  ): IAutoMovieSimplexAtom[] => [
+    { indices: gradient.map((_value: number, at: number): number => at), values: gradient, offset: 0 },
+    { indices: normal.map((_value: number, at: number): number => at), values: normal, offset: 0 },
+  ];
+  const capRows: IAutoMovieSimplexAtom[] = scalarRows([-1, -0.01], [1, 0]);
+  const capBefore: string = JSON.stringify(capRows);
+  const capped: IAutoMovieRecoverySqpTightening = chooseRecoverySqpTightening(capRows, [1], [1], [0, 0.1], 0.1, 0.1);
+  const ceiling: IAutoMovieRecoverySqpTightening = chooseRecoverySqpTightening(scalarRows([-1, -0.2], [1, 0]), [1], [1], [0, 0.1], 0.1, 0.1);
+  const zeroPrice: IAutoMovieRecoverySqpTightening = chooseRecoverySqpTightening(scalarRows([0, -0.1], [1, 0]), [1], [0], [0, 0.1], 0.1, 0.1);
+  const scaledPrice: IAutoMovieRecoverySqpTightening = chooseRecoverySqpTightening(scalarRows([-1, -0.01], [8, 0]), [1], [1 / 8], [0, 0.1], 0.1, 0.1);
+  const underflowPrice: IAutoMovieRecoverySqpTightening = chooseRecoverySqpTightening(scalarRows([0, -0.01], [0.5, 0]), [1], [Number.MIN_VALUE], [0, 0.1], 0.1, 0.1);
+  const underflowCap: IAutoMovieRecoverySqpTightening = chooseRecoverySqpTightening(scalarRows([-1e308, -1e-99], [1, 0]), [1], [1e308], [0, 0.1], 0.1, 0.1);
+  const underflowCeiling: IAutoMovieRecoverySqpTightening = chooseRecoverySqpTightening(scalarRows([0, -1], [1, 0]), [1], [1], [0, 1e-200], 0.1, 1e-200);
+  const overflowingNorm: IAutoMovieRecoverySqpTightening = chooseRecoverySqpTightening(scalarRows([-1, -1, -1, -1], [1e308, 1e308, 1e308, 1e308]), [1], [1], [0, 0, 0, 0.1], 0.1, 0.1);
+  let invalidDual: boolean = false;
+  try { chooseRecoverySqpTightening(capRows, [1], [-1], [0, 0.1], 0.1, 0.1); } catch (error: unknown) {
+    invalidDual = error instanceof Error && error.message === "camera-sqp: ordered original correction dual required";
+  }
+  TestValidator.predicate("current dual prices the target without underflow becoming zero price",
+    capped.reason === "objective-cap" && capped.value !== null && nclose(capped.value, 0.001 * Math.sqrt(0.1), 1e-14) &&
+    nclose(capped.multiplierPrice!, 1, 1e-14) && nclose(capped.descent!, 0.001, 1e-14) &&
+    ceiling.reason === "original-ceiling" && nclose(ceiling.value!, 0.1 ** 2.5, 1e-14) &&
+    zeroPrice.reason === "zero-multiplier-price" && zeroPrice.multiplierPrice === 0 && nclose(zeroPrice.value!, 0.1 ** 2.5, 1e-14) &&
+    scaledPrice.reason === "objective-cap" && nclose(scaledPrice.value!, capped.value!, 1e-14) &&
+    underflowPrice.value === null && underflowPrice.multiplierPrice === null && underflowPrice.reason === "multiplier-price-unresolved" &&
+    underflowCap.value === null && underflowCap.reason === "cap-unresolved" &&
+    underflowCeiling.value === null && underflowCeiling.reason === "tightening-unresolved" &&
+    overflowingNorm.value === null && overflowingNorm.reason === "multiplier-price-unresolved" && invalidDual && JSON.stringify(capRows) === capBefore,
+  );
+
+  const a: number = 0.5, beta: number = 1.998, t: number = 0.001, n: number = beta * t * t / 2;
+  const hn: number = 1.001, ht: number = 1 - a * beta + 0.001;
+  const scales: number[] = [Math.sqrt(hn), Math.sqrt(ht)];
+  const referenceRows: IAutoMovieSimplexAtom[] = [
+    { indices: [0, 1], values: [n - a, t], offset: 0 },
+    { indices: [0, 1], values: [1, -beta * t], offset: 0 },
+  ];
+  const referenceBefore: string = JSON.stringify(referenceRows);
+  const reference: IAutoMovieRecoveryFeasibleModel = {
+    width: 2, physicalRows: referenceRows,
+    rows: referenceRows.map((row: IAutoMovieSimplexAtom): IAutoMovieSimplexAtom => ({
+      ...row, values: row.values.map((value: number, axis: number): number => value / scales[axis]!),
+    })),
+    fromMetric: (value: readonly number[]): number[] => value.map((entry: number, axis: number): number => entry / scales[axis]!),
+    toPhysicalCovector: (value: readonly number[]): number[] => value.map((entry: number, axis: number): number => entry * scales[axis]!),
+  };
+  const referenceArc: IAutoMovieRecoverySqpArc = attempt(reference);
+  let referenceCorrection: boolean = false;
+  if (referenceArc.step !== null && referenceArc.correct !== null && referenceArc.sqpStep !== null) {
+    const p: number[] = referenceArc.step;
+    const pt: number = -(t + beta * t * (n - a)) / (ht + hn * beta * beta * t * t), pn: number = beta * t * pt;
+    const multiplier: number = -(n - a) - hn * pn, rowNorm: number = Math.hypot(1, beta * t);
+    const descent: number = -((n - a) * p[0]! + t * p[1]!);
+    const expectedTarget: number = Math.min(Math.hypot(...p) ** 2.5, Math.sqrt(Math.hypot(pn, pt)) * descent / (multiplier * rowNorm));
+    const trialG: number = n + p[0]! - beta * (t + p[1]!) * (t + p[1]!) / 2;
+    const rhs: number = -trialG - rowNorm * expectedTarget, denominator: number = 1 / hn + (beta * t) ** 2 / ht;
+    const expectedNormal: number = rhs / hn / denominator, expectedTangent: number = -beta * t * rhs / ht / denominator;
+    const correction: number[] | null = referenceArc.correct([trialG]);
+    if (correction !== null) {
+      const nextN: number = n + p[0]! + correction[0]!, nextT: number = t + p[1]! + correction[1]!;
+      const baseCost: number = ((n - a) ** 2 + t * t) / 2;
+      referenceCorrection = trialG < 0 && ((n + p[0]! - a) ** 2 + (t + p[1]!) ** 2) / 2 > baseCost &&
+        referenceArc.report.correctionTightening?.reason === "objective-cap" &&
+        nclose(referenceArc.report.correctionTightening.value!, expectedTarget, 1e-14) &&
+        nclose(correction[0]!, expectedNormal, 1e-12) && nclose(correction[1]!, expectedTangent, 1e-12) &&
+        nextN - beta * nextT * nextT / 2 <= 0 && ((nextN - a) ** 2 + nextT * nextT) / 2 < baseCost;
+    }
+  }
+  const absorbed: IAutoMovieRecoverySqpArc = attempt(reference), preservedStep: number[] | null = absorbed.step;
+  const absentCorrection: number[] | null = absorbed.correct?.([-1e300]) ?? null;
+  TestValidator.predicate("a priced same-factor correction retains actual gates and representable strict targets",
+    referenceCorrection && JSON.stringify(referenceRows) === referenceBefore && absentCorrection === null &&
+    absorbed.step === preservedStep && preservedStep !== null && absorbed.report.qualified &&
+    absorbed.report.correctionAttempted && !absorbed.report.correctionSupported && absorbed.report.correctionFailure === "trial-target-unresolved",
+  );
   TestValidator.predicate("original design, full affine certificate, resources and curvature are distinct",
     offAxis.report.qualified && offAxis.sqpStep !== null && offAxis.sqpStep.every((x: number, at: number): boolean => nclose(x, [1, 0, 1][at]!, 1e-10)) &&
     offAxis.multipliers.every((x: number, at: number): boolean => nclose(x, [1, 2][at]!, 1e-10)) &&
