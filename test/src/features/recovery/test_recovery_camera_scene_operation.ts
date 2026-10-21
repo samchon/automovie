@@ -68,6 +68,7 @@ export function test_recovery_camera_scene_operation(): void {
         (count: number): boolean => count === 0,
       ) &&
       result.value.work.jointFits === 0 &&
+      !Object.hasOwn(result.value, "refusedSeedJoint") &&
       result.value.objectId === "analytic-visibility-chain" &&
       result.value.policy.maximumReprojectionErrorPx === 2 &&
       result.value.sources[4]!.camera.focalPx[0] === 820,
