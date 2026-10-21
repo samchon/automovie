@@ -6,3 +6,4 @@ export { publishAutoMovieRecoveryArtifact } from "./publishAutoMovieRecoveryArti
 export type { IAutoMovieRecoveryImageFiles } from "../structures/image/IAutoMovieRecoveryImageFiles";
 export type { IAutoMovieRecoveryCameraFiles } from "../structures/image/IAutoMovieRecoveryCameraFiles";
 export type { IAutoMovieRecoveryCameraMapFiles } from "../structures/image/IAutoMovieRecoveryCameraMapFiles";
+export type { IAutoMovieRecoveryCameraSceneFiles } from "../structures/image/IAutoMovieRecoveryCameraSceneFiles";

@@ -1,12 +1,11 @@
-import { decodeAutoMoviePpmImage } from "@automovie/ingest/ppm";
 import type { IAutoMovieRecoveryCameraMapInput } from "@automovie/interface/recovery";
 import { createHash } from "node:crypto";
-import path from "node:path";
 
 import { estimateAutoMovieRecoveryCameraMap } from "../../observation/estimateAutoMovieRecoveryCameraMap";
 import type { IAutoMovieRecoveryCameraMapFiles } from "../../structures/image/IAutoMovieRecoveryCameraMapFiles";
 import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
 import { readAutoMovieRecoveryBoundedFile } from "./readAutoMovieRecoveryBoundedFile";
+import { readRecoveryCameraImages } from "./readRecoveryCameraImages";
 
 /**
  * Acquire fixed three-image bytes and publish one immutable sparse-map artifact.
@@ -87,44 +86,14 @@ export function recoveryCameraMap(args: string[], sourceEpoch: string): void {
       "A closed three-image camera-map manifest with explicit pixel/header budgets is required",
     );
   const started: number = performance.now();
-  const views: IAutoMovieRecoveryCameraMapInput["views"] = [];
-  let pixels: number = 0;
-  for (const view of spec.views) {
-    if (
-      !closed(view, ["id", "path", "sha256", "pixelProvenance", "camera"]) ||
-      typeof view.path !== "string" ||
-      !view.path ||
-      typeof view.sha256 !== "string" ||
-      !/^[0-9a-f]{64}$/.test(view.sha256) ||
-      typeof view.pixelProvenance !== "string" ||
-      !view.pixelProvenance.trim()
-    )
-      throw new Error(
-        "Every map image requires closed path/hash/provenance/calibration metadata",
-      );
-    const image: Buffer = readAutoMovieRecoveryBoundedFile(
-      path.resolve(path.dirname(inputPath), view.path),
+  const views: IAutoMovieRecoveryCameraMapInput["views"] =
+    readRecoveryCameraImages(
+      spec.views,
+      inputPath,
       maxInputBytes,
+      spec.capture.budget.maxPixels,
+      spec.maxHeaderBytes,
     );
-    if (createHash("sha256").update(image).digest("hex") !== view.sha256)
-      throw new Error(`Fixed camera image hash mismatch: ${view.id}`);
-    const decoded: ReturnType<typeof decodeAutoMoviePpmImage> =
-      decodeAutoMoviePpmImage(image, {
-        maxPixels: spec.capture.budget.maxPixels - pixels,
-        maxHeaderBytes: spec.maxHeaderBytes,
-        transfer: "srgb",
-      });
-    pixels += decoded.width * decoded.height;
-    views.push({
-      id: view.id,
-      sourceSha256: view.sha256,
-      pixelProvenance: `${view.pixelProvenance}; host decoded fixed P6 sRGB RGB8 without orientation, crop, resize or rectification`,
-      width: decoded.width,
-      height: decoded.height,
-      rgb8: decoded.rgb8,
-      camera: view.camera,
-    });
-  }
   const outcome: ReturnType<typeof estimateAutoMovieRecoveryCameraMap> =
     estimateAutoMovieRecoveryCameraMap({ ...spec.capture, views });
   if (!("value" in outcome)) throw new Error(outcome.diagnostics.join("; "));

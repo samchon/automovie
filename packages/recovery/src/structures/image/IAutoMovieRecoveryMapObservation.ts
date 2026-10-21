@@ -10,7 +10,7 @@
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Plain owned data acquires no external resource.
  */
 export interface IAutoMovieRecoveryMapObservation {
-  /** Index in the three-source array; zero and one are the seed. */
+  /** Index in the owning operation's source array; zero and one are the seed. */
   viewIndex: number;
 
   /** Index in this image's once-observed feature population. */

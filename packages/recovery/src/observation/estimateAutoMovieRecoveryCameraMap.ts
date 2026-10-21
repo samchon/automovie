@@ -2,8 +2,7 @@ import type { IAutoMovieRecoveryCameraMapInput } from "@automovie/interface/reco
 
 import { admitRecoveryCameraMap } from "../internal/admitRecoveryCameraMap";
 import { createRecoveryCameraMap } from "../internal/createRecoveryCameraMap";
-import { extractRecoveryImageFeatures } from "../internal/extractRecoveryImageFeatures";
-import { matchRecoveryImageFeatures } from "../internal/matchRecoveryImageFeatures";
+import { observeRecoveryCameraSet } from "../internal/observeRecoveryCameraSet";
 import type { IAutoMovieRecoveryCameraMapEstimate } from "../structures/image/IAutoMovieRecoveryCameraMapEstimate";
 import type { IAutoMovieRecoveryOptions } from "../structures/operation/IAutoMovieRecoveryOptions";
 import type { AutoMovieRecoveryOperator } from "../typings/AutoMovieRecoveryOperator";
@@ -94,62 +93,21 @@ export function estimateAutoMovieRecoveryCameraMap(
       callback = false;
       if (signal?.aborted) throw cancellation;
     };
-    const features: ReturnType<typeof extractRecoveryImageFeatures>[] = [];
-    for (const view of stable.views) {
-      checkpoint("map-image-features", features.length, 3);
-      features.push(
-        extractRecoveryImageFeatures(
-          view,
-          stable.seedPolicy,
-          stable.seedBudget,
-        ),
+    const observed: ReturnType<typeof observeRecoveryCameraSet> =
+      observeRecoveryCameraSet(
+        stable.views,
+        stable.seedPolicy,
+        stable.seedBudget,
+        stable.budget.maxDescriptorPairs,
+        (phase: string, completed: number, total: number): void =>
+          checkpoint(`map-${phase}`, completed, total),
       );
-    }
-    checkpoint("map-image-features", 3, 3);
-    let descriptorComparisons: number = 0;
-    for (const [first, second] of [
-      [0, 1],
-      [0, 2],
-      [1, 2],
-    ])
-      descriptorComparisons +=
-        2 * features[first!]!.points.length * features[second!]!.points.length;
-    if (
-      !Number.isSafeInteger(descriptorComparisons) ||
-      descriptorComparisons > stable.budget.maxDescriptorPairs
-    )
-      throw new Error("camera-map: aggregate descriptor pair budget exhausted");
-    const pairs: Parameters<typeof createRecoveryCameraMap>[3][number][] = [];
-    for (const [first, second] of [
-      [0, 1],
-      [0, 2],
-      [1, 2],
-    ]) {
-      checkpoint("map-descriptor-matching", pairs.length, 3);
-      pairs.push({
-        first: first!,
-        second: second!,
-        forward: matchRecoveryImageFeatures(
-          features[first!]!.points,
-          features[second!]!.points,
-          stable.seedPolicy.descriptorDistanceRatio,
-          stable.seedBudget.maxDescriptorPairs,
-        ),
-        reverse: matchRecoveryImageFeatures(
-          features[second!]!.points,
-          features[first!]!.points,
-          stable.seedPolicy.descriptorDistanceRatio,
-          stable.seedBudget.maxDescriptorPairs,
-        ),
-      });
-    }
-    checkpoint("map-descriptor-matching", 3, 3);
     const value: IAutoMovieRecoveryCameraMapEstimate = createRecoveryCameraMap(
       stable,
-      features,
+      observed.features,
       charts,
-      pairs,
-      descriptorComparisons,
+      observed.pairs,
+      observed.descriptorComparisons,
       checkpoint,
     );
     checkpoint("camera-map-ready", 1, 1);

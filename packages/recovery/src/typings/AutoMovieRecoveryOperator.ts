@@ -17,4 +17,5 @@ export type AutoMovieRecoveryOperator =
   | "image-support-loft-v1"
   | "calibrated-image-pair-v1"
   | "calibrated-three-camera-map-v1"
+  | "calibrated-camera-scene-v1"
   | "json-publication-v1";

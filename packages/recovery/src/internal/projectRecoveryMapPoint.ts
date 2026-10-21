@@ -1,6 +1,7 @@
 import { AutoMovieMatrix3 } from "@automovie/engine/math/AutoMovieMatrix3";
 
 import type { IAutoMovieRecoveryMapPose } from "../structures/image/IAutoMovieRecoveryMapPose";
+import type { IAutoMovieRecoveryMapProjection } from "../structures/internal/IAutoMovieRecoveryMapProjection";
 
 /**
  * Project a finite world point and differentiate the calibrated pixel chart.
@@ -13,19 +14,14 @@ import type { IAutoMovieRecoveryMapPose } from "../structures/image/IAutoMovieRe
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No depth clamp, finite-difference derivative, expected camera or zero-residual replacement supplies a projection; nonrepresentable positive-depth arithmetic throws.
  * @evidence contracts/common.md#meaningful-documentation States transform/update conventions, derivative frames, positive-depth null and complete focal/skew pixel units.
  * @evidence contracts/performance.md#efficient-algorithms One point needs constant-size matrix actions and two six/three-column derivative rows, independent of image resolution.
- * @evidence contracts/performance.md#reuse-equivalent-work Rotated coordinates and reciprocal depth serve both pixel coordinates and all derivatives in the same call.
+ * @evidence contracts/performance.md#reuse-equivalent-work Rotated coordinates and depth serve pixels and all derivatives. Fixed loops fill only final derivative rows, preserving each zero-seeded three-term sum and its order without map/reduce or flattened validation arrays.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Owned fixed-size derivative rows transfer to the caller; no point array, image, cache or external handle remains.
  */
 export function projectRecoveryMapPoint(
   pose: IAutoMovieRecoveryMapPose,
   point: readonly [number, number, number],
   intrinsic: readonly number[],
-): {
-  pixel: [number, number];
-  depth: number;
-  cameraJacobian: number[][];
-  pointJacobian: number[][];
-} | null {
+): IAutoMovieRecoveryMapProjection | null {
   const rotated: [number, number, number] = AutoMovieMatrix3.apply(
     pose.rotation,
     point,
@@ -51,31 +47,25 @@ export function projectRecoveryMapPoint(
     [0, intrinsic[4]! / q[2]!, (-intrinsic[4]! * y) / q[2]!],
   ];
   const skew: number[] = AutoMovieMatrix3.skew(rotated);
-  const cameraJacobian: number[][] = chart.map((row: number[]): number[] => [
-    ...[0, 1, 2].map(
-      (column: number): number =>
-        -row.reduce(
-          (sum: number, value: number, at: number): number =>
-            sum + value * skew[3 * at + column]!,
-          0,
-        ),
-    ),
-    ...row,
-  ]);
-  const pointJacobian: number[][] = chart.map((row: number[]): number[] =>
-    [0, 1, 2].map((column: number): number =>
-      row.reduce(
-        (sum: number, value: number, at: number): number =>
-          sum + value * pose.rotation[3 * at + column]!,
-        0,
-      ),
-    ),
-  );
-  if (
-    ![...pixel, ...cameraJacobian.flat(), ...pointJacobian.flat()].every(
-      Number.isFinite,
-    )
-  )
+  const cameraJacobian: number[][] = [], pointJacobian: number[][] = [];
+  for (const row of chart) {
+    const camera: number[] = new Array<number>(6), world: number[] = new Array<number>(3);
+    for (let column: number = 0; column < 3; column++) {
+      let cameraValue: number = 0, pointValue: number = 0;
+      for (let at: number = 0; at < 3; at++) {
+        cameraValue += row[at]! * skew[3 * at + column]!;
+        pointValue += row[at]! * pose.rotation[3 * at + column]!;
+      }
+      camera[column] = -cameraValue;
+      camera[3 + column] = row[column]!;
+      world[column] = pointValue;
+    }
+    cameraJacobian.push(camera);
+    pointJacobian.push(world);
+  }
+  if (!pixel.every(Number.isFinite) || cameraJacobian.some(
+    (row: number[]): boolean => !row.every(Number.isFinite),
+  ) || pointJacobian.some((row: number[]): boolean => !row.every(Number.isFinite)))
     throw new Error("camera-map: nonrepresentable projection derivative");
   return { pixel, depth: q[2]!, cameraJacobian, pointJacobian };
 }

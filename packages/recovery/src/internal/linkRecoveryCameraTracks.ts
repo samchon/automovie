@@ -1,11 +1,12 @@
 import type { IAutoMovieRecoveryCameraMapBudget } from "@automovie/interface/recovery";
 
 import type { IAutoMovieRecoveryMapObservation } from "../structures/image/IAutoMovieRecoveryMapObservation";
+import type { IAutoMovieRecoveryTrackPair } from "../structures/internal/IAutoMovieRecoveryTrackPair";
+import type { IAutoMovieRecoveryTrackLinkage } from "../structures/internal/IAutoMovieRecoveryTrackLinkage";
 import type { extractRecoveryImageFeatures } from "./extractRecoveryImageFeatures";
-import type { matchRecoveryImageFeatures } from "./matchRecoveryImageFeatures";
 
 /**
- * Link bidirectionally ratio-qualified feature identities across three images.
+ * Link bidirectionally ratio-qualified feature identities across fixed images.
  * A component containing two feature indices from one image is explicitly
  * conflicting and is withheld; even a conflict-free component is tentative
  * appearance linkage rather than material truth or a geometric landmark.
@@ -20,20 +21,9 @@ import type { matchRecoveryImageFeatures } from "./matchRecoveryImageFeatures";
  */
 export function linkRecoveryCameraTracks(
   features: readonly ReturnType<typeof extractRecoveryImageFeatures>[],
-  pairs: readonly {
-    first: number;
-    second: number;
-    forward: ReturnType<typeof matchRecoveryImageFeatures>;
-    reverse: ReturnType<typeof matchRecoveryImageFeatures>;
-  }[],
+  pairs: readonly IAutoMovieRecoveryTrackPair[],
   budget: IAutoMovieRecoveryCameraMapBudget,
-): {
-  tracks: { id: number; observations: IAutoMovieRecoveryMapObservation[] }[];
-  linkedObservations: number;
-  components: number;
-  conflictingComponents: number;
-  intersectionMatches: number;
-} {
+): IAutoMovieRecoveryTrackLinkage {
   const offsets: number[] = [0];
   for (const feature of features)
     offsets.push(offsets[offsets.length - 1]! + feature.points.length);

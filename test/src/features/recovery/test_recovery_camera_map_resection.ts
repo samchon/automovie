@@ -18,10 +18,11 @@ import { nclose } from "../internal/nclose";
  * 2. Six camera and three world-point analytic derivatives agree with independent central differences; a point behind the camera has no projection.
  * 3. Robust resection handles separated pixel outliers; fixed-support refinement converges with actual cost descent and reports an exhausted one-step budget.
  * 4. Planar/collinear nonminimal DLT, insufficient pairs and insufficient robust support refuse without a replacement pose.
+ * 5. Full derivatives retain signed zero and reject tiny-positive-depth overflow or malformed/overflowing matrix actions; negative depth remains null before intrinsic arithmetic.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls actual DLT, projection, six-coordinate updates, robust consensus and local fitting, asserting camera coefficients, point derivatives, inlier identities, descent, nonconvergence and refusal rather than repository structure.
  * @evidence contracts/testing.md#independent-expectations Prescribed nonplanar world points, trigonometric Y rotations, nonunit translation and direct scalar pinhole equations supply truth. A known affine change Xnew=2*X+offset gives R unchanged and tnew=2*t-R*offset. Central differences check the declared projection chart, not photographic accuracy.
- * @evidence contracts/testing.md#distinguishing-cases Covers unequal focal lengths/skew, all nine derivative directions, changed 3D gauge, positive/negative depth, deterministic outliers, exact support identities, flat/collinear point spans, fewer than six pairs and bounded unfinished refinement. Shared tracks, joint gauge and public admission have separate tests.
+ * @evidence contracts/testing.md#distinguishing-cases Covers unequal focal lengths/skew, nine derivative directions, signed zero, positive-depth derivative overflow despite finite pixels, malformed/product-overflow matrix actions, negative depth before intrinsics, changed gauge, outliers, flat/collinear spans, insufficient pairs and bounded unfinished refinement. Shared tracks and public admission have separate tests.
  * @evidence contracts/testing.md#execution-ownership The portable test_recovery_camera_map_resection entry owns finite resident arrays and CPU assertions only, with no files, native builds, installation, process, viewer or foreign-method replacement.
  */
 export function test_recovery_camera_map_resection(): void {
@@ -113,6 +114,20 @@ export function test_recovery_camera_map_resection(): void {
       chart.matrix,
     ) === null,
   );
+  const identity: IAutoMovieRecoveryMapPose = {
+    rotation: [1, 0, 0, 0, 1, 0, 0, 0, 1], translation: [0, 0, 0],
+  };
+  const unitIntrinsic: number[] = [1, 0, 0, 0, 1, 0, 0, 0, 1];
+  const axial: NonNullable<ReturnType<typeof projectRecoveryMapPoint>> =
+    projectRecoveryMapPoint(identity, [0, 0, 2], unitIntrinsic)!;
+  let projectionRefusals: number = 0;
+  try { projectRecoveryMapPoint(identity, [0, 0, 1e-320], unitIntrinsic); } catch { projectionRefusals++; }
+  try { projectRecoveryMapPoint({ ...identity, rotation: [1] }, point, unitIntrinsic); } catch { projectionRefusals++; }
+  try { projectRecoveryMapPoint({ ...identity, rotation: new Array<number>(9).fill(Number.MAX_VALUE) }, [2, 2, 2], unitIntrinsic); } catch { projectionRefusals++; }
+  TestValidator.predicate("complete derivative support retains zeros and finite refusals",
+    Object.is(axial.cameraJacobian[0]![0], -0) && Object.is(axial.cameraJacobian[0]![2], -0) &&
+    Object.is(axial.cameraJacobian[0]![5], -0) && Object.is(axial.pointJacobian[0]![2], 0) &&
+    projectionRefusals === 3 && projectRecoveryMapPoint(identity, [0, 0, -1], []) === null);
   const rotationOnlyPixels: [number, number][] = fixture.points.map(
     (value: [number, number, number]): [number, number] => {
       const x: number =
