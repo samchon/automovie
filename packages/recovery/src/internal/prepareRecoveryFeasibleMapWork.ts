@@ -4,14 +4,15 @@ import type { IAutoMovieRecoveryMapLandmark } from "../structures/image/IAutoMov
 import type { IAutoMovieRecoveryMapPose } from "../structures/image/IAutoMovieRecoveryMapPose";
 import type { IAutoMovieRecoveryFeasibleJointOptions } from "../structures/internal/IAutoMovieRecoveryFeasibleJointOptions";
 import type { IAutoMovieRecoveryFeasibleMapWork } from "../structures/internal/IAutoMovieRecoveryFeasibleMapWork";
+import { RecoveryFeasibleCapacityError } from "./RecoveryFeasibleCapacityError";
 
 /**
  * Admit the original fixed-population camera-map work and retention bounds.
  *
  * @evidence contracts/common.md#principled-implementation Uses the existing observation-width, full-LS QR/SVD and detached-candidate polynomials, preserving arithmetic and metadata charge order before identity-gauge admission.
  * @evidence contracts/common.md#clear-and-simple-design This owner calculates and validates scalar resource bounds; the coordinator owns geometry, model construction, reactions and optional curvature admission.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No population, pixel tolerance, normal rule, ceiling or trial allowance changes. Invalid bounds and original gauge fail before any fit state is cloned.
- * @evidence contracts/common.md#meaningful-documentation Logical entries and prepaid visits are distinct. The two landmark reductions follow the existing charge4L; adaptive agreement remains separate from lagged curvature.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No population, pixel tolerance, normal rule, ceiling or trial allowance changes. Invalid bounds and original gauge fail as core errors before any fit state is cloned; they cannot be concealed by a simultaneous small capacity.
+ * @evidence contracts/common.md#meaningful-documentation Logical entries and prepaid visits are distinct. The two landmark reductions follow the existing charge4L; adaptive agreement remains separate from lagged curvature. Only safe population-dependent resident, direction-entry and minimum-direction-work insufficiency creates RecoveryFeasibleCapacityError for atomic scene rollback. The minimum work covers original metadata/certificate/primitive initialization and first pricing; it does not guarantee direction convergence.
  * @evidence contracts/performance.md#efficient-algorithms Two O(L) metadata reductions and fixed scalar arithmetic retain the existing charge4L and model envelopes. One eight-field result and its fixed stores fit the existing128 shell; no new dimension-sized loop or buffer is added.
  * @evidence contracts/performance.md#reuse-equivalent-work Computes bounds once per fit and returns their scalars for every model, actual evaluation and selected reaction without rescanning observations.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows poses, landmarks, calibration and budget only during admission. The returned eight-scalar record replaces coordinator locals within the fixed128 shell; no array, callback or preparation closure escapes.
@@ -83,6 +84,15 @@ export function prepareRecoveryFeasibleMapWork(
     4 * (2 * observations + points) * cameraWidth * cameraWidth +
     4 * budget.maxSingularSweeps * cameraWidth ** 3 +
     54 * budget.maxSingularSweeps * (observations + points);
+  let identityGauge: boolean =
+    initialPoses[0]!.rotation.length === 9 &&
+    initialPoses[0]!.translation.length === 3;
+  for (let axis: number = 0; axis < 9; axis++)
+    identityGauge &&=
+      initialPoses[0]!.rotation[axis] ===
+      (axis === 0 || axis === 4 || axis === 8 ? 1 : 0);
+  for (let axis: number = 0; axis < 3; axis++)
+    identityGauge &&= initialPoses[0]!.translation[axis] === 0;
   if (
     cameras < 2 ||
     intrinsics.length !== cameras ||
@@ -108,18 +118,28 @@ export function prepareRecoveryFeasibleMapWork(
     ].every(
       (value: number): boolean => Number.isSafeInteger(value) && value > 0,
     ) ||
-    retained > options.maxResidentLinearEntries ||
-    directionEntries > options.directionBudget.maxEntries ||
-    minimumDirectionWork > options.directionBudget.maxWork ||
-    initialPoses[0]!.rotation.length !== 9 ||
-    initialPoses[0]!.rotation.some(
-      (value: number, at: number): boolean =>
-        value !== (at === 0 || at === 4 || at === 8 ? 1 : 0),
-    ) ||
-    initialPoses[0]!.translation.some((value: number): boolean => value !== 0)
+    !identityGauge
   )
     throw new Error(
       "camera-feasible: bounded full-population identity gauge required",
     );
-  return { observations, cameraWidth, width, adaptive, agreementWork, retained, evaluationWork, modelWork };
+  // Only valid population-dependent capacity is recoverable by a scene owner.
+  // Unsafe arithmetic, malformed configuration and the original gauge above
+  // remain core errors even when a declared resource ceiling is also too small.
+  if (retained > options.maxResidentLinearEntries)
+    throw new RecoveryFeasibleCapacityError("resident");
+  if (directionEntries > options.directionBudget.maxEntries)
+    throw new RecoveryFeasibleCapacityError("direction-entries");
+  if (minimumDirectionWork > options.directionBudget.maxWork)
+    throw new RecoveryFeasibleCapacityError("direction-work");
+  return {
+    observations,
+    cameraWidth,
+    width,
+    adaptive,
+    agreementWork,
+    retained,
+    evaluationWork,
+    modelWork,
+  };
 }

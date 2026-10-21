@@ -3,10 +3,14 @@ import type { IAutoMovieRecoveryCameraSceneInput } from "@automovie/interface/re
 import type { IAutoMovieRecoveryCameraSceneEstimate } from "../structures/image/IAutoMovieRecoveryCameraSceneEstimate";
 import type { IAutoMovieRecoveryMapPose } from "../structures/image/IAutoMovieRecoveryMapPose";
 import type { IAutoMovieRecoverySceneAttempt } from "../structures/image/IAutoMovieRecoverySceneAttempt";
+import type { IAutoMovieRecoverySceneWork } from "../structures/image/IAutoMovieRecoverySceneWork";
+import type { IAutoMovieRecoveryFeasibleJointOptions } from "../structures/internal/IAutoMovieRecoveryFeasibleJointOptions";
 import type { IAutoMovieRecoverySceneCandidate } from "../structures/internal/IAutoMovieRecoverySceneCandidate";
+import type { IAutoMovieRecoverySceneFeasibleRouting } from "../structures/internal/IAutoMovieRecoverySceneFeasibleRouting";
 import type { IAutoMovieRecoverySceneQueue } from "../structures/internal/IAutoMovieRecoverySceneQueue";
-import { collectRecoverySceneSupport } from "./collectRecoverySceneSupport";
+import { RecoveryFeasibleCapacityError } from "./RecoveryFeasibleCapacityError";
 import { assertRecoverySceneLinearRetention } from "./assertRecoverySceneLinearRetention";
+import { collectRecoverySceneSupport } from "./collectRecoverySceneSupport";
 import { completeRecoverySceneCheckpoint } from "./completeRecoverySceneCheckpoint";
 import type { createRecoveryCameraChart } from "./createRecoveryCameraChart";
 import { describeRecoverySceneRegistration } from "./describeRecoverySceneRegistration";
@@ -14,6 +18,7 @@ import type { extractRecoveryImageFeatures } from "./extractRecoveryImageFeature
 import { fitRecoveryResectionConsensus } from "./fitRecoveryResectionConsensus";
 import { initializeRecoverySceneSeed } from "./initializeRecoverySceneSeed";
 import { linkRecoveryCameraTracks } from "./linkRecoveryCameraTracks";
+import { prepareRecoverySceneFeasibleRouting } from "./prepareRecoverySceneFeasibleRouting";
 import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
 
 /**
@@ -21,14 +26,16 @@ import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
  * Global conflicting tracks are withheld before even seed geometry. Each new
  * camera uses only existing points, then proposes registered-view point growth
  * and common-gauge joint refinement. Only a complete transaction is committed.
+ * Explicit internal feasible options are copied before callbacks and reach both
+ * seed and candidate closure fits; public callers continue omitting them.
  *
  * @evidence contracts/common.md#principled-implementation Fixed global bidirectional tracks precede seed consensus, original registered-ray triangulation, distinct existing-map resection and complete original-rank/joint/final geometry checks. The seed component is reconstructed and jointly requalified rather than deleting points from a previous map.
- * @evidence contracts/common.md#clear-and-simple-design The coordinator owns stable candidate ordering, revisions, proposal rollback and termination; geometry, work charging and publication have separate owners.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No truth pose, camera-order prior, repeated unchanged-revision attempt, self-generated PnP landmark, partial transaction commit or hidden surface completion supplies success. Callback, cancellation and unexpected exceptions propagate.
- * @evidence contracts/common.md#meaningful-documentation States global identity policy, seed requalification, independent registration before point growth, complete rollback, partial coverage and preserved consumed-work ledger.
- * @evidence contracts/performance.md#efficient-algorithms One bounded global linking pass precedes at most A admitted camera attempts. Each revision collects O(E+L+V) support once and sorts O(V log V); resection, triangulation and variable-width joint work retain separate aggregate ceilings. Failed transactions consume their actual work.
+ * @evidence contracts/common.md#clear-and-simple-design The coordinator owns stable candidate ordering, revisions, proposal rollback and termination; geometry, work charging and publication have separate owners. Explicit method snapshots and concrete camera capacity errors connect both checkpoint calls without changing public method selection.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No truth pose, camera-order prior, repeated unchanged-revision attempt, self-generated PnP landmark, partial transaction commit or hidden surface completion supplies success. Public observer/cancellation and explicit-route callback exceptions propagate; omitted internal calls retain the original numerical whitelist.
+ * @evidence contracts/common.md#meaningful-documentation States global identity policy, seed requalification, independent registration before point growth, complete rollback, partial coverage and preserved consumed-work ledger. A valid method-capacity refusal discards the whole proposal including earlier closure passes; core/charge/late errors remain exceptions. Reported budget is the original owned declaration, while numerical owners share its remaining resident capacity.
+ * @evidence contracts/performance.md#efficient-algorithms One bounded global linking pass precedes at most A admitted camera attempts. Each revision collects O(E+L+V) support once and sorts O(V log V); resection, triangulation and variable-width joint work retain separate aggregate ceilings. Explicit routing prepays256 setup visits and32 before each protected transaction checkpoint for charge/guard/callback bookkeeping; nested fits retain independent charges. Absence allocates no snapshot/derived budget/guard and keeps the original ledger creation after seed estimation.
  * @evidence contracts/performance.md#reuse-equivalent-work Frozen features, charts, matches and global components serve every revision. Only accepted geometry changes candidate support; no observation or descriptor comparison is repeated.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Accepted JSON and bounded attempt ledgers transfer to the caller; proposed geometry/factors expire after failure. RGB, descriptors, callbacks and transient factors do not enter the result or any global cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Accepted JSON and bounded attempt ledgers transfer to the caller; proposed geometry/factors expire after failure. An explicit route reserves64 fixed slots from every growth/resection/checkpoint/fit admission, including two17-field budgets and the nested option snapshot. One cumulative ledger serves setup and all transactions. RGB, descriptors, callbacks, method options and transient factors do not enter returned geometry or a global cache.
  */
 export function createRecoveryCameraScene(
   input: IAutoMovieRecoveryCameraSceneInput,
@@ -37,9 +44,54 @@ export function createRecoveryCameraScene(
   pairs: Parameters<typeof linkRecoveryCameraTracks>[1],
   descriptorComparisons: number,
   checkpoint: (phase: string, completed: number, total: number) => void,
+  feasible?: IAutoMovieRecoveryFeasibleJointOptions,
 ): IAutoMovieRecoveryCameraSceneEstimate {
+  // An absent request keeps the original post-seed ledger allocation. An
+  // explicit request owns the same single ledger before its setup charge.
+  const routingWork: IAutoMovieRecoverySceneWork | null =
+    feasible === undefined
+      ? null
+      : {
+          cameraAttempts: 0,
+          resectionTrials: 0,
+          triangulations: 0,
+          triangulationRefusals: 0,
+          jointFits: 0,
+          jointIterationAttempts: 0,
+          linearWork: 0,
+        };
+  const routing: IAutoMovieRecoverySceneFeasibleRouting | null =
+    routingWork === null
+      ? null
+      : prepareRecoverySceneFeasibleRouting(
+          input.budget,
+          feasible!,
+          routingWork,
+        );
+  let callbackFailed: boolean = false;
+  const notify: typeof checkpoint =
+    routing === null
+      ? checkpoint
+      : (phase: string, completed: number, total: number): void => {
+          spendRecoverySceneWork(
+            routingWork!,
+            routing.execution,
+            "linearWork",
+            32,
+          );
+          try {
+            checkpoint(phase, completed, total);
+          } catch (error: unknown) {
+            callbackFailed = true;
+            throw error;
+          }
+        };
   const linked: ReturnType<typeof linkRecoveryCameraTracks> =
-    linkRecoveryCameraTracks(features, pairs, input.budget);
+    linkRecoveryCameraTracks(
+      features,
+      pairs,
+      routing?.execution ?? input.budget,
+    );
   const trackById: Map<number, (typeof linked.tracks)[number]> = new Map(
     linked.tracks.map(
       (
@@ -81,7 +133,7 @@ export function createRecoveryCameraScene(
     ),
     seed,
     policy: { ...input.policy },
-    budget: { ...input.budget },
+    budget: routing?.declared ?? { ...input.budget },
     gauge: "first-camera-unit-seed-baseline",
     metricScale: "unknown",
     poses: input.views.map((): null => null),
@@ -99,7 +151,7 @@ export function createRecoveryCameraScene(
     conflictingTracks: linked.conflictingComponents,
     untriangulatedTracks: linked.tracks.length,
     attempts: [],
-    work: {
+    work: routingWork ?? {
       cameraAttempts: 0,
       resectionTrials: 0,
       triangulations: 0,
@@ -182,9 +234,12 @@ export function createRecoveryCameraScene(
         linked.tracks,
         charts,
         input.policy,
-        input.budget,
+        routing?.execution ?? input.budget,
         result.work,
-        (): void => checkpoint("scene-seed-component", 0, 1),
+        (): void => notify("scene-seed-component", 0, 1),
+        undefined,
+        undefined,
+        routing?.feasible,
       );
     if (!initial.accepted) {
       result.refusalReasons.push(...initial.reasons);
@@ -192,7 +247,13 @@ export function createRecoveryCameraScene(
     }
     commit(initial);
   } catch (error: unknown) {
-    if (!numerical(error) && !budgetError(error)) throw error;
+    if (callbackFailed) throw error;
+    if (
+      !numerical(error) &&
+      !budgetError(error) &&
+      !(error instanceof RecoveryFeasibleCapacityError)
+    )
+      throw error;
     result.stopReason = budgetError(error)
       ? "budget-exhausted"
       : "seed-refused";
@@ -245,16 +306,23 @@ export function createRecoveryCameraScene(
         proposedObservations: null,
       };
       try {
-        spendRecoverySceneWork(result.work, input.budget, "cameraAttempts", 1);
+        spendRecoverySceneWork(
+          result.work,
+          routing?.execution ?? input.budget,
+          "cameraAttempts",
+          1,
+        );
         result.attempts.push(attempt);
         // Normalized twelve-column DLT, its factors and six-coordinate
         // resection scratch are bounded before candidate coordinate arrays.
         assertRecoverySceneLinearRetention(
-          input.budget,
+          routing?.execution ?? input.budget,
           result.registeredViews.length,
           result.landmarks.reduce(
-            (sum: number, landmark: (typeof result.landmarks)[number]): number =>
-              sum + landmark.observations.length,
+            (
+              sum: number,
+              landmark: (typeof result.landmarks)[number],
+            ): number => sum + landmark.observations.length,
             0,
           ),
           result.landmarks.length,
@@ -275,17 +343,17 @@ export function createRecoveryCameraScene(
             charts[item.view]!.matrix,
             charts[item.view]!.inverse,
             input.policy,
-            input.budget,
+            routing?.execution ?? input.budget,
             (): void =>
-              checkpoint(
+              notify(
                 "scene-resection",
                 result.work.resectionTrials,
-                input.budget.maxTotalResectionTrials,
+                (routing?.execution ?? input.budget).maxTotalResectionTrials,
               ),
             (): void => {
               spendRecoverySceneWork(
                 result.work,
-                input.budget,
+                routing?.execution ?? input.budget,
                 "resectionTrials",
                 1,
               );
@@ -318,10 +386,10 @@ export function createRecoveryCameraScene(
             linked.tracks,
             charts,
             input.policy,
-            input.budget,
+            routing?.execution ?? input.budget,
             result.work,
             (): void =>
-              checkpoint(
+              notify(
                 "scene-joint-component",
                 result.registeredViews.length,
                 input.views.length,
@@ -335,6 +403,8 @@ export function createRecoveryCameraScene(
               attempt.proposedObservations = observations;
               attempt.joint = report;
             },
+            undefined,
+            routing?.feasible,
           );
         attempt.joint = proposal.joint;
         attempt.proposedLandmarks = proposal.proposedLandmarks;
@@ -349,7 +419,13 @@ export function createRecoveryCameraScene(
         grew = true;
         break;
       } catch (error: unknown) {
-        if (!numerical(error) && !budgetError(error)) throw error;
+        if (callbackFailed) throw error;
+        if (
+          !numerical(error) &&
+          !budgetError(error) &&
+          !(error instanceof RecoveryFeasibleCapacityError)
+        )
+          throw error;
         attempt.reasons.push(
           error instanceof Error ? error.message : String(error),
         );

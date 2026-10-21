@@ -2,6 +2,8 @@ import type { IAutoMovieSimplexBudget } from "@automovie/engine/math/IAutoMovieS
 
 /**
  * Explicit opt-in resource limits for the experimental feasible joint method.
+ * Internal scene routing snapshots these fields before callbacks, bounds them
+ * by original scene ceilings and resets numerical seeds in every closure fit.
  *
  * @evidence contracts/common.md#principled-implementation The same fixed population and geometric thresholds receive additional admitted direction-work and simultaneous-retention bounds, without changing outer nonlinear trial limits.
  * @evidence contracts/common.md#clear-and-simple-design Internal method selection keeps the ordinary public map/scene behavior unchanged while the bounded method receives principled analytic and transaction evaluation.
