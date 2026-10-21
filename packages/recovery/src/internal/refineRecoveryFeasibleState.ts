@@ -6,14 +6,15 @@ import type { IAutoMovieRecoveryFeasibleDirectionReport } from "../structures/in
 import type { IAutoMovieRecoveryFeasibleFit } from "../structures/internal/IAutoMovieRecoveryFeasibleFit";
 import type { IAutoMovieRecoveryFeasibleModel } from "../structures/internal/IAutoMovieRecoveryFeasibleModel";
 import type { IAutoMovieRecoveryFeasibleProblem } from "../structures/internal/IAutoMovieRecoveryFeasibleProblem";
-import type { IAutoMovieRecoveryFeasibleTrials } from "../structures/internal/IAutoMovieRecoveryFeasibleTrials";
 import type { IAutoMovieRecoveryFeasibleTrialSelection } from "../structures/internal/IAutoMovieRecoveryFeasibleTrialSelection";
+import type { IAutoMovieRecoveryFeasibleTrials } from "../structures/internal/IAutoMovieRecoveryFeasibleTrials";
 import type { IAutoMovieRecoverySqpArc } from "../structures/internal/IAutoMovieRecoverySqpArc";
 import type { IAutoMovieRecoverySqpOptions } from "../structures/internal/IAutoMovieRecoverySqpOptions";
 import type { IAutoMovieRecoverySqpReport } from "../structures/internal/IAutoMovieRecoverySqpReport";
+import type { IAutoMovieRecoveryUntiltedEstimate } from "../structures/internal/IAutoMovieRecoveryUntiltedEstimate";
 import { createRecoveryFeasibleSqpArc } from "./createRecoveryFeasibleSqpArc";
-import { solveRecoveryFeasibleDirection } from "./solveRecoveryFeasibleDirection";
 import { selectRecoveryFeasibleTrial } from "./selectRecoveryFeasibleTrial";
+import { solveRecoveryFeasibleDirection } from "./solveRecoveryFeasibleDirection";
 
 /**
  * Refine a feasible fixed-population recovery state with strictly inward models.
@@ -34,9 +35,9 @@ import { selectRecoveryFeasibleTrial } from "./selectRecoveryFeasibleTrial";
  * @evidence contracts/common.md#clear-and-simple-design This owner coordinates direction and normal termination; the same-base selector owns candidate ordering, while callbacks own metric/rank/gauge, qualification and charged allocations. A selected-step notification runs once before changing state/cost and may prepare the next existing model; rejected and qualified-unselected trials do not notify.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No boundary stalling, tiny accepted step, small objective decrease, initial-state fallback or abnormal multiplier is called convergence. No population, threshold, metric coefficient or budget is changed after refusal.
  * @evidence contracts/common.md#meaningful-documentation States physical KKT tolerance, multiplier support floor, mixed Armijo slope and same-base t*d+t^2*delta. Correction uses a 2.5 ceiling with a same-model dual-priced descent cap, whose scalar support and conditional local order are independent of actual gates and normal termination. The selector compares Tfull, Mfull, only failed-M SOCfull and one qualified-path half; exact ties keep the earlier candidate. Nominal min(1,physical SQP norm squared) and at most one original-row-derived support coefficient remain separate from actual selection and normal KKT.
- * @evidence contracts/performance.md#efficient-algorithms At most maxTrials actual evaluations and maxTrials+1 charged direction models run. Optional working transpose costs O(S*(q+H)*H^2+q*H^2); its one correction reuses the factor. Scans, inverse actions and every selected/unselected/full/half/backtracked geometry evaluation are charged under existing ceilings. Selection reserves256 visits per model and128+12*width per actual trial in addition to owner geometry work.
+ * @evidence contracts/performance.md#efficient-algorithms At most maxTrials actual evaluations and maxTrials+1 charged direction models run. Optional working transpose costs O(S*(q+H)*H^2+q*H^2); its one correction reuses the factor. Scans, inverse actions and every selected/unselected/full/half/backtracked geometry evaluation are charged under existing ceilings. Selection reserves256 visits per model and128+12*width per actual trial in addition to owner geometry work. Only an explicit estimate request prepays32 generic visits per selected precommit and adds them to directionWork before a fixed wrapper/null and the fifth argument; owner H-dependent copying is separately charged. Absent requests retain the four-argument call and original ledger.
  * @evidence contracts/performance.md#reuse-equivalent-work Backtracking retains one current model/direction until an actual state change. Every certificate uses every original physical row, without shared input-dependent result caches.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Current state, four detached candidates and chosen increments coexist with borrowed checkpoints, rows/metric and admitted factors. Owners admit that peak before copying and release any current design after the borrowed selected-step notification. Unselected trials expire; only the last feasible state and bounded reports transfer without history or handles.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Current state, four detached candidates and chosen increments coexist with borrowed checkpoints, rows/metric and admitted factors. Owners admit that peak before copying and release any current design after the borrowed selected-step notification. Requested wrappers alias current qualified Arc arrays only during the callback; any next-model owned dual copy has separately admitted lifetime. Unselected trials expire; only the last feasible state and bounded reports transfer without history or handles.
  */
 export function refineRecoveryFeasibleState<State>(
   problem: IAutoMovieRecoveryFeasibleProblem<State>,
@@ -56,6 +57,13 @@ export function refineRecoveryFeasibleState<State>(
     throw new Error(
       "camera-feasible: finite termination and trial limits required",
     );
+  if (
+    problem.requestUntiltedEstimate === true &&
+    problem.accepted === undefined
+  )
+    throw new Error(
+      "camera-feasible: requested estimate requires an accepted owner",
+    );
   let state: State = problem.initial;
   let cost: number | null = problem.evaluate(state);
   if (cost === null || !Number.isFinite(cost))
@@ -66,12 +74,22 @@ export function refineRecoveryFeasibleState<State>(
     directionWork: number = 0;
   let stationarity: number | null = null,
     complementarity: number | null = null;
-  let stationarityScale: number | null = null, normalKktQualified: boolean = false;
+  let stationarityScale: number | null = null,
+    normalKktQualified: boolean = false;
   let lastDirection: IAutoMovieRecoveryFeasibleDirectionReport | null = null;
   let lastSqp: IAutoMovieRecoverySqpReport | null = null;
   const trials: IAutoMovieRecoveryFeasibleTrials = {
-    baseline: 0, nominal: 0, numerical: 0, corrected: 0, half: 0, qualifiedUnselected: 0,
-    infeasible: 0, nondecreasing: 0, armijo: 0, lastFailure: null, work: 0,
+    baseline: 0,
+    nominal: 0,
+    numerical: 0,
+    corrected: 0,
+    half: 0,
+    qualifiedUnselected: 0,
+    infeasible: 0,
+    nondecreasing: 0,
+    armijo: 0,
+    lastFailure: null,
+    work: 0,
   };
   let termination: IAutoMovieRecoveryFeasibleFit<State>["termination"] =
     "iteration-budget";
@@ -110,9 +128,12 @@ export function refineRecoveryFeasibleState<State>(
       );
     directionWork += direction.work + physicalWork + metadataWork;
     lastDirection = {
-      termination: direction.termination, gamma: direction.gamma,
-      objective: direction.objective, gap: direction.gap,
-      maximumViolation: direction.maximumViolation, complementarity: direction.complementarity,
+      termination: direction.termination,
+      gamma: direction.gamma,
+      objective: direction.objective,
+      gap: direction.gap,
+      maximumViolation: direction.maximumViolation,
+      complementarity: direction.complementarity,
       arithmeticAllowance: direction.arithmeticAllowance,
       simplexResidual: direction.simplexResidual,
       stationarityResidual: direction.stationarityResidual,
@@ -124,8 +145,10 @@ export function refineRecoveryFeasibleState<State>(
       gapAllowance: direction.gapAllowance,
       gapUpperBound: direction.gapUpperBound,
       exactGapTargetMet: direction.exactGapTargetMet,
-      roundoffLimited: direction.roundoffLimited, certified: direction.certified,
-      iterations: direction.iterations, work: direction.work,
+      roundoffLimited: direction.roundoffLimited,
+      certified: direction.certified,
+      iterations: direction.iterations,
+      work: direction.work,
     };
     const objectiveMultiplier: number = direction.multipliers[0]!;
     const gradient: number[] = new Array<number>(model.width).fill(0);
@@ -215,24 +238,52 @@ export function refineRecoveryFeasibleState<State>(
     }
     let arc: IAutoMovieRecoverySqpArc | null = null;
     let mixedSlope: number = slopes[0]!;
-    if (acceleration !== undefined && problem.constraintValues !== undefined && maxTrials - iterations >= 2) {
+    if (
+      acceleration !== undefined &&
+      problem.constraintValues !== undefined &&
+      maxTrials - iterations >= 2
+    ) {
       arc = createRecoveryFeasibleSqpArc(
-        model, direction.multipliers, step, tolerance,
-        { ...acceleration, maxWork: Math.max(0, Math.min(acceleration.maxWork, directionBudget.maxWork - direction.work)) },
+        model,
+        direction.multipliers,
+        step,
+        tolerance,
+        {
+          ...acceleration,
+          maxWork: Math.max(
+            0,
+            Math.min(
+              acceleration.maxWork,
+              directionBudget.maxWork - direction.work,
+            ),
+          ),
+        },
         charge,
       );
       lastSqp = arc.report;
       directionWork += arc.report.work;
       if (arc.step !== null) {
         mixedSlope = model.physicalRows[0]!.indices.reduce(
-          (sum: number, axis: number, entry: number): number => sum + model.physicalRows[0]!.values[entry]! * arc!.step![axis]!, 0,
+          (sum: number, axis: number, entry: number): number =>
+            sum + model.physicalRows[0]!.values[entry]! * arc!.step![axis]!,
+          0,
         );
       }
     }
-    const selected: IAutoMovieRecoveryFeasibleTrialSelection<State> = selectRecoveryFeasibleTrial(
-      problem, state, cost, step, slopes[0]!, arc, mixedSlope,
-      maxTrials - iterations, trials, checkpoint, charge,
-    );
+    const selected: IAutoMovieRecoveryFeasibleTrialSelection<State> =
+      selectRecoveryFeasibleTrial(
+        problem,
+        state,
+        cost,
+        step,
+        slopes[0]!,
+        arc,
+        mixedSlope,
+        maxTrials - iterations,
+        trials,
+        checkpoint,
+        charge,
+      );
     iterations += selected.iterations;
     if (!selected.accepted) {
       if (selected.stalled) termination = "abnormal-or-stalled";
@@ -240,7 +291,26 @@ export function refineRecoveryFeasibleState<State>(
     }
     if (selected.increment === null)
       throw new Error("camera-feasible: selected actual increment required");
-    problem.accepted?.(state, selected.increment, cost, selected.cost);
+    if (problem.requestUntiltedEstimate === true) {
+      charge(32);
+      directionWork += 32;
+      const estimate: IAutoMovieRecoveryUntiltedEstimate | null =
+        arc?.report.qualified === true
+          ? {
+              width: model.width,
+              rowCount: model.physicalRows.length,
+              selected: arc.selected,
+              multipliers: arc.multipliers,
+            }
+          : null;
+      problem.accepted!(
+        state,
+        selected.increment,
+        cost,
+        selected.cost,
+        estimate,
+      );
+    } else problem.accepted?.(state, selected.increment, cost, selected.cost);
     state = selected.state;
     cost = selected.cost;
     acceptedSteps++;

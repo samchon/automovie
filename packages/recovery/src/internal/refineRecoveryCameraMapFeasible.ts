@@ -3,21 +3,32 @@ import type {
   IAutoMovieRecoveryCameraMapPolicy,
 } from "@automovie/interface/recovery";
 
+import type { IAutoMovieRecoveryCurvatureReport } from "../structures/image/IAutoMovieRecoveryCurvatureReport";
 import type { IAutoMovieRecoveryMapLandmark } from "../structures/image/IAutoMovieRecoveryMapLandmark";
 import type { IAutoMovieRecoveryMapPose } from "../structures/image/IAutoMovieRecoveryMapPose";
 import type { IAutoMovieRecoveryRegularizationReport } from "../structures/image/IAutoMovieRecoveryRegularizationReport";
-import type { IAutoMovieRecoveryMapJointBlock } from "../structures/internal/IAutoMovieRecoveryMapJointBlock";
+import type { IAutoMovieRecoveryCurvatureAdmission } from "../structures/internal/IAutoMovieRecoveryCurvatureAdmission";
 import type { IAutoMovieRecoveryFeasibleJointOptions } from "../structures/internal/IAutoMovieRecoveryFeasibleJointOptions";
+import type { IAutoMovieRecoveryFeasibleMapWork } from "../structures/internal/IAutoMovieRecoveryFeasibleMapWork";
 import type { IAutoMovieRecoveryFeasibleModel } from "../structures/internal/IAutoMovieRecoveryFeasibleModel";
+import type { IAutoMovieRecoveryMapCurvatureBlocks } from "../structures/internal/IAutoMovieRecoveryMapCurvatureBlocks";
+import type { IAutoMovieRecoveryMapCurvatureFit } from "../structures/internal/IAutoMovieRecoveryMapCurvatureFit";
+import type { IAutoMovieRecoveryMapJointBlock } from "../structures/internal/IAutoMovieRecoveryMapJointBlock";
 import type { IAutoMovieRecoveryMapJointResult } from "../structures/internal/IAutoMovieRecoveryMapJointResult";
 import type { IAutoMovieRecoveryMapState } from "../structures/internal/IAutoMovieRecoveryMapState";
+import type { IAutoMovieRecoveryUntiltedEstimate } from "../structures/internal/IAutoMovieRecoveryUntiltedEstimate";
+import { admitRecoveryMapCurvature } from "./admitRecoveryMapCurvature";
+import { assembleRecoveryMapCurvature } from "./assembleRecoveryMapCurvature";
+import { copyRecoveryUntiltedEstimate } from "./copyRecoveryUntiltedEstimate";
 import { createRecoveryMapTangent } from "./createRecoveryMapTangent";
 import { evaluateRecoveryScenePoint } from "./evaluateRecoveryScenePoint";
-import { linearizeRecoveryFeasibleMap } from "./linearizeRecoveryFeasibleMap";
-import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
-import { predictRecoveryMapDecrease } from "./predictRecoveryMapDecrease";
-import { refineRecoveryFeasibleState } from "./refineRecoveryFeasibleState";
+import { factorRecoveryMapCurvature } from "./factorRecoveryMapCurvature";
 import { factorRecoveryMapMetric } from "./factorRecoveryMapMetric";
+import { linearizeRecoveryFeasibleMap } from "./linearizeRecoveryFeasibleMap";
+import { predictRecoveryMapDecrease } from "./predictRecoveryMapDecrease";
+import { prepareRecoveryFeasibleMapWork } from "./prepareRecoveryFeasibleMapWork";
+import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
+import { refineRecoveryFeasibleState } from "./refineRecoveryFeasibleState";
 import { stepRecoveryMapPose } from "./stepRecoveryMapPose";
 import { stepRecoveryRelativePose } from "./stepRecoveryRelativePose";
 import { updateRecoveryRegularization } from "./updateRecoveryRegularization";
@@ -29,13 +40,13 @@ import { updateRecoveryRegularization } from "./updateRecoveryRegularization";
  * is claimed only while nonpixel gates remain strictly interior; other gate
  * blockage is incomplete, and the coordinator still owns atomic acceptance.
  *
- * @evidence contracts/common.md#principled-implementation Original point and reduced-camera rank qualification precedes the raw damped point-first QR metric, without synthesizing unused unconstrained LS answers. Pure tilted directions, actual SO3/sphere/Euclidean retraction and complete point gates remain independent. Optional selected-increment agreement prepares only the next existing metric; original-coordinate normal KKT alone terminates normally.
+ * @evidence contracts/common.md#principled-implementation Original point and reduced-camera ranks precede GN metric formation. Requested lagged curvature starts with GN, copies only a selected model's complete-affine-qualified original untilted dual, and may form a fixed-lagged local loss/disk Hessian on the next existing model. A complete computed point/Schur factor and all fixed rows must qualify before return, otherwise whole GN is used. Physical SO3/sphere/Euclidean retraction, complete gates and original normal KKT remain independent.
  * @evidence contracts/common.md#clear-and-simple-design This camera owner connects generic bounded direction work to the actual projection, rank, gauge, observation identities and joint report; ordinary public calls retain the existing method until explicitly selected internally.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No observation deletion, failed-point filtering, new pixel tolerance, extra nonlinear trial allowance, initial-state success fallback or independent later-translation normalization supplies an accepted map. Data rank is checked without damping or inequalities.
- * @evidence contracts/common.md#meaningful-documentation States normalized disks, physical KKT tolerance1e-8, initial damping1e-3 per fit and optional next-model reactions. Metric support requires original rank and finite used raw factors/actions, not the full LS operation's additional unused normalization/SVD/answer support. No such omitted computation is caught as success. Invalid computed agreement retains the previous coefficient; actual qualification and core errors remain independent.
- * @evidence contracts/performance.md#efficient-algorithms For E observations, L landmarks and C=6N-7 camera columns, metric QR/SVD costs O(E*C^2+S*C^3), whitening O(E*C^2+L*C), sparse passes O(E*C+L), and full point gates sum(k_point^2). Optional working factors add O(S*(q+H)*H^2+q*H^2). Accepted agreement separately precharges32*(E*(C+4)+n+L+1) for one current-design prediction, without another factor, geometry trial or model.
+ * @evidence contracts/common.md#meaningful-documentation States normalized disks, physical KKT tolerance1e-8 and initial damping1e-3 per fit. Lagged requires explicit SQP and is independent of adaptive agreement. Null clears old seeds; qualified empty is valid, and qualification is independent of mixed/path support. Seed normalization curvature uses the anchored numerical chart t+N(t+Bz)-N(t), preserving original f/A/actual retraction. No intended-Hessian accuracy, condition or finite-trial theorem follows. After model return factor/rows are fixed and action/core errors propagate without late GN. Invalid computed agreement retains the previous coefficient.
+ * @evidence contracts/performance.md#efficient-algorithms Original model QR/SVD, row construction/ownership scans, whitening and full actions retain the conservative full-LS model envelope, whose unused damped-normalized SVD/answers and point back substitution remain omitted in metric-only mode. Shared triangular ownership adds O(C^2+n+Zphysical+C+L), without changing GN numerical accumulation. Requested setup prepays512, every requested existing model32, and selected owned dual copying64(H+1), independently of generic wrapper32. Each eligible seeded model prepays131072(E+1)+128(LC^2+C^3+EC^2+LC+C^2+n+E+1) for one additional current-state derivative/scatter/factor/complete-row pass, including all failed prefixes and validation. No extra nonlinear actual trial/model/evaluate is made. Adaptive agreement separately prepays32*(E*(C+4)+n+L+1) for original-design selected-u prediction.
  * @evidence contracts/performance.md#reuse-equivalent-work Current weighted blocks supply original rank and one arrowhead metric shared by every current inequality. Actual evaluation borrows each complete point-gate projection's residual norm for the same global cost/SSE accumulation, discarding partial sums on any gate refusal and checking objective finiteness only after every point passes. Backtracks retain the model without repeated image extraction or matching.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Before copying, the owner admits borrowed/current states, four candidates and chosen increments beside rows, factors and optional working space. Adaptive mode additionally admits4*E*(C+4)+8*n+256 slots for current weighted blocks/gradient and bounded reaction metadata, releasing design references immediately after the selected-step reaction. Candidate roles alias existing states; only scalar regularization metadata transfers, without geometry history or handles.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Base retention admits borrowed/current states, four candidates, chosen increments, physical/metric rows and GN factors. Requested F256 is mandatory before records; eligible mode additionally retains S=4E+256 and A=8(C^2+3LC+9L+Zw+n+E+1)+8192 through generic/aux/terminal admission, with A also below maxLinearEntries and unchanged sparse row/materialization limits. S admits old/new owned dual overlap. A admits simultaneous GN/curvature/partial rows and fixed local scratch; partial optional and unused GN buffers actually expire before direction work without refunding reservations. Adaptive weighted-design retention remains separate and releases after selection. Only plain regularization/curvature scalars transfer; no dual/factor/history escapes the fit.
  */
 export function refineRecoveryCameraMapFeasible(
   initialPoses: readonly IAutoMovieRecoveryMapPose[],
@@ -47,83 +58,53 @@ export function refineRecoveryCameraMapFeasible(
   checkpoint: () => void,
   charge: (work: number) => void,
 ): IAutoMovieRecoveryMapJointResult {
-  const cameras: number = initialPoses.length;
-  const points: number = initialLandmarks.length;
-  if (points < 6 || cameras < 2 || points > budget.maxTracks || !Number.isSafeInteger(4 * points))
-    throw new Error("camera-feasible: bounded landmark metadata required");
-  charge(4 * points);
-  const observations: number = initialLandmarks.reduce(
-    (sum: number, landmark: IAutoMovieRecoveryMapLandmark): number =>
-      sum + landmark.observations.length,
-    0,
-  );
-  const cameraWidth: number = 6 * cameras - 7;
-  const width: number = cameraWidth + 3 * points;
-  const adaptive: boolean = options.adaptiveRegularization === true;
-  const agreementEntries: number = adaptive ? 4 * observations * (cameraWidth + 4) + 8 * width + 256 : 0;
-  const agreementWork: number = adaptive ? 32 * (observations * (cameraWidth + 4) + width + points + 1) : 0;
-  // Every whitened pixel row has at most C camera and three point entries;
-  // the dense objective has width entries. Reserve both result step copies.
-  const directionCoefficients: number = width + observations * (cameraWidth + 3);
-  const directionRows: number = observations + 1;
-  const directionEntries: number = 2 * directionCoefficients + 3 * directionRows + 2 * width + 128;
-  const minimumDirectionWork: number = 288 * directionCoefficients + 1058 * directionRows + 137 * width + 1025;
-  // Four detached pose/point records need at most48V+16L scalars. The two
-  // additionally retained best/mixed increments need2n=12V+6L-14; their
-  // total60V+22L is below64*(E+L+V+1). The current increment is in16n.
-  const retained: number =
-    24 * observations * (cameraWidth + 20) +
-    24 * cameraWidth * cameraWidth +
-    24 * points * (cameraWidth + 4) +
-    16 * width + 128 +
-    64 * (observations + points + cameras + 1) + agreementEntries;
-  const evaluationWork: number =
-    8 * observations * (cameraWidth + 4) +
-    32 *
-      initialLandmarks.reduce(
-        (sum: number, landmark: IAutoMovieRecoveryMapLandmark): number =>
-          sum + landmark.observations.length ** 2,
-        0,
-      );
-  const modelWork: number =
-    12 * observations * (cameraWidth + 4) +
-    8 * observations * cameraWidth * cameraWidth +
-    12 * points * (cameraWidth + 4) +
-    4 * (2 * observations + points) * cameraWidth * cameraWidth +
-    4 * budget.maxSingularSweeps * cameraWidth ** 3 +
-    54 * budget.maxSingularSweeps * (observations + points);
-  if (
-    cameras < 2 ||
-    intrinsics.length !== cameras ||
-    points < 6 ||
-    points > budget.maxTracks ||
-    observations > budget.maxObservations ||
-    (adaptive && (!Number.isSafeInteger(agreementEntries) || agreementEntries <= 0 ||
-      !Number.isSafeInteger(agreementWork) || agreementWork <= 0)) ||
-    ![
-      retained,
-      evaluationWork,
-      modelWork,
-      options.maxResidentLinearEntries,
-      directionCoefficients, directionEntries, minimumDirectionWork,
-      options.directionBudget.maxEntries, options.directionBudget.maxIterations,
-      options.directionBudget.maxWork,
-    ].every(
-      (value: number): boolean => Number.isSafeInteger(value) && value > 0,
-    ) ||
-    retained > options.maxResidentLinearEntries ||
-    directionEntries > options.directionBudget.maxEntries ||
-    minimumDirectionWork > options.directionBudget.maxWork ||
-    initialPoses[0]!.rotation.length !== 9 ||
-    initialPoses[0]!.rotation.some(
-      (value: number, at: number): boolean =>
-        value !== (at === 0 || at === 4 || at === 8 ? 1 : 0),
-    ) ||
-    initialPoses[0]!.translation.some((value: number): boolean => value !== 0)
-  )
+  const lagged: boolean = options.laggedLagrangianMetric === true;
+  if (lagged && options.sqpAcceleration !== true)
     throw new Error(
-      "camera-feasible: bounded full-population identity gauge required",
+      "camera-curvature: lagged metric requires explicit SQP acceleration",
     );
+  const {
+    observations,
+    cameraWidth,
+    width,
+    adaptive,
+    agreementWork,
+    retained,
+    evaluationWork,
+    modelWork,
+  }: IAutoMovieRecoveryFeasibleMapWork = prepareRecoveryFeasibleMapWork(
+    initialPoses,
+    initialLandmarks,
+    intrinsics,
+    budget,
+    options,
+    charge,
+  );
+  const curvatureAdmission: IAutoMovieRecoveryCurvatureAdmission | null = lagged
+    ? admitRecoveryMapCurvature(
+        cameraWidth,
+        initialLandmarks.length,
+        observations,
+        retained,
+        options.maxResidentLinearEntries,
+        budget.maxLinearEntries,
+        charge,
+      )
+    : null;
+  const curvature: IAutoMovieRecoveryCurvatureReport | null =
+    curvatureAdmission === null
+      ? null
+      : {
+          eligible: curvatureAdmission.eligible,
+          models: 0,
+          capacity: 0,
+          noSeed: 0,
+          attempted: 0,
+          supported: 0,
+          refused: 0,
+          latestReason: null,
+        };
+  let seed: IAutoMovieRecoveryUntiltedEstimate | null = null;
   const initial: IAutoMovieRecoveryMapState = structuredClone({
     poses: initialPoses.slice(),
     landmarks: initialLandmarks.slice(),
@@ -139,10 +120,15 @@ export function refineRecoveryCameraMapFeasible(
   let currentBlocks: readonly IAutoMovieRecoveryMapJointBlock[] | null = null;
   let currentGradient: readonly number[] | null = null;
   let currentBase: IAutoMovieRecoveryMapState | null = null;
-  const regularization: IAutoMovieRecoveryRegularizationReport | null = adaptive ? {
-    initialDamping: damping, finalDamping: damping,
-    supportedUpdates: 0, unsupportedUpdates: 0, lastUpdate: null,
-  } : null;
+  const regularization: IAutoMovieRecoveryRegularizationReport | null = adaptive
+    ? {
+        initialDamping: damping,
+        finalDamping: damping,
+        supportedUpdates: 0,
+        unsupportedUpdates: 0,
+        lastUpdate: null,
+      }
+    : null;
   const squared: (state: IAutoMovieRecoveryMapState) => number = (
     state: IAutoMovieRecoveryMapState,
   ): number => {
@@ -177,7 +163,8 @@ export function refineRecoveryCameraMapFeasible(
         let cost: number = 0,
           square: number = 0;
         const observe: (norm: number) => void = (norm: number): void => {
-          cost += norm * (norm / (Math.hypot(1, norm / policy.lossScalePx) + 1));
+          cost +=
+            norm * (norm / (Math.hypot(1, norm / policy.lossScalePx) + 1));
           square += norm * norm;
         };
         for (const landmark of state.landmarks) {
@@ -208,6 +195,10 @@ export function refineRecoveryCameraMapFeasible(
         state: IAutoMovieRecoveryMapState,
       ): IAutoMovieRecoveryFeasibleModel => {
         charge(modelWork);
+        if (lagged) {
+          charge(32);
+          curvature!.models++;
+        }
         const local: ReturnType<typeof linearizeRecoveryFeasibleMap> =
           linearizeRecoveryFeasibleMap(state, intrinsics, policy);
         const solution: ReturnType<typeof factorRecoveryMapMetric> =
@@ -234,14 +225,55 @@ export function refineRecoveryCameraMapFeasible(
           throw new Error(
             "camera-feasible: strict original-rank interior required",
           );
-        const metric: (typeof solution)["metric"] = solution.metric;
+        let metric: (typeof solution)["metric"] = solution.metric;
+        let rows: IAutoMovieRecoveryFeasibleModel["rows"] | null = null;
+        if (curvature !== null) {
+          if (!curvatureAdmission!.eligible) {
+            curvature.capacity++;
+            curvature.latestReason = "capacity";
+          } else if (seed === null) {
+            curvature.noSeed++;
+            curvature.latestReason = "no-seed";
+          } else {
+            charge(curvatureAdmission!.work);
+            curvature.attempted++;
+            const blocks: IAutoMovieRecoveryMapCurvatureBlocks | null =
+              assembleRecoveryMapCurvature(
+                state,
+                intrinsics,
+                policy,
+                seed,
+                solution,
+                damping,
+              );
+            const optional: IAutoMovieRecoveryMapCurvatureFit =
+              blocks === null
+                ? {
+                    metric: null,
+                    rows: null,
+                    reason: "local-formation",
+                  }
+                : factorRecoveryMapCurvature(
+                    blocks,
+                    solution.cameraScales,
+                    solution.pointScales,
+                    local.rows,
+                  );
+            curvature.latestReason = optional.reason;
+            if (optional.metric !== null && optional.rows !== null) {
+              metric = optional.metric;
+              rows = optional.rows;
+              curvature.supported++;
+            } else curvature.refused++;
+          }
+        }
         if (adaptive) {
           currentBlocks = local.blocks;
           currentGradient = local.rows[0]!.values;
           currentBase = state;
         }
         return {
-          rows: local.rows.map(metric.whiten),
+          rows: rows ?? local.rows.map(metric.whiten),
           physicalRows: local.rows,
           width,
           fromMetric: metric.unwhiten,
@@ -288,71 +320,138 @@ export function refineRecoveryCameraMapFeasible(
           ),
         };
       },
-      constraintValues: options.sqpAcceleration === true ? (
-        state: IAutoMovieRecoveryMapState,
-        selected: readonly number[],
-      ): number[] | null => {
-        charge(32 * (observations + width + selected.length));
-        if (selected.some((row: number, at: number): boolean =>
-          !Number.isSafeInteger(row) || row < 1 || row > observations ||
-          (at > 0 && row <= selected[at - 1]!),
-        )) throw new Error("camera-sqp: ordered original inequality rows required");
-        if (Math.abs(Math.hypot(...state.poses[1]!.translation) - 1) > 1e-10)
-          return null;
-        const values: number[] = [];
-        let row: number = 0, at: number = 0;
-        for (const landmark of state.landmarks)
-          for (const observation of landmark.observations) {
-            row++;
-            if (selected[at] !== row) continue;
-            const projected: ReturnType<typeof projectRecoveryMapPoint> =
-              projectRecoveryMapPoint(state.poses[observation.viewIndex]!, landmark.point, intrinsics[observation.viewIndex]!);
-            if (projected === null) return null;
-            const norm: number = Math.hypot(
-              projected.pixel[0] - observation.pixel[0], projected.pixel[1] - observation.pixel[1],
-            );
-            const value: number = (norm / policy.maximumReprojectionErrorPx) ** 2 - 1;
-            if (!Number.isFinite(value)) return null;
-            values.push(value);
-            at++;
-          }
-        if (values.length !== selected.length)
-          throw new Error("camera-sqp: unchanged original observation population required");
-        return values;
-      } : undefined,
-      accepted: adaptive ? (
-        base: IAutoMovieRecoveryMapState, increment: readonly number[], oldCost: number, newCost: number,
-      ): void => {
-        charge(agreementWork);
-        if (currentBase !== base || currentBlocks === null || currentGradient === null ||
-            increment.length !== width || !(Number.isFinite(oldCost) && Number.isFinite(newCost) && newCost < oldCost))
-          throw new Error("camera-regularization: selected current-base actual decrease required");
-        const prediction: number | null = predictRecoveryMapDecrease(currentBlocks, currentGradient, increment);
-        const update: NonNullable<IAutoMovieRecoveryRegularizationReport["lastUpdate"]> =
-          updateRecoveryRegularization(damping, oldCost - newCost, prediction);
-        damping = update.damping;
-        regularization!.finalDamping = damping;
-        if (update.supported) regularization!.supportedUpdates++;
-        else regularization!.unsupportedUpdates++;
-        regularization!.lastUpdate = update;
-        currentBlocks = null;
-        currentGradient = null;
-        currentBase = null;
-      } : undefined,
+      constraintValues:
+        options.sqpAcceleration === true
+          ? (
+              state: IAutoMovieRecoveryMapState,
+              selected: readonly number[],
+            ): number[] | null => {
+              charge(32 * (observations + width + selected.length));
+              if (
+                selected.some(
+                  (row: number, at: number): boolean =>
+                    !Number.isSafeInteger(row) ||
+                    row < 1 ||
+                    row > observations ||
+                    (at > 0 && row <= selected[at - 1]!),
+                )
+              )
+                throw new Error(
+                  "camera-sqp: ordered original inequality rows required",
+                );
+              if (
+                Math.abs(Math.hypot(...state.poses[1]!.translation) - 1) > 1e-10
+              )
+                return null;
+              const values: number[] = [];
+              let row: number = 0,
+                at: number = 0;
+              for (const landmark of state.landmarks)
+                for (const observation of landmark.observations) {
+                  row++;
+                  if (selected[at] !== row) continue;
+                  const projected: ReturnType<typeof projectRecoveryMapPoint> =
+                    projectRecoveryMapPoint(
+                      state.poses[observation.viewIndex]!,
+                      landmark.point,
+                      intrinsics[observation.viewIndex]!,
+                    );
+                  if (projected === null) return null;
+                  const norm: number = Math.hypot(
+                    projected.pixel[0] - observation.pixel[0],
+                    projected.pixel[1] - observation.pixel[1],
+                  );
+                  const value: number =
+                    (norm / policy.maximumReprojectionErrorPx) ** 2 - 1;
+                  if (!Number.isFinite(value)) return null;
+                  values.push(value);
+                  at++;
+                }
+              if (values.length !== selected.length)
+                throw new Error(
+                  "camera-sqp: unchanged original observation population required",
+                );
+              return values;
+            }
+          : undefined,
+      requestUntiltedEstimate:
+        curvatureAdmission?.eligible === true ? true : undefined,
+      accepted:
+        adaptive || lagged
+          ? (
+              base: IAutoMovieRecoveryMapState,
+              increment: readonly number[],
+              oldCost: number,
+              newCost: number,
+              estimate?: IAutoMovieRecoveryUntiltedEstimate | null,
+            ): void => {
+              if (curvatureAdmission?.eligible === true) {
+                if (estimate === undefined)
+                  throw new Error(
+                    "camera-curvature: explicitly requested current estimate required",
+                  );
+                seed = copyRecoveryUntiltedEstimate(
+                  estimate,
+                  width,
+                  observations + 1,
+                  charge,
+                );
+              }
+              if (adaptive) {
+                charge(agreementWork);
+                if (
+                  currentBase !== base ||
+                  currentBlocks === null ||
+                  currentGradient === null ||
+                  increment.length !== width ||
+                  !(
+                    Number.isFinite(oldCost) &&
+                    Number.isFinite(newCost) &&
+                    newCost < oldCost
+                  )
+                )
+                  throw new Error(
+                    "camera-regularization: selected current-base actual decrease required",
+                  );
+                const prediction: number | null = predictRecoveryMapDecrease(
+                  currentBlocks,
+                  currentGradient,
+                  increment,
+                );
+                const update: NonNullable<
+                  IAutoMovieRecoveryRegularizationReport["lastUpdate"]
+                > = updateRecoveryRegularization(
+                  damping,
+                  oldCost - newCost,
+                  prediction,
+                );
+                damping = update.damping;
+                regularization!.finalDamping = damping;
+                if (update.supported) regularization!.supportedUpdates++;
+                else regularization!.unsupportedUpdates++;
+                regularization!.lastUpdate = update;
+                currentBlocks = null;
+                currentGradient = null;
+                currentBase = null;
+              }
+            }
+          : undefined,
     },
     budget.maxRefinementIterations,
     1e-8,
     options.directionBudget,
     checkpoint,
     charge,
-    options.sqpAcceleration === true ? {
-      maxSweeps: budget.maxSingularSweeps,
-      minimumSingularRatio: policy.minimumDesignSingularRatio,
-      maxEntries: options.directionBudget.maxEntries,
-      maxResidentEntries: options.maxResidentLinearEntries,
-      retainedEntries: retained,
-      maxWork: options.directionBudget.maxWork,
-    } : undefined,
+    options.sqpAcceleration === true
+      ? {
+          maxSweeps: budget.maxSingularSweeps,
+          minimumSingularRatio: policy.minimumDesignSingularRatio,
+          maxEntries: options.directionBudget.maxEntries,
+          maxResidentEntries: options.maxResidentLinearEntries,
+          retainedEntries: curvatureAdmission?.retainedEntries ?? retained,
+          maxWork: options.directionBudget.maxWork,
+        }
+      : undefined,
   );
   charge(evaluationWork);
   return {
@@ -369,7 +468,10 @@ export function refineRecoveryCameraMapFeasible(
       finalSquaredError: squared(fit.state),
       minimumCameraDesignRatio,
       minimumPointDesignRatio,
-      ...(regularization === null ? {} : { regularization: { ...regularization } }),
+      ...(regularization === null
+        ? {}
+        : { regularization: { ...regularization } }),
+      ...(curvature === null ? {} : { curvature: { ...curvature } }),
     },
   };
 }

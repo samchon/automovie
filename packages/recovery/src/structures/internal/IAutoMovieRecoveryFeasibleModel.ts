@@ -42,7 +42,7 @@ export interface IAutoMovieRecoveryFeasibleModel {
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing support cannot be replaced by an identity action or a damped data-rank claim.
    * @evidence contracts/common.md#meaningful-documentation Borrows a metric covector and returns an owned width-vector; undefined disables optional SQP support.
    * @evidence contracts/performance.md#efficient-algorithms Camera factors cost O(L*C+C^2), bounded and charged by the optional owner's conservative action reserve.
-   * @evidence contracts/performance.md#reuse-equivalent-work The same current arrowhead QR supplies this multiplication and both triangular solves.
+   * @evidence contracts/performance.md#reuse-equivalent-work The same current selected triangular factor supplies this multiplication and both triangular solves.
    * @evidence contracts/performance.md#bound-retention-and-release-resources One factor closure lives with the model; each owned returned vector is call-local.
    */
   toPhysicalCovector?: (value: readonly number[]) => number[];

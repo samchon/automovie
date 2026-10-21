@@ -1,3 +1,4 @@
+import type { IAutoMovieRecoveryCurvatureReport } from "./IAutoMovieRecoveryCurvatureReport";
 import type { IAutoMovieRecoveryRegularizationReport } from "./IAutoMovieRecoveryRegularizationReport";
 
 /**
@@ -54,4 +55,7 @@ export interface IAutoMovieRecoveryMapJointFit {
 
   /** Present only for internal accepted-agreement regularization; fit-local scalar reactions never replace normal convergence or data rank. */
   regularization?: IAutoMovieRecoveryRegularizationReport;
+
+  /** Present only for requested internal lagged curvature; fixed model-use counters are independent of original rank, actual selection and normal convergence. */
+  curvature?: IAutoMovieRecoveryCurvatureReport;
 }

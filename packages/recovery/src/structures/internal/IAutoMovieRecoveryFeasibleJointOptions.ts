@@ -23,4 +23,7 @@ export interface IAutoMovieRecoveryFeasibleJointOptions {
 
   /** Independently select fit-local accepted-agreement damping, starting at 1e-3 and changing only the next existing model; false or absent retains fixed damping. */
   adaptiveRegularization?: boolean;
+
+  /** Select a separately admitted lagged fixed-untilted-dual local curvature metric after the first GN model; true requires sqpAcceleration. Absence preserves the current metric policy. */
+  laggedLagrangianMetric?: boolean;
 }
