@@ -1,5 +1,5 @@
-import type { IAutoMovieRecoveryInput } from "@automovie/interface/recovery";
 import type { IAutoMovieCurve64 as C } from "@automovie/engine/geometry/curve";
+import type { IAutoMovieRecoveryInput } from "@automovie/interface/recovery";
 
 /**
  * Prepare declared source aliases and original edge/vertex face incidence.
@@ -13,7 +13,7 @@ import type { IAutoMovieCurve64 as C } from "@automovie/engine/geometry/curve";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returned maps borrow source arrays and remain owned by one extraction call; no handles or global cache are created.
  */
 export function prepareRecoveryMeshIncidence(
-  input: IAutoMovieRecoveryInput,
+  input: Pick<IAutoMovieRecoveryInput, "triangles" | "exactCoordinateAliases">,
   vertices: IAutoMovieRecoveryInput["verticesMm"],
 ): {
   aliases: Map<string, number>;

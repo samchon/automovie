@@ -44,6 +44,22 @@ Run `node reconstruct.cjs`. A `partial` result carries usable geometry and unres
 
 `reconstructAutoMovieRecoveryModel` accepts saved Hermite bundles directly. Conversion does not update an existing continuation's byte-hash binding: observe continuation against the selected saved publication.
 
+## Add source topology to saved sections
+
+`observeAutoMovieRecoverySlabs(input, options)` observes finite source slabs without loading, converting or fitting curve coefficients. Supply unchanged registered vertices and original-order triangles, the physical axis/reference and exact-alias policy, caller-verified source/selection identities, finite slab pairs and an `IAutoMovieRecoverySavedSection` for every endpoint. Each saved section carries its original normalized frame, artifact identity and complete `sourceLineage`, including failed and degenerate contours. Existing artifacts with broad incidence alone can obtain newly cut exact face provenance.
+
+The caller verifies native source bytes, registration, selection, original face ordering and saved artifact hashes before the call. Opaque identity equality is not hashing. The observer compares frames and alias policy, recuts all supplied planes, then verifies raw contour ordinals, complete face sets and admitted closed/open/contact classification. Optional saved exact face sets must also agree. Missing, duplicated or stale contours refuse before any slab is delivered. The returned ports keep the caller's saved curve references with `bindingAuthority: "raw-cut-addresses-and-closure-only"` and `curveCoefficientsRead: false`; this establishes no named curve geometry, degree, rational weight, physical phase, direction, fit error or transverse jet.
+
+All source components, unpublished boundaries, measured PL events and incidence issues remain present. Source arrays stay private; the result contains source addresses and measured event features. Existing curve bytes remain outside the API, including high-degree and rational coefficients. This operator does not retry failed fits, create caps or authorize a generated surface. Optional progress and slab callbacks are synchronous; an exception fails the operation and cooperative abort stops later work. Slab callbacks receive independent metadata copies that remain provisional until success.
+
+## Resume failed contours
+
+`resumeAutoMovieRecoveryContours(input, { curveFormat })` reuses the registered source and complete saved-section binding contract to fit explicitly failed raw contours. Supply distinct `{ coordinateMm, contourIndex }` targets and one `IAutoMovieRecoveryContourResumePolicy` per targeted artifact identity. The caller verifies that tolerance, corner threshold, orientation sign and original span budget are the actual values committed by that original artifact. The observer compares identities; it does not hash files or infer missing policy.
+
+All saved cuts are verified before any target is fitted. Published curves, including curves with unresolved tolerance, and degenerate publications cannot be targeted. Only failed targets enter the existing adaptive fitter. A raw contour with E positive observation edges admits at most E adaptive spans; each split partitions its edge range. Exact source face count F also gives the conservative preplan bound 3F because a triangle emits at most three cutter edges. Both measured counts and bounds are returned, and E supplies the new budget without forcing one span per edge. Conditioning failures and unmet tolerance remain explicit.
+
+The result keeps original publication addresses in `sections`, untargeted artifact references in `preservedOriginals`, original raw indices in `targets` and newly fitted coefficients in `fits`. A target's `patchCurveIndex` addresses only the new `fits` array. Commit this patch separately and resolve both artifact namespaces in an explicit acquisition ledger. Only new cubics undergo official basis conversion; normal coefficients, including high-degree and rational data, remain external byte references with their original actual widths, units and directions. `complete` means the requested patches met the original polyline tolerance, independently of unresolved untargeted publications. It establishes no surface error, continuation, material phase or transverse jets. Progress exceptions fail without a value; cooperative abort stops later work but cannot interrupt a synchronous numeric solve.
+
 ## CLI
 
 ```sh
@@ -63,6 +79,11 @@ The root entrypoint exports observation, fitting, reconstruction, compilation an
 | --- | --- |
 | `prepareAutoMovieRecoveryInput` | Admit registered triangles and their observation policy |
 | `observeAutoMovieRecovery` | Extract and fit saved cubic curves |
+| `observeAutoMovieRecoveryPolyline` | Fit a caller-ordered physical polyline without inferring closure or correspondence |
+| `observeAutoMovieRecoverySections` | Observe every contour at caller-defined physical planes |
+| `AutoMovieRecoveryOrderedLineage` | Observe ordered source cuts and qualify new saved-cubic replay correspondence |
+| `observeAutoMovieRecoverySlabs` | Add exact source slab topology to caller-bound saved section publications without fitting |
+| `resumeAutoMovieRecoveryContours` | Fit only failed saved raw contours into a separate source-bound coefficient patch |
 | `convertAutoMovieRecoveryCurves` | Change the saved cubic coefficient basis |
 | `reconstructAutoMovieRecoveryModel` | Generate geometry, construction and a domain ledger |
 | `observeAutoMovieRecoveryImages` | Measure row support from calibrated RGB images |
