@@ -203,6 +203,15 @@ export interface IAutoMovieHumanLoftChain {
   /** Phase correspondence rule; see {@link AutoMovieHumanLoftParameter}. */
   rule: AutoMovieHumanLoftParameter.Rule;
 
+  /**
+   * Number of uniform phases of the chain's own rings.
+   *
+   * Chosen by the fitter from the chain's largest perimeter so vertices are a
+   * few millimetres apart; a child switches from its inherited ring to this
+   * phase set in its first band.
+   */
+  samples: number;
+
   /** Principal layers ordered by strictly increasing height, at least two. */
   layers: IAutoMovieHumanLoftChain.ILayer[];
 }

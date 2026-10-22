@@ -84,6 +84,84 @@ export namespace AutoMovieHumanLoftMesh {
   }
 
   /**
+   * Connect two cyclic rings of one chain that carry different phase sets.
+   *
+   * Both rings follow the same chain correspondence, so their vertices can
+   * be merged by phase: walking both rings in increasing phase, each step
+   * advances the ring whose next vertex has the smaller phase and emits one
+   * triangle. The result is the zipper band used where a child chain leaves
+   * the vertices it inherited from its parent for its own phase set, so
+   * vertex density follows each chain's size rather than its ancestry.
+   *
+   * Phases are reduced modulo 2pi; each ring must be monotone in phase
+   * along its vertex order, as both correspondence rules produce.
+   *
+   * @param context Buffers to grow.
+   * @param lower Lower ring vertices.
+   * @param lowerPhases Phase of each lower vertex in radians.
+   * @param upper Upper ring vertices.
+   * @param upperPhases Phase of each upper vertex in radians.
+   */
+  export function zipper(
+    context: IContext,
+    lower: readonly number[],
+    lowerPhases: readonly number[],
+    upper: readonly number[],
+    upperPhases: readonly number[],
+  ): void {
+    const L: { v: number; t: number }[] = ascending(lower, lowerPhases);
+    const U: { v: number; t: number }[] = ascending(upper, upperPhases);
+    const nL: number = L.length;
+    const nU: number = U.length;
+
+    // Sentinels one period later close the cycle without index arithmetic.
+    L.push({ v: L[0]!.v, t: L[0]!.t + 2 * Math.PI });
+    U.push({ v: U[0]!.v, t: U[0]!.t + 2 * Math.PI });
+
+    let i: number = 0;
+    let j: number = 0;
+    while (i < nL || j < nU) {
+      // Advance the lower ring when its next vertex comes first in phase;
+      // the triangle orientation matches `band`.
+      const advanceLower: boolean =
+        j >= nU || (i < nL && L[i + 1]!.t <= U[j + 1]!.t);
+
+      if (advanceLower) {
+        context.indices.push(L[i]!.v, U[j]!.v, L[i + 1]!.v);
+        i++;
+      } else {
+        context.indices.push(L[i]!.v, U[j]!.v, U[j + 1]!.v);
+        j++;
+      }
+    }
+  }
+
+  /** Ring vertices rotated to start at the smallest phase in `[0, 2pi)`. */
+  function ascending(
+    ring: readonly number[],
+    phases: readonly number[],
+  ): { v: number; t: number }[] {
+    const reduced: number[] = phases.map(
+      (t: number): number => t - 2 * Math.PI * Math.floor(t / (2 * Math.PI)),
+    );
+    const start: number = reduced.reduce(
+      (best: number, t: number, i: number): number =>
+        t < reduced[best]! ? i : best,
+      0,
+    );
+
+    // Unwrap after the start so the sequence increases through one period.
+    const out: { v: number; t: number }[] = [];
+    for (let k: number = 0; k < ring.length; k++) {
+      const i: number = (start + k) % ring.length;
+      const t: number =
+        reduced[i]! < reduced[start]! ? reduced[i]! + 2 * Math.PI : reduced[i]!;
+      out.push({ v: ring[i]!, t });
+    }
+    return out;
+  }
+
+  /**
    * Close a ring with a fan to a pole vertex.
    *
    * A bottom pole faces -Y, so its triangles run `(apex, r_i, r_{i+1})`;

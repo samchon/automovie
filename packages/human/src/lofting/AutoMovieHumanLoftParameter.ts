@@ -1,8 +1,8 @@
 /**
  * Correspondence rules that assign a phase to each point of a closed section.
  *
- * Both rules expect the polygon ordered from the front (+X) toward +Z, the
- * orientation every chain uses. The same rule serves two consumers:
+ * Every rule expects the polygon ordered from the front (+X) toward +Z, the
+ * orientation every chain uses. One rule serves two consumers:
  *
  * - the observation fitter, which resamples a recovered section at uniform
  *   phases before projecting it onto harmonics;
@@ -23,10 +23,15 @@
  *   arclength. It accepts non-star sections such as the shoulder girdle,
  *   where an arm lobe leaves the torso, provided the most forward and most
  *   rearward crossings of that plane are the anatomical front and back.
+ * - `arclength`: phase 0 is the same front crossing and the whole outline
+ *   is parameterized by its arclength. It is the rule of chains whose bottom
+ *   section is a contact of several children, such as a palm whose fingers
+ *   touch: the contact point is passed twice, and a polar angle would give
+ *   both passes the same phase while arclength separates them.
  */
 export namespace AutoMovieHumanLoftParameter {
   /** Name of a correspondence rule. */
-  export type Rule = "polar" | "sagittal";
+  export type Rule = "polar" | "sagittal" | "arclength";
 
   /**
    * Phase of every polygon vertex under a rule.
@@ -50,7 +55,9 @@ export namespace AutoMovieHumanLoftParameter {
     polygon: readonly (readonly [number, number])[],
   ): number[] {
     const axis: [number, number] = centroid(polygon);
-    return rule === "polar" ? polar(polygon, axis) : sagittal(polygon, axis);
+    return rule === "polar"
+      ? polar(polygon, axis)
+      : anchored(polygon, axis, rule === "sagittal");
   }
 
   /**
@@ -114,10 +121,17 @@ export namespace AutoMovieHumanLoftParameter {
     return out;
   }
 
-  /** Half-arclength phases between the front and back sagittal crossings. */
-  function sagittal(
+  /**
+   * Arclength phases from the front crossing of the sagittal axis plane.
+   *
+   * With `halves`, the back crossing is pinned to phase pi and each half is
+   * mapped separately (the `sagittal` rule); otherwise the whole outline is
+   * mapped at once (the `arclength` rule).
+   */
+  function anchored(
     polygon: readonly (readonly [number, number])[],
     axis: readonly [number, number],
+    halves: boolean,
   ): number[] {
     const n: number = polygon.length;
 
@@ -174,7 +188,9 @@ export namespace AutoMovieHumanLoftParameter {
 
     // Front-to-back is the +Z half, back-to-front the -Z half. Each half is
     // mapped linearly by arclength onto a phase interval of width pi.
-    const firstHalf: number = lengthBetween(front, back);
+    const firstHalf: number = halves
+      ? lengthBetween(front, back)
+      : perimeter / 2;
     const secondHalf: number = perimeter - firstHalf;
 
     const out: number[] = [];
