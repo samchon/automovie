@@ -6,6 +6,7 @@ These notes retain literature, mathematical derivations and bounded reference ob
 
 | Need | Notes |
 | --- | --- |
+| Current generator design and status | [Section-chain lofting](techniques/section-chain-lofting.md) |
 | Measurement definitions, populations, licences and reading limits | [Literature source index](sources/README.md) |
 | Original Hermite widths, degree and interpolation limits | [Parametric curve families](techniques/parametric-curve-family.md) |
 | Common supports and coordinate distinctions | [Neutral supports](techniques/neutral-supports.md) |
