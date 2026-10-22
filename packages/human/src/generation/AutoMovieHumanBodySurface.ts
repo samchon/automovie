@@ -210,10 +210,12 @@ export namespace AutoMovieHumanBodySurface {
         AutoMovieHumanLoftMesh.zipper(
           context.mesh,
           rings[k]!,
-          lowerInherited ? inheritedPhases(context, target, rings[k]!) : phases,
+          lowerInherited
+            ? inheritedPhases(context, target, bottomY, rings[k]!)
+            : phases,
           rings[k + 1]!,
           upperInherited
-            ? inheritedPhases(context, target, rings[k + 1]!)
+            ? inheritedPhases(context, target, topY, rings[k + 1]!)
             : phases,
         );
     }
@@ -279,20 +281,23 @@ export namespace AutoMovieHumanBodySurface {
     );
   }
 
-  /** Phases of inherited ring vertices under a chain's own rule. */
+  /**
+   * Phases of inherited ring vertices under a chain's own rule, measured in
+   * the chain's section plane at the inheriting end.
+   */
   function inheritedPhases(
     context: IContext,
     target: IAutoMovieHumanLoftChain,
+    station: number,
     ring: readonly number[],
   ): number[] {
-    const outline: [number, number][] = ring.map(
-      (v: number): [number, number] => {
-        const p: [number, number, number] = AutoMovieHumanLoftMesh.position(
-          context.mesh,
-          v,
-        );
-        return [p[0], p[2]];
-      },
+    const outline: [number, number][] = AutoMovieHumanLoftChain.local(
+      target,
+      station,
+      ring.map(
+        (v: number): [number, number, number] =>
+          AutoMovieHumanLoftMesh.position(context.mesh, v),
+      ),
     );
     return AutoMovieHumanLoftParameter.phases(target.rule, outline);
   }
@@ -377,12 +382,8 @@ export namespace AutoMovieHumanBodySurface {
     const y: number = endHeight(target, end);
     const calibrated: IAutoMovieHumanBodyCalibration.IPole | undefined =
       context.poles.get(target.name + ":" + end);
-    const axis: [number, number] = AutoMovieHumanLoftChain.axis(target, y);
-    const point: [number, number, number] = calibrated?.point ?? [
-      axis[0],
-      y,
-      axis[1],
-    ];
+    const point: [number, number, number] =
+      calibrated?.point ?? AutoMovieHumanLoftChain.axis(target, y);
 
     const apex: number = AutoMovieHumanLoftMesh.vertices(context.mesh, [
       point,

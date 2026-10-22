@@ -99,9 +99,8 @@ export namespace AutoMovieHumanBodyConstruction {
     return Array.from(
       { length: AXIS_POINTS },
       (_: unknown, i: number): [number, number, number] => {
-        const y: number = bottom + ((top - bottom) * i) / (AXIS_POINTS - 1);
-        const p: [number, number] = AutoMovieHumanLoftChain.axis(chain, y);
-        return [p[0], y, p[1]];
+        const s: number = bottom + ((top - bottom) * i) / (AXIS_POINTS - 1);
+        return AutoMovieHumanLoftChain.axis(chain, s);
       },
     );
   }
