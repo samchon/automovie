@@ -295,7 +295,7 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
     const placement: HumanCaptureCamera.IPlacement = HumanCaptureCamera.place(
       camera,
       key,
-      HumanCaptureCamera.describe(name, current.bounds),
+      current.describe(name),
       current.bounds,
     );
     view = name;
@@ -363,7 +363,7 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
             scene,
             shot,
             key,
-            name,
+            model.describe(name),
             model.bounds,
           );
         return {

@@ -15,7 +15,7 @@ import { HumanCaptureCamera } from "./HumanCaptureCamera";
  * @param scene Scene with the model, already set to the wanted pass and selection.
  * @param shot Camera used only for captures; its aspect is set to 1.
  * @param key Key light, moved to the shot's camera-relative position.
- * @param camera Camera name.
+ * @param descriptor Camera direction and region from `HumanCaptureCamera.describe`.
  * @param bounds Whole surface bounds in metres.
  * @returns PNG data URL, capture time, placement, canvas facts and the WebGL renderer strings.
  *
@@ -32,7 +32,7 @@ export function captureHumanViewerFrame(
   scene: THREE.Scene,
   shot: THREE.PerspectiveCamera,
   key: THREE.DirectionalLight,
-  camera: string,
+  descriptor: HumanCaptureCamera.IDescriptor,
   bounds: THREE.Box3,
 ): {
   png: string;
@@ -41,10 +41,6 @@ export function captureHumanViewerFrame(
   canvas: { width: number; height: number; pixelRatio: number };
   renderer: { vendor: string; renderer: string };
 } {
-  const descriptor: HumanCaptureCamera.IDescriptor = HumanCaptureCamera.describe(
-    camera,
-    bounds,
-  );
   renderer.setPixelRatio(1);
   renderer.setSize(HumanCaptureCamera.size, HumanCaptureCamera.size, false);
   shot.aspect = 1;

@@ -8,6 +8,7 @@ import {
 import * as THREE from "three";
 
 import type { IAutoMovieHumanGenerated } from "../../../human/src/structures/IAutoMovieHumanGenerated";
+import { HumanCaptureCamera } from "./HumanCaptureCamera";
 import type { IHumanViewerPage } from "./IHumanViewerPage";
 import { ModelPartStyling } from "./ModelPartStyling";
 import { createHumanPartStyle } from "./createHumanPartStyle";
@@ -319,6 +320,37 @@ export class HumanViewerModel {
     this.styling.dispose();
     this.object.removeFromParent();
     await this.close();
+  }
+
+  /**
+   * Resolve a camera name against this model, including the part-based close-ups.
+   *
+   * @param name One of `HumanCaptureCamera.names`.
+   * @returns The camera's direction and region; unknown names and missing close-up parts throw.
+   *
+   * @evidence contracts/common.md#principled-implementation Supplies HumanCaptureCamera.describe with the whole surface bounds and a bounds-by-prefix query over the built surface parts in world space.
+   * @evidence contracts/common.md#clear-and-simple-design The camera rules stay in HumanCaptureCamera; the model only answers which of its parts match.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Construction parts never enter a close-up region, and an empty match is reported to the caller rather than replaced.
+   * @evidence contracts/common.md#meaningful-documentation States the failure cases.
+   * @evidence contracts/performance.md#efficient-algorithms Whole and row cameras are constant work; a close-up scans the parts once per prefix set and boxes the matching ones in O(V) of their vertices.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the built parts and the stored surface bounds.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a new descriptor; retains nothing.
+   */
+  public describe(name: string): HumanCaptureCamera.IDescriptor {
+    return HumanCaptureCamera.describe(
+      name,
+      this.bounds,
+      (prefixes: readonly string[]): THREE.Box3 => {
+        const box: THREE.Box3 = new THREE.Box3();
+        for (const [id, object] of this.built.parts)
+          if (
+            !id.startsWith(CONSTRUCTION) &&
+            prefixes.some((prefix: string): boolean => id.startsWith(prefix))
+          )
+            box.union(new THREE.Box3().setFromObject(object));
+        return box;
+      },
+    );
   }
 
   /** Re-apply the Human styling for the current pass and selection. */

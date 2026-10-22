@@ -8,7 +8,8 @@ import * as THREE from "three";
  * `whole-*` cameras frame the whole surface bounds; `region-row{0..3}-*` frame
  * one horizontal quarter of those bounds, row 0 lowest, so their targets sit at
  * 12.5, 37.5, 62.5 and 87.5 percent of the height. A region row is a
- * bounds-relative tile, not an anatomical cut.
+ * bounds-relative tile, not an anatomical cut. `head-*` and `eye-*` close-ups
+ * frame the head and eye parts the generator emits; see {@link HumanCaptureCamera.describe}.
  *
  * {@link HumanCaptureCamera.place} copies the framing of the capture that
  * produced `test/.shots/{f1,f2,m1,m2}/`: the camera looks at the region centre
@@ -48,6 +49,12 @@ export class HumanCaptureCamera {
       `region-row${row}-front`,
       `region-row${row}-side`,
     ]),
+    "head-front",
+    "head-side",
+    "head-back",
+    "head-oblique-front",
+    "eye-left-front",
+    "eye-right-front",
   ];
 
   /**
@@ -56,21 +63,32 @@ export class HumanCaptureCamera {
    * Azimuth is measured in the X-Z plane from +X toward +Z, so pi/2 looks from
    * +Z (`whole-left`, `-side`) and -pi/2 from -Z (`whole-right`).
    *
+   * Close-up regions come from the model's own parts, never from coordinates:
+   * `head-*` frames the `human.skin.head/` skin intervals together with every
+   * `human.hair.` and `human.eye.` part, so hair and eyes are never cropped;
+   * the generator's head chain is the anatomical boundary, which avoids
+   * guessing a neck-base height. `eye-<side>-front` frames the
+   * `human.eye.<side>.` parts grown on every side by 0.75 of their largest
+   * extent, so lids and brow stay in view and the eye spans about a third of
+   * the frame. A model without those parts fails instead of framing something else.
+   *
    * @param name One of {@link HumanCaptureCamera.names}.
    * @param bounds Whole-model surface bounds in metres.
-   * @returns The descriptor; an unknown name throws instead of falling back to a default view.
+   * @param parts Union of the surface bounds of parts whose id starts with any given prefix; empty when none match.
+   * @returns The descriptor; an unknown name or a missing close-up part throws instead of falling back to a default view.
    *
-   * @evidence contracts/common.md#principled-implementation Whole cameras map to fixed azimuths; region rows split the whole bounds' height into quarters and keep the full X/Z extent, matching the reference tiles' bounds rule.
-   * @evidence contracts/common.md#clear-and-simple-design The name table lives in one place shared by page, worker and docs.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown names throw rather than falling back to a default view.
-   * @evidence contracts/common.md#meaningful-documentation States the azimuth convention and the row order.
-   * @evidence contracts/performance.md#efficient-algorithms Constant work and one Box3 clone.
-   * @evidence contracts/performance.md#reuse-equivalent-work Pure function of name and bounds.
+   * @evidence contracts/common.md#principled-implementation Whole cameras map to fixed azimuths; region rows split the whole bounds' height into quarters and keep the full X/Z extent, matching the reference tiles' bounds rule; close-ups take the bounds of the generator's head, hair and eye parts by id prefix.
+   * @evidence contracts/common.md#clear-and-simple-design The name table and every region rule live in one place shared by page, worker and docs; the model only answers bounds-by-prefix queries.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown names and missing head or eye parts throw rather than falling back to a default view; no person-specific coordinate is used.
+   * @evidence contracts/common.md#meaningful-documentation States the azimuth convention, the row order, the close-up part sets, the eye margin and why the head chain beats a neck-base cut.
+   * @evidence contracts/performance.md#efficient-algorithms Constant work for whole and row cameras; close-ups cost one bounds query per prefix set, linear in the matching parts' vertices.
+   * @evidence contracts/performance.md#reuse-equivalent-work Pure function of name, bounds and the parts query.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a new descriptor; retains nothing.
    */
   public static describe(
     name: string,
     bounds: THREE.Box3,
+    parts: (prefixes: readonly string[]) => THREE.Box3,
   ): HumanCaptureCamera.IDescriptor {
     const whole: Record<string, number> = {
       "whole-front": 0,
@@ -87,6 +105,38 @@ export class HumanCaptureCamera {
         elevation: 0,
         region: bounds.clone(),
       };
+
+    // The head chain plus everything attached to the head.
+    const head: Record<string, number> = {
+      "head-front": 0,
+      "head-side": Math.PI / 2,
+      "head-back": Math.PI,
+      "head-oblique-front": Math.PI / 4,
+    };
+    if (Object.hasOwn(head, name)) {
+      const skin: THREE.Box3 = parts(["human.skin.head/"]);
+      if (skin.isEmpty())
+        throw new Error("Human model has no human.skin.head/ part for " + name);
+      return {
+        name,
+        azimuth: head[name]!,
+        elevation: 0,
+        region: skin.union(parts(["human.hair.", "human.eye."])),
+      };
+    }
+
+    // One eye's parts with a margin of 0.75 of their largest extent per side.
+    const eye: RegExpExecArray | null = /^eye-(left|right)-front$/.exec(name);
+    if (eye !== null) {
+      const region: THREE.Box3 = parts(["human.eye." + eye[1] + "."]);
+      if (region.isEmpty())
+        throw new Error(
+          "Human model has no human.eye." + eye[1] + ". part for " + name,
+        );
+      const size: THREE.Vector3 = region.getSize(new THREE.Vector3());
+      region.expandByScalar(0.75 * Math.max(size.x, size.y, size.z));
+      return { name, azimuth: 0, elevation: 0, region };
+    }
 
     // A region row keeps the whole X/Z extent and one quarter of the height.
     const row: RegExpExecArray | null = /^region-row([0-3])-(front|side)$/.exec(

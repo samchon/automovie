@@ -165,7 +165,7 @@ export function createHumanImagePlugin(repository: string): Plugin {
                 url.pathname,
               );
             const image: RegExpExecArray | null =
-              /^\/human-images\/([a-z][a-z0-9-]{0,15})\/((?:whole-(?:front|back|left|right|oblique-front|oblique-back)|region-row[0-3]-(?:front|side))\.(?:surface|overlay|construction)\.png)$/.exec(
+              /^\/human-images\/([a-z][a-z0-9-]{0,15})\/((?:whole-(?:front|back|left|right|oblique-front|oblique-back)|region-row[0-3]-(?:front|side)|head-(?:front|side|back|oblique-front)|eye-(?:left|right)-front)\.(?:surface|overlay|construction)\.png)$/.exec(
                 url.pathname,
               );
             if (

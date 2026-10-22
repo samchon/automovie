@@ -66,20 +66,28 @@ Each camera looks at the centre of its region from the named direction and backs
 
 | Camera | Direction | Region |
 | --- | --- | --- |
-| `whole-front` | +X | whole skin bounds |
-| `whole-back` | −X | whole skin bounds |
-| `whole-left` | +Z | whole skin bounds |
-| `whole-right` | −Z | whole skin bounds |
-| `whole-oblique-front` | +X+Z, 45° | whole skin bounds |
-| `whole-oblique-back` | −X−Z, 45° | whole skin bounds |
+| `whole-front` | +X | whole surface bounds |
+| `whole-back` | −X | whole surface bounds |
+| `whole-left` | +Z | whole surface bounds |
+| `whole-right` | −Z | whole surface bounds |
+| `whole-oblique-front` | +X+Z, 45° | whole surface bounds |
+| `whole-oblique-back` | −X−Z, 45° | whole surface bounds |
 | `region-row{0..3}-front` | +X | one quarter of the height, row 0 lowest |
 | `region-row{0..3}-side` | +Z | one quarter of the height, row 0 lowest |
+| `head-front` | +X | head close-up |
+| `head-side` | +Z | head close-up |
+| `head-back` | −X | head close-up |
+| `head-oblique-front` | +X+Z, 45° | head close-up |
+| `eye-left-front` | +X | `human.eye.left.` parts plus margin |
+| `eye-right-front` | +X | `human.eye.right.` parts plus margin |
 
-Region rows keep the whole lateral extent, so with arms out a row frames far more than its quarter. They are bounds tiles, not anatomical cuts or close-ups; for a close-up, orbit and zoom on the page.
+Region rows keep the whole lateral extent, so with arms out a row frames far more than its quarter; they are bounds tiles, not anatomical cuts.
+
+Close-ups frame the model's own parts, never fixed coordinates. A head close-up frames the `human.skin.head/` intervals together with every `human.hair.` and `human.eye.` part, so hair and eyes are never cropped; the generator's head chain is used because a neck-base height is not a published quantity. An eye close-up frames that side's `human.eye.<side>.` parts grown on every side by 0.75 of their largest extent, so lids and brow stay in view and the eye spans about a third of the frame. A model without those parts fails the request instead of framing something else. For any other close-up, orbit and zoom on the page.
 
 ## Passes
 
-Parts whose id starts with `human.construction.` are construction (the lofting curves); every other part, today the `human.skin.<chain>/<k>` intervals, is surface. All passes of one camera share the skin bounds, so they align pixel for pixel.
+Parts whose id starts with `human.construction.` are construction (the lofting curves); every other part, such as the `human.skin.<chain>/<k>` intervals, hair and eyes, is surface. All passes of one camera share the surface-derived region, so they align pixel for pixel.
 
 - `surface`: skin alone.
 - `overlay`: skin and lofting curves. The skin is drawn with a polygon offset of one, so sections lying on it win the depth test; axes run inside the body and are drawn through the skin.

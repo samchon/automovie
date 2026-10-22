@@ -1,7 +1,20 @@
 import type { IAutoMovieHumanParameters } from "../../../human/src/structures/IAutoMovieHumanParameters";
+import { AutoMovieHumanHairColor } from "../../../human/src/typings/AutoMovieHumanHairColor";
+import { AutoMovieHumanHairCurl } from "../../../human/src/typings/AutoMovieHumanHairCurl";
+import { AutoMovieHumanHairStyle } from "../../../human/src/typings/AutoMovieHumanHairStyle";
+import { AutoMovieHumanHairline } from "../../../human/src/typings/AutoMovieHumanHairline";
+import { AutoMovieHumanLowerUnderwear } from "../../../human/src/typings/AutoMovieHumanLowerUnderwear";
+import { AutoMovieHumanUpperUnderwear } from "../../../human/src/typings/AutoMovieHumanUpperUnderwear";
 
 /** Authored f1 example in the Human parameter units; null measurements remain unknown.
  *
+ * `appearance` transcribes the reference's requested appearance, `test/.shots/f1/appearance.json`,
+ * field for field: `skin.{oiliness, wrinkles, seed}`, `hair.{style, color, length, curl, hairline}`,
+ * `browPair.<side>.color`, `lashPair.<side>.{color, length}` and `underwear.{bottom, top, color}` keep
+ * the same names, units (millimetres, dimensionless 0 to 1, uint32 seed) and closed-choice values;
+ * the reference stores the choices as their serialized strings, which are these enum members' values.
+ * The request has no freckle or acne entry, so those optional fields stay absent, and it states no
+ * pigmentation or iris colour, so `pigmentation` stays absent rather than invented.
  */
 export const f1: IAutoMovieHumanParameters = {
   body: {
@@ -224,6 +237,33 @@ export const f1: IAutoMovieHumanParameters = {
         footBreadth: 90.07814933414397,
         ankleHeight: 75.87674536778414,
       },
+    },
+  },
+  appearance: {
+    skin: {
+      oiliness: 0.25,
+      wrinkles: 0,
+      seed: 51001,
+    },
+    hair: {
+      style: AutoMovieHumanHairStyle.Bob,
+      color: AutoMovieHumanHairColor.DarkBrown,
+      length: 300,
+      curl: AutoMovieHumanHairCurl.II,
+      hairline: AutoMovieHumanHairline.BellShaped,
+    },
+    browPair: {
+      left: { color: AutoMovieHumanHairColor.DarkBrown },
+      right: { color: AutoMovieHumanHairColor.DarkBrown },
+    },
+    lashPair: {
+      left: { color: AutoMovieHumanHairColor.DarkBrown, length: 10 },
+      right: { color: AutoMovieHumanHairColor.DarkBrown, length: 10 },
+    },
+    underwear: {
+      bottom: AutoMovieHumanLowerUnderwear.Briefs,
+      top: AutoMovieHumanUpperUnderwear.Bra,
+      color: "#6D5260",
     },
   },
 } satisfies IAutoMovieHumanParameters;
