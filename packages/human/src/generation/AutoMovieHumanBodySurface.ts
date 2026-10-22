@@ -2,6 +2,7 @@ import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanLoftParameter } from "../lofting/AutoMovieHumanLoftParameter";
+import { AutoMovieHumanBodyApertures } from "./AutoMovieHumanBodyApertures";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 
 /**
@@ -77,6 +78,12 @@ export namespace AutoMovieHumanBodySurface {
 
     /** Bisection chord tolerance in mm. */
     tolerance: number;
+
+    /** Apertures with their margins evaluated once. */
+    apertures: AutoMovieHumanBodyApertures.IPrepared[];
+
+    /** Inserted margin vertices, which bound the openings. */
+    margin: Set<number>;
   }
 
   /** Chord tolerance of the station bisection in mm. */
@@ -113,6 +120,8 @@ export namespace AutoMovieHumanBodySurface {
       ),
       boundaries: new Map(),
       tolerance: TOLERANCE,
+      apertures: AutoMovieHumanBodyApertures.prepare(calibration.apertures),
+      margin: new Set(),
     };
 
     // 1-2. Contact rings and the boundaries they define on both sides.
@@ -120,6 +129,9 @@ export namespace AutoMovieHumanBodySurface {
 
     // 3. Every chain between its two boundaries.
     for (const target of calibration.chains) loft(context, target);
+
+    // 4. Openings: the skin over every aperture is removed by position.
+    AutoMovieHumanBodyApertures.cut(context.mesh, context.apertures, context.margin);
 
     return {
       mesh: context.mesh,
@@ -171,25 +183,44 @@ export namespace AutoMovieHumanBodySurface {
     const phases: number[] = ownPhases(context, target);
     const bottomY: number = endHeight(target, "bottom");
     const topY: number = endHeight(target, "top");
-    const heights: number[] = AutoMovieHumanLoftChain.stations(
-      target,
-      bottomY,
-      topY,
-      context.tolerance,
+    // Bisection stations, refined inside any aperture on this chain.
+    const apertures: AutoMovieHumanBodyApertures.IPrepared[] =
+      AutoMovieHumanBodyApertures.on(context.apertures, target);
+    const heights: number[] = AutoMovieHumanBodyApertures.refine(
+      apertures,
+      AutoMovieHumanLoftChain.stations(target, bottomY, topY, context.tolerance),
     );
 
-    // Ring at each station; ends come from their boundaries when inherited
-    // or owned, and are generated here when the end is a pole.
+    // Ring and phase set at each station. Ends come from their boundaries
+    // when inherited or owned, and are generated here when the end is a
+    // pole; interior stations crossing an aperture margin carry the margin
+    // crossings as extra vertices.
     const bottom: IBoundary = boundary(context, target, "bottom");
     const top: IBoundary = boundary(context, target, "top");
+    const ringPhases: (readonly number[])[] = [];
     const rings: number[][] = heights.map((y: number, k: number): number[] => {
       const end: IBoundary | undefined =
         k === 0 ? bottom : k === heights.length - 1 ? top : undefined;
-      if (end !== undefined && end.kind !== "pole") return end.ring;
-      return AutoMovieHumanLoftMesh.vertices(
+      if (end !== undefined && end.kind !== "pole") {
+        ringPhases.push(
+          end.kind === "inherited"
+            ? inheritedPhases(context, target, y, end.ring)
+            : phases,
+        );
+        return end.ring;
+      }
+
+      const station: { phases: readonly number[]; margin: number[] } =
+        AutoMovieHumanBodyApertures.phases(apertures, target, y, phases);
+      ringPhases.push(station.phases);
+      const ring: number[] = AutoMovieHumanLoftMesh.vertices(
         context.mesh,
-        AutoMovieHumanLoftChain.ring(target, y, phases),
+        AutoMovieHumanLoftChain.ring(target, y, station.phases),
       );
+      station.phases.forEach((t: number, i: number): void => {
+        if (station.margin.includes(t)) context.margin.add(ring[i]!);
+      });
+      return ring;
     });
 
     // Bands between consecutive stations, grouped by principal interval.
@@ -198,23 +229,17 @@ export namespace AutoMovieHumanBodySurface {
         context.mesh,
         interval(target, heights[k]!, heights[k + 1]!),
       );
-      const lowerInherited: boolean = k === 0 && bottom.kind === "inherited";
-      const upperInherited: boolean =
-        k + 1 === heights.length - 1 && top.kind === "inherited";
-
-      if (!lowerInherited && !upperInherited)
+      // Rings with one shared phase set join by a band; inherited rings
+      // and rings carrying margin crossings join by a zipper.
+      if (ringPhases[k] === ringPhases[k + 1])
         AutoMovieHumanLoftMesh.band(context.mesh, rings[k]!, rings[k + 1]!);
       else
         AutoMovieHumanLoftMesh.zipper(
           context.mesh,
           rings[k]!,
-          lowerInherited
-            ? inheritedPhases(context, target, bottomY, rings[k]!)
-            : phases,
+          ringPhases[k]!,
           rings[k + 1]!,
-          upperInherited
-            ? inheritedPhases(context, target, topY, rings[k + 1]!)
-            : phases,
+          ringPhases[k + 1]!,
         );
     }
 

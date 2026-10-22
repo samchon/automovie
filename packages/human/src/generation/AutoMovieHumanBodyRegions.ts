@@ -1,5 +1,6 @@
 import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanBodyRegion } from "./IAutoMovieHumanBodyRegion";
 
@@ -80,6 +81,14 @@ export namespace AutoMovieHumanBodyRegions {
         ): IAutoMovieHumanBodyCalibration.IEvent[] => r.events,
       ),
       poles,
+      apertures: regions.flatMap(
+        (r: IAutoMovieHumanBodyRegion): IAutoMovieHumanLoftAperture[] =>
+          r.apertures ?? [],
+      ),
+      eyes: regions.flatMap(
+        (r: IAutoMovieHumanBodyRegion): IAutoMovieHumanBodyCalibration.IEye[] =>
+          r.eyes ?? [],
+      ),
     };
   }
 

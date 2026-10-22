@@ -1,3 +1,4 @@
+import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 
 /**
@@ -35,8 +36,30 @@ export interface IAutoMovieHumanBodyCalibration {
 
   /** Closing points of chain ends without an event. */
   poles: IAutoMovieHumanBodyCalibration.IPole[];
+
+  /** Anatomical openings cut from the skin by world position, e.g. the eyelid apertures. */
+  apertures: IAutoMovieHumanLoftAperture[];
+
+  /** Eyeball globes seated behind the eyelid apertures. */
+  eyes: IAutoMovieHumanBodyCalibration.IEye[];
 }
 export namespace IAutoMovieHumanBodyCalibration {
+  /**
+   * One eyeball globe, fitted as a sphere to the reference eyeball surface.
+   * The generator scales it with the body and hands it to the appearance
+   * layer, which builds the eyeball there.
+   */
+  export interface IEye {
+    /** Anatomical side: left is +Z. */
+    side: "left" | "right";
+
+    /** Globe centre in mm. */
+    centre: [number, number, number];
+
+    /** Globe radius in mm. */
+    radius: number;
+  }
+
   /** Split of a parent's end ring into its children's adjacent end rings. */
   export interface IEvent {
     /** Parent chain whose end layer is the contact section. */

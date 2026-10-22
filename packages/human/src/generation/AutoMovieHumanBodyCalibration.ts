@@ -1,6 +1,7 @@
 import { AutoMovieHumanBodyRegions } from "./AutoMovieHumanBodyRegions";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanEarCalibration } from "./calibration/AutoMovieHumanEarCalibration";
+import { AutoMovieHumanEyeCalibration } from "./calibration/AutoMovieHumanEyeCalibration";
 import { AutoMovieHumanFootCalibration } from "./calibration/AutoMovieHumanFootCalibration";
 import { AutoMovieHumanTorsoCalibration } from "./calibration/AutoMovieHumanTorsoCalibration";
 
@@ -14,4 +15,5 @@ export const AutoMovieHumanBodyCalibration: IAutoMovieHumanBodyCalibration =
     AutoMovieHumanTorsoCalibration,
     AutoMovieHumanFootCalibration,
     AutoMovieHumanEarCalibration,
+    AutoMovieHumanEyeCalibration,
   ]);

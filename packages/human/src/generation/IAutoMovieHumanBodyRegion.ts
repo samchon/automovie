@@ -1,3 +1,4 @@
+import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 
@@ -38,6 +39,12 @@ export interface IAutoMovieHumanBodyRegion {
    * an event or its own pole instead.
    */
   trims: IAutoMovieHumanBodyRegion.ITrim[];
+
+  /** Skin openings this region contributes; absent means none. */
+  apertures?: IAutoMovieHumanLoftAperture[];
+
+  /** Eyeball globes this region contributes; absent means none. */
+  eyes?: IAutoMovieHumanBodyCalibration.IEye[];
 }
 export namespace IAutoMovieHumanBodyRegion {
   /** Cut of one chain end at a station. */

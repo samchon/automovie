@@ -5,10 +5,11 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieHumanAppearance } from "./appearance/AutoMovieHumanAppearance";
-import { AutoMovieHumanEyeProbe } from "./appearance/AutoMovieHumanEyeProbe";
+import type { IAutoMovieHumanAppearanceBody } from "./appearance/IAutoMovieHumanAppearanceBody";
 import { AutoMovieHumanBodyCalibration } from "./generation/AutoMovieHumanBodyCalibration";
 import { AutoMovieHumanBodyConstruction } from "./generation/AutoMovieHumanBodyConstruction";
 import { AutoMovieHumanBodySurface } from "./generation/AutoMovieHumanBodySurface";
+import type { IAutoMovieHumanBodyCalibration } from "./generation/IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanLoftMesh } from "./lofting/AutoMovieHumanLoftMesh";
 import type { IAutoMovieHumanGenerated } from "./structures/IAutoMovieHumanGenerated";
 import type { IAutoMovieHumanParameters } from "./structures/IAutoMovieHumanParameters";
@@ -87,14 +88,33 @@ export class AutoMovieHuman {
         ),
     ];
 
-    // Appearance (eyes now; hair, brows, lashes and skin detail later) is
-    // placed on the generated body. Eye frames come from a provisional probe
-    // of the head skin until the eye apertures publish them.
+    // Appearance is placed on the generated body. Eye frames are the
+    // calibrated eyeball globes behind the eyelid apertures, scaled with the
+    // body into metres; the line of sight is forward (+X) and up is +Y.
+    const eye = (
+      side: "left" | "right",
+    ): IAutoMovieHumanAppearanceBody.IEye => {
+      const found: IAutoMovieHumanBodyCalibration.IEye | undefined =
+        AutoMovieHumanBodyCalibration.eyes.find(
+          (e: IAutoMovieHumanBodyCalibration.IEye): boolean => e.side === side,
+        );
+      if (found === undefined)
+        throw new Error(`Calibration lacks the ${side} eye`);
+      return {
+        centre: [
+          found.centre[0] * scale,
+          found.centre[1] * scale,
+          found.centre[2] * scale,
+        ],
+        forward: [1, 0, 0],
+        up: [0, 1, 0],
+      };
+    };
     const appearance: AutoMovieHumanAppearance.IOutput =
-      AutoMovieHumanAppearance.generate(
-        params,
-        AutoMovieHumanEyeProbe.estimate(params, body),
-      );
+      AutoMovieHumanAppearance.generate(params, {
+        eyePair: { left: eye("left"), right: eye("right") },
+        parts: body,
+      });
 
     const model: IAutoMovieModel = {
       id: "automovie-human",
