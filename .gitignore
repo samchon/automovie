@@ -52,3 +52,12 @@ __pycache__/
 # Local reference experiment runner and captured artifacts.
 test/src/executable/
 test/.shots/
+
+# Local registered inputs and retained acquisition/render evidence.
+/test/reference-inputs/
+/test/.human-audit-reports/
+/test/.human-native-captures/
+/test/.human-parameter-captures/
+/test/.native-build-evidence/
+/test/.reference-provenance-quarantine/
+/test/.reference-static-20261022-0435/
