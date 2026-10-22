@@ -18,6 +18,17 @@ export interface IAutoMovieHumanLoftChain {
   rule: AutoMovieHumanLoftParameter.Rule;
 
   /**
+   * Whether the chain bounds a hole, such as the pocket under an ear's helix.
+   *
+   * A hole's sections run clockwise (front toward -Z), so its own rings face
+   * into the hole, which is outward from the body there. Phases of a hole's
+   * sections, in the fitter and for vertices it inherits, are taken from the
+   * outline mirrored as (x, z) -> (x, -z), which makes them increase along the
+   * clockwise ring order the zipper expects. Absent means an ordinary tube.
+   */
+  mirrored?: boolean;
+
+  /**
    * Number of uniform phases of the chain's own rings.
    *
    * Chosen by the fitter from the chain's largest perimeter so vertices are a

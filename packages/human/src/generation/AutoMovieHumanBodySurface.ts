@@ -297,7 +297,14 @@ export namespace AutoMovieHumanBodySurface {
           AutoMovieHumanLoftMesh.position(context.mesh, v),
       ),
     );
-    return AutoMovieHumanLoftParameter.phases(target.rule, outline);
+    // A hole chain's rings run clockwise; mirroring makes its phases increase
+    // along that order, as the fitter assigned them.
+    return AutoMovieHumanLoftParameter.phases(
+      target.rule,
+      target.mirrored === true
+        ? outline.map((p: [number, number]): [number, number] => [p[0], -p[1]])
+        : outline,
+    );
   }
 
   /** Ring vertices whose phases lie on a forward arc, inclusive, in ring order. */
