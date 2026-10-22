@@ -441,6 +441,9 @@ importers:
 
   packages/human:
     dependencies:
+      '@automovie/engine':
+        specifier: workspace:^
+        version: link:../engine
       '@automovie/interface':
         specifier: workspace:^
         version: link:../interface

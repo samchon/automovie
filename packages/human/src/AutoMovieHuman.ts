@@ -4,6 +4,8 @@ import type {
   IAutoMovieModelPart,
 } from "@automovie/interface";
 
+import { AutoMovieHumanAppearance } from "./appearance/AutoMovieHumanAppearance";
+import { AutoMovieHumanEyeProbe } from "./appearance/AutoMovieHumanEyeProbe";
 import { AutoMovieHumanBodyCalibration } from "./generation/AutoMovieHumanBodyCalibration";
 import { AutoMovieHumanBodyConstruction } from "./generation/AutoMovieHumanBodyConstruction";
 import { AutoMovieHumanBodySurface } from "./generation/AutoMovieHumanBodySurface";
@@ -24,7 +26,9 @@ import type { IAutoMovieHumanParameters } from "./structures/IAutoMovieHumanPara
  * - `human.skin.<chain>/<k>`: the skin between principal layers k and k+1
  *   of a chain, shaped by the sections `<chain>/<k>` and `<chain>/<k+1>`;
  * - `human.construction.<chain>/<k>`: the principal section curve itself;
- * - `human.construction.<chain>/axis`: the chain's central axis.
+ * - `human.construction.<chain>/axis`: the chain's central axis;
+ * - `human.eye.<side>.<sclera|iris|cornea>`: appearance parts from
+ *   `AutoMovieHumanAppearance`, placed on the generated head.
  *
  * Skin normals are computed on the whole closed skin before it is split,
  * so the parts render as one continuous surface. The viewer's overlay and
@@ -64,12 +68,8 @@ export class AutoMovieHuman {
     const curves: AutoMovieHumanBodyConstruction.ICurve[] =
       AutoMovieHumanBodyConstruction.generate(AutoMovieHumanBodyCalibration);
 
-    const model: IAutoMovieModel = {
-      id: "automovie-human",
-      name: "Human",
-      origin: "generated",
-      parts: [
-        ...skin.map(
+    const body: IAutoMovieModelPart[] = [
+      ...skin.map(
           (piece: AutoMovieHumanLoftMesh.IPiece): IAutoMovieModelPart =>
             part("human.skin." + piece.name, "skin", piece, piece.normals, scale),
         ),
@@ -85,7 +85,22 @@ export class AutoMovieHuman {
               scale,
             ),
         ),
-      ],
+    ];
+
+    // Appearance (eyes now; hair, brows, lashes and skin detail later) is
+    // placed on the generated body. Eye frames come from a provisional probe
+    // of the head skin until the eye apertures publish them.
+    const appearance: AutoMovieHumanAppearance.IOutput =
+      AutoMovieHumanAppearance.generate(
+        params,
+        AutoMovieHumanEyeProbe.estimate(params, body),
+      );
+
+    const model: IAutoMovieModel = {
+      id: "automovie-human",
+      name: "Human",
+      origin: "generated",
+      parts: [...body, ...appearance.parts],
       skeleton: null,
       body: null,
       materials: [
@@ -96,7 +111,9 @@ export class AutoMovieHuman {
         // Construction colours only separate the two layers on screen.
         material("construction.sections", [0.1, 0.35, 0.9], true),
         material("construction.axes", [0.9, 0.15, 0.1], true),
+        ...appearance.materials,
       ],
+      images: appearance.images,
       asset: null,
     };
     return { parameters: params, model };
