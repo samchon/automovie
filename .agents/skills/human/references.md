@@ -21,17 +21,25 @@ node --experimental-strip-types test/src/executable/reference-experiments/regist
 
 ## Original And Recovery Photographs
 
-| Image | Selected index | PNG location |
-| --- | --- | --- |
-| Original reference model | `test/.shots/{id}/captures.json` | `test/.shots/{id}/screenshots-corrected/{whole-front,whole-back}.png` |
-| Recovery ruled reverse render | The subject's `ruledCapture.path` in `test/.shots/manifest.json` | `test/.shots/{id}/recovery-diagnostics/<recovery-key>/direct-render/<render-key>/screenshots-corrected/{whole-front,whole-back}.png` |
+Every set below holds the same 140 frames as `test/.shots/{id}/screenshots-corrected/` (whole, head and the 4×3 tiles, ten directions each), under the same camera, light, material, background and 1200×1200 DPR 1 renderer, so one frame name such as `head-front.png` selects matching images across all six sets.
 
-1. Select the `subjects[]` entry whose `id` is f1, f2, m1 or m2; use its exact `ruledCapture.path`, never an arbitrary glob match.
+| Mesh | Layer | Index | PNG directory |
+| --- | --- | --- | --- |
+| Original reference model | Mesh | `test/.shots/{id}/captures.json` | `test/.shots/{id}/screenshots-corrected/` |
+| Original reference model | Curves | `test/.shots/{id}/screenshots-curves/index.json` | same directory as the index |
+| Original reference model | Curves over mesh | `test/.shots/{id}/screenshots-overlay/index.json` | same directory as the index |
+| Recovery ruled reverse render | Mesh | `test/.shots/{id}/recovery/screenshots/index.json` | same directory as the index |
+| Recovery ruled reverse render | Curves | `test/.shots/{id}/recovery/screenshots-curves/index.json` | same directory as the index |
+| Recovery ruled reverse render | Curves over mesh | `test/.shots/{id}/recovery/screenshots-overlay/index.json` | same directory as the index |
+
+The curves are the saved Hermite section loops (crimson) and open arcs (blue) of `test/.shots/{id}/hermite-curves.json.gz`; the two curve-only sets therefore show the same curves. The Recovery mesh is the `recoveryLocal` ruled surface of the direct-render recipe that the subject's `ruledCapture.path` in `test/.shots/manifest.json` selects; the key-free `recovery/` indices name that recipe, its curves, continuation and observation context by path and SHA-256. The older hashed `recovery-diagnostics/<recovery-key>/direct-render/<render-key>/` pair stays as the supply receipt's evidence, and its whole-front/back bytes equal `recovery/screenshots/`.
+
+1. Use only an index whose `status` is `completed`; a `partial` index is an unfinished capture.
 2. Resolve each index's `screenshotDirectory` relative to that index's parent, then append the exact `frames[].name`, including `.png`.
-3. Verify PNG bytes against that frame's `sha256`; bind the selected index and its manifest receipt.
-4. Resolve historical absolute addresses through `alias-relocation.json`; preserve the original index and receipt bytes.
+3. Verify PNG bytes against that frame's `sha256`, and bind the index's `context.inputs` model, curve and original-photograph commitments.
+4. Resolve historical absolute addresses inside an index through `alias-relocation.json`; preserve index and receipt bytes.
 
-For f1, the original front is `test/.shots/f1/screenshots-corrected/whole-front.png`. Its Recovery front comes from the manifest-selected diagnostic index, not the original `captures.json`; read that index's directory and `whole-front.png` frame rather than hardcoding diagnostic keys.
+For f1, the original front is `test/.shots/f1/screenshots-corrected/whole-front.png`, its curves over the original mesh are `test/.shots/f1/screenshots-overlay/whole-front.png`, and its Recovery front is `test/.shots/f1/recovery/screenshots/whole-front.png`. The [reference-experiments README](../../../test/src/executable/reference-experiments/README.md#mesh-and-curve-photographs) gives the command that produces or resumes these sets.
 
 ## Extract And Save
 
