@@ -13,13 +13,21 @@ During authorized modeling, keep the single web viewer and screenshot server run
 
 - Validate specimen reproduction before accepting common parameter laws or claiming prediction.
 - Preserve original curve authority and [representation contracts](references.md#extract-and-save).
-- Use one common skeleton/boundary owner and one shared execution owner.
 - Reject specimen copies, person-indexed control tables, source mesh/normal fallback and arbitrary coordinate corrections.
 - Read the applicable [3D Modeling guide](../3d-modeling/SKILL.md). Unconsumed code, fits and documents are not rendered progress.
 
+## Work Allocation
+
+Work alone by default. Spawn or resume subagents only when the user explicitly requests delegation, including a separate auditor. Regional tasks, campaign issues and audit schedules do not authorize delegation.
+
+- One integration owner controls the common skeleton and boundaries.
+- One execution owner controls compiler, native, GPU and capture resources.
+- In solo work, perform both roles yourself; when delegated, assign them before parallel work.
+- Read [Verification](verification.md) before implementation; retain responsibility for checks and user reports in solo or delegated work.
+
 ## Workflow
 
-- Design and identify shared q/theta against all four references from the start; develop regions in parallel with early root integration.
+- Design and identify shared q/theta against all four references from the start; integrate regions into the root early.
 - First establish f1 through public generation → actual model → viewer; this checks the execution path, not completed anatomy or four-person acceptance.
 - As soon as that path works, expand to all four and correct common causes in complete rounds; never perfect f1 before moving on, use person-specific tables or relax the [eight-image audit](verification.md#audit-and-user-reports). Report unavailable early captures as failed or unverified.
 

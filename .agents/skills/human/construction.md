@@ -16,8 +16,8 @@ C0 position, G1 tangent-plane agreement, curvature continuity and emitted mesh i
 
 ## Ownership And Scope
 
-- One integration owner owns skeleton, reference planes, global addresses and shared boundaries; regional owners consume them.
-- Assign every region and missing join: trunk, shoulder, neck, pelvis/buttocks, limbs/joints, hands/fingers, feet/toes, head/face, eyes/lids, ears/nose/mouth.
+- Keep skeleton, reference planes, global addresses and shared boundaries under the [integration owner](SKILL.md#work-allocation).
+- Cover every region and missing join: trunk, shoulder, neck, pelvis/buttocks, limbs/joints, hands/fingers, feet/toes, head/face, eyes/lids, ears/nose/mouth.
 - Track appearance, hair, brows, lashes, nails, underwear, editor and save/load explicitly. Rig/deformation and temporal work follow neutral shape.
 - Genitals and nipples remain outside modeled skin.
 - No person-indexed controls, specimen copying, source mesh/normals, arbitrary offsets, tolerance relaxation or exception wrappers.

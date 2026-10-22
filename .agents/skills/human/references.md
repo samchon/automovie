@@ -17,7 +17,7 @@ The retained cohort's address-validation command is:
 node --experimental-strip-types test/src/executable/reference-experiments/registerReferencePerson.mts test/reference-inputs/natural4/alias-supply-plan.json --plan
 ```
 
-`--plan` has passed read-only validation; it does not run native acquisition, Recovery or capture. Omit it only for an authorized shared-owner supply/resume run. The original `supply-plan.json` retains historical addresses and must not be substituted for this alias plan.
+`--plan` has passed read-only validation; it does not run native acquisition, Recovery or capture. Omit it only for an authorized supply/resume run by the [execution owner](SKILL.md#work-allocation). The original `supply-plan.json` retains historical addresses and must not be substituted for this alias plan.
 
 ## Extract And Save
 
@@ -41,7 +41,7 @@ Needed additional references are authorized without repeated permission requests
 { "parameterProfile": "../../../packages/playground/src/human-parameters/f1.ts" }
 ```
 
-3. The shared execution owner runs the [existing entry](../../../test/src/executable/reference-experiments/README.md#add-or-resume-people) with Node 22.23.2 or later; this example requires the prepared new plan, not the retained cohort's resume plan:
+3. The execution owner runs the [existing entry](../../../test/src/executable/reference-experiments/README.md#add-or-resume-people) with Node 22.23.2 or later; this example requires the prepared new plan, not the retained cohort's resume plan:
 
 ```powershell
 node --experimental-strip-types test/src/executable/reference-experiments/registerReferencePerson.mts test/reference-inputs/new-f1/plan.json

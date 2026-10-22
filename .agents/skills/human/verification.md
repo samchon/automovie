@@ -1,5 +1,7 @@
 # Verification
 
+Complete at least one full inspection round after each geometry or integration batch, including in solo work. Inspect the assembled result before claiming visual acceptance. Report unavailable checks as unverified.
+
 ## Actual Generated Form
 
 - Apply the [essential server rule](SKILL.md#human). Isolate heavy/failure-prone models in request/child execution; preserve the host and return explicit diagnostics.
@@ -21,11 +23,11 @@ Source-only overlays and bounds-relative tiles do not establish independent skin
 
 ## Audit And User Reports
 
-These duties apply only during authorized active modeling; the [explicit stop](SKILL.md#human) suspends captures and automatic resumption.
+During authorized active modeling, deliver these reports directly to the user, including in solo work and when progress is unchanged. When verification is delegated, inspect its evidence and retain responsibility for the user report; internal agent replies do not replace it. The [explicit stop](SKILL.md#human) suspends captures and automatic resumption.
 
-- Every fifteen minutes: new f1/f2/m1/m2 whole-front and whole-back surface captures, eight photographs total.
+- Every fifteen minutes, inspect and report new f1/f2/m1/m2 whole-front and whole-back surface captures, eight photographs total.
 - Extra details, one-person rotation and cache hits do not replace these eight.
-- Auditor checks regional image inspection, actual code consumption, ownership gaps and violations.
+- Check regional image inspection, actual code consumption, uncovered regions and violations; follow [Work Allocation](SKILL.md#work-allocation) for audit delegation.
 - Preserve/open/display exact local PNGs under [Screenshot reporting](screenshot.md#user-facing-image-reports), with captured UTC, SHA and code/input/output binding.
 - Distinguish capture, local-save and report times. Report defects, unsupported scope and remaining comparisons.
 - On delay, report cause/current work/last actual capture immediately; never skip the report or regenerate old evidence under its original timestamp.
