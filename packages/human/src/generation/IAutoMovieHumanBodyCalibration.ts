@@ -61,8 +61,10 @@ export namespace IAutoMovieHumanBodyCalibration {
     /**
      * Parent-phase arcs `[from, to]` in radians, in ring order. An arc runs
      * forward in phase from `from` to `to` and wraps through 2pi when
-     * `to < from`. Arc ends are pinch phases, where the parent's section
-     * touches itself; consecutive children share the vertex at a pinch.
+     * `to < from`; `[0, 2pi]` is the whole ring, a continuation event where
+     * a chain changes its correspondence rule. Other arc ends are pinch
+     * phases, where the parent's section touches itself; consecutive
+     * children share the vertex at a pinch.
      */
     arcs: [number, number][];
   }

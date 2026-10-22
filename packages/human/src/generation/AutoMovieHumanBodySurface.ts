@@ -265,7 +265,9 @@ export namespace AutoMovieHumanBodySurface {
         e.splits.flatMap((s: IAutoMovieHumanBodyCalibration.ISplit) =>
           s.arcs.flat(),
         ),
-      );
+      )
+      // A whole-ring arc ends at 2pi, the same vertex as phase 0.
+      .map((p: number): number => (p >= 2 * Math.PI - 1e-9 ? 0 : p));
 
     // Merge, dropping uniform phases that nearly coincide with a pinch.
     const spacing: number = (2 * Math.PI) / target.samples;
@@ -302,7 +304,11 @@ export namespace AutoMovieHumanBodySurface {
     arc: [number, number],
   ): number[] {
     const [from, to] = arc;
-    const width: number = forward(from, to);
+
+    // A whole-period arc is a continuation event: the child takes every
+    // vertex of the ring, which a forward distance of zero would lose.
+    const width: number =
+      to - from >= 2 * Math.PI - 1e-9 ? 2 * Math.PI : forward(from, to);
 
     // Phases are ascending in [0, 2pi); start at the arc's first vertex.
     const start: number = phases.findIndex(
