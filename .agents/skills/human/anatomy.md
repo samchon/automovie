@@ -1,7 +1,19 @@
 # Anatomy
 
-Use anatomical relationships to interpret recovered axes, landmarks, layers and transitions. A geometric extremum, rig marker, skin landmark and joint centre are distinct observations until correspondence is supported.
+Interpret recovered structure; do not replace it with a generic anatomical preset.
 
-Define the common rest frame and explicitly convert posture-dependent measurements. Ground anatomical or physiological claims in primary sources with their protocol and supported population; a few reference people do not establish age, muscle, body-fat or population laws.
+## Inputs
 
-Turn supported relationships into curve constraints while keeping inferred choices and uncertainty visible. Clinical confirmation and tiny reference residuals are not gates for reproducing the broad form.
+- Source pose, frame, rig supports and recovered skin features.
+- Measurement definitions and primary-source protocols, preserving their population and limits.
+
+## Decisions
+
+- Distinguish rig marker, joint centre, skin landmark and geometric extremum.
+- Distinguish native readback, support chord, vertical height, skin arclength and tape circumference.
+- Preserve achieved posture during reproduction; justify any posture conversion and retain units.
+- Turn supported relationships into curve constraints; label inference and uncertainty.
+
+## Limits
+
+A few modeled people establish no age, muscle, body-fat or population law. Clinical confirmation and incidental residual noise are not prerequisites for reproducing observed broad form.

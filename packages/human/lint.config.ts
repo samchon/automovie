@@ -6,7 +6,7 @@ import type {
 
 import shared from "../../config/lint.config";
 
-/** Modules that read files, decompress archives or reach the network. */
+/** Modules that read files, decompress archives, load modules or reach the network. */
 const READERS: string[] = [
   "fs",
   "node:fs",
@@ -20,19 +20,22 @@ const READERS: string[] = [
   "node:https",
   "child_process",
   "node:child_process",
+  "module",
+  "node:module",
 ];
 
-/** Parameter vocabulary layers with their permitted dependencies. */
+/** Public API and parameter vocabulary with their permitted dependencies. */
 const LAYERS: Array<[string, string[]]> = [
+  ["api", ["structures", "typings"]],
   ["typings", []],
   ["structures", ["typings"]],
 ];
 
-/** Classification of every retained Human parameter module. */
+/** Classification of the generator stub and retained Human types. */
 const ELEMENTS: ITtscLintBoundariesElement[] = LAYERS.map(
   ([type]: [string, string[]]): ITtscLintBoundariesElement => ({
     type,
-    pattern: `src/${type}/**`,
+    pattern: type === "api" ? "src/AutoMovieHuman.ts" : `src/${type}/**`,
   }),
 );
 
@@ -45,15 +48,10 @@ const POLICIES: ITtscLintBoundariesElementTypesRule[] = LAYERS.map(
 );
 
 /**
- * Shared correctness guards, plus the refusal of any route by which external
- * data could enter parameter definitions: Human source keeps its inputs in
- * typed documents, so it never imports a reader, loads a module at
- * run time or fetches. The rules cover `src`, the only program this
- * configuration compiles; the build guard runs without lint plugins.
- *
- * Module boundaries keep Human's layers one-way: see `LAYERS`.
- *
- * One public identity per file named after it, a doc comment on every exported type, function and property, and no `@todo` hold as in every package. Only the `@evidence` checklist answers wait until the rebuild declares completion, which is why Human has no evidence configuration.
+ * Correctness guards for the Human contracts and unimplemented generator.
+ * The public API depends on structures; structures depend only on typings.
+ * Source performs no external reads or runtime loading. Evidence checklists
+ * remain deferred until the Human rebuild is complete.
  */
 export default {
   ...shared,
@@ -87,7 +85,18 @@ export default {
         message: "Human loads no module at run time.",
       },
       {
-        selector: "CallExpression[callee.name='require']",
+        selector:
+          "CallExpression[callee.type='Identifier'][callee.name='require']",
+        message: "Human loads no module at run time.",
+      },
+      {
+        selector:
+          "PropertyAccessExpression[object.name=/^(module|global|globalThis|window|self)$/][property.name='require']",
+        message: "Human obtains no CommonJS loader from a runtime host.",
+      },
+      {
+        selector:
+          "ElementAccessExpression[object.name=/^(module|global|globalThis|window|self)$/][property.value='require']",
         message: "Human loads no module at run time.",
       },
       {

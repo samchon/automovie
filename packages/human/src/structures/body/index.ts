@@ -9,6 +9,7 @@ export * from "./IAutoMovieHumanBodyParameters";
 export * from "./IAutoMovieHumanBuildTraits";
 export * from "./IAutoMovieHumanComposition";
 export * from "./IAutoMovieHumanCurveSupplement";
+export * from "./IAutoMovieHumanExtremityDimensions";
 export * from "./IAutoMovieHumanFootSupplement";
 export * from "./IAutoMovieHumanHandSupplement";
 export * from "./IAutoMovieHumanIdentity";

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <title>AutoMovie Human 파라미터 편집</title>
+    <style>
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body { margin: 0; background: #eef1f5; color: #202936; font: 13px/1.5 system-ui, sans-serif; }
+      #app { display: grid; grid-template-columns: minmax(300px, 360px) minmax(0, 1fr); height: 100dvh; }
+      .human-sidebar { padding: 22px 18px; background: #fff; overflow: auto; border-right: 1px solid #d6dde6; }
+      h1 { font-size: 22px; margin: 0; letter-spacing: -.04em; }
+      h2 { font-size: 13px; margin: 0 0 10px; }
+      p { margin: 8px 0; }
+      .human-muted { color: #667387; font-size: 12px; }
+      .human-section { border-top: 1px solid #e4e9ef; padding-top: 16px; margin-top: 16px; }
+      .human-row { display: flex; gap: 8px; align-items: center; margin: 8px 0; }
+      .human-row > select, .human-row > input { flex: 1; min-width: 0; }
+      button, select, input, textarea { font: inherit; border: 1px solid #cbd4e0; border-radius: 6px; padding: 8px 10px; max-width: 100%; color: inherit; background: #fff; }
+      button { cursor: pointer; white-space: nowrap; }
+      button:hover:not(:disabled), .human-link:hover { background: #edf3fa; border-color: #91a8c3; }
+      button:disabled, select:disabled, input:disabled { cursor: default; opacity: .55; }
+      button.primary { color: #fff; background: #245b92; border-color: #245b92; }
+      button.primary:hover:not(:disabled) { background: #194775; }
+      button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible, summary:focus-visible, a:focus-visible { outline: 3px solid #91b9e5; outline-offset: 2px; }
+      label { display: block; overflow-wrap: anywhere; }
+      label > select, label > input:not([type="checkbox"]) { margin-top: 4px; width: 100%; }
+      input[type="file"] { width: 100%; font-size: 12px; }
+      textarea { display: block; width: 100%; min-height: 220px; resize: vertical; font: 11px/1.55 ui-monospace, monospace; tab-size: 2; }
+      details > summary { cursor: pointer; font-weight: 600; padding: 6px 0; }
+      #human-fields details { margin-left: 6px; padding-left: 8px; border-left: 1px solid #e4e9ef; }
+      #human-fields label { display: grid; grid-template-columns: minmax(0, 1fr) 108px; gap: 8px; align-items: center; font-size: 11px; padding: 4px 0; }
+      #human-fields input { width: 108px; margin: 0; padding: 5px 6px; }
+      #human-fields input[type="checkbox"] { width: auto; justify-self: end; }
+      .human-main { min-width: 0; min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; }
+      .human-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 18px; border-bottom: 1px solid #d6dde6; background: #f9fbfd; }
+      .human-toolbar label { display: flex; align-items: center; gap: 8px; }
+      .human-toolbar label > select { width: auto; margin: 0; }
+      #human-viewport { min-width: 0; min-height: 0; position: relative; overflow: hidden; }
+      #human-viewport canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+      #human-empty { position: absolute; inset: 0; display: grid; place-content: center; padding: 32px; text-align: center; color: #52657b; pointer-events: none; }
+      #human-empty[hidden] { display: none; }
+      #human-empty strong { font-size: 19px; color: #293c52; }
+      #human-empty p { max-width: 440px; }
+      #human-status { min-height: 43px; padding: 10px 18px; border-top: 1px solid #d6dde6; background: #fff; overflow-wrap: anywhere; }
+      #human-status[data-kind="error"] { color: #a12b24; background: #fff2ef; }
+      #human-status[data-kind="busy"] { color: #245b92; background: #f0f6ff; }
+      #human-state { white-space: pre-wrap; overflow-wrap: anywhere; display: block; font: 10px/1.5 ui-monospace, monospace; max-height: 260px; overflow: auto; }
+      .human-link { display: inline-block; color: #245b92; border: 1px solid #cbd4e0; border-radius: 6px; padding: 8px 10px; text-decoration: none; }
+      .human-link:not([href]) { opacity: .5; pointer-events: none; }
+      #human-png-path { display: block; overflow-wrap: anywhere; font: 10px/1.5 ui-monospace, monospace; padding: 8px 0; color: #667387; }
+      @media (max-width: 760px) { #app { grid-template-columns: 1fr; grid-template-rows: minmax(420px, 65dvh) auto; height: auto; min-height: 100dvh; } .human-sidebar { grid-row: 2; overflow: visible; border-right: 0; } .human-main { grid-row: 1; } .human-toolbar { padding: 8px; gap: 6px; } .human-toolbar label { font-size: 11px; } .human-toolbar select { max-width: 155px; } }
+    </style>
+  </head>
+  <body><main id="app"><p role="status">Human 뷰어를 불러오는 중입니다.</p></main><script type="module" src="/src/human-view.ts"></script></body>
+</html>

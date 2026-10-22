@@ -1,17 +1,42 @@
 # References
 
+Use the existing [reference-experiments program](../../../test/src/executable/reference-experiments/README.md) and [campaign](https://github.com/samchon/automovie/issues/2909). Acquisition is separate from independent Human generation.
+
+Honor [explicit stops](SKILL.md#human); documenting an acquisition or resume command does not authorize overriding them.
+
 ## Extract And Save
 
-Use `test/.shots` for reference experiments; [the reference campaign](https://github.com/samchon/automovie/issues/2909) owns sample preparation. A directory or artifact's existence does not establish completed extraction, conversion or visual inspection.
+- Bind original model, native application/readback, registered frame, saved members and photographs by their receipts.
+- Inventory sections, guides, obliques, features, open curves, branches, continuation, selection, publication and overrides; retain omissions and failures.
+- Save through `curveFormat: "hermite"` and [Mesh Recovery](../3d-modeling/recovery.md).
+- Preserve degree, rational information, original h, direction, units, frames and relationships. Endpoints/first jets determine a cubic, not arbitrary higher-degree or rational geometry.
+- Keep unsupported conversions explicit; distinguish any fitted approximation from the original.
+- Apply full chain rules: circumferential h is not height difference; ring tangent is not an interlayer derivative.
 
-Follow [Mesh Recovery](../3d-modeling/recovery.md) through the actual `packages/recovery` API. Extract all section, guide, oblique and feature families with continuation, selection, publication, override, orientation and branch relationships. Inventory omissions and unsupported domains instead of presenting a selected subset as the whole model.
+`legacy-contour-v1` identifies saved observation/reconstruction policy and its partial coverage. `recoveryLocal`'s `ruled` option connects corresponding saved curves; it is not an `AutoMovieRecoveryOperator`, new coefficient authority or proof of unknown branch recovery.
 
-Save the recovered bundle using `curveFormat: "hermite"`; use the package option rather than a separate conversion script. Preserve degree, actual parameter intervals, direction, units, frames and curve relationships. Endpoint positions and first derivatives exactly determine a cubic; higher-degree or rational curves require their original information and must not be silently reduced to cubics. Report unsupported representations explicitly.
+## Add Or Resume A Reference
 
-Transform derivatives by the actual parameter mapping. A horizontal ring's height difference is not its circumferential parameter width, and its circumferential tangent is not a derivative between layers.
+Needed additional references are authorized without repeated permission requests. Use existing adequate observations immediately rather than waiting for acquisition.
 
-## Observation Boundary
+1. Prepare immutable `parameters.json`, `head.json`, `appearance.json`, `pose.json`, `reference.json`, `analysis.md`, approved host and supply plan outside `test/.shots`.
+2. The shared execution owner runs the [existing entry](../../../test/src/executable/reference-experiments/README.md#add-or-resume-people) with Node 22.23.2 or later:
 
-Keep reference geometry and person-specific controls outside the product generator; transfer derived common rules and coefficients. Call the source a reference model in public material, without naming its generating service.
+```powershell
+node --experimental-strip-types test/src/executable/reference-experiments/registerReferencePerson.mts D:/reference-requests/plan.json
+```
 
-Compare observations under the same physical scale, posture, frame and feature definitions. Keep measured, derived, fitted and uncertain quantities distinguishable.
+3. Verify native application/readback, original full photograph plan, Hermite/named publication, ruled captures and selected completion receipt. Repeat the identical command to resume only missing stages.
+
+- Host prerequisites: installed editor/project/bridge/preset, successful native build evidence and `editor.nativeDiagnostics.bodyGlobalDeltaScale: 0`.
+- Verify requested/native/final delta 0; a lone parameter JSON or submitted plan is not completed supply.
+- Preserve registered inputs, completed outputs and partial failures. Changed bound inputs/hosts require a new id; never force overwrite.
+- Use no substitute acquisition engine or hand-built outputs. Additional samples do not replace the four audit subjects.
+
+## Interpretation And Output
+
+- Keep source geometry and person-specific conditions outside product generation.
+- Use source-conditioned reconstruction to verify representation, then identify common laws separately.
+- Compare matching scale, posture, frame and feature definitions; label measured/derived/fitted/uncertain quantities.
+- Distinguish supply, partial recovery, numeric fit and visual acceptance.
+- Public material calls the source a reference model without naming its generating service.
