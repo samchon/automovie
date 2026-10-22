@@ -9,25 +9,35 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
 /**
  * Construction of the body surface: what generated the skin, drawn beside it.
  *
- * Two layers are emitted, both evaluated from the same chain functions the
- * skin uses, so a defect in the surface can be traced to the curve or axis
- * that produced it:
+ * Every lofting curve is emitted as its own addressable piece, evaluated
+ * from the same chain functions the skin uses, so a defect in the surface
+ * can be traced to the curve that produced it.
  *
- * - `sections`: every principal-layer section curve of every chain;
- * - `axes`: every chain's central axis, the Hermite curve of its section
- *   centroids from bottom to top.
+ * ## Curve ids
  *
+ * - `<chain>/<k>`: the principal section at layer index k of the chain,
+ *   counted from the chain's bottom. It shapes the skin intervals
+ *   `<chain>/<k-1>` and `<chain>/<k>`, the Hermite intervals that use it as
+ *   an endpoint.
+ * - `<chain>/axis`: the chain's central axis, the Hermite curve of its
+ *   section centroids, which shapes every interval of the chain.
+ *
+ * Ids are deterministic for a given calibration: chain names come from the
+ * calibration tree and layer indices from its sorted principal layers.
  * Intermediate bisection stations are not drawn; they carry no shape
  * evidence of their own.
  */
 export namespace AutoMovieHumanBodyConstruction {
-  /** Construction meshes in millimetres, registered frame. */
-  export interface IOutput {
-    /** Principal-layer section tubes. */
-    sections: AutoMovieHumanLoftMesh.IContext;
+  /** One construction curve drawn as a thin tube. */
+  export interface ICurve {
+    /** Curve id, `<chain>/<k>` or `<chain>/axis`. */
+    id: string;
 
-    /** Central-axis tubes. */
-    axes: AutoMovieHumanLoftMesh.IContext;
+    /** Whether the curve is a principal section or a chain axis. */
+    kind: "section" | "axis";
+
+    /** Tube mesh in mm, registered frame. */
+    mesh: AutoMovieHumanLoftMesh.IContext;
   }
 
   /** Points evaluated along each section curve. */
@@ -36,38 +46,49 @@ export namespace AutoMovieHumanBodyConstruction {
   /** Points evaluated along each axis curve. */
   const AXIS_POINTS: number = 96;
 
+  /** Tube radius of section curves in mm. */
+  const SECTION_RADIUS: number = 0.6;
+
+  /** Tube radius of axis curves in mm. */
+  const AXIS_RADIUS: number = 1.2;
+
   /**
-   * Draw the principal sections and central axes of every calibrated chain.
+   * Draw every principal section and central axis of every calibrated chain.
    *
    * @param calibration Shared chain coefficients.
    */
   export function generate(
     calibration: IAutoMovieHumanBodyCalibration,
-  ): IOutput {
-    const sections: AutoMovieHumanLoftMesh.IContext =
-      AutoMovieHumanLoftMesh.create();
-    const axes: AutoMovieHumanLoftMesh.IContext =
-      AutoMovieHumanLoftMesh.create();
-
+  ): ICurve[] {
     const phases: number[] = Array.from(
       { length: SECTION_POINTS },
       (_: unknown, i: number): number => (2 * Math.PI * i) / SECTION_POINTS,
     );
+    const out: ICurve[] = [];
 
     for (const chain of calibration.chains) {
       // One closed tube per principal layer.
-      for (const layer of chain.layers)
-        AutoMovieHumanLoftTube.sweep(
-          sections,
-          AutoMovieHumanLoftChain.ring(chain, layer.y, phases),
-          true,
-          0.6,
-        );
+      chain.layers.forEach(
+        (layer: IAutoMovieHumanLoftChain.ILayer, k: number): void => {
+          const mesh: AutoMovieHumanLoftMesh.IContext =
+            AutoMovieHumanLoftMesh.create();
+          AutoMovieHumanLoftTube.sweep(
+            mesh,
+            AutoMovieHumanLoftChain.ring(chain, layer.y, phases),
+            true,
+            SECTION_RADIUS,
+          );
+          out.push({ id: chain.name + "/" + k.toString(), kind: "section", mesh });
+        },
+      );
 
-      // The central axis: centroid of the Hermite section at evenly spaced heights.
-      AutoMovieHumanLoftTube.sweep(axes, axis(chain), false, 1.2);
+      // The central axis: section centroids at evenly spaced heights.
+      const mesh: AutoMovieHumanLoftMesh.IContext =
+        AutoMovieHumanLoftMesh.create();
+      AutoMovieHumanLoftTube.sweep(mesh, axis(chain), false, AXIS_RADIUS);
+      out.push({ id: chain.name + "/axis", kind: "axis", mesh });
     }
-    return { sections, axes };
+    return out;
   }
 
   /** Axis points from the chain's bottom to its top layer. */

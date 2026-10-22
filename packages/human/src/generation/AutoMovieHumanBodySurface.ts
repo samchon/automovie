@@ -25,16 +25,18 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * two children on either side of it, so the result is one closed manifold.
  */
 export namespace AutoMovieHumanBodySurface {
-  /** Generated skin buffers in millimetres. */
+  /** Generated skin in millimetres, registered frame. */
   export interface IOutput {
-    /** Flat vertex positions in mm, registered frame. */
-    positions: number[];
+    /**
+     * Skin buffers, triangles counter-clockwise from outside. Triangle groups
+     * are named `<chain>/<k>`: the interval between principal layers k and
+     * k+1 of that chain, which the sections `<chain>/<k>` and
+     * `<chain>/<k+1>` shape.
+     */
+    mesh: AutoMovieHumanLoftMesh.IContext;
 
-    /** Flat unit vertex normals. */
+    /** Flat unit vertex normals of the whole skin. */
     normals: number[];
-
-    /** Flat triangle indices, counter-clockwise from outside. */
-    indices: number[];
   }
 
   /** Construction context passed between the chain lofting steps. */
@@ -110,9 +112,8 @@ export namespace AutoMovieHumanBodySurface {
     branch(context, root, bottom, phases);
 
     return {
-      positions: context.mesh.positions,
+      mesh: context.mesh,
       normals: AutoMovieHumanLoftMesh.normals(context.mesh),
-      indices: context.mesh.indices,
     };
   }
 
@@ -206,6 +207,25 @@ export namespace AutoMovieHumanBodySurface {
     return out;
   }
 
+  /**
+   * Group name `<chain>/<k>` of the band between two station heights: k is
+   * the principal interval containing the band's middle height.
+   */
+  function interval(
+    target: IAutoMovieHumanLoftChain,
+    lower: number,
+    upper: number,
+  ): string {
+    const middle: number = (lower + upper) / 2;
+    let k: number = 0;
+    while (
+      k < target.layers.length - 2 &&
+      target.layers[k + 1]!.y <= middle
+    )
+      k++;
+    return target.name + "/" + k.toString();
+  }
+
   /** Forward phase distance from a to b in `[0, 2pi)`. */
   function forward(a: number, b: number): number {
     const d: number = (b - a) % (2 * Math.PI);
@@ -270,6 +290,10 @@ export namespace AutoMovieHumanBodySurface {
         context.mesh,
         AutoMovieHumanLoftChain.ring(target, heights[k]!, phases),
       );
+      AutoMovieHumanLoftMesh.group(
+        context.mesh,
+        interval(target, heights[k]!, heights[k + 1]!),
+      );
       if (upper === top)
         AutoMovieHumanLoftMesh.zipper(
           context.mesh,
@@ -308,6 +332,10 @@ export namespace AutoMovieHumanBodySurface {
         context.mesh,
         AutoMovieHumanLoftChain.ring(target, heights[k]!, phases),
       );
+      AutoMovieHumanLoftMesh.group(
+        context.mesh,
+        interval(target, heights[k - 1]!, heights[k]!),
+      );
       AutoMovieHumanLoftMesh.band(context.mesh, lower, upper);
       lower = upper;
     }
@@ -342,6 +370,14 @@ export namespace AutoMovieHumanBodySurface {
     const apex: number = AutoMovieHumanLoftMesh.vertices(context.mesh, [
       point,
     ])[0]!;
+
+    // The pole fan belongs to the chain's end interval.
+    AutoMovieHumanLoftMesh.group(
+      context.mesh,
+      target.name +
+        "/" +
+        (end === "top" ? target.layers.length - 2 : 0).toString(),
+    );
     AutoMovieHumanLoftMesh.cap(context.mesh, ring, apex, end === "top");
   }
 }

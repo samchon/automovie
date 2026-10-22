@@ -19,10 +19,16 @@ import type { IAutoMovieHumanParameters } from "./structures/IAutoMovieHumanPara
  * coefficients are calibrated from saved Recovery/Hermite sections. The
  * generator reads only `params` and those shared coefficients.
  *
- * The model carries the skin part `human.skin` and the construction parts
- * `human.construction.sections` and `human.construction.axes`, evaluated
- * from the same chains, which the viewer shows in its overlay and
- * construction passes.
+ * Parts are addressable by the lofting curve that generated them:
+ *
+ * - `human.skin.<chain>/<k>`: the skin between principal layers k and k+1
+ *   of a chain, shaped by the sections `<chain>/<k>` and `<chain>/<k+1>`;
+ * - `human.construction.<chain>/<k>`: the principal section curve itself;
+ * - `human.construction.<chain>/axis`: the chain's central axis.
+ *
+ * Skin normals are computed on the whole closed skin before it is split,
+ * so the parts render as one continuous surface. The viewer's overlay and
+ * construction passes show the `human.construction.` parts.
  *
  * Current parameter consumption: `body.controls.height` scales the whole
  * calibrated body uniformly. Every other field is accepted and returned
@@ -51,7 +57,11 @@ export class AutoMovieHuman {
 
     const surface: AutoMovieHumanBodySurface.IOutput =
       AutoMovieHumanBodySurface.generate(AutoMovieHumanBodyCalibration);
-    const construction: AutoMovieHumanBodyConstruction.IOutput =
+    const skin: AutoMovieHumanLoftMesh.IPiece[] = AutoMovieHumanLoftMesh.split(
+      surface.mesh,
+      surface.normals,
+    );
+    const curves: AutoMovieHumanBodyConstruction.ICurve[] =
       AutoMovieHumanBodyConstruction.generate(AutoMovieHumanBodyCalibration);
 
     const model: IAutoMovieModel = {
@@ -59,20 +69,21 @@ export class AutoMovieHuman {
       name: "Human",
       origin: "generated",
       parts: [
-        part("human.skin", "skin", surface, surface.normals, scale),
-        part(
-          "human.construction.sections",
-          "construction.sections",
-          construction.sections,
-          AutoMovieHumanLoftMesh.normals(construction.sections),
-          scale,
+        ...skin.map(
+          (piece: AutoMovieHumanLoftMesh.IPiece): IAutoMovieModelPart =>
+            part("human.skin." + piece.name, "skin", piece, piece.normals, scale),
         ),
-        part(
-          "human.construction.axes",
-          "construction.axes",
-          construction.axes,
-          AutoMovieHumanLoftMesh.normals(construction.axes),
-          scale,
+        ...curves.map(
+          (curve: AutoMovieHumanBodyConstruction.ICurve): IAutoMovieModelPart =>
+            part(
+              "human.construction." + curve.id,
+              curve.kind === "axis"
+                ? "construction.axes"
+                : "construction.sections",
+              curve.mesh,
+              AutoMovieHumanLoftMesh.normals(curve.mesh),
+              scale,
+            ),
         ),
       ],
       skeleton: null,
@@ -95,8 +106,8 @@ export class AutoMovieHuman {
 /**
  * Mesh part from millimetre buffers, scaled into metres.
  *
- * @param id Part id; construction parts share the `human.construction.` prefix.
- * @param name Part name, also its material id suffix.
+ * @param id Part id: `human.skin.<chain>/<k>` or `human.construction.<curve id>`.
+ * @param name Material name; the material id is `human.<name>`.
  * @param mesh Positions and indices in mm.
  * @param normals Unit vertex normals, unchanged by the uniform scale.
  * @param scale Millimetre-to-model factor including the stature scale.
@@ -104,13 +115,13 @@ export class AutoMovieHuman {
 function part(
   id: string,
   name: string,
-  mesh: AutoMovieHumanLoftMesh.IContext,
+  mesh: { positions: number[]; indices: number[] },
   normals: number[],
   scale: number,
 ): IAutoMovieModelPart {
   return {
     id,
-    name,
+    name: id,
     geometry: {
       type: "mesh",
       mesh: {

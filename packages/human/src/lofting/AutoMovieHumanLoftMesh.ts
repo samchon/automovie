@@ -24,11 +24,106 @@ export namespace AutoMovieHumanLoftMesh {
 
     /** Flat triangle vertex indices. */
     indices: number[];
+
+    /**
+     * Named triangle ranges in emission order: each group owns the
+     * triangles from its `start` index-buffer offset up to the next
+     * group's start. Groups name the curve interval that generated them.
+     */
+    groups: { name: string; start: number }[];
+  }
+
+  /** One named piece of a split mesh, with its own compact vertex buffers. */
+  export interface IPiece {
+    /** Group name. */
+    name: string;
+
+    /** Flat vertex positions in mm. */
+    positions: number[];
+
+    /** Flat unit vertex normals, copied from the whole mesh. */
+    normals: number[];
+
+    /** Flat triangle indices into this piece's vertices. */
+    indices: number[];
   }
 
   /** Empty buffers. */
   export function create(): IContext {
-    return { positions: [], indices: [] };
+    return { positions: [], indices: [], groups: [] };
+  }
+
+  /**
+   * Start a named group: triangles emitted from now on belong to it.
+   *
+   * Re-entering a name already used starts a new range under the same name;
+   * `split` merges ranges by name.
+   */
+  export function group(context: IContext, name: string): void {
+    const last: { name: string; start: number } | undefined =
+      context.groups[context.groups.length - 1];
+
+    // An empty previous range is replaced rather than kept.
+    if (last !== undefined && last.start === context.indices.length)
+      context.groups.pop();
+    if (context.groups[context.groups.length - 1]?.name !== name)
+      context.groups.push({ name, start: context.indices.length });
+  }
+
+  /**
+   * Split the mesh into one piece per group name.
+   *
+   * Vertices shared by two groups are duplicated, each copy keeping the
+   * normal computed on the whole mesh, so the pieces render without a
+   * shading seam where they meet.
+   *
+   * @param context Mesh with groups.
+   * @param normals Unit normals of the whole mesh, from {@link normals}.
+   */
+  export function split(context: IContext, normals: readonly number[]): IPiece[] {
+    const pieces: Map<string, { piece: IPiece; remap: Map<number, number> }> =
+      new Map();
+
+    context.groups.forEach(
+      (g: { name: string; start: number }, k: number): void => {
+        const end: number =
+          context.groups[k + 1]?.start ?? context.indices.length;
+
+        let entry: { piece: IPiece; remap: Map<number, number> } | undefined =
+          pieces.get(g.name);
+        if (entry === undefined) {
+          entry = {
+            piece: { name: g.name, positions: [], normals: [], indices: [] },
+            remap: new Map(),
+          };
+          pieces.set(g.name, entry);
+        }
+
+        // Copy each referenced vertex once per piece and reindex.
+        for (let t: number = g.start; t < end; t++) {
+          const v: number = context.indices[t]!;
+          let local: number | undefined = entry.remap.get(v);
+          if (local === undefined) {
+            local = entry.piece.positions.length / 3;
+            entry.remap.set(v, local);
+            entry.piece.positions.push(
+              context.positions[3 * v]!,
+              context.positions[3 * v + 1]!,
+              context.positions[3 * v + 2]!,
+            );
+            entry.piece.normals.push(
+              normals[3 * v]!,
+              normals[3 * v + 1]!,
+              normals[3 * v + 2]!,
+            );
+          }
+          entry.piece.indices.push(local);
+        }
+      },
+    );
+    return [...pieces.values()].map(
+      (e: { piece: IPiece; remap: Map<number, number> }): IPiece => e.piece,
+    );
   }
 
   /**
