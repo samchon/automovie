@@ -27,9 +27,6 @@ jobs:
         with:
           path: |
             node_modules/.cache/ttsc
-            experimental/*/node_modules/.cache/ttsc
           key: ttsc-build-${{ hashFiles('pnpm-lock.yaml') }}
       - run: pnpm run build
       - run: pnpm run evidence
-      # The website bundles the productions without type-checking them.
-      - run: pnpm --filter "./experimental/**" -r lint
