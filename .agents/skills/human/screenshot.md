@@ -34,8 +34,11 @@ node node_modules/vite/bin/vite.js --host 127.0.0.1 --port 5173 --strictPort
 | m1 | `packages/playground/src/human-parameters/m1.ts` | `/human-parameters/m1.json` |
 | m2 | `packages/playground/src/human-parameters/m2.ts` | `/human-parameters/m2.json` |
 
-- Verify typed sources, registry selection and HTTP equality before using these routes.
-- Reference alias migration and automatic local PNG preservation are not qualified here; no path in this guide certifies completed output.
+- Each typed example is checked against `IAutoMovieHumanParameters`. `human-images.json` selects these TS modules; no public parameter-JSON copy is authoritative.
+- `/human-parameters/{alias}.json` and `/human-images/{alias}.json` use the same `HumanImageRegistry` reader and serialized typed value. Verify actual HTTP bytes before claiming a running service.
+- Matching reference outputs are `test/.shots/{f1,f2,m1,m2}/`; [References](references.md#reference-addresses) distinguishes aliases from permanent request identities.
+- Use these same parameters for new reference requests through the verified supply bridge; the final Human generator must not read reference artifacts as a shape fallback.
+- Automatic local PNG preservation requires actual byte/SHA/UTC verification; documented paths alone certify no completed output.
 - Preserve numerical inputs and units. Source-conditioned sample reconstruction is not independent parameter-model completion.
 - Additional reference acquisition under [References](references.md#add-or-resume-a-reference) does not automatically publish a viewer alias.
 

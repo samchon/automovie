@@ -11,3 +11,5 @@ export type { IAutoMovieRecoveryObservationTransportRefused } from "./IAutoMovie
 export type { IAutoMovieRecoveryObservedInteriorPoint } from "./IAutoMovieRecoveryObservedInteriorPoint";
 export type { IAutoMovieRecoveryObservedPoint } from "./IAutoMovieRecoveryObservedPoint";
 export type { IAutoMovieRecoveryTransportedObservationRow } from "./IAutoMovieRecoveryTransportedObservationRow";
+export type { IAutoMovieRecoverySourceLineage } from "./IAutoMovieRecoverySourceLineage";
+export type { IAutoMovieRecoverySlabObservation } from "./IAutoMovieRecoverySlabObservation";

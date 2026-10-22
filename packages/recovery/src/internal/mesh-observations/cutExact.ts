@@ -52,9 +52,9 @@ export function cutExact(
  * @evidence contracts/common.md#clear-and-simple-design A closure retains one admitted source and lazily computes signed differences only at candidate vertices. There is one shared intersection implementation for indexed and complete traversal.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Candidate order and addresses are checked; no largest component, epsilon, source-specific omission or global cache is introduced. Callers must supply every intersecting face and qualified canonical aliases.
  * @evidence contracts/common.md#meaningful-documentation Documents source immutability, scalar authority, inclusive candidate completeness, default traversal and binary64 predicate limits inherited from cutExact.
- * @evidence contracts/performance.md#efficient-algorithms Admission costs O(V+T) time with constant extra storage. For A queried faces, query work and temporary storage are expected O(A), including signed-difference memoization, multigraph construction and edge visitation. The complete path uses A=T; no whole-source query scan or initialization occurs with candidates.
+ * @evidence contracts/performance.md#efficient-algorithms Admission checks V positions and T faces once. Default queries visit A active faces with memoized differences and graph traversal. Ordered mode adds per-point witness duplicate scans, worst O(W squared) for W visits, and per-segment emitting-face sorting; points, witnesses and face incidences determine additional memory. No separate metadata byte ceiling is provided.
  * @evidence contracts/performance.md#reuse-equivalent-work Finite source and address admission is reused only for the same immutable source and height chart. Each query owns its signed-difference cache; another source requires another closure.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the closure and its source references until extraction ends. Per-query maps expire after returning physical polylines; no cross-query result or mutable cache survives.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the closure borrowing immutable source/scalar arrays. Query point/segment/witness/face maps expire on return or throw; copied optional observations transfer with the polylines and grow with active source incidence, without an aggregate byte ceiling. No handle, listener, task or cross-query result cache survives.
  */
 export namespace cutExact {
   /**
@@ -64,10 +64,17 @@ export namespace cutExact {
    * must include every face whose scalar interval contains level, including ties.
    * Omitting candidates scans every face. The optional filter sees original IDs.
    * The supplied plane retains the physical chart, while heights minus level own predicates.
+   * retainSourceFaces copies actual emitting faces, excluding endpoint-star neighbors.
+   * retainOrderedSource additionally preserves directed segments and original edge
+   * alias witnesses. Both default false; omitted mode retains original properties
+   * and numeric paths. Binary64 predicates are not certified exact arithmetic.
+   *
    */
   export function prepare(
     skin: IAutoMovieRecoveryIndexedMesh,
     heights: readonly number[],
+    retainSourceFaces: boolean = false,
+    retainOrderedSource: boolean = false,
   ): (
     plane: Plane,
     level: number,
@@ -123,6 +130,45 @@ export namespace cutExact {
       };
       const points: Map<string, CutPoint> = new Map();
       const segments: Map<string, [string, string]> = new Map();
+      const sourceFaces: Map<string, Set<number>> | undefined =
+        retainSourceFaces || retainOrderedSource ? new Map() : undefined;
+      const contactFaces: Map<string, Set<number>> | undefined =
+        retainSourceFaces || retainOrderedSource ? new Map() : undefined;
+      const record: (
+        id: string,
+        faces: readonly number[],
+        contact?: boolean,
+      ) => void = (
+        id: string,
+        faces: readonly number[],
+        contact: boolean = false,
+      ): void => {
+        const registry: Map<string, Set<number>> | undefined = contact
+          ? contactFaces
+          : sourceFaces;
+        if (!registry) return;
+        if (!registry.has(id)) registry.set(id, new Set());
+        for (const face of faces) registry.get(id)!.add(face);
+      };
+      const provenance: (
+        edges?: readonly string[],
+        contact?: string,
+      ) => Pick<Polyline, "exactSourceTriangleIds"> = (
+        edges?: readonly string[],
+        contact?: string,
+      ): Pick<Polyline, "exactSourceTriangleIds"> => {
+        if (!sourceFaces) return {};
+        const faces: Set<number> = new Set(
+          contact === undefined ? [] : contactFaces!.get(contact),
+        );
+        for (const edge of edges ?? [])
+          for (const face of sourceFaces.get(edge) ?? []) faces.add(face);
+        return {
+          exactSourceTriangleIds: [...faces].sort(
+            (a: number, b: number): number => a - b,
+          ),
+        };
+      };
       const contacts: Set<string> = new Set();
       const coplanarVertices: Set<string> = new Set();
       const coplanar: Map<
@@ -133,6 +179,49 @@ export namespace cutExact {
         a: string,
         b: string,
       ): string => JSON.stringify(a < b ? [a, b] : [b, a]);
+      const ordered: (
+        edges: readonly string[] | undefined,
+      ) => Pick<Polyline, "orderedSegments"> = (
+        edges: readonly string[] | undefined,
+      ): Pick<Polyline, "orderedSegments"> =>
+        retainOrderedSource
+          ? {
+              orderedSegments: (edges ?? []).map(
+                (
+                  id: string,
+                ): NonNullable<Polyline["orderedSegments"]>[number] => ({
+                  id,
+                  sourceTriangleIds: [...(sourceFaces?.get(id) ?? [])].sort(
+                    (a: number, b: number): number => a - b,
+                  ),
+                }),
+              ),
+            }
+          : {};
+      const remember: (
+        id: string,
+        a: number,
+        b: number,
+        t: number,
+        pointMm: V3,
+      ) => void = (
+        id: string,
+        a: number,
+        b: number,
+        t: number,
+        pointMm: V3,
+      ): void => {
+        if (!retainOrderedSource) return;
+        const point: CutPoint = points.get(id)!;
+        point.sourceEdges ??= [];
+        if (
+          !point.sourceEdges.some(
+            (e: NonNullable<CutPoint["sourceEdges"]>[number]): boolean =>
+              e.a === a && e.b === b && e.t === t,
+          )
+        )
+          point.sourceEdges.push({ a, b, t, pointMm: [...pointMm] });
+      };
       const vertex: (i: number) => string = (i: number): string => {
         const id: string = `v:${skin.canon[i]}`;
         if (!points.has(id))
@@ -142,6 +231,7 @@ export namespace cutExact {
             b: skin.canon[i]!,
             t: 0,
           });
+        remember(id, i, i, 0, skin.vertices[i]!);
         return id;
       };
       const crossing: (i: number, j: number) => string = (
@@ -168,6 +258,22 @@ export namespace cutExact {
           if (!p.every(Number.isFinite))
             throw new Error("Exact section crossing is unresolved");
           points.set(id, { p, a: skin.canon[i]!, b: skin.canon[j]!, t });
+        }
+        if (retainOrderedSource) {
+          const da: number = Math.abs(distance(i)),
+            db: number = Math.abs(distance(j));
+          const ratio: number = Math.min(da, db) / Math.max(da, db);
+          const t: number = da <= db ? ratio / (1 + ratio) : 1 / (1 + ratio);
+          const a: V3 = skin.vertices[i]!,
+            b: V3 = skin.vertices[j]!;
+          const p: V3 = [
+            a[0] * (1 - t) + b[0] * t,
+            a[1] * (1 - t) + b[1] * t,
+            a[2] * (1 - t) + b[2] * t,
+          ];
+          if (!(t > 0 && t < 1 && p.every(Number.isFinite)))
+            throw new Error("Ordered original-edge witness is unresolved");
+          remember(id, i, j, t, p);
         }
         return id;
       };
@@ -217,14 +323,21 @@ export namespace cutExact {
           )
             hits.add(crossing(i, j));
         }
-        if (hits.size === 1) contacts.add([...hits][0]!);
+        if (hits.size === 1) {
+          const point: string = [...hits][0]!;
+          contacts.add(point);
+          record(point, [ti], true);
+        }
         if (hits.size === 2) {
           const ends: [string, string] = [...hits] as [string, string];
           // Only a plane-coincident physical source edge is shared across faces.
           const onEdge: boolean =
             t.filter((i: number): boolean => distance(i) === 0).length === 2;
-          if (ends[0] !== ends[1])
-            segments.set(onEdge ? key(...ends) : `face:${ti}`, ends);
+          if (ends[0] !== ends[1]) {
+            const segment: string = onEdge ? key(...ends) : `face:${ti}`;
+            segments.set(segment, ends);
+            record(segment, [ti]);
+          }
         }
       }
       for (const [id, patch] of coplanar) {
@@ -263,13 +376,19 @@ export namespace cutExact {
           interior = Number.isFinite(sense) && sense < 0;
         }
         if (interior) continue;
-        if (patch.length === 1) segments.set(id, patch[0]!.ends);
-        else
-          for (let i: number = 0; i < patch.length; i++)
+        if (patch.length === 1) {
+          segments.set(id, patch[0]!.ends);
+          record(id, [patch[0]!.triangle]);
+        } else
+          for (let i: number = 0; i < patch.length; i++) {
             segments.set(
               `coplanar:${patch[i]!.triangle}:${id}:${i}`,
               patch[i]!.ends,
             );
+            record(`coplanar:${patch[i]!.triangle}:${id}:${i}`, [
+              patch[i]!.triangle,
+            ]);
+          }
       }
       const adjacency: Map<string, { edge: string; next: string }[]> =
         new Map();
@@ -289,9 +408,12 @@ export namespace cutExact {
         first: { edge: string; next: string },
       ): Polyline => {
         const keys: string[] = [start];
+        const traversed: string[] | undefined =
+          retainSourceFaces || retainOrderedSource ? [] : undefined;
         let step: typeof first | undefined = first;
         while (step && !visited.has(step.edge)) {
           visited.add(step.edge);
+          traversed?.push(step.edge);
           const current: string = step.next;
           if (current === start) {
             const closed: boolean = adjacency.get(start)!.length === 2;
@@ -299,6 +421,8 @@ export namespace cutExact {
             // Keep its closing edge without publishing it as an independent loop.
             return {
               closed,
+              ...provenance(traversed),
+              ...ordered(traversed),
               pts: (closed ? keys : [...keys, start]).map(
                 (id: string): CutPoint => points.get(id)!,
               ),
@@ -316,6 +440,8 @@ export namespace cutExact {
         }
         return {
           closed: false,
+          ...provenance(traversed),
+          ...ordered(traversed),
           pts: keys.map((id: string): CutPoint => points.get(id)!),
         };
       };
@@ -328,7 +454,12 @@ export namespace cutExact {
           if (!visited.has(first.edge)) output.push(walk(start, first));
       for (const id of contacts)
         if (!adjacency.has(id) && !coplanarVertices.has(id))
-          output.push({ closed: false, pts: [points.get(id)!] });
+          output.push({
+            closed: false,
+            pts: [points.get(id)!],
+            ...provenance([], id),
+            ...ordered([]),
+          });
       return output;
     };
   }

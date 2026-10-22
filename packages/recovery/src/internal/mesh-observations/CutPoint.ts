@@ -3,10 +3,10 @@ import { V3 } from "./V3";
 /**
  * Source edge/plane intersection retained only in private observation extraction.
  *
- * @evidence contracts/common.md#principled-implementation A structural CutPoint declaration exposes its documented geometric or observation quantities without runtime conversion.
- * @evidence contracts/common.md#clear-and-simple-design This file owns only the named data boundary; computation remains in its explicit producers and consumers.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The declaration is erased and contains no specimen-specific geometry or executable fallback.
- * @evidence contracts/common.md#meaningful-documentation Describes the quantity, private-data boundary or physical frame needed to interpret its members.
+ * @evidence contracts/common.md#principled-implementation Canonical labels and fraction retain the original physical cutter point; opt-in sourceEdges additionally preserve each original input-edge alias and its own binary64 witness. This is source incidence, not anatomical phase or transverse-jet proof.
+ * @evidence contracts/common.md#clear-and-simple-design One private point record groups canonical connectivity and optional original-edge witnesses; cutting emits and ordered observation copies them without another point reconstruction or root selector.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No specimen coordinate, replacement point, source normal, expected answer or positional weld is encoded; original aliases remain separate from canonical connectivity.
+ * @evidence contracts/common.md#meaningful-documentation Member comments distinguish registered p/pointMm in mm, canonical labels, original input vertex addresses, dimensionless fractions and omitted opt-in state; representative positions are not asserted to reproduce crossings.
  * @evidenceExclude contracts/performance.md#efficient-algorithms This erased data declaration chooses no runtime algorithm, cache or resource lifetime.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work This erased data declaration chooses no runtime algorithm, cache or resource lifetime.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This erased data declaration chooses no runtime algorithm, cache or resource lifetime.
@@ -20,4 +20,19 @@ export interface CutPoint {
   b: number;
   /** Fraction along the original supporting source edge, oriented to match the a/b labels; interpolating canonical representative positions can differ from p. */
   t: number;
+
+  /** Opt-in original emitted-edge aliases; absent on the original default path. */
+  sourceEdges?: Array<{
+    /** First original input vertex, not a canonical representative. */
+    a: number;
+
+    /** Second original input vertex; equality retains an on-plane vertex. */
+    b: number;
+
+    /** Dimensionless crossing fraction in this original edge direction. */
+    t: number;
+
+    /** Actual original witness in registered mm, retained independently for aliases. */
+    pointMm: V3;
+  }>;
 }

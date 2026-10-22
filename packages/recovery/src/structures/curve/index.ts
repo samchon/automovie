@@ -11,4 +11,5 @@ export type { IAutoMovieRecoveryOpenContinuation } from "./IAutoMovieRecoveryOpe
 export type { IAutoMovieRecoveryOpenContinuationInterval } from "./IAutoMovieRecoveryOpenContinuationInterval";
 export type { IAutoMovieRecoveryOpenCurveGroup } from "./IAutoMovieRecoveryOpenCurveGroup";
 export type { IAutoMovieRecoveryOpenCurvePair } from "./IAutoMovieRecoveryOpenCurvePair";
+export type { IAutoMovieRecoveryPolylineInput } from "./IAutoMovieRecoveryPolylineInput";
 export type { IAutoMovieRecoveryTensorConstruction } from "./IAutoMovieRecoveryTensorConstruction";

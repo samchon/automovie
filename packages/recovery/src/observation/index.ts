@@ -1,10 +1,15 @@
 export { AutoMovieRecoveryEventCurve } from "./AutoMovieRecoveryEventCurve";
 export { AutoMovieRecoveryMeshSections } from "./AutoMovieRecoveryMeshSections";
+export { AutoMovieRecoveryOrderedLineage } from "./AutoMovieRecoveryOrderedLineage";
 export { observeAutoMovieRecovery } from "./observeAutoMovieRecovery";
 export { observeAutoMovieRecoveryAtlas } from "./observeAutoMovieRecoveryAtlas";
 export { observeAutoMovieRecoveryImages } from "./observeAutoMovieRecoveryImages";
+export { observeAutoMovieRecoveryPolyline } from "./observeAutoMovieRecoveryPolyline";
 export { prepareAutoMovieRecoveryInput } from "./prepareAutoMovieRecoveryInput";
 export { transportAutoMovieRecoveryObservationChart } from "./transportAutoMovieRecoveryObservationChart";
 export { estimateAutoMovieRecoveryCameraPair } from "./estimateAutoMovieRecoveryCameraPair";
 export { estimateAutoMovieRecoveryCameraMap } from "./estimateAutoMovieRecoveryCameraMap";
 export { estimateAutoMovieRecoveryCameraScene } from "./estimateAutoMovieRecoveryCameraScene";
+export { observeAutoMovieRecoverySections } from "./observeAutoMovieRecoverySections";
+export { observeAutoMovieRecoverySlabs } from "./observeAutoMovieRecoverySlabs";
+export { resumeAutoMovieRecoveryContours } from "./resumeAutoMovieRecoveryContours";

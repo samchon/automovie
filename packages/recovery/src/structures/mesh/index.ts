@@ -6,3 +6,14 @@ export type { IAutoMovieRecoverySectionReport } from "./IAutoMovieRecoverySectio
 export type { IAutoMovieRecoverySectionSummary } from "./IAutoMovieRecoverySectionSummary";
 export type { IAutoMovieRecoveryTopologyGap } from "./IAutoMovieRecoveryTopologyGap";
 export type { IAutoMovieRecoveryUnconsumedEvent } from "./IAutoMovieRecoveryUnconsumedEvent";
+export type { IAutoMovieRecoverySections } from "./IAutoMovieRecoverySections";
+export type { IAutoMovieRecoverySectionsInput } from "./IAutoMovieRecoverySectionsInput";
+export type { IAutoMovieRecoveryTerminalSeed } from "./IAutoMovieRecoveryTerminalSeed";
+export type { IAutoMovieRecoverySourceTerminal } from "./IAutoMovieRecoverySourceTerminal";
+export type { IAutoMovieRecoverySlabPair } from "./IAutoMovieRecoverySlabPair";
+export type { IAutoMovieRecoverySavedSection } from "./IAutoMovieRecoverySavedSection";
+export type { IAutoMovieRecoverySlabsInput } from "./IAutoMovieRecoverySlabsInput";
+export type { IAutoMovieRecoverySlabs } from "./IAutoMovieRecoverySlabs";
+export type { IAutoMovieRecoveryContourResumePolicy } from "./IAutoMovieRecoveryContourResumePolicy";
+export type { IAutoMovieRecoveryContourResumeInput } from "./IAutoMovieRecoveryContourResumeInput";
+export type { IAutoMovieRecoveryContourResume } from "./IAutoMovieRecoveryContourResume";
