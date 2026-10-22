@@ -1,6 +1,6 @@
 # Verification
 
-Read this guide before implementation. Complete at least one full inspection round after each geometry or integration change, including in solo work. Report unavailable checks as unverified; do not claim visual acceptance without inspecting actual renders.
+Complete at least one full inspection round after each geometry or integration batch, including in solo work. Inspect the assembled result before claiming visual acceptance. Report unavailable checks as unverified.
 
 ## Actual Generated Form
 
@@ -23,7 +23,7 @@ Source-only overlays and bounds-relative tiles do not establish independent skin
 
 ## Audit And User Reports
 
-During authorized active modeling, deliver these reports directly to the user, including in solo work and when progress is unchanged. The implementer owns verification and reporting unless the user explicitly delegates them. The [explicit stop](SKILL.md#human) suspends captures and automatic resumption.
+During authorized active modeling, deliver these reports directly to the user, including in solo work and when progress is unchanged. When verification is delegated, inspect its evidence and retain responsibility for the user report; internal agent replies do not replace it. The [explicit stop](SKILL.md#human) suspends captures and automatic resumption.
 
 - Every fifteen minutes, inspect and report new f1/f2/m1/m2 whole-front and whole-back surface captures, eight photographs total.
 - Extra details, one-person rotation and cache hits do not replace these eight.

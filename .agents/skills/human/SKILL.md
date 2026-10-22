@@ -23,7 +23,7 @@ Work alone by default. Spawn or resume subagents only when the user explicitly r
 - One integration owner controls the common skeleton and boundaries.
 - One execution owner controls compiler, native, GPU and capture resources.
 - In solo work, perform both roles yourself; when delegated, assign them before parallel work.
-- Perform [verification and periodic user reports](verification.md) yourself, including in solo work.
+- Read [Verification](verification.md) before implementation; retain responsibility for checks and user reports in solo or delegated work.
 
 ## Workflow
 
