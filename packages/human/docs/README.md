@@ -19,7 +19,7 @@ These notes retain literature, mathematical derivations and bounded reference ob
 | Alternative model representations | [Section-based models](references/section-body-models.md), [target-based models](references/makehuman.md) |
 | Rest deformation and seam behavior | [Skinning](techniques/skinning.md), [junctions](techniques/junction-and-seams.md), [surface inspection](techniques/surface-interrogation.md) |
 | Hair and skin appearance | [Hair cards](techniques/hair-cards.md), [skin material](techniques/skin-material.md), [procedural fields](techniques/procedural-skin-fields.md), [UV charts](techniques/uv-layout.md) |
-| Measurement and tissue protocols | [Skeleton](anatomy/skeleton.md), [hand](anatomy/hand.md), [foot](anatomy/foot.md), [hair](anatomy/hair.md), [skin](anatomy/skin.md) |
+| Measurement and tissue protocols | [Skeleton](anatomy/skeleton.md), [hand](anatomy/hand.md), [foot](anatomy/foot.md), [ear](anatomy/ear.md), [hair](anatomy/hair.md), [skin](anatomy/skin.md) |
 | Representation and numerical limits | [Subdivision](techniques/subdivision-and-cage.md), [contour reconstruction](techniques/reference-contour-reconstruction.md), [determinism](techniques/determinism.md) |
 | Earlier dataset provenance | [Frozen input ledger](references/frozen-reference-inputs.md) |
 

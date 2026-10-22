@@ -39,6 +39,24 @@ From Gray 1918 and Bridgman ([gray-1918](../sources/gray-1918.md), [bridgman-192
 - Sole: abductor digiti minimi a narrow rounded elevation laterally, abductor hallucis a lesser one medially; the heel and ball pads bear weight, the arch does not.
 - When the foot lands, the lateral (heel) side strikes first and the foot settles inward.
 
+## f1 reference observation
+
+Measured on the f1 reference mesh by `observeFootSections.ts` (Recovery Hermite sections, 0.5 mm cross planes, splits refined to 0.01 mm); one specimen, standing neutral pose, no population claim. Positions run along each foot's footprint principal axis from the heel's rearmost point, as fractions of that foot length L. The axis turns 8.3 deg (left, +Z) and 11.4 deg (right) outward from +X; L is 245.1 mm (left) and 243.6 mm (right). The minimum horizontal ankle girth is 205 mm at 113.5 and 112.5 mm height.
+
+| Event | Left / L | Right / L |
+| --- | --- | --- |
+| Fifth toe separates | 0.755 | 0.766 |
+| Fourth toe separates | 0.809 | 0.818 |
+| Hallux separates | 0.840 | 0.841 |
+| Second and third toes separate | 0.841 | 0.846 |
+| Fifth toe tip | 0.826 | 0.839 |
+| Fourth toe tip | 0.893 | 0.904 |
+| Third toe tip | 0.946 | 0.954 |
+| Second toe tip | 0.984 | 0.989 |
+| Hallux tip | 1 | 1 |
+
+The toes separate lateral first, and the hallux is the longest toe of both feet. Cross sections show the toes resting on the floor with neighbouring plantar pads nearly touching, while the dorsal clefts reach the separation planes; the separations above are where the cutting plane passes each web's saddle.
+
 ## Range of motion
 
 Soucie et al. ([soucie-2011](../sources/soucie-2011.md), measured): ankle dorsiflexion 13.8 (F) and 12.7 (M) deg at 20 to 44, falling to about 12 at 45 to 69; plantar flexion 62.1 and 54.6; children 2 to 8 reach 24.8 and 22.8 dorsiflexion. Roaas and Andersson ([roaas-andersson-1982](../sources/roaas-andersson-1982.md), men 30 to 40, passive): dorsiflexion 15.3, plantar flexion 39.7, eversion 27.6, inversion 27.7. AAOS convention: toe MTP extension 70, flexion 45 ([hendriks-2020-aaos](../sources/hendriks-2020-aaos.md)).

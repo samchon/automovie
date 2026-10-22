@@ -95,6 +95,7 @@ Each note retains its source, reading scope, units, population and limitations. 
 
 ## Anatomy and clinical protocols
 
+- [Banks and Cheney, otoplasty surgical technique (normal auricle)](banks-cheney-otoplasty.md)
 - [Bekerman 2014, eyeball diameters of healthy adults](bekerman-2014-eyeball.md)
 - [Blender manual, mesh structure and Subdivision Surface modifier](blender-manual.md)
 - [Bridgman 1920, Constructive Anatomy](bridgman-1920.md)
