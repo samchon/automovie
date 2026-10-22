@@ -17,12 +17,12 @@ import type { IAutoMovieHumanParameters } from "../../../human/src/structures/IA
  * admission yet. No old result, recovered sample or fabricated geometry is used.
  *
  * @evidence contracts/common.md#principled-implementation Existing buildModel and mountViewer consume the exact public model while the corresponding parameters are inspected separately.
- * @evidence contracts/common.md#clear-and-simple-design One page owns the existing viewer mount and one typed generated result, without another renderer implementation.
+ * @evidence contracts/common.md#clear-and-simple-design One page owns the existing viewer mount and typed result; the browser entry mounts it once and optionally fetches JSON for inspection without runtime admission.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The unimplemented public generator throws; no old model, unchecked JSON cast or successful empty result replaces it.
  * @evidence contracts/common.md#meaningful-documentation States typed result consumption, unavailable JSON admission and honest generator failure.
  * @evidence contracts/performance.md#efficient-algorithms A result builds one viewer object; camera motion reuses it without regeneration.
  * @evidence contracts/performance.md#reuse-equivalent-work Model and parameter inspection share the same accepted result object.
- * @evidence contracts/performance.md#bound-retention-and-release-resources One mount, controls and current model belong to the page; replacement joins sticky model retirement, and disposal joins model cleanup and stops the original viewer.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources One mount, controls and current model belong to the page; replacement joins sticky model retirement, disposal joins cleanup and stops the viewer, and the browser entry aborts its optional fetch and requests disposal on pagehide.
  */
 export function mountHumanViewerPage(root: HTMLElement): {
   load: (candidate: unknown) => Promise<{ accepted: false; cause: string }>;
