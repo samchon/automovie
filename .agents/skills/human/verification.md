@@ -25,7 +25,7 @@ These duties apply only during authorized active modeling; the [explicit stop](S
 
 - Every fifteen minutes: new f1/f2/m1/m2 whole-front and whole-back surface captures, eight photographs total.
 - Extra details, one-person rotation and cache hits do not replace these eight.
-- Auditor checks regional image inspection, actual code consumption, ownership gaps and violations.
+- Check regional image inspection, actual code consumption, uncovered regions and violations; follow [Work Allocation](SKILL.md#work-allocation) for audit delegation.
 - Preserve/open/display exact local PNGs under [Screenshot reporting](screenshot.md#user-facing-image-reports), with captured UTC, SHA and code/input/output binding.
 - Distinguish capture, local-save and report times. Report defects, unsupported scope and remaining comparisons.
 - On delay, report cause/current work/last actual capture immediately; never skip the report or regenerate old evidence under its original timestamp.

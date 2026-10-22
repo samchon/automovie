@@ -12,7 +12,7 @@ Historical delivery or local-save time is not a new capture. Preserve report evi
 
 ## Existing Human Page And Abbreviated PNG URLs
 
-The shared owner must verify service and parameter wiring before relying on this startup command. Run from the repository root with Node 22.23.2 or later only when service operation is authorized:
+The [execution owner](SKILL.md#work-allocation) must verify service and parameter wiring before relying on this startup command. Run from the repository root with Node 22.23.2 or later only when service operation is authorized:
 
 ```powershell
 Set-Location packages/playground
