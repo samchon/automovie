@@ -10,12 +10,14 @@ import type { IAutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChai
  *
  * ## Chain tree
  *
- * Chains form a tree from `root` downward. Each {@link IEvent} sits at the
- * bottom of its parent chain, where the parent's section is the contact of
- * several child sections touching at pinch points (a crotch, an axilla, the
- * webs between fingers). The parent's bottom ring is split along arcs of its
- * own phase into the children's top rings, so the children start from the
- * parent's vertices. A chain end with no event is closed at a {@link IPole}.
+ * Chains are joined by {@link IEvent}s. At an event the parent's end section
+ * is the contact of several child sections touching at pinch points: a
+ * `down` event sits at the parent's bottom with its children below (a
+ * crotch, an axilla, the webs between fingers), an `up` event at the
+ * parent's top with its children above (an ear rim leaving the head). The
+ * parent generates the contact ring once; each child's adjacent end is the
+ * arcs of that ring along the parent's phases, so the chains share those
+ * vertices. A chain end with no event closes at an {@link IPole}.
  *
  * Calibration is one stage of the campaign plan: the coefficients first
  * reproduce one specimen, then are replaced by laws in the public inputs
@@ -25,31 +27,35 @@ export interface IAutoMovieHumanBodyCalibration {
   /** Achieved stature input of the calibration specimen in mm. */
   stature: number;
 
-  /** Name of the root chain, lofted upward from its bottom event. */
-  root: string;
-
   /** All chains of the tree. */
   chains: IAutoMovieHumanLoftChain[];
 
-  /** Branch events, one per chain whose bottom splits. */
+  /** Branch events, at most one per chain end. */
   events: IAutoMovieHumanBodyCalibration.IEvent[];
 
   /** Closing points of chain ends without an event. */
   poles: IAutoMovieHumanBodyCalibration.IPole[];
 }
 export namespace IAutoMovieHumanBodyCalibration {
-  /** Split of a parent's bottom ring into its children's top rings. */
+  /** Split of a parent's end ring into its children's adjacent end rings. */
   export interface IEvent {
-    /** Parent chain whose bottom layer is the contact section. */
+    /** Parent chain whose end layer is the contact section. */
     parent: string;
 
-    /** Children and the parent-phase arcs that form their top rings. */
+    /**
+     * `down`: the contact is the parent's bottom layer and the children lie
+     * below it; `up`: the contact is the parent's top layer and the
+     * children lie above it.
+     */
+    direction: "down" | "up";
+
+    /** Children and the parent-phase arcs that form their adjacent end rings. */
     splits: ISplit[];
   }
 
-  /** One child's share of a parent's bottom ring. */
+  /** One child's share of a parent's contact ring. */
   export interface ISplit {
-    /** Child chain whose top layer meets the parent's bottom layer. */
+    /** Child chain whose adjacent end layer meets the parent's contact layer. */
     child: string;
 
     /**

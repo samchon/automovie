@@ -7,22 +7,26 @@ import { AutoMovieHumanLoftParameter } from "../lofting/AutoMovieHumanLoftParame
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 
 /**
- * Whole-body skin assembled from the calibrated chain tree.
+ * Whole-body skin assembled from the calibrated chains and their events.
  *
  * ## Procedure
  *
- * 1. The root chain is lofted upward from its bottom ring to its top pole.
- * 2. At every branch event the parent's bottom ring is split along the
- *    event's phase arcs; each child receives those exact vertices as its top
- *    ring, so parent and children share one boundary.
- * 3. A child assigns the inherited vertices phases by its own rule, then its
- *    first band zips them to its own uniform phase set (plus the pinch
- *    phases of its own bottom event, so its split falls on vertices).
- * 4. Each chain is lofted between its bisection stations; a chain end
- *    without an event closes at its pole.
+ * 1. **Contact rings.** Every event's contact ring is generated once by its
+ *    parent chain, at the parent's end layer and in the parent's own phase
+ *    set. That set includes the event's pinch phases, so every arc starts
+ *    and ends on a vertex.
+ * 2. **Chain boundaries.** Each chain end is one of three things: the
+ *    contact ring of an event it parents, the arcs of a contact ring it
+ *    inherits as a child, or a pole.
+ * 3. **Lofting.** Each chain is lofted between its bottom and top boundaries
+ *    at its bisection stations in its own phase set. An inherited boundary
+ *    gets phases by the chain's own rule, exactly as the fitter assigned
+ *    phases to observed outlines, and is joined by a zipper band.
  *
- * The short edge that closes a child ring across a pinch is shared by the
- * two children on either side of it, so the result is one closed manifold.
+ * Every boundary ring is generated once and shared by index, and the short
+ * edge that closes a child ring across a pinch belongs to the two children
+ * on either side of it, so the result is one closed manifold. Triangle
+ * groups are named `<chain>/<k>` by the principal interval they lie in.
  */
 export namespace AutoMovieHumanBodySurface {
   /** Generated skin in millimetres, registered frame. */
@@ -39,7 +43,24 @@ export namespace AutoMovieHumanBodySurface {
     normals: number[];
   }
 
-  /** Construction context passed between the chain lofting steps. */
+  /** A chain end boundary resolved to vertices or a pole. */
+  type IBoundary =
+    | {
+        /** The chain's own contact ring, in its own phase set. */
+        kind: "own";
+        ring: number[];
+      }
+    | {
+        /** Arcs inherited from a parent's contact ring. */
+        kind: "inherited";
+        ring: number[];
+      }
+    | {
+        /** Closed at a pole. */
+        kind: "pole";
+      };
+
+  /** Construction context passed between the lofting steps. */
   interface IContext {
     /** Mesh buffers shared by all chains. */
     mesh: AutoMovieHumanLoftMesh.IContext;
@@ -47,11 +68,14 @@ export namespace AutoMovieHumanBodySurface {
     /** Calibration chains by name. */
     chains: Map<string, IAutoMovieHumanLoftChain>;
 
-    /** Branch events by parent chain name. */
-    events: Map<string, IAutoMovieHumanBodyCalibration.IEvent>;
+    /** Calibration events. */
+    events: IAutoMovieHumanBodyCalibration.IEvent[];
 
     /** Poles by `chain:end`. */
     poles: Map<string, IAutoMovieHumanBodyCalibration.IPole>;
+
+    /** Resolved boundaries by `chain:end`. */
+    boundaries: Map<string, IBoundary>;
 
     /** Bisection chord tolerance in mm. */
     tolerance: number;
@@ -78,13 +102,7 @@ export namespace AutoMovieHumanBodySurface {
           ],
         ),
       ),
-      events: new Map(
-        calibration.events.map(
-          (
-            e: IAutoMovieHumanBodyCalibration.IEvent,
-          ): [string, IAutoMovieHumanBodyCalibration.IEvent] => [e.parent, e],
-        ),
-      ),
+      events: calibration.events,
       poles: new Map(
         calibration.poles.map(
           (
@@ -95,21 +113,15 @@ export namespace AutoMovieHumanBodySurface {
           ],
         ),
       ),
+      boundaries: new Map(),
       tolerance: TOLERANCE,
     };
 
-    // Root: its own phase set from the bottom ring up to the top pole.
-    const root: IAutoMovieHumanLoftChain = chain(context, calibration.root);
-    const phases: number[] = ownPhases(context, root);
-    const bottom: number[] = AutoMovieHumanLoftMesh.vertices(
-      context.mesh,
-      AutoMovieHumanLoftChain.ring(root, root.layers[0]!.y, phases),
-    );
-    const top: number[] = loftUp(context, root, bottom, phases);
-    pole(context, root, "top", top);
+    // 1-2. Contact rings and the boundaries they define on both sides.
+    for (const event of calibration.events) contact(context, event);
 
-    // Everything below the root descends from its bottom event.
-    branch(context, root, bottom, phases);
+    // 3. Every chain between its two boundaries.
+    for (const target of calibration.chains) loft(context, target);
 
     return {
       mesh: context.mesh,
@@ -118,43 +130,123 @@ export namespace AutoMovieHumanBodySurface {
   }
 
   /**
-   * Hand a chain's bottom ring to its children, or close it with a pole.
+   * Generate an event's contact ring from its parent and hand out its arcs.
    *
-   * @param context Construction context.
-   * @param parent Chain whose bottom ring is given.
-   * @param ring Bottom ring vertices.
-   * @param phases Parent phase of each ring vertex.
+   * The parent's end boundary becomes the whole ring; each child's adjacent
+   * end becomes the vertices on its arcs, in ring order.
    */
-  function branch(
+  function contact(
     context: IContext,
-    parent: IAutoMovieHumanLoftChain,
-    ring: number[],
-    phases: number[],
+    event: IAutoMovieHumanBodyCalibration.IEvent,
   ): void {
-    const event: IAutoMovieHumanBodyCalibration.IEvent | undefined =
-      context.events.get(parent.name);
-    if (event === undefined) {
-      pole(context, parent, "bottom", ring);
-      return;
-    }
+    const parent: IAutoMovieHumanLoftChain = chain(context, event.parent);
+    const parentEnd: "bottom" | "top" =
+      event.direction === "down" ? "bottom" : "top";
+    const childEnd: "bottom" | "top" =
+      event.direction === "down" ? "top" : "bottom";
 
-    for (const split of event.splits) {
-      // The child's top ring: the parent vertices on its arcs, in order.
-      const inherited: number[] = split.arcs.flatMap(
-        (arc: [number, number]): number[] => arcVertices(ring, phases, arc),
-      );
-      const child: IAutoMovieHumanLoftChain = chain(context, split.child);
-      const own: number[] = ownPhases(context, child);
-      const lower: number[] = loftDown(context, child, inherited, own);
-      branch(context, child, lower, own);
-    }
+    const phases: number[] = ownPhases(context, parent);
+    const ring: number[] = AutoMovieHumanLoftMesh.vertices(
+      context.mesh,
+      AutoMovieHumanLoftChain.ring(parent, endHeight(parent, parentEnd), phases),
+    );
+    context.boundaries.set(parent.name + ":" + parentEnd, { kind: "own", ring });
+
+    for (const split of event.splits)
+      context.boundaries.set(split.child + ":" + childEnd, {
+        kind: "inherited",
+        ring: split.arcs.flatMap((arc: [number, number]): number[] =>
+          arcVertices(ring, phases, arc),
+        ),
+      });
   }
 
   /**
-   * A chain's own ring phases: uniform samples plus its bottom pinch phases.
+   * Loft one chain between its resolved bottom and top boundaries.
    *
-   * Including the pinch phases exactly makes every arc of the chain's bottom
-   * event start and end on a vertex.
+   * Rings are generated at the interior bisection stations in the chain's
+   * own phase set. An own boundary ring already has that phase set and joins
+   * by an ordinary band; an inherited ring joins by a zipper; a missing
+   * boundary is generated at the end height and closed at its pole.
+   */
+  function loft(context: IContext, target: IAutoMovieHumanLoftChain): void {
+    const phases: number[] = ownPhases(context, target);
+    const bottomY: number = endHeight(target, "bottom");
+    const topY: number = endHeight(target, "top");
+    const heights: number[] = AutoMovieHumanLoftChain.stations(
+      target,
+      bottomY,
+      topY,
+      context.tolerance,
+    );
+
+    // Ring at each station; ends come from their boundaries when inherited
+    // or owned, and are generated here when the end is a pole.
+    const bottom: IBoundary = boundary(context, target, "bottom");
+    const top: IBoundary = boundary(context, target, "top");
+    const rings: number[][] = heights.map((y: number, k: number): number[] => {
+      const end: IBoundary | undefined =
+        k === 0 ? bottom : k === heights.length - 1 ? top : undefined;
+      if (end !== undefined && end.kind !== "pole") return end.ring;
+      return AutoMovieHumanLoftMesh.vertices(
+        context.mesh,
+        AutoMovieHumanLoftChain.ring(target, y, phases),
+      );
+    });
+
+    // Bands between consecutive stations, grouped by principal interval.
+    for (let k: number = 0; k + 1 < heights.length; k++) {
+      AutoMovieHumanLoftMesh.group(
+        context.mesh,
+        interval(target, heights[k]!, heights[k + 1]!),
+      );
+      const lowerInherited: boolean = k === 0 && bottom.kind === "inherited";
+      const upperInherited: boolean =
+        k + 1 === heights.length - 1 && top.kind === "inherited";
+
+      if (!lowerInherited && !upperInherited)
+        AutoMovieHumanLoftMesh.band(context.mesh, rings[k]!, rings[k + 1]!);
+      else
+        AutoMovieHumanLoftMesh.zipper(
+          context.mesh,
+          rings[k]!,
+          lowerInherited ? inheritedPhases(context, target, rings[k]!) : phases,
+          rings[k + 1]!,
+          upperInherited
+            ? inheritedPhases(context, target, rings[k + 1]!)
+            : phases,
+        );
+    }
+
+    // Poles close the ends that no event owns.
+    if (bottom.kind === "pole")
+      pole(context, target, "bottom", rings[0]!);
+    if (top.kind === "pole")
+      pole(context, target, "top", rings[rings.length - 1]!);
+  }
+
+  /** Resolved boundary of a chain end; ends without an event are poles. */
+  function boundary(
+    context: IContext,
+    target: IAutoMovieHumanLoftChain,
+    end: "bottom" | "top",
+  ): IBoundary {
+    return context.boundaries.get(target.name + ":" + end) ?? { kind: "pole" };
+  }
+
+  /** Height of a chain's bottom or top principal layer in mm. */
+  function endHeight(
+    target: IAutoMovieHumanLoftChain,
+    end: "bottom" | "top",
+  ): number {
+    return end === "bottom"
+      ? target.layers[0]!.y
+      : target.layers[target.layers.length - 1]!.y;
+  }
+
+  /**
+   * A chain's own ring phases: uniform samples plus the pinch phases of the
+   * events it parents, so every arc of those events falls on vertices.
    */
   function ownPhases(
     context: IContext,
@@ -164,23 +256,43 @@ export namespace AutoMovieHumanBodySurface {
       { length: target.samples },
       (_: unknown, i: number): number => (2 * Math.PI * i) / target.samples,
     );
-    const pinches: number[] =
-      context.events
-        .get(target.name)
-        ?.splits.flatMap((s: IAutoMovieHumanBodyCalibration.ISplit) =>
+    const pinches: number[] = context.events
+      .filter(
+        (e: IAutoMovieHumanBodyCalibration.IEvent): boolean =>
+          e.parent === target.name,
+      )
+      .flatMap((e: IAutoMovieHumanBodyCalibration.IEvent): number[] =>
+        e.splits.flatMap((s: IAutoMovieHumanBodyCalibration.ISplit) =>
           s.arcs.flat(),
-        ) ?? [];
+        ),
+      );
 
     // Merge, dropping uniform phases that nearly coincide with a pinch.
     const spacing: number = (2 * Math.PI) / target.samples;
     const kept: number[] = uniform.filter((t: number): boolean =>
-      pinches.every(
-        (p: number): boolean => circular(t, p) > 0.25 * spacing,
-      ),
+      pinches.every((p: number): boolean => circular(t, p) > 0.25 * spacing),
     );
     return [...new Set([...kept, ...pinches])].sort(
       (a: number, b: number): number => a - b,
     );
+  }
+
+  /** Phases of inherited ring vertices under a chain's own rule. */
+  function inheritedPhases(
+    context: IContext,
+    target: IAutoMovieHumanLoftChain,
+    ring: readonly number[],
+  ): number[] {
+    const outline: [number, number][] = ring.map(
+      (v: number): [number, number] => {
+        const p: [number, number, number] = AutoMovieHumanLoftMesh.position(
+          context.mesh,
+          v,
+        );
+        return [p[0], p[2]];
+      },
+    );
+    return AutoMovieHumanLoftParameter.phases(target.rule, outline);
   }
 
   /** Ring vertices whose phases lie on a forward arc, inclusive, in ring order. */
@@ -218,10 +330,7 @@ export namespace AutoMovieHumanBodySurface {
   ): string {
     const middle: number = (lower + upper) / 2;
     let k: number = 0;
-    while (
-      k < target.layers.length - 2 &&
-      target.layers[k + 1]!.y <= middle
-    )
+    while (k < target.layers.length - 2 && target.layers[k + 1]!.y <= middle)
       k++;
     return target.name + "/" + k.toString();
   }
@@ -247,106 +356,11 @@ export namespace AutoMovieHumanBodySurface {
   }
 
   /**
-   * Loft a chain downward from an inherited top ring to its bottom layer.
-   *
-   * The inherited vertices get phases by the chain's own rule, exactly as
-   * the fitter assigned phases to observed outlines; the first band zips
-   * them to the chain's own phase set.
-   *
-   * @returns The ring generated at the chain's bottom height, in `phases` order.
-   */
-  function loftDown(
-    context: IContext,
-    target: IAutoMovieHumanLoftChain,
-    top: number[],
-    phases: number[],
-  ): number[] {
-    const outline: [number, number][] = top.map(
-      (v: number): [number, number] => {
-        const p: [number, number, number] = AutoMovieHumanLoftMesh.position(
-          context.mesh,
-          v,
-        );
-        return [p[0], p[2]];
-      },
-    );
-    const inheritedPhases: number[] = AutoMovieHumanLoftParameter.phases(
-      target.rule,
-      outline,
-    );
-
-    const heights: number[] = AutoMovieHumanLoftChain.stations(
-      target,
-      target.layers[0]!.y,
-      target.layers[target.layers.length - 1]!.y,
-      context.tolerance,
-    );
-
-    // Walk downward: each new ring is the lower ring of a band whose upper
-    // ring is the previous one; the first band is the zipper.
-    let upper: number[] = top;
-    for (let k: number = heights.length - 2; k >= 0; k--) {
-      const lower: number[] = AutoMovieHumanLoftMesh.vertices(
-        context.mesh,
-        AutoMovieHumanLoftChain.ring(target, heights[k]!, phases),
-      );
-      AutoMovieHumanLoftMesh.group(
-        context.mesh,
-        interval(target, heights[k]!, heights[k + 1]!),
-      );
-      if (upper === top)
-        AutoMovieHumanLoftMesh.zipper(
-          context.mesh,
-          lower,
-          phases,
-          upper,
-          inheritedPhases,
-        );
-      else AutoMovieHumanLoftMesh.band(context.mesh, lower, upper);
-      upper = lower;
-    }
-    return upper;
-  }
-
-  /**
-   * Loft a chain upward from a generated bottom ring to its top layer.
-   *
-   * @returns The ring generated at the chain's top height.
-   */
-  function loftUp(
-    context: IContext,
-    target: IAutoMovieHumanLoftChain,
-    bottom: number[],
-    phases: number[],
-  ): number[] {
-    const heights: number[] = AutoMovieHumanLoftChain.stations(
-      target,
-      target.layers[0]!.y,
-      target.layers[target.layers.length - 1]!.y,
-      context.tolerance,
-    );
-
-    let lower: number[] = bottom;
-    for (let k: number = 1; k < heights.length; k++) {
-      const upper: number[] = AutoMovieHumanLoftMesh.vertices(
-        context.mesh,
-        AutoMovieHumanLoftChain.ring(target, heights[k]!, phases),
-      );
-      AutoMovieHumanLoftMesh.group(
-        context.mesh,
-        interval(target, heights[k - 1]!, heights[k]!),
-      );
-      AutoMovieHumanLoftMesh.band(context.mesh, lower, upper);
-      lower = upper;
-    }
-    return lower;
-  }
-
-  /**
    * Close a chain end with a fan to its pole.
    *
    * A calibrated pole is the recovered critical point (crown, fingertip) or
-   * a provisional axis point; without one the end is closed at its axis.
+   * a provisional closure point; without one the end closes at its axis.
+   * The fan belongs to the chain's end interval.
    */
   function pole(
     context: IContext,
@@ -354,10 +368,7 @@ export namespace AutoMovieHumanBodySurface {
     end: "top" | "bottom",
     ring: number[],
   ): void {
-    const y: number =
-      end === "top"
-        ? target.layers[target.layers.length - 1]!.y
-        : target.layers[0]!.y;
+    const y: number = endHeight(target, end);
     const calibrated: IAutoMovieHumanBodyCalibration.IPole | undefined =
       context.poles.get(target.name + ":" + end);
     const axis: [number, number] = AutoMovieHumanLoftChain.axis(target, y);
@@ -370,8 +381,6 @@ export namespace AutoMovieHumanBodySurface {
     const apex: number = AutoMovieHumanLoftMesh.vertices(context.mesh, [
       point,
     ])[0]!;
-
-    // The pole fan belongs to the chain's end interval.
     AutoMovieHumanLoftMesh.group(
       context.mesh,
       target.name +
