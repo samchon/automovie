@@ -13,7 +13,7 @@ A stale ownership record for an already dead service never authorizes killing a 
 
 ## Inspection Round
 
-1. Compare all four specimens and independent generated results under the same camera, light, material, resolution and renderer backend.
+1. Compare f1 first, then each added specimen and all previously accepted specimens, under the same camera, light, material, resolution and renderer backend.
 2. Inspect whole body, multiple directions, enlarged defects and neighbors in surface, overlay and construction passes.
 3. Show unattached regions separately as generated, integrated or not renderable; state missing anatomical close-ups.
 4. Collect all defects and latent effects, trace their common causes, and correct them in one batch.
@@ -25,8 +25,9 @@ Source-only overlays and bounds-relative tiles do not establish independent skin
 
 During authorized active modeling, deliver these reports directly to the user, including in solo work and when progress is unchanged. When verification is delegated, inspect its evidence and retain responsibility for the user report; internal agent replies do not replace it. The [explicit stop](SKILL.md#human) suspends captures and automatic resumption.
 
-- Every fifteen minutes, inspect and report new f1/f2/m1/m2 whole-front and whole-back surface captures, eight photographs total.
-- Extra details, one-person rotation and cache hits do not replace these eight.
+- Audit and report every 30 minutes in solo work, or every 15 minutes while user-authorized subagents are active.
+- Each report inspects new f1/f2/m1/m2 whole-front and whole-back surface captures, 8 photographs total; identify each unavailable render explicitly.
+- Extra details, one-person rotation and cache hits do not replace these 8.
 - Check regional image inspection, actual code consumption, uncovered regions and violations; follow [Work Allocation](SKILL.md#work-allocation) for audit delegation.
 - Preserve/open/display exact local PNGs under [Screenshot reporting](screenshot.md#user-facing-image-reports), with captured UTC, SHA and code/input/output binding.
 - Distinguish capture, local-save and report times. Report defects, unsupported scope and remaining comparisons.
