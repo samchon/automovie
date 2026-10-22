@@ -15,6 +15,12 @@ Annotate the type of every variable and parameter and the return type of every f
 
 A source file has fewer than 500 lines and exports one symbol named after it, barrels excepted.
 
+## Comments And Layout
+
+Write code for the agent who changes it next. Give every declaration a JSDoc comment written to the contracts [Meaningful documentation](../contracts/common.md#meaningful-documentation) chapter, including in a package that selects no checklist.
+
+Inside a body, separate the logical steps with blank lines so each step reads as one paragraph of code, and open each step whose purpose the code does not make obvious with a comment saying what it does and why. Precede every comment inside a block with a blank line unless it opens the block, so a comment never sits directly under code. A comment gives the intent, premise, or reason the code cannot show, not a paraphrase of the code.
+
 ## Packages
 
 Respect the [package boundaries](../project/SKILL.md#packages); review reads every new import and dependency against them. A public producer lands with its consumer, because test-only reach is not wiring.
