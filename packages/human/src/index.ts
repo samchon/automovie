@@ -1,3 +1,3 @@
 export * from "./structures";
 export * from "./typings";
-export { generateAutoMovieHuman } from "./generateAutoMovieHuman";
+export { AutoMovieHuman } from "./AutoMovieHuman";

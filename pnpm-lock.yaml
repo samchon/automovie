@@ -441,9 +441,6 @@ importers:
 
   packages/human:
     dependencies:
-      '@automovie/engine':
-        specifier: workspace:^
-        version: link:../engine
       '@automovie/interface':
         specifier: workspace:^
         version: link:../interface
@@ -469,9 +466,6 @@ importers:
       typescript:
         specifier: catalog:typescript
         version: 7.0.2
-      typescript-compiler:
-        specifier: npm:typescript@5.9.3
-        version: typescript@5.9.3
 
   packages/ingest:
     dependencies:

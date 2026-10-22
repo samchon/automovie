@@ -19,5 +19,12 @@ pnpm --filter @automovie/playground preview   # dist/ at http://127.0.0.1:4173
 | `launch.html`, `impact.html`, `attach.html`, `trampoline.html` | Projectile, impact, attachment and jump actions |
 | `spar.html` | Boxing scene |
 | `recovery.html` | Saved image-loft coefficients, independent dimension edits, matched surface/construction passes and an optional independent static mesh reference |
+| `human.html` | Human interface; generation and rendering are not implemented or qualified |
 
-The Human figure page is unavailable while `@automovie/human` contains parameter declarations only.
+## Human
+
+`IAutoMovieHumanParameters` defines the typed input. `AutoMovieHuman.generate(params): IAutoMovieHumanGenerated` is an unimplemented contract that throws `Not implemented.`; its declared output contains `parameters` and an `IAutoMovieModel` in `model`.
+
+The existing Human page and image routes are not qualified against this contract. They do not establish working geometry generation, appearance, editor admission, save/load or screenshots. Parameter sources under `src/human-parameters/` likewise require consumer and HTTP verification before use.
+
+Honor explicit server shutdowns; do not start or restore a deliberately stopped service. See [Human screenshot guidance](../../.agents/skills/human/screenshot.md) for access conventions and verification limits, not a guarantee of a running renderer.

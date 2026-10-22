@@ -1,13 +1,27 @@
 # Construction
 
-## Curves Into Skin
+Build skin and construction from one curve authority under [Reverse Analysis](reverse-analysis.md).
 
-Generate common frames, principal curves and recursively derived intermediate curves from the existing inputs and the rules identified by [Reverse Analysis](reverse-analysis.md). Use millimetres for physical lengths and the declared units of other inputs. Skin and displayed construction consume the same curve family.
+## Geometry And Joins
 
-Choose regional methods from the observed form: trunk layers, limb sections along bone chains, hand and foot features, and facial loops or feature networks. Represent branches, contacts, openings and contour births or deaths explicitly instead of forcing loop pairings or closing open arcs.
+- Use mm for physical lengths and declared units for other inputs.
+- Retain original degree, rational terms, h, direction, frames and full derivative chain rules through transport and restriction.
+- Share actual curve/boundary objects across skin, analytic normals, construction and neighbors.
+- Derive vertices/faces from those functions; tessellation is not shape identification.
+- Use regular section charts or feature networks as observed; represent branches, contacts, openings and contour births/deaths explicitly.
+- Qualify seam, direction and phase before ruled connection. Unknown splits/merges do not authorize arbitrary pairing or caps.
+- Preserve corners and one-sided jets; match transverse/mixed derivatives through the actual transition map.
 
-Use [Lofting](../3d-modeling/lofting.md) and [Modularization](../3d-modeling/modularization.md) to assemble regional results. Each join consumes one shared boundary and compatible transverse derivatives with the actual orientation and parameter scale; positional agreement alone does not establish a smooth join. Judge each region with its neighbors and in the whole body.
+C0 position, G1 tangent-plane agreement, curvature continuity and emitted mesh incidence are separate conditions. Check regularity, orientation and embedding under [Lofting](../3d-modeling/lofting.md) and [Modularization](../3d-modeling/modularization.md).
 
-Derive new vertices, faces and normals from this representation. Per-person control tables, normalized specimen copies, original mesh or normal fallback, hand-authored source controls and coordinate rounding cannot replace common generation rules.
+## Ownership And Scope
 
-Keep model refinement separate from mesh sampling: finer tessellation cannot repair missing features or wrong correspondence. Genitals and nipples remain outside the modeled surface.
+- One integration owner owns skeleton, reference planes, global addresses and shared boundaries; regional owners consume them.
+- Assign every region and missing join: trunk, shoulder, neck, pelvis/buttocks, limbs/joints, hands/fingers, feet/toes, head/face, eyes/lids, ears/nose/mouth.
+- Track appearance, hair, brows, lashes, nails, underwear, editor and save/load explicitly. Rig/deformation and temporal work follow neutral shape.
+- Genitals and nipples remain outside modeled skin.
+- No person-indexed controls, specimen copying, source mesh/normals, arbitrary offsets, tolerance relaxation or exception wrappers.
+
+## Integration Check
+
+Trace producer → public API/root → loaded runtime → renderer. Unused evaluators and empty connection requests have no visible effect. Inspect emitted skin and construction with their neighbors before claiming progress. Failed methods require a representation/algorithm correction, not accumulated local repairs.

@@ -4,7 +4,8 @@ import { IAutoMovieHumanBodyHeightDiagnostics } from "./IAutoMovieHumanBodyHeigh
 
 /** Primary body parameter record. All lengths use mm; shape controls are unitless.
  * Authored values, independent measurements and diagnostics remain distinct.
- * Unknowns are null. No generator, converter or editor is supplied.
+ * Unknowns are null. No clinical measurement converter or geometric generator
+ * is currently supplied.
  */
 export interface IAutoMovieHumanBodyParameters {
   /** Named authored control values and their pins. */
