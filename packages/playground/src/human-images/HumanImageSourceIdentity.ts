@@ -2,11 +2,28 @@ import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 
-/** Share exact source-byte identity between the HTTP owner and its isolated child.
- * No watcher timing or filesystem timestamp substitutes for content equality.
+/** Hash conservative on-disk source inventories used by the image session.
+ * These observations do not certify which modules the running host loaded or prevent concurrent edits.
+ *
+ * @evidence contracts/common.md#principled-implementation SHA-256 commits to explicitly listed host files or sorted package-source paths and bytes; filesystem errors reject rather than inventing an identity.
+ * @evidence contracts/common.md#clear-and-simple-design Host policy and broader source invalidation have separate entry points sharing one explicit runtime inventory.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Neither timestamps nor watcher silence replace byte hashing; the inventory is conservative and is not proof of the loaded import graph or an atomic filesystem snapshot.
+ * @evidence contracts/common.md#meaningful-documentation States on-disk scope and the limits of loaded-code and concurrent-edit verification.
+ * @evidence contracts/performance.md#efficient-algorithms Each call reads its full selected byte population; source additionally enumerates and sorts paths, without parsing modules or generating geometry.
+ * @evidence contracts/performance.md#reuse-equivalent-work Calls deliberately reobserve bytes instead of caching by timestamps; the session compares returned commitments to decide reuse.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Each call owns local hash/path buffers and async file reads only; no watcher, open handle or persistent identity cache is retained here.
  */
 export class HumanImageSourceIdentity {
-  /** Hash the loaded host implementation and its dependency configuration. */
+  /** Hash the listed host/worker files and dependency configuration as currently stored.
+   *
+   * @evidence contracts/common.md#principled-implementation An explicit ordered inventory feeds file bytes into Node SHA-256; missing files or read failures reject.
+   * @evidence contracts/common.md#clear-and-simple-design Host-change admission uses one policy inventory rather than discovering speculative imports.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The digest observes disk bytes only and cannot assert that the running host loaded those same bytes or that all reads were simultaneous.
+   * @evidence contracts/common.md#meaningful-documentation Documents fixed inventory and on-disk observation instead of claiming loaded-module attestation.
+   * @evidence contracts/performance.md#efficient-algorithms Work is linear in the listed files' combined bytes, with one read buffer at a time and no package traversal.
+   * @evidence contracts/performance.md#reuse-equivalent-work Every call rehashes current bytes; comparison and host invalidation belong to HumanImageSession.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Local hash state is finalized and temporary buffers become collectible after reads; async file calls retain no application-level open handles.
+   */
   public static async host(root: string): Promise<string> {
     const digest: ReturnType<typeof createHash> = createHash("sha256");
     for (const name of [
@@ -22,7 +39,17 @@ export class HumanImageSourceIdentity {
     return digest.digest("hex");
   }
 
-  /** Bind current maintained geometry, renderer and worker code in one order. */
+  /** Hash sorted .ts/.json paths and bytes across five package src trees plus runtime files.
+   * The inventory includes unused files and absolute paths, so relocation or unrelated source edits invalidate it.
+   *
+   * @evidence contracts/common.md#principled-implementation Recursive regular-file enumeration and deterministic lexical sorting feed path strings and exact bytes to SHA-256, with read errors propagated.
+   * @evidence contracts/common.md#clear-and-simple-design One conservative inventory gives parent and child the same session invalidation policy without another module loader.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts This broader-than-consumed inventory is not an import-closure certificate, a dependency-runtime digest or an atomic filesystem snapshot.
+   * @evidence contracts/common.md#meaningful-documentation Names extensions, package scope, absolute-path sensitivity and conservative invalidation.
+   * @evidence contracts/performance.md#efficient-algorithms For E directory entries, F selected files and B selected bytes, enumeration/hash work is O(E+B), sorting O(F log F), and memory holds selected paths, traversal depth and one file buffer.
+   * @evidence contracts/performance.md#reuse-equivalent-work Full rehashing detects byte edits without relying on mtime; completed model/frame reuse is decided separately by the session.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Path arrays, traversal frames and hash state are local to the call; no source snapshot, watcher or persistent cache survives return.
+   */
   public static async source(root: string): Promise<string> {
     const digest: ReturnType<typeof createHash> = createHash("sha256");
     const names: string[] = [];

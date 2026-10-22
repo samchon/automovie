@@ -7,6 +7,15 @@ import { HumanImageSourceIdentity } from "./HumanImageSourceIdentity";
 /** Serialize an isolated generation/native owner while HTTP serves archives.
  * HTTP retains one byte publication and bounded PNGs, never parsed geometry.
  * Exact source/input commitments and asynchronous output hashing guard IPC.
+ * The current worker rejects generation, so this retained cache path cannot produce a model yet.
+ *
+ * @evidence contracts/common.md#principled-implementation A serialized queue binds source bytes and supplied input SHA to one child lease, verifies publication/frame commitments and rechecks source before delivery.
+ * @evidence contracts/common.md#clear-and-simple-design The session owns model/frame reuse; process lifecycle and HTTP historical delivery stay with their separate owners.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The current child failure propagates without recovered mesh, old model or successful empty output; input SHA and runtime parameter validation remain caller responsibilities.
+ * @evidence contracts/common.md#meaningful-documentation States isolated ownership, publication reuse and the current unimplemented worker boundary.
+ * @evidence contracts/performance.md#efficient-algorithms Each admitted operation hashes the conservative package-source inventory; model replacement retires the prior child, and frame hits avoid generation/render commands.
+ * @evidence contracts/performance.md#reuse-equivalent-work One model key combines observed source hash and supplied input hash; frames additionally match name and optional fresh nonce, with active-child checks before reuse.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources At most sixteen requests queue behind one child; one publication and PNG buffers each have a 256 MiB admission cap, frame names have no separate count cap, and close joins the queue and child before dropping caches.
  */
 export class HumanImageSession {
   private queue: Promise<void> = Promise.resolve();
@@ -36,7 +45,17 @@ export class HumanImageSession {
     private readonly root: string,
   ) {}
 
-  /** Admit a model or frame without blocking archive IO with model computations. */
+  /** Queue one model/frame request; reject invalid nonces, full queues or closed sessions.
+   * Generation is unavailable in the current child. Input value/SHA consistency is supplied by the caller.
+   *
+   * @evidence contracts/common.md#principled-implementation The serialized operation observes source/host hashes, derives a model key, verifies worker commitments and refuses source changes before returning publication or frame bytes.
+   * @evidence contracts/common.md#clear-and-simple-design One queue protects a model lease and its frame Map while independent archive HTTP reads need no session operation.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A worker error rejects without fallback; on-disk source hashes neither validate arbitrary Human inputs nor certify the currently loaded module graph.
+   * @evidence contracts/common.md#meaningful-documentation Documents nonce/queue failure, caller SHA responsibility and unavailable generation.
+   * @evidence contracts/performance.md#efficient-algorithms Source hashing scans bytes of five packages per identity check; cache hits save child generation/rendering, while PNG byte accounting scans the retained frame Map.
+   * @evidence contracts/performance.md#reuse-equivalent-work Source/input key and active child permit model reuse; name plus absent or matching nonce permit frame reuse, preserving original capture UTC and PNG SHA.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources finally releases each of at most sixteen admission slots; model replacement joins the prior child, PNG admission caps retained pixels at 256 MiB, and failures may leave that one child owned until replacement or close.
+   */
   public async image(
     input: { value: Record<string, unknown>; sha256: string },
     name: string,
@@ -226,7 +245,16 @@ export class HumanImageSession {
     }
   }
 
-  /** Cancel the owned process, join work, then drop parent publication caches. */
+  /** Seal admission, retire the child and join queued operations before dropping caches.
+   *
+   * @evidence contracts/common.md#principled-implementation Closed state rejects queued work; process close runs before and after the settled queue to cover an in-flight acquisition.
+   * @evidence contracts/common.md#clear-and-simple-design Session retirement owns only its child lease and publication/frame references, not the HTTP server or archive.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Child cleanup rejection propagates and does not certify released native resources.
+   * @evidence contracts/common.md#meaningful-documentation Documents admission sealing, queue joining and cache release order.
+   * @evidence contracts/performance.md#efficient-algorithms Retirement waits for the admitted queue and one child cleanup without rebuilding geometry or scanning source files.
+   * @evidence contracts/performance.md#reuse-equivalent-work Repeated calls reuse the process owner's sticky close and the same settled queue; no replacement child is acquired.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Success drops the child and all cached publication/PNG references; failure retains the child reference and may retain caches for unresolved cleanup.
+   */
   public async close(): Promise<void> {
     this.closed = true;
     await this.worker?.close();
