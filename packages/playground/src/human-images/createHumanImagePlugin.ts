@@ -3,20 +3,21 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import path from "node:path";
 import type { Plugin, ViteDevServer } from "vite";
 
+import { normalizeHumanCurves } from "../human/normalizeHumanCurves";
 import { HumanImageArchive } from "./HumanImageArchive";
 import { HumanImageRegistry } from "./HumanImageRegistry";
 import { HumanImageSession } from "./HumanImageSession";
 
-/** Publish typed Human example JSON and retain the existing image transport.
+/** Publish typed Human example JSON, generated models and rendered PNGs.
  * Both /human-parameters/f1.json and /human-images/f1.json use the same typed
- * source registry. Human generation and native rendering remain unavailable;
- * their existing requests fail explicitly in the worker. Historical captures
- * remain historical and do not establish support for the reset generator.
+ * source registry. Model JSON and PNG requests go through HumanImageSession
+ * to the resident worker, whose Chrome runs the same /human.html. Historical
+ * captures remain historical and never stand in for a current-source render.
  *
- * @evidence contracts/common.md#principled-implementation JSON routes serialize the registered typed parameters; unavailable generation propagates a worker failure.
+ * @evidence contracts/common.md#principled-implementation JSON routes serialize the registered typed parameters; model and PNG requests return worker output whose identity the session verified, and a worker failure propagates as an HTTP error.
  * @evidence contracts/common.md#clear-and-simple-design One existing middleware owns alias JSON and retained image transport.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No old model or synthetic output replaces the unimplemented generator.
- * @evidence contracts/common.md#meaningful-documentation States both typed JSON paths and the unavailable generation/rendering boundary.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No old model or synthetic output replaces a failed generation or render.
+ * @evidence contracts/common.md#meaningful-documentation States both typed JSON paths and the worker-served model and PNG routes.
  * @evidence contracts/performance.md#efficient-algorithms JSON publication reads only the small registry and serializes one example, without GPU work.
  * @evidence contracts/performance.md#reuse-equivalent-work Both JSON paths share HumanImageRegistry; archive bytes retain their original capture identity.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Existing archive/session owners close on server disposal; this middleware adds no separate listener or result cache.
@@ -49,6 +50,18 @@ export function createHumanImagePlugin(repository: string): Plugin {
           await archive.import(path.resolve(repository, filename));
       }
       session = new HumanImageSession(server, repository);
+
+      // The worker child inherits this environment when the first request
+      // starts it, after listening, and opens /human.html on this origin.
+      server.httpServer?.once("listening", (): void => {
+        const address: ReturnType<NonNullable<typeof server.httpServer>["address"]> =
+          server.httpServer!.address();
+        if (address === null || typeof address === "string") return;
+        const host: string =
+          address.family === "IPv6" ? "[" + address.address + "]" : address.address;
+        process.env.AUTOMOVIE_HUMAN_WORKER_ORIGIN =
+          "http://" + host + ":" + address.port;
+      });
       server.httpServer?.once("close", (): void => {
         archive.close();
         void session?.close().catch(console.error);
@@ -208,7 +221,7 @@ export function createHumanImagePlugin(repository: string): Plugin {
                 )
               )
                 throw new Error(
-                  "Expected public Human parameters; runtime admission and generation are not implemented",
+                  "Expected public Human parameters; only registered typed examples are admitted",
                 );
               const bytes: Buffer = Buffer.from(JSON.stringify(value));
               input = {
@@ -233,12 +246,23 @@ export function createHumanImagePlugin(repository: string): Plugin {
               response.end(input.bytes);
               return;
             }
+
+            // The selection joins the frame identity in its canonical spelling.
+            let curves: string;
+            try {
+              curves = normalizeHumanCurves(url.searchParams.get("curves"));
+            } catch (error) {
+              response.statusCode = 400;
+              response.end(error instanceof Error ? error.message : String(error));
+              return;
+            }
             const requested: string = image?.[2] ?? pinned?.[2] ?? "$model";
             const result: Awaited<ReturnType<HumanImageSession["image"]>> =
               await session!.image(
                 input,
                 requested,
                 url.searchParams.get("fresh") ?? undefined,
+                curves,
               );
             if (pinned && result.key !== pinned[1]) {
               response.statusCode = 409;
@@ -280,6 +304,7 @@ export function createHumanImagePlugin(repository: string): Plugin {
               kind: "human-image-response",
               alias: image?.[1],
               image: requested,
+              curves,
               key: result.key,
               cacheHit: result.cacheHit,
               ...(result.cacheHit ? {} : { receipt: result.receipt }),
@@ -291,6 +316,7 @@ export function createHumanImagePlugin(repository: string): Plugin {
                 archive.publish(url.href, result.png, eventBytes),
               );
             response.setHeader("x-human-binding", "current-generation");
+            response.setHeader("x-human-curves", curves === "" ? "none" : curves);
             console.info(eventBytes.toString("utf8"));
             if (url.searchParams.get("receipt") === "1") {
               response.setHeader("content-type", "application/json");

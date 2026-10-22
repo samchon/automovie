@@ -1,7 +1,5 @@
-import {
-  AutoMovieHumanLoftChain,
-  type IAutoMovieHumanLoftChain,
-} from "../lofting/AutoMovieHumanLoftChain";
+import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
+import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanLoftTube } from "../lofting/AutoMovieHumanLoftTube";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";

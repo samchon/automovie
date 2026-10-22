@@ -19,12 +19,13 @@ interface IReplyObserver {
   timer: ReturnType<typeof setTimeout>;
 }
 
-/** Own isolated lifecycle transport for the currently unimplemented Human worker.
+/** Own isolated lifecycle transport for the Human worker child, which keeps one headless Chrome tab on `/human.html`.
+ * Chrome runs on a Playwright pipe and exits when a stopped child closes it.
  *
  * @evidence contracts/common.md#principled-implementation A lifecycle Worker retains the original ChildProcess and delegates checked native ownership to ProcessOwnership; command IDs and publication hashes qualify replies.
- * @evidence contracts/common.md#clear-and-simple-design HTTP transport, blocking OS lifecycle work and the stub child have distinct owners; this class joins them without implementing Human generation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No PID-only termination, model fallback or successful stub output replaces unavailable generation.
- * @evidence contracts/common.md#meaningful-documentation Documents isolated ownership, bounded waits, cleanup uncertainty and the current child stub.
+ * @evidence contracts/common.md#clear-and-simple-design HTTP transport, blocking OS lifecycle work and the Chrome-owning child have distinct owners; this class joins them without generating or rendering itself.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No PID-only termination, model fallback or synthetic output replaces a failed child command.
+ * @evidence contracts/common.md#meaningful-documentation Documents isolated ownership, Chrome exit with its child, bounded waits and cleanup uncertainty.
  * @evidence contracts/performance.md#efficient-algorithms Lifecycle messages avoid geometry-object IPC; publication reads/hash scale with the declared maximum 256 MiB and native process checks run in the lifecycle thread.
  * @evidence contracts/performance.md#reuse-equivalent-work One owner shares startup and sticky close promises; child failures cannot silently acquire another child.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Each instance owns at most one lifecycle thread, child and temporary directory; remote observers are capped at two, child commands at one, and cleanup failure retains ownership rather than claiming release.
@@ -55,7 +56,7 @@ export class HumanImageProcess {
    *
    * @evidence contracts/common.md#principled-implementation Main-thread calls request lifecycle startup; that thread creates one temporary directory and original child, captures ownership and awaits IPC readiness.
    * @evidence contracts/common.md#clear-and-simple-design The starting promise keeps concurrent callers on the same acquisition path.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Readiness establishes transport only; the current child still rejects all generation and rendering commands.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Readiness means the child has Chrome on /human.html and its IPC listener; it does not prove that a later generation or render succeeds.
    * @evidence contracts/common.md#meaningful-documentation Documents shared failure and the distinction between readiness and implemented generation.
    * @evidence contracts/performance.md#efficient-algorithms One thread/child startup and native ownership query dominate fixed-size control messages.
    * @evidence contracts/performance.md#reuse-equivalent-work starting retains the first startup promise, so repeated calls do not spawn replacement workers.
@@ -81,7 +82,7 @@ export class HumanImageProcess {
    *
    * @evidence contracts/common.md#principled-implementation Closed state gates the main-thread remote status or the child connection/readiness fields.
    * @evidence contracts/common.md#clear-and-simple-design Session lease checks borrow this owner's lifecycle observation rather than inspecting a PID.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts An active connection does not prove model admission or override the current child's unimplemented replies.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts An active connection does not prove model admission or a successful page command.
    * @evidence contracts/common.md#meaningful-documentation Distinguishes observed transport liveness from supported generation.
    * @evidence contracts/performance.md#efficient-algorithms Fixed field reads perform no OS discovery or allocation.
    * @evidence contracts/performance.md#reuse-equivalent-work The main thread reuses lifecycle messages; this is not an independent current OS liveness probe.
@@ -95,12 +96,12 @@ export class HumanImageProcess {
         : this.child?.connected === true && this.ready === undefined)
     );
   }
-  /** Send a command over the owned transport; the current child rejects model work.
+  /** Send a command over the owned transport; the child generates or renders in its Chrome page.
    *
    * @evidence contracts/common.md#principled-implementation Sequence IDs match replies to one child command, with transport/closed checks before send; source/input admission belongs to the session, not this generic record transport.
    * @evidence contracts/common.md#clear-and-simple-design Main-thread requests cross the lifecycle worker while the original child and its IPC listeners stay owned there.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Worker errors reject rather than fabricate model or PNG output; arbitrary command records are not asserted to be validated Human parameters.
-   * @evidence contracts/common.md#meaningful-documentation States transport ownership and the current unavailable model operations.
+   * @evidence contracts/common.md#meaningful-documentation States transport ownership and the generate/render commands the child serves.
    * @evidence contracts/performance.md#efficient-algorithms Structured-clone cost scales with command/reply bytes; intended geometry transport uses a file, although this generic method imposes no payload byte cap.
    * @evidence contracts/performance.md#reuse-equivalent-work Effectful commands are not deduplicated; each sequence owns its own reply and deadline.
    * @evidence contracts/performance.md#bound-retention-and-release-resources At most one child command and two remote observers are pending; reply/failure clears timers, command timeout requests close, and remote timeout reports uncertainty without abandoning native ownership.
@@ -136,7 +137,7 @@ export class HumanImageProcess {
    *
    * @evidence contracts/common.md#principled-implementation The record must name this instance's publication file with a positive declared size at most 256 MiB; actual bytes and asynchronous SHA must match.
    * @evidence contracts/common.md#clear-and-simple-design File publication avoids transferring a parsed geometry graph over IPC.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A path, size or SHA mismatch rejects; the current stub produces no valid publication to substitute.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A path, size or SHA mismatch rejects; no earlier publication substitutes for a failed one.
    * @evidence contracts/common.md#meaningful-documentation Documents owned-path admission and exact byte/hash verification.
    * @evidence contracts/performance.md#efficient-algorithms One asynchronous file read and SHA pass cost O(B) bytes; the declared cap is checked before read, but an unexpectedly larger on-disk file is allocated before length rejection.
    * @evidence contracts/performance.md#reuse-equivalent-work Each read verifies current bytes; the session owns reuse of a successfully verified publication.

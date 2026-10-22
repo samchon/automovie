@@ -1,12 +1,20 @@
-/** Mount the existing Human page and expose its typed generated-result consumer.
- * loadGenerated accepts IAutoMovieHumanGenerated and displays its actual model
- * and parameters. Generation and untrusted JSON admission remain unimplemented;
- * failures are displayed rather than replaced by old models or PNGs.
+import type { IHumanViewerPage } from "./human/IHumanViewerPage";
+
+/**
+ * Mount the single Human page and generate the requested input.
  *
+ * `?alias=f1` generates from the typed module `src/human-parameters/f1.ts`
+ * directly; `?document=<url>` fetches JSON and generates only when it equals a
+ * registered typed example (see `admitHumanParameters`). With neither, the page
+ * waits for the alias selector or `window.__automovieHuman`, which the PNG
+ * worker's headless Chrome drives. After a load, `?camera=`, `?pass=` and
+ * `?curves=` restore the view; failures stay on the status line.
  */
 async function bootstrapHumanPage(): Promise<void> {
   const root: HTMLElement | null = document.getElementById("app");
-  if (root === null) throw new Error("Human editor root is missing");
+  if (root === null) throw new Error("Human page root is missing");
+
+  // pagehide aborts the optional fetch and disposes the page once mounted.
   const transport: AbortController = new AbortController();
   let disposed: boolean = false;
   let release: () => Promise<void> = (): Promise<void> => Promise.resolve();
@@ -19,57 +27,60 @@ async function bootstrapHumanPage(): Promise<void> {
     },
     { once: true },
   );
-  const query: URLSearchParams = new URL(location.href).searchParams;
+
   const owner: typeof import("./human/mountHumanViewerPage") =
     await import("./human/mountHumanViewerPage");
   if (disposed) return;
-  const page: ReturnType<typeof owner.mountHumanViewerPage> =
-    owner.mountHumanViewerPage(root);
+  const page: IHumanViewerPage = owner.mountHumanViewerPage(root);
   release = (): Promise<void> => page.dispose();
   Object.assign(window, { __automovieHuman: page });
+
+  const query: URLSearchParams = new URL(location.href).searchParams;
   const alias: string | null = query.get("alias");
-  const source: string | null =
-    query.get("document") ??
-    (alias === null
-      ? null
-      : "/human-images/" + encodeURIComponent(alias) + ".json");
-  if (source !== null) {
-    const status: HTMLElement | null = root.querySelector("#human-status");
-    if (status !== null) {
-      status.textContent = "입력 JSON을 불러오고 있습니다: " + source;
-      status.dataset.kind = "busy";
-    }
+  const source: string | null = query.get("document");
+  if (alias !== null && source !== null)
+    throw new Error("Choose either ?alias or ?document, not both");
+  if (alias !== null) await page.loadAlias(alias);
+  else if (source !== null) {
     const response: Response = await fetch(source, {
       signal: transport.signal,
     });
     if (!response.ok)
-      throw new Error("Human document transport failed: " + response.status);
-    const document: unknown = await response.json();
+      throw new Error(
+        "Human document transport failed: " + source + " " + response.status,
+      );
+    const candidate: unknown = await response.json();
     if (disposed) return;
-    const outcome: Awaited<ReturnType<typeof page.load>> =
-      await page.load(document);
-    if (!outcome.accepted) throw new Error(outcome.cause);
-  }
+    await page.load(candidate);
+  } else return;
+
+  // The view variables were read before the load rewrote the URL.
+  const view: string | null = query.get("camera");
+  const pass: string | null = query.get("pass");
+  const curves: string | null = query.get("curves");
+  if (view !== null) page.setCamera(view);
+  if (pass !== null) page.setPass(pass as IHumanViewerPage.Pass);
+  if (curves !== null) page.setCurves(curves);
 }
 
 void bootstrapHumanPage().catch((error: unknown): void => {
+  // The page already reports its own load failures; this covers mount and transport.
   console.error(error);
   const message: string =
     error instanceof Error ? error.message : String(error);
+  const status: HTMLElement | null = document.getElementById("human-status");
+  if (status !== null) {
+    if (status.dataset.kind !== "error") {
+      status.textContent = message;
+      status.dataset.kind = "error";
+    }
+    return;
+  }
   const root: HTMLElement | null = document.getElementById("app");
-  const status: HTMLElement | null | undefined =
-    root?.querySelector("#human-status");
-  if (status !== null && status !== undefined) {
-    status.textContent = message;
-    status.dataset.kind = "error";
-  } else if (root !== null) {
+  if (root !== null) {
     const failure: HTMLParagraphElement = document.createElement("p");
     failure.setAttribute("role", "alert");
     failure.textContent = "Human 뷰어 초기화 실패: " + message;
     root.replaceChildren(failure);
   }
-  const empty: HTMLElement | null | undefined = root?.querySelector(
-    "#human-empty-detail",
-  );
-  if (empty !== null && empty !== undefined) empty.textContent = message;
 });

@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
+import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 
 /**
  * Shared shape coefficients (theta) of the generated body surface.

@@ -39,7 +39,7 @@ export class HumanImageSourceIdentity {
     return digest.digest("hex");
   }
 
-  /** Hash sorted .ts/.json paths and bytes across five package src trees plus runtime files.
+  /** Hash sorted .ts/.json paths and bytes across five package src trees, the Human page modules and runtime files.
    * The inventory includes unused files and absolute paths, so relocation or unrelated source edits invalidate it.
    *
    * @evidence contracts/common.md#principled-implementation Recursive regular-file enumeration and deterministic lexical sorting feed path strings and exact bytes to SHA-256, with read errors propagated.
@@ -53,31 +53,54 @@ export class HumanImageSourceIdentity {
   public static async source(root: string): Promise<string> {
     const digest: ReturnType<typeof createHash> = createHash("sha256");
     const names: string[] = [];
+    // Sibling directories are listed concurrently; order is restored by the sort below.
     const visit: (directory: string) => Promise<void> = async (
       directory: string,
     ): Promise<void> => {
+      const nested: Promise<void>[] = [];
       for (const entry of await fs.readdir(directory, {
         withFileTypes: true,
       })) {
         const name: string = path.join(directory, entry.name);
-        if (entry.isDirectory()) await visit(name);
+        if (entry.isDirectory()) nested.push(visit(name));
         else if (entry.isFile() && /\.(?:ts|json)$/.test(entry.name))
           names.push(name);
       }
+      await Promise.all(nested);
     };
-    for (const pack of ["human", "viewer", "engine", "interface", "recovery"])
-      await visit(path.join(root, "packages", pack, "src"));
+    await Promise.all([
+      ...["human", "viewer", "engine", "interface", "recovery"].map(
+        (pack: string): Promise<void> =>
+          visit(path.join(root, "packages", pack, "src")),
+      ),
+
+      // The worker renders through the Human page, so its modules join the key.
+      ...["human", "human-parameters"].map(
+        (directory: string): Promise<void> =>
+          visit(path.join(root, "packages/playground/src", directory)),
+      ),
+    ]);
     for (const name of [
+      "packages/playground/human.html",
+      "packages/playground/src/human-view.ts",
       "pnpm-lock.yaml",
       "packages/playground/vite.config.ts",
       ...HumanImageSourceIdentity.runtime(),
     ])
       names.push(path.join(root, name));
-    for (const name of names.sort((a: string, b: string): number =>
-      a < b ? -1 : a > b ? 1 : 0,
-    )) {
-      digest.update(name);
-      digest.update(await fs.readFile(name));
+    names.sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0));
+
+    // Sequential awaits cost about 2.5 s for ~3,000 files on Windows, so reads
+    // run in windows of 64 while the digest still consumes them in sorted order.
+    for (let start: number = 0; start < names.length; start += 64) {
+      const window: string[] = names.slice(start, start + 64);
+      const contents: Buffer[] = await Promise.all(
+        window.map((name: string): Promise<Buffer> => fs.readFile(name)),
+      );
+      window.forEach((name: string, index: number): void => {
+        digest.update(name);
+        digest.update(contents[index]!);
+      });
     }
     return digest.digest("hex");
   }
