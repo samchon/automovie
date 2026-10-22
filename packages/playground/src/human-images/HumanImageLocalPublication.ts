@@ -12,7 +12,7 @@ import path from "node:path";
  * @evidence contracts/common.md#clear-and-simple-design This owner only preserves existing response bytes; the session remains the sole renderer.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No screenshot, rendering, UTC rewriting or source fallback creates report files.
  * @evidence contracts/common.md#meaningful-documentation States report location, original capture meaning, explicit retention and failure behavior.
- * @evidence contracts/performance.md#efficient-algorithms Asynchronous hashing and file IO are linear in the bounded PNG and receipt sizes, without geometry loading.
+ * @evidence contracts/performance.md#efficient-algorithms Hashing and file IO scale with supplied PNG/receipt and actual existing-file bytes, without geometry loading; admitted size limits are not peak-allocation bounds.
  * @evidence contracts/performance.md#reuse-equivalent-work Immutable capture identity reuses matching published bytes; conflicting bytes and unsafe paths fail explicitly.
  * @evidence contracts/performance.md#bound-retention-and-release-resources No memory cache is retained; temporary files are removed on every exit. Report evidence grows with distinct captures and has no automatic disk eviction.
  */
@@ -20,6 +20,14 @@ export class HumanImageLocalPublication {
   /** Save an existing PNG and exact receipt; return paths only after both exist.
    * A save failure rejects the response instead of exposing a nonexistent file.
    * The receipt's capturedUtc remains the rendering time; savedUtc is separate.
+   *
+   * @evidence contracts/common.md#principled-implementation PNG signature, SHA and producer fields qualify the capture; complete temporary files are linked without overwriting existing destinations and sidecars are checked against stable commitments.
+   * @evidence contracts/common.md#clear-and-simple-design This optional preservation API writes existing bytes under playground/.shots; the current HTTP plugin does not call it.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The API performs no rendering and preserves capturedUtc separately from save time; supplied receipts remain caller-provided commitments, not independently authenticated provenance.
+   * @evidence contracts/common.md#meaningful-documentation Documents returned paths, rejection on save failure, original capture time and the current absence of automatic HTTP wiring.
+   * @evidence contracts/performance.md#efficient-algorithms Hashing and IO scale with actual bytes: supplied PNGs admit at most 32 MiB and new serialized metadata four MiB, while existing files have a 32 MiB pre-stat check that cannot prevent growth before full read; metadata serialization also allocates before its size check.
+   * @evidence contracts/performance.md#reuse-equivalent-work The capture key/frame/nonce/time/PNG hash tuple chooses stable paths; matching files are reused and conflicting PNG or producer commitments reject.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary files are removed in finally and async file operations close their handles; distinct captures accumulate on disk without eviction, including a possible PNG retained after a later sidecar failure.
    */
   public static async save(
     repository: string,
