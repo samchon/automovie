@@ -2,13 +2,6 @@ import type { IAutoMovieHumanParameters } from "../../../human/src/structures/IA
 
 /** Authored f2 example in the Human parameter units; null measurements remain unknown.
  *
- * @evidence contracts/common.md#principled-implementation The literal preserves the published example fields and values and satisfies the existing generator input types.
- * @evidence contracts/common.md#clear-and-simple-design One abbreviated example is owned by one typed module.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No generated shape, per-person control-point table or source fallback is embedded here.
- * @evidence contracts/common.md#meaningful-documentation States that this is an authored parameter example and retains the existing null and unit semantics.
- * @evidence contracts/performance.md#efficient-algorithms The literal is allocated once when Vite loads its module; no geometry is generated.
- * @evidence contracts/performance.md#reuse-equivalent-work Both parameter JSON routes serialize this typed example through HumanImageRegistry without an independent JSON copy.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Vite owns module retention; the literal owns no external handles or files.
  */
 export const f2: IAutoMovieHumanParameters = {
   body: {

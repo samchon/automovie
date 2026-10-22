@@ -3,13 +3,6 @@
  * and parameters. Generation and untrusted JSON admission remain unimplemented;
  * failures are displayed rather than replaced by old models or PNGs.
  *
- * @evidence contracts/common.md#principled-implementation The existing page owns typed result consumption; optional JSON is inspected without asserting runtime admission.
- * @evidence contracts/common.md#clear-and-simple-design This entry owns only page mounting, optional JSON transport and pagehide disposal.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No default specimen, recovered mesh, unchecked generated-result cast or implicit input conversion is supplied.
- * @evidence contracts/common.md#meaningful-documentation States typed result consumption and unavailable generation/JSON admission.
- * @evidence contracts/performance.md#efficient-algorithms One optional JSON fetch feeds inspection; actual model display belongs to the existing page/viewer.
- * @evidence contracts/performance.md#reuse-equivalent-work The entry mounts one page and adds no generator or image cache.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Pagehide aborts optional transport and joins page disposal of its owned scene resources.
  */
 async function bootstrapHumanPage(): Promise<void> {
   const root: HTMLElement | null = document.getElementById("app");

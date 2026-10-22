@@ -27,10 +27,17 @@ export class HumanImageArchive {
   private retainedBytes: number = 0;
   private closed: boolean = false;
 
-  /** Verify historical HTTP artifacts without modifying files or claiming a new audit.
-   * The audit schema still requires all four people front/back. The distinct
-   * mixed-retention schema restores one to sixteen exact original captures;
-   * it proves no complete round or fresh rendering, regardless of entry count.
+  /** Verify an eight-frame audit or one to sixteen historical captures before admission.
+   * Paths must stay beside the manifest. Captured times and producer records remain original.
+   * Failure before commit leaves the archive unchanged; publication does not prove current-source fit.
+   *
+   * @evidence contracts/common.md#principled-implementation Member size, SHA-256, regular-file boundary and producer commitments are checked before FIFO admission; strict audits additionally require four aliases front/back.
+   * @evidence contracts/common.md#clear-and-simple-design Import prepares the whole manifest before the same commit path used by live publication.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Mixed retention preserves historical qualification and never substitutes for complete audit coverage or new rendering.
+   * @evidence contracts/common.md#meaningful-documentation Documents accepted populations, path confinement, original timestamps and precommit failure effects.
+   * @evidence contracts/performance.md#efficient-algorithms Work scales with actual file bytes read for at most sixteen PNG/event pairs plus initial and final manifest reads; declared member caps precede reads, but actual sizes are checked only after full allocation.
+   * @evidence contracts/performance.md#reuse-equivalent-work Exact capture IDs reuse retained entries; each import still verifies current file bytes rather than trusting paths or timestamps.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Accepted prepared PNG/receipt buffers and retained archive each have a 64 MiB budget, not a peak-allocation bound; manifests and invalid or concurrently enlarged files can allocate more before rejection. Local buffers expire after return or failure; FIFO retains at most sixteen entries.
    */
   public async import(filename: string): Promise<void> {
     const original: Buffer = await fs.readFile(filename);
@@ -149,7 +156,16 @@ export class HumanImageArchive {
     }
   }
 
-  /** Publish one successful fresh response using its exact original log record. */
+  /** Admit a producer PNG and receipt, returning its historical archive URL.
+   *
+   * @evidence contracts/common.md#principled-implementation Qualification verifies PNG bytes, SHA commitments, frame, key, nonce and original capture time before deriving a capture ID.
+   * @evidence contracts/common.md#clear-and-simple-design Live responses use the same qualification and bounded commit path as imports.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A cache-hit event is refused; no rendering or timestamp rewriting creates an archive entry.
+   * @evidence contracts/common.md#meaningful-documentation States producer admission and the historical meaning of the returned URL.
+   * @evidence contracts/performance.md#efficient-algorithms Hashing and receipt serialization scale with supplied bytes; eviction visits at most sixteen entries and performs no GPU work.
+   * @evidence contracts/performance.md#reuse-equivalent-work The exact key/frame/nonce/time/PNG hash tuple identifies duplicate captures for no-op commits.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The archive borrows the PNG buffer, owns its receipt buffer and retains at most sixteen entries within 64 MiB until FIFO eviction or close; callers must not mutate borrowed bytes.
+   */
   public publish(
     originalUrl: string,
     png: Buffer,
@@ -165,7 +181,16 @@ export class HumanImageArchive {
     return entry.summary.url!;
   }
 
-  /** Return retained historical bytes; a miss never invokes the generator. */
+  /** Borrow retained PNG, receipt and summary references; callers must not mutate them.
+   *
+   * @evidence contracts/common.md#principled-implementation A capture-ID Map lookup returns the admitted entry or undefined without consulting current inputs.
+   * @evidence contracts/common.md#clear-and-simple-design HTTP delivery borrows the archive entry directly; generation stays outside this owner.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A miss never renders replacement pixels or changes capture identity.
+   * @evidence contracts/common.md#meaningful-documentation Documents borrowed references, caller immutability and absence semantics.
+   * @evidence contracts/performance.md#efficient-algorithms Expected constant-time lookup allocates no PNG or receipt copy.
+   * @evidence contracts/performance.md#reuse-equivalent-work Repeated IDs share exactly the retained bytes and original receipt.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources This lookup adds no archive entry or handle; caller-held references can outlive archive eviction and are outside its memory budget.
+   */
   public read(
     id: string,
   ):
@@ -174,7 +199,17 @@ export class HumanImageArchive {
     return this.entries.get(id);
   }
 
-  /** Find an exact original path/nonce capture independent of current parameters. */
+  /** Borrow the newest retained entry matching an original URL path and fresh nonce.
+   * URL origins and other query fields do not select capture identity.
+   *
+   * @evidence contracts/common.md#principled-implementation Reverse insertion-order search compares normalized pathname and fresh nonce against qualified producer URLs.
+   * @evidence contracts/common.md#clear-and-simple-design Original request lookup and immutable capture-ID lookup share the same retained entries.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Lookup returns historical bytes only and cannot establish current-source equivalence.
+   * @evidence contracts/common.md#meaningful-documentation States newest-match order, path/nonce matching and the ignored URL components.
+   * @evidence contracts/performance.md#efficient-algorithms Search and its temporary reference array are linear in the archive's maximum sixteen entries.
+   * @evidence contracts/performance.md#reuse-equivalent-work Matching requests borrow the existing entry rather than duplicating PNGs or rendering.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary URL objects and references expire after lookup; caller-held entry references remain outside the archive's retention bound.
+   */
   public find(
     originalUrl: string,
   ):
@@ -193,7 +228,16 @@ export class HumanImageArchive {
       });
   }
 
-  /** List the bounded historical publications without claiming current-source fit. */
+  /** List historical summaries in admission order; summary objects remain borrowed.
+   *
+   * @evidence contracts/common.md#principled-implementation Map insertion order yields the summaries of currently retained capture IDs.
+   * @evidence contracts/common.md#clear-and-simple-design The index exposes delivery metadata without reading files or generating models.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Historical summaries do not assert current-source fit or a fresh audit round.
+   * @evidence contracts/common.md#meaningful-documentation Documents historical qualification, ordering and borrowed summary ownership.
+   * @evidence contracts/performance.md#efficient-algorithms Listing allocates one reference array of at most sixteen summaries, without copying PNGs.
+   * @evidence contracts/performance.md#reuse-equivalent-work Index entries refer to the same admitted capture records used by delivery.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned array is new; its caller owns its lifetime and must not mutate shared summary objects.
+   */
   public index(): readonly Record<string, string>[] {
     return [...this.entries.values()].map(
       (
@@ -202,7 +246,16 @@ export class HumanImageArchive {
     );
   }
 
-  /** Drop owned buffers when the hosting server closes. */
+  /** Close admission and release archive references when the hosting server closes.
+   *
+   * @evidence contracts/common.md#principled-implementation The closed flag rejects later commits and Map clearing releases the archive's retained entries.
+   * @evidence contracts/common.md#clear-and-simple-design One synchronous close owns archive retirement without affecting generator or HTTP ownership.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Closing neither deletes original files nor claims external borrowed buffers were reclaimed.
+   * @evidence contracts/common.md#meaningful-documentation States admission closure and the scope of released references.
+   * @evidence contracts/performance.md#efficient-algorithms Clearing at most sixteen entries requires no file scan or native operation.
+   * @evidence contracts/performance.md#reuse-equivalent-work Repeated close calls leave the same empty, closed archive.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The archive drops all PNG/receipt references and resets accounting; previously returned references remain caller-owned.
+   */
   public close(): void {
     this.closed = true;
     this.entries.clear();
@@ -327,15 +380,7 @@ export class HumanImageArchive {
   }
 }
 
-/** Compute the exact SHA-256 commitment of retained publication bytes.
- * @evidence contracts/common.md#principled-implementation Uses Node SHA-256 over the supplied exact Buffer bytes.
- * @evidence contracts/common.md#clear-and-simple-design One digest helper binds imported and retained artifacts.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Neither filename nor timestamps substitute for content identity.
- * @evidence contracts/common.md#meaningful-documentation States the exact byte commitment and algorithm.
- * @evidence contracts/performance.md#efficient-algorithms Hashing is linear in the bounded artifact bytes.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each caller establishes a distinct content commitment; retention belongs to the archive.
- * @evidence contracts/performance.md#bound-retention-and-release-resources One local hash handle is finalized synchronously and retains no application cache.
- */
+/** Compute SHA-256 over exact bytes; the synchronous hash retains no cache. */
 function digest(bytes: Buffer): string {
   return createHash("sha256").update(bytes).digest("hex");
 }

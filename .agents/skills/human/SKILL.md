@@ -11,7 +11,7 @@ During authorized modeling, keep the single web viewer and screenshot server run
 
 ## Rules
 
-- Reproduce observed specimens before identifying common parameter laws or claiming prediction.
+- Validate specimen reproduction before accepting common parameter laws or claiming prediction.
 - Preserve original curve authority and [representation contracts](references.md#extract-and-save).
 - Use one common skeleton/boundary owner and one shared execution owner.
 - Reject specimen copies, person-indexed control tables, source mesh/normal fallback and arbitrary coordinate corrections.
@@ -19,10 +19,16 @@ During authorized modeling, keep the single web viewer and screenshot server run
 
 ## Workflow
 
-1. Bind the current Human input/output contract, achieved inputs and [reference curves](references.md).
+- Design and identify shared q/theta against all four references from the start; develop regions in parallel with early root integration.
+- First establish f1 through public generation → actual model → viewer; this checks the execution path, not completed anatomy or four-person acceptance.
+- As soon as that path works, expand to all four and correct common causes in complete rounds; never perfect f1 before moving on, use person-specific tables or relax the [eight-image audit](verification.md#audit-and-user-reports). Report unavailable early captures as failed or unverified.
+
+1. Bind the current Human contract, [Playground parameter authority](screenshot.md#parameters-and-aliases), achieved inputs and [reference curves](references.md).
 2. Identify body features, source-backed axes, frames and principal layers under [Reverse Analysis](reverse-analysis.md) and [Anatomy](anatomy.md).
 3. Solve intermediate axes/curves from endpoint, tangent, shape and continuity conditions; recurse into both child intervals.
 4. Integrate one authority for skin, construction and neighbors under [Construction](construction.md).
 5. Inspect actual root consumption and rendered reproduction under [Verification](verification.md); qualify common input responses separately.
 
 Use available observations immediately. [Additional references](references.md#add-or-resume-a-reference) are already authorized when needed; acquisition must not become an implementation delay.
+
+The [Human campaign](https://github.com/samchon/automovie/issues/2925) owns modeling; [reference supply](https://github.com/samchon/automovie/issues/2926) owns `test/.shots/{f1,f2,m1,m2}/` and its manifest.
