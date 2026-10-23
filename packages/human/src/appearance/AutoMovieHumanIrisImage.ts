@@ -27,12 +27,12 @@ import { AutoMovieHumanEyeball } from "./AutoMovieHumanEyeball";
  *
  * Determinism: fixed integer seeds per field, independent of person and
  * side; the two eyes rotate the one image differently instead of storing
- * two. Cost: 256 x 256 RGB, 192 KiB raw, a stored-block PNG of the same
+ * two. Cost: 512 x 512 RGB, 768 KiB raw, a stored-block PNG of the same
  * size plus base64's third.
  */
 export namespace AutoMovieHumanIrisImage {
-  /** Edge length in pixels: about 22 pixels per millimetre of iris. */
-  export const size: number = 256;
+  /** Edge length in pixels: about 44 pixels per millimetre of iris. */
+  export const size: number = 512;
 
   /**
    * Generate the iris image of one colour choice.
@@ -45,7 +45,8 @@ export namespace AutoMovieHumanIrisImage {
     const stroma: number[] = linear(palette.stroma);
     const fibre: number[] = linear(palette.fibre);
     const inner: number[] = linear(palette.inner);
-    const pupil: number = AutoMovieHumanEyeball.dimensions.pupilRadius /
+    const pupil: number =
+      AutoMovieHumanEyeball.dimensions.pupilRadius /
       AutoMovieHumanEyeball.dimensions.limbusRadius;
 
     const pixels: Uint8Array = new Uint8Array(size * size * 3);
@@ -190,8 +191,7 @@ function shade(
   // Zone colour: pupillary pigment inside the collarette, stroma outside.
   const outer: number = N.smoothstep(collarette - 0.03, collarette + 0.03, t);
   const ridge: number = Math.exp(-(((t - collarette) / 0.02) ** 2));
-  const fibreWeight: number =
-    0.12 + 0.5 * fine ** 2 * broken + 0.3 * ridge;
+  const fibreWeight: number = 0.12 + 0.5 * fine ** 2 * broken + 0.3 * ridge;
 
   // Limbal ring, the pupillary ruff and the pupil itself.
   const limbal: number = N.smoothstep(0.8, 1.0, t);

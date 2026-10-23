@@ -58,7 +58,7 @@ export namespace AutoMovieHumanScleraImage {
         (0.45 + 0.4 * N.hash(72, k)) * height,
         (N.hash(75, k) - 0.5) * 0.6,
         1.1 + 0.9 * N.hash(73, k),
-        0.22 + 0.25 * N.hash(74, k),
+        0.1 + 0.14 * N.hash(74, k),
         k * 97 + 1,
       ]);
     }
@@ -74,7 +74,7 @@ export namespace AutoMovieHumanScleraImage {
       const seed: number = walk[5];
       for (
         let step: number = 0;
-        step < 400 && v > 0.06 * height && size > 0.25;
+        step < 400 && v > 0.14 * height && size > 0.25;
         ++step
       ) {
         splat(cover, u, v, size, opacity);
@@ -115,7 +115,7 @@ export namespace AutoMovieHumanScleraImage {
 
     // Composite a deep red vessel colour over white; the base sclera tint
     // comes from the vertex colours this image multiplies.
-    const red: [number, number, number] = [176, 52, 50];
+    const red: [number, number, number] = [188, 86, 80];
     const pixels: Uint8Array = new Uint8Array(width * height * 3);
     for (let i: number = 0; i < width * height; ++i) {
       const a: number = Math.min(1, cover[i]!);

@@ -5,10 +5,19 @@ import type {
   IAutoMovieModelPart,
 } from "@automovie/interface";
 
+import { AutoMovieHumanBodyApertures } from "../generation/AutoMovieHumanBodyApertures";
+import { AutoMovieHumanBodyCalibration } from "../generation/AutoMovieHumanBodyCalibration";
+import type { AutoMovieHumanEyelid } from "../generation/AutoMovieHumanEyelid";
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
+import type { IAutoMovieHumanBrowAppearance } from "../structures/appearance/IAutoMovieHumanBrowAppearance";
+import type { IAutoMovieHumanEyelash } from "../structures/appearance/IAutoMovieHumanEyelash";
 import type { IAutoMovieHumanScalpHair } from "../structures/appearance/IAutoMovieHumanScalpHair";
 import { AutoMovieHumanIrisColor } from "../typings/AutoMovieHumanIrisColor";
+import { AutoMovieHumanConjunctiva } from "./AutoMovieHumanConjunctiva";
 import { AutoMovieHumanEyeball } from "./AutoMovieHumanEyeball";
+import { AutoMovieHumanEyebrow } from "./AutoMovieHumanEyebrow";
+import { AutoMovieHumanEyelash } from "./AutoMovieHumanEyelash";
+import { AutoMovieHumanGarment } from "./AutoMovieHumanGarment";
 import { AutoMovieHumanHairCard } from "./AutoMovieHumanHairCard";
 import { AutoMovieHumanHairGuide } from "./AutoMovieHumanHairGuide";
 import { AutoMovieHumanHairImage } from "./AutoMovieHumanHairImage";
@@ -26,11 +35,16 @@ import type { IAutoMovieHumanAppearanceBody } from "./IAutoMovieHumanAppearanceB
  * frames; no image or mesh data is stored. Part ids:
  *
  * - `human.eye.<side>.sclera`, `human.eye.<side>.iris`,
- *   `human.eye.<side>.cornea` for `side` in `left`, `right`;
+ *   `human.eye.<side>.cornea`, `human.eye.<side>.caruncle` and
+ *   `human.eye.<side>.meniscus` for `side` in `left`, `right`;
+ * - `human.hair.lashes.<side>` and `human.hair.brows.<side>`, when lashes
+ *   and brows are requested;
  * - `human.hair.scalp` (opaque undercoat) and `human.hair.cards` (all
- *   scalp hair cards), when scalp hair is requested.
+ *   scalp hair cards), when scalp hair is requested;
+ * - `human.garment.<id>` for each requested underwear garment, see
+ *   `AutoMovieHumanGarment`.
  *
- * Material ids start with `human.eye.` or `human.hair.`; image ids are
+ * Material ids start with `human.eye.`, `human.hair.` or `human.garment.`; image ids are
  * `human.eye.iris.<color>`, `human.eye.sclera.vessels` and `human.hair.strands`. None of these collide
  * with the body's `human.skin.` and `human.construction.` namespaces, so
  * the outputs concatenate onto the body model's lists unchanged.
@@ -40,8 +54,16 @@ import type { IAutoMovieHumanAppearanceBody } from "./IAutoMovieHumanAppearanceB
  * adults worldwide (a population convention for an unspecified input, not
  * an inference about the person). `appearance.hair` (style, colour,
  * length, curl, hairline) shapes scalp hair; omitted appearance or zero
- * length emits none. Brows, lashes, skin finish and underwear are not yet
- * consumed.
+ * length emits none. `appearance.lashPair` (colour, length) and
+ * `appearance.browPair` (colour) dress each eye; omitted appearance emits
+ * none. Skin colour and finish belong to `AutoMovieHumanSkin`, which
+ * dresses the body's own skin parts. `appearance.underwear` dresses the
+ * generated skin in tight garments; omitted appearance emits none.
+ *
+ * The eye parts rest on the lid margins the body generator cut
+ * (`AutoMovieHumanBodyApertures`), evaluated here again from the same
+ * calibration and scaled by the same stature factor, so lids, lashes and
+ * globe meet.
  */
 export namespace AutoMovieHumanAppearance {
   /** Appearance outputs to append to the body model. */
@@ -70,9 +92,31 @@ export namespace AutoMovieHumanAppearance {
     const iris: AutoMovieHumanIrisColor =
       params.pigmentation?.iris ?? AutoMovieHumanIrisColor.Brown;
     const image: IAutoMovieImage = AutoMovieHumanIrisImage.generate(iris);
+    const sclera: IAutoMovieImage = AutoMovieHumanScleraImage.generate();
+    const materials: IAutoMovieMaterial[] = [
+      ...AutoMovieHumanEyeball.materials(image.id, sclera.id),
+      ...AutoMovieHumanConjunctiva.materials(),
+    ];
+    const images: IAutoMovieImage[] = [image, sclera];
+
+    // Lid margins of both eyes, the ones the body generator cut, in
+    // calibration millimetres; the body is that calibration scaled
+    // uniformly by stature into model metres.
+    const stature: number = AutoMovieHumanBodyCalibration.stature;
+    const scale: number =
+      (params.body.controls.height.value ?? stature) / stature / 1000;
+    const lids: Map<string, AutoMovieHumanEyelid.ILid> = new Map();
+    for (const prepared of AutoMovieHumanBodyApertures.prepare(
+      AutoMovieHumanBodyCalibration.apertures,
+      AutoMovieHumanBodyCalibration.eyes,
+    ))
+      if (prepared.lid !== null) lids.set(prepared.lid.name, prepared.lid);
 
     const parts: IAutoMovieModelPart[] = [];
     for (const side of ["left", "right"] as const) {
+      const lid: AutoMovieHumanEyelid.ILid | null =
+        lids.get(`eye.${side}`) ?? null;
+
       // The right eye turns the shared iris image by an irrational-looking
       // fraction of a turn so the two irises do not repeat each other.
       const eye: AutoMovieHumanEyeball.IOutput = AutoMovieHumanEyeball.generate(
@@ -80,6 +124,7 @@ export namespace AutoMovieHumanAppearance {
           eye: body.eyePair[side],
           uvTurn: side === "left" ? 0 : 0.381966,
           mirror: side === "right",
+          lid,
         },
       );
       parts.push(
@@ -87,14 +132,59 @@ export namespace AutoMovieHumanAppearance {
         part(`human.eye.${side}.iris`, "human.eye.iris", eye.iris),
         part(`human.eye.${side}.cornea`, "human.eye.cornea", eye.cornea),
       );
-    }
+      if (lid === null) continue;
 
-    const sclera: IAutoMovieImage = AutoMovieHumanScleraImage.generate();
-    const materials: IAutoMovieMaterial[] = AutoMovieHumanEyeball.materials(
-      image.id,
-      sclera.id,
-    );
-    const images: IAutoMovieImage[] = [image, sclera];
+      // Caruncle and tear meniscus in the opening beside the globe.
+      const wet: AutoMovieHumanConjunctiva.IOutput =
+        AutoMovieHumanConjunctiva.generate(lid, scale);
+      if (finite(wet.caruncle))
+        parts.push(
+          part(
+            `human.eye.${side}.caruncle`,
+            "human.eye.caruncle",
+            wet.caruncle,
+          ),
+        );
+      if (finite(wet.meniscus))
+        parts.push(
+          part(
+            `human.eye.${side}.meniscus`,
+            "human.eye.meniscus",
+            wet.meniscus,
+          ),
+        );
+
+      // Lashes on the lash line, and the brow on the generated skin above.
+      const seed: number = side === "left" ? 0x1a5 : 0x2b7;
+      const lash: IAutoMovieHumanEyelash | undefined =
+        params.appearance?.lashPair[side];
+      const lashes: IAutoMovieMesh | null =
+        lash === undefined
+          ? null
+          : AutoMovieHumanEyelash.generate(lid, lash, scale, seed);
+      if (lash !== undefined && lashes !== null && finite(lashes)) {
+        const material: IAutoMovieMaterial = AutoMovieHumanEyelash.material(
+          lash,
+          side,
+        );
+        parts.push(part(`human.hair.lashes.${side}`, material.id, lashes));
+        materials.push(material);
+      }
+      const brow: IAutoMovieHumanBrowAppearance | undefined =
+        params.appearance?.browPair[side];
+      const brows: IAutoMovieMesh | null =
+        brow === undefined
+          ? null
+          : AutoMovieHumanEyebrow.generate(lid, body.parts, scale, seed + 1);
+      if (brow !== undefined && brows !== null && finite(brows)) {
+        const material: IAutoMovieMaterial = AutoMovieHumanEyebrow.material(
+          brow,
+          side,
+        );
+        parts.push(part(`human.hair.brows.${side}`, material.id, brows));
+        materials.push(material);
+      }
+    }
 
     // Scalp hair: guides on the measured head chart, realised as cards and
     // an undercoat. Omitted appearance or zero length emits none.
@@ -119,6 +209,12 @@ export namespace AutoMovieHumanAppearance {
         images.push(AutoMovieHumanHairImage.generate());
       }
     }
+
+    // Underwear is cut from the generated skin and laid over it.
+    const garment: AutoMovieHumanGarment.IOutput =
+      AutoMovieHumanGarment.generate(params.appearance?.underwear, body.parts);
+    parts.push(...garment.parts);
+    materials.push(...garment.materials);
 
     return { parts, materials, images };
   }
@@ -145,4 +241,19 @@ function part(
     attachedBone: null,
     transform: null,
   };
+}
+
+/**
+ * Whether a generated mesh has only finite positions and normals. A part
+ * with a non-finite coordinate would void the whole model's bounds, so a
+ * degenerate eye-region mesh is left out rather than emitted.
+ *
+ * @param mesh Generated mesh
+ * @returns True when every coordinate is finite
+ */
+function finite(mesh: IAutoMovieMesh): boolean {
+  return (
+    mesh.positions.every(Number.isFinite) &&
+    (mesh.normals === null || mesh.normals.every(Number.isFinite))
+  );
 }

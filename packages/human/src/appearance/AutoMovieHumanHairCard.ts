@@ -13,24 +13,30 @@ import { AutoMovieHumanScalpBoundary } from "./AutoMovieHumanScalpBoundary";
 /**
  * Hair cards and the scalp undercoat, realised from solved guides.
  *
- * Cards: one ribbon per guide, lying in the scalp's tangent plane (its
+ * Cards: one ribbon per guide, lying in the hair mass's tangent plane (its
  * width runs along `heading x outward`), so cards shingle over the head
  * like layered hair instead of standing on edge. Each card samples a
  * quarter-width window of the shared strand image chosen by its root's
- * hash, with v running from root to tip; normals are the chart's outward
- * directions, which shade the hair mass as one volume rather than as flat
- * strips, leaned per card and across its width so bundles still read, and
- * a per-card vertex-colour shade with darker roots breaks the mass into
- * locks. Width tapers to half at the tip. Curl classes
+ * hash. v runs from root to tip, mapped so the image's root band covers
+ * the first 8 mm of the card and its tip band the last 30 mm (at most a
+ * tenth and a fifth of the card), so every card emerges from the
+ * scalp as scattered hairs and ends in tapered points of uneven length
+ * whatever its length. Normals are the guide's mass normals, which shade
+ * the hair as one volume rather than as flat strips, leaned slightly per
+ * card and across its width, and a per-card vertex-colour shade with
+ * darker roots breaks the mass into locks. Width narrows by a quarter
+ * along the card and by a further half over the tip band. Curl classes
  * add an in-plane wave whose amplitude and wavelength grow tighter from
- * class I (straight) to VIII; a class names curve diameter and twist
- * ranges (Callender 2026), not these values, which are conventions of a
- * card representation that cannot show tight coils.
+ * class I (straight) to VIII, with a phase that varies smoothly over the
+ * scalp so neighbouring cards wave together; a class names curve diameter
+ * and twist ranges (Callender 2026), not these values, which are
+ * conventions of a card representation that cannot show tight coils.
  *
- * Undercoat: the hair-bearing chart cells, three millimetres inside the
- * scalp boundary, as an opaque shell half a millimetre above the skin in a
- * darkened hair colour. It stands for the dense hair layer the cards'
- * alpha cut-outs reveal, so skin never shows through the hair mass.
+ * Undercoat: the scalp from three millimetres inside the scalp boundary
+ * up to the vertex, its margin following the boundary as a smooth curve,
+ * as an opaque shell half a millimetre above the skin in a darkened hair
+ * colour. It stands for the dense hair layer the cards' alpha cut-outs
+ * reveal, so skin never shows through the hair mass.
  *
  * All cards form one mesh and one material (one draw), as does the
  * undercoat.
@@ -165,19 +171,42 @@ function cards(
   for (const guide of guides) {
     const base: number = positions.length / 3;
     const n: number = guide.points.length;
+    const length: number = guide.length;
     const window: number =
       Math.floor(AutoMovieHumanAppearanceNoise.hash(8, guide.root) * 4) / 4;
-    const phase: number =
-      2 * Math.PI * AutoMovieHumanAppearanceNoise.hash(9, guide.root);
 
-    // Per-card shade and normal tilt break the mass into bundles: shade is a
-    // linear multiplier in [0.7, 1], tilt leans the card normal sideways by
-    // up to a quarter radian, and each edge leans a further 0.15 outward so
-    // a card shades like a rounded bundle rather than a flat strip.
+    // Wave phase: value noise over the root's chart angles, twelve cells
+    // around the head, so neighbouring cards wave together as one lock
+    // instead of crossing each other, plus a little per card.
+    const r: [number, number, number] = unit(guide.points[0]!);
+    const phase: number =
+      2 *
+      Math.PI *
+      (AutoMovieHumanAppearanceNoise.value2(
+        9,
+        (Math.atan2(r[2], r[0]) / (2 * Math.PI)) * 12,
+        (Math.asin(Math.max(-1, Math.min(1, r[1]))) / Math.PI) * 6,
+        12,
+      ) +
+        0.05 * AutoMovieHumanAppearanceNoise.hash(9, guide.root));
+
+    // Per-card shade and normal tilt break the mass into bundles without
+    // breaking its shading: shade is a linear multiplier in [0.8, 1], tilt
+    // leans the card normal sideways by up to 0.03 radian, and each edge
+    // leans a further 0.03 outward so a card shades like a slightly rounded
+    // bundle. Larger leans give each card its own highlight and the mass
+    // reads as separate planks.
     const shade: number =
-      0.7 + 0.3 * AutoMovieHumanAppearanceNoise.hash(10, guide.root);
+      0.8 + 0.2 * AutoMovieHumanAppearanceNoise.hash(10, guide.root);
     const tilt: number =
-      0.5 * (AutoMovieHumanAppearanceNoise.hash(11, guide.root) - 0.5);
+      0.06 * (AutoMovieHumanAppearanceNoise.hash(11, guide.root) - 0.5);
+
+    // Physical lengths of the image's root and tip bands: 8 mm of root and
+    // 30 mm of tip, each at most a tenth and a fifth of the card, so
+    // ends look alike on every length.
+    const rootSpan: number = Math.min(8, 0.1 * length);
+    const tipSpan: number = Math.min(30, 0.2 * length);
+    const tipStart: number = length - tipSpan;
     let s: number = 0;
 
     for (let i: number = 0; i < n; ++i) {
@@ -186,7 +215,7 @@ function cards(
       if (i > 0) s += distance(p, guide.points[i - 1]!);
 
       // Heading by central differences; the width axis is heading x
-      // outward, tangent to the scalp.
+      // outward, tangent to the hair mass.
       const a: [number, number, number] = guide.points[Math.max(0, i - 1)]!;
       const b: [number, number, number] = guide.points[Math.min(n - 1, i + 1)]!;
       const heading: [number, number, number] = [
@@ -196,8 +225,25 @@ function cards(
       ];
       const side: [number, number, number] = unit(cross(heading, outward));
 
-      const t: number = s / guide.length;
-      const half: number = (width / 2) * (1 - 0.5 * t);
+      const t: number = s / length;
+      const v: number =
+        s < rootSpan
+          ? (AutoMovieHumanHairImage.root * s) / rootSpan
+          : s > tipStart
+            ? AutoMovieHumanHairImage.tip +
+              ((1 - AutoMovieHumanHairImage.tip) * (s - tipStart)) / tipSpan
+            : AutoMovieHumanHairImage.root +
+              ((AutoMovieHumanHairImage.tip - AutoMovieHumanHairImage.root) *
+                (s - rootSpan)) /
+                Math.max(tipStart - rootSpan, 1e-9);
+
+      // Width narrows by a quarter along the length and by a further half
+      // over the tip band, where the image's strands converge into points.
+      const half: number =
+        (width / 2) *
+        (1 - 0.25 * t) *
+        (1 -
+          0.5 * AutoMovieHumanAppearanceNoise.smoothstep(tipStart, length, s));
       const wave: number =
         amplitude *
         Math.sin((2 * Math.PI * s) / wavelength + phase) *
@@ -208,7 +254,7 @@ function cards(
 
       for (const sign of [-1, 1]) {
         const offset: number = wave + sign * half;
-        const lean: number = tilt + sign * 0.15;
+        const lean: number = tilt + sign * 0.03;
         const normal: [number, number, number] = unit([
           outward[0] + side[0] * lean,
           outward[1] + side[1] * lean,
@@ -219,7 +265,7 @@ function cards(
           normals.push(normal[k]!);
           colors.push(tone);
         }
-        uvs.push(window + (sign > 0 ? 0.25 : 0), t);
+        uvs.push(window + (sign > 0 ? 0.25 : 0), v);
       }
     }
 
@@ -236,7 +282,14 @@ function cards(
 }
 
 /**
- * Opaque undercoat over the hair-bearing chart cells.
+ * Opaque undercoat over the hair-bearing scalp.
+ *
+ * A lattice of chart directions, one column per chart azimuth cell and
+ * {@link UNDERCOAT_ROWS} rows from the undercoat's edge up to the vertex,
+ * which closes on one pole vertex. The edge of each column lies exactly at
+ * the elevation where the skin rises 3 mm above the scalp boundary
+ * ({@link edge}), so the shell's margin follows the hairline as a smooth
+ * curve instead of the staircase of whole chart cells.
  *
  * @param field Head chart
  * @param hair Scalp hair input
@@ -247,63 +300,94 @@ function undercoat(
   hair: IAutoMovieHumanScalpHair,
 ): IAutoMovieMesh {
   const NA: number = AutoMovieHumanHeadField.azimuthCells;
-  const NB: number = AutoMovieHumanHeadField.elevationCells;
   const positions: number[] = [];
   const normals: number[] = [];
   const indices: number[] = [];
-
-  // Corner lattice (i, j), emitted on first use so only hair-bearing cells
-  // carry vertices; azimuth index NA is the same corner as 0, so cells
-  // close around the head without a seam.
-  const corners: Map<number, number> = new Map();
-  const corner: (i: number, j: number) => number = (
-    i: number,
-    j: number,
-  ): number => {
-    const key: number = j * NA + (i % NA);
-    const known: number | undefined = corners.get(key);
-    if (known !== undefined) return known;
-    const u: [number, number, number] = AutoMovieHumanHeadField.direction(
-      (i / NA) * 2 * Math.PI,
-      (j / NB) * Math.PI - Math.PI / 2,
-    );
+  const vertex: (u: [number, number, number]) => void = (
+    u: [number, number, number],
+  ): void => {
     const r: number = AutoMovieHumanHeadField.radius(field, u) + 0.5;
     for (let k: number = 0; k < 3; ++k) {
       positions.push((field.centre[k]! + u[k]! * r) / 1000);
       normals.push(u[k]!);
     }
-    corners.set(key, positions.length / 3 - 1);
-    return positions.length / 3 - 1;
   };
 
-  // Cells whose centre bears hair at least 3 mm inside the boundary.
-  for (let j: number = 0; j < NB; ++j)
+  // Rows j = 0 (edge) .. UNDERCOAT_ROWS - 1, column i at index j * NA + i.
+  const edges: number[] = [];
+  for (let i: number = 0; i < NA; ++i)
+    edges.push(edge(field, hair, (i / NA) * 2 * Math.PI));
+  for (let j: number = 0; j < UNDERCOAT_ROWS; ++j)
     for (let i: number = 0; i < NA; ++i) {
-      const alpha: number = ((i + 0.5) / NA) * 2 * Math.PI;
-      const u: [number, number, number] = AutoMovieHumanHeadField.direction(
-        alpha,
-        ((j + 0.5) / NB) * Math.PI - Math.PI / 2,
-      );
-      const r: number = AutoMovieHumanHeadField.radius(field, u);
-      if (r <= 0) continue;
-      const above: number = field.centre[1] + u[1] * r - field.eyeLevel;
-      const boundary: number = AutoMovieHumanScalpBoundary.height(
-        hair.hairline,
-        alpha,
-        field.height,
-      );
-      if (above < boundary + 3) continue;
+      const beta: number =
+        edges[i]! + ((Math.PI / 2 - edges[i]!) * j) / UNDERCOAT_ROWS;
+      vertex(AutoMovieHumanHeadField.direction((i / NA) * 2 * Math.PI, beta));
+    }
+  vertex([0, 1, 0]);
+  const pole: number = positions.length / 3 - 1;
 
-      // Counterclockwise seen from outside: azimuth runs from +X toward +Z
-      // and elevation upward, so (i, j), (i, j + 1), (i + 1, j) faces out.
-      const a: number = corner(i, j);
-      const b: number = corner(i + 1, j);
-      const c: number = corner(i, j + 1);
-      const d: number = corner(i + 1, j + 1);
-      indices.push(a, c, b, b, c, d);
+  // Counterclockwise seen from outside: azimuth runs from +X toward +Z and
+  // elevation upward, so (i, j), (i, j + 1), (i + 1, j) faces out.
+  for (let j: number = 0; j < UNDERCOAT_ROWS; ++j)
+    for (let i: number = 0; i < NA; ++i) {
+      const a: number = j * NA + i;
+      const b: number = j * NA + ((i + 1) % NA);
+      if (j + 1 === UNDERCOAT_ROWS) {
+        indices.push(a, pole, b);
+        continue;
+      }
+      indices.push(a, a + NA, b, b, a + NA, b + NA);
     }
 
   return { positions, normals, uvs: null, indices, skin: null };
+}
+
+/** Undercoat rows from its edge to the row below the pole. */
+const UNDERCOAT_ROWS: number = 32;
+
+/**
+ * Elevation of the undercoat's edge at one azimuth: the lowest elevation
+ * from which the skin, all the way up to the vertex, lies at least 3 mm
+ * above the scalp boundary.
+ *
+ * Marches down from the vertex in steps of a quarter chart cell until the
+ * skin falls below that height or leaves the chart, then bisects the last
+ * step twenty times.
+ *
+ * @param field Head chart
+ * @param hair Scalp hair input
+ * @param alpha Azimuth, radians
+ * @returns Elevation, radians
+ */
+function edge(
+  field: AutoMovieHumanHeadField.IField,
+  hair: IAutoMovieHumanScalpHair,
+  alpha: number,
+): number {
+  const boundary: number =
+    AutoMovieHumanScalpBoundary.height(hair.hairline, alpha, field.height) + 3;
+  const bears: (beta: number) => boolean = (beta: number): boolean => {
+    const u: [number, number, number] = AutoMovieHumanHeadField.direction(
+      alpha,
+      beta,
+    );
+    const r: number = AutoMovieHumanHeadField.radius(field, u);
+    return (
+      AutoMovieHumanHeadField.covered(field, u) &&
+      field.centre[1] + u[1] * r - field.eyeLevel >= boundary
+    );
+  };
+
+  const delta: number = Math.PI / AutoMovieHumanHeadField.elevationCells / 4;
+  let high: number = Math.PI / 2;
+  while (high - delta > -Math.PI / 2 && bears(high - delta)) high -= delta;
+  let low: number = Math.max(-Math.PI / 2, high - delta);
+  for (let k: number = 0; k < 20; ++k) {
+    const mid: number = (low + high) / 2;
+    if (bears(mid)) high = mid;
+    else low = mid;
+  }
+  return high;
 }
 
 /**

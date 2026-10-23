@@ -1,5 +1,7 @@
 import type { IAutoMovieMaterial, IAutoMovieMesh } from "@automovie/interface";
 
+import { AutoMovieHumanEyeGlobe } from "../generation/AutoMovieHumanEyeGlobe";
+import type { AutoMovieHumanEyelid } from "../generation/AutoMovieHumanEyelid";
 import { AutoMovieHumanAppearanceNoise } from "./AutoMovieHumanAppearanceNoise";
 import { AutoMovieHumanRevolution } from "./AutoMovieHumanRevolution";
 import type { IAutoMovieHumanAppearanceBody } from "./IAutoMovieHumanAppearanceBody";
@@ -16,12 +18,16 @@ import type { IAutoMovieHumanAppearanceBody } from "./IAutoMovieHumanAppearanceB
  * angle wall so no gap opens between iris and sclera when seen through the
  * cornea. The pupil is a black disc recessed onto the lens plane.
  *
- * Dimensions are biometric means, the same for every person: adult globe
- * size varies little with sex, age or ancestry (Bekerman et al. 2014 found
- * no significant difference by those factors) and no Human parameter
- * describes it. Derived quantities (the scleral axial semi-axis and the
- * apex position) follow from those means by the stated geometry, not by
- * fitting. The globe is not scaled with stature.
+ * Dimensions are the biometric means of {@link AutoMovieHumanEyeGlobe},
+ * the same for every person and shared with the body generator, which
+ * rests the lid margins on the same anterior surface. The globe is not
+ * scaled with stature.
+ *
+ * Lid shading: the renderer casts no shadows, yet the lids shade the eye
+ * they rest on, most visibly the upper lid's band across the top of the
+ * iris and sclera. Given the lid margin, the sclera and iris vertex colours
+ * carry that occlusion as a falloff with the depth inside the opening below
+ * the upper lid and above the lower lid (see {@link occlusion}).
  *
  * Optics: the cornea is a thin glossy shell over the iris that adds the
  * tear film's sharp highlight and slightly veils the iris (see
@@ -31,96 +37,11 @@ import type { IAutoMovieHumanAppearanceBody } from "./IAutoMovieHumanAppearanceB
  */
 export namespace AutoMovieHumanEyeball {
   /**
-   * Biometric means in millimetres, with their basis.
-   *
-   * - `radial`: half the mean of the transverse 24.16/24.32 and vertical
-   *   23.80/23.75 globe diameters (Bekerman 2014, Table 1, CT, n = 250);
-   *   measured.
-   * - `axialLength`: corneal apex to posterior pole, 23.48 (Chen 2016,
-   *   IOLMaster, n = 1015); measured.
-   * - `cornealRadius`: 337.5 / 44.20 D = 7.64 (Chen 2016, keratometric
-   *   index 1.3375); derived from measured keratometry.
-   * - `limbusRadius`: half the horizontal visible iris diameter, 11.7 mm
-   *   (white-to-white, Rüfer et al. 2005, J Cataract Refract Surg
-   *   31(1):107-112: 11.71 +/- 0.42); measured, relayed.
-   * - `anteriorChamberDepth`: corneal apex to the lens face on which the
-   *   pupillary iris rests, 3.03 (Chen 2016); measured.
-   * - `pupilRadius`: 1.75, a 3.5 mm photopic pupil; conventional, since no
-   *   lighting or expression input sets it.
-   * - `irisRecession`: 0.5, how far the iris root lies behind its
-   *   pupillary margin (the iris is a shallow cone over the lens);
-   *   conventional.
+   * Biometric globe dimensions in millimetres, shared with the body
+   * generator; see {@link AutoMovieHumanEyeGlobe.dimensions}.
    */
-  export const dimensions: {
-    radial: number;
-    axialLength: number;
-    cornealRadius: number;
-    limbusRadius: number;
-    anteriorChamberDepth: number;
-    pupilRadius: number;
-    irisRecession: number;
-  } = {
-    radial: 12.0,
-    axialLength: 23.48,
-    cornealRadius: 7.64,
-    limbusRadius: 5.85,
-    anteriorChamberDepth: 3.03,
-    pupilRadius: 1.75,
-    irisRecession: 0.5,
-  };
-
-  /**
-   * Quantities derived from {@link dimensions}, millimetres along the gaze
-   * axis from the globe centre.
-   *
-   * The scleral ellipsoid has radial semi-axis `a_r` and axial semi-axis
-   * `a_x`; the limbus circle of radius `rho_L` lies on it at
-   * `x_L = a_x k`, `k = sqrt(1 - rho_L^2 / a_r^2)`. The corneal sphere of
-   * radius `r_c` passes through that circle, so its sagittal height above
-   * the limbus plane is `s = r_c - sqrt(r_c^2 - rho_L^2)` and the apex is at
-   * `x_A = x_L + s`. With the posterior pole at `-a_x`, the axial length is
-   * `L = x_A + a_x`, hence `a_x = (L - s) / (1 + k)`.
-   */
-  export interface IDerived {
-    /** Axial semi-axis of the scleral ellipsoid. */
-    axial: number;
-
-    /** Limbus plane position. */
-    limbus: number;
-
-    /** Corneal sphere centre position. */
-    cornealCentre: number;
-
-    /** Corneal apex position. */
-    apex: number;
-
-    /** Pupillary iris margin position, on the lens face. */
-    pupil: number;
-  }
-
-  /**
-   * Evaluate {@link IDerived} from {@link dimensions}.
-   *
-   * @returns Derived axial positions in millimetres
-   */
-  export function derive(): IDerived {
-    const d: typeof dimensions = dimensions;
-    const k: number = Math.sqrt(1 - (d.limbusRadius / d.radial) ** 2);
-    const capOffset: number = Math.sqrt(
-      d.cornealRadius ** 2 - d.limbusRadius ** 2,
-    );
-    const sag: number = d.cornealRadius - capOffset;
-    const axial: number = (d.axialLength - sag) / (1 + k);
-    const limbus: number = axial * k;
-    const apex: number = limbus + sag;
-    return {
-      axial,
-      limbus,
-      cornealCentre: limbus - capOffset,
-      apex,
-      pupil: apex - d.anteriorChamberDepth,
-    };
-  }
+  export const dimensions: typeof AutoMovieHumanEyeGlobe.dimensions =
+    AutoMovieHumanEyeGlobe.dimensions;
 
   /** Generated meshes of one eye, in model metres. */
   export interface IOutput {
@@ -140,18 +61,22 @@ export namespace AutoMovieHumanEyeball {
    * @param props.eye Globe frame from the body generator
    * @param props.uvTurn Rotation of the iris image about the pupil, in turns; a different value per side keeps the two irises from repeating each other
    * @param props.mirror Whether the sclera image is mirrored left to right (z to -z), so both eyes keep its vessels on the same anatomical sides
+   * @param props.lid Lid margin of this eye, which shades the globe; null leaves it unshaded
    * @returns Sclera, iris and cornea meshes
    */
   export function generate(props: {
     eye: IAutoMovieHumanAppearanceBody.IEye;
     uvTurn: number;
     mirror: boolean;
+    lid: AutoMovieHumanEyelid.ILid | null;
   }): IOutput {
     const d: typeof dimensions = dimensions;
-    const g: IDerived = derive();
+    const g: AutoMovieHumanEyeGlobe.IDerived = AutoMovieHumanEyeGlobe.derive();
     // Seat the globe on the observed eye surface when the body gives it.
     const shift: number =
-      props.eye.radius === undefined ? 0 : seat(props.eye.radius * 1000, g);
+      props.eye.radius === undefined
+        ? 0
+        : AutoMovieHumanEyeGlobe.seat(props.eye.radius * 1000);
     const frame: AutoMovieHumanRevolution.IFrame = {
       origin: [
         props.eye.centre[0] + (props.eye.forward[0] * shift) / 1000,
@@ -161,11 +86,13 @@ export namespace AutoMovieHumanEyeball {
       axis: props.eye.forward,
       up: props.eye.up,
     };
+    const shade: (y: number, z: number) => number =
+      props.lid === null ? (): number => 1 : occlusion(props.lid);
 
-    // Angular resolution: 64 segments keep the 5.85 mm limbus polygon
-    // within 0.007 mm of its circle (rho (1 - cos(pi / 64))), below a
-    // pixel even in a full-screen eye close-up of 1200 pixels.
-    const segments: number = 64;
+    // Angular resolution: 128 segments keep the 5.85 mm limbus polygon
+    // within 0.002 mm of its circle (rho (1 - cos(pi / 128))) and resolve
+    // the lid shading, whose falloff spans about a millimetre.
+    const segments: number = 128;
 
     // Sclera from the limbus (polar angle phi_L on the ellipsoid) to 120
     // degrees from the gaze axis, past the equator, which the lids and
@@ -173,16 +100,16 @@ export namespace AutoMovieHumanEyeball {
     const phiL: number = Math.asin(d.limbusRadius / d.radial);
     const phiEnd: number = (120 * Math.PI) / 180;
     const sclera: Array<[number, number]> = [];
-    for (let i: number = 0; i <= 24; ++i) {
-      const phi: number = phiL + ((phiEnd - phiL) * i) / 24;
+    for (let i: number = 0; i <= 48; ++i) {
+      const phi: number = phiL + ((phiEnd - phiL) * i) / 48;
       sclera.push([g.axial * Math.cos(phi), d.radial * Math.sin(phi)]);
     }
 
     // Corneal cap from the apex (rho = 0) to the limbus circle.
     const phiC: number = Math.asin(d.limbusRadius / d.cornealRadius);
     const cornea: Array<[number, number]> = [];
-    for (let i: number = 0; i <= 12; ++i) {
-      const phi: number = (phiC * i) / 12;
+    for (let i: number = 0; i <= 16; ++i) {
+      const phi: number = (phiC * i) / 16;
       cornea.push([
         g.cornealCentre + d.cornealRadius * Math.cos(phi),
         d.cornealRadius * Math.sin(phi),
@@ -196,8 +123,8 @@ export namespace AutoMovieHumanEyeball {
     const root: number = d.limbusRadius - 0.1;
     const rootX: number = g.pupil - d.irisRecession;
     const iris: Array<[number, number]> = [];
-    for (let i: number = 0; i <= 10; ++i) {
-      const t: number = i / 10;
+    for (let i: number = 0; i <= 12; ++i) {
+      const t: number = i / 12;
       iris.push([
         g.pupil - d.irisRecession * t * t,
         d.pupilRadius + (root - d.pupilRadius) * t,
@@ -237,8 +164,11 @@ export namespace AutoMovieHumanEyeball {
           const u: number = theta / (2 * Math.PI);
           return [props.mirror ? 0.5 - u : u, along];
         },
-        color: (x: number, y: number, z: number): [number, number, number] =>
-          scleraColor(x, y, z, g.limbus),
+        color: (x: number, y: number, z: number): [number, number, number] => {
+          const k: number = shade(y, z);
+          const base: [number, number, number] = scleraColor(x, y, z, g.limbus);
+          return [base[0] * k, base[1] * k, base[2] * k];
+        },
       }),
       iris: AutoMovieHumanRevolution.mesh({
         strips: [
@@ -267,7 +197,10 @@ export namespace AutoMovieHumanEyeball {
         ],
         frame,
         uv: irisUv,
-        color: null,
+        color: (_x: number, y: number, z: number): [number, number, number] => {
+          const k: number = shade(y, z);
+          return [k, k, k];
+        },
       }),
       cornea: AutoMovieHumanRevolution.mesh({
         strips: [{ profile: cornea, segments }],
@@ -287,18 +220,19 @@ export namespace AutoMovieHumanEyeball {
    * broadly (roughness 0.45), and the tear film over them is a smooth
    * clear coat (clearcoat 1, the renderer's default coat roughness 0) that
    * carries the sharp highlight, as a dielectric film over a rough base
-   * does. Iris: the generated image in sRGB, roughness 0.6, since its gloss
-   * comes from the cornea above it. Cornea: a black, alpha-blended shell
-   * of opacity 0.2 with index 1.376 (Gullstrand schematic eye cornea;
-   * conventional) and roughness 0.02, so it contributes only its specular
-   * reflection: the key light's highlight is far brighter than the display
-   * range and stays white after the 0.2 blend, while the iris and sclera
-   * beneath show at 80 percent. A transmissive cornea would keep the full
-   * Fresnel response, but its separate opaque-scene pass did not show the
-   * iris in the PNG service's renders (2026-10-22, the iris read as the
-   * background), and it costs an extra scene render per frame. The blend
-   * writes no depth; the cornea is the outermost eye surface, so nothing
-   * of the eye needs sorting behind it.
+   * does. Iris: the generated image in sRGB times the lid shading in the
+   * vertex colours, roughness 0.6, since its gloss comes from the cornea
+   * above it. Cornea: a black, alpha-blended shell of opacity 0.2 with
+   * index 1.376 (Gullstrand schematic eye cornea; conventional) and
+   * roughness 0.02, so it contributes only its specular reflection: the key
+   * light's highlight is far brighter than the display range and stays
+   * white after the 0.2 blend, while the iris and sclera beneath show at 80
+   * percent. A transmissive cornea would keep the full Fresnel response,
+   * but its separate opaque-scene pass did not show the iris in the PNG
+   * service's renders (2026-10-22, the iris read as the background), and it
+   * costs an extra scene render per frame. The blend writes no depth; the
+   * cornea is the outermost eye surface, so nothing of the eye needs
+   * sorting behind it.
    *
    * @param irisImage Id of the iris image the model carries
    * @param scleraImage Id of the sclera vessel image the model carries
@@ -371,52 +305,87 @@ export namespace AutoMovieHumanEyeball {
       },
     ];
   }
-}
 
-/**
- * Axial shift that seats the globe's anterior surface on an observed
- * sphere about the frame centre.
- *
- * Both surfaces are functions of the distance `rho` from the gaze axis:
- * the observed sphere `x_s(rho) = sqrt(R^2 - rho^2)`, and the globe's
- * cornea inside the limbus and scleral ellipsoid outside it, `x_g(rho)`.
- * The least-squares shift of `x_g` onto `x_s`, weighting each `rho` by the
- * ring area `rho d rho` it stands for, is the weighted mean of
- * `x_s - x_g`. The band runs from the axis to 10 mm, the horizontal reach
- * of an adult eye opening on the globe (about half a 32 mm fissure, less
- * the canthi, which lie behind the globe's equator), capped below both
- * radii.
- *
- * @param radius Observed sphere radius, millimetres
- * @param g Derived globe positions
- * @returns Shift along the gaze in millimetres from the observed sphere's centre to the globe's centre
- */
-function seat(radius: number, g: AutoMovieHumanEyeball.IDerived): number {
-  const d: typeof AutoMovieHumanEyeball.dimensions =
-    AutoMovieHumanEyeball.dimensions;
-  const reach: number = Math.min(10, 0.95 * radius, 0.95 * d.radial);
-  let sum: number = 0;
-  let weight: number = 0;
-  for (let i: number = 0; i < 100; ++i) {
-    const rho: number = ((i + 0.5) / 100) * reach;
-    const globe: number =
-      rho <= d.limbusRadius
-        ? g.cornealCentre + Math.sqrt(d.cornealRadius ** 2 - rho ** 2)
-        : g.axial * Math.sqrt(1 - (rho / d.radial) ** 2);
-    sum += rho * (Math.sqrt(radius ** 2 - rho ** 2) - globe);
-    weight += rho;
+  /**
+   * Lid shading of the globe: a multiplier of a point's colour from its
+   * position across the gaze, in the globe's frame.
+   *
+   * The margin is projected along the gaze into the globe's (lateral, up)
+   * plane. A point inside the opening at depth `delta` from the nearest
+   * margin point keeps `1 - k exp(-delta / lambda)` of its light: the upper
+   * lid, thick and overhanging with its lashes, shades a band of about two
+   * millimetres (k 0.55, lambda 1.6 mm); the lower lid, thin and below the
+   * light, a narrow one (k 0.3, lambda 0.7 mm). Points outside the opening
+   * lie under the lids and take the margin value. These are conventions
+   * that stand in for the shadow and ambient occlusion the renderer does
+   * not compute, not measurements.
+   *
+   * @param lid Lid margin, in the frame of its own seated globe
+   * @returns Multiplier of a local point's colour given its up `y` and
+   *   lateral `z` coordinates in millimetres
+   */
+  export function occlusion(
+    lid: AutoMovieHumanEyelid.ILid,
+  ): (y: number, z: number) => number {
+    const c: [number, number, number] = lid.globe.centre;
+    const plane: Array<[number, number]> = lid.samples.map(
+      (s: AutoMovieHumanEyelid.ISample): [number, number] => {
+        const d: number[] = [0, 1, 2].map(
+          (a: number): number => s.contact[a]! - c[a]!,
+        );
+        return [
+          d[0]! * lid.globe.lateral[0] +
+            d[1]! * lid.globe.lateral[1] +
+            d[2]! * lid.globe.lateral[2],
+          d[0]! * lid.globe.up[0] +
+            d[1]! * lid.globe.up[1] +
+            d[2]! * lid.globe.up[2],
+        ];
+      },
+    );
+    return (y: number, z: number): number => {
+      let nearest: number = Infinity;
+      let owner: number = 0;
+      let inside: boolean = false;
+      for (
+        let i: number = 0, j: number = plane.length - 1;
+        i < plane.length;
+        j = i++
+      ) {
+        const a: [number, number] = plane[j]!;
+        const b: [number, number] = plane[i]!;
+        const dl: number = b[0] - a[0];
+        const du: number = b[1] - a[1];
+        const l: number = dl * dl + du * du;
+        const w: number =
+          l > 0
+            ? Math.min(1, Math.max(0, ((z - a[0]) * dl + (y - a[1]) * du) / l))
+            : 0;
+        const e: number = (a[0] + w * dl - z) ** 2 + (a[1] + w * du - y) ** 2;
+        if (e < nearest) {
+          nearest = e;
+          owner = w < 0.5 ? j : i;
+        }
+        if (a[1] > y !== b[1] > y && z < (dl * (y - a[1])) / du + a[0])
+          inside = !inside;
+      }
+      const delta: number = inside ? Math.sqrt(nearest) : 0;
+      const upper: boolean = lid.samples[owner]!.upper;
+      const k: number = upper ? 0.55 : 0.3;
+      const lambda: number = upper ? 1.6 : 0.7;
+      return 1 - k * Math.exp(-delta / lambda);
+    };
   }
-  return sum / weight;
 }
 
 /**
  * Linear RGB multiplier of the sclera at a local point.
  *
- * Base: sRGB (238, 232, 226), a slightly warm white (conventional). Toward
+ * Base: sRGB (246, 242, 236), a slightly warm white (conventional). Toward
  * the canthi the exposed bulbar conjunctiva shows its vessels, so the
- * horizontal sides blend toward sRGB (214, 168, 160) with a faint
+ * horizontal sides blend toward sRGB (226, 190, 180) with a faint
  * low-frequency mottling; near the limbus the thinning sclera reads
- * greyer, blending toward sRGB (196, 198, 204). All three are artistic
+ * greyer, blending toward sRGB (205, 206, 210). All three are artistic
  * conventions, not colorimetric measurements.
  *
  * @param x Local axial position, millimetres
@@ -447,17 +416,17 @@ function scleraColor(
     12,
   );
   const vessel: number =
-    0.3 *
-    horizontal *
-    AutoMovieHumanAppearanceNoise.smoothstep(0.5, 7, behind) *
+    0.35 *
+    horizontal ** 2 *
+    AutoMovieHumanAppearanceNoise.smoothstep(2, 8, behind) *
     (0.6 + 0.4 * mottle);
   const grey: number =
-    0.5 * (1 - AutoMovieHumanAppearanceNoise.smoothstep(0, 1.6, behind));
+    0.35 * (1 - AutoMovieHumanAppearanceNoise.smoothstep(0, 1.2, behind));
 
   const out: [number, number, number] = [0, 0, 0];
-  const base: [number, number, number] = [238, 232, 226];
-  const red: [number, number, number] = [214, 168, 160];
-  const limbal: [number, number, number] = [196, 198, 204];
+  const base: [number, number, number] = [246, 242, 236];
+  const red: [number, number, number] = [226, 190, 180];
+  const limbal: [number, number, number] = [205, 206, 210];
   for (let a: number = 0; a < 3; ++a) {
     const srgb: number =
       base[a]! + (red[a]! - base[a]!) * vessel + (limbal[a]! - base[a]!) * grey;

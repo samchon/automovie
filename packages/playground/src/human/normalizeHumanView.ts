@@ -13,6 +13,9 @@
  *   keeps its true shape.
  * - `isolate=1`: draw only the `curves` selection and the skin it shapes.
  * - `fit=selection`: frame the selection's bounds instead of the camera's region.
+ * - `garment=0`: hide the garment parts (`human.garment.`), so the bare body
+ *   can be inspected; `garment=1` or absent shows them, the default because
+ *   every image shown outside development wears them.
  *
  * The canonical text lists the present variables in fixed key order with
  * numbers in shortest round-trip form, so every spelling of one view has one
@@ -23,9 +26,9 @@
  *
  * @evidence contracts/common.md#principled-implementation Each variable is parsed by an explicit grammar and range check, the shorthand maps to exact azimuth/elevation pairs, and canonical text uses a fixed key order and Number's round-trip formatting.
  * @evidence contracts/common.md#clear-and-simple-design One pure function shared by the HTTP plugin, the session's frame identity, the worker and the page.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown shorthand, out-of-range angles, non-positive distances and conflicting direction variables throw instead of being ignored.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown shorthand, out-of-range angles, non-positive distances, garment values other than 0 or 1 and conflicting direction variables throw instead of being ignored.
  * @evidence contracts/common.md#meaningful-documentation States every variable, unit, frame, the `+` decoding pitfall and the canonical form.
- * @evidence contracts/performance.md#efficient-algorithms Constant work over at most eight variables.
+ * @evidence contracts/performance.md#efficient-algorithms Constant work over at most nine variables.
  * @evidence contracts/performance.md#reuse-equivalent-work The canonical text lets the frame cache reuse a capture across spellings of one view.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -54,6 +57,7 @@ export function normalizeHumanView(read: (name: string) => string | null): {
     isolate: flag("isolate"),
     ortho: flag("ortho"),
     fit: null,
+    garment: true,
   };
 
   // Direction: the shorthand or explicit angles, never both.
@@ -94,6 +98,11 @@ export function normalizeHumanView(read: (name: string) => string | null): {
     if (!(distance > 0)) throw new Error("Human view dist must be positive");
     value.dist = distance;
   }
+  const garment: string | null = read("garment");
+  if (garment !== null && garment !== "" && garment !== "1") {
+    if (garment !== "0") throw new Error("Human view garment must be 0 or 1");
+    value.garment = false;
+  }
   const fit: string | null = read("fit");
   if (fit !== null && fit !== "") {
     if (fit !== "selection")
@@ -111,6 +120,7 @@ export function normalizeHumanView(read: (name: string) => string | null): {
   if (value.ortho) entries.push("ortho=1");
   if (value.isolate) entries.push("isolate=1");
   if (value.fit !== null) entries.push("fit=" + value.fit);
+  if (!value.garment) entries.push("garment=0");
   return { text: entries.join("&"), value };
 }
 
@@ -145,6 +155,9 @@ export namespace normalizeHumanView {
 
     /** Draw only the curve selection and the skin it shapes. */
     isolate: boolean;
+
+    /** Show the garment parts. */
+    garment: boolean;
 
     /** Frame the selection's bounds. */
     fit: "selection" | null;

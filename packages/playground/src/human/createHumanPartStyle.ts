@@ -11,10 +11,11 @@ import type { ModelPartStyling } from "./ModelPartStyling";
  * Build the Human page's part styling closure for one pass and curve selection.
  *
  * Parts whose id starts with `human.construction.` are lofting curves:
- * `<chain>/axis` central axes and `<chain>/<k>` sections. Every other part is
- * surface. The rules, applied through {@link ModelPartStyling}:
+ * `<chain>/axis` central axes, `<chain>/<k>` sections and `<chain>/g<j>`
+ * guides. Every other part is surface. The rules, applied through {@link ModelPartStyling}:
  *
- * - Curves are unlit, so the generator's colours (red axes, blue sections)
+ * - Curves are unlit, so the generator's colours (red axes, blue sections,
+ *   green guides)
  *   are not washed out by lighting. Axes are thickened by 1/600 of the body
  *   height and drawn without a depth test, because they run inside the body
  *   and must stay visible through the skin in `overlay`.
@@ -29,11 +30,15 @@ import type { ModelPartStyling } from "./ModelPartStyling";
  * - `isolate` additionally hides every unselected curve and every skin part
  *   the selection does not shape, so one curve and its two intervals can be
  *   inspected alone; isolated skin keeps its own colour.
+ * - `garment` false hides every `human.garment.` part (underwear), so the
+ *   bare body can be inspected; the garments are separate shells over the
+ *   skin, so hiding them shows the skin unchanged.
  *
  * @param pass Pass to display.
  * @param selection Resolved curve selection, possibly empty.
  * @param height Body height in metres, the scale of the thickening.
  * @param isolate Show only the selected curves and the skin intervals they shape.
+ * @param garment Show the garment parts.
  * @returns The closure for `ModelPartStyling.apply`.
  *
  * @evidence contracts/common.md#principled-implementation Classifies parts only by the generator's id grammar and maps pass and selection to the documented overrides; thickening scales with body height so it reads alike for every person and camera of the same framing.
@@ -49,6 +54,7 @@ export function createHumanPartStyle(
   selection: IHumanViewerPage.ISelection,
   height: number,
   isolate: boolean,
+  garment: boolean,
 ): (
   part: IAutoMovieModelPart,
   material: IAutoMovieMaterial | undefined,
@@ -101,6 +107,8 @@ export function createHumanPartStyle(
     }
 
     if (pass === "construction") return { visible: false };
+    if (!garment && part.id.startsWith("human.garment."))
+      return { visible: false };
 
     // Isolation keeps only the skin the selected curves shape.
     if (

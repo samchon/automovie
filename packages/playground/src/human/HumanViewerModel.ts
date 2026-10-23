@@ -61,6 +61,7 @@ export class HumanViewerModel {
   private readonly styling: ModelPartStyling;
   private pass: IHumanViewerPage.Pass = "surface";
   private isolate: boolean = false;
+  private garment: boolean = true;
   private current: IHumanViewerPage.ISelection = resolveHumanCurves("", [], []);
 
   /**
@@ -420,6 +421,24 @@ export class HumanViewerModel {
     this.restyle();
   }
 
+  /**
+   * Show or hide the garment parts (`human.garment.`).
+   *
+   * @param garment Whether the garments are shown.
+   *
+   * @evidence contracts/common.md#principled-implementation Restyles through the Human closure with the garment flag; part data and bounds are untouched, so frames with and without garments align pixel for pixel.
+   * @evidence contracts/common.md#clear-and-simple-design Same restyle path as pass, selection and isolation.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A model without garments simply has nothing to hide; the skin is never altered.
+   * @evidence contracts/common.md#meaningful-documentation States what is hidden and that framing is unchanged.
+   * @evidence contracts/performance.md#efficient-algorithms One ModelPartStyling.apply.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the built parts and the resolved selection.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The styling releases the previous derived resources.
+   */
+  public setGarment(garment: boolean): void {
+    this.garment = garment;
+    this.restyle();
+  }
+
   /** Union of the world bounds of the parts whose id passes the filter. */
   private box(filter: (id: string) => boolean): THREE.Box3 {
     const box: THREE.Box3 = new THREE.Box3();
@@ -436,6 +455,7 @@ export class HumanViewerModel {
         this.current,
         this.bounds.max.y - this.bounds.min.y,
         this.isolate,
+        this.garment,
       ),
     );
   }

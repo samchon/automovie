@@ -1,27 +1,23 @@
 # Procedural skin fields
 
-A candidate representation evaluates deterministic fields in rest millimetres and delivers them through generated textures. This makes field size independent of vertex indices and atlas coordinates, while the bake still depends on the actual surface and UV footprint. It does not make a world-space sphere field an anatomical surface process.
+The skin's procedural detail lives in two places with different units. Colour fields are evaluated per vertex in rest millimetres of the generated body; micro-relief is a periodic image tile in rest millimetres, sampled through the chart coordinates of [UV layout](uv-layout.md). Neither depends on vertex indices.
 
-## Eligibility and physical meaning
+## Colour fields
 
-Geometry-owned pad/dorsum and lip-band roles exclude ordinary follicular pits and acne-like marks from glabrous, vermilion, oral and uncertain domains. Those authored regions are not clinical segmentation. Glabrous friction ridges and eccrine structures need their own model. [Skin-feature distribution sources](../sources/skin-feature-distribution.md) records the primary protocols and exceptions; no universal freckle density, acne elevation or whole-body pore-depth distribution was established.
+`AutoMovieHumanSkinTone` evaluates regional chromophore multipliers and mottling at each vertex position and normal (see [Skin material](skin-material.md) for the regions). Mottling is three-dimensional value noise, so it has no chart seams; its octaves (16 to 40 mm) are coarse enough for the coarsest limb mesh (edges up to about 12 mm) and are the same on every piece. An earlier per-piece band limit, dropping octaves shorter than three of that piece's mean edge lengths, made two pieces with different edge lengths disagree at their shared ring and drew sharp colour steps there (the axilla ring, the hand and finger bands); every field that reaches a piece boundary must depend on position and normal only. Regional factors follow the same rule: the hand flush ramps over 20 mm about the wrist and the ear flush is a field about the ear rather than a factor on the ear chains. Vertex colours therefore cannot draw marks smaller than a few edge lengths; freckles, moles and acne are drawn instead into a per-person image over the packed chart layout, 2048 pixels on its longer side (about 0.8 mm per pixel on f1, 12 MiB raw, produced only when marks are requested; see [Skin material](skin-material.md#marks)).
 
-The recorded seeded-sphere candidate used density `rho` per 100 square millimetres and radius `r` in millimetres. A uniform-hash ensemble has nominal centre intensity `rho/(200r)` per cubic millimetre; an ideal plane intersects a slab of thickness `2r`, yielding `rho/100` expected intersections per square millimetre. The seeded stratified grid is not a Poisson process, and overlapping visible marks need not have that count.
+## Micro-relief tile
 
-Uniformly offset sphere sections have mean diameter `pi/4` of the sphere diameter and mean area `2/3` of its equatorial area before thresholding, overlap and filtering. The authored diameter therefore bounds section size rather than setting every visible diameter. Changing diameter changes the grid, so a fixed seed does not preserve individual addresses. Strongest-bump ownership can also introduce gradient jumps where bumps overlap.
+`AutoMovieHumanSkinImage` builds one height field over a 40 mm periodic tile: at most one pore per 0.625 mm cell (a third of the cells empty), radius 0.04 to 0.12 mm skewed toward small, depth 6 to 24 um growing with size and scaled by a 5 mm patchiness, plus a 2 to 8 mm undulation of 10 um and a 0.3 mm grain of 2 um. All randomness comes from `AutoMovieHumanAppearanceNoise.hash`, periodic in the tile, so the images repeat seamlessly. Pore spacing follows the order of magnitude of facial follicle densities ([skin-feature distribution sources](../sources/skin-feature-distribution.md)); sizes and depths are conventions. The furrow network of real skin is not drawn: tried as Worley cell borders and as crossing line families, it read as leather or as a woven grid in specular highlights.
 
-A surface-attached alternative needs the metric `G=J^T J`, where `J=[S_u,S_v]` is the 3-by-2 derivative of a surface in millimetres. Area is `sqrt(det(G)) du dv`; a local radius uses `delta^T G delta <= r^2`, including the cross term for chart shear. This tangent approximation is insufficient across singular charts, chart boundaries or strong curvature. The assembly's placement Jacobian is a different quantity.
+| Image | Content | Size | Raw |
+| --- | --- | --- | --- |
+| `human.skin.relief` | Tangent-space normal, x along `+u`, y along `+v` (down the rows) | 1024 square, 0.039 mm per texel | 3 MiB |
+| `human.skin.grain` | sRGB base-colour multiplier, pores up to 5 percent darker, mean about 0.99 | 512 square | 0.75 MiB |
+| `human.skin.gloss` | Roughness multiplier in green (1.0 in pores, 0.85 between), zero metalness in blue | 512 square | 0.75 MiB |
 
-Persistent semantic marks require stable surface correspondence and seam ownership. A changing body area cannot preserve both mark count and marks per square centimetre. Independent editable size, count and placement are limits of this sphere representation; a surface-attached sampler needs a separate implementation and validation.
+The PNGs are uncompressed (engine encoder), so the model carries about 6.3 MB of base64 for them; GPU memory with mipmaps is about 8 MiB. The images do not depend on the person, so their ids name content and every Human shares them; the module computes them once per process.
 
-## Sampling and cost
+## Sampling limits
 
-The recorded baker integrated each texel over its incident rest-surface UV triangles. Degenerate charts, disagreeing overlaps and preparation budgets limit support. Point-extended padding does not establish filtering correctness at every mip or grazing angle. [PBRT's texture sampling chapter](https://pbr-book.org/4ed/Textures_and_Materials/Texture_Sampling_and_Antialiasing) explains why the actual footprint matters.
-
-At nominal atlas width 1800 mm, a 2048-pixel chart has 1.1378 texels/mm, so a 2 mm mark spans only 2.28 texels before local stretch. The recorded 512-square detail atlas stored mean latent slope reconstructed from periodic XY/YZ/ZX rest-mm planes. It does not resolve individual submillimetre pores, anatomical crease directions or unresolved slope variance. Normal averaging can lose the distribution that broadens a highlight; [LEAN mapping](https://userpages.cs.umbc.edu/olano/papers/lean/) addresses that issue for its own Ward/Beckmann formulation, not automatically the installed GGX material.
-
-Two RGBA mark images and an RGB papule normal at 2048-square consume 44 MiB raw; the 512-square detail normal adds 0.75 MiB. Encoded bytes, temporary arrays and triangle/site incidence add storage. A per-triangle site bound is not a total memory bound. Complete generation and viewer costs remain unmeasured.
-
-## Optics and observations
-
-[Donner and Jensen](https://diglib.eg.org/items/f7be9101-7b4c-4a57-ba69-eedd90acd23d) and [Weyrich et al.](../sources/weyrich-2006-skin-reflectance.md) support separating pigment, surface reflection and scattering. The recorded candidate's 31-wavelength two-layer approximation, short-wavelength blood extrapolation and RGB white balancing have not been calibrated against measured skin spectra. Fixed RGB radii and curvature shading are not texture-space diffusion or [separable subsurface scattering](https://www.iryoku.com/separable-sss/).
+A pore of 0.08 mm spans two texels and is below one pixel at head-close-up distance (about 0.27 mm per pixel), where mipmapping averages it into slight specular breakup. The normal map is resolved only in eye and cheek close-ups. Normal averaging loses the slope variance that would broaden a highlight; [LEAN mapping](https://userpages.cs.umbc.edu/olano/papers/lean/) addresses that for its own Ward/Beckmann formulation, not automatically for the installed GGX material. A normal map changes shading without silhouette displacement.

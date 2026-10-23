@@ -36,6 +36,7 @@ const FREE: readonly string[] = [
   "ortho",
   "isolate",
   "fit",
+  "garment",
 ];
 
 /**
@@ -48,7 +49,7 @@ const FREE: readonly string[] = [
  * {@link IHumanViewerPage.capture} additionally pins the drawing buffer to
  * 1200 x 1200 at pixel ratio 1 and places the camera with
  * {@link HumanCaptureCamera.place}. Free-view variables (`az`, `el`, `target`,
- * `dist`, `ortho`, `isolate`, `fit`) modify the named camera on the page and in
+ * `dist`, `ortho`, `isolate`, `fit`, `garment`) modify the named camera on the page and in
  * captures alike. The page draws only when the camera, size, pass, selection
  * or model changes, so an idle page, including the worker's resident one,
  * spends no GPU time.
@@ -278,6 +279,7 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
       try {
         model.setCurves(curves);
         model.setIsolate(free.value.isolate);
+        model.setGarment(free.value.garment);
       } catch (error) {
         curves = "";
         free = normalizeHumanView((): null => null);
@@ -404,11 +406,13 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
       const previous: ReturnType<typeof normalizeHumanView> = free;
       try {
         model.setIsolate(next.value.isolate);
+        model.setGarment(next.value.garment);
         free = next;
         place();
       } catch (error) {
         free = previous;
         model.setIsolate(previous.value.isolate);
+        model.setGarment(previous.value.garment);
         throw error;
       }
       sync();
@@ -433,6 +437,7 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
         const frameCurves: IHumanViewerPage.ISelection =
           model.setCurves(selection);
         model.setIsolate(frameView.value.isolate);
+        model.setGarment(frameView.value.garment);
         const visibleParts: string[] = model.setPass(next);
         const descriptor: HumanCaptureCamera.IDescriptor = model.describe(
           name,
@@ -481,6 +486,7 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
         // Restore the interactive view; the next frame resizes and redraws.
         model.setCurves(curves);
         model.setIsolate(free.value.isolate);
+        model.setGarment(free.value.garment);
         model.setPass(pass);
         size.width = 0;
         dirty = true;

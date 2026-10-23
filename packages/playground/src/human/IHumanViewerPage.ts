@@ -165,7 +165,7 @@ export interface IHumanViewerPage {
    * @param camera One of {@link HumanCaptureCamera.names}.
    * @param pass Pass to render.
    * @param curves Curve selection for this frame; empty renders without highlight.
-   * @param view Free-view query text (`az`, `el`, `view`, `target`, `dist`, `ortho`, `isolate`, `fit`); empty keeps the named camera.
+   * @param view Free-view query text (`az`, `el`, `view`, `target`, `dist`, `ortho`, `isolate`, `fit`, `garment`); empty keeps the named camera.
    *
    * @evidence contracts/common.md#principled-implementation Applies the frame's pass and selection, draws at 1200 x 1200 with the reference framing and reads the preserved buffer, then restores the interactive state in a finally block.
    * @evidence contracts/common.md#clear-and-simple-design The only capture path, used by the worker for every PNG URL.
@@ -198,10 +198,10 @@ export interface IHumanViewerPage {
   /**
    * Apply free-view variables to the interactive view.
    *
-   * @param query URL query text such as `az=0&el=90&ortho=1&isolate=1&fit=selection`; empty returns to the named camera.
+   * @param query URL query text such as `az=0&el=90&ortho=1&isolate=1&fit=selection&garment=0`; empty returns to the named camera.
    * @returns The canonical text.
    *
-   * @evidence contracts/common.md#principled-implementation Parses with normalizeHumanView, applies isolation to the model and re-places the camera with the capture rule.
+   * @evidence contracts/common.md#principled-implementation Parses with normalizeHumanView, applies isolation and garment visibility to the model and re-places the camera with the capture rule.
    * @evidence contracts/common.md#clear-and-simple-design The URL, the toolbar and automation share this entry.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Malformed variables, isolation without a selection and fit without a selection throw and keep the previous view.
    * @evidence contracts/common.md#meaningful-documentation States the accepted variables and failures.
