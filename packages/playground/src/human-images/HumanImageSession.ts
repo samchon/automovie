@@ -7,15 +7,15 @@ import { HumanImageSourceIdentity } from "./HumanImageSourceIdentity";
 /** Serialize an isolated generation/native owner while HTTP serves archives.
  * HTTP retains one byte publication and bounded PNGs, never parsed geometry.
  * Exact source/input commitments and asynchronous output hashing guard IPC.
- * The current worker rejects generation, so this retained cache path cannot produce a model yet.
+ * One resident worker child keeps Chrome on /human.html across model keys and is replaced only when it stops being active; the current model and its frames are cached until the key changes.
  *
  * @evidence contracts/common.md#principled-implementation A serialized queue binds source bytes and supplied input SHA to one child lease, verifies publication/frame commitments and rechecks source before delivery.
  * @evidence contracts/common.md#clear-and-simple-design The session owns model/frame reuse; process lifecycle and HTTP historical delivery stay with their separate owners.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The current child failure propagates without recovered mesh, old model or successful empty output; input SHA and runtime parameter validation remain caller responsibilities.
- * @evidence contracts/common.md#meaningful-documentation States isolated ownership, publication reuse and the current unimplemented worker boundary.
- * @evidence contracts/performance.md#efficient-algorithms Each admitted operation hashes the conservative package-source inventory; model replacement retires the prior child, and frame hits avoid generation/render commands.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A child failure propagates without recovered mesh, old model or successful empty output; input SHA and runtime parameter validation remain caller responsibilities.
+ * @evidence contracts/common.md#meaningful-documentation States isolated ownership, publication reuse and resident-worker replacement.
+ * @evidence contracts/performance.md#efficient-algorithms Each admitted operation hashes the conservative package-source inventory; a new model key regenerates in the resident child, and frame hits avoid generation/render commands.
  * @evidence contracts/performance.md#reuse-equivalent-work One model key combines observed source hash and supplied input hash; frames additionally match name and optional fresh nonce, with active-child checks before reuse.
- * @evidence contracts/performance.md#bound-retention-and-release-resources At most sixteen requests queue behind one child; one publication and PNG buffers each have a 256 MiB admission cap, frame names have no separate count cap, and close joins the queue and child before dropping caches.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources At most sixteen requests queue behind one child, which owns one Chrome; one publication and PNG buffers each have a 256 MiB admission cap, frame names have no separate count cap, and close joins the queue and child before dropping caches.
  */
 export class HumanImageSession {
   private queue: Promise<void> = Promise.resolve();
@@ -38,6 +38,10 @@ export class HumanImageSession {
       }
     | undefined;
   private hostIdentity: string | undefined;
+  private readonly diagrams: Map<
+    string,
+    { bytes: Buffer; nonce: string | null; capturedUtc: string; sha256: string }
+  > = new Map();
   private closed: boolean = false;
   private admittedRequests: number = 0;
   public constructor(
@@ -46,20 +50,22 @@ export class HumanImageSession {
   ) {}
 
   /** Queue one model/frame request; reject invalid nonces, full queues or closed sessions.
-   * Generation is unavailable in the current child. Input value/SHA consistency is supplied by the caller.
+   * The resident child generates and renders in its Chrome page. `curves` is the canonical selection from `normalizeHumanCurves`; it joins the frame identity and the receipt. Input value/SHA consistency is supplied by the caller.
    *
    * @evidence contracts/common.md#principled-implementation The serialized operation observes source/host hashes, derives a model key, verifies worker commitments and refuses source changes before returning publication or frame bytes.
    * @evidence contracts/common.md#clear-and-simple-design One queue protects a model lease and its frame Map while independent archive HTTP reads need no session operation.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts A worker error rejects without fallback; on-disk source hashes neither validate arbitrary Human inputs nor certify the currently loaded module graph.
-   * @evidence contracts/common.md#meaningful-documentation Documents nonce/queue failure, caller SHA responsibility and unavailable generation.
+   * @evidence contracts/common.md#meaningful-documentation Documents nonce/queue failure, caller SHA responsibility and in-page generation.
    * @evidence contracts/performance.md#efficient-algorithms Source hashing scans bytes of five packages per identity check; cache hits save child generation/rendering, while PNG byte accounting scans the retained frame Map.
-   * @evidence contracts/performance.md#reuse-equivalent-work Source/input key and active child permit model reuse; name plus absent or matching nonce permit frame reuse, preserving original capture UTC and PNG SHA.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources finally releases each of at most sixteen admission slots; model replacement joins the prior child, PNG admission caps retained pixels at 256 MiB, and failures may leave that one child owned until replacement or close.
+   * @evidence contracts/performance.md#reuse-equivalent-work Source/input key and active child permit model reuse; name and curve selection plus absent or matching nonce permit frame reuse, preserving original capture UTC and PNG SHA.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources finally releases each of at most sixteen admission slots; an inactive child is closed before its replacement starts, PNG admission caps retained pixels at 256 MiB, and failures may leave that one child owned until replacement or close.
    */
   public async image(
     input: { value: Record<string, unknown>; sha256: string },
     name: string,
     nonce?: string,
+    curves: string = "",
+    view: string = "",
   ): Promise<{
     png: Buffer;
     key: string;
@@ -90,6 +96,10 @@ export class HumanImageSession {
         pngSha256: string | undefined;
       }> => {
         if (this.closed) throw new Error("Human image server is closing");
+
+        // One frame slot per file name, canonical curve selection and free view.
+        const slot: string = name + "|" + curves + "|" + view;
+
         const host: string = await HumanImageSourceIdentity.host(this.root);
         if (this.hostIdentity !== undefined && host !== this.hostIdentity)
           throw new Error("Human host changed; restart this server");
@@ -99,28 +109,17 @@ export class HumanImageSession {
           .update(source + input.sha256)
           .digest("hex");
         const previous: { nonce: string | null } | undefined =
-          this.cached?.key === key ? this.cached.frames.get(name) : undefined;
+          this.cached?.key === key ? this.cached.frames.get(slot) : undefined;
         let cacheHit: boolean =
           this.cached?.key === key &&
           (name === "$model" ||
             (previous !== undefined &&
               (nonce === undefined || previous.nonce === nonce)));
-        if (this.cached?.key !== key || !this.worker?.isActive()) {
-          // One exact model key owns one isolate, including its SSR/native state.
-          // Join its retirement before admitting the next model; archive IO is independent.
-          if (this.worker !== undefined) {
-            await this.worker.close();
-            this.worker = undefined;
-          }
+        const resident: HumanImageProcess = await this.resident();
+        if (this.cached?.key !== key) {
           this.cached = undefined;
           cacheHit = false;
-          if (this.closed)
-            throw new Error(
-              "Human image server closed during model retirement",
-            );
-          const next: HumanImageProcess = new HumanImageProcess();
-          this.worker = next;
-          await next.start(this.root);
+          const next: HumanImageProcess = resident;
           const result: Record<string, unknown> = await next.request({
             kind: "generate",
             source,
@@ -158,8 +157,8 @@ export class HumanImageSession {
             source,
             key,
             name,
-            materialMode:
-              input.value.schema === undefined ? "neutral" : "model",
+            curves,
+            view,
           });
           if (
             result.key !== key ||
@@ -178,11 +177,11 @@ export class HumanImageSession {
                 sum + value.png.length,
               0,
             ) -
-            (this.cached.frames.get(name)?.png.length ?? 0) +
+            (this.cached.frames.get(slot)?.png.length ?? 0) +
             result.png.length;
           if (retained > 268435456)
             throw new Error("Human PNG cache exceeds its byte budget");
-          this.cached.frames.set(name, {
+          this.cached.frames.set(slot, {
             png: result.png,
             nonce: nonce ?? null,
             capturedUtc: result.capturedUtc,
@@ -211,7 +210,7 @@ export class HumanImageSession {
               pngSha256: string;
               metadata: unknown;
             }
-          | undefined = this.cached.frames.get(name);
+          | undefined = this.cached.frames.get(slot);
         if (name !== "$model" && !capture)
           throw new Error("Worker frame is missing");
         return {
@@ -223,6 +222,8 @@ export class HumanImageSession {
           receipt: {
             ...this.cached.receipt,
             frame: name,
+            curves,
+            view,
             capture:
               capture === undefined
                 ? undefined
@@ -245,6 +246,156 @@ export class HumanImageSession {
     }
   }
 
+  /** Queue one 2D curve diagram; same queue, nonce and source rules as frames.
+   * Diagrams need no generated model, so they never disturb the model cache;
+   * up to 32 recent diagrams are kept by source, alias, curve list and format.
+   *
+   * @evidence contracts/common.md#principled-implementation The key commits to the observed source hash, alias, canonical curves and format; a present nonce that differs from the stored one forces a new draw, and the source is rechecked before delivery.
+   * @evidence contracts/common.md#clear-and-simple-design Shares the queue and resident worker with frames; drawing stays in the page.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Worker errors and SHA mismatches reject; no older diagram is returned for a changed source.
+   * @evidence contracts/common.md#meaningful-documentation States cache identity, nonce rule and bound.
+   * @evidence contracts/performance.md#efficient-algorithms One source hash per check and one worker draw on a miss.
+   * @evidence contracts/performance.md#reuse-equivalent-work Hits return the stored bytes with their original capture UTC and SHA.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources FIFO retention of 32 diagrams; close drops them with the session.
+   */
+  public async diagram(
+    alias: string,
+    curves: string,
+    format: "png" | "svg",
+    nonce?: string,
+  ): Promise<{
+    bytes: Buffer;
+    key: string;
+    cacheHit: boolean;
+    capturedUtc: string;
+    sha256: string;
+    receipt: object;
+  }> {
+    if (nonce !== undefined && !/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}$/.test(nonce))
+      throw new Error("Fresh nonce requires one to sixty-four safe characters");
+    if (this.closed || this.admittedRequests >= 16)
+      throw new Error("Human image queue is closed or full");
+    this.admittedRequests++;
+    const work: Promise<Awaited<ReturnType<HumanImageSession["diagram"]>>> =
+      this.queue.then(
+        async (): Promise<
+          Awaited<ReturnType<HumanImageSession["diagram"]>>
+        > => {
+          if (this.closed) throw new Error("Human image server is closing");
+          const source: string = await HumanImageSourceIdentity.source(
+            this.root,
+          );
+          const key: string = createHash("sha256")
+            .update(JSON.stringify([source, alias, curves, format]))
+            .digest("hex");
+          const stored:
+            | {
+                bytes: Buffer;
+                nonce: string | null;
+                capturedUtc: string;
+                sha256: string;
+              }
+            | undefined = this.diagrams.get(key);
+          let cacheHit: boolean =
+            stored !== undefined &&
+            (nonce === undefined || stored.nonce === nonce);
+          if (!cacheHit) {
+            const worker: HumanImageProcess = await this.resident();
+            const result: Record<string, unknown> = await worker.request({
+              kind: "diagram",
+              source,
+              key,
+              alias,
+              curves,
+              format,
+            });
+
+            // Structured clone across the lifecycle thread delivers a Uint8Array.
+            const bytes: Buffer = Buffer.from(
+              result.bytes instanceof Uint8Array
+                ? result.bytes
+                : new Uint8Array(),
+            );
+            if (
+              result.key !== key ||
+              !(result.bytes instanceof Uint8Array) ||
+              createHash("sha256").update(bytes).digest("hex") !==
+                result.sha256 ||
+              typeof result.capturedUtc !== "string"
+            )
+              throw new Error("Worker diagram identity mismatch");
+            this.diagrams.delete(key);
+            this.diagrams.set(key, {
+              bytes,
+              nonce: nonce ?? null,
+              capturedUtc: result.capturedUtc,
+              sha256: result.sha256,
+            });
+            while (this.diagrams.size > 32)
+              this.diagrams.delete(this.diagrams.keys().next().value!);
+            cacheHit = false;
+          }
+          if ((await HumanImageSourceIdentity.source(this.root)) !== source) {
+            this.diagrams.delete(key);
+            throw new Error("Human source changed during this request");
+          }
+          const entry: {
+            bytes: Buffer;
+            nonce: string | null;
+            capturedUtc: string;
+            sha256: string;
+          } = this.diagrams.get(key)!;
+          return {
+            bytes: entry.bytes,
+            key,
+            cacheHit,
+            capturedUtc: entry.capturedUtc,
+            sha256: entry.sha256,
+            receipt: {
+              kind: "human-curve-diagram",
+              key,
+              sourceSha256: source,
+              alias,
+              curves,
+              format,
+              nonce: entry.nonce,
+              capturedUtc: entry.capturedUtc,
+              sha256: entry.sha256,
+              cacheHit,
+            },
+          };
+        },
+      );
+    this.queue = work.then((): void => {}).catch((): void => {});
+    try {
+      return await work;
+    } finally {
+      this.admittedRequests--;
+    }
+  }
+
+  /** The active resident worker, replacing an inactive one (which forgets the model cache). */
+  private async resident(): Promise<HumanImageProcess> {
+    if (this.worker !== undefined && !this.worker.isActive()) {
+      // A dead or failed child (for example a Chrome crash) is retired and
+      // its model forgotten; the next step starts a fresh one.
+      await this.worker.close();
+      this.worker = undefined;
+      this.cached = undefined;
+    }
+    if (this.worker === undefined) {
+      if (this.closed)
+        throw new Error("Human image server closed during worker retirement");
+
+      // One resident child keeps Chrome open across model keys, so only the
+      // first request pays the browser and page start.
+      const next: HumanImageProcess = new HumanImageProcess();
+      this.worker = next;
+      await next.start(this.root);
+    }
+    return this.worker;
+  }
+
   /** Seal admission, retire the child and join queued operations before dropping caches.
    *
    * @evidence contracts/common.md#principled-implementation Closed state rejects queued work; process close runs before and after the settled queue to cover an in-flight acquisition.
@@ -262,5 +413,6 @@ export class HumanImageSession {
     await this.worker?.close();
     this.worker = undefined;
     this.cached = undefined;
+    this.diagrams.clear();
   }
 }

@@ -26,12 +26,15 @@ const READERS: string[] = [
 
 /** Public API and parameter vocabulary with their permitted dependencies. */
 const LAYERS: Array<[string, string[]]> = [
-  ["api", ["structures", "typings"]],
+  ["api", ["appearance", "generation", "lofting", "structures", "typings"]],
+  ["appearance", ["generation", "lofting", "structures", "typings"]],
+  ["generation", ["lofting", "structures", "typings"]],
+  ["lofting", []],
   ["typings", []],
   ["structures", ["typings"]],
 ];
 
-/** Classification of the generator stub and retained Human types. */
+/** Classification of the generator layers and Human types. */
 const ELEMENTS: ITtscLintBoundariesElement[] = LAYERS.map(
   ([type]: [string, string[]]): ITtscLintBoundariesElement => ({
     type,

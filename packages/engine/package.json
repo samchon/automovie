@@ -23,7 +23,8 @@
     "./geometry/curve/compileAutoMovieNormalizedPhases64": "./src/geometry/curve/compileAutoMovieNormalizedPhases64.ts",
     "./geometry/realizeAutoMovieConvexSupportLoft": "./src/geometry/realizeAutoMovieConvexSupportLoft.ts",
     "./geometry/evaluateAutoMovieSupportSection": "./src/geometry/evaluateAutoMovieSupportSection.ts",
-    "./geometry/createAutoMovieSupportSectionQuery": "./src/geometry/createAutoMovieSupportSectionQuery.ts"
+    "./geometry/createAutoMovieSupportSectionQuery": "./src/geometry/createAutoMovieSupportSectionQuery.ts",
+    "./render/encodeAutoMoviePng": "./src/render/encodeAutoMoviePng.ts"
   },
   "scripts": {
     "build": "rimraf lib && ttsc",
@@ -127,6 +128,10 @@
       "./geometry/createAutoMovieSupportSectionQuery": {
         "types": "./lib/geometry/createAutoMovieSupportSectionQuery.d.ts",
         "default": "./lib/geometry/createAutoMovieSupportSectionQuery.js"
+      },
+      "./render/encodeAutoMoviePng": {
+        "types": "./lib/render/encodeAutoMoviePng.d.ts",
+        "default": "./lib/render/encodeAutoMoviePng.js"
       }
     },
     "typesVersions": {
@@ -184,6 +189,9 @@
         ],
         "geometry/createAutoMovieSupportSectionQuery": [
           "lib/geometry/createAutoMovieSupportSectionQuery.d.ts"
+        ],
+        "render/encodeAutoMoviePng": [
+          "lib/render/encodeAutoMoviePng.d.ts"
         ]
       }
     }
@@ -254,6 +262,9 @@
       ],
       "geometry/createAutoMovieSupportSectionQuery": [
         "src/geometry/createAutoMovieSupportSectionQuery.ts"
+      ],
+      "render/encodeAutoMoviePng": [
+        "src/render/encodeAutoMoviePng.ts"
       ]
     }
   }

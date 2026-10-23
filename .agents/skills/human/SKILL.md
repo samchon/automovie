@@ -12,9 +12,11 @@ During authorized modeling, keep the single web viewer and screenshot server run
 ## Rules
 
 - Validate specimen reproduction before accepting common parameter laws or claiming prediction.
-- Preserve original curve authority and [representation contracts](references.md#extract-and-save).
+- Use saved Recovery/Hermite curves and coefficients as primary geometric evidence under [representation contracts](references.md#extract-and-save).
+- Separate known ruled reverse-render artifacts from anatomy under [Reference Defects](references.md#reverse-render-defects).
 - Reject specimen copies, person-indexed control tables, source mesh/normal fallback and arbitrary coordinate corrections.
 - Read the applicable [3D Modeling guide](../3d-modeling/SKILL.md). Unconsumed code, fits and documents are not rendered progress.
+- Trace a skin line or ripple to its curves under [Lines And Ripples](verification.md#lines-and-ripples-on-the-skin) before changing fitter or generator code.
 
 ## Work Allocation
 
@@ -27,9 +29,10 @@ Work alone by default. Spawn or resume subagents only when the user explicitly r
 
 ## Workflow
 
-- Design and identify shared q/theta against all four references from the start; integrate regions into the root early.
-- First establish f1 through public generation → actual model → viewer; this checks the execution path, not completed anatomy or four-person acceptance.
-- As soon as that path works, expand to all four and correct common causes in complete rounds; never perfect f1 before moving on, use person-specific tables or relax the [eight-image audit](verification.md#audit-and-user-reports). Report unavailable early captures as failed or unverified.
+- Complete f1's observed whole-body reproduction through public generation → actual model → viewer, including skin, construction, every join and visual acceptance.
+- Then expand to f2 → m1 → m2 through shared rules; reinspect accepted specimens after each common correction.
+- Use recovered coordinates as calibration constraints, without person-indexed tables; f1 reproduction alone does not establish common laws or unseen-shape prediction.
+- Follow the [audit schedule and image reports](verification.md#audit-and-user-reports); report unavailable captures as failed or unverified.
 
 1. Bind the current Human contract, [Playground parameter authority](screenshot.md#parameters-and-aliases), achieved inputs and [reference curves](references.md).
 2. Identify body features, source-backed axes, frames and principal layers under [Reverse Analysis](reverse-analysis.md) and [Anatomy](anatomy.md).

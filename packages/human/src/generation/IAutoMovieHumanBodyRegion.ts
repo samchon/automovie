@@ -1,0 +1,61 @@
+import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
+import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
+
+/**
+ * One region's share of the body calibration.
+ *
+ * The body calibration is the union of regions (torso and limbs, feet, ears,
+ * ...), each emitted by its own observation fitter and owned by one author.
+ * A region adds chains, events and poles, and may trim another region's
+ * chain end so that its own event can attach there: a foot region trims the
+ * leg above the toes and joins the foot chains to the new leg end.
+ * {@link AutoMovieHumanBodyRegions.merge} combines regions and applies the
+ * trims; the generator only ever sees the merged calibration.
+ */
+export interface IAutoMovieHumanBodyRegion {
+  /** Region name, for diagnostics. */
+  name: string;
+
+  /**
+   * Achieved stature input of the calibration specimen in mm. Exactly one
+   * region of a merge declares it.
+   */
+  stature?: number;
+
+  /** Chains owned by this region; names are unique across all regions. */
+  chains: IAutoMovieHumanLoftChain[];
+
+  /** Branch events whose parent is a chain of any region. */
+  events: IAutoMovieHumanBodyCalibration.IEvent[];
+
+  /** Poles closing chain ends of any region. */
+  poles: IAutoMovieHumanBodyCalibration.IPole[];
+
+  /**
+   * Chain ends this region moves: the named chain is cut at the station, its
+   * new end layer taking the original function's coefficients and slope
+   * there, and any pole at that end is dropped because this region attaches
+   * an event or its own pole instead.
+   */
+  trims: IAutoMovieHumanBodyRegion.ITrim[];
+
+  /** Skin openings this region contributes; absent means none. */
+  apertures?: IAutoMovieHumanLoftAperture[];
+
+  /** Eyeball globes this region contributes; absent means none. */
+  eyes?: IAutoMovieHumanBodyCalibration.IEye[];
+}
+export namespace IAutoMovieHumanBodyRegion {
+  /** Cut of one chain end at a station. */
+  export interface ITrim {
+    /** Chain to cut, owned by any region. */
+    chain: string;
+
+    /** Which end moves to the station. */
+    end: "bottom" | "top";
+
+    /** New end station in mm, strictly inside the chain. */
+    station: number;
+  }
+}

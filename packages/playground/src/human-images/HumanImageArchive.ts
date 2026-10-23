@@ -2,6 +2,9 @@ import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 
+import { normalizeHumanCurves } from "../human/normalizeHumanCurves";
+import { normalizeHumanView } from "../human/normalizeHumanView";
+
 /** Retain at most sixteen historical PNG/receipt publications within 64 MiB.
  * Captured pixels and original producer records are copied, never regenerated.
  * URLs identify capture records, not the current source/model generation. Old
@@ -200,7 +203,7 @@ export class HumanImageArchive {
   }
 
   /** Borrow the newest retained entry matching an original URL path and fresh nonce.
-   * URL origins and other query fields do not select capture identity.
+   * The canonical `curves` selection and free view also select; URL origins and other query fields do not.
    *
    * @evidence contracts/common.md#principled-implementation Reverse insertion-order search compares normalized pathname and fresh nonce against qualified producer URLs.
    * @evidence contracts/common.md#clear-and-simple-design Original request lookup and immutable capture-ID lookup share the same retained entries.
@@ -216,6 +219,25 @@ export class HumanImageArchive {
     | { png: Buffer; receipt: Buffer; summary: Record<string, string> }
     | undefined {
     const requested: URL = new URL(originalUrl, "http://localhost");
+
+    // A malformed selection matches nothing; the HTTP owner rejects it next.
+    const curves: (url: URL) => string | undefined = (
+      url: URL,
+    ): string | undefined => {
+      try {
+        return (
+          normalizeHumanCurves(url.searchParams.getAll("curves")) +
+          "#" +
+          normalizeHumanView((name: string): string | null =>
+            url.searchParams.get(name),
+          ).text
+        );
+      } catch {
+        return undefined;
+      }
+    };
+    const selection: string | undefined = curves(requested);
+    if (selection === undefined) return undefined;
     return [...this.entries.values()]
       .reverse()
       .find((entry: ReturnType<HumanImageArchive["qualify"]>): boolean => {
@@ -223,7 +245,8 @@ export class HumanImageArchive {
         return (
           original.pathname === requested.pathname &&
           original.searchParams.get("fresh") ===
-            requested.searchParams.get("fresh")
+            requested.searchParams.get("fresh") &&
+          curves(original) === selection
         );
       });
   }
