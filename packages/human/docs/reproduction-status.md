@@ -1,54 +1,102 @@
-# Neutral Human reproduction status
+# Human reproduction handoff
 
-This is the open correction round for [campaign #2925](https://github.com/samchon/automovie/issues/2925), based on merged commit `6c568f1dd545e8bf82e74b766ac6d2f8e0f8a515`. It records observed defects and remaining work, not acceptance of the generated figures.
+Modeling stopped at the user's request. This change retains inspection improvements and evidence, not a completed Human reproduction. The active Human generator and calibration remain at the complete baseline from merged commit `6c568f1dd545e8bf82e74b766ac6d2f8e0f8a515`. Unfinished geometry and fitter changes were rejected for publication.
 
-## Current implementation
+The user will resume in a new session without subagents. Start with the complete evidence and one shared representation contract; do not resume the discarded regional implementation.
 
-`AutoMovieHuman.generate(params)` returns the public `{ parameters, model }` contract. Skin, construction and appearance are assembled in the existing Human viewer. The body currently consumes height as a uniform scale of the f1 calibration. Other body controls, head and extremity inputs do not yet change the skin. Consequently f2, m1 and m2 are not reproduced specimens.
+## Retained implementation
 
-| Specimen | Current qualification | Required next result |
-| --- | --- | --- |
-| f1 | Whole body integrated; correction round open | All regions, joins and assembled appearance inspected and accepted |
-| f2 | f1 body scaled by stature; not reproduced | Reproduce its own observations through shared parameter rules after f1 |
-| m1 | f1 body scaled by stature; not reproduced | Reproduce its own observations after f2; reinspect f1 and f2 |
-| m2 | f1 body scaled by stature; not reproduced | Reproduce its own observations after m1; reinspect all preceding specimens |
+- The viewer supports `hair=0`, `material=clay`, and `light=raking-left|raking-right` through controls, canonical URLs, capture metadata and state restoration. Clay removes skin textures, vertex colours, emissive and skin shader effects without changing geometry.
+- Specifying only `el` preserves the named camera's azimuth. Previously `head-back&el=-15` silently became a front view. Fresh implicit/explicit 180-degree captures now have identical PNG hashes, and side-camera elevation preserves its side direction.
+- The existing top view is `free` with `view=+y`; encode the plus as `%2B`. Actual metadata records elevation `pi/2`.
+- Human instructions require viewer recovery before modeling, every required fresh audit image, local image inspection and preservation of the original cadence. An unavailable label or old image does not complete an audit.
 
-## Inspection evidence
+No geometry correction from the abandoned batch is included. Eye scale, cavity colour, terminal lineage and other identified causes still need implementation and actual rendering in a coherent replacement batch.
 
-The first round retains 79 new whole-body, regional, construction and curve-diagram captures under the ignored `packages/playground/.shots/repro-r1/` directory. The source model JSON is retained there for read-only geometric measurements. These are independent generated Human images; the canonical original-model and Recovery photographs remain separate under `test/.shots/`, selected by their manifest and capture indices.
+## Reproduction status
 
-The first user audit has eight additional fresh surface images under `packages/playground/.shots/audit-001/`, captured with `garment=0` from `2026-10-23T15:30:36.369Z` through `2026-10-23T15:31:38.793Z`. Each PNG has a SHA-256-checked response and retained receipt binding its source, typed input, model, construction, camera and renderer. The copies and their local paths are not published GitHub artifacts. Images of f2, m1 and m2 show their unfinished generated bodies, not successful reproduction.
+| Specimen | Qualification |
+| --- | --- |
+| f1 | Whole body assembled; visible defects remain; not accepted |
+| f2 | f1 calibration scaled by stature; not reproduced |
+| m1 | f1 calibration scaled by stature; not reproduced |
+| m2 | f1 calibration scaled by stature; not reproduced |
 
-## Defects and causes
+The public contract remains `AutoMovieHuman.generate(params)` returning `{ parameters, model }`. Typed examples under `packages/playground/src/human-parameters/` are authoritative. Other body controls do not yet shape the skin. Four specimens would not identify every independent parameter effect or prove unseen-shape prediction.
 
-| Phenomenon | Evidence and cause status | Remaining correction or discrimination |
-| --- | --- | --- |
-| Head rings near 1595.5 and 1543.2 mm | Child endpoint curves are refitted approximations of exact inherited parent arcs. Measured head endpoint residuals reach approximately 0.65 mm. Back-of-head residuals are much smaller, so this alone does not explain the complete ring. | Compare endpoint jets, neighbouring layers, axes and curvature diagrams; separate geometric bending from skin normal-map effects. Use one boundary authority for skin and construction. |
-| Axilla point and shallow contact line | Fresh surface, overlay and construction place the defect at the upper-to-trunk/arm contact. Parent contact sections retain narrow curvature spikes that child sections approximate differently. | Resolve shared boundary correspondence and transverse derivatives; inspect both axillae and neighbouring shoulder/trunk surfaces. |
-| Groin and repeated lines under the buttocks | Fresh underwear-off back images expose repeated short ridges absent from the original photographs. Parent contact-section oscillation and child endpoint approximation are separate candidates. | Inspect posterior close-ups, original curves and section curvature before selecting the correction. Recheck the whole pelvis and both legs. |
-| Globe and eyelids scale differently | Globe revolution applies fixed millimetre conversion while lids use stature scale; seating is recomputed from an already scaled radius. | Place and scale the globe from the same calibration frame as lids, tear film and lashes. Verify the existing specimen paths without expanding deferred parameter experiments. |
-| Eyebrow medial pile-up | Uniform control-index interpolation reverses the distance coordinate by approximately 0.96 mm; a quarter of roots accumulate in the first short segment. | Use monotone physical distance and interpolation at the actual nonuniform stations. Inspect both brows and neighbouring eyelids. |
-| Eyelid outer red triangles, lower ripples and lateral folds | Fresh front/high/low views reproduce them. Triangle inspection does not support a widespread degenerate-mesh explanation. Lid-band and kept-skin boundary slopes are independently processed. | Discriminate band geometry, neighbouring head lofts, colour and lighting before changing the shared edge and its derivatives. Inspect caruncles, conjunctiva and globe contact together. |
-| Nostril rim teeth and wall spokes | Projected snapping preserves a different depth from the saved spatial margin; measured disagreement reaches approximately 0.47 mm. Extruded irregular rims and a flat fan do not share a wall/floor tangent. | Bind the actual margin, wall and floor consistently; determine whether a surviving head bridge contributes. Draw the actual aperture construction. |
-| Bright nostril interior | Current floor normals face the opening and existing cavity darkening is consumed. Neither reversed cap normals nor missing colour alone explains the appearance. | Separate cap, wall and any remaining head sheet under clay and matched lighting. Internal pocket shape remains a conventional closure, not recovered internal anatomy. |
-| Lip-border and philtrum/alar colour spread | A single lip profile and elliptical field define pigment; cavity darkening uses a circular reach rather than its exact aperture domain. | Align colour with generated surface features and the actual aperture domain. Distinguish normal-map artifacts from pigment boundaries. |
-| Scalp patch, ear and neck surfaces hidden by hair | Hair-free isolation exposes a crown-area dark patch absent from the original photographs. Shape versus normal-map contribution is unresolved. | Inspect plain skin under raking light, all head/ear joins and scalp sections before accepting appearance. |
-| Long little-finger tips | A collapsed terminal branch chooses the lowest nearby minimum without graph lineage; a neighbouring digit's critical point supplies the pole. | Select terminal critical points from the observed branch lineage and regenerate the fitter output. Preserve sufficient coordinate precision for all digit poles. |
-| Remaining hands and feet | Fresh dorsal/palmar hand and upper/rear foot views are available. Gross wrist/ankle cracks were not observed in those views. Web slivers, all nail contacts, soles and every digit remain incomplete inspections. | Finish close-ups and curve comparisons, then inspect regenerated caps, nail placement, webs and neighbouring wrist/ankle skin. |
+## Preserved local evidence
 
-## Correction and validation sequence
+These directories are ignored development artifacts, not GitHub attachments. Canonical reference addresses come from `test/.shots/manifest.json` and each specimen's `captures.json`. Original-model photographs, Recovery ruled renders and independent Human images are different evidence.
 
-1. Finish the current whole-asset evidence round, including plain skin, raking light, hidden surfaces and all neighbouring regions. Keep unresolved hypotheses distinct from measured causes.
-2. Correct the identified causes together at their owning representations. Runtime skin, construction, appearances and diagnostics must consume the same curves and boundaries. Regenerate calibration through its fitters rather than hand-editing coefficient literals.
-3. Repeat the original conditions across every affected view and region; inspect the assembled f1 before accepting it. Any new or unexplained defect keeps the round open.
-4. Reproduce f2, then m1, then m2 through identifiable shared equations in the typed inputs. Bind observed course definitions, axes, sections and guides. Person-indexed coefficients, alias branches, source-mesh fallback and arbitrary coordinate corrections are excluded.
-5. Reinspect every already accepted specimen after a shared correction. Four specimens do not identify 28 independent parameter effects or establish prediction of unobserved shapes.
-6. Run the applicable type, static and Evidence checks with actual exit codes, then whole-change self-review and exact-head CI. Human and Human-viewer tests are prohibited, including relocated substitutes.
+| Directory under `packages/playground/.shots/` | Contents |
+| --- | --- |
+| `final-r1/` | Historical inspection, not new validation |
+| `repro-r1/` | 77 distinct initial frame/receipt pairs from 79 requests, regional diagrams, baseline model JSON and source/contact/head/nose/skin measurements |
+| `controlled-r1/` | 60 beauty, clay, raking, overlay and construction images across ten f1 regions |
+| `audit-001/`, `audit-002/` | Earlier eight-frame reports before the user narrowed the audit |
+| `audit-003/` | Failed captures, not a completed audit |
+| `audit-004/` through `audit-008/` | Fresh f1 front, side, top and back images with underwear off, exact SHA checks and retained receipts; every direction opened locally |
+| `audit-007/` | Also corrected partial-elevation back/side captures; implicit and explicit back azimuth produce identical PNG bytes |
+| `appearance-r1/` | Hair views, actual-mesh measurements and inspection report; the mislabeled old front-low capture is separated from the corrected back-low frame |
+| `nails-r1/`, `nails-r1-occlusion/` | 84 directly inspected frames covering all 20 nails, hands, webs and soles; the second set resolves two initially occluded toenails |
+| `stage-static-r1/`, `stage-fit-r1/` | Actual exit codes, failed fitting logs and read-only source diagnostics from the rejected batch |
+| `cleanup-final-frames/`, `cleanup-final-inspection/` | Final four-direction f1 captures, clay/raking/overlay/construction head captures and separate section/axis diagrams; all eleven PNGs opened locally |
+| `cleanup-final/` | Passing playground build and Evidence exit codes, final capture summary and delivery records |
 
-## Scope and delivery
+Receipts retain UTC, source/input/model/construction hashes, camera, display conditions and hardware renderer. Identical deterministic pixels across fresh draws do not mean cache hits. The baseline model hash is `831d990d001232c9e6f8e408bb86b840be75a5b0f79b928410d2bc8431e46d54`, computed from `JSON.stringify(model)`, not the whole HTTP response file.
 
-The single existing service on `127.0.0.1:5173` remains the viewer and capture host. One execution owner controls compilation, fitting and GPU capture while regional contributors inspect and implement disjoint responsibilities. During delegated modeling, inspect and send eight fresh underwear-off front/back images every 15 minutes, retaining the exact local bytes and provenance.
+## Confirmed defects and causes
 
-The public pose schema and stickman preview remain separate from skin rigging and deformation, tracked by [#2947](https://github.com/samchon/automovie/issues/2947). Mouth interior, tongue and viseme articulation remain deferred under the existing [#2971](https://github.com/samchon/automovie/issues/2971). Independent parameter changes, interactions and restoration experiments remain deferred. Recalled joint-range sources need protocol-qualified documentation; their values must not be promoted to measured anatomical limits by citation alone.
+| Observation | Established cause or remaining distinction |
+| --- | --- |
+| Head rings near 1595.5 and 1543.2 mm | Independent endpoint curves and layer jets disagree. Two distinct helix events were merged by a 2 mm span rule. Nonlinear parent restriction is not exact after child-basis projection. C0 alone does not explain every posterior line. |
+| Axilla, groin and digit webs | Projection, soft endpoint fitting and rounding lose source neck constraints. Raw hand widths around 0.001–0.006 mm become 2.27–2.97 mm, axilla widths 0.008/0.041 mm become 4.95/4.85 mm, and pelvic width 1.73 mm becomes 10.03 mm. Preserve observed widths without treating an invented closing chord as observed skin. |
+| Buttock ripples | A contact-wide cutoff propagates oscillation through trunk stations 805–815 mm. Actual vertices follow those sections; mesh normal differences contribute but are not the sole cause. |
+| Eyes and brows | Globe/lid stature scaling differs. Uniform-index brow interpolation reverses its physical distance by about 0.96 mm and crowds medial roots. |
+| Lid teeth and folds | Defects remain in clay and raking light. Band slopes differ from the kept skin triangle; averaged depth and finite secants are not the actual edge jet. |
+| Nostril facets | Snapping clipped points off triangle edges can invert kept triangles. Extruded walls and a flat floor fan have discontinuous joins. Pocket interior closure is a convention, not recovered anatomy. |
+| Crown patch and facial colour | Cavity tint lacks an axial upper bound, darkening crown vertices about 173 mm from an 8.68 mm pocket. A single elliptical lip field also misses lateral lip borders. |
+| Oral ripples | Synthetic straight slit closures are fitted as skin. At station 1526 the central source arc is inside the mouth, not observed external lip skin. Source commissure curvature and regression ringing must be distinguished. |
+| Long little-finger tips | A collapsed terminal selects a nearby critical point without source graph lineage. Rounding also damages very short terminal spans. |
+| Nail separation | All 20 plates have lifted upper surfaces without cuticle/lateral joining geometry. Boundary distances are about 0.31–0.57 mm. The intended 0.45 mm thickness is not itself the defect; the open contact structure and visible detached outline are. Reverse and degenerate triangle counts are zero. |
+| Hair kinks and detached strips | Discrete contact corrections become shape authority. Direction changes and settling steps are emitted as straight card segments; maximum turn is 149.4 degrees and segment length 31 mm. More samples alone do not establish continuous contact. |
 
-This work is delivered through topic-specific draft pull requests. A draft, successful fit, compilation or image response is not visual completion. Final merging requires complete review and green checks on the final commit.
+Detailed measurements and bindings remain beside the images. SkinChart distortion, global material changes, universal degenerate-triangle explanations and a supposed 180-degree hair-frame flip did not explain the broad defects.
+
+## Rejected implementation
+
+Activating a required transition schema before regenerating all 50 calibration records prevented module initialization and page capture. Unfinished code was isolated, the complete active revision restored, and fresh images opened before modeling resumed. The single live server was not terminated.
+
+The first staged static round returned exit 2 for runtime, browser and tool configurations. The first fitting round returned exit 1 for torso, foot and head: five torso and three foot contacts rejected nearest-point correspondence, and the short head profile missed its retained top observation. Foot/head diagnostics used old torso coefficients after torso fitting failed. No replacement calibration reached the active viewer.
+
+Further source inspection invalidated assumptions before another fitting round:
+
+- The same arclength rule on two contours defines charts but does not prove physical correspondence across height.
+- A global normal-plane graph misses retained neck source points and can follow a free auricle instead of head skin.
+- A finite regular `height × phase` chart cannot cover a true height critical point. It needs another local chart, not stronger normal-jet constraints.
+- Exact parent restriction at one end and an independently projected opposite endpoint can amplify residuals by inverse span length and its square.
+- Schur numerical rank depends on objective conditioning and cannot alone classify original source equality feasibility or compression capacity. The sparse helper was never executed; this is a design finding, not an observed solver failure.
+- Raw coefficient equalities need not constrain the final surface when runtime overrides replace that evaluator. Some G2 conditions are nonlinear in the unknown first jets.
+
+The incomplete boundary/family hierarchy, replacement fitters, inferred oral patch and sparse-solver expansion are not a trustworthy starting implementation. Preserve their counterexamples and requirements rather than accumulated patches.
+
+Nine ignored local fitters modified during the abandoned work were removed from their executable location and retained only for provenance under `packages/playground/.shots/handoff/rejected-local-fitters/`. Other acquisition tools and all canonical reference data remain in place. Do not assume the old local fitting commands are ready to run.
+
+The rejected staging tree and its accidentally copied dependencies were physically deleted after removing every junction into the workspace. No staged geometry, replacement solver or scratch audit entrypoint remains active. The final cleanup passed the playground build, Evidence and whitespace checks. The eleven final PNGs retain fresh capture receipts from `2026-10-23T17:29:37.327Z` through `17:29:59.899Z`. An initial invalid diagram request mixed sections and axes and correctly failed; the two supported requests were then captured separately. This verifies retained inspection behavior, not anatomical acceptance or independent parameter responses.
+
+## Next session's starting conditions
+
+1. Classify all joins from source evidence: regular loft boundary, true critical event, opening, crease or inferred closure. Bind graph node/edge, raw span address, orientation and one-sided support before fitting.
+2. Keep regular loft regions and use a regular local parametric chart for critical bands. Share actual curve and derivative authorities; do not force finite height derivatives through a saddle or extremum.
+3. Keep observed and inferred domains separate. Synthetic chords and missing oral skin are not observed targets. Point correspondence, transverse transition, G0/G1/G2, mesh incidence and embedding are separate obligations.
+4. Use one actual evaluator for skin, construction, diagnostics and attachments. Solve constraints on that evaluator, with sufficient degree and degrees of freedom.
+5. Reuse existing engine mathematics within its premises. Hermite/Gregory supplies rational first partials, not automatic G2 or topology; the parametric atlas and canonical boundaries supply transport, not geometric qualification. Existing Clarabel can express least-squares through residual variables without a new bridge. These are researched candidates, not validated replacements.
+6. Finish a complete evidence round and freeze common contracts before regional implementation. Then fit and render the complete affected population together. Source edits, compilation, HTTP 200 and numerical fit are not visual completion.
+
+Correspondence, branching and fitting are distinguished by [Meyers, Skinner and Sloan](https://graphicsinterface.org/wp-content/uploads/gi1991-32.pdf). Boundary ribbons and parameter constraints are covered by [Várady, Salvi and Vaitkus](https://doi.org/10.1016/j.cagd.2024.102286). [LAPACK DGGLSE](https://www.netlib.org/lapack/lapack_routine/dgglse.f) states its rank premises and near-singular accuracy limitations.
+
+## Operation and deferred scope
+
+Keep the existing single service at `http://127.0.0.1:5173`. Do not create a second viewer or kill a live host for a model failure. Modeling and its audit stop at the user's stop request; the service remains available. If modeling is authorized again, use the requested f1-only front/side/top/back underwear-off audit every 15 minutes, opening exact local PNGs without embedding them unless requested. The next session works alone.
+
+The current 2D diagram supports sections and axes; the abandoned pocket/guide diagram extension is not delivered. Pose deformation remains under [#2947](https://github.com/samchon/automovie/issues/2947); mouth interior, tongue and visemes remain deferred under [#2971](https://github.com/samchon/automovie/issues/2971). Human and Human-viewer tests remain prohibited, including renamed substitutes. No independent parameter-change, interaction or restoration experiment was performed.

@@ -16,6 +16,7 @@ node node_modules/vite/bin/vite.js --host 127.0.0.1 --port 5173 --strictPort
 - The first PNG after a start takes 15 to 30 s (Chrome launch, Vite module transform, generation). A new frame of the current model then takes about 1 s, another person or a source change a full regeneration, a cache hit about 1.5 s, and a 2D diagram about 1 s.
 - The worker needs Google Chrome (`CHROME` overrides the path) with hardware WebGL. It refuses a software renderer such as SwiftShader, because the reference photographs come from ANGLE Direct3D 11.
 - Model errors never authorize a restart; follow [failure isolation](verification.md#actual-generated-form). Verify the 3D page, parameter JSON and a decoded PNG after any recovery; HTTP 200 alone proves nothing.
+- Keep unfinished source and calibration changes outside the live import graph until their complete dependency set is ready. A partial edit must not disable the viewer while modeling continues. Preserve the work, restore a complete active revision when needed and identify that revision honestly in capture evidence; never substitute an old PNG or hide a generation failure behind an old model.
 - `AUTOMOVIE_HUMAN_AUDIT_IMPORT` imports one manifest path or a JSON array of at most two into the archive; import never renders or changes a capture time.
 
 ## Human Page
@@ -151,7 +152,7 @@ A curve id is a construction part id without `human.construction.`: `<chain>/<k>
 
 1. Save each inspected PNG's exact HTTP bytes under `packages/playground/.shots/<round>/`, which git ignores, never under `test/.shots`.
 2. Check the file's SHA-256 against `x-human-png-sha256` and keep the captured UTC, receipt and model key.
-3. Open the local PNG, then embed its absolute path in Markdown, one image at a time outside tables, with its URL for developer access.
+3. Open every local PNG. Embed its absolute path in Markdown, one image at a time outside tables with its developer URL, when image delivery is requested; inspection-only audits stay local when the user requests that.
 
 A save or delivery time is not a capture time. Remove report copies that no longer serve a report.
 

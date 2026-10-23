@@ -6,6 +6,7 @@
  * - `az=<deg>`, `el=<deg>`: camera direction; azimuth from +X toward +Z,
  *   elevation toward +Y in [-90, 90]. `view=+x|-x|+y|-y|+z|-z` is a shorthand
  *   naming the axis the camera sits on and cannot be combined with `az`/`el`.
+ *   A missing angle keeps the named camera's corresponding direction.
  *   A `+` in a query string decodes to a space, so ` x` reads as `+x`.
  * - `target=x,y,z`: look-at point in mm in the generated model's registered frame.
  * - `dist=<mm>`: camera distance from the target; absent fits the region.
@@ -16,6 +17,9 @@
  * - `garment=0`: hide the garment parts (`human.garment.`), so the bare body
  *   can be inspected; `garment=1` or absent shows them, the default because
  *   every image shown outside development wears them.
+ * - `hair=0`: hide scalp hair, brows and lashes (`human.hair.`); absent or 1 shows them.
+ * - `material=clay`: use a neutral plain skin material without source textures, vertex colours or shader effects; absent or `appearance` keeps the generated appearance. Geometry and normals stay unchanged; eyes and nails retain their materials.
+ * - `light=raking-left|raking-right`: camera-relative grazing inspection light; absent or `reference` keeps the reference illumination. These are development inspection conditions, not reference-comparable beauty frames.
  *
  * The canonical text lists the present variables in fixed key order with
  * numbers in shortest round-trip form, so every spelling of one view has one
@@ -26,9 +30,9 @@
  *
  * @evidence contracts/common.md#principled-implementation Each variable is parsed by an explicit grammar and range check, the shorthand maps to exact azimuth/elevation pairs, and canonical text uses a fixed key order and Number's round-trip formatting.
  * @evidence contracts/common.md#clear-and-simple-design One pure function shared by the HTTP plugin, the session's frame identity, the worker and the page.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown shorthand, out-of-range angles, non-positive distances, garment values other than 0 or 1 and conflicting direction variables throw instead of being ignored.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid camera values, garment/hair flags other than 0 or 1, unknown material/light modes and conflicting directions throw; absent inspection fields retain the existing appearance and illumination.
  * @evidence contracts/common.md#meaningful-documentation States every variable, unit, frame, the `+` decoding pitfall and the canonical form.
- * @evidence contracts/performance.md#efficient-algorithms Constant work over at most nine variables.
+ * @evidence contracts/performance.md#efficient-algorithms Constant work over the fixed camera and inspection variables, with query strings proportional to their short serialized values.
  * @evidence contracts/performance.md#reuse-equivalent-work The canonical text lets the frame cache reuse a capture across spellings of one view.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing.
  */
@@ -58,6 +62,9 @@ export function normalizeHumanView(read: (name: string) => string | null): {
     ortho: flag("ortho"),
     fit: null,
     garment: true,
+    hair: true,
+    material: "appearance",
+    light: "reference",
   };
 
   // Direction: the shorthand or explicit angles, never both.
@@ -80,8 +87,8 @@ export function normalizeHumanView(read: (name: string) => string | null): {
       throw new Error("Human view= must be one of +x -x +y -y +z -z");
     [value.az, value.el] = table[axis]!;
   } else if (azimuth !== undefined || elevation !== undefined) {
-    value.az = azimuth ?? 0;
-    value.el = elevation ?? 0;
+    if (azimuth !== undefined) value.az = azimuth;
+    if (elevation !== undefined) value.el = elevation;
   }
   if (value.el !== undefined && Math.abs(value.el) > 90)
     throw new Error("Human view elevation must lie in [-90, 90]");
@@ -109,6 +116,25 @@ export function normalizeHumanView(read: (name: string) => string | null): {
       throw new Error("Human view fit must be selection");
     value.fit = "selection";
   }
+  const hair: string | null = read("hair");
+  if (hair !== null && hair !== "" && hair !== "1") {
+    if (hair !== "0") throw new Error("Human view hair must be 0 or 1");
+    value.hair = false;
+  }
+  const material: string | null = read("material");
+  if (material !== null && material !== "" && material !== "appearance") {
+    if (material !== "clay")
+      throw new Error("Human view material must be appearance or clay");
+    value.material = material;
+  }
+  const light: string | null = read("light");
+  if (light !== null && light !== "" && light !== "reference") {
+    if (light !== "raking-left" && light !== "raking-right")
+      throw new Error(
+        "Human view light must be reference, raking-left or raking-right",
+      );
+    value.light = light;
+  }
 
   // Fixed key order; absent and default values are omitted.
   const entries: string[] = [];
@@ -121,6 +147,10 @@ export function normalizeHumanView(read: (name: string) => string | null): {
   if (value.isolate) entries.push("isolate=1");
   if (value.fit !== null) entries.push("fit=" + value.fit);
   if (!value.garment) entries.push("garment=0");
+  if (!value.hair) entries.push("hair=0");
+  if (value.material !== "appearance")
+    entries.push("material=" + value.material);
+  if (value.light !== "reference") entries.push("light=" + value.light);
   return { text: entries.join("&"), value };
 }
 
@@ -158,6 +188,15 @@ export namespace normalizeHumanView {
 
     /** Show the garment parts. */
     garment: boolean;
+
+    /** Show scalp hair, brows and lashes. */
+    hair: boolean;
+
+    /** Generated skin appearance or a plain inspection material; geometry and normals are identical. */
+    material: "appearance" | "clay";
+
+    /** Reference illumination or an explicit camera-relative raking inspection profile. */
+    light: "reference" | "raking-left" | "raking-right";
 
     /** Frame the selection's bounds. */
     fit: "selection" | null;

@@ -9,7 +9,7 @@ import type { IHumanViewerPage } from "./human/IHumanViewerPage";
  * waits for the alias selector or `window.__automovieHuman`, which the PNG
  * worker's headless Chrome drives. After a load, `?camera=`, `?pass=` and
  * `?curves=` restore the view, then the free-view variables (`az`, `el`, `view`,
- * `target`, `dist`, `ortho`, `isolate`, `fit`, `garment`); failures stay on the status line.
+ * `target`, `dist`, `ortho`, `isolate`, `fit`, `garment`, `hair`, `material`, `light`). Hair visibility, clay skin and raking illumination restore through the same parser and canonical view as PNG capture; failures stay on the status line.
  */
 async function bootstrapHumanPage(): Promise<void> {
   const root: HTMLElement | null = document.getElementById("app");
@@ -75,6 +75,9 @@ async function bootstrapHumanPage(): Promise<void> {
     "isolate",
     "fit",
     "garment",
+    "hair",
+    "material",
+    "light",
   ]) {
     const value: string | null = query.get(name);
     if (value !== null) free.set(name, value);

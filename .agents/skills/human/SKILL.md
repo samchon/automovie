@@ -7,7 +7,7 @@ description: Models human figures from existing parameters and recovered curves,
 
 Honor explicit shutdowns; do not restore a deliberately stopped service. Explicit stops override modeling, capture and audit instructions.
 
-During authorized modeling, keep the single web viewer and screenshot server running even when models fail. Use existing source loading without stopping the host. On an unexpected service failure, stop modeling and shared computation, restore service and inspect an actual PNG before resuming. Only an explicit user instruction permits terminating a live server. See [Screenshots](screenshot.md) for interface and verification limits.
+During authorized modeling, the working viewer and screenshot path take priority over every modeling task. Keep the single service running even when models fail. If a page or capture fails, stop modeling and shared computation, repair the complete page-to-PNG path and open every required audit image before resuming. Only an explicit user instruction permits terminating a live server. See [Screenshots](screenshot.md) for interface and verification limits.
 
 ## Rules
 
@@ -32,7 +32,7 @@ Work alone by default. Spawn or resume subagents only when the user explicitly r
 - Complete f1's observed whole-body reproduction through public generation → actual model → viewer, including skin, construction, every join and visual acceptance.
 - Then expand to f2 → m1 → m2 through shared rules; reinspect accepted specimens after each common correction.
 - Use recovered coordinates as calibration constraints, without person-indexed tables; f1 reproduction alone does not establish common laws or unseen-shape prediction.
-- Follow the [audit schedule and image reports](verification.md#audit-and-user-reports); report unavailable captures as failed or unverified.
+- Complete every [scheduled audit](verification.md#audit-and-user-reports). A failed request, an unavailable status or an old image does not satisfy it; repair capture and finish the required fresh images.
 
 1. Bind the current Human contract, [Playground parameter authority](screenshot.md#parameters-and-aliases), achieved inputs and [reference curves](references.md).
 2. Identify body features, source-backed axes, frames and principal layers under [Reverse Analysis](reverse-analysis.md) and [Anatomy](anatomy.md).

@@ -26,14 +26,14 @@ const CONSTRUCTION: string = "human.construction.";
  *
  * Parts whose id starts with `human.construction.` are construction (the
  * lofting curves); every other part is surface. The surface bounds frame every
- * camera, so all passes of one camera align pixel for pixel. Pass and
- * selection are display state only: each change resolves the selection and
+ * camera, so all passes of one camera align pixel for pixel. Pass, selection,
+ * isolation and garment/hair/material choices are display state only: each change resolves the selection and
  * re-applies the closure from {@link createHumanPartStyle} through one
  * {@link ModelPartStyling}, which never touches the built originals. The owner
  * adds {@link HumanViewerModel.object} to its scene and must call
  * {@link HumanViewerModel.dispose}.
  *
- * @evidence contracts/common.md#principled-implementation Bounds are the union of surface part boxes after a world-matrix update; display changes always restyle from the recorded originals, so the shown state is a function of (model, pass, selection).
+ * @evidence contracts/common.md#principled-implementation Bounds are the union of surface part boxes after a world-matrix update; display changes restyle from recorded originals, so shown state is a function of model, pass, selection, isolate and garment/hair/material display choices.
  * @evidence contracts/common.md#clear-and-simple-design Owns one built model and its display state; Human display rules are the createHumanPartStyle closure, curve resolution is resolveHumanCurves, and the generic override mechanism is ModelPartStyling.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A model without surface geometry or without construction for a construction pass throws instead of rendering an empty or wrong pass.
  * @evidence contracts/common.md#meaningful-documentation States the part classification, framing basis, display-state model and disposal duty.
@@ -61,7 +61,14 @@ export class HumanViewerModel {
   private readonly styling: ModelPartStyling;
   private pass: IHumanViewerPage.Pass = "surface";
   private isolate: boolean = false;
-  private garment: boolean = true;
+  private display: Pick<
+    normalizeHumanView.IView,
+    "garment" | "hair" | "material"
+  > = {
+    garment: true,
+    hair: true,
+    material: "appearance",
+  };
   private current: IHumanViewerPage.ISelection = resolveHumanCurves("", [], []);
 
   /**
@@ -422,20 +429,24 @@ export class HumanViewerModel {
   }
 
   /**
-   * Show or hide the garment parts (`human.garment.`).
+   * Apply garment and hair visibility and the skin material inspection mode.
    *
-   * @param garment Whether the garments are shown.
+   * @param display Parsed view; only garment, hair and material are retained.
    *
-   * @evidence contracts/common.md#principled-implementation Restyles through the Human closure with the garment flag; part data and bounds are untouched, so frames with and without garments align pixel for pixel.
+   * @evidence contracts/common.md#principled-implementation Restyles through the Human closure using the three inspection fields; generated part data, normals and bounds remain unchanged.
    * @evidence contracts/common.md#clear-and-simple-design Same restyle path as pass, selection and isolation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A model without garments simply has nothing to hide; the skin is never altered.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Visibility uses generated part prefixes and clay is a display material; neither changes skin vertices or framing.
    * @evidence contracts/common.md#meaningful-documentation States what is hidden and that framing is unchanged.
    * @evidence contracts/performance.md#efficient-algorithms One ModelPartStyling.apply.
    * @evidence contracts/performance.md#reuse-equivalent-work Reuses the built parts and the resolved selection.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The styling releases the previous derived resources.
    */
-  public setGarment(garment: boolean): void {
-    this.garment = garment;
+  public setDisplay(display: normalizeHumanView.IView): void {
+    this.display = {
+      garment: display.garment,
+      hair: display.hair,
+      material: display.material,
+    };
     this.restyle();
   }
 
@@ -455,7 +466,7 @@ export class HumanViewerModel {
         this.current,
         this.bounds.max.y - this.bounds.min.y,
         this.isolate,
-        this.garment,
+        this.display,
       ),
     );
   }
