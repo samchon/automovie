@@ -1,8 +1,8 @@
-/** A person's independently specified left and right instances of one part. */
+/** Left and right values of one bilateral item, each specified independently. */
 export interface IAutoMovieHumanPair<T> {
-  /** The person's left instance. */
+  /** Value on the left side. */
   left: T;
 
-  /** The person's right instance. */
+  /** Value on the right side. */
   right: T;
 }

@@ -56,7 +56,7 @@ The Fink perception study relates colour homogeneity to perceived age and attrac
 
 ## Micro-relief
 
-Procedural pores and fine wrinkles as normal maps are described in [skin-material](../techniques/skin-material.md) (cellular noise after Worley 1996). Wrinkle maps masked by expression zones and combined as partial-derivative normals are the Jimenez 2010 renderer's method. [Skin-feature distribution sources](../sources/skin-feature-distribution.md) records measured cheek-visible depressions and site-specific follicles with their distinct protocols. These do not calibrate a universal pore tile; no general depth or wrinkle-depth distribution was found.
+Procedural pores as a tiled normal map are described in [skin-material](../techniques/skin-material.md); the `wrinkles` input only deepens that relief and no wrinkle lines are drawn. Wrinkle maps masked by expression zones and combined as partial-derivative normals are the Jimenez 2010 renderer's method. [Skin-feature distribution sources](../sources/skin-feature-distribution.md) records measured cheek-visible depressions and site-specific follicles with their distinct protocols. These do not calibrate a universal pore tile; no general depth or wrinkle-depth distribution was found.
 
 ## Open questions
 
