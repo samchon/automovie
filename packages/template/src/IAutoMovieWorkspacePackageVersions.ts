@@ -7,9 +7,9 @@
  * @evidence contracts/common.md#clear-and-simple-design One required field per workspace package makes a missing package a type error at the build script instead of a missing token at render time; reading the manifests stays in the build script.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The record holds every workspace package uniformly, with no field defaulted or special-cased for one package.
  * @evidence contracts/common.md#meaningful-documentation The comment states the keys, where each value comes from, its form, and where it ends up; the members name the published package each range belongs to.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A record of ten strings chooses no algorithm.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms A record of eleven strings chooses no algorithm.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record is read once to build one version table and coordinates no work.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record holds ten strings and no handle.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record holds eleven strings and no handle.
  */
 export interface IAutoMovieWorkspacePackageVersions {
   /** Range of `@automovie/archetypes`. */
@@ -20,6 +20,9 @@ export interface IAutoMovieWorkspacePackageVersions {
 
   /** Range of `@automovie/engine`. */
   engine: string;
+
+  /** Range of `@automovie/evidence`. */
+  evidence: string;
 
   /** Range of `@automovie/human`. */
   human: string;

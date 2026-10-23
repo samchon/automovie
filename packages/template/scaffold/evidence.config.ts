@@ -1,9 +1,4 @@
-import type { IEvidenceConfig } from "@wrtnlabs/evidence";
-
-import { engineeringClaims } from "./workflow/engineeringClaims";
+import { createEvidenceConfig } from "@automovie/evidence";
 
 /** The default project checks source and tests without selecting a narrative. */
-export default {
-  severity: "error",
-  claims: engineeringClaims,
-} satisfies IEvidenceConfig;
+export default createEvidenceConfig({ location: import.meta.dirname });

@@ -1,15 +1,15 @@
-import type { IEvidenceConfig } from "@wrtnlabs/evidence";
-import assert from "node:assert/strict";
-import fs from "node:fs";
-import path from "node:path";
-
 import {
   type IProductionConfigProps,
   type IProductionPassValidation,
   analyzeProductionPass,
   createProductionConfig,
   getProductionClaimOwners,
-} from "../../../../packages/template/scaffold/workflow/index";
+} from "@automovie/evidence/narrative";
+import type { IEvidenceConfig } from "@wrtnlabs/evidence";
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
+
 import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture";
 
 /**

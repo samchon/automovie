@@ -14,7 +14,7 @@ Settings is read as the treatment writer and production designer; treatments as 
 
 ## Current units and a whole-pass verdict
 
-Use the workflow's current review tree, mirroring each authored file and H2 in `docs/review/<draft|final>/<layer>/round-N`. Construction reviews target body; naturalness reviews target working text. Each clean unit carries its native current fingerprint review, and `verdict/index.md` answers the whole-pass review duties. A stage flag or a fresh hash alone is not acceptance.
+Use the configured current review tree, mirroring each authored file and H2 in `docs/review/<draft|final>/<layer>/round-N`. Construction reviews target body; naturalness reviews target working text. Each clean unit carries its native current fingerprint review, and `verdict/index.md` answers the whole-pass review duties. A stage flag or a fresh hash alone is not acceptance.
 
 Collect all findings and their affected occurrences before any correction. State the source, failure, owner, and consequences. The author records acceptance, partial acceptance, or rejection with evidence; disputed findings return to the reviewer. Repair the responsible owner and all affected consumers together. A new clean complete round closes the initial pass. A later scoped reopening rereads the complete affected dependency closure and may carry an unaffected judgment only when its body, inputs, and requirements remain unchanged. Record its original round and grounds without calling it a new reading. The highest round must contain the whole current review inventory and a renewed population verdict, including those explicitly carried units; missing units cannot be borrowed implicitly from older folders.
 

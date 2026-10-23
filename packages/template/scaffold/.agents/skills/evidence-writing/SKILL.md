@@ -5,7 +5,7 @@ description: Compares complete creative requirements with their complete respond
 
 # Creative evidence
 
-Read the complete selected target, respondent, and necessary parent material. Compare every requirement with every relevant part of that respondent; one correct quotation cannot pass the rest of a unit, file, or population. Use [story contracts](../contracts/story/index.md) to find questions, and installed Evidence documentation and the [local workflow](../../../workflow/README.md) for actual annotation and graph APIs.
+Read the complete selected target, respondent, and necessary parent material. Compare every requirement with every relevant part of that respondent; one correct quotation cannot pass the rest of a unit, file, or population. Use [story contracts](../contracts/story/index.md) to find questions, and installed `@wrtnlabs/evidence` documentation for annotations and `@automovie/evidence` documentation for production composition and checks.
 
 Before answering, find possible failures across the whole respondent. Finish that inspection round, group occurrences by cause, repair the body, and then describe the corrected work or evidence for retaining a candidate. Answers diagnose the work; they do not argue missing material into existence. Test a retained expression against a concrete alternative delivering the same information, viewpoint, or pressure. A functional label, parental precedent, earlier approval, or claim that deletion loses information is insufficient when the alternative supplies it better.
 

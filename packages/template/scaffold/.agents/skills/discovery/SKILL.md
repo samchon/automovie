@@ -11,7 +11,7 @@ Keep facts and constraints in settings, event and release decisions in their nar
 
 Discover both requirements and positively chosen form: what a setting record, event document, scene, or final audiovisual unit presents or withholds, how it guides its recipient, and which recurring conventions matter. Naming a style is insufficient; identify the visible difference and repair boundary that preserves intent. Keep incidental conditions off unrelated units.
 
-Use supported `work/principles`, `work/obligations`, `work/naturalness`, and matching family paths described by the [local workflow](../../../workflow/README.md). Adopt the question and its real Evidence population together. Package APIs and that workflow own syntax; this skill owns requirement meaning and placement.
+Keep adopted questions in their matching family under the work contract tree. Adopt each question and its real Evidence population together through `evidence.config.ts`. Installed `@automovie/evidence` documentation owns supported claim composition and paths; this skill owns requirement meaning and placement.
 
 If no independent requirement remains, the author writes `.agents/skills/contracts/story/work/discovery/results.md` with the inspected scope, concrete risks examined, and existing owners covering them. A finding in one area does not establish absence elsewhere, and an empty claim list does not replace investigation. Never install a fabricated negative in a blank production.
 

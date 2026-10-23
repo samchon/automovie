@@ -1,4 +1,9 @@
 import {
+  type IProductionConfigProps,
+  analyzeProductionPass,
+  createProductionConfig,
+} from "@automovie/evidence/narrative";
+import {
   type IEvidenceCheckAnalysis,
   type IEvidenceClaim,
   type IEvidenceConfig,
@@ -9,11 +14,6 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import {
-  type IProductionConfigProps,
-  analyzeProductionPass,
-  createProductionConfig,
-} from "../../../../packages/template/scaffold/workflow/index";
 import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture";
 
 /**
@@ -129,11 +129,12 @@ export async function test_template_production_support_scope(): Promise<void> {
     unlinked.supportClaims = [
       { ...support, root: external, files: ["source.md"] },
     ];
-    assert.doesNotThrow((): IEvidenceConfigPlan =>
-      createEvidenceConfigPlan(
-        createProductionConfig(unlinked),
-        path.join(root, "evidence.config.ts"),
-      ),
+    assert.doesNotThrow(
+      (): IEvidenceConfigPlan =>
+        createEvidenceConfigPlan(
+          createProductionConfig(unlinked),
+          path.join(root, "evidence.config.ts"),
+        ),
     );
     fs.symlinkSync(
       external,
@@ -195,10 +196,7 @@ export async function test_template_production_support_scope(): Promise<void> {
     fs.unlinkSync(link);
     linked = false;
     const hardLink: string = path.join(external, "hard-linked-source.md");
-    fs.linkSync(
-      path.join(root, "docs/body/settings/001-event.md"),
-      hardLink,
-    );
+    fs.linkSync(path.join(root, "docs/body/settings/001-event.md"), hardLink);
     const hard: IProductionConfigProps = ProductionWorkflowFixture.props(root);
     hard.construction.settings = "evidence";
     hard.supportClaims = [
@@ -206,11 +204,10 @@ export async function test_template_production_support_scope(): Promise<void> {
     ];
     const hardConfig: IEvidenceConfig = createProductionConfig(hard);
     await assert.rejects(
-      analyzeProductionPass(
-        hardConfig,
-        path.join(root, "evidence.config.ts"),
-        { layer: "settings", pass: "construction" },
-      ),
+      analyzeProductionPass(hardConfig, path.join(root, "evidence.config.ts"), {
+        layer: "settings",
+        pass: "construction",
+      }),
       /support.*inventory.*authored/i,
     );
   } finally {

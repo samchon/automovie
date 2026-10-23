@@ -1,6 +1,6 @@
 # Production workflow
 
-The default lint and evidence configurations cover ordinary TypeScript development. Add the [narrative profile](../../workflow/README.md#configure-the-production) when the requested deliverable requires a screenplay; standalone assets can retain the baseline and adopt their own scoped duties. Choose the narrative mode from the requested deliverable. The narrative architecture has fixed responsibilities; the source layout can adapt to the production.
+The default lint and evidence configurations cover ordinary TypeScript development. Add the [narrative options](evidence.md#choose-the-production-scope) to the same `evidence.config.ts` object when the requested deliverable requires a screenplay; standalone assets can retain the baseline and adopt their own scoped duties. Choose the narrative mode from the requested deliverable. The narrative architecture has fixed responsibilities; the source layout can adapt to the production.
 
 ## Production paths
 
@@ -38,7 +38,7 @@ The final screenplay owns the required audience experience; shot code realizes i
 
 ## Project ownership and customization
 
-The installed instructions, contracts, workflow helpers, configuration, and source belong to this production; package upgrades do not migrate them. Adapt its language, subject-specific criteria, paths, and tool choices while preserving the selected path's responsibilities and evidence relationships. A layout change updates selectors, imports, command entries, links, and existing answers together.
+The installed instructions, contracts, configuration, and authored source belong to this production; package upgrades do not migrate those files. Reusable evidence graph and checking implementation belongs to the installed `@automovie/evidence` package. Adapt the production's language, subject-specific criteria, paths, and tool choices while preserving the selected path's responsibilities and evidence relationships. A layout change updates selectors, imports, command entries, links, and existing answers together.
 
 Keep routing in `AGENTS.md`, task goals and boundaries in skills, and branch detail in guides. Installed APIs own their callable behavior. The blank scaffold supplies no viewer or render host; choose and wire the actual delivery entry before claiming a runnable production.
 

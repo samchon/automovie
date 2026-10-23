@@ -4,7 +4,7 @@ The scaffold retains the narrative system's architecture while adapting its fina
 
 ## Engineering and narrative
 
-The default `evidence.config.ts` selects only source and test duties, with two questions each; `lint.config.ts` stays concerned with source correctness. Select the optional [narrative profile](../../workflow/README.md#configure-the-production) to add claims from its mode, pass stages, scope, and work contracts while retaining the engineering duties. Standalone asset and general development work do not require a narrative profile.
+The default `evidence.config.ts` selects only source and test duties, with two questions each; `lint.config.ts` stays concerned with source correctness. Add [narrative options](evidence.md#choose-the-production-scope) to the same config object to select mode, pass stages, scope, and work contracts while retaining the engineering duties. Standalone asset and general development work do not require narrative configuration.
 
 Long productions retain settings → treatments → scripts → screenplay. Scripts and screenplay each have construction and naturalness passes. Short mode begins at screenplay; asset mode has no narrative. A disabled pass composes its complete draft, then evidence activates its obligations. It is not an exemption from completing the selected path.
 
@@ -16,7 +16,7 @@ The factory wires the actual inherited relationships. Treatments consume setting
 
 Construction evidence is separate from creative bodies. Independent review mirrors current units and has a whole-pass verdict; changed source fingerprints require rereading. The pass checker evaluates the original complete graph, prerequisites, and working-to-body transfer without converting frozen downstream failures into a package pass. Structural readiness and the reviewer's semantic acceptance remain separate.
 
-Read [evidence writing](../../.agents/skills/evidence-writing/SKILL.md), [rewriting](../../.agents/skills/rewriting/SKILL.md), and the [lifecycle guide](narrative-lifecycle.md) for authoring and completion. The installed Evidence README owns annotation and graph API syntax; the local workflow README owns its production composition and checker.
+Read [evidence writing](../../.agents/skills/evidence-writing/SKILL.md), [rewriting](../../.agents/skills/rewriting/SKILL.md), and the [lifecycle guide](narrative-lifecycle.md) for authoring and completion. The installed `@wrtnlabs/evidence` README owns annotation and graph API syntax; `@automovie/evidence` owns production configuration and checking. The [evidence guide](evidence.md) owns their creative use.
 
 ## Work-specific requirements
 

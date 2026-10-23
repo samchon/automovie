@@ -1,8 +1,3 @@
-import assert from "node:assert/strict";
-import fs from "node:fs";
-import os from "node:os";
-import path from "node:path";
-
 import {
   type IProductionConfigProps,
   type IProductionPassValidation,
@@ -10,7 +5,12 @@ import {
   createProductionConfig,
   stripNaturalnessComments,
   verifyEvidenceMetadataRewrite,
-} from "../../../../packages/template/scaffold/workflow/index";
+} from "@automovie/evidence/narrative";
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+
 import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture";
 
 /**

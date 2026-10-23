@@ -1,4 +1,11 @@
 import {
+  type IProductionClaimOwner,
+  type IProductionConfigProps,
+  createProductionConfig,
+  getProductionClaimOwners,
+  stripNaturalnessComments,
+} from "@automovie/evidence/narrative";
+import {
   EvidenceChecker,
   type IEvidenceCheckAnalysis,
   type IEvidenceClaim,
@@ -12,14 +19,6 @@ import {
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-
-import {
-  type IProductionClaimOwner,
-  type IProductionConfigProps,
-  createProductionConfig,
-  getProductionClaimOwners,
-  stripNaturalnessComments,
-} from "../../../../packages/template/scaffold/workflow/index";
 
 /** Temporary authored documents for portable production graph tests. */
 export class ProductionWorkflowFixture {
@@ -266,18 +265,20 @@ export class ProductionWorkflowFixture {
     return props;
   }
 
-  /** Pairs synthetic review citations with current opaque public graph tokens. */
+  /** Records active review tokens from fresh props or an original factory config. */
   public static async certify(
     root: string,
-    props: IProductionConfigProps,
+    input: IProductionConfigProps | IEvidenceConfig,
   ): Promise<void> {
-    const config: IEvidenceConfig = createProductionConfig(props);
+    const config: IEvidenceConfig =
+      "lifecycle" in input ? createProductionConfig(input) : input;
     const owners: IProductionClaimOwner[] = getProductionClaimOwners(config);
     const analysis: IEvidenceCheckAnalysis =
       await ProductionWorkflowFixture.evaluate(root, config.claims);
     for (const owner of owners.filter(
       (candidate: IProductionClaimOwner): boolean =>
-        candidate.kind === "review",
+        candidate.kind === "review" &&
+        config.claims[candidate.index].disabled !== true,
     )) {
       const result:
         | IEvidenceCheckAnalysis["graph"]["claims"][number]

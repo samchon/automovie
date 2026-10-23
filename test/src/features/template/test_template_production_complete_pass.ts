@@ -1,3 +1,11 @@
+import {
+  type IProductionClaimOwner,
+  type IProductionConfigProps,
+  type IProductionPassValidation,
+  analyzeProductionPass,
+  createProductionConfig,
+  getProductionClaimOwners,
+} from "@automovie/evidence/narrative";
 import type {
   IEvidenceClaim,
   IEvidenceConfig,
@@ -7,14 +15,6 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import {
-  type IProductionClaimOwner,
-  type IProductionConfigProps,
-  type IProductionPassValidation,
-  analyzeProductionPass,
-  createProductionConfig,
-  getProductionClaimOwners,
-} from "../../../../packages/template/scaffold/workflow/index";
 import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture";
 
 /**

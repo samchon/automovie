@@ -1,3 +1,7 @@
+import {
+  type IProductionConfigProps,
+  createProductionClaims,
+} from "@automovie/evidence/narrative";
 import type {
   IEvidenceCheckAnalysis,
   IEvidenceClaim,
@@ -5,10 +9,6 @@ import type {
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
-import {
-  type IProductionConfigProps,
-  createProductionClaims,
-} from "../../../../packages/template/scaffold/workflow/index";
 import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture";
 
 /**

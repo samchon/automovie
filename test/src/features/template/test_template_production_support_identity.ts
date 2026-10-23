@@ -1,8 +1,3 @@
-import type { IEvidenceClaim, IEvidenceConfig } from "@wrtnlabs/evidence";
-import assert from "node:assert/strict";
-import fs from "node:fs";
-import path from "node:path";
-
 import {
   type IProductionConfigProps,
   type IProductionGateKey,
@@ -10,7 +5,12 @@ import {
   analyzeProductionPass,
   classifyProductionPassDiagnostics,
   createProductionConfig,
-} from "../../../../packages/template/scaffold/workflow/index";
+} from "@automovie/evidence/narrative";
+import type { IEvidenceClaim, IEvidenceConfig } from "@wrtnlabs/evidence";
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
+
 import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture";
 
 /**
@@ -177,11 +177,12 @@ export async function test_template_production_support_identity(): Promise<void>
       "docs/instructions/002-linked-support.md",
     );
     fs.linkSync(path.join(external, "source.md"), newlyProtected);
-    const repeated: IProductionPassValidation = classifyProductionPassDiagnostics(
-      original,
-      { layer: "screenplay", pass: "naturalness" },
-      saved.analysis,
-    );
+    const repeated: IProductionPassValidation =
+      classifyProductionPassDiagnostics(
+        original,
+        { layer: "screenplay", pass: "naturalness" },
+        saved.analysis,
+      );
     assert.equal(repeated.approvalStructureReady, true);
     assert.deepEqual(repeated.scope, saved.scope);
     await assert.rejects(

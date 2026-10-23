@@ -12,7 +12,7 @@ This carries the source architecture's distinction between facts, events, scene 
 
 Read current parent bodies and reviews when starting, resuming, or changing a source. Treatments depends on settings construction; scripts depends on treatments construction; screenplay depends on treatments and reviewed, transferred scripts after naturalness. An explicit waiver may use scripts construction instead. Facts pass through those parents. Direct settings evidence cannot repair an incomplete treatment handoff. A short without those parents follows its request and adopted constraints directly.
 
-The [local workflow](../../workflow/README.md) owns factory options, graph selection, supported layout, diagnostics, and actual command APIs. Installed Evidence documentation owns general annotation syntax. Keep technical details with those owners instead of recreating APIs in creative skills. Select the optional narrative profile and its actual production mode before narrative work; a disabled draft stage is not permission to delete a required layer.
+Installed `@automovie/evidence` documentation owns configuration, supported layout, diagnostics, and checker APIs; `@wrtnlabs/evidence` owns general annotation syntax. Keep technical details with those owners. Add narrative options and the actual production mode to `evidence.config.ts` before narrative work, following the [evidence guide](evidence.md); a disabled draft stage is not permission to delete a required layer.
 
 ## Complete a construction
 
@@ -21,7 +21,7 @@ The [local workflow](../../workflow/README.md) owns factory options, graph selec
 3. Review the whole selected population as its recipient, including boundaries and global obligations. An independent reviewer first reads the annotation-free body and records that reading, then examines parents, contracts, evidence, and prior judgments.
 4. Record reasoned author decisions and repair accepted findings through their owners. Repeat complete affected rounds until one has neither edits nor findings. Retain the current review and keep the pass in its evidence stage.
 
-A target check establishes its target, not a complete pass. Check the complete current structure through the local checker, for example `npm run production:check -- --layer scripts --pass construction`, and run unfiltered production validation before handoff. Readiness diagnoses preparation and evidence structure; independent judgment establishes creative quality.
+A target check establishes its target, not a complete pass. Check the complete current structure through the installed checker, for example `npm run production:check -- --layer scripts --pass construction`, and run unfiltered production validation before handoff. Readiness diagnoses preparation and evidence structure; independent judgment establishes creative quality.
 
 Settings includes its outline in the same completion. A unit answer cannot establish whole-population coverage, character development, middle accumulation, partition, or complete handoff. Use the selected population respondent and compare all members.
 
@@ -41,7 +41,7 @@ Expression repairs preserve the frozen original and correct the working version.
 
 Use a reviewer who does not share the author's creative work memory. Supply declared scope, current inputs, and contracts rather than a conclusion to confirm. Identify independent review and self-review honestly. Read every file and unit in the snapshot; divide a large scope into non-overlapping chunks rather than sampling.
 
-Construction records use `docs/review/draft/<layer>/round-N/`; expression records use `docs/review/final/<layer>/round-N/`. Follow the local workflow's actual format. Preserve reviewed revision and inputs, scope, literal findings and support, causes and occurrences, protected achievements, author decisions and reasons, unresolved limits, and outcome. Keep rejected or retained candidates accountable through passages and alternatives. Preference alone is not a defect; an earlier pass does not excuse a current failure.
+Construction records use `docs/review/draft/<layer>/round-N/`; expression records use `docs/review/final/<layer>/round-N/`. Follow the installed package's actual review format. Preserve reviewed revision and inputs, scope, literal findings and support, causes and occurrences, protected achievements, author decisions and reasons, unresolved limits, and outcome. Keep rejected or retained candidates accountable through passages and alternatives. Preference alone is not a defect; an earlier pass does not excuse a current failure.
 
 Inspect every occurrence before editing. A finding names recipient loss, evidence, first owner, and repair direction. Group same-cause findings without losing members. After repair, repeat the complete affected round; checking only the author's chosen fix is not a clean complete round.
 

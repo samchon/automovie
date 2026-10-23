@@ -32,7 +32,7 @@ The [root README](../../../README.md#packages) and package READMEs own inventori
 - `viewer` is the only library importing `three.js` (GPU display, capture, inspection transport); `playground` mounts it and owns example parameter sets. The parameter-only Human surface has no viewer or capture entry point.
 - `human` owns the human figure generated from typed parameters by code.
 - `archetypes` owns the shipped figure and prop catalogue; a customer's own content stays in its production.
-- `template/scaffold` owns the generated harness; `cli` installs it.
+- `evidence` owns reusable engineering defaults, optional narrative evidence composition, and pass checking. `template/scaffold` owns the generated production instructions, editable contracts, and thin configuration; `cli` installs them.
 - The four productions under `experimental/` feed the public website and are not disposable.
 
 ## Commands

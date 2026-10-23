@@ -17,7 +17,7 @@ A baseline relationship belongs in settings; its change belongs to the event cau
 
 ## Working files
 
-These are the installed lifecycle paths. Use the [local workflow](../../workflow/README.md) when changing supported layout or Evidence configuration. Keep selections, identities, references, and consumers aligned when customizing.
+These are the default lifecycle paths. Read installed `@automovie/evidence` documentation when changing supported layout or Evidence configuration, and the [evidence guide](evidence.md) for creative use. Keep selections, identities, references, and consumers aligned when customizing.
 
 | Location | Purpose |
 | --- | --- |
