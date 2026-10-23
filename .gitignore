@@ -31,9 +31,6 @@ packages/*/src/**/*.js.map
 packages/*/src/**/*.d.ts
 # repository instructions the scaffold mirrors; packages/template/build/syncScaffoldInstructions.ts
 # regenerates them on prepare and build, and its SHARED list must match these paths
-packages/template/scaffold/.agents/skills/3d-modeling/
-packages/template/scaffold/.agents/skills/contracts/common.md
-packages/template/scaffold/.agents/skills/contracts/testing.md
 packages/template/scaffold/.agents/skills/development/repair.md
 packages/template/scaffold/.agents/skills/documentation/writing.md
 # the scaffold nests a whole project, so its own sources need the same rule

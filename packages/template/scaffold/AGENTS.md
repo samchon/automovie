@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This is an AutoMovie production: its assets and their performance are authored in TypeScript under `src` and rendered by AutoMovie's deterministic engine. [README](README.md) lists the commands and file ownership.
+This is an AutoMovie production. It can deliver a standalone asset, a short video, or a long film or series. [README](README.md) lists commands and the [production guide](docs/guides/production.md) explains file ownership and customization.
 
 ## Attitude
 
@@ -8,7 +8,9 @@ This is an AutoMovie production: its assets and their performance are authored i
 - The user's instruction outranks any skill.
 - Answer a question from the user before continuing any work.
 - Write everything the user sees in the user's language.
-- Verify a defect against the current source and output before repairing it, and repair the consumers it reaches.
+- Finish each inspection round, group all findings by cause, then repair their owners and affected consumers together before the next full round.
+- Keep external generation outside deterministic playback; retain the actual media used.
+- Use installed package READMEs, public types, and JSDoc for APIs; do not copy them into instructions.
 - Report what you verified, not what you built.
 
 ## Finishing Work
@@ -25,10 +27,23 @@ Stop only when nothing can move without the user or a destructive or outward-fac
 
 ## Skills
 
-Read the skill whose trigger applies. Installed package READMEs, public types, and JSDoc document the APIs.
+Read the skill whose trigger applies.
 
-- [3d-modeling](.agents/skills/3d-modeling/SKILL.md): changing geometry, rigs, assets, viewer behavior, materials, lighting, or motion, and before claiming a visual change works.
-- [contracts](.agents/skills/contracts/SKILL.md): writing or reviewing source under `src` or tests under `test`, for their `@evidence` checklists.
-- [development](.agents/skills/development/SKILL.md): changing existing behavior or repairing a defect under `src` or `test`, and before finishing a source change.
-- [documentation](.agents/skills/documentation/SKILL.md): writing any document or doc comment.
-- [testing](.agents/skills/testing/SKILL.md): authoring or changing models, motion, or shots under `src`, or when the user or a production document fixes a number the source must meet; never for script-only work.
+- [production](.agents/skills/production/SKILL.md): starting, resuming, restructuring, or delivering a production, including choosing its scope and working files.
+- [storytelling](.agents/skills/storytelling/SKILL.md): researching, planning, writing, or revising narrative, screenplays, or scene and shot breakdowns.
+- [instructions](.agents/skills/instructions/SKILL.md): recording, changing, or applying narrative requirements and delegated choices.
+- [discovery](.agents/skills/discovery/SKILL.md): discovering and adopting narrative obligations beyond shared contracts.
+- [settings](.agents/skills/settings/SKILL.md): authoring or revising canon and its outline.
+- [treatments](.agents/skills/treatments/SKILL.md): designing events, causal progression, consequences, and information release.
+- [scripts](.agents/skills/scripts/SKILL.md): realizing treatments as executable scenes and partitioning a long work.
+- [screenplay](.agents/skills/screenplay/SKILL.md): writing the final audiovisual screenplay, including direct entry for short videos.
+- [rewriting](.agents/skills/rewriting/SKILL.md): revising expression in scripts or screenplay against frozen construction.
+- [evidence-writing](.agents/skills/evidence-writing/SKILL.md): writing and auditing creative evidence against current bodies and parents.
+- [3d-modeling](.agents/skills/3d-modeling/SKILL.md): creating, importing, recovering, staging, or changing assets and motion, and judging their visible results.
+- [audio](.agents/skills/audio/SKILL.md): choosing or acquiring speech, music, or effects, aligning sound, and checking the final mix.
+- [contracts](.agents/skills/contracts/SKILL.md): selecting or changing evidence scope, and writing or reviewing source, tests, or adopted production contracts.
+- [development](.agents/skills/development/SKILL.md): writing or changing production source, tests, dependencies, or commands.
+- [documentation](.agents/skills/documentation/SKILL.md): writing technical documents, instructions, evidence explanations, and doc comments.
+- [testing](.agents/skills/testing/SKILL.md): choosing or writing behavioral checks for a production's measurable promises.
+- [review](.agents/skills/review/SKILL.md): reviewing any production work or claiming it ready for delivery.
+- [estimation](.agents/skills/estimation/SKILL.md): a requested read-only audience-experience assessment or edition comparison, separate from evidence and approval.

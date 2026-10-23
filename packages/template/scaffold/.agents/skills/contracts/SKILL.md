@@ -1,12 +1,14 @@
 ---
 name: contracts
-description: Defines the @evidence checklists every exported declaration under src and every exported function of a test file under test answer. Use when writing or reviewing production source or tests.
+description: Applies engineering and creative obligations to their actual respondents and configures production evidence. Use before writing or reviewing selected work or changing evidence scope.
 ---
 
 # Contracts
 
-Each H2 of [common.md](common.md) is a question every exported type and function under `src` answers in its doc comment, and each H2 of [testing.md](testing.md) one every exported function of a `test_*.ts` file under `test` answers. `npm run evidence` checks that the answers exist; review checks that they are true.
+The default `evidence.config.ts` selects engineering populations. Narrative work adds narrative options to that same configuration through the [evidence guide](../../../docs/guides/evidence.md#choose-the-production-scope) while retaining that baseline. Exported source declarations answer [common](common.md), and exported test functions answer [testing](testing.md).
 
-- Write `@evidence contracts/<file>.md#<anchor> <reason>` for each H2 after a blank comment line, and `@evidenceExclude` the same way for a single chapter that does not apply.
-- Say why the approach fits and what it assumes or leaves unresolved, specific to the declaration; a sentence that would fit another declaration answers nothing.
-- Fix a defect before answering it, and never pass the check with a generic answer.
+The narrative system under [story](story/index.md) preserves unit principles, population obligations, discovery, upstream repair, rewriting, and independent review as distinct families. Long mode applies all four layers; short mode applies final screenplay and its rewriting/review path. Standalone assets need no narrative configuration or obligations. Disabled passes draft their bodies before enabling evidence; they are not a way to drop required responsibilities.
+
+Use [evidence writing](../evidence-writing/SKILL.md) for creative answers and [rewriting](../rewriting/SKILL.md) for expression passes. The [contracts guide](../../../docs/guides/contracts.md) owns adoption and technical ownership. Assets and delivery retain their own [questions](assets.md) and [handoff criteria](delivery.md); choose formal respondents where they can establish the facts.
+
+Each selected question needs a declaration-specific answer. Fix the work before claiming compliance and report unresolved limits. Mechanical coverage establishes connections; [review](../review/SKILL.md) establishes their truth. Keep source-stage ownership, selectors, contracts, answers, and affected reviews consistent when requirements change.

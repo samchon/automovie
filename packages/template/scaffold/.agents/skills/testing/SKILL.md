@@ -1,32 +1,14 @@
 ---
 name: testing
-description: Decides whether and what this production tests, and writes those tests under test. Use when authoring or changing models, motion, or shots under src, or when the user or a production document fixes a number the source must meet. Script-only work has nothing to test.
+description: Chooses and writes behavioral checks for a production's measurable promises. Use when changing behavior or a requirement that can be measured.
 ---
 
 # Testing
 
-A test proves a fact the production promises, measured on the geometry and motion its source computes. How a result looks stays with [Visual Debugging](../3d-modeling/visual-debugging.md), never a pixel comparison.
+Test a promised behavior through its actual consumer or computed output. Take expectations and tolerances from the request, physical requirements, or an independent reference. Installed packages own their validation APIs; choose the checks that reach this production's geometry, motion, continuity, timing, or media behavior.
 
-Test only what `src` contains. A production without models, motion, or shots has no tests, and `npm test` passes with none; never add a test to fill that gap.
+Keep visual and listening judgments in [review](../review/SKILL.md). A source pattern, file inventory, copied output digest, or pixel comparison is not a behavioral test. Add tests where a failure could violate a production promise; do not invent tests for a screenplay or to populate an empty suite.
 
-## What To Test
+Put cases in `test/<domain>/test_<name>.ts` as exported `test_*` functions, synchronous or returning `Promise<void>`, with assertions from `node:assert/strict`. [`test/index.ts`](../../../test/index.ts) discovers them. Keep helpers outside those files or unexported. Each exported function answers the [testing checklist](../contracts/testing.md).
 
-Each row applies only when `src` holds that kind of source. The functions are public `@automovie/engine` exports whose types and JSDoc give their inputs.
-
-| Source | Test |
-| --- | --- |
-| A model | `validateModel` succeeds, which also checks the topology of every mesh it carries; `measureAutoMovieModelCrossings` reports no part pair the design does not intend; an intended pair, such as a top on its leg or an eyeball in its lid, appears whether it rests or sinks, so measure where it rests |
-| A model with moving parts | the same checks on every extreme state the source can build, such as an open door or a raised limb |
-| A shot | `compileDefinedShot` returns no diagnostics; where actors touch, step, or bear weight, `detectBodyCollision`, `validateFootSkate`, `validateGroundContact`, `validateBalanceSupport`, and `detectFreeFall` report nothing the shot does not intend |
-| Consecutive shots | `validateFilmContinuity` reports no discontinuity the edit does not intend |
-| A number the user or a production document fixed | the computed value meets it, measured through `measureAutoMovieGeometry` or the model's dimensions |
-
-Several of these validators only warn, because a jump cut or a deliberate slide can be intended. Assert the absence of each warning the production does not intend, and leave intended ones unasserted.
-
-Take every expected value from the user's request, a production document, or a physical requirement, never from the current output. A digest or subject diff shows what a change moved; it is review material, not a test.
-
-## Writing Tests
-
-Put each test in `test/<domain>/test_<name>.ts` and export it as `export function test_<name>(): void`, or an async function returning `Promise<void>`. [`test/index.ts`](../../../test/index.ts) runs every exported `test_*` function through `node:test`. Keep helpers unexported or outside `test_*.ts` files, because every exported function there answers the checklist. Assert with `node:assert/strict`, and compare measured floats within a tolerance stated in metres or seconds.
-
-Each test answers the [testing checklist](../contracts/testing.md) like any other exported declaration. When a test fails, repair the source under [Repair](../development/repair.md); never loosen the expectation to pass.
+Cover the decisions and boundaries the test owns, including intended exceptions. Let the complete round finish, group failures by cause, and repair the source with [development](../development/SKILL.md).

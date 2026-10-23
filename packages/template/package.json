@@ -63,6 +63,7 @@
     "yaml": "^2.9.0"
   },
   "devDependencies": {
+    "@automovie/evidence": "workspace:^",
     "@ttsc/evidence": "catalog:samchon",
     "@ttsc/lint": "catalog:samchon",
     "@types/node": "catalog:utils",

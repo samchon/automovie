@@ -37,6 +37,7 @@ const resolveTemplateVersions: () => Record<string, string> = (): Record<
       archetypes: packageVersion("packages/archetypes"),
       cli: packageVersion("packages/cli"),
       engine: packageVersion("packages/engine"),
+      evidence: packageVersion("packages/evidence"),
       human: packageVersion("packages/human"),
       ingest: packageVersion("packages/ingest"),
       interface: packageVersion("packages/interface"),
