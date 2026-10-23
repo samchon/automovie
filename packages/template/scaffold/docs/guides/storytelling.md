@@ -34,6 +34,10 @@ These are the default lifecycle paths. Read installed `@automovie/evidence` docu
 
 A part can represent an act, release block, or other larger division chosen for the format. An episode file can represent a suitable sequence in a continuous film. Its name does not force episodic storytelling. Screenplay keeps script identities so inherited decisions remain traceable; implementation can use as many or as few shots as scenes need.
 
+Choose a consistent readable notation inside those units before drafting. Scene headings can name the used place, interior or exterior, and story time; action and each speaker's words occupy distinct blocks. Mark an off-screen speaker, voiceover, overlap, visible text, flashback and return, intercut, or montage when it is used and would otherwise be ambiguous. Screenplay prose, audiovisual columns, and shot-oriented text can all carry that meaning; match a required submission format only when the deliverable calls for it. The Markdown H1/H2 identities remain the document's navigation and evidence units.
+
+Read the blocks as a continuous sequence of seen and heard events. Follow action and dialogue together, and check each transition's entry against the preceding exit; a table read can refine spoken timing when available. Do not derive final duration from page or word count. The selected contracts own the judgments; this procedure produces a legible draft for their review.
+
 ## The short route
 
 For a short, choose short mode and write the complete final screenplay under `docs/body/screenplay`. The request and screenplay header can supply a sufficient brief. Add supporting facts or event planning where useful without fabricating empty upstream layers or false lineage.
@@ -57,3 +61,18 @@ Map screenplay units to executable shots and each shot to the delivered edit. Re
 Duration remains provisional until actual action, fixed speech, pauses, captions, music, and transitions establish it. A word count or nominal duration cannot prove running time. A replacement voice take can alter reactions, subtitles, shot lengths, and later timing even when its words are unchanged. Return changes to affected owners and descendants together.
 
 Read the complete screenplay as a new recipient and inspect the assembled film as an audience member who has never read the planning. Include opening, ending, joins, sustained middle, and transitions between parts. Judge causes, information, emotion, continuity, speech intelligibility, and text in the actual image and sound. Correct documents and locally successful shots cannot supply an experience missing from the delivered edit.
+
+## Research basis
+
+The four layers are this scaffold's division of responsibility, not a claim that industry document names have one universal meaning. A series bible can span several of these owners; do not copy its entire contents into settings. These sources inform the existing questions rather than add a parallel checklist.
+
+| Source | Use here |
+| --- | --- |
+| [Screen Australia, Story Documents: Drama](https://www.screenaustralia.gov.au/getmedia/133af42b-7abe-4ebc-a164-799c1c7a4614/Story-Documents-Drama.pdf) | World, character and series-format development, treatments, and the distinction between development and production bibles |
+| [VicScreen, Treatment](https://vicscreen.vic.gov.au/glossary/treatment/) | A complete event progression that communicates style and tone without becoming the finished script |
+| [Academy, Screenwriting Resources](https://www.oscars.org/nicholl/screenwriting-resources) and [BBC, Screenplay Format](https://downloads.bbc.co.uk/writersroom/scripts/screenplay.pdf) | Readable scene/action/dialogue semantics; submission conventions differ from shooting notation |
+| [ScreenSkills, Production Designer](https://www.screenskills.com/skills-checklists/scripted-film-and-tv/art-department/production-designer-skills/) | Design detail follows the script, intended realization and production scale |
+| [ScreenSkills, Script Supervisor](https://www.screenskills.com/job-profiles/browse/film-and-tv-drama/technical/script-supervisor-film-and-tv-drama/) and [Editor](https://www.screenskills.com/skills-checklists/scripted-film-and-tv/editorial-department/editor-skills/) | Continuity, coverage, estimated versus performed time, and picture/sound assembly |
+| [ScreenSkills, Storyboards and Animatics](https://www.ukstandards.org.uk/en/nos-finder/SKSANIM5/create-storyboards,-animatics-or-other-preparatory-visualisations) | Visual planning communicates action, timing, sound, camera and joins when this production needs it |
+
+For deterministic rendering, preserving consequential audiovisual decisions through executable source and the actual edit is this scaffold's application of those production responsibilities. It does not require fixed lens values, a conventional coverage pattern, a storyboard, or a new approval stage for every project. The [lifecycle](narrative-lifecycle.md) owns completion; installed APIs own execution controls.

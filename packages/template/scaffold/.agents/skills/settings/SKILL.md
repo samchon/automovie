@@ -5,7 +5,7 @@ description: Establishes and revises world facts, constraints, and their referen
 
 # Settings
 
-Make facts that later authors and artists can find and use without reconstructing the world themselves. Read [instructions](../instructions/SKILL.md), complete [discovery](../discovery/SKILL.md) before bulk writing, and apply the settings questions in [story contracts](../contracts/story/index.md).
+Make facts that later authors and artists can find and use without reconstructing the world themselves. Read [instructions](../instructions/SKILL.md), complete [discovery](../discovery/SKILL.md) before bulk writing, and apply the settings questions in [story contracts](../contracts/story/index.md). Resolve the work's scope and recurring form before detailing its people and places; use retained references and the intended production use to choose the needed specificity.
 
 Work backward from planned scenes to discover needed facts, conditions, and information boundaries. This identifies dependencies; it does not assign actual events, choices, changes, or reveal order, which [treatments](../treatments/SKILL.md) owns. Separate baseline relationships and fixed historical states from the events that change or reveal them.
 
