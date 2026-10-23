@@ -34,17 +34,15 @@ export namespace AutoMovieHumanBodyApertures {
   export function prepare(
     apertures: readonly IAutoMovieHumanLoftAperture[],
   ): IPrepared[] {
-    return apertures.map(
-      (aperture: IAutoMovieHumanLoftAperture): IPrepared => {
-        const margin: AutoMovieHumanLoftAperture.Point[] =
-          AutoMovieHumanLoftAperture.polyline(aperture);
-        return {
-          aperture,
-          margin,
-          range: AutoMovieHumanLoftAperture.range(margin),
-        };
-      },
-    );
+    return apertures.map((aperture: IAutoMovieHumanLoftAperture): IPrepared => {
+      const margin: AutoMovieHumanLoftAperture.Point[] =
+        AutoMovieHumanLoftAperture.polyline(aperture);
+      return {
+        aperture,
+        margin,
+        range: AutoMovieHumanLoftAperture.range(margin),
+      };
+    });
   }
 
   /**
@@ -63,7 +61,8 @@ export namespace AutoMovieHumanBodyApertures {
     const top: number = target.layers[target.layers.length - 1]!.y;
 
     return prepared.filter((p: IPrepared): boolean => {
-      const y: number = (Math.max(p.range[0], bottom) + Math.min(p.range[1], top)) / 2;
+      const y: number =
+        (Math.max(p.range[0], bottom) + Math.min(p.range[1], top)) / 2;
       if (y <= bottom || y >= top) return false;
       return AutoMovieHumanLoftAperture.crossings(p.margin, y).every(
         (c: AutoMovieHumanLoftAperture.Point): boolean =>
@@ -95,8 +94,12 @@ export namespace AutoMovieHumanBodyApertures {
     }
 
     // Keep stations strictly inside the chain and drop near-duplicates.
-    const all: number[] = [...heights, ...extra.filter((y: number): boolean => y > bottom + 1e-6 && y < top - 1e-6)]
-      .sort((a: number, b: number): number => a - b);
+    const all: number[] = [
+      ...heights,
+      ...extra.filter(
+        (y: number): boolean => y > bottom + 1e-6 && y < top - 1e-6,
+      ),
+    ].sort((a: number, b: number): number => a - b);
     const out: number[] = [];
     for (const y of all)
       if (!out.length || y - out[out.length - 1]! > 1e-6) out.push(y);
@@ -119,7 +122,11 @@ export namespace AutoMovieHumanBodyApertures {
     for (const p of apertures) {
       if (y < p.range[0] - 1e-9 || y > p.range[1] + 1e-9) continue;
       for (const c of AutoMovieHumanLoftAperture.crossings(p.margin, y)) {
-        const found: { phase: number; distance: number } = nearest(target, y, c);
+        const found: { phase: number; distance: number } = nearest(
+          target,
+          y,
+          c,
+        );
         if (found.distance < REACH) inserted.push(found.phase);
       }
     }
@@ -131,7 +138,9 @@ export namespace AutoMovieHumanBodyApertures {
       inserted.every((m: number): boolean => circular(t, m) > 0.25 * spacing),
     );
     return {
-      phases: [...kept, ...inserted].sort((a: number, b: number): number => a - b),
+      phases: [...kept, ...inserted].sort(
+        (a: number, b: number): number => a - b,
+      ),
       margin: inserted,
     };
   }
@@ -139,10 +148,13 @@ export namespace AutoMovieHumanBodyApertures {
   /**
    * Drop the skin over every opening.
    *
-   * A vertex is outside unless it is an inserted margin vertex or lies over
-   * an opening by {@link AutoMovieHumanLoftAperture.inside}. A triangle is kept
-   * when at least one of its vertices is outside. Groups are rebuilt so every
-   * group keeps its remaining triangles.
+   * A vertex is a margin vertex when it was inserted at a margin crossing,
+   * inside when it lies over an opening by
+   * {@link AutoMovieHumanLoftAperture.inside}, and outside otherwise. A
+   * triangle is kept when none of its vertices is inside and at least one is
+   * outside, so no kept triangle reaches into the opening past the margin
+   * vertices. Groups are rebuilt so every group keeps its remaining
+   * triangles.
    *
    * @param mesh Skin buffers with groups.
    * @param apertures Prepared apertures.
@@ -155,7 +167,8 @@ export namespace AutoMovieHumanBodyApertures {
   ): void {
     if (!apertures.length) return;
 
-    // Vertex classification, limited to each aperture's height band.
+    // Vertex classification, limited to each aperture's height band:
+    // 1 outside, 0 margin, 2 inside.
     const count: number = mesh.positions.length / 3;
     const outside: Uint8Array = new Uint8Array(count).fill(1);
     for (let v: number = 0; v < count; v++) {
@@ -174,22 +187,28 @@ export namespace AutoMovieHumanBodyApertures {
           p[1] <= a.range[1] + 1 &&
           AutoMovieHumanLoftAperture.inside(a.aperture, a.margin, p)
         )
-          outside[v] = 0;
+          outside[v] = 2;
     }
 
     // Filter triangles group by group, recording new group starts.
     const indices: number[] = [];
     const groups: { name: string; start: number }[] = [];
-    mesh.groups.forEach((g: { name: string; start: number }, k: number): void => {
-      const end: number = mesh.groups[k + 1]?.start ?? mesh.indices.length;
-      groups.push({ name: g.name, start: indices.length });
-      for (let t: number = g.start; t < end; t += 3) {
-        const a: number = mesh.indices[t]!;
-        const b: number = mesh.indices[t + 1]!;
-        const c: number = mesh.indices[t + 2]!;
-        if (outside[a] || outside[b] || outside[c]) indices.push(a, b, c);
-      }
-    });
+    mesh.groups.forEach(
+      (g: { name: string; start: number }, k: number): void => {
+        const end: number = mesh.groups[k + 1]?.start ?? mesh.indices.length;
+        groups.push({ name: g.name, start: indices.length });
+        for (let t: number = g.start; t < end; t += 3) {
+          const a: number = mesh.indices[t]!;
+          const b: number = mesh.indices[t + 1]!;
+          const c: number = mesh.indices[t + 2]!;
+          const inside: boolean =
+            outside[a] === 2 || outside[b] === 2 || outside[c] === 2;
+          const out: boolean =
+            outside[a] === 1 || outside[b] === 1 || outside[c] === 1;
+          if (!inside && out) indices.push(a, b, c);
+        }
+      },
+    );
     mesh.indices = indices;
     mesh.groups = groups;
   }
@@ -207,7 +226,11 @@ export namespace AutoMovieHumanBodyApertures {
   ): { phase: number; distance: number } {
     const n: number = 720;
     const distance = (t: number): number => {
-      const q: [number, number, number] = AutoMovieHumanLoftChain.ring(target, y, [t])[0]!;
+      const q: [number, number, number] = AutoMovieHumanLoftChain.ring(
+        target,
+        y,
+        [t],
+      )[0]!;
       return Math.hypot(q[0] - p[0], q[1] - p[1], q[2] - p[2]);
     };
 

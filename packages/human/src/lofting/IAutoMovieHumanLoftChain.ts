@@ -2,6 +2,7 @@ import type { AutoMovieHumanHarmonicCurve } from "./AutoMovieHumanHarmonicCurve"
 import type { AutoMovieHumanLoftChain } from "./AutoMovieHumanLoftChain";
 import type { AutoMovieHumanLoftFrame } from "./AutoMovieHumanLoftFrame";
 import type { AutoMovieHumanLoftParameter } from "./AutoMovieHumanLoftParameter";
+import type { AutoMovieHumanSplineCurve } from "./AutoMovieHumanSplineCurve";
 
 /**
  * Principal-layer data of one chain, as published by the observation fitter
@@ -11,7 +12,17 @@ export interface IAutoMovieHumanLoftChain {
   /** Stable chain name used for part ids and diagnostics. */
   name: string;
 
-  /** Highest harmonic K of every section in this chain. */
+  /**
+   * Section basis. `spline`: uniform periodic cubic B-spline, see
+   * {@link AutoMovieHumanSplineCurve}; absent: truncated Fourier series, see
+   * {@link AutoMovieHumanHarmonicCurve}.
+   */
+  basis?: "spline";
+
+  /**
+   * Size of every section's basis: the highest harmonic K, or the number of
+   * control points N of a spline chain.
+   */
   order: number;
 
   /** Phase correspondence rule; see {@link AutoMovieHumanLoftParameter}. */
@@ -53,7 +64,10 @@ export namespace IAutoMovieHumanLoftChain {
     /** Section plane of the layer; absent means horizontal at height `y`. */
     frame?: AutoMovieHumanLoftFrame.IFrame;
 
-    /** Harmonic section coefficients in mm, layout of {@link AutoMovieHumanHarmonicCurve}. */
+    /**
+     * Section coefficients in mm, in the layout of the chain's basis
+     * ({@link AutoMovieHumanHarmonicCurve} or {@link AutoMovieHumanSplineCurve}).
+     */
     coefficients: number[];
 
     /** Height derivative of every coefficient in mm per mm, shared by both adjacent intervals. */

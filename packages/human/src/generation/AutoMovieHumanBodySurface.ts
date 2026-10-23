@@ -1,7 +1,6 @@
 import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
-import { AutoMovieHumanLoftParameter } from "../lofting/AutoMovieHumanLoftParameter";
+import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import { AutoMovieHumanBodyApertures } from "./AutoMovieHumanBodyApertures";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 
@@ -45,9 +44,12 @@ export namespace AutoMovieHumanBodySurface {
   /** A chain end boundary resolved to vertices or a pole. */
   type IBoundary =
     | {
-        /** The chain's own contact ring, in its own phase set. */
+        /** The chain's own contact ring. */
         kind: "own";
         ring: number[];
+
+        /** Phases of the ring: the chain's own set, plus any margin crossings. */
+        phases: readonly number[];
       }
     | {
         /** Arcs inherited from a parent's contact ring. */
@@ -131,7 +133,11 @@ export namespace AutoMovieHumanBodySurface {
     for (const target of calibration.chains) loft(context, target);
 
     // 4. Openings: the skin over every aperture is removed by position.
-    AutoMovieHumanBodyApertures.cut(context.mesh, context.apertures, context.margin);
+    AutoMovieHumanBodyApertures.cut(
+      context.mesh,
+      context.apertures,
+      context.margin,
+    );
 
     return {
       mesh: context.mesh,
@@ -155,12 +161,30 @@ export namespace AutoMovieHumanBodySurface {
     const childEnd: "bottom" | "top" =
       event.direction === "down" ? "top" : "bottom";
 
-    const phases: number[] = ownPhases(context, parent);
+    // The contact ring carries the crossings of any aperture margin at its
+    // height, like every other station, so an opening that spans the event
+    // is traced on both sides of it.
+    const y: number = endHeight(parent, parentEnd);
+    const station: { phases: readonly number[]; margin: number[] } =
+      AutoMovieHumanBodyApertures.phases(
+        AutoMovieHumanBodyApertures.on(context.apertures, parent),
+        parent,
+        y,
+        ownPhases(context, parent),
+      );
+    const phases: readonly number[] = station.phases;
     const ring: number[] = AutoMovieHumanLoftMesh.vertices(
       context.mesh,
-      AutoMovieHumanLoftChain.ring(parent, endHeight(parent, parentEnd), phases),
+      AutoMovieHumanLoftChain.ring(parent, y, phases),
     );
-    context.boundaries.set(parent.name + ":" + parentEnd, { kind: "own", ring });
+    phases.forEach((t: number, i: number): void => {
+      if (station.margin.includes(t)) context.margin.add(ring[i]!);
+    });
+    context.boundaries.set(parent.name + ":" + parentEnd, {
+      kind: "own",
+      ring,
+      phases,
+    });
 
     for (const split of event.splits)
       context.boundaries.set(split.child + ":" + childEnd, {
@@ -188,7 +212,12 @@ export namespace AutoMovieHumanBodySurface {
       AutoMovieHumanBodyApertures.on(context.apertures, target);
     const heights: number[] = AutoMovieHumanBodyApertures.refine(
       apertures,
-      AutoMovieHumanLoftChain.stations(target, bottomY, topY, context.tolerance),
+      AutoMovieHumanLoftChain.stations(
+        target,
+        bottomY,
+        topY,
+        context.tolerance,
+      ),
     );
 
     // Ring and phase set at each station. Ends come from their boundaries
@@ -205,7 +234,7 @@ export namespace AutoMovieHumanBodySurface {
         ringPhases.push(
           end.kind === "inherited"
             ? inheritedPhases(context, target, y, end.ring)
-            : phases,
+            : end.phases,
         );
         return end.ring;
       }
@@ -244,8 +273,7 @@ export namespace AutoMovieHumanBodySurface {
     }
 
     // Poles close the ends that no event owns.
-    if (bottom.kind === "pole")
-      pole(context, target, "bottom", rings[0]!);
+    if (bottom.kind === "pole") pole(context, target, "bottom", rings[0]!);
     if (top.kind === "pole")
       pole(context, target, "top", rings[rings.length - 1]!);
   }
@@ -305,8 +333,13 @@ export namespace AutoMovieHumanBodySurface {
   }
 
   /**
-   * Phases of inherited ring vertices under a chain's own rule, measured in
-   * the chain's section plane at the inheriting end.
+   * Phases of inherited ring vertices on the chain's own end section.
+   *
+   * Each vertex takes the phase of its nearest point on the section the chain
+   * itself evaluates at the inheriting end (a dense scan refined on the two
+   * neighbouring chords), so the inherited ring is parametrized exactly as
+   * the chain's own rings, whatever rule or matching fitted them. Phases are
+   * then made to increase along the ring order, which the zipper requires.
    */
   function inheritedPhases(
     context: IContext,
@@ -317,18 +350,74 @@ export namespace AutoMovieHumanBodySurface {
     const outline: [number, number][] = AutoMovieHumanLoftChain.local(
       target,
       station,
-      ring.map(
-        (v: number): [number, number, number] =>
-          AutoMovieHumanLoftMesh.position(context.mesh, v),
+      ring.map((v: number): [number, number, number] =>
+        AutoMovieHumanLoftMesh.position(context.mesh, v),
       ),
     );
-    // A hole chain's rings run clockwise; mirroring makes its phases increase
-    // along that order, as the fitter assigned them.
-    return AutoMovieHumanLoftParameter.phases(
-      target.rule,
-      target.mirrored === true
-        ? outline.map((p: [number, number]): [number, number] => [p[0], -p[1]])
-        : outline,
+    // Dense samples of the chain's own section at this station.
+    const c: number[] = AutoMovieHumanLoftChain.coefficients(target, station);
+    const n: number = Math.max(1024, 8 * target.order);
+    const curve: [number, number][] = Array.from(
+      { length: n },
+      (_: unknown, k: number): [number, number] => {
+        const p: [number, number, number, number] =
+          AutoMovieHumanLoftChain.section(target, c, (2 * Math.PI * k) / n);
+        return [p[0], p[1]];
+      },
+    );
+
+    // Nearest sample, then the nearest point on its two chords.
+    const projected: number[] = outline.map((p: [number, number]): number => {
+      let best: number = 0;
+      let distance: number = Infinity;
+      curve.forEach((q: [number, number], k: number): void => {
+        const d: number = (q[0] - p[0]) ** 2 + (q[1] - p[1]) ** 2;
+        if (d < distance) {
+          distance = d;
+          best = k;
+        }
+      });
+      let phase: number = best;
+      let closest: number = Infinity;
+      for (const k of [best - 1, best]) {
+        const a: [number, number] = curve[(k + n) % n]!;
+        const b: [number, number] = curve[(k + 1 + n) % n]!;
+        const dx: number = b[0] - a[0];
+        const dz: number = b[1] - a[1];
+        const L: number = dx * dx + dz * dz;
+        const u: number =
+          L > 0
+            ? Math.min(
+                1,
+                Math.max(0, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dz) / L),
+              )
+            : 0;
+        const d: number =
+          (a[0] + u * dx - p[0]) ** 2 + (a[1] + u * dz - p[1]) ** 2;
+        if (d < closest) {
+          closest = d;
+          phase = k + u;
+        }
+      }
+      return (2 * Math.PI * phase) / n;
+    });
+
+    // Increase along the ring: unwrap, never step backward, wrap again.
+    const out: number[] = [];
+    projected.forEach((t: number, i: number): void => {
+      if (i === 0) {
+        out.push(t);
+        return;
+      }
+      const previous: number = out[i - 1]!;
+      const step: number =
+        ((((t - previous) % (2 * Math.PI)) + 3 * Math.PI) % (2 * Math.PI)) -
+        Math.PI;
+      out.push(previous + Math.max(step, 1e-6));
+    });
+    return out.map(
+      (t: number): number =>
+        ((t % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI),
     );
   }
 

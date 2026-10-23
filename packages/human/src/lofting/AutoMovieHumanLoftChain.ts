@@ -1,5 +1,6 @@
 import { AutoMovieHumanHarmonicCurve } from "./AutoMovieHumanHarmonicCurve";
 import { AutoMovieHumanLoftFrame } from "./AutoMovieHumanLoftFrame";
+import { AutoMovieHumanSplineCurve } from "./AutoMovieHumanSplineCurve";
 import type { IAutoMovieHumanLoftChain } from "./IAutoMovieHumanLoftChain";
 
 /**
@@ -187,12 +188,51 @@ export namespace AutoMovieHumanLoftChain {
     chain: IAutoMovieHumanLoftChain,
     s: number,
   ): [number, number, number] {
-    const c: number[] = coefficients(chain, s);
-    return AutoMovieHumanLoftFrame.place(
-      frame(chain, s),
-      c[0]!,
-      c[AutoMovieHumanHarmonicCurve.width(chain.order)]!,
-    );
+    const [x, z] = center(chain, coefficients(chain, s));
+    return AutoMovieHumanLoftFrame.place(frame(chain, s), x, z);
+  }
+
+  /**
+   * Evaluate a section of the chain's basis and its phase derivative.
+   *
+   * @param chain Chain whose basis and order the coefficients follow.
+   * @param coefficients Section coefficients, as from {@link coefficients}.
+   * @param t Phase in radians.
+   * @returns `[x, z, dx/dt, dz/dt]` in the section plane, mm.
+   */
+  export function section(
+    chain: IAutoMovieHumanLoftChain,
+    coefficients: readonly number[],
+    t: number,
+  ): [number, number, number, number] {
+    return chain.basis === "spline"
+      ? AutoMovieHumanSplineCurve.evaluate(coefficients, chain.order, t)
+      : AutoMovieHumanHarmonicCurve.evaluate(coefficients, chain.order, t);
+  }
+
+  /**
+   * Mean `[x, z]` of a section over phase, a point of the central axis.
+   *
+   * The constant terms of a harmonic section; the control-point mean of a
+   * spline section.
+   */
+  export function center(
+    chain: IAutoMovieHumanLoftChain,
+    coefficients: readonly number[],
+  ): [number, number] {
+    if (chain.basis !== "spline")
+      return [
+        coefficients[0]!,
+        coefficients[AutoMovieHumanHarmonicCurve.width(chain.order)]!,
+      ];
+    const n: number = chain.order;
+    let x: number = 0;
+    let z: number = 0;
+    for (let i: number = 0; i < n; i++) {
+      x += coefficients[i]!;
+      z += coefficients[n + i]!;
+    }
+    return [x / n, z / n];
   }
 
   /**
@@ -228,8 +268,7 @@ export namespace AutoMovieHumanLoftChain {
     const f: AutoMovieHumanLoftFrame.IFrame = frame(chain, s);
 
     return phases.map((t: number): [number, number, number] => {
-      const p: [number, number, number, number] =
-        AutoMovieHumanHarmonicCurve.evaluate(c, chain.order, t);
+      const p: [number, number, number, number] = section(chain, c, t);
       return AutoMovieHumanLoftFrame.place(f, p[0], p[1]);
     });
   }
