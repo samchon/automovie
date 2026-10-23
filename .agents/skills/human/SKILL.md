@@ -16,6 +16,7 @@ During authorized modeling, keep the single web viewer and screenshot server run
 - Separate known ruled reverse-render artifacts from anatomy under [Reference Defects](references.md#reverse-render-defects).
 - Reject specimen copies, person-indexed control tables, source mesh/normal fallback and arbitrary coordinate corrections.
 - Read the applicable [3D Modeling guide](../3d-modeling/SKILL.md). Unconsumed code, fits and documents are not rendered progress.
+- Trace a skin line or ripple to its curves under [Lines And Ripples](verification.md#lines-and-ripples-on-the-skin) before changing fitter or generator code.
 
 ## Work Allocation
 

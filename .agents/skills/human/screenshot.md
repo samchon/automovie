@@ -1,6 +1,6 @@
 # Screenshots
 
-Honor the [explicit-shutdown rule](SKILL.md#human). One Vite service serves the interactive Human page and the PNG URLs; every PNG is drawn by that same page, `packages/playground/human.html`, in a resident headless Chrome.
+Honor the [explicit-shutdown rule](SKILL.md#human). One Vite service serves the interactive Human page, the 3D PNG URLs and the 2D curve diagrams; every image is drawn by that same page, `packages/playground/human.html`, in a resident headless Chrome.
 
 ## Startup
 
@@ -12,8 +12,8 @@ $env:AUTOMOVIE_HUMAN_IMAGE_REGISTRY = (Resolve-Path human-images.json).Path
 node node_modules/vite/bin/vite.js --host 127.0.0.1 --port 5173 --strictPort
 ```
 
-- Keep it running across edits. A change to the Vite config or a plugin module it imports, such as `HumanImageSession.ts`, makes Vite restart its server in-process, which also retires the worker and its Chrome. A change to `humanImageProcessEntry.ts` alone is not imported by the config, so requests answer 503 "operator restart required" until the execution owner restarts the service. A Human generator or page change needs no restart: the next request sees a new source hash, regenerates and reloads the worker's tab.
-- The first PNG after a start takes about 17 s (Chrome launch, Vite module transform, generation). A new frame of the current model then takes 1 to 2 s, a frame of another person about 5 s (the in-page generator itself about 0.7 s, the rest building and publishing the model JSON), and a cache hit about 1.5 s, mostly source hashing. After a worker crash the next request starts a new worker in about 10 s.
+- Keep it running across edits. A change to the Vite config or a plugin module it imports, such as `HumanImageSession.ts`, makes Vite restart its server in-process, which also retires the worker and its Chrome; two such edits within a second can crash Vite with `ERR_SERVER_ALREADY_LISTEN`, after which the service must be started again. A change to `humanImageProcessEntry.ts` alone is not imported by the config, so requests answer 503 "operator restart required" until the execution owner restarts the service. A Human generator or page change needs no restart: the next request sees a new source hash, regenerates and reloads the worker's tab.
+- The first PNG after a start takes 15 to 30 s (Chrome launch, Vite module transform, generation). A new frame of the current model then takes about 1 s, another person or a source change a full regeneration, a cache hit about 1.5 s, and a 2D diagram about 1 s.
 - The worker needs Google Chrome (`CHROME` overrides the path) with hardware WebGL. It refuses a software renderer such as SwiftShader, because the reference photographs come from ANGLE Direct3D 11.
 - Model errors never authorize a restart; follow [failure isolation](verification.md#actual-generated-form). Verify the 3D page, parameter JSON and a decoded PNG after any recovery; HTTP 200 alone proves nothing.
 - `AUTOMOVIE_HUMAN_AUDIT_IMPORT` imports one manifest path or a JSON array of at most two into the archive; import never renders or changes a capture time.
@@ -26,10 +26,11 @@ Open `http://127.0.0.1:5173/human.html?alias=f1`. The page generates from the ty
 | --- | --- | --- |
 | `alias` | `f1`, `f2`, `m1`, `m2` | Person to generate |
 | `pass` | `surface`, `overlay`, `construction` | Shown parts, see [Passes](#passes) |
-| `camera` | a [camera](#cameras) name | Places the orbit camera on that capture camera |
-| `curves` | a [curve selection](#curve-selection) | Highlights curves and the skin they shape |
+| `camera` | a [camera](#cameras) name | Base direction and region |
+| `curves` | a [curve selection](#curve-selection) | Colours the selected curves and the skin they shape |
+| `isolate`, `fit`, `az`, `el`, `view`, `target`, `dist`, `ortho` | see [Free View](#free-view) | Isolation and free camera |
 
-The page keeps these variables in its address and links the PNG URL of the same view; "PNG URL 복사" copies it. The toolbar legend shows the axis, section and selection colours. Orbit with the mouse; a click without dragging in `overlay` or `construction` adds or removes the curve under the pointer. `window.__automovieHuman` exposes `loadAlias`, `load`, `setPass`, `setCamera`, `setCurves`, `curves`, `capture`, `serialize` and `snapshot`.
+The page writes these variables back into its address and links the PNG URL of the same view; "PNG URL 복사" copies it and "곡선 도면" opens the 2D diagram of the selection. The toolbar has the pass, camera and free-view controls and a legend of the axis, section and selected-curve colours. Orbit with the mouse; a click without dragging in `overlay` or `construction` adds or removes the curve under the pointer. `window.__automovieHuman` exposes `loadAlias`, `load`, `setPass`, `setCamera`, `setCurves`, `setView`, `curves`, `capture`, `diagram`, `serialize` and `snapshot`.
 
 ## Parameters And Aliases
 
@@ -46,7 +47,7 @@ The page keeps these variables in its address and links the PNG URL of the same 
 
 ## Human URL Catalog
 
-Base URL: `http://127.0.0.1:5173`. A PNG URL is `/human-images/<alias>/<camera>.<pass>.png`, optionally with `?fresh=<nonce>`, `curves=<selection>` and `receipt=1`, for example `/human-images/f1/whole-front.overlay.png?fresh=r12-f1-front&curves=finger.left.*,trunk/7`.
+Base URL: `http://127.0.0.1:5173`. A 3D PNG URL is `/human-images/<alias>/<camera>.<pass>.png`, optionally with `fresh=<nonce>`, `curves=`, the [free-view](#free-view) variables and `receipt=1`.
 
 | Purpose | Path |
 | --- | --- |
@@ -55,10 +56,17 @@ Base URL: `http://127.0.0.1:5173`. A PNG URL is `/human-images/<alias>/<camera>.
 | New frame | append `?fresh=<unique nonce>` |
 | Capture receipt | append `&receipt=1` to a fresh URL |
 | PNG of a pinned model key | `/human-images/current/<model-key>/whole-front.surface.png` |
+| 2D curve diagram | `/human-curves/f1.png?curves=...`, see [Curve Diagrams](#curve-diagrams) |
 | Historical index | `/human-images/archive.json` |
 | Retained PNG or receipt | `/human-images/archive/<capture-digest>.png`, `?receipt=1` |
 
-Every PNG is 1200 x 1200 at pixel ratio 1 with the reference conditions: background `#f1f3f6`, `HemisphereLight(0xffffff, 0x9aa3b2, 0.6)`, a 2.2 key light at a fixed camera-relative offset, fov 30, and the model's own linear gray 0.8 material with roughness 0.9. A generated frame therefore compares 1:1 with the reference photograph of the same direction. The receipt and metadata record the camera placement, bounds, pass, curve selection, visible parts, WebGL renderer and model key.
+Examples:
+
+- `/human-images/f1/whole-front.overlay.png?fresh=r12-front&curves=finger.left.*&curves=trunk/7`
+- `/human-images/f1/free.overlay.png?fresh=r12-crotch&curves=trunk/0&isolate=1&fit=selection&view=%2By&ortho=1`
+- `/human-curves/f1.png?fresh=r12-head&curves=head@1500:1535:5`
+
+Every 3D PNG is 1200 x 1200 at pixel ratio 1 with the reference conditions: background `#f1f3f6`, `HemisphereLight(0xffffff, 0x9aa3b2, 0.6)`, a 2.2 key light at a fixed camera-relative offset, fov 30, and the model's own materials. Without `curves` and free variables a frame compares 1:1 with the reference photograph of the same direction. A frame with a selection carries a legend box listing each curve id in its colour. The receipt and metadata record the camera placement and projection, bounds, pass, curve selection with colours, free view, visible parts, WebGL renderer and model key.
 
 ## Cameras
 
@@ -66,6 +74,7 @@ Each camera looks at the centre of its region from the named direction and backs
 
 | Camera | Direction | Region |
 | --- | --- | --- |
+| `free` | +X | whole surface bounds; the base for [free view](#free-view) |
 | `whole-front` | +X | whole surface bounds |
 | `whole-back` | −X | whole surface bounds |
 | `whole-left` | +Z | whole surface bounds |
@@ -83,7 +92,23 @@ Each camera looks at the centre of its region from the named direction and backs
 
 Region rows keep the whole lateral extent, so with arms out a row frames far more than its quarter; they are bounds tiles, not anatomical cuts.
 
-Close-ups frame the model's own parts, never fixed coordinates. A head close-up frames the `human.skin.head/` intervals together with every `human.hair.` and `human.eye.` part, so hair and eyes are never cropped; the generator's head chain is used because a neck-base height is not a published quantity. An eye close-up frames that side's `human.eye.<side>.` parts grown on every side by 0.75 of their largest extent, so lids and brow stay in view and the eye spans about a third of the frame. A model without those parts fails the request instead of framing something else. For any other close-up, orbit and zoom on the page.
+Close-ups frame the model's own parts, never fixed coordinates. A head close-up frames the skin of the head chain family (`human.skin.head/` and every sub-chain `human.skin.head.*`) and the ear chains (`human.skin.ear.*`), together with every `human.hair.` and `human.eye.` part, so hair, ears and eyes are never cropped; chain names are used because a neck-base height is not a published quantity. An eye close-up frames that side's `human.eye.<side>.` parts grown on every side by 0.75 of their largest extent. A model without those parts fails the request instead of framing something else.
+
+## Free View
+
+These variables modify the named camera on the page and in PNG URLs alike; their canonical text is part of the frame cache, archive lookup, `x-human-view` header and receipt.
+
+| Variable | Effect |
+| --- | --- |
+| `az=<deg>`, `el=<deg>` | Direction: azimuth from +X toward +Z, elevation toward +Y in [-90, 90] |
+| `view=+x\|-x\|+y\|-y\|+z\|-z` | Camera on that axis; write `+` as `%2B` in a URL; not combined with `az`/`el` |
+| `target=x,y,z` | Look-at point in mm, registered frame of the generated model |
+| `dist=<mm>` | Camera distance from the target; absent fits the region |
+| `ortho=1` | Orthographic projection: `el=90` (`view=+y`) shows a horizontal section in true shape with +X right and +Z down; `el=0` shows an axis in profile |
+| `isolate=1` | Draw only the `curves` selection and, outside the `construction` pass, the skin intervals it shapes, in the skin's own colour |
+| `fit=selection` | Frame the selected curves and the skin they shape instead of the camera region |
+
+`isolate` and `fit` need a non-empty `curves`. Malformed values return 400.
 
 ## Passes
 
@@ -93,25 +118,32 @@ Parts whose id starts with `human.construction.` are construction (the lofting c
 - `overlay`: skin and lofting curves. The skin is drawn with a polygon offset of one, so sections lying on it win the depth test; axes run inside the body and are drawn through the skin.
 - `construction`: lofting curves alone.
 
-Curves are drawn unlit in the generator's material colours, central axes (`<chain>/axis`) red and sections (`<chain>/<k>`) blue, so lighting never washes them out. Axes are thickened by 1/600 of the body height so they read as thicker than sections. These display rules live in the page's styling closure, `createHumanPartStyle`, applied through the generic `ModelPartStyling`; the generator's model is not changed.
-
-A model without construction parts fails `overlay` and `construction` requests explicitly instead of returning a surface image.
+Curves are drawn unlit in the generator's material colours, central axes (`<chain>/axis`) red and sections (`<chain>/<k>`) blue. Axes are thickened by 1/600 of the body height so they read as thicker than sections. These display rules live in the page's styling closure, `createHumanPartStyle`, applied through the generic `ModelPartStyling`; the generator's model is not changed. A model without construction parts fails `overlay` and `construction` requests explicitly instead of returning a surface image.
 
 ## Curve Selection
 
-A curve id is a construction part id without `human.construction.`: `<chain>/<k>` for the principal section at layer k, or `<chain>/axis` for the chain's central axis. Chains are `upper`, `trunk`, `leg.left`, `arm.left`, `thumb.left`, `hand.left.1` to `hand.left.3`, `finger.left.index`, `finger.left.middle`, `finger.left.ring`, `finger.left.little` and their `right` counterparts. Skin parts are `human.skin.<chain>/<k>`, the band between layers k and k+1.
+A curve id is a construction part id without `human.construction.`: `<chain>/<k>` for the principal section at layer k, counted from the chain's bottom, or `<chain>/axis` for the chain's central axis. Chain names contain dots (`finger.left.index`), so only the last `/` separates the layer; the page's curve list shows every id of the current model. Skin parts are `human.skin.<chain>/<k>`, the band between layers k and k+1.
 
-- `curves` is a comma list of ids and `*` globs, where `*` matches any characters including `.` and `/`; `finger.left.*` selects every curve of the left fingers.
+- `curves` takes several values. Repeated keys are canonical (`curves=trunk/7&curves=finger.left.*`), and a comma list inside one value is accepted (`curves=trunk/7,finger.left.*`); both merge in order, trimmed and deduplicated. The page address, copied URLs, receipts and the `x-human-curves` header use repeated keys.
+- `*` matches any characters including `.` and `/`. The 2D diagrams additionally accept `<chain>@<mm>` and `<chain>@<from>:<to>:<step>`.
 - A pattern that matches no curve of the model fails the request; a malformed one returns 400.
 - Section `<chain>/<k>` shapes skin `<chain>/<k-1>` and `<chain>/<k>`; `<chain>/axis` shapes every interval of that chain, not of its child chains.
-- Selected curves turn green, a third colour, and thicken by a further 1/800 of the body height. `surface` tints the shaped skin halfway to green; `overlay` tints it and draws the green curves; `construction` draws them over all other curves. Selected axes stay visible through the skin.
-- The canonical selection (trimmed, deduplicated, sorted) is part of the frame cache, archive lookup, `x-human-curves` header and receipt.
+- Each selected curve takes its own colour by list order (globs expand in model order) and thickens by a further 1/800 of the body height; the toolbar and the PNG legend list id and colour. Without `isolate`, shaped skin is tinted halfway to its first curve's colour. `construction` draws the selection over all other curves, and selected axes stay visible through the skin.
+
+## Curve Diagrams
+
+`/human-curves/<alias>.png?curves=...` draws a 1200 x 1200 diagnostic diagram from the generator's calibration in the same resident page, in calibration millimetres; the legend states the alias's model scale. `/human-curves/<alias>/<id>.png` takes the path id as the first curve, and `.svg` returns the source the PNG is rasterized from.
+
+- Sections (`<chain>/<k>`, `<chain>@<mm>`, `<chain>@<from>:<to>:<step>`) share one true-scale frame, each in its own plane (local x right, local z down) and colour, with its curvature comb: spikes along the normal proportional to signed curvature, one scale for all lines with the 95th percentile of |k| at 8 percent of the plot and spikes clipped at three times that. Ringing shows as alternating spikes. Vertex phases are dotted and phase 0 is circled with an arrow toward increasing phase. A series keeps the stations inside the chain and fails only when none is.
+- Axes (only `/axis` ids) are plotted as centroid x, centroid z and perimeter against station, with principal layers marked. A list mixing axes and sections is refused.
+- The legend gives, per line: id, station, order K, vertex count, perimeter, max |k| with its radius, RMS k and curvature sign changes.
+- Headers, `fresh` and `receipt=1` follow the 3D rules (`x-human-png-sha256`, or `x-human-svg-sha256` for `.svg`). Diagrams are not archived; the session keeps the last 32.
 
 ## Freshness And Failures
 
-- Use a unique `fresh` nonce of one to sixty-four letters, digits, `_` or `-` per new frame. A nonce already in the archive returns its historical bytes; a URL without `fresh` may return a cached frame of the current model.
-- Check `x-human-captured-utc`, `x-human-png-sha256`, `x-human-identity`, `x-human-cache`, `x-human-binding` and `x-human-curves`. `new-requested-frame` means drawn now, `existing-png` means reused, and `historical-generation` proves only the original computation.
-- The archive keeps sixteen PNG and receipt pairs within 64 MiB; preserve report copies before eviction. 410 means an expired archive entry, 409 a stale pinned model key, 503 a source or host change during the request (retry), 500 a generation or render failure whose cause is in the server log.
+- Use a unique `fresh` nonce of one to sixty-four letters, digits, `_` or `-` per new frame. A 3D nonce already in the archive returns its historical bytes; a URL without `fresh` may return a cached frame of the current model.
+- Check `x-human-captured-utc`, `x-human-png-sha256`, `x-human-identity`, `x-human-cache`, `x-human-binding`, `x-human-curves` and `x-human-view`. `new-requested-frame` means drawn now, `existing-png` means reused, and `historical-generation` proves only the original computation.
+- The archive keeps sixteen PNG and receipt pairs within 64 MiB; preserve report copies before eviction. 400 means a malformed variable, 410 an expired archive entry, 409 a stale pinned model key, 503 a source or host change during the request (retry), and 500 a generation, render or diagram failure whose cause follows in the body.
 - None of these statuses permits passing an old image off as new. Follow the [audit requirements](verification.md#audit-and-user-reports).
 
 ## User-Facing Image Reports
