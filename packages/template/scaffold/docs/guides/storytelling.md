@@ -1,54 +1,59 @@
-# Storytelling
+# Storytelling for video
 
-A short can go directly from the user's request to a final video screenplay and implementation. A longer film or series may need shared facts, an event outline, and a plan for its parts. Keep only the layers that help this production make decisions; asset-only work needs none of them.
+A long film or series follows `world settings → treatments → scripts → final video screenplay → executable shots, sound, and edit → assembled video`. Keep the four creative layers even when one is brief. Compress or regroup their content rather than removing their responsibilities. A short video enters directly at final screenplay construction and still completes its expression pass, discovery, evidence, and independent review. A standalone asset needs no narrative pipeline.
 
-## Choose The Working Documents
+## Four distinct kinds of work
 
-These paths are conventions to adopt or change, not a required directory tree. Use the production's existing names and ownership, create files when they have content, and keep their references current when reorganizing them.
-
-| Decision | Possible home | When to separate it |
+| Layer | Owns | Hands onward |
 | --- | --- | --- |
-| Audience, intended effect, format, scope, and fixed constraints | The screenplay header or `docs/brief.md` | Several parts need the same brief |
-| World facts, character baselines, places, and rules | `docs/world/` | Multiple scenes depend on facts that need one owner |
-| Events, causes, consequences, and the order of revelations | `docs/story/` | The event chain needs review independently of scene execution |
-| Observable action, dialogue, and sound in scene order | `docs/script.md` or `docs/scripts/` | Split by sequence, episode, or another useful viewing unit |
-| Shot coverage, timing, and transitions | The screenplay or `docs/edit/` | The edit has decisions too detailed for the screenplay |
-| Reusable assets, performed shots, and the assembled film | Existing source layout, such as `src/assets/`, `src/shots/`, and `src/film/` | Source ownership belongs to the [production guide](production.md) |
+| [Settings](../../.agents/skills/settings/SKILL.md) | World facts, baseline states, constraints, characters and relationships, places, objects, knowledge boundaries, and sensory consistency | Usable facts with conditions, uncertainty, sources, and one semantic owner |
+| [Treatments](../../.agents/skills/treatments/SKILL.md) | Events, causes, choices, exchanges, consequences, setup and payoff, information release, and the complete progression | A storyline another author can execute without inventing decisive events |
+| [Scripts](../../.agents/skills/scripts/SKILL.md) | Part and episode partition; fully executed scenes with blocking, actual dialogue, reactions, meaningful performance, stage, light, sound, and viewing position | Complete playable scenes rather than an outline with scene headings |
+| [Final screenplay](../../.agents/skills/screenplay/SKILL.md) | The audience's complete audiovisual experience: selected image and sound, access, attention, duration, juxtaposition, and transitions | Final production text traceable into executed shots and the edit |
 
-The user's request may already be a sufficient brief. Do not invent worldbuilding, treatments, separate approval stages, or a prose adaptation to fill this table. An explainer, music video, demonstration, or abstract sequence can organize around its communication or visual progression without inventing fictional conflict.
+Scripts already supply enough detail for a filmmaker to execute the scene. The final screenplay performs independent work in the final medium: what receives attention, what image and sound reveal together, which reaction holds, what a silence changes, and how a transition carries the effect. Reformatting a script or appending shot numbers does not provide that realization. The final layer preserves inherited events, decisions, results, fixed values, and required information order while choosing their audiovisual expression.
 
-## Write For Picture And Sound
+A baseline relationship belongs in settings; its change belongs to the event causing it. A historical outcome can constrain the work without settings owning the chosen dramatic path. Possible knowledge differs from the moment a character learns something, and both differ from when the audience sees evidence. Cite the owner rather than making each layer a second biography or encyclopedia.
 
-Give each screenplay unit a stable identity and a readable heading so implementation and review can refer to it. State its location and time when those affect execution, then write what the audience can see and hear: actions and reactions, actual spoken lines, meaningful sounds, and any necessary on-screen text. An internal thought needs a chosen means of expression if the audience must receive it.
+## Working files
 
-Keep what happens distinct from how the audience learns it. A fact can be true before a character knows it, and a film can reveal an earlier event later. Preserve that distinction through dialogue, framing, sound, and scene order. Identify deliberate ambiguity where a later author could otherwise resolve it accidentally.
+These are the installed lifecycle paths. Use the [local workflow](../../workflow/README.md) when changing supported layout or Evidence configuration. Keep selections, identities, references, and consumers aligned when customizing.
 
-Use estimates while writing, then assess timing with performed action, recorded or generated speech, pauses, transitions, and music. A word count or a nominal scene duration does not establish the film's running time. The [audio guide](audio.md) covers obtaining and checking speech; timing changes return to the affected screenplay, shots, and edit.
+| Location | Purpose |
+| --- | --- |
+| `docs/instructions/NNN-topic.md` | Adopted requirements, source boundaries, and clearly identified delegated choices |
+| `docs/body/settings/NNN-domain/NNN-subject.md` | Canon facts and constraints with stable H2 identities |
+| `docs/body/settings/outline/index.md` | Domain and file finding guide without duplicating facts |
+| `docs/body/treatments/NNN-event.md` | Flat ordered events; release partition is decided later |
+| `docs/body/scripts/NNN-part/NNN-episode.md` | Executable scenes with part indexes |
+| `docs/body/screenplay/NNN-part/NNN-episode.md` | Final audiovisual text mirroring script identities and order |
+| `docs/revision/<scripts|screenplay>/...` | Frozen construction originals for a rewriting cycle |
+| `docs/naturalness/<scripts|screenplay>/...` | Expressive working versions and evidence comments |
+| `docs/evidence/construction/{units,files}/<layer>/...` | Separate construction answers for units and whole files |
+| `docs/review/{draft,final}/<layer>/round-N/` | Independent construction and expression review rounds |
 
-Camera and animation details belong here only when they carry a story decision, such as withholding an object until its reveal. The shot implementation can choose routine coverage. Judge pacing from the resulting sequence: a readable action, a listener's reaction, a subtitle, and a scene transition each need time in the actual edit.
+A part can represent an act, release block, or other larger division chosen for the format. An episode file can represent a suitable sequence in a continuous film. Its name does not force episodic storytelling. Screenplay keeps script identities so inherited decisions remain traceable; implementation can use as many or as few shots as scenes need.
 
-## Scale To A Film Or Series
+## The short route
 
-Before expanding many scenes, settle the work's intended destination and the dependencies shared by its parts. Keep enough of the overall event chain to know what a selected episode sets up, changes, and leaves open. Detail the requested part without pretending that unwritten or unrendered parts have been verified.
+For a short, choose short mode and write the complete final screenplay under `docs/body/screenplay`. The request and screenplay header can supply a sufficient brief. Add supporting facts or event planning where useful without fabricating empty upstream layers or false lineage.
 
-World documents own baseline facts and constraints. Event outlines own the events that change those facts, the causes and consequences, and their reveal order. Screenplays realize those decisions through scenes. A relationship established before the film belongs with the baseline; its change during the film belongs with the event that causes it. Link to the owner instead of copying an entire biography or setting into each layer.
+Retain discovery, the selected screenplay contracts, complete construction, expressive rewriting, evidence, and independent review. Connect each required unit to source the edit actually uses, then watch and listen to the complete short. Direct entry removes upstream preparation; it does not remove fidelity, coherent screen action, continuity, intelligibility, or delivery verification.
 
-Choose episode, sequence, and scene boundaries for the material's viewing rhythm and the requested format. One event can span several scenes, several events can share a scene, and a scene can require several shots. Preserve those many-to-many relationships when splitting or merging units; document references can be enough without creating a new schema.
+An explainer, demonstration, music video, abstract sequence, or contemplative film follows its chosen progression. These contracts do not demand invented conflict, a protagonist, a twist, uniform scene lengths, or a cliffhanger. Declare the alternative's actual organizing effect where a common question depends on it.
 
-Track the state that later scenes depend on at the boundaries where it changes. Depending on the work, this can include character knowledge, relationships, injuries, wardrobe, carried objects, location, elapsed time, or recurring sound. A compact continuity table is useful when those dependencies become hard to follow; it need not inventory every prop or frame.
+## Writing and revision
 
-For episodic work, distinguish promises meant to resolve within an episode from those spanning the work. For a pilot or partial commission, state the delivered scope and the dependencies left for later parts. A partial delivery is judged within that scope, while its compatibility with established work-wide decisions still matters.
+Use [instructions](../../.agents/skills/instructions/SKILL.md) to distinguish user constraints from author choices and [discovery](../../.agents/skills/discovery/SKILL.md) to identify uncovered requirements. Preserve audience, central experience, language, information access, format, and scope through their owners. Work contracts own production-specific form rather than hiding it in settings prose or imposing a generic structure everywhere.
 
-## Keep The Handoff Traceable
+Construction makes a complete layer. Settings and treatments include document correction there. Scripts and final screenplay each also receive [expressive rewriting](../../.agents/skills/rewriting/SKILL.md), preserving construction decisions while replacing awkward dialogue, redundant instructions, mechanical rhythm, and habitual imagery with the intended expression. The final screenplay is not the scripts expression pass. See the [lifecycle](narrative-lifecycle.md) for sequence, current reviews, and upstream repair.
 
-Connect each screenplay unit to the shots or other executable source that realizes it, and connect those shots to their place in the edit. Keep the identifiers useful through renames and restructuring. The [contracts skill](../../.agents/skills/contracts/SKILL.md) owns whether and how these relationships enter automated evidence; references alone do not prove that the audience receives the intended action or information.
+Choose scope before multiplying scenes. Complete work needs a whole event progression supporting its promised duration and ending. An explicitly chosen first-part pilot preserves work-wide settings and discloses the slice and dependencies. A pilot demonstrates selected material and its production path; it cannot establish whole-work completion.
 
-When a decision changes, identify its owner and all affected consumers before editing. Repair the owner, then update the dependent narrative documents, assets, performances, speech, shots, and edit together. Review coverage as well as content: removed units need their consumers resolved, and added units need implementation. A replacement voice take can change shot lengths, reactions, subtitles, and later edit timing even when the dialogue words stay the same.
+## From final screenplay to actual viewing
 
-## Review The Work The Audience Receives
+Map screenplay units to executable shots and each shot to the delivered edit. Relationships can be many-to-many. Keep revelations and transitions identifiable through restructuring. The [contracts guide](contracts.md) explains formal coverage. A function mentioning a unit does not prove the edit invokes it or the audience perceives the event.
 
-Use the [narrative checklist](../../.agents/skills/contracts/narrative.md) for the current scope. Read the complete screenplay in viewing order, then watch and listen to the complete delivered sequence. For long works, include the transitions between parts and compare the beginning, later consequences, and ending rather than checking only neighboring scenes.
+Duration remains provisional until actual action, fixed speech, pauses, captions, music, and transitions establish it. A word count or nominal duration cannot prove running time. A replacement voice take can alter reactions, subtitles, shot lengths, and later timing even when its words are unchanged. Return changes to affected owners and descendants together.
 
-Assess the work as a viewer who has not read its planning documents. Check whether intended causes, information, emotion, and continuity survive in the actual picture and sound, including dialogue intelligibility and any required text. Inspect the planning and implementation afterward to explain a problem; the existence of a correct document or a linked shot is not the audience's experience.
-
-Finish the inspection round before editing. Gather every finding and affected occurrence by cause, repair the owners and their dependents together, then repeat the full affected review round. State which screenplay, source, and rendered scope were examined, and leave unrendered or unfinished coverage explicit. Production validation and delivery remain with the [production guide](production.md).
+Read the complete screenplay as a new recipient and inspect the assembled film as an audience member who has never read the planning. Include opening, ending, joins, sustained middle, and transitions between parts. Judge causes, information, emotion, continuity, speech intelligibility, and text in the actual image and sound. Correct documents and locally successful shots cannot supply an experience missing from the delivered edit.

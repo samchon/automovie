@@ -40,6 +40,7 @@
   "include": [
     "lint.config.ts",
     "evidence.config.ts",
+    "workflow",
     "src",
     "test"
   ],
@@ -47,6 +48,7 @@
     "lint": "ttsc --cache-dir node_modules/.cache/ttsc --noEmit -p package.json",
     "format": "ttsc format --cache-dir node_modules/.cache/ttsc -p package.json",
     "evidence": "evidence",
+    "production:check": "ttsx --cache-dir node_modules/.cache/ttsc -P package.json workflow/check.ts",
     "test": "ttsx --cache-dir node_modules/.cache/ttsc -P package.json test/index.ts"
   },
   "dependencies": {

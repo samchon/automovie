@@ -1,15 +1,16 @@
 ---
 name: storytelling
-description: Plans, writes, and revises stories and screenplays for short or long videos. Use when deciding what a video communicates or what its audience sees and hears; asset-only work does not need a story.
+description: Routes short videos, films, and series through their creative layers and handoffs. Use when starting or changing what a video communicates and how its audience experiences it.
 ---
 
 # Storytelling
 
-Write the screenplay the production will realize on screen and in sound. The [storytelling guide](../../../docs/guides/storytelling.md) explains optional planning layers and long-form work.
+Make the requested viewing experience through decisions with clear owners. Read the [storytelling guide](../../../docs/guides/storytelling.md) before choosing or restructuring the narrative route.
 
-1. Read the user's request and existing production decisions to establish the audience, intended effect, format, and requested scope. Keep sufficient instructions in the screenplay itself when a separate brief adds nothing.
-2. For a short, write the final video screenplay directly, then implement it. Add world facts or an event outline only when the work needs them; for a longer work, establish the decisions shared across its parts before detailing the selected part.
-3. Write scenes as observable action, actual dialogue, and sound. Use the [narrative checklist](../contracts/narrative.md) to review the selected work, and the [contracts skill](../contracts/SKILL.md) when choosing evidence coverage.
-4. Hand the screenplay to [production](../production/SKILL.md), keeping references between the screenplay, shots, and edit. Review the resulting picture and sound against the screenplay, and repair a changed decision at its owner before updating its dependents.
+For a long film or series, preserve the four layers: [settings](../settings/SKILL.md) → [treatments](../treatments/SKILL.md) → [scripts](../scripts/SKILL.md) → [final video screenplay](../screenplay/SKILL.md). Each produces its own complete work; a short description of the previous layer cannot replace it. Scripts already execute scenes. The final screenplay independently realizes their decisions as the audience's image, sound, attention, and time.
 
-Narrative documents own story decisions and what the audience learns. [3D modeling](../3d-modeling/SKILL.md) owns their visual realization, and [audio](../audio/SKILL.md) owns speech production. Story decisions remain open to the user's direction; a planning convention is not a required plot structure.
+Use [instructions](../instructions/SKILL.md) for requirements and delegated direction, [discovery](../discovery/SKILL.md) for uncovered requirements, and [evidence-writing](../evidence-writing/SKILL.md) for accountable answers. [Rewriting](../rewriting/SKILL.md) follows both scripts construction and screenplay construction. The [narrative lifecycle](../../../docs/guides/narrative-lifecycle.md) owns their sequence, current independent reviews, and upstream repair.
+
+A short video enters directly at final screenplay construction, followed by its expression pass, evidence, independent review, and implementation. Keep a sufficient brief with that screenplay and add supporting planning only when it serves the work. This exception skips the first three layers; it does not make the long route's layers optional. An asset-only commission needs no narrative pipeline.
+
+Hand the final screenplay to [production](../production/SKILL.md), maintaining its relationship to executable shots and the assembled edit. [3D modeling](../3d-modeling/SKILL.md) and [audio](../audio/SKILL.md) realize its requirements. A correct document or passing coverage check does not establish the audience's experience; finish with [review](../review/SKILL.md) of the delivered whole.

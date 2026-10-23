@@ -1,12 +1,37 @@
-import type { IEvidenceConfig } from "@wrtnlabs/evidence";
+import {
+  type IProductionConstruction,
+  type IProductionLayerStages,
+  createProductionConfig,
+  resolveProductionGateRuntime,
+} from "./workflow";
 
-/**
- * Compact engineering baseline. Adopt production-specific populations through
- * docs/guides/contracts.md when the brief needs additional evidence.
- */
-export default {
-  severity: "error",
-  claims: [
+// A disabled pass composes its complete body; evidence enables its obligations.
+// Neither state is an independent review approval.
+const construction: IProductionConstruction = {
+  index: "disabled",
+  settings: "disabled",
+  treatments: "disabled",
+  scripts: "disabled",
+  screenplay: "disabled",
+};
+const naturalness: IProductionLayerStages = {
+  scripts: "disabled",
+  screenplay: "disabled",
+};
+
+export default createProductionConfig({
+  lifecycle: "independent-evidence-v1",
+  mode: "long",
+  location: import.meta.dirname,
+  narrativeScope: { mode: "complete-work" },
+  construction,
+  naturalness,
+  gate: {
+    ...resolveProductionGateRuntime(import.meta.dirname),
+    claimScopes: [],
+  },
+  claims: [],
+  supportClaims: [
     {
       name: "production source",
       type: "typescript",
@@ -34,4 +59,4 @@ export default {
       },
     },
   ],
-} satisfies IEvidenceConfig;
+});

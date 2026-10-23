@@ -31,10 +31,18 @@ Read the skill whose trigger applies.
 
 - [production](.agents/skills/production/SKILL.md): starting, resuming, restructuring, or delivering a production, including choosing its scope and working files.
 - [storytelling](.agents/skills/storytelling/SKILL.md): researching, planning, writing, or revising narrative, screenplays, or scene and shot breakdowns.
+- [instructions](.agents/skills/instructions/SKILL.md): recording, changing, or applying narrative requirements and delegated choices.
+- [discovery](.agents/skills/discovery/SKILL.md): discovering and adopting narrative obligations beyond shared contracts.
+- [settings](.agents/skills/settings/SKILL.md): authoring or revising canon and its outline.
+- [treatments](.agents/skills/treatments/SKILL.md): designing events, causal progression, consequences, and information release.
+- [scripts](.agents/skills/scripts/SKILL.md): realizing treatments as executable scenes and partitioning a long work.
+- [screenplay](.agents/skills/screenplay/SKILL.md): writing the final audiovisual screenplay, including direct entry for short videos.
+- [rewriting](.agents/skills/rewriting/SKILL.md): revising expression in scripts or screenplay against frozen construction.
+- [evidence-writing](.agents/skills/evidence-writing/SKILL.md): writing and auditing creative evidence against current bodies and parents.
 - [3d-modeling](.agents/skills/3d-modeling/SKILL.md): creating, importing, recovering, staging, or changing assets and motion, and judging their visible results.
 - [audio](.agents/skills/audio/SKILL.md): choosing or acquiring speech, music, or effects, aligning sound, and checking the final mix.
 - [contracts](.agents/skills/contracts/SKILL.md): selecting or changing evidence scope, and writing or reviewing source, tests, or adopted production contracts.
 - [development](.agents/skills/development/SKILL.md): writing or changing production source, tests, dependencies, or commands.
-- [documentation](.agents/skills/documentation/SKILL.md): writing any document or doc comment.
+- [documentation](.agents/skills/documentation/SKILL.md): writing technical documents, instructions, evidence explanations, and doc comments.
 - [testing](.agents/skills/testing/SKILL.md): choosing or writing behavioral checks for a production's measurable promises.
 - [review](.agents/skills/review/SKILL.md): reviewing any production work or claiming it ready for delivery.

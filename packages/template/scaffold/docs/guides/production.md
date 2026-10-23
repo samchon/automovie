@@ -1,47 +1,45 @@
 # Production workflow
 
-The requested result decides the workflow. These paths are conventions for a new production, not a file schema or required folder tree. Keep an existing layout that works and create only what the task uses.
+Choose the mode from the requested deliverable. The narrative architecture has fixed responsibilities; the source layout can adapt to the production.
 
-## Choose the working path
+## Production paths
 
-| Result | Smallest useful path |
+| Mode | Required path |
 | --- | --- |
-| Standalone model or motion | Required appearance and controls → asset source → observed model or animation → handoff |
-| Short video with a clear idea | Final video script → assets, sound, and shot source → assembled video |
-| Long film or series | Brief → shared facts and event design where needed → screenplay → shots, sound, and edit → assembled film or episodes |
+| Long film or series | Instructions and discovery → settings → treatments → scripts → final screenplay → execution and edit → whole-work delivery |
+| Short video | Instructions and discovery → final screenplay → execution and edit → delivery |
+| Standalone asset or motion | Required appearance and controls → asset source → observed model or animation → handoff |
 
-A clear request can be the brief; record its constraints at the top of the script rather than creating another document. For a larger work, `docs/brief.md` can own audience, form, duration, visual language, budget, delivery format, and decisions still awaiting the user. Preserve explicit user choices.
+Scripts and final screenplay each have their own construction and expression-revision pass. Settings and treatments finish within construction. The [storytelling guide](storytelling.md) owns these responsibilities and the [lifecycle guide](narrative-lifecycle.md) owns their evidence and independent review order. A short video's direct entry is the user's explicit exception; it does not make long-form layers optional.
 
-Before multiplying scenes or assets, prove a representative production path with the chosen packages and host. Identify missing capabilities early. A preliminary frame, silent animatic, or placeholder voice is a named intermediate, not the requested finished video.
+A clear request can supply a short video's brief. Larger works record creative instructions once and trace them into settings and events. Write complete bodies before their evidence pass; disabled means drafting rather than completion. Keep partial scope and pilots distinct from the requested whole.
 
-## Keep each decision with its owner
+When taking over existing settings, scripts, or completed work, preserve the supplied documents or a verifiable source revision separately from new authored bodies. Record their identity, adopted requirements, fixed quotations, and reinterpretation boundaries through instructions. A prior finished work supplies material and choices to assess; it does not automatically approve this production's layers. `docs/revision` holds reviewed construction originals for expression passes, not unassessed reference intake.
 
-| Location, when needed | Owns |
+## Source ownership
+
+| Location, when used | Owns |
 | --- | --- |
-| `docs/world/` | Shared facts and constraints that several scenes depend on |
-| `docs/story/` | Event progression, information release, episode or act boundaries |
-| `docs/scripts/`, or one `docs/script.md` | Final audiovisual screenplay |
-| `docs/edit/` | Script-to-shot mapping, sequence decisions, timing and continuity |
-| `src/assets/` | Production-owned models, rigs, controls, and their reusable parameters |
-| `src/shots/` | Staging, performance, and camera choices for executable shots |
-| `src/film/` | Ordered edit, sound and caption placement, delivery entries |
-| `public/` | Retained media and browser static inputs |
-| `docs/review/` | Observations, source/output identities, limitations, and review findings |
+| `docs/instructions/` | User requirements and delegated creative choices |
+| `docs/body/settings/` | Canon, baseline facts, constraints, and their outline |
+| `docs/body/treatments/` | Events, causes, consequences, and information release |
+| `docs/body/scripts/` | Executable scenes, performances, and release partition |
+| `docs/body/screenplay/` | Final audiovisual realization of the scene scripts |
+| `docs/revision/`, `docs/naturalness/` | Frozen construction and expression working editions |
+| `docs/evidence/`, `docs/review/` | Evidence, current reviews, verdicts, and findings |
+| `src/assets/` | Models, rigs, reusable authored controls |
+| `src/shots/` | Executable staging, performance, camera, and sound choices |
+| `src/film/` | Assembled edit, captions, sound placement, and delivery entries |
+| `public/` | Retained fixed media and browser static inputs |
 
-A small production can combine source roles in one entry. Split them when independent changes or reuse justify it. Do not create empty registries, wrappers, or a configuration framework to imitate this table. Keep code controls typed and local; a directory name alone does not connect source to the edit.
+Create content files when needed; empty classification trees add nothing. A small program can combine source roles in one entry. Split them where independent changes or reuse justify it, keeping shared values with one owner. Narrative source partition and runtime source organization are different concerns.
 
-Keep creative intent separate from executable decisions without duplicating facts. A script owns what the audience must see and hear; shot code owns how it is staged, and the edit owns which built shots are delivered. Mark provisional timing until measured sound and playback establish it.
+The final screenplay owns the required audience experience; shot code realizes it, and the edit selects what reaches the artifact. Trace those relationships and inspect the delivered result. A named source function is not proof that its shot is included or visible. Keep acquisition outside deterministic replay and measure final timing from accepted audio and actual performance.
 
-## Customize the project
+## Project ownership and customization
 
-The installed `AGENTS.md`, skills, guides, package commands, compiler settings, and evidence configuration belong to this production. Adapt them to its language, naming, pipeline, providers, and delivery needs. Package upgrades do not migrate these files.
+The installed instructions, contracts, workflow helpers, configuration, and source belong to this production; package upgrades do not migrate them. Adapt its language, subject-specific criteria, paths, and tool choices while preserving the selected path's responsibilities and evidence relationships. A layout change updates selectors, imports, command entries, links, and existing answers together.
 
-Keep universal routing in `AGENTS.md`, goals and boundaries in skills, and optional operating detail in these guides. Add a new skill for a task with its own trigger, not for each scene or provider. Keep API usage in installed package documentation and working consumers.
+Keep routing in `AGENTS.md`, task goals and boundaries in skills, and branch detail in guides. Installed APIs own their callable behavior. The blank scaffold supplies no viewer or render host; choose and wire the actual delivery entry before claiming a runnable production.
 
-If paths change, update imports, command entries, evidence populations, and document links in the same change. Record the chosen source entry, viewer or render host, package commands, fixed media locations, and output location once they exist. The blank scaffold supplies no viewer or render command; choose and wire them for the actual deliverable rather than documenting a fictional runner.
-
-## Evidence and completion
-
-Use [contracts](contracts.md) to decide which relationships need mechanical coverage. Short works can use a small script-to-shot map and direct playback review; long works often need graph coverage as well. In either case, a program mentioning a script is not proof that its output realizes it.
-
-When a source fact, event, asset, voice take, or edit changes, identify the affected descendants and revisit their timing, evidence, and observations together. Review the requested whole at delivery; a pilot or a collection of locally passing units does not cover material that was never produced.
+Prove a representative render and media path before scaling repeated work. After a source fact, event, voice take, asset, or edit changes, update dependent bodies, evidence, current reviews, timing, and observations. Whole-work completion requires the separate final review, not a sum of local or pilot successes.
