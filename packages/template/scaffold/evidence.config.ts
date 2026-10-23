@@ -1,9 +1,8 @@
 import type { IEvidenceConfig } from "@wrtnlabs/evidence";
 
 /**
- * Every exported type and function under `src` answers the common checklist,
- * and every exported function of a `test_*.ts` file under `test` the testing
- * checklist.
+ * Compact engineering baseline. Adopt production-specific populations through
+ * docs/guides/contracts.md when the brief needs additional evidence.
  */
 export default {
   severity: "error",

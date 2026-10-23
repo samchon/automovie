@@ -4,3 +4,9 @@ dist/
 *.log
 .DS_Store
 .wiki/
+.cache/
+.env
+.env.*
+!.env.example
+__pycache__/
+.venv/

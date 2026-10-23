@@ -1,6 +1,6 @@
 # {{name}}
 
-An AutoMovie production. Author assets, their performance, and the code that views or renders them as TypeScript under `src`, using the installed AutoMovie packages.
+Make a standalone 3D asset, a short video, or a long film or series. Keep authored TypeScript under `src` and fixed media under `public`; choose the planning depth and tools the production needs.
 
 ## First run
 
@@ -8,24 +8,28 @@ An AutoMovie production. Author assets, their performance, and the code that vie
 npm install --package-lock=false
 npm run lint
 npm run evidence
+npm test
 ```
 
-The blank project contains no production content.
+The blank project contains instructions and guides, with no story, models, viewer, render host, or media provider selected. Start with the [production skill](.agents/skills/production/SKILL.md). A short video can go straight from the request to its final video script and implementation; create other planning documents only when they serve the work.
 
 ## Commands
 
 | Command | Purpose |
 | --- | --- |
 | `npm run lint` | TypeScript and source correctness |
-| `npm run evidence` | Checklist answers of every exported declaration under `src` and every exported function of a `test_*.ts` file under `test` |
+| `npm run evidence` | Answers to source and test checklists, plus any production claims you adopt |
 | `npm test` | Every exported `test_*` function under `test`; passes when there is none |
 | `npm run format` | Source formatting |
 
 The project uses ES modules with `verbatimModuleSyntax` and `isolatedModules`: mark type-only imports and exports with `type`, and keep each file transformable on its own.
 
-## Ownership
+## Working files
 
-- `src` holds executable source, including viewer and command entries; `test` holds tests and their runner; `public` holds HTML and static assets.
+- `src` holds executable source, including viewer and command entries; `test` holds tests and their runner; `public` holds HTML and fixed media.
+- `docs` holds production decisions and working documents when needed; `docs/guides` holds the shipped manuals.
 - `lint.config.ts` configures source lint; `evidence.config.ts` selects the checklists in `.agents/skills/contracts`.
 - `package.json` owns dependencies, commands, and compiler settings.
 - Installation is one-way: these files are project-owned, and package upgrades never overwrite them.
+
+Use the [production guide](docs/guides/production.md) to choose or change the layout, [storytelling](docs/guides/storytelling.md) for long narrative work, [assets](docs/guides/assets.md) for modeling and acquisition, [audio](docs/guides/audio.md) for provider choices, and [contracts](docs/guides/contracts.md) for evidence scope. Installed package READMEs, public types, and JSDoc remain the API reference. Add viewer or host dependencies only when the chosen output needs them.

@@ -7,4 +7,4 @@ description: Owns this production's writing rules for READMEs, Markdown, and doc
 
 Good writing is the same for every reader: deliver the core point concisely and clearly. Every document follows [Writing](writing.md).
 
-What a public declaration's comment must say is the contracts [Meaningful documentation](../contracts/common.md#meaningful-documentation) chapter.
+What a public declaration's comment must say is the contracts [Authoring interface](../contracts/common.md#authoring-interface) question. Package READMEs, types, and JSDoc own API details; link to them rather than restating them here.
