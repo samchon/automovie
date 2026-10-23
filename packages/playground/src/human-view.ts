@@ -8,7 +8,8 @@ import type { IHumanViewerPage } from "./human/IHumanViewerPage";
  * registered typed example (see `admitHumanParameters`). With neither, the page
  * waits for the alias selector or `window.__automovieHuman`, which the PNG
  * worker's headless Chrome drives. After a load, `?camera=`, `?pass=` and
- * `?curves=` restore the view; failures stay on the status line.
+ * `?curves=` restore the view, then the free-view variables (`az`, `el`, `view`,
+ * `target`, `dist`, `ortho`, `isolate`, `fit`); failures stay on the status line.
  */
 async function bootstrapHumanPage(): Promise<void> {
   const root: HTMLElement | null = document.getElementById("app");
@@ -57,10 +58,27 @@ async function bootstrapHumanPage(): Promise<void> {
   // The view variables were read before the load rewrote the URL.
   const view: string | null = query.get("camera");
   const pass: string | null = query.get("pass");
-  const curves: string | null = query.get("curves");
+  const curves: string[] = query.getAll("curves");
   if (view !== null) page.setCamera(view);
   if (pass !== null) page.setPass(pass as IHumanViewerPage.Pass);
-  if (curves !== null) page.setCurves(curves);
+  if (curves.length !== 0) page.setCurves(curves.join(","));
+
+  // Free-view variables go through the same parser the PNG URLs use.
+  const free: URLSearchParams = new URLSearchParams();
+  for (const name of [
+    "az",
+    "el",
+    "view",
+    "target",
+    "dist",
+    "ortho",
+    "isolate",
+    "fit",
+  ]) {
+    const value: string | null = query.get(name);
+    if (value !== null) free.set(name, value);
+  }
+  if ([...free.keys()].length !== 0) page.setView(free.toString());
 }
 
 void bootstrapHumanPage().catch((error: unknown): void => {

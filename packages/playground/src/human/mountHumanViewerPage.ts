@@ -1,16 +1,23 @@
 import { type IAutoMovieViewerHandle, mountViewer } from "@automovie/viewer";
 import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 import { AutoMovieHuman } from "../../../human/src/AutoMovieHuman";
+import { AutoMovieHumanBodyCalibration } from "../../../human/src/generation/AutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanGenerated } from "../../../human/src/structures/IAutoMovieHumanGenerated";
 import type { IAutoMovieHumanParameters } from "../../../human/src/structures/IAutoMovieHumanParameters";
 import { HumanCaptureCamera } from "./HumanCaptureCamera";
+import { HumanViewerCamera } from "./HumanViewerCamera";
 import { HumanViewerModel } from "./HumanViewerModel";
 import type { IHumanViewerPage } from "./IHumanViewerPage";
 import { admitHumanParameters } from "./admitHumanParameters";
 import { captureHumanViewerFrame } from "./captureHumanViewerFrame";
+import { drawHumanCurveDiagram } from "./drawHumanCurveDiagram";
 import { layoutHumanViewerPage } from "./layoutHumanViewerPage";
+import { mountHumanViewControls } from "./mountHumanViewControls";
+import { normalizeHumanCurves } from "./normalizeHumanCurves";
+import { normalizeHumanView } from "./normalizeHumanView";
+import { readHumanLegend } from "./readHumanLegend";
+import { resolveHumanCurves } from "./resolveHumanCurves";
 
 /** What a load produces before display. */
 interface IProduced {
@@ -19,33 +26,47 @@ interface IProduced {
   milliseconds: number | null;
 }
 
+/** URL variables the page mirrors from its free view. */
+const FREE: readonly string[] = [
+  "az",
+  "el",
+  "view",
+  "target",
+  "dist",
+  "ortho",
+  "isolate",
+  "fit",
+];
+
 /**
- * Mount the single Human page: generate, display, select curves and capture `AutoMovieHuman` results.
+ * Mount the single Human page: generate, display, select and isolate curves, and capture `AutoMovieHuman` results.
  *
  * One scene, one `mountViewer` renderer and one key light serve both the
- * interactive OrbitControls view and every PNG capture, so the PNG service
- * shows exactly what a person sees here. The scene reproduces the reference
- * photographs' conditions (background `#f1f3f6`, hemisphere 0.6, key 2.2,
- * fov 30); {@link IHumanViewerPage.capture} additionally pins the drawing
- * buffer to 1200 x 1200 at pixel ratio 1 and places the camera with
- * {@link HumanCaptureCamera.place}. The interactive view draws only when the
- * camera, size, pass, selection or model changes, so an idle page, including
- * the PNG worker's resident one, spends no GPU time.
+ * interactive view and every PNG capture, so the PNG service shows exactly
+ * what a person sees here. The scene reproduces the reference photographs'
+ * conditions (background `#f1f3f6`, hemisphere 0.6, key 2.2, fov 30);
+ * {@link IHumanViewerPage.capture} additionally pins the drawing buffer to
+ * 1200 x 1200 at pixel ratio 1 and places the camera with
+ * {@link HumanCaptureCamera.place}. Free-view variables (`az`, `el`, `target`,
+ * `dist`, `ortho`, `isolate`, `fit`) modify the named camera on the page and in
+ * captures alike. The page draws only when the camera, size, pass, selection
+ * or model changes, so an idle page, including the worker's resident one,
+ * spends no GPU time.
  *
  * Every load retires the displayed model before generating, so a failure
  * leaves an empty viewport with the error, never an old model. Parameters come
  * from typed modules only (see {@link admitHumanParameters}). The page keeps
- * `alias`, `pass`, `camera` and `curves` in its URL and links the PNG URL of
- * the same view.
+ * `alias`, `pass`, `camera`, `curves` and the free view in its URL and links
+ * the PNG URL of the same view.
  *
  * @param root Element whose children this page replaces and owns until dispose.
  * @returns The page control surface, also published as `window.__automovieHuman` by the entry.
  *
- * @evidence contracts/common.md#principled-implementation Existing buildModel and mountViewer display the public generator's exact model under the reference scene conditions; captures read the preserved 1200 x 1200 buffer drawn with the reference framing rule.
- * @evidence contracts/common.md#clear-and-simple-design The page owns scene, renderer, controls and load serialization; model display state is HumanViewerModel, Human display rules createHumanPartStyle, framing HumanCaptureCamera, readback captureHumanViewerFrame and DOM layoutHumanViewerPage.
+ * @evidence contracts/common.md#principled-implementation Existing buildModel and mountViewer display the public generator's exact model under the reference scene conditions; captures read the preserved 1200 x 1200 buffer drawn with the reference framing rule, and the page renders its active perspective or orthographic camera itself.
+ * @evidence contracts/common.md#clear-and-simple-design The page owns scene, renderer and load serialization; display state is HumanViewerModel, cameras HumanViewerCamera, Human display rules createHumanPartStyle, framing HumanCaptureCamera, readback captureHumanViewerFrame, diagrams drawHumanCurveDiagram and DOM layoutHumanViewerPage.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Loads retire the old model first and report failures explicitly; JSON is admitted only by equality with a typed example; no old model or image is shown as current.
- * @evidence contracts/common.md#meaningful-documentation States the shared scene, capture conditions, on-demand drawing, failure rule and URL mirroring.
- * @evidence contracts/performance.md#efficient-algorithms Draws only when camera, size, pass, selection or model change; a load costs one generation and one model build, a capture one draw and PNG encode.
+ * @evidence contracts/common.md#meaningful-documentation States the shared scene, capture conditions, free view, on-demand drawing, failure rule and URL mirroring.
+ * @evidence contracts/performance.md#efficient-algorithms Draws only when something visible changes; a load costs one generation and one model build, a capture up to six restyles, one draw and one PNG encode.
  * @evidence contracts/performance.md#reuse-equivalent-work One scene, renderer and model serve interaction and every capture of a generation; display changes restyle instead of regenerating.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Holds at most one model; a load joins the previous model's retirement first, dispose releases model, controls, render loop and DOM, and loads are serialized by a busy flag.
  */
@@ -65,30 +86,30 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
   );
   const key: THREE.DirectionalLight = new THREE.DirectionalLight(0xffffff, 2.2);
   scene.add(hemisphere, key, key.target);
-
-  const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
-    HumanCaptureCamera.fov,
-    1,
-    0.01,
-    100,
-  );
-  camera.position.set(4, 1, 4);
-  const shot: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
-    HumanCaptureCamera.fov,
-    1,
-  );
-  const controls: OrbitControls = new OrbitControls(camera, dom.canvas);
+  const shots: {
+    perspective: THREE.PerspectiveCamera;
+    orthographic: THREE.OrthographicCamera;
+  } = {
+    perspective: new THREE.PerspectiveCamera(HumanCaptureCamera.fov, 1),
+    orthographic: new THREE.OrthographicCamera(),
+  };
 
   let dirty: boolean = true;
-  controls.addEventListener("change", (): void => {
-    dirty = true;
-  });
+  const camera: HumanViewerCamera = new HumanViewerCamera(
+    dom.canvas,
+    (): void => {
+      dirty = true;
+    },
+  );
 
   let current: HumanViewerModel | undefined;
   let generation: number = 0;
   let pass: IHumanViewerPage.Pass = "surface";
   let view: string = "whole-oblique-front";
   let curves: string = "";
+  let free: ReturnType<typeof normalizeHumanView> = normalizeHumanView(
+    (): null => null,
+  );
   let busy: boolean = false;
   let closed: boolean = false;
   let closing: Promise<void> | undefined;
@@ -99,13 +120,12 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
     ratio: 0,
   };
 
-  // Draw on demand: returning true tells mountViewer the frame is handled.
+  // Draw on demand and render the active camera ourselves, since mountViewer
+  // was given only one camera; returning true marks the frame handled.
   let mount: IAutoMovieViewerHandle | undefined;
   const frame: () => boolean = (): boolean => {
-    controls.update();
     const renderer: THREE.WebGLRenderer | undefined = mount?.renderer;
     if (renderer === undefined) return true;
-
     const ratio: number = window.devicePixelRatio || 1;
     const width: number = dom.canvas.clientWidth || 1;
     const height: number = dom.canvas.clientHeight || 1;
@@ -117,33 +137,24 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
       Object.assign(size, { width, height, ratio });
       renderer.setPixelRatio(ratio);
       renderer.setSize(width, height, false);
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
+      camera.resize(width / height);
       dirty = true;
     }
     if (!dirty) return true;
     dirty = false;
-
-    // The key light keeps the capture rule's camera-relative offset.
-    const diagonal: number =
-      current?.bounds.getSize(new THREE.Vector3()).length() ?? 2;
-    camera.updateMatrixWorld();
-    key.position
-      .copy(controls.target)
-      .add(
-        new THREE.Vector3(1, 1.4, 0.7)
-          .applyQuaternion(camera.quaternion)
-          .multiplyScalar(diagonal),
-      );
-    key.target.position.copy(controls.target);
-    return false;
+    camera.follow(
+      key,
+      current?.bounds.getSize(new THREE.Vector3()).length() ?? 2,
+    );
+    renderer.render(scene, camera.active);
+    return true;
   };
   try {
-    mount = mountViewer(dom.canvas, scene, camera, frame, {
+    mount = mountViewer(dom.canvas, scene, shots.perspective, frame, {
       preserveDrawingBuffer: true,
     });
   } catch (error) {
-    controls.dispose();
+    camera.dispose();
     throw error;
   }
 
@@ -160,24 +171,56 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
   const describe: (error: unknown) => string = (error: unknown): string =>
     error instanceof Error ? error.message : String(error);
 
-  /** Mirror the view into the URL and the PNG link, so it can be fetched as a PNG. */
+  /** Mirror the view into the URL and the links, so it can be fetched as a PNG. */
   const sync: () => void = (): void => {
     const alias: string | null = current?.loaded.alias ?? null;
     const url: URL = new URL(location.href);
-    url.searchParams.delete("document");
+    for (const name of ["document", ...FREE]) url.searchParams.delete(name);
+    for (const name of ["alias", "pass", "camera", "curves"])
+      url.searchParams.delete(name);
     for (const [name, value] of [
       ["alias", alias ?? ""],
       ["pass", pass],
       ["camera", view],
-      ["curves", curves],
     ] as const)
       if (value === "") url.searchParams.delete(name);
       else url.searchParams.set(name, value);
-    history.replaceState(null, "", url);
-    dom.setLinks(alias, view, pass, curves);
+
+    // Curves and the free view keep their readable canonical spelling.
+    const search: string = [
+      url.searchParams.toString(),
+      normalizeHumanCurves.query(curves),
+      free.text,
+    ]
+      .filter((part: string): boolean => part !== "")
+      .join("&");
+    history.replaceState(
+      null,
+      "",
+      url.pathname + (search === "" ? "" : "?" + search) + url.hash,
+    );
+    const selection: IHumanViewerPage.ISelection | undefined =
+      current?.selection();
+    dom.setLinks(
+      alias,
+      view,
+      pass,
+      normalizeHumanCurves.query(curves),
+      free.text,
+      selection?.selected[0] ?? null,
+    );
+    if (current !== undefined)
+      dom.setLegend(
+        readHumanLegend(current.result.model),
+        selection!.selected.map((id: string, index: number) => ({
+          id,
+          colour: selection!.colours[index]!,
+        })),
+      );
     dom.setCurves(current?.curveIds() ?? [], curves);
     dom.setPassAvailability(current?.loaded.construction ?? false, pass);
     dom.camera.value = view;
+    showView(free.value);
     dirty = true;
   };
 
@@ -186,9 +229,8 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
     const previous: HumanViewerModel | undefined = current;
     current = undefined;
     dom.empty.hidden = false;
-    dom.emptyDetail.textContent = "";
-    dom.state.textContent = "";
-    dom.parameters.textContent = "";
+    for (const node of [dom.emptyDetail, dom.state, dom.parameters])
+      node.textContent = "";
     dirty = true;
     await previous?.dispose();
   };
@@ -213,34 +255,43 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
       );
       if (closed) throw new Error("Human viewer closed during generation");
       const produced: IProduced = produce();
-      const model: HumanViewerModel = new HumanViewerModel(
+      const model: HumanViewerModel = await HumanViewerModel.create(
         produced.result,
         produced.alias,
         produced.milliseconds,
         generation + 1,
       );
+
+      // The page may have been disposed while the images decoded.
+      if (closed) {
+        await model.dispose();
+        throw new Error("Human viewer closed during texture decoding");
+      }
       current = model;
       generation = model.loaded.generation;
       scene.add(model.object);
       if (!model.loaded.construction) pass = "surface";
       model.setPass(pass);
 
-      // Keep the selection across loads when this model still has its curves.
+      // Keep the selection and free view across loads when they still apply.
       let note: string = "";
       try {
         model.setCurves(curves);
+        model.setIsolate(free.value.isolate);
       } catch (error) {
         curves = "";
+        free = normalizeHumanView((): null => null);
         note = " (이전 곡선 선택 해제: " + describe(error) + ")";
       }
-      setCamera(view);
+      place();
       dom.empty.hidden = true;
+      const { generateMilliseconds, bounds } = model.loaded;
       dom.state.textContent = JSON.stringify(
         {
-          generation: model.loaded.generation,
-          alias: model.loaded.alias,
-          generateMilliseconds: model.loaded.generateMilliseconds,
-          bounds: model.loaded.bounds,
+          generation,
+          alias: produced.alias,
+          generateMilliseconds,
+          bounds,
           parts: model.loaded.parts.length,
           curves: model.curveIds().length,
         },
@@ -252,19 +303,14 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
         null,
         2,
       );
-      dom.setLegend(model.legend());
       sync();
+      const time: string =
+        produced.milliseconds === null
+          ? ""
+          : ", " + produced.milliseconds.toFixed(0) + " ms";
       report(
         "ok",
-        "생성 완료" +
-          (produced.alias === null ? "" : " (" + produced.alias + ")") +
-          (produced.milliseconds === null
-            ? ""
-            : ", " + produced.milliseconds.toFixed(0) + " ms") +
-          ": 파트 " +
-          model.loaded.parts.length +
-          "개" +
-          note,
+        `생성 완료${produced.alias === null ? "" : " (" + produced.alias + ")"}${time}: 파트 ${model.loaded.parts.length}개${note}`,
       );
       return model.loaded;
     } catch (error) {
@@ -289,25 +335,17 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
       return { result, alias, milliseconds: performance.now() - start };
     };
 
-  /** Place the interactive camera on a named capture camera at the viewport aspect. */
-  const setCamera: (name: string) => void = (name: string): void => {
-    if (current === undefined) throw new Error("No generated Human is loaded");
-    const placement: HumanCaptureCamera.IPlacement = HumanCaptureCamera.place(
-      camera,
-      key,
-      current.describe(name),
-      current.bounds,
-    );
-    view = name;
-    controls.target.fromArray(placement.target);
-    controls.update();
-    sync();
-  };
-
   /** The loaded model, or a thrown error naming the missing load. */
   const loaded: () => HumanViewerModel = (): HumanViewerModel => {
     if (current === undefined) throw new Error("No generated Human is loaded");
     return current;
+  };
+
+  /** Place the interactive camera on the named camera with the free view applied. */
+  const place: () => void = (): void => {
+    const model: HumanViewerModel = loaded();
+    camera.place(key, model.describe(view, free.value), model.bounds);
+    dirty = true;
   };
 
   const page: IHumanViewerPage = {
@@ -334,37 +372,86 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
     setPass: (next: IHumanViewerPage.Pass): void => {
       loaded().setPass(next);
       pass = next;
+      if (free.value.fit !== null) place();
       sync();
     },
-    setCamera,
+    setCamera: (name: string): void => {
+      const previous: string = view;
+      view = name;
+      try {
+        place();
+      } catch (error) {
+        view = previous;
+        throw error;
+      }
+      sync();
+    },
     setCurves: (value: string): IHumanViewerPage.ISelection => {
       const selection: IHumanViewerPage.ISelection = loaded().setCurves(value);
       curves = selection.curves;
+      if (free.value.isolate && selection.selected.length === 0)
+        page.setView("");
+      else if (free.value.fit !== null) place();
       sync();
       return selection;
     },
     curves: (): string[] => current?.curveIds() ?? [],
+    setView: (query: string): string => {
+      const model: HumanViewerModel = loaded();
+      const next: ReturnType<typeof normalizeHumanView> = normalizeHumanView(
+        (name: string): string | null => new URLSearchParams(query).get(name),
+      );
+      const previous: ReturnType<typeof normalizeHumanView> = free;
+      try {
+        model.setIsolate(next.value.isolate);
+        free = next;
+        place();
+      } catch (error) {
+        free = previous;
+        model.setIsolate(previous.value.isolate);
+        throw error;
+      }
+      sync();
+      return free.text;
+    },
     capture: (
       name: string,
       next: IHumanViewerPage.Pass,
       selection: string,
+      query: string,
     ): IHumanViewerPage.ICapture => {
       if (closed || busy || mount === undefined)
         throw new Error("Human viewer has no idle loaded model to capture");
       const model: HumanViewerModel = loaded();
+      const frameView: ReturnType<typeof normalizeHumanView> =
+        normalizeHumanView((variable: string): string | null =>
+          new URLSearchParams(query).get(variable),
+        );
       try {
-        // The frame's own pass and selection; both are restored below.
-        const visibleParts: string[] = model.setPass(next);
+        // The frame's own pass, selection and view; all are restored below.
+        model.setPass(next);
         const frameCurves: IHumanViewerPage.ISelection =
           model.setCurves(selection);
+        model.setIsolate(frameView.value.isolate);
+        const visibleParts: string[] = model.setPass(next);
+        const descriptor: HumanCaptureCamera.IDescriptor = model.describe(
+          name,
+          frameView.value,
+        );
         const drawn: ReturnType<typeof captureHumanViewerFrame> =
           captureHumanViewerFrame(
             mount.renderer,
             scene,
-            shot,
+            descriptor.orthographic === true
+              ? shots.orthographic
+              : shots.perspective,
             key,
-            model.describe(name),
+            descriptor,
             model.bounds,
+            frameCurves.selected.map((id: string, index: number) => ({
+              id,
+              colour: frameCurves.colours[index]!,
+            })),
           );
         return {
           png: drawn.png,
@@ -373,6 +460,7 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
             generation: model.loaded.generation,
             alias: model.loaded.alias,
             pass: next,
+            view: frameView.text,
             curves: frameCurves,
             visibleParts,
             camera: drawn.placement,
@@ -392,18 +480,44 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
       } finally {
         // Restore the interactive view; the next frame resizes and redraws.
         model.setCurves(curves);
+        model.setIsolate(free.value.isolate);
         model.setPass(pass);
         size.width = 0;
         dirty = true;
       }
     },
+    diagram: async (
+      alias: string,
+      list: string,
+      format: "svg" | "png",
+    ): Promise<string> => {
+      // The legend reports the alias's model scale against the calibration.
+      const height: number | null = admitHumanParameters({ alias }).parameters
+        .body.controls.height.value;
+      const svg: string = drawHumanCurveDiagram(
+        AutoMovieHumanBodyCalibration,
+        list,
+        (height ?? Number.NaN) / AutoMovieHumanBodyCalibration.stature,
+      );
+      if (format === "svg") return svg;
+      const image: HTMLImageElement = new Image();
+      image.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+      await image.decode();
+      const canvas: HTMLCanvasElement = document.createElement("canvas");
+      canvas.width = image.naturalWidth;
+      canvas.height = image.naturalHeight;
+      canvas.getContext("2d")!.drawImage(image, 0, 0);
+      return canvas.toDataURL("image/png");
+    },
     snapshot: (): IHumanViewerPage.ISnapshot => ({
       generation: current?.loaded.generation ?? 0,
       alias: current?.loaded.alias ?? null,
       pass,
-      curves: current?.selection() ?? { curves: "", selected: [], shaped: [] },
+      view: free.text,
+      curves: current?.selection() ?? resolveHumanCurves("", [], []),
       status: dom.status.textContent ?? "",
       failed,
+      busy,
       parameters: current?.result.parameters ?? null,
     }),
     dispose: (): Promise<void> => {
@@ -413,7 +527,8 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
           await retire();
         } finally {
           try {
-            controls.dispose();
+            camera.dispose();
+            controlsSignal.abort();
           } finally {
             try {
               mount?.stop();
@@ -436,28 +551,31 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
       sync();
     }
   };
+  const controlsSignal: AbortController = new AbortController();
+  const showView: (value: normalizeHumanView.IView) => void =
+    mountHumanViewControls(
+      dom.toolbar,
+      controlsSignal.signal,
+      (query: string): void => guard((): void => void page.setView(query)),
+    );
   dom.listen({
     alias: (alias: string): void => {
       void page.loadAlias(alias).catch(console.error);
     },
     pass: (next: string): void =>
       guard((): void => page.setPass(next as IHumanViewerPage.Pass)),
-    camera: (name: string): void => guard((): void => setCamera(name)),
+    camera: (name: string): void => guard((): void => page.setCamera(name)),
     curves: (value: string): void =>
       guard((): void => {
         const selection: IHumanViewerPage.ISelection = page.setCurves(value);
         report(
           "ok",
-          "곡선 " +
-            selection.selected.length +
-            "개 선택, 피부 구간 " +
-            selection.shaped.length +
-            "개 강조",
+          `곡선 ${selection.selected.length}개 선택, 피부 구간 ${selection.shaped.length}개 강조`,
         );
       }),
     pick: (x: number, y: number): string | null =>
       current?.pick(
-        camera,
+        camera.active,
         new THREE.Vector2(x, y),
         new THREE.Vector2(
           2 / (dom.canvas.clientWidth || 1),

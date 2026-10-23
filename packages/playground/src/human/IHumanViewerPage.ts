@@ -165,6 +165,7 @@ export interface IHumanViewerPage {
    * @param camera One of {@link HumanCaptureCamera.names}.
    * @param pass Pass to render.
    * @param curves Curve selection for this frame; empty renders without highlight.
+   * @param view Free-view query text (`az`, `el`, `view`, `target`, `dist`, `ortho`, `isolate`, `fit`); empty keeps the named camera.
    *
    * @evidence contracts/common.md#principled-implementation Applies the frame's pass and selection, draws at 1200 x 1200 with the reference framing and reads the preserved buffer, then restores the interactive state in a finally block.
    * @evidence contracts/common.md#clear-and-simple-design The only capture path, used by the worker for every PNG URL.
@@ -178,6 +179,7 @@ export interface IHumanViewerPage {
     camera: string,
     pass: IHumanViewerPage.Pass,
     curves: string,
+    view: string,
   ): IHumanViewerPage.ICapture;
 
   /**
@@ -192,6 +194,43 @@ export interface IHumanViewerPage {
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a caller-owned record.
    */
   snapshot(): IHumanViewerPage.ISnapshot;
+
+  /**
+   * Apply free-view variables to the interactive view.
+   *
+   * @param query URL query text such as `az=0&el=90&ortho=1&isolate=1&fit=selection`; empty returns to the named camera.
+   * @returns The canonical text.
+   *
+   * @evidence contracts/common.md#principled-implementation Parses with normalizeHumanView, applies isolation to the model and re-places the camera with the capture rule.
+   * @evidence contracts/common.md#clear-and-simple-design The URL, the toolbar and automation share this entry.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Malformed variables, isolation without a selection and fit without a selection throw and keep the previous view.
+   * @evidence contracts/common.md#meaningful-documentation States the accepted variables and failures.
+   * @evidence contracts/performance.md#efficient-algorithms One restyle and one placement.
+   * @evidence contracts/performance.md#reuse-equivalent-work No regeneration.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Retains only the canonical text.
+   */
+  setView(query: string): string;
+  /**
+   * Draw the 2D diagnostic diagram of one or more lofting curves (see `drawHumanCurveDiagram`).
+   *
+   * @param alias Registered alias whose model scale the legend reports.
+   * @param curves Canonical curve list: `<chain>/<k>`, `<chain>/axis` with globs, `<chain>@<s>` and `<chain>@<from>:<to>:<step>`.
+   * @param format `svg` returns the document; `png` rasterizes it in the page at 1200 x 1200.
+   * @returns The SVG text or a PNG data URL.
+   *
+   * @evidence contracts/common.md#principled-implementation Evaluates the calibration the page's generator module uses, so diagrams follow the current source; PNGs are the same SVG drawn onto a canvas.
+   * @evidence contracts/common.md#clear-and-simple-design The worker serves `/human-curves/` through this one method.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown ids, aliases and stations throw.
+   * @evidence contracts/common.md#meaningful-documentation States the id grammar and formats.
+   * @evidence contracts/performance.md#efficient-algorithms No model generation; only the listed chains are evaluated.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the loaded calibration module.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The PNG canvas is a temporary element released after encoding.
+   */
+  diagram(
+    alias: string,
+    curves: string,
+    format: "svg" | "png",
+  ): Promise<string>;
 
   /**
    * Stop rendering and release the model, controls and renderer.
@@ -260,7 +299,7 @@ export namespace IHumanViewerPage {
    * @evidence contracts/common.md#clear-and-simple-design The same record feeds snapshots, URLs and PNG metadata.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Ids come from the model, never from the pattern text.
    * @evidence contracts/common.md#meaningful-documentation Each field states its id form.
-   * @evidence contracts/performance.md#efficient-algorithms Sorted arrays bounded by the model's parts.
+   * @evidence contracts/performance.md#efficient-algorithms Ordered arrays bounded by the model's parts.
    * @evidence contracts/performance.md#reuse-equivalent-work Kept between pass changes.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Plain data.
    */
@@ -268,11 +307,17 @@ export namespace IHumanViewerPage {
     /** Canonical pattern list, empty for no selection. */
     curves: string;
 
-    /** Selected curve ids, sorted. */
+    /** Selected curve ids in selection order. */
     selected: string[];
 
-    /** Skin interval ids (part ids without `human.skin.`) the selected curves shape, sorted. */
+    /** CSS colour of each selected curve, by selection order. */
+    colours: string[];
+
+    /** Skin interval ids (part ids without `human.skin.`) the selected curves shape. */
     shaped: string[];
+
+    /** CSS colour of each shaped interval: the colour of the first selected curve shaping it. */
+    shapedColours: string[];
   }
 
   /**
@@ -303,6 +348,9 @@ export namespace IHumanViewerPage {
 
       /** Rendered pass. */
       pass: Pass;
+
+      /** Canonical free-view text of this frame, empty for the named camera alone. */
+      view: string;
 
       /** Curve selection of this frame. */
       curves: ISelection;
@@ -351,11 +399,17 @@ export namespace IHumanViewerPage {
     /** Interactive pass. */
     pass: Pass;
 
+    /** Canonical free-view text of the interactive view. */
+    view: string;
+
     /** Interactive curve selection. */
     curves: ISelection;
 
     /** Status line text. */
     status: string;
+
+    /** Whether a load is in progress. */
+    busy: boolean;
 
     /** Whether the status line reports a failure. */
     failed: boolean;

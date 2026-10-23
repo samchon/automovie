@@ -87,6 +87,11 @@ export function layoutHumanViewerPage(
     textContent: "모델 JSON",
     target: "_blank",
   });
+  const diagram: HTMLAnchorElement = element("a", {
+    className: "human-link",
+    textContent: "곡선 도면",
+    target: "_blank",
+  });
   const pngPath: HTMLElement = element("code", { id: "human-png-path" });
   const state: HTMLElement = element("code", { id: "human-state" });
   const parameters: HTMLElement = element("code", { id: "human-parameters" });
@@ -109,7 +114,10 @@ export function layoutHumanViewerPage(
       textContent:
         "AutoMovieHuman.generate 결과를 표시합니다. PNG 서비스도 이 페이지의 같은 장면, 카메라, 조명으로 그립니다.",
     }),
-    section("입력", element("div", { className: "human-row" }, alias, generate)),
+    section(
+      "입력",
+      element("div", { className: "human-row" }, alias, generate),
+    ),
     section(
       "로프팅 곡선 선택",
       element("p", {
@@ -122,7 +130,7 @@ export function layoutHumanViewerPage(
     ),
     section(
       "PNG 서비스",
-      element("div", { className: "human-row" }, png, copy, model),
+      element("div", { className: "human-row" }, png, copy, model, diagram),
       pngPath,
     ),
     section("모델", state),
@@ -175,16 +183,17 @@ export function layoutHumanViewerPage(
     id: "human-status",
     role: "status",
   });
+  const toolbar: HTMLDivElement = element(
+    "div",
+    { className: "human-toolbar" },
+    element("label", {}, "패스", pass),
+    element("label", {}, "카메라", camera),
+    legend,
+  );
   const main: HTMLDivElement = element(
     "div",
     { className: "human-main" },
-    element(
-      "div",
-      { className: "human-toolbar" },
-      element("label", {}, "패스", pass),
-      element("label", {}, "카메라", camera),
-      legend,
-    ),
+    toolbar,
     element("div", { id: "human-viewport" }, canvas, empty),
     status,
   );
@@ -203,6 +212,7 @@ export function layoutHumanViewerPage(
     state,
     parameters,
     camera,
+    toolbar,
     setPassAvailability: (construction: boolean, value: string): void => {
       for (const option of pass.options)
         option.disabled = !construction && option.value !== "surface";
@@ -213,13 +223,19 @@ export function layoutHumanViewerPage(
       view: string,
       value: string,
       selection: string,
+      free: string,
+      curve: string | null,
     ): void => {
+      diagram.removeAttribute("href");
       if (name === null) {
         png.removeAttribute("href");
         model.removeAttribute("href");
         pngPath.textContent = "";
         return;
       }
+      const query: string = [selection, free]
+        .filter((part: string): boolean => part !== "")
+        .join("&");
       const image: string =
         "/human-images/" +
         name +
@@ -228,26 +244,34 @@ export function layoutHumanViewerPage(
         "." +
         value +
         ".png" +
-        (selection === "" ? "" : "?curves=" + selection);
+        (query === "" ? "" : "?" + query);
       png.href = image;
       model.href = "/human-images/" + name + ".model.json";
       pngPath.textContent = image;
+      if (curve !== null && selection !== "")
+        diagram.href = "/human-curves/" + name + ".png?" + selection;
     },
-    setLegend: (colours: {
-      axis: string | null;
-      section: string | null;
-      selected: string;
-    }): void => {
+    setLegend: (
+      colours: { axis: string | null; section: string | null },
+      selection: ReadonlyArray<{ id: string; colour: string }>,
+    ): void => {
+      const entries: Array<[string, string | null]> = [
+        ["중심축 (axis)", colours.axis],
+        ["단면 (section)", colours.section],
+        ...selection.map(
+          (entry: { id: string; colour: string }): [string, string] => [
+            entry.id,
+            entry.colour,
+          ],
+        ),
+      ];
+      legend.style.flexWrap = "wrap";
       legend.replaceChildren(
-        ...(
-          [
-            ["중심축 (axis)", colours.axis],
-            ["단면 (section)", colours.section],
-            ["선택 (curves)", colours.selected],
-          ] as const
-        )
-          .filter(([, colour]: readonly [string, string | null]): boolean => colour !== null)
-          .map(([label, colour]: readonly [string, string | null]): HTMLElement => {
+        ...entries
+          .filter(
+            ([, colour]: [string, string | null]): boolean => colour !== null,
+          )
+          .map(([label, colour]: [string, string | null]): HTMLElement => {
             const swatch: HTMLElement = element("span", { textContent: "■ " });
             swatch.style.color = colour!;
             return element("span", {}, swatch, label);
@@ -391,20 +415,24 @@ export namespace layoutHumanViewerPage {
     /** Enable overlay/construction only when the model has construction, and show the pass. */
     setPassAvailability: (construction: boolean, pass: string) => void;
 
-    /** Point the PNG and model links at the current alias, camera, pass and canonical curves. */
+    /** Point the PNG, model and curve-diagram links at the current alias, camera, pass, curves query (`curves=a&curves=b`) and free view; `curve` non-null enables the diagram link. */
     setLinks: (
       alias: string | null,
       camera: string,
       pass: string,
       curves: string,
+      free: string,
+      curve: string | null,
     ) => void;
 
+    /** Toolbar the page appends its free-view controls to. */
+    toolbar: HTMLDivElement;
+
     /** Show the legend swatches; a null colour omits its entry. */
-    setLegend: (colours: {
-      axis: string | null;
-      section: string | null;
-      selected: string;
-    }) => void;
+    setLegend: (
+      colours: { axis: string | null; section: string | null },
+      selection: ReadonlyArray<{ id: string; colour: string }>,
+    ) => void;
 
     /** Show the model's curve ids and the canonical selection. */
     setCurves: (ids: readonly string[], curves: string) => void;

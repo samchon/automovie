@@ -1,9 +1,8 @@
+import { DEFAULT_CHROME_EXECUTABLE } from "@automovie/render/node/chrome";
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { type Browser, type Page, chromium } from "playwright-core";
-
-import { DEFAULT_CHROME_EXECUTABLE } from "@automovie/render/node/chrome";
 
 import type { IHumanViewerPage } from "../human/IHumanViewerPage.ts";
 
@@ -31,11 +30,15 @@ interface IResidentModel {
  *   typed example), runs `AutoMovieHuman.generate`, and writes the
  *   `{ parameters, model }` JSON to `<worker directory>/publication.json` with
  *   its byte count and SHA-256 for `HumanImageProcess.publication`.
- * - `render` captures one named camera, pass and curve selection at the reference conditions
- *   and returns the PNG bytes, capture UTC, SHA-256 and render metadata.
+ * - `render` captures one named camera, pass, curve selection and free view at
+ *   the reference conditions and returns the PNG bytes, capture UTC, SHA-256
+ *   and render metadata.
+ * - `diagram` draws the 2D curve diagram of a curve list in the same page and
+ *   returns its PNG (or SVG) bytes with SHA-256 and capture UTC; it needs no
+ *   generated model.
  *
  * The page and model are reused across frames of one model key and across
- * keys; a changed source hash reloads the tab so Vite serves the edited
+ * keys; a changed source hash navigates the tab back to the bare page so Vite serves the edited
  * modules, and a page that lost its model (for example a Vite full reload)
  * regenerates the same input before rendering. Page errors return as replies
  * so the Vite host survives; a Chrome crash or disconnect exits the child so
@@ -105,11 +108,20 @@ export async function humanImageProcessEntry(): Promise<void> {
     console.error("Human page error: " + error.message);
   });
 
-  /** Wait until the page has mounted and published its control surface. */
+  /**
+   * Wait until the page has mounted and finished any load in progress.
+   *
+   * A Vite full reload keeps the page address, which the page mirrors its
+   * view into, so a reloaded page may start generating its own alias; the
+   * worker waits for that load to settle before issuing its own commands.
+   */
   const ready: () => Promise<void> = async (): Promise<void> => {
     await page.waitForFunction(
-      (): boolean =>
-        typeof (window as HumanWindow).__automovieHuman?.capture === "function",
+      (): boolean => {
+        const human: IHumanViewerPage | undefined = (window as HumanWindow)
+          .__automovieHuman;
+        return typeof human?.capture === "function" && !human.snapshot().busy;
+      },
       null,
       { timeout: 120000 },
     );
@@ -126,7 +138,7 @@ export async function humanImageProcessEntry(): Promise<void> {
     value: unknown,
   ): Promise<IHumanViewerPage.ILoaded> => {
     if (loadedSource !== undefined && loadedSource !== source) {
-      await page.reload({ waitUntil: "load", timeout: 120000 });
+      await page.goto(url, { waitUntil: "load", timeout: 120000 });
       await ready();
     }
     loadedSource = source;
@@ -153,8 +165,8 @@ export async function humanImageProcessEntry(): Promise<void> {
         source,
         command.value,
       );
-      const json: string = await page.evaluate(
-        (): string => (window as HumanWindow).__automovieHuman!.serialize(),
+      const json: string = await page.evaluate((): string =>
+        (window as HumanWindow).__automovieHuman!.serialize(),
       );
 
       // Write beside, then rename, so the session never reads a partial file.
@@ -215,7 +227,9 @@ export async function humanImageProcessEntry(): Promise<void> {
 
     if (command.kind === "render") {
       if (resident === undefined || resident.key !== key)
-        throw new Error("Human render requested for a model this worker has not generated");
+        throw new Error(
+          "Human render requested for a model this worker has not generated",
+        );
       const frame: RegExpExecArray | null =
         /^([a-z0-9-]+)\.(surface|overlay|construction)\.png$/.exec(
           String(command.name),
@@ -240,24 +254,32 @@ export async function humanImageProcessEntry(): Promise<void> {
       // The canonical curves value reaches the page unchanged; the page
       // resolves it against the model and fails on an unmatched pattern.
       const curves: string = String(command.curves ?? "");
+      const view: string = String(command.view ?? "");
       const capture: IHumanViewerPage.ICapture = await page.evaluate(
-        ([camera, pass, selection]: [
+        ([camera, pass, selection, free]: [
           string,
           IHumanViewerPage.Pass,
+          string,
           string,
         ]): IHumanViewerPage.ICapture =>
           (window as HumanWindow).__automovieHuman!.capture(
             camera,
             pass,
             selection,
+            free,
           ),
-        [frame[1]!, frame[2] as IHumanViewerPage.Pass, curves] as [
+        [frame[1]!, frame[2] as IHumanViewerPage.Pass, curves, view] as [
           string,
           IHumanViewerPage.Pass,
           string,
+          string,
         ],
       );
-      if (/swiftshader|llvmpipe|software/i.test(capture.metadata.renderer.renderer))
+      if (
+        /swiftshader|llvmpipe|software/i.test(
+          capture.metadata.renderer.renderer,
+        )
+      )
         throw new Error(
           "Human capture refused a software WebGL renderer: " +
             capture.metadata.renderer.renderer,
@@ -267,7 +289,10 @@ export async function humanImageProcessEntry(): Promise<void> {
       const prefix: string = "data:image/png;base64,";
       if (!capture.png.startsWith(prefix))
         throw new Error("Human capture did not return a PNG data URL");
-      const png: Buffer = Buffer.from(capture.png.slice(prefix.length), "base64");
+      const png: Buffer = Buffer.from(
+        capture.png.slice(prefix.length),
+        "base64",
+      );
       if (
         png.length < 24 ||
         png.readUInt32BE(0) !== 0x89504e47 ||
@@ -290,6 +315,49 @@ export async function humanImageProcessEntry(): Promise<void> {
         },
       };
     }
+    if (command.kind === "diagram") {
+      // Diagrams need no generated model, only the current modules.
+      // A render later regenerates the resident model if this reload lost it.
+      if (loadedSource !== source) {
+        await page.goto(url, { waitUntil: "load", timeout: 120000 });
+        await ready();
+        loadedSource = source;
+      }
+      const format: "svg" | "png" = command.format === "svg" ? "svg" : "png";
+      const drawn: string = await page.evaluate(
+        ([alias, curves, kind]: [
+          string,
+          string,
+          "svg" | "png",
+        ]): Promise<string> =>
+          (window as HumanWindow).__automovieHuman!.diagram(
+            alias,
+            curves,
+            kind,
+          ),
+        [String(command.alias), String(command.curves), format] as [
+          string,
+          string,
+          "svg" | "png",
+        ],
+      );
+      const bytes: Buffer =
+        format === "svg"
+          ? Buffer.from(drawn, "utf8")
+          : Buffer.from(
+              drawn.replace(/^data:image\/png;base64,/, ""),
+              "base64",
+            );
+      if (format === "png" && bytes.readUInt32BE(0) !== 0x89504e47)
+        throw new Error("Human curve diagram did not rasterize to PNG");
+      return {
+        key,
+        source,
+        bytes,
+        sha256: digest(bytes),
+        capturedUtc: new Date().toISOString(),
+      };
+    }
     throw new Error("Unknown Human worker command: " + String(command.kind));
   };
 
@@ -306,10 +374,12 @@ export async function humanImageProcessEntry(): Promise<void> {
     }
     const id: number = message.id as number;
     void execute(message as Record<string, unknown>)
-      .then((reply: Record<string, unknown>): Record<string, unknown> => ({
-        ...reply,
-        id,
-      }))
+      .then(
+        (reply: Record<string, unknown>): Record<string, unknown> => ({
+          ...reply,
+          id,
+        }),
+      )
       .catch(
         (error: unknown): Record<string, unknown> => ({
           id,

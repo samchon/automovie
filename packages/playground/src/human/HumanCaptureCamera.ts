@@ -39,6 +39,7 @@ export class HumanCaptureCamera {
 
   /** Every supported camera name, in a stable display order. */
   public static readonly names: readonly string[] = [
+    "free",
     "whole-front",
     "whole-back",
     "whole-left",
@@ -64,9 +65,11 @@ export class HumanCaptureCamera {
    * +Z (`whole-left`, `-side`) and -pi/2 from -Z (`whole-right`).
    *
    * Close-up regions come from the model's own parts, never from coordinates:
-   * `head-*` frames the `human.skin.head/` skin intervals together with every
-   * `human.hair.` and `human.eye.` part, so hair and eyes are never cropped;
-   * the generator's head chain is the anatomical boundary, which avoids
+   * `head-*` frames the skin intervals of the head chain family, `head` and
+   * every sub-chain `head.*` (`human.skin.head/`, `human.skin.head.`), and of
+   * the ear chains (`human.skin.ear.`), together with every `human.hair.` and
+   * `human.eye.` part, so hair, ears and eyes are never cropped; chain names
+   * are the anatomical boundary, which avoids
    * guessing a neck-base height. `eye-<side>-front` frames the
    * `human.eye.<side>.` parts grown on every side by 0.75 of their largest
    * extent, so lids and brow stay in view and the eye spans about a third of
@@ -91,6 +94,7 @@ export class HumanCaptureCamera {
     parts: (prefixes: readonly string[]) => THREE.Box3,
   ): HumanCaptureCamera.IDescriptor {
     const whole: Record<string, number> = {
+      free: 0,
       "whole-front": 0,
       "whole-back": Math.PI,
       "whole-left": Math.PI / 2,
@@ -114,9 +118,15 @@ export class HumanCaptureCamera {
       "head-oblique-front": Math.PI / 4,
     };
     if (Object.hasOwn(head, name)) {
-      const skin: THREE.Box3 = parts(["human.skin.head/"]);
+      // The head chain family: `head` and every sub-chain `head.*`, plus the
+      // ear chains, read from the part ids by chain name.
+      const skin: THREE.Box3 = parts([
+        "human.skin.head/",
+        "human.skin.head.",
+        "human.skin.ear.",
+      ]);
       if (skin.isEmpty())
-        throw new Error("Human model has no human.skin.head/ part for " + name);
+        throw new Error("Human model has no head or ear skin part for " + name);
       return {
         name,
         azimuth: head[name]!,
@@ -157,38 +167,105 @@ export class HumanCaptureCamera {
   }
 
   /**
+   * Apply free-view variables to a named camera's descriptor.
+   *
+   * Angles replace the direction, `fit=selection` replaces the region with
+   * `selection`, and `target`/`dist` (mm in the URL) become metre overrides of
+   * the look-at point and distance; `ortho` selects the orthographic projection.
+   *
+   * @param descriptor Named camera's descriptor from {@link HumanCaptureCamera.describe}.
+   * @param view Parsed free-view variables.
+   * @param selection Bounds of the curve selection in metres, required when `fit=selection`.
+   * @returns A new descriptor; the input is not modified.
+   *
+   * @evidence contracts/common.md#principled-implementation Converts degrees to radians and millimetres to the model's metres and replaces only the fields the URL names.
+   * @evidence contracts/common.md#clear-and-simple-design Overrides stay separate from name resolution, so named cameras are unchanged without free variables.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts `fit=selection` without a non-empty selection throws instead of framing the whole body.
+   * @evidence contracts/common.md#meaningful-documentation States each override and its units.
+   * @evidence contracts/performance.md#efficient-algorithms Constant work.
+   * @evidence contracts/performance.md#reuse-equivalent-work Pure function of its inputs.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a new descriptor; retains nothing.
+   */
+  public static override(
+    descriptor: HumanCaptureCamera.IDescriptor,
+    view: {
+      az?: number;
+      el?: number;
+      target?: [number, number, number];
+      dist?: number;
+      ortho: boolean;
+      fit: "selection" | null;
+    },
+    selection: THREE.Box3 | null,
+  ): HumanCaptureCamera.IDescriptor {
+    if (view.fit === "selection" && (selection === null || selection.isEmpty()))
+      throw new Error("Human fit=selection needs a non-empty curves selection");
+    return {
+      name: descriptor.name,
+      azimuth:
+        view.az === undefined
+          ? descriptor.azimuth
+          : THREE.MathUtils.degToRad(view.az),
+      elevation:
+        view.el === undefined
+          ? descriptor.elevation
+          : THREE.MathUtils.degToRad(view.el),
+      region:
+        view.fit === "selection"
+          ? selection!.clone()
+          : descriptor.region.clone(),
+      target:
+        view.target === undefined
+          ? descriptor.target
+          : new THREE.Vector3(...view.target).divideScalar(1000),
+      distance:
+        view.dist === undefined ? descriptor.distance : view.dist / 1000,
+      orthographic: view.ortho || descriptor.orthographic === true,
+    };
+  }
+
+  /**
    * Place a camera and key light for one descriptor with the reference framing rule.
    *
-   * The distance search runs in camera space: for each corner of the region box
-   * at camera-relative depth `p.z` (negative in front), the camera must sit far
-   * enough that the corner's horizontal and vertical extents fit inside the
-   * frustum with a 1.15 margin, plus one metre of standoff. Near and far follow
-   * the distance and the whole-model diagonal so depth precision scales with the
-   * subject. The camera's `aspect` must already be set by the caller.
+   * The camera first sits at unit distance from the target in the named
+   * direction. For every corner of the region, `p` is that corner in camera
+   * space, so `1 + p.z` is how far the corner lies toward the camera from the
+   * plane through the target. A perspective camera then backs off to the
+   * largest `1 + p.z + 1.15 |p| / tan(fov/2)` over both screen axes, the
+   * distance at which every corner fits with a 15 percent margin; an
+   * orthographic camera instead takes the half height
+   * `1.15 max(|p.y|, |p.x| / aspect)` and sits one whole-model diagonal beyond
+   * the nearest corner. `distance` and `target` overrides replace those
+   * choices. Near and far follow the distance and the whole-model diagonal.
+   * Looking straight up or down (|elevation| over 89.9 degrees) the screen up
+   * is -Z, so a top view shows +X to the right and +Z downward.
    *
-   * @param camera Perspective camera whose fov and aspect are already set.
-   * @param key Directional key light whose target is moved to the region centre.
-   * @param descriptor Direction and region from {@link HumanCaptureCamera.describe}.
+   * @param camera Perspective camera with its fov set, or orthographic camera.
+   * @param key Directional key light whose target is moved to the look-at point.
+   * @param descriptor Direction, region and overrides.
    * @param whole Whole-model surface bounds; its diagonal scales far and the key light offset.
+   * @param aspect Drawing-buffer width over height.
    * @returns Placement facts for capture metadata.
    *
-   * @evidence contracts/common.md#principled-implementation Implements the reference capture's rule verbatim: orient at unit distance, take for every region corner the camera-space distance that fits it with a 1.15 margin plus one metre, then set near/far from that distance and the whole-model diagonal and offset the key light by (1, 1.4, 0.7) in camera space times the diagonal.
-   * @evidence contracts/common.md#clear-and-simple-design One function serves the interactive preset and the PNG capture, so both frame identically.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No per-person or per-camera adjustment; the 1.15 margin, one-metre standoff and light offset are the reference capture's constants.
-   * @evidence contracts/common.md#meaningful-documentation States the frame, the corner test, the margin source and that aspect must be set first.
+   * @evidence contracts/common.md#principled-implementation Implements the reference capture's rule verbatim for perspective (unit-distance orientation, per-corner fit with a 1.15 margin, near/far from distance and diagonal, key light at (1, 1.4, 0.7) camera-space times the diagonal) and the same corner test for orthographic half extents.
+   * @evidence contracts/common.md#clear-and-simple-design One function serves the interactive view and the PNG capture for both projections, so both frame identically.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No per-person adjustment; the 1.15 margin and light offset are the reference capture's constants, and the vertical-view up vector is a stated convention.
+   * @evidence contracts/common.md#meaningful-documentation States the frame, the corner test, both projections, the overrides and the top-view orientation.
    * @evidence contracts/performance.md#efficient-algorithms Eight corner transforms and constant matrix work.
    * @evidence contracts/performance.md#reuse-equivalent-work Mutates the caller's camera and light in place instead of allocating new ones.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns plain arrays; retains nothing.
    */
   public static place(
-    camera: THREE.PerspectiveCamera,
+    camera: THREE.PerspectiveCamera | THREE.OrthographicCamera,
     key: THREE.DirectionalLight,
     descriptor: HumanCaptureCamera.IDescriptor,
     whole: THREE.Box3,
+    aspect: number,
   ): HumanCaptureCamera.IPlacement {
     const b: THREE.Box3 = descriptor.region;
     const size: THREE.Vector3 = whole.getSize(new THREE.Vector3());
-    const target: THREE.Vector3 = b.getCenter(new THREE.Vector3());
+    const target: THREE.Vector3 =
+      descriptor.target?.clone() ?? b.getCenter(new THREE.Vector3());
     const offset: THREE.Vector3 = new THREE.Vector3(
       Math.cos(descriptor.azimuth) * Math.cos(descriptor.elevation),
       Math.sin(descriptor.elevation),
@@ -196,27 +273,54 @@ export class HumanCaptureCamera {
     );
 
     // Orient first at unit distance; the corner test needs the view matrix.
-    camera.up.set(0, 1, 0);
+    if (Math.abs(descriptor.elevation) > THREE.MathUtils.degToRad(89.9))
+      camera.up.set(0, 0, -1);
+    else camera.up.set(0, 1, 0);
     camera.position.copy(target).add(offset);
     camera.lookAt(target);
     camera.updateMatrixWorld();
 
-    const tangent: number = Math.tan(
-      THREE.MathUtils.degToRad(camera.fov / 2),
-    );
-    let distance: number = 0;
+    const corners: THREE.Vector3[] = [];
     for (const x of [b.min.x, b.max.x])
       for (const y of [b.min.y, b.max.y])
-        for (const z of [b.min.z, b.max.z]) {
-          const p: THREE.Vector3 = new THREE.Vector3(x, y, z).applyMatrix4(
-            camera.matrixWorldInverse,
+        for (const z of [b.min.z, b.max.z])
+          corners.push(
+            new THREE.Vector3(x, y, z).applyMatrix4(camera.matrixWorldInverse),
           );
-          distance = Math.max(
-            distance,
-            1 + p.z + (1.15 * Math.abs(p.x)) / (tangent * camera.aspect),
-            1 + p.z + (1.15 * Math.abs(p.y)) / tangent,
-          );
-        }
+
+    let distance: number = 0;
+    let half: number | null = null;
+    if (camera instanceof THREE.PerspectiveCamera) {
+      camera.aspect = aspect;
+      const tangent: number = Math.tan(
+        THREE.MathUtils.degToRad(camera.fov / 2),
+      );
+      for (const p of corners)
+        distance = Math.max(
+          distance,
+          1 + p.z + (1.15 * Math.abs(p.x)) / (tangent * aspect),
+          1 + p.z + (1.15 * Math.abs(p.y)) / tangent,
+        );
+    } else {
+      // Orthographic: the same corners set the half extents; the camera
+      // only has to sit in front of the nearest corner.
+      half = 0;
+      for (const p of corners) {
+        half = Math.max(
+          half,
+          1.15 * Math.abs(p.y),
+          (1.15 * Math.abs(p.x)) / aspect,
+        );
+        distance = Math.max(distance, 1 + p.z);
+      }
+      distance += size.length();
+      camera.top = half;
+      camera.bottom = -half;
+      camera.left = -half * aspect;
+      camera.right = half * aspect;
+      camera.zoom = 1;
+    }
+    distance = descriptor.distance ?? distance;
 
     camera.position.copy(target).addScaledVector(offset, distance);
     camera.near = Math.max(0.0001, distance / 1000);
@@ -225,7 +329,7 @@ export class HumanCaptureCamera {
     camera.updateMatrixWorld();
 
     // Key light: right, above and behind the camera in its own frame, so the
-    // shading direction is the same for every named view.
+    // shading direction is the same for every view.
     key.position
       .copy(target)
       .add(
@@ -240,10 +344,13 @@ export class HumanCaptureCamera {
       name: descriptor.name,
       azimuth: descriptor.azimuth,
       elevation: descriptor.elevation,
+      projection: half === null ? "perspective" : "orthographic",
       position: camera.position.toArray(),
       target: target.toArray(),
-      fov: camera.fov,
-      aspect: camera.aspect,
+      up: camera.up.toArray(),
+      fov: camera instanceof THREE.PerspectiveCamera ? camera.fov : null,
+      halfHeight: half,
+      aspect,
       near: camera.near,
       far: camera.far,
       region: {
@@ -283,6 +390,15 @@ export namespace HumanCaptureCamera {
 
     /** Box the camera centres on and fits, in metres. */
     region: THREE.Box3;
+
+    /** Look-at point in metres replacing the region centre; absent uses the centre. */
+    target?: THREE.Vector3;
+
+    /** Camera distance in metres replacing the fitted distance; absent fits the region. */
+    distance?: number;
+
+    /** Orthographic projection instead of the reference perspective. */
+    orthographic?: boolean;
   }
 
   /**
@@ -306,14 +422,23 @@ export namespace HumanCaptureCamera {
     /** Elevation in radians. */
     elevation: number;
 
+    /** Projection used for the frame. */
+    projection: "perspective" | "orthographic";
+
     /** Camera position. */
     position: number[];
 
     /** Look-at target, the region centre. */
     target: number[];
 
-    /** Vertical field of view in degrees. */
-    fov: number;
+    /** Camera up vector. */
+    up: number[];
+
+    /** Vertical field of view in degrees; null for orthographic. */
+    fov: number | null;
+
+    /** Orthographic half height in metres; null for perspective. */
+    halfHeight: number | null;
 
     /** Width over height of the drawing buffer. */
     aspect: number;

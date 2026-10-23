@@ -57,7 +57,7 @@ export class HumanImageLocalPublication {
         "Local Human publication requires bounded original PNG bytes",
       );
     if (
-      !/^(?:whole-(?:front|back|left|right|oblique-front|oblique-back)|region-row[0-3]-(?:front|side)|head-(?:front|side|back|oblique-front)|eye-(?:left|right)-front)\.(?:surface|overlay|construction)\.png$/.test(
+      !/^(?:free|whole-(?:front|back|left|right|oblique-front|oblique-back)|region-row[0-3]-(?:front|side)|head-(?:front|side|back|oblique-front)|eye-(?:left|right)-front)\.(?:surface|overlay|construction)\.png$/.test(
         frame,
       )
     )

@@ -4,6 +4,7 @@ import path from "node:path";
 import type { Plugin, ViteDevServer } from "vite";
 
 import { normalizeHumanCurves } from "../human/normalizeHumanCurves";
+import { normalizeHumanView } from "../human/normalizeHumanView";
 import { HumanImageArchive } from "./HumanImageArchive";
 import { HumanImageRegistry } from "./HumanImageRegistry";
 import { HumanImageSession } from "./HumanImageSession";
@@ -31,6 +32,86 @@ export function createHumanImagePlugin(repository: string): Plugin {
         input: Awaited<ReturnType<typeof HumanImageRegistry.read>>;
       }
     | undefined;
+
+  /**
+   * Serve `/human-curves/<alias>.png` (or `.svg`), optionally `/human-curves/<alias>/<id>.png`, from the resident page.
+   *
+   * The path id, when present, is the first curve; repeated `curves=` keys and
+   * comma lists follow in order. Headers and `fresh`/`receipt` follow the frame
+   * rules; diagrams are not archived, so a repeated nonce returns the cached
+   * diagram only while it is still among the 32 the session keeps.
+   */
+  async function serveDiagram(
+    url: URL,
+    response: ServerResponse,
+  ): Promise<void> {
+    const route: RegExpExecArray | null =
+      /^\/human-curves\/([a-z][a-z0-9-]{0,15})(?:\/(.+))?\.(png|svg)$/.exec(
+        url.pathname,
+      );
+    const registry: string | undefined =
+      process.env.AUTOMOVIE_HUMAN_IMAGE_REGISTRY;
+    if (route === null || !registry) {
+      response.statusCode = route === null ? 404 : 503;
+      response.end(
+        route === null ? "" : "Human image registry is not configured",
+      );
+      return;
+    }
+    let curves: string;
+    try {
+      curves = normalizeHumanCurves([
+        ...(route[2] === undefined ? [] : [decodeURIComponent(route[2])]),
+        ...url.searchParams.getAll("curves"),
+      ]);
+      if (curves === "") throw new Error("Human curve diagram needs curves=");
+    } catch (error) {
+      response.statusCode = 400;
+      response.end(error instanceof Error ? error.message : String(error));
+      return;
+    }
+
+    // The alias must be registered; its parameters only scale the legend.
+    await HumanImageRegistry.read(
+      path.resolve(repository, registry),
+      route[1]!,
+    );
+    const format: "png" | "svg" = route[3] === "svg" ? "svg" : "png";
+    const result: Awaited<ReturnType<HumanImageSession["diagram"]>> =
+      await session!.diagram(
+        route[1]!,
+        curves,
+        format,
+        url.searchParams.get("fresh") ?? undefined,
+      );
+    response.setHeader("cache-control", "no-store");
+    response.setHeader("x-human-captured-utc", result.capturedUtc);
+    response.setHeader(
+      "x-human-fresh-nonce",
+      url.searchParams.get("fresh") ?? "none",
+    );
+    response.setHeader("x-human-identity", result.key);
+    response.setHeader(
+      format === "png" ? "x-human-png-sha256" : "x-human-svg-sha256",
+      result.sha256,
+    );
+    response.setHeader(
+      "x-human-cache",
+      result.cacheHit ? "existing-png" : "new-requested-frame",
+    );
+    response.setHeader("x-human-binding", "current-generation");
+    response.setHeader("x-human-curves", normalizeHumanCurves.query(curves));
+    if (url.searchParams.get("receipt") === "1") {
+      response.setHeader("content-type", "application/json");
+      response.end(JSON.stringify(result.receipt));
+      return;
+    }
+    response.setHeader(
+      "content-type",
+      format === "png" ? "image/png" : "image/svg+xml",
+    );
+    response.end(result.bytes);
+  }
   return {
     name: "automovie-human-images",
     async configureServer(server: ViteDevServer): Promise<void> {
@@ -54,11 +135,14 @@ export function createHumanImagePlugin(repository: string): Plugin {
       // The worker child inherits this environment when the first request
       // starts it, after listening, and opens /human.html on this origin.
       server.httpServer?.once("listening", (): void => {
-        const address: ReturnType<NonNullable<typeof server.httpServer>["address"]> =
-          server.httpServer!.address();
+        const address: ReturnType<
+          NonNullable<typeof server.httpServer>["address"]
+        > = server.httpServer!.address();
         if (address === null || typeof address === "string") return;
         const host: string =
-          address.family === "IPv6" ? "[" + address.address + "]" : address.address;
+          address.family === "IPv6"
+            ? "[" + address.address + "]"
+            : address.address;
         process.env.AUTOMOVIE_HUMAN_WORKER_ORIGIN =
           "http://" + host + ":" + address.port;
       });
@@ -75,7 +159,8 @@ export function createHumanImagePlugin(repository: string): Plugin {
           const url: URL = new URL(request.url ?? "/", "http://localhost");
           if (
             !url.pathname.startsWith("/human-images/") &&
-            !url.pathname.startsWith("/human-parameters/")
+            !url.pathname.startsWith("/human-parameters/") &&
+            !url.pathname.startsWith("/human-curves/")
           ) {
             next();
             return;
@@ -84,6 +169,10 @@ export function createHumanImagePlugin(repository: string): Plugin {
             if (request.method !== "GET" && request.method !== "POST") {
               response.statusCode = 405;
               response.end();
+              return;
+            }
+            if (url.pathname.startsWith("/human-curves/")) {
+              await serveDiagram(url, response);
               return;
             }
             if (request.method === "GET") {
@@ -165,7 +254,7 @@ export function createHumanImagePlugin(repository: string): Plugin {
                 url.pathname,
               );
             const image: RegExpExecArray | null =
-              /^\/human-images\/([a-z][a-z0-9-]{0,15})\/((?:whole-(?:front|back|left|right|oblique-front|oblique-back)|region-row[0-3]-(?:front|side)|head-(?:front|side|back|oblique-front)|eye-(?:left|right)-front)\.(?:surface|overlay|construction)\.png)$/.exec(
+              /^\/human-images\/([a-z][a-z0-9-]{0,15})\/((?:free|whole-(?:front|back|left|right|oblique-front|oblique-back)|region-row[0-3]-(?:front|side)|head-(?:front|side|back|oblique-front)|eye-(?:left|right)-front)\.(?:surface|overlay|construction)\.png)$/.exec(
                 url.pathname,
               );
             if (
@@ -247,13 +336,19 @@ export function createHumanImagePlugin(repository: string): Plugin {
               return;
             }
 
-            // The selection joins the frame identity in its canonical spelling.
+            // Selection and free view join the frame identity in canonical form.
             let curves: string;
+            let view: ReturnType<typeof normalizeHumanView>;
             try {
-              curves = normalizeHumanCurves(url.searchParams.get("curves"));
+              curves = normalizeHumanCurves(url.searchParams.getAll("curves"));
+              view = normalizeHumanView((name: string): string | null =>
+                url.searchParams.get(name),
+              );
             } catch (error) {
               response.statusCode = 400;
-              response.end(error instanceof Error ? error.message : String(error));
+              response.end(
+                error instanceof Error ? error.message : String(error),
+              );
               return;
             }
             const requested: string = image?.[2] ?? pinned?.[2] ?? "$model";
@@ -263,6 +358,7 @@ export function createHumanImagePlugin(repository: string): Plugin {
                 requested,
                 url.searchParams.get("fresh") ?? undefined,
                 curves,
+                view.text,
               );
             if (pinned && result.key !== pinned[1]) {
               response.statusCode = 409;
@@ -305,6 +401,7 @@ export function createHumanImagePlugin(repository: string): Plugin {
               alias: image?.[1],
               image: requested,
               curves,
+              view: view.text,
               key: result.key,
               cacheHit: result.cacheHit,
               ...(result.cacheHit ? {} : { receipt: result.receipt }),
@@ -316,7 +413,14 @@ export function createHumanImagePlugin(repository: string): Plugin {
                 archive.publish(url.href, result.png, eventBytes),
               );
             response.setHeader("x-human-binding", "current-generation");
-            response.setHeader("x-human-curves", curves === "" ? "none" : curves);
+            response.setHeader(
+              "x-human-curves",
+              curves === "" ? "none" : normalizeHumanCurves.query(curves),
+            );
+            response.setHeader(
+              "x-human-view",
+              view.text === "" ? "none" : view.text,
+            );
             console.info(eventBytes.toString("utf8"));
             if (url.searchParams.get("receipt") === "1") {
               response.setHeader("content-type", "application/json");
@@ -342,7 +446,8 @@ export function createHumanImagePlugin(repository: string): Plugin {
             response.end(
               unavailable
                 ? "Human service generation changed; operator restart required"
-                : "Human image request failed; inspect the local server log",
+                : "Human image request failed: " +
+                    (error instanceof Error ? error.message : String(error)),
             );
           });
         },

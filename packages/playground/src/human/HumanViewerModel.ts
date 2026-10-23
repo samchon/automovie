@@ -1,9 +1,11 @@
-import type { IAutoMovieMaterial, IAutoMovieModelPart } from "@automovie/interface";
+import type { IAutoMovieModelPart } from "@automovie/interface";
 import {
+  AutoMovieTextureCache,
   type IAutoMovieModelObject,
   buildModel,
   collectAutoMovieOwnedResources,
   createAutoMovieResourceRetirement,
+  materialTextureBindings,
 } from "@automovie/viewer";
 import * as THREE from "three";
 
@@ -13,6 +15,7 @@ import type { IHumanViewerPage } from "./IHumanViewerPage";
 import { ModelPartStyling } from "./ModelPartStyling";
 import { createHumanPartStyle } from "./createHumanPartStyle";
 import { normalizeHumanCurves } from "./normalizeHumanCurves";
+import type { normalizeHumanView } from "./normalizeHumanView";
 import { resolveHumanCurves } from "./resolveHumanCurves";
 
 /** Part id prefix the generator gives every construction part. */
@@ -57,28 +60,86 @@ export class HumanViewerModel {
   private readonly close: () => Promise<void>;
   private readonly styling: ModelPartStyling;
   private pass: IHumanViewerPage.Pass = "surface";
-  private current: IHumanViewerPage.ISelection = {
-    curves: "",
-    selected: [],
-    shaped: [],
-  };
+  private isolate: boolean = false;
+  private current: IHumanViewerPage.ISelection = resolveHumanCurves("", [], []);
 
   /**
-   * Build a result's model; the built resources are released if construction fails.
+   * Decode the result's carried images, then build and display its model.
+   *
+   * Texture bindings resolve only against `result.model.images`, the images
+   * the generator carries (iris, sclera vessels, hair strands and their alpha
+   * masks); a binding naming any other asset is refused, because a Human page
+   * has no project asset loader. Priming completes before the synchronous
+   * build, so no surface renders untextured while its image decodes. The cache
+   * belongs to the returned model and is disposed with it, including when
+   * priming or construction fails.
    *
    * @param result Generator output to display.
    * @param alias Registered alias of its parameters, or null.
    * @param milliseconds Generator time, or null for an externally generated result.
    * @param generation Page generation counter assigned to this model.
+   * @returns The displayed model, owning its texture cache.
+   *
+   * @evidence contracts/common.md#principled-implementation Primes AutoMovieTextureCache with every material binding and the model's carried images before buildModel, exactly as buildAutoMovieMaterialLibrary does, and passes cache.resolve as the resolver.
+   * @evidence contracts/common.md#clear-and-simple-design The async step lives in this factory so the constructor stays a synchronous build; the page awaits one call per load.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The loader rejects every non-carried asset and a decode failure rejects the load, so no texture is silently dropped.
+   * @evidence contracts/common.md#meaningful-documentation States which images are served, why other assets are refused and who owns the cache.
+   * @evidence contracts/performance.md#efficient-algorithms Each distinct carried image is decoded once, in parallel, then shared by binding-private clones.
+   * @evidence contracts/performance.md#reuse-equivalent-work One cache per generation serves every material, pass, selection and capture of that model.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The cache holds the decoded images of one model; a failed prime or build disposes it, and the model's dispose releases it after the built resources.
    */
-  public constructor(
+  public static async create(
     result: IAutoMovieHumanGenerated,
     alias: string | null,
     milliseconds: number | null,
     generation: number,
+  ): Promise<HumanViewerModel> {
+    const textures: AutoMovieTextureCache = new AutoMovieTextureCache(
+      (asset: string): Promise<THREE.Texture> =>
+        Promise.reject(
+          new Error(
+            "Human model binds texture asset " +
+              asset +
+              " that it does not carry; project assets are not served",
+          ),
+        ),
+    );
+    try {
+      await textures.prime(
+        result.model.materials.flatMap(materialTextureBindings),
+        result.model.images ?? [],
+      );
+      return new HumanViewerModel(
+        result,
+        alias,
+        milliseconds,
+        generation,
+        textures,
+      );
+    } catch (error) {
+      await textures.dispose().catch(console.error);
+      throw error;
+    }
+  }
+
+  /**
+   * Build a result's model with already primed textures; the built resources are released if construction fails.
+   *
+   * @param result Generator output to display.
+   * @param alias Registered alias of its parameters, or null.
+   * @param milliseconds Generator time, or null for an externally generated result.
+   * @param generation Page generation counter assigned to this model.
+   * @param textures Cache primed with the model's carried images; ownership passes to the model.
+   */
+  private constructor(
+    result: IAutoMovieHumanGenerated,
+    alias: string | null,
+    milliseconds: number | null,
+    generation: number,
+    private readonly textures: AutoMovieTextureCache,
   ) {
     this.result = result;
-    this.built = buildModel(result.model);
+    this.built = buildModel(result.model, textures.resolve);
     this.object = this.built.object;
     this.close = createAutoMovieResourceRetirement(
       collectAutoMovieOwnedResources(this.built.object).map(
@@ -199,48 +260,9 @@ export class HumanViewerModel {
     return {
       curves: this.current.curves,
       selected: [...this.current.selected],
+      colours: [...this.current.colours],
       shaped: [...this.current.shaped],
-    };
-  }
-
-  /**
-   * CSS colours of the legend: axis and section from the model's materials, selected from the page.
-   *
-   * @evidence contracts/common.md#principled-implementation Converts the linear material colours of the first axis and section parts to sRGB CSS strings, the colours the unlit curves display.
-   * @evidence contracts/common.md#clear-and-simple-design The legend reads the model instead of repeating generator colours in the page.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A role without a part reports null instead of a guessed colour.
-   * @evidence contracts/common.md#meaningful-documentation States where each colour comes from.
-   * @evidence contracts/performance.md#efficient-algorithms O(P) search over parts and materials.
-   * @evidence contracts/performance.md#reuse-equivalent-work The page calls it once per load.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing.
-   */
-  public legend(): { axis: string | null; section: string | null; selected: string } {
-    const css: (part: IAutoMovieModelPart | undefined) => string | null = (
-      part: IAutoMovieModelPart | undefined,
-    ): string | null => {
-      const material: IAutoMovieMaterial | undefined =
-        this.result.model.materials.find(
-          (candidate: IAutoMovieMaterial): boolean => candidate.id === part?.material,
-        );
-      if (material === undefined) return null;
-      const colour: THREE.Color = new THREE.Color().setRGB(
-        material.baseColor.r,
-        material.baseColor.g,
-        material.baseColor.b,
-      );
-      return colour.getStyle();
-    };
-    const curves: IAutoMovieModelPart[] = this.result.model.parts.filter(
-      (part: IAutoMovieModelPart): boolean => part.id.startsWith(CONSTRUCTION),
-    );
-    const highlight: { r: number; g: number; b: number } =
-      createHumanPartStyle.highlight;
-    return {
-      axis: css(curves.find((part: IAutoMovieModelPart): boolean => part.id.endsWith("/axis"))),
-      section: css(curves.find((part: IAutoMovieModelPart): boolean => !part.id.endsWith("/axis"))),
-      selected: new THREE.Color()
-        .setRGB(highlight.r, highlight.g, highlight.b)
-        .getStyle(),
+      shapedColours: [...this.current.shapedColours],
     };
   }
 
@@ -291,7 +313,8 @@ export class HumanViewerModel {
         );
         const skin: number =
           this.pass === "overlay"
-            ? (ray.intersectObjects(this.surface, true)[0]?.distance ?? Infinity)
+            ? (ray.intersectObjects(this.surface, true)[0]?.distance ??
+              Infinity)
             : Infinity;
         const hit: THREE.Intersection | undefined = ray
           .intersectObjects(this.construction, true)
@@ -306,26 +329,32 @@ export class HumanViewerModel {
   }
 
   /**
-   * Remove the model from its parent and release the styling and built resources.
+   * Remove the model from its parent and release the styling, built resources and texture cache.
    *
    * @evidence contracts/common.md#principled-implementation Restores originals before the built resources are retired, so nothing references a disposed derived resource.
    * @evidence contracts/common.md#clear-and-simple-design The single retirement path of a displayed generation.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Retirement failures propagate from the built-resource retirement.
-   * @evidence contracts/common.md#meaningful-documentation States the release order.
+   * @evidence contracts/common.md#meaningful-documentation States the release order, texture cache last because the built subtree only borrows its wrappers.
    * @evidence contracts/performance.md#efficient-algorithms Linear in owned resources.
    * @evidence contracts/performance.md#reuse-equivalent-work Nothing survives; the next load builds anew.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Detaches the object and releases derived and built resources.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Detaches the object and releases derived and built resources, then the texture cache even when the built retirement fails.
    */
   public async dispose(): Promise<void> {
     this.styling.dispose();
     this.object.removeFromParent();
-    await this.close();
+    try {
+      await this.close();
+    } finally {
+      // Texture wrappers belong to the cache, not to the built subtree.
+      await this.textures.dispose();
+    }
   }
 
   /**
    * Resolve a camera name against this model, including the part-based close-ups.
    *
    * @param name One of `HumanCaptureCamera.names`.
+   * @param view Free-view overrides; `fit=selection` frames the selected curves and, outside the construction pass, the skin they shape.
    * @returns The camera's direction and region; unknown names and missing close-up parts throw.
    *
    * @evidence contracts/common.md#principled-implementation Supplies HumanCaptureCamera.describe with the whole surface bounds and a bounds-by-prefix query over the built surface parts in world space.
@@ -336,21 +365,67 @@ export class HumanViewerModel {
    * @evidence contracts/performance.md#reuse-equivalent-work Reuses the built parts and the stored surface bounds.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a new descriptor; retains nothing.
    */
-  public describe(name: string): HumanCaptureCamera.IDescriptor {
-    return HumanCaptureCamera.describe(
+  public describe(
+    name: string,
+    view?: normalizeHumanView.IView,
+  ): HumanCaptureCamera.IDescriptor {
+    const named: HumanCaptureCamera.IDescriptor = HumanCaptureCamera.describe(
       name,
       this.bounds,
-      (prefixes: readonly string[]): THREE.Box3 => {
-        const box: THREE.Box3 = new THREE.Box3();
-        for (const [id, object] of this.built.parts)
-          if (
+      (prefixes: readonly string[]): THREE.Box3 =>
+        this.box(
+          (id: string): boolean =>
             !id.startsWith(CONSTRUCTION) &&
-            prefixes.some((prefix: string): boolean => id.startsWith(prefix))
-          )
-            box.union(new THREE.Box3().setFromObject(object));
-        return box;
-      },
+            prefixes.some((prefix: string): boolean => id.startsWith(prefix)),
+        ),
     );
+    if (view === undefined) return named;
+
+    // fit=selection frames the selected curves and, unless only curves are
+    // shown, the skin intervals they shape.
+    const curves: Set<string> = new Set(this.current.selected);
+    const skin: Set<string> = new Set(
+      this.pass === "construction" ? [] : this.current.shaped,
+    );
+    return HumanCaptureCamera.override(
+      named,
+      view,
+      this.box(
+        (id: string): boolean =>
+          (id.startsWith(CONSTRUCTION) &&
+            curves.has(id.slice(CONSTRUCTION.length))) ||
+          (id.startsWith("human.skin.") &&
+            skin.has(id.slice("human.skin.".length))),
+      ),
+    );
+  }
+
+  /**
+   * Show only the selection and the skin it shapes, or everything again.
+   *
+   * @param isolate Whether to isolate the current curve selection.
+   *
+   * @evidence contracts/common.md#principled-implementation Restyles through the Human closure with the isolation flag; part data is untouched.
+   * @evidence contracts/common.md#clear-and-simple-design Same restyle path as pass and selection.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Isolating an empty selection throws instead of showing an empty frame.
+   * @evidence contracts/common.md#meaningful-documentation States the failure.
+   * @evidence contracts/performance.md#efficient-algorithms One ModelPartStyling.apply.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the resolved selection.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The styling releases the previous derived resources.
+   */
+  public setIsolate(isolate: boolean): void {
+    if (isolate && this.current.selected.length === 0)
+      throw new Error("Human isolate=1 needs a non-empty curves selection");
+    this.isolate = isolate;
+    this.restyle();
+  }
+
+  /** Union of the world bounds of the parts whose id passes the filter. */
+  private box(filter: (id: string) => boolean): THREE.Box3 {
+    const box: THREE.Box3 = new THREE.Box3();
+    for (const [id, object] of this.built.parts)
+      if (filter(id)) box.union(new THREE.Box3().setFromObject(object));
+    return box;
   }
 
   /** Re-apply the Human styling for the current pass and selection. */
@@ -360,6 +435,7 @@ export class HumanViewerModel {
         this.pass,
         this.current,
         this.bounds.max.y - this.bounds.min.y,
+        this.isolate,
       ),
     );
   }
@@ -373,7 +449,9 @@ export class HumanViewerModel {
 }
 
 /** Mesh vertex and triangle counts of one part; other geometry counts zero. */
-function count(part: IAutoMovieModelPart): IHumanViewerPage.ILoaded["parts"][0] {
+function count(
+  part: IAutoMovieModelPart,
+): IHumanViewerPage.ILoaded["parts"][0] {
   if (part.geometry.type !== "mesh")
     return { id: part.id, vertices: 0, triangles: 0 };
   const vertices: number = part.geometry.mesh.positions.length / 3;

@@ -10,13 +10,16 @@ import { HumanCaptureCamera } from "./HumanCaptureCamera";
  * `toDataURL` right after the draw; the renderer was created with
  * `preserveDrawingBuffer`, so the read sees the drawn pixels. The caller owns
  * restoring its interactive size, which this function leaves at 1200 x 1200.
+ * A frame with a curve selection carries a legend box listing each curve id
+ * in its colour; frames without one stay identical to the reference conditions.
  *
  * @param renderer Renderer of the page's canvas.
  * @param scene Scene with the model, already set to the wanted pass and selection.
- * @param shot Camera used only for captures; its aspect is set to 1.
+ * @param shot Capture-only camera of the projection the descriptor selects; placed at aspect 1.
  * @param key Key light, moved to the shot's camera-relative position.
  * @param descriptor Camera direction and region from `HumanCaptureCamera.describe`.
  * @param bounds Whole surface bounds in metres.
+ * @param legend Selected curves and their colours; non-empty draws a legend box at the top left of the PNG.
  * @returns PNG data URL, capture time, placement, canvas facts and the WebGL renderer strings.
  *
  * @evidence contracts/common.md#principled-implementation Pins the drawing buffer and pixel ratio, places the shot camera with the reference framing rule, draws once and reads the preserved buffer, then checks the canvas reached 1200 x 1200.
@@ -30,10 +33,11 @@ import { HumanCaptureCamera } from "./HumanCaptureCamera";
 export function captureHumanViewerFrame(
   renderer: THREE.WebGLRenderer,
   scene: THREE.Scene,
-  shot: THREE.PerspectiveCamera,
+  shot: THREE.PerspectiveCamera | THREE.OrthographicCamera,
   key: THREE.DirectionalLight,
   descriptor: HumanCaptureCamera.IDescriptor,
   bounds: THREE.Box3,
+  legend: ReadonlyArray<{ id: string; colour: string }>,
 ): {
   png: string;
   capturedUtc: string;
@@ -43,16 +47,19 @@ export function captureHumanViewerFrame(
 } {
   renderer.setPixelRatio(1);
   renderer.setSize(HumanCaptureCamera.size, HumanCaptureCamera.size, false);
-  shot.aspect = 1;
   const placement: HumanCaptureCamera.IPlacement = HumanCaptureCamera.place(
     shot,
     key,
     descriptor,
     bounds,
+    1,
   );
   renderer.render(scene, shot);
   const capturedUtc: string = new Date().toISOString();
-  const png: string = renderer.domElement.toDataURL("image/png");
+  const png: string =
+    legend.length === 0
+      ? renderer.domElement.toDataURL("image/png")
+      : compose(renderer.domElement, legend);
 
   const canvas: { width: number; height: number; pixelRatio: number } = {
     width: renderer.domElement.width,
@@ -87,4 +94,52 @@ export function captureHumanViewerFrame(
       ),
     },
   };
+}
+
+/**
+ * Copy the drawn WebGL frame onto a 2D canvas, add the curve legend, and encode it.
+ *
+ * Up to 32 entries are listed, one 18 px line each with a colour swatch; more
+ * are summarized as a count. Frames without a selection never pass here, so
+ * reference-comparable frames stay free of overlays.
+ */
+function compose(
+  source: HTMLCanvasElement,
+  legend: ReadonlyArray<{ id: string; colour: string }>,
+): string {
+  const canvas: HTMLCanvasElement = document.createElement("canvas");
+  canvas.width = source.width;
+  canvas.height = source.height;
+  const context: CanvasRenderingContext2D = canvas.getContext("2d")!;
+  context.drawImage(source, 0, 0);
+
+  const shown: ReadonlyArray<{ id: string; colour: string }> = legend.slice(
+    0,
+    32,
+  );
+  const rows: number = shown.length + (legend.length > shown.length ? 1 : 0);
+  context.font = "18px ui-monospace, monospace";
+  const width: number = Math.max(
+    ...shown.map(
+      (entry: { id: string }): number => context.measureText(entry.id).width,
+    ),
+  );
+  context.fillStyle = "rgba(255, 255, 255, 0.85)";
+  context.fillRect(12, 12, width + 52, rows * 24 + 12);
+  shown.forEach(
+    (entry: { id: string; colour: string }, index: number): void => {
+      const y: number = 24 + index * 24;
+      context.fillStyle = entry.colour;
+      context.fillRect(22, y, 18, 16);
+      context.fillStyle = "#212529";
+      context.fillText(entry.id, 48, y + 14);
+    },
+  );
+  if (legend.length > shown.length)
+    context.fillText(
+      `+${legend.length - shown.length} more`,
+      48,
+      24 + shown.length * 24 + 14,
+    );
+  return canvas.toDataURL("image/png");
 }
