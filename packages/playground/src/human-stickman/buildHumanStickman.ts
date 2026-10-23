@@ -17,6 +17,14 @@ import type { AutoMovieHumanSkeleton } from "../../../human/src/skeleton/AutoMov
  *
  * @param output Skeleton from `AutoMovieHumanSkeleton.generate`.
  * @returns The scene group and a disposer of its geometries and materials.
+ *
+ * @evidence contracts/common.md#principled-implementation Rod and ball sizes derive from each segment's skin girth and length, so the stickman scales with any generated body instead of fixed sizes.
+ * @evidence contracts/common.md#clear-and-simple-design One group per bone placed rigidly by the skeleton's posed placements; posing and limits stay in the human package, this function only draws.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Every bone of the skeleton output is drawn, leaf bones toward their own tips; no bone name is special-cased beyond the documented left, right and axial colouring.
+ * @evidence contracts/common.md#meaningful-documentation States the rod and ball sizing rules, the frame convention and the colour legend.
+ * @evidence contracts/performance.md#efficient-algorithms O(B + C) over bones and child links, with one bone lookup map built once.
+ * @evidence contracts/performance.md#reuse-equivalent-work Four shared materials serve every bone; geometry is built once per segment at rest and moved by placements.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Every created geometry and material is recorded and released by the returned disposer.
  */
 export function buildHumanStickman(output: AutoMovieHumanSkeleton.IOutput): {
   /** Group holding every bone group, placed by `output.posed`. */
