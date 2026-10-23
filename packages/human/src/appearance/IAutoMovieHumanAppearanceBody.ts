@@ -1,10 +1,12 @@
+import type { IAutoMovieModelPart } from "@automovie/interface";
+
 import type { IAutoMovieHumanPair } from "../structures/common/IAutoMovieHumanPair";
 
 /**
  * Body facts that Human appearance consumes from the neutral body
- * generator: where each eye globe sits. Appearance never measures or moves
- * the body itself; the body generator owns these frames, and every
- * appearance part is placed from them.
+ * generator: where each eye globe sits, and the generated parts whose head
+ * skin scalp hair attaches to. Appearance never moves the body; it only
+ * reads these frames and measures that skin.
  *
  * Positions are model units (metres) in the registered frame (forward +X,
  * up +Y, lateral +Z toward the person's left), after the body's stature
@@ -17,6 +19,13 @@ export interface IAutoMovieHumanAppearanceBody {
    * places, sized by `AutoMovieHumanEyeball.dimensions`.
    */
   eyePair: IAutoMovieHumanPair<IAutoMovieHumanAppearanceBody.IEye>;
+
+  /**
+   * Generated body parts in model metres, only read. Scalp hair reads the
+   * head and ear skin (`human.skin.head/<k>`, `human.skin.head.<sub>/<k>`,
+   * `human.skin.ear.<sub>/<k>`) to attach roots and keep strands outside it.
+   */
+  parts: IAutoMovieModelPart[];
 }
 
 export namespace IAutoMovieHumanAppearanceBody {
@@ -30,5 +39,16 @@ export namespace IAutoMovieHumanAppearanceBody {
 
     /** Unit vertical direction of the globe, orthogonal to `forward`. */
     up: [number, number, number];
+
+    /**
+     * Radius in metres of a sphere about `centre` fitted to the observed
+     * anterior eye surface (sclera and cornea inside the eye opening), the
+     * surface the lids were built against. Given, the biometric globe is
+     * moved along `forward` until its anterior surface best matches that
+     * sphere where the opening shows it, so the lid margins meet the globe;
+     * `centre` is then the fitted sphere's centre, not the globe's.
+     * Omitted, `centre` is the globe's own centre.
+     */
+    radius?: number;
   }
 }

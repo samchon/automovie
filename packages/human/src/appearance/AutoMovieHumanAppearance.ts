@@ -6,9 +6,16 @@ import type {
 } from "@automovie/interface";
 
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
+import type { IAutoMovieHumanScalpHair } from "../structures/appearance/IAutoMovieHumanScalpHair";
 import { AutoMovieHumanIrisColor } from "../typings/AutoMovieHumanIrisColor";
 import { AutoMovieHumanEyeball } from "./AutoMovieHumanEyeball";
+import { AutoMovieHumanHairCard } from "./AutoMovieHumanHairCard";
+import { AutoMovieHumanHairGuide } from "./AutoMovieHumanHairGuide";
+import { AutoMovieHumanHairImage } from "./AutoMovieHumanHairImage";
+import { AutoMovieHumanHeadField } from "./AutoMovieHumanHeadField";
 import { AutoMovieHumanIrisImage } from "./AutoMovieHumanIrisImage";
+import { AutoMovieHumanScleraImage } from "./AutoMovieHumanScleraImage";
+import { AutoMovieHumanShoulderField } from "./AutoMovieHumanShoulderField";
 import type { IAutoMovieHumanAppearanceBody } from "./IAutoMovieHumanAppearanceBody";
 
 /**
@@ -19,17 +26,22 @@ import type { IAutoMovieHumanAppearanceBody } from "./IAutoMovieHumanAppearanceB
  * frames; no image or mesh data is stored. Part ids:
  *
  * - `human.eye.<side>.sclera`, `human.eye.<side>.iris`,
- *   `human.eye.<side>.cornea` for `side` in `left`, `right`.
+ *   `human.eye.<side>.cornea` for `side` in `left`, `right`;
+ * - `human.hair.scalp` (opaque undercoat) and `human.hair.cards` (all
+ *   scalp hair cards), when scalp hair is requested.
  *
- * Material ids start with `human.eye.`; image ids with `human.eye.iris.`.
- * None of these collide with the body's `human.skin.` and
- * `human.construction.` namespaces, so the outputs concatenate onto the
- * body model's lists unchanged.
+ * Material ids start with `human.eye.` or `human.hair.`; image ids are
+ * `human.eye.iris.<color>`, `human.eye.sclera.vessels` and `human.hair.strands`. None of these collide
+ * with the body's `human.skin.` and `human.construction.` namespaces, so
+ * the outputs concatenate onto the body model's lists unchanged.
  *
  * Current consumption: `pigmentation.iris` selects the iris image; an
  * omitted `pigmentation` uses brown, the most common iris colour among
  * adults worldwide (a population convention for an unspecified input, not
- * an inference about the person).
+ * an inference about the person). `appearance.hair` (style, colour,
+ * length, curl, hairline) shapes scalp hair; omitted appearance or zero
+ * length emits none. Brows, lashes, skin finish and underwear are not yet
+ * consumed.
  */
 export namespace AutoMovieHumanAppearance {
   /** Appearance outputs to append to the body model. */
@@ -67,6 +79,7 @@ export namespace AutoMovieHumanAppearance {
         {
           eye: body.eyePair[side],
           uvTurn: side === "left" ? 0 : 0.381966,
+          mirror: side === "right",
         },
       );
       parts.push(
@@ -76,11 +89,38 @@ export namespace AutoMovieHumanAppearance {
       );
     }
 
-    return {
-      parts,
-      materials: AutoMovieHumanEyeball.materials(image.id),
-      images: [image],
-    };
+    const sclera: IAutoMovieImage = AutoMovieHumanScleraImage.generate();
+    const materials: IAutoMovieMaterial[] = AutoMovieHumanEyeball.materials(
+      image.id,
+      sclera.id,
+    );
+    const images: IAutoMovieImage[] = [image, sclera];
+
+    // Scalp hair: guides on the measured head chart, realised as cards and
+    // an undercoat. Omitted appearance or zero length emits none.
+    const hair: IAutoMovieHumanScalpHair | undefined = params.appearance?.hair;
+    if (hair !== undefined && hair.length > 0) {
+      const field: AutoMovieHumanHeadField.IField =
+        AutoMovieHumanHeadField.create(params, body);
+      const guides: AutoMovieHumanHairGuide.IGuide[] =
+        AutoMovieHumanHairGuide.generate(
+          field,
+          AutoMovieHumanShoulderField.create(body.parts, field),
+          hair,
+        );
+      if (guides.length !== 0) {
+        const mesh: AutoMovieHumanHairCard.IOutput =
+          AutoMovieHumanHairCard.generate(field, hair, guides);
+        parts.push(
+          part("human.hair.scalp", "human.hair.scalp", mesh.scalp),
+          part("human.hair.cards", "human.hair.cards", mesh.cards),
+        );
+        materials.push(...AutoMovieHumanHairCard.materials(hair));
+        images.push(AutoMovieHumanHairImage.generate());
+      }
+    }
+
+    return { parts, materials, images };
   }
 }
 

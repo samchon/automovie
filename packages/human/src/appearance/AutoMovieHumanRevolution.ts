@@ -43,14 +43,22 @@ export namespace AutoMovieHumanRevolution {
    *
    * @param props.strips Profiles to revolve; each gets its own vertices
    * @param props.frame Placement of the local frame
-   * @param props.uv Optional texture coordinate of a local point in mm; null emits no UVs
-   * @param props.color Optional linear RGB multiplier of a local point in mm and its profile index; null emits no colours
+   * @param props.uv Optional texture coordinate of a local point in mm, given also its angle theta (0 to 2 pi, continuous across the duplicated seam column) and the fraction of the way along its strip's profile; null emits no UVs
+   * @param props.color Optional linear RGB multiplier of a local point in mm; null emits no colours
    * @returns Mesh with positions in metres, unit normals and optional UV0/colours
    */
   export function mesh(props: {
     strips: IStrip[];
     frame: IFrame;
-    uv: ((x: number, y: number, z: number) => [number, number]) | null;
+    uv:
+      | ((
+          x: number,
+          y: number,
+          z: number,
+          theta: number,
+          along: number,
+        ) => [number, number])
+      | null;
     color:
       | ((x: number, y: number, z: number) => [number, number, number])
       | null;
@@ -104,7 +112,8 @@ export namespace AutoMovieHumanRevolution {
             );
             normals.push(nx * ex[a]! + ny * ey[a]! + nz * ez[a]!);
           }
-          if (props.uv !== null) uvs.push(...props.uv(x, ly, lz));
+          if (props.uv !== null)
+            uvs.push(...props.uv(x, ly, lz, theta, i / (n - 1)));
           if (props.color !== null) colors.push(...props.color(x, ly, lz));
         }
       }

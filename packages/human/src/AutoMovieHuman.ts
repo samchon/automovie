@@ -71,21 +71,21 @@ export class AutoMovieHuman {
 
     const body: IAutoMovieModelPart[] = [
       ...skin.map(
-          (piece: AutoMovieHumanLoftMesh.IPiece): IAutoMovieModelPart =>
-            part("human.skin." + piece.name, "skin", piece, piece.normals, scale),
-        ),
-        ...curves.map(
-          (curve: AutoMovieHumanBodyConstruction.ICurve): IAutoMovieModelPart =>
-            part(
-              "human.construction." + curve.id,
-              curve.kind === "axis"
-                ? "construction.axes"
-                : "construction.sections",
-              curve.mesh,
-              AutoMovieHumanLoftMesh.normals(curve.mesh),
-              scale,
-            ),
-        ),
+        (piece: AutoMovieHumanLoftMesh.IPiece): IAutoMovieModelPart =>
+          part("human.skin." + piece.name, "skin", piece, piece.normals, scale),
+      ),
+      ...curves.map(
+        (curve: AutoMovieHumanBodyConstruction.ICurve): IAutoMovieModelPart =>
+          part(
+            "human.construction." + curve.id,
+            curve.kind === "axis"
+              ? "construction.axes"
+              : "construction.sections",
+            curve.mesh,
+            AutoMovieHumanLoftMesh.normals(curve.mesh),
+            scale,
+          ),
+      ),
     ];
 
     // Appearance is placed on the generated body. Eye frames are the
@@ -108,6 +108,10 @@ export class AutoMovieHuman {
         ],
         forward: [1, 0, 0],
         up: [0, 1, 0],
+
+        // Radius of the sphere fitted to the visible eye surface; the
+        // appearance layer seats its globe against it.
+        radius: found.radius * scale,
       };
     };
     const appearance: AutoMovieHumanAppearance.IOutput =

@@ -23,11 +23,11 @@ import type { IAutoMovieHumanAppearanceBody } from "./IAutoMovieHumanAppearanceB
  * apex position) follow from those means by the stated geometry, not by
  * fitting. The globe is not scaled with stature.
  *
- * Optics: the cornea is a thin-walled transmissive dielectric of the
- * corneal refractive index, so the iris shows through it with the full
- * Fresnel highlight on top. This costs the renderer's transmission pass
- * (one extra opaque-scene render per frame while a cornea is visible);
- * refraction of the iris image is not modelled (zero thickness).
+ * Optics: the cornea is a thin glossy shell over the iris that adds the
+ * tear film's sharp highlight and slightly veils the iris (see
+ * {@link AutoMovieHumanEyeball.materials}); refraction by the anterior
+ * chamber is not modelled. The sclera carries a clear-coat tear film over
+ * a rougher base and a procedural vessel image.
  */
 export namespace AutoMovieHumanEyeball {
   /**
@@ -139,16 +139,25 @@ export namespace AutoMovieHumanEyeball {
    *
    * @param props.eye Globe frame from the body generator
    * @param props.uvTurn Rotation of the iris image about the pupil, in turns; a different value per side keeps the two irises from repeating each other
+   * @param props.mirror Whether the sclera image is mirrored left to right (z to -z), so both eyes keep its vessels on the same anatomical sides
    * @returns Sclera, iris and cornea meshes
    */
   export function generate(props: {
     eye: IAutoMovieHumanAppearanceBody.IEye;
     uvTurn: number;
+    mirror: boolean;
   }): IOutput {
     const d: typeof dimensions = dimensions;
     const g: IDerived = derive();
+    // Seat the globe on the observed eye surface when the body gives it.
+    const shift: number =
+      props.eye.radius === undefined ? 0 : seat(props.eye.radius * 1000, g);
     const frame: AutoMovieHumanRevolution.IFrame = {
-      origin: props.eye.centre,
+      origin: [
+        props.eye.centre[0] + (props.eye.forward[0] * shift) / 1000,
+        props.eye.centre[1] + (props.eye.forward[1] * shift) / 1000,
+        props.eye.centre[2] + (props.eye.forward[2] * shift) / 1000,
+      ],
       axis: props.eye.forward,
       up: props.eye.up,
     };
@@ -214,7 +223,20 @@ export namespace AutoMovieHumanEyeball {
       sclera: AutoMovieHumanRevolution.mesh({
         strips: [{ profile: sclera, segments }],
         frame,
-        uv: null,
+
+        // u once around the axis, v from the limbus to the hidden edge, the
+        // layout of AutoMovieHumanScleraImage; mirroring maps theta to
+        // pi - theta (z to -z) and relies on the repeating sampler.
+        uv: (
+          _x: number,
+          _y: number,
+          _z: number,
+          theta: number,
+          along: number,
+        ): [number, number] => {
+          const u: number = theta / (2 * Math.PI);
+          return [props.mirror ? 0.5 - u : u, along];
+        },
         color: (x: number, y: number, z: number): [number, number, number] =>
           scleraColor(x, y, z, g.limbus),
       }),
@@ -260,29 +282,60 @@ export namespace AutoMovieHumanEyeball {
    * Materials of both eyes: ids `human.eye.sclera`, `human.eye.iris` and
    * `human.eye.cornea`.
    *
-   * Sclera: white base multiplied by vertex colour, roughness 0.3 for the
-   * tear-filmed conjunctiva (conventional). Iris: the generated image in
-   * sRGB, roughness 0.6, since its gloss comes from the cornea above it.
-   * Cornea: thin-walled transmission 1 with index 1.376 (Gullstrand
-   * schematic eye cornea; conventional), roughness 0.02 for the tear film's
-   * sharp highlight, opaque alpha as transmission requires.
+   * Sclera: white base multiplied by vertex colour and the vessel image.
+   * The wet look is two layers: the conjunctiva and sclera beneath scatter
+   * broadly (roughness 0.45), and the tear film over them is a smooth
+   * clear coat (clearcoat 1, the renderer's default coat roughness 0) that
+   * carries the sharp highlight, as a dielectric film over a rough base
+   * does. Iris: the generated image in sRGB, roughness 0.6, since its gloss
+   * comes from the cornea above it. Cornea: a black, alpha-blended shell
+   * of opacity 0.2 with index 1.376 (Gullstrand schematic eye cornea;
+   * conventional) and roughness 0.02, so it contributes only its specular
+   * reflection: the key light's highlight is far brighter than the display
+   * range and stays white after the 0.2 blend, while the iris and sclera
+   * beneath show at 80 percent. A transmissive cornea would keep the full
+   * Fresnel response, but its separate opaque-scene pass did not show the
+   * iris in the PNG service's renders (2026-10-22, the iris read as the
+   * background), and it costs an extra scene render per frame. The blend
+   * writes no depth; the cornea is the outermost eye surface, so nothing
+   * of the eye needs sorting behind it.
    *
    * @param irisImage Id of the iris image the model carries
+   * @param scleraImage Id of the sclera vessel image the model carries
    * @returns The three materials
    */
-  export function materials(irisImage: string): IAutoMovieMaterial[] {
-    const white: { r: number; g: number; b: number; a: number; hex: null } =
-      { r: 1, g: 1, b: 1, a: 1, hex: null };
+  export function materials(
+    irisImage: string,
+    scleraImage: string,
+  ): IAutoMovieMaterial[] {
+    const white: { r: number; g: number; b: number; a: number; hex: null } = {
+      r: 1,
+      g: 1,
+      b: 1,
+      a: 1,
+      hex: null,
+    };
     return [
       {
         id: "human.eye.sclera",
         name: "eye sclera",
         baseColor: white,
         metallic: 0,
-        roughness: 0.3,
+        roughness: 0.45,
         emissive: null,
         opacity: 1,
-        baseColorTexture: null,
+        baseColorTexture: {
+          asset: scleraImage,
+          texCoord: 0,
+          colorSpace: "srgb",
+          sampler: {
+            wrapS: "repeat",
+            wrapT: "clamp",
+            minFilter: "linearMipmapLinear",
+            magFilter: "linear",
+          },
+        },
+        clearcoat: 1,
       },
       {
         id: "human.eye.iris",
@@ -307,19 +360,53 @@ export namespace AutoMovieHumanEyeball {
       {
         id: "human.eye.cornea",
         name: "eye cornea",
-        baseColor: white,
+        baseColor: { r: 0, g: 0, b: 0, a: 1, hex: null },
         metallic: 0,
         roughness: 0.02,
         emissive: null,
-        opacity: 1,
+        opacity: 0.2,
         baseColorTexture: null,
-        alphaMode: "opaque",
-        transmission: 1,
+        alphaMode: "blend",
         ior: 1.376,
-        thickness: 0,
       },
     ];
   }
+}
+
+/**
+ * Axial shift that seats the globe's anterior surface on an observed
+ * sphere about the frame centre.
+ *
+ * Both surfaces are functions of the distance `rho` from the gaze axis:
+ * the observed sphere `x_s(rho) = sqrt(R^2 - rho^2)`, and the globe's
+ * cornea inside the limbus and scleral ellipsoid outside it, `x_g(rho)`.
+ * The least-squares shift of `x_g` onto `x_s`, weighting each `rho` by the
+ * ring area `rho d rho` it stands for, is the weighted mean of
+ * `x_s - x_g`. The band runs from the axis to 10 mm, the horizontal reach
+ * of an adult eye opening on the globe (about half a 32 mm fissure, less
+ * the canthi, which lie behind the globe's equator), capped below both
+ * radii.
+ *
+ * @param radius Observed sphere radius, millimetres
+ * @param g Derived globe positions
+ * @returns Shift along the gaze in millimetres from the observed sphere's centre to the globe's centre
+ */
+function seat(radius: number, g: AutoMovieHumanEyeball.IDerived): number {
+  const d: typeof AutoMovieHumanEyeball.dimensions =
+    AutoMovieHumanEyeball.dimensions;
+  const reach: number = Math.min(10, 0.95 * radius, 0.95 * d.radial);
+  let sum: number = 0;
+  let weight: number = 0;
+  for (let i: number = 0; i < 100; ++i) {
+    const rho: number = ((i + 0.5) / 100) * reach;
+    const globe: number =
+      rho <= d.limbusRadius
+        ? g.cornealCentre + Math.sqrt(d.cornealRadius ** 2 - rho ** 2)
+        : g.axial * Math.sqrt(1 - (rho / d.radial) ** 2);
+    sum += rho * (Math.sqrt(radius ** 2 - rho ** 2) - globe);
+    weight += rho;
+  }
+  return sum / weight;
 }
 
 /**
@@ -360,7 +447,7 @@ function scleraColor(
     12,
   );
   const vessel: number =
-    0.55 *
+    0.3 *
     horizontal *
     AutoMovieHumanAppearanceNoise.smoothstep(0.5, 7, behind) *
     (0.6 + 0.4 * mottle);
