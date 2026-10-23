@@ -1,7 +1,9 @@
-import type {
-  IEvidenceCheckAnalysis,
-  IEvidenceClaim,
-  IEvidenceConfig,
+import {
+  type IEvidenceCheckAnalysis,
+  type IEvidenceClaim,
+  type IEvidenceConfig,
+  type IEvidenceConfigPlan,
+  createEvidenceConfigPlan,
 } from "@wrtnlabs/evidence";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -125,9 +127,14 @@ export async function test_template_production_support_scope(): Promise<void> {
       "asset",
     );
     unlinked.supportClaims = [
-      { ...support, files: [path.join(external, "source.md")] },
+      { ...support, root: external, files: ["source.md"] },
     ];
-    assert.doesNotThrow((): IEvidenceConfig => createProductionConfig(unlinked));
+    assert.doesNotThrow((): IEvidenceConfigPlan =>
+      createEvidenceConfigPlan(
+        createProductionConfig(unlinked),
+        path.join(root, "evidence.config.ts"),
+      ),
+    );
     fs.symlinkSync(
       external,
       link,
@@ -150,12 +157,13 @@ export async function test_template_production_support_scope(): Promise<void> {
       /support|authored|narrative|scope/i,
     );
     const physical: IEvidenceClaim[] = [
-      { ...support, files: [path.join(external, "source.md")] },
+      { ...support, root: external, files: ["source.md"] },
       {
         ...support,
         reference: {
           type: "markdown",
-          files: [path.join(external, "source.md")],
+          root: external,
+          files: ["source.md"],
           symbol: "h2",
         },
       },
@@ -193,7 +201,9 @@ export async function test_template_production_support_scope(): Promise<void> {
     );
     const hard: IProductionConfigProps = ProductionWorkflowFixture.props(root);
     hard.construction.settings = "evidence";
-    hard.supportClaims = [{ ...support, files: [hardLink] }];
+    hard.supportClaims = [
+      { ...support, root: external, files: [path.basename(hardLink)] },
+    ];
     const hardConfig: IEvidenceConfig = createProductionConfig(hard);
     await assert.rejects(
       analyzeProductionPass(
