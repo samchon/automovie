@@ -1,18 +1,21 @@
 import type { IEvidenceCheckAnalysis } from "@wrtnlabs/evidence";
 
 import type { IProductionClaimOwner } from "../IProductionClaimOwner";
+import type { ProductionPathCapture } from "./ProductionPathCapture";
 import { assertSupportInventory } from "./assertSupportInventory";
-import { collectProductionAuthoredBoundaries } from "./collectProductionAuthoredBoundaries";
 
 /** Keeps captured global support inputs independent of every authored source identity. */
 export function assertProductionSupportAnalysis(
-  location: string,
+  paths: ProductionPathCapture,
   owners: IProductionClaimOwner[],
   analysis: IEvidenceCheckAnalysis,
 ): void {
-  if (!owners.some((owner: IProductionClaimOwner): boolean => owner.kind === "support"))
+  if (
+    !owners.some(
+      (owner: IProductionClaimOwner): boolean => owner.kind === "support",
+    )
+  )
     return;
-  const boundaries: string[] = collectProductionAuthoredBoundaries(location);
   const authored: Set<string> = new Set();
   for (const input of analysis.graphInput.claims) {
     const owner: IProductionClaimOwner | undefined =
@@ -28,8 +31,8 @@ export function assertProductionSupportAnalysis(
     const owner: IProductionClaimOwner | undefined =
       input.index === undefined ? undefined : owners[input.index];
     if (owner?.kind !== "support") continue;
-    assertSupportInventory(input.inventory, boundaries, authored);
+    assertSupportInventory(input.inventory, paths, authored);
     for (const reference of input.references)
-      assertSupportInventory(reference.inventory, boundaries, authored);
+      assertSupportInventory(reference.inventory, paths, authored);
   }
 }

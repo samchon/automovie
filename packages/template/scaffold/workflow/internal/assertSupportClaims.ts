@@ -2,14 +2,16 @@ import type { IEvidenceReference } from "@wrtnlabs/evidence";
 import path from "node:path";
 
 import type { IProductionConfigProps } from "../IProductionConfigProps";
-import { canonicalProductionPath } from "../canonicalProductionPath";
 import { collectProductionAuthoredBoundaries } from "./collectProductionAuthoredBoundaries";
 import { isProductionAuthoredPath } from "./isProductionAuthoredPath";
+import { resolveProductionPhysicalPath } from "./resolveProductionPhysicalPath";
 
 /** Keeps global support claims outside every scoped authoring input tree. */
 export function assertSupportClaims(props: IProductionConfigProps): void {
   if ((props.supportClaims?.length ?? 0) === 0) return;
-  const boundaries: string[] = collectProductionAuthoredBoundaries(props.location);
+  const boundaries: string[] = collectProductionAuthoredBoundaries(
+    props.location,
+  );
   const inspect: (root: string | undefined, files: string[]) => void = (
     root: string | undefined,
     files: string[],
@@ -23,7 +25,7 @@ export function assertSupportClaims(props: IProductionConfigProps): void {
         root ?? ".",
         end === -1 ? portable : portable.slice(0, end),
       );
-      const prefix: string = canonicalProductionPath(declared);
+      const prefix: string = resolveProductionPhysicalPath(declared);
       if (
         isProductionAuthoredPath(declared) ||
         isProductionAuthoredPath(prefix) ||

@@ -7,13 +7,12 @@ import type {
 } from "@wrtnlabs/evidence";
 import path from "node:path";
 
-import { canonicalProductionPath as canonical } from "../../canonicalProductionPath";
-
 /** Validates that pass interpretation received the original complete, unfiltered analysis. */
 export function inspectProductionAnalysis(
   location: string,
   analysis: IEvidenceCheckAnalysis,
   planned: Map<number, IEvidenceConfigPlanClaim>,
+  canonical: (filename: string, logicalRoot?: string) => string,
 ): string[] {
   const issues: string[] = [];
   const issue: (message: string) => void = (message: string): void => {

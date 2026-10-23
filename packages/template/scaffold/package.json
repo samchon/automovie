@@ -40,6 +40,7 @@
   "include": [
     "lint.config.ts",
     "evidence.config.ts",
+    "narrative.config.ts",
     "workflow",
     "src",
     "test"

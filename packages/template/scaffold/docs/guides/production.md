@@ -1,6 +1,6 @@
 # Production workflow
 
-Choose the mode from the requested deliverable. The narrative architecture has fixed responsibilities; the source layout can adapt to the production.
+The default lint and evidence configurations cover ordinary TypeScript development. Add the [narrative profile](../../workflow/README.md#configure-the-production) when the requested deliverable requires a screenplay; standalone assets can retain the baseline and adopt their own scoped duties. Choose the narrative mode from the requested deliverable. The narrative architecture has fixed responsibilities; the source layout can adapt to the production.
 
 ## Production paths
 

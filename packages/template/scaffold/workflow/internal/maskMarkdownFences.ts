@@ -10,7 +10,7 @@ export function maskMarkdownFences(markdown: string): string {
       const valid: boolean =
         fence !== null && !(fence[1][0] === "`" && fence[2].includes("`"));
       const masked: boolean = marker !== "" || valid;
-      if (valid) {
+      if (fence !== null && valid) {
         if (marker === "") {
           marker = fence[1][0];
           length = fence[1].length;

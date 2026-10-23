@@ -5,7 +5,6 @@ import {
 
 import type { AuthoredLayer } from "../../AuthoredLayer";
 import type { IProductionGateKey } from "../../IProductionGateKey";
-import { canonicalProductionPath as canonical } from "../../canonicalProductionPath";
 import { passId } from "../../passId";
 import { authoredBoundary } from "./authoredBoundary";
 import { authoredPathOwner } from "./authoredPathOwner";
@@ -20,6 +19,7 @@ export function collectProductionSourcePasses(
   keys: Map<string, IProductionGateKey>,
   sourceOwners: Map<string, Set<string>>,
   issue: (message: string) => void,
+  canonical: (filename: string, logicalRoot?: string) => string,
 ): Set<string> {
   const found: Set<string> = new Set<string>();
   for (const source of inventory.sources) {
@@ -31,14 +31,22 @@ export function collectProductionSourcePasses(
         (address: IEvidenceSourceAddress): string => address.absolute,
       ),
     ]) {
-      const layer: AuthoredLayer | undefined = bodyPathLayer(root, address);
+      const layer: AuthoredLayer | undefined = bodyPathLayer(
+        root,
+        address,
+        canonical,
+      );
       if (layer !== undefined) body.add(layer);
       const owner: IProductionGateKey | undefined = authoredPathOwner(
         root,
         address,
+        canonical,
       );
       if (owner !== undefined) local.add(passId(owner));
-      else if (authoredBoundary(address) && !sharedBody(root, address))
+      else if (
+        (authoredBoundary(address) || authoredBoundary(canonical(address))) &&
+        !sharedBody(root, address, canonical)
+      )
         issue(
           `Source ${source.id} crosses an unaudited authored package boundary.`,
         );
@@ -63,11 +71,13 @@ export function collectProductionSourcePasses(
       const owner: IProductionGateKey | undefined = authoredPathOwner(
         root,
         dependency.path,
+        canonical,
       );
       if (owner !== undefined) found.add(passId(owner));
       else if (
-        authoredBoundary(dependency.path) &&
-        !sharedBody(root, dependency.path)
+        (authoredBoundary(dependency.path) ||
+          authoredBoundary(canonical(dependency.path))) &&
+        !sharedBody(root, dependency.path, canonical)
       )
         issue(
           `An empty dependency crosses an unaudited authored package boundary at ${dependency.path}.`,
@@ -81,6 +91,9 @@ export function collectProductionSourcePasses(
             (directory: string): boolean =>
               canonical(directory).startsWith(
                 `${canonical(dependency.path).replace(/\/+$/u, "")}/`,
+              ) ||
+              canonical(directory, root).startsWith(
+                `${canonical(dependency.path, root).replace(/\/+$/u, "")}/`,
               ),
           );
         })

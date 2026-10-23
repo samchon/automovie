@@ -3,6 +3,10 @@ import {
   type IEvidenceCheckAnalysis,
   type IEvidenceClaim,
   type IEvidenceConfig,
+  type IEvidenceDeclaration,
+  type IEvidenceGraphClaim,
+  type IEvidenceHost,
+  type IEvidenceSourceFile,
   createEvidenceConfigPlan,
 } from "@wrtnlabs/evidence";
 import fs from "node:fs";
@@ -71,6 +75,12 @@ export class ProductionWorkflowFixture {
         `docs/body/${file}`,
         "# Arrival record\n\n## Arrival {#arrival}\n\nThe guest opens the door.\n",
       );
+      if (layer === "scripts" || layer === "screenplay")
+        ProductionWorkflowFixture.write(
+          root,
+          `docs/body/${layer}/001-part/index.md`,
+          "# First part\n\n1. [Arrival record](001-scene.md)\n",
+        );
       for (const family of ["principles", "obligations", "discovery"])
         ProductionWorkflowFixture.write(
           root,
@@ -276,32 +286,46 @@ export class ProductionWorkflowFixture {
           candidate: IEvidenceCheckAnalysis["graph"]["claims"][number],
         ): boolean => candidate.claim === owner.index,
       );
-      const fingerprint: string | undefined =
-        result?.obligations[0]?.edges[0]?.fingerprint;
-      if (fingerprint === undefined)
+      if ((result?.obligations[0]?.edges.length ?? 0) === 0)
         throw new Error(
           `Fixture review has no captured fingerprint: ${owner.layer}/${owner.pass}\n${JSON.stringify(analysis.report.diagnostics)}`,
         );
-      const pass: string = owner.pass === "construction" ? "draft" : "final";
-      const file: string =
-        owner.layer === "settings" || owner.layer === "treatments"
-          ? "001-event.md"
-          : "001-part/001-scene.md";
-      const target: string = path.join(
-        root,
-        `docs/review/${pass}/${owner.layer}/round-1/${file}`,
-      );
-      const before: string = fs
-        .readFileSync(target, "utf8")
-        .replace(/^@evidenceReview .*\n/gmu, "");
-      fs.writeFileSync(
-        target,
-        before.replace(
-          "-->\n",
-          `@evidenceReview ${file}#arrival #${fingerprint} Compared the captured fixture scene.\n-->\n`,
-        ),
-        "utf8",
-      );
+      const input: IEvidenceGraphClaim = analysis.graphInput.claims.find(
+        (claim: IEvidenceGraphClaim): boolean => claim.index === owner.index,
+      )!;
+      const updated: Map<string, string> = new Map();
+      for (const edge of result!.obligations[0].edges) {
+        const declaration: IEvidenceDeclaration =
+          input.inventory.declarations.find(
+            (candidate: IEvidenceDeclaration): boolean =>
+              candidate.id === edge.declarationId,
+          )!;
+        const host: IEvidenceHost = input.inventory.hosts.find(
+          (candidate: IEvidenceHost): boolean => candidate.id === edge.hostId,
+        )!;
+        const source: IEvidenceSourceFile = input.inventory.sources.find(
+          (candidate: IEvidenceSourceFile): boolean =>
+            candidate.physicalPath === host.file,
+        )!;
+        const current: string =
+          updated.get(host.file) ??
+          source.content.replace(/^@evidenceReview .*\n/gmu, "");
+        const range: NonNullable<IEvidenceDeclaration["location"]["range"]> =
+          declaration.location.range!;
+        const original: string = source.content.slice(
+          range.start.offset,
+          range.end.offset,
+        );
+        updated.set(
+          host.file,
+          current.replace(
+            original,
+            `${original}\n@evidenceReview ${declaration.target} #${edge.fingerprint} Compared the captured fixture scene.`,
+          ),
+        );
+      }
+      for (const [target, content] of updated)
+        fs.writeFileSync(target, content, "utf8");
     }
   }
 }

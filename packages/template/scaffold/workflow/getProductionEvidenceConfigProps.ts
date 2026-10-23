@@ -8,6 +8,8 @@ export function getProductionEvidenceConfigProps(
   const props: IProductionConfigProps | undefined =
     productionConfigOwners.get(config);
   if (props?.lifecycle !== "independent-evidence-v1")
-    throw new Error("This config does not use the evidence-only lifecycle.");
+    throw new Error(
+      "Narrative checking requires the optional narrative.config.ts profile selected in evidence.config.ts; see workflow/README.md. Original factory ownership is required.",
+    );
   return props;
 }

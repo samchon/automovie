@@ -4,7 +4,6 @@ import {
   type IEvidenceCheckObligation,
   type IEvidenceConfig,
   type IEvidenceConfigPlan,
-  type IEvidenceConfigPlanClaim,
   type IEvidenceConfigPlanReference,
   type IEvidenceGraphClaim,
   type IEvidenceGraphClaimResult,
@@ -24,20 +23,30 @@ import type { IProductionGateKey } from "./IProductionGateKey";
 import type { IProductionPassValidationScope } from "./IProductionPassValidationScope";
 import type { ProductionGatePass } from "./ProductionGatePass";
 import { AUTHORED_LAYERS } from "./internal/AUTHORED_LAYERS";
+import { ProductionAnalysisCapture } from "./internal/ProductionAnalysisCapture";
+import type { ProductionPathCapture } from "./internal/ProductionPathCapture";
 import { assertProductionSupportAnalysis } from "./internal/assertProductionSupportAnalysis";
 import { hasNaturalness } from "./internal/hasNaturalness";
 import { authoredPathOwner } from "./internal/passScope/authoredPathOwner";
 import { bodyLayers } from "./internal/passScope/bodyLayers";
 import { collectProductionSourcePasses } from "./internal/passScope/collectProductionSourcePasses";
+import { createProductionPassKeys } from "./internal/passScope/createProductionPassKeys";
 import { declaredProductionPasses } from "./internal/passScope/declaredProductionPasses";
+import { indexProductionAnalysis } from "./internal/passScope/indexProductionAnalysis";
 import { inspectProductionAnalysis } from "./internal/passScope/inspectProductionAnalysis";
 import { inventoryPaths } from "./internal/passScope/inventoryPaths";
 import { productionLayers } from "./internal/productionLayers";
+import { inspectProductionTopology } from "./internal/topology/inspectProductionTopology";
 import { resolveConstruction } from "./internal/utilities/resolveConstruction";
 import { validationOwner } from "./internal/validationOwner";
 import { passId } from "./passId";
 
-/** Resolves whole pass dependencies from declarations and the full captured analysis. */
+/**
+ * Resolves dependencies from the original config and analyzeProductionPass snapshot.
+ *
+ * Captured physical aliases and source identities define ownership. Unbound
+ * analyses are rejected instead of inferring missing provenance from live files.
+ */
 export function resolveProductionPassValidationScope(
   config: IEvidenceConfig,
   key: IProductionGateKey,
@@ -48,7 +57,15 @@ export function resolveProductionPassValidationScope(
     owners,
   }: { props: IProductionConfigProps; owners: IProductionClaimOwner[] } =
     validationOwner(config);
-  assertProductionSupportAnalysis(props.location, owners, analysis);
+  const captured: ProductionPathCapture = ProductionAnalysisCapture.get(
+    config,
+    analysis,
+  );
+  const canonical: (filename: string, logicalRoot?: string) => string = (
+    filename: string,
+    logicalRoot?: string,
+  ): string => captured.resolve(filename, logicalRoot);
+  assertProductionSupportAnalysis(captured, owners, analysis);
   if (
     !productionLayers(props).includes(key.layer) ||
     !["construction", "naturalness"].includes(key.pass)
@@ -71,40 +88,20 @@ export function resolveProductionPassValidationScope(
     config,
     analysis.report.configFile,
   );
-  const planned: Map<number, IEvidenceConfigPlanClaim> = new Map(
-    plan.claims.map(
-      (claim: IEvidenceConfigPlanClaim): [number, IEvidenceConfigPlanClaim] => [
-        claim.index,
-        claim,
-      ],
-    ),
-  );
-  const inputs: Map<number | undefined, IEvidenceGraphClaim> = new Map(
-    analysis.graphInput.claims.map(
-      (
-        claim: IEvidenceGraphClaim,
-      ): [number | undefined, IEvidenceGraphClaim] => [claim.index, claim],
-    ),
-  );
-  const results: Map<number, IEvidenceGraphClaimResult> = new Map(
-    analysis.graph.claims.map(
-      (
-        claim: IEvidenceGraphClaimResult,
-      ): [number, IEvidenceGraphClaimResult] => [claim.claim, claim],
-    ),
-  );
-  const reports: Map<number, IEvidenceCheckClaim> = new Map(
-    analysis.report.claims.map(
-      (claim: IEvidenceCheckClaim): [number, IEvidenceCheckClaim] => [
-        claim.claim,
-        claim,
-      ],
-    ),
+  const {
+    planned,
+    inputs,
+    results,
+    reports,
+  }: ReturnType<typeof indexProductionAnalysis> = indexProductionAnalysis(
+    plan,
+    analysis,
   );
   for (const message of inspectProductionAnalysis(
     props.location,
     analysis,
     planned,
+    canonical,
   ))
     issue(message);
 
@@ -114,21 +111,13 @@ export function resolveProductionPassValidationScope(
     pass.pass === "construction"
       ? resolveConstruction(props.construction[pass.layer])[0]
       : props.naturalness[pass.layer as "scripts" | "screenplay"];
-  const dependencies: Map<string, Set<string>> = new Map<string, Set<string>>();
-  const keys: Map<string, IProductionGateKey> = new Map<
-    string,
-    IProductionGateKey
-  >();
-  for (const layer of AUTHORED_LAYERS)
-    for (const pass of ["construction", "naturalness"] as const) {
-      if (pass === "naturalness" && !hasNaturalness(layer)) continue;
-      const entry: {
-        layer: AuthoredLayer;
-        pass: "construction" | "naturalness";
-      } = { layer, pass };
-      keys.set(passId(entry), entry);
-      dependencies.set(passId(entry), new Set());
-    }
+  const keys: Map<string, IProductionGateKey> = createProductionPassKeys();
+  const dependencies: Map<string, Set<string>> = new Map(
+    [...keys.keys()].map((id: string): [string, Set<string>] => [
+      id,
+      new Set(),
+    ]),
+  );
   const add: (from: IProductionGateKey, to: IProductionGateKey) => void = (
     from: IProductionGateKey,
     to: IProductionGateKey,
@@ -174,6 +163,7 @@ export function resolveProductionPassValidationScope(
       keys,
       sourceOwners,
       issue,
+      canonical,
     );
   const declared: (
     selectedRoot: string | undefined,
@@ -191,6 +181,7 @@ export function resolveProductionPassValidationScope(
       empty,
       keys,
       issue,
+      canonical,
     );
   for (const owner of owners) {
     if (
@@ -213,7 +204,7 @@ export function resolveProductionPassValidationScope(
           ),
         ].some(
           (address: string): boolean =>
-            authoredPathOwner(props.location, address) !== undefined,
+            authoredPathOwner(props.location, address, canonical) !== undefined,
         )
       )
         existing.add(passId(owner));
@@ -289,6 +280,7 @@ export function resolveProductionPassValidationScope(
             claim.population.root,
             claim.population.files,
             input.inventory,
+            canonical,
           ),
         ].some((layer: AuthoredLayer): boolean => layer !== owner.layer)
       )
@@ -352,6 +344,7 @@ export function resolveProductionPassValidationScope(
           selection.root,
           selection.files,
           reference.inventory,
+          canonical,
         )) {
           if (layer === owner.layer) continue;
           const upstream: "construction" | "naturalness" =
@@ -472,5 +465,12 @@ export function resolveProductionPassValidationScope(
   scope.requiredClaimIndices.sort(
     (left: number, right: number): number => left - right,
   );
+  for (const message of inspectProductionTopology(
+    props,
+    owners,
+    analysis,
+    scope.requiredPasses,
+  ))
+    issue(message);
   return scope;
 }

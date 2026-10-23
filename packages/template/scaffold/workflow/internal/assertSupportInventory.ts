@@ -5,13 +5,13 @@ import type {
   IEvidenceSourceFile,
 } from "@wrtnlabs/evidence";
 
-import { canonicalProductionPath } from "../canonicalProductionPath";
+import type { ProductionPathCapture } from "./ProductionPathCapture";
 import { isProductionAuthoredPath } from "./isProductionAuthoredPath";
 
 /** Rejects physical or logical authoring aliases captured by a support population. */
 export function assertSupportInventory(
   inventory: IEvidenceInventory,
-  boundaries: string[],
+  capture: ProductionPathCapture,
   authored: Set<string>,
 ): void {
   const paths: string[] = [
@@ -26,13 +26,15 @@ export function assertSupportInventory(
     ),
   ];
   const capturedAuthor: boolean = inventory.sources.some(
-    (source: IEvidenceSourceFile): boolean => authored.has(source.id),
+    (source: IEvidenceSourceFile): boolean =>
+      authored.has(source.id) || capture.isProtectedSource(source.id),
   );
   const protectedPath: boolean = paths.some((filename: string): boolean => {
-    const physical: string = canonicalProductionPath(filename);
+    const physical: string = capture.resolve(filename);
     return (
       isProductionAuthoredPath(filename) ||
-      boundaries.some(
+      isProductionAuthoredPath(physical) ||
+      capture.boundaries.some(
         (boundary: string): boolean =>
           physical === boundary || physical.startsWith(`${boundary}/`),
       )

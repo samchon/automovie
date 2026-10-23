@@ -15,7 +15,6 @@ import type { IProductionClaimOwner } from "./IProductionClaimOwner";
 import type { IProductionGateKey } from "./IProductionGateKey";
 import type { IProductionPassValidation } from "./IProductionPassValidation";
 import type { IProductionPassValidationScope } from "./IProductionPassValidationScope";
-import { getProductionEvidenceConfigProps } from "./getProductionEvidenceConfigProps";
 import { pendingNaturalnessTransfers } from "./internal/pendingNaturalnessTransfers";
 import { passId } from "./passId";
 import { resolveProductionPassValidationScope } from "./resolveProductionPassValidationScope";
@@ -44,7 +43,12 @@ const POLICY: Set<string> = new Set([
   "target-out-of-population",
 ]);
 
-/** Classifies one full analysis without changing its report, graph, or exit status. */
+/**
+ * Reclassifies an analyzeProductionPass snapshot without filesystem reads.
+ *
+ * Requires its original factory config and bound native analysis. A different
+ * config or an unbound native evaluation throws; report and graph stay intact.
+ */
 export function classifyProductionPassDiagnostics(
   config: IEvidenceConfig,
   key: IProductionGateKey,
@@ -62,11 +66,7 @@ export function classifyProductionPassDiagnostics(
     rereadReady: false,
     approvalStructureReady: false,
     missingReviewClaims: [],
-    pendingNaturalnessTransfers: pendingNaturalnessTransfers(
-      getProductionEvidenceConfigProps(config).location,
-      scope,
-      analysis,
-    ),
+    pendingNaturalnessTransfers: pendingNaturalnessTransfers(scope, analysis),
   };
   const required: Set<number> = new Set(scope.requiredClaimIndices);
   const current: string = passId(key);

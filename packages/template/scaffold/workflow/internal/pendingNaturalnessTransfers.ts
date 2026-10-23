@@ -1,32 +1,38 @@
 import type {
   IEvidenceCheckAnalysis,
   IEvidenceGraphClaim,
-  IEvidenceSourceFile,
+  IEvidenceInventory,
 } from "@wrtnlabs/evidence";
-import path from "node:path";
 
 import type { IProductionClaimOwner } from "../IProductionClaimOwner";
 import type { IProductionGateKey } from "../IProductionGateKey";
 import type { IProductionPassValidation } from "../IProductionPassValidation";
 import type { IProductionPassValidationScope } from "../IProductionPassValidationScope";
-import { canonicalProductionPath as canonical } from "../canonicalProductionPath";
 import { stripNaturalnessComments } from "../stripNaturalnessComments";
+import type { IProductionTopologyDocument } from "./topology/IProductionTopologyDocument";
+import { collectTopologyDocuments } from "./topology/collectTopologyDocuments";
+import { compareTopologyIdentity } from "./topology/compareTopologyIdentity";
 
-/** Compares the captured working/body inputs; never reopens a mutable manuscript. */
+/** Compares captured logical counterparts, including every supplied working index. */
 export function pendingNaturalnessTransfers(
-  root: string,
   scope: IProductionPassValidationScope,
   analysis: IEvidenceCheckAnalysis,
 ): IProductionPassValidation["pendingNaturalnessTransfers"] {
   const pending: IProductionPassValidation["pendingNaturalnessTransfers"] = [];
-  const sources: Map<string, Set<string>> = new Map<string, Set<string>>();
-  for (const claim of analysis.graphInput.claims)
-    for (const source of claim.inventory.sources) {
-      const key: string = canonical(source.physicalPath);
-      const values: Set<string> = sources.get(key) ?? new Set<string>();
+  const versions: Map<string, Set<string>> = new Map();
+  const remember: (inventory: IEvidenceInventory) => void = (
+    inventory: IEvidenceInventory,
+  ): void => {
+    for (const source of inventory.sources) {
+      const values: Set<string> = versions.get(source.id) ?? new Set();
       values.add(source.content);
-      sources.set(key, values);
+      versions.set(source.id, values);
     }
+  };
+  for (const claim of analysis.graphInput.claims) {
+    remember(claim.inventory);
+    for (const reference of claim.references) remember(reference.inventory);
+  }
   for (const layer of ["scripts", "screenplay"] as const) {
     if (
       !scope.requiredPasses.some(
@@ -35,46 +41,63 @@ export function pendingNaturalnessTransfers(
       )
     )
       continue;
-    const workingRoot: string = canonical(
-      path.resolve(root, "docs/naturalness", layer),
-    );
-    const bodyRoot: string = canonical(path.resolve(root, "docs/body", layer));
-    const seen: Set<string> = new Set<string>();
-    const owner: IProductionClaimOwner | undefined = scope.owners.find(
-      (entry: IProductionClaimOwner): boolean =>
-        entry.layer === layer &&
-        entry.pass === "naturalness" &&
-        entry.authored === true,
-    );
-    const hosts: IEvidenceSourceFile[] =
-      analysis.graphInput.claims.find(
-        (claim: IEvidenceGraphClaim): boolean => claim.index === owner?.index,
-      )?.inventory.sources ?? [];
-    for (const source of hosts) {
-      const working: string = canonical(source.physicalPath);
-      if (seen.has(working)) continue;
-      seen.add(working);
-      const file: string = working.slice(workingRoot.length + 1);
-      const target: string = canonical(
-        path.resolve(root, "docs/body", layer, file),
+    const documents: (
+      pass: "construction" | "naturalness",
+    ) => IProductionTopologyDocument[] = (
+      pass: "construction" | "naturalness",
+    ): IProductionTopologyDocument[] => {
+      const owner: IProductionClaimOwner | undefined = scope.owners.find(
+        (entry: IProductionClaimOwner): boolean =>
+          entry.layer === layer &&
+          entry.pass === pass &&
+          entry.authored === true,
       );
+      const input: IEvidenceGraphClaim | undefined =
+        analysis.graphInput.claims.find(
+          (claim: IEvidenceGraphClaim): boolean => claim.index === owner?.index,
+        );
+      return input === undefined
+        ? []
+        : collectTopologyDocuments(input.inventory, layer);
+    };
+    const working: IProductionTopologyDocument[] = documents("naturalness");
+    const body: Map<string, IProductionTopologyDocument> = new Map(
+      documents("construction").map(
+        (
+          document: IProductionTopologyDocument,
+        ): [string, IProductionTopologyDocument] => [
+          document.relative,
+          document,
+        ],
+      ),
+    );
+    const seen: Set<string> = new Set();
+    for (const document of working) {
+      const file: string = document.relative;
+      seen.add(file);
+      const target: IProductionTopologyDocument | undefined = body.get(file);
       let reason: string | undefined;
-      if (!working.startsWith(`${workingRoot}/`))
-        reason = "Naturalness host is outside its working tree.";
-      else if (
-        sources.get(working)?.size !== 1 ||
-        (sources.get(target)?.size ?? 0) > 1
+      if (
+        versions.get(document.source.id)?.size !== 1 ||
+        (target !== undefined && versions.get(target.source.id)?.size !== 1)
       )
         reason = "Captured manuscript versions disagree.";
-      else if (!sources.has(target))
+      else if (target === undefined)
         reason =
           "The corresponding body file is missing from the captured construction inputs.";
+      else if (
+        file.endsWith("/index.md") &&
+        compareTopologyIdentity([target], [document], "Working index", true)
+          .length !== 0
+      )
+        reason =
+          "Provided working index heading identity differs from its body counterpart.";
       else {
         try {
           const expected: Buffer<ArrayBufferLike> = stripNaturalnessComments(
-            Buffer.from(source.content),
+            Buffer.from(document.source.content),
           );
-          if (!expected.equals(Buffer.from([...sources.get(target)!][0])))
+          if (!expected.equals(Buffer.from(target.source.content)))
             reason =
               "Body differs from the working text with every HTML comment removed.";
         } catch (error: unknown) {
@@ -83,32 +106,14 @@ export function pendingNaturalnessTransfers(
       }
       if (reason !== undefined) pending.push({ layer, file, reason });
     }
-    const construction: IProductionClaimOwner | undefined = scope.owners.find(
-      (entry: IProductionClaimOwner): boolean =>
-        entry.layer === layer &&
-        entry.pass === "construction" &&
-        entry.authored === true,
-    );
-    const bodies: IEvidenceSourceFile[] =
-      analysis.graphInput.claims.find(
-        (claim: IEvidenceGraphClaim): boolean =>
-          claim.index === construction?.index,
-      )?.inventory.sources ?? [];
-    const missing: Set<string> = new Set<string>();
-    for (const source of bodies) {
-      const body: string = canonical(source.physicalPath);
-      if (!body.startsWith(`${bodyRoot}/`)) continue;
-      const file: string = body.slice(bodyRoot.length + 1);
-      if (!seen.has(`${workingRoot}/${file}`) && !missing.has(file)) {
-        missing.add(file);
+    for (const file of body.keys())
+      if (!file.endsWith("/index.md") && !seen.has(file))
         pending.push({
           layer,
           file,
           reason:
             "The selected body file has no naturalness working counterpart.",
         });
-      }
-    }
   }
   return pending;
 }

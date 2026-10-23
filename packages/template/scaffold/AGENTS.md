@@ -46,3 +46,4 @@ Read the skill whose trigger applies.
 - [documentation](.agents/skills/documentation/SKILL.md): writing technical documents, instructions, evidence explanations, and doc comments.
 - [testing](.agents/skills/testing/SKILL.md): choosing or writing behavioral checks for a production's measurable promises.
 - [review](.agents/skills/review/SKILL.md): reviewing any production work or claiming it ready for delivery.
+- [estimation](.agents/skills/estimation/SKILL.md): a requested read-only audience-experience assessment or edition comparison, separate from evidence and approval.

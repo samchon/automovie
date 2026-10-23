@@ -12,6 +12,7 @@ import { createLanguagePrincipleReferences } from "../references/createLanguageP
 import { createLineageReference } from "../references/createLineageReference";
 import { createPrincipleReferences } from "../references/createPrincipleReferences";
 import { createUpstreamReference } from "../references/createUpstreamReference";
+import { createTopologyFiles } from "../topology/createTopologyFiles";
 import { createUnitFiles } from "../utilities/createUnitFiles";
 import { passRoot } from "../utilities/passRoot";
 import { resolveConstruction } from "../utilities/resolveConstruction";
@@ -42,6 +43,12 @@ export function createLayerClaims(
   );
   const disabled: boolean = stage === "disabled";
   const files: string[] = createUnitFiles(layer, props.narrativeScope);
+
+  // Indexes and invalid paths must enter the same snapshot as the authored H2s.
+  const topology: string[] =
+    layer === "settings"
+      ? files
+      : createTopologyFiles(layer, props.narrativeScope);
 
   const treatments: string[] = createNarrativeUnitFiles(
     "treatments",
@@ -90,7 +97,7 @@ export function createLayerClaims(
       name: `${layer} H2 units answer their principle checklists${inherits}`,
       type: "markdown",
       root: passRoot("draft"),
-      files,
+      files: topology,
       symbol: "h2",
       disabled,
       reference: [
@@ -148,11 +155,11 @@ export function createLayerClaims(
             name: `${layer} final H2 units answer their naturalness checklists`,
             type: "markdown",
             root: passRoot("final"),
-            files,
+            files: topology,
             symbol: "h2",
             disabled: second === "disabled",
             reference: [
-              createLineageReference(files, "h2", "revision"),
+              createLineageReference(topology, "h2", "revision"),
               ...naturalness,
             ],
           },

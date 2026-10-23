@@ -12,11 +12,11 @@ This carries the source architecture's distinction between facts, events, scene 
 
 Read current parent bodies and reviews when starting, resuming, or changing a source. Treatments depends on settings construction; scripts depends on treatments construction; screenplay depends on treatments and reviewed, transferred scripts after naturalness. An explicit waiver may use scripts construction instead. Facts pass through those parents. Direct settings evidence cannot repair an incomplete treatment handoff. A short without those parents follows its request and adopted constraints directly.
 
-The [local workflow](../../workflow/README.md) owns factory options, graph selection, supported layout, diagnostics, and actual command APIs. Installed Evidence documentation owns general annotation syntax. Keep technical details with those owners instead of recreating APIs in creative skills. Select the actual production mode before work; a disabled draft stage is not permission to delete a required layer.
+The [local workflow](../../workflow/README.md) owns factory options, graph selection, supported layout, diagnostics, and actual command APIs. Installed Evidence documentation owns general annotation syntax. Keep technical details with those owners instead of recreating APIs in creative skills. Select the optional narrative profile and its actual production mode before narrative work; a disabled draft stage is not permission to delete a required layer.
 
 ## Complete a construction
 
-1. With the pass disabled, finish its whole declared body before writing evidence answers. Read selected contract goals without shaping each paragraph as a checklist response.
+1. With the pass disabled, finish its whole declared body before writing evidence answers. Read selected contract goals without shaping each paragraph as a checklist response. Preserve an identifiable snapshot of that complete draft in version history or an immutable copy before opening evidence; a partial progress snapshot does not authorize the transition.
 2. Open the corresponding evidence stage and its claims together. Compare the whole body with every selected requirement, repair all findings by cause, and write [evidence](../../.agents/skills/evidence-writing/SKILL.md) from the corrected work.
 3. Review the whole selected population as its recipient, including boundaries and global obligations. An independent reviewer first reads the annotation-free body and records that reading, then examines parents, contracts, evidence, and prior judgments.
 4. Record reasoned author decisions and repair accepted findings through their owners. Repeat complete affected rounds until one has neither edits nor findings. Retain the current review and keep the pass in its evidence stage.
@@ -28,6 +28,8 @@ Settings includes its outline in the same completion. A unit answer cannot estab
 ## Complete expressive rewriting
 
 [Rewriting](../../.agents/skills/rewriting/SKILL.md) preserves construction in `docs/revision/<layer>/...` and develops matching files in `docs/naturalness/<layer>/...`. Scripts and screenplay each have their own cycle. Keep paths, H1/H2 identities, titles, and order; compare semantic fidelity with that cycle's original in both directions.
+
+The [cycle rules](../../.agents/skills/rewriting/cycles.md) distinguish the initial meaning baseline from a previous working edition's expressive achievements, and a comprehensive rewrite from the local repairs that complete its evidence and review. Preserve both comparison inputs when revisiting expression.
 
 Finish the whole working version while its pass is disabled. Collect a complete reading round's problems before fixing every occurrence by cause, including habitual dialogue, body language, framing, and endings across scenes. Preserve the actual intended form rather than forcing variation. Open evidence when complete, attach answers and rewriting notes in comments, and submit working version and frozen construction to independent review.
 

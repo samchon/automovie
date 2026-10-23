@@ -11,7 +11,7 @@ npm run evidence
 npm test
 ```
 
-The blank project contains instructions, contracts, and production-owned workflow helpers, with no story, models, viewer, render host, or media provider selected. Start with the [production skill](.agents/skills/production/SKILL.md) and choose the actual mode in `evidence.config.ts`: long productions retain settings → treatments → scripts → final screenplay; short videos enter at final screenplay; asset-only work has no narrative. Passing checks on an empty harness does not complete a production.
+The blank project contains instructions, contracts, and production-owned workflow helpers, with no story, models, viewer, render host, or media provider selected. The default `lint.config.ts` and `evidence.config.ts` check ordinary TypeScript source and tests. Start with the [production skill](.agents/skills/production/SKILL.md); select the optional [narrative profile](workflow/README.md#configure-the-production) only for video writing. Long productions retain settings → treatments → scripts → final screenplay; short videos enter at final screenplay; asset-only work keeps the engineering baseline and adopts its actual asset duties. Passing checks on an empty harness does not complete a production.
 
 ## Commands
 
@@ -19,7 +19,7 @@ The blank project contains instructions, contracts, and production-owned workflo
 | --- | --- |
 | `npm run lint` | TypeScript and source correctness |
 | `npm run evidence` | Source/test checklists and the selected production path's active evidence obligations |
-| `npm run production:check -- --layer <layer> --pass <pass>` | Current narrative pass structure and prerequisites; see [workflow](workflow/README.md) |
+| `npm run production:check -- --layer <layer> --pass <pass>` | After narrative opt-in, current pass structure and prerequisites; see [workflow](workflow/README.md) |
 | `npm test` | Every exported `test_*` function under `test`; passes when there is none |
 | `npm run format` | Source formatting |
 

@@ -7,7 +7,7 @@ description: Independently reviews production bodies, evidence, and delivered ou
 
 Read the complete requested scope from the recipient's perspective. For narrative passes, follow [independent review](../../../docs/guides/narrative-review.md): read and lock the first response before consulting the author's evidence, then inspect contracts, parents, and claims. A self-review does not satisfy an independent pass; use a fresh reviewer context and report when that cannot be provided.
 
-The production [workflow checker](../../../workflow/README.md) validates current graph structure, dependencies, reviews, and rewriting transfer. Its readiness result does not issue a semantic PASS. Record current unit reviews and a whole-pass verdict only after the required reading and finding resolution.
+For selected narrative work, the production [workflow checker](../../../workflow/README.md) validates current graph structure, dependencies, reviews, and rewriting transfer. Its readiness result does not issue a semantic PASS. Record current unit reviews and a whole-pass verdict only after the required reading and finding resolution.
 
 Collect all findings in the round before editing. Authors record acceptance, partial acceptance, or rejection with grounds; disputed findings return to the reviewer. Correct causes and all affected consumers together, then use a fresh complete round to close the pass. Revisit currentness after upstream changes rather than refreshing hashes without rereading.
 

@@ -9,6 +9,8 @@ Preserve a reviewed construction while writing its expression anew. Scripts beco
 
 Read the whole unit and preceding context as its recipient before editing. Freeze construction in `docs/revision/<scripts|screenplay>` with matching relative paths, then work in `docs/naturalness/<scripts|screenplay>`. Preserve file and H1/H2 identities and order. Keep the initial frozen original for every repair in this rewriting cycle.
 
+Use [revision cycles](cycles.md) when entering or repeating a rewrite. The initial construction is the meaning baseline; a previous working edition and its reviews are also the comparison for retained expressive achievements. Evidence and review findings receive local repairs within the completed rewrite rather than another wholesale reset.
+
 Rewrite directions, dialogue, and audiovisual flow for this scene's actual people, purpose, pressure, and rhythm. Read dialogue through adjacent action and consecutive replies as if spoken. Keep necessary execution directions and chosen form; replace explanatory labels with playable action and sound. Give images, reactions, pauses, and transitions their intended attention and duration. Remove redundant explanation and habits without replacing them with another uniform gesture, sentence shape, cut, or closing image.
 
 Compare working version and frozen original in both directions for meaning, state, knowledge, uncertainty, and fixed values. Additional expressive detail may realize an established decision; it may not introduce a new event, resource, cause, outcome, or world fact. Repair meaning lost during rewriting in the working version. Report a construction defect to its first owner rather than changing the frozen original to excuse it.

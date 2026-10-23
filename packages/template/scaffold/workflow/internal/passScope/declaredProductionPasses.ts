@@ -1,7 +1,6 @@
 import path from "node:path";
 
 import type { IProductionGateKey } from "../../IProductionGateKey";
-import { canonicalProductionPath as canonical } from "../../canonicalProductionPath";
 import { passId } from "../../passId";
 import { authoredBoundary } from "./authoredBoundary";
 import { authoredPathOwner } from "./authoredPathOwner";
@@ -16,6 +15,7 @@ export function declaredProductionPasses(
   empty: boolean,
   keys: Map<string, IProductionGateKey>,
   issue: (message: string) => void,
+  canonical: (filename: string, logicalRoot?: string) => string,
 ): Set<string> {
   const found: Set<string> = new Set<string>();
   if (files === undefined) return found;
@@ -30,19 +30,22 @@ export function declaredProductionPasses(
         return index < 0 ? portable.length : index;
       }),
     );
-    const prefix: string = canonical(
-      path.resolve(
-        root,
-        selectedRoot?.replaceAll("\\", "/") ?? "",
-        portable.slice(0, end),
-      ),
+    const declared: string = path.resolve(
+      root,
+      selectedRoot?.replaceAll("\\", "/") ?? "",
+      portable.slice(0, end),
     );
+    const prefix: string = canonical(declared);
     const owner: IProductionGateKey | undefined = authoredPathOwner(
       root,
-      prefix,
+      declared,
+      canonical,
     );
     if (owner !== undefined) found.add(passId(owner));
-    else if (authoredBoundary(prefix) && !sharedBody(root, prefix))
+    else if (
+      (authoredBoundary(declared) || authoredBoundary(prefix)) &&
+      !sharedBody(root, declared, canonical)
+    )
       issue(
         `A declared selection crosses an unaudited authored package boundary at ${prefix}.`,
       );
@@ -53,7 +56,8 @@ export function declaredProductionPasses(
           key.pass === "construction" ? "draft" : "final";
         return ownedDirectories(root, key, edition).some(
           (directory: string): boolean =>
-            canonical(directory).startsWith(prefix),
+            canonical(directory).startsWith(prefix) ||
+            canonical(directory, root).startsWith(canonical(declared, root)),
         );
       })
     )

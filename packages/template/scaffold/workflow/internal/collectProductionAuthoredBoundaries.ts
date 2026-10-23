@@ -1,10 +1,18 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { canonicalProductionPath } from "../canonicalProductionPath";
+import { resolveProductionPhysicalPath } from "./resolveProductionPhysicalPath";
 
-/** Collects protected roots and every nested link target without reading document bytes. */
-export function collectProductionAuthoredBoundaries(location: string): string[] {
+/** Captures protected link targets and optional regular-file metadata without reading bytes. */
+export function collectProductionAuthoredBoundaries(
+  location: string,
+  capture: (logical: string, physical: string) => void = (): void => {},
+  file?: (
+    logical: string,
+    physical: string,
+    metadata: fs.BigIntStats,
+  ) => void,
+): string[] {
   const roots: string[] = [
     "docs/body",
     "docs/revision",
@@ -15,11 +23,14 @@ export function collectProductionAuthoredBoundaries(location: string): string[] 
     ".agents/skills/contracts/story",
   ].map((directory: string): string => path.resolve(location, directory));
   const boundaries: Set<string> = new Set(
-    roots.map((directory: string): string => canonicalProductionPath(directory)),
+    roots.map((directory: string): string =>
+      resolveProductionPhysicalPath(directory),
+    ),
   );
   const visited: Set<string> = new Set();
   const walk: (directory: string) => void = (directory: string): void => {
-    const physical: string = canonicalProductionPath(directory);
+    const physical: string = resolveProductionPhysicalPath(directory);
+    capture(directory, physical);
     if (visited.has(physical)) return;
     visited.add(physical);
     let entries: fs.Dirent[];
@@ -31,14 +42,28 @@ export function collectProductionAuthoredBoundaries(location: string): string[] 
     }
     for (const entry of entries) {
       const target: string = path.join(directory, entry.name);
+      const physicalEntry: string = path.join(physical, entry.name);
       if (entry.isDirectory()) walk(target);
       else if (entry.isSymbolicLink()) {
-        boundaries.add(canonicalProductionPath(target));
+        const physicalTarget: string = resolveProductionPhysicalPath(target);
+        capture(target, physicalTarget);
+        boundaries.add(physicalTarget);
         try {
-          if (fs.statSync(target).isDirectory()) walk(target);
+          const metadata: fs.BigIntStats = fs.statSync(physicalTarget, {
+            bigint: true,
+          });
+          if (metadata.isDirectory()) walk(target);
+          else if (metadata.isFile()) file?.(target, physicalTarget, metadata);
         } catch (error) {
           if (!missing(error)) throw error;
         }
+      } else if (entry.isFile() && file !== undefined) {
+        const metadata: fs.BigIntStats = fs.statSync(physicalEntry, {
+          bigint: true,
+        });
+        if (!metadata.isFile())
+          throw new Error("A protected input changed type during capture.");
+        file(target, physicalEntry, metadata);
       }
     }
   };
@@ -50,8 +75,6 @@ export function collectProductionAuthoredBoundaries(location: string): string[] 
 function missing(error: unknown): boolean {
   return (
     error instanceof Error &&
-    ["ENOENT", "ENOTDIR"].includes(
-      (error as NodeJS.ErrnoException).code ?? "",
-    )
+    ["ENOENT", "ENOTDIR"].includes((error as NodeJS.ErrnoException).code ?? "")
   );
 }
