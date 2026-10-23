@@ -28,7 +28,7 @@ Open `http://127.0.0.1:5173/human.html?alias=f1`. The page generates from the ty
 | `pass` | `surface`, `overlay`, `construction` | Shown parts, see [Passes](#passes) |
 | `camera` | a [camera](#cameras) name | Base direction and region |
 | `curves` | a [curve selection](#curve-selection) | Colours the selected curves and the skin they shape |
-| `isolate`, `fit`, `az`, `el`, `view`, `target`, `dist`, `ortho` | see [Free View](#free-view) | Isolation and free camera |
+| `isolate`, `fit`, `garment`, `az`, `el`, `view`, `target`, `dist`, `ortho` | see [Free View](#free-view) | Isolation, garments and free camera |
 
 The page writes these variables back into its address and links the PNG URL of the same view; "PNG URL 복사" copies it and "곡선 도면" opens the 2D diagram of the selection. The toolbar has the pass, camera and free-view controls and a legend of the axis, section and selected-curve colours. Orbit with the mouse; a click without dragging in `overlay` or `construction` adds or removes the curve under the pointer. `window.__automovieHuman` exposes `loadAlias`, `load`, `setPass`, `setCamera`, `setCurves`, `setView`, `curves`, `capture`, `diagram`, `serialize` and `snapshot`.
 
@@ -107,27 +107,28 @@ These variables modify the named camera on the page and in PNG URLs alike; their
 | `ortho=1` | Orthographic projection: `el=90` (`view=+y`) shows a horizontal section in true shape with +X right and +Z down; `el=0` shows an axis in profile |
 | `isolate=1` | Draw only the `curves` selection and, outside the `construction` pass, the skin intervals it shapes, in the skin's own colour |
 | `fit=selection` | Frame the selected curves and the skin they shape instead of the camera region |
+| `garment=0` | Hide the underwear parts (`human.garment.`) to inspect the bare body; absent or `garment=1` shows them, the default, because every image shown outside development wears them. Framing is unchanged, so frames with and without align pixel for pixel |
 
-`isolate` and `fit` need a non-empty `curves`. Malformed values return 400.
+`isolate` and `fit` need a non-empty `curves`; `isolate` also hides the garments. Malformed values return 400.
 
 ## Passes
 
 Parts whose id starts with `human.construction.` are construction (the lofting curves); every other part, such as the `human.skin.<chain>/<k>` intervals, hair and eyes, is surface. All passes of one camera share the surface-derived region, so they align pixel for pixel.
 
-- `surface`: skin alone.
+- `surface`: skin and appearance parts (eyes, hair, garments).
 - `overlay`: skin and lofting curves. The skin is drawn with a polygon offset of one, so sections lying on it win the depth test; axes run inside the body and are drawn through the skin.
 - `construction`: lofting curves alone.
 
-Curves are drawn unlit in the generator's material colours, central axes (`<chain>/axis`) red and sections (`<chain>/<k>`) blue. Axes are thickened by 1/600 of the body height so they read as thicker than sections. These display rules live in the page's styling closure, `createHumanPartStyle`, applied through the generic `ModelPartStyling`; the generator's model is not changed. A model without construction parts fails `overlay` and `construction` requests explicitly instead of returning a surface image.
+Curves are drawn unlit in the generator's material colours, central axes (`<chain>/axis`) red, sections (`<chain>/<k>`) blue and guides (`<chain>/g<j>`) green. Axes are thickened by 1/600 of the body height so they read as thicker than sections. These display rules live in the page's styling closure, `createHumanPartStyle`, applied through the generic `ModelPartStyling`; the generator's model is not changed. A model without construction parts fails `overlay` and `construction` requests explicitly instead of returning a surface image.
 
 ## Curve Selection
 
-A curve id is a construction part id without `human.construction.`: `<chain>/<k>` for the principal section at layer k, counted from the chain's bottom, or `<chain>/axis` for the chain's central axis. Chain names contain dots (`finger.left.index`), so only the last `/` separates the layer; the page's curve list shows every id of the current model. Skin parts are `human.skin.<chain>/<k>`, the band between layers k and k+1.
+A curve id is a construction part id without `human.construction.`: `<chain>/<k>` for the principal section at layer k, counted from the chain's bottom, `<chain>/axis` for the chain's central axis, or `<chain>/g<j>` for a guide, the fixed-phase Hermite curve carrying the sections along the chain. Chain names contain dots (`finger.left.index`), so only the last `/` separates the layer; the page's curve list shows every id of the current model. Skin parts are `human.skin.<chain>/<k>`, the band between layers k and k+1.
 
 - `curves` takes several values. Repeated keys are canonical (`curves=trunk/7&curves=finger.left.*`), and a comma list inside one value is accepted (`curves=trunk/7,finger.left.*`); both merge in order, trimmed and deduplicated. The page address, copied URLs, receipts and the `x-human-curves` header use repeated keys.
 - `*` matches any characters including `.` and `/`. The 2D diagrams additionally accept `<chain>@<mm>` and `<chain>@<from>:<to>:<step>`.
 - A pattern that matches no curve of the model fails the request; a malformed one returns 400.
-- Section `<chain>/<k>` shapes skin `<chain>/<k-1>` and `<chain>/<k>`; `<chain>/axis` shapes every interval of that chain, not of its child chains.
+- Section `<chain>/<k>` shapes skin `<chain>/<k-1>` and `<chain>/<k>`; `<chain>/axis` and every guide `<chain>/g<j>` shape every interval of that chain, not of its child chains.
 - Each selected curve takes its own colour by list order (globs expand in model order) and thickens by a further 1/800 of the body height; the toolbar and the PNG legend list id and colour. Without `isolate`, shaped skin is tinted halfway to its first curve's colour. `construction` draws the selection over all other curves, and selected axes stay visible through the skin.
 
 ## Curve Diagrams
@@ -153,3 +154,15 @@ A curve id is a construction part id without `human.construction.`: `<chain>/<k>
 3. Open the local PNG, then embed its absolute path in Markdown, one image at a time outside tables, with its URL for developer access.
 
 A save or delivery time is not a capture time. Remove report copies that no longer serve a report.
+
+## Human Stickman Page
+
+`http://127.0.0.1:5173/human-stickman.html` shows the rule-derived stickman skeleton (`AutoMovieHumanSkeleton`) of an alias as rods and joint balls, posed by the alias parameters with `pose` set to a demo `IAutoMovieHumanPose` and clamped to the table in `packages/human/docs/anatomy/joint-range.md`. It is a separate page outside the PNG service, so its frames carry no receipt or archive entry; capture it with a page screenshot and save under `packages/playground/.shots/<round>/`.
+
+| Variable | Values | Effect |
+| --- | --- | --- |
+| `alias` | `f1`, `f2`, `m1`, `m2` | Person whose skeleton is derived; default `f1` |
+| `pose` | `rest`, `demo`, `limit` | Demo pose; `demo` exercises every region including fingers and toes, `limit` requests values beyond the range; default `rest` |
+| `clamp` | `0` | Applies the pose without clamping; clamping is on by default and the status line lists every clamped field |
+| `skin` | `1` | Overlays the neutral skin translucently in rest pose; `garment=0` hides the underwear |
+| `view` | `front`, `side`, `back`, `oblique` | Camera direction; default `front` |

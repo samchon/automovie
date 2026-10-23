@@ -39,17 +39,28 @@ export namespace AutoMovieHumanBodySurface {
 
     /** Flat unit vertex normals of the whole skin. */
     normals: number[];
+
+    /**
+     * Loft coordinates of every vertex, flat `[chain, station, phase, ...]`:
+     * the index of the chain in the calibration that evaluated it, the
+     * station (height or tilted-frame station, mm) and the phase (radians).
+     * A pole apex has phase NaN; a vertex the aperture cut or the lid tuck
+     * derived from others has all three NaN.
+     *
+     * These are the skin's own surface parameters. Attachments such as
+     * garments bind to them instead of to vertex or triangle numbers, which
+     * change with every parameter set, so a bound point can be evaluated
+     * again on another body or pose by the chain functions.
+     */
+    coordinates: number[];
   }
 
   /** A chain end boundary resolved to vertices or a pole. */
   type IBoundary =
     | {
-        /** The chain's own contact ring. */
+        /** The chain's own contact ring, in its own phase set. */
         kind: "own";
         ring: number[];
-
-        /** Phases of the ring: the chain's own set, plus any margin crossings. */
-        phases: readonly number[];
       }
     | {
         /** Arcs inherited from a parent's contact ring. */
@@ -84,8 +95,30 @@ export namespace AutoMovieHumanBodySurface {
     /** Apertures with their margins evaluated once. */
     apertures: AutoMovieHumanBodyApertures.IPrepared[];
 
-    /** Inserted margin vertices, which bound the openings. */
-    margin: Set<number>;
+    /** Calibration index of every chain, by name. */
+    indices: Map<string, number>;
+
+    /** Loft coordinates of the vertices created so far; see {@link IOutput}. */
+    coordinates: number[];
+  }
+
+  /**
+   * Create ring vertices and record their loft coordinates.
+   *
+   * @returns The new vertex indices, in phase order.
+   */
+  function ringVertices(
+    context: IContext,
+    target: IAutoMovieHumanLoftChain,
+    station: number,
+    phases: readonly number[],
+  ): number[] {
+    const chain: number = context.indices.get(target.name)!;
+    for (const t of phases) context.coordinates.push(chain, station, t);
+    return AutoMovieHumanLoftMesh.vertices(
+      context.mesh,
+      AutoMovieHumanLoftChain.ring(target, station, phases),
+    );
   }
 
   /** Chord tolerance of the station bisection in mm. */
@@ -122,8 +155,19 @@ export namespace AutoMovieHumanBodySurface {
       ),
       boundaries: new Map(),
       tolerance: TOLERANCE,
-      apertures: AutoMovieHumanBodyApertures.prepare(calibration.apertures),
-      margin: new Set(),
+      apertures: AutoMovieHumanBodyApertures.prepare(
+        calibration.apertures,
+        calibration.eyes,
+      ),
+      indices: new Map(
+        calibration.chains.map(
+          (c: IAutoMovieHumanLoftChain, i: number): [string, number] => [
+            c.name,
+            i,
+          ],
+        ),
+      ),
+      coordinates: [],
     };
 
     // 1-2. Contact rings and the boundaries they define on both sides.
@@ -132,16 +176,21 @@ export namespace AutoMovieHumanBodySurface {
     // 3. Every chain between its two boundaries.
     for (const target of calibration.chains) loft(context, target);
 
-    // 4. Openings: the skin over every aperture is removed by position.
-    AutoMovieHumanBodyApertures.cut(
-      context.mesh,
-      context.apertures,
-      context.margin,
-    );
+    // 4. Openings: the skin over every aperture is clipped away by
+    // position, and the lid margins tucked onto the globes.
+    AutoMovieHumanBodyApertures.cut(context.mesh, context.apertures);
 
     return {
       mesh: context.mesh,
       normals: AutoMovieHumanLoftMesh.normals(context.mesh),
+      // Vertices the cut and the tuck added after lofting have no loft
+      // coordinates of their own.
+      coordinates: [
+        ...context.coordinates,
+        ...new Array<number>(
+          context.mesh.positions.length - context.coordinates.length,
+        ).fill(NaN),
+      ],
     };
   }
 
@@ -161,29 +210,16 @@ export namespace AutoMovieHumanBodySurface {
     const childEnd: "bottom" | "top" =
       event.direction === "down" ? "top" : "bottom";
 
-    // The contact ring carries the crossings of any aperture margin at its
-    // height, like every other station, so an opening that spans the event
-    // is traced on both sides of it.
-    const y: number = endHeight(parent, parentEnd);
-    const station: { phases: readonly number[]; margin: number[] } =
-      AutoMovieHumanBodyApertures.phases(
-        AutoMovieHumanBodyApertures.on(context.apertures, parent),
-        parent,
-        y,
-        ownPhases(context, parent),
-      );
-    const phases: readonly number[] = station.phases;
-    const ring: number[] = AutoMovieHumanLoftMesh.vertices(
-      context.mesh,
-      AutoMovieHumanLoftChain.ring(parent, y, phases),
+    const phases: number[] = ownPhases(context, parent);
+    const ring: number[] = ringVertices(
+      context,
+      parent,
+      endHeight(parent, parentEnd),
+      phases,
     );
-    phases.forEach((t: number, i: number): void => {
-      if (station.margin.includes(t)) context.margin.add(ring[i]!);
-    });
     context.boundaries.set(parent.name + ":" + parentEnd, {
       kind: "own",
       ring,
-      phases,
     });
 
     for (const split of event.splits)
@@ -207,23 +243,22 @@ export namespace AutoMovieHumanBodySurface {
     const phases: number[] = ownPhases(context, target);
     const bottomY: number = endHeight(target, "bottom");
     const topY: number = endHeight(target, "top");
-    // Bisection stations, refined inside any aperture on this chain.
-    const apertures: AutoMovieHumanBodyApertures.IPrepared[] =
-      AutoMovieHumanBodyApertures.on(context.apertures, target);
+    // Bisection stations, refined where the rings pass near an opening.
     const heights: number[] = AutoMovieHumanBodyApertures.refine(
-      apertures,
+      context.apertures,
+      target,
       AutoMovieHumanLoftChain.stations(
         target,
         bottomY,
         topY,
         context.tolerance,
       ),
+      phases,
     );
 
     // Ring and phase set at each station. Ends come from their boundaries
     // when inherited or owned, and are generated here when the end is a
-    // pole; interior stations crossing an aperture margin carry the margin
-    // crossings as extra vertices.
+    // pole.
     const bottom: IBoundary = boundary(context, target, "bottom");
     const top: IBoundary = boundary(context, target, "top");
     const ringPhases: (readonly number[])[] = [];
@@ -234,22 +269,13 @@ export namespace AutoMovieHumanBodySurface {
         ringPhases.push(
           end.kind === "inherited"
             ? inheritedPhases(context, target, y, end.ring)
-            : end.phases,
+            : phases,
         );
         return end.ring;
       }
 
-      const station: { phases: readonly number[]; margin: number[] } =
-        AutoMovieHumanBodyApertures.phases(apertures, target, y, phases);
-      ringPhases.push(station.phases);
-      const ring: number[] = AutoMovieHumanLoftMesh.vertices(
-        context.mesh,
-        AutoMovieHumanLoftChain.ring(target, y, station.phases),
-      );
-      station.phases.forEach((t: number, i: number): void => {
-        if (station.margin.includes(t)) context.margin.add(ring[i]!);
-      });
-      return ring;
+      ringPhases.push(phases);
+      return ringVertices(context, target, y, phases);
     });
 
     // Bands between consecutive stations, grouped by principal interval.
@@ -259,7 +285,7 @@ export namespace AutoMovieHumanBodySurface {
         interval(target, heights[k]!, heights[k + 1]!),
       );
       // Rings with one shared phase set join by a band; inherited rings
-      // and rings carrying margin crossings join by a zipper.
+      // join by a zipper.
       if (ringPhases[k] === ringPhases[k + 1])
         AutoMovieHumanLoftMesh.band(context.mesh, rings[k]!, rings[k + 1]!);
       else
@@ -504,6 +530,7 @@ export namespace AutoMovieHumanBodySurface {
     const point: [number, number, number] =
       calibrated?.point ?? AutoMovieHumanLoftChain.axis(target, y);
 
+    context.coordinates.push(context.indices.get(target.name)!, y, NaN);
     const apex: number = AutoMovieHumanLoftMesh.vertices(context.mesh, [
       point,
     ])[0]!;
