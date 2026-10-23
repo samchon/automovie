@@ -5,20 +5,25 @@ import { AutoMovieHumanHeadField } from "./AutoMovieHumanHeadField";
 /**
  * Height of the body's upper surface around and below the head: for each
  * horizontal position, the highest crossing of a vertical line with the
- * non-head skin (neck base, shoulders, upper back and chest).
+ * skin below the head (neck, neck base, shoulders, upper back and chest).
  *
  * Hanging hair falls from above, so the first body surface it meets is the
  * highest one under it; a strand that would pass below that height has
- * reached the shoulders and ends there. This realises the bob definition's
- * "at most to the shoulders" for any authored length.
+ * reached the shoulders and rests on them, sliding down the surface's
+ * {@link gradient} (`AutoMovieHumanHairGuide`). This realises the bob
+ * definition's "at most to the shoulders" for any authored length.
  *
  * Representation: a 2 mm grid over a 520 x 360 mm window (lateral by
  * fore-aft) centred under the head chart, each cell holding the highest
  * crossing at its centre or minus infinity where no skin lies below; read
  * by nearest cell. Triangles are binned by their horizontal bounding box,
- * so each vertical ray tests only the triangles above its cell. The head
- * and ear skin is excluded (the head chart owns it, see
- * `AutoMovieHumanHeadField.owns`).
+ * so each vertical ray tests only the triangles above its cell. Head and
+ * ear skin (`AutoMovieHumanHeadField.owns`) enters only by triangles lying
+ * wholly below the menton (the vertex minus the head height): the head
+ * chains loft the neck and the base of the neck over the shoulders too,
+ * and those are body surface under the hair, while above the menton the
+ * head chart keeps the hair outside the head and a face or cranium
+ * overhanging a hanging strand must not read as a surface under it.
  */
 export namespace AutoMovieHumanShoulderField {
   /** Cell size, millimetres. */
@@ -46,7 +51,7 @@ export namespace AutoMovieHumanShoulderField {
    * Measure the field under a head.
    *
    * @param parts Generated body parts in metres
-   * @param head Head chart, for the window centre
+   * @param head Head chart, for the window centre and the menton level
    * @returns Height field
    */
   export function create(
@@ -58,6 +63,7 @@ export namespace AutoMovieHumanShoulderField {
     const x0: number = head.centre[0] - 180;
     const z0: number = head.centre[2] - 260;
     const bottom: number = head.top - 600;
+    const menton: number = head.top - head.height;
     const bins: number[][][] = Array.from(
       { length: nx * nz },
       (): number[][] => [],
@@ -65,7 +71,7 @@ export namespace AutoMovieHumanShoulderField {
 
     for (const part of parts) {
       if (!part.id.startsWith("human.skin.")) continue;
-      if (AutoMovieHumanHeadField.owns(part.id)) continue;
+      const headSkin: boolean = AutoMovieHumanHeadField.owns(part.id);
       if (part.geometry.type !== "mesh") continue;
       const p: number[] = part.geometry.mesh.positions;
       const index: number[] | null = part.geometry.mesh.indices;
@@ -76,7 +82,8 @@ export namespace AutoMovieHumanShoulderField {
           const v: number = index === null ? i + k : index[i + k]!;
           t.push(p[v * 3]! * 1000, p[v * 3 + 1]! * 1000, p[v * 3 + 2]! * 1000);
         }
-        if (Math.max(t[1]!, t[4]!, t[7]!) < bottom) continue;
+        const highest: number = Math.max(t[1]!, t[4]!, t[7]!);
+        if (highest < bottom || (headSkin && highest > menton)) continue;
 
         // Bin by horizontal bounding box.
         const i0: number = Math.max(
@@ -141,5 +148,41 @@ export namespace AutoMovieHumanShoulderField {
     const b: number = Math.floor((z - field.z0) / cell);
     if (a < 0 || b < 0 || a >= field.nx || b >= field.nz) return -Infinity;
     return field.heights[b * field.nx + a]!;
+  }
+
+  /**
+   * Horizontal gradient of the surface height, `[dh/dx, dh/dz]`.
+   *
+   * Central differences over two cells each way, one-sided where a
+   * neighbour has no skin below it, zero where neither has. Where the
+   * window steps from one surface to a higher one (the side of the neck,
+   * the back below the shoulder blades) the gradient is large and points
+   * into the higher surface, so `[-dh/dx, 1, -dh/dz]` approaches the
+   * horizontal outward normal of that wall.
+   *
+   * @param field Height field
+   * @param x Model x, millimetres
+   * @param z Model z, millimetres
+   * @returns Gradient, dimensionless
+   */
+  export function gradient(
+    field: IField,
+    x: number,
+    z: number,
+  ): [number, number] {
+    const d: number = 2 * cell;
+    const c: number = height(field, x, z);
+    const along: (dx: number, dz: number) => number = (
+      dx: number,
+      dz: number,
+    ): number => {
+      const f: number = height(field, x + dx, z + dz);
+      const b: number = height(field, x - dx, z - dz);
+      if (f > -Infinity && b > -Infinity) return (f - b) / (2 * d);
+      if (f > -Infinity && c > -Infinity) return (f - c) / d;
+      if (b > -Infinity && c > -Infinity) return (c - b) / d;
+      return 0;
+    };
+    return [along(d, 0), along(0, d)];
   }
 }

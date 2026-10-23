@@ -89,6 +89,107 @@ export namespace AutoMovieHumanAppearanceNoise {
   }
 
   /**
+   * Two-dimensional value noise that repeats every `period` cells in both
+   * coordinates, for images that tile a surface.
+   *
+   * @param seed Stream seed separating independent fields
+   * @param x First coordinate in lattice cells
+   * @param y Second coordinate in lattice cells
+   * @param period Positive integer period of both coordinates in cells
+   * @returns Smooth value in `[0, 1)`
+   */
+  export function tile2(
+    seed: number,
+    x: number,
+    y: number,
+    period: number,
+  ): number {
+    const i: number = Math.floor(x);
+    const j: number = Math.floor(y);
+    const tx: number = fade(x - i);
+    const ty: number = fade(y - j);
+    const i0: number = wrap(i, period);
+    const i1: number = wrap(i + 1, period);
+    const j0: number = wrap(j, period);
+    const j1: number = wrap(j + 1, period);
+    const a: number = hash(seed, i0, j0);
+    const b: number = hash(seed, i1, j0);
+    const c: number = hash(seed, i0, j1);
+    const d: number = hash(seed, i1, j1);
+    const lower: number = a + (b - a) * tx;
+    const upper: number = c + (d - c) * tx;
+    return lower + (upper - lower) * ty;
+  }
+
+  /**
+   * Three-dimensional value noise, for solid fields evaluated at surface
+   * positions so that a field has no chart seams.
+   *
+   * @param seed Stream seed separating independent fields
+   * @param x First coordinate in lattice cells
+   * @param y Second coordinate in lattice cells
+   * @param z Third coordinate in lattice cells
+   * @returns Smooth value in `[0, 1)`
+   */
+  export function value3(
+    seed: number,
+    x: number,
+    y: number,
+    z: number,
+  ): number {
+    const i: number = Math.floor(x);
+    const j: number = Math.floor(y);
+    const k: number = Math.floor(z);
+    const tx: number = fade(x - i);
+    const ty: number = fade(y - j);
+    const tz: number = fade(z - k);
+    const layer: (kk: number) => number = (kk: number): number => {
+      const a: number = hash(seed, i, j, kk);
+      const b: number = hash(seed, i + 1, j, kk);
+      const c: number = hash(seed, i, j + 1, kk);
+      const d: number = hash(seed, i + 1, j + 1, kk);
+      const lower: number = a + (b - a) * tx;
+      const upper: number = c + (d - c) * tx;
+      return lower + (upper - lower) * ty;
+    };
+    const near: number = layer(k);
+    return near + (layer(k + 1) - near) * tz;
+  }
+
+  /**
+   * Fractal sum of {@link value3} octaves, each doubling frequency and
+   * halving amplitude, normalised back to `[0, 1)`.
+   *
+   * @param seed Stream seed; each octave uses `seed + octave`
+   * @param x First coordinate in base lattice cells
+   * @param y Second coordinate in base lattice cells
+   * @param z Third coordinate in base lattice cells
+   * @param octaves Number of octaves, at least one
+   * @returns Smooth value in `[0, 1)`
+   */
+  export function fractal3(
+    seed: number,
+    x: number,
+    y: number,
+    z: number,
+    octaves: number,
+  ): number {
+    let sum: number = 0;
+    let weight: number = 0;
+    let amplitude: number = 1;
+    let frequency: number = 1;
+    for (let o: number = 0; o < octaves; ++o) {
+      sum +=
+        amplitude *
+        value3(seed + o, x * frequency, y * frequency, z * frequency);
+      weight += amplitude;
+      amplitude *= 0.5;
+      frequency *= 2;
+    }
+    return sum / weight;
+  }
+
+  /**
    * Fractal sum of {@link value2} octaves, each doubling frequency and
    * halving amplitude, normalised back to `[0, 1)`.
    *

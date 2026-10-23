@@ -128,4 +128,8 @@ From Gray 1918 surface anatomy ([gray-1918](../sources/gray-1918.md)), conventio
 - Whether `interface` needs a scapula bone or a Human-internal scapula driven by the shoulder bone.
 - How the T-pose rest frame relates to the measured standing posture, including where the acromion and the shoulder joint centre move during abduction.
 
+## Stickman skeleton
+
+The posable stickman skeleton, its joint-centre rules and the pose type's range-of-motion table are in [Joint range](joint-range.md).
+
 [Original anatomical synthesis](https://github.com/samchon/automovie/blob/025b645675266b610afa71cbd02c483a0962daac/packages/human/docs/anatomy/skeleton.md) preserves the earlier construction assumptions and model discrepancies. Its fitted offsets and reported implementation behavior are not current-cohort measurements or accepted generator laws.

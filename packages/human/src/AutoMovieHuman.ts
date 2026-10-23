@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieHumanAppearance } from "./appearance/AutoMovieHumanAppearance";
+import { AutoMovieHumanSkin } from "./appearance/AutoMovieHumanSkin";
 import type { IAutoMovieHumanAppearanceBody } from "./appearance/IAutoMovieHumanAppearanceBody";
 import { AutoMovieHumanBodyCalibration } from "./generation/AutoMovieHumanBodyCalibration";
 import { AutoMovieHumanBodyConstruction } from "./generation/AutoMovieHumanBodyConstruction";
@@ -28,17 +29,23 @@ import type { IAutoMovieHumanParameters } from "./structures/IAutoMovieHumanPara
  *   of a chain, shaped by the sections `<chain>/<k>` and `<chain>/<k+1>`;
  * - `human.construction.<chain>/<k>`: the principal section curve itself;
  * - `human.construction.<chain>/axis`: the chain's central axis;
+ * - `human.construction.<chain>/g<j>`: a guide, the fixed-phase Hermite curve
+ *   carrying the sections along the chain;
  * - `human.eye.<side>.<sclera|iris|cornea>`: appearance parts from
  *   `AutoMovieHumanAppearance`, placed on the generated head.
  *
  * Skin normals are computed on the whole closed skin before it is split,
- * so the parts render as one continuous surface. The viewer's overlay and
- * construction passes show the `human.construction.` parts.
+ * so the parts render as one continuous surface. `AutoMovieHumanSkin` then
+ * dresses the split pieces with texture coordinates, per-vertex albedo and
+ * relief weights and supplies the `human.skin` material and its generated
+ * images. The viewer's overlay and construction passes show the
+ * `human.construction.` parts.
  *
  * Current parameter consumption: `body.controls.height` scales the whole
- * calibrated body uniformly. Every other field is accepted and returned
- * unchanged without a shape response yet; girths, lengths, head, face and
- * extremity inputs get their laws in later campaign stages.
+ * calibrated body uniformly. `pigmentation` and `appearance.skin` drive the
+ * skin material (see `AutoMovieHumanSkin`). Every other field is accepted
+ * and returned unchanged without a shape response yet; girths, lengths,
+ * head, face and extremity inputs get their laws in later campaign stages.
  */
 export class AutoMovieHuman {
   /**
@@ -69,18 +76,28 @@ export class AutoMovieHuman {
     const curves: AutoMovieHumanBodyConstruction.ICurve[] =
       AutoMovieHumanBodyConstruction.generate(AutoMovieHumanBodyCalibration);
 
+    // Skin appearance is computed on the final pieces in calibration mm:
+    // texture coordinates, regional albedo and relief weights.
+    const dressed: AutoMovieHumanSkin.IOutput = AutoMovieHumanSkin.generate({
+      params,
+      pieces: skin,
+      eyes: AutoMovieHumanBodyCalibration.eyes,
+      apertures: AutoMovieHumanBodyCalibration.apertures,
+      stature: AutoMovieHumanBodyCalibration.stature,
+      scale,
+    });
+
     const body: IAutoMovieModelPart[] = [
-      ...skin.map(
-        (piece: AutoMovieHumanLoftMesh.IPiece): IAutoMovieModelPart =>
-          part("human.skin." + piece.name, "skin", piece, piece.normals, scale),
-      ),
+      ...dressed.parts,
       ...curves.map(
         (curve: AutoMovieHumanBodyConstruction.ICurve): IAutoMovieModelPart =>
           part(
             "human.construction." + curve.id,
             curve.kind === "axis"
               ? "construction.axes"
-              : "construction.sections",
+              : curve.kind === "guide"
+                ? "construction.guides"
+                : "construction.sections",
             curve.mesh,
             AutoMovieHumanLoftMesh.normals(curve.mesh),
             scale,
@@ -128,16 +145,15 @@ export class AutoMovieHuman {
       skeleton: null,
       body: null,
       materials: [
-        // Neutral inspection material: linear gray 0.8, the same as the
-        // reference photographs, so form is compared without appearance.
-        material("skin", [0.8, 0.8, 0.8], false),
+        ...dressed.materials,
 
         // Construction colours only separate the two layers on screen.
         material("construction.sections", [0.1, 0.35, 0.9], true),
         material("construction.axes", [0.9, 0.15, 0.1], true),
+        material("construction.guides", [0.1, 0.6, 0.25], true),
         ...appearance.materials,
       ],
-      images: appearance.images,
+      images: [...dressed.images, ...appearance.images],
       asset: null,
     };
     return { parameters: params, model };
@@ -147,7 +163,7 @@ export class AutoMovieHuman {
 /**
  * Mesh part from millimetre buffers, scaled into metres.
  *
- * @param id Part id: `human.skin.<chain>/<k>` or `human.construction.<curve id>`.
+ * @param id Part id: `human.construction.<curve id>`.
  * @param name Material name; the material id is `human.<name>`.
  * @param mesh Positions and indices in mm.
  * @param normals Unit vertex normals, unchanged by the uniform scale.

@@ -176,6 +176,34 @@ export namespace AutoMovieHumanHeadField {
       at(ia, ib + 1) + (at(ia + 1, ib + 1) - at(ia, ib + 1)) * ta;
     return lower + (upper - lower) * tb;
   }
+
+  /**
+   * Whether {@link radius} measures skin along a direction: every cell its
+   * bilinear interpolation reads holds a crossing. Next to directions that
+   * hit no skin (the open neck end) the interpolation blends a real radius
+   * with zero into a point inside the head, which is no skin point.
+   *
+   * @param field Head chart
+   * @param u Direction in the head-local frame; need not be unit
+   * @returns True when the radius there is a skin distance
+   */
+  export function covered(field: IField, u: [number, number, number]): boolean {
+    const length: number = Math.hypot(u[0], u[1], u[2]) || 1;
+    const alpha: number = Math.atan2(u[2], u[0]);
+    const beta: number = Math.asin(Math.max(-1, Math.min(1, u[1] / length)));
+    const ia: number = Math.floor((alpha / (2 * Math.PI)) * azimuthCells - 0.5);
+    const ib: number = Math.floor(
+      ((beta + Math.PI / 2) / Math.PI) * elevationCells - 0.5,
+    );
+    for (const j of [ib, ib + 1])
+      for (const i of [ia, ia + 1]) {
+        const cell: number =
+          Math.min(elevationCells - 1, Math.max(0, j)) * azimuthCells +
+          (((i % azimuthCells) + azimuthCells) % azimuthCells);
+        if (!(field.radii[cell]! > 0)) return false;
+      }
+    return true;
+  }
 }
 
 /**

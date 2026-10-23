@@ -16,17 +16,18 @@ import type { IAutoMovieHumanLoftAperture } from "./IAutoMovieHumanLoftAperture"
  * bridged across the opening); the aperture then removes the bridge by world
  * position, independently of which chain or phase rule produced it:
  *
- * 1. at every station whose height crosses the margin, the crossing points
- *    are inserted into the ring as vertices, so the hole boundary follows
- *    the margin instead of the ring sampling;
- * 2. every skin vertex is classified: inside when, seen along the aperture's
- *    `forward` axis, it falls inside the margin's outline and lies within the
- *    margin's depth window; on the margin when it is an inserted crossing;
- *    outside otherwise;
- * 3. triangles without an outside vertex are dropped.
+ * 1. every skin vertex near the opening takes its {@link signed} distance to
+ *    the margin seen along the aperture's `forward` axis, negative over the
+ *    opening;
+ * 2. every triangle is clipped at the zero level of that distance: the
+ *    margin crosses an edge where its two vertices differ in sign, a new
+ *    vertex is placed there by linear interpolation, and the part over the
+ *    opening is dropped.
  *
  * The resulting boundary is an open edge of the skin surface on the margin,
- * which is the anatomy: the skin is not closed over the eye.
+ * which is the anatomy: the skin is not closed over the eye. Clipping works
+ * on any mesh, whatever the orientation of the sections that built it, and
+ * traces the margin to the mesh resolution.
  */
 export namespace AutoMovieHumanLoftAperture {
   /** Point `[x, y, z]` in mm. */
@@ -38,7 +39,10 @@ export namespace AutoMovieHumanLoftAperture {
    * @param aperture Aperture data.
    * @param t Phase in radians.
    */
-  export function evaluate(aperture: IAutoMovieHumanLoftAperture, t: number): Point {
+  export function evaluate(
+    aperture: IAutoMovieHumanLoftAperture,
+    t: number,
+  ): Point {
     const w: number = 2 * aperture.order + 1;
     const out: Point = [0, 0, 0];
     for (let axis: number = 0; axis < 3; axis++) {
@@ -74,87 +78,202 @@ export namespace AutoMovieHumanLoftAperture {
   }
 
   /**
-   * Points where the margin crosses the horizontal plane at height y.
+   * The margin seen along the aperture's `forward` axis.
    *
-   * Linear interpolation between the dense samples on either side of each
-   * sign change; a closed margin crosses an interior height an even number
-   * of times, two for a lid margin.
+   * Points are projected onto the plane perpendicular to `forward`, spanned
+   * by `lateral` and `up`, and keep their depth along `forward`. `lateral`
+   * is `forward x` world up (world +X for an opening facing within 25
+   * degrees of vertical, such as a nostril, where that product vanishes), and
+   * `up = lateral x forward`, which is world up for a horizontal `forward`.
    */
-  export function crossings(margin: readonly Point[], y: number): Point[] {
-    const out: Point[] = [];
-    for (let i: number = 0; i < margin.length; i++) {
-      const a: Point = margin[i]!;
-      const b: Point = margin[(i + 1) % margin.length]!;
-      const da: number = a[1] - y;
-      const db: number = b[1] - y;
-      if (da === 0) out.push([a[0], a[1], a[2]]);
-      else if (da * db < 0) {
-        const f: number = da / (da - db);
-        out.push([a[0] + f * (b[0] - a[0]), y, a[2] + f * (b[2] - a[2])]);
-      }
-    }
-    return out;
+  export interface IOutline {
+    /** Unit direction the opening faces. */
+    forward: Point;
+
+    /** Unit lateral axis of the projection plane. */
+    lateral: Point;
+
+    /** Unit second axis of the projection plane, `lateral x forward`. */
+    up: Point;
+
+    /** Projected margin polyline `[lateral, up]`, mm. */
+    points: [number, number][];
+
+    /** Depth window along `forward`: the margin's own, widened by `depth`. */
+    window: [number, number];
+
+    /** Bounding box of `points`: `[lateral, up]` minimum then maximum. */
+    box: [number, number, number, number];
+  }
+
+  /** Project a dense margin along the aperture's `forward` axis. */
+  export function outline(
+    aperture: IAutoMovieHumanLoftAperture,
+    margin: readonly Point[],
+  ): IOutline {
+    const f: Point = aperture.forward;
+    const cross = (a: Readonly<Point>, b: Readonly<Point>): Point => [
+      a[1] * b[2] - a[2] * b[1],
+      a[2] * b[0] - a[0] * b[2],
+      a[0] * b[1] - a[1] * b[0],
+    ];
+    let lateral: Point = cross(f, [0, 1, 0]);
+    if (Math.hypot(...lateral) < 0.42) lateral = cross(f, [1, 0, 0]);
+    const length: number = Math.hypot(...lateral);
+    lateral = [lateral[0] / length, lateral[1] / length, lateral[2] / length];
+    const up: Point = cross(lateral, f);
+
+    let near: number = Infinity;
+    let far: number = -Infinity;
+    const box: [number, number, number, number] = [
+      Infinity,
+      Infinity,
+      -Infinity,
+      -Infinity,
+    ];
+    const points: [number, number][] = margin.map(
+      (q: Readonly<Point>): [number, number] => {
+        const [u, v] = project(lateral, up, q);
+        const depth: number = q[0] * f[0] + q[1] * f[1] + q[2] * f[2];
+        near = Math.min(near, depth);
+        far = Math.max(far, depth);
+        box[0] = Math.min(box[0], u);
+        box[1] = Math.min(box[1], v);
+        box[2] = Math.max(box[2], u);
+        box[3] = Math.max(box[3], v);
+        return [u, v];
+      },
+    );
+    return {
+      forward: f,
+      lateral,
+      up,
+      points,
+      window: [near - aperture.depth, far + aperture.depth],
+      box,
+    };
   }
 
   /**
-   * Whether a skin point lies over the opening.
+   * Signed distance from a skin point to the margin, seen along `forward`.
    *
-   * The point and the margin are projected along `forward` onto the plane
-   * spanned by world up and `forward x up`; the point is inside when its
-   * projection is inside the projected margin (even-odd rule) and its depth
-   * along `forward` is within the margin's depth range widened by `depth`
-   * mm, which keeps skin elsewhere on the head out of the test.
+   * The point is projected like the margin; the value is its distance to the
+   * projected polyline, negative when the projection lies inside it
+   * (even-odd rule). A point outside the depth window, or farther than
+   * `reach` mm from the outline's bounding box, is skin elsewhere on the
+   * body and gets `+Infinity`. The value is continuous across the margin, so
+   * its zero level between two vertices of opposite sign locates the margin
+   * on the edge joining them.
+   *
+   * @param outline Projected margin.
+   * @param p Skin point in mm.
+   * @param reach Distance beyond the bounding box still measured, mm.
    */
-  export function inside(
-    aperture: IAutoMovieHumanLoftAperture,
-    margin: readonly Point[],
+  export function signed(
+    outline: IOutline,
     p: Readonly<Point>,
-  ): boolean {
-    const f: Point = aperture.forward;
-    const up: Point = [0, 1, 0];
+    reach: number,
+  ): number {
+    const f: Point = outline.forward;
+    const depth: number = p[0] * f[0] + p[1] * f[1] + p[2] * f[2];
+    if (depth < outline.window[0] || depth > outline.window[1]) return Infinity;
+    const [u, v] = project(outline.lateral, outline.up, p);
+    const b: [number, number, number, number] = outline.box;
+    if (
+      u < b[0] - reach ||
+      v < b[1] - reach ||
+      u > b[2] + reach ||
+      v > b[3] + reach
+    )
+      return Infinity;
 
-    // Lateral axis: forward x up, so the projection plane is (lateral, up).
-    const l: Point = [
-      f[1] * up[2] - f[2] * up[1],
-      f[2] * up[0] - f[0] * up[2],
-      f[0] * up[1] - f[1] * up[0],
-    ];
-    const project = (q: Readonly<Point>): [number, number, number] => [
-      q[0] * l[0] + q[1] * l[1] + q[2] * l[2],
-      q[1],
-      q[0] * f[0] + q[1] * f[1] + q[2] * f[2],
-    ];
-
-    // Depth window of the margin along forward.
-    const pp: [number, number, number] = project(p);
-    let near: number = Infinity;
-    let far: number = -Infinity;
-    const outline: [number, number][] = margin.map(
-      (q: Readonly<Point>): [number, number] => {
-        const r: [number, number, number] = project(q);
-        near = Math.min(near, r[2]);
-        far = Math.max(far, r[2]);
-        return [r[0], r[1]];
-      },
-    );
-    if (pp[2] < near - aperture.depth || pp[2] > far + aperture.depth)
-      return false;
-
-    // Even-odd ray test in the projection plane.
+    // Nearest segment, and the even-odd ray test in the same pass.
+    let nearest: number = Infinity;
     let odd: boolean = false;
-    for (let i: number = 0, j: number = outline.length - 1; i < outline.length; j = i++) {
-      const a: [number, number] = outline[i]!;
-      const b: [number, number] = outline[j]!;
+    const points: [number, number][] = outline.points;
+    for (
+      let i: number = 0, j: number = points.length - 1;
+      i < points.length;
+      j = i++
+    ) {
+      const a: [number, number] = points[j]!;
+      const c: [number, number] = points[i]!;
+      const du: number = c[0] - a[0];
+      const dv: number = c[1] - a[1];
+      const l: number = du * du + dv * dv;
+      const w: number =
+        l > 0
+          ? Math.min(1, Math.max(0, ((u - a[0]) * du + (v - a[1]) * dv) / l))
+          : 0;
+      nearest = Math.min(
+        nearest,
+        (a[0] + w * du - u) ** 2 + (a[1] + w * dv - v) ** 2,
+      );
       if (
-        a[1] > pp[1] !== b[1] > pp[1] &&
-        pp[0] < ((b[0] - a[0]) * (pp[1] - a[1])) / (b[1] - a[1]) + a[0]
+        a[1] > v !== c[1] > v &&
+        u < ((c[0] - a[0]) * (v - a[1])) / (c[1] - a[1]) + a[0]
       )
         odd = !odd;
     }
-    return odd;
+    return odd ? -Math.sqrt(nearest) : Math.sqrt(nearest);
+  }
+
+  /**
+   * Move a point within the projection plane onto the projected margin.
+   *
+   * The point keeps its depth along `forward`; its in-plane position moves
+   * to the nearest point of the projected polyline. Used to place the
+   * vertices where the cut crosses the margin exactly on it, instead of
+   * where a linear interpolation of the signed distance put them.
+   *
+   * @param outline Projected margin.
+   * @param p Point in mm.
+   */
+  export function snap(outline: IOutline, p: Readonly<Point>): Point {
+    const [u, v] = project(outline.lateral, outline.up, p);
+    let best: number = Infinity;
+    let target: [number, number] = [u, v];
+    const points: [number, number][] = outline.points;
+    for (
+      let i: number = 0, j: number = points.length - 1;
+      i < points.length;
+      j = i++
+    ) {
+      const a: [number, number] = points[j]!;
+      const c: [number, number] = points[i]!;
+      const du: number = c[0] - a[0];
+      const dv: number = c[1] - a[1];
+      const l: number = du * du + dv * dv;
+      const w: number =
+        l > 0
+          ? Math.min(1, Math.max(0, ((u - a[0]) * du + (v - a[1]) * dv) / l))
+          : 0;
+      const d: number = (a[0] + w * du - u) ** 2 + (a[1] + w * dv - v) ** 2;
+      if (d < best) {
+        best = d;
+        target = [a[0] + w * du, a[1] + w * dv];
+      }
+    }
+    const du: number = target[0] - u;
+    const dv: number = target[1] - v;
+    return [0, 1, 2].map(
+      (k: number): number =>
+        p[k]! + du * outline.lateral[k]! + dv * outline.up[k]!,
+    ) as Point;
+  }
+
+  /** In-plane coordinates `[lateral, up]` of a point. */
+  function project(
+    lateral: Readonly<Point>,
+    up: Readonly<Point>,
+    p: Readonly<Point>,
+  ): [number, number] {
+    return [
+      p[0] * lateral[0] + p[1] * lateral[1] + p[2] * lateral[2],
+      p[0] * up[0] + p[1] * up[1] + p[2] * up[2],
+    ];
   }
 
   /** Margin samples used by the polyline. */
   const SAMPLES: number = 720;
 }
-

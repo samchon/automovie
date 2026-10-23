@@ -97,7 +97,10 @@ const COMMON: Array<[number, number]> = [
  *
  * Interior slopes are the harmonic mean of the neighbouring secants when
  * those agree in sign and zero otherwise, which keeps each piece within
- * its knot values; end slopes are the end secants.
+ * its knot values. End slopes are zero: the knots run from the front
+ * midline (0 degrees) to the back midline (180 degrees) of a boundary that
+ * is mirrored across both, so any other end slope would fold into a cusp
+ * there, a notch at the parting of the frontal hairline.
  *
  * @param knots Strictly increasing abscissae with values
  * @param x Abscissa, clamped to the knot range
@@ -114,8 +117,7 @@ function interpolate(knots: Array<[number, number]>, x: number): number {
   const secant: (i: number) => number = (i: number): number =>
     (knots[i + 1]![1] - knots[i]![1]) / (knots[i + 1]![0] - knots[i]![0]);
   const slope: (i: number) => number = (i: number): number => {
-    if (i === 0) return secant(0);
-    if (i === n - 1) return secant(n - 2);
+    if (i === 0 || i === n - 1) return 0;
     const a: number = secant(i - 1);
     const b: number = secant(i);
     return a * b <= 0 ? 0 : (2 * a * b) / (a + b);

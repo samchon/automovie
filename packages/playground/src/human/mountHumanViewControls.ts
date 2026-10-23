@@ -1,12 +1,13 @@
 import type { normalizeHumanView } from "./normalizeHumanView";
 
 /**
- * Add the free-view controls (axis view, azimuth, elevation, ortho, isolate, fit) to the toolbar.
+ * Add the free-view controls (axis view, azimuth, elevation, ortho, isolate, fit, garment) to the toolbar.
  *
  * Every change composes the controls into the same query text the URL uses
  * and hands it to `onChange`, so the page applies a toolbar change exactly as
- * it applies `?az=..&el=..&ortho=1&isolate=1&fit=selection`. Choosing an axis
- * view fills azimuth and elevation, the canonical form of the shorthand.
+ * it applies `?az=..&el=..&ortho=1&isolate=1&fit=selection&garment=0`. Choosing an axis
+ * view fills azimuth and elevation, the canonical form of the shorthand. The
+ * garment box starts checked, because garments are shown unless `garment=0`.
  *
  * @param toolbar Container the controls are appended to.
  * @param signal Removes every listener when aborted.
@@ -57,6 +58,8 @@ export function mountHumanViewControls(
   const ortho: HTMLInputElement = input("checkbox", "auto");
   const isolate: HTMLInputElement = input("checkbox", "auto");
   const fit: HTMLInputElement = input("checkbox", "auto");
+  const garment: HTMLInputElement = input("checkbox", "auto");
+  garment.checked = true;
   toolbar.append(
     axis,
     labelled("az", azimuth),
@@ -64,6 +67,7 @@ export function mountHumanViewControls(
     labelled("ortho", ortho),
     labelled("isolate", isolate),
     labelled("fit", fit),
+    labelled("garment", garment),
   );
 
   // Compose the URL form; an axis choice becomes explicit angles.
@@ -89,9 +93,18 @@ export function mountHumanViewControls(
     if (ortho.checked) query.push("ortho=1");
     if (isolate.checked) query.push("isolate=1");
     if (fit.checked) query.push("fit=selection");
+    if (!garment.checked) query.push("garment=0");
     onChange(query.join("&"));
   };
-  for (const control of [axis, azimuth, elevation, ortho, isolate, fit])
+  for (const control of [
+    axis,
+    azimuth,
+    elevation,
+    ortho,
+    isolate,
+    fit,
+    garment,
+  ])
     control.addEventListener("change", compose, { signal });
 
   return (view: normalizeHumanView.IView): void => {
@@ -100,5 +113,6 @@ export function mountHumanViewControls(
     ortho.checked = view.ortho;
     isolate.checked = view.isolate;
     fit.checked = view.fit === "selection";
+    garment.checked = view.garment;
   };
 }

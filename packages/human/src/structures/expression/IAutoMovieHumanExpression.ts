@@ -1,4 +1,5 @@
 import { IAutoMovieHumanActionUnitActivation } from "./IAutoMovieHumanActionUnitActivation";
+import type { IAutoMovieHumanMouthExpression } from "./IAutoMovieHumanMouthExpression";
 
 /**
  * A facial expression of one person at one instant, as intensities of FACS action units.
@@ -10,4 +11,7 @@ import { IAutoMovieHumanActionUnitActivation } from "./IAutoMovieHumanActionUnit
 export interface IAutoMovieHumanExpression {
   /** Acting units with their intensity and side. */
   units: IAutoMovieHumanActionUnitActivation[];
+
+  /** Lips, tongue and visemes as named fields; defined for speech, not consumed by the generator yet. */
+  mouth?: IAutoMovieHumanMouthExpression;
 }

@@ -9,7 +9,7 @@ import { humanCurveColour } from "./humanCurveColour";
  * curve throws, so a typo never renders an unselected frame. The skin
  * intervals a curve shapes follow the lofting rule: section `<chain>/<k>` is
  * the shared Hermite endpoint of intervals `<chain>/<k-1>` and `<chain>/<k>`,
- * and `<chain>/axis` shapes every interval of exactly that chain, not of its
+ * and `<chain>/axis` or a guide `<chain>/g<j>` shapes every interval of exactly that chain, not of its
  * child chains. Only the last `/` separates chain and layer, because chain
  * names contain dots. Selected curves keep pattern order (model order within
  * one glob) and take colours from {@link humanCurveColour} by that order.
@@ -62,7 +62,7 @@ export function resolveHumanCurves(
     const chain: string = id.slice(0, slash);
     const layer: string = id.slice(slash + 1);
     const intervals: string[] =
-      layer === "axis"
+      layer === "axis" || /^gd+$/.test(layer)
         ? skinIds.filter(
             (interval: string): boolean =>
               interval.slice(0, interval.lastIndexOf("/")) === chain,

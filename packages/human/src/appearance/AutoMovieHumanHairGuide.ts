@@ -31,18 +31,36 @@ import { AutoMovieHumanShoulderField } from "./AutoMovieHumanShoulderField";
  * Integration: each guide marches in equal steps along its length; the
  * heading relaxes toward the field and bends toward gravity in proportion
  * to the distance already grown (short hair stands in its field, long hair
- * falls). Every step keeps a clearance above the head skin: crop and
- * short hair is held at that clearance (it lies on the scalp and nape),
+ * falls). Every step above the menton keeps a clearance above the head
+ * as hair drapes over it, spreading from bumps such as the ears at 45
+ * degrees: crop and short hair is held at that clearance (it lies on the
+ * scalp and nape),
  * while a bob lies on the vault above the chart centre and hangs freely
- * below it, pushed out only where it would pass inside. A strand reaching
- * the shoulders' upper surface ends there (`AutoMovieHumanShoulderField`).
+ * below it, pushed out only where it would pass inside. The clearance is
+ * a common layer height with a small per-root jitter plus a growth with
+ * the length already grown, so each strand lies over the strands whose
+ * roots it passed and the cards form one continuous mass rather than a
+ * random stack. A strand reaching the body below the head
+ * (`AutoMovieHumanShoulderField`) rests on it: it settles at a clearance
+ * above the skin and descends the surface in its vertical plane through
+ * the head's axis, out from the neck, down and off the shoulders and the
+ * upper back, instead of stopping where it touched.
  * This is a kinematic sweep, not a strand simulation: there is no bending
  * energy or collision between strands, and its coefficients are
  * conventions of this prototype.
  *
  * Lengths follow the style definitions on {@link IAutoMovieHumanScalpHair.length}:
  * `crop` even; `short` tapering to a third at the nape and sides; `bob`
- * ending where it reaches a level `length` below the vertex.
+ * ending where it reaches a level `length` below the vertex, or, once
+ * resting on the body, after laying along it the drop it still had to
+ * that level. Every root's length, and with it a bob's level, varies by up
+ * to 4 percent either way, so the ends never line up along one cut.
+ *
+ * Normals: the scalp chart's outward direction where a strand lies on the
+ * head, the outward normal of a capsule about the chart centre (radial
+ * above the centre, horizontal below it) where it hangs, so hanging hair
+ * shades as the side of one hair mass, and halfway between that and the
+ * body's surface normal where it rests on the body.
  */
 export namespace AutoMovieHumanHairGuide {
   /** One solved guide. */
@@ -53,7 +71,7 @@ export namespace AutoMovieHumanHairGuide {
     /** Points from root to tip, head-local millimetres. */
     points: Array<[number, number, number]>;
 
-    /** Outward unit chart direction at each point. */
+    /** Outward unit normal of the hair mass at each point. */
     normals: Array<[number, number, number]>;
 
     /** Arc length of the polyline, millimetres. */
@@ -91,9 +109,9 @@ export namespace AutoMovieHumanHairGuide {
         r * Math.sin(k * golden),
       ];
 
-      // Keep roots above the hair-bearing boundary.
+      // Keep roots on measured skin above the hair-bearing boundary.
+      if (!AutoMovieHumanHeadField.covered(field, u)) continue;
       const distance: number = AutoMovieHumanHeadField.radius(field, u);
-      if (distance <= 0) continue;
       const above: number = field.centre[1] + u[1] * distance - field.eyeLevel;
       const boundary: number = AutoMovieHumanScalpBoundary.height(
         hair.hairline,
@@ -131,15 +149,23 @@ function solve(
 ): AutoMovieHumanHairGuide.IGuide | null {
   const style: AutoMovieHumanHairStyle = hair.style;
 
-  // Length of this root's hair.
+  // Length of this root's hair, varied by up to 4 percent either way so
+  // neighbouring ends never line up along one cut (convention).
+  const vary: number =
+    1 + 0.08 * (AutoMovieHumanAppearanceNoise.hash(12, root) - 0.5);
   const top: number = AutoMovieHumanAppearanceNoise.smoothstep(0.3, 0.75, u[1]);
   const length: number =
-    style === AutoMovieHumanHairStyle.Short
+    vary *
+    (style === AutoMovieHumanHairStyle.Short
       ? hair.length * (1 / 3 + (2 / 3) * top)
       : style === AutoMovieHumanHairStyle.Bob
         ? hair.length * 1.6
-        : hair.length;
-  const cut: number = field.top - hair.length;
+        : hair.length);
+  const cut: number = field.top - vary * hair.length;
+
+  // The head chart keeps strands outside the head down to the menton;
+  // below it the body field does (`AutoMovieHumanShoulderField`).
+  const menton: number = field.top - field.height;
 
   // Steps of at most 10 mm, at least three.
   const steps: number = Math.min(40, Math.max(3, Math.ceil(length / 10)));
@@ -168,9 +194,12 @@ function solve(
         ? 0.07
         : 0.04;
 
-  // Layer clearance: each root lies at its own height above the skin so
-  // overlapping cards never share a depth.
-  const layer: number = 0.8 + 3.5 * AutoMovieHumanAppearanceNoise.hash(7, root);
+  // Layer clearance: a common base with a jitter of 0.4 mm, below the
+  // stack gained between neighbouring roots, so a strand lies over the
+  // strands whose roots it has passed (the upstream hair on top) and the
+  // mass stays one continuous surface, while side-by-side cards never
+  // share a depth.
+  const layer: number = 1.2 + 0.4 * AutoMovieHumanAppearanceNoise.hash(7, root);
 
   const start: number = AutoMovieHumanHeadField.radius(field, u) + layer;
   let p: [number, number, number] = scale(u, start);
@@ -179,79 +208,304 @@ function solve(
   const normals: Array<[number, number, number]> = [u];
   let travelled: number = 0;
 
+  // Once a strand reaches the body it rests there: `surface` is the body
+  // normal under its last point (null while off the body) and `resting`
+  // the arc it may still lay along the body (null before the first
+  // contact).
+  let surface: [number, number, number] | null = null;
+  let resting: number | null = null;
+
   for (let i: number = 1; i <= steps && travelled < length; ++i) {
-    const n: [number, number, number] = unit(p);
-    const progress: number = travelled / Math.max(length, 1);
-    const target: [number, number, number] = tangent(flow(style, n), n);
-    heading = unit([
-      heading[0] +
-        adherence * (1 - progress) * (target[0] - heading[0]) +
-        gravity * progress * DOWN[0],
-      heading[1] +
-        adherence * (1 - progress) * (target[1] - heading[1]) +
-        gravity * progress * DOWN[1],
-      heading[2] +
-        adherence * (1 - progress) * (target[2] - heading[2]) +
-        gravity * progress * DOWN[2],
-    ]);
+    if (surface !== null) {
+      // On the body: down its surface, out from the neck, and off the
+      // shoulders and the upper back.
+      heading = descend(surface, p);
+    } else if (resting !== null) {
+      // Slid off the body: hangs freely, gravity at least equal to the
+      // heading per step so it does not fly out past the hair above it.
+      heading = unit(add(heading, scale(DOWN, Math.max(gravity, 1))));
+    } else {
+      const n: [number, number, number] = unit(p);
+      const progress: number = travelled / Math.max(length, 1);
+      const target: [number, number, number] = tangent(flow(style, n), n);
+      heading = unit([
+        heading[0] +
+          adherence * (1 - progress) * (target[0] - heading[0]) +
+          gravity * progress * DOWN[0],
+        heading[1] +
+          adherence * (1 - progress) * (target[1] - heading[1]) +
+          gravity * progress * DOWN[1],
+        heading[2] +
+          adherence * (1 - progress) * (target[2] - heading[2]) +
+          gravity * progress * DOWN[2],
+      ]);
+    }
 
-    // Advance, then push out to the clearance, which grows slowly with
-    // length as later hair stacks over earlier hair.
     let next: [number, number, number] = add(p, scale(heading, step));
-    const dir: [number, number, number] = unit(next);
-    const floor: number =
-      AutoMovieHumanHeadField.radius(field, dir) +
-      layer +
-      stack * (travelled + step);
-    // Short cuts lie on the head everywhere; a bob lies on the vault above
-    // the chart centre and hangs freely below it.
-    const lies: boolean = style !== AutoMovieHumanHairStyle.Bob || next[1] > 0;
-    if (norm(next) < floor || lies) {
-      const projected: [number, number, number] = scale(dir, floor);
+    let normal: [number, number, number] = capsule(next);
+    if (resting === null && next[1] + field.centre[1] > menton) {
+      // Push out to the clearance over the draped head ({@link envelope}),
+      // which grows slowly with length as later hair stacks over earlier
+      // hair.
+      const dir: [number, number, number] = unit(next);
+      const floor: number =
+        envelope(field, dir) + layer + stack * (travelled + step);
+      // Short cuts lie on the head everywhere; a bob lies on the vault
+      // above the chart centre and hangs freely below it.
+      const lies: boolean =
+        style !== AutoMovieHumanHairStyle.Bob || next[1] > 0;
+      if (norm(next) < floor || lies) {
+        const projected: [number, number, number] = scale(dir, floor);
 
-      // The chart is only star-shaped over the vault: where it jumps (an
-      // ear, the open neck end, the flare toward the shoulders) a projection
-      // can move a point much further than one step. Lying hair cannot
-      // follow such a jump, so it ends there; hanging hair is outside the
-      // head anyway and keeps its free step.
-      if (norm(sub(projected, p)) > 2.5 * step) {
-        if (lies) break;
-      } else {
-        next = projected;
-        heading = unit(sub(next, p));
+        // The chart is only star-shaped over the vault: where it jumps (an
+        // ear, the open neck end, the flare toward the shoulders) a
+        // projection can move a point much further than one step. Lying
+        // hair cannot follow such a jump, so it ends there; hanging hair is
+        // outside the head anyway and keeps its free step.
+        if (norm(sub(projected, p)) > 2.5 * step) {
+          if (lies) break;
+        } else {
+          next = projected;
+          heading = unit(sub(next, p));
+          if (lies) normal = dir;
+        }
       }
     }
 
-    // Reaching the shoulders ends the strand: it rests there.
-    const rest: number =
-      AutoMovieHumanShoulderField.height(
-        shoulders,
-        next[0] + field.centre[0],
-        next[2] + field.centre[2],
-      ) + 2;
-    if (next[1] + field.centre[1] < rest) break;
+    // Reaching the body: the strand settles on it and slides along it.
+    const contact: ISettled | null = settle(
+      field,
+      shoulders,
+      next,
+      layer + 1.5,
+      step,
+      resting !== null,
+    );
+    if (contact === null) break;
+    surface = contact.normal;
+    if (contact.normal !== null) {
+      // The settling displacement is not the strand's motion; from here it
+      // descends the body's surface, never climbing.
+      next = contact.point;
+      heading = descend(contact.normal, next);
 
-    // A bob ends at its level cut: stop at the crossing of that plane.
+      // Shade as halfway between the hanging mass and the body under it,
+      // so the hair keeps its tone where it meets the shoulders instead of
+      // turning into a separately lit shelf.
+      normal = unit(add(capsule(next), contact.normal));
+
+      // A bob rests along the body for the drop it still had to its level
+      // cut; other cuts for the rest of their length.
+      if (resting === null) {
+        resting =
+          style === AutoMovieHumanHairStyle.Bob
+            ? Math.min(length - travelled, next[1] + field.centre[1] - cut)
+            : length - travelled;
+        if (resting <= 0) break;
+      }
+    }
+
+    // A hanging bob ends at its level cut: stop at the crossing of that
+    // plane.
     const model: number = next[1] + field.centre[1];
-    if (style === AutoMovieHumanHairStyle.Bob && model < cut) {
+    if (
+      resting === null &&
+      style === AutoMovieHumanHairStyle.Bob &&
+      model < cut
+    ) {
       const above: number = p[1] + field.centre[1] - cut;
       const below: number = cut - model;
       const t: number = above / Math.max(above + below, 1e-9);
       next = add(p, scale(sub(next, p), t));
       travelled += norm(sub(next, p));
       points.push(next);
-      normals.push(unit(next));
+      normals.push(normal);
       break;
     }
 
-    travelled += norm(sub(next, p));
+    // A resting strand ends when it has laid its remaining arc.
+    const advance: number = norm(sub(next, p));
+    if (resting !== null) {
+      if (advance >= resting) {
+        next = add(p, scale(sub(next, p), resting / Math.max(advance, 1e-9)));
+        travelled += resting;
+        points.push(next);
+        normals.push(normal);
+        break;
+      }
+      resting -= advance;
+    }
+
+    travelled += advance;
     points.push(next);
-    normals.push(unit(next));
+    normals.push(normal);
     p = next;
   }
 
   if (points.length < 2 || travelled < 1) return null;
   return { root, points, normals, length: travelled };
+}
+
+/** A point settled against the body. */
+interface ISettled {
+  /** Point, head-local millimetres. */
+  point: [number, number, number];
+
+  /** Body normal under it, or null when it is clear of the body. */
+  normal: [number, number, number] | null;
+}
+
+/**
+ * Radius of the head as hair drapes over it along a direction: the largest
+ * of the skin radius there and, for skin above the menton within 0.3
+ * radian, its radius less its arc distance, as if the hair fell from every
+ * bump at 45 degrees to the surface.
+ *
+ * Over the rounded vault the skin's own radius wins. Over the auricle,
+ * which stands about 25 mm off the side of the head, hair passes over the
+ * ear on a slope and returns to the head about 25 mm beyond it, rather
+ * than stepping out at its rim and back in behind it. Sampled on six rings
+ * of eight directions, 0.05 radian apart.
+ *
+ * @param field Head chart
+ * @param d Unit direction
+ * @returns Draped radius, millimetres
+ */
+function envelope(
+  field: AutoMovieHumanHeadField.IField,
+  d: [number, number, number],
+): number {
+  let best: number = AutoMovieHumanHeadField.radius(field, d);
+  const a: [number, number, number] =
+    Math.abs(d[1]) < 0.9 ? [0, 1, 0] : [1, 0, 0];
+  const e1: [number, number, number] = unit(cross(a, d));
+  const e2: [number, number, number] = cross(d, e1);
+  for (let ring: number = 1; ring <= 6; ++ring) {
+    const theta: number = 0.05 * ring;
+    for (let k: number = 0; k < 8; ++k) {
+      const phi: number = ((k + 0.5 * (ring % 2)) / 8) * 2 * Math.PI;
+      const q: [number, number, number] = add(
+        scale(d, Math.cos(theta)),
+        add(
+          scale(e1, Math.sin(theta) * Math.cos(phi)),
+          scale(e2, Math.sin(theta) * Math.sin(phi)),
+        ),
+      );
+      const r: number = AutoMovieHumanHeadField.radius(field, q);
+      // Only head skin above the menton drapes the hair; below it the
+      // chart also measures the neck and shoulders the head chains loft.
+      if (field.centre[1] + q[1] * r > field.top - field.height)
+        best = Math.max(best, r * (1 - theta));
+    }
+  }
+  return best;
+}
+
+/**
+ * Settle a strand point against the body below the head.
+ *
+ * The body is the shoulder field's upper surface. Where it slopes by at
+ * most 45 degrees, a point less than half a step beyond `clearance` from
+ * it (height over the surface times the cosine of the slope), or inside
+ * it, lies on it: it moves vertically to that clearance and takes the
+ * surface normal. Once the strand rests, the margin is a step and a half,
+ * so resting hair follows a convex surface over its edge instead of
+ * leaving it on a tangent. A point is not lifted by more than two and a half
+ * steps. Where the field is steeper (the side of the neck, the back below
+ * a shoulder blade, or the edge between one surface and a lower one, where
+ * the gradient measures a step rather than a slope), a point lies on it
+ * only when it is less than `clearance` above the surface in its own
+ * column. Such a point, or one too deep for a lift, steps out horizontally
+ * down the gradient, a millimetre at a time up to three steps, to the
+ * first column it clears by `clearance`; lifting a strand up a wall would
+ * make it climb the body instead of hanging beside it.
+ *
+ * @param field Head chart, for the model offset
+ * @param shoulders Body surface heights
+ * @param next Candidate point, head-local millimetres
+ * @param clearance Distance from the skin, millimetres
+ * @param step Guide step, millimetres
+ * @param resting Whether the strand already rests on the body
+ * @returns The settled point, or null when no clear point is found
+ */
+function settle(
+  field: AutoMovieHumanHeadField.IField,
+  shoulders: AutoMovieHumanShoulderField.IField,
+  next: [number, number, number],
+  clearance: number,
+  step: number,
+  resting: boolean,
+): ISettled | null {
+  const [cx, cy, cz] = field.centre;
+  const x: number = next[0] + cx;
+  const y: number = next[1] + cy;
+  const z: number = next[2] + cz;
+  const h: number = AutoMovieHumanShoulderField.height(shoulders, x, z);
+  if (h === -Infinity) return { point: next, normal: null };
+
+  const [gx, gz] = AutoMovieHumanShoulderField.gradient(shoulders, x, z);
+  const g: number = Math.hypot(gx, gz);
+  const normal: [number, number, number] = unit([-gx, 1, -gz]);
+  if (g <= 1) {
+    const secant: number = Math.hypot(1, g);
+    if (y - h >= (clearance + (resting ? 1.5 : 0.5) * step) * secant)
+      return { point: next, normal: null };
+    const lift: number = h + clearance * secant - y;
+    if (lift <= 2.5 * step)
+      return {
+        point: [next[0], next[1] + lift, next[2]],
+        normal,
+      };
+  } else if (y >= h + clearance) return { point: next, normal: null };
+
+  if (g < 1e-9) return null;
+  const dx: number = -gx / g;
+  const dz: number = -gz / g;
+  for (let d: number = 1; d <= 3 * step; d += 1) {
+    const hx: number = x + dx * d;
+    const hz: number = z + dz * d;
+    const below: number = AutoMovieHumanShoulderField.height(shoulders, hx, hz);
+    if (y >= below + clearance)
+      return { point: [hx - cx, next[1], hz - cz], normal };
+  }
+  return null;
+}
+
+/**
+ * Heading of a strand resting on the body: down the body's surface within
+ * the vertical plane through the head's vertical axis, so resting strands
+ * move out from the neck and down the shoulders and back without parting
+ * along a ridge such as the spine, where the surface's own fall line turns
+ * to either side; level where the surface rises outward, since resting
+ * hair never climbs.
+ *
+ * @param n Unit body normal, upward component positive
+ * @param p Current point, head-local millimetres
+ * @returns Unit heading
+ */
+function descend(
+  n: [number, number, number],
+  p: [number, number, number],
+): [number, number, number] {
+  const r: number = Math.hypot(p[0], p[2]);
+  const d: [number, number, number] =
+    r > 1e-9 ? [p[0] / r, 0, p[2] / r] : [1, 0, 0];
+  const s: number = Math.min(0, -dot(n, d) / Math.max(n[1], 1e-3));
+  return unit([d[0], s, d[2]]);
+}
+
+/**
+ * Outward normal of the hair mass at a free point: a capsule about the
+ * chart centre, radial above the centre and horizontal below it, so
+ * hanging hair shades like the side of a column rather than the underside
+ * of a sphere.
+ *
+ * @param p Point, head-local millimetres
+ * @returns Unit normal
+ */
+function capsule(p: [number, number, number]): [number, number, number] {
+  const q: [number, number, number] = [p[0], Math.max(0, p[1]), p[2]];
+  return norm(q) > 1e-9 ? unit(q) : [1, 0, 0];
 }
 
 /**
@@ -282,8 +536,9 @@ function flow(
     u[1],
   );
   if (style === AutoMovieHumanHairStyle.Short) {
-    // Side parting at a fifth of the radius toward the person's left (+Z).
-    const side: number = Math.sign(u[2] - 0.2) || 1;
+    // Side parting at a fifth of the radius toward the person's left (+Z),
+    // its side ramped over 0.01 either way (see {@link parting}).
+    const side: number = parting(u[2] - 0.2);
     const top: [number, number, number] = [-1, 0, 0.7 * side];
     const rest: [number, number, number] = [-0.4, -1, 0];
 
@@ -298,8 +553,9 @@ function flow(
     return add(scale(top, w), scale(rest, 1 - w));
   }
 
-  // Bob: midline parting; back hair falls straight.
-  const side: number = Math.sign(u[2]) || 1;
+  // Bob: midline parting, ramped like the side parting; back hair falls
+  // straight.
+  const side: number = parting(u[2]);
   const back: number = AutoMovieHumanAppearanceNoise.smoothstep(
     -0.1,
     -0.5,
@@ -309,6 +565,20 @@ function flow(
   const fall: [number, number, number] = [-0.3, -1, 0];
   const mix: number = upper * (1 - back);
   return add(scale(swept, mix), scale(fall, 1 - mix));
+}
+
+/**
+ * Side of a parting, ramped linearly across a band of 0.01 either way
+ * (about 1 mm on an adult scalp) instead of switching sign, so a strand
+ * whose path grazes the parting line meets a continuous field rather than
+ * one flipping it back and forth across the line, which zigzags and twists
+ * its card.
+ *
+ * @param offset Signed lateral chart coordinate from the parting line
+ * @returns Side in `[-1, 1]`
+ */
+function parting(offset: number): number {
+  return Math.max(-1, Math.min(1, offset / 0.01));
 }
 
 /**

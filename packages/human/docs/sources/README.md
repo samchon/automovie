@@ -22,7 +22,9 @@ Each note retains its source, reading scope, units, population and limitations. 
 
 ## Rigging and deformation
 
+- [Abdrashitov et al. 2023, robust skin weight transfer](abdrashitov-2023-skin-weight-transfer.md)
 - [Baran and Popović 2007, Pinocchio heat weights](baran-popovic-2007-pinocchio.md)
+- [Blender, Surface Deform and Shrinkwrap modifiers](blender-surface-deform-shrinkwrap.md)
 - [Jacobson et al. 2011, bounded biharmonic weights](jacobson-2011-bounded-biharmonic-weights.md)
 - [Joshi et al. 2007, harmonic coordinates](joshi-2007-harmonic-coordinates.md)
 - [Ju et al. 2005, mean value coordinates](ju-2005-mean-value-coordinates.md)
@@ -31,6 +33,7 @@ Each note retains its source, reading scope, units, population and limitations. 
 - [Le and Lewis 2019, Direct Delta Mush](le-lewis-2019-direct-delta-mush.md)
 - [Lewis et al. 2000, pose space deformation](lewis-2000-pose-space-deformation.md)
 - [Loper et al. 2015, SMPL](loper-2015-smpl.md)
+- [Ma et al. 2020, CAPE clothing displacements](ma-2020-cape.md)
 - [Maya, geodesic voxel binding](maya-geodesic-voxel-binding.md)
 - [Maya, wrap deformer node](maya-wrap-deformer.md)
 - [Meta (Oculus) Lipsync viseme reference](meta-ovrlipsync-visemes.md)

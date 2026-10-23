@@ -2,6 +2,7 @@ import { tags } from "typia";
 
 import { IAutoMovieHumanAcne } from "./IAutoMovieHumanAcne";
 import { IAutoMovieHumanFreckles } from "./IAutoMovieHumanFreckles";
+import { IAutoMovieHumanMoles } from "./IAutoMovieHumanMoles";
 
 /**
  * Skin surface finish on top of the identity's pigmentation.
@@ -22,6 +23,9 @@ export interface IAutoMovieHumanSkinAppearance {
 
   /** Freckle pigment marks; omitted or zero density/contrast requests no marks. */
   freckles?: IAutoMovieHumanFreckles;
+
+  /** Moles and beauty marks; omitted or zero count/contrast requests none. */
+  moles?: IAutoMovieHumanMoles;
 
   /** Inflamed spot appearance and shallow papule relief; omitted or zero density/severity requests none. This is an appearance control, not a diagnosis or scar model. */
   acne?: IAutoMovieHumanAcne;

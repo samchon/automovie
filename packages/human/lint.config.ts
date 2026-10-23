@@ -26,9 +26,20 @@ const READERS: string[] = [
 
 /** Public API and parameter vocabulary with their permitted dependencies. */
 const LAYERS: Array<[string, string[]]> = [
-  ["api", ["appearance", "generation", "lofting", "structures", "typings"]],
+  [
+    "api",
+    [
+      "appearance",
+      "generation",
+      "lofting",
+      "skeleton",
+      "structures",
+      "typings",
+    ],
+  ],
   ["appearance", ["generation", "lofting", "structures", "typings"]],
   ["generation", ["lofting", "structures", "typings"]],
+  ["skeleton", ["generation", "lofting", "structures", "typings"]],
   ["lofting", []],
   ["typings", []],
   ["structures", ["typings"]],

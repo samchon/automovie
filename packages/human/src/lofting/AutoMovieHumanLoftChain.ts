@@ -141,11 +141,16 @@ export namespace AutoMovieHumanLoftChain {
   /**
    * Section plane at station s.
    *
-   * Two unframed layers bound a horizontal interval and give the horizontal
-   * frame at s exactly. Otherwise the frame interpolates the two layers'
-   * frames, an unframed layer counting as horizontal at its station; origin
-   * tangents are Catmull-Rom differences of the neighbouring origins, scaled
-   * from per-station to per-unit-parameter by the interval width.
+   * An interval whose two layers and their outer neighbours are unframed is
+   * horizontal and gives the horizontal frame at s exactly. Otherwise the
+   * frame interpolates the two layers' frames, an unframed layer counting as
+   * horizontal at its station. Origin tangents are Catmull-Rom differences
+   * of the neighbouring origins, and angular velocities the three-point
+   * differences of the neighbouring rotations (one-sided, exact for a
+   * quadratic turn, at the chain's ends); both are scaled from per-station
+   * to per-unit-parameter by the interval width. A layer's tangent and
+   * angular velocity are the same for both of its intervals, so the plane
+   * moves and turns C1 along the chain.
    */
   export function frame(
     chain: IAutoMovieHumanLoftChain,
@@ -155,7 +160,12 @@ export namespace AutoMovieHumanLoftChain {
     const [lo, hi] = bracket(chain, s);
     const a: IAutoMovieHumanLoftChain.ILayer = layers[lo]!;
     const b: IAutoMovieHumanLoftChain.ILayer = layers[hi]!;
-    if (a.frame === undefined && b.frame === undefined)
+    if (
+      a.frame === undefined &&
+      b.frame === undefined &&
+      layers[lo - 1]?.frame === undefined &&
+      layers[hi + 1]?.frame === undefined
+    )
       return AutoMovieHumanLoftFrame.horizontal(s);
 
     const frameOf = (k: number): AutoMovieHumanLoftFrame.IFrame =>
@@ -174,12 +184,50 @@ export namespace AutoMovieHumanLoftChain {
       ) as [number, number, number];
     };
 
+    // Angular velocity at layer k, per unit parameter of this interval:
+    // the three-point derivative of the rotation from the constant turns of
+    // its two intervals, (h1 r0 + h0 r1) / (h0 + h1) inside the chain and
+    // r0 + (r0 - r1) h0 / (h0 + h1) at an end (r0 the end interval's turn,
+    // r1 the next one's).
+    const turn = (i: number): [number, number, number] =>
+      AutoMovieHumanLoftFrame.rate(
+        frameOf(i),
+        frameOf(i + 1),
+        layers[i + 1]!.y - layers[i]!.y,
+      );
+    const span = (i: number): number => layers[i + 1]!.y - layers[i]!.y;
+    const velocity = (k: number): [number, number, number] => {
+      const last: number = layers.length - 1;
+      let w: [number, number, number];
+      if (last === 1) w = turn(0);
+      else if (k === 0 || k === last) {
+        const [i0, i1] = k === 0 ? [0, 1] : [last - 1, last - 2];
+        const r0: [number, number, number] = turn(i0);
+        const r1: [number, number, number] = turn(i1);
+        const f: number = span(i0) / (span(i0) + span(i1));
+        w = [0, 1, 2].map(
+          (i: number): number => r0[i]! + (r0[i]! - r1[i]!) * f,
+        ) as [number, number, number];
+      } else {
+        const r0: [number, number, number] = turn(k - 1);
+        const r1: [number, number, number] = turn(k);
+        const h0: number = span(k - 1);
+        const h1: number = span(k);
+        w = [0, 1, 2].map(
+          (i: number): number => (h1 * r0[i]! + h0 * r1[i]!) / (h0 + h1),
+        ) as [number, number, number];
+      }
+      return [w[0] * H, w[1] * H, w[2] * H];
+    };
+
     return AutoMovieHumanLoftFrame.interpolate(
       frameOf(lo),
       frameOf(hi),
       tangent(lo),
       tangent(hi),
       Math.min(1, Math.max(0, (s - a.y) / H)),
+      velocity(lo),
+      velocity(hi),
     );
   }
 

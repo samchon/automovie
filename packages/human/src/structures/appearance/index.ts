@@ -3,6 +3,7 @@ export * from "./IAutoMovieHumanAppearance";
 export * from "./IAutoMovieHumanBrowAppearance";
 export * from "./IAutoMovieHumanEyelash";
 export * from "./IAutoMovieHumanFreckles";
+export * from "./IAutoMovieHumanMoles";
 export * from "./IAutoMovieHumanPigmentation";
 export * from "./IAutoMovieHumanScalpHair";
 export * from "./IAutoMovieHumanSkinAppearance";

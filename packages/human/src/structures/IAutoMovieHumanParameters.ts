@@ -27,7 +27,7 @@ export interface IAutoMovieHumanParameters {
   /** Constitutive skin and iris pigmentation. */
   pigmentation?: IAutoMovieHumanPigmentation;
 
-  /** Rest-relative joint coordinates. */
+  /** Joint angles of every movable joint in clinical degrees; omitted joints keep the generated rest posture. */
   pose?: IAutoMovieHumanPose;
 
   /** Facial action-unit intensities. */

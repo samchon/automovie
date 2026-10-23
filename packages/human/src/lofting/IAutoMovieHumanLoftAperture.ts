@@ -20,4 +20,12 @@ export interface IAutoMovieHumanLoftAperture {
 
   /** Depth tolerance of the inside test beyond the margin's own depth, mm. */
   depth: number;
+
+  /**
+   * Depth of the closed pocket behind an opening with no globe, such as a
+   * nostril, mm: the margin is pushed this far back along `forward` and
+   * closed. Absent or zero leaves the opening as an open hole; an opening
+   * with a globe behind it takes its depth from the globe instead.
+   */
+  pocket?: number;
 }
