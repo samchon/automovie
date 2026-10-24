@@ -240,7 +240,8 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
       }
       place();
       dom.empty.hidden = true;
-      const { generateMilliseconds, bounds } = model.loaded;
+      const { generateMilliseconds, bounds }: IHumanViewerPage.ILoaded =
+        model.loaded;
       dom.state.textContent = JSON.stringify(
         {
           generation,
@@ -282,7 +283,10 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
     parameters: IAutoMovieHumanParameters,
     alias: string | null,
   ) => () => IProduced =
-    (parameters: IAutoMovieHumanParameters, alias: string | null) =>
+    (
+      parameters: IAutoMovieHumanParameters,
+      alias: string | null,
+    ): (() => IProduced) =>
     (): IProduced => {
       const start: number = performance.now();
       const result: IAutoMovieHumanGenerated =

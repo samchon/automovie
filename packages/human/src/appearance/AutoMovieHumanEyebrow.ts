@@ -102,7 +102,9 @@ export namespace AutoMovieHumanEyebrow {
       lid.samples[lid.lateral]!.contact;
     const sign: number = E.dot(E.sub(lateral, medial), g.lateral) >= 0 ? 1 : -1;
     const temple: AutoMovieHumanEyelid.Point = E.scale(g.lateral, sign);
-    const a = (p: Readonly<AutoMovieHumanEyelid.Point>): number =>
+    const a: (p: Readonly<AutoMovieHumanEyelid.Point>) => number = (
+      p: Readonly<AutoMovieHumanEyelid.Point>,
+    ): number =>
       E.dot(E.sub(p, medial), temple);
     const stations: Record<string, number> = {
       head: -1,
@@ -112,13 +114,17 @@ export namespace AutoMovieHumanEyebrow {
       end: a(lateral) + 9,
     };
     const controls: { a: number; mid: number; width: number }[] = CONTROLS.map(
-      (c: { at: string; upper: number; width: number }) => ({
+      (c: {
+        at: string;
+        upper: number;
+        width: number;
+      }): { a: number; mid: number; width: number } => ({
         a: stations[c.at]!,
         mid: c.upper - c.width / 2,
         width: c.width,
       }),
     );
-    const brow = (
+    const brow: (t: number) => ReturnType<typeof curve> = (
       t: number,
     ): { a: number; mid: number; width: number; slope: number } =>
       curve(controls, t);
@@ -131,8 +137,11 @@ export namespace AutoMovieHumanEyebrow {
 
     // Face-plane point of brow coordinates: t along (0 head, 1 tail), v
     // across (-1 lower border, +1 upper).
-    const face = (t: number, v: number): [number, number] => {
-      const b = brow(t);
+    const face: (t: number, v: number) => [number, number] = (
+      t: number,
+      v: number,
+    ): [number, number] => {
+      const b: ReturnType<typeof brow> = brow(t);
       return [b.a, b.mid + (v * b.width) / 2];
     };
 
@@ -158,7 +167,7 @@ export namespace AutoMovieHumanEyebrow {
       if (N.hash(seed, tries, 3) > keep) continue;
 
       // Direction in the face plane, from the brow axis toward the temple.
-      const b = brow(t);
+      const b: ReturnType<typeof brow> = brow(t);
       const axis: number = Math.atan(b.slope);
       const head: number = 1 - E.smoothstep(0.06, 0.2, t);
       const tail: number = E.smoothstep(0.7, 0.95, t);
@@ -173,7 +182,7 @@ export namespace AutoMovieHumanEyebrow {
 
       // Hair points along the face plane, projected onto the skin and
       // lifted off it along its normal.
-      const [ra, rh] = face(t, v);
+      const [ra, rh]: [number, number] = face(t, v);
       const points: AutoMovieHumanEyelid.Point[] = [];
       const normals: AutoMovieHumanEyelid.Point[] = [];
       for (let k: number = 0; k <= SEGMENTS; k++) {
@@ -181,7 +190,8 @@ export namespace AutoMovieHumanEyebrow {
         const bend: number = 0.15 * s * s * (N.hash(seed, tries, 6) - 0.5);
         const da: number = Math.cos(angle + bend) * hair * s;
         const dh: number = Math.sin(angle + bend) * hair * s;
-        const hit = skin.project(ra + da, rh + dh);
+        const hit: ReturnType<AutoMovieHumanBrowProjector["project"]> =
+          skin.project(ra + da, rh + dh);
         if (hit === null) break;
         const lift: number =
           0.04 + hair * Math.tan((8 * Math.PI) / 180) * s * (1 - 0.7 * s);
@@ -205,7 +215,9 @@ export namespace AutoMovieHumanEyebrow {
     brow: IAutoMovieHumanBrowAppearance,
     side: "left" | "right",
   ): IAutoMovieMaterial {
-    const [r, g, b] = AutoMovieHumanHairShade.linear(brow.color);
+    const [r, g, b]: [number, number, number] = AutoMovieHumanHairShade.linear(
+      brow.color,
+    );
     return {
       id: `human.hair.brows.${side}`,
       name: "eyebrows",
@@ -266,7 +278,7 @@ export namespace AutoMovieHumanEyebrow {
           (3 * u * u - 2 * u) * mb,
       ];
     };
-    const [mid, slope] = profile("mid");
+    const [mid, slope]: [number, number] = profile("mid");
     return {
       a: distance,
       mid,

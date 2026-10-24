@@ -64,12 +64,12 @@ export class AutoMovieHumanBrowProjector {
           ],
         );
         const lo: [number, number] = [
-          Math.min(...plane.map((q) => q[0])),
-          Math.min(...plane.map((q) => q[1])),
+          Math.min(...plane.map((q: [number, number]): number => q[0])),
+          Math.min(...plane.map((q: [number, number]): number => q[1])),
         ];
         const hi: [number, number] = [
-          Math.max(...plane.map((q) => q[0])),
-          Math.max(...plane.map((q) => q[1])),
+          Math.max(...plane.map((q: [number, number]): number => q[0])),
+          Math.max(...plane.map((q: [number, number]): number => q[1])),
         ];
         if (hi[0] < -15 || lo[0] > 60 || hi[1] < 5 || lo[1] > 45) continue;
         const id: number = data.length / 18;
@@ -140,12 +140,16 @@ export class AutoMovieHumanBrowProjector {
     const d: Float64Array = this.triangles;
     for (const id of list) {
       const o: number = id * 18;
-      const P = (k: number): AutoMovieHumanEyelid.Point => [
+      const P: (k: number) => AutoMovieHumanEyelid.Point = (
+        k: number,
+      ): AutoMovieHumanEyelid.Point => [
         d[o + 6 * k]!,
         d[o + 6 * k + 1]!,
         d[o + 6 * k + 2]!,
       ];
-      const Nn = (k: number): AutoMovieHumanEyelid.Point => [
+      const Nn: (k: number) => AutoMovieHumanEyelid.Point = (
+        k: number,
+      ): AutoMovieHumanEyelid.Point => [
         d[o + 6 * k + 3]!,
         d[o + 6 * k + 4]!,
         d[o + 6 * k + 5]!,

@@ -127,7 +127,7 @@ export namespace AutoMovieHumanBodyApertures {
     phases: readonly number[],
   ): number[] {
     if (!apertures.length) return [...heights];
-    const near = (s: number): boolean =>
+    const near: (s: number) => boolean = (s: number): boolean =>
       AutoMovieHumanLoftChain.ring(target, s, phases).some(
         (p: [number, number, number]): boolean =>
           apertures.some(

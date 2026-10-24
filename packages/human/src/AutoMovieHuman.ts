@@ -130,7 +130,7 @@ export class AutoMovieHuman {
     // Appearance is placed on the generated body. Eye frames are the
     // calibrated eyeball globes behind the eyelid apertures, scaled with the
     // body into metres; the line of sight is forward (+X) and up is +Y.
-    const eye = (
+    const eye: (side: "left" | "right") => IAutoMovieHumanAppearanceBody.IEye = (
       side: "left" | "right",
     ): IAutoMovieHumanAppearanceBody.IEye => {
       const found: IAutoMovieHumanBodyCalibration.IEye | undefined =
