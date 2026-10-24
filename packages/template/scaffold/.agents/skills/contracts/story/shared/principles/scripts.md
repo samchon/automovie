@@ -1,0 +1,15 @@
+# Script principles
+
+Each script H2 answers for an executable scene or inseparable audiovisual progression within the script's chosen partition. Scripts already contain full action, actual dialogue, staging, and a viewing position.
+
+## Can the scene be performed in its written order? {#executable-scene}
+
+Does it start in an executable block rather than a planning summary, establish time, space, participants or forces, access, inherited pressure, and the initiating condition, then perform action, process, exchange, reaction, and an observable exit state? Blocks follow meaningful changes of action, response, process, time, space, form, or view. Separate speakers and place interruption, silence, and simultaneous action beside the operation they change. Their length and division carry urgency, duration, humor, or stillness rather than a fixed line count or a gesture on every line.
+
+Consequential questions, lies, bargains, refusals, interruptions, and silences need the actual words, tactics, actions, and reactions that change choice, knowledge, power, or relationship. Specify delivery only where tone, volume, pace, or interruption changes meaning. Include the movement, objects, environment, physical limits, and time that affect the exchange. A reactionless beat list, reported exchange, buried decisive quotation, unexplained transition, or result without its execution fails. Observational, ritual, nonhuman, or formal processes need their actual operation rather than invented conflict. The exit follows from the final operation; do not append a redundant image, gesture, or conclusion to restate it.
+
+## Can the established scene be seen and heard consistently? {#audiovisual-staging}
+
+Does the opening and every meaningful change establish the used area, interior or exterior, story day and time, light sources and color, weather, and audiovisual mood through visible and audible conditions? Locate bodies and movement within the place, their expressions, gaze, appearance, clothing, possessions, and sounds inside the scene. Use canonical names and appearance terms, adding changed states rather than redescribing everything. Dimensions, sightlines, props, light, costume, and sound must fit settings and inherited state. Unperformable inner explanation needs visible action, sound, or an explicitly adopted voiceover, caption, or inserted form.
+
+At each block, is it clear what is seen, from what scale and angle, with what movement and point of focus? A declared fixed view can supply that rule. A missing view, impossible sightline, or habitual composition that conceals the scene's changing force fails. Track each participant's knowledge, belief, doubt, and error through an actual path such as speech, observation, document, silence, or absence; distinguish what the audience sees from what a participant knows. Scripts establish meaningful emphasis and viewing positions; final screenplay still owns their finished audiovisual realization, transitions, attention, and duration. Lens numbers, music composition, and inconsequential acting detail remain production choices unless the work requires them.

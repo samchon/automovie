@@ -32,6 +32,7 @@ npm run evidence
 | [`@automovie/recovery`](./packages/recovery) | Registered-mesh observation, saved-curve reconstruction, and immutable artifact hosts |
 | [`@automovie/viewer`](./packages/viewer) | Three.js display, capture, and inspection |
 | [`@automovie/render`](./packages/render) | Frame, sequence, and video render planning |
+| [`@automovie/evidence`](./packages/evidence) | Engineering evidence defaults and optional narrative lifecycle checking |
 | [`@automovie/template`](./packages/template) | The scaffold every production starts from |
 | [`automovie`](./packages/cli) | The CLI that installs the scaffold |
 | [`@automovie/playground`](./packages/playground) | Browser demonstrations of engine motion, film, and physics |

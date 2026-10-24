@@ -40,6 +40,7 @@
   "include": [
     "lint.config.ts",
     "evidence.config.ts",
+    "production.check.ts",
     "src",
     "test"
   ],
@@ -47,6 +48,7 @@
     "lint": "ttsc --cache-dir node_modules/.cache/ttsc --noEmit -p package.json",
     "format": "ttsc format --cache-dir node_modules/.cache/ttsc -p package.json",
     "evidence": "evidence",
+    "production:check": "ttsx --cache-dir node_modules/.cache/ttsc -P package.json production.check.ts",
     "test": "ttsx --cache-dir node_modules/.cache/ttsc -P package.json test/index.ts"
   },
   "dependencies": {
@@ -59,6 +61,7 @@
     "@automovie/render": "{{version:render}}"
   },
   "devDependencies": {
+    "@automovie/evidence": "{{version:evidence}}",
     "@ttsc/lint": "{{version:ttscLint}}",
     "@types/node": "{{version:nodeTypes}}",
     "ttsc": "{{version:ttsc}}",
