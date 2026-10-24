@@ -21,6 +21,8 @@ A stale ownership record for an already dead service never authorizes killing a 
 
 Source-only overlays and bounds-relative tiles do not establish independent skin or dedicated close-ups. If no broad-form progress appears, reconsider correspondence and representation rather than increasing precision, layers or wrappers.
 
+Qualify source-domain admission, boundary fitting, interior regularity, embedding, runtime integration and visual acceptance separately. A sampled or partial numerical round proves only its stated coverage. An off-live candidate is not a rendered improvement; preserve rejected candidates as counterexamples without reusing their passing subchecks as whole-surface acceptance.
+
 ## Lines And Ripples On The Skin
 
 Trace a crease, stripe or ripple to the curves that generate it before changing any fitter or generator code, using the [screenshot service](screenshot.md#curve-selection):
@@ -36,8 +38,8 @@ Keep the PNGs that showed the cause with the round's evidence.
 
 During authorized active modeling, deliver these reports directly to the user, including in solo work and when progress is unchanged. When verification is delegated, inspect its evidence and retain responsibility for the user report; internal agent replies do not replace it. The [explicit stop](SKILL.md#human) suspends captures and automatic resumption.
 
-- Audit and report every 30 minutes in solo work, or every 15 minutes while user-authorized subagents are active.
-- Use the subjects, directions, display conditions and delivery format the user requests. Without a narrower request, inspect new f1/f2/m1/m2 whole-front and whole-back surface captures, 8 photographs total.
+- Audit and report every 15 minutes, including solo work. Check the next deadline before starting a bounded computation; schedule capture ahead of work that could cross it.
+- Use the subjects, directions, display conditions and delivery format the user requests. By default, capture f1 only: fresh whole front, side, top and back with `garment=0`, plus whole-body front, side and back construction. Keep PNGs local and open all seven. Specimen implementation still requires its own affected-population verification.
 - Extra details and cache hits do not replace the required whole-body set.
 - Check regional image inspection, actual code consumption, uncovered regions and violations; follow [Work Allocation](SKILL.md#work-allocation) for audit delegation.
 - Preserve/open/display exact local PNGs under [Screenshot reporting](screenshot.md#user-facing-image-reports), with captured UTC, SHA and code/input/output binding.

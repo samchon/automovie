@@ -14,6 +14,7 @@ import { AutoMovieHumanSkinImage } from "./AutoMovieHumanSkinImage";
 import { AutoMovieHumanSkinMarks } from "./AutoMovieHumanSkinMarks";
 import { AutoMovieHumanSkinPigment } from "./AutoMovieHumanSkinPigment";
 import { AutoMovieHumanSkinTone } from "./AutoMovieHumanSkinTone";
+import type { AutoMovieHumanVermilion } from "./AutoMovieHumanVermilion";
 
 /**
  * The skin's parts, material and images: the generated skin pieces dressed
@@ -52,6 +53,8 @@ import { AutoMovieHumanSkinTone } from "./AutoMovieHumanSkinTone";
 export namespace AutoMovieHumanSkin {
   /** Inputs of the skin dressing. */
   export interface IProps {
+    /** Shared exterior lip boundary, prepared once with the construction output. */
+    vermilion: AutoMovieHumanVermilion.IBoundary;
     /** Complete public input. */
     params: IAutoMovieHumanParameters;
 
@@ -107,6 +110,7 @@ export namespace AutoMovieHumanSkin {
       AutoMovieHumanSkinChart.generate(props.pieces);
     const tone: AutoMovieHumanSkinTone.IOutput =
       AutoMovieHumanSkinTone.generate({
+        vermilion: props.vermilion,
         pieces,
         eyes: props.eyes,
         apertures: props.apertures,

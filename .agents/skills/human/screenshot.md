@@ -29,7 +29,7 @@ Open `http://127.0.0.1:5173/human.html?alias=f1`. The page generates from the ty
 | `pass` | `surface`, `overlay`, `construction` | Shown parts, see [Passes](#passes) |
 | `camera` | a [camera](#cameras) name | Base direction and region |
 | `curves` | a [curve selection](#curve-selection) | Colours the selected curves and the skin they shape |
-| `isolate`, `fit`, `garment`, `az`, `el`, `view`, `target`, `dist`, `ortho` | see [Free View](#free-view) | Isolation, garments and free camera |
+| `isolate`, `fit`, `garment`, `hair`, `material`, `light`, `az`, `el`, `view`, `target`, `dist`, `ortho` | see [Free View](#free-view) | Isolation, appearance inspection and free camera |
 
 The page writes these variables back into its address and links the PNG URL of the same view; "PNG URL 복사" copies it and "곡선 도면" opens the 2D diagram of the selection. The toolbar has the pass, camera and free-view controls and a legend of the axis, section and selected-curve colours. Orbit with the mouse; a click without dragging in `overlay` or `construction` adds or removes the curve under the pointer. `window.__automovieHuman` exposes `loadAlias`, `load`, `setPass`, `setCamera`, `setCurves`, `setView`, `curves`, `capture`, `diagram`, `serialize` and `snapshot`.
 
@@ -67,7 +67,7 @@ Examples:
 - `/human-images/f1/free.overlay.png?fresh=r12-crotch&curves=trunk/0&isolate=1&fit=selection&view=%2By&ortho=1`
 - `/human-curves/f1.png?fresh=r12-head&curves=head@1500:1535:5`
 
-Every 3D PNG is 1200 x 1200 at pixel ratio 1 with the reference conditions: background `#f1f3f6`, `HemisphereLight(0xffffff, 0x9aa3b2, 0.6)`, a 2.2 key light at a fixed camera-relative offset, fov 30, and the model's own materials. Without `curves` and free variables a frame compares 1:1 with the reference photograph of the same direction. A frame with a selection carries a legend box listing each curve id in its colour. The receipt and metadata record the camera placement and projection, bounds, pass, curve selection with colours, free view, visible parts, WebGL renderer and model key.
+Every 3D PNG is 1200 x 1200 at pixel ratio 1. Default reference conditions are background `#f1f3f6`, `HemisphereLight(0xffffff, 0x9aa3b2, 0.6)`, a 2.2 key light at a fixed camera-relative offset, fov 30, and the model's own materials. Without `curves` and free variables a frame compares 1:1 with the reference photograph of the same direction. A frame with a selection carries a legend box listing each curve id in its colour. The receipt and metadata record the camera placement and projection, bounds, pass, curve selection with colours, free view, visible parts, WebGL renderer and model key.
 
 ## Cameras
 
@@ -109,8 +109,13 @@ These variables modify the named camera on the page and in PNG URLs alike; their
 | `isolate=1` | Draw only the `curves` selection and, outside the `construction` pass, the skin intervals it shapes, in the skin's own colour |
 | `fit=selection` | Frame the selected curves and the skin they shape instead of the camera region |
 | `garment=0` | Hide the underwear parts (`human.garment.`) to inspect the bare body; absent or `garment=1` shows them, the default, because every image shown outside development wears them. Framing is unchanged, so frames with and without align pixel for pixel |
+| `hair=0` | Hide scalp hair, brows and lashes (`human.hair.`) to inspect covered contacts; absent or `hair=1` shows them |
+| `material=clay` | Inspect geometry with fine skin material effects disabled; eye and nail materials retain their appearance. Absent or `material=appearance` uses the assembled materials |
+| `light=raking-left` or `light=raking-right` | Inspect surface continuity under tangential light; absent uses the reference lighting |
 
 `isolate` and `fit` need a non-empty `curves`; `isolate` also hides the garments. Malformed values return 400.
+
+Specifying only `el` preserves the named camera's azimuth. Match all display conditions across a shape comparison; switching material or light is an inspection condition, not evidence of a geometry correction.
 
 ## Passes
 

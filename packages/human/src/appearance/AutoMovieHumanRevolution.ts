@@ -50,6 +50,8 @@ export namespace AutoMovieHumanRevolution {
   export function mesh(props: {
     strips: IStrip[];
     frame: IFrame;
+    /** Calibration millimetres to model metres, shared with the eyelids. */
+    scale: number;
     uv:
       | ((
           x: number,
@@ -108,7 +110,7 @@ export namespace AutoMovieHumanRevolution {
           // Millimetres to metres for the position only; normals are unit.
           for (let a: number = 0; a < 3; ++a) {
             positions.push(
-              o[a]! + (x * ex[a]! + ly * ey[a]! + lz * ez[a]!) / 1000,
+              o[a]! + (x * ex[a]! + ly * ey[a]! + lz * ez[a]!) * props.scale,
             );
             normals.push(nx * ex[a]! + ny * ey[a]! + nz * ez[a]!);
           }

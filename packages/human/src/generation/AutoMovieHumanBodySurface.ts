@@ -3,28 +3,22 @@ import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import { AutoMovieHumanBodyApertures } from "./AutoMovieHumanBodyApertures";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
+import type { IAutoMovieHumanConstructionPath } from "./IAutoMovieHumanConstructionPath";
+import type { IAutoMovieHumanSurfaceBoundary as IBoundary } from "./IAutoMovieHumanSurfaceBoundary";
+import type { IAutoMovieHumanSurfaceContext as IContext } from "./IAutoMovieHumanSurfaceContext";
 
 /**
  * Whole-body skin assembled from the calibrated chains and their events.
  *
- * ## Procedure
+ * A parent evaluates each contact ring once, including its pinch phases,
+ * and shares its directed arcs with child chains by vertex index. Each
+ * chain lofts at its bisection stations between owned rings, inherited arcs
+ * or poles. Inherited rings use the existing section-phase rule and zipper;
+ * the short pinch closure is shared by the adjacent children.
  *
- * 1. **Contact rings.** Every event's contact ring is generated once by its
- *    parent chain, at the parent's end layer and in the parent's own phase
- *    set. That set includes the event's pinch phases, so every arc starts
- *    and ends on a vertex.
- * 2. **Chain boundaries.** Each chain end is one of three things: the
- *    contact ring of an event it parents, the arcs of a contact ring it
- *    inherits as a child, or a pole.
- * 3. **Lofting.** Each chain is lofted between its bottom and top boundaries
- *    at its bisection stations in its own phase set. An inherited boundary
- *    gets phases by the chain's own rule, exactly as the fitter assigned
- *    phases to observed outlines, and is joined by a zipper band.
- *
- * Every boundary ring is generated once and shared by index, and the short
- * edge that closes a child ring across a pinch belongs to the two children
- * on either side of it, so the result is one closed manifold. Triangle
- * groups are named `<chain>/<k>` by the principal interval they lie in.
+ * Shared incidence does not qualify correspondence, regularity or the
+ * inferred closures. Those obligations remain with reproduction review.
+ * Triangle groups are named `<chain>/<k>` by their principal interval.
  */
 export namespace AutoMovieHumanBodySurface {
   /** Generated skin in millimetres, registered frame. */
@@ -53,53 +47,9 @@ export namespace AutoMovieHumanBodySurface {
      * again on another body or pose by the chain functions.
      */
     coordinates: number[];
-  }
 
-  /** A chain end boundary resolved to vertices or a pole. */
-  type IBoundary =
-    | {
-        /** The chain's own contact ring, in its own phase set. */
-        kind: "own";
-        ring: number[];
-      }
-    | {
-        /** Arcs inherited from a parent's contact ring. */
-        kind: "inherited";
-        ring: number[];
-      }
-    | {
-        /** Closed at a pole. */
-        kind: "pole";
-      };
-
-  /** Construction context passed between the lofting steps. */
-  interface IContext {
-    /** Mesh buffers shared by all chains. */
-    mesh: AutoMovieHumanLoftMesh.IContext;
-
-    /** Calibration chains by name. */
-    chains: Map<string, IAutoMovieHumanLoftChain>;
-
-    /** Calibration events. */
-    events: IAutoMovieHumanBodyCalibration.IEvent[];
-
-    /** Poles by `chain:end`. */
-    poles: Map<string, IAutoMovieHumanBodyCalibration.IPole>;
-
-    /** Resolved boundaries by `chain:end`. */
-    boundaries: Map<string, IBoundary>;
-
-    /** Bisection chord tolerance in mm. */
-    tolerance: number;
-
-    /** Apertures with their margins evaluated once. */
-    apertures: AutoMovieHumanBodyApertures.IPrepared[];
-
-    /** Calibration index of every chain, by name. */
-    indices: Map<string, number>;
-
-    /** Loft coordinates of the vertices created so far; see {@link IOutput}. */
-    coordinates: number[];
+    /** Aperture paths sampled by the actual skin generation, in millimetres. */
+    construction: IAutoMovieHumanConstructionPath[];
   }
 
   /**
@@ -178,10 +128,12 @@ export namespace AutoMovieHumanBodySurface {
 
     // 4. Openings: the skin over every aperture is clipped away by
     // position, and the lid margins tucked onto the globes.
-    AutoMovieHumanBodyApertures.cut(context.mesh, context.apertures);
+    const construction: IAutoMovieHumanConstructionPath[] =
+      AutoMovieHumanBodyApertures.cut(context.mesh, context.apertures);
 
     return {
       mesh: context.mesh,
+      construction,
       normals: AutoMovieHumanLoftMesh.normals(context.mesh),
       // Vertices the cut and the tuck added after lofting have no loft
       // coordinates of their own.

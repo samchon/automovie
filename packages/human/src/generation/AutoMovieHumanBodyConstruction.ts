@@ -3,6 +3,7 @@ import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanLoftTube } from "../lofting/AutoMovieHumanLoftTube";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
+import type { IAutoMovieHumanConstructionPath } from "./IAutoMovieHumanConstructionPath";
 
 /**
  * Construction of the body surface: what generated the skin, drawn beside it.
@@ -65,9 +66,11 @@ export namespace AutoMovieHumanBodyConstruction {
    * Draw every principal section and central axis of every calibrated chain.
    *
    * @param calibration Shared chain coefficients.
+   * @param paths Aperture paths from the same skin generation, in millimetres.
    */
   export function generate(
     calibration: IAutoMovieHumanBodyCalibration,
+    paths: readonly IAutoMovieHumanConstructionPath[],
   ): ICurve[] {
     const phases: number[] = Array.from(
       { length: SECTION_POINTS },
@@ -114,6 +117,32 @@ export namespace AutoMovieHumanBodyConstruction {
           });
         },
       );
+    }
+    return [...out, ...drawPaths(paths)];
+  }
+
+  /** Draw a boundary already sampled by its actual appearance or skin evaluator. */
+  export function paths(
+    paths: readonly IAutoMovieHumanConstructionPath[],
+  ): ICurve[] {
+    return drawPaths(paths);
+  }
+
+  /** Tube buffers of literal shared points; this helper never fits their shape. */
+  function drawPaths(
+    paths: readonly IAutoMovieHumanConstructionPath[],
+  ): ICurve[] {
+    const out: ICurve[] = [];
+    for (const path of paths) {
+      const mesh: AutoMovieHumanLoftMesh.IContext =
+        AutoMovieHumanLoftMesh.create();
+      AutoMovieHumanLoftTube.sweep(
+        mesh,
+        path.points,
+        path.closed,
+        GUIDE_RADIUS,
+      );
+      out.push({ id: path.id, kind: "guide", mesh });
     }
     return out;
   }
