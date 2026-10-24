@@ -13,7 +13,8 @@
  * no significant difference by those factors) and no Human parameter
  * describes it. Derived quantities (the scleral axial semi-axis and the
  * apex position) follow from those means by the stated geometry, not by
- * fitting. The globe is not scaled with stature.
+ * fitting. These are calibration-millimetre dimensions; every consumer
+ * applies the body's common millimetre-to-model conversion after seating.
  */
 export namespace AutoMovieHumanEyeGlobe {
   /**

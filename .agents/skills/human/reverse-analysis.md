@@ -11,6 +11,14 @@ Identify shape from the complete [curve inventory](references.md), then derive a
 
 Equal loop counts, indices or phases do not establish correspondence. Arbitrary world-Y regression, coordinate averages and inherited skeleton ratios cannot supply missing axes.
 
+## Source Domain Admission
+
+Before choosing or changing a surface representation, classify every affected join as a regular loft boundary, critical event, opening, crease or inferred closure. Bind each classification to source-graph nodes and edges, directed raw spans and one-sided support. Check saved one-sided jets and source incidence together; graph degree or a normal-angle threshold alone does not classify a critical event or crease.
+
+Compare literal parent restrictions with the proposed shared endpoints and jets. A positional fit bound does not authorize flattening a saved corner or replacing a parent endpoint by a separately projected point. Distinguish jets at one physical position from jets at different fitted positions; tangent-plane constraints need a common point or justified transport. Record inconsistent observations and their approximation bounds before reconciling them.
+
+Establish physical correspondence through shared source features and lineage, including narrow necks and contacts. Equal arclength, nearest points and a common tangent plane alone are insufficient. Keep synthetic closing chords and internal oral arcs separate from observed external skin. Consume this admitted domain through [Construction](construction.md#geometry-and-joins) before fitting an interior.
+
 ## Specimen Reproduction
 
 - Establish source-conditioned principal positions, complete curves, endpoint jets and shared boundaries first.

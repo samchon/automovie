@@ -20,8 +20,9 @@ import { inflateTubeGeometry } from "./inflateTubeGeometry";
  * ones, so successive styles never compound. Derived materials are shared by
  * every part with the same source material and override values; derived
  * geometry is per mesh.
+ * A plain override constructs a fresh rough dielectric, keeping geometry and normals while dropping source maps, vertex colours, emissive and material shader patches.
  *
- * @evidence contracts/common.md#principled-implementation Every apply restores the recorded originals before deriving, so the result depends only on the current closure; colour overrides are linear RGB like IAutoMovieMaterial.baseColor and an unlit override swaps in MeshBasicMaterial with the same colour and side.
+ * @evidence contracts/common.md#principled-implementation Every apply restores originals before deriving; colour overrides are linear RGB, unlit uses MeshBasicMaterial and plain uses a fresh rough MeshStandardMaterial without source maps, vertex colours or shader patches; geometry and normals change only for an explicit tube inflation.
  * @evidence contracts/common.md#clear-and-simple-design A generic mechanism owned by the page's model mount; the rules that pick styles are a separate closure, so neither the viewer package nor this class holds application ids.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Model-owned materials and geometry are never mutated; overrides act on derived copies, and no part id is interpreted here.
  * @evidence contracts/common.md#meaningful-documentation States the closure contract, restore-then-derive order, sharing and ownership.
@@ -104,10 +105,15 @@ export class ModelPartStyling {
     this.restore();
 
     // One closure call per part; its meshes share the result.
-    const styles: Map<IAutoMovieModelPart, ModelPartStyling.IStyle | undefined> =
-      new Map();
+    const styles: Map<
+      IAutoMovieModelPart,
+      ModelPartStyling.IStyle | undefined
+    > = new Map();
     for (const { part, definition, object } of this.objects) {
-      const chosen: ModelPartStyling.IStyle | undefined = style(part, definition);
+      const chosen: ModelPartStyling.IStyle | undefined = style(
+        part,
+        definition,
+      );
       styles.set(part, chosen);
       object.visible = chosen?.visible ?? true;
     }
@@ -123,6 +129,7 @@ export class ModelPartStyling {
       const key: string = JSON.stringify([
         chosen.color,
         chosen.unlit,
+        chosen.plain,
         chosen.depthTest,
         chosen.opacity,
         chosen.polygonOffset,
@@ -138,7 +145,14 @@ export class ModelPartStyling {
               color: (source as THREE.MeshStandardMaterial).color,
               side: source.side,
             })
-          : source.clone();
+          : chosen.plain === true
+            ? new THREE.MeshStandardMaterial({
+                color: 0xaaaaaa,
+                metalness: 0,
+                roughness: 1,
+                side: source.side,
+              })
+            : source.clone();
       if (chosen.color !== undefined && "color" in material)
         (material.color as THREE.Color).setRGB(
           chosen.color.r,
@@ -164,11 +178,13 @@ export class ModelPartStyling {
     };
 
     for (const entry of this.meshes) {
-      const chosen: ModelPartStyling.IStyle | undefined = styles.get(entry.part);
+      const chosen: ModelPartStyling.IStyle | undefined = styles.get(
+        entry.part,
+      );
       if (chosen === undefined) continue;
       entry.mesh.material = Array.isArray(entry.material)
-        ? entry.material.map((source: THREE.Material): THREE.Material =>
-            derive(source, chosen),
+        ? entry.material.map(
+            (source: THREE.Material): THREE.Material => derive(source, chosen),
           )
         : derive(entry.material, chosen);
       if (chosen.renderOrder !== undefined)
@@ -217,7 +233,7 @@ export namespace ModelPartStyling {
    * Display overrides for one part; an absent field keeps the part's own value.
    *
    * @evidence contracts/common.md#principled-implementation Each field maps to one three.js display property; colour uses the model's linear RGB convention.
-   * @evidence contracts/common.md#clear-and-simple-design Only the overrides current consumers use: visibility, colour, lighting, depth, order, opacity, polygon offset and tube thickening.
+   * @evidence contracts/common.md#clear-and-simple-design Only current display overrides: visibility, colour, unlit/plain materials, depth, order, opacity, polygon offset and tube thickening.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No field names an application part or rule.
    * @evidence contracts/common.md#meaningful-documentation Each field states its unit and effect.
    * @evidence contracts/performance.md#efficient-algorithms A plain record; cost lies in ModelPartStyling.apply.
@@ -233,6 +249,9 @@ export namespace ModelPartStyling {
 
     /** True draws with an unlit material, so lights cannot wash the colour out. */
     unlit?: boolean;
+
+    /** True uses a fresh rough dielectric without textures, vertex colours, emissive or source shader patches; geometry and normals stay unchanged. */
+    plain?: boolean;
 
     /** False draws the part through everything in front of it (depth test and write off). */
     depthTest?: boolean;

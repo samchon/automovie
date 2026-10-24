@@ -6,6 +6,7 @@ import * as THREE from "three";
 
 import type { IHumanViewerPage } from "./IHumanViewerPage";
 import type { ModelPartStyling } from "./ModelPartStyling";
+import type { normalizeHumanView } from "./normalizeHumanView";
 
 /**
  * Build the Human page's part styling closure for one pass and curve selection.
@@ -33,28 +34,29 @@ import type { ModelPartStyling } from "./ModelPartStyling";
  * - `garment` false hides every `human.garment.` part (underwear), so the
  *   bare body can be inspected; the garments are separate shells over the
  *   skin, so hiding them shows the skin unchanged.
+ * - `hair` false hides scalp hair, brows and lashes through their shared `human.hair.` prefix. `material=clay` uses a neutral plain skin material without maps or shader effects, retaining the skin geometry and smooth normals. Eye and nail materials remain their own appearance.
  *
  * @param pass Pass to display.
  * @param selection Resolved curve selection, possibly empty.
  * @param height Body height in metres, the scale of the thickening.
  * @param isolate Show only the selected curves and the skin intervals they shape.
- * @param garment Show the garment parts.
+ * @param display Garment and hair visibility and the skin material inspection mode; framing and geometry stay unchanged.
  * @returns The closure for `ModelPartStyling.apply`.
  *
  * @evidence contracts/common.md#principled-implementation Classifies parts only by the generator's id grammar and maps pass and selection to the documented overrides; thickening scales with body height so it reads alike for every person and camera of the same framing.
  * @evidence contracts/common.md#clear-and-simple-design All Human display rules live in this closure; the generic ModelPartStyling and the viewer package know no Human ids.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No chain is special-cased and the model's own colours are kept for unselected curves.
  * @evidence contracts/common.md#meaningful-documentation States every rule, colour role and the reason for the axis see-through display and the skin polygon offset.
- * @evidence contracts/performance.md#efficient-algorithms Builds two Sets once, then each call is O(1) per part.
+ * @evidence contracts/performance.md#efficient-algorithms Builds two id-to-colour Maps once, then each call performs O(1) lookups per part.
  * @evidence contracts/performance.md#reuse-equivalent-work Returned style objects with equal values share one derived material inside ModelPartStyling.apply.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The closure retains the two id Sets of one selection and nothing else.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Retains two id-to-colour Maps and the current display inputs; owns no scene resources or cross-model cache.
  */
 export function createHumanPartStyle(
   pass: IHumanViewerPage.Pass,
   selection: IHumanViewerPage.ISelection,
   height: number,
   isolate: boolean,
-  garment: boolean,
+  display: Pick<normalizeHumanView.IView, "garment" | "hair" | "material">,
 ): (
   part: IAutoMovieModelPart,
   material: IAutoMovieMaterial | undefined,
@@ -107,7 +109,9 @@ export function createHumanPartStyle(
     }
 
     if (pass === "construction") return { visible: false };
-    if (!garment && part.id.startsWith("human.garment."))
+    if (!display.garment && part.id.startsWith("human.garment."))
+      return { visible: false };
+    if (!display.hair && part.id.startsWith("human.hair."))
       return { visible: false };
 
     // Isolation keeps only the skin the selected curves shape.
@@ -120,6 +124,10 @@ export function createHumanPartStyle(
     )
       return { visible: false };
     const style: ModelPartStyling.IStyle = {};
+    if (display.material === "clay" && part.id.startsWith("human.skin.")) {
+      style.plain = true;
+      style.color = { r: 0.5, g: 0.5, b: 0.5 };
+    }
     if (pass === "overlay") style.polygonOffset = 1;
     if (
       !isolate &&
@@ -127,7 +135,8 @@ export function createHumanPartStyle(
       part.id.startsWith("human.skin.") &&
       shaped.has(part.id.slice("human.skin.".length))
     ) {
-      const base: { r: number; g: number; b: number } = material.baseColor;
+      const base: { r: number; g: number; b: number } =
+        style.color ?? material.baseColor;
       const tint: { r: number; g: number; b: number } = shaped.get(
         part.id.slice("human.skin.".length),
       )!;

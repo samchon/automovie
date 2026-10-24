@@ -20,8 +20,9 @@ import type { IAutoMovieHumanAppearanceBody } from "./IAutoMovieHumanAppearanceB
  *
  * Dimensions are the biometric means of {@link AutoMovieHumanEyeGlobe},
  * the same for every person and shared with the body generator, which
- * rests the lid margins on the same anterior surface. The globe is not
- * scaled with stature.
+ * rests the lid margins on the same anterior surface. These dimensions
+ * are in calibration millimetres; the body and all eye tissue use one
+ * conversion to model metres, including the current stature scale.
  *
  * Lid shading: the renderer casts no shadows, yet the lids shade the eye
  * they rest on, most visibly the upper lid's band across the top of the
@@ -69,6 +70,8 @@ export namespace AutoMovieHumanEyeball {
     uvTurn: number;
     mirror: boolean;
     lid: AutoMovieHumanEyelid.ILid | null;
+    /** Calibration millimetres to model metres, as used by the skin. */
+    scale: number;
   }): IOutput {
     const d: typeof dimensions = dimensions;
     const g: AutoMovieHumanEyeGlobe.IDerived = AutoMovieHumanEyeGlobe.derive();
@@ -76,15 +79,22 @@ export namespace AutoMovieHumanEyeball {
     const shift: number =
       props.eye.radius === undefined
         ? 0
-        : AutoMovieHumanEyeGlobe.seat(props.eye.radius * 1000);
+        : AutoMovieHumanEyeGlobe.seat(props.eye.radius / props.scale);
     const frame: AutoMovieHumanRevolution.IFrame = {
-      origin: [
-        props.eye.centre[0] + (props.eye.forward[0] * shift) / 1000,
-        props.eye.centre[1] + (props.eye.forward[1] * shift) / 1000,
-        props.eye.centre[2] + (props.eye.forward[2] * shift) / 1000,
-      ],
-      axis: props.eye.forward,
-      up: props.eye.up,
+      // The actual seated lid frame owns contact. Re-seating a scaled
+      // sphere against unscaled biometric dimensions changes that contact.
+      origin:
+        props.lid === null
+          ? ([0, 1, 2].map(
+              (a: number): number =>
+                props.eye.centre[a]! +
+                props.eye.forward[a]! * shift * props.scale,
+            ) as [number, number, number])
+          : (props.lid.globe.centre.map(
+              (v: number): number => v * props.scale,
+            ) as [number, number, number]),
+      axis: props.lid?.globe.forward ?? props.eye.forward,
+      up: props.lid?.globe.up ?? props.eye.up,
     };
     const shade: (y: number, z: number) => number =
       props.lid === null ? (): number => 1 : occlusion(props.lid);
@@ -150,6 +160,7 @@ export namespace AutoMovieHumanEyeball {
       sclera: AutoMovieHumanRevolution.mesh({
         strips: [{ profile: sclera, segments }],
         frame,
+        scale: props.scale,
 
         // u once around the axis, v from the limbus to the hidden edge, the
         // layout of AutoMovieHumanScleraImage; mirroring maps theta to
@@ -196,6 +207,7 @@ export namespace AutoMovieHumanEyeball {
           },
         ],
         frame,
+        scale: props.scale,
         uv: irisUv,
         color: (_x: number, y: number, z: number): [number, number, number] => {
           const k: number = shade(y, z);
@@ -205,6 +217,7 @@ export namespace AutoMovieHumanEyeball {
       cornea: AutoMovieHumanRevolution.mesh({
         strips: [{ profile: cornea, segments }],
         frame,
+        scale: props.scale,
         uv: null,
         color: null,
       }),

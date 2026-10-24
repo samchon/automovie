@@ -2,6 +2,8 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 import { HumanCaptureCamera } from "./HumanCaptureCamera";
+import { applyHumanInspectionLighting } from "./applyHumanInspectionLighting";
+import type { normalizeHumanView } from "./normalizeHumanView";
 
 /**
  * The interactive camera of the Human page: a perspective and an orthographic
@@ -109,32 +111,36 @@ export class HumanViewerCamera {
   }
 
   /**
-   * Advance the controls and keep the key light at the capture offset.
+   * Advance the controls and apply the same lighting profile as PNG capture.
    *
    * @param key Key light to move.
    * @param diagonal Whole-model diagonal in metres, the light offset scale.
+   * @param hemisphere Existing ambient light to set for the profile.
+   * @param light Parsed lighting profile.
    *
-   * @evidence contracts/common.md#principled-implementation Applies the capture rule's (1, 1.4, 0.7) camera-space offset times the diagonal around the orbit target.
+   * @evidence contracts/common.md#principled-implementation Applies the shared inspection-light function using the active camera and actual orbit target; the reference profile retains the original capture offset.
    * @evidence contracts/common.md#clear-and-simple-design Called once per drawn frame.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Same offset as captures, so interactive shading matches PNGs.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Shares explicit lighting profiles with captures rather than moving the camera or altering geometry to expose a defect.
    * @evidence contracts/common.md#meaningful-documentation States the offset source.
    * @evidence contracts/performance.md#efficient-algorithms Constant work.
    * @evidence contracts/performance.md#reuse-equivalent-work Reuses the light.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Acquires nothing.
    */
-  public follow(key: THREE.DirectionalLight, diagonal: number): void {
+  public follow(
+    key: THREE.DirectionalLight,
+    diagonal: number,
+    hemisphere: THREE.HemisphereLight,
+    light: normalizeHumanView.IView["light"],
+  ): void {
     this.controls.update();
-    const camera: THREE.Camera = this.active;
-    camera.updateMatrixWorld();
-    key.position
-      .copy(this.controls.target)
-      .add(
-        new THREE.Vector3(1, 1.4, 0.7)
-          .applyQuaternion(camera.quaternion)
-          .multiplyScalar(diagonal),
-      );
-    key.target.position.copy(this.controls.target);
-    key.target.updateMatrixWorld();
+    applyHumanInspectionLighting(
+      key,
+      hemisphere,
+      this.active,
+      this.controls.target,
+      diagonal,
+      light,
+    );
   }
 
   /**

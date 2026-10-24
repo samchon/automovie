@@ -6,11 +6,13 @@ import type {
 
 import { AutoMovieHumanAppearance } from "./appearance/AutoMovieHumanAppearance";
 import { AutoMovieHumanSkin } from "./appearance/AutoMovieHumanSkin";
+import { AutoMovieHumanVermilion } from "./appearance/AutoMovieHumanVermilion";
 import type { IAutoMovieHumanAppearanceBody } from "./appearance/IAutoMovieHumanAppearanceBody";
 import { AutoMovieHumanBodyCalibration } from "./generation/AutoMovieHumanBodyCalibration";
 import { AutoMovieHumanBodyConstruction } from "./generation/AutoMovieHumanBodyConstruction";
 import { AutoMovieHumanBodySurface } from "./generation/AutoMovieHumanBodySurface";
 import type { IAutoMovieHumanBodyCalibration } from "./generation/IAutoMovieHumanBodyCalibration";
+import { AutoMovieHumanVermilionCalibration } from "./generation/calibration/AutoMovieHumanVermilionCalibration";
 import { AutoMovieHumanLoftMesh } from "./lofting/AutoMovieHumanLoftMesh";
 import type { IAutoMovieHumanGenerated } from "./structures/IAutoMovieHumanGenerated";
 import type { IAutoMovieHumanParameters } from "./structures/IAutoMovieHumanParameters";
@@ -43,9 +45,10 @@ import type { IAutoMovieHumanParameters } from "./structures/IAutoMovieHumanPara
  *
  * Current parameter consumption: `body.controls.height` scales the whole
  * calibrated body uniformly. `pigmentation` and `appearance.skin` drive the
- * skin material (see `AutoMovieHumanSkin`). Every other field is accepted
- * and returned unchanged without a shape response yet; girths, lengths,
- * head, face and extremity inputs get their laws in later campaign stages.
+ * skin material (see `AutoMovieHumanSkin`), and the appearance layer consumes
+ * its eye, hair, brow, lash and underwear settings. Other body measurements,
+ * pose and expression fields are returned unchanged without a skin shape or
+ * deformation response yet; their laws belong to later campaign stages.
  */
 export class AutoMovieHuman {
   /**
@@ -74,11 +77,30 @@ export class AutoMovieHuman {
       surface.normals,
     );
     const curves: AutoMovieHumanBodyConstruction.ICurve[] =
-      AutoMovieHumanBodyConstruction.generate(AutoMovieHumanBodyCalibration);
+      AutoMovieHumanBodyConstruction.generate(
+        AutoMovieHumanBodyCalibration,
+        surface.construction,
+      );
+
+    const vermilion: AutoMovieHumanVermilion.IBoundary =
+      AutoMovieHumanVermilion.prepare(AutoMovieHumanVermilionCalibration);
+    curves.push(
+      ...AutoMovieHumanBodyConstruction.paths([
+        {
+          id:
+            AutoMovieHumanVermilionCalibration.chain +
+            "/" +
+            AutoMovieHumanVermilionCalibration.name.replaceAll(".", "_"),
+          points: vermilion.points,
+          closed: true,
+        },
+      ]),
+    );
 
     // Skin appearance is computed on the final pieces in calibration mm:
     // texture coordinates, regional albedo and relief weights.
     const dressed: AutoMovieHumanSkin.IOutput = AutoMovieHumanSkin.generate({
+      vermilion,
       params,
       pieces: skin,
       eyes: AutoMovieHumanBodyCalibration.eyes,
@@ -108,7 +130,7 @@ export class AutoMovieHuman {
     // Appearance is placed on the generated body. Eye frames are the
     // calibrated eyeball globes behind the eyelid apertures, scaled with the
     // body into metres; the line of sight is forward (+X) and up is +Y.
-    const eye = (
+    const eye: (side: "left" | "right") => IAutoMovieHumanAppearanceBody.IEye = (
       side: "left" | "right",
     ): IAutoMovieHumanAppearanceBody.IEye => {
       const found: IAutoMovieHumanBodyCalibration.IEye | undefined =

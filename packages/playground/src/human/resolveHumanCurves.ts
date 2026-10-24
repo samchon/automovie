@@ -9,8 +9,9 @@ import { humanCurveColour } from "./humanCurveColour";
  * curve throws, so a typo never renders an unselected frame. The skin
  * intervals a curve shapes follow the lofting rule: section `<chain>/<k>` is
  * the shared Hermite endpoint of intervals `<chain>/<k-1>` and `<chain>/<k>`,
- * and `<chain>/axis` or a guide `<chain>/g<j>` shapes every interval of exactly that chain, not of its
- * child chains. Only the last `/` separates chain and layer, because chain
+ * and a nonnumeric suffix (axis, `g<j>` or a named boundary guide) shapes
+ * every interval of exactly its owning chain, not of its child chains.
+ * Only the last `/` separates chain and layer, because chain
  * names contain dots. Selected curves keep pattern order (model order within
  * one glob) and take colours from {@link humanCurveColour} by that order.
  *
@@ -19,9 +20,9 @@ import { humanCurveColour } from "./humanCurveColour";
  * @param skinIds Skin interval ids of the model (skin part ids without `human.skin.`).
  * @returns The canonical value, the selected curve ids in selection order with their colours, and the shaped skin ids with the colour of the first curve shaping each.
  *
- * @evidence contracts/common.md#principled-implementation Glob-to-regex conversion escapes every other metacharacter, and the shaping rule is the Hermite endpoint relation of the lofting chains; unmatched patterns throw.
+ * @evidence contracts/common.md#principled-implementation Glob-to-regex conversion escapes every other metacharacter; numeric suffixes use the Hermite endpoint relation, while named guides use their explicit owning chain. Unmatched patterns throw.
  * @evidence contracts/common.md#clear-and-simple-design A pure function of ids, separate from the closure that turns the result into display styles.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No chain or curve name is special-cased; only the generator's `<chain>/<k|axis>` grammar is read.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No anatomical name or alias is special-cased. Numeric section addresses and nonnumeric guide addresses follow the generator's ownership grammar.
  * @evidence contracts/common.md#meaningful-documentation States the glob meaning, failure rule, shaping rule and id separator.
  * @evidence contracts/performance.md#efficient-algorithms O(P x C) pattern tests over C curve ids, O(S) per selected axis over S skin ids; results keep insertion order, so nothing is sorted.
  * @evidence contracts/performance.md#reuse-equivalent-work The caller keeps the result for every style application of the same selection.
@@ -61,15 +62,14 @@ export function resolveHumanCurves(
     const slash: number = id.lastIndexOf("/");
     const chain: string = id.slice(0, slash);
     const layer: string = id.slice(slash + 1);
-    const intervals: string[] =
-      layer === "axis" || /^gd+$/.test(layer)
-        ? skinIds.filter(
-            (interval: string): boolean =>
-              interval.slice(0, interval.lastIndexOf("/")) === chain,
-          )
-        : [Number(layer) - 1, Number(layer)]
-            .map((k: number): string => chain + "/" + k)
-            .filter((interval: string): boolean => skin.has(interval));
+    const intervals: string[] = !/^\d+$/.test(layer)
+      ? skinIds.filter(
+          (interval: string): boolean =>
+            interval.slice(0, interval.lastIndexOf("/")) === chain,
+        )
+      : [Number(layer) - 1, Number(layer)]
+          .map((k: number): string => chain + "/" + k)
+          .filter((interval: string): boolean => skin.has(interval));
     for (const interval of intervals)
       if (!shaped.has(interval)) shaped.set(interval, humanCurveColour(index));
   });

@@ -7,8 +7,8 @@ import type {
 import { AutoMovieHumanEyelid } from "../generation/AutoMovieHumanEyelid";
 import type { IAutoMovieHumanBrowAppearance } from "../structures/appearance/IAutoMovieHumanBrowAppearance";
 import { AutoMovieHumanAppearanceNoise } from "./AutoMovieHumanAppearanceNoise";
+import { AutoMovieHumanBrowProjector } from "./AutoMovieHumanBrowProjector";
 import { AutoMovieHumanHairShade } from "./AutoMovieHumanHairShade";
-import { AutoMovieHumanHeadField } from "./AutoMovieHumanHeadField";
 
 /**
  * Eyebrow of one eye as flat strands lying on the generated skin.
@@ -102,7 +102,9 @@ export namespace AutoMovieHumanEyebrow {
       lid.samples[lid.lateral]!.contact;
     const sign: number = E.dot(E.sub(lateral, medial), g.lateral) >= 0 ? 1 : -1;
     const temple: AutoMovieHumanEyelid.Point = E.scale(g.lateral, sign);
-    const a = (p: Readonly<AutoMovieHumanEyelid.Point>): number =>
+    const a: (p: Readonly<AutoMovieHumanEyelid.Point>) => number = (
+      p: Readonly<AutoMovieHumanEyelid.Point>,
+    ): number =>
       E.dot(E.sub(p, medial), temple);
     const stations: Record<string, number> = {
       head: -1,
@@ -112,32 +114,34 @@ export namespace AutoMovieHumanEyebrow {
       end: a(lateral) + 9,
     };
     const controls: { a: number; mid: number; width: number }[] = CONTROLS.map(
-      (c: { at: string; upper: number; width: number }) => ({
+      (c: {
+        at: string;
+        upper: number;
+        width: number;
+      }): { a: number; mid: number; width: number } => ({
         a: stations[c.at]!,
         mid: c.upper - c.width / 2,
         width: c.width,
       }),
     );
-    const brow = (
+    const brow: (t: number) => ReturnType<typeof curve> = (
       t: number,
     ): { a: number; mid: number; width: number; slope: number } =>
       curve(controls, t);
     const length: number = controls[controls.length - 1]!.a - controls[0]!.a;
 
     // Head skin in calibration mm, indexed in the face plane.
-    const skin: Projector | null = Projector.create(
-      parts,
-      scale,
-      g,
-      medial,
-      temple,
-    );
+    const skin: AutoMovieHumanBrowProjector | null =
+      AutoMovieHumanBrowProjector.create(parts, scale, g, medial, temple);
     if (skin === null) return null;
 
     // Face-plane point of brow coordinates: t along (0 head, 1 tail), v
     // across (-1 lower border, +1 upper).
-    const face = (t: number, v: number): [number, number] => {
-      const b = brow(t);
+    const face: (t: number, v: number) => [number, number] = (
+      t: number,
+      v: number,
+    ): [number, number] => {
+      const b: ReturnType<typeof brow> = brow(t);
       return [b.a, b.mid + (v * b.width) / 2];
     };
 
@@ -163,7 +167,7 @@ export namespace AutoMovieHumanEyebrow {
       if (N.hash(seed, tries, 3) > keep) continue;
 
       // Direction in the face plane, from the brow axis toward the temple.
-      const b = brow(t);
+      const b: ReturnType<typeof brow> = brow(t);
       const axis: number = Math.atan(b.slope);
       const head: number = 1 - E.smoothstep(0.06, 0.2, t);
       const tail: number = E.smoothstep(0.7, 0.95, t);
@@ -178,7 +182,7 @@ export namespace AutoMovieHumanEyebrow {
 
       // Hair points along the face plane, projected onto the skin and
       // lifted off it along its normal.
-      const [ra, rh] = face(t, v);
+      const [ra, rh]: [number, number] = face(t, v);
       const points: AutoMovieHumanEyelid.Point[] = [];
       const normals: AutoMovieHumanEyelid.Point[] = [];
       for (let k: number = 0; k <= SEGMENTS; k++) {
@@ -186,7 +190,8 @@ export namespace AutoMovieHumanEyebrow {
         const bend: number = 0.15 * s * s * (N.hash(seed, tries, 6) - 0.5);
         const da: number = Math.cos(angle + bend) * hair * s;
         const dh: number = Math.sin(angle + bend) * hair * s;
-        const hit = skin.project(ra + da, rh + dh);
+        const hit: ReturnType<AutoMovieHumanBrowProjector["project"]> =
+          skin.project(ra + da, rh + dh);
         if (hit === null) break;
         const lift: number =
           0.04 + hair * Math.tan((8 * Math.PI) / 180) * s * (1 - 0.7 * s);
@@ -210,7 +215,9 @@ export namespace AutoMovieHumanEyebrow {
     brow: IAutoMovieHumanBrowAppearance,
     side: "left" | "right",
   ): IAutoMovieMaterial {
-    const [r, g, b] = AutoMovieHumanHairShade.linear(brow.color);
+    const [r, g, b]: [number, number, number] = AutoMovieHumanHairShade.linear(
+      brow.color,
+    );
     return {
       id: `human.hair.brows.${side}`,
       name: "eyebrows",
@@ -225,48 +232,58 @@ export namespace AutoMovieHumanEyebrow {
     };
   }
 
-  /** Brow middle line, width and axis slope at `t` by a Catmull-Rom spline. */
+  /**
+   * Brow profile at a fraction of its physical temple-directed distance.
+   * The distance itself is linear and strictly increasing. Only height and
+   * width interpolate, with tangents measured per millimetre rather than
+   * per control index: the short head-to-medial span cannot reverse under
+   * a tangent borrowed from the much longer medial-to-limbus span.
+   */
   function curve(
     controls: { a: number; mid: number; width: number }[],
     t: number,
   ): { a: number; mid: number; width: number; slope: number } {
-    const segments: number = controls.length - 1;
-    const x: number = Math.min(segments - 1e-9, Math.max(0, t * segments));
-    const i: number = Math.floor(x);
-    const u: number = x - i;
-    const at = (k: number): { a: number; mid: number; width: number } =>
-      controls[Math.min(segments, Math.max(0, k))]!;
-    const p0 = at(i - 1);
-    const p1 = at(i);
-    const p2 = at(i + 1);
-    const p3 = at(i + 2);
-    const cr = (
-      f: (c: { a: number; mid: number; width: number }) => number,
-      w: number,
-    ): number => {
-      const a0: number = f(p0);
-      const a1: number = f(p1);
-      const a2: number = f(p2);
-      const a3: number = f(p3);
-      return (
-        0.5 *
-        (2 * a1 +
-          (-a0 + a2) * w +
-          (2 * a0 - 5 * a1 + 4 * a2 - a3) * w * w +
-          (-a0 + 3 * a1 - 3 * a2 + a3) * w * w * w)
-      );
+    const last: number = controls.length - 1;
+    const distance: number =
+      controls[0]!.a +
+      Math.min(1, Math.max(0, t)) * (controls[last]!.a - controls[0]!.a);
+    let i: number = 0;
+    while (i + 1 < last && controls[i + 1]!.a < distance) i++;
+    const span: number = controls[i + 1]!.a - controls[i]!.a;
+    const u: number = (distance - controls[i]!.a) / span;
+    /** Value and physical derivative on nonuniform observed stations. */
+    const profile: (key: "mid" | "width") => [number, number] = (
+      key: "mid" | "width",
+    ): [number, number] => {
+      /** Secant derivative per millimetre, one-sided at each end. */
+      const slope: (k: number) => number = (k: number): number => {
+        const lo: number = Math.max(0, k - 1);
+        const hi: number = Math.min(last, k + 1);
+        return (
+          (controls[hi]![key] - controls[lo]![key]) /
+          (controls[hi]!.a - controls[lo]!.a)
+        );
+      };
+      const a: number = controls[i]![key];
+      const b: number = controls[i + 1]![key];
+      const ma: number = slope(i);
+      const mb: number = slope(i + 1);
+      return [
+        (2 * u ** 3 - 3 * u * u + 1) * a +
+          (u ** 3 - 2 * u * u + u) * span * ma +
+          (-2 * u ** 3 + 3 * u * u) * b +
+          (u ** 3 - u * u) * span * mb,
+        ((6 * u * u - 6 * u) * a + (-6 * u * u + 6 * u) * b) / span +
+          (3 * u * u - 4 * u + 1) * ma +
+          (3 * u * u - 2 * u) * mb,
+      ];
     };
-    const e: number = 1e-3;
-    const da: number =
-      cr((c) => c.a, Math.min(1, u + e)) - cr((c) => c.a, Math.max(0, u - e));
-    const dm: number =
-      cr((c) => c.mid, Math.min(1, u + e)) -
-      cr((c) => c.mid, Math.max(0, u - e));
+    const [mid, slope]: [number, number] = profile("mid");
     return {
-      a: cr((c) => c.a, u),
-      mid: cr((c) => c.mid, u),
-      width: cr((c) => c.width, u),
-      slope: da !== 0 ? dm / da : 0,
+      a: distance,
+      mid,
+      width: profile("width")[0],
+      slope,
     };
   }
 
@@ -312,183 +329,5 @@ export namespace AutoMovieHumanEyebrow {
       }
     }
     return { positions, normals, uvs: null, indices, skin: null };
-  }
-
-  /**
-   * Projection of face-plane points onto the head skin along the line of
-   * sight: the frontmost crossing, with the skin's interpolated normal.
-   */
-  class Projector {
-    private constructor(
-      private readonly triangles: Float64Array,
-      private readonly grid: Map<number, number[]>,
-      private readonly g: AutoMovieHumanEyelid.IGlobe,
-      private readonly origin: AutoMovieHumanEyelid.Point,
-      private readonly temple: AutoMovieHumanEyelid.Point,
-    ) {}
-
-    /** Cell size of the face-plane index, mm. */
-    private static readonly CELL: number = 2;
-
-    /**
-     * Index the head skin triangles near the brow.
-     *
-     * @returns The projector, or null without head skin
-     */
-    public static create(
-      parts: readonly IAutoMovieModelPart[],
-      scale: number,
-      g: AutoMovieHumanEyelid.IGlobe,
-      origin: AutoMovieHumanEyelid.Point,
-      temple: AutoMovieHumanEyelid.Point,
-    ): Projector | null {
-      const E: typeof AutoMovieHumanEyelid = AutoMovieHumanEyelid;
-      const data: number[] = [];
-      const grid: Map<number, number[]> = new Map();
-      for (const part of parts) {
-        if (
-          !AutoMovieHumanHeadField.owns(part.id) ||
-          part.geometry.type !== "mesh"
-        )
-          continue;
-        const mesh: IAutoMovieMesh = part.geometry.mesh;
-        const p: number[] = mesh.positions;
-        const nrm: number[] | null = mesh.normals;
-        const index: number[] | null = mesh.indices;
-        const count: number = index === null ? p.length / 3 : index.length;
-        for (let t: number = 0; t < count; t += 3) {
-          const corners: number[] = [0, 1, 2].map((k: number): number =>
-            index === null ? t + k : index[t + k]!,
-          );
-          const pts: AutoMovieHumanEyelid.Point[] = corners.map(
-            (v: number): AutoMovieHumanEyelid.Point => [
-              p[3 * v]! / scale,
-              p[3 * v + 1]! / scale,
-              p[3 * v + 2]! / scale,
-            ],
-          );
-          const plane: [number, number][] = pts.map(
-            (q: AutoMovieHumanEyelid.Point): [number, number] => [
-              E.dot(E.sub(q, origin), temple),
-              E.dot(E.sub(q, origin), g.up),
-            ],
-          );
-          const lo: [number, number] = [
-            Math.min(...plane.map((q) => q[0])),
-            Math.min(...plane.map((q) => q[1])),
-          ];
-          const hi: [number, number] = [
-            Math.max(...plane.map((q) => q[0])),
-            Math.max(...plane.map((q) => q[1])),
-          ];
-          if (hi[0] < -15 || lo[0] > 60 || hi[1] < 5 || lo[1] > 45) continue;
-          const id: number = data.length / 18;
-          for (let k: number = 0; k < 3; k++) {
-            data.push(...pts[k]!);
-            const v: number = corners[k]!;
-            const n: AutoMovieHumanEyelid.Point =
-              nrm === null
-                ? [0, 0, 0]
-                : [nrm[3 * v]!, nrm[3 * v + 1]!, nrm[3 * v + 2]!];
-            data.push(...n);
-          }
-          for (
-            let i: number = Math.floor(lo[0] / Projector.CELL);
-            i <= Math.floor(hi[0] / Projector.CELL);
-            i++
-          )
-            for (
-              let j: number = Math.floor(lo[1] / Projector.CELL);
-              j <= Math.floor(hi[1] / Projector.CELL);
-              j++
-            ) {
-              const key: number = i * 4096 + j;
-              const list: number[] = grid.get(key) ?? [];
-              list.push(id);
-              grid.set(key, list);
-            }
-        }
-      }
-      if (data.length === 0) return null;
-      return new Projector(Float64Array.from(data), grid, g, origin, temple);
-    }
-
-    /**
-     * Frontmost skin crossing of the line of sight through a face-plane
-     * point.
-     *
-     * @param a Distance toward the temple from the origin, mm
-     * @param h Height above the origin, mm
-     * @returns Point and unit normal, or null where no skin lies
-     */
-    public project(
-      a: number,
-      h: number,
-    ): {
-      point: AutoMovieHumanEyelid.Point;
-      normal: AutoMovieHumanEyelid.Point;
-    } | null {
-      const E: typeof AutoMovieHumanEyelid = AutoMovieHumanEyelid;
-      const list: number[] | undefined = this.grid.get(
-        Math.floor(a / Projector.CELL) * 4096 + Math.floor(h / Projector.CELL),
-      );
-      if (list === undefined) return null;
-      let best: {
-        point: AutoMovieHumanEyelid.Point;
-        normal: AutoMovieHumanEyelid.Point;
-      } | null = null;
-      let front: number = -Infinity;
-      const d: Float64Array = this.triangles;
-      for (const id of list) {
-        const o: number = id * 18;
-        const P = (k: number): AutoMovieHumanEyelid.Point => [
-          d[o + 6 * k]!,
-          d[o + 6 * k + 1]!,
-          d[o + 6 * k + 2]!,
-        ];
-        const Nn = (k: number): AutoMovieHumanEyelid.Point => [
-          d[o + 6 * k + 3]!,
-          d[o + 6 * k + 4]!,
-          d[o + 6 * k + 5]!,
-        ];
-        const q: [number, number][] = [0, 1, 2].map(
-          (k: number): [number, number] => [
-            E.dot(E.sub(P(k), this.origin), this.temple),
-            E.dot(E.sub(P(k), this.origin), this.g.up),
-          ],
-        );
-        const det: number =
-          (q[1]![0] - q[0]![0]) * (q[2]![1] - q[0]![1]) -
-          (q[2]![0] - q[0]![0]) * (q[1]![1] - q[0]![1]);
-        if (Math.abs(det) < 1e-12) continue;
-        const u: number =
-          ((a - q[0]![0]) * (q[2]![1] - q[0]![1]) -
-            (q[2]![0] - q[0]![0]) * (h - q[0]![1])) /
-          det;
-        const v: number =
-          ((q[1]![0] - q[0]![0]) * (h - q[0]![1]) -
-            (a - q[0]![0]) * (q[1]![1] - q[0]![1])) /
-          det;
-        if (u < -1e-9 || v < -1e-9 || u + v > 1 + 1e-9) continue;
-        const point: AutoMovieHumanEyelid.Point = E.add(
-          E.add(E.scale(P(0), 1 - u - v), E.scale(P(1), u)),
-          E.scale(P(2), v),
-        );
-        const depth: number = E.dot(point, this.g.forward);
-        if (depth <= front) continue;
-        front = depth;
-        let normal: AutoMovieHumanEyelid.Point = E.normalize(
-          E.add(
-            E.add(E.scale(Nn(0), 1 - u - v), E.scale(Nn(1), u)),
-            E.scale(Nn(2), v),
-          ),
-        );
-        if (E.dot(normal, normal) < 0.5)
-          normal = E.normalize(E.cross(E.sub(P(1), P(0)), E.sub(P(2), P(0))));
-        if (E.dot(normal, this.g.forward) < 0) normal = E.scale(normal, -1);
-        best = { point, normal };
-      }
-      return best;
-    }
   }
 }

@@ -1,13 +1,13 @@
 import type { normalizeHumanView } from "./normalizeHumanView";
 
 /**
- * Add the free-view controls (axis view, azimuth, elevation, ortho, isolate, fit, garment) to the toolbar.
+ * Add camera, isolation and development inspection controls to the toolbar.
  *
  * Every change composes the controls into the same query text the URL uses
  * and hands it to `onChange`, so the page applies a toolbar change exactly as
  * it applies `?az=..&el=..&ortho=1&isolate=1&fit=selection&garment=0`. Choosing an axis
  * view fills azimuth and elevation, the canonical form of the shorthand. The
- * garment box starts checked, because garments are shown unless `garment=0`.
+ * garment and hair boxes start checked. Material and lighting start with the reference appearance; inspection choices travel in the same canonical view query as the camera.
  *
  * @param toolbar Container the controls are appended to.
  * @param signal Removes every listener when aborted.
@@ -60,6 +60,29 @@ export function mountHumanViewControls(
   const fit: HTMLInputElement = input("checkbox", "auto");
   const garment: HTMLInputElement = input("checkbox", "auto");
   garment.checked = true;
+  const hair: HTMLInputElement = input("checkbox", "auto");
+  hair.checked = true;
+  const material: HTMLSelectElement = document.createElement("select");
+  for (const [value, text] of [
+    ["appearance", "원래 피부"],
+    ["clay", "무광 피부"],
+  ]) {
+    const option: HTMLOptionElement = document.createElement("option");
+    option.value = value!;
+    option.textContent = text!;
+    material.append(option);
+  }
+  const light: HTMLSelectElement = document.createElement("select");
+  for (const [value, text] of [
+    ["reference", "기본 조명"],
+    ["raking-left", "왼쪽 사광"],
+    ["raking-right", "오른쪽 사광"],
+  ]) {
+    const option: HTMLOptionElement = document.createElement("option");
+    option.value = value!;
+    option.textContent = text!;
+    light.append(option);
+  }
   toolbar.append(
     axis,
     labelled("az", azimuth),
@@ -68,6 +91,9 @@ export function mountHumanViewControls(
     labelled("isolate", isolate),
     labelled("fit", fit),
     labelled("garment", garment),
+    labelled("머리카락·눈썹·속눈썹", hair),
+    material,
+    light,
   );
 
   // Compose the URL form; an axis choice becomes explicit angles.
@@ -94,6 +120,10 @@ export function mountHumanViewControls(
     if (isolate.checked) query.push("isolate=1");
     if (fit.checked) query.push("fit=selection");
     if (!garment.checked) query.push("garment=0");
+    if (!hair.checked) query.push("hair=0");
+    if (material.value !== "appearance")
+      query.push("material=" + material.value);
+    if (light.value !== "reference") query.push("light=" + light.value);
     onChange(query.join("&"));
   };
   for (const control of [
@@ -104,6 +134,9 @@ export function mountHumanViewControls(
     isolate,
     fit,
     garment,
+    hair,
+    material,
+    light,
   ])
     control.addEventListener("change", compose, { signal });
 
@@ -114,5 +147,8 @@ export function mountHumanViewControls(
     isolate.checked = view.isolate;
     fit.checked = view.fit === "selection";
     garment.checked = view.garment;
+    hair.checked = view.hair;
+    material.value = view.material;
+    light.value = view.light;
   };
 }

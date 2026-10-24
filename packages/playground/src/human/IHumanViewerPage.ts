@@ -1,6 +1,7 @@
 import type { IAutoMovieHumanGenerated } from "../../../human/src/structures/IAutoMovieHumanGenerated";
 import type { IAutoMovieHumanParameters } from "../../../human/src/structures/IAutoMovieHumanParameters";
 import type { HumanCaptureCamera } from "./HumanCaptureCamera";
+import type { normalizeHumanView } from "./normalizeHumanView";
 
 /**
  * Control surface of the single Human page, published as `window.__automovieHuman`.
@@ -158,20 +159,23 @@ export interface IHumanViewerPage {
   curves(): string[];
 
   /**
-   * Render one named camera, pass and curve selection at the reference capture conditions and read back its PNG.
+   * Render one named camera, pass and curve selection with the requested display and inspection conditions and read back its PNG.
    *
-   * The interactive pass, selection, canvas size and camera are restored afterwards.
+   * Reference comparison requires the matching named camera and surface pass,
+   * empty selection and no free-view or inspection overrides. Interactive pass,
+   * selection, display, lighting and canvas size are restored afterwards; the
+   * interactive camera is retained.
    *
    * @param camera One of {@link HumanCaptureCamera.names}.
    * @param pass Pass to render.
    * @param curves Curve selection for this frame; empty renders without highlight.
-   * @param view Free-view query text (`az`, `el`, `view`, `target`, `dist`, `ortho`, `isolate`, `fit`, `garment`); empty keeps the named camera.
+   * @param view Free-view query text including camera overrides, isolate, fit, garment, hair, material and light; empty keeps the named camera and reference appearance.
    *
-   * @evidence contracts/common.md#principled-implementation Applies the frame's pass and selection, draws at 1200 x 1200 with the reference framing and reads the preserved buffer, then restores the interactive state in a finally block.
+   * @evidence contracts/common.md#principled-implementation Applies the frame's pass, selection and canonical view, draws at 1200 x 1200 with the shared framing rule plus explicit free-view and inspection overrides, records visible conditions and restores interactive display and lighting in a finally block.
    * @evidence contracts/common.md#clear-and-simple-design The only capture path, used by the worker for every PNG URL.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Throws while busy or empty instead of drawing a stale model.
    * @evidence contracts/common.md#meaningful-documentation States the restored state and parameters.
-   * @evidence contracts/performance.md#efficient-algorithms Up to four restyles, one draw and one PNG encode.
+   * @evidence contracts/performance.md#efficient-algorithms Up to nine restyles including restoration, one draw and one PNG encode.
    * @evidence contracts/performance.md#reuse-equivalent-work Reuses the loaded model across every frame of its key.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a data URL owned by the caller; derived styling resources are replaced on restore.
    */
@@ -201,11 +205,11 @@ export interface IHumanViewerPage {
    * @param query URL query text such as `az=0&el=90&ortho=1&isolate=1&fit=selection&garment=0`; empty returns to the named camera.
    * @returns The canonical text.
    *
-   * @evidence contracts/common.md#principled-implementation Parses with normalizeHumanView, applies isolation and garment visibility to the model and re-places the camera with the capture rule.
+   * @evidence contracts/common.md#principled-implementation Parses with normalizeHumanView, applies isolation and garment/hair/material inspection display to the model and re-places the camera with the capture rule; lighting follows that same parsed view.
    * @evidence contracts/common.md#clear-and-simple-design The URL, the toolbar and automation share this entry.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Malformed variables, isolation without a selection and fit without a selection throw and keep the previous view.
    * @evidence contracts/common.md#meaningful-documentation States the accepted variables and failures.
-   * @evidence contracts/performance.md#efficient-algorithms One restyle and one placement.
+   * @evidence contracts/performance.md#efficient-algorithms Success performs two restyles and one placement; failure during application restores the prior display with two further restyles.
    * @evidence contracts/performance.md#reuse-equivalent-work No regeneration.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Retains only the canonical text.
    */
@@ -351,6 +355,12 @@ export namespace IHumanViewerPage {
 
       /** Canonical free-view text of this frame, empty for the named camera alone. */
       view: string;
+
+      /** Applied development display conditions; visibleParts states the actual isolation/pass result and camera.light plus hemisphere state the actual illumination. Clay replaces only skin materials, keeping geometry and normals unchanged. */
+      inspection: Pick<
+        normalizeHumanView.IView,
+        "garment" | "hair" | "material" | "light"
+      >;
 
       /** Curve selection of this frame. */
       curves: ISelection;

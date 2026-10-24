@@ -125,6 +125,7 @@ export namespace AutoMovieHumanAppearance {
           uvTurn: side === "left" ? 0 : 0.381966,
           mirror: side === "right",
           lid,
+          scale,
         },
       );
       parts.push(

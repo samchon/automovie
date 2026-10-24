@@ -4,7 +4,7 @@ Complete at least one full inspection round after each geometry or integration b
 
 ## Actual Generated Form
 
-- Apply the [essential server rule](SKILL.md#human). Isolate heavy/failure-prone models in request/child execution; preserve the host and return explicit diagnostics.
+- Apply the [essential viewer rule](SKILL.md#human). Isolate heavy/failure-prone models in request/child execution; preserve the host and return explicit diagnostics. A model failure starts viewer recovery, not permission to skip inspection.
 - Bind source, emitted JS/maps, actual loaded imports, inputs, skin/construction and PNG bytes.
 - Trace actual API/root consumption; unused code, empty requests and successful fits do not prove changed geometry.
 - Separate acquisition, source-conditioned reproduction, common fit, integration, visual acceptance and prediction.
@@ -21,6 +21,8 @@ A stale ownership record for an already dead service never authorizes killing a 
 
 Source-only overlays and bounds-relative tiles do not establish independent skin or dedicated close-ups. If no broad-form progress appears, reconsider correspondence and representation rather than increasing precision, layers or wrappers.
 
+Qualify source-domain admission, boundary fitting, interior regularity, embedding, runtime integration and visual acceptance separately. A sampled or partial numerical round proves only its stated coverage. An off-live candidate is not a rendered improvement; preserve rejected candidates as counterexamples without reusing their passing subchecks as whole-surface acceptance.
+
 ## Lines And Ripples On The Skin
 
 Trace a crease, stripe or ripple to the curves that generate it before changing any fitter or generator code, using the [screenshot service](screenshot.md#curve-selection):
@@ -36,13 +38,14 @@ Keep the PNGs that showed the cause with the round's evidence.
 
 During authorized active modeling, deliver these reports directly to the user, including in solo work and when progress is unchanged. When verification is delegated, inspect its evidence and retain responsibility for the user report; internal agent replies do not replace it. The [explicit stop](SKILL.md#human) suspends captures and automatic resumption.
 
-- Audit and report every 30 minutes in solo work, or every 15 minutes while user-authorized subagents are active.
-- Each report inspects new f1/f2/m1/m2 whole-front and whole-back surface captures, 8 photographs total; identify each unavailable render explicitly.
-- Extra details, one-person rotation and cache hits do not replace these 8.
+- Audit and report every 15 minutes, including solo work. Check the next deadline before starting a bounded computation; schedule capture ahead of work that could cross it.
+- Use the subjects, directions, display conditions and delivery format the user requests. By default, capture f1 only: fresh whole front, side, top and back with `garment=0`, plus whole-body front, side and back construction. Keep PNGs local and open all seven. Specimen implementation still requires its own affected-population verification.
+- Extra details and cache hits do not replace the required whole-body set.
 - Check regional image inspection, actual code consumption, uncovered regions and violations; follow [Work Allocation](SKILL.md#work-allocation) for audit delegation.
 - Preserve/open/display exact local PNGs under [Screenshot reporting](screenshot.md#user-facing-image-reports), with captured UTC, SHA and code/input/output binding.
 - Distinguish capture, local-save and report times. Report defects, unsupported scope and remaining comparisons.
-- On delay, report cause/current work/last actual capture immediately; never skip the report or regenerate old evidence under its original timestamp.
+- A scheduled audit is complete only after every required fresh PNG is saved, its provenance checked and the local image opened. If any capture fails, suspend all modeling and shared computation, collect the failure evidence, repair the viewer/capture path and finish the entire audit before resuming. Failure notes and unavailable labels do not replace the images.
+- On delay, report cause/current recovery/last actual capture immediately and continue recovery until the audit is complete. Never reset the cadence to excuse a missed audit, skip a direction or present cached pixels as a new capture.
 
 ## Separate Qualifications
 

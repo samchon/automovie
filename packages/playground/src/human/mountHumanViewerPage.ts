@@ -2,7 +2,6 @@ import { type IAutoMovieViewerHandle, mountViewer } from "@automovie/viewer";
 import * as THREE from "three";
 
 import { AutoMovieHuman } from "../../../human/src/AutoMovieHuman";
-import { AutoMovieHumanBodyCalibration } from "../../../human/src/generation/AutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanGenerated } from "../../../human/src/structures/IAutoMovieHumanGenerated";
 import type { IAutoMovieHumanParameters } from "../../../human/src/structures/IAutoMovieHumanParameters";
 import { HumanCaptureCamera } from "./HumanCaptureCamera";
@@ -10,14 +9,15 @@ import { HumanViewerCamera } from "./HumanViewerCamera";
 import { HumanViewerModel } from "./HumanViewerModel";
 import type { IHumanViewerPage } from "./IHumanViewerPage";
 import { admitHumanParameters } from "./admitHumanParameters";
-import { captureHumanViewerFrame } from "./captureHumanViewerFrame";
-import { drawHumanCurveDiagram } from "./drawHumanCurveDiagram";
+import { captureHumanPageFrame } from "./captureHumanPageFrame";
+import { drawHumanPageCurveDiagram } from "./drawHumanPageCurveDiagram";
 import { layoutHumanViewerPage } from "./layoutHumanViewerPage";
 import { mountHumanViewControls } from "./mountHumanViewControls";
 import { normalizeHumanCurves } from "./normalizeHumanCurves";
 import { normalizeHumanView } from "./normalizeHumanView";
 import { readHumanLegend } from "./readHumanLegend";
 import { resolveHumanCurves } from "./resolveHumanCurves";
+import { syncHumanViewerUrl } from "./syncHumanViewerUrl";
 
 /** What a load produces before display. */
 interface IProduced {
@@ -26,48 +26,21 @@ interface IProduced {
   milliseconds: number | null;
 }
 
-/** URL variables the page mirrors from its free view. */
-const FREE: readonly string[] = [
-  "az",
-  "el",
-  "view",
-  "target",
-  "dist",
-  "ortho",
-  "isolate",
-  "fit",
-  "garment",
-];
-
 /**
  * Mount the single Human page: generate, display, select and isolate curves, and capture `AutoMovieHuman` results.
  *
- * One scene, one `mountViewer` renderer and one key light serve both the
- * interactive view and every PNG capture, so the PNG service shows exactly
- * what a person sees here. The scene reproduces the reference photographs'
- * conditions (background `#f1f3f6`, hemisphere 0.6, key 2.2, fov 30);
- * {@link IHumanViewerPage.capture} additionally pins the drawing buffer to
- * 1200 x 1200 at pixel ratio 1 and places the camera with
- * {@link HumanCaptureCamera.place}. Free-view variables (`az`, `el`, `target`,
- * `dist`, `ortho`, `isolate`, `fit`, `garment`) modify the named camera on the page and in
- * captures alike. The page draws only when the camera, size, pass, selection
- * or model changes, so an idle page, including the worker's resident one,
- * spends no GPU time.
+ * One scene, renderer and key light serve the interactive view and every PNG. The default profile retains reference background, hemisphere 0.6, key 2.2 and fov 30; clay and raking are explicit development inspection conditions. Captures pin the buffer to 1200 x 1200 at DPR 1 with the shared camera framing rule.
  *
- * Every load retires the displayed model before generating, so a failure
- * leaves an empty viewport with the error, never an old model. Parameters come
- * from typed modules only (see {@link admitHumanParameters}). The page keeps
- * `alias`, `pass`, `camera`, `curves` and the free view in its URL and links
- * the PNG URL of the same view.
+ * Free-view variables include camera overrides, isolation, garments, hair, skin material and lighting. The page draws only when visible state changes. Every load retires the displayed model first, and failures leave an empty viewport. Typed inputs, the current pass, camera, curves and canonical view stay bound to the page URL and PNG link.
  *
  * @param root Element whose children this page replaces and owns until dispose.
  * @returns The page control surface, also published as `window.__automovieHuman` by the entry.
  *
- * @evidence contracts/common.md#principled-implementation Existing buildModel and mountViewer display the public generator's exact model under the reference scene conditions; captures read the preserved 1200 x 1200 buffer drawn with the reference framing rule, and the page renders its active perspective or orthographic camera itself.
- * @evidence contracts/common.md#clear-and-simple-design The page owns scene, renderer and load serialization; display state is HumanViewerModel, cameras HumanViewerCamera, Human display rules createHumanPartStyle, framing HumanCaptureCamera, readback captureHumanViewerFrame, diagrams drawHumanCurveDiagram and DOM layoutHumanViewerPage.
+ * @evidence contracts/common.md#principled-implementation Existing buildModel and mountViewer display the public generator's exact model under the reference scene conditions; captures read the preserved 1200 x 1200 buffer with the reference framing rule and explicit inspection lighting, and the page renders its active perspective or orthographic camera itself.
+ * @evidence contracts/common.md#clear-and-simple-design The page owns scene, renderer and load serialization; display state is HumanViewerModel, cameras HumanViewerCamera, Human display rules createHumanPartStyle, framing HumanCaptureCamera, frame application captureHumanPageFrame, diagram encoding drawHumanPageCurveDiagram and DOM layoutHumanViewerPage.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Loads retire the old model first and report failures explicitly; JSON is admitted only by equality with a typed example; no old model or image is shown as current.
  * @evidence contracts/common.md#meaningful-documentation States the shared scene, capture conditions, free view, on-demand drawing, failure rule and URL mirroring.
- * @evidence contracts/performance.md#efficient-algorithms Draws only when something visible changes; a load costs one generation and one model build, a capture up to six restyles, one draw and one PNG encode.
+ * @evidence contracts/performance.md#efficient-algorithms Draws only when visible state changes; a load costs one generation and model build, a capture up to nine restyles including restoration, one draw and one PNG encode.
  * @evidence contracts/performance.md#reuse-equivalent-work One scene, renderer and model serve interaction and every capture of a generation; display changes restyle instead of regenerating.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Holds at most one model; a load joins the previous model's retirement first, dispose releases model, controls, render loop and DOM, and loads are serialized by a busy flag.
  */
@@ -146,6 +119,8 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
     camera.follow(
       key,
       current?.bounds.getSize(new THREE.Vector3()).length() ?? 2,
+      hemisphere,
+      free.value.light,
     );
     renderer.render(scene, camera.active);
     return true;
@@ -175,31 +150,7 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
   /** Mirror the view into the URL and the links, so it can be fetched as a PNG. */
   const sync: () => void = (): void => {
     const alias: string | null = current?.loaded.alias ?? null;
-    const url: URL = new URL(location.href);
-    for (const name of ["document", ...FREE]) url.searchParams.delete(name);
-    for (const name of ["alias", "pass", "camera", "curves"])
-      url.searchParams.delete(name);
-    for (const [name, value] of [
-      ["alias", alias ?? ""],
-      ["pass", pass],
-      ["camera", view],
-    ] as const)
-      if (value === "") url.searchParams.delete(name);
-      else url.searchParams.set(name, value);
-
-    // Curves and the free view keep their readable canonical spelling.
-    const search: string = [
-      url.searchParams.toString(),
-      normalizeHumanCurves.query(curves),
-      free.text,
-    ]
-      .filter((part: string): boolean => part !== "")
-      .join("&");
-    history.replaceState(
-      null,
-      "",
-      url.pathname + (search === "" ? "" : "?" + search) + url.hash,
-    );
+    syncHumanViewerUrl(alias, pass, view, curves, free.text);
     const selection: IHumanViewerPage.ISelection | undefined =
       current?.selection();
     dom.setLinks(
@@ -213,10 +164,12 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
     if (current !== undefined)
       dom.setLegend(
         readHumanLegend(current.result.model),
-        selection!.selected.map((id: string, index: number) => ({
-          id,
-          colour: selection!.colours[index]!,
-        })),
+        selection!.selected.map(
+          (id: string, index: number): { id: string; colour: string } => ({
+            id,
+            colour: selection!.colours[index]!,
+          }),
+        ),
       );
     dom.setCurves(current?.curveIds() ?? [], curves);
     dom.setPassAvailability(current?.loaded.construction ?? false, pass);
@@ -279,7 +232,7 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
       try {
         model.setCurves(curves);
         model.setIsolate(free.value.isolate);
-        model.setGarment(free.value.garment);
+        model.setDisplay(free.value);
       } catch (error) {
         curves = "";
         free = normalizeHumanView((): null => null);
@@ -287,7 +240,8 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
       }
       place();
       dom.empty.hidden = true;
-      const { generateMilliseconds, bounds } = model.loaded;
+      const { generateMilliseconds, bounds }: IHumanViewerPage.ILoaded =
+        model.loaded;
       dom.state.textContent = JSON.stringify(
         {
           generation,
@@ -329,7 +283,10 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
     parameters: IAutoMovieHumanParameters,
     alias: string | null,
   ) => () => IProduced =
-    (parameters: IAutoMovieHumanParameters, alias: string | null) =>
+    (
+      parameters: IAutoMovieHumanParameters,
+      alias: string | null,
+    ): (() => IProduced) =>
     (): IProduced => {
       const start: number = performance.now();
       const result: IAutoMovieHumanGenerated =
@@ -406,13 +363,13 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
       const previous: ReturnType<typeof normalizeHumanView> = free;
       try {
         model.setIsolate(next.value.isolate);
-        model.setGarment(next.value.garment);
+        model.setDisplay(next.value);
         free = next;
         place();
       } catch (error) {
         free = previous;
         model.setIsolate(previous.value.isolate);
-        model.setGarment(previous.value.garment);
+        model.setDisplay(previous.value);
         throw error;
       }
       sync();
@@ -427,94 +384,31 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
       if (closed || busy || mount === undefined)
         throw new Error("Human viewer has no idle loaded model to capture");
       const model: HumanViewerModel = loaded();
-      const frameView: ReturnType<typeof normalizeHumanView> =
-        normalizeHumanView((variable: string): string | null =>
-          new URLSearchParams(query).get(variable),
-        );
       try {
-        // The frame's own pass, selection and view; all are restored below.
-        model.setPass(next);
-        const frameCurves: IHumanViewerPage.ISelection =
-          model.setCurves(selection);
-        model.setIsolate(frameView.value.isolate);
-        model.setGarment(frameView.value.garment);
-        const visibleParts: string[] = model.setPass(next);
-        const descriptor: HumanCaptureCamera.IDescriptor = model.describe(
+        return captureHumanPageFrame(
+          { model, renderer: mount.renderer, scene, key, hemisphere, shots },
           name,
-          frameView.value,
+          next,
+          selection,
+          query,
         );
-        const drawn: ReturnType<typeof captureHumanViewerFrame> =
-          captureHumanViewerFrame(
-            mount.renderer,
-            scene,
-            descriptor.orthographic === true
-              ? shots.orthographic
-              : shots.perspective,
-            key,
-            descriptor,
-            model.bounds,
-            frameCurves.selected.map((id: string, index: number) => ({
-              id,
-              colour: frameCurves.colours[index]!,
-            })),
-          );
-        return {
-          png: drawn.png,
-          capturedUtc: drawn.capturedUtc,
-          metadata: {
-            generation: model.loaded.generation,
-            alias: model.loaded.alias,
-            pass: next,
-            view: frameView.text,
-            curves: frameCurves,
-            visibleParts,
-            camera: drawn.placement,
-            bounds: model.loaded.bounds,
-            canvas: drawn.canvas,
-            background:
-              "#" +
-              new THREE.Color(HumanCaptureCamera.background).getHexString(),
-            hemisphere: {
-              sky: "#" + hemisphere.color.getHexString(),
-              ground: "#" + hemisphere.groundColor.getHexString(),
-              intensity: hemisphere.intensity,
-            },
-            renderer: drawn.renderer,
-          },
-        };
       } finally {
         // Restore the interactive view; the next frame resizes and redraws.
         model.setCurves(curves);
         model.setIsolate(free.value.isolate);
-        model.setGarment(free.value.garment);
+        model.setDisplay(free.value);
         model.setPass(pass);
+        camera.follow(
+          key,
+          model.bounds.getSize(new THREE.Vector3()).length(),
+          hemisphere,
+          free.value.light,
+        );
         size.width = 0;
         dirty = true;
       }
     },
-    diagram: async (
-      alias: string,
-      list: string,
-      format: "svg" | "png",
-    ): Promise<string> => {
-      // The legend reports the alias's model scale against the calibration.
-      const height: number | null = admitHumanParameters({ alias }).parameters
-        .body.controls.height.value;
-      const svg: string = drawHumanCurveDiagram(
-        AutoMovieHumanBodyCalibration,
-        list,
-        (height ?? Number.NaN) / AutoMovieHumanBodyCalibration.stature,
-      );
-      if (format === "svg") return svg;
-      const image: HTMLImageElement = new Image();
-      image.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
-      await image.decode();
-      const canvas: HTMLCanvasElement = document.createElement("canvas");
-      canvas.width = image.naturalWidth;
-      canvas.height = image.naturalHeight;
-      canvas.getContext("2d")!.drawImage(image, 0, 0);
-      return canvas.toDataURL("image/png");
-    },
+    diagram: drawHumanPageCurveDiagram,
     snapshot: (): IHumanViewerPage.ISnapshot => ({
       generation: current?.loaded.generation ?? 0,
       alias: current?.loaded.alias ?? null,

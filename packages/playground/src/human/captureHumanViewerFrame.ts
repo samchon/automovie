@@ -1,9 +1,11 @@
 import * as THREE from "three";
 
 import { HumanCaptureCamera } from "./HumanCaptureCamera";
+import { applyHumanInspectionLighting } from "./applyHumanInspectionLighting";
+import type { normalizeHumanView } from "./normalizeHumanView";
 
 /**
- * Draw one named camera at the reference capture conditions and read the PNG back.
+ * Draw one named camera with the requested display and inspection conditions and read the PNG back.
  *
  * The drawing buffer is set to 1200 x 1200 at pixel ratio 1, the shot camera
  * is placed by {@link HumanCaptureCamera.place}, and the PNG is read with
@@ -11,7 +13,9 @@ import { HumanCaptureCamera } from "./HumanCaptureCamera";
  * `preserveDrawingBuffer`, so the read sees the drawn pixels. The caller owns
  * restoring its interactive size, which this function leaves at 1200 x 1200.
  * A frame with a curve selection carries a legend box listing each curve id
- * in its colour; frames without one stay identical to the reference conditions.
+ * in its colour. Reference comparison requires the matching named camera and
+ * surface pass, empty selection, no free-view overrides, default hair and
+ * garment visibility, generated appearance and reference lighting.
  *
  * @param renderer Renderer of the page's canvas.
  * @param scene Scene with the model, already set to the wanted pass and selection.
@@ -20,9 +24,11 @@ import { HumanCaptureCamera } from "./HumanCaptureCamera";
  * @param descriptor Camera direction and region from `HumanCaptureCamera.describe`.
  * @param bounds Whole surface bounds in metres.
  * @param legend Selected curves and their colours; non-empty draws a legend box at the top left of the PNG.
+ * @param hemisphere Existing ambient light; changed only by the inspection profile.
+ * @param light Reference or raking inspection profile, recorded through the actual placement and ambient values.
  * @returns PNG data URL, capture time, placement, canvas facts and the WebGL renderer strings.
  *
- * @evidence contracts/common.md#principled-implementation Pins the drawing buffer and pixel ratio, places the shot camera with the reference framing rule, draws once and reads the preserved buffer, then checks the canvas reached 1200 x 1200.
+ * @evidence contracts/common.md#principled-implementation Pins the drawing buffer and pixel ratio, places the shot camera with the reference framing rule, applies the shared inspection-light profile, draws once and reads the preserved buffer, then checks the canvas reached 1200 x 1200.
  * @evidence contracts/common.md#clear-and-simple-design One function owns the readback conditions; pass, selection and restoring the interactive view stay with the page.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A wrong canvas size throws instead of returning a mis-sized PNG; renderer strings are read from the context, never assumed.
  * @evidence contracts/common.md#meaningful-documentation States the conditions, the preserveDrawingBuffer premise and what the caller must restore.
@@ -38,6 +44,8 @@ export function captureHumanViewerFrame(
   descriptor: HumanCaptureCamera.IDescriptor,
   bounds: THREE.Box3,
   legend: ReadonlyArray<{ id: string; colour: string }>,
+  hemisphere: THREE.HemisphereLight,
+  light: normalizeHumanView.IView["light"],
 ): {
   png: string;
   capturedUtc: string;
@@ -53,6 +61,14 @@ export function captureHumanViewerFrame(
     descriptor,
     bounds,
     1,
+  );
+  placement.light = applyHumanInspectionLighting(
+    key,
+    hemisphere,
+    shot,
+    new THREE.Vector3().fromArray(placement.target),
+    bounds.getSize(new THREE.Vector3()).length(),
+    light,
   );
   renderer.render(scene, shot);
   const capturedUtc: string = new Date().toISOString();

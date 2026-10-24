@@ -50,6 +50,8 @@ export namespace AutoMovieHumanRevolution {
   export function mesh(props: {
     strips: IStrip[];
     frame: IFrame;
+    /** Calibration millimetres to model metres, shared with the eyelids. */
+    scale: number;
     uv:
       | ((
           x: number,
@@ -81,13 +83,13 @@ export namespace AutoMovieHumanRevolution {
       const ring: number = strip.segments + 1;
 
       for (let i: number = 0; i < n; ++i) {
-        const [x, rho] = strip.profile[i]!;
+        const [x, rho]: [number, number] = strip.profile[i]!;
 
         // Profile tangent by one-sided differences at the ends and central
         // differences inside; the profile normal is the tangent rotated
         // toward the visible side.
-        const [x0, r0] = strip.profile[Math.max(0, i - 1)]!;
-        const [x1, r1] = strip.profile[Math.min(n - 1, i + 1)]!;
+        const [x0, r0]: [number, number] = strip.profile[Math.max(0, i - 1)]!;
+        const [x1, r1]: [number, number] = strip.profile[Math.min(n - 1, i + 1)]!;
         const tx: number = x1 - x0;
         const tr: number = r1 - r0;
         const length: number = Math.hypot(tx, tr) || 1;
@@ -108,7 +110,7 @@ export namespace AutoMovieHumanRevolution {
           // Millimetres to metres for the position only; normals are unit.
           for (let a: number = 0; a < 3; ++a) {
             positions.push(
-              o[a]! + (x * ex[a]! + ly * ey[a]! + lz * ez[a]!) / 1000,
+              o[a]! + (x * ex[a]! + ly * ey[a]! + lz * ez[a]!) * props.scale,
             );
             normals.push(nx * ex[a]! + ny * ey[a]! + nz * ez[a]!);
           }
