@@ -4,7 +4,7 @@ A review reads as the next recipient, not as the author defending the text. Use 
 
 ## Read before auditing
 
-Read the complete selected body first and record the first response and every concrete loss of understanding, intent, tension, performance, or continuity before opening author evidence. Then read the relevant contracts, actual parents, adopted work requirements, and evidence; audit the grounds against the entire unit rather than a matching quotation.
+Prepare the reading record from the [review-record questions](../../.agents/skills/contracts/story/shared/principles/review.md#independent-reading) before reading the body. Read the complete selected body and lock the first response and every concrete loss of understanding, intent, tension, performance, or continuity before opening author evidence. Then read the creative contracts, actual parents, adopted work requirements, and evidence; audit the grounds against the entire unit rather than a matching quotation.
 
 After locking that reading, build an inventory from the actual body independently of its contract answers: facts, quantities, chronology, names, titles and forms of address, number and date notation, recurring words and constructions, literal quotations, and consequential action, image, sound, and continuity values. Compare every element with its actual source or parent and its adopted language and work requirements. Contract questions and relationship rows cannot replace this inventory. Account for each first-reading concern as a supported finding or a withdrawal supported by the actual passage.
 

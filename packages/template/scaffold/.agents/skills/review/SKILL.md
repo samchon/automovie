@@ -5,7 +5,7 @@ description: Independently reviews production bodies, evidence, and delivered ou
 
 # Review
 
-Read the complete requested scope from the recipient's perspective. For narrative passes, follow [independent review](../../../docs/guides/narrative-review.md): read and lock the first response before consulting the author's evidence, then inspect contracts, parents, and claims. A self-review does not satisfy an independent pass; use a fresh reviewer context and report when that cannot be provided.
+Read the complete requested scope from the recipient's perspective. For narrative passes, follow [independent review](../../../docs/guides/narrative-review.md): prepare the reading record and lock the first response before consulting the author's evidence, then inspect creative contracts, parents, and claims. A self-review does not satisfy an independent pass; use a fresh reviewer context and report when that cannot be provided.
 
 For selected narrative work, the installed production checker described in the [evidence guide](../../../docs/guides/evidence.md#complete-a-pass-check) validates current graph structure, dependencies, reviews, and rewriting transfer. Its readiness result does not issue a semantic PASS. Record current unit reviews and a whole-pass verdict only after the required reading and finding resolution.
 
