@@ -1,3 +1,4 @@
+import { AutoMovieHumanMonotoneCubic } from "../lofting/AutoMovieHumanMonotoneCubic";
 import { AutoMovieHumanHairline } from "../typings/AutoMovieHumanHairline";
 
 /**
@@ -22,8 +23,12 @@ import { AutoMovieHumanHairline } from "../typings/AutoMovieHumanHairline";
  * smooth arc; `rectangular` a flat front with a sharp temporal corner;
  * `mShaped` raised over the temples; `bellShaped` with the midline about
  * 2 cm higher; `triangular` descending almost straight from the midline to
- * the temples. Interpolation is monotone piecewise cubic (Fritsch and
- * Carlson 1980), so the boundary never overshoots between knots.
+ * the temples. Interpolation is monotone piecewise cubic
+ * (`AutoMovieHumanMonotoneCubic`), so the boundary never overshoots between
+ * knots, and level at both ends: the knots run from the front midline
+ * (0 degrees) to the back midline (180 degrees) of a boundary mirrored
+ * across both, where any other end slope would fold into a cusp, a notch
+ * at the parting of the frontal hairline.
  */
 export namespace AutoMovieHumanScalpBoundary {
   /**
@@ -43,7 +48,7 @@ export namespace AutoMovieHumanScalpBoundary {
     let degrees: number = Math.abs((alpha * 180) / Math.PI) % 360;
     if (degrees > 180) degrees = 360 - degrees;
     const knots: Array<[number, number]> = [...FRONT[hairline], ...COMMON];
-    return interpolate(knots, degrees) * headHeight;
+    return AutoMovieHumanMonotoneCubic.interpolate(knots, degrees) * headHeight;
   }
 }
 
@@ -66,11 +71,21 @@ const FRONT: Record<AutoMovieHumanHairline, Array<[number, number]>> = {
     [36, 0.41],
     [50, 0.3],
   ],
+  // Zhang's "about 2 cm higher" is a trichion-glabella distance, which
+  // anthropometry takes straight across a forehead that slopes back, so it
+  // rises much less than 2 cm; adding 2 cm vertically (0.42) put the
+  // trichion within 15 mm of the vertex, where the rendered head read as
+  // bald. The midline here is about 1.5 cm higher along the forehead than
+  // the round class (0.37 against 0.33 on an adult midline profile), a
+  // convention of this prototype within that reading. A bell is a dome,
+  // nearly level over the central forehead before it falls to the temples,
+  // not a peak at the midline.
   [AutoMovieHumanHairline.BellShaped]: [
-    [0, 0.42],
-    [18, 0.37],
-    [36, 0.31],
-    [50, 0.26],
+    [0, 0.37],
+    [16, 0.365],
+    [32, 0.33],
+    [46, 0.28],
+    [56, 0.23],
   ],
   [AutoMovieHumanHairline.Triangular]: [
     [0, 0.38],
@@ -91,48 +106,3 @@ const COMMON: Array<[number, number]> = [
   [160, -0.32],
   [180, -0.33],
 ];
-
-/**
- * Monotone piecewise cubic Hermite interpolation (Fritsch-Carlson).
- *
- * Interior slopes are the harmonic mean of the neighbouring secants when
- * those agree in sign and zero otherwise, which keeps each piece within
- * its knot values. End slopes are zero: the knots run from the front
- * midline (0 degrees) to the back midline (180 degrees) of a boundary that
- * is mirrored across both, so any other end slope would fold into a cusp
- * there, a notch at the parting of the frontal hairline.
- *
- * @param knots Strictly increasing abscissae with values
- * @param x Abscissa, clamped to the knot range
- * @returns Interpolated value
- */
-function interpolate(knots: Array<[number, number]>, x: number): number {
-  const n: number = knots.length;
-  if (x <= knots[0]![0]) return knots[0]![1];
-  if (x >= knots[n - 1]![0]) return knots[n - 1]![1];
-
-  let k: number = 0;
-  while (knots[k + 1]![0] < x) ++k;
-
-  const secant: (i: number) => number = (i: number): number =>
-    (knots[i + 1]![1] - knots[i]![1]) / (knots[i + 1]![0] - knots[i]![0]);
-  const slope: (i: number) => number = (i: number): number => {
-    if (i === 0 || i === n - 1) return 0;
-    const a: number = secant(i - 1);
-    const b: number = secant(i);
-    return a * b <= 0 ? 0 : (2 * a * b) / (a + b);
-  };
-
-  const [x0, y0] = knots[k]!;
-  const [x1, y1] = knots[k + 1]!;
-  const h: number = x1 - x0;
-  const t: number = (x - x0) / h;
-  const t2: number = t * t;
-  const t3: number = t2 * t;
-  return (
-    (2 * t3 - 3 * t2 + 1) * y0 +
-    (t3 - 2 * t2 + t) * h * slope(k) +
-    (-2 * t3 + 3 * t2) * y1 +
-    (t3 - t2) * h * slope(k + 1)
-  );
-}
