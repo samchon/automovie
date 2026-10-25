@@ -1,10 +1,10 @@
 # Read-only experience estimation
 
-Use this guide with the [estimation skill](../../.agents/skills/estimation/SKILL.md) when the user asks for a quality assessment. It preserves independent recipient reactions and edition comparison separately from creative approval.
+Use this method for a requested read-only quality assessment, preserving independent recipient reactions and edition comparison separately from creative approval.
 
 ## Scope and independent judgments
 
-Fix the requested scope. Without a narrower request, assess all existing selected narrative layers under `docs/body` and their frozen construction editions under `docs/revision`. Read configuration only to identify scope, and locate the declared audience and promise without using stage or approval status as evidence of quality. Before judging the final screenplay or delivered video, select at most two central experience axes from the promise, or state that none was declared.
+Fix the requested scope and artifact role. A commissioned motion hint is assessed for its intended visible action, staging and conditioning information, not as an uncommissioned post-diffusion film; preserve all applicable assessment procedures below. An instance-only or screenplay-only request does not imply whole-video production. Without a narrower request, assess all existing selected narrative layers under `docs/body` and their frozen construction editions under `docs/revision`. Read configuration only to identify scope, and locate the declared audience and promise without using stage or approval status as evidence of quality. Before judging the final screenplay or delivered video, select at most two central experience axes from the promise, or state that none was declared.
 
 Use at least two fresh judges with the author's model when it is known and available, each making two independent judgments. A light request can use one judge and one judgment; disclose that reduction and any unavailable model match. The coordinator assigns and aggregates rather than supplying its own confirming vote. Give judges the promise, scope, this method, and annotation-free bodies or actual media; withhold author identity, generation method, conversation, work memory, contracts, evidence, review records, and other judgments. Do not send their output to an approval reviewer.
 

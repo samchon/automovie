@@ -1,6 +1,12 @@
-# Assets
+# Asset workflows
 
 Choose an asset workflow from what the production needs to show and control. A short scene can use a ready asset with a few placements; a recurring character may need editable proportions, expressions, and motion across many scenes. A standalone modeling task can define its required views and controls without a screenplay.
+
+## Start with programmed control
+
+For newly authored 3D work, build stick figures, coarse block forms or simple frames first. Keep actor/object identity, meaningful dimensions, pivots, attachments and control interfaces independent of surface shape and tessellation. Expose actual project-owned representation/detail options and per-instance overrides where needed; do not claim an installed Human switch without its current API. Verify the coarse form and promised controls. For animated work, [motion](../motion/SKILL.md) owns choreography, timing and physical feedback, including the complete low-cost motion sequence before visual upgrades. Retained assets already meeting the task need no gratuitous rebuild.
+
+After the coarse representation and any commissioned motion work, upgrade only objects whose visible role needs it, retaining the controls and measured host budget. This applies to mixed-detail diffusion hints and requested finished direct 3D films. Human is an optional identity/expression representation, not a prerequisite for correct performance. Important hint objects can remain coarse frames; an unimportant object can remain screenplay description when the chosen conditioning does not need to show it. Record these choices through [production decisions](../production/profile.md).
 
 ## Choose A Source And Representation
 
@@ -10,7 +16,7 @@ Choose an asset workflow from what the production needs to show and control. A s
 | Recover a fixed mesh or supported image observations | The source supplies a shape whose recovered representation needs editing or regeneration | Preserve acquisition and registration, save recovered coefficients, and judge the independent reconstruction |
 | Use an existing or generated asset directly | Its supported geometry, materials, rig, and clips already meet the task | Preserve the admitted bytes and adapt placement, performance, and appearance through supported controls |
 
-These workflows can coexist in one assembly. A generated mesh can be used directly, recovered, or replaced by a crafted part according to its required edits. Recovery is useful when its supported representation supplies the needed control; it is not a prerequisite for placing an external asset. Check the installed import and rendering capabilities before committing to a source format or extension.
+A generated or supplied 2D image can provide appearance reference or a supported conditioning asset; it does not replace coded main-scene motion and the whole assembled video when that hint is commissioned. When detailed 3D is needed, choose a supported generated mesh, multiview acquisition with recovery/postprocessing, or a 3D service according to the control requirement. Recover lofting curves or another editable representation only where motion, deformation or code ownership needs that control. These workflows can coexist in one assembly. A generated mesh can be used directly, recovered, or replaced by a crafted part according to its required edits. Recovery is useful when its supported representation supplies the needed control; it is not a prerequisite for placing an external asset. Check the installed import and rendering capabilities before committing to a source format or extension.
 
 Freeze selected external bytes and their sidecars with hashes, source identity, acquisition settings, and applicable usage terms. A URL, model name, or seed alone does not identify the asset actually used. Preserve the original separately from converted, simplified, or recovered derivatives, and record which source each derivative consumes.
 
@@ -30,14 +36,11 @@ Save the recovered coefficients and relationships, then reconstruct from those s
 
 Compare the source and reconstruction under matched camera, scale, pose, and lighting conditions. Distinguish a reconstructed surface from lines displayed over the original source. Inspect diagnostics and uncovered regions alongside the render, because a completed observation or a small fitting residual does not establish usable appearance or motion. Limited observations justify only the shape and views they support.
 
-## Plan And Inspect The Rendered Use
+Use [rendered-use inspection](inspection.md) to verify the chosen representation through its actual consumer.
 
-Select inspection conditions from the intended use and the change's reach. A static background prop and a reusable articulated character need different coverage. Include the affected shot cameras, visible details, assembled neighbors, and any additional view needed to expose a suspected shape or junction defect. Broader reuse requires broader view and motion coverage; a shot-specific result should say which use was checked.
 
-When changing shape, inspect the actual generating construction alongside the surface to trace defects to their cause. Check form under light that exposes it, then judge materials and lighting in the intended presentation. For moving assemblies, inspect relevant intermediate poses, extremes, contacts, and returns, including combinations affected by changed proportions or attachments.
+## Conditioning and acquisition references
 
-Capture current output from the real consumer with the source revision, asset identities, time or pose, camera, renderer, and detail settings needed to repeat the observation. Compare changes under matching conditions. A blank frame, stale capture, or output nobody inspected remains unverified.
+[ControlNet](https://github.com/lllyasviel/ControlNet) demonstrates pose and depth conditioning. Treat this as a reason to verify the selected model's actual input contract, not a guarantee that an arbitrary render or skeletal style is admitted. [Wan-Animate preprocessing](https://github.com/Wan-Video/Wan2.2/blob/main/wan/modules/animate/preprocess/UserGuider.md) extracts reference-video skeletons and discusses retargeting for differing proportions; inspect the extracted/retargeted skeleton over the affected sequence before trusting it. This compatibility check does not promise that diffusion repairs bad source motion.
 
-Measure rendering cost at the intended resolution, asset population, and motion load. If a lower specification host is a requirement, observe that host or report the untested limitation; a coarser mesh alone does not establish acceptable memory or frame time. Keep measured budgets and accepted visual compromises with the production decisions.
-
-Complete each inspection round before editing: collect every affected render, measurement, diagnostic, and failure; relate each phenomenon to its cause and contributing conditions; then correct all identified causes together. Repeat the original conditions across all affected consumers and inspect regressions before accepting the change. Use the [asset questions](../../.agents/skills/contracts/assets.md) for review; the [contracts guide](contracts.md) owns formal adoption and respondent selection.
+[Hunyuan3D](https://github.com/Tencent-Hunyuan/Hunyuan3D-2) documents image-to-shape and multiview shape workflows. A generated mesh remains an optional fixed source: inspect its usable geometry and controls before direct use, and recover only the representation the requested edits need. These external workflows establish no installed AutoMovie feature or automatic rigging capability.

@@ -1,6 +1,6 @@
 # Upstream repair exposed by final screenplay
 
-Each final screenplay H2 answers about its actual script parents and their treatment and settings causes. A short work authorized to begin at screenplay instead identifies the brief and creative constraints that serve as its actual parents; it does not claim nonexistent upstream stages. Repair follows the [closed-pass boundary](../../../../../../docs/guides/narrative-lifecycle.md#upstream-repair-and-scope).
+Each final screenplay H2 answers about its actual script parents and their treatment and settings causes. A short work authorized to begin at screenplay instead identifies the brief and creative constraints that serve as its actual parents; it does not claim nonexistent upstream stages. Repair follows the [closed-pass boundary](../../../../upstream-repair/closed-passes.md).
 
 ## What did audiovisual realization prove missing or unusable upstream? {#screenplay-upstream-repair}
 

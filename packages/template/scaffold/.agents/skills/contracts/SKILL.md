@@ -1,14 +1,16 @@
 ---
 name: contracts
-description: Applies engineering and creative obligations to their actual respondents and configures production evidence. Use before writing or reviewing selected work or changing evidence scope.
+description: Adopts engineering, creative, asset, and delivery requirements at their actual owners. Use when deciding which obligations apply, adding or changing a work requirement, or reviewing selected work against them.
 ---
 
 # Contracts
 
-The default `evidence.config.ts` selects engineering populations. Narrative work adds narrative options to that same configuration through the [evidence guide](../../../docs/guides/evidence.md#choose-the-production-scope) while retaining that baseline. Exported source declarations answer [common](common.md), and exported test functions answer [testing](testing.md).
+Find the existing obligation before adding another. Exported source declarations answer [common](common.md), and exported test functions answer [testing](testing.md). [Story contracts](story/index.md) retain unit principles, population obligations, discovery, upstream repair, expression revision, and independent review as distinct families. Apply their selected questions to the actual work and respondent, rather than treating a scene as proof of a whole population.
 
-The narrative system under [story](story/index.md) preserves unit principles, population obligations, discovery, upstream repair, rewriting, and independent review as distinct families. Long mode applies all four layers; short mode applies final screenplay and its rewriting/review path. Standalone assets need no narrative configuration or obligations. Disabled passes draft their bodies before enabling evidence; they are not a way to drop required responsibilities.
+When a requirement is missing or changes, use [adoption](adoption.md) to choose its canonical owner, observable difference, and narrowest honest scope. [Instructions](../instructions/SKILL.md) preserves creative user choices; [project context](../production/profile.md) owns operating scope and choices; [discovery](../discovery/SKILL.md) investigates what existing owners do not cover. Work and language duties supplement shared questions; never weaken a question or its selected population to conceal a defect.
 
-Use [evidence writing](../evidence-writing/SKILL.md) for creative answers and [rewriting](../rewriting/SKILL.md) for expression passes. The [contracts guide](../../../docs/guides/contracts.md) owns adoption and technical ownership. Assets and delivery retain their own [questions](assets.md) and [handoff criteria](delivery.md); choose formal respondents where they can establish the facts.
+Use [evidence configuration](../evidence-configuration/SKILL.md) to wire populations and relationships while preserving the engineering baseline. It owns graph configuration, not answer prose. Use [evidence writing](../evidence-writing/SKILL.md) to compare the complete respondent with the complete selected requirement, correct the work, and write its grounds.
 
-Each selected question needs a declaration-specific answer. Fix the work before claiming compliance and report unresolved limits. Mechanical coverage establishes connections; [review](../review/SKILL.md) establishes their truth. Keep respondents and selectors aligned with their contracts. Handle changed narrative requirements, answers, and reviews through the [lifecycle boundary](../../../docs/guides/narrative-lifecycle.md#upstream-repair-and-scope).
+Assets and delivery retain their own [questions](assets.md) and [handoff criteria](delivery.md). Select evidence for the requested screenplay, generation hint, finished film, or asset; required motion and controls do not imply a particular figure system, reconstruction method, or photorealistic finish. [Delivery review](../delivery-review/SKILL.md) checks the actual commissioned result.
+
+Each selected question needs a respondent-specific answer and unresolved limits. Mechanical coverage establishes connections; independent [review](../review/SKILL.md) tests their truth and the recipient's experience. [Narrative completion](../narrative-completion/SKILL.md) owns pass completion, and [upstream repair](../upstream-repair/SKILL.md) owns the closed-proof boundary when requirements or their consumers change.

@@ -1,6 +1,6 @@
 # Upstream repair exposed by scripts
 
-Each script H2 answers about its actual treatment parents and, through them, settings causes. Repair follows the [closed-pass boundary](../../../../../../docs/guides/narrative-lifecycle.md#upstream-repair-and-scope).
+Each script H2 answers about its actual treatment parents and, through them, settings causes. Repair follows the [closed-pass boundary](../../../../upstream-repair/closed-passes.md).
 
 ## What did scene execution prove missing or unusable upstream? {#script-upstream-repair}
 
