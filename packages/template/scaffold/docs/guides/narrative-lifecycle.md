@@ -33,7 +33,7 @@ The [cycle rules](../../.agents/skills/rewriting/cycles.md) distinguish the init
 
 Finish the whole working version while its pass is disabled, using [repair by cause](#repair-by-cause) for the author's complete reading and correction. Open evidence when complete, attach answers and rewriting notes in comments, and submit working version and frozen construction to independent review.
 
-Retain working version, evidence, frozen original, findings, and author verdicts. After a clean whole round, transfer the working version to `docs/body` with HTML comments removed, preserving every other byte. The transferred unit's construction evidence, review, and approval remain closed against the frozen construction. Do not rewrite those answers or renew construction review or approval for the transferred text; report any construction diagnostics without repairing them. An unchanged working edition keeps its naturalness review. Downstream work receives the body only when it exactly equals the comment-free reviewed working edition.
+Retain working version, evidence, frozen original, findings, and author verdicts. After a clean whole round, transfer the working version to `docs/body` with HTML comments removed, preserving every other byte. The transferred unit's construction evidence, review, and approval remain closed against the frozen construction. Do not rewrite those answers or renew construction review or approval for the transferred text; report any construction diagnostics without repairing them. An unchanged working edition keeps its naturalness review. This initial handoff requires exact equality with the comment-free reviewed working edition; later semantic repairs follow [upstream repair](#upstream-repair-and-scope).
 
 Expression repairs preserve the frozen original and correct the working version. A defect in original facts, events, or execution follows upstream repair. A new construction starts a new cycle; previous approvals and evidence cannot become proof of the new body.
 
@@ -56,6 +56,8 @@ For a questionable expression retained on function, write a workable alternative
 ## Upstream repair and scope
 
 Repair missing facts, contradictions, or an unworkable design at the earliest construction owner. Change downstream bodies only where a sentence actually consumes the changed value. Closed layers are not reviewed again, whether downstream work repairs their bodies or upstream changes produce diagnostics in them. An upstream change does not reopen either layer's evidence, reviews, or approvals. Remove answers for deleted H2s and write answers for newly created H2s only; report other upstream-change diagnostics without repairing them. Keep expression fidelity repairs in the working edition with its frozen original unchanged.
+
+After an already completed expression transfer, hand off the repaired body and its repair scope with the unfiltered report, preserving that transfer's working edition and frozen original. Any stale or pending-transfer result remains a failed check; do not promote the old working edition over the repair.
 
 When replacing a unit from scratch, remove its obsolete current construction answers, frozen original, working version, and corresponding current review records, together with obsolete descendants being replaced. Preserve completed material outside that scope and history in version control. A reused filename does not carry old approval into new content.
 
