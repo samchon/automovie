@@ -42,4 +42,4 @@ The installed instructions, contracts, configuration, and authored source belong
 
 Keep routing in `AGENTS.md`, task goals and boundaries in skills, and branch detail in guides. Installed APIs own their callable behavior. The blank scaffold supplies no viewer or render host; choose and wire the actual delivery entry before claiming a runnable production.
 
-Prove a representative render and media path before scaling repeated work. After a source fact, event, voice take, asset, or edit changes, update dependent bodies, evidence, current reviews, timing, and observations. Whole-work completion requires the separate final review, not a sum of local or pilot successes.
+Prove a representative render and media path before scaling repeated work. After a source fact, event, voice take, asset, or edit changes, update the bodies, timing, and observations actually affected. Narrative evidence and reviews follow the lifecycle's [closed-pass boundary](narrative-lifecycle.md#upstream-repair-and-scope); changed assets and media still need actual-output verification. Whole-work completion requires the separate final review, not a sum of local or pilot successes.

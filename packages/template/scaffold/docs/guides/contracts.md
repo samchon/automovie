@@ -14,7 +14,7 @@ The [story contracts](../../.agents/skills/contracts/story/index.md) separate pr
 
 The factory wires the actual inherited relationships. Treatments consume settings; scripts and screenplay cover the treatments they realize; screenplay preserves script file/section lineage. Differently partitioned event-to-scene coverage remains many-to-many. Rewriting working editions preserve the corresponding frozen construction identities.
 
-Construction evidence is separate from creative bodies. Independent review mirrors current units and has a whole-pass verdict; changed source fingerprints require rereading. The pass checker evaluates the original complete graph, prerequisites, and working-to-body transfer without converting frozen downstream failures into a package pass. Structural readiness and the reviewer's semantic acceptance remain separate.
+Construction evidence is separate from creative bodies. Independent review mirrors the units of its declared edition and has a whole-pass verdict. [Upstream repair and expression transfer](narrative-lifecycle.md#upstream-repair-and-scope) preserve closed approvals at their own snapshots. The pass checker evaluates the original complete graph, prerequisites, and working-to-body transfer without converting frozen downstream failures into a package pass. Structural readiness and the reviewer's semantic acceptance remain separate.
 
 Read [evidence writing](../../.agents/skills/evidence-writing/SKILL.md), [rewriting](../../.agents/skills/rewriting/SKILL.md), and the [lifecycle guide](narrative-lifecycle.md) for authoring and completion. The installed `@wrtnlabs/evidence` README owns annotation and graph API syntax; `@automovie/evidence` owns production configuration and checking. The [evidence guide](evidence.md) owns their creative use.
 
@@ -22,7 +22,7 @@ Read [evidence writing](../../.agents/skills/evidence-writing/SKILL.md), [rewrit
 
 Use [instructions](../../.agents/skills/instructions/SKILL.md) to preserve user choices and [discovery](../../.agents/skills/discovery/SKILL.md) to find responsibilities the shared contracts do not cover. Add a narrowly scoped work contract and its real claim owner rather than copying a rule into the screenplay. A search with no new requirement records its inspected scope and adequate existing owners in the discovery carrier.
 
-The shared questions retain language discovery, value fidelity, idiomatic writing and speech, relationship language, and cross-population interference for the work's actual language. Additional language-specific standards can be adopted at their narrow owner; the scaffold does not force Korean or copy novel-only prose rules. A change to an adopted question updates its selectors, answers, and dependent reviews together. Never weaken an obligation to conceal a defect.
+The shared questions retain language discovery, value fidelity, idiomatic writing and speech, relationship language, and cross-population interference for the work's actual language. Additional language-specific standards can be adopted at their narrow owner; the scaffold does not force Korean or copy novel-only prose rules. Keep selectors aligned with adopted questions; handle narrative answers and reviews under the [closed-pass boundary](narrative-lifecycle.md#upstream-repair-and-scope). Never weaken an obligation to conceal a defect.
 
 ## From final screenplay to delivered video
 
