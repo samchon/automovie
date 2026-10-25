@@ -6,6 +6,7 @@ import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanPar
 import { AutoMovieHumanBodyCalibration } from "./AutoMovieHumanBodyCalibration";
 import { AutoMovieHumanBodyWarp } from "./AutoMovieHumanBodyWarp";
 import { AutoMovieHumanBodyWarpField } from "./AutoMovieHumanBodyWarpField";
+import { AutoMovieHumanEventJoin } from "./AutoMovieHumanEventJoin";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanBodyMorph } from "./IAutoMovieHumanBodyMorph";
 import { AutoMovieHumanBodyMorphCalibration } from "./calibration/AutoMovieHumanBodyMorphCalibration";
@@ -92,8 +93,15 @@ export namespace AutoMovieHumanBodyLaw {
       field,
       shaped.vermilion.spans,
     );
+
+    // The basis and the warp move each chain's end layer by their own
+    // maps, which reopens the gaps and creases the specimen's event join
+    // closed (on m1 the head rings and the neck showed again, the child
+    // rings up to 0.8 mm off their parents' at the 90th percentile), so
+    // every person's children are rejoined to their parents' rings and
+    // tangent planes.
     return {
-      body: warped.body,
+      body: AutoMovieHumanEventJoin.reconcile(warped.body),
       vermilion: { ...shaped.vermilion, spans: warped.vermilion },
     };
   }

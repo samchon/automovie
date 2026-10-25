@@ -5,11 +5,25 @@ import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftCha
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 
 /**
- * Tangent-plane continuity across branch events.
+ * Position and tangent-plane continuity across branch events.
  *
- * At an event the child inherits the parent's contact ring, so the two
- * surfaces share positions there, but each chain's end layer carries its
- * own fitted station slopes. Where those slopes put the child's surface at
+ * At an event the child's mesh inherits the parent's contact ring, while
+ * the child's own end layer is evaluated from its coefficients. The fitter
+ * makes the two agree, but the shape law maps parent and child through
+ * their own morph displacements and warp maps, which differ at the ring:
+ * measured on m1 the child's end ring lay 0.2 mm (median) and 0.8 mm (90th
+ * percentile) off the parent's ring at 1502 mm, and up to 2.8 mm at the
+ * eye-height ring. The mesh closes that gap inside the child's first band,
+ * which shades as a line round the face. The first rule moves the child's
+ * end ring onto the parent's: each end point goes to the nearest point of
+ * the parent's ring, and the move fades out over the child's layers within
+ * {@link REACH} mm of the ring (at least two layers), with the station
+ * slopes the fade implies, so the child closes the gap over a few
+ * millimetres instead of one band. Points off the parent's arcs (the bridge
+ * across a pinch) and farther than {@link SNAP} mm from the parent's ring
+ * keep their place.
+ *
+ * Each chain's end layer also carries its own fitted station slopes. Where those slopes put the child's surface at
  * an angle to the parent's, the shared ring prints a crease: measured on
  * the f1 calibration it reached 4 degrees at the 90th percentile and 20
  * degrees at worst along the 1595.5 mm head ring (from the outer eye
@@ -98,7 +112,13 @@ type Vec3 = [number, number, number];
 /** Fade length before a pinch, mm. */
 const TAPER: number = 6;
 
-/** Child chain with its end layer at the event re-sloped. */
+/** Station reach over which the child's end-ring move fades out, mm. */
+const REACH: number = 4;
+
+/** Largest end-ring gap closed, mm; a farther point is not on the parent. */
+const SNAP: number = 3;
+
+/** Child chain moved onto the parent's ring and re-sloped. */
 function join(
   parent: IAutoMovieHumanLoftChain,
   child: IAutoMovieHumanLoftChain,
@@ -106,15 +126,29 @@ function join(
   arcs: [number, number][],
 ): IAutoMovieHumanLoftChain {
   if (child.basis !== "spline") return child;
+  return slope(parent, place(parent, child, direction, arcs), direction, arcs);
+}
+
+/** Dense parent ring at an event and the arc weight of a phase on it. */
+interface IRing {
+  sp: number;
+  points: Vec3[];
+  weight: (t: number) => number;
+}
+
+/** Samples of the dense parent ring. */
+const RING: number = 2048;
+
+/** The parent's ring at an event and the weight of its phases on the child's arcs. */
+function parentRing(
+  parent: IAutoMovieHumanLoftChain,
+  direction: "down" | "up",
+  arcs: [number, number][],
+): IRing {
   const last: number = parent.layers.length - 1;
   const sp: number =
     direction === "down" ? parent.layers[0]!.y : parent.layers[last]!.y;
-  const k: number = direction === "down" ? child.layers.length - 1 : 0;
-  const sc: number = child.layers[k]!.y;
-
-  // Dense parent ring with cumulative arc length, for projection and for
-  // the distance of a phase from the nearest pinch.
-  const n: number = 2048;
+  const n: number = RING;
   const ring: Vec3[] = AutoMovieHumanLoftChain.ring(
     parent,
     sp,
@@ -135,8 +169,6 @@ function join(
   const whole: boolean = arcs.some(
     ([a, b]: [number, number]): boolean => b - a >= 2 * Math.PI - 1e-9,
   );
-
-  // Weight of a parent phase: inside one of the arcs, fading near pinches.
   const weight: (t: number) => number = (t: number): number => {
     if (whole) return 1;
     let best: number = 0;
@@ -150,6 +182,160 @@ function join(
     }
     return best;
   };
+  return { sp, points: ring, weight };
+}
+
+/** Nearest point of a dense ring to p: its phase, the point on the closer neighbouring segment, and the distance. */
+function nearest(ring: IRing, p: Vec3): [number, Vec3, number] {
+  const n: number = ring.points.length;
+  let best: number = 0;
+  let distance: number = Infinity;
+  ring.points.forEach((q: Vec3, j: number): void => {
+    const d: number = norm(sub(q, p));
+    if (d < distance) {
+      distance = d;
+      best = j;
+    }
+  });
+  // Refine on the two segments beside the nearest sample.
+  let point: Vec3 = ring.points[best]!;
+  for (const other of [(best + n - 1) % n, (best + 1) % n]) {
+    const a: Vec3 = ring.points[best]!;
+    const d: Vec3 = sub(ring.points[other]!, a);
+    const u: number = Math.max(
+      0,
+      Math.min(1, dot(sub(p, a), d) / Math.max(1e-12, dot(d, d))),
+    );
+    const q: Vec3 = add(a, scale(d, u));
+    const e: number = norm(sub(q, p));
+    if (e < distance) {
+      distance = e;
+      point = q;
+    }
+  }
+  return [(2 * Math.PI * best) / n, point, distance];
+}
+
+/** Child chain with its end ring moved onto the parent's, faded over its first layers. */
+function place(
+  parent: IAutoMovieHumanLoftChain,
+  child: IAutoMovieHumanLoftChain,
+  direction: "down" | "up",
+  arcs: [number, number][],
+): IAutoMovieHumanLoftChain {
+  const ring: IRing = parentRing(parent, direction, arcs);
+  const k: number = direction === "down" ? child.layers.length - 1 : 0;
+  const step: number = direction === "down" ? -1 : 1;
+  const sc: number = child.layers[k]!.y;
+  const N: number = child.order;
+  const Q: number = 4 * N;
+  const phases: number[] = Array.from(
+    { length: Q },
+    (_: unknown, i: number): number => (2 * Math.PI * i) / Q,
+  );
+
+  // World move of every end point; zero off the arcs or off the ring.
+  const moves: Vec3[] = AutoMovieHumanLoftChain.ring(child, sc, phases).map(
+    (p: Vec3): Vec3 => {
+      const [tau, q, distance] = nearest(ring, p);
+      const w: number = distance <= SNAP ? ring.weight(tau) : 0;
+      return scale(sub(q, p), w);
+    },
+  );
+  if (moves.every((m: Vec3): boolean => norm(m) < 1e-6)) return child;
+
+  // Fade over the layers within the reach, at least two besides the end.
+  const second: number = k + 2 * step;
+  const reach: number = Math.max(
+    REACH,
+    second >= 0 && second < child.layers.length
+      ? 1.5 * Math.abs(child.layers[second]!.y - sc)
+      : 0,
+  );
+  const layers: IAutoMovieHumanLoftChain.ILayer[] = child.layers.map(
+    (
+      layer: IAutoMovieHumanLoftChain.ILayer,
+      j: number,
+    ): IAutoMovieHumanLoftChain.ILayer => {
+      const sigma: number = Math.abs(layer.y - sc);
+      if (sigma >= reach) return layer;
+      // Fade f(sigma) = 1 - smooth(sigma / reach) and its station derivative,
+      // sigma growing into the child.
+      const x: number = sigma / reach;
+      const fade: number = 1 - smooth(x);
+      const rate: number = (-6 * x * (1 - x) * step) / reach;
+      const f: AutoMovieHumanLoftFrame.IFrame = AutoMovieHumanLoftChain.frame(
+        child,
+        layer.y,
+      );
+      const values: [number, number][] = moves.map(
+        (m: Vec3): [number, number] => [fade * dot(m, f.u), fade * dot(m, f.v)],
+      );
+      const slopes: [number, number][] = moves.map(
+        (m: Vec3): [number, number] => [rate * dot(m, f.u), rate * dot(m, f.v)],
+      );
+      const dc: number[] = AutoMovieHumanSplineCurve.project(values, N);
+      const dm: number[] = AutoMovieHumanSplineCurve.project(slopes, N);
+
+      // The law lifts sections off their planes, so part of a gap lies
+      // along the frame normal and moves the lift instead.
+      const normal: Vec3 = cross(f.v, f.u);
+      const across: number[] = moves.map((m: Vec3): number => dot(m, normal));
+      const lifted: boolean =
+        layer.lift !== undefined ||
+        across.some((v: number): boolean => Math.abs(v) > 1e-3);
+      const dl: number[] = lifted
+        ? AutoMovieHumanSplineCurve.project(
+            across.map((v: number): [number, number] => [fade * v, fade * v]),
+            N,
+          ).slice(0, N)
+        : [];
+      const dr: number[] = lifted
+        ? AutoMovieHumanSplineCurve.project(
+            across.map((v: number): [number, number] => [rate * v, rate * v]),
+            N,
+          ).slice(0, N)
+        : [];
+      const lift: number[] = layer.lift ?? new Array<number>(N).fill(0);
+      const liftSlopes: number[] =
+        layer.liftSlopes ?? new Array<number>(N).fill(0);
+      return {
+        ...layer,
+        coefficients: layer.coefficients.map(
+          (v: number, i: number): number => v + dc[i]!,
+        ),
+        slopes:
+          j === k
+            ? layer.slopes
+            : layer.slopes.map((v: number, i: number): number => v + dm[i]!),
+        ...(lifted
+          ? {
+              lift: lift.map((v: number, i: number): number => v + dl[i]!),
+              liftSlopes:
+                j === k
+                  ? liftSlopes
+                  : liftSlopes.map(
+                      (v: number, i: number): number => v + dr[i]!,
+                    ),
+            }
+          : {}),
+      };
+    },
+  );
+  return { ...child, layers };
+}
+
+/** Child chain with its end layer at the event re-sloped. */
+function slope(
+  parent: IAutoMovieHumanLoftChain,
+  child: IAutoMovieHumanLoftChain,
+  direction: "down" | "up",
+  arcs: [number, number][],
+): IAutoMovieHumanLoftChain {
+  const ring: IRing = parentRing(parent, direction, arcs);
+  const sp: number = ring.sp;
+  const k: number = direction === "down" ? child.layers.length - 1 : 0;
+  const sc: number = child.layers[k]!.y;
 
   // In-plane slope changes at uniform child phases, 4 per control point.
   const N: number = child.order;
@@ -173,17 +359,8 @@ function join(
     const p: Vec3 = AutoMovieHumanLoftChain.ring(child, sc, [t])[0]!;
 
     // Nearest parent sample, then the parent's jets there.
-    let best: number = 0;
-    let distance: number = Infinity;
-    ring.forEach((q: Vec3, j: number): void => {
-      const d: number = norm(sub(q, p));
-      if (d < distance) {
-        distance = d;
-        best = j;
-      }
-    });
-    const tau: number = (2 * Math.PI * best) / n;
-    const w: number = distance < 0.5 ? weight(tau) : 0;
+    const [tau, , distance] = nearest(ring, p);
+    const w: number = distance < 0.5 ? ring.weight(tau) : 0;
     if (w === 0) {
       samples.push([0, 0]);
       continue;

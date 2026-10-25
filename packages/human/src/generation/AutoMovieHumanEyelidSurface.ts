@@ -23,6 +23,8 @@ export namespace AutoMovieHumanEyelidSurface {
   ): IAutoMovieHumanConstructionPath[] {
     const E: typeof AutoMovieHumanEyelid = AutoMovieHumanEyelid;
     const rows: Map<number, number[]> = new Map();
+    const jets: Map<number, AutoMovieHumanSkinProjection.IJet> =
+      AutoMovieHumanSkinProjection.rim(mesh, open, prepared.outline);
     for (const edge of open) {
       const p: AutoMovieHumanEyelid.Point = mesh.positions.slice(
         3 * edge.u,
@@ -66,8 +68,7 @@ export namespace AutoMovieHumanEyelidSurface {
       );
       const band: number = Math.hypot(...across);
       sample.outward = E.normalize(across);
-      const hit: ReturnType<typeof AutoMovieHumanSkinProjection.edge> =
-        AutoMovieHumanSkinProjection.edge(mesh, edge, prepared.outline);
+      const hit: AutoMovieHumanSkinProjection.IJet = jets.get(edge.u)!;
       const profile: AutoMovieHumanEyelid.Point[] =
         AutoMovieHumanEyelidProfile.generate(sample, lid.globe, band, {
           x: hit.x - E.dot(lid.globe.centre, lid.globe.forward),

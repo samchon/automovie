@@ -6,29 +6,26 @@ import { AutoMovieHumanBodyWarpField } from "./AutoMovieHumanBodyWarpField";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 
 /**
- * Measurement law: the body's tape girths, crotch height and head size
- * brought to a person's inputs.
+ * Measurement law applied: every calibrated quantity moved by the field of
+ * `AutoMovieHumanBodyWarpField`.
  *
- * Each measured quantity's target is the specimen's own geometric value
- * times the ratio of the person's input to the specimen's input, so a
- * difference between an input's definition and this geometry cancels; the
- * applied ratio is that target over the value of the body being warped
- * (after the shape basis), so the basis's own size change is not counted
- * twice. The field of ratios is built by `AutoMovieHumanBodyWarpField`;
- * this module applies it to every calibrated quantity:
+ * A layer's control points are moved as world points, `x -> ax x + bx`,
+ * `z -> az z + bz` by its chain's map at its station and `y -> h(y)` by
+ * its chain's height function, which moves a spline section by the
+ * quasi-interpolant of the moved curve (exact where the map is affine). A
+ * horizontal layer takes the moved height of its station as its new
+ * station and keeps any out-of-plane remainder as lift; a framed layer
+ * keeps its station and orientation, its origin moves as a point and the
+ * moved control points are decomposed on its unchanged axes, the normal
+ * part joining the lift. Station slopes are the central differences of the
+ * moved coefficients 0.25 mm either side (one-sided at chain ends), over
+ * the moved station difference, so the Hermite rule interpolates the
+ * moved family.
  *
- * - section control points `p -> A(s) p + b(s)` in the horizontal plane
- *   (A diagonal), with station slopes by the chain rule, the map's own
- *   station derivative taken by central differences;
- * - stations, frame origins and lifts by the vertical map, which is
- *   affine on each side of the crotch ring, so each chain, lying wholly on
- *   one side, keeps exact Hermite slopes divided by its scale;
- * - framed layers by decomposing the mapped offsets onto their unchanged
- *   in-plane axes and normal (the normal part joins the lift);
- * - poles by their chain's map; apertures and globes by the head map,
- *   which is affine there, so Fourier coefficients map exactly; vermilion
- *   endpoints by the map of the head chain at their own station, with
- *   endpoint derivatives scaled by its linear part.
+ * Poles move with their chain's map at their end; apertures, globes and
+ * lip endpoints with the map of the chain they lie on at their own height,
+ * linearised there (an aperture's Fourier series transforms exactly under
+ * that affine map); lip endpoint derivatives scale by its linear part.
  */
 export namespace AutoMovieHumanBodyWarp {
   /** Body and lip boundary after the measurement law. */
@@ -44,7 +41,7 @@ export namespace AutoMovieHumanBodyWarp {
    * Apply a warp field to a calibration and its lip spans.
    *
    * @param body Calibration after the shape basis.
-   * @param field Ratio field built on that calibration.
+   * @param field Field built on that calibration.
    * @param vermilion Lip boundary spans in the same frame.
    */
   export function apply(
@@ -52,16 +49,6 @@ export namespace AutoMovieHumanBodyWarp {
     field: AutoMovieHumanBodyWarpField.IField,
     vermilion: AutoMovieHumanBodyWarpField.ISpan[],
   ): IOutput {
-    const chains: IAutoMovieHumanLoftChain[] = body.chains.map(
-      (chain: IAutoMovieHumanLoftChain): IAutoMovieHumanLoftChain => ({
-        ...chain,
-        layers: chain.layers.map(
-          (
-            layer: IAutoMovieHumanLoftChain.ILayer,
-          ): IAutoMovieHumanLoftChain.ILayer => warpLayer(chain, layer, field),
-        ),
-      }),
-    );
     const named: Map<string, IAutoMovieHumanLoftChain> = new Map(
       body.chains.map(
         (c: IAutoMovieHumanLoftChain): [string, IAutoMovieHumanLoftChain] => [
@@ -70,12 +57,21 @@ export namespace AutoMovieHumanBodyWarp {
         ],
       ),
     );
-    const head: AutoMovieHumanBodyWarpField.IMap = field.head;
     return {
       body: {
         ...body,
         stature: field.stature,
-        chains,
+        chains: body.chains.map(
+          (chain: IAutoMovieHumanLoftChain): IAutoMovieHumanLoftChain => ({
+            ...chain,
+            layers: chain.layers.map(
+              (
+                layer: IAutoMovieHumanLoftChain.ILayer,
+              ): IAutoMovieHumanLoftChain.ILayer =>
+                warpLayer(chain, layer, field),
+            ),
+          }),
+        ),
         poles: body.poles.map(
           (
             p: IAutoMovieHumanBodyCalibration.IPole,
@@ -85,41 +81,98 @@ export namespace AutoMovieHumanBodyWarp {
               p.end === "top"
                 ? chain.layers[chain.layers.length - 1]!.y
                 : chain.layers[0]!.y;
-            return {
-              ...p,
-              point: point(
-                field.map(p.chain, s),
-                field.vertical(p.chain),
-                p.point,
-              ),
-            };
+            return { ...p, point: move(field, p.chain, s, p.point) };
           },
         ),
         apertures: body.apertures.map(
           (a: IAutoMovieHumanLoftAperture): IAutoMovieHumanLoftAperture =>
-            aperture(a, head, field.vertical("head.middle")),
+            aperture(a, field),
         ),
         eyes: body.eyes.map(
           (
             e: IAutoMovieHumanBodyCalibration.IEye,
           ): IAutoMovieHumanBodyCalibration.IEye => ({
             ...e,
-            centre: point(head, field.vertical("head.middle"), e.centre),
+            centre: move(field, "head.middle", e.centre[1], e.centre),
           }),
         ),
       },
       vermilion: vermilion.map(
         (
           span: AutoMovieHumanBodyWarpField.ISpan,
-        ): AutoMovieHumanBodyWarpField.ISpan =>
-          lip(span, field, named.get("head.lower")!),
+        ): AutoMovieHumanBodyWarpField.ISpan => {
+          const chain: IAutoMovieHumanLoftChain = named.get("head.lower")!;
+          const end = (
+            p: [number, number, number],
+            d: [number, number, number],
+          ): [[number, number, number], [number, number, number]] => {
+            const s: number = station(chain, p);
+            const j: [number, number, number] = jacobian(
+              field,
+              chain.name,
+              s,
+              p[1],
+            );
+            return [
+              move(field, chain.name, s, p),
+              [j[0] * d[0], j[1] * d[1], j[2] * d[2]],
+            ];
+          };
+          const [start, startDerivative] = end(
+            span.start,
+            span.startDerivative,
+          );
+          const [stop, endDerivative] = end(span.end, span.endDerivative);
+          return { ...span, start, end: stop, startDerivative, endDerivative };
+        },
       ),
     };
   }
 }
 
-/** Vertical affine map `y -> scale y + offset`. */
-type Vertical = AutoMovieHumanBodyWarpField.IVertical;
+/** Station step of the slopes' central differences, mm. */
+const H: number = 0.25;
+
+/** A point moved by a chain's map at a station and its height function. */
+function move(
+  field: AutoMovieHumanBodyWarpField.IField,
+  chain: string,
+  s: number,
+  p: readonly [number, number, number],
+): [number, number, number] {
+  const m: AutoMovieHumanBodyWarpField.IMap = field.map(chain, s);
+  return [m.ax * p[0] + m.bx, field.height(chain, p[1]), m.az * p[2] + m.bz];
+}
+
+/** Diagonal of the field's linear part at a station and height. */
+function jacobian(
+  field: AutoMovieHumanBodyWarpField.IField,
+  chain: string,
+  s: number,
+  y: number,
+): [number, number, number] {
+  const m: AutoMovieHumanBodyWarpField.IMap = field.map(chain, s);
+  return [
+    m.ax,
+    (field.height(chain, y + H) - field.height(chain, y - H)) / (2 * H),
+    m.az,
+  ];
+}
+
+/** One layer's moved coefficients, lift and station or frame. */
+interface IMoved {
+  /** New station. */
+  y: number;
+
+  /** New frame, for a framed layer. */
+  frame?: AutoMovieHumanLoftFrame.IFrame;
+
+  /** New coefficients `[x..., z...]`. */
+  coefficients: number[];
+
+  /** New lift per control point. */
+  lift: number[];
+}
 
 /** One warped principal layer. */
 function warpLayer(
@@ -127,183 +180,112 @@ function warpLayer(
   layer: IAutoMovieHumanLoftChain.ILayer,
   field: AutoMovieHumanBodyWarpField.IField,
 ): IAutoMovieHumanLoftChain.ILayer {
-  const v: Vertical = field.vertical(chain.name);
-  const s: number = layer.y;
   const bottom: number = chain.layers[0]!.y;
   const top: number = chain.layers[chain.layers.length - 1]!.y;
-  const h: number = 0.5;
-  const lo: number = Math.max(bottom, s - h);
-  const hi: number = Math.min(top, s + h);
-  const N: number = chain.order;
-
-  // The map and its station derivative at the layer.
-  const m: AutoMovieHumanBodyWarpField.IMap = field.map(chain.name, s);
-  const ml: AutoMovieHumanBodyWarpField.IMap = field.map(chain.name, lo);
-  const mh: AutoMovieHumanBodyWarpField.IMap = field.map(chain.name, hi);
-  const dm: AutoMovieHumanBodyWarpField.IMap = {
-    ax: (mh.ax - ml.ax) / (hi - lo),
-    az: (mh.az - ml.az) / (hi - lo),
-    bx: (mh.bx - ml.bx) / (hi - lo),
-    bz: (mh.bz - ml.bz) / (hi - lo),
+  const s: number = layer.y;
+  const lo: number = Math.max(bottom, s - H);
+  const hi: number = Math.min(top, s + H);
+  const here: IMoved = moved(chain, s, layer.frame !== undefined, field);
+  const a: IMoved = moved(chain, lo, layer.frame !== undefined, field);
+  const b: IMoved = moved(chain, hi, layer.frame !== undefined, field);
+  const ds: number = layer.frame !== undefined ? hi - lo : b.y - a.y;
+  return {
+    ...layer,
+    y: here.y,
+    ...(here.frame === undefined ? {} : { frame: here.frame }),
+    coefficients: here.coefficients,
+    slopes: here.coefficients.map(
+      (_: number, k: number): number =>
+        (b.coefficients[k]! - a.coefficients[k]!) / ds,
+    ),
+    lift: here.lift,
+    liftSlopes: here.lift.map(
+      (_: number, k: number): number => (b.lift[k]! - a.lift[k]!) / ds,
+    ),
   };
+}
 
-  if (layer.frame === undefined) {
-    // Horizontal layer: control points map in the plane, the station by the
-    // vertical map, and slopes by the chain rule over the new station.
-    const coefficients: number[] = new Array<number>(2 * N);
-    const slopes: number[] = new Array<number>(2 * N);
-    for (let j: number = 0; j < N; j++) {
-      const x: number = layer.coefficients[j]!;
-      const z: number = layer.coefficients[N + j]!;
-      coefficients[j] = m.ax * x + m.bx;
-      coefficients[N + j] = m.az * z + m.bz;
-      slopes[j] = (dm.ax * x + m.ax * layer.slopes[j]! + dm.bx) / v.scale;
-      slopes[N + j] =
-        (dm.az * z + m.az * layer.slopes[N + j]! + dm.bz) / v.scale;
-    }
-    return {
-      ...layer,
-      y: v.scale * s + v.offset,
-      coefficients,
-      slopes,
-      ...(layer.lift === undefined
-        ? {}
-        : {
-            lift: layer.lift.map((l: number): number => v.scale * l),
-            liftSlopes: layer.liftSlopes!,
-          }),
-    };
-  }
-
-  // Framed layer: the station is a parameter and stays; the origin maps as
-  // a point and in-plane offsets as vectors, re-projected onto the frame's
-  // unchanged axes, the normal part joining the lift.
-  const f: AutoMovieHumanLoftFrame.IFrame = layer.frame;
-  const n: [number, number, number] = [
-    f.v[1] * f.u[2] - f.v[2] * f.u[1],
-    f.v[2] * f.u[0] - f.v[0] * f.u[2],
-    f.v[0] * f.u[1] - f.v[1] * f.u[0],
-  ];
-  // Linear part of the map (vertical scale `ys`): the map itself for
-  // values, its station derivative, with a constant vertical scale, for
-  // the slopes' product-rule term.
-  const linear: (
-    q: AutoMovieHumanBodyWarpField.IMap,
-    ys: number,
-    d: [number, number, number],
+/**
+ * The chain's section at station t, its control points moved as world
+ * points and re-expressed for a horizontal or a framed layer.
+ */
+function moved(
+  chain: IAutoMovieHumanLoftChain,
+  t: number,
+  framed: boolean,
+  field: AutoMovieHumanBodyWarpField.IField,
+): IMoved {
+  const N: number = chain.order;
+  const c: number[] = AutoMovieHumanLoftChain.coefficients(chain, t);
+  const l: number[] | null = AutoMovieHumanLoftChain.lift(chain, t);
+  const f: AutoMovieHumanLoftFrame.IFrame = AutoMovieHumanLoftChain.frame(
+    chain,
+    t,
+  );
+  const n: [number, number, number] = cross(f.v, f.u);
+  const m: AutoMovieHumanBodyWarpField.IMap = field.map(chain.name, t);
+  const world: (
+    p: readonly [number, number, number],
   ) => [number, number, number] = (
-    q: AutoMovieHumanBodyWarpField.IMap,
-    ys: number,
-    d: [number, number, number],
-  ): [number, number, number] => [q.ax * d[0], ys * d[1], q.az * d[2]];
-  const offset: (
-    x: number,
-    z: number,
-    l: number,
-  ) => [number, number, number] = (
-    x: number,
-    z: number,
-    l: number,
+    p: readonly [number, number, number],
   ): [number, number, number] => [
-    x * f.u[0] + z * f.v[0] + l * n[0],
-    x * f.u[1] + z * f.v[1] + l * n[1],
-    x * f.u[2] + z * f.v[2] + l * n[2],
+    m.ax * p[0] + m.bx,
+    field.height(chain.name, p[1]),
+    m.az * p[2] + m.bz,
   ];
-  const origin: [number, number, number] = point(m, v, f.origin);
+  // A horizontal layer's coefficients are absolute x and z, so its origin
+  // stays on the vertical axis and only rises; a framed layer's origin
+  // moves as a point.
+  const origin: [number, number, number] = framed
+    ? world(f.origin)
+    : [0, field.height(chain.name, t), 0];
   const coefficients: number[] = new Array<number>(2 * N);
-  const slopes: number[] = new Array<number>(2 * N);
   const lift: number[] = new Array<number>(N);
-  const liftSlopes: number[] = new Array<number>(N);
   for (let j: number = 0; j < N; j++) {
-    const l: number = layer.lift?.[j] ?? 0;
-    const ls: number = layer.liftSlopes?.[j] ?? 0;
-    // A point o + d maps to A o + b + A d: the mapped origin plus the
-    // linear part applied to the offset.
-    const d: [number, number, number] = linear(
-      m,
-      v.scale,
-      offset(layer.coefficients[j]!, layer.coefficients[N + j]!, l),
-    );
+    const h: number = l?.[j] ?? 0;
+    const p: [number, number, number] = [0, 1, 2].map(
+      (k: number): number =>
+        f.origin[k]! + c[j]! * f.u[k]! + c[N + j]! * f.v[k]! + h * n[k]!,
+    ) as [number, number, number];
+    const d: [number, number, number] = sub(world(p), origin);
     coefficients[j] = dot(d, f.u);
     coefficients[N + j] = dot(d, f.v);
     lift[j] = dot(d, n);
-    const e: [number, number, number] = add(
-      linear(m, v.scale, offset(layer.slopes[j]!, layer.slopes[N + j]!, ls)),
-      linear(
-        dm,
-        0,
-        offset(layer.coefficients[j]!, layer.coefficients[N + j]!, l),
-      ),
-    );
-    slopes[j] = dot(e, f.u);
-    slopes[N + j] = dot(e, f.v);
-    liftSlopes[j] = dot(e, n);
   }
-  return {
-    ...layer,
-    frame: { ...f, origin },
-    coefficients,
-    slopes,
-    lift,
-    liftSlopes,
-  };
+  return framed
+    ? { y: t, frame: { ...f, origin }, coefficients, lift }
+    : { y: origin[1], coefficients, lift };
 }
 
-/** A point under a planar map and a vertical map. */
-function point(
-  m: AutoMovieHumanBodyWarpField.IMap,
-  v: Vertical,
-  p: readonly [number, number, number],
-): [number, number, number] {
-  return [m.ax * p[0] + m.bx, v.scale * p[1] + v.offset, m.az * p[2] + m.bz];
-}
-
-/** An aperture's Fourier series under an affine map. */
+/** An aperture's Fourier series under the field linearised at its centre. */
 function aperture(
   a: IAutoMovieHumanLoftAperture,
-  m: AutoMovieHumanBodyWarpField.IMap,
-  v: Vertical,
+  field: AutoMovieHumanBodyWarpField.IField,
 ): IAutoMovieHumanLoftAperture {
   const w: number = 2 * a.order + 1;
-  const linear: [number, number, number] = [m.ax, v.scale, m.az];
-  const constant: [number, number, number] = [m.bx, v.offset, m.bz];
+  const centre: [number, number, number] = [
+    a.coefficients[0]!,
+    a.coefficients[w]!,
+    a.coefficients[2 * w]!,
+  ];
+  const moved: [number, number, number] = move(
+    field,
+    "head.middle",
+    centre[1],
+    centre,
+  );
+  const linear: [number, number, number] = jacobian(
+    field,
+    "head.middle",
+    centre[1],
+    centre[1],
+  );
   return {
     ...a,
     coefficients: a.coefficients.map((c: number, i: number): number => {
       const k: number = Math.floor(i / w);
-      return linear[k]! * c + (i % w === 0 ? constant[k]! : 0);
+      return i % w === 0 ? moved[k]! : linear[k]! * c;
     }),
-  };
-}
-
-/** One lip span under the head chain's map at each endpoint's own station. */
-function lip(
-  span: AutoMovieHumanBodyWarpField.ISpan,
-  field: AutoMovieHumanBodyWarpField.IField,
-  chain: IAutoMovieHumanLoftChain,
-): AutoMovieHumanBodyWarpField.ISpan {
-  const v: Vertical = field.vertical(chain.name);
-  const at: (
-    p: [number, number, number],
-  ) => AutoMovieHumanBodyWarpField.IMap = (
-    p: [number, number, number],
-  ): AutoMovieHumanBodyWarpField.IMap =>
-    field.map(chain.name, station(chain, p));
-  const ms: AutoMovieHumanBodyWarpField.IMap = at(span.start);
-  const me: AutoMovieHumanBodyWarpField.IMap = at(span.end);
-  const scaled: (
-    m: AutoMovieHumanBodyWarpField.IMap,
-    d: [number, number, number],
-  ) => [number, number, number] = (
-    m: AutoMovieHumanBodyWarpField.IMap,
-    d: [number, number, number],
-  ): [number, number, number] => [m.ax * d[0], v.scale * d[1], m.az * d[2]];
-  return {
-    ...span,
-    start: point(ms, v, span.start),
-    end: point(me, v, span.end),
-    startDerivative: scaled(ms, span.startDerivative),
-    endDerivative: scaled(me, span.endDerivative),
   };
 }
 
@@ -323,12 +305,10 @@ function station(
       chain,
       s,
     );
-    const n: [number, number, number] = [
-      f.v[1] * f.u[2] - f.v[2] * f.u[1],
-      f.v[2] * f.u[0] - f.v[0] * f.u[2],
-      f.v[0] * f.u[1] - f.v[1] * f.u[0],
-    ];
-    return dot(n, [p[0] - f.origin[0], p[1] - f.origin[1], p[2] - f.origin[2]]);
+    return dot(
+      cross(f.v, f.u),
+      sub([...p] as [number, number, number], f.origin),
+    );
   };
   let best: number = lo;
   let smallest: number = Infinity;
@@ -347,6 +327,14 @@ function station(
   return best;
 }
 
+/** Difference. */
+function sub(
+  a: readonly [number, number, number],
+  b: readonly [number, number, number],
+): [number, number, number] {
+  return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+}
+
 /** Dot product. */
 function dot(
   a: readonly [number, number, number],
@@ -355,10 +343,14 @@ function dot(
   return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
 
-/** Sum. */
-function add(
-  a: [number, number, number],
-  b: [number, number, number],
+/** Cross product. */
+function cross(
+  a: readonly [number, number, number],
+  b: readonly [number, number, number],
 ): [number, number, number] {
-  return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
+  return [
+    a[1] * b[2] - a[2] * b[1],
+    a[2] * b[0] - a[0] * b[2],
+    a[0] * b[1] - a[1] * b[0],
+  ];
 }

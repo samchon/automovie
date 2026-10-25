@@ -79,8 +79,29 @@ export class AutoMovieHuman {
     // engine, whose model units are metres.
     const scale: number = height / calibration.stature / 1000;
 
+    // The lips' colour boundary is drawn per vertex, so the skin is refined
+    // in a box 3 mm around it.
+    const ends: [number, number, number][] = lips.spans.flatMap(
+      (
+        s: IAutoMovieHumanHermiteCurve["spans"][number],
+      ): [number, number, number][] => [s.start, s.end],
+    );
+    const box: [[number, number, number], [number, number, number]] = [
+      [0, 1, 2].map(
+        (k: number): number =>
+          Math.min(
+            ...ends.map((p: [number, number, number]): number => p[k]!),
+          ) - 3,
+      ) as [number, number, number],
+      [0, 1, 2].map(
+        (k: number): number =>
+          Math.max(
+            ...ends.map((p: [number, number, number]): number => p[k]!),
+          ) + 3,
+      ) as [number, number, number],
+    ];
     const surface: AutoMovieHumanBodySurface.IOutput =
-      AutoMovieHumanBodySurface.generate(calibration);
+      AutoMovieHumanBodySurface.generate(calibration, [box]);
     const skin: AutoMovieHumanLoftMesh.IPiece[] = AutoMovieHumanLoftMesh.split(
       surface.mesh,
       surface.normals,

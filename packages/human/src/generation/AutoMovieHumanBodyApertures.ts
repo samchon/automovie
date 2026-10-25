@@ -108,6 +108,43 @@ export namespace AutoMovieHumanBodyApertures {
   }
 
   /**
+   * Stations refined wherever a chain's rings pass through a detail box,
+   * at the same SPACING as around openings: a colour boundary drawn per
+   * vertex, such as the lips', is otherwise sampled on triangles several
+   * millimetres tall and shows as steps.
+   *
+   * @param boxes World boxes `[min, max]` in mm.
+   * @param target Chain being lofted.
+   * @param heights Increasing stations.
+   * @param phases Probe phases, the chain's own ring phases.
+   */
+  export function detail(
+    boxes: readonly [[number, number, number], [number, number, number]][],
+    target: IAutoMovieHumanLoftChain,
+    heights: readonly number[],
+    phases: readonly number[],
+  ): number[] {
+    if (!boxes.length) return [...heights];
+    const near: (s: number) => boolean = (s: number): boolean =>
+      AutoMovieHumanLoftChain.ring(target, s, phases).some(
+        (p: [number, number, number]): boolean =>
+          boxes.some(
+            ([lo, hi]: [
+              [number, number, number],
+              [number, number, number],
+            ]): boolean =>
+              p[0] >= lo[0] &&
+              p[0] <= hi[0] &&
+              p[1] >= lo[1] &&
+              p[1] <= hi[1] &&
+              p[2] >= lo[2] &&
+              p[2] <= hi[2],
+          ),
+      );
+    return split(heights, near);
+  }
+
+  /**
    * Stations refined wherever a chain's rings pass near an opening.
    *
    * An interval between consecutive stations is split into SPACING mm steps
@@ -135,7 +172,17 @@ export namespace AutoMovieHumanBodyApertures {
               AutoMovieHumanLoftAperture.signed(a.outline, p, REACH) < REACH,
           ),
       );
+    return split(heights, near);
+  }
 
+  /**
+   * Split every interval whose end or middle ring is near into SPACING mm
+   * steps.
+   */
+  function split(
+    heights: readonly number[],
+    near: (s: number) => boolean,
+  ): number[] {
     const out: number[] = [heights[0]!];
     const marked: boolean[] = heights.map(near);
     for (let k: number = 0; k + 1 < heights.length; k++) {
@@ -165,6 +212,7 @@ export namespace AutoMovieHumanBodyApertures {
    * which {@link AutoMovieHumanEyelidSurface} continues into the lid. Nasal
    * openings continue along regular cubic meridians into an inferred rounded
    * closure, preserving the retained triangle's exterior tangent plane.
+   * Pieces of skin the outline cuts off inside an opening are dropped.
    * New triangles take the group of the skin triangle on the open edge they
    * continue, so they render with the skin they belong to.
    *
@@ -304,10 +352,15 @@ export namespace AutoMovieHumanBodyApertures {
       },
     );
 
+    // The outline can cut a sliver of skin off inside an opening (on m2 six
+    // triangles 0.6 mm round beside the right medial canthus), whose own
+    // boundary would be a second margin loop; such islands are dropped.
+    const total: number = mesh.positions.length / 3;
+    islands(indices, faces, groups, total);
+
     // Open margin edges per opening: directed edges whose reverse no
     // triangle uses, with the group of their triangle.
     const directed: Set<number> = new Set();
-    const total: number = mesh.positions.length / 3;
     for (let t: number = 0; t < indices.length; t += 3)
       for (let i: number = 0; i < 3; i++)
         directed.add(indices[t + i]! * total + indices[t + ((i + 1) % 3)]!);
@@ -370,5 +423,61 @@ export namespace AutoMovieHumanBodyApertures {
     mesh.indices = indices;
     mesh.groups = groups;
     return construction;
+  }
+
+  /** Fewest triangles a connected piece of clipped skin keeps. */
+  const ISLAND: number = 64;
+
+  /**
+   * Remove, in place, the triangles of connected pieces smaller than
+   * {@link ISLAND} triangles, keeping the groups' order and their starts.
+   */
+  function islands(
+    indices: number[],
+    faces: string[],
+    groups: { name: string; start: number }[],
+    count: number,
+  ): void {
+    const parent: Int32Array = new Int32Array(count);
+    for (let v: number = 0; v < count; v++) parent[v] = v;
+    const find = (v: number): number => {
+      while (parent[v] !== v) {
+        parent[v] = parent[parent[v]!]!;
+        v = parent[v]!;
+      }
+      return v;
+    };
+    for (let t: number = 0; t < indices.length; t += 3)
+      for (let i: number = 1; i < 3; i++) {
+        const a: number = find(indices[t]!);
+        const b: number = find(indices[t + i]!);
+        if (a !== b) parent[a] = b;
+      }
+    const size: Map<number, number> = new Map();
+    for (let t: number = 0; t < indices.length; t += 3) {
+      const root: number = find(indices[t]!);
+      size.set(root, (size.get(root) ?? 0) + 1);
+    }
+    if ([...size.values()].every((n: number): boolean => n >= ISLAND)) return;
+
+    // Compact the kept triangles forward, group by group.
+    let write: number = 0;
+    const ends: number[] = groups.map(
+      (_: unknown, k: number): number => groups[k + 1]?.start ?? indices.length,
+    );
+    groups.forEach((g: { name: string; start: number }, k: number): void => {
+      const from: number = g.start;
+      g.start = write;
+      for (let t: number = from; t < ends[k]!; t += 3) {
+        if (size.get(find(indices[t]!))! < ISLAND) continue;
+        indices[write] = indices[t]!;
+        indices[write + 1] = indices[t + 1]!;
+        indices[write + 2] = indices[t + 2]!;
+        faces[write / 3] = faces[t / 3]!;
+        write += 3;
+      }
+    });
+    indices.length = write;
+    faces.length = write / 3;
   }
 }
