@@ -85,6 +85,10 @@ Its project command accepts `--layer <settings|treatments|scripts|screenplay>` a
 
 `scopeIssues` reports captured-input structural failures. `pendingNaturalnessTransfers` compares working text, with every HTML comment removed, to the corresponding captured body bytes. A pending current promotion can permit a working-text reread but blocks structural readiness for completion and downstream consumption. Exit status 1 can therefore coexist with `rereadReady: true`; inspect the reported prerequisites before choosing review or repair.
 
+Construction reviews still target current body bytes, including after expression transfer. A stale required upstream review blocks `rereadReady`; an absent current review or verdict separately blocks `approvalStructureReady`. `frozenDownstreamDiagnostics` classifies nonrequired downstream duties, not historical closure. The API has no durable closed-edition or completed-transfer lineage: a later semantic body repair can therefore remain a pending transfer even after an initial exact promotion. These states remain failed checks; the current API cannot certify strict completion while they persist.
+
+The checker exposes no separate status for a manuscript handed off with mechanical limits; such a handoff leaves native failure and readiness fields unchanged.
+
 Analysis captures physical aliases and protected identities during evaluation. Reclassifying an `analyzeProductionPass` result with the same original config reads only that capture, even after later filesystem changes. A raw native evaluation or different config cannot supply missing provenance. Reevaluate to inspect changed inputs. No wrapper rewrites native graph success to conceal a frozen downstream failure.
 
 ## Provenance and development
