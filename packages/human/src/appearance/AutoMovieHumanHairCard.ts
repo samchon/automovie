@@ -34,7 +34,9 @@ import { AutoMovieHumanScalpBoundary } from "./AutoMovieHumanScalpBoundary";
  *
  * Undercoat: the scalp from three millimetres inside the scalp boundary
  * up to the vertex, its margin following the boundary as a smooth curve,
- * as an opaque shell half a millimetre above the skin in a darkened hair
+ * as an opaque shell a millimetre above the skin (below the cards, which
+ * start 1.2 mm above it, and far enough that the shell does not lose the
+ * depth test to the skin where a view grazes the vault) in a darkened hair
  * colour. It stands for the dense hair layer the cards' alpha cut-outs
  * reveal, so skin never shows through the hair mass.
  *
@@ -306,7 +308,7 @@ function undercoat(
   const vertex: (u: [number, number, number]) => void = (
     u: [number, number, number],
   ): void => {
-    const r: number = AutoMovieHumanHeadField.radius(field, u) + 0.5;
+    const r: number = AutoMovieHumanHeadField.radius(field, u) + 1;
     for (let k: number = 0; k < 3; ++k) {
       positions.push((field.centre[k]! + u[k]! * r) / 1000);
       normals.push(u[k]!);

@@ -1,5 +1,6 @@
 import type { IAutoMovieModelPart } from "@automovie/interface";
 
+import type { IAutoMovieHumanBodyCalibration } from "../generation/IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanPair } from "../structures/common/IAutoMovieHumanPair";
 
 /**
@@ -26,6 +27,15 @@ export interface IAutoMovieHumanAppearanceBody {
    * `human.skin.ear.<sub>/<k>`) to attach roots and keep strands outside it.
    */
   parts: IAutoMovieModelPart[];
+
+  /**
+   * The calibration the body was lofted from, in calibration millimetres:
+   * the eye lids read its apertures and globes, and its stature with the
+   * height control gives the millimetre-to-metre scale. It is the shape
+   * law's output for these parameters (`AutoMovieHumanBodyLaw`), not
+   * necessarily the specimen's.
+   */
+  calibration: IAutoMovieHumanBodyCalibration;
 }
 
 export namespace IAutoMovieHumanAppearanceBody {

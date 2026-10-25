@@ -72,5 +72,20 @@ export namespace IAutoMovieHumanLoftChain {
 
     /** Height derivative of every coefficient in mm per mm, shared by both adjacent intervals. */
     slopes: number[];
+
+    /**
+     * Out-of-plane displacement of a spline section along the frame normal
+     * `v x u` (up for a horizontal layer), one value per control point in
+     * mm, interpolated over phase by the same B-spline and over station by
+     * the same Hermite rule as the coefficients.
+     *
+     * A fitted specimen's sections lie in their planes, so its layers omit
+     * it; a shape law that moves an anatomical point across its station
+     * (see `AutoMovieHumanBodyLaw`) writes it. Absent means zero.
+     */
+    lift?: number[];
+
+    /** Station derivative of every `lift` value in mm per mm; present exactly when `lift` is. */
+    liftSlopes?: number[];
   }
 }

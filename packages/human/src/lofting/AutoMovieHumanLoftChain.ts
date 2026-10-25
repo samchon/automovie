@@ -99,15 +99,59 @@ export namespace AutoMovieHumanLoftChain {
     return [lo, hi];
   }
 
+  /**
+   * Out-of-plane lift of every control point at station s, by the same
+   * Hermite rule as the coefficients; null for a chain whose layers carry
+   * none, which then lies in its section planes.
+   */
+  export function lift(
+    chain: IAutoMovieHumanLoftChain,
+    s: number,
+  ): number[] | null {
+    if (
+      !chain.layers.some(
+        (l: IAutoMovieHumanLoftChain.ILayer): boolean => l.lift !== undefined,
+      )
+    )
+      return null;
+    return hermite(chain, s, false, liftArrays);
+  }
+
+  /** Accessor of one Hermite-interpolated array of a layer: values and station slopes. */
+  type Pick = (
+    layer: IAutoMovieHumanLoftChain.ILayer,
+  ) => [readonly number[], readonly number[]];
+
+  /** Values and slopes of a layer's section coefficients. */
+  function sectionArrays(
+    layer: IAutoMovieHumanLoftChain.ILayer,
+  ): [readonly number[], readonly number[]] {
+    return [layer.coefficients, layer.slopes];
+  }
+
+  /** Values and slopes of a layer's lift, zero where the layer has none. */
+  function liftArrays(
+    layer: IAutoMovieHumanLoftChain.ILayer,
+  ): [readonly number[], readonly number[]] {
+    if (layer.lift !== undefined) return [layer.lift, layer.liftSlopes!];
+    const zero: number[] = new Array<number>(
+      layer.coefficients.length / 2,
+    ).fill(0);
+    return [zero, zero];
+  }
+
   /** Hermite coefficients (or their station derivative) at s. */
   function hermite(
     chain: IAutoMovieHumanLoftChain,
     y: number,
     differentiate: boolean,
+    pick: Pick = sectionArrays,
   ): number[] {
     const layers: readonly IAutoMovieHumanLoftChain.ILayer[] = chain.layers;
     const [lo, hi] = bracket(chain, y);
 
+    const [av, am] = pick(layers[lo]!);
+    const [bv, bm] = pick(layers[hi]!);
     const a: IAutoMovieHumanLoftChain.ILayer = layers[lo]!;
     const b: IAutoMovieHumanLoftChain.ILayer = layers[hi]!;
     const H: number = b.y - a.y;
@@ -129,12 +173,9 @@ export namespace AutoMovieHumanLoftChain {
       : u ** 3 - u ** 2;
 
     // Slopes are per mm of height; H converts them to the unit parameter.
-    return a.coefficients.map(
+    return av.map(
       (c: number, k: number): number =>
-        h00 * c +
-        h10 * H * a.slopes[k]! +
-        h01 * b.coefficients[k]! +
-        h11 * H * b.slopes[k]!,
+        h00 * c + h10 * H * am[k]! + h01 * bv[k]! + h11 * H * bm[k]!,
     );
   }
 
@@ -237,7 +278,17 @@ export namespace AutoMovieHumanLoftChain {
     s: number,
   ): [number, number, number] {
     const [x, z] = center(chain, coefficients(chain, s));
-    return AutoMovieHumanLoftFrame.place(frame(chain, s), x, z);
+    const f: AutoMovieHumanLoftFrame.IFrame = frame(chain, s);
+    const p: [number, number, number] = AutoMovieHumanLoftFrame.place(f, x, z);
+
+    // The mean lift over uniform phase is the control-value mean, as for
+    // the in-plane centroid.
+    const l: number[] | null = lift(chain, s);
+    if (l === null) return p;
+    const h: number =
+      l.reduce((sum: number, v: number): number => sum + v, 0) / l.length;
+    const n: [number, number, number] = normal(f);
+    return [p[0] + h * n[0], p[1] + h * n[1], p[2] + h * n[2]];
   }
 
   /**
@@ -315,10 +366,37 @@ export namespace AutoMovieHumanLoftChain {
     const c: number[] = coefficients(chain, s);
     const f: AutoMovieHumanLoftFrame.IFrame = frame(chain, s);
 
+    // A lifted section leaves its plane along the frame normal by the
+    // spline of its lift values, evaluated as the x block of a section
+    // whose z block repeats it.
+    const l: number[] | null = lift(chain, s);
+    const lifted: number[] | null = l === null ? null : [...l, ...l];
+    const n: [number, number, number] = normal(f);
+
     return phases.map((t: number): [number, number, number] => {
       const p: [number, number, number, number] = section(chain, c, t);
-      return AutoMovieHumanLoftFrame.place(f, p[0], p[1]);
+      const q: [number, number, number] = AutoMovieHumanLoftFrame.place(
+        f,
+        p[0],
+        p[1],
+      );
+      if (lifted === null) return q;
+      const h: number = AutoMovieHumanSplineCurve.evaluate(
+        lifted,
+        chain.order,
+        t,
+      )[0];
+      return [q[0] + h * n[0], q[1] + h * n[1], q[2] + h * n[2]];
     });
+  }
+
+  /** Unit normal `v x u` of a section frame: up for a horizontal frame. */
+  function normal(f: AutoMovieHumanLoftFrame.IFrame): [number, number, number] {
+    return [
+      f.v[1] * f.u[2] - f.v[2] * f.u[1],
+      f.v[2] * f.u[0] - f.v[0] * f.u[2],
+      f.v[0] * f.u[1] - f.v[1] * f.u[0],
+    ];
   }
 
   /**

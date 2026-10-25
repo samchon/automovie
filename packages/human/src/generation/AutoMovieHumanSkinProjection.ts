@@ -31,7 +31,19 @@ export namespace AutoMovieHumanSkinProjection {
     const det: number =
       (b[0]! - a[0]!) * (c[1]! - a[1]!) - (c[0]! - a[0]!) * (b[1]! - a[1]!);
     if (det === 0)
-      throw new Error("Aperture edge has no regular skin depth chart");
+      throw new Error(
+        `Aperture edge has no regular skin depth chart: triangle ${[
+          boundary.u,
+          boundary.v,
+          boundary.inside,
+        ]
+          .map((v: number): string =>
+            [0, 1, 2]
+              .map((k: number): string => mesh.positions[3 * v + k]!.toFixed(3))
+              .join(","),
+          )
+          .join(" / ")}`,
+      );
     return {
       x: a[2]!,
       gradient: [

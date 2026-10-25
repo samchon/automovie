@@ -1,4 +1,5 @@
-import { AutoMovieHumanBodyCalibration } from "../generation/AutoMovieHumanBodyCalibration";
+import { AutoMovieHumanBodyLaw } from "../generation/AutoMovieHumanBodyLaw";
+import type { IAutoMovieHumanBodyCalibration } from "../generation/IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
 import { AutoMovieHumanJointCentres } from "./AutoMovieHumanJointCentres";
 import { AutoMovieHumanPoseChannels } from "./AutoMovieHumanPoseChannels";
@@ -98,11 +99,16 @@ export namespace AutoMovieHumanSkeleton {
     const height: number | null = params.body.controls.height.value;
     if (height === null || !(height > 0))
       throw new Error("Human stickman requires a positive height control");
-    const mmScale: number = height / AutoMovieHumanBodyCalibration.stature;
+
+    // The skeleton is derived from the same calibration the skin is lofted
+    // from, the shape law's output for these parameters.
+    const calibration: IAutoMovieHumanBodyCalibration =
+      AutoMovieHumanBodyLaw.calibrate(params).body;
+    const mmScale: number = height / calibration.stature;
     const scale: number = mmScale / 1000;
 
     const joints: AutoMovieHumanJointCentres.IJoint[] =
-      AutoMovieHumanJointCentres.derive(AutoMovieHumanBodyCalibration);
+      AutoMovieHumanJointCentres.derive(calibration);
     const byBone: Map<string, AutoMovieHumanJointCentres.IJoint> = new Map(
       joints.map(
         (

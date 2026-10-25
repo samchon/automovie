@@ -6,7 +6,6 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieHumanBodyApertures } from "../generation/AutoMovieHumanBodyApertures";
-import { AutoMovieHumanBodyCalibration } from "../generation/AutoMovieHumanBodyCalibration";
 import type { AutoMovieHumanEyelid } from "../generation/AutoMovieHumanEyelid";
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
 import type { IAutoMovieHumanBrowAppearance } from "../structures/appearance/IAutoMovieHumanBrowAppearance";
@@ -102,13 +101,13 @@ export namespace AutoMovieHumanAppearance {
     // Lid margins of both eyes, the ones the body generator cut, in
     // calibration millimetres; the body is that calibration scaled
     // uniformly by stature into model metres.
-    const stature: number = AutoMovieHumanBodyCalibration.stature;
+    const stature: number = body.calibration.stature;
     const scale: number =
       (params.body.controls.height.value ?? stature) / stature / 1000;
     const lids: Map<string, AutoMovieHumanEyelid.ILid> = new Map();
     for (const prepared of AutoMovieHumanBodyApertures.prepare(
-      AutoMovieHumanBodyCalibration.apertures,
-      AutoMovieHumanBodyCalibration.eyes,
+      body.calibration.apertures,
+      body.calibration.eyes,
     ))
       if (prepared.lid !== null) lids.set(prepared.lid.name, prepared.lid);
 
