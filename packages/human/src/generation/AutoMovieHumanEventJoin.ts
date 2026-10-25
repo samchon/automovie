@@ -28,10 +28,18 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  *
  * the smallest in-plane change giving `N . D_c' = N . D_p`. The component
  * along the ring, which carries each chain's own sliding correspondence,
- * and the out-of-plane station advance are kept. The changes at uniform
- * phases are projected on the child's own spline (a P-spline with a
- * cutoff of N/8 cycles) and added to the end layer's slopes; the layer's
- * coefficients, and so every shared position, are unchanged.
+ * and the out-of-plane station advance are kept. The changes at four
+ * uniform phases per control point are projected on the child's own
+ * spline by plain least squares and added to the end layer's slopes; the
+ * layer's coefficients, and so every shared position, are unchanged. A
+ * smoothing cutoff of N/8 cycles left the worst creases almost as they
+ * were, since they are a few control points wide.
+ *
+ * Measured after this rule, the 90th-percentile crease fell from 1.3 to
+ * 0.6 degrees at the 1543.2 mm ring and from 4.3 to 3.2 degrees at the
+ * 1595.5 mm ring; the points beside the canthus stay near 20 degrees
+ * because there the skin lies almost in the section plane, where an
+ * in-plane slope cannot turn it (the `|N . m|` guard below).
  *
  * Only points on the parent's surface are constrained: the bridge a child
  * section draws across a pinch has no parent surface, so the change fades

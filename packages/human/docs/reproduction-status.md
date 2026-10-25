@@ -38,17 +38,24 @@ Three specimens identify one basis direction. The law makes no prediction claim 
 
 ## Open defects
 
-- A crease beside each outer eye corner at the 1595.5 mm ring and the lateral eye corner opening past the globe.
-- Lip colour in vertex albedo with blocky edges at the commissures; the external lip and philtrum shapes are inaccurate.
-- Rough auricle rims, nostril interiors and eyelid margins.
+The face defects below were traced in `claude-inspect-r7`; their causes sit in the head calibration's section fits, so they need a head fitter round rather than another runtime pass.
+
+| Defect | Traced cause |
+| --- | --- |
+| A thin groove at eye height from each outer eye corner back toward the temple | The 1595.5 mm ring, where both upper helices leave the head, sits at the canthus; the layers on both sides are 0.8 to 1 mm apart and fitted independently, so the section curvature jumps across the ring although the tangent planes now agree. The worst tangent mismatch, about 20 degrees, is beside the canthus where the skin lies almost in the section plane |
+| Notches at both mouth corners, which catch a white highlight in colour renders | The `head.lower` sections through the lips ring at the front (10 to 18 curvature sign changes per section at 1518 to 1532 mm, with crossing combs at the commissures); in clay the notch is dark, so the highlight is the material's specular on the notch, not lip albedo |
+| A faint horizontal line just under the nostrils across the cheeks | The 1543.2 mm ring between `head.lower` and `head.middle` |
+| Blocky lip colour edges | The vermilion boundary is sampled per vertex on the notched surface |
+
+- The lateral eye corner opening past the globe, rough auricle rims, nostril interiors and eyelid margins.
 - A horizontal band at about 1040 mm on the abdomen, also present in the original reference renders and strongest on f2.
-- The gluteal fold and axillary rings remain straight horizontal lines, by the horizontal-section representation.
+- The gluteal fold and axillary rings remain straight horizontal lines, by the horizontal-section representation; a raking view of the front armpit shows a lump that is present with or without the crotch filter.
 - Hair: ragged bottom fringe, a highlight strip down the back, strands standing off the sides.
 - Hands and feet: distal shapes, webs and nail corners as described in the checkpoint below.
 
 ## Evidence
 
-Local captures are under `packages/playground/.shots/`: periodic audits `claude-audit-001` through the latest, inspections `claude-inspect-r1` through `claude-inspect-r5`, and the failed audit `claude-audit-005-failed`. Audit 005's first attempt failed for 35 minutes because a scratch `ttsc --emit` wrote JavaScript beside the Human sources; the page loaded those stale files and never became ready. Deleting exactly the 483 emitted files and touching the sources restored it without restarting the server.
+Local captures are under `packages/playground/.shots/`: periodic audits `claude-audit-001` through `claude-audit-010`, inspections `claude-inspect-r1` through `claude-inspect-r7`, final per-person frames `claude-final-r1`, and the failed audit `claude-audit-005-failed`. One m1 frame in `claude-inspect-r6` returned 500 while the worker page reloaded between people; the retry in `claude-final-r1` succeeded. Audit 005's first attempt failed for 35 minutes because a scratch `ttsc --emit` wrote JavaScript beside the Human sources; the page loaded those stale files and never became ready. Deleting exactly the 483 emitted files and touching the sources restored it without restarting the server.
 
 ## Earlier work
 

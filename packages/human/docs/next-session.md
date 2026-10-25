@@ -12,7 +12,7 @@ Change a person's shape through `AutoMovieHumanBodyLaw`, never through person-in
 
 ## Remaining work
 
-Fix the defects listed in the status file by cause, f1 first, then recheck f2, m1 and m2 under the same views, since every common rule reaches all four. The largest visible ones are the eye-corner crease at the 1595.5 mm ring, the lip shape and colour edge, and the hair fringe.
+Fix the defects listed in the status file by cause, f1 first, then recheck f2, m1 and m2 under the same views, since every common rule reaches all four. The largest visible ones are the eye-height groove at the 1595.5 mm ring, the mouth-corner notches, the line under the nostrils and the hair fringe; the status file gives the traced cause of each, all in the head calibration's section fits. After a head fitter change, regenerate the shape basis.
 
 ## Running TypeScript here
 
