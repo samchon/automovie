@@ -25,8 +25,8 @@ import { AutoMovieHumanShoulderField } from "./AutoMovieHumanShoulderField";
  *   the nape;
  * - `short`: top hair combed back from a side parting on the person's
  *   left, back and sides combed down and back;
- * - `bob`: parted at the midline, top hair swept down to either side,
- *   back hair falling straight.
+ * - `bob`: parted at the midline, top hair swept down to either side and
+ *   back over the temples at the front, back hair falling straight.
  *
  * Integration: each guide marches in equal steps along its length; the
  * heading relaxes toward the field and bends toward gravity in proportion
@@ -34,7 +34,9 @@ import { AutoMovieHumanShoulderField } from "./AutoMovieHumanShoulderField";
  * falls). Every step above the menton keeps a clearance above the head
  * as hair drapes over it, spreading from bumps such as the ears at 45
  * degrees: crop and short hair is held at that clearance (it lies on the
- * scalp and nape),
+ * scalp and nape) and ends where the drape rises more than
+ * {@link DRAPE} mm over the scalp, cut above the ear instead of standing
+ * off the side of the head,
  * while a bob lies on the vault above the chart centre and hangs freely
  * below it, pushed out only where it would pass inside. The clearance is
  * a common layer height with a small per-root jitter plus a growth with
@@ -80,6 +82,12 @@ export namespace AutoMovieHumanHairGuide {
 
     /** Arc length of the polyline, millimetres. */
     length: number;
+
+    /**
+     * Share of its full length the root grows by its nearness to the
+     * hairline, 0 to 1.
+     */
+    feather: number;
   }
 
   /**
@@ -152,6 +160,12 @@ const DOWN: [number, number, number] = [0, -1, 0];
 /** Height above the hairline over which hair grows to its full length, mm. */
 const FEATHER: number = 8;
 
+/** Shortest strand that gets a card, mm. */
+const SHORTEST: number = 4;
+
+/** Rise of the draped envelope over the scalp at which lying hair ends, mm. */
+const DRAPE: number = 5;
+
 /**
  * Solve one guide from its root direction.
  *
@@ -161,7 +175,8 @@ const FEATHER: number = 8;
  * @param root Root lattice index
  * @param u Unit root direction from the chart centre
  * @param feather Share of the length grown at the hairline's edge, 0 to 1
- * @returns The guide, or null when it would be shorter than one step
+ * @returns The guide, or null when it would be shorter than
+ *   {@link SHORTEST} mm
  */
 function solve(
   field: AutoMovieHumanHeadField.IField,
@@ -291,6 +306,16 @@ function solve(
       // above the chart centre and hangs freely below it.
       const lies: boolean =
         style !== AutoMovieHumanHairStyle.Bob || next[1] > 0;
+      // Lying hair ends where the draped envelope rises over a bump such as
+      // the auricle: cut short there, as a short cut is above the ear,
+      // instead of stepping out at the drape's 45 degrees and standing off
+      // the side of the head.
+      if (
+        lies &&
+        envelope(field, dir) - AutoMovieHumanHeadField.radius(field, dir) >
+          DRAPE
+      )
+        break;
       if (norm(next) < floor || lies) {
         const projected: [number, number, number] = scale(dir, floor);
 
@@ -379,8 +404,10 @@ function solve(
     p = next;
   }
 
-  if (points.length < 2 || travelled < 1) return null;
-  return { root, points, normals, length: travelled };
+  // A strand shorter than SHORTEST shows no root or tip band, only a dark
+  // fleck below the feathered hairline.
+  if (points.length < 2 || travelled < SHORTEST) return null;
+  return { root, points, normals, length: travelled, feather };
 }
 
 /** A point settled against the body. */
@@ -591,14 +618,21 @@ function flow(
   }
 
   // Bob: midline parting, ramped like the side parting; back hair falls
-  // straight.
+  // straight. The front of the head sweeps back as well as aside, so the
+  // roots at the front of the parting lie over the temples; swept only
+  // aside and down, twelve of f1's strands fell across the forehead.
   const side: number = parting(u[2]);
   const back: number = AutoMovieHumanAppearanceNoise.smoothstep(
     -0.1,
     -0.5,
     u[0],
   );
-  const swept: [number, number, number] = [-0.15, -0.4, side];
+  const front: number = AutoMovieHumanAppearanceNoise.smoothstep(
+    0.25,
+    0.6,
+    u[0],
+  );
+  const swept: [number, number, number] = [-0.15 - 0.6 * front, -0.4, side];
   const fall: [number, number, number] = [-0.3, -1, 0];
   const mix: number = upper * (1 - back);
   return add(scale(swept, mix), scale(fall, 1 - mix));

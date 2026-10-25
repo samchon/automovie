@@ -3,6 +3,7 @@ import { AutoMovieHumanContactSmoothing } from "./AutoMovieHumanContactSmoothing
 import { AutoMovieHumanCornerSmoothing } from "./AutoMovieHumanCornerSmoothing";
 import { AutoMovieHumanEventJoin } from "./AutoMovieHumanEventJoin";
 import { AutoMovieHumanLipSmoothing } from "./AutoMovieHumanLipSmoothing";
+import { AutoMovieHumanSectionLoops } from "./AutoMovieHumanSectionLoops";
 import { AutoMovieHumanStationContinuity } from "./AutoMovieHumanStationContinuity";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanEarCalibration } from "./calibration/AutoMovieHumanEarCalibration";
@@ -14,18 +15,21 @@ import { AutoMovieHumanVermilionCalibration } from "./calibration/AutoMovieHuman
 /**
  * The calibration specimen's body: the union of the region calibrations
  * under `calibration/`, each owned by its own observation fitter, with
- * their trims applied, then four continuity rules on the fitted sections,
+ * their trims applied, then six continuity rules on the fitted sections,
  * in order:
  *
- * 1. `AutoMovieHumanContactSmoothing` low-passes the sections the fitter
+ * 1. `AutoMovieHumanSectionLoops` smooths away the loops and spikes the
+ *    fitter left inside chains (the blade at each helix root, the rims'
+ *    ripples);
+ * 2. `AutoMovieHumanContactSmoothing` low-passes the sections the fitter
  *    rang around contact rings (crotch, head rings, webs);
- * 2. `AutoMovieHumanLipSmoothing` low-passes the lip sections around the
+ * 3. `AutoMovieHumanLipSmoothing` low-passes the lip sections around the
  *    external vermilion boundary;
- * 3. `AutoMovieHumanCornerSmoothing` tapers the oral line and the upper-lid
+ * 4. `AutoMovieHumanCornerSmoothing` tapers the oral line and the upper-lid
  *    crease where they end, at the commissures and the lateral canthi;
- * 4. `AutoMovieHumanStationContinuity` averages layers denser than the
+ * 5. `AutoMovieHumanStationContinuity` averages layers denser than the
  *    observation noise and makes the station curvature continuous;
- * 5. `AutoMovieHumanEventJoin` moves every event child onto its parent's
+ * 6. `AutoMovieHumanEventJoin` moves every event child onto its parent's
  *    ring and re-slopes it into the parent's tangent plane, since
  *    independently fitted end layers crease the shared rings.
  *
@@ -37,12 +41,14 @@ export const AutoMovieHumanBodyCalibration: IAutoMovieHumanBodyCalibration =
       AutoMovieHumanCornerSmoothing.apply(
         AutoMovieHumanLipSmoothing.apply(
           AutoMovieHumanContactSmoothing.apply(
-            AutoMovieHumanBodyRegions.merge([
-              AutoMovieHumanTorsoCalibration,
-              AutoMovieHumanFootCalibration,
-              AutoMovieHumanEarCalibration,
-              AutoMovieHumanEyeCalibration,
-            ]),
+            AutoMovieHumanSectionLoops.apply(
+              AutoMovieHumanBodyRegions.merge([
+                AutoMovieHumanTorsoCalibration,
+                AutoMovieHumanFootCalibration,
+                AutoMovieHumanEarCalibration,
+                AutoMovieHumanEyeCalibration,
+              ]),
+            ),
           ),
           AutoMovieHumanVermilionCalibration,
         ),

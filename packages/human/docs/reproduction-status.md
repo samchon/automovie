@@ -59,11 +59,13 @@ Three specimens identify one basis direction. The law makes no prediction claim 
 
 ## Open defects
 
-Seen in `campaign-r3` and `campaign-r4` and traced as below; the first three need the head fitter's correspondence rather than another runtime rule.
+Seen in `campaign-r3` through `campaign-r11` and traced as below.
 
 | Defect | Traced cause |
 | --- | --- |
-| A thin fin in front of each helix top and stair steps across the auricle | The auricle lies in the middle head's sections, whose outline changes quickly with height, and the upper head's first band joins equal phases that slide 13 mm along the section over 0.8 mm of station; the section family itself is smooth. Splitting such bands (tried) multiplied generation time by five and left the fin |
+| A short trace of the fin at each helix root and stair steps across the auricle | The fin's length was a kink in the upper head's fitted sections 0.8 to 2.4 mm above the 1595.5 mm ring (control points bunched at x 32 mm, a 20 to 30 degree bend within 0.1 mm), and 34 auricle and foot layers wound two or three times; `AutoMovieHumanSectionLoops` removes both. What remains is the corner of the shared ring itself, which the rule keeps. Joining rings by shorter diagonals instead of equal phases (tried) left the shading unchanged, since normals come from the chain surface, and drew a blade at the crotch and folds at the axillae |
+| A line under the chin along the jaw | The tilted `head.lower` sections at 1495 to 1502 mm ring at the front (10 to 18 curvature sign changes) and advance unevenly between layers 1.5 mm apart, which the dense-layer average (reach 1.6 mm) does not reach |
+| A line at eye height from the ear to the outer eye corner, strongest on m2 | Within 3 mm of the 1595.5 mm ring the shading normals differ from the local surface by 1.4 to 4.5 degrees on average and up to 40 at the ear and the canthus, against 0.3 elsewhere; on the back of the head they agree |
 | A ledge beside each lateral canthus | The upper-lid fold continues about 6 mm past the canthus as a 1.5 to 3 mm step in the fitted sections, smooth along the station, so the corner low-pass leaves it; the eye fitter would have to end the fold |
 | Dark stripes inside the nostrils in clay and stair steps on the right rim | The pocket's inferred meridians and the cut edge; in colour the cavity tint darkens the interior |
 | The gluteal fold stays a horizontal crease | The crotch is a horizontal contact ring; a fold rising toward the hips needs a tilted or curved contact |
@@ -73,7 +75,7 @@ Seen in `campaign-r3` and `campaign-r4` and traced as below; the first three nee
 
 ## Evidence
 
-Local captures are under `packages/playground/.shots/`: periodic audits `claude-audit-001` onward, inspections `claude-inspect-r1` through `claude-inspect-r7` and `campaign-r0` through `campaign-r3`. Frames that returned 500 while the worker page reloaded between people were captured again.
+Local captures are under `packages/playground/.shots/`: periodic audits `claude-audit-001` onward, inspections `claude-inspect-r1` through `claude-inspect-r7` and `campaign-r0` through `campaign-r11`. Frames that returned 500 while the worker page reloaded between people were captured again.
 
 ## Earlier work
 

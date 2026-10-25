@@ -18,14 +18,15 @@ import { AutoMovieHumanScalpBoundary } from "./AutoMovieHumanScalpBoundary";
  * like layered hair instead of standing on edge. Each card samples a
  * quarter-width window of the shared strand image chosen by its root's
  * hash. v runs from root to tip, mapped so the image's root band covers
- * the first 8 mm of the card and its tip band the last 30 mm (at most a
- * tenth and a fifth of the card), so every card emerges from the
+ * the first 8 mm of the card and its tip band the last 30 mm (at most two
+ * fifths and a fifth of the card), so every card emerges from the
  * scalp as scattered hairs and ends in tapered points of uneven length
  * whatever its length. Normals are the guide's mass normals, which shade
  * the hair as one volume rather than as flat strips, leaned slightly per
  * card and across its width, and a per-card vertex-colour shade with
- * darker roots breaks the mass into locks. Width narrows by a quarter
- * along the card and by a further fifth over the tip band. Curl classes
+ * darker roots breaks the mass into locks. Width grows from a third over
+ * the root band, narrows by a quarter along the card and by a further
+ * fifth over the tip band. Curl classes
  * add an in-plane wave whose amplitude and wavelength grow tighter from
  * class I (straight) to VIII, with a phase that varies smoothly over the
  * scalp so neighbouring cards wave together; a class names curve diameter
@@ -210,9 +211,11 @@ function cards(
       0.06 * (AutoMovieHumanAppearanceNoise.hash(11, guide.root) - 0.5);
 
     // Physical lengths of the image's root and tip bands: 8 mm of root and
-    // 30 mm of tip, each at most a tenth and a fifth of the card, so
-    // ends look alike on every length.
-    const rootSpan: number = Math.min(8, 0.1 * length);
+    // 30 mm of tip, each at most two fifths and a fifth of the card, so
+    // ends look alike on every length. A root band of a tenth compressed
+    // the scattered roots of the short cards at the hairline into a hard
+    // edge, a row of teeth along the forehead.
+    const rootSpan: number = Math.min(8, 0.4 * length);
     const tipSpan: number = Math.min(30, 0.2 * length);
     const tipStart: number = length - tipSpan;
     let s: number = 0;
@@ -248,9 +251,17 @@ function cards(
       // Width narrows by a quarter along the length and by a further fifth
       // over the tip band, where the image's strands converge into points.
       // Narrowing by half there drew each card's end as a separate spike,
-      // and the cut as a saw edge.
+      // and the cut as a saw edge. Cards rooted at the hairline are as much
+      // narrower as they are shorter (down to a third), so the edge thins
+      // into sparse fine hair instead of a row of full cards. Each card also
+      // widens from a third at its root over the root band: cut square
+      // across its width, the roots of cards combed back at an angle lined
+      // up as a saw edge along the hairline.
       const half: number =
         (width / 2) *
+        (1 / 3 + (2 / 3) * guide.feather) *
+        (1 / 3 +
+          (2 / 3) * AutoMovieHumanAppearanceNoise.smoothstep(0, rootSpan, s)) *
         (1 - 0.25 * t) *
         (1 -
           0.2 * AutoMovieHumanAppearanceNoise.smoothstep(tipStart, length, s));
