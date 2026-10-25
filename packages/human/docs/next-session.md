@@ -1,6 +1,6 @@
 # Human campaign continuation
 
-Continue [#2925](https://github.com/samchon/automovie/issues/2925) from the merged result of [#2976](https://github.com/samchon/automovie/pull/2976). Read [reproduction-status.md](reproduction-status.md) first for the generation path, this round's measurements and the open defects. The user asked for an adequate, presentable result rather than exhaustive precision; hair stays textured cards.
+Continue [#2925](https://github.com/samchon/automovie/issues/2925) from the merged result of the close-up quality campaign [#2977](https://github.com/samchon/automovie/issues/2977). Read [reproduction-status.md](reproduction-status.md) first for the generation path, this round's measurements and the open defects. The user asked for an adequate, presentable result rather than exhaustive precision; hair stays textured cards.
 
 ## Read and act
 
@@ -12,7 +12,7 @@ Change a person's shape through `AutoMovieHumanBodyLaw`, never through person-in
 
 ## Remaining work
 
-Fix the defects listed in the status file by cause, f1 first, then recheck f2, m1 and m2 under the same views, since every common rule reaches all four. The largest visible ones are the eye-height groove at the 1595.5 mm ring, the mouth-corner notches, the line under the nostrils and the hair fringe; the status file gives the traced cause of each, all in the head calibration's section fits. After a head fitter change, regenerate the shape basis.
+Fix the defects listed in the status file by cause, f1 first, then recheck f2, m1 and m2 under the same views, since every common rule reaches all four. Before changing a section rule, measure where the line comes from: several lines that looked like curvature jumps were the mesh's triangles joining same-phase points that slide several millimetres between close layers, and the section-union surface itself was smooth (intersect the sections with a fixed plane across the ring every 0.1 mm of station and read the profile). After a calibration or head fitter change, regenerate the shape basis.
 
 ## Running TypeScript here
 

@@ -25,14 +25,14 @@ import { AutoMovieHumanScalpBoundary } from "./AutoMovieHumanScalpBoundary";
  * the hair as one volume rather than as flat strips, leaned slightly per
  * card and across its width, and a per-card vertex-colour shade with
  * darker roots breaks the mass into locks. Width narrows by a quarter
- * along the card and by a further half over the tip band. Curl classes
+ * along the card and by a further fifth over the tip band. Curl classes
  * add an in-plane wave whose amplitude and wavelength grow tighter from
  * class I (straight) to VIII, with a phase that varies smoothly over the
  * scalp so neighbouring cards wave together; a class names curve diameter
  * and twist ranges (Callender 2026), not these values, which are
  * conventions of a card representation that cannot show tight coils.
  *
- * Undercoat: the scalp from three millimetres inside the scalp boundary
+ * Undercoat: the scalp from six millimetres inside the scalp boundary
  * up to the vertex, its margin following the boundary as a smooth curve,
  * as an opaque shell a millimetre above the skin (below the cards, which
  * start 1.2 mm above it, and far enough that the shell does not lose the
@@ -78,10 +78,16 @@ export namespace AutoMovieHumanHairCard {
    * Cards: the strand image's luminance times the category colour,
    * alpha-tested at 0.35 coverage (mask needs no sorting and writes depth,
    * at the cost of aliased strand edges), double-sided, roughness 0.38
-   * with an anisotropic lobe streaked along v, the strand direction
-   * (strength 0.6), and specular intensity 0.7 for the fibre's weak
-   * dielectric reflection; conventions pending the optical qualification
-   * of #2957. Undercoat: 55 percent of the colour, roughness 0.85, opaque.
+   * with an anisotropic lobe whose roughness grows along u, across the
+   * strands (strength 0.6), and specular intensity 0.7 for the fibre's weak
+   * dielectric reflection. A fibre reflects light on a cone about its own
+   * axis, so its highlight spreads across the strands and the hair mass
+   * shows the familiar band running around the head (Kajiya and Kay 1989);
+   * the glTF anisotropy direction is the one along which the highlight is
+   * stretched. Stretching it along v, the strand direction, drew one
+   * vertical stripe down the back of the head. Conventions pending the
+   * optical qualification of #2957. Undercoat: 55 percent of the colour,
+   * roughness 0.85, opaque.
    *
    * @param hair Scalp hair input
    * @returns The two materials
@@ -114,7 +120,7 @@ export namespace AutoMovieHumanHairCard {
         alphaMode: "mask",
         alphaCutoff: 0.35,
         specularIntensity: 0.7,
-        anisotropy: { strength: 0.6, rotationDeg: 90, texture: null },
+        anisotropy: { strength: 0.6, rotationDeg: 0, texture: null },
       },
       {
         id: "human.hair.scalp",
@@ -239,13 +245,15 @@ function cards(
                 (s - rootSpan)) /
                 Math.max(tipStart - rootSpan, 1e-9);
 
-      // Width narrows by a quarter along the length and by a further half
+      // Width narrows by a quarter along the length and by a further fifth
       // over the tip band, where the image's strands converge into points.
+      // Narrowing by half there drew each card's end as a separate spike,
+      // and the cut as a saw edge.
       const half: number =
         (width / 2) *
         (1 - 0.25 * t) *
         (1 -
-          0.5 * AutoMovieHumanAppearanceNoise.smoothstep(tipStart, length, s));
+          0.2 * AutoMovieHumanAppearanceNoise.smoothstep(tipStart, length, s));
       const wave: number =
         amplitude *
         Math.sin((2 * Math.PI * s) / wavelength + phase) *
@@ -344,12 +352,21 @@ function undercoat(
   return { positions, normals, uvs: null, indices, skin: null };
 }
 
+/**
+ * Height of the undercoat's edge above the scalp boundary, mm. Inside it
+ * the cards' scattered root band shows the skin between hairs, so the
+ * hairline feathers in; at 3 mm the opaque shell drew the hairline as a
+ * hard, comb-like edge.
+ */
+const INSET: number = 6;
+
 /** Undercoat rows from its edge to the row below the pole. */
 const UNDERCOAT_ROWS: number = 32;
 
 /**
  * Elevation of the undercoat's edge at one azimuth: the lowest elevation
- * from which the skin, all the way up to the vertex, lies at least 3 mm
+ * from which the skin, all the way up to the vertex, lies at least
+ * {@link INSET} mm
  * above the scalp boundary.
  *
  * Marches down from the vertex in steps of a quarter chart cell until the
@@ -367,7 +384,8 @@ function edge(
   alpha: number,
 ): number {
   const boundary: number =
-    AutoMovieHumanScalpBoundary.height(hair.hairline, alpha, field.height) + 3;
+    AutoMovieHumanScalpBoundary.height(hair.hairline, alpha, field.height) +
+    INSET;
   const bears: (beta: number) => boolean = (beta: number): boolean => {
     const u: [number, number, number] = AutoMovieHumanHeadField.direction(
       alpha,

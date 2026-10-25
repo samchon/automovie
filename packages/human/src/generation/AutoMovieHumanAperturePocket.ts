@@ -58,13 +58,23 @@ export namespace AutoMovieHumanAperturePocket {
     );
     const pole: number = mesh.positions.length / 3;
     mesh.positions.push(...tip);
-    const rings: Map<number, number[]> = new Map();
+    // Depth slope of the exterior toward the opening at every rim vertex,
+    // from the rim's jets, whose gradients are averaged along the rim
+    // (`AutoMovieHumanSkinProjection.rim`): one triangle's affine jet
+    // differs from the next by the facet noise of the cut, and meridians
+    // started at those angles shaded the walls as facets and a bright
+    // streak.
+    const inwards: Map<number, [number, number]> = new Map();
+    const slopes: Map<number, number> = new Map();
+    const jets: Map<number, AutoMovieHumanSkinProjection.IJet> =
+      AutoMovieHumanSkinProjection.rim(mesh, open, outline);
     for (const v of vertices) {
       const p: number[] = [0, 1, 2].map(
         (a: number): number => mesh.positions[3 * v + a]!,
       );
-      const hit: ReturnType<typeof AutoMovieHumanSkinProjection.edge> =
-        AutoMovieHumanSkinProjection.edge(mesh, owners.get(v)!, outline);
+      const hit: AutoMovieHumanSkinProjection.IJet = jets.get(
+        owners.get(v)!.u,
+      )!;
       const inward: [number, number] = [outline.lateral, outline.up].map(
         (axis: readonly number[]): number =>
           p.reduce(
@@ -73,8 +83,17 @@ export namespace AutoMovieHumanAperturePocket {
             0,
           ),
       ) as [number, number];
-      const axial: number =
-        hit.gradient[0] * inward[0] + hit.gradient[1] * inward[1];
+      inwards.set(v, inward);
+      slopes.set(v, hit.gradient[0] * inward[0] + hit.gradient[1] * inward[1]);
+    }
+
+    const rings: Map<number, number[]> = new Map();
+    for (const v of vertices) {
+      const p: number[] = [0, 1, 2].map(
+        (a: number): number => mesh.positions[3 * v + a]!,
+      );
+      const inward: [number, number] = inwards.get(v)!;
+      const axial: number = slopes.get(v)!;
       const radial: number[] = [0, 1, 2].map(
         (a: number): number =>
           inward[0] * outline.lateral[a]! + inward[1] * outline.up[a]!,

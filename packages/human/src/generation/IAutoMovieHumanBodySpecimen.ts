@@ -16,4 +16,16 @@ export interface IAutoMovieHumanBodySpecimen {
 
   /** Head breadth (euryon to euryon), mm: the length times the cephalic index over 100. */
   headBreadth: number;
+
+  /** Face height (nasion to menton), mm. */
+  faceHeight: number;
+
+  /** Face width (bizygomatic), mm. */
+  faceWidth: number;
+
+  /** Bigonial width, mm. */
+  mandibularWidth: number;
+
+  /** Minimum frontal width, mm. */
+  minimumFrontalWidth: number;
 }

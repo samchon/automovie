@@ -20,6 +20,12 @@ export interface IAutoMovieHumanSurfaceContext {
   tolerance: number;
   /** Opening outlines and seated eyelids prepared once for this generation. */
   apertures: AutoMovieHumanBodyApertures.IPrepared[];
+  /**
+   * World boxes `[min, max]` in mm where a chain's stations are refined to
+   * the aperture spacing, for colour boundaries drawn on the skin such as
+   * the lips; empty when none.
+   */
+  details: [[number, number, number], [number, number, number]][];
   /** Original calibration index of each chain. */
   indices: Map<string, number>;
   /** Flat chain-index, station-mm and phase-radian triples per generated vertex. */

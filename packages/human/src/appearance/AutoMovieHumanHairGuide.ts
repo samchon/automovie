@@ -54,7 +54,11 @@ import { AutoMovieHumanShoulderField } from "./AutoMovieHumanShoulderField";
  * ending where it reaches a level `length` below the vertex, or, once
  * resting on the body, after laying along it the drop it still had to
  * that level. Every root's length, and with it a bob's level, varies by up
- * to 4 percent either way, so the ends never line up along one cut.
+ * to 6 percent either way in locks and 2 percent per root, so the ends
+ * never line up along one cut. Roots within {@link FEATHER} mm above the
+ * hairline grow shorter hair the closer they lie, against a boundary
+ * raised per root, so the hairline feathers in instead of starting as a
+ * comb of full-length cards along one line.
  *
  * Normals: the scalp chart's outward direction where a strand lies on the
  * head, the outward normal of a capsule about the chart centre (radial
@@ -118,9 +122,24 @@ export namespace AutoMovieHumanHairGuide {
         Math.atan2(u[2], u[0]),
         field.height,
       );
-      if (above <= boundary) continue;
+      // Feather the hairline: the roots within FEATHER mm above it grow
+      // shorter hair the closer they are, each against the boundary raised
+      // by its own jitter of up to half that, so the edge breaks into fine
+      // short hair instead of a comb of full-length cards along one line.
+      // The jitter only raises the boundary: lowering it grew hair below
+      // the sideburns, a dark strip in front of each ear.
+      const margin: number =
+        above -
+        boundary -
+        0.5 * FEATHER * AutoMovieHumanAppearanceNoise.hash(14, k);
+      if (margin <= 0) continue;
+      const feather: number = AutoMovieHumanAppearanceNoise.smoothstep(
+        0,
+        FEATHER,
+        margin,
+      );
 
-      const guide: IGuide | null = solve(field, shoulders, hair, k, u);
+      const guide: IGuide | null = solve(field, shoulders, hair, k, u, feather);
       if (guide !== null) guides.push(guide);
     }
     return guides;
@@ -130,6 +149,9 @@ export namespace AutoMovieHumanHairGuide {
 /** Downward unit vector. */
 const DOWN: [number, number, number] = [0, -1, 0];
 
+/** Height above the hairline over which hair grows to its full length, mm. */
+const FEATHER: number = 8;
+
 /**
  * Solve one guide from its root direction.
  *
@@ -138,6 +160,7 @@ const DOWN: [number, number, number] = [0, -1, 0];
  * @param hair Scalp hair input
  * @param root Root lattice index
  * @param u Unit root direction from the chart centre
+ * @param feather Share of the length grown at the hairline's edge, 0 to 1
  * @returns The guide, or null when it would be shorter than one step
  */
 function solve(
@@ -146,15 +169,29 @@ function solve(
   hair: IAutoMovieHumanScalpHair,
   root: number,
   u: [number, number, number],
+  feather: number,
 ): AutoMovieHumanHairGuide.IGuide | null {
   const style: AutoMovieHumanHairStyle = hair.style;
 
-  // Length of this root's hair, varied by up to 4 percent either way so
-  // neighbouring ends never line up along one cut (convention).
+  // Length of this root's hair, varied so ends never line up along one
+  // cut: by up to 6 percent either way in locks (value noise over the
+  // root's chart angles, twelve cells around the head) and a further 2
+  // percent per root (conventions). Per-root variation alone made every
+  // card end at its own height, a saw edge along the bob's line.
   const vary: number =
-    1 + 0.08 * (AutoMovieHumanAppearanceNoise.hash(12, root) - 0.5);
+    1 +
+    0.12 *
+      (AutoMovieHumanAppearanceNoise.value2(
+        13,
+        (Math.atan2(u[2], u[0]) / (2 * Math.PI)) * 12,
+        (Math.asin(Math.max(-1, Math.min(1, u[1]))) / Math.PI) * 6,
+        12,
+      ) -
+        0.5) +
+    0.04 * (AutoMovieHumanAppearanceNoise.hash(12, root) - 0.5);
   const top: number = AutoMovieHumanAppearanceNoise.smoothstep(0.3, 0.75, u[1]);
   const length: number =
+    feather *
     vary *
     (style === AutoMovieHumanHairStyle.Short
       ? hair.length * (1 / 3 + (2 / 3) * top)
