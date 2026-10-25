@@ -51,7 +51,7 @@ Every author reading, evidence correction, independent review, and author respon
 
 After repair, compare changed passages together for the same failure in different words or a new uniform mold. Compare their meaning with actual parents and any frozen original. Within the submitted pass, recheck dependent sentences, quotations, positions, counts, order, screen action, inherited state, exclusions, and reasons for preservation; a surviving quotation alone does not keep an answer true. Complete the related [answer corrections](../../.agents/skills/evidence-writing/SKILL.md) in the same repair. Upstream changes follow the closed-pass boundary below. Keep unaffected bytes and historical judgments attributable to their actual snapshot.
 
-For a questionable expression retained on function, write a workable alternative giving the same information, access, and pressure without that form, then show what the original adds in its actual context. Keep that comparison available to independent review. A functional label, parental precedent, previous approval, or loss on deletion alone cannot replace it. The selected contract judges the result. Complete the next whole inspection round before adopting further repairs.
+Judge retained and unadopted candidates under the [retention test](../../.agents/skills/evidence-writing/SKILL.md#grounds-for-retaining-a-candidate), keeping its recorded comparison available to independent review. Complete the next whole inspection round before adopting further repairs.
 
 ## Upstream repair and scope
 
