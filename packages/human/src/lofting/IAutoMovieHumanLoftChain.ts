@@ -2,6 +2,7 @@ import type { AutoMovieHumanHarmonicCurve } from "./AutoMovieHumanHarmonicCurve"
 import type { AutoMovieHumanLoftChain } from "./AutoMovieHumanLoftChain";
 import type { AutoMovieHumanLoftFrame } from "./AutoMovieHumanLoftFrame";
 import type { AutoMovieHumanLoftParameter } from "./AutoMovieHumanLoftParameter";
+import type { IAutoMovieHumanRelief } from "../network/IAutoMovieHumanRelief";
 import type { AutoMovieHumanSplineCurve } from "./AutoMovieHumanSplineCurve";
 
 /**
@@ -50,6 +51,13 @@ export interface IAutoMovieHumanLoftChain {
 
   /** Principal layers ordered by strictly increasing height, at least two. */
   layers: IAutoMovieHumanLoftChain.ILayer[];
+
+  /**
+   * Features written as heights over this chain's surface (the nose and
+   * lips over the face, the breasts over the thorax); see
+   * {@link IAutoMovieHumanRelief}. Absent means none.
+   */
+  reliefs?: IAutoMovieHumanRelief[];
 }
 export namespace IAutoMovieHumanLoftChain {
   /** One principal layer: a shape event of the chain. */

@@ -1,9 +1,13 @@
+import { AutoMovieHumanLoftAperture } from "../lofting/AutoMovieHumanLoftAperture";
 import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
 import { AutoMovieHumanLoftFrame } from "../lofting/AutoMovieHumanLoftFrame";
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanSplineCurve } from "../lofting/AutoMovieHumanSplineCurve";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import { AutoMovieHumanBodyApertures } from "./AutoMovieHumanBodyApertures";
+import { AutoMovieHumanAperturePocket } from "./AutoMovieHumanAperturePocket";
+import { AutoMovieHumanBodyRoots } from "./AutoMovieHumanBodyRoots";
+import { AutoMovieHumanEyelidSurface } from "./AutoMovieHumanEyelidSurface";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanConstructionPath } from "./IAutoMovieHumanConstructionPath";
 import type { IAutoMovieHumanSurfaceBoundary as IBoundary } from "./IAutoMovieHumanSurfaceBoundary";
@@ -411,18 +415,60 @@ export namespace AutoMovieHumanBodySurface {
         ),
       ),
       coordinates: [],
+      roots: new Map(),
+      ends: new Map(),
+      holes: new Map(),
     };
+    for (const appendage of calibration.appendages ?? []) {
+      const list = context.roots.get(appendage.base) ?? [];
+      list.push({
+        appendage,
+        loop: AutoMovieHumanBodyRoots.polygon(appendage.root, LOOP),
+      });
+      context.roots.set(appendage.base, list);
+    }
+    // Openings on a base are its trim loops; the rest are cut by position.
+    const based: AutoMovieHumanBodyApertures.IPrepared[] = context.apertures.filter(
+      (p: AutoMovieHumanBodyApertures.IPrepared): boolean =>
+        p.aperture.base !== undefined && context.chains.has(p.aperture.base),
+    );
+    context.apertures = context.apertures.filter(
+      (p: AutoMovieHumanBodyApertures.IPrepared): boolean => !based.includes(p),
+    );
+    for (const opening of based) {
+      const base: IAutoMovieHumanLoftChain = chain(context, opening.aperture.base!);
+      const margin = AutoMovieHumanLoftAperture.polyline(opening.aperture);
+      const list = context.roots.get(base.name) ?? [];
+      list.push({
+        opening,
+        loop: AutoMovieHumanBodyRoots.trim(
+          base,
+          opening.outline,
+          AutoMovieHumanLoftAperture.range(margin),
+        ),
+      });
+      context.roots.set(base.name, list);
+    }
 
     // 1-2. Contact rings and the boundaries they define on both sides.
     for (const event of calibration.events) contact(context, event);
 
-    // 3. Every chain between its two boundaries.
+    // 3. Every chain between its two boundaries; bases leave their root
+    // loops open.
     for (const target of calibration.chains) loft(context, target);
 
-    // 4. Openings: the skin over every aperture is clipped away by
+    // 3b. Every appendage joined to its base through its strip, and every
+    // opening on a base closed from its trim loop.
+    for (const appendage of calibration.appendages ?? []) join(context, appendage);
+    const construction: IAutoMovieHumanConstructionPath[] = [];
+    for (const [name, roots] of context.roots)
+      for (const r of roots)
+        if (r.opening !== undefined)
+          construction.push(...open(context, chain(context, name), r.opening, r.loop));
+
+    // 4. Other openings: the skin over every aperture is clipped away by
     // position, and the lid margins tucked onto the globes.
-    const construction: IAutoMovieHumanConstructionPath[] =
-      AutoMovieHumanBodyApertures.cut(context.mesh, context.apertures);
+    construction.push(...AutoMovieHumanBodyApertures.cut(context.mesh, context.apertures));
 
     return {
       mesh: context.mesh,
@@ -530,7 +576,7 @@ export namespace AutoMovieHumanBodySurface {
     const rings: number[][] = heights.map((y: number, k: number): number[] => {
       const end: IBoundary | undefined =
         k === 0 ? bottom : k === heights.length - 1 ? top : undefined;
-      if (end !== undefined && end.kind !== "pole") {
+      if (end !== undefined && (end.kind === "own" || end.kind === "inherited")) {
         ringPhases.push(
           end.kind === "inherited"
             ? inheritedPhases(context, target, y, end.ring)
@@ -549,10 +595,18 @@ export namespace AutoMovieHumanBodySurface {
         context.mesh,
         interval(target, heights[k]!, heights[k + 1]!),
       );
-      // Rings with one shared phase set join by a band; inherited rings
-      // join by a zipper.
+      // Rings with one shared phase set join by a band, leaving out the
+      // cells inside a root loop; inherited rings join by a zipper.
       if (ringPhases[k] === ringPhases[k + 1])
-        AutoMovieHumanLoftMesh.band(context.mesh, rings[k]!, rings[k + 1]!);
+        cells(
+          context,
+          target,
+          rings[k]!,
+          rings[k + 1]!,
+          heights[k]!,
+          heights[k + 1]!,
+          ringPhases[k]!,
+        );
       else
         AutoMovieHumanLoftMesh.zipper(
           context.mesh,
@@ -563,11 +617,239 @@ export namespace AutoMovieHumanBodySurface {
         );
     }
 
-    // Poles close the ends that no event owns.
+    // Poles close the ends that no event owns; an appendage keeps its root
+    // ring for its strip.
     if (bottom.kind === "pole") pole(context, target, "bottom", rings[0]!);
     if (top.kind === "pole")
       pole(context, target, "top", rings[rings.length - 1]!);
+    if (bottom.kind === "root")
+      context.ends.set(target.name, { ring: rings[0]!, phases: ringPhases[0]! });
+    if (top.kind === "root")
+      context.ends.set(target.name, {
+        ring: rings[rings.length - 1]!,
+        phases: ringPhases[ringPhases.length - 1]!,
+      });
   }
+
+  /**
+   * Band between two rings of one phase set, leaving out every cell with a
+   * corner inside one of the chain's root loops; the cells left out are
+   * recorded for the join.
+   */
+  function cells(
+    context: IContext,
+    target: IAutoMovieHumanLoftChain,
+    lower: readonly number[],
+    upper: readonly number[],
+    s0: number,
+    s1: number,
+    phases: readonly number[],
+  ): void {
+    const roots = context.roots.get(target.name);
+    if (roots === undefined) {
+      AutoMovieHumanLoftMesh.band(context.mesh, lower, upper);
+      return;
+    }
+    let hole = context.holes.get(target.name);
+    if (hole === undefined) {
+      hole = { cells: [], charts: new Map() };
+      context.holes.set(target.name, hole);
+    }
+    const inside = (s: number, t: number): boolean =>
+      roots.some((r): boolean => AutoMovieHumanBodyRoots.inside(r.loop, s, t));
+    const n: number = lower.length;
+    for (let i: number = 0; i < n; i++) {
+      const j: number = (i + 1) % n;
+      const corners: [number, number][] = [
+        [s0, phases[i]!],
+        [s0, phases[j]!],
+        [s1, phases[j]!],
+        [s1, phases[i]!],
+      ];
+      if (corners.some(([s, t]): boolean => inside(s, t))) {
+        const v: [number, number, number, number] = [
+          lower[i]!,
+          lower[j]!,
+          upper[j]!,
+          upper[i]!,
+        ];
+        hole.cells.push(v);
+        v.forEach((x: number, c: number): void => {
+          hole!.charts.set(x, corners[c]!);
+        });
+        continue;
+      }
+      context.mesh.indices.push(lower[i]!, upper[i]!, lower[j]!);
+      context.mesh.indices.push(lower[j]!, upper[i]!, upper[j]!);
+    }
+  }
+
+  /**
+   * Join one appendage to its base: the hole the base left round the root
+   * loop, traced from the cells left out, and the strip to the appendage's
+   * root ring.
+   */
+  function join(
+    context: IContext,
+    appendage: IAutoMovieHumanBodyCalibration.IAppendage,
+  ): void {
+    const base: IAutoMovieHumanLoftChain = chain(context, appendage.base);
+    const own: IAutoMovieHumanLoftChain = chain(context, appendage.chain);
+    const end = context.ends.get(appendage.chain);
+    if (end === undefined)
+      throw new Error(`Appendage ${appendage.chain} has no root on ${appendage.base}`);
+    const [edge, charts] = holeEdge(
+      context,
+      appendage.base,
+      AutoMovieHumanBodyRoots.polygon(appendage.root, LOOP),
+    );
+    AutoMovieHumanLoftMesh.group(context.mesh, `${appendage.chain}/root`);
+    AutoMovieHumanBodyRoots.join(
+      context.mesh,
+      context.coordinates,
+      base,
+      context.indices.get(base.name)!,
+      own,
+      appendage,
+      end.ring,
+      end.phases,
+      edge,
+      charts,
+    );
+  }
+
+  /**
+   * Close an opening on its base from its trim loop: the loop's vertices on
+   * the base, the zipper from the base's hole to them, and the lid band (an
+   * eye) built from the base's own derivative across the loop.
+   */
+  function open(
+    context: IContext,
+    base: IAutoMovieHumanLoftChain,
+    prepared: AutoMovieHumanBodyApertures.IPrepared,
+    loop: [number, number][],
+  ): IAutoMovieHumanConstructionPath[] {
+    const [edge, charts] = holeEdge(context, base.name, loop);
+    const index: number = context.indices.get(base.name)!;
+    const middle: number = loop.reduce((a: number, p: [number, number]): number => a + p[0], 0) / loop.length;
+    AutoMovieHumanLoftMesh.group(context.mesh, interval(base, middle, middle));
+    const ring: number[] = AutoMovieHumanLoftMesh.vertices(
+      context.mesh,
+      loop.map(([s, t]: [number, number]): [number, number, number] => AutoMovieHumanLoftChain.ring(base, s, [t])[0]!),
+    );
+    for (const [s, t] of loop) context.coordinates.push(index, s, ((t % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI));
+    const reference = AutoMovieHumanBodyRoots.outward(base, loop[0]![0], loop[0]![1]);
+    AutoMovieHumanBodyRoots.orient(context.mesh, reference, (): void =>
+      AutoMovieHumanBodyRoots.zip(context.mesh, ring, loop, edge, charts),
+    );
+    const lid = prepared.lid;
+    if (lid === null && !(prepared.aperture.pocket! > 0)) return [];
+    // The base's unit tangent across the loop, away from the opening.
+    const area: number = loop.reduce((a: number, p: [number, number], i: number): number => {
+      const q: [number, number] = loop[(i + 1) % loop.length]!;
+      return a + p[1] * q[0] - q[1] * p[0];
+    }, 0);
+    const sense: number = area >= 0 ? 1 : -1;
+    const slopes = loop.map(([s, t]: [number, number], i: number) => {
+      const a: [number, number] = loop[(i - 1 + loop.length) % loop.length]!;
+      const b: [number, number] = loop[(i + 1) % loop.length]!;
+      const ds: number = b[0] - a[0];
+      const dt: number = b[1] - a[1];
+      return AutoMovieHumanBodyRoots.across(base, s, t, sense * ds, -sense * dt)[0];
+    });
+    let construction: IAutoMovieHumanConstructionPath[] = [];
+    const emit = (_: string, ...corners: number[]): void => {
+      context.mesh.indices.push(...corners);
+    };
+    AutoMovieHumanBodyRoots.orient(context.mesh, reference, (): void => {
+      construction =
+        lid !== null
+          ? AutoMovieHumanEyelidSurface.loop(context.mesh, lid, ring, slopes, emit)
+          : AutoMovieHumanAperturePocket.loop(context.mesh, prepared.aperture, ring, slopes, emit);
+    });
+    // Vertices the closure added carry no loft coordinates.
+    while (context.coordinates.length < context.mesh.positions.length) context.coordinates.push(NaN);
+    return construction;
+  }
+
+  /**
+   * The hole a base left round a loop: the closed edge of its left-out
+   * cells nearest the loop, as vertices and their chart points.
+   */
+  function holeEdge(
+    context: IContext,
+    baseName: string,
+    loopPolygon: [number, number][],
+  ): [number[], [number, number][]] {
+    const hole = context.holes.get(baseName);
+    if (hole === undefined) throw new Error(`Base ${baseName} left no hole`);
+
+    // Edges of the left-out region: cell edges no other left-out cell shares.
+    const count: Map<string, [number, number, number]> = new Map();
+    for (const c of hole.cells)
+      for (let e: number = 0; e < 4; e++) {
+        const a: number = c[e]!;
+        const b: number = c[(e + 1) % 4]!;
+        const key: string = a < b ? `${a}:${b}` : `${b}:${a}`;
+        const seen = count.get(key);
+        count.set(key, [a, b, (seen?.[2] ?? 0) + 1]);
+      }
+    const next: Map<number, number[]> = new Map();
+    for (const [a, b, k] of count.values()) {
+      if (k !== 1) continue;
+      next.set(a, [...(next.get(a) ?? []), b]);
+      next.set(b, [...(next.get(b) ?? []), a]);
+    }
+
+    // Closed loops of those edges; the one round this appendage's root.
+    const loops: number[][] = [];
+    const used: Set<number> = new Set();
+    for (const startVertex of next.keys()) {
+      if (used.has(startVertex)) continue;
+      const loop: number[] = [startVertex];
+      used.add(startVertex);
+      let previous: number = -1;
+      let current: number = startVertex;
+      for (;;) {
+        const candidates: number[] = (next.get(current) ?? []).filter(
+          (v: number): boolean => v !== previous,
+        );
+        const v: number | undefined = candidates.find(
+          (x: number): boolean => !used.has(x) || x === startVertex,
+        );
+        if (v === undefined || v === startVertex) break;
+        loop.push(v);
+        used.add(v);
+        previous = current;
+        current = v;
+      }
+      loops.push(loop);
+    }
+    const centre: [number, number] = loopPolygon.reduce(
+      (a: [number, number], p: [number, number]): [number, number] => [
+        a[0] + p[0] / loopPolygon.length,
+        a[1] + p[1] / loopPolygon.length,
+      ],
+      [0, 0],
+    );
+    const distance = (loop: number[]): number =>
+      loop.reduce((a: number, v: number): number => {
+        const [s, t] = hole.charts.get(v)!;
+        const dt: number = Math.atan2(
+          Math.sin(t - centre[1]),
+          Math.cos(t - centre[1]),
+        );
+        return a + Math.hypot(s - centre[0], dt * 100);
+      }, 0) / loop.length;
+    const edge: number[] | undefined = loops.sort(
+      (a: number[], b: number[]): number => distance(a) - distance(b),
+    )[0];
+    if (edge === undefined) throw new Error(`Base ${baseName} left no hole near a loop`);
+    return [edge, edge.map((v: number): [number, number] => hole.charts.get(v)!)];
+  }
+
+  /** Samples of a root loop when testing cells against it. */
+  const LOOP: number = 256;
 
   /** Resolved boundary of a chain end; ends without an event are poles. */
   function boundary(
@@ -575,7 +857,19 @@ export namespace AutoMovieHumanBodySurface {
     target: IAutoMovieHumanLoftChain,
     end: "bottom" | "top",
   ): IBoundary {
-    return context.boundaries.get(target.name + ":" + end) ?? { kind: "pole" };
+    const resolved: IBoundary | undefined = context.boundaries.get(
+      target.name + ":" + end,
+    );
+    if (resolved !== undefined) return resolved;
+    for (const roots of context.roots.values())
+      if (
+        roots.some(
+          (r): boolean =>
+            r.appendage?.chain === target.name && r.appendage.end === end,
+        )
+      )
+        return { kind: "root" };
+    return { kind: "pole" };
   }
 
   /** Height of a chain's bottom or top principal layer in mm. */

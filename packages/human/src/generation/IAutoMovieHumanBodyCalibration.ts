@@ -42,8 +42,53 @@ export interface IAutoMovieHumanBodyCalibration {
 
   /** Eyeball globes seated behind the eyelid apertures. */
   eyes: IAutoMovieHumanBodyCalibration.IEye[];
+
+  /**
+   * Chains rooted in a closed loop on another chain's surface (an auricle on
+   * the head, a limb on the trunk) instead of sharing a contact ring. Absent
+   * means none.
+   */
+  appendages?: IAutoMovieHumanBodyCalibration.IAppendage[];
 }
 export namespace IAutoMovieHumanBodyCalibration {
+  /**
+   * One appendage: a chain whose end meets a closed root loop on its base
+   * chain through a transition strip.
+   *
+   * The base is not lofted inside the loop. Between the loop on the base and
+   * the appendage's end ring, a strip `T(t, w)` runs from the appendage
+   * (w = 0) to the base (w = 1) as the quintic Hermite of the two curves,
+   * their cross derivatives and their second cross derivatives, so the
+   * skin is continuous in position, tangent plane and curvature across both
+   * edges (G2). Ring phase t of the appendage's end and loop parameter t
+   * name the same strip column.
+   */
+  export interface IAppendage {
+    /** Appendage chain. */
+    chain: string;
+
+    /** End of the appendage chain that meets the root loop. */
+    end: "bottom" | "top";
+
+    /** Base chain the loop lies on. */
+    base: string;
+
+    /**
+     * Root loop in the base's chart as a periodic cubic B-spline of M
+     * control points `[s_0 .. s_{M-1}, t_0 .. t_{M-1}]`: station in mm and
+     * phase in radians, the phases continuous (unwrapped) round the loop.
+     * Either turning sense is accepted.
+     */
+    root: number[];
+
+    /**
+     * Cross-derivative length of the strip at both edges as a share of the
+     * chord between them: 1 lays the strip like a straight blend, more
+     * makes it fuller.
+     */
+    reach: number;
+  }
+
   /**
    * One eyeball globe, fitted as a sphere to the reference eyeball surface.
    * The generator scales it with the body and hands it to the appearance

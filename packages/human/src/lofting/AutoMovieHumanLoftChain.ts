@@ -1,3 +1,4 @@
+import { AutoMovieHumanRelief } from "../network/AutoMovieHumanRelief";
 import { AutoMovieHumanHarmonicCurve } from "./AutoMovieHumanHarmonicCurve";
 import { AutoMovieHumanLoftFrame } from "./AutoMovieHumanLoftFrame";
 import { AutoMovieHumanSplineCurve } from "./AutoMovieHumanSplineCurve";
@@ -380,13 +381,21 @@ export namespace AutoMovieHumanLoftChain {
         p[0],
         p[1],
       );
-      if (lifted === null) return q;
-      const h: number = AutoMovieHumanSplineCurve.evaluate(
-        lifted,
-        chain.order,
-        t,
-      )[0];
-      return [q[0] + h * n[0], q[1] + h * n[1], q[2] + h * n[2]];
+      if (lifted !== null) {
+        const h: number = AutoMovieHumanSplineCurve.evaluate(
+          lifted,
+          chain.order,
+          t,
+        )[0];
+        for (let k: number = 0; k < 3; k++) q[k]! += h * n[k]!;
+      }
+      // Reliefs move the base point along their axes.
+      for (const relief of chain.reliefs ?? []) {
+        const d: number = AutoMovieHumanRelief.height(relief, s, t)[0];
+        if (d === 0) continue;
+        for (let k: number = 0; k < 3; k++) q[k]! += d * relief.axis[k]!;
+      }
+      return q;
     });
   }
 
