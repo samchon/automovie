@@ -10,22 +10,22 @@ Every anatomical part is a module with its own frame, parameters, feature curves
 
 | Module | Kind | Frame | Parameters it reads |
 | --- | --- | --- | --- |
-| Cranium and face mass | base | head axis (atlas to vertex) | head length, cephalic index, height, face height and width, mandibular and minimum frontal width |
+| Cranium and face mass | base | the saved head rows' planes, tilted over the lower face and horizontal above | head length, cephalic index, height, face height and width, mandibular and minimum frontal width |
 | Neck | base | cervical axis | neck girth, neck length, neck base |
-| Trunk (thorax, abdomen, pelvis) | base | spinal axis | chest, underbust, waist, high hip, hip, neck-to-waist, across shoulder, front interscye |
+| Trunk (thorax, abdomen, pelvis) | base | horizontal sections, the saved rows' planes | chest, underbust, waist, high hip, hip, neck-to-waist, across shoulder, front interscye |
 | Arm (upper arm, forearm) | appendage | humerus and forearm axes | upper and lower arm length, biceps, elbow, forearm, wrist |
 | Hand (palm) and digits | base and appendages | metacarpal and phalanx axes | hand circumference, extremity dimensions |
 | Leg (thigh, shank) | appendage | femur and tibia axes | inseam, thigh, knee, calf |
 | Foot and toes | base and appendages | foot axis, toe axes | extremity dimensions |
-| Nose | relief on the face | nasal dorsum axis | nose width, height, protrusion |
-| Lips | relief on the face | mouth axis | mouth width, upper and lower vermilion height |
-| Breasts | relief on the thorax, tilted direction | breast axis | bust span, chest, underbust, shoulder to apex |
-| Buttocks | relief on the pelvis | gluteal chart | hip, high hip |
-| Auricles | appendages | helix arc | ear length, breadth, protrusion |
+| Nose | relief on the face | the face base's chart, its axis by section 2's rule | nose width, height, protrusion |
+| Lips | relief on the face | the face base's chart, its axis by section 2's rule | mouth width, upper and lower vermilion height |
+| Breasts | relief on the thorax | the trunk base's chart, its axis by section 2's rule | bust span, chest, underbust, shoulder to apex |
+| Buttocks | relief on the pelvis | the trunk base's chart, its axis by section 2's rule | hip, high hip |
+| Auricles | appendages | decided by the auricle set (section 2) | ear length, breadth, protrusion |
 | Eye openings | trims with lids | globe frame | palpebral fissure length and height, intercanthal width |
 | Nostrils | trims with pockets | nostril axis | nose width |
 
-Genitals and nipples stay outside the modelled skin. The brow, cheeks and chin are the face base's own shape, fitted to the rows within their error, and change with the face parameters the base reads; they become reliefs only if an inspection round finds a defect only a relief removes. Every frame comes from the source: the head axis and the face landmarks from the reference head's landmark curves, the trunk, limb and digit axes from the reference body's bind skeleton (`body-observations.json`, registered like the meshes). The masculine-feminine basis and the measurement law act on these parameters and on module coefficients (section 6).
+Genitals and nipples stay outside the modelled skin. The brow, cheeks and chin are the face base's own shape, fitted to the rows within their error, and change with the face parameters the base reads; they become reliefs only if an inspection round finds a defect only a relief removes. Every frame and region comes from the source: the head base's planes from the saved head rows, the face's and auricles' regions from the reference head's landmarks, the trunk, limb and digit axes from the reference body's bind skeleton (`body-observations.json`, registered like the meshes). The masculine-feminine basis and the measurement law act on these parameters and on module coefficients (section 6).
 
 ## 2. Representations
 
@@ -39,11 +39,11 @@ A relief is a displacement field over a chart of its base: `S(u, v) = B(u, v) + 
 
 ### Appendage
 
-An appendage is a family of sections along its own spine (the helix arc for an auricle, the bone for a limb or digit), stored and interpolated as a base is. Its root boundary meets a trim curve on the base.
+An appendage is a family of sections along its own spine (the bone for a limb or digit; an auricle's representation is the auricle set's choice), stored and interpolated as a base is. Its root boundary meets a trim curve on the base.
 
 ### Auricle
 
-The auricle is not a tube: it is a thin flap, front face (concha, antihelix, scapha) and back face, attached to the head along a closed line and curled at its free rim, and a station measured away from the head folds back on itself at the concha. Its representation is decided by one experiment set run on f1 outside the live source before the auricle is built, each variant fitted to the helix, lobe and head rows and compared offline by its surface distance to the rows, the G1 and G2 residuals of its join and the curvature combs of its sections (renders come in the inspection round, after the choice):
+The auricle is not a tube: it is a thin flap, front face (concha, antihelix, scapha) and back face, attached to the head along a closed line and curled at its free rim, and a station measured away from the head folds back on itself at the concha. Its representation is decided by one experiment set run on f1 outside the live source before the auricle is built, each variant fitted to the helix, lobe and head rows and compared offline by its surface distance to the rows, the G0, G1 and G2 residuals of its join and the curvature combs of its sections (renders come in the inspection round, after the choice):
 
 1. a ribbon swept along the rim arc whose sections run from the front attachment round the rim to the back attachment, its two long edges forming the root loop;
 2. a smooth shell over the ear's footprint, carrying the folds as a relief;
@@ -53,10 +53,10 @@ The set runs once, after the head base's final fit, in one process on f1 for bot
 
 - region and root loop: the auricle's region from its landmark curves (section 4), its boundary in the base chart a periodic cubic B-spline least-squares fit with as many control points as hold one chart cell, printed with its anatomical extent before any variant is fitted;
 - observations: every saved point that projects into the region and stands off the base by more than the robust scale either way, the concha lying below the base (the head rows, the horizontal exterior helix, lobe and lower families and the tilted lower family), plus one new private family cut through the observation program in the planes normal to the rim arc every 3 mm, the rim arc being the outer helix landmark curve fitted as an open cubic B-spline in space;
-- variant 1, ribbon: a tensor-product cubic B-spline surface over (arc parameter along the rim, the section's arc from the front attachment round the rim to the back attachment), fitted to the observations by tangent-distance minimisation with the thin-plate energy, its boundary held on the root loop;
-- variant 2, shell and relief: a smooth shell over the region, the height over the base along the auricle's mean normal, fitted stiff (the base's robust fit, the folds outliers), then the folds as a relief of the shell along the axis of section 2's rule;
+- variant 1, ribbon: a clamped tensor-product cubic B-spline surface over (the plane's share of the rim arc, the section's arc-length share from its anterior end), fitted by least squares to the rim-normal sections inside the root loop, each the run of its plane's observed loop through the plane's rim point, with a small second-difference penalty on the control net; its long edges are the sections' ends, where they leave the root loop;
+- variant 2, shell and relief: one relief over the base along the axis of section 2's rule, its window the region's chart box grown by its zero rings and its net at 1 mm spacing, so the smooth shell and the folds lie in one net (a coarse net's space is contained in a fine one's), fitted to the outermost projected observation per chart cell with a 1 mm thin-plate length;
 - variant 3, implicit: a signed distance field fitted to the observations thinned to one per 3 mm cell by the biharmonic radial basis (Carr et al. 2001) with off-surface points 1 mm along the observed normals and smoothing of the rows' error, its union with the head base's offset distance by a smooth union of 2 mm blend radius; its distance to the rows is the first-order estimate `|f| / |grad f|`, and its zero set is sampled by Newton steps from the observations for the join and section measures;
-- comparison, recorded in [experiments.md](experiments.md) per auricle and variant: the 50th, 90th and 99th percentile of the observed rows' distance to the surface; the largest position, normal angle and normal curvature jump across the root loop (G0, G1, G2 residuals) sampled every 1 mm; the number of sign changes of curvature along each section's comb outside the anatomical folds' count; and whether the rim's curl is held (no section folds back on itself where the observations do not);
+- comparison, recorded in [experiments.md](experiments.md) per auricle and variant: the 50th, 90th and 99th percentile of the observed rows' distance to the surface; the largest position, normal angle and normal curvature jump across the root loop (G0, G1, G2 residuals) sampled every 1 mm; the number of sign changes of curvature along each rim-normal section of the surface beyond the observed section's own (curvature below 1/50 mm ignored), so the anatomical folds the rows carry are not counted; and whether the rim's curl is held, the section's self-crossings in its plane against the observed section's;
 - choice, stated before the set runs: the variant whose 99th percentile distance is within twice the rows' error (0.23 mm) and whose G1 residual is below 1 degree, among those the one with the fewest excess curvature sign changes; if none meets both, the one with the lowest 99th percentile, and the shortfall is reported in the experiments with its cause before the plan changes.
 
 ### Openings
@@ -79,7 +79,7 @@ Every join is classified before its evaluator is built ([source-domain admission
 | Trunk to arm | appendage root | closed root loop round the shoulder, G2 strip; the axilla is the strip over the trunk |
 | Trunk to legs | appendage roots | closed root loops on the closed trunk, G2 strips; the crotch is the trunk between them |
 | Palm to digits, foot to toes | appendage roots | closed root loops on the closed palm and sole, G2 strips; the webs are the base between them |
-| Face base to auricle | appendage root | G2 strip along the auricle's attachment |
+| Face base to auricle | appendage root | G2 strip along the root loop, or the implicit variant's smooth union, as the auricle set chooses |
 | Face base to nose and lips; thorax to breasts; pelvis to buttocks | relief | displacement, no boundary |
 | Inframammary fold | crease inside a relief | the breast relief's own shape, curving with anatomy |
 | Gluteal fold | relief meeting an appendage root | the buttock relief's lower edge meeting the leg's root strip, which runs in the femur's normal plane, not a horizontal ring |
@@ -89,7 +89,7 @@ Every join is classified before its evaluator is built ([source-domain admission
 
 ## 4. Fit
 
-The saved Recovery/Hermite rows stay the primary evidence. Where a module's frame is not the rows' (the auricle along its helix, the nose along its dorsum, limbs along their bones), the observation program cuts the reference mesh in the module's planes into an observation file of the same Hermite form, private under `test/.shots/<alias>/`, with its source and plane recorded; the generator never reads it.
+The saved Recovery/Hermite rows stay the primary evidence. Where a module's frame is not the rows' (the auricle across its rim, limbs and digits along their bones), the observation program cuts the reference mesh in the module's planes into an observation file of the same Hermite form, private under `test/.shots/<alias>/`, with its source and plane recorded; the generator never reads it.
 
 An offline fitter per module under `test/src/executable/reference-experiments/human-calibration/` (private, ignored) reads the observations of its region and sets the module's coefficients:
 
@@ -98,16 +98,16 @@ An offline fitter per module under `test/src/executable/reference-experiments/hu
 - keys added where a station's root mean square offset exceeds that error, no closer to another key than twice the rows' spacing, so each key has observations on both sides;
 - strips: each appendage's reach (its strip's fullness) is the value minimising the strip's surface distance to the observations over the strip, a one-dimensional search, not a set constant;
 - bases by robust fitting: a base is fitted with Tukey's biweight on the normal residual, its threshold `c = 4.685 s` with `s = 1.4826` times the residuals' median absolute deviation from their median (the standard 95 percent efficiency constant, not a tuned value), from keys smoothed to 4 cycles per section, starting stiff and relaxing its thin-plate length, with its reliefs' windows and its appendages' root regions masked, so those regions stay without data and the base runs under them by its thin-plate energy alone (runs D and E of the [experiments](experiments.md) showed a relaxing base climbing onto an unmasked protrusion from its edges);
-- regions from the source's own landmarks, not from thresholds: three detection sets showed that no threshold on a stand-off map holds the features (a symmetric robust fit absorbs them, a baseline sinks into the cranium as it stiffens, and an auricle's concha and scapha break it into pieces, the [experiments](experiments.md)). The reference carries the anatomical definitions instead: landmark curves on the head (`head-observations.json`: the lid margins, the outer and inner helix and the central upper and lower curves of each auricle, the upper and lower outer lip contours, the philtrum, the nostrils, the nasolabial and mentolabial folds, the skull's midline) and measurement courses and the bind skeleton on the body (`body-observations.json`: the Underbust, Bust Span, Hip, Waist, Rise and Neck Base courses, every joint). Each landmark point is projected onto its base (nearest point of a dense sampling, a k-d tree), and each region is a closed curve in the base's chart:
+- regions from the source's own landmarks, not from thresholds: three detection sets showed that no threshold on a stand-off map holds the features (a symmetric robust fit absorbs them, a baseline sinks into the cranium as it stiffens, and an auricle's concha and scapha break it into pieces, the [experiments](experiments.md)). The reference carries the anatomical definitions instead: landmark curves and points on the head (`head-observations.json`: the lid margins and inner eye corners, the medial brow ends, every ear curve and the lobule connection point, the upper and lower outer lip contours, the philtrum, the nostrils, the nasolabial and mentolabial folds) and measurement courses and the bind skeleton on the body (`body-observations.json`: the Underbust, Bust Span, Hip, Waist, Rise and Neck Base courses, every joint). Each landmark point is projected onto its base (nearest point of a dense sampling, a k-d tree), and each region is a closed curve in the base's chart:
   - lips: the polygon of the upper and lower outer lip contours, both sides;
-  - nose: the convex hull of the nasion (the skull midline's least forward point within the lid margins' heights, the deepest point of the nasal bridge in profile), the medial ends of both lid margins, the upper ends of both nasolabial folds (the alar creases) and both nostril outlines;
-  - each auricle: the convex hull of its four curves' points, the ear's footprint seen along the base normal, whose boundary is the root loop;
+  - nose: the convex hull of the nasion (the mean of the medial brow ends and the inner eye corners, `pt_browmiddle_ls`, `pt_browmiddle_rs`, `pt_eye_corner_inner_l`, `pt_eye_corner_inner_r`, on the midline between brow and eyes; the skull midline curve does not reach the face's skin), both inner eye corners, the upper ends of both nasolabial folds (the alar creases) and both nostril outlines;
+  - each auricle: the convex hull of every ear landmark of its side (the outer and inner helix, the central upper and lower curves, the tragus, antitragus, concha and heel curves and the lobule connection point), the ear's footprint seen along the base normal, whose boundary is the root loop;
   - each breast: the disc about the Bust Span course's end on that side (the apex) reaching the Underbust course below it;
   - the buttocks: the posterior trunk chart between the Waist course and the leg root regions, either side of the midline;
   - each limb, hand digit and toe: its root loop (below);
   - a relief's window is its region grown by its three zero rings, except where the region borders a root region, where the zero rings lie inside the region instead (the buttocks above the leg roots), so a relief never reaches into a trimmed hole; a base's mask is the union of its reliefs' windows and its appendages' regions;
-- each region checked once against the stand-off of the final base: every observed point is projected onto the base (k-d tree) with its signed offset along the base normal, and the observations standing off by more than the robust scale near a feature must lie inside its region; any outside is reported with its distance before the module is built;
-- order: bases with their reliefs' and appendages' regions masked, then reliefs as the residual over their base (every observed point projected along the relief's axis onto the base, the outermost per chart cell, since a ray cast from the base crosses a hollow feature's empty inside), each window the feature's region grown by the relief's three zero rings, then appendages, then trims and strips;
+- each region checked once against the stand-off of the final base: every observed point is projected onto the base (k-d tree) with its signed offset along the base normal, and the observations standing off by more than the robust scale within 15 mm outside a feature's region are counted with their largest stand-off and place, reported before the module is built;
+- order: bases with their reliefs' and appendages' regions masked, then reliefs as the residual over their base (every observed point projected along the relief's axis onto the base, the outermost per chart cell, since a ray cast from the base crosses a hollow feature's empty inside), each in its window as above, then appendages, then trims and strips;
 - outputs: module coefficients in small TypeScript modules under `packages/human/src/generation/calibration/` with a header naming the fitter, in tens of kilobytes in total; the eye calibration's openings name the face base through `fitEyeCalibration.ts`'s base argument, their margins otherwise reproduced byte for byte from `head-observations.json`.
 
 ### Trunk, limbs, hands and feet
@@ -121,7 +121,7 @@ An offline fitter per module under `test/src/executable/reference-experiments/hu
 
 ## 5. Generator changes
 
-- New: module evaluators (base, relief, appendage), the composer (root loops and trims, strips, tessellation), and a region naming table that maps modules to the part ids consumers read (`human.skin.head*`, `human.skin.ear.*`, trunk, limbs), so the couplings of the survey change in one place. Head modules keep the `head.<module>` and `ear.<part>.<side>` names the appearance code already reads by prefix; the generation code that named `head.lower`, `head.middle` and `head.upper` reads roles from `AutoMovieHumanBodyNaming` instead, by geometry: the head skin chains in station order, the chain covering a station, the top of the lower face's tilted sections and the auricle chain ending lowest. The roles reproduce the current calibration's values exactly, so the switch to the head base changes no reader.
+- New: module evaluators (base, relief, appendage), the composer (root loops and trims, strips, tessellation), and a region naming table that maps modules to the part ids consumers read (`human.skin.head*`, `human.skin.ear.*`, trunk, limbs), so the couplings of the survey change in one place. Head modules keep the `head.<module>` and `ear.<part>.<side>` names the appearance code already reads by prefix; the generation code that named `head.lower`, `head.middle` and `head.upper` reads roles from `AutoMovieHumanBodyNaming` instead, by geometry: the head skin chains in station order, the chain covering a station, the top of the lower face's tilted sections with the chain holding it, the head above the lower face (the next chain from its first station, or the one chain from that top) and the auricle chain ending lowest. The roles reproduce the current calibration's values exactly, so the switch to the head base changes no reader.
 - Re-derived: the skin texture chart (`AutoMovieHumanSkinChart`) per module chart, reliefs sharing their base's, strips blending their neighbours'.
 - Kept: `AutoMovieHumanSplineCurve`, `AutoMovieHumanLoftFrame`, `AutoMovieHumanFeatureChain`, the eye globe and lid profile, the appearance layer, the skeleton (re-pointed to module axes and poles), the public API and types.
 - Retired: `AutoMovieHumanSectionLoops`, `AutoMovieHumanContactSmoothing`, `AutoMovieHumanLipSmoothing`, `AutoMovieHumanCornerSmoothing`, `AutoMovieHumanStationContinuity`, `AutoMovieHumanEventJoin`, the event-ring normal blend, the world-height calibration modules and their branch events.
@@ -141,13 +141,13 @@ Every open defect of the [survey](survey.md#open-defects-and-their-causes) and t
 | --- | --- | --- | --- |
 | Canthus ledge, eye-height line (#2978) | missing head rows; one section per height across the eye; folds at the canthus | cranium and face base fitted to every head row, the closed horizontal rows included, as fair keys; the eye is a trim, not a fold of the sections | face base, eye openings |
 | Canthus open past the globe, lid teeth (#2979) | bridged loft cut by position; margin columns read mesh jets | eye opening as a trim curve in the base chart; lids from the analytic cross derivative | face base, eye openings, lids |
-| Auricle stairs, ripples, helix-root trace, rim and lobe joins (#2984) | auricle inside the head's sections and 0.1 mm chains | auricle appendage along its helix, G2 strip to the face base | auricles, face base |
+| Auricle stairs, ripples, helix-root trace, rim and lobe joins (#2984) | auricle inside the head's sections and 0.1 mm chains | auricle appendage in the representation the auricle set chooses, G2 strip (or, for the implicit variant, its smooth union) to the face base | auricles, face base |
 | Lip notches, commissure patch (#2980) | tilted rows ringing; oral line across layers | lips relief over the face base with the oral line as its contact crease | lips, face base |
 | Rough nostril rims (#2983) | cut edge of a bridged loft; pocket without matching derivatives | nostril trims on the nose relief; pocket from the analytic cross derivative | nose, nostrils |
 | Line under the chin | tilted rows advancing unevenly | fair face base keys fitted to every head row; neck shared key | face base, neck |
 | Forehead and thigh striations | phase noise of 256-point rows | fair keys of fewer control points, tolerance-matched thin-plate fit | every base |
 | Abdominal band, armpit lump (#2985) | trunk rows and the axillary ring | fair trunk base; arm appendage root loop and strip | trunk, arms |
-| Horizontal gluteal fold, thigh line at the crotch (#2985) | horizontal contact ring | buttocks relief with its curving fold; leg root loops and strips on the closed trunk | trunk, buttocks, legs |
+| Horizontal gluteal fold, thigh line at the crotch (#2985) | horizontal contact ring | leg root loops in the femur's normal planes and their strips on the closed trunk, the buttocks relief meeting them at the fold | trunk, buttocks, legs |
 | Bob fringe saw edge (#2987) | every card ends at the level cut with a 4 percent jitter and a pointed tip | card length from a smooth length field over the scalp: the per-root jitter removed, the lock variation kept, and a bob's cut level moved by quintic-faded value noise (C2) of 3 mm around the head; a rounded tip band, the card's half width `sqrt(1 - x^2)` of its share `x` of the tip band, sampled every 2 mm there | hair |
 | Back highlight strip (#2987) | hanging cards share the capsule normal | card shading normals from a smooth offset surface of the head, the hair mass's own envelope: a radial function over directions from the head chart's centre, a sum of spherical Gaussians about a Fibonacci lattice fitted as an upper expectile (asymmetric least squares) to the draped head above the menton and the hanging column below it, so it is smooth at every direction, poles included, runs over the head instead of through it without a clamp, and its normal `d - grad f / f` is analytic | hair |
 | Standing strands above the ears (#2987) | the drape rule steps strands out over the auricle and the projection jumps | strands lie at a clearance over that envelope, which passes over the auricle smoothly, so the projection no longer jumps | hair, auricles |
@@ -156,15 +156,15 @@ Every open defect of the [survey](survey.md#open-defects-and-their-causes) and t
 
 ## 8. Implementation order inside the one pass
 
-The pass starts when the auricle set has chosen its variant and recorded it here, and a self-review round of this whole plan finds nothing. Before that only experiments and fits run, outside `packages/human/src`.
+The pass starts when the auricle set has chosen its variant and recorded it here, and a self-review round of this whole plan finds nothing. Before that only the planned experiment runs, the auricle set with the head base fit it needs, outside `packages/human/src`; no other fitter is edited or run.
 
-1. Module evaluators and the composer, with the head (cranium and face base, nose and lips reliefs, auricle appendages, eye and nostril openings) and the trunk with its limbs, hands and feet.
-2. The observation program's explicit-plane form for the body and the new private families (limbs, digits, toes, auricle rims); fitters for every module; fitted coefficients for f1.
+1. Module evaluators and the composer, with the head (cranium and face base, nose and lips reliefs, the auricles in the auricle set's chosen representation, eye and nostril openings) and the trunk with its limbs, hands and feet.
+2. The observation program's explicit-plane form for the body and the new private families (limbs, digits, toes, auricle rims); fitters for every module, every closed end fitted as a cap (the head base fitted for the auricle set ends in horizontal keys at the crown and is refitted with its cap here); fitted coefficients for f1.
 3. Basis refit for f2, m1, m2; law re-pointed.
 4. Consumers re-pointed through the naming table; repair rules and world-height modules removed.
 5. Type check with the lint cache disabled; Node generation of all four people.
 
-Done ahead of the pass, against the work order, and kept as part of its result: the milky skin and the hair changes of section 7 (`77b40b5b6a`), which the inspection round judges with the rest; render audits from AUDIT27 on already show grey blotches over the back and top of the hair. The naming table of section 5 waits as a patch for step 4.
+Done ahead of the pass, against the work order, and kept as part of its result: the milky skin and the hair changes of section 7 (`77b40b5b6a`), which the inspection round judges with the rest; render audits from AUDIT27 on already show grey blotches over the back and top of the hair. The naming table of section 5 waits as a patch for step 4. The relief fitter (`fitHeadReliefs.ts`) was also moved onto the landmark regions ahead of the pass, against the work order; it is not run before step 2 of the pass.
 
 ## 9. Inspection round
 
