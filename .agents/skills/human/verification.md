@@ -1,6 +1,6 @@
 # Verification
 
-Complete at least one full inspection round after each geometry or integration batch, including in solo work. Inspect the assembled result before claiming visual acceptance. Report unavailable checks as unverified.
+Run a complete inspection round after each implementation pass of the [work order](SKILL.md#work-order), including in solo work. Inspect the assembled result before claiming visual acceptance. Report unavailable checks as unverified.
 
 ## Actual Generated Form
 
@@ -13,11 +13,15 @@ A stale ownership record for an already dead service never authorizes killing a 
 
 ## Inspection Round
 
-1. Compare f1 first, then each added specimen and all previously accepted specimens, under the same camera, light, material, resolution and renderer backend.
-2. Inspect whole body, multiple directions, enlarged defects and neighbors in surface, overlay and construction passes.
-3. Show unattached regions separately as generated, integrated or not renderable; state missing anatomical close-ups.
-4. Collect all defects and latent effects, trace their common causes, and correct them in one batch.
-5. Repeat the complete affected population and views under [Visual Debugging](../3d-modeling/visual-debugging.md); new/unexplained defects keep the round open.
+The round follows [Visual Debugging](../3d-modeling/visual-debugging.md#correction-rounds), uses every viewer feature on all four people under the same camera, light, material, resolution and renderer backend, and edits nothing:
+
+1. Inspect the whole body from every direction, top, back and obliques included, in the surface, overlay and construction passes.
+2. Inspect each region, join and defect with free cameras and isolation, close-ups framed from outside the model, in `material=clay` under both raking lights and in colour.
+3. Trace every line, ripple, shelf or crease to its curves under [Lines And Ripples](#lines-and-ripples-on-the-skin), reading curve diagrams and station series across module boundaries.
+4. Show unattached regions separately as generated, integrated or not renderable; state missing anatomical close-ups.
+5. Write each finding to the [survey](../../../packages/human/docs/survey.md)'s open-defect table with its traced cause, latent effects and the PNG that shows it.
+
+The round closes when every finding has a cause or is stated as untraced; the [work order](SKILL.md#work-order) then fixes them together, and new or unexplained defects in the next round keep the work open.
 
 Source-only overlays and bounds-relative tiles do not establish independent skin or dedicated close-ups. If no broad-form progress appears, reconsider correspondence and representation rather than increasing precision, layers or wrappers.
 
@@ -25,14 +29,14 @@ Qualify source-domain admission, boundary fitting, interior regularity, embeddin
 
 ## Lines And Ripples On The Skin
 
-Trace a crease, stripe or ripple to the curves that generate it before changing any fitter or generator code, using the [screenshot service](screenshot.md#curve-selection):
+In the inspection round, trace each crease, stripe or ripple to the curves that generate it with the [screenshot service](screenshot.md#curve-selection):
 
 1. Click the line in `overlay` or read the `human.skin.<chain>/<k>` interval under it; that interval is shaped by sections `<chain>/<k>` and `<chain>/<k+1>` and by `<chain>/axis`.
 2. Isolate those curves with `isolate=1&fit=selection` and view them along their own axis with `ortho=1` (`view=+y` for horizontal sections, `el=0` for an axis profile) to see the true shape the skin is lofted from.
 3. Read the curvature combs of the bounding sections and their neighbours in one [2D diagram](screenshot.md#curve-diagrams), for example `curves=<chain>/<k-1>&curves=<chain>/<k>&curves=<chain>/<k+1>`. Alternating spikes are ringing (Gibbs oscillation near pinches and contacts); a comb that changes sign where the skin creases locates the cause in that section.
 4. Compare the layers above and below with a station series, `<chain>@<from>:<to>:<step>`, to tell a defect of one principal section from one of the Hermite interpolation between sections.
 
-Keep the PNGs that showed the cause with the round's evidence.
+Record the cause with the finding and keep the PNGs that showed it with the round's evidence.
 
 ## Audit And User Reports
 
@@ -41,6 +45,7 @@ During authorized active modeling, deliver these reports directly to the user, i
 - Audit and report every 15 minutes, including solo work. Check the next deadline before starting a bounded computation; schedule capture ahead of work that could cross it.
 - Use the subjects, directions, display conditions and delivery format the user requests. By default, capture f1 only: fresh whole front, side, top and back with `garment=0`, plus whole-body front, side and back construction. Keep PNGs local and open all seven. Specimen implementation still requires its own affected-population verification.
 - Extra details and cache hits do not replace the required whole-body set.
+- An audit reports state. A defect it shows joins the next inspection round's findings and starts no edit.
 - Check regional image inspection, actual code consumption, uncovered regions and violations; follow [Work Allocation](SKILL.md#work-allocation) for audit delegation.
 - Preserve/open/display exact local PNGs under [Screenshot reporting](screenshot.md#user-facing-image-reports), with captured UTC, SHA and code/input/output binding.
 - Distinguish capture, local-save and report times. Report defects, unsupported scope and remaining comparisons.

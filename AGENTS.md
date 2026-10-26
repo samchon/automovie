@@ -9,7 +9,7 @@
 - Answer a question from the user before continuing any work.
 - Write everything the user sees in the user's language.
 - Write code, comments, commits, issues, and pull requests in English.
-- Let a test run, CI run, review round, or visual inspection round finish, then fix all of its findings together by cause, never one finding at a time or a known one later.
+- Let a test run, CI run, review round, visual inspection round, or experiment finish, then fix all of its findings together by cause, never one finding at a time or a known one later. Changing one thing and rerunning to see what it does is one finding at a time, however fast the rerun.
 - Do the work yourself; use subagents only when the user asks.
 - Ship each topic as its own pull request.
 - Delete every scratch file once it has served.

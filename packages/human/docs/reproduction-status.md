@@ -59,7 +59,7 @@ Three specimens identify one basis direction. The law makes no prediction claim 
 
 ## Open defects
 
-Seen in `campaign-r3` through `campaign-r11` and traced as below.
+Seen in `campaign-r3` through `campaign-r11` and traced as below. [survey.md](survey.md) holds the current open defects; this table keeps those rounds' traces.
 
 | Defect | Traced cause |
 | --- | --- |

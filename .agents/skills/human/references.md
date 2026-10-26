@@ -65,7 +65,7 @@ The user has reported comb-like striping and some cracks in retained `legacy-con
 - Compare them under matching conditions and trace defects to observation, correspondence, generation or display.
 - Check direction, seam phase, correspondence, topology coverage, derivatives, tessellation and normals as hypotheses, not established causes.
 - Distinguish anatomical openings from cracks; retain unresolved branches without invented pairing, caps or smoothing that conceals missing constraints.
-- Collect all defects and latent effects, then correct shared causes and reinspect the affected population under [Verification](verification.md#inspection-round).
+- Record them as findings of the [inspection round](verification.md#inspection-round).
 - Use valid observations immediately; these artifacts do not invalidate the whole dataset or justify acquisition restarts or implementation delays.
 
 ## Add Or Resume A Reference
