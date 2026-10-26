@@ -36,11 +36,19 @@ A base is a family of sections in its own frame along its axis, stored as key se
 
 ### Relief
 
-A relief is a displacement field over a chart of its base: `S(u, v) = B(u, v) + d(u, v) e(u, v)`, with `(u, v)` the base's station and phase restricted to the relief's window, `e` the base normal tilted toward the relief's own direction (forward-down for the nose and breasts, so their undersides are not undercut), and `d` a tensor-product cubic B-spline whose two outer rows of control points are zero, so `d` and its first and second derivatives vanish at the window's edge. The sum is C2 wherever the base is. A transformation is an affine map of the window and a gain on `d` (a smaller nose, fuller breasts, a stylised face).
+A relief is a displacement field over a chart of its base: `S(u, v) = B(u, v) + d(u, v) e(u, v)`, with `(u, v)` the base's station and phase restricted to the relief's window, `e` the relief's fixed axis, the direction within 70 degrees of the base's mean normal that maximises the 5th percentile of `n . e` over the feature's observed normals (forward and down for the nose and the breasts), so the whole feature, underside included, is a single height and cannot fold back, and `d` a tensor-product cubic B-spline whose three outer rows of control points are zero (a uniform cubic takes three control points at a knot), so `d` and its first and second derivatives vanish at the window's edge. The sum is C2 wherever the base is. A transformation is an affine map of the window and a gain on `d` (a smaller nose, fuller breasts, a stylised face).
 
 ### Appendage
 
 An appendage is a family of sections along its own spine (the helix arc for an auricle, the bone for a limb or digit), stored and interpolated as a base is. Its root boundary meets a trim curve on the base.
+
+### Auricle
+
+The auricle is not a tube: it is a thin flap, front face (concha, antihelix, scapha) and back face, attached to the head along a closed line and curled at its free rim, and a station measured away from the head folds back on itself at the concha. Its representation is decided by one experiment set run on f1 outside the live source before the auricle is built, each variant fitted to the helix, lobe and head rows and compared offline by its surface distance to the rows, the G1 and G2 residuals of its join and the curvature combs of its sections (renders come in the inspection round, after the choice):
+
+1. a ribbon swept along the rim arc whose sections run from the front attachment round the rim to the back attachment, its two long edges forming the root loop;
+2. a smooth shell over the ear's footprint, carrying the folds as a relief;
+3. a smooth implicit union of a fitted ear surface with the head.
 
 ### Openings
 
@@ -51,7 +59,7 @@ An opening is a closed trim curve in its module's chart (eye margins on the face
 - **Relief:** added to its base before tessellation; no boundary exists.
 - **Appendage to base:** the base is trimmed along the root curve `C(t)` (a curve in its chart); the appendage ends at `A(t)`; a strip `T(t, w) = sum H_i(w) [C, A, D_C, D_A, D2_C, D2_A]_i(t)` with the quintic Hermite basis matches position, cross derivative and second cross derivative of both surfaces (G2). Cross derivatives come from the module surfaces analytically.
 - **No contact rings:** a base that carries appendages is closed (the trunk down to the perineum, the palm and the sole at their distal ends), and every appendage roots in a closed loop on it. The axilla is the arm's strip with the trunk under it, the crotch the trunk between the two leg roots, a web the palm between two finger roots, so no junction needs a patch of more than two surfaces and no horizontal contact ring exists anywhere.
-- **Tessellation:** each module's chart is sampled adaptively by its own chord tolerance; a trimmed chart is triangulated in its parameter domain under the trim curve as a constraint; boundaries are sampled once by their owner and shared by index, so the mesh is watertight. Shading normals are the analytic surface normals.
+- **Tessellation:** each module's chart is sampled adaptively by its own chord tolerance; a base leaves out every grid cell with a corner inside a root loop, and the hole's edge is zipped to the loop by the share of perimeter walked in the chart; boundaries are sampled once by their owner and shared by index, so the mesh is watertight. Shading normals are the analytic surface normals.
 
 Every join is classified before its evaluator is built ([source-domain admission](../../../.agents/skills/human/reverse-analysis.md#source-domain-admission)):
 
@@ -75,10 +83,14 @@ The saved Recovery/Hermite rows stay the primary evidence. Where a module's fram
 
 An offline fitter per module under `test/src/executable/reference-experiments/human-calibration/` (private, ignored) reads the observations of its region and sets the module's coefficients:
 
-- objective: squared surface distance (Wang, Pottmann and Liu 2006, the in-plane miss weighted by `|N . n|`) plus the thin-plate energy `L^4 integral (S_ss^2 + 2 S_st^2 + S_tt^2)`;
-- smoothing by the discrepancy principle: `L` bisected so the residual's root mean square equals the rows' own tolerance (0.1 to 0.2 mm), never zero;
-- keys added where a station's residual exceeds the tolerance, no closer than a least gap;
-- windows and roots: each relief's window, each appendage's root curve and each opening's margin are found from anatomical landmarks on the observations ([anatomy](anatomy/) and the head curve identification techniques: nasion, alar crease, subnasale, commissures, the auricle's attachment line, the inframammary and gluteal folds), never from hand-placed coordinates;
+- objective: squared surface distance (Wang, Pottmann and Liu 2006): each surface sample pairs with its nearest observed point in space, and the residual is the offset along the surface normal (tangent-distance minimisation), so any plane of observation and any frame of the module fit alike and rows that graze the skin do not drag it; plus the thin-plate energy `L^4 integral (D_ss^2 + 2 D_st^2 + D_tt^2)` of the correction D from the stage's starting keys (on the coordinates themselves it counts a closed section's own curvature as bending and shrinks it, run A of the [experiments](experiments.md));
+- smoothing by the discrepancy principle: the final `L` bisected so the inliers' root mean square offset equals the rows' own error, `0.2 / sqrt(3) = 0.115 mm` (their fitting tolerance is 0.2 mm, an error spread evenly within it), never zero;
+- keys added where a station's root mean square offset exceeds that error, no closer to another key than twice the rows' spacing, so each key has observations on both sides;
+- strips: each appendage's reach (its strip's fullness) is the value minimising the strip's surface distance to the observations over the strip, a one-dimensional search, not a set constant;
+- bases by robust fitting: a base is fitted with Tukey's biweight on the normal residual, its threshold `c = 4.685 s` with `s = 1.4826 MAD` the robust scale of the current residuals (the standard 95 percent efficiency constant, not a tuned value), starting stiff and relaxing its thin-plate length, so a protrusion the base cannot follow (an auricle, the nose, the lips) becomes an outlier and the base runs smoothly under it;
+- protrusions detected once and kept out: on the stiff stage, the stand-off height of the observations over the base is mapped on its chart, and a protrusion is the watershed basin of a core above `c`: cells joined to the core while the height falls away from it and stays above `s`, so neighbouring features (the nose and the lips) part at the saddle between them. Those regions stay without data while the base relaxes; runs D and E of the [experiments](experiments.md) showed a relaxing base climbing onto a protrusion from its edges otherwise;
+- detection scale by one planned set: the stiff stage's thin-plate length and its starting smoothness must exceed the widest protrusion's width. The set runs, in one process on f1, starting smoothness of 4, 6 and 8 cycles per section against stiff lengths of 20, 40 and 60 mm, and records each variant's protrusion regions and peaks. The rule chosen before it runs is convergence: going stiffer, a feature's peak grows while the base still follows part of it; take the least stiff variant (largest cycles, then smallest length) beyond which no stiffer variant raises the peak of the nose, either auricle or the lips by more than `s`, and in which each of them is one region. Any further region becomes a relief of the brow, cheek and chin module or is reported;
+- windows and roots from the regions: each relief's window and each appendage's root loop is the boundary of its protrusion region, checked against anatomical landmarks ([anatomy](anatomy/) and the head curve identification techniques: nasion, alar crease, subnasale, commissures, the auricle's attachment line, the inframammary and gluteal folds), never from hand-placed coordinates;
 - order: bases with their reliefs' and appendages' regions masked, then reliefs as the residual over their base, then appendages, then trims and strips;
 - outputs: module coefficients in small TypeScript modules under `packages/human/src/generation/calibration/` with a header naming the fitter, in tens of kilobytes in total.
 
