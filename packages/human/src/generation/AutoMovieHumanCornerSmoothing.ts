@@ -26,8 +26,9 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * of the corner, fading to none at {@link CORE} + {@link FADE} mm. Past
  * each commissure the oral line ran on across the cheek for 10 to 22 mm,
  * a dark line beside the mouth in colour, so on the lateral side of a
- * commissure and within {@link BAND} mm of its height the filter reaches
- * {@link CHEEK} mm from it in the frontal plane. End
+ * commissure the filter reaches {@link CHEEK} mm from it in the frontal
+ * plane, fully within {@link BAND} mm of its height and fading out by twice
+ * that. End
  * layers, which events share, are kept, and the rest of each crease (the
  * closed oral line across the mouth, the lid crease over the eye) stays as
  * fitted. Measured on f1, the oral line's depth 2 mm inside the
