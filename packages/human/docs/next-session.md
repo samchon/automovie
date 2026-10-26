@@ -1,6 +1,6 @@
 # Human campaign continuation
 
-Continue [#2925](https://github.com/samchon/automovie/issues/2925) from the merged result of the close-up quality campaign [#2977](https://github.com/samchon/automovie/issues/2977). Read [reproduction-status.md](reproduction-status.md) first for the generation path, this round's measurements and the open defects. The user asked for an adequate, presentable result rather than exhaustive precision; hair stays textured cards.
+Continue [#2925](https://github.com/samchon/automovie/issues/2925) through the redesign [#2993](https://github.com/samchon/automovie/issues/2993) by the Human skill's [work order](../../../.agents/skills/human/SKILL.md#work-order). [survey.md](survey.md) holds its survey and the open defects with their causes, and [redesign-plan.md](redesign-plan.md) its plan; [reproduction-status.md](reproduction-status.md) records the current generator's path and the last campaign's measurements. Hair stays textured cards.
 
 ## Read and act
 
@@ -8,11 +8,11 @@ Read `AGENTS.md`, the Human, 3D Modeling, Development, Contracts and Review skil
 
 ## Shape law
 
-Change a person's shape through `AutoMovieHumanBodyLaw`, never through person-indexed tables or alias branches. After any change to the specimen calibration, regenerate the basis and the specimen inputs with `test/src/executable/reference-experiments/human-calibration/fitBodyMorph.ts` (see that directory's README), because the basis is sampled on the calibrated surface. A further basis direction needs more specimens than the three that identify the masculine-feminine one.
+Change a person's shape through `AutoMovieHumanBodyLaw`, never through person-indexed tables or alias branches. After any change to the specimen calibration or a head fitter, regenerate the basis and the specimen inputs with `test/src/executable/reference-experiments/human-calibration/fitBodyMorph.ts` (see that directory's README), because the basis is sampled on the calibrated surface. A further basis direction needs more specimens than the three that identify the masculine-feminine one.
 
-## Remaining work
+## Tracing a line
 
-Fix the defects listed in the status file by cause, f1 first, then recheck f2, m1 and m2 under the same views, since every common rule reaches all four. Before changing a section rule, measure where the line comes from: several lines that looked like curvature jumps were the mesh's triangles joining same-phase points that slide several millimetres between close layers, and the section-union surface itself was smooth (intersect the sections with a fixed plane across the ring every 0.1 mm of station and read the profile). After a calibration or head fitter change, regenerate the shape basis.
+Measure where a line comes from before naming its cause: several lines that looked like curvature jumps were the mesh's triangles joining same-phase points that slide several millimetres between close layers, and the section-union surface itself was smooth (intersect the sections with a fixed plane across the ring every 0.1 mm of station and read the profile).
 
 ## Running TypeScript here
 
@@ -20,7 +20,7 @@ Fix the defects listed in the status file by cause, f1 first, then recheck f2, m
 
 ## Inspection
 
-Reuse the single server at `http://127.0.0.1:5173`; Human is `/human.html?alias=<alias>`. Every edit under `packages/human/src` reloads the worker page, so make edits between capture batches, not during them. Frames take one to two minutes each on this machine. Use the viewer's surface, overlay and construction passes, `garment=0`, `hair=0`, `material=clay`, raking light, free cameras and the curve diagrams, whose curvature combs exposed the crotch ringing. While modeling, capture and open f1's underwear-off front, side, top and back and the construction front, side and back every 15 minutes, keeping UTC, SHA and source linkage.
+Reuse the single server at `http://127.0.0.1:5173`; Human is `/human.html?alias=<alias>`. Every edit under `packages/human/src` reloads the worker page, so make edits between capture batches, not during them. Frames take one to two minutes each on this machine. The [inspection round](../../../.agents/skills/human/verification.md#inspection-round) and the [audits](../../../.agents/skills/human/verification.md#audit-and-user-reports) name the views; the curvature combs of the curve diagrams exposed the crotch ringing.
 
 ## Deferred scope
 

@@ -10,9 +10,9 @@ Inspect the actual consumer with current source on a hardware renderer, recordin
 
 ## Correction Rounds
 
-Before editing, inspect the whole affected asset at every scale, moving the camera freely through whole views, regions, neighbors and close-ups from every needed direction, and record every observed defect with its construction and comparison conditions. Trace causes through generation and display, including shared boundaries and derived outputs. Where causes or their interactions are unclear, run controlled comparisons before changing the source. Map each proposed change to all defects and parts it affects.
+Before editing, inspect the whole affected asset at every scale, moving the camera freely through whole views, regions, neighbors and close-ups from every needed direction, and write down every observed defect with its construction and comparison conditions. Trace causes through generation and display, including shared boundaries and derived outputs. Where causes or their interactions are unclear, plan the controlled comparisons that separate them as one set, run the whole set without changing the source, and record the results. Map each proposed change to all defects and parts it affects.
 
-Fix all identified causes in one combined change at their sources, and judge it on the assembled asset. A cause that crosses a part boundary is changed by both owners in the same round. Editing after each observed defect, rendering after each single fix, and leaving a traced cause to a later round or finer scale are the whack-a-mole patterns this procedure replaces.
+Fix all identified causes in one combined change at their sources, and judge it on the assembled asset. A cause that crosses a part boundary is changed by both owners in the same round. Editing after each observed defect, changing one value and rendering to see its effect, rendering after each single fix, and leaving a traced cause to a later round or finer scale are the whack-a-mole patterns this procedure replaces, however cheap a render is.
 
 Rerun the original comparison across every affected part, view, identity, resolution and motion state, checking both the recorded defects and regressions. Account for every recorded defect before accepting the round; new or unexplained defects keep it open.
 
