@@ -156,6 +156,21 @@ The bins separate two kinds.
 - **High misses, at the auricles' and the nose's own heights.** These lie within a few millimetres outside the region: the feature's own surface beyond a hull drawn through landmark curves inside its outline (the outer helix along the rim, the nostrils above the nose's lower overhang).
 - **Low misses, 0.4 to 2.3 mm, several millimetres outside.** These are what the bins do not settle. Around the lips they lie where the cutaneous lips run on beyond the vermilion border, which ends the region: below to the mentolabial fold, beside to the nasolabial folds. The reference carries those folds as landmarks (`crv_mentolabial_fold`, `crv_nasolabial_l`, `crv_nasolabial_r`, `crv_lip_philtrum_l`, `crv_lip_philtrum_r`), so this cause is anatomical rather than shown. Around the auricles the bins point to no landmark.
 
+## Settling set (f1, 2026-10-27)
+
+Stage 1 ran once, from 04:05 to 04:09: the check alone on the saved fit, with the perioral lips and the auricles' hulls of their landmarks and rim tips. It found 29 rim tips on the left and 28 on the right.
+
+| Region | Vertices | Stations (mm) | Chart width (mm) | Misses | Largest (mm) |
+| --- | --- | --- | --- | --- | --- |
+| lips | 13 | 1517.0 to 1557.0 | 84.4 | 1,340 | 2.15 |
+| nose | 7 | 1544.0 to 1598.0 | 55.0 | 0 | 0 |
+| left auricle | 4 | 1541.0 to 1600.0 | 390.7 | 35,315 | 8.52 |
+| right auricle | 8 | 1542.0 to 1596.0 | 231.7 | 9,188 | 5.33 |
+
+- **Lips.** The lips' misses fell from 4,150 to 1,340. They are left below the mentolabial fold (stations 1509 to 1513, up to 2.15 mm) and above the region near the nose (1539 to 1548, up to 1.56 mm). The nose's 282 misses fell to none.
+- **Auricles.** The auricles' hulls are not ears. They are 390.7 mm and 231.7 mm wide on a chart whose phase runs 80 mm per radian, so they reach round much of the head. The rule as written takes, in each rim-normal plane, the farthest-standing point of the loop passing nearest the rim point. That loop is the plane's whole section of the head, so the farthest point can lie anywhere on it (a nose, the other ear). The rule is at fault, not a threshold.
+- **Stage 2 stopped.** Stage 2's two refits started at 04:10 under these regions as their mask and were stopped unfinished at 04:11, before writing anything, since a mask over half the head leaves the base without data there.
+
 ## Auricle set (f1, 2026-10-27, not yet run)
 
 The set waits for the head base's region check (the plan's section 2). Already prepared, outside the live source: the root loops and rims of `fitAuricleSet.ts` and one private rim-normal family, `ear-observations/rim-normal-v1.json`, 73 planes every 3 mm along both outer helices (36 left, 37 right) through the observation program. The family is the one the plan names; making it took three runs, each failing on tooling alone (an extensionless folder import under Node's type stripping, the Recovery package's type-only re-exports needing a typed compile, which `ttsx` gives with a project rooted at the repository and its plugins off), with no value of the set changed. The family was cut before the region check, so the set's root loops are prepared again once the check is settled.

@@ -192,6 +192,8 @@ Round AC (04:03, lines 1 to 219 read, the whole file, before any edit) found the
 
 Round AD (04:03 to 04:04, lines 1 to 221 read, the whole file, and the rim-normal planes' origins checked in `fitAuricleSet.ts`, each a point of the fitted outer helix arc, so each plane has the rim point section 4 names) found nothing.
 
+The settling set's stage 1 (the [experiments](experiments.md)) showed the rim-tip rule broken as written. The loop passing nearest a plane's rim point is that plane's whole section of the head, so its farthest-standing point can lie anywhere on the head, and the auricles' hulls came out 390.7 mm and 231.7 mm wide. Stage 2 was stopped before it wrote anything. The stopping rule covers misses, not a region broken by its own definition, so the set is held, and the rule is not changed until the user chooses how to go on.
+
 1. Module evaluators and the composer, with the head (cranium and face base, nose and lips reliefs, the auricles in the auricle set's chosen representation, eye and nostril openings) and the trunk with its limbs, hands and feet.
 2. The observation program's explicit-plane form for the body and the new private families (trunk, limbs, digits, toes, auricle rims); fitters for every module, every closed end fitted as a cap (the head base fitted for the auricle set ends in horizontal keys at the crown and is refitted with its cap here); fitted coefficients for f1.
 3. Basis refit for f2, m1, m2; law re-pointed.
