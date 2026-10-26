@@ -17,6 +17,24 @@ Runs of `fitHeadBase.ts` made one at a time before the set below was planned; re
 
 Findings: the thin-plate energy belongs on the correction (run A); a relaxing robust fit swallows a protrusion from its edges unless the protrusion is fixed once at a scale the base cannot follow (runs D, E); that scale is set by the widest protrusion, which the protrusion set below decides.
 
-## Protrusion detection set (planned)
+## Protrusion detection set (f1, 2026-10-27)
 
-See the plan's fit section; results are recorded here when the set has run.
+Run once as planned: starting smoothness 4, 6 and 8 cycles per section against stiff lengths 20, 40 and 60 mm, each one stiff stage with Tukey's threshold from the residuals' robust scale, then the ray stand-off map (rays along the base normal, a contiguous run of observed points from the base with gaps under 2 mm) and watershed basins classified by anatomy relative to eye level (1594.4 mm). No variant met the selection rule.
+
+| Cycles | Length (mm) | Scale s / threshold c (mm) | Nose basins (peak) | Lips | Left auricle | Right auricle |
+| --- | --- | --- | --- | --- | --- | --- |
+| 4 | 20 | 0.72 / 3.36 | 9 (7.5) | 2 (5.0) | 20 (14.5) | 15 (13.5) |
+| 4 | 40 | 0.88 / 4.12 | 12 (7.5) | 6 (5.0) | 13 (14.0) | 18 (13.5) |
+| 4 | 60 | 0.93 / 4.36 | 13 (7.5) | 5 (5.0) | 11 (14.0) | 18 (13.5) |
+| 6 | 20 | 0.41 / 1.90 | 8 (5.5) | 3 (5.0) | 25 (13.0) | 25 (12.0) |
+| 6 | 40 | 0.44 / 2.08 | 9 (5.5) | 2 (5.0) | 27 (13.0) | 30 (12.0) |
+| 6 | 60 | 0.46 / 2.14 | 9 (5.5) | 1 (4.0) | 27 (13.0) | 29 (12.0) |
+| 8 | 20 | 0.26 / 1.23 | 7 (5.0) | 1 (5.0) | 36 (14.0) | 40 (10.0) |
+| 8 | 40 | 0.27 / 1.28 | 7 (5.0) | 1 (5.0) | 34 (14.0) | 36 (10.0) |
+| 8 | 60 | 0.28 / 1.29 | 7 (4.0) | 1 (5.0) | 33 (14.0) | 34 (10.0) |
+
+Findings, by cause:
+
+1. The ray stand-off cannot measure a hollow protrusion: observed points lie only on the outer skin, so a ray from the base under the nose crosses its empty inside, the run breaks after 2 mm, and the nose's 20 mm reads at most 7.5 mm; only its edges count. Rays grazing the throat under the chin read a long run instead. The stand-off must be measured from the observations onto the base, not along rays from it.
+2. Watershed basins over-segment: every noise maximum above c starts its own basin (up to 40 per auricle), so "one region per feature" fails whatever the scale.
+3. The stiff length barely matters from 20 to 60 mm; the starting smoothness sets the robust scale (s from 0.26 to 0.93 mm), which sets the threshold. The detection axis that matters is the starting smoothness.
