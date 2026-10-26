@@ -106,6 +106,36 @@ A third run of the check (whole mask, nearest region) was made after its code ha
 
 A refit with its check was started at 02:39 after a round that covered sections 2 and 4 only; the next rounds still rewrote section 4's head base text while it ran, so it was stopped unfinished at about 02:51 on the compliance audit's finding, before it wrote anything; the earlier fit's file it would have replaced was deleted unused. A second start after round U was stopped unfinished too, at 03:07:55, when the compliance audit found that round U's record claimed a fitter check it had not made; the check then made found the fitter's rows' spacing at 0.6 mm against the plan's 0.5 mm and nine choices the plan did not state. The plan now states them, the spacing is 0.5 mm, and the refit and check run once after round W found nothing.
 
+That run (03:10 to 03:44, 1,626,756 observed points):
+
+- regions, projected onto the starting keys:
+
+  | Region | Vertices | Stations (mm) | Chart width (mm) |
+  | --- | --- | --- | --- |
+  | lips | 108 | 1521.0 to 1534.0 | 58.9 |
+  | nose | 7 | 1544.0 to 1598.0 | 55.0 |
+  | left auricle | 17 | 1541.0 to 1596.0 | 35.3 |
+  | right auricle | 16 | 1542.0 to 1596.0 | 31.4 |
+
+  The nasion lies at (109.0, 1600.3, -0.1) mm.
+- fit: the thin-plate length halved from 40 mm to 1.25 mm, the inliers' RMS offset falling 1.061, 0.866, 0.561, 0.231, 0.135, 0.093 mm. Four bisections ended at 2.42 mm and 0.114 mm, against the rows' error of 0.115 mm. Key additions then took the base from 55 to 63 to 71 keys, at an RMS offset of 0.102 mm and a threshold `c` of 0.41 mm.
+- check, points standing outward beyond `c` outside the whole mask within 15 mm of a region:
+
+  | Region | Points | Largest (mm) | At (mm) |
+  | --- | --- | --- | --- |
+  | lips | 4,150 | 2.27 | (110.1, 1493.5, -7.2) |
+  | nose | 282 | 3.93 | (121.5, 1540.5, 5.2) |
+  | left auricle | 59,442 | 12.98 | (2.2, 1560.5, 90.1) |
+  | right auricle | 16,424 | 11.15 | (-2.9, 1580.5, -94.3) |
+
+Every region has misses, so by the plan's section 4 their causes are settled in the plan before the auricle set runs. Each largest miss lies just outside its region:
+
+- the lips' below the lower lip (1493.5 mm, the region ending at 1521.0 mm);
+- the nose's below the nose region's lowest station (1540.5 mm against 1544.0 mm), well forward of the nasion;
+- the auricles' beside their regions.
+
+Their causes are not yet traced.
+
 ## Auricle set (f1, 2026-10-27, not yet run)
 
 The set waits for the head base's region check (the plan's section 2). Already prepared, outside the live source: the root loops and rims of `fitAuricleSet.ts` and one private rim-normal family, `ear-observations/rim-normal-v1.json`, 73 planes every 3 mm along both outer helices (36 left, 37 right) through the observation program. The family is the one the plan names; making it took three runs, each failing on tooling alone (an extensionless folder import under Node's type stripping, the Recovery package's type-only re-exports needing a typed compile, which `ttsx` gives with a project rooted at the repository and its plugins off), with no value of the set changed. The family was cut before the region check, so the set's root loops are prepared again once the check is settled.
