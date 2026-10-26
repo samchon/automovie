@@ -50,7 +50,7 @@ An opening is a closed trim curve in its module's chart (eye margins on the face
 
 - **Relief:** added to its base before tessellation; no boundary exists.
 - **Appendage to base:** the base is trimmed along the root curve `C(t)` (a curve in its chart); the appendage ends at `A(t)`; a strip `T(t, w) = sum H_i(w) [C, A, D_C, D_A, D2_C, D2_A]_i(t)` with the quintic Hermite basis matches position, cross derivative and second cross derivative of both surfaces (G2). Cross derivatives come from the module surfaces analytically.
-- **Junction of three or more:** an n-sided patch (Gregory-type) from the same boundary data at the axillae, the crotch and the web of the hand, so no horizontal contact ring exists anywhere.
+- **No contact rings:** a base that carries appendages is closed (the trunk down to the perineum, the palm and the sole at their distal ends), and every appendage roots in a closed loop on it. The axilla is the arm's strip with the trunk under it, the crotch the trunk between the two leg roots, a web the palm between two finger roots, so no junction needs a patch of more than two surfaces and no horizontal contact ring exists anywhere.
 - **Tessellation:** each module's chart is sampled adaptively by its own chord tolerance; a trimmed chart is triangulated in its parameter domain under the trim curve as a constraint; boundaries are sampled once by their owner and shared by index, so the mesh is watertight. Shading normals are the analytic surface normals.
 
 Every join is classified before its evaluator is built ([source-domain admission](../../../.agents/skills/human/reverse-analysis.md#source-domain-admission)):
@@ -59,9 +59,9 @@ Every join is classified before its evaluator is built ([source-domain admission
 | --- | --- | --- |
 | Cranium and face base to neck | regular loft boundary | one shared key section owned by the neck |
 | Neck to trunk | regular loft boundary | one shared key section owned by the trunk |
-| Trunk to arm | appendage root and critical event | G2 strip, n-sided patch at the axilla |
-| Trunk to legs | appendage roots and critical event | G2 strips, n-sided patch at the crotch |
-| Palm to digits, foot to toes | appendage roots and critical events | G2 strips, n-sided patches at the webs |
+| Trunk to arm | appendage root | closed root loop round the shoulder, G2 strip; the axilla is the strip over the trunk |
+| Trunk to legs | appendage roots | closed root loops on the closed trunk, G2 strips; the crotch is the trunk between them |
+| Palm to digits, foot to toes | appendage roots | closed root loops on the closed palm and sole, G2 strips; the webs are the base between them |
 | Face base to auricle | appendage root | G2 strip along the auricle's attachment |
 | Face base to nose, lips, brow, cheeks, chin; thorax to breasts; pelvis to buttocks | relief | displacement, no boundary |
 | Gluteal and inframammary folds | crease inside a relief | the relief's own shape, curving with anatomy |
@@ -84,8 +84,8 @@ An offline fitter per module under `test/src/executable/reference-experiments/hu
 
 ## 5. Generator changes
 
-- New: module evaluators (base, relief, appendage), the composer (trims, strips, n-sided patches, tessellation), and a region naming table that maps modules to the part ids consumers read (`human.skin.head*`, `human.skin.ear.*`, trunk, limbs), so the couplings of the survey change in one place.
-- Re-derived: the skin texture chart (`AutoMovieHumanSkinChart`) per module chart, reliefs sharing their base's, strips and patches blending their neighbours'.
+- New: module evaluators (base, relief, appendage), the composer (root loops and trims, strips, tessellation), and a region naming table that maps modules to the part ids consumers read (`human.skin.head*`, `human.skin.ear.*`, trunk, limbs), so the couplings of the survey change in one place.
+- Re-derived: the skin texture chart (`AutoMovieHumanSkinChart`) per module chart, reliefs sharing their base's, strips blending their neighbours'.
 - Kept: `AutoMovieHumanSplineCurve`, `AutoMovieHumanLoftFrame`, `AutoMovieHumanFeatureChain`, the eye globe and lid profile, the appearance layer, the skeleton (re-pointed to module axes and poles), the public API and types.
 - Retired: `AutoMovieHumanSectionLoops`, `AutoMovieHumanContactSmoothing`, `AutoMovieHumanLipSmoothing`, `AutoMovieHumanCornerSmoothing`, `AutoMovieHumanStationContinuity`, `AutoMovieHumanEventJoin`, the event-ring normal blend, the world-height calibration modules and their branch events.
 
@@ -109,8 +109,8 @@ Every open defect of the [survey](survey.md#open-defects-and-their-causes) and t
 | Rough nostril rims (#2983) | cut edge of a bridged loft; pocket without matching derivatives | nostril trims on the nose relief; pocket from the analytic cross derivative | nose, nostrils |
 | Line under the chin | tilted rows advancing unevenly | chin relief over a fair face base; neck shared key | face base, chin, neck |
 | Forehead and thigh striations | phase noise of 256-point rows | fair keys of fewer control points, tolerance-matched thin-plate fit | every base |
-| Abdominal band, armpit lump (#2985) | trunk rows and the axillary ring | fair trunk base; arm appendage strip and axilla n-sided patch | trunk, arms |
-| Horizontal gluteal fold, thigh line at the crotch (#2985) | horizontal contact ring | buttocks relief with its curving fold; leg appendage strips and crotch patch | trunk, buttocks, legs |
+| Abdominal band, armpit lump (#2985) | trunk rows and the axillary ring | fair trunk base; arm appendage root loop and strip | trunk, arms |
+| Horizontal gluteal fold, thigh line at the crotch (#2985) | horizontal contact ring | buttocks relief with its curving fold; leg root loops and strips on the closed trunk | trunk, buttocks, legs |
 | Bob fringe saw edge (#2987) | every card ends at the level cut with a 4 percent jitter and a pointed tip | card length from a smooth length field over the scalp (C1 noise of a few millimetres about the cut) and a rounded tip band | hair |
 | Back highlight strip (#2987) | hanging cards share the capsule normal | card shading normals from a smooth offset surface of the head, the hair mass's own envelope | hair |
 | Standing strands above the ears (#2987) | the drape rule steps strands out over the auricle and the projection jumps | strands follow the offset envelope of the composed head, which passes over the auricle appendage smoothly | hair, auricles |
@@ -134,7 +134,7 @@ All four people, after the pass and after every fix batch, saved under `packages
 - axillae, crotch, gluteal fold, inframammary fold, hands and feet close in clay under raking light;
 - the same frames as the reference photographs (`test/.shots/<alias>/screenshots-corrected/`, whole, head and tiles) under the reference conditions, side by side;
 - curve diagrams with curvature combs and station series across every module boundary and strip;
-- measurements: per-module surface distance to the observations, G1 and G2 residuals across every strip and patch, shape-law input against generated measure for every consumed parameter;
+- measurements: per-module surface distance to the observations, G1 and G2 residuals across every strip, shape-law input against generated measure for every consumed parameter;
 - f1 audit set every 15 minutes during the round.
 
 ## 10. Acceptance

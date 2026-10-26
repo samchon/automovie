@@ -32,7 +32,7 @@ Between an appendage's root boundary `A(t)` and the matching curve `C(t)` on the
 
 `T(t, w) = H0(w) C(t) + H1(w) A(t) + H2(w) D_C(t) + H3(w) D_A(t)`
 
-with `D_C` and `D_A` the cross-boundary derivatives of the two surfaces (scaled to the strip's width) and `H0..H3` the cubic Hermite basis, or the quintic basis with the second cross derivatives as well. Matching the cross derivatives gives tangent-plane continuity (G1) along both edges; the quintic form gives curvature continuity (G2), which is what removes a visible line under raking light. This is the Coons-type construction of CAD fillets; an n-sided junction, such as the axilla where the arm, the chest and the back meet, is filled by a Gregory-type patch from the same boundary data.
+with `D_C` and `D_A` the cross-boundary derivatives of the two surfaces (scaled to the strip's width) and `H0..H3` the cubic Hermite basis, or the quintic basis with the second cross derivatives as well. Matching the cross derivatives gives tangent-plane continuity (G1) along both edges; the quintic form gives curvature continuity (G2), which is what removes a visible line under raking light. This is the Coons-type construction of CAD fillets. A base that carries appendages is closed (the trunk down to the perineum, the palm and the sole at their distal ends) and every appendage roots in a closed loop on it, so the axilla is the arm's strip over the trunk, the crotch the trunk between the leg roots and a web the palm between two finger roots: no junction joins more than two surfaces.
 
 An alternative for joints is the smooth union of implicit surfaces (convolution surfaces along a skeleton), which blends tubes into one another without explicit strips at the cost of the explicit parameterisation. It is a candidate to compare with strips at the shoulders and hips.
 
@@ -43,13 +43,12 @@ Posed joints deform the composed rest shape: linear or dual-quaternion skinning 
 ## Composition of the head and body
 
 - Head: cranium base (feature chains), face relief over a frontal chart (nose, lips, brow, cheeks, chin), auricles as appendages joined by strips, neck as an appendage below.
-- Trunk: thorax and abdomen base, relief for breasts, buttocks and muscle masses, arms, legs and neck as appendages joined by strips and n-sided patches at the axillae and the crotch.
+- Trunk: a closed thorax, abdomen and pelvis base with relief for breasts, buttocks and muscle masses, arms and legs as appendages rooted in closed loops on it, the neck a regular continuation.
 
 ## References
 
 - Coons, S. A. Surfaces for computer-aided design of space forms. MIT Project MAC TR-41, 1967.
-- Gregory, J. A. Smooth interpolation without twist constraints. Computer Aided Geometric Design, 1974.
 - Gordon, W. J. Spline-blended surface interpolation through curve networks. Journal of Mathematics and Mechanics 18, 1969.
 - Bloomenthal, J. and Shoemake, K. Convolution surfaces. SIGGRAPH 1991.
-- Kavan, L., Collins, S., Žára, J. and O'Sullivan, C. Skinning with dual quaternions. I3D 2007.
+- Kavan, L., Collins, S., 탐찼ra, J. and O'Sullivan, C. Skinning with dual quaternions. I3D 2007.
 - Wang, W., Pottmann, H. and Liu, Y. Fitting B-spline curves to point clouds by curvature-based squared distance minimization. ACM Transactions on Graphics 25, 2006.
