@@ -149,6 +149,137 @@ export namespace AutoMovieHumanBodySurface {
     return out;
   }
 
+  /**
+   * Shading normals blended across the event rings.
+   *
+   * Parent and child are fitted on their own and meet at a shared ring with
+   * one tangent plane (`AutoMovieHumanEventJoin`) but not one curvature, so
+   * each side's surface normals turn at their own rate and the ring shades
+   * as a line under raking light: across the face at the 1543.2 mm ring
+   * under the nose and at the 1595.5 mm ring beside the eyes, in clay as in
+   * colour, although the normals there agree with the local surface to 1.7
+   * degrees. Every vertex within {@link BLEND} mm of station from one of
+   * its chain's event rings therefore averages its normal with its mesh
+   * neighbours' over {@link PASSES} passes, fully at the ring and fading to
+   * nothing at the band's edge, so the turn spreads over the band on both
+   * sides. A neighbour whose normal differs by more than {@link FOLD}
+   * degrees is left out: the contacts' real folds (the axillae, the crotch,
+   * the webs, the auricle's rims) keep their shading. Positions are not
+   * moved.
+   */
+  function ringBlend(
+    calibration: IAutoMovieHumanBodyCalibration,
+    coordinates: readonly number[],
+    indices: readonly number[],
+    normals: number[],
+  ): number[] {
+    // Event ring stations of every chain, by calibration index.
+    const index: Map<string, number> = new Map(
+      calibration.chains.map(
+        (c: IAutoMovieHumanLoftChain, i: number): [string, number] => [
+          c.name,
+          i,
+        ],
+      ),
+    );
+    const rings: number[][] = calibration.chains.map((): number[] => []);
+    for (const event of calibration.events) {
+      const parent: IAutoMovieHumanLoftChain =
+        calibration.chains[index.get(event.parent)!]!;
+      rings[index.get(event.parent)!]!.push(
+        event.direction === "down"
+          ? parent.layers[0]!.y
+          : parent.layers[parent.layers.length - 1]!.y,
+      );
+      for (const split of event.splits) {
+        const child: IAutoMovieHumanLoftChain =
+          calibration.chains[index.get(split.child)!]!;
+        rings[index.get(split.child)!]!.push(
+          event.direction === "down"
+            ? child.layers[child.layers.length - 1]!.y
+            : child.layers[0]!.y,
+        );
+      }
+    }
+
+    // Blend weight of each vertex: full at a ring, none at the band's edge.
+    const count: number = normals.length / 3;
+    const weight: number[] = new Array<number>(count).fill(0);
+    for (let v: number = 0; v < count && 3 * v + 2 < coordinates.length; v++) {
+      const chain: number = coordinates[3 * v]!;
+      const s: number = coordinates[3 * v + 1]!;
+      if (!Number.isFinite(chain) || !Number.isFinite(s)) continue;
+      const d: number = Math.min(
+        ...rings[chain]!.map((r: number): number => Math.abs(s - r)),
+      );
+      if (d >= BLEND) continue;
+      const x: number = d / BLEND;
+      weight[v] = 1 - x * x * (3 - 2 * x);
+    }
+
+    // Neighbours of the blended vertices.
+    const neighbours: Map<number, Set<number>> = new Map();
+    for (let t: number = 0; t < indices.length; t += 3)
+      for (let e: number = 0; e < 3; e++) {
+        const a: number = indices[t + e]!;
+        const b: number = indices[t + ((e + 1) % 3)]!;
+        if (weight[a]! > 0) {
+          let set: Set<number> | undefined = neighbours.get(a);
+          if (set === undefined) neighbours.set(a, (set = new Set()));
+          set.add(b);
+        }
+        if (weight[b]! > 0) {
+          let set: Set<number> | undefined = neighbours.get(b);
+          if (set === undefined) neighbours.set(b, (set = new Set()));
+          set.add(a);
+        }
+      }
+
+    const cosine: number = Math.cos((FOLD * Math.PI) / 180);
+    let current: number[] = [...normals];
+    for (let pass: number = 0; pass < PASSES; pass++) {
+      const next: number[] = [...current];
+      for (const [v, set] of neighbours) {
+        const n: [number, number, number] = [
+          current[3 * v]!,
+          current[3 * v + 1]!,
+          current[3 * v + 2]!,
+        ];
+        const sum: [number, number, number] = [0, 0, 0];
+        let k: number = 0;
+        for (const u of set) {
+          const m: [number, number, number] = [
+            current[3 * u]!,
+            current[3 * u + 1]!,
+            current[3 * u + 2]!,
+          ];
+          if (n[0] * m[0] + n[1] * m[1] + n[2] * m[2] < cosine) continue;
+          for (let i: number = 0; i < 3; i++) sum[i]! += m[i]!;
+          k++;
+        }
+        if (k === 0) continue;
+        const w: number = weight[v]!;
+        const b: number[] = [0, 1, 2].map(
+          (i: number): number => n[i]! + w * (sum[i]! / k - n[i]!),
+        );
+        const length: number = Math.hypot(b[0]!, b[1]!, b[2]!);
+        if (!(length > 1e-12)) continue;
+        for (let i: number = 0; i < 3; i++) next[3 * v + i] = b[i]! / length;
+      }
+      current = next;
+    }
+    return current;
+  }
+
+  /** Station half-width of the normal blend across an event ring, mm. */
+  const BLEND: number = 4;
+
+  /** Averaging passes of the ring blend. */
+  const PASSES: number = 16;
+
+  /** Largest normal difference a blended neighbour may have, degrees. */
+  const FOLD: number = 30;
+
   /** Station step of the surface normals' station derivative, mm. */
   const STEP: number = 0.05;
 
@@ -296,10 +427,15 @@ export namespace AutoMovieHumanBodySurface {
     return {
       mesh: context.mesh,
       construction,
-      normals: surfaceNormals(
+      normals: ringBlend(
         calibration,
         context.coordinates,
-        AutoMovieHumanLoftMesh.normals(context.mesh),
+        context.mesh.indices,
+        surfaceNormals(
+          calibration,
+          context.coordinates,
+          AutoMovieHumanLoftMesh.normals(context.mesh),
+        ),
       ),
       // Vertices the cut and the tuck added after lofting have no loft
       // coordinates of their own.

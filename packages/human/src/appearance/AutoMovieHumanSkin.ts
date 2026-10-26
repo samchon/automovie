@@ -42,6 +42,12 @@ import type { AutoMovieHumanVermilion } from "./AutoMovieHumanVermilion";
  *   of the person's albedo in red, green and blue stands in for the light
  *   skin returns from under its surface in shadow; it is an appearance
  *   convention, not a measured transport, and it scales with the tone.
+ * - Cavities: triangles deep in a closed pocket such as a nostril, all
+ *   three vertices shaded below {@link CAVITY}, form `human.cavity.<chain>/<k>`
+ *   parts with the `human.cavity` material: the vertex colour without
+ *   emission, sheen or relief, roughness 0.9 and specular intensity 0.1.
+ *   The renderer casts no shadow, so the skin material's emission, sheen and
+ *   specular lobe lit the pocket walls as bright streaks.
  *
  * Inputs: `pigmentation.{melanin, eumelaninShare, haemoglobin}`, and
  * `appearance.skin.{oiliness, wrinkles, seed}`. An omitted `pigmentation`
@@ -76,10 +82,16 @@ export namespace AutoMovieHumanSkin {
 
   /** Dressed skin. */
   export interface IOutput {
-    /** `human.skin.<chain>/<k>` and `human.nail.<side>.<digit>` parts in model metres. */
+    /**
+     * `human.skin.<chain>/<k>`, `human.cavity.<chain>/<k>` and
+     * `human.nail.<side>.<digit>` parts in model metres.
+     */
     parts: IAutoMovieModelPart[];
 
-    /** The `human.skin` material and, with digits, the `human.nail` one. */
+    /**
+     * The `human.skin` material, with pockets the `human.cavity` one, and
+     * with digits the `human.nail` one.
+     */
     materials: IAutoMovieMaterial[];
 
     /** Images the materials sample. */
@@ -119,31 +131,60 @@ export namespace AutoMovieHumanSkin {
         seed: skin?.seed ?? 0,
       });
 
-    const parts: IAutoMovieModelPart[] = pieces.map(
+    // Triangles deep in a closed pocket (all three vertices shaded below
+    // CAVITY) leave the skin for a cavity part of their own; the rest of
+    // each piece stays skin.
+    const parts: IAutoMovieModelPart[] = pieces.flatMap(
       (
         piece: AutoMovieHumanSkinChart.IOutput,
         k: number,
-      ): IAutoMovieModelPart => ({
-        id: "human.skin." + piece.name,
-        name: "human.skin." + piece.name,
-        geometry: {
-          type: "mesh",
-          mesh: {
-            positions: piece.positions.map(
-              (v: number): number => v * props.scale,
-            ),
-            normals: piece.normals,
-            uvs: piece.uvs.map((v: number): number => v * props.scale),
-            colors: tone.colors[k]!,
-            reliefWeights: tone.reliefWeights[k]!,
-            indices: piece.indices,
-            skin: null,
+      ): IAutoMovieModelPart[] => {
+        const shade: number[] = tone.shades[k]!;
+        const skinIndices: number[] = [];
+        const cavityIndices: number[] = [];
+        for (let t: number = 0; t < piece.indices.length; t += 3) {
+          const tri: number[] = piece.indices.slice(t, t + 3);
+          (tri.every((v: number): boolean => shade[v]! < CAVITY)
+            ? cavityIndices
+            : skinIndices
+          ).push(...tri);
+        }
+        const part: (
+          prefix: string,
+          material: string,
+          indices: number[],
+        ) => IAutoMovieModelPart = (
+          prefix: string,
+          material: string,
+          indices: number[],
+        ): IAutoMovieModelPart => ({
+          id: prefix + piece.name,
+          name: prefix + piece.name,
+          geometry: {
+            type: "mesh",
+            mesh: {
+              positions: piece.positions.map(
+                (v: number): number => v * props.scale,
+              ),
+              normals: piece.normals,
+              uvs: piece.uvs.map((v: number): number => v * props.scale),
+              colors: tone.colors[k]!,
+              reliefWeights: tone.reliefWeights[k]!,
+              indices,
+              skin: null,
+            },
           },
-        },
-        material: "human.skin",
-        attachedBone: null,
-        transform: null,
-      }),
+          material,
+          attachedBone: null,
+          transform: null,
+        });
+        return cavityIndices.length === 0
+          ? [part("human.skin.", "human.skin", skinIndices)]
+          : [
+              part("human.skin.", "human.skin", skinIndices),
+              part("human.cavity.", "human.cavity", cavityIndices),
+            ];
+      },
     );
 
     // One tile per `tile` mm of rest surface; the coordinates are model
@@ -258,11 +299,37 @@ export namespace AutoMovieHumanSkin {
       props.scale,
       albedo,
     );
+    // A pocket's walls lie in the shadow of its rim, which the renderer
+    // does not cast: the skin material's emission, sheen and specular lobe
+    // lit them as bright streaks however dark their vertex colour. The
+    // cavity material keeps the vertex colour and drops all three.
+    const cavity: IAutoMovieMaterial = {
+      id: "human.cavity",
+      name: "skin cavity",
+      baseColor: { r: 1, g: 1, b: 1, a: 1, hex: null },
+      metallic: 0,
+      roughness: 0.9,
+      emissive: null,
+      opacity: 1,
+      baseColorTexture: null,
+      specularIntensity: 0.1,
+      doubleSided: false,
+    };
     return {
       parts: [...parts, ...nails.parts],
-      materials:
-        nails.material === null ? [material] : [material, nails.material],
+      materials: [
+        material,
+        ...(parts.some((p: IAutoMovieModelPart): boolean =>
+          p.id.startsWith("human.cavity."),
+        )
+          ? [cavity]
+          : []),
+        ...(nails.material === null ? [] : [nails.material]),
+      ],
       images: [...images, ...nails.images],
     };
   }
 }
+
+/** Shade below which all three vertices put a triangle in the cavity part. */
+const CAVITY: number = 0.6;
