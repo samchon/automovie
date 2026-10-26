@@ -110,6 +110,9 @@ export namespace AutoMovieHumanSkinTone {
 
     /** Normal-map slope factor per vertex. */
     reliefWeights: number[][];
+
+    /** Shade multiplier per vertex, below 1 inside a closed pocket. */
+    shades: number[][];
   }
 
   /**
@@ -125,10 +128,12 @@ export namespace AutoMovieHumanSkinTone {
       AutoMovieHumanSkinLandmarks.generate(input);
     const colors: number[][] = [];
     const reliefWeights: number[][] = [];
+    const shades: number[][] = [];
     for (const piece of input.pieces) {
       const chain: string = piece.name.slice(0, piece.name.lastIndexOf("/"));
       const color: number[] = [];
       const relief: number[] = [];
+      const shade: number[] = [];
       for (let i: number = 0; i < piece.positions.length / 3; ++i) {
         const p: Vec3 = V.at(piece.positions, i);
         const n: Vec3 = V.at(piece.normals, i);
@@ -145,11 +150,13 @@ export namespace AutoMovieHumanSkinTone {
             .map((c: number): number => c * f.shade),
         );
         relief.push(f.relief);
+        shade.push(f.shade);
       }
       colors.push(color);
       reliefWeights.push(relief);
+      shades.push(shade);
     }
-    return { colors, reliefWeights };
+    return { colors, reliefWeights, shades };
   }
 }
 

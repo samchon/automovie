@@ -55,7 +55,7 @@ import { AutoMovieHumanShoulderField } from "./AutoMovieHumanShoulderField";
  * `crop` even; `short` tapering to a third at the nape and sides; `bob`
  * ending where it reaches a level `length` below the vertex, or, once
  * resting on the body, after laying along it the drop it still had to
- * that level. Every root's length, and with it a bob's level, varies by up
+ * that level, at most {@link RESTING} mm. Every root's length, and with it a bob's level, varies by up
  * to 6 percent either way in locks and 2 percent per root, so the ends
  * never line up along one cut. Roots within {@link FEATHER} mm above the
  * hairline grow shorter hair the closer they lie, against a boundary
@@ -159,6 +159,13 @@ const DOWN: [number, number, number] = [0, -1, 0];
 
 /** Height above the hairline over which hair grows to its full length, mm. */
 const FEATHER: number = 8;
+
+/**
+ * Longest arc a bob lays along the body, mm. Laid for its whole remaining
+ * drop, a bob's back and sides slid out over the shoulders and the upper
+ * back and splayed into a bristly band below the cut.
+ */
+const RESTING: number = 10;
 
 /** Shortest strand that gets a card, mm. */
 const SHORTEST: number = 4;
@@ -357,11 +364,15 @@ function solve(
       normal = unit(add(capsule(next), contact.normal));
 
       // A bob rests along the body for the drop it still had to its level
-      // cut; other cuts for the rest of their length.
+      // cut, at most RESTING mm; other cuts for the rest of their length.
       if (resting === null) {
         resting =
           style === AutoMovieHumanHairStyle.Bob
-            ? Math.min(length - travelled, next[1] + field.centre[1] - cut)
+            ? Math.min(
+                length - travelled,
+                next[1] + field.centre[1] - cut,
+                RESTING,
+              )
             : length - travelled;
         if (resting <= 0) break;
       }

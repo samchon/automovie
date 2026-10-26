@@ -29,6 +29,8 @@ import type { IAutoMovieHumanParameters } from "./structures/IAutoMovieHumanPara
  *
  * - `human.skin.<chain>/<k>`: the skin between principal layers k and k+1
  *   of a chain, shaped by the sections `<chain>/<k>` and `<chain>/<k+1>`;
+ * - `human.cavity.<chain>/<k>`: that interval's skin deep in a closed
+ *   pocket such as a nostril, under its own dim material;
  * - `human.construction.<chain>/<k>`: the principal section curve itself;
  * - `human.construction.<chain>/axis`: the chain's central axis;
  * - `human.construction.<chain>/g<j>`: a guide, the fixed-phase Hermite curve

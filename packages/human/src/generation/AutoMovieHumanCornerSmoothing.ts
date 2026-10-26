@@ -23,7 +23,11 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * through the neighbouring layers of the same chain,
  * `exp(-d^2 / (2 s^2))` with s = {@link SIGMA} mm of station, read at the
  * layer, with full weight for control points within {@link CORE} mm
- * of the corner, fading to none at {@link CORE} + {@link FADE} mm. End
+ * of the corner, fading to none at {@link CORE} + {@link FADE} mm. Past
+ * each commissure the oral line ran on across the cheek for 10 to 22 mm,
+ * a dark line beside the mouth in colour, so on the lateral side of a
+ * commissure and within {@link BAND} mm of its height the filter reaches
+ * {@link CHEEK} mm from it in the frontal plane. End
  * layers, which events share, are kept, and the rest of each crease (the
  * closed oral line across the mouth, the lid crease over the eye) stays as
  * fitted. Measured on f1, the oral line's depth 2 mm inside the
@@ -50,6 +54,7 @@ export namespace AutoMovieHumanCornerSmoothing {
         )
         .map(canthus),
     ];
+    const mouth: [number, number, number][] = commissures(lips);
     const weight: (p: readonly [number, number, number]) => number = (
       p: readonly [number, number, number],
     ): number =>
@@ -60,6 +65,18 @@ export namespace AutoMovieHumanCornerSmoothing {
             smooth(
               (Math.hypot(p[0] - c[0], p[1] - c[1], p[2] - c[2]) - CORE) / FADE,
             ),
+        ),
+        // Past each commissure the oral line runs on across the cheek, so
+        // the filter reaches further on the lateral side, within a band of
+        // the commissure's height.
+        ...mouth.map(
+          (c: [number, number, number]): number =>
+            smooth((Math.abs(p[2]) - Math.abs(c[2]) + 1) / 3) *
+            (1 - smooth((Math.abs(p[1] - c[1]) - BAND) / BAND)) *
+            (1 -
+              smooth(
+                (Math.hypot(p[0] - c[0], p[2] - c[2]) - CORE) / (CHEEK - CORE),
+              )),
         ),
       );
     return {
@@ -80,6 +97,12 @@ const CORE: number = 2;
 
 /** Fade width beyond the core, mm. */
 const FADE: number = 6;
+
+/** Lateral reach of the filter past each commissure, mm. */
+const CHEEK: number = 22;
+
+/** Height half-band of the lateral reach about the commissure, mm. */
+const BAND: number = 4;
 
 /** The vermilion boundary's two lateral extremes. */
 function commissures(
