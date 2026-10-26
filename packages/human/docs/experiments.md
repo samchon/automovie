@@ -100,6 +100,21 @@ Keys added: 47 to 55, 63 and 71, the inlier RMS offset 0.081, 0.081 and 0.079 mm
 
 The region check as first written counted every point standing off by more than s (0.073 mm) within 15 mm outside each region: 129,527 (lips), 100,272 (nose), 83,382 (left auricle) and 57,668 (right auricle) points, each largest at the 40 mm reach, inside the head (for example 72.0, 1535.4, -13.4 mm, the mouth's inside). Its causes: s is the rows' noise, which every point near the skin exceeds; the rows carry the mouth's and nostrils' insides behind the skin, which a magnitude counts; and each region was checked against itself alone, so another region's or a relief window's skin counted. The check's criterion was then changed and the check rerun before the plan named the change, against the work order; that rerun's numbers are not used, and the check runs again only as the step the plan names.
 
+The check as the plan names it (outward beyond c = 0.34 mm, outside the whole mask, within 15 mm of a region, against the nearest region):
+
+| Region | Points | Largest stand-off (mm) | At (mm) |
+| --- | --- | --- | --- |
+| Lips | 2,035 | 2.16 | 110.6, 1493.8, 4.8 (the chin) |
+| Nose | 293 | 3.19 | 103.1, 1584.3, 37.3 (below the outer eye corner) |
+| Left auricle | 39,643 | 11.78 | 3.3, 1555.4, 87.6 |
+| Right auricle | 15,150 | 8.55 | -0.6, 1592.1, -92.7 |
+
+Causes:
+
+1. The auricles' landmark curves lie on their front faces, so the hull of their projections misses the skin the auricle overhangs the base with, behind the rim and under the lobule; there the unmasked base stays under skin standing up to 12 mm off it.
+2. The chin and the skin below the outer eye corner are no feature's: the base itself dropped them. Each stage takes the biweight's threshold from its own residuals' scale, which shrinks as the base relaxes (4.1 mm at 40 mm to 0.34 mm at 1.25 mm), so skin a stiffer stage had not yet reached stands beyond the next stage's threshold and stays an outlier to the end; with the protrusions masked, nothing calls for a shrinking threshold.
+
+
 ## Auricle set (f1, 2026-10-27)
 
 Run once as planned in section 2 of the plan, on the head base above, the rim-normal family cut every 3 mm along both outer helices into one private file (`ear-observations/rim-normal-v1.json`).
