@@ -56,3 +56,22 @@ No variant met the rule. Findings, by cause:
 3. Fragmentation follows from 1: only the features' tops stand above s, separated by cells the base has absorbed, so merging by dynamics finds no pass between them (the nose in 6 or 7 pieces, each auricle in 10 to 16).
 4. The nose class window (20 to 60 mm below the eyes) misses the nasal dorsum, found 2 and 13 mm below eye level: the nose runs from the nasion, about eye level, to the subnasale.
 5. Small regions under the chin (1.3 to 2.3 mm, at the tilted rows' meeting with the throat) and over the temples appear as the threshold falls; they are the brow, cheek and chin module's or the known line under the chin.
+
+## Third protrusion detection set (f1, 2026-10-27)
+
+Run once as planned: starting keys at 4 cycles smoothed over station by the Whittaker smoother of each stiff length, one stiff stage by asymmetric least squares (p = 0.01) at 20, 40, 60 and 80 mm, the stand-off by projection less the residuals' median, basins merged by dynamics, the nose class from 10 mm above to 60 mm below eye level.
+
+| Length (mm) | Median / s / c (mm) | Nose (basins, connected, cells, peak) | Lips | Left auricle | Right auricle | Other basins |
+| --- | --- | --- | --- | --- | --- | --- |
+| 20 | 0.69 / 1.92 / 9.0 | 3, split, 142, 17.9 | none | 5, split, 330, 18.5 | 4, split, 309, 18.0 | 10: the chin (15.9 mm), a band over the forehead at 1675 mm (9 to 10 mm) |
+| 40 | -0.42 / 3.87 / 18.1 | 1, connected, 112, 18.6 | none | 5, split, 201, 23.7 | 5, split, 173, 22.2 | 89 over the forehead and vault from 1644 mm up (18 to 20 mm) |
+| 60 | -0.81 / 2.84 / 13.3 | 4, split, 552, 29.7 | 1, connected, 2840, 21.3 | 20, split, 120, 28.0 | 23, split, 5174, 30.8 | 496 over the cheeks, temples, forehead and vault (14 to 31 mm) |
+| 80 | -1.07 / 2.60 / 12.2 | 8, split, 163, 31.1 | 1, connected, 3411, 31.1 | 14, split, 157, 26.1 | 8, split, 4628, 31.1 | 155 over the cheeks and temples (16 to 31 mm) |
+
+No variant met the rule. Findings, by cause:
+
+1. A baseline does reach the features' full height: at 20 mm the nose stands 17.9 mm and the auricles 18 mm over it, against 4.7 to 12.9 mm under the symmetric fits of the second set.
+2. The baseline sinks into the cranium as it stiffens (the median offset falls from 0.69 to -1.07 mm and the whole vault stands 18 to 31 mm over it at 40 mm and more): asymmetric least squares can only push the base out where observations lie inside it, never pull it in, so the base follows its starting keys wherever every observation is outside, and keys smoothed over station shrink the closed dome toward the crown, the shrinkage of run A in the station direction. For the same reason a starting key that carries part of a feature keeps it.
+3. The robust scale of a baseline's residuals is not the observations' noise: they spread by the base's misfit and the features (1.9 to 3.9 mm), so the threshold (9 to 18 mm) misses the lips, which stand 4 to 5 mm.
+4. The auricles stay in 4 to 23 pieces at every stiffness: the concha and the scapha sink toward the base between the helix and the antihelix, so no threshold on a stand-off map holds an auricle in one piece.
+5. The reference head carries source-backed landmark curves the sets did not use: the outer and inner helix and the central upper and lower curves of each auricle, the upper and lower outer lip contours and the philtrum, the nostrils, the nasolabial and mentolabial folds and the skull's midline (`head-observations.json`), the same family the eye fitter reads its lid margins from.
