@@ -1,6 +1,7 @@
 import type { IAutoMovieHumanScalpHair } from "../structures/appearance/IAutoMovieHumanScalpHair";
 import { AutoMovieHumanHairStyle } from "../typings/AutoMovieHumanHairStyle";
 import { AutoMovieHumanAppearanceNoise } from "./AutoMovieHumanAppearanceNoise";
+import { AutoMovieHumanHairEnvelope } from "./AutoMovieHumanHairEnvelope";
 import { AutoMovieHumanHeadField } from "./AutoMovieHumanHeadField";
 import { AutoMovieHumanScalpBoundary } from "./AutoMovieHumanScalpBoundary";
 import { AutoMovieHumanShoulderField } from "./AutoMovieHumanShoulderField";
@@ -31,10 +32,10 @@ import { AutoMovieHumanShoulderField } from "./AutoMovieHumanShoulderField";
  * Integration: each guide marches in equal steps along its length; the
  * heading relaxes toward the field and bends toward gravity in proportion
  * to the distance already grown (short hair stands in its field, long hair
- * falls). Every step above the menton keeps a clearance above the head
- * as hair drapes over it, spreading from bumps such as the ears at 45
- * degrees: crop and short hair is held at that clearance (it lies on the
- * scalp and nape) and ends where the drape rises more than
+ * falls). Every step above the menton keeps a clearance above the hair
+ * mass's smooth envelope (`AutoMovieHumanHairEnvelope`), which drapes over
+ * bumps such as the ears: crop and short hair is held at that clearance (it
+ * lies on the scalp and nape) and ends where the envelope rises more than
  * {@link DRAPE} mm over the scalp, cut above the ear instead of standing
  * off the side of the head,
  * while a bob lies on the vault above the chart centre and hangs freely
@@ -55,18 +56,19 @@ import { AutoMovieHumanShoulderField } from "./AutoMovieHumanShoulderField";
  * `crop` even; `short` tapering to a third at the nape and sides; `bob`
  * ending where it reaches a level `length` below the vertex, or, once
  * resting on the body, after laying along it the drop it still had to
- * that level, at most {@link RESTING} mm. Every root's length, and with it a bob's level, varies by up
- * to 6 percent either way in locks and 2 percent per root, so the ends
- * never line up along one cut. Roots within {@link FEATHER} mm above the
+ * that level, at most {@link RESTING} mm. Every root's length varies by up
+ * to 6 percent either way in locks, and a bob's level by {@link CUT} mm
+ * either way around the head, both value noise with the quintic fade, so
+ * the ends never line up along one cut and neighbouring cards end together
+ * instead of in a saw edge. Roots within {@link FEATHER} mm above the
  * hairline grow shorter hair the closer they lie, against a boundary
  * raised per root, so the hairline feathers in instead of starting as a
  * comb of full-length cards along one line.
  *
- * Normals: the scalp chart's outward direction where a strand lies on the
- * head, the outward normal of a capsule about the chart centre (radial
- * above the centre, horizontal below it) where it hangs, so hanging hair
- * shades as the side of one hair mass, and halfway between that and the
- * body's surface normal where it rests on the body.
+ * Normals: the envelope's outward normal at the point's direction, whether
+ * a strand lies on the head or hangs, so the whole cut shades as one
+ * smooth hair mass, and halfway between that and the body's surface normal
+ * where it rests on the body.
  */
 export namespace AutoMovieHumanHairGuide {
   /** One solved guide. */
@@ -111,6 +113,8 @@ export namespace AutoMovieHumanHairGuide {
     const lattice: number = hair.length > 120 ? 3200 : 5000;
     const golden: number = Math.PI * (3 - Math.sqrt(5));
     const guides: IGuide[] = [];
+    const envelope: AutoMovieHumanHairEnvelope.IEnvelope =
+      AutoMovieHumanHairEnvelope.create(field);
 
     for (let k: number = 0; k < lattice; ++k) {
       const y: number = 1 - (2 * (k + 0.5)) / lattice;
@@ -147,7 +151,15 @@ export namespace AutoMovieHumanHairGuide {
         margin,
       );
 
-      const guide: IGuide | null = solve(field, shoulders, hair, k, u, feather);
+      const guide: IGuide | null = solve(
+        field,
+        envelope,
+        shoulders,
+        hair,
+        k,
+        u,
+        feather,
+      );
       if (guide !== null) guides.push(guide);
     }
     return guides;
@@ -167,6 +179,9 @@ const FEATHER: number = 8;
  */
 const RESTING: number = 10;
 
+/** Largest move of a bob's cut level either way around the head, mm. */
+const CUT: number = 3;
+
 /** Shortest strand that gets a card, mm. */
 const SHORTEST: number = 4;
 
@@ -177,6 +192,7 @@ const DRAPE: number = 5;
  * Solve one guide from its root direction.
  *
  * @param field Head chart
+ * @param envelope Smooth envelope of the hair mass
  * @param shoulders Body surface heights under the head
  * @param hair Scalp hair input
  * @param root Root lattice index
@@ -187,6 +203,7 @@ const DRAPE: number = 5;
  */
 function solve(
   field: AutoMovieHumanHeadField.IField,
+  envelope: AutoMovieHumanHairEnvelope.IEnvelope,
   shoulders: AutoMovieHumanShoulderField.IField,
   hair: IAutoMovieHumanScalpHair,
   root: number,
@@ -197,20 +214,20 @@ function solve(
 
   // Length of this root's hair, varied so ends never line up along one
   // cut: by up to 6 percent either way in locks (value noise over the
-  // root's chart angles, twelve cells around the head) and a further 2
-  // percent per root (conventions). Per-root variation alone made every
-  // card end at its own height, a saw edge along the bob's line.
+  // root's chart angles, twelve cells around the head; a convention). A
+  // per-root jitter made every card end at its own height, a saw edge
+  // along the bob's line, so the variation is smooth from root to root.
+  const azimuth: number = Math.atan2(u[2], u[0]) / (2 * Math.PI);
   const vary: number =
     1 +
     0.12 *
       (AutoMovieHumanAppearanceNoise.value2(
         13,
-        (Math.atan2(u[2], u[0]) / (2 * Math.PI)) * 12,
+        azimuth * 12,
         (Math.asin(Math.max(-1, Math.min(1, u[1]))) / Math.PI) * 6,
         12,
       ) -
-        0.5) +
-    0.04 * (AutoMovieHumanAppearanceNoise.hash(12, root) - 0.5);
+        0.5);
   const top: number = AutoMovieHumanAppearanceNoise.smoothstep(0.3, 0.75, u[1]);
   const length: number =
     feather *
@@ -220,7 +237,11 @@ function solve(
       : style === AutoMovieHumanHairStyle.Bob
         ? hair.length * 1.6
         : hair.length);
-  const cut: number = field.top - vary * hair.length;
+  const cut: number =
+    field.top -
+    hair.length -
+    CUT *
+      (2 * AutoMovieHumanAppearanceNoise.periodic1(15, azimuth * 12, 12) - 1);
 
   // The head chart keeps strands outside the head down to the menton;
   // below it the body field does (`AutoMovieHumanShoulderField`).
@@ -264,7 +285,9 @@ function solve(
   let p: [number, number, number] = scale(u, start);
   let heading: [number, number, number] = tangent(flow(style, u), u);
   const points: Array<[number, number, number]> = [p];
-  const normals: Array<[number, number, number]> = [u];
+  const normals: Array<[number, number, number]> = [
+    AutoMovieHumanHairEnvelope.normal(envelope, u),
+  ];
   let travelled: number = 0;
 
   // Once a strand reaches the body it rests there: `surface` is the body
@@ -301,27 +324,20 @@ function solve(
     }
 
     let next: [number, number, number] = add(p, scale(heading, step));
-    let normal: [number, number, number] = capsule(next);
     if (resting === null && next[1] + field.centre[1] > menton) {
-      // Push out to the clearance over the draped head ({@link envelope}),
-      // which grows slowly with length as later hair stacks over earlier
-      // hair.
+      // Push out to the clearance over the envelope, which grows slowly
+      // with length as later hair stacks over earlier hair.
       const dir: [number, number, number] = unit(next);
-      const floor: number =
-        envelope(field, dir) + layer + stack * (travelled + step);
+      const over: number = AutoMovieHumanHairEnvelope.radius(envelope, dir);
+      const floor: number = over + layer + stack * (travelled + step);
       // Short cuts lie on the head everywhere; a bob lies on the vault
       // above the chart centre and hangs freely below it.
       const lies: boolean =
         style !== AutoMovieHumanHairStyle.Bob || next[1] > 0;
-      // Lying hair ends where the draped envelope rises over a bump such as
-      // the auricle: cut short there, as a short cut is above the ear,
-      // instead of stepping out at the drape's 45 degrees and standing off
-      // the side of the head.
-      if (
-        lies &&
-        envelope(field, dir) - AutoMovieHumanHeadField.radius(field, dir) >
-          DRAPE
-      )
+      // Lying hair ends where the envelope rises over a bump such as the
+      // auricle: cut short there, as a short cut is above the ear, instead
+      // of standing off the side of the head.
+      if (lies && over - AutoMovieHumanHeadField.radius(field, dir) > DRAPE)
         break;
       if (norm(next) < floor || lies) {
         const projected: [number, number, number] = scale(dir, floor);
@@ -336,10 +352,13 @@ function solve(
         } else {
           next = projected;
           heading = unit(sub(next, p));
-          if (lies) normal = dir;
         }
       }
     }
+    let normal: [number, number, number] = AutoMovieHumanHairEnvelope.normal(
+      envelope,
+      next,
+    );
 
     // Reaching the body: the strand settles on it and slides along it.
     const contact: ISettled | null = settle(
@@ -361,7 +380,9 @@ function solve(
       // Shade as halfway between the hanging mass and the body under it,
       // so the hair keeps its tone where it meets the shoulders instead of
       // turning into a separately lit shelf.
-      normal = unit(add(capsule(next), contact.normal));
+      normal = unit(
+        add(AutoMovieHumanHairEnvelope.normal(envelope, next), contact.normal),
+      );
 
       // A bob rests along the body for the drop it still had to its level
       // cut, at most RESTING mm; other cuts for the rest of their length.
@@ -428,52 +449,6 @@ interface ISettled {
 
   /** Body normal under it, or null when it is clear of the body. */
   normal: [number, number, number] | null;
-}
-
-/**
- * Radius of the head as hair drapes over it along a direction: the largest
- * of the skin radius there and, for skin above the menton within 0.3
- * radian, its radius less its arc distance, as if the hair fell from every
- * bump at 45 degrees to the surface.
- *
- * Over the rounded vault the skin's own radius wins. Over the auricle,
- * which stands about 25 mm off the side of the head, hair passes over the
- * ear on a slope and returns to the head about 25 mm beyond it, rather
- * than stepping out at its rim and back in behind it. Sampled on six rings
- * of eight directions, 0.05 radian apart.
- *
- * @param field Head chart
- * @param d Unit direction
- * @returns Draped radius, millimetres
- */
-function envelope(
-  field: AutoMovieHumanHeadField.IField,
-  d: [number, number, number],
-): number {
-  let best: number = AutoMovieHumanHeadField.radius(field, d);
-  const a: [number, number, number] =
-    Math.abs(d[1]) < 0.9 ? [0, 1, 0] : [1, 0, 0];
-  const e1: [number, number, number] = unit(cross(a, d));
-  const e2: [number, number, number] = cross(d, e1);
-  for (let ring: number = 1; ring <= 6; ++ring) {
-    const theta: number = 0.05 * ring;
-    for (let k: number = 0; k < 8; ++k) {
-      const phi: number = ((k + 0.5 * (ring % 2)) / 8) * 2 * Math.PI;
-      const q: [number, number, number] = add(
-        scale(d, Math.cos(theta)),
-        add(
-          scale(e1, Math.sin(theta) * Math.cos(phi)),
-          scale(e2, Math.sin(theta) * Math.sin(phi)),
-        ),
-      );
-      const r: number = AutoMovieHumanHeadField.radius(field, q);
-      // Only head skin above the menton drapes the hair; below it the
-      // chart also measures the neck and shoulders the head chains loft.
-      if (field.centre[1] + q[1] * r > field.top - field.height)
-        best = Math.max(best, r * (1 - theta));
-    }
-  }
-  return best;
 }
 
 /**
@@ -567,20 +542,6 @@ function descend(
     r > 1e-9 ? [p[0] / r, 0, p[2] / r] : [1, 0, 0];
   const s: number = Math.min(0, -dot(n, d) / Math.max(n[1], 1e-3));
   return unit([d[0], s, d[2]]);
-}
-
-/**
- * Outward normal of the hair mass at a free point: a capsule about the
- * chart centre, radial above the centre and horizontal below it, so
- * hanging hair shades like the side of a column rather than the underside
- * of a sphere.
- *
- * @param p Point, head-local millimetres
- * @returns Unit normal
- */
-function capsule(p: [number, number, number]): [number, number, number] {
-  const q: [number, number, number] = [p[0], Math.max(0, p[1]), p[2]];
-  return norm(q) > 1e-9 ? unit(q) : [1, 0, 0];
 }
 
 /**

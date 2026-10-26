@@ -39,19 +39,24 @@ export namespace AutoMovieHumanSkinPigment {
 
     /** Dermal haemoglobin volume fraction. */
     haemoglobin: number;
+
+    /** Multiplier of the epidermal carotenoid band, 1 when omitted. */
+    carotenoid?: number;
   }
 
   /**
    * Linear RGB albedo of one chromophore set.
    *
    * @param c Chromophore fractions; melanin is clamped to `[0, 0.5]` and
-   *   haemoglobin to `[0.001, 0.32]`, the public parameter domains
+   *   haemoglobin to `[0.001, 0.32]`, the public parameter domains, and the
+   *   carotenoid multiplier to at least 0
    * @returns Linear RGB, each channel in `[0, 1]`
    */
   export function albedo(c: IChromophores): [number, number, number] {
     const melanin: number = Math.min(0.5, Math.max(0, c.melanin));
     const share: number = Math.min(1, Math.max(0, c.eumelaninShare));
     const haemoglobin: number = Math.min(0.32, Math.max(0.001, c.haemoglobin));
+    const carotenoid: number = Math.max(0, c.carotenoid ?? 1);
     const xyz: [number, number, number] = integrate(
       (lambda: number): number => {
         const base: number = 0.0244 + 8.53 * Math.exp(-(lambda - 154) / 66.2);
@@ -60,7 +65,7 @@ export namespace AutoMovieHumanSkinPigment {
             (share * 6.6e10 * Math.pow(lambda, -3.33) +
               (1 - share) * 2.9e14 * Math.pow(lambda, -4.75)) +
           (1 - melanin) * base +
-          CAROTENOID * Math.exp(-(((lambda - 465) / 30) ** 2));
+          carotenoid * CAROTENOID * Math.exp(-(((lambda - 465) / 30) ** 2));
 
         // Whole blood absorption in 1/mm: 2.303 e 150 g/L / 64,500 g/mol
         // per cm, a tenth of it per mm.
@@ -122,6 +127,7 @@ export namespace AutoMovieHumanSkinPigment {
           melanin: person.melanin * ((maxMelanin * i) / (M - 1)),
           eumelaninShare: person.eumelaninShare,
           haemoglobin: person.haemoglobin * ((maxHaemoglobin * j) / (H - 1)),
+          carotenoid: person.carotenoid,
         });
         values.set(rgb, (i * H + j) * 3);
       }

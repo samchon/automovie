@@ -37,7 +37,9 @@ import type { AutoMovieHumanVermilion } from "./AutoMovieHumanVermilion";
  *   direction but are not calibrated to measured skin reflectance.
  * - Translucency: the viewer's subsurface approximation with the weighted
  *   per-channel deviations of d'Eon and Luebke's six-Gaussian skin profile,
- *   1.18, 0.26 and 0.16 mm for red, green and blue. That approximation
+ *   1.18, 0.26 and 0.16 mm for red, green and blue, green and blue widened
+ *   by up to 30 percent with femininity for a softer, milkier tint (a
+ *   convention). That approximation
  *   changes direct light only, so a warm emission of 12, 7.5 and 5 percent
  *   of the person's albedo in red, green and blue stands in for the light
  *   skin returns from under its surface in shadow; it is an appearance
@@ -49,7 +51,9 @@ import type { AutoMovieHumanVermilion } from "./AutoMovieHumanVermilion";
  *   The renderer casts no shadow, so the skin material's emission, sheen and
  *   specular lobe lit the pocket walls as bright streaks.
  *
- * Inputs: `pigmentation.{melanin, eumelaninShare, haemoglobin}`, and
+ * Inputs: `pigmentation.{melanin, eumelaninShare, haemoglobin}`, shifted
+ * milky by `body.controls.masculineFeminine` through
+ * `AutoMovieHumanSkinTone.milky`, and
  * `appearance.skin.{oiliness, wrinkles, seed}`. An omitted `pigmentation`
  * uses melanin 0.008, eumelanin share 0.6 and haemoglobin 0.01, a fair,
  * lightly pigmented convention for an unspecified input rather than an
@@ -115,8 +119,15 @@ export namespace AutoMovieHumanSkin {
     const skin: IAutoMovieHumanSkinAppearance | undefined =
       props.params.appearance?.skin;
     const oiliness: number = skin?.oiliness ?? 0.3;
+    const femininity: number = Math.min(
+      1,
+      Math.max(0, props.params.body.controls.masculineFeminine.value ?? 0),
+    );
     const pigmentation: AutoMovieHumanSkinPigment.IChromophores =
-      props.params.pigmentation ?? defaultPigmentation;
+      AutoMovieHumanSkinTone.milky(
+        props.params.pigmentation ?? defaultPigmentation,
+        femininity,
+      );
     const wrinkles: number = skin?.wrinkles ?? 0;
     const pieces: AutoMovieHumanSkinChart.IOutput[] =
       AutoMovieHumanSkinChart.generate(props.pieces);
@@ -250,7 +261,11 @@ export namespace AutoMovieHumanSkin {
       normalScale: 0.4 + 0.9 * wrinkles,
       ior: 1.4,
       specularIntensity: Math.min(1, 0.7 + 0.6 * oiliness),
-      subsurfaceRadius: { r: 0.00118, g: 0.00026, b: 0.00016 },
+      subsurfaceRadius: {
+        r: 0.00118,
+        g: 0.00026 * (1 + 0.3 * femininity),
+        b: 0.00016 * (1 + 0.3 * femininity),
+      },
       doubleSided: false,
     };
     const images: IAutoMovieImage[] = AutoMovieHumanSkinImage.generate();
