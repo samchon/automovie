@@ -136,6 +136,26 @@ Every region has misses, so by the plan's section 4 their causes are settled in 
 
 Their causes are not yet traced.
 
+The check's misses binned by station and by chart distance outside the region, from the saved fit, once, with the `check` mode section 4 names (03:46 to 03:49):
+
+- **lips.** Two groups.
+  - Below the region, at stations 1509 to 1516 mm (the region starts at 1521), with 7 to 212 points a bin and stand-offs up to 2.27 mm.
+  - Beside it, at its own stations 1524 to 1531 mm, with 63 to 635 points a bin and stand-offs up to 1.53 mm.
+  - All lie 4 to 13 mm outside the region, beyond its 4.5 mm window, with no stand-off above 2.27 mm.
+- **nose.** 232 points at station 1539 mm, 5 mm below the region's lowest station (1544), with stand-offs up to 3.93 mm. A further 47 lie at 1584 to 1586 mm, 13 to 14 mm outside, up to 1.17 mm.
+- **left auricle.**
+  - 55,364 of its 59,442 misses lie within 4 mm outside its hull (30,187 within 1 mm), with stand-offs up to 12.98 mm, the auricle's own height. They are densest along the ear's top, at 1583 to 1597 mm, where the bins hold up to 11,555 points.
+  - Beyond 5 mm out, the misses stand at most 1.41 mm, apart from 1,228 at 6 mm up to 10.42 mm.
+  - Low misses of 0.6 to 1.6 mm also sit below the ear (1533 to 1540 mm) and above it (1600 to 1604 mm).
+- **right auricle.**
+  - 15,618 of its 16,424 misses lie within 4 mm outside its hull, with stand-offs up to 11.15 mm, densest at 1593 to 1596 mm.
+  - Beyond 4 mm out, the misses stand at most 2.49 mm.
+
+The bins separate two kinds.
+
+- **High misses, at the auricles' and the nose's own heights.** These lie within a few millimetres outside the region: the feature's own surface beyond a hull drawn through landmark curves inside its outline (the outer helix along the rim, the nostrils above the nose's lower overhang).
+- **Low misses, 0.4 to 2.3 mm, several millimetres outside.** These are what the bins do not settle. Around the lips they lie where the cutaneous lips run on beyond the vermilion border, which ends the region: below to the mentolabial fold, beside to the nasolabial folds. The reference carries those folds as landmarks (`crv_mentolabial_fold`, `crv_nasolabial_l`, `crv_nasolabial_r`, `crv_lip_philtrum_l`, `crv_lip_philtrum_r`), so this cause is anatomical rather than shown. Around the auricles the bins point to no landmark.
+
 ## Auricle set (f1, 2026-10-27, not yet run)
 
 The set waits for the head base's region check (the plan's section 2). Already prepared, outside the live source: the root loops and rims of `fitAuricleSet.ts` and one private rim-normal family, `ear-observations/rim-normal-v1.json`, 73 planes every 3 mm along both outer helices (36 left, 37 right) through the observation program. The family is the one the plan names; making it took three runs, each failing on tooling alone (an extensionless folder import under Node's type stripping, the Recovery package's type-only re-exports needing a typed compile, which `ttsx` gives with a project rooted at the repository and its plugins off), with no value of the set changed. The family was cut before the region check, so the set's root loops are prepared again once the check is settled.
