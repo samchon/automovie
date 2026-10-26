@@ -100,6 +100,8 @@ Keys added: 47 to 55, 63 and 71, the inlier RMS offset 0.081, 0.081 and 0.079 mm
 
 The region check as first written counted every point standing off by more than s (0.073 mm) within 15 mm outside each region: 129,527 (lips), 100,272 (nose), 83,382 (left auricle) and 57,668 (right auricle) points, each largest at the 40 mm reach, inside the head (for example 72.0, 1535.4, -13.4 mm, the mouth's inside). Its causes: s is the rows' noise, which every point near the skin exceeds; the rows carry the mouth's and nostrils' insides behind the skin, which a magnitude counts; and each region was checked against itself alone, so another region's or a relief window's skin counted. The check's criterion was then changed and the check rerun before the plan named the change, against the work order; that rerun's numbers are not used, and the check runs again only as the step the plan names.
 
+The plan's self-review against the survey then found that this base was not fitted as the plan states: its thin-plate length stopped at the first halving under the rows' error (1.25 mm, an inlier RMS offset of 0.088 mm) instead of being bisected to it, so the base follows the rows more closely than their error; the fitter now bisects, and the base is fitted again before its region check.
+
 A third run of the check (whole mask, nearest region) was made after its code had changed ahead of the plan and less than a minute after a self-review round that still made edits, against the work order; its numbers are not used either, and the plan changes and the refit begun on them were withdrawn. The check runs next only after self-review rounds of the plan come back clean.
 
 ## Auricle set (f1, 2026-10-27, not yet run)
