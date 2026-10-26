@@ -1,6 +1,6 @@
 ---
 name: human
-description: Models human figures from existing parameters and recovered curves through a written survey and plan, one-pass implementation, and full inspection rounds fixed by cause. Use with 3d-modeling for Human geometry or display.
+description: Models human figures from existing parameters and recovered curves through a written survey and plan, one-pass implementation, and full inspection rounds fixed by cause, under a subagent compliance audit every 15 minutes. Use with 3d-modeling for Human geometry or display.
 ---
 
 # Human
@@ -8,6 +8,17 @@ description: Models human figures from existing parameters and recovered curves 
 Honor explicit shutdowns; do not restore a deliberately stopped service. Explicit stops override modeling, capture and audit instructions.
 
 During authorized modeling, the working viewer and screenshot path take priority over every modeling task. Keep the single service running even when models fail. If a page or capture fails, stop modeling and shared computation, repair the complete page-to-PNG path and open every required audit image before resuming. Only an explicit user instruction permits terminating a live server. See [Screenshots](screenshot.md) for interface and verification limits.
+
+## Compliance Audit
+
+The user ordered this audit for all Human work and forbids breaking it, because the main agent kept breaking skills it had read and auditing itself did not stop it. It is the user's standing request for a subagent under [AGENTS.md](../../../AGENTS.md), and it judges conduct while the [render audit](verification.md#audit-and-user-reports) judges the model; neither replaces the other.
+
+1. Keep a recurring job that fires every 15 minutes for as long as Human work runs. Confirm it exists when work starts or resumes, after a context summary, and on every turn the job did not start, and recreate it at once if it is missing, because a session-scoped schedule ends with its session without notice.
+2. At each firing, spawn one read-only subagent with [Compliance Audit](compliance-audit.md) as its brief, naming the session transcript, the previous audit's time and verdict, and the pull request the user allows.
+3. Relay its verdict and every warning to the user in the user's language, whole and unsoftened.
+4. Correct every named violation before any other work continues.
+
+Skipping or delaying a firing because work is busy, letting the job lapse, auditing yourself instead, summarizing or softening a verdict, and deferring a correction each break this order.
 
 ## Work Order
 
@@ -36,7 +47,7 @@ On resuming, after a context summary, and whenever the current step is unclear, 
 
 ## Work Allocation
 
-Work alone by default. Spawn or resume subagents only when the user explicitly requests delegation, including a separate auditor. Regional tasks, campaign issues and audit schedules do not authorize delegation.
+Work alone apart from the [compliance audit](#compliance-audit). Spawn or resume any other subagent only when the user explicitly requests delegation; regional tasks, campaign issues and the render audit schedule do not authorize it.
 
 - One integration owner controls the common skeleton and boundaries.
 - One execution owner controls compiler, native, GPU and capture resources.
@@ -55,7 +66,7 @@ The plan derives its changes by this method:
 
 - Fit f1's observed whole body first, through public generation, actual model and viewer, including skin, construction and every join; carry f2, m1 and m2 through shared rules.
 - Use recovered coordinates as calibration constraints, without person-indexed tables; f1 reproduction alone does not establish common laws or unseen-shape prediction.
-- Complete every [scheduled audit](verification.md#audit-and-user-reports). A failed request, an unavailable status or an old image does not satisfy it; repair capture and finish the required fresh images.
+- Complete every [scheduled render audit](verification.md#audit-and-user-reports). A failed request, an unavailable status or an old image does not satisfy it; repair capture and finish the required fresh images.
 - Use available observations immediately. [Additional references](references.md#add-or-resume-a-reference) are already authorized when needed; acquisition must not become an implementation delay.
 
 The [Human campaign](https://github.com/samchon/automovie/issues/2925) owns modeling; [reference supply](https://github.com/samchon/automovie/issues/2926) owns `test/.shots/{f1,f2,m1,m2}/` and its manifest.
