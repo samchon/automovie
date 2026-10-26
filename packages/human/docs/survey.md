@@ -62,6 +62,7 @@ Seen in `packages/playground/.shots/campaign-r15` (all four people, master) and 
 | Abdominal band, horizontal gluteal fold, armpit lump, thigh line at the crotch ring | #2985 | Trunk and leg rows; horizontal contact rings at the crotch and axillae |
 | Bob fringe saw edge, back highlight strip, standing strands | #2987 | Hair card rules |
 | Shape-law residuals (neck length, m2's mandibular width) | — | Landmarks the face stretch itself moves |
+| Grey blotches over the back and top of the hair, hair flaring at the back (render audits AUDIT27 to AUDIT32, from `77b40b5b6a`) | #2987 | Not yet traced; the envelope's hanging-column data rises as `1 / cos` toward 75 degrees below the horizon, where a sum of Gaussians can oscillate and turn the shading normals; the inspection round traces it |
 
 Appearance goal stated by the user: women's skin reads milky.
 
