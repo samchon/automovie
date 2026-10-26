@@ -38,3 +38,21 @@ Findings, by cause:
 1. The ray stand-off cannot measure a hollow protrusion: observed points lie only on the outer skin, so a ray from the base under the nose crosses its empty inside, the run breaks after 2 mm, and the nose's 20 mm reads at most 7.5 mm; only its edges count. Rays grazing the throat under the chin read a long run instead. The stand-off must be measured from the observations onto the base, not along rays from it.
 2. Watershed basins over-segment: every noise maximum above c starts its own basin (up to 40 per auricle), so "one region per feature" fails whatever the scale.
 3. The stiff length barely matters from 20 to 60 mm; the starting smoothness sets the robust scale (s from 0.26 to 0.93 mm), which sets the threshold. The detection axis that matters is the starting smoothness.
+
+## Second protrusion detection set (f1, 2026-10-27)
+
+Run once as planned after the first set: starting smoothness 4, 6 and 8 cycles per section at a stiff length of 40 mm, the stand-off by projecting every observed point onto the stiff base (1,350,259 points), basins merged by dynamics, a feature the union of its classified basins, the rule one connected union per feature with converged peaks.
+
+| Cycles | Scale s / threshold c (mm) | Nose (basins, connected, cells, peak) | Lips | Left auricle | Right auricle | Other basins |
+| --- | --- | --- | --- | --- | --- | --- |
+| 4 | 0.88 / 4.12 | 7, split, 140, 9.5 | 1, connected, 227, 4.9 | 16, split, 605, 12.9 | 15, split, 716, 12.4 | 5: nasal dorsum 13 and 2 mm below eye level (7.2, 5.6 mm), three over the auricles' fronts |
+| 6 | 0.44 / 2.08 | 6, split, 266, 6.8 | 1, connected, 313, 4.1 | 12, split, 424, 10.8 | 10, split, 335, 10.6 | 18: nasal dorsum (6.0, 5.4, 3.3 mm), under the chin (2.2 to 2.3 mm, six), the auricles' fronts, the temples |
+| 8 | 0.27 / 1.28 | 7, split, 278, 4.7 | 1, connected, 316, 3.8 | 12, split, 669, 8.8 | 15, split, 661, 8.7 | 30: nasal dorsum (4.9, 4.9, 3.2 mm), under the chin (1.3 to 2.1 mm, ten), behind the jaw, the auricles' fronts and backs, the temples |
+
+No variant met the rule. Findings, by cause:
+
+1. A symmetric robust fit cannot hold a base under a feature: the base climbs onto every protrusion until what remains stands about the threshold over it, so the measured peak follows the threshold, not the feature (nose 9.5, 6.8, 4.7 mm and auricles 12.9, 10.8, 8.8 mm as c falls from 4.1 to 1.3 mm, about 2.3c to 3.7c), and no peak converges.
+2. The starting keys carry the features into the base: the thin-plate energy is on the correction from them, and sections smoothed to 4 to 8 cycles keep part of the nose and the auricles, which the stiff stage then holds.
+3. Fragmentation follows from 1: only the features' tops stand above s, separated by cells the base has absorbed, so merging by dynamics finds no pass between them (the nose in 6 or 7 pieces, each auricle in 10 to 16).
+4. The nose class window (20 to 60 mm below the eyes) misses the nasal dorsum, found 2 and 13 mm below eye level: the nose runs from the nasion, about eye level, to the subnasale.
+5. Small regions under the chin (1.3 to 2.3 mm, at the tilted rows' meeting with the throat) and over the temples appear as the threshold falls; they are the brow, cheek and chin module's or the known line under the chin.
