@@ -4,7 +4,11 @@ Apply these questions to the actual performance controller, accepted clip or sco
 
 ## Does the performance realize its actual source and timing? {#source-and-performance}
 
-Identify the actual source decisions, canonical identities and required action/result, or the standalone brief when no narrative parent exists. Trace the invoked controls and accepted motion to their actual shot use and time range. Establish source/target rig interpretation, units, frames, root trajectory, meaningful proportions and sound/caption dependencies where they affect that performance. Shared timing and state have one owner. A renamed clip, uninvoked function, copied angle sequence or altered outcome cannot establish the intended action. Explicit stylization is judged against its adopted promise rather than an invented realism requirement.
+Identify the actual source decisions, canonical identities and required action/result, or the standalone brief when no narrative parent exists. Trace the invoked controls and accepted motion to their actual shot use and time range. Establish source/target rig interpretation, units, frames, root trajectory, meaningful proportions and sound/caption dependencies where they affect that performance. Shared timing and state have one owner.
+
+Establish the required exchange, reaction and resulting state in a coherent space, with actual framing, screen-scale readability and intended audience knowledge. Continuing action preserves relevant pose, facing, attachment, possession and motion state across the actual camera/edit boundary; a new view cannot silently restart it.
+
+A renamed clip, uninvoked function, copied angle sequence or altered outcome cannot establish the intended action. Explicit stylization is judged against its adopted promise rather than an invented realism requirement.
 
 ## Do required contacts and constraints survive the performance? {#contacts-and-constraints}
 
