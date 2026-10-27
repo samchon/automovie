@@ -1,6 +1,6 @@
 # References
 
-Use the existing [reference-experiments program](../../../test/src/executable/reference-experiments/README.md) under [reference supply](https://github.com/samchon/automovie/issues/2926) for the [Human campaign](https://github.com/samchon/automovie/issues/2925). Acquisition is separate from independent Human generation.
+Use the existing [reference-experiments program](../../../test/src/executable/reference-experiments/README.md) for the [Human campaign](https://github.com/samchon/automovie/issues/2999). Acquisition is separate from independent Human generation.
 
 Honor [explicit stops](SKILL.md#human); documenting an acquisition or resume command does not authorize overriding them.
 
@@ -17,7 +17,7 @@ The retained cohort's address-validation command is:
 node --experimental-strip-types test/src/executable/reference-experiments/registerReferencePerson.mts test/reference-inputs/natural4/alias-supply-plan.json --plan
 ```
 
-`--plan` has passed read-only validation; it does not run native acquisition, Recovery or capture. Omit it only for an authorized supply/resume run by the [execution owner](SKILL.md#work-allocation). The original `supply-plan.json` retains historical addresses and must not be substituted for this alias plan.
+`--plan` has passed read-only validation; it does not run native acquisition, Recovery or capture. Omit it only for an authorized supply/resume run by the [Integration subagent](SKILL.md#subagents-by-body-part). The original `supply-plan.json` retains historical addresses and must not be substituted for this alias plan.
 
 ## Original And Recovery Photographs
 

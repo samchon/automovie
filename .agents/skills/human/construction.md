@@ -20,7 +20,7 @@ Diagnose original constraint feasibility separately from basis freedom, precisio
 
 ## Ownership And Scope
 
-- Keep skeleton, reference planes, global addresses and shared boundaries under the [integration owner](SKILL.md#work-allocation).
+- Keep skeleton, reference planes and global addresses under the [Integration subagent](SKILL.md#subagents-by-body-part), and each shared key with its owner there.
 - Cover every region and missing join: trunk, shoulder, neck, pelvis/buttocks, limbs/joints, hands/fingers, feet/toes, head/face, eyes/lids, ears/nose/mouth.
 - Track appearance, hair, brows, lashes, nails, underwear, editor and save/load explicitly. Rig/deformation and temporal work follow neutral shape.
 - Genitals and nipples remain outside modeled skin.

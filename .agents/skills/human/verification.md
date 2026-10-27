@@ -4,7 +4,7 @@ Run a complete inspection round after each implementation pass of the [work orde
 
 ## Actual Generated Form
 
-- Apply the [essential viewer rule](SKILL.md#human). Isolate heavy/failure-prone models in request/child execution; preserve the host and return explicit diagnostics. A model failure starts viewer recovery, not permission to skip inspection.
+- Keep the single viewer service running when models fail. Isolate heavy/failure-prone models in request/child execution; preserve the host and return explicit diagnostics. A model failure starts viewer recovery, not permission to skip inspection.
 - Bind source, emitted JS/maps, actual loaded imports, inputs, skin/construction and PNG bytes.
 - Trace actual API/root consumption; unused code, empty requests and successful fits do not prove changed geometry.
 - Separate acquisition, source-conditioned reproduction, common fit, integration, visual acceptance and prediction.
@@ -40,13 +40,13 @@ Record the cause with the finding and keep the PNGs that showed it with the roun
 
 ## Audit And User Reports
 
-During authorized active modeling, the main agent delivers these reports directly to the user. It inspects the subagent's evidence itself and keeps responsibility for the report; internal agent replies do not replace it. The [explicit stop](SKILL.md#human) suspends captures and automatic resumption.
+During authorized active modeling, the main agent delivers these reports directly to the user under [Supervision](SKILL.md#supervision). The [explicit stop](SKILL.md#human) suspends captures and automatic resumption.
 
 - Run this render audit only after the generated output changes, and show only the new frames. Never capture or send an unchanged model.
 - Use the subjects, directions, display conditions and delivery format the user requests. By default, capture f1 only: fresh whole front, side, top and back with `garment=0`, plus whole-body front, side and back construction. Keep PNGs local and open all seven. Specimen implementation still requires its own affected-population verification.
 - Extra details and cache hits do not replace the required whole-body set.
 - An audit reports state. A defect it shows joins the next inspection round's findings and starts no edit.
-- Check regional image inspection, actual code consumption and uncovered regions. Assign the capture under [Work Allocation](SKILL.md#work-allocation).
+- Check regional image inspection, actual code consumption and uncovered regions. The Integration subagent captures.
 - Preserve/open/display exact local PNGs under [Screenshot reporting](screenshot.md#user-facing-image-reports), with captured UTC, SHA and code/input/output binding.
 - Distinguish capture, local-save and report times. Report defects, unsupported scope and remaining comparisons.
 - An audit is complete only after every required fresh PNG is saved, its provenance checked and the local image opened. If any capture fails, suspend all modeling and shared computation, collect the failure evidence, repair the viewer/capture path and finish the entire audit before resuming. Failure notes and unavailable labels do not replace the images.
@@ -55,5 +55,4 @@ During authorized active modeling, the main agent delivers these reports directl
 ## Separate Qualifications
 
 - Check independent input changes, interactions and restoration only within the user's authorized experiment scope; deferred experiments stay unperformed.
-- Reproduction does not establish unseen-shape prediction.
 - Human and Human-viewer tests must not be written, restored or run, including renamed/relocated substitutes.

@@ -4,7 +4,7 @@ Honor the [explicit-shutdown rule](SKILL.md#human). One Vite service serves the 
 
 ## Startup
 
-The [execution owner](SKILL.md#work-allocation) starts the service from the repository root with Node 22.23.2 or later, only when service operation is authorized:
+The [Integration subagent](SKILL.md#subagents-by-body-part) starts the service from the repository root with Node 22.23.2 or later, only when service operation is authorized:
 
 ```powershell
 Set-Location packages/playground
