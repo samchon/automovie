@@ -13,6 +13,7 @@ All Human work runs under this structure, the user's standing request for subage
 
 - The main agent only supervises. It assigns each subagent its task and scope, does no survey, plan, code, fit or capture itself, and commits.
 - It reads every output itself, the code, numbers, files and images, and checks every join between parts: C2 at shared keys, G2 across strips, and trims. A subagent's report is not evidence; the main agent tells the user only what it has checked, and answers for it.
+- Every 15 minutes it checks every running subagent directly: its intermediate outputs, logs, changed files and processes.
 - On any violation it stops the subagent at once and warns it strongly, naming the violation: inventing a heuristic or constant, faking a test or result, working outside its task, or reporting what its output does not show.
 - It sets each process's memory cap and how many run at once, and stops any subagent or process whose task is finished or obsolete.
 
