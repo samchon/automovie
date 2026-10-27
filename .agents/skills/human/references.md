@@ -79,7 +79,7 @@ Needed additional references are authorized without repeated permission requests
 { "parameterProfile": "../../../packages/playground/src/human-parameters/f1.ts" }
 ```
 
-3. The execution owner runs the [existing entry](../../../test/src/executable/reference-experiments/README.md#add-or-resume-people) with Node 22.23.2 or later; this example requires the prepared new plan, not the retained cohort's resume plan:
+3. The Integration subagent runs the [existing entry](../../../test/src/executable/reference-experiments/README.md#add-or-resume-people) with Node 22.23.2 or later; this example requires the prepared new plan, not the retained cohort's resume plan:
 
 ```powershell
 node --experimental-strip-types test/src/executable/reference-experiments/registerReferencePerson.mts test/reference-inputs/new-f1/plan.json
