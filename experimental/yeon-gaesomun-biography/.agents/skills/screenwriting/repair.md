@@ -1,12 +1,18 @@
 # Repair and changed scope
 
-Identify the earliest owner, actual consumers, current pass and closed boundaries before changing the work. Repair facts, contradictions or unworkable design at that construction owner, then change downstream bodies only where they consume the changed value. Keep an expression-fidelity repair in its working edition against the unchanged frozen original.
+Identify the earliest owner, actual consumers, current pass and closed boundaries before changing the work. During construction, repair facts, contradictions or unworkable design at that construction owner yourself, then change downstream bodies only where they consume the changed value. Keep an expression-fidelity repair in its working edition against the unchanged frozen original.
+
+## Upstream defects
+
+A downstream construction author who finds a missing, conflicting or unrealizable decision, or a parent design that forces a named failure or blocks an adopted work promise, repairs the earliest construction owner's body locally and writes from that repair. Follow the selected [upstream questions](../contracts/story/index.md) to identify the exact owner, defect and corrected passage, tracing a settings cause through treatments rather than inventing a direct handoff. Reporting the defect while covering it with downstream expression leaves it for the next unit to inherit. Preserve closed evidence and reviews under [closed passes](#closed-passes).
+
+An expression pass keeps its frozen content unchanged: report an upstream defect instead of repairing it within naturalness. A separate construction repair uses this boundary; it cannot become a new frozen baseline for the ongoing expression pass.
 
 ## Cause rounds
 
 Every author reading, evidence correction, independent review and author response finishes its inspection round before edits. Use [independent classification](inspection.md) to cover the whole declared scope before choosing repairs, using the same selected questions as independent review. Record classifications and decisions in author notes or the review record.
 
-Group findings by cause and affected consumers. For an unnamed failure, find its whole-scope class too. Search repeated words and constructions as well as reading; a few examples cannot establish a class's extent. Repair the causes together, placing missing material where its action or explanation belongs rather than appending an answer at the end.
+Group findings by cause and affected consumers. For an unnamed failure, find its whole-scope class too. Search repeated words and constructions as well as reading; a few examples cannot establish a class's extent. Repair the causes together, placing missing material where its action or explanation belongs rather than appending an answer at the end. Before deleting a candidate, test whether it carries promised humor, a trap and its payoff, or a clue needed to recognize a person. Recompose that function without the failure when deletion would lose it; a shorter text can still weaken the work.
 
 After repair, compare changed passages together for the same failure in different words or a new uniform mold. Compare meaning with actual parents and any frozen original. Within the submitted pass, recheck dependent sentences, quotations, positions, counts, order, screen action, inherited state, exclusions and reasons for preservation; a surviving quotation alone does not keep an answer true. Complete related [answer corrections](evidence/writing.md) in the same repair. Keep unaffected bytes and historical judgments attributable to their actual snapshot; changes involving completed layers follow [closed-pass repair](repair.md#closed-passes).
 

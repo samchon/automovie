@@ -2,7 +2,7 @@
 
 Read the selected body's whole unit and preceding context as its recipient. Freeze reviewed construction in `docs/revision/<scripts|screenplay>` with matching relative paths and work in `docs/naturalness/<scripts|screenplay>`. Preserve file, H1/H2 identities and order. Keep the initial frozen construction for every repair in this cycle. For a further rewrite, preserve comparison inputs under the [cycle rules](method.md#revision-cycles), then replace only the commissioned working files. Write current notes and answers anew; keep old annotations with their old edition and preserve working files outside this scope.
 
-Write the complete working edition while its pass is disabled using the selected rewriting method. Inspect the whole result by cause, compare its meaning in both directions with the frozen construction, and finish author corrections before opening evidence. A construction defect returns to its first owner; it is not an expression edit to the frozen baseline.
+Write the complete working edition while its pass is disabled using the selected rewriting method. Inspect the whole result by cause, compare its meaning in both directions with the frozen construction, and finish author corrections before opening evidence. Report a construction defect at its first owner without correcting it during naturalness; a separate construction repair is not an expression edit to the frozen baseline.
 
 ## Transfer
 
