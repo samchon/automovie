@@ -622,3 +622,20 @@ One fault remains: **gonion**. On f1's mirror-symmetric mesh the two gonia fall 
 ## Identity measurement, sixth run (all four, 2026-10-27)
 
 `measureIdentity.ts`, brought to the plan as of commit 60b7ea551 (gonion and the mandibular width removed), ran on f1, f2, m1 and m2 from 17:19:42 to 17:20:08. All four finished with no field unmeasured, every other value as in the fifth run. The four `<alias>-identity.json` files it wrote under `.shots/claude-scratch/` are the sites step 2's fitters key at, kept until step 3 writes the identities into the playground's parameter files.
+
+## Step 2 fits on f1 (2026-10-27)
+
+The fitters as of commits `d38a56009` (the area centroid and the length-averaged mean radius, the reliefs' normals by the full offset) and `3d8e4679d` (the plan only) ran on f1 through `fits.ps1`, two jobs side by side from 18:16:37: A the trunk, the head base's refit, then the trunk's and the face's reliefs; B the palms and the feet, then the 24 limbs, digits and toes. Comments in `fitTrunkBase.ts`, `fitBodyBase.ts`, `fitTrunkReliefs.ts` and `HumanModuleFitting.ts`, and the eyes' outlines in `fitHeadReliefs.ts`, were edited at 18:22 while the trunk and the palms already ran; the comments change no run, and the face's relief fitter had not started.
+
+### Palms and feet
+
+| | palm_l | palm_r | foot_l | foot_r |
+| --- | --- | --- | --- | --- |
+| keys (station, mm) | wrist 510.9, radius 530.9, 546.9, 566.9, heads 584.0 | as palm_l | ankle 831.3, radius 859.3, 891.3, 919.3, 947.3, heads 977.2 | as foot_l |
+| rho, cap keys | 17.93, 1 | 22.84, 1 | 20.45, 1 | 20.45, 1 |
+| regions round the pole | middle | middle, ring | big, index, middle, ring toe | big, index, middle, ring toe |
+| cross-validated length | 1.03 (1.02 and 1.04 score higher) | 1.03 (as palm_l) | 1.01, the lowest tried | 1.01, the lowest tried |
+| inlier RMS, tr A | 0.332, 195.2 | 0.417, 200.5 | 0.527, 293.7 | 0.524, 293.8 |
+| check misses (count, largest) | thumb 96, 2.46; index 40, 1.62; middle 124, 4.11; ring 99, 6.34; pinky 806, 16.47 | thumb 97, 2.49; index 0; middle 149, 13.05; ring 667, 13.31; pinky 853, 14.17 | big 89, 2.97; index 446, 11.17; middle 4, 2.69; ring 278, 12.18; little 790, 12.04 | big 398, 11.15; index 97, 7.59; middle 18, 2.60; ring 98, 11.88; little 686, 9.81 |
+
+The palms' score has its least inside the bracket, at 1.03 mm; the feet's falls all the way to 1.01 mm, the bracket's lower end, so the criterion would take a still smaller length there and the 1 mm floor, not the data, ends the search. The inlier count `n` moves with the length (17,717 to 18,515 on palm_l), since each length's fit pairs and weighs its own inliers.
