@@ -50,5 +50,5 @@ Posed joints deform the composed rest shape: linear or dual-quaternion skinning 
 - Coons, S. A. Surfaces for computer-aided design of space forms. MIT Project MAC TR-41, 1967.
 - Gordon, W. J. Spline-blended surface interpolation through curve networks. Journal of Mathematics and Mechanics 18, 1969.
 - Bloomenthal, J. and Shoemake, K. Convolution surfaces. SIGGRAPH 1991.
-- Kavan, L., Collins, S., 탐찼ra, J. and O'Sullivan, C. Skinning with dual quaternions. I3D 2007.
+- Kavan, L., Collins, S., Žára, J. and O'Sullivan, C. Skinning with dual quaternions. I3D 2007.
 - Wang, W., Pottmann, H. and Liu, Y. Fitting B-spline curves to point clouds by curvature-based squared distance minimization. ACM Transactions on Graphics 25, 2006.

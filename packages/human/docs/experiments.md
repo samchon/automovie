@@ -708,3 +708,10 @@ Run 19:28:31 to 19:30:23, 1,944 observed points.
 
 - Keys (arc length, mm): root 0.0, radius 8.0, 16.0 and 20.0, `thumb_03` 25.0, the cap's end key 31.0 (family plane 38); rho 10.00 mm with two cap keys; family planes 22 to 38; 8 keys.
 - Cross-validation: the score falls to 1.01 mm, the bracket's lower end; inlier RMS 0.112 mm, tr A 100.2.
+
+### Trunk reliefs
+
+Run 19:24:18 to 19:32:50 over the trunk base above, 305,208 observed points; it stopped on the second relief.
+
+- breast_l: window 1171.3 to 1347.5 mm of station and 0.062 to 1.313 rad of phase (the region's box grown by 18 mm), net 35 by 31, axis (0.57, 0.00, 0.82); 12,490 projected heights. The score falls to 1.01 mm, the bracket's lower end, as the base fits' did; height RMS 3.223 mm, tr A 324.5; the largest control height 53.6 mm.
+- breast_r: the fit threw `Station 1463.3022049982123 is outside chain trunk` while projecting the observed points onto the base, before any length was tried, and the buttocks did not run; no relief file was written. The stack runs `prepare` (the projection loop), `along` (the Newton solve of `B(s, t) + h a = q`) and the base's ring evaluation: a Newton iterate started from a grid point inside the window, whose stations end at 1347.5 mm, stepped past the chain's last key, the neck ring at 1425.0 mm, and the base's evaluation throws there instead of returning, so a point the solve cannot reach stops the whole fit where the solve's contract (`null` without convergence) would drop it. The left breast's projection ran through the same solve without leaving the chain; which point diverged on the right was not traced.
