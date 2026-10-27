@@ -26,7 +26,7 @@ These notes hold literature, mathematical derivations and bounded reference obse
 
 ## Reference authority
 
-The reference outputs are `test/.shots/{f1,f2,m1,m2}/`, and `test/.shots/manifest.json` selects the exact members. Typed parameters are `packages/playground/src/human-parameters/{f1,f2,m1,m2}.ts`. [References](../../../.agents/skills/human/references.md) owns acquisition and alias relocation.
+The reference outputs are `test/.shots/{f1,f2,m1,m2}/`, and `test/.shots/manifest.json` selects the exact members. Typed parameters are `packages/playground/src/human-parameters/{f1,f2,m1,m2}.ts`. The [reference-experiments README](../../../test/src/executable/reference-experiments/README.md) owns acquisition and alias relocation.
 
 To read a Recovery capture:
 
