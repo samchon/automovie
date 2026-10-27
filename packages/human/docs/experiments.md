@@ -491,3 +491,105 @@ Stand as measured:
 - the hand's and the foot's breadths through the second (first) and fifth heads;
 - stomion at the lips' contact (the upper lip's lowest and the lower lip's highest point 0.3 to 0.4 mm apart);
 - the minimum frontal width at the temporal corners, 2 mm inside its range.
+
+## Identity measurement, fourth run (all four, 2026-10-27)
+
+`measureIdentity.ts`, brought to the plan as of commit 3db215126, ran on f1, f2, m1 and m2 in turn from 17:07:45 to 17:08:13, and all four finished. Values not listed are unchanged from the third run. m1's and m2's body values appear here for the first time.
+
+f1:
+- Lower thigh unmeasured on both sides: no patella apex below the thigh's midpoint.
+- Head:
+  - height 218.7; face height 118.3; mandibular width 129.3;
+  - nose 51.1 wide, 58.2 high, 34.5 protruding.
+- Points:
+  - menton (85.0, 1476.0) and gnathion (104.1, 1480.7);
+  - subnasale (105.8, 1541.2);
+  - the gonia at (42.4, 1534.0, 65.1) and (48.3, 1526.0, -63.8);
+  - the alaria at (109.2, 1544.0, ±25.5).
+- The leg root loop reaches 117.1 mm from the bone line and does not wind round the other femur's crossing.
+- The front reach from the patella mark to the thigh's midpoint, every 5 mm, rises without a fall from 54.2 to 104.8 mm.
+
+f2:
+- Lower thigh unmeasured, as f1's.
+- Head:
+  - height 220.7; face height 122.3; mandibular width 132.8;
+  - nose 53.4 wide, 56.4 high, 34.1 protruding.
+- Points:
+  - menton (100.4, 1474.8) and gnathion (110.8, 1478.7);
+  - subnasale (104.2, 1545.3);
+  - the gonia at 1538 and 1541 mm, 50.8 and 52.0 forward;
+  - the alaria at 1547.0, ±26.7.
+- The root loop reaches 124.9 mm and does not wind round the other femur.
+- The front reach rises without a fall from 53.1 to 104.6 mm.
+
+m1:
+- Body:
+  - stature 1846.2; cervicale 1612.1; suprasternale 1553.7; acromial height 1513.2;
+  - biacromial 455.0; span 1862.7; bicristal 334.3; hip joint centres 197.1; hip breadth 405.4;
+  - neck 390.0; chest 1044.1 by 366.0 by 255.3; underbust 943.5;
+  - waist 885.0 at 1219.1, 304.9 by 245.3; buttocks 1052.2, depth 263.7;
+  - craniovertebral angle 54.4 degrees.
+- Each arm: forearm 280.0; hand 179.0 by 96.8; palm 85.1; thumb 62.3; girths 377.0, 311.6 and 222.3.
+- Each leg:
+  - thigh 461.0; shank 421.2; ankle height 92.7; foot 290.1 by 108.8; calf 396.7 and ankle 238.5;
+  - the thigh and lower thigh unmeasured;
+  - the calf's plane at the knee joint itself (0.0 mm below it).
+- Head:
+  - length 190.1; cephalic index 90.6; circumference 594.2; height 234.2;
+  - face height 115.6; face width 179.2; mandibular width 167.2; minimum frontal width 114.4;
+  - eye fissures 31.0 by 8.5; intercanthal 33.0;
+  - nose 51.6 by 52.2 by 31.3; mouth 53.0 wide, vermilion heights 11.0 and 10.1;
+  - ears 64.8 and 65.4 long, 31.4 and 29.6 broad, 21.2 and 22.3 protruding.
+- Sites and points:
+  - eurion at 1749, below the brow ends, frontotemporale at 1754;
+  - menton (92.0, 1602.9) and gnathion (125.6, 1624.0); subnasale (115.7, 1688.2).
+- The root loop reaches 308.1 mm from the bone line and winds round the other femur's crossing.
+
+m2:
+- Body:
+  - stature 1858.0; cervicale 1636.6; suprasternale 1566.3; acromial height 1526.5;
+  - biacromial 472.7; span 1901.0; bicristal 350.6; hip joint centres 201.6; hip breadth 405.8;
+  - neck 424.0; chest 1141.0 by 385.4 by 288.1; underbust 1017.1;
+  - waist 916.1 at 1216.3, 311.9 by 258.1; buttocks 1088.8, depth 282.5;
+  - craniovertebral angle 51.2 degrees.
+- Each arm: forearm 278.8; hand 186.0 by 100.3; palm 88.2; thumb 63.0; girths 385.4, 311.7 and 222.7.
+- Each leg:
+  - thigh 458.4; shank 434.9; ankle height 89.8; foot 291.1 by 109.9; calf 422.3 and ankle 262.4;
+  - the thigh and lower thigh unmeasured.
+- Head:
+  - length 198.9; cephalic index 83.6; circumference 594.1; height 220.3;
+  - face height 125.3; face width 164.5; mandibular width 161.1; minimum frontal width 104.5;
+  - eye fissures 32.7 by 9.7; intercanthal 32.7;
+  - nose 55.6 by 60.0 by 42.9; mouth 57.7 wide, vermilion heights 8.7 and 10.8;
+  - ears 66.9 and 64.6 long, 32.0 and 31.0 broad, 20.3 and 24.4 protruding.
+- Sites and points:
+  - frontotemporale and eurion both at 1771;
+  - menton (84.8, 1623.4) and gnathion (124.1, 1635.1); subnasale (113.6, 1702.4);
+  - the gonia at (5.1, 1624.0, 65.2) and (45.3, 1695.0, -73.6).
+- The root loop reaches 310.3 mm and winds round the other femur's crossing.
+
+The bind skeleton's head joint lies 9.1, 1.5, 13.0 and 11.9 mm forward on the four, read for the gonion's finding.
+
+The faults, read from the geometry and the definitions:
+
+1. **The men's leg root loops.** They reach 308 to 310 mm from the bone line and wind round the other femur's crossing; the women's reach 117 to 125 mm and do not. So the men's root loop holds both thighs, joined across the crotch, and the thigh girth's plane, cut within 200 mm of the leg, closes none. The root rule tests only the bind axis's crossing, while the plan's loop stands apart from every other loop of its plane.
+2. **Suprapatella.** The front reach rises without a fall over the whole walk on all four. The skin there shows neither the patella's prominence nor the hollow above it, so the scan does not show suprapatella, a bony border, as it does not show the navicular tuberosity.
+3. **m1's calf girth.** It lies in the knee joint's own plane. The search for the shank's greatest girth starts at the knee, whose section on m1 outgirths the calf below it.
+4. **Menton.**
+   - It lies 19 to 39 mm behind gnathion on all four: f1 85.0 against 104.1, m2 84.8 against 124.1.
+   - The skin under the chin runs back nearly level to the throat, so the tangent's farthest turn toward the back can fall anywhere along it, up to the cervicomental angle.
+5. **Subnasale.**
+   - It lies 16 to 18 mm behind labiale superius on all four (f1 105.8 against 123.1), inside the nose.
+   - The midline cut between pronasale's and labiale superius's heights holds the nose's cavities behind the columella, and its farthest point inward from the chord lies there.
+6. **Alare.**
+   - On all four it lies at the range's lowest level, the nostrils' lowest point (f1 1544.0), 25 to 28 mm from the midline.
+   - Below its upper end the nasolabial fold runs down and outward away from the ala, so an arc bounded by the fold takes the cheek between them.
+7. **Gonion.**
+   - m2's two gonia lie 71 mm apart in height. One is at 5.1 mm forward, behind its head joint (11.9), on the neck's side, and the other at 45.3.
+   - f1's lie 8 mm apart on a mirror-symmetric mesh.
+   - Below the lobules the frontal outline is the neck's side, on the men as wide as the jaw, so the outline has no single corner. The jaw's angles found on the other sides lie 39 to 52 mm forward, ahead of every head joint.
+8. **Frontotemporale.**
+   - On all four it lies within 2 mm of its range's upper end, and m1's range is reversed, its eurion (1749) lying below its brow ends.
+   - The corner breadth narrows as far as the range lets it, so eurion's level is no bound on the forehead.
+
+Stand as measured: the acromia, the hip breadths, the hand's and the foot's breadths, stomion, the zygia, eurion, nasion, glabella and the remaining body fields.
