@@ -214,7 +214,11 @@ export namespace AutoMovieHumanBodyStrip {
     const outward: number = root.end === "bottom" ? -1 : 1;
     const A: V = surface(appendage, end, u);
     const [a1, a2] = station(appendage, end, u, outward);
-    const [s, t, ds, dt] = AutoMovieHumanSplineCurve.evaluate(root.root, root.root.length / 2, u);
+    const [s, remainder, ds, dr] = AutoMovieHumanSplineCurve.evaluate(root.root, root.root.length / 2, u);
+    // A loop winding round the base's cap pole turns its phase once.
+    const winding: number = root.winding ?? 0;
+    const t: number = remainder + winding * u;
+    const dt: number = dr + winding;
     const C: V = surface(base, s, t);
 
     // Chart direction across the loop, away from its inside: the tangent

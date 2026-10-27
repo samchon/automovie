@@ -19,26 +19,65 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * this module samples it in rings and zips its base edge to the hole.
  */
 export namespace AutoMovieHumanBodyRoots {
-  /** Chart point and derivative of a root loop at loop parameter u. */
+  /**
+   * Chart point and derivative of a root loop at loop parameter u; with a
+   * winding, the phase turns once with u round the base's cap pole.
+   */
   export function point(
     root: readonly number[],
     u: number,
+    winding: number = 0,
   ): [number, number, number, number] {
-    return AutoMovieHumanSplineCurve.evaluate(root, root.length / 2, u);
+    const [s, t, ds, dt] = AutoMovieHumanSplineCurve.evaluate(root, root.length / 2, u);
+    return [s, t + winding * u, ds, dt + winding];
   }
 
   /** The loop sampled at n uniform parameters, `[s, t]` per sample. */
   export function polygon(
     root: readonly number[],
     n: number,
+    winding: number = 0,
   ): [number, number][] {
     return Array.from({ length: n }, (_: unknown, i: number): [number, number] => {
       const p: [number, number, number, number] = point(
         root,
         (2 * Math.PI * i) / n,
+        winding,
       );
       return [p[0], p[1]];
     });
+  }
+
+  /**
+   * Whether a chart point lies beyond a loop winding round the cap pole,
+   * toward the pole (`toward` +1 for a top pole, -1 for a bottom one): its
+   * station past the loop's station at its phase, interpolated between the
+   * loop's samples ordered by phase.
+   */
+  export function beyond(
+    loop: readonly [number, number][],
+    s: number,
+    t: number,
+    toward: number,
+  ): boolean {
+    return toward * (s - station(loop, t)) > 0;
+  }
+
+  /** A winding loop's station at a phase, between its samples ordered by phase. */
+  export function station(loop: readonly [number, number][], t: number): number {
+    const sorted: [number, number][] = loop
+      .map((p: [number, number]): [number, number] => [wrap(p[1]), p[0]])
+      .sort((a: [number, number], b: [number, number]): number => a[0] - b[0]);
+    const x: number = wrap(t);
+    let k: number = sorted.findIndex((p: [number, number]): boolean => p[0] > x);
+    if (k < 0) k = 0;
+    const b: [number, number] = sorted[k]!;
+    const a: [number, number] = sorted[(k - 1 + sorted.length) % sorted.length]!;
+    let span: number = b[0] - a[0];
+    let off: number = x - a[0];
+    if (span <= 0) span += 2 * Math.PI;
+    if (off < 0) off += 2 * Math.PI;
+    return a[1] + (b[1] - a[1]) * (span > 0 ? off / span : 0);
   }
 
   /**
@@ -98,14 +137,19 @@ export namespace AutoMovieHumanBodyRoots {
   ): void {
     // The loop's turning sense in the (phase, station) plane: the outward
     // normal is its tangent turned clockwise for a counter-clockwise loop.
+    // A loop winding round the cap pole has its hole toward the pole, so
+    // its outward side runs away from the pole's end.
+    const winding: number = root.winding ?? 0;
     const sense: number =
-      polygonArea(
-        AutoMovieHumanBodyRoots.polygon(root.root, 64).map(
-          (p: [number, number]): [number, number] => [p[1], p[0]],
-        ),
-      ) >= 0
-        ? 1
-        : -1;
+      winding !== 0
+        ? winding * (base.pole?.end === "bottom" ? -1 : 1)
+        : polygonArea(
+              AutoMovieHumanBodyRoots.polygon(root.root, 64).map(
+                (p: [number, number]): [number, number] => [p[1], p[0]],
+              ),
+            ) >= 0
+          ? 1
+          : -1;
 
     // Columns: the strip's control rows at each end ring vertex's phase,
     // and the loop's chart point there.
@@ -113,7 +157,7 @@ export namespace AutoMovieHumanBodyRoots {
       AutoMovieHumanBodyStrip.controls(base, appendage, root, u, sense),
     );
     const charts: [number, number][] = phases.map((u: number): [number, number] => {
-      const p: [number, number, number, number] = point(root.root, u);
+      const p: [number, number, number, number] = point(root.root, u, winding);
       return [p[0], p[1]];
     });
 
@@ -136,9 +180,9 @@ export namespace AutoMovieHumanBodyRoots {
         AutoMovieHumanLoftMesh.band(mesh, rings[k]!, rings[k + 1]!),
       );
 
-    // The base's hole edge to the loop.
+    // The base's hole edge to the loop, in phase order round a cap pole.
     oriented(mesh, reference, (): void =>
-      seam(mesh, rings[STEPS]!, charts, hole, holeCharts),
+      (winding !== 0 ? phaseSeam : seam)(mesh, rings[STEPS]!, charts, hole, holeCharts),
     );
   }
 
@@ -375,6 +419,75 @@ function seam(
       i++;
     } else {
       mesh.indices.push(inner[i % n]!, outerVertices[j % m]!, outerVertices[(j + 1) % m]!);
+      j++;
+    }
+  }
+}
+
+/**
+ * Zipper between two loops winding once round a cap pole: both put in
+ * rising phase, the outer started at the vertex nearest the inner's first
+ * in phase, then merged by the phase each has turned since its start.
+ */
+function phaseSeam(
+  mesh: AutoMovieHumanLoftMesh.IContext,
+  inner: readonly number[],
+  innerCharts: readonly [number, number][],
+  outer: readonly number[],
+  outerCharts: readonly [number, number][],
+): void {
+  const rising = (charts: readonly [number, number][]): boolean =>
+    charts.reduce((a: number, p: [number, number], i: number): number => {
+      const q: [number, number] = charts[(i + 1) % charts.length]!;
+      return a + Math.atan2(Math.sin(q[1] - p[1]), Math.cos(q[1] - p[1]));
+    }, 0) >= 0;
+  let innerVertices: number[] = [...inner];
+  let I: [number, number][] = [...innerCharts];
+  if (!rising(I)) {
+    innerVertices = innerVertices.reverse();
+    I = I.reverse();
+  }
+  let outerVertices: number[] = [...outer];
+  let O: [number, number][] = [...outerCharts];
+  if (!rising(O)) {
+    outerVertices = outerVertices.reverse();
+    O = O.reverse();
+  }
+  const turn = (a: number, b: number): number => {
+    const d: number = (b - a) % (2 * Math.PI);
+    return d < 0 ? d + 2 * Math.PI : d;
+  };
+  let first: number = 0;
+  let best: number = Infinity;
+  O.forEach((p: [number, number], i: number): void => {
+    const d: number = Math.min(turn(I[0]![1], p[1]), turn(p[1], I[0]![1]));
+    if (d < best) {
+      best = d;
+      first = i;
+    }
+  });
+  O = [...O.slice(first), ...O.slice(0, first)];
+  outerVertices = [...outerVertices.slice(first), ...outerVertices.slice(0, first)];
+  // Phase turned from each loop's start, closing at a whole turn.
+  const turned = (loop: [number, number][]): number[] => {
+    const out: number[] = [0];
+    for (let i: number = 1; i < loop.length; i++) out.push(out[i - 1]! + turn(loop[i - 1]![1], loop[i]![1]));
+    out.push(2 * Math.PI);
+    return out;
+  };
+  const fi: number[] = turned(I);
+  const fo: number[] = turned(O);
+  let i: number = 0;
+  let j: number = 0;
+  const n: number = I.length;
+  const m: number = O.length;
+  while (i < n || j < m) {
+    const advanceInner: boolean = j >= m || (i < n && fi[i + 1]! <= fo[j + 1]!);
+    if (advanceInner) {
+      mesh.indices.push(innerVertices[i % n]!, outerVertices[j % m]!, innerVertices[(i + 1) % n]!);
+      i++;
+    } else {
+      mesh.indices.push(innerVertices[i % n]!, outerVertices[j % m]!, outerVertices[(j + 1) % m]!);
       j++;
     }
   }

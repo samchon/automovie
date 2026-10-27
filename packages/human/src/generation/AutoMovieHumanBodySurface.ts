@@ -439,7 +439,7 @@ export namespace AutoMovieHumanBodySurface {
       const list = context.roots.get(appendage.base) ?? [];
       list.push({
         appendage,
-        loop: AutoMovieHumanBodyRoots.polygon(appendage.root, LOOP),
+        loop: AutoMovieHumanBodyRoots.polygon(appendage.root, LOOP, appendage.winding),
       });
       context.roots.set(appendage.base, list);
     }
@@ -641,10 +641,14 @@ export namespace AutoMovieHumanBodySurface {
         );
     }
 
-    // Poles close the ends that no event owns; an appendage keeps its root
+    // Poles close the ends that no event owns, but for a pole a root winds
+    // round, whose cells the root left out; an appendage keeps its root
     // ring for its strip.
-    if (bottom.kind === "pole") pole(context, target, "bottom", rings[0]!);
-    if (top.kind === "pole")
+    const wound = (end: "bottom" | "top"): boolean =>
+      target.pole?.end === end &&
+      (context.roots.get(target.name) ?? []).some((r): boolean => r.appendage?.winding !== undefined);
+    if (bottom.kind === "pole" && !wound("bottom")) pole(context, target, "bottom", rings[0]!);
+    if (top.kind === "pole" && !wound("top"))
       pole(context, target, "top", rings[rings.length - 1]!);
     if (bottom.kind === "root")
       context.ends.set(target.name, { ring: rings[0]!, phases: ringPhases[0]! });
@@ -679,8 +683,14 @@ export namespace AutoMovieHumanBodySurface {
       hole = { cells: [], charts: new Map() };
       context.holes.set(target.name, hole);
     }
+    // A loop winding round the cap pole leaves out the chart beyond it.
+    const toward: number = target.pole?.end === "bottom" ? -1 : 1;
     const inside = (s: number, t: number): boolean =>
-      roots.some((r): boolean => AutoMovieHumanBodyRoots.inside(r.loop, s, t));
+      roots.some((r): boolean =>
+        r.appendage?.winding !== undefined
+          ? AutoMovieHumanBodyRoots.beyond(r.loop, s, t, toward)
+          : AutoMovieHumanBodyRoots.inside(r.loop, s, t),
+      );
     const n: number = lower.length;
     for (let i: number = 0; i < n; i++) {
       const j: number = (i + 1) % n;
@@ -725,7 +735,8 @@ export namespace AutoMovieHumanBodySurface {
     const [edge, charts] = holeEdge(
       context,
       appendage.base,
-      AutoMovieHumanBodyRoots.polygon(appendage.root, LOOP),
+      AutoMovieHumanBodyRoots.polygon(appendage.root, LOOP, appendage.winding),
+      appendage.winding !== undefined,
     );
     AutoMovieHumanLoftMesh.group(context.mesh, `${appendage.chain}/root`);
     AutoMovieHumanBodyRoots.join(
@@ -798,12 +809,15 @@ export namespace AutoMovieHumanBodySurface {
 
   /**
    * The hole a base left round a loop: the closed edge of its left-out
-   * cells nearest the loop, as vertices and their chart points.
+   * cells nearest the loop, as vertices and their chart points; for a loop
+   * winding round the cap pole, the edge ring whose mean station is the
+   * loop's nearest.
    */
   function holeEdge(
     context: IContext,
     baseName: string,
     loopPolygon: [number, number][],
+    winding: boolean = false,
   ): [number[], [number, number][]] {
     const hole = context.holes.get(baseName);
     if (hole === undefined) throw new Error(`Base ${baseName} left no hole`);
@@ -857,14 +871,19 @@ export namespace AutoMovieHumanBodySurface {
       [0, 0],
     );
     const distance = (loop: number[]): number =>
-      loop.reduce((a: number, v: number): number => {
-        const [s, t] = hole.charts.get(v)!;
-        const dt: number = Math.atan2(
-          Math.sin(t - centre[1]),
-          Math.cos(t - centre[1]),
-        );
-        return a + Math.hypot(s - centre[0], dt * 100);
-      }, 0) / loop.length;
+      winding
+        ? Math.abs(
+            loop.reduce((a: number, v: number): number => a + hole.charts.get(v)![0], 0) / loop.length -
+              centre[0],
+          )
+        : loop.reduce((a: number, v: number): number => {
+            const [s, t] = hole.charts.get(v)!;
+            const dt: number = Math.atan2(
+              Math.sin(t - centre[1]),
+              Math.cos(t - centre[1]),
+            );
+            return a + Math.hypot(s - centre[0], dt * 100);
+          }, 0) / loop.length;
     const edge: number[] | undefined = loops.sort(
       (a: number[], b: number[]): number => distance(a) - distance(b),
     )[0];

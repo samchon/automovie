@@ -77,9 +77,18 @@ export namespace IAutoMovieHumanBodyCalibration {
      * Root loop in the base's chart as a periodic cubic B-spline of M
      * control points `[s_0 .. s_{M-1}, t_0 .. t_{M-1}]`: station in mm and
      * phase in radians, the phases continuous (unwrapped) round the loop.
-     * Either turning sense is accepted.
+     * Either turning sense is accepted. With a winding, the phase is the
+     * winding times the loop parameter plus this remainder.
      */
     root: number[];
+
+    /**
+     * Turn of the root loop's phase round the base's cap pole, for a loop
+     * that winds once round it (a digit's or toe's on the palm's or the
+     * sole's cap): the base is left out beyond the loop toward the pole.
+     * Absent means none: the loop encloses its region of the chart.
+     */
+    winding?: 1 | -1;
 
     /**
      * Cross-derivative length of the strip at both edges as a share of the
