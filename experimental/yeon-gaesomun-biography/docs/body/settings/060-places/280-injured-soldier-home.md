@@ -1,21 +1,21 @@
-# 부상병의 집과 문답 자리
+# The injured soldier’s home and conversation space
 
-정전 안내: [이 대상의 위치](../outline/index.md#060-places--280-injured-soldier-home).
+Canon guide: [Location of this subject](../outline/index.md#060-places--280-injured-soldier-home).
 
-## 부상병의 집과 문답 자리 {#injured-soldier-home}
+## The injured soldier’s home and conversation space {#injured-soldier-home}
 
-**정의·범위**
+**Definition and scope**
 
-629년 [발목을 다친 가문 병사](../040-agents/119-yeon-house-soldiers.md#injured-house-soldier)의 집에서 쓰는 진입과 문답 공간이다. 평양 남쪽 거리에서 서쪽으로 약20미터 들어간 폭2미터의 흙 골목에 남쪽 출입문을 둔다. 위치·치수·재료·배치는 고대 주거지 발굴로 확인한 값이 아니라 고정 방문을 구현하기 위한 작가의 창작이다. 다른 가구의 집이나 연씨의 귀족 거처와 같은 건물은 아니다.
+This is the entrance and conversation space used at the home of the [family soldier with an injured ankle](../040-agents/119-yeon-house-soldiers.md#injured-house-soldier) in 629. Its south entrance lies on a two-meter-wide dirt alley about 20 meters west from Pyongyang’s southern street. Location, dimensions, materials, and layout are author inventions for the fixed visit, not archaeological measurements. It is not another household’s home or the Yeon noble residence.
 
-**확정 내용**
+**Established facts**
 
-남쪽의 폭0.9미터·높이1.8미터 나무 한짝문을 지나면 동서4미터·남북3미터의 생활방이다. 문턱은 바닥보다10센티미터 높고 별도 계단은 없다. 북쪽 벽을 따라 길이1.8미터·폭0.8미터의 짚자리를 동서로 놓아 부상병이 다리를 펴고 쉴 수 있다. 그 남쪽에는 폭1미터 이상의 빈 바닥을 남긴다. 방문자는 이쪽에서 서거나 앉아 가까이 문답할 수 있고, 병사가 다친 왼발을 딛고 문까지 마중해야 하는 평면은 아니다. 막대와 접은 천은 짚자리 옆 손이 닿는 곳에 둘 수 있다. 실제 자세와 이동은 장면이 정한다.
+Past the south single wooden door, 0.9 meters wide and 1.8 high, is a living room four meters east–west by three north–south. Its threshold is 10 centimeters above the floor, with no separate step. A 1.8-by-0.8-meter straw mat lies east–west along the north wall so the injured soldier can rest with legs extended. At least a meter of clear floor remains south of it for a visitor to stand or sit nearby and converse; the plan does not require him to meet the visitor at the door on his injured left foot. A stick and folded cloth can lie within reach beside the mat. The scene determines actual posture and movement.
 
-한 층의 목재 뼈대에 회갈색 흙을 바른 벽과 짙은 갈색 초가지붕을 쓰며, 바닥에서 보 아래까지2.1미터다. 나무 문턱과 기둥 아래는 손때와 흙으로 짙고, 다진 흙바닥 위 짚자리는 가장자리가 닳았다. 동쪽 벽의 창은 폭0.5미터·높이0.4미터, 창턱은 바닥에서1미터이며 나무 덧문으로 여닫는다. 낮에는 남문과 동창의 열린 범위로 빛이 들고, 덧문과 문이 닫히면 방 안이 어두워진다. 어두운 시간의 광원은 서쪽 벽 받침에 놓는 작은 등잔 하나다. 창이 밤에도 밝거나 등잔이 켜지지 않았는데 얼굴 전체를 밝히는 공간으로 쓰지 않는다.
+A single-story wooden frame has gray-brown earthen walls and dark brown thatch, 2.1 meters from floor to beam underside. Threshold and pillar bases are dark with handling and dirt; the straw mat on packed earth is worn at the edges. The east window is 0.5 meters wide and 0.4 high, its sill one meter above the floor, with a wooden shutter. Daylight enters through open south door and east window; the room darkens when both close. The only light in darkness is a small lamp on a west-wall support. Do not make the window bright at night or light the whole face when the lamp is unlit.
 
-문을 열면 가까운 골목의 발소리와 남쪽 거리의 수레 소리가 들어온다. 문을 닫으면 그 소리는 약해지고, 방 안 가까운 두 사람의 낮은 말은 서로 들을 수 있다. 골목 너머 사람의 문답까지 또렷이 들을 수 있는 조건은 아니다. 좁은 생활방과 쉬는 자리는 가구가 일과 휴식을 함께 감당하는 규모이며, 노동 손실을 새 재산이나 넓은 손님방으로 해결하지 않는다.
+Opening the door admits nearby alley footsteps and carts on the southern street. Closing it weakens them, while two people close inside can hear low speech. Conversation beyond the alley is not distinctly audible. The narrow living room and rest place fit a household managing work and rest together; do not solve lost labor with new wealth or a large guest room.
 
-**조건·한계**
+**Conditions and limits**
 
-이 단원은 집의 다른 방·가족의 별도 출연·새 방문 결과를 정하지 않는다. [직접 방문과 담담한 문답](../../../instructions/011-inherited-scene-constraints.md#injured-soldier-encounter)의 고정 효과는 지시011, 병사의 부상·생계·말씨는 인물119가 소유한다. 방문 시각·문과 덧문의 실제 상태·사람의 행동과 공개 순서는 treatments와 scripts가 정한다.
+This unit does not establish other rooms, separate family appearances, or new outcomes of the visit. Instruction 011 owns the fixed effect of [the direct visit and quiet exchange](../../../instructions/011-inherited-scene-constraints.md#injured-soldier-encounter); character 119 owns the soldier’s injury, livelihood, and speech. Treatments and scripts decide time, actual door and shutter states, actions, and disclosure order.

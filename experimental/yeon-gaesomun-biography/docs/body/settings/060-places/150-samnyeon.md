@@ -1,19 +1,19 @@
-# 삼년산성
+# Samnyeonsanseong
 
-정전 안내: [이 대상의 위치](../outline/index.md#060-places--150-samnyeon).
+Canon guide: [Location of this subject](../outline/index.md#060-places--150-samnyeon).
 
-## 삼년산성 {#samnyeon}
+## Samnyeonsanseong {#samnyeon}
 
-**정의·범위**
+**Definition and scope**
 
-삼년산성은 신라가 오랫동안 쌓고 고쳐 쓴 견고한 산성의 대표 사례다. 470년 축조와486년 수리가 전해지며 돌벽·문·물 저장 시설을 갖춘다. 고구려만을 막으려고 처음 세웠다고 단정하지 않는다. 남쪽으로 밀고 내려가는 원정군이 성 하나를 무시해도 그 안의 군사와 지역 통제가 남는다는 조건을 보여 준다.
+Samnyeonsanseong is a representative example of a strong mountain fortress long built and repaired by Silla. Construction in 470 and repairs in 486 are recorded; it has stone walls, gates, and water storage. Do not assert it was first built solely against Goguryeo. It shows that even if an expedition pushing south ignores a fortress, its soldiers and control over the region remain.
 
-**확정 내용**
+**Established facts**
 
-납작한 돌을 방향을 달리해 겹쳐 쌓은 벽, 지형에 따라 다른 높이와 문 형식, 성 안의 연못과 우물이 조형의 근거다. 현존 유구에는 후대 수리가 섞여 있으며 둘레도 안내 자료에 차이가 있으므로, 단일 치수를 고대 원형의 실측값으로 고정하지 않는다. 작품의 성문 접근길은 오르막이고 문 앞에서 대열의 폭이 줄어든다. 공격자가 방패를 들고 그 길을 오르는 동안 성 위의 사수는 아래를 향해 쏠 수 있다. 성 밖에서 보이는 연못이나 우물은 없으며, 공격자는 물 사정을 탐문하거나 포로의 진술로 알아야 한다.
+Its visual basis is walls of flat stones layered in alternating directions, heights and gate forms varying with terrain, and ponds and wells inside. Surviving remains include later repairs and guides differ on the circumference, so do not fix one dimension as a measurement of the ancient original. In the work the gate approach rises uphill and the formation narrows before the gate. Archers above can shoot down while attackers climb with shields. No pond or well is visible from outside; attackers must inquire or learn the water situation from prisoners.
 
-이 성을 온달이 실제로 공격했다고 정하지 않는다. 온달의 아단성 전사와 신라의 산성 방어 능력은 서로 다른 근거이며, 삼년산성은 당시 가능한 방어 기반의 사례다. 성벽을 부수는 장비·식량·구원군을 막을 병력까지 없는 제한 원정이 한계를 만나는 이유에 해당한다.
+Do not establish that Ondal actually attacked this fortress. His death at Adanseong and Silla’s mountain-fortress defense capacity rest on different evidence; Samnyeonsanseong exemplifies the defensive infrastructure possible at the time. It explains why a limited expedition without wall-breaking equipment, food, or forces to block relief meets its limits.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [국가유산 디지털 서비스, 보은 삼년산성](https://digital.khs.go.kr/heri/heriDetail.do?ctptNo=1333302350000&ctptUid=13898859675826300853).
+Sources: [Boeun Samnyeonsanseong, National Heritage Digital Service](https://digital.khs.go.kr/heri/heriDetail.do?ctptNo=1333302350000&ctptUid=13898859675826300853).

@@ -1,19 +1,19 @@
-# 문무왕이 이어받은 전쟁
+# The war King Munmu inherits
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--070-munmu).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--070-munmu).
 
-## 문무왕이 이어받은 전쟁 {#munmu}
+## The war King Munmu inherits {#munmu}
 
-**정의·범위**
+**Definition and scope**
 
-문무왕은 김춘추의 협력을 이어받아 백제 부흥 세력과 고구려에 맞서면서 당의 목표가 신라의 생존과 끝까지 같지 않음을 겪는 왕이다. 661년 왕위를 이어받으며 660년에는 법민으로 종군한다. 백제 정복의 재위 군주로 앞당겨 놓지 않는다.
+King Munmu continues Kim Chunchu’s cooperation, fighting the Baekje restoration forces and Goguryeo while discovering that Tang’s objectives do not remain identical to Silla’s survival. He inherits the throne in 661 and campaigns as Beopmin in 660. Do not place him on the throne during Baekje’s conquest.
 
-**확정 내용**
+**Established facts**
 
-창작 모습은 키 172센티미터, 긴 팔과 반듯한 등, 부친보다 가늘고 긴 얼굴이다. 갈색 눈과 곧은 검은 눈썹, 길고 높은 코와 얇은 입술, 옅은 황갈색 피부를 가진다. 검은 머리를 묶고 짧은 수염을 고르게 기른다. 짙은 붉은 갈색 옷과 검은 띠, 금속 관식을 쓴다. 목소리는 중간 높이의 맑고 단단한 소리다. 좋은 결론 뒤에도 남은 위험을 묻고, 위임할 때는 맡길 범위와 사후 보고를 함께 정한다.
+His invented appearance is 172 centimeters tall, with long arms, a straight back, and a thinner, longer face than his father. He has brown eyes, straight black eyebrows, a long high nose, thin lips, and light tawny skin. His black hair is tied and his short beard evenly kept. He wears dark reddish-brown clothes, a black sash, and a metal crown ornament. His voice is clear and firm in the middle register. Even after a good conclusion, he asks about remaining risks; when delegating, he sets both the scope and subsequent report.
 
-662년 당이 정복을 멈추면 신라는 당장 홀로 대규모 고구려 정복을 추진하지 않는 작품 선택을 한다. 남쪽에는 아직 부흥 세력이 있고 수송의 손실도 있다. 663년 백강에서 그 위협을 제거한 뒤에도 고구려가 망하지 않았다는 사실이 다음 국력을 계산하는 조건이다. 뒤의 고구려 내전은 새로운 기회를 만든다. 이런 변화는 왕의 본래 성품이 매번 뒤집혀 생기는 것이 아니다.
+The work chooses that when Tang stops conquest in 662, Silla does not immediately pursue a large-scale conquest of Goguryeo alone. Restoration forces remain in the south, and transport has incurred losses. Even after removing that threat at Baekgang in 663, the fact that Goguryeo has not fallen conditions the calculation of strength for the next campaign. The later Goguryeo civil war creates a new opportunity. These changes do not arise from repeated reversals of the king’s underlying character.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『삼국사기』 문무왕 즉위와 660년 법민의 종군](https://db.history.go.kr/ancient/level.do?levelId=sg_006r_0020_0010).
+Sources: [King Munmu’s accession and Beopmin’s 660 campaign, Samguk Sagi](https://db.history.go.kr/ancient/level.do?levelId=sg_006r_0020_0010).

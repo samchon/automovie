@@ -1,27 +1,23 @@
-# 험로의 야영지
+# A winter camp on the difficult route
 
-정전 안내: [이 대상의 위치](../outline/index.md#060-places--210-winter-camp).
+Canon guide: [Location of this subject](../outline/index.md#060-places--210-winter-camp).
 
-## 험로의 야영지 {#winter-camp}
+## A winter camp on the difficult route {#winter-camp}
 
-**정의·범위**
+**Definition and scope**
 
-겨울 수송대는 임시 생활 공간인 야영지에서 쉬고 다시 출발해 군량을 전달해야 한다. 작품의 대표 야영지는 산길 옆 작은 골짜기로 정한 창작 공간이다. 수송대 전체 3만 명 가운데 찬오가 속한 약 2천 명의 운반·호위 부대가 이곳에서 쉰다. 나머지 부대는 산길의 앞뒤로 떨어진 야영 구역에 나뉘어 머문다.
+The winter transport party must rest at temporary camps and depart again to deliver provisions. The representative camp is an invented small valley beside the mountain road. About 2,000 carriers and escorts, including Chano, rest here out of the full 30,000; remaining units stay in separated camp areas ahead and behind along the road.
 
-**확정 내용**
+**Established facts**
 
+Chano’s unit rests on the valley shoulder in a 200-meter east–west by 150-meter north–south area. A watercourse lies about 50 meters downhill south; the road and guard position are 30 meters uphill north. Water requires descending, but loads carried down must be brought back up, so not all are placed at the water. Animals and baggage are east, sleeping places and small fires west, with the road center clear for the next column. Sharing narrow space with pack animals reduces sleeping area.
 
-찬오의 부대가 쉬는 곳은 골짜기 어깨의 동서 200미터·남북 150미터 구역이다. 남쪽으로 약 50미터 내려가면 물길이 있고, 북쪽 위 30미터 지점에는 길과 경계 자리가 있다. 물을 얻으려면 길에서 내려가야 하지만, 아래로 옮긴 짐은 다시 위로 올려야 한다. 그래서 모든 짐을 물가까지 내려놓지는 않는다. 짐승과 짐은 동쪽에, 사람의 잠자리와 작은 불은 서쪽에 두고 길 가운데는 다음 대열이 지나갈 수 있도록 비운다. 사람과 운반 짐승이 좁은 자리를 함께 차지하면 잠잘 면적이 줄어든다.
+A representative sleeping area is 20 by 15 meters, with Chano and Guidol near its northern end. People put mats and cloth on cleared snow and lie close together. Ridge sentries face wind; the fires below are not immediately visible beyond the mountain. At night moonlight and firelight are screened on the ridge, so only nearby faces show. Relief escorts and messengers carry orders between camps ahead and behind. These areas and dimensions are work-specific.
 
+Even several fires cannot dry everyone’s clothing at once. Once nearby dry wood is used, people must go farther for fuel. Taking wet shoes off makes putting them on again painful. Even if Chano is removed from carrying duty, others must feed and protect him. Whether the injured are abandoned or carried changes column speed.
 
-대표 잠자리 구역은 20미터×15미터이며 찬오와 귀돌은 그 북쪽 끝 가까이에서 쉰다. 사람들은 눈을 치운 땅에 깔개와 천을 놓고 몸을 붙인다. 능선 위 경계병은 바람을 맞고, 아래의 불빛은 산 너머에서 바로 보이지 않는다. 밤에는 능선에 달빛과 불빛이 가려 가까운 얼굴만 보인다. 앞뒤 야영 구역 사이의 명령은 교대 호위와 전달자가 이어 준다. 이 구역과 치수는 모두 작품이 정한 값이다.
+Frostbite and deaths on the march are recorded in the Silla king’s diplomatic reply arguing his burden. Specific injuries and camp deaths are choices for the work.
 
+**References and unresolved matters**
 
-불을 여러 곳에 피워도 모두의 옷을 한꺼번에 말릴 수는 없다. 주변의 마른 나무를 다 쓰면 땔감을 구하러 더 멀리 가야 한다. 젖은 신발을 벗은 사람은 다시 신을 때 고통을 겪는다. 찬오는 운반 임무에서 빠져도 다른 사람의 몫을 먹고 보호를 받아야 한다. 부상자를 버릴지 데려갈지에 따라 대열이 움직이는 속도도 달라진다.
-
-
-동상과 행군 중의 죽음은 신라왕이 자신의 부담을 주장한 외교 답서에 기록되어 있다. 개별 인물의 동상 부위와 야영지의 사망자는 작품이 정한다.
-
-**참조·미결**
-
-Sources: [671년 답설인귀서의662년 수송 회고](https://db.history.go.kr/ancient/level.do?levelId=sg_007r_0020_0103).
+Sources: [The 662 transport recalled in the 671 reply to Xue Rengui](https://db.history.go.kr/ancient/level.do?levelId=sg_007r_0020_0103).

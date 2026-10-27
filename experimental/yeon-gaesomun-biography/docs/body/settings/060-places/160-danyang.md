@@ -1,17 +1,17 @@
-# 단양 적성의 수로와 산길
+# The waterways and mountain roads of Danyang Jeokseong
 
-정전 안내: [이 대상의 위치](../outline/index.md#060-places--160-danyang).
+Canon guide: [Location of this subject](../outline/index.md#060-places--160-danyang).
 
-## 단양 적성의 수로와 산길 {#danyang}
+## The waterways and mountain roads of Danyang Jeokseong {#danyang}
 
-**정의·범위**
+**Definition and scope**
 
-단양 적성은 남한강과 죽령 방면의 길을 연결하는 신라의 전초 거점이다. 적성비에 따른551년 이전의 신라 진출을 근거로 삼고 정확한 초축 연도를 정하지 않는다. 파주의 적성 지역과 혼동하지 않는다. 동서로 긴 산정의 성은 북서쪽이 급하고 남동쪽이 상대적으로 완만하며, 아래의 수로와 산길을 함께 통제한다. 현존 벽의 남은 높이를 고대의 전체 높이로 사용하지 않는다.
+Danyang Jeokseong is a Silla outpost connecting the Namhan River with routes toward Jukryeong. Its basis is Silla’s advance before 551 as recorded on the Jeokseong stele; its exact original construction year is not fixed. Do not confuse it with the Jeokseong area of Paju. The mountaintop fortress extends east to west, steep on the northwest and relatively gentle on the southeast, controlling both the waterway and mountain roads below. Do not use the surviving wall height as its full ancient height.
 
-**확정 내용**
+**Established facts**
 
-작품의 접근은 완만한 쪽의 좁은 길로 집중되고, 공격자는 북쪽의 가파른 강변을 대군이 오르는 쉬운 우회로로 사용할 수 없다. 성을 지나쳤다고 해서 강을 건너 오는 수송과 뒤의 길이 안전해지는 것도 아니다. 고구려의 소규모 원정은 그 길과 이웃 거점의 도움을 함께 처리할 능력이 부족하다.
+In the work, approaches concentrate on a narrow route up the gentler side. Attackers cannot use the steep northern riverbank as an easy detour for a large army. Passing the fortress does not make transport across the river or the road behind secure. A small Goguryeo expedition lacks the capacity to deal with both that route and help from neighboring strongholds.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [한국민족문화대백과사전, 단양적성](https://encykorea.aks.ac.kr/Article/E0013629).
+Sources: [Danyang Jeokseong, Encyclopedia of Korean Culture](https://encykorea.aks.ac.kr/Article/E0013629).

@@ -1,23 +1,23 @@
-# 평양을 먼저 떠나려는 고휘
+# Go Hwi seeks to leave Pyongyang first
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--032-go-hwi-flight).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--032-go-hwi-flight).
 
-## 평양을 먼저 떠나려는 고휘 {#go-hwi-flight}
+## Go Hwi seeks to leave Pyongyang first {#go-hwi-flight}
 
-**정의·범위**
+**Definition and scope**
 
-고휘는 661년 늦봄 평양 성 수비 업무를 맡은 마흔대 후반의 창작 군사 귀족이다. 왕실의 직책과 가문이 무장시킨 수행원을 함께 가진다.
+Go Hwi is an invented military noble in his late forties, responsible for Pyongyang’s defense in late spring 661. He holds a royal post and attendants armed by his family.
 
-**확정 내용**
+**Established facts**
 
-645년에는 주필산의 구원군에 있었고, 앞선 대열이 무너진 들판에서 빠져나온 소수 가운데 하나다. 그 경험 때문에 당군과의 정면 야전을 믿지 않으며, 645년 안시성과 612년 평양의 선례를 근거로 수도를 성벽으로 지키자는 수성의 주장을 평양 수비 귀족들 가운데 앞장서 말한다. 그는 성에서 버티면 들과 수확이 깎여 나라가 안에서 말라 간다는 덫을 부정하지 않는다. 그의 수성론은 「야전은 더 빨리 망하는 길」이라는 판단이다. 성 안에서는 천천히 말라 가지만 야전에서 지면 한 번에 망한다는 것이다. 그의 주장은 중앙의 야전 병력을 성 안에 들이고, 수도 주변의 곡식을 성 안 창고로 모으며, 떠날 수 있는 식솔을 내륙으로 보내 성 안의 입을 줄이는 것이다. 주필산 참전과 수성의 주장은 작품의 창작이다.
+In 645 he was in the Jupilsan relief force and one of few who escaped the field when its forward formation collapsed. That experience makes him distrust frontal field battle against Tang. Citing Ansi in 645 and Pyongyang in 612, he leads the capital’s defensive nobles in arguing for wall defense. He does not deny the trap that holding fortresses lets fields and harvests be stripped, drying the country from within. His judgment is that field battle destroys it faster: walls mean slow exhaustion, but a field defeat means sudden ruin. He proposes bringing central field troops inside, gathering grain around the capital in fortress stores, and sending family members able to leave inland to reduce mouths. His Jupilsan participation and defensive position are invented.
 
-백제 왕도 함락과 부흥군의 성 회복 소식을 아는 상태이며 수도 포위를 두려워한다. 자신은 평양의 직책에 남고 아내·아홉 살 딸·옮길 가산을 동쪽 내륙 처가로 먼저 보내고 싶어 한다. 그곳도 나라가 무너지면 안전하지 않다. 가족을 지킬 권리와 직책을 자기 주장의 근거로 삼지만 등록 수비원을 사비로 무장시켰다는 이유만으로 근무에서 풀 권한은 없다.
+He knows news of Baekje’s capital falling and restoration forces recovering fortresses, and fears a capital siege. He wants to stay in his Pyongyang post while sending his wife, nine-year-old daughter, and movable property first to her family inland east. That place is not safe if the country falls. He invokes his right to protect family and his post, but cannot release registered defenders simply because he armed them privately.
 
-군무에서 접근 가능한 정보는 요동성 보고의 사본이다. 변경 정탐의 당 총관 임명·새해 모병 소식까지 포함하고 실제 출발·총병력·공격로는 알 수 없다. 당의 임명·모병 기록과 달리 사본 접근은 작품의 구성이다.
+In his military work he can access a copy of Liaodong reports, including frontier intelligence of Tang commanders’ appointments and new-year recruitment, but not actual departure, total strength, or attack routes. The copy’s access is invented, unlike Tang appointment and recruitment records.
 
-키 약 178cm, 마른 어깨·긴 목, 높은 콧등과 왼쪽 눈썹 끝의 오래된 상처가 있다. 검은 머리를 단단히 묶고 수염을 짧게 다듬는다. 짙은 갈색 겉옷과 낡은 가죽 띠, 직책 패를 쓴다. 목소리는 낮고 거칠고 얇으며 빠르다. 막히면 끝말이 높아지고 같은 근거를 길게 말한다. 외형은 창작 값이다.
+He is about 178 centimeters tall, lean-shouldered and long-necked, with a high nasal bridge and old scar at the end of his left eyebrow. His black hair is tightly tied, beard short. He wears dark brown outerwear, a worn leather belt, and office badge. His voice is low, rough, thin, and fast; when blocked his endings rise and he repeats the same grounds at length. Appearance is invented.
 
-**참조·미결**
+**References and unresolved matters**
 
-가족 각자의 처지는 [아내](110-go-hwi-wife.md#go-hwi-wife)와 [딸](111-go-hwi-daughter.md#go-hwi-daughter), 목적지는 [동문과 피난길](../060-places/040-pyongyang-east-route.md#pyongyang-east-route)을 따른다. 645년 주필산 야전의 조건은 [주필산 패전](../050-systems/200-jupilsan-defeat.md#jupilsan-defeat)을 따른다. 수성의 주장이 처음 맞서는 곳은 도입 액자의 [결전을 밝히는 자리](../050-systems/035-late-spring-661-decision.md#late-spring-661-decision)이며 소년기 국면의 재료다. 그 뒤 수성론이 거듭 맞서고 판정되는 회의와 명부 확인·이의·판정·짐을 줄여 떠나는 실제 선택은 해당 전역의 treatments가 맡는다. 실재 가문의 행적은 아니다.
+Family circumstances follow [wife](110-go-hwi-wife.md#go-hwi-wife) and [daughter](111-go-hwi-daughter.md#go-hwi-daughter), destination [east gate and evacuation route](../060-places/040-pyongyang-east-route.md#pyongyang-east-route), and the 645 field conditions [Jupilsan defeat](../050-systems/200-jupilsan-defeat.md#jupilsan-defeat). His defense argument first meets opposition in the frame’s [decision council](../050-systems/035-late-spring-661-decision.md#late-spring-661-decision), material for the youth phase. Treatments own later meetings and rulings, register checks, objection, judgment, and the actual choice to leave with reduced baggage. This is not a historical family’s record.

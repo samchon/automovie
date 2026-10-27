@@ -1,15 +1,15 @@
-# 셋째 가구의 대표
+# Representative of the third household
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--124-third-household-representative).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--124-third-household-representative).
 
-## 셋째 가구의 대표 {#third-household-representative}
+## Representative of the third household {#third-household-representative}
 
-**정의·범위**
+**Definition and scope**
 
-태조 때부터 동원에 참여한 셋째 귀족 가구의 성인 남성 대표다. 자기 집의 사람과 장비를 내놓을지 첫째·둘째와 별개로 답한다. 부를 때 자기 집의 사정을 먼저 듣게 하는 조건으로 협조할 수 있다. 다른 집의 인원이나 재원을 대신 약속하지 못한다. 세 가구의 협조가 모인 결과와 이 사람의 독립 동의를 구별한다.
+He is the adult male representative of the third noble household, which has participated in mobilization since Taejo’s time. He answers independently of the first and second representatives whether to provide his household’s people and equipment. He can cooperate on condition that his own household’s circumstances are heard first when called upon. He cannot pledge the people or resources of another household. Distinguish his independent consent from the combined result of the three households’ cooperation.
 
-**확정 내용**
+**Established facts**
 
-둥근 얼굴과 성긴 턱수염으로 구별한다. 짙은 갈색 겉옷과 먹빛 띠를 두른다. 목소리는 중음으로 가늘고 또렷하며 요구하는 상대를 향해 말끝을 분명히 한다. 공통 호위 수와 동원 관계는 집단 정전을 따른다. 외형과 음성은 창작 식별이며 이름·정확한 나이·새 가족이나 후일 배신은 정하지 않는다.
+He is distinguished by a round face and sparse beard. He wears a dark brown outer robe and dark sash. His voice is thin and clear in the middle register, and he finishes his sentences distinctly when addressing someone with a demand. Shared guard numbers and mobilization relationships follow the group canon. His appearance and voice are invented identifiers; no name, exact age, new family, or later betrayal is established.
 
-공유 규칙: [집단의 관계와 한계](004-inheritance-opponents.md#inheritance-opponents). 실제 발화·행동과 결과의 순서는 treatments와 scripts가 정한다.
+Shared rule: [the group’s relationships and limits](004-inheritance-opponents.md#inheritance-opponents). Treatments and scripts determine the order of actual speech, action, and results.

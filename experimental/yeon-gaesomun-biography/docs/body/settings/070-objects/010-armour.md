@@ -1,23 +1,23 @@
-# 갑옷과 말의 무장
+# Armor and horse equipment
 
-정전 안내: [이 대상의 위치](../outline/index.md#070-objects--010-armour).
+Canon guide: [Location of this subject](../outline/index.md#070-objects--010-armour).
 
-## 갑옷과 말의 무장 {#armour}
+## Armor and horse equipment {#armour}
 
-**정의·범위**
+**Definition and scope**
 
-갑옷은 재산과 준비에 따라 사람이 다른 임무를 맡게 하는 물건이다. 이 작품의 상세 형상은 창작 복원으로 정한다. 중앙 귀족의 중무장은 작은 철편을 끈으로 이어 몸통과 어깨·넓적다리 위를 덮고, 안에 천옷을 받쳐 마찰을 줄인다. 투구는 머리를 덮고 목 뒤에 늘어진 철편이나 가죽이 있다. 팔과 다리의 관절을 철 덩어리로 굳혀 움직이지 못하는 형태는 사용하지 않는다. 번쩍이는 갑옷도 진흙·기름·수리 자국이 붙으면 표면이 달라진다.
+Armor lets people take different duties according to wealth and preparation. Detailed forms are invented reconstructions. Central noble heavy armor joins small iron plates with cord to cover torso, shoulders, and upper thighs, with cloth beneath to reduce friction. Helmets cover the head and have hanging iron plates or leather at the nape. Do not make arm and leg joints solid iron unable to move. Mud, grease, and repair marks alter even bright armor.
 
-**확정 내용**
+**Established facts**
 
-중기병의 말에는 목과 가슴·몸통 옆을 덮는 무장을 둔다. 모든 말의 얼굴과 발끝까지 금속을 씌우지는 않는다. 말과 무장을 모두 갖춘 집은 보급과 수선의 부담도 지며, 말이 상하면 갑옷을 가진 사람이 즉시 다른 중기병 한 명으로 복제되지 않는다. 경기병은 가벼운 몸통 보호와 노출된 말의 몸으로 구별한다. 경무장을 가난한 사람이 무조건 벌거벗고 싸우는 모습으로 만들지 않는다.
+Heavy cavalry horses have protection over neck, chest, and torso sides, not metal covering every face and hoof. Households supplying horse and armor also bear supply and repair costs; an injured horse does not instantly duplicate its armored rider as another heavy cavalryman. Light cavalry has lighter torso protection and exposed horses; do not make light arms mean poor people invariably fight naked.
 
-주필산 기록에 명광갑이 전리품으로 열거되지만 그 수량과 투입 범위에는 이문이 있다. 작품은 그 말로 모든 고구려 병사의 무장을 같은 정예 철갑으로 확정하지 않는다. 보병·수송 인력의 보호 수준은 임무와 재산에 따라 다르다.
+Jupilsan records list bright armor as spoils, with variants in quantity and deployment. Do not use the term to make every Goguryeo soldier identically elite and iron-clad. Infantry and carriers’ protection varies with duty and wealth.
 
-고구려 철제 찰갑의 실물 잔편은 작은 철편을 사용한 갑옷의 재료 근거다. 박물관의 현재 잔편 치수를 완성된 갑옷의 치수로 사용하지 않는다. 개마총의 행렬 도상도 말 무장의 참고 자료이며7세기 모든 기병의 지급 규격을 증명하지 않는다.
+Surviving Goguryeo iron lamellar fragments support small iron plates as material; present museum fragment dimensions are not dimensions of a completed suit. The Gaemachong procession image also informs horse armor but does not prove standard issue for every seventh-century rider.
 
-작품의 반복 군장은 철찰 한 장을 길이 약5센티미터·폭2센티미터의 둥근 모서리 직사각형으로, 몸통 보호를 어깨에서 허리 아래까지 약70센티미터 이어지는 겹침으로 정한다. 사람의 체격에 맞춰 끈과 겹침을 바꾸므로 한 크기를 모두에게 강제하지 않는다. 표면은 짙은 회색 철에 옅은 마찰 자국, 끈은 짙은 갈색 가죽이다. 투구는 머리에 붙는 둥근 철제 꼭대기와 약20센티미터의 목 뒤 덮개를 갖는다. 말의 무장은 몸통 양옆을 길이 약1.3미터·깊이0.7미터로 덮는 연결 철찰로 조형하고 다리의 굽힘을 막지 않는다. 이 치수는 완성 유물의 실측이 아니라 작품의 반복 형상 값이다.
+Recurring plates are rounded-corner rectangles about five by two centimeters, overlapping over the torso about 70 centimeters from shoulder to below waist. Cords and overlap adjust to body size rather than forcing one size on all. Surfaces are dark gray iron with light wear, cords dark brown leather. Helmets have close-fitting rounded iron tops and nape covers about 20 centimeters. Horse armor uses connected plates covering each torso side about 1.3 meters long and 0.7 deep without preventing leg flexion. These dimensions are recurring designs, not measured completed artifacts.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [주필산의 말·갑옷 전리품과 이문](https://db.history.go.kr/item/compareViewer.do?levelId=jo_014r_0010_0010_0210), [국립중앙박물관, 고구려 철제 찰갑 신수29008](https://www.museum.go.kr/MUSEUM/contents/M0502000000.do?relicId=203430&schM=view&searchId=search), [같은 박물관의 개마총 도상 소개](https://www.museum.go.kr/MUSEUM/contents/M0501000000.do?relicRecommendId=450616&schM=view).
+Sources: [Horse and armor spoils at Jupilsan and textual variants](https://db.history.go.kr/item/compareViewer.do?levelId=jo_014r_0010_0010_0210), [Goguryeo iron lamellar armor, National Museum of Korea](https://www.museum.go.kr/MUSEUM/contents/M0502000000.do?relicId=203430&schM=view&searchId=search), [Gaemachong imagery](https://www.museum.go.kr/MUSEUM/contents/M0501000000.do?relicRecommendId=450616&schM=view).

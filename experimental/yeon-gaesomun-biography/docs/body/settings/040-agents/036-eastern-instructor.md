@@ -1,20 +1,17 @@
-# 동부 경당의 군관 교습자
+# Military instructor at the eastern Gyeongdang
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--036-eastern-instructor).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--036-eastern-instructor).
 
-## 동부 경당의 군관 교습자 {#eastern-instructor}
+## Military instructor at the eastern Gyeongdang {#eastern-instructor}
 
-**정의·범위**
+**Definition and scope**
 
-무진은 600년생으로 창작한 군관이다. 미란과 속로의 마을 경당에서 글과 활, 중앙 군사의 신호를 가르친다. 글을 가르치는 일과 현장 군역을 모두 경험했으며, 서로 다른 말과 생활 경험을 군사 명령에 이어 주는 역할을 맡는다. 말갈의 생활을 버리게 하는 교육은 아니다. 경당을 다녔다는 사실만으로 바로 다음 날 독립 경기병 임무를 맡길 수는 없다. 무진은 청소년이 신호를 실제로 이해하는지 확인한 뒤, 합동 군역의 담당 지휘자에게 각자가 어떤 일을 해낼 수 있는지 보고한다.
+Mujin is an invented military officer born in 600. At the village Gyeongdang of Miran and Sokro, he teaches letters, archery, and the signals of central troops. Experienced in both teaching and field service, he connects different languages and lived experiences to military orders. His instruction does not require people to abandon Malgal life. Attendance at Gyeongdang alone cannot qualify someone for an independent light-cavalry mission the next day. After checking that adolescents actually understand the signals, Mujin reports each person’s capabilities to the commander responsible for joint service.
 
-**확정 내용**
+**Established facts**
 
+Mujin cannot determine village rations or taxes, nor immediately punish a student who misses class for livelihood reasons as a traitor.
 
-마을의 배급 물량과 세금을 결정하는 권한은 무진에게 없다. 생계 때문에 수업에 빠진 학생을 곧바로 국가를 배신한 사람으로 처벌할 권한도 갖지 않는다.
+He is 169 centimeters tall, thin, and long-armed, with a long face, small chin, brown eyes, thin black eyebrows, long low nose, and small mouth. His skin is tawny, his black hair slightly gray, and his beard sparse. He wears gray-brown clothes, a black sash, and leather wrist guards, adding a small set of military gear only when teaching practical skills.
 
-
-키는 169cm이며 몸이 마르고 팔이 길다. 긴 얼굴에 작은 턱, 갈색 눈과 가는 검은 눈썹, 길고 낮은 코와 작은 입이 있다. 피부는 황갈색이다. 검은 머리에는 회색이 조금 섞였고 턱수염은 성기다. 회갈색 옷에 검은 띠를 두르고 가죽 손목 덮개를 쓰며, 실기를 가르칠 때만 작은 군장을 갖춘다.
-
-
-목소리는 중간 높이로 맑고 가늘다. 학생이 잘못 알아들으면 같은 문장을 더 크게 외치기보다 짧게 나누어 다시 묻는다.
+His voice is clear and thin in the middle register. If a student misunderstands, he breaks the sentence into short parts and asks again rather than shouting the same words louder.

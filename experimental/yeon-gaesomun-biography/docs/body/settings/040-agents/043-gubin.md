@@ -1,20 +1,17 @@
-# 지원을 맡은 군관 구빈
+# Gubin, the officer responsible for support
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--043-gubin).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--043-gubin).
 
-## 지원을 맡은 군관 구빈 {#gubin}
+## Gubin, the officer responsible for support {#gubin}
 
-**정의·범위**
+**Definition and scope**
 
-구빈은 620년생으로 창작한 군관으로, 645년 이후 연개소문이 선포한 유족 보호를 현지에서 이행하는 일을 맡는다. 배정받은 가구 몫을 운반하고 인계하며, 지연된 물량도 실제로 다시 보내야 한다. 미란에게 지원 물자가 도착하지 않았다면 다른 전선이 급했다는 설명만으로 임무를 마칠 수 없다.
+Gubin is an invented military officer born in 620. After 645 he is responsible for carrying out locally the protection for surviving families proclaimed by Yeon Gaesomun. He carries and hands over each assigned household’s share and must actually resend delayed supplies. If support has not reached Miran, an explanation that another front was urgent does not complete his task.
 
-**확정 내용**
+**Established facts**
 
+He hears residents’ requests and reports shortages to the center. He has no authority to monopolize the whole military supply or decide all local households’ political choices for them.
 
-주민의 요구를 듣고 중앙에는 부족한 물량을 보고한다. 군량 전체를 독점하는 권한은 없으며 현지 가구의 모든 정치 선택을 대신 결정하지도 않는다.
+He is about 167 centimeters tall and thin, with a long face, small nose, brown eyes, sparse eyebrows, short black beard, tied black hair, and tawny skin. He wears a dark outer robe and carries a reddish-brown military-service marker and a bundle of papers recording quantities.
 
-
-키는 약 167cm이고 몸은 마르다. 긴 얼굴에 작은 코와 갈색 눈, 성긴 눈썹이 있으며 검은 수염은 짧고 검은 머리는 묶는다. 피부는 황갈색이다. 먹빛 겉옷을 입고 적갈색 군역 표지와 물량을 적은 종이 꾸러미를 지닌다.
-
-
-목소리는 중간 음역으로 탁하고 가늘다. 수량을 천천히 되짚으며 말한다. 질책을 받으면 처음에는 말이 빨라지지만 근거를 다시 확인한 뒤 속도를 낮춘다.
+His voice is cloudy and thin in the middle register. He speaks while slowly checking quantities. When reprimanded he initially speeds up, then slows after checking the basis again.

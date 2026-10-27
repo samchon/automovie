@@ -1,19 +1,19 @@
-# 북한산성의 방어와 구원군
+# Defense and relief at Bukhansanseong
 
-정전 안내: [이 대상의 위치](../outline/index.md#060-places--190-bukhan).
+Canon guide: [Location of this subject](../outline/index.md#060-places--190-bukhan).
 
-## 북한산성의 방어와 구원군 {#bukhan}
+## Defense and relief at Bukhansanseong {#bukhan}
 
-**정의·범위**
+**Definition and scope**
 
-북한산성은 고구려의 제한 원정이 성 안의 버팀과 신라의 대응 때문에 끝내 함락을 얻지 못하는 거점이다. 작품은 기와 명문에 따른 아차산성 비정을 채택하며 조선시대 북한산성의 문·성벽·궁궐을 옮기지 않는다. 603년에는 고승의 공격 뒤 신라왕의 구원과 병력 열세 때문에 고구려군이 물러나는 기록이 있다. 661년 공격은 술천성에서 성과를 얻지 못한 고구려·말갈군이 목표를 바꾼 경우다.
+Bukhansanseong is a stronghold that a limited Goguryeo expedition ultimately fails to capture because of resistance inside and Silla’s response. The work adopts identification with Achasanseong based on tile inscriptions; it does not transplant gates, walls, or palaces from Joseon-era Bukhansanseong. Records say Go Seung’s attack in 603 ended in withdrawal when the Silla king’s relief arrived and Goguryeo was outnumbered. The 661 attack changed objectives after Goguryeo and Malgal forces failed at Sulcheonseong.
 
-**확정 내용**
+**Established facts**
 
-661년 방어자는 포차에 성가퀴와 건물이 손상되자 창고의 목재로 망루를 급히 만들고, 밧줄에 가죽과 솜옷을 걸어 날아오는 돌을 막는다. 마름쇠와 노포를 사용하며 남녀2800명이20여 일을 버텼다고 기록된다. 이 숫자는 전원이 전투원이라는 뜻이 아니다. 작품의 성 안에는 주민과 노약자, 운반과 수리를 하는 사람이 함께 있다. 성 안의 식량과 체력이 먼저 줄어들며, 날씨의 급변이 철수 판단을 재촉하는 조건으로 작동한다. 기록의 별과 뇌우를 신이 실제로 군대를 공격한 초자연 현상으로 정하지 않는다.
+In 661, when stone throwers damaged battlements and buildings, defenders hurriedly made a watchtower from storehouse timber and hung leather and padded clothing on ropes to catch incoming stones. The record says they used caltrops and nopo and that 2,800 men and women held out for more than twenty days. This does not mean all were combatants. In the work residents, elderly and infirm people, carriers, and repairers are inside together. Food and strength diminish first, and sudden weather changes hasten the decision to withdraw. Do not make the recorded stars and thunderstorms a supernatural attack by a god.
 
-성벽 앞에서는 공격군도 공성 노동과 식량을 소모한다. 성 밖의 점령지를 넓게 지킬 병력이 없으면 뒤에서 오는 구원군 때문에 포위 기간을 늘리기 어렵다. 철수는 공격자가 전투를 전혀 못했다는 증거가 아니라, 현지의 버팀을 끝낼 자원이 부족했던 결과다. 이 성을 고구려가 남방에서 한 번도 성을 빼앗지 못했다는 일반 명제로 확대하지 않는다.
+Outside the wall, attackers also consume siege labor and food. Without troops to hold a broad area outside, relief arriving behind makes a longer siege difficult. Withdrawal reflects insufficient resources to end local resistance, not proof the attackers could not fight at all. Do not generalize this fortress into a claim that Goguryeo never captured a southern fortress.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [603년 북한산성 공격과 구원](https://db.history.go.kr/item/compareViewer.do?levelId=sg_020r_0020_0150), [661년 북한산성 공방과 방어 수단](https://db.history.go.kr/ancient/level.do?levelId=sg_005r_0040_0550).
+Sources: [The 603 attack on Bukhansanseong and relief](https://db.history.go.kr/item/compareViewer.do?levelId=sg_020r_0020_0150), [the 661 siege and defensive means](https://db.history.go.kr/ancient/level.do?levelId=sg_005r_0040_0550).

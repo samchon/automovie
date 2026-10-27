@@ -1,21 +1,21 @@
-# 안시성 안과 성문 아래
+# Inside Ansi and below its gate
 
-정전 안내: [이 대상의 위치](../outline/index.md#060-places--110-ansi).
+Canon guide: [Location of this subject](../outline/index.md#060-places--110-ansi).
 
-## 안시성 안과 성문 아래 {#ansi}
+## Inside Ansi and below its gate {#ansi}
 
-**정의·범위**
+**Definition and scope**
 
-안시성은 구원군이 패한 뒤에도 공격군을 붙들어 두는 독립된 방어 거점이다. 정확한 현대 비정에는 여러 견해가 있다. 아래 배치는 특정 현대 산성의 발굴 평면을 확정 자료라고 내세우지 않는 작품의 복원 선택이다.
+Ansi is an independent defensive stronghold holding attackers even after the relief force loses. Several views identify its modern location. The layout below is the work’s reconstruction, not a claim that an excavated plan of a particular modern mountain fortress is definitive.
 
-**확정 내용**
+**Established facts**
 
-성의 생활권은 능선에 이어진 성벽, 문 아래 접근길, 성 안의 경사진 집터와 병사 집결터로 나눈다. 작품에서 주 공격문은 남동쪽 사면의 폭3미터 문이다. 성 밖 마지막 접근길은 길이100미터·폭4미터의 오르막이고 문 안의 집결터는30미터×20미터다. 문을 열어 구원군 전부를 받아들일 만한 마당과 물자는 없다. 성벽 위 폭1.5미터 통로에서 사람은 아래 접근길을 보지만 뒤편 구릉 너머의 모든 움직임을 볼 수는 없다. 안시성주의 군무방은 문에서 북쪽으로70미터 안쪽의8미터×5미터 목조 채이며 남쪽 창 아래 보고 자리가 있다. 바깥 공격의 북·함성은 들리되 모든 부대의 명령을 낱말로 듣지는 못한다.
+The living area comprises walls along a ridge, the approach below the gate, sloping house sites, and a soldier assembly area. The main attacked gate is a three-meter opening on the southeast slope. The last outer approach is a 100-meter uphill road four meters wide; the inner assembly area is 30 by 20 meters. There is no yard or supply sufficient to admit the entire relief force. On the 1.5-meter wall walk, people see the approach below but not every movement beyond rear hills. The castellan’s military office is an 8-by-5-meter wooden building 70 meters north inside the gate, with a reporting place below the south window. Outside drums and shouts are audible, but not every unit order word for word.
 
-흙산은 성벽 바깥 남동쪽 특정 구간에 붙여 올라가는 공격 시설로 둔다. 완성에 가까워진 윗자리가 인접 성벽보다 약3미터 높아 그 안쪽 통로를 내려다보는 작품 값을 택한다. 흙산 바닥 폭은 약50미터이며 성벽과의 좁은 틈과 무너질 수 있는 사면이 있다. 이 치수는 문헌이 남긴 실측 수치가 아니다. 성 전체를 내려다보는 현대 전망대처럼 사용하지 않는다. 돌과 흙을 옮기는 사람은 하루의 빛과 노동에 의존하며 밤에는 공격·수리 신호와 불빛만 구별한다.
+The earthen mound is an attacking structure rising against one outer southeast section. Near completion its top is about three meters higher than the adjacent wall, overlooking its inner walk. Its base is about 50 meters wide, with a narrow gap to the wall and slopes that can collapse. These dimensions are not recorded measurements. Do not use it as a modern lookout over the whole fortress. People moving stone and earth depend on daylight and labor; at night they distinguish attack and repair signals and lights only.
 
-군무방은 한 층이며 바닥에서 보 아래2.6미터, 처마2.9미터, 동서 용마루4.1미터다. 남북 두 경사면의 먹빛 기와는 벽 밖으로0.5미터씩 내밀고 남쪽 보고 창과 출입문의 높이는 각각 창턱1미터·문2미터로 둔다. 주 공격문의 문짝은 문턱에서3미터 높이, 그 위 통로 상단은3.4미터이며 인접 성벽의 보행 바닥은 그 문턱에서6미터 높이다. 흙산 윗자리가 그 성벽보다3미터 높다는 앞의 값은 이 기준에서도 같게 유지한다. 이 입면은 특정 유적의 실측이 아닌 작품 선택이다.
+The one-story office has 2.6 meters beneath the beam, eaves at 2.9, and an east–west ridge at 4.1 meters above the floor. Dark tiled north–south roof slopes project 0.5 meters beyond the walls. The south reporting window sill is one meter high and the door two meters. Main gate leaves are three meters high from threshold, the passage top 3.4 meters, and the adjacent wall walk six meters above threshold. The mound top remains three meters above that walk on the same reference. This elevation is an invented choice, not a measured site.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [645년 회전의 유인과 배치](https://db.history.go.kr/ancient/level.do?levelId=sg_021r_0020_0211), [문영철, 「645년 고구려군과 당군의 주필산 전투 고찰」 초록](https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE10573728).
+Sources: [The 645 battle’s lure and deployment](https://db.history.go.kr/ancient/level.do?levelId=sg_021r_0020_0211), [Mun Yeong-cheol, study of Jupilsan, abstract](https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE10573728).

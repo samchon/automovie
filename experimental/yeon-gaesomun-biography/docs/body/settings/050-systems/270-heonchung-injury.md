@@ -1,15 +1,15 @@
-# 헌충의 상처와 죽음
+# Heonchung’s wound and death
 
-정전 안내: [이 대상의 위치](../outline/index.md#050-systems--270-heonchung-injury).
+Canon guide: [Location of this subject](../outline/index.md#050-systems--270-heonchung-injury).
 
-## 헌충의 상처와 죽음 {#heonchung-injury}
+## Heonchung’s wound and death {#heonchung-injury}
 
-**정의·범위**
+**Definition and scope**
 
-헌충은 [두림](../040-agents/022-household-officer.md#household-officer)의 반대에도 가문의 병력을 지키려고 앞에 나서 접수 병력의 선두와 싸운다. 접수 지휘자 [담석](../040-agents/020-coup-receiver.md#coup-receiver)은 그를 붙잡을 필요를 인식하지만 무장 충돌에 들어간 군사 모두가 그의 생존을 보장할 수 없다. 헌충은 [선두 병사](../040-agents/021-heonchung-attacker.md#heonchung-attacker)의 칼에 왼쪽 옆구리를 크게 베이고 피를 잃는다. [운반 호위](../040-agents/023-wounded-carriers.md#wounded-carriers)가 두림의 지시로 그를 거처 안으로 옮긴다. [석연](../040-agents/024-heonchung-healer.md#heonchung-healer)이 상처를 씻고 천으로 압박하여 일단 출혈을 줄이지만 상태가 악화되어 사흘 뒤 죽는 것으로 구성한다.
+Despite [Durim](../040-agents/022-household-officer.md#household-officer)’s opposition, Heonchung goes forward to protect the family force and fights the leading receiving troops. Their commander [Damseok](../040-agents/020-coup-receiver.md#coup-receiver) recognizes the need to capture him, but cannot guarantee his survival once all soldiers enter armed conflict. A [leading soldier](../040-agents/021-heonchung-attacker.md#heonchung-attacker) cuts Heonchung deeply in the left side; he loses blood. [Carrying guards](../040-agents/023-wounded-carriers.md#wounded-carriers) bring him inside on Durim’s directions. [Seokyeon](../040-agents/024-heonchung-healer.md#heonchung-healer) washes the wound and presses it with cloth, initially reducing bleeding, but his condition worsens and he dies three days later.
 
-**확정 내용**
+**Established facts**
 
-원본이 고정한 세부 제약을 이곳에서 함께 인계한다. 두림은 담 안에서 기다리며 연락하자고 반대하지만 헌충은 그 반대를 자신과 아버지를 버리는 태도로 오해한다. 두림은 출동 병력을 따라가 부상한 공자를 되돌리는 책임을 맡는다. 칼이 닿은 선두 병사는 생포 외침을 듣고 물러난다. 네 호위 가운데 둘이 몸을 받치고 하나는 앞의 병사를 물리며 하나는 두림에게 길을 확인한다. 치료가 시작된 뒤에는 내실 문과 안마당 경계를 맡는다. 석연의 세척·천 압박으로 처음에는 출혈이 줄지만 깊은 상처와 잃은 피 때문에 상태가 악화되어 사흘 뒤 죽는다. 상처의 위치·무기·사흘·치료와 이 역할·순서는 모두 작품의 창작 제약이며 실제 장면의 수행·공개는 treatments가 정한다. 남건이 자기 손으로 죽이라는 명령을 내리지 않았다는 작품 선택도 그가 군사를 보내 충돌을 일으킨 책임을 지우지 못한다. 남산은 군사와 왕명 사이를 이어 이 접수를 가능하게 했고 왕 역시 무장 강제를 정당화했다.
+Carry the original’s fixed details together here. Durim opposes the sortie and advises waiting inside and making contact, but Heonchung misreads this as abandoning him and his father. Durim follows the sortie, responsible for bringing the wounded young master back. The soldier whose blade landed hears the call to capture alive and withdraws. Two of four guards support Heonchung, one pushes back soldiers ahead, and one checks the route with Durim. After treatment starts they guard the inner-room door and courtyard. Seokyeon’s washing and cloth pressure initially reduce bleeding, but the deep wound and blood lost lead to deterioration and death three days later. Location, weapon, three days, treatment, roles, and order are invented constraints; treatments determine actual performance and disclosure. The choice that Namgeon did not personally order a killing does not erase responsibility for sending soldiers and causing the clash. Namsan connected the troops and royal order to make the takeover possible, and the king justified armed compulsion.
 
-죽음은 형제간 협상을 다시 할 수 없게 되는 문턱이다. 남생에게 처음 오는 보고는 부상을 입었다는 소식이고, 뒤이어 죽었다는 소식이 온다. 소식을 듣기 전에 죽음을 알고 보복하는 행동은 하지 않는다. 동생 측이 계획한 실각의 범위와 실제로 돌이킬 수 없게 된 피해가 다르다는 사실은 변명만으로 회복되지 않는다.
+Death is the threshold after which the brothers cannot negotiate again. The first report to Namsaeng is of injury; death is reported later. He cannot know of the death and retaliate before hearing it. The difference between the planned removal and actual irreversible harm cannot be repaired by excuses alone.

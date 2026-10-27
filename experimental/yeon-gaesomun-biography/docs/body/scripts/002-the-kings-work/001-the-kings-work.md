@@ -1,450 +1,450 @@
 
-# 죽인 왕의 일
+# The work of the king he killed
 
-## 같은 물자를 요구하는 두 사람 {#t007-rising-authority}
+## Two men demand the same resources {#t007-rising-authority}
 
-634년 이후 왕궁 안 낮. 물자 이동 보고가 왕 앞에 놓이고 개소문은 답을 기다린다. 문으로 드는 빛은 보고를 보는 두 사람의 손 사이에 머문다.
+After 634, inside the palace, day. A supply movement report lies before the king; Gaesomun waits for his answer. Light from the door rests between their hands on the report.
 
-개소문: 이 사람과 물자를 군사에 쓰게 해 주십시오. 더 빨리 움직일 수 있습니다.
+GAESOMUN: Let me use these people and supplies for the army. We can move faster.
 
-고건무: 그 사람은 성을 쌓고 밭을 되살리기로 했다. 네가 데려가면 누가 남느냐?
+GO GEONMU: Those people are to build walls and restore fields. If you take them, who remains?
 
-개소문: 양보해도 저들이 정복하려 하면 옵니다.
+GAESOMUN: Even if we yield, they'll come if they intend conquest.
 
-고건무: 그래서 성도 쌓는 것이다. 어디에 얼마나 쓸지는 내가 정한다.
+GO GEONMU: That's why we're building walls too. I decide where and how much to use.
 
-옆의 귀족은 개소문에게 내놓으려던 보고를 왕 앞에 놓는다. 개소문은 왕의 결정을 듣고 나가지만 귀족은 문밖의 그에게 다시 불려간다. 왕은 바깥에서 이어지는 군무의 목소리를 듣는다.
+A noble beside them puts a report intended for Gaesomun before the king. Gaesomun hears the decision and leaves, but calls the noble to him outside. The king hears military business continuing beyond the door.
 
-## 서로 다른 보고가 가리킨 위험 {#t007-unexposed-envoy}
+## Separate reports point to danger {#t007-unexposed-envoy}
 
-자막 ‘641년’. 사행이 지나가는 출입구 바깥 낮. 진대덕의 방문 행렬을 먼 시선으로 보내고, 당으로 돌아간 보고와 평양에 모이는 별개의 물자 보고를 나누어 보여 준다. 인물의 내면을 읽는 글이나 완성된 공격 지도는 넣지 않는다.
+Caption: “641.” Outside a gateway through which an embassy passes, day. Watch Chen Dade's visiting procession from a distance, and show his report on returning to Tang separately from supply reports gathered in Pyongyang. Add no text reading characters' thoughts or completed attack map.
 
-역사가 음성: 진대덕은 사정을 탐문한 뒤 붙잡히지 않고 돌아갔다. 평양에 모인 조짐은 다른 사신과 교역, 요동의 물자 이동에서 나왔다. 당이 무엇을 알아 갔는지와 고구려가 무엇을 의심했는지는 나누어 보아야 한다.
+HISTORIAN (V.O.): Chen Dade investigated conditions and returned without being caught. The signs gathered in Pyongyang came from other envoys, trade, and supply movements in Liaodong. What Tang learned and what Goguryeo suspected must be kept apart.
 
-개소문이 군무 자리에서 보고를 나누어 읽는다. 맞은편 사람들은 전보다 오래 그의 답을 기다린다. 고건무의 자리로 넘어가면 같은 영향력에 관한 말이 낮아진다. 밀의의 현장과 참여자 얼굴을 새로 만들지 않고 문이 닫힌다.
+At military business, Gaesomun reads the reports separately. People opposite wait longer than before for his answer. Move to Geonmu's place, where talk about that influence falls quiet. The door closes without inventing the plot's setting or participants' faces.
 
-다음 낮 개소문에게 누설된 사실이 닿는다. 보고를 전한 사람은 문 안에 남아 개소문의 물음을 받는다.
+The next day the leaked information reaches Gaesomun. The person delivering the report remains inside and takes his question.
 
-개소문: 나를 죽이기로 했다는 말이냐.
+GAESOMUN: You're saying they decided to kill me?
 
-보고 음성: 밀의가 새어 나온 것입니다. 왕과 대인들이 공을 죽이려 합니다.
+REPORT VOICE: The secret plot has leaked. The king and the great men mean to kill you, my lord.
 
-개소문은 사람들을 내보낸 뒤 잠깐 홀로 남는다. 문을 다시 열어 군사를 부른다.
+Gaesomun sends everyone out and remains alone briefly. He opens the door again and calls soldiers.
 
-## 사열이 끝나기 전에 {#t008-preemptive-coup}
+## Before the review ends {#t008-preemptive-coup}
 
-642년 평양 성 남쪽 바깥 낮. 사열에 모인 귀족들의 앞과 뒤를 번갈아 본다. 들어온 길에서 개소문의 병력이 자리를 잡는다. 공격이 시작되면 선두의 외침이 뒤의 사람들에게 늦게 닿는다. 달아나려는 귀족이 이미 막힌 길로 되돌아온다. 사열을 기다리던 자리가 살해의 자리가 된다.
+Outside south of Pyongyang's walls, 642, day. Alternate views of front and rear among nobles gathered for inspection. Gaesomun's troops take position on the approach road. When the attack begins, shouts from the front reach people behind late. A noble trying to flee returns along a road already blocked. The place where they waited for inspection becomes a place of killing.
 
-개소문은 공격을 취소하지 않는다. 다른 병력이 왕궁 길목으로 향하고, 궁 안의 출입이 끊긴 뒤 왕이 사로잡혔다는 보고가 온다.
+Gaesomun does not cancel the attack. Other troops head for the palace approaches; after access inside is cut off, word comes that the king has been captured.
 
-개소문: 내가 간다. 왕을 내 앞에 모셔라.
+GAESOMUN: I'll go. Bring the king before me.
 
-그가 길목을 잡은 자기 사람들 사이를 지난다.
+He passes among his people holding the route.
 
-역사가 음성: 그 자리에서 반대 귀족 백여 명이 죽었다.
+HISTORIAN (V.O.): More than a hundred opposing nobles died there.
 
-## 왕이 설명할 마지막 시간 {#t008-last-encounter}
+## The king's last chance to explain {#t008-last-encounter}
 
-왕궁 별실 안 낮. 창의 빛이 두 사람 사이 바닥에 닿는다. 고건무는 앉고 개소문은 문 안에 선다. 바깥의 군사 소리가 닫힌 문으로 낮아진다. 둘의 시선 높이를 번갈아 받는다.
+Inside a palace antechamber, day. Window light falls on the floor between them. Go Geonmu sits; Gaesomun stands inside the door. Military sounds outside are muffled by the closed door. Alternate their eye levels.
 
-고건무: 네가 돌아갈 길은 막았구나.
+GO GEONMU: You've closed the road back for yourself.
 
-개소문: 먼저 저를 죽이려 하신 분은 폐하십니다.
+GAESOMUN: Your Majesty was the first to try to kill me.
 
-고건무: 살려 달라는 말은 않겠다. 네가 무엇을 맡으려는지 들어라.
+GO GEONMU: I won't ask you to spare me. Listen to what you're taking on.
 
-개소문이 기다린다.
+Gaesomun waits.
 
-고건무: 선왕들께서 끊긴 사람들을 다시 이으셨다. 가문들과 동부가 함께 움직여서 수를 막았지. 그래도 수는 졌다가 또 왔다. 전쟁이 끝났을 때 내게 남은 사람 중에는 돌아갈 집조차 없는 이들이 있었다.
+GO GEONMU: The kings before me joined our scattered people again. The families and the east moved together to stop Sui. Even so, Sui lost and came back. When the war ended, some of the people left to me had no home to return to.
 
-개소문: 중원이 갈라졌을 때—
+GAESOMUN: When the Central Plain was divided—
 
-고건무: 당이 언제 통일할지 그때 네가 알았느냐? 신라 변경의 친족에게 간 집도, 백제로 간 집도 아직 다 돌아오지 않았다. 내가 나라를 회복했다 하면 그 사람들이 돌아올 것 같으냐.
+GO GEONMU: Did you know then when Tang would reunify it? Families who went to kin on the Silla frontier and those who went to Baekje still haven't all come back. If I say I've restored the country, do you think they'll return?
 
-개소문: 먼저 살아남을 힘을 보여야 합니다. 그렇지 않으면 복구한 것도 다시 잃습니다.
+GAESOMUN: First we must show the strength to survive. Otherwise we'll lose what we've rebuilt again.
 
-고건무: 그 군사에게 무엇을 먹일지, 언제 집에 보낼지도 네가 정해야 한다. 가장 높은 자리에 앉고 나면 내 말을 알게 될 것이다.
+GO GEONMU: You'll have to decide what to feed those soldiers, and when to send them home. Once you sit in the highest place, you'll understand me.
 
-개소문의 눈에 물이 고인다. 그는 손으로 닦지 않고 왕을 본다.
+Tears fill Gaesomun's eyes. He watches the king without wiping them.
 
-개소문: 그 말씀을 들으러 온 게 아니었습니다.
+GAESOMUN: I didn't come to hear that.
 
-왕은 살 길을 청하지 않는다. 개소문이 다가가 칼을 뽑는다. 얼굴 가까운 시선에서 왕의 마지막 호흡이 끊기고 개소문만 호흡을 잇는다. 칼을 내린 그의 손에서 보장왕 즉위의 자리로 건넌다.
+The king does not plead for life. Gaesomun approaches and draws his sword. In a close view of faces, the king's last breath stops; only Gaesomun continues breathing. From the hand lowering his sword, transition to Bojang's accession.
 
-## 왕이 남긴 이름을 쓰는 실권 {#t009-regime-and-king}
+## Power exercised in the king's name {#t009-regime-and-king}
 
-보장왕 즉위 뒤 왕궁 안 낮. 성인 왕이 의례를 마치고 명령을 받으러 온 개소문과 마주한다. 왕 앞에 올린 일이 개소문의 판단을 거쳐 밖으로 나간다.
+Inside the palace after Bojang's accession, day. The adult king completes a ceremony and faces Gaesomun, who has come for orders. Matters laid before the king leave after Gaesomun's judgment.
 
-보장왕: 왕의 이름으로 나가는 일입니다. 결과도 가져오시오.
+BOJANG: It goes out in the king's name. Bring me the result as well.
 
-개소문: 나라가 버텨야 왕실도 남습니다, 폐하.
+GAESOMUN: The country must survive for the royal house to remain, Your Majesty.
 
-보장왕이 그를 물린다. 바깥 발소리가 멀어진 뒤에도 왕은 자기 자리에 앉아 있다.
+Bojang dismisses him. Even after the footsteps outside recede, the king stays seated.
 
-역사가 음성: 새 왕은 영류왕의 아우 대양왕의 아들이었다. 대양왕은 재위한 왕을 하나 더 세는 호칭은 아니다. 보장왕은 성인이었고 왕가의 권리를 가졌으나, 당장 실권을 되찾을 군사가 없었다. 대막리지는 그 왕의 이름으로 나라를 움직였다.
+HISTORIAN (V.O.): The new king was the son of Yeongnyu's younger brother, King Daeyang. Daeyang is a genealogical title, not another reign to count. Bojang was an adult with royal rights, but had no army with which to recover effective power immediately. The daemangniji governed in that king's name.
 
-왕의 명령을 든 사람이 궁 밖 개소문의 군무 자리로 간다.
+A person carrying the royal order goes from the palace to Gaesomun's military office outside.
 
-## 자기 이름으로 받을 전쟁 {#t009-invasion-responsibility}
+## A war he must answer for in his own name {#t009-invasion-responsibility}
 
-원정이 침공으로 바뀌는 때, 중앙 군무 자리 안 낮. 개소문이 지방에서 올라온 병력과 군량 요구를 읽는다. 내려가는 왕명과 올라오는 부족 보고가 같은 손을 거친다.
+As an expedition becomes an invasion, inside the central military office, day. Gaesomun reads requests from the regions for troops and provisions. Royal orders going down and shortage reports coming up pass through the same hands.
 
-개소문: 이 사람을 빼 오면 누가 그 자리를 맡는가? 채울 수 없는 수를 적어 보내지 마라.
+GAESOMUN: If you take these people, who fills their places? Don't send me numbers you cannot supply.
 
-보고를 고쳐 받아 든 담당자가 나간다.
+The official leaves with a corrected report.
 
-역사가 음성: 617년의 이연도 돌궐에 군마와 지원을 구했다. 장안의 땅과 사람은 자신에게, 재물은 돌궐에게 돌아가자는 교섭이었다. 이 교섭만으로 약속한 병력이 모두 왔다고 셀 수는 없다. 이제 당은 도움을 구하던 북방 세력을 꺾어 원정군에 넣었다. 고창을 정복한 그 나라가 동쪽으로 왔다.
+HISTORIAN (V.O.): In 617 Li Yuan too asked the Turks for horses and support, negotiating that Chang'an's land and people would be his and its wealth theirs. That negotiation alone does not prove every promised soldier arrived. Now Tang had defeated northern powers from whom it once sought help and brought them into its expeditions. The country that conquered Gaochang came east.
 
-개소문은 수를 막은 나라의 큰 구원군 보고를 확인한다.
+Gaesomun checks a report of the great relief army from the country that stopped Sui.
 
-개소문: 모인 구원군으로 이번 전쟁을 끝낼 수 있다. 동원할 몫을 채워라.
+GAESOMUN: With the relief army assembled, we can end this war. Fill the mobilization quotas.
 
-## 먼저 끝내라는 요구 {#t010-relief-choice}
+## A demand to end it first {#t010-relief-choice}
 
-645년 구원군 진 바깥 낮. 고연수와 고혜진은 실제 회전에 붙일 병력의 대열을 본다. 말갈 병력도 따로 도착해 자리를 맞춘다. 뒤에서 군량을 다루는 사람들의 말을 가까이 받는다.
+Outside the relief army camp in 645, day. Go Yeonsu and Go Hyejin watch formations actually committed to the battle. Malgal troops arrive separately and take their places. Listen close to people handling provisions behind.
 
-주민: 올가을에도 못 돌아가면 내년에 뭘 먹습니까?
+RESIDENT: If we can't go home this autumn either, what will we eat next year?
 
-고정의: 정면을 내주지 마십시오. 공급을 끊으면 저들이 먼저 움직여야 합니다.
+GO JEONGUI: Don't give them a frontal battle. Cut their supplies and they'll have to move first.
 
-고연수: 그동안 우리 들은 비웁니다. 모인 군사로 꺾어야 합니다.
+GO YEONSU: Meanwhile our fields stand empty. We must defeat them with the army we've gathered.
 
-고혜진: 대열을 한꺼번에 펼 수 없는 길부터 확인합시다.
+GO HYEJIN: First let's check the road where we can't deploy the whole formation at once.
 
-그는 진격을 멈추라는 명을 내리지 않는다. 명령이 각 대열로 전달된다.
+He gives no order to stop the advance. Orders pass to the formations.
 
-역사가 음성: 동원 십오만과 이 회전에 맞물릴 육만은 다르다. 뒤의 구만이 새 안시성 구원군으로 기다린 것도 아니었다. 평양의 개소문도 야전에서 끝낼 수 있다는 기대 안에 있었다.
+HISTORIAN (V.O.): The 150,000 mobilized were not the 60,000 committed to this battle. The other 90,000 were not waiting as a new Ansi relief army. In Pyongyang, Gaesomun too expected the war could be ended in the field.
 
-## 앞에서 이기는 동안 {#t010-split-connections}
+## While the front is winning {#t010-split-connections}
 
-주필산 전장 바깥 낮. 당의 돌궐 기병 천 명이 접근했다 물러난다. 고연수는 작아 보이는 이세적의 정면에 병력을 더 붙인다. 먼저 밀리는 당군의 발과 계속 자리를 메우는 뒤의 대열을 같은 높이에서 본다.
+Outside on the Jupilsan battlefield, day. A thousand Turkic cavalry in Tang service approach and withdraw. Go Yeonsu commits more troops against Li Shiji's seemingly small front. At the same eye level, see Tang's feet driven back first and the ranks behind filling the gaps.
 
-고연수: 더 붙여라. 저 앞을 밀면 된다.
+GO YEONSU: Send more in. Push through that front.
 
-구릉 뒤로 시선을 옮기면 장손무기·우진달의 병력은 좁은 길을 지나느라 길어진다.
+Behind the hill, Zhangsun Wuji and Niu Jinda's force stretches out as it passes a narrow road.
 
-역사가 음성: 공동 병력 일만 천은 정면 접촉 한 시진쯤 앞서 출발했다. 돌아가는 육 킬로미터와 대열을 다시 펴는 데 한 시진 반이 들었다. 정면 접촉이 시작된 뒤 이세적은 우회군이 대오를 갖출 때까지 남은 시간을 버텼다.
+HISTORIAN (V.O.): Their combined eleven thousand set out about one double-hour before frontal contact. The six-kilometer detour and redeployment took one and a half double-hours. After contact began, Li Shiji held for the remaining time until the flanking force formed ranks.
 
-구릉 가장자리, 속로는 움직이는 자기 병력을 재촉한다. 저 아래 황제 진을 향하는 고구려 중무장 병력과 아직 닿지 못한 자기 대열을 함께 볼 수 있는 위치에서 멈추지 않는다. 두 타격이 합쳐지기 전에 당의 측후방 공격이 들어온다.
+At the hill's edge, Sokro urges his moving force on. From a position where he can see both the Goguryeo heavy troops below heading for the emperor's camp and his own formation not yet there, he does not stop. Tang's attack strikes their side and rear before the two blows can combine.
 
-황제 진 앞의 당군이 다가오는 고구려 중무장 병력 쪽으로 앞줄을 돌린다. 밀린 사람이 옆 대열에 부딪히자 뒤의 당군이 그 틈을 메우며 받아 낸다.
+Tang troops before the emperor's camp turn their front rank toward approaching Goguryeo heavy troops. As men pushed back collide with the next rank, Tang troops behind fill the gap and hold.
 
-당군: 이쪽을 받쳐라!
+TANG SOLDIER: Hold this side!
 
-밝은 겉옷의 설인귀가 흔들리는 대열 사이로 돌입한다. 맞은편 고구려 선두가 그를 향해 무기를 돌리는 동안 당군의 뒤 대열이 붙는다. 설인귀만을 따라가지 않고 그 접촉을 받는 고구려 병력 쪽으로 시선을 돌린다.
+Xue Rengui, in a bright outer garment, charges between wavering ranks. As the leading Goguryeo troops turn their weapons toward him, Tang's rear ranks join. Do not follow Xue alone; turn the view toward the Goguryeo troops receiving the contact.
 
-정면을 받던 고구려 군사가 가까워지는 측후방의 공격에 몸을 돌린다. 앞에서도 적이 밀려온다. 그가 돌아본 쪽과 아직 버텨야 할 정면을 함께 본다.
+A Goguryeo soldier holding the front turns toward the approaching attack from the side and rear. The enemy presses from ahead too. See both where he turns and the front he still must hold.
 
-## 다시 모일 길이 없는 군대 {#t010-encirclement-and-survival}
+## An army with no road to regroup {#t010-encirclement-and-survival}
 
-같은 전장. 낮빛이 기울 때까지 싸움이 이어진다. 엇갈린 명령을 든 병사들이 끊긴 교량 앞에서 뒤의 군사를 만난다. 고혜진이 새 진을 세우려 하지만 바깥 병력에게 갈 길이 없다.
+The same battlefield. Fighting continues as daylight fades. Soldiers carrying conflicting orders meet troops from behind at a broken bridge. Go Hyejin tries to establish a new camp, but there is no road to the outer forces.
 
-고혜진: 돌아온 사람부터 이쪽에 세우시오.
+GO HYEJIN: Place the returning men here first.
 
-고연수: 밖과 닿을 수 있습니까?
+GO YEONSU: Can we reach those outside?
 
-답이 오지 않는다.
+No answer comes.
 
-고혜진: 진을 고쳐도 나갈 수 없습니다.
+GO HYEJIN: Even if we reform, we cannot get out.
 
-고연수: 남은 사람을 살려야 합니다. 항복을 전하시오.
+GO YEONSU: We must save those who remain. Send word of surrender.
 
-대열에 무기를 내리라는 명이 퍼진다.
+The order to lay down weapons spreads through the ranks.
 
-다른 틈에서 속로는 뒤를 기다리다 적이 닫는 길을 보고 남은 부하를 데리고 빠져나간다. 날로는 같은 길을 찾지만 앞의 항복 대열과 함께 멈춘다. 서로를 보고도 같은 선택을 할 자리가 없다.
+Elsewhere, Sokro waits for those behind, sees the enemy closing the road, and escapes with his remaining men. Nallo seeks the same route but stops with the surrendering ranks ahead. Though they see each other, there is no room for the same choice.
 
-역사가 음성: 이 극이 잡은 실제 투입 육만 중 이만은 죽고, 삼만 육천팔백은 항복하고, 삼천이백은 빠져나왔다. 현장의 지휘자가 곧바로 헤아린 수는 아니다. 무기를 내리는 사람들은 살아남을 수 있으리라 여겼다.
+HISTORIAN (V.O.): Of the sixty thousand actually committed in this drama, twenty thousand died, thirty-six thousand eight hundred surrendered, and thirty-two hundred escaped. No commander on the spot counted them at once. Those laying down their weapons believed they might live.
 
-날로가 무기를 내려놓는다.
+Nallo lays down his weapon.
 
-## 같은 항복의 다른 줄 {#t011-prisoner-sorting}
+## Different lines after the same surrender {#t011-prisoner-sorting}
 
-항복 뒤 포로 집결지 바깥 낮. 분류하는 자리의 눈높이로 서 있는 사람을 본다. 군관들이 따로 불려간다. 날로는 풀려나는 줄로 한 발 움직이다 복식과 소속을 확인받고 멈춘다. 통역을 거친 지시가 그를 다른 줄에 세운다.
+Outside the prisoner assembly area after surrender, day. See the standing people at eye level from the sorting point. Officers are called away separately. Nallo steps toward the line being released, then stops when his dress and affiliation are checked. An instruction through an interpreter places him in another line.
 
-날로: 저 사람들과 함께 싸웠다.
+NALLO: I fought alongside those men.
 
-대답은 이동하라는 지시로 돌아온다. 고연수와 고혜진이 당의 관직을 받아 떠나는 쪽을 날로가 보지만 그들에게 닿을 수 없다.
+The answer is an order to move. Nallo sees Go Yeonsu and Go Hyejin leave to receive Tang offices, but cannot reach them.
 
-사람들이 묶여 이동한다. 살아나갈 틈을 찾던 날로의 발도 그 줄에서 멈춘다. 처형 소리 뒤에 바깥으로 돌아오는 빈 길을 본다.
+People are bound and moved. Nallo, looking for a way to survive, stops in that line too. After sounds of execution, see the empty road leading back outside.
 
-역사가 음성: 말갈 포로 삼천삼백이 처형됐다. 기록은 황제 진을 노린 접근과 이 처분을 잇는다. 죽은 모두가 같은 침투대였다는 뜻은 아니다.
+HISTORIAN (V.O.): Three thousand three hundred Malgal prisoners were executed. The record connects the approach toward the emperor's camp with this decision. It does not mean all the dead were the same infiltration party.
 
-## 돌아온 사람에게 묻는 이름 {#t011-sokro-survival}
+## Asking a returning man for names {#t011-sokro-survival}
 
-귀환 병력의 쉼터 바깥 낮. 속로가 풀려온 병사에게 날로와 친족의 이름을 하나씩 묻는다. 들은 말을 앞선 소식과 맞추고 다음 이름에서 멈춘다.
+Outside a shelter for returning troops, day. Sokro asks a released soldier for Nallo and his kin, one name at a time. He matches what he hears to earlier news and stops at the next name.
 
-속로: 말갈로 남겨 둔 사람들이 모두 거기 있었나?
+SOKRO: Were all the people kept as Malgal there?
 
-귀환 병사: 저희가 풀려날 때 그 줄에는 남아 있었습니다. 그 뒤를 직접 보지는 못했습니다.
+RETURNING SOLDIER: They were still in that line when we were released. I didn't see what happened after.
 
-속로는 다음 이름을 묻다가 멈춘다.
+Sokro starts to ask the next name and stops.
 
-중앙 군무 자리 안. 개소문에게 패전과 처분이 따로 올라온다.
+Inside the central military office. Reports of defeat and the prisoners' fate reach Gaesomun separately.
 
-개소문: 함께 싸운 사람들을 갈라 죽였다는 말인가.
+GAESOMUN: They separated people who fought together and killed them?
 
-다음 동원 보고를 들던 손이 멈춘다.
+His hand stops over the next mobilization report.
 
-개소문: 유족에게 무엇을 보낼 수 있는지 가져와라. 다음에 부를 사람 수만 세어서는 군사를 못 모은다.
+GAESOMUN: Bring me what we can send the families. We can't raise an army by counting only how many to call next.
 
-아직 누구에게도 지원이 도착하지 않는다.
+No support reaches anyone yet.
 
-## 집에 남겨 둔 활 {#t011-miran-loss}
+## The bow left at home {#t011-miran-loss}
 
-동부 마을 미란의 집 안 낮. 누리가 미란에게 다가간다. 미란은 도착한 소식을 듣고도 아이를 먼저 돌본다. 방 안에 남은 활을 가까이 본다.
+Inside Miran's home in the eastern village, day. Nuri approaches her. Even after hearing the news, Miran first cares for the child. See the bow left in the room close up.
 
-머루: 다음 군역과 집의 몫을 의논해야 하오.
+MEORU: We must discuss the next service and each household's share.
 
-미란: 먼저 약속한 것은 언제 옵니까?
+MIRAN: When will what was promised first arrive?
 
-머루가 속로를 본다.
+Meoru looks at Sokro.
 
-속로: 내 분하다고 이 집에서 또 사람을 낼 수는 없소.
+SOKRO: My anger doesn't let me demand another person from this household.
 
-그 활은 날로가 집에 두고 간 것이다. 미란이 원래 놓였던 자리에서 들어 아이 손이 닿지 않는 곳으로 옮긴다. 두 살 누리는 아버지가 돌아오지 않는 뜻을 알지 못하고 어머니를 부른다. 미란이 아이에게 돌아간다.
+Nallo left the bow at home. Miran lifts it from its usual place and moves it out of the child's reach. Two-year-old Nuri does not understand that her father will not return and calls her mother. Miran turns back to her.
 
-## 성주가 남기는 빈 곳 {#t012-ansi-holds}
+## The gap the castellan leaves {#t012-ansi-holds}
 
-안시성 바깥 성벽 낮. 손상 구간에서 먼 시선으로 수비와 수선이 갈리는 길을 본다. 성주가 남은 인원 팔천 안에서 일을 나눈다. 주민들은 물과 음식을 옮긴다.
+On Ansi's outer wall, day. From a damaged section, a distant view shows the paths separating defense and repairs. The castellan divides work among the 8,000 remaining armed personnel. Residents carry water and food.
 
-성주: 저 작업에서 사람을 빼 이쪽을 메운다. 저쪽은 오늘 못 끝낸다.
+CASTELLAN: Take people from that job and fill this gap. We won't finish the other side today.
 
-밤으로 이어지면 손상된 벽에 노동이 계속된다. 새벽, 당의 흙산이 인접 벽을 내려다보자 성주는 같은 사람을 전면과 사면으로 다시 나눈다. 모든 구간을 그가 한 번에 보지는 못한다.
+Work continues on the damaged wall into night. At dawn, when Tang's earthen mound overlooks the adjacent wall, the castellan redistributes the same people between front and slope. He cannot see every section at once.
 
-중앙 군무 자리. 개소문이 늦게 온 요구를 읽는다.
+Central military office. Gaesomun reads the request that arrived late.
 
-개소문: 갈아치울 사람을 찾는 게 아니다. 버틸 물자를 보내라.
+GAESOMUN: We're not looking for someone to replace him. Send supplies so he can hold.
 
-중앙 집무채의 낮. 안시성주의 불복을 적은 문서는 뒤로 밀리고 수선 요구가 개소문 앞에 남는다. 담당자가 출고 명을 받아 나간다. 바깥 창고에서 그 명을 확인한 사람이 수선 물자를 운반에 넘긴다.
+Central office, day. The document recording the castellan's defiance is pushed back; the repair request remains before Gaesomun. An official takes an order to release stock and leaves. At the outside storehouse, someone checks the order and hands repair supplies over for transport.
 
-## 북소리는 배까지 닿지 못한다 {#t012-naval-camp}
+## The drum cannot reach the ships {#t012-naval-camp}
 
-건안성 아래 당 수군 진 바깥 낮. 동쪽 작업 인력이 돌아오고 남쪽 말들이 들어오는 길이 겹친다. 미완성 울타리로 들어온 고구려 급습대 때문에 그 길이 막힌다. 장량은 말을 잇지 못한다. 장금수가 북을 친다.
+Outside Tang's naval camp below Geonan Fortress, day. Routes overlap as eastern workers return and horses come in from the south. Goguryeo raiders entering through the unfinished fence block the road. Zhang Liang cannot speak. Zhang Jinshu beats a drum.
 
-장금수: 가까운 병력부터 여기로!
+ZHANG JINSHU: Nearest troops, here first!
 
-북에 모이는 병력 뒤로 서쪽 하역 줄에서는 급습대가 선박에 닿는다. 승선 인원과 싸운 뒤 목재와 밧줄에 불이 붙는다. 연기가 하역 자리를 가리는 동안 반격은 육상 진을 되찾는다. 물러나는 고구려군을 당군이 밀어내도 이미 불탄 선체는 다시 떠오르지 않는다.
+Behind the troops gathering to the drum, raiders reach ships at the western unloading line. After fighting crews, they set wood and rope alight. While smoke covers the unloading area, the counterattack retakes the land camp. Tang pushes the withdrawing Goguryeo troops away, but burned hulls do not float again.
 
-수습 뒤 장량은 남은 배와 사람을 돌려보낸다. 중앙에서 개소문이 두 보고를 함께 받는다.
+After order is restored, Zhang Liang sends remaining ships and people back. At the center, Gaesomun receives both reports.
 
-개소문: 급습대는 물리쳤지만, 평양으로 올 배와 연결은 잃었단 말이지.
+GAESOMUN: They drove off the raiders, but lost the ships and connection needed to come to Pyongyang.
 
-역사가 음성: 육상 진영은 되찾았어도 원정을 이어 갈 수송 능력은 돌아오지 않았다. 배가 불탄 이 경과는 극에서 재구성했다. 당의 배가 모두 사라진 전과를 기록한 장면은 아니다.
+HISTORIAN (V.O.): Retaking the land camp did not restore transport capacity to continue the expedition. The fire's course is reconstructed in this drama; this is not a scene recording that every Tang ship disappeared.
 
-## 돌아간 적 뒤에 남은 수선 {#t012-withdrawal-645}
+## Repairs left after the enemy withdraws {#t012-withdrawal-645}
 
-645년 안시성 벽 위 낮. 돌아가는 적을 보는 사람의 어깨 너머로 빈 들을 본다. 환호가 낮아지면 물과 수선 물자를 옮기는 발소리가 이어진다. 중앙에서 개소문은 패전과 회군을 같은 자리에서 받는다.
+On Ansi's wall in 645, day. Over the shoulder of someone watching the enemy withdraw, see empty fields. As cheers subside, footsteps carrying water and repair supplies continue. At the center Gaesomun receives defeat and withdrawal in the same place.
 
-개소문: 고연수만 잘못 본 것이 아니다. 나도 먼저 힘을 믿었다.
+GAESOMUN: Go Yeonsu wasn't the only one who misjudged. I trusted strength first too.
 
-역사가 음성: 요동전에서 아사나사이는 맞은 화살을 뽑고 다시 싸웠다. 처라가한의 차남이 가진 능력이 당의 원정에 쓰였다. 같은 해 집실사력은 금산도에서 설연타를 견제했다. 요동에 온 적은 북방을 전부 비우고 온 나라가 아니었다.
+HISTORIAN (V.O.): During the Liaodong campaign, Ashina Sheer pulled out an arrow that struck him and fought again. Chuluo Khagan's second son's ability served Tang's expedition. That same year Zhishi Sili checked Xueyantuo on the Jinshan route. The enemy at Liaodong had not emptied its entire north.
 
-아사나사이의 행위를 새 특정 전장으로 재현하지 않고, 비교가 끝나면 지원을 기다리는 미란의 집으로 돌아온다. 집 안에 날로는 없다. 중앙에 성주의 물자 요구와 유족의 요구가 나란히 놓인다.
+Do not reenact Ashina Sheer's act at a newly specified battlefield. After the comparison, return to Miran's house, waiting for support. Nallo is not inside. At the center, the castellan's supply request and the bereaved families' request lie side by side.
 
-## 이름을 기억하는 두 사람 {#t013-eulbo-after-withdrawal}
+## Two people remember a name {#t013-eulbo-after-withdrawal}
 
-당군 회군 뒤 낮의 길과 나루를 건너 개소문이 안시성에 도착한다. 군무방 안, 성주가 수선과 운반을 맡은 사람의 말을 듣게 한다. 문빛 쪽에 선 을보가 일을 설명하다 개소문과 눈을 맞춘다.
+After Tang withdraws, Gaesomun travels daytime roads and ferries to Ansi. In the military office, the castellan has him hear from people assigned to repair and transport. Eulbo, standing in doorway light, explains the work and meets Gaesomun's eyes.
 
-개소문: 을보냐.
+GAESOMUN: Eulbo?
 
-을보: 저를 기억하십니까.
+EULBO: You remember me?
 
-개소문: 네가 활 쏘던 건 잊지 않았다.
+GAESOMUN: I haven't forgotten how you shot.
 
-을보: 지금은 짐을 듭니다. 전쟁은 끝났다는데 언제까지 여기 있어야 합니까?
+EULBO: Now I carry loads. They say the war's over. How long must I stay here?
 
-개소문이 성주를 본다.
+Gaesomun looks at the castellan.
 
-성주: 끝내야 할 곳이 있습니다.
+CASTELLAN: There are places we must finish.
 
-개소문: 오늘 꼭 마칠 보수부터 나누시오. 미룰 수 있는 데서 사람을 빼 교대를 붙입시다.
+GAESOMUN: First divide the repairs that must be done today. Take people from what can wait and rotate them in.
 
-성주: 덜 고친 구간이 남습니다.
+CASTELLAN: That leaves sections less repaired.
 
-개소문: 그 위험도 함께 맡겠습니다.
+GAESOMUN: I'll share that risk.
 
-이튿날 작업장 바깥. 을보가 하던 일을 다음 사람에게 넘긴다. 집으로 가는 길은 열리지 않았어도 그가 쉬는 시간이 생긴다. 개소문은 교대가 실제 이루어지는 것을 본 뒤 떠난다.
+Outside the work site next day. Eulbo hands his work to the next person. Though the road home has not opened, he gains time to rest. Gaesomun leaves after seeing the rotation actually take place.
 
-## 한 사람을 보내면 비는 곳 {#t013-recovery-or-army}
+## The vacancy left by sending one person home {#t013-recovery-or-army}
 
-전후 군무 자리 안 낮. 성 수비와 귀향, 무장 보고가 같은 물량을 요구한다. 개소문은 두 보고를 겹쳐 보다가 한쪽을 돌려준다.
+Inside the postwar military office, day. Reports on fortress defense, returning home, and arms all demand the same supplies. Gaesomun overlaps two reports, then returns one.
 
-개소문: 당장 방어할 몫은 남긴다. 모두 돌려보낼 수는 없다. 늦출 곳을 다시 가져와라.
+GAESOMUN: Keep what we need for immediate defense. We can't send everyone home. Bring me the places we can delay.
 
-사람들이 나간 뒤 해가 기울고 그는 혼자 남는다. 고건무의 마지막 말이 자기 기억의 음성으로 들린다. 죽은 사람이 새 대답을 하지는 않는다.
+After the others leave, the sun falls and he remains alone. Go Geonmu's last words are heard in the voice of his memory; the dead man gives no new answer.
 
-개소문 내면음성: 폐하께서 두려워하신 것이 이것이었습니까. 그래도 저들은 왔을 겁니다. 되살린 것을 또 태우러 왔을 겁니다.
+GAESOMUN (INNER VOICE): Was this what you feared, Your Majesty? Even so, they would have come. They would have come to burn what we restored.
 
-그가 다음 방어 보고를 자기 쪽으로 당긴다. 문밖 누구도 속의 말을 듣지 못한다.
+He draws the next defense report toward him. No one outside hears the words within.
 
-## 담당할 길을 나누다 {#t013-new-method}
+## Assigning responsibility for roads {#t013-new-method}
 
-같은 군무 자리, 다음 낮. 개소문이 지역별 책임자를 앞에 세우고, 모아 둔 보고를 담당자에게 하나씩 건넨다.
+The same military office, next day. Gaesomun has regional officials stand before him and hands the collected reports to them one by one.
 
-개소문: 성에서 버티는 동안 기동할 병력이 적의 짐과 연락을 끊는다. 맡은 길에서 본 것을 보고해라. 내가 와서 볼 때까지 기다리지 말고.
+GAESOMUN: While fortresses hold, mobile troops cut enemy supplies and messages. Report what you see on your assigned roads. Don't wait for me to come and see it.
 
-담당자: 길을 지키는 사람도 군량도 모자라면 어떻게 합니까?
+OFFICIAL: What if we lack both people and provisions to guard the roads?
 
-개소문: 그게 없으면 명령만 보낸들 소용없다. 필요한 사람과 군량, 맡을 책임자를 함께 올려라.
+GAESOMUN: Without them, orders alone are useless. Report the people, provisions, and person responsible together.
 
-역사가 음성: 수 전쟁 뒤 고건무에게 남았던 일이 그에게도 돌아왔다. 지연책을 들었다고 군대가 저절로 움직이지는 않았다. 길과 군량을 마련하고 맡을 사람을 찾아야 했다.
+HISTORIAN (V.O.): The work left to Go Geonmu after the Sui wars had come to him too. Hearing a proposal for delay did not make an army move by itself. Roads and provisions had to be secured, and people found to take responsibility.
 
-마지막에 남은 문서는 동부에 아직 도착하지 않은 보호의 몫이다. 개소문이 그 수송 담당자를 부른다.
+The last document is the share of protection not yet delivered to the east. Gaesomun calls its transport official.
 
-## 지킨 씨앗 앞에 오지 않은 짐 {#t014-failed-support}
+## Supplies fail to arrive beside seed kept for sowing {#t014-failed-support}
 
-646년 봄 전 동부 마을 바깥 낮. 미란은 머루와 함께 받을 물자를 기다린다. 누리가 옆에서 어머니를 따라 움직인다.
+Before spring 646, outside the eastern village, day. Miran waits with Meoru for supplies. Nuri moves beside her mother.
 
-미란: 이번 운반까지 나가면 파종을 못 합니다.
+MIRAN: If I go on this transport too, we won't be able to sow.
 
-머루가 협의한 안을 중앙에 올린 뒤, 허락한 답이 온다. 미란 집의 운반은 파종 뒤 한 차례로 밀리고 다른 집이 먼저 맡는다.
+Meoru sends the agreed proposal to the center, and approval returns. Miran's household transport is deferred to one turn after sowing; another household takes the earlier turn.
 
-먼저 맡은 가구 사람: 우리 숲일 할 날이 줄어듭니다.
+EARLY HOUSEHOLD MEMBER: We'll have fewer days for forest work.
 
-미란: 제 몫이 없어진 것은 아니지요. 파종 뒤 한 차례를 맡겠습니다.
+MIRAN: My turn hasn't disappeared. I'll take one after sowing.
 
-그러나 기다리던 짐이 오지 않는다. 미란이 무진에게 묻는다.
+But the expected load does not arrive. Miran asks Mujin.
 
-미란: 배정했다는 건 들었습니다. 언제 받습니까?
+MIRAN: I heard it was allocated. When will we receive it?
 
-무진: 내가 창고를 열 수는 없소. 요구를 다시 올리겠소.
+MUJIN: I can't open the storehouse. I'll send the request up again.
 
-중앙 군역 협의 자리 안 낮. 속로가 지연을 알린다.
+Inside a central military-service discussion, day. Sokro reports the delay.
 
-속로: 약속한 집에서 받은 것이 없습니다. 이대로 다음 군역을 말할 수 없습니다.
+SOKRO: The promised households have received nothing. We can't discuss the next service like this.
 
-고탁: 다른 임무가 급해 사람과 짐승을 먼저 돌렸습니다.
+GOTAK: Other work was urgent, so I sent the people and animals there first.
 
-개소문: 그 사정은 들었다. 그래서 이 집들은 무엇을 받았느냐.
+GAESOMUN: I've heard the reason. What have these households received?
 
-고탁: 아직 없습니다.
+GOTAK: Nothing yet.
 
-## 받은 물건을 세는 사람 {#t014-gubin-delivers}
+## The person who counts what she receives {#t014-gubin-delivers}
 
-중앙 군무 자리 낮. 개소문이 고탁을 물리고 구빈에게 맡긴다.
+Central military office, day. Gaesomun removes Gotak and assigns Gubin.
 
-구빈: 창고에 배정된 것은 있습니다. 마을로 가지 않았습니다.
+GUBIN: The allocation is in the storehouse. It hasn't gone to the village.
 
-개소문: 그것부터 옮겨라. 뒤로 밀릴 운반도 같이 보고해라.
+GAESOMUN: Move that first. Report the transport that will be delayed as well.
 
-파종 전 경당 앞 마당 낮. 운반이 도착하고 구빈이 가구 몫을 넘긴다. 미란은 곡식과 도구를 손으로 확인한다.
+Yard before the gyeongdang before sowing, day. The shipment arrives and Gubin hands over household shares. Miran checks grain and tools by hand.
 
-미란: 우리 집은 파종 뒤 한 차례지요?
+MIRAN: One turn for our household after sowing?
 
-구빈: 그 몫은 남아 있습니다.
+GUBIN: That share remains.
 
-먼저 맡은 가구 사람: 우리가 먼저 했으니 다음 몫은 없어집니까?
+EARLY HOUSEHOLD MEMBER: Since we went first, does our next turn disappear?
 
-구빈: 순서가 앞당겨진 겁니다. 없어진 몫은 아닙니다.
+GUBIN: Your turn was brought forward. It wasn't erased.
 
-중앙 군무 자리 안 낮.
+Inside the central military office, day.
 
-귀족: 우리도 병력을 잃었습니다. 말갈 집만 먼저 받는 것 아닙니까?
+NOBLE: We lost troops too. Aren't only Malgal households receiving theirs first?
 
-개소문: 같은 전쟁에서 죽었다. 그 기준을 바꾸라는 말인가?
+GAESOMUN: They died in the same war. Are you asking me to change that standard?
 
-동부 경당 앞 마당 낮. 속로가 중앙의 답을 전한다. 미란은 받은 물건을 곁에 둔 채 듣는다.
+Eastern gyeongdang yard, day. Sokro conveys the center's answer. Miran listens with the goods beside her.
 
-미란: 다음 협의에는 가겠습니다. 그렇다고 누리가 앞으로 할 일까지 지금 맡기지는 않겠습니다.
+MIRAN: I'll come to the next discussion. That doesn't mean I'll commit Nuri's future work now.
 
-## 큰 소리보다 알아들은 명령 {#t014-shared-command}
+## A command understood, not shouted louder {#t014-shared-command}
 
-646년 경당 앞 바깥 낮. 무진은 마당 끝으로 움직이는 청소년을 옆에서 본다.
+Outside the gyeongdang in 646, day. Mujin watches from the side as youths move toward the far end of the yard.
 
-무진: 거기서 멈춰라.
+MUJIN: Stop there.
 
-앞 사람은 멈추고 뒤 사람은 더 나아간다. 무진이 둘을 다시 같은 자리로 돌린다.
+The first stops; the one behind goes farther. Mujin brings both back to the same place.
 
-무진: 방금 무슨 뜻으로 들었느냐?
+MUJIN: What did you understand that to mean?
 
-청소년: 여기서 기다리라는 겁니까?
+YOUTH: To wait here?
 
-무진: 그래. 네 뒤 사람에게도 전해 보아라.
+MUJIN: Yes. Tell the person behind you too.
 
-청소년이 자기 말로 옮긴 뒤 다시 움직인다. 이번에는 뒤 사람도 같은 곳에 멈춘다. 관객에게는 공유 한국어로 옮기되 실제 배움은 다른 말 사이에서 이루어진다.
+The youth conveys it in his own words and moves again. This time the person behind stops in the same place. Render it in shared English for the audience, while the learning actually occurs across different languages.
 
-역사가 음성: 이 배움과 교역은 개소문이 처음 내린 선물이 아니었다. 두 선왕의 동방 정책에서 철제 도구와 소금과 곡식이 들어오고 가죽과 숲의 산물이 나갔다. 작은 약탈에는 반환 요구와 거래 제한, 한정 추격으로 대응했다. 여러 집단을 거느린 돌지계 같은 위협을 격퇴한 일은 그와 달랐다. 서로 다른 시기와 주체를 하나의 왕의 전공으로 모을 일은 아니다.
+HISTORIAN (V.O.): This learning and trade were not gifts Gaesomun first bestowed. Under the two previous kings' eastern policy, iron tools, salt, and grain came in; hides and forest products went out. Small raids met demands for return, trade limits, and limited pursuit. Defeating a threat like Dolji Gye, who commanded several groups, was different. Those different times and participants do not make one king's achievement.
 
-중앙에 초지부의 보고가 온다. 봄의 가축 이동과 군역이 겹쳤다. 개소문은 말과 무장을 갖춘 집들이 교대하여 임무를 잇도록 허락한다. 군역에 나간 사람의 가축은 다른 가구가 함께 이끌어야 한다는 답이 돌아온다. 그 부담을 남긴 채 교대가 시행된다.
+A report reaches the center from Chojibu: spring livestock movement overlaps military service. Gaesomun permits equipped households to rotate and keep the duty covered. Word returns that other households must drive the livestock of those serving. The rotation proceeds with that burden still present.
 
-합동 군역의 바깥길 낮. 속로가 부하에게 합류 지점을 다시 설명한다.
+On an outside road during joint service, day. Sokro explains the rendezvous again to a subordinate.
 
-속로: 짐을 얻어도 쫓지 마라. 이 길을 막고 돌아온다. 우리 뒤의 군사가 그때 움직인다.
+SOKRO: Don't chase after loot. Block this road and return. The troops behind us move then.
 
-노획물을 쫓을 수 있는 갈림길에서 부하들이 돌아선다. 중앙의 군무 자리 안 낮. 속로의 합류 보고를 받은 개소문이 다음 임무를 내린다.
+At a junction where they could pursue spoils, his men turn back. Inside the central military office, day, Gaesomun receives Sokro's rendezvous report and gives the next mission.
 
-개소문: 더 먼 길을 끊어라. 거기서는 네가 보고 판단해라. 자리를 옮기면 돌아와 이유를 보고하고.
+GAESOMUN: Cut a road farther away. There, observe and judge for yourself. If you change position, come back and report why.
 
-속로: 제 병력으로 맡겠습니다. 합류는 지키겠습니다.
+SOKRO: My troops will take it. We'll keep the rendezvous.
 
-## 비운 들을 다시 비우다 {#t015-raids-and-recovery}
+## Emptying the fields again {#t015-raids-and-recovery}
 
-647~648년 서북 변경 바깥 낮. 들의 일을 다시 시작한 사람들이 경보를 듣고 성으로 옮긴다. 앞에 고치던 자리가 남는다. 적이 물러난 뒤 그들이 돌아와 같은 도구를 집는다. 다음 경보에 일을 놓는 손은 전보다 느리다.
+Northwestern frontier, 647–648, outside, day. People who resumed field work hear an alarm and move into a fortress, leaving the place they were repairing. After the enemy withdraws they return and pick up the same tools. At the next alarm, hands set down work more slowly than before.
 
-역사가 음성: 당은 작은 병력을 번갈아 보내 쟁기를 놓게 하는 소모를 정책으로 삼았다. 석성·적리성, 역산과 박작성의 보고는 야전의 패배와 성의 버팀을 같은 승리로 부르지 않았다.
+HISTORIAN (V.O.): Tang made attrition a policy, alternating small forces to make people abandon their plows. Reports from Seokseong, Jeokriseong, Yeoksan, and Bakjakseong did not call field defeat and fortress endurance the same victory.
 
-동부 마을 바깥 낮. 미란이 다시 운반을 맡을 사람들 곁에서 묻는다.
+Outside the eastern village, day. Miran asks beside people taking on transport again.
 
-미란: 이번 몫을 내고도 다음 계절의 씨앗은 남길 수 있습니까?
+MIRAN: After this share, can we still keep seed for next season?
 
-그 요구가 도착한 뒤 중앙 군무 자리 안 낮. 구빈은 보호 물량과 다음 전역에 쓸 물량을 개소문 앞에 나란히 놓는다.
+After the request arrives, inside the central military office, day. Gubin places the protection allocation and supplies for the next campaign side by side before Gaesomun.
 
-구빈: 동부에서는 씨앗을 남길 수 있느냐고 묻습니다. 보호 물량을 먼저 보내면 말과 무장에 쓸 몫이 줄어듭니다.
+GUBIN: The east asks whether it can keep seed. If we send protection supplies first, there'll be less for horses and arms.
 
-개소문: 지킬 군사도 먹이고 무장시켜야 한다. 군마와 무장에 쓸 것은 줄일 수 없다.
+GAESOMUN: Defenders need food and arms too. We can't reduce the share for warhorses and equipment.
 
-구빈: 그러면 늦어질 몫이 남습니다.
+GUBIN: Then some allocations will be delayed.
 
-개소문: 늦을 일까지 가져와라. 다음에 창고에서 내보낼 양을 빠짐없이 보고해라.
+GAESOMUN: Bring me the delays too. Report every quantity next to leave the storehouse.
 
-구빈은 보호 물량의 요구를 치우지 않고, 늦어질 일을 함께 들고 나간다.
+Gubin does not put away the protection request; he leaves carrying it with the delayed work.
 
-개소문의 밤일이 계속되는 동안 지역의 운반도 계속된다.
+Gaesomun's night work continues, and so does transport in the regions.
 
-## 전과와 원정의 차이 {#t015-unequal-fronts}
+## The difference between gains and an expedition {#t015-unequal-fronts}
 
-자막을 나누어 ‘654년’, ‘655년’. 중앙 군무 자리 낮. 신성의 패전 보고가 접히고 귀단수 보고가 온다. 이어 남방 서른세 성을 얻었다는 소식이 온다. 보고를 보던 사람들이 다음 문서로 눈을 옮긴다. 얻은 성을 지킬 병력과 군량의 요구다.
+Separate captions: “654,” “655.” Central military office, day. The Sinseong defeat report is folded; the Gwidansu report arrives. Then comes news of thirty-three southern fortresses taken. The readers turn to the next document: a request for troops and provisions to hold them.
 
-개소문: 얻은 거점을 지킬 몫은 여기서 빠진다. 이 숫자가 여분의 원정군은 아니다.
+GAESOMUN: The share to hold what we took comes out of this. This number is not a spare expeditionary army.
 
-역사가 음성: 서른세 성은 고구려·백제·말갈 연합의 전과였다. 서북에서 되찾으려 한 거란의 영향력에는 가축과 거래길, 서쪽 소금 자원에 닿을 권리도 걸렸다. 모든 거란이 같은 형편에 있던 것은 아니다. 남쪽 백제도 자기 힘으로 회복했다. 554년 성왕의 전사 뒤 무왕의 군사력이 살아났고 의자왕은 642년 대야성을 비롯한 성들을 쳤다.
+HISTORIAN (V.O.): The thirty-three fortresses were a Goguryeo, Baekje, and Malgal coalition's achievement. Khitan influence sought in the northwest involved livestock, trade routes, and access to western salt resources. Not all Khitan lived in the same circumstances. Baekje in the south recovered through its own strength too. After King Seong died in 554, King Mu revived its military; King Uija attacked fortresses including Daeyaseong in 642.
 
-보고들이 계절과 함께 바뀐다.
+Reports change with the seasons.
 
-역사가 음성: 658년을 삼국사기는 이기지 못한 원정으로 적는다. 자치통감에는 적봉진 함락이 있다. 같은 전역을 남긴 기록의 차이다.
+HISTORIAN (V.O.): Samguk Sagi calls the 658 expedition unsuccessful. Zizhi Tongjian records the fall of Jeokbongjin. The accounts differ on the same campaign.
 
-659년 온사문의 패전 소식이 온다.
+News arrives of Onsamun's defeat in 659.
 
-역사가 음성: 온달의 후손 온사문도 그 전장에서 옛 영광을 되살리지 못했다.
+HISTORIAN (V.O.): Even Ondal's descendant Onsamun could not revive old glory on that battlefield.
 
-고휘가 보고를 놓지 않은 채 말한다.
+Go Hwi speaks without putting down the report.
 
-고휘: 나갈 때마다 이렇습니다. 성에 군사를 남겨야 합니다.
+GO HWI: It's like this every time we go out. We must keep soldiers in the fortresses.
 
-개소문: 성이 버는 시간에 끊을 사람도 있어야 하오.
+GAESOMUN: While the fortresses buy time, we need people to cut their connections too.
 
-자막 ‘660년’. 백제 왕도의 함락 소식이 따로 온다. 의자왕의 앞선 공세 보고를 보던 손이 패망 보고를 받는다. 부여풍의 부흥군 소식은 그 뒤에 놓인다.
+Caption: “660.” News of Baekje's capital falling arrives separately. Hands that read King Uija's earlier offensive report receive the report of his fall. News of Buyeo Pung's restoration forces follows.
 
-## 모르는 것을 물어 맡는 후계자 {#t015-successor-learns}
+## A successor asks what he does not know and delegates {#t015-successor-learns}
 
-661년 요동·국내성의 군무 자리 바깥 낮. 남생은 석부와 같은 음식을 먹다가 길과 작업을 묻는다.
+Outside a military office in Liaodong and Gungnaeseong in 661, day. Namsaeng shares Seokbu's food and asks about roads and work.
 
-남생: 내가 아는 길로 옮기면 이 짐도 갑니까?
+NAMSAENG: If we move along the road I know, can this load go too?
 
-석부: 사람이 가는 길과 이 짐이 가는 길은 다릅니다.
+SEOKBU: A road people can take and a road for this load are different.
 
-석부가 짐을 들고 통과할 수 있는 쪽을 가리킨다. 남생은 그 손이 멎을 때까지 듣는다.
+Seokbu points toward the way the load can pass. Namsaeng listens until his hand comes to rest.
 
-남생: 그 길을 아는 사람에게 맡겨라. 나는 필요한 사람과 물자를 마련하겠다. 못 옮기는 것이 있으면 내게 알려라. 맡긴 책임은 내가 진다.
+NAMSAENG: Assign someone who knows that road. I'll provide the people and supplies needed. Tell me if there's something you can't move. I'll bear responsibility for the assignment.
 
-석부가 맡을 작업 쪽으로 돌아가 사람을 모은다.
+Seokbu returns to his work and gathers people.
 
-평양, 남건은 자기 중기병이 대응하는 대열을 정돈하고 남산은 왕실·귀족 사이에 오가는 말을 받아 옮긴다.
+In Pyongyang, Namgeon organizes the formation responding with his heavy cavalry; Namsan receives and conveys words passing between royal house and nobles.
 
-평양 군무 자리 안 낮. 북방의 작업과 위임에 관한 보고가 도착한다. 개소문이 보고를 전하는 사람 쪽을 보고 듣는다.
+Inside the Pyongyang military office, day. A report arrives about work and delegation in the north. Gaesomun watches and listens to the person reporting.
 
-보고 음성: 남생께서 현지에 길을 물어 일을 맡기셨습니다. 옮기지 못하는 짐이 있으면 자신에게 알리라 하셨고, 맡긴 책임도 지겠다고 하셨습니다.
+REPORT VOICE: Lord Namsaeng asked local people about the route and assigned the work. He told them to report loads they couldn't move and said he would bear responsibility.
 
-개소문: 모르는 길을 아는 척하지는 않는군. 맡겼으면 끝까지 책임져야지. 다음에 어떻게 됐는지도 올려라.
+GAESOMUN: He doesn't pretend to know a road he doesn't. If he delegates, he must carry the responsibility through. Report how it goes next.
 
-개소문은 북방의 보고를 남건·남산의 일과 함께 놓는다. 북방 군무 자리로 돌아가면 남생이 다음 현지 보고를 받는다. 화면은 첫머리 요동성 보고가 올라오던 평양 회의당 문으로 건넌다. 회의당 안에 늦봄의 빛이 든다.
+Gaesomun places the northern report beside Namgeon and Namsan's work. Back at the northern office, Namsaeng receives the next local report. The view transitions to the Pyongyang council-hall door where the opening Yodongseong report arrived. Late-spring light enters the hall.

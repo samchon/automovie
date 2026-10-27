@@ -1,13 +1,13 @@
-# 백제로 향한 망명 가구들
+# Households exiled to Baekje
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--092-baekje-exiles).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--092-baekje-exiles).
 
-## 백제로 향한 망명 가구들 {#baekje-exiles}
+## Households exiled to Baekje {#baekje-exiles}
 
-**정의·범위**
+**Definition and scope**
 
-이 가구들은 같은 선대 내전 뒤 남쪽 교역·혼인 연고를 따라 백제로 옮겨 간 작품의 익명 역할 집단이다.
+These households are an anonymous group created for the work. After the same earlier civil war, they moved to Baekje along southern trade and marriage connections.
 
-**확정 내용**
+**Established facts**
 
-신라로 간 가족과 동일한 사람들로 합치지 않는다. 현재 예정 서사에서 고건무가 부친의 재건을 설명할 때 다시 모으지 못한 사람의 예로 등장한다. 별도 가족의 긴 대사와 생애는 없으며, 백제의 전군을 지휘한 이름난 장군으로 뒤바꾸지 않는다. 망명 방향과 연고는 작품의 채택 값이다.
+They are not the same people as the family that went to Silla. In the currently planned narrative, Go Geonmu mentions them as an example of people his father's reconstruction could not bring back. They have no extended dialogue or biography as a separate family, and must not be turned into a famous general commanding all Baekje's forces. Their destination and connections are choices made for the work.

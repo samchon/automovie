@@ -1,15 +1,15 @@
-# 옆자리의 태학 자제
+# The Taehak pupil in the next seat
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--121-taehak-receiving-pupil).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--121-taehak-receiving-pupil).
 
-## 옆자리의 태학 자제 {#taehak-receiving-pupil}
+## The Taehak pupil in the next seat {#taehak-receiving-pupil}
 
-**정의·범위**
+**Definition and scope**
 
-개소문과 동년배인 태학 자제로, 첫 자제 곁에서 배운다. 옆길이 비면 누구에게 물어야 하는지 묻는 다른 자제와, 뒤에 첫 자제의 빈 자리를 맡겠다고 답하는 옆 자제는 같은 사람으로 정한다. 이 연결은 창작 선택이다. 첫 자제의 이동과는 별도로 자기 인수 범위를 확인해 답할 수 있으며 그 답이 첫 자제의 출발 조건이 된다. 교사의 확인이나 실제 가문 병력의 권한을 대신하지 않는다.
+A pupil the same age as Gaesomun studies beside the first pupil. The other pupil who asks whom to consult if the side route is empty is the same pupil beside him who later offers to take over the first pupil’s empty place. This connection is an invented choice. Independently of the first pupil’s move, he can check and answer what he will take over; that answer is a condition of the first pupil’s departure. He does not stand in for the teacher’s confirmation or authority over actual family troops.
 
-**확정 내용**
+**Established facts**
 
-둥근 턱과 이마를 드러낸 묶은 머리로 첫 자제와 구별한다. 공통 훈련옷과 띠는 집단 정전을 따른다. 목소리는 중음보다 조금 낮고 부드러우며, 질문과 인수 답의 말끝을 짧게 닫는다. 이 식별은 창작이다. 이름·정확한 생년·가문의 이력이나 정치적 후일담은 정하지 않는다.
+A round chin and tied hair exposing his forehead distinguish him from the first pupil. Shared training clothes and sash follow the group canon. His voice is soft and slightly below the middle register; he closes the ends of his question and answer about taking over briefly. These identifiers are invented. No name, exact birth year, family history, or later political story is established.
 
-공유 규칙: [집단의 관계와 한계](006-taehak-pupils.md#taehak-pupils). 실제 발화·행동과 결과의 순서는 treatments와 scripts가 정한다.
+Shared rule: [the group’s relationships and limits](006-taehak-pupils.md#taehak-pupils). Treatments and scripts determine the order of actual speech, action, and results.

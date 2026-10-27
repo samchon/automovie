@@ -1,30 +1,25 @@
-# 연헌성의 생존과 설득
+# Yeon Heonseong’s survival and persuasion
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--011-heonseong).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--011-heonseong).
 
-## 연헌성의 생존과 설득 {#heonseong}
+## Yeon Heonseong’s survival and persuasion {#heonseong}
 
-**정의·범위**
+**Definition and scope**
 
-남생의 아들 헌성은 무너진 가문의 생존을 위해 아버지의 귀부와 외부 원조를 지지한다. 작품의 출생 연도는 651년으로, 묘지에 666년 당시 열여섯 살이라고 적힌 연차를 바탕으로 한다. 묘지는 헌성을 남생의 적자라고 부른다. 그러나 그 호칭만으로 헌충보다 먼저 태어났다고 확정할 수는 없다. 헌충의 동생이라는 순서는 작품에서 선택한 설정이다.
+Namsaeng’s son Heonseong supports his father’s submission and outside aid to preserve the broken family. The work’s 651 birth year derives from his epitaph’s traditional age of sixteen in 666. It calls him Namsaeng’s legitimate son, but that alone cannot establish he was born before Heonchung. The work chooses that he is Heonchung’s younger brother.
 
-**확정 내용**
+**Established facts**
 
+In the invented 666 design Heonseong is 166 centimeters tall, thin-armed and narrow-shouldered, with a soft round chin, brown eyes below straight thin black eyebrows, low nasal bridge, small mouth, and light tawny skin. His black hair is tied and he has no beard yet. He wears dark brown clothes, a black sash, and small fitted armor. He moves his eyes before making large bodily movements when looking at someone.
 
-창작한 외형에서 666년의 헌성은 키 166센티미터로, 팔이 가늘고 어깨가 좁다. 턱은 부드럽고 둥글다. 곧고 가는 검은 눈썹 아래 갈색 눈이 있고 콧등은 낮으며 입은 작다. 피부는 옅은 황갈색이다. 검은 머리를 묶고 아직 수염은 나지 않는다. 짙은 갈색 옷에 검은 띠를 두르며 몸에 맞춘 작은 갑옷을 입는다. 사람을 볼 때는 몸을 크게 움직이기보다 먼저 시선을 옮긴다.
+His middle-register voice is thin and clear. He breathes before speaking and explains the reason for a request fully. At an unfamiliar court his voice may quiet, but he does not swallow endings. Unlike his quickly decisive brother, he listens to an answer before continuing.
 
+Heonseong has martial training and can read the political situation. He admires his brother fighting at the front, but in crisis judges escape and outside aid a route to survival over continued fighting. His explanation to his father at Gungnaeseong of the need to connect with Tang relates to his own claim of achievement in the epitaph, but does not make one young boy’s genius decide all submission.
 
-목소리는 중간 높이로 가늘고 맑다. 말을 꺼내기 전에 숨을 고르고 요청하는 이유를 끝까지 설명한다. 낯선 조정에서는 소리가 작아져도 끝말을 삼키지 않는다. 빠르게 단정하는 형과 달리, 상대의 대답을 듣고 나서 다음 설명을 이어 간다.
+Namsaeng can send him as envoy because he can represent family words and position and accept treatment at an unfamiliar court. Heonseong does not believe Tang welcomes him only to help Goguryeo.
 
+Choosing to protect his living father and his own future also connects to the country’s fall, a burden he shares. The main story follows him staying beside his father until Namsaeng’s death in 679; later life is outside its ending.
 
-헌성도 무예를 익혔고 정세를 읽을 줄 안다. 앞서 싸우는 형을 동경하지만, 위기에서는 계속 싸우기보다 탈출하고 외부 원조를 구하는 편이 생존의 길이라고 판단한다. 국내성에서 아버지에게 당과 연결할 필요를 설명하는 일은 묘지에 남은 헌성 자신의 공적 주장과 맞닿아 있다. 다만 어린 소년 한 사람의 천재성이 귀부 전체를 결정했다는 뜻은 아니다.
+**References and unresolved matters**
 
-
-남생은 헌성을 사절로 보낼 수 있다. 가문의 말과 입장을 대변하고, 낯선 조정에서 받는 대우도 받아들일 능력이 있기 때문이다. 헌성은 당이 고구려를 돕기 위해서만 환대한다고 믿지는 않는다.
-
-
-살아 있는 아버지와 자기 앞날을 지키려는 선택은 나라의 멸망과도 연결되고, 헌성은 그 부담을 함께 떠안는다. 본편에서는 679년 남생이 죽을 때까지 헌성이 아버지 곁에 남는 관계를 다룬다. 이후 생애는 본편의 결말 범위 밖에 있다.
-
-**참조·미결**
-
-Sources: [「천헌성묘지」의 적자·열여섯 살·귀부 설득 기록](https://portal.nrich.go.kr/kor/ksmUsrView.do?ksm_idx=2746&menuIdx=584).
+Sources: [Legitimate-son status, age sixteen, and persuasion to submit, epitaph of Cheon Heonseong](https://portal.nrich.go.kr/kor/ksmUsrView.do?ksm_idx=2746&menuIdx=584).

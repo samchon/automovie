@@ -1,3 +1,3 @@
-# 사람을 맡는 자리
+# The responsibility of command
 
-- [사람을 맡는 자리](001-people-to-command.md)
+- [The responsibility of command](001-people-to-command.md)

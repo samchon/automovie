@@ -1,506 +1,505 @@
 
-# 움직일 수 있는 길
+# Roads that can carry them
 
-## 반대가 남은 자리에서 일을 나누다 {#t016-frame-closes}
+## Dividing the work while opposition remains {#t016-frame-closes}
 
-제작자용 구획 표기.
+Production section label.
 
-《대막리지》 최종 시청각 대본 · 제3부
+*Daemangniji*, final audiovisual screenplay · Part 3
 
-[사건 부모](../../../body/treatments/016-frame-closed.md#frame-closes) · [장면 부모](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t016-frame-closes)
+[Event parent](../../../body/treatments/016-frame-closed.md#frame-closes) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t016-frame-closes)
 
-화면 글 ‘661년 늦봄 · 처음의 회의’. 문서를 든 남생이 출입구에 이른다. 회의당 안의 고휘는 개소문 앞을 떠나지 않았다.
+On screen: “Late spring 661 · the opening council.” Namsaeng reaches the entrance carrying a document. Inside the council hall, Go Hwi has not left Gaesomun's presence.
 
-**고휘**　중앙군을 잃으면 돌아올 성도 지킬 수 없습니다.
+**Go Hwi**　If we lose the central army, we cannot defend the fortresses we would return to.
 
-개소문은 그의 반대가 남은 채 담당을 정한다.
+With his opposition still on record, Gaesomun assigns responsibilities.
 
-**개소문**　남생은 압록강에서 시간을 벌어라. 육상 짐길을 묶어라. 성마다 지킬 사람과 합류할 사람을 갈라 보내시오. 남건은 네 중앙 중기병과 함께 내가 이끄는 북쪽 기동군에 붙어라. 남산은 중앙과 왕실의 연락을 맡아라.
+**Gaesomun**　Namsaeng, buy time at the Yalu. Block the land supply routes. Divide the people at each fortress between those who will defend it and those who will join us. Namgeon, bring your central heavy cavalry into the northern mobile force I will lead. Namsan, handle communication between the center and the royal house.
 
-**남건**　지금 쓸 수 있는 군사입니다. 언제 칩니까?
+**Namgeon**　These are troops we can use now. When do we strike?
 
-**개소문**　성을 지키는 이와 차단하는 이가 시간을 벌고 나서다.
+**Gaesomun**　After the defenders and the interceptors have bought time.
 
-**남생**　도착한 병력과 아직 길에 있는 병력을 따로 보고하겠습니다.
+**Namsaeng**　I will report separately the troops who have arrived and those still on the road.
 
-**역사가**　가용 십팔만은 성과 지역에 흩어진 인력의 합계였다.
+**Historian**　The 180,000 available were the combined personnel scattered among fortresses and regions.
 
-사람마다 다른 출입구와 전달자를 통해 명을 내보낸다. 문서들이 나간다. 탁자에 짚은 고휘의 손은 움직이지 않는다. 평양 동문에서 수레가 멎는 소리가 들린다.
+Each sends orders out through different doors and messengers. Documents leave. Go Hwi's hand, resting on the table, does not move. At Pyongyang's east gate, carts are heard stopping.
 
-## 동문 앞에 온 두 수레 {#t016-gate-dispute}
+## Two carts at the east gate {#t016-gate-dispute}
 
-[사건 부모](../../../body/treatments/016-frame-closed.md#gate-dispute) · [장면 부모](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t016-gate-dispute)
+[Event parent](../../../body/treatments/016-frame-closed.md#gate-dispute) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t016-gate-dispute)
 
-평양 동문. 두락 앞에 고휘 가족의 수레와 유혜 모자의 수레가 멈춘다. 고휘는 직책에 남고 아내와 아홉 살 딸, 가산을 동쪽 처가로 보내려 한다. 등록 수비원 셋까지 호위로 붙이려 하자 두락이 해제 문서를 요구한다.
+At Pyongyang's east gate, the cart of Go Hwi's family and that of Yuhye and her son stop before Durak. Go Hwi intends to remain at his post and send his wife, nine-year-old daughter and property to his wife's family in the east. When he tries to assign three registered defenders as escorts, Durak asks for their release documents.
 
-**고휘**　내 집 돈으로 무장시켰소. 가족의 길을 맡기려는 것이오.
+**Go Hwi**　My household paid to arm them. I mean to entrust my family's journey to them.
 
-**두락**　등록된 근무는 그것으로 풀리지 않습니다.
+**Durak**　That does not release them from registered duty.
 
-**고휘**　그 명부에 내 이의도 붙여 올리시오.
+**Go Hwi**　Attach my objection to that roll when you send it up.
 
-두락이 중앙에 둘을 함께 보낸다. 유혜의 남편에게도 같은 문서를 요구한다. 유혜가 수레꾼을 보고 묻는다.
+Durak sends both to the center. He asks Yuhye's husband for the same document. Yuhye looks at the carter.
 
-**유혜**　나루를 건넌 뒤에도 데려다주실 수 있어요?
+**Yuhye**　Can you take us on after we cross the ferry?
 
-**수레꾼**　저는 나루까지만입니다.
+**Carter**　I only go as far as the ferry.
 
-유혜가 남편에게 돌아선다.
+Yuhye turns to her husband.
 
-**유혜**　나루 건너 친정 가는 길은 당신만 알잖아요. 당신이 못 가면 저희는 누구하고 갑니까?
+**Yuhye**　You are the only one who knows the road to my parents' home beyond the ferry. If you cannot come, who will take us?
 
-남편이 두락에게 요구받은 근무 해제 문서는 아직 없다. 고휘 집의 미등록 길잡이 둘은 자신들이 아는 다른 길을 가리킨다. 유혜는 그 손이 가리킨 쪽을 보다가 남편에게 돌아온다.
+Her husband does not yet have the release from duty Durak requested. Two unregistered guides with Go Hwi's household point to another route they know. Yuhye watches their hands, then turns back to her husband.
 
-## 판정 뒤에 골라야 하는 짐 {#t016-public-ruling}
+## What to pack after the ruling {#t016-public-ruling}
 
-[사건 부모](../../../body/treatments/016-frame-closed.md#public-ruling) · [장면 부모](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t016-public-ruling)
+[Event parent](../../../body/treatments/016-frame-closed.md#public-ruling) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t016-public-ruling)
 
-판정이 문에 도착한다. 두락이 양쪽 가구가 모두 듣는 자리에서 읽는다.
+The ruling reaches the gate. Durak reads it where both households can hear.
 
-**두락**　가족과 미등록 수행원은 나갈 수 있습니다. 고휘 어른과 등록 수비원은 근무를 계속합니다.
+**Durak**　Family members and unregistered attendants may leave. Lord Go Hwi and the registered defenders will continue their duties.
 
-**고휘**　회의에서 반대했기 때문이오?
+**Go Hwi**　Is this because I opposed him at the council?
 
-**두락**　유혜 남편도 같습니다. 해제 문서가 없는 수비원에게는 같은 명입니다.
+**Durak**　The same applies to Yuhye's husband. It is the same order for defenders without release documents.
 
-유혜 남편이 문안에 남는 것을 고휘 집에서도 본다. 고휘의 아내가 짐으로 돌아간다. 일부 비단과 패물을 내려놓고, 딸에게 입힐 옷과 식량을 남긴다. 숨길 재물을 따로 챙긴 뒤 닫히는 짐을 직접 눌러 본다.
+Go Hwi's household sees Yuhye's husband remain inside the gate. Go Hwi's wife returns to the luggage. She puts down some silk and jewelry, keeping clothes for her daughter and food. After separately securing valuables to hide, she presses down the closed bundle herself.
 
-**아내**　이것은 들고 갑시다. 더는 싣지 말고요.
+**Wife**　Let us take this. Load no more.
 
-딸이 짐을 든 사람을 따라 먼저 가려 한다. 어머니가 팔을 붙잡아 자기 곁에 세운다.
+Her daughter tries to go ahead after the person carrying the luggage. Her mother catches her arm and brings her beside her.
 
-**아내**　앞사람만 따라가지 마. 나하고 같이 가는 거야.
+**Wife**　Do not just follow the person in front. You are coming with me.
 
-길잡이 둘이 앞에 서고 손수레에 맞춘 짐이 따라간다. 문을 지나 나루 방향으로 옮기는 가족을 그들과 함께 본다. 문에서는 두락이 다음 통행을 받는다. 유혜 모자가 아직 기다리고 있다.
+The two guides lead, followed by luggage fitted to a handcart. Watch with the family as they pass through the gate toward the ferry. At the gate, Durak receives the next travelers. Yuhye and her son are still waiting.
 
-## 허락받고도 갈 수 없는 사람 {#t016-household-remains}
+## Allowed to leave, unable to go {#t016-household-remains}
 
-[사건 부모](../../../body/treatments/016-frame-closed.md#household-remains) · [장면 부모](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t016-household-remains)
+[Event parent](../../../body/treatments/016-frame-closed.md#household-remains) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t016-household-remains)
 
-유혜가 아들에게 문밖을 가리킨다. 수레꾼은 나루에서 돌아올 사람이라고 손으로 그 경계를 짚어 준다. 열린 문으로 고개를 뺀 아이에게 유혜가 손을 내민다.
+Yuhye points outside the gate for her son. She gestures to show the limit of the carter's journey: he will return from the ferry. As the child peers through the open gate, Yuhye reaches out.
 
-**유혜**　문은 나가도 돼. 그런데 나루 건너서는 누가 데려가 주니. 아직 없어. 집에 가 있자.
+**Yuhye**　We may go through the gate. But who will take us beyond the ferry? We do not have anyone yet. Let us go home and wait.
 
-동행을 알아봐 달라던 사람에게서 아직 기별이 없다. 남편은 근무지로 돌아가고 모자는 들어온 길을 거슬러 집으로 간다. 고휘가 가족이 간 방향을 마지막으로 본다. 근무지로 돌아온 뒤 보고는 짧게 끝난다.
+There is still no word from the person asked to find a companion. Her husband returns to his post, and mother and son retrace their way home. Go Hwi takes one last look in the direction his family went. After he returns to duty, the report ends briefly.
 
-첫 경보가 울린다. 소리를 듣는 유혜는 아직 도성 안 집에 있다. 아들의 짐을 다시 내려놓는다. 아들이 지낼 자리에 식량을 나누어 두고 이웃에게 다른 동행이 있는지 다시 알아봐 달라 청한다. 그 소리를 다음 장면의 성 안 노동 소리로 잇는다.
+The first alarm sounds. Yuhye hears it while still in their home inside the capital. She puts her son's luggage down again. She sets aside food where he will stay and asks a neighbor to look again for another companion. Carry the sound into the labor inside the fortress in the next scene.
 
-## 바다로 와서 막은 들 {#t017-siege-begins}
+## Fields sealed off by a force from the sea {#t017-siege-begins}
 
-[사건 부모](../../../body/treatments/017-siege-and-southern-bets.md#siege-begins) · [장면 부모](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t017-siege-begins)
+[Event parent](../../../body/treatments/017-siege-and-southern-bets.md#siege-begins) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t017-siege-begins)
 
-화면 글 ‘661년 8월’. 수로로 접근한 소정방군이 평양 바깥을 막는다. 해은과 장근은 수선할 물건과 먹을 몫이 차지하던 자리를 다시 나눈다. 유혜 집에서는 나갈 때 가져가려던 것을 아직 쓰고 있다.
+On screen: “August 661.” Su Dingfang's force approaches by water and seals off the area outside Pyongyang. Haeun and Janggeun redistribute the space occupied by things to repair and food shares. At Yuhye's home, they are still using what they meant to take when leaving.
 
-개소문과 남건의 중앙 기동군이 북상한다. 앞으로 간 대열과 아직 합류할 대열 사이에 길이 남아 있다. 육상 연결을 맡은 속로는 호위가 커진 운반대를 본다.
+Gaesomun and Namgeon's central mobile force moves north. A road remains between the formations that went ahead and those still to join. Sokro, responsible for land connections, sees a transport column with a larger escort.
 
-**속로**　정면에서 받지 마라. 저들이 지키지 못하는 다른 짐과 연락을 찾는다.
+**Sokro**　Do not face them head-on. Find other loads and communications they cannot protect.
 
-호위가 강한 무리를 피한 뒤 다른 연결로를 막는 병력이 갈라져 간다. 관객 전용 음성에 맞춰 남쪽 진영으로 이동한다.
+After avoiding the heavily guarded group, troops split off to block other connecting routes. Move south with an audience-only voice.
 
-**역사가**　같은 661년, 뇌음신과 생해는 술천성에서 실패한 뒤 북한산성을 공격했다. 동타천과 주민이 버텼다. 남녀 이천팔백은 전투원만 센 수가 아니었다.
+**Historian**　In the same year, 661, Noeumsin and Saenghae attacked Bukhansanseong after failing at Sulcheonseong. Dong Tacheon and the residents held out. The 2,800 men and women were not a count of combatants alone.
 
-돌이 성벽에 부딪치고 상한 건물에서 흙먼지가 떨어진다. 창고의 목재가 망루로 실려 나간다. 치울 물건은 좁아진 창고 안에 다시 쌓인다. 솜옷과 가죽을 매단 밧줄 그물이 날아온 돌을 받아 늘어진다. 접근하는 적에게 노포를 쏘고 마름쇠를 놓는 사이, 수선자는 다른 일손을 불러야 한다. 성 밖 공격군도 먹을 것을 나르고 공성 자리에 사람을 계속 붙인다.
+Stones strike the wall and dust falls from damaged buildings. Timber from the storehouse is carried to the watchtower. Things to be cleared away are stacked again in the narrowed storehouse. Rope nets hung with padded clothing and hides sag as they catch flying stones. While ballistae fire and caltrops are laid against the approaching enemy, repair workers must call for other hands. The attackers outside also carry food and keep people at the siege positions.
 
-**역사가**　스무 날 넘게 버틴 뒤 날씨가 달라졌다. 공격군이 물러났다. 603년에 고승을 물린 것은 진평왕의 구원군이었다. 같은 북한산성에도 물러난 까닭은 달랐다.
+**Historian**　After more than twenty days of resistance, the weather changed. The attackers withdrew. In 603, it was King Jinpyeong's relief army that turned back Go Seung. Even at the same Bukhansanseong, the reasons for withdrawal differed.
 
-평양의 수선 자리로 돌아온다. 해은이 완성한 것을 장근에게 넘기자 다음 물건이 그녀 앞에 놓인다.
+Return to the repair site in Pyongyang. When Haeun hands Janggeun the finished item, the next is placed before her.
 
-## 남이 무너지기 전에 시작할 전쟁 {#t017-baekje-assumption}
+## A war to begin before the south collapses {#t017-baekje-assumption}
 
-[사건 부모](../../../body/treatments/017-siege-and-southern-bets.md#baekje-assumption) · [장면 부모](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t017-baekje-assumption)
+[Event parent](../../../body/treatments/017-siege-and-southern-bets.md#baekje-assumption) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t017-baekje-assumption)
 
-화면 글 ‘661년, 백제 부흥군’. 부여풍이 왜 지원을 의논한 보고를 읽는다. 맞은편에 복신이 있다.
+On screen: “661, Baekje restoration forces.” Buyeo Pung reads a report discussing Wa support. Boksin is opposite him.
 
-**복신**　고구려가 버티지 못하면 당의 군사가 이쪽으로 돌아옵니다. 그전에 신라를 무너뜨려야 합니다. 저 땅 사람과 곡식을 얻지 못하면 우리 성들만으로 그 군대를 못 받습니다.
+**Boksin**　If Goguryeo cannot hold, Tang's troops will turn this way. We must bring Silla down first. Without the people and grain of that land, our fortresses alone cannot face that army.
 
-**부여풍**　왜에 청한 병력도 있소. 내 집의 약속도 걸었소. 왕의 명으로 지금부터 준비시키겠소.
+**Buyeo Pung**　We have also requested troops from Wa. My family's promise is at stake. I will order preparations to begin now in the king's name.
 
-**복신**　명하신다고 아직 못 모은 군사가 생기지는 않습니다. 준비할 사람은 제가 붙들고 있습니다.
+**Boksin**　An order will not create troops we have not yet assembled. I have kept hold of the people needed to prepare.
 
-부여풍이 바로 문서를 거두지 못한다.
+Buyeo Pung cannot put the document away at once.
 
-**역사가**　지원 협의는 660년부터였다. 부여풍의 아내는 왜 지배층 다신장부의 여동생이었다. 가족의 연결은 원조의 약속에 무게를 더했지만 왜의 모든 군사와 귀족을 움직일 권한은 아니었다.
+**Historian**　Discussions of aid began in 660. Buyeo Pung's wife was the younger sister of the Wa ruling figure Komoshiki. The family connection gave weight to the promise of aid, but it was not authority to command every Wa soldier and noble.
+**Buyeo Pung**　Report the forces that are ready to me.
 
-**부여풍**　준비된 병력을 내게 보고하시오.
+**Boksin**　I will first inspect those assembled. Some still await preparation...
 
-**복신**　모은 이들부터 살피겠습니다. 아직 준비를 기다릴 몫이…….
+**Buyeo Pung**　Hurry the departure.
 
-**부여풍**　출발을 서두르시오.
+Boksin cuts off his sentence and opens the end of the report again.
 
-복신이 말끝을 거둔 뒤 보고의 끝을 다시 펼친다.
+**Boksin**　You must first hear what we have not yet made up.
 
-**복신**　아직 채우지 못한 몫부터 들으셔야 합니다.
+## The assignment to wait {#t017-yalu-stakes}
 
-## 기다리는 임무 {#t017-yalu-stakes}
+[Event parent](../../../body/treatments/017-siege-and-southern-bets.md#yalu-stakes) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t017-yalu-stakes)
 
-[사건 부모](../../../body/treatments/017-siege-and-southern-bets.md#yalu-stakes) · [장면 부모](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t017-yalu-stakes)
+South bank of the Yalu. Seokbu points to the empty places of people who have finished their rotation.
 
-압록강 남안. 석부가 교대를 마친 사람들의 빈자리를 가리킨다.
+**Seokbu**　If they stay here long, those households lose hands in the fields. When do they go back?
 
-**석부**　여기 오래 있으면 저 집들은 밭에서 손이 빠집니다. 언제 돌아갑니까?
+**Namsaeng**　I do not know when it will end. Rotate the households that came first. They can leave only when new people take their posts.
 
-**남생**　언제 끝날지는 모르겠소. 먼저 온 집부터 바꾸시오. 새 사람이 자리를 받아야 나갈 수 있소.
+A report is read that pressure on the capital has increased.
 
-수도 압박이 커졌다는 보고가 읽힌다.
+**Namsaeng**　If we give up this crossing, their land supplies can reach the force besieging the capital. We must cut that road here so our other troops can assemble.
 
-**남생**　이 강목을 내주면 저들의 육로 보급이 수도 포위군까지 닿게 된다. 우리 다른 군사가 모이도록, 그 길을 여기서 끊어 놓아야 한다.
+A soldier watching across the river asks about a chance to attack.
 
-강 건너를 보던 병사가 공격할 기회를 묻는다.
+**Namsaeng**　Do not cross. Hold your place so they cannot cross.
 
-**남생**　건너가지 마라. 저들이 못 건너게, 네 자리를 지켜라.
+Namsaeng receives the same food as the soldiers. Seokbu passes him holding his food and looks for someone to take over the watch. A new sentry takes position and the soldier going home picks up his load. Only then does Seokbu look across the river. Tang troops are there.
 
-남생도 병사와 같은 음식을 받는다. 석부는 음식을 든 남생을 지나 교대받을 사람을 찾는다. 새 경계병이 자리에 서고 돌아갈 병사가 짐을 든다. 석부가 그제야 강 건너를 본다. 당군이 있다.
+## A month on watch {#t018-month-of-delay}
 
-## 한 달의 경계 {#t018-month-of-delay}
+[Event parent](../../../body/treatments/018-yalu.md#month-of-delay) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t018-month-of-delay)
 
-[사건 부모](../../../body/treatments/018-yalu.md#month-of-delay) · [장면 부모](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t018-month-of-delay)
+On screen: “September 661.” South-bank defenders stand on a flat riverbank where boats can easily land. When Tang troops press along the approach, they meet and turn them back. A fresh sentry passes the shoulder of a soldier returning from battle. The faces going back to the bank change, but the place they block remains the same. Even when asked to pursue, Namsaeng points to the position to defend on the south bank.
 
-화면 글 ‘661년 9월’. 배를 대기 쉬운 평탄한 강변에 남안 수비가 선다. 접근로로 당군이 밀고 오자 맞서 돌려세운다. 싸우고 돌아온 병사의 어깨를 새 경계 병사가 지나간다. 다시 강변으로 나간 얼굴은 바뀌었지만, 막는 곳은 그대로다. 남생에게 추격해도 되겠냐는 청이 와도 남안의 지킬 자리를 가리킨다.
+**Namsaeng**　Do not cross. Keeping them from crossing is our achievement now.
 
-**남생**　건너가지 마라. 건너오지 못하게 하는 것이 지금의 성과다.
+On the north bank, Qibi Heli increases observation upstream and downstream. Messengers split off in different directions. On the south bank too, without reducing the people facing the front, they seek people to assign to signals and the flanks. While one side calls for a relief, another calls the same person. The answer to the second call is late.
 
-북안 계필하력은 상류와 하류의 관측을 늘린다. 전달자가 다른 방향으로 갈라진다. 남안에서도 정면에 설 사람을 줄이지 못한 채 신호와 측방에 나눌 사람을 찾는다. 한쪽에서 교대를 부르는 동안 다른 쪽에서도 같은 사람을 부른다. 두 번째 부름에 답이 늦는다.
+**Historian**　They bought about a month.
 
-**역사가**　약 한 달을 벌었다.
+Move from Namsaeng's face waiting for the next signal toward a bend in the river. At the edge of the area under watch, the view is cut off.
 
-남생이 다음 신호를 기다리는 얼굴에서 강 굽이 쪽으로 이동한다. 지켜보는 범위 끝에서 시야가 끊긴다.
+## The enemy crosses beyond the bend {#t018-ice-crossing}
 
-## 굽이 너머에서 건너온 적 {#t018-ice-crossing}
+[Event parent](../../../body/treatments/018-yalu.md#ice-crossing) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t018-ice-crossing)
 
-[사건 부모](../../../body/treatments/018-yalu.md#ice-crossing) · [장면 부모](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t018-ice-crossing)
+On screen: “Late September–early October.”
 
-화면 글 ‘9월 말~10월 상순’.
+**Historian**　The timing of the river's freezing is a reconstruction for this story.
 
-**역사가**　강의 결빙 시점은 이 이야기의 재구성이다.
+Four kilometers east of the front, a river stretch concealed by woods and a bend. Qibi Heli first sends someone to test the narrow section. The person shifts their weight on the ice while horses and carts wait behind. Those behind follow only after the feet ahead reach the other side and confirmation returns.
 
-정면에서 동쪽 4km, 숲과 굽이에 가린 강. 계필하력이 그 좁은 구간을 확인할 사람을 먼저 보낸다. 사람은 얼음 위에서 몸의 무게를 옮겨 보고 뒤에는 말과 수레를 세워 둔다. 뒤의 사람은 그 발이 건너편에 닿고 확인이 돌아온 뒤 따른다.
+At the south-bank front, Namsaeng watches movement opposite him. A messenger reporting the enemy in the rear crosses his line of sight.
 
-남안 정면. 남생은 정면의 움직임을 보고 있다. 후방에 적이 왔다는 전달자가 이 시선을 가로질러 들어온다.
+**Namsaeng**　Pass it to the rear. Withdraw without breaking the line!
 
-**남생**　뒤로 알려라. 줄을 끊지 말고 물러나라!
+The messenger runs. Sections that receive the word move, but other troops who do not hear still face forward. Someone returning to fetch them is also driven back by the enemy's entry. Seokbu puts down a load to support people. Keep Namsaeng hearing the broken replies and the column retreating alive together.
 
-전달자가 달린다. 응답한 구간은 움직이지만 소리를 받지 못한 다른 병력은 여전히 앞을 향한다. 돌아와 그들을 데리러 가려는 사람도 적의 진입에 밀린다. 석부는 사람을 받치려고 짐을 내려놓는다. 끊긴 응답을 듣는 남생과 살아서 물러나는 대열을 함께 둔다.
+## Names received even after defeat {#t018-defeat-and-trust}
 
-## 패배 뒤에도 받는 이름 {#t018-defeat-and-trust}
+[Event parent](../../../body/treatments/018-yalu.md#defeat-and-trust) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t018-defeat-and-trust)
 
-[사건 부모](../../../body/treatments/018-yalu.md#defeat-and-trust) · [장면 부모](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t018-defeat-and-trust)
+At the Cheolsan assembly point, names are called after the retreat. When a name goes unanswered, Namsaeng does not hurry to cover it with the next. Seokbu reports the missing.
 
-철산 집결지. 후퇴 뒤 이름을 부른다. 대답이 없는 이름이 나오면 남생은 다음 이름을 서둘러 덮지 않는다. 석부가 누락자를 보고한다.
+**Namsaeng**　I gave the order to withdraw. Do not write this as the fault of soldiers who could not come. Leave unconfirmed names on the roll; do not erase them.
 
-**남생**　물러나라고 한 것은 나다. 못 온 병사들 탓으로 쓰지 마라. 확인 안 된 이름은 지우지 말고 남겨 둬라.
+Namsaeng looks at Seokbu.
 
-남생이 석부를 본다.
+**Namsaeng**　I will entrust the next south-bank position to you too.
 
-**남생**　다음 남안 자리도 자네에게 맡기겠소.
+The taking of names continues. The audience hears the scope of the count of the entire returning formation.
 
-이름을 받는 일은 계속된다. 관객에게는 돌아온 대열 전체를 셀 때의 범위를 들려준다.
+**Historian**　Of forty thousand, twenty thousand withdrew in formation. The remainder could not immediately be used again. Their deaths were not all confirmed.
 
-**역사가**　사만 가운데 이만이 대오를 지켜 물러났다. 나머지는 당장 다시 쓸 수 없었다. 그 모두의 사망이 확인된 것은 아니다.
+Namsaeng's report reaches the palace in Pyongyang. As we move to another report traveling north, an audience-only voice continues.
 
-남생의 보고가 평양 왕궁에 닿는다. 북쪽으로 향한 다른 보고의 이동으로 옮길 때 관객 전용 음성이 잇는다.
+**Historian**　Tang records claimed thirty thousand killed. That figure was not counted on the same basis as the twenty thousand who returned in order.
 
-**역사가**　당 기록은 삼만을 베었다고 전과를 남겼다. 정돈해 돌아온 이만과 같은 기준으로 센 수가 아니다.
+At the reporting post of the mobile force moving north, Gaesomun reads of the month gained. Namgeon, accompanying him, points to the final crossing.
 
-북쪽에서 움직이는 기동군의 보고 자리. 개소문이 한 달을 번 결과를 읽자 동행한 남건이 마지막 도하를 지적한다.
+**Namgeon**　They crossed in the end.
 
-**남건**　결국 건넜습니다.
+**Gaesomun**　That does not erase the month gained before it.
 
-**개소문**　그 전에 벌어 둔 한 달도 없어지는 것은 아니다.
+On the south bank, as Namsaeng organizes the names, the assigned person's voice is heard.
 
-남안. 남생이 이름들을 정리하는 동안, 맡은 이의 목소리가 들린다.
+## Empty camps with no known reason {#t019-departure-observed}
 
-## 이유 없는 빈 진 {#t019-departure-observed}
+[Event parent](../../../body/treatments/019-orders-from-the-north.md#departure-observed) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t019-departure-observed)
 
-[사건 부모](../../../body/treatments/019-orders-from-the-north.md#departure-observed) · [장면 부모](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t019-departure-observed)
+On screen: “October 661 · two days after the Tang departure.” An observer toward Buyeo confirms an empty camp. The direction taken is visible, but not the reason for departure. A separate observation follows that the Liaodong force has also left.
 
-화면 글 ‘661년 10월 · 당군 출발에서 이틀’. 부여 방면 관측자가 빈 진을 확인한다. 발길이 향한 방향은 보아도 떠난 까닭은 알 수 없다. 요동 방면군도 뒤이어 떠났다는 별도 관측을 받는다.
+A messenger bearing the Buyeo observation travels. The next place we see him is before Namsaeng. On screen: “Two more days to deliver.” He reports only what was confirmed on the Buyeo side.
 
-부여 관측을 가진 전달자가 길을 간다. 다음에 그를 보는 곳은 남생 앞이다. 화면 글 ‘전달에 다시 이틀’. 그가 부여 쪽에서 확인한 범위만 아뢴다.
+**Namsaeng**　Did you see why they left?
 
-**남생**　떠난 이유도 보았나?
+**Messenger**　We confirmed only the direction.
 
-**전달자**　방향만 확인했습니다.
+Namsaeng keeps the south-bank passage guarded. From the hand sending the observation to Pyongyang, move to the palace hand receiving it. On screen: “Eight additional days to Pyongyang.” The open report contains only the direction and the empty camp.
 
-남생은 남안 길목을 계속 지키게 한다. 관측 내용을 평양으로 보내는 손에서 왕궁이 그 보고를 받는 손으로 건넌다. 화면 글 ‘평양행에 추가 여드레’. 펼친 내용에는 방향과 비어 있던 진만 있다.
+In the northern operational area, Gaesomun reconciles the reconnaissance gathered here.
 
-북쪽 작전권. 개소문은 이쪽에서 모은 정찰을 다시 맞춘다.
+**Namgeon**　We must pursue now.
 
-**남건**　지금 쫓아야 합니다.
+**Gaesomun**　First check the remaining connections. We turn toward Nufang.
 
-**개소문**　남은 연결부터 확인하라. 누방 쪽으로 돌린다.
+A messenger bearing Gaesomun's order heads for Nufang. As the camera follows his disappearing back, “Time turned back for the audience alone” appears. The sounds of the northern operational area where the order was just given stop.
 
-개소문의 명을 받은 전달자가 누방으로 향한다. 사라진 등을 따라가던 화면 위에 ‘관객에게만 되돌리는 시간’이 나타난다. 방금 명령이 나온 북쪽 작전권의 소리는 끊긴다.
+## Three orders from outside {#t019-diversion-explained}
 
-## 밖에서 온 세 조서 {#t019-diversion-explained}
+[Event parent](../../../body/treatments/019-orders-from-the-north.md#diversion-explained) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t019-diversion-explained)
 
-[사건 부모](../../../body/treatments/019-orders-from-the-north.md#diversion-explained) · [장면 부모](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t019-diversion-explained)
+On screen: “Time turned back for the audience alone · mid-September.”
 
-화면 글 ‘관객에게만 되돌리는 시간 · 9월 중순’.
+**Historian**　In this story, three orders responding to the Tiele crisis set out in early mid-September.
 
-**역사가**　이 이야기에서는 철륵의 위기에 대응할 조서 셋이 이른 9월 중순에 길을 나선다.
+The three orders prompted by the Tiele crisis go to different recipients. While one is read, another is in transit. On Xiao Siye's side, the person receiving an order hands it to the person in charge of preparations. Ashina Zhong's side separately receives an order and prepares troops to depart. Qibi Heli's side turns its formation under an order received after the crossing. Complete the receipt, preparation and departure for each order once before moving to the next recipient.
 
-철륵 위기에 따른 조서 셋이 서로 다른 수신처로 간다. 한 장이 읽히는 동안 다른 장은 운반 중이다. 소사업 쪽에서 조서를 받은 사람이 준비를 맡은 이에게 그 조서를 건넨다. 아사나충 쪽에서도 별도로 조서를 받아 출발할 병력을 갖춘다. 계필하력 쪽에서는 도하 뒤에 받은 명으로 대열을 돌린다. 각 조서의 수신, 준비, 출발을 한 차례씩 끝내고 다음 수신처로 넘어간다.
+**Historian**　All three had left before October 20 at the latest. Khitan who had stood on Goguryeo's side tried to intercept Ashina Zhong on his return and lost. Goguryeo troops were not at that battle.
 
-**역사가**　늦어도 10월 20일이 오기 전에는 셋 모두 이탈했다. 고구려 쪽에 섰던 거란은 돌아가는 아사나충을 가로막다가 졌다. 그 전장에 고구려군이 있었던 것은 아니다.
+**Historian**　Outside circumstances emptied two targets of attack. Zheng Mingzhen's Nufang force, left alone, had fewer connections through which relief could come.
 
-**역사가**　외부 사정으로 두 공격 목표가 비었다. 홀로 남은 정명진 누방군은 구원으로 이어질 곳이 줄었다.
+Time returns to Gaesomun's order toward Nufang. The report before him records only the direction in which the enemy left.
 
-시간은 개소문의 누방 방향 명령으로 돌아온다. 그의 앞에 있는 보고에는 적이 떠난 방향만 적혀 있다.
+## Defenders to leave and people to borrow {#t020-local-concentration}
 
-## 성에 남길 사람과 빌릴 사람 {#t020-local-concentration}
+[Event parent](../../../body/treatments/020-nubang.md#local-concentration) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t020-local-concentration)
 
-[사건 부모](../../../body/treatments/020-nubang.md#local-concentration) · [장면 부모](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t020-local-concentration)
+On screen: “Late October, west of Yodongseong.” A local commander divides the defenders who can stay from the people to send. The defenders remaining stand at the fortress gate. Troops going to join pass through it. They wait for the signal from infantry coming from Sinseong. Once the signal is confirmed, the arriving formation takes its position.
 
-화면 글 ‘10월 하순, 요동성 서쪽’. 현지 지휘자가 남길 수비와 보낼 사람을 나눈다. 성문에는 남길 수비가 선다. 그 문을 지나 합류 병력이 떠난다. 신성에서 오는 보병의 신호를 기다린다. 신호가 확인된 뒤 도착한 대열이 자기 자리를 잡는다.
+**Gaesomun**　Sokro, take the supply roads to the northwest and southwest. Local infantry will pressure the camp from the fortress side.
 
-**개소문**　속로는 서북과 서남의 짐길을 맡아라. 현지 보병은 성 쪽에서 진을 압박한다.
+**Namgeon**　The central heavy cavalry will wait here. Keep us separate from the eastern pressure and coordinate the signal.
 
-**남건**　중앙 중기병은 여기서 기다리겠소. 동쪽 압박과 섞지 말고 신호를 맞춥시다.
+The road visible to Sokro's western force differs from the camp visible to the separate eastern force. Someone newly arrived tries to run forward, but stops when ordered to confirm the assignment. Only after separate replies return that the western supply roads and eastern camp have been assigned do they move.
 
-속로의 서쪽 병력에서 보이는 길과 동쪽 별도 병력에서 보이는 진이 다르다. 막 도착한 사람이 달려 나가려 한다. 담당을 확인하라는 명에 멈춘다. 서쪽 짐길과 동쪽 진을 맡았다는 답이 따로 돌아온 뒤에야 움직인다.
+## The opening left by the escort {#t020-camp-separation}
 
-## 호위를 보낸 뒤에 생긴 틈 {#t020-camp-separation}
+[Event parent](../../../body/treatments/020-nubang.md#camp-separation) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t020-camp-separation)
 
-[사건 부모](../../../body/treatments/020-nubang.md#camp-separation) · [장면 부모](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t020-camp-separation)
+At Zheng Mingzhen's camp, a person requesting an escort to retrieve blocked cargo and another asking for troops to withstand pressure from the east compete for their turns.
 
-정명진의 진. 막힌 짐을 데려올 호위를 요청하는 사람과 동쪽 압박을 버틸 병력을 청하는 사람이 차례를 다툰다.
+**Zheng Mingzhen**　Without the cargo we cannot hold here either. Send an escort, but do not leave the east empty.
 
-**정명진**　짐을 못 받으면 여기서 버티지도 못한다. 호위를 보내되 동쪽을 비우지 마라.
+An escort going west and cargo trying to enter the camp meet on the same access road. While each waits for the other to give way, the east asks for more troops. Zheng Mingzhen separates forces to recover the western supply road and hold the front. Sokro cuts communication between the departing escort and the troops remaining. A returning messenger cannot take the original road and turns back. During that delay, the central army concentrates its attack on the separated force. The western messenger turns toward the sound of fighting in the east. The road he sees is still blocked.
 
-서쪽으로 나가는 호위와 진 안으로 들어오려는 짐이 같은 출입길에서 만난다. 먼저 비킬 쪽을 기다리는 동안 동쪽에서는 더 많은 병력을 청한다. 정명진은 서쪽 짐길을 되찾을 병력과 전면을 버틸 병력을 갈라 보낸다. 나간 호위와 남은 병력 사이의 연락을 속로가 끊는다. 돌아오던 연락자가 처음 길로 못 가고 돌아선다. 그 지체 동안 중앙군이 갈라진 쪽에 타격을 모은다. 서쪽의 연락자는 동쪽 싸움 소리에 고개를 돌린다. 그가 보는 길은 여전히 막혀 있다.
+Individuals flee south. A group following tries to gather again but loses track of each other's positions. Follow troops who cannot find one another even when orders reach them. At the place where the last messenger cannot bring back an answer, the sounds of battle recede.
 
-남쪽으로 달아나는 개인들이 있다. 따라 나가던 무리가 다시 뭉치려 하지만 서로의 위치를 잃는다. 명이 전해져도 서로를 찾지 못하는 병력을 따라간다. 마지막 전달자가 답을 가져오지 못한 자리에서 전투 소리가 멀어진다.
+## An army that leaves the spoils {#t020-victory-cost}
 
-## 전리품을 남겨 두는 군대 {#t020-victory-cost}
+[Event parent](../../../body/treatments/020-nubang.md#victory-cost) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t020-victory-cost)
 
-[사건 부모](../../../body/treatments/020-nubang.md#victory-cost) · [장면 부모](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t020-victory-cost)
+After the attack, someone lifts spoils but puts them down at an order to check horses and equipment for the return. They examine separately how the horses move and whether people can lift their equipment again.
 
-공격 뒤. 사람이 전리품을 들어 올리려다 돌아갈 말과 군장을 확인하는 명에 내려놓는다. 말의 움직임과 사람이 자기 군장을 다시 들 수 있는지를 각각 살핀다.
+**Official**　About five thousand of the mobile force must be removed from the present mission.
 
-**담당자**　기동군 약 오천은 지금 임무에서 빼야 합니다.
+**Commander**　We move after re-equipping the remaining thirty-five thousand. Send the local infantry back to the fortress.
 
-**지휘자**　남은 삼만 오천을 다시 갖춘 뒤 움직인다. 현지 보병은 성으로 돌려보내라.
+Show the different directions of the infantry returning to the fortress and the mobile force that must go toward the capital. A returning supply official makes them wait for an answer about the next road. The column about to depart puts down its loads and repairs equipment again. After receiving cooperation from an official in another district and sending the loads again, show: “Early December, assembly at Sinseong.” People and horses needing recovery enter Sinseong.
 
-성으로 돌아가는 보병과 수도 쪽으로 가야 할 기동군의 방향을 갈라 보여 준다. 돌아온 급양 담당자가 다음 길의 답을 기다리게 한다. 출발시키려던 대열이 짐을 내려놓고 다시 군장을 손본다. 다른 구역의 담당자에게 협조를 받고 다시 짐을 보내는 과정을 거친 뒤 화면 글 ‘12월 초, 신성 집결’. 회복할 사람과 말이 신성으로 들어온다.
+## Feed that loyalty cannot provide {#t021-reserves-committed}
 
-## 충성으로 채울 수 없는 먹이 {#t021-reserves-committed}
+[Event parent](../../../body/treatments/021-winter-reserves.md#reserves-committed) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t021-reserves-committed)
 
-[사건 부모](../../../body/treatments/021-winter-reserves.md#reserves-committed) · [장면 부모](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t021-reserves-committed)
+Sinseong, early December. Show separately where horse fodder is handed over and where grain is distributed to people. Someone requesting enough to feed about fifty thousand horses asks again about available stocks. Confirm separately the grain and hay central and noble storehouses will provide and the carts, oxen and labor the regions can provide. When hands reach for seed and the last food of displaced households, a manager stops them.
 
-신성, 12월 초. 말 사료를 넘기는 곳과 사람에게 곡식을 나누는 곳을 나누어 본다. 약 오만 필을 먹일 몫을 요청한 사람이 가용 재고를 다시 묻는다. 중앙과 귀족 창고가 낼 곡물·건초, 지역이 낼 수레·소·노동을 별도 항목으로 확인한다. 종자와 피난 가구 마지막 양식에 손이 가자 관리자가 막는다.
+**Manager**　That is not for release. If you take it, there will be nothing to plant next time or to leave for today.
 
-**관리자**　그것은 내보낼 몫이 아닙니다. 이걸 가져가면 다음에 심을 것도, 오늘 남길 것도 없습니다.
+The dispatch official receives answers from the twenty-two districts responsible for feeding the force in transit. Another official separately checks the extra food and fodder for two days waiting to cross.
 
-출고 담당자가 이동 중 급양을 맡을 스물두 구역의 답을 받는다. 다른 담당자는 도하 대기 이틀에 더 들 식량과 사료를 따로 확인한다.
+**Official**　We allocate food and fodder for waiting after arrival separately in ten districts north of Pyongyang. The share for seven thousand light cavalry traveling south separately is not included in this marching allocation.
 
-**담당자**　도착 뒤 기다릴 식량과 사료는 평양 이북 열 구역에 따로 잡습니다. 별도 남하하는 칠천 경기병에게 갈 것은 이쪽 행군 몫에 넣지 않았습니다.
+**Gaesomun**　Have the garrisons left in those localities guard the routes.
 
-**개소문**　길목은 그 고장에 남긴 수비대로 지키게 하시오.
+Present the numbers onscreen only as allocations by role. Label the districts “In-transit supply: 22 districts” and “Post-arrival waiting supply: 10 districts.” Leave unresolved how much the actual places in the two groups overlap.
 
-화면의 수량은 역할별 배정으로만 제시한다. 역할별 구역 표기에 ‘이동 급양 22구역’, ‘도착 후 대기 급양 10구역’을 둔다. 두 묶음의 장소가 실제로 얼마나 겹치는지는 미정으로 남긴다.
+A family representative asked to open a storehouse first questions Gaesomun before fixing the amount to release.
 
-먼저 창고를 열도록 요구받은 가문 대표가 출고량을 확정하기 전에 개소문에게 묻는다.
+**Family representative**　If our storehouse supplies first, when will our share be returned? The work in our locality will be pushed back again.
 
-**가문 대표**　우리 창고에서 먼저 내면, 돌려받을 몫은 언제 옵니까? 우리 고장에서 할 일은 또 뒤로 밀립니다.
+**Gaesomun**　Even privately provided horses cannot travel without feed. Obtain the amount each storehouse will release and the deadline for passage. Record the local work delayed because of it as well.
 
-**개소문**　사비로 마련한 말도 먹이지 않고는 못 간다. 창고마다 출고량과 통행할 시한을 받아라. 그 때문에 뒤로 갈 지역 일도 함께 남겨라.
+Deferred work is written beside district names. When the family representative fixes the stock, fodder comes out of the storehouse. A person who came for grain waits for the fodder loads to pass. Local people who remain here with carts and oxen have their own work too. Behind the moving carts, the next loads form a line.
 
-구역 이름 옆에 미룰 일이 적힌다. 가문 대표가 재고를 확정하자 창고에서 사료가 나온다. 곡식을 받으러 온 사람은 사료 짐이 지나갈 때까지 기다린다. 수레와 소를 붙잡고 이곳에 남은 지역 인원에게도 자기 일이 있다. 움직이는 수레 뒤로 다음 짐이 줄을 잇는다.
+## The fortress troops stop after winning {#t021-december-sortie}
 
-## 이긴 뒤에 멈춘 성병 {#t021-december-sortie}
+[Event parent](../../../body/treatments/021-winter-reserves.md#december-sortie) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t021-december-sortie)
 
-[사건 부모](../../../body/treatments/021-winter-reserves.md#december-sortie) · [장면 부모](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t021-december-sortie)
+On screen: “That December, Pyongyang fortress garrison.” The central mobile force and Namgeon's heavy cavalry have not yet arrived from the north.
 
-화면 글 ‘같은 12월, 평양성 수비군’. 북쪽의 중앙 기동군과 남건 중기병은 아직 닿지 않았다.
+The Pyongyang garrison attacks the first strongpoint. A soldier who enters opens the way inside and calls those behind. Troops outside guard the entrance and send others in after him. The Tang defenders withdraw and Goguryeo soldiers take their place. After assigning people to remain, they move to the second strongpoint. There too, those behind enter after receiving an answer from those who went in. Having taken the second strongpoint, the defenders gather scattered troops again.
 
-평양 수비군이 첫 보루를 공격한다. 들어간 병사가 안쪽의 길을 열어 뒤를 부른다. 밖의 병력은 그 입구를 지키며 이어 들어갈 사람을 보낸다. 보루의 당 수비가 물러나고 고구려 병사가 그 자리에 선다. 남길 사람을 나눈 뒤 두 번째 보루로 넘어간다. 그곳에서도 진입한 사람의 응답을 받고 뒤가 따라 들어간다. 두 번째 보루를 차지한 수비군이 흩어진 병력을 다시 모은다.
+**Go Hwi**　The fortress troops took these strongpoints. Can you go farther?
 
-**고휘**　성의 군사로 얻은 보루요. 더 나갈 수 있소?
+**Garrison commander**　We hold here. If we go farther, we leave this place empty too.
 
-**수비 지휘자**　여기까지 지킨다. 더 나가면 이곳도 비운다.
+Haeun repairs items brought back inside the fortress. Janggeun brings news of victory and hands her the next item. Haeun gives up the finished one and takes it. Yuhye's husband is not released from duty either.
 
-성 안으로 돌아온 물건을 해은이 수선한다. 장근이 승리 소식을 전하며 다음 수선물을 건넨다. 해은은 마친 물건을 내주고 그것을 받는다. 유혜의 남편도 근무에서 풀려나지 않는다.
+Outside the wall, the besiegers still seal off the fields. The garrison commander again divides personnel to remain at the two secured strongpoints. The soldiers who took them wait there for the next relief.
 
-성벽 밖에서는 여전히 포위군이 들을 막고 있다. 수비 지휘자가 확보한 두 보루에 남길 인원을 다시 나눈다. 두 보루를 얻은 병사들이 그곳에서 다음 교대를 기다린다.
+## Horses fed and moving, provisions stopped {#t021-march-and-starvation}
 
-## 먹고 움직이는 말과 멈춘 군량 {#t021-march-and-starvation}
+[Event parent](../../../body/treatments/021-winter-reserves.md#march-and-starvation) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t021-march-and-starvation)
 
-[사건 부모](../../../body/treatments/021-winter-reserves.md#march-and-starvation) · [장면 부모](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t021-march-and-starvation)
+In the northern column, the vanguard stops to await an answer on stock, roads and access in the next supply district. When it comes back, the front sets out and support personnel receive and move the loads behind.
 
-북쪽 대열. 다음 급양 구역의 재고·길·출입 답을 기다려 선두가 선다. 답이 돌아오면 앞이 출발하고 지원자는 뒤의 짐을 받아 움직인다.
+**Historian**　They had 550 kilometers to travel. They moved roughly twenty to twenty-five kilometers a day, on twenty-two traveling days.
 
-**역사가**　오백오십 킬로미터를 가야 했다. 하루에 대략 이십에서 이십오 킬로미터씩, 움직인 날이 스물둘이었다.
+At a river, the same horses stand in place and receive feed. The food and hay allocated in advance are unpacked. Support personnel who carried those loads also receive food.
 
-강 앞에서는 같은 말들이 제자리에 선 채 먹이를 받는다. 미리 더 배정한 식량과 건초를 푼다. 그 짐을 나른 지원자에게도 먹을 몫을 넘긴다.
+**Historian**　People and horses had to eat during the two days spent waiting here too. Those two days were in addition to the twenty-two days of travel.
 
-**역사가**　여기서 기다린 이틀에도 사람과 말은 먹어야 했다. 그 두 날은 스물두 날의 이동과 따로 들었다.
+That winter, at Su Dingfang's camp.
 
-같은 겨울 소정방 진.
+**Supply official**　It is difficult to hold out any longer on the remaining stock.
 
-**급양 담당자**　남은 재고로 더는 버티기 어렵습니다.
+**Su Dingfang**　Ask Silla. Ask how it can be delivered as well.
 
-**소정방**　신라에 청하라. 받을 길도 함께 물어라.
+At Ren Yaxiang's camp.
 
-임아상 진.
+**Ren Yaxiang**　How much remains in the storehouse?
 
-**임아상**　창고에 얼마가 남았느냐?
+A report of remaining provisions is opened before him. Move to Pang Xiaotai's camp.
 
-그 앞에 남은 군량의 보고가 펼쳐진다. 방효태 진으로 장소를 바꾼다.
+**Pang Xiaotai**　First check today's ration for our soldiers.
 
-**방효태**　우리 병사들에게 오늘 나눌 몫부터 확인해라.
+From hands preparing rations, move to feed for the horses of the northern column.
 
-배급을 준비하는 손에서 북쪽 대열의 말 먹이로 옮겨 간다.
+On screen: “Early January 662, north of Pyongyang.” The arriving vanguard moves aside and waits for the loads behind. Instead of cheers at arrival, voices ask for the next supply district.
 
-화면 글 ‘662년 1월 초, 평양 북부’. 도착한 선두가 비켜서고 뒤의 짐을 기다린다. 도착의 환호 대신 다음 급양 구역을 묻는 소리가 난다.
+## A rendezvous that does not all enter the fortress {#t022-northern-assembly}
 
-## 성 안으로 다 들어가지 않는 합류 {#t022-northern-assembly}
+[Event parent](../../../body/treatments/022-january-concentration.md#northern-assembly) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t022-northern-assembly)
 
-[사건 부모](../../../body/treatments/022-january-concentration.md#northern-assembly) · [장면 부모](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t022-northern-assembly)
+Namgeon first regroups the remaining horses and people of his returning heavy cavalry. The fortress retains its other defenders and sends out only the infantry it can spare. Handover continues at each supply point. On receiving the signal from the direction of the fortress infantry, the mobile force coordinates its assignment.
 
-남건이 돌아온 자기 중기병의 남은 말과 사람부터 다시 묶는다. 성에서는 나머지 수비를 남겨 두고 내줄 보병만 보낸다. 급양 위치마다 인수가 이어진다. 성 보병이 온 쪽의 신호를 받은 기동군이 제 담당을 맞춘다.
+**Official**　Thirty-five thousand mobile troops and fifteen thousand fortress infantry. At most fifty thousand can be used for military duties, including four thousand support personnel.
 
-**담당자**　기동 삼만 오천, 성 보병 일만 오천입니다. 군사 임무에 쓸 수 있는 수는 최대 오만이고, 그 안에 지원 사천이 듭니다.
+**Gaesomun**　Leave the support in the rear to that work. Separate them from the people fighting in front. Feed horses and distribute loads separately so they do not become entangled.
 
-**개소문**　뒤의 지원은 그 일을 맡겨 둔다. 앞에서 싸울 사람과 갈라라. 말과 짐도 엉키지 않게 나누어 먹인다.
+It is reported separately that Namsaeng's twenty thousand remain on the south bank of the Yalu. North of Pyongyang, the assembled forces coordinate equipment and signals and continue reconnaissance.
 
-남생의 이만은 압록강 남안에 남았다고 따로 보고된다. 평양 북쪽에서는 합류한 병력의 군장과 신호를 맞추고 정찰을 잇는다.
+**Namgeon**　The assembly is complete. Do we not strike now?
 
-**남건**　합류를 마쳤습니다. 지금 치지 않습니까?
+**Gaesomun**　We cannot all enter at once through the same opening. First we check more of the roads to cut.
 
-**개소문**　같은 입구로 한꺼번에 들어갈 수는 없다. 먼저 끊을 길을 더 확인한다.
+After the first day's arrival, check signals coordinated again on the second day and positions that can be used only after three or more days. Someone who has checked equipment again waits for the next answer about joining.
 
-첫날 도착 뒤 둘째 날 다시 맞추는 신호, 사흘 이상 지난 뒤에야 실행할 수 있는 자리들을 확인한다. 다시 군장을 확인한 사람이 다음 합류 답을 기다린다.
+## Authority the king delegates beyond the border {#t022-silla-delegation}
 
-## 왕이 맡긴 국경 밖의 벌 {#t022-silla-delegation}
+[Event parent](../../../body/treatments/022-january-concentration.md#silla-delegation) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t022-silla-delegation)
 
-[사건 부모](../../../body/treatments/022-january-concentration.md#silla-delegation) · [장면 부모](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t022-silla-delegation)
+Kim Yusin stands before the Silla king. King Munmu offers a document written in his own hand; Kim Yusin receives it with both hands and opens it.
 
-신라 왕 앞에 김유신이 선다. 문무왕이 손수 쓴 글을 내밀고, 김유신은 두 손으로 받아 펼친다.
+**King Munmu**　Rewards and punishments beyond the border are yours to decide. If we cannot feed our allies, both this war and our position against the southern restoration forces are in danger.
 
-**문무왕**　국경 밖의 상벌은 그대가 맡으시오. 동맹군을 못 먹이면 지금 전쟁도, 남쪽 부흥군을 상대할 관계도 위태로워집니다.
+Kim Yusin reads to the end the document granting authority over rewards and punishments beyond the border. He looks up and addresses the king.
 
-김유신은 국경 밖 포상·처벌 권한이 적힌 글을 끝까지 읽는다. 눈을 들어 왕에게 아뢴다.
+**Kim Yusin**　I will take responsibility for rewards and punishments after we leave, and report both those who return and what we lose.
 
-**김유신**　나간 뒤의 상벌은 제가 맡고, 돌아올 사람과 잃은 것도 제가 아뢰겠습니다.
+At the place where loads are divided, ten thousand combat troops and twenty thousand transport and road-clearing personnel do different work. Grain to be handed over to Tang and their own food are checked separately as they are loaded onto more than two thousand carts.
 
-짐을 나누는 곳. 전투 병력 일만과 운반·길 정리 이만이 다른 일을 한다. 이천여 수레에 실리는 당 인계용 곡식과 자기 식량을 별도로 확인한다.
+Chano reties a load beside grain destined for Tang. Gwidol, carrying food to eat, points to the grain.
 
-찬오가 당에 넘길 곡물 곁에서 짐을 다시 묶는다. 먹을 양식을 가져온 귀돌이 그 곡물을 가리킨다.
+**Gwidol**　Do we take our food from here too?
 
-**귀돌**　우리 먹을 것도 여기서 덜어 갑니까?
+**Chano**　That is for handing over. Let us put your food separately here.
 
-**찬오**　그것은 넘겨줄 거야. 네 양식은 이쪽에 따로 두자.
+Gwidol separates the two shares.
 
-귀돌이 두 몫을 나누어 놓는다.
+**Official**　The target to deliver to Tang is about twenty-six thousand seok.
 
-**담당자**　당에 넘길 목표는 약 이만 육천 석입니다.
+Audience caption: “Departure target · grain volume approximately 26,000 seok.” Sack size and the final measured amount handed over are not established by this figure. Present it as an item separate from the people and carts at departure.
 
-관객용 수량 표기 ‘출발 목표 · 곡물 부피 약 26,000석’. 자루 규격과 최종 인계 실측량은 이 수에 정해져 있지 않다. 출발 때의 인원·수레 표기와 다른 항목으로 제시한다.
+**Kim Yusin**　Do not count it together with our own food. Record the departure target separately from what we actually hand over on arrival.
 
-**김유신**　우리 먹을 것과 섞어 세지 마라. 출발할 때의 목표와, 도착해서 실제 넘긴 양은 갈라 적어라.
+Watch through the hands tying the last load.
 
-마지막 짐을 묶는 손까지 본다.
+## Reading a known mountain path as impassable {#t022-unwatched-capacity}
 
-## 아는 산길을 못 갈 길로 읽다 {#t022-unwatched-capacity}
+[Event parent](../../../body/treatments/022-january-concentration.md#unwatched-capacity) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t022-unwatched-capacity)
 
-[사건 부모](../../../body/treatments/022-january-concentration.md#unwatched-capacity) · [장면 부모](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t022-unwatched-capacity)
+At a Goguryeo observation post, three thousand defending in the south and a separate seven thousand light cavalry divide responsibility for the main road and ferry crossings. A report arrives that people have entered a mountain path.
 
-고구려 관측 자리. 남방에서 지키는 삼천과 별도 경기병 칠천이 대로 및 나루의 담당을 나누고 있다. 산길에 들어간 사람이 있다는 보고가 이곳에 온다.
+**Observer**　They cannot send large loads along that path. They look like a communications party.
 
-**관측자**　저 길로 큰 짐은 못 보냅니다. 연락하는 무리로 보입니다.
+On screen: “Twenty-third day of the first lunar month, Chiljungha.” Move to the riverbank on the Silla side. Kim Yusin's column crosses the river and enters the mountain path. When a messenger who has checked only the people who went first returns, Kim Yusin sends him again.
 
-화면 글 ‘음력 정월 23일, 칠중하’. 신라 쪽 강변으로 간다. 김유신 대열이 강을 건넌 뒤 산길로 들어간다. 먼저 지난 사람만 확인한 전달자가 돌아오자 김유신이 다시 보낸다.
+**Kim Yusin**　Go see whether the loads have come out too. I will not accept only that people passed.
 
-**김유신**　짐까지 나왔는지 보고 와라. 사람이 지났다는 말만 받지 않겠다.
+The entrance through which people emerged empties. Inside, the sound of unloading and carrying continues. Hands are still receiving goods on the road the observer judged impassable.
 
-사람이 빠져나온 입구가 빈다. 안쪽에서는 짐을 풀어 나르는 소리가 끊이지 않는다. 관측자가 지나갈 수 없으리라 판단한 길 위에서 아직 물건을 받는 손들이 움직인다.
+## Loads left behind the people who passed {#t023-unload-and-pass}
 
-## 통과한 사람 뒤에 남는 짐 {#t023-unload-and-pass}
+[Event parent](../../../body/treatments/023-mountain-column.md#unload-and-pass) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t023-unload-and-pass)
 
-[사건 부모](../../../body/treatments/023-mountain-column.md#unload-and-pass) · [장면 부모](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t023-unload-and-pass)
+On a narrow mountain path, carts stop and loads are taken off. Shares for people to carry and for livestock are divided and sent ahead. On the other side, arriving loads must be received and tied again before the next can be taken. When Gwidol lifts a wet load he put down, Chano loosens the side bearing too much weight and redistributes it. Gwidol takes part of a load from an exhausted companion as well.
 
-좁은 산길. 수레를 세우고 짐을 내린다. 사람이 들 몫, 가축에 나눌 몫을 갈라 먼저 보낸다. 반대편에서는 도착한 짐을 받아 다시 묶어야 다음 것을 받을 수 있다. 귀돌이 내려놓은 젖은 짐을 다시 들 때 찬오가 무게가 몰린 쪽을 풀어 반대로 나눈다. 귀돌은 지친 동료에게서 짐 일부를 더 받아 든다.
+**Chano**　We can move forward!
 
-**찬오**　앞으로 나갈 수 있소!
+When he looks back, the carts behind still hold loads to be moved. A cart cannot immediately follow into the space people have cleared.
 
-그가 돌아보자 뒤의 수레에는 아직 옮길 짐이 남아 있다. 사람이 비운 자리로 곧장 수레가 따라갈 수는 없다.
+**Official**　This cart stays. Choose what to load first.
 
-**담당자**　이 수레는 두고 간다. 실을 것을 먼저 골라라.
+Someone conserving their own food loses strength. Kim Yusin has them fed from the share for delivery as needed.
 
-자기 식량을 아끼던 사람이 기운을 잃는다. 김유신이 넘길 몫에서도 필요한 양은 먹이게 한다.
+**Kim Yusin**　Feed them so they can move. Record separately what we feed them now and what we protect for delivery.
 
-**김유신**　먹여서 움직여야 한다. 지금 먹인 양과 지켜서 넘길 양을 따로 남겨라.
+One person counts the rations distributed; elsewhere the share for Tang is checked. While the quantities given out are recorded, loads behind stand still.
 
-배급하는 사람이 지급량을 세고, 다른 곳에서는 당에 전할 몫을 확인한다. 지급량을 적는 동안 뒤의 짐이 멎어 있다.
+**Historian**　The detour to Yango was about 240 kilometers and took two weeks.
 
-**역사가**　양오까지 약 이백사십 킬로미터, 두 주의 우회였다.
+Hold the view where the last load comes over.
 
-마지막 짐이 넘어오는 곳에 시선을 둔다.
+## A column that cannot sit at one fire {#t023-winter-camp-cost}
 
-## 한 불가에 앉을 수 없는 대열 {#t023-winter-camp-cost}
+[Event parent](../../../body/treatments/023-mountain-column.md#winter-camp-cost) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t023-winter-camp-cost)
 
-[사건 부모](../../../body/treatments/023-mountain-column.md#winter-camp-cost) · [장면 부모](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t023-winter-camp-cost)
+At a representative camp area, someone drawing water below and carrying a load back up catches their breath. Along the path where water containers move up and down, see camp areas separated ahead and behind. Audience caption: “About 2,000 in this area · separate camps ahead and behind.” Gwidol looks at a place near the fire.
 
-대표 야영 구역. 아래 물가에서 물을 길어 짐을 다시 올리는 사람이 숨을 고른다. 물통이 오르내리는 길에서 앞뒤로 떨어진 야영 자리를 본다. 관객용 글 ‘이 구역 약 이천 명 · 앞뒤에 별도 야영’. 귀돌이 불 가까운 자리를 보며 말한다.
+**Gwidol**　Our household's winter food would be gone already. Mother must be tending the fields alone... If I took all these people home, my field work would be done in no time.
 
-**귀돌**　우리 집 겨울 양식이면 벌써 끝났겠다. 어머니 혼자 밭 보고 계실 텐데……. 여기 이 사람들 다 데리고 돌아가면 내 밭짐은 금방일 텐데.
+A call to move someone who has collapsed interrupts the joke. Those near the fire rise to make way, and someone coming in to rest moves outside. Chano unwraps and touches the cloth around his wet feet. Sensation is dull. He cannot properly feel some fingers either, and a strap he thought he held slips from his hand.
 
-쓰러진 사람을 옮기라는 소리가 농담을 끊는다. 불 가까운 이들이 일어나 길을 내고, 쉬려고 들어오던 사람은 밖으로 비킨다. 찬오가 젖은 발을 감싼 천을 풀어 만진다. 닿는 감각이 둔하다. 손가락 일부도 제대로 느껴지지 않아 잡았다고 생각한 끈이 손에서 빠진다.
+The loads ahead keep moving.
 
-앞의 짐은 계속 움직인다.
+**Historian**　Chano had no authority to stop the march.
 
-**역사가**　찬오에게는 행군을 세울 권한이 없었다.
+Kim Yusin assigns an escort to send the injured back and divides the loads to send ahead. Chano receives a small load.
 
-김유신이 다친 사람을 돌려보낼 호위와 먼저 보낼 짐을 나눈다. 찬오가 작은 짐을 받는다.
+**Chano**　I can hold this much. Help me tie it, please.
 
-**찬오**　이만큼이면 쥘 수 있습니다. 묶는 것은 좀 도와주시오.
+Other hands make the knot. Chano carries the load and continues. Even after he leaves the fire, someone else comes in to rest. The sound of loads moving ahead continues from the dark.
 
-다른 손이 매듭을 만든다. 찬오는 그 짐을 들고 계속 간다. 그가 불가를 떠난 뒤에도 쉬려고 들어오는 사람이 있다. 앞의 짐이 움직이는 소리는 어둠 쪽에서 계속된다.
+## Provisions missed in fragmented counts of people {#t023-late-recognition}
 
-## 조각난 사람 수로 못 센 군량 {#t023-late-recognition}
+[Event parent](../../../body/treatments/023-mountain-column.md#late-recognition) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t023-late-recognition)
 
-[사건 부모](../../../body/treatments/023-mountain-column.md#late-recognition) · [장면 부모](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t023-late-recognition)
+At a Goguryeo reporting post, a new report is added to the one that recorded the first small group seen as messengers or scouts. Loads, livestock and people repeatedly repairing the same road have each been observed.
 
-고구려 보고 자리. 처음 본 소수의 사람을 연락·정찰로 적었던 보고 위에 새로운 보고가 더해진다. 짐과 가축, 같은 길을 거듭 고치는 인력이 각각 목격되었다.
+**Official**　These were counted separately. They may be the front and rear of the same transport.
 
-**담당자**　이것을 따로 세었군. 같은 운반의 앞뒤일 수 있다.
+As the reports are reconciled, Kim Yusin on the Silla side sends Kim Inmun and Kim Yangdo ahead.
 
-보고를 다시 맞추는 동안 신라 쪽 김유신은 김인문과 김양도를 보낸다.
+**Kim Yusin**　Kim Inmun, Kim Yangdo, please go ahead. We must clear the handover site and arrange who will escort it. Let us not wait until our loads arrive to make a path and get blocked.
 
-**김유신**　김인문, 김양도 두 분이 먼저 가 주시오. 넘길 곳을 비우고 누가 호위할지도 맞춰야 합니다. 우리 짐이 닿아서야 길을 내느라 막히지 않게 합시다.
+Even after Kim Inmun and Kim Yangdo disappear into the distance, the main force keeps moving the loads. The Goguryeo official is still reconciling the sightings.
 
-김인문과 김양도가 멀어진 뒤에도 본대는 짐을 옮긴다. 고구려 담당자는 아직 목격 보고들을 맞추고 있다.
+## What must still be moved after receipt {#t024-handover}
 
-## 받아 든 뒤에도 옮겨야 하는 것 {#t024-handover}
+[Event parent](../../../body/treatments/024-yango.md#handover) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t024-handover)
 
-[사건 부모](../../../body/treatments/024-yango.md#handover) · [장면 부모](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t024-handover)
+On screen: “Sixth day of the second lunar month, Yango.” Kim Inmun, Kim Yangdo and Ma Jeong check the space for incoming loads and the escort. Chano's carrying group enters in turn and hands over its loads. With damaged hands he sets down the last sack and withdraws with the others. A Tang worker takes the first sack and tries to carry it north, but meets a Silla carrier bringing down the next one at the entrance.
 
-화면 글 ‘음력 2월 6일, 양오’. 김인문·김양도와 마정이 짐이 들어올 공간과 호위를 확인한다. 찬오의 운반 묶음이 차례로 들어와 짐을 넘긴다. 손상된 손으로 마지막 포대를 놓고 다른 사람과 함께 물러난다. 당 일꾼이 첫 포대를 받아 북쪽으로 들려는데 입구에서 신라 운반자가 다음 것을 내려 하며 겹친다.
+**Ma Jeong**　Clear this space first. What we have received must go inside before those behind can enter.
 
-**마정**　여기부터 비워라. 받은 것을 안으로 보내야 뒤가 들어온다.
+Ma Jeong separates wet sacks so they do not mix with dry ones. When a hungry worker lifts and sets one down, someone waiting sees the space and slows a load. Day fades, and the handover continues through the night.
 
-마정이 젖은 포대가 마른 것과 섞이지 않도록 옆으로 가른다. 굶주린 일꾼이 들었다 내려놓자 기다리던 사람이 그 자리를 보고 짐을 늦춘다. 낮이 저물고 밤에도 인계가 이어진다.
+Even after a report of receipt departs, loads remain to go inside the camp. End the scene on hands lifting sacks again to move them north.
 
-수령을 알리는 보고가 떠나도 진 내부로 갈 짐이 남아 있다. 북쪽으로 옮길 포대를 다시 들어 올리는 손에서 장면을 끝낸다.
+## What the enemy chose after receiving grain {#t024-su-recovers}
 
-## 곡식을 받은 적이 고른 일 {#t024-su-recovers}
+[Event parent](../../../body/treatments/024-yango.md#su-recovers) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t024-su-recovers)
 
-[사건 부모](../../../body/treatments/024-yango.md#su-recovers) · [장면 부모](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t024-su-recovers)
+At Su Dingfang's camp, while a soldier who has received food eats, people are sought again to gather equipment. Su Dingfang hears the report that rations have resumed and does not immediately order the whole army to move.
 
-소정방 진. 식량을 받은 병사가 먹는 동안 장비를 챙길 사람을 다시 찾는다. 소정방은 급양 재개 보고를 듣고 즉시 전군 이동을 명하지 않는다.
+A report also arrives asking about relief for the other two camps.
 
-다른 두 진의 구원을 묻는 보고도 들어온다.
+**Su Dingfang**　Rations circulating again does not mean the road to the other camps is open. Feed our own first and gather the scattered equipment and troops. Leave enough strength to depart too.
 
-**소정방**　배급이 다시 돈다고 다른 진에 갈 길까지 열린 것은 아니다. 우리부터 먹이고, 흩어진 장비와 병력을 갖춘다. 떠날 힘도 남겨 두어라.
+Ma Jeong hands over the provisions received and withdraws.
 
-마정이 받은 군량을 넘기고 물러난다.
+On the Silla side, Kim Yangdo and some personnel prepare to return by sea, while the main land force ties other escorts and loads together.
 
-신라 쪽에서는 김양도와 일부 인원이 해로로 돌아갈 준비를 하고 육로 본대는 다른 호위와 짐을 묶는다.
+News of the provisions' arrival reaches Gaesomun.
 
-개소문에게 군량 도착 소식이 온다.
+**Gaesomun**　Put the attacks on Ren Yaxiang and Pang Xiaotai first. We cannot pull the whole central army south in pursuit.
 
-**개소문**　임아상과 방효태 쪽 공격을 앞세운다. 추격한다고 중앙군 전부를 남쪽으로 뺄 수는 없다.
+**Historian**　The arrival of provisions did not make Su Dingfang leave at once. The siege continued. Only after the fighting at the Sasu did he withdraw.
 
-**역사가**　군량이 왔다고 소정방이 바로 떠난 것은 아니다. 포위는 이어졌다. 사수의 싸움을 겪은 뒤에야 물러난다.
-
-신라 육로 본대. 가벼워진 수레를 살피는 사람 곁에서, 다른 사람은 아직 몸을 일으킬 힘을 모은다.
+With the Silla main land force, beside a person inspecting the lighter carts, another gathers strength simply to rise.

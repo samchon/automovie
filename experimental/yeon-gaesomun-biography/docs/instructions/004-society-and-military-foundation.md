@@ -1,53 +1,53 @@
-# 사회·경제상과 군사력의 기반
+# Society, economy, and the foundations of military strength
 
-## 군공과 무력이 권력을 만드는 사회 {#martial-society-and-power}
+## A society in which military achievement and force create power {#martial-society-and-power}
 
-고구려에서는 군공이 출세의 정석이자 신분 상승의 지름길로 여겨지게 한다. 가난한 집에서 나고 자란 사람도 힘이 세고 잘 싸우면 높은 관등에 오를 수 있다. 노비는 빚을 갚지 못하거나 죄를 지어 생기며, 작품은 그 신분이 대를 이어 굳어지는 세습 신분으로 그리지 않는다. 무예와 신체적 강함을 남성의 체면으로 삼아, 힘이 약한 남자를 무시하는 상무적 분위기를 둔다. 대대로 선임에서도 귀족 간 합의가 깨지면 병력을 동원해 무력으로 결판내는 정치적 관행을 반영한다.
+In Goguryeo, treat military achievement as the established route to advancement and a shortcut to higher status. A person born and raised in a poor household can rise to high rank through strength and fighting ability. People become enslaved through unpaid debt or crime; the work does not depict that status as hereditary and fixed across generations. Martial skill and physical strength form part of masculine standing, producing a martial atmosphere that disregards physically weaker men. Reflect the political practice in which broken noble agreement over choosing the daedaero can be settled by mobilizing troops and using force.
 
-전쟁에서 강한 군대를 만드는 가치관이 왕의 정책을 평가하고 내부 권력을 다투는 방식에도 작용하게 하기 위해서다. 사회의 무시와 조롱은 인물들의 태도로 드러낸다. 노비 신분의 세습 여부는 기록에 없으며, 비세습은 작품의 선택이다.
+The values that make a strong army in war also shape how the king's policies are judged and power contested at home. Show social disregard and ridicule through characters' attitudes. The record does not establish whether slavery was hereditary; nonheredity is the work's choice.
 
-- [국사편찬위원회, 고구려의 대대로 선출](https://contents.history.go.kr/front/hm/view.do?levelId=hm_012_0020): 선임에 불복할 때 군대로 서로 공격하고 왕도 제어하지 못했다는 기록을 제공한다.
-- [『주서』 권49 고려전](https://zh.wikisource.org/wiki/周書/卷49): 배상하지 못하거나 공사의 빚을 지면 자녀를 노비로 삼아 갚게 하고, 대대로는 강약으로 다투어 빼앗아 차지했다고 전한다.
-- [『삼국사기』 권45 온달전](https://zh.wikisource.org/wiki/三國史記/卷45): 빌어먹으며 어머니를 봉양하던 온달이 전공 첫째로 대형 관등을 받고 왕의 사위가 되었다고 전한다.
+- [National Institute of Korean History, selection of Goguryeo's daedaero](https://contents.history.go.kr/front/hm/view.do?levelId=hm_012_0020): records that those who rejected a selection attacked one another with armies and even the king could not control them.
+- [Book of Zhou, volume 49, account of Goryeo](https://zh.wikisource.org/wiki/周書/卷49): records that children were enslaved to repay compensation or public and private debt, and that the office of daedaero was seized through contests of strength.
+- [Samguk Sagi, volume 45, biography of Ondal](https://zh.wikisource.org/wiki/三國史記/卷45): records that Ondal, who begged to support his mother, ranked first in military merit, received the daehyeong rank, and became the king's son-in-law.
 
-## 경당에서 쌓이는 숙련과 결속 {#gyeongdang-and-youth}
+## Skill and solidarity built at the gyeongdang {#gyeongdang-and-youth}
 
-경당은 혼인 전의 아이와 청소년이 신분을 가리지 않고 함께 어울리며 독서와 활쏘기를 익히는 공동공간으로 그린다. 귀족의 아이도 어릴 때는 평민의 아이와 같은 경당에 다닌다. 놀이와 경쟁 속에서 숙련과 결속을 쌓는다. 법적인 의무교육은 아니지만, 참여하지 않으면 무시당하는 사회적 압력으로 사실상 참여가 요구되게 한다. 경당은 고구려 군사력이 강성했던 사회적 기반의 하나로 삼으며, 기마 교육은 다루지 않는다. 태학은 그 위의 상급 교육기관이다. 귀족 자제가 중심이고, 부유한 집안이나 추천을 받은 사람도 들어갈 수 있다.
+Depict the gyeongdang as a shared space where unmarried children and adolescents associate across status and learn reading and archery. Noble children attend the same gyeongdang as common children when young. Through play and competition they build skill and solidarity. Education is not legally compulsory, but social pressure and disregard for nonparticipants make participation effectively expected. Treat the gyeongdang as one social foundation of Goguryeo's military strength; do not include riding instruction. The Taehak is a higher institution, centered on noble children but also open to people from wealthy families or those recommended.
 
-병사들의 역량이 전쟁 이전부터 축적되고, 배움이 사회의 인정과 출세 기대에 연결되게 하기 위해서다. 어린 시절 같은 경당에서 자란 귀족과 평민은 뒤에 전장에서 다시 만나 서로를 알아본다. 기록은 "보잘것없는 집에 이르기까지" 거리마다 경당을 지었다고 전하며, 통설은 평민 자제를 중심으로 본다. 작품은 이 대목을 위로는 귀족까지 포괄하는 표현으로 읽는다. 이 해석과 태학의 입학 조건, 경당의 놀이·참여 압력은 작품의 해석이다. 기관의 운영과 교육 과정은 settings에서 보충한다.
+This lets soldiers' abilities accumulate before war and connects learning with social recognition and expectations of advancement. Nobles and commoners raised at the same gyeongdang meet and recognize each other later on the battlefield. The record says gyeongdang were built in the streets down to humble households, and conventional interpretation centers commoners' children. The work reads the wording as encompassing nobles as well. This reading, the Taehak's admission conditions, and gyeongdang play and participation pressure are interpretations of the work. Settings supplements institutional operation and curricula.
 
-- [국사편찬위원회, 고구려의 경당](https://contents.history.go.kr/mobile/hm/view.do?levelId=hm_021_0010): 미혼 자제가 함께 독서하고 활쏘기를 익혔다는 기록을 제공한다.
-- [『구당서』 권199상 고려전](https://zh.wikisource.org/wiki/舊唐書/卷199上): "至於衡門廝養之家，各於街衢造大屋，謂之扃堂，子弟未婚之前，晝夜于此讀書習射"라고 전한다. 귀족 자제의 참여를 직접 말하지는 않는다.
+- [National Institute of Korean History, Goguryeo's gyeongdang](https://contents.history.go.kr/mobile/hm/view.do?levelId=hm_021_0010): provides the record that unmarried youths read and practiced archery together.
+- [Old Book of Tang, volume 199, first part, account of Goryeo](https://zh.wikisource.org/wiki/舊唐書/卷199上): records, "至於衡門廝養之家，各於街衢造大屋，謂之扃堂，子弟未婚之前，晝夜于此讀書習射". It does not directly state that noble children participated.
 
-## 사비 무장과 기병의 편중 {#private-equipment-and-cavalry}
+## Private equipment and the emphasis on cavalry {#private-equipment-and-cavalry}
 
-전사가 자신과 집안의 재력으로 말·병기·무구를 마련하는 방식이 고구려의 병력 구성에 중요한 영향을 미치게 한다. 철 생산이 풍부하고 중장기병이 유행과 위신을 누리는 환경에서 귀족·부유층은 중장기병을 선호하고, 갖추어 온 군마와 갑주에 따라 그 전력이 형성되게 한다. 이에 비해 경기병은 필요한 만큼 확보되지 않다가 말갈의 내지화로 보완된다.
+Let warriors' provision of horses, weapons, and equipment from their own and their families' resources significantly shape Goguryeo's force composition. Where iron production is plentiful and heavy cavalry enjoys fashion and prestige, nobles and the wealthy prefer it; their forces form according to the horses and armor they can equip. Light cavalry, by contrast, is not secured in sufficient numbers until the incorporation of Malgal communities helps fill the shortage.
 
-사회적 선호와 재력이 군대의 강점·부족을 함께 만들고, 말갈 편입이 전쟁 수행 능력을 높이는 이유를 갖추기 위해서다. 이 인과는 작품의 재구성이며, 고구려의 경기병 전체가 말갈 출신이라는 뜻으로 확장하지 않는다.
+This gives social preference and wealth a role in both military strength and shortage, and explains why incorporating Malgal improves war-fighting capacity. The causality is the work's reconstruction; do not expand it into a claim that all Goguryeo light cavalry is Malgal.
 
-## 농사·수렵·목축을 함께 하는 생활 {#regional-livelihoods-and-seasonal-work}
+## Livelihoods combining farming, hunting, and herding {#regional-livelihoods-and-seasonal-work}
 
-고구려의 산간에서는 척박한 땅의 농사만으로 생계를 유지하기 어려워 수렵·채집·어로 등을 겸하고, 수렵이 주요 생계인 공동체도 있게 한다. 사냥은 귀족의 놀이와 군사 훈련뿐 아니라 식량·가죽·교역품을 얻는 노동으로 보여준다. 요동·평양 일대의 농업 기반도 함께 살려, 초기 산간 고구려의 생활상을 7세기 전 영토에 동일하게 적용하지 않는다.
+In Goguryeo's mountains, make it difficult to live on farming poor land alone, so people also hunt, gather, and fish; some communities primarily live by hunting. Show hunting as labor for food, hides, and trade goods as well as noble recreation and military training. Retain the agricultural base around Liaodong and Pyongyang, rather than applying early mountain Goguryeo's way of life identically to the entire seventh-century territory.
 
-고구려의 영향권에는 거란처럼 목축·유목의 비중이 큰 집단과, 농경·수렵·어로·목축을 서로 다른 비중으로 병행하는 말갈 집단을 둔다. 일부 말갈 공동체는 이동 목축을 주요 생업으로 삼는 것으로 구성하되, 말을 기르거나 기병으로 싸운다는 이유만으로 말갈 전체를 유목민으로 만들지는 않는다. 고구려 산간 주민과 말갈의 차이도 농사와 사냥의 비중, 생산물과 교역 접근성, 지역의 환경에서 드러나게 한다.
+Within Goguryeo's sphere of influence, include groups such as the Khitan for whom pastoralism and nomadism are important, and Malgal groups combining farming, hunting, fishing, and herding in different proportions. Construct some Malgal communities as primarily mobile pastoralists, but do not make all Malgal nomadic merely because they raise horses or fight as cavalry. Show differences between Goguryeo mountain residents and Malgal in the relative shares of farming and hunting, products, access to trade, and local environments.
 
-사람들의 계절별 노동과 생계가 무예의 숙련, 군사 동원과 재건의 조건으로 이어지게 하기 위해서다. 개별 공동체의 생업·이동·생활 수준과 전쟁에 따른 손실은 settings에서 설계한다. 사서의 생활 묘사는 관찰 시기·지역과 외부 기록자의 평가를 구별하여 활용한다.
+Connect people's seasonal labor and livelihoods to martial skill, military mobilization, and reconstruction. Settings designs individual communities' livelihoods, movement, living standards, and wartime losses. Use historical descriptions of life with attention to the time and place observed and the external recorder's judgment.
 
-- [《삼국지》 권30 고구려전](https://zh.wikisource.org/wiki/三國志/卷30): 산과 골짜기가 많고 경작만으로 식량이 부족하다는 초기 고구려의 서술을 제공한다. 이를 후기 고구려 전체의 농업 수준으로 옮기지는 않는다.
-- [《수서》 권81 말갈전](https://zh.wikisource.org/wiki/隋書/卷81): 곡물 경작·돼지 사육과 수렵을 함께 기록한다. 모든 말갈의 단일한 생업 비중이나 생활 수준을 확정하지는 않는다.
-- [최진열, 「고구려의 경제 지리」, 2024](https://www.kci.go.kr/kciportal/landing/article.kci?arti_id=ART003155881): 공개 초록은 요하 유역과 한반도 서북부의 곡창 및 목축·소금 생산 지역을 추정한다. 세부 분포는 연구의 추정으로 활용한다.
-- [국사편찬위원회, 광개토왕릉비 국역문과 주석](https://db.history.go.kr/id/gskh_001_0010_0010_0030): 패려 정벌과 가축 획득, 패려를 거란으로 보는 해석 및 초원 유목 집단이라는 견해를 제공한다.
+- [Records of the Three Kingdoms, volume 30, account of Goguryeo](https://zh.wikisource.org/wiki/三國志/卷30): describes early Goguryeo as mountainous, with cultivation alone insufficient for food. Do not transfer this to the agricultural level of all late Goguryeo.
+- [Book of Sui, volume 81, account of the Malgal](https://zh.wikisource.org/wiki/隋書/卷81): records grain cultivation, pig raising, and hunting together. It does not establish one livelihood mix or standard of living for all Malgal.
+- [Choi Jin-yeol, “The Economic Geography of Goguryeo,” 2024](https://www.kci.go.kr/kciportal/landing/article.kci?arti_id=ART003155881): its public abstract estimates granaries and pastoral and salt-producing regions in the Liao basin and northwest Korean peninsula. Use detailed distribution as scholarly estimation.
+- [National Institute of Korean History, translation and notes on the Gwanggaeto Stele](https://db.history.go.kr/id/gskh_001_0010_0010_0030): provides the conquest of Paeryeo and acquisition of livestock, interpretations identifying Paeryeo with Khitan, and the view that they were a steppe nomadic group.
 
-## 싸우고 다시 일어설 수 있는 경제력 {#economy-and-recovery}
+## Economic capacity to fight and recover {#economy-and-recovery}
 
-경제력은 인구나 재물의 총량뿐 아니라 병력을 먹이고 무장시키며, 전쟁 뒤 생산과 생활을 회복할 수 있는 능력으로 다룬다. 군공을 얻는 사람과 동원·손실을 감당하는 사람이 다를 수 있고, 같은 승전도 지역과 계층에 따라 다른 부담을 남기게 한다. 재건은 남생이 전쟁의 시기를 넘어서려는 실제 통치 과업으로 설계한다. 필요한 생산·유통·동원·복구의 방식과 그것을 겪는 인물은 settings에서 정한다.
+Treat economic strength as more than total population or wealth: it includes the ability to feed and equip forces and restore production and life after war. Those gaining military merit may differ from those bearing mobilization and losses, and the same victory can impose different burdens by region and class. Design reconstruction as an actual governing task through which Namsaeng seeks to move beyond the period of war. Settings determines the necessary methods of production, distribution, mobilization, and recovery, and the people who experience them.
 
-승리를 지속할 국력과 재건의 필요성이 정치적 주장에만 머물지 않고, 사람들이 살아가는 조건에서 납득되게 하기 위해서다.
+This grounds the strength needed to sustain victory and the need for reconstruction in people's living conditions, rather than leaving them as political assertions.
 
-## 재건의 순서와 서로 다른 부담 {#reconstruction-priorities-and-burdens}
+## Reconstruction priorities and unequal burdens {#reconstruction-priorities-and-burdens}
 
-남생의 재건은 황폐한 요동·국내성의 생산과 생활·방어 기반을 우선 회복하는 방향으로 그린다. 병사와 주민에게는 귀향과 생계 회복의 기회지만, 복구를 위한 동원과 물자 부담도 남게 한다. 피해가 적은 지역과 남방 전선에는 자기 지역의 필요가 뒤로 밀린다는 불만이 생길 수 있으며, 재건에 참여하는 요동·국내성 세력과 남생의 관계가 깊어지는 일은 평양 세력의 경계를 키운다. 지지와 반대는 지역 안에서도 각자의 처지에 따라 갈리게 한다.
+Depict Namsaeng's reconstruction as prioritizing production, life, and defense in devastated Liaodong and Gungnaeseong. Soldiers and residents gain opportunities to return home and restore livelihoods, while mobilization and supply burdens for recovery remain. Less damaged regions and the southern front may resent their own needs being deferred; the deepening relationship between Namsaeng and Liaodong and Gungnaeseong participants raises suspicion among Pyongyang's establishment. Support and opposition differ according to people's circumstances even within regions.
 
-재건의 필요성에 동의하는 사람도 우선순위와 부담 배분에는 반대할 수 있고, 이견이 권력 갈등으로 번질 수 있게 하기 위해서다. 사업과 동원·부세의 세부, 갈등을 겪는 인물은 settings에서 정한다. 특정 감세율이나 말갈의 조세 특혜를 확인된 제도로 단정하지 않는다.
+People who agree reconstruction is necessary can still oppose its priorities and allocation of burdens, allowing disagreement to become a power conflict. Settings determines details of projects, mobilization and levies, and characters experiencing conflict. Do not assert a particular tax reduction or Malgal tax privilege as an established institution.
 
-- [국사편찬위원회, 고구려인의 삶의 모습](https://contents.history.go.kr/front/hm/view.do?levelId=hm_019_0080): 고구려의 부세 기록과 부담 주체에 대한 해석 차이를 소개한다. 남생의 복구 우선순위와 지역별 부담은 작품의 재구성이다.
+- [National Institute of Korean History, life in Goguryeo](https://contents.history.go.kr/front/hm/view.do?levelId=hm_019_0080): introduces differences in interpretation of tax records and who bore burdens. Namsaeng's recovery priorities and regional burdens are the work's reconstruction.

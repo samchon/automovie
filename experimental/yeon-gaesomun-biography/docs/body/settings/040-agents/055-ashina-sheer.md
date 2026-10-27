@@ -1,19 +1,19 @@
-# 아사나사이의 전장 행동
+# Ashina She’er’s conduct in battle
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--055-ashina-sheer).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--055-ashina-sheer).
 
-## 아사나사이의 전장 행동 {#ashina-sheer}
+## Ashina She’er’s conduct in battle {#ashina-sheer}
 
-**정의·범위**
+**Definition and scope**
 
-아사나사이는 돌궐 처라가한의 차남으로, 고창전과 요동전에 참여한 경력이 기록된다. 작품은 요동전에서 화살을 뽑고 다시 싸운 기록을 당군의 정예함을 보여 주는 하나의 행위로 사용한다. 군사에게 보이는 자기 행동이 명령보다 먼저 전달될 수 있음을 안다. 그 출신은 당의 적이던 유목 세력의 능력이 당의 원정 능력으로 들어온 사례다.
+Ashina She’er was the second son of the Turkic Chuluo Khagan, recorded as having taken part in the Gaochang and Liaodong campaigns. The work uses the account of his pulling out an arrow and fighting again in Liaodong as one act showing the Tang army’s elite quality. He knows his own conduct may reach soldiers before an order does. His origin exemplifies the incorporation of a nomadic force once hostile to Tang into Tang’s expeditionary capacity.
 
-**확정 내용**
+**Established facts**
 
-창작 외형은 키 177센티미터, 가는 허리와 긴 팔, 마른 볼과 높은 광대뼈다. 갈색 눈 아래 주름이 있고 검은 눈썹은 길며 코는 높고 입술은 얇다. 볕에 탄 황갈색 피부에 검은 머리를 묶고 길게 처진 턱수염을 기른다. 짙은 갈색 옷과 검은 띠, 철찰 갑옷과 가죽 덧옷을 쓴다. 목소리는 낮고 울림이 깊으며 거친 결이 있다. 긴 설명보다 자기 행동으로 먼저 병사에게 보이고, 부상 뒤에도 짧은 명령을 또렷하게 끝낸다.
+His invented appearance is 177 centimeters tall, with a narrow waist, long arms, lean cheeks, and high cheekbones. He has wrinkles below brown eyes, long black eyebrows, a high nose, thin lips, and sun-darkened tawny skin. His black hair is tied and his beard hangs long. He wears dark brown clothes, a black sash, iron lamellar armor, and a leather outer garment. His voice is low, deep-resonant, and rough. Rather than long explanations, he shows soldiers by acting first, and even after injury finishes short orders clearly.
 
-그의 당 협력을 돌궐 전체의 한 의지로 바꾸지 않는다. 자기 가문과 병력의 앞날, 당의 대우, 다른 유목 세력과의 관계가 [아사나충](056-ashina-zhong.md#ashina-zhong)과 같을 필요는 없다.
+Do not make his cooperation with Tang a single will shared by all Turks. The future of his family and troops, Tang’s treatment, and his relations with other nomadic groups need not match [Ashina Zhong](056-ashina-zhong.md#ashina-zhong).
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [국편 『신당서』 아사나사이와 아사나도진](https://db.history.go.kr/ancient/level.do?levelId=ko_035_0860_0030), [『신당서』 권110 아사나충·집실사력전](https://zh.wikisource.org/zh-hant/新唐書/卷110).
+Sources: [Ashina She’er and Ashina Dojin, National Institute of Korean History, New Book of Tang](https://db.history.go.kr/ancient/level.do?levelId=ko_035_0860_0030), [biographies of Ashina Zhong and Zhishi Sili, New Book of Tang vol. 110](https://zh.wikisource.org/zh-hant/新唐書/卷110).

@@ -1,19 +1,19 @@
-# 당의 통치와 다시 이어지는 지역
+# Tang rule and regions reconnected
 
-정전 안내: [이 대상의 위치](../outline/index.md#050-systems--360-post-conquest-rule).
+Canon guide: [Location of this subject](../outline/index.md#050-systems--360-post-conquest-rule).
 
-## 당의 통치와 다시 이어지는 지역 {#post-conquest-rule}
+## Tang rule and regions reconnected {#post-conquest-rule}
 
-**정의·범위**
+**Definition and scope**
 
-당의 통치는 고구려를 정복한 뒤 기존 주민과 지역 지휘자의 협력을 다시 얻어야 한다. 정복한 성마다 중국 본토의 인력을 충분히 보내어 같은 방식으로 운영할 수 있는 것은 아니다. 작품에서는 군사 주둔과 현지의 물자·노동 요구가 남은 주민의 반감을 키우고, 이전 고구려의 관계망이 당의 통치 명령을 지연하거나 무력화하는 길로 사용된다. 모든 지역이 같은 날 같은 반란으로 움직이지 않는다.
+After conquest, Tang must again obtain the cooperation of existing residents and regional commanders. It cannot send enough people from China proper to run every conquered fortress identically. In the work, garrisons and demands for local supplies and labor increase remaining residents’ resentment, and former Goguryeo networks are used to delay or frustrate Tang orders. Not every region moves in the same revolt on the same day.
 
-**확정 내용**
+**Established facts**
 
-677년 보장왕의 요동 귀환과 앞서 내지로 옮긴 주민을 돌려보내는 명령은 고구려 이름과 지역의 관계를 다시 이용하려는 당의 선택으로 사용한다. 신당서가 이어 말하는 말갈과의 모의·소환·유배의 결말은 본편 이후의 시기까지 모두 앞당기지 않는다.679년까지의 본편에서는 왕가와 현지의 연결이 아직 끝나지 않았다는 조건을 다룬다.
+Use King Bojang’s 677 return to Liaodong and the order to return residents earlier moved inland as Tang’s choice to reuse Goguryeo’s name and regional relationships. Do not move the New Book of Tang’s subsequent conspiracy with Malgal, recall, and exile entirely forward into the main story. Through 679 the story treats the royal family’s connection with the region as not yet ended.
 
-남생은677년에 칙명으로 요동의 안무와 주현 정리를 맡는 묘지 기록을 사용한다. 새 요동대도독 임명 날짜가 이때라고 단정하지 않는다. 예전에 복구하려던 지역에서 이제는 당의 권한으로 일하게 된다. 이전의 지지자가 같은 말을 같은 의미로 받아들이지 않는 것도 겪는다.679년 정월29일 안동부 관사에서 죽는 묘지의 결말을 사용한다.
+Use the epitaph record that Namsaeng was ordered in 677 to pacify Liaodong and organize its prefectures and counties. Do not assert that his appointment as a new grand governor of Liaodong dates from then. He now works under Tang authority in the region he once sought to rebuild, and finds earlier supporters no longer receiving the same words in the same way. Use the epitaph’s ending: his death on the 29th day of the first month of 679 at the Andong administration residence.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『신당서』 보장왕 요동 복귀와 주민 귀환·지역 통치](https://db.history.go.kr/item/compareViewer.do?levelId=jo_015r_0020_0010_0450), [「천남생묘지」의677년 임무와679년 사망](https://portal.nrich.go.kr/kor/ksmUsrView.do?ksm_idx=2744&menuIdx=584).
+Sources: [Bojang’s return to Liaodong, residents’ return, and regional rule, New Book of Tang](https://db.history.go.kr/item/compareViewer.do?levelId=jo_015r_0020_0010_0450), [Namsaeng’s 677 mission and 679 death, epitaph](https://portal.nrich.go.kr/kor/ksmUsrView.do?ksm_idx=2744&menuIdx=584).

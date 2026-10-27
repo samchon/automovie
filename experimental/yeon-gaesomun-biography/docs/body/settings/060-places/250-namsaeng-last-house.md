@@ -1,19 +1,19 @@
-# 남생의 마지막 관사
+# Namsaeng’s last official residence
 
-정전 안내: [이 대상의 위치](../outline/index.md#060-places--250-namsaeng-last-house).
+Canon guide: [Location of this subject](../outline/index.md#060-places--250-namsaeng-last-house).
 
-## 남생의 마지막 관사 {#namsaeng-last-house}
+## Namsaeng’s last official residence {#namsaeng-last-house}
 
-**정의·범위**
+**Definition and scope**
 
-남생이679년에 죽는 안동부 관사는 금석문에 나온 마지막 거처다. 실측 평면은 알려진 사실로 두지 않는다. 작품의 관사는 문에서 집무방까지 뜰을 한 번 거치며, 그 뒤에 병든 사람이 쉬는 작은 방이 있다. 남생이 관리의 보고를 받을 권한은 남지만 고구려왕처럼 병사를 무제한 동원할 수는 없다. 침상 옆에 헌충의 유해나 관을 두지 않는다. 평양에서 잃은 아들을 떠올리는 일과 남아 있는 당의 관직 업무가 같은 집 안에서 이어진다.
+The Andong administration residence where Namsaeng dies in 679 is the last dwelling named in an inscription. Its measured plan is not known. In the work a visitor crosses a courtyard from the gate to an office, with a small sickroom behind. Namsaeng retains authority to hear officials’ reports but cannot mobilize soldiers without limit like a Goguryeo king. Do not place Heonchung’s remains or coffin beside the bed. Memory of the son lost in Pyongyang and remaining Tang official work continue in the same house.
 
-**확정 내용**
+**Established facts**
 
-창작 관사는 남문 안에15미터×12미터 뜰, 북쪽에8미터×5미터 집무채, 그 뒤 북서쪽에4미터×4미터 쉬는 방을 둔다. 병상은 북쪽 벽 앞이고 헌성은 남쪽 문 안 낮은 자리에 앉을 수 있다. 집무채에서 병상은 바로 보이지 않으며 보고를 가진 사람은 뜰과 집무채의 출입 확인을 거친다. 쉬는 방의 동쪽 작은 창으로 오전 빛이 들고 오후에는 등잔을 가까이 옮겨야 한다. 뜰의 발소리는 들려도 문을 닫은 집무채의 낮은 이야기는 또렷하지 않다. 짙은 나무 기둥과 밝은 회갈색 벽, 덜 수선된 창호와 천 침구를 둔다. 연씨 권력의 옛 평양 집을 그대로 재현한 궁정으로 조형하지 않는다.
+The invented residence has a 15-by-12-meter courtyard inside the south gate, an 8-by-5-meter office building north, and a 4-by-4-meter resting room behind to the northwest. The sickbed stands before the north wall, and Heonseong can sit low inside the south door. The bed is not immediately visible from the office; report bearers pass access checks at the courtyard and office. Morning light enters a small east window of the resting room; in the afternoon a lamp must be brought close. Footsteps in the courtyard are audible, but quiet conversation in the closed office is indistinct. Use dark wooden pillars, light gray-brown walls, less-mended window fittings, and cloth bedding. Do not model it as a court reproducing the Yeon family’s old seat of power in Pyongyang.
 
-집무채는 한 층으로 바닥에서 보 아래2.8미터, 처마3미터, 동서 용마루4.5미터다. 쉬는 방이 든 뒤채는 바닥에서 보 아래2.4미터·처마2.6미터·동서 용마루3.8미터로 둔다. 두 채는 남북 경사의 먹빛 기와를 벽 밖0.5미터까지 얹고, 실내에는 목재 보와 지붕 받침이 보인다. 남쪽 뜰에서 집무채를 거쳐 뒤채 문으로 들어가는 출입은 그대로이며 지붕 사이에 새 감시층이나 옛 평양 집의 회랑을 더하지 않는다. 이 입면도 묘지가 전한 실측이 아닌 작품 복원이다.
+The office is one story, 2.8 meters beneath the beam, three to the eaves, and 4.5 to an east–west ridge. The rear building containing the resting room is 2.4 meters beneath the beam, 2.6 to the eaves, and 3.8 to an east–west ridge. Both have dark tiled roofs sloping north–south and projecting 0.5 meters beyond the walls, with beams and roof supports visible inside. Access still goes from south courtyard through office to the rear door; do not add a surveillance floor between roofs or corridors from the old Pyongyang residence. This elevation is an invented reconstruction, not measurement supplied by the epitaph.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [천남생 묘지의677년 안무와679년 안동부 관사 사망](https://portal.nrich.go.kr/kor/ksmUsrView.do?ksm_idx=2744&menuIdx=584).
+Sources: [Namsaeng’s 677 pacification mission and death at the Andong residence in 679, epitaph](https://portal.nrich.go.kr/kor/ksmUsrView.do?ksm_idx=2744&menuIdx=584).

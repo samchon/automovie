@@ -1,17 +1,17 @@
-# 남생이 읽는 남방의 새 국력
+# The new southern strength Namsaeng reads
 
-정전 안내: [이 대상의 위치](../outline/index.md#050-systems--320-southern-power-after-baekgang).
+Canon guide: [Location of this subject](../outline/index.md#050-systems--320-southern-power-after-baekgang).
 
-## 남생이 읽는 남방의 새 국력 {#southern-power-after-baekgang}
+## The new southern strength Namsaeng reads {#southern-power-after-baekgang}
 
-**정의·범위**
+**Definition and scope**
 
-백제 부흥의 실패는 고구려에게 다른 종류의 위기를 준다. 당의 정복전쟁은 멈췄지만, 남쪽에서 신라를 붙들던 상대가 사라지고 신라가 인구·생산지·운반망을 자기 권력으로 연결할 가능성이 커진다. 백제 왕도의 함락만으로 모든 주민과 경제가660년부터 신라에 완전히 편입되었다고 쓰지 않는다. 저항과 당의 주둔, 아직 나뉜 통제가 있는 과정이다.
+Failure of the Baekje restoration brings Goguryeo a different crisis. Tang’s conquest war has stopped, but the southern opponent holding Silla in check disappears, increasing the possibility that Silla will connect population, productive land, and transport networks under its own power. Do not write that the fall of Baekje’s capital fully incorporated all people and economy into Silla from 660. This is a process with resistance, Tang garrisons, and control still divided.
 
-**확정 내용**
+**Established facts**
 
-작품의 국력 조건은 신라와 백제가 서로 나뉘어 싸울 때에는 고구려의 인구와 생산 기반이 신라보다 크지만, 신라가 백제 지역의 사람과 생산지를 연결해 가면 그 합쳐진 남방의 인구·경제력이 고구려를 앞서는 것으로 채택한다. 왕도 하나가 무너진 날 모든 자원이 신라의 것이 되는 역전은 아니며, 당의 주둔과 부흥의 잔여 저항 때문에 실제로 이용할 수 있는 힘에는 차이가 난다. 이 비교는 작품의 채택 값으로, 사료의 정확한 인구·경제 총량 통계로 주장하지 않는다.
+The work adopts this comparison: while Silla and Baekje fight separately, Goguryeo’s population and productive base exceed Silla’s; as Silla connects people and production areas in Baekje, the combined south’s population and economic strength surpass Goguryeo’s. Resources do not all become Silla’s the day one capital falls, and Tang garrisons and residual restoration resistance limit the strength actually usable. This is a work-specific value, not a claim to precise historical population or economic totals.
 
-남생은 이미 자기 나라보다 큰 기반을 가진 남방 세력이 형성되는 중이라고 판단한다. 언젠가 그럴 수도 있다는 막연한 전망으로만 두지 않는다. 현대의 정확한 GDP와 인구조사를 가진 계산이 아니라 어느 지역이 곡식을 내고 병력을 부르며 길을 연결하는지에 관한 보고와 경험이다. 고구려의 군사가 강하다는 사실만으로 그 차이를 없앨 수는 없다고 본다.
+Namsaeng judges that a southern power with a larger base than his own country is already forming, not merely a vague future possibility. His calculation is based on reports and experience of which regions supply grain, call troops, and connect routes, not modern GDP or census figures. He believes strong Goguryeo soldiers alone cannot erase the difference.
 
-따라서 재건은 군사적 두려움 때문에 나라의 기상을 버리는 정책이 아니다. 당을 꺾어 만든 시간을 사용하여 다음 전쟁을 견딜 생산과 이동, 지역의 협력을 회복하는 과업이다. 백강의 결과는 그 선택의 필요를 더 분명하게 해 준다. 남건과 남산은 반대로 그 전에 신라를 더 세게 쳐야 한다는 논거로 같은 소식을 읽을 수 있다. 같은 보고가 모두를 한 결론으로 모으지 않는다.
+Reconstruction therefore does not abandon national spirit from military fear. It uses time won by defeating Tang to restore production, movement, and regional cooperation needed to endure the next war. Baekgang makes that need clearer. Namgeon and Namsan can read the same news as an argument to strike Silla harder before then. One report does not bring everyone to one conclusion.

@@ -1,17 +1,15 @@
-# 태학에서 가르치는 무곡
+# Mugok, teacher at Taehak
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--005-taehak-participants).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--005-taehak-participants).
 
-## 태학에서 가르치는 무곡 {#taehak-participants}
+## Mugok, teacher at Taehak {#taehak-participants}
 
-**정의·범위**
+**Definition and scope**
 
-무곡은 태학에서 글을 가르치는 교사로, 작품에서 창작한 인물이다. 620년대에는 40대 남성이다. 개소문이 빠르게 이해한다는 점을 인정한다. 자부심이 강한 학생을 공개적으로 굴복시키기보다는, 잘한 답을 다른 사람도 쓸 수 있도록 풀어 설명하게 한다. 교사로서 글을 가르칠 권한은 있지만 학생 가문의 군사를 징벌할 권한은 없다.
+Mugok is an invented teacher of letters at Taehak, a man in his forties in the 620s. He recognizes Gaesomun’s quick understanding. Rather than publicly humbling a proud student, he has him explain a good answer so others can use it. He has authority to teach letters but not to punish the students’ families’ troops.
 
-**확정 내용**
+**Established facts**
 
+His appearance is also invented. He is about 165 centimeters tall, narrow-shouldered and slender, with long arms relative to his body and thin hands. His face is narrow, his eyebrows thin. He ties his black hair and wears a short beard on his chin. He wears light gray-brown cloth clothes with a dark brown sash and carries a small bundle of books.
 
-무곡의 외형도 창작으로 정한다. 키는 약 165센티미터이며 어깨가 좁고 몸통이 가늘다. 몸통에 비해 팔은 길고 손은 말랐다. 얼굴은 좁고 눈썹은 얇다. 검은 머리를 묶고 턱에는 짧은 수염을 기른다. 밝은 회갈색 천옷에 짙은 갈색 띠를 두르며 작은 책 묶음을 지닌다.
-
-
-목소리는 중간 음역으로 맑고 가늘다. 학생이 한 말을 다시 확인할 때는 말끝을 조금 올린다.
+His voice is clear and thin in the middle register. When confirming what a student has said, he raises the end of the sentence slightly.

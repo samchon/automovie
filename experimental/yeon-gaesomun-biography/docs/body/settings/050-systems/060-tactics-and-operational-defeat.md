@@ -1,15 +1,15 @@
-# 전술의 파훼와 전역의 붕괴
+# Defeating tactics and collapsing a campaign
 
-정전 안내: [이 대상의 위치](../outline/index.md#050-systems--060-tactics-and-operational-defeat).
+Canon guide: [Location of this subject](../outline/index.md#050-systems--060-tactics-and-operational-defeat).
 
-## 전술의 파훼와 전역의 붕괴 {#tactics-and-operational-defeat}
+## Defeating tactics and collapsing a campaign {#tactics-and-operational-defeat}
 
-**정의·범위**
+**Definition and scope**
 
-작품은 육화진의 숨은 한 가지 규칙을 알아내어 당군 전체를 무너뜨리는 설정을 두지 않는다. 적이 군사들을 정돈하고 서로 받쳐 주는 전술을 해도, 서로 다른 진의 정보와 식량이 끊기고 후퇴할 길이 제한되면 그 전술을 원하는 조건에서 사용할 수 없다. 고구려가 만드는 것은 이런 불리한 조건이다.
+The work does not make the whole Tang army collapse because Goguryeo discovers one hidden rule of the six-flower formation. Even when an enemy uses tactics that keep soldiers ordered and mutually supporting, it cannot employ those tactics on desired terms if information and food between camps are cut off and retreat routes restricted. Goguryeo creates those unfavorable conditions.
 
-**확정 내용**
+**Established facts**
 
-약한 부대가 강한 상대를 붙들고 다른 강한 부대가 상대의 취약한 곳을 치는 구상은 지휘자들의 공통 판단으로 사용한다. 약한 쪽이 언제까지 버틸 수 있는지, 강한 쪽이 그전에 도착하는지가 실제 승패를 정한다. 병력의 격차만으로 강약을 분류하지 않고 피로·보급·지형·지휘의 연결을 함께 본다.
+Commanders share the idea that a weak force can hold a strong opponent while another strong force strikes the opponent’s vulnerable point. The outcome depends on how long the weaker force can hold and whether the stronger arrives in time. Strength is judged not by numbers alone, but also fatigue, supply, terrain, and connections of command.
 
-670년 토번전의 패배도 고구려가 공개한 동일한 비법이 퍼진 결과로 확정하지 않는다. 제국이 다른 지형과 상대에게 같은 정복 능력을 쓸 수 없었던 사례로 이어진다. 당의 강함을 지운 뒤 승리의 충격을 설명하는 대신, 그 강함이 어떤 조건에서 더는 함께 작동하지 못하는지 사건마다 구체적으로 정한다.
+Do not establish the defeat against Tibet in 670 as the result of the same secret method revealed and spread by Goguryeo. It is an example of an empire unable to use the same capacity for conquest against a different opponent and terrain. Rather than erase Tang’s strength to explain the shock of victory, establish in each event the conditions under which its strengths can no longer work together.

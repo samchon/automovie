@@ -1,17 +1,15 @@
-# 승전 뒤 갈라지는 다음 과업
+# The next tasks diverge after victory
 
-정전 안내: [이 대상의 위치](../outline/index.md#020-world--100-victory-and-future).
+Canon guide: [Location of this subject](../outline/index.md#020-world--100-victory-and-future).
 
-## 승전 뒤 갈라지는 다음 과업 {#victory-and-future}
+## The next tasks diverge after victory {#victory-and-future}
 
-**정의·범위**
+**Definition and scope**
 
-고당 2차전쟁을 치른 뒤 연개소문은 적을 무력으로 꺾어 정복을 포기시켜야 재건을 계속할 수 있다는 자신의 판단이 옳았다고 믿는다. 남생이 마련한 복구 사업과 공동체들이 고구려에 속해 살아가며 거둔 결실에서 그는 바라던 다음 시대의 모습을 본다. 자신이 죽인 왕과의 관계에 대한 말년의 자기 평가는 [영류왕에게 남아 있는 빚](../040-agents/001-yeon-gaesomun.md#yeon-and-yeongnyu)에 있다.
+After the second Goguryeo–Tang war, Yeon Gaesomun believes he was right that reconstruction could continue only if the enemy was defeated by force and made to abandon conquest. In Namsaeng’s recovery program and the fruits of communities living as part of Goguryeo, he sees the next age he hoped for. His late-life assessment of his relationship with the king he killed is in [the debt that remains to King Yeongnyu](../040-agents/001-yeon-gaesomun.md#yeon-and-yeongnyu).
 
-**확정 내용**
+**Established facts**
 
+Namsaeng’s two younger brothers see the enemy’s withdrawal as an opportunity for a wider offensive. Over the collapse of the Baekje restoration army and Silla’s strength, Namsaeng thinks recovery must be hastened, while Namgeon judges that failing to attack Silla now will make things worse. When external enemies stop conquest, domestic demands suppressed by fear that the country would disappear reemerge. Regional burdens, assessment of military service, and royal demands for power come forward, keeping conflict alive after victory.
 
-남생의 두 아우는 적이 물러난 틈을 더 넓은 공세에 쓸 기회로 본다. 백제부흥군의 붕괴와 신라의 힘을 두고도 남생은 회복을 서둘러야 한다고 생각하지만, 남건은 지금 신라를 공격하지 않으면 더 불리해진다고 판단한다. 외적이 정복을 멈추자 나라가 사라질 공포에 눌려 있던 내부의 요구가 다시 드러난다. 지역별 부담, 군공을 평가하는 문제, 왕실의 권력 요구가 앞에 나서면서 승전 뒤에도 갈등이 이어진다.
-
-
-두 번째 승전 뒤에도 나라는 피폐해져 다시 회복해야 한다. 이때 필요한 사람과 기반은 첫 재건과 두 번째 재건에서 이어져 온 것이다. 같은 문제가 되풀이되었다고 해서 앞선 복구의 성취가 사라지는 것은 아니다. 되살려 둔 기반이 있었기에 다시 싸울 수 있었고, 다음 회복도 가능했다. 연개소문 사후의 내전은 그 가능성이 살아 있는 동안 일어난다.
+The country is exhausted after the second victory and must recover again. The people and foundations needed have continued from the first and second reconstructions. Recurrence of a problem does not erase earlier recovery: the restored foundations enabled renewed fighting and made another recovery possible. Civil war after Yeon’s death occurs while that possibility is still alive.

@@ -1,30 +1,25 @@
-# 당의 부흥과 북방의 힘
+# Tang’s resurgence and northern power
 
-정전 안내: [이 대상의 위치](../outline/index.md#020-world--110-tang-and-steppe).
+Canon guide: [Location of this subject](../outline/index.md#020-world--110-tang-and-steppe).
 
-## 당의 부흥과 북방의 힘 {#tang-and-steppe}
+## Tang’s resurgence and northern power {#tang-and-steppe}
 
-**정의·범위**
+**Definition and scope**
 
-당의 부흥으로 고구려가 기대하던 중국의 긴 분열이 끝난다. 여러 방향으로 나뉘어 있던 외부 압력도 다시 한 방향으로 모인다. 당군에 합류한 북방 세력은 앞선 중국 왕조들과 당의 창업 세력이 지원을 얻으려 애쓰던 상대였다.
+Tang’s resurgence ends the long Chinese division Goguryeo expected, concentrating external pressures that had been split in several directions. Northern forces joining Tang were people earlier Chinese dynasties and Tang founders had sought for support.
 
-**확정 내용**
+**Established facts**
 
+When Northern Zhou and Northern Qi opposed each other, both competed for Turkic support through marriage, friendship, and gifts. The Book of Sui describes Tabo Khagan’s advantage in that competition. Emperor Wen’s edict criticizing both states’ financial depletion also supplied grounds to attack an opponent. In the work this diplomatic rivalry is background in earlier generations’ western reports, not a claim that Turks alone caused Chinese unification.
 
-북주와 북제가 맞서던 시기, 두 나라는 돌궐의 지원을 얻기 위해 혼인과 우호를 다투고 재물을 제공했다. 《수서》는 이 경쟁 속에서 타발가한이 누린 우위를 전한다. 양국의 재정 소모를 비난한 수문제의 조서는 상대를 공격할 명분을 마련하는 말이기도 하다. 작품에서 이 외교 경쟁은 선대가 받은 서쪽 압력을 설명하는 정세 보고의 배경이다. 중국 통일의 원인을 돌궐 하나로 돌리지는 않는다.
+In 617 Li Yuan also traded horses and negotiated troops with Turks. The Zizhi Tongjian records Liu Wenjing requesting troops and promising Chang’an land and people to Li Yuan and wealth to Turks. This shows exchanges of interest at Tang’s founding, not that all Tang troops came from Turks. Northern Zhou, Northern Qi, and Tang founders appear as group parties in reports rather than separate protagonist scenes. Tang’s later subjugation of powers whose support it once sought, incorporating them into expeditions, reverses the situation and creates a new threat.
 
+Tang subdues Eastern Turks in 630 and Tuyuhun in 635, destroys Gaochang in 640, and Xueyantuo in 646. These victories ground military confidence and allow defeated cavalry and commanders into Tang forces. Tang strength and elite quality rest on accumulated capacity, not merely contempt for enemies.
 
-617년에는 이연도 돌궐과 군마를 거래하고 병력 지원을 교섭했다. 《자치통감》에는 유문정이 파병을 요청하며 장안의 토지와 인민은 이연에게, 재물은 돌궐에게 돌아가게 하자고 약속한 일이 나온다. 이는 당 창업기의 이해 교환을 보여 주며, 당의 모든 병력이 돌궐에서 나왔다는 뜻은 아니다. 북주·북제와 당 창업 세력은 국가 정세 보고의 집단 당사자로 등장하며, 별도의 주인공 장면을 갖지 않는다. 북방의 지원을 구하던 당이 훗날 그 세력을 제압하고 원정 전력으로 묶는 역전은 고구려에 새로운 위협이 된다.
+Turks, Tiele, and Xueyantuo are not one state of one lineage. Power struggles under khagans and survival choices continue separately from Tang–Goguryeo war. Ashina royals and Tiele-origin Qibi Heli gain authority and honor in Tang wars, but their communities do not always move the same way. Northern conditions in 645 and 661 affect Tang’s ability to concentrate on Goguryeo. Individual relationships belong to [Qibi Heli](../040-agents/054-qibi-heli.md#qibi-heli), [Ashina She’er](../040-agents/055-ashina-sheer.md#ashina-sheer), and [Ashina Zhong](../040-agents/056-ashina-zhong.md#ashina-zhong); 661 diversion belongs to [the second war](../outline/index.md#050-systems).
 
+The north is not empty safe land without enemies for Goguryeo. News of a group opposing Tang does not itself supply allies; cooperation needs goods, contact, and shared goals. Northern choices of resistance or submission change internal power and livelihood, not merely serve Goguryeo.
 
-당은 630년 동돌궐을 제압하고, 635년 토욕혼을 복속시키며, 640년 고창을 멸망시킨다. 646년에는 설연타도 무너뜨린다. 이런 승리는 당의 군사적 자신감에 근거를 주고, 패한 상대의 기병과 지휘자를 당군에 편입할 조건을 만든다. 당군의 강건함과 정예함은 적을 깔보는 성격만으로 설명되지 않으며, 이렇게 쌓인 전력에도 기대고 있다.
+**References and unresolved matters**
 
-
-돌궐·철륵·설연타는 같은 혈통으로 이루어진 한 나라가 아니다. 가한 아래의 권력 다툼과 각 집단의 생존 선택은 당과 고구려의 전쟁과 별개로도 이어진다. 당에 귀부한 아사나계 왕족과 철륵 출신 계필하력은 당의 전쟁에서 권한과 명예를 얻는다. 그렇다고 출신 공동체까지 늘 그들과 같은 방향으로 움직이지는 않는다. 645년과 661년의 북방 사정은 당이 고구려 전쟁에 계속 집중할 수 있는지를 바꾼다. 장수들의 개인적 관계는 [계필하력](../040-agents/054-qibi-heli.md#qibi-heli)·[아사나사이](../040-agents/055-ashina-sheer.md#ashina-sheer)·[아사나충](../040-agents/056-ashina-zhong.md#ashina-zhong)에, 661년 병력 전용은 [두 번째 전쟁](../outline/index.md#050-systems)에 정리되어 있다.
-
-
-고구려에 북방은 적이 없는 안전한 빈 땅이 아니다. 어떤 집단이 당과 맞선다는 소식만으로 동맹군을 얻을 수는 없다. 협력에는 물자와 접촉, 공동 목표가 필요하다. 북방 세력이 당에 맞서거나 귀부하는 선택은 그들 내부의 권력과 생계를 바꾸는 일이다. 고구려를 돕기 위해서만 반란을 일으키는 것은 아니다.
-
-**참조·미결**
-
-Sources: [《수서》 권84의 북주·북제와 돌궐의 외교 경쟁](https://zh.wikisource.org/zh-hant/隋書/卷84), [《자치통감》 권184의617년 이연과 돌궐의 군마·파병 교섭](https://zh.wikisource.org/zh-hant/資治通鑑/卷184), [국사편찬위원회, 「고구려·당 전쟁」의 당의 팽창과 북방 정세](https://contents.history.go.kr/front/kc/printViewPopup.do?levelId=kc_i100300), [『신당서』 권110의 아사나계·계필하력·집실사력 열전](https://zh.wikisource.org/zh-hant/新唐書/卷110).
+Sources: [Northern Zhou, Northern Qi, and Turkic rivalry, Book of Sui vol. 84](https://zh.wikisource.org/zh-hant/隋書/卷84), [Li Yuan’s 617 horse and troop negotiations, Zizhi Tongjian vol. 184](https://zh.wikisource.org/zh-hant/資治通鑑/卷184), [Tang expansion and the north](https://contents.history.go.kr/front/kc/printViewPopup.do?levelId=kc_i100300), [Ashina, Qibi Heli, and Zhishi Sili biographies, New Book of Tang vol. 110](https://zh.wikisource.org/zh-hant/新唐書/卷110).

@@ -1,18 +1,17 @@
-# 보장왕의 부친 대양왕
+# Daeyang, father of King Bojang
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--014-daeyang).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--014-daeyang).
 
-## 보장왕의 부친 대양왕 {#daeyang}
+## Daeyang, father of King Bojang {#daeyang}
 
-**정의·범위**
+**Definition and scope**
 
-대양왕의 가계는 『삼국사기』를 따른다. 영류왕의 아우이며 보장왕 장의 부친이다. 여기서 대양왕이라는 호칭이 별도로 왕위에 올라 재위했다는 뜻은 아니다.
+Daeyang’s genealogy follows the Samguk Sagi: he was King Yeongnyu’s younger brother and the father of Jang, King Bojang. The title Daeyang does not mean that he separately ascended the throne and reigned.
 
-**확정 내용**
+**Established facts**
 
+In the currently planned narrative, Daeyang is an ancestor whose place explains Bojang’s claim to the throne. He has no scene of direct action or dialogue in recollection; do not invent his face or voice.
 
-현재 예정된 서사에서 대양왕은 보장왕이 왕위에 오를 명분을 설명하는 선대 인물이다. 직접 행동하는 장면이나 회상 속 대사는 없으며, 얼굴과 목소리도 임의로 복원하지 않는다.
+**References and unresolved matters**
 
-**참조·미결**
-
-Sources: [『삼국사기』 보장왕 즉위와 가계](https://db.history.go.kr/ancient/level.do?levelId=sg_021r_0020_0010).
+Sources: [King Bojang’s accession and genealogy, Samguk Sagi](https://db.history.go.kr/ancient/level.do?levelId=sg_021r_0020_0010).

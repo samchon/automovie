@@ -1,20 +1,17 @@
-# 사흘 동안 상처를 돌본 치료자
+# The healer who tends the wound for three days
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--024-heonchung-healer).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--024-heonchung-healer).
 
-## 사흘 동안 상처를 돌본 치료자 {#heonchung-healer}
+## The healer who tends the wound for three days {#heonchung-healer}
 
-**정의·범위**
+**Definition and scope**
 
-석연은 연씨 거처에서 평소 병과 상처를 돌보던 치료자다. 이름과 624년이라는 출생 연도는 창작이다. 상처를 씻고 천으로 압박하는 처치가 가능한 치료자이며 현대 검사와 외과 처치까지 가능한 인물은 아니다. 헌충에게 실제로 시행한 처치·일시적 출혈 감소·실패의 채택 경과는 [헌충의 상처](../050-systems/270-heonchung-injury.md#heonchung-injury)가 소유한다.
+Seokyeon is the healer who ordinarily tends illness and wounds at the Yeon residence. His name and birth year of 624 are invented. He can wash a wound and apply pressure with cloth, but cannot perform modern examinations or surgery. [Heonchung’s wound](../050-systems/270-heonchung-injury.md#heonchung-injury) owns the adopted course of actual treatment, temporary reduction of bleeding, and failure.
 
-**확정 내용**
+**Established facts**
 
+Heonchung worsens because of a deep open wound in his side and blood already lost, and dies after three days. Nobody poisons him. The medical details of treatment failure are not a diagnosis confirmed by modern examination. Seokyeon has no authority to send Heonchung back to battle or hand him over under the royal order.
 
-헌충의 상태는 깊게 벌어진 옆구리 상처와 이미 잃은 피 때문에 나빠지고, 사흘 뒤 죽음에 이른다. 누군가 독을 먹여 죽은 것은 아니다. 치료 실패의 의학적 세부는 현대 검사로 확정된 진단에 해당하지 않는다. 석연에게는 헌충을 다시 전장으로 내보내거나 왕명에 넘길 권한이 없다.
+He is 164 centimeters tall, narrow-shouldered and thick-fingered, with a round face, small brown eyes, light black eyebrows, low nose, thin lips, and light tawny skin. His black hair is tied and his beard trimmed short. He wears a dark brown apron over gray-brown clothes and keeps cloth and a small knife.
 
-
-키는 164센티미터이며 어깨는 좁고 손가락은 굵다. 둥근 얼굴에 작은 갈색 눈과 옅은 검은 눈썹이 있고 코는 낮으며 입술은 얇다. 피부는 옅은 황갈색이다. 검은 머리를 묶고 수염을 짧게 정리한다. 회갈색 옷에 어두운 갈색 앞치마를 걸치며 천과 작은 칼을 둔다.
-
-
-목소리는 중간 높이로 가늘고 쉬었으며, 상태를 확인하는 말은 짧다. 남건 측에서 재촉해도 헌충이 살 수 있다는 약속은 하지 않는다. 죽음 뒤에는 자신이 본 경과만 보고한다.
+His middle-register voice is thin and hoarse, and his checks on the patient are brief. Even when pressed by Namgeon’s side, he does not promise Heonchung can survive. After death he reports only the course he observed.

@@ -1,27 +1,27 @@
-# 포위가 야전을 강요하는 이유
+# Why siege compels field warfare
 
-정전 안내: [이 대상의 위치](../outline/index.md#050-systems--050-forced-field-war).
+Canon guide: [Location of this subject](../outline/index.md#050-systems--050-forced-field-war).
 
-## 포위가 야전을 강요하는 이유 {#forced-field-war}
+## Why siege compels field warfare {#forced-field-war}
 
-**정의·범위**
+**Definition and scope**
 
-여섯 방면의 공격은 성 하나를 빨리 함락시키는 일만 노리지 않는다. 요동의 수비를 붙들고 북쪽과 압록강의 길을 압박하는 동안 수군이 수도까지 들어가면, 고구려는 각 지역이 서로 돕거나 식량을 옮길 여지를 잃는다. 성이 당장 무너지지 않아도 주민과 군사가 자기 생산지와 운반 길을 되찾지 못하면 다음 계절의 생계가 끊긴다.
+The six-direction attack aims beyond quickly taking one fortress. While Liaodong defenses are held and northern and Yalu roads pressured, a navy entering the capital area deprives Goguryeo’s regions of mutual aid and food transport. Even if walls do not immediately fall, failure to recover production and routes severs next season’s livelihood.
 
-**확정 내용**
+**Established facts**
 
-급양 가능량과 내부 통로의 한도는 [분산 비축](100-counterattack-concentration.md#interior-supply-capacity)을 따른다.
+Feeding and interior-route limits follow [dispersed reserves](100-counterattack-concentration.md#interior-supply-capacity).
 
-고구려는 양쪽으로 덫에 걸려 있다. 야전으로 맞서면 천하제일의 당군에게 깨져 패망한다. 성에 들어 들을 비우고 버티면 해마다 생산과 동원이 깎여 경제가 무너지고, 성이 남아도 나라는 사실상 망하는 수순에 들어선다. 당은 이것을 알고 썼다. 647년 2월 당 조정은 먼저 645년의 친정 때 고구려 사람들이 밭을 갈지 못했고 당군이 빼앗은 성의 곡식을 거두어 갔으며 가뭄까지 겹쳐 백성 태반이 굶주렸다고 보았다(「前大駕親征，國人不得耕種，所克之城，悉收其穀，繼以旱災，民太半乏食」). 그 위에서 「數遣偏師，更迭擾其疆場，使彼疲於奔命，釋耒入堡，數年之間，千里蕭條，則人心自離」, 곧 작은 부대를 번갈아 보내 경작을 못 하게 하면 몇 해 사이 천 리가 쓸쓸해지고 인심이 떠난다고 보았다. 645년 뒤의 침공이 그 방식이었다. 싸움별 경과는 [645년 이후 당과의 야전 기록](235-field-records-after-645.md#field-records-after-645)이 정한다. 당과 주변 세력은 고구려가 어느 쪽이든 망한다고 본다. 연개소문의 전략은 이 덫을 깨는 셋째 길이다. 성으로 막되 끝까지 막지 않고, 적이 지치고 나뉜 때에 먼저 야전 결전을 건다.
+Goguryeo faces a double trap. Field battle risks defeat and ruin against Tang’s finest army; emptying fields and holding walls cuts production and mobilization each year, collapsing the economy so the country effectively dies even with walls standing. Tang understood and used this. In February 647 its court observed that during the 645 imperial expedition people could not farm, Tang took grain from captured fortresses, and drought left most hungry (“前大駕親征，國人不得耕種，所克之城，悉收其穀，繼以旱災，民太半乏食”). It proposed alternating small forces to prevent cultivation until the land was desolate and people’s allegiance departed (“數遣偏師，更迭擾其疆場，使彼疲於奔命，釋耒入堡，數年之間，千里蕭條，則人心自離”). Invasions after 645 used that method; [field records](235-field-records-after-645.md#field-records-after-645) own each course. Tang and neighbors expect Goguryeo to perish either way. Yeon’s third path holds with fortresses but not forever, initiating decisive field battle once enemies tire and divide.
 
-이 덫에는 계절의 시한이 붙는다. 적이 여름에 들어와 가을걷이 철을 붙들면 그해 수확이 깎이고, 겨울을 넘겨 봄에 씨를 뿌리지 못하면 이듬해까지 굶는다. 그러므로 결전은 봄갈이 전에 끝나야 한다. 수확기에는 막아 적을 겨울로 끌어들이고, 굶주림과 추위로 지친 적을 겨울 끝에 쳐서 봄이 오기 전에 끝장을 본다. 결전의 때를 고르는 이유는 적의 소진만이 아니라 제 백성의 파종이기도 하다.
+The trap has a seasonal deadline. A summer enemy holding harvest cuts that year’s yield; staying through winter prevents spring sowing and causes hunger into the next year. Battle must finish before spring plowing. Hold during harvest to draw the enemy into winter, then strike when hunger and cold exhaust it, finishing before spring. Timing serves both enemy exhaustion and the people’s sowing.
 
-이 시한은 조건과 원리다. 661~662년 전역의 실제 날짜는 [기록 일정](../020-world/030-second-war-calendar.md#second-war-calendar)이 소유한다. 도입 액자에서 이 조건이 어떻게 쓰이는지는 [661년 늦봄 결전을 밝히는 자리](035-late-spring-661-decision.md#late-spring-661-decision)가 정한다.
+This deadline is condition and principle. [The recorded calendar](../020-world/030-second-war-calendar.md#second-war-calendar) owns actual campaign dates; [the late-spring 661 decision](035-late-spring-661-decision.md#late-spring-661-decision) owns its opening-frame use.
 
-청야와 수성만 계속하는 고구려는 멀쩡한 성벽 안에서 더는 국가의 기능을 이어 가지 못할 수 있다. 작품에서 단기 결전은 민중의 열망이면서 전역을 끝내야 하는 군사적 필요다. 처음부터 모든 병력을 성 밖으로 던지는 판단은 아니다. 수비가 적을 붙들 동안 차단과 지연으로 적의 연결을 끊고, 그 효과가 실제로 생긴 뒤 야전의 힘을 모은다.
+Continuing only scorched earth and defense may leave intact walls around a state unable to function. A quick decision is both popular desire and military need, not a choice to throw all troops outside immediately. While defense holds the enemy, interdiction and delay sever its connections; only after effects arise does Goguryeo concentrate for field battle.
 
-적이 여러 길로 움직인다는 사실 자체만으로 각개격파가 되지는 않는다. 각각 강한 병력이고 다른 부대가 연결을 유지하면 고구려의 집중 병력도 위험하다. 내선의 이점은 이동할 자기 길과 남은 식량, 정보를 보내는 사람이 있을 때 작동한다. 개소문은 그 조건을 지키고 적에게서 빼앗는 일에 경기병과 지방 지휘자의 능력을 쓴다.
+Multiple enemy roads do not themselves yield defeat in detail. Each force is strong and continued mutual connection endangers Goguryeo’s concentration. Interior lines help only with usable roads, food, and messengers. Gaesomun uses light cavalry and local commanders to maintain these conditions and deprive the enemy of them.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『자치통감』 권198 정관 21년 2월 조정의 소모전 계책](https://zh.wikisource.org/wiki/資治通鑑/卷198).
+Sources: [Court’s exhaustion strategy in February 647, Zizhi Tongjian vol. 198](https://zh.wikisource.org/wiki/資治通鑑/卷198).

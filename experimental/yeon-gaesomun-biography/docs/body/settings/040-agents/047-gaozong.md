@@ -1,23 +1,19 @@
-# 당 고종이 쓸 수 있는 전력
+# Forces available to Emperor Gaozong of Tang
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--047-gaozong).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--047-gaozong).
 
-## 당 고종이 쓸 수 있는 전력 {#gaozong}
+## Forces available to Emperor Gaozong of Tang {#gaozong}
 
-**정의·범위**
+**Definition and scope**
 
-661년 원정에서 여러 방면의 병력을 모으고 철수시키거나 다른 임무로 돌리는 최종 명령권은 고종에게 있다. 조정의 중심에서 군대를 움직이며, 선대가 거둔 정복 성과와 지금 자신이 확보한 인력, 다른 국경에서 생기는 위기를 함께 계산한다. 대군을 보낸 뒤 전장 밖에 머물더라도 실패의 책임을 일선 장수에게만 돌리는 인물로 한정되지 않는다.
+In the 661 expedition Gaozong holds final authority to assemble forces from several directions, withdraw them, or divert them to other missions. From the center of court he moves armies while calculating his predecessor’s conquests, the personnel he now commands, and crises at other frontiers. Even outside the battlefield after sending a large force, he is not limited to a figure who places responsibility for failure solely on field generals.
 
-**확정 내용**
+**Established facts**
 
+The invented Gaozong is 171 centimeters tall, narrow-shouldered and long-fingered, with a thinner, longer face than Taizong. He has brown eyes, straight thin black eyebrows, a long nose, a small mouth, and light tawny skin. His black hair is tied and his short beard evenly kept. He wears a dark reddish-brown outer robe, black sash, and metal crown ornament.
 
-작품에서 창작한 고종은 키가 171센티미터이고 어깨가 좁으며 손가락이 길다. 얼굴은 태종보다 가늘고 길다. 갈색 눈 위로 곧고 얇은 검은 눈썹이 놓이고, 코는 길며 입은 작다. 피부는 옅은 황갈색이다. 검은 머리를 묶고 짧은 수염을 고르게 기른다. 짙은 붉은 갈색 겉옷에 검은 띠를 두르고 금속 관식을 쓴다.
+His habit of pressing his eyes after reading documents for a long time is invented. His voice is thin and clear in the middle register, ending low. Hearing a report, he checks what it conceals rather than immediately shouting in anger.
 
+His health alone cannot determine the extent of his political authority. Even if someone organizes reports for him, responsibility for setting conquest objectives and moving resources remains his.
 
-오래 문서를 읽고 나면 눈을 누르는 버릇은 작품에서 창작한 것이다. 목소리는 중간 높이로 얇고 맑으며 말끝은 낮게 맺는다. 보고를 들을 때는 곧바로 큰 소리로 화를 내기보다 보고에서 무엇이 감춰졌는지 확인한다.
-
-
-몸 상태만으로 고종의 정치적 권위가 얼마나 큰지 판단할 수는 없다. 누군가 보고를 대신 정리해 주더라도 정복 목표를 정하고 자원을 움직이는 책임은 고종에게 남는다.
-
-
-662년의 손실 뒤 고종은 정복 원정을 중지한다. 작품에서 이 중지는 군사적 패배가 강요한 실제 전략 변경이다. 고구려의 내부 분열로 새로운 기회가 생기면 다시 정복에 나설 수 있다. 고구려를 영원히 독립국으로 존중하겠다는 사적 맹세까지 한 것은 아니다. 조정이 손실을 어떤 말로 서술하는지, 그 말과 다음 원정에 병력을 동원할 실제 능력 사이에 어떤 차이가 있는지는 사건 정전에서 정한다.
+After losses in 662, Gaozong stops the conquest expedition. In the work this is an actual strategic change compelled by military defeat. A new opportunity from Goguryeo’s internal division can lead him to pursue conquest again; he has not personally sworn to respect Goguryeo as independent forever. Event canon determines how the court describes its losses and the difference between that language and actual capacity to mobilize for another expedition.

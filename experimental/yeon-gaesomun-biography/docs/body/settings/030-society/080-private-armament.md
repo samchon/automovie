@@ -1,20 +1,17 @@
-# 무장을 마련할 수 있는 집안
+# Households able to provide arms
 
-정전 안내: [이 대상의 위치](../outline/index.md#030-society--080-private-armament).
+Canon guide: [Location of this subject](../outline/index.md#030-society--080-private-armament).
 
-## 무장을 마련할 수 있는 집안 {#private-armament}
+## Households able to provide arms {#private-armament}
 
-**정의·범위**
+**Definition and scope**
 
-작품 속 전사는 병기와 갑주, 군마를 마련할 때 자신의 집안과 재력에 크게 의존한다. 부유한 군사 귀족에게 철제 무장과 중장기병의 위신은 전공을 얻는 수단이자 재력을 드러내는 형식이다. 사비로 마련하는 무장이 중장기병 편중으로 이어지는 관계는 작품에서 택한 설정이다. 고구려의 모든 전사에게 동일한 법적 장비 부담이 있었다고 단정하는 근거는 아니다.
+Warriors in the work depend heavily on family and means to provide weapons, armor, and horses. For wealthy military nobles, iron arms and heavy cavalry prestige are both means of achievement and displays of wealth. The link from privately funded equipment to a bias toward heavy cavalry is a choice for the work, not proof that all Goguryeo warriors had identical legal equipment burdens.
 
-**확정 내용**
+**Established facts**
 
+The setting includes iron production and processing to supply these arms. Armor requires gathering ore and charcoal and labor working iron, as well as leather and cords for joining components and payment by the ordering family. Living where iron is produced does not let every household obtain armor. This supply process explains conditions linking military noble wealth to heavy equipment; it does not present statistics proving output or uniform free state provision.
 
-이 무장을 공급할 철의 생산·가공 기반은 작품의 환경에 포함된다. 갑옷을 마련하려면 광물과 숯을 모으고 철을 다루는 노동이 필요하다. 부속을 이을 가죽과 끈, 주문한 집안이 치를 대가도 있어야 한다. 따라서 철이 생산되는 곳에 산다는 것만으로 모든 가구가 갑옷을 얻을 수는 없다. 이 공급 과정은 군사 귀족의 재력이 중장비로 이어질 조건을 설명하며, 생산량이나 국가의 일률적인 무상 지급을 입증하는 통계는 제시하지 않는다.
+The state organizes warriors who bring equipment according to actual condition. A usable horse, fitted armor, and repairable weapon are needed for corresponding duties. A starved horse or ill-fitting armor does not become usable simply because a family is wealthy. Families can lend equipment to several people; who repays lost equipment affects the borrower’s service and next expedition.
 
-
-국가는 장비를 가져온 전사를 실제 상태에 맞추어 편성한다. 움직일 수 있는 말과 몸에 맞는 갑주, 수선 가능한 병기가 있어야 그에 맞는 임무를 맡는다. 오래 굶긴 군마나 몸에 맞지 않는 갑주는 집안이 부유하다는 이유만으로 쓸 수 있는 장비가 되지 않는다. 가문은 여러 사람에게 장비를 빌려줄 수도 있다. 잃어버린 장비를 누가 갚는지에 따라 빌린 사람의 복무와 다음 원정이 달라진다.
-
-
-중장기병의 돌격에는 그 시간과 장소를 마련하는 경기병과 보병이 필요하다. 장비의 위신에 가려 상대적으로 낮게 평가되었던 정찰과 차단 임무는 말갈 편입으로 보완한다. 고구려의 경기병에는 말갈 이외의 출신도 있다. 실제 부대의 수와 장비, 수선과 먹이에 드는 부담은 군사 정전의 [편성](../050-systems/040-goguryeo-661-strength.md#goguryeo-661-strength)과 [급양 한도](../050-systems/100-counterattack-concentration.md#interior-supply-capacity)에서 배정하며, 한 사람이나 말을 여러 부대의 숫자에 거듭 넣지 않는다.
+Heavy cavalry charges need light cavalry and infantry to create time and place. Scouting and interdiction, relatively undervalued behind equipment prestige, are supplemented through Malgal incorporation; Goguryeo light cavalry also has other origins. Military canon assigns actual numbers, equipment, repair, and feed burdens in [organization](../050-systems/040-goguryeo-661-strength.md#goguryeo-661-strength) and [feeding limits](../050-systems/100-counterattack-concentration.md#interior-supply-capacity). Do not count one person or horse repeatedly in several units.

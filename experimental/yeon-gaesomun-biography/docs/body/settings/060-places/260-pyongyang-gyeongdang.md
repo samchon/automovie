@@ -1,27 +1,23 @@
-# 평양 남쪽 거리의 경당
+# Gyeongdang on Pyongyang’s southern street
 
-정전 안내: [이 대상의 위치](../outline/index.md#060-places--260-pyongyang-gyeongdang).
+Canon guide: [Location of this subject](../outline/index.md#060-places--260-pyongyang-gyeongdang).
 
-## 평양 남쪽 거리의 경당 {#pyongyang-gyeongdang}
+## Gyeongdang on Pyongyang’s southern street {#pyongyang-gyeongdang}
 
-**정의·범위**
+**Definition and scope**
 
-개소문이 620년 무렵부터 다니는 경당은 [연씨의 집](020-yeon-residence.md#yeon-house-in-taejo-years) 남문에서 남쪽 거리를 따라 약300미터 떨어진 네거리 모퉁이에 둔다. 거리의 가구들이 함께 세운 큰 목조 집과 그 남쪽의 활 마당으로 이루어진다. 위치·평면·치수는 모두 작품의 선택이며, 기록이 전하는 것은 거리마다 큰 집을 지어 미혼 자제가 읽고 활을 익혔다는 데까지다.
+The Gyeongdang Gaesomun attends from around 620 is at a crossroads corner about 300 meters down the southern street from [the Yeon house](020-yeon-residence.md#yeon-house-in-taejo-years)’s south gate. Households on the street built a large wooden house together, with an archery yard south. Location, plan, and dimensions are choices for the work; records say only that large houses were built on streets for unmarried youths to read and learn archery.
 
-**확정 내용**
+**Established facts**
 
+The south-facing single-story wooden house is 15 meters east–west by seven north–south. A 1.5-meter wooden door stands in the middle of the south wall, with two windows on each side. Nine meters east inside are reading space; six west hold shared bows and arrows, separated by a low wooden partition. Reading space has three low tables, straw floor mats, and a shelf under the north wall for book bundles.
 
-경당 집은 동서15미터·남북7미터의 남향 한 층 목조 채다. 남쪽 벽 가운데에 폭1.5미터의 나무 문이 있고 그 양옆에 창이 둘씩 난다. 안은 동쪽 9미터를 읽는 자리, 서쪽 6미터를 공동 활과 화살을 거는 보관 자리로 나누며, 그 사이에 낮은 나무 칸막이를 둔다. 읽는 자리에는 낮은 탁자 셋과 바닥에 까는 짚자리가 있고, 북쪽 벽 아래에 책 묶음을 얹는 선반을 둔다.
+The archery yard south is 35 meters long and 12 wide; targets stand before a south-end earthen bank so arrows do not travel toward street or house. An eight-by-eight-meter open children’s play area at the west edge is separated from shooting positions by a low wooden fence. The east side adjoins the street, so passing carts and people can see the children shoot.
 
+The house is 2.7 meters to the beam underside, 2.9 to eaves, and 4.2 to east–west ridge. Dark brown thatch slopes north–south and projects 0.6 meters outside the walls. Earthen-coated wooden framing encloses a reading area with boards over packed earth and an earthen-floored storage area. Pillars and threshold are light tawny stripped pine, dark black-brown only where children’s hands and feet touch them.
 
-활 마당은 집 남쪽의 길이35미터·폭12미터이며, 표적은 남쪽 끝 흙둑 앞에 세워 화살이 거리 쪽이나 집 쪽으로 나가지 않게 한다. 마당 서쪽 가장자리의 8미터×8미터 빈자리는 어린아이가 노는 자리로, 사대와는 낮은 나무 울타리로 갈라진다. 마당 동쪽은 거리와 맞닿아 오가는 수레와 사람이 아이들의 활쏘기를 볼 수 있다.
+Daylight through south door and windows lights reading; the two south windows of the west storage area normally have shutters closed to protect gear from sun and rain, making it darker. Opening shutters to clean or remove gear admits light. After sunset two lamps light reading. Bowstrings and street cartwheels are heard inside, and yard and street beyond visible through windows. In winter the door closes, a brazier is set out, and children gather to read.
 
+**Conditions and limits**
 
-집은 바닥에서 보 아래까지2.7미터, 처마2.9미터, 동서 용마루4.2미터다. 짙은 갈색 초가지붕은 남북으로 기울고 벽 밖으로0.6미터씩 내민다. 벽은 흙을 바른 나무 뼈대이고 바닥은 다진 흙에 널을 깐 읽는 자리와 흙바닥의 보관 자리로 나뉜다. 기둥과 문턱은 껍질을 벗긴 소나무의 밝은 황갈색이고, 아이들 손과 발이 닿는 자리만 손때가 배어 짙은 흑갈색이다.
-
-
-낮빛은 남쪽 문과 창으로 들어 읽는 자리를 밝히고, 서쪽 보관 구역의 남창 둘은 무구를 햇빛과 비에서 가리는 나무 덧문을 평소 닫아 두므로 읽는 자리보다 어둡다. 덧문을 열어 청소하거나 무구를 꺼내는 동안에는 그쪽에도 빛이 들어온다. 해가 지면 읽는 자리에 등잔 둘을 켠다. 안에서는 마당의 활시위 소리와 거리의 수레바퀴 소리가 들리며, 창으로는 마당과 그 너머 거리가 보인다. 겨울에는 문을 닫고 화로 하나를 놓아 아이들이 읽는 자리에 모여 앉는다.
-
-**조건·한계**
-
-경당의 일반 운영과 참여의 압력은 [경당에서 몸에 남는 숙련](../030-society/030-gyeongdang.md#gyeongdang)을 따른다. 이 경당은 동부 편입 지역의 [마을 경당](140-eastern-village.md#eastern-village)과 구조가 비슷하지만 도성의 거리에 있어 교역 창고를 두지 않는다.
+General operation and participation pressures follow [skills learned at Gyeongdang](../030-society/030-gyeongdang.md#gyeongdang). This school resembles the incorporated eastern [village Gyeongdang](140-eastern-village.md#eastern-village), but has no trade storehouse on the capital street.

@@ -1,15 +1,15 @@
-# 귀부가 열어 준 세 번째 원정
+# The third expedition made possible by submission
 
-정전 안내: [이 대상의 위치](../outline/index.md#050-systems--330-third-war).
+Canon guide: [Location of this subject](../outline/index.md#050-systems--330-third-war).
 
-## 귀부가 열어 준 세 번째 원정 {#third-war}
+## The third expedition made possible by submission {#third-war}
 
-**정의·범위**
+**Definition and scope**
 
-666년 이후 당은 고구려의 내부 분열과 남생의 귀부를 이용하여 정복을 다시 추진한다. 정복전쟁을 멈춘 실제 전후 국면이 없었던 것으로 뒤집히지는 않는다. 다시 공격할 수 있는 조건이 달라졌다. 남생이 가진 지역의 지지와 이동 정보는 당이 이전에는 별도로 뚫어야 했던 성과 사람의 연결을 바꾼다.
+After 666 Tang uses Goguryeo’s internal division and Namsaeng’s submission to pursue conquest again. This does not undo the actual postwar period when the conquest war stopped; conditions have changed to make renewed attack possible. The regional support and travel information Namsaeng possesses change the connections among fortresses and people that Tang would previously have had to break separately.
 
-**확정 내용**
+**Established facts**
 
-작품의 고구려군이 순식간에 겁쟁이로 바뀌는 것은 아니다. 따로 남은 성과 군사가 계속 싸우고, 당은 협조하는 지역을 이용하여 그 저항을 우회하거나 집중 공격한다. 중앙이 모든 부대에 같은 물자와 권한을 줄 수 없게 된 상태에서 지방 지휘자는 자기 성과 사람을 어떻게 지킬지 판단한다. 남건의 군사 능력은 그 전국의 연결을 혼자 복구하지 못한다.
+The work’s Goguryeo troops do not suddenly become cowards. Isolated fortresses and forces keep fighting; Tang uses cooperating regions to bypass or concentrate attacks on that resistance. With the center unable to give every unit the same supplies and authority, local commanders decide how to protect their own fortresses and people. Namgeon’s military ability cannot restore those nationwide connections alone.
 
-남생은 당군이 자신을 필요한 협력자로 대우하는 동안 멸망까지의 공격을 돕는다. 헌충을 죽인 정권과 나라를 분리하려는 사람들이 있어도 그의 판단은 쉽게 돌아서지 않는다. 나라의 방어를 더 잘 알수록 그 정보를 넘긴 책임도 더 구체적이다. 작품에서 내전은 멸망의 단순한 핑계가 아니라 강했던 방어의 실제 조건을 깨뜨리는 과정이다.
+Namsaeng helps the offensive through to the fall while Tang treats him as a necessary collaborator. Even if some people seek to distinguish the regime that killed Heonchung from the country, he does not easily reverse his judgment. The better he knows the country’s defenses, the more concrete his responsibility for giving that information away. In the work civil war is not a simple excuse for collapse, but the process that breaks the actual conditions sustaining a strong defense.

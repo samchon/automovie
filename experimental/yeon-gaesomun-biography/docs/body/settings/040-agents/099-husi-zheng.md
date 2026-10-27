@@ -1,17 +1,17 @@
-# 돌려보내는 곡사정
+# Husi Zheng returned to Sui
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--099-husi-zheng).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--099-husi-zheng).
 
-## 돌려보내는 곡사정 {#husi-zheng}
+## Husi Zheng returned to Sui {#husi-zheng}
 
-**정의·범위**
+**Definition and scope**
 
-곡사정은 613년 수의 원정에서 고구려로 달아났다가 614년 항복 요청과 함께 수에 돌려보내는 인물이다.
+Husi Zheng fled to Goguryeo during Sui’s 613 expedition and was returned to Sui in 614 with a request for surrender.
 
-**확정 내용**
+**Established facts**
 
-고구려가 침공을 멈추게 할 협상 수단을 찾는 기억 속 당사자로만 등장한다. 구체적 심문이나 처형의 장면을 현재 예정 서사에 넣지 않으며 고구려에서 모든 수군 계획을 알려 준 천재 정보원으로 만들지 않는다. 얼굴과 고유 목소리는 현재 장면 값이 아니다.
+He appears only in recollection as a person involved in Goguryeo’s search for a means to negotiate an end to the invasion. The currently planned narrative includes no interrogation or execution, and does not make him a genius informant who disclosed every Sui military plan in Goguryeo. His face and distinctive voice are not established for the current scenes.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『삼국사기』614년 곡사정 송환](https://db.history.go.kr/ancient/level.do?levelId=sg_020r_0020_0360).
+Sources: [The return of Husi Zheng in 614, Samguk Sagi](https://db.history.go.kr/ancient/level.do?levelId=sg_020r_0020_0360).

@@ -1,17 +1,17 @@
-# 방효태의 열세 아들
+# Pang Xiaotai’s thirteen sons
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--052-pang-sons).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--052-pang-sons).
 
-## 방효태의 열세 아들 {#pang-sons}
+## Pang Xiaotai’s thirteen sons {#pang-sons}
 
-**정의·범위**
+**Definition and scope**
 
-열세 아들은 사수에서 방효태와 함께 죽었다고 기록된 가족 집단이다. 현재 예정 서사에서 아버지가 그들의 전장 위치와 생사를 확인하는 대상이며, 이름과 서열·생년은 확정하지 않는다. 함께 전사한 결과만 다루며 각각의 독립 작전·긴 대사·개별 영웅담은 부여하지 않는다. 이들을 열세 명의 어린아이로 만들지 않는다. 싸울 나이의 아들들이 군영에 있었다는 작품 판단을 쓰되 실제 나이와 관직을 복원했다고 주장하지 않는다.
+The thirteen sons are a family group recorded as having died with Pang Xiaotai at the Sasu. In the currently planned narrative, their father checks their battlefield positions and whether they are alive; their names, birth order, and birth years are unresolved. Treat only the outcome that they die together, without assigning each independent operations, long speeches, or individual hero stories. Do not make them thirteen young children. The work judges them to have been sons of fighting age in camp, without claiming to reconstruct their actual ages or offices.
 
-**확정 내용**
+**Established facts**
 
-공통 군장의 모습은 검은 띠와 회갈색 속옷 위의 철찰 갑옷, 묶은 검은 머리와 투구로 정한다. 가까운 얼굴과 고유 목소리가 필요한 장면은 현재 서사에 없으며, 방효태가 보고받는 가족의 생사와 지휘 책임을 통해 나타난다.
+Their common military appearance is iron lamellar armor over gray-brown underclothes, black sashes, tied black hair, and helmets. The current narrative requires no close faces or individual voices; they appear through the reports Pang receives of his family’s fate and his responsibility as commander.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『삼국사기』 사수의 방효태와 열세 아들 전사](https://db.history.go.kr/ancient/level.do?levelId=sg_022r_0020_0350).
+Sources: [Pang Xiaotai and his thirteen sons killed at the Sasu, Samguk Sagi](https://db.history.go.kr/ancient/level.do?levelId=sg_022r_0020_0350).

@@ -1,13 +1,13 @@
-# 사람과 곡물을 나르는 배
+# Ships carrying people and grain
 
-정전 안내: [이 대상의 위치](../outline/index.md#070-objects--140-ships).
+Canon guide: [Location of this subject](../outline/index.md#070-objects--140-ships).
 
-## 사람과 곡물을 나르는 배 {#ships}
+## Ships carrying people and grain {#ships}
 
-**정의·범위**
+**Definition and scope**
 
-배는 물길로 큰 물량을 옮기지만 항해를 맡을 사람과 적재 공간이 필요한 이동 수단이다. 당의 해상 수송선은 목조 선체에 사람과 짐을 싣는 공간을 나누고 돛과 노를 함께 사용한다. 위에서 싸울 수 있는 배에도 불과 물, 밧줄과 목재의 손상 문제가 있다. 한 배의 적재량을 원정군 전체의 식량으로 확대하지 않으며, 사람을 더 실으면 곡물과 군마가 쓸 자리가 줄어든다. 항해를 맡은 사람과 육지 전투를 지휘하는 사람은 같은 능력을 자동으로 갖지 않는다.
+Ships move large quantities by water, but need crews and cargo space. Tang seagoing transports divide space for people and cargo in wooden hulls and use both sails and oars. Even ships from which people can fight face damage from fire and water to rope and timber. Do not expand one ship’s capacity into food for an entire expedition; carrying more people leaves less room for grain and warhorses. A person responsible for navigation does not automatically share the skills of a commander of land battles.
 
-**확정 내용**
+**Established facts**
 
-작품의 해상 수송선 기본 형상은 길이 약25미터·폭6미터의 짙은 갈색 목조 선체, 가운데 돛대 한 개와 밝은 회갈색 네모 돛이다. 선수와 선미는 물 위로 약1미터 높게 올라가며 중앙의 낮은 덮개 아래 곡물을 놓고 가장자리 통로로 사람이 움직인다. 물가의 작은 운반 배는 길이8미터·폭2미터의 열린 목조 배로 구별한다. 서로 다른 함대를 전부 이 두 실측 규격의 배로 세지는 않는다. 선박의 세부와 치수는 창작 복원이며 사료가 규격을 정해 준 값이 아니다.
+The work’s basic seagoing transport has a dark brown wooden hull about 25 meters long and 6 meters wide, one central mast, and a light gray-brown square sail. Bow and stern rise about one meter above the water; grain rests under a low central cover, and people move along passages at the edges. A small waterside cargo boat is distinguished as an open wooden boat 8 meters long and 2 meters wide. Do not count every vessel in different fleets as conforming to these two measured designs. Details and dimensions are invented reconstructions, not specifications established by historical sources.

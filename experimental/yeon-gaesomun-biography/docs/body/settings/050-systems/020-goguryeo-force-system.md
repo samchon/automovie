@@ -1,29 +1,25 @@
-# 고구려의 전력을 묶는 방식
+# How Goguryeo combines its forces
 
-정전 안내: [이 대상의 위치](../outline/index.md#050-systems--020-goguryeo-force-system).
+Canon guide: [Location of this subject](../outline/index.md#050-systems--020-goguryeo-force-system).
 
-## 고구려의 전력을 묶는 방식 {#goguryeo-force-system}
+## How Goguryeo combines its forces {#goguryeo-force-system}
 
-**정의·범위**
+**Definition and scope**
 
-고구려군에서는 중앙 귀족이 거느린 병력, 지방 성과 지역 지휘자의 병력, 편입된 공동체의 전력이 함께 임무를 받는다. 지역에서 병력과 물자를 내놓게 하려면 군사적 인망뿐 아니라 왕명과 중앙의 지휘권도 필요하다. 개소문은 자신의 권력으로 이 협력을 빠르게 강제할 수 있다. 다만 성마다 군관과 주민이 알고 있는 현지 조건까지 모두 대신 판단할 수는 없다.
+Central nobles’ troops, local fortresses and regional commanders’ troops, and incorporated communities’ forces receive missions together. Mobilizing local people and supplies needs royal orders and central command as well as military trust. Gaesomun can compel cooperation quickly through power, but cannot replace judgment of every local condition known by fortress officers and residents.
 
-**확정 내용**
+**Established facts**
 
-급양 가능량과 내부 통로의 한도는 [분산 비축](100-counterattack-concentration.md#interior-supply-capacity)을 따른다.
+Feeding and interior-route limits follow [dispersed reserves](100-counterattack-concentration.md#interior-supply-capacity).
 
+Gyeongdang archery becomes military skill. A society valuing martial skill and service encourages acceptance of duty. Arms personally funded and noble resources also shape branches; see [military achievement and learning](../outline/index.md#030-society) and [livelihood and mobilization](../outline/index.md#030-society).
 
-경당에서 배운 활쏘기는 군사의 숙련으로 이어진다. 무예와 군공을 높이 평가하는 사회에서는 군역을 받아들이는 분위기가 형성된다. 개인이 자기 비용으로 마련하는 무장과 귀족이 가진 자원에 따라 병종도 달라진다. 이 기반은 [군공과 배움](../outline/index.md#030-society)과 [생계와 동원](../outline/index.md#030-society)에 설명되어 있다.
+Promotion for merit depends on whom a commander credits. Ability to protect the fallen and their households also supports the next mobilization.
 
+The work counts fighters and carriers separately. Do not count fortress defenders again in field forces, or use units moved to another battlefield in two places on the same day. Household labor supporting mobilization is finite; strong soldiers still cost something to replace after repeated scorched earth and mobilization.
 
-전공으로 지위가 올라가는 보상은 지휘자가 전투의 성과를 누구의 공으로 인정하느냐에 달려 있다. 전사한 사람과 가구를 보호할 수 있는 능력도 다음 동원을 뒷받침한다.
+Gaesomun’s 661–662 decisive field force raises cavalry proportion rather than numbers; [availability and losses](040-goguryeo-661-strength.md#goguryeo-661-strength) owns organization, horses, and fodder burden. Infantry joins from regional fortresses and forces. The daemangniji sends prior orders with royal authority to castellans and local commanders, setting infantry contributions that do not break fortress defense and rendezvous points. Infantry takes one to three days to reach a rendezvous and another day to align flag and drum signals and camp positions. Gaesomun or his delegate commands the combined battle; local infantry remains under its own castellans and officers in one camp share. Cavalry depends on horses and arms supplied by individuals, noble families, and Malgal communities, so losses cannot be replaced in the same year’s mobilization. The Liaodong mobile force’s January 662 victory, joining Pyongyang troops and defeating Ren and Pang in sequence in February, follows this structure.
 
+**References and unresolved matters**
 
-작품의 병력은 전투원과 운반 인력으로 나누어 센다. 성의 수비에 남은 사람을 야전 병력에도 거듭 넣거나, 다른 전장으로 옮긴 부대를 같은 날 두 곳에서 쓰지는 않는다. 동원을 뒷받침하는 가구의 노동에도 한계가 있다. 군사가 강하더라도 여러 차례 청야와 동원을 겪은 뒤에는 같은 인원을 다시 내는 데 대가가 따른다.
-
-
-661~662년 연개소문이 결전에 끌고 다니는 야전군은 수를 늘리는 대신 기병의 비율을 높인 군대이며, 그 편성과 군마·사료의 부담은 [고구려의 가용 인원과 손실](040-goguryeo-661-strength.md#goguryeo-661-strength)이 정한다. 보병은 각 방면의 성과 지방군에서 받아 연합한다. 대막리지는 방면마다 성주와 지방 지휘자에게 왕명과 함께 미리 명을 내려, 성 수비를 무너뜨리지 않는 선에서 내줄 보병의 수와 합류 지점을 정해 둔다. 보병이 성에서 합류 지점까지 오는 데 하루에서 사흘이 걸리고, 합류한 뒤 깃발·북의 신호와 진의 자리를 맞추는 데 하루가 더 든다. 연합전의 지휘는 개소문이나 그가 맡긴 지휘자가 하며, 지방 보병은 자기 성주와 군관 아래 묶인 채 진의 한 몫을 맡는다. 기병은 개인과 귀족 가문, 말갈 공동체가 마련한 말과 무장에 기대므로, 잃은 기병은 같은 해의 동원으로 다시 채우지 못한다. 662년 1월 요동에서 이긴 기동군이 평양성 병력과 합친 뒤 2월 임아상군과 방효태군을 차례로 깨는 것도 이 구조로 움직인다.
-
-**참조·미결**
-
-Sources: [이민수, 「662년 고구려의 평양성 전투와 임진강 전투 재구성」, 2022](https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART002869455), [이상훈, 「제2차 고당전쟁기(661~662) 사수 전투의 전개 양상」](https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART002927114), [이민수, 「661년 고구려-당 전쟁의 전황」, 《군사》 122, 2022](https://journal.kci.go.kr/imhc/archive/articlePdf?artiId=ART002819049).
+Sources: [Lee Min-su on Pyongyang and Imjin battles](https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART002869455), [Lee Sang-hun on the Sasu battle](https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART002927114), [Lee Min-su on the 661 campaign](https://journal.kci.go.kr/imhc/archive/articlePdf?artiId=ART002819049).

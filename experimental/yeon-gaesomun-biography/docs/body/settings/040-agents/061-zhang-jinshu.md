@@ -1,17 +1,17 @@
-# 장금수가 다시 움직인 병력
+# Zhang Jinshu rallies the troops
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--061-zhang-jinshu).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--061-zhang-jinshu).
 
-## 장금수가 다시 움직인 병력 {#zhang-jinshu}
+## Zhang Jinshu rallies the troops {#zhang-jinshu}
 
-**정의·범위**
+**Definition and scope**
 
-장금수는 장량이 명령을 내지 못할 때 북을 울려 무너지는 병력을 실제로 수습한 부장이다. 수습 뒤 장량과의 사적 관계를 우정이나 반목으로 별도 고정하지 않는다. 하위 지휘자가 움직일 권한이 있었던 역할을 유지한다. 북을 울리는 행위가 두 나라의 전체 전쟁을 혼자 승리로 바꾸었다는 과장은 하지 않는다. 당군의 현장 반격 승리와 수군의 전체 작전 목표 실패는 별개다.
+Zhang Jinshu is the deputy who beats a drum and actually rallies collapsing troops when Zhang Liang cannot issue an order. Do not separately fix their later private relationship as friendship or enmity. Preserve his role as a subordinate commander with authority to act. Do not exaggerate his drumming into a single-handed victory in the entire war between the two countries. The Tang force’s local counterattack victory is separate from the naval force’s failure to achieve its overall operational objective.
 
-**확정 내용**
+**Established facts**
 
-창작 모습은 키 165센티미터, 좁은 어깨와 굵은 다리, 작은 사각 얼굴이다. 가늘고 날카로운 갈색 눈, 짧은 검은 눈썹과 작은 코, 얇은 입술, 볕에 탄 황갈색 피부를 가진다. 검은 머리를 묶고 성긴 수염을 기른다. 회갈색 옷과 검은 띠 위에 찰갑을 입는다. 목소리는 중간보다 높고 맑으며 짧게 치솟는 끝맺음으로 멀리 지시한다. 직접 움직일 사람을 손짓으로 짚으며 북의 신호와 자신의 명령을 맞춘다.
+His invented appearance is 165 centimeters tall, with narrow shoulders, thick legs, and a small square face. He has thin, sharp brown eyes, short black eyebrows, a small nose, thin lips, and sun-darkened tawny skin. He ties his black hair and has a sparse beard. He wears lamellar armor over gray-brown clothes and a black sash. His voice is clear and above the middle register, with short rising endings to direct people at a distance. He points out those who must act and coordinates his orders with the drum signals.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『신당서』 권94 장량전의 장금수 수습](https://zh.wikisource.org/zh-hant/新唐書/卷094).
+Sources: [Zhang Jinshu’s rally in Zhang Liang’s biography, New Book of Tang vol. 94](https://zh.wikisource.org/zh-hant/新唐書/卷094).

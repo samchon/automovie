@@ -1,17 +1,17 @@
-# 북주의 기반을 통일로 이은 수문제
+# Emperor Wen of Sui builds unification on Northern Zhou’s foundation
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--094-sui-wendi).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--094-sui-wendi).
 
-## 북주의 기반을 통일로 이은 수문제 {#sui-wendi}
+## Emperor Wen of Sui builds unification on Northern Zhou’s foundation {#sui-wendi}
 
-**정의·범위**
+**Definition and scope**
 
-수문제 양견은 북주 아래에서 군사를 이끌다가 수를 세우고589년 진을 정복하여 중국을 통일한 군주다.
+Emperor Wen of Sui, Yang Jian, led troops under Northern Zhou, founded Sui, and unified China by conquering Chen in 589.
 
-**확정 내용**
+**Established facts**
 
-작품에서는 선대 고구려가 맞닥뜨린 유능한 통일 왕조의 창건자이며 수양제와 같은 이름·성격으로 합치지 않는다. 통치와 군사 동원을 결합한 재흥의 성과를 채택한다. 현재 예정 서사는 정세와 외교의 보고를 통해 이 인물을 다루며 직접 얼굴·음성이나 궁정 장면을 갖지 않는다.
+In the work he is the capable founder of the unifying dynasty faced by an earlier generation of Goguryeo. Do not merge his name or character with Emperor Yang of Sui. Adopt his achievements in resurgence through government and military mobilization. The currently planned narrative handles him through reports of political conditions and diplomacy, without a direct face, voice, or court scene.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『주서』 권6의 양견 군사 참여](https://zh.wikisource.org/zh-hant/周書/卷06), [『수서』 권2의589년 진 정복](https://zh.wikisource.org/zh-hant/隋書/卷02).
+Sources: [Yang Jian’s military participation, Book of Zhou vol. 6](https://zh.wikisource.org/zh-hant/周書/卷06), [the conquest of Chen in 589, Book of Sui vol. 2](https://zh.wikisource.org/zh-hant/隋書/卷02).

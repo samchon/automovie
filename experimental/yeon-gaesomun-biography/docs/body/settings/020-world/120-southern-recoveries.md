@@ -1,21 +1,19 @@
-# 남쪽에서 바뀌는 강약
+# The changing balance in the south
 
-정전 안내: [이 대상의 위치](../outline/index.md#020-world--120-southern-recoveries).
+Canon guide: [Location of this subject](../outline/index.md#020-world--120-southern-recoveries).
 
-## 남쪽에서 바뀌는 강약 {#southern-recoveries}
+## The changing balance in the south {#southern-recoveries}
 
-**정의·범위**
+**Definition and scope**
 
-연개소문이 남방을 판단할 무렵, 신라와 백제의 강약은 이미 바뀌고 있다. 고구려 안에서도 판단이 갈린다. 오래된 우위를 믿고 남쪽을 언제든 누를 수 있다고 보는 사람이 있는가 하면, 산성과 구원군, 동맹 때문에 제한 원정으로 얻을 수 있는 성과가 좁다고 보는 사람도 있다. 신라의 옛 종속 관계는 7세기까지 이어지는 실제 예속이 아니다. 과거의 영광을 말하는 고구려 인물의 언어와 당시 행사할 수 있는 외교 권한에는 차이가 있다.
+When Yeon Gaesomun judges the south, the balance between Silla and Baekje is already changing. Opinion differs within Goguryeo: some trust old superiority and think the south can always be subdued, while others see mountain fortresses, relief forces, and alliances narrowing what a limited expedition can achieve. Silla’s former subordinate relationship is not actual subjection continuing into the seventh century. Goguryeo characters’ language of past glory differs from diplomatic authority they can exercise at the time.
 
-**확정 내용**
+**Established facts**
 
+Baekje restores military strength under King Mu and attacks several Silla fortresses, including Daeyaseong, under King Uija. Power between king and nobles, frontier achievements, and relations with Tang also change. Do not adopt area claims that earlier Baekje was one fifth of Silla or exactly doubled under Mu; do not judge every king after Seong incompetent. As Goguryeo seeks to regain former superiority over Silla, Baekje’s offensive makes Silla’s decisions more urgent. Silla chooses alliance with Tang to survive.
 
-백제는 무왕 때 군사력을 회복하고, 의자왕 때 신라의 여러 성과 대야성을 공격한다. 왕과 귀족 사이의 권력, 변경의 전공, 당과의 관계도 함께 변한다. 이 회복을 설명할 때 백제의 이전 영토가 신라의 5분의 1이었다거나 무왕 때 정확히 두 배로 늘었다는 면적 수치는 채택하지 않는다. 성왕 이후의 모든 왕을 암군으로 평가하지도 않는다. 고구려가 신라에 대한 과거 우위를 회복하려는 사이, 백제의 공세는 신라의 판단을 더 급하게 만든다. 신라는 살아남기 위해 당과의 연합을 택한다.
+The Baekje dynasty’s fall in 660 does not immediately make its population and production fully available to Silla. Restoration forces, Tang garrisons, and expansion of Silla rule conflict. When Baekje and Silla are divided, Goguryeo’s base exceeds Silla’s, but a southern base incorporating Baekje’s regions exceeds Goguryeo’s. [The south after Baekgang](../050-systems/320-southern-power-after-baekgang.md#southern-power-after-baekgang) owns that comparison. After the 663 defeat, Namsaeng worries about the larger base becoming actual military strength and supply networks. Contemporary people do not know precise population or economic totals as modern statistics.
 
+**References and unresolved matters**
 
-660년 백제 왕조가 쓰러져도 그 지역의 인구와 생산력이 곧바로 신라의 온전한 자원이 되지는 않는다. 부흥군과 당의 주둔, 신라의 통치 확대가 서로 충돌한다. 백제와 신라가 갈라져 있을 때 고구려의 기반은 신라보다 컸지만, 백제 지역을 합쳐 가는 남방의 기반은 고구려를 앞선다. 두 기반의 비교는 [백강 이후의 남방](../050-systems/320-southern-power-after-baekgang.md#southern-power-after-baekgang)에 정리되어 있다. 663년 패망 뒤 남생이 걱정하는 것은 그 더 큰 기반이 실제 군사력과 조달망으로 이어지는 변화다. 당시 인물은 정확한 인구나 경제 총량을 현대 통계처럼 알고 있지는 않다.
-
-**참조·미결**
-
-Sources: [국사편찬위원회, 『한국사』6의 백제·신라 관계와 대당 외교](https://contents.history.go.kr/data/pdf/nh/nh_006_0040.pdf).
+Sources: [Baekje–Silla relations and Tang diplomacy, National Institute of Korean History, Korean History vol. 6](https://contents.history.go.kr/data/pdf/nh/nh_006_0040.pdf).

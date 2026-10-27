@@ -1,23 +1,19 @@
-# 연씨 거처를 접수하는 지휘자
+# The commander taking over the Yeon residence
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--020-coup-receiver).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--020-coup-receiver).
 
-## 연씨 거처를 접수하는 지휘자 {#coup-receiver}
+## The commander taking over the Yeon residence {#coup-receiver}
 
-**정의·범위**
+**Definition and scope**
 
-담석은 남건의 명령으로 평양에 남은 연씨 병력과 거처를 넘겨받는 군관이다. 이름과 621년이라는 출생 연도는 창작이다. 666년에는 천 명의 병력을 이끄는 현장 집행을 맡는다. 이 임무로 남생의 전국 지휘권까지 스스로 승계하는 것은 아니다. 담석은 왕명과 남건의 명령이 있으면 거처의 인장을 받고 호위대를 해산시킬 수 있다고 믿는다.
+Damseok is the officer ordered by Namgeon to take over the Yeon forces and residence remaining in Pyongyang. His name and birth year of 621 are invented. In 666 he commands 1,000 troops executing the task on site; the mission does not itself make him successor to Namsaeng’s nationwide command. Damseok believes that with the royal and Namgeon’s orders he can receive the residence’s seal and disband its guards.
 
-**확정 내용**
+**Established facts**
 
+His authorized force divides into about 200 in the lead and an outer force. He has no prior intent to kill Heonchung, aiming to take him alive and separate the guards. [The coup](../050-systems/260-666-coup.md#666-coup) owns the fixed entry deployment, order, and reporting constraints; [Heonchung’s wound](../050-systems/270-heonchung-injury.md#heonchung-injury) owns the subsequent course. The character and deployment are invented.
 
-담석에게 허락된 접수 병력은 선두 약 200명과 바깥 병력으로 나뉜다. 헌충을 사전에 죽일 목적은 없으며 생포와 호위 분리를 의도한다. 실제 진입 배치·명령과 보고의 고정 제약은 [정변](../050-systems/260-666-coup.md#666-coup)이, 부상 이후의 경과는 [헌충의 상처](../050-systems/270-heonchung-injury.md#heonchung-injury)가 소유한다. 인물과 배치는 창작이다.
+Damseok’s orders cannot control every blade on site. The intent to capture alive does not absolve him of harm caused by his force, and he must report it. He has no authority to replace Namsaeng’s nationwide command or the healer’s treatment.
 
+He is 171 centimeters tall, broad-waisted and short-necked, with an angular face, small brown eyes, thick black eyebrows, broad nose tip, and thick lips. His skin is sun-darkened, his black hair tied, and his beard short. He wears black clothes, a reddish-brown sash, and lamellar armor.
 
-담석의 명령은 현장 모든 칼을 통제하는 능력이 아니다. 접수 병력이 낸 피해를 생포 의도만으로 면책할 수 없고, 보고 의무도 있다. 남생의 전국 지휘권이나 치료자의 처치를 대신할 권한은 없다.
-
-
-키는 171센티미터이며 허리가 넓고 목이 짧다. 각진 얼굴에 작은 갈색 눈과 굵은 검은 눈썹이 있고 코끝은 넓으며 입술은 두껍다. 피부는 그을렸고 검은 머리를 묶으며 턱수염은 짧게 기른다. 검은 옷에 붉은 갈색 띠를 두르고 찰갑을 입는다.
-
-
-목소리는 낮고 굵으며 말끝에 막히는 듯한 울림이 있다. 병사에게는 말을 짧게 끊고, 가문 사람에게는 누구의 명령인지를 먼저 밝힌다.
+His voice is low and thick, with a blocked resonance at the ends. He gives soldiers short instructions and first tells family members whose order he carries.

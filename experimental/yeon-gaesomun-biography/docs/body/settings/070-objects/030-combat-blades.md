@@ -1,13 +1,13 @@
-# 헌충과 선두 병사의 칼
+# The blades of Heonchung and the leading soldier
 
-정전 안내: [이 대상의 위치](../outline/index.md#070-objects--030-combat-blades).
+Canon guide: [Location of this subject](../outline/index.md#070-objects--030-combat-blades).
 
-## 헌충과 선두 병사의 칼 {#combat-blades}
+## The blades of Heonchung and the leading soldier {#combat-blades}
 
-**정의·범위**
+**Definition and scope**
 
-헌충의 칼은 맞붙은 거리에서 싸우는 외날의 긴 칼이다. 어린 나이에도 손에 익은 무장이지만 사람을 연달아 상대할수록 숨과 팔이 지친다. 전투 뒤 칼날에 묻은 피가 이름표처럼 범인을 자동으로 알려 주지는 않는다. 그를 다치게 한 칼도 같은 종류의 사람용 무장이며 특별한 독이나 신비한 저주가 없다. 베인 부위와 상처·사망의 경과는 [헌충의 부상](../050-systems/270-heonchung-injury.md#heonchung-injury)에 있다.
+Heonchung’s weapon is a long, single-edged blade for close combat. Although familiar in his hand even at his young age, it tires his arms and lungs as he fights successive opponents. Blood on the blade after battle does not automatically identify the culprit like a name tag. The blade that wounds him is also an ordinary weapon for use against people, with no special poison or mystical curse. See [Heonchung’s injury](../050-systems/270-heonchung-injury.md#heonchung-injury) for the cut, wound, and course to death.
 
-**확정 내용**
+**Established facts**
 
-작품의 헌충 칼은 칼날80센티미터·손잡이18센티미터, 폭 약3.5센티미터의 직선에 가까운 외날로 조형한다. 손잡이는 검은 가죽을 감고 작은 원형 끝꾸미개를 붙이며 칼집은 짙은 갈색 나무 바탕에 가죽을 씌운다. 선두 병사의 칼도 같은 계열이지만 귀족의 장식은 없고 칼날 길이는 약70센티미터다. 모든 치수와 장식은 창작이다.
+In the work, Heonchung’s blade is nearly straight and single-edged, with an 80-centimeter blade, an 18-centimeter grip, and a width of about 3.5 centimeters. Black leather wraps the grip, which has a small round pommel; the dark brown wooden scabbard is covered in leather. The leading soldier’s blade is of the same type but has no aristocratic decoration and is about 70 centimeters long. All dimensions and decorations are invented.

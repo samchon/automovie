@@ -1,34 +1,29 @@
-# 형을 따라 자란 아우 정토
+# Jeongto, the younger brother who follows
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--113-yeon-jeongto).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--113-yeon-jeongto).
 
-## 형을 따라 자란 아우 정토 {#yeon-jeongto}
+## Jeongto, the younger brother who follows {#yeon-jeongto}
 
-**정의·범위**
+**Definition and scope**
 
-연정토는 개소문의 아우다. 『신당서』 고려전은 666년에 「蓋蘇文弟淨土亦請割地降」이라고 적는다. 작품은 그를 619년에 태어난 둘째 아들로 정하며, 생년과 소년기의 일은 창작이다. 소년기 국면에서 그는 형의 뒤를 따라 같은 경당에 다니는 아우이고, 가문의 병사나 재물을 움직일 권한은 없다.
+Yeon Jeongto is Gaesomun’s younger brother. The New Book of Tang says of 666, “蓋蘇文弟淨土亦請割地降”. The work makes him the second son, born in 619; his birth year and childhood are invented. In the youth phase he follows his brother to the same Gyeongdang and has no authority to move family soldiers or wealth.
 
-**확정 내용**
+**Established facts**
 
+Jeongto is neither as quick nor as large as his brother. Watching him win at Gyeongdang and Taehak, he learns to calculate and wait rather than step forward. On a day his brother returns victorious, Jeongto listens to the losing child’s circumstances. He respects his brother but does not believe his judgment always right.
 
-정토는 형만큼 빠르지도 크지도 않다. 형이 경당과 태학에서 이기는 것을 보며 자라, 앞에 나서기보다 셈하고 기다리는 버릇을 들인다. 형이 이기고 돌아온 날 진 아이의 사정을 들어 두는 쪽은 정토다. 형을 존경하지만, 형의 판단이 늘 옳다고 믿지는 않는다.
+When Gaesomun succeeds in 634, Jeongto has lived fifteen years. He has no place in the agreement and watches the three household representatives take promises from his brother.
 
+He is depicted at three youth stages. Around 626, seven years after birth, he is about 120 centimeters tall, head about one fifth of his body and cheeks round. Black hair is cut below the ears; he wears his brother’s reddish-brown cloth clothes shortened to fit. His voice is high and clear. Around 630, eleven years after birth, he is about 140 centimeters tall, limbs lengthening and cheeks less round, beginning to gather his hair back; his voice remains high. The following is his appearance around 634.
 
-634년 형이 가문을 이을 때 정토는 열다섯 해를 산 소년이다. 계승 합의에 낄 자리는 없고, 세 가구의 대표가 형에게서 받아 간 약속을 곁에서 지켜본다.
+Then he is about 165 centimeters tall, reaching roughly the eye level of his 180-centimeter brother. He is slimmer and narrower-faced, with dark eyebrows, brown eyes, and a small nose like their mother’s. His skin is tawny, black hair beginning to be tied back, and he has no beard. He wears the same dark reddish-brown training clothes and dark sash, shortened from his brother’s hand-me-downs.
 
+After his voice changes, it retains a clear middle-register quality. He speaks slowly, taking a brief breath before answering. Before his brother his endings trail off; before companions he speaks distinctly.
 
-정토가 소년기 국면에서 그려지는 시기는 셋이다. 626년 무렵 일곱 해를 산 정토는 키 약 120센티미터이고 머리가 몸의 약 5분의 1이며 볼이 둥글다. 검은 머리를 귀 아래 길이로 자르고, 형이 입던 적갈색 천옷을 줄여 입는다. 목소리는 높고 맑다. 630년 무렵 열한 해를 산 정토는 키 약 140센티미터로 팔다리가 길어지고 볼의 둥근 기가 줄며, 머리를 뒤로 모으기 시작한다. 목소리는 아직 높다. 아래는 634년 무렵의 모습이다.
+**Conditions and limits**
 
+His birth is a family condition not depicted as a youth scene, following [body and voice](001-yeon-gaesomun.md#yeon-body-and-voice)’s boundary against adding family events. His 666 request to cede land and surrender is fixed by the record; event design owns its course and motive. Do not impose a character foreshadowing that ending on the boy.
 
-634년 무렵 정토는 키 약 165센티미터로, 약 180센티미터인 형 곁에 서면 정수리가 형의 눈높이쯤에 온다. 몸은 형보다 가늘다. 얼굴은 형보다 좁고, 짙은 눈썹과 갈색 눈, 어머니를 닮은 작은 코를 가졌다. 황갈색 피부에 검은 머리를 뒤로 묶기 시작했고 수염은 없다. 형과 같은 짙은 적갈색 훈련옷에 먹빛 띠를 두르되, 형이 입다 물려준 옷을 줄여 입는다.
+**References and unresolved matters**
 
-
-목소리는 변성을 지나 중간 높이에 맑은 결이 남는다. 말이 느리고, 대답하기 전에 짧게 숨을 고른다. 형 앞에서는 말끝을 흐리지만 동무들 앞에서는 또박또박 말한다.
-
-**조건·한계**
-
-정토의 출생은 소년기 국면에서 장면으로 다루지 않는 집안의 조건이며, 소년기에 새로운 가족 사건을 더하지 않는다는 [몸과 목소리](001-yeon-gaesomun.md#yeon-body-and-voice)의 경계를 따른다. 666년 땅을 떼어 항복을 청하는 결과는 기록에 따라 고정되며, 그 경과와 동기는 해당 시기의 사건 설계가 정한다. 소년기 국면의 소년 정토에게 그 결말을 예고하는 성격을 덧씌우지 않는다.
-
-**참조·미결**
-
-Sources: [『신당서』 권220 고려전](https://zh.wikisource.org/wiki/新唐書/卷220).
+Sources: [Account of Goguryeo, New Book of Tang vol. 220](https://zh.wikisource.org/wiki/新唐書/卷220).

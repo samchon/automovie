@@ -1,13 +1,13 @@
-# 강과 길을 나타내는 보고 그림
+# Report map of rivers and roads
 
-정전 안내: [이 대상의 위치](../outline/index.md#070-objects--130-report-map).
+Canon guide: [Location of this subject](../outline/index.md#070-objects--130-report-map).
 
-## 강과 길을 나타내는 보고 그림 {#report-map}
+## Report map of rivers and roads {#report-map}
 
-**정의·범위**
+**Definition and scope**
 
-보고용 지도는 길·강·성의 상대 위치와 이름을 나타내는 간단한 그림이다. 현대 등고선·좌표·정확한 병력의 실시간 표시가 없으며, 새 소식이 올 때 누가 무엇을 고쳤는지 사람에게 물어야 한다.
+The report map is a simple drawing showing the names and relative positions of roads, rivers, and fortresses. It has no modern contours, coordinates, or accurate real-time troop positions. When news arrives, someone must be asked who changed what.
 
-**확정 내용**
+**Established facts**
 
-작품의 보고 그림은 약60센티미터×40센티미터 종이에 먹빛의 강·길과 글자를 두고 작은 붉은 갈색 표지를 붙인다. 한 방 벽을 채우는 현대 작전 보드가 아니다. 형상과 치수는 창작 복원이다.
+The work's report map is on paper roughly 60 by 40 centimeters, with rivers, roads, and lettering in ink and small reddish-brown markers. It is not a modern operations board covering a wall. Its form and dimensions are an invented reconstruction.

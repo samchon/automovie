@@ -1,21 +1,19 @@
-# 지역마다 다른 생계의 계절
+# Different seasons of regional livelihood
 
-정전 안내: [이 대상의 위치](../outline/index.md#030-society--060-regional-livelihood).
+Canon guide: [Location of this subject](../outline/index.md#030-society--060-regional-livelihood).
 
-## 지역마다 다른 생계의 계절 {#regional-livelihood}
+## Different seasons of regional livelihood {#regional-livelihood}
 
-**정의·범위**
+**Definition and scope**
 
-작품 속 요동과 평양 주변의 농촌은 곡물을 생산하고 운반하는 기반이다. 산간 가구는 좁은 밭을 경작하면서 사냥과 채집, 어로로 먹을거리를 보탠다. 수렵을 주요 생계로 삼는 공동체도 있다. 초기 고구려의 산지와 식량 부족을 전하는 기록만으로 7세기 전 영토의 생산 수준을 같게 볼 수는 없다.
+In the work, the countryside around Liaodong and Pyongyang is a foundation for producing and transporting grain. Mountain households cultivate narrow fields and supplement food by hunting, gathering, and fishing; some communities rely chiefly on hunting. Accounts of mountains and food shortages in early Goguryeo alone do not establish equal production across all its seventh-century territory.
 
-**확정 내용**
+**Established facts**
 
+Rural households need gathered labor for sowing, weeding, and harvest. Mountain communities also have seasons for obtaining food and leather. If people leave for military service then, remaining family must take over fields or hunting; otherwise yields fall. The loss extends beyond one person’s absence because seed for the next season and quantities stored also change. Even if land remains, lost workers and livestock make immediate restoration of former production difficult. Conversely, tools saved during evacuation and family cooperation may let life restart first on the same home site.
 
-농촌에서는 파종과 김매기, 수확 때 일손이 모여야 한다. 산간에도 먹을거리와 가죽을 구할 시기가 있다. 그때 군역에 나가면 남은 가족이 밭일이나 사냥을 대신해야 하고, 그러지 못하면 수확량이 줄어든다. 다음 계절에 쓸 씨앗과 저장할 양까지 달라지므로 손실은 한 사람의 부재에 그치지 않는다. 땅이 남아 있어도 일할 사람과 가축을 잃으면 이전의 생산량을 곧바로 되찾기 어렵다. 반면 피난 때 챙긴 도구와 가족의 협력이 있으면 같은 집터에서 생활을 먼저 다시 시작할 수 있다.
+The Book of Sui records Malgal cultivation, pig raising, and hunting. The work sets different proportions of cultivation, hunting, fishing, and herding for each community. These differences also exist among communities with horses, so they cannot all be grouped as mobile nomads. The Khitan are set as a group with a greater share of herding and movement, without assigning all the same standard of living. Each community’s canon establishes the concrete regional livelihood proportions needed for mobilization and recovery.
 
+**References and unresolved matters**
 
-《수서》는 말갈 공동체의 경작과 돼지 사육, 수렵을 전한다. 작품에서는 공동체마다 경작·사냥·어로·목축의 비중을 따로 정한다. 말을 가진 공동체에도 이 차이가 있으므로 모두를 이동 유목민으로 묶을 수는 없다. 거란은 목축과 이동의 비중이 큰 집단으로 설정하되, 모두를 같은 생활 수준으로 묶지는 않는다. 동원과 회복에 필요한 구체적인 지역별 생업 비중은 각 공동체의 정전에서 정한다.
-
-**참조·미결**
-
-Sources: [《수서》 권81 말갈전, 여러 집단과 경작·수렵·돼지 사육](https://zh.wikisource.org/wiki/隋書/卷81)
+Sources: [Malgal groups and cultivation, hunting, and pig raising, Book of Sui vol. 81](https://zh.wikisource.org/wiki/隋書/卷81)

@@ -1,20 +1,17 @@
-# 요동·국내성·평양에서 다른 약속
+# Different promises in Liaodong, Gungnaeseong, and Pyongyang
 
-정전 안내: [이 대상의 위치](../outline/index.md#030-society--050-regional-authority).
+Canon guide: [Location of this subject](../outline/index.md#030-society--050-regional-authority).
 
-## 요동·국내성·평양에서 다른 약속 {#regional-authority}
+## Different promises in Liaodong, Gungnaeseong, and Pyongyang {#regional-authority}
 
-**정의·범위**
+**Definition and scope**
 
-지역 권력은 전쟁에서 무엇을 책임졌고 재건에서 무엇을 먼저 받을지를 두고 갈등한다. 작품의 요동 유력자는 성곽과 농촌의 회복을, 국내성의 군사 가문은 자기 기여의 인정과 중앙의 약속 이행을, 평양의 왕실과 귀족은 중앙에서의 지위와 남방 방비를 우선한다. 출신 도시가 같아도 피해와 재력, 친족의 행로가 다르므로 이해관계가 한편으로 모이지는 않는다.
+Regional powers conflict over what they bore responsibility for in war and what they should receive first in reconstruction. In the work, Liaodong notables prioritize restoring fortresses and countryside, Gungnaeseong military families recognition of their contribution and fulfillment of central promises, and the Pyongyang royal family and nobles their central status and southern defenses. Even from the same city, people’s losses, resources, and relatives’ paths differ, so their interests do not align as one.
 
-**확정 내용**
+**Established facts**
 
+Some Gungnaeseong families retain traditions of betrayal despite past contributions as royal power strengthened around Pyongyang. That resentment also affects the Chugun–Segun succession struggle involving royal in-laws and military families. The two sides are not, however, divided completely between Gungnaeseong and Pyongyang.
 
-국내성의 일부 가문에는 평양을 중심으로 왕권이 강화되는 과정에서 옛 공헌에도 불구하고 배반당했다는 전승이 남아 있다. 그 원한은 외척과 군사 가문이 얽힌 추군·세군의 계승 싸움에도 작용한다. 다만 이 싸움의 양편이 국내성과 평양으로 완전히 나뉘는 것은 아니다.
+Support for Namsaeng rests on hatred of the royal family, memories of holding the front together, and tangible benefit from recovery. When Namsaeng submits to Tang, each person has a different threshold for deciding whether to follow.
 
-
-이들이 남생을 지지하는 이유에는 왕실에 대한 증오와 더불어 함께 전선을 버틴 기억, 복구에서 얻는 실제 이익이 있다. 남생이 당에 귀부할 때도 그를 따라갈지 결정하는 문턱은 사람마다 다르다.
-
-
-중앙은 지역에서 병력과 물자를 동원할 때 군공의 인정과 보상, 남은 가족의 안전을 약속한다. 연개소문의 통치력은 그 약속을 이행하는 힘에 달려 있다. 그가 죽은 뒤에는 왕명과 후계자의 실무 능력, 지역에 한 약속이 서로 다른 방향을 가리킨다. 내전에서 사람들은 저마다 더는 믿을 수 없는 약속을 두고 결별한다. 지역 전체가 갑자기 외적을 좋아하게 되는 변화와는 구별된다.
+When mobilizing regional troops and resources, the center promises recognition and reward for military service and safety for surviving families. Yeon Gaesomun’s governing power depends on fulfilling those promises. After his death, royal orders, the successor’s practical ability, and regional promises point in different directions. In civil war, people part over different promises they can no longer trust. This is distinct from an entire region suddenly coming to like an external enemy.

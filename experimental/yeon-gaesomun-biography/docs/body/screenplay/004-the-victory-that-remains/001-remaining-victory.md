@@ -1,268 +1,268 @@
 
-# 남은 승리
+# The victory that remains
 
-## 가벼운 수레와 느린 사람 {#t025-return-decision}
+## Lighter carts, slower people {#t025-return-decision}
 
-제작자용 구획 표기.
+Section labels for producers.
 
-《대막리지》 최종 시청각 대본 · 제4부
+*Daemangniji* final audiovisual script · Part 4
 
-[사건 부모](../../../body/treatments/025-way-home.md#return-decision) · [장면 부모](../../../body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t025-return-decision)
+[Event parent](../../../body/treatments/025-way-home.md#return-decision) · [Scene parent](../../../body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t025-return-decision)
 
-화면 글 ‘2월 7일 전후, 신라 육로 본대’. 빈 수레를 움직이는 소리가 실을 때보다 빠르다. 호위가 그 속도로 걸음을 잡으려 하자 뒤에서 부상자 대열이 벌어진다. 귀돌은 발을 내려놓을 자리를 먼저 본 뒤 몸을 옮긴다.
+On-screen text: “Around February 7, Silla land main body.” Empty carts move faster than when loaded. As escorts try to set that pace, the injured column opens gaps behind. Gwidol looks for a place to set his foot before moving his body.
 
-**담당자**　수레는 올 때보다 빠르게 갈 수 있습니다.
+**OFFICIAL**　The carts can travel faster than on the way here.
 
-관객용 표기 ‘가벼워진 본대의 하루 이동 가능 거리 약 27~30km’. 표기는 앞의 수레에 붙고, 뒤 부상자의 걸음이 들어오면 사라진다.
+Audience label: “Possible daily distance for lighter main body: about 27–30 km.” The label follows the carts ahead and disappears as injured people walking behind enter view.
 
-**김유신**　저 뒤의 부상자도 이 속도로 갈 수 있느냐? 그들이 갈 걸음부터 맞추어라. 해로로 간 이들은 육로 호위에서 빼고 정한다.
+**KIM YUSIN**　Can the injured back there keep that pace too? Set it first to what they can walk. Exclude those who went by sea when assigning the land escort.
 
-앞과 뒤의 속도를 나누어 편성한다. 고구려 추격군이 남하하는 길로 옮긴다.
+Arrange the front and rear at different speeds. Move to the road on which Goguryeo pursuers have gone south.
 
-**역사가**　남쪽 경계의 추격 전력은 일만이었다. 먼저 남하한 별도 경기병 칠천에 남방 수비 삼천이 합친 수다. 평양 반격군은 그 안에 없다.
+**HISTORIAN**　The pursuit force on the southern watch was ten thousand: seven thousand separate light cavalry sent south earlier and three thousand southern defenders. The Pyongyang counterattack army was not among them.
 
-귀돌이 다음 발을 디딘다.
+Gwidol takes his next step.
 
-## 걸어 줄 수 없는 발 {#t025-guidol-dies}
+## Feet no one can walk on for him {#t025-guidol-dies}
 
-[사건 부모](../../../body/treatments/025-way-home.md#guidol-dies) · [장면 부모](../../../body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t025-guidol-dies)
+[Event parent](../../../body/treatments/025-way-home.md#guidol-dies) · [Scene parent](../../../body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t025-guidol-dies)
 
-귀돌이 발을 딛지 못한다. 찬오가 그의 짐을 받으려다 놓친다. 다시 쥔 손에서도 짐이 미끄러지자 동료들이 옮길 자리를 나눈다. 찬오가 귀돌 곁에 앉는다.
+Gwidol cannot put weight on his foot. Chano tries to take his load and drops it. When it slips from his grip again, companions divide places to carry it. Chano sits beside Gwidol.
 
-귀돌이 얼어붙은 발을 고쳐 놓으려다 찬오의 팔을 붙든다.
+Trying to adjust his frozen foot, Gwidol grasps Chano's arm.
 
-**귀돌**　어머니가…… 밭에…….
+**GWIDOL**　Mother... in the field...
 
-귀돌의 입술이 움직이다 멎는다. 찬오가 얼굴을 맞추려고 몸을 낮춘다. 불러도 귀돌의 눈이 돌아오지 않는다.
+His lips move, then stop. Chano lowers himself to meet his face. Gwidol's eyes do not return when called.
 
-**찬오**　귀돌아.
+**CHANO**　Gwidol.
 
-대답이 없다. 찬오가 동료의 얼굴을 본다.
+No answer. Chano looks at his companion.
 
-**동료**　몸까지 고향으로 데려갈 수는 없어. 여기서 더 옮길 사람이 없다.
+**COMPANION**　We can't take his body home too. There's no one here who can carry him farther.
 
-찬오가 칼을 가리킨다.
+Chano points to the knife.
 
-귀돌의 생활 칼이 찬오 손에 놓인다. 날이 작은 그 칼을 싸려는데 손가락에 끈이 걸리지 않는다. 동료가 받아 매듭을 만든다. 찬오가 귀돌의 얼굴을 본다. 칼은 품 안에 넣는다. 일어나라는 소리에 옷 안을 짚는다. 동료가 자기 짐을 어깨에 올리자 찬오도 그 뒤에 붙는다.
+Gwidol's everyday knife is placed in Chano's hand. He tries to wrap the small blade, but cannot catch the cord with his fingers. His companion takes it and ties the knot. Chano looks at Gwidol's face and puts the knife inside his clothes. At the call to rise, he checks it there. The companion shoulders his own load and Chano follows.
 
-## 남겨 둔 불이 번 시간 {#t025-deception-at-night}
+## Time bought by fires left behind {#t025-deception-at-night}
 
-[사건 부모](../../../body/treatments/025-way-home.md#deception-at-night) · [장면 부모](../../../body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t025-deception-at-night)
+[Event parent](../../../body/treatments/025-way-home.md#deception-at-night) · [Scene parent](../../../body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t025-deception-at-night)
 
-밤, 신라 야영지. 불은 남겨 두고 실제 대열은 조용히 움직인다. 앞사람의 등이 사라진 뒤 후위가 부상자를 거두어 나간다. 손으로 기다리고 보내는 신호를 쓴다. 찬오가 칼이 든 곳을 눌러 확인하고 따라간다.
+Night, Silla camp. Fires remain while the actual column moves quietly. After the person ahead disappears, the rear collects the injured and leaves. Hands signal to wait and go. Chano presses the place holding the knife to check it and follows.
 
-고구려 관측에서 불은 아직 사람이 있는 곳처럼 보인다. 확인하러 들어간 사람이 빈자리를 만져 보고 나서야 다음 진로를 찾는다. 되돌아가 알리는 동안 신라 쪽은 도하 준비에 손을 보탠다.
+From Goguryeo observation, the fires still look occupied. Only after someone enters to check and touches the empty space do they search for the next route. While he returns to report, Silla adds hands to crossing preparations.
 
-남쪽 도하 준비의 소리가 끊긴다. 화면 글 ‘2월 14일, 평양 반격 준비’. 군장을 다시 조이는 손과 그 마찰 소리가 들어온다.
+The southern crossing preparations cut off. On-screen text: “February 14, preparation for the Pyongyang counterattack.” Hands tightening equipment and the sound of friction enter.
 
-## 좁은 입구에서 빼는 기병 {#t026-first-target}
+## Cavalry pulled from a narrow entrance {#t026-first-target}
 
-[사건 부모](../../../body/treatments/026-ren-camp.md#first-target) · [장면 부모](../../../body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t026-first-target)
+[Event parent](../../../body/treatments/026-ren-camp.md#first-target) · [Scene parent](../../../body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t026-first-target)
 
-개소문이 임아상 진의 방어와 구원 연결을 확인한 정찰을 받는다.
+Gaesomun receives reconnaissance on Ren Yaxiang's camp defenses and relief connections.
 
-**개소문**　먼저 이 진을 없애야 사수에서 나갈 길도 좁아진다. 약한 방어를 붙들고 구원이 들어올 연결부터 끊어라.
+**GAESOMUN**　We must remove this camp first to narrow the route out at Sasu. Hold the weaker defense and cut the connection relief would use.
 
-임아상 진 앞, 2월 14일. 열린 곳을 달려오던 기병이 좁은 입구의 보병과 겹치려 한다. 기존 중앙 기동군 안의 중기병 한 무리를 맡은 남건이 방향을 바꿔 바깥으로 뺀다. 말이 빠져나간 빈 곳으로 보병들이 차례로 들어간다.
+Before Ren's camp, February 14. Cavalry running across open ground is about to overlap infantry at the narrowing entrance. Namgeon, commanding one heavy-cavalry group in the existing central mobile force, turns them outward. Infantry enters in turn through the space the horses leave.
 
-**남건**　기병은 이쪽으로! 들어갈 길은 보병에게 남겨라.
+**NAMGEON**　Cavalry this way! Leave the entrance for the infantry.
 
-관객용 표기 ‘정면 투입 30,000’.
+Audience label: “30,000 committed to the front.”
 
-임아상은 물러나는 사람 사이에서 전투원을 다시 세우고 짐을 다른 쪽으로 보낸다.
+Among withdrawing people, Ren reforms fighters and sends baggage another way.
 
-**임아상**　창고 길을 비워라. 집결 지점으로 보내고 구원 연락을 잇는다!
+**REN YAXIANG**　Clear the storehouse road. Send them to assembly and maintain contact for relief!
 
-지시를 받은 사람들이 길을 나눈다. 반대 방향의 짐과 병력이 부딪치자 당 지휘자가 먼저 비킬 대열을 골라 보낸다. 진 바깥에는 그 연락을 막는 고구려 병력과 아직 전면에 들이지 않은 예비가 있다.
+People receiving orders divide routes. When baggage and troops moving opposite ways collide, a Tang commander selects which formation should move aside first. Outside are Goguryeo interdiction troops and reserves not yet committed to the front.
 
-진 바깥 차단 병력과 예비에 관객용 표기 ‘별도 16,000’.
+Audience label over interdiction and reserves outside: “Separate: 16,000.”
 
-뒤의 지원자가 말과 짐을 받아 다음 차례로 넘긴다. 그 손에서 다시 임아상이 정돈한 전투원 쪽으로 돌아온다.
+Support personnel behind receive horses and baggage and pass them on. From their hands return to the fighters Ren has organized.
 
-지원자들 위에 관객용 표기 ‘지원 4,000 포함, 군사 임무 최대 50,000 · 성 잔류 수비 별도’.
+Audience label over support: “Maximum 50,000 military personnel, including 4,000 support · fortress defenders remaining separately.”
 
-당의 병력이 자리를 다시 잡은 뒤 고구려의 다음 압박을 받는다. 수량 표기가 사라져도 진 안의 명령과 앞줄의 접촉 소리는 계속된다.
+Once Tang troops regain positions, they receive the next Goguryeo pressure. Even after numbers disappear, orders inside and front-rank contact continue.
 
-## 전령이 간 뒤에도 남는 길 {#t026-relief-delayed}
+## A road remains after the messenger goes {#t026-relief-delayed}
 
-[사건 부모](../../../body/treatments/026-ren-camp.md#relief-delayed) · [장면 부모](../../../body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t026-relief-delayed)
+[Event parent](../../../body/treatments/026-ren-camp.md#relief-delayed) · [Scene parent](../../../body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t026-relief-delayed)
 
-소정방이 급보를 받는다. 전령이 들어온 쪽으로 군대를 보내려는 사람에게 길부터 묻는다.
+Su Dingfang receives an urgent report. He asks someone trying to send an army in the direction the messenger entered about the road first.
 
-**소정방**　온 길로 군사를 데려갈 수 있느냐?
+**SU DINGFANG**　Can an army take the road you came by?
 
-**전령**　저는 혼자 지나왔습니다. 군대는 돌아서 강을 건넌 뒤 다시 모여야 합니다.
+**MESSENGER**　I crossed alone. An army must detour, cross the river, and assemble again.
 
-관객용 거리 표기 ‘군대 우회 약 18km’.
+Audience distance label: “Army detour: about 18 km.”
 
-**소정방**　여기에 남길 병력도 확인해라. 우리 진을 비울 수는 없다.
+**SU DINGFANG**　Check what troops must remain here too. We can't empty our camp.
 
-접근하는 연락자를 속로 쪽 병력이 늦춘다. 구원 명을 받은 소정방 쪽은 우회와 도하 뒤 다시 대열을 갖출 준비를 한다.
+Sokro's force delays approaching messengers. Su's side, ordered to relieve, prepares to reform after the detour and crossing.
 
-임아상 진. 창고로 이어지던 길이 끊기고 집결 쪽 응답이 오지 않는다. 그 틈에 고구려 예비가 들어간다. 후퇴하는 병사가 새 대열을 만들려다 짐을 피해 다시 갈라진다. 급보가 닿았기를 바라며 구원 방향을 보는 얼굴에서 전투 소리가 이어진다.
+Ren's camp. The storehouse road is cut and no answer comes from assembly. Goguryeo reserves enter the gap. A withdrawing soldier tries to form a new rank, then divides again to avoid baggage. Battle sound continues from a face looking toward relief, hoping the urgent report arrived.
 
-## 답이 멎은 진 {#t026-organization-lost}
+## A camp where answers stop {#t026-organization-lost}
 
-[사건 부모](../../../body/treatments/026-ren-camp.md#organization-lost) · [장면 부모](../../../body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t026-organization-lost)
+[Event parent](../../../body/treatments/026-ren-camp.md#organization-lost) · [Scene parent](../../../body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t026-organization-lost)
 
-그날 밤. 흩어진 생존자와 포로를 정리한다. 개소문에게 임아상 사망이 보고된다.
+That night. Scattered survivors and prisoners are organized. Ren Yaxiang's death is reported to Gaesomun.
 
-**보고자**　진에서 죽었습니다. 패강도 병력이 다시 명을 받아 움직일 형편은 아닙니다.
+**REPORTER**　He died in camp. The Paegang force is in no condition to receive orders and operate again.
 
-사망 보고가 끝난 자리에서 살아 있는 포로가 물을 받는다. 그 옆에서 자기 편 부상자의 군장을 풀어 다른 사람에게 넘긴다.
+At the end of the death report, a living prisoner receives water. Beside him, someone removes a wounded comrade's equipment and hands it to another.
 
-**지휘자**　사수로 곧장 갑니까?
+**COMMANDER**　Do we go straight to Sasu?
 
-**개소문**　말부터 다시 보고 사람을 갈라라. 다친 이를 세운 채 다음 진에 밀어 넣지 않는다.
+**GAESOMUN**　Check horses again first and divide the people. We won't push the wounded straight into the next camp.
 
-**역사가**　기록에 남은 것은 임아상의 진중 사망이다. 명령과 길이 끊기며 패강도 군대가 조직을 잃어 가는 경과는 작품의 재구성이다.
+**HISTORIAN**　The record gives Ren's death in camp. The course by which orders and roads were cut and the Paegang army lost organization is the work's reconstruction.
 
-## 먼저 건너는 사람의 뒤 {#t027-river-pressure}
+## Behind those who cross first {#t027-river-pressure}
 
-[사건 부모](../../../body/treatments/027-imjin.md#river-pressure) · [장면 부모](../../../body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t027-river-pressure)
+[Event parent](../../../body/treatments/027-imjin.md#river-pressure) · [Scene parent](../../../body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t027-river-pressure)
 
-화면 글 ‘2월 15일 전후, 임진강’. 김유신이 북안의 대기지에서 호위와 운반자에게 각각 지시한다.
+On-screen text: “Around February 15, Imjin River.” At the north-bank waiting area, Kim Yusin gives separate orders to escorts and carriers.
 
-**김유신**　도하는 잇는다. 호위는 여기 남아 추격을 받아라. 다 같이 건너려고 붙으면 강 앞에서 함께 막힌다.
+**KIM YUSIN**　Keep the crossing going. Escort stays here to meet pursuit. If everyone presses to cross together, we'll all be blocked at the river.
 
-먼저 건너는 운반자와 부상자가 강 쪽으로 내려가고 북안 호위는 뒤를 향해 선다. 알려진 북쪽 진로에서 추격이 다가온다. 강물과 바람 사이로 한쪽 강변에서 낸 소리는 반대편에 그대로 닿지 않는다. 전달자가 움직이고 북과 깃발이 차례로 받는다.
+The first carriers and injured descend toward the river; north-bank escorts face the rear. Pursuit approaches along the known northern route. Across water and wind, a sound from one bank does not reach the other unchanged. A messenger moves; drums and flags receive in sequence.
 
-**전달자**　다음 무리를 보냅니다!
+**MESSENGER**　Sending the next group!
 
-북안의 대답이 전달자를 거쳐 돌아온 뒤에야 다음 부상자가 움직인다. 찬오는 차례를 기다리며 귀돌에게서 가져온 칼을 확인하려고 품에 손을 댄다. 매듭까지 더듬으려다 그만두고 곁 사람에게 끈을 봐 달라 청한다.
+Only after the north-bank answer returns through the messenger does the next injured person move. Waiting his turn, Chano reaches inside his clothes to check Gwidol's knife. He starts to feel for the knot, stops, and asks someone beside him to check the cord.
 
-남안에 건넌 이가 북안에서 차례를 기다리는 부상자 쪽을 본다. 강 건너 싸우는 소리가 이어진다.
+Someone who crossed south looks toward injured people still waiting on the north bank. Fighting sounds continue across the river.
 
-## 알고도 둘로 나누어야 하는 방어 {#t027-flank-counterattack}
+## A defense knowingly divided {#t027-flank-counterattack}
 
-[사건 부모](../../../body/treatments/027-imjin.md#flank-counterattack) · [장면 부모](../../../body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t027-flank-counterattack)
+[Event parent](../../../body/treatments/027-imjin.md#flank-counterattack) · [Scene parent](../../../body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t027-flank-counterattack)
 
-다음날 임진강 북안. 김유신이 아직 출발하지 않은 서쪽 호위와 강변에 남을 호위에게 각각 맡을 일을 준다.
+Next day, Imjin north bank. Kim Yusin assigns separate duties to the western escort not yet departed and the escort remaining by the river.
 
-**김유신**　강변은 도하를 받쳐라. 저 앞이 빠지려 하면 짧게 쳐 붙들고, 멀리 쫓지는 마라. 서쪽은 올라가 친 뒤 이 길로 돌아와라. 돌아올 때까지 여기를 비울 수는 없다.
+**KIM YUSIN**　Riverbank, support the crossing. If their front pulls away, strike briefly and hold it; don't chase far. West, go up and strike, then return along this road. We can't leave here empty until you come back.
 
-서쪽 호위 일부가 북상한다. 고구려의 집결 자리를 서편으로 끼고 도는 움직임을 측방 관측자가 알아본다. 그 보고를 받은 지휘자가 한쪽은 접근로를, 다른 쪽은 강으로 내려가는 신라 운반자들을 살핀다.
+Part of the western escort moves north. A flank observer sees the movement curving along the western edge of Goguryeo's assembly. The commander receiving the report checks the approach on one side and Silla carriers descending to the river on the other.
 
-**고구려 지휘자**　앞의 싸움을 놓지 마라! 다 빠지면 저 짐과 사람들이 강을 건넌다. 일부만 떼어 서쪽에 돌린다!
+**GOGURYEO COMMANDER**　Don't break off the front fight! If everyone pulls away, those people and loads cross. Detach only some to meet the west!
 
-고구려 앞줄 일부가 돌아서려는데 강변 호위가 밀고 들어온다. 접촉을 떼지 못한 앞줄이 다시 칼을 든다. 그 후속이 모일 곳으로 서쪽 호위가 나타난다. 북서에서 내려온 공격이 동남을 향해 집결을 가른다. 앞줄은 강변의 적에게 묶이고 뒤에서 받칠 병력은 측면을 보아야 한다.
+As part of Goguryeo's front turns, the riverbank escort pushes in. Unable to break contact, the front draws blades again. The western escort appears where their support was to assemble. An attack from the northwest cuts the assembly toward the southeast. The front is tied to the riverbank enemy; troops behind must face the flank.
 
-서쪽 호위는 출발 전에 받은 복귀 명에 따라 돌아선다. 온 통로로 북안의 강변 호위에게 돌아온다. 남아 있던 호위와 다시 이어 남은 도하를 받친다. 찬오도 그 보호 안에서 건넌다.
+The western escort turns back under its predeparture order. It returns by the same route to the north-bank river escort, rejoins it, and supports the remaining crossing. Chano crosses within that protection.
 
-**역사가**　작품이 정한 이 싸움의 고구려 손실은 이천이다. 죽은 사람만이 아니라 중상과 포로까지 합친 수다. 압록강을 뺀 이번 전역의 손실 일만 오천에는 이 이천이 이미 들어 있다.
+**HISTORIAN**　The work sets Goguryeo losses in this fight at two thousand, including the seriously wounded and captured as well as dead. Those two thousand are already included in the fifteen thousand losses in this campaign outside the Yalu.
 
-북안으로 되돌아온 신라 호위가 강가의 남은 무리를 받는다. 먼저 부상자를 보내고 그 뒤를 지킨다. 더 쫓아 나가지 않는다.
+The Silla escort returned to the north bank receives those still by the river. It sends the injured first and protects behind them. It does not pursue farther.
 
-**역사가**　신라 기록의 전과는 참수 일만, 포로 오천이었다. 승자가 남긴 그 수를 방금의 이천과 같은 집계로 셀 수는 없다.
+**HISTORIAN**　Silla's record claimed ten thousand beheaded and five thousand captured. That victor's figure is not the same count as the two thousand just shown.
 
-소리가 다시 강변에 남는다. 호위가 다음 부상자에게 건널 자리를 내준다.
+Sound remains on the riverbank. The escort makes room for the next injured person to cross.
 
-## 돌아가지 않은 짧은 길 {#t028-reform-and-detour}
+## The short road they did not take {#t028-reform-and-detour}
 
-[사건 부모](../../../body/treatments/028-sasu.md#reform-and-detour) · [장면 부모](../../../body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t028-reform-and-detour)
+[Event parent](../../../body/treatments/028-sasu.md#reform-and-detour) · [Scene parent](../../../body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t028-reform-and-detour)
 
-화면 글 ‘평양 전선 · 14일 밤 재편 후, 15~16일’. 직접 가면 12km인 길 앞에서 개소문군이 다른 연결로를 택한다. 22km의 우회에서 짐과 대열이 서로 기다리며 다시 붙는다.
+On-screen text: “Pyongyang front · after reorganization on the night of the 14th, 15th–16th.” Faced with a direct 12 km road, Gaesomun's army chooses another connection. On the 22 km detour, baggage and formations wait for one another and rejoin.
 
-화면 글 ‘17일’. 속로가 방효태 진과 외부 병력이 만날 자리를 막는다. 방효태 진에는 임아상 위기의 보고가 먼저 와 있다. 방효태는 자기 병력과 짐이 차단된 출입을 함께 통과할 수 있을지 따로 확인한다. 열세 아들이 있는 배치도 서로 다른 구간의 일부로 보인다.
+On-screen text: “17th.” Sokro blocks the rendezvous between Pang's camp and outside troops. The report of Ren's crisis has already reached Pang. He separately checks whether his troops and baggage can pass the blocked exit together. His thirteen sons' positions appear as parts of different sectors.
 
-**방효태**　급보가 가는 시간과 군대가 오는 시간을 따로 말하라.
+**PANG XIAOTAI**　Tell me separately how long an urgent message takes and how long an army takes.
 
-**전달자**　급보는 반나절, 구원은 빨라도 하루가 듭니다.
+**MESSENGER**　Half a day for the report; relief takes at least a day.
 
-그가 남은 시간 안에 옮길 짐을 고른다. 기다리는 동안 막힌 외부 합류점은 풀리지 않는다.
+He chooses baggage to move within the time remaining. While he waits, the blocked external rendezvous does not reopen.
 
-## 열린 경사와 막사 사이 {#t028-assault-on-camp}
+## Open slope and space between barracks {#t028-assault-on-camp}
 
-[사건 부모](../../../body/treatments/028-sasu.md#assault-on-camp) · [장면 부모](../../../body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t028-assault-on-camp)
+[Event parent](../../../body/treatments/028-sasu.md#assault-on-camp) · [Scene parent](../../../body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t028-assault-on-camp)
 
-화면 글 ‘2월 18일 아침, 사수’. 남건이 맡은 중기병이 열린 전면에서 방효태군의 대열을 흔든다. 좁아지는 입구에서는 보병이 들어간다. 지원자는 뒤에서 상한 군장과 부상자를 받아 연결을 유지한다. 속로의 병력은 진 밖의 합류 방향을 막는다.
+On-screen text: “Morning of February 18, Sasu.” Namgeon's heavy cavalry shakes Pang's formation on the open front. Infantry enters where the entrance narrows. Support personnel receive damaged equipment and injured people behind, maintaining the connection. Sokro's force blocks the direction from which troops outside could join.
 
-무너진 임아상 진 쪽도, 전날 막힌 외부 합류점 쪽도 퇴로가 되지 못한다. 방효태가 기다리는 구원 병력은 보이지 않는다.
+Neither the fallen Ren camp nor the external rendezvous blocked the previous day offers a retreat route. Relief Pang awaits is not visible.
 
-**방효태**　입구를 버티게 하라. 소정방 쪽에서 오는지 다시 확인해라!
+**PANG XIAOTAI**　Hold the entrance. Check again whether anyone is coming from Su Dingfang!
 
-진 안에 북이 울린다. 병사가 소리를 따라 나가려다 막사 모서리에서 멎는다. 짐에 가린 통로로 앞 대열이 되밀려 온다. 빈 길을 찾으려는 병사의 고개 앞을 뒤로 돌아오는 군장이 막는다.
+A drum sounds inside. A soldier follows it, then stops at a barracks corner. A forward formation is pushed back along a passage hidden by baggage. As he turns to find an empty road, equipment coming back blocks his view.
 
-**당 지휘자**　이쪽을 비워라! 뒤를 돌리지 말고 옆으로!
+**TANG COMMANDER**　Clear this side! Sideways, don't turn your backs!
 
-한 구간이 실제로 비어 당군이 반격한다. 들어가던 고구려 보병이 물러서며 부상자를 넘긴다. 중기병도 다시 돌기 위해 열린 곳이 필요하다. 밀고 돌아서고 다시 자리를 얻는 싸움 끝에 당의 연결이 차례로 사라진다.
+One section actually clears and Tang counterattacks. Entering Goguryeo infantry falls back, passing injured people out. Heavy cavalry too needs open space to turn again. Through pushing, turning, and regaining positions, Tang's connections disappear one by one.
 
-## 빠져나간 사람이 있는 패망 {#t028-sasu-result}
+## A collapse with people who escape {#t028-sasu-result}
 
-[사건 부모](../../../body/treatments/028-sasu.md#sasu-result) · [장면 부모](../../../body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t028-sasu-result)
+[Event parent](../../../body/treatments/028-sasu.md#sasu-result) · [Scene parent](../../../body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t028-sasu-result)
 
-물가와 폭 좁은 출입에서 대열의 퇴각이 겹쳐 막힌다. 함께 나가지 못한 병력 사이로 개인들이 틈을 찾아 빠져나온다. 자기 몸을 숨긴 사람이 멀리서 전투가 끝나는 소리를 듣는다. 숨은 자리에서는 적의 몸과 막사 뒤가 보이지 않는다. 그가 지켜본 데서 소리가 가라앉은 뒤 역사가의 음성이 들어온다.
+At the water and narrow exits, retreating formations overlap and block. Individuals find gaps and escape among troops unable to leave together. One person in hiding hears the battle end from afar; enemy bodies and the far side of barracks are invisible from that place. After sound subsides where he watches, the historian enters.
 
-**역사가**　방효태와 열세 아들, 수만이 죽었다. 옥저도 군대는 다시 명령을 내려 모을 수 없었다.
+**HISTORIAN**　Pang Xiaotai, his thirteen sons, and tens of thousands died. The Okjeo army could no longer be gathered by orders.
 
-고구려 쪽은 다친 이를 받아 눕히고, 다시 임무에 설 사람을 확인한다. 보고자가 개소문 앞에서 소정방의 배급 회복과 회군 준비를 아뢴다. 개소문은 다음 목표를 가리키려다가 보고자를 보며 손을 내린다.
+Goguryeo receives and lays down injured people, then checks who can return to duty. A reporter tells Gaesomun that Su's rations have recovered and he is preparing to withdraw. Gaesomun starts to point to the next target, then lowers his hand while looking at the reporter.
 
-**개소문**　먹을 것을 받았고, 나갈 길도 갖추었단 말이지.
+**GAESOMUN**　He's received food and secured a way out.
 
-그의 말 뒤에는 아직 승리한 사람들의 숨이 들린다.
+After his words, the breathing of the victorious people is still audible.
 
-## 여섯 번이 되지 않은 결전 {#t029-su-withdrawal}
+## A decisive battle that did not happen six times {#t029-su-withdrawal}
 
-[사건 부모](../../../body/treatments/029-bitter-victory.md#su-withdrawal) · [장면 부모](../../../body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t029-su-withdrawal)
+[Event parent](../../../body/treatments/029-bitter-victory.md#su-withdrawal) · [Scene parent](../../../body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t029-su-withdrawal)
 
-사수 뒤 큰 눈. 소정방 진은 굶주려 쓰러지는 대열 대신 급양된 병력을 나누어 철수를 준비한다. 두 진으로 새 구원군을 보내는 명은 없다. 남겨 둘 것과 옮길 것을 정한 뒤 조직적으로 떠난다.
+After Sasu, heavy snow. Su's camp divides fed troops to prepare withdrawal rather than ranks collapsing from hunger. No new relief order goes to the two camps. After deciding what to leave and carry, they depart in order.
 
-개소문에게 추격 확대를 묻는다.
+Gaesomun is asked whether to expand pursuit.
 
-**개소문**　수도부터 추슬러라. 남은 병력도. 남생이 번 한 달을 적고, 버틴 성병과 지방 보병, 경기병의 공도 빠뜨리지 마라. 소정방을 놓쳤다고 그들까지 못 싸운 것이 되지는 않는다.
+**GAESOMUN**　Put the capital in order first. The remaining troops too. Record the month Namsaeng bought, and don't omit the fortress soldiers, local infantry, or light cavalry who held. Letting Su go doesn't mean they failed to fight.
 
-그는 소정방의 철수 방향을 다시 본다.
+He looks again toward Su's withdrawal.
 
-**개소문**　둘은 다른 곳에 불려 갔고, 하나는 신라가 먹여 내보냈소. 우리가 깨뜨린 것은 셋이오. 여섯을 다 치지는 못했소.
+**GAESOMUN**　Two were called elsewhere, and Silla fed one and sent it out. We broke three. We didn't strike all six.
 
-눈 속의 당 철수 대열에서 고구려군으로 돌아온다. 추격을 넓히는 대신 말과 사람을 돌보는 손이 끝에 남는다.
+Return from Tang's withdrawal in snow to Goguryeo troops. Hands tending horses and people remain at the end instead of expanded pursuit.
 
-## 칼을 받을 손 {#t029-knife-to-ajin}
+## A hand to receive the knife {#t029-knife-to-ajin}
 
-[사건 부모](../../../body/treatments/029-bitter-victory.md#knife-to-ajin) · [장면 부모](../../../body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t029-knife-to-ajin)
+[Event parent](../../../body/treatments/029-bitter-victory.md#knife-to-ajin) · [Scene parent](../../../body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t029-knife-to-ajin)
 
-신라, 아진 앞. 찬오는 작은 칼을 꺼내려다 매듭을 다른 손에 부탁한다. 아진은 다 풀릴 때까지 보다가 자기 아들의 칼을 받는다.
+In Silla, before Ajin. Chano starts to take out the small knife and asks another hand to undo the knot. Ajin watches until it is fully untied, then receives her son's knife.
 
-**아진**　마지막까지 걸었니? 몸은 어디에 두었니?
+**AJIN**　Did he walk to the end? Where did you leave his body?
 
-**찬오**　같이 가려 했는데 발을 딛지 못했습니다. 그 뒤 숨이 멎었습니다. 몸까지 옮길 힘은 없어서 거기 두고 왔습니다. 더 말씀드릴 만큼 본 것이 없습니다.
+**CHANO**　We tried to go together, but he couldn't stand. Then he stopped breathing. We had no strength to carry his body, so we left him there. I didn't see enough to tell you more.
 
-아진이 찬오 곁의 물건을 치워 앉도록 한다. 찬오는 몸을 낮춘 뒤에도 입을 열지 못한다. 아진 곁에는 남편도 아들도 돌아오지 않는다. 아진은 칼을 내려놓고 친족과 이웃에게 다음 밭일을 묻는다.
+Ajin clears objects beside Chano so he can sit. Even after lowering himself, he cannot speak. Neither husband nor son returns to Ajin. She puts down the knife and asks kin and neighbors about the next field work.
 
-**아진**　그날 누가 올 수 있는지 다시 알아봐야겠어요.
+**AJIN**　I'll have to find out again who can come that day.
 
-찬오가 자기 손을 펴 본다.
+Chano opens his hand.
 
-**찬오**　작은 짐은 들 수 있습니다. 오래 쥐어야 하는 것은 아직 어렵습니다.
+**CHANO**　I can carry a small load. Holding something for a long time is still difficult.
 
-아진은 할 수 있는 일부터 친족과 나눈다. 칼 곁에 앉은 찬오가 손을 고쳐 놓는다. 집의 말소리가 끝난다. 귀환한 김유신의 목소리가 먼저 들리고, 그가 선 왕 앞으로 화면이 바뀐다.
+Ajin divides what can be done first with kin. Beside the knife, seated Chano adjusts his hand. Household voices end. Returned Kim Yusin's voice is heard first; the image changes to the king before whom he stands.
 
-**김유신**　열기와 구근에게 현장에서 급찬을 주었습니다. 두 사람의 공을 아뢰어 사찬을 더 청합니다.
+**KIM YUSIN**　I awarded Yeolgi and Gugeun geupchan in the field. I report their service and request sachan as well.
 
-김유신이 왕의 답을 기다린다.
+Kim Yusin waits for the king's answer.
 
-**역사가**　더 청한 것은 두 사람의 관등이었다. 골품이 달라지는 청은 아니었다.
+**HISTORIAN**　What he further requested was rank for those two. It was not a request to change bone rank.
 
-아진 곁 칼로 돌아온다. 친족과 나눠 맡을 밭일이 남았고, 내어 준 자리에는 찬오가 앉아 있다. 그가 손을 고쳐 놓는 소리는 공을 아뢰는 자리의 음성과 겹치지 않는다.
+Return to the knife beside Ajin. Field work to share with kin remains, and Chano sits in the place she cleared. The sound of his hand adjusting does not overlap the voice reporting merit.
 
-## 불가능하다고 보았던 힘 {#t029-southern-reassessment}
+## Strength they thought impossible {#t029-southern-reassessment}
 
-[사건 부모](../../../body/treatments/029-bitter-victory.md#southern-reassessment) · [장면 부모](../../../body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t029-southern-reassessment)
+[Event parent](../../../body/treatments/029-bitter-victory.md#southern-reassessment) · [Scene parent](../../../body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t029-southern-reassessment)
 
-수송과 육로 귀환 경과를 모두 모은 뒤의 보고 자리. 개소문이 산길을 다시 묻는다. 처음에는 연락 무리로 보았던 보고가 이제 대량 운반과 귀환의 경로로 이어진다.
+A reporting room after the entire course of transport and land return has been collected. Gaesomun asks again about the mountain path. Reports first read as a messenger party now connect into a route for large transport and return.
 
-**개소문**　우리는 저 길로 그런 짐은 못 간다고 보았소. 김유신은 보냈고, 돌려보내기까지 했군. 당만 물리치면 신라를 누를 수 있으리라 본 것도 다시 보아야겠소.
+**GAESOMUN**　We thought such loads couldn't pass that road. Kim Yusin sent them and brought his people back. We must reconsider our belief that defeating Tang would let us subdue Silla.
 
-**남생**　우리도 길과 생산을 다시 세워야 합니다. 다음에는 기다릴 몫이 있어야 합니다.
+**NAMSAENG**　We must rebuild roads and production too. Next time we need something in reserve.
 
-**남건**　지금 이 군대도 남아 있습니다. 흩기 전에 쓸 곳을 정해야 합니다.
+**NAMGEON**　This army is still here now. We must decide where to use it before dispersing it.
 
-두 아들의 말이 향한 보고를 개소문이 내려다본다. 방 안의 셋은 서로의 결론에 답하지 않는다.
+Gaesomun looks down at the report to which his sons' words point. The three in the room do not answer one another's conclusions.
 
-**역사가**　당의 짧은 전후 기록보다 길게 펼친 세 군대의 붕괴는 작품의 재구성이다. 수의 원정 실패에 견주는 충격도 그 조직들이 무너졌다는 데 있다.
+**HISTORIAN**　The extended collapse of three armies beyond Tang's brief postwar record is the work's reconstruction. The shock compared with Sui's failed expedition lies in those organizations' destruction.
 
-승전 물량을 넘기던 담당자가 귀향 명단을 받는다. 다음 파종에 돌아가야 할 이름들을 읽는다. 그 위로 관객만 듣는 역사가의 음성이 이어진다.
+An official handing over victory supplies receives a return-home list and reads the names who must return for the next sowing. Over this comes the historian's audience-only voice.
 
-**역사가**　돌아오지 않은 십삼만 가운데 사망은 얼마인지 따로 확인되지 않는다. 미귀환 십삼만으로 612년보다 더 많이 죽었다고 견줄 수는 없다.
+**HISTORIAN**　The number dead among the hundred thirty thousand who did not return is not separately confirmed. Nonreturn of 130,000 cannot prove more deaths than in 612.
 
-명단을 받은 사람이 다음 귀향 일을 기다린다. 남건은 남아 있는 군대를 쓰자는 자기 말을 거두지 않은 채 그 자리에 있다.
+The recipient waits for the next return-home task. Namgeon remains there without withdrawing his call to use the army that remains.

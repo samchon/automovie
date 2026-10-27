@@ -1,17 +1,17 @@
-# 김춘추의 협력 선택
+# Kim Chunchu’s choice of cooperation
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--069-kim-chunchu).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--069-kim-chunchu).
 
-## 김춘추의 협력 선택 {#kim-chunchu}
+## Kim Chunchu’s choice of cooperation {#kim-chunchu}
 
-**정의·범위**
+**Definition and scope**
 
-김춘추는 당과의 협력을 백제와 고구려의 압박을 벗어날 방법으로 잡는 왕이다. 자기 나라가 잃은 성과 사람의 문제를 외부의 군사 협력으로 바꾸려 한다. 660년 백제 정복의 왕이며 661년에 죽고 문무왕이 이어받는다.
+Kim Chunchu is the king who chooses cooperation with Tang as a way out of pressure from Baekje and Goguryeo. He seeks to address his country’s lost fortresses and people through external military cooperation. He is the king who conquers Baekje in 660; he dies in 661 and is succeeded by King Munmu.
 
-**확정 내용**
+**Established facts**
 
-창작 외형은 키 174센티미터, 굵은 목과 넓은 몸통, 넓고 둥근 얼굴이다. 갈색 눈과 굵은 검은 눈썹, 넓은 코와 큰 입, 황갈색 피부를 가진다. 검은 머리와 짧은 턱수염에 말년 회색이 섞인다. 짙은 붉은 갈색 겉옷과 검은 띠, 금속 관식을 쓴다. 목소리는 중간보다 낮고 굵으며 맑은 울림이 있다. 격식 있는 말을 하다가도 필요한 조건을 바로 묻고 답을 얻으면 다음 문제로 옮긴다.
+His invented appearance: 174 centimeters tall, with a thick neck, broad torso, and broad round face. He has brown eyes, thick black eyebrows, a broad nose, a large mouth, and tawny skin. His black hair and short beard turn partly gray in later life. He wears a dark reddish-brown outer robe, black sash, and metal crown ornament. His voice is low-mid, thick, and clear in resonance. Even in formal speech, he asks directly for the terms he needs and moves to the next problem once he has an answer.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『삼국사기』 문무왕 즉위와 김춘추의 승계](https://db.history.go.kr/ancient/level.do?levelId=sg_006r_0020_0010).
+Sources: [King Munmu’s accession and succession from Kim Chunchu, Samguk Sagi](https://db.history.go.kr/ancient/level.do?levelId=sg_006r_0020_0010).

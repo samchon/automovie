@@ -1,24 +1,21 @@
-# 주필산에서 갈라진 포로의 운명
+# The prisoners’ diverging fates at Jupilsan
 
-정전 안내: [이 대상의 위치](../outline/index.md#030-society--150-jupilsan-prisoners).
+Canon guide: [Location of this subject](../outline/index.md#030-society--150-jupilsan-prisoners).
 
-## 주필산에서 갈라진 포로의 운명 {#jupilsan-prisoners}
+## The prisoners’ diverging fates at Jupilsan {#jupilsan-prisoners}
 
-**정의·범위**
+**Definition and scope**
 
-645년 패전 뒤 말갈 포로만 따로 처형된 사건은 편입 공동체가 고구려에 무엇을 기대하는지를 바꾸는 계기가 된다. 『삼국사기』에는 항복한 병력 중 군관은 중국 내지로 옮기고 나머지는 놓아주었으나, 말갈 군사 3,300명은 모두 죽였다고 기록되어 있다. 국사편찬위원회 주석이 소개하는 『자치통감』 호삼성 주는 황제의 진을 침범한 일을 처형의 이유로 든다.
+The separate execution of Malgal prisoners after defeat in 645 changes what incorporated communities expect of Goguryeo. The Samguk Sagi records that officers among the surrendered were moved to China’s interior and the rest released, but all 3,300 Malgal soldiers were killed. The Hu Sanxing commentary on the Zizhi Tongjian, cited in the National Institute of Korean History annotation, gives intrusion into the emperor’s camp as the reason.
 
-**확정 내용**
+**Established facts**
 
+The work constructs both lightly armed Malgal moving toward the emperor and Goguryeo heavy cavalry striking his camp. Their entry times and routes differ; timing and concrete routes follow [the Jupilsan campaign](../050-systems/200-jupilsan-defeat.md#jupilsan-defeat). The record does not prove that everyone in the attempt was the same as everyone killed after surrender.
 
-작품에서는 말갈 경무장 병력이 황제 주변으로 진입하는 움직임과 고구려 중기병이 황제의 진을 타격하는 움직임을 함께 구성한다. 두 부대의 진입 시각과 통로는 서로 다르며, 회전의 시차와 구체적인 경로는 [주필산 전역](../050-systems/200-jupilsan-defeat.md#jupilsan-defeat)을 따른다. 이 시도에 참가한 사람들과 항복 후 살해된 사람들이 전부 같았는지는 기록으로 입증되지 않는다.
+Prisoners are classified by group using their units and commanders, clothing, and interpreters, then killed. These are clues available for checking on site. News of the massacre reaches home along with news that other Goguryeo soldiers returned.
 
+Malgal responses differ: some households fear Tang and seek to avoid Goguryeo service, so not all share the same loyalty immediately afterward. Nevertheless, memory endures that after fighting and being captured together they did not receive equal protection. Returning Goguryeo soldiers feel discomfort that only they were released. Declaring victory alone cannot resolve this difference among people who fought together.
 
-포로는 소속 부대와 지휘자, 복식과 통역을 통해 집단별로 분류된 뒤 살해된다. 분류의 근거는 현장에서 확인할 수 있는 이 단서들이다. 고향에는 학살 소식과 함께 다른 고구려 병사들이 돌아왔다는 소식도 도착한다.
+**References and unresolved matters**
 
-
-이 소식을 들은 말갈 사람들의 반응은 갈린다. 당이 두려워 고구려의 군역을 피하려는 가구도 있어, 사건 직후 모두가 같은 충성심을 갖지는 않는다. 그래도 함께 싸우고 함께 포로가 된 뒤에는 같은 보호를 받지 못했다는 기억이 오래 남는다. 살아 돌아온 고구려 병사들은 자신만 풀려났다는 불편함을 느낀다. 함께 싸운 사람들 사이에 남은 이 차이는 승전을 선언하는 것만으로 해소되지 않는다.
-
-**참조·미결**
-
-Sources: [『삼국사기』 고연수 군대의 항복과 말갈 포로 처형](https://db.history.go.kr/id/sg_021r_0020_0218).
+Sources: [Surrender of Go Yeonsu’s army and execution of Malgal prisoners, Samguk Sagi](https://db.history.go.kr/id/sg_021r_0020_0218).

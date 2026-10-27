@@ -1,17 +1,17 @@
-# 설인귀가 드러낸 밝은 겉옷
+# Xue Rengui’s conspicuous light outer garment
 
-정전 안내: [이 대상의 위치](../outline/index.md#070-objects--170-xue-wear).
+Canon guide: [Location of this subject](../outline/index.md#070-objects--170-xue-wear).
 
-## 설인귀가 드러낸 밝은 겉옷 {#xue-wear}
+## Xue Rengui’s conspicuous light outer garment {#xue-wear}
 
-**정의·범위**
+**Definition and scope**
 
-설인귀의645년 겉옷은 어두운 군장 사이에서 그 움직임을 알아보게 하는 반복 표지다. 『삼국사기』가 기이한 의복을 입고 깊이 돌입했다고 적는 사실을 입력으로 쓰며, 그 기사가 정확한 재료와 규격을 주었다고 하지 않는다. 작품은 누런 기가 거의 없는 밝은 회갈색 천으로, 얼굴과 손을 제외한 몸통과 팔 위에서 눈에 띄는 겉옷을 선택한다. 순백의 발광하는 군복이나 적의 화살을 막는 신비한 보호옷은 아니다.
+Xue Rengui’s outer garment in 645 is a recurring marker that makes his movement recognizable amid dark military dress. The work uses the Samguk Sagi account that he wore unusual clothing and drove deep into the enemy, without claiming that the account specifies exact material or dimensions. It chooses light gray-brown cloth with almost no yellow, conspicuous over his torso and arms apart from face and hands. It is not a glowing pure-white uniform or a magical garment that stops enemy arrows.
 
-**확정 내용**
+**Established facts**
 
-겉옷은 허벅지 위까지 내려오는 길이 약90센티미터, 몸통 폭60센티미터의 긴 소매 옷으로 정한다. 옆 아래를 약20센티미터 터서 다리를 벌리게 하고 검은 허리띠로 잡는다. 몸 안쪽에는 군장과 속옷이 있어 이 겉옷의 밝기가 갑옷의 유무를 대신하지 않는다. 긴 팔을 뻗어 창을 다룰 때 소매가 벌어지고 진흙·피·먼지가 붙으면 밝은 천의 일부가 짙어진다. 낮에는 멀리서 그 색을 구별할 수 있지만 연기와 구릉 뒤에서는 보이지 않는다. 재질·크기·색은 창작 복원이다.
+The long-sleeved garment is about 90 centimeters long, reaching the upper thighs, and 60 centimeters wide at the torso. Slits of about 20 centimeters at the lower sides allow him to spread his legs; a black belt holds it. Military gear and underclothes lie beneath, so its light color does not indicate whether armor is present. Sleeves open as he extends his long arms to handle a spear, and mud, blood, and dust darken parts of the cloth. In daylight the color can be distinguished at a distance, but not behind smoke and hills. Material, dimensions, and color are invented reconstruction.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『삼국사기』 주필산의 설인귀 의복과 돌입](https://db.history.go.kr/ancient/level.do?levelId=sg_021r_0020_0216).
+Sources: [Xue Rengui’s clothing and charge at Jupilsan, Samguk Sagi](https://db.history.go.kr/ancient/level.do?levelId=sg_021r_0020_0216).

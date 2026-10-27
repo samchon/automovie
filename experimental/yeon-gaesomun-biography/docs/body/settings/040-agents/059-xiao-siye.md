@@ -1,13 +1,13 @@
-# 소사업이 옮겨 가는 전선
+# Xiao Siye’s change of front
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--059-xiao-siye).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--059-xiao-siye).
 
-## 소사업이 옮겨 가는 전선 {#xiao-siye}
+## Xiao Siye’s change of front {#xiao-siye}
 
-**정의·범위**
+**Definition and scope**
 
-소사업은 고구려를 공격하다 북방의 다른 임무로 전용되는 당 지휘자다. 철륵 반란에 대응하는 전용을 고구려군에 전멸당한 사실로 바꾸지 않는다. 정명진과 같은 자리에서 같은 결말을 얻지도 않는다. 고구려 전선에서 입은 피해는 기록이 없으며, 679년 돌궐에 패해 유배될 때까지 산다. 662년 철륵 원정에서 변경에 800명만 돌아온 것은 정인태가 이끈 경기병 1만 4천이며 소사업의 군이 아니다. 명령이 출발하고 도착하는 때, 병력이 이동하는 과정은 [북방 전환의 시차·편제와 사건 owner](../050-systems/090-northern-diversion.md#northern-diversion)을 따른다.
+Xiao Siye is a Tang commander diverted from an attack on Goguryeo to another mission in the north. Do not turn his diversion against the Tiele revolt into his force’s annihilation by Goguryeo. He does not share Zheng Mingzhen’s position or outcome. Losses on the Goguryeo front are not recorded, and he lives until his defeat by the Turks and exile in 679. In the 662 Tiele campaign, the force of 14,000 light cavalry of which only 800 returned to the frontier was led by Zheng Rentai, not Xiao Siye. The departure and arrival of orders and movement of troops follow [the timing, organization, and event owner of the northern diversion](../050-systems/090-northern-diversion.md#northern-diversion).
 
-**확정 내용**
+**Established facts**
 
-창작 외형은 키 176센티미터, 넓은 어깨와 큰 손, 넓은 턱이다. 갈색 눈과 짧은 검은 눈썹, 넓은 코끝과 두꺼운 아랫입술, 볕에 탄 황갈색 피부를 가진다. 검은 머리를 묶고 짧은 수염을 기르며 검은 옷과 붉은 갈색 띠 위에 찰갑을 입는다. 목소리는 낮고 굵으며 맑은 울림이 있다. 받은 명령의 범위를 재차 확인하고 부하에게 전달할 때는 장소와 임무를 따로 끊는다.
+His invented appearance is 176 centimeters tall, with broad shoulders, large hands, and a broad chin. He has brown eyes, short black eyebrows, a broad nose tip, a thick lower lip, and sun-darkened tawny skin. He ties his black hair, wears a short beard, and wears lamellar armor over black clothes and a reddish-brown sash. His voice is low and thick with clear resonance. He checks the scope of orders received and separates place and task when conveying them to subordinates.

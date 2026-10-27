@@ -1,17 +1,17 @@
-# 아사나사이의 부친 처라가한
+# Chuluo Khagan, father of Ashina She’er
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--101-chuluo-khagan).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--101-chuluo-khagan).
 
-## 아사나사이의 부친 처라가한 {#chuluo-khagan}
+## Chuluo Khagan, father of Ashina She’er {#chuluo-khagan}
 
-**정의·범위**
+**Definition and scope**
 
-처라가한은 아사나사이의 부친이라는 가계로 등장하는 돌궐의 군주다.
+Chuluo Khagan was a Turkic ruler who appears as Ashina She’er’s father in the genealogy.
 
-**확정 내용**
+**Established facts**
 
-당군에서 싸우는 아사나 왕족이 처음부터 당의 신하 집안이었던 것은 아니라는 관계의 입력이다. 현재 예정 서사는 그의 직접 생애와 대사, 돌궐 궁정 장면을 다루지 않는다. 따라서 얼굴과 목소리를 개별 창작하지 않으며 아사나사이의 선택을 부친의 고구려 지원 명령으로 설명하지도 않는다.
+This relationship establishes that the Ashina royal fighting in Tang’s army did not come from a family that had always been Tang subjects. The currently planned narrative does not cover the father’s life, dialogue, or scenes at the Turkic court. Therefore, do not invent his individual face or voice, or explain Ashina She’er’s choice as his father’s order to support Goguryeo.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [국편 『신당서』 아사나사이의 가계](https://db.history.go.kr/ancient/level.do?levelId=ko_035_0860_0030).
+Sources: [Ashina She’er’s genealogy, National Institute of Korean History, New Book of Tang](https://db.history.go.kr/ancient/level.do?levelId=ko_035_0860_0030).

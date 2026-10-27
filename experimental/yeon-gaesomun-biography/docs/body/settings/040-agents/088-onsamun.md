@@ -1,17 +1,17 @@
-# 온달의 후손으로 보는 온사문
+# Onsamun, imagined as Ondal’s descendant
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--088-onsamun).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--088-onsamun).
 
-## 온달의 후손으로 보는 온사문 {#onsamun}
+## Onsamun, imagined as Ondal’s descendant {#onsamun}
 
-**정의·범위**
+**Definition and scope**
 
-온사문은 659년 횡산에서 설인귀와 싸워 패한 고구려 장수다. 온을 성씨로 보고 온달과 연관 지어 보기도 한다는 국편 주석을 입력으로 사용하되 친족 관계가 입증됐다고 하지 않는다. 작품은 온달의 손자로, 608년생으로 정한다. 이 계보와 생년은 창작 선택이다. 조부의 출세가 한 세대의 찬양으로 끝나지 않고 서민 출신 군사 가문이 후대에도 국가에 복무한 작은 사례로 사용한다.
+Onsamun was a Goguryeo general defeated by Xue Rengui at Hoengsan in 659. The work uses the National Institute of Korean History annotation that his surname may be On and that he may be linked to Ondal, without claiming that kinship is proven. The work makes him Ondal’s grandson, born in 608; both genealogy and birth year are invented choices. This small example shows a military family of common birth serving the state in later generations, rather than ending with praise of the grandfather’s rise.
 
-**확정 내용**
+**Established facts**
 
-현재 예정 서사에서 등장 범위는 659년 패전 보고와 그 가문의 기억이다. 독립된 전기나 설인귀와의 긴 결투 장면을 추가하지 않으며 직접 얼굴·목소리를 그리지 않는다. 조부의 능력이 혈통으로 완전히 이어져야 하는 인물도 아니다. 패전은 고구려의 모든 야전 능력이 사라졌다는 결론을 내리지 않게 하고, 당의 정예함이 개소문 세대의 영광에 가려지지 않게 한다.
+His appearance in the currently planned narrative is limited to the report of defeat in 659 and memory of his family. Do not add an independent biography or a long duel with Xue Rengui, or portray his face and voice directly. He need not inherit all his grandfather’s ability by blood. The defeat must not lead to the conclusion that Goguryeo has lost all field capability, and Tang’s elite forces must not be obscured by the glory of Gaesomun’s generation.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『삼국사기』659년 온사문의 횡산 패전과 국편 주석](https://db.history.go.kr/item/compareViewer.do?levelId=sg_022_0020_0270).
+Sources: [Onsamun’s defeat at Hoengsan in 659 and National Institute of Korean History annotation, Samguk Sagi](https://db.history.go.kr/item/compareViewer.do?levelId=sg_022_0020_0270).

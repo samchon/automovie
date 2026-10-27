@@ -1,23 +1,23 @@
-# 사수와 평양 포위 진영
+# The Sasu and camps besieging Pyongyang
 
-정전 안내: [이 대상의 위치](../outline/index.md#060-places--100-sasu-ground).
+Canon guide: [Location of this subject](../outline/index.md#060-places--100-sasu-ground).
 
-## 사수와 평양 포위 진영 {#sasu-ground}
+## The Sasu and camps besieging Pyongyang {#sasu-ground}
 
-**정의·범위**
+**Definition and scope**
 
-사수는 평양 가까이에서 방효태군이 조직을 잃는 마지막 야전의 장소다. 사수의 위치에는 이견이 있으며 작품은 보통강 계통의 강으로 채택한다. 보통강의 현재 직선화된 수로와 현대 교량을 고대 지형에 옮기지 않는다. 아래 진영 배치는 전투 기록이 남겨 준 실측 평면이 아니라, [사수의 반격](../050-systems/120-sasu-battle.md#sasu-battle)이 가능하도록 정한 복원이다.
+The Sasu is the final field battle near Pyongyang where Pang Xiaotai’s force loses organization. Its location is disputed; the work adopts a Botong River system, without transplanting today’s straightened channel and modern bridges to ancient terrain. The following camp layout is a reconstruction enabling [the Sasu counterattack](../050-systems/120-sasu-battle.md#sasu-battle), not measured by battle records.
 
-**확정 내용**
+**Established facts**
 
-당 진영은 강변의 완만한 둔덕에 있고 물가 쪽으로 물자와 운반 인력이 모인다. 육지 쪽 입구에서 막사와 지휘부로 이르는 길은 수레 두 대가 비켜 갈 정도이며, 막사 사이의 좁은 길은 말을 탄 채 대열을 유지하기 어렵다. 육지 입구 옆 열린 경사면은 중기병 대열을 세울 수 있지만 좁은 막사 사이에는 같은 대열을 넣을 수 없다. 입구의 폭과 안쪽 통로는 보병의 진입을, 진 바깥 길은 흩어진 병력·연락병의 이동을 제약한다. 실제 공격 방향·대열 붕괴·진입·추격의 순서는 해당 전역의 treatments가 맡는다.
+Tang’s camp lies on a gentle riverside rise, supplies and carriers gathering by water. The land entrance road to barracks and command admits two carts passing; narrow lanes between barracks do not allow mounted formation. An open slope beside the land entrance holds heavy cavalry formation, but narrow barrack lanes cannot. Entrance and inner passages constrain infantry entry; outer roads constrain scattered troops and messengers. Treatments own actual attack direction, collapse, entry, and pursuit order.
 
-겨울 강은 탈출로를 줄이지만 전장을 에워싼 완벽한 벽은 아니다. 얼음이 약한 물가와 장애물이 있는 둔덕을 피해 빠져나간 생존자가 남는다. 평양 포위군의 다른 진영이 바로 옆에 있어 눈앞의 전투를 함께 지휘하는 배치는 사용하지 않는다. 서로 소식을 보내고 이동할 시간이 필요하며, 임아상군의 붕괴 뒤 방효태군을 공격할 수 있는 시차는 전역 정전에 있다.
+The winter river reduces escape routes but is not a perfect enclosing wall. Survivors escape by avoiding weak shoreline ice and obstructed rises. Other Pyongyang siege camps are not immediately adjacent jointly commanding the fight; sending news and moving require time. Campaign canon owns the interval allowing attack on Pang after Ren’s collapse.
 
-창작 전장 배치는 평양 중심의 서남쪽 약6킬로미터에 사수 진, 서북쪽 약11킬로미터에 임아상 진, 동쪽 대동강 물가 가까운 약8킬로미터에 소정방 주진을 둔다. 진 사이의 직선과 실제 강·적의 차단을 피한 길은 다르다. 임아상 진에서 사수 진까지 고구려가 쓰는 우회22킬로미터, 소정방에서 임아상 진까지 우회18킬로미터, 소정방에서 사수까지 통상 연결13킬로미터와 도하는 [집중 공격](../outline/index.md#050-systems)에서 확인한다. 각 진의 현대 위치가 입증됐다는 배치가 아니다.
+The invented layout places Sasu camp about six kilometers southwest of central Pyongyang, Ren’s about eleven northwest, Su’s main camp about eight east near the Daedong. Straight lines differ from routes avoiding rivers and enemy interdiction. [Concentrated attacks](../outline/index.md#050-systems) owns the 22-kilometer Goguryeo detour from Ren to Sasu, 18-kilometer detour from Su to Ren, and 13-kilometer normal link and crossing from Su to Sasu. No modern camp location is claimed proven.
 
-사수 진의 사용 구역은 강변을 따라 길이800미터·깊이500미터다. 북서쪽 육지 입구는 폭6미터로 수레 두 대가 비켜 가며 그 밖 열린 경사면은 폭150미터다. 지휘막사는 입구에서 안쪽으로180미터, 하역 자리는 남동쪽 물가에 둔다. 막사 사이 통로는 폭2미터 안팎이어서 중기병 대열이 그대로 통과할 수 없다. 새벽 빛은 동쪽 물가에서 들고 서쪽 입구는 둔덕 그늘이 남는다. 열린 자리의 북과 함성은 진 안으로 들리지만 막사와 짐 때문에 각 소장의 시야는 갈라진다. 임아상 진은 북서 육로를 따라 조달 인력이 드나드는 별도의 임시 방어 구역이며, 그 앞선 집결터와 창고 사이 약200미터 길이 무너지면 전투원과 운반자가 서로 다른 방향으로 빠진다.
+Sasu camp uses 800 meters along the river and 500 deep. Its northwest land entrance is six meters wide, enough for carts to pass, with a 150-meter open slope outside. Command tent is 180 meters inside; unloading is southeast by water. Barrack lanes about two meters wide cannot pass heavy cavalry formation intact. Dawn enters from east water; west entrance remains in the rise’s shadow. Drums and shouts carry inside, but tents and baggage split junior commanders’ views. Ren’s camp is a separate temporary defensive area with suppliers on a northwest land route; if about 200 meters between forward assembly and storehouse collapses, fighters and carriers escape in different directions.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [사수전투 기록](https://db.history.go.kr/ancient/level.do?levelId=sg_022r_0020_0350), [이민수, 「662년 평양성 전투와 임진강변 전투」 및 토론](https://culture.seoul.go.kr/culture/cmmn/file/fileDown.do?atchFileId=410a67f5ce944eba801bc4fc3479d95a&bbsId=&fileSn=1&menuNo=200050).
+Sources: [Sasu battle record](https://db.history.go.kr/ancient/level.do?levelId=sg_022r_0020_0350), [Lee Min-su’s Pyongyang and Imjin study and discussion](https://culture.seoul.go.kr/culture/cmmn/file/fileDown.do?atchFileId=410a67f5ce944eba801bc4fc3479d95a&bbsId=&fileSn=1&menuNo=200050).

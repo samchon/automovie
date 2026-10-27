@@ -1,15 +1,15 @@
-# 찬오가 옮기는 식량
+# The food Chano carries
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--074-chano).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--074-chano).
 
-## 찬오가 옮기는 식량 {#chano}
+## The food Chano carries {#chano}
 
-**정의·범위**
+**Definition and scope**
 
-찬오는 맡은 군량과 동료를 데리고 돌아가려는 신라 수송대원으로, 행군 뒤에도 몸의 손상을 감당하는 생활자다. 635년생으로 정한 창작 인물이다. 집에서 운반 일을 해 온 경험 때문에 식량을 싣고 묶고 넘어지지 않게 하는 일에 익숙하다. 적의 이름난 장수와 결투하려고 북상하지 않는다. 군사의 명예와 부모의 노동이 같은 짐에 묶여 있다는 생활의 자리다.
+Chano is a Silla transport member trying to return with his assigned provisions and companions, a working person who lives with bodily damage after the march. He is invented, born in 635. Experience carrying goods at home makes him skilled at loading and tying food so it does not fall. He does not travel north to duel a famous enemy general. His position ties military honor and his parents’ labor to the same load.
 
-**확정 내용**
+**Established facts**
 
-창작 외형은 키 168센티미터, 좁은 어깨와 굵은 다리, 작은 턱과 긴 코다. 갈색 눈과 가는 검은 눈썹, 넓은 입과 얇은 입술, 볕에 탄 황갈색 피부를 가진다. 검은 머리를 묶고 성긴 턱수염을 기르며 손에는 운반 끈의 굳은살이 남는다. 회갈색 옷과 짙은 갈색 가죽 덧옷, 검은 띠와 발을 감은 천을 쓴다. 목소리는 중간보다 높고 맑지만 피로하면 얇게 갈라진다. 발이 젖으면 쉬는 순간에 천을 다시 감지만 행군 전체의 속도를 마음대로 멈출 권한은 없다. 아는 동료에게 짧은 농담을 하고 명령이 바뀌면 어느 짐부터 버릴지 묻는다. 수송 중 손가락 일부와 발의 감각을 잃으며 귀환 후에도 이전의 운반 일을 똑같이 할 수 없다. 손상과 개인의 생애는 창작이다.
+His invented appearance is 168 centimeters tall, with narrow shoulders, thick legs, a small chin, long nose, brown eyes, thin black eyebrows, broad mouth, thin lips, and sun-darkened tawny skin. His black hair is tied, his beard sparse, and carrying straps have left calluses on his hands. He wears gray-brown clothes, a dark brown leather outer garment, a black sash, and cloth wrapped around his feet. His voice is clear and above the middle register, but thins and cracks when tired. If his feet get wet he rewraps them at a rest, but cannot stop the whole march at will. He jokes briefly with familiar companions and asks which load to discard first when orders change. He loses parts of his fingers and sensation in his feet during transport, and cannot do the same carrying work after returning. His injuries and individual life are invented.
 
-찬오는 살아 돌아오는 사람으로 정한다. 동료 [귀돌](077-guidol.md#guidol)이 돌아오지 않았을 때 자신이 대신 맡은 물건을 그의 어머니 [아진](078-ajin.md#ajin)에게 건네야 한다. 그 성과가 당군을 살렸다는 사실과 가족이 치른 대가는 동시에 남는다. 고구려가 김유신의 능력에 놀라는 동안 독자는 그 능력이 병사의 몸을 어떻게 사용했는지도 알 수 있다.
+Chano survives and returns. When his companion [Guidol](077-guidol.md#guidol) does not, Chano must give the object entrusted to him to Guidol’s mother [Ajin](078-ajin.md#ajin). The achievement that saved Tang troops and the cost to families both remain. As Goguryeo marvels at Kim Yusin’s ability, the audience can also know how that ability used soldiers’ bodies.

@@ -1,38 +1,35 @@
-# 연씨의 거처와 접수되는 문
+# The Yeon residence and the gate taken over
 
-정전 안내: [이 대상의 위치](../outline/index.md#060-places--020-yeon-residence).
+Canon guide: [Location of this subject](../outline/index.md#060-places--020-yeon-residence).
 
-## 연씨의 거처와 접수되는 문 {#yeon-residence}
+## The Yeon residence and the gate taken over {#yeon-residence}
 
-**정의·범위**
+**Definition and scope**
 
-연씨의 집은 왕궁 남문에서 서남쪽 길을 따라 도보 반 시진, 작품의 거리 약2킬로미터에 둔다. 왕궁 출입증과 연씨 집의 호위 명령은 서로 대신할 수 없다. 남쪽 정문은 폭3미터의 나무 두짝문이며 돌 기단 위 담은 높이2.5미터로 정한다. 담 안의 동서70미터·남북90미터 구역 남쪽에 호위 교대 마당40미터×25미터가 있고 동쪽에는 말을 매는 줄과 무기 보관채, 북쪽에는 집무채와 가족 거처가 이어진다. 이 평면과 수치는 창작이다.
+The Yeon house lies half a double-hour on foot southwest along the road from the palace south gate, about two kilometers in the work. Palace access passes and Yeon guard orders cannot substitute for one another. The south main gate is a three-meter double wooden gate; the wall on a stone base is 2.5 meters high. Within the 70-meter east–west by 90-meter north–south compound, a 40-by-25-meter guard-shift yard lies south, horse lines and arms storage east, and office and family quarters north. Plan and figures are invented.
 
-**확정 내용**
+**Established facts**
 
-집무채는 마당 북쪽에서10미터 안쪽, 가족 거처는 그 뒤15미터 안쪽이다. 꺾인 회랑과 담 때문에 집무방에서 남문은 보이지 않는다. 가족 거처~마당의 접근로는 집무채 동쪽 회랑이다.666년 접수 시점의 고정 배치는 담석의 선두 병력이 정문 안 마당, 뒤 병력이 문밖 골목·담, 헌충의 호위가 마당 북쪽이다. 부상 직후 헌충의 치료 자리는 가족 거처 동쪽 방이며 마당에서 그 방으로 이어지는 길도 같은 회랑이다. 이 시점별 위치와 접근 제약은 보존하되 무장 충돌·운반의 발생 경과를 여기서 다시 전개하지 않는다. 치료방은4미터×4미터, 동쪽 창과 남쪽 문을 갖추며 누운 자리 옆에서 두 사람이 몸을 돌볼 수 있다.
+The office building stands ten meters inside the yard’s north, family quarters another 15 meters behind. Bending corridors and walls hide the south gate from the office. The east corridor of the office connects family quarters and yard. At the fixed 666 takeover, Damseok’s leading force is inside the main gate yard, rear forces in the alley and by the outer wall, and Heonchung’s guards north in the yard. Immediately after injury he is treated in the east room of family quarters, reached from the yard by the same corridor. Preserve these time-specific positions and access constraints without retelling conflict and carrying here. The four-by-four-meter treatment room has an east window and south door, with room for two to tend him beside the bed.
 
-집무방은6미터×5미터이고 남쪽 창으로 들어오는 빛 아래 낮은 탁자와 보고를 놓을 선반을 둔다. 가족 처소는 바깥 명령이 또렷이 닿지 않지만 마당의 함성과 쇠붙이 소리는 회랑으로 들린다. 해가 기울면 담 뒤의 마당 북쪽부터 어두워진다. 먹빛 기와와 적갈색 기둥, 닳은 나무 문턱과 수선한 회랑 널을 쓴다. 창밖을 보면 정변군 천 명의 전체 위치가 한눈에 보이는 집으로 만들지 않는다.
+The office is six by five meters, with a low table and report shelf beneath light from the south window. Outside orders do not reach family quarters distinctly, but yard shouts and metal sounds come down the corridor. As the sun lowers, the yard’s north behind the wall darkens first. Use dark tiles, reddish-brown pillars, worn thresholds, and mended corridor boards. The house does not offer a single view of all 1,000 coup troops.
 
-집무채와 가족 거처는 각각 한 층 목조 채다. 집무방의 바닥에서 보 아래까지3미터, 처마3.3미터, 동서 용마루5미터로 두며 먹빛 기와 지붕은 남북으로 기울고 벽에서0.7미터 내민다. 가족 거처와 치료방은 바닥에서 보 아래2.6미터, 처마2.9미터, 동서 용마루4.3미터다. 회랑의 바닥에서 덮개 아래까지2.5미터여서 헌충을 옮기는 호위가 서서 지나갈 수 있다. 정문은 담보다 높지 않은2.3미터 문짝으로 둔다. 높이와 지붕은 창작 선택이며 꺾인 회랑·닫힌 시야·동쪽 치료방으로 돌아가는 동선을 바꾸지 않는다.
+Office and family quarters are separate single-story wooden buildings. The office has three meters from floor to beam underside, 3.3 to eaves, and five to east–west ridge; dark tiles slope north–south and project 0.7 meters. Family quarters and treatment room have 2.6 meters beneath beam, 2.9 eaves, and 4.3 east–west ridge. Corridor clearance is 2.5 meters, allowing guards carrying Heonchung to stand. Gate leaves are 2.3 meters high, no higher than the wall. Heights and roofs are invented, preserving the bending corridor, limited view, and route back to the east treatment room.
 
-## 태조 시절의 연씨 집 {#yeon-house-in-taejo-years}
+## The Yeon house in Taejo’s years {#yeon-house-in-taejo-years}
 
-**정의·범위**
+**Definition and scope**
 
-614년부터 634년까지 개소문이 태어나 자라는 집은 같은 연씨의 거처다. 담과 남쪽 정문, 남쪽의 마당, 동쪽의 말 매는 줄과 무기 보관채, 북쪽의 집무채와 가족 거처라는 평면과 치수는 [연씨의 거처](#yeon-residence)를 그대로 따른다. 이 시기에 집무채를 쓰는 사람은 아버지 태조이며, 집의 사람과 장비를 움직일 권한도 그에게 있다.
+The house where Gaesomun is born and grows from 614 to 634 is the same [Yeon residence](#yeon-residence), retaining wall, south gate and yard, eastern horse lines and arms store, and northern office and family quarters and their dimensions. Taejo uses the office and holds authority over household people and equipment.
 
-**확정 내용**
+**Established facts**
 
+The south yard handles family soldiers’ training and access. Taejo checks their archery and formations there; on permitted days young Gaesomun learns at its edge. Weapons cannot be removed without Taejo’s order.
 
-남쪽 마당은 이 시기에 가문 병사들의 훈련과 출입을 맡는다. 태조는 마당에서 병사들의 활과 대열을 점검하고, 허락한 날에는 어린 개소문이 그 가장자리에서 함께 익힌다. 무기 보관채의 무장은 태조의 명 없이 꺼낼 수 없다.
+[Mother](../040-agents/112-yeon-mother.md#yeon-mother), Gaesomun, and [Jeongto](../040-agents/113-yeon-jeongto.md#yeon-jeongto) live in family quarters. From spring 632 Gaesomun’s [wife Aran](../040-agents/118-yeon-wife.md#yeon-wife) joins them; eldest son Namsaeng is born there in autumn 634. Mother serves guests through the east corridor. Children hear adults’ office debates only as voices at its end and cannot enter. [Pyongyang Gyeongdang](260-pyongyang-gyeongdang.md#pyongyang-gyeongdang) lies about 300 meters down the southern street from the gate.
 
+After Taejo’s death in late 633 the office building’s south room becomes a mourning room, with noble mourners and guards coming through the yard. The same office receives representatives of the three households opposing succession in 634. Once Gaesomun becomes head, the office becomes his.
 
-가족 거처에는 [어머니](../040-agents/112-yeon-mother.md#yeon-mother)와 개소문, [정토](../040-agents/113-yeon-jeongto.md#yeon-jeongto)가 지낸다. 632년 봄부터는 개소문의 [아내 아란](../040-agents/118-yeon-wife.md#yeon-wife)이 함께 살고, 634년 가을에는 맏아들 남생이 이 거처에서 태어난다. 가족 거처에서는 손님이 오면 어머니가 동쪽 회랑으로 음식을 내간다. 집무방에서 오가는 어른들의 논쟁은 회랑 끝에서 말소리로만 들리고, 아이들은 문 안에 들 수 없다. 남문을 나서 남쪽 거리로 약300미터를 가면 [평양 경당](260-pyongyang-gyeongdang.md#pyongyang-gyeongdang)이다.
+**Conditions and limits**
 
-
-633년 말 태조가 죽으면 집무채의 남쪽 방이 빈소가 되고, 마당에는 조문하는 귀족과 그 호위가 드나든다. 634년 계승을 반대하는 세 가구의 대표를 맞는 곳도 이 집무채다. 개소문이 가주가 된 뒤 집무방은 그의 방이 된다.
-
-**조건·한계**
-
-이 시기의 집에는 666년의 접수 배치를 적용하지 않는다. 기와와 기둥의 색은 같지만 회랑 널과 문턱은 666년보다 덜 닳았다.
+Do not apply the 666 takeover deployment to this period. Tile and pillar colors match, but corridor boards and thresholds are less worn than in 666.

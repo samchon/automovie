@@ -1,23 +1,23 @@
-# 칠중성과 임진강의 길
+# Chiljungseong and the Imjin route
 
-정전 안내: [이 대상의 위치](../outline/index.md#060-places--180-chiljung).
+Canon guide: [Location of this subject](../outline/index.md#060-places--180-chiljung).
 
-## 칠중성과 임진강의 길 {#chiljung}
+## Chiljungseong and the Imjin route {#chiljung}
 
-**정의·범위**
+**Definition and scope**
 
-칠중성은 임진강을 건넌 군대가 남쪽의 길로 들어가는 문턱을 통제하는 성이다. 638년 공격 기록으로 존재를 확인할 수 있으나 그해 처음 축조되었다고 확정하지 않는다. 660년 고구려가 함락한 뒤667년에는 신라가 공격하는 고구려 성으로 나타난다. 662년 수송대가 칠중하를 건넌다는 사실을 칠중성이 신라의 안전한 창고였다는 뜻으로 바꾸지 않는다.
+Chiljungseong controls the threshold to southern roads for an army crossing the Imjin. A 638 attack record confirms its existence but not first construction that year. After Goguryeo captures it in 660, it appears in 667 as a Goguryeo fortress attacked by Silla. Do not turn the 662 transport’s crossing of Chiljungha into Chiljungseong being a safe Silla storehouse.
 
-**확정 내용**
+**Established facts**
 
-북쪽으로 임진강의 평야를 보고, 동쪽 낮은 진입부와 더 높은 북동쪽 능선이 구별되는 성으로 조형한다. 현재 남은 석축에는 후대 보축과 수리가 섞여 있다. 이름의 일곱을 일곱 겹 성벽으로 그리지 않는다. 성 아래의 강길과 감악산 서쪽을 돌아 양주 쪽으로 가는 통로는 연결되지만, 수송대가 성을 정면에서 함락해야만 강을 건널 수 있는 단일 통로는 아니다. 김유신은 적이 통제하는 거점을 피하려고 험로를 택하며, 그 선택에 따른 거리·날짜는 [수송과 귀환](../outline/index.md#050-systems)에서 읽는다.
+Model it overlooking the Imjin plain north, distinguishing a low eastern entrance from a higher northeastern ridge. Surviving stonework includes later reinforcement and repair. Do not draw seven wall layers from the name’s seven. The riverside route below and a route around west of Gamaksan toward Yangju connect, but crossing does not require the transport to capture the fortress frontally through a single route. Kim Yusin chooses a difficult road to avoid enemy strongholds; distances and dates belong to [transport and return](../outline/index.md#050-systems).
 
-임진강 귀환 전투의 강변은 칠중성 성문 바로 앞과 같은 장소로 고정하지 않는다. 도하 지점에는 접근로와 대열이 대기할 평지가 있고, 강을 건너는 동안 앞뒤 병력이 갈라진다. 좁은 자리에 오래 머물면 추격군이 후방을 때릴 수 있다. 성벽 위에서 전투 전체를 보았다는 인물을 별도로 발명하지 않는다.
+Do not fix the return battle’s riverbank as immediately before the fortress gate. The crossing has approaches and flat waiting ground; front and rear separate during crossing, and a long stay lets pursuers strike behind. Do not invent a person witnessing the whole fight from the wall.
 
-현재 귀환 장면의 도하는 작품에서 강폭 약200미터, 북안의 대기 평지 폭100미터·깊이60미터, 남안의 출구 길 폭5미터로 정한다. 성곽까지의 직접 거리와 현대 나루 이름을 새로 확정하지 않으며 도하 장소를 장면 이동마다 바꾸지 않는다. 강변은 열린 시야지만 남북 대열 사이에서는 물소리·바람 때문에 말 명령이 닿지 않는다. 북과 깃발, 가까운 전달자를 거쳐 앞서 건넌 부대와 뒤의 호위를 맞춘다. 야간 기만 뒤에도 뒤에 남은 사람은 추격군의 타격을 받을 수 있다.
+The work sets this crossing at about 200 meters river width, a north-bank waiting flat 100 meters wide and 60 deep, and a five-meter south exit. Do not newly fix distance to the fortress or a modern ferry name, or shift the crossing between scenes. Open banks offer sightlines, but water and wind prevent spoken orders between north and south columns. Drums, flags, and nearby messengers coordinate units across and rear guards. Even after night deception, people left behind can be hit.
 
-귀환 전투 기준의 북안 배치에서 강은 신라 호위의 뒤, 고구려 접근은 대기 평지 북쪽이다. 고구려 전면은 남쪽 강을 향하고 재집결 자리는 대기 평지 북쪽 바깥에 있다. 북안 호위의 서쪽 통로는 고구려 집결의 서쪽 가장자리를 따라 북쪽으로 이어지며 북서쪽에서 집결지의 남동쪽을 향할 접근이 열린다. 같은 서쪽 통로를 거슬러 강변으로 복귀할 수 있다. 서쪽 접근은 고구려 측면 관측자에게 보일 수 있어 비밀 통로나 새 숲으로 취급하지 않는다. 운반자의 남안 상태와 실제 다음날 우회·압박·호위 복귀는 해당 전역의 treatments가 맡는다. 새로운 숲·숨은 나루를 추가하지 않는다.
+In the north-bank baseline, the river is behind Silla’s escort and Goguryeo approaches from north of the waiting flat. Goguryeo faces south toward the river and regroups beyond the flat to the north. The escort’s western passage runs north along the west edge of Goguryeo’s assembly, allowing an approach from northwest toward its southeast and return along the same passage to the bank. Goguryeo flank observers may see it; it is not a secret route or new forest. Treatments own carriers’ south-bank state and actual next-day detour, pressure, and escort return. Add no new forest or hidden ferry.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [한국민족문화대백과사전, 칠중성](https://encykorea.aks.ac.kr/Article/E0058545), [서울역사편찬원, 『삼국 각축의 현장, 임진강』의 「신라의 북진과 임진강」](https://culture.seoul.go.kr/culture/cmmn/file/fileDown.do?atchFileId=410a67f5ce944eba801bc4fc3479d95a&bbsId=&fileSn=1&menuNo=200050).
+Sources: [Chiljungseong, Encyclopedia of Korean Culture](https://encykorea.aks.ac.kr/Article/E0058545), [“Silla’s northward advance and the Imjin River,” Seoul Historiography Institute](https://culture.seoul.go.kr/culture/cmmn/file/fileDown.do?atchFileId=410a67f5ce944eba801bc4fc3479d95a&bbsId=&fileSn=1&menuNo=200050).

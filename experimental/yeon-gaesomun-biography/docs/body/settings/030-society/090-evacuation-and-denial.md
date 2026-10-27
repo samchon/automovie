@@ -1,17 +1,15 @@
-# 피난과 청야가 남기는 손실
+# Losses left by evacuation and denial
 
-정전 안내: [이 대상의 위치](../outline/index.md#030-society--090-evacuation-and-denial).
+Canon guide: [Location of this subject](../outline/index.md#030-society--090-evacuation-and-denial).
 
-## 피난과 청야가 남기는 손실 {#evacuation-and-denial}
+## Losses left by evacuation and denial {#evacuation-and-denial}
 
-**정의·범위**
+**Definition and scope**
 
-청야는 적이 쓸 식량과 거처를 남기지 않는 방어다. 이를 실행하려면 고구려 주민이 먼저 살던 곳을 떠나야 한다. 곡물과 가축을 성 안이나 후방으로 옮길 운반 수단이 부족하면 일부는 버리거나 없앤다. 사람은 피난해도 밭과 집, 저장 구덩이와 겨울 땔감은 함께 옮길 수 없다. 성벽을 지켜 낸 뒤에도 주민의 생계는 무너져 있을 수 있다.
+Scorched-earth defense leaves no food or shelter for an enemy to use. Its execution requires Goguryeo residents to leave their homes first. If transport is insufficient to move grain and livestock into fortresses or the rear, some is abandoned or destroyed. People may evacuate, but cannot take fields, houses, storage pits, or winter firewood with them. Even after the walls are held, residents’ livelihoods may have collapsed.
 
-**확정 내용**
+**Established facts**
 
+In the work local commanders first give warning and open evacuation routes. They move transportable grain and livestock and the wounded first; when little time remains before the enemy arrives, what households want to carry conflicts with provisions the army seeks to secure. The burden of receiving refugees inside fortresses and managing wells, firewood, and waste is also part of the cost of delay. Residents opposing scorched earth can both wish to protect the country and fear for their livelihood next winter. Opposition alone cannot make them collaborators with an external enemy.
 
-작품의 지방 지휘자는 먼저 경보를 내리고 피난로를 연다. 옮길 수 있는 곡물과 가축, 부상자부터 빼내지만 적이 닿기까지 시간이 짧으면 가구가 나르려는 물자와 군이 확보하려는 군량이 충돌한다. 성 안에서 피난민을 수용하고 우물과 땔감, 배설 문제를 감당하는 부담도 지연전의 비용에 포함된다. 청야에 반대하는 주민도 나라를 지키려는 뜻과 다음 겨울의 생계 걱정을 함께 가질 수 있다. 반대만으로 외적과 내통한 사람으로 간주할 수는 없다.
-
-
-수와의 반복된 전쟁을 겪은 가구에는 승리한 뒤에도 이런 손실이 끝나지 않았다는 기억이 전해진다. 그 기억 때문에 야전에서 빨리 결판내기를 바라는 사람도 있다. 그러나 야전군이 패하면 돌아갈 집과 저장해 둔 물자를 잃을 위험 역시 남는다. 645년과 661년의 주민들은 자기 지역에 다가오는 적과 피난 경험에 따라 다른 작전을 바란다.
+Households that endured repeated wars with Sui pass on memories that such losses did not end with victory. Some therefore wish for a quick decision in the field. Yet defeat of the field army also risks losing homes and stored supplies to which people might return. In 645 and 661, residents want different operations depending on the enemy approaching their region and their experience of evacuation.

@@ -1,20 +1,17 @@
-# 안시성주가 맡은 사람들
+# The people entrusted to the castellan of Ansi
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--028-ansi-castellan).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--028-ansi-castellan).
 
-## 안시성주가 맡은 사람들 {#ansi-castellan}
+## The people entrusted to the castellan of Ansi {#ansi-castellan}
 
-**정의·범위**
+**Definition and scope**
 
-안시성주는 자기 성의 군사와 주민을 지키는 지휘자다. 중앙 정권에 대한 감정과 별개로 성의 사람들을 보호할 책임을 맡는다. 본편에서는 안시성주라고 부르며, 양만춘이라는 이름은 확인된 실명으로 취급하지 않는다.
+The castellan commands and protects his fortress’s soldiers and residents. His responsibility to protect them is separate from his feelings toward the central regime. The main story calls him the castellan of Ansi; it does not treat Yang Manchun as a confirmed personal name.
 
-**확정 내용**
+**Established facts**
 
+In 645 he is invented to look in his mid-forties, about 175 centimeters tall and sturdy. His broad forehead and round chin frame small brown eyes beneath heavy eyebrows; his nose is low and broad, his lips thick. His skin is sun-darkened brown, his black hair tied, his beard short. He wears maintained lamellar armor over a dark outer robe and reddish-brown sash. He walks the fortress for long periods in worn leather shoes.
 
-645년에는 40대 중반으로 보이는 모습으로 창작한다. 키는 175cm가량이고 몸이 단단하다. 이마가 넓고 턱이 둥글며, 짙게 내려앉은 눈썹 아래로 작은 갈색 눈이 있다. 코는 낮고 넓으며 입술은 두껍다. 피부는 햇볕에 탄 갈색이고 검은 머리를 묶으며 턱수염은 짧다. 먹빛 겉옷에 적갈색 띠를 두르고 손질한 찰갑을 입는다. 낡은 가죽 신발을 신고 성 안을 오래 걷는다.
+His middle-register voice is rough and dry. He speaks briefly to those close by; when directing residents he slows down and explains again, and when an attack comes he projects a strong voice.
 
-
-목소리는 중간 음역으로 거칠고 건조하다. 가까운 상대에게는 짧게 말한다. 주민에게 지시할 때에는 속도를 늦추고 한 번 더 설명하며, 공격이 붙으면 강한 소리를 멀리 뻗는다.
-
-
-안시성주는 개소문의 위엄에 무조건 굴복하지 않는다. 자신의 방어 능력이 개소문의 권력을 떠받친다는 사실도 안다. 중앙의 기대를 들으면 현장에서 확인한 식량과 병력의 조건으로 답한다. 개소문도 사적인 불편함 때문에 성을 버리게 하지는 않으며, 성주가 해낼 수 있는 일을 인정한다. 성의 방어 전력과 현장 운용 조건은 [안시성 수비](../050-systems/210-ansi-defence.md#ansi-defence)에서 확인한다.
+The castellan does not automatically submit to Gaesomun’s authority. He also knows his defensive ability sustains Gaesomun’s power. Hearing the center’s expectations, he answers with food and troop conditions verified in the field. Gaesomun does not abandon the fortress over personal discomfort and acknowledges what the castellan can do. See [the defense of Ansi](../050-systems/210-ansi-defence.md#ansi-defence) for its strength and operational conditions.

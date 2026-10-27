@@ -1,20 +1,17 @@
-# 미란의 집과 군역
+# Miran’s household and military service
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--030-miran).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--030-miran).
 
-## 미란의 집과 군역 {#miran}
+## Miran’s household and military service {#miran}
 
-**정의·범위**
+**Definition and scope**
 
-미란은 628년생으로 창작한 동부 주민이다. 속로와 같은 공동체에 살지만 혈족은 아니다. 645년 남편이 주필산의 포로 처형으로 죽은 뒤 어린 딸을 돌보며 가구의 일을 맡는다. 남편과 딸이 각각 겪는 결과는 [남편 날로](038-nallo.md#nallo)와 [딸 누리](039-nuri.md#nuri)에서 정한다. 남편이 전장에 가져간 무장은 되찾지 못했고, 집에 남은 활을 누가 사용할지도 결정해야 한다. 미란은 자기 물자를 내는 주민들을 대표해 군관과 이야기하며 전사자 가구에 약속한 보호가 도착했는지 확인하고 다음 군역의 부담을 협의한다. 공동체 전체를 홀로 이끄는 우두머리는 아니다. 전사자의 가족이라는 처지가 모든 발언의 옳음이나 주민 모두의 지지를 보장하지도 않는다.
+Miran is an invented eastern resident born in 628. She lives in the same community as Sokro but is not his blood relative. After her husband is killed in the execution of prisoners at Jupilsan in 645, she cares for their young daughter and handles household work. Their individual outcomes are established in [her husband Nallo](038-nallo.md#nallo) and [daughter Nuri](039-nuri.md#nuri). She cannot recover the arms her husband took to battle and must decide who will use the bow left at home. Representing residents contributing their own resources, she speaks to officers, checks whether promised protection for fallen soldiers’ households has arrived, and negotiates the burden of the next service. She does not lead the whole community alone. Being a fallen soldier’s family member does not guarantee every statement is right or all residents support her.
 
-**확정 내용**
+**Established facts**
 
+She is about 158 centimeters tall, wide-hipped and short-bodied, with an oval face, straight black eyebrows, wide-set brown eyes, small nose, and full lips. Her skin is tawny and her straight long black hair tied low. Water work and preparing leather have roughened her hands. She rolls the sleeves of gray-brown cloth clothes above her wrists and puts brown fur over her shoulders in cold weather. She uses a small bound knife and a woven basket for trade goods.
 
-키는 약 158cm이며 골반이 넓고 몸통이 짧다. 타원형 얼굴에 곧은 검은 눈썹과 넓게 놓인 갈색 눈, 작은 코와 도톰한 입술이 있다. 피부는 황갈색이고 곧고 긴 검은 머리를 낮게 묶는다. 물일과 가죽 손질로 손은 거칠다. 회갈색 천옷의 소매를 손목 위로 걷어 올리고, 추울 때는 갈색 털가죽을 어깨에 두른다. 작은 묶음 칼과 거래 물건을 담는 엮은 바구니를 쓴다.
+Her middle-register voice is clear and firm. She takes a full breath before asking briefly. When angry she lowers her endings rather than raising her voice and slowly checks the same promise again.
 
-
-목소리는 중간 음역으로 맑고 단단하다. 숨을 충분히 들이쉰 뒤 짧게 질문한다. 화가 나면 소리를 키우기보다 말끝을 낮추고 같은 약속을 천천히 다시 확인한다.
-
-
-연개소문의 지원이 도착해도 다음 군역에 딸의 미래까지 담보로 내놓지는 않는다. 국가가 같은 보호를 거듭 이행해야 신뢰가 쌓인다. 662년 병력이 돌아왔을 때에도 부상자는 이전 일을 그대로 해낼 수 없다. 미란은 재건 노동을 지시하는 남생 측 군관과 협의해 가구의 사람이 회복할 시간과 다음 파종을 확보하려 한다. 생업에 밝은 만큼 생활의 부담을 따질 수 있지만 전역의 비밀 보고까지 알지는 못한다.
+Even when Yeon’s support arrives, she does not stake her daughter’s future on the next service. Trust grows only if the state repeatedly delivers equal protection. When troops return in 662, the wounded cannot do their old work unchanged. Miran negotiates with Namsaeng’s reconstruction officer to secure recovery time for household members and the next sowing. Her knowledge of livelihood lets her assess its burdens, but does not give her secret campaign reports.

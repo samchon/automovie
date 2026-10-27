@@ -1,17 +1,17 @@
-# 돌사성 공격의 품일
+# Pumil at the attack on Dolsaseong
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--081-pumil).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--081-pumil).
 
-## 돌사성 공격의 품일 {#pumil}
+## Pumil at the attack on Dolsaseong {#pumil}
 
-**정의·범위**
+**Definition and scope**
 
-품일은 664년 음력7월 문무왕이 돌사성을 공격하게 한 신라 지휘자 가운데 한 사람이다.
+Pumil was one of the Silla commanders whom King Munmu ordered to attack Dolsaseong in the seventh lunar month of 664.
 
-**확정 내용**
+**Established facts**
 
-현재 예정 서사에서는 고구려에 도착한 함락 보고에 이름이 등장하며, 독립 전투 장면이나 고구려 수뇌부와의 대면은 없다. 김인문·군관·문영과 함께 일선주·한산주와 웅진 부성 병마를 움직이는 기록의 범위를 유지한다. 확인되지 않은 병력 수와 개별 전공을 붙이지 않는다.
+In the currently planned narrative, his name appears in the report of the fortress’s fall received by Goguryeo; he has no independent battle scene or encounter with Goguryeo’s leadership. Preserve the record’s scope: he moved the forces of Ilseonju, Hansanju, and the Ungjin subordinate prefecture together with Kim Inmun, Gungwan, and Munyeong. Do not add unconfirmed troop numbers or individual exploits.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『삼국사기』664년 돌사성 공격](https://db.history.go.kr/item/compareViewer.do?levelId=sg_006_0020_0480).
+Sources: [The 664 attack on Dolsaseong, Samguk Sagi](https://db.history.go.kr/item/compareViewer.do?levelId=sg_006_0020_0480).

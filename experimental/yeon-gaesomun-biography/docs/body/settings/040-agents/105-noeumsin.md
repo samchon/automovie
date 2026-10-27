@@ -1,17 +1,17 @@
-# 북한산성을 공격한 뇌음신
+# Noeumsin, who attacked Bukhansanseong
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--105-noeumsin).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--105-noeumsin).
 
-## 북한산성을 공격한 뇌음신 {#noeumsin}
+## Noeumsin, who attacked Bukhansanseong {#noeumsin}
 
-**정의·범위**
+**Definition and scope**
 
-뇌음신은661년 술천성 공격에 실패한 뒤 북한산성으로 옮겨 간 고구려 장수다.
+Noeumsin was a Goguryeo general who moved against Bukhansanseong in 661 after failing to take Sulcheonseong.
 
-**확정 내용**
+**Established facts**
 
-성을 공격할 장비가 있어도 제한된 병력과 기간으로 모든 요새를 함락할 수는 없다는 보고의 당사자다. 생해의 다른 이름으로 합치지 않는다. 현재 예정 서사에는 공격 결과의 보고만 있으며 고유한 얼굴·음성이나 별도 전공을 정하지 않는다.
+He is named in a report illustrating that even with siege equipment, limited forces and time cannot capture every fortress. Do not treat him as another name for Saenghae. The currently planned narrative reports only the attack’s result; it establishes no distinctive face, voice, or separate exploit.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『삼국사기』661년 술천성·북한산성 공격](https://db.history.go.kr/ancient/level.do?levelId=sg_005r_0040_0550).
+Sources: [The 661 attacks on Sulcheonseong and Bukhansanseong, Samguk Sagi](https://db.history.go.kr/ancient/level.do?levelId=sg_005r_0040_0550).

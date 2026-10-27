@@ -1,17 +1,17 @@
-# 요동성의 남은 집과 돌아오는 주민
+# Remaining houses and returning residents at Liaodong Fortress
 
-정전 안내: [이 대상의 위치](../outline/index.md#060-places--070-yodong).
+Canon guide: [Location of this subject](../outline/index.md#060-places--070-yodong).
 
-## 요동성의 남은 집과 돌아오는 주민 {#yodong}
+## Remaining houses and returning residents at Liaodong Fortress {#yodong}
 
-**정의·범위**
+**Definition and scope**
 
-요동성의 공간은 서쪽에서 오는 원정을 먼저 받아내는 군사 거점으로 복원한다. 바깥에는 도로를 따라 모인 집과 밭, 성 안에는 병사가 묵는 채와 보관 창고가 있다. 불탄 교외와 수선하는 방어벽의 대조는 같은 장소에서 이어진다. 주민이 돌아와 지붕을 고칠 때 곡물과 연료는 아직 모자랄 수 있다. 남생의 순행 숙소는 귀족의 큰 집 안에 있지만 식사와 작업을 확인하는 자리는 성 밖 피난민 마당에도 둔다. 그가 주민의 고통을 안다는 평가는 그 출입을 함께 본 사람들이 만든다.
+Liaodong Fortress is reconstructed as a military stronghold first receiving expeditions from the west. Outside are roadside houses and fields; inside are soldiers’ quarters and storehouses. Burned suburbs and repaired walls contrast in the same place. Even when residents return to mend roofs, grain and fuel may remain short. Namsaeng’s tour lodging is inside a large noble house, but he also checks meals and work in a refugee yard outside. Those who see both visits judge that he knows residents’ suffering.
 
-**확정 내용**
+**Established facts**
 
-창작 장면 구역은 서문에서 동쪽으로 폭6미터의 길이80미터 이어지는 군무 마당이다. 마당은40미터×30미터이고 북쪽 창고와 남쪽 병사 숙소가 마주 본다. 숙소 한 채는15미터×7미터로 통로 양쪽에 잠자리를 놓으며 서쪽 문을 열면 오후 빛과 수레 소리가 들어온다. 남생이 묵는 귀족 집은 마당 동쪽 길로 약300미터, 피난민 작업 마당은 서문 밖 약500미터다. 성 전체 둘레와 모든 문을 이 작은 구역의 수치로 대체하지 않는다. 담과 출입 확인 때문에 두 자리를 한 방 안에서 보거나 동시에 지휘할 수는 없다. 밖의 밝은 흙과 탄 목재, 안의 수선한 짙은 나무 기둥과 회갈색 담이 한 도시의 회복 상태를 드러낸다.
+The invented scene area is a military yard reached by an 80-meter road, six meters wide, east from the west gate. The yard is 40 by 30 meters, a northern storehouse facing southern soldiers’ quarters. A 15-by-7-meter quarters building has sleeping places on both sides of a passage; opening its west door admits afternoon light and cart sounds. Namsaeng’s noble lodging is about 300 meters along the east road, and the refugee work yard about 500 meters outside the west gate. Do not substitute these small-area figures for the whole fortress perimeter and gates. Walls and access checks prevent seeing or commanding both sites simultaneously from one room. Bright earth and burned timber outside, repaired dark wooden pillars and gray-brown walls inside show one city recovering.
 
-병사 숙소는 한 층으로, 바닥에서 보 아래2.6미터·처마2.9미터·동서 용마루4.3미터다. 남북 경사의 먹빛 기와 지붕은 벽에서0.5미터 내밀고 서쪽 출입문의 높이는2미터로 둔다. 맞은편 창고는 한 층이며 보 아래3미터·처마3.3미터·동서 용마루4.8미터다. 남생이 묵는 귀족 집의 숙소방은 한 층 채 안에 두며 바닥에서 보 아래2.8미터, 처마3미터, 동서 용마루4.5미터로 정한다. 이 수직 외곽은 모두 창작이며 성 밖 작업 마당과 성 안 숙소를 같은 실내로 합치지 않는다.
+The single-story quarters have 2.6 meters beneath beam, 2.9 to eaves, 4.3 to east–west ridge. Dark tiles slope north–south and project 0.5 meters; west door height is two meters. The opposing one-story storehouse has three meters beneath beam, 3.3 eaves, and 4.8 east–west ridge. Namsaeng’s room in a single-story noble building has 2.8 beneath beam, three eaves, and 4.5 east–west ridge. All elevations are invented; do not merge outdoor work yard and inner lodging.
 
-661년 누방 방면 차단전의 정명진 진은 요동성 서쪽, 서문 밖 작업 마당보다 더 바깥에 둔다. 북서쪽과 남서쪽에서 오는 두 운반 길이 진의 서쪽 가장자리에 닿는다. 진 서쪽의 두 운반 길과 성 서문에서 오는 동쪽 출격로는 서로 다른 접근이다. 양쪽을 이용할 병력의 실제 차단·출격 선택은 해당 전역의 treatments가 맡는다. 성에서 나오는 길과 진으로 들어올 운반 길은 진의 동서로 갈린다. 진에서 호위를 내보낼 때는 서쪽 길에서 들어오는 짐과 출전 병력이 마주친다. 남서 운반 길과 동쪽 출격로 사이의 진 남쪽에는 일부 병력이 빠져나갈 틈이 남는다. 양쪽 차단이 진의 연결을 깨뜨려도 모든 방향을 동시에 닫는 포위는 아니다. 이 상대 배치는 작품의 전장 선택이며 확인된 고대 진지 도면으로 제시하지 않는다.
+Zheng Mingzhen’s camp for the 661 Nufang interdiction lies west of the fortress, beyond the work yard. Northwest and southwest transport roads meet its west edge; these differ from the east sortie route from the west gate. Treatments own actual interdiction and sortie choices. When the camp sends escorts out, incoming western loads meet departing troops. A gap south of camp between southwest transport and eastern sortie routes lets some forces escape. Breaking connections from both sides does not close every direction simultaneously. This relative arrangement is an invented battlefield choice, not a confirmed ancient camp plan.

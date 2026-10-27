@@ -1,17 +1,17 @@
-# 혼인의 가문 다신장부
+# Komoshiki and the marriage alliance
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--076-ta-shikibu).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--076-ta-shikibu).
 
-## 혼인의 가문 다신장부 {#ta-shikibu}
+## Komoshiki and the marriage alliance {#ta-shikibu}
 
-**정의·범위**
+**Definition and scope**
 
-다신장부는 『일본서기』의 혼인 기사에 배우자의 오라비로 이름이 남은 사람이다.
+Komoshiki (Oho no Omi) is named in the Nihon Shoki marriage account as the elder brother of the spouse.
 
-**확정 내용**
+**Established facts**
 
-현재 예정 서사에서 왜 조정의 지원을 개인적 가족 관계와 잇는 보고 속 가문의 이름으로 등장한다. 그 혼인을 독자적으로 결정한 총사령관, 백제에서 이주한 서자, 백제어를 쓰는 귀족으로 추가 확정하지 않는다. 직접 행동·대사·별도 죽음은 없으므로 얼굴과 목소리를 복원하지 않는다.
+In the currently planned narrative his family name appears in a report linking support from the Wa court to a personal family relationship. Do not additionally establish him as a commander-in-chief who decided the marriage alone, an illegitimate son who migrated from Baekje, or a noble who spoke Baekje’s language. With no direct action, dialogue, or separate death, do not reconstruct his face or voice.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『일본서기』 권27의 다신장부 여동생 혼인 기사](https://zh.wikisource.org/zh-hant/日本書紀/卷第廿七).
+Sources: [The marriage of Komoshiki’s younger sister, Nihon Shoki vol. 27](https://zh.wikisource.org/zh-hant/日本書紀/卷第廿七).

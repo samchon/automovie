@@ -1,13 +1,13 @@
-# 정명진의 잔류와 반격 피해
+# Zheng Mingzhen remains and suffers a counterattack
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--058-zheng-mingzhen).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--058-zheng-mingzhen).
 
-## 정명진의 잔류와 반격 피해 {#zheng-mingzhen}
+## Zheng Mingzhen remains and suffers a counterattack {#zheng-mingzhen}
 
-**정의·범위**
+**Definition and scope**
 
-정명진은 북방으로 옮겨 간 다른 부대와 달리 고구려 전선에 잔류하여 반격을 받는 지휘자다. 이름만 열거하여 없애는 병력의 표지로 쓰지 않는다. 창작 형상은 키 170센티미터, 마른 몸과 길게 뻗은 손가락, 긴 볼과 뾰족한 턱이다. 갈색 눈과 가늘고 검은 눈썹, 긴 코와 작은 입, 옅은 황갈색 피부를 가진다. 검은 머리를 묶고 성긴 수염에 회색이 섞인다. 짙은 갈색 옷에 검은 띠와 수선한 찰갑을 입는다. 목소리는 중간 높이의 얇고 거친 소리다. 보급이 끊길 가능성을 미리 묻고 상대의 답이 불명확하면 속도를 늦춰 같은 조건을 되묻는다.
+Unlike other units moved north, Zheng Mingzhen remains on the Goguryeo front and faces a counterattack. Do not use his name as merely a marker in a list of forces to eliminate. His invented design is 170 centimeters tall, thin, with long fingers, long cheeks, and a pointed chin. He has brown eyes, thin black eyebrows, a long nose, a small mouth, and light tawny skin. His black hair is tied, his sparse beard streaked with gray. He wears dark brown clothes, a black sash, and mended lamellar armor. His voice is thin and rough in the middle register. He asks in advance about possible supply interruption and, if an answer is unclear, slows down and asks about the same condition again.
 
-**확정 내용**
+**Established facts**
 
-누방군은 고구려의 반격으로 궤멸해 작전을 이어 갈 수 없게 된다. 궤멸은 전체 병력이 모두 죽었다는 뜻이 아니다. 정명진 자신을 사수에서 방효태와 함께 전사시켜 전역을 단순하게 만들지 않는다. 『구당서』는 그가 662년에 죽어 우위대장군으로 추증되고 시호 열(烈)을 받았다고만 적는다. 죽은 경위는 없으며 전사로 보는 것은 연구의 추정이다. 작품은 누방군이 무너진 뒤의 죽음으로 두되 전투 중 전사로 단정하지 않는다. 행군 이름과 병력, 시기는 군사 정전을 따른다.
+The Nufang force is shattered by Goguryeo’s counterattack and cannot continue operations. Shattered does not mean every soldier dies. Do not simplify the campaign by having Zheng Mingzhen himself die in battle with Pang Xiaotai at the Sasu. The Old Book of Tang says only that he died in 662, was posthumously appointed grand general of the Right Guard, and received the posthumous name Lie. It gives no circumstances; death in battle is a scholarly inference. The work places his death after the Nufang force’s collapse without asserting that he died in combat. Military canon owns the expedition name, strength, and timing.

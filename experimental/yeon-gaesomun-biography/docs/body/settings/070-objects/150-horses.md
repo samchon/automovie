@@ -1,21 +1,21 @@
-# 군마와 안장
+# Warhorses and saddles
 
-정전 안내: [이 대상의 위치](../outline/index.md#070-objects--150-horses).
+Canon guide: [Location of this subject](../outline/index.md#070-objects--150-horses).
 
-## 군마와 안장 {#horses}
+## Warhorses and saddles {#horses}
 
-**정의·범위**
+**Definition and scope**
 
-군마는 여러 날 달린 뒤에도 풀과 물, 쉬는 시간이 필요한 동물이다. 기병이 말에서 내려 밤을 지낼 때 고삐를 매고 다친 발과 안장이 닿는 부분을 살핀다. 앞뒤 지지가 있는 안장과 양쪽 발걸이는 벽화에 나타나는 말갖춤의 근거다. 경기병의 낮은 짐과 중기병의 무장 무게는 걸음과 피로에 차이를 만들며, 명마 한 필이 끊임없이 모든 전령 임무를 대신할 수는 없다. 눈 덮인 야영지에서 사람의 곡물을 모두 말에게 주면 사람의 귀환 식량이 줄고, 주지 않으면 말의 이동 능력이 줄어든다.
+Warhorses need grass, water, and rest even after running for days. When cavalry dismount for the night, they tether reins and check injured feet and points where saddles touch. Saddles supported front and rear and stirrups on both sides are grounded in horse equipment shown in murals. Light cavalry’s smaller loads and heavy cavalry’s armed weight affect pace and fatigue; one fine horse cannot constantly perform every messenger mission. At a snowy camp, giving horses all the people’s grain reduces the food available for the return; withholding it reduces the horses’ mobility.
 
-**확정 내용**
+**Established facts**
 
-작품의 군마는 등 높이 약1.3~1.4미터의 갈색·검은색 개체를 기본으로 하고 안장은 길이45센티미터의 나무 뼈대와 짙은 가죽, 양쪽 철 발걸이로 조형한다. 말의 값은 작품의 반복 형상이며 사료가 규격을 정해 준 값이 아니다.
+The work’s basic warhorses are brown or black, about 1.3–1.4 meters at the back. Saddles have a 45-centimeter wooden frame, dark leather, and iron stirrups on both sides. These are repeated designs for the work, not dimensions prescribed by sources.
 
-말 한 필을 여러 날 이동 임무에 쓸 하루 먹이의 작품 기준은 곡식 약4킬로그램과 풀 약10킬로그램이다. 고대 군마 사육 장부의 실측값이 아니라 이 작품의 보급 제약이다. 물과 휴식도 필요하며 곡식을 줬다는 이유만으로 부상한 말이 계속 달릴 수는 없다.
+For a horse on a multiday movement, the work’s daily feed baseline is about 4 kilograms of grain and 10 kilograms of grass. It is a supply constraint for the work, not a measurement from ancient stabling accounts. Water and rest are also needed; feeding grain does not let an injured horse keep running.
 
-군마의 재고·통로·현지 운반 조건은 [안쪽 길의 급양](../050-systems/100-counterattack-concentration.md#interior-supply-capacity), 남하7천의 별도 배급 몫은 [남방 추격군](../050-systems/170-return-and-pursuit.md#return-and-pursuit)을 따른다. 말의 먹이값이 공급의 성공까지 보증하지 않는다.
+Horse stocks, routes, and local transport follow [feeding on interior routes](../050-systems/100-counterattack-concentration.md#interior-supply-capacity); separate rations for the 7,000 moving south follow [the southern pursuit force](../050-systems/170-return-and-pursuit.md#return-and-pursuit). The feed baseline does not guarantee successful supply.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [국립중앙박물관, 쌍영총 벽화와 안장·발걸이의 설명](https://www.museum.go.kr/MUSEUM/contents/M0501000000.do?relicRecommendId=450616&schM=view).
+Sources: [National Museum of Korea, Ssangyeongchong mural and explanation of saddle and stirrups](https://www.museum.go.kr/MUSEUM/contents/M0501000000.do?relicRecommendId=450616&schM=view).

@@ -1,21 +1,21 @@
-# 신성이 연 성문과 남건의 생존
+# The gate Sinseong opens and Namgeon’s survival
 
-정전 안내: [이 대상의 위치](../outline/index.md#050-systems--340-pyongyang-fall).
+Canon guide: [Location of this subject](../outline/index.md#050-systems--340-pyongyang-fall).
 
-## 신성이 연 성문과 남건의 생존 {#pyongyang-fall}
+## The gate Sinseong opens and Namgeon’s survival {#pyongyang-fall}
 
-**정의·범위**
+**Definition and scope**
 
-평양 함락은668년9월의 시간축을 채택한다. 남산은 먼저 당에 항복하고 남건은 항거한다. 승려 신성은 오사와 요묘 등과 당에 연결하여 문을 열기로 한다. 신성의 내응은 신성(新城)이라는 성곽이 항복한 일과 다른 사건이다. 이름이 같은 음으로 읽혀도 두 대상을 합치지 않는다.
+The fall of Pyongyang adopts September 668. Namsan surrenders to Tang first; Namgeon resists. Monk Sinseong connects with Tang alongside Osa and Yomyo and agrees to open a gate. His internal cooperation is a different event from surrender of Sinseong Fortress (新城); identical pronunciation does not merge the subjects.
 
-**확정 내용**
+**Established facts**
 
-작품은 내응 약속 뒤 닷새가 지나 문이 열리고, 당군이 들어와 문루에 불을 놓는 기록의 큰 행동을 사용한다. 남건은 자해하지만 살아남아 포로가 된다. 성 밖을 막던 강한 군사가 있다는 사실이 성 안의 출입 권한과 배신을 없애 주지는 않는다. 문을 여는 사람의 선택이 실제 동선과 권한으로 작동해야 하며 마법 같은 비밀 통로로 전쟁 전체를 끝내지 않는다.
+The work uses the record’s broad actions: five days after agreement the gate opens, Tang enters and burns the gatehouse. Namgeon wounds himself but survives and is captured. Strong troops blocking outside do not eliminate access authority and betrayal inside. The gate-openers’ choices must work through actual routes and authority, not end the whole war with a magical secret passage.
 
-남건은 당에서 처형되지 않고 검주로 유배된다. 남생 묘지는 남생이 동생의 죽음을 면하게 해 달라고 청원한 일을 칭송한다. 작품은 그 청원을 사용하되 헌충의 죽음을 용서하거나 형제가 화해한 행위로 만들지 않는다. 남생은 자기 아들을 죽인 책임을 그대로 남기면서, 또 다른 가족을 죽이는 최종 판결까지 자신이 원했다고 남기지는 않으려 한다. 목숨을 살리는 선택과 용서의 감정은 같은 값이 아니다. 묘지가 이 청원을 남생의 덕으로 칭송하는 것은 묘지라는 자료의 관점이며, 서술자는 그 칭송을 남생에 대한 평가로 옮기지 않는다. 서술자가 기록을 다루는 기준은 [확인한 기록과 구성한 장면의 간격](../010-work/020-voice-owners.md#record-and-reconstruction)이 정한다.
+Namgeon is exiled to Geomju, not executed in Tang. Namsaeng’s epitaph praises his petition to spare his brother. The work uses the petition without making it forgiveness for Heonchung’s death or reconciliation. Namsaeng leaves responsibility for his son’s death intact while not wishing the final judgment to be that he wanted another family member killed. Saving a life and forgiving are distinct. The epitaph’s praise is its own perspective; the narrator does not adopt it as an assessment of Namsaeng. [The gap between record and constructed scene](../010-work/020-voice-owners.md#record-and-reconstruction) owns the narrator’s treatment of records.
 
-고정한 내응의 실행 제약은 신성의 지휘 아래 오사가 통용문의 야간 교대·잠금·출입을 움직이고, 요묘가 안쪽 길목의 순찰과 교대를 먼저 바꾸어 성 안 병력이 문 앞에 모이는 것을 막는다는 것이다. 요묘는 접근 군사의 통로를 맞추고 오사는 실제 문을 여는 권한을 쓴다. 당과 약속한 닷새 뒤 행동한다는 경계는 기록의 큰 순서와 연결한 작품 복원이다. 개별 문답·신호·관객의 발견 시점은 treatments가 결정한다. 장소의 출입 배치와 인물의 직무는 이 실행 제약을 각각 반복 전개하지 않는다.
+Fixed execution constraints: under Sinseong, Osa controls the postern’s night shift, lock, and access; Yomyo first changes patrols and shifts on the inner approach to prevent fortress troops assembling before the gate. Yomyo arranges the approaching troops’ route, Osa exercises authority to open the gate. Acting five days after the Tang agreement is the work’s reconstruction connected to the record’s broad order. Treatments decide individual exchanges, signals, and when the audience discovers them. Place access and character duties do not each repeat these execution constraints.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『삼국사기』 평양 함락과 남산·남건·신성](https://db.history.go.kr/ancient/level.do?levelId=sg_022_0020_0460), [구당서의 내응 닷새와 자해 생존](https://db.history.go.kr/item/compareViewer.do?levelId=jo_014_0010_0010_0280), [「천남생묘지」의 남건 감형 청원](https://portal.nrich.go.kr/kor/ksmUsrView.do?ksm_idx=2744&menuIdx=584).
+Sources: [The fall and Namsan, Namgeon, and Sinseong, Samguk Sagi](https://db.history.go.kr/ancient/level.do?levelId=sg_022_0020_0460), [five days and survival after self-injury, Old Book of Tang](https://db.history.go.kr/item/compareViewer.do?levelId=jo_014_0010_0010_0280), [petition for Namgeon’s life, Namsaeng epitaph](https://portal.nrich.go.kr/kor/ksmUsrView.do?ksm_idx=2744&menuIdx=584).

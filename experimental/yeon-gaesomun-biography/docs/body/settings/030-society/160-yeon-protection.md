@@ -1,17 +1,15 @@
-# 연개소문이 이행하는 보호
+# The protection Yeon Gaesomun delivers
 
-정전 안내: [이 대상의 위치](../outline/index.md#030-society--160-yeon-protection).
+Canon guide: [Location of this subject](../outline/index.md#030-society--160-yeon-protection).
 
-## 연개소문이 이행하는 보호 {#yeon-protection}
+## The protection Yeon Gaesomun delivers {#yeon-protection}
 
-**정의·범위**
+**Definition and scope**
 
-연개소문은 학살 소식에 대한 분노를 군사적으로 이용하는 데서 멈추지 않는다. 다음 전쟁에도 위험한 임무를 맡길 사람들이라면, 그 가족의 생계와 살아남은 사람들의 대우부터 고구려가 책임져야 한다고 판단한다. 전사자의 집에 군역을 거듭 몰아주지 않고, 유족이 교역 거점에서 곡식과 도구를 받을 자리를 보장한다. 부상자가 치료받고 귀향할 때는 중앙 군관을 붙인다. 이 조치들은 작품이 구성한 내용이며, 각 조치의 실재를 개별 사료로 입증했다고 제시하지 않는다.
+Yeon Gaesomun does more than exploit anger at news of the massacre militarily. If these people are to be entrusted with dangerous missions in the next war, he judges that Goguryeo must first take responsibility for surviving families’ livelihood and survivors’ treatment. He does not repeatedly load military service onto fallen soldiers’ households and guarantees bereaved families a place to receive grain and tools at trading posts. Central officers accompany wounded people receiving treatment and returning home. These measures are constructed for the work; do not present each as individually proven by historical sources.
 
-**확정 내용**
+**Established facts**
 
+Nobles who have already lost their own troops may regard support for bereaved families elsewhere as favoritism. Yeon suppresses opposition with the principle that people who died in the same war should receive equal protection. If supplies fail to arrive on time after he proclaims it, he actually replaces those responsible for transport and distribution. Reassurance is not a single great gift but repeated handling that lets residents expect protection in the next service as well.
 
-자기 병력을 이미 잃은 귀족들은 다른 지역 유족에게 가는 지원을 특혜로 볼 수 있다. 연개소문은 같은 전쟁에서 죽은 사람이라면 같은 보호를 받아야 한다는 기준으로 반발을 누른다. 그 기준을 선포한 뒤 물자가 제때 도착하지 않으면 수송과 배분 책임자를 실제로 바꾼다. 위무는 큰 선물을 한 번 베푸는 데 그치지 않고, 주민이 다음 군역에서도 보호를 기대할 수 있는 반복된 처리로 자리 잡는다.
-
-
-편입 지역 지휘자에게는 임무와 병력을 맡기는 동시에 결과와 보고의 책임을 요구한다. 연개소문은 자신의 엄격함을 타인에게도 요구한다. 지휘자와 맺는 관계는 이런 통치의 연장이며, 온정만으로 생긴 우정은 아니다. 한편 지역 지휘자가 자신을 낮춰 부르는 중앙 군관과 다툴 때, 그 다툼을 곧바로 불충으로 단정하지 않는 판단도 필요하다. 선대의 교역과 교육으로 마련된 기반 위에서 연개소문은 이런 갈등을 다루고 실제 보호와 권한을 보장한다.
+He entrusts incorporated-region commanders with missions and troops while requiring responsibility for results and reports. He demands of others the strictness he demands of himself. Relations with commanders extend this governance, rather than forming a friendship through warmth alone. When a regional commander quarrels with a central officer who addresses him condescendingly, Yeon must also judge without immediately calling it disloyalty. On foundations laid by earlier trade and education, he handles such conflicts and guarantees actual protection and authority.

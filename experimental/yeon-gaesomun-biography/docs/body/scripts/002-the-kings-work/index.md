@@ -1,3 +1,3 @@
-# 죽인 왕의 일
+# The work of the king he killed
 
-- [죽인 왕의 일](001-the-kings-work.md)
+- [The work of the king he killed](001-the-kings-work.md)

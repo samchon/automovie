@@ -1,18 +1,17 @@
-# 조부 자유의 이름
+# The name of grandfather Jayu
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--003-jayu).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--003-jayu).
 
-## 조부 자유의 이름 {#jayu}
+## The name of grandfather Jayu {#jayu}
 
-**정의·범위**
+**Definition and scope**
 
-개소문의 조부 자유와 아버지 태조는 묘지에 남은 가계에서 모두 막리지를 지낸 인물로 기록된다. 집안은 개소문이 태어나기 전부터 그 관력에 기대어 명성을 지녔다. 집안사람과 외부 귀족이 자유의 이름을 들먹이는 것은 가문이 이미 얻은 권리를 주장하기 위해서다. 그 이름이 개소문 자신의 전공을 대신해 주지는 못한다.
+The genealogy preserved in the epitaph records that Gaesomun’s grandfather Jayu and father Taejo both held the office of mangniji. The family’s reputation rested on that record of office before Gaesomun was born. Family members and outside nobles invoke Jayu’s name to claim rights the family already possesses; it cannot stand in for Gaesomun’s own achievements.
 
-**확정 내용**
+**Established facts**
 
+Jayu does not meet Gaesomun directly in the main story. His birth and death dates, face, and voice are not revealed there.
 
-자유는 본편에서 개소문과 직접 만나는 인물로 등장하지 않는다. 언제 태어나고 죽었는지, 얼굴과 목소리가 어떠했는지도 본편에는 드러나지 않는다.
+**References and unresolved matters**
 
-**참조·미결**
-
-Sources: [남생 묘지에 기대는 가계 주석](https://db.history.go.kr/id/sg_049r_0030_0010).
+Sources: [Genealogical annotation based on Namsaeng’s epitaph](https://db.history.go.kr/id/sg_049r_0030_0010).

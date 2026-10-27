@@ -1,108 +1,108 @@
-# 당의 빠른 회복을 본 영류왕
+# King Yeongnyu sees Tang's rapid recovery
 
-정전 안내: [이 대상의 위치](../outline/index.md#020-world--090-second-restoration-and-tang).
+Canon guide: [where to find this subject](../outline/index.md#020-world--090-second-restoration-and-tang).
 
-## 당의 빠른 회복을 본 영류왕 {#second-restoration-and-tang}
+## King Yeongnyu sees Tang's rapid recovery {#second-restoration-and-tang}
 
-**정의·범위**
+**Definition and scope**
 
-수와의 전쟁이 끝난 뒤 영류왕은 피폐해진 나라의 사람과 생산을 회복하는 데 힘을 쏟는다. 작품에서 그의 통치는 두 번째 재건이다. 그는 중국의 분열이 오래갈 수도 있다고 보고, 고구려가 먼저 회복해야 한다고 생각한다. 중원의 인구가 이전의 3분의 1 수준이라는 소문과 판단은 작품 속 국력 인식이며, 실제 인구 감소율이나 정확한 호구 집계의 검증 결과는 아니다.
+After the Sui wars, Yeongnyu works to restore people and production in the devastated country. In the work his reign is the second reconstruction. He considers that China's division may last and believes Goguryeo must recover first. Rumor and judgment that the Central Plain's population has fallen to one third its former level are perceptions of national strength in the work, not verified population decline or exact household counts.
 
-**확정 내용**
-
-
-당이 빠르게 강해지자 영류왕은 화친하고 상대의 체면을 맞추는 외교로 시간을 얻으려 한다. 왕 말년에는 북방을 다녀온 교역자와 사신에게서 들은 준비 소식, 요동 관리들이 받은 물자 이동 보고를 중앙 군사 귀족들이 맞춰 보며 침공 위험을 알아차린다. 이들이 얻는 것은 준비의 조짐이며 당의 정확한 원정 계획 전체가 아니다. 연개소문은 같은 조짐을 왕의 정책이 실패했다는 근거로 읽고 자신의 강경론을 지지할 사람들을 얻는다.
+**Established content**
 
 
-641년 사행을 온 진대덕은 고구려의 지리와 사정을 탐문했다. 기록은 고구려 사람들이 그 염탐을 몰랐다고 전한다. 작품에서도 그의 사행을 현장에서 발각된 군사적 증거로 삼지 않는다. 왕과 연개소문은 다른 경로로 준비의 조짐을 받는다. 독자는 그 조짐과 진대덕이 당에 보고한 정보를 인물들보다 먼저 이어 볼 수 있다.
-
-**참조·미결**
-
-Sources: [《삼국사기》 권20 영류왕 24년 「당의 진대덕이 사행을 와서 염탐하다」](https://db.history.go.kr/ancient/level.do?levelId=sg_020r_0030_0210)
-
-## 618년 즉위와 천하대란을 둔 논쟁 {#great-turmoil-debate}
-
-**정의·범위**
-
-618년 가을 9월 영양왕이 죽고 이복동생 고건무가 왕위에 오른다. 같은 해 수양제가 죽고 당이 일어서지만, 중원은 아직 여러 세력으로 갈라져 있다. 이 천하대란을 두고 수 전쟁을 겪은 장년층 안에서 판단이 갈린다. 어느 쪽도 겁이나 무모함이 아니라 같은 전쟁 경험에서 나온 다른 결론이다.
-
-**확정 내용**
+As Tang rapidly grows stronger, Yeongnyu seeks time through peaceful relations and diplomacy respecting the other side's standing. Late in his reign, central military nobles compare news of preparations from traders and envoys who visited the north with supply-movement reports received by Liaodong officials, recognizing invasion danger. They learn signs of preparation, not Tang's complete exact expedition plan. Yeon Gaesomun reads the same signs as evidence of the king's policy failure and gains supporters for his hard line.
 
 
-영류왕 쪽은 고구려 역시 소진되었으니 지금은 나라를 복구할 때라고 본다. 중국의 분열이 얼마나 지속되고 누가 얼마나 빨리 통일할지는 그때 확정할 수 없었다. 왕은 원정을 일으키지 않고 사람과 생산의 회복, 사신 왕래를 택한다. 왕의 곁에서 이 판단을 말하는 장년 무장은 612년 외성의 싸움을 함께 치른 [석우](../040-agents/117-seogu.md#seogu)다. 그는 태조의 집 손님 자리에서도 태조와 맞선다.
+In 641 Chen Dade came on an embassy and investigated Goguryeo's geography and conditions. The record says Goguryeo people did not know he was spying. The work does not treat his embassy as military evidence discovered on the spot. The king and Gaesomun receive signs of preparations by other routes. Readers can connect those signs and information Chen reported to Tang before the characters do.
+
+**References and unresolved matters**
+
+Sources: [Samguk Sagi volume 20, Yeongnyu 24: Tang's Chen Dade comes as envoy and spies](https://db.history.go.kr/ancient/level.do?levelId=sg_020r_0030_0210)
+
+## Accession in 618 and debate over the great turmoil {#great-turmoil-debate}
+
+**Definition and scope**
+
+In autumn, ninth month, 618, Yeongyang dies and his half-brother Go Geonmu takes the throne. That year Emperor Yang of Sui dies and Tang rises, but the Central Plain remains divided among several powers. Adults who experienced the Sui wars differ over this great turmoil. Neither side is simply afraid or reckless; they draw different conclusions from shared experience.
+
+**Established content**
 
 
-맞서는 쪽은 중원이 갈라진 이때 한 번 크게 쳐 두어야 뒷날이 평화롭다고 본다. 이들은 왕을 반대하는 무리가 아니다. [태조](../040-agents/002-taejo.md#taejo)처럼 기본적으로 영류왕을 지지하는 무장 가운데에도 이 판단을 가진 사람이 있다. 논쟁은 왕궁의 회의와 귀족의 집에서 오가며, 왕이 결정한 뒤에도 무장들의 말 속에 남는다.
+Yeongnyu's side believes Goguryeo is exhausted too and must now rebuild. No one could then know how long China's division would last or who would reunify it how quickly. Rather than launch an expedition, the king chooses recovery of people and production and exchange of envoys. [Seogu](../040-agents/117-seogu.md#seogu), an adult commander who fought with him at the outer fortress in 612, voices this judgment beside the king. Seogu also opposes Taejo as a guest at his home.
 
 
-원정론의 구체는 이렇다. 태조가 말하는 원정은 중원으로 깊이 들어가는 대군이 아니라 요하 서쪽을 향한다. 수가 무너진 지금 요서에 남은 수의 거점들은 주인을 잃고 흔들린다는 것이 그가 들은 소식이다. 추수가 끝난 겨울 한 철에 정예와 말갈 기병 수천으로 요하를 건너 그 거점들을 깨고 돌아오면, 대군을 움직이지 않으니 밭은 비지 않고, 군량은 깬 거점의 창고에서 얻는다. 요하 서쪽에 발판이 없으면 누가 중원을 다시 합치든 다음 원정을 준비하는 데 몇 해가 더 든다는 것이 그가 말하는 뒷날의 평화다. 석우는 598년의 선례로 답한다. 그해 봄 영양왕이 말갈 군사 만여를 거느리고 요서를 쳤다가 영주 총관에게 밀려났고, 수문제는 그 일을 들어 수륙 30만의 원정을 보냈다. 한 철의 원정도 새 주인에게 칠 명분을 주고, 돌아오지 못한 사람의 밭은 빈다는 것이다.
+The opposing side believes one great strike while the Central Plain is divided will secure later peace. They are not opponents of the king. Some commanders who generally support Yeongnyu, like [Taejo](../040-agents/002-taejo.md#taejo), hold this view. The debate takes place in palace council and noble homes and remains in commanders' speech after the king decides.
 
 
-630년 동돌궐이 무너진 뒤 태조의 처방은 바뀐다. 요서를 칠 때는 지났다고 인정하면서도, 장성에 쓸 사람과 곡식을 요동 성들의 정예와 기병을 기르는 데 먼저 쓰자고 한다. 성을 늘리는 것은 적이 원하는 곳에서 싸워 주는 일이고, 적이 오기 전에 야전에서 맞설 군대를 길러 두어야 한다는 것이다. 석우는 장성이 시간을 사는 동안에도 기병은 기를 수 있다고 답하며, 사람과 곡식은 둘을 한꺼번에 감당하지 못한다는 태조의 반박을 받는다.
+The proposed expedition has specifics. Taejo envisions not a large army deep into the Central Plain but an attack west of the Liao River. News he has heard says Sui positions in Liaoxi have lost their master and are unstable. In one winter after harvest, several thousand elite and Malgal cavalry could cross the Liao, break those positions, and return; without moving a large army, fields would not be emptied, and provisions could come from captured stores. Without a foothold west of the Liao, whoever reunifies the Central Plain would need several more years to prepare the next expedition: that is his promised later peace. Seogu answers with 598. That spring Yeongyang led more than 10,000 Malgal troops into Liaoxi and was repelled by the Yingzhou commander; Emperor Wen of Sui cited that attack in sending a land and naval expedition of 300,000. Even one season's expedition gives a new ruler grounds to strike, and fields of people who do not return lie empty.
 
 
-그 시절 아이였던 개소문 세대는 이 논쟁에 끼지 못한 채 어른들의 한쪽 말을 물려받는다. 당의 빠른 재통일을 본 뒤에는 그 말이 "선배들이 기회를 놓쳤다"는 비난으로 굳는다. 고건무가 642년에 말하는 결과론의 문제는 이 차이에서 나온다.
+After the Eastern Turks fall in 630, Taejo's prescription changes. He admits the time to strike Liaoxi has passed, but proposes using people and grain meant for the long wall first to cultivate elite troops and cavalry at Liaodong fortresses. More walls mean fighting where the enemy wants; a field army should be prepared before the enemy comes. Seogu answers that cavalry can still be raised while the wall buys time; Taejo counters that people and grain cannot support both at once.
 
-**조건·한계**
 
-논쟁의 자리와 참여자, 태조와 석우의 입장, 요서 원정 구상과 630년의 처방은 작품의 구성이다. 598년 영양왕의 요서 침공과 수문제의 30만 원정은 기록이다.
+Gaesomun's generation, children then, cannot join the debate and inherits one side of adult speech. After Tang's rapid reunification, it hardens into blame that their elders missed the chance. The problem of hindsight Geonmu describes in 642 comes from this difference.
 
-**참조·미결**
+**Conditions and limits**
 
-Sources: [『삼국사기』 권20 영양왕 9년·29년과 영류왕 즉위](https://zh.wikisource.org/wiki/三國史記/卷20).
+The debate's settings and participants, Taejo's and Seogu's positions, the Liaoxi expedition concept, and the 630 prescription are the work's construction. Yeongyang's 598 Liaoxi attack and Emperor Wen's expedition of 300,000 are recorded.
 
-## 화친의 해들, 619~629년 {#tribute-years-619-629}
+**References and unresolved matters**
 
-**정의·범위**
+Sources: [Samguk Sagi volume 20, Yeongyang years 9 and 29 and Yeongnyu's accession](https://zh.wikisource.org/wiki/三國史記/卷20).
 
-618년 즉위 뒤 영류왕이 당과 화친하며 보낸 해들의 기록과, 평양 사람들이 그것을 읽는 방식을 정한다. 『삼국사기』 권20은 이 기간의 사신과 교섭을 해마다 짧게 적는다. 이 기록들은 [천하대란을 둔 논쟁](#great-turmoil-debate)이 왕의 결정 뒤에도 무장들의 말 속에 남아 되살아나는 계기가 된다.
+## Years of peace, 619–629 {#tribute-years-619-629}
 
-**확정 내용**
+**Definition and scope**
 
-| 해 | 기록 | 복구 쪽의 읽기 | 강경한 쪽의 읽기 |
+Establish the recorded years after Yeongnyu's 618 accession in which he maintained peace with Tang, and how Pyongyang people read them. Samguk Sagi volume 20 briefly records embassies and negotiations by year. These records give opportunities for [the great turmoil debate](#great-turmoil-debate) to revive in commanders' speech after the king's decision.
+
+**Established content**
+
+| Year | Record | Reconstruction side's reading | Hard-line side's reading |
 | --- | --- | --- | --- |
-| 619 | 봄 2월 당에 사신을 보내 조공한다. 여름 4월 왕이 졸본에 가 시조묘에 제사하고 5월 돌아온다. | 새 왕이 나라 안과 밖에 자리를 알린다. | 즉위 이듬해 첫 봄에 새 왕조에 먼저 사신을 보낸다. |
-| 622 | 당 고조의 글이 온다. 글은 당에 있는 고구려 사람을 이미 찾게 하여 곧 보내겠다 하고, 고구려에 있는 중국 사람을 돌려보내라고 청한다(「在此所有高句麗人等，已令追括，尋卽遣送，彼處所有此國人者，王可放還」). 고구려는 중국 사람을 모두 찾아 돌려보내고, 그 수는 1만여 명에 이른다. | 수 전쟁 때 끌려간 우리 사람을 되찾는 교환이며, 화친의 값을 치러 당이 칼을 들 핑계를 줄인다. | 당이 돌려보낼 고구려 사람이 몇인지는 글에 없는데, 이쪽은 1만여 명을 모두 내준다. 열 해 가까이 이 땅에서 일한 사람을 먼저 내주는 것은 이긴 나라가 손에 쥔 것을 먼저 놓는 일이다. |
-| 624 | 봄 2월 당에 역법을 청한다. 당은 왕을 상주국 요동군공 고구려국왕으로 책봉하고, 도사를 보내 천존상과 도법을 가지고 『노자』를 강론하게 하며 왕과 나라 사람이 듣는다. | 책봉은 이름일 뿐이고 그 이름으로 몇 해의 평화를 산다. | 당의 역법과 책봉을 받는 것은 당이 정한 해와 이름 아래로 들어가는 일이다. |
-| 625 | 사람을 당에 보내 불교와 도교의 가르침을 배우기를 청하고 당 황제가 허락한다. | 배울 것은 배운다. | 배우러 가는 쪽이 아래가 된다. |
-| 626 | 신라와 백제가 당에 고구려가 길을 막고 자주 침략한다고 호소한다. 당이 산기시랑 주자사를 보내 화해를 권하자 왕이 표를 올려 사죄하고 두 나라와 화평을 청한다. | 남쪽과 서쪽을 함께 적으로 만들지 않는다. | 남쪽 나라의 호소 하나에 왕이 당에 사죄한다. |
-| 629 | 가을 8월 신라 장군 김유신이 동쪽 변경을 쳐 낭비성을 깨뜨린다. 9월 고구려는 당에 사신을 보내 조공한다. | 남쪽의 성 하나를 잃어도 큰 전쟁을 열지 않는다. | 화친하는 동안 남쪽에서 성을 잃는다. |
+| 619 | In spring month two, an envoy brings tribute to Tang. In summer month four the king goes to Jolbon to sacrifice at the founder's shrine and returns in month five. | The new king establishes himself at home and abroad. | In the first spring after accession, he sends first to the new dynasty. |
+| 622 | A letter from Tang Gaozu says he has ordered Goguryeo people in Tang found and will send them back, and asks the king to return Chinese people in Goguryeo (「在此所有高句麗人等，已令追括，尋卽遣送，彼處所有此國人者，王可放還」). Goguryeo finds and returns all the Chinese, more than 10,000. | An exchange to recover our people taken in the Sui wars; the price of peace reduces Tang's excuse to raise a sword. | The letter does not say how many Goguryeo people Tang will return, yet we give up over 10,000. Releasing people who worked here nearly ten years first means the victor gives up what it holds first. |
+| 624 | In spring month two Goguryeo requests a calendar. Tang invests the king as Sangjuguk, Duke of Liaodong and King of Goguryeo, and sends Daoists with a Heavenly Venerable image and teachings to lecture on the Laozi, heard by king and people. | Investiture is only a name, and buys years of peace. | Accepting Tang's calendar and investiture places us under its years and names. |
+| 625 | Goguryeo asks to send people to Tang to learn Buddhist and Daoist teachings; the emperor permits it. | Learn what can be learned. | The one who goes to learn is subordinate. |
+| 626 | Silla and Baekje complain to Tang that Goguryeo blocks routes and frequently invades. Tang sends Zhu Zishe, a court official, to urge reconciliation; the king submits an apology and asks peace with both countries. | Do not make enemies south and west at once. | One southern complaint makes the king apologize to Tang. |
+| 629 | In autumn month eight, Silla general Kim Yusin attacks the eastern frontier and breaks Nangbiseong. In month nine Goguryeo sends tribute to Tang. | Losing one southern fortress need not open a major war. | A southern fortress is lost while pursuing peace. |
 
-평양에서는 이 소식이 사신의 귀환과 왕궁의 회의, 귀족의 집을 거쳐 퍼진다. 같은 기록을 두고 복구 쪽은 시간을 사는 값으로, 강경한 쪽은 굴욕으로 읽으며, 두 읽기 모두 그때 사람들이 할 수 있던 판단이다. 619년 4월의 졸본 행차 때 평양 거리는 왕의 행렬을 본다.
+In Pyongyang these reports spread through returning envoys, palace councils, and noble homes. The reconstruction side reads the same records as the price of buying time, the hard-line side as humiliation; both are judgments people could make then. During the Jolbon journey in month four of 619, Pyongyang's streets see the royal procession.
 
-**조건·한계**
+**Conditions and limits**
 
-기록은 각 해의 사신·책봉·사죄의 사실만 전하고, 고구려 안에서 그것을 두고 오간 말은 남기지 않았다. 표의 두 읽기와 평양에 소식이 퍼지는 경로는 작품의 구성이다. 629년 낭비성의 위치와 싸움의 경과는 정하지 않으며, 평양에는 패전 보고로만 닿는다. 그 싸움을 이끈 사람은 [김유신](../040-agents/066-kim-yusin.md#kim-yusin)이지만, 이때 평양 사람들에게 그는 이름이 처음 들리는 신라 장수다.
+The record gives facts of envoys, investiture, and apology in each year, not conversations inside Goguryeo. The table's two readings and the route of news through Pyongyang are the work's construction. Do not fix Nangbiseong's location or course of battle in 629; only a defeat report reaches Pyongyang. [Kim Yusin](../040-agents/066-kim-yusin.md#kim-yusin) led it, but to Pyongyang people then he is a Silla general whose name they hear for the first time.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『삼국사기』 권20 영류왕 2·4~9·11·12년](https://zh.wikisource.org/wiki/三國史記/卷20).
+Sources: [Samguk Sagi volume 20, Yeongnyu years 2, 4–9, 11, and 12](https://zh.wikisource.org/wiki/三國史記/卷20).
 
-## 당의 재통일과 경관 훼손, 장성의 시작 {#tang-unification-and-wall}
+## Tang reunification, destruction of the victory monument, and the long wall {#tang-unification-and-wall}
 
-**정의·범위**
+**Definition and scope**
 
-628년부터 631년 사이 당의 힘이 고구려에 닿는 순서를 정한다. 628년 여름 4월 마지막 할거 세력인 하주의 양사도가 무너져 당이 중원을 다시 통일한다. 630년 3월에는 당군이 동돌궐의 힐리가한을 사로잡아 장안에 바치고, 북방의 가장 큰 적이 무너진다. 631년 당은 광주사마 장손사를 보내 수 전쟁에서 죽은 병사의 해골을 묻고 제사하게 하며, 고구려가 승리를 기념해 쌓은 경관을 헌다. 작품은 이 훼손과 평양에 소식이 닿는 때를 같은 해 봄 2월 장성 착공보다 앞으로 옮긴다. 기록에 남은 늦은 사행과 다른 창작 연대이며, 그 충돌은 아래 조건에 밝힌다. 영류왕은 봄 2월 사람을 동원해 장성을 쌓기 시작한다.
+Establish the order in which Tang's strength reaches Goguryeo from 628 to 631. In summer month four of 628 the last regional power, Liang Shidu of Xiazhou, falls and Tang reunifies the Central Plain. In month three of 630 Tang captures Illig Qaghan of the Eastern Turks and presents him in Chang'an, defeating its largest northern enemy. In 631 Tang sends Zhangsun Shi, a Guangzhou official, to bury and sacrifice to the bones of soldiers killed in the Sui wars and destroys Goguryeo's victory monument. The work moves this destruction and news reaching Pyongyang before construction of the long wall in spring month two of that year. This fictional chronology differs from the recorded later embassy; the conflict is explained below. Yeongnyu mobilizes people to begin the wall in spring month two.
 
-**확정 내용**
-
-
-경관은 수 전쟁에서 죽은 적병의 주검을 쌓아 고구려가 세운 승전의 표지다. 당이 이것을 허는 일은 수의 전사자를 자기 나라의 죽은 이로 거두겠다는 뜻이자, 고구려의 승리를 지우는 압박으로 평양에 전해진다. 영류왕은 화친을 깨지 않으면서 방비를 함께 택한다. 장성은 동북의 부여성에서 바다에 이르는 천여 리이며, 16년에 걸쳐 완공된다.
+**Established content**
 
 
-평양의 무장과 귀족은 이 소식을 사신·교역자·요동의 보고로 시차를 두고 받는다. 630년 전후 열여섯 해를 산 개소문은 당의 통일과 돌궐의 붕괴, 경관 훼손을 연달아 들으며, 왕의 화친과 장성 축조를 점점 나약함으로 읽는다. 같은 소식을 영류왕은 당이 이제 동쪽으로 힘을 돌릴 수 있다는 경고로 읽고, 성을 쌓아 시간을 번다. 당의 통일과 동돌궐의 붕괴도 이미 방비를 재촉하는 조건이므로 경관 훼손 하나를 장성의 기록된 유일 원인으로 삼지 않는다. 왕과 소년은 작품에서 앞당긴 보고가 실제로 닿은 뒤에만 훼손을 안다. 역사 기록의 뒤늦은 7·8월 사행을 2월 전에 미리 아는 것이 아니며, 서로 다른 보고의 정확한 수신일이나 실제 장면·공개 순서는 여기서 정하지 않는다.
+The victory monument was built by Goguryeo from the bodies of enemy soldiers killed in the Sui wars. Its destruction reaches Pyongyang both as Tang claiming Sui's dead as its own and as pressure erasing Goguryeo's victory. Yeongnyu chooses defense while maintaining peace. The long wall extends more than a thousand ri from Buyeoseong in the northeast to the sea and takes sixteen years to complete.
 
 
-『삼국사기』는 힐리가한을 사로잡은 일을 축하하는 사신과 봉역도를 영류왕 11년(628) 가을 9월 기사에 싣는다. 힐리가 사로잡힌 때는 630년 3월이므로, 작품은 그 사신과 봉역도를 630년 가을의 일로 읽는다.
+Commanders and nobles in Pyongyang receive the news at different times through envoys, traders, and Liaodong reports. Gaesomun, about sixteen around 630, hears Tang's unification, Turkic collapse, and monument destruction in succession and increasingly reads the king's peace and wall-building as weakness. Yeongnyu reads the same news as warning that Tang can now turn east and buys time by building defenses. Tang's unification and the Eastern Turks' fall already press the need for defense, so do not treat monument destruction alone as the recorded sole cause of the wall. The king and boy know of destruction only after the work's advanced report actually arrives. They do not know the historically later seventh- or eighth-month embassy before month two; exact receipt dates or scene and disclosure order of the different reports are not set here.
 
-**조건·한계**
 
-『삼국사기』 영류왕 14년 기사는 경관 훼손의 월을 쓰지 않은 채 뒤에 봄 2월 장성 착공을 싣는다. 그 배열만으로 실제 훼손의 선행을 확정할 수는 없다. 공개 『구당서』 권3 정관 5년 본문은 1월·4월·6월 기사 뒤 7월 갑진에 고구려 경관을 헐고 수 전사자의 유골을 수습하게 한 사행을 적는다.
+Samguk Sagi places an envoy congratulating the capture of Illig and a territorial map in Yeongnyu 11, autumn month nine (628). Since Illig was captured in month three of 630, the work reads the embassy and map as autumn 630.
 
-국사편찬위원회 같은 기사의 주003은 『책부원귀』의 7월 장손사 파견·8월 수습과 다른 기록들의 8월 기사를 소개한다. 이 주석이 『구당서』도 8월로 부르는 것과 위 공개 본문의 7월 표기는 다르며, 판본 차이를 해소했다고 주장하지 않는다. 어느 늦은 월을 따르든 봄 2월 뒤라는 점은 같다. 주석이 별도로 소개하는 2월의 일반적인 경관 철폐 조서는 여러 주의 신구 경관을 대상으로 한다. 이를 고구려에 보낸 특정 사행이나 평양의 소식 도착과 같은 사건으로 합치지 않는다.
+**Conditions and limits**
 
-작품은 승전의 기억이 훼손되는 압박과 그것을 다르게 받아들이는 왕·소년의 관계를 유지하기 위해 훼손과 보고를 앞당긴 기존 순서를 채택한다. 이는 기사 배열에서 얻은 작가의 구성이지 기록들이 일치하는 역사 연대가 아니다. 실제 7·8월 사행과 별개의 두 번째 훼손 사건을 덧붙여 맞추지 않는다. 장성의 정확한 노선과 해마다의 공사 구간은 정하지 않는다.
+The Samguk Sagi entry for Yeongnyu 14 does not give a month for monument destruction and later includes wall construction in spring month two. That sequence alone cannot establish destruction actually preceded it. The public Old Book of Tang volume 3, Zhenguan 5, after entries for months one, four, and six, places the mission to destroy Goguryeo's monument and recover Sui dead on a gap-jin day in month seven.
 
-**참조·미결**
+Note 003 to the same National Institute of Korean History entry introduces Cefu Yuangui's dispatch of Zhangsun Shi in month seven and recovery in month eight, alongside other eighth-month records. The note calls Old Book of Tang's date month eight, differing from month seven in the public text above; do not claim to resolve the edition difference. Either late month is after spring month two. A general edict for monument removal in month two, separately introduced in the note, concerns old and new monuments across several prefectures. Do not merge it with the specific embassy to Goguryeo or arrival of news in Pyongyang.
 
-Sources: [『삼국사기』 권20 영류왕 11년·14년](https://zh.wikisource.org/wiki/三國史記/卷20), [『구당서』 권2 정관 2년 4월 양사도의 멸망](https://zh.wikisource.org/wiki/舊唐書/卷2), [『구당서』 권3 정관 4년 3월 힐리가한의 사로잡힘·5년 7월 경관 훼손 사행](https://zh.wikisource.org/wiki/舊唐書/卷3), [국사편찬위원회, 『삼국사기』 영류왕 14년 경관 훼손 기사와 주003](https://db.history.go.kr/ancient/level.do?levelId=sg_020r_0030_0150).
+The work adopts the existing advanced sequence of destruction and report to preserve the pressure of violated victory memory and king and boy receiving it differently. This is an authorial construction from the entry sequence, not a historical chronology on which records agree. Do not add a second destruction separate from the actual seventh- or eighth-month embassy to reconcile them. Exact wall route and annual construction sections are not fixed.
+
+**References and unresolved matters**
+
+Sources: [Samguk Sagi volume 20, Yeongnyu years 11 and 14](https://zh.wikisource.org/wiki/三國史記/卷20), [Old Book of Tang volume 2, Zhenguan 2, month four: Liang Shidu's fall](https://zh.wikisource.org/wiki/舊唐書/卷2), [Old Book of Tang volume 3, Zhenguan 4, month three: capture of Illig; year 5, month seven: monument mission](https://zh.wikisource.org/wiki/舊唐書/卷3), [National Institute of Korean History, Yeongnyu 14 monument entry and note 003](https://db.history.go.kr/ancient/level.do?levelId=sg_020r_0030_0150).

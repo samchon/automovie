@@ -1,332 +1,332 @@
 
-# 살아 남은 아들
+# The son left living
 
-## 나라가 막아 주지 못한 선택 {#t038-namsaeng-chooses-destructive-aid}
+## A choice the country could not prevent {#t038-namsaeng-chooses-destructive-aid}
 
-제작자용 구획 표기.
+Section labels for producers.
 
-《대막리지》 최종 시청각 대본 · 제6부
+*Daemangniji* final audiovisual script · Part 6
 
-[사건 부모](../../../body/treatments/038-the-country-no-longer-decides.md#namsaeng-chooses-destructive-aid) · [장면 부모](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t038-namsaeng-chooses-destructive-aid)
+[Event parent](../../../body/treatments/038-the-country-no-longer-decides.md#namsaeng-chooses-destructive-aid) · [Scene parent](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t038-namsaeng-chooses-destructive-aid)
 
-화면 글 ‘666년, 국내성’. 헌성이 남생 앞에 선다. 아버지가 묻지 않는 동안 아들이 먼저 당 원조를 말한다.
+On-screen text: “666, Gungnaeseong.” Heonseong stands before Namsaeng. While his father does not ask, the son speaks first of Tang aid.
 
-**헌성**　아버지께 돌아오라 해 놓고 처형 명을 보냈습니다. 거기로 가서는 저희도 살아남지 못합니다. 제가 당에 원조를 청하겠습니다. 우리 성과 사람, 창고를 움직일 힘이 저들에게도 값이 될 겁니다. 그 값으로 조건을 의논하겠습니다.
+**HEONSEONG**　They told you to return, then sent an execution order. We won't survive going there. I'll ask Tang for help. Our ability to move the fortress, people, and stores will have value to them too. I'll negotiate terms with that.
 
-**남생**　그들이 그 길로 여기까지 들어오겠지. 왕과 남건을 치고 멈출 까닭은 없다.
+**NAMSAENG**　They'll come in along that road. They have no reason to stop after striking the king and Namgeon.
 
-**헌성**　그래도 보내시겠습니까?
+**HEONSEONG**　Will you still send me?
 
-남생이 헌충 소식을 받았던 문서에서 눈을 떼어 아들을 본다.
+Namsaeng looks up from the document bringing Heonchung's news and sees his son.
 
-**남생**　나라가 무너질 위험도 안다. 그래도 네 형의 죽음을 만든 이들을 칠 힘을 얻을 수 있다면 물러서지 않겠다. 네가 넘긴다고 약속할 사람과 물자는 우리 권한 안에 있는 것뿐이다.
+**NAMSAENG**　I know the country may fall. Even so, if I can gain strength to strike those who caused your brother's death, I won't turn back. Promise only people and supplies within our authority.
 
-헌성은 자기가 약속할 사람과 물자를 확인한다. 확인 못 한 곳은 넘겨 줄 명부에 넣지 않는다. 준비를 마친 헌성이 사절로 떠난다. 아들이 사라진 쪽을 남생이 바라본다. 협조받을 지역을 묻는 담당자의 말에 돌아선다. 복구안을 옆으로 밀어 놓고 새 보고를 편다. 그가 넘길 연락로를 짚자 담당자가 적는다.
+Heonseong checks what people and supplies he can promise. Places he cannot confirm do not enter the list to hand over. Once prepared, he departs as envoy. Namsaeng watches where his son disappeared, then turns to an official asking which regions will cooperate. He pushes the recovery plan aside and opens a new report. As he points to connections to hand over, the official writes.
 
-## 믿었던 사람을 따르지 않는 일 {#t038-followers-split-over-defection}
+## Choosing not to follow someone once trusted {#t038-followers-split-over-defection}
 
-[사건 부모](../../../body/treatments/038-the-country-no-longer-decides.md#followers-split-over-defection) · [장면 부모](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t038-followers-split-over-defection)
+[Event parent](../../../body/treatments/038-the-country-no-longer-decides.md#followers-split-over-defection) · [Scene parent](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t038-followers-split-over-defection)
 
-동참할지를 묻는 자리.
+A meeting asking whether to join.
 
-**첫 동참자**　가문이 당한 일을 갚아야 합니다.
+**FIRST PARTICIPANT**　We must repay what was done to our family.
 
-**다른 동참자**　함께 싸운 분입니다. 우리를 버리지는 않을 겁니다.
+**ANOTHER PARTICIPANT**　We fought alongside him. He won't abandon us.
 
-**또 다른 사람**　나는 가족이 살아갈 쪽을 택하겠습니다.
+**A THIRD PERSON**　I'll choose the side where my family can live.
 
-석부는 이 말을 다 들은 뒤 남생에게 답한다.
+After hearing them all, Seokbu answers Namsaeng.
 
-**석부**　모르는 길을 제게 물으셨고, 실패하면 책임진다고 하셨습니다. 그걸 잊지는 않습니다. 하지만 우리 고장에 외군을 들일 수는 없습니다.
+**SEOKBU**　You asked me about roads you didn't know and said you'd take responsibility for failure. I haven't forgotten. But I can't admit foreign troops to my home.
 
-**남생**　헌충을 잃은 일을 자네도 알지 않소.
+**NAMSAENG**　You know I lost Heonchung.
 
-**석부**　압니다. 하지만 그 일 때문에 제 고장에 외군까지 들여야 합니까. 저는 고구려에 남겠습니다.
+**SEOKBU**　I do. But must my home admit a foreign army because of that? I'll stay with Goguryeo.
 
-석부가 자기 고장으로 떠난다. 남생은 그 앞을 막지 않는다.
+Seokbu leaves for home. Namsaeng does not block him.
 
-장소를 지역의 가족과 귀향 병력이 있는 곳으로 바꾼다. 속로는 그들 곁에서 전달할 사람에게 답한다.
+Change to the place with regional families and returning troops. Beside them, Sokro answers a messenger.
 
-**속로**　합류할 때가 아니다. 귀향하는 군사부터 받아라. 가족이 갈 곳을 지켜야 한다. 내가 그렇게 답했다고 전하시오.
+**SOKRO**　It's not time to join. Receive the returning soldiers first. We must protect somewhere for the families to go. Tell them that's my answer.
 
-국내성에 속로의 답이 전달된다. 남생이 협조할 지역과 연락로를 적은 보고를 펼쳐, 남은 동참자에게 넘긴다.
+Sokro's answer reaches Gungnaeseong. Namsaeng opens a report listing cooperating regions and connections and gives it to remaining participants.
 
-## 막던 문으로 들이는 짐 {#t038-defensive-connections-handed-over}
+## Cargo enters through the gate that once blocked it {#t038-defensive-connections-handed-over}
 
-[사건 부모](../../../body/treatments/038-the-country-no-longer-decides.md#defensive-connections-handed-over) · [장면 부모](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t038-defensive-connections-handed-over)
+[Event parent](../../../body/treatments/038-the-country-no-longer-decides.md#defensive-connections-handed-over) · [Scene parent](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t038-defensive-connections-handed-over)
 
-**역사가**　가문의 구원을 청하러 온 사절에게서 당은 개소문이 죽었음을 확인했다. 뒤를 잇던 남생이 권력을 잃었다는 사실도 그 접촉을 통해 알았다. 구할 가문이 연 길은 당에게 다시 정복할 기회였다.
+**HISTORIAN**　From the envoy asking to save the family, Tang confirmed Gaesomun's death. The same contact told it that Namsaeng, who succeeded him, had lost power. The road opened by the family to be saved was an opportunity for Tang to conquer again.
 
-계필하력을 요동도안무대사로 삼아 구원하게 했다는 답을 남생이 받는다. 압록강에서 자기를 무너뜨린 이름을 읽은 남생이 구원을 받아들이겠다고 답을 보낸다.
+Namsaeng receives the answer that Qibi Heli has been appointed Liaodong pacification commissioner to provide relief. Reading the name of the man who defeated him at the Yalu, Namsaeng replies that he accepts.
 
-국내성 강 쪽 남문. 동의가 오간 방과 다른 장소에서 실제 문이 열린다. 외군 짐이 들어와 군량 마당으로 향한다. 창고에서 받을 곳을 마련하고, 비워야 할 길을 사람이 비킨다. 남생 쪽 담당자가 들어오는 짐을 인수한다.
+Gungnaeseong's river-facing south gate. In a place separate from the room where consent was exchanged, the actual gate opens. Foreign cargo enters toward the provisions yard. Space is prepared at the storehouse; people clear the necessary road. Namsaeng's official receives incoming loads.
 
-**담당자**　이쪽 창고로 보냅니다. 마당을 막지 말고 차례로 들이시오.
+**OFFICIAL**　Send it to this storehouse. Bring them in turn; don't block the yard.
 
-다른 지역 지휘자에게 갈 연락도 남생이 확인한다.
+Namsaeng also checks messages going to other regional commanders.
 
-**남생**　협조하는 지역과 싸울 지역을 구별해 보내시오. 구원을 마쳐도 이쪽 창고와 통로는 다음 진격에 내줍니다. 내 권한 밖에 있는 성이 내놓을 몫까지 여기서 정하지는 마시오.
+**NAMSAENG**　Report cooperating regions separately from those that will fight. Even after relief, these stores and routes are available for the next advance. Do not decide here what fortresses outside my authority will provide.
 
-귀족들이 동의 문서를 넘기는 자리의 소리가 끝난다. 남문에서는 외군의 짐이 계속 들어온다. 남생 쪽 사람이 창고로 보낸다.
+The sound at the place where nobles hand over agreement documents ends. Foreign loads continue through the south gate; Namsaeng's people send them to the storehouse.
 
-## 옆의 성을 믿을 수 없는 수비 {#t039-local-cooperation-reopens-conquest}
+## Defenders unable to trust the next fortress {#t039-local-cooperation-reopens-conquest}
 
-[사건 부모](../../../body/treatments/039-strong-forts-without-a-whole.md#local-cooperation-reopens-conquest) · [장면 부모](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t039-local-cooperation-reopens-conquest)
+[Event parent](../../../body/treatments/039-strong-forts-without-a-whole.md#local-cooperation-reopens-conquest) · [Scene parent](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t039-local-cooperation-reopens-conquest)
 
-화면 글 ‘667년’. 이세적은 이전 원정에서 알던 길 위에 귀부 지역이 알려 준 조달과 내부 연결을 맞춘다. 현지에서 짐을 내어 주는 곳을 지나 저항하는 성에 접근한다.
+On-screen text: “667.” Li Shiji matches procurement and internal connections supplied by defecting regions to roads he knew from earlier expeditions. He approaches resisting fortresses through places that release provisions locally.
 
-석부 앞의 복구 길에 당의 운반대가 나타난다. 그 길을 잇던 이웃 성이 이제 군사를 보낼지도 확인해야 한다. 석부가 수비를 세우고 지원을 청하는 사람을 보낸다. 돌아온 전달자가 석부 앞에 선다.
+A Tang convoy appears on a recovery road before Seokbu. He must now check whether the neighboring fortress that connected that road will send troops. He positions defenders and sends a request for support. The returning messenger stands before him.
 
-**전달자**　병력을 보내겠다는 답은 못 받았습니다.
+**MESSENGER**　I received no promise of troops.
 
-**석부**　우리 자리부터 지켜라. 온다는 말 없이 이웃 몫을 비워 두지는 마라.
+**SEOKBU**　Hold our position first. Don't leave the neighbor's share empty without word that they are coming.
 
-병력은 싸우지만 옆에서 올 것으로 믿었던 대열이 없다.
+The troops fight, but the formation they expected from beside them is absent.
 
-**역사가**　정토가 별도로 항복하며 땅을 내준 것은 666년이었다.
+**HISTORIAN**　Jeongto separately surrendered and gave up territory in 666.
 
-이웃의 응답이 끊긴 길 옆에서 석부의 병력이 제 고장의 수비를 이어 간다.
+Beside the road where the neighbor's answer has stopped, Seokbu's troops continue defending their home.
 
-## 지킬 수도와 지킬 수 없는 연결 {#t039-brothers-choose-different-ends}
+## A capital to defend and connections impossible to hold {#t039-brothers-choose-different-ends}
 
-[사건 부모](../../../body/treatments/039-strong-forts-without-a-whole.md#brothers-choose-different-ends) · [장면 부모](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t039-brothers-choose-different-ends)
+[Event parent](../../../body/treatments/039-strong-forts-without-a-whole.md#brothers-choose-different-ends) · [Scene parent](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t039-brothers-choose-different-ends)
 
-화면 글 ‘668년’. 남건이 수도로 병력을 모은다. 아직 움직일 병력이 들어오지만 귀부한 지역에 보낸 명은 답을 얻지 못한다.
+On-screen text: “668.” Namgeon gathers troops at the capital. Forces still able to move arrive, but orders sent to defecting regions receive no answer.
 
-**남건**　성에서 성으로 이어져야 한다. 수도에만 모여서는 밖을 되찾지 못한다.
+**NAMGEON**　We must connect fortress to fortress. Gathering only in the capital cannot recover the outside.
 
-남생이 실행자에게 명을 내린다.
+Namsaeng gives an operator an order.
 
-**남생**　이 길을 먼저 잡으시오. 저쪽 성의 병력이 합쳐지기 전에 여기를 지나야 합니다.
+**NAMSAENG**　Take this road first. We must pass here before that fortress's troops can join.
 
-실행자가 그 길로 떠난다.
+The operator leaves along the road.
 
-평양 남산의 업무 자리로 옮긴다. 남산이 앞으로 받아 든 문서에는 남은 군사의 상태와 쓸 통로가 적혀 있다. 다 읽고 항복 의사를 전하러 갈 사람을 부른다.
+Move to Namsan's office in Pyongyang. A document he receives gives the condition of remaining soldiers and usable routes. After reading it, he calls someone to convey surrender.
 
-**남산**　남은 사람과 힘을 보존하고 싶습니다. 항복하겠습니다.
+**NAMSAN**　I want to preserve the people and strength remaining. I will surrender.
 
-항복 소식을 받은 뒤에도 평양의 근무자는 남건에게 다음 명을 받는다. 출입을 청한 사람이 문 앞에서 멈추고 별도의 허락을 기다린다. 남산을 따라 나가지 않은 병력이 수도 수비를 잇는다.
+Even after news of surrender, a Pyongyang officer receives Namgeon's next order. Someone requesting access stops at the door and awaits separate permission. Troops who did not follow Namsan continue the capital's defense.
 
-## 닷새를 준비한 사람들 {#t040-sinseong-arranges-collusion}
+## Five days of preparation {#t040-sinseong-arranges-collusion}
 
-[사건 부모](../../../body/treatments/040-five-days-to-the-west-gate.md#sinseong-arranges-collusion) · [장면 부모](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t040-sinseong-arranges-collusion)
+[Event parent](../../../body/treatments/040-five-days-to-the-west-gate.md#sinseong-arranges-collusion) · [Scene parent](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t040-sinseong-arranges-collusion)
 
-화면 글 ‘668년 9월, 평양’. 인물 표기 ‘승려 신성 · 남건이 군무를 맡긴 사람’. 당과 개문 약속을 맞춘 신성이 오사·요묘를 따로 만나는 자리에 관객은 들어온다.
+On-screen text: “September 668, Pyongyang.” Character label: “Monk Sinseong · entrusted with military duties by Namgeon.” The audience enters a separate meeting where Sinseong, having arranged the promise to open the gate with Tang, meets Osa and Yomyo.
 
-**신성**　당이 이길 겁니다. 더 싸우다 끝내기 전에 열어야 성 안 사람도 살 수 있지 않겠습니까.
+**SINSEONG**　Tang will win. If we open before fighting to the end, might the people inside live?
 
-**오사**　문을 끝까지 지키다가 지면 저희도 남을 게 없습니다. 지금 여는 쪽을 어떻게 대할지도 봐야지요. 밤 근무는 제가 맞춥니다.
+**OSA**　If we guard the gate to the end and lose, we'll have nothing left either. We must see how they'll treat those who open it now. I'll coordinate the night shift.
 
-**요묘**　제 사람하고 가족도 살아야 합니다. 안길은 비워 두겠습니다.
+**YOMYO**　My people and family must live too. I'll clear the inner road.
 
-그날 밤, 서쪽 통용문의 빗장은 그대로 걸려 있다. 문을 지키는 교대가 돌아오는 것을 오사가 본다. 다음 교대에는 요묘가 문 안 갈림길의 순찰 집결을 다른 곳에 붙인다. 길이 비는 때와 문 앞의 근무가 맞아야 한다. 오사는 그 시간에 설 병사를 정하고 잠금을 확인한다. 관객용 날짜 글이 하루씩 넘어가며 닷새의 준비를 구별한다. 그 날짜에 맞춰 당군도 접근할 차례를 갖춘다.
+That night the western postern's bar remains in place. Osa watches the gate's returning shift. On the next shift Yomyo moves the inner junction patrol assembly elsewhere. The time the road is clear must match the duty at the gate. Osa chooses soldiers to stand then and checks the lock. Audience dates advance day by day to distinguish five days' preparation. Tang troops likewise prepare their approach for the appointed time.
 
-남건이 교대와 순찰의 보고를 읽는다. 다음 근무도 이어지겠다는 뜻으로 돌려준다. 신성·오사·요묘는 안길을 비울 때를 낮게 의논한다. 그 목소리가 끝나고 해은 집의 작업 소리로 바뀐다. 가족은 나누어 먹을 것을 세고 다음 수선물을 받는다.
+Namgeon reads reports of shifts and patrols and returns them on the understanding that duty will continue. Sinseong, Osa, and Yomyo quietly discuss when to clear the inner road. Their voices end and become work sounds at Haeun's home. The family counts food to share and receives the next repairs.
 
-## 빗장을 옮긴 뒤 멈추지 않은 불 {#t040-gate-opened-and-tower-burned}
+## Fire that does not stop after the bar moves {#t040-gate-opened-and-tower-burned}
 
-[사건 부모](../../../body/treatments/040-five-days-to-the-west-gate.md#gate-opened-and-tower-burned) · [장면 부모](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t040-gate-opened-and-tower-burned)
+[Event parent](../../../body/treatments/040-five-days-to-the-west-gate.md#gate-opened-and-tower-burned) · [Scene parent](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t040-gate-opened-and-tower-burned)
 
-닷새 뒤 밤, 서쪽 통용문. 오사가 맞춘 교대가 돌아오고 안쪽 길이 빈다. 빗장을 옮기는 손이 멈춘 뒤 당군이 안으로 들어온다. 요묘가 준비한 통로를 따라 병력이 번진다.
+Five nights later, the western postern. Osa's coordinated shift returns and the inner road clears. Hands move the bar and stop; Tang troops enter. The formation spreads along the route Yomyo prepared.
 
-들어온 당군이 문루에 불을 붙인다. 오사가 그쪽으로 다가간다.
+Entering Tang troops set the gate tower on fire. Osa approaches.
 
-**역사가**　문과 안길은 열어 줄 수 있었다. 들어온 당군의 지휘와 처우까지 그들이 정할 수는 없었다.
+**HISTORIAN**　They could open the gate and inner road. They could not command the entering Tang troops or determine their treatment.
 
-**오사**　여기는 약속한…….
+**OSA**　This is the place we agreed...
 
-말이 불붙는 소리에 묻힌다. 안쪽에서 뒤늦게 받은 명으로 남건의 병력이 움직이지만 이미 들어온 대열을 한곳에 묶지 못한다.
+His words are buried in the fire's sound. Namgeon's troops move under an order received late inside, but cannot contain the troops already entered in one place.
 
-**남건**　남은 병력을 이쪽으로 불러라! 어디까지 오는지 답하라!
+**NAMGEON**　Call the remaining troops here! Report how far they've come!
 
-대답이 없다. 남건이 자신의 칼을 몸 쪽으로 돌린다. 그의 팔과 몸에 가린 아래에서 행위가 끝난다. 무너져 누운 몸이 숨에 맞춰 움직인다. 당 병사가 가까이 와 칼부터 치운다. 다른 병사가 숨 쉬는 남건을 붙든다. 바닥에 떨어진 칼을 뒤로 두고 붙잡힌 몸이 끌려간다.
+No answer. Namgeon turns his sword toward himself. The act finishes below, hidden by his arm and body. His fallen body moves with breath. A Tang soldier approaches and removes the sword first; another holds the breathing Namgeon. Behind the sword on the floor, his captured body is led away.
 
-지휘를 구하는 병사가 다음 명을 찾지만 연결할 곳이 사라졌다. 불의 소리가 집 안의 네 사람에게 들린다.
+A soldier seeking direction looks for the next order, but there is nowhere left to connect. Fire sounds reach the four people inside a house.
 
-## 따로 가면 다시 못 만날 사람들 {#t040-haeeun-household-stays-together}
+## People who may never reunite if they leave separately {#t040-haeeun-household-stays-together}
 
-[사건 부모](../../../body/treatments/040-five-days-to-the-west-gate.md#haeeun-household-stays-together) · [장면 부모](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t040-haeeun-household-stays-together)
+[Event parent](../../../body/treatments/040-five-days-to-the-west-gate.md#haeeun-household-stays-together) · [Scene parent](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t040-haeeun-household-stays-together)
 
-해은·장근과 성인 딸 서우, 성인 아들 차무. 바깥 소리가 가까워질 때 넷이 서로 있는 곳부터 확인한다. 서우는 자기 도구를 품에 모은다. 차무가 옮길 살림을 한데 받아 무게를 가늠한다.
+Haeun, Janggeun, adult daughter Seou, and adult son Chamu. As outside sounds approach, all four first check where the others are. Seou gathers her own tools to her chest. Chamu collects household goods and weighs them.
 
-**차무**　짐이 너무 무거워요. 이대로는 넷이 붙어서 나갈 수 없어요.
+**CHAMU**　The baggage is too heavy. We can't all get out together like this.
 
-**서우**　내 일할 것도 있어야지. 어머니 것만 남길 수는 없어.
+**SEOU**　I need my work things too. We can't keep only Mother's.
 
-해은이 물건을 고르는 손을 멈추고 사람부터 센다.
+Haeun stops choosing objects and counts people first.
 
-**해은**　짐 내려놔 봐. 우리 넷은 여기 있자. 갈라지면 어디서 찾겠니.
+**HAE-EUN**　Put it down. The four of us stay here. If we split up, where would we find one another?
 
-밖을 보고 돌아온 장근이 문을 닫는다.
+Janggeun returns from looking outside and closes the door.
 
-**장근**　함께 있자. 밖에서는 서로 찾으러도 못 다니겠어.
+**JANGGEUN**　Let's stay together. Outside we couldn't even go looking for one another.
 
-넷이 남기로 정한 뒤에도 가져갈 꾸러미의 선택은 끝나지 않는다. 바깥 소리를 듣고 도구를 다시 놓는다. 손 안의 물건을 고르는 동안 밖의 결과를 기다린다.
+Even after they decide to stay, choosing bundles to carry is unfinished. Hearing outside sounds, they set down tools again. They await the outcome outside while choosing what is in their hands.
 
-## 살려 달라는 말과 용서할 수 없다는 말 {#t041-clemency-without-forgiveness}
+## A plea for life and words of unforgiven loss {#t041-clemency-without-forgiveness}
 
-[사건 부모](../../../body/treatments/041-lives-spared-homes-removed.md#clemency-without-forgiveness) · [장면 부모](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t041-clemency-without-forgiveness)
+[Event parent](../../../body/treatments/041-lives-spared-homes-removed.md#clemency-without-forgiveness) · [Scene parent](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t041-clemency-without-forgiveness)
 
-남건 생포 소식이 남생에게 닿는다. 남생은 헌성과 당에 전할 청원 내용을 맞춘다.
+News of Namgeon's capture alive reaches Namsaeng. He and Heonseong coordinate the petition to Tang.
 
-**헌성**　목숨을 살려 달라는 것입니까? 죄를 없애 달라는 청은 빼겠습니다.
+**HEONSEONG**　You're asking them to spare his life? I'll leave out any request to erase guilt.
 
-**남생**　헌충이 죽은 책임은 남겨라. 나까지 또 가족 하나를 죽여 달라고 청하고 싶지는 않다. 살려 달라는 것만 전해라.
+**NAMSAENG**　Keep the responsibility for Heonchung's death. I don't want to ask for another family member to be killed myself. Convey only the plea to spare him.
 
-청원이 당의 처분을 기다린다.
+The petition awaits Tang's disposition.
 
-나중에 처분을 전하는 사람이 돌아온다.
+Later a messenger returns with the decision.
 
-**전달자**　목숨은 살리기로 했습니다. 검주로 유배합니다.
+**MESSENGER**　They've decided to spare him. He will be exiled to Geomju.
 
-남생은 다 읽은 처분을 돌려준다. 전달자가 물러나고 혼자 남은 그에게 관객만 듣는 내면음성이 잇는다.
+Namsaeng returns the disposition after reading. Once the messenger withdraws and he is alone, an inner voice only the audience hears follows.
 
-**남생 내면**　살려 달라고 했다. 그래도 용서는 못 하겠다. 왕실도, 남건도.
+**NAMSAENG (INNER VOICE)**　I asked them to spare him. I still cannot forgive. Neither the royal house nor Namgeon.
 
-주민들의 처분을 알리는 보고가 들어온다. 남생은 그 내용을 읽기 시작한다. 다른 장소에서 강제이주할 주민의 이름을 부른다. 아직 고를 짐이 남은 해은 가족에게로 옮겨 관객 전용 역사가의 말을 듣는다.
+A report on the residents' disposition arrives. Namsaeng begins reading. Elsewhere, names of residents to be forcibly moved are called. Move to Haeun's family, still choosing baggage, and hear the audience-only historian.
 
-**역사가**　훗날 남생의 묘지 글은 아우의 목숨을 구한 청원을 덕으로 기렸다.
+**HISTORIAN**　Later Namsaeng's epitaph praised his plea saving his younger brother as virtue.
 
-이름을 부르는 현장 음성이 다시 앞으로 나온다. 가족은 이주할 짐을 다시 고른다.
+The local voice calling names returns to the foreground. The family chooses relocation baggage again.
 
-## 두 꾸러미를 남기기 위해 버린 천 {#t041-four-migrate-to-henan-together}
+## Cloth abandoned to keep two bundles {#t041-four-migrate-to-henan-together}
 
-[사건 부모](../../../body/treatments/041-lives-spared-homes-removed.md#four-migrate-to-henan-together) · [장면 부모](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t041-four-migrate-to-henan-together)
+[Event parent](../../../body/treatments/041-lives-spared-homes-removed.md#four-migrate-to-henan-together) · [Scene parent](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t041-four-migrate-to-henan-together)
 
-화면 글 ‘669년’. 장근과 차무가 꾸러미를 맞추고 큰 살림 몇 점을 내려놓는다. 다시 들어 올려도 넷이 옮길 무게를 넘는다. 해은이 덮을 천과 자기 수선 도구를 남긴다. 딸이 준비한 작업 꾸러미는 떠날 짐에서 꺼내 놓는다.
+On-screen text: “669.” Janggeun and Chamu fit bundles together and set down several large household items. Even lifting again exceeds what four can carry. Haeun keeps covering cloth and her own repair tools. She removes her daughter's prepared work bundle from the departing load.
 
-**서우**　그것까지 놓고 가면 제 일은요? 가서도 어머니 일만 돕고 살아요? 제 일감을 받으려면 있어야 해요.
+**SEOU**　If I leave that too, what about my work? Do I live there only helping yours? I need it to get my own jobs.
 
-서우가 내려진 도구 쪽으로 손을 뻗어 되가져온다. 해은은 자기 도구를 보이며 말하려다가 멈춘다. 딸은 자기 꾸러미의 손잡이를 놓지 않는다.
+Seou reaches for the tools set aside and retrieves them. Haeun starts to speak, showing her own tools, then stops. Her daughter does not release her bundle's handle.
 
-**해은**　바늘하고 실은 같이 싣자. 그러면 덮을 천도 덜어야 한다.
+**HAE-EUN**　Let's load the needle and thread too. Then we must reduce covering cloth.
 
-해은이 여벌 천을 덜어 낸다. 서우도 자기 작업용 천을 빼지만 바늘과 실이 든 작은 꾸러미는 놓지 않는다. 두 꾸러미를 함께 싣기 위해 차무가 다시 무게를 잡는다.
+Haeun removes some spare cloth. Seou also removes work cloth but keeps the small bundle of needles and thread. Chamu balances the weight again to load both bundles.
 
-**서우**　이 재료는 가서 다시 구해야 해요. 그래도 도구까지 두고 갈 수는 없어요.
+**SEOU**　I'll have to find these materials there. But I can't leave the tools too.
 
-**해은**　내 것도 이만큼 뺐어. 둘 다 싣자.
+**HAE-EUN**　I've taken this much of mine out too. Let's load both.
 
-**역사가**　기록의 삼만 팔천삼백은 호, 곧 가구 수다. 이본의 차이도 있다. 사람 수와는 단위가 다르다. 이주와 잔류는 평양 출신인지, 귀부한 국내성 출신인지 하나로 가를 수 없다.
+**HISTORIAN**　The record's thirty-eight thousand three hundred is households, not people; variant texts differ. Relocation and remaining cannot be divided simply by whether one came from Pyongyang or defecting Gungnaeseong.
 
-이주 대열에서 넷의 얼굴을 거듭 확인한다. 하남의 한 농촌에 모두 도착하자 서로 받친 짐을 내려놓는다. 도구를 풀어 놓는다. 예전처럼 일감을 들고 찾아올 사람은 이곳에 없다. 다른 장소, 동부에 남은 이들에게 새 통제의 요구가 내려온다. 다른 지역에서는 무장을 빼앗긴 석부에게도 노동 요구가 내려온다.
+Check all four faces repeatedly in the migration column. When all reach a Henan village, they put down loads they supported together and unpack tools. No familiar customers come here with work as before. Elsewhere, new demands for control reach those remaining in the east; in another region disarmed Seokbu also receives a labor demand.
 
-## 도구가 알아듣지 못하는 말 {#t042-henan-work-rebuilds-an-incomplete-livelihood}
+## Words the tools cannot understand {#t042-henan-work-rebuilds-an-incomplete-livelihood}
 
-[사건 부모](../../../body/treatments/042-the-lives-conquest-did-not-end.md#henan-work-rebuilds-an-incomplete-livelihood) · [장면 부모](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t042-henan-work-rebuilds-an-incomplete-livelihood)
+[Event parent](../../../body/treatments/042-the-lives-conquest-did-not-end.md#henan-work-rebuilds-an-incomplete-livelihood) · [Scene parent](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t042-henan-work-rebuilds-an-incomplete-livelihood)
 
-하남 농촌. 이웃이 물건을 놓을 곳과 운반할 방향을 가리킨다. 이웃의 현지말을 관객은 한국어로 듣는다. 해은 가족은 일부만 알아듣는다.
+Rural Henan. A neighbor points to where to place an item and the direction to carry it. The audience hears the neighbor's local language in English; Haeun's family understands only some.
 
-**이웃**　여기서 받는 게 아니오. 저쪽으로 가져와야 하오.
+**NEIGHBOR**　We don't receive it here. Bring it over there.
 
-서우가 자기 꾸러미와 이웃이 가리키는 쪽을 번갈아 본다.
+Seou looks between her bundle and where the neighbor points.
 
-**서우**　오늘 일을 주는 거예요? 다음에 또 오라는 거예요?
+**SEOU**　Are they giving us work today, or telling us to return later?
 
-**해은**　나도 다 못 알아들었어.
+**HAE-EUN**　I couldn't understand it all either.
 
-장근이 길을 확인하러 나가고 차무는 다음 운반 시간을 가늠한다. 서우가 부모의 자리를 먼저 정리하고 자기 꾸러미를 펴 수선한다. 익은 손이 도구를 움직인다. 이어 쓸 재료는 부족하고 예전 고객들도 이곳에는 없다.
+Janggeun goes to check the road; Chamu estimates the next transport time. Seou first arranges her parents' place, then opens her bundle and repairs. Skilled hands work the tools. Materials to continue are scarce, and former customers are not here.
 
-**해은**　먹을 것을 먼저 남겨야 해. 이번에 재료까지 더 사기는 어렵겠구나.
+**HAE-EUN**　We must keep food first. I don't think we can buy more materials this time.
 
-서우가 손에 남은 천을 작게 나누어 어디에 쓸지 정한다. 낯선 관청의 명령이 전해질 때에는 가족끼리 들은 말을 맞춰 보아도 뜻이 다 모이지 않는다.
+Seou divides the cloth in her hand into small pieces and decides where to use them. When orders from an unfamiliar office arrive, the family compares what they heard but still cannot assemble the whole meaning.
 
-밤. 일감을 펼쳤던 자리를 접어야 넷이 누울 수 있다.
+Night. The workspace must be folded away for all four to lie down.
 
-**서우**　이건 내일도 해야 해요. 끝에 두세요. 아침에 다시 펼치게.
+**SEOU**　I have to do this tomorrow too. Put it at the end so I can open it again in the morning.
 
-가족끼리는 여전히 자기 말로 다툰다. 계절이 바뀌어도 펼친 작업을 거두어 넷의 잠자리를 만드는 일이 이어진다.
+The family still argues among themselves in their own language. As seasons change, they continue putting away work to make sleeping places for four.
 
-화면 글 ‘676년’. 장근과 차무가 운반할 짐을 든다. 차무가 먼저 방향을 틀자 장근도 뒤를 받쳐 따라간다. 처음 이웃이 가리키던 곳까지 가서, 물건을 넘길 자리에 짐을 내려놓는다.
+On-screen text: “676.” Janggeun and Chamu lift a load. When Chamu turns first, Janggeun supports from behind. At the place the neighbor first indicated, they set the load down for handover.
 
-그날 밤 집 안. 재료를 기다리는 수선물 옆에 서우가 부모의 잠자리를 편다. 아직 못 마친 자기 일감을 걷어 올려야 나머지 두 사람도 누울 수 있다. 서우는 남겨 둔 천과 도구를 꾸러미에 넣는다. 누울 자리가 난 뒤에도 꾸러미는 넷의 몸 가까이에 남는다.
+That night at home, beside repairs awaiting material, Seou lays out her parents' beds. She must put up her unfinished work for the other two to lie down. She packs remaining cloth and tools into a bundle. Even once there is room to sleep, it remains close to all four bodies.
 
-## 나라가 없어도 정할 자기 몫 {#t042-remaining-communities-resist-new-demands}
+## A share to decide even without a country {#t042-remaining-communities-resist-new-demands}
 
-[사건 부모](../../../body/treatments/042-the-lives-conquest-did-not-end.md#remaining-communities-resist-new-demands) · [장면 부모](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t042-remaining-communities-resist-new-demands)
+[Event parent](../../../body/treatments/042-the-lives-conquest-did-not-end.md#remaining-communities-resist-new-demands) · [Scene parent](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t042-remaining-communities-resist-new-demands)
 
-동부. 새 노동 요구를 받은 미란이 딸이 올 수 있는 날을 말하려 한다.
+The east. Having received a new labor demand, Miran starts to say which day her daughter can come.
 
-**미란**　전부 한꺼번에 나오면 집의 일을 할 사람이 없습니다. 우리 집은 이쪽부터 나누어…….
+**MIRAN**　If everyone comes at once, no one can do the household work. Our house can divide it this way first...
 
-누리가 어머니의 말이 끝나기 전에 자기 일을 먼저 말한다.
+Before her mother finishes, Nuri speaks for her own work.
 
-**누리**　어머니도 저한테 물어보셔야 해요. 그날 갈 수 있는지 제가 말할게요.
+**NURI**　You need to ask me too, Mother. I'll say whether I can go that day.
 
-미란이 누리 쪽으로 시선을 돌려 딸의 답을 기다린다. 속로가 가구마다 가능한 때를 받아 서로 아는 말과 길로 다시 확인한다. 한 전달자가 서두르려 해도 다른 집의 답이 아직 오지 않았다. 먼저 정한 집의 물량이 도착한 자리 옆에 다음 인수 자리가 남는다.
+Miran turns and waits for her daughter's answer. Sokro receives each household's available time and checks again using shared language and roads. A messenger wants to hurry, but another household's answer has not arrived. Beside the place where the first agreed share arrives, a receiving place remains for the next.
 
-**속로**　먼저 온 것부터 받으시오. 안 온 집을 왔다고 쓰지는 못합니다. 차례를 다시 받아 보내겠습니다.
+**SOKRO**　Receive what came first. We can't write an absent household as present. We'll take the next turn and send it.
 
-**역사가**　전에 귀부를 택했던 세력 중에도 새 통치를 겪고 돌아서는 사람이 생겼다. 아직 당에 협조하는 것을 살길로 여기는 사람도 있었다.
+**HISTORIAN**　Among forces that had defected, some experienced the new rule and turned away. Others still saw cooperation with Tang as survival.
 
-다른 지역. 무장을 빼앗긴 석부에게 노동 요구가 전해진다.
+Another region. A labor demand reaches Seokbu, stripped of his arms.
 
-## 되돌아오지 않는 협력 {#t042-imperial-limits-change-the-task}
+## Cooperation that does not return {#t042-imperial-limits-change-the-task}
 
-[사건 부모](../../../body/treatments/042-the-lives-conquest-did-not-end.md#imperial-limits-change-the-task) · [장면 부모](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t042-imperial-limits-change-the-task)
+[Event parent](../../../body/treatments/042-the-lives-conquest-did-not-end.md#imperial-limits-change-the-task) · [Scene parent](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t042-imperial-limits-change-the-task)
 
-남생이 과거 협력하던 지역의 거부 보고를 받는다. 전에 부르면 나올 날을 의논하던 곳이다. 이번에는 나올 수 있느냐는 요구부터 거절했다.
+Namsaeng receives a refusal report from a region that once cooperated. It used to discuss which day people could come when called; this time it refused the request to come at all.
 
-**담당자**　거절했습니다. 먼저 보낸 물량 뒤의 것도 더는 약속하지 않습니다.
+**OFFICIAL**　They refused. They won't promise the next share after what they first sent either.
 
-남생이 답을 보낼 사람을 찾다가 보고의 지역 이름을 다시 읽는다.
+Looking for someone to send an answer, Namsaeng reads the region's name again.
 
-**역사가**　신라는 남쪽에서 당의 직접 통치에 맞서 싸웠다. 서쪽에서는 670년 토번전의 설인귀가 졌다. 주필산에서 돌입했던 그 장수도 모든 전장에서 이기지는 못했다. 그쪽에 들어가는 사람과 군사만큼, 당이 여기 두고 싶어 하는 힘을 모두 마련할 여력은 줄었다.
+**HISTORIAN**　Silla fought Tang's direct rule in the south. In the west Xue Rengui lost against Tibet in 670. Even the general who charged at Jupilsan did not win every battlefield. The people and troops committed there reduced Tang's capacity to put all the strength it wanted here.
 
-관객용 경과 글 ‘676년까지’. 남생이 지역별 거부 답을 거듭 받는다. 이름을 불러도 예전처럼 물량을 내어줄 답은 오지 않는다. 그 업무 자리의 소리를 끝내고 하남 집 안으로 건넌다. 해은 가족은 아직 남은 일감을 접어 누울 곳을 만든다.
+Audience time label: “Through 676.” Namsaeng repeatedly receives regional refusals. Calling names no longer brings the former promise of supplies. End the office sound and move to the Henan home. Haeun's family still folds away remaining work to make beds.
 
-**역사가**　당의 먼 패전만으로 이 반감을 설명할 수는 없다. 이들에게는 옮겨진 살림과 현지에서 치른 손실이 있었다.
+**HISTORIAN**　Tang's distant defeat alone cannot explain this resentment. These people had displaced households and losses borne locally.
 
-넷이 누울 자리를 낸 집에서 행정 자리로 돌아온다. 남생이 협력을 청한 문서 옆에 거절의 답을 놓는다.
+Return from the house made ready for four to lie down to the administrative office. Namsaeng places refusals beside the document requesting cooperation.
 
-## 돌아오라는 명령 뒤의 집 {#t043-return-orders-use-the-old-country}
+## A home after the order to return {#t043-return-orders-use-the-old-country}
 
-[사건 부모](../../../body/treatments/043-the-office-and-the-son-left-behind.md#return-orders-use-the-old-country) · [장면 부모](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t043-return-orders-use-the-old-country)
+[Event parent](../../../body/treatments/043-the-office-and-the-son-left-behind.md#return-orders-use-the-old-country) · [Scene parent](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t043-return-orders-use-the-old-country)
 
-화면 글 ‘677년’.
+On-screen text: “677.”
 
-**칙명 전달 음성**　보장왕을 요동으로 돌아가게 하라. 내지로 이주시킨 주민을 귀환시키라.
+**IMPERIAL ORDER (OFF-SCREEN)**　Return King Bojang to Liaodong. Send home residents moved to the interior.
 
-왕은 옛 관계에 연락할 길을 묻는다.
+The king asks how to contact old relationships.
 
-**보장왕**　먼저 닿을 수 있는 사람부터 알아보시오. 소식이 실제로 가는 길을 찾아야 하오.
+**BOJANG**　Find those we can reach first. We must find a route by which news actually travels.
 
-**역사가**　당이 정복하며 지운 고구려의 이름을 이제 당의 통치에 다시 올렸다. 옛 왕가도 그 일에 쓰려 했다. 허락을 얻은 보장은 남은 지역과 자기 나라의 연고에 연락할 틈을 찾았다. 서로 다른 목적을 품은 채 그 일을 시작했다.
+**HISTORIAN**　Tang now restored to its administration the name of Goguryeo, which it had erased through conquest. It meant to use the old royal house too. Granted permission, Bojang sought a chance to contact the remaining region and ties to his country. They began with different aims.
 
-보장이 닿을 연고와 소식 길을 찾기 시작한다. 남생에게는 별도의 행정 임무가 간다. 보장의 연락 준비에서 아직 하남에 있는 가족의 짐으로 옮긴다.
+Bojang starts finding contacts and routes for news. Namsaeng receives a separate administrative task. Move from Bojang's preparations to the family's baggage still in Henan.
 
-하남 농촌의 해은 가족 넷. 덜 끝낸 수선물과 운반할 짐이 누울 곳을 차지한다. 귀환 명령을 전하는 소리가 끝나도 화면은 이 집 안이다. 저녁 자리를 내려던 서우가 펼친 도구를 다시 작은 꾸러미로 거둔다. 닫히는 꾸러미와 아직 여기 놓인 짐을 마지막으로 본다.
+Haeun's family of four in rural Henan. Unfinished repairs and loads for transport occupy sleeping space. Even when the return order's voice ends, the image remains inside this house. Preparing evening space, Seou gathers open tools into a small bundle again. Last see the closing bundle and baggage still here.
 
-## 고구려를 되살릴 수 없는 관리 {#t043-namsaeng-administers-the-land-he-meant-to-restore}
+## An official who cannot restore Goguryeo {#t043-namsaeng-administers-the-land-he-meant-to-restore}
 
-[사건 부모](../../../body/treatments/043-the-office-and-the-son-left-behind.md#namsaeng-administers-the-land-he-meant-to-restore) · [장면 부모](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t043-namsaeng-administers-the-land-he-meant-to-restore)
+[Event parent](../../../body/treatments/043-the-office-and-the-son-left-behind.md#namsaeng-administers-the-land-he-meant-to-restore) · [Scene parent](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t043-namsaeng-administers-the-land-he-meant-to-restore)
 
-677년, 행정 업무 자리. 남생은 안무와 주현 정리 임무를 받는다. 사람을 보내고 물량을 조정하는 기술은 여전히 쓸 수 있다. 예전에 복구하려던 땅의 명부를 지금은 다른 통치 아래서 정리한다.
+Administrative office, 677. Namsaeng receives duties of pacification and organizing prefectures and counties. His skills at sending people and adjusting supplies still work. He now organizes registers of land he once meant to restore under another power.
 
-**남생**　내가 열어 준 길로 군대가 들어갔습니다. 창고도 사람도 내주었습니다. 왕과 아우만 친다고 끝나지 않을 것을 알았습니다.
+**NAMSAENG**　The army entered along roads I opened. I handed over stores and people. I knew striking the king and my brothers would not be the end.
 
-**곁의 관리**　헌충 공자를 잃으셨으니…….
+**OFFICIAL BESIDE HIM**　You lost young Lord Heonchung...
 
-남생이 읽던 문서를 내려놓고 곧 자기 말을 잇는다.
+Namsaeng puts down the document and continues at once.
 
-**남생**　그 원한은 남아 있습니다. 그래도 죽고 끌려간 사람들에게 한 일이 없어지지는 않습니다.
+**NAMSAENG**　That resentment remains. It doesn't erase what I did to people who died or were taken away.
 
-관리의 손에서 다음 업무가 나온다. 남생은 말을 멈추고 다시 읽는다. 명부에는 전에 복구하려던 땅의 이름들이 있다. 이제는 당의 통치 아래 사람과 물량을 보내야 한다.
+The official produces the next task. Namsaeng stops speaking and reads again. The registers name land he once meant to restore; now he must send people and supplies under Tang rule.
 
-## 관사에 남은 아들 {#t043-death-leaves-heonseong-living}
+## The son left in the residence {#t043-death-leaves-heonseong-living}
 
-[사건 부모](../../../body/treatments/043-the-office-and-the-son-left-behind.md#death-leaves-heonseong-living) · [장면 부모](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t043-death-leaves-heonseong-living)
+[Event parent](../../../body/treatments/043-the-office-and-the-son-left-behind.md#death-leaves-heonseong-living) · [Scene parent](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t043-death-leaves-heonseong-living)
 
-화면 글 ‘679년, 안동부 관사’. 집무 공간에서 쉬는 방으로 시선을 옮긴다. 일을 들고 드나들던 문과 다른 문이다. 집무채에 새 업무 보고가 들어온다. 헌성은 그것을 바깥에 맡긴 뒤 쉬는 방으로 들어와 살아 있는 아버지를 돌본다. 손이 필요하자 곁으로 와 받쳐 준다.
+On-screen text: “679, Andong Prefecture residence.” Move from office space to resting room through a different door from the one used for work. A new report reaches the office. Heonseong leaves it outside, enters the resting room, and cares for his living father. When a hand is needed, he comes close and supports him.
 
-**남생**　나라가 무너질 수도 있다는 걸 알았다. 그래도 내가 도왔다. 네 형의 일을 갚겠다고.
+**NAMSAENG**　I knew the country might fall. I helped them anyway, to avenge your brother.
 
-헌성은 받쳐 둔 팔을 빼지 않는다. 아버지가 그 손을 보자 아들이 말한다.
+Heonseong does not withdraw his supporting arm. When his father looks at that hand, the son speaks.
 
-**헌성**　저도 알고 갔습니다. 제가 원조를 청했습니다. 제 몫도 있습니다.
+**HEONSEONG**　I knew when I went too. I asked for aid. I have my share.
 
-**남생**　왕실과 남건은 아직 용서 못 하겠다. 그래도 내 원한으로 다른 집들의 죽음을 덮을 수는 없겠지.
+**NAMSAENG**　I still cannot forgive the royal house and Namgeon. But my resentment cannot cover the deaths in other households.
 
-헌성은 대답 대신 아버지 몸을 다시 편히 받친다.
+Instead of answering, Heonseong supports his father's body comfortably again.
 
-화면 글 ‘음력 정월 29일’. 남생의 숨이 멎는다. 헌성은 받친 손을 몸 아래 둔 채 머문다. 손을 뺄 때 옷자락이 스친다. 문밖의 업무 발소리에 살아 있는 아들이 고개를 든다. 그가 문 쪽으로 몸을 돌리려 할 때 끝난다.
+On-screen text: “Twenty-ninth day of the first lunar month.” Namsaeng stops breathing. Heonseong remains with his supporting hand beneath the body. Cloth brushes as he withdraws it. At office footsteps outside, the living son lifts his head. End as he turns toward the door.

@@ -1,23 +1,23 @@
-# 645년의 승리와 남는 질문
+# Victory in 645 and questions remaining
 
-정전 안내: [이 대상의 위치](../outline/index.md#050-systems--230-first-war-outcome).
+Canon guide: [Location of this subject](../outline/index.md#050-systems--230-first-war-outcome).
 
-## 645년의 승리와 남는 질문 {#first-war-outcome}
+## Victory in 645 and questions remaining {#first-war-outcome}
 
-**정의·범위**
+**Definition and scope**
 
-작품의 고구려는 야전 패전에도 국토 전부와 수도가 함락되는 일을 막는다. 당의 원정은 계획한 정복으로 끝나지 않으며, 공성의 지연과 계절·보급의 한계가 회군을 요구한다. 수군도 모든 병력이 죽는 단일한 전멸로 쓰지 않는다. 원정 각 방면이 입는 개별 손실과 돌려보낼 병력을 구별한다.
+Despite field defeat, the work’s Goguryeo prevents the fall of the whole territory and capital. Tang’s expedition does not achieve its planned conquest; siege delay, season, and supply limits require withdrawal. Do not write the naval force as a single annihilation in which all die. Distinguish each direction’s losses and troops returned.
 
-**확정 내용**
+**Established facts**
 
-개소문은 야전 결전의 의지 자체를 모두 철회하지 않는다. 큰 힘을 갖고도 연결과 적의 조건을 잘못 읽으면 패한다는 점을 다음 대비에 사용한다. 고정의의 경고가 옳았다는 사실도 그 인물만 믿으면 이후 모든 전쟁을 해결할 수 있다는 공식이 되지 않는다. 661년의 고구려는 수비와 차단으로 조건을 만든 뒤 실제 야전의 집중을 한다.
+Gaesomun does not abandon all willingness for a decisive field battle. He uses the lesson that great strength can lose if it misreads connections and enemy conditions in later preparations. Go Jeongui’s correct warning is not a formula that trusting him alone solves every later war. In 661 Goguryeo creates conditions through defense and interdiction before actual field concentration.
 
-주민에게는 당군이 돌아간 안도가 있고, 잃은 가구를 바로 되살릴 수 없는 현실도 있다. 말갈 포로의 학살로 생긴 불신과 분노, 중앙과 지방 지휘자의 관계는 전쟁이 끝났다는 말만으로 정리되지 않는다. 이 전후의 정치와 지원을 거쳐 다음 전역에서 독립된 기동 임무를 믿고 맡길 수 있는 기반이 생긴다.
+Residents feel relief at Tang’s withdrawal while households lost cannot immediately be restored. Distrust and anger from the Malgal prisoner massacre, and relations between central and local commanders, do not end simply because war is declared over. Postwar politics and support create a foundation for confidently entrusting independent mobile missions in the next campaign.
 
-**참조·미결**
+**References and unresolved matters**
 
-645년의 개별 전투 사실·작품 복원 값은 [주필산 패전](200-jupilsan-defeat.md#jupilsan-defeat), 안시성의 수비 조건·지원 관계는 [안시성 방어](210-ansi-defence.md#ansi-defence)가 소유한다. 이 H2는 그 전후 결과를 종합하고 작품의 학습·주민·협력 조건을 정한다. 도입 액자에 인계하는 기록의 범위는 고연수군의 야전 패전과 안시성의 항전·불함락이다. 아래 패전 기사는 전자의 결과, 항전 기사는 후자의 결과를 직접 지지한다. 회군 기사는 첫 문단의 추위·양식 부족과 회군 조건을 지지한다. 개별 전투의 작품 병력·경로·시각을 이 기사들이 모두 기록한 값으로 바꾸지 않는다.
+[Jupilsan defeat](200-jupilsan-defeat.md#jupilsan-defeat) owns individual battle facts and invented reconstruction values; [Ansi defense](210-ansi-defence.md#ansi-defence) owns defensive and support conditions. This H2 synthesizes the outcome and work-specific learning, resident, and cooperation conditions. The record passed to the opening frame is Go Yeonsu’s field defeat and Ansi’s resistance without capture. The defeat account directly supports the former, the resistance account the latter, and the withdrawal account cold, lack of food, and withdrawal conditions in the first paragraph. Do not turn invented troop, route, and timing values into recorded facts.
 
-개소문의 학습·내면, 주민의 안도와 회복 과제, 불신·중앙/지방 관계를 거쳐 협력 기반을 마련한다는 조건은 이 작품의 해석·구성이다. 이 기록들에 실린 개소문의 발언이나 특정 주민의 반응·이후 협력의 기록으로 증언하지 않는다. 수군을 단일 전멸로 쓰지 않는 범위 역시 작품의 서술 선택이다. 이 경계는 기존 날짜·결과·조건을 바꾸거나 본편의 다음 사건을 미리 공개하는 근거가 아니다.
+Gaesomun’s learning and inner life, residents’ relief and recovery tasks, and a cooperation foundation through distrust and central–local relations are this work’s interpretations and construction, not recorded statements by Gaesomun, reactions of specific residents, or testimony of later cooperation. Treating the naval force as other than single annihilation is also a narrative choice. This boundary does not change established dates, results, and conditions or reveal later events ahead of time.
 
-Sources: [『삼국사기』 권21 보장왕 4년(645), 고연수의 군대가 패하다 — 국역·주석](https://db.history.go.kr/ancient/level.do?levelId=sg_021r_0020_0216), [같은 권·년, 안시성 사람이 굳게 싸우다 — 원문·국역](https://db.history.go.kr/common/compareViewer.do?levelId=sg_021_0020_0221&type=ancient), [같은 권·년, 당 태종이 회군하다 — 원문·국역](https://db.history.go.kr/common/compareViewer.do?levelId=sg_021_0020_0226&type=ancient).
+Sources: [Go Yeonsu’s defeat, Samguk Sagi vol. 21](https://db.history.go.kr/ancient/level.do?levelId=sg_021r_0020_0216), [Ansi’s steadfast resistance](https://db.history.go.kr/common/compareViewer.do?levelId=sg_021_0020_0221&type=ancient), [Taizong’s withdrawal](https://db.history.go.kr/common/compareViewer.do?levelId=sg_021_0020_0226&type=ancient).

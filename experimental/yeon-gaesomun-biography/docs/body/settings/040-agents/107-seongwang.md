@@ -1,17 +1,17 @@
-# 성왕의 죽음이 남긴 남방
+# The south after King Seong’s death
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--107-seongwang).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--107-seongwang).
 
-## 성왕의 죽음이 남긴 남방 {#seongwang}
+## The south after King Seong’s death {#seongwang}
 
-**정의·범위**
+**Definition and scope**
 
-성왕은554년 관산성 전투에서 죽은 백제 군주이며 후대가 기억하는 남방 쇠퇴의 기준이다.
+King Seong was the Baekje ruler killed at the battle of Gwansanseong in 554, a reference point for later memories of southern decline.
 
-**확정 내용**
+**Established facts**
 
-현재 예정 서사에서 고구려 선대의 국력 회복과 신라의 확장을 비교할 때 언급된다. 이 죽음을 백제가 그 뒤 모든 왕의 무능 때문에 무왕까지 아무 회복도 하지 못했다는 증거로 만들지 않는다. 직접 생애·대사·전투 장면이 없으므로 개별 조형과 음성을 정하지 않는다.
+In the currently planned narrative, he is mentioned when comparing the recovery of Goguryeo’s strength under an earlier generation with Silla’s expansion. Do not use his death as proof that Baekje made no recovery until King Mu because every intervening king was incompetent. He has no direct biography, dialogue, or battle scene, so no individual design or voice is established.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [국편 『한국사』6의 백제·신라 관계](https://contents.history.go.kr/data/pdf/nh/nh_006_0040.pdf).
+Sources: [Baekje–Silla relations, National Institute of Korean History, Korean History vol. 6](https://contents.history.go.kr/data/pdf/nh/nh_006_0040.pdf).

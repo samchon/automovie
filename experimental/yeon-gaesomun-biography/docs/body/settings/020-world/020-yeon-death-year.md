@@ -1,21 +1,19 @@
-# 사망 연대에서 택한 해
+# The chosen year of death
 
-정전 안내: [이 대상의 위치](../outline/index.md#020-world--020-yeon-death-year).
+Canon guide: [Location of this subject](../outline/index.md#020-world--020-yeon-death-year).
 
-## 사망 연대에서 택한 해 {#yeon-death-year}
+## The chosen year of death {#yeon-death-year}
 
-**정의·범위**
+**Definition and scope**
 
-연개소문의 사망 연대는 기록에 따라 다르다. 《삼국사기》와 중국계 기록은 666년을, 《일본서기》는 664년을 전한다. 묘지명에 적힌 남생의 665년 대막리지 취임을 아버지가 죽은 뒤의 승계로 해석하면 665년설이 성립한다. 국사편찬위원회 주석은 이 세 연대와 해석의 차이를 소개한다. 작품은 남생의 승계에서 사후 내전으로 이어지는 조건을 마련하기 위해 665년을 택한다.
+Records differ on Yeon Gaesomun’s year of death. The Samguk Sagi and Chinese records give 666; the Nihon Shoki gives 664. If Namsaeng’s assumption of the daemangniji office in 665, recorded in his epitaph, is interpreted as succession after his father’s death, a case for 665 follows. The National Institute of Korean History annotation presents these three dates and differing interpretations. The work chooses 665 to establish the conditions leading from Namsaeng’s succession to civil war after his father’s death.
 
-**확정 내용**
+**Established facts**
 
+In the work Yeon dies in spring 665, after seeing the reconstruction plan begin and before seeing the result of the next farming season. This season is an invented choice defining the boundary of his life.
 
-작품에서 연개소문이 죽는 계절은 665년 봄이다. 연개소문은 재건 계획이 출발하는 것을 본 뒤, 다음 농사철의 결과를 보기 전에 생애를 마친다. 이 생애의 경계를 위해 창작으로 정한 계절이다.
+In [the succession of 665](../050-systems/250-succession-665.md#succession-665), Goguryeo learns of his death and succession occurs in 665. There is no concealment of the death itself inside the country. Tang officially confirms it during the submission process in 666. This delay is also part of the work’s reconstruction; the date of the 666 account is not therefore the date of Yeon’s death.
 
+**References and unresolved matters**
 
-[665년의 승계](../050-systems/250-succession-665.md#succession-665)에서는 고구려 안에서 665년에 죽음을 알고 승계가 이루어진다. 국내에서 사망 자체를 숨기는 설정은 없다. 당이 이를 공식적으로 확인하는 시점은 666년 귀부 과정으로 잡는다. 이 소식의 시차 역시 작품의 복원에 속하므로, 666년 기사의 날짜가 곧 연개소문의 임종 날짜가 되는 것은 아니다.
-
-**참조·미결**
-
-Sources: [국사편찬위원회, 《삼국사기》 권49 「연개소문이 죽다」 및 주석 067, 사망 연대 664·665·666년설](https://db.history.go.kr/item/compareViewer.do?levelId=sg_049r_0030_0160)
+Sources: [National Institute of Korean History, “Yeon Gaesomun dies,” Samguk Sagi vol. 49 and note 067 on the 664, 665, and 666 dates](https://db.history.go.kr/item/compareViewer.do?levelId=sg_049r_0030_0160).

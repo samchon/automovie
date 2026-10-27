@@ -1,19 +1,19 @@
-# 김인문의 연락과 협력
+# Kim Inmun’s communication and cooperation
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--067-kim-inmun).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--067-kim-inmun).
 
-## 김인문의 연락과 협력 {#kim-inmun}
+## Kim Inmun’s communication and cooperation {#kim-inmun}
 
-**정의·범위**
+**Definition and scope**
 
-김인문은 당과 신라 사이의 연락과 군사적 협력에 익숙한 인물이다. 김유신의 결심을 당군에게 전달하고 필요한 조건을 확인하는 협력자의 역할을 가진다. 김유신의 한 번의 결심만으로 모든 사람이 같은 속도로 움직이는 수송을 만들지 않는다. 전달할 사람과 본대를 돌릴 사람의 임무가 다르고, 당군에게 도착한 뒤에도 귀환 경로를 다시 골라야 한다.
+Kim Inmun is accustomed to communication and military cooperation between Tang and Silla. As a collaborator, he conveys Kim Yusin’s decision to Tang forces and checks the necessary conditions. Do not make everyone in the transport move at the same speed from Kim Yusin’s single decision. The person delivering and the person turning back the main body have different tasks, and a return route must be chosen again after reaching Tang’s army.
 
-**확정 내용**
+**Established facts**
 
-창작 외형은 키 170센티미터, 반듯한 어깨와 긴 손, 타원형 얼굴이다. 큰 갈색 눈과 곧은 검은 눈썹, 작은 코끝과 고른 입술, 옅은 황갈색 피부를 가진다. 검은 머리를 묶고 짧은 수염을 단정히 기른다. 검은 띠를 두른 짙은 갈색 옷과 찰갑을 쓴다. 목소리는 중간 높이의 맑고 부드러운 소리다. 상대가 어떤 호칭을 기대하는지 살피며 공식 설명은 느리게 잇지만 현장의 군사에게는 더 간단히 말한다.
+His invented appearance is 170 centimeters tall, with straight shoulders, long hands, and an oval face. He has large brown eyes, straight black eyebrows, a small nose tip, even lips, and light tawny skin. His black hair is tied and his short beard neat. He wears dark brown clothes with a black sash and lamellar armor. His middle-register voice is clear and soft. He watches what form of address another expects and gives formal explanations slowly, but speaks more simply to soldiers in the field.
 
-664년 돌사성 공격에도 이름이 기록된다. 군량 수송과 이후 국지전 참여는 별개의 임무이며, 정복 원정 중지 뒤 모든 군사 접촉이 사라졌다고 해석하지 않는다.
+His name is also recorded in the 664 attack on Dolsaseong. The provisions delivery and later local battle are separate missions; do not interpret the end of the conquest expedition as the disappearance of all military contact.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『삼국사기』 김인문전의 군량 전달](https://db.history.go.kr/common/compareViewer.do?levelId=sg_044_0060_0061&type=ancient), [664년 돌사성 공격](https://db.history.go.kr/item/compareViewer.do?levelId=sg_006_0020_0480).
+Sources: [Provisions delivery in the biography of Kim Inmun, Samguk Sagi](https://db.history.go.kr/common/compareViewer.do?levelId=sg_044_0060_0061&type=ancient), [the 664 attack on Dolsaseong](https://db.history.go.kr/item/compareViewer.do?levelId=sg_006_0020_0480).

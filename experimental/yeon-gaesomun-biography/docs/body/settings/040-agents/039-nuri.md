@@ -1,23 +1,19 @@
-# 미란의 딸 누리
+# Nuri, Miran’s daughter
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--039-nuri).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--039-nuri).
 
-## 미란의 딸 누리 {#nuri}
+## Nuri, Miran’s daughter {#nuri}
 
-**정의·범위**
+**Definition and scope**
 
-누리는 643년생으로 창작한 미란의 딸이다. 아버지가 죽은 뒤 미란은 누리를 먹여 살리고 교육받을 길을 지키려 한다. 645년의 누리는 두 살로, 전장에서 벌어진 일이나 아버지의 죽음을 판단할 수 없다.
+Nuri is Miran’s invented daughter, born in 643. After her father dies, Miran tries to feed her and preserve her access to education. In 645 Nuri is two and cannot judge battlefield events or her father’s death.
 
-**확정 내용**
+**Established facts**
 
+At two she is about 85 centimeters tall, with a head about one quarter of her body, short neck and limbs, and round cheeks and belly. She has brown eyes, thin black eyebrows, a small low nose, round mouth, and light tawny skin. Soft black hair reaches her neck and is not tied long behind. She wears light tawny cloth clothes and a dark brown cloth cord, but is not yet at the stage of carrying a load-binding cord as her own tool.
 
-두 살 때 키는 약 85cm이며 머리가 몸의 약 4분의 1을 차지한다. 목과 팔다리가 짧고 볼과 배가 둥글다. 갈색 눈과 가는 검은 눈썹, 작고 낮은 코와 둥근 입이 있으며 피부는 밝은 황갈색이다. 부드러운 검은 머리는 목에 닿는 길이로 짧게 두어 뒤로 길게 묶지 않는다. 옅은 황갈색 천옷과 짙은 갈색 천끈을 쓰지만, 물자를 묶는 끈을 자기 도구로 지니는 단계는 아니다.
+Young Nuri’s voice is high, thin, and clear. She speaks short words slowly with pauses; crying sharpens her endings. It conveys a small child’s words, not adult rapid argument or battlefield judgment.
 
+Body and head proportions, hair arrangement, and participation in carrying change as she grows into her 661 appearance and abilities. The main story does not fill the intervening years with new physical values or growth events each year. Both designs are invented. Protected at two in 645, by 661 Nuri is an adult who helps carry supplies and work for the household and can make her own choices. She does not automatically accept service chosen for her by her mother. Learning the bow belongs to community education; learning alone does not make her heavy cavalry equipped with an expensive horse and arms.
 
-어린 누리의 목소리는 높고 얇으며 맑다. 짧은 말을 느리게 끊어 하고 울면 말끝이 날카로워진다. 이 목소리가 전하는 것은 어린아이의 말이며 성인의 빠른 다툼이나 전장 판단까지 담지는 않는다.
-
-
-몸과 머리의 비율, 머리를 묶는 방식, 운반 노동에 참여하는 정도는 자라면서 바뀌어 661년의 모습과 능력으로 이어진다. 본편은 그 사이를 해마다 다른 신체값이나 새로운 성장 사건으로 채우지 않는다. 두 단계의 외형은 모두 창작이다. 645년에는 보호받는 아이였던 누리가 661년에는 물자 운반과 가구 노동을 돕고 자기 선택을 할 수 있는 성인이 된다. 어머니가 대신 정한 군역을 당연히 받아들이는 것은 아니다. 활을 배우는 일은 공동체의 교육에 속하며, 그 배움만으로 비싼 말과 무장을 갖춘 중기병이 되지는 않는다.
-
-
-후반의 누리는 미란보다 손바닥 하나만큼 키가 크고 어깨가 좁다. 작은 턱과 갈색 눈이 있으며 검은 머리를 하나로 길게 묶는다. 옅은 황갈색 천옷에 짙은 갈색 띠를 두르고 물자를 묶는 데 쓸 끈을 지닌다. 목소리는 여전히 높은 음역이지만 맑고 단단하며, 어머니와 다툴 때는 말끝이 빨리 올라간다. 미란이 국가의 보호를 얻는 일과 누리가 자기 미래를 선택할 수 있게 되는 일은 각각의 문제로 남는다.
+Later Nuri is a palm taller than Miran and narrow-shouldered, with a small chin, brown eyes, and black hair tied in one long length. She wears light tawny cloth and a dark brown sash, carrying cord for tying supplies. Her voice remains high but clear and firm; when arguing with her mother, her endings rise quickly. Miran securing state protection and Nuri being able to choose her own future remain separate problems.

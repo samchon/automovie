@@ -1,15 +1,15 @@
-# 먼저 질문한 태학 자제
+# The Taehak pupil who asks first
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--120-taehak-moving-pupil).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--120-taehak-moving-pupil).
 
-## 먼저 질문한 태학 자제 {#taehak-moving-pupil}
+## The Taehak pupil who asks first {#taehak-moving-pupil}
 
-**정의·범위**
+**Definition and scope**
 
-개소문과 동년배인 태학 자제다. 수업에서 먼저 질문하다 개소문에게 말이 끊기는 자제와, 뒤에 자리를 옮겨 도착을 알리는 동료는 같은 사람으로 정한다. 이 동일인 연결은 영상 각색을 위한 창작 선택이며 실제 역사 인물을 복원한 것이 아니다. 다른 길을 맡는 자제의 답을 받은 뒤에야 자리를 옮길 수 있고, 개소문이 먼저 명했어도 자신이 닿기 전에는 시작하지 말라고 확인할 수 있다. 이 수업의 이동은 가문 병력을 실제 지휘하는 권한이 아니다.
+He is a Taehak pupil the same age as Gaesomun. The pupil whose question in class Gaesomun interrupts is the same colleague who later changes position and announces his arrival. This connection is an invented choice for the audiovisual adaptation, not a reconstruction of a historical person. He can move only after the pupil taking the other route answers, and can confirm that even if Gaesomun gave the order first, they must not begin before he arrives. Movement in this lesson is not authority to command actual family troops.
 
-**확정 내용**
+**Established facts**
 
-좁은 턱과 짧은 앞머리로 옆 자제와 구별한다. 공통 훈련옷과 띠는 집단 정전을 따른다. 목소리는 맑은 중음이며 질문 끝을 조금 올리고 도착을 알릴 때에는 짧고 또렷하게 말한다. 이 식별은 창작이다. 이름·정확한 생년·가문의 이력이나 정치적 후일담은 정하지 않는다.
+A narrow chin and short fringe distinguish him from the pupil beside him. Shared training clothes and sash follow the group canon. His voice is clear in the middle register; he raises the end of a question slightly and announces arrival briefly and distinctly. These identifiers are invented. No name, exact birth year, family history, or later political story is established.
 
-공유 규칙: [집단의 관계와 한계](006-taehak-pupils.md#taehak-pupils). 실제 발화·행동과 결과의 순서는 treatments와 scripts가 정한다.
+Shared rule: [the group’s relationships and limits](006-taehak-pupils.md#taehak-pupils). Treatments and scripts determine the order of actual speech, action, and results.

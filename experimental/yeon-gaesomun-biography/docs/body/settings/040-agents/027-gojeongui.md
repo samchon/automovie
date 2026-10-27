@@ -1,20 +1,19 @@
-# 고정의가 피하려는 싸움
+# The battle Go Jeongui seeks to avoid
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--027-gojeongui).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--027-gojeongui).
 
-## 고정의가 피하려는 싸움 {#gojeongui}
+## The battle Go Jeongui seeks to avoid {#gojeongui}
 
-**정의·범위**
+**Definition and scope**
 
-현장 장수 고정의는 주필산의 구원군에 적이 바라는 결전을 피하고 보급을 끊자고 조언한다. 적이 고를 수 있는 행동을 줄이려는 판단이다. 그를 청야와 지연만 되풀이하는 구세대의 대표로 보지는 않는다. 그의 말은 권고이므로 구원군 전체를 강제로 움직일 수 없으며, 구원군은 그 말을 듣고도 싸우기로 결정할 수 있다.
+The field general Go Jeongui advises the relief force at Jupilsan to avoid the decisive battle the enemy wants and cut its supplies, a judgment intended to reduce the enemy’s available actions. Do not cast him as a representative of an old generation that only repeats scorched-earth tactics and delay. His words are advice; he cannot force the entire relief force to move, and it may decide to fight even after hearing him.
 
-**확정 내용**
+**Established facts**
 
-작품 속 고정의는 60대로 보인다. 키는 170cm가량이고 몸이 마른 데다 등이 조금 굽었다. 긴 얼굴에 처진 눈꺼풀과 갈색 눈, 성긴 회흑색 눈썹이 있다. 코끝은 아래로 굽고 입은 작다. 피부는 황갈색이며, 흰 털이 절반 섞인 머리를 낮게 묶고 턱수염은 짧게 남긴다. 짙은 갈색 겉옷에 먹빛 띠를 두르고 낡은 몸통 찰갑을 입는다.
+The work’s Go Jeongui appears in his sixties, about 170 centimeters tall, thin and slightly stooped. He has a long face, drooping eyelids, brown eyes, sparse gray-black eyebrows, a downward-curved nose tip, and a small mouth. His skin is tawny, his hair half white and tied low, his beard short. He wears a dark brown outer robe, dark sash, and worn lamellar torso armor.
 
+His voice is low and hoarse, but its endings clear. He speaks to his conclusion in a long breath and does not hurry even when warning. He asks how far a unit can advance and still return.
 
-목소리는 낮고 쉬었지만 말끝은 분명하다. 긴 호흡으로 결론까지 말하며, 경고할 때도 말의 속도를 급히 높이지 않는다. 부대가 어디까지 진출했다가 되돌아올 수 있는지를 묻는다.
+**References and unresolved matters**
 
-**참조·미결**
-
-Sources: [『삼국사기』 고정의의 조언과 고연수의 진격](https://db.history.go.kr/ancient/level.do?levelId=sg_021r_0020_0211).
+Sources: [Go Jeongui’s advice and Go Yeonsu’s advance, Samguk Sagi](https://db.history.go.kr/ancient/level.do?levelId=sg_021r_0020_0211).

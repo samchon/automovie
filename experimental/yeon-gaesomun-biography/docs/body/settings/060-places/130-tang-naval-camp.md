@@ -1,17 +1,17 @@
-# 건안성 아래의 당 수군 진영
+# Tang naval camp below Geonanseong
 
-정전 안내: [이 대상의 위치](../outline/index.md#060-places--130-tang-naval-camp).
+Canon guide: [Location of this subject](../outline/index.md#060-places--130-tang-naval-camp).
 
-## 건안성 아래의 당 수군 진영 {#tang-naval-camp}
+## Tang naval camp below Geonanseong {#tang-naval-camp}
 
-**정의·범위**
+**Definition and scope**
 
-645년 장량의 수군이 고구려군 급습을 받는 진영은 작품에서 건안성 아래 수로와 육로가 만나는 임시 거점으로 정한다. 정확한 고대 항구 위치와 실측 배치가 확인되었다고 하지 않는다. 사용 구역은 물가를 따라 길이500미터·육지 쪽 깊이300미터이며 서쪽에 선박과 하역 줄, 동쪽에 미완성 울타리와 육상 출입길을 둔다. 병사 채는 가운데, 장량의 지휘 자리는 북쪽 물가 가까운 작은 높은 터다.
+The work places the camp where Zhang Liang’s naval force is surprised by Goguryeo in 645 at a temporary junction of water and land routes below Geonanseong. It does not claim that the exact ancient harbor location or measured layout is confirmed. The area in use is 500 meters along the water and 300 meters deep inland, with ships and unloading lines to the west and an unfinished fence and land entrance to the east. Soldiers’ quarters are in the middle; Zhang Liang’s command position is a small raised site near the northern water’s edge.
 
-**확정 내용**
+**Established facts**
 
-나무와 풀을 베러 나간 인력이 동쪽 바깥으로 흩어지고 말은 울타리가 닫히지 않은 남쪽 풀밭에 매인다. 급습 때 그 사람과 가축이 돌아오는 길이 전투 대열의 길과 겹친다. 장금수는 중앙 집결 자리에서 북을 울려 가까운 병력부터 대열을 만들게 한다. 물가 소음 때문에 먼 하역 자리에서는 말로 외치는 명령을 듣기 어렵고 북과 깃발을 따라야 한다. 현장에서 고구려군을 격파한 뒤에도 이 진이 요동의 모든 육상 보급선을 연결하는 성공한 항구로 바뀌지는 않는다.
+People sent out to cut wood and grass scatter beyond the east; horses are tied in the southern meadow where the fence is open. During the surprise attack, the routes by which people and animals return overlap the battle formation’s route. Zhang Jinshu beats a drum at the central assembly point to form the nearest troops first. Noise at the water makes shouted orders hard to hear at distant unloading points, which must follow drums and flags. Even after defeating Goguryeo’s force on the spot, this camp does not become a successful harbor connecting all Liaodong’s land supply lines.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『신당서』 권94의 건안성 급습과 수습](https://zh.wikisource.org/zh-hant/新唐書/卷094).
+Sources: [The surprise attack below Geonanseong and recovery, New Book of Tang vol. 94](https://zh.wikisource.org/zh-hant/新唐書/卷094).

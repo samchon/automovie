@@ -1,22 +1,21 @@
-# 김양도의 전달과 해로 귀환
+# Kim Yangdo’s delivery and return by sea
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--068-kim-yangdo).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--068-kim-yangdo).
 
-## 김양도의 전달과 해로 귀환 {#kim-yangdo}
+## Kim Yangdo’s delivery and return by sea {#kim-yangdo}
 
-**정의·범위**
+**Definition and scope**
 
-김양도는 김유신이 맡긴 군량 전달을 실행하고 일부 병력과 함께 바닷길로 돌아온다. 명령을 잘 받아 실행할 뿐 아니라, 전달을 마친 뒤 상황이 달라지면 어떻게 돌아갈지 결정할 수 있는 사람이다.
+Kim Yangdo carries out the delivery of military provisions entrusted by Kim Yusin and returns by sea with part of the force. He not only receives and executes orders well; he can decide how to return when circumstances change after delivery.
 
-**확정 내용**
+**Established facts**
 
-일부 인원이 배로 귀환했다는 기록에 따라 분견대는 해로로, 본대는 육로로 돌아간다. 두 경로의 구체적인 내용은 사건 정전에서 정한다. 고구려가 어느 한 길에서 모두를 붙잡지 못했다는 결과만으로 국경 방어 전체가 없었다고 볼 수도 없다.
+In keeping with the record that some returned by ship, the detachment returns by sea and the main body by land. The event canon establishes the details of both routes. Goguryeo’s failure to capture everyone on either route does not alone mean that there was no frontier defense at all.
 
+The work sets Kim Yangdo’s height at 173 centimeters. He has thick legs, a broad back and jaw, small brown eyes, thick black eyebrows, a low nose, and a broad mouth. His tawny skin is sun-darkened, his black hair tied short, and his beard short. He wears lamellar armor over gray-brown clothes and a black sash.
 
-작품에서 정한 김양도의 키는 173센티미터다. 다리가 굵고 등이 넓으며 턱도 넓다. 작은 갈색 눈에 굵은 검은 눈썹, 낮은 코와 넓은 입을 갖췄다. 피부는 볕에 그을린 황갈색이고, 검은 머리를 짧게 묶으며 수염도 짧게 기른다. 회갈색 옷에 검은 띠를 두르고 그 위에 찰갑을 입는다.
+His voice is low and rough, and he ends sentences briefly. He gestures toward the water route and counts those boarding. He repeatedly confirms boarding order with people nearby.
 
-목소리는 낮고 거칠며 말을 짧게 맺는다. 손짓으로 물길을 짚고 배에 오를 사람을 센다. 가까이 있는 사람에게는 탑승 순서를 거듭 확인한다.
+**References and unresolved matters**
 
-**참조·미결**
-
-Sources: [『삼국사기』 김유신전의 김양도 등 해로 귀환](https://db.history.go.kr/common/compareViewer.do?levelId=sg_042_0020_0400&type=ancient).
+Sources: [Kim Yangdo and others returning by sea, biography of Kim Yusin, Samguk Sagi](https://db.history.go.kr/common/compareViewer.do?levelId=sg_042_0020_0400&type=ancient).

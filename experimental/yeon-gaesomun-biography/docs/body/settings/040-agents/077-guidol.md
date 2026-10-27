@@ -1,13 +1,13 @@
-# 돌아오지 못한 귀돌
+# Guidol, who cannot return
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--077-guidol).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--077-guidol).
 
-## 돌아오지 못한 귀돌 {#guidol}
+## Guidol, who cannot return {#guidol}
 
-**정의·범위**
+**Definition and scope**
 
-귀돌은 찬오와 같은 수송 무리에 들어간 창작 신라 운반 대원이다. 637년생으로 정한다. 찬오에게는 집으로 같이 돌아갈 동료이며, 전공보다 어머니가 혼자 맡게 될 노동을 염려한다. 귀환 산길에서 발이 얼고 기력이 떨어져 죽는다. 찬오는 죽은 곳을 다시 찾아 매장하거나 시신을 고향으로 옮길 권한과 운반 여유가 없다. 귀돌이 남긴 작은 칼을 챙겨 어머니에게 건네는 것으로 관계를 끝내며, 정확한 사망 시각과 생리 원인은 사료가 확정한 값이 아니다. 어머니의 사별과 남은 생계의 가족 조건은 [아진](078-ajin.md#ajin)이 소유한다.
+Guidol is an invented Silla porter in the same transport party as Chano, born in 637. To Chano he is a companion to return home with; Guidol worries more about the work his mother will have to do alone than military distinction. On the mountain road home his feet freeze, his strength fails, and he dies. Chano has neither the authority nor transport capacity to return to the place of death to bury him or take his body home. He concludes their relationship by collecting Guidol’s small knife and giving it to his mother. The exact time and physiological cause of death are not established by historical sources. [Ajin](078-ajin.md#ajin) owns the family conditions of his mother’s bereavement and remaining livelihood.
 
-**확정 내용**
+**Established facts**
 
-키 166센티미터, 넓은 허리와 짧은 팔, 둥근 얼굴이다. 갈색 눈과 짧은 검은 눈썹, 작은 코와 두꺼운 입술, 볕에 탄 황갈색 피부를 가진다. 검은 머리를 묶고 수염은 성기다. 옅은 황갈색 옷 위에 낡은 갈색 가죽 덧옷을 쓰며 검은 띠에 칼을 찬다. 목소리는 중간 높이의 맑은 소리이고 농담 끝이 높아지지만 죽기 전에는 숨이 짧아 말을 잇지 못한다. 죽은 뒤 새 대사나 살아 있는 사람처럼 행동하는 회상은 두지 않는다.
+He is 166 centimeters tall, with a broad waist, short arms, round face, brown eyes, short black eyebrows, small nose, thick lips, and sun-darkened tawny skin. He ties his black hair and has a sparse beard. He wears a worn brown leather outer garment over light tawny clothes and carries a knife on his black sash. His voice is clear in the middle register and rises at the end of jokes, but before death his breath becomes too short to continue speaking. Do not give him new dialogue after death or recollections in which he acts as if alive.

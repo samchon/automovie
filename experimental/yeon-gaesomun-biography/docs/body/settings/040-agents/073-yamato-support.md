@@ -1,19 +1,19 @@
-# 왜의 지원을 둘러싼 관계
+# Relationships behind Wa’s support
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--073-yamato-support).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--073-yamato-support).
 
-## 왜의 지원을 둘러싼 관계 {#yamato-support}
+## Relationships behind Wa’s support {#yamato-support}
 
-**정의·범위**
+**Definition and scope**
 
-왜의 지원을 전달하는 왕실·귀족은 백제와 오랜 왕래, 혼인과 이주, 기술과 정치적 연결을 가진 사람들로 구성한다. 여기서 그 연결이 각 사람의 백제계 혈통이나 백제어 사용을 모두 입증했다는 주장은 하지 않는다. 나라가 다르면서 지배층의 관계가 얽혀 있다는 해석을 사용하며, 왜 전체를 백제 귀족이 새 땅을 개척해 세운 나라로 설명하지 않는다.
+The royalty and nobles conveying Wa support are people with long exchanges, marriage, migration, technical and political connections to Baekje. This does not claim that those connections prove each person’s Baekje ancestry or use of its language. The work interprets ruling-class relationships as intertwined across distinct countries; it does not explain all Wa as a country founded by Baekje nobles opening new lands.
 
-**확정 내용**
+**Established facts**
 
-왜 조정의 중심 판단은 백제를 버릴 때 잃는 관계와 한반도의 군사 질서다. 외부의 원정 실패가 자기 권위와 가족의 연결을 해칠 수 있다. 그 구체적인 가족 관계로 부여풍과 [다신장부의 여동생](075-pung-wife.md#pung-wife)의 혼인을 채택한다. 개별 왜 귀족의 전기를 길게 만들지 않고 고구려에 도착한 백제 쪽 연락 보고로 지원을 보여 준다. 현재 예정 서사는 왜 지휘자의 직접 장면과 이름 없는 사절의 독립 대화를 두지 않는다. 따라서 아직 정하지 않은 사절과 지휘자를 사건 현장에 투입하지 않는다.
+The Wa court’s central calculation concerns the relationships it would lose by abandoning Baekje and the peninsula’s military order. Failure of an overseas expedition could damage its authority and family ties. As one concrete family relationship, adopt the marriage of Buyeo Pung and [Komoshiki’s younger sister](075-pung-wife.md#pung-wife). Show support through Baekje liaison reports reaching Goguryeo without long biographies of individual Wa nobles. The currently planned narrative has no direct Wa commander scene or independent dialogue for unnamed envoys. Do not therefore introduce as-yet-unestablished envoys and commanders at an event.
 
-왜의 백제어·쿠다라 어원·거의 동일한 민족이라는 논쟁은 본편의 확정 사실로 채택하지 않는다. 『일본서기』가 주류성 항복 뒤 전하는 나라 이름과 조상의 묘를 잃었다는 말의 주체는 현지 백제 사람들이다. 그들이 왜 군사 지휘자와 협의하고 가족에게 떠날 뜻을 전하는 연결을 양국 관계의 무게가 드러나는 작은 대목으로 사용한다. 왜 지배층 전체의 혈통과 언어를 증명한 발언으로 바꾸지 않는다.
+Debates about Wa speaking Baekje’s language, the etymology of Kudara, or near-identical ethnicity are not established facts in the main story. The Nihon Shoki’s words after Juryuseong’s surrender about losing the country’s name and ancestors’ graves are spoken by local Baekje people. Their consultation with Wa commanders and communication of an intent to leave to their families make a small passage showing the weight of the relationship between the countries. Do not turn it into proof of the ancestry and language of all Wa rulers.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『일본서기』 풍장의 혼인과 귀환](https://zh.wikisource.org/zh-hant/日本書紀/卷第廿七), [주류성 함락 뒤 백제 사람들의 말](https://db.history.go.kr/ancient/level.do?levelId=jm_001_0240_0230).
+Sources: [Pung’s marriage and return, Nihon Shoki](https://zh.wikisource.org/zh-hant/日本書紀/卷第廿七), [Baekje people’s words after Juryuseong’s fall](https://db.history.go.kr/ancient/level.do?levelId=jm_001_0240_0230).

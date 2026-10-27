@@ -1,20 +1,17 @@
-# 해은의 남편 장근
+# Janggeun, Haeun’s husband
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--040-janggeun).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--040-janggeun).
 
-## 해은의 남편 장근 {#janggeun}
+## Janggeun, Haeun’s husband {#janggeun}
 
-**정의·범위**
+**Definition and scope**
 
-장근은 614년생으로 창작한 해은의 남편이다. 해은이 수선한 물건을 가져다주고 가족의 큰 짐을 운반한다. 평양의 귀족 집과 성 가까운 가구 사이를 오가지만 중앙의 비밀을 전달하는 사자는 아니며 그런 비밀을 알지도 못한다.
+Janggeun is Haeun’s invented husband, born in 614. He delivers the things she mends and carries the family’s heavy baggage. He travels between noble houses in Pyongyang and households near the fortress, but is not a messenger of central secrets and does not know them.
 
-**확정 내용**
+**Established facts**
 
+When offered a chance to escape separately in 668, he chooses to stay together even if the family must relocate. In 669 he joins the same resettlement group as Haeun and their two children. The postwar outcome establishes all four in the same group.
 
-668년 가족을 나누어 도망가자는 제안을 받으면, 함께 이주하더라도 흩어지지 않는 쪽을 택한다. 669년에는 해은과 두 자녀와 함께 같은 이주 집단에 들어간다. 전후 가족의 이주 결과는 네 사람이 같은 집단에 속하는 것으로 정해져 있다.
+He is about 170 centimeters tall, with a broad back and short neck, square chin, small dark brown eyes, large nose, broad mouth, and thick lips. His eyebrows are dark, his black hair tied, and his skin tawny. He wears dark gray-brown clothes and leather shoes, with a carrying strap over his shoulder.
 
-
-키는 약 170cm로 등이 넓고 목은 길지 않다. 네모난 턱과 작은 짙은 갈색 눈, 큰 코, 넓은 입과 두꺼운 입술이 있다. 눈썹은 짙고 검은 머리를 묶으며 피부는 황갈색이다. 짙은 회갈색 옷과 가죽 신발을 착용하고 운반 끈을 어깨에 걸친다.
-
-
-목소리는 낮고 숨이 많이 섞이며 지친 날에는 말이 더 짧아진다. 가족에게도 무조건 괜찮다고 장담하지 않고 가져갈 수 있는 짐과 걸을 수 있는 거리를 말한다.
+His voice is low and breathy, and his speech becomes shorter on tiring days. Even to his family he does not promise unconditionally that all will be well; he speaks of what they can carry and how far they can walk.

@@ -1,23 +1,23 @@
-# 임아상군을 먼저 깨뜨리는 집중
+# Concentration against Ren Yaxiang’s force first
 
-정전 안내: [이 대상의 위치](../outline/index.md#050-systems--110-ren-yaxiang-defeat).
+Canon guide: [Location of this subject](../outline/index.md#050-systems--110-ren-yaxiang-defeat).
 
-## 임아상군을 먼저 깨뜨리는 집중 {#ren-yaxiang-defeat}
+## Concentration against Ren Yaxiang’s force first {#ren-yaxiang-defeat}
 
-**정의·범위**
+**Definition and scope**
 
-임아상군의 작품 기준은 662년 음력2월14일 낮의 전투 상태와 그날 밤 조직 상실 상태다. 임아상은 이날 진중에서 죽는다. 『자치통감』은 2월 갑술에 「浿江道大總管任雅相薨於軍」이라 적고, 나흘 뒤 무인에 방효태의 패전을 적는다. 임아상 진영이 먼저 무너지고, 이어 퇴로가 끊긴 방효태군이 사수에서 무너진다. 어떤 무기로 임아상이 죽었는지는 확정하지 않는다.
+The work’s baseline for Ren Yaxiang’s force is its battle state by day on the 14th day of the second lunar month in 662 and loss of organization that night. Ren dies in camp that day. The Zizhi Tongjian records “浿江道大總管任雅相薨於軍” on the jiaxu day of the second month and Pang Xiaotai’s defeat four days later on wuyin. Ren’s camp collapses first, followed by Pang’s force at the Sasu with its retreat cut off. The weapon that killed Ren is unresolved.
 
-**확정 내용**
+**Established facts**
 
-급양 가능량과 내부 통로의 한도는 [분산 비축](100-counterattack-concentration.md#interior-supply-capacity)을 따른다.
+Feeding capacity and limits on interior routes follow [dispersed reserves](100-counterattack-concentration.md#interior-supply-capacity).
 
-가용 집중5만의 임무 한도는 정면 전투원3만, 연결 차단·전투 예비1만6천, 말·짐 지원4천이다. 뒤의 두 몫을 묶은 차단·예비 구역2만에는 지원이 포함되며, 지원을 돌격 인원에 다시 더하지 않는다. 수도 수비는 별도이며 다섯 만이 좁은 입구에 동시에 들어갈 수 없다. 소정방 주력에서 임아상 진으로 오는 구원로는 우회 육로와 도하 약18km다. 연락병 통과와 큰 구원 부대의 합류는 같은 소요시간이 아니다.
+The available concentrated force of 50,000 is limited by task to 30,000 frontal fighters, 16,000 for cutting connections and battle reserve, and 4,000 supporting horses and baggage. The combined interdiction and reserve area of 20,000 includes support; do not add support again to the charging personnel. Capital defense is separate, and all 50,000 cannot enter a narrow opening at once. The relief route from Su Dingfang’s main force to Ren’s camp is about 18 kilometers by detour and crossing. Passage by a messenger and arrival of a large relief force take different times.
 
-전투 뒤 패강도 조직은 회복되지 않지만 생존자·포로·다른 진으로 간 인원은 남는다. 손실의 유일한 수치 owner는 [전역 손실](130-second-war-losses.md#second-war-losses)이다.
+The Paegang route organization does not recover after battle, but survivors, prisoners, and people who went to other camps remain. The sole numerical owner of losses is [campaign losses](130-second-war-losses.md#second-war-losses).
 
-참조: 임아상을 먼저 칠 선택과 전면·나루 차단·후방 분열·조직 상실의 인과는 해당 전역의 treatments가 맡는다.
+Reference: campaign treatments own the decision to strike Ren first and the causality of frontal action, ferry interdiction, rear division, and loss of organization.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『자치통감』 권200 용삭 2년 2월 갑술조](https://zh.wikisource.org/wiki/資治通鑑/卷200), [이민수, 「662년 평양성 전투와 임진강변 전투」, 서울역사편찬원 『삼국 각축의 현장, 임진강』 학술 발표판, 93~98쪽의 순차 격파 복원](https://culture.seoul.go.kr/culture/cmmn/file/fileDown.do?atchFileId=410a67f5ce944eba801bc4fc3479d95a&bbsId=&fileSn=1&menuNo=200050).
+Sources: [Second month, jiaxu day of Longshuo 2, Zizhi Tongjian vol. 200](https://zh.wikisource.org/wiki/資治通鑑/卷200), [Lee Min-su, reconstruction of sequential defeats, “The 662 Battle of Pyongyang and Battle by the Imjin River,” pp. 93–98](https://culture.seoul.go.kr/culture/cmmn/file/fileDown.do?atchFileId=410a67f5ce944eba801bc4fc3479d95a&bbsId=&fileSn=1&menuNo=200050).

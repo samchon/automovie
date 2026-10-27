@@ -1,15 +1,15 @@
-# 둘째 가구의 대표
+# Representative of the second household
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--123-second-household-representative).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--123-second-household-representative).
 
-## 둘째 가구의 대표 {#second-household-representative}
+## Representative of the second household {#second-household-representative}
 
-**정의·범위**
+**Definition and scope**
 
-태조 때부터 동원에 참여한 둘째 귀족 가구의 성인 남성 대표다. 첫 대표와 별개로 자기 집 사람과 장비에 관해 답한다. 개소문이 훈련에서 얻은 성과와 가구가 치른 값을 구별하고, 우선 맡긴 뒤 하는 일을 보아 계속할지를 판단할 수 있다. 이 조건은 자기 가구의 협조 범위이며 다른 가구의 답을 대신하지 못한다.
+He is the adult male representative of the second noble household, which has participated in mobilization since Taejo’s time. Distinct from the first representative, he answers for his own household’s people and equipment. He can distinguish Gaesomun’s training results from the cost borne by the household, entrust him with responsibility for now, and decide whether to continue after seeing what he does. These conditions govern his own household’s cooperation; he cannot answer for the others.
 
-**확정 내용**
+**Established facts**
 
-넓은 턱과 굵은 검은 눈썹으로 구별한다. 적갈색 겉옷과 먹빛 띠를 두른다. 목소리는 낮고 조금 거칠며 문장을 짧게 끊는다. 공통 호위 수와 동원 관계는 집단 정전을 따른다. 외형과 음성은 창작 식별이며 이름·정확한 나이·새 가족이나 후일 배신은 정하지 않는다.
+He is distinguished by a broad jaw and thick black eyebrows, and wears a reddish-brown outer robe and dark sash. His voice is low and slightly rough, and he speaks in short sentences. Shared guard numbers and mobilization relationships follow the group canon. His appearance and voice are invented identifiers; no name, exact age, new family, or later betrayal is established.
 
-공유 규칙: [집단의 관계와 한계](004-inheritance-opponents.md#inheritance-opponents). 실제 발화·행동과 결과의 순서는 treatments와 scripts가 정한다.
+Shared rule: [the group’s relationships and limits](004-inheritance-opponents.md#inheritance-opponents). Treatments and scripts determine the order of actual speech, action, and results.

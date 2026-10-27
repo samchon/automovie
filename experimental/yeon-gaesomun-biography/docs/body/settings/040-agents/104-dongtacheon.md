@@ -1,17 +1,17 @@
-# 661년 북한산성을 지킨 동타천
+# Dongtacheon, defender of Bukhansanseong in 661
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--104-dongtacheon).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--104-dongtacheon).
 
-## 661년 북한산성을 지킨 동타천 {#dongtacheon}
+## Dongtacheon, defender of Bukhansanseong in 661 {#dongtacheon}
 
-**정의·범위**
+**Definition and scope**
 
-동타천은661년 북한산성에서 남녀 주민과 함께 고구려·말갈의 공격을 버틴 성의 지휘자다.
+Dongtacheon commanded the fortress of Bukhansanseong in 661, holding out against a Goguryeo and Malgal attack with its male and female residents.
 
-**확정 내용**
+**Established facts**
 
-현재 예정 서사에는 요동과 평양의 보고에 남방 원정 결과가 올라오며 그의 이름이 등장한다. 성의 방어 도구와 주민의 피로, 최종 철수는 장소 정전에 있다. 개인의 긴 대사나 독립 전투 장면을 두지 않으므로 얼굴과 목소리를 임의로 보충하지 않는다.
+In the currently planned narrative, his name appears when reports of the southern campaign reach Liaodong and Pyongyang. The place canon covers the fortress’s defenses, the residents’ exhaustion, and the eventual withdrawal. Since he has no long speech or independent battle scene, do not invent his face or voice.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『삼국사기』661년 북한산성 방어](https://db.history.go.kr/ancient/level.do?levelId=sg_005r_0040_0550).
+Sources: [The defense of Bukhansanseong in 661, Samguk Sagi](https://db.history.go.kr/ancient/level.do?levelId=sg_005r_0040_0550).

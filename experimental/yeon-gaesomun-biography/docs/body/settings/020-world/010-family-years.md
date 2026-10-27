@@ -1,24 +1,21 @@
-# 연개소문과 아들 세대의 연차
+# Years of Yeon Gaesomun and his sons’ generation
 
-정전 안내: [이 대상의 위치](../outline/index.md#020-world--010-family-years).
+Canon guide: [Location of this subject](../outline/index.md#020-world--010-family-years).
 
-## 연개소문과 아들 세대의 연차 {#family-years}
+## Years of Yeon Gaesomun and his sons’ generation {#family-years}
 
-**정의·범위**
+**Definition and scope**
 
-연개소문은 전선과 국정을 함께 배우는 장남 남생에게 다음 시대를 넘기려는 본편의 중심 통치자다. 작품에서 정한 생몰년은 614년과 665년이다. 614년은 작품에서 창작으로 정한 생년이다. 남생은 634년생으로, 아버지와 출생 연도가 20년 차이 난다.
+Yeon Gaesomun is the central ruler of the main story, seeking to hand the next era to his eldest son Namsaeng, who learns both the front and government. The work sets his life at 614–665; 614 is an invented birth year. Namsaeng was born in 634, twenty calendar years after his father.
 
-**확정 내용**
+**Established facts**
 
+When Yeon took power in 642, 28 years had elapsed since his birth year. He bears responsibility for the 645 war as a ruler who has lived 31 years and the 661 war after 47 years; his life ends in 665, 51 years after birth. His birthday is not established, so these intervals do not mean exact age on a particular date.
 
-연개소문이 642년에 집권했을 때는 태어난 해로부터 28년이 지났다. 645년 전쟁에서는 31년, 661년 전쟁에서는 47년을 살아온 통치자로 전쟁을 책임진다. 665년에는 출생 후 51년이 지난 생애를 마친다. 생일은 정해져 있지 않으므로 이 연수들은 특정 날짜의 만 나이를 뜻하지 않는다.
+Namsaeng’s 634 birth, 679 death, and offices held from childhood rest on epitaph and source annotations. In that office record, he becomes mangniji and commander-in-chief of the three armies in 661 at 28 by traditional Korean age, and daemangniji in 665 at 32. Those ages use a different calculation from elapsed years since birth. He comes to the Yalu front as a successor already trained in government.
 
+Births and sibling order for Namgeon, Namsan, Heonchung, and Heonseong are established in [successors and grandsons](../outline/index.md#040-agents). Namgeon’s 637 birth and Heonchung’s 649 birth and eldest-son status are choices for the work. Namsan’s 639 birth and Heonseong’s 651 birth are years reconstructed from epitaphs. Heonchung, around seventeen during the coup, commands family guards, not the entire country’s army.
 
-남생의 634년 출생과 679년 사망, 어린 시절부터 쌓은 관력은 묘지명과 사료 주석에 근거한다. 관력에서는 전통적인 세는나이로 28세인 661년에 막리지 겸 삼군대장군이 되고, 32세인 665년에 대막리지에 오른다. 이 나이는 태어난 해부터 헤아린 경과 연수와 계산법이 다르다. 남생은 압록강 전선에 이미 국정을 배운 후계자로 나선다.
+**References and unresolved matters**
 
-
-남건·남산·헌충·헌성의 출생과 형제 순서는 [후계자와 손자들](../outline/index.md#040-agents)에 정해져 있다. 남건의 637년 출생, 헌충의 649년 출생과 장남 지위는 작품이 택한 설정이다. 남산의 639년 출생과 헌성의 651년 출생은 묘지 기록을 바탕으로 복원한 연차다. 열일곱 살 전후의 헌충이 정변에서 지휘하는 것은 가문의 호위 병력이며, 국가 전체의 군사를 지휘할 권한은 없다.
-
-**참조·미결**
-
-Sources: [국사편찬위원회, 《삼국사기》 권22 보장왕 20년 9월, 「남생이 당군에게 패하다」의 남생 생몰·관력 주석](https://db.history.go.kr/ancient/level.do?levelId=sg_022r_0020_0340), [《삼국사기》 권49, 「남생의 자와 관력」](https://db.history.go.kr/ancient/level.do?levelId=sg_049r_0040_0010)
+Sources: [National Institute of Korean History annotation on Namsaeng’s life and offices, Samguk Sagi vol. 22](https://db.history.go.kr/ancient/level.do?levelId=sg_022r_0020_0340), [Namsaeng’s courtesy name and offices, Samguk Sagi vol. 49](https://db.history.go.kr/ancient/level.do?levelId=sg_049r_0040_0010).

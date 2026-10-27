@@ -1,15 +1,15 @@
-# 평양에서 해은이 고치던 집
+# Haeun’s original home and workshop in Pyongyang
 
-정전 안내: [이 대상의 위치](../outline/index.md#060-places--230-haeeun-first-home).
+Canon guide: [Location of this subject](../outline/index.md#060-places--230-haeeun-first-home).
 
-## 평양에서 해은이 고치던 집 {#haeeun-first-home}
+## Haeun’s original home and workshop in Pyongyang {#haeeun-first-home}
 
-**정의·범위**
+**Definition and scope**
 
-해은의 원래 집은 평양 왕궁의 남쪽 약3킬로미터, 작업과 경작지 출입이 이어지는 골목의 작은 생활 공간이다. 창작 배치는 남향 출입문을 둔7미터×5미터 집이며 서쪽에 취사와 연료, 동쪽에3미터×3미터 작업·잠자리 방이 있다. 남문 앞 작은 마당은5미터×4미터로 젖은 천을 널고 짐을 묶는 자리다. 네 식구가 같은 방에서 쉬되 작업할 때는 천을 거두고 낮은 탁자를 놓는다. 큰 귀족의 회랑과 병사 집결 마당을 이 집에 복사하지 않는다.
+Haeun’s original home is a small living space about three kilometers south of the Pyongyang palace, on an alley connecting work and access to cultivated land. Its invented layout is a 7-by-5-meter house with a south-facing entrance, cooking and fuel to the west, and a 3-by-3-meter work and sleeping room to the east. A small 5-by-4-meter yard before the south door is used to dry wet cloth and tie baggage. All four family members rest in the same room; for work they clear the cloth and set out a low table. Do not copy a great noble’s corridors and soldiers’ assembly yard into this house.
 
-**확정 내용**
+**Established facts**
 
-작업 방의 동쪽 작은 창과 남문으로 낮빛이 들고 밤에는 등잔 하나를 쓴다. 벽은 밝은 회갈색 흙, 기둥과 문턱은 짙은 갈색 나무이며 골목에서 수레와 이웃의 말소리가 들린다. 해은의 바늘·실·천 꾸러미는 북쪽 벽 선반과 탁자 아래에 나누어 놓는다. 부역과 피난 때문에 가족이 다 돌아와도 지붕 수선과 재료의 부족은 남는다.
+Daylight enters through a small east window and the south door; at night one lamp is used. Walls are light gray-brown earth; pillars and thresholds dark brown wood. Cart and neighbor voices are heard from the alley. Haeun’s needle, thread, and cloth bundles are divided between a shelf on the north wall and under the table. Even if the family all return after labor service and evacuation, roof repairs and shortages of materials remain.
 
-집은 한 층이며 바닥에서 보 아래2.3미터, 처마2.5미터, 동서 용마루3.6미터다. 남북으로 기울어진 짙은 갈색 초가지붕은 벽 밖으로0.4미터씩 내민다. 작업방과 취사 자리 위에는 목재 보와 지붕 받침이 보이고 별도 다락 거처는 없다. 남쪽 문 높이는1.9미터이며 동쪽 창의 창턱은 바닥에서0.9미터로 둔다. 이 높이도 창작값이다. 네 식구가 방을 함께 쓰고 수선 재료가 부족한 처지를 넓은 새 집으로 해결하지 않는다.
+The house has one story, 2.3 meters from floor to beneath the beam, eaves at 2.5 meters, and an east–west ridge at 3.6 meters. The dark brown thatched roof slopes north and south and projects 0.4 meters beyond each wall. Wooden beams and roof supports are visible over the workroom and cooking place; there is no separate attic dwelling. The south door is 1.9 meters high and the east windowsill is 0.9 meters above the floor. These heights are invented too. Do not solve the family’s shared room and shortage of mending materials with a spacious new home.

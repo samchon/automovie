@@ -1,21 +1,21 @@
-# 수도에 먼저 들어온 적
+# The enemy that reaches the capital first
 
-정전 안내: [이 대상의 위치](../outline/index.md#050-systems--070-pyongyang-isolation).
+Canon guide: [Location of this subject](../outline/index.md#050-systems--070-pyongyang-isolation).
 
-## 수도에 먼저 들어온 적 {#pyongyang-isolation}
+## The enemy that reaches the capital first {#pyongyang-isolation}
 
-**정의·범위**
+**Definition and scope**
 
-661년 전역에서 당의 수군은 요동의 모든 성을 먼저 함락시키지 않은 채 평양 방면으로 들어온다. 작품의 고구려는 바다에서 들어온 병력을 수도 주변에 붙들고, 육상으로 연결되어야 할 보급과 연락을 끊는 쪽으로 대응한다. 한 번의 청야로 바다와 모든 강을 닫는 능력은 없다. 당은 출발 때 가지고 온 물자와 현지의 접근 가능한 구간을 계속 사용한다.
+In the 661 campaign Tang’s naval force approaches Pyongyang without first capturing every fortress in Liaodong. The work’s Goguryeo responds by holding the force arriving by sea around the capital and cutting the supplies and communications that must connect by land. One act of scorched earth cannot close the sea and every river. Tang continues using supplies it brought and locally accessible sections.
 
-**확정 내용**
+**Established facts**
 
-급양 가능량과 내부 통로의 한도는 [분산 비축](100-counterattack-concentration.md#interior-supply-capacity)을 따른다.
+Feeding capacity and limits on internal routes follow [dispersed reserves](100-counterattack-concentration.md#interior-supply-capacity).
 
-소정방의 병력은 성을 포위할 수 있지만 장기간의 큰 원정군을 먹일 연결을 계속 확보하지 못한다. 계필하력의 압록강 돌파가 늦어지면 그 연결도 늦어진다. 고구려의 성 수비는 시간을 만들고, 야전 병력은 적의 운반대와 군대 사이를 분리한다. 성 밖 주민과 가구가 입는 피해는 남아 있으며 개소문은 모든 지역을 동시에 구할 수 없다.
+Su Dingfang’s force can besiege the fortress, but cannot maintain the connection needed to feed a large expedition over a long period. Delaying Qibi Heli’s Yalu breakthrough delays that connection. Goguryeo’s fortress defense buys time, while field forces separate enemy transport parties from armies. Harm to residents and households outside remains, and Gaesomun cannot save every region simultaneously.
 
-남생이 압록강에서 계필하력을 붙드는 동안 평양 앞 당군의 보급은 끊긴다. 당의 각 행군이 매일 받은 명령과 실제 운반량은 사료로 모두 복원되지 않는다. 작품은 고구려가 작은 운반대를 공격하고, 당이 호위를 늘리면 다른 길목으로 옮기는 반복 행동을 구성한다. 각 공격이 성공할 때마다 당의 남은 식량이 자동으로 절반이 되는 식의 효과는 주지 않는다.
+While Namsaeng holds Qibi Heli at the Yalu, supplies to Tang’s army before Pyongyang are cut. Sources do not reconstruct every daily order and actual quantity carried for each Tang expeditionary force. The work constructs repeated Goguryeo attacks on small transports, shifting to other routes when Tang increases escorts. Do not give each successful attack the automatic effect of halving Tang’s remaining food.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [이민수, 「661년 고구려-당 전쟁의 전황」, 압록수 저지와 평양군 보급의 연결 해석](https://journal.kci.go.kr/imhc/archive/articlePdf?artiId=ART002819049).
+Sources: [Lee Min-su, “The course of the 661 Goguryeo–Tang war,” interpretation linking the Yalu blockade and supply of the Pyongyang force](https://journal.kci.go.kr/imhc/archive/articlePdf?artiId=ART002819049).

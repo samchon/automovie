@@ -1,20 +1,17 @@
-# 소식이 도착하기 전과 후
+# Before and after news arrives
 
-정전 안내: [이 대상의 위치](../outline/index.md#020-world--050-information-arrival).
+Canon guide: [Location of this subject](../outline/index.md#020-world--050-information-arrival).
 
-## 소식이 도착하기 전과 후 {#information-arrival}
+## Before and after news arrives {#information-arrival}
 
-**정의·범위**
+**Definition and scope**
 
-왕궁과 중앙 지휘부에는 여러 곳의 보고가 모이지만, 현지 지휘자는 눈앞의 적과 지형, 군량 사정을 먼저 안다. 중앙이 현장 손실의 전모를 알기 전에 적 지휘관의 움직임을 들을 수도 있다. 현장에서는 계필하력이 회군한다는 사실을 알아도 그 원인이 북방 반란이라는 것까지는 모를 수 있다. 같은 전역에 참가한 양쪽 군대 모두 이런 정보의 차이를 겪으며, 인물의 판단은 당시까지 도착한 보고에 기대어 이루어진다.
+Reports from many places gather at palace and central command, but local commanders first know the enemy, terrain, and provisions before them. The center may hear an enemy commander’s movements before it knows the full local losses. On site, people may know Qibi Heli is withdrawing without knowing a northern revolt caused it. Both sides experience such information differences; judgments rest on reports received by the time.
 
-**확정 내용**
+**Established facts**
 
+Messenger reports and orders have senders, departure places and times, contents, and obstacles to arrival. Duration depends on actual distances, conveyance, and weather in operation canon. Even urgent orders cannot make same-day round trips across several fronts. If circumstances change before central orders arrive, local commanders judge within delegated authority; that authority and responsibility for failure belong to unit and character canon.
 
-전령이 전하는 보고와 명령에는 발신자, 출발 장소와 시각, 전달할 내용, 도착을 가로막는 조건이 있다. 소요 시간은 작전 정전에 정해진 실제 거리와 운반 수단, 날씨에 따라 달라진다. 긴급한 명령이라도 여러 전선을 당일에 왕복할 수는 없다. 중앙의 명령이 닿기 전에 상황이 바뀌면 현지 지휘자는 부여받은 권한 안에서 판단하며, 그 권한과 실패의 책임은 각 부대와 인물의 정전에 정해져 있다.
+In the work Liaodong reconnaissance reaches Namsaeng in two days and takes eight more to Pyongyang. The northern diversion edict takes 18, 20, and 28 days respectively to reach Tang forces; [northern diversion](../050-systems/090-northern-diversion.md#northern-diversion) owns route differences. Between Ren Yaxiang’s, Pang Xiaotai’s, and Su Dingfang’s camps near Pyongyang, urgent news takes half a day and troop movement at least a day; specific communications follow [the Sasu operation](../050-systems/120-sasu-battle.md#sasu-battle). At Jupilsan, approach behind hills and frontal engagement overlap, preventing immediate knowledge of the whole; timing belongs to [the battle](../050-systems/200-jupilsan-defeat.md#jupilsan-defeat). These durations belong to their operations and do not apply identically to other fronts.
 
-
-작품에서 요동의 정찰 보고는 남생에게 닿는 데 이틀, 거기서 평양까지 추가로 8일이 걸린다. 북방 전용 조서가 각 당군에 도착하는 데는 각각 18일·20일·28일이 든다. 이 경로와 소요일의 차이는 [북방 전용](../050-systems/090-northern-diversion.md#northern-diversion)에 정해져 있다. 평양 근처 임아상·방효태·소정방의 진 사이에서는 급보에 반나절, 부대 이동에 하루 이상이 걸리며, 구체적인 연락은 [사수 작전](../050-systems/120-sasu-battle.md#sasu-battle)을 따른다. 주필산에서는 구릉 뒤의 접근과 정면 교전이 겹쳐 서로의 전모를 즉시 알지 못한다. 그 시차는 [회전](../050-systems/200-jupilsan-defeat.md#jupilsan-defeat)에 정해져 있다. 소요일은 각 작전의 조건에 속하므로 다른 전선에도 똑같이 적용되는 값은 아니다.
-
-
-주민은 소문과 체험으로 전쟁을 안다. 지나가는 부대의 수, 피난한 친족의 이야기, 군역 소집과 마을에 돌아오지 않은 사람이 그 판단의 근거가 된다. 지역마다 얻는 정보가 다르며, 중앙의 손실 집계와 국제 정세가 모두에게 동시에 전해지는 것은 아니다. 후세 서술자는 기록과 결과를 비교할 수 있지만, 당대 인물이 그때 가진 정보로 품었던 합리적인 기대는 후대의 숫자를 몰랐다는 이유만으로 어리석은 판단이 되지 않는다.
+Residents know war through rumor and experience: passing troop numbers, evacuated relatives’ stories, service calls, and people not returning. Regions receive different information; central loss totals and international conditions do not reach everyone at once. A later narrator can compare records and results, but a contemporary’s reasonable expectation with information then available is not foolish solely for lacking later numbers.

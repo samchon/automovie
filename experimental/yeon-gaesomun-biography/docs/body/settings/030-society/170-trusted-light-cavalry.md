@@ -1,17 +1,15 @@
-# 맡길 수 있게 된 경기병
+# Light cavalry entrusted with independent missions
 
-정전 안내: [이 대상의 위치](../outline/index.md#030-society--170-trusted-light-cavalry).
+Canon guide: [Location of this subject](../outline/index.md#030-society--170-trusted-light-cavalry).
 
-## 맡길 수 있게 된 경기병 {#trusted-light-cavalry}
+## Light cavalry entrusted with independent missions {#trusted-light-cavalry}
 
-**정의·범위**
+**Definition and scope**
 
-661~662년 고구려는 경기병을 보내 적의 보급로와 연락을 끊고 이동하는 작은 부대를 추적한다. 임무에 따라 귀족군의 경기병과 편입 지역 병력을 섞어 부대를 편성한다. 말갈 출신이라고 모두 말을 타는 것은 아니며, 고구려의 경기병에도 말갈 이외의 출신이 있다. 부유층이 중무장을 선호하고 편입 지역 병력이 부족한 전력을 보충한다는 작품의 설정은 [생계와 동원](../outline/index.md#030-society)의 사비 무장과 이어진다.
+In 661–662 Goguryeo sends light cavalry to cut enemy supply and communications and pursue small moving units. Depending on the mission, units mix aristocratic light cavalry and forces from incorporated regions. Not every person of Malgal origin rides a horse, and Goguryeo light cavalry includes people of other origins. The work’s premise that wealthy people favor heavy arms and incorporated-region troops supplement missing strength connects to privately funded equipment in [livelihood and mobilization](../outline/index.md#030-society).
 
-**확정 내용**
+**Established facts**
 
+Forces moving away from the main body must judge which route to abandon and which enemy transport to let pass. They must be able to reach a rendezvous days later even if a messenger does not return, and have reason to put the mission before spoils. Besides knowledge of local roads, signals and reporting learned in repeated joint service make this possible. Reliable delegation requires responsible commanders and an expectation that families at home will be protected.
 
-본대에서 떨어져 움직이는 병력은 어느 길목을 포기하고 어느 적의 운반대를 놓아줄지 스스로 판단해야 한다. 명령을 전할 사람이 돌아오지 않아도 며칠 뒤 합류 지점으로 갈 수 있어야 하며, 노획물보다 임무를 앞세울 이유도 필요하다. 지역의 길을 아는 능력에 더해, 반복된 합동 군역에서 익힌 신호와 보고 방식이 이 행동을 가능하게 한다. 책임을 맡길 지휘자가 있고 돌아갈 가족이 보호받으리라는 기대가 있어야 임무를 믿고 맡길 수 있다.
-
-
-전역에서 차단하고 합류할 조건은 군사 정전에 있고 실제 순서는 treatments가 정한다. [분산 급양](../050-systems/100-counterattack-concentration.md#interior-supply-capacity)의 유한한 재고와 지역 노동을 공동체의 충성으로 대신할 수는 없다. 그런 임무를 믿고 맡기는 데에는 앞서 설명한 합동 군역의 경험과 지휘자의 책임, 가족 보호가 필요하다. 두 전쟁을 거치며 고구려의 구성원이라는 자각은 강해지지만, 개인의 이해와 친족 관계도 국가가 무너질 때까지 남는다. 연개소문은 죽기 전에 편입이 실제로 성과를 거둔 모습을 보았다. 뒤의 멸망이 그 성과를 없던 일로 만들지는 않는다. 다만 그 성과만으로 모든 공동체의 충성이 영원히 유지되는 것도 아니다.
+Military canon establishes conditions for interception and joining in the campaign; treatments determine actual order. Finite stocks and local labor in [dispersed supply](../050-systems/100-counterattack-concentration.md#interior-supply-capacity) cannot be replaced by community loyalty. Trusting such missions requires the joint-service experience, command responsibility, and family protection described above. Through two wars a sense of belonging to Goguryeo strengthens, while individual interests and kinship remain through the state’s fall. Before dying, Yeon Gaesomun sees incorporation actually bear fruit. Later collapse does not erase that achievement, but the achievement alone does not keep every community loyal forever.

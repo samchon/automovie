@@ -1,15 +1,15 @@
-# 주필산의 정면과 뒤로 도는 길
+# The front at Jupilsan and the road around the rear
 
-정전 안내: [이 대상의 위치](../outline/index.md#060-places--120-jupilsan-field).
+Canon guide: [Location of this subject](../outline/index.md#060-places--120-jupilsan-field).
 
-## 주필산의 정면과 뒤로 도는 길 {#jupilsan-field}
+## The front at Jupilsan and the road around the rear {#jupilsan-field}
 
-**정의·범위**
+**Definition and scope**
 
-주필산 전장은 안시성 밖에서 구원군이 포위되는 별도 공간이다. 작품에서는 성에서 남동쪽 약3킬로미터의 열린 들을 회전의 중심으로, 그 북동쪽 낮은 구릉을 당의 우회 병력이 지나는 차폐로 선택한다. 이 방향과 거리는 전장을 단일 확정 비정한 값이 아니라 이동 가능한 동선을 만들기 위한 창작 복원이다. 들의 사용 구역은 동서 약2킬로미터·남북1.5킬로미터로 둔다. 고구려 주력은 서쪽 퇴로를 두고 동쪽 당의 정면 병력과 맞서며 성문 바로 밑에 서 있지 않는다.
+The Jupilsan battlefield is a separate space outside Ansi where the relief force is surrounded. The work chooses open ground about three kilometers southeast of the fortress as the battle’s center, and low hills northeast of it as cover for Tang’s flanking force. These directions and distances are an invented reconstruction to make traversable routes, not a single confirmed identification of the battlefield. The area used is about two kilometers east–west and 1.5 north–south. Goguryeo’s main force faces Tang’s frontal force to the east with a western retreat route; it does not stand immediately below the fortress gate.
 
-**확정 내용**
+**Established facts**
 
-장손무기·우진달의 병력은 구릉 뒤 길을 약6킬로미터 돌아 고구려 주력의 북서쪽으로 닿는다. 길은 중간에 좁아져 대열을 길게 늘이고, 들로 나올 때 다시 전투 폭을 만들어야 한다. 구릉은 정면에서 움직임을 가리지만 말발굽 소리·먼지와 정찰병의 발견까지 없애 주지는 않는다. 고구려가 당 정면을 밀어붙이는 동안 그런 보고를 확인할 시간이 부족해지는 방식으로 구성한다. 접근과 재정렬에 걸리는 시차는 [회전 사건](../050-systems/200-jupilsan-defeat.md#jupilsan-defeat)을 따른다.
+Zhangsun Wuji and Niu Jinda’s force goes about six kilometers around behind the hills to reach the northwest of Goguryeo’s main force. The path narrows midway, extending the column, which must regain battle width upon emerging onto the field. The hills hide movement from the front but do not erase hoofbeats, dust, or discovery by scouts. The work has Goguryeo run short of time to check such reports while pressing Tang’s front. The timing of approach and re-formation follows [the battle event](../050-systems/200-jupilsan-defeat.md#jupilsan-defeat).
 
-황제 병력은 당 정면 진의 동북쪽 약1킬로미터 뒤에 둔다. 고구려 중기병이 향하는 열린 길과 말갈 경무장 병력이 돌아드는 구릉 가장자리 길을 구별한다. 두 병력이 적의 방어와 다른 당군의 개입을 동시에 처리할 수 있는 무적 전력은 아니다. 낮의 넓은 들에서는 먼 깃발을 보지만 진과 구릉의 기복 때문에 모든 지휘자가 전장 전체를 같은 눈으로 보지는 못한다.
+The emperor’s force is about one kilometer behind and northeast of Tang’s frontal camp. Distinguish the open route toward it for Goguryeo heavy cavalry from the hill-edge route used by lightly armed Malgal. Neither force is invincible against enemy defenses and simultaneous intervention by other Tang troops. On the broad daytime field, distant flags are visible, but camps and rolling hills prevent every commander from seeing the whole battle in the same way.

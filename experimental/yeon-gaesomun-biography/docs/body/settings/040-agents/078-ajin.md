@@ -1,13 +1,13 @@
-# 아들의 칼을 받는 아진
+# Ajin receives her son’s knife
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--078-ajin).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--078-ajin).
 
-## 아들의 칼을 받는 아진 {#ajin}
+## Ajin receives her son’s knife {#ajin}
 
-**정의·범위**
+**Definition and scope**
 
-아진은 귀돌의 어머니인 창작 인물로 610년생이며, 아들이 돌아오지 않은 뒤 찬오가 가져온 칼을 받는다. 귀돌의 아버지이자 아진의 남편은 661년 늦봄의 도입 시점 전에 이미 죽어 직접 참여하지 않는다. 이 사별은 기존의 가족 조건이며, 이름·정확한 사망 연도·사인이나 별도 인물 사건은 정하지 않는다. 아진은 수송 성공을 들어도 아들의 노동과 귀환을 대신 받지 못한다. 찬오에게 자기 아들이 마지막까지 어떻게 걸었는지 묻지만 그가 보지 못한 사실까지 알아내지는 못한다. 이후 생계는 이웃과 친족의 계절 품앗이를 받아 경작을 이어가는 것으로 정하며, 왕의 포상이 모든 손실을 해결한 것처럼 지우지 않는다.
+Ajin is Guidol’s invented mother, born in 610; after her son fails to return she receives the knife brought by Chano. Guidol’s father, Ajin’s husband, died before the late-spring 661 opening and does not participate directly. This bereavement is an existing family condition; no name, exact year or cause of death, or separate character event is established. Hearing that the transport succeeded cannot replace her son’s labor or return. She asks Chano how her son walked to the end, but cannot learn facts he did not see. Her later livelihood is continued cultivation with seasonal reciprocal labor from neighbors and kin; do not erase the loss as though the king’s reward solved it all.
 
-**확정 내용**
+**Established facts**
 
-키 153센티미터, 굵은 손과 짧은 목, 둥근 턱이다. 갈색 눈과 옅은 검은 눈썹, 낮은 코와 넓은 입, 그을린 황갈색 피부를 가진다. 검은 머리에 회색이 섞이고 뒤로 말아 묶는다. 회갈색 옷에 짙은 갈색 앞치마를 두른다. 목소리는 중간보다 낮고 쉰 결이며 울음을 참을 때 끝말이 잠긴다. 찬오가 자기 부상을 숨기려 하면 손을 먼저 보고 앉힐 자리를 마련한다.
+She is 153 centimeters tall, with thick hands, a short neck, round chin, brown eyes, light black eyebrows, low nose, broad mouth, and sun-darkened tawny skin. Her black hair is streaked with gray and rolled and tied back. She wears a dark brown apron over gray-brown clothes. Her voice is hoarse and below the middle register; its endings catch when she holds back tears. If Chano tries to hide his own injury, she looks at his hands first and makes a place for him to sit.

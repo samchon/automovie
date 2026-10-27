@@ -1,17 +1,17 @@
-# 큰 살대를 쏘는 노포
+# The nopo, a launcher for large bolts
 
-정전 안내: [이 대상의 위치](../outline/index.md#070-objects--070-nopo).
+Canon guide: [Location of this subject](../outline/index.md#070-objects--070-nopo).
 
-## 큰 살대를 쏘는 노포 {#nopo}
+## The nopo, a launcher for large bolts {#nopo}
 
-**정의·범위**
+**Definition and scope**
 
-노포는 활 모양의 힘을 걸어 긴 살대를 발사하는 큰 장치다.661년 기록만으로 모든 구조와 크기가 밝혀진 것처럼 세밀한 기계 도면을 주장하지 않는다.
+A nopo is a large device that uses bow-like tension to launch long bolts. Do not claim a detailed mechanical drawing as if the 661 record disclosed its entire structure and size.
 
-**확정 내용**
+**Established facts**
 
-작품에서는 길이2미터의 받침과 폭1.5미터의 활 부분, 받침에 놓는 긴 살대로 조형하며 옮길 때 분해하거나 여러 사람이 들어야 한다. 활은 받침의 앞끝에 가로로 고정하고 가운데 홈이 앞쪽 발사선을 이룬다. 조작자는 발사선 뒤 양옆에 서서 뒤쪽 권양 손잡이와 두 줄로 현을 뒤로 당겨 걸쇠에 건다. 줄을 느슨하게 분리한 뒤 홈에 살대를 놓고 뒤의 짧은 방아쇠 지렛대로 걸쇠를 푼다. 장전 중 발사선 앞에 사람을 두지 않으며 걸쇠가 닳거나 현이 젖어 손상되면 장력을 유지할 수 없다. 받침·활·권양과 걸쇠의 이 연결 및 치수는661년 기사에 없는 창작 복원이다.
+The work models it with a two-meter bed, a bow 1.5 meters wide, and a long bolt laid on the bed. It must be dismantled or lifted by several people to move it. The bow is fixed crosswise at the front of the bed, with a central groove forming the forward firing line. Operators stand behind the line on either side and use a rear winding handle and two ropes to draw the string back onto a catch. After slackening and detaching the ropes, they place the bolt in the groove and release the catch with a short rear trigger lever. No one stands ahead of the firing line during loading; a worn catch or a string damaged by wet cannot hold tension. This connection of bed, bow, winding mechanism, and catch, and its dimensions, are an invented reconstruction absent from the 661 account.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [661년 북한산성의 포차·노포·마름쇠와 임시 방어](https://db.history.go.kr/ancient/level.do?levelId=sg_005r_0040_0550).
+Sources: [Artillery, nopo, caltrops, and improvised defense at Bukhansanseong in 661](https://db.history.go.kr/ancient/level.do?levelId=sg_005r_0040_0550).

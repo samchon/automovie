@@ -1,34 +1,34 @@
-# 정예한 당군의 자신감
+# The confidence of Tang’s elite army
 
-정전 안내: [이 대상의 위치](../outline/index.md#050-systems--010-tang-military-confidence).
+Canon guide: [Location of this subject](../outline/index.md#050-systems--010-tang-military-confidence).
 
-## 정예한 당군의 자신감 {#tang-military-confidence}
+## The confidence of Tang’s elite army {#tang-military-confidence}
 
-**정의·범위**
+**Definition and scope**
 
-당군은 당대 천하제일급의 야전 군대이며, 유능한 지휘자와 여러 지역의 전력을 함께 사용하는 원정군이다. 고구려에 오기 전 유목 세력과 서방의 나라들을 차례로 무너뜨린 경험이 장수와 병사의 기대에 있다. 돌궐계 왕족과 철륵계 장수의 기병 능력은 정복의 상대였던 힘이 당의 원정 능력으로 들어온 사례다. 각 인물의 전거는 [당 지휘자](../outline/index.md#040-agents)에 있다.
+Tang’s army ranks among the finest field forces of its age, an expeditionary army combining capable commanders and forces from several regions. Generals and soldiers expect success from defeating nomadic powers and western states before Goguryeo. Cavalry skills of Turkic royals and Tiele commanders exemplify former enemies’ strength incorporated into Tang expeditions. Sources for individuals appear under [Tang commanders](../outline/index.md#040-agents).
 
-**확정 내용**
+**Established facts**
 
-당이 고구려 앞에서 무너뜨린 나라는 다음과 같다. 해와 결과는 『자치통감』의 기사를 따른다.
+The states Tang defeated before Goguryeo and their recorded outcomes follow the Zizhi Tongjian:
 
-| 해 | 상대 | 기록이 전하는 결과 |
+| Year | Opponent | Recorded outcome |
 | --- | --- | --- |
-| 630 | 동돌궐 | 2월 이정이 음산에서 힐리가한을 깨뜨리고, 3월 장보상의 군대가 힐리를 사로잡아 장안으로 보낸다. |
-| 635 | 토욕혼 | 이정의 군대가 여러 번 이기고 오해에서 복윤을 크게 깨뜨린다. 복윤은 달아나다 측근에게 죽고 나라가 항복한다. |
-| 640 | 고창 | 후군집의 공격에 고창왕 국지성이 성문을 열고 항복하고, 그 땅은 서주가 된다. |
-| 646 | 설연타 | 회흘 등이 다미가한을 죽이고, 이세적이 남은 무리를 쫓아 항복시킨다. 설연타는 이때 무너진다. |
-| 648 | 구자 | 아사나사이가 다섯 길로 나누어 쳐서 윤12월 발환성을 빼앗고 구자왕 포실필을 사로잡는다. |
-| 657 | 서돌궐 | 소정방이 사발라가한(아사나하로)의 열 부족 군사 10만 가까이를 깨뜨린다. 하로는 657년에 붙잡혀 소사업에게 인계되고, 658년에는 장안에 도착해 헌부된다. 생포와 헌부는 다른 시점이다. |
+| 630 | Eastern Turks | Li Jing defeats Illig Khagan at Yinshan in the second month; Zhang Baoxiang’s force captures him and sends him to Chang’an in the third. |
+| 635 | Tuyuhun | Li Jing’s army wins repeatedly and defeats Fuyun decisively at Wuhai. Fuyun flees and is killed by a close follower; the country submits. |
+| 640 | Gaochang | Under Hou Junji’s attack, King Qu Zhisheng opens the gates and surrenders; the territory becomes Xizhou. |
+| 646 | Xueyantuo | Huihe and others kill Duomi Khagan; Li Shiji pursues remaining groups and obtains their submission. Xueyantuo falls. |
+| 648 | Kucha | Ashina She’er attacks on five routes, takes Bohuan in the intercalary twelfth month, and captures King Bushibi. |
+| 657 | Western Turks | Su Dingfang defeats nearly 100,000 troops of Shaboluo Khagan, Ashina Helu. Helu is captured in 657 and handed to Xiao Siye; in 658 he reaches Chang’an and is presented. Capture and presentation occur at different times. |
 
-말 위에서 자란 유목 군대도 야전에서 당을 이기지 못했다. 그 결과가 당대 사람들에게 당군을 무적으로 들리게 한다.
+Nomadic armies raised on horseback also failed to defeat Tang in the field. To contemporaries, that result makes Tang sound invincible.
 
-작품의 당군은 정찰·기병·보병·궁노·수군을 목적에 맞게 나누고 함께 움직인다. 예하 지휘자는 담당한 구간 안에서 판단할 수 있다. 진을 바꾸거나 명령을 전할 때는 깃발과 북, 연락 인력을 함께 쓴다. 손상된 부대를 다른 부대가 받쳐 주는 훈련과 경험이 있어, 평범한 고구려 병력이 정면으로 밀기 쉽지 않다. 정면의 작은 진으로 끌어내고 다른 부대가 측후방을 치는 방식이 그 협동의 한 예이며, 645년 주필산에서 실제로 작동한다([주필산에서 깨지는 연결](200-jupilsan-defeat.md#jupilsan-defeat)). 정복한 유목 세력의 기병은 당의 원정에서 그 기병의 능력 그대로 쓰인다. 승리 경험은 실제 능력을 갖춘 군사의 자신감이다.
+The work’s Tang army divides reconnaissance, cavalry, infantry, bows and crossbows, and naval forces by purpose and combines them. Subordinate commanders can judge within assigned sectors. Flags, drums, and messengers communicate formation changes and orders. Training and experience allow one unit to support another when damaged, making a frontal push difficult for ordinary Goguryeo forces. Drawing an enemy out with a small frontal camp while another force attacks flank and rear is one example, actually working at Jupilsan in 645 ([connections broken at Jupilsan](200-jupilsan-defeat.md#jupilsan-defeat)). Cavalry from conquered nomadic powers brings its actual abilities to Tang expeditions. Confidence rests on real skill and victories.
 
-수와 당은 다르다. 수의 대군은 야전에서 고구려에 크게 졌다. 612년 살수에서 을지문덕에게 진 육군이 그렇고, 같은 해 왕제 고건무가 결사대로 평양 외성에서 깨뜨린 수군도 그렇다. 수군전의 경과는 [오백 명의 영웅담에서 빠지는 전장](../040-agents/015-geonmu.md#geonmu-war-story)이 정한다. 당에게는 645년 이후 비슷한 수, 때로는 적다고 얕본 당군에게도 야전에서 줄줄이 졌다. 645년 5월 요동을 구원하러 나간 고구려 보기 4만을 이도종이 선봉 기병 4천으로 맞받았다. 당군 안에서는 수의 차이가 너무 크니 참호를 깊이 파고 황제를 기다리자는 말이 나왔으나 이도종은 나아가 맞섰다. 먼저 과의도위 마문거가 말을 달려 들어가 부딪치는 곳마다 고구려군을 쓰러뜨려 당군의 마음을 가라앉혔다. 이어 양군이 크게 맞붙자 행군총관 장군예가 달아나 당군이 불리해졌다(「唐兵不利」). 이도종은 흩어진 군사를 거두어 높은 곳에 올랐다가 고구려군의 진이 어지러워진 것을 보고 날랜 기병으로 그 진을 쳤고, 이세적이 군사를 이끌고 가세하자 고구려군은 크게 졌다(「李世勣引兵助之，高麗大敗，斬首千餘級」). 돌격한 기병은 『자치통감』이 수십(「與驍騎數十沖之」), 『삼국사기』가 수천(「與驍騎數千衝之」)으로 적으며 작품은 그 수를 정하지 않는다. 그 값은 [645년 이후 당과의 야전 기록](235-field-records-after-645.md#field-records-after-645)을 따른다. 고구려군이 밀어붙인 우세는 진이 흐트러진 순간의 돌격과 이세적의 가세로 뒤집혔다. 천여 명의 목을 베었다는 것은 이긴 쪽의 전과 주장이다. 655년 귀단수에서는 고구려군이 당군의 수가 적은 것을 보고 나가 맞섰다가 졌다. 645~659년의 야전 승패는 [645년 이후 당과의 야전 기록](235-field-records-after-645.md#field-records-after-645)이 정한다. 수를 꺾은 기억으로 당을 재는 것이 오판이라는 사실을, 고구려 사람들은 645년 이후 몸으로 배운다.
+Sui and Tang differ. Sui’s large armies suffered major field defeats against Goguryeo: Eulji Mundeok defeated its land force at Salsu in 612, and royal prince Go Geonmu’s picked force defeated its naval force at Pyongyang’s outer fortress the same year. [The battle omitted from the 500-man heroic story](../040-agents/015-geonmu.md#geonmu-war-story) owns the latter’s course. Against Tang after 645 Goguryeo repeatedly lost field battles even to similar numbers, sometimes fewer troops it had underestimated. In May 645, Li Daozong met 40,000 Goguryeo infantry and cavalry relieving Liaodong with 4,000 vanguard cavalry. Some Tang voices urged digging deep trenches and waiting for the emperor because the disparity was so great, but Li advanced. First officer Ma Wenge rode in and struck down Goguryeo soldiers wherever he met them, calming Tang’s men. The main forces then clashed; expeditionary commander Zhang Junyi fled and Tang was disadvantaged (“唐兵不利”). Li gathered scattered troops on high ground, saw Goguryeo’s camp disordered, and charged with swift cavalry. Li Shiji joined with troops and Goguryeo suffered a major defeat (“李世勣引兵助之，高麗大敗，斬首千餘級”). Zizhi Tongjian says several dozen cavalry (“與驍騎數十沖之”), Samguk Sagi several thousand (“與驍騎數千衝之”); the work does not fix that number. [Field records after 645](235-field-records-after-645.md#field-records-after-645) owns it. Goguryeo’s advantage in pressing forward was reversed by the charge at disorder and Li Shiji’s arrival. The claimed thousand-plus heads are the victor’s report. At Gwidansu in 655 Goguryeo advanced on seeing fewer Tang troops and lost. [Field records after 645](235-field-records-after-645.md#field-records-after-645) owns outcomes through 659. Goguryeo learns through experience that judging Tang by memories of defeating Sui is a miscalculation.
 
-패배를 전혀 경험한 적이 없는 군대라는 사실은 채택하지 않는다. 당대 고구려인의 인식에서는 당군이 유목군도 모두 꺾은 무적의 군대라는 말이 돌아다닐 수 있다. 무적이라는 명성은 당대의 평판으로 다루며, 기존 패전까지 없었던 역사로 바꾸지 않는다. 서술자는 그 기대와 능력을 구별한다. 662년 야전 패배의 충격은 성벽에 막혀 돌아가는 정도를 넘어, 함께 움직일 수 있었던 정예 조직이 각각 고립되어 무너지는 데 있다.
+Do not adopt that Tang had never experienced defeat. Contemporary Goguryeo people can call it an invincible army that defeated even nomads; invincibility is reputation, not a rewriting of earlier losses. The narrator distinguishes expectations and ability. The shock of 662 field defeats goes beyond withdrawal stopped by walls: elite organizations able to operate together are isolated and collapse separately.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『자치통감』 권193 정관 4년 힐리가한](https://zh.wikisource.org/wiki/資治通鑑/卷193), [『자치통감』 권194 정관 9년 토욕혼](https://zh.wikisource.org/wiki/資治通鑑/卷194), [『자치통감』 권195 정관 14년 고창](https://zh.wikisource.org/wiki/資治通鑑/卷195), [『자치통감』 권197 정관 19년 5월 을해 요동 구원군](https://zh.wikisource.org/wiki/資治通鑑/卷197), [『삼국사기』 권21 보장왕 4년 요동 구원군](https://zh.wikisource.org/wiki/三國史記/卷21), [『자치통감』 권198 정관 20년 설연타](https://zh.wikisource.org/wiki/資治通鑑/卷198), [『자치통감』 권199 정관 22년 구자](https://zh.wikisource.org/wiki/資治通鑑/卷199), [『자치통감』 권200 현경 2·3년 서돌궐](https://zh.wikisource.org/wiki/資治通鑑/卷200).
+Sources: [Illig Khagan, Zizhi Tongjian vol. 193](https://zh.wikisource.org/wiki/資治通鑑/卷193), [Tuyuhun, vol. 194](https://zh.wikisource.org/wiki/資治通鑑/卷194), [Gaochang, vol. 195](https://zh.wikisource.org/wiki/資治通鑑/卷195), [Liaodong relief, vol. 197](https://zh.wikisource.org/wiki/資治通鑑/卷197), [Liaodong relief, Samguk Sagi vol. 21](https://zh.wikisource.org/wiki/三國史記/卷21), [Xueyantuo, vol. 198](https://zh.wikisource.org/wiki/資治通鑑/卷198), [Kucha, vol. 199](https://zh.wikisource.org/wiki/資治通鑑/卷199), [Western Turks, vol. 200](https://zh.wikisource.org/wiki/資治通鑑/卷200).

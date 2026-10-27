@@ -1,27 +1,27 @@
-# 이미 시작된 백제의 부흥
+# Baekje’s restoration already underway
 
-정전 안내: [이 대상의 위치](../outline/index.md#050-systems--290-baekje-restoration-war).
+Canon guide: [Location of this subject](../outline/index.md#050-systems--290-baekje-restoration-war).
 
-## 이미 시작된 백제의 부흥 {#baekje-restoration-war}
+## Baekje’s restoration already underway {#baekje-restoration-war}
 
-**정의·범위**
+**Definition and scope**
 
-백제 부흥운동은 660년 백제 왕도가 함락된 뒤 시작되어 661~662년 고당전쟁과 겹친다. 흑치상지 등이 임존성을 바탕으로 200여 성을 되찾았고, 661년 봄에는 복신과 도침도 세력을 키워 신라 구원군을 격파했다. 사비·웅진의 당군과 신라군이 백제 전역을 차지한 것은 아니다. 복신은 이미 660년 음력 10월 왜에 군사를 청하고 부여풍의 귀국도 요청했다. 실제 병력·물자 파견과 왕족의 귀환은 그 뒤에 이어진다. 다만 되찾은 성들에서 거둔 자원을 곧바로 한 나라의 병력과 군량으로 쓸 수 있는 것은 아니다.
+The Baekje restoration begins after its capital falls in 660 and overlaps the 661–662 Goguryeo–Tang war. Heukchi Sangji and others recover over 200 fortresses from Imjonseong; in spring 661 Boksin and Dochim expand their force and defeat a Silla relief army. Tang forces at Sabi and Ungjin and Silla do not occupy all Baekje. In the tenth lunar month of 660 Boksin already asks Wa for troops and Buyeo Pung’s return. Actual dispatch of men and supplies and the royal’s return follow later. Resources gathered from recovered fortresses cannot instantly become one state’s troops and provisions.
 
-**확정 내용**
+**Established facts**
 
-부흥 지도부는 고구려가 당의 힘을 나누어 받는 동안 자신들이 싸울 시간이 있다고 본다. 하지만 661년 당의 침공 준비와 여러 방면의 공세를 차례로 듣자 고구려가 끝내 무너지리라는 전망을 사실상 전제로 삼는다. 그 뒤에는 자신들이 당에 홀로 맞서야 한다. 그래서 신라를 단기 결전으로 멸망시켜 영토와 인구, 생산과 동원 기반을 얻겠다는 공세 구상으로 기운다. 660년에 왜에 청한 구원도 결전 규모의 파병 요청으로 키우려 한다. 신라를 이긴다고 그 땅의 사람과 곡식이 바로 자기 힘이 되는 것은 아니며, 왜의 병력도 청한 만큼 온다는 보장은 없다. 이 구상과 지도부의 속마음은 작품의 재구성이다. 661년의 전망을 663년 백강 패전의 단일 원인으로 삼거나 뒤의 결과를 당시 인물에게 미리 알려 주지 않는다.
+Restoration leaders believe Goguryeo’s absorption of Tang strength gives them time to fight. Hearing preparations and multiple offensives in 661, they effectively assume Goguryeo will ultimately fall, leaving them alone against Tang. They incline toward destroying Silla in a quick decisive battle to gain territory, population, production, and mobilization, and expanding their 660 request for Wa aid into a decisive-battle-scale force. Victory over Silla would not instantly make its people and grain theirs, and Wa is not guaranteed to send all requested. This plan and the leaders’ thoughts are invented reconstruction. Do not make the 661 expectation the sole cause of the 663 defeat at Baekgang or give characters later outcomes beforehand.
 
-현재의 성만 지키며 기다려도 당의 다음 공격 앞에서 고립될 수 있다. 신라를 먼저 이기면 더 많은 사람과 땅, 보급로를 얻을 여지가 있지만, 전선을 늘리고 새 점령지를 다스릴 힘도 써야 한다. 작품에서 지도부는 당대의 정보로 이 고위험 생존책을 택한다. 뒤의 패배를 이유로 그들을 어리석거나 허세를 부리는 사람으로 그리지 않는다.
+Waiting behind current fortresses can also leave them isolated before Tang’s next attack. Defeating Silla first might gain people, land, and supply roads, but requires strength to extend fronts and govern new territory. In the work leaders choose this risky survival plan with contemporary information; later defeat does not make them fools or braggarts.
 
-고구려가 662년에 살아남았다는 소식은 부흥군에게 안도와 시간을 준다. 그 뒤에도 고구려가 곧 멸망한다는 661년 예상이 확정 사실일 수는 없다. 신라·당의 압력과 내부 권력 갈등, 이미 시작된 왜의 지원 준비는 남는다. 《일본서기》에는 왜가 661년 음력 8월 구원병·무기·곡물을 백제로 보내고, 663년 음력 3월에는 2만 7천 명을 보내 신라를 치게 했다는 기록이 있다. 부여풍의 귀국도 그 사이에 있다. 왜의 개입은 백강 전투 직전에 급히 생긴 일이 아니다.
+News of Goguryeo’s 662 survival gives relief and time. Thereafter the 661 expectation of imminent fall cannot be certain fact. Silla–Tang pressure, internal power conflict, and Wa preparations already begun remain. The Nihon Shoki records Wa sending relief troops, arms, and grain in the eighth lunar month of 661 and 27,000 in the third lunar month of 663 to strike Silla. Buyeo Pung returns between these events. Wa intervention does not arise hastily just before Baekgang.
 
-작품에서는 이미 청한 원군과 모은 물자·사람 때문에 661년의 구상을 곧바로 거둘 수 없게 한다. 662~663년 달라진 조건에 맞춰 병력의 목표를 다시 정하는 동안 명분과 비용이 어긋난다. 이 압력과 다툼은 작품의 정치적 구성이다. 특정 사료에 기록된 회의나 파병 명령으로 주장하지 않는다.
+The work makes the 661 plan hard to abandon immediately because aid has been requested and people and supplies gathered. While forces’ objectives are reset for 662–663 conditions, justification and costs diverge. This pressure and dispute are political construction, not a meeting or dispatch order claimed in a particular source.
 
-663년 음력 2월 신라가 백제 성들을 빼앗고 주류성이 위태로워진다. 백제와 왜는 앞서 쌓아 온 지원 관계와 병력을 그곳의 방어와 구원에 쓴다. 백강을 신라 정복 구상 하나 때문에 먼저 벌인 침공전으로 쓰지 않는다. 2만 7천 명은 3월 파병 기록이며 백강 당일 출전한 전체 인원이 아니다. 백강의 왜 지원군은 약 3만이다.
+In the second lunar month of 663 Silla takes Baekje fortresses and threatens Juryuseong. Baekje and Wa use their accumulated support ties and forces for its defense and relief. Do not write Baekgang as an invasion first launched solely for the plan to conquer Silla. The 27,000 are the March dispatch, not everyone fighting on the day; Wa support at Baekgang is about 30,000.
 
-복신의 생존 상한과 부여풍에 의한 피살 결과는 [복신 정전](../040-agents/071-boksin.md#boksin)을 따른다. 앞선 지도부의 동원 구상을 설명하는 문단이 복신의 살아 있는 지휘를 백강까지 연장하지 않는다. 피살 이후 남은 세력과 지원군의 실제 판단·행동은 해당 시점의 treatments가 설계한다.
+[Boksin’s canon](../040-agents/071-boksin.md#boksin) owns the limit of his survival and his killing by Buyeo Pung. Earlier mobilization plans do not extend his living command to Baekgang. Treatments decide remaining forces’ and supporters’ actual judgments and actions after his death.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [《삼국사기》 661년 3월 복신·도침의 세력 확장과 신라 구원군 패퇴](https://db.history.go.kr/ancient/level.do?levelId=sg_028_0020_0400), [국사편찬위원회 《신편 한국사》의 임존성·200여 성 회복과 사비·웅진 주변 전황](https://db.history.go.kr/id/nh_009_0020_0010_0030_0020), [《일본서기》 660년 음력 10월 복신의 청병과 부여풍 귀환 요청](https://db.history.go.kr/common/compareViewer.do?levelId=jm_001_0230_0160&type=ancient), [《일본서기》 661년 음력 8월의 구원병·무기·곡물](https://db.history.go.kr/common/compareViewer.do?levelId=jm_001r_0240_0020&type=ancient), [《일본서기》 663년 음력 2월의 신라 공격](https://db.history.go.kr/common/compareViewer.do?levelId=jm_001_0240_0140&type=ancient), [《일본서기》 663년 음력 3월의 2만 7천 명 파병](https://db.history.go.kr/item/compareViewer.do?levelId=jm_001_0240_0160), [국편 우리역사넷의 백제 부흥과 663년 백강전투](https://contents.history.go.kr/front/tg/view.do?levelId=tg_001_0150&treeId=0103).
+Sources: [Boksin and Dochim’s expansion and defeat of Silla relief in March 661](https://db.history.go.kr/ancient/level.do?levelId=sg_028_0020_0400), [Imjonseong and over 200 fortresses recovered](https://db.history.go.kr/id/nh_009_0020_0010_0030_0020), [Boksin’s tenth-month 660 request for troops and Pung’s return](https://db.history.go.kr/common/compareViewer.do?levelId=jm_001_0230_0160&type=ancient), [Wa relief, arms, and grain in the eighth month of 661](https://db.history.go.kr/common/compareViewer.do?levelId=jm_001r_0240_0020&type=ancient), [Silla attack in the second month of 663](https://db.history.go.kr/common/compareViewer.do?levelId=jm_001_0240_0140&type=ancient), [27,000 dispatched in the third month of 663](https://db.history.go.kr/item/compareViewer.do?levelId=jm_001_0240_0160), [Baekje restoration and Baekgang](https://contents.history.go.kr/front/tg/view.do?levelId=tg_001_0150&treeId=0103).

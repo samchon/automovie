@@ -1,17 +1,17 @@
-# 평양으로 온 내호아
+# Lai Hu’er at Pyongyang
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--098-lai-huer).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--098-lai-huer).
 
-## 평양으로 온 내호아 {#lai-huer}
+## Lai Hu’er at Pyongyang {#lai-huer}
 
-**정의·범위**
+**Definition and scope**
 
-내호아는 612년 평양 접근과 614년 마지막 원정의 수군 지휘자다.
+Lai Hu’er commanded the Sui naval force approaching Pyongyang in 612 and on the final expedition in 614.
 
-**확정 내용**
+**Established facts**
 
-건무의 영웅담에서 물리친 수군을 이끈 적이며, 614년에는 고구려의 피폐를 들어 계속 공격하려 하지만 황제의 철군 명령을 받는다. 현재 예정 서사에는 건무의 회상과 당시 보고가 남긴 군사 상황만 있으며 내호아의 직접 대사·독립 장면은 없다. 개인 초상과 음성을 창작하여 장면을 확장하지 않는다. 612년 성안의 약탈과 대오 붕괴, 선박의 별도 잔류 병력은 건무의 승리가 성립한 조건으로 기억 정전에 남긴다.
+In Geonmu’s heroic story, he is the enemy who led the Sui force defeated there. In 614 he wishes to continue the attack, citing Goguryeo’s exhaustion, but receives the emperor’s order to withdraw. The currently planned narrative retains only the military situation in Geonmu’s recollection and contemporary reports; Lai Hu’er has no direct dialogue or independent scene. Do not invent a portrait or voice to expand his scenes. The looting and breakdown of formation inside the city in 612, and the separate force remaining at the ships, stay in the memory canon as conditions of Geonmu’s victory.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『수서』 권64 내호아전](https://zh.wikisource.org/zh-hant/隋書/卷64), [『삼국사기』614년 내호아의 철군](https://db.history.go.kr/ancient/level.do?levelId=sg_020r_0020_0360).
+Sources: [Biography of Lai Hu’er, Book of Sui vol. 64](https://zh.wikisource.org/zh-hant/隋書/卷64), [Lai Hu’er’s withdrawal in 614, Samguk Sagi](https://db.history.go.kr/ancient/level.do?levelId=sg_020r_0020_0360).

@@ -1,29 +1,27 @@
-# 연남건의 군사적 자부심
+# Yeon Namgeon’s military pride
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--008-namgeon).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--008-namgeon).
 
-## 연남건의 군사적 자부심 {#namgeon}
+## Yeon Namgeon’s military pride {#namgeon}
 
-**정의·범위**
+**Definition and scope**
 
-연개소문의 둘째 아들 남건은 승전한 군사력으로 다음 정복에 나서야 한다고 믿는다. 이 믿음 때문에 재건을 택한 형 남생과 맞선다. 생년은 기록으로 확정되지 않았고 국편 주석에서는 635~638년 사이로 추정한다. 작품에서는 637년생으로 정한다.
+Yeon Gaesomun’s second son Namgeon believes victorious military strength should undertake the next conquest, opposing Namsaeng’s choice of reconstruction. His birth year is unconfirmed; a National Institute of Korean History annotation estimates 635–638. The work chooses 637.
 
-**확정 내용**
+**Established facts**
 
-작품이 정한 남건의 키는 178센티미터다. 세 형제 가운데 팔이 가장 두껍고 가슴이 넓다. 턱은 짧고 각졌으며, 작은 갈색 눈 가까이로 검은 눈썹이 내려온다. 콧등은 높고 코끝은 넓으며 윗입술은 얇다. 피부는 볕에 그을린 황갈색이다. 검은 머리를 단단히 묶고 턱수염은 짧게 기른다.
+He is 178 centimeters tall, thickest-armed and broadest-chested of the three brothers, with a short angular chin, small brown eyes near low black eyebrows, high nasal bridge, broad nose tip, thin upper lip, and sun-darkened tawny skin. His black hair is tightly tied, beard short.
 
-검은 속옷 위에 붉은 갈색 겉옷을 입고 검은 띠를 두른다. 손등에는 자주 다친 흔적이 있다. 훈련 뒤에도 곧바로 갑옷을 벗지 않고, 회의에서 오래 앉아 있게 되면 일어나서 말한다.
+He wears reddish-brown outerwear over black underclothes and a black sash. His hands bear frequent injury marks. He does not immediately remove armor after training, and stands to speak after sitting long in meetings.
 
+His voice is low and thick with loud rough resonance. Even normally he ends firmly, shortening pauses with greater certainty. He misreads his elder brother’s quiet voice as hesitation. Yet on receiving news beyond his own control, Namgeon closes his mouth and tightens his jaw rather than immediately raising his voice.
 
-목소리는 낮고 두꺼우며 거친 울림이 크다. 평소에도 말끝을 강하게 맺고, 확신이 클수록 말 사이의 간격이 짧아진다. 형이 낮은 소리로 말하면 주저한다고 잘못 받아들인다. 그러나 남건도 자신이 통제할 수 없는 일의 보고를 받으면 목소리부터 높이지 않고 입을 다문 채 턱에 힘을 준다.
+A commander able to raise morale and read forward troops in urgent fighting, he leads one group of central heavy cavalry around Pyongyang at age 24 or 25 during 661–662, an invented deployment rather than recorded office. He remembers his father’s strictness as strength and decisiveness. He finds it hard to accept that a country defeating Tang elites in the field would not seize the next chance. He thinks Namsaeng’s judgment narrowed after Yalu defeat. He understands delay’s effect but disagrees that it justifies defeat and passive policy.
 
-남건은 부대의 기세를 북돋우고 급한 전투에서 앞선 병력의 상태를 읽을 줄 아는 군사 지휘자다. 661~662년 전역에서는 스물네다섯 살의 나이로 평양 주변 중앙 야전 병력의 중무장 기병 가운데 한 무리를 맡는다. 이 배치는 작품의 창작이며 기록된 관력이 아니다. 아버지의 엄격함을 힘과 결단으로 기억한다. 당의 정예군을 야전에서 물리친 나라가 다음 기회를 잡지 않는 것을 참기 어렵다. 남생이 압록강에서 패한 뒤 판단의 폭이 좁아졌다고 여긴다. 지연전의 효과는 알지만, 그 효과로 패배와 소극적인 정책을 정당화할 수 있다는 데는 동의하지 않는다.
+In the coup he seeks to remove his brother and use state strength aggressively under his own command, not to kill him. He believes he can remove a wrong ruler as his father once removed a king, discounting different state conditions. Royal approval would give grounds to claim loyalty to family and country alike.
 
+Heonchung’s death and Namsaeng’s submission escape his control. He cannot indefinitely assign responsibility for the returning enemy solely to Namsaeng’s betrayal, yet cannot surrender power and reconcile. In 668 he resists in Pyongyang, is taken to Tang, and exiled to Geomju. Even at the country’s fall he remains militarily talented.
 
-정변에서 남건이 바라는 것은 형을 실각시키고 자신의 지휘로 국력을 공격적으로 쓰는 일이다. 형을 죽일 계획으로 나서는 것은 아니다. 아버지가 한때 왕을 밀어냈듯 자신도 잘못된 통치자를 밀어낼 수 있다고 믿지만, 당시와 지금의 국가 조건이 다르다는 점은 가볍게 여긴다. 왕의 승인을 얻으면 가문과 나라 양쪽에 충성을 지켰다는 명분도 생긴다.
+**References and unresolved matters**
 
-정변 뒤 헌충이 죽고 남생이 당에 귀부하는 사태는 남건의 통제를 벗어난다. 자신의 행동 때문에 적이 다시 왔다는 책임을 남생의 배신으로만 끝까지 돌릴 수는 없다. 그렇다고 권력을 내려놓고 화해할 수도 없다. 668년에는 평양성에서 항거하며, 패전 뒤 당으로 끌려가 검주에 유배된다. 나라가 멸망할 때에도 남건은 군사적 재능을 지닌 인물로 남는다.
-
-**참조·미결**
-
-Sources: [『삼국사기』 남건·남산의 대리와 국편 인물 주석](https://db.history.go.kr/ancient/level.do?levelId=sg_049r_0040_0030).
+Sources: [Delegation to Namgeon and Namsan and biographical annotation, Samguk Sagi](https://db.history.go.kr/ancient/level.do?levelId=sg_049r_0040_0030).

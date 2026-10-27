@@ -1,14 +1,13 @@
-# 신라에 남은 망명 가구들
+# Exiled households remaining in Silla
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--091-silla-exiles).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--091-silla-exiles).
 
-## 신라에 남은 망명 가구들 {#silla-exiles}
+## Exiled households remaining in Silla {#silla-exiles}
 
-**정의·범위**
+**Definition and scope**
 
-선대 내전 뒤 죽은 귀족들의 생존 가족 가운데는 신라 변경의 친족에게 의지해 고구려를 떠난 이들이 있다. 작품에서는 이들을 이름 없는 망명 가구들로 구성한다. 선대가 잃은 군사·혼인 관계를 돌아볼 때 이 가족들도 그 일부로 언급된다. 왕가가 내전을 수습했다고 선언하는 것과, 가족들이 살아남기 위해 새 나라에 머무는 선택은 별개의 일이다.
+After the earlier civil war, some surviving family members of the dead nobles left Goguryeo to rely on relatives on the Silla frontier. The work makes them unnamed exiled households. They are among the lost military and marriage ties recalled by the earlier generation. The royal family’s declaration that it has settled the civil war is separate from these families’ choice to stay in a new country to survive.
 
-**확정 내용**
+**Established facts**
 
-
-현재 예정된 서사에서는 각 가구의 실명이나 직접 대사, 가구마다 다른 귀환 결과를 다루지 않는다. 고구려 유민 전체의 이주 시기와 목적지를 이 가구들과 같다고 보지는 않는다. 역사 자료에 이 가구들의 명부가 남아 있다고 주장하지 않는다.
+The currently planned narrative does not give each household a personal name, direct dialogue, or a different outcome on return. Do not assume that all Goguryeo displaced people migrated at the same time or to the same destination as these households. Do not claim that historical sources preserve a list of them.

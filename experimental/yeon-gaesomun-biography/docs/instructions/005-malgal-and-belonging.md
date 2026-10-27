@@ -1,48 +1,48 @@
-# 말갈의 편입과 귀속
+# Malgal incorporation and belonging
 
-## 생계와 교역을 넓히는 동진 {#eastern-integration-and-livelihoods}
+## Eastward expansion widens livelihoods and trade {#eastern-integration-and-livelihoods}
 
-고구려가 과거 거란 방면에 세력을 넓힌 동기에는 가축·교역로와 소금 자원의 경제적 가치가 있었던 것으로 재구성한다. 염수·염호와 교역에 접근하는 일부 거란 집단은 상대적으로 풍족한 기반을 가진 것으로 그리되, 거란 전체의 생활 수준을 하나로 정하지 않는다. 말갈은 고구려 영내에 편입된 집단과 국경 밖의 집단을 구별하고, 경제적 기반이 빈약한 공동체의 약탈도 생계와 국경 관계 속에서 다룬다.
+Reconstruct Goguryeo's earlier expansion toward the Khitan as motivated in part by the economic value of livestock, trade routes, and salt resources. Depict some Khitan groups with access to brine, salt lakes, and trade as relatively well supplied, without assigning one standard of living to all Khitan. Distinguish Malgal groups incorporated into Goguryeo territory from groups outside the border, and treat raids by communities with poor economic bases within their livelihood and frontier relationships.
 
-고구려는 작은 약탈마다 대규모 원정을 벌여도 얻을 재물과 유지할 이익이 적다고 판단하는 반면, 돌지계 집단처럼 국경 질서와 지배에 큰 위협이 되는 세력에는 무력으로 대응하는 구도를 둔다. 빈곤만으로 모든 전쟁과 교섭을 설명하지 않고, 집단별 세력·동맹·복속 관계도 함께 작용하게 한다.
+Goguryeo judges that large expeditions against every small raid would yield little wealth or lasting benefit, while responding militarily to forces such as Dolji Gye's group that seriously threaten frontier order and rule. Do not explain all wars and negotiations by poverty alone; let each group's power, alliances, and subordination matter too.
 
-평원왕·영양왕의 동진은 말갈 지역을 내지화하고 교역망에 연결하여 주민이 먹고살 길을 넓히는 정책으로 그린다. 고구려도 생산물과 사람, 교통·동원 기반을 얻으며, 주민에게는 생계의 개선과 국가의 보호·교육이 귀속의 이유가 되게 한다. 교역과 개발의 세부는 settings에서 구성하고, 경당을 통한 교육은 [편입과 교육](#integration-and-education)에 연결한다.
+Depict the eastward expansion of Kings Pyeongwon and Yeongyang as a policy of incorporating Malgal areas into the realm and connecting them to trade networks, widening residents' ways to make a living. Goguryeo also gains products, people, and transport and mobilization foundations; improved livelihoods and state protection and education give residents reasons to belong. Settings constructs trade and development details; connect education through the gyeongdang to [incorporation and education](#integration-and-education).
 
-동진이 군사적 복속 이후에도 지속되는 국력 신장과 공동체 편입의 과정이 되게 하기 위해서다. 거란 정벌의 경제적 동기, 말갈 약탈에 대한 비용 판단과 개발·교역 정책은 작품의 재구성이다. 말갈의 열악한 생활은 구체적인 환경과 자원의 부족으로 보여주며, 사서의 비하 표현을 종족 전체에 대한 서술자의 평가로 옮기지 않는다.
+This makes eastward expansion a continuing process of national growth and community incorporation after military subordination. The economic motives for Khitan conquest, cost judgments about Malgal raids, and development and trade policies are the work's reconstruction. Show difficult Malgal living conditions through specific environments and lack of resources, without adopting historical chronicles' derogatory language as the narrator's judgment of an entire people.
 
-- [국사편찬위원회, 광개토왕릉비 국역문과 주석](https://db.history.go.kr/id/gskh_001_0010_0010_0030): 패려 정벌과 염수·가축을 전하며, 패려의 정체와 염수 위치에 관한 이견을 제공한다. 염호 자원과 교역을 정벌의 주요 동기로 연결하는 것은 작품의 해석이다.
-- [《수서》 권81 고구려전·말갈전](https://zh.wikisource.org/wiki/隋書/卷81): 말갈의 여러 집단과 고구려 약탈, 경작·수렵과 주거·의복, 돌지계의 패전과 수 귀부를 전한다. 토벌의 비용 판단과 체계적인 내지화 정책까지 확인한 기록은 아니다.
+- [National Institute of Korean History, translation and notes on the Gwanggaeto Stele](https://db.history.go.kr/id/gskh_001_0010_0010_0030): records the Paeryeo campaign, brine, and livestock, and provides differing views of Paeryeo's identity and the location of the brine. Connecting salt-lake resources and trade as major campaign motives is the work's interpretation.
+- [Book of Sui, volume 81, accounts of Goguryeo and the Malgal](https://zh.wikisource.org/wiki/隋書/卷81): records several Malgal groups and raids on Goguryeo, farming and hunting, homes and clothing, and Dolji Gye's defeat and submission to Sui. It does not establish the cost judgment or a systematic incorporation policy.
 
-## 평원왕·영양왕의 편입과 교육 {#integration-and-education}
+## Incorporation and education under Pyeongwon and Yeongyang {#integration-and-education}
 
-평원왕·영양왕은 동방을 개발하고 말갈 지역을 내지화하면서 경당을 설치하여 교육을 확장한 것으로 그린다. 독서·활쏘기와 공동생활은 편입된 주민이 고구려의 군사 조직에서 함께 임무를 수행할 토대가 되게 한다. 말갈은 전쟁 때만 불러오는 외부 병력이 아니라, 고구려 안에 가족과 생활 기반을 두고 살아가는 구성원으로 자리 잡는다.
+Depict Kings Pyeongwon and Yeongyang developing the east, incorporating Malgal territory, and expanding education by establishing gyeongdang. Reading, archery, and shared life lay a foundation for incorporated residents to perform duties together in Goguryeo's military organization. Malgal become members living with families and livelihoods inside Goguryeo, not outside troops called only for war.
 
-이후의 군사적 협동과 국민적 귀속이 두 왕의 오랜 재건 노력에서 비롯되게 하기 위해서다. 말갈 지역의 경당 정책은 작품의 창작이며, 교육과 군사 훈련의 구체적 연결은 settings에서 설계한다.
+This makes later military cooperation and national belonging grow from the two kings' long work of reconstruction. A gyeongdang policy in Malgal regions is the work's invention; settings designs the specific connection between education and military training.
 
-## 편입의 이익과 의무 {#integration-benefits-and-obligations}
+## Benefits and obligations of incorporation {#integration-benefits-and-obligations}
 
-말갈의 귀속은 교역·보호·교육과 군공에 대한 인정이 가족과 공동체의 앞날을 고구려 안에서 찾게 하는 과정으로 그린다. 동시에 군역과 물자 부담, 생업의 시기와 동원의 충돌, 기존 수장의 권한과 국가 지휘체계의 마찰도 있게 한다. 연개소문의 통치력에는 공헌을 인정하고 부담을 조정하며 고구려의 유력자들도 약속을 지키게 하는 능력을 포함한다. 생활과 언어를 버려야 구성원이 되는 것으로 쓰지 않는다.
+Depict Malgal belonging as a process in which trade, protection, education, and recognition for military service lead families and communities to seek their future within Goguryeo. At the same time retain military service and supply burdens, conflicts between the seasons of livelihood and mobilization, and friction between existing leaders' authority and the state's command system. Yeon Gaesomun's governing ability includes recognizing contributions, adjusting burdens, and making powerful Goguryeo people keep promises too. Do not require people to abandon their lives and language to become members.
 
-귀속이 학살에 대한 분노만이 아니라 함께 살아갈 이익과 책임에서 지속되게 하기 위해서다. 지원과 보상·부담의 구체적 방식은 settings에서 구성한다. 고구려에 편입된 집단과 수·당을 택한 집단의 다른 행로도 보존하여, 모든 말갈이 같은 정치적 선택을 한 것으로 확장하지 않는다.
+Belonging endures through the benefits and responsibilities of living together, not anger at a massacre alone. Settings constructs specific forms of support, compensation, and burden. Preserve the different paths of groups incorporated into Goguryeo and groups that chose Sui or Tang, without extending one political choice to all Malgal.
 
-- [박노석, 「고구려에 복속된 속말말갈에 대한 고찰」, 2026](https://kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART003318122): 공개 초록은 고구려에 복속되어 싸운 말갈과 수·당에 귀속된 돌지계 집단, 멸망 뒤의 서로 다른 행로를 설명한다. 지원 정책과 부담 조정은 작품에서 설계한다.
+- [Park No-seok, “A Study of the Songmal Malgal Subjugated by Goguryeo,” 2026](https://kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART003318122): the public abstract describes Malgal who fought under Goguryeo, Dolji Gye's group aligned with Sui and Tang, and their different paths after the fall. The work designs support policies and burden adjustments.
 
-## 주필산의 학살과 연개소문의 정치 {#jupilsan-and-yeons-politics}
+## The Jupilsan massacre and Yeon Gaesomun's politics {#jupilsan-and-yeons-politics}
 
-645년 주필산 패전 뒤 당이 말갈 포로들을 골라 집단 처형한 일은 생존자와 유족의 분노, 고구려에 대한 일체감과 소속감을 키우는 전환점이 되게 한다. 연개소문은 두 왕이 쌓은 기반과 이 사건의 의미를 꿰뚫어 보고, 위무와 실제 보호·보상, 역량의 인정과 중요한 임무의 위임으로 귀속을 완성한 인물로 그린다. 2차전쟁의 공동 승리는 그 정치의 결실이 드러나는 사건으로 삼는다.
+After the 645 defeat at Jupilsan, Tang selects and executes Malgal prisoners as a group. Make this a turning point that increases survivors' and bereaved families' anger and their sense of unity and belonging with Goguryeo. Depict Yeon Gaesomun as seeing the foundation built by the two kings and the event's significance, completing belonging through consolation, actual protection and compensation, recognition of ability, and delegation of important missions. The shared victory in the second war shows the fruits of that politics.
 
-분노가 지속적인 결속으로 이어지려면 자신들의 희생을 나라가 인정하고 책임진다는 경험이 필요하기 때문이다. 위무의 방식과 보상 제도, 이를 살아가는 말갈 인물은 settings에서 창작한다.
+For anger to become lasting solidarity, people need the experience that the country recognizes and takes responsibility for their sacrifice. Settings invents the forms of consolation and compensation and the Malgal characters living through them.
 
-- [동북아역사재단, 《구당서》 고구려전](https://contents.nahf.or.kr/id/NAHF.jd.k_0016_0199_0010_0110): 항복한 군사의 처분과 말갈 3,300인의 집단 처형을 전한다. 연개소문의 위무 정치와 귀속의 인과는 작품의 재구성이다.
+- [Northeast Asian History Foundation, Old Book of Tang account of Goguryeo](https://contents.nahf.or.kr/id/NAHF.jd.k_0016_0199_0010_0110): records the treatment of surrendered soldiers and the group execution of 3,300 Malgal. Yeon Gaesomun's politics of consolation and the causality of belonging are the work's reconstruction.
 
-## 귀속이 가능하게 하는 군사적 신뢰 {#belonging-and-military-trust}
+## Military trust made possible by belonging {#belonging-and-military-trust}
 
-말갈 경기병의 분산 작전은 공동체 귀속과 교육, 함께 싸운 경험으로 쌓은 신뢰가 가능하게 한 것으로 설명한다. 지휘부는 그들이 직접 통제 밖에서도 임무를 지속하고 협동하리라 믿어 작전 정보와 현지 판단을 맡기며, 말갈 지휘자들은 자기 나라와 삶의 터전을 지키는 책임으로 싸운다. 작품 속 고구려는 외부 용병에게 쉽게 맡기지 못했던 수준의 임무를 내재화된 구성원에게 맡길 수 있게 된다.
+Explain the Malgal light cavalry's dispersed operations as enabled by trust built through community belonging, education, and shared fighting. Commanders entrust operational information and local judgment because they believe the cavalry will sustain its mission and cooperate even outside direct control; Malgal commanders fight from responsibility to defend their country and homes. Goguryeo in the work can entrust incorporated members with missions it could not easily assign to outside mercenaries.
 
-말갈의 편입이 병력 숫자의 증가와 함께 군대를 운용하는 방식까지 바꾸게 하기 위해서다. 귀속과 신뢰는 두 전쟁 사이에 깊어지고, 2차전쟁의 승리가 이를 다시 확고하게 한다. 전쟁에서 맡는 역할은 [2차전쟁 작전](007-warfare-and-campaigns.md#second-war-operations)에 연결하며, 세부 임무와 수행 조건은 settings에서 설계한다.
+Incorporation changes how the army operates as well as increasing troop numbers. Belonging and trust deepen between the two wars, and victory in the second war strengthens them again. Connect wartime roles to [second-war operations](007-warfare-and-campaigns.md#second-war-operations); settings designs individual missions and conditions.
 
-## 멸망 뒤에도 이어지는 공동체 {#community-after-collapse}
+## Communities continue after the fall {#community-after-collapse}
 
-말갈의 여러 집단은 서로 다른 생활과 이해관계 속에서 선택하는 사람들로 그린다. 내전과 멸망 때에는 중앙 권력자들이 나라를 무너뜨리는 동안, 고구려를 자기 나라로 받아들인 말갈·지방 공동체가 사람과 삶의 터전을 지키려는 역전을 살린다. 이들이 고구려 유민과 함께 새 국가를 세우는 부활은 원본 외전의 보존 재료다. 이번 본편은 그 건국 장면이나 외전 편수를 위임하지 않는다.
+Depict the various Malgal groups as people choosing within different lives and interests. During civil war and collapse, preserve the reversal in which Malgal and regional communities that have accepted Goguryeo as their country try to protect people and homes while central power holders bring it down. Their revival in a new country alongside former Goguryeo people is preserved material for the original side story. This main work does not delegate its founding scene or side-story episodes.
 
-귀속을 모든 말갈의 동일한 선택이나 생활·언어의 소멸로 처리하지 않고, 멸망 이후에도 공동체의 주체성이 남게 하기 위해서다. 참여 집단과 인물, 이동 경로와 새 연합의 형성은 settings에서 보충한다.
+This preserves community agency after the fall without treating belonging as an identical choice by all Malgal or the disappearance of life and language. Settings supplements participating groups and people, routes of movement, and formation of the new alliance.

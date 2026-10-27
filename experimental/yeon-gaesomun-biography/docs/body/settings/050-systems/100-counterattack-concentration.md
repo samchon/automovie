@@ -1,42 +1,42 @@
-# 살아남은 병력이 평양에 닿는 과정
+# How the surviving force reaches Pyongyang
 
-정전 안내: [이 대상의 위치](../outline/index.md#050-systems--100-counterattack-concentration).
+Canon guide: [where to find this subject](../outline/index.md#050-systems--100-counterattack-concentration).
 
-## 살아남은 병력이 평양에 닿는 과정 {#counterattack-concentration}
+## How the surviving force reaches Pyongyang {#counterattack-concentration}
 
-**정의·범위**
+**Definition and scope**
 
-662년 1월 평양에서 합치는 고구려 병력은 개소문이 요동에서 데려오는 기동군과 평양성 병력이다. 압록강 패전 뒤 철산에서 다시 묶인 남생의 2만은 압록강 남안의 길목을 지키는 일에 남고 이 집중에 들지 않는다. 새 군사를 합계 밖에서 보태지 않는다.
+The Goguryeo forces joining at Pyongyang in January 662 are the mobile army Gaesomun brings from Liaodong and Pyongyang fortress troops. Namsaeng's 20,000 reorganized at Cheolsan after the Yalu defeat remain guarding approaches on the Yalu's south bank and do not join this concentration. Do not add new troops outside the total.
 
-**확정 내용**
+**Established content**
 
-기동군의 출발 기준은 661년 12월 초순의 신성 일대다. 신성 일대에서 압록강 남안을 거쳐 평양 북쪽 집결지까지 약550km다. 국내성 순행로와 다르다. 기병 중심이어도 짐과 말의 쉼 때문에 평균20~25km/일로 움직이며, 순수 이동22일과 강 대기2일을 합쳐24일이 걸려 662년 1월 초 평양 북쪽에 닿는다.
+The mobile army starts from the Sinseong area in early December 661. The route from there via the Yalu's south bank to the assembly area north of Pyongyang is roughly 550 km, distinct from the Gungnaeseong inspection route. Even cavalry-centered, baggage and horse rest limit the average to 20–25 km per day; 22 days moving plus two waiting at a river total 24 days, reaching north of Pyongyang in early January 662.
 
-도착 뒤 가용 집중은 최대5만이다. 누방전의 손실을 뺀 기동군 약 3만5천(중앙 3만과 요동 기동 경기병 1만)에 평양성 수비군 가운데 내줄 수 있는 보병 약 1만5천이 합친 연합이며, 기동군의 전투원3만1천과 평양성 보병1만5천이 전투를, 지원4천이 말·짐과 급양 연결을 맡는다([고구려의 전력을 묶는 방식](020-goguryeo-force-system.md#goguryeo-force-system)). 평양성에는 나머지 수비군이 남는다. 집결지의 보급·군장·신호 준비에는 최소3일이 필요하다. 평양성 수비의 지휘자는 성 쪽 보병을 내주는 책임자이고, 수도 주변 집중 공격의 최종 지휘권자는 개소문이다. 이 거리·기간은 창작 작전 제약이며 묘지의 완전한 행군일지가 아니다.
+Maximum available concentration after arrival is 50,000. This combines the roughly 35,000 mobile force remaining after Nufang losses (originally 30,000 central and 10,000 Liaodong mobile light cavalry) with roughly 15,000 infantry the Pyongyang garrison can release. The mobile force's 31,000 combatants and 15,000 Pyongyang infantry fight; 4,000 support personnel handle horses, baggage, and feeding links ([how Goguryeo combines forces](020-goguryeo-force-system.md#goguryeo-force-system)). Other defenders remain in Pyongyang. Supply, equipment, and signal preparation at assembly takes at least three days. The garrison commander is responsible for releasing fortress infantry; Gaesomun has final command of the concentrated attack around the capital. Distance and duration are fictional operational constraints, not a complete march diary from an epitaph.
 
-참조: 이동 대열·합류·대기와 도착 확인, 보고·공격 선택은 해당 전역의 treatments가 맡는다.
+Reference: the relevant campaign treatments own movement, joining, waiting, confirmation of arrival, reports, and attack choices.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [이민수, 「662년 고구려의 평양성 전투와 임진강 전투 재구성」, 2022](https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART002869455), [이상훈, 「제2차 고당전쟁기(661~662) 사수 전투의 전개 양상」](https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART002927114).
+Sources: [Lee Min-su, “Reconstructing Goguryeo's Battles at Pyongyang and the Imjin River in 662,” 2022](https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART002869455), [Lee Sang-hun, “The Course of the Battle of Sasu in the Second Goguryeo–Tang War (661–662)”](https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART002927114).
 
-## 안쪽 길의 분산 비축과 급양 한도 {#interior-supply-capacity}
+## Dispersed interior reserves and feeding capacity {#interior-supply-capacity}
 
-이 단원은 기존 군마 약5만 필·하루 먹이·550km/24일의 조건을 함께 사용할 수 있게 하는 작가의 보급 모델이다. 고대 창고나 운송 장부를 복원한 역사적 사실이 아니다. 실제 조달 명령·노획·거점 방어의 성공을 새 사건으로 확정하지 않는다. 아래 재고와 통로가 확보된 상태만 기존 속도의 기동과 집중을 허용한다. 이를 잃으면 작전의 진행도 늦어지거나 멈춘다.
+This is an authorial supply model allowing the existing conditions of roughly 50,000 warhorses, daily feed, and 550 km in 24 days to work together. It is not historical reconstruction of ancient storehouse or transport ledgers. It does not establish new events of procurement orders, capture, or successful base defense. Only the stock and routes secured below permit movement and concentration at the existing pace; losing them delays or stops the operation.
 
-말 먹이의 기준은 [군마](../070-objects/150-horses.md#horses)에 있다. 약5만 필이면 하루 곡물200t·풀500t이다. 사람의 건조 식량은 설계 상한으로 하루1인1.4kg을 두어, 집중 인원5만에게70t을 잡는다. 행군 인원3만5천만 먹는 날에도 같은70t 한도를 유지해 여유를 남긴다. 식수는 이 중량에 넣지 않는다. 따라서 하루 직접 소비는 최대770t이며, 현지 운반 인력과 가축의 먹이·부패·흘림·대기 손실을 포함한 거점의 출고 한도는 하루850t이다. 이 단원의 t는1,000kg이다. 수치의 곱은 이 모델의 산술이며 옛 고구려의 생산 통계를 뜻하지 않는다.
+The feed standard is in [warhorses](../070-objects/150-horses.md#horses). Roughly 50,000 horses need 200 t of grain and 500 t of forage daily. Set an upper design limit of 1.4 kg dry food per person per day, or 70 t for 50,000 military personnel. Keep the 70 t limit even when only the 35,000 marchers eat, leaving margin. Drinking water is excluded. Direct daily consumption is therefore at most 770 t, and the base release limit including feed for local carriers and animals, spoilage, spillage, and waiting losses is 850 t per day. Here one t is 1,000 kg. The arithmetic belongs to the model, not ancient Goguryeo production statistics.
 
-| 쓰는 구간 | 필요한 사용 조건 | 재고의 설계 한도 |
+| Section used | Necessary conditions | Designed stock limit |
 | --- | --- | --- |
-| 신성~압록 남안~평양 북쪽550km | 진행하는22일에 대응하는 급양 구역22곳. 길을 따라 평균25km 간격이며 한 구역 안의 여러 창고와 급양 마당으로 나눈다. 강을 기다리는 두 날은 도하 양쪽 가까운 두 구역에 하루분씩 더 둔다. | 하루850t×24일=20,400t. 한 구역850t을 기본으로, 대기 구역 두 곳은 각각1,700t이다. |
-| 평양 북쪽의 대기·반격 준비 | 당의 세 포위 진 안이 아닌 북쪽·동북쪽15~40km의 내부 생활권에 열 개 급양 구역을 둔다. 각 구역은 최대5천 필과 군사 임무 인원5천을 먹이며 성 안의 군량과 별도다. 기동군 전체를 평양성 안으로 밀어 넣지 않는다. | 최대60일×850t=51,000t. 열 구역에 각5,100t을 분산한다. 1월 초 도착부터2월 반격까지 쓸 편집 달력의 상한이며 영구 주둔 능력이 아니다. |
+| Sinseong–south bank of Yalu–north of Pyongyang, 550 km | Twenty-two feeding areas for 22 days of movement, averaging 25 km apart along the route, each divided among multiple stores and feeding yards. Place an extra day's stock in each of two areas near the crossing for two waiting days. | 850 t per day × 24 days = 20,400 t. Each area normally holds 850 t; the two waiting areas each hold 1,700 t. |
+| Waiting and counterattack preparation north of Pyongyang | Ten feeding areas in the interior living area 15–40 km north and northeast, outside the three Tang siege camps. Each feeds at most 5,000 horses and 5,000 military personnel, separately from fortress stores. Do not crowd the entire mobile army into Pyongyang. | At most 60 days × 850 t = 51,000 t, distributed as 5,100 t per area. This is the editorial-calendar upper limit from early January arrival to the February counterattack, not permanent garrison capacity. |
 
-재고는 이미 국가와 귀족 창고가 보유한 군량, 군역용 건초와 가축 사료의 몫에서 분리한 것이다. 남생의 압록 잔류군·성 수비군·남방 추격군의 배급을 이 표에 다시 넣지 않으며, 종자와 피난 가구의 최저 식량도 사용할 재고로 세지 않는다. 다른 부대의 유지분을 뺀 뒤 이 표의 양을 남길 수 있어야 기동군의 출발 조건이 성립한다. 풀은 눈밭에서 당일 뜯는 양이 아니라 건초·말린 풀의 비축이다. 한 창고의 손실이 하루 전체를 없애지 않도록 각 급양 구역의 재고를 열 곳 이상 나눈다. 51,000t은 별도 보충 없이 쓸 최대량이므로 그 뒤의 국외 추격이나 남방 정복의 무상 자원이 아니다.
+Stock is separated from grain already held in state and noble stores and shares of hay and animal feed for military service. Do not count rations for Namsaeng's Yalu remainder, fortress defenders, or southern pursuers again in this table, or count seed and minimum food for displaced households as available stock. Departure requires this table's quantities to remain after other units' maintenance is removed. Forage is stored hay or dried grass, not same-day grazing in snow. Divide each feeding area's stock among at least ten locations so one store's loss does not eliminate a whole day's supply. The 51,000 t is the maximum without separate replenishment, not free resources for subsequent foreign pursuit or southern conquest.
 
-길목은 고구려가 통행과 창고 출입을 통제하는 압록 남안과 평양 동북의 내부 연결이다. 당은 성 밖 모든 길을 점령하지 못하지만 이 길도 저절로 안전하지는 않다. 해당 지역의 수비90,000 가운데 길목 방어에 배정된 병력이 통로를 지키며, 그 인원을 새 야전군으로 더하지 않는다. 실제 배분과 공격·보호 사건은 treatments에서 이 총량 안에 설계한다. 지휘부는 다음 급양 구역의 재고·나루 통과·출입권 확인을 받기 전에는 대열 전체를 넘기지 못한다. 적이 나루 하나나 다음 급양 구역을 끊으면 같은 날 먼 창고로 우회해 부족분을 채울 수 없다.
+The approaches are interior links on the Yalu's south bank and northeast of Pyongyang where Goguryeo controls passage and store access. Tang has not occupied every road outside the fortresses, but these roads are not automatically safe. Troops assigned to approach defense from the region's 90,000 defenders guard the route; do not add them as a new field army. Treatments designs actual allocation and attack or protection events within that total. Command cannot move the whole column onward before confirmation of the next feeding area's stocks, ferry passage, and access rights. If the enemy cuts a ferry or next feeding area, the shortage cannot be filled by a same-day detour to a distant store.
 
-행군 대열 전체를 받는 한 급양 구역의 현지 운반 한도는 순적재0.5t의 소달구지850대가 하루 두 번, 합계1,700회 움직이는 규모다. 출고850t과 맞춘 설계 용량이며 마차 부대850대가 군대와 함께550km를 행군한다는 뜻이 아니다. 창고에서 급양 마당까지 한 번의 왕복은10km 이내이고 두 번에 최대20km다. 이 폭을 넘기는 급양 배치는 같은850t/일을 쓰지 못한다. 현지 민간 운반자850명과 적재·건초 손질 인력850명을 각 구역의 상한으로 두고, 그 가구의 농번기·피난·수비 동원과 겹치는 사람을 중복 계상하지 않는다. 이는18만 군역 인원 밖의 지역 노동이며 군사 전투원으로 전환하거나 전역 내내 따라오는 지원병으로 세지 않는다. 이 수레·노동·소는 지역 전체가 무제한 동원할 수 있다는 추정이 아니라 이 모델을 쓸 구역이 확보해야 할 상한이다. 평양의 열 대기 구역은 전체 한도를 열 몫으로 나누어 각85t/일·달구지85대·운반자85명·적재 인력85명·소170마리를 배정한다. 열 구역을 합쳐도850t/일·달구지850대·소1,700마리이며 각 구역에850t을 다시 배정하지 않는다. 운반 노동자의 식량과 소1,700마리의 먹이·손실도 직접 소비770t 밖의80t 여유에서 먼저 뺀다. 그 여유를 넘기면 순배급량이나 이동이 줄어야 한다.
+The local transport limit for one feeding area receiving the whole marching column is 850 ox carts with 0.5 t net load making two trips daily, 1,700 trips in total. This designed capacity matches 850 t released; it does not mean 850 wagons march all 550 km with the army. Each round trip from store to feeding yard is within 10 km, at most 20 km for two. A distribution beyond that range cannot use the same 850 t per day. Set each area's upper limit at 850 local civilian carriers and 850 loading and hay-preparation workers, without double-counting people whose households also face farming, evacuation, or defense mobilization. This is local labor outside the 180,000 military personnel, not combatants or support troops accompanying the campaign throughout. Carts, labor, and oxen are a ceiling each modeled area must secure, not unlimited regional mobilization. Divide the total among the ten Pyongyang waiting areas: each gets 85 t per day, 85 carts, 85 carriers, 85 loaders, and 170 oxen. Even combined, they total 850 t per day, 850 carts, and 1,700 oxen; do not allocate 850 t again to each. Carriers' food and feed and loss for 1,700 oxen come first from the 80 t margin beyond direct consumption of 770 t. If they exceed it, net rations or movement must fall.
 
-행군자는 하루치 곡물과 자기 식량을 안장짐·군마의 여유 적재에 나누지만, 풀500t을 대열 뒤의 무한한 수레로 옮기지 않는다. 다음 급양 구역의 건초가 끊기면 휴대 곡물만으로 하루14kg 조건을 만족했다고 할 수 없다. 신성 출발의약5만 필은 누방전 뒤의 잔여 말이며, 출발 전 전체5만6천5백 필의 먹이를 이 작은 소비표로 낮춰 계산하지 않는다. 요동 남하7천과 잔류3천은 별도 군마·배급 몫을 유지하고 이22구역의 재고를 같은 날 중복 소비하지 않는다. 남하군에 같은 급양 구역을 쓰게 설계하면 그 인원과 말의 추가 소비를 확보한 재고에서 먼저 분리해야 한다.
+Marchers divide one day's grain and their own food among saddlebags and spare horse capacity, but do not move 500 t of forage in infinite carts behind the column. If hay at the next area is cut off, carried grain alone cannot satisfy the 14 kg daily condition. The roughly 50,000 horses leaving Sinseong are those remaining after Nufang; do not use this smaller consumption table for all 56,500 horses before departure. The 7,000 Liaodong troops moving south and 3,000 remaining retain separate horses and rations, without double-consuming these 22 areas' stocks on the same day. If the southbound force is designed to use an area, its additional people and horse consumption must first be separated from secured stock.
 
-이 구조는 공동체의 재력을 무한한 공급으로 바꾸지 않는다. 사비로 무장한 가문도 창고 몫과 지역 노동의 대가를 치르며, 유족 보호·파종·귀환의 약속과 같은 자원을 두고 충돌한다. 손실 뒤의 기병은 같은 해에 다시 만들 수 없고, 공급이 막힌 상태에서 의지만으로 계획 속도를 회복하지 못한다. 실제 재고 확보와 그 부담을 드러낼 사건은 treatments가 맡는다.
+This structure does not turn community wealth into unlimited supply. Families privately equipping troops also pay the costs of store shares and local labor, competing for the same resources as promises to bereaved families, sowing, and return home. Cavalry losses cannot be remade in the same year, and willpower cannot restore planned speed when supplies are cut. Treatments owns events showing actual stock acquisition and its burdens.

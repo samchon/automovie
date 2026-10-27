@@ -1,23 +1,23 @@
-# 주필산에서 깨지는 연결
+# Connections broken at Jupilsan
 
-정전 안내: [이 대상의 위치](../outline/index.md#050-systems--200-jupilsan-defeat).
+Canon guide: [Location of this subject](../outline/index.md#050-systems--200-jupilsan-defeat).
 
-## 주필산에서 깨지는 연결 {#jupilsan-defeat}
+## Connections broken at Jupilsan {#jupilsan-defeat}
 
-**정의·범위**
+**Definition and scope**
 
-당은 적의 전력을 모두 정면으로 받아내지 않고, 유인과 전면의 병력, 측후방의 진입을 이어 고구려군을 나누게 한다. 기록의 돌궐 기병1천 유인을 사용하며, 이세적의 군대가 상대적으로 작아 보인 것이 고연수의 진격 판단을 강화하는 연결을 유지한다. 별이나 천둥은 기록에 전하는 현상과 평가로 남기고 전투의 원인을 초자연적인 명령으로 만들지 않는다.
+Tang does not receive all enemy strength frontally; it combines a lure, frontal troops, and entry from flank and rear to divide Goguryeo. Use the recorded lure of 1,000 Turkic cavalry and preserve how Li Shiji’s comparatively small-looking force reinforces Go Yeonsu’s decision to advance. Stars and thunder remain recorded phenomena and assessments, not supernatural orders causing battle.
 
-**확정 내용**
+**Established facts**
 
-당의 우회 병력은 정면 교전이 시작되기 약한 시진 전에 움직인다. 장손무기·우진달의 만천 명은 구릉 뒤 약6킬로미터 길을 통과하며 좁은 구간에서 길어진 행렬을 다시 펼치는 데 약한 시진 반이 든다. 따라서 고연수가 이세적의 앞선 진을 밀 수 있다고 판단하고 병력을 더 붙인 뒤 측후방에 당군이 나타난다. 이 시간과 경로는 사료에 남은 정확한 시각이 아니라 [전장 배치](../060-places/120-jupilsan-field.md#jupilsan-field)와 연결한 창작 복원이다. 고구려 정찰이 움직임의 일부를 보아도 정면 지휘자에게 확인 보고를 보내고 새 대열을 만들기 전에 공격이 닿는다.
+Tang’s flanking force moves about one double-hour before frontal engagement. Zhangsun Wuji and Niu Jinda’s 11,000 travel about six kilometers behind hills and take about one and a half double-hours to pass a narrow section and re-form. Thus Tang appears at flank and rear after Go Yeonsu judges he can press Li’s forward camp and commits more troops. Timing and route are invented, connected to [battlefield layout](../060-places/120-jupilsan-field.md#jupilsan-field), not exact recorded times. Goguryeo scouts may see part of the movement, but attack arrives before confirmation reaches frontal command and a new formation is made.
 
-작품의 고구려 중무장 병력 일부는 당의 정면이 벌어지는 틈에서 황제의 진을 치려고 열린 길로 나선다. 별도의 말갈 기동 병력은 구릉 가장자리를 따라 황제 주변으로 들어갈 기회를 노린다. 중기병의 돌입은 정면 전투가 시작된 뒤이며 말갈의 우회는 그보다 먼저 움직였으나 낮은 구릉 뒤에서 접근이 지연된다. 두 병력이 정해진 순간에 완전히 협동하는 성공한 타격은 아니다. 황제의 전력과 주변 당군이 대응하고 측후방 공격이 고구려의 뒤를 흔들면 돌입 병력도 되돌아갈 길을 찾게 된다. 이 시도는 고구려군이 패하기 전에도 적에게 실제 위험을 줄 수 있었음을 보여 주지만 전체 구원군의 지휘 연결을 살리지는 못한다. 당이 여러 방향에서 힘을 쓰면 고구려는 병력을 나누어 막으려 하고 실제로 움직일 길과 명령이 겹치며 앞선 부대의 상태를 뒤가 알지 못한다.
+Some Goguryeo heavy troops take an open route to strike the emperor’s camp through a gap in Tang’s front. Separate mobile Malgal seek entry around him along the hill edge. Heavy cavalry enters after frontal fighting begins; Malgal start their detour earlier but are delayed behind low hills. They do not deliver one perfectly coordinated successful blow. Imperial forces and nearby Tang respond; as flank and rear attack shakes Goguryeo’s rear, the entrants seek a way back. The attempt shows Goguryeo can create real danger before defeat but does not preserve command connections across the relief force. Against pressure from several directions, Goguryeo divides to resist; routes and orders overlap and rear units do not know forward conditions.
 
-작품의 회전·포위 과정에서 고구려2만이 죽고3만6천8백이 항복하며, 실투입6만 중3천2백이 빠져나온다. 『삼국사기』의 사망3만여와 『자치통감』 권198의 참수2만여는 서로 다른 전과 주장으로 구별한다. 작품의 사망2만은 두 기록 어느 쪽의 실제 전수 집계라고 확정한 값이 아니다. 후방9만과 탈출 병력이 모두 같은 날 안시성 안에 들어가는 설정은 없다. 떨어진 성과 길로 흩어져 다음 방어에 일부가 돌아오며, 수송과 무장은 큰 손실을 입는다.
+In the work 20,000 Goguryeo troops die, 36,800 surrender, and 3,200 of the 60,000 actually engaged escape. Distinguish the Samguk Sagi’s over 30,000 dead from Zizhi Tongjian vol. 198’s over 20,000 beheaded as different claims. The work’s 20,000 is not established as either record’s complete actual count. The rear 90,000 and escapees do not all enter Ansi the same day; they scatter to fortresses and roads, some returning to later defense, with major transport and equipment loss.
 
-구원군이 진을 고쳐 버티더라도 교량과 퇴로를 끊기면 밖의 병력과 합류하지 못한다. 항복 뒤 군관·일반 병력·말갈 포로가 맞는 서로 다른 운명은 [말갈 편입](../030-society/150-jupilsan-prisoners.md#jupilsan-prisoners)으로 이어진다. 당에 귀부한 지휘자가 자신의 군사를 모두 지킬 수 없었던 사실과, 고구려가 전체 전쟁에서 결국 살아남는 사실을 함께 유지한다.
+Even if the relief force reforms and holds, severed bridges and retreat routes prevent joining outside troops. Different fates of officers, ordinary soldiers, and Malgal prisoners lead to [Malgal incorporation](../030-society/150-jupilsan-prisoners.md#jupilsan-prisoners). Preserve both a submitting commander’s inability to save all soldiers and Goguryeo’s eventual survival of the whole war.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『삼국사기』 고연수군의 패전과 전과 주장](https://db.history.go.kr/ancient/level.do?levelId=sg_021r_0020_0216), [교량 차단과 포위](https://db.history.go.kr/ancient/level.do?levelId=sg_021r_0020_0217), [항복과 포로 분류](https://db.history.go.kr/id/sg_021r_0020_0218).
+Sources: [Go Yeonsu’s defeat and claims, Samguk Sagi](https://db.history.go.kr/ancient/level.do?levelId=sg_021r_0020_0216), [bridge interdiction and encirclement](https://db.history.go.kr/ancient/level.do?levelId=sg_021r_0020_0217), [surrender and prisoner classification](https://db.history.go.kr/id/sg_021r_0020_0218).

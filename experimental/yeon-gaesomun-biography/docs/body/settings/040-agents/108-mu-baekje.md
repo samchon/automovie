@@ -1,17 +1,17 @@
-# 무왕이 회복한 백제의 힘
+# Baekje’s strength restored under King Mu
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--108-mu-baekje).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--108-mu-baekje).
 
-## 무왕이 회복한 백제의 힘 {#mu-baekje}
+## Baekje’s strength restored under King Mu {#mu-baekje}
 
-**정의·범위**
+**Definition and scope**
 
-무왕은 고구려가 수와 싸우고 다시 재건하는 동안 백제의 군사력을 회복하여 신라를 압박한 군주다.
+King Mu restored Baekje’s military strength and pressured Silla while Goguryeo fought Sui and then rebuilt.
 
-**확정 내용**
+**Established facts**
 
-현재 예정 서사에서는 남쪽의 전황을 전하는 보고와 고구려의 판단에 영향을 주는 이름으로 등장한다. 영토가 정확히 두 배 늘었다거나 이전 백제 면적이 신라의 오분의 일이었다는 값을 채택하지 않는다. 직접 내면과 개인 장면, 고유 목소리는 현재 납품에 없다.
+In the currently planned narrative, his name appears in reports on the southern war and influences Goguryeo’s judgments. Do not adopt claims that his territory exactly doubled or that Baekje’s earlier area was one fifth of Silla’s. Direct access to his thoughts, personal scenes, and a distinctive voice are not part of the current delivery.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [국편 『한국사』6의 무왕대 백제·신라 관계와 대당 외교](https://contents.history.go.kr/data/pdf/nh/nh_006_0040.pdf).
+Sources: [Baekje–Silla relations and Tang diplomacy under King Mu, National Institute of Korean History, Korean History vol. 6](https://contents.history.go.kr/data/pdf/nh/nh_006_0040.pdf).

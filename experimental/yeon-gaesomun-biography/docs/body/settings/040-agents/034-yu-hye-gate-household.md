@@ -1,21 +1,21 @@
-# 집으로 수레를 돌리는 유혜
+# Yu Hye turns the cart home
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--034-yu-hye-gate-household).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--034-yu-hye-gate-household).
 
-## 집으로 수레를 돌리는 유혜 {#yu-hye-gate-household}
+## Yu Hye turns the cart home {#yu-hye-gate-household}
 
-**정의·범위**
+**Definition and scope**
 
-유혜는 661년 늦봄 평양 동문 수비원의 아내인 서른대 후반의 창작 인물이다. 어린 아들의 안전과 수비 가구의 생계를 맡는다.
+Yu Hye is an invented woman in her late thirties, wife of a Pyongyang east-gate defender in late spring 661. She is responsible for her young son’s safety and the defender household’s livelihood.
 
-**확정 내용**
+**Established facts**
 
-친족의 거처는 대동강을 건넌 뒤 고휘 아내의 처가와 갈라지는 동남쪽 두 날 길이다. 남편은 그 길을 알지만 수비 명부에 남아야 한다. 집 수레꾼의 이동 능력은 나루까지이며 강 너머 안내·호위는 할 수 없다. 고휘 집의 길잡이 둘도 유혜의 목적지까지 갈 수 없다. 가족은 떠날 수 있지만 아들을 맡길 만큼 믿을 비등록 동행이 있어야 실제 이동할 수 있다.
+Her relatives’ home is two days southeast after crossing the Daedong River, where the route diverges from that to Go Hwi’s wife’s family. Her husband knows the route but must remain on the defense register. Their cart driver can travel only to the ferry, and cannot guide or escort them beyond it. The two guides of Go Hwi’s household cannot go to Yu Hye’s destination either. The family may leave, but to travel in practice needs an unregistered companion trusted enough to entrust with her son.
 
-첫 침공 소식이 닿는 시점에도 적절한 동행이 없어 유혜와 아들이 도성에 남는 상태를 유지한다. 유혜에게 동문 안 수비 가구의 거처와 식량을 챙길 생활 관계가 있다. 국가가 가족을 가둔 것과 등록 수비원의 근무가 가구에 지운 비용을 구별한다.
+Even when news of the first invasion arrives, Yu Hye and her son remain in the capital for lack of suitable company. She also has daily ties to the defender household’s lodging and food inside the east gate. Distinguish the state imprisoning a family from the cost a registered defender’s duty imposes on that household.
 
-키 약 160cm, 다부진 팔과 넓은 손바닥, 길고 좁은 얼굴에 눈 아래 작은 점이 있다. 검은 머리를 낮게 묶고 옅은 갈색 겉옷 허리끈에 짐 열쇠를 단다. 목소리는 중간보다 낮고 조금 거칠다. 군관에게는 짧게 묻고 아들 앞에서는 속도를 늦춘다. 이 형상·가족·경로는 작품의 구성이다.
+She is about 160 centimeters tall, with sturdy arms, broad palms, and a long narrow face with a small mole beneath an eye. Her black hair is tied low, and baggage keys hang from the waist cord of her light brown outer robe. Her voice is slightly rough and below the middle register. She asks the officer briefly and slows before her son. Her appearance, family, and route are inventions of the work.
 
-**참조·미결**
+**References and unresolved matters**
 
-등록 확인·재문의·수레를 돌림·동행 수소문의 실제 발생과 공개되는 범위는 해당 전역의 treatments가 맡는다. 이 레코드의 뒤 시점 상태를 첫 질문 때 미리 아는 것으로 쓰지 않는다.
+The campaign treatments own when registration is checked, renewed inquiries made, the cart turned back, and a companion sought, and what becomes public. Do not give her knowledge at the first question of the later state in this record.

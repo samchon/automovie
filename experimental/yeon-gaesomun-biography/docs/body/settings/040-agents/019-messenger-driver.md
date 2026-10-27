@@ -1,17 +1,15 @@
-# 구금 소식을 돌려보낸 마부
+# The driver who brought back news of detention
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--019-messenger-driver).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--019-messenger-driver).
 
-## 구금 소식을 돌려보낸 마부 {#messenger-driver}
+## The driver who brought back news of detention {#messenger-driver}
 
-**정의·범위**
+**Definition and scope**
 
-두겸과 함께 평양에 들어간 마부는 남생 가문의 이름 없는 수행자다. 두겸이 탐문을 맡는 동안 마부는 말과 길, 귀환을 맡는다. 어느 쪽에도 남생을 대신해 협약을 맺을 권한은 없다.
+The driver who enters Pyongyang with Du Gyeom is an unnamed attendant of Namsaeng’s household. While Du Gyeom makes inquiries, the driver is responsible for the horses, route, and return. Neither has authority to make an agreement on Namsaeng’s behalf.
 
-**확정 내용**
+**Established facts**
 
+The driver can observe the receiving troops and Du Gyeom’s absence and detention. He is not a witness to statements inside the interrogation room or every intention of the king. [Coup constraints](../050-systems/260-666-coup.md#666-coup) carry the waiting, return, report, and threshold of Namsaeng’s knowledge in one place.
 
-마부가 관측할 수 있는 것은 접수 병력과 두겸의 부재·구금 상태까지다. 심문 방 안의 발언이나 왕의 모든 속셈을 목격한 증인은 아니다. 기다림·귀환·보고와 남생의 인지 문턱은 [정변 제약](../050-systems/260-666-coup.md#666-coup)이 한 곳에서 인계한다.
-
-
-현재 예정된 서사에서 마부는 남생이 듣는 구금 보고의 출처로만 등장한다. 얼굴과 음성을 직접 드러내는 장면이나 독립된 가족 사건은 없다.
+In the currently planned narrative, the driver appears only as the source of the detention report Namsaeng hears. There is no scene revealing his face and voice or independent family event.

@@ -1,24 +1,21 @@
-# 승계를 반대한 귀족들
+# The nobles who opposed succession
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--004-inheritance-opponents).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--004-inheritance-opponents).
 
-## 승계를 반대한 귀족들 {#inheritance-opponents}
+## The nobles who opposed succession {#inheritance-opponents}
 
-**정의·범위**
+**Definition and scope**
 
-634년 개소문이 아버지의 자리인 동부 대인과 가문의 지휘권을 이어받을 때, 집안의 동원에 참여하던 세 귀족 가구의 대표가 함께 반대한다. 세 대표는 작품에서 창작한 집단이며, 개별 이름이 알려진 명단으로 복원한 인물들은 아니다. 이들이 꺼리는 것은 젊은 개소문의 기질이다. 실력은 인정하지만, 상대를 납득시키기 전에 이겨 버리는 그가 자기 사람과 장비를 마음대로 끌어다 쓸 위험을 먼저 걱정한다. 개소문이 머리를 조아려 사죄하고, 마땅하지 않으면 폐해도 후회하지 않겠다고 다짐하며, 각 가구의 몫을 침해하지 않겠다고 약속한 뒤에야 승계에 협조한다. 가문을 계속 지휘하고 실제로 사람과 장비를 동원하려면 이 합의가 필요하다.
+When Gaesomun inherits his father’s eastern great-man office and family command in 634, representatives of three noble households participating in family mobilization oppose him together. This is an invented group, not a reconstructed list of named people. They fear young Gaesomun’s temperament: recognizing his ability, they worry first that someone who wins before persuading others may use their people and equipment at will. Only after he bows, apologizes, pledges he will not regret removal if unsuitable, and promises not to infringe each household’s share do they cooperate. This agreement is needed to continue family command and actually mobilize people and equipment.
 
-**확정 내용**
+**Established facts**
 
+Samguk Sagi vol. 49 records “蘇文頓首謝衆，請攝職。如有不可，雖廢無悔。衆哀之，遂許。” Gaesomun bows and apologizes to the group, asks to act in the office, and pledges not to regret removal if unsuitable; they pity him and agree. The opponents are three noble households tied to Yeon mobilization, fearing his disposition to press others with talent. Keep the bow, apology, request to act first, and pledge of possible removal as recorded. Their reasons include the record’s “衆哀之,” being moved by his bowed head and pledge. His promise to protect each household’s share is an added condition, supplying calculation alongside compassion.
 
-『삼국사기』 권49는 아버지가 죽은 뒤의 일을 「蘇文頓首謝衆，請攝職。如有不可，雖廢無悔。衆哀之，遂許。」라고 전한다. 개소문은 무리에게 머리를 조아려 사죄하고 직무를 대행하게 해 달라고 청하며, 마땅하지 않으면 폐해도 후회하지 않겠다고 다짐했다. 무리는 그를 불쌍히 여겨 허락했다. 반대한 이들은 연씨 가문의 동원에 얽힌 세 귀족 가구이고, 이들이 꺼린 것은 재능을 앞세워 남을 누르는 기질이다. 머리를 조아려 사죄하고 대행부터 청하며 폐위를 거는 다짐은 기록대로 둔다. 대표들이 받아들이는 까닭에는 기록의 「衆哀之」, 곧 숙인 머리와 다짐에 마음이 움직인 것이 들어간다. 각 가구의 몫을 지키겠다는 약속은 작품이 더한 조건이며, 그 약속이 연민에 셈의 근거를 더한다.
+The three representatives are adult men in dark brown and reddish-brown outer robes and dark sashes; each arrives and departs with two guards. This group owns common opposition and basis of cooperation. Individual speech, conditions, consent, appearance, and voice belong respectively to [first](122-first-household-representative.md#first-household-representative), [second](123-second-household-representative.md#second-household-representative), and [third household representative](124-third-household-representative.md#third-household-representative).
 
+They share group canon while making the same choice. If someone’s separate betrayal or speech is written, that person needs independent canon first.
 
-대표들은 성인 남성 셋으로, 짙은 갈색과 적갈색 겉옷에 먹빛 띠를 두른다. 각자 호위 둘을 거느리고 드나드는 모습이 이 집단을 알아보는 표지다. 공동 반대와 승계 협조의 바탕은 이 집단이 소유한다. 개별 발화·조건·동의와 그 사람을 구별할 외형·음성은 [첫 가구 대표](122-first-household-representative.md#first-household-representative), [둘째 가구 대표](123-second-household-representative.md#second-household-representative), [셋째 가구 대표](124-third-household-representative.md#third-household-representative)가 각각 소유한다.
+**References and unresolved matters**
 
-
-세 대표는 같은 선택을 하는 동안 한 집단의 정전을 공유한다. 누군가의 별도 배신이나 발언이 쓰이는 경우에는, 그 사람에게 독립된 정전이 먼저 있어야 한다.
-
-**참조·미결**
-
-Sources: [『삼국사기』 권49 개소문 열전](https://zh.wikisource.org/wiki/三國史記/卷49).
+Sources: [Biography of Gaesomun, Samguk Sagi vol. 49](https://zh.wikisource.org/wiki/三國史記/卷49).

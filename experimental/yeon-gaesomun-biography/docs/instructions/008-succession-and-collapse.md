@@ -1,72 +1,72 @@
-# 후계와 멸망
+# Succession and collapse
 
-## 위기의 해소 뒤 되살아나는 갈등 {#conflict-after-victory}
+## Conflict returns after the crisis recedes {#conflict-after-victory}
 
-2차전쟁의 승리와 정복전쟁 단념으로 멸망의 위기감이 줄어들자, 그동안 단결을 위해 억눌렀던 내부 갈등이 다시 격화되게 한다. 군공과 무력으로 얻은 권위, 지역의 부담과 권력 배분에 대한 불만은 승전 뒤에도 남아 서로를 공격하는 힘으로 바뀐다. 연개소문 생전부터 갈등이 드러나고, 그의 죽음으로 이를 억누르던 권위가 사라지게 한다.
+As victory in the second war and abandonment of conquest lessen the sense of imminent destruction, let internal conflicts suppressed for unity intensify again. Authority gained through military achievement and force, and discontent over regional burdens and distribution of power, remain after victory and become forces used against one another. Conflict emerges during Yeon Gaesomun's life; his death removes the authority that held it down.
 
-승리가 새 갈등을 갑자기 만든 것으로 처리하지 않고, 나라를 지킨 힘을 정치적으로 조정하지 못한 결과가 내전으로 이어지게 하기 위해서다.
+Victory does not suddenly create a new conflict. Civil war follows from failure to politically coordinate the forces that defended the country.
 
-## 국내성과 평양의 권력 갈등 {#regional-power-and-royal-distrust}
+## Regional power and royal distrust in Gungnaeseong and Pyongyang {#regional-power-and-royal-distrust}
 
-후기 고구려의 반복되는 내전을 국내성과 평양의 지역적 이해관계가 대립하는 구도로 재구성한다. 남생의 전선 생활과 재건 구상은 요동·국내성의 지지 기반을 만들고, 남건·남산은 평양과 왕실 쪽 세력의 지지를 얻는다. 국내성의 일부 귀족 가문에는 왕실을 위해 대대로 싸웠으나 왕권 강화와 평양 중심 재편 과정에서 배제·숙청되었다는 배신의 기억을 둔다. 이 원한은 앞선 계승 내전과 후대의 왕실 불신에도 작용하게 한다.
+Reconstruct repeated civil wars in late Goguryeo around opposing regional interests in Gungnaeseong and Pyongyang. Namsaeng's life at the front and reconstruction vision build support in Liaodong and Gungnaeseong, while Namgeon and Namsan gain support from forces around Pyongyang and the royal house. Give some noble families in Gungnaeseong a memory of betrayal: they fought for the royal house for generations, then were excluded and purged during royal consolidation and Pyongyang-centered reorganization. Let that resentment also affect the earlier succession civil war and later distrust of the royal house.
 
-형제간 감정이 지역·가문·권력의 이해관계와 결합하여 국가의 내전으로 커지게 하기 위해서다. 지역별 인물과 세력은 settings에서 구성하며, 모든 주민을 한 파벌로 합치거나 추군·세군을 두 지역과 곧바로 일대일 대응시키지는 않는다.
+Brotherly feelings combine with regional, family, and power interests and grow into national civil war. Settings constructs regional characters and forces; do not merge all residents into one faction or map Chugun and Segun directly one-to-one onto the two regions.
 
-- [국사편찬위원회, 장수왕](https://contents.history.go.kr/mobile/kc/view.do?levelId=kc_n101700): 평양 천도에 따른 국내성 귀족 견제와 왕권 강화를 설명한다. 후기까지 이어지는 가문별 원한은 작품의 연결이다.
+- [National Institute of Korean History, King Jangsu](https://contents.history.go.kr/mobile/kc/view.do?levelId=kc_n101700): explains constraints on Gungnaeseong nobles and strengthened royal power after the move to Pyongyang. Family resentments continuing into the late period are the work's connection.
 
-## 재건을 겁과 무능으로 보는 아우들 {#brothers-and-postwar-plans}
+## Younger brothers see reconstruction as fear and incompetence {#brothers-and-postwar-plans}
 
-남건·남산은 당을 야전에서 꺾은 힘으로 당과 신라를 공격하여 패권을 넓혀야 한다고 생각한다. 남생의 재건·방비를 압록강 패전 뒤 겁먹고 영류왕의 수세를 답습하는 선택으로 오해한다. 남생은 아우들을 전쟁의 비용과 현실을 모르는 어리숙한 사람들로 여기며, 그들의 자부심과 불만을 충분히 이해하지 못한다.
+Namgeon and Namsan believe the strength that defeated Tang in the field should attack Tang and Silla and expand hegemony. They misread Namsaeng's reconstruction and defense as a frightened choice after the Yalu defeat, repeating Yeongnyu's defensive course. Namsaeng sees his brothers as naive people who do not know the cost and reality of war and fails to understand their pride and discontent sufficiently.
 
-젊은 연개소문이 영류왕을 오독했던 일이 다음 세대에서 반복되게 하기 위해서다. 선대의 승전이 주필산에서 젊은 세대의 자신감을 키웠듯, 2차전쟁의 승전은 두 아우가 재건론을 나약함으로 받아들이는 근거가 된다. 두 아우의 성격과 역할은 따로 설계하되, 왕과 친왕 세력이 이용할 욕망과 오해는 정변 이전부터 존재하게 한다. 그들이 발휘하는 역량과 자신감을 뒷받침하는 경험도 마련하여, 국가의 현실을 오판한 인물로 그린다.
+Repeat in the next generation the young Yeon Gaesomun's misreading of Yeongnyu. Just as the previous generation's victory raised younger confidence at Jupilsan, victory in the second war gives the brothers grounds to see reconstruction as weakness. Design their personalities and roles separately, but make the desires and misunderstandings the king and royalist forces exploit exist before the coup. Give them experience supporting their real abilities and confidence, so they misjudge national conditions rather than lacking competence.
 
-## 두 아우의 역량과 서로 다른 계산 {#brothers-abilities-and-calculations}
+## The brothers' abilities and different calculations {#brothers-abilities-and-calculations}
 
-남건은 병력 동원과 지휘, 눈앞의 군사적 위기에 대응하는 능력과 위험을 피하지 않는 태도로 군사집단의 신망을 얻는 인물로 그린다. 그의 오판은 승전한 군사력을 국가가 계속 유지하며 공세에 투입할 수 있다는 기대에 둔다. 남산은 군사적 경험도 갖추되, 귀족과 왕실의 체면·이해를 읽고 서로 연결하는 능력에 장점을 둔다. 왕실과 연씨의 협력으로 아버지의 강압을 줄이면서 연씨의 권력을 유지할 수 있다고 생각하게 한다.
+Depict Namgeon as gaining the military establishment's trust through ability to mobilize and command forces, respond to immediate military crises, and face danger. His misjudgment is the expectation that the country can continuously maintain its victorious strength and commit it to offense. Give Namsan military experience too, but make his strengths reading and connecting noble and royal interests and concerns for status. He believes royal and Yeon cooperation can reduce his father's coercion while preserving Yeon power.
 
-두 사람은 왕명을 각자의 구상을 실행할 기회로 보고, 형을 실각시켜도 자기 역량과 지지자로 나라를 운영할 수 있다고 믿는다. 왕을 이용할 수 있다는 그들의 기대와 아우들을 이용할 수 있다는 왕의 계산이 같은 정변에서 만나게 한다. 개별 전공과 지지자를 꾸며 기록된 사실처럼 제시하지 않고, 실제 경험과 관계의 세부는 settings에서 설계한다.
+Each sees a royal order as an opportunity to enact his own vision and believes he can run the country with his abilities and supporters even after removing his elder brother. Let their expectation that they can use the king meet the king's calculation that he can use them in the same coup. Do not invent individual feats or supporters and present them as recorded fact; settings designs the details of actual experience and relationships.
 
-왕에게 속아 넘어간 무능한 아우들만으로 갈등을 설명하지 않고, 실제 장점에 근거한 자신감이 국가 전체의 조건을 오판하는 과정으로 만들기 위해서다. 두 아우의 역량과 계산의 차이는 작품의 재구성이며, 묘지명의 관력과 찬양을 실제 성과의 증명으로 동일시하지 않는다.
+Do not explain conflict solely through incompetent brothers deceived by the king. Their confidence, grounded in real strengths, leads them to misjudge conditions across the country. Their different abilities and calculations are the work's reconstruction; do not equate epitaph offices and praise with proof of actual achievements.
 
-- [국사편찬위원회, 천남산 묘지명 국역문](https://db.history.go.kr/ancient/level.do?levelId=gskh_001_0030_0200_0030): 중리대활·중군주활 등의 관력과 군사 지휘에 관한 서술을 전한다. 인물의 사후 찬양이라는 성격과 관제 해석의 불확실성을 유지한다.
+- [National Institute of Korean History, translation of Cheon Namsan's epitaph](https://db.history.go.kr/ancient/level.do?levelId=gskh_001_0030_0200_0030): gives offices including jungni daehwal and junggun juhwal and descriptions of military command. Retain its nature as posthumous praise and uncertainty in interpreting offices.
 
-## 왕의 계산과 미완의 계승 {#royal-calculation-and-succession}
+## The king's calculation and an incomplete succession {#royal-calculation-and-succession}
 
-연개소문은 통치권을 남생에게 집중했으나, 자신의 권위가 사라진 뒤에도 형제·왕실·귀족이 안정적으로 협력할 체제를 완전히 굳히지는 못한 것으로 그린다. 보장왕은 남생의 재건 체제가 확립되면 고씨 왕실은 상징만 남으리라 판단하여, 친왕·평양 세력과 함께 두 아우를 부추기고 실제 왕명을 정변의 명분으로 제공한다.
+Depict Yeon Gaesomun as concentrating governing authority in Namsaeng without fully establishing a system in which the brothers, royal house, and nobles will cooperate stably after his own authority disappears. King Bojang judges that if Namsaeng's reconstruction system is established, the Go royal house will retain only symbolism; with royalist and Pyongyang forces he encourages the two younger brothers and provides an actual royal order as grounds for the coup.
 
-아우들은 형을 실각시키고 자신들이 새 고구려를 이끌기를 바라지만, 왕은 형제의 추한 권력 다툼이 연씨의 민심과 위신을 떨어뜨려 왕실의 실권 회복으로 이어지기를 기대한다.
+The brothers want to remove their elder brother and lead a new Goguryeo themselves; the king expects their ugly power struggle to damage Yeon prestige and popular standing and restore effective royal power.
 
-왕과 아우들이 서로 다른 목표로 같은 정변에 참여하여, 성공 뒤에도 통제할 수 없는 갈등을 남기게 하기 위해서다. 실제 왕명과 배후 개입은 작품의 재구성이다.
+The king and brothers join the same coup with different aims, leaving conflict they cannot control even after success. The actual royal order and behind-the-scenes involvement are the work's reconstruction.
 
-- [정원주, 「男生의 失脚 배경과 그의 行步」, 2014](https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE02486624): 공개 초록은 보장왕의 왕권 회복 시도와 연씨 권력 다툼을 실각의 배경으로 본다. 왕의 구체적인 계획과 명령은 작품에서 구성한다.
+- [Jeong Won-ju, “Background to Namsaeng's Removal and His Subsequent Course,” 2014](https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE02486624): the public abstract considers Bojang's attempt to restore royal authority and the Yeon power struggle as background to the removal. The king's specific plan and order are constructed by the work.
 
-## 실각 시도가 헌충의 죽음으로 번지는 정변 {#coup-and-heonchungs-death}
+## A removal attempt becomes the coup in which Heonchung dies {#coup-and-heonchungs-death}
 
-정변의 처음 목적은 남생의 실각이며 형과 조카의 살해를 계획한 것은 아니게 한다. 헌충이 스스로 병력을 이끌고 진압에 나서 선두에서 강맹하게 싸우자 예상 밖의 무장 충돌이 벌어지고, 그가 입은 부상이 악화되어 죽는다. 이 죽음은 타협의 가능성을 무너뜨리고 내전을 돌이킬 수 없게 만드는 기폭제로 삼는다.
+Make the coup's initial purpose Namsaeng's removal, without a plan to kill the elder brother or nephew. Heonchung personally leads troops out to suppress it and fights fiercely at the front, producing an unexpected armed clash; his wound worsens and he dies. His death destroys the possibility of compromise and catalyzes an irreversible civil war.
 
-권력을 빼앗는 선에서 끝낼 수 있다고 여긴 계산이 가족과 국가의 미래까지 파괴하게 하기 위해서다. 우발적 죽음은 정변을 일으킨 자들의 정치적 책임을 지우지 않는다.
+The calculation that power can be seized and the matter ended there destroys the future of family and country. An accidental death does not erase the political responsibility of those who started the coup.
 
-- [국사편찬위원회, 남생 형제가 분열하다](https://db.history.go.kr/ancient/level.do?levelId=sg_049r_0040_0050): 남건의 왕명 사칭과 헌충 살해를 전한다. 실제 왕의 관여와 헌충의 진압 출전·부상 악화는 작품이 채택한 재구성이다.
+- [National Institute of Korean History, the split between Namsaeng and his brothers](https://db.history.go.kr/ancient/level.do?levelId=sg_049r_0040_0050): records Namgeon's false use of a royal order and Heonchung's killing. Actual royal involvement, Heonchung's sortie, and the worsening wound are the work's chosen reconstruction.
 
-## 충성의 파탄과 외군을 들이는 선택 {#loyalty-break-and-tang-submission}
+## Broken loyalty and the choice to admit foreign troops {#loyalty-break-and-tang-submission}
 
-헌충을 잃은 남생은 아들을 죽게 한 이들에 대한 분노 속에서 나라의 존망을 더는 자기 선택의 기준으로 삼지 않게 된다. 당의 개입이 고구려를 무너뜨릴 위험도 아들을 잃은 부모에게는 행동을 멈출 이유가 되지 않는다. 남생에 대한 왕의 처형 명령은 왕실과의 결별을 더욱 굳히며, 국내성의 일부 지지 세력도 이를 다시 벌어진 왕실의 배신으로 받아들이고 충성을 거둔다. 남생은 헌성을 당에 보내 구원을 청하고, 과거에 맞섰던 계필하력이 구원자가 되는 관계의 역전을 둔다. 귀부로 외군에 성·병력·방어 정보를 내주어 정복의 조건을 여는 선택이 되게 한다.
+After losing Heonchung, Namsaeng's anger toward those who caused his son's death leads him to stop making the country's survival the standard for his choices. Even the danger that Tang intervention will destroy Goguryeo does not stop a parent who has lost his son. The king's execution order against Namsaeng strengthens his break with the royal house; some supporters in Gungnaeseong also read it as another royal betrayal and withdraw their loyalty. Namsaeng sends Heonseong to ask Tang for relief, reversing the relationship so Qibi Heli, once his opponent, becomes his rescuer. Defection hands fortresses, troops, and defense information to a foreign army and opens conditions for conquest.
 
-재건으로 나라의 미래를 준비하던 사람이 아들의 죽음 뒤 그 나라의 존망을 외면하게 되는 파탄을 드러내기 위해서다. 남생의 상실과 분노, 지지 세력의 왕실 불신은 서로 다른 동기이며, 동참과 이탈은 각각 설계한다. 남생이 당과 협력하여 나라에 남기는 책임도 함께 다룬다.
+This exposes the rupture in a person who prepared the country's future through reconstruction and, after his son's death, disregards its survival. Namsaeng's loss and anger differ from his supporters' distrust of the royal house; design participation and departures separately. Also address his responsibility to the country for cooperating with Tang.
 
-## 멸망 뒤에도 풀리지 않는 남생의 책임과 원한 {#namsaengs-responsibility-and-unforgiven-loss}
+## Namsaeng's responsibility and resentment remain unresolved after the fall {#namsaengs-responsibility-and-unforgiven-loss}
 
-남생은 실제 멸망과 그 뒤의 삶을 겪으며 자신의 선택이 나라를 무너뜨리는 데 기여했음을 깨닫는다. 그러나 이미 돌이킬 수 없고, 헌충을 죽게 한 이들도 끝내 용서하지 못한다. 자기 책임을 인정하는 일과 아들의 죽음을 용서하는 일은 그의 안에서 함께 해결되지 않게 한다.
+Living through the actual collapse and its aftermath, Namsaeng realizes his choice contributed to bringing down the country. But he cannot reverse it and never forgives those who caused Heonchung's death. Acceptance of his own responsibility and forgiveness for his son's death remain unresolved together within him.
 
-그가 깨닫는 책임이 잃은 나라와 아들을 되돌려 주지 못하는 비극을 남기기 위해서다. 깨달음의 계기와 이를 드러내는 행동, 남은 삶에서 감당하는 결과는 settings에서 설계한다.
+His recognition cannot bring back either his country or his son. Settings designs what prompts that recognition, actions revealing it, and consequences he bears for the rest of his life.
 
-## 내전으로 무너진 방어와 멸망 이후 {#collapse-and-aftermath}
+## Defense broken by civil war and the aftermath {#collapse-and-aftermath}
 
-마지막 침공은 고구려 군대가 갑자기 약해진 결과보다, 내전으로 중앙·성곽·지역 부대의 협력이 끊긴 결과로 그린다. 이세적이 앞선 원정의 경험에 남생 등 귀부자의 내부 지식을 결합하고, 분열된 지휘와 항복·이탈이 방어망을 무너뜨리게 한다. 남산의 항복과 남건의 항거, 승려 신성(信誠)의 평양성 개문을 구별한다. 에필로그에서도 내전과 정복에 맞서는 사람들의 대응을 다루며, 중앙의 분열이 현지의 저항을 어떻게 고립시키는지는 settings에서 정한다.
+Depict the final invasion as a result of civil war severing cooperation among the center, fortresses, and regional forces, rather than Goguryeo's army suddenly becoming weak. Li Shiji combines experience from earlier expeditions with insider knowledge from Namsaeng and other defectors; divided command, surrender, and departure break the defense network. Distinguish Namsan's surrender, Namgeon's resistance, and the monk Sinseong's (信誠) opening of a Pyongyang gate. The epilogue also treats responses of people facing civil war and conquest; settings determines how central division isolates local resistance.
 
-멸망 뒤에는 대규모 강제이주와 현지 잔류·도피·저항을 다룬다. 남생과 함께 귀부했던 세력 중 현지에 남은 일부도 당의 통치를 경험하며 반감을 품고 그 통치기구를 약화시키게 한다. 평양 전원 이주·국내성 전원 잔류처럼 단순하게 나누지 않고, 주민의 이동과 새 선택은 본편의 멸망 뒤 삶으로 다룬다. 외전으로 잇는 원본의 가능성은 보존하지만 이번에 건국까지 펼치지 않는다.
+After the fall, address large-scale forced migration and people remaining, fleeing, or resisting locally. Some forces that defected with Namsaeng and remain in the region experience Tang rule, come to resent it, and weaken its governing apparatus. Do not simply divide the outcome into all Pyongyang moved and all Gungnaeseong remaining; treat residents' movement and new choices as life after the fall within the main work. Preserve the original's possibility of a side story without carrying it to the founding this time.
 
-앞선 승리에서 작동했던 협력이 어떻게 무너졌는지 보여주고, 멸망 때의 선택이 이후 삶까지 고정하지 않게 하기 위해서다. 세력별 항복과 주민의 행로는 settings에서 구체화한다.
+Show how cooperation that worked in the earlier victory broke down, without making choices at the fall fix the rest of people's lives. Settings specifies surrenders and residents' paths by group.
 
-- [국사편찬위원회, 평양성 함락](https://db.history.go.kr/ancient/level.do?levelId=sg_022r_0020_0460): 남산의 항복, 남건의 저항과 신성의 개문을 전한다.
-- [국사편찬위원회, 고구려유민의 동향](https://contents.history.go.kr/mobile/nh/view.do?levelId=nh_010_0020_0010_0010_0010): 요동·국내성 일대와 평양의 강제이주를 설명한다. 귀부 세력 일부의 후대 반당 저항은 작품의 연결이다.
+- [National Institute of Korean History, the fall of Pyongyang](https://db.history.go.kr/ancient/level.do?levelId=sg_022r_0020_0460): records Namsan's surrender, Namgeon's resistance, and Sinseong's opening of the gate.
+- [National Institute of Korean History, movements of former Goguryeo people](https://contents.history.go.kr/mobile/nh/view.do?levelId=nh_010_0020_0010_0010_0010): describes forced migration from Liaodong, Gungnaeseong, and Pyongyang. Later anti-Tang resistance by some defectors is the work's connection.

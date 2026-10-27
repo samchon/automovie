@@ -1,222 +1,222 @@
 
-# 남은 승리
+# The victory that remains
 
-## 가벼운 수레와 느린 사람 {#t025-return-decision}
+## Lighter carts, slower people {#t025-return-decision}
 
-2월 7일 전후, 양오 바깥 낮. 빈 수레와 남은 짐을 나누는 본대. 김유신은 해로로 간 사람을 육로 호위 수에 다시 넣지 않는다. 선두와 후위의 간격을 손짓으로 확인한다.
+Around the seventh day of the second lunar month, outside Yango, day. The main body divides empty carts and remaining baggage. Kim Yusin does not count those who went by sea again among the land escort. He checks the gap between advance and rear by gesture.
 
-김유신: 선두는 다음 길을 확인해라. 후위는 뒤처진 사람을 거둔다. 짐을 덜었어도 부상자는 서둘러 걷지 못한다.
+KIM YUSIN: The lead checks the next road. The rear takes in those who fall behind. Even with lighter loads, the injured can't walk quickly.
 
-찬오가 귀돌의 걸음을 본다. 둘의 짐은 출발할 때보다 작지만 귀돌은 서기 전에 오래 앉아 있다.
+Chano watches Gwidol's steps. Their loads are smaller than at departure, but Gwidol sits a long time before standing.
 
-남쪽 경계의 고구려 병력이 전갈을 받고 추격에 나선다.
+Goguryeo troops on the southern watch receive word and begin pursuit.
 
-역사가 음성: 추격 일만은 이미 남하해 있던 별도 병력이었다.
+HISTORIAN (V.O.): The ten thousand pursuers were a separate force already sent south.
 
-평양 북쪽 개소문의 반격군은 따로 움직인다.
+Gaesomun's counterattack force north of Pyongyang moves separately.
 
-역사가 음성: 짐을 덜어 낸 본대는 하루 이십칠에서 삼십 킬로미터까지 갈 수 있었다. 부상자와 후위까지 같은 걸음으로 간 것은 아니다.
+HISTORIAN (V.O.): With its loads reduced, the main body could cover twenty-seven to thirty kilometers a day. The injured and rear guard did not all keep the same pace.
 
-후위가 멈춘 귀돌 곁에 온다.
+The rear guard reaches Gwidol, who has stopped.
 
-## 걸어 줄 수 없는 발 {#t025-guidol-dies}
+## Feet no one can walk on for him {#t025-guidol-dies}
 
-귀환 산길 바깥 낮. 찬오가 자기 짐과 귀돌의 짐을 함께 고치다 손을 놓친다. 귀돌이 주저앉는다. 시선은 주저앉은 귀돌과 그를 일으키려는 찬오의 높이에 머문다. 발의 손상은 의학적 진단 화면으로 따로 보여 주지 않는다.
+Outside on the return mountain road, day. Chano adjusts his load and Gwidol's together, then loses his grip. Gwidol sinks down. The view stays at the height of Gwidol and Chano trying to lift him. Do not show his foot damage separately as a medical diagnosis.
 
-찬오: 조금만 옮겨 앉자.
+CHANO: Let's move and sit a little farther on.
 
-귀돌: 어머니가… 밭을…
+GWIDOL: Mother... the field...
 
-찬오: 돌아가서 말해.
+CHANO: Tell her when you get home.
 
-귀돌은 말을 잇지 못한다. 찬오가 일으키려다 멈춘다. 지나가던 동료도 앉아 상태를 본다. 대열을 부르는 소리가 뒤에서 가까워진다.
+Gwidol cannot continue. Chano starts to lift him, then stops. A passing companion sits and checks his condition. Calls for the column draw nearer from behind.
 
-찬오: 같이 데려가야 하는데.
+CHANO: We have to take him with us.
 
-아무도 시신을 고향까지 옮길 수 있다고 답하지 않는다. 찬오는 귀돌의 작은 생활 칼을 챙긴다. 자기 손으로 묶으려다 잘되지 않아 옆의 손을 빌린다. 귀돌의 시신이 길에 남는다. 칼을 묶어 준 동료가 찬오와 함께 후위로 돌아간다. 음악은 승리를 다짐하는 곡조로 넘어가지 않는다.
+No one answers that they can carry the body home. Chano takes Gwidol's small everyday knife. He tries to tie it himself, cannot, and borrows a hand beside him. Gwidol's body remains on the road. The companion who tied the knife returns to the rear guard with Chano. The music does not turn to a vow of victory.
 
-## 남겨 둔 불이 번 시간 {#t025-deception-at-night}
+## Time bought by fires left behind {#t025-deception-at-night}
 
-밤의 야영 흔적 바깥. 남은 불을 가까이 받다가 어두운 길로 옮기는 신라 본대를 먼 시선으로 본다. 김유신이 대열의 소리를 낮춘다. 후위가 다친 사람을 거두어 옮기는 동안 본대의 이동도 이어진다. 두 동작에 드는 시간을 그대로 둔다.
+Outside the traces of a night camp. Close on the remaining fires, then view the Silla main body moving along the dark road from a distance. Kim Yusin quiets the column. As the rear takes in and moves injured people, the main body keeps moving. Allow the time both actions take.
 
-고구려 추격군이 먼저 불에 이르러 머문 흔적을 확인한다. 가까이 다가갈수록 주력의 움직임이 없다는 것을 안다.
+Goguryeo pursuers reach the fires first and check signs of a halt. The closer they come, the more clearly they see no movement of the main force.
 
-추격 측: 불만 남겨 놨다. 간 길을 다시 찾아라.
+PURSUER: They've left only the fires. Find the road again.
 
-확인하러 간 사람이 돌아오는 동안 신라 대열은 도하 준비의 시간을 얻는다. 뒤처진 사람은 여전히 길에 나뉘어 있다.
+While those checking return, the Silla column gains time to prepare the crossing. People who fell behind remain scattered along the road.
 
-자막 ‘2월 14일 무렵’. 평양 바깥 낮으로 건너가 개소문의 공격 준비가 시작된다. 김유신이 다 돌아왔다는 보고를 먼저 넣지 않는다.
+Caption: “Around February 14.” Move to outside Pyongyang by day, where Gaesomun's attack preparations begin. Do not first insert a report that Kim Yusin has fully returned.
 
-## 좁은 입구에서 빼는 기병 {#t026-first-target}
+## Cavalry pulled from a narrow entrance {#t026-first-target}
 
-2월 14일 낮, 임아상 진 앞 바깥. 현지 보병이 좁은 정면에 붙는다. 열린 자리의 중앙 중기병을 남건이 정돈하고 개소문은 뒤의 연결 차단과 예비를 나누어 확인한다.
+Outside Ren Yaxiang's camp on the fourteenth, day. Local infantry engages at the narrow front. Namgeon organizes central heavy cavalry on open ground; Gaesomun separately checks interdiction and reserves behind.
 
-개소문: 정면 삼만, 차단과 예비 일만 육천. 말과 짐의 사천은 뒤 연결을 맡는다. 한 입구로 모두 몰지 마라.
+GAESOMUN: Thirty thousand at the front, sixteen thousand for interdiction and reserve. Four thousand for horses and baggage keep the rear link. Don't crowd everyone into one entrance.
 
-앞의 기병이 좁은 쪽에 엉키자 남건은 선두를 돌린다.
+When leading cavalry tangles in the narrow side, Namgeon turns the front.
 
-남건: 열린 쪽으로 묶어라! 여기서 밀면 보병도 못 간다.
+NAMGEON: Regroup toward the open ground! Push here and the infantry can't get through either.
 
-그가 빠진 자리에 보병의 압박이 이어진다. 당 진 안에서 임아상은 병력과 운반 인력을 갈라 창고와 집결을 유지한다.
+Infantry pressure continues where he pulls away. Inside Tang's camp, Ren Yaxiang separates troops and carriers to maintain the storehouse and assembly.
 
-임아상: 전투 대열에 짐을 세우지 마라. 소정방께 위기를 알리고 길을 확인해라.
+REN YAXIANG: Don't put cargo in the fighting ranks. Tell Su Dingfang we're in danger and check the road.
 
-연락병이 진을 떠난다. 개소문은 그 움직임을 보고 차단을 계속하게 한다.
+A messenger leaves camp. Gaesomun sees the movement and keeps the interdiction going.
 
-## 전령이 간 뒤에도 남는 길 {#t026-relief-delayed}
+## A road remains after the messenger goes {#t026-relief-delayed}
 
-소정방 진 안 낮. 임아상 쪽 급보가 닿는다. 소정방은 모을 수 있는 병력을 확인하지만 자기 진의 압박과 나갈 준비도 남아 있다.
+Inside Su Dingfang's camp, day. An urgent report arrives from Ren. Su checks troops he can gather, but pressure on his camp and preparation to leave remain.
 
-소정방: 전령 하나가 건너온 길이다. 부대가 그대로 건너갈 수는 없어. 몇을 모을 수 있는지, 어디로 건널지 함께 알아 와라.
+SU DINGFANG: One messenger crossed that road. An army can't cross the same way. Find how many we can gather and where to cross.
 
-역사가 음성: 돌아가 강을 건너는 길이 십팔 킬로미터쯤이었다. 급보가 먼저 닿아도 구원군은 그 길을 따로 가야 했다.
+HISTORIAN (V.O.): The detour and river crossing were about eighteen kilometers. Even if the urgent report arrived first, relief troops had to travel that road separately.
 
-임아상 진 바깥의 연락로에서 속로가 접근을 늦춘다. 당군은 다시 서로의 상태를 확인해야 한다. 진 안에서는 집결터와 창고 사이가 끊겨 운반자와 전투원이 다른 방향으로 빠진다.
+On the communications route outside Ren's camp, Sokro delays approaches. Tang must check the other's condition again. Inside, the link between assembly and storehouse breaks and carriers and fighters move in different directions.
 
-임아상의 명령을 받은 병사가 원래 대열로 가려다 막힌 길을 만난다. 개소문이 예비를 붙인다. 다시 모이려던 당군 사이로 공격이 들어간다. 명을 들고 돌아오는 군사 앞에서 대열이 흩어진다.
+A soldier with Ren's orders meets a blocked road trying to return to his original formation. Gaesomun commits reserves. An attack enters among Tang troops trying to regroup. The formation scatters before the returning soldier carrying orders.
 
-## 답이 멎은 진 {#t026-organization-lost}
+## A camp where answers stop {#t026-organization-lost}
 
-그날 밤 임아상 진 안. 끊긴 지휘 자리로 마지막 보고가 들어온다. 임아상이 죽었다는 결과를 받되 칼을 든 새 영웅이 그를 죽이는 장면은 만들지 않는다. 같은 명령을 들고 돌아온 사람이 받아 줄 지휘자를 찾지 못한다.
+Inside Ren's camp that night. A last report reaches the interrupted command post. Receive the result that Ren has died, without inventing a new sword-wielding hero who killed him. Someone returns with the same orders but finds no commander to receive them.
 
-개소문은 빠져나가는 개별 병사보다 남은 자기 병력과 말의 상태를 묻는다.
+Gaesomun asks about his remaining troops and horses rather than individual soldiers escaping.
 
-개소문: 다시 묶는다. 지금 사수로 전부 달리지 마라.
+GAESOMUN: Regroup. Don't send everyone running to Sasu now.
 
-군관들이 부상자와 손상된 군장을 확인한다.
+Officers check the injured and damaged equipment.
 
-역사가 음성: 살아남은 사람도 포로가 된 사람도 있었으나 패강도 군대는 다시 작전하지 못했다. 기록은 임아상의 진중 사망을 전한다. 그 죽음과 함께 진이 무너진 경과는 극의 재구성이다.
+HISTORIAN (V.O.): Some survived and some were captured, but the Paegang army could no longer operate. The record gives Ren's death in camp. The camp's collapse alongside that death is the drama's reconstruction.
 
-밤의 수습에서 다음날의 재편으로 이어진다.
+Night recovery leads to reorganization the next day.
 
-## 먼저 건너는 사람의 뒤 {#t027-river-pressure}
+## Behind those who cross first {#t027-river-pressure}
 
-2월 15일 전후 임진강 북안 바깥 낮. 남안의 운반자와 북안의 호위를 강물과 바람을 사이에 두고 나누어 본다. 가까운 전달자가 북과 깃발에 맞추어 차례를 잇는다. 김유신이 도하 줄과 북쪽 추격을 번갈아 본다.
+Outside on the Imjin's north bank around the fifteenth, day. Separate carriers on the south bank from escorts on the north with river water and wind between them. Nearby messengers coordinate turns with drums and flags. Kim Yusin looks from the crossing line to northern pursuers and back.
 
-김유신: 호위는 앞을 받쳐라. 도하는 멈추지 않는다.
+KIM YUSIN: Escort, hold the front. The crossing doesn't stop.
 
-찬오가 귀돌의 칼이 든 짐을 붙들고 다음 차례에 일어난다. 앞의 부상자가 늦어지자 다시 기다린다. 고구려군은 북쪽의 알려진 접근으로 강변 대기지를 압박한다. 갑자기 다른 나루에서 나타나지 않는다.
+Chano holds the bundle containing Gwidol's knife and rises for his next turn. When an injured person ahead is delayed, he waits again. Goguryeo presses the narrow riverbank waiting area along the known northern approach, not suddenly from another ferry.
 
-남쪽으로 건너온 사람이 돌아보는 시선에서 아직 남아 있는 후위를 본다. 명령 하나가 강 건너 모두에게 그대로 들리는 소리를 넣지 않는다.
+From someone looking back after crossing south, see the rear guard still remaining. Do not make one order audible unchanged to everyone across the river.
 
-## 알고도 둘로 나누어야 하는 방어 {#t027-flank-counterattack}
+## A defense knowingly divided {#t027-flank-counterattack}
 
-다음날 북안 바깥 낮. 김유신이 강변 호위와 서쪽으로 갈 일부를 나누어 지시한다.
+Outside on the north bank next day, day. Kim Yusin divides the riverbank escort from a group going west and assigns them.
 
-김유신: 앞 대열이 빠지려 하면 여기서 붙들어라. 도하 자리를 버리고 끝까지 쫓지는 마라. 서쪽으로 간 사람은 친 뒤 같은 통로로 돌아온다.
+KIM YUSIN: If their front tries to pull away, hold them here. Don't abandon the crossing and pursue to the end. Those going west return by the same route after striking.
 
-서쪽 호위는 고구려 집결의 서쪽 가장자리를 따라 북쪽으로 오른다. 고구려 측면 관측이 그것을 보고 알린다.
+The western escort travels north along the western edge of Goguryeo's assembly. A Goguryeo flank observer sees and reports it.
 
-고구려 지휘 측: 압박을 다 풀면 저들이 건넌다. 앞은 유지하고 일부를 빼서 서쪽을 받는다.
+GOGURYEO COMMAND: If we lift all pressure, they'll cross. Hold the front and pull some back to meet the west.
 
-고구려의 앞 대열이 뒤로 빠지려 한다. 강변의 신라 호위가 짧게 전진해 그들을 붙든다. 서쪽 호위는 북서쪽에서 집결 자리의 동남쪽을 향해 공격한다. 물러나려던 군사는 앞의 신라군과 다시 맞붙고, 그들을 받아야 할 집결지의 병력은 서쪽 타격에 대응한다. 서쪽 접근을 보고받고 나눈 대응이 두 공격 사이에서 엇갈리는 과정을 본다.
+Goguryeo's leading formation tries to withdraw. The Silla riverbank escort advances briefly and holds it. The western escort attacks from northwest toward the assembly's southeast. The troops withdrawing engage Silla's front again, and those at assembly who should receive them respond to the western blow. Show how a response divided after observing the approach is crossed between two attacks.
 
-김유신은 추격을 늘리지 않는다. 서쪽 호위가 같은 길로 돌아와 남은 도하를 받는다. 찬오가 건넌 쪽에서 후위의 마지막 이동을 본다.
+Kim Yusin does not extend pursuit. The western escort returns by the same road to support the remaining crossing. From the crossed side, Chano watches the rear guard's final movement.
 
-역사가 음성: 극에서 잡은 이 전투의 고구려 전사·중상·포로는 이천이다. 압록강을 뺀 이번 전역의 손실 일만 오천에 이미 들어 있는 수다. 신라 기록의 참수 일만과 포로 오천은 승자의 주장으로 구별한다. 여기서 진 군대는 압록강이나 사수의 병력을 다시 데려온 것이 아니다.
+HISTORIAN (V.O.): The drama sets Goguryeo killed, seriously wounded, or captured in this battle at two thousand. That is already included in the fifteen thousand campaign losses outside the Yalu. Silla's record claims ten thousand beheaded and five thousand captured; distinguish the victor's claim. The defeated force did not bring Yalu or Sasu troops back to fight again here.
 
-## 돌아가지 않은 짧은 길 {#t028-reform-and-detour}
+## The short road they did not take {#t028-reform-and-detour}
 
-평양 전선, 14일 밤에서 15~16일 낮으로. 재편한 개소문의 군사가 사수로 향한다. 직접 짧은 길 대신 적의 길과 물가를 피하는 연결로를 따라 보병·기병·지원이 차례로 움직인다. 지도 삽입은 관객에게 직접 거리 십이와 이동 연결로 이십이 킬로미터를 구별해 준다.
+Pyongyang front, from night on the fourteenth to day on the fifteenth and sixteenth. Gaesomun's reorganized troops head for Sasu. Instead of the direct short road, infantry, cavalry, and support move in order along a connecting route avoiding enemy roads and the water. A map insert distinguishes the direct twelve kilometers from the twenty-two-kilometer travel route for the audience.
 
-17일, 속로의 병력이 육지 합류점의 차단을 마친다. 개소문에게 임진강의 결과가 즉시 들어와 길을 바꾸지는 않는다.
+On the seventeenth, Sokro's forces finish blocking land rendezvous points. The Imjin result does not reach Gaesomun immediately and change his route.
 
-방효태 진 안 낮. 그는 임아상 위기의 보고와 자기 출입구 상태를 받는다.
+Inside Pang Xiaotai's camp, day. He receives the report of Ren's crisis and the condition of his own exits.
 
-방효태: 병력과 짐이 함께 나갈 수 있느냐? 소정방께 전해라. 우리도 길을 확인한다.
+PANG XIAOTAI: Can troops and baggage get out together? Tell Su Dingfang. We'll check the road too.
 
-역사가 음성: 소정방에게 급보가 가는 데 반나절, 구원 부대를 모아 건너는 데는 적어도 하루였다.
+HISTORIAN (V.O.): An urgent report took half a day to reach Su. Gathering a relief force and crossing took at least a day.
 
-열세 아들에 관한 위치 보고도 다른 병력 보고와 함께 들어온다. 방효태는 진을 유지할 명령을 계속 내린다.
+Position reports on his thirteen sons arrive alongside other troop reports. Pang continues ordering the camp held.
 
-## 열린 경사와 막사 사이 {#t028-assault-on-camp}
+## Open slope and space between barracks {#t028-assault-on-camp}
 
-2월 18일 아침 사수 진 바깥. 열린 전면을 옆에서 보는 넓은 시선. 중기병이 바깥 대열을 흔들고 보병이 좁은 입구에 붙는다. 말과 짐 지원은 뒤의 연결에 남는다.
+Outside the Sasu camp on the morning of the eighteenth. Wide view of the open front from the side. Heavy cavalry shakes the outer ranks; infantry presses the narrow entrance. Horse and baggage support remains on the rear link.
 
-개소문: 기병은 저 열린 전면까지. 입구 안은 보병이 간다.
+GAESOMUN: Cavalry to that open front. Infantry goes inside the entrance.
 
-남건이 중기병을 세우고 안으로 들어갈 보병을 받친다. 바깥에서 속로는 연락과 흩어진 병력을 끊는다.
+Namgeon positions heavy cavalry and supports infantry entering. Outside, Sokro cuts communications and scattered troops.
 
-방효태: 입구를 받쳐라! 저쪽 진의 소식은 아직인가?
+PANG XIAOTAI: Hold the entrance! Any word from the other camp?
 
-진 안 시선은 막사와 짐 때문에 옆 대열이 가려지는 높이에 머문다. 북소리가 들려도 어느 길이 비었는지 보이지 않는다. 한 소장이 움직이려다 다른 대열과 부딪힌다. 임아상 진 쪽으로 통할 길은 이미 없고 합류점의 차단은 구원을 늦춘다.
+Inside the camp, the view stays at a height where barracks and baggage obscure the next formation. Drums can be heard, but empty roads cannot be seen. A junior commander tries to move and collides with another formation. The route toward Ren's camp is already gone, and blocked rendezvous points delay relief.
 
-보병이 들어간 뒤 개소문은 전면과 내부의 틈에 힘을 잇는다. 지친 고구려 군사도 멈추어 호흡을 고른 뒤 다시 붙는다. 당군의 반격에 고구려 군사가 쓰러진다. 시선은 계속 맞붙어 무기를 주고받는 양쪽 군사에게 머문다.
+After infantry enters, Gaesomun brings strength to the gap between front and interior. Tired Goguryeo soldiers stop to catch breath and engage again. A Tang counterattack brings down a Goguryeo soldier. Stay with soldiers on both sides exchanging blows.
 
-## 빠져나간 사람이 있는 패망 {#t028-sasu-result}
+## A collapse with people who escape {#t028-sasu-result}
 
-사수 진 바깥과 안, 같은 날. 물가와 좁은 출입에서 무너진 대열이 더는 함께 빠지지 못한다. 개별 생존자가 틈으로 달아나는 모습을 남겨 둔다. 방효태와 아들들의 죽음은 지휘가 더 오지 않는 진과 전장의 결과로 알린다. 열세 명에게 차례로 장대한 최후를 만들어 붙이지 않는다.
+Outside and inside Sasu camp, the same day. At the water and narrow exits, broken ranks can no longer retreat together. Keep individual survivors escaping through gaps. Pang Xiaotai and his sons' deaths are conveyed by command no longer coming and the battlefield outcome. Do not give all thirteen sequential grand deaths.
 
-역사가 음성: 방효태와 열세 아들, 수만이 죽었다. 옥저도 군대는 조직을 잃었다. 모든 사람이 물에 빠져 한꺼번에 사라진 것은 아니다.
+HISTORIAN (V.O.): Pang Xiaotai, his thirteen sons, and tens of thousands died. The Okjeo army lost its organization. Not everyone fell into water and vanished at once.
 
-개소문이 부상과 남은 병력을 확인한다.
+Gaesomun checks injuries and remaining troops.
 
-개소문: 소정방은?
+GAESOMUN: Su Dingfang?
 
-보고 음성: 군량이 들어갔습니다. 소정방군이 사람과 장비를 모아 나갈 준비를 갖추고 있습니다.
+REPORT VOICE: Provisions reached him. His army is gathering people and equipment and preparing to leave.
 
-개소문은 보고를 끝까지 듣는다. 승리를 알리는 소리가 아직 바깥에서 이어진다.
+Gaesomun hears the report to the end. Sounds announcing victory still continue outside.
 
-## 여섯 번이 되지 않은 결전 {#t029-su-withdrawal}
+## A decisive battle that did not happen six times {#t029-su-withdrawal}
 
-사수 뒤 소정방 진 바깥, 눈 속 낮. 배급을 받은 병력은 사람과 장비를 모아 포위를 푼다. 소정방은 남길 것과 가져갈 것을 나누고 임아상·방효태 쪽으로 새 구원을 보내지 않는다.
+After Sasu, outside Su Dingfang's camp in snow, day. Troops who received rations gather people and equipment and lift the siege. Su divides what to leave and take and sends no new relief to Ren or Pang.
 
-소정방: 모인 병력을 떼지 마라. 살아 나갈 길을 잇는다.
+SU DINGFANG: Don't split the force we've gathered. Keep the road out alive connected.
 
-철수 보고가 닿은 평양 군무 자리 안 낮. 개소문 앞에서 군관이 추격할 병력을 청한다.
+Inside the Pyongyang military office when withdrawal is reported, day. An officer asks Gaesomun for troops to pursue.
 
-군관: 소정방까지 쫓아야 합니다. 저 군대가 나가면 마지막 하나가 남습니다.
+OFFICER: We must pursue Su Dingfang too. If that army gets away, the last one remains.
 
-개소문: 이미 먹고 나갈 준비를 한 군대다. 우리 성과 남은 병력은 누가 추스르나?
+GAESOMUN: They've eaten and prepared to leave. Who will restore our fortresses and remaining troops?
 
-군관은 받아 갈 추격 명령을 기다리지만 개소문은 회복할 일을 앞으로 옮긴다.
+The officer waits for a pursuit order, but Gaesomun moves recovery work forward.
 
-개소문: 추격에는 더 내주지 않는다. 수도와 남은 군사부터 추스른다. 그리로 사람을 돌려라.
+GAESOMUN: No more for pursuit. Put the capital and remaining troops in order first. Send people there.
 
-군관이 그 명을 받아 나간다.
+The officer takes the order and leaves.
 
-개소문: 남생이 번 시간과 성에서 버틴 군사들의 공도 올려라. 지방 보병과 경기병도 함께. 마지막 적을 놓쳤다고 그 공까지 놓쳐서는 안 된다.
+GAESOMUN: Report the credit for Namsaeng's time and the soldiers who held the fortresses too. Local infantry and light cavalry as well. We mustn't lose their achievement because the last enemy escaped.
 
-남건이 승전 보고를 받는다. 개소문이 남건과 보고를 받는 사람들 앞에서 전역의 결과를 짚는다.
+Namgeon receives a victory report. Before him and the report recipients, Gaesomun states the campaign result.
 
-개소문: 둘은 남의 사정으로 떠났고 하나는 신라가 먹여 내보냈다. 셋을 꺾었다. 여섯을 다 친 것은 아니다.
+GAESOMUN: Two left for reasons elsewhere, and Silla fed one and sent it out. We broke three. We didn't strike all six.
 
-성문이 다시 열리고 주민들이 상한 들로 나간다.
+The fortress gate opens again and residents go out to damaged fields.
 
-## 칼을 받을 손 {#t029-knife-to-ajin}
+## A hand to receive the knife {#t029-knife-to-ajin}
 
-신라 아진의 집 안 낮. 문빛이 찬오가 내놓는 작은 생활 칼에 닿는다. 아진은 칼보다 찬오의 얼굴을 먼저 본다.
+Inside Ajin's house in Silla, day. Light from the door falls on the small everyday knife Chano presents. Ajin looks at his face before the knife.
 
-아진: 끝까지 걸었느냐?
+AJIN: Did he walk to the end?
 
-찬오: 발이 더 나빠졌습니다. 제가 짐을 들었는데… 대신 걸을 수는 없었습니다.
+CHANO: His feet got worse. I carried his load, but... I couldn't walk for him.
 
-아진: 거기 두고 왔느냐.
+AJIN: You left him there?
 
-찬오: 예. 옮겨 올 수가 없었습니다.
+CHANO: Yes. We couldn't bring him back.
 
-찬오가 칼을 내민 손을 감추려 하자 아진이 앉을 자리를 내준다.
+As Chano tries to hide the hand offering the knife, Ajin makes a place for him to sit.
 
-아진: 앉아라. 그것부터 놓고.
+AJIN: Sit. Put that down first.
 
-그가 앉는다. 아진은 아들이 없는 다음 밭일을 친족과 이웃의 도움으로 이을 몫을 살핀다. 찬오는 전처럼 운반할 수 없는 손으로 몸을 지탱한다.
+He sits. Ajin considers how to continue the next field work without her son, with help from kin and neighbors. Chano supports himself with hands that cannot carry as before.
 
-역사가 음성: 김유신은 현장에서 열기와 구근에게 급찬을 주고, 돌아와 왕에게 사찬을 청했다. 공을 세운 사람의 관등을 더 청한 일이다. 두품을 바꾼 것도, 유족들의 생계를 모두 해결한 것도 아니었다.
+HISTORIAN (V.O.): Kim Yusin gave Yeolgi and Gugeun geupchan in the field, then asked the king for sachan on return. He sought further rank for people who had served. It changed neither bone rank nor all bereaved families' livelihoods.
 
-칼이 아진의 곁에 남는다.
+The knife remains beside Ajin.
 
-## 불가능하다고 보았던 힘 {#t029-southern-reassessment}
+## Strength they thought impossible {#t029-southern-reassessment}
 
-평양 군무 자리 안 낮. 수송과 귀환 경과가 모인 뒤 개소문이 길 보고를 다시 펼친다. 남생과 남건은 같은 자리에 있다.
+Inside the Pyongyang military office, day. Once reports of transport and return gather, Gaesomun opens the route report again. Namsaeng and Namgeon are present.
 
-개소문: 사람이 가는 길이라고만 보았다. 김유신은 군량을 넘겼고 사람을 데리고 돌아갔다.
+GAESOMUN: We saw it only as a road people could take. Kim Yusin delivered provisions and brought his people home.
 
-남생: 우리도 다음 군사를 먹이고 옮길 생산과 길부터 되살려야 합니다.
+NAMSAENG: We must restore production and roads to feed and move our next army too.
 
-남건: 야전에서 당을 꺾은 군사가 지금 있습니다.
+NAMGEON: We have an army now that defeated Tang in the field.
 
-개소문은 남쪽을 쉽게 누를 수 있다는 말을 하지 않는다.
+Gaesomun does not say the south can easily be subdued.
 
-역사가 음성: 당이 짧게 남긴 전후 서술 뒤에서, 이 극은 세 군대가 무너진 충격을 읽었다. 수의 원정 실패에 견주는 것도 그 충격에 대한 해석이다. 십삼만이 돌아오지 않았다고 모두 전사자로 셀 수는 없다. 612년보다 더 많이 죽였다는 비교도 아니다.
+HISTORIAN (V.O.): Behind Tang's brief postwar account, this drama reads the shock of three armies collapsing. Comparison with Sui's failed expedition is an interpretation of that shock. One hundred thirty thousand did not return; that does not make them all dead, nor prove more were killed than in 612.
 
-남생이 파종과 귀향 보고를 받아 든다. 승전 문서가 놓인 자리에 다음 봄의 일이 들어온다.
+Namsaeng receives reports on sowing and return home. Work for next spring comes to the place where the victory documents lay.

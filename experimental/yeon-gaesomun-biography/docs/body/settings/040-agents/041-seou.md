@@ -1,20 +1,17 @@
-# 해은의 맏아이 서우
+# Seou, Haeun’s eldest child
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--041-seou).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--041-seou).
 
-## 해은의 맏아이 서우 {#seou}
+## Seou, Haeun’s eldest child {#seou}
 
-**정의·범위**
+**Definition and scope**
 
-서우는 641년생으로 창작한 해은의 맏딸이며 668년에는 27세다. 혼인해 다른 가구를 이루지 않고 부모, 동생과 같은 집에 산다. 가족의 수선 일을 배워 이주 뒤에도 함께 생계를 꾸린다. 재료와 맡은 물건을 잘 기억하지만 고구려 전체의 경제를 집계하는 역할까지 맡지는 않는다.
+Seou is Haeun’s invented eldest daughter, born in 641 and aged 27 in 668. She has not married into a separate household and lives with her parents and younger sibling. She learns the family’s mending work and continues to help make a living after relocation. She remembers materials and the items entrusted to her well, but does not take on the accounting of Goguryeo’s entire economy.
 
-**확정 내용**
+**Established facts**
 
+During relocation she resists abandoning her tools, bringing her into conflict with Haeun’s choice of luggage. She belongs to the same resettled group as her parents and also helps care for them.
 
-이주할 때는 자기 작업 도구를 버리지 않으려 하면서 해은의 짐 선택과 충돌한다. 부모와 같은 사민 집단에 속하며 부모를 돌보는 노동도 맡는다.
+She is about 160 centimeters tall, with long arms and a narrow chin. She has large brown eyes, straight thin black eyebrows, a small straight nose, a small mouth, and thin lips. She ties her fine black hair; her skin is light tawny. Over light gray-brown clothes she wears a dark brown apron and carries a small bundle of thread.
 
-
-키는 약 160cm이며 팔이 길고 턱이 좁다. 큰 갈색 눈에 곧고 가는 검은 눈썹, 곧은 작은 코와 작은 입, 얇은 입술이 있다. 가는 검은 머리를 묶고 피부는 밝은 황갈색이다. 밝은 회갈색 옷 위에 짙은 갈색 앞받이를 두르며 작은 실 꾸러미를 지닌다.
-
-
-목소리는 중간 음역으로 맑고 건조하다. 작업을 설명할 때는 빠르게 말하지만 부탁할 때는 말 사이의 간격이 길어진다.
+Her voice is clear and dry in the middle register. She speaks quickly when explaining work, but leaves longer pauses when making a request.

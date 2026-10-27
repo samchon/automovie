@@ -1,18 +1,17 @@
-# 655년 연합 공세의 성과
+# The results of the 655 allied offensive
 
-정전 안내: [이 대상의 위치](../outline/index.md#020-world--130-655-southern-offensive).
+Canon guide: [Location of this subject](../outline/index.md#020-world--130-655-southern-offensive).
 
-## 655년 연합 공세의 성과 {#655-southern-offensive}
+## The results of the 655 allied offensive {#655-southern-offensive}
 
-**정의·범위**
+**Definition and scope**
 
-작품은 655년 고구려가 백제·말갈과 연합해 신라 북경의 33성을 빼앗았다는 기록을 채택한다. 남방 공격이 모두 작은 원정의 실패로 끝난 것은 아니며, 연합한 병력을 집중하면 신라도 여러 성을 잃을 수 있다. 다만 이 공세가 신라 왕도 전체를 무너뜨린 것은 아니다. 33성을 잃은 신라는 당에 구원을 요청한다.
+The work adopts the record that in 655 Goguryeo allied with Baekje and Malgal and captured 33 fortresses on Silla’s northern frontier. Not every southern attack ended as a failed small expedition: concentrated allied forces could cost Silla several fortresses. This offensive did not, however, bring down the whole Silla capital. After losing the 33 fortresses, Silla asked Tang for aid.
 
-**확정 내용**
+**Established facts**
 
+Do not reconstruct every precise place name and ownership of the 33 fortresses or count every captured fortress as territory directly governed by Goguryeo. The Malgal appearing in the same account are not treated as identical to all eastern incorporated communities.
 
-33성의 정확한 지명과 소유권을 모두 복원하지는 않는다. 탈취한 성 전부를 고구려의 직할 영토로 계산할 수도 없다. 같은 기사에 등장하는 말갈 역시 동부의 편입 공동체 전체와 동일한 집단으로 보지 않는다.
+**References and unresolved matters**
 
-**참조·미결**
-
-Sources: [『삼국사기』655년 연합군의33성 탈취와 국편 주석](https://db.history.go.kr/common/compareViewer.do?levelId=sg_005_0040_0080&type=ancient).
+Sources: [The allied capture of 33 fortresses in 655, Samguk Sagi and National Institute of Korean History annotation](https://db.history.go.kr/common/compareViewer.do?levelId=sg_005_0040_0080&type=ancient).

@@ -1,21 +1,21 @@
-# 복신이 일으킨 부흥 세력
+# The restoration force Boksin raises
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--071-boksin).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--071-boksin).
 
-## 복신이 일으킨 부흥 세력 {#boksin}
+## The restoration force Boksin raises {#boksin}
 
-**정의·범위**
+**Definition and scope**
 
-복신은 현지에서 모은 병력과 거점을 기반으로 백제 부흥을 이끄는 사람이다. 왕족의 권위와 왜의 연결을 가진 [부여풍](072-buyeo-pung.md#buyeo-pung)과 같은 목적 아래 다른 권력을 가진다. 부흥 세력은 고구려의 명령을 기다리는 작은 조력자가 아니다. 자기 나라가 살아남을 필요에 따라 고구려 전쟁의 결과를 읽는다.
+Boksin leads Baekje’s restoration from locally gathered troops and strongholds. He shares a purpose with [Buyeo Pung](072-buyeo-pung.md#buyeo-pung), whose power comes from royal authority and ties to Wa, but holds a different power. The restoration is not a small auxiliary waiting for Goguryeo orders; it reads the Goguryeo war through the need for its own country’s survival.
 
-**확정 내용**
+**Established facts**
 
-창작 외형은 키 173센티미터, 넓은 등과 굵은 팔, 넓은 이마와 두꺼운 턱이다. 갈색 눈과 굵은 검은 눈썹, 짧고 넓은 코와 큰 입, 볕에 탄 황갈색 피부를 가진다. 검은 머리에 회색이 섞이고 억센 턱수염을 기른다. 짙은 갈색 옷과 검은 띠 위에 수선한 찰갑을 입는다. 목소리는 낮고 굵으며 마른 거친 결이다. 피곤할 때도 소리의 힘을 낮추지 않는다. 현장을 만든 사람이 자기 공과 통제력을 쉽게 넘길 수 없다고 본다. 내부 갈등은 외부 위기 때문에 저절로 없어지지 않는다.
+His invented appearance is 173 centimeters tall, broad-backed and thick-armed, with a broad forehead, heavy chin, brown eyes, thick black eyebrows, short broad nose, large mouth, and sun-darkened tawny skin. His black hair is streaked with gray and his beard coarse. He wears mended lamellar armor over dark brown clothes and a black sash. His voice is low, thick, dry, and rough; fatigue does not reduce its force. He believes the person who built the operation cannot easily hand over credit and control. External danger does not automatically erase internal conflict.
 
-고구려가 무너지면 부흥 세력도 다음 차례로 제거될 수 있다는 두려움을 무리한 결전의 창작 동기로 채택한다. 준비가 충분하지 않더라도 신라를 크게 꺾어 자원과 생존 공간을 얻어야 한다고 판단한다. 고구려가 662년에 살아남은 뒤에는 앞선 준비, 누적된 동원과 남쪽의 압박이 있어 이미 벌인 일을 쉽게 멈추지 못한다. 백강을 사수와 같은 시각의 전투로 옮겨 놓지 않는다.
+The work adopts fear that restoration forces will be eliminated next if Goguryeo falls as his invented motive for a risky decisive battle. Even if preparations are insufficient, he judges Silla must be badly defeated to gain resources and space to survive. After Goguryeo survives in 662, earlier preparations, accumulated mobilization, and southern pressure make it hard to stop what is already underway. Do not place Baekgang at the same time as the Sasu.
 
-복신을 살아 있는 지휘자·교섭자로 쓰는 범위는 백강 이전에 끝난다. 『일본서기』 권27은 663년 음력 6월 부여풍이 복신을 죽이고, 8월 백강에 나서는 순서로 적는다. 작품은 이 피살 결과와 선후를 채택하되 6월 안의 정확한 날은 정하지 않는다. 백강 당시 복신이 살아서 동원하거나 현장을 지휘하는 인물로 쓰지 않는다. 구체적인 충돌·살해 행동과 관객에게 드러나는 순서는 treatments가 맡는다.
+Use of Boksin as a living commander or negotiator ends before Baekgang. Nihon Shoki vol. 27 places his killing by Buyeo Pung in the sixth lunar month of 663 and Baekgang in the eighth. The work adopts that outcome and order without fixing an exact June day. He does not mobilize or command alive at Baekgang. Treatments own the detailed conflict, killing, and order of disclosure to the audience.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『일본서기』 권27의 663년 음력 6월 복신 피살과 8월 백강의 선후](https://zh.wikisource.org/zh-hant/日本書紀/卷第廿七), [국편 우리역사넷의 백강전투와 백제 부흥 세력](https://contents.history.go.kr/front/tg/view.do?levelId=tg_001_0150&treeId=0103).
+Sources: [Boksin’s killing in the sixth lunar month and Baekgang in the eighth, Nihon Shoki vol. 27](https://zh.wikisource.org/zh-hant/日本書紀/卷第廿七), [Baekgang and Baekje restoration forces](https://contents.history.go.kr/front/tg/view.do?levelId=tg_001_0150&treeId=0103).

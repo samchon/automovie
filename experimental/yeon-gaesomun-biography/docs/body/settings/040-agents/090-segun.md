@@ -1,17 +1,17 @@
-# 계승 내전의 세군 세력
+# Segun's faction in the succession civil war
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--090-segun).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--090-segun).
 
-## 계승 내전의 세군 세력 {#segun}
+## Segun's faction in the succession civil war {#segun}
 
-**정의·범위**
+**Definition and scope**
 
-세군은 추군과 싸워 자기 편의 많은 사망자를 낸 것으로 전해지는 옛 내전의 지도자 호칭이다.
+Segun is the designation of a leader in an earlier civil war who is said to have fought Chugun and lost many of his own people.
 
-**확정 내용**
+**Established facts**
 
-현재 예정 서사에서는 잃은 가문과 군사 관계를 기억하는 이름이며 추군의 다른 표기로 합치지 않는다. 세군 쪽에서 죽은 이는 귀족 이천 명이다. 얼굴·음성·개인 전투 장면을 추가하지 않는다.
+In the currently planned narrative, the name recalls lost families and military ties. Do not combine it with Chugun as another spelling of the same person. Two thousand nobles died on Segun's side. Do not add a face, voice, or personal combat scene.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [국편 「귀족 세력의 분열과 갈등」의 세군 쪽 피해 기록](https://contents.history.go.kr/front/hm/view.do?levelId=hm_009_0070).
+Sources: [National Institute of Korean History, casualties on Segun's side in “Division and conflict among aristocratic forces”](https://contents.history.go.kr/front/hm/view.do?levelId=hm_009_0070).

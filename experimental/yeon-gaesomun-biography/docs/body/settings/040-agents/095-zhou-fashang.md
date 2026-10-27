@@ -1,17 +1,17 @@
-# 선박의 병력을 정리한 주법상
+# Zhou Fashang gathers the troops at the ships
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--095-zhou-fashang).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--095-zhou-fashang).
 
-## 선박의 병력을 정리한 주법상 {#zhou-fashang}
+## Zhou Fashang gathers the troops at the ships {#zhou-fashang}
 
-**정의·범위**
+**Definition and scope**
 
-주법상은612년 내호아의 평양 접근을 말리고, 패한 수군이 선박으로 돌아왔을 때 남은 병력을 정리해 고구려의 추격을 막은 수군 부총관이다.
+Zhou Fashang was a Sui deputy commander who advised Lai Hu’er against approaching Pyongyang in 612. When the defeated force returned to its ships, he organized the survivors and checked Goguryeo’s pursuit.
 
-**확정 내용**
+**Established facts**
 
-건무의 승전 기억에 남는 별도 행위자다. 현재 예정 서사에서는 전장 조건과 귀환의 보고에 이름이 등장하며 직접 대사나 내면은 없다. 남은 병력이 있었다는 사실을 수군 전체가 평양 성안에 들어갔다가 모두 죽었다는 과장으로 지우지 않는다.
+He is a distinct actor in Geonmu’s memory of victory. In the currently planned narrative, his name appears in reports of the battlefield conditions and the return; he has no direct dialogue or inner thoughts. Do not erase the surviving force with the exaggeration that the entire Sui naval force entered Pyongyang and died there.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『자치통감』 권181의 주법상과 수군 귀환](https://zh.wikisource.org/zh-hant/資治通鑑/卷181).
+Sources: [Zhou Fashang and the Sui force’s return, Zizhi Tongjian vol. 181](https://zh.wikisource.org/zh-hant/資治通鑑/卷181).

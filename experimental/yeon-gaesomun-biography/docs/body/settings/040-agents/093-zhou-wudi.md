@@ -1,17 +1,17 @@
-# 북중국을 합친 북주 무제
+# Emperor Wu of Northern Zhou unites northern China
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--093-zhou-wudi).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--093-zhou-wudi).
 
-## 북중국을 합친 북주 무제 {#zhou-wudi}
+## Emperor Wu of Northern Zhou unites northern China {#zhou-wudi}
 
-**정의·범위**
+**Definition and scope**
 
-북주 무제는577년 북제를 정복하여 북중국의 주군·호구를 병합한 군주다.
+Emperor Wu of Northern Zhou conquered Northern Qi in 577, incorporating its commanderies and population into northern China.
 
-**확정 내용**
+**Established facts**
 
-고구려의 첫 재건 시기에 서방의 여러 나라가 서로 싸우기만 하는 조건이 끝나 가고 있음을 보여 준다. 작품은 군사와 통치에 유능한 재흥 군주로 높이 평가하지만5호16국 시대 군주로 분류하지 않는다. 현재 예정 서사에서 선대가 받은 정세 보고의 인물이며 중국 궁정의 직접 장면·개별 대사는 없다. 초상과 음성을 창작하여 독립 줄거리를 늘리지 않는다.
+He shows that, during Goguryeo’s first reconstruction, the western states’ condition of fighting among themselves was coming to an end. The work esteems him as an effective ruler of resurgence in war and government, but does not classify him among rulers of the Sixteen Kingdoms period. In the currently planned narrative he appears in reports received by an earlier generation, without direct Chinese court scenes or individual dialogue. Do not invent a portrait and voice to expand a separate plot.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『주서』 권6의577년 북제 정복](https://zh.wikisource.org/zh-hant/周書/卷06).
+Sources: [Northern Zhou’s conquest of Northern Qi in 577, Book of Zhou vol. 6](https://zh.wikisource.org/zh-hant/周書/卷06).

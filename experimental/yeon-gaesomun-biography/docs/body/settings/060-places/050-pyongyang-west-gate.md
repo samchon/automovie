@@ -1,15 +1,15 @@
-# 평양 서쪽 통용문의 개방
+# Opening Pyongyang’s west postern
 
-정전 안내: [이 대상의 위치](../outline/index.md#060-places--050-pyongyang-west-gate).
+Canon guide: [Location of this subject](../outline/index.md#060-places--050-pyongyang-west-gate).
 
-## 평양 서쪽 통용문의 개방 {#pyongyang-west-gate}
+## Opening Pyongyang’s west postern {#pyongyang-west-gate}
 
-**정의·범위**
+**Definition and scope**
 
-668년 내응에 사용하는 문은 작품에서 평양 서쪽 방어선의 통용문으로 정한다. 발굴로 확인된 고대 문명을 붙이지 않는다. 문 너비4미터, 성벽 아래 통로 길이8미터, 안쪽 집결 마당20미터×25미터로 구성한다. 서쪽 바깥길은 완만한 오르막으로 문에 닿고, 동쪽 안길은30미터 뒤 갈림길에서 성 안의 큰길과 남북 순찰길로 나뉜다. 오사는 문 안 교대와 잠금장치, 요묘는 그 갈림길과 접근 순찰의 지휘를 맡는다.
+The work places the gate used for internal cooperation in 668 on Pyongyang’s western defenses, without assigning an excavated ancient gate name. It is four meters wide, with an eight-meter passage beneath the wall and a 20-by-25-meter inner assembly yard. The west outer road rises gently to it; the east inner road divides after 30 meters into the main interior road and north–south patrol route. Osa commands the shift and lock inside the gate; Yomyo commands the junction and approach patrols.
 
-**확정 내용**
+**Established facts**
 
-문은 두꺼운 나무 두짝과 안쪽 가로빗장으로 닫는다. 교대 병력이 빗장을 옮겨 문짝을 안으로 열려면 마당의 사람을 물려야 한다. 문루는 문 위 목조 감시채로, 횃불과 등잔의 불빛은 아래 출입을 비추되 먼 바깥 골짜기를 모두 드러내지는 않는다. 668년 내응의 고정 공간 상태는 합의 닷새 뒤의 문 개방, 오사 병력의 문 안 교대 권한, 요묘의 안길 순찰 교대와 비워진 접근로, 당군 진입 뒤 문루 화재다. 오사·요묘의 세부 실행은 작품의 채택이며 이 소수의 내응을 주민 전체의 동의로 보지 않는다. 진입 뒤 화재는 개문 협조자도 통제하지 못하는 상태다. 이 시점별 제약을 보존하며 신호 접수·개문·교대의 진행을 장소의 작동 규칙으로 재연하지 않는다.
+Two thick wooden leaves and an inner crossbar close the gate. Shift troops must clear people from the yard to move the bar and open the leaves inward. A wooden watch building stands over the gate; torches and lamps illuminate passage below but not every distant outer valley. Fixed spatial conditions for the 668 cooperation are opening five days after agreement, Osa’s troops’ authority over the inner shift, Yomyo’s patrol shift and cleared inner approach, and fire in the gatehouse after Tang enters. Osa and Yomyo’s details are choices for the work; this small group’s cooperation is not all residents’ consent. After entry, even those who helped open the gate cannot control the fire. Preserve these timed constraints without reenacting receipt of the signal, opening, and shift sequence as a place operation rule.
 
-문짝의 높이는 바깥 문턱에서3.2미터이고 통로 상단은3.5미터다. 문 위 감시채는 동서10미터·남북6미터의 한 층으로, 그 바닥은 문턱에서6미터 높이에 둔다. 감시채의 보 아래 높이는 자체 바닥에서2.6미터, 처마2.9미터, 남북 용마루4.3미터다. 먹빛 기와 지붕은 동서로 기울고 벽 밖으로0.6미터 내민다. 돌·흙의 하부와 목재 문루를 구별하며 문턱에서 용마루까지 전체 높이는10.3미터다. 이 값은 고대 문의 실측이 아니고 빗장을 옮기는 병력과 문루 방화의 기존 실행을 조형하기 위한 창작이다.
+The leaves are 3.2 meters high from the outer threshold and the passage top 3.5 meters. The one-story watch building is 10 meters east–west by six north–south, with its floor six meters above the threshold. It measures 2.6 meters beneath the beam from its own floor, 2.9 to the eaves, and 4.3 to its north–south ridge. Dark tiles slope east–west and project 0.6 meters beyond the walls. Distinguish the stone-and-earth lower structure from the wooden gatehouse; total height from threshold to ridge is 10.3 meters. These are invented values for depicting troops moving the bar and the established gatehouse fire, not measurements of the ancient gate.

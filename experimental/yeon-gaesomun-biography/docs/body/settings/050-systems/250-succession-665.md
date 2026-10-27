@@ -1,19 +1,19 @@
-# 665년의 승계와 남아 있는 대리 권력
+# Succession in 665 and remaining delegated authority
 
-정전 안내: [이 대상의 위치](../outline/index.md#050-systems--250-succession-665).
+Canon guide: [Location of this subject](../outline/index.md#050-systems--250-succession-665).
 
-## 665년의 승계와 남아 있는 대리 권력 {#succession-665}
+## Succession in 665 and remaining delegated authority {#succession-665}
 
-**정의·범위**
+**Definition and scope**
 
-개소문은665년 봄 죽고 남생이 대막리지로 이어받는다. 작품은 남생의 관력과 실제 업무 인계를 토대로 승계 자체가 빈 권좌의 경쟁부터 시작되지는 않게 한다. 남생은 통치와 재건의 최종 책임을 맡고, 남건과 남산에게는 중앙의 군무와 왕실·귀족 접촉을 계속 맡긴다. 형제들이 서로 필요 없는 명예직만 나누어 갖는 구조는 아니다.
+Gaesomun dies in spring 665 and Namsaeng succeeds him as daemangniji. Based on Namsaeng’s record of office and actual handover of duties, the work does not begin succession itself as a contest for an empty seat. Namsaeng takes final responsibility for government and reconstruction, while Namgeon and Namsan continue to handle central military affairs and contacts with the royal family and nobles. The brothers do not divide merely honorary offices that make them unnecessary to one another.
 
-**확정 내용**
+**Established facts**
 
-왕가와 귀족들이 개소문을 두려워해 억누르던 반발은 그가 죽자 공개적으로 말할 여지를 얻는다. 남생이 협의하고 설명하는 방식은 자기 재건에 필요한 장점이지만, 상대는 그것을 강제력이 줄어든 신호로 읽기도 한다. 형의 지방 순행 동안 두 동생이 중앙의 업무를 대리하는 기록의 큰 틀을 사용한다. 남생은 자기가 없는 자리를 남겨야 지역과 함께 복구를 실행할 수 있다.
+Opposition the royal family and nobles suppressed out of fear of Gaesomun gains room for public expression after his death. Namsaeng’s consultative, explanatory manner is an advantage needed for reconstruction, but opponents can also read it as a sign of diminished coercive power. The work uses the broad recorded framework in which his two brothers act for him at the center during his regional tour. Namsaeng must leave a place behind if he is to carry out recovery with the regions.
 
-임종 소식은 국내에서 가문·왕실·중앙 지휘자부터 알고 지역에는 전달되는 대로 알려진다. 전역 직후처럼 외부 사절의 왕래가 완전히 자유롭지 않으므로 당은665년 안에 확실한 사망과 승계를 인정할 만큼 일치하는 보고를 얻지 못하는 것으로 구성한다. 소식의 공식 확인은666년 귀부와 접촉으로 묶는다. 이 전달 방식은 사료의 연대 차이를 모두 설명한 확정설이 아니라 작품의 정보 조건이다.
+The family, royal house, and central commanders learn of his death first within Goguryeo; regions are told as news reaches them. Since outside envoys cannot travel completely freely immediately after the campaign, Tang is constructed as not obtaining sufficiently consistent reports to acknowledge the death and succession with certainty within 665. Official confirmation is tied to submission and contact in 666. This transmission is the work’s information condition, not a settled theory explaining all differences in historical dates.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『삼국사기』 남생의 지방 순행과 두 동생의 대리](https://db.history.go.kr/ancient/level.do?levelId=sg_049r_0040_0030).
+Sources: [Namsaeng’s regional tour and his brothers’ delegated authority, Samguk Sagi](https://db.history.go.kr/ancient/level.do?levelId=sg_049r_0040_0030).

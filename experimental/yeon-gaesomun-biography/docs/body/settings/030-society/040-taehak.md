@@ -1,25 +1,23 @@
-# 태학과 군사 귀족의 배움
+# Taehak and military aristocratic education
 
-정전 안내: [이 대상의 위치](../outline/index.md#030-society--040-taehak).
+Canon guide: [Location of this subject](../outline/index.md#030-society--040-taehak).
 
-## 태학과 군사 귀족의 배움 {#taehak}
+## Taehak and military aristocratic education {#taehak}
 
-**정의·범위**
+**Definition and scope**
 
-태학은 경당 위의 상급 교육기관으로, 중앙의 사람들과 관계를 맺고 글을 배우는 곳이다. 귀족 자제가 중심이며, 부유한 집안의 아이나 추천을 받은 사람도 들어갈 수 있다. 작품은 372년 설립 기록과 귀족 교육기관이라는 해석에 기대어, 연개소문이 경전과 역사, 명령을 읽고 쓰는 일에 뛰어난 학생이었다고 설정한다. 그의 재능과 실제 학업은 창작에 속한다.
+Taehak is an advanced institution above Gyeongdang, where students learn letters and form central connections. Noble children predominate; children of wealthy households and recommended people can also enter. Drawing on the 372 founding record and interpretation as an aristocratic school, the work makes Yeon Gaesomun an outstanding student of classics, history, and reading and writing orders. His talent and actual study are invented.
 
-**확정 내용**
+**Established facts**
 
+Beyond memorizing texts, students debate different conclusions from the same precedent. They learn to rebut without damaging another family’s face and to find where a report is missing. Yeon answers faster than others but struggles to wait when a classmate gives a clumsy answer. His ability and impatience are not expressed as a separate Taehak rank or examination score. Graduation does not automatically grant central office; actual duties depend on family and political trust.
 
-여기서는 글을 외우는 데 더해 같은 선례를 두고도 다른 결론을 내리며 논쟁한다. 상대 집안의 체면을 해치지 않고 반박하는 기술도 배우며, 어떤 보고가 어디에서 빠졌는지 찾아내는 습관을 익힌다. 연개소문은 남보다 빨리 답을 얻지만 동무가 서툰 답을 내놓을 때 기다리는 데는 약하다. 이 능력과 성급함은 태학 안의 별도 서열이나 과거시험 점수로 표시되지 않는다. 학업을 마쳐도 중앙의 직책이 자동으로 주어지는 것은 아니며, 실제 임무는 가문과 정치적 신뢰에 따라 정해진다.
+Among children who grew up together at Gyeongdang, those advancing to Taehak are generally nobles’ and wealthy households’ children and a few recommended people. A commoner remaining at Gyeongdang and a noble educated at Taehak need each other’s abilities on the same campaign: the noble’s writing and orders and the commoner’s long-practiced archery work together. Yet access to central language and recommendation diverges sharply from entry to Taehak. This helps explain how capable local commanders are assessed at the center and Ondal’s rise in status.
 
+**Conditions and limits**
 
-어린 시절 경당에서 함께 자란 아이들 가운데 태학까지 오르는 것은 대개 귀족과 부유한 집안의 아이, 추천을 받은 소수다. 경당에 남은 평민과 태학을 거친 귀족은 같은 전역에 나가면 서로의 능력을 필요로 한다. 귀족이 익힌 글과 명령문, 평민이 오래 다진 활 숙련은 그때 함께 쓰인다. 그러나 중앙의 말과 추천에 접근할 기회는 태학에 오르는 때부터 크게 벌어진다. 이 차이는 유능한 현지 지휘자가 중앙에서 평가받는 방식과 온달의 신분 상승을 이해하는 바탕이 된다.
+Admission age, capacity, and recommendation procedures are absent from records and not fixed by the work. Gaesomun enters around 627. Admission of wealthy and recommended students is the work’s interpretation.
 
-**조건·한계**
+**References and unresolved matters**
 
-입학 나이·정원·추천의 절차는 기록에 없으므로 작품이 고정하지 않는다. 작품의 개소문은 627년 무렵 태학에 들어간다. 부유한 집안과 추천을 통한 입학은 작품의 해석이다.
-
-**참조·미결**
-
-Sources: [한국학중앙연구원, 한국민족문화대백과사전 「태학」, 설립 기록과 교육 대상·내용의 추정](https://encykorea.aks.ac.kr/Article/E0059090)
+Sources: [Taehak, Encyclopedia of Korean Culture, founding record and inferred students and curriculum](https://encykorea.aks.ac.kr/Article/E0059090).

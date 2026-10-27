@@ -1,21 +1,21 @@
-# 계필하력의 경험과 남생의 상대
+# Qibi Heli’s experience and his opponent Namsaeng
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--054-qibi-heli).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--054-qibi-heli).
 
-## 계필하력의 경험과 남생의 상대 {#qibi-heli}
+## Qibi Heli’s experience and his opponent Namsaeng {#qibi-heli}
 
-**정의·범위**
+**Definition and scope**
 
-계필하력은 남생을 압록강에서 패배시켰다가 훗날 그를 구원하는 당의 철륵계 지휘자다. 아사나 왕족과 같은 돌궐 왕족으로 분류하지 않는다. 다른 장수를 구한 기동과 고창 정복 경력 등이 『신당서』 전기에 남아 있다. 당의 권위 안에서 자신의 병력과 공을 인정받은 지휘자이며, 남생은 이런 정예군을 막는 임무를 맡는다.
+Qibi Heli is a Tang commander of Tiele origin who defeats Namsaeng at the Yalu and later comes to his relief. Do not classify him as a Turkic royal like the Ashina. His New Book of Tang biography records mobile action rescuing another general and service in the conquest of Gaochang. Tang authority recognized his troops and achievements; Namsaeng is tasked with holding such elite forces.
 
-**확정 내용**
+**Established facts**
 
-작품의 외형은 키 179센티미터, 굵은 몸과 긴 팔, 높은 광대뼈와 넓은 턱이다. 깊은 갈색 눈 위에 굵은 검은 눈썹이 있고 코는 높으며 입은 넓다. 볕에 탄 황갈색 피부와 뺨의 오래된 상처, 검게 묶은 머리와 짧은 턱수염을 가진다. 짙은 갈색 옷과 검은 띠에 철찰 갑옷과 가죽 덧옷을 입는다. 목소리는 낮고 두꺼우며 마찰이 큰 거친 울림이다. 대답을 기다리는 순간에도 부대가 보이는 방향을 확인한다. 말은 짧고 거침없지만 자신이 중앙에서 어떤 언어로 설명되어야 하는지 안다. 출신 때문에 당에 언제나 억지로 끌려다니는 인물로 만들지 않는다.
+In the work he is 179 centimeters tall, heavy-bodied and long-armed, with high cheekbones and a broad jaw. Thick black eyebrows sit over deep brown eyes; his nose is high and mouth broad. He has sun-darkened tawny skin, an old cheek scar, tied black hair, and a short beard. He wears iron lamellar armor and a leather outer garment over dark brown clothes and a black sash. His voice is low and thick with a highly rasping resonance. Even waiting for an answer, he checks the direction where his unit can be seen. His words are brief and direct, but he understands how he must be described at the center. Do not make him always unwillingly dragged along by Tang because of his origin.
 
-강이 얼고 도하가 가능해지면 적이 막아 온 지형의 조건이 바뀐 것을 이용한다. 남생이 최종 패배했다고 해서 앞선 저지가 무의미했다고 보지 않을 능력도 있다. 다른 전선의 필요로 철수 명령을 받는 일은 겁을 먹어 도망가는 것과 다르다. 그가 고구려 전선에서 입은 피해는 기록이 없다. 귀국한 뒤 그는 정예 기병 5백으로 철륵 아홉 부족 안으로 달려 들어가 그들을 달래 수습한다. 병력 손실·추격 범위·회군 시점은 전역 정전의 값을 따른다.
+When the river freezes and crossing becomes possible, he uses the changed terrain that the enemy had held. He is capable of recognizing that Namsaeng’s earlier delay was meaningful despite final defeat. Withdrawal ordered for another front is distinct from fleeing in fear. His losses on the Goguryeo front are not recorded. After returning, he rides into the nine Tiele tribes with 500 elite cavalry to pacify and settle them. Losses, pursuit range, and withdrawal timing follow campaign canon.
 
-666년 남생이 원조를 구하면 계필하력은 요동도안무대사로 군사를 거느려 구원하도록 임명된다. 작품에서 남생은 자신을 패배시킨 적의 지휘자가 이제 자기 생존을 지켜 주는 자리로 오는 것을 받아들인다. 상대의 군사 능력을 존중하는 일과 당의 정복 목적을 신뢰하는 일은 다르다. 구원군의 명령 관계는 기록에 근거하지만 두 사람의 직접 대면이나 개인적 화해는 확인된 사료 사실로 쓰지 않는다.
+When Namsaeng seeks aid in 666, Qibi is appointed to lead relief as Liaodong-route pacification commissioner. Namsaeng accepts that the enemy commander who defeated him now comes to protect his survival. Respecting the other’s military ability differs from trusting Tang’s conquest objective. Relief command relationships rest on the record, but do not present a direct meeting or personal reconciliation as confirmed historical fact.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『신당서』 권110 계필하력전](https://zh.wikisource.org/zh-hant/新唐書/卷110), [『자치통감』 권201의666년 구원 임명](https://zh.wikisource.org/zh-hant/資治通鑑/卷201).
+Sources: [Biography of Qibi Heli, New Book of Tang vol. 110](https://zh.wikisource.org/zh-hant/新唐書/卷110), [his 666 relief appointment, Zizhi Tongjian vol. 201](https://zh.wikisource.org/zh-hant/資治通鑑/卷201).

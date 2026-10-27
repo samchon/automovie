@@ -1,15 +1,15 @@
-# 방효태와 가족이 있는 사수의 진
+# Pang Xiaotai and his family at the Sasu camp
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--051-pang-xiaotai).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--051-pang-xiaotai).
 
-## 방효태와 가족이 있는 사수의 진 {#pang-xiaotai}
+## Pang Xiaotai and his family at the Sasu camp {#pang-xiaotai}
 
-**정의·범위**
+**Definition and scope**
 
-방효태는 사수의 진을 맡으며 아들들과 함께 전사하는 당 지휘자다. 먼저 타격받는 [임아상](053-ren-yaxiang.md#ren-yaxiang)의 군대와 한 날 한 장소에서 함께 사라지지는 않는다. 순차 타격을 택한 사건 복원과 기록의 한계는 전역 정전에 있다.
+Pang Xiaotai is the Tang commander responsible for the camp at the Sasu who dies in battle with his sons. His force does not disappear on the same day and in the same place as that of [Ren Yaxiang](053-ren-yaxiang.md#ren-yaxiang), which is struck first. The campaign canon owns the reconstruction choosing sequential attacks and the limits of the record.
 
-**확정 내용**
+**Established facts**
 
-창작 방효태는 키 174센티미터, 굵은 팔과 두꺼운 몸통, 넓고 각진 턱이다. 갈색 눈과 검고 굵은 눈썹, 짧고 넓은 코와 큰 입을 가지며 피부는 짙게 그을렸다. 검은 머리에 회색이 섞이고 턱수염은 두껍다. 검은 속옷과 붉은 갈색 띠 위에 찰갑과 장식이 적은 투구를 쓴다. 목소리는 낮고 거칠며 병력의 피해를 보고받을 때 가까운 사람부터 다시 묻는다. 자기 아들들이 전장에 함께 있다는 사실이 공적 책임과 섞인다. 가족을 지키려고 다른 군을 버렸다고 기록이 확인한 것처럼 쓰지 않는다.
+The invented Pang Xiaotai is 174 centimeters tall, with thick arms and torso and a broad angular chin. He has brown eyes, thick black eyebrows, a short broad nose, a large mouth, and deeply sun-darkened skin. His black hair is streaked with gray and his beard thick. He wears lamellar armor and a sparsely decorated helmet over black underclothes and a reddish-brown sash. His voice is low and rough; when receiving casualty reports he asks again first about those close to him. The fact that his sons are on the battlefield mingles with his public responsibility. Do not write as if the record confirms he abandoned another army to protect his family.
 
-방효태의 전사와 [열세 아들](052-pang-sons.md#pang-sons)의 죽음은 기록의 결말을 유지한다. 662년 2월 18일 무렵 사수에서 그와 아들 13명을 비롯해 수만이 죽는다. 패전 장수의 마지막 속마음과 주변 인물의 구체적 죽음은 창작이다.
+His death and the deaths of his [thirteen sons](052-pang-sons.md#pang-sons) retain the recorded outcome. Around February 18, 662, tens of thousands die at the Sasu, including him and his 13 sons. The defeated commander’s final thoughts and the specific deaths of people around him are invented.

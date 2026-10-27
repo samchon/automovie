@@ -1,24 +1,21 @@
-# 장손무기의 측후방 공격
+# Zhangsun Wuji’s attack on the flank and rear
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--049-zhangsun-wuji).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--049-zhangsun-wuji).
 
-## 장손무기의 측후방 공격 {#zhangsun-wuji}
+## Zhangsun Wuji’s attack on the flank and rear {#zhangsun-wuji}
 
-**정의·범위**
+**Definition and scope**
 
-645년 장손무기는 이세적이 붙들고 있는 고구려군의 측면과 후방으로 들어갈 별도 부대를 맡는다. 이 작전에는 황제의 뜻과 장손무기가 장수로서 행사하는 권한이 함께 작용한다. 기습의 성립 여부는 접근 지형과 이동 시간에 달려 있다. 장손무기는 이세적의 앞선 진이 버티고 있다는 보고를 기다려야 한다.
+In 645 Zhangsun Wuji commands a separate force to enter the flank and rear of the Goguryeo army held by Li Shiji. Both the emperor’s intention and Zhangsun Wuji’s authority as a general shape the operation. The surprise depends on approach terrain and travel time. Zhangsun must wait for a report that Li Shiji’s forward camp is holding.
 
-**확정 내용**
+**Established facts**
 
+Specific deployment and movement at Jupilsan follow the campaign canon. Zhangsun Wuji does not return as a figure present in the 661 campaign.
 
-주필산에서의 구체적인 배치와 이동은 해당 전역의 정전에 따른다. 장손무기는 661년 전역의 현장 인물로 다시 등장하지 않는다.
+The work’s invented Zhangsun Wuji is 170 centimeters tall, thick-bodied and short-armed, with a round face, brown eyes, straight dark eyebrows, a broad nose tip, thin lips, and light tawny skin. His black hair and short beard are neatly kept. He wears a reddish-brown sash over black clothes and armor with metal decoration.
 
+His invented voice is clear and below the middle register, with a little nasal resonance. He speaks slowly at ceremonies but finishes operational reports briefly while keeping respectful forms.
 
-작품에서 창작한 장손무기는 키가 170센티미터다. 몸통이 두껍고 팔이 짧으며 얼굴은 둥글다. 갈색 눈과 곧고 짙은 눈썹, 넓은 코끝과 얇은 입술을 가졌고 피부는 옅은 황갈색이다. 검은 머리와 짧은 수염을 단정하게 정리한다. 검은 옷에 붉은 갈색 띠를 두르고 금속 장식이 있는 갑옷을 입는다.
+**References and unresolved matters**
 
-
-작품에서 창작한 목소리는 중간보다 낮고 맑으며 코 울림이 조금 섞인다. 의례에서 하는 말은 천천히 이어 가지만, 작전 보고는 높임을 지키면서도 짧게 마친다.
-
-**참조·미결**
-
-Sources: [『삼국사기』 주필산의 장손무기 배치](https://db.history.go.kr/ancient/level.do?levelId=sg_021r_0020_0215).
+Sources: [Zhangsun Wuji’s deployment at Jupilsan, Samguk Sagi](https://db.history.go.kr/ancient/level.do?levelId=sg_021r_0020_0215).

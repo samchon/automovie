@@ -1,20 +1,17 @@
-# 안시성의 수비가 얻는 시간
+# The time won by Ansi’s defense
 
-정전 안내: [이 대상의 위치](../outline/index.md#050-systems--210-ansi-defence).
+Canon guide: [Location of this subject](../outline/index.md#050-systems--210-ansi-defence).
 
-## 안시성의 수비가 얻는 시간 {#ansi-defence}
+## The time won by Ansi’s defense {#ansi-defence}
 
-**정의·범위**
+**Definition and scope**
 
-구원군이 패한 뒤에도 안시성은 당의 진격을 붙든다. 작품에서 성 안의 무장 인력은 8천 명으로 정하며, 주민과 피난민은 이 수에 넣지 않는다. 앞서 동원된 구원군 15만 명 가운데 야전에 투입된 6만 명과 나머지 병력을 모두 안시성의 병력으로 다시 계산하지 않는다. 성 안의 사람들은 바깥 구원군의 전체 상황이나 당이 어떤 조건에서 회군하게 되는지 곧바로 알 수 없다.
+Even after the relief force is defeated, Ansi Fortress holds up Tang’s advance. The work sets its armed personnel at 8,000, excluding residents and refugees. Do not count the 60,000 committed to the field from the previously mobilized 150,000 relief force, or the rest of that force, again as Ansi’s garrison. Those inside cannot immediately know the entire situation of the relief force outside or the conditions under which Tang will withdraw.
 
-**확정 내용**
+**Established facts**
 
+The castellan divides the work of stopping approaching siege equipment and repairing damaged walls and allocates tasks among tired residents and soldiers. While soldiers fight on the wall, people carrying water and food also help the defense.
 
-성주는 공성 장비가 다가오는 곳을 막는 일과 손상된 성벽을 고치는 일을 나누고, 지친 주민과 군사가 맡을 작업을 배분한다. 군사가 성벽에서 싸우는 동안, 물과 음식을 옮기는 사람들도 수비를 돕는다.
+Tang siege equipment actually damages the walls and injures people. The forms of objects used to repair walls or stop attacks and the routes people take follow the [place canon](../060-places/110-ansi.md#ansi) and [object canon](../outline/index.md#070-objects).
 
-
-당의 공성 장비는 실제로 성벽을 손상시키고 사람을 다치게 한다. 성벽을 수선하거나 공격을 저지할 때 쓰는 물건의 형태와 사람들이 움직이는 경로는 [장소 정전](../060-places/110-ansi.md#ansi)과 [물건 정전](../outline/index.md#070-objects)에 정해 둔 모습을 따른다.
-
-
-개소문은 성주에 대한 개인적인 호감과 별개로 안시성의 방어를 지원한다. 자신에게 맞서는 지휘자라도 성을 지킬 수 있다면 그 성을 맡아야 한다고 판단한다. 성주가 이끄는 방어를 중앙 독재의 명령에 대한 믿음만으로 설명하지 않는다. 성주는 성과 군사를 살려야 하며, 그 방어를 이끌 지휘 권한을 갖는다.
+Apart from his personal feelings toward the castellan, Gaesomun supports Ansi’s defense. He judges that even a commander who opposes him should hold a fortress if he can defend it. Do not explain the castellan’s defense solely as faith in orders from a central dictatorship. He must save the fortress and its soldiers, and has command authority to lead its defense.

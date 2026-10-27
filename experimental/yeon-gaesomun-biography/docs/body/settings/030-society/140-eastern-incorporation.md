@@ -1,21 +1,19 @@
-# 거래와 배움으로 이어지는 편입
+# Incorporation through trade and learning
 
-정전 안내: [이 대상의 위치](../outline/index.md#030-society--140-eastern-incorporation).
+Canon guide: [Location of this subject](../outline/index.md#030-society--140-eastern-incorporation).
 
-## 거래와 배움으로 이어지는 편입 {#eastern-incorporation}
+## Incorporation through trade and learning {#eastern-incorporation}
 
-**정의·범위**
+**Definition and scope**
 
-작품에서 평원왕·영양왕 대의 동진은 군사적으로 복속시킨 지역에 교역과 정착 지원을 이어 가는 장기 사업이다. 모든 지역의 통치 시기와 방식을 하나로 고정하지 않는다. 기존 우두머리를 통해 군역과 물자를 받는 곳이 있는가 하면, 주민이 성 아래에 정착해 중앙 군관과 직접 접촉하는 곳도 있다. 이 사업은 두 재건을 거치며 국력이 커지는 과정을 설명하기 위한 설정이다.
+In the work eastward expansion under Pyeongwon and Yeongyang is a long-term program linking trade and settlement support to militarily subdued regions. It does not fix the same timing or governing method for every region. Some provide service and supplies through existing leaders; elsewhere residents settle below fortresses and contact central officers directly. This setting explains growth in state capacity through two reconstructions.
 
-**확정 내용**
+**Established facts**
 
+Iron tools, salt, and grain travel along trade routes into incorporated regions; leather and forest products come out. Residents assigned to guard trading posts have corresponding rights to supplies. If promised supplies do not arrive, the promise of submission loses force. Preventing raids requires trading partners sustaining livelihoods as well as punishment. An officer who ends the matter with gifts to a leader cannot know other households’ service grievances.
 
-교역로를 따라 편입 지역으로 철제 도구와 소금, 곡식이 들어가고 그곳의 가죽과 숲의 산물이 나온다. 교역 거점을 지킬 임무를 맡은 주민에게는 물자를 받을 권리가 따른다. 약속한 물자가 도착하지 않으면 복속의 약속도 힘을 잃는다. 주민이 약탈에 나서지 않도록 하려면 처벌만큼이나 생계를 이어 갈 거래 상대가 필요하다. 군관이 우두머리에게 선물을 주는 것으로 일을 끝내면, 다른 가구가 군역을 두고 품은 불만을 알 수 없다.
+Gyeongdang carries the relationship to the next generation. There people learn to read, shoot bows, and use place names and signals of Goguryeo officers. Teaching retains local life and differences of language and accent. General characteristics and the exclusion of riding instruction follow [military service and learning](../outline/index.md#030-society). Timing of schools in this region and their connection to local service are invented policies.
 
-경당은 이 관계를 다음 세대까지 이어 가는 곳이다. 이곳에서는 글을 읽고 활을 익히며 고구려 군관이 쓰는 지명과 신호를 배운다. 지역의 생활을 남긴 채 가르치며 말과 억양의 차이도 이어진다. 경당의 일반 성격과 기마 교육을 넣지 않는 범위는 [군공과 배움](../outline/index.md#030-society)을 따른다. 이 지역에 경당을 설치하는 시기와 교육을 지역 군역에 연결하는 방식은 작품에서 만든 시책이다.
+In Miran and Sokro’s village, [Mujin](../040-agents/036-eastern-instructor.md#eastern-instructor) teaches and head [Meoru](../040-agents/037-community-head.md#community-head) gathers each household’s service and trade requests. [Gubin](../040-agents/043-gubin.md#gubin), not Mujin or Meoru, can change rations and transport.
 
-
-미란과 속로의 마을에서는 [무진](../040-agents/036-eastern-instructor.md#eastern-instructor)이 교육을 맡고, 우두머리 [머루](../040-agents/037-community-head.md#community-head)가 가구별 군역·교역 요청을 모은다. 배급과 수송을 바꾸는 권한은 [구빈](../040-agents/043-gubin.md#gubin)에게 있으며 무진과 머루에게는 없다.
-
-중요한 통지는 지역 안에서 번역할 수 있는 무진과 속로가 풀어 설명한다. 주민들 사이의 언어 차이가 한 사람의 통역으로 모두 해소되는 것으로 쓰지는 않는다.
+Mujin and Sokro, able to translate locally, explain important notices. Do not make one interpreter resolve every language difference among residents.

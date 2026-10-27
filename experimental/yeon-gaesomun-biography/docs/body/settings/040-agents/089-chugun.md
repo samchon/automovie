@@ -1,17 +1,17 @@
-# 계승 내전의 추군 세력
+# Chugun’s faction in the succession civil war
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--089-chugun).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--089-chugun).
 
-## 계승 내전의 추군 세력 {#chugun}
+## Chugun’s faction in the succession civil war {#chugun}
 
-**정의·범위**
+**Definition and scope**
 
-추군은6세기 중반 계승 내전에서 세군과 싸운 쪽의 지도자 호칭이다.
+Chugun is the designation of the leader of the side that fought Segun in the mid-sixth-century succession civil war.
 
-**확정 내용**
+**Established facts**
 
-본편에서는 국내성 귀족과 왕가가 서로 다르게 기억하는 옛 내전의 당사자로 등장한다. 왕위와 가문·군사 권력을 둘러싼 충돌을 이 인물의 한마디로 복원하지 않는다. 정확한 실명·나이·개인 외형과 대사는 현재 예정 서사에 없다. 작품에서 귀족 이천 명의 죽음으로 택한 사건과 지역 기반의 붕괴는 [내전 기억](../020-world/060-earlier-civil-war.md#earlier-civil-war)으로 이어진다.
+In the main story, he is a party to an old civil war remembered differently by the Gungnaeseong nobles and the royal family. Do not reconstruct the struggle over the throne and family and military power from a single remark by him. His exact personal name, age, appearance, and dialogue are absent from the currently planned narrative. The event chosen for the work, in which two thousand nobles died, and the collapse of the regional base lead to [memories of the civil war](../020-world/060-earlier-civil-war.md#earlier-civil-war).
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [국편 「귀족 세력의 분열과 갈등」의 추군·세군 기록](https://contents.history.go.kr/front/hm/view.do?levelId=hm_009_0070).
+Sources: [Chugun and Segun in “Division and conflict among aristocratic forces,” National Institute of Korean History](https://contents.history.go.kr/front/hm/view.do?levelId=hm_009_0070).

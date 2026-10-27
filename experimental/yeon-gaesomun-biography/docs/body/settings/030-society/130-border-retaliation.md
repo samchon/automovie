@@ -1,18 +1,17 @@
-# 작은 약탈과 돌지계 규모의 위협
+# Small raids and threats on Dolji-gye’s scale
 
-정전 안내: [이 대상의 위치](../outline/index.md#030-society--130-border-retaliation).
+Canon guide: [Location of this subject](../outline/index.md#030-society--130-border-retaliation).
 
-## 작은 약탈과 돌지계 규모의 위협 {#border-retaliation}
+## Small raids and threats on Dolji-gye’s scale {#border-retaliation}
 
-**정의·범위**
+**Definition and scope**
 
-작품 속 고구려는 국경 밖 말갈 집단의 작은 약탈에 거래 거점 출입 제한, 빼앗긴 물건의 반환 요구, 가까운 길목의 경계, 가해 집단에 대한 한정 토벌로 먼저 대응한다. 대군으로 뒤쫓아 정복해도 얻을 경작지와 조달 물자는 적은데, 추격에는 많은 군역과 먹을거리가 들기 때문이다. 이런 비용 판단에도 약탈 피해 주민을 보호할 책임은 남는다. 가난을 이유로 피해 주민을 버리지 않으며, 가해 집단을 말갈 전체와 동일시하지 않는다.
+In the work, Goguryeo first responds to small raids by Malgal groups beyond the frontier by restricting access to trading posts, demanding the return of stolen goods, guarding nearby routes, and mounting limited punitive expeditions against the groups responsible. Even if a large army pursued and conquered them, little farmland and few supplies would be gained, while pursuit would consume substantial military labor and food. This cost calculation leaves the duty to protect raided residents intact. Poverty is no reason to abandon victims, and the attacking group is not equated with all Malgal.
 
-**확정 내용**
+**Established facts**
 
+If a force such as Dolji-gye’s, leading several settlements and substantial fighting troops, repeatedly encroaches, it becomes a threat beyond the measures used for small raids. The work adopts the background that an earlier generation repelled such a large hostile group and regained frontier control. Dolji-gye has no direct encounter with Gaesomun. Sources differ on his life, timing of movement, and who defeated him; do not combine every date into a single established fact.
 
-여러 부락과 상당한 전투 병력을 거느린 돌지계 같은 세력이 침해를 반복하면, 작은 약탈에 쓰던 대응만으로 감당할 수 없는 위협이 된다. 작품에서는 선대가 이런 대규모 적대 집단을 격퇴해 변경 통제를 되찾았다는 배경을 채택한다. 돌지계가 개소문과 직접 대면하는 장면은 없다. 그의 생애와 이동 시기, 누구에게 패했는지에 대해서는 자료마다 설명이 달라 모든 연도를 하나의 확정된 사실로 합치지 않는다.
+**References and unresolved matters**
 
-**참조·미결**
-
-Sources: [『수서』 권81의 말갈 생업·약탈과 돌지계 기사](https://zh.wikisource.org/zh-hant/隋書/卷81).
+Sources: [Malgal livelihood and raids and the account of Dolji-gye, Book of Sui vol. 81](https://zh.wikisource.org/zh-hant/隋書/卷81).

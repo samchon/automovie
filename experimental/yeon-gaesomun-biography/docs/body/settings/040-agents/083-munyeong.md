@@ -1,17 +1,17 @@
-# 돌사성 공격의 문영
+# Munyeong at the attack on Dolsaseong
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--083-munyeong).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--083-munyeong).
 
-## 돌사성 공격의 문영 {#munyeong}
+## Munyeong at the attack on Dolsaseong {#munyeong}
 
-**정의·범위**
+**Definition and scope**
 
-문영은 돌사성 공격을 명령받은 신라 장군이다.
+Munyeong is a Silla general ordered to attack Dolsaseong.
 
-**확정 내용**
+**Established facts**
 
-다른 세 장군과 공동으로 이름이 기록되지만 한 사람으로 합치지 않는다. 현재 예정 서사에는 고구려가 국지적 성의 손실을 보고받는 대목만 있으며 개별 전술과 가족, 사적 발언은 배정하지 않는다. 정확한 돌사성 위치가 불명이라는 한계도 이 인물의 독립 활약으로 메우지 않는다.
+The record names him jointly with three other generals; they must not be combined into one person. The current narrative only reports to Goguryeo the loss of a local fortress; it assigns him no individual tactics, family, or private remarks. Do not resolve the uncertainty over Dolsaseong’s precise location by inventing independent exploits for him.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『삼국사기』664년 돌사성 공격의 문영](https://db.history.go.kr/item/compareViewer.do?levelId=sg_006_0020_0480).
+Sources: [Munyeong in the Samguk Sagi account of the 664 attack on Dolsaseong](https://db.history.go.kr/item/compareViewer.do?levelId=sg_006_0020_0480).

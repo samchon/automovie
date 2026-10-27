@@ -1,38 +1,38 @@
-# 645년 이후 당과의 야전 기록
+# Field records against Tang after 645
 
-정전 안내: [이 대상의 위치](../outline/index.md#050-systems--235-field-records-after-645).
+Canon guide: [Location of this subject](../outline/index.md#050-systems--235-field-records-after-645).
 
-## 645년 이후 당과의 야전 기록 {#field-records-after-645}
+## Field records against Tang after 645 {#field-records-after-645}
 
-**정의·범위**
+**Definition and scope**
 
-645년부터 661년 2차전쟁 전까지 고구려가 당과 그 편에 선 세력과 야전에서 싸운 기록을 싸움별로 정리한다. 고구려는 이 기간 야전에서 거의 이기지 못했다. 버틴 것은 645년 안시성, 648년 박작성, 658년의 방어처럼 성을 지킨 싸움이었다. 야전에서 이긴 기록은 거의 없고, 645년 요동 구원전 초반에 당군을 밀어낸 일 정도가 남는다. 승패와 전과는 『삼국사기』 권21·22를 기준으로 적고, 다른 기록이 엇갈리는 곳은 기록별로 구별한다. 『삼국사기』에 없는 싸움은 전하는 기록을 밝혀 더한다.
+List Goguryeo’s recorded field fights against Tang and its allies from 645 to before the second war in 661. Goguryeo won almost none. Holds such as Ansi in 645, Bakjakseong in 648, and the 658 defense were fortress defenses. Few field victories are recorded; early pressure against Tang in the 645 Liaodong relief is one exception. Use Samguk Sagi vols. 21–22 for outcomes and claims, distinguishing conflicting records; identify the source for fights absent from it.
 
-**확정 내용**
+**Established facts**
 
-| 해 | 싸움 | 『삼국사기』의 기록 | 엇갈리는 기록과 작품의 처리 |
+| Year | Fight | Samguk Sagi account | Conflicting records and treatment |
 | --- | --- | --- | --- |
-| 645 | 건안성 아래 | 영주도독 장검이 호병을 앞세워 「破我兵，殺數千人」 | 야전의 패배다. |
-| 645 | 요동 구원 | 신성·국내성의 보기 4만이 요동을 구원하러 나가 이도종의 기병 4천과 맞붙는다. 마문거의 돌격이 먼저 고구려군을 쓰러뜨렸고(「所向皆靡」), 크게 맞붙자 총관 장군예가 달아나 「唐兵敗衄」였으나, 이도종이 높은 곳에서 「我軍陣亂」을 보고 「與驍騎數千衝之」하고 이세적이 가세해 「我軍大敗，死者千餘人」 | 『자치통감』 권197은 같은 경과를 전하되 돌격한 기병을 「與驍騎數十沖之」로, 결과를 「斬首千餘級」으로 적는다. 돌격 기병의 수는 두 기록이 數千과 數十으로 갈리며, 작품은 그 수를 정하지 않는다. 쓰는 것은 두 기록이 함께 전하는 경과, 곧 한때 밀어붙였으나 진이 흐트러진 틈에 이도종의 날랜 기병이 돌격하고 이세적이 가세해 무너진 패배다. |
-| 645 | 백암성 구원 | 기록 없음. | 『자치통감』 권197은 오골성이 백암성을 돕게 보낸 1만여를 계필하력이 기병 800으로 쳤다고 적는다. 계필하력이 창에 허리를 찔려 구출된 뒤 다시 싸워 「遂破高麗兵，追奔數十里，斬首千餘級」. 야전의 패배다. |
-| 645 | 주필산 | 고연수·고혜진의 구원군이 무너지고 3만 6,800명이 항복한다. | 작품 값은 [주필산에서 깨지는 연결](200-jupilsan-defeat.md#jupilsan-defeat)을 그대로 따른다. 실투입 6만 가운데 2만이 죽고 3만 6,800이 항복하며, 『삼국사기』의 사망3만여와 『자치통감』 권198의 참수2만여를 각각 그 기록의 전과 주장으로 구별한다. 작품 사망2만은 별도의 채택 값이다. |
-| 645 | 건안성 아래 당 수군 진영 | 기록 없음. | 『자치통감』 권198은 장량의 군이 건안성 아래에 진을 다 갖추지 못하고 군사가 나무하러 흩어졌을 때 고구려군이 들이쳤으나, 총관 장금수 등이 북을 울려 군사를 정돈해 「擊高麗，破之」했다고 적는다. 기습으로 시작한 싸움도 야전에서 진다. |
-| 645 | 안시성 | 성이 버티고 당군이 돌아간다. | 성을 지킨 싸움이며 야전의 승리로 세지 않는다. 회군은 성과 계절과 군량이 함께 만든 결과다. |
-| 647 | 남소 등 여러 성 | 이세적의 군이 지나는 성들에서 「皆背城拒戰，世勣擊破之」 | 성을 등진 야전에서 진다. |
-| 647 | 석성·적리성 | 우진달·이해안이 국경에 들어와 「凡百餘戰」하고 석성을 함락하며, 적리성 아래로 나온 1만여 명이 이해안에게 지며 「我軍死者二千級」 | 원문은 3천으로 적었다는 판본 주가 있으므로 전사자는 2천~3천으로 둔다. |
-| 648 | 역산 | 오호진장 고신감이 바다를 건너와 고구려 보병·기병 5천을 만나 「戰於易山，破之」. 그날 밤 1만여 명이 고신감의 배를 습격했으나 「神感伏發，乃敗」 | 고구려의 연속 패전이다. 보병·기병 5천이 야전에서 지고, 배를 습격한 1만여 명도 매복에 진다. 『자치통감』 권199도 「神感設伏，又破之而還」이라 적어 당이 두 번 이겼다고 전한다. |
-| 648 | 박작성 | 성주 소부손의 보기 1만여가 「我兵潰」, 성은 「攻之不拔」, 고문이 이끈 오골·안지의 구원군 3만여도 「我軍敗潰」 | 두 번의 야전은 지고 성은 지킨다. |
-| 654 | 신성 | 안고가 말갈 병력과 함께 거란을 치러 나갔다가 송막도독 이굴가에게 「大敗我軍於新城」 | 당이 세운 거란 도독에게 진 싸움이다. |
-| 655 | 귀단수 | 정명진·소정방의 병력이 적다고 보고 나가 싸웠다가 「殺獲千餘人」, 당군은 외곽과 마을을 불태우고 돌아간다. | 『구당서』 권83 설인귀전은 현경 2년(657) 귀단성에서 「斬首三千級」이라 적어 해와 수치가 다르다. 작품은 『삼국사기』의 655년 값을 기준으로 둔다. |
-| 658 | 여름 6월의 방어 | 정명진·설인귀가 공격했으나 「不能克」 | 『자치통감』 권200은 같은 원정에서 적봉진을 「拔之，斬首四百餘級，捕虜百餘人」하고, 구원하러 온 두방루의 3만을 「大破之，斬首二千五百級」했다고 적는다. 작품은 성의 방어가 버텼다는 『삼국사기』의 기록과 요새 하나를 잃고 구원군이 졌다는 『자치통감』의 기록을 함께 남긴다. |
-| 659 | 횡산 | 설인귀가 고구려 장수 온사문과 싸워 「破之」 | 야전의 패배다. |
+| 645 | Below Geonanseong | Zhang Jian, governor of Yingzhou, leads Hu troops and “破我兵，殺數千人”. | A field defeat. |
+| 645 | Liaodong relief | 40,000 infantry and cavalry from Sinseong and Gungnaeseong meet Li Daozong’s 4,000 cavalry. Ma Wenge’s charge first routs Goguryeo wherever it strikes (“所向皆靡”); when the armies clash, Zhang Junyi flees and Tang is beaten (“唐兵敗衄”). Li sees “我軍陣亂” from high ground, charges “與驍騎數千衝之”, and Li Shiji joins: “我軍大敗，死者千餘人”. | Zizhi Tongjian vol. 197 gives the same course but “與驍騎數十沖之” and “斬首千餘級”. One says thousands, the other dozens; the work fixes no charging number. Both agree Goguryeo pressed forward temporarily, then collapsed when Li charged into disorder and Li Shiji joined. |
+| 645 | Baegamseong relief | No account. | Zizhi Tongjian vol. 197 says Qibi Heli attacked over 10,000 sent by Ogolseong to help Baegam with 800 cavalry. Speared in the waist and rescued, he fought again: “遂破高麗兵，追奔數十里，斬首千餘級”. A field defeat. |
+| 645 | Jupilsan | Go Yeonsu and Go Hyejin’s relief force collapses; 36,800 surrender. | Follow [Jupilsan](200-jupilsan-defeat.md#jupilsan-defeat): of 60,000 actually engaged, 20,000 die and 36,800 surrender. Distinguish Samguk Sagi’s over 30,000 dead and Zizhi Tongjian vol. 198’s over 20,000 beheaded as each record’s claim. The work’s 20,000 dead is a separate adopted value. |
+| 645 | Tang naval camp below Geonanseong | No account. | Zizhi Tongjian vol. 198 says Goguryeo attacked before Zhang Liang’s camp was complete, while troops were scattered gathering wood. Zhang Jinshu and others drummed, rallied them, and “擊高麗，破之”. The surprise ends in field defeat. |
+| 645 | Ansi | The fortress holds and Tang withdraws. | A fortress defense, not a field victory; fortress, season, and supply together cause withdrawal. |
+| 647 | Namso and other fortresses | Li Shiji’s army passes fortresses where “皆背城拒戰，世勣擊破之”. | Field defeat with fortresses behind the defenders. |
+| 647 | Seokseong and Jeokriseong | Niu Jinda and Li Hai’an enter the frontier, fight “凡百餘戰”, take Seokseong, and defeat over 10,000 who come out below Jeokriseong: “我軍死者二千級”. | A textual note gives 3,000; leave deaths at 2,000–3,000. |
+| 648 | Yeoksan | Naval commander Gao Shengan crosses the sea and meets 5,000 Goguryeo infantry and cavalry: “戰於易山，破之”. Over 10,000 attack his ships that night, but “神感伏發，乃敗”. | Consecutive defeats: the 5,000 lose in the field and the ship attackers to ambush. Zizhi Tongjian vol. 199 likewise says “神感設伏，又破之而還”: two Tang victories. |
+| 648 | Bakjakseong | Castellan So Buson’s over 10,000 infantry and cavalry: “我兵潰”; the fortress “攻之不拔”; Go Mun’s over 30,000 relief from Ogol and Anji: “我軍敗潰”. | Two field defeats, fortress held. |
+| 654 | Sinseong | An Go attacks Khitan with Malgal troops; Songmo governor Li Kuge “大敗我軍於新城”. | Defeat by a Khitan governor appointed by Tang. |
+| 655 | Gwidansu | Seeing Zheng Mingzhen and Su Dingfang’s force as small, Goguryeo comes out and fights; “殺獲千餘人”. Tang burns outskirts and villages and returns. | Old Book of Tang vol. 83 places “斬首三千級” at Gwidanseong in 657, differing in year and number. Use Samguk Sagi’s 655 value. |
+| 658 | Summer sixth-month defense | Zheng Mingzhen and Xue Rengui attack but “不能克”. | Zizhi Tongjian vol. 200 says the same expedition takes Jeokbongjin, “拔之，斬首四百餘級，捕虜百餘人”, and defeats Dubangnu’s 30,000 relief, “大破之，斬首二千五百級”. Retain both fortress resistance in Samguk Sagi and a fortress lost and relief defeated in Zizhi Tongjian. |
+| 659 | Hoengsan | Xue Rengui fights Goguryeo general Onsamun and “破之”. | A field defeat. |
 
-이 연패 사이에 나라가 무너지지 않은 것은 645년 이후 당의 공격이 국경을 갉아먹는 소모전이었고, 성들이 버텼기 때문이다. 당은 바다로 상륙하거나 기병으로 들어와 들을 짓밟고 빠지기를 되풀이했고, 『자치통감』 권199는 648년 태종이 「高麗困弊」라 보았다고 적는다. 그 사이 서북 변경의 생산과 동원은 해마다 깎인다. 이 기록은 2차전쟁에서 성 안에서 버티자는 쪽의 가장 강한 근거가 된다. 두 쪽 모두 성을 쓰며, 갈리는 것은 야전의 결전을 찾아 나서느냐 피하느냐다.
+The country survives these defeats because Tang’s post-645 attacks are attritional frontier erosion and fortresses hold. Tang repeatedly lands by sea or enters with cavalry to trample fields and leave; Zizhi Tongjian vol. 199 says Taizong saw “高麗困弊” in 648. Northwestern production and mobilization are reduced each year. This record is the strongest basis for the second-war argument to hold inside fortresses. Both sides use fortresses; they differ over seeking or avoiding decisive field battle.
 
-**조건·한계**
+**Conditions and limits**
 
-남은 기록은 대부분 승자 쪽에서 나왔다. 작품은 이 한계를 알되, 당이 패전을 숨겼다고 단정하지 않는다. 표의 승패는 기록이 전하는 결과이며, 각 싸움의 병력 배치와 경과는 해당 시기의 사건 설계가 기록의 범위 안에서 정한다. 2차전쟁 회의에서 인물들이 이 기록을 얼마나 정확히 아는지는 [소식이 도착하기 전과 후](../020-world/050-information-arrival.md#information-arrival)의 조건을 따른다.
+Most surviving records come from victors. Acknowledge that limit without asserting Tang concealed defeat. Table outcomes are reported results; event design sets each deployment and course within recorded bounds. Characters’ accuracy in the second-war council follows [before and after news arrives](../020-world/050-information-arrival.md#information-arrival).
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『삼국사기』 권21 보장왕 상](https://zh.wikisource.org/wiki/三國史記/卷21), [『삼국사기』 권22 보장왕 하](https://zh.wikisource.org/wiki/三國史記/卷22), [『자치통감』 권197 정관 19년 요동 구원과 백암성 구원](https://zh.wikisource.org/wiki/資治通鑑/卷197), [『자치통감』 권198 정관 19년 건안성 아래와 정관 21년 우진달](https://zh.wikisource.org/wiki/資治通鑑/卷198), [『자치통감』 권199 정관 22년 역산·「高麗困弊」](https://zh.wikisource.org/wiki/資治通鑑/卷199), [『자치통감』 권200 현경 3년 적봉진](https://zh.wikisource.org/wiki/資治通鑑/卷200), [『구당서』 권83 설인귀전](https://zh.wikisource.org/wiki/舊唐書/卷83).
+Sources: [Samguk Sagi vol. 21](https://zh.wikisource.org/wiki/三國史記/卷21), [vol. 22](https://zh.wikisource.org/wiki/三國史記/卷22), [Zizhi Tongjian vol. 197](https://zh.wikisource.org/wiki/資治通鑑/卷197), [vol. 198](https://zh.wikisource.org/wiki/資治通鑑/卷198), [vol. 199](https://zh.wikisource.org/wiki/資治通鑑/卷199), [vol. 200](https://zh.wikisource.org/wiki/資治通鑑/卷200), [Xue Rengui’s biography, Old Book of Tang vol. 83](https://zh.wikisource.org/wiki/舊唐書/卷83).

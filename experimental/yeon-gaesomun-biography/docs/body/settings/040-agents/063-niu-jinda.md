@@ -1,17 +1,17 @@
-# 우진달이 맡는 회전 병력
+# Niu Jinda’s force in the pitched battle
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--063-niu-jinda).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--063-niu-jinda).
 
-## 우진달이 맡는 회전 병력 {#niu-jinda}
+## Niu Jinda’s force in the pitched battle {#niu-jinda}
 
-**정의·범위**
+**Definition and scope**
 
-우진달은 645년 주필산에서 장손무기와 함께 별도 병력을 거느려 고구려군의 측후방을 공격하는 장수다.
+Niu Jinda was a general who led a separate force with Zhangsun Wuji against the Goguryeo army’s flank and rear at Jupilsan in 645.
 
-**확정 내용**
+**Established facts**
 
-작품의 회전 삼만 명 배분에서 측후방 만천 명의 공동 지휘에 참여하며, 장손무기와 우진달에게 각각 만천 명을 더하지 않는다. 접근로와 도착 시점은 전역 정전을 따른다. 현재 예정 서사에는 배치와 도착의 보고에 이름이 나타나고 개인의 직접 대면이나 독립 전기를 두지 않는다. 얼굴과 음성을 미리 창작하여 그 빈자리를 장면으로 늘리지 않는다.
+In the work’s allocation of 30,000 troops for the battle, he shares command of the 11,000 attacking the flank and rear; do not give Zhangsun Wuji and Niu Jinda another 11,000 each. Their approach and arrival follow the campaign canon. The currently planned narrative names him in reports of deployment and arrival, without direct encounters or a separate biography. Do not invent a face and voice to expand that absence into scenes.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『삼국사기』 주필산의 장손무기·우진달 배치](https://db.history.go.kr/ancient/level.do?levelId=sg_021r_0020_0215).
+Sources: [The deployment of Zhangsun Wuji and Niu Jinda at Jupilsan, Samguk Sagi](https://db.history.go.kr/ancient/level.do?levelId=sg_021r_0020_0215).

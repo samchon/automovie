@@ -1,38 +1,33 @@
-# 연씨 가문의 병사들
+# Soldiers of the Yeon household
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--119-yeon-house-soldiers).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--119-yeon-house-soldiers).
 
-## 연씨 가문의 병사들 {#yeon-house-soldiers}
+## Soldiers of the Yeon household {#yeon-house-soldiers}
 
-**정의·범위**
+**Definition and scope**
 
-연씨 가문의 병사들은 태조 시절 연씨 집의 남쪽 마당에서 훈련하고 가문의 동원에 나가는 사람들이다. 작품에서 창작한 집단이다. 가문의 병사로 사는 집의 남자들이며, 일부는 동원에 함께 참여하는 다른 귀족 가구의 몫에서 온다. 이들의 시간과 장비를 쓸 권한은 가주에게 있다. 무기 보관채의 무장은 가주의 명 없이 꺼낼 수 없다([태조 시절의 연씨 집](../060-places/020-yeon-residence.md#yeon-house-in-taejo-years)).
+These invented soldiers train in the Yeon south yard under Taejo and go on family mobilizations. They are men of households living as family soldiers; some come from shares of other noble households also mobilizing. The family head has authority over their time and equipment. Weapons cannot be removed from storage without his order ([the Yeon house in Taejo’s years](../060-places/020-yeon-residence.md#yeon-house-in-taejo-years)).
 
-**확정 내용**
+**Established facts**
 
+They treat the head’s son as young master, but do not consider their time his to use at will. When young Gaesomun asks to learn archery in the 620s, some laugh and agree; others refuse because they are tired. Their ability to refuse is a condition. If a soldier is injured, his household loses that season’s work and bears the cost first, ahead of the head.
 
-병사들은 가주의 아들을 어린 주인으로 대하지만, 그 아들이 자기들의 시간을 마음대로 쓸 수 있다고 여기지는 않는다. 620년대에 어린 개소문이 활을 익히게 해 달라고 청하면, 몇몇은 웃으며 응하고 몇몇은 고단하다며 거절한다. 거절할 수 있다는 것이 이들의 조건이다. 병사 한 사람이 다치면 그 집은 그 계절의 일을 못 하며, 그 비용은 가주가 아니라 그 집이 먼저 진다.
+Normally they wear dark brown cloth and dark sashes; in training they carry shared bows and short blades on leather belts. The dark clothing and sashes identify them separately from Yeon household members in family reddish-brown.
 
+When someone receives separate speech, choice, or injury, that person becomes distinct from the group. The [older soldier with an injured ankle](#injured-house-soldier) is one.
 
-평상시에는 짙은 갈색 천옷에 먹빛 띠를 두르고, 훈련할 때는 가죽 띠에 공동 활과 짧은 칼을 찬다. 짙은 갈색 천옷과 먹빛 띠가 집단의 표지이며, 가문의 적갈색 옷을 입는 연씨 집 사람들과 구별된다.
+## The older soldier with an injured ankle {#injured-house-soldier}
 
+**Definition and scope**
 
-한 사람에게 따로 말과 선택, 다침이 생기면 그 사람은 이 집단과 구분되는 독립 인물이 된다. [발목을 다친 나이 든 병사](#injured-house-soldier)가 그렇게 나뉜 사람이다.
+He is a Yeon soldier who injures an ankle walking a night road during Gaesomun’s first assigned training contest in 629. Unnamed and invented, he was born in 592, a young soldier near the end of the Sui wars, and has a home near Pyongyang’s southern street. [His home](../060-places/280-injured-soldier-home.md#injured-soldier-home) owns entry and conversation space. He has a wife and children; injury interrupts field work and wages for the season.
 
-## 발목을 다친 나이 든 병사 {#injured-house-soldier}
+**Established facts**
 
-**정의·범위**
+Injury costs that season’s field work and wages. He can tell the young master his household’s circumstances but cannot change the head’s decision. [The cost learned at his home](../../../instructions/011-inherited-scene-constraints.md#injured-soldier-encounter) owns the original direct visit and exchange. Preserve his calm account and absence of extended reproach.
 
-629년 개소문이 처음 맡은 훈련 겨루기에서 밤길을 걷다 발목을 다친 연씨 가문의 병사다. 이름은 부르지 않으며 작품에서 창작했다. 592년생으로 수 전쟁 끝무렵에 젊은 병사였고, 평양 남쪽 거리 가까이에 집이 있다. 집의 진입·문답 공간은 [부상병의 집](../060-places/280-injured-soldier-home.md#injured-soldier-home)이 소유한다. 아내와 아이들이 있고, 그가 다치면 그 계절의 밭일과 품삯이 끊긴다.
+In 629 he appears in his early forties, about 166 centimeters tall, broad-shouldered and short-legged, with a broad face, short eyebrows, small brown eyes, and low nose. His tawny skin is sun-darkened, black hair streaked with a few gray strands and tied back, beard short. After injury he wraps his left foot and uses a stick. He wears the soldiers’ dark brown cloth and dark sash. His voice is low and slow; even before the young master he gives circumstances in short phrases without long honorifics.
 
-**확정 내용**
+**Conditions and limits**
 
-
-부상 상태에서는 그 계절의 밭일과 품삯을 잃는다. 젊은 주인에게 자기 가구의 사정을 말할 수 있지만 가주의 결정을 바꿀 권한은 없다. 개소문의 방문과 직접 문답이라는 원본 재료는 [부상병의 집에서 배울 비용](../../../instructions/011-inherited-scene-constraints.md#injured-soldier-encounter)이 소유한다. 담담하게 사정을 전하는 말씨와 원망을 늘어놓지 않는 태도는 그 장면에서 보존한다.
-
-
-629년의 그는 마흔 줄 초반의 인상이다. 키는 약 166센티미터로 어깨가 넓고 다리가 짧다. 넓적한 얼굴에 짧은 눈썹, 작은 갈색 눈과 낮은 코가 있다. 볕에 탄 황갈색 피부에 회색이 몇 가닥 섞인 검은 머리를 뒤로 묶고 짧은 수염을 기른다. 다친 뒤에는 왼발을 천으로 감고 막대를 짚는다. 옷은 가문 병사의 짙은 갈색 천옷과 먹빛 띠다. 목소리는 낮고 느리며, 젊은 주인 앞에서도 높임말을 길게 늘이지 않고 사정을 짧게 끊어 말한다.
-
-**조건·한계**
-
-그가 회복해 다시 동원에 나가는지는 정하지 않는다.
+Whether he recovers and mobilizes again is unset.

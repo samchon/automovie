@@ -1,33 +1,33 @@
-# 고구려의 가용 인원과 손실
+# Goguryeo’s available personnel and losses
 
-정전 안내: [이 대상의 위치](../outline/index.md#050-systems--040-goguryeo-661-strength).
+Canon guide: [Location of this subject](../outline/index.md#050-systems--040-goguryeo-661-strength).
 
-## 고구려의 가용 인원과 손실 {#goguryeo-661-strength}
+## Goguryeo’s available personnel and losses {#goguryeo-661-strength}
 
-**정의·범위**
+**Definition and scope**
 
-661년 고구려의 동원은 전역 중 군사 임무를 수행한 18만으로 구성한다. 이 총수와 아래 배치는 모두 작품의 작전 가능성을 정하는 선택이며 사료가 남긴 전국 군적이 아니다. 군역 밖의 가족과 민간 운반 노동을 18만 안에 자동으로 합치지 않는다. 국토 전체의 인구를 이 값에서 역산하여 확정하지도 않는다.
+The work constructs Goguryeo’s 661 mobilization as 180,000 carrying out military duties during the campaign. This total and deployment are choices establishing operational feasibility, not a national military register preserved by sources. Do not automatically include families outside service or civilian transport labor, or derive the entire national population from the number.
 
-**확정 내용**
+**Established facts**
 
-| 자리 | 작품 인원 | 전역 시작의 역할 |
+| Position | Work-specific personnel | Initial campaign role |
 | --- | ---: | --- |
-| 요동·북방 성의 수비 | 50,000 | 성과 교역·보급 거점 유지 |
-| 평양과 주변 성의 수비 | 30,000 | 수도의 방어와 출격 거점 |
-| 남방 성의 수비 | 10,000 | 신라의 진입을 감시 |
-| 남생의 압록강 야전 병력 | 40,000 | 도하와 육상 보급 연결 저지 |
-| 요동 기동 병력 | 20,000 | 측방·연락·보급 차단과 반격 |
-| 중앙의 야전 병력 | 30,000 | 개소문이 끌고 다니는 기병 중심 기동군의 중심 |
-| 합계 | 180,000 | 수비 90,000, 야전 90,000 |
+| Liaodong and northern fortress defense | 50,000 | Hold fortresses and trade and supply points |
+| Pyongyang and nearby fortress defense | 30,000 | Defend capital and provide sortie bases |
+| Southern fortress defense | 10,000 | Watch for Silla entry |
+| Namsaeng’s Yalu field force | 40,000 | Block crossing and land supply connection |
+| Liaodong mobile force | 20,000 | Flank, communications and supply interdiction, counterattack |
+| Central field force | 30,000 | Core of Gaesomun’s cavalry-centered mobile army |
+| Total | 180,000 | 90,000 defense, 90,000 field |
 
-남생의 최종 패전 뒤 원래 4만 가운데 2만이 정돈된 병력으로 물러나고, 1만은 죽고 5천은 포로가 되며 5천은 흩어져 즉시 임무를 맡길 수 없는 것으로 정한다. 이 실제 작품 피해를 당 측이 적은 「3만을 베었다」와 구별한다. 3만은 이긴 쪽의 전과 주장이다. 흩어진 5천 모두가 죽거나 나라를 버렸다는 설정은 아니며, 돌아오는 사람에게는 시간이 필요하다. 물러난 2만은 철산에서 다시 묶여 압록강 남안의 길목을 지키는 일에 남는다.
+After Namsaeng’s final defeat, 20,000 of the original 40,000 retreat in order, 10,000 die, 5,000 are captured, and 5,000 scatter and cannot immediately be assigned. Distinguish these actual work-specific losses from Tang’s “30,000 beheaded,” a victor’s claim. Not all scattered 5,000 die or abandon the country; return takes time. The retreating 20,000 regroup at Cheolsan and remain guarding roads on the Yalu’s south bank.
 
-다른 전선에서 사망·중상·포로로 즉시 군사 임무를 맡기기 어려운 고구려 인원을 전역 합계 1만5천으로 둔다. 남생의 2만 즉시 손실과 합쳐 전역 끝에 즉시 쓸 수 없는 인원은 3만5천이다. 가구가 겪는 피해와 돌아온 군사의 부상은 이 숫자만으로 모두 측정되지 않는다. 개소문의 기동군은 중앙 3만과 요동 기동 병력에서 옮긴 경기병 1만이다. 누방 방면에서 즉시 임무를 잃는 약5천은 중장기병1천·경기병3천·지원1천으로 배분하며 위의 다른 전선 손실1만5천 안에 든다. 이 병종 배분은 창작값이다. 남는 기동군3만5천은 중장기병7천·경기병2만4천·지원4천이다. 662년 반격에는 그 손실을 뺀 기동군 약 3만5천이 평양성 수비군 가운데 내줄 수 있는 보병 약 1만5천과 합쳐 최대 5만의 집중을 이룬다. 평양성에는 나머지 수비군이 남아 성을 지킨다([살아남은 병력이 평양에 닿는 과정](100-counterattack-concentration.md#counterattack-concentration)). 기동군이 싸우고 움직이는 날짜는 [기록 일정](../020-world/030-second-war-calendar.md#second-war-calendar)이 소유한다.
+On other fronts, 15,000 in the campaign total are immediately unavailable through death, serious injury, or capture. With Namsaeng’s 20,000 immediate losses, 35,000 are unavailable at campaign end. Household harm and returning soldiers’ injuries are not fully measured by that number. Gaesomun’s mobile army comprises the central 30,000 and 10,000 light cavalry transferred from Liaodong. About 5,000 immediately lost at Nufang are allocated as 1,000 heavy cavalry, 3,000 light cavalry, and 1,000 support, included in the 15,000 other-front losses. This branch allocation is invented. The remaining 35,000 comprise 7,000 heavy cavalry, 24,000 light cavalry, and 4,000 support. For the 662 counterattack these approximately 35,000 join about 15,000 infantry available from Pyongyang’s garrison, concentrating at most 50,000; remaining defenders hold the fortress ([survivors’ arrival at Pyongyang](100-counterattack-concentration.md#counterattack-concentration)). [The recorded calendar](../020-world/030-second-war-calendar.md#second-war-calendar) owns movement and fighting dates.
 
-최대5만은 전투원4만6천과 말·짐 지원4천을 합친 현장 군사 임무 인원이다. 기동 전투원3만1천에 현지 보병1만5천이 합친다. 지원4천을 정면 전투원으로 다시 세지 않는다. 당의 여섯 방면군은 하나하나의 현장 야전 병력이 대개 4만~6만이어서 이 병력과 수가 비슷하다([여섯 방면과 삼십오만의 작품 값](030-six-fronts-strength.md#six-fronts-strength)). 연개소문이 쥔 것은 적 한 갈래와 비슷한 수의 군대 하나이며, 그 군대로 여섯 갈래를 차례로 상대해야 한다.
+The maximum 50,000 is on-site military mission personnel: 46,000 fighters and 4,000 horse and baggage support. The fighters combine 31,000 mobile troops and 15,000 local infantry. Do not count the 4,000 support again as frontal fighters. Each Tang direction generally fields 40,000–60,000, a similar number ([six directions and 350,000](030-six-fronts-strength.md#six-fronts-strength)). Yeon has one army comparable to one enemy column, with which he must face six in turn.
 
-결전 야전군은 수를 더 많이 두지 않는 대신 기병 중심이다. 여러 방면을 빠르게 옮겨 다니며 하나씩 깨뜨려야 하기 때문이다. 중앙 3만은 중장기병 약 8천, 경기병 약 1만7천, 말과 짐을 맡는 인원 약 5천으로 이룬다. 중장기병은 중앙 귀족이 갖춘 철갑과 말갑의 돌격대이며([무장을 마련할 수 있는 집안](../030-society/080-private-armament.md#private-armament)), 경기병은 귀족군의 경기병과 편입 지역의 말갈 경기병을 섞어 정찰·차단·추격을 맡는다([맡길 수 있게 된 경기병](../030-society/170-trusted-light-cavalry.md#trusted-light-cavalry)).
+The decisive field force emphasizes cavalry rather than greater numbers because it must move quickly among directions and defeat them separately. The central 30,000 comprise about 8,000 heavy cavalry, 17,000 light cavalry, and 5,000 horse and baggage personnel. Heavy cavalry is a charging force equipped with iron and horse armor by central nobles ([households able to provide arms](../030-society/080-private-armament.md#private-armament)); light cavalry mixes noble and incorporated-region Malgal forces for scouting, interdiction, and pursuit ([trusted light cavalry](../030-society/170-trusted-light-cavalry.md#trusted-light-cavalry)).
 
-보병은 끌고 다니지 않는다. 한 방면군을 칠 때는 그 지역의 성과 지방군에서 보병을 받아 연합해 야전을 벌이고, 다음 방면군으로 빠르게 옮겨 가 그쪽 보병과 다시 연합한다. 받는 보병은 한 싸움터에 1만~2만 안팎이며, 기동군과 합쳐 한 싸움터의 전체 군사 임무 인원은5만 안팎이 된다. 전투원과 지원의 구별은 이 단원의 최대 집중 기준을 따른다. 동원의 절차와 연합의 지휘는 [고구려의 전력을 묶는 방식](020-goguryeo-force-system.md#goguryeo-force-system)이 정한다. 그래서 이 군대는 같은 수라도 보병 중심의 군대보다 훨씬 비싸고 귀한 병종으로 이루어진다.
+Infantry is not carried along. Against each direction the mobile force joins roughly 10,000–20,000 infantry from local fortresses and forces, then moves quickly and joins infantry at the next front. Together they make about 50,000 military mission personnel at one battlefield, distinguishing fighters and support as above. [Force organization](020-goguryeo-force-system.md#goguryeo-force-system) owns mobilization and combined command. Even at equal numbers, this army has much more costly and precious branches than an infantry-centered force.
 
-기병을 유지하는 값은 무겁다. 작품은 중장기병 한 사람에 말 두 필, 경기병 한 사람에 말 한 필 반을 두어, 중앙 기병 2만5천과 옮겨 온 요동 경기병 1만의 출발 군마는 이 비율상 약5만6천5백 필이다. 누방전에서 기동군 약5천을 잃은 뒤의 반격 야전군에는 잃거나 남겨 둔 말을 제외해 약5만 필이 딸린 것으로 정한다. 하루 먹이의 작품 기준은 [군마와 안장](../070-objects/150-horses.md#horses)이 소유한다. 이 사료와 철갑·말갑·안장의 값은 요동과 북방의 목장, 말갈 공동체의 말, 귀족 가문의 재력이 함께 감당한다. 먹이를 이 규모에 맞춰 확보할 수 있는 조건은 [안쪽 길의 분산 급양](100-counterattack-concentration.md#interior-supply-capacity)이 소유한다. 이 숫자는 작품의 조형값이며 사료가 남긴 편제가 아니다. 이런 군대는 한 번 크게 잃으면 사람과 말을 다시 기르고 갖추는 데 여러 해가 걸린다. 그래서 결전 야전군의 패배는 한 번의 싸움을 잃는 것이 아니라 다시 만들 수 없는 군대를 잃는 일이다. 도입 액자의 개소문이 이 값을 어디까지 아는지는 [연개소문의 통치](../040-agents/001-yeon-gaesomun.md#yeon-rule)가 정한다.
+Cavalry is costly to maintain. The work assigns two horses per heavy rider and one and a half per light rider: central 25,000 cavalry and transferred 10,000 Liaodong light cavalry start with about 56,500 horses. After losing about 5,000 mobile personnel at Nufang, the counterattack field army has about 50,000 horses, excluding lost or left behind. [Warhorses and saddles](../070-objects/150-horses.md#horses) owns daily feed. Liaodong and northern pastures, Malgal horses, and noble family wealth together bear feed, iron and horse armor, and saddle costs. [Dispersed feeding on interior routes](100-counterattack-concentration.md#interior-supply-capacity) owns conditions for acquiring feed at this scale. These are work-specific designs, not a recorded order of battle. A major loss takes years to replace in trained people, horses, and equipment; defeat of the decisive field force loses an army that cannot be remade, not merely one battle. [Yeon’s rule](../040-agents/001-yeon-gaesomun.md#yeon-rule) owns how much he knows in the opening frame.

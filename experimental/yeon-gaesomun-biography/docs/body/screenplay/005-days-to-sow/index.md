@@ -1,3 +1,3 @@
-# 씨를 뿌릴 날
+# Days to sow
 
-- [씨를 뿌릴 날](001-days-to-sow.md)
+- [Days to sow](001-days-to-sow.md)

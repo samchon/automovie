@@ -1,17 +1,17 @@
-# 뇌음신과 함께 공격한 생해
+# Saenghae, who attacked alongside Noeumsin
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--106-saenghae).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--106-saenghae).
 
-## 뇌음신과 함께 공격한 생해 {#saenghae}
+## Saenghae, who attacked alongside Noeumsin {#saenghae}
 
-**정의·범위**
+**Definition and scope**
 
-생해는661년 뇌음신과 함께 신라의 성을 공격한 지휘자다.
+Saenghae was a commander who attacked a Silla fortress with Noeumsin in 661.
 
-**확정 내용**
+**Established facts**
 
-기록이 말갈과 함께한 공격을 전한다는 범위를 유지하며, 이름만으로 그 개인의 혈통과 말갈 전체에 대한 지휘권을 확정하지 않는다. 현재 예정 서사에서 북한산성 공격의 보고 당사자로만 등장한다. 독립 장면·가족·고유 조형은 배정하지 않는다.
+The record reports an attack alongside Malgal; his name alone does not establish his ancestry or command over all Malgal. In the currently planned narrative, he appears only as a subject of the report of the attack on Bukhansanseong. He has no separate scene, family, or distinctive visual design.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『삼국사기』661년 생해의 공격](https://db.history.go.kr/ancient/level.do?levelId=sg_005r_0040_0550).
+Sources: [Saenghae's attack in 661, Samguk Sagi](https://db.history.go.kr/ancient/level.do?levelId=sg_005r_0040_0550).

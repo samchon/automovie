@@ -1,19 +1,19 @@
-# 이주한 해은의 하남 집
+# Haeun’s resettlement home in Henan
 
-정전 안내: [이 대상의 위치](../outline/index.md#060-places--240-haeeun-migrant-home).
+Canon guide: [Location of this subject](../outline/index.md#060-places--240-haeeun-migrant-home).
 
-## 이주한 해은의 하남 집 {#haeeun-migrant-home}
+## Haeun’s resettlement home in Henan {#haeeun-migrant-home}
 
-**정의·범위**
+**Definition and scope**
 
-해은이669년 장근·서우·차무와 강제이주 뒤 머무는 하남의 마을은 특정 사민 명부의 주소가 아니라 창작한다. 배정받은 작은 집에 작업 자리와 잠자리가 붙어 있고 가족이 가져온 천 꾸러미는 새로 얻은 가구보다 오래된 물건이다. 평양의 집을 그대로 옮겨 지을 재료와 노동이 없다. 이웃의 말과 관청의 명령을 알아듣는 일도 생계의 조건이다. 해은은 고구려인 모두를 대표하는 유민 지도자로 변하지 않는다.
+The Henan village where Haeun stays with Janggeun, Seou, and Chamu after forced relocation in 669 is invented, not an address from a specific resettlement list. In the small assigned house, work and sleeping spaces adjoin; the cloth bundles brought by the family are older than furniture obtained anew. They lack the materials and labor to rebuild the Pyongyang home as it was. Understanding neighbors’ speech and officials’ orders is also a condition of making a living. Haeun does not become a displaced leader representing every Goguryeo person.
 
-**확정 내용**
+**Established facts**
 
-작품의 집은 동쪽 출입문을 둔6미터×4미터 흙벽 집이다. 문 안 남쪽에 작은 취사 자리, 북쪽에 가족이 몸을 붙여 쉬는4미터×3미터 방을 둔다. 서쪽 벽 아래 천 꾸러미와 작은 수선 탁자를 두며 동쪽 좁은 창으로 들어온 빛이 오후에는 약해진다. 이주 마을의 집들이 약5미터 간격으로 이어져 이웃의 말소리가 들리지만 가족이 다 알아듣지는 못한다. 회갈색 벽과 새로 덧댄 갈색 목재, 가져온 누런 천의 색이 구별된다. 관청 명령을 들을 공동 마당은 집에서 북쪽으로 약150미터 떨어진 자리다.
+The work’s house is a 6-by-4-meter earthen-walled house with an east entrance. Just inside, a small cooking place is south and a 4-by-3-meter room where the family rests close together is north. Cloth bundles and a small mending table stand below the west wall; light through the narrow east window weakens in the afternoon. Houses in the resettlement village stand about five meters apart, so neighbors can be heard though the family does not understand everything. Gray-brown walls, newly added brown timber, and yellowish cloth brought from home are distinct. A common yard for hearing official orders lies about 150 meters north.
 
-배정받은 집은 한 층으로 바닥에서 보 아래2.1미터, 처마2.3미터, 남북 용마루3.4미터다. 동서로 기울어진 짙은 갈색 초가지붕은 벽에서0.3미터 내밀고 내부의 낮은 나무 보와 지붕 받침이 보인다. 동쪽 문 높이는1.8미터, 좁은 창의 창턱은0.8미터로 둔다. 이 창작 외곽은 평양 집보다 작은 기존 평면과 이어지며 북쪽 공동 마당·가족의 짐·오후 빛의 약화를 유지한다.
+The assigned house has one story: 2.1 meters from floor to beneath the beam, eaves at 2.3 meters, and a north–south ridge at 3.4 meters. Its dark brown thatched roof slopes east and west, projecting 0.3 meters beyond the walls; low wooden beams and roof supports are visible inside. The east door is 1.8 meters high and the narrow windowsill 0.8 meters above the floor. This invented exterior preserves the smaller existing plan relative to the Pyongyang home, the common yard to the north, family baggage, and fading afternoon light.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [669년 사민의 호수 기록](https://db.history.go.kr/item/compareViewer.do?levelId=sg_022_0020_0500).
+Sources: [The household count in the 669 forced relocation](https://db.history.go.kr/item/compareViewer.do?levelId=sg_022_0020_0500).

@@ -1,21 +1,21 @@
-# 왕과 귀족이 나누어 가진 힘
+# Power shared by king and nobles
 
-정전 안내: [이 대상의 위치](../outline/index.md#030-society--010-royal-and-aristocratic-power).
+Canon guide: [Location of this subject](../outline/index.md#030-society--010-royal-and-aristocratic-power).
 
-## 왕과 귀족이 나누어 가진 힘 {#royal-and-aristocratic-power}
+## Power shared by king and nobles {#royal-and-aristocratic-power}
 
-**정의·범위**
+**Definition and scope**
 
-고구려의 왕은 정통성과 외교를 대표하고 귀족은 군사·지역·가문의 협력을 동원한다. 《주서》와 《구당서》의 대대로 선임 분쟁은 귀족 정치의 배경 근거다. 모든 임명을 결투로 정했다는 뜻은 아니다.
+Goguryeo’s king represents legitimacy and diplomacy; nobles mobilize military, regional, and family cooperation. Disputes over selection of daedaero in the Book of Zhou and Old Book of Tang provide background for aristocratic politics. They do not mean every appointment was settled by a duel.
 
-**확정 내용**
+**Established facts**
 
-작품에서 왕명은 임명·처벌의 형식을 주지만 현지의 군사와 집행자가 없으면 명령서만 도착한다. 귀족이 거절하려면 가문의 안전과 다른 귀족의 지지를 걸어야 한다. 왕실은 정통성을 필요로 하는 실권자에게 협력을 요구할 수 있다. 대대로·막리지·대막리지는 현대의 단일 관직 서열로 환산하지 않으며 연씨의 실권은 인물별 관력과 실제 위임으로 판정한다. 중앙군과 가문의 무장 기반도 다르다.
+In the work royal orders provide the form of appointment and punishment, but without local troops and executors only the document arrives. A noble refusing must risk family safety and other nobles’ support. The royal house can demand cooperation from a powerful figure who needs legitimacy. Do not convert daedaero, mangniji, and daemangniji into a single modern office hierarchy; assess the Yeon family’s actual power through each person’s offices and delegation. The central army and a family’s armed base are distinct.
 
-661년 늦봄의 통행 조건은 다음과 같다. 군역·수비 명부 밖 가족과 민간 수행원은 떠날 수 있다. 수비 명부의 사람은 귀족이 사비로 무장시켰어도 근무 해제 문서 없이 떠날 수 없다. 동문 책임자는 명부와 통행을 확인하고 이의를 중앙에 올릴 수 있지만 귀족을 단독 처벌·면직할 수 없다. 최종 군무 판정은 개소문의 권한이다. 이는 작품의 통행 규칙이며 확인된 고구려 법조문이 아니다.
+Passage conditions in late spring 661 are as follows. Family members and civilian attendants outside military and defense registers may leave. People on the defense register cannot leave without relief documents, even if a noble armed them privately. The east-gate officer can check the register and passage and forward objections to the center, but cannot punish or dismiss a noble alone. Final military judgment rests with Gaesomun. These are the work’s passage rules, not confirmed Goguryeo legal provisions.
 
-참조: 고휘 가구와 유혜 가구가 이 조건 아래 각각 무엇을 선택하고 판정이 어떻게 공개되는지는 해당 전역의 treatments가 맡는다.
+Reference: campaign treatments own what Go Hwi’s and Yu Hye’s households choose under these conditions and how the ruling becomes public.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [국사편찬위원회, 사료로 본 한국사 「고구려의 대대로 선출」, 《주서》 권49·《구당서》 권199상 원문과 해설](https://contents.history.go.kr/front/hm/view.do?levelId=hm_012_0020)
+Sources: [National Institute of Korean History, “Selection of Goguryeo’s daedaero,” texts and commentary on Book of Zhou vol. 49 and Old Book of Tang vol. 199](https://contents.history.go.kr/front/hm/view.do?levelId=hm_012_0020).

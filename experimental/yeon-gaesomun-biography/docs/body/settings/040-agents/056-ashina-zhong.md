@@ -1,17 +1,17 @@
-# 아사나충의 숙위와 원정
+# Ashina Zhong’s palace guard service and campaign
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--056-ashina-zhong).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--056-ashina-zhong).
 
-## 아사나충의 숙위와 원정 {#ashina-zhong}
+## Ashina Zhong’s palace guard service and campaign {#ashina-zhong}
 
-**정의·범위**
+**Definition and scope**
 
-아사나충은 아사나사이와 다른 당의 유목계 장수다. 두 이름을 같은 지휘자의 다른 표기로 쓰지 않는다. 작품에서는 중앙의 숙위 경험이 길고 황제 가까운 권위에 익숙한 장수로 구성한다. 661년 편제와 회군은 해당 전역 정전에 있다. 고구려 전선에서 북방으로 돌리는 명령을 자기 병력의 실패를 숨기는 구실로만 읽지는 않는다.
+Ashina Zhong is a Tang general of nomadic origin distinct from Ashina She’er; their names do not designate the same commander. The work makes him a general long experienced in the central palace guard and accustomed to authority close to the emperor. His 661 organization and withdrawal belong to that campaign’s canon. Do not read the order diverting him from the Goguryeo front northward solely as an excuse to conceal his force’s failure.
 
-**확정 내용**
+**Established facts**
 
-창작 형상은 키 175센티미터, 단단한 몸과 반듯한 어깨, 넓은 이마와 긴 턱이다. 갈색 눈과 곧은 검은 눈썹, 높은 코와 작은 입, 그을린 황갈색 피부를 가진다. 검은 머리와 짧은 수염을 단정히 정리하고 검은 옷에 붉은 갈색 띠와 철찰 갑옷을 쓴다. 움직임은 크지 않다. 목소리는 중간보다 낮고 맑으며 말끝이 단단하다. 보고의 책임 범위를 구별하고 받은 명령을 다시 읽을 때는 느리게 끊는다.
+His invented design is 175 centimeters tall, with a sturdy body, straight shoulders, broad forehead, and long chin. He has brown eyes, straight black eyebrows, a high nose, a small mouth, and sun-darkened tawny skin. His black hair and short beard are neatly kept; he wears black clothes, a reddish-brown sash, and iron lamellar armor. His movements are restrained. His voice is clear and below the middle register, with firm endings. He distinguishes the scope of responsibility in reports and pauses slowly as he rereads orders.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『신당서』 권110 아사나충전](https://zh.wikisource.org/zh-hant/新唐書/卷110).
+Sources: [Biography of Ashina Zhong, New Book of Tang vol. 110](https://zh.wikisource.org/zh-hant/新唐書/卷110).

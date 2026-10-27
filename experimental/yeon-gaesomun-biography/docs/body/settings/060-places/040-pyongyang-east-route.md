@@ -1,19 +1,19 @@
-# 평양 동문과 내륙 피난길
+# Pyongyang’s east gate and inland evacuation route
 
-정전 안내: [이 대상의 위치](../outline/index.md#060-places--040-pyongyang-east-route).
+Canon guide: [Location of this subject](../outline/index.md#060-places--040-pyongyang-east-route).
 
-## 평양 동문과 내륙 피난길 {#pyongyang-east-route}
+## Pyongyang’s east gate and inland evacuation route {#pyongyang-east-route}
 
-**정의·범위**
+**Definition and scope**
 
-고휘 가구가 이용할 내륙 피난길은 평양 동쪽 통행문~대동강 나루~강 건너 구릉 아래 처가 마을의 연결로다. 작품에서 통행문~나루는 작은 손수레로 반 시진 안팎, 강 건너 마을까지는 약35킬로미터·이틀이다. 가축 없이 비등록 민간 수행원 둘이 번갈아 손수레를 끌거나 밀 수 있는 길이다. 도하 한 배의 수용 대상은 손수레와 아내·딸·수행원 둘이다. 딸의 옷·식량·작은 휴대 재물을 실은 경량 손수레와 비단·패물함까지 실은 짐의 위험은 다르다. 실제로 어떤 짐을 남기고 떠나는지는 해당 전역의 treatments가 맡는다. 두락의 관측 범위는 문 안 대기 마당의 명부·통행 인원까지이며 목적지 도착은 그 자리에서 알 수 없다.
+Go Hwi’s inland evacuation route connects Pyongyang’s eastern gate, Daedong ferry, and his wife’s family village below hills across the river. In the work the gate-to-ferry trip with a small handcart takes about half a double-hour; the village is about 35 kilometers and two days beyond the crossing. Two unregistered civilian attendants can alternate pulling or pushing without animals. One boat carries cart, wife, daughter, and two attendants. Risk differs between a light cart with the daughter’s clothing, food, and small portable valuables and one also carrying silk and jewelry chests. Treatments own what is left and carried. Durak can observe the register and people passing in the inner waiting yard, not arrival at destination.
 
-**확정 내용**
+**Established facts**
 
-처가의 거처는 마을의 집과 창고를 빌려 쓰는 자리다. 수도가 곧 포위되면 가족에게 이동할 시간을 주지만, 고구려 전체가 점령되어도 안전한 장소는 아니다. 동문의 정확한 고대 위치, 나루와 마을의 거리는 작품을 위한 복원값이다. 661년 이탈 사건의 동문과 668년 내응에 쓰는 [서쪽 통용문](050-pyongyang-west-gate.md#pyongyang-west-gate)은 다른 문이다.
+The family’s destination borrows village house and storehouse space. It gives time to move if the capital is soon besieged, but is not safe if all Goguryeo is occupied. Gate location and ferry and village distances are invented. The 661 east gate differs from the [west postern](050-pyongyang-west-gate.md#pyongyang-west-gate) used in 668.
 
-작품의 동문은 약 6미터 높이 성벽에 낸 폭 3.5미터, 높이 3.2미터의 두짝 나무문이다. 성벽 밑 통로는 7미터 길이이고, 문 안의 대기 마당은 동서 18미터·남북 12미터다. 북쪽에는 5미터×3미터 관리채와 낮은 명부 탁자가 있다. 남쪽 벽을 따라 동쪽 문으로 이어지는 손수레 통행 자리와 서쪽 가장자리의 대기 자리를 구별한다. 서쪽 대기 자리에는 성 안길로 되돌아갈 연결도 있다. 두 가구의 실제 대기·출발·귀환 선택은 동문 사건이 정한다. 두락은 탁자 앞에서 들어오는 무장 인원을 보지만, 북쪽에서 기다리는 가족과 남쪽 수레 길을 한꺼번에 막을 수는 없다. 회갈색 다진 흙 성벽의 하부에는 돌을 쌓고 문짝과 관리채는 어두운 목재로 둔다. 관리채는 한 층이며 보 아래 2.5미터, 처마 2.8미터, 기와 용마루 4미터다. 늦봄 낮에 문 밑 통로는 그늘지고 마당 동쪽으로 햇빛이 든다. 명부를 부르는 소리와 자갈을 누르는 수레바퀴 소리가 함께 난다.
+The east gate has two wooden leaves 3.5 meters wide and 3.2 high in a wall about six meters high, a seven-meter passage, and inner waiting yard 18 meters east–west by 12 north–south. A five-by-three-meter office and low register table lie north. Distinguish handcart passage along the south wall to the east gate from waiting at the west edge, which connects back to the inner road. The gate event decides both households’ waiting, departure, and return. Durak sees armed arrivals before his table but cannot simultaneously block families waiting north and the cart path south. Gray-brown packed-earth wall has stone at its base; leaves and office are dark timber. The one-story office is 2.5 meters beneath beam, 2.8 eaves, four to tiled ridge. Late-spring daylight shadows the passage and lights the yard’s east; register calls and wheels on gravel sound together.
 
-나루는 성문에서 굽은 길을 지나야 보인다. 약 20미터의 흙 비탈이 폭 12미터의 자갈 선착 자리로 내려가며, 물가에는 배를 묶는 나무 말뚝 둘이 있다. 길이 8미터·폭 3미터의 평저선에서 손수레를 한쪽에 붙이면 아내·딸·수행원 둘도 함께 탈 수 있다. 늦봄 오후의 빛은 강 쪽에서 들어오고, 밧줄이 말뚝에 쓸리는 소리와 바퀴 소리가 들린다. 문에서는 굽은 길 너머의 도착이나 도하를 볼 수 없다.
+The ferry becomes visible after a bent road. A roughly 20-meter dirt slope descends to a 12-meter gravel landing with two wooden mooring posts. An eight-by-three-meter flat-bottom boat fits the cart to one side and wife, daughter, and two attendants. Late-spring afternoon light enters from the river, with rope scraping posts and wheel sounds. Arrival and crossing beyond the bend cannot be seen from the gate.
 
-처가 거처는 동서 15미터·남북 12미터 흙담 안에 있다. 서쪽 문을 들어서면 북쪽에 남향 한 층 집 6미터×4미터, 동쪽에 창고 3미터×3미터, 남쪽에 흙마당이 있다. 집의 기둥은 어두운 목재, 벽은 옅은 흙이고 처마는 2.6미터, 기와 용마루는 4미터 높이다. 창고는 낮은 초가지붕을 쓴다. 해질 무렵 서쪽 문으로 마당에 빛이 들고, 길의 수레와 마당의 짐 내리는 소리가 집 안에 닿는다. 목적지 도착의 실제 발생과 공개 시점은 treatments가 정하며, 이 평면이 도착 장면의 포함을 의무화하지 않는다. 동문·나루·거처의 치수와 재료는 고대 실측이 아니라 작품의 공간 정전이다.
+The destination lies within a 15-by-12-meter earthen wall. Entering west, a six-by-four-meter single-story south-facing house stands north, a three-by-three-meter storehouse east, dirt yard south. House pillars are dark wood, walls light earth, eaves 2.6 meters, tiled ridge four; the storehouse has low thatch. At sunset light enters through the west gate; road carts and unloading in the yard can be heard indoors. Treatments decide actual arrival and disclosure; the plan does not require an arrival scene. Dimensions and materials are invented spatial canon, not ancient measurement.

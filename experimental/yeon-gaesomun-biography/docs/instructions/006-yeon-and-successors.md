@@ -1,83 +1,83 @@
-# 연개소문과 다음 세대
+# Yeon Gaesomun and the next generation
 
-## 재건을 책임진 영류왕 {#yeongnyu-and-restoration}
+## King Yeongnyu, responsible for reconstruction {#yeongnyu-and-restoration}
 
-고건무는 아버지 평원왕과 형 영양왕의 재건을 지켜보고, 수와의 전쟁 뒤 다시 나라를 복구해야 했던 전쟁 영웅으로 그린다. 승리와 화친 뒤에도 되풀이된 수의 침공은 통일 중원 왕조의 집요함에 대한 두려움으로 남는다. 이 경험이 대당 외교와 방비에서 신중한 자세를 취하는 이유가 되게 한다. 중국의 분열이 오래가리라는 초기 기대가 당의 빠른 재통일로 빗나간 일도 그의 판단에 포함한다.
+Depict Go Geonmu as a war hero who saw the reconstruction of his father King Pyeongwon and elder brother King Yeongyang, and had to rebuild the country again after the Sui wars. Repeated Sui invasions even after victory and peace leave a fear of a unified Central Plain dynasty's persistence. Let this experience explain his caution in diplomacy and defense against Tang. His judgment also includes the failure of his early expectation that China's division might last, when Tang reunifies rapidly.
 
-수말의 파탄으로 중원의 인구가 이전의 3분의 1 수준으로 줄었다고 여기는 고구려인의 국력 인식을 둔다. 고건무는 새 왕조도 재건을 우선해야 하므로, 화친하고 상대의 체면을 맞추며 필요한 양보를 하면 침공을 피하고 고구려를 복구할 시간을 얻으리라 기대한다. 당이 예상보다 빨리 국력을 회복하면서 말년에는 침공 준비와 위협이 고구려의 주요 정치·군사 세력에도 알려지게 한다. 이로써 화친과 양보로 전쟁을 피하려던 정책의 한계가 드러나고, 강경한 대응을 주장하는 연개소문이 지지를 얻으며 정변을 정당화할 조건이 생긴다. 당의 실제 침공은 영류왕 사후에 일어나지만, 그 위험을 둘러싼 갈등은 생전에 벌어진다. 중원의 인구 감소 강도와 고구려인들의 침공 준비 인지는 작품의 인식 설정이며, 실제 인구·사료의 호구 집계·기록된 정보 접근과 구별한다.
+Give Goguryeo people a view of national strength in which they believe the collapse at the end of Sui reduced the Central Plain's population to one third its former level. Go Geonmu expects the new dynasty must prioritize rebuilding too, and that peace, respect for its standing, and necessary concessions will avoid invasion and buy time for Goguryeo's recovery. As Tang restores strength faster than expected, signs of invasion preparations and threats become known to major Goguryeo political and military forces late in his reign. The limits of his policy of avoiding war through peace and concessions emerge; Yeon Gaesomun gains support for a hard line and conditions arise to justify his coup. Tang's actual invasion follows Yeongnyu's death, but conflict over the danger occurs in his lifetime. The severity of population loss and Goguryeo people's knowledge of preparations are perceptions established by the work, distinct from actual population, historical household counts, and recorded access to information.
 
-정변은 왕과 대인들이 먼저 연개소문을 죽이려 꾀한 데서 시작한다. 그 밀의가 새어 나오자 그는 살기 위해 먼저 움직인다. 오래 왕의 노선을 나약함으로 읽어 왔더라도, 한때 가장 동경한 영웅을 치는 일이라 그는 깊은 내적 갈등 속에 눈물을 머금고 결단한다. 사로잡힌 영류왕과의 마지막 대면을 둔다. 영류왕은 살 길을 구하지 않는다. 재건과 통치의 경험을 바탕으로, 최고 자리에 오르면 자신을 이해하게 되리라는 뜻의 말을 남긴다. 연개소문은 그를 죽이고 보장왕을 세운다. 그 뒤 645년 전쟁의 패전과 방어, 실제 통치를 거치며 왕의 선택을 이해하게 된다. 그는 왕을 죽인 결단이 필요했다고 끝까지 믿는다. 그러면서도 그 사람을 죽여야 했던 일과 끝내 서로를 이해하지 못한 일을 속으로만 안타까워하며, 누구에게도 그 마음을 말하지 않는다.
+The coup begins when the king and great men first plot to kill Yeon Gaesomun. Once the plot leaks, he acts first to survive. Though he has long read the king's course as weakness, he must strike the hero he once admired most, and decides through deep inner conflict with tears in his eyes. Include a final encounter with the captured Yeongnyu. The king does not plead for his life. From his experience of reconstruction and rule, he says in substance that Gaesomun will understand him when he reaches the highest position. Gaesomun kills him and installs King Bojang. Later, through defeat, defense, and actual rule in the 645 war, he comes to understand the king's choices. He continues to believe the decision to kill him was necessary, while privately regretting that he had to kill the man and that they never came to understand each other; he tells no one.
 
-같은 나라를 지키려는 두 사람이 다른 경험과 책임에서 충돌하고, 죽인 왕의 말이 연개소문의 생애에 남게 하기 위해서다. 침공 위협이 연개소문에게 주는 정치적 지지와 왕을 죽인 선택의 평가는 구별하며, 마지막 변론에서도 고건무의 경험과 자기 정당화가 함께 드러나게 한다. 사서는 그가 왕의 시신을 여러 토막 내어 도랑에 버렸다고 전한다. 그러나 고씨 왕가와 국가를 유지하려는 정변과 맞지 않으므로, 작품은 이를 그를 비난한 기록의 과장으로 다루고 본문에서 단정하지 않는다. 밀의의 이유로 기록이 든 그의 흉포함도 같은 비난의 관점에서 나온 평가로 다루며, 작품은 밀의를 그의 커진 힘을 두려워한 왕과 대인들의 선택으로 그린다. 마지막 대면과 인물의 내적 인과는 작품의 재구성이며, 대사 문구는 정하지 않는다.
+Two men seeking to protect the same country clash because of different experiences and responsibilities, and the dead king's words remain in Gaesomun's life. Distinguish the political support the threat gives Gaesomun from evaluation of his decision to kill the king, and let Geonmu's final argument reveal both experience and self-justification. Chronicles say he cut the king's body into pieces and threw it into a ditch. Because that conflicts with a coup intending to preserve the Go royal house and state, the work treats it as exaggeration in a hostile account and does not establish it in the text. The brutality the record gives as reason for the plot is likewise treated as a hostile judgment; the work depicts the plot as a choice by king and great men afraid of his growing strength. The final meeting and inner causality are reconstructions; do not fix dialogue wording.
 
-- [『삼국사기』 권49 개소문 열전](https://zh.wikisource.org/wiki/三國史記/卷49): 그가 지위를 이은 뒤 흉포하고 도리가 없어 대인들이 왕과 몰래 의논해 그를 죽이려 했고(嗣位而凶殘不道，諸大人與王密議欲誅), 일이 새자 성 남쪽에서 사열을 명목으로 대신 백여 명을 모아 죽인 뒤 궁에 들어가 왕을 시해하고 시신을 토막 내 도랑에 버렸다고 전한다.
-- [국사편찬위원회, 641년 진대덕의 사행과 염탐](https://db.history.go.kr/ancient/level.do?levelId=sg_020r_0030_0210): 당 사신이 고구려의 사정을 탐문한 기록이다. 본문은 고구려 사람들이 그 염탐을 몰랐다고 전하므로, 작품 속 침공 준비 인지의 경로와 범위는 별도로 재구성한다.
+- [Samguk Sagi, volume 49, biography of Gaesomun](https://zh.wikisource.org/wiki/三國史記/卷49): records that after inheriting office he was cruel and lawless, that the great men secretly consulted the king to kill him (嗣位而凶殘不道，諸大人與王密議欲誅), and that after the matter leaked he gathered more than a hundred ministers south of the city under pretext of inspection and killed them, entered the palace, killed the king, dismembered the body, and threw it into a ditch.
+- [National Institute of Korean History, Chen Dade's 641 mission and spying](https://db.history.go.kr/ancient/level.do?levelId=sg_020r_0030_0210): records a Tang envoy investigating Goguryeo. The text says Goguryeo people did not know of his spying, so the work separately reconstructs the routes and scope of knowledge about invasion preparations.
 
-## 승전의 기억을 다르게 물려받은 세대 {#generational-memory-and-misjudgment}
+## Generations inherit different memories of victory {#generational-memory-and-misjudgment}
 
-수 전쟁을 직접 겪은 고건무 세대와, 승리의 결과를 전해 듣고 자란 연개소문 세대의 경험 차이를 둔다. 젊은 세대에게는 영양왕과 왕제 고건무가 200만 대군을 꺾었고, 고건무가 결사대 500명으로 4만 3천의 수군을 격파했다는 영웅담이 크게 남는다. 고건무는 585년 무렵에 태어나 612년에 스물일곱의 왕제였다. 중장년의 장수들 사이에서 젊은 왕족이 몸소 결사대 앞에 섰다는 점이 그를 소년들이 가장 동경하는 영웅으로 만든다. 구전은 그 싸움을 왕제가 이끈 중무장 기병의 돌격으로 부풀린다. 실제로는 약탈로 대오가 흐트러진 정예 수군을 평양 외성 안의 매복으로 친 싸움이었다. 전쟁의 피해를 알더라도 반복 침공의 공포와 재건의 부담을 승리의 명성만큼 실감하지 못한다. 현대의 경제 통계나 개념을 인물에게 주기보다, 각자가 겪고 전해 들은 경험이 국력과 전쟁을 판단하는 차이로 드러나게 한다. 이 수군 규모는 작품 속 전승의 수치로 두며, 결사대의 전공도 수군의 약탈과 대오 이완 등 당시 전투의 조건과 함께 설계한다.
+Distinguish Go Geonmu's generation, which experienced the Sui wars, from Yeon Gaesomun's, raised on accounts of victory. To the younger generation the great heroic story is that Yeongyang and Prince Geonmu defeated a two-million-strong army, and Geonmu defeated 43,000 Sui naval troops with 500 picked men. Born around 585, Geonmu was a 27-year-old prince in 612. A young royal personally leading the picked force among middle-aged generals makes him the hero boys admire most. Oral tradition inflates the battle into a charge by his heavily armed cavalry. In actuality, he attacked elite naval troops whose formation had broken during plunder in an ambush inside Pyongyang's outer fortress. Even knowing war's damage, the young do not feel the terror of repeated invasion and the burden of rebuilding as strongly as victory's glory. Do not give characters modern economic statistics or concepts; show how lived and inherited experiences produce different judgments of strength and war. The naval number belongs to the work's tradition, and the picked force's feat must be designed with the conditions of plunder and disordered ranks.
 
-수·당 교체기의 천하대란을 두고는 수 전쟁을 겪은 장년층 안에서 판단이 갈린다. 고건무는 고구려 역시 소진되었으니 지금은 나라를 복구할 시간이라고 본다. 중국의 분열이 얼마나 지속되고 누가 얼마나 빨리 통일할지는 그때 확정할 수 없었다. 연태조처럼 기본적으로 영류왕을 지지하는 무장 가운데에도, 중원이 갈라진 이때 한 번 크게 쳐 둬야 뒷날이 평화롭다고 보는 사람이 있다. 그 시절 아이였던 연개소문 세대는 이 논쟁에 끼지 못한 채 어른들의 한쪽 말을 물려받는다. 당의 빠른 재통일을 본 뒤에는 그 말이 "선배들이 기회를 놓쳤다"는 비난으로 굳는다. 고건무의 마지막 변론은 당의 빠른 재통일을 본 뒤 과거를 평가하는 결과론과, 당시 감당해야 했던 선택의 조건 사이의 차이를 드러내게 한다. 세대 차이는 정치적 분위기와 주요 인물의 갈등을 만드는 경향으로 쓰고, 같은 세대 안의 경험과 입장 차이는 settings에서 살린다.
+Among adults who experienced the Sui wars, judgment differs over the great turmoil of the Sui–Tang transition. Geonmu sees Goguryeo as exhausted too and believes it is time to rebuild. No one could then determine how long China would remain divided or how quickly and under whom it would reunify. Even among commanders like Yeon Taejo, who generally support Yeongnyu, some believe one great strike while the Central Plain is divided will secure later peace. Gaesomun's generation, children at the time, inherits one side of the adults' debate without participating. After Tang reunifies rapidly, that argument hardens into blame that their elders missed an opportunity. Geonmu's final defense reveals the difference between judging the past after seeing rapid reunification and the conditions of choice people faced then. Use generational difference as a tendency shaping politics and main-character conflict; settings preserves differences in experience and position within a generation.
 
-승전의 영광을 물려받은 세대와 그 승리를 위해 나라를 소진한 세대가 같은 과거를 다르게 판단하게 하기 위해서다. 판단의 갈림을 장년층 안에 두는 것은, 어느 쪽도 겁이나 무모함이 아니라 같은 경험에서 나온 다른 결론으로 읽히게 하기 위해서다. 영웅담의 강도, 고건무의 생년, 세대 간 오해는 작품의 재구성이다.
+The generation inheriting victory's glory and the generation that exhausted the country to achieve it judge the same past differently. Placing the split among the adults ensures neither side reads as mere fear or recklessness, but as different conclusions from shared experience. The strength of the heroic story, Geonmu's birth year, and generational misunderstanding are the work's reconstruction.
 
-- [《수서》 권64 내호아전](https://angelibrary.com/oldies/duoshu/064.htm): 수군이 평양 외곽을 약탈하며 대오가 흐트러지고 고건무가 결사대 500명을 모집해 공격한 일을 전한다. 4만 3천이라는 수군 규모와 이를 받아들이는 젊은 세대의 영웅담은 작품에서 구성한다.
+- [Book of Sui, volume 64, biography of Lai Hu'er](https://angelibrary.com/oldies/duoshu/064.htm): records Sui naval troops plundering outside Pyongyang, their ranks falling into disorder, and Go Geonmu recruiting 500 picked men to attack. The 43,000 figure and the younger generation's heroic story are constructed by the work.
 
-## 재능과 자기 확신을 가진 독재자 {#yeon-talent-and-autocracy}
+## A gifted, self-assured autocrat {#yeon-talent-and-autocracy}
 
-연개소문은 614년생으로 설정한다. 군사 엘리트 귀족 가문의 장남이며 태학에서도 두각을 드러낸, 자신과 주변이 인정하는 천재로 그린다. 왕조를 바꾸려는 야망보다 고구려를 지키고 영광을 회복하려는 목표를 갖고, 자신의 역량과 성취를 근거로 자신이 아니면 안 된다고 믿는다.
+Set Yeon Gaesomun's birth in 614. He is the eldest son of a military elite noble family, a genius recognized by himself and others who distinguishes himself at the Taehak. Rather than ambition to change dynasties, he aims to defend Goguryeo and restore its glory; on the strength of his abilities and achievements, he believes no one else can do it.
 
-사적 축재와 향락을 탐하지 않는 유능한 독재자로, 자신에게도 엄격하고 과중한 업무를 감당한다. 그러나 자기 능력과 인내를 기준으로 주변 사람에게 같은 엄격함과 희생을 강요한다. 자신과 현 세대의 희생으로 후손이 살아갈 미래를 개척한다는 통치관을 갖게 한다. 그의 재능은 당대의 정보와 사람·제도에 기대어 발휘되며, 뛰어난 판단과 다른 사람의 판단을 대신하려는 독선이 함께 남게 한다. 그가 공익을 위해 요구한 희생도 이를 감당하는 사람에게는 손실과 강제가 될 수 있으며, 헌신과 성과를 인정하면서 그 비용을 겪는 이들의 판단도 살린다.
+A capable autocrat who seeks neither private accumulation nor pleasure, he is strict with himself and bears excessive work. Yet he demands the same strictness and sacrifice from others by the standard of his own ability and endurance. His view of rule is to open a future for descendants through sacrifices by himself and the present generation. His talent operates through the information, people, and institutions of his time; outstanding judgment remains alongside the arrogance of trying to decide for others. Even sacrifice demanded for the public good can be loss and coercion to those bearing it; recognize his dedication and achievements while preserving the judgments of those who experience the cost.
 
-사심 없는 동기와 실제 능력이 타인의 삶을 결정하는 권력 및 독선으로 이어지는 인물을 만들기 위해서다. 생년과 태학에서의 성장, 성격과 통치관은 작품의 선택이다.
+Create a person whose disinterested motives and actual ability lead to power over others' lives and autocracy. His birth year, Taehak growth, character, and governing outlook are choices of the work.
 
-## 승리 이후에 가능한 재건 {#victory-before-restoration}
+## Reconstruction possible after victory {#victory-before-restoration}
 
-연개소문은 영류왕의 재건 과제를 이해하면서도, 당이 정복을 계속 시도하는 한 회복의 성과를 지킬 수 없다고 판단한다. 영류왕의 외교적 태도와 무관하게 당은 침공했으리라 믿고, 강한 군사력으로 정복을 포기시킨 뒤 재건해야 한다는 신념에 일생을 바친다. 굴종으로는 평화가 오지 않는다고 본다. 수나라 때부터 거듭된 전쟁의 고리는 당이 자랑하는 세계 최강의 정예를 야전에서 압도적으로 꺾어 무너뜨려야만 끊긴다고 믿는다.
+Yeon Gaesomun understands Yeongnyu's reconstruction task but judges that its gains cannot be protected while Tang keeps trying to conquer. He believes Tang would have invaded regardless of Yeongnyu's diplomatic stance, and devotes his life to the conviction that reconstruction must follow forcing Tang to abandon conquest through strong military power. He sees no peace in submission. He believes the cycle of repeated war since Sui can be broken only by overwhelmingly defeating and destroying in the field the world's strongest elite troops Tang boasts of.
 
-그가 왕을 죽이고 전쟁을 책임진 선택을 스스로 필수적인 과정으로 여기는 이유를 갖추기 위해서다. 이는 연개소문의 판단이며, 다른 역사적 가능성까지 확정하는 서술로 쓰지 않는다.
+This gives him reason to see killing the king and assuming responsibility for war as necessary steps. It is Yeon Gaesomun's judgment, not a narrative ruling out all other historical possibilities.
 
-## 자신과 다른 후계자를 기르는 아버지 {#father-and-different-successor}
+## A father raises a successor unlike himself {#father-and-different-successor}
 
-연개소문은 남생을 곁에서 가르치고 통치권을 장남에게 집중한다. 남생은 천재보다 성실하게 노력하는 인물로, 전선의 병사·주민과 동고동락하고 솔선수범하여 요동·국내성의 신망을 얻는다. 부족한 일을 적임자에게 맡기고 핵심 과업에 집중하는 그의 장점을 연개소문도 높이 평가한다.
+Yeon Gaesomun teaches Namsaeng beside him and concentrates governing authority in his eldest son. Namsaeng is diligent rather than a genius, sharing soldiers' and residents' hardships at the front and leading by example to earn trust in Liaodong and Gungnaeseong. Yeon Gaesomun values his strength in delegating tasks he lacks ability for to suitable people and concentrating on core duties.
 
-연개소문은 한 통치자의 과로에 의존한 자기 통치의 한계를 알고, 아들의 방식이 다음 시대에 더 건실한 국가를 만들리라 기대한다. 다만 국정과 장남 교육에 쏟은 시간이 다른 아들들의 불만과 왕의 속셈을 충분히 알아차리게 하지는 못한다.
+Yeon Gaesomun knows the limits of his own rule's dependence on one overworked ruler and expects his son's method to build a sounder state for the next era. Yet time spent on state affairs and educating his eldest does not let him fully see his other sons' discontent or the king's intentions.
 
-후계 선택을 장자라는 이유와 함께 다음 시대에 필요한 역량에 대한 판단으로 설명하고, 유능한 아버지가 남긴 계승의 허점을 갖추기 위해서다.
+Explain the successor choice through primogeniture and a judgment of abilities needed in the next era, while giving the capable father a gap in succession.
 
-## 사람들을 협력시키는 통치 {#governing-through-capable-people}
+## Rule through cooperation among capable people {#governing-through-capable-people}
 
-연개소문의 정권은 지역과 병력을 아는 지휘자, 왕실·귀족을 상대하는 중앙 인물, 사람과 물자를 모으는 지방 세력, 공동체의 신뢰를 가진 말갈 지휘자들의 협력으로 움직이게 한다. 연개소문은 보고를 판단하고 상충하는 요구를 조정하며 적임자에게 권한과 책임을 맡긴다. 그의 엄격함은 맡긴 일을 끝까지 요구하는 통치에서도 드러나게 한다. 구체적인 인물과 직책·관계는 settings에서 구성한다.
+Make Yeon Gaesomun's regime function through cooperation among commanders who know regions and troops, central figures dealing with the royal house and nobles, local forces assembling people and supplies, and Malgal commanders trusted by their communities. He judges reports, coordinates conflicting demands, and delegates authority and responsibility to suitable people. His strictness appears also in requiring entrusted work to be completed. Settings constructs specific people, offices, and relationships.
 
-남생은 아버지 곁의 국정 경험과 전선의 신망을 함께 가진 후계자로 그린다. 그가 협력을 이어받고 더 건실한 통치를 만들 가능성을 실제로 마련하여, 연개소문의 기대가 성취와 후계자의 장점에 근거한 합리적인 판단이 되게 한다. 연개소문의 옛 협력자들이 사후에도 모두 같은 편을 택하는 것으로 묶지 않는다. 개인적 존경과 왕명·지역·후계자에 대한 판단은 갈라질 수 있다.
+Depict Namsaeng as a successor with both state experience beside his father and trust at the front. Establish a real possibility that he can inherit cooperation and make sounder rule, so Gaesomun's expectation is a reasonable judgment grounded in achievement and his successor's strengths. Do not make all Gaesomun's former collaborators choose the same side after his death. Personal respect and judgments of royal orders, region, and successor may diverge.
 
-유능한 독재자의 성과를 사람들의 실제 협력으로 설명하고, 성공할 수 있었던 계승이 내전에서 무너지는 비극을 만들기 위해서다. 남생에게 위임된 통치 경험은 기록을 활용하되, 협력의 구체적인 구조와 사후 선택은 작품에서 재구성한다.
+Explain the capable autocrat's results through actual cooperation and create the tragedy of a succession that could have succeeded breaking down in civil war. Use records for Namsaeng's delegated governing experience, but reconstruct the specific cooperation and later choices.
 
-- [국사편찬위원회, 남생의 자와 관력](https://db.history.go.kr/ancient/level.do?levelId=sg_049r_0040_0010): 남생이 중리대형으로 국정을 맡고 사령을 주관한 관력을 전한다. 이를 현대적 문관·군인의 분리로 옮기지 않는다.
+- [National Institute of Korean History, Namsaeng's courtesy name and career](https://db.history.go.kr/ancient/level.do?levelId=sg_049r_0040_0010): records his administration of state affairs and direction of command as jungni daehyeong. Do not translate this into a modern separation of civil and military officials.
 
-## 남생이 준비하려는 다음 시대 {#namsaeng-and-heonchung}
+## The next era Namsaeng seeks to prepare {#namsaeng-and-heonchung}
 
-남생은 2차전쟁 뒤 황폐한 요동·국내성의 재건·개발과 방어 기반 회복을 자기 시대의 과업으로 삼는다. 아들 헌충에게 연개소문을 닮은 강한 성미와 뛰어난 재능이 있다고 보고, 그 재능이 펼쳐질 미래를 준비하려 한다. 그의 재건은 겁먹은 후퇴가 아닌 적극적인 국가 구상으로 그린다. 전후의 기회와 남방의 새로운 위협은 [재건을 재촉하는 국제 정세](003-era-and-restoration.md#postwar-reconstruction-and-southern-threat)에 연결한다.
+After the second war, Namsaeng takes reconstruction and development of devastated Liaodong and Gungnaeseong and restoration of defenses as his era's task. He sees his son Heonchung as having a strong temper and exceptional talent like Yeon Gaesomun and seeks to prepare a future in which that talent can flourish. Depict his reconstruction as an active national vision, not a frightened retreat. Connect postwar opportunity and the new southern threat to [international conditions pressing reconstruction](003-era-and-restoration.md#postwar-reconstruction-and-southern-threat).
 
-헌충은 어린 나이에도 강맹하게 싸우는 재능을 지녔으나, 그 미래는 [정변과 죽음](008-succession-and-collapse.md#coup-and-heonchungs-death)으로 끊긴다. 구체적인 나이와 지휘권·병력은 settings에서 마련한다.
+Heonchung has the talent to fight fiercely even at a young age, but that future is cut off by [the coup and his death](008-succession-and-collapse.md#coup-and-heonchungs-death). Settings supplies his specific age, authority, and troops.
 
-남생이 자신에게 맞는 역할과 다음 세대를 위해 이루려는 목표를 갖고, 헌충의 죽음이 그가 준비하던 미래를 무너뜨리게 하기 위해서다.
+Namsaeng has a role suited to him and a goal for the next generation, so Heonchung's death destroys the future he was preparing.
 
-## 성취와 찜찜함이 함께 남는 말년 {#yeons-final-belief-and-anxiety}
+## Later years of achievement and unease {#yeons-final-belief-and-anxiety}
 
-연개소문은 2차전쟁의 승리 뒤 남생이 재건 계획을 수립·발표하는 모습을 보고, 영류왕을 넘어섰으며 그가 추구한 비전을 가진 아들도 길렀다고 흡족해한다. 죽인 왕에게 진 빚을 모두 갚았다고 생각하고, 말갈의 온전한 귀속에서도 고구려 중흥의 기반을 확인한다.
+After the second-war victory, Yeon Gaesomun sees Namsaeng develop and announce a reconstruction plan and is satisfied that he has surpassed Yeongnyu and raised a son with the vision the king pursued. He believes he has fully repaid his debt to the king he killed and sees a foundation for Goguryeo's revival in the Malgal's complete belonging.
 
-과로로 소진된 말년에는 아들이 재건할 미래를 직접 보지 못하는 아쉬움이 남는다. 자기 권위에 숨죽이던 세력들이 온화한 남생의 시대에 다시 설치지 않을까 염려하며, 그가 경멸하고 경계하는 대상에는 왕가도 포함된다. 후계 체제를 완전히 다질 시간이 부족했음을 느껴 아들들에게 나뭇가지 일화로 화합을 당부하지만, 형제들이 그 세력과 손잡고 내전을 일으킬 줄은 모른다.
+Exhausted by overwork late in life, he regrets that he will not personally see the future his son rebuilds. He worries that forces cowed by his authority will become active again in mild Namsaeng's time; the royal house is among those he despises and guards against. Feeling he lacks time to consolidate succession fully, he urges his sons to unite through the anecdote of bundled branches, but does not know that the brothers will join those forces and start a civil war.
 
-실제 성취에 대한 만족과 사후 권력에 대한 막연한 불안 속에서 죽는 인물로 마무리하기 위해서다. 빚을 갚았다는 평가는 그의 자기 판단이며, 이 믿음이 무너지는 결과는 에필로그에서 보여준다.
+End with a man dying satisfied with real achievements and vaguely anxious about power after his death. Repaying the debt is his own judgment; the epilogue shows the outcome that breaks this belief.
 
-## 재건기의 배경 인물인 온달 {#ondal-as-restoration-background}
+## Ondal as background to reconstruction {#ondal-as-restoration-background}
 
-온달은 서민 출신으로 경당에서부터 두각을 드러낸 인재로, 평원왕이 재능을 인정하고 서민층의 지지를 얻으려 사위로 들인 것으로 재구성한다. 북주전에서 선봉으로 수십 명을 베어 영웅이 되지만, 신라의 견고한 요새를 공격하다 화살에 맞아 전사하게 한다. 그 전사의 군사적 배경은 [신라의 요새망과 남진의 한계](003-era-and-restoration.md#silla-fortresses-and-limits-of-southern-campaigns)에 연결한다.
+Reconstruct Ondal as a commoner whose talent emerged at the gyeongdang, whom Pyeongwon accepted as a son-in-law to recognize ability and gain commoner support. He becomes a hero by cutting down dozens in the vanguard against Northern Zhou, but dies from an arrow while attacking a strong Silla fortress. Connect the military background of his death to [Silla's fortress network and the limits of southern campaigns](003-era-and-restoration.md#silla-fortresses-and-limits-of-southern-campaigns).
 
-본편에서는 주요 사건으로 크게 확장하지 않고, 온달의 아들이나 손자를 후대에 등장시키는 방향을 살린다. 전사 지점과 원정 성과, 후손의 계보는 기록과 작품의 연결을 구별하여 settings에서 정한다.
+Do not expand him greatly as a major event in the main work; retain the direction of introducing a son or grandson later. Settings determines the place of death, expedition results, and descendants' genealogy while distinguishing record from the work's connections.
 
-재건기의 서민 인재 등용과 신분 상승을 보여주고, 개인의 용맹과 국가의 원정 여력 사이의 차이를 남기기 위해서다.
+Show recruitment and advancement of talented commoners during reconstruction while preserving the difference between individual valor and a country's capacity for expeditions.
 
-- [국사편찬위원회, 온달의 북주전 전공](https://db.history.go.kr/id/sg_045r_0100_0150): 선봉의 전공과 승리를 전한다.
-- [국사편찬위원회, 온달의 아단성 전사](https://db.history.go.kr/common/compareViewer.do?levelId=sg_045r_0100_0200&type=ancient): 화살에 맞은 죽음과 위치 비정의 논쟁을 제공한다. 경당 성장과 혼인의 정치적 동기는 작품의 창작이다.
+- [National Institute of Korean History, Ondal's achievements against Northern Zhou](https://db.history.go.kr/id/sg_045r_0100_0150): records the vanguard's achievements and victory.
+- [National Institute of Korean History, Ondal's death at Adanseong](https://db.history.go.kr/common/compareViewer.do?levelId=sg_045r_0100_0200&type=ancient): provides his death by arrow and the debate over location. His gyeongdang upbringing and the marriage's political motive are inventions of the work.

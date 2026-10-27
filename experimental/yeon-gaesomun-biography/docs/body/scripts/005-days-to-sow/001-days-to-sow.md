@@ -1,382 +1,382 @@
 
-# 씨를 뿌릴 날
+# Days to sow
 
-## 돌려보낼 사람을 나누다 {#t030-return-and-repair}
+## Dividing those who can return {#t030-return-and-repair}
 
-662년 전후 요동·국내성의 작업 마당 바깥 낮. 남생은 귀향할 사람과 남을 방어 병력의 보고를 따로 받는다. 식량과 종자의 짐이 갈라지고 석부는 도구와 가축을 받을 길을 안내한다.
+Outside a work yard in Liaodong and Gungnaeseong after 662, day. Namsaeng receives separate reports on people returning home and defenders remaining. Food and seed loads are divided; Seokbu points out the route for receiving tools and livestock.
 
-남생: 먹을 식량과 심을 종자는 따로 두시오. 이 길목을 지킬 병력을 남긴 뒤에 돌려보냅니다.
+NAMSAENG: Keep food to eat separate from seed to plant. Leave troops to guard this approach before sending people home.
 
-석부: 먼저 돌아갈 사람들에게 길도 고치게 할 수 있습니다. 길이 이어져야 뒤의 사람도 받습니다.
+SEOKBU: Those returning first can repair the road too. The road must connect before those behind can be received.
 
-남생은 그 설명대로 일을 맡긴다. 중앙에서 개소문은 보고를 듣고 남생에게 최종 조정을 맡긴다.
+Namsaeng assigns the work as he explains. At the center, Gaesomun hears the report and entrusts Namsaeng with final coordination.
 
-개소문: 내게 일일이 다시 허락받지 마라. 누가 맡았고 무슨 일이 늦었는지만 함께 보고해라.
+GAESOMUN: Don't ask me for permission again at every step. Just report together who is responsible and what is delayed.
 
-남생은 자기 이름을 높이는 전공 보고 대신 돌아갈 집과 남길 수비를 다시 확인한다. 집으로 가는 사람이 수비에 남는 사람에게 짐을 건넨다.
+Instead of a report of achievements raising his own name, Namsaeng checks households returning and defenders remaining again. Someone going home hands a load to someone staying on defense.
 
-## 같은 승리에서 얻은 다른 권리 {#t030-demands-after-victory}
+## Different claims from the same victory {#t030-demands-after-victory}
 
-평양 군무 자리 안 낮. 남건·남산이 남생 앞에 다른 지역의 요구를 놓는다.
+Inside the Pyongyang military office, day. Namgeon and Namsan place other regions' demands before Namsaeng.
 
-남건: 지금 군사를 풀면 다시 모으기 어렵습니다. 당을 이긴 힘으로 남쪽을 쳐야 합니다.
+NAMGEON: If we release the army now, it'll be hard to assemble again. We should use the force that defeated Tang to strike south.
 
-남생: 군사 먹일 집이 살아나야 다시 모으지.
+NAMSAENG: The households that feed soldiers must recover before we can assemble them again.
 
-남산: 중앙과 왕실도 협조할 자리가 있어야 합니다. 이쪽 방비를 뒤로 밀었다는 말을 제가 듣습니다.
+NAMSAN: The center and royal house need a place to cooperate too. I hear people say our defenses have been deferred.
 
-남생: 그래서 너희가 맡은 일을 계속해 달라는 것이다. 원정군은 늘리지 않는다.
+NAMSAENG: That's why I'm asking you to keep doing the work assigned. We won't expand the expeditionary army.
 
-남건: 제 군사가 한 일도 알고 정하시는 겁니까?
+NAMGEON: Are you deciding with any regard for what my soldiers did?
 
-남생: 압록강에서 나와 밥을 나누던 사람 중에 아직 없는 이들이 있다. 돌아온 사람의 집도 비었어. 다음에 부르려면 먹여서 내보낼 수 있어야 한다. 파종을 놓치면 네 군사도 못 먹인다.
+NAMSAENG: Some men who shared food with me at the Yalu are still missing. Even the homes of those who returned stand empty. If we call them again, their families must be able to feed and send them. Miss sowing and your soldiers won't eat either.
 
-남건: 그 전투는—
+NAMGEON: That battle—
 
-남생: 모르는 일을 하라 하지 않는다. 맡은 군무를 해 다오.
+NAMSAENG: I'm not asking you to do work you don't know. Please carry out the duties assigned.
 
-남건은 자기 경험을 다시 묻지 못한다. 남산은 요구를 받아 줄 더 큰 자리를 찾듯 왕궁 쪽을 본다. 보장왕은 개소문 생전의 공개 충돌을 열지 않는다.
+Namgeon cannot ask again about his own experience. Namsan looks toward the palace as though seeking a larger place where demands will be heard. King Bojang does not open a public clash while Gaesomun lives.
 
-## 빠른 아들이 기다리는 아버지 {#t030-future-for-heonchung}
+## A quick son and a father who waits {#t030-future-for-heonchung}
 
-지역 작업 자리 바깥 낮. 남생이 주민의 말을 끝까지 듣는 동안 헌충은 뒤에서 기다린다. 주민이 물러나자 앞으로 나온다.
+Outside a regional work area, day. Heonchung waits behind while Namsaeng hears a resident out. When the resident leaves, he steps forward.
 
-헌충: 아버지께서 정하시면 되는 일 아닙니까?
+HEONCHUNG: Couldn't you just decide, Father?
 
-남생: 네가 정한 뒤에도 저 사람이 해야 한다.
+NAMSAENG: That person still has to do the work after you decide.
 
-헌충: 조부님은 더 빨리 하셨습니다.
+HEONCHUNG: Grandfather was quicker.
 
-남생: 빠른 판단은 나도 못 따라갈 때가 있다. 그래도 네가 맡을 때까지 복구를 미룰 수는 없어.
+NAMSAENG: Sometimes I can't match his quick judgment either. But I can't postpone recovery until you're ready to take it on.
 
-개소문은 부자의 다른 속도를 보고 남생의 복구 계획을 받는다. 당의 영구 평화를 약속하지 않고 아직 싸우는 남쪽 보고도 함께 놓는다. 헌충은 아버지가 다시 주민을 부르는 동안 자기가 끝낼 수 있는 군무를 먼저 잡는다.
+Gaesomun observes father and son's different pace and receives Namsaeng's recovery plan. He promises no permanent peace with Tang and places a report from the still-fighting south alongside it. While his father calls residents again, Heonchung first takes up military work he can finish himself.
 
-## 승전한 나라에 닿은 패망 {#t031-baekgang-report-arrives}
+## Defeat reaches a victorious country {#t031-baekgang-report-arrives}
 
-663년 가을 평양 군무 자리 안 낮. 보고를 받은 개소문과 남생의 시선이 날짜를 따라 움직인다. 내레이션과 문서 삽입이 보고를 잇고 백강 현장을 새 전투로 열지 않는다.
+Inside the Pyongyang military office in autumn 663, day. Gaesomun's and Namsaeng's eyes follow the dates in the report. Narration and document inserts connect it; do not open Baekgang as a new battlefield.
 
-보고 음성: 유월 부여풍이 복신을 죽였습니다. 팔월에는 백강 수전에서 패했고 육상 거점도 잃었습니다. 앞선 배가 흐트러진 데 뒤의 병력이 더 들어가 손실을 키웠다고 합니다.
+REPORT VOICE: In June Buyeo Pung killed Boksin. In August they lost the naval battle at Baekgang and lost their land strongholds too. The leading ships fell into disorder, and sending more troops in behind increased losses.
 
-남생: 고구려가 살아남았다는 소식 뒤에도 구원을 계속한 겁니까?
+NAMSAENG: They continued the relief effort even after hearing Goguryeo survived?
 
-보고 음성: 이미 모인 병력이 있었고 주류성의 위기가 닥쳤습니다.
+REPORT VOICE: Forces were already assembled, and Juryuseong faced a crisis.
 
-역사가 음성: 왜의 주요 지원 약 삼만과 삼월 출병 기록 이만 칠천은 다르다. 그 모두가 백강의 한 전면에 서 있었다고 셀 수 없다.
+HISTORIAN (V.O.): Wa's main support of about thirty thousand differs from the recorded twenty-seven thousand dispatched in March. They cannot all be counted on one front at Baekgang.
 
-보고 음성: 부여풍이 이 나라로 달아왔습니다. 주류성이 항복한 뒤 백제 사람들은 왜 쪽과 떠날 길을 의논했고 가족에게 이향할 뜻을 알렸다고 합니다.
+REPORT VOICE: Buyeo Pung fled to this country. After Juryuseong surrendered, Baekje people discussed a route away with the Wa side and told their families they intended to leave.
 
-개소문이 망명자를 받아들일 일을 넘겨받는다. 배우자의 행로에 관한 새 답은 오지 않는다.
+Gaesomun receives the task of accepting the exile. No new answer comes about the spouse's path.
 
-역사가 음성: 조상의 묘에 돌아갈 길을 잃었다는 탄식은 떠나는 백제인의 것이었다. 왜의 지배층 전체 혈통을 증명하는 말이 아니었다.
+HISTORIAN (V.O.): The lament for a lost road back to ancestral graves belonged to departing Baekje people. It did not prove the ancestry of Wa's entire ruling class.
 
-남생은 남쪽의 빈 자리를 짚고 다음 재건 보고를 앞으로 당긴다.
+Namsaeng points to the gap in the south and draws the next reconstruction report forward.
 
-## 끝난 정책과 끝나지 않은 압력 {#t031-different-readings-of-the-south}
+## A policy ends, but pressure does not {#t031-different-readings-of-the-south}
 
-같은 가을, 별도의 보고가 평양에 도착한다. 개소문은 날짜를 확인한다.
+That same autumn, a separate report reaches Pyongyang. Gaesomun checks the date.
 
-개소문: 팔월 스무이렛날, 함선 건조를 없애고 전쟁을 중지했다는 것이군.
+GAESOMUN: On the twenty-seventh of August, they abolished shipbuilding and stopped the war.
 
-그는 당의 정복 정책 중단을 성취로 받는다. 백강 패전과 같은 결정이라고 말하지 않는다.
+He receives Tang's cessation of conquest as an achievement. He does not call it the same decision as Baekgang's defeat.
 
-역사가 음성: 신라도 전후 대규모 고구려 정복 공세를 단념했다. 국지 충돌과 훗날의 위협까지 사라진 것은 아니었다.
+HISTORIAN (V.O.): Silla also abandoned a large-scale postwar offensive to conquer Goguryeo. Local clashes and later threats did not disappear.
 
-남생: 백제가 신라를 붙들어 둘 힘을 잃었습니다. 그 땅과 사람이 당장 전부 신라 것이 된 것은 아닙니다. 그래도 남쪽에는 사람과 곡식, 운반하는 힘이 모여 이미 우리보다 큰 기반이 자라고 있습니다. 김유신이 겨울에 보여 준 힘을 겪고도 복구를 늦출 수는 없습니다. 생산과 길부터 되살려야 합니다.
+NAMSAENG: Baekje has lost the strength that held Silla in check. Its land and people haven't all become Silla's at once. Even so, people, grain, and transport in the south are forming a base already larger than ours. After seeing what Kim Yusin did in winter, we can't delay recovery. We must restore production and roads first.
 
-남건: 아직 다 묶이지 않았을 때 칠 수 있습니다. 왜 늘 끝난 뒤를 기다립니까?
+NAMGEON: We can strike before it's all united. Why always wait until it's over?
 
-남산: 왕실과 중앙의 지지를 모으면 나라의 사업으로 할 수 있습니다.
+NAMSAN: With royal and central support, we can make it a national undertaking.
 
-남생: 방어는 남긴다. 원정군을 늘리지는 않는다.
+NAMSAENG: Defense stays. We won't expand the expeditionary army.
 
-개소문: 남생이 정한 대로 한다. 복구부터 진행해라.
+GAESOMUN: Do as Namsaeng decided. Begin with recovery.
 
-남건은 승전의 공을 받은 자리에서 다시 자기 요구가 물러나는 것을 겪는다. 남산은 중앙 요구를 거두지 않은 채 물러난다.
+At the place where he was credited for victory, Namgeon sees his demand set aside again. Namsan withdraws without dropping the center's demands.
 
-## 공사보다 먼저 남길 하루 {#t032-work-yields-days-to-sowing}
+## A day saved before construction {#t032-work-yields-days-to-sowing}
 
-664년~665년 초 동부 작업 자리 바깥 낮. 미란과 누리가 뉴일 앞에 선다. 미란은 돌아온 부상자가 이전과 같은 일을 못 한다는 사정과 밭·하천·숲의 일손을 나누어 말한다.
+Outside an eastern work site from 664 to early 665, day. Miran and Nuri stand before Nyuil. Miran separately explains that returned injured people cannot work as before and that hands are needed for fields, streams, and forest.
 
-미란: 공사를 없애자는 게 아닙니다. 누리까지 계속 내보내면 씨를 뿌릴 날이 없습니다.
+MIRAN: I'm not asking to end construction. But if Nuri keeps going too, we have no days left to sow.
 
-누리: 제 몫은 저도 말하겠습니다. 집에서 할 일은 하겠어요. 다음 운반까지 지금 약속하지는 마세요.
+NURI: I'll speak for my own share. I'll do the work at home. Don't promise the next transport for me now.
 
-뉴일이 작업을 한꺼번에 모을 안을 내려놓고 먼저 이을 길과 생산 거점을 고른다.
+Nyuil sets down a plan to gather everyone at once and selects roads and production centers to connect first.
 
-뉴일: 먼저 돌아갈 길과 생산 거점을 잇겠습니다. 나머지 공사는 늦추지요. 제가 정했다고 보고하겠습니다.
+NYUIL: We'll connect the routes home and production sites first. The rest of construction will be delayed. I'll report that I decided it.
 
-남생이 지연 보고를 받는다.
+Namsaeng receives the delay report.
 
-남생: 늦어진 것을 주민 탓으로 돌리지 마시오. 종자와 먹을 식량도 정한 대로 남깁니다.
+NAMSAENG: Don't blame residents for the delay. Keep seed and food to eat separate as decided.
 
-작업에서 돌아온 누리가 미란과 파종 준비를 한다. 남은 공사 소리는 멀리 계속된다. 그날 노동을 마친 누리가 뉴일에게 돌아온다.
+Nuri returns from work and prepares to sow with Miran. Remaining construction continues in the distance. After that day's labor, Nuri returns to Nyuil.
 
-누리: 다음 운반에도 제 이름을 벌써 넣으셨습니까?
+NURI: Have you already put my name down for the next transport too?
 
-뉴일: 이번에 정한 것은 여기까지다. 다음 몫은 다시 의논한다.
+NYUIL: This is all we decided this time. We'll discuss the next share again.
 
-## 다른 지역이 치른 같은 재건 {#t032-unequal-regional-costs}
+## The same reconstruction costs regions differently {#t032-unequal-regional-costs}
 
-요동·국내성의 복구 길 바깥 낮. 석부가 먼저 고친 길을 지나며 다음 일꾼을 안내한다. 귀향한 가구 사람이 남생 앞에 다가온다.
+Outside on a recovery road in Liaodong and Gungnaeseong, day. Seokbu passes along a repaired section and guides the next workers. A returned household member approaches Namsaeng.
 
-가구 사람: 길이 이어져 돌아왔습니다. 집의 일을 다시 잡았습니다.
+HOUSEHOLD MEMBER: The road was connected, so we came home. We've taken up work at home again.
 
-짐을 옮기던 같은 지역의 사람이 그 곁에서 멈춘다.
+A carrier from the same region stops beside them.
 
-운반하는 사람: 저희는 다음 운반도 나갑니까? 저 집들이 돌아왔어도 저희 일은 아직 남았지요.
+CARRIER: Do we go on the next transport too? Those households came back, but our work is still there.
 
-남생이 떠나려던 걸음을 멈추고 그 사람 쪽으로 돌아선다.
+Namsaeng stops leaving and turns toward the carrier.
 
-남생: 이 짐을 옮긴 뒤에도 또 나와야 한다는 말씀이오?
+NAMSAENG: You mean you must come out again after moving this load?
 
-운반하는 사람: 예. 돌아가서 할 일도 그대로 남았습니다.
+CARRIER: Yes. The work waiting at home is still there too.
 
-남생은 환영하던 가구 앞에서 받던 말을 멈추고, 짐을 내려놓지 못한 사람의 말을 더 듣는다.
+Namsaeng stops accepting the welcoming household's words and listens further to the person unable to put down the load.
 
-평양과 남방의 요구로 장면을 옮긴다. 식량과 재료를 보낸 뒤 방비가 밀렸다는 보고에 자막 ‘664년 음력 7월’이 붙는다.
+Move to demands in Pyongyang and the south. A report that defense was deferred after sending food and materials carries the caption “Seventh lunar month, 664.”
 
-보고 음성: 신라군이 돌사성을 함락했습니다. 김인문·품일·군관·문영이 일선주·한산주와 웅진 부성 병마를 움직였다고 합니다.
+REPORT VOICE: Silla forces captured Dolsaseong. Kim Inmun, Pumil, Gungwan, and Munyeong moved troops from Ilseonju and Hansanju and troops and horses of Ungjin's subordinate fortresses.
 
-역사가 음성: 군관은 이 보고에 나온 사람의 이름이다. 이 보고가 전하는 것은 네 사람의 공동 지휘다. 누가 먼저 성문을 넘었는지까지 공을 나누지는 않는다.
+HISTORIAN (V.O.): Gungwan is a person's name in this report. It describes joint command by four people. It does not divide credit for who crossed the gate first.
 
-남건: 성을 또 잃고도 공사만 하겠습니까?
+NAMGEON: Will we keep building after losing another fortress?
 
-남생: 방어는 보강한다. 그 성 하나 때문에 돌아간 사람 전부를 원정에 부르지 않는다.
+NAMSAENG: We'll reinforce defense. We won't call everyone who returned home into an expedition because of that one fortress.
 
-보낸 재료를 돌려받지 못한 중앙의 요구가 남는다. 남생에게 오는 신망과 그에게 모인다는 의심이 서로 다른 보고로 쌓인다.
+Central demands remain from people who have not received their materials back. Trust in Namsaeng and suspicion that benefits gather around him accumulate in separate reports.
 
-## 아우들에게 열린 다른 문 {#t032-competence-strengthens-opposition}
+## Another door opens to the younger brothers {#t032-competence-strengthens-opposition}
 
-평양 군무 자리 안 낮. 남건은 좁은 전면에서 기병을 다시 묶었던 경험을 들어 형에게 묻는다.
+Inside the Pyongyang military office, day. Namgeon asks his brother, citing his experience regrouping cavalry on a narrow front.
 
-남건: 위험할 때 기병을 빼내 움직인 사람이 접니다. 군사를 쓸 때는 압니다. 형님께서 압록강에서 시간을 버신 것도 압니다. 하지만 끝내 지지 않았습니까. 그 일 때문에 지금도 멈춰 있어야 합니까?
+NAMGEON: I pulled cavalry out and moved it when danger came. I know when to use troops. I know you bought time at the Yalu too. But didn't you lose in the end? Must we still stop because of that?
 
-남생: 지연의 공을 몰라서 하는 말은 아니겠지. 그래도 그 군사를 먹일 집부터 남아야 한다.
+NAMSAENG: You know what the delay achieved. But first the households that feed those troops must survive.
 
-남건: 그 값도 저희가 겪었습니다.
+NAMGEON: We bore that cost too.
 
-남산: 왕실과 함께 맡으면 아버지 때처럼 몰아붙일 일도 줄어듭니다. 가문의 권한을 버리자고 드리는 말씀이 아닙니다.
+NAMSAN: Working with the royal house would mean less coercion than in Father's time. I'm not asking to abandon our family's authority.
 
-남생: 너희 일은 계속 맡아 다오. 바깥 원정을 늘리지 않는다는 결정은 그대로다.
+NAMSAENG: Keep doing your work. The decision not to expand foreign expeditions stands.
 
-둘이 물러난 뒤 왕궁 안 낮. 보장왕은 남산의 조정 능력과 남건의 지휘를 인정해 준다.
+After the two withdraw, inside the palace, day. Bojang recognizes Namsan's skill at coordination and Namgeon's command.
 
-보장왕: 나라를 맡을 능력이 한 사람에게만 있지는 않소.
+BOJANG: More than one man has the ability to govern this country.
 
-남산은 그 말이 열어 주는 자리에 오래 남는다. 아직 누구도 정변을 명하지 않는다.
+Namsan lingers over the opening those words offer. No one has ordered a coup yet.
 
-## 늦어진 공사를 듣고 기뻐한 아버지 {#t033-yeon-accepts-the-restoration-plan}
+## A father pleased to hear construction was delayed {#t033-yeon-accepts-the-restoration-plan}
 
-665년 봄 연씨 거처 안 낮. 쇠약한 개소문이 앉아 남생의 보고를 받는다. 같은 방 안에서 가까운 대화의 높이를 지킨다.
+Inside the Yeon residence in spring 665, day. Weakened Gaesomun sits and receives Namsaeng's report. Remain at the height of a close conversation within the room.
 
-남생: 파종 때문에 뒤 공사를 늦췄습니다. 방어군은 남겼고 바깥 원정은 늘리지 않았습니다. 요동과 국내성에서 맡은 사람이 제 몫을 이어 가고 있습니다.
+NAMSAENG: We delayed later construction for sowing. Defenders stayed, and we didn't expand foreign expeditions. People assigned in Liaodong and Gungnaeseong are continuing their shares.
 
-개소문: 네가 모두 다시 정하지 않아도 되느냐?
+GAESOMUN: You don't have to decide everything again yourself?
 
-남생: 맡은 사람이 저보다 잘 아는 일입니다. 늦어지면 제가 책임지겠습니다.
+NAMSAENG: They know their work better than I do. If it's delayed, I'll take responsibility.
 
-개소문이 웃으려다 지친 숨을 고른다. 말갈의 가구들이 다시 조건을 요구하면서도 중요한 임무를 자기 나라의 방어로 맡았다는 보고도 받는다.
+Gaesomun tries to smile, then steadies his tired breathing. He also receives word that Malgal households ask conditions again while undertaking important missions as defense of their own country.
 
-개소문: 요구를 한다고 남의 나라 사람이 되느냐. 맡긴 일은 했느냐.
+GAESOMUN: Does asking make them people of another country? Did they do the work entrusted?
 
-남생: 맡은 길은 지켰습니다. 다음 협의에서도 자기들이 맡을 일을 말하고 있습니다.
+NAMSAENG: They held the roads assigned. At the next discussion, they're also stating what work they'll take.
 
-남생이 다음 일을 받아 나간다. 홀로 남은 개소문에게 내면음성이 이어진다.
+Namsaeng accepts the next task and leaves. An inner voice follows for Gaesomun alone.
 
-개소문 내면음성: 폐하. 침공을 꺾었습니다. 그 뒤를 맡을 아이도 길렀습니다. 이제 빚은 갚았습니다. 아들이 그다음을 만들 겁니다.
+GAESOMUN (INNER VOICE): Your Majesty. I stopped the invasion. I raised a child to take up what follows. Now I've repaid the debt. My son will make what comes next.
 
-맞은편은 비어 있다. 개소문이 남생의 보고를 내려다본다. 지친 얼굴에 웃음이 남는다.
+The seat opposite is empty. Gaesomun looks down at Namsaeng's report. A smile remains on his tired face.
 
-## 묶인 가지가 정하지 않은 일 {#t033-unity-advice-and-death}
+## What bundled branches do not decide {#t033-unity-advice-and-death}
 
-같은 봄 거처 안. 낮빛이 침상 가까이에 머문다. 세 아들이 아버지 앞에 앉는다. 개소문은 넘길 일을 나누다 마지막 결정 하나를 다시 자기 앞으로 당긴다.
+Inside the residence that spring. Daylight rests near the bed. Three sons sit before their father. As Gaesomun divides work to hand over, he draws one final decision back toward himself.
 
-개소문: 더 살아 네가 만든 나라를 보고 싶었다.
+GAESOMUN: I wanted to live longer and see the country you make.
 
-남생이 일을 놓고 다가온다. 개소문은 가지를 나누어 보인 뒤 묶게 한다.
+Namsaeng puts down his work and approaches. Gaesomun shows separate branches, then has them tied together.
 
-개소문: 하나씩이면 꺾인다. 함께 있으면 다르다. 내가 없다고 흩어지지 마라. 왕가와 대인들도 자기 몫을 더 달라 할 것이다.
+GAESOMUN: One by one they break. Together it's different. Don't scatter because I'm gone. The royal house and great men will ask for more of their share too.
 
-남생: 아우들과 일을 나누겠습니다.
+NAMSAENG: I'll share the work with my brothers.
 
-남건: 아버지께서 이긴 군사를 잇겠습니다.
+NAMGEON: I'll carry on with the army you led to victory.
 
-남산: 왕실과도 협조하겠습니다.
+NAMSAN: I'll cooperate with the royal house too.
 
-세 아들의 답이 끝난다. 개소문은 각자가 그 말로 무엇을 하려는지 더 묻지 못한다. 아들들이 묶은 가지를 곁에 둔다. 그의 시선이 가지에서 아들들에게 옮겨 간다. 지친 숨이 길게 이어지다 멎는다. 남생이 가까이 다가가 아버지를 부른다.
+The three answers end. Gaesomun cannot ask further what each intends by them. The bundled branches lie beside him. His eyes move from them to his sons. His tired breath lengthens, then stops. Namsaeng comes close and calls him.
 
-남생: 아버님.
+NAMSAENG: Father.
 
-대답은 오지 않는다. 세 아들이 같은 자리에 남는다. 다음 낮, 대막리지를 이은 남생에게 첫 군무가 올라온다. 그는 중앙의 일을 아우들이 계속 맡도록 넘긴다. 사망과 승계를 전하는 보고가 각지로 떠난다. 당 조정이 같은 날 확실히 아는 장면은 없다. 개소문의 방을 비운 뒤에도 사람들은 서로 다른 자리에서 그가 정하던 일을 기다린다.
+No answer comes. The three sons remain together. The next day, the first military business reaches Namsaeng, now daemangniji. He leaves the brothers in charge of central work. Reports of death and succession depart for the regions. There is no scene of Tang's court knowing with certainty the same day. Even after Gaesomun's room is emptied, people in different places wait for decisions he used to make.
 
-## 사람을 만나러 비운 중앙 {#t034-restoration-requires-absence}
+## Leaving the center to meet people {#t034-restoration-requires-absence}
 
-665년 지역 순행 바깥 낮. 남생의 수행과 짐이 움직인다. 머문 마을에서 주민과 순서를 의논하느라 다음 출발이 늦어진다. 그는 평양의 답을 그 자리에서 받을 수 없다.
+Outside on a regional tour in 665, day. Namsaeng's attendants and baggage move. His next departure is delayed while he discusses priorities with residents in a village where he stays. He cannot receive Pyongyang's answer on the spot.
 
-남생: 현장 사정을 안 듣고 보고만 돌려보내면 또 같은 일이 생깁니다. 다음 마을에는 늦겠다고 알리시오.
+NAMSAENG: If we send reports back without hearing local conditions, the same thing will happen again. Tell the next village we'll be late.
 
-역사가 음성: 국내성과 요동성 사이는 편도 기본 아흐레, 겨울에는 열이틀이었다. 체류는 별도였고 급한 교대 전령도 나흘이 들었다. 이 값을 평양까지의 모든 길에 붙일 수는 없다.
+HISTORIAN (V.O.): Between Gungnaeseong and Yodongseong, one way normally took nine days, twelve in winter. Stays were additional, and even an urgent relay messenger took four. That figure cannot be applied to every road to Pyongyang.
 
-중앙에서 남건이 군무를 처리하고 남산은 왕실·귀족의 접촉을 잇는다. 두 사람은 형이 맡긴 직무에 따라 명령을 내리고 보고를 받는다. 해가 ‘666년’으로 넘어갈 때 왕궁 안의 의논은 남생에게 아직 닿지 않는다.
+At the center Namgeon handles military business and Namsan maintains royal and noble contacts. Both give orders and receive reports under duties their brother delegated. As the year turns to “666,” palace discussions have not yet reached Namsaeng.
 
-## 같은 왕명이 뜻한 세 나라 {#t034-royal-command-enables-removal}
+## Three visions under one royal order {#t034-royal-command-enables-removal}
 
-666년 왕궁 안 낮. 보장왕과 남산·남건이 같은 명령을 두고 앉는다. 문밖 군무의 소리는 멀리 닫힌다.
+Inside the palace in 666, day. Bojang, Namsan, and Namgeon sit over the same order. Military sounds outside the door are distant and muffled.
 
-보장왕: 재건이 끝날 때까지 기다리면 왕실은 의례만 남을 것이오. 대막리지를 불러 권한을 거두겠소. 남은 거처와 호위도 접수해야 하오.
+BOJANG: If we wait until reconstruction ends, only ceremony will remain to the royal house. I will summon the daemangniji and take back his authority. His remaining residence and guards must be taken over too.
 
-남건: 왕명이면 군사도 따를 것입니다. 형을 밀어낸 뒤의 군무는 제가 맡습니다.
+NAMGEON: With a royal order the troops will follow. I'll handle military affairs after we remove my brother.
 
-남산: 왕실과 가문이 함께 맡아야 합니다. 어느 한쪽이 다른 쪽을 몰아내려 해서는 안 됩니다.
+NAMSAN: The royal house and our family must govern together. Neither should drive the other out.
 
-보장왕이 승인한다.
+Bojang approves.
 
-보장왕: 살아서 불러들이시오. 형도 조카도 죽이라는 명은 아니오.
+BOJANG: Bring him in alive. This is not an order to kill either brother or nephew.
 
-왕과 남산이 서로의 말을 받은 얼굴에 차례로 머문다. 방 안 사람에게 들리지 않는 후세 역사가의 음성이 그 사이를 잇는다.
+Hold in turn on the faces of king and Namsan receiving each other's words. A later historian, inaudible to people in the room, speaks between them.
 
-역사가 음성: 남산은 왕이 되찾으려는 힘을 자신들이 조정할 수 있다고 여겼다. 왕은 두 형제의 다툼이 연씨의 위신을 깎아 자기 실권을 돌려줄 것이라 기대했다.
+HISTORIAN (V.O.): Namsan thought they could control the power the king sought to recover. The king expected the brothers' struggle to damage Yeon prestige and return effective power to him.
 
-명령이 나간다. 남생에게 닿는 것은 이 거래의 전모가 아니라 중앙의 불온한 동향이다.
+The order goes out. What reaches Namsaeng is troubling activity at the center, not the whole bargain.
 
-## 기다리던 곳에서 갇힌 사람 {#t035-detained-envoy-establishes-danger}
+## Detained where he waited {#t035-detained-envoy-establishes-danger}
 
-남산의 업무 거처 안 낮. 두겸은 가문의 표지와 용건을 밝히고 기다린다. 앉은 눈높이에서 열리지 않는 안쪽 문과 들어오는 접수 지휘자를 본다.
+Inside Namsan's working residence, day. Dugyeom identifies his family's insignia and business and waits. From seated eye level, see the inner door that does not open and the arriving seizure commander.
 
-두겸: 대막리지께서 중앙의 동향을 알아 오라 하셨습니다. 남산 공의 말씀을 받아 가야 합니다.
+DUGYEOM: The daemangniji sent me to learn what is happening at the center. I must take back Lord Namsan's words.
 
-접수 지휘자: 이 사람을 구금한다. 밖으로 돌려보내지 마라.
+SEIZURE COMMANDER: Detain this man. Do not send him outside.
 
-두겸이 일어나지만 나갈 문을 막는 병력이 선다.
+Dugyeom rises, but soldiers block the exit.
 
-두겸: 저는 군사를 부르러 온 사람이 아닙니다.
+DUGYEOM: I did not come to summon troops.
 
-그를 구금한다. 시선은 닫힌 구금 자리에서 지방의 남생에게 옮겨 간다. 심문 과정은 보여 주지 않는다.
+He is detained. The view moves from the closed holding place to Namsaeng in the regions. Do not show an interrogation.
 
-지방의 남생이 함께 간 마부의 보고를 받는다. 마부의 얼굴과 직접 대사를 새로 연기하지 않고 남생에게 전달되는 출처로만 알린다.
+Namsaeng receives the accompanying driver's report in the regions. Do not invent a performed face or direct dialogue for the driver; identify him only as the source conveyed to Namsaeng.
 
-보고 음성: 함께 간 마부가 기다렸으나 두겸이 나오지 않았고 구금된 상태를 확인했다고 합니다.
+REPORT VOICE: The driver who accompanied him waited, but Dugyeom did not come out. He confirmed that Dugyeom was detained.
 
-남생: 죽었다는 말은 없나?
+NAMSAENG: No word that he died?
 
-보고 음성: 확인하지 못했습니다.
+REPORT VOICE: He could not confirm that.
 
-남생은 그 한계를 유지한 채 안전한 귀환을 믿지 못하게 된다.
+Keeping that limit, Namsaeng can no longer trust a safe return.
 
-## 왕명을 거절해 얻은 피신처 {#t035-summons-refused-and-gungnae-entered}
+## Refuge gained by refusing a royal order {#t035-summons-refused-and-gungnae-entered}
 
-지방의 회의 자리 안 낮. 소환 왕명이 남생 앞에 놓인다. 그는 두겸 구금 보고와 나란히 둔다.
+Inside a regional meeting room, day. The royal summons lies before Namsaeng beside the report of Dugyeom's detention.
 
-남생: 들어가면 살아 돌아올 보장이 없다. 거절하면 불복이라 하겠지. 그래도 못 간다.
+NAMSAENG: If I go in, there's no guarantee I'll come back alive. Refuse, and they'll call it disobedience. Even so, I can't go.
 
-그가 국내성으로 이동한다. 성문 바깥에서 군량 마당으로 들어가는 길과 귀족 거처의 의논 자리를 나누어 보여 준다. 그를 받아 준 사람이 도시 전부를 대표하지는 않는다.
+He travels to Gungnaeseong. Show separately the road from outside the gate to the provisions yard and the meeting place at a noble residence. Those who receive him do not represent the whole city.
 
-지지 가문 측: 왕가를 위해 사람을 내고도 또 버림받을 수는 없습니다.
+SUPPORTING FAMILY MEMBER: We gave people for the royal house. We cannot be abandoned again.
 
-다른 지지자: 토벌이 여기로 오면 우리 가족도 걸립니다.
+ANOTHER SUPPORTER: If a punitive force comes here, our families are at risk too.
 
-남생은 서로 다른 이유로 모이는 지원을 받는다. 아직 당을 청하지 않는다. 중앙에서는 불복을 근거로 권한을 빼앗고 평양의 연씨 거처를 접수할 준비를 한다. 그 집에서 헌충이 아버지와 다른 소식을 기다린다.
+Namsaeng accepts support gathered for different reasons. He does not yet request Tang. At the center they use disobedience to strip his authority and prepare to take the Yeon residence in Pyongyang. In that house Heonchung waits for news different from his father's.
 
-## 남문으로 들어온 왕명 {#t036-damsuk-demands-seal-and-separation}
+## A royal order enters the south gate {#t036-damsuk-demands-seal-and-separation}
 
-평양 연씨 거처 남문 안 바깥 낮. 문 안의 호위 교대 마당을 남쪽 선두와 북쪽 가문 호위 사이 높이에서 본다. 담석의 약 이백이 들어오고 나머지는 바깥 담과 골목을 잡는다. 전체 약 천이 한 마당 안에 다 보이지 않는다.
+At and inside the south gate of the Yeon residence in Pyongyang, day. See the guard-rotation yard from a height between the southern leading troops and northern family guards. Roughly 200 of Damseok's force enter; the rest hold the outer wall and alley. The whole thousand are not visible in one yard.
 
-담석: 왕명과 남건 공의 명이다. 인장을 내고 호위대를 갈라 세워라. 공자는 따로 모신다.
+DAMSEOK: By royal order and Lord Namgeon's command: surrender the seal and separate the guards. The young lord will be held apart.
 
-북쪽의 헌충이 뒤의 가문 호위를 돌아본다.
+Heonchung in the north looks back at the family guards behind him.
 
-헌충: 아버지 인장을 왜 숙부에게 넘깁니까?
+HEONCHUNG: Why should I hand my father's seal to my uncle?
 
-담석: 대막리지는 소환을 거부했다. 이 거처를 접수한다. 무장을 내려라.
+DAMSEOK: The daemangniji refused the summons. We're taking this residence. Lay down your arms.
 
-병사들이 퇴로와 문을 잡는다. 담석은 전국의 지휘권이 자기 손에 생겼다고 말하지 않는다. 헌충은 인장과 사람을 갈라 놓으려는 실제 강제를 본다.
+Soldiers hold the exits and gate. Damseok does not claim he has gained command of the whole country. Heonchung sees the actual force trying to separate seal and people.
 
-## 기다리라는 말이 버리라는 말로 들리다 {#t036-heonchung-rejects-waiting}
+## A call to wait sounds like abandonment {#t036-heonchung-rejects-waiting}
 
-같은 마당 북쪽 낮. 두림이 헌충의 앞을 막아 낮게 말한다. 시선은 접수군과 호위를 함께 볼 수 있는 마당 안에 머문다.
+North side of the same courtyard, day. Durim blocks Heonchung and speaks low. The view remains in the yard where seizure troops and guards can both be seen.
 
-두림: 담 안에서 버티고 먼저 연락해야 합니다. 저 앞을 밀어도 문밖 병력이 남습니다.
+DURIM: We must hold inside the wall and send word first. Even if we push those in front back, troops remain outside.
 
-헌충: 기다리는 사이 인장도 사람도 다 내놓으면 아버지가 어디로 돌아오십니까?
+HEONCHUNG: If we give up the seal and everyone while we wait, where will Father return to?
 
-두림: 제게도 이 삼백을 저들에게 넘길 권한은 없습니다. 버리자는 게 아닙니다. 공자께서 앞에 나가 다치시면 누구를 지키며 무슨 조건으로 교섭합니까.
+DURIM: I have no authority to hand these three hundred over either. I'm not suggesting abandonment. If you're hurt at the front, whom can we protect, and on what terms can we negotiate?
 
-헌충: 저와 아버지를 버리자는 소리로만 들립니다. 따라올 사람은 오라!
+HEONCHUNG: All I hear is that you'd abandon my father and me. Whoever will follow, come!
 
-헌충이 약 삼백 호위를 이끌고 선두에 나선다. 무예와 빠른 공격이 접수군 앞을 민다. 두림은 모욕당했다고 떠나지 않고 그를 보호하며 따른다.
+Heonchung leads roughly 300 guards out at their head. Martial skill and a quick attack push back the seizure force's front. Though insulted, Durim does not leave; he follows to protect him.
 
-담석: 갈라 세워라! 생포하라고 했다!
+DAMSEOK: Separate them! I said take him alive!
 
-가까이 맞붙은 병사들의 칼은 그 외침에 모두 멈추지 못한다. 좁은 마당에서 양쪽의 계획한 분리가 무너진다.
+Blades of soldiers engaged at close quarters cannot all stop at the shout. In the narrow yard both sides' planned separation collapses.
 
-## 명령보다 먼저 온 칼 {#t037-wounded-heonchung-carried-inside}
+## The blade arrives before the order {#t037-wounded-heonchung-carried-inside}
 
-같은 마당의 접전 낮. 선두 병사가 맞붙은 헌충의 왼쪽 옆구리를 크게 벤다. 그를 알아보고 고른 자객의 시선을 넣지 않는다. 생포하라는 외침이 다시 들리자 병사는 물러난다. 헌충은 이미 몸을 지탱하지 못한다.
+Fighting in the same courtyard, day. A leading soldier deeply cuts Heonchung's left flank. Do not insert the viewpoint of an assassin who recognized and chose him. The soldier withdraws when the call to capture alive sounds again. Heonchung can no longer support himself.
 
-두림: 안으로 옮겨라. 둘은 몸을 받쳐! 앞을 비워!
+DURIM: Get him inside. Two support him! Clear the front!
 
-네 호위 중 둘이 몸을 받치고 하나는 앞의 병사를 물린다. 나머지 하나가 두림에게 돌아갈 길을 확인한다. 네 호위는 함께 집무채 동쪽의 꺾인 회랑을 지나 가족 거처 동쪽 치료방으로 들어간다.
+Of four guards, two support his body and one pushes soldiers ahead back. The fourth checks the return route with Durim. All four pass through the bent corridor east of the office to the treatment room east of the family quarters.
 
-담석이 다시 공격하려는 병력을 멈춘다.
+Damseok stops troops trying to attack again.
 
-담석: 더 들어가지 마라. 부상을 보고하고 명을 기다린다.
+DAMSEOK: Don't go farther. Report the wound and await orders.
 
-연락이 남건에게 간다. 집을 두른 접수 병력은 그대로 남는다. 안에서는 피를 막으려는 석연의 지시가 들린다.
+Word goes to Namgeon. The seizure troops surrounding the house remain. Inside, Seokyeon's instructions to stop the blood are heard.
 
-## 줄어든 피가 약속하지 않은 사흘 {#t037-treatment-fails-on-third-day}
+## Three days the reduced bleeding did not promise {#t037-treatment-fails-on-third-day}
 
-치료방 안 낮. 문 안쪽에서 두 사람이 돌볼 공간을 지킨다. 석연이 상처를 씻고 천으로 누른다. 네 호위는 치료가 시작되면 문과 안마당 경계로 물러난다.
+Inside the treatment room, day. Keep room for two caregivers just inside the door. Seokyeon washes the wound and presses it with cloth. Once treatment begins, the four guards withdraw to the door and courtyard perimeter.
 
-석연: 이대로 누르십시오. 다시 젖으면 알려 주십시오.
+SEOKYEON: Keep pressing like this. Tell me if it soaks through again.
 
-피가 줄자 헌충이 숨을 고른다.
+As bleeding lessens, Heonchung steadies his breath.
 
-헌충: 나가야…
+HEONCHUNG: I have to go out...
 
-석연: 지금은 몸을 움직이지 마십시오.
+SEOKYEON: Don't move now.
 
-첫 밤이 지나 낮빛이 다시 든다. 석연이 천을 바꾸어 누른다. 헌충의 대답이 짧아진다. 사흘의 경과를 처치하는 손과 약해지는 대답으로 잇는다. 상처와 잃은 피 때문에 악화되는 몸만 따르며, 현대 검사나 독살로 넘어가지 않는다.
+After the first night, daylight enters again. Seokyeon changes and presses the cloth. Heonchung's answers shorten. Connect three days through treating hands and weakening answers. Follow deterioration from the wound and lost blood, not modern tests or poisoning.
 
-사흘 뒤 대답이 멎는다.
+Three days later the answers stop.
 
-석연: 돌아가셨습니다.
+SEOKYEON: He has died.
 
-네 호위는 문밖에 살아 있다. 담석의 보고가 남건의 군무 자리로 간다. 방을 나누는 전환 뒤에 남건이 보고를 받는다.
+All four guards are alive outside. Damseok's report goes to Namgeon's military office. After a transition between rooms, Namgeon receives it.
 
-남건: 살려서 따로 두라 했다.
+NAMGEON: I said to take him alive and hold him apart.
 
-남산도 보고를 받은 군무 자리에서 말을 잇지 못한다. 치료방으로 되돌아가면 석연과 문밖 호위가 남아 있다.
+Namsan too cannot continue speaking at the office where he receives the report. Back in the treatment room, Seokyeon and the guards outside remain.
 
-## 같은 날에 오지 않은 세 소식 {#t037-reports-close-the-negotiating-path}
+## Three reports that do not arrive on one day {#t037-reports-close-the-negotiating-path}
 
-국내성의 회의 자리 안 낮. 남생이 첫 부상 보고를 받는다. 치료방의 사망을 관객은 보았지만 그는 아직 살아날지 모르는 소식을 기다린다.
+Inside the Gungnaeseong meeting place, day. Namsaeng receives the first report of injury. The audience has seen the death in the treatment room, but he still waits for news of whether his son may live.
 
-남생: 다음 소식은?
+NAMSAENG: The next news?
 
-보고 음성: 아직 닿지 않았습니다.
+REPORT VOICE: It hasn't arrived yet.
 
-남생은 새 보고를 기다리며 자리에서 일어났다 앉는다. 다음 보고가 오는 날의 빛으로 바뀐다.
+Waiting for another report, Namsaeng rises and sits again. Light changes to the day the next report comes.
 
-보고 음성: 상처를 입은 뒤 사흘 만에 돌아가셨습니다.
+REPORT VOICE: He died three days after the wound.
 
-남생이 원래의 재건 보고를 받으려다 이름을 읽지 못하고 내려놓는다.
+Namsaeng starts to receive an earlier reconstruction report, cannot read the name, and puts it down.
 
-그 뒤 별도의 왕명이 도착한다.
+A separate royal order arrives afterward.
 
-왕명 낭독 음성: 소환에 응하지 않고 국내성에 들어가 명을 거역한 남생을 체포하여 처형하라.
+ROYAL ORDER (READING VOICE): Arrest and execute Namsaeng, who refused the summons, entered Gungnaeseong, and defied the order.
 
-앞서 왕이 승인하던 자리와 같은 권한의 명령이 이제 그의 앞에 놓인다.
+An order from the same authority as the king's earlier approval now lies before him.
 
-지지 가문 측: 또 왕가를 위해 싸운 사람을 죽인다 합니다.
+SUPPORTING FAMILY MEMBER: Again they say they'll kill someone who fought for the royal house.
 
-다른 사람: 토벌이 이곳까지 오면 가족은 어떻게 됩니까?
+ANOTHER PERSON: What happens to our families if a punitive force comes here?
 
-같은 자리의 다른 참여자가 왕명을 바라보다 남생에게 말한다.
+Another participant looks at the order, then speaks to Namsaeng.
 
-참여자: 저 왕명을 낸 자들만 나라가 아닙니다. 우리도 여기 살아야 합니다. 저들을 치려다 나라까지 무너뜨려서는 안 됩니다.
+PARTICIPANT: Those who issued that order aren't the whole country. We live here too. We mustn't bring down the country trying to strike them.
 
-남생은 그에게 사정을 더 묻지 않는다. 왕명을 내려놓고 자신에게 힘을 보탤 사람들 쪽으로 몸을 돌린다.
+Namsaeng does not ask him further about his circumstances. He puts down the order and turns toward people who can add strength to him.
 
-남생: 그들에게 닿을 힘이 필요하다.
+NAMSAENG: I need the power to reach them.
 
-사절을 보내라는 명은 아직 없다. 남생은 사망 보고와 왕명 곁에 내려놓은 재건 보고로 손을 돌리지 않는다. 남은 가족의 안전을 두고 다시 협상할 기대를 거둔 채 방에 머문다.
+No order to send an envoy has been given yet. Namsaeng does not reach back to the reconstruction report he set beside the death report and royal order. He stays in the room, having abandoned hope of renegotiating his remaining family's safety.

@@ -1,17 +1,17 @@
-# 고구려 사행의 진대덕
+# Chen Dade’s mission to Goguryeo
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--100-chen-dade).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--100-chen-dade).
 
-## 고구려 사행의 진대덕 {#chen-dade}
+## Chen Dade’s mission to Goguryeo {#chen-dade}
 
-**정의·범위**
+**Definition and scope**
 
-진대덕은 641년 사행 중 고구려의 지리와 사정을 탐문하여 당에 보고한 인물이다.
+During a mission in 641, Chen Dade gathered information on Goguryeo’s geography and circumstances and reported it to Tang.
 
-**확정 내용**
+**Established facts**
 
-현재 예정 서사에서 보고와 방문의 사실을 통해 침공 준비의 한 경로로 등장한다. 고구려 사람들이 염탐을 몰랐다는 기록을 유지하며 왕이나 개소문이 즉시 그를 잡아 정복 계획을 알아낸 장면을 만들지 않는다. 직접 대면 대사와 개인 초상을 예정하지 않는다.
+In the currently planned narrative, his visit and report are one path toward preparations for invasion. Preserve the record that people in Goguryeo did not know he was spying; do not create a scene in which the king or Gaesomun immediately arrests him and learns of conquest plans. No direct face-to-face dialogue or personal portrait is planned.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『삼국사기』641년 진대덕의 사행과 염탐](https://db.history.go.kr/ancient/level.do?levelId=sg_020r_0030_0210).
+Sources: [Chen Dade’s mission and intelligence gathering in 641, Samguk Sagi](https://db.history.go.kr/ancient/level.do?levelId=sg_020r_0030_0210).

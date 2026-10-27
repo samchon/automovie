@@ -1,19 +1,19 @@
-# 장량의 수군 지휘와 침묵
+# Zhang Liang’s naval command and silence
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--060-zhang-liang).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--060-zhang-liang).
 
-## 장량의 수군 지휘와 침묵 {#zhang-liang}
+## Zhang Liang’s naval command and silence {#zhang-liang}
 
-**정의·범위**
+**Definition and scope**
 
-장량은 645년 당의 수군 지휘자로 건안성 아래에서 예상하지 못한 급습을 받는 인물이다. 당군 전체의 무능을 증명하는 한 사람으로 쓰지 않는다. 말을 하지 못한 상황과 부장 [장금수](061-zhang-jinshu.md#zhang-jinshu)가 북으로 병력을 움직인 행동은 같은 전쟁 안에서도 지휘의 힘이 한 사람의 위엄에만 있지 않음을 보여 준다.
+Zhang Liang commands the Tang naval force in 645 and faces an unexpected sudden attack below Geonanseong. Do not use him alone to prove the incompetence of the whole Tang army. His inability to speak and his deputy [Zhang Jinshu](061-zhang-jinshu.md#zhang-jinshu) moving troops by drum show that even in the same war, the power of command does not rest solely on one person’s dignity.
 
-**확정 내용**
+**Established facts**
 
-창작 장량은 키 174센티미터, 두꺼운 허리와 굵은 팔, 넓은 얼굴이다. 작은 갈색 눈과 검은 눈썹, 넓은 코와 큰 입, 그을린 황갈색 피부를 가진다. 검은 머리를 묶고 굵은 턱수염을 기른다. 짙은 갈색 옷과 검은 띠에 철찰 갑옷을 쓴다. 목소리는 낮고 두껍고 거칠며 평소 보고를 크게 되묻는다. 예상 못 한 상황에서 자기 말이 나오지 않으면 주변 사람들이 그 침묵을 다르게 읽는다.
+The invented Zhang Liang is 174 centimeters tall, with a thick waist and arms and a broad face. He has small brown eyes, black eyebrows, a broad nose, a large mouth, and sun-darkened tawny skin. His black hair is tied, and his beard thick. He wears iron lamellar armor over dark brown clothes and a black sash. His voice is low, thick, and rough, and he normally repeats reports back loudly as questions. When an unexpected situation leaves him unable to speak, the people around him read his silence differently.
 
-장량의 전 생애와 이후 반역 사건은 본편의 독립 줄거리로 늘리지 않는다. 이 수군의 임무·피해·회군은 645년 전역 정전으로 이어진다.
+Do not expand his whole life and later treason case into a separate plot in the main story. The force’s mission, losses, and withdrawal lead to the 645 campaign canon.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『신당서』 권94 장량전](https://zh.wikisource.org/zh-hant/新唐書/卷094).
+Sources: [Biography of Zhang Liang, New Book of Tang vol. 94](https://zh.wikisource.org/zh-hant/新唐書/卷094).

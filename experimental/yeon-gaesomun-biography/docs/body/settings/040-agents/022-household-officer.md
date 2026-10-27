@@ -1,20 +1,17 @@
-# 헌충의 출동을 반대하는 군관
+# The officer who opposes Heonchung’s sortie
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--022-household-officer).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--022-household-officer).
 
-## 헌충의 출동을 반대하는 군관 {#household-officer}
+## The officer who opposes Heonchung’s sortie {#household-officer}
 
-**정의·범위**
+**Definition and scope**
 
-남생이 평양 호위의 관리와 헌충의 안전을 맡긴 성인 군관은 두림이다. 이름과 618년이라는 출생 연도는 창작이다. 두림에게는 남생이 남긴 삼백 명을 마음대로 정변군에 넘길 권한이 없다. 헌충에게 담 안에서 버티면서 먼저 연락하자고 권할 수는 있다.
+Durim is the adult officer entrusted by Namsaeng with managing the Pyongyang guards and Heonchung’s safety. His name and birth year of 618 are invented. He has no authority to hand the 300 people left by Namsaeng over to the coup force at will. He can advise Heonchung to hold within the walls and make contact first.
 
-**확정 내용**
+**Established facts**
 
+Heonchung’s limited command and Durim’s responsibility to protect the young master can conflict. [Heonchung’s wound](../050-systems/270-heonchung-injury.md#heonchung-injury) owns the adopted constraints on how Durim’s opposition is misread and leads to the sortie and carrying him. Durim has both a duty of protection and military judgment.
 
-헌충의 제한된 지휘권과 공자를 보호해야 하는 두림의 책임은 충돌할 수 있다. 두림의 반대가 어떻게 오독되고 실제 출동·운반에 이어지는지의 채택 제약은 [헌충의 상처](../050-systems/270-heonchung-injury.md#heonchung-injury)가 소유한다. 그는 공자를 보호할 의무와 군사적 식견을 함께 가진다.
+He is 174 centimeters tall, broad-shouldered, with a bent right little finger. His long face has brown eyes, thick black eyebrows, a high nose, and a broad mouth. His skin is deeply sun-darkened. His black hair is slightly streaked with gray and his beard short. He wears dark brown clothes and a black sash, with lamellar armor mended over many years.
 
-
-키는 174센티미터이며 어깨가 넓고 오른쪽 새끼손가락은 굽어 있다. 긴 얼굴에 갈색 눈과 굵은 검은 눈썹, 높은 코와 넓은 입이 있다. 피부는 볕에 짙게 탔다. 검은 머리에 회색이 조금 섞이고 짧은 턱수염을 기른다. 짙은 갈색 옷에 검은 띠를 두르며, 찰갑은 오래 수선해 입은 것이다.
-
-
-목소리는 낮고 거칠다. 긴 말을 못마땅해하지만 헌충에게 반대할 때는 이유를 끝까지 말한다. 다친 공자 앞에서는 높임말의 격식을 차리기보다 운반할 자리를 먼저 짧게 지시한다.
+His voice is low and rough. He dislikes long speeches, but gives his reasons fully when opposing Heonchung. Before the wounded young master he briefly directs where to carry him before attending to formal honorifics.

@@ -1,19 +1,19 @@
-# 요묘가 맞추는 접근 통로
+# Yomyo arranges the approach route
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--087-yomyo).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--087-yomyo).
 
-## 요묘가 맞추는 접근 통로 {#yomyo}
+## Yomyo arranges the approach route {#yomyo}
 
-**정의·범위**
+**Definition and scope**
 
-요묘는 신성과 함께 내응하는 소장으로, 작품에서는 서쪽 통용문 안쪽 길목의 순찰과 교대 병력 배치를 맡는다. 길목 순찰과 교대의 권한은 성 안에서 접근하는 병력의 통로에 영향을 주지만, 문을 독자적으로 열거나 모든 성병을 지휘할 수는 없다. 신성의 지휘와 오사의 출입 권한에 의존한다. 구역은 창작이며 교대·통로 변경과 닷새의 실제 실행 제약은 [평양 함락](../050-systems/340-pyongyang-fall.md#pyongyang-fall)이 한 곳에서 인계한다.
+Yomyo is a junior commander collaborating from within alongside Sinseong. In the work he handles patrols and shift assignments on the inner approach to the west postern. His authority over patrols and shifts affects the route available to approaching forces inside the fortress, but he cannot open the gate independently or command all its soldiers. He depends on Sinseong’s command and Osa’s access authority. The area is invented; [the fall of Pyongyang](../050-systems/340-pyongyang-fall.md#pyongyang-fall) carries the shift and route changes and actual five-day execution constraints in one place.
 
-**확정 내용**
+**Established facts**
 
-창작 외형은 키 172센티미터, 가는 몸과 긴 다리, 좁고 긴 얼굴이다. 갈색 눈과 곧고 가는 검은 눈썹, 긴 코와 얇은 입술, 황갈색 피부를 가진다. 검은 머리를 묶고 수염은 성기다. 회갈색 옷과 검은 띠 위에 찰갑을 입는다. 목소리는 중간 높이의 가늘고 맑은 소리다. 앞을 살피며 빠르게 걷고 실행할 순서를 먼저 확인한다. 생년과 다른 전공을 기록에서 추정하여 붙이지 않는다. 668년 자기 군사의 명령을 맡은 성인 지휘자다.
+His invented appearance is 172 centimeters tall, thin and long-legged, with a narrow long face, brown eyes, straight thin black eyebrows, long nose, thin lips, and tawny skin. He ties his black hair and has a sparse beard. He wears lamellar armor over gray-brown clothes and a black sash. His voice is thin and clear in the middle register. He walks quickly while watching ahead and checks the order of execution first. Do not infer a birth year or other exploits from the record. In 668 he is an adult commander responsible for orders to his own soldiers.
 
-자기 사람과 가족이 성이 함락된 뒤 받을 대우를 기대하여 협력하지만 보장된 전원 보호를 얻은 것은 아니다. 당군의 방화와 포획을 통제하지 못하며 자신이 바꾼 교대가 남건에게 돌아갈 길을 끊은 책임을 가진다.
+He cooperates expecting favorable treatment for his people and family after the fortress falls, but does not obtain guaranteed protection for all. He cannot control Tang arson or capture and bears responsibility for the shift he changed cutting off Namgeon’s return route.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『삼국사기』 요묘의 내응](https://db.history.go.kr/ancient/level.do?levelId=sg_022_0020_0460).
+Sources: [Yomyo’s internal cooperation, Samguk Sagi](https://db.history.go.kr/ancient/level.do?levelId=sg_022_0020_0460).

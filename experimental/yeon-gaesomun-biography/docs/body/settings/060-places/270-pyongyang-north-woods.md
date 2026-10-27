@@ -1,24 +1,21 @@
-# 평양 북쪽의 숲과 들
+# Woods and fields north of Pyongyang
 
-정전 안내: [이 대상의 위치](../outline/index.md#060-places--270-pyongyang-north-woods).
+Canon guide: [Location of this subject](../outline/index.md#060-places--270-pyongyang-north-woods).
 
-## 평양 북쪽의 숲과 들 {#pyongyang-north-woods}
+## Woods and fields north of Pyongyang {#pyongyang-north-woods}
 
-**정의·범위**
+**Definition and scope**
 
-평양 북쪽, 성에서 걸어 반나절 거리에 있는 숲과 그 앞의 들이다. 경당의 나이 든 아이들이 겨울 사냥을 나가고, 귀족 집들이 가문 병사의 훈련 겨루기를 벌이는 곳으로 쓴다. 위치와 넓이는 작품의 선택이며 현대의 특정 산이나 지명에 비정하지 않는다.
+These woods and the field before them lie half a day’s walk north of the fortress. Older Gyeongdang children hunt there in winter, and noble households hold training contests between family soldiers. The location and area are choices for the work, not identified with a specific modern mountain or place.
 
-**확정 내용**
+**Established facts**
 
+Following the cart road north from the fortress’s north gate for about 12 kilometers brings one to the field. It is about two kilometers east–west and one north–south, of old fields and grass; from its northern edge mixed oak and pine woods cover low hills. The cart road passes the field’s western end and ends at the woods’ edge. A person-high pile of stones in the middle of the field marks the training contest.
 
-성 북문에서 북쪽으로 난 수레길을 따라 약 12킬로미터를 가면 들이 시작된다. 들은 동서 약 2킬로미터·남북 약 1킬로미터의 묵은 밭과 풀밭이며, 그 북쪽 가장자리부터 참나무와 소나무가 섞인 숲이 낮은 구릉을 덮는다. 수레길은 들의 서쪽 끝을 지나 숲 가장자리에서 끊긴다. 들 한가운데에는 사람 키만 한 돌무더기가 하나 있어 훈련 겨루기의 표지로 쓴다.
+Walking the cart road from fortress to field takes half a day by daylight. A narrow shortcut around the field’s east side along a stream cuts the distance to about two thirds, but is rocky and footing is invisible at night. The stream is knee-deep and freezes at its edges in winter.
 
+In winter, bare oaks open sightlines, and less snow gathers under pines. Deer and wild boar come down to drink at the stream. From the field one can see the forest edge; within the woods trees obscure views beyond thirty paces. Daylight enters from the southern field, and after sunset the woods darken first. Wind and stream are audible, and voices carry well across the field.
 
-성에서 들까지는 낮에 수레길로 걸으면 반나절이 든다. 들의 동쪽으로 돌아 개울을 따라가는 좁은 지름길은 거리가 3분의 2쯤으로 줄지만, 돌이 많고 밤에는 발밑이 보이지 않는다. 개울은 무릎 깊이이며 겨울에는 가장자리가 언다.
+**Conditions and limits**
 
-
-겨울의 숲은 잎이 진 참나무 사이로 시야가 트이고, 소나무 아래에는 눈이 덜 쌓인다. 사슴과 멧돼지가 개울가로 물을 마시러 내려온다. 들에서는 숲 가장자리까지 보이지만, 숲 안에서는 서른 걸음 밖이 나무에 가린다. 낮빛은 남쪽 들 쪽에서 들고, 해가 지면 숲 안부터 어두워진다. 바람 소리와 개울 소리가 있고, 사람 소리는 들 건너까지 잘 닿는다.
-
-**조건·한계**
-
-사냥의 몫을 나누는 방식과 훈련 겨루기의 규칙은 사건마다 treatments가 정한다. 이 장소에 상설 건물이나 관청은 두지 않는다.
+Treatments determine how hunting shares are divided and the rules of each training contest. There is no permanent building or office here.

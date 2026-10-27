@@ -1,19 +1,19 @@
-# 남생의 한 달과 마지막 패배
+# Namsaeng’s month and final defeat
 
-정전 안내: [이 대상의 위치](../outline/index.md#050-systems--080-yalu-delay-and-loss).
+Canon guide: [Location of this subject](../outline/index.md#050-systems--080-yalu-delay-and-loss).
 
-## 남생의 한 달과 마지막 패배 {#yalu-delay-and-loss}
+## Namsaeng’s month and final defeat {#yalu-delay-and-loss}
 
-**정의·범위**
+**Definition and scope**
 
-661년 9월 압록강의 작품 기준 상태는 계필하력군의 도하를 저지해 평양 앞 당군의 보급을 끊는 남생군의 대치다. 《삼국사기》 9월 기사는 압록수가 얼어 계필하력이 건너오고 남생군이 졌다고 전한다. 결빙 도하와 패전의 작품 날짜는 [기록 일정](../020-world/030-second-war-calendar.md#second-war-calendar)이 소유한다.
+The work’s baseline for the Yalu in September 661 is a standoff in which Namsaeng’s force prevents Qibi Heli’s army from crossing and cuts supplies to the Tang army before Pyongyang. The Samguk Sagi’s September account says the Yalu froze, Qibi Heli crossed, and Namsaeng’s force lost. [The recorded calendar](../020-world/030-second-war-calendar.md#second-war-calendar) owns the work’s dates for the crossing on ice and defeat.
 
-**확정 내용**
+**Established facts**
 
-결빙은 통과 가능한 강폭을 넓혀 기존 나루만 지켜서는 도하를 막을 수 없게 하는 조건이다. 얼음은 구간마다 확인해야 하며 전군이 아무 곳에서나 건널 수 있는 고정 다리가 아니다. 패전 뒤 남생군의 가용·사망·포로·분산 수는 [가용 인원](040-goguryeo-661-strength.md#goguryeo-661-strength)이 소유한다. 당 측이 적은 「3만을 베었다」는 이긴 쪽의 전과 주장이며 작품의 실제 피해와 같은 값이 아니다.
+Freezing widens the crossable river so guarding only the existing ferries can no longer prevent a crossing. Ice must be checked by section; it is not a fixed bridge allowing an entire army to cross anywhere. [Available personnel](040-goguryeo-661-strength.md#goguryeo-661-strength) owns the numbers available, killed, captured, and scattered after the defeat. Tang’s claim to have “beheaded 30,000” is the victor’s claim of results, not the work’s actual casualty figure.
 
-참조: 정찰·시험 도하·후퇴 판단·명령의 미도달·책임 확인은 해당 전역의 treatments가 맡는다. 남건과 개소문의 평가 차이도 그 사실이 공개된 뒤의 사건에서 실현한다.
+Reference: the campaign treatments own reconnaissance, a trial crossing, the decision to retreat, an order that fails to arrive, and the assignment of responsibility. The difference between Namgeon’s and Gaesomun’s assessments is also realized in events after those facts become known.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『삼국사기』 압록강 결빙 도하와 남생의 패전](https://db.history.go.kr/ancient/level.do?levelId=sg_022r_0020_0340).
+Sources: [The frozen Yalu crossing and Namsaeng’s defeat, Samguk Sagi](https://db.history.go.kr/ancient/level.do?levelId=sg_022r_0020_0340).

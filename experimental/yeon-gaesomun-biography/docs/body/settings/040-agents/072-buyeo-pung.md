@@ -1,21 +1,21 @@
-# 부여풍의 왕위와 왜의 연결
+# Buyeo Pung’s throne and ties to Wa
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--072-buyeo-pung).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--072-buyeo-pung).
 
-## 부여풍의 왕위와 왜의 연결 {#buyeo-pung}
+## Buyeo Pung’s throne and ties to Wa {#buyeo-pung}
 
-**정의·범위**
+**Definition and scope**
 
-부여풍은 왜에서 돌아와 백제 부흥의 왕이 되며 복신의 현장 권력과 충돌하는 왕족이다. 왕이라는 호칭을 받아도 복신이 모은 군사와 거점이 자동으로 자기 사람이 되지는 않는다. 고구려 전쟁이 남쪽의 생존 시간을 줄인다는 위기감은 복신과 공유하지만, 누가 그 위기에 대처할 권한을 가졌는지에 대한 갈등은 남는다. 백강 패전 뒤 고구려로 달아나는 결말을 사용한다.
+Buyeo Pung is the royal who returns from Wa to become king of the Baekje restoration and clashes with Boksin’s power on the ground. Receiving the title of king does not automatically make the troops and strongholds Boksin gathered his own. He shares Boksin’s fear that the Goguryeo war is reducing the south’s time to survive, but conflict remains over who has authority to meet that danger. Use the ending in which he flees to Goguryeo after defeat at Baekgang.
 
-**확정 내용**
+**Established facts**
 
-창작 모습은 키 170센티미터, 가는 몸과 긴 손가락, 긴 타원형 얼굴이다. 갈색 눈과 가는 검은 눈썹, 높은 콧등과 작은 입, 옅은 황갈색 피부를 가진다. 검은 머리를 단정히 묶고 수염은 성기다. 짙은 갈색 겉옷에 검은 띠와 작은 금속 장식을 갖춘다. 목소리는 중간 높이의 맑고 가는 소리다. 권위를 인정받지 못한다고 느낄 때 말의 격식을 높이고 끝을 강하게 닫는다.
+His invented appearance is 170 centimeters tall, slender and long-fingered, with a long oval face, brown eyes, thin black eyebrows, high nasal bridge, small mouth, and light tawny skin. His black hair is tied neatly and his beard sparse. He wears a dark brown outer robe, black sash, and small metal ornaments. His middle-register voice is clear and thin. When he feels his authority unrecognized, he raises the formality of speech and ends firmly.
 
-661년 왜에서 다신장부의 여동생과 혼인하고 호송 병력과 함께 돌아왔다는 『일본서기』 기록을 양국 지배층이 실제 가족 관계를 맺은 사례로 채택한다. 배우자는 [부여풍과 혼인한 왜의 여성](075-pung-wife.md#pung-wife)에서 따로 살핀다. 이 한 혼인을 왜 지배층 전체의 백제 혈통이나 백제어 사용의 증거로 확대하지 않는다.
+Adopt the Nihon Shoki account of his 661 marriage in Wa to Komoshiki’s younger sister and return with escort troops as an actual family relationship between the two ruling classes. His spouse has a separate record at [the Wa woman married to Buyeo Pung](075-pung-wife.md#pung-wife). Do not expand this marriage into proof of Baekje ancestry or language across all Wa rulers.
 
-복신과 다투는 살아 있는 관계의 상한과 부여풍에 의한 피살 결과는 [복신](071-boksin.md#boksin)이 소유한다. 백강 시점에 두 사람이 함께 살아 지휘하는 관계로 연장하지 않는다. 그 충돌의 실제 문답·선택·실행·공개는 treatments가 정한다.
+[Boksin](071-boksin.md#boksin) owns the limit of their living conflict and his killing by Buyeo Pung. Do not extend their relationship into joint command at Baekgang. Treatments determine actual exchanges, choices, execution, and disclosure.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『일본서기』 권27의 풍장 혼인과 귀환](https://zh.wikisource.org/zh-hant/日本書紀/卷第廿七), [『자치통감』 권201의 백강 패전과 부여풍 도주](https://zh.wikisource.org/zh-hant/資治通鑑/卷201).
+Sources: [Pung’s marriage and return, Nihon Shoki vol. 27](https://zh.wikisource.org/zh-hant/日本書紀/卷第廿七), [defeat at Baekgang and Buyeo Pung’s flight, Zizhi Tongjian vol. 201](https://zh.wikisource.org/zh-hant/資治通鑑/卷201).

@@ -1,15 +1,15 @@
-# 첫 가구의 대표
+# Representative of the first household
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--122-first-household-representative).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--122-first-household-representative).
 
-## 첫 가구의 대표 {#first-household-representative}
+## Representative of the first household {#first-household-representative}
 
-**정의·범위**
+**Definition and scope**
 
-태조 때부터 연씨 가문의 동원에 참여한 세 귀족 가구 가운데 첫 가구를 대표하는 성인 남성이다.633년 말 장례 뒤 자기 집 사람을 다시 정해야 한다고 말하는 대표와634년 첫 대표는 같은 사람으로 정한다. 이는 창작의 연속 식별이며 사료의 고유 인명이나 서열을 복원한 것이 아니다. 선대의 전공과 개소문 자신의 전공을 구별하고 자기 가구의 다음 부담을 먼저 협의하게 할 권한이 있다. 다른 두 가구의 답을 대신하지 못한다.
+He is the adult male representative of the first of three noble households participating in the Yeon family’s mobilization since Taejo’s time. The representative who says after the funeral in late 633 that his household must settle its people’s arrangements again is the same first representative in 634. This is an invented continuity identifier, not a reconstruction of a named person or rank in the historical record. He can distinguish the earlier generation’s achievements from Gaesomun’s own and require prior discussion of his household’s next burden. He cannot answer for the other two households.
 
-**확정 내용**
+**Established facts**
 
-긴 얼굴과 턱 아래의 짧은 검은 수염으로 구별한다. 짙은 갈색 겉옷과 먹빛 띠를 두른다. 목소리는 낮고 고르며 상대의 말을 들은 뒤 천천히 문장을 끝낸다. 공통 호위 수와 동원 관계는 집단 정전을 따른다. 외형과 음성은 창작 식별이며 이름·정확한 나이·새 가족이나 후일 배신은 정하지 않는다.
+He is distinguished by a long face and short black beard beneath his chin. He wears a dark brown outer robe and dark sash. His voice is low and even; after listening to another, he finishes his sentences slowly. Shared guard numbers and mobilization relationships follow the group canon. His appearance and voice are invented identifiers; no name, exact age, new family, or later betrayal is established.
 
-공유 규칙: [집단의 관계와 한계](004-inheritance-opponents.md#inheritance-opponents). 실제 발화·행동과 결과의 순서는 treatments와 scripts가 정한다.
+Shared rule: [the group’s relationships and limits](004-inheritance-opponents.md#inheritance-opponents). Treatments and scripts determine the order of actual speech, action, and results.

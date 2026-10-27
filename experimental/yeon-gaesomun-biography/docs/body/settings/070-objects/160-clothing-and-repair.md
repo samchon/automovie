@@ -1,21 +1,21 @@
-# 옷과 수선 도구
+# Clothing and mending tools
 
-정전 안내: [이 대상의 위치](../outline/index.md#070-objects--160-clothing-and-repair).
+Canon guide: [Location of this subject](../outline/index.md#070-objects--160-clothing-and-repair).
 
-## 옷과 수선 도구 {#clothing-and-repair}
+## Clothing and mending tools {#clothing-and-repair}
 
-**정의·범위**
+**Definition and scope**
 
-옷과 수선 도구는 전쟁에 나간 사람을 다시 움직이게 하고 남은 집을 먹여 살리는 물건이다. 작품의 평민 옷은 [기준 범위](../010-work/010-work.md#visual-world)의 밝은 회갈색·옅은 황갈색 천을 겹쳐 입고 허리에서 묶으며 겨울에는 속을 받치고 가죽이나 털을 더한다. 누런빛이라는 말은 선명한 노랑이나 붉은 황토색을 포함하지 않는다. 모든 빈민에게 같은 규격 군복을 지급하지 않는다. 해은의 바늘과 실, 잘라 남긴 천 조각은 다른 사람의 찢어진 옷을 고치는 생계 도구다. 수선한 곳의 두께와 색이 달라 몸을 굽힐 때 당기거나 피부에 닿을 수 있다.
+Clothes and mending tools help people returning from war move again and sustain households left behind. Commoners in the work layer light gray-brown and light tawny cloth within the [baseline range](../010-work/010-work.md#visual-world), tie it at the waist, and add underlayers and leather or fur in winter. Yellowish does not include vivid yellow or red ocher. Do not issue identical uniforms to every poor person. Haeun’s needles, thread, and cut cloth remnants are tools for earning a living by mending others’ torn clothes. A repaired section’s different thickness and color can pull on bending or touch the skin.
 
-**확정 내용**
+**Established facts**
 
-천으로 싼 발과 신발은 젖으면 무거워지고 얼면 벗거나 다시 신기 어렵다. 찬오의 손가락이 상한 뒤에는 끈을 조이는 일과 바늘을 잡는 일도 전과 같지 않다. 온몸의 신체 손상을 군사의 정신력만으로 없애지 않는다. 곡물·땔감·마른 천의 부족이 함께 닥칠 때 가진 물건 하나를 어디에 쓸지 골라야 한다. 이 물건의 상세 색과 형태는 개인별 시각 정전에 맞춘 창작값이며 고구려 유적 전체의 복식 목록을 대표하지 않는다.
+Cloth-wrapped feet and shoes grow heavy when wet and are hard to remove or put back on when frozen. After Chano’s fingers are injured, tightening cords and holding a needle are no longer the same. Military spirit does not erase bodily injury. When grain, firewood, and dry cloth are all scarce, people must choose where to use each possession. Detailed colors and forms are invented for individual visual canon and do not represent a complete inventory of Goguryeo archaeological clothing.
 
-쌍영총의5세기 인물 도상에서 저고리와 넓은 바지, 옷 가장자리의 다른 천이 보인다. 작품은 그 기본 실루엣을 참고하되7세기 평민 전체가 무덤 주인의 옷을 그대로 입었다고 정하지 않는다. 수선의 색과 겨울의 겹침은 개별 생활 조건에 따른 복원이다.
+Fifth-century figures in the Ssangyeongchong mural show jackets, wide trousers, and different cloth at garment edges. The work references that basic silhouette without assuming every seventh-century commoner wore the tomb owner’s clothes. Mending colors and winter layers are reconstructed from individual living conditions.
 
-창작 기본 저고리는 엉덩이 위까지 내려오고 왼쪽으로 겹쳐 여미며 손목까지 긴 소매와 허리끈을 둔다. 바지는 다리마다 넓고 발목에서 천으로 묶는다. 해은의 쇠바늘은 길이4센티미터, 짙은 갈색 나무 바늘통은 길이8센티미터·굵기2센티미터다. 실은 옅은 황갈색과 회갈색을 작은 나무 조각에 감고 남은 천은 한 변10~30센티미터의 서로 다른 조각으로 둔다. 칼은 작은 손잡이를 가진 생활용 외날이며 재료를 자를 때만 쓴다. 이 형태·크기는 유물의 특정 완성 규격을 복원한 것이 아니다.
+The invented basic jacket reaches the upper hips, overlaps to the left, has wrist-length sleeves and a waist tie. Trousers are wide in each leg and tied at the ankle with cloth. Haeun’s iron needle is four centimeters long; the dark brown wooden needle case is eight centimeters long and two thick. Light tawny and gray-brown thread is wound on small pieces of wood; leftover cloth is in different pieces 10–30 centimeters across. The small-handled everyday single-edged knife is used only for cutting material. These forms and sizes do not reconstruct a specific finished artifact specification.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [국립중앙박물관, 쌍영총 인물의 복식 설명](https://www.museum.go.kr/MUSEUM/contents/M0501000000.do?relicRecommendId=450616&schM=view).
+Sources: [Clothing of figures in the Ssangyeongchong mural, National Museum of Korea](https://www.museum.go.kr/MUSEUM/contents/M0501000000.do?relicRecommendId=450616&schM=view).

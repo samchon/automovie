@@ -1,17 +1,17 @@
-# 603년 북한산성을 공격한 고승
+# Go Seung, who attacked Bukhansanseong in 603
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--102-go-seung).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--102-go-seung).
 
-## 603년 북한산성을 공격한 고승 {#go-seung}
+## Go Seung, who attacked Bukhansanseong in 603 {#go-seung}
 
-**정의·범위**
+**Definition and scope**
 
-고승은 603년 북한산성을 공격하다 신라 왕의 구원 병력이 오자 병력의 열세로 물러나는 고구려 장수다.
+Go Seung was a Goguryeo general who attacked Bukhansanseong in 603 and withdrew when the Silla king’s relief forces arrived, leaving him outnumbered.
 
-**확정 내용**
+**Established facts**
 
-현재 예정 서사에서 남방의 산성과 구원군이 제한 원정을 막은 선대의 사례로 보고된다. 온달이나659년 온사문과 같은 사람으로 합치지 않는다. 정확한 나이와 얼굴, 직접 대사는 확인되지 않은 별도 줄거리로 만들지 않는다.
+The currently planned narrative reports this earlier example of a southern mountain fortress and relief force stopping a limited expedition. Do not conflate him with Ondal or the Onsamun of 659. His exact age, face, and direct speech are unconfirmed; do not turn them into a separate plot.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『삼국사기』603년 북한산성 공격과 철수](https://db.history.go.kr/item/compareViewer.do?levelId=sg_020r_0020_0150).
+Sources: [The 603 attack on and withdrawal from Bukhansanseong, Samguk Sagi](https://db.history.go.kr/item/compareViewer.do?levelId=sg_020r_0020_0150).

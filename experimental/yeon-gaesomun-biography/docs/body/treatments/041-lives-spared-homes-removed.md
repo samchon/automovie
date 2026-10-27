@@ -1,31 +1,31 @@
-# 살린 목숨과 빼앗긴 살림
+# Lives spared, livelihoods taken
 
-## 남생은 남건을 살려 달라고 청한다 {#clemency-without-forgiveness}
+## Namsaeng asks that Namgeon's life be spared {#clemency-without-forgiveness}
 
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 이 H2 전체를 `settings/050-systems/340-pyongyang-fall.md#pyongyang-fall`, `settings/040-agents/007-namsaeng.md#namsaeng-after-heonchung`, `settings/010-work/020-voice-owners.md#record-and-reconstruction`와 대조했다. 함락340·인물007은 감형 청원과 불화해를, voice020은 기록과 창작의 경계를 이미 준다. 여기서는 생존 포로 결과를 받은 남생의 청원 목적과 당의 처분을 먼저 두고 뒤 묘지 칭송은 서술자의 자료 관점으로 분리하는 공개 순서를 정한다. 검주 유배와 후대 묘지 칭송을 구별하며 아직 쓰이지 않은 문장을 당시 인물 지식으로 주지 않는다. 부모의 「남생은 자기 아들을 죽인 책임을 그대로 남기면서, 또 다른 가족을 죽이는 최종 판결까지 자신이 원했다고 남기지는 않으려 한다.」와 「그래도 헌충의 죽음을 용서하거나 남건과 왕실이 옳았다고 인정하지는 않는다.」를 이 사건의 권한·상태·공개 순서에 적용해도 추가 원인이나 권한을 상류에 신설할 필요가 없다.
 -->
 
-남건이 살아서 붙잡혔다는 결과를 받은 남생은 그의 죽음을 면하게 해 달라고 당에 청원한다. 헌충을 잃은 원한은 그대로다. 남건이 죄가 없다고 주장하거나 가족을 죽게 한 책임을 철회하지 않는다. 다만 또 다른 가족을 죽이는 최종 판결까지 자기 뜻으로 남기려 하지는 않는다. 그가 청하는 것은 목숨을 살리는 일이다.
+On learning that Namgeon has been captured alive, Namsaeng petitions Tang to spare his life. His resentment over Heonchung remains. He does not argue that Namgeon is innocent or withdraw responsibility for the family's loss. He does not, however, want the final sentence killing another family member to stand as his own wish. What he requests is a life spared.
 
-남건은 처형을 면하고 검주로 유배된다. 이 결과로 형제 사이에 용서와 화해가 생기지는 않는다. 남생은 원하는 정권을 무너뜨릴 힘을 얻었지만 잃은 아들을 되찾지 못했고, 동생의 생존을 청할 수 있는 권한은 이제 당의 처분 아래에서만 작동한다. 고구려를 지키려던 때의 지휘권이 다른 권력에 청원하는 자리로 바뀐다.
+Namgeon escapes execution and is exiled to Geomju. The result brings no forgiveness or reconciliation between the brothers. Namsaeng gained the power to bring down the regime he wanted removed but cannot recover his lost son, and the authority with which he can ask for his brother's survival now operates only under Tang's disposition. The command he held while trying to defend Goguryeo has become a position from which he petitions another power.
 
-서술자는 뒤에 남생의 묘지가 이 청원을 덕으로 칭송한다는 자료의 관점을 구별한다. 칭송을 남생에 대한 서술자의 결론으로 옮기지 않으며, 아직 작성되지 않은 묘지의 문장을 당시 남생이나 헌성에게 알려 주지도 않는다. 관객에게 남기는 결과는 구명 성공과 원한의 존속이다. 이 개인적 처분이 주민을 보호할 권능까지 주지 못한다는 차이가 뒤따른다.
+The narrator distinguishes the source's perspective: Namsaeng's later epitaph praises this petition as virtue. Do not transfer that praise into the narrator's conclusion about him, or give Namsaeng or Heonseong knowledge of an epitaph not yet written. The result left to the audience is a successful plea for life alongside continuing resentment. The distinction follows that this personal disposition gives him no power to protect residents.
 
-부모: [남건의 감형과 묘지의 관점](../settings/050-systems/340-pyongyang-fall.md#pyongyang-fall), [남생의 풀리지 않는 상실](../settings/040-agents/007-namsaeng.md#namsaeng-after-heonchung), [책임과 원한](../../instructions/008-succession-and-collapse.md#namsaengs-responsibility-and-unforgiven-loss).
+Parents: [Namgeon's commutation and the epitaph's perspective](../settings/050-systems/340-pyongyang-fall.md#pyongyang-fall), [Namsaeng's unresolved loss](../settings/040-agents/007-namsaeng.md#namsaeng-after-heonchung), [responsibility and resentment](../../instructions/008-succession-and-collapse.md#namsaengs-responsibility-and-unforgiven-loss).
 
-## 669년 네 식구가 같은 사민 집단에 든다 {#four-migrate-to-henan-together}
+## In 669 all four join the same forced-migration group {#four-migrate-to-henan-together}
 
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 이 H2 전체를 `settings/050-systems/350-forced-migration.md#forced-migration`, `settings/060-places/240-haeeun-migrant-home.md#haeeun-migrant-home`, `settings/040-agents/041-seou.md#seou`, `settings/040-agents/042-chamu.md#chamu`, `settings/040-agents/040-janggeun.md#janggeun`, `settings/040-agents/035-haeeun.md#haeeun`, `settings/040-agents/030-miran.md#miran`, `settings/040-agents/029-sokro.md#sokro`, `settings/040-agents/031-seokbu.md#seokbu`와 대조했다. 사민350과 가족 정전은 669년 동행·하남 도착·도구 충돌·잔류자 결과를 이미 준다. 여기서는 해은의 첫 짐 선택에 서우가 반대하고 서로 여벌·작업용 천을 줄여 작은 도구 둘을 남기는 실제 양보와 손실을 결정한다. 38,300호는 기록상 가구 수이며 사람 수·전국 인구가 아니다. 평양 전원 이주·국내성 전원 보호로 나누지 않는다. 부모의 「고구려의 멸망 뒤 주민이 강제로 당 내지에 옮겨지는 사건을 사용한다.669년의 수치는 『삼국사기』 원문38,300호를 소개하되38,200호·28,200호·30,000호 등의 이본과 구별한다.」와 「배정받은 작은 집에 작업 자리와 잠자리가 붙어 있고 가족이 가져온 천 꾸러미는 새로 얻은 가구보다 오래된 물건이다.」를 이 사건의 권한·상태·공개 순서에 적용해도 추가 원인이나 권한을 상류에 신설할 필요가 없다.
 -->
 
-669년 당은 주민을 내지로 강제이주시킨다. 서술자는 『삼국사기』의 38,300호라는 기록과 다른 호수 이본이 있음을 구별한다. 이를 38,300명이나 고구려 전체 인구로 읽지 않는다. 이동한 가구와 남은 가구가 있으며, 평양 전원이 옮겨지고 귀부한 국내성 전원이 보호되었다는 양분도 성립하지 않는다. 협조 관계가 있어도 모든 가족의 이주를 막아 주지는 못한다.
+In 669 Tang forcibly relocates residents into its interior. The narrator distinguishes the Samguk Sagi's record of 38,300 households from variant household figures. Do not read it as 38,300 people or Goguryeo's entire population. Some households move and others remain; nor can the result be divided into all Pyongyang relocated and all Gungnaeseong defectors protected. Even cooperation cannot prevent the removal of every family.
 
-해은·장근·서우·차무는 같은 이주 집단에 편입된다. 장근과 차무가 운반할 한계 때문에 부피 큰 살림을 먼저 버려도 남은 천과 도구를 모두 가져갈 수는 없다. 해은은 네 사람이 몸을 덮을 천과 자기 수선 도구를 남기고, 서우가 따로 꾸린 작업 짐을 버릴 몫에 놓으려 한다. 한 집이 먹고살 도구는 남았다는 판단이지만, 서우는 어머니의 일을 돕는 몫밖에 남지 않는다며 자기 도구를 내놓지 않는다. 낯선 곳에서 자기 일감을 맡을 가능성도 지키려는 저항이다.
+Haeun, Janggeun, Seou, and Chamu are placed in the same migration group. The limits of what Janggeun and Chamu can carry mean that even after discarding bulky belongings they cannot take all the remaining cloth and tools. Haeun keeps cloth to cover all four and her own repair tools, and tries to place Seou's separate work bundle among the things to abandon. She judges that a household's tools for earning a living will remain, but Seou refuses to surrender her tools, saying she would be left only to help her mother's work. She resists to preserve the possibility of taking her own jobs in an unfamiliar place.
 
-해은은 서우의 바늘과 실 꾸러미를 남기기로 물러서고, 서우도 자기 작업용 천 조각을 모두 가져가겠다는 요구를 접는다. 두 사람은 몸을 덮을 여벌 천과 작업용 천을 각각 줄여 작은 도구 꾸러미 둘을 넣는다. 네 사람은 그만큼 갈아 쓰고 덧댈 천을 잃고, 서우는 재료가 부족한 채 자기 도구를 지킨다. 바늘을 감싼 천과 실 꾸러미, 남길 수 있는 몇 조각의 천만 챙긴 뒤 나머지 살림을 포기한다. 모든 사람의 첫 선택이 충족된 합의는 아니지만 넷이 같은 짐과 함께 떠날 수 있게 된다.
+Haeun yields and agrees to keep Seou's needles and bundle of thread; Seou gives up her demand to bring every scrap of work cloth. Each reduces spare covering cloth or work cloth so two small tool bundles will fit. The four lose cloth for changing and patching; Seou keeps her tools but lacks materials. They take only the cloth wrapping the needles, the thread bundle, and a few pieces of cloth they can keep, and give up the rest of their belongings. The agreement does not satisfy everyone's first choice, but lets all four leave with the same baggage.
 
-네 사람은 하남의 같은 농촌 마을에 도착한다. 가족 중 누군가가 평양에 남거나 다른 집단으로 빠지는 분기는 없다. 남은 도구는 이전 생활의 연속이지만, 아는 거래 상대와 일자리는 따라오지 않는다. 한편 동부의 미란·속로 공동체는 남아 새 통치를 맞고, 석부도 싸운 뒤 무장을 빼앗긴 생존자로 지역의 노동 요구를 받는다. 멀리 옮겨진 가족과 남은 공동체 모두 나라가 없어진 조건에서 다음 삶을 시작한다.
+The four reach the same rural village in Henan. No family member remains in Pyongyang or branches off into another group. Their remaining tools continue an earlier life, but familiar customers and work do not follow. Meanwhile Miran and Sokro's eastern community remains to meet the new rule, and Seokbu, disarmed after fighting but still alive, faces demands for regional labor. Both the family moved far away and the community that remains begin their next lives without their country.
 
-부모: [669년 호수와 이주·잔류](../settings/050-systems/350-forced-migration.md#forced-migration), [하남의 같은 집](../settings/060-places/240-haeeun-migrant-home.md#haeeun-migrant-home), [서우의 도구와 돌봄](../settings/040-agents/041-seou.md#seou), [차무의 동행 결과](../settings/040-agents/042-chamu.md#chamu), [장근의 가족 결과](../settings/040-agents/040-janggeun.md#janggeun).
+Parents: [the 669 household count and those moved or remaining](../settings/050-systems/350-forced-migration.md#forced-migration), [the same home in Henan](../settings/060-places/240-haeeun-migrant-home.md#haeeun-migrant-home), [Seou's tools and care](../settings/040-agents/041-seou.md#seou), [Chamu's outcome](../settings/040-agents/042-chamu.md#chamu), [Janggeun's family outcome](../settings/040-agents/040-janggeun.md#janggeun).

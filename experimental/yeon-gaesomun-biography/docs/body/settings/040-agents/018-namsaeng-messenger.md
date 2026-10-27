@@ -1,24 +1,21 @@
-# 붙잡힌 남생의 탐문자
+# Namsaeng’s detained investigator
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--018-namsaeng-messenger).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--018-namsaeng-messenger).
 
-## 붙잡힌 남생의 탐문자 {#namsaeng-messenger}
+## Namsaeng’s detained investigator {#namsaeng-messenger}
 
-**정의·범위**
+**Definition and scope**
 
-두겸은 평양의 두 동생에게 실제로 무슨 일이 벌어지고 있는지 알아보려고 남생이 보낸 가문의 사람이다. 이름과 628년이라는 출생 연도는 창작이다. 중앙 군무에서 쓰는 말을 알고 가문의 사람도 알아보지만, 군사를 소집하거나 남생을 대신해 협약을 맺을 권한은 없다. 남건 측에 붙잡혀 돌아오지 못한 두겸의 소식으로 남생은 동생들의 단순한 불만과 실제 권력 탈취를 구별하게 된다. 두겸이 정변 계획을 모두 알아낸 뒤 고문을 받고 자백하는 별도의 사건은 없다.
+Du Gyeom is a family retainer sent by Namsaeng to find out what is really happening with his two brothers in Pyongyang. His name and birth year of 628 are invented. He knows the language of central military affairs and recognizes family people, but cannot summon troops or make agreements on Namsaeng’s behalf. News that Namgeon’s side has detained Du Gyeom and he cannot return lets Namsaeng distinguish simple dissatisfaction from an actual seizure of power. There is no separate event in which Du Gyeom discovers the entire coup plan and is tortured into confessing.
 
-**확정 내용**
+**Established facts**
 
+[The coup’s fixed constraints](../050-systems/260-666-coup.md#666-coup) own his detention location, receiving route, and threshold at which Namsaeng can learn the news. Du Gyeom is not an informant who knows the whole state, and the accompanying driver’s reporting scope follows those limits. Du Gyeom’s later fate is not confirmed in the main story. No unconfirmed death notice reaches Namsaeng.
 
-두겸의 구금 위치·접수 경로와 남생이 소식을 알 수 있는 문턱은 [정변의 고정 제약](../050-systems/260-666-coup.md#666-coup)이 소유한다. 두겸은 국정 전체를 아는 정보원이 아니며, 동행 마부의 보고 범위도 그곳의 한계를 따른다. 두겸의 이후 생사는 본편에서 확인되지 않는다. 남생에게 전해지는 소식에도 확인 없는 부고는 없다.
+In the work he is 168 centimeters tall, slender, and long-chinned, with small brown eyes, a low nasal bridge, and tawny skin. He ties his black hair and has a sparse beard. He wears gray-brown clothes and a black sash, and carries a family travel marker.
 
+His middle-register voice is thin and dry. He slowly confirms what he has been told, and even when detained repeats brief questions rather than raising his voice.
 
-작품 속 두겸은 키 168센티미터에 몸이 가늘고 턱이 길다. 작은 갈색 눈과 낮은 콧등을 가졌으며 피부는 황갈색이다. 검은 머리를 묶고 성긴 수염을 기른다. 회갈색 옷에 검은 띠를 두르고 가문의 통행 표지를 갖춘다.
+**References and unresolved matters**
 
-
-목소리는 중간 높이로 가늘고 마르다. 전달받은 말을 천천히 다시 확인하며, 구금되었을 때도 큰 소리를 내기보다는 짧은 질문을 거듭한다.
-
-**참조·미결**
-
-Sources: [『삼국사기』 남생이 보낸 사람의 구금과 소환](https://db.history.go.kr/ancient/level.do?levelId=sg_049r_0040_0050).
+Sources: [Detention and summons of the person Namsaeng sent, Samguk Sagi](https://db.history.go.kr/ancient/level.do?levelId=sg_049r_0040_0050).

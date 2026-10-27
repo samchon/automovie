@@ -1,15 +1,15 @@
-# 고휘의 어린 딸
+# Go Hwi’s young daughter
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--111-go-hwi-daughter).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--111-go-hwi-daughter).
 
-## 고휘의 어린 딸 {#go-hwi-daughter}
+## Go Hwi’s young daughter {#go-hwi-daughter}
 
-**정의·범위**
+**Definition and scope**
 
-고휘의 딸은 661년 늦봄 아홉 살인 창작 아동이다. 평양에서 어머니와 함께 이동할 가구원이며 이름을 부르지 않는다.
+Go Hwi’s daughter is an invented child, nine years old in late spring 661. She is a member of the household traveling with her mother from Pyongyang, and is not called by name.
 
-**확정 내용**
+**Established facts**
 
-짐과 수행원의 순서를 스스로 통제할 권한은 없고 이동·식량·안전은 어머니와 가구의 수행원에게 의존한다. 짐꾼을 따라 움직일 수 있어 어머니가 가까이 붙들어야 한다. 머리는 두 갈래로 묶는다. 목소리는 높은 음역의 가늘고 맑은 소리다. 이 음성은 실제 발화를 구현하기 위한 작품의 창작 값이다. 원래 정한 나이·머리 모양과 보호 관계를 유지하며 확인되지 않은 별도 생애·치수를 만들지 않는다.
+She has no authority to control the order of baggage or attendants and depends on her mother and household attendants for travel, food, and safety. She can follow the porters, so her mother must keep her close. Her hair is tied in two bunches. Her voice is thin and clear in a high register, an invented value for performing her actual speech. Keep her established age, hairstyle, and protective relationship; do not invent an unconfirmed separate life or measurements.
 
-참조: 딸의 이동 반응과 어머니의 제지는 해당 전역의 treatments가 맡는다. 어머니의 선택은 [아내 레코드](110-go-hwi-wife.md#go-hwi-wife)를 따른다.
+Reference: the campaign treatments own her response to the journey and her mother’s restraint. Her mother’s choice follows [the wife’s record](110-go-hwi-wife.md#go-hwi-wife).

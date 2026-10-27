@@ -1,27 +1,23 @@
-# 거란의 가축과 자원을 탐내는 국경
+# A frontier coveting Khitan livestock and resources
 
-정전 안내: [이 대상의 위치](../outline/index.md#020-world--140-khitan-resources).
+Canon guide: [Location of this subject](../outline/index.md#020-world--140-khitan-resources).
 
-## 거란의 가축과 자원을 탐내는 국경 {#khitan-resources}
+## A frontier coveting Khitan livestock and resources {#khitan-resources}
 
-**정의·범위**
+**Definition and scope**
 
-거란은 계절에 따라 물과 풀을 찾아 목축하는 여러 집단으로 등장한다. 고구려·돌궐·수 사이에서 이동하거나 귀부한 기록이 있으며, 한 군주에게 영원히 충성하는 단일 국가로 묶이지 않는다. 집단 이동과 목축은 사서에서 확인되는 내용이다. 염수·염호와 교역에 닿는 일부 집단은 상대적으로 풍족하지만, 거란 전체의 생활 수준을 하나로 정하지 않는다.
+Khitan appear as several groups herding seasonally in search of water and grass. Records describe movement or submission among Goguryeo, Turks, and Sui; they are not one state eternally loyal to one ruler. Group movement and herding are recorded. Some groups connected to brine, salt lakes, and trade are relatively prosperous, but do not assign one living standard to all Khitan.
 
-**확정 내용**
+**Established facts**
 
+The work’s Goguryeo covets livestock, trade routes, and salt rights held by Khitan trading groups in the northwest. Securing those rights is judged more profitable than broadly pursuing poorer frontier Malgal hunting and farming groups. Salt comes from western brine resources linked through trading partners. Do not establish the precise ancient production-site name or project the later Liao and Jin salt-lake scale backward.
 
-작품의 고구려가 탐내는 것은 서북의 거란계 교역 집단이 가진 가축과 거래 통로, 소금을 얻을 권리다. 상대적으로 가난한 변경의 수렵·농경 말갈 집단을 넓게 쫓기보다 이런 권리를 확보하는 편이 경제적 이익이 크다고 본다. 소금은 거란계 집단이 거래 상대를 통해 연결해 둔 서쪽의 염수 자원에서 얻는다. 생산지의 정확한 고대 이름은 정하지 않으며, 후대 요·금의 염호 규모를 이 시기에 소급하지 않는다.
+This desire for trade advantage and resources is the work’s reconstruction.
 
+Khitan trading groups appear in reports of frontier trade and livestock movement, not as an individual chief with independent scenes. Goguryeo seeks control of their resources; they can seek protection or move to another great power. Increased pressure to obtain supplies may drive trading partners toward Turks, Sui, or Tang.
 
-이 교역 우위와 자원을 얻으려는 동기는 작품의 재구성이다.
+Khitan affiliation changes with northern power. Book of Sui vol. 84 says 10,000 Khitan households driven out by Turks sought shelter in Goguryeo, then a separate group led by Chulbok and others betrayed Goguryeo and submitted to Sui. In 648 the Khitan Dahe submit to Tang, Songmo prefecture is established, and their leader Li Kuge becomes its governor. In winter, tenth month of 654, Goguryeo sends general An Go and Malgal troops against Khitan to regain influence, but Li defeats them badly at Sinseong. This also appears in [field records after 645](../050-systems/235-field-records-after-645.md#field-records-after-645).
 
+**References and unresolved matters**
 
-거란계 교역 집단은 국경의 거래와 가축 이동을 전하는 보고에 등장한다. 개인 족장이 별도의 독립 장면을 갖는 구성은 아니다. 고구려는 그 자원을 지배하려 하고, 상대 집단은 보호를 구하거나 다른 큰 나라로 옮길 수 있다. 고구려가 물자를 얻으려고 압박할수록 거래 상대가 돌궐이나 수·당에 기대어 이동할 가능성도 생긴다.
-
-
-거란의 소속은 북방의 힘에 따라 바뀐다. 『수서』 권84는 돌궐에 쫓긴 거란 만 가구가 고구려에 의탁했고, 뒤에 별부 출복 등이 고구려를 배반하고 수에 내부했다고 전한다. 648년에는 거란 대하부가 당에 귀부해 송막도독부가 서고, 그 우두머리 이굴가가 송막도독이 된다. 654년 겨울 10월 고구려는 장수 안고와 말갈 병력을 보내 거란을 쳐 그 영향력을 되찾으려 하지만, 이굴가에게 신성에서 크게 진다. 이 패전은 [645년 이후 당과의 야전 기록](../050-systems/235-field-records-after-645.md#field-records-after-645)의 하나로도 정리된다.
-
-**참조·미결**
-
-Sources: [『수서』 권84의 거란 집단 이동과 계절 목축](https://zh.wikisource.org/zh-hant/隋書/卷84), [『삼국사기』 권22 보장왕 13년의 신성 패전](https://zh.wikisource.org/wiki/三國史記/卷22), [『구당서』 권199하 거란전의 송막도독부](https://zh.wikisource.org/wiki/舊唐書/卷199下).
+Sources: [Khitan movement and seasonal herding, Book of Sui vol. 84](https://zh.wikisource.org/zh-hant/隋書/卷84), [defeat at Sinseong in Bojang’s 13th year, Samguk Sagi vol. 22](https://zh.wikisource.org/wiki/三國史記/卷22), [Songmo prefecture, Khitan account, Old Book of Tang vol. 199](https://zh.wikisource.org/wiki/舊唐書/卷199下).

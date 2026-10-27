@@ -1,20 +1,17 @@
-# 남생의 재건이 먼저 돌려줄 것
+# What Namsaeng’s reconstruction restores first
 
-정전 안내: [이 대상의 위치](../outline/index.md#030-society--100-reconstruction-program).
+Canon guide: [Location of this subject](../outline/index.md#030-society--100-reconstruction-program).
 
-## 남생의 재건이 먼저 돌려줄 것 {#reconstruction-program}
+## What Namsaeng’s reconstruction restores first {#reconstruction-program}
 
-**정의·범위**
+**Definition and scope**
 
-남생의 전후 재건은 요동과 국내성의 생활, 생산, 방어를 함께 회복하려는 계획이다. 먼저 사람들이 고향으로 돌아가 먹을 수 있고 다음 계절에도 생산할 수 있는 조건을 되살린다. 중앙은 당장 바깥 원정에 나갈 군대를 더 늘리지 않는다. 귀향한 병력과 주민이 피해 지역을 복구하는 동안 남은 방어군을 유지한다.
+Namsaeng’s postwar reconstruction plans to restore life, production, and defense in Liaodong and Gungnaeseong together. First it restores conditions allowing people to return home, eat, and produce in the next season. The center does not immediately expand the army for outside expeditions; it maintains the remaining defense force while returning troops and residents repair damaged areas.
 
-**확정 내용**
+**Established facts**
 
+The program rations food for eating separately from seed for planting. It reallocates draft animals, repairs and reallocates tools, and restores evacuation and transport routes. Water facilities and weak stretches of fortifications are also repaired. People working on recovery retain days for their own households’ work for a set period. When supplies are short, stretches connecting routes home and production centers take priority over rebuilding entire walls. This program and sequence are invented for the work.
 
-재건에서는 먹을 식량과 심을 종자를 구별해 배급한다. 경작에 필요한 가축을 재배정하고 도구를 수선·재배정하며, 피난로와 운반로를 회복한다. 물을 구할 시설과 성곽의 약한 구간도 수리한다. 복구에 나온 사람에게는 일정 기간 자기 가구의 일을 할 날을 남긴다. 물자가 모자랄 때는 성벽 전체를 새로 쌓기보다 사람들이 돌아갈 길과 생산 거점을 이어 주는 구간을 우선한다. 이 사업과 순서는 작품이 구성한 계획이다.
+Households near Pyongyang and in the south, relatively less damaged, also provide food, materials, and transport labor. Some commanders feel their own region’s defense has been postponed; some households feel nothing comes back after their support. Namsaeng can listen and adjust priorities, but resources are not abundant enough to resolve all opposition. Trust grows in Liaodong and Gungnaeseong while resentment remains at the center.
 
-
-비교적 피해가 적은 평양 인근과 남방의 가구도 식량과 재료, 운반 인력을 낸다. 지휘자 중에는 자기 지역의 방어가 뒤로 밀렸다고 여기는 이가 있고, 가구 중에는 지원한 뒤 돌아오는 물자가 없다고 느끼는 이가 있다. 남생은 이런 요청을 듣고 사업의 순서를 조정할 수 있지만, 모든 반대를 해소할 만큼 물자가 넉넉하지는 않다. 요동과 국내성에서는 신망이 커지고 중앙에서는 불만이 남는다.
-
-
-연개소문은 아들에게 맡긴 재건과 그 우선순위에서 다음 시대를 효율적으로 이끌 능력을 본다. 아우들은 이를 승전의 힘을 묶어 두는 소극성으로 받아들인다.
+Yeon Gaesomun sees in his son’s assigned reconstruction and priorities the ability to lead the next era effectively. The younger brothers regard it as passivity that ties down the strength won in victory.

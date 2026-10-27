@@ -1,23 +1,19 @@
-# 태학의 읽는 방과 익히는 마당
+# Taehak’s reading room and practice yard
 
-정전 안내: [이 대상의 위치](../outline/index.md#060-places--030-taehak-place).
+Canon guide: [Location of this subject](../outline/index.md#060-places--030-taehak-place).
 
-## 태학의 읽는 방과 익히는 마당 {#taehak-place}
+## Taehak’s reading room and practice yard {#taehak-place}
 
-**정의·범위**
+**Definition and scope**
 
-개소문이 배우는 태학은 작품에서 왕궁 동쪽 길을 따라 약 800미터 떨어진 곳에 둔다. 담으로 둘러싸인 터는 동서 50미터, 남북 60미터다. 북쪽에는 목조로 지은 읽는 집이 있고, 그 앞 남쪽은 빈 마당이다. 귀족 청소년을 따라온 수행자와 무장은 남문 옆 보관채에 머문다.
+The work places the Taehak where Gaesomun studies about 800 meters along the road east of the palace. Its walled grounds are 50 meters east–west and 60 north–south. A wooden reading building stands north, with an open yard south in front. Attendants and arms accompanying noble adolescents remain in a storage building beside the south gate.
 
-**확정 내용**
+**Established facts**
 
+The reading building measures 20 by 8 meters. Two rows of pillars divide its central space; a small room to the east holds books and writing tools. Students and teacher sit around low tables; the students learn letters beneath windows open to the south, and Mugok, who asks questions, sits beside the northern table. Daylight enters evenly from the south, while bowstrings and stamping feet are heard from the yard.
 
-읽는 집의 크기는 20미터×8미터다. 중앙 공간은 기둥 두 줄이 나누며, 동쪽에는 책과 필기도구를 두는 작은 방이 있다. 학생과 교사는 낮은 탁자 주변에 자리하며, 학생들은 남쪽으로 열린 창 아래에서 글을 익히고 질문을 던지는 무곡은 북쪽 탁자 옆에 앉는다. 낮에는 방 남쪽으로 빛이 고르게 들어오고, 창밖 마당에서는 활시위 소리와 발 구르는 소리가 들린다.
+The archery practice area east of the yard is 30 meters long, with an earthen bank behind the targets. It is arranged so arrows do not point toward people in the reading room. To the west lies a 10-by-15-meter open space for practice with light training arms.
 
+The reading building has one story: three meters from floor to beneath the beam, eaves at 3.3 meters, and an east–west ridge at five meters. The dark tiled roof slopes north and south and projects 0.6 meters beyond the walls. Roof framing above pillars and beams is visible inside. There is no separate floor over the eastern storage room; standing passage continues beneath the beam.
 
-마당 동쪽의 활 연습 구역은 길이가 30미터이며, 표적 뒤에는 흙둑을 세운다. 화살이 읽는 방 안의 사람들에게 향하지 않도록 배치한다. 서쪽에는 가벼운 훈련 무구로 훈련하는 10미터×15미터의 빈자리를 둔다.
-
-
-읽는 집은 한 층이다. 바닥을 기준으로 보 아래까지는 3미터, 처마까지는 3.3미터, 동서로 놓인 용마루까지는 5미터로 정한다. 먹빛 기와 지붕은 남북 두 방향으로 기울며 벽 바깥으로 0.6미터씩 내민다. 실내에서는 기둥과 보 위의 지붕 뼈대가 보인다. 동쪽 보관방 위에도 별도 층을 두지 않으며, 사람들이 서서 오가는 통로는 보 아래로 이어진다.
-
-
-태학의 창건과 교육에 관한 역사적 사실은 제도 정전을 따른다. 여기서 정한 치수와 건물의 높이, 실기 구역은 군사 귀족의 교육을 보여 주기 위해 작품에서 구성한 것이다. 사료로 이 평면이나 종합 무예 교육을 확인했다는 뜻은 아니다.
+Historical facts of Taehak’s founding and instruction follow institutional canon. Dimensions, building heights, and practice areas here are constructed to show military aristocratic education; they do not mean sources confirm this plan or comprehensive martial training.

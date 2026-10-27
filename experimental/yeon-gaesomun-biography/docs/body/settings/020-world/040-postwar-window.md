@@ -1,21 +1,19 @@
-# 정복전쟁이 멈춘 뒤의 시간
+# The time after the conquest war stops
 
-정전 안내: [이 대상의 위치](../outline/index.md#020-world--040-postwar-window).
+Canon guide: [Location of this subject](../outline/index.md#020-world--040-postwar-window).
 
-## 정복전쟁이 멈춘 뒤의 시간 {#postwar-window}
+## The time after the conquest war stops {#postwar-window}
 
-**정의·범위**
+**Definition and scope**
 
-662년 2차전쟁의 승전 뒤에는 대규모 정복 공세가 멈추면서 고구려가 재건에 힘을 쓸 틈이 생긴다. 적대 행동 자체는 남아 있다. 당의 대패는 수의 고구려 원정 실패에 비견되는 국가적 후유증을 남긴다. 천하제일이라 자신하던 야전에서 연이어 깨지자 이 싸움을 더 이으면 안 된다는 경각심이 조정에 생기고, 663년 8월 27일 대규모 함선 건조가 철폐되고 전쟁 중지가 선언된다. 수와의 비교는 전후의 충격에 관한 것이며, 612년보다 전사자가 많았다는 값을 정하지 않는다.
+Victory in the second war in 662 stops the large conquest offensive and gives Goguryeo room to rebuild, while hostile acts continue. Tang’s crushing defeat leaves national aftereffects comparable to Sui’s failed Goguryeo expeditions. Repeated losses in the field, where Tang had thought itself the finest under heaven, alert the court that it must not continue this fight; large-scale shipbuilding is abolished and the war stopped on August 27, 663. The comparison with Sui concerns postwar shock, not a claim of more deaths than in 612.
 
-**확정 내용**
+**Established facts**
 
+As Tang withdraws, Yeon and Namsaeng begin return and restoration of defense while watching for renewed invasion preparations. The more information accumulates that war has actually stopped, the more effort they turn to recovery. Tang actually sets conquest policy aside in 663; this is not a permanent prohibition on intervention in civil war and renewed conquest after 666. The work also chooses that Silla abandons a large postwar Goguryeo conquest offensive while local clashes continue.
 
-연개소문과 남생은 당군이 철수하자 귀향과 방어 회복을 시작하면서도 재침공 준비가 이어지는지 살핀다. 전쟁이 실제로 중지되었다는 정보가 모일수록 회복에 더 많은 힘을 돌린다. 당은 663년의 국면에서 실제로 정복 정책을 접는다. 666년 뒤 내전 개입과 새로운 정복까지 영구히 금지한 선언은 아니다. 작품은 신라도 전후에 대규모 고구려 정복 공세를 단념하는 구도를 택하며, 국지 충돌은 계속 남겨 둔다.
+The Baekje restoration and Wa expedition were already being prepared before news of Goguryeo’s victory. Victory news alone does not cancel them; defeat at Baekgang in 663 becomes a new southern condition. See [Baekgang](../050-systems/300-baekgang-battle.md#baekgang-battle) for forces and battle conditions and [new southern strength](../050-systems/320-southern-power-after-baekgang.md#southern-power-after-baekgang) for postwar comparison. Pyongyang receives certain news of defeat in autumn 663, not on the battle day.
 
+**References and unresolved matters**
 
-백제부흥군과 왜의 원정은 고구려의 승전 소식을 듣기 전에 이미 준비되어 있었다. 승전 소식만으로 그 원정이 취소되지는 않으며, 663년 백강의 패배가 남방의 새로운 조건이 된다. 백강의 병력과 전투 조건은 [백강 전투](../050-systems/300-baekgang-battle.md#baekgang-battle), 전후 국력의 비교는 [남방의 새 국력](../050-systems/320-southern-power-after-baekgang.md#southern-power-after-baekgang)에서 확인한다. 평양이 패망의 확실한 보고를 받는 때는 전투 당일이 아니라 663년 가을로 잡는다.
-
-**참조·미결**
-
-Sources: [이민수, 「661~662년 고구려-당 전쟁 직후 양국의 동향」, 《고구려발해연구》 73, 2022, 공개 국문 초록](https://www.kci.go.kr/kciportal/landing/article.kci?arti_id=ART002863672), [국사편찬위원회, 교과서 용어해설 「백강 전투」, 663년 전투와 부흥군의 패망](https://contents.history.go.kr/front/tg/view.do?levelId=tg_001_0150&treeId=0103)
+Sources: [Lee Min-su, “The two countries immediately after the 661–662 Goguryeo–Tang war,” Korean abstract](https://www.kci.go.kr/kciportal/landing/article.kci?arti_id=ART002863672), [Baekgang and the restoration army’s 663 defeat](https://contents.history.go.kr/front/tg/view.do?levelId=tg_001_0150&treeId=0103).

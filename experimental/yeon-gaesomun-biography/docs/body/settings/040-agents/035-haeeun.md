@@ -1,20 +1,17 @@
-# 해은이 잃지 않으려는 것
+# What Haeun tries not to lose
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--035-haeeun).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--035-haeeun).
 
-## 해은이 잃지 않으려는 것 {#haeeun}
+## What Haeun tries not to lose {#haeeun}
 
-**정의·범위**
+**Definition and scope**
 
-해은은 618년생으로 창작한 평양의 수선 일꾼이다. 가족은 성 가까이에서 천을 고치고 물자를 운반하며 살아간다. 사료에 실명이 남은 가족을 복원한 설정은 아니며, 가족 구성과 각자의 결과는 [장근](040-janggeun.md#janggeun)·[서우](041-seou.md#seou)·[차무](042-chamu.md#chamu)에서 정한다. 중앙 귀족의 집에서도 일하지만 그들의 정치 판단까지 함께하는 것은 아니다. 전쟁 때에는 음식과 땔감, 아이들이 갈 곳을 먼저 따진다. 수도의 승리와 패망은 해은에게 가족의 생계와 이주에 드는 비용으로 다가온다.
+Haeun is an invented Pyongyang mender born in 618. Her family makes a living mending cloth and carrying goods near the fortress. They are not a reconstruction of a historically named family; their composition and individual outcomes are established in [Janggeun](040-janggeun.md#janggeun), [Seou](041-seou.md#seou), and [Chamu](042-chamu.md#chamu). She works in central nobles’ houses but does not share their political decisions. In war she first considers food, firewood, and where children can go. The capital’s victory and fall reach her as costs to family livelihood and relocation.
 
-**확정 내용**
+**Established facts**
 
+She is about 155 centimeters tall, narrow-shouldered and round-bodied, with a round chin, light eyebrows, large brown eyes, round nose tip, and small mouth. Her skin is light tawny; she rolls and ties fine black hair at the back of her neck, with white strands in later life. She wears a dark brown apron over gray-brown cloth and raises her hem to working height. Cloth wrapping needles and a bundle of thread are her regular mending tools.
 
-키는 약 155cm로 어깨가 좁고 몸통이 둥글다. 둥근 턱 위로 옅은 눈썹과 큰 갈색 눈, 둥근 코끝과 작은 입이 있다. 밝은 황갈색 피부에 가는 검은 머리를 목 뒤에서 말아 묶으며, 말년에는 머리에 흰 털이 섞인다. 회갈색 천옷에 짙은 갈색 앞받이를 두르고 일하기 좋은 높이까지 옷자락을 끌어 올린다. 바늘을 감싼 천과 실 꾸러미가 수선할 때 늘 쓰는 도구다.
+Her voice is thin and breathy, above the middle register. Endings lengthen when she changes levels of respect. When family is endangered she speaks faster and breathlessly, losing her usual polite pauses. She does not pretend to know what she does not. She wants war to end quickly, but can change her mind on seeing whose deaths a field battle demands.
 
-
-목소리는 중간보다 높고 가늘며 숨이 섞인다. 높임을 바꿀 때는 말끝이 더 길어진다. 가족이 위험해지면 말이 빨라지고 숨을 붙여 말하면서 평소의 공손한 간격이 사라진다. 모르는 일을 아는 척하지 않는다. 전쟁이 빨리 끝나기를 바라지만, 야전 결전이 누구의 죽음을 요구하는지 보고 생각을 바꿀 수 있다.
-
-
-662년 승전 후 돌아온 사람이 옷을 맡기는 일은 생활이 회복되고 있다는 작은 증거가 된다. 668년에는 누가 성문을 열었는지보다 가족이 헤어지지 않을 길을 찾는 일이 더 급하다. 강제이주 대상이 되면 가져갈 수 있는 물건과 버려야 할 물건을 고른다. 군사의 승리를 내세운다고 돌아올 권리를 보장받을 수는 없다. 이주의 도착지와 남은 가족은 멸망·이주 사건의 정전에서 정한다.
+After victory in 662, a returnee entrusting her with clothes is a small sign of life recovering. In 668 finding a way to keep the family together is more urgent than learning who opened the gate. When selected for forced relocation she chooses what to carry and what to abandon. Citing military victory cannot guarantee a right to return. The fall and migration event canon establishes the destination and family members remaining.

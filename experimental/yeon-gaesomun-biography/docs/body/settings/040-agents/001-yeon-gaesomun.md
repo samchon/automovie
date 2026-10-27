@@ -1,206 +1,206 @@
-# 연개소문이 할 수 있는 일과 보지 못한 일
+# What Yeon Gaesomun can do and cannot see
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--001-yeon-gaesomun).
+Canon guide: [where to find this subject](../outline/index.md#040-agents--001-yeon-gaesomun).
 
-## 태어난 자리와 물려받은 힘 {#yeon-origin}
+## Birth and inherited power {#yeon-origin}
 
-**정의·범위**
+**Definition and scope**
 
-연개소문은 군사 귀족 가문의 장남으로, 선대의 권력과 장비를 물려받고 자기 능력으로 지휘권을 더 넓힌다. 작품에서는 614년에 태어나 665년 봄에 죽는다. 생년은 작품이 선택한 값이며, 사망 연도를 달리 전하는 기록은 [시간과 보고](../outline/index.md#020-world)에 정리되어 있다. 부친 태조와 조부 자유가 막리지를 지냈다는 가계는 남생 묘지와 이를 소개하는 『삼국사기』 주석에 근거한다. 가문의 힘에는 선대에게서 이어받은 몫도 있어, 모두 개소문의 전공에서 나온 것은 아니다. 두 선대와 승계에 반대한 귀족은 [가문을 물려주는 사람들](../outline/index.md#040-agents)에서 다룬다.
+Yeon Gaesomun is the eldest son of a military noble family, inheriting his predecessors' power and equipment and extending command through his own ability. In the work he is born in 614 and dies in spring 665. The birth year is the work's choice; records giving different death years are organized in [time and reports](../outline/index.md#020-world). The family history in which his father Taejo and grandfather Jayu held the mangniji office rests on Namsaeng's epitaph and Samguk Sagi notes introducing it. Some family power is inherited, not all won by Gaesomun's merit. The two predecessors and nobles opposing succession are covered in [people who pass on the family](../outline/index.md#040-agents).
 
-**확정 내용**
-
-
-아버지가 허락한 훈련과 사람의 배치를 통해 개소문은 지휘의 힘을 배운다. 634년 가문의 지휘권을 이어받을 때는 반대하던 귀족들에게 협조를 약속한다. 다만 그때 보인 공손함이 평생 가장 앞세우는 가치가 되지는 않는다. 그는 재능으로 승리한 경험도, 사람을 납득시켜 권한을 얻은 경험도 갖고 있다. 시간이 갈수록 더 믿는 것은 자신의 재능으로 이기는 방법이다.
+**Established content**
 
 
-개소문의 관력은 두 단계로 정한다. 634년 그는 아버지의 자리인 동부 대인을 잇는다. 『삼국사기』 권49는 「其父東部〈或云西部。〉大人大對盧死，蓋蘇文當嗣」라고 적어, 아버지 태조가 동부(서부라고도 한다)의 대인이자 대대로였고 개소문이 그 자리를 이어야 했다고 전한다. 처음에는 직무를 대행하는 자리로 시작하며 그 조건은 [승계를 반대한 귀족들](004-inheritance-opponents.md#inheritance-opponents)이 정한다. 작품은 642년 정변 뒤 그가 대막리지라는 최고 관직을 새로 두고 그 자리에 올라 나라의 군사와 국정을 쥔 것으로 구성한다. 대막리지는 막리지보다 위에 있는 단 하나의 자리이며, 661년의 그는 대막리지 연개소문이다. 맏아들 남생의 661년 관직인 막리지 겸 삼군대장군은 그 아래 자리다.
+Through training his father permits and deployment of people, Gaesomun learns the power of command. On inheriting family command in 634, he promises cooperation to opposing nobles. The deference he shows then does not become his foremost lifelong value. He has experience both of winning through talent and gaining authority by persuading people. Over time he comes to trust more in winning through his own talent.
 
-**조건·한계**
 
-기록에 남은 선대와 아들들의 칭호는 다음과 같다. 대대로는 『삼국사기』가 전하는 아버지의 관직이고, 막리지를 지낸 가계는 묘지가 전하는 선대의 관력이다. 두 기록을 한 관직으로 합치지 않는다.
+His career has two stages. In 634 he succeeds to his father's position as Eastern Department great man. Samguk Sagi volume 49 says 「其父東部〈或云西部。〉大人大對盧死，蓋蘇文當嗣」, recording Taejo as great man of the Eastern Department (also said to be Western) and daedaero, whose position Gaesomun was to inherit. He begins as an acting officeholder; [the opposing nobles](004-inheritance-opponents.md#inheritance-opponents) establish the conditions. The work constructs him creating the supreme office daemangniji after the 642 coup and taking military and state affairs in hand. Daemangniji is a single position above mangniji; in 661 he is Daemangniji Yeon Gaesomun. His eldest son Namsaeng's 661 office of mangniji and supreme commander of the three armies is subordinate.
 
-| 기록 | 선대 | 남생·남산 |
+**Conditions and limits**
+
+Recorded titles of predecessors and sons follow. Daedaero is the father's office in Samguk Sagi; the family line of mangniji is the ancestors' career in the epitaph. Do not merge the records into one office.
+
+| Record | Predecessors | Namsaeng and Namsan |
 | --- | --- | --- |
-| 『삼국사기』 권49 개소문전 | 아버지는 「東部〈或云西部。〉大人大對盧」 | — |
-| 『삼국사기』 권49 남생전 | — | 「為莫離支兼三軍大將軍，加大莫離支」 |
-| 천남생 묘지명(679) 판독문 | 「曾祖子遊祖太祚並任莫離支」 | 28세 「任莫離支兼授三軍大將軍」, 32세 「加太莫離支」 |
-| 천헌성 묘지명(701) 허흥식 판독문 | 「曾祖大祚本圀任莫離支」 | 「父男生本圀任太大莫離支」(박한제 판독문은 「太大莫離之」) |
-| 천남산 묘지명(702) 판독문 | — | 남산 자신이 서른에 「爲太大莫離支」 |
+| Samguk Sagi volume 49, Gaesomun biography | Father: 「東部〈或云西部。〉大人大對盧」 | — |
+| Samguk Sagi volume 49, Namsaeng biography | — | 「為莫離支兼三軍大將軍，加大莫離支」 |
+| Cheon Namsaeng epitaph (679), transcription | 「曾祖子遊祖太祚並任莫離支」 | Age 28 「任莫離支兼授三軍大將軍」; age 32 「加太莫離支」 |
+| Cheon Heonseong epitaph (701), Heo Heung-sik transcription | 「曾祖大祚本圀任莫離支」 | 「父男生本圀任太大莫離支」 (Park Han-je reads 「太大莫離之」) |
+| Cheon Namsan epitaph (702), transcription | — | Namsan himself at thirty 「爲太大莫離支」 |
 
-국사편찬위원회의 천남생 묘지명 주석은 태막리지를 대막리지라고도 하며 기존의 막리지에서 분화해 연개소문 집권기에 처음 생긴 관명으로 본다. 정변 뒤 『삼국사기』의 직접 관명은 막리지다. 642년 신설과 단 하나의 최고 자리라는 직제는 집권기 분화 학설을 바탕으로 작품이 정한 것이며 사료의 정확한 신설 연도·행위로 인용하지 않는다. 작품의 그는 대막리지다. 동부 대인과 대막리지의 정확한 품계와 권한 범위를 현대 관직으로 환산하지 않는다.
+National Institute notes on Namsaeng's epitaph identify taemangniji with daemangniji and see it as an office first differentiated from mangniji during Gaesomun's rule. Samguk Sagi's direct title after the coup is mangniji. Creation in 642 and one supreme seat are the work's institutional choice based on that theory, not an exact creation year or act to cite as historical fact. In the work he is daemangniji. Do not convert exact rank and authority of Eastern Department great man or daemangniji into modern offices.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『삼국사기』 연개소문의 출자와 남생 묘지에 보이는 가계](https://db.history.go.kr/id/sg_049r_0030_0010), [『삼국사기』 권49 개소문·남생 열전](https://zh.wikisource.org/wiki/三國史記/卷49), [국사편찬위원회, 천남생 묘지명 교감판독문](https://db.history.go.kr/ancient/level.do?levelId=gskh_001_0030_0210_0020), [국사편찬위원회, 천남생 묘지명 국역문과 태막리지 주석](https://db.history.go.kr/id/gskh_001_0030_0210_0030), [국립문화유산연구원, 천헌성묘지 판독문](https://portal.nrich.go.kr/kor/ksmUsrView.do?menuIdx=584&ksm_idx=2746), [국립문화유산연구원, 천남산묘지 판독문](https://portal.nrich.go.kr/kor/ksmUsrView.do?menuIdx=584&ksm_idx=2745).
+Sources: [Samguk Sagi, Gaesomun's origin and family in Namsaeng's epitaph](https://db.history.go.kr/id/sg_049r_0030_0010), [Samguk Sagi volume 49, Gaesomun and Namsaeng biographies](https://zh.wikisource.org/wiki/三國史記/卷49), [National Institute, collated transcription of Cheon Namsaeng's epitaph](https://db.history.go.kr/ancient/level.do?levelId=gskh_001_0030_0210_0020), [National Institute, translation and note on taemangniji](https://db.history.go.kr/id/gskh_001_0030_0210_0030), [National Research Institute of Cultural Heritage, Cheon Heonseong epitaph transcription](https://portal.nrich.go.kr/kor/ksmUsrView.do?menuIdx=584&ksm_idx=2746), [National Research Institute of Cultural Heritage, Cheon Namsan epitaph transcription](https://portal.nrich.go.kr/kor/ksmUsrView.do?menuIdx=584&ksm_idx=2745).
 
-## 왕제를 동경하며 자란 소년 {#yeon-boyhood}
+## A boy raised admiring the royal brother {#yeon-boyhood}
 
-**정의·범위**
+**Definition and scope**
 
-개소문은 614년 평양의 아버지 태조의 집에서 장남으로 태어나, 그 집과 거리의 경당, 그 위의 태학에서 자란다. 작품에서는 620년 무렵부터 집 가까운 [평양 경당](../060-places/260-pyongyang-gyeongdang.md#pyongyang-gyeongdang)에 다니며 평민의 아이들과 함께 글을 읽고 활을 쏜다. 627년 무렵부터는 [태학](../060-places/030-taehak-place.md#taehak-place)에서 귀족 자제들과 겨룬다. 두 곳에 다닌 시기와 소년기의 일은 모두 작품의 구성이며, 『삼국사기』는 그의 성장기를 전하지 않는다.
+Born eldest son in 614 at his father Taejo's Pyongyang home, Gaesomun grows up there, at a street gyeongdang, and then at the Taehak. From around 620 he attends the nearby [Pyongyang gyeongdang](../060-places/260-pyongyang-gyeongdang.md#pyongyang-gyeongdang), reading and shooting with commoners' children. From around 627 he competes with noble youths at the [Taehak](../060-places/030-taehak-place.md#taehak-place). Both attendance dates and boyhood events are the work's construction; Samguk Sagi does not describe his upbringing.
 
-**확정 내용**
+**Established content**
 
 
-소년이 가장 동경하는 영웅은 고건무다. 경당의 노병과 거리의 어른들에게서 612년 왕제 고건무가 결사대를 이끌고 수의 수군을 깨뜨린 이야기를 듣는다. 중장년의 장수들 사이에서 젊은 왕족이 몸소 앞장섰다는 점이 소년의 마음을 붙든다. 소년이 듣는 이야기는 왕제가 중무장 기병을 이끌고 돌격한 싸움으로 부풀려져 있으며, 실제 싸움의 조건은 [고건무의 영웅담](015-geonmu.md#geonmu-war-story)이 정한다. 618년 그 영웅이 왕위에 오르자 소년에게 영웅은 곧 왕이 된다.
+The boy's most admired hero is Go Geonmu. From the gyeongdang veteran and adults on the street he hears how Prince Geonmu led a picked force against Sui's navy in 612. A young royal leading personally among middle-aged generals captures him. The story he hears exaggerates the battle into a heavy-cavalry charge led by the royal brother; [Geonmu's heroic story](015-geonmu.md#geonmu-war-story) determines actual conditions. When the hero ascends in 618, the boy's hero becomes his king.
 
 
-아버지의 말은 소년의 판단에 가장 크게 남는다. 618년 이후 중원이 갈라진 시기를 두고 어른들의 판단이 갈릴 때, 태조는 영류왕을 지지하면서도 이때 한 번 크게 쳐 두어야 뒷날이 평화롭다는 쪽에 선다. 소년은 그 논쟁에 끼지 못한 채 아버지의 그 말을 더 크게 기억한다. 628년부터 631년 사이 당의 재통일과 동돌궐의 붕괴, 경관 훼손 소식이 닿고 왕이 화친과 장성 축조를 함께 택하자, 소년은 그 선택을 점점 나약함으로 읽는다. 618년 논쟁의 조건은 [천하대란을 둔 논쟁](../020-world/090-second-restoration-and-tang.md#great-turmoil-debate)에, 628~631년 소식의 날짜와 경로는 [당의 재통일과 경관 훼손, 장성의 시작](../020-world/090-second-restoration-and-tang.md#tang-unification-and-wall)에 있다. 경관 훼손과 그 보고를 장성 착공보다 앞당긴 작품의 선택도 그곳을 따른다. 소년의 실망은 실제로 받은 소식에서 생기며, 기록의 뒤늦은 사행을 미리 아는 데서 생기지 않는다.
+His father's words most shape his judgment. When adults differ after 618 about the divided Central Plain, Taejo supports Yeongnyu yet favors one great strike now for later peace. The boy cannot join the debate and remembers that argument more strongly. From 628 to 631 news of Tang reunification, the Eastern Turks' fall, and monument destruction arrives; as the king chooses peace and wall-building together, the boy increasingly reads it as weakness. Conditions for the 618 debate are in [the great turmoil debate](../020-world/090-second-restoration-and-tang.md#great-turmoil-debate); dates and routes for 628–631 reports are in [Tang reunification, monument destruction, and the wall](../020-world/090-second-restoration-and-tang.md#tang-unification-and-wall), including the work's choice to advance destruction and its report before construction. His disappointment arises from news actually received, not advance knowledge of a historically later embassy.
 
 
-태학에서 두각을 나타내면서 상대를 납득시키기 전에 이겨 버리는 버릇도 함께 자란다. 아버지는 재능만으로는 사람을 움직일 수 없다고 가르친다. 그 가르침과 634년 계승의 조건은 [태조](002-taejo.md#taejo)와 [승계를 반대한 귀족들](004-inheritance-opponents.md#inheritance-opponents)이 정한다. 632년 봄 그는 [아란](118-yeon-wife.md#yeon-wife)과 혼인한다. 634년 그는 영웅으로 우러르던 왕의 신하가 된 젊은 가주이며, 왕의 노선에 대한 실망을 키워 가는 중이다. 그해 봄 계승을 마친 뒤 가을에 맏아들 남생이 태어난다. 이때 그는 정변을 꾀하지 않는다.
+At the Taehak he distinguishes himself while developing a habit of winning before persuading opponents. His father teaches him talent alone cannot move people. [Taejo](002-taejo.md#taejo) and [the opposing nobles](004-inheritance-opponents.md#inheritance-opponents) determine that teaching and the 634 succession conditions. In spring 632 he marries [Aran](118-yeon-wife.md#yeon-wife). In 634 he is a young family head serving the king he revered as hero, growing disappointed in his course. After completing succession that spring, his eldest son Namsaeng is born in autumn. He is not plotting a coup then.
 
-**조건·한계**
+**Conditions and limits**
 
-소년은 수 전쟁을 겪지 않았다. 614년의 마지막 원정 때 갓난아이였으므로 전쟁의 피해와 복구는 어른들의 말과 거리의 형편으로만 안다. 함께 자라는 집안 사람과 경당 사람은 [어머니](112-yeon-mother.md#yeon-mother), [아우 정토](113-yeon-jeongto.md#yeon-jeongto), [경당의 노병](114-gyeongdang-teacher.md#gyeongdang-teacher), [을보](115-eulbo.md#eulbo), [경당의 아이들](116-gyeongdang-children.md#gyeongdang-children), 632년부터 함께 사는 [아내 아란](118-yeon-wife.md#yeon-wife)에서 찾는다.
+The boy did not experience the Sui wars. An infant during the final 614 expedition, he knows damage and recovery only through adult words and street conditions. People in his household and gyeongdang include [his mother](112-yeon-mother.md#yeon-mother), [younger brother Jeongto](113-yeon-jeongto.md#yeon-jeongto), [the veteran teacher](114-gyeongdang-teacher.md#gyeongdang-teacher), [Eulbo](115-eulbo.md#eulbo), [gyeongdang children](116-gyeongdang-children.md#gyeongdang-children), and [his wife Aran](118-yeon-wife.md#yeon-wife), living with him from 632.
 
-## 천재가 자기를 증명하는 방식 {#yeon-talent}
+## How a genius proves himself {#yeon-talent}
 
-**정의·범위**
+**Definition and scope**
 
-연개소문의 재능은 글을 읽고 판단을 내릴 때 두드러진다. 태학 자제들과 비교하면, 어려운 글을 기억했다가 그대로 되풀이하는 능력보다 읽은 내용을 현장의 사정에 비추어 이해하는 능력이 더 돋보인다. 같은 문장을 읽어도 개소문은 그 내용을 현장의 사정과 연결해 남보다 먼저 결론에 이른다. 태학에서 다른 자제들과 함께 두각을 드러냈다는 설정은 작품의 창작이다.
+Gaesomun's talent stands out in reading and judgment. Compared with Taehak youths, his ability to understand reading in light of field conditions is more notable than repeating difficult texts from memory. Reading the same passage, he connects it to conditions and reaches a conclusion before others. His distinction alongside other Taehak youths is fictional.
 
-**확정 내용**
+**Established content**
 
 
 
-군사 훈련에서도 개소문은 남보다 먼저 상황을 파악하고 판단을 내린다. 글에서 읽은 내용을 현장과 연결하던 재능이 훈련에서도 드러나는 것이다. 활과 칼을 다루는 솜씨도 좋다. 귀족 자제들과의 훈련에서 실제로 뛰어난 성적을 거둔다.
+In military training he also grasps situations and judges before others, applying the talent connecting reading to the field. He handles bow and sword well and achieves genuinely superior results against noble youths.
 
 
 
-한번 이기는 데서 그치지도 않는다. 자신에게 불리한 조건을 만들어 다시 겨뤄도 개소문은 이긴다. 이런 경험이 쌓이면서 자기 판단을 의심하지 않는 습관이 자란다. 개소문은 글과 훈련에서 남보다 먼저 판단하고 앞섰던 경험을 자기 권위의 근거로 삼는다. 자신이 판단을 내리고 다른 사람에게 따르도록 요구하는 데에도 이 확신이 작용한다.
+He does not win only once. Even when he creates disadvantages for himself and competes again, he wins. These experiences build a habit of not doubting his judgment. He takes his earlier conclusions and lead in study and training as grounds for authority, and that confidence affects his demand that others follow his decisions.
 
 
 
-주변 사람이 자기 속도를 따라오지 못할 때 개소문은 처음에는 그 사람이 충분히 준비하지 않았다고 여긴다. 상대가 더 준비하면 자신을 따라올 수 있다고 보는 것이다. 지휘자가 된 뒤에는 사람을 배치하고 보고가 오가도록 하는 능력도 익힌다. 빠르게 판단할 줄만 알고 다른 사람과 일하는 방법은 모르는, 단순히 성급한 천재는 아니다.
+When others cannot keep his pace, he initially thinks they have not prepared enough and could keep up with more preparation. As a commander he also learns to deploy people and arrange reporting. He is not merely an impulsive genius who can decide quickly but cannot work with others.
 
 
 
-그럼에도 개소문은 다른 사람이 해낼 수 있는 일의 한계를 헤아리는 데 서툴다. 자신의 유능함이 오히려 그 한계를 알아보는 데 방해가 된다. 자신은 밤을 새워 파악할 수 있는 일을 다른 사람이 끝내지 못하면, 상대에게 휴식을 주거나 맡긴 일을 줄여 주기보다 조사를 더 하도록 하는 쪽을 먼저 택한다. 자신이 해낼 수 있다는 사실을 기준으로 삼다 보니, 상대가 더 조사해도 자기만큼 파악하지 못할 수 있다는 점을 충분히 보지 못한다.
+Nevertheless he is poor at gauging the limits of what others can do. His own competence impedes recognition of those limits. If another person cannot finish something he can grasp by staying up all night, he first chooses to demand more investigation rather than allow rest or reduce the assignment. Using his own ability as the standard, he does not adequately see that more investigation may still not let the other person grasp as much as he does.
 
 
 
-전쟁에서 개소문은 적 지휘자가 무엇을 하려는지, 그 군대를 뒷받침할 보급은 어떠한지, 서로 떨어진 부대가 어떤 조건에서 합류할 수 있는지를 함께 살핀다. 적 지휘자의 이름만으로 전쟁을 판단하지 않는다. 이름난 장군을 상대한다고 위축되지 않으며, 자신의 명성이 높다고 해서 적이 알아서 잘못을 저지를 것이라고 기대하지도 않는다.
+In war he considers together what the enemy commander intends, the supply supporting that army, and conditions for separated forces to join. He does not judge war by an enemy's name alone. A famous general does not intimidate him, nor does his own fame make him expect the enemy to blunder automatically.
 
 
 
-개소문의 판단이 빠르다는 것은 필요한 정보를 이미 모두 알고 있다는 뜻은 아니다. 모르는 일이 있으면 정찰과 보고를 기다린다. 모든 작전의 현장에 직접 등장하지 않으며, 멀리 떨어진 전장에서 일어난 변화를 즉시 알 수도 없다. 그의 판단력은 이런 정보의 한계 안에서 발휘된다.
+Quick judgment does not mean he already knows all necessary information. When he does not know, he waits for reconnaissance and reports. He does not appear personally at every operation or instantly learn changes on distant battlefields. His judgment works within those limits.
 
-## 몸과 목소리 {#yeon-body-and-voice}
+## Body and voice {#yeon-body-and-voice}
 
-**정의·범위**
+**Definition and scope**
 
-연개소문은 큰 몸과 목소리로 같은 자리에 있는 사람을 압도하며 자신의 요구부터 듣게 한다. 큰 체격과 호방한 인상은 『삼국사기』의 짧은 표현에서 출발하지만, 구체적인 모습은 창작이다. 성인 키는 약 180cm다. 어깨가 넓고 목이 굵으며, 팔은 몸통에 비해 길지 않다.
+Gaesomun's large body and voice overwhelm people present and make them hear his demands first. Size and an expansive impression begin with Samguk Sagi's brief description, but the specifics are fictional. Adult height is about 180 cm. His shoulders and neck are broad and thick; his arms are not long relative to his torso.
 
-**확정 내용**
+**Established content**
 
 
-얼굴은 넓고 턱은 각져 있다. 짙고 곧은 눈썹 아래에 갈색 눈이 깊이 놓인다. 코는 콧등이 높고 코끝이 넓다. 윗입술은 얇으며 아랫입술은 그보다 두껍다. 피부는 햇볕에 탄 황갈색이고, 굵은 검은 머리는 뒤로 모아 묶는다. 검은 수염은 짧게 정돈한다. 말년에는 관자와 수염에 흰 털이 섞인다.
+His face is broad with a square jaw. Brown eyes sit deep beneath thick straight eyebrows. His nose has a high bridge and broad tip; the upper lip is thin and lower lip thicker. His skin is sun-browned yellow; thick black hair is gathered and tied back, and his black beard is trimmed short. In old age white appears at temples and beard.
 
 
-어린 개소문의 모습은 성인의 몸을 같은 비율로 줄인 것이 아니다. 614년의 갓난아이는 길이가 약 50센티미터이며, 머리는 몸 길이의 약 4분의 1을 차지한다. 팔다리는 짧고 턱은 둥글다. 황갈색 피부에 성긴 검은 머리와 갈색 눈을 지녔다. 염색하지 않은 옅은 황갈색 천에 싸여 있으며, 목소리는 높은 울음과 짧게 끊기는 숨으로만 들린다. 어린 개소문에게 성인의 명령이나 수군 전공을 평가하는 말을 부여하지 않는다.
+Young Gaesomun is not the adult body scaled down proportionally. In 614 the newborn is about 50 cm long, head roughly one-quarter of body length, with short limbs and round chin. He has yellow-brown skin, sparse black hair, and brown eyes. Wrapped in undyed pale yellow-brown cloth, his voice is heard only as high crying and short broken breaths. Do not give the infant adult commands or assessments of naval achievements.
 
 
-618년 겨울, 네 살 개소문의 키는 약 100센티미터다. 머리는 몸의 5분의 1을 조금 넘어 몸에 비해 크고, 목이 짧으며 배와 볼은 여섯 살 때보다 더 둥글다. 턱은 둥글고 눈썹은 아직 옅다. 검은 머리는 귀에 닿지 않을 만큼 짧고 끝이 고르지 않으며 수염은 없다. 겨울 집 안에서는 솜을 둔 옅은 황갈색 천옷을 입고 띠 대신 가는 끈으로 여민다. 목소리는 높고 가늘며, 숨이 짧아 짧은 말을 한두 마디씩 끊어 낸다.
+In winter 618, four-year-old Gaesomun is about 100 cm tall. His head is a little over one-fifth of his body, his neck short, belly and cheeks rounder than at six. His chin is round and eyebrows still light. Black hair is short enough not to touch his ears, uneven at the ends; he has no beard. Indoors in winter he wears padded pale yellow-brown cloth fastened with a thin cord rather than sash. His voice is high and thin; short breath breaks speech into one or two brief words at a time.
 
 
-620년 전후, 여섯 살 개소문의 키는 약 115센티미터다. 머리는 몸의 약 5분의 1이며 목이 짧고 배와 볼은 둥글다. 검은 머리를 귀 아래 길이로 잘라 두고 수염은 없다. 짙은 적갈색 천옷에 먹빛 띠를 두른다. 철 갑옷을 입은 성인의 출정 차림과는 구별된다. 눈썹과 넓은 코끝, 아랫입술의 형태는 성인 모습으로 이어진다. 목소리는 높고 맑으며 말끝이 빠르다.
+Around 620, at six, he is about 115 cm tall. His head is about one-fifth of his body, neck short, belly and cheeks round. Black hair is cut below ear length; he has no beard. He wears dark reddish-brown cloth and an ink-colored sash, distinct from an armored adult going to war. Eyebrows, broad nose tip, and lower lip lead into the adult design. His voice is high and clear, with quick endings.
 
 
-626년 전후의 열두 살에는 키가 약 148센티미터로 자란다. 머리는 몸의 약 6분의 1이며 팔과 다리가 길어지지만, 어깨와 목은 아직 성인처럼 굵지 않다. 턱에서 둥근 기가 줄고 검은 머리를 뒤로 묶기 시작한다. 수염은 없다. 여섯 살 때와 같은 색의 훈련옷을 입고 공동 무구를 쓴다. 높고 맑은 목소리에는 얇게 갈라지는 소리가 생긴다.
+Around 626, at twelve, he is about 148 cm tall. His head is about one-sixth of his body and limbs lengthen, but shoulders and neck are not yet adult-thick. His jaw loses some roundness and he begins tying black hair back. He has no beard. He wears training clothes the same color as at six and uses shared equipment. A thin crack enters his high clear voice.
 
 
-청소년기에 들어서면 어깨와 목이 굵어지고 목소리가 낮아진다. 630년 전후에는 키가 약 170센티미터로 자라고, 목소리는 중간 음역에서 갈라진다. 634년 가문을 이어받는 성인 단계에는 앞서 설명한 약 180센티미터의 체격에 낮은 흉성과 짧은 수염을 갖춘다. 키와 신체 비율, 변성의 경계는 사료에 남은 측정값이 아니라 창작 조형값이다. 어린 시기에 새로운 부상이나 별도의 가족 사건을 더하지 않는다.
+In adolescence shoulders and neck thicken and voice drops. Around 630 he grows to about 170 cm, with a cracking middle-register voice. At adult succession in 634 he has the roughly 180 cm build, low chest voice, and short beard described above. Heights, proportions, and voice-change boundaries are fictional design values, not historical measurements. Do not add a new childhood injury or separate family event.
 
 
-성인의 목소리는 낮은 음역의 두꺼운 흉성이다. 짧은 말끝에는 마르고 거친 결이 남는다. 작은 방에서는 소리의 세기를 낮춰도 울림이 있으며, 명령을 빨리 내릴 때는 자음을 분명히 끊는다. 화가 나면 음높이를 올리기보다 말 사이의 숨을 줄여 상대의 말을 끊는다. 남생과 사적으로 대화할 때는 소리가 약해지고 문장 사이의 간격이 길어진다.
+The adult voice is thick, low chest resonance. Short endings retain a dry, rough grain. In a small room it resonates even at lower volume; quick orders have clearly clipped consonants. When angry he shortens breaths between words and interrupts rather than raising pitch. In private with Namsaeng his voice softens and gaps between sentences lengthen.
 
 
-젊을 때는 몸을 급히 돌려도 중심이 흔들리지 않는다. 말년에는 일어날 때 손으로 책상 모서리를 짚는다. 과로에 따른 쇠약과 그 세부는 창작이며, 특정한 현대 진단명을 사인으로 확정하지 않는다.
+In youth he can turn quickly without losing balance. In old age he braces a hand on the desk edge to rise. Weakness from overwork and its details are fictional; do not establish a particular modern diagnosis as cause of death.
 
 
-평상시에는 짙은 적갈색 겉옷과 먹빛 띠를 착용한다. 출정 때는 여러 조각이 맞물린 철 갑옷을 입고, 그 위로 지휘 표지가 보인다. 구체적인 옷의 색은 작품의 시각 문법이다. 화려한 장식은 권력을 과시할 때만 쓰며 사적 공간에서는 쉽게 벗어 둔다. 공적 위엄을 갖추면서도 자신의 편의를 챙기는 방식이다. 사치를 즐기지 않아도 귀족의 장비와 집은 갖고 있다.
+Usually he wears a dark reddish-brown outer robe and ink-colored sash. On campaign he wears interlocking iron armor with command insignia visible above it. Specific colors are the work's visual grammar. He uses elaborate decoration only to display authority and readily removes it in private, maintaining public dignity while attending to his own comfort. Though not fond of luxury, he has a noble's equipment and home.
 
 
-개소문은 결론과 해야 할 일을 먼저 말한다. 자기보다 느린 설명을 끊는 버릇이 있지만, 보고의 근거가 바뀌면 반박을 끝까지 들을 수 있다. 추상적인 웅변을 매번 늘어놓지는 않는다. 후손의 삶을 위해 지금의 희생이 필요하다고 말할 때는 실제로 사람과 자원을 더 요구하고 있다.
+Gaesomun states conclusions and required actions first. He tends to interrupt slower explanations, but can hear an objection to the end if the basis of a report changes. He does not deliver abstract oratory every time. When he says present sacrifices are needed for descendants, he is actually demanding more people and resources.
 
 
-농담은 상대의 자부심을 짧게 건드리는 식이다. 웃음을 얻으려고 길게 끌지 않는다. 그러나 부하가 같은 말투를 쓰면 무례로 받아들인다. 자신이 허용받는 말과 부하에게 허락하는 말 사이에 권력의 차이가 있다.
+His jokes briefly touch another person's pride rather than dragging on for laughter. Yet he takes the same tone from a subordinate as disrespect. Power separates speech permitted to him from speech he permits below him.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『삼국사기』의 연개소문 인상](https://db.history.go.kr/id/sg_049r_0030_0020).
+Sources: [Samguk Sagi's impression of Yeon Gaesomun](https://db.history.go.kr/id/sg_049r_0030_0020).
 
-## 현재를 쓰고 미래를 얻으려는 통치 {#yeon-rule}
+## Rule spending the present to gain a future {#yeon-rule}
 
-**정의·범위**
+**Definition and scope**
 
-집권한 개소문은 사적 소비보다 공적 일을 먼저 챙기고, 자신의 잠과 건강까지 그 일에 쓴다. 부패로 재산을 불리는 독재자는 아니다. 다른 사람에게도 같은 엄격함을 요구한다. 어떤 동원이 한 가구에 치명적이라는 사실을 알아도, 나라가 살아남는 일이 더 중요하다고 판단하면 취소하지 않을 수 있다. 피해를 알아보지 못하는 무능과 알고도 강요하는 선택은 구별된다.
+In power, Gaesomun puts public work before private consumption, spending even sleep and health on it. He is not an autocrat enriching himself through corruption. He demands equal strictness of others. Even knowing mobilization can be fatal to one household, he may refuse to cancel it if he judges national survival more important. Distinguish inability to see harm from choosing to impose it knowingly.
 
-**확정 내용**
+**Established content**
 
 
-그가 원하는 고구려는 당이 다시 대군을 보낼 엄두를 내지 못하고, 후손이 국경의 성벽만 붙들고 살지 않아도 되는 나라다. 수의 붕괴와 당의 성장 사이에 기회를 놓쳤다는 젊은 세대의 확신도 이 목표에 담겨 있다. 개소문은 중국의 통일 왕조가 고구려 정복을 원한다면 공손함만으로 그 뜻을 바꿀 수 없다고 믿는다. 먼저 군사력으로 침공의 대가를 보여 주어야 재건도 계속할 수 있다고 판단한다.
+The Goguryeo he wants is a country Tang will not dare invade again with a great army, where descendants need not live holding only frontier walls. It includes the younger generation's conviction that an opportunity was missed between Sui's collapse and Tang's rise. He believes courtesy alone cannot change a unified Chinese dynasty's will to conquer Goguryeo. The cost of invasion must first be demonstrated militarily for reconstruction to continue.
 
 
-굴종으로는 평화가 오지 않는다는 것이 그의 평화관이다. 수나라 때부터 거듭된 전쟁의 고리는 당이 자랑하는 정예를 야전에서 압도적으로 꺾어 무너뜨려야만 끊긴다고 믿는다. 645년 이후 고구려는 당과의 야전에서 거의 이기지 못했으므로, 그가 노리는 것은 전례가 없는 승리다. 그 기록은 [645년 이후 당과의 야전 기록](../050-systems/235-field-records-after-645.md#field-records-after-645)이 정한다.
+His view is that submission cannot bring peace. He believes the cycle of wars since Sui can be broken only by overwhelmingly defeating and destroying Tang's elite in the field. Since Goguryeo won almost no field battles against Tang after 645, he seeks an unprecedented victory. [Field records after 645](../050-systems/235-field-records-after-645.md#field-records-after-645) determines those records.
 
 
-그 판단은 실제 성과를 거둔다. 한편으로는 회복 중인 주민에게 다음 전쟁을 준비할 부담을 지운다. 자신이 없으면 이 일을 끝까지 해낼 사람이 없다는 믿음은, 집권 초기의 자기 과시에서 성공한 경험과 과로가 서로 강화하는 확신으로 굳어진다. 협력자가 필요하다는 사실을 알면서도 최종 결정과 책임은 거듭 자기 손으로 끌어온다.
+His judgment produces actual results while imposing the burden of preparing the next war on recovering residents. His belief that no one but him can finish the work hardens from early self-display into confidence reinforced by success and overwork. Though he knows he needs collaborators, he repeatedly draws final decisions and responsibility into his own hands.
 
-661년 늦봄 개소문은 당이 여섯 방면에 총관을 세우고 군사를 모은다는 요동성 보고 원문을 접할 수 있지만 적의 실제 출발·공격로는 모른다. 총병력도 정확히 알지 못해 35군이라는 편제로 미루어 약 35만으로 짐작한다. 행군총관 하나가 수만을 이끈다는 것은 645년의 경험으로 알아, 적 한 갈래가 자기가 모을 야전 병력 전부와 비슷한 수이리라고 추정한다. 백제 왕도 함락과 부흥군 성 회복 소식을 함께 아는 상태다. 가족 이동과 등록 수비 근무가 충돌할 때 최종 군무 판정권이 있다. 통행의 일반 조건은 [왕명과 군역](../030-society/010-royal-and-aristocratic-power.md#royal-and-aristocratic-power)이, 고휘 분쟁의 실제 선택·판정·공개는 해당 전역의 treatments가 맡는다. 도입 액자의 사건으로 출정 명령을 앞당기지 않는다. 그가 결전을 주장하는 논거인 양쪽 덫과 봄갈이 전의 시한은 645~659년의 전쟁에서 읽어 낸 예측이며([포위가 야전을 강요하는 이유](../050-systems/050-forced-field-war.md#forced-field-war)), 실제 전역이 어떻게 흘러갈지는 알지 못한다.
+In late spring 661, Gaesomun can see the original Yodongseong report of Tang commanders in six directions and recruitment, but does not know actual departures or routes. He does not know total strength exactly and estimates 350,000 from the 35-army organization. From 645 he knows one marching commander leads tens of thousands and estimates one enemy column is comparable to all the field troops he can assemble. He knows both Baekje's capital fell and restoration forces recovered fortresses. When family movement conflicts with registered defense duty, he has final military authority to rule. [Royal orders and service](../030-society/010-royal-and-aristocratic-power.md#royal-and-aristocratic-power) owns general passage conditions; treatments owns the actual Go Hwi dispute, decision, ruling, and disclosure. Do not advance a departure order into the opening frame. His two-sided trap and deadline before spring plowing are predictions from the wars of 645–659 ([why siege forces field battle](../050-systems/050-forced-field-war.md#forced-field-war)); he does not know how the actual campaign will unfold.
 
-## 영류왕에게 남아 있는 빚 {#yeon-and-yeongnyu}
+## The debt remaining to Yeongnyu {#yeon-and-yeongnyu}
 
-**정의·범위**
+**Definition and scope**
 
-어린 개소문에게 고건무는 왕제 시절 몸소 결사대 앞에 서서 수군을 물리친 영웅이며, 618년부터는 그 영웅이 왕이다. 개소문은 그 무용과 승리를 구전으로 들으며 자랐지만, 파괴된 나라를 다시 세우는 일을 직접 책임진 고건무의 경험은 갖지 못했다. 승리 뒤에도 가구에 남은 결핍, 중국의 재통일이 언제 끝날지 모르는 불확실성은 어린 개소문의 판단에서 중심을 차지하지 않는다. 왕의 화친과 장성 축조를 나약함으로 읽는 실망은 630년 전후부터 쌓인다.
+For young Gaesomun, Geonmu is the hero who personally led picked troops against Sui's navy as royal brother; from 618 that hero is king. Gaesomun grows up hearing of his valor and victory but lacks Geonmu's experience of directly rebuilding a destroyed country. The boy's judgments do not center household deprivation after victory or uncertainty over when China's reunification will end. Disappointment in the king's peace and wall-building as weakness accumulates from around 630.
 
-**확정 내용**
+**Established content**
 
 
-642년 정변은 왕과 대인들이 먼저 개소문을 죽이려 꾀한 밀의에서 시작한다. 그 밀의가 새어 나오자 그는 살기 위해 먼저 움직인다. 오래 왕의 노선을 나약함으로 읽어 왔더라도 한때 가장 동경한 영웅을 치는 일이므로, 그는 깊은 내적 갈등 속에 눈물을 머금고 결단한다. 정변의 조건과 기록의 범위는 [642년 개소문이 먼저 움직인 조건](../050-systems/240-642-coup.md#642-coup)이 정한다.
+The 642 coup begins with a secret plot by the king and great men to kill Gaesomun. Once it leaks, he acts first to survive. Though he has long read the king's course as weakness, he must strike the hero he once admired most and decides through deep inner conflict with tears. [Conditions for acting first in 642](../050-systems/240-642-coup.md#642-coup) owns conditions and record scope.
 
 
-사로잡힌 영류왕과의 마지막 대면은 창작이다. 왕은 살 길을 구하지 않는다. 선대의 재건과 자신이 감당한 복구를 바탕으로, 최고 자리에 오르면 자신을 이해하게 되리라는 뜻의 말을 남긴다. 당이 그토록 빨리 통일할 줄 미리 알았던 것처럼 과거를 평가하는 결과론의 문제도 짚는다. 개소문은 왕의 용기와 지난 공을 지울 수 없으면서도, 그대로 머물면 자신도 나라도 살아남지 못한다고 판단한다. 그는 왕을 죽이고 보장왕을 세운다. 살기 위한 선제 행동이었다는 사정으로도 시해의 책임은 지워지지 않는다.
+The final encounter with captured Yeongnyu is fictional. The king does not plead for life. Drawing on his predecessors' reconstruction and his own recovery work, he says in substance Gaesomun will understand when he reaches the highest position. He also points to hindsight that judges the past as if Tang's rapid unification had been known in advance. Unable to erase the king's courage and past service, Gaesomun nevertheless judges that staying as they are will doom him and the country. He kills the king and installs Bojang. The circumstances of acting first to survive do not erase responsibility for regicide.
 
 
-그 뒤 개소문은 645년 전쟁의 패전과 방어, 실제 통치를 거치며 같은 자원을 두 일에 쓸 수 없다는 제약을 거듭 겪고 왕의 선택을 이해하게 된다. 그래도 왕을 죽인 결단이 필요했다고 끝까지 믿으며 후회하지 않는다. 그 사람을 죽여야 했던 일과 끝내 서로를 이해하지 못한 일은 속으로만 안타까워하고, 누구에게도 그 마음을 말하지 않는다. 말년에 남생의 복구 구상을 보며 자신이 먼저 적을 물리친 일과 왕이 바라던 회복이 이어질 수 있다고 생각한다. 이제 왕에게 진 빚을 갚았다는 흡족함은 개소문 자신의 해석이다. 죽은 왕이 그 일을 승인한 것은 아니다.
+Through defeat, defense, and actual rule after 645, Gaesomun repeatedly faces the constraint that the same resources cannot serve two tasks and comes to understand the king's choices. He still believes to the end that killing him was necessary and does not regret the decision. He privately regrets having had to kill the man and their failure to understand each other, telling no one. In old age, seeing Namsaeng's recovery vision, he thinks his defeat of the enemy can connect to the recovery the king wanted. Satisfaction that he has repaid the debt is Gaesomun's own interpretation, not approval by the dead king.
 
-## 맏아들에게 다른 시대를 맡기는 이유 {#yeon-successor}
+## Why he entrusts a different era to his eldest son {#yeon-successor}
 
-**정의·범위**
+**Definition and scope**
 
-개소문은 남생이 자신만큼 빠른 판단을 내리는 천재라고 평가하지 않는다. 남생은 전선에서 군사와 지방 사람들이 무엇을 견디는지 알아본다. 자기 힘으로 모자란 일은 주변에 맡기고 끝까지 확인한다. 개소문은 남생이 요동과 국내성에서 얻은 인망을 가문의 위협으로 여겨 억누르지 않는다. 후계 통치에 쓸 자산으로 보고 칭찬한다.
+Gaesomun does not judge Namsaeng a genius as quick as himself. Namsaeng learns what troops and local people endure at the front, delegates what he cannot do himself, and checks it through to completion. Gaesomun does not suppress the trust Namsaeng earned in Liaodong and Gungnaeseong as a family threat; he praises it as an asset for successor rule.
 
-**확정 내용**
+**Established content**
 
 
-개소문은 세 아들의 재능을 인정한다. 그러나 국정의 최종 결정권을 같은 몫으로 나눠 주는 것이 안정된 후계 통치로 이어진다고 믿지는 않는다. 남생에게 실권을 모으는 까닭은 사람들에게 일을 맡기고 협력을 이어 가면서 재건의 최종 책임을 질 수 있다고 보기 때문이다. 개소문은 다음 통치자가 자신과 같은 과로를 되풀이하지 않고 건실한 협력으로 나라를 재건하기를 바란다.
+Gaesomun recognizes all three sons' talents but does not believe equal division of final state authority makes stable succession. He concentrates power in Namsaeng because he can delegate, maintain cooperation, and bear final reconstruction responsibility. Gaesomun hopes the next ruler will rebuild through sound cooperation without repeating his own overwork.
 
 
-헌충의 재능에서는 젊은 시절의 자신을 본다. 그렇다고 손자가 재능을 보였다는 이유만으로 당장 남생을 건너뛰고 후계로 세우지는 않는다.
+He sees his younger self in Heonchung's talent. He does not skip Namsaeng and immediately name the grandson successor merely because he shows talent.
 
 
-남건과 남산도 국정을 맡길 수 있는 아들로 평가한다. 다만 두 사람이 형을 어떻게 바라보는지, 왕실이 형제 사이에서 무엇을 노리는지는 충분히 듣지 못한다. 서로 협력하라는 자신의 훈계와 눈앞에서 보이는 복종이 사후에도 같은 뜻으로 남으리라 기대한다. 국정의 세세한 반발까지 파악하면서도 집안의 감정에는 막연한 불안을 남긴다.
+He also values Namgeon and Namsan as sons fit for state work. Yet he does not sufficiently hear how they see their elder brother or what the royal house seeks between them. He expects his admonition to cooperate and obedience visible now to retain the same meaning after his death. Even while grasping detailed opposition in state affairs, he retains vague anxiety about family feelings.
 
-## 죽기 전의 성취와 찜찜함 {#yeon-last-expectation}
+## Achievement and unease before death {#yeon-last-expectation}
 
-**정의·범위**
+**Definition and scope**
 
-665년 봄 개소문은 남생의 재건 계획과 말갈 공동체의 실질적인 군역 참여를 본다. 고구려가 다시 중흥할 조건이 생겼다고 믿으며, 더 오래 살아 아들이 만든 나라를 볼 수 있다면 좋겠다고 아쉬워한다.
+In spring 665 Gaesomun sees Namsaeng's reconstruction plan and meaningful military participation by Malgal communities. He believes conditions for Goguryeo's revival exist and regrets that he cannot live longer to see the country his son makes.
 
-**확정 내용**
+**Established content**
 
 
-그는 자신의 쇠약을 숨긴다. 다만 완전히 회복할 것처럼 행동하지는 않는다. 아들이 만든 나라를 보고 싶다는 아쉬움 때문에 자신의 군무를 늘리지도 않는다. 맡길 일은 넘기면서도 마지막 결정 몇 가지는 놓지 못한다.
+He conceals his weakness, but does not behave as though he will fully recover. His wish to see his son's country does not make him increase military duties. While handing over tasks, he cannot let go of several last decisions.
 
 
-개소문은 자신을 두려워해 숨죽였던 왕가와 귀족들이 온화한 남생 아래에서는 활개를 칠까 염려한다. 이들을 경멸하는 개소문의 말과 각자가 실제로 추구하는 이익은 구별된다. 개소문도 누가 언제 반란을 일으킬지 아는 것은 아니다. 자신의 권위에 기대어 유지된 협력이 죽은 뒤 얼마나 남을지 알 수 없어 불안하다.
+Gaesomun fears royal and noble families cowed by fear of him will run free under mild Namsaeng. Distinguish his contemptuous words from their actual individual interests. He does not know who will rebel or when. He is uneasy because he cannot know how much cooperation sustained by his authority will survive his death.
 
 
-나뭇가지를 함께 묶어 꺾기 어렵게 하는 훈계는 작품에 채택한 일화다. 아들들에게 화합을 당부하는 데 쓰지만, 기록으로 확인된 임종 발언으로 인용하지는 않는다.
+The lesson that bundled branches are hard to break is an anecdote adopted by the work. He uses it to urge unity but do not cite it as a historically confirmed deathbed statement.
 
 
-개소문은 남생의 재건 착수는 보지만 그 계획이 완성한 나라를 보지 못한 채 죽는다. 에필로그에서는 생전에 이룬 성취와 끝내 만들지 못한 승계의 조건을 함께 읽게 된다. 사후의 붕괴가 앞선 승리를 무효로 만들지는 않는다. 그의 권력과 엄격함으로도 아들들을 충분히 알아보고 서로 납득시키는 일을 대신할 수 없었다.
+Gaesomun sees Namsaeng begin reconstruction but dies without seeing the country the plan would complete. The epilogue reads both his lifetime achievements and succession conditions he failed to establish. Later collapse does not invalidate earlier victory. His power and strictness could not substitute for sufficiently understanding his sons and persuading them of one another.

@@ -1,13 +1,13 @@
-# 양오에서 곡물을 받는 군관
+# The officer receiving grain at Yango
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--064-yang-o-receiver).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--064-yang-o-receiver).
 
-## 양오에서 곡물을 받는 군관 {#yang-o-receiver}
+## The officer receiving grain at Yango {#yang-o-receiver}
 
-**정의·범위**
+**Definition and scope**
 
-수령 군관은 소정방이 신라 군량을 받을 장소와 인계 병력을 맡긴 사람이다. 창작 이름은 마정, 출생은 629년이다. 양오의 임시 인계터에서 짐을 받되 신라군 전체에 지휘권을 행사하지 않는다. 김인문과 김양도의 전달 설명을 듣고 곡물 종류와 수량, 젖거나 풀어진 포대를 구별해 부하에게 넘긴다. 이전에 당의 배급을 감독하던 사람이어서 신라의 짐만 도착하면 모든 굶주림이 사라진다는 기대를 갖지 않는다. 받은 식량을 당군의 주둔지로 넘길 권한은 있지만 소정방 대신 철수를 결정하지는 못한다.
+The receiving officer is entrusted by Su Dingfang with the place to receive Silla provisions and the handover force. His invented name is Ma Jeong; he was born in 629. At Yango’s temporary handover site he receives the loads without commanding the entire Silla army. He listens to Kim Inmun and Kim Yangdo explain the delivery, distinguishes types and quantities of grain and wet or loosened sacks, and passes them to subordinates. Having previously supervised Tang rations, he does not expect all hunger to disappear as soon as Silla’s loads arrive. He can transfer the food received to Tang’s camp but cannot decide on withdrawal in Su Dingfang’s place.
 
-**확정 내용**
+**Established facts**
 
-작품의 모습은 키 167센티미터, 좁은 어깨와 굵은 손가락, 긴 턱이다. 작은 갈색 눈과 가는 검은 눈썹, 긴 코와 얇은 입술, 옅은 황갈색 피부를 가진다. 검은 머리를 묶고 성긴 수염을 기른다. 검은 띠를 두른 회갈색 옷에 가죽 덧옷과 방한 천을 쓴다. 목소리는 중간 높이의 얇고 쉰 결이다. 지친 전달자에게 설명을 짧게 받고 수량은 다시 느리게 확인한다. 이 개인과 조형은 창작이며 실명의 수령 담당자가 기록에 남았다고 하지 않는다.
+His invented appearance is 167 centimeters tall, with narrow shoulders, thick fingers, and a long chin. He has small brown eyes, thin black eyebrows, a long nose, thin lips, and light tawny skin. His black hair is tied and his beard sparse. Over gray-brown clothes with a black sash he wears a leather outer garment and cloth against the cold. His voice is thin and hoarse in the middle register. He takes a brief explanation from the exhausted deliverers and then slowly checks the quantities again. This individual and design are invented; do not claim that the record preserves a named receiving officer.

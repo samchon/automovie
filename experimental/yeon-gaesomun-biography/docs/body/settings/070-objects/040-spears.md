@@ -1,13 +1,13 @@
-# 대열에서 쓰는 창
+# Spears used in formation
 
-정전 안내: [이 대상의 위치](../outline/index.md#070-objects--040-spears).
+Canon guide: [Location of this subject](../outline/index.md#070-objects--040-spears).
 
-## 대열에서 쓰는 창 {#spears}
+## Spears used in formation {#spears}
 
-**정의·범위**
+**Definition and scope**
 
-창은 사람 키보다 긴 자루 끝의 철촉으로 가까운 적을 상대하는 무장이다. 대열 안에서는 옆 사람의 공간을 함께 쓰므로 갑자기 방향을 바꾸면 뒤의 창과 부딪힌다. 한 손으로 돌려 수십 명을 동시에 베는 도구로 사용하지 않는다. 기병의 창과 보병의 창은 이동과 사용 자세가 같지 않다.
+A spear has an iron point on a shaft taller than a person and is used against nearby enemies. In formation, soldiers share space with those beside them; a sudden change of direction can strike the spears behind. It is not a weapon spun in one hand to cut down dozens at once. Cavalry and infantry spears differ in movement and posture of use.
 
-**확정 내용**
+**Established facts**
 
-보병 창은 길이3미터의 짙은 갈색 자루와 길이25센티미터의 잎 모양 철촉, 기병 창은 약2.8미터의 자루를 기본 형상으로 둔다. 형상과 치수는 작품의 선택이다.
+The basic infantry spear has a dark brown shaft 3 meters long and a leaf-shaped iron point 25 centimeters long; the cavalry spear has a shaft about 2.8 meters long. These forms and dimensions are choices made for the work.

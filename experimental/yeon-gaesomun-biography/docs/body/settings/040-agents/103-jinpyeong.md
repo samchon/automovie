@@ -1,17 +1,17 @@
-# 고승을 물러나게 한 진평왕
+# King Jinpyeong, who drove Go Seung back
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--103-jinpyeong).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--103-jinpyeong).
 
-## 고승을 물러나게 한 진평왕 {#jinpyeong}
+## King Jinpyeong, who drove Go Seung back {#jinpyeong}
 
-**정의·범위**
+**Definition and scope**
 
-진평왕은603년 구원 병력을 이끌어 북한산성에 대한 고구려 공격을 물러나게 한 신라 군주다.
+King Jinpyeong was the Silla ruler who led relief forces in 603 and drove back Goguryeo’s attack on Bukhansanseong.
 
-**확정 내용**
+**Established facts**
 
-현재 예정 서사에서 방어 성곽만이 아니라 구원군이 함께 작용했다는 사례의 당사자로 등장한다. 김춘추나 문무왕이 오래전부터 같은 자리에 있었다고 혼합하지 않는다. 직접 인물 장면과 고유한 조형·음성을 예정하지 않는다.
+The currently planned narrative cites him in an example where relief forces, as well as defensive walls, made a difference. Do not conflate him with Kim Chunchu or King Munmu as if they had held the same position long before. No direct scene, distinctive visual design, or voice is planned.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『삼국사기』603년 신라 왕의 구원](https://db.history.go.kr/item/compareViewer.do?levelId=sg_020r_0020_0150).
+Sources: [The Silla king’s relief in 603, Samguk Sagi](https://db.history.go.kr/item/compareViewer.do?levelId=sg_020r_0020_0150).

@@ -1,394 +1,394 @@
 
-# 움직일 수 있는 길
+# Roads that can carry them
 
-## 반대가 남은 자리에서 일을 나누다 {#t016-frame-closes}
+## Dividing the work with opposition still present {#t016-frame-closes}
 
-661년 늦봄 왕궁 회의당 안 낮. 첫 회의의 마지막에 남아 있던 고휘의 얼굴을 짧게 받는다. 반대는 철회되지 않는다. 개소문이 남생에게 문서를 건넨다. 시선은 새로 나누는 군무로 따라간다.
+Inside the palace council hall, late spring 661, day. Briefly hold Go Hwi's face from the end of the first council. His opposition has not been withdrawn. Gaesomun hands Namsaeng a document. Follow the newly divided military duties.
 
-개소문: 압록강을 붙들고 육상의 짐을 끊어라. 지방 보병은 자기 성을 남기고 합칠 몫을 정한다.
+GAESOMUN: Hold the Yalu and cut land supplies. Regional infantry will determine the share to join us while leaving their fortresses defended.
 
-남생: 수도에 남을 수비와 나갈 병력을 나누겠습니다.
+NAMSAENG: I'll divide the defenders who remain in the capital from the troops going out.
 
-남건: 제 군사는 언제 칩니까?
+NAMGEON: When do my troops strike?
 
-개소문: 붙들 사람이 버틴 뒤다. 너와 네 중기병은 북쪽 기동군에 붙는다.
+GAESOMUN: After those holding the enemy have held. You and your heavy cavalry join the northern mobile army.
 
-남산이 왕명과 중앙 협조를 잇는 서류를 받는다.
+Namsan receives documents linking royal orders and central cooperation.
 
-역사가 음성: 가용 십팔만은 한 군대가 아니었다. 수비와 야전, 지원은 서로의 자리에 남았다.
+HISTORIAN (V.O.): The available one hundred and eighty thousand were not one army. Defense, field forces, and support remained in their own places.
 
-각자의 명령이 서로 다른 문으로 나간다.
+Each order leaves through a different door.
 
-## 동문 앞에 온 두 수레 {#t016-gate-dispute}
+## Two carts at the east gate {#t016-gate-dispute}
 
-평양 동문 바깥 낮. 문 아래 그늘에서 두락이 통행을 확인한다. 고휘의 가족과 짐, 등록 수비원 셋이 먼저 선다. 유혜의 수레는 그 뒤에 멈춘다. 낮은 시선으로 두 수레의 다른 짐과 사람을 훑는다.
+Outside Pyongyang's east gate, day. In shade beneath the gate, Durak checks passage. Go Hwi's family and baggage and three registered defenders stand first. Yu Hye's cart stops behind. A low view moves across their different loads and people.
 
-두락: 가족분은 나가셔도 됩니다. 이 셋의 근무 해제 문서를 주십시오.
+DURAK: Your family may leave. Please give me the release documents for these three.
 
-고휘: 내 돈으로 무장시킨 사람들이다.
+GO HWI: I armed them with my own money.
 
-두락: 수비 명부에 든 사람들입니다. 근무를 풀어 줄 문서가 있어야 합니다.
+DURAK: They're on the defense roster. They need documents releasing them from duty.
 
-고휘: 내 가족을 내가 지키겠다는 것이다. 그 명부와 이의를 함께 올려라.
+GO HWI: I mean to protect my family. Send the roster and my objection together.
 
-두락이 중앙에 보낸다. 뒤의 유혜가 나선다.
+Durak sends them to the center. Yu Hye steps forward from behind.
 
-유혜: 제 남편도 함께 갈 수 있습니까?
+YU HYE: Can my husband come too?
 
-두락: 수비 근무는 같습니다.
+DURAK: His defense duty is the same.
 
-유혜: 수레꾼은 나루까지만 갑니다. 그 너머는 제 남편만 압니다.
+YU HYE: The cart driver goes only to the ferry. Only my husband knows beyond it.
 
-고휘 집 길잡이: 저희가 아는 것은 다른 길입니다.
+GO HWI'S GUIDE: We know a different road.
 
-유혜가 수레꾼을 본다. 그는 나루 너머를 맡지 않는다. 중앙 답이 올 때까지 두 수레는 움직이지 않는다.
+Yu Hye looks at the driver. He will not undertake the road beyond the ferry. Neither cart moves until the central answer arrives.
 
-## 판정 뒤에 골라야 하는 짐 {#t016-public-ruling}
+## Baggage chosen after the ruling {#t016-public-ruling}
 
-같은 동문 낮. 중앙의 판정을 받은 두락이 두 가구 앞에서 읽는다.
+The same east gate, day. Durak receives the central ruling and reads it before both households.
 
-두락: 가족과 등록하지 않은 수행원은 통행합니다. 수비원은 해제 문서 없이 나가지 못합니다. 고휘 공도 직책에 남습니다.
+DURAK: Family and unregistered attendants may pass. Defenders cannot leave without release documents. Lord Go Hwi also remains at his post.
 
-고휘: 회의에서 반대한 탓인가?
+GO HWI: Is this because I opposed him at council?
 
-두락: 가족은 나가실 수 있습니다. 수비원을 데려가시려면 근무 해제 문서가 있어야 한다는 판정입니다. 두 집 모두 그렇습니다.
+DURAK: Your family may leave. The ruling says you need release documents to take defenders. It applies to both households.
 
-고휘의 아내가 손수레에 남길 짐을 고른다. 비단과 패물함 일부를 내리고 딸의 옷과 식량, 감출 재물을 남긴다.
+Go Hwi's wife selects what remains on the handcart. She removes some silk and jewelry boxes and keeps her daughter's clothes, food, and valuables to conceal.
 
-딸이 짐꾼을 따라 문으로 뛰려 하자 어머니가 팔을 붙잡는다.
+As her daughter tries to run toward the gate after a porter, her mother catches her arm.
 
-고휘 아내: 같이 간다. 여기 서 있어.
+GO HWI'S WIFE: We go together. Stay here.
 
-길잡이 둘과 옮길 수 있는 짐만 남아 문을 지난다. 시선은 어머니 곁에서 나루 쪽 이동을 잠시 따른다. 두락은 문에 남아 다음 통행을 받는다.
+Only the two guides and baggage they can carry pass the gate. Stay briefly beside the mother as they travel toward the ferry. Durak remains at the gate, admitting the next traveler.
 
-## 허락받고도 갈 수 없는 사람 {#t016-household-remains}
+## Permission without a way to go {#t016-household-remains}
 
-동문 앞 낮. 유혜는 나루 너머 동행을 다시 묻지만 얻지 못한다. 수레꾼이 출발을 기다린다.
+At the east gate, day. Yu Hye asks again for someone to accompany her beyond the ferry, but finds no one. The cart driver waits to depart.
 
-유혜: 돌려 주세요. 집으로 갑니다.
+YU HYE: Turn it around, please. We're going home.
 
-수레가 문에서 멀어진다. 남편은 따라가지 못하고 근무 자리로 돌아선다. 유혜는 집 안에서 식량을 옮기며 아들이 있을 자리를 만든다. 다음 사람에게 다른 동행을 알아봐 달라고 부탁한다.
+The cart moves away from the gate. Her husband cannot follow and turns back to duty. Inside their home Yu Hye moves food and makes a place for her son. She asks the next person to seek another companion.
 
-고휘도 가족과 헤어진 뒤 자기 근무로 돌아간다. 개소문을 만나도 동의한다는 인사를 하지 않는다. 처음 침공 경보가 울릴 때 유혜와 아들은 여전히 도성 안이다.
+Go Hwi also returns to duty after parting from his family. When he meets Gaesomun, he does not greet him as though he agrees. When the first invasion alarm sounds, Yu Hye and her son are still in the capital.
 
-## 바다로 와서 막은 들 {#t017-siege-begins}
+## Fields blocked by an enemy from the sea {#t017-siege-begins}
 
-자막 ‘661년 8월, 평양’. 성벽 바깥 낮. 강을 거슬러 온 당 수군과 포위하는 소정방의 병력이 보인다. 성 안 해은의 집으로 가까워지면 수선 물건을 옮기던 손이 먹을거리 몫을 나눈다.
+Caption: “August 661, Pyongyang.” Outside the walls, day. Tang's navy has come upriver; Su Dingfang's troops surround the city. Move close to Haeun's home inside, where hands moving repair work divide the food share.
 
-해은: 오늘 이만큼 쓰고 나면, 다음 먹을 것은 언제 들어옵니까?
+HAE-EUN: After we use this much today, when will the next food come?
 
-장근은 성 밖 길이 끊긴 쪽을 본다. 유혜도 남편에게서 아들을 데리고 갈 길이 열리지 않았다는 답을 듣는다.
+Janggeun looks toward the cut road outside. Yu Hye too hears from her husband that the route for taking their son away has not opened.
 
-북쪽으로 떠나는 중앙 기동군에는 개소문과 남건이 있다. 길과 합류를 거쳐야 다음 병력에 닿는다. 먼저 맡은 육상 차단은 속로의 병력이 잇는다. 작은 운반대를 치던 속로는 호위가 커지자 부하를 멈춘다.
+Gaesomun and Namgeon are with the central mobile force leaving north. Roads and assembly must bring them to the next force. Sokro's troops continue the land interdiction already assigned. When escorts grow larger around the small transport parties he has attacked, Sokro stops his men.
 
-속로: 호위와 정면으로 붙지 마라. 이 길이 막히면 짐이 어디로 가는지 보자.
+SOKRO: Don't meet the escort head-on. Let's see where the cargo goes when this road is blocked.
 
-남쪽 전선의 보고 삽입. 북한산성에서 창고 목재를 망루로 옮기고, 밧줄망에 가죽과 솜옷을 건다. 평양 현장의 소리는 낮아지고 관객에게만 역사가의 음성이 들린다.
+Insert a report from the southern front. At Bukhansanseong, people move storehouse timber to a watchtower and hang leather and padded clothes on rope nets. Pyongyang's local sound falls; only the audience hears the historian.
 
-역사가 음성: 뇌음신과 생해는 술천성 공격에 실패하고 북한산성으로 옮겼다. 동타천과 남녀 이천팔백이 이십여 일을 버텼다고 한다. 주민까지 합한 수이지 전투원만 센 수는 아니다. 포차가 성을 상하게 하자 방어자는 저장 공간을 헐어 목재를 돌리고 수리에 일손을 썼다. 노포와 마름쇠로 접근을 막는 동안 공격군의 식량과 노동도 소모됐다. 공격군은 기상 변화 속에 철수했다. 603년의 구원군 앞에서 물러난 공방과는 다른, 661년의 결과였다.
+HISTORIAN (V.O.): Noeumsin and Saenghae failed at Sulcheonseong and moved to Bukhansanseong. Dongtacheon and twenty-eight hundred men and women are said to have held for more than twenty days. That count includes residents, not combatants alone. When catapults damaged the fortress, defenders dismantled storage space for timber and used labor on repairs. Ballistae and caltrops impeded approaches while the attackers consumed food and labor too. They withdrew amid changing weather. This was the outcome in 661, different from the 603 siege ended by a relief army.
 
-비워진 들 위로 포위 진의 소리가 이어진다.
+Sounds of the siege camp continue over emptied fields.
 
-## 남이 무너지기 전에 시작할 전쟁 {#t017-baekje-assumption}
+## A war to begin before another country falls {#t017-baekje-assumption}
 
-661년 백제 부흥군의 의논 자리 안 낮. 복신과 부여풍 앞에 지원에 관한 보고가 놓인다. 창밖의 군무 소리는 두 사람의 목소리를 삼키지 않을 만큼 멀다.
+Inside a Baekje restoration council in 661, day. A support report lies before Boksin and Buyeo Pung. Military sounds outside the window are distant enough not to drown them.
 
-복신: 고구려가 무너지면 당이 이리로 돌아옵니다. 신라를 먼저 무너뜨려야 합니다. 성만 되찾아서 버틸 수는 없습니다.
+BOKSIN: If Goguryeo falls, Tang will come back here. We must bring down Silla first. Recovering fortresses alone won't let us hold.
 
-부여풍: 왜에는 이미 청했습니다. 내 가족의 약속도 걸렸습니다.
+BUYEO PUNG: I've already asked Wa. My family's promises are at stake too.
 
-복신: 약속만 받아 놓아서는 못 싸웁니다. 모인 사람으로 언제 칠 수 있는지 봐야 합니다.
+BOKSIN: We can't fight on promises alone. We need to see when the people assembled can attack.
 
-부여풍: 내가 왕이다. 내가 청한 군사도 있는데 내 명으로 준비할 수 없다는 말이냐?
+BUYEO PUNG: I am the king. I've asked for troops too. Are you saying my order cannot prepare them?
 
-복신: 지금 병력을 모으고 준비시키는 사람은 접니다. 명하신다고 그 준비가 끝나지는 않습니다.
+BOKSIN: I'm the one gathering and preparing the troops now. An order won't finish that preparation.
 
-역사가 음성: 부여풍은 왜 지배층의 여성, 다신장부의 여동생과 혼인했다. 가족의 연고도 걸린 지원이었다. 배우자의 이름과 그 뒤 행로는 알 수 없다. 그 혼인이 왜의 모든 병력에 명령할 권한을 주지도 않았다. 지원 요청은 660년부터 이어졌다. 이제 그들은 고구려가 무너지리라 내다보며, 준비가 덜 된 공세를 더 크게 벌이려 했다.
+HISTORIAN (V.O.): Buyeo Pung married a woman of Wa's ruling class, Komoshiki's younger sister. Family ties were at stake in that support too. Her name and later path are unknown. The marriage gave him no authority to command all Wa forces. Requests had continued since 660. Now, expecting Goguryeo to fall, they sought to enlarge an offensive that was not fully prepared.
 
-부여풍이 보고를 접는다.
+Buyeo Pung folds the report.
 
-부여풍: 그러면 지금 움직일 수 있는 군사부터 내게 말해라.
+BUYEO PUNG: Then tell me first what troops can move now.
 
-복신은 준비가 끝난 몫과 기다려야 할 몫을 따로 앞으로 옮긴다.
+Boksin moves the prepared share and the share that must wait forward separately.
 
-## 기다리는 임무 {#t017-yalu-stakes}
+## A mission to wait {#t017-yalu-stakes}
 
-압록강 남안 바깥 낮. 남생이 석부와 강의 접근로를 본다. 수도 쪽에서 온 보고를 읽고 다시 군사를 살핀다.
+Outside on the Yalu's south bank, day. Namsaeng and Seokbu look at approaches to the river. Namsaeng reads a report from the capital and checks his troops again.
 
-남생: 여기서 길이 열리면 평양 앞의 적이 서로 이어진다. 건너가 죽이는 것이 우리 일은 아니다.
+NAMSAENG: If the road opens here, the enemies before Pyongyang can join. Our task isn't to cross and kill them.
 
-석부: 언제까지입니까?
+SEOKBU: Until when?
 
-남생: 다른 방면의 군사가 모일 때까지다. 우리가 막아 둔 만큼 평양 앞 적은 짐을 못 받는다.
+NAMSAENG: Until forces elsewhere assemble. For as long as we block it, the enemy before Pyongyang gets no land supplies.
 
-석부: 겨울에도 여기 있으면 제 집의 일은 누가 합니까?
+SEOKBU: If we're here through winter, who does the work at my home?
 
-남생: 끝날 날을 약속할 수는 없다. 집의 사정도 듣고 교대를 나누겠다.
+NAMSAENG: I can't promise when it will end. I'll hear about the households and arrange rotations.
 
-두 사람은 같은 음식을 나누고 경계 교대를 정한다. 강 건너의 적은 아직 떠나지 않는다.
+The two share the same food and arrange watch shifts. The enemy across the river has not left.
 
-## 한 달의 경계 {#t018-month-of-delay}
+## A month on watch {#t018-month-of-delay}
 
-자막 ‘661년 9월’. 압록강 남안 바깥, 낮과 밤의 교대가 이어진다. 정면 나루로 접근하는 당군을 수비가 막는다. 남생은 물을 건너지 않고 돌아올 군사를 받는다.
+Caption: “September 661.” Outside on the Yalu's south bank, day and night shifts continue. Defenders stop Tang troops approaching the main crossing. Namsaeng remains on his side and receives returning troops.
 
-남생: 저지한 뒤 돌아와라. 저쪽 강변까지 쫓지 마라.
+NAMSAENG: Stop them and come back. Don't chase them to the opposite bank.
 
-북안의 계필하력은 막힌 자리를 보고 상·하류의 확인을 넓힌다. 남안에서도 샛길의 관측 보고가 늘어나자 석부가 나눌 인원을 묻는다.
+On the north bank Qibi Heli sees the blocked position and widens checks upstream and down. As reports of side paths increase on the south bank, Seokbu asks how to divide the watch.
 
-남생: 정면을 비울 수 없다. 갈 사람과 받을 신호를 나눠라.
+NAMSAENG: We can't empty the front. Divide the people going and the signals they'll receive.
 
-차가워진 밤, 남생은 병사들과 같은 음식을 받아 먹는다. 이겨 돌아온 행렬 대신 다음 경계조가 나간다. 평양 앞 적의 육상 연결은 계속 묶여 있다.
+In the colder night, Namsaeng eats the same food as the soldiers. Instead of a returning victory procession, the next watch goes out. The enemy's land connection before Pyongyang remains blocked.
 
-## 굽이 너머에서 건너온 적 {#t018-ice-crossing}
+## The enemy crosses beyond the bend {#t018-ice-crossing}
 
-자막 ‘9월 말~10월 상순’. 강 상류의 좁은 구간 바깥 낮. 계필하력의 선두가 얼음 상태를 사람부터 확인한다. 말을 앞세우지 않는다. 지나간 사람이 반대편에서 신호한 뒤 다음이 움직인다.
+Caption: “Late September–early October.” Outside at a narrow upstream stretch, day. Qibi Heli's lead tests the ice first with people on foot, not horses. Once someone who crossed signals from the other side, the next moves.
 
-남생의 자리에서는 숲과 강 굽이가 상류를 가린다. 화면은 굽이 뒤 도하와 보고를 기다리는 남생을 나누어 놓는다.
+From Namsaeng's position, woods and a bend obscure the upstream section. The screen separates the crossing beyond the bend from Namsaeng awaiting reports.
 
-역사가 음성: 이 극은 결빙을 이르게 잡는다. 새로 건널 곳은 동쪽 사 킬로미터에 있었다. 남생의 자리에서는 숲과 강 굽이에 가린 곳이었다.
+HISTORIAN (V.O.): This drama places the freeze early. The new crossing was four kilometers east, hidden from Namsaeng's position by woods and the bend.
 
-보고가 도착할 때 적은 이미 남안 뒤의 길에 들어왔다.
+By the time the report arrives, the enemy has already entered a road behind the south bank.
 
-남생: 앞을 버려라. 뒤의 합류 자리로 물러난다. 들은 대열부터 옆에 전해라.
+NAMSAENG: Leave the front. Withdraw to the rendezvous behind us. Those who hear, pass it to the next formation.
 
-석부가 짐 하나를 내려놓고 사람을 부른다. 일부에는 아직 퇴각 명령이 닿지 않아 돌아갈 길이 닫힌다. 석부는 그들을 모두 데려왔다고 보고하지 않는다.
+Seokbu puts down a load and calls people. Some have not yet received the retreat order and their road back closes. Seokbu does not report that he brought them all out.
 
-## 패배 뒤에도 받는 이름 {#t018-defeat-and-trust}
+## Names accounted for even after defeat {#t018-defeat-and-trust}
 
-철산 집결지 바깥 낮. 돌아온 병력의 대열 사이로 남생이 걸으며 빠진 사람의 답을 받는다. 석부가 남긴 짐과 사람을 보고한다.
+Outside the Cheolsan assembly point, day. Namsaeng walks between returning ranks and receives answers about missing people. Seokbu reports the people and baggage left behind.
 
-남생: 내가 판단한 일이다. 돌아오지 않은 사람을 돌아왔다고 쓰지 마라. 남은 병력으로 남안 길목을 다시 맡긴다.
+NAMSAENG: It was my decision. Don't write those who didn't return as returned. Reassign the remaining troops to the south-bank approaches.
 
-석부: 남은 사람은 제가 모으겠습니다.
+SEOKBU: I'll gather those who remain.
 
-역사가 음성: 사만 중 대열을 추슬러 물러난 병력은 이만이었다. 나머지가 모두 죽었다는 뜻은 아니다. 당 기록의 ‘삼만을 베었다’도 승자가 남긴 전과 주장이다.
+HISTORIAN (V.O.): Of forty thousand, twenty thousand withdrew in organized ranks. That does not mean all the rest died. Tang's 'thirty thousand beheaded' was the victor's claim.
 
-보고는 평양과 북쪽 기동군으로 따로 나간다. 개소문이 한 달과 패배를 함께 읽는 동안 남건은 마지막에 열린 강을 가리킨다.
+Reports go separately to Pyongyang and the northern mobile army. As Gaesomun reads both the month and the defeat, Namgeon points to the river opened at the end.
 
-남건: 결국 건너왔습니다.
+NAMGEON: They crossed in the end.
 
-개소문: 그전에 한 달을 못 왔다.
+GAESOMUN: Before that, they couldn't cross for a month.
 
-남생은 그 말을 듣지 못한 채 다음 경계를 정한다.
+Namsaeng, unable to hear them, arranges the next watch.
 
-## 이유 없는 빈 진 {#t019-departure-observed}
+## An empty camp without a reason {#t019-departure-observed}
 
-10월 북방 바깥 낮. 당군이 비운 진을 확인한 정찰의 시선으로 남은 자리를 본다. 보고가 남생에게 닿는 시간은 자막으로 나뉜다. 출발 이틀 뒤 관측, 그 이틀 뒤 수령. 평양행은 더 여드레다.
+Outside in the north in October, day. From the scouts' view, see what remains of a camp Tang has vacated. Captions separate the time taken for the report to reach Namsaeng: observed two days after departure, received another two days later. Pyongyang takes eight more days.
 
-남생: 간 방향은 적었는데 떠난 이유는 없군. 남안은 계속 지킨다.
+NAMSAENG: It records their direction, but not why they left. Keep guarding the south bank.
 
-북쪽 개소문도 빈틈을 확인한다.
+Gaesomun in the north also checks the gap.
 
-남건: 도망간다면 쫓아야 합니다.
+NAMGEON: If they're fleeing, we should pursue.
 
-개소문: 떠난 이유부터 모른다. 남은 군대가 어디와 이어지는지 보아라.
+GAESOMUN: We don't even know why they left. See where the remaining army is connected.
 
-개소문은 수도의 답을 당일에 되받지 않는다. 현지 보고를 더 맞추고 누방군의 연결로 병력을 돌린다.
+Gaesomun does not receive the capital's answer that day. He compares more local reports and turns troops toward Nufang's connections.
 
-## 밖에서 온 세 조서 {#t019-diversion-explained}
+## Three edicts from outside the campaign {#t019-diversion-explained}
 
-빈 진을 본 뒤, 화면 위 날짜가 앞선 ‘9월 중순’으로 잠깐 돌아간다. 조서의 이동을 제한된 지도 삽입으로 본다. 인물이 읽는 작전 지도로 바꾸지 않는다.
+After the empty camp, the date briefly returns to “mid-September.” See the edicts' movement in a limited map insert, not an operational map read by a character.
 
-역사가 음성: 철륵의 위기에 대응할 세 조서가 당 중앙에서 나갔다. 극에서는 발송을 이르게 잡았다. 소사업·아사나충·계필하력에게 닿는 때가 달라 준비도 출발도 따로였다. 늦어도 시월 이십일 전에는 모두 고구려 전선을 떠났다. 빈 진을 처음 보았던 사람들에게는 아직 그 까닭이 닿지 않았다.
+HISTORIAN (V.O.): Three edicts left Tang's center to address the Tiele crisis. The drama places dispatch early. They reached Xiao Siye, Ashina Zhong, and Qibi Heli at different times, so preparations and departures were separate. All left the Goguryeo front before October twentieth at the latest. Those who first saw the empty camp did not yet know why.
 
-뒤의 보고로 고구려 편에 선 거란이 아사나충을 막다 진 사실이 이어진다. 고구려군이 그 전장에 등장하지 않는다. 현재의 개소문이 누방의 남은 연락을 확인한다.
+A later report follows: Khitan allied with Goguryeo lost trying to stop Ashina Zhong. Goguryeo troops do not appear on that battlefield. In the present, Gaesomun checks Nufang's remaining connections.
 
-개소문: 다른 군대가 돌아와 붙을 때까지 기다리게 두지 않는다.
+GAESOMUN: We won't let them wait until the other armies return and join them.
 
-그의 군사가 비어 버린 두 적 대신 남아 있는 한 진으로 움직인다.
+His troops move toward one remaining camp instead of the two departed enemies.
 
-## 성에 남길 사람과 빌릴 사람 {#t020-local-concentration}
+## Defenders to leave and infantry to borrow {#t020-local-concentration}
 
-10월 하순 요동성 서쪽 바깥 낮. 현지 군관이 성에 남길 병력과 합류할 보병을 나눈다. 신성에서 온 병력이 길을 거쳐 도착하고 신호를 맞춘다. 개소문은 바로 돌격하자는 요구를 멈춘다.
+West of Yodongseong in late October, outside, day. A local officer divides troops to leave in the fortress from infantry who will join. Forces from Sinseong arrive by road and coordinate signals. Gaesomun stops a demand to charge immediately.
 
-개소문: 서북과 서남, 두 짐길을 맡아라. 성 쪽에서 붙들 사람은 이쪽이다.
+GAESOMUN: Take the two supply roads, northwest and southwest. The people holding them from the fortress side are here.
 
-속로가 차단할 병력을 데리고 서쪽으로 빠진다. 남건의 중기병은 중앙 기동군 안에서 기다린다. 시선은 갈라진 두 짐길과 그쪽으로 나가는 병력을 따른다. 동쪽 압박으로 옮기면 성 쪽을 맡은 별도의 병력이 움직인다.
+Sokro takes his interdiction force west. Namgeon's heavy cavalry waits within the central mobile army. Follow the two diverging supply roads and troops heading out. Moving to the eastern pressure, see the separate force assigned to the fortress side move.
 
-## 호위를 보낸 뒤에 생긴 틈 {#t020-camp-separation}
+## The opening after escorts are sent {#t020-camp-separation}
 
-정명진 진 바깥 낮. 짐길이 막혔다는 보고에 정명진이 호위를 내보낸다. 서쪽 출입에서 나가는 병력과 들어오는 짐이 맞부딪친다.
+Outside Zheng Mingzhen's camp, day. On a report that supply roads are blocked, Zheng sends escorts out. Troops leaving and cargo entering collide at the western exit.
 
-정명진: 짐부터 안으로 들여라. 동쪽 병력을 전부 빼지 마라.
+ZHENG MINGZHEN: Get the cargo inside first. Don't pull every troop from the east.
 
-동쪽 압박이 강해지자 진 안에서 두 요청이 겹친다. 속로는 나온 호위를 정면에서 끝내려 하지 않고 연락이 이어질 길로 옮긴다. 개소문이 전면을 붙든 채 그 분열에 힘을 모은다.
+As eastern pressure increases, two demands overlap inside. Sokro does not seek to finish the escort head-on; he moves to the route by which contact could be restored. Holding the front, Gaesomun concentrates strength on the division.
 
-남쪽에 남은 틈으로 사람들이 달아난다. 진 안에서는 명령을 받은 군사가 합칠 대열을 찾지 못한다. 정명진의 생사를 확인하는 장면 없이, 명령과 대열이 흩어지는 진을 본다.
+People escape through a gap remaining in the south. Inside camp, soldiers with orders cannot find a formation to join. Without a scene confirming Zheng's fate, see orders and ranks scatter.
 
-## 전리품을 남겨 두는 군대 {#t020-victory-cost}
+## An army leaves spoils behind {#t020-victory-cost}
 
-전투 뒤 같은 들, 낮빛이 기운다. 전리품 쪽으로 움직이려는 병력을 개소문이 돌린다.
+The same field after battle, daylight fading. Gaesomun turns troops who are moving toward spoils.
 
-개소문: 말부터 확인해라. 다음 길을 갈 사람을 다시 묶는다.
+GAESOMUN: Check the horses first. Regroup the people who can take the next road.
 
-군관이 즉시 임무에서 빠질 사람을 보고한다.
+An officer reports those immediately unavailable for duty.
 
-역사가 음성: 당장 빠질 사람 약 오천을 빼면 삼만 오천이 남았다.
+HISTORIAN (V.O.): After roughly five thousand immediately lost to duty, thirty-five thousand remained.
 
-현지 보병은 자기 성 군관을 따라 돌아간다.
+Local infantry returns under its fortress officer.
 
-남건: 수도로 갑니까?
+NAMGEON: Are we going to the capital?
 
-개소문: 길이 열렸는지, 먹일 것이 있는지부터 확인한다. 달려간다고 생기지는 않아.
+GAESOMUN: First confirm the road is open and there's food. Running won't create either.
 
-부상과 군장, 지역 협조가 정리되는 시간을 거쳐 자막이 ‘12월 초, 신성 일대’로 바뀐다. 겨울의 남하 대열이 모인다.
+After time to deal with injuries, equipment, and regional cooperation, the caption changes to “Early December, Sinseong area.” The winter column assembles to go south.
 
-## 충성으로 채울 수 없는 먹이 {#t021-reserves-committed}
+## Feed that loyalty cannot provide {#t021-reserves-committed}
 
-12월 초 신성 일대의 급양 준비 자리 안 낮. 창고별 출고 보고를 든 사람 앞에 개소문이 앉는다. 출입문 밖에는 다음 보고를 기다리는 운반 인력이 있다.
+Inside a feeding-preparation area around Sinseong in early December, day. Gaesomun sits before someone carrying storehouse release reports. Outside the door, carriers wait for the next report.
 
-개소문: 말은 오만 필쯤이다. 곡물만 말하지 마라. 건초와 사람의 식량을 나눠라.
+GAESOMUN: About fifty thousand horses. Don't speak only of grain. Allocate hay and food for people too.
 
-담당자: 종자까지 합치면—
+OFFICIAL: If we include seed—
 
-개소문: 그것과 피난 가구의 마지막 양식은 재고가 아니다.
+GAESOMUN: That and displaced households' last food aren't stock.
 
-가문 대표: 먼저 내놓으면 돌아올 몫은 언제 받습니까? 이 지역 일도 늦어집니다.
+FAMILY REPRESENTATIVE: If we give it first, when will our share return? Work in this region will be delayed too.
 
-개소문: 그대가 마련한 말도 먹어야 갈 것 아닌가. 창고마다 내보낼 양과 통행할 때를 정한다. 그 때문에 늦을 일도 함께 적어라.
+GAESOMUN: Even horses you provided must eat to travel. Set each store's release and passage times. Record the work delayed because of it too.
 
-역사가 음성: 스물두 급양 구역, 도하 대기 이틀의 추가 몫, 평양 북쪽 열 구역의 재고가 나뉘었다. 별도 남하 경기병 칠천의 먹이도 다른 몫이었다.
+HISTORIAN (V.O.): Stocks were divided among twenty-two feeding areas, an extra share for two days awaiting a crossing, and ten areas north of Pyongyang. Feed for the separate seven thousand light cavalry going south was another share.
 
-대표가 출고 명을 받아 나간다. 밖의 노동자는 지역에서 못 하게 된 일을 말하며 짐을 옮긴다.
+The representative leaves with the release order. Outside, workers move loads while speaking of local work they cannot do.
 
-## 이긴 뒤에 멈춘 성병 {#t021-december-sortie}
+## Garrison troops stop after winning {#t021-december-sortie}
 
-같은 12월, 평양성 바깥 낮. 성에서 나온 수비군이 보루 앞 접근을 붙든다. 앞이 안으로 들자 뒤의 병력이 그 출입을 유지한다. 밀려난 당군을 넘어서 보루 안을 확보한 수비가 숨을 고른다. 다음 보루로 장면을 나누어 같은 수비군의 압박과 확보를 잇는다. 손상된 무장을 옮겨 성으로 돌아온 사람이 더 갈 병력을 기다리지만 지휘가 멈춘다. 멀리 남은 당의 진은 그대로 보인다.
+Outside Pyongyang fortress that December, day. Defenders from the fortress hold the approach before a strongpoint. As the front enters, troops behind keep the entrance open. Defenders secure the interior beyond pushed-back Tang troops and catch their breath. In a separate scene at the next strongpoint, follow the same garrison's pressure and capture. Someone returns to the fortress carrying damaged equipment and waits for troops to go farther, but command stops. Remaining Tang camps are still visible in the distance.
 
-고휘: 저것을 더 치면 안 됩니까?
+GO HWI: Can't we attack those too?
 
-수비 측: 더 공격할 병력이 없습니다.
+DEFENDER: We have no troops for further attacks.
 
-성 안 해은은 돌아온 수선 물건을 받아 펼친다. 유혜가 남편에게 포위가 풀렸는지 묻는다.
+Inside the fortress Haeun receives and unfolds returned repair work. Yu Hye asks her husband whether the siege is over.
 
-남편: 아직 근무가 남았소.
+HUSBAND: I still have duty.
 
-유혜는 아들의 식량 몫을 다시 덜어 놓는다. 성 밖에 남은 진의 불빛으로 밤을 잇는다.
+Yu Hye sets aside her son's food share again. Night follows with lights from the camps outside.
 
-## 먹고 움직이는 말과 멈춘 군량 {#t021-march-and-starvation}
+## Horses eat and move; provisions stop {#t021-march-and-starvation}
 
-겨울 행군 바깥, 낮에서 야영의 밤으로. 다음 급양 구역 확인이 올 때까지 대열 전체는 서두르지 않는다. 도하 앞에서는 미리 배정한 건초와 식량을 나눈다. 기다리는 말이 먹고 지원 인력이 다음 짐을 옮긴다.
+Outside on the winter march, day into camp night. The whole column does not hurry until confirmation comes from the next feeding area. Before crossing, they distribute hay and food allocated in advance. Waiting horses eat; support personnel move the next loads.
 
-역사가 음성: 오백오십 킬로미터를 하루 이십에서 이십오 킬로미터쯤씩 옮겼다. 이동에 스물두 날, 기다리는 데 이틀이 들었다. 기병도 먹이를 받아야 움직였고 강 앞에서는 기다려야 했다.
+HISTORIAN (V.O.): They moved roughly five hundred fifty kilometers at twenty to twenty-five a day: twenty-two days moving and two waiting. Even cavalry needed feed to move and had to wait at the river.
 
-당 포위 진 안, 밤의 낮은 불. 소정방이 남은 양을 듣고 신라에 요청을 보낸다.
+Inside a Tang siege camp, low fires at night. Su Dingfang hears the remaining quantity and sends a request to Silla.
 
-소정방: 옆 진도 나눌 곡식이 없다. 신라에 군량을 청한다.
+SU DINGFANG: The neighboring camp has no grain to share either. Ask Silla for provisions.
 
-임아상과 방효태의 진에서도 각자 남은 짐을 계산한다. 같은 겨울을 건너 북쪽 대열이 ‘662년 1월 초’ 평양 북쪽에 도착한다.
+Ren Yaxiang's and Pang Xiaotai's camps each count their remaining supplies. Through the same winter, the northern column reaches north of Pyongyang in “early January 662.”
 
-## 성 안으로 다 들어가지 않는 합류 {#t022-northern-assembly}
+## Joining without crowding inside the fortress {#t022-northern-assembly}
 
-평양 북쪽 집결지 바깥 낮. 중앙 기동군과 성에서 나온 보병이 별개의 출입으로 모인다. 말과 짐은 분산 급양 구역에 남는다. 남건이 남은 말과 병력을 다시 세운다.
+Outside the assembly area north of Pyongyang, day. The central mobile army and infantry from the fortress assemble through separate entrances. Horses and baggage remain in dispersed feeding areas. Namgeon counts his remaining horses and men again.
 
-남건: 이제 합쳤습니다.
+NAMGEON: We're joined now.
 
-개소문: 모였다고 한꺼번에 좁은 입구로 들어가겠느냐. 신호와 군장부터 맞춰라.
+GAESOMUN: Because we've assembled, do we all enter a narrow passage at once? Coordinate signals and equipment first.
 
-사흘 이상의 준비를 교대와 정찰로 이어 간다.
+Preparation of at least three days continues through rotation and scouting.
 
-역사가 음성: 기동군 삼만 오천에 성에서 내줄 보병 일만 오천을 합쳤다. 최대 오만의 군사 임무 인원 안에는 말과 짐을 맡을 사천이 있었다. 남생의 이만은 남안에 남았다.
+HISTORIAN (V.O.): Thirty-five thousand mobile troops joined fifteen thousand infantry released from the fortress. Within at most fifty thousand military personnel were four thousand handling horses and baggage. Namsaeng's twenty thousand stayed on the south bank.
 
-개소문은 먼저 끊을 연결의 보고를 기다린다.
+Gaesomun waits for a report on which connection to cut first.
 
-## 왕이 맡긴 국경 밖의 벌 {#t022-silla-delegation}
+## The king delegates punishment beyond the border {#t022-silla-delegation}
 
-신라 왕의 의논 자리 안 낮. 문무왕이 직접 쓴 글을 김유신에게 준다.
+Inside the Silla king's council, day. King Munmu gives Kim Yusin a document written in his own hand.
 
-문무왕: 국경 밖에서 상 주고 벌할 일까지 맡기오. 동맹군을 먹이지 못하면 남쪽 전쟁도 위태로워집니다.
+MUNMU: I entrust you even with rewards and punishment beyond the border. If we cannot feed our ally, the southern war is in danger too.
 
-김유신: 군량을 넘기고 사람들을 데리고 돌아오겠습니다. 잃는 사람의 책임도 제가 지겠습니다.
+KIM YUSIN: I'll deliver the provisions and bring the people back. I'll bear responsibility for those we lose.
 
-수송 준비 바깥 낮. 당에 줄 곡물과 자기 양식을 따로 묶는다. 찬오는 수레의 짐을 고치고 귀돌은 자기 몫을 들고 들어온다.
+Outside transport preparations, day. Grain for Tang and their own food are packed separately. Chano adjusts a cart load; Gwidol arrives carrying his share.
 
-귀돌: 이건 우리가 먹을 겁니까?
+GWIDOL: Is this for us to eat?
 
-찬오: 그쪽은 넘길 것. 네가 먹을 것은 따로 둬.
+CHANO: That goes to them. Put your food separately.
 
-역사가 음성: 싸울 사람 일만에 운반과 길 정리를 맡은 이만, 수레 이천여 대가 따랐다. 목표로 잡은 이만 육천 석쯤은 곡물의 부피를 재는 행정 단위다. 실제로 끝까지 가서 넘긴 양은 아직 아니다.
+HISTORIAN (V.O.): Ten thousand fighters were accompanied by twenty thousand carriers and road workers, and more than two thousand carts. The target of about twenty-six thousand seok was an administrative measure of grain volume, not yet the amount actually delivered at the end.
 
-준비한 대열이 출발한다.
+The prepared column departs.
 
-## 아는 산길을 못 갈 길로 읽다 {#t022-unwatched-capacity}
+## A known mountain path judged impassable {#t022-unwatched-capacity}
 
-고구려 남쪽 경계 바깥 낮. 큰길과 나루에 선 병력이 산쪽 움직임을 관측한다. 중앙 반격군과 별도인 요동 경기병 칠천·남방 수비 삼천의 경계다.
+Outside Goguryeo's southern watch, day. Troops on main roads and crossings observe movement toward the mountains. These are 7,000 Liaodong light cavalry and 3,000 southern defenders, separate from the central counterattack.
 
-경계 측: 사람은 갑니다. 큰 짐은 어렵습니다.
+WATCH: People can pass. Large loads would be difficult.
 
-그 판단을 받은 지휘는 큰길 감시를 유지한다.
+Receiving that judgment, command maintains the main-road watch.
 
-신라 대열이 음력 정월 스물사흗날 칠중하를 건넌다. 김유신은 감시가 센 대로 대신 산길로 선두를 보낸다.
+The Silla column crosses the Chiljung River on the twenty-third day of the first lunar month. Kim Yusin sends the lead onto a mountain path instead of the heavily watched main road.
 
-김유신: 앞서 간 사람은 짐까지 받았는지 확인해라. 사람만 넘어가 놓고 다 지났다고 보고하지 마라.
+KIM YUSIN: Those ahead must confirm the loads have come through too. Don't report everyone passed just because people crossed.
 
-수레가 대로를 벗어나 좁은 길 입구에서 멈춘다. 운반자들이 처음 짐을 푼다.
+Carts leave the main road and stop at a narrow entrance. Carriers unload the first cargo.
 
-## 통과한 사람 뒤에 남는 짐 {#t023-unload-and-pass}
+## Loads remain behind people who passed {#t023-unload-and-pass}
 
-겨울 산길 바깥 낮. 좁은 곳 앞의 수레에서 포대를 내려 사람과 가축에 나눈다. 반대편에서 기다리는 운반자가 건너온 포대를 다시 묶는다. 앞이 나아가도 뒤는 같은 자리에 오래 남는다.
+Outside on a winter mountain path, day. Sacks are unloaded from carts before a narrow place and divided among people and animals. Carriers waiting on the far side tie the crossed sacks again. Even as the front advances, the rear remains long in the same place.
 
-찬오: 이쪽 무게를 덜어. 젖은 게 한쪽에 몰렸어.
+CHANO: Take weight off this side. The wet ones are all on one side.
 
-귀돌이 동료 짐을 나누어 든다. 수레 하나는 더 갈 수 없어 길옆에 남고 싣지 못할 짐을 고른다.
+Gwidol shares a companion's load. A cart cannot continue and is left beside the road; they choose what cargo cannot be carried.
 
-김유신: 필요한 양은 먹여라. 먹인 양과 넘길 양을 나누어 보고해라.
+KIM YUSIN: Feed them what they need. Report what is eaten separately from what will be delivered.
 
-자기 양식을 아끼던 사람이 배급을 받는다. 덜어진 포대와 계속 지켜야 할 목표를 따로 기록한다.
+Someone rationing their own food receives a share. Lighter sacks and the delivery target still to be protected are recorded separately.
 
-역사가 음성: 양오까지 이백사십 킬로미터쯤, 두 주가량의 우회였다.
+HISTORIAN (V.O.): The detour to Yango was roughly two hundred forty kilometers and took about two weeks.
 
-선두의 발이 닿은 길 위로 뒤의 짐이 조금씩 따라온다.
+Behind the path reached by the lead's feet, baggage follows little by little.
 
-## 한 불가에 앉을 수 없는 대열 {#t023-winter-camp-cost}
+## A column that cannot sit at one fire {#t023-winter-camp-cost}
 
-대표 야영지 바깥 밤. 불 가까이 앉은 찬오의 젖은 발을 가까이 받다가 떨어진 다른 무리의 불로 시선을 넓힌다. 약 이천이 이 구역에 있고 나머지는 앞뒤로 나뉜다. 물을 길어 올라오는 사람이 지친 짐을 내려놓는다.
+Outside a representative camp, night. Close on Chano's wet feet near a fire, then widen to fires of other groups farther away. About 2,000 are in this area; the rest are divided ahead and behind. Someone carrying water uphill puts down an exhausting load.
 
-귀돌: 어머니 혼자 밭을 맡아야 하는데.
+GWIDOL: Mother will have to work the field alone.
 
-찬오: 돌아가서 네가 갚아야지.
+CHANO: You'll have to make it up when you get back.
 
-귀돌: 돌아가면 한동안 길 닦는 품은 못 팔겠다. 밭고랑도 겁나게 생겼어.
+GWIDOL: Once I'm home I won't be able to hire out for road work for a while. Even furrows are starting to scare me.
 
-둘이 잠깐 웃는다. 옆에서 쓰러진 사람을 옮기는 소리에 말이 끊긴다. 찬오가 발의 천을 풀다 손가락 감각을 확인한다. 제대로 잡히지 않는다.
+They laugh briefly. The sound of someone moving a fallen companion interrupts them. Chano unwraps his feet and checks sensation in his fingers. He cannot grip properly.
 
-김유신은 부상자가 돌아갈 호위를 남기고 먼저 갈 짐을 나눈다. 찬오에게 더 작은 짐이 온다. 다른 사람이 덜어 든 포대가 그의 앞을 지나간다. 찬오가 손가락을 다시 오므려 본다. 작은 짐을 받아 들고 일어난다.
+Kim Yusin leaves an escort for injured people returning and separates cargo to go first. A smaller load comes to Chano. A sack another person has taken from him passes in front. Chano curls his fingers again, accepts the smaller load, and rises.
 
-## 조각난 사람 수로 못 센 군량 {#t023-late-recognition}
+## Provisions cannot be counted from scattered sightings {#t023-late-recognition}
 
-고구려 경계의 보고 자리 바깥 낮. 산길에서 보았다는 적은 수가 먼저 올라온다. 처음에는 연락과 정찰로 읽는다. 뒤의 보고에는 짐과 가축, 길을 반복해 고치는 일이 더해진다.
+Outside a Goguryeo watch reporting point, day. The first report gives a small number seen on the mountain path. Command initially reads it as messengers and scouts. Later reports add repeated cargo, livestock, and road repairs.
 
-지휘 측: 같은 길에서 계속 짐이 나온다는 말인가?
+COMMAND: You're saying cargo keeps coming along the same road?
 
-보고를 다시 모으는 동안 신라 선두가 양오의 인계 조건을 알아본다. 김유신이 김인문·김양도를 먼저 보낸다.
+As reports are gathered again, the Silla advance party checks Yango's handover conditions. Kim Yusin sends Kim Inmun and Kim Yangdo first.
 
-김유신: 받을 자리와 호위를 확인하시오. 전부를 한 번에 들이지 않겠소.
+KIM YUSIN: Confirm the receiving place and escort. We won't bring everyone in at once.
 
-나뉜 운반 대열이 인계를 기다린다. 고구려 쪽에는 뒤늦게 짐과 가축의 보고가 모인다.
+Divided transport groups await handover. On Goguryeo's side, reports of cargo and livestock gather late.
 
-## 받아 든 뒤에도 옮겨야 하는 것 {#t024-handover}
+## What must still be moved after receipt {#t024-handover}
 
-자막 ‘음력 2월 6일, 양오’. 인계 마당 바깥 낮. 김인문·김양도가 마정에게 들어갈 자리와 호위를 확인한다. 첫 묶음이 들어오자 마정이 젖은 포대를 따로 놓게 한다.
+Caption: “Sixth day of the second lunar month, Yango.” Outside the handover yard, day. Kim Inmun and Kim Yangdo confirm entry space and escort with Ma Jeong. As the first group enters, Ma Jeong has wet sacks placed separately.
 
-마정: 마른 것과 섞지 마시오. 이쪽을 비워야 다음 짐이 듭니다.
+MA JEONG: Don't mix them with dry ones. We have to clear this side for the next loads.
 
-찬오의 무리가 짐을 넘긴 뒤 물러난다. 당의 일꾼들이 그것을 북쪽으로 옮겨 자리가 비고 다음 신라 짐이 들어온다. 굶주린 몸이 짐을 들다 멈추면 뒤의 줄도 선다.
+Chano's group hands over its load and withdraws. Tang workers move it north, clearing space for the next Silla cargo. When a hungry worker stops while lifting a load, the line behind stops too.
 
-김양도: 받았다고 보고만 올리고 멈추면 안 되오. 진으로 옮겨야 다음 짐이 들어오오.
+KIM YANGDO: We can't report receipt and stop. Move it to camp so the next load can come in.
 
-밤에도 작업 소리가 이어진다. 처음 출발한 물량을 모두 넘겼다고 계량하는 말은 없다. 찬오는 가벼워진 짐 대신 자기 손을 주무른다.
+Work sounds continue at night. No one measures and claims all that departed has been delivered. Chano rubs his hands instead of carrying the now lighter load.
 
-## 곡식을 받은 적이 고른 일 {#t024-su-recovers}
+## What the enemy chooses after receiving grain {#t024-su-recovers}
 
-소정방 진 안 낮. 군량이 들어오고 배급이 다시 돈다. 그는 임아상·방효태 진의 요청과 자기 주력의 상태를 함께 듣는다.
+Inside Su Dingfang's camp, day. Provisions enter and rations circulate again. He hears requests from Ren Yaxiang's and Pang Xiaotai's camps alongside the state of his own main force.
 
-소정방: 먼저 사람과 장비를 모아라. 먹었다고 저 길이 바로 열리는 것은 아니다. 나갈 힘도 남겨야 한다.
+SU DINGFANG: Gather people and equipment first. Food doesn't open that road immediately. We must save strength to get out too.
 
-마정은 받은 몫을 넘기고 그의 결정을 대신하지 않는다. 별도 물가에서 김양도 등 일부가 배를 탄다. 육로 본대의 출발 준비와 갈라 보인다.
+Ma Jeong hands over what was received and does not decide for him. At a separate waterside point Kim Yangdo and some others board boats, shown separately from the main body's land departure preparations.
 
-개소문은 뒤늦게 군량의 규모를 확인한다.
+Gaesomun confirms the scale of the provisions late.
 
-개소문: 추격에 중앙군을 다 빼지 않는다. 남은 두 진을 먼저 친다.
+GAESOMUN: We won't pull the whole central army away for pursuit. Strike the two remaining camps first.
 
-역사가 음성: 극에서는 이 전달 뒤에 사수의 싸움을 두고, 그다음 소정방이 물러나는 순서를 따른다. 곡물이 도착한 이날도 포위는 이어졌다. 신라 본대는 당군의 철수 소식을 받고 돌아가는 것이 아니었다.
+HISTORIAN (V.O.): The drama places Sasu after this delivery and Su Dingfang's withdrawal after that. The siege continued on the day grain arrived. The Silla main body did not return because it had heard of Tang's withdrawal.
 
-찬오가 귀돌과 빈 수레 곁에서 육로 귀환 준비를 한다. 멀리 포위 진의 작업은 아직 이어진다.
+Chano prepares to return by land beside Gwidol and an empty cart. Work still continues in the distant siege camp.

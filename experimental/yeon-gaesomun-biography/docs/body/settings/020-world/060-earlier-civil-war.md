@@ -1,24 +1,21 @@
-# 귀족 이천 명을 잃은 계승 내전
+# The succession civil war that cost two thousand nobles
 
-정전 안내: [이 대상의 위치](../outline/index.md#020-world--060-earlier-civil-war).
+Canon guide: [Location of this subject](../outline/index.md#020-world--060-earlier-civil-war).
 
-## 귀족 이천 명을 잃은 계승 내전 {#earlier-civil-war}
+## The succession civil war that cost two thousand nobles {#earlier-civil-war}
 
-**정의·범위**
+**Definition and scope**
 
-545년 안원왕 말년에 시작해 양원왕 대(545~559)에 이어진 6세기 중반의 계승 내전과 혼란에서 왕조는 살아남았지만, 나라를 운영하고 지키던 협력은 무너졌다. 기록은 추군과 세군의 싸움에서 세군 쪽2천여 명의 죽음을 전한다. 작품은 그 사망자를 모두 귀족으로 정한다. 기록이 전원의 신분을 확인한 것은 아니다. 두 해에 나뉘어 실린 기사는 별개의 학살 두 차례로 합산하지 않는다.
+The dynasty survived the mid-sixth-century succession civil war and turmoil beginning late in King Anwon’s reign in 545 and continuing under King Yangwon (545–559), but cooperation governing and defending the country collapsed. Records report over 2,000 dead on Segun’s side in the struggle with Chugun. The work makes all the dead nobles; the record does not confirm every person’s status. Accounts entered under two years are not added as two separate massacres.
 
-**확정 내용**
+**Established facts**
 
+When a noble died, routes for assembling the troops and supplies his family provided also broke, as did marriage and protection ties with other families. In the work Goguryeo loses northern frontier control and incoming resources to Turkic forces and its Han River base in the south to a Silla–Baekje allied offensive. Actual strength is damaged enough to sever core defenses and supply networks. The precise complete map and single year of northern territorial loss remain unresolved even in the work.
 
-귀족 한 사람이 죽으면 그 가문이 맡던 병력과 물자를 모을 길도 끊겼다. 다른 가문과 맺은 혼인과 보호 관계 역시 함께 무너졌다. 작품 속 고구려는 북방의 변경 통제권과 그곳에서 들어오던 물자를 돌궐 세력에 빼앗기고, 남방에서는 신라·백제의 연합 공세로 한강 일대의 기반을 잃는다. 나라의 핵심 방위와 조달망이 끊길 만큼 실제 국력이 손상된 상태다. 북방에서 잃은 지역의 정확한 전체 지도와 단일 점령 연도는 작품 설정에서도 미정으로 남는다.
+Some dead nobles’ families move to Silla, others to Baekje. Those going to Silla stay with kin already on its frontier; those going to Baekje follow southern trade and marriage ties. They are remembered as part of military and marriage relationships the earlier generation could not regain, rather than appearing as newly named nobles with independent scenes. None commands a new country’s whole army immediately after exile, and not all exiled families return. Both directions of exile and specific northern rights lost are choices for the work.
 
+Some Gungnaeseong military families remember the royal house abandoning people who bled long in the country’s service; the royal family remembers turmoil in which it could not control different royal in-laws’ and nobles’ troops. The interpretations never fully merge and are used again as political claims in the sons’ generation’s civil war. This does not mean every Gungnaeseong resident held the same grievance for 120 years.
 
-죽은 귀족의 가족 중에는 신라로 옮겨 간 가문도, 백제로 옮겨 간 가문도 있다. 신라로 간 가구는 이미 그곳 변경에 살던 친족에게 기대어 남고, 백제로 간 가구는 남쪽의 교역·혼인 연고를 따른다. 이들은 독립 장면을 가진 새로운 이름난 귀족으로 등장하기보다, 선대가 되찾지 못한 군사·혼인 관계의 일부로 기억된다. 망명 직후 새 나라의 전군을 지휘하는 역할이나 망명 가문 모두가 돌아오는 결말은 없다. 두 방향의 망명과 북방에서 잃은 구체적 권리는 작품이 정한 내용이다.
+**References and unresolved matters**
 
-
-국내성의 일부 군사 가문은 오랫동안 피를 흘려 나라에 기여한 사람들을 왕가가 버렸다고 기억한다. 왕실이 기억하는 것은 서로 다른 외척과 귀족의 군대를 통제하지 못한 난리다. 두 해석은 세월이 흘러도 완전히 하나로 합쳐지지 않고, 아들 세대의 내전에서 다시 정치적 주장에 쓰인다. 국내성 주민 모두가 120년 동안 같은 원한을 품었다는 설정은 아니다.
-
-**참조·미결**
-
-Sources: [국사편찬위원회, 「귀족 세력의 분열과 갈등」, 《일본서기》 권19 흠명 6·7년 및 인용된 《백제본기》](https://contents.history.go.kr/front/hm/view.do?levelId=hm_009_0070)
+Sources: [“Division and conflict among aristocratic forces,” National Institute of Korean History; Nihon Shoki vol. 19, Kinmei 6 and 7 and quoted Baekje annals](https://contents.history.go.kr/front/hm/view.do?levelId=hm_009_0070).

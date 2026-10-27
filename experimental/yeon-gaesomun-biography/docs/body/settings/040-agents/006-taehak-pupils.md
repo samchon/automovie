@@ -1,14 +1,13 @@
-# 개소문과 겨루는 태학 자제들
+# Taehak pupils who compete with Gaesomun
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--006-taehak-pupils).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--006-taehak-pupils).
 
-## 개소문과 겨루는 태학 자제들 {#taehak-pupils}
+## Taehak pupils who compete with Gaesomun {#taehak-pupils}
 
-**정의·범위**
+**Definition and scope**
 
-태학에서 개소문과 겨루는 자제들은 동년배로, 모두 같은 훈련 규칙을 따른다. 겨루기에 실패한 뒤에는 함께 개소문의 능력을 인정한다. 이들에게는 개인별 정치적 후일담이 없다.
+The pupils who compete with Gaesomun at Taehak are his peers and follow the same rules of training. After losing, they acknowledge his ability together. They have no individual political aftermaths.
 
-**확정 내용**
+**Established facts**
 
-
-수수한 적갈색 훈련옷과 먹빛 띠, 함께 쓰는 활이 이 자제들의 표지다. 발화 없이 함께 훈련하는 자제는 이 집단 정전을 공유한다. 수업의 [먼저 질문한 자제](120-taehak-moving-pupil.md#taehak-moving-pupil)와 [옆자리 자제](121-taehak-receiving-pupil.md#taehak-receiving-pupil)는 질문과 이동·인수를 각자 맡으므로 별도 정전을 가진다. 다른 자제에게 개별 대사나 부상, 원한이 실제로 쓰이면 그 사람도 이 집단과 구분되는 독립 인물로 먼저 정한다.
+Plain reddish-brown training clothes, dark sashes, and shared bows distinguish these pupils. Pupils who train together without speaking share this group canon. The [pupil who first asks a question](120-taehak-moving-pupil.md#taehak-moving-pupil) and the [pupil beside him](121-taehak-receiving-pupil.md#taehak-receiving-pupil) have separate canon because each is responsible for a question, movement, or receiving something. If another pupil is actually given individual dialogue, injury, or resentment, establish that person separately from this group first.

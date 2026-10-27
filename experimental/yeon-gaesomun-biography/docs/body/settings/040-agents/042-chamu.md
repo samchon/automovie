@@ -1,20 +1,17 @@
-# 해은의 둘째 차무
+# Chamu, Haeun’s second child
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--042-chamu).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--042-chamu).
 
-## 해은의 둘째 차무 {#chamu}
+## Chamu, Haeun’s second child {#chamu}
 
-**정의·범위**
+**Definition and scope**
 
-차무는 646년생으로 창작한 해은의 둘째이자 아들이다. 668년에는 22세로 물자 운반을 돕는다. 전쟁 중에도 이미 가족에게 필요한 노동을 맡는 성인이며 부모에게 이끌려 가는 어린아이의 처지와는 다르다. 성 안 가구의 일과 피난, 사민을 맡으며 고구려 중앙군의 지휘자나 정변의 호위로 나서지는 않는다.
+Chamu is Haeun’s invented second child and son, born in 646. At 22 in 668, he helps carry supplies. He is an adult already doing work his family needs during the war, unlike a small child led by his parents. He handles household work inside the fortress, evacuation, and forced resettlement; he does not appear as a central Goguryeo commander or a coup escort.
 
-**확정 내용**
+**Established facts**
 
+He is about 168 centimeters tall, long-legged and narrow-shouldered. His round face has light eyebrows, small brown eyes, a low nose, and a broad mouth. His black hair is tied short, and his tawny skin is sunburned. He wears yellowish cloth clothes and a dark sash.
 
-키는 약 168cm로 다리가 길고 어깨는 좁다. 둥근 얼굴에는 옅은 눈썹과 작은 갈색 눈, 낮은 코와 넓은 입이 있다. 검은 머리는 짧게 묶으며 황갈색 피부는 햇볕에 탔다. 누런 천옷을 입고 먹빛 띠를 두른다.
+His voice is lower than middle register but thin and cracked. When anxious he speaks rapidly.
 
-
-목소리는 중간보다 낮지만 가늘고 갈라진다. 불안해지면 말을 빠르게 이어 낸다.
-
-
-전쟁이 끝나도 차무가 겪는 가족의 이동과 생계 문제는 끝나지 않는다. 669년에는 가족과 함께 하남의 같은 마을에 도착한다. 가족 중 누구도 평양에 따로 남지 않는다.
+The end of war does not end the family’s displacement and livelihood problems. In 669 he arrives with his family at the same village in Henan. No family member remains separately in Pyongyang.

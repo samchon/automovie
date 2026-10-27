@@ -1,31 +1,27 @@
-# 경당에서 몸에 남는 숙련
+# Skills carried in the body from Gyeongdang
 
-정전 안내: [이 대상의 위치](../outline/index.md#030-society--030-gyeongdang).
+Canon guide: [Location of this subject](../outline/index.md#030-society--030-gyeongdang).
 
-## 경당에서 몸에 남는 숙련 {#gyeongdang}
+## Skills carried in the body from Gyeongdang {#gyeongdang}
 
-**정의·범위**
+**Definition and scope**
 
-경당은 혼인 전의 아이와 청소년이 신분을 가리지 않고 함께 지내며 글을 읽고 활쏘기를 배우는 공동공간이다. 『구당서』는 「至於衡門廝養之家，各於街衢造大屋，謂之扃堂，子弟未婚之前，晝夜于此讀書習射」라고 전한다. 작품은 보잘것없는 집에까지 이르렀다는 이 대목을 위로는 귀족까지 포괄하는 표현으로 읽어, 귀족의 아이도 평민의 아이와 같은 경당에 다니는 것으로 정한다. 귀족 참여가 인용문에 직접 명시된 것은 아니며, 통설의 평민 중심 해석과 구별한다. 경당은 법적인 의무교육이 아니며, 전국에 동일한 학령이나 표준 교육과정을 두지 않는다.
+Gyeongdang is a shared space where unmarried children and adolescents of different status spend time together learning letters and archery. The Old Book of Tang says “至於衡門廝養之家，各於街衢造大屋，謂之扃堂，子弟未婚之前，晝夜于此讀書習射”. The work reads its reach down to humble households as inclusive upward to nobles, so noble children attend with commoners. Noble participation is not explicit in the quotation and differs from the common interpretation centered on commoners. It is not compulsory education by law, with no uniform national age or curriculum.
 
-**확정 내용**
+**Established facts**
 
+Village and street households supply firewood and food and repair arrow shafts to maintain the school. Older youths and returning soldiers teach shooting posture and group movement. Local notables and capital nobles assisting gain skilled regional troops and youth support.
 
-작품에서는 마을과 거리의 가구들이 땔감과 먹을거리를 나누어 대고 화살대를 수선하며 경당을 유지한다. 나이 많은 청년과 돌아온 병사가 활쏘기 자세와 집단 움직임을 가르친다. 이를 돕는 지방 유력자와 도성의 귀족은 자기 지역 병력의 숙련과 젊은이들의 지지를 얻는다.
+Meeting times vary with farming and livelihood: during busy seasons morning or after sunset, longer together in winter. Students take turns reading books aloud and correcting mistakes. They share bows fitted to draw strength and shooting distance. Not every child owns a good bow; noble children sometimes bring one from home, but rank inside begins with bow and reading skill, not family.
 
+Though not legally forced, peer and adult judgment makes absence difficult. Skilled pupils are named first for hunting and mobilization; an absent child must prove usefulness as a worker to avoid disregard. Attendance costs labor when household work is urgent. Gyeongdang is a place of play and competition as well as young people devoting body and time to military skill. Riding is excluded from the work’s curriculum.
 
-모이는 시간은 농사철과 생업에 따라 달라진다. 농번기에는 아침이나 해가 진 뒤에 모이고, 겨울에는 함께 지내는 시간이 길어진다. 책을 돌아가며 소리 내어 읽고 잘못 읽은 대목을 고친다. 활은 당기는 힘과 쏘는 거리에 맞추어 번갈아 사용한다. 모든 아이가 제 소유의 좋은 활을 가진 형편은 아니다. 귀족의 아이는 집에서 가져온 활을 쓰기도 하지만, 경당 안의 서열은 집안보다 활과 글의 실력으로 먼저 매겨진다.
+Nobles and commoners who grew up together may meet and recognize each other in battle. Noble children generally move to Taehak or household education after ten; commoners remain until marriage or service. [Taehak](040-taehak.md#taehak) owns advanced admission conditions.
 
+**Conditions and limits**
 
-참여가 법으로 강제되지는 않아도 동무와 어른의 평가 때문에 빠지기는 어렵다. 경당에서 잘하는 아이는 사냥과 동원 때 먼저 이름이 오른다. 나오지 못하는 아이는 일꾼으로서 쓸모를 입증해야 무시를 피할 수 있다. 집안일이 급한 아이에게 참석 요구는 노동을 빼앗기는 부담이 된다. 경당은 놀이와 경쟁의 공간이면서, 젊은이들이 자기 몸과 시간을 군사적 숙련에 쓰는 곳이기도 하다. 작품이 정한 경당의 교육에 기마는 포함되지 않는다.
+Noble participation, play, and pressure are the work’s interpretations. Eastern incorporated-region schools and service links belong to [eastern incorporation](140-eastern-incorporation.md#eastern-incorporation); the Pyongyang space belongs to [Pyongyang Gyeongdang](../060-places/260-pyongyang-gyeongdang.md#pyongyang-gyeongdang).
 
+**References and unresolved matters**
 
-어린 시절 같은 경당에서 자란 귀족과 평민은 뒤에 전장에서 다시 만나 서로를 알아본다. 귀족의 아이는 대개 열 살을 넘기면 태학이나 집안의 교육으로 옮겨 가고, 평민의 아이는 혼인하거나 군역에 나갈 때까지 경당에 남는다. 상급 기관인 태학의 입학 조건은 [태학과 군사 귀족의 배움](040-taehak.md#taehak)이 정한다.
-
-**조건·한계**
-
-귀족 아이의 참여와 놀이·참여의 압력은 작품의 해석이다. 동방 편입 지역의 경당 설치와 군역 연결은 [동부 편입](140-eastern-incorporation.md#eastern-incorporation)에, 평양의 실제 경당 공간은 [평양 경당](../060-places/260-pyongyang-gyeongdang.md#pyongyang-gyeongdang)에 둔다.
-
-**참조·미결**
-
-Sources: [『구당서』 권199상 고려전](https://zh.wikisource.org/wiki/舊唐書/卷199上), [국사편찬위원회, 「고구려의 경당」, 《구당서》 권199상·《신당서》 권220의 미혼 자제 독서·활쏘기 기록](https://contents.history.go.kr/mobile/hm/view.do?levelId=hm_021_0010)
+Sources: [Goguryeo account, Old Book of Tang vol. 199](https://zh.wikisource.org/wiki/舊唐書/卷199上), [Gyeongdang reading and archery records](https://contents.history.go.kr/mobile/hm/view.do?levelId=hm_021_0010).

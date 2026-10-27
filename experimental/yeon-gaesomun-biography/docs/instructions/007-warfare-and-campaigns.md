@@ -1,154 +1,154 @@
-# 전쟁의 해석
+# Interpreting war
 
-## 정예군이 싸우고 패하는 전쟁 {#capable-armies-and-defeat}
+## Elite armies fight and lose {#capable-armies-and-defeat}
 
-당군은 당대 천하제일급의 야전 군대로 그린다. 당은 다음 나라들을 차례로 무너뜨렸다.
+Depict Tang's army as among the finest field armies in the world of its day. Tang defeated the following states in succession:
 
-- 630년 동돌궐
-- 635년 토욕혼
-- 640년 고창
-- 646년 설연타
-- 648년 구자
-- 657년 서돌궐
+- Eastern Turks, 630
+- Tuyuhun, 635
+- Gaochang, 640
+- Xueyantuo, 646
+- Kucha, 648
+- Western Turks, 657
 
-말 위에서 자란 유목 군대도 야전에서 당을 이기지 못했다. 병사는 정예하고, 기병·보병·궁노·수군이 함께 움직이는 협동이 정교하다. 진을 바꾸고 깃발과 북으로 명령을 전하는 진법도 정교하며, 정복한 유목 세력의 기병을 자기 원정 능력으로 쓴다. 승전을 거듭한 지휘자와 부대의 역량·자신감이 작전 수행에서 드러나게 한다.
+Even nomadic armies raised on horseback could not defeat Tang in the field. Its soldiers are elite, its cooperation among cavalry, infantry, archers and crossbowmen, and navy sophisticated. Its formations, changes of formation, and orders by flags and drums are also sophisticated, and it uses cavalry of conquered nomadic powers as part of its expeditionary capacity. Let the ability and confidence of commanders and units with repeated victories show in their operations.
 
-수와의 전쟁과 다른 점을 분명히 한다. 수의 대군은 야전에서 고구려에 크게 졌다. 612년 살수에서 을지문덕에게 진 육군이 그렇고, 같은 해 왕제 고건무가 결사대로 평양 외성에서 깨뜨린 수군도 그렇다. 당에게는 645년 이후 비슷한 수, 때로는 적다고 얕본 군대에게도 야전에서 줄줄이 졌다. 645년 요동 구원에 나선 보병·기병 4만은 이도종의 선봉 기병 4천을 처음에는 밀어붙였지만, 이세적의 본대가 가세하자 크게 졌다. 655년 귀단수에서는 당군이 적은 것을 보고 성문을 열고 나가 맞섰다가 졌다. 수를 꺾은 기억으로 당을 재는 것이 오판이라는 사실은 고구려 사람들이 645년 이후 몸으로 배운 것이다.
+Make the difference from the Sui wars clear. Sui's large armies suffered major field defeats by Goguryeo: the army defeated by Eulji Mundeok at Salsu in 612, and the navy broken the same year by Prince Go Geonmu's picked force at Pyongyang's outer fortress. Against Tang after 645, Goguryeo repeatedly lost in the field even to forces of similar size, sometimes underestimated as smaller. In 645, 40,000 infantry and cavalry sent to relieve Liaodong initially pressed Li Daozong's 4,000 advance cavalry, but lost badly when Li Shiji's main force joined. At Gwidansu in 655, they saw Tang's small force, opened the gate and went out to fight, and lost. Goguryeo people learned through experience after 645 that judging Tang by memories of defeating Sui was a miscalculation.
 
-고구려의 승리도 이 강군의 연계와 보급을 무너뜨리고 야전에서 격파한 성취로 보여준다.
+Show Goguryeo's victory as the achievement of breaking this strong army's connections and supply and defeating it in the field.
 
-유능한 적이 연이어 무너졌기에 당대의 충격이 컸다는 인과를 갖추고, 연개소문의 결전이 얼마나 어려운 미션인지 관객이 실감하게 하기 위해서다. 무적이라는 명성은 당대의 평판으로 다루며, 기존 패전까지 없었던 역사로 바꾸지는 않는다.
+The successive collapse of capable enemies explains the shock of the time and lets the audience feel how difficult Gaesomun's decisive mission is. Treat invincibility as contemporary reputation; do not erase earlier defeats from history.
 
-- 『자치통감』 권193·194·195·198·199·200: 630년 동돌궐, 635년 토욕혼, 640년 고창, 646년 설연타, 648년 구자, 657년 서돌궐의 원정을 전한다.
-- 『자치통감』 권197: 정관 19년 「高麗步騎四萬救遼東，江夏王道宗將四千騎逆擊之」, 첫 교전의 「唐兵不利」, 이어 「李世勣引兵助之，高麗大敗，斬首千餘級」을 전한다.
-- 『삼국사기』 권22: 보장왕 14년 「吾人見其兵少，開門度貴端水，逆戰」 뒤 「大克之，殺獲千餘人」을 전한다.
+- Zizhi Tongjian, volumes 193, 194, 195, 198, 199, and 200: records campaigns against the Eastern Turks in 630, Tuyuhun in 635, Gaochang in 640, Xueyantuo in 646, Kucha in 648, and the Western Turks in 657.
+- Zizhi Tongjian, volume 197: records in Zhenguan 19 「高麗步騎四萬救遼東，江夏王道宗將四千騎逆擊之」, the initial 「唐兵不利」, followed by 「李世勣引兵助之，高麗大敗，斬首千餘級」.
+- Samguk Sagi, volume 22: in Bojang's fourteenth year records 「吾人見其兵少，開門度貴端水，逆戰」 followed by 「大克之，殺獲千餘人」.
 
-## 645년의 패전과 방어에서 배우는 연개소문 {#campaign-645-and-learning}
+## Yeon Gaesomun learns from defeat and defense in 645 {#campaign-645-and-learning}
 
-645년 주필산의 정면 야전 선택은 젊은 지휘층에 널리 퍼진 군사적 자신감의 발로로 그린다. 선배 세대가 수의 대군을 꺾은 영광을 물려받아, 자기 시대의 고구려군도 당군과 정면으로 붙으면 이길 수 있다고 믿는다. 실제 승리를 가능하게 했던 지형·보급·지연의 조건보다 강군의 명성이 앞서면서, 고정의의 지연·보급 차단 건의를 나약하거나 불필요한 선택으로 받아들이게 한다. 연개소문도 이 세대의 자신감을 공유한 인물로 두고, 패전을 통해 그 믿음의 한계를 배우게 한다.
+Depict the choice of a frontal field battle at Jupilsan in 645 as military confidence widespread among young commanders. Inheriting the glory of elders who defeated Sui's great army, they believe their own Goguryeo army can defeat Tang head-on. The reputation of a strong army takes precedence over terrain, supply, and delay that enabled the actual earlier victory, so Go Jeongui's proposal to delay and cut supplies is received as weak or unnecessary. Yeon Gaesomun shares this generation's confidence and learns its limits through defeat.
 
-이 선택의 배경은 [승전의 기억을 다르게 물려받은 세대](006-yeon-and-successors.md#generational-memory-and-misjudgment)에 연결한다.
+Connect this choice to [generations inheriting victory differently](006-yeon-and-successors.md#generational-memory-and-misjudgment).
 
-민중 사이에서도 수와의 전쟁 때 성을 지키며 오래 버티는 동안 국토와 생계가 황폐해졌던 기억 때문에 단기결전을 바라는 분위기를 둔다. 지휘층의 승리 자신감과 주민들의 장기전 회피가 같은 야전 선택을 지지하게 한다. 같은 결전을 원해도 승리 뒤 팽창을 원하는 사람과 일상으로 돌아가려는 사람의 기대는 다를 수 있게 한다. 이 기대는 지연전을 택할 때 감당해야 할 정치적 부담으로도 작용한다. 구체적인 피해와 지역별 반응은 settings에서 설계한다.
+Among ordinary people, memories of devastated land and livelihoods during long fortress defense in the Sui wars produce a desire for a short decisive battle. Commanders' confidence in victory and residents' wish to avoid long war support the same field choice. Even when they want the same battle, some may expect expansion afterward while others want a return to daily life. This expectation also becomes a political burden when choosing delay. Settings designs specific damage and regional responses.
 
-중장기병과 말갈 침투대가 황제 진영을 목표로 싸우지만 당의 유인과 포위로 구원군이 패배하는 전개를 채택한다. 구체적인 병력과 병종 배분은 settings에서 설계하며, 전역 총동원 인구와 전장의 전투원은 구별한다.
+Adopt a course in which heavy cavalry and a Malgal infiltration party fight toward the emperor's camp, but Tang's feint and encirclement defeat the relief army. Settings designs specific troop and branch allocations; distinguish total campaign mobilization from battlefield combatants.
 
-주필산 패전 뒤에도 안시성과 여러 성곽, 현지 지휘자·주민, 보급과 계절이 방어를 이루게 한다. 육군으로 요동에 병력을 끌어들이고 수군으로 평양을 직공하려던 당의 구상은 핵심 선단의 손실로 좌절되는 해석을 채택한다. 연개소문은 이 전쟁과 뒤이은 반복 침공을 통해 영류왕의 방어 정책을 이해하고, 여러 병종·성곽·지역 부대를 연결하는 능력을 발전시킨다.
+After Jupilsan, let Ansi and other fortresses, local commanders and residents, supply, and season make up the defense. Adopt the interpretation that Tang's plan to draw troops to Liaodong with its army and attack Pyongyang directly by navy fails through loss of the core fleet. Through this war and repeated later invasions, Gaesomun understands Yeongnyu's defensive policy and develops the ability to connect branches, fortresses, and regional forces.
 
-패배를 겪은 강군과 지휘자가 경험을 축적하여 2차전쟁의 승리에 이르는 과정을 만들기 위해서다. 지휘층의 자신감과 민중의 단기결전 기대가 야전 선택에 작용하는 인과는 작품의 재구성이며, 세부 전투와 해전의 위치·손실은 settings에서 설계한다.
+A strong army and commander accumulate experience through defeat and reach victory in the second war. The causality linking command confidence and popular expectations of short war to the field choice is the work's reconstruction; settings designs detailed battle, naval locations, and losses.
 
-- [국사편찬위원회, 고정의의 건의와 고연수의 진격](https://db.history.go.kr/ancient/level.do?levelId=sg_021r_0020_0211): 지연·보급 차단 건의와 당의 돌궐 기병을 통한 유인을 전한다.
-- [국사편찬위원회, 안시성과 건안성의 공격 순서](https://db.history.go.kr/item/compareViewer.do?levelId=sg_021_0020_0220): 안시성주의 정변 불복과 저항, 군량로를 둘러싼 판단을 전한다.
-- [서영교, 「唐太宗의 고구려 침공과 水軍」, 2023](https://www.kci.go.kr/kciportal/landing/article.kci?arti_id=ART002928751): 공개 초록은 평양 직공 전략과 함대 손실에 따른 실패를 제시한다. 원정 함선 전부의 전멸을 확정하는 근거는 아니다.
+- [National Institute of Korean History, Go Jeongui's proposal and Go Yeonsu's advance](https://db.history.go.kr/ancient/level.do?levelId=sg_021r_0020_0211): records the advice to delay and cut supply and Tang's use of Turkic cavalry as a lure.
+- [National Institute of Korean History, order of attacks on Ansi and Geonan](https://db.history.go.kr/item/compareViewer.do?levelId=sg_021_0020_0220): records the Ansi castellan's defiance of the coup and resistance, and judgments about supply routes.
+- [Seo Young-kyo, “Tang Taizong's Invasion of Goguryeo and Naval Forces,” 2023](https://www.kci.go.kr/kciportal/landing/article.kci?arti_id=ART002928751): the public abstract presents the direct Pyongyang strategy and failure from fleet losses. It does not establish destruction of every expedition ship.
 
-## 2차전쟁 전까지 야전에서 이기지 못한 고구려 {#field-defeats-before-second-war}
+## Goguryeo's field defeats before the second war {#field-defeats-before-second-war}
 
-645년부터 661년 2차전쟁 전까지, 고구려는 당과 그 편에 선 세력에게 야전에서 거의 이기지 못한 것으로 그린다. 645년 요동 구원전과 주필산을 시작으로, 647년 석성·적리성과 648년 박작성의 소모전이 이어진다. 654년에는 당이 송막도독으로 세운 거란의 이굴가에게 신성에서 진다. 655년 귀단수, 659년 횡산에서도 진다. 고구려가 버틴 것은 645년 안시성과 658년의 방어처럼 성을 지킨 싸움이었다. 야전에서 이긴 기록은 거의 없고, 645년 요동 구원전 초반에 당군을 밀어낸 일 정도가 남는다. 나라가 무너지지 않은 것은 645년 이후 당의 공격이 국경을 갉아먹는 소모전이었고 성들이 버텼기 때문이다. 그 사이 서북 변경의 생산과 동원은 해마다 깎인다.
+From 645 until the second war in 661, depict Goguryeo as winning almost no field battles against Tang and its allies. Beginning with the 645 Liaodong relief battle and Jupilsan, attrition continues at Seokseong and Jeokriseong in 647 and Bakjakseong in 648. In 654 the Khitan Li Quge, appointed Tang's Songmo governor, defeats it at Sinseong. It loses at Gwidansu in 655 and Hoengsan in 659. The battles Goguryeo holds are fortress defenses such as Ansi in 645 and the defense in 658. Few field victories are recorded beyond initially pushing Tang back in the 645 relief battle. The country survives because Tang's post-645 attacks are border-eroding attrition and the fortresses hold. Meanwhile northwestern frontier production and mobilization are cut back year after year.
 
-이 연패의 기록은 2차전쟁에서 성 안에서 버티자는 쪽의 가장 강한 근거가 된다. 그러나 두 쪽 모두 성을 쓴다. 성이 적을 붙드는 동안 병력을 모아 야전에서 끊는 것이 본래의 방어이며, 645년의 회군도 성과 계절과 군량이 함께 만든 결과였다. 갈리는 것은 야전 결전을 찾아 나서느냐 피하느냐다. 연개소문이 결전을 찾는 작전의 형태는 [2차전쟁의 내선 작전](#second-war-operations)이 맡는다. 그는 전례가 없는 야전 승리를 노린다.
+These defeats are the strongest grounds for those who want to hold inside fortresses in the second war. Both sides nevertheless use fortresses: the original defense is to assemble forces and strike in the field while fortresses hold the enemy; the 645 withdrawal resulted from fortresses, season, and supplies together. The disagreement is whether to seek or avoid decisive field battle. [Second-war interior operations](#second-war-operations) owns the form of Gaesomun's strategy. He seeks an unprecedented field victory.
 
-연개소문의 결전 전략이 얼마나 어려운 선택인지, 그리고 맞서는 주장도 같은 기록에서 나온 타당한 판단임을 관객이 알게 하기 위해서다. 승패와 전과는 기록마다 엇갈리는 곳이 있다. 658년 원정을 『자치통감』 권200은 적봉진 함락으로, 『삼국사기』는 이기지 못한 원정으로 적는다. 이처럼 엇갈리는 곳은 settings에서 기록별로 구별한다. 남은 기록이 대부분 승자 쪽에서 나왔다는 한계를 알되, 당이 패전을 숨겼다고 단정하지 않는다.
+The audience must understand both the difficulty of his choice and that the opposing case is a valid judgment from the same record. Accounts differ on some victories and results. Zizhi Tongjian volume 200 records the 658 campaign as capture of Jeokbongjin; Samguk Sagi records an unsuccessful expedition. Settings distinguishes such conflicts by record. Acknowledge that most surviving records come from victors, but do not assert Tang concealed defeats.
 
-- [『삼국사기』 권21 보장왕 상](https://zh.wikisource.org/wiki/三國史記/卷21): 645년 요동 구원군의 패배, 주필산의 궤멸과 항복, 안시성의 버팀과 당군 회군을 전한다.
-- [『삼국사기』 권22 보장왕 하](https://zh.wikisource.org/wiki/三國史記/卷22): 647년 석성 함락과 적리성, 648년 역산(고신감에게 보병·기병 5천이 지고, 배를 습격한 1만도 매복에 진다)·박작성, 654년 거란 신성, 655년 귀단수, 658년의 방어, 659년 횡산의 전투를 전한다.
+- [Samguk Sagi, volume 21, King Bojang, first part](https://zh.wikisource.org/wiki/三國史記/卷21): records the 645 Liaodong relief defeat, Jupilsan's destruction and surrender, Ansi holding, and Tang withdrawal.
+- [Samguk Sagi, volume 22, King Bojang, second part](https://zh.wikisource.org/wiki/三國史記/卷22): records Seokseong's fall and Jeokriseong in 647; Yeoksan in 648 (5,000 infantry and cavalry lose to Go Singam, and 10,000 attacking ships also lose to an ambush) and Bakjakseong; Khitan at Sinseong in 654; Gwidansu in 655; defense in 658; and Hoengsan in 659.
 
-## 야전도 수성도 망하는 덫과 계절의 시한 {#double-bind-and-season}
+## A trap in field and fortress, with a seasonal deadline {#double-bind-and-season}
 
-고구려가 빠진 덫을 양쪽으로 세운다. 야전으로 맞서면 천하제일의 당군에게 깨져 패망한다. 성에 들어 들을 비우고 버티면 해마다 생산과 동원이 깎여 경제가 무너지고, 성이 남아도 나라는 사실상 망하는 수순에 들어선다. 당은 이것을 알고 썼으며, 645년 뒤의 침공은 작은 부대로 국경을 번갈아 흔들어 경작을 막는 방식이었다. 당과 주변 세력이 고구려가 어느 쪽이든 망한다고 본 까닭이 여기에 있다.
+Establish both sides of Goguryeo's trap. Meet Tang in the field and the finest army under heaven defeats and destroys the country. Enter fortresses and abandon fields, and production and mobilization are cut year after year until the economy collapses and the country is effectively ruined even if fortresses remain. Tang knows and uses this: after 645 it alternates small forces to harass the border and prevent cultivation. This is why Tang and surrounding powers believe Goguryeo will fall either way.
 
-이 덫에는 계절의 시한이 붙는다. 당군이 여름에 들어와 가을걷이 철을 붙들면 그해 수확이 깎이고, 겨울을 넘겨 봄에 씨를 뿌리지 못하면 이듬해까지 굶는다. 그러므로 결전은 봄갈이 전에 끝나야 한다.
+The trap has a seasonal deadline. If Tang enters in summer and holds the harvest season, that year's crop is reduced; if it stays through winter and spring sowing is missed, hunger continues into the next year. Decisive battle must therefore end before spring plowing.
 
-연개소문의 전략은 이 덫을 깨는 셋째 길이다. 612년과 645년의 고구려는 막고 또 막아 적이 지쳐 물러나기를 기다렸고, 결전은 물러나는 적을 쫓을 때 벌어졌다. 그는 성과 강과 겨울로 적을 막아 소진시키고 연계를 끊는 동안 흩어진 제 병력을 합치고, 적이 나뉜 순간 먼저 야전 결전을 걸어 봄이 오기 전에 끝장을 본다. 적은 나누고 나는 합친다. 맞서는 쪽의 수성론도 "성 안에서 버티면 산다"가 아니라 "야전은 더 빨리 망하는 길"이라는 판단으로 세운다.
+Gaesomun's strategy is a third way. In 612 and 645 Goguryeo blocked the enemy repeatedly and waited for exhaustion and withdrawal, with decisive battle occurring in pursuit. He uses fortresses, rivers, and winter to obstruct and exhaust the enemy and cut connections while uniting his scattered forces, then initiates a field battle when the enemy is divided and finishes before spring. Divide the enemy and unite his own. The opposing fortress position is not 'we live if we remain inside,' but the judgment that field battle is a faster road to ruin.
 
-결전이 무모함이 아니라 막다른 덫에서 고른 길로 읽히고, 그를 반대하는 쪽도 같은 덫을 보고 다른 출구를 고른 정당한 사람으로 서게 하기 위해서다. 덫과 시한은 기록에 바탕을 둔 작품의 해석이다.
+The choice should read as a way out of a dead-end trap rather than recklessness, and its opponents as legitimate people seeing the same trap and choosing another exit. Trap and deadline are the work's interpretation grounded in records.
 
-- 『자치통감』 권198 정관 21년: 당 조정이 「작은 부대를 자주 보내 번갈아 국경을 흔들어 저들이 쟁기를 놓고 성으로 들어가게 하면, 몇 해 사이 천 리가 쓸쓸해지고 인심이 저절로 떠난다」고 논의한 것을 전한다.
+- Zizhi Tongjian, volume 198, Zhenguan 21: records Tang court discussion of frequently sending small forces to alternate harassment at the border, making people abandon plows and enter fortresses, so the land would be desolate and allegiance would depart within years.
 
-## 2차전쟁의 내선 작전과 경기병 {#second-war-operations}
+## Interior operations and light cavalry in the second war {#second-war-operations}
 
-661년 당 원정군의 전체 병력은 이민수의 35개 군·35만 명설을 채택한다. 고구려도 그 총수를 정확히 알지 못하며, 35군이라는 편제로 미루어 약 35만으로 짐작한다. 여섯 방면군의 공세는 고구려가 성 안에서 오래 버티는 동안 여러 지역의 생산·동원·연락 기반을 동시에 잃도록 압박하며, 당은 그 사정을 알고 결전을 강요한다.
+Adopt Lee Min-su's estimate of 35 armies and 350,000 people for Tang's entire 661 expedition. Goguryeo does not know the exact total and estimates about 350,000 from the 35-army organization. The six-front offensive pressures Goguryeo to lose production, mobilization, and communications bases across regions simultaneously during prolonged fortress defense; Tang knows the conditions and forces a decision.
 
-고구려는 내선의 이점을 살려 상대적으로 약한 군대로 한 방면을 붙들고 주력으로 다른 방면을 치며, 연락·구원·보급을 끊어 각 군을 고립시킨 뒤 차례로 깨뜨린다. 방면군마다 수는 많고 적음이 있지만, 하나하나가 연개소문이 이끌고 나가는 야전 병력과 수가 비슷하고, 하나하나가 정예한 강군이다. 그러므로 이 각개격파는 약한 적을 골라 치는 싸움이 아니라, 비슷한 수의 천하제일급 군대를 한 번에 하나씩 여섯 번 상대하겠다는 계획이다. 실제 이탈·생환을 모두 야전 섬멸로 바꾸지 않으며 경과는 다음 단원이 소유한다. 한 번이라도 지거나 늦으면 나머지 방면군이 그 틈으로 들어온다.
+Using interior lines, Goguryeo holds one direction with relatively weaker forces while the main force strikes another, cuts communications, relief, and supply, isolates each army, and defeats them in turn. The six vary in size, but each is comparable to the field force Gaesomun leads and each is elite. The plan is not to select weak enemies, but to face six comparable armies among the world's best one at a time. Do not turn every actual departure or survival into field annihilation; the next unit owns the course. A single defeat or delay lets the other armies enter through the gap.
 
-연개소문의 결전 야전군은 수를 더 많이 두지 않는다. 대신 빠르게 옮겨 다니며 하나씩 깨뜨려야 하므로 기병의 비율이 높아, 같은 수라도 더 비싸고 더 고급인 병종으로 이루어진 군대다. 보병은 끌고 다니지 않는다. 한 방면군을 칠 때 그 지역의 성과 지방군에서 보병을 받아 연합해 야전을 벌이고, 다음 방면군으로 옮겨 가 그쪽 보병과 다시 연합한다. 기병이 이동과 타격을, 현지 보병이 붙들기와 수를 맡는다. 병종 비율과 지방 동원 절차는 기록이 적으므로 settings에서 설계한다.
+Gaesomun's decisive field army is not numerically superior. It has a high cavalry proportion because it must move quickly and defeat armies in turn, making it more expensive and more highly equipped at equal numbers. He does not carry infantry with him. For each enemy he joins infantry from local fortresses and forces, then moves to the next and joins its infantry. Cavalry supplies movement and striking power; local infantry holds and supplies numbers. Because records give little on ratios and local mobilization, settings designs them.
 
-말갈 편입으로 보강된 경기병은 정찰, 전령·수송·구원 차단, 교란과 지연, 주력 이동의 엄호를 맡는 핵심 전력으로 활용한다. 그들이 중앙의 직접 통제 밖에서 판단하고 협동할 수 있는 조건은 [귀속과 신뢰](005-malgal-and-belonging.md#belonging-and-military-trust)로 설명한다. 경기병의 기동과 주력의 집중이 연결되는 구체적인 지형·시간·편제는 settings에서 정한다.
+Use light cavalry reinforced by Malgal incorporation for reconnaissance, interception of messengers, transport and relief, disruption and delay, and cover for the main force's movement. [Belonging and trust](005-malgal-and-belonging.md#belonging-and-military-trust) explains how they can judge and cooperate beyond direct central control. Settings determines terrain, timing, and organization connecting their movement with concentration.
 
-백제 부흥 지도부 일부는 고구려가 없어진 뒤 당에 홀로 맞설 것을 내다보고, 그 전에 신라를 쳐 인구와 생산·동원 기반을 넓히려 한다. 이 661년의 전망이 660년부터 이어진 왜와의 구원 협의를 대규모 공세로 키우려는 작품 속 판단의 계기다. 662년 고구려의 생존으로 전제가 바뀐 뒤에도 준비된 병력과 신라·당의 반격은 남고, 주류성의 위기가 그 병력을 백강에 투입하는 계기가 된다. 실제 파병 결정의 동기로 단정하지 않으며, 정보의 전달과 판단 시점은 settings에서 설계한다.
+Some Baekje restoration leaders anticipate facing Tang alone after Goguryeo's fall and seek to attack Silla first to expand population and production and mobilization bases. This 661 prospect prompts their fictional decision to expand relief consultations with Wa begun in 660 into a large offensive. Even after Goguryeo's survival changes the premise in 662, prepared forces and Silla–Tang counterattacks remain, and the crisis at Juryuseong prompts their commitment at Baekgang. Do not present this as the confirmed motive for actual dispatch; settings designs information delivery and timing of judgments.
 
-전력과 사회적 결속이 실제 작전으로 이어지고, 한 전선의 변화가 다음 공격의 조건을 만드는 전쟁으로 보여주기 위해서다. 국가 기능을 무너뜨리는 공세와 야전의 불가피성, 주변 세력의 패망 전망은 작품이 채택한 인과다. 35만은 원정군 전체 병력이며 전사자 수가 아니다. 육화진법의 직접적인 파훼보다 여러 군의 연계를 무너뜨린 작전으로 해석한다.
+Show strength and social cohesion leading to actual operations, and changes on one front creating conditions for the next attack. The offensive against national functions, inevitability of field battle, and surrounding powers' expectation of collapse are adopted causality. The 350,000 is the whole expedition, not deaths. Interpret the operation as breaking links among armies rather than directly defeating a six-flower formation.
 
-- [이민수, 「661년 고구려-당 전쟁의 전황」, 2022](https://journal.kci.go.kr/imhc/archive/articlePdf?artiId=ART002819049): 209쪽에서 35개 행군·35만 명의 세 방면 공격을 제시한다. 고구려의 전략을 수성, 압록수의 보급 차단, 유목 세력과의 연계, 적이 지쳤을 때의 공세 전환, 퇴각군 추격으로 복원한다. 개별 군의 병력 배분은 별도로 재구성해야 한다.
-- 1619년 사르후 전투: 누르하치가 네 길로 오는 명·조선 연합군을 닷새 동안 한 길씩 깨뜨린 내선 각개격파다. 기록이 적은 고구려 작전의 리듬과 결정을 settings에서 설계할 때 구조의 참고로만 쓴다. 본문에 비유로 들이지 않는다.
-- [《삼국사기》 복신의 660년 10월·661년 4월 구원 요청 주석](https://db.history.go.kr/item/compareViewer.do?levelId=sg_028r_0020_0390), [《일본서기》 661년 8월 백제 구원병 파견](https://db.history.go.kr/common/compareViewer.do?levelId=jm_001r_0240_0020&type=ancient), [663년 3월 2만 7천 명의 신라 공격](https://db.history.go.kr/item/compareViewer.do?levelId=jm_001_0240_0160): 왜의 지원과 공세가 이어진 사실을 보이되 661년 지도부의 동기를 입증하지는 않는다.
+- [Lee Min-su, “The 661 Goguryeo–Tang War,” 2022](https://journal.kci.go.kr/imhc/archive/articlePdf?artiId=ART002819049): page 209 presents 35 marching armies and 350,000 attacking in three directions, and reconstructs Goguryeo's fortress defense, Yalu supply interdiction, ties with nomadic forces, switch to offense when the enemy tired, and pursuit. Individual army allocations require separate reconstruction.
+- Battle of Sarhu, 1619: Nurhaci defeated the four routes of the Ming–Joseon coalition one at a time over five days. Use only as a structural reference when settings designs the rhythm and decisions of the sparsely recorded Goguryeo operation; do not introduce it as an analogy in the text.
+- [Samguk Sagi notes on Boksin's October 660 and April 661 requests for relief](https://db.history.go.kr/item/compareViewer.do?levelId=sg_028r_0020_0390), [Nihon Shoki on dispatch of relief to Baekje in August 661](https://db.history.go.kr/common/compareViewer.do?levelId=jm_001r_0240_0020&type=ancient), [the March 663 dispatch of 27,000 to attack Silla](https://db.history.go.kr/item/compareViewer.do?levelId=jm_001_0240_0160): show continuing Wa support and offense, but do not prove the leaders' 661 motives.
 
-## 2차전쟁의 경과와 생각대로 되지 않은 일 {#second-war-course}
+## The second war and what did not go to plan {#second-war-course}
 
-2차전쟁은 기록과 연구에 맞춰 다음 마디로 재구성한다. 날짜는 음력이며, 날짜별 세부와 병력 값은 settings가 기록별로 정한다.
+Reconstruct the second war in the following stages in line with records and research. Dates are lunar; settings determines details and force figures by record.
 
-1. 661년 가을, 남생이 압록수에서 계필하력을 붙들어 평양 앞 당군의 보급을 끊다가, 이른 결빙으로 건너온 계필하력에게 진다.
-2. 661년 10월 하순, 연개소문은 요동의 방면군들을 두들기려 기병을 몰아 달려가지만, 철륵의 반란으로 부여 방면과 요동 방면이 먼저 빠져 허탕을 친다. 혼자 남은 누방도 정명진군을 신성 일대 병력과 합쳐 깬다.
-3. 고구려 편에 선 거란이 철군하는 아사나충을 막으려다 진다. 고구려군은 그 싸움에 직접 나서지 않는다.
-4. 661년 12월, 평양성 수비군이 당의 보루 두 곳을 빼앗지만 나머지는 치지 못한다. 보급이 끊긴 포위군은 혹한 속에 말라 간다. 연개소문의 본대는 아직 오지 않았다.
-5. 662년 1월, 연개소문이 요동에서 이긴 기동군을 데리고 평양에 닿아 평양성 병력과 합친다.
-6. 662년 2월, 방어가 약한 패강도 임아상 진영을 먼저 깨고, 이어 퇴로가 끊긴 옥저도 방효태군을 사수에서 몰살시킨다.
-7. 그사이 2월 초에 닿은 김유신의 군량으로 기운을 되찾은 소정방군은 사수 뒤 포위를 풀고 살아서 물러난다.
-8. 김유신을 쫓던 고구려군은 임진강에서 역습을 받아 진다.
+1. In autumn 661 Namsaeng delays Qibi Heli at the Yalu and cuts supply to Tang before Pyongyang, but loses the final battle after Qibi crosses on an early freeze.
+2. In late October 661 Gaesomun drives cavalry to strike the Liaodong armies, but Buyeo and Liaodong forces depart first because of the Tiele rebellion, frustrating him. He joins forces from the Sinseong area to defeat Zheng Mingzhen's isolated Nufang army.
+3. Khitan aligned with Goguryeo try to block Ashina Zhong's withdrawal and lose; Goguryeo troops do not fight directly in that battle.
+4. In December 661 the Pyongyang garrison captures two Tang strongpoints but cannot attack the rest. The besiegers, cut off from supplies, wither in severe cold. Gaesomun's main force has not yet arrived.
+5. In January 662 Gaesomun arrives at Pyongyang with the mobile force victorious in Liaodong and joins the fortress troops.
+6. In February 662 he first breaks Ren Yaxiang's more weakly defended Paegang camp, then destroys Pang Xiaotai's Okjeo army at Sasu with its retreat cut off.
+7. Meanwhile Su Dingfang's army, revived by Kim Yusin's provisions delivered in early February, lifts the siege after Sasu and withdraws alive.
+8. Goguryeo's pursuers of Kim Yusin are counterattacked and defeated at the Imjin River.
 
-여섯 방면군 가운데 셋은 깨지고([세 군의 궤멸](#three-armies-and-abandoned-conquest)), 평양은 크게 상한 채 살아서 물러나며, 요동과 부여는 당의 사정으로 빠진다. 이 경과에는 연개소문의 생각대로 되지 않은 일 둘을 함께 둔다. 요동의 허탕은 깰 상대를 빼앗고, 김유신의 군량은 굶어 죽어 가던 소정방군을 살려 완승을 빼앗는다. 둘 다 그가 막을 수 없었던 바깥 변수다.
+Of six armies, three are broken ([the destruction of three armies](#three-armies-and-abandoned-conquest)); the Pyongyang force withdraws alive and heavily damaged, while Liaodong and Buyeo depart for Tang's own reasons. Include two divergences from Gaesomun's plan: the frustration in Liaodong removes enemies he meant to defeat, and Kim Yusin's provisions save Su Dingfang's starving army and deny complete victory. Both are external variables he could not prevent.
 
-기록의 성격도 경과의 일부로 다룬다. 남은 기록은 대부분 이긴 쪽이나 당 쪽에서 나왔고, 당 쪽 공식 서술은 이 전쟁을 짧게 줄인다. 압록수의 전과처럼 이긴 쪽이 적은 숫자는 그 쪽의 주장으로 다루고, 기록이 비어 있는 손실과 경위는 settings에서 작품의 값으로 채우되 기록과 구별한다.
+Treat the nature of records as part of the course. Most surviving accounts come from the victors or Tang, whose official account compresses the war. Numbers claimed by winners, such as the Yalu result, remain their claims; settings supplies fictional values where records leave losses and circumstances blank, distinguished from record.
 
-어려운 결단이 실제로 어떻게 성취되고 어디서 어긋났는지를 함께 보여, 승리가 완승이 아니라 쓴 승리로 남게 하기 위해서다.
+Show both how a difficult decision was achieved and where it diverged, leaving victory bitter rather than complete.
 
-- [『자치통감』 권200](https://zh.wikisource.org/wiki/資治通鑑/卷200): 계필하력이 압록에서 「3만을 베었고」 조서로 군을 돌린 일, 철륵의 반란과 소사업의 선악도 전환, 662년 2월 임아상의 진중 사망과 나흘 뒤 방효태와 아들 13명의 전사, 소정방이 「큰 눈을 만나 포위를 풀고 돌아간」 일, 정인태의 철륵 원정에서 「남은 병사가 겨우 8백」이었던 일을 전한다.
-- [『구당서』 권199상 고려전](https://zh.wikisource.org/wiki/舊唐書/卷199上): 임아상·소정방·계필하력이 「모두 큰 공 없이 돌아왔다」고만 적는다.
-- [『구당서』 권83](https://zh.wikisource.org/wiki/舊唐書/卷83): 정명진이 662년에 죽어 우위대장군으로 추증되고 시호 「열」을 받았다고 적으며 경위는 없다.
-- [이민수, 「661년 고구려-당 전쟁의 전황」, 2022](https://journal.kci.go.kr/imhc/archive/articlePdf?artiId=ART002819049): 정명진군에 대한 고구려의 반격을 병조 양사선 묘지명의 우회적 표현에서 추정하고, 아사나충 비문의 거란 결탁과 그 패배를 소개한다.
-- [이민수, 「662년 고구려의 평양성 전투와 임진강 전투 재구성」, 2022](https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART002869455): 요동에서 당군을 깬 병력이 평양성 병력과 합류해 2월 대공세로 돌아서고, 임아상군과 방효태군을 차례로 깨뜨렸으며, 김유신 추격군이 임진강에서 졌다고 본다.
-- [이상훈, 「제2차 고당전쟁기(661~662) 사수 전투의 전개 양상」](https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART002927114): 당군이 네 진영으로 평양성을 포위했고, 고구려군이 방어가 약한 임아상 부대를 먼저 쳤으며, 사수는 보통강으로 본다.
+- [Zizhi Tongjian, volume 200](https://zh.wikisource.org/wiki/資治通鑑/卷200): records Qibi Heli's claim to have beheaded 30,000 at the Yalu and withdrawal by edict, Tiele rebellion and Xiao Siye's diversion to Seonak, Ren Yaxiang's death in camp in February 662 and Pang Xiaotai's death with 13 sons four days later, Su Dingfang lifting the siege and returning in heavy snow, and Zheng Rentai's Tiele expedition with barely 800 soldiers remaining.
+- [Old Book of Tang, volume 199, first part, account of Goguryeo](https://zh.wikisource.org/wiki/舊唐書/卷199上): says only that Ren Yaxiang, Su Dingfang, and Qibi Heli all returned without great achievement.
+- [Old Book of Tang, volume 83](https://zh.wikisource.org/wiki/舊唐書/卷83): says Zheng Mingzhen died in 662 and received posthumous office and the name Lie, without circumstances.
+- [Lee Min-su, “The 661 Goguryeo–Tang War,” 2022](https://journal.kci.go.kr/imhc/archive/articlePdf?artiId=ART002819049): infers Goguryeo's counterattack on Zheng Mingzhen's force from indirect wording in Yang Sixian's epitaph and introduces Khitan alliance and defeat in Ashina Zhong's inscription.
+- [Lee Min-su, “Reconstructing Goguryeo's Battles at Pyongyang and the Imjin River in 662,” 2022](https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART002869455): argues forces victorious in Liaodong joined the Pyongyang garrison for a February offensive, defeated Ren and Pang in turn, and lost pursuit at the Imjin.
+- [Lee Sang-hun, “The Course of the Battle of Sasu during the Second Goguryeo–Tang War (661–662)”](https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART002927114): argues Tang besieged Pyongyang in four camps, Goguryeo first struck Ren's weaker force, and identifies Sasu with the Botong River.
 
-## 남생의 지연 성과와 최종 패전 {#namsaeng-delay-and-defeat}
+## Namsaeng's successful delay and final defeat {#namsaeng-delay-and-defeat}
 
-남생은 당의 가장 강한 군대를 압록강 전선에 약 한 달 붙들어 두는 지연전에 성공하지만, 결빙을 이용한 계필하력의 도하 뒤 최종 전투에서 패한다. 고구려의 다른 전선에 시간을 벌어 준 성과와 실제 패전의 손실을 함께 남긴다. 계필하력의 이후 이탈은 북방 반란 대응으로 다룬다.
+Namsaeng succeeds in holding Tang's strongest army at the Yalu for roughly a month, but loses the final battle after Qibi Heli crosses on ice. Preserve both time gained for other Goguryeo fronts and losses in actual defeat. Treat Qibi's later departure as a response to northern rebellion.
 
-전쟁에 기여한 지휘자가 눈에 보이는 패전으로 평가받는 간극을 만들고, 전선의 신망과 형제들의 오해가 갈라지는 계기로 삼기 위해서다. 정확한 대치·도하·퇴각과 손실은 settings에서 설계한다.
+Create the gap between a commander's contribution and a visible defeat by which he is judged, opening a divergence between trust at the front and his brothers' misreading. Settings designs exact stand-off, crossing, retreat, and losses.
 
-- [국사편찬위원회, 남생의 패전과 계필하력의 회군](https://db.history.go.kr/item/compareViewer.do?levelId=sg_022r_0020_0340): 정예 수만의 방어, 결빙 도하와 패전, 회군을 전한다. 약 한 달의 지연 효과는 작품이 채택한 작전 해석이다.
+- [National Institute of Korean History, Namsaeng's defeat and Qibi Heli's withdrawal](https://db.history.go.kr/item/compareViewer.do?levelId=sg_022r_0020_0340): records defense by tens of thousands of elite troops, crossing on ice, defeat, and withdrawal. A delay of roughly a month is the work's adopted operational interpretation.
 
-## 김유신의 겨울 수송 {#yusin-winter-supply}
+## Kim Yusin's winter transport {#yusin-winter-supply}
 
-662년 겨울 김유신은 고구려 지휘부가 군량을 실은 부대의 통과를 불가능하게 여긴 험로를 넘어 소정방에게 보급한다. 고구려는 그 방면의 경계를 상대적으로 허술하게 두었으며, 수송과 귀환의 성공은 연개소문을 비롯한 수뇌부가 김유신을 괴물처럼 두려워하는 계기가 되게 한다. 개인의 산길 통과와 군량·운반 수단·부상자를 동반한 부대 이동의 차이를 보여주어, 행군 자체로 그의 지휘 능력을 관객이 이해하게 한다. 연개소문은 당만 꺾으면 남방을 평정해 장수왕 때의 판도로 되돌리거나 신라를 무너뜨릴 수 있으리라 여겨 왔다. 이 행군을 겪고서는 김유신의 능력에 감탄하며 그 길이 쉽지 않다는 것을 안다.
+In winter 662 Kim Yusin crosses difficult roads Goguryeo's commanders believed impassable to a force carrying provisions and supplies Su Dingfang. Goguryeo has relatively weak watch in that direction, and the transport and return lead leaders including Gaesomun to fear Kim Yusin as a monster. Show the difference between one person crossing a mountain path and moving a force with provisions, transport, and wounded, so the audience understands his command through the march itself. Gaesomun had believed that defeating Tang would let him pacify the south, recover King Jangsu's territory, or destroy Silla. After this march he admires Kim Yusin's ability and knows that path is difficult.
 
-수송대는 많은 사람과 말을 잃고 생존자들도 동상과 손발가락 손상을 남기는 것으로 그린다. 주력은 육로로 귀환하며 고구려군의 추격과 임진강 부근 전투를 겪는다. 김유신의 현장 관등 포상과 귀환 뒤 추가 포상 요구도 활용하되, 골품 변경으로 쓰지 않는다. 이후 활동은 기록에 맞춰 이어간다.
+The transport loses many people and horses, and survivors bear frostbite and damage to fingers and toes. The main body returns by land, facing Goguryeo pursuit and battle near the Imjin. Use Kim Yusin's field rank awards and request for further awards after return, without treating them as changes of bone rank. Later activity follows the record.
 
-당군은 연개소문의 야전 승리에 경악하고 고구려는 김유신의 행군에 경악하는 구도를 만들기 위해서다. 정확한 산악 경로와 고구려의 판단, 개별 부상은 작품의 재구성이며, 병사들의 손실도 성취와 함께 보인다.
+Tang is shocked by Gaesomun's field victory, while Goguryeo is shocked by Kim Yusin's march. Exact mountain route, Goguryeo judgment, and individual injuries are the work's reconstruction; show losses alongside achievement.
 
-- [국사편찬위원회, 문무왕 답서의 군량 수송](https://db.history.go.kr/common/compareViewer.do?levelId=sg_007_0020_0103&type=ancient): 혹한·굶주림과 사람·말의 죽음, 손발 동상을 서술한다.
-- [국사편찬위원회, 고구려군을 따돌리고 표하를 건너다](https://db.history.go.kr/ancient/level.do?levelId=sg_042r_0020_0400): 김양도의 일부 병력은 해로로 귀환하고, 김유신은 기만과 야간 도하로 추격에 대응한 일을 전한다.
-- [국사편찬위원회, 김유신의 요청으로 사찬을 받다](https://db.history.go.kr/ancient/level.do?levelId=sg_047r_0100_0050): 현장에서 급찬을 준 뒤 왕에게 사찬을 요청한 일을 전한다.
+- [National Institute of Korean History, provision transport in King Munmu's reply](https://db.history.go.kr/common/compareViewer.do?levelId=sg_007_0020_0103&type=ancient): describes extreme cold, hunger, deaths of people and horses, and frostbitten hands and feet.
+- [National Institute of Korean History, eluding Goguryeo and crossing Pyoha](https://db.history.go.kr/ancient/level.do?levelId=sg_042r_0020_0400): records part of Kim Yangdo's force returning by sea and Kim Yusin using deception and a night crossing against pursuit.
+- [National Institute of Korean History, sachan awarded at Kim Yusin's request](https://db.history.go.kr/ancient/level.do?levelId=sg_047r_0100_0050): records a field award of geupchan followed by a request to the king for sachan.
 
-## 세 군의 궤멸과 정복전쟁의 단념 {#three-armies-and-abandoned-conquest}
+## Three armies broken and conquest abandoned {#three-armies-and-abandoned-conquest}
 
-방효태의 옥저도행군과 함께 임아상의 패강도행군, 정명진의 누방도행군도 작전을 지속할 수 없을 정도로 궤멸한 것으로 재구성한다. 소정방군까지 무너뜨릴 기회는 김유신의 군량 수송으로 끊기고, 그 군대는 살아서 철수하게 한다. 연개소문이 믿은 해법은 당의 정예를 야전에서 섬멸하는 것이었지만, 실제 결과는 세 군의 궤멸과 소정방군의 철수라는 완승에 못 미치는 승리다. 그 차이는 그에게 쓴맛으로 남는다. 기록의 짧은 서술 뒤에 더 큰 패전이 있었을 것이라는 해석을 채택한다.
+Reconstruct not only Pang Xiaotai's Okjeo army but Ren Yaxiang's Paegang and Zheng Mingzhen's Nufang armies as broken beyond the ability to continue operations. Kim Yusin's transport removes the opportunity to destroy Su Dingfang's army, which withdraws alive. Gaesomun's intended solution was to annihilate Tang's elite in the field, but the result—three armies broken and Su's withdrawal—is a victory short of complete. The difference is bitter to him. Adopt the interpretation that a larger defeat lies behind the records' brief account.
 
-당의 대패는 수의 고구려 원정 실패에 비견되는 국가적 후유증을 남긴 것으로 해석한다. 당이 정복전쟁을 멈춘 까닭은 잃은 병력과 함선의 셈만이 아니다. 천하제일이라 자신하던 야전에서 연이어 깨지자, 이 싸움을 더 이으면 안 된다는 경각심이 조정에 생긴 것으로 해석한다. 피해의 구체적인 규모는 기록에 남지 않았으므로 이것은 작품의 해석이다. 승리의 주요 성취는 당이 고구려 정복전쟁을 중단하고 신라도 대규모 정복 침공을 단념하는 전후 국면을 얻은 데 둔다. 664년 돌사성 공격 같은 국지전은 남으며, 이후 내전이 새 정복전쟁의 기회를 여는 전개와 구별한다.
+Interpret Tang's major defeat as leaving national aftereffects comparable to Sui's failed Goguryeo expedition. Tang stops conquest not merely because of numbers of troops and ships lost: repeated field defeats where it believed itself finest under heaven produce a court awareness that this war should not continue. Specific damage is unrecorded, so this is the work's interpretation. The main achievement of victory is a postwar period in which Tang stops its conquest war against Goguryeo and Silla abandons large-scale conquest invasion too. Local fighting such as the 664 attack on Dolsaseong remains, distinct from later civil war opening an opportunity for a new conquest.
 
-야전의 승리가 적의 정책과 국가의 생존 조건을 바꾼 결과까지 보여주기 위해서다. 세 군의 궤멸은 모든 병사의 죽음과 같지 않으며, 수와의 비교도 612년보다 많은 전사자를 확정한 주장이 아닌 전후 충격의 해석으로 유지한다.
+Show field victory changing enemy policy and the conditions of national survival. Destruction of three armies is not the death of every soldier, and comparison with Sui remains an interpretation of postwar shock, not a claim establishing more deaths than in 612.
 
-- [동북아역사재단, 고구려의 반격과 당군의 퇴각](https://contents.nahf.or.kr/item/level.do?levelId=gt.d_0007_0010_0020_0020): 방효태군 전멸과 임아상 사망, 정명진 전사 및 휘하 군 붕괴를 연결하는 연구 견해를 소개한다.
-- [이민수, 「661~662년 고구려-당 전쟁 직후 양국의 동향」, 2022](https://www.kci.go.kr/kciportal/landing/article.kci?arti_id=ART002863672): 공개 초록은 수에 비견되는 당의 곤란한 전후 정국과 663년 함선 건조 철폐·전쟁 중지 선언을 설명한다. 신라의 단념은 작품의 전후 구도다.
+- [Northeast Asian History Foundation, Goguryeo's counterattack and Tang withdrawal](https://contents.nahf.or.kr/item/level.do?levelId=gt.d_0007_0010_0020_0020): introduces research connecting Pang's army's destruction, Ren's death, Zheng's battlefield death, and his force's collapse.
+- [Lee Min-su, “The Two Countries Immediately after the 661–662 Goguryeo–Tang War,” 2022](https://www.kci.go.kr/kciportal/landing/article.kci?arti_id=ART002863672): the public abstract explains Tang's difficult postwar situation compared with Sui and the 663 abolition of shipbuilding and declaration ending war. Silla's abandonment is the work's postwar structure.
 
-## 외전에서 되돌아보는 겨울 행군 {#later-winter-campaign}
+## A later winter campaign remembered in a side story {#later-winter-campaign}
 
-원본은 733년 신라의 발해 원정이 큰 눈과 험로로 피해를 입고 철수하는 일을 김유신의 겨울 수송과 비교하는 외전 재료로 보존한다. 이번 본편에 그 장면을 추가하지 않는다. 원본의 이 비교는 같은 험로를 통과하는 어려움을 후대의 실패로 되비추는 구상이며, 정확히 같은 경로라는 연결은 작품의 재구성이다.
+The original preserves as side-story material a comparison of Kim Yusin's winter transport with Silla's 733 expedition against Balhae, damaged and withdrawn in heavy snow and difficult roads. Do not add that scene to this main work. The original concept reflects the difficulty of a difficult route through later failure; identifying exactly the same route is the work's reconstruction.
 
-후대 사건을 통해 김유신의 성취와 대가를 되돌아볼 수 있게 하기 위해서다. 외전을 별도로 위임받을 때에만 그 시점과 분량을 새로 정한다.
+A later event can prompt reflection on Kim Yusin's achievement and cost. Determine timing and length anew only if a side story is separately commissioned.
 
-- [국사편찬위원회, 성덕왕 32년 발해 공격](https://db.history.go.kr/common/compareViewer.do?levelId=sg_008r_0040_1560&type=ancient): 폭설과 산길의 차단으로 병사 절반 이상이 죽고 성과 없이 귀환했다고 전한다.
+- [National Institute of Korean History, attack on Balhae in King Seongdeok's 32nd year](https://db.history.go.kr/common/compareViewer.do?levelId=sg_008r_0040_1560&type=ancient): records that heavy snow and blocked mountain roads killed more than half the soldiers and the force returned without success.
 
-## 판단과 실행으로 이해되는 전투 {#battlefield-causality}
+## Battle understood through judgment and execution {#battlefield-causality}
 
-전투의 성패는 지휘자의 이름이나 군대의 명성만으로 설명하지 않고, 그때 파악한 정보와 지형·시간·보급·병력 운용이 실제 행동으로 이어지는 과정에서 납득되게 한다. 기동과 기습에는 이동·집결·연락의 조건이 있고, 적도 자기 정보와 능력 안에서 대응하게 한다. 세부 작전은 settings에서 자유롭게 구성하되, 같은 전쟁의 양쪽 군대에 날씨와 거리, 피로와 손실의 제약이 함께 작용하게 한다.
+Make battle outcomes understandable through information known at the time and the actions arising from terrain, time, supply, and force employment, not a commander's name or an army's reputation alone. Maneuver and surprise require travel, assembly, and communications; enemies respond within their own information and ability. Settings may freely construct detailed operations, while weather, distance, fatigue, and losses constrain both armies in the same war.
 
-명장의 능력을 결과에 붙이는 찬사보다, 불리한 조건에서 무엇을 가능하게 했는지로 보여주기 위해서다.
+Show a great commander's ability through what they make possible under unfavorable conditions, not praise attached to an outcome.

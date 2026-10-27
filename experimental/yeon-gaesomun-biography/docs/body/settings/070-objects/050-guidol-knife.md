@@ -1,13 +1,13 @@
-# 귀돌이 남긴 작은 칼
+# Guidol's small knife
 
-정전 안내: [이 대상의 위치](../outline/index.md#070-objects--050-guidol-knife).
+Canon guide: [Location of this subject](../outline/index.md#070-objects--050-guidol-knife).
 
-## 귀돌이 남긴 작은 칼 {#guidol-knife}
+## Guidol's small knife {#guidol-knife}
 
-**정의·범위**
+**Definition and scope**
 
-귀돌의 생활용 칼은 그가 남긴 유품을 알아보게 하는 작은 외날 칼이다.
+Guidol's everyday knife is a small single-edged blade that identifies the belongings he leaves behind.
 
-**확정 내용**
+**Established facts**
 
-전체 길이25센티미터, 작은 외날과 닳은 나무 손잡이로 구별한다. 이 형상과 치수는 창작이며 헌충의 전투 칼과 같은 장검으로 조형하지 않는다. 귀돌의 죽음과 남은 가족에게 유품이 도착하는 경로는 [귀돌](../040-agents/077-guidol.md#guidol)에서 읽는다.
+It is 25 centimeters long, with a small single-edged blade and a worn wooden handle. Its form and dimensions are invented; do not model it as a long sword like Heonchung's fighting blade. See [Guidol](../040-agents/077-guidol.md#guidol) for his death and how his belongings reach his surviving family.

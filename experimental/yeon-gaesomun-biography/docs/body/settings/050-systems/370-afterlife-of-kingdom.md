@@ -1,21 +1,19 @@
-# 제국의 한계와 외전의 문턱
+# The empire’s limits and the threshold of a side story
 
-정전 안내: [이 대상의 위치](../outline/index.md#050-systems--370-afterlife-of-kingdom).
+Canon guide: [Location of this subject](../outline/index.md#050-systems--370-afterlife-of-kingdom).
 
-## 제국의 한계와 외전의 문턱 {#afterlife-of-kingdom}
+## The empire’s limits and the threshold of a side story {#afterlife-of-kingdom}
 
-**정의·범위**
+**Definition and scope**
 
-당은 고구려 정복 뒤에도 남쪽 전체를 마음대로 지배할 수 없다. 신라는 동맹군이었다가 당의 직접 통치 요구에 맞서고, 서쪽의 토번 전선은 당의 힘을 또 다른 방향으로 요구한다. 이 후속 조건을 본편의 마지막 시대 배경으로 사용한다. 당이 처음부터 신라의 독립을 영원히 보장한 협력자였거나, 고구려만 무너지면 한반도 전체의 정복이 자동으로 끝나는 제국이라고 쓰지 않는다.
+Even after conquering Goguryeo, Tang cannot rule the entire south at will. Silla goes from ally to resisting Tang’s demand for direct rule, and the Tibetan front in the west draws Tang’s strength elsewhere. Use these later conditions as the background of the main story’s final period. Do not portray Tang as a partner that guaranteed Silla’s independence forever from the start, or as an empire for which conquest of the entire peninsula ends automatically when Goguryeo falls.
 
-**확정 내용**
+**Established facts**
 
-고구려의 멸망 뒤 그 이름과 사람의 관계는 모두 사라지지 않는다. 동부의 말갈 공동체와 유민들이 새로운 나라를 만들 여지는 외전의 소재다. 본편은 발해 건국까지 시간을 뛰어 남생의 죽음을 구원으로 봉합하지 않는다. 걸걸씨와 말갈족이 주축이 되는 부활은 별도 외전에서 그들이 자기 주체로 선택하는 사건이며, 개소문이 생전에 모든 미래를 설계했다는 결말이 아니다.
+After Goguryeo’s fall, not all connections between its name and people disappear. The possibility that eastern Malgal communities and displaced people create a new country belongs to a side story. The main story does not jump to Balhae’s founding to redeem Namsaeng’s death. Revival led by the Geolgeol family and Malgal is an event they choose as agents in a separate side story, not an ending in which Gaesomun planned the entire future during his life.
 
+Namsaeng’s inner state at the main story’s end belongs to [Namsaeng after losing Heonchung](../040-agents/007-namsaeng.md#namsaeng-after-heonchung). Gaesomun’s victory defending Goguryeo and the reconstruction Namsaeng prepared remain real possibilities. The country’s loss does not turn them into empty boasting from the start. At the end the reader encounters both a state’s failure and a person who must go on living after failure.
 
+**References and unresolved matters**
 
-본편 마지막에 이른 남생의 내면은 [헌충을 잃은 뒤의 남생](../040-agents/007-namsaeng.md#namsaeng-after-heonchung)에서 다룬다. 고구려를 지킨 개소문의 승리와 남생이 준비한 재건은 실제로 가능했던 일로 남는다. 나라가 없어졌다는 결과가 그 가능성을 처음부터 허풍으로 바꾸지는 않는다. 독자가 마지막에 만나는 것은 국가의 실패와, 실패 뒤에도 다른 삶을 이어야 하는 사람이다.
-
-**참조·미결**
-
-Sources: [국편 문무왕 생애 주석의 나당전쟁 결말](https://db.history.go.kr/ancient/level.do?levelId=sg_006r_0020_0010), [국편 『신당서』 아사나도진의 토번전 손실](https://db.history.go.kr/ancient/level.do?levelId=ko_035_0860_0030).
+Sources: [Conclusion of the Silla–Tang war in the National Institute of Korean History annotation on King Munmu](https://db.history.go.kr/ancient/level.do?levelId=sg_006r_0020_0010), [Ashina Dojin’s losses against Tibet, New Book of Tang](https://db.history.go.kr/ancient/level.do?levelId=ko_035_0860_0030).

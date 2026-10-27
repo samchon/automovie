@@ -1,67 +1,67 @@
-# 같은 아버지를 다르게 이어받은 사람들
+# Sons who inherit the same father differently
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--007-namsaeng).
+Canon guide: [where to find this subject](../outline/index.md#040-agents--007-namsaeng).
 
-## 연남생의 능력과 전선의 인망 {#namsaeng-before-succession}
+## Yeon Namsaeng's ability and trust at the front {#namsaeng-before-succession}
 
-**정의·범위**
+**Definition and scope**
 
-연남생은 연개소문의 장남이자 후계자다. 634년에 태어나 679년에 죽는다. 전선에서 얻은 인망을 바탕으로 사람들의 협력을 얻어 나라를 재건하려 한다.
+Yeon Namsaeng is Yeon Gaesomun's eldest son and successor. Born in 634, he dies in 679. Drawing on trust earned at the front, he seeks people's cooperation to rebuild the country.
 
-**확정 내용**
-
-
-작품에서 창작한 남생의 키는 176센티미터다. 아버지보다 어깨가 좁고 몸통이 길며, 얼굴도 가늘고 길다. 곧은 검은 눈썹 아래 짙은 갈색 눈이 있고 코는 길게 뻗어 있다. 입은 작으며 아랫입술이 조금 두껍다. 피부는 볕에 그을린 황갈색이다. 검은 머리를 뒤로 묶고, 젊을 때 성기던 수염은 전쟁 뒤부터 짧게 기른다. 이 치수와 모습은 실제 초상을 복원한 값이 아니다.
+**Established content**
 
 
-손에는 굳은살이 남아 있다. 오래 서 있으면 한쪽 발로 무게를 옮긴다. 평소에는 짙은 갈색 옷에 검은 띠를 두르며, 갑옷과 겉옷은 남에게 보이기 전에 자기 몸에 맞도록 수선되어 있다.
+In the work's fictional design Namsaeng is 176 centimeters tall. His shoulders are narrower and torso longer than his father's, and his face is narrow and long. Dark brown eyes lie under straight black eyebrows; his nose extends long, his mouth is small, and his lower lip slightly thick. His skin is sun-browned yellow. He ties his black hair back, and after the war keeps the beard that was sparse in youth short. These measurements and features do not reconstruct an actual portrait.
 
 
-목소리는 중간보다 낮고 맑으며 약한 숨소리가 섞인다. 보고를 듣고 나면 천천히 첫말을 꺼내되 명령의 끝은 흐리지 않는다. 화가 났을 때는 소리를 높여 몰아붙이기보다 어절 사이의 간격이 길어진다. 아들을 잃은 뒤에도 음색 자체는 유지되지만, 질문한 뒤 기다리던 간격을 끊고 결론부터 말하는 일이 늘어난다.
+His hands are callused. When standing for long periods he shifts his weight onto one foot. He usually wears dark brown clothes with a black sash; armor and outerwear are repaired to fit his own body before they are shown to others.
 
 
-남생은 빠른 천재가 아니고 실전에서도 늘 승리하지는 못한다. 어려움마다 원인이 다르면 같은 명령 하나로 해결하려 하지 않고, 그 일을 해 본 사람에게 물어 답을 확인한다. 모르는 것을 묻는 데 아버지보다 수치심을 덜 느낀다. 요동과 국내성의 지휘자들은 남생이 군사와 같은 음식을 먹고 같은 추위를 견디는 모습을 본다. 귀족 장남이라는 지위만으로 이런 행동을 대신할 수는 없다.
+His voice is clear and below middle pitch, with a little breath in it. After hearing a report he begins slowly, but does not let the end of an order trail off. When angry he lengthens the gaps between phrases rather than raising his voice to press others. After losing his son the voice itself remains, but he increasingly cuts short the wait after a question and states his conclusion first.
 
 
-사령을 주관했다는 기록을 바탕으로, 작품의 남생은 공식 문서와 보고에 쓰인 말을 상대가 이해할 수 있게 풀어 설명한다. 먼저 상대의 보고를 끝까지 듣고, 결정을 내린 뒤에는 누가 어디까지 맡는지 분명히 한다. 남의 공을 가로채지 않고, 맡긴 일이 잘못되었을 때도 자기 책임을 피하지 않는다. 말을 풀어 설명하는 능력과 칼을 다루는 능력은 별개다.
+Namsaeng is not a quick genius and does not always win in battle. When difficulties have different causes, he does not try to solve them all with one order; he asks people who have done the work and confirms their answers. He feels less shame than his father in asking what he does not know. Commanders in Liaodong and Gungnaeseong see him eat the soldiers' food and endure the same cold. His status as a noble eldest son cannot substitute for these actions.
 
 
-관직의 연대는 [시간과 보고](../outline/index.md#020-world)에 따른다. 661년에는 막리지 겸 삼군대장군, 665년에는 대막리지다. 압록강 지연전과 최종 패배의 군사적 성과, 남생에게 남은 개인적인 상처는 군사 정전에서 정한다. 패배 뒤 귀향한 병사를 다시 불러낼 때 남생은 그들에게 패배의 책임을 떠넘기지 않는다.
-
-**참조·미결**
-
-Sources: [『삼국사기』 남생의 관력과 묘지명에 근거한 연차](https://db.history.go.kr/ancient/level.do?levelId=sg_049r_0040_0010).
-
-## 남생의 재건과 아버지가 되려는 꿈 {#namsaeng-restoration}
-
-**정의·범위**
-
-662년 전쟁을 겪은 남생은 사람을 동원하던 방식 그대로 복구를 밀어붙일 수는 없다고 판단한다. 당이 정복전쟁을 멈추었어도 군사는 여전히 필요하다. 신라의 수송 능력과 백제 부흥 세력의 붕괴를 알게 되면, 다음 전쟁에서는 상대의 조건이 지금과 달라지리라고 본다. 성을 지키는 일과 생산·운반을 회복하는 일을 함께 진행할 구체적인 계획은 [생계와 동원](../outline/index.md#030-society)에 따른다.
-
-**확정 내용**
+Drawing on the record that he directed command, the work's Namsaeng explains language in official documents and reports so the other person can understand. He first hears a report to the end and, after deciding, makes clear who is responsible for what. He does not take others' credit or evade his own responsibility when delegated work goes wrong. Explaining words and handling a sword are separate abilities.
 
 
-남생은 아버지 앞에서 자신이 더 위대한 사람임을 증명하려 하지 않는다. 지금 해낼 수 있는 일의 범위와 지방 사람들이 맡을 몫을 구체적으로 나누어 설명한다. 개소문은 그 계획이 실현될 수 있다는 점과 아들이 자신과 다른 방식으로 통치하려 한다는 점을 흡족하게 여긴다.
+Office chronology follows [time and reports](../outline/index.md#020-world). In 661 he is mangniji and supreme commander of the three armies; in 665 he is daemangniji. Military canon determines the delaying action at the Yalu, final defeat, and his personal injury. When calling soldiers home after defeat back into service, Namsaeng does not shift blame for the defeat to them.
+
+**References and unresolved matters**
+
+Sources: [Samguk Sagi, Namsaeng's career and chronology based on his epitaph](https://db.history.go.kr/ancient/level.do?levelId=sg_049r_0040_0010).
+
+## Namsaeng's reconstruction and dream as a father {#namsaeng-restoration}
+
+**Definition and scope**
+
+After the 662 war, Namsaeng judges that recovery cannot be driven by mobilizing people in the same way as war. Even after Tang stops conquest, troops are still needed. On learning of Silla's transport ability and the collapse of Baekje restoration forces, he sees that the next war's opponent will have different conditions. Concrete plans to defend fortresses while restoring production and transport follow [livelihood and mobilization](../outline/index.md#030-society).
+
+**Established content**
 
 
-남생은 아들 헌충이 더 넓은 일을 할 수 있는 시대를 마련하고 싶다. 재건은 그 준비를 위해 자기 생애에 해내야 할 과업이다. 헌충의 천재성을 믿고 현재의 일을 뒤로 미루지는 않는다.
+Before his father, Namsaeng does not try to prove that he is the greater man. He explains concretely the scope of work he can accomplish now and the shares local people will take. Gaesomun is pleased that the plan can be realized and that his son intends to rule differently from him.
 
 
-동생들을 필요 이상으로 꾸짖거나 모욕하지는 않지만, 당장 신라를 정복하자는 요구가 거듭되면 현실에서 치를 대가를 모르는 말이라고 여긴다. 남생은 동생들도 같은 전쟁을 겪었으니 복구의 필요를 이해할 것이라고 기대한다. 동생들이 나이가 어리다는 이유로 형에게 가볍게 취급받는다고 느끼는 불만은 충분히 살피지 못한다.
-
-## 남생이 잃은 아들과 넘긴 나라 {#namsaeng-after-heonchung}
-
-**정의·범위**
-
-헌충이 죽은 뒤 남생에게 무엇을 먼저 지켜야 하는지가 근본적으로 달라진다. 함께 재건하려던 지휘자들에게 나라를 지켜야 한다고 말하던 남생은, 이제 아들을 죽인 왕명과 정권을 위해서는 같은 말을 할 수 없다. 국내성에서 처음 택한 길은 살아남기 위한 것이었다. 그러나 당군을 끌어들이는 단계에 이르면, 아들의 원수를 갚을 수 있는 한 고구려가 살아남을지조차 외면한다.
-
-**확정 내용**
+Namsaeng wants to create an era in which his son Heonchung can undertake broader work. Reconstruction is a task he must accomplish in his own lifetime to prepare it. He does not postpone present work because he believes in Heonchung's genius.
 
 
-남생은 자신이 가진 정보와 지역의 지지를 넘기면 고구려의 방어를 얼마나 해칠 수 있는지 안다. 당이 고구려를 그대로 보존해 줄 것이라는 순진한 기대만으로 움직이는 것이 아니라, 방어를 해칠 힘인 줄 알면서도 당에 넘긴다.
+He does not scold or humiliate his brothers more than necessary, but when they repeatedly demand immediate conquest of Silla he regards their words as ignorant of actual costs. He expects them to understand the need for recovery because they experienced the same war. He does not sufficiently notice their resentment at feeling lightly treated by their elder brother because they are younger.
+
+## The son Namsaeng lost and the country he surrendered {#namsaeng-after-heonchung}
+
+**Definition and scope**
+
+After Heonchung dies, what Namsaeng must protect first changes fundamentally. He once told commanders rebuilding with him that they must defend the country; now he cannot say the same for the royal order and regime that caused his son's death. His first choice at Gungnaeseong was survival. But once he reaches the point of bringing in Tang's army, he disregards even whether Goguryeo survives, so long as he can avenge his son.
+
+**Established content**
 
 
-국내성 귀족들은 자기들의 원한과 왕명에 대한 불신 때문에 남생의 선택에 동참한다. 그렇다고 남생이 모든 지역 사람에게 자기 아들의 죽음을 나라보다 중요하게 여기라고 강요할 수는 없다. 남생을 따르지 않는 사람들과 반대 의견도 남아 있다.
+Namsaeng knows how much handing over his information and regional support can harm Goguryeo's defense. He does not act only from naive expectation that Tang will preserve Goguryeo intact; he hands over the means knowing they can damage the defense.
 
 
-나라가 멸망한 뒤 남생은 당에서 받은 지위로 자신이 만들려던 나라를 대신할 수 없음을 안다. 자신이 넘긴 길과 사람 때문에 주민들이 죽고 다른 곳으로 옮겨진 일에 대한 책임도 깨닫는다. 그래도 헌충의 죽음을 용서하거나 남건과 왕실이 옳았다고 인정하지는 않는다. 멸망에 대한 책임과 아들을 잃은 원한을 화해시키지 못한 채 살아가다가 679년에 죽는다. 돌이킬 수 없는 선택과 용서할 수 없는 상실이 함께 남는 생애의 끝으로, 구원의 확신을 얻는 결말은 아니다.
+Gungnaeseong nobles join him because of their own resentment and distrust of the royal order. Even so, Namsaeng cannot force every local person to regard his son's death as more important than the country. People who refuse to follow and opposing views remain.
+
+
+After the country falls, Namsaeng knows his position under Tang cannot replace the country he meant to build. He also recognizes responsibility for residents killed or moved elsewhere because of the roads and people he handed over. Even so, he does not forgive Heonchung's death or concede that Namgeon and the royal house were right. He lives unable to reconcile responsibility for the fall and resentment at losing his son, and dies in 679. His life ends with irreversible choice and unforgivable loss together, not certainty of redemption.

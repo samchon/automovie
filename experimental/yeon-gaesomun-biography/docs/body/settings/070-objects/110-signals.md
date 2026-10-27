@@ -1,15 +1,15 @@
-# 깃발과 군령
+# Flags and military orders
 
-정전 안내: [이 대상의 위치](../outline/index.md#070-objects--110-signals).
+Canon guide: [Location of this subject](../outline/index.md#070-objects--110-signals).
 
-## 깃발과 군령 {#signals}
+## Flags and military orders {#signals}
 
-**정의·범위**
+**Definition and scope**
 
-깃발·북·전령은 멀리 떨어진 부대가 지휘를 알아듣는 수단이며 상대의 모든 움직임을 실시간으로 알려 주지는 않는다. 부대별 깃발의 도안은 작품에서 정한다. 고구려 중앙군은 먹빛 바탕의 적갈색 띠, 남생의 요동 병력은 같은 바탕의 흰 가장자리, 당의 각 방면군은 붉은 바탕에 다른 띠의 수와 위치로 구별한다. 민족 전체의 실제 역사 군기라고 주장하지 않는다. 말갈 편입 병력도 공동 고구려 표지를 쓰되 생활복과 짐의 모습은 지역마다 다르다.
+Flags, drums, and messengers let distant units understand commands but do not report every movement in real time. Unit flag designs are invented: Goguryeo central forces use a reddish-brown stripe on a dark ground, Namsaeng’s Liaodong force the same ground with white edging, and Tang’s separate expeditionary forces a red ground distinguished by stripe number and position. Do not claim these are historical flags of whole peoples. Incorporated Malgal troops use the shared Goguryeo marker while everyday clothes and baggage differ by region.
 
-**확정 내용**
+**Established facts**
 
-깃대는 병사가 들고 움직이며 나무와 구릉에 가려진다. 북의 신호는 가까운 대열의 행동을 바꾸고, 세부 명령은 전령이 받는 지휘자의 이름과 위치를 알아야 전해진다. 큰 소리로 명령했다는 이유로 수십 리 밖 다른 진영이 함께 움직이지 않는다. 전령이 죽거나 길을 잘못 들면 보고가 늦어지며, 지휘자는 마지막으로 받은 정보와 현장에 보이는 차이를 판단해야 한다. 속로의 경기병은 연락병과 길을 끊는 임무에서 그 시차를 이용한다.
+A soldier carries the flagpole, which trees and hills can obscure. Drum signals change nearby formations’ actions; detailed orders require a messenger to know the receiving commander’s name and location. Shouting does not move another camp tens of ri away. A dead or misdirected messenger delays a report; commanders must judge differences between the last information and what is visible. Sokro’s light cavalry uses that delay in missions to cut messengers and roads.
 
-공동 군기는 가로1.2미터·세로0.8미터 천과 높이3미터의 짙은 갈색 깃대로 정한다. 고구려 중앙의 적갈색 띠는 먹빛 바탕 가운데를 세로로 가로지르는 폭15센티미터 한 줄이고 남생 병력의 흰 가장자리는 가장자리5센티미터 띠다. 당의 붉은 갈색 바탕·밝은 회갈색 띠는 평양도(소정방)=가운데 세로 한 줄, 패강도(임아상)=가로 한 줄, 옥저도(방효태)=가로 두 줄, 요동도(계필하력)=세로 두 줄, 부여 방면=비껴 한 줄, 누방(정명진)=가장자리 한 줄로 대응한다. 부여 방면이라는 고구려의 묶음 안에서도 소사업과 아사나충은 별도 지휘다. 같은 비껴 띠 아래쪽에 소사업은 작은 회갈색 사각 표지 하나, 아사나충은 둘을 붙여 가까이서 구별한다. 먼 거리에서는 이 보조 표지를 읽을 수 없어 전령과 위치를 함께 확인한다. 이는 사료의 군기 복원이 아니라 같은 표지를 다시 볼 수 있게 하는 창작 도안이다. 군북은 지름60센티미터·깊이40센티미터의 나무 몸통과 밝은 갈색 가죽 면이며 두 사람이 옮기거나 받침에 놓는다. 천의 무늬는 먼 곳에서 잘 안 보일 수 있어 가까운 지휘자와 전령의 확인을 대신하지 못한다.
+The shared flag is cloth 1.2 meters wide and 0.8 high on a three-meter dark brown pole. Goguryeo central’s reddish-brown stripe is one vertical 15-centimeter band through the dark center; Namsaeng’s white border is five centimeters wide. Tang’s reddish-brown ground and light gray-brown stripes correspond to Pyongyang route (Su Dingfang): one central vertical; Paegang route (Ren Yaxiang): one horizontal; Okjeo route (Pang Xiaotai): two horizontal; Liaodong route (Qibi Heli): two vertical; Buyeo direction: one diagonal; Nufang (Zheng Mingzhen): one border. Within Goguryeo’s Buyeo grouping, Xiao Siye and Ashina Zhong command separately. Below the shared diagonal, Xiao has one small gray-brown square and Ashina two for close recognition. These auxiliary marks cannot be read at a distance, requiring messenger and position checks. This is an invented repeatable design, not reconstruction of historical flags. A military drum has a wooden body 60 centimeters across and 40 deep with light brown leather faces; two people carry it or set it on a stand. Cloth patterns may be hard to see at distance and cannot replace checks with nearby commanders and messengers.

@@ -1,19 +1,19 @@
-# 동부의 마을과 경당
+# The eastern village and Gyeongdang
 
-정전 안내: [이 대상의 위치](../outline/index.md#060-places--140-eastern-village).
+Canon guide: [Location of this subject](../outline/index.md#060-places--140-eastern-village).
 
-## 동부의 마을과 경당 {#eastern-village}
+## The eastern village and Gyeongdang {#eastern-village}
 
-**정의·범위**
+**Definition and scope**
 
-동부의 편입 마을은 국가의 약속을 주민이 실제로 사용할 수 있는가를 확인하는 생활 공간이다. 미란과 속로의 공동체가 드나드는 마을의 배치는 창작한다. 작은 물길 옆에 집과 밭이 흩어져 있고, 숲으로 이어진 사냥길은 넓은 교역길과 다르다. 공동체 안에서도 밭을 많이 가진 집과 사냥·운반에 더 기대는 집이 나뉜다. 가난함을 모든 주민이 같은 옷과 같은 집을 가진 모습으로 만들지 않는다.
+The incorporated eastern village is a living space to test whether residents can actually use state promises. The layout visited by Miran and Sokro’s community is invented. Houses and fields scatter beside a small watercourse; forest hunting paths differ from broad trade roads. Within the community some households have more fields, others rely more on hunting and transport. Poverty does not give all residents identical clothes and houses.
 
-**확정 내용**
+**Established facts**
 
-경당은 교역길 가까이의 긴 목조 집과 그 옆의 빈 마당이다. 안에서는 함께 읽고, 밖에서는 활을 쏜다. 표적 뒤에 흙을 쌓아 화살이 집 쪽으로 나가지 않게 하며, 어린아이가 놀이하는 자리는 사대와 분리한다. 교역 물건은 경당 방 안을 채우지 않고 이웃한 창고와 마당에 둔다. 국가에서 온 사람이 읽고 훈련을 가르치는 일과 물자를 나누는 일은 서로 다른 사람의 권한이다. 마을에는 임금의 궁정 같은 상설 호화 관청을 두지 않는다.
+The Gyeongdang is a long wooden house and adjoining open yard near the trade road. People read inside and shoot outside; an earth bank behind targets stops arrows toward houses, and children’s play is separate from shooting. Trade goods occupy a neighboring storehouse and yard, not the school room. State instruction and distribution belong to different people’s authority. There is no permanent luxurious court-like office.
 
-창작 마을의 생활 구역은 물길 서쪽 약300미터 범위에 흩어진 집과 밭으로 두며, 북쪽 숲길 입구와 남쪽 교역길은 별개다. 경당 집은12미터×6미터의 남향 목조 채이고 동쪽 읽는 자리, 서쪽 무구 보관 자리를 나눈다. 활 연습 마당은 남쪽에 길이35미터·폭15미터, 표적은 북쪽 집을 등진 남쪽 흙둑 앞에 둔다. 놀이 자리는 마당 서쪽의10미터×10미터 빈자리이며 사대와는 낮은 울타리로 갈라진다. 창고는 집 동쪽 약20미터에 있어 배급 대열이 활쏘는 길을 가로막지 않는다. 낮빛은 남쪽 창과 문으로 들고 해가 지면 읽는 자리에 등잔 두 개를 둔다. 물 흐르는 소리와 마당의 활시위 소리는 들리지만 숲에서 돌아오는 사람을 방 안에서 모두 볼 수는 없다.
+The invented living area scatters houses and fields within about 300 meters west of the watercourse; the north forest entrance and south trade road are separate. The south-facing school is 12 by 6 meters, reading east and arms storage west. The southern archery yard is 35 meters long by 15 wide, with targets before the south bank facing away from the northern house. A 10-by-10-meter play area west is separated by a low fence. The storehouse is about 20 meters east of the house, so ration lines do not block shooting. Daylight enters south windows and door; two lamps light reading after sunset. Water and bowstrings are audible, but not everyone returning from woods is visible from inside.
 
-전쟁 뒤 위무를 받는 자리는 경당 앞 마당으로 둔다. 과부와 돌아온 병사가 서로의 몫을 보는 자리이므로 약속을 공개적으로 비교할 수 있다. 배급이 늦어지면 연개소문의 의도와 현지 담당자의 행동이 다른 사실도 드러난다. 공동체의 말과 고구려 관리의 말이 모두 같다는 결정은 없으며, 중요한 통지는 두 언어를 아는 주민을 거친다.
+Postwar reassurance occurs in the front yard, where widows and returned soldiers can publicly compare shares and promises. Delay exposes differences between Yeon’s intention and local officers’ actions. The work does not make community and Goguryeo official language identical; important notices pass through bilingual residents.
 
-경당 집은 한 층이며 바닥에서 보 아래2.6미터, 처마2.8미터, 동서 용마루4미터다. 남북 경사의 짙은 갈색 초가지붕은 벽 밖으로0.6미터씩 내민다. 실내에서 나무 보와 지붕 받침이 보이며 그 위를 별도 거처로 쓰지 않는다. 배급 창고도 한 층으로 보 아래2.5미터·처마2.7미터·동서 용마루3.8미터의 같은 재료 지붕을 둔다. 이 높이·외곽은 창작값이며 읽는 자리·사대·놀이 울타리와 배급 대열의 분리를 유지한다.
+The school is one story, 2.6 meters beneath the beam, 2.8 to eaves, four to east–west ridge. Dark brown thatch slopes north–south and projects 0.6 meters beyond walls. Beams and roof supports are visible and the space above is not a dwelling. The one-story ration storehouse has the same roof material, 2.5 meters beneath beam, 2.7 eaves, 3.8 east–west ridge. Invented heights and exterior preserve separation of reading, shooting, fenced play, and ration lines.

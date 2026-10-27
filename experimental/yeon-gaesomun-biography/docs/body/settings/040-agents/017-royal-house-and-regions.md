@@ -1,24 +1,21 @@
-# 왕가와 지역 귀족의 원한
+# Resentment between the royal house and regional nobles
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--017-royal-house-and-regions).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--017-royal-house-and-regions).
 
-## 왕가와 지역 귀족의 원한 {#royal-house-and-regions}
+## Resentment between the royal house and regional nobles {#royal-house-and-regions}
 
-**정의·범위**
+**Definition and scope**
 
-작품의 국내성파 귀족들은 옛 왕가와 함께 군사적으로 나라를 떠받쳤으나, 후대에 중앙 권력이 재편되면서 그 기여를 무시당했다는 기억을 전한다. 조상들이 배제되고 숙청된 일을 왕권 강화 과정에서 겪은 배신으로 받아들인다. 이 오래된 불신은 추군·세군의 충돌을 둘러싼 창작 배경 가운데 하나다. 관련 계보 전체나 개별 왕이 숙청한 대상을 문헌으로 완전히 복원한 것은 아니며, 불신 하나로 실제 내전의 원인을 확정하지도 않는다.
+The work’s Gungnaeseong faction preserves memories that its nobles supported the country militarily with the old royal house, only for their contribution to be disregarded as central power was reorganized later. They regard ancestors’ exclusion and purges as betrayal in the strengthening of royal power. This distrust is one invented background for the Chugun–Segun conflict. It does not reconstruct every genealogy or purged target of individual kings from texts, nor establish distrust alone as the civil war’s actual cause.
 
-**확정 내용**
+**Established facts**
 
+The Pyongyang faction also has different interests. Some nobles close to court gained status under Yeon power; others use royal orders to expand it. When Namsaeng’s recovery appears to rely on popularity in certain regions, opposition weighs burdens and authority for its own region. The royal house seeks to gather these different objections under one royal order. Do not treat all Pyongyang residents as a faction seeking royal restoration.
 
-평양성파 안에도 서로 다른 이해가 있다. 조정과 가까운 귀족 가운데는 연씨 권력 아래에서 지위를 얻은 사람이 있는가 하면, 왕명을 빌려 그 지위를 더 넓히려는 사람도 있다. 남생의 복구가 특정 지역에서 얻은 인망에 기대는 것으로 보일 때는 자기 지역이 질 부담과 가질 권한을 따지는 반대가 나온다. 왕실은 이처럼 다른 반발들을 하나의 왕명 아래 모으려 한다. 평양성파를 주민 모두가 왕정 복고를 바라는 집단으로 보지는 않는다.
+When Gungnaeseong nobles submit with Namsaeng to Tang after the coup, trust in him and experience maintaining the front together act alongside old grievances. Facing the new regime’s suppression order, some make a military choice to protect families and regions. Ceasing loyalty to the king does not lead to permanent loyalty to Tang rule. The work’s fall canon does not divide all surrendered regions as preserved and all Pyongyang residents as forcibly relocated; staying and relocation are set by region.
 
+Bojang’s status in Tang after the 668 fall and return to Liaodong in 677 create conditions for the Yeon family and royal house to meet again in the epilogue. The king’s role in urging others does not end with the fall. Tang seeks to use the symbol of a king; the king seeks room through that symbol to move his country again. The main story follows their different interests through 679, without extending into scenes of his 681 exile and 682 death.
 
-정변 뒤 국내성 귀족들이 남생과 당에 귀부할 때는 오래된 원한에 더해, 남생에 대한 신뢰와 함께 전선을 꾸렸던 경험이 작용한다. 새 정권의 토벌 명령 앞에서 가족과 지역을 지키려는 군사적 선택도 있다. 왕에게 충성하지 않게 되었다고 해서 당의 지배에 영구히 충성하는 결말로 이어지는 것은 아니다. 항복한 지역은 모두 그대로 보존되고 평양 주민은 전부 강제이주당한다는 양분은 이 작품의 멸망 정전에 없다. 주민의 잔류와 이주는 지역별로 정해져 있다.
+**References and unresolved matters**
 
-
-668년 멸망 뒤 보장왕이 당에서 얻는 지위와 677년 요동 복귀는 에필로그에서 연씨와 왕가가 다시 마주칠 조건이 된다. 다른 사람을 부추기던 왕의 역할은 멸망과 함께 끝나지 않는다. 당은 왕이라는 상징을 활용하려 하고, 왕은 그 상징으로 자기 나라를 다시 움직일 여지를 찾는다. 본편은 이해가 다른 당과 왕의 관계를 679년까지 다룬다. 681년 유배와 682년 죽음은 후속 장면으로 늘리지 않는다.
-
-**참조·미결**
-
-Sources: [『삼국사기』 보장왕에 대한 국편의 멸망 후 복귀 주석](https://db.history.go.kr/ancient/level.do?levelId=sg_021r_0020_0010).
+Sources: [National Institute of Korean History annotation on Bojang’s post-fall return, Samguk Sagi](https://db.history.go.kr/ancient/level.do?levelId=sg_021r_0020_0010).

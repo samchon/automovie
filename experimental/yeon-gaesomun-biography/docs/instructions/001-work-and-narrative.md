@@ -1,66 +1,66 @@
-# 작품과 서사
+# Work and narrative
 
-## 작품의 중심 {#work-and-scope}
+## The heart of the work {#work-and-scope}
 
-《대막리지》는 연개소문의 생애와 후기 고구려를 다루는 한국어 장편 역사극이다. 나라를 지킨 그의 능력과 성취, 그 통치가 남긴 비용과 사후의 실패를 함께 다룬다. 주변 나라와 공동체도 자기 조건에서 선택하는 역사의 주체로 그린다.
+*Daemangniji* is a feature-length historical drama in English about the life of Yeon Gaesomun and late Goguryeo. It treats his ability and achievement in defending the country alongside the costs of his rule and the failure after his death. Neighboring countries and communities are also historical actors who choose under their own conditions.
 
-한 사람의 전기와 국가·공동체의 흥망이 같은 이야기로 이어지게 하기 위해서다.
+This connects one person's biography with the rise and fall of a country and its communities in the same story.
 
-## 결전의 결단에서 소년 시절로 돌아가는 액자로 연다 {#frame-and-chronology}
+## Open with a decisive choice, then return to boyhood {#frame-and-chronology}
 
-본편은 액자로 연다. 도입 액자는 661년 늦봄의 평양이다. 당이 여러 길의 총관을 세우고 군사를 모아 여섯 방면으로 온다는 소식이 닿고, 연개소문은 여섯 방면군을 모두 야전에서 하나씩 깨뜨리는 결전 전략을 밝힌다. 그 회의의 모양은 [도입 액자의 회의](#first-episode-council)가 정한다. 결단을 내린 밤 그는 자신이 죽인 왕 고건무에게 속으로 말을 걸고, 이야기는 그 왕을 동경하던 소년 시절로 돌아간다.
+The main work opens with a framing story in Pyongyang in late spring 661. News arrives that Tang has appointed commanders for several routes and is gathering an army to approach on six fronts; Yeon Gaesomun announces a strategy of decisive field battles to defeat all six forces one by one. [The opening council](#first-episode-council) determines the shape of that meeting. On the night of his decision he speaks inwardly to Go Geonmu, the king he killed, and the story returns to the boyhood in which he admired that king.
 
-그 뒤로는 시간순으로 올라온다. 2차전쟁에 이르면 도입 액자의 결단 장면으로 액자가 닫히고, 남생의 압록강 지연전과 결빙 패전, 이어지는 각개격파와 사수전투가 같은 작전의 흐름으로 펼쳐진다. 그 승리 뒤에 말년과 죽음이 오고, 사후의 붕괴는 에필로그가 맡는다. 영상에서 2차전쟁이 놓일 부와 앞선 시기의 구획은 완전한 사건 설계와 scripts에서 정하되, 각 부는 큰 국면을 닫고 관객이 선택과 후과를 따라갈 충분한 사건을 갖게 한다.
+From there it moves forward chronologically. On reaching the second war, the frame closes at the opening decision, and Namsaeng's delaying action and defeat on the frozen Yalu, the subsequent defeats of individual armies, and the battle of Sasu unfold as one operation. His final years and death follow that victory; the epilogue handles the collapse after his death. The complete event design and scripts determine the screen division containing the second war and the divisions for earlier periods, with each closing a major phase and containing enough events for the audience to follow choices and consequences.
 
-첫 장면에서 승리를 보여 주지 않고 결단과 그 어려움을 보여 주어, 관객이 이 사람이 이 싸움을 해낼지 모르는 채 그의 생애를 따라가게 하기 위해서다. 시간순으로 올라오는 동안 관객은 그가 어떻게 이 결단을 내릴 자리에 왔는지, 무엇을 잃고 무엇을 모아 이 싸움을 가능하게 했는지를 겪는다.
+The first scene shows a decision and its difficulty, not victory, so the audience follows his life without knowing whether he can accomplish it. As the chronology advances, they experience how he came to make the decision, what he lost, and what he gathered to make the fight possible.
 
-## 도입 액자의 회의는 무모해 보이는 결단을 보인다 {#first-episode-council}
+## The opening council presents a decision that seems reckless {#first-episode-council}
 
-연개소문이 밝히는 전략은 [야전도 수성도 망하는 덫](007-warfare-and-campaigns.md#double-bind-and-season)을 깨는 셋째 길이다. 이전 시대처럼 막고 또 막으며 적이 물러나기를 기다리지 않는다. 성과 강과 겨울이 적을 막아 지치게 하고 연계를 끊는 동안 흩어진 제 병력을 합치고, 적이 소진하고 나뉜 순간 먼저 결전을 걸어 여섯 방면군을 모두 야전에서 하나씩 깨뜨린다. 적은 나누고 나는 합친다. 그가 드는 논거에는 그 덫과 계절의 시한이 들어간다. 성에서 버티기만 하면 들과 수확이 해마다 깎여 나라가 안에서 말라 가고, 당군이 여름에 와 가을걷이를 붙들고 겨울을 넘기면 봄에 씨를 뿌리지 못하니, 겨울 끝에 결전해 봄이 오기 전에 끝내야 한다는 것이다. 이것은 그가 지난 전쟁들에서 읽어 낸 예측이며, 실제 전역이 어떻게 흘러갈지는 알지 못한다.
+Yeon Gaesomun's strategy is a third way out of [the trap in which both field battle and fortress defense lead to ruin](007-warfare-and-campaigns.md#double-bind-and-season). He will not repeatedly block the enemy and wait for withdrawal as in earlier times. While fortresses, rivers, and winter obstruct and exhaust the enemy and cut their connections, he will unite his scattered forces; when the enemy is depleted and divided, he will initiate decisive battles and defeat all six armies individually in the field. Divide the enemy and unite his own. His argument includes the trap and the seasonal deadline: merely holding fortresses lets fields and harvests be destroyed year after year until the country dries up from within; if Tang arrives in summer, occupies the autumn harvest, and stays through winter, there can be no spring sowing, so he must fight decisively at winter's end and finish before spring. This is his prediction from earlier wars, not knowledge of how the actual campaign will unfold.
 
-그 자리의 누구도 이 전략이 쉽다고 여기지 않는다. 그들이 아는 당군은 [천하제일의 야전 군대](007-warfare-and-campaigns.md#capable-armies-and-defeat)이고, 645년 이후 고구려는 비슷한 수, 때로는 적다고 얕본 당군에게도 야전에서 줄줄이 졌다. 적 한 갈래가 고구려 야전군 전부와 비슷한 수다. 맞서는 사람들은 이 작전이 너무 복잡해 생각처럼 되겠느냐고도 묻는다. 적이 소진한 때를 누가 알아보는지, 멀리 떨어진 성과 지방군이 제때 합쳐질 수 있는지, 성들이 그때까지 버틸지, 한 번이라도 늦거나 지면 나머지 방면군이 수도까지 오지 않겠느냐는 물음이다. 연개소문이 내놓는 답의 중심은 그가 오래 길러 온 말갈을 위시한 경기병이다. 그들이 적의 연락과 보급을 끊고 발을 묶어 시간을 벌며, 흩어진 제 병력 사이의 연락을 잇는다. 그 답이 반대를 다 지우지는 못한다.
+No one present thinks the strategy easy. The Tang army they know is [the finest field army under heaven](007-warfare-and-campaigns.md#capable-armies-and-defeat), and since 645 Goguryeo has repeatedly lost field battles to Tang forces of similar numbers, sometimes even forces it underestimated as smaller. One enemy column is comparable in size to Goguryeo's entire field army. Opponents also ask whether an operation so complex can work as imagined: who will recognize when the enemy is exhausted, whether distant fortresses and regional troops can unite in time, whether the fortresses will hold until then, and whether one delay or defeat will let the remaining armies reach the capital. Yeon Gaesomun's central answer is the light cavalry he has long cultivated, especially the Malgal. They will sever enemy communications and supply, hold them in place and buy time, and connect his own scattered forces. The answer does not erase every objection.
 
-회의는 합의로 끝나지 않는다. 결전을 우려하던 사람들 가운데 일부는 덫을 이미 몸으로 안다. 645년 뒤 당은 바다로 상륙하거나 기병으로 들어와 들을 짓밟고 빠지기를 되풀이했고, 해마다 서북 변경과 바닷가의 농토가 황폐해졌다. 그들은 작전이 될지 동의하지 못하면서도, 막기만 해서는 이 분탕질이 끝나지 않으니 이번에는 결판을 내야 한다는 데에는 결국 고개를 끄덕인다. 서북 변경에 땅과 사람을 둔 이들이 먼저 그렇다. 주필산의 생존자 고휘는 덫을 부정하지 않으면서도 야전에서 지면 한 번에 망한다며 끝까지 반대하고, 그 반대는 꺾이지 않은 채 남는다. 결전은 대막리지의 결단으로 정해진다.
+The council does not end in consensus. Some who fear decisive battle have already felt the trap themselves. After 645 Tang repeatedly landed by sea or sent cavalry to trample the fields and withdraw; farmland on the northwestern frontier and coast was devastated year after year. Though unconvinced the operation will work, they eventually agree that merely blocking the enemy will not end the devastation and that this time the issue must be settled. Those with land and people on the northwestern frontier agree first. Go Hwi, a Jupilsan survivor, does not deny the trap, but opposes the plan to the end because a field defeat could destroy them at once; his objection remains unbroken. The daemangniji decides on the battle.
 
-연개소문은 회의당의 사람들이 이 결단을 어떻게 받아들이는지 안다. 당군이 얼마나 강한지, 자기 군대가 야전에서 얼마나 졌는지, 기병 위주의 군대가 한 번 잃으면 다시 만들 수 없다는 것도 부정하지 않는다. 그 사실을 다 인정한 채 결론만 달리한다. 이 어려움은 서술자가 대신 말하지 않고, 맞서는 사람의 주장과 그 자리의 반응이 보여 준다.
+Yeon Gaesomun knows how the people in the council receive his decision. He does not deny Tang's strength, his army's field defeats, or that a cavalry-centered army cannot be recreated once lost. He accepts all those facts and draws a different conclusion. The opposing arguments and reactions in the room show the difficulty; the narrator does not state it for them.
 
-결전이 모두가 동의한 전략이 아니라, 다른 길이 없어 받아들인 성공을 장담할 수 없는 결단으로 읽히게 하기 위해서다. 그래야 액자가 닫힐 때의 승리와 그 어긋남이 무게를 갖는다. 회의의 자리와 고휘라는 인물은 작품의 구성이다.
+The decision must read as one accepted because there is no other way, without a guarantee of success, rather than a strategy everyone endorses. Only then do the victory and its divergence from the plan carry weight when the frame closes. The council setting and Go Hwi are constructions of the work.
 
-## 소년기 국면은 영웅을 동경하던 소년이 가문을 잇기까지다 {#volume-one-youth}
+## The youth phase follows a boy who admires a hero until he inherits his family {#volume-one-youth}
 
-소년기 국면은 도입 액자 뒤에 614년 출생부터 634년 가문 계승까지를 다룬다. 다음을 골자로 한다.
+After the opening frame, the youth phase covers his birth in 614 through succession to the family in 634. Its main points are:
 
-- 아버지 연태조의 집과, 귀족과 평민의 아이가 함께 다니는 경당, 그 위의 태학에서 자란다.
-- 612년 왕제 고건무가 결사대를 이끌고 수의 수군을 깨뜨린 이야기를 구전으로 듣는다. 젊은 왕족이 몸소 앞장선 그 이야기에 소년은 그를 가장 동경하는 영웅으로 삼는다.
-- 618년 영양왕이 죽고 고건무가 왕위에 오른다. 수가 무너지고 중원이 갈라진 시기를 두고, 전쟁을 겪은 장년층 사이에서 판단이 갈린다. 지금은 복구할 때라는 영류왕 쪽과, 갈라진 틈에 한 번 크게 쳐 둬야 뒷날이 평화롭다는 쪽이 맞선다. 아버지 연태조는 기본적으로 영류왕을 지지하면서도 쳐야 한다는 쪽에 서고, 소년은 그 말을 더 크게 기억한다.
-- 당이 628년 중원을 다시 통일하고 630년 동돌궐을 무너뜨린다. 631년에는 고구려가 수 전쟁의 승리를 기념해 쌓은 경관을 헐어 압박해 온다. 그동안 영류왕은 화친과 방비를 함께 택해 천리장성을 쌓기 시작한다. 소년은 그 선택을 점점 나약함으로 읽는다.
-- 태학에서 두각을 나타내지만 상대를 납득시키기 전에 이겨 버리는 버릇이 있다. 아버지는 재능만으로는 사람을 움직일 수 없다고 가르친다.
-- 633년 말 아버지가 죽는다. 그의 기질을 꺼리는 귀족들이 가문 계승을 막자, 그는 엎드려 약속하고 설득해 가문을 잇는다.
+- He grows up in his father Yeon Taejo's home, at a gyeongdang attended by noble and common children together, and then at the Taehak.
+- He hears the oral story of the royal prince Go Geonmu leading a picked force against Sui's navy in 612. The young royal who led personally becomes the boy's most admired hero.
+- In 618 King Yeongyang dies and Go Geonmu ascends the throne. Among adults who lived through the war, judgment differs over the fall of Sui and division of the Central Plain. King Yeongnyu's side says it is time to recover; the other says one great strike while the enemy is divided will secure later peace. His father Yeon Taejo generally supports Yeongnyu but favors a strike, and the boy remembers that argument more strongly.
+- Tang reunifies the Central Plain in 628 and defeats the Eastern Turks in 630. In 631 it applies pressure by destroying the victory monument Goguryeo built to commemorate the Sui wars. Meanwhile Yeongnyu chooses both peace and defense, beginning the long wall. The boy increasingly reads the choice as weakness.
+- He excels at the Taehak but tends to win before persuading his opponents. His father teaches that talent alone cannot move people.
+- His father dies in late 633. When nobles wary of his temperament block the succession, he bows, makes a promise, and persuades them to let him inherit the family.
 
-소년기 국면이 끝날 때 그는 영웅으로 우러르던 왕의 신하가 된 젊은 가주이며, 그 왕의 노선에 대한 실망을 키워 가는 중이다. 정변과 그 이후는 이어지는 성인기의 사건 설계가 맡는다.
+At the end of the youth phase he is a young family head serving the king he revered as a hero, growing disappointed in that king's course. The adult event design takes up the coup and what follows.
 
-영상의 첫 국면은 이십 년을 해마다 고르게 나누지 않고, 큰 마디에 집중한다. 소년이 영웅담을 듣고 경당과 태학에서 자라는 시절, 618년의 즉위와 천하대란을 둔 논쟁, 당의 통일과 돌궐의 붕괴·경관 훼손이 닿는 630년 전후, 633~634년 아버지의 죽음과 계승이 그 마디다. 마디 사이의 해는 원경으로 건넌다.
+The first screen phase does not distribute twenty years evenly year by year, but concentrates on major turning points: the boy hearing heroic stories and growing up in the gyeongdang and Taehak; the 618 succession and debate over the great turmoil; around 630, when news arrives of Tang unification, the Turks' collapse, and destruction of the monument; and his father's death and succession in 633–634. Years between those points pass in a wider view.
 
-이번 각색은 소년기부터 남생의 679년 죽음까지 본편 전체를 완성한다. 원본의 제1권 우선 제작과 권·화수는 영상의 납품 조건이 아니다. 영상 편성과 원형의 차이는 [각색과 납품](010-adaptation-and-delivery.md#whole-work-adaptation)이 소유한다.
+This adaptation completes the whole main work from boyhood to Namsaeng's death in 679. The original's priority of producing volume one first and its volume and episode counts do not govern screen delivery. [Adaptation and delivery](010-adaptation-and-delivery.md#whole-work-adaptation) owns the differences between screen organization and the original.
 
-정변을 서두르지 않고, 한 소년이 영웅을 동경하다 그 영웅과 다른 길을 믿게 되는 과정을 독립된 성장 국면으로 닫기 위해서다. 그래야 뒤의 정변이 갑작스러운 반역이 아니라 오래 쌓인 동경과 실망, 그리고 살기 위한 결단으로 읽힌다.
+This gives the process by which a boy admires a hero and comes to believe in a different course its own complete phase of growth, without rushing the coup. The later coup can then read as accumulated admiration and disappointment, and a decision to survive, rather than sudden treason.
 
-- [『삼국사기』 권49 개소문 열전](https://zh.wikisource.org/wiki/三國史記/卷49): 아버지가 죽은 뒤 사람들이 그의 기질 때문에 계승을 허락하지 않자, 그가 머리를 조아려 사죄하고 직무를 대행하게 해 달라 청했다고 전한다. 소년기의 교육과 영웅 동경은 작품의 구성이다.
+- [Samguk Sagi, volume 49, biography of Gaesomun](https://zh.wikisource.org/wiki/三國史記/卷49): after his father's death, people would not allow succession because of his temperament, so he bowed in apology and asked to act in the office. His education and boyhood admiration for the hero are constructions of the work.
 
-## 본편의 끝과 에필로그·외전 {#ending-and-side-story}
+## The main ending, epilogue, and side story {#ending-and-side-story}
 
-연개소문의 생애는 평생 과업이 성공했고 고구려가 다시 중흥하리라 믿으며 죽는 것으로 마무리한다. 에필로그에서는 후계 구도와 형제 화합, 남생의 재건 구상이 무너져 내전과 고구려 멸망으로 이어지는 전개를 다룬다. 걸걸씨와 말갈족이 주축이 되어 고구려 유민들과 함께 나라를 다시 세우는 발해 건국 이야기는 별도 외전의 소재로 보존한다. 이번 본편에는 외전의 장면이나 편수를 추가하지 않는다.
+Yeon Gaesomun's life ends with his death believing that his life's work succeeded and Goguryeo will revive. The epilogue follows the collapse of the succession arrangement, brotherly unity, and Namsaeng's reconstruction plans into civil war and Goguryeo's fall. Preserve the founding of Balhae, in which the Geolgeol family and Malgal lead former Goguryeo people in establishing another country, as material for a separate side story. Do not add its scenes or episodes to this main work.
 
-연개소문이 보지 못한 결과를 관객에게 보여주고, 멸망 뒤에도 공동체가 역사의 주체로 남게 하기 위해서다. 앞선 승리와 말갈의 귀속은 실제 성취로 남으며, 그가 헛되이 확신한 것은 그것이 고구려의 중흥으로 이어지리라는 미래다.
+This shows the audience consequences Gaesomun did not see while leaving communities as historical actors after the fall. The earlier victory and Malgal belonging remain real achievements; his mistaken confidence concerns the future belief that they would lead to Goguryeo's revival.
 
-## 여러 나라의 쇠퇴와 부흥 {#decline-and-revival}
+## Decline and revival among many countries {#decline-and-revival}
 
-신라·백제·고구려·북주·수·당·돌궐이 쇠퇴하고 재건하며 팽창과 좌절을 겪는 흐름을 작품 전반에 둔다. 흥망의 원인은 각 나라의 조건과 선택에 따라 다르게 쓰고, 한 나라의 회복이 이웃의 위기를 만드는 관계도 다룬다.
+Throughout the work, show Silla, Baekje, Goguryeo, Northern Zhou, Sui, Tang, and the Turks declining and rebuilding, expanding and suffering setbacks. Write each country's rise and fall according to its own conditions and choices, including how one country's recovery creates a neighbor's crisis.
 
-고구려의 멸망을 처음부터 정해진 결론처럼 쓰지 않고, 실제로 얻은 회복의 기회가 어떤 선택으로 사라졌는지 보여주기 위해서다.
+This avoids treating Goguryeo's fall as predetermined and shows which choices lost a real opportunity for recovery.
 
-## 창작과 보충의 여지 {#room-for-settings}
+## Room for invention and development {#room-for-settings}
 
-이 지침은 작품의 방향과 핵심 인과를 정한다. 이를 실현하는 조연, 관계의 세부, 생활과 경제 제도, 교육 운영, 재건 사업, 전투 편제와 동선은 settings에서 조사·창작하여 정한다. 여기에서 특정하지 않은 내용은 설계할 여지로 남긴다. 인물 동기와 사건을 연결하는 극적 재구성은 확인된 역사와 구별한다. 장면마다 지침의 모든 주제를 설명할 필요는 없으며, 설정의 세부는 그 시대의 제약과 작품의 인과를 만족하는 여러 선택 가운데 고른다.
+These instructions set the work's direction and central causality. Investigate and create supporting characters, relationship details, institutions of life and economy, educational practice, reconstruction programs, military organization, and routes in settings to realize them. Leave unspecified matters open to design. Distinguish dramatic reconstruction connecting motives and events from confirmed history. Every scene need not explain every theme in the instructions; choose settings details among alternatives that meet the period's constraints and the work's causality.
 
-지침이 settings를 미리 완성하여 이후 창작을 막지 않게 하기 위해서다.
+This prevents the instructions from completing settings in advance and blocking later creation.

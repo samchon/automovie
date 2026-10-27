@@ -1,17 +1,15 @@
-# 부상자를 안으로 옮긴 호위
+# Guards who carry the wounded inside
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--023-wounded-carriers).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--023-wounded-carriers).
 
-## 부상자를 안으로 옮긴 호위 {#wounded-carriers}
+## Guards who carry the wounded inside {#wounded-carriers}
 
-**정의·범위**
+**Definition and scope**
 
-헌충의 병력에 속한 네 호위는 부상자를 운반하고 거처를 지킬 수 있는 집단이다. 역할별 운반·길 확인과 치료 뒤 경계로 이어지는 원본의 고정 제약은 [헌충의 상처](../050-systems/270-heonchung-injury.md#heonchung-injury)가 소유한다.
+Four guards in Heonchung’s force can carry the wounded and guard the dwelling. [Heonchung’s wound](../050-systems/270-heonchung-injury.md#heonchung-injury) owns the source’s fixed constraints on carrying and checking the route by role, followed by keeping watch after treatment.
 
-**확정 내용**
+**Established facts**
 
+All four guards survive until Heonchung dies. This survival concerns those four people; it does not mean all 300 returned safely. No story assigns the four separate deaths or betrayals.
 
-네 호위는 헌충이 죽을 때까지 살아 있는 것으로 정한다. 이 생존은 네 사람에 관한 것으로, 삼백 명 전체가 무사히 돌아왔다는 뜻은 아니다. 네 사람에게 서로 다른 죽음이나 배신을 배정하는 서사도 없다.
-
-
-전투 중의 모습은 회갈색 속옷 위에 철찰 갑옷을 입고 검은 띠를 두른 차림으로 통일한다. 머리는 검게 묶었고 피부는 볕에 탔다. 운반 명령을 되받는 목소리는 거칠고 숨이 차 있다. 현재 서사에는 얼굴을 서로 구별해야 할 대사나 독립 행동이 없고, 특별한 성우나 한 사람만의 고유한 습관도 정해져 있지 않다.
+In battle they all wear iron lamellar armor over gray-brown underclothes with black sashes. Their black hair is tied back and their skin is sun-darkened. Their replies to carrying orders are rough and breathless. The current narrative contains no dialogue or independent action requiring their faces to be distinguished, and establishes no special voice actor or individual habit.

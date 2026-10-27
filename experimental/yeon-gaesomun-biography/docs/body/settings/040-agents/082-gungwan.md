@@ -1,17 +1,17 @@
-# 돌사성 공격의 군관
+# Gungwan at the attack on Dolsaseong
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--082-gungwan).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--082-gungwan).
 
-## 돌사성 공격의 군관 {#gungwan}
+## Gungwan at the attack on Dolsaseong {#gungwan}
 
-**정의·범위**
+**Definition and scope**
 
-군관은 돌사성 공격에 이름이 기록된 신라 장군이다.
+Gungwan is a Silla general named in the record of the attack on Dolsaseong.
 
-**확정 내용**
+**Established facts**
 
-직업을 뜻하는 보통명사 군관과 달리 이 대목에서는 인명으로 쓴다. 현재 예정 서사에서 김인문·품일·문영과 함께 공격했다는 보고의 당사자로만 등장한다. 직접 얼굴과 목소리를 만들거나 누가 먼저 성문을 넘었는지 확정하지 않는다.
+Here Gungwan is a personal name, unlike the common noun for a military officer. In the currently planned narrative, he appears only as a subject of the report that he attacked alongside Kim Inmun, Pumil, and Munyeong. Do not give him a face or voice or decide who crossed the gate first.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『삼국사기』664년 돌사성 공격의 군관](https://db.history.go.kr/item/compareViewer.do?levelId=sg_006_0020_0480).
+Sources: [Gungwan in the Samguk Sagi account of the 664 attack on Dolsaseong](https://db.history.go.kr/item/compareViewer.do?levelId=sg_006_0020_0480).

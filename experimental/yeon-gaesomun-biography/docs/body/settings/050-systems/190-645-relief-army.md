@@ -1,19 +1,19 @@
-# 단기 결전을 원하는 구원군
+# The relief force seeking a quick decisive battle
 
-정전 안내: [이 대상의 위치](../outline/index.md#050-systems--190-645-relief-army).
+Canon guide: [Location of this subject](../outline/index.md#050-systems--190-645-relief-army).
 
-## 단기 결전을 원하는 구원군 {#645-relief-army}
+## The relief force seeking a quick decisive battle {#645-relief-army}
 
-**정의·범위**
+**Definition and scope**
 
-645년 고구려의 구원군은 수와 싸워 이긴 나라의 후속 세대가 자신들의 힘을 입증하려는 군대다. 고연수와 고혜진의 자신감은 이세민의 이름만 듣고 달아나야 한다는 전제를 받아들이지 않는 데서 나온다. 주민은 군사의 영광만 바라보지 않는다. 수와의 전쟁에서 청야와 피난 뒤 돌아갈 집과 농사를 잃었던 기억 때문에 전쟁을 짧게 끝내기를 바란다.
+In 645 Goguryeo’s relief army is a succeeding generation of a country that defeated Sui, seeking to prove its own strength. Go Yeonsu and Go Hyejin’s confidence comes from refusing the premise that the name of Li Shimin alone should make them flee. Residents do not look only to military glory: remembering homes and farms lost after scorched earth and evacuation in the Sui wars, they want the war ended quickly.
 
-**확정 내용**
+**Established facts**
 
-작품의 구원군 전체 동원은 15만으로 잡되 회전에 실제로 맞물린 병력은 약6만으로 한정한다. 이 실투입의 한정은 전투를 연구한 여러 견해 가운데 대군 전체가 동시에 같은 전면에 서지 않았다는 해석을 사용한 창작 편성이다. 중심 중무장 병력2만, 보병3만, 경무장·기동 병력1만으로 구성하고 나머지9만은 아직 접근하거나 떨어진 주둔·보급·후방 임무에 있다. 중무장2만 모두를 완전히 같은 장비의 철갑 기병이라고 세지 않는다.
+The work sets total relief mobilization at 150,000, but limits those actually engaged in the pitched battle to about 60,000. This invented organization uses an interpretation among several studies that the entire large army did not simultaneously occupy the same front. It comprises 20,000 centrally placed heavy troops, 30,000 infantry, and 10,000 light or mobile troops; the remaining 90,000 are still approaching or assigned to distant garrison, supply, and rear duties. Do not count all 20,000 heavy troops as identically equipped armored cavalry.
 
-당의 직접 회전 투입은 이세적1만5천, 장손무기·우진달1만1천, 황제4천이라는 기록의 합계3만을 사용한다. 고구려가 더 많은 병력을 갖고 있다는 사실은 허구의 자신감만은 아니다. 고정의는 적의 성공 경험과 보급을 끊을 가능성을 함께 읽어 결전을 피하자고 조언한다. 구원군 지휘자는 그 조언을 듣고도 지금 싸워 끝낼 수 있다고 판단한다.
+For Tang’s direct commitment, use the recorded total of 30,000: Li Shiji’s 15,000, Zhangsun Wuji and Niu Jinda’s 11,000, and the emperor’s 4,000. Goguryeo’s greater numbers make its confidence more than fiction. Go Jeongui reads both the enemy’s experience of success and the possibility of cutting supply, and advises avoiding battle. The relief commanders hear him but judge they can fight and finish it now.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『삼국사기』 고정의의 조언과 진격](https://db.history.go.kr/ancient/level.do?levelId=sg_021r_0020_0211), [당군3개 배치의 기록](https://db.history.go.kr/ancient/level.do?levelId=sg_021r_0020_0215).
+Sources: [Go Jeongui’s advice and the advance, Samguk Sagi](https://db.history.go.kr/ancient/level.do?levelId=sg_021r_0020_0211), [record of three Tang deployments](https://db.history.go.kr/ancient/level.do?levelId=sg_021r_0020_0215).

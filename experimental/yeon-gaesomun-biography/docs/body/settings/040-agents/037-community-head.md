@@ -1,20 +1,17 @@
-# 마을 가구의 몫을 모으는 머루
+# Meoru gathers the village households’ shares
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--037-community-head).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--037-community-head).
 
-## 마을 가구의 몫을 모으는 머루 {#community-head}
+## Meoru gathers the village households’ shares {#community-head}
 
-**정의·범위**
+**Definition and scope**
 
-머루는 595년생으로 창작한 공동체의 우두머리다. 미란과 속로가 사는 마을에서 가구별 군역과 교역 요청을 모아 중앙 군관에게 전달한다. 모든 가족을 자기 뜻대로 처분할 수는 없다. 전사자의 가족이 다음 군역을 거절하면 그 부담을 어떻게 나눌지 다른 가구와 협의해야 한다.
+Meoru is an invented community head born in 595. In the village where Miran and Sokro live, he gathers each household’s requests concerning military service and trade and conveys them to a central officer. He cannot dispose of every family as he pleases. If a fallen soldier’s family refuses the next service, he must consult the other households on sharing that burden.
 
-**확정 내용**
+**Established facts**
 
+After the 645 massacre, Meoru shares the villagers’ anger. He also knows that emptying the village to send more soldiers would destroy the livelihood of those left behind. Even if he accepts Gaesomun’s promise of protection, he separately checks whether goods actually arrive. Securing his own share does not discharge his responsibility for everyone. He remains in a position where he must keep checking whether rations and service are delivered as promised.
 
-645년 학살 뒤 머루도 마을 사람들의 분노를 공유한다. 그러나 더 많은 병사를 보내느라 마을을 비우면 남은 사람들의 생계가 무너진다는 것을 안다. 개소문의 보호 약속을 받아들이더라도 물건이 실제로 도착했는지는 따로 확인한다. 자신의 몫부터 챙긴 것으로 모두를 대신한 책임이 끝나지는 않는다. 머루는 배급과 군역이 약속대로 이행되는지 계속 대조해야 하는 자리에 남는다.
+He is 165 centimeters tall, thick-bodied and short-armed, with a broad round face, small brown eyes, short black eyebrows, broad nose tip, and thick lips. His tawny skin is sun-darkened; his black hair is streaked with gray and his beard not long. He wears a dark brown leather outer garment over light tawny clothes and a black sash.
 
-
-키는 165cm로 몸통이 굵고 팔이 짧다. 넓고 둥근 얼굴에는 작은 갈색 눈과 짧은 검은 눈썹, 넓은 코끝과 두꺼운 입술이 있다. 황갈색 피부는 볕에 탔다. 검은 머리에 회색이 섞이며 길지 않은 턱수염을 기른다. 옅은 황갈색 옷 위에 짙은 갈색 가죽 덧옷을 걸치고 검은 띠를 두른다.
-
-
-목소리는 낮고 두꺼우며 둔한 코 울림이 있다. 중앙 군관 앞에서는 서둘러 답하지 않고 마을 가구의 요구를 하나씩 덧붙인다.
+His voice is low and thick with a dull nasal resonance. Before a central officer he does not hurry his reply, but adds the village households’ demands one by one.

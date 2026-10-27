@@ -1,19 +1,19 @@
-# 왕명을 옮기는 글
+# Written orders carrying royal authority
 
-정전 안내: [이 대상의 위치](../outline/index.md#070-objects--120-writs).
+Canon guide: [Location of this subject](../outline/index.md#070-objects--120-writs).
 
-## 왕명을 옮기는 글 {#writs}
+## Written orders carrying royal authority {#writs}
 
-**정의·범위**
+**Definition and scope**
 
-왕명은 보내는 사람의 권위를 다른 장소에 가져가지만 그 글이 진실인지 자동으로 증명하지 않는 물건이다. 작품은 종이에 쓴 명령과 봉한 꾸러미를 사용하며 도장·전달자의 신원·기존 말투를 함께 확인하는 관행을 창작한다. 왕의 이름을 썼다고 모든 성문이 즉시 열리지는 않는다. 중앙의 인장을 잡은 사람이 실제 왕의 뜻과 다른 글을 보낼 수 있고, 받을 사람은 전달자를 붙들어 물어보거나 다른 통로로 확인할 수 있다.
+A royal order carries its sender’s authority elsewhere, but does not automatically prove its own truth. The work uses orders written on paper and sealed bundles, inventing a practice of checking the seal, messenger’s identity, and established manner of speech together. A king’s name does not instantly open every gate. Whoever controls the central seal can send a text contrary to the king’s actual wishes; recipients can detain and question the messenger or verify through another channel.
 
-**확정 내용**
+**Established facts**
 
-666년 왕은 정변을 실제로 지원한다. 남생을 소환하는 글에 왕의 이름이 쓰이는 것과 왕이 직접 그 글의 문장을 적는 것은 다르다.
+In 666 the king actually supports the coup. The king’s name on the summons to Namsaeng is distinct from the king personally writing its sentences.
 
-왕명은 세로30센티미터·가로45센티미터 안팎의 밝은 회갈색 종이에 먹글을 세로 줄로 쓴 작품 형상이다. 접은 종이를 짙은 갈색 천과 줄로 싸고 매듭의 작은 나무 표지에 전달자와 받는 자리의 이름을 적는다. 인장은 한 변2.5센티미터의 사각 찍힘으로 조형하되 실제 고구려 왕실 인문을 복원했다고 하지 않는다. 소환과 처형 명령을 같은 종이 한 장의 문구 변경으로 처리하지 않고 각각 전달되는 글로 구별한다.
+The work models a royal order as ink in vertical lines on light gray-brown paper about 30 centimeters high and 45 wide. The folded paper is wrapped in dark brown cloth and cord; a small wooden tag at the knot bears the names of the messenger and receiving place. The seal makes a square impression 2.5 centimeters on each side, without claiming to reconstruct an actual Goguryeo royal seal inscription. Distinguish the summons and execution order as separately delivered documents, not altered wording on one sheet.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [남생 소환과 헌충의 죽음](https://db.history.go.kr/ancient/level.do?levelId=sg_049r_0040_0050).
+Sources: [Namsaeng’s summons and Heonchung’s death](https://db.history.go.kr/ancient/level.do?levelId=sg_049r_0040_0050).

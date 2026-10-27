@@ -1,25 +1,23 @@
-# 온달이 전사하는 아단성 아래
+# Below Adanseong, where Ondal dies
 
-정전 안내: [이 대상의 위치](../outline/index.md#060-places--170-adan).
+Canon guide: [Location of this subject](../outline/index.md#060-places--170-adan).
 
-## 온달이 전사하는 아단성 아래 {#adan}
+## Below Adanseong, where Ondal dies {#adan}
 
-**정의·범위**
+**Definition and scope**
 
-온달이 전사한 아단성의 위치는 확정되지 않았다. 아차산 일대나 단양 온달산성 등으로 보는 견해가 있으며, 작품은 단양 온달산성을 택한다. 이 성은 단양 적성과 별개의 성으로 다룬다. 당시의 문 위치와 사대 배치도 작품이 정한 것이며 유적을 실측해 복원한 모습이라고 주장하지 않는다.
+The location of Adanseong, where Ondal died, is unresolved. Views include the Achasan area and Ondalsanseong in Danyang; the work chooses the latter and treats it separately from Danyang Jeokseong. Gate location and archers’ positions at the time are also choices for the work, not a claimed measured reconstruction of the ruins.
 
-**확정 내용**
+**Established facts**
 
-온달은 성 밖에서 싸우다 화살을 맞는다. 성 안으로 들어가 영토를 확보한 뒤의 죽음은 아니다. 기록의 화살이 노에서 쏜 것인지는 확정하지 않고, 작품에서는 활에서 쏜 화살을 택한다.
+Ondal is struck by an arrow while fighting outside the fortress, not after entering and securing territory. Whether the recorded arrow was fired from a crossbow is unresolved; the work chooses an arrow fired from a bow.
 
+The attack point is the uphill approach below the southeast gate. The road is four meters wide, bending in its final 100 meters. An open space 20 by 15 meters before the gate narrows the attacking formation. Archers on the wall stand about six meters above the approach.
 
-공격 지점은 성의 동남쪽 문 아래 오르막이다. 문으로 오르는 길은 폭이 4미터이고 마지막 100미터 구간이 굽어 있다. 문 앞에는 20미터×15미터 크기의 빈자리가 있고, 이곳에서 공격 대열의 폭이 줄어든다. 성벽 위 사수는 접근길보다 약 6미터 높은 곳에 자리한다.
+At his death Ondal is outside on this narrow front, and the advance force’s attempt to enter has not yet occupied the whole fortress. It cannot be changed to a death after the entire force is already inside. Distinguish these fixed position and occupation constraints from the order in which the attack actually unfolds. By day bodies approaching can be seen from the high wall; attackers cannot directly see conditions of water and food inside.
 
-전사 시점의 온달은 이 좁은 전면의 성 밖에 있고, 앞선 병력의 진입 시도도 아직 성 전체 점유 상태에 이르지 못한 것으로 정한다. 병력 전체가 이미 성 안에 들어간 뒤의 죽음으로 바꿀 수 없다. 이 고정 위치·점유 제약은 실제 공격을 전개하는 순서와 구별한다. 낮에는 높은 성벽 위에서 접근하는 사람의 몸을 볼 수 있다. 반대로 공격자는 성 안의 물과 식량 사정을 직접 볼 수 없다.
+Those carrying the coffin and body must return down the same narrow approach. This is not a charge destroying the entire fortress and every southern stronghold at once.
 
+**References and unresolved matters**
 
-관과 시신을 옮기는 사람들도 좁은 접근길을 되짚어 내려와야 한다. 성 전체와 남방의 모든 요새를 한 번에 부수는 돌격은 아니다.
-
-**참조·미결**
-
-Sources: [『삼국사기』 온달의 아단성 전사](https://db.history.go.kr/common/compareViewer.do?levelId=sg_045r_0100_0200&type=ancient).
+Sources: [Ondal’s death at Adanseong, Samguk Sagi](https://db.history.go.kr/common/compareViewer.do?levelId=sg_045r_0100_0200&type=ancient).

@@ -1,17 +1,17 @@
-# 열기의 현장 공로
+# Yeolgi’s service in the field
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--079-yeolgi).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--079-yeolgi).
 
-## 열기의 현장 공로 {#yeolgi}
+## Yeolgi’s service in the field {#yeolgi}
 
-**정의·범위**
+**Definition and scope**
 
-열기는 군량 전달의 위험을 감당하고 김유신에게 현장 급찬을 받은 인물이다.
+Yeolgi faced danger delivering military provisions and received the rank of geupchan from Kim Yusin in the field.
 
-**확정 내용**
+**Established facts**
 
-귀환 뒤 김유신이 왕에게 사찬을 청하여 허락받는 기록을 사용한다. 현재 예정 서사에는 포상과 전달의 공을 보고하는 짧은 대목만 있으며, 그의 전 생애를 독립 줄거리로 늘리지 않는다. 창작 얼굴이나 직접 긴 대사를 현재 서사에 넣지 않는다. 구근의 다른 이름으로 합치지 않는다.
+Use the record that after his return Kim Yusin asked the king to grant him sachan, and the king agreed. The currently planned narrative has only a brief report of his reward and service in the delivery; do not expand his whole life into a separate plot. Do not add an invented face or long direct speech, or merge him with Gugeun.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『삼국사기』 열기전의 현장 급찬과 사찬 요청](https://db.history.go.kr/ancient/level.do?levelId=sg_047r_0100_0050).
+Sources: [Yeolgi’s field promotion to geupchan and request for sachan, Samguk Sagi](https://db.history.go.kr/ancient/level.do?levelId=sg_047r_0100_0050).

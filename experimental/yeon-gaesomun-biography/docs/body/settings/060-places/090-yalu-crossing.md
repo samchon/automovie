@@ -1,21 +1,21 @@
-# 압록강의 저지선
+# The blocking line at the Yalu
 
-정전 안내: [이 대상의 위치](../outline/index.md#060-places--090-yalu-crossing).
+Canon guide: [Location of this subject](../outline/index.md#060-places--090-yalu-crossing).
 
-## 압록강의 저지선 {#yalu-crossing}
+## The blocking line at the Yalu {#yalu-crossing}
 
-**정의·범위**
+**Definition and scope**
 
-압록강 전선은 남생이 적의 도하와 보급 연결을 늦추다가 결빙으로 방어 조건을 잃는 공간이다. 사료에 나오는 강을 현대의 특정 나루 하나로 확정하지 않는다. 작품의 주 저지 구간은 강의 남안에 방어군이 있고 북안의 당군이 맞은편 둔덕에서 대열을 모으는 곳이다. 물이 흐르는 동안 배를 한 번에 여러 척 내려놓을 수 있는 평탄한 강변이 제한되며, 남생은 그 자리와 접근로를 감시한다. 상류와 하류의 샛길을 동시에 완전히 막을 만큼 병력이 무한하지 않다.
+The Yalu front is where Namsaeng delays enemy crossing and supply connection until freezing removes his defensive conditions. Do not fix the river in the sources as one specific modern ferry. The work’s main blocking sector has defenders on the south bank and Tang forming on an opposite rise north. While water flows, limited flat bank can launch several boats at once; Namsaeng watches those places and approaches. He has no unlimited force to close every upstream and downstream side path simultaneously.
 
-**확정 내용**
+**Established facts**
 
-결빙 때도 얼음 전체가 같은 두께로 굳지 않는다. 사람이 확인한 좁은 구간과 보병·말·짐이 통과할 구간은 구별해야 한다. 시야 밖 상류에서 남안에 닿는 길은 기존 나루 저지선의 뒤로 연결되므로 나루 정면만 지키는 배치로 모든 접근을 막을 수 없다. 얼음 두께의 실측값은 확정하지 않으며 말과 수레를 사람의 확인보다 앞서 내보낼 안전 조건도 없다. 실제 시험 도하·병력 이동·후퇴 선택은 해당 전역의 treatments가 맡는다.
+Ice does not freeze to one thickness throughout. Distinguish a narrow section checked by people from a section usable by infantry, horses, and loads. An upstream route out of view reaches the south bank behind the old ferry line, so guarding the ferry front cannot block all approaches. No measured ice thickness is fixed, and no safe condition permits horses and carts before people check it. Treatments own actual trial crossing, movement, and retreat choice.
 
-작품의 나루 앞 사용 구간은 강폭 약300미터, 남안의 낮은 둔덕과 강변 길 사이 열린 폭80미터로 정한다. 남생의 지휘 자리는 물가에서 남쪽으로 약500미터 떨어진 작은 높은 터이며 동쪽 숲과 서쪽 나루의 전령이 서로 다른 길로 온다. 당군이 결빙을 먼저 확인한 상류 구간은 본래 나루에서 동쪽 약4킬로미터다. 굽은 강과 숲 때문에 남생의 자리에서는 그 도하를 직접 보지 못한다. 낮에는 북안 대열의 움직임과 깃발을 볼 수 있어도 개별 명령은 들리지 않는다. 밤의 불빛은 진의 위치를 보여 줄 뿐 얼음의 안전을 보장하지 않는다. 이 폭·거리는 창작 전장 값이며 강 전체의 현대 측량을 고대에 옮긴 것이 아니다.
+The work’s usable ferry sector is about 300 meters across the river, with 80 meters of open width between a low south-bank rise and riverside road. Namsaeng commands from a small rise about 500 meters south of the water; messengers from eastern woods and western ferry arrive by different roads. The upstream section where Tang first checks ice is about four kilometers east of the old ferry. River bends and woods prevent direct view from Namsaeng’s position. By day northern formations and flags are visible, individual orders inaudible; night lights show camp positions but do not guarantee ice safety. These widths and distances are invented battlefield values, not modern measurements imposed on antiquity.
 
-퇴각은 남쪽의 길로 이어진다. 고구려의 생존 병력은 전부 한 성으로 들어가지 않고 뒤의 합류 지점에서 다시 묶인다. 추격이 철산까지 이어졌다는 복원은 누경 묘지에 기대지만 철산의 현대 위치는 논쟁이 있으므로, 이 작품의 철산은 압록강 남쪽 퇴각로의 중간 집결지라는 기능만 확정한다.
+Retreat follows the south road. Survivors do not all enter one fortress, regrouping at rear rendezvous points. A reconstruction that pursuit reached Cheolsan relies on Nu Gyeong’s epitaph; its modern location is disputed, so the work fixes Cheolsan only as an intermediate assembly point on the route south of the Yalu.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [이민수, 「661년 고구려-당 전쟁의 전황」](https://journal.kci.go.kr/imhc/archive/articlePdf?artiId=ART002819049), [압록수 결빙과 남생의 패전 기록](https://db.history.go.kr/ancient/level.do?levelId=sg_022r_0020_0340).
+Sources: [Lee Min-su, “The course of the 661 Goguryeo–Tang war”](https://journal.kci.go.kr/imhc/archive/articlePdf?artiId=ART002819049), [the frozen Yalu and Namsaeng’s defeat](https://db.history.go.kr/ancient/level.do?levelId=sg_022r_0020_0340).

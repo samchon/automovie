@@ -1,15 +1,15 @@
-# 소정방의 강점과 고립
+# Su Dingfang’s strengths and isolation
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--050-su-dingfang).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--050-su-dingfang).
 
-## 소정방의 강점과 고립 {#su-dingfang}
+## Su Dingfang’s strengths and isolation {#su-dingfang}
 
-**정의·범위**
+**Definition and scope**
 
-소정방은 백제 정복과 평양 포위를 잇는 현장 지휘자다. 여러 나라를 상대로 쌓은 성공 경험 때문에 다른 원정군보다 이름만 높고 실제 능력은 없는 장수로 만들지 않는다. 바다를 거쳐 병력을 넣고 성을 압박할 수 있다. 그러나 육상 연결과 외부 보급이 끊기면 그 능력이 성벽 밖의 병력을 먹이는 일을 대신하지 못한다.
+Su Dingfang is the field commander connecting the conquest of Baekje with the siege of Pyongyang. His successes against several countries do not make him a general with reputation but no actual ability beside other expedition commanders. He can land forces by sea and pressure a fortress, but when land connections and outside supply are cut, that ability cannot feed the troops outside its walls.
 
-**확정 내용**
+**Established facts**
 
-작품의 외형은 키 175센티미터, 굵은 목과 넓은 등, 낮은 이마와 사각 턱이다. 작은 갈색 눈과 두꺼운 검은 눈썹, 넓은 코와 두꺼운 입술, 볕에 탄 황갈색 피부를 가진다. 검은 머리를 묶고 두꺼운 턱수염을 기르며 말년에 회색이 섞인다. 검은 옷과 붉은 갈색 띠, 수선한 철찰 갑옷을 쓴다. 추운 날에도 장갑을 잠시 벗고 보고의 지점을 손가락으로 확인한다. 목소리는 낮고 굵으며 거친 결이 있지만 끝을 또렷하게 닫는다. 명령은 길지 않으며 부하가 못 한다고 하면 어떤 조건이 필요한지 묻는다. 배고픈 군사 앞에서 자신의 명성이 음식을 만들어 주지 못함을 안다. 신라 수송을 요청하고 그 성과를 받아들이는 것은 자기 군사를 살리는 판단이다.
+In the work he is 175 centimeters tall, with a thick neck, broad back, low forehead, square jaw, small brown eyes, thick black eyebrows, broad nose, thick lips, and sun-darkened tawny skin. He ties his black hair and has a thick beard streaked with gray in later life. He wears black clothes, a reddish-brown sash, and mended iron lamellar armor. Even in cold weather he briefly removes a glove to point out locations in reports. His voice is low and thick with a rough texture, but ends distinctly. His orders are brief; if a subordinate says something cannot be done, he asks what conditions are needed. He knows his reputation cannot feed hungry soldiers. Requesting Silla transport and accepting its result is a decision to save his troops.
 
-그는 김유신의 능력을 고구려 수뇌부와 다른 자리에서 확인한다. 적국의 산길을 뚫은 행군이 자기 병력을 철수시킬 힘을 만든다. 고구려는 그가 살아 나간 것을 자기 모든 승리의 실패로 보지는 않지만, 포위를 더 조여 제거할 기회가 사라진 결과를 인식한다. 보급과 철수의 날짜·수량·손실은 662년 사건 정전에서 확인한다.
+He recognizes Kim Yusin’s ability from a different position than Goguryeo’s leaders. The march through enemy mountain roads gives him the means to withdraw his troops. Goguryeo does not treat his escape as the failure of all its victories, but recognizes the lost opportunity to tighten the siege and eliminate him. Dates, quantities, and losses for supply and withdrawal belong to the 662 event canon.

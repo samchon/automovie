@@ -1,17 +1,17 @@
-# 발을 막는 마름쇠
+# Caltrops that impede movement
 
-정전 안내: [이 대상의 위치](../outline/index.md#070-objects--080-caltrops).
+Canon guide: [Location of this subject](../outline/index.md#070-objects--080-caltrops).
 
-## 발을 막는 마름쇠 {#caltrops}
+## Caltrops that impede movement {#caltrops}
 
-**정의·범위**
+**Definition and scope**
 
-마름쇠는 밟는 방향과 무관하게 위로 뾰족한 부분이 남는 작은 쇠 장애물이다.
+A caltrop is a small iron obstacle with a point projecting upward regardless of how it lands.
 
-**확정 내용**
+**Established facts**
 
-작품에서는 전체 폭 약8센티미터에 네 뾰족한 끝을 가진 회색 철물로 복원한다. 공격자의 발과 말발굽이 다칠 수 있으나 펼친 사람이 안전한 길을 기억해야 한다. 치수와 상세 형상은661년 기사에 없는 창작 규격이다.
+In the work it is reconstructed as a gray iron object about 8 centimeters across with four points. It can injure attackers' feet and horses' hooves, but those who scatter it must remember a safe path. The dimensions and detailed form are invented specifications absent from the 661 account.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [661년 북한산성의 포차·노포·마름쇠와 임시 방어](https://db.history.go.kr/ancient/level.do?levelId=sg_005r_0040_0550).
+Sources: [Artillery, nopo, caltrops, and improvised defense at Bukhansanseong in 661](https://db.history.go.kr/ancient/level.do?levelId=sg_005r_0040_0550).

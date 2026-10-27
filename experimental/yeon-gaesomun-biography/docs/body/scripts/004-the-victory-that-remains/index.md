@@ -1,3 +1,3 @@
-# 남은 승리
+# The victory that remains
 
-- [남은 승리](001-remaining-victory.md)
+- [The victory that remains](001-remaining-victory.md)

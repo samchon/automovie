@@ -1,65 +1,65 @@
-# 나라를 지킨 사람이 남긴 나라
+# The country left by the man who defended it
 
-정전 안내: [이 대상의 위치](../outline/index.md#010-work--010-work).
+Canon guide: [Location of this subject](../outline/index.md#010-work--010-work).
 
-## 《대막리지》가 따라가는 승리 {#work-promise}
+## The victory The Great Magnate follows {#work-promise}
 
-《대막리지》는 연개소문의 생애와 그가 남긴 국가를 따라가는 한국어 장편 역사극이다. 중심 관객은 정치와 전쟁의 결과뿐 아니라 그 선택이 사람에게 무엇을 요구했는지 보고 싶은 관객이다. 그는 고구려를 지킬 힘을 모으는 데 성공하지만 다음 시대에도 그 힘이 이어질 조건을 굳히지 못한다. 제목은 그가 세운 최고 권위의 이름이자, 그 권위만으로 넘겨줄 수 없었던 나라를 가리킨다.
+The Great Magnate is a long historical drama following Yeon Gaesomun’s life and the state he leaves behind. Its central audience wants to see not only political and military outcomes but what those choices demand of people. He succeeds in gathering strength to protect Goguryeo, but cannot secure the conditions for that strength to continue into the next era. The title names the supreme authority he established and points to the country that authority alone could not hand on.
 
-계속되는 경험은 불리한 조건에서 무엇을 포기해 무엇을 얻는지를 발견하는 것이다. 한 전선의 판단이 다른 지역의 기회를 바꾸고, 말갈의 교육·보호·보상이나 주민의 노동이 눈앞의 군사 행동을 가능하게 한다. 허세와 실무의 간격에서 건조한 웃음이 나고, 같은 성취가 군주에게는 전공이며 가구에는 돌아오지 않은 사람으로 남는다. 유능한 적도 자기 정보와 목적 안에서 움직인다.
+The continuing experience is discovering what must be relinquished to gain something under adverse conditions. A judgment on one front changes another region’s opportunities; Malgal education, protection and reward, and residents’ labor make immediate military action possible. Dry humor arises from the gap between pretension and practical work. One achievement is a ruler’s military glory and a household’s person who never returns. Capable enemies also act within their own information and purposes.
 
-작품은 연개소문 한 사람의 천재성으로 나라를 설명하지 않는다. 선대와 왕이 복구한 생산력, 지방의 지휘와 군역, 귀족의 장비, 말갈 공동체에 실제로 지킨 약속이 그가 움직일 군대다. 그가 없으면 이 일을 끝내지 못한다는 확신은 성과와 함께 커지고, 자기 능력을 타인에게 요구하는 통치는 희생과 반발도 쌓는다. 다음 세대의 비극은 재건이 실제로 가능해진 시간에 그 협력이 끊기는 데 있다.
+The work does not explain a country through Yeon’s genius alone. Production restored by earlier kings, local command and service, noble equipment, and promises actually kept to Malgal communities make the army he moves. Confidence that the task cannot be finished without him grows with achievement, while a rule demanding his own ability of others accumulates sacrifice and opposition. The next generation’s tragedy is the breaking of that cooperation while reconstruction remains possible.
 
-## 본편과 외전의 경계 {#delivery-scope}
+## Boundary of main work and side story {#delivery-scope}
 
-시작은 661년 늦봄 평양에서 내리는 미완의 결단이다. 여섯 방면군을 야전에서 차례로 깨겠다는 회의와 죽인 왕에게 속으로 건네는 말 뒤, 614~634년 성장기로 돌아간다. 시간순으로 올라와 661년의 결단에 닿으면 액자가 닫히고 그 작전이 실제로 어디서 이루어지고 어긋났는지를 겪는다. 앞 장면을 한 번 더 길게 재현하여 중복 분량을 만들 필요는 없다.
+The beginning is an unresolved decision in Pyongyang in late spring 661. After a council to defeat six field forces in sequence and inward words to the king he killed, return to youth in 614–634. Chronology advances until the 661 decision closes the frame, and the audience experiences where the operation actually works and goes awry. There is no need to reproduce the opening at length merely to duplicate it.
 
-연개소문의 생애는 665년 봄에 끝나지만 본편은 끝나지 않는다. 후계 갈등과 헌충의 죽음, 남생의 귀부와 멸망, 이주·잔류·저항을 거쳐 그가 자기 책임을 알면서도 상실을 용서하지 못하는 679년의 끝까지 맡는다. 이 범위 전체가 이번 창작 납품이며 소년기 pilot을 전체 작품으로 표시하지 않는다.
+Yeon’s life ends in spring 665, but the main story continues through succession conflict, Heonchung’s death, Namsaeng’s submission and the fall, relocation, remaining, and resistance, to his 679 ending knowing his responsibility yet unable to forgive his loss. This entire scope is the creative delivery; do not present a youth pilot as the whole work.
 
-발해 건국과 733년의 겨울 원정은 이번 제작 밖에 있다. 그 가능성은 원본에 보존하지만 별도 편수나 새 종결 장면을 약속하지 않는다. 본편의 공동체는 후대 나라의 건국을 예지하지 않고 지금 사람과 삶의 터전을 지킨다. 돌궐·당·신라·백제·왜는 각각의 이해로 행동하지만 그 나라들의 독립 통사를 추가하지 않는다. 보덕국과 아라도 포함하지 않는다.
+Balhae’s founding and the winter expedition of 733 lie outside this production. Preserve their possibility from the original without promising separate installments or a new ending scene. The main work’s communities do not foresee a later state’s founding; they protect present people and homes. Turks, Tang, Silla, Baekje, and Wa act on their own interests without added independent general histories. Bodeok and Ara are excluded.
 
-## 영상 여섯 부의 잠정 편집 예산 {#delivery-scale}
+## Provisional editing budget for six parts {#delivery-scale}
 
-작가의 초기 계획은 약 60분씩 여섯 부, 총 약 6시간의 한정 시리즈다. 다음 표는 서사 밀도를 조사할 작업 예산이며 확정된 release partition은 scripts가 완전한 treatments를 실행하며 정한다. 극화·내레이션·지도·문서의 실제 부하가 과밀하면 중복 설명과 대체 가능한 장면을 먼저 걷고, 핵심 인과·관계·대가는 보존한다. 부마다 같은 장면 수나 대사량을 강요하지 않는다. 실제 연기·음성·편집을 측정하기 전에는 360분짜리 영상이 완성되었다고 말할 수 없다.
+The author’s initial plan is a limited series of six roughly 60-minute parts, about six hours total. This table is a working budget for investigating narrative density; scripts determines final release partition by executing complete treatments. If dramatization, narration, maps, and documents overload it, first remove duplicate explanation and replaceable scenes while preserving essential causes, relationships, and costs. Do not force equal scenes or dialogue per part. A 360-minute video cannot be claimed complete before actual performance, voice, and editing are measured.
 
-| 작업 국면 | 잠정 시간 | 닫아야 할 변화 |
+| Working phase | Provisional time | Change to close |
 | --- | --- | --- |
-| 1. 결전의 밤과 소년 | 약 60분 | 661년의 결단을 열어 둔 채, 영웅을 동경하던 아이가 634년 타인의 동의를 얻어 가문을 잇는다. |
-| 2. 왕과 다른 길 | 약 60분 | 634~645년의 위협과 정변, 마지막 대면·집권·주필산 패전과 방어로 통치의 부담이 자기 일이 된다. |
-| 3. 다시 만들 군대 | 약 60분 | 645~661년 반복 침공이 생계를 갉는 동안, 보호를 이행하고 협력을 길러 결전의 조건을 만든다. |
-| 4. 여섯 길의 겨울 | 약 60분 | 661~662년 압록강과 내선 작전, 사수와 김유신의 수송을 거쳐 완승에 못 미친 실제 승리를 얻는다. |
-| 5. 다음 봄의 나라 | 약 60분 | 662~665년 재건과 남방의 변화, 형제·왕실의 계산 속에서 아버지는 성취와 불안을 함께 안고 죽는다. |
-| 6. 남겨진 사람들 | 약 60분 | 665~679년 정변·상실·귀부·멸망의 책임과 그 뒤에도 계속되는 사람들의 삶을 닫는다. |
+| 1. The decisive night and the boy | About 60 minutes | Leave the 661 decision open while a child admiring a hero obtains others’ consent to inherit the family in 634. |
+| 2. A different road from the king | About 60 minutes | Threat, coup, final meeting, rule, Jupilsan defeat and defense in 634–645 make the burden of rule his own. |
+| 3. An army to rebuild | About 60 minutes | As repeated invasions erode livelihoods in 645–661, fulfill protection and build cooperation for decisive battle. |
+| 4. Winter of six roads | About 60 minutes | In 661–662, Yalu, interior operations, Sasu, and Kim Yusin’s transport lead to real victory short of total triumph. |
+| 5. The country of next spring | About 60 minutes | Amid 662–665 reconstruction, southern change, and family and royal calculations, the father dies with achievement and anxiety. |
+| 6. Those left behind | About 60 minutes | Close responsibility for 665–679 coup, loss, submission, and fall, and lives continuing afterward. |
 
-원본 소설은 10권 240화, 권당 24화, 공백 포함 화당 권장 5,000자와 권당 120,000자를 기록했다. 그 수치는 원매체의 독서 분량이며 영상의 길이·최소 글자 수·장면 수가 아니다. 원본의 제1권은 614~634년이라는 구획을 지니며 영상 첫 국면의 성장기 범위로 수용한다. 무료/유료 전환과 판매 가격은 원본에도 정해져 있지 않았다. 영상 배급과 구매 경계도 미정이다.
+The original novel records ten volumes of 24 chapters each, 240 total, recommending 5,000 Korean characters including spaces per chapter and 120,000 per volume. Those are reading lengths for the source medium, not video duration, minimum character count, or scene count. Volume one’s 614–634 boundary is adopted for the first growth phase. Free/paid transition and sales price were not fixed in the original; video distribution and purchasing boundaries remain open.
 
-## 역사가와 인물 곁에서 보기 {#reader-access}
+## Viewing from the historian and beside characters {#reader-access}
 
-후세 역사가의 원경과 인물의 근경을 오가는 채택 형식은 [역사가와 장면](../../../../.agents/skills/contracts/story/work/obligations/narratives.md#chronicler-and-scene)이 소유한다. 한국어 [값 표기](../../../../.agents/skills/contracts/story/language/principles/common.md#korean-values)와 [관계의 말씨](../../../../.agents/skills/contracts/story/language/principles/realized.md#korean-register)는 서로 다른 언어 owner가 맡는다. [목소리 안내](020-voice-owners.md)는 이 owner들의 입구이며 세계 사실을 다시 확정하지 않는다.
+[The historian and scene](../../../../.agents/skills/contracts/story/work/obligations/narratives.md#chronicler-and-scene) owns the adopted movement between the later historian’s long view and characters’ close view. The source’s [value notation](../../../../.agents/skills/contracts/story/language/principles/common.md#korean-values) and [speech in relationships](../../../../.agents/skills/contracts/story/language/principles/realized.md#korean-register) have separate language owners; this edition realizes their purposes in English. [Voice guide](020-voice-owners.md) points to them without reestablishing world facts.
 
-## 눈에 보이는 나라의 구별 {#visual-world}
+## Visible distinctions in the country {#visual-world}
 
-성곽·군대·가구는 목재·흙·돌·철·가죽·천의 물질문화 속에 놓인다. 구체적 치수·색·배치는 각 대상의 작품 복원안이며 모두 실물로 확인된 규격이 아니다. 고구려 중앙의 군사 귀족은 짙은 적갈색과 먹빛, 직선적인 실루엣, 겹친 철과 가죽으로 구별한다. 농촌과 피난민의 염색하지 않은 천은 회색 기가 섞인 밝은 갈색인 회갈색과 옅은 황갈색이다. 순백·선명한 노랑·붉은 황토색은 이 범위에 들지 않는다. 같은 집의 천도 바랜 정도와 수선 조각에 따라 다르다.
+Fortresses, armies, and households sit within material cultures of wood, earth, stone, iron, leather, and cloth. Specific dimensions, colors, and layouts are work-specific reconstructions, not all confirmed artifacts. Central Goguryeo military nobles are distinguished by dark reddish-brown and dark tones, straight silhouettes, and layered iron and leather. Undyed rural and refugee cloth is gray-brown, a light brown with gray, and light tawny. Pure white, vivid yellow, and red ocher are outside that range. Cloth in one household varies in fading and mended pieces.
 
-말갈 공동체는 지역과 생업에 따라 가죽·털·거친 천의 비중이 다르다. 공통 군역 표지는 그 생활복 위에 겹친다. 당 원정군은 부대별 깃발과 장비 묶음, 신라 수송대는 군사와 운반자가 섞인 긴 대열로 보인다. 실제 장비의 형상은 각 물건 정전이 소유한다.
+Malgal communities vary the proportions of leather, fur, and coarse cloth by region and livelihood; shared service markers go over everyday clothing. Tang expeditions show unit flags and equipment groupings; Silla transport is a long mixed column of soldiers and carriers. Object canon owns equipment forms.
 
-전쟁 전의 생활 공간에는 자주 쓰는 길과 손때 묻은 도구가 있다. 전쟁이 길어지면 성벽이 남아도 지붕·땔감·운반 수단이 먼저 줄어든다. 돌아온 사람은 남은 경작지와 집터를 살피며 수선한 곳과 사라진 곳이 함께 남는다. 재건은 같은 장소의 변화다. 빛은 바깥의 햇빛과 실제로 켠 불에서 오고, 혹한은 눈뿐 아니라 굳은 천·갈라진 손·보폭·숨에도 남는다.
+Prewar living spaces contain familiar routes and handled tools. As war lengthens, roofs, firewood, and transport diminish even if walls remain. Returning people inspect remaining fields and home sites, with both repairs and losses visible. Reconstruction changes the same place. Light comes from daylight and actually lit fires; severe cold appears in stiff cloth, split hands, stride, and breath as well as snow.
 
-조형 비교의 한 뼘은 약 20센티미터, 손바닥 너비는 약 8센티미터다. 실제 개인의 손을 잰 값이 아니다. 작전의 한 시진은 두 시간, 반 시진은 한 시간이며 당시의 모든 시계가 같은 정확도였다는 뜻은 아니다.
+For visual comparison a handspan is about 20 centimeters and palm width about eight, not measurements of an individual hand. An operational double-hour is two hours and half a double-hour one; this does not mean all contemporary clocks were equally precise.
 
-## 정전을 찾는 자리와 확장의 경계 {#canon-coverage-map}
+## Finding canon and limits of expansion {#canon-coverage-map}
 
-[전체 개요](../outline/index.md)는 7개 영역의 대상별 파일을 찾는 지도다. 값은 해당 H2가 소유하며 개요·계층 인계표가 두 번째 owner가 되지 않는다.
+[The full outline](../outline/index.md) maps subject files in seven domains. Each H2 owns its values; the outline and layer handoff tables do not become second owners.
 
-| 필요한 영역 | 실제 owner와 사용 경계 |
+| Needed domain | Actual owner and boundary |
 | --- | --- |
-| 작품·범위·시각 문법 | 이 파일과 목소리 안내. 편성은 잠정이며 실제 구획은 scripts가 결정한다. |
-| 시대·지리·연차·국경·환경 | `020-world`. 생몰·기록 달력·두 재건·남방과 북방·정보 도착을 구별한다. 결과 없는 보통 하늘·식물 외 인과 조건은 명시 값을 따른다. |
-| 법·사회·생업·교육·경제 | `030-society`. 왕명·군역·경당·태학·사비 무장·가구 노동·말갈 보호는 기록과 작품 제도를 구별한다. |
-| 운용·기술·능력·비용 | `050-systems`. 편제·전투원/운반자·이동·보급·손실을 중복 계상하지 않는다. 마법과 초능력은 채택하지 않는다. |
-| 사람·집단·관계 | `040-agents`와 사회의 보호 의무. 독립된 선택·말·손해가 있는 익명 참여자도 자기 owner를 갖는다. 양쪽의 권한·의존·거절 조건을 찾는다. |
-| 장소·감각 | `060-places`. 출입·시야·형상·고저·재료·광원·소리와 지역 사이 이동을 구별한다. 현대 좌표의 불명은 허위 정밀도로 채우지 않는다. |
-| 물건·현상 | `070-objects`. 무장·공성구·운반·문서·신호·배·말·수선의 형상과 한계를 정한다. 실제 사용 사건은 treatments가 맡는다. |
-| 배경·지식·연구 | `020-world`와 `050-systems`, 각 인물의 정보 접근과 각 레코드 출처. 사실·보고·승자 전과·창작 수치·학설·미결을 나눈다. |
+| Work, scope, visual grammar | This file and voice guide. Planning is provisional; scripts decides actual partition. |
+| Era, geography, years, borders, environment | `020-world`. Distinguish life dates, recorded calendar, two reconstructions, south and north, and news arrival. Causal conditions beyond ordinary sky and plants follow stated values. |
+| Law, society, livelihood, education, economy | `030-society`. Distinguish record and invented institutions for royal orders, service, schools, private arms, household labor, and Malgal protection. |
+| Operations, technology, ability, cost | `050-systems`. Do not double-count organization, fighters and carriers, movement, supply, or losses. Magic and supernatural powers are not adopted. |
+| People, groups, relationships | `040-agents` and social protection duties. Anonymous participants with independent choice, speech, or harm have owners; find both sides’ authority, dependence, and refusal conditions. |
+| Places and senses | `060-places`. Distinguish access, sight, form, elevation, materials, light, sound, and regional travel. Do not fill unknown modern coordinates with false precision. |
+| Objects and phenomena | `070-objects`. Establish forms and limits of arms, siege gear, transport, documents, signals, ships, horses, and mending. Treatments owns actual use. |
+| Background, knowledge, research | `020-world`, `050-systems`, character access, and each record’s sources. Distinguish facts, reports, victors’ claims, invented numbers, theories, and unresolved matters. |
 
-공급되지 않은 인물의 이후 생사나 장소의 현대 주소는 쓰지 않는 동안 미결로 남을 수 있다. 그 값을 실제 장면의 결과나 해결책으로 쓰려면 가장 이른 해당 owner에서 먼저 결정한다. 역사적 결과를 정전이 제약하는 것과 관객에게 어떤 순서로 드러낼지는 다른 책임이다. 사건의 선택·원인·결과·공개는 treatments, 실제 장면과 말은 scripts, 최종 시청각 실현은 screenplay가 맡는다.
+Unprovided later fates or modern addresses may remain unresolved while unused. If used as a scene result or solution, decide them first at the earliest applicable owner. Historical constraints on results and order of audience disclosure are different responsibilities. Treatments owns event choices, causes, results, and disclosure; scripts owns actual scenes and words; screenplay owns final audiovisual realization.

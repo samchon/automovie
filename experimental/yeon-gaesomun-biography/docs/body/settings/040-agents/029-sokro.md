@@ -1,29 +1,23 @@
-# 속로와 그의 두 병력
+# Sokro and his two forces
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--029-sokro).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--029-sokro).
 
-## 속로와 그의 두 병력 {#sokro}
+## Sokro and his two forces {#sokro}
 
-**정의·범위**
+**Definition and scope**
 
-속로는 615년생으로 창작한 말갈계 지휘자다. 편입 공동체의 사람들과 고구려 지휘부 사이에 쌓인 신뢰를 실제 정찰과 차단 임무로 이어 간다. 지역에서 자라며 활과 지역 언어, 고구려 군관의 명령을 함께 익혔다. 가족의 교역 거점은 군역과 이어져 있어 전쟁에 나서는 일과 집에서 먹고사는 일이 맞물린다. 645년에는 친족과 이웃이 섞인 병력을 거느리며, 그의 지휘가 미치는 범위도 그 병력이다.
+Sokro is an invented Malgal-origin commander born in 615. He carries trust built between incorporated communities and Goguryeo command into actual scouting and interdiction. Growing up locally, he learned archery, local language, and Goguryeo officers’ orders. His family’s trading post is tied to military service, linking war and livelihood. In 645 he commands a force of kin and neighbors, and his authority extends to that force.
 
-**확정 내용**
+**Established facts**
 
+He is about 173 centimeters tall, long-armed and not broad-shouldered, with narrow brown eyes under short dark eyebrows, a broad nose, small chin, broad mouth, and thin lips. His skin is dark tawny, thick slightly wavy black hair tied behind his neck, beard short and sparse. An old scar on his left ear’s edge distinguishes him.
 
-키는 173cm가량으로 팔이 길고 어깨는 넓지 않다. 가는 갈색 눈 위로 짧고 짙은 눈썹이 있으며, 코는 넓고 턱은 작다. 입이 넓고 입술은 얇다. 피부는 짙은 황갈색이고 굵고 약간 굽은 검은 머리를 목 뒤에서 묶는다. 수염은 짧고 드문드문하다. 왼쪽 귀 가장자리의 오래된 상처가 속로를 구별하는 특징이다.
+He wears dark brown leather over light tawny cloth; repairs and a Goguryeo service marker are conspicuous. A small waist knife and quiver are constant possessions.
 
+His voice is clear, above the middle register, with nasal resonance. He speaks quickly in short phrases, articulating consonants to officers and explaining reasons and places at more length to subordinates. In danger he lowers volume and shortens breaths. He clearly wears the shared marker for central recognition while continuing to use his community’s language in daily life. Language proficiency and intelligence are distinct.
 
-옅은 황갈색 천옷 위에 짙은 갈색 가죽 겉옷을 입는다. 옷에서는 수선한 부분과 고구려 군역 표지가 먼저 눈에 띈다. 허리의 작은 칼과 화살통은 늘 지니는 물건이다.
+At Jupilsan he escapes outside the surrendering group and survives. Captured relatives and subordinates are executed; he feels guilt for failing to rescue them. After checking that Yeon actually sends support to survivors, he trusts his orders.
 
+His 661 unit mixes Goguryeo officers and light cavalry from other regions. No longer fighting only with kin, he first learns shared commands when new subordinates do not understand his language.
 
-목소리는 중간보다 높고 맑으며 코 울림이 섞인다. 짧은 말을 빠르게 한다. 군관에게 답할 때는 자음을 분명히 하고, 부하에게는 이유와 위치를 더 길게 설명한다. 위험할 때는 음량을 낮추고 말 사이의 숨을 줄인다. 중앙이 자신을 알아볼 수 있도록 공동 표지를 분명히 쓰면서도, 생활에서는 자기 공동체의 말을 계속 쓴다. 속로의 언어 숙련도와 지적 능력은 별개다.
-
-
-주필산에서는 항복한 집단 바깥으로 빠져나와 살아남는다. 가족과 부하 가운데 포로 처형으로 죽은 사람이 있어, 그들을 구출하지 못했다는 죄책감을 안고 있다. 연개소문이 유족에게 지원을 실제로 보내는지 확인한 뒤 그의 명령을 믿게 된다.
-
-
-661년에 맡는 부대에는 고구려 군관과 다른 지역의 경기병이 섞여 있다. 이제 친족군만으로 싸우지 않으며, 새 부하가 자기 언어를 알아듣지 못할 때에는 함께 쓸 명령부터 익힌다.
-
-
-속로는 정찰과 차단을 맡은 자기 부대를 지휘한다. 전역 전체의 설계나 개소문에게 독자적인 외교를 요구하는 일은 그의 권한 밖이다. 정변 뒤에는 집으로 돌아갈 병력과 함께 남생의 귀부에 바로 합류하지 않는다. 나라와 가문에 대한 충성을 같은 말로 요구하는 중앙 명령을 경계하며 가족을 지키려 한다. 고구려의 구성원이 된 일을 성취로 받아들이면서도, 이를 연씨 가족에게 언제나 충성해야 할 의무와 구별한다.
+Sokro commands his own scouting and interdiction force. Designing the whole campaign or demanding independent diplomacy of Gaesomun exceeds his authority. After the coup he does not immediately join Namsaeng’s submission, returning home with troops. He guards against central orders demanding loyalty to country and family in the same terms, seeking to protect his family. He accepts becoming a Goguryeo member as an achievement, while distinguishing it from perpetual loyalty to the Yeon family.

@@ -1,61 +1,61 @@
-# 문체와 서술
+# Style and narration
 
-## 후세 역사가가 지난 일을 적어 가는 문체로 쓴다 {#chronicler-voice}
+## Write in the voice of a later historian {#chronicler-voice}
 
-《나폴레옹 연대기》와 같은 문체로 쓴다. 서술자는 먼 훗날에서 과거를 돌아보는 역사가이며, 편년체 역사서처럼 해와 날짜를 짚어 사건을 적고 당대인의 기록과 후대의 평가를 곁들인다. 서술자는 인물과 사건을 직접 평가하고, 인물이 그때는 몰랐던 앞날을 미리 일러 아이러니를 만든다. 인물의 행동을 보는 역사극에 후세 역사서의 무게와 거리를 함께 둔다.
+Use the style of The Napoleon Chronicle. The narrator is a historian looking back from the distant future, recording events by year and date in the manner of a chronicle, alongside contemporary accounts and later assessments. The narrator judges people and events directly and creates irony by anticipating futures the characters could not yet know. Give a historical drama of human action the weight and distance of a later history.
 
-관객이 결말을 아는 역사극에서, 사건을 아는 자리에서 돌아보는 서술자가 평가와 아이러니로 긴장을 만들기 위해서다.
+In a historical drama whose ending the audience knows, a narrator who knows the events can create tension through judgment and irony.
 
-## 역사가의 원경과 장면의 근경을 오간다 {#near-and-far}
+## Move between the historian's long view and the scene's close view {#near-and-far}
 
-서술자는 해와 나라와 전역의 큰 흐름을 원경으로 짧고 힘 있게 정리하고, 그 흐름이 꺾이는 결정적 순간에는 인물 곁의 근경으로 내려가 감각과 몸짓과 대사로 보인다. 원경은 그 장면이 역사에서 얼마나 무거운지를 재고, 근경은 원경이 말한 결과를 사람의 일로 만든다. 원경의 요약만 이어져 연표가 되는 대목도, 근경의 장면만 이어져 큰 흐름을 잃는 대목도 두지 않는다.
+The narrator sums up the broad movement of years, nations, and campaigns briefly and forcefully; at decisive turning points, move close to the characters and show the moment through sensation, gesture, and dialogue. The long view measures the scene's historical weight; the close view makes its outcome a human experience. Do not let the work become a chronology of summaries or a succession of close scenes that loses the larger movement.
 
-시대의 큰 흐름 속에서 인물의 경험을 느끼고, 개별 장면에서도 역사적 위치를 놓치지 않게 하기 위해서다.
+This lets the audience feel individual experience within the sweep of the age without losing each scene's place in history.
 
-## 인물은 그때 손에 든 것만 안다 {#knowledge-of-the-moment}
+## Characters know only what has reached them at the time {#knowledge-of-the-moment}
 
-서술자는 결말과 후대의 평가를 알지만 장면 속 인물은 그때 받은 문서와 보고, 소문, 눈으로 본 것만 안다. 전령이 늦게 닿고 보고가 틀리고 소문이 사실보다 앞서는 정보의 시차가 판단과 오판을 만들며, 그 차이를 이야기의 긴장과 웃음으로 쓴다. 인물에게 후대의 지식이나 후대 기록이 정리한 그림을 미리 주지 않는다. 앞날은 서술자의 몫이다.
+The narrator knows the ending and later assessments, but characters in a scene know only the documents, reports, rumors, and sights available to them then. Messengers arrive late, reports are wrong, and rumors outrun fact: use these delays to produce judgments and misjudgments, tension and humor. Do not give characters later knowledge or the picture assembled by later records. The future belongs to the narrator.
 
-관객은 결말을 알고 인물은 모르는 데서 아이러니와 긴장이 나오고, 인물이 앞날을 아는 듯 움직이면 판단이 연출로 읽히기 때문이다. 이 시대에는 소식이 말과 배의 속도로 오갔으므로 정보의 시차가 실제로 사건을 갈랐다.
+The audience's knowledge of the ending, which the characters lack, creates irony and tension; characters who act as if they know the future make their judgments feel contrived. News traveled at the speed of horses and ships, and delays in information could decide events.
 
-## 여러 진영의 군상극으로 전개한다 {#rival-camps}
+## Follow an ensemble across rival camps {#rival-camps}
 
-연개소문을 이야기의 중심에 두되 시점은 한 사람에게 묶지 않는다. 고구려의 왕과 귀족·장군·주민·말갈, 맞서는 당과 신라 등 여러 나라의 군주·정치가·장군이 저마다 자기 논리와 이해로 움직이고, 서술은 여러 진영을 오가며 큰 사건을 쌓는다. 전쟁은 전투 장면뿐 아니라 그 전에 오간 외교·정치 모략·경제·보급의 결과로 쓴다. 적은 연개소문의 승리를 돋보이게 하는 배경이 아니라 자기 목적을 가진 인물이다. 인물들은 연개소문을 거치지 않고도 서로 동맹하고 배신하고 다투며, 그 결과가 그의 길을 바꾼다. 주요 맞수에게는 자기 욕구와 전환, 승리와 패배가 있는 서사의 무게를 준다.
+Keep Yeon Gaesomun at the center without binding the viewpoint to him. Goguryeo's king, nobles, generals, residents, and Malgal, and the rulers, politicians, and generals of rival states including Tang and Silla, act from their own reasoning and interests. Move among camps as major events build. War grows from diplomacy, political intrigue, economics, and supply as well as battles. Enemies have purposes of their own; they are not scenery for Yeon's victories. Characters form alliances, betray one another, and quarrel without his intervention, and the results change his path. Give major opponents the narrative weight of their own desires, turns, victories, and defeats.
 
-한쪽의 눈으로만 쓰면 승패가 한 사람의 재능으로 보이지만, 여러 진영의 사정을 함께 보여야 그 승패가 왜 그렇게 났는지 드러나기 때문이다.
+A single viewpoint can make victory and defeat appear to rest on one person's talent; showing the circumstances of several camps reveals why they occurred.
 
-## 말씨로 시대와 관계의 거리를 옮긴다 {#speech-and-address}
+## Convey period and relationships through speech {#speech-and-address}
 
-인물의 대사는 지금의 한국어 관객이 듣고 바로 이해할 수 있는 말로 쓰되, 현대의 유행어와 인터넷 말투, 그 시대에 없던 개념어를 인물의 입에 넣지 않는다. 신분과 관계의 거리는 한국어의 높임과 말 놓기로 옮긴다. 관계가 바뀌면 말씨도 바뀐다. 신하가 고구려 왕을 부를 때는 「폐하」라 하고, 「전하」는 쓰지 않는다. 고구려가 황제를 칭했다는 기록은 없으며 이 호칭은 작품의 선택이다. 서술자의 풍자는 현대 관객을 향한 비유를 쓸 수 있지만, 그 비유가 인물의 말에 섞이지 않게 한다.
+Write dialogue that an English-speaking audience can understand on first hearing, without modern slang, internet speech, or concepts unavailable in the period. Convey status and distance through register, forms of address, and the way people speak to one another; change the speech as relationships change. Subjects address the Goguryeo king as “Your Majesty.” There is no record that Goguryeo claimed an emperor; this form of address is a choice made for the work. The narrator's satire may use analogies for a modern audience, but those analogies must not enter the characters' speech.
 
-듣고 이해되는 대사로 시대감과 관계의 변화를 함께 전달하기 위해서다.
+The dialogue should be immediately intelligible while conveying period and changing relationships.
 
-## 지난 햇수는 「16년 전」처럼 적는다 {#elapsed-years}
+## Write elapsed years as numerals {#elapsed-years}
 
-서술과 대사에서 지난 햇수는 「16년 전」, 「47년 전」처럼 아라비아 숫자와 「년」으로 적는다. 「열여섯 해 전」처럼 고유어로 햇수를 세지 않는다.
+In narration and dialogue, write elapsed years with Arabic numerals, as in “16 years ago” or “47 years ago.” In performance, read the numbers naturally and preserve the same interval.
 
-고유어로 센 햇수는 오늘의 한국어 관객에게 예스러운 꾸밈으로 읽히고, 숫자 표기는 대본과 자막에서 경과를 바로 찾게 하기 때문이다. 실제 음성은 그 숫자를 자연스럽게 읽되 같은 햇수를 보존한다.
+This makes the interval easy to find in scripts and subtitles without an artificially archaic expression.
 
-## 역사의 선례와 사상을 인용해 격조를 세운다 {#precedent-and-ideas}
+## Give weight through historical precedent and ideas {#precedent-and-ideas}
 
-서술과 대사는 실제 역사의 선례와 사상을 끌어와 사건의 무게를 잰다. 인물은 고구려와 이웃 나라의 선례, 당대의 사상과 정치·군사 이론 가운데 자신이 실제로 알 수 있었던 것을 인용한다. 후세 역사가인 서술자는 후대의 사례와 평가도 활용하되, 그것을 당대 인물의 지식과 구별한다. 실제 인용은 존재와 문구를 확인하고, 발화는 한국어 관객이 따라 들을 수 있고 자막은 읽을 수 있게 또렷하되 가볍지 않은 격조를 지킨다.
+Narration and dialogue draw on actual historical precedents and ideas to weigh events. Characters cite precedents from Goguryeo and neighboring states, and contemporary thought and political or military theory, only when they could actually have known them. The historian narrator may also use later examples and assessments, distinguishing them from contemporary knowledge. Verify the existence and wording of real quotations. Speech should be clear enough to follow and subtitles to read, while retaining its gravity.
 
-『은하영웅전설』이 중국사를 비롯한 실제 역사 사례와 사상가의 말을 인용해 이야기의 깊이를 세우기 때문이다. 정통 역사물에서는 그 인용 자체가 사실이어야 하므로, 인물이 읽었거나 들었을 수 없는 것을 입에 올리지 않는다.
+Legend of the Galactic Heroes gives its story depth through actual historical examples, including Chinese history, and the words of thinkers. In a serious historical work, the quotations themselves must be factual; characters cannot cite what they could not have read or heard.
 
-## 블랙 조크와 패러디, 풍자로 무게를 비튼다 {#satire-and-black-humor}
+## Use black humor, parody, and satire to turn the weight of events {#satire-and-black-humor}
 
-서술자의 건조한 아이러니와 블랙 조크, 패러디와 풍자를 이 작품의 문체로 쓴다. 웃음의 표적은 권력자의 허세, 선전과 현실의 간극, 체면과 의례, 관료제와 전쟁의 부조리, 그리고 후대가 만든 전설이다. 성공하거나 실패한 인물 모두 그때 가진 정보로 살길을 찾는다. 나중의 결과를 안다는 이유로 그들의 판단을 어리석은 선택처럼 풍자하지 않는다. 영웅담과 위인전의 상투적 서술을 비틀어 패러디하고, 당대 사람들이 서로를 조롱한 말과 그림도 이야기 안에서 쓴다. 블랙 조크는 전쟁의 잔혹함을 가볍게 만드는 데가 아니라 그 부조리를 드러내는 데 쓰며, 죽거나 해를 입은 사람을 웃음거리로 삼지 않는다. 풍자와 패러디는 사실을 비트는 서술자의 말투일 뿐 사실을 바꾸지 않으므로, 관객이 풍자를 사실로 오해하지 않게 쓴다.
+Make the narrator's dry irony, black humor, parody, and satire part of the work's voice. Their targets are the pretensions of the powerful, gaps between propaganda and reality, face and ritual, the absurdities of bureaucracy and war, and legends made by later generations. Successful and unsuccessful people alike seek a way to survive with the information they possess. Do not mock their judgments as foolish merely because the later outcome is known. Parody conventional accounts of heroes and great men, and include words and images with which people of the time mocked one another. Black humor exposes the absurdity of war rather than making its cruelty light; those killed or harmed are not the joke. Satire and parody are the narrator's manner of speaking about facts, not changes to the facts, and must not be mistaken for fact by the audience.
 
-전쟁과 정변과 몰락을 다루는 장편이 무겁기만 하면 긴 시청을 지탱하기 어렵고, 위대함의 허상을 벗기는 웃음이 인물과 시대를 읽는 시선에 필요하기 때문이다. 웃음과 무게의 배치는 아래의 완급을 따른다.
+A long work about war, coups, and collapse cannot sustain viewing on gravity alone; humor that strips away the illusion of greatness is part of its view of people and their age. Place humor and gravity according to the balance below.
 
-## 진중할 때는 진중하게, 웃길 때는 웃기게 쓴다 {#tonal-balance}
+## Be serious when the moment is serious and funny when it is funny {#tonal-balance}
 
-장면마다 정조를 먼저 정하고 그 정조를 흐트러뜨리지 않는다. 웃음은 긴장과 긴장 사이의 숨 고르기로 두어 다음 무게를 더 크게 느끼게 하고, 일상과 경과는 가볍고 빠르게, 큰 장면은 걸음을 멈추고 오래 머물러 쓴다. 죽음과 학살, 이별처럼 무거운 장면 한가운데서는 서술자가 농담으로 무게를 깨지 않는다. 다만 그 자리에 선 인물들이 스스로 내뱉는 블랙 유머, 곧 병사들의 자조나 죽음 앞의 마지막 농담은 그 무게를 더 아프게 할 때 쓴다. 정조를 바꿀 때는 장면을 나누거나 서술의 거리를 바꿔 분명히 전환하고, 한 문단 안에 웃음과 비통을 뒤섞어 난잡하게 만들지 않는다. 웃음과 무게의 비율은 해당 시퀀스의 사건이 정하며, 비극적 시퀀스에 웃음을 억지로 끼우지 않고 가벼운 시퀀스에 비장함을 억지로 끼우지 않는다.
+Decide each scene's tone and sustain it. Let humor offer a breath between moments of tension, making the next weight felt more keenly; handle daily life and transitions lightly and quickly, and pause over major scenes. In the midst of death, massacre, or parting, the narrator does not break the weight with a joke. Characters present may use black humor of their own, such as soldiers' self-mockery or a final joke before death, when it makes the moment more painful. Mark a change in tone by separating scenes or changing narrative distance; do not muddle laughter and grief in one paragraph. The events of a sequence determine its balance: do not force humor into tragedy or solemnity into a light sequence.
 
-장면의 감정을 지키면서 웃음과 무게의 완급이 서로를 살리게 하기 위해서다.
+This protects each scene's emotion while allowing humor and gravity to strengthen one another.
 
-## 상투적인 강조를 줄인다 {#avoid-formulaic-emphasis}
+## Reduce formulaic emphasis {#avoid-formulaic-emphasis}
 
-인물의 말은 그 자리에 있는 상대에게 필요한 말로 쓰고, 주제를 설명하려고 만든 대사로 쓰지 않는다. 앞에서 드러난 의미를 문단 끝의 경구나 추상적인 결론으로 거듭 풀이하지 않는다. 대구·침묵·표정을 같은 방식으로 반복하여 위엄과 감정을 강조하기보다, 상황에 맞는 판단·행동·결과로 인물의 능력과 감정을 보여준다.
+Give characters words their listeners need in the moment, rather than dialogue written to explain a theme. Do not repeatedly paraphrase a meaning already established as an aphorism or abstract conclusion at the end of a paragraph. Show ability and emotion through judgments, actions, and consequences suited to the situation, rather than repeating the same parallelism, silence, or expression for grandeur and feeling.
 
-서술자의 평가와 풍자는 작품의 목소리로 살리면서, 인물과 장면이 작가의 설명을 대신하는 상투적인 글을 피하기 위해서다.
+Preserve the narrator's judgment and satire as the work's voice while avoiding formulaic writing in which characters and scenes speak for the author.

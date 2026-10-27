@@ -1,17 +1,17 @@
-# 구근이 함께 받은 포상
+# The reward shared by Gugeun
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--080-gugeun).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--080-gugeun).
 
-## 구근이 함께 받은 포상 {#gugeun}
+## The reward shared by Gugeun {#gugeun}
 
-**정의·범위**
+**Definition and scope**
 
-구근은 열기와 함께 위험한 전달에 공을 세워 급찬을 받았고 귀환 뒤 사찬을 청하는 대상이 된 인물이다.
+Gugeun distinguished himself with Yeolgi in a dangerous delivery, received the rank of geupchan, and was later proposed for sachan after returning.
 
-**확정 내용**
+**Established facts**
 
-같은 포상 대상이라고 한 사람의 이름과 공으로 합치지 않는다. 현재 예정 서사에서 직접 대사나 개인 생활의 독립 장면은 없으며 포상 보고와 김유신이 공을 책임지는 행동에 이름이 등장한다. 급찬과 사찬은 관등이지 두품 상승이 아니다.
+Do not merge the two people’s names and achievements because they received rewards together. The currently planned narrative gives Gugeun no direct dialogue or separate scene of private life; his name appears in the reward report and in Kim Yusin’s action in taking responsibility for the achievement. Geupchan and sachan are official ranks, not rises in bone rank.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『삼국사기』 열기전의 구근 포상](https://db.history.go.kr/ancient/level.do?levelId=sg_047r_0100_0050).
+Sources: [Gugeun’s reward in the biography of Yeolgi, Samguk Sagi](https://db.history.go.kr/ancient/level.do?levelId=sg_047r_0100_0050).

@@ -1,21 +1,21 @@
-# 동문에서 고휘와 맞서는 문지기
+# The gatekeeper who confronts Go Hwi at the east gate
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--033-east-gate-officer).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--033-east-gate-officer).
 
-## 동문에서 고휘와 맞서는 문지기 {#east-gate-officer}
+## The gatekeeper who confronts Go Hwi at the east gate {#east-gate-officer}
 
-**정의·범위**
+**Definition and scope**
 
-두락은 661년 서른대 후반의 창작 평양 동문 책임자다. 무장 인원의 수비 명부와 통행을 확인한다.
+Durak is the invented officer responsible for Pyongyang’s east gate, in his late thirties in 661. He checks the defense register and passage of armed personnel.
 
-**확정 내용**
+**Established facts**
 
-근무 해제 문서 없는 등록 수비원을 내보낼 수 없으며 민간 가구·비등록 수행원의 이탈을 임의로 금지할 권한도 없다. 귀족 고휘를 혼자 처벌·면직할 수 없어 명부와 이의를 중앙에 올리는 것이 권한의 한계다. 주민의 피난 소문은 이 권한을 넓혀 주지 않는다.
+He cannot release registered defenders without a document relieving them of duty, and has no authority to arbitrarily prevent civilian households or unregistered attendants from leaving. He cannot punish or dismiss the noble Go Hwi alone; his authority ends at forwarding the register and objection to the center. Rumors of residents’ evacuation do not extend that authority.
 
-유혜 가구에서 나루 너머 내륙 길을 아는 사람은 등록 수비원인 남편뿐이고 수레꾼은 나루까지만 갈 수 있다. 고휘 가구의 비등록 길잡이 둘은 다른 방향으로 간다. 이는 같은 통행 조건이 두 가구에 다른 비용을 주는 배경 상태다.
+In Yu Hye’s household, only her husband, a registered defender, knows the inland road beyond the ferry; the cart driver can go only as far as the ferry. Go Hwi’s two unregistered guides travel in another direction. This background gives the two households different costs under the same passage conditions.
 
-키 약 170cm, 넓은 등과 두꺼운 손목, 둥근 얼굴과 오른뺨 작은 흉터가 있다. 회갈색 군복에 해진 가죽 보호대를 쓴다. 낮고 탁한 목소리를 짧게 끊으며 귀족 앞에서도 이름·명부 항목부터 확인하는 말버릇이 있다. 외형·말씨는 창작이다.
+He is about 170 centimeters tall, broad-backed and thick-wristed, with a round face and a small scar on his right cheek. He wears gray-brown military clothes and worn leather protection. His low, muffled voice breaks into short phrases, and even before a noble he habitually checks names and register entries first. Appearance and speech are invented.
 
-**참조·미결**
+**References and unresolved matters**
 
-수레들의 대기·문의·공개 판정 전달과 두 가구의 다른 귀결은 해당 전역의 treatments가 맡는다. 이 사건으로 가구별 이동 허가 법령을 새로 만들지 않는다.
+The campaign treatments own the carts’ waiting, inquiries, communication of the public ruling, and the two households’ different outcomes. Do not create a new law for household-specific travel permission from this event.

@@ -1,13 +1,13 @@
-# 임아상군의 먼저 끊어진 연결
+# Ren Yaxiang’s connections are cut first
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--053-ren-yaxiang).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--053-ren-yaxiang).
 
-## 임아상군의 먼저 끊어진 연결 {#ren-yaxiang}
+## Ren Yaxiang’s connections are cut first {#ren-yaxiang}
 
-**정의·범위**
+**Definition and scope**
 
-임아상은 평양 주변에서 사수의 군대보다 먼저 타격받는 당 지휘자다. 기록에 적게 나타난다고 싸움도 없이 사라진 인물로 만들지 않는다. 작품이 택한 군대의 조직적 붕괴와 타격 순서는 [임아상군의 조직 상실 기준과 사건 owner](../050-systems/110-ren-yaxiang-defeat.md#ren-yaxiang-defeat)에서 읽는다. 필요한 연결이 늦어진 것을 부하의 용기 부족만으로 설명하지 않는다. 자료마다 사망일을 적는 방식이 다름을 남기며 그 날짜가 동일한 보고 시점까지 입증했다고 과장하지 않는다. 『자치통감』은 그가 662년 2월 갑술, 작품의 14일 무렵 진중에서 죽었다고 적는다.
+Ren Yaxiang is the Tang commander struck around Pyongyang before the army at the Sasu. Do not make him vanish without fighting merely because he appears little in the record. See [the criteria for his army’s loss of organization and event owner](../050-systems/110-ren-yaxiang-defeat.md#ren-yaxiang-defeat) for the work’s chosen collapse and order of attacks. Do not explain delayed essential connections solely as a lack of courage among subordinates. Preserve the differences among sources in how they date his death; do not exaggerate the date as proof of a report reaching others at that same time. The Zizhi Tongjian records his death in camp on the jiaxu day of the second month of 662, around the 14th in the work.
 
-**확정 내용**
+**Established facts**
 
-창작 모습은 키 169센티미터, 마른 몸과 좁은 어깨, 길고 얇은 턱이다. 작은 갈색 눈과 가는 검은 눈썹, 긴 코와 얇은 입술, 옅은 황갈색 피부를 가진다. 검은 머리와 짧은 수염을 단정히 정리한다. 짙은 갈색 옷과 검은 띠, 수선한 찰갑을 입는다. 목소리는 중간 높이의 얇고 마른 소리이며 말끝은 낮아진다. 막료가 낸 수치를 재확인할 때 천천히 되묻고, 급한 명령에서도 숫자와 방향을 뭉개지 않는다.
+His invented appearance is 169 centimeters tall, thin and narrow-shouldered, with a long thin chin, small brown eyes, thin black eyebrows, long nose, thin lips, and light tawny skin. His black hair and short beard are neatly kept. He wears dark brown clothes, a black sash, and mended lamellar armor. His voice is thin and dry in the middle register, falling at the ends. He slowly repeats staff figures as questions to check them; even in urgent orders he keeps numbers and directions distinct.

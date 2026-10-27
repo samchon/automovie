@@ -1,25 +1,25 @@
-# 영상 각색의 범위와 위임
+# Scope and delegation of the audiovisual adaptation
 
-## 원본에서 채택하는 것 {#source-boundary}
+## What is adopted from the source {#source-boundary}
 
-사용자가 지정한 입력은 `wrtnlabs/novels`의 revision `83da7063b4e7c85204536e3ad231df38e2304960`에 있는 《대막리지》의 지시 9개와 settings 237개다. 원문은 [입력 명세](../references/intake-manifest.json)와 `docs/references/novels`에 보존한다. 이번 production의 지시는 원본의 창작 조건을 영상으로 채택한 문서이며 원본 자체의 수정이 아니다. 옛 treatments·scripts·prose·퇴고판·evidence·review는 창작 입력으로 사용하지 않는다.
+The user-designated input is nine instructions and 237 settings for The Great Magnate at revision `83da7063b4e7c85204536e3ad231df38e2304960` of `wrtnlabs/novels`. The source is retained in the [intake manifest](../references/intake-manifest.json) and `docs/references/novels`. This production’s instructions adopt its creative conditions for video; they do not modify the original. Old treatments, scripts, prose, revisions, evidence, and reviews are not creative inputs.
 
-역사적 사실, 기록의 주장, 학설, 창작 복원, 미결을 구별하는 원본의 확실성은 보존한다. 특히 연개소문의 614년 출생과 665년 봄 죽음, 실제 왕명이 정변에 관여한다는 선택, 헌충의 우발적 부상과 사흘 뒤 죽음, 남생의 책임과 용서하지 못하는 원한은 일반 역사 서술로 교체하지 않는다. 충돌하는 기록은 해당 settings에서 함께 드러낸다.
+Preserve the source’s distinctions among historical fact, record claims, theories, invented reconstruction, and unresolved matters. In particular, do not replace the choices of Yeon’s 614 birth and spring 665 death, actual royal orders in the coup, Heonchung’s accidental injury and death three days later, and Namsaeng’s responsibility and unforgiven resentment with generic history. Relevant settings disclose conflicting records together.
 
-## 본편 전체의 각색 {#whole-work-adaptation}
+## Adaptation of the complete main story {#whole-work-adaptation}
 
-이번 작업은 한국어 역사극 《대막리지》 본편 전체를 settings → treatments → scripts → final screenplay로 완성하는 위임이다. 661년 늦봄 평양의 결전 회의와 죽인 왕에게 건네는 내면의 말로 열고, 614~634년 성장기로 돌아간 뒤 생애·전쟁·재건·사후 붕괴를 거쳐 남생이 죽는 679년에 닫는다. scripts와 final screenplay는 각자 construction과 표현 개고를 거친다. 각 계층의 독립 검토와 작품 전체 검토는 별도로 맡는다.
+The original commission was to complete the entire historical drama The Great Magnate through settings → treatments → scripts → final screenplay. It opens at the late-spring 661 Pyongyang council and inward address to the murdered king, returns to youth in 614–634, and follows life, war, reconstruction, and posthumous collapse to Namsaeng’s death in 679. Scripts and final screenplay each underwent construction and expressive revision. Independent layer and whole-work reviews were separate responsibilities.
 
-원본 소설의 10권·권당 24화·화당 권장 5,000자와 제1권 우선 제작은 원매체의 기록이다. 영상의 편수·시간·완료 범위로 환산하지 않는다. 원본의 가격·무료 전환 경계는 미정이며 영상의 판매·배급·접근 방식도 이번에는 정하지 않는다. [영상 제작 계획](../body/settings/010-work/010-work.md#delivery-scale)은 작가의 잠정 편집 예산이며 사용자 고정 quota나 실측 시간이 아니다.
+The source novel’s ten volumes, 24 chapters per volume, recommended 5,000 Korean characters per chapter, and priority production of volume one are source-medium records, not video installment, duration, or completion requirements. Source price and free-access boundary were unresolved; video sale, distribution, and access are not decided here either. The [video plan](../body/settings/010-work/010-work.md#delivery-scale) is a provisional authorial editing budget, not a fixed user quota or measured duration.
 
-발해 건국과 733년 겨울 원정은 별도 외전의 가능성만 보존한다. 본편의 마지막에 발해의 성립이나 733년 장면을 붙이지 않으며, 외전 네 편 같은 추가 납품을 만들지 않는다. 보덕국과 아라는 본편에 포함하지 않는다.
+Preserve Balhae’s founding and the winter expedition of 733 only as possible separate side stories. Do not attach their scenes to the main ending or create extra deliveries such as four side episodes. Bodeok and Ara are excluded.
 
-## 역사가를 가진 역사극 {#audiovisual-adaptation}
+## Historical drama with a historian {#audiovisual-adaptation}
 
-각색의 중심 전제와 결말은 사용자 입력으로 고정되어 있으므로 서로 다른 중심 줄거리를 새로 발명하지 않는다. 후세 역사가의 원경과 실제 인물 곁의 근경을 오가는 형식을 선택한다. 긴 연대·진영 간 소식의 시차·기록의 편향은 짧은 내레이션과 필요한 지도·문서로 연결하고, 핵심 판단·권력 이동·관계 변화·대가를 치르는 선택은 완전한 대사와 행동으로 극화한다. 특정 나라의 통사나 장수 열전으로 분산하지 않기 위한 선택이다.
+The user fixed the central premise and ending; do not invent a different central plot. The chosen form moves between a later historian’s long view and close views beside characters. Brief narration and needed maps or documents connect long chronology, delays between camps, and bias in records; full dialogue and action dramatize key judgments, transfers of power, changing relationships, and costly choices. This avoids dispersal into a single country’s general history or generals’ biographies.
 
-날짜·진영 전환은 자막과 앞뒤 행동에서 관객이 알아볼 수 있어야 한다. 내레이션은 후세의 지식으로 인물을 재단할 수 있지만 장면 속 인물에게 미래 지식을 주지 않는다. 풍자는 허세·선전과 현실·권력의 부조리를 향하며 학살·상실의 피해자를 웃음거리로 삼지 않는다. 이 형식의 판단은 [역사가와 장면 계약](../../.agents/skills/contracts/story/work/obligations/narratives.md#chronicler-and-scene)이 소유한다.
+The audience must recognize date and camp transitions through captions and surrounding action. Narration can judge with later knowledge but does not give that knowledge to characters. Satire targets pretension, propaganda versus reality, and absurdities of power; victims of massacre and loss are not jokes. [The historian and scene contract](../../.agents/skills/contracts/story/work/obligations/narratives.md#chronicler-and-scene) owns judgments of this form.
 
-## 기록한 문구와 남겨 둔 선택 {#fixed-wording}
+## Fixed wording and choices left open {#fixed-wording}
 
-제목은 《대막리지》다. 고구려 신하가 왕을 부르는 직접 호칭은 「폐하」이며 「전하」로 바꾸지 않는다. 이는 고구려의 제호를 입증한다는 주장과 구별되는 작품 선택이다. 지난 햇수는 「16년 전」처럼 쓴다. 구체적인 임종·왕과의 마지막 대면·내면 독백의 대사 문구는 원본이 고정하지 않았으므로 scripts가 쓴다. 원문에 있다는 이유만으로 역사 인용을 장면의 실제 발언으로 만들지 않는다.
+The title is The Great Magnate. Goguryeo subjects address the king directly as “Your Majesty,” a work-specific choice distinct from proof of an imperial title. Write elapsed years as “16 years ago.” The source did not fix exact dialogue for deathbeds, the final meeting with the king, or inward monologues; scripts supplies it. A historical quotation’s presence in a source does not make it an actual spoken line in a scene.

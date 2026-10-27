@@ -1,30 +1,25 @@
-# 보장왕이 기다리는 권력
+# The power King Bojang awaits
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--016-bojang).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--016-bojang).
 
-## 보장왕이 기다리는 권력 {#bojang}
+## The power King Bojang awaits {#bojang}
 
-**정의·범위**
+**Definition and scope**
 
-보장왕 장은 연씨 가문의 분열을 이용해 왕가의 실권을 되찾으려는 군주다. 『삼국사기』에 따라 영류왕의 아우 [대양왕](014-daeyang.md#daeyang)의 아들로 설정한다. 출생 연도인 608년은 작품의 창작 선택이다. 642년 즉위할 때는 서른네 살 전후의 성인이다. 개소문이 어린아이 왕을 세워 조종하는 관계와는 다르다.
+King Bojang, Jang, seeks to regain actual royal power through division of the Yeon family. Following the Samguk Sagi he is the son of Yeongnyu’s younger brother [Daeyang](014-daeyang.md#daeyang). His 608 birth is an invented choice; at accession in 642 he is an adult around 34, not a child king Gaesomun installs and controls.
 
-**확정 내용**
+**Established facts**
 
+His invented appearance is 172 centimeters tall, narrow-shouldered and long-fingered, with a long face, thin chin, brown eyes beneath thin black eyebrows, a long straight nose, thin lips, and light tawny skin. His black hair is neatly tied and sparse beard short. He wears dark brown outerwear, a black sash, and small metal ornaments, keeping his posture composed.
 
-창작한 외형은 키 172센티미터에 좁은 어깨와 긴 손가락을 가진 모습이다. 얼굴은 길고 턱은 가늘다. 가늘고 검은 눈썹 아래 갈색 눈이 있으며 코는 길고 곧고 입술은 얇다. 피부는 옅은 황갈색이다. 검은 머리를 단정히 묶고 성긴 수염을 짧게 기른다. 짙은 갈색 겉옷에 검은 띠와 작은 금속 장식을 갖추며 자세를 잘 흐트러뜨리지 않는다.
+His voice is thin and below the middle register with faint nasal resonance. In public orders he speaks softly and slowly, waiting for quiet. In private he is more talkative.
 
+Bojang believes royal ceremony and symbols have power: even if Gaesomun moves troops, royal orders remain necessary to justify merit and crime within the country. Yet during Gaesomun’s life he knows royal orders are limited before actual military power. Rather than openly defy him, he listens to noble grievances and leaves work for the royal house later. Restored royal rule requires Goguryeo to survive; he does not wish defeat that destroys the state itself.
 
-목소리는 중간보다 낮고 가늘며 약한 코 울림이 섞인다. 공개적으로 명령할 때는 느리고 작게 말하며 주변이 조용해지기를 기다린다. 사람을 따로 불러 이야기할 때는 공개적인 자리에서보다 말이 많다.
+When Namsaeng begins reconstruction by connecting Liaodong and Gungnaeseong troops and nobles, Bojang sees that relationship strengthening without the royal house. Even limited personal ambition does not reassure him: central power and regional cooperation gathering around Namsaeng leave less room for royal restoration. He recognizes Namgeon and Namsan’s ability and grounds, encouraging hope that under royal order they can correct their elder brother’s work.
 
+Bojang actually instigates the coup and issues orders. He calculates that armed conflict among the brothers will undermine trust in the Yeon family and renew the royal house’s necessity. He fails when Heonchung dies and Namsaeng brings Tang troops. His confidence that he can recover power while saving the country ultimately acts to harm the state.
 
-보장왕은 왕의 의례와 상징에도 힘이 있다고 본다. 개소문이 군사를 움직이더라도 나라 안에서 공과 죄를 정당화하려면 여전히 왕명이 필요하다는 생각이다. 다만 개소문 생전에는 왕명의 힘도 실제 군사력 앞에서 제한된다는 것을 안다. 공개적으로 거역하는 대신 귀족들의 불만을 듣고 왕실이 후일 할 일을 남겨 둔다. 그가 바라는 왕가의 재통치는 고구려가 살아남아야 가능한 일이다. 전쟁에서 패해 국가 자체가 사라지기를 바라지는 않는다.
+**References and unresolved matters**
 
-
-남생이 요동·국내성의 군사와 귀족을 연결해 재건을 시작하면 보장왕은 그 관계가 왕가를 거치지 않고 단단해지리라고 본다. 남생 개인의 야망이 작아도 안심할 수 없다. 중앙의 실권과 지방의 협력이 계속 남생에게 모이면 왕정 복고가 들어설 자리가 좁아지기 때문이다. 왕은 남건과 남산의 능력과 명분을 인정해 주면서, 왕명 아래에서 맏형의 일을 바로잡을 수 있다는 기대를 준다.
-
-
-보장왕은 실제로 정변을 부추기고 명령을 내린다. 작품 속 왕은 형제들이 무력으로 충돌하면 연씨 가문에 대한 신뢰가 무너지고 왕실의 필요성이 다시 커지리라고 계산한다. 그러나 헌충이 죽고 남생이 당군을 끌어들이면서 이 계산은 실패한다. 나라를 살린 채 권력을 되찾을 수 있다는 확신이 결국 국가를 해치는 쪽으로 움직인다.
-
-**참조·미결**
-
-Sources: [『삼국사기』 보장왕 즉위와 가계](https://db.history.go.kr/ancient/level.do?levelId=sg_021r_0020_0010), [남생전의 소환과 헌충의 죽음](https://db.history.go.kr/ancient/level.do?levelId=sg_049r_0040_0050).
+Sources: [Bojang’s accession and genealogy, Samguk Sagi](https://db.history.go.kr/ancient/level.do?levelId=sg_021r_0020_0010), [summons and Heonchung’s death in Namsaeng’s biography](https://db.history.go.kr/ancient/level.do?levelId=sg_049r_0040_0050).

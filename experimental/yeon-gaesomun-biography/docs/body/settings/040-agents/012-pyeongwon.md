@@ -1,17 +1,15 @@
-# 평원왕이 남긴 재건
+# King Pyeongwon’s reconstruction
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--012-pyeongwon).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--012-pyeongwon).
 
-## 평원왕이 남긴 재건 {#pyeongwon}
+## King Pyeongwon’s reconstruction {#pyeongwon}
 
-**정의·범위**
+**Definition and scope**
 
-고건무에게 평원왕은 나라가 쪼개질 만큼 큰 내부 파괴를 겪은 뒤 사람과 물자를 다시 이어 준 부친이다. 본편의 평원왕은 고건무가 부친을 떠올리는 회상 속에 등장한다. 전 생애를 다루는 독립 전기는 본편에 없다. 그 회상에는 왕이 기울인 노고와 함께, 재건 사업에 자기 사람을 내어 준 귀족과 주민의 기여도 남는다. 재건 시책의 내용과 기억 속에서 창작할 수 있는 범위는 [두 재건의 기억](../outline/index.md#020-world)에 정해져 있다.
+To Go Geonmu, King Pyeongwon is the father who reconnected people and resources after internal destruction severe enough to split the country. Pyeongwon appears in the main story in Geonmu’s recollections of his father, without an independent biography of his whole life. Those memories retain both the king’s effort and the contributions of nobles and residents who provided their people to the rebuilding. [Memories of two reconstructions](../outline/index.md#020-world) establishes the measures and scope for invention within recollection.
 
-**확정 내용**
+**Established facts**
 
+His late-life appearance in recollection is invented. He is 170 centimeters tall, broad-bodied and short-armed, with a softened square jaw, round nose tip, and broad mouth. His eyes are brown, his black eyebrows streaked with white, and his skin tawny. He ties his black hair, streaked with gray; his beard also has white hairs.
 
-회상에 등장하는 말년의 모습은 창작이다. 키는 170센티미터이며 몸통이 넓고 팔이 짧다. 얼굴에는 무뎌진 사각 턱과 둥근 코끝, 넓은 입이 보인다. 눈은 갈색이고 검은 눈썹에는 흰 털이 섞여 있다. 피부는 황갈색이다. 회색이 섞인 검은 머리를 묶고, 턱수염에도 흰 수염이 섞여 있다.
-
-
-짙은 갈색 옷에 검은 띠를 두른 평원왕은 앉아서 보고를 듣는다. 들은 말을 확인할 때는 몸을 앞으로 기울인다. 낮고 굵은 목소리의 말끝에는 마른 숨이 붙는다. 상대를 재촉해도 말이 빨라지기보다는 같은 일을 더 짧게 되묻는다.
+Wearing dark brown clothes and a black sash, he sits to hear reports. He leans forward to confirm what he has heard. His low, thick voice trails into a dry breath. Even when urging someone on, he asks again more briefly rather than speaking faster.

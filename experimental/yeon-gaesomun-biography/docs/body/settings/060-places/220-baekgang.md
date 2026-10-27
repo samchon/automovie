@@ -1,19 +1,19 @@
-# 백강과 부흥군의 물가
+# Baekgang and the restoration forces’ waterfront
 
-정전 안내: [이 대상의 위치](../outline/index.md#060-places--220-baekgang).
+Canon guide: [Location of this subject](../outline/index.md#060-places--220-baekgang).
 
-## 백강과 부흥군의 물가 {#baekgang}
+## Baekgang and the restoration forces’ waterfront {#baekgang}
 
-**정의·범위**
+**Definition and scope**
 
-백강은 백제 부흥군과 왜의 지원군이 수로를 통해 당·신라의 압력을 돌파하려다 실패하는 결전의 공간이다. 작품은 금강 하구 방면을 채택한다. 모든 전투가 같은 좁은 물목에서 같은 선박 배치로 네 번 되풀이되었다는 도면을 정하지 않는다. 강과 바다가 만나는 수로, 선박이 머무는 물가, 육지의 부흥군 거점을 구별한다. 바람과 물 흐름이 바뀌면 배를 돌릴 공간과 속도도 달라지며 육지의 지휘자는 물 위 선박을 말 탄 전령으로 즉시 움직일 수 없다.
+Baekgang is the site of the decisive battle where Baekje restoration and Wa support forces fail to break Tang–Silla pressure through waterways. The work chooses the lower Geum estuary. It does not establish a diagram in which all fighting repeats four times at the same narrow channel with the same ship deployment. Distinguish the channel where river meets sea, the waterfront where ships wait, and restoration strongholds ashore. Changing wind and current alter room and speed to turn; a land commander cannot instantly move ships on the water by mounted messenger.
 
-**확정 내용**
+**Established facts**
 
-왜의 수송선과 전투에 쓰는 배를 모두 같은 전용 군함으로 조형하지 않는다. 물가에는 상륙한 사람과 아직 배 안의 물자를 지키는 사람이 함께 있다. 앞의 배가 막히거나 불이 붙으면 뒤의 대열은 옆으로 피할 물폭이 필요하다. 육지에서 이기는 것과 보급·귀환의 배를 보존하는 것은 다른 조건이다. 패전 뒤 떠나는 가족의 묘와 집은 전장의 물 위에 있지 않고 각자의 살던 지역에 남는다. 돌아갈 곳의 상실은 출항한 사람의 소지품과 행로를 바꾼다.
+Do not model every Wa transport and fighting vessel as the same purpose-built warship. On the waterfront, landed people and those guarding supplies still aboard coexist. If a leading ship blocks the way or catches fire, the column behind needs water width to evade. Winning ashore and preserving supply and return ships are different conditions. The graves and homes of families leaving after defeat remain in their own regions, not on the battlefield’s water. Loss of a place to return changes departing people’s possessions and routes.
 
-현재 예정 서사는 백강을 고구려에 닿는 패전 보고로만 진행한다. 보고가 설명하는 창작 물목은 사용 폭 약500미터, 앞의 두 선박 대열 사이 약100미터의 열린 자리, 북쪽 물가의 상륙 구역300미터×100미터로 둔다. 이 수치는 고대 강 전체의 실측이나 매번 동일한 네 차례 해전 도면이 아니다. 앞의 배가 옆으로 돌면 뒤의 배와 노·돛을 펼칠 자리가 겹치고 불빛과 연기가 다음 접근의 시야를 가린다. 고구려 보고자는 그 안의 모든 사망자를 직접 본 목격자가 아니며, 물길의 제약과 수륙 거점 상실을 전하는 정보만 얻는다.
+The currently planned narrative presents Baekgang only through a defeat report reaching Goguryeo. The invented channel described in the report has about 500 meters of usable width, about 100 meters of open space between the leading two ship lines, and a 300-by-100-meter landing area on the north bank. These are not measurements of the whole ancient river or an identical diagram for four sea battles. When leading ships turn sideways, their room for oars and sails overlaps those behind; firelight and smoke obscure the next approach. The Goguryeo reporter did not personally witness every death, receiving only information on waterway constraints and loss of land and water strongholds.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [국사편찬위원회, 백강전투](https://contents.history.go.kr/front/tg/view.do?levelId=tg_001_0150&treeId=0103), [『일본서기』의 주류성 함락과 백제인의 이향](https://db.history.go.kr/ancient/level.do?levelId=jm_001_0240_0230).
+Sources: [The Battle of Baekgang, National Institute of Korean History](https://contents.history.go.kr/front/tg/view.do?levelId=tg_001_0150&treeId=0103), [Juryuseong’s fall and Baekje people leaving home, Nihon Shoki](https://db.history.go.kr/ancient/level.do?levelId=jm_001_0240_0230).

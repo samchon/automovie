@@ -1,30 +1,25 @@
-# 연헌충의 재능과 아직 얻지 못한 권한
+# Yeon Heonchung’s talent and authority not yet gained
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--010-heonchung).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--010-heonchung).
 
-## 연헌충의 재능과 아직 얻지 못한 권한 {#heonchung}
+## Yeon Heonchung’s talent and authority not yet gained {#heonchung}
 
-**정의·범위**
+**Definition and scope**
 
-남생의 장남 헌충은 아버지의 거처를 지키려다 숙부들의 정변에 무력으로 맞선다. 작품에서는 649년생으로 정하지만, 출생 연도와 형제 순서는 사료로 확정된 값이 아니다. 666년 정변 때는 열일곱 살 전후의 청소년이며 생일 전인지 후인지는 고정하지 않는다.
+Namsaeng’s eldest son Heonchung resists his uncles’ coup by force while trying to protect his father’s residence. The work sets his birth in 649, but birth year and sibling order are not established by sources. During the 666 coup he is around seventeen; whether his birthday has passed is not fixed.
 
-**확정 내용**
+**Established facts**
 
+In the invented design he is 174 centimeters tall at the coup, long-limbed relative to still narrow shoulders, with a long face and almost no beard. He has black eyebrows, dark brown eyes, high nasal bridge, thin lips, tawny skin, and tightly tied black hair. Over dark brown clothes he wears armor refitted to a rapidly growing body.
 
-창작한 외형에서 정변 당시의 키는 174센티미터다. 아직 좁은 어깨에 비해 팔다리가 길고, 긴 얼굴에는 수염이 거의 없다. 검은 눈썹과 짙은 갈색 눈, 높은 콧등과 얇은 입술을 갖는다. 피부는 황갈색이며 검은 머리를 단단히 묶는다. 짙은 갈색 옷 위로는 급히 자란 몸에 다시 맞춘 갑옷을 입는다.
+Heonchung has the sharp judgment and aggressive temper his grandfather likes, but his basis for judgment and authority differ from Gaesomun’s decades of experience and nationwide command. His voice is clear and slightly above the middle register, roughening and cracking at the end when emphatic. He speaks briefly and tends to anticipate rather than await another’s answer.
 
+He learns quickly training with his grandfather. Initially he is impatient with the time his father spends listening to residents. Proud of his ability, Namsaeng nevertheless tries to teach him to wait and delegate.
 
-헌충은 조부가 좋아하는 날카로운 판단력과 공격적인 성미를 지녔다. 수십 년 경험과 전국 지휘권을 지닌 개소문과는 판단의 바탕과 권한이 다르다. 목소리는 중간보다 조금 높고 맑다. 힘주어 말하면 끝소리가 거칠게 갈라진다. 말을 짧게 하며, 상대의 답을 기다리기보다 미리 짐작하고 행동하려는 버릇이 있다.
+His permitted command is limited to family guards remaining in Pyongyang. During the coup he tries to use them to protect the residence and family people. He has neither the rank of commander-in-chief of the three armies nor authority to mobilize the whole state’s army at will. Family officer [Durim](022-household-officer.md#household-officer) opposes a sortie against the uncles. Heonchung reacts too hastily and feels this opposition as abandonment of himself and his father.
 
+The work’s coup force enters without a prior plan to kill him. He is severely wounded resisting and dies after three days of deterioration. Absence of prior intent does not erase responsibility for sending armed troops. The [coup event](../050-systems/270-heonchung-injury.md#heonchung-injury) owns injury and decline; the [leading soldier](021-heonchung-attacker.md#heonchung-attacker), [carrying guards](023-wounded-carriers.md#wounded-carriers), and [healer](024-heonchung-healer.md#heonchung-healer) own their respective authority.
 
-조부와 훈련할 때는 빠르게 배운다. 처음에는 아버지가 주민의 말을 듣는 데 쓰는 시간을 답답해한다. 남생은 아들의 능력을 자랑스러워하면서도 기다릴 줄 아는 것과 다른 사람에게 일을 맡기는 것을 가르치려 한다.
+**References and unresolved matters**
 
-
-헌충에게 허락된 지휘권은 평양에 남은 가문의 호위 병력에 한정된다. 정변 때도 이 병력으로 가문의 거처와 사람을 지키려 한다. 삼군대장군의 지위나 국가 전체의 군사를 임의로 동원할 권한은 없다. 가문 군관 [두림](022-household-officer.md#household-officer)은 숙부들과 맞서려는 헌충의 출동을 반대한다. 헌충은 상황을 너무 급하게 받아들여, 그 반대를 자신과 아버지를 버리는 행동처럼 느낀다.
-
-
-작품의 정변 세력은 헌충을 죽이겠다는 사전 계획 없이 병력을 들여보낸다. 헌충은 이를 저지하는 싸움에서 크게 다치고, 사흘 동안 상태가 악화된 뒤 죽는다. 사전 계획이 없었다고 해도 무장한 병력을 들여보낸 책임은 남는다. 상처와 악화 경과는 [정변 사건](../050-systems/270-heonchung-injury.md#heonchung-injury)에 따른다. 상처를 낸 병사와 운반·치료를 맡은 사람들의 권한은 [선두 병사](021-heonchung-attacker.md#heonchung-attacker)·[운반을 맡은 호위](023-wounded-carriers.md#wounded-carriers)·[치료자](024-heonchung-healer.md#heonchung-healer)에 정해져 있다.
-
-**참조·미결**
-
-Sources: [『삼국사기』 남생 형제의 분열과 헌충의 죽음](https://db.history.go.kr/ancient/level.do?levelId=sg_049r_0040_0050).
+Sources: [Division of Namsaeng’s brothers and Heonchung’s death, Samguk Sagi](https://db.history.go.kr/ancient/level.do?levelId=sg_049r_0040_0050).

@@ -1,17 +1,17 @@
-# 큰 적대 집단을 이끈 돌지계
+# Dolji-gye, leader of a large hostile group
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--096-dolji-gye).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--096-dolji-gye).
 
-## 큰 적대 집단을 이끈 돌지계 {#dolji-gye}
+## Dolji-gye, leader of a large hostile group {#dolji-gye}
 
-**정의·범위**
+**Definition and scope**
 
-돌지계는 여러 부락과 전투 병력을 거느리고 이동한 말갈 지도자로, 작은 약탈과 대규모 조직적 위협의 차이를 설명하는 선대의 보고에 등장한다.
+Dolji-gye was a Malgal leader who moved with several settlements and fighting forces. He appears in an earlier generation’s report illustrating the difference between small raids and a large organized threat.
 
-**확정 내용**
+**Established facts**
 
-이동 시기와 교전 주체에 관한 자료의 차이는 [변경 대응](../030-society/130-border-retaliation.md#border-retaliation)에서 확인한다. 작품은 고구려 선대에게 격퇴된 적대 세력의 지도자로 채택하되 그가 모든 말갈을 대표했다고 쓰지 않는다. 현재 예정 서사에 개소문과의 직접 대면과 고유 대사는 없으며 얼굴·음성을 정하지 않는다.
+See [border response](../030-society/130-border-retaliation.md#border-retaliation) for differences among sources concerning the timing of the movement and the parties to the fighting. The work adopts him as the leader of a hostile force repelled by an earlier generation of Goguryeo, without claiming he represented all Malgal. The currently planned narrative gives him no direct encounter with Gaesomun or distinctive dialogue, and establishes no face or voice.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『수서』 권81 돌지계 기사](https://zh.wikisource.org/zh-hant/隋書/卷81).
+Sources: [Account of Dolji-gye, Book of Sui vol. 81](https://zh.wikisource.org/zh-hant/隋書/卷81).

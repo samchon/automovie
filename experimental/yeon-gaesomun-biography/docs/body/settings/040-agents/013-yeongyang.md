@@ -1,31 +1,27 @@
-# 영양왕이 감당한 전쟁
+# The wars borne by King Yeongyang
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--013-yeongyang).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--013-yeongyang).
 
-## 영양왕이 감당한 전쟁 {#yeongyang}
+## The wars borne by King Yeongyang {#yeongyang}
 
-**정의·범위**
+**Definition and scope**
 
-영양왕은 이름이 원(元)이며, 평원왕의 맏아들이자 고건무의 이복형이다. 평원왕이 복구한 기반으로 수와 싸워 이겼지만, 승전 과정에서 나라는 다시 막대한 파괴를 겪었다. 어린 개소문에게 영양왕의 이름은 승리한 왕으로 남는다. 고건무는 전쟁에 사람을 계속 내어 보내야 했던 형을 기억한다. 재건과 파괴가 어느 범위에 이르렀는지는 [두 재건의 기억](../outline/index.md#020-world)을 따른다.
+King Yeongyang, named Won, is Pyeongwon’s eldest son and Go Geonmu’s half-brother. He fights and defeats Sui using the foundation Pyeongwon restored, but the country suffers immense destruction again in victory. To young Gaesomun he remains the victorious king; Go Geonmu remembers a brother who had to keep sending people to war. The scope of reconstruction and destruction follows [memories of two reconstructions](../outline/index.md#020-world).
 
-**확정 내용**
+**Established facts**
 
+The work estimates Yeongyang’s birth around 559. No sons are recorded; at his death in the ninth month of autumn 618 his half-brother Go Geonmu succeeds him. Gaesomun is then four years past his birth and experiences the king’s death and accession through adults’ words and the atmosphere in the street.
 
-작품은 영양왕이 559년 무렵에 태어난 것으로 추정해 둔다. 기록에 남은 아들은 없으며, 618년 가을 9월 그가 죽자 이복동생 고건무가 왕위를 잇는다. 개소문은 이때 태어난 지 네 해가 지난 아이여서, 왕의 죽음과 새 왕의 즉위를 어른들의 말과 거리의 분위기로 겪는다.
+Counting the east, the narrator judges Yeongyang’s sphere of influence the largest in Goguryeo’s history, expanded by Pyeongwon and Yeongyang incorporating and developing eastern Malgal regions. Yet after loss of the Han River basin it was not necessarily greatest in productive and population substance. The narrator gives both sides.
 
+His recollected appearance is invented: 175 centimeters tall, broad-shouldered and long-armed, with a long angular face, brown eyes beneath straight black eyebrows, high nasal bridge, thin lips, and tawny skin. His black hair is tied and beard short; gray increases and eyes deepen in later life. He wears dark reddish-brown outerwear and a black sash.
 
-서술자는 동방을 셈하면 영양왕 대의 영향권 면적이 고구려에서 가장 넓었다고 본다. 평원왕과 영양왕이 동방의 말갈 지역을 포섭하고 개발해 넓힌 판도다. 그러나 한강 유역을 잃은 뒤의 판도이므로, 생산과 인구의 실속까지 가장 컸던 것은 아니다. 서술자는 이 두 면을 함께 말한다.
+His voice is rough and below the middle register. He does not explain at length in ceremony, but in private with responsible officers asks again one by one about unfinished work, hearing each answer before the next question.
 
+**Conditions and limits**
 
-회상 속 외형은 창작으로 정한다. 키 175센티미터에 어깨가 넓고 팔이 길며, 얼굴은 길고 각져 있다. 곧은 검은 눈썹 아래에 갈색 눈이 있고 콧등은 높으며 입술은 얇다. 황갈색 피부에 검은 머리를 묶고 짧은 턱수염을 기른다. 말년으로 갈수록 머리와 수염에는 회색이 늘고 눈 밑은 깊어진다. 겉옷은 짙은 붉은 갈색이며 검은 띠를 두른다.
+Birth around 559 is the work’s estimate, not a recorded value. The Samguk Sagi also gives his name as Daewon (大元), but the work uses Won. The eastern sphere does not exceed [the foundation built by Pyeongwon and Yeongyang](../020-world/070-first-restoration.md#first-restoration); do not make a precisely measured area map.
 
+**References and unresolved matters**
 
-목소리는 중간보다 낮고 거칠다. 의례에서는 설명을 길게 하지 않지만, 책임자와 따로 이야기할 때는 아직 끝나지 않은 일을 하나씩 다시 묻는다. 한 질문의 답을 들어야 다음 질문으로 넘어간다.
-
-**조건·한계**
-
-559년 무렵이라는 생년은 기록된 값이 아니라 작품의 추정이다. 『삼국사기』는 이름을 대원(大元)이라고도 전하지만 작품은 원으로 쓴다. 동방 영향권의 경계는 [평원왕과 영양왕이 이어 만든 기반](../020-world/070-first-restoration.md#first-restoration)의 조건을 넘지 않으며, 면적을 계산한 정밀 지도를 만들지 않는다.
-
-**참조·미결**
-
-Sources: [『삼국사기』 권20 영양왕 즉위 기사의 이름과 29년의 죽음, 영류왕 즉위](https://zh.wikisource.org/wiki/三國史記/卷20).
+Sources: [Yeongyang’s accession name, death in his 29th year, and Yeongnyu’s accession, Samguk Sagi vol. 20](https://zh.wikisource.org/wiki/三國史記/卷20).

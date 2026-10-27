@@ -1,19 +1,19 @@
-# 신성이 맡은 군무
+# The military duties entrusted to Sinseong
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--085-sinseong-monk).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--085-sinseong-monk).
 
-## 신성이 맡은 군무 {#sinseong-monk}
+## The military duties entrusted to Sinseong {#sinseong-monk}
 
-**정의·범위**
+**Definition and scope**
 
-신성은668년 남건이 군무를 맡긴 승려이며, 당과 내응해 평양의 문을 여는 인물이다. 그의 이름은 信誠으로 쓰고 성곽 新城과 구별한다. 종교적 지위가 군사적 접촉과 출입의 권한을 가질 수 있는 당시 관계의 사례로 사용한다. 모든 승려가 같은 군사 직책이었다는 제도는 만들지 않는다.
+Sinseong is the monk entrusted with military affairs by Namgeon in 668 who cooperates with Tang from inside and opens Pyongyang’s gate. His name is 信誠, distinct from the fortress 新城. Use him as an example of contemporary relationships allowing religious status to carry authority for military contact and access; do not invent an institution making every monk the same kind of officer.
 
-**확정 내용**
+**Established facts**
 
-작품의 창작 외형은 키 166센티미터, 좁은 어깨와 긴 손가락, 마른 얼굴과 작은 턱이다. 갈색 눈과 성긴 검은 눈썹, 긴 코와 얇은 입술, 옅은 황갈색 피부를 가진다. 머리는 삭발하고 수염은 기르지 않는다. 회갈색의 넓은 소매 겉옷에 짙은 갈색 띠를 두르며 일할 때 소매를 안으로 접는다. 목소리는 낮고 가늘며 약한 숨소리가 섞인다. 상대의 말이 끝난 뒤 천천히 답하지만 실행을 지시할 때는 간격을 줄인다. 겉으로 차분하다는 것이 진실을 모두 말한다는 표시가 아니다. 남건의 신뢰와 성 안의 지휘자들에게 닿을 수 있는 자리 때문에 성문 개방을 가능하게 할 사람과 접촉한다.
+His invented appearance is 166 centimeters tall, with narrow shoulders, long fingers, a thin face, small chin, brown eyes, sparse black eyebrows, long nose, thin lips, and light tawny skin. His head is shaved and he has no beard. He wears a broad-sleeved gray-brown outer robe and dark brown sash, folding his sleeves inward when working. His voice is low and thin with a faint breath. He answers slowly after others finish, but shortens pauses when directing execution. Outward calm does not mean he tells the whole truth. Namgeon’s trust and his position giving access to commanders inside the fortress let him contact people able to open the gate.
 
-그는 전쟁을 멈추어 성 안의 사람을 살릴 수 있다는 기대와 당이 승리할 것이라는 판단을 함께 갖는 것으로 구성한다. 그 판단은 모든 주민을 보호할 실제 보증이 아니다. 자신이 문을 연 뒤 당군의 불과 포획을 보고도 전부 의도한 구원이 되었다고 서술하지 않는다. 내응의 행동과 닷새의 시차는 [평양 함락](../050-systems/340-pyongyang-fall.md#pyongyang-fall)에 있다.
+He is constructed as expecting to save those inside by ending the war while judging Tang will win. That judgment is no actual guarantee of protection for every resident. After he opens the gate and sees Tang fire and capture, do not describe it all as the rescue he intended. [The fall of Pyongyang](../050-systems/340-pyongyang-fall.md#pyongyang-fall) owns the cooperation and five-day interval.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『삼국사기』 남건이 신성에게 군사를 맡긴 일과 내응](https://db.history.go.kr/ancient/level.do?levelId=sg_022_0020_0460).
+Sources: [Namgeon’s entrusting troops to Sinseong and his internal cooperation, Samguk Sagi](https://db.history.go.kr/ancient/level.do?levelId=sg_022_0020_0460).

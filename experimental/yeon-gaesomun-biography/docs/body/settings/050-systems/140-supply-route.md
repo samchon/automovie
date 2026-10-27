@@ -1,19 +1,19 @@
-# 수송대가 선택한 험로
+# The difficult route chosen by the transport party
 
-정전 안내: [이 대상의 위치](../outline/index.md#050-systems--140-supply-route).
+Canon guide: [Location of this subject](../outline/index.md#050-systems--140-supply-route).
 
-## 수송대가 선택한 험로 {#supply-route}
+## The difficult route chosen by the transport party {#supply-route}
 
-**정의·범위**
+**Definition and scope**
 
-김유신의 수송대는 662년 음력 정월 23일 칠중하를 건넌 뒤 평양 남쪽의 양오까지 간다. 작품은 임진강 도하 뒤 주요 대로에서 벗어나 황해 지역의 산줄기 사이를 연결하는 우회로를 선택한다. 도착지 양오는 대동강 하류 유포리 부근으로 비정하는 견해를 채택한다. 이는 기록이 오늘의 정확한 지도 좌표를 확정했다는 뜻이 아니다.
+Kim Yusin’s transport party crosses the Chiljungha on the 23rd day of the first lunar month in 662 and travels to Yango south of Pyongyang. The work chooses a detour after crossing the Imjin, leaving the main road and connecting routes between mountain ranges in the Hwanghae region. It adopts the view locating Yango near Yupo-ri on the lower Daedong; this does not mean the record establishes exact modern map coordinates.
 
-**확정 내용**
+**Established facts**
 
-작품에서 도하 지점부터 전달 지점까지의 실제 행군 거리는 약 240km다. 직선 거리와 같지 않으며 좁은 길의 우회와 오르내림을 포함한다. 음력 2월 6일의 전달까지 약 두 주를 사용하여 하루 평균 약 17~19km를 이동한다. 전 구간을 길 없는 절벽으로 만들지 않는다. 지역 주민이 왕래할 수 있는 길을 연결하되 큰 대열과 짐이 통과하려면 길을 정리하고 나누어 움직여야 한다. 경사가 심한 구간을 빨리 지나도 뒤의 짐이 넘어오지 못하면 부대 전체의 도착은 늦어진다.
+In the work the actual march from crossing to delivery is about 240 kilometers, not straight-line distance, including detours and ascents and descents on narrow paths. About two weeks to delivery on the sixth day of the second lunar month gives an average of about 17–19 kilometers a day. Do not make the entire route a pathless cliff. It connects routes local residents can use, but a large column and loads require clearing the way and moving in divisions. Even if a steep section is passed quickly, the whole force arrives late if loads behind cannot get over it.
 
-고구려는 적의 진입 가능성이 높은 도로와 나루, 성의 길을 감시한다. 우회 험로는 겨울의 대규모 운반에 쓸 수 없다고 보는 사각이 있다. 모든 주민과 모든 군관이 그런 길의 존재 자체를 몰랐다는 설정은 아니다. 작은 정찰대가 다닐 수 있는 길을 수송대가 실제로 통과하리라고 예상하지 못한 판단이다. 앞선 정찰과 산길 통과를 보고해도 처음에는 작은 부대의 이동으로 읽을 수 있다.
+Goguryeo watches roads, ferries, and fortress routes where enemy entry is likely. A blind spot assumes the difficult detour cannot be used for large winter transport. This does not mean every resident and officer was unaware the paths existed. The judgment failed to anticipate that a transport party would actually pass where small scouts could travel. Even reports of earlier scouting and mountain passage may initially be read as a small force’s movement.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『삼국사기』 칠중하 도하](https://db.history.go.kr/item/compareViewer.do?levelId=sg_042_0020_0330), [문무왕 답서 주석의 2월6일 전달과 양오 비정](https://db.history.go.kr/ancient/level.do?levelId=sg_007r_0020_0103).
+Sources: [Crossing the Chiljungha, Samguk Sagi](https://db.history.go.kr/item/compareViewer.do?levelId=sg_042_0020_0330), [delivery on the sixth day of the second month and Yango’s location, annotation to King Munmu’s reply](https://db.history.go.kr/ancient/level.do?levelId=sg_007r_0020_0103).

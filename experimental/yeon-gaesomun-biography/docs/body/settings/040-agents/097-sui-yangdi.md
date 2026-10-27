@@ -1,17 +1,17 @@
-# 침공을 되풀이한 수양제
+# Emperor Yang of Sui’s repeated invasions
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--097-sui-yangdi).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--097-sui-yangdi).
 
-## 침공을 되풀이한 수양제 {#sui-yangdi}
+## Emperor Yang of Sui’s repeated invasions {#sui-yangdi}
 
-**정의·범위**
+**Definition and scope**
 
-수양제는 612~614년 반복 원정의 최종 권한자다.
+Emperor Yang of Sui held ultimate authority over the repeated expeditions of 612–614.
 
-**확정 내용**
+**Established facts**
 
-고건무에게는 상대 나라가 혼란해도 침공을 멈추지 않는 능력과 집착을 보여 준 군주이며, 개소문 세대에게는 고구려가 대군을 꺾은 영웅담의 패자다. 현재 예정 서사에서 고건무의 경험과 보고를 통해 등장하고 수의 궁정 독립 장면이나 직접 내면은 없다. 얼굴과 개인 목소리를 복원하지 않는다. 상대의 모든 결정을 수양제 한 명의 광기라고 정전으로 단순화하지 않고 동원과 현장 군사의 별도 조건을 유지한다.
+To Go Geonmu, he is a ruler who showed the ability and obsession to continue invading even when his own country was in turmoil; to Gaesomun’s generation, he is the defeated enemy in the heroic story of Goguryeo’s victory over a vast army. The currently planned narrative presents him through Go Geonmu’s experience and reports, with no separate Sui court scene or direct access to his thoughts. Do not reconstruct his face or personal voice. Do not simplify all the opposing side’s decisions into one emperor’s madness; preserve the separate conditions of mobilization and the soldiers in the field.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『삼국사기』 수의 출정 조서](https://db.history.go.kr/ancient/level.do?levelId=sg_020_0020_0220), [614년 항복 요청과 철군](https://db.history.go.kr/ancient/level.do?levelId=sg_020r_0020_0360).
+Sources: [Sui’s expedition edict, Samguk Sagi](https://db.history.go.kr/ancient/level.do?levelId=sg_020_0020_0220), [the 614 surrender request and withdrawal](https://db.history.go.kr/ancient/level.do?levelId=sg_020r_0020_0360).

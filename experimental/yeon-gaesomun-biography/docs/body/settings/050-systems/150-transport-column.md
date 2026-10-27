@@ -1,19 +1,19 @@
-# 지휘가 통과시켜야 할 대열
+# The column command must bring through
 
-정전 안내: [이 대상의 위치](../outline/index.md#050-systems--150-transport-column).
+Canon guide: [Location of this subject](../outline/index.md#050-systems--150-transport-column).
 
-## 지휘가 통과시켜야 할 대열 {#transport-column}
+## The column command must bring through {#transport-column}
 
-**정의·범위**
+**Definition and scope**
 
-수송대는 작품에서 전투 인력 1만과 운반·길 정리 인력 2만, 짐을 지는 가축과 수레가 섞인 대열로 구성한다. 신라 쪽 기록은 수레 2천여 대를 전한다. 이는 실제 신라군 총수가 확정되었다는 주장이 아니라 대규모 수송을 집필할 작품 값이다. 국편 주석이 소개하는 장군당 병력을 통한 약1만5천 추정과도 구별한다. 작품의 3만은 군사 외의 운반 노동까지 포함하여 사용한다. 모든 인원을 동시에 한 산길에 넣지 않는다. 선두는 다음 통과 지점과 적을 확인하고, 운반대는 묶음으로 출발하며, 후위는 떨어진 짐과 사람을 거둔다.
+The work composes the transport column of 10,000 combat personnel and 20,000 carriers and road-clearing workers, with pack animals and carts. A Silla record reports over 2,000 carts. This is a work-specific value for writing large transport, not a claim that the actual Silla army total is established. It is distinct from the estimate of about 15,000 based on troops per general introduced in the National Institute of Korean History annotation. The work’s 30,000 includes transport labor beyond soldiers. Do not put everyone on one mountain road at once. The lead checks the next passage and enemy; carriers depart in groups; the rear collects people and loads left behind.
 
-**확정 내용**
+**Established facts**
 
-폭이 좁아지는 곳에서는 수레의 짐을 풀어 사람과 가축으로 나누어 옮기고 반대편에서 다시 묶는다. 한 묶음이 멈췄다고 뒤의 모든 사람이 사정을 아는 것은 아니다. 앞선 군관은 통과한 묶음과 아직 못 온 묶음을 구별해 보고하고, 쉬어야 할 사람과 계속 갈 사람을 다시 나눈다. 김유신의 능력은 이런 과정이 여러 날 끊기지 않게 하는 일로 구성한다.
+Where the route narrows, cart loads are unpacked and divided among people and animals, then bound again on the other side. One stopped group does not mean everyone behind knows why. Forward officers report separately on groups through and still missing, then redistribute people needing rest and those able to continue. The work constructs Kim Yusin’s ability as keeping this process unbroken for days.
 
-작품의 운반 자루는 한 사람이 들거나 등에 질 수 있는 크기로 나누며, 큰 물량의 행정 단위인 섬과 자루 한 개를 같은 값으로 부르지 않는다. 자루 형상은 물건 정전에서 확인한다. 섬은 국편이 소개하는 통일 전 신라 양제의 1승200mL·10승1두·10두1석이라는 복원, 곧 1석20L를 작품의 용적 가정으로 채택한다. 이는 662년 현장에서 실측된 단위가 아니다. 본편에서 현대 트럭 수나 도정률을 확정한 총중량을 산출하지는 않는다. 작업을 보여 줄 때는 무게를 들어 올리는 실제 행동과 자루 묶음, 짐을 풀고 옮길 사람의 수를 사용한다.
+The work divides carrying sacks into sizes one person can lift or shoulder; it does not equate a large administrative volume unit, the seom, with one sack. Object canon owns the sack’s form. For seom, the work adopts the National Institute of Korean History reconstruction of pre-unification Silla measures: one seung is 200 mL, ten seung one du, ten du one seok, so one seok is 20 L. This was not measured at the site in 662. The main story does not calculate a total weight based on modern truck counts or a fixed milling rate. To show work, use actual lifting, bundles of sacks, and numbers needed to unpack and carry loads.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『삼국사기』 김유신전 주139의 병력·도량형 복원설](https://db.history.go.kr/ancient/level.do?levelId=sg_042r_0020_0320).
+Sources: [Reconstruction of troop strength and measures, note 139 to Kim Yusin’s biography, Samguk Sagi](https://db.history.go.kr/ancient/level.do?levelId=sg_042r_0020_0320).

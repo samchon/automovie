@@ -1,17 +1,17 @@
-# 고휘의 아내가 가진 이동의 책임
+# Go Hwi’s wife and responsibility for the journey
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--110-go-hwi-wife).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--110-go-hwi-wife).
 
-## 고휘의 아내가 가진 이동의 책임 {#go-hwi-wife}
+## Go Hwi’s wife and responsibility for the journey {#go-hwi-wife}
 
-**정의·범위**
+**Definition and scope**
 
-고휘의 아내는 661년 늦봄 마흔 안팎의 창작 인물이며 이름을 부르지 않는 현재 서사의 독립 참여자다. 아홉 살 딸과 짐의 이동을 직접 정한다.
+Go Hwi’s wife is an invented character around forty in late spring 661 and an independent participant in the current narrative, unnamed in address. She personally decides how her nine-year-old daughter and the baggage travel.
 
-**확정 내용**
+**Established facts**
 
-남편의 등록 수비원 셋을 호위로 쓸 권한은 없다. 비등록 수행원 둘은 강 건너 처가 길을 알지만 무장 호위가 아니다. 옷·식량과 감출 수 있는 재물을 우선하며 남긴 비단·패물을 전후 되찾으리라는 보장은 없다. 남편의 피난 의향이 아내 자신의 위험 판단을 대신하지 않는다.
+She has no authority to use her husband’s three registered defenders as escorts. Two unregistered attendants know the road to her family across the river, but are not armed guards. She gives priority to clothing, food, and valuables she can conceal; there is no guarantee that she will recover the silk and jewelry left behind after the war. Her husband’s wish to evacuate does not replace her own assessment of risk.
 
-키 약 162cm, 넓은 이마와 굵은 손마디, 낮게 묶은 머리와 걷은 소매가 특징이다. 중간 음역의 맑고 단단한 목소리로 사람·수레 순서를 천천히 정한다. 형상과 말씨는 작품의 창작 값이다.
+She is about 162 centimeters tall, with a broad forehead, prominent knuckles, hair tied low, and sleeves rolled up. In a clear, firm middle-register voice, she slowly decides the order of people and carts. Her appearance and manner of speech are invented.
 
-참조: 출발 주저·짐 선택·손수레 출발의 사건은 해당 전역의 treatments가 맡고, 길은 [동문 통로](../060-places/040-pyongyang-east-route.md#pyongyang-east-route)가 소유한다.
+Reference: the campaign treatments own the hesitation to depart, choice of baggage, and departure of the handcart; [the east gate route](../060-places/040-pyongyang-east-route.md#pyongyang-east-route) owns the route.

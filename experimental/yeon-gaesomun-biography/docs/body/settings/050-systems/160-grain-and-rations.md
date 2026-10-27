@@ -1,19 +1,19 @@
-# 전달할 식량과 자기 식량
+# Food for delivery and food for the carriers
 
-정전 안내: [이 대상의 위치](../outline/index.md#050-systems--160-grain-and-rations).
+Canon guide: [Location of this subject](../outline/index.md#050-systems--160-grain-and-rations).
 
-## 전달할 식량과 자기 식량 {#grain-and-rations}
+## Food for delivery and food for the carriers {#grain-and-rations}
 
-**정의·범위**
+**Definition and scope**
 
-신라가 보내는 군량은 수레 2천여 대에 실은 쌀4천석과 조(租)2만2천여석의 기록 규모를 사용한다. 여기의 조는 곡물 조세를 뜻하는 글자이며 기장이나 좁쌀을 가리키는 조(粟)와 같지 않다. 작품은 쌀과 벼를 운반하는 것으로 구성한다. 신라본기는 벼2만2천여석, 열기전은 조2만2천250석을 적어 합계2만6천250석이 된다. 김인문전의 조는 곡(斛)으로 표기되는 차이도 있다. 작품의 전체 전달 목표는 약2만6천석으로 두고 각 기록을 설명할 때는 해당 표기를 유지한다. 이를 당의 정확한 잔류 인원과 곱해 며칠분이라고 확정하지 않는다.
+The provisions Silla sends use the recorded scale of 4,000 seok of rice and over 22,000 seok of jo (租) in over 2,000 carts. Here jo is the character for grain tax, not the different jo (粟) meaning millet. The work constructs transport of rice and paddy rice. The Silla annals record over 22,000 seok of paddy rice; Yeolgi’s biography records 22,250 seok of jo, totaling 26,250 seok. Kim Inmun’s biography also differs in expressing jo in gok (斛). The work sets an overall delivery target of about 26,000 seok, retaining each record’s wording when explaining it. Do not multiply this by an exact Tang remaining strength and assert a number of days.
 
-**확정 내용**
+**Established facts**
 
-수송대는 당에 줄 군량과 자기들이 먹을 양식을 구별한다. 전달품을 온전히 남기려고 개인 양식을 아끼면 군사의 몸이 먼저 상한다. 잃어버린 짐과 죽거나 움직이지 못하는 가축이 생기면 무엇을 버릴지 다시 골라야 한다. 전달품을 한 줌도 먹지 않고 모든 군사가 똑같이 굶었다는 단순한 규율은 두지 않는다. 지휘부가 급한 상황에서 일부를 돌려 먹이더라도 최종 전달은 적의 포위를 풀고 철수할 수 있는 여력을 주는 실질적 성과다.
+The party distinguishes Tang’s provisions from its own food. Saving personal rations to preserve every delivery load first damages soldiers’ bodies. Lost loads and animals dead or unable to move require new choices of what to leave. Do not impose a simple rule that no one eats a handful of the delivery and all soldiers starve equally. Even if command diverts some food in an emergency, the final delivery is a substantial achievement that lets the besieging enemy lift the siege and withdraw.
 
-군량이 닿는 날은 신라본기가 직접 적은 2월 6일을 [기록 일정](../020-world/030-second-war-calendar.md#second-war-calendar)에서 채택한다. 같은 기사가 군량 수령에 곧 이은 철수를 적는다는 사실과 작품의 사수 뒤 철수는 구별하며, 그 충돌과 채택 순서는 달력이 소유한다. 포위군이 배에 사람과 장비를 모아 나가는 데에는 시간이 필요하다. 작품에서는 포위 병력이 한꺼번에 사라지는 순간이 아니라 여러 진의 철수 가능 시간이 다르게 열리는 것으로 사용한다. 소정방이 언제 무엇을 결정하는지와 받은 군량이 다른 진에 어디까지 닿는지는 해당 전역의 treatments가 정한다.
+[The recorded calendar](../020-world/030-second-war-calendar.md#second-war-calendar) adopts delivery on the sixth day of the second month directly recorded in the Silla annals. Distinguish that account’s withdrawal immediately following receipt from the work’s withdrawal after the Sasu; the calendar owns the conflict and adopted order. Besiegers need time to gather people and equipment onto ships. The work opens different withdrawal opportunities for several camps, rather than having the whole siege force vanish at once. Campaign treatments decide when Su Dingfang decides what and how far the received provisions reach other camps.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『삼국사기』 신라본기 군량과 수레](https://db.history.go.kr/item/compareViewer.do?levelId=sg_006_0020_0160), [열기전의 군량](https://db.history.go.kr/common/compareViewer.do?levelId=sg_047_0100_0030&type=ancient), [김유신전 주139의 기사 대조](https://db.history.go.kr/ancient/level.do?levelId=sg_042r_0020_0320).
+Sources: [Provisions and carts, Silla annals, Samguk Sagi](https://db.history.go.kr/item/compareViewer.do?levelId=sg_006_0020_0160), [provisions in Yeolgi’s biography](https://db.history.go.kr/common/compareViewer.do?levelId=sg_047_0100_0030&type=ancient), [comparison of accounts, note 139 to Kim Yusin’s biography](https://db.history.go.kr/ancient/level.do?levelId=sg_042r_0020_0320).

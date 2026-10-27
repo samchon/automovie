@@ -1,20 +1,17 @@
-# 평양 경당의 아이들
+# Children at the Pyongyang Gyeongdang
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--116-gyeongdang-children).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--116-gyeongdang-children).
 
-## 평양 경당의 아이들 {#gyeongdang-children}
+## Children at the Pyongyang Gyeongdang {#gyeongdang-children}
 
-**정의·범위**
+**Definition and scope**
 
-평양 경당의 아이들은 개소문과 함께 그 경당에 다니는 혼인 전의 아이와 청소년 스무 명 안팎이다. 여섯 살 무렵부터 열여섯 살 무렵까지로, 귀족의 아이 몇과 수공업·운반·장사를 하는 평민 집의 아이들이 섞여 있다. 이들은 함께 읽고 활을 쏘며, 실력에 따라 순서와 별명을 주고받는 한 집단으로 움직인다. 작품에서 창작한 집단이다.
+The children at Pyongyang’s Gyeongdang are about twenty unmarried children and adolescents attending with Gaesomun. They range from around six to sixteen, mixing a few nobles’ children with children of common households engaged in crafts, transport, and trade. They read and shoot bows together, moving as a group that trades places in order and nicknames according to skill. This group is invented for the work.
 
-**확정 내용**
+**Established facts**
 
+The children argue over turns reading aloud and shooting, follow the skilled, and tease those who do poorly. Nobles’ children keep the same order in the yard, though their good bows and clothing from home are visible. Most nobles’ children leave after ten for Taehak or household education; common children remain until marriage or military service.
 
-아이들은 소리 내어 읽기와 활쏘기의 차례를 두고 다투고, 잘하는 아이를 따라다니며 못하는 아이를 놀린다. 귀족의 아이도 마당에서는 같은 차례를 지키지만, 집에서 가져온 좋은 활과 옷차림은 숨기지 못한다. 귀족의 아이는 대개 열 살을 넘기면 태학이나 집안의 교육으로 옮겨 가고, 평민의 아이는 혼인하거나 군역에 나갈 때까지 남는다.
+Common children wear undyed gray-brown or light tawny cloth with cord belts; nobles’ children wear dark reddish-brown cloth and dark sashes. Their shared use of Gyeongdang bows and arrows with worn fletching marks the group.
 
-
-평민 아이들은 염색하지 않은 회갈색이나 옅은 황갈색 천옷에 끈 띠를 매고, 귀족의 아이는 짙은 적갈색 천옷에 먹빛 띠를 두른다. 모두 경당의 공동 활과 깃이 닳은 화살을 함께 쓰는 것이 이 집단의 표지다.
-
-
-한 아이에게 따로 말과 선택, 다침이나 원한이 생기면 그 아이는 이 집단과 구분되는 독립 인물이 된다. [을보](115-eulbo.md#eulbo)는 이미 그렇게 나뉜 아이다.
+If a child has separate speech and choices, injury, or resentment, that child becomes an individual distinct from the group. [Eulbo](115-eulbo.md#eulbo) is already distinguished in this way.

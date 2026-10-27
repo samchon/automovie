@@ -1,17 +1,17 @@
-# 고구려 밖에서 당군의 뒤를 지킨 집실사력
+# Zhishi Sili guards the Tang rear beyond Goguryeo
 
-정전 안내: [이 대상의 위치](../outline/index.md#040-agents--057-zhishi-sili).
+Canon guide: [Location of this subject](../outline/index.md#040-agents--057-zhishi-sili).
 
-## 고구려 밖에서 당군의 뒤를 지킨 집실사력 {#zhishi-sili}
+## Zhishi Sili guards the Tang rear beyond Goguryeo {#zhishi-sili}
 
-**정의·범위**
+**Definition and scope**
 
-집실사력은 645년 금산도에서 설연타를 견제한 당의 유목계 지휘자다.
+Zhishi Sili was a Tang commander of nomadic origin who checked the Xueyantuo on the Jinshan route in 645.
 
-**확정 내용**
+**Established facts**
 
-같은 시각 고구려 회전 현장에 세워 놓지 않는다. 이 인물이 맡은 북방 전선은 당이 요동에 집중해도 모든 북방 병력을 비워 두지는 않았음을 설명하는 보고의 내용이다. 현재 예정 서사에서 직접 대사나 개인 회상 장면을 갖지 않으므로 실제 얼굴과 목소리의 창작 복원을 하지 않는다. 이름을 아사나 왕족의 다른 표기로 합치지 않는다.
+Do not place him at a pitched battle in Goguryeo at the same time. Reports of his northern front explain that Tang did not empty all its northern forces while concentrating on Liaodong. He has no direct dialogue or personal recollection in the currently planned narrative, so do not invent a reconstruction of his face or voice. Do not merge his name with another name for an Ashina royal.
 
-**참조·미결**
+**References and unresolved matters**
 
-Sources: [『신당서』 권110 집실사력전](https://zh.wikisource.org/zh-hant/新唐書/卷110).
+Sources: [Biography of Zhishi Sili, New Book of Tang vol. 110](https://zh.wikisource.org/zh-hant/新唐書/卷110).

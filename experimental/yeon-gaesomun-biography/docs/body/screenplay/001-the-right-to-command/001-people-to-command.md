@@ -1,392 +1,392 @@
 
-# 사람을 맡는 자리
+# The responsibility of command
 
-## 끝내 반대한 사람 {#t001-report-at-court}
+## The man who opposed him to the end {#t001-report-at-court}
 
-제작자용 구획 표기.
+Section labels for producers.
 
-《대막리지》 최종 시청각 대본 · 제1부
+*Daemangniji* final audiovisual script · Part 1
 
-발화자 이름 뒤는 현장 발화, 역사가·내면은 관객 전용 음성이다. 화면 밖 현장 발화에는 실제 청자를 적는다. 별도 지시 없는 날짜는 관객용 화면 글이다. 몸과 소지품의 상태는 다음 행동으로 이어진다. 낮 자연광과 밤 등불이 기본이며, 인과에 쓰는 기상은 해당 장면에서 지정한다.
+Names before dialogue indicate speech heard in the scene; historian and inner voices are for the audience alone. For off-screen speech heard in the scene, identify the actual listener. Dates without other direction are on-screen text for the audience. Bodies and possessions carry their state into subsequent action. Natural light by day and lamps by night are the default; weather used causally is specified in the scene.
 
-[사건 부모](../../../body/treatments/001-six-roads.md#report-at-court) · [장면 부모](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t001-report-at-court)
+[Event parent](../../../body/treatments/001-six-roads.md#report-at-court) · [Scene parent](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t001-report-at-court)
 
-평양 회의당, 낮. 화면 글 ‘661년 늦봄’. 개소문이 요동에서 온 보고를 탁자에 편다. 문서 소리가 멎은 뒤 그가 왕에게 말한다. 상석에는 성인 보장왕, 곁에는 남생, 뒤에는 남건과 남산이 있다. 화면 글 ‘남생 · 개소문의 맏아들, 막리지’.
+Pyongyang council hall, day. On-screen text: “Late spring 661.” Gaesomun opens a report from Liaodong on the table. Once the paper stops moving, he speaks to the king. Adult King Bojang sits at the head, Namsaeng beside him, Namgeon and Namsan behind. On-screen text: “Namsaeng · Gaesomun's eldest son, mangniji.”
 
-**개소문**　백제 왕도는 무너졌으나 부흥군이 되찾은 성은 남아 있습니다. 이번 요동 보고에는 당이 여섯 방면 총관을 두고 서른다섯 군을 준비한다고 적혀 있습니다.
+**GAESOMUN**　Baekje's capital has fallen, but fortresses recovered by the restoration army remain. This Liaodong report says Tang has appointed commanders for six fronts and is preparing thirty-five armies.
 
-**보장왕**　이미 떠난 군사인가?
+**BOJANG**　Have the troops already departed?
 
-**개소문**　만 명씩으로 어림하면 삼십오만입니다. 다만 지금 문서에 있는 것은 서른다섯 군이라는 편성뿐입니다. 몇이 길을 나섰는지, 어디로 올지는 보고가 없습니다.
+**GAESOMUN**　At ten thousand each, we estimate three hundred fifty thousand. But the document gives only the organization into thirty-five armies. It does not report how many have left or which routes they'll take.
 
-고휘가 문서 가까이 온다.
+Go Hwi comes closer to the document.
 
-**고휘**　중앙군까지 내보내서는 안 됩니다. 여섯 갈래 중 하나를 받는 데도 우리 야전 병력을 다 써야 합니다.
+**GO HWI**　We must not send even the central army out. We'd need all our field troops to face just one of the six columns.
 
-**개소문**　서로 돕지 못하게 한 뒤 하나씩 칠 것이오. 여섯 모두.
+**GAESOMUN**　We'll stop them helping one another, then strike one at a time. All six.
 
-**고휘**　요동의 구원군은 사만이었습니다. 맞은편 사천을 밀어 놓고도 이세적의 증원이 닿자 패했습니다.
+**GO HWI**　The Liaodong relief force had forty thousand. Even after driving back four thousand opposite them, they lost when Li Shiji's reinforcements arrived.
 
-고휘가 보고 쪽으로 한 걸음 더 온다.
+Go Hwi steps closer to the report.
 
-**고휘**　주필산의 육만도 졌습니다. 저는 거기서 살아 돌아왔습니다. 귀단수에서도 적은 수만 보고 나갔고, 또 졌습니다. 이번에도 지면 이 군사까지 잃습니다. 그 뒤 평양을 지킬 사람을 어디서 데려오시겠습니까?
+**GO HWI**　The sixty thousand at Jupilsan lost too. I came back alive from there. At Gwidansu we saw only a small force and went out—and lost again. If we lose this time, we lose these soldiers too. Where will you find people to defend Pyongyang afterward?
 
-왕이 입을 연다. 고휘는 개소문을 보고 있다. 왕의 손끝이 보고를 누른다. 말을 기다리는 방 안에서 종이 구겨지는 소리가 난다.
+The king opens his mouth. Go Hwi looks at Gaesomun. The king's fingertips press the report. In the waiting room, paper crumples.
 
-## 봄 전에 끝내야 하는 전쟁 {#t001-unconsented-decision}
+## A war that must end before spring {#t001-unconsented-decision}
 
-[사건 부모](../../../body/treatments/001-six-roads.md#unconsented-decision) · [장면 부모](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t001-unconsented-decision)
+[Event parent](../../../body/treatments/001-six-roads.md#unconsented-decision) · [Scene parent](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t001-unconsented-decision)
 
-고휘는 보고에서 손을 떼고 방 안의 사람들에게도 묻는다.
+Go Hwi takes his hand off the report and asks the others in the room too.
 
-**고휘**　적이 지친 줄은 누가 알아냅니까? 성이 먼저 무너지면요? 지방군이 그날까지 못 오면요? 한 번 늦고 한 번 지면, 다른 갈래 적이 평양까지 옵니다. 그래도 내보내시겠습니까?
+**GO HWI**　Who will know when the enemy is exhausted? What if a fortress falls first? What if local troops can't arrive by that day? One delay, one defeat, and another enemy column reaches Pyongyang. Will you still send them out?
 
-**개소문**　성과 강으로 붙들어야 하오. 경기병에게 적의 짐과 전령을 끊게 하겠소. 우리 연락은 그들이 잇고. 그동안 내가 기병을 옮겨 현지 보병과 합쳐 치겠소.
+**GAESOMUN**　We must hold them with fortresses and rivers. I'll have light cavalry cut their supplies and messengers, while maintaining our own communications. Meanwhile I'll move cavalry and strike with local infantry.
 
-**고휘**　지금 내보낼 말과 갑옷이 마지막입니다. 다음 싸움에 쓸 몫을 다시 갖출 수 없습니다.
+**GO HWI**　The horses and armor we'd send now are the last. We can't replace them for the next battle.
 
-**개소문**　알고 거는 것이오. 성에 넣어 두어도 들은 비고 군량은 줄어드오. 여름부터 묶인 농사를 가을에도 못 거두고 겨울을 넘겨 보시오. 그다음 봄에 무엇을 심겠소? 적이 흩어져 힘을 쓴 다음에는 우리가 먼저 붙어야 하오. 다음 파종을 빼앗기기 전에 끝내겠소.
+**GAESOMUN**　I know the stake. Keep them inside and the fields still empty and provisions dwindle. Imagine farming blocked from summer through the harvest and winter. What do we plant the next spring? Once the enemy is scattered and spent, we must engage first. I'll finish before they take the next sowing.
 
-서북 변경에 사람과 땅을 둔 귀족이 자기 곁의 해안 가문 사람을 본다.
+A noble with people and land on the northwestern frontier looks at a coastal family member beside him.
 
-**서북 귀족**　가서 고쳐 놓으면 또 들어와 쟁기를 놓게 합니다. 저대로는 끝이 없습니다. 결판은 내야겠소.
+**NORTHWESTERN NOBLE**　We go back and repair things, then they come again and make us leave our plows. It won't end like this. We have to settle it.
 
-**해안 귀족**　모이는 날에 다 모일 수 있을지는 여전히 모르겠소.
+**COASTAL NOBLE**　We still don't know whether everyone can assemble on the day.
 
-**고휘**　성에서 말라 가는 것을 몰라서 드리는 말이 아닙니다. 들에서는 더 빨리 망합니다. 저는 찬성할 수 없습니다.
+**GO HWI**　I'm not speaking because I don't know what starving inside a fortress means. In the field we perish faster. I cannot agree.
 
-개소문이 남생 앞에 명령 문서를 놓는다. 고휘는 물러서지 않는다.
+Gaesomun places an order before Namsaeng. Go Hwi does not yield.
 
-**개소문**　결전으로 정한다. 각 성이 남길 수비와 합칠 몫부터 받아라.
+**GAESOMUN**　We decide on battle. First obtain each fortress's share for defense and for joining us.
 
-남생이 문서를 들고 출입구로 간다. 그 뒤에 남은 고휘와 개소문이 마주 본다.
+Namsaeng takes the document to the doorway. Go Hwi and Gaesomun face one another behind him.
 
-## 아무에게도 들리지 않은 말 {#t001-unheard-address}
+## Words no one heard {#t001-unheard-address}
 
-[사건 부모](../../../body/treatments/001-six-roads.md#unheard-address) · [장면 부모](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t001-unheard-address)
+[Event parent](../../../body/treatments/001-six-roads.md#unheard-address) · [Scene parent](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t001-unheard-address)
 
-같은 날 밤, 연씨 집무방. 등불 곁에 요동 보고를 둔 개소문이 앉아 있다. 문이 닫힌다. 빈 맞은편을 보는 얼굴 가까이에서 방의 소리가 낮아진다. 입을 움직이지 않는 개소문의 내면을 관객만 듣는다.
+That night, Yeon office. Gaesomun sits with the Liaodong report beside a lamp. The door closes. Close on his face looking at the empty seat opposite; room sounds soften. Only the audience hears his thoughts; his lips do not move.
 
-**개소문 내면**　폐하, 이 일을 제가 맡았습니다. 이제는 왜 그리 오래 붙들고 계셨는지 알겠습니다. 그래도 같은 방법으로 기다릴 수는 없습니다. 다음 봄까지 빼앗기게 둘 수는 없습니다.
+**GAESOMUN (INNER VOICE)**　Your Majesty, this task is mine now. I understand why you held on so long. But I cannot wait the same way. I cannot let them take the next spring too.
 
-빈 맞은편에 등불이 비친다. 개소문의 내면이 끝나자 방 안의 소리가 돌아온다.
+Lamplight falls on the empty seat. As his inner voice ends, room sound returns.
 
-**역사가**　저 말의 상대는 그가 제 손으로 죽인 임금이었다.
+**HISTORIAN**　The king he addressed was the man he had killed with his own hand.
 
-등불 곁의 보고에서 어두운 출입구로 시선이 옮겨 간다. 그 어둠 위로 갓난아이 우는 소리가 먼저 들어온다.
+The view moves from the report by the lamp to the dark doorway. A newborn's cry enters over the darkness first.
 
-## 출생을 세는 집과 돌아오지 않은 사람 {#t002-birth-after-war}
+## A house counting a birth and a man who has not returned {#t002-birth-after-war}
 
-[사건 부모](../../../body/treatments/002-child-after-war.md#birth-after-war) · [장면 부모](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t002-birth-after-war)
+[Event parent](../../../body/treatments/002-child-after-war.md#birth-after-war) · [Scene parent](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t002-birth-after-war)
 
-화면 글 ‘614년’. 가족 거처에서 아이가 운다. 군무를 처리하는 집무채는 그 방 밖에 따로 있다. 안쪽에서 산모 곁을 돌보는 손이 아이를 받친다. 태조는 문턱에서 소식을 듣고 웃는다. 그가 물러나자 집 밖에서 기다리던 사람이 미귀환 인력과 장비를 묻는다. 태조가 사람 이름을 하나씩 확인한다.
+On-screen text: “614.” A child cries in the family quarters. The office handling military work is separate outside that room. Inside, hands caring for the mother support the child. Taejo hears the news at the threshold and smiles. As he steps back, someone waiting outside asks about missing personnel and equipment. Taejo checks names one by one.
 
-**태조**　돌아왔다는 것과 떠날 때 실렸다는 것을 갈라 적게. 사람부터.
+**TAEJO**　Record who returned separately from what was loaded at departure. People first.
 
-서류의 다음 이름을 확인하는 태조 위로 역사가의 관객 전용 음성이 들어온다.
+The historian's audience-only voice enters over Taejo checking the next name.
 
-**역사가**　598년에는 외교로 전쟁을 수습했다. 612년에는 다시 왔다. 큰 군대를 물리친 뒤에도 613년이 왔고, 수나라 안의 반란이면 끝이리라던 기대 뒤에는 614년이 왔다. 이백만이라는 위협까지 전해 듣던 사람들이었다.
+**HISTORIAN**　In 598 diplomacy settled the war. In 612 they came again. Even after the great army was defeated, 613 came; after hopes that rebellion within Sui would end it, 614 came. These people had heard a threat of two million.
 
-태조가 물러서자 장비를 치우는 사람이 그 앞을 지나간다.
+As Taejo steps away, a person clearing equipment passes him.
 
-**역사가**　수나라가 징발에 허비한 시간만큼 고구려의 남은 힘도 닳았다. 비사성 쪽 패전 뒤 고구려는 곡사정을 내보내고 항복 의사를 전했다. 내호아는 피폐한 상대를 그대로 놓아줄 수 없다며 공격을 주장했다. 양제가 택한 것은 항복의 수락과 회군 명령이었다. 회군 명령 뒤에도 돌아오지 않은 사람들이 있었다.
+**HISTORIAN**　While Sui lost time to its levies, Goguryeo's remaining strength wore away too. After defeat toward Bisaseong, Goguryeo sent Gok Sajeong out and conveyed an offer to surrender. Lai Hu'er argued they could not let an exhausted opponent go and urged attack. Emperor Yang chose to accept surrender and order withdrawal. Even after that order, some people did not return.
 
-안에서 다시 아이가 운다. 태조는 이름을 확인하던 일을 끝낸 뒤에야 고개를 돌린다.
+The child cries inside again. Taejo turns only after finishing his check of names.
 
-## 문밖에서 고른 아버지의 말 {#t002-hero-becomes-king}
+## A father's words chosen from outside the door {#t002-hero-becomes-king}
 
-[사건 부모](../../../body/treatments/002-child-after-war.md#hero-becomes-king) · [장면 부모](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t002-hero-becomes-king)
+[Event parent](../../../body/treatments/002-child-after-war.md#hero-becomes-king) · [Scene parent](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t002-hero-becomes-king)
 
-화면 글 ‘618년 가을’. 평원왕의 아들 영양왕이 죽고 그 아우 고건무가 왕이 되었다는 소식이 집에 닿는다. 어린 개소문은 죽은 왕의 이름보다 새 왕의 이름에 먼저 반응한다.
+On-screen text: “Autumn 618.” News reaches the house that King Yeongyang, Pyeongwon's son, has died and his brother Go Geonmu is king. Young Gaesomun reacts to the new king's name before the dead king's.
 
-**개소문**　그 싸움에서 이긴 분이지요?
+**GAESOMUN**　The one who won that battle?
 
-**태조**　네가 듣던 그분이다. 앞에서 군사를 이끄셨지.
+**TAEJO**　The very one you've heard about. He led the soldiers from the front.
 
-아이가 태조 쪽으로 몸을 당긴다. 태조가 부르는 새 왕의 이름에 귀를 둔 아이를 떠나 집무채 밖 일손으로 간다. 집 안의 말소리가 멀어지고 관객에게만 역사가의 음성이 들린다.
+The child draws toward Taejo. Leave the boy listening to the name of the new king as Taejo says it and move to workers outside the office. House voices recede; only the audience hears the historian.
 
-**역사가**　추군과 세군이 왕위를 다툴 때, 세군 쪽에서 이천이 죽었다. 이 극에서는 모두 귀족이다. 가문들이 혼인하고 군사와 물자를 모으던 연결도 그들과 함께 끊겼다. 북쪽의 자원과 권리는 돌궐에 넘어갔고, 남쪽에서는 신라와 백제에 기반을 잃었다. 국내성의 어떤 집은 그때 왕가에게 버림받았다는 기억을 지우지 않았다. 왕실이 기억한 것은 마음대로 움직인 군대의 난리였다. 평원왕과 영양왕이 다시 협력을 구한 이들은 그 서로 다른 기억을 가진 사람들이었다.
+**HISTORIAN**　When Chugun and Segun fought over the throne, two thousand died on Segun's side. In this drama all were nobles. With them broke the connections through which families married and assembled troops and supplies. Northern resources and rights passed to the Turks; in the south they lost their base to Silla and Baekje. Some Gungnaeseong households never forgot being abandoned by the royal house. The royal house remembered the turmoil of armies acting beyond control. Pyeongwon and Yeongyang sought renewed cooperation from people carrying those different memories.
 
-밖의 일손이 이어지는 사이 계절을 건너 겨울 집무채로 들어간다. 태조와 석우가 손님 자리에 마주 앉아 있다. 방의 말은 아직 들리지 않는다.
+As work outside continues, pass through the season into the office in winter. Taejo and Seogu sit opposite as guests. Their words are not yet audible.
 
-**역사가**　서쪽에서는 북주와 북제가 돌궐의 도움을 얻으려 혼인과 재물을 다투었다. 북주 무제는 북중국의 사람과 군사를 묶었고 수문제는 그 기반으로 통일 왕조를 세웠다. 중국을 다시 묶을 바탕을 다진 두 군주의 역량이었다. 고구려에는 커진 서방을 경계하면서 남쪽 요새 너머의 점령지를 계속 지켜야 하는 부담도 남았다. 평원왕과 영양왕은 동방으로 교역과 보호, 교육을 넓혀 사람과 물자의 기반을 구했다.
+**HISTORIAN**　In the west Northern Zhou and Northern Qi competed with marriages and wealth for Turkic help. Emperor Wu of Northern Zhou united northern China's people and troops, and Emperor Wen of Sui built a unified dynasty on that foundation. Two rulers had laid the groundwork to bring China together again. Goguryeo still bore the burden of guarding against a stronger west and holding occupied land beyond southern fortresses. Pyeongwon and Yeongyang expanded trade, protection, and education east to secure people and resources.
 
-방문 밖의 아이가 태조의 움직이는 손을 본다. 어른들의 입이 움직이지만 말은 아직 들리지 않는다.
+Outside the door, the boy watches Taejo's moving hand. The adults' mouths move, but their words are not yet heard.
 
-**역사가**　영양왕 때 영향권이 가장 넓었다는 후세의 평가는 동방까지 넣은 넓이다. 한강을 잃은 뒤였다. 가장 많은 사람과 곡식을 가졌다는 평가는 아니었다.
+**HISTORIAN**　The later assessment that Yeongyang's sphere was widest counts the east. It came after the Han River was lost. It does not mean he had the most people and grain.
 
-역사가의 끝말 뒤에 방 안의 목소리가 들어온다. 아이가 서 있는 문밖에서도 두 어른의 말을 들을 수 있다.
+As the historian ends, the room's voices enter. Both adults can be heard from the boy's place outside.
 
-**태조**　폐하를 모실 것이오. 다만 요하 서쪽 거점을 겨울 한 철에 쳐 놓아야 새 주인이 다시 올 때가 늦어집니다.
+**TAEJO**　I'll serve His Majesty. But we must strike the positions west of the Liao in one winter, to delay a new master when he comes again.
 
-**석우**　요서를 공격했던 598년을 생각하십시오. 그 뒤에 온 적이 삼십만이었습니다. 이번 겨울에 나설 집들의 밭에는 대신 누가 들어갑니까?
+**SEOGU**　Remember 598, when we attacked Liaoxi. Three hundred thousand came after. Who will work the fields of the households leaving this winter?
 
-**태조**　그쪽이 다 모이고 나면 우리가 더 치러야지요.
+**TAEJO**　We'll pay more once they've all assembled.
 
-**석우**　그때를 장담할 수 없는 만큼, 지금 우리에게 있는 손도 보셔야 합니다.
+**SEOGU**　Since we cannot know that future, we must also count the hands we have now.
 
-석우가 말을 이으려 하는데 문밖의 개소문은 아버지의 목소리가 들린 쪽으로 더 다가선다. 문턱을 넘지는 않는다.
+As Seogu tries to continue, Gaesomun outside moves closer to his father's voice. He does not cross the threshold.
 
-## 활을 가진 사람과 맞힌 사람 {#t003-shared-bow}
+## The boy with a bow and the boy who hits {#t003-shared-bow}
 
-[사건 부모](../../../body/treatments/003-gyeongdang.md#shared-bow) · [장면 부모](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t003-shared-bow)
+[Event parent](../../../body/treatments/003-gyeongdang.md#shared-bow) · [Scene parent](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t003-shared-bow)
 
-화면 글 ‘620년 무렵, 경당’. 개소문의 손에는 집에서 가져온 활이 있다. 그가 대기 줄 앞으로 몸을 빼자 교관이 마지막 자리를 짚는다. 공동 활을 돌려받은 을보가 먼저 쏜다. 시위가 돌아오는 소리 뒤로 과녁을 확인하는 아이들. 개소문은 맞은 곳을 보고도 활부터 본다. 부루가 그의 활을 가리키며 줄 맨 뒤를 짚자 아이들이 웃는다.
+On-screen text: “Around 620, gyeongdang.” Gaesomun holds a bow brought from home. When he steps to the front of the queue, the instructor points to the last place. Eulbo receives the shared bow and shoots first. After the bowstring returns, children check the target. Even seeing the hit, Gaesomun looks first at the bow. Buru points to his bow and the back of the line; the children laugh.
 
-**개소문**　내 것으로 쏘면 더 멀리 갈 텐데.
+**GAESOMUN**　I'd shoot farther with mine.
 
-**을보**　난 이걸로도 맞혔어.
+**EULBO**　I hit it with this one.
 
-해가 낮아진 경당. 활을 쏠 자리가 비어 있는데 을보는 보이지 않는다. 기다리던 개소문이 활을 내려놓는다. 그때 짐을 부리고 온 을보가 들어선다.
+At the gyeongdang as the sun falls, the shooting place is empty, but Eulbo is absent. Waiting, Gaesomun puts down his bow. Eulbo enters after unloading cargo.
 
-**개소문**　너하고 겨루려고 기다렸잖아.
+**GAESOMUN**　I waited to compete with you.
 
-을보는 활을 달라는 손을 내밀다 수레를 밀던 손을 펴 본다.
+Eulbo holds out his hand for the bow, then opens the hand that pushed the cart.
 
-**을보**　집에서 수레 끌 사람이 나뿐이야. 아버지는 다리 때문에 못 나가시고 갚을 빚도 있어. 온달처럼 싸워서 공을 세우면 달라질까?
+**EULBO**　I'm the only one at home who can pull the cart. Father can't go out because of his leg, and there's debt to pay. If I fought and earned honors like Ondal, would that change?
 
-**개소문**　내가 기다린 건 알아?
+**GAESOMUN**　Do you know I waited?
 
-**을보**　그러면 지금 쏘자.
+**EULBO**　Then let's shoot now.
 
-**개소문**　아버지한테 있는 군사, 나중에는 내가 이끌 거야.
+**GAESOMUN**　Someday I'll lead the soldiers my father has.
 
-을보에게서 공동 활을 받은 다음 아이가 과녁을 향해 선다. 뒤의 아이들은 비켜서지만 개소문은 자기 차례를 재고 있다. 시위 소리가 이어지는 동안 관객에게만 역사가가 말한다.
+The next child receives the shared bow from Eulbo and faces the target. Children behind make room, but Gaesomun is counting his own turn. As the bowstring sounds, only the audience hears the historian.
 
-**역사가**　가난한 집의 온달은 북주전에서 앞장서 이름을 얻었다. 신라를 치러 간 아단성에서는 화살에 맞아 죽었다.
+**HISTORIAN**　Ondal of a poor house led the vanguard against Northern Zhou and made his name. Below Adanseong on an expedition against Silla, he died from an arrow.
 
-화살이 박힌 자리를 본 아이가 활을 뒤로 넘긴다. 받는 아이가 서야 했던 자리를 비우고, 을보는 다음 겨루기에 끼어든다.
+A child sees where the arrow struck and passes the bow back. The receiving child leaves the place where he should stand; Eulbo joins the next contest.
 
-**역사가**　앞장설 용기만으로는 성벽과 험지, 성 밖 구원군을 없앨 수 없었다. 얻은 성과 그다음 짐길에도 지킬 사람이 남아야 했다. 603년 북한산성의 고승은 진평왕의 구원군이 오자 불리해진 병력으로 더 싸우지 못하고 물러났다.
+**HISTORIAN**　Courage to lead could not by itself remove walls, difficult ground, or a relief army outside the fortress. People still had to guard a captured fortress and the next supply route. In 603 Go Seung at Bukhansanseong could not keep fighting with his disadvantaged force when King Jinpyeong's relief army arrived, and withdrew.
 
-관객만 듣는 역사가의 음성이 끝난다. 아이들 사이로 공동 활이 돌아온다.
+The historian's audience-only voice ends. The shared bow returns among the children.
 
-개소문이 자기 차례에 활을 세운다.
+Gaesomun raises his bow on his turn.
 
-## 빠진 두 손가락보다 큰 승전 {#t003-inflated-victory}
+## A victory greater than two missing fingers {#t003-inflated-victory}
 
-[사건 부모](../../../body/treatments/003-gyeongdang.md#inflated-victory) · [장면 부모](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t003-inflated-victory)
+[Event parent](../../../body/treatments/003-gyeongdang.md#inflated-victory) · [Scene parent](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t003-inflated-victory)
 
-부루가 손으로 기병의 돌진을 흉내 낸다. 손가락 둘이 없는 손이 앞으로 뻗을 때 아이들의 시선은 그 끝을 따라간다.
+Buru imitates a cavalry charge with his hand. As the hand missing two fingers thrusts forward, the children follow its tip.
 
-**부루**　영양왕과 고건무 왕제께서 이백만을 물리치셨다. 왕제께서는 갑옷 입은 기병 오백을 앞세우셨지. 막아선 적이 사만 삼천이었어. 먼저 달려드신 분이 왕제셨어.
+**BURU**　King Yeongyang and Prince Go Geonmu defeated two million. The prince led five hundred armored cavalry. Forty-three thousand enemies stood before them. He was the first to charge.
 
-개소문이 선두 기수처럼 몸을 낮춘다. 아이들이 뒤따르자 부루는 그 모습을 보고 말을 더 크게 한다. 웃음과 발 구르는 소리를 남기고 역사가의 낮은 음성이 들어온다.
+Gaesomun lowers himself like a leading rider. The children follow; seeing them, Buru speaks louder. Leave laughter and stamping as the historian's low voice enters.
 
-**역사가**　이백만은 수가 과시하며 전한 위협의 수였다. 실제로 몇이 동원됐는지를 확인한 수는 아니었다. 매복을 겪은 부루의 입에서도 어느새 오백 기병이 앞서 달렸다. 약탈로 흐트러진 수군, 외성의 매복, 주법상이 배에 남긴 병력은 그 영웅담에서 빠졌다.
+**HISTORIAN**　Two million was the threat Sui proclaimed, not a confirmed count of those mobilized. Even from Buru, who experienced the ambush, five hundred cavalry now charged first. Naval troops disordered by plunder, the outer-fortress ambush, and Zhou Fashang's force left with the ships vanished from the heroic story.
 
-해설이 끝나는 자리에서 놀이 소리가 다시 앞에 나온다. 개소문은 다른 아이에게 뒤로 물러나라고 하고 자기가 선두를 맡는다. 부루의 손을 보던 아이도 다시 선두만 본다.
+As the commentary ends, play sounds return to the foreground. Gaesomun tells another child to move back and takes the lead himself. The child who watched Buru's hand looks again only at the front.
 
-## 뒤의 아이가 움직일 때 {#t003-winning-and-following}
+## When the child behind moves {#t003-winning-and-following}
 
-[사건 부모](../../../body/treatments/003-gyeongdang.md#winning-and-following) · [장면 부모](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t003-winning-and-following)
+[Event parent](../../../body/treatments/003-gyeongdang.md#winning-and-following) · [Scene parent](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t003-winning-and-following)
 
-화면 글 ‘626년 무렵’. 개소문이 먼저 도착해 돌아본다. 뒤의 아이들이 흩어져 있다. 부루는 선착을 칭찬하지 않고 마지막 아이가 오는 쪽을 가리킨다. 재시도. 개소문은 발을 내딛으려다 뒤를 살핀다. 흩어졌던 아이들의 몸이 한 방향으로 붙자 그도 달리기 시작한다. 이번에는 대열이 함께 도착한다. 저녁, 집으로 돌아와 개소문이 자기 승리를 보고한다. 태조가 그 보고가 끝나자 묻는다.
+On-screen text: “Around 626.” Gaesomun arrives first and looks back. The children behind are scattered. Buru does not praise him for arriving first; he points toward the last child. They try again. Gaesomun starts to step, then checks behind. Once the scattered children align, he runs too. This time the formation arrives together. That evening at home, Gaesomun reports his victory. When he finishes, Taejo asks:
 
-**태조**　오늘 진 아이들에게 다음에도 네 뒤를 맡길 수 있겠느냐?
+**TAEJO**　Can you entrust your rear to the children you beat today next time?
 
-**개소문**　다시 겨뤄도 제가 이깁니다.
+**GAESOMUN**　I'd win again if we competed.
 
-태조가 아들을 본다. 곁에서 어머니가 을보네 살림을 묻자 개소문은 훈련 이야기를 시작하다 멎는다.
+Taejo looks at his son. Beside them, Mother asks about Eulbo's household; Gaesomun begins a training story, then stops.
 
-**어머니**　그 집은 누가 수레를 끄니?
+**MOTHER**　Who pulls their cart?
 
-답이 없다. 정토가 패한 아이들이 있는 쪽으로 나간다. 화면 글 ‘정토 · 개소문의 아우’를 그의 이동에 붙인다. 개소문은 그를 불러 세우지 못한 채 자기 훈련을 마친 손을 내려다본다.
+No answer. Jeongto goes toward the children who lost. On-screen text follows him: “Jeongto · Gaesomun's younger brother.” Unable to call him back, Gaesomun looks down at the hands with which he finished training.
 
-## 답이 늦게 끝나는 수업 {#t004-explain-to-others}
+## A lesson whose answer takes longer {#t004-explain-to-others}
 
-[사건 부모](../../../body/treatments/004-first-command.md#explain-to-others) · [장면 부모](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t004-explain-to-others)
+[Event parent](../../../body/treatments/004-first-command.md#explain-to-others) · [Scene parent](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t004-explain-to-others)
 
-화면 글 ‘627년, 태학’. 낮. 무곡이 적의 짐이 들어오는 길을 막는 과제를 내놓는다. 첫 자제가 적의 수를 따져 보려 하자 개소문이 말을 받는다.
+On-screen text: “627, Taehak.” Day. Mugok poses the problem of blocking an enemy supply route. As the first pupil tries to consider enemy numbers, Gaesomun takes over.
 
-**개소문**　그쪽 길부터 막아야 합니다. 군량이 그쪽으로 들어옵니다.
+**GAESOMUN**　Block that road first. Their supplies come along it.
 
-**무곡**　옳다. 그런데 네가 빠져도 나머지가 할 수 있어야지. 저 아이들에게 설명해 보아라.
+**MUGOK**　Correct. But the others must be able to do it even without you. Explain it to them.
 
-개소문이 일어나 첫 자제에게 길을 맡긴다.
+Gaesomun rises and assigns the road to the first pupil.
 
-**첫 자제**　거기 있던 군사를 옮기면, 그 자리는 누가 지켜?
+**FIRST PUPIL**　If you move the soldiers there, who guards their place?
 
-**개소문**　옆에서 와서 받으면 돼.
+**GAESOMUN**　The next group can come and take it.
 
-**옆 자제**　그럼 옆은 비잖아. 그쪽은 누구한테 물어?
+**NEIGHBORING PUPIL**　Then their place is empty. Who do you ask about that?
 
-개소문이 처음 지목한 첫 자제에게로 돌아선다. 첫 자제는 아직 자기 자리에서 그를 보고 있다.
+Gaesomun turns back to the first pupil he named. The pupil still watches from his place.
 
-**개소문**　네 자리를 받을 사람부터 정하자. 맡았다는 답을 듣고 와. 여기 닿으면 나한테 알려 줘. 그때 길을 막을게.
+**GAESOMUN**　Let's first choose who takes your place. Get word that they've taken it, then come. Tell me when you get here. I'll block the road then.
 
-**첫 자제**　네가 먼저 막으래도? 내가 아직 못 왔으면?
+**FIRST PUPIL**　Even if you tell me to block it first? If I haven't arrived?
 
-**개소문**　그럼 기다릴게. 내가 먼저 말했다고, 네가 오지도 않았는데 막을 순 없지.
+**GAESOMUN**　Then I'll wait. Just because I said it first doesn't mean I can block it before you arrive.
 
-옆 자제가 첫 자제에게 답한다.
+The neighboring pupil answers the first.
 
-**옆 자제**　네 자리는 내가 맡을게.
+**NEIGHBORING PUPIL**　I'll take your place.
 
-첫 자제가 자리를 옮기는 동안 개소문은 기다린다.
+Gaesomun waits while the first pupil moves.
 
-**첫 자제**　여기 왔어. 막아도 돼.
+**FIRST PUPIL**　I'm here. You can block it.
 
-두 사람이 차례를 맞춘 뒤에야 무곡이 앉으라는 손짓을 한다. 개소문이 앉으며 처음 답했던 자리를 돌아본다. 입가가 올라간다.
+Only after the two coordinate their sequence does Mugok gesture for them to sit. Gaesomun sits and looks back at where he first answered. A smile rises at his lips.
 
-수업 뒤 문밖에서 을보가 태학에 들어올 수 있느냐는 이야기가 이어진다.
+Outside after class, talk continues about whether Eulbo could enter the Taehak.
 
-**을보**　추천해 줄 이도 있어야 하지만, 집 일을 누가 할지가 먼저야.
+**EULBO**　I'd need someone to recommend me, but first, who would do the work at home?
 
-개소문은 을보의 다음 말을 기다린다. 을보는 더 기다리지 않고 자기 집 쪽으로 간다.
+Gaesomun waits for Eulbo's next words. Eulbo does not wait longer; he heads home.
 
-화면 글 ‘628년’. 태조가 통일 보고를 받는다.
+On-screen text: “628.” Taejo receives a unification report.
 
-**태조**　갈라져 있을 때 쳤어야 했다. 이제는 저들이 한꺼번에 올 수 있겠군.
+**TAEJO**　We should have struck while they were divided. Now they can come together.
 
-**석우**　그만큼 오래 사람과 곡식을 모을 수 있게 되었습니다. 우리 쪽 손부터 보셔야 합니다.
+**SEOGU**　They can also gather people and grain longer. You must first look at the hands on our side.
 
-개소문이 보고를 아버지 쪽으로 돌려 놓는다. 석우의 손 앞에는 다른 보고가 남는다.
+Gaesomun turns the report toward his father. Another remains before Seogu's hand.
 
-## 선두가 지나간 돌 {#t004-night-shortcut}
+## The stones the lead passed {#t004-night-shortcut}
 
-[사건 부모](../../../body/treatments/004-first-command.md#night-shortcut) · [장면 부모](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t004-night-shortcut)
+[Event parent](../../../body/treatments/004-first-command.md#night-shortcut) · [Scene parent](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t004-night-shortcut)
 
-태조가 허락한 첫 가문 병사 훈련이다. 과제는 북쪽 들의 돌무더기까지 먼저 닿는 것. 개소문은 낮의 큰길 대신 밤의 개울 지름길로 선두를 보낸다.
+This is the first family-soldier training Taejo permits. The task is to reach a stone pile in the northern fields first. Gaesomun sends the lead along a stream shortcut at night instead of the daytime main road.
 
-화면 글 ‘629년 봄’. 야간 훈련, 개울 쪽 지름길. 앞사람이 비켜야 뒤에서 돌의 윤곽이 드러난다. 개소문은 자기가 먼저 건넌 돌 쪽으로 손짓한다.
+On-screen text: “Spring 629.” Night training, stream shortcut. Only when the person ahead moves aside can those behind see the stones' outlines. Gaesomun gestures toward a stone he crossed first.
 
-**나이 든 병사**　뒤에서는 그 돌이 안 보입니다.
+**OLDER SOLDIER**　We can't see that stone from behind.
 
-**개소문**　내가 건넜다. 간격을 좁혀 따라오시오.
+**GAESOMUN**　I crossed it. Close the gaps and follow.
 
-선두가 화면 밖으로 나간 뒤에도 시선은 뒤 대열에 남는다. 발이 디딜 곳을 더듬는 소리, 무게가 쏠리는 소리. 뒤따른 병사의 발이 돌을 잘못 디딘다. 왼쪽 발목을 다쳐 주저앉는 몸을 곁의 병사가 받는다. 뒤가 멎어서야 개소문이 돌아온다. 부축과 휴식을 지시한다.
+Even after the lead leaves the frame, the view stays with the rear. Feet search for footing; weight shifts. A following soldier steps wrong on a stone. A man beside him catches him as he sinks down with an injured left ankle. Only when the rear stops does Gaesomun return. He orders support and rest.
 
-앞쪽에서 훈련의 승자를 부르는 외침이 들린다. 돌무더기에는 그의 선두가 가장 일찍 도착했다. 개소문은 집무채에 들어가 그 시각부터 아뢴다.
+Ahead, shouts name the training winner. His lead reached the stone pile first. Gaesomun enters the office and reports that time first.
 
-**태조**　쉬게 했다고 끝났느냐? 그 집에서 빠진 일은 누가 하느냐?
+**TAEJO**　Is it finished because you let him rest? Who does the work missing from his household?
 
-개소문이 보고할 종이를 내린다. 태조가 방문을 명하고, 훈련 때 그가 앞서간 길 대신 병사의 집으로 가는 낮길로 잇는다.
+Gaesomun lowers the paper he was reporting. Taejo orders a visit; transition to the daytime road to the soldier's house instead of the route Gaesomun led in training.
 
-## 찾아온 주인 앞에 일어나지 않는 병사 {#t004-household-cost}
+## A soldier does not rise for his visiting master {#t004-household-cost}
 
-[사건 부모](../../../body/treatments/004-first-command.md#household-cost) · [장면 부모](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t004-household-cost)
+[Event parent](../../../body/treatments/004-first-command.md#household-cost) · [Scene parent](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t004-household-cost)
 
-다음 낮. 병사는 왼쪽 발목을 움직이지 않은 채 누워 있다. 개소문이 들어와도 일어서지 않는다. 개소문은 서서 말을 시작하다 누운 사람 곁으로 자리를 낮춘다.
+The next day. The soldier lies without moving his left ankle. He does not rise when Gaesomun enters. Gaesomun begins standing, then lowers himself beside the reclining man.
 
-**개소문**　다친 데는 어떻소? 언제쯤 발을 디딜 수 있겠소?
+**GAESOMUN**　How is the injury? When might you put weight on it?
 
-병사는 누운 채 왼발을 놓은 쪽을 본다.
+Still lying down, the soldier looks toward his left foot.
 
-**병사**　밭에 나갈 때가 되어도 걷기는 어려울 것 같습니다.
+**SOLDIER**　I don't think I'll be able to walk when it's time for the fields.
 
-**개소문**　그때까지는 쉬도록…….
+**GAESOMUN**　Until then, rest...
 
-**병사**　제가 쉬어도 밭일은 남습니다. 품팔이도 못 나가고요. 그 품삯으로 양식을 샀습니다.
+**SOLDIER**　The field work remains even if I rest. I can't go out for day work either. Those wages bought our food.
 
-병사는 자기 발을 보지 않고 개소문을 본다. 개소문이 덧붙이려던 훈련 설명을 삼킨다. 그가 일어난다. 문턱으로 곧장 나가려던 발을 돌려 누운 병사 옆을 피해 간다.
+The soldier looks at Gaesomun, not his foot. Gaesomun swallows the training explanation he was about to add. He rises. His feet turn from a direct path to the threshold and move around the reclining man.
 
-집무채. 개소문이 태조에게 훈련과 병사의 집에서 들은 일을 보고한다.
+In the office, Gaesomun reports training and what he heard at the soldier's house to Taejo.
 
-**개소문**　먼저 닿은 일부터 보고드렸습니다. 다친 사람은 쉬게 했으니 끝난 줄 알았습니다. 가서 물으니 이번 밭일을 못 한다고 합니다. 품삯이 끊기면 사 먹을 양식도 없답니다.
+**GAESOMUN**　I reported first that we arrived ahead. I thought it ended once the injured man rested. When I went and asked, he said he couldn't work the fields this season. Without wages, he can't buy food either.
 
-**태조**　앞으로도 네가 그 사람들을 부를 것이다. 오늘 들은 일을 그때도 알고 불러라.
+**TAEJO**　You'll call those people again. When you do, remember what you heard today.
 
-## 닫힌 공격의 때 {#t005-unification-arrives}
+## The closing chance to attack {#t005-unification-arrives}
 
-[사건 부모](../../../body/treatments/005-wall-and-frontier.md#unification-arrives) · [장면 부모](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t005-unification-arrives)
+[Event parent](../../../body/treatments/005-wall-and-frontier.md#unification-arrives) · [Scene parent](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t005-unification-arrives)
 
-629년 낭비성 패전 보고. 태조는 패한 곳에서 손을 떼지 못하고 석우는 외교로 남겨 둔 왕래를 말한다. 개소문은 두 어른 뒤에서 듣는다.
+A 629 report of defeat at Nangbiseong. Taejo cannot lift his hand from the place lost; Seogu speaks of relations preserved through diplomacy. Gaesomun listens behind the adults.
 
-**태조**　물러나도 공격받는다면 양보해서 얻은 게 무엇인가.
+**TAEJO**　If they attack even when we retreat, what did concessions gain us?
 
-**석우**　622년에 사람들을 돌려받았습니다. 그다음 책봉과 역법을 받은 것은 624년이고요. 같은 일은 아니지만 왕래를 남겨 두었기에 가능했습니다. 다시 교섭할 틈도 거기 있습니다.
+**SEOGU**　We got people back in 622. Investiture and the calendar came in 624. They weren't the same event, but relations made them possible. They also leave room to negotiate again.
 
-화면 글 ‘630년, 돌궐 붕괴 소식 뒤’. 장성에 보낼 사람과 정예 기병에 쓸 곡식이 같은 자리에서 요구된다. 태조가 군사 쪽을 먼저 짚는다.
+On-screen text: “630, after news of the Turkic collapse.” People requested for the long wall and grain for elite cavalry are demanded in the same place. Taejo points first to the military share.
 
-**태조**　동돌궐이 무너진 지금 요서 공격을 말해 봐야 늦었습니다. 남은 곡식과 인력까지 장성으로 보내면 정예를 어떻게 기릅니까? 먼저 기병에 써야 합니다.
+**TAEJO**　With the Eastern Turks defeated, it's too late to speak of attacking Liaoxi. If we send the remaining grain and labor to the wall, how do we raise elite troops? Horses must come first.
 
-**석우**　그 군사도 성이 있어야 버팁니다. 둘 다 마련해야지요.
+**SEOGU**　Those troops need fortresses to hold too. We must prepare both.
 
-**태조**　그 양쪽에 보낼 손이 따로 있습니까? 창고의 곡식도 같은 곡식입니다.
+**TAEJO**　Are there separate hands to send to both? The grain in the storehouse is the same grain.
 
-개소문은 두 어른 뒤에서 발언하지 못한다.
+Gaesomun cannot speak behind the two adults.
 
-**역사가**　소년에게는 어른들이 공격할 때를 놓쳤다는 원망이 더 남았다. 그때를 기다리는 동안 누가 밭에 남아야 했는지는 아직 남의 설명이었다.
+**HISTORIAN**　For the boy, resentment that adults had missed the chance to attack remained stronger. Who had needed to stay in the fields while they waited was still someone else's explanation.
 
-장성 쪽 문서를 가져가는 사람을 개소문의 시선이 따라간다.
+Gaesomun watches a person carrying the wall document away.
 
-## 무너진 표지에 남은 영웅 {#t005-memorial-and-wall}
+## The hero left after the monument falls {#t005-memorial-and-wall}
 
-[사건 부모](../../../body/treatments/005-wall-and-frontier.md#memorial-and-wall) · [장면 부모](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t005-memorial-and-wall)
+[Event parent](../../../body/treatments/005-wall-and-frontier.md#memorial-and-wall) · [Scene parent](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t005-memorial-and-wall)
 
-화면 글 ‘631년’. 경관이 훼손되었다는 보고가 끝난 뒤 장성 착수에 쓸 인력이 논의된다. 화친을 중단하자는 요구 뒤 왕이 대답한다.
+On-screen text: “631.” After a report that the monument was destroyed, people discuss labor for beginning the long wall. The king answers a demand to end peaceful relations.
 
-**왕**　왕래는 끊지 마시오. 장성을 쌓을 사람과 물자는 따로 마련하시오.
+**KING**　Do not cut off contact. Provide people and supplies separately to build the wall.
 
-**역사가**　수를 물리친 승리의 표지, 경관이었다. 훼손 보고를 먼저 받고 장성을 시작하는 이 선후는 작품의 재구성이다. 뒤 시기의 사행 기록이 전하는 훼손도 같은 한 차례의 일로 따른다.
+**HISTORIAN**　It was the monument marking victory over Sui. Receiving the destruction report first and beginning the wall afterward is the work's reconstruction. The destruction in the later embassy record is treated as the same single event.
 
-장소를 태조 집으로 바꾼다. 왕의 결정을 전해 들은 개소문이 먼저 공격하지 않은 까닭을 석우에게 묻는다.
+Change location to Taejo's house. Having heard the king's decision, Gaesomun asks Seogu why he did not attack first.
 
-**석우**　612년 외성에 나도 있었다. 네가 듣던 돌격 뒤를 직접 보았지.
+**SEOGU**　I was inside the outer fortress in 612 too. I saw what followed the charge you heard about.
 
-**개소문**　그러니 더 아실 겁니다. 폐하께서 그때처럼 나서시면…….
+**GAESOMUN**　Then you must know better. If His Majesty would lead as he did then...
 
-**석우**　그 뒤를 겪은 사람도 폐하시다.
+**SEOGU**　His Majesty also lived through what came afterward.
 
-개소문이 고개를 숙인다. 석우가 물러난 뒤에도 그는 떠나는 공사 인력을 좇아본다. 그들을 지나 성 쪽으로 향하는 시선이 끝난 뒤 다음 해의 혼인 인사 소리가 들어온다.
+Gaesomun bows his head. After Seogu leaves, he continues watching construction workers depart. Once his gaze follows past them toward the fortress, sounds of next year's marriage greetings enter.
 
-## 식구가 늘고 주인이 사라지다 {#t006-marriage-and-loss}
+## A household grows and its master disappears {#t006-marriage-and-loss}
 
-[사건 부모](../../../body/treatments/006-inheritance.md#marriage-and-loss) · [장면 부모](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t006-marriage-and-loss)
+[Event parent](../../../body/treatments/006-inheritance.md#marriage-and-loss) · [Scene parent](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t006-marriage-and-loss)
 
-화면 글 ‘632년 봄’. 친정에서 중앙의 자리를 기대한 혼인의 인사가 끝난다. 손님들이 빠져나간 뒤 어머니가 살림 일을 나누어 아란에게 맡긴다. 병사들의 훈련을 마친 개소문이 돌아온다. 아란이 패한 이들의 집으로 보낼 음식을 챙긴다. 개소문은 군무에 불려 먼저 나간다.
+On-screen text: “Spring 632.” Marriage greetings end, with Aran's family hoping for a central position. After guests leave, Mother divides household work and entrusts Aran with a share. Gaesomun returns from training soldiers. Aran prepares food to send to defeated men's households. Called to military duties, Gaesomun leaves first.
 
-**아란**　누가 어느 집인지까지 알려 주세요. 음식만 문밖에 놓고 오지는 말고요.
+**ARAN**　Please tell me which people belong to which house. Don't just leave food outside their doors.
 
-음식이 집별로 나뉘고 마지막 꾸러미가 맡을 사람에게 건너간다. 화면 글 ‘633년 말’. 태조의 죽음. 어머니가 조문객과 살림을 이어 맡고 아란이 그 일을 돕는다. 아란은 아직 임신하지 않았다. 개소문 앞에 가구 대표들이 선다. 익숙한 사람과 장비가 보이지만 움직이지 않는다.
+Food is divided by household and the last bundle passes to its carrier. On-screen text: “Late 633.” Taejo dies. Mother continues receiving mourners and managing the household; Aran helps. She is not pregnant yet. Household representatives stand before Gaesomun. Familiar people and equipment are visible, but do not move.
 
-**개소문**　아버지께 하던 대로 해 주시오.
+**GAESOMUN**　Please do as you did for my father.
 
-**첫 대표**　태조 어른께 했던 약속입니다. 지금 우리 집에서 누구를 내보낼지는 다시 정해야 합니다.
+**FIRST REPRESENTATIVE**　That was a promise to Lord Taejo. We must decide again whom our household will provide now.
 
-장례 뒤의 소리가 멀어진다. 개소문 앞의 대표들과 장비는 그대로 있다.
+Funeral sounds recede. Representatives and equipment remain before Gaesomun.
 
-## 엎드린 뒤에 얻는 군사 {#t006-conditional-inheritance}
+## Soldiers gained after bowing low {#t006-conditional-inheritance}
 
-[사건 부모](../../../body/treatments/006-inheritance.md#conditional-inheritance) · [장면 부모](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t006-conditional-inheritance)
+[Event parent](../../../body/treatments/006-inheritance.md#conditional-inheritance) · [Scene parent](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t006-conditional-inheritance)
 
-화면 글 ‘634년 봄’. 앞서 조문한 대표 셋이 개소문을 마주한다. 각자 자기 집에서 내줄 인원과 장비를 정할 말을 기다린다.
+On-screen text: “Spring 634.” The three representatives who mourned earlier face Gaesomun. Each waits for words to decide what people and equipment their household will provide.
 
-**개소문**　조부 자유께서 막리지를 지내셨고 아버지 태조께서도 나라 일을 맡아 오셨소. 저도 훈련에서 맡은 일을 해 왔습니다.
+**GAESOMUN**　My grandfather Jayu held mangniji, and my father Taejo served the country too. I have also done assigned work in training.
 
-**첫 대표**　선대의 일을 부정하지 않습니다. 그분들 전공이 어른의 전공이 되는 것은 아닙니다. 우리가 앞으로 무엇까지 내놓을지를 묻는 겁니다.
+**FIRST REPRESENTATIVE**　We don't deny our predecessors' work. Their achievements don't become yours. We're asking what we must provide from now on.
 
-개소문이 첫 대표에게 대답하려다 옆의 두 얼굴도 살핀다. 말을 거두고 무릎부터 땅에 댄다. 몸을 낮춰 엎드리자 첫 대표의 손이 그를 향해 나오지만, 그는 그 손을 잡지 않는다.
+Gaesomun starts to answer the first representative, then looks at the two faces beside him. He stops speaking and puts his knees on the ground. As he bows low, the first representative's hand reaches toward him, but he does not take it.
 
-**개소문**　제가 급합니다. 남에게도 제 속도로 하라고 했습니다. 맡겨 주시면, 못할 때는 저를 물러나게 하십시오. 제 마음대로 집의 사람을 부르지 않겠습니다.
+**GAESOMUN**　I'm impatient. I demanded that others keep my pace too. If you entrust me, remove me when I cannot do it. I won't call household people at my own will.
 
-첫 대표가 그를 내려다보다 자기 곁의 두 대표를 본다. 둘의 대답을 대신하지 않고 자기 집의 조건부터 말한다.
+The first representative looks down at him, then at the other two. Without answering for them, he states his own household's conditions first.
 
-**첫 대표**　그 약속을 조건으로 우선 맡기겠습니다. 다음 부담은 우리와 먼저 정하셔야 합니다.
+**FIRST REPRESENTATIVE**　On that promise, we'll entrust you for now. You must decide future burdens with us first.
 
-**둘째 대표**　우선 맡기겠습니다. 계속할지는 하는 일을 보겠습니다.
+**SECOND REPRESENTATIVE**　We'll entrust you for now. Whether it continues depends on what you do.
 
-**셋째 대표**　부를 때 우리 집 사정을 먼저 들으십시오. 그 약속이면 따르겠습니다.
+**THIRD REPRESENTATIVE**　Hear our household's circumstances before you call us. With that promise, we'll follow.
 
-개소문이 각자의 대답을 듣고 나자 첫 대표가 다가와 팔을 받쳐 일으킨다. 첫 대표가 돌아가 사람을 보내고, 장비를 넘길 사람이 도착한다. 개소문은 먼저 온 이에게 자리를 내주며 다음 인계를 기다린다. 마지막으로 맡긴 장비를 상대가 놓아야 그가 받아 든다.
+After Gaesomun hears each answer, the first representative approaches and supports his arm to raise him. The first returns and sends people; someone arrives to hand over equipment. Gaesomun gives the first arrival room and waits for the next handover. Only when the other person sets down the last entrusted equipment does he take it.
 
-허락이 실제 동원으로 이어진 뒤 동부 대인의 일을 받는다. 개소문은 가문 지휘와 함께 왕의 신하로 해야 할 군무를 받는다. 세 집이 넘기는 인원과 장비는 각자 약속한 데서 그친다.
+After permission becomes actual mobilization, he receives the duties of Eastern Department great man. Alongside family command, Gaesomun takes military duties as the king's subject. People and equipment the three households provide remain within what each promised.
 
-## 새 가주의 집에 온 아이 {#t006-first-son}
+## A child arrives in the new family head's home {#t006-first-son}
 
-[사건 부모](../../../body/treatments/006-inheritance.md#first-son) · [장면 부모](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t006-first-son)
+[Event parent](../../../body/treatments/006-inheritance.md#first-son) · [Scene parent](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t006-first-son)
 
-화면 글 ‘634년 가을’. 남생의 울음. 개소문의 어머니가 받치는 법을 알려 주고 아란이 아이를 건넨다. 개소문은 익숙한 군장을 다룰 때보다 손을 늦춘다. 아이의 몸이 그의 팔에 놓인 뒤에도 아란은 바로 손을 떼지 않는다.
+On-screen text: “Autumn 634.” Namsaeng cries. Gaesomun's mother explains how to support him and Aran hands him over. Gaesomun moves his hands more slowly than when handling familiar equipment. Even after the baby's body rests in his arms, Aran does not immediately let go.
 
-**아란**　목을 받쳐요. 네, 그렇게.
+**ARAN**　Support his neck. Yes, like that.
 
-개소문이 아이를 내려다본다. 문밖에서 군무를 알리는 소리가 나자 그는 곧장 움직이지 못한다. 아이를 아란에게 돌려주고 양팔이 비었는지 확인한 뒤 나간다. 어머니는 안쪽에 남아 아란을 돕는다.
+Gaesomun looks down at the child. When a voice outside announces military business, he cannot move immediately. He returns the child to Aran, checks that both arms are empty, then leaves. Mother remains inside to help Aran.
 
-집무채로 들어가는 개소문과 그 문밖의 정토를 같은 흐름으로 잇는다. 새 가주에게 사람들이 보고하러 들어간다. 정토 쪽 시선은 집무채 문밖에 남고, 군무를 받는 소리는 안에서 들려온다. 안쪽의 군무 소리 위로 출생 집의 울음을 잠깐 더 듣고, 그 소리가 끝나면 가족 거처의 어머니에게로 돌아간다.
+Connect Gaesomun entering the office and Jeongto outside its door in one flow. People enter to report to the new family head. Jeongto's view remains outside; sounds of military business come from within. Briefly hear the birth-house cry over the office sounds, then return to Mother in the family quarters when it ends.
 
-어머니는 집무채의 문을 바라보다 아란의 곁으로 돌아간다.
+Mother looks toward the office door, then returns to Aran.
 
-**역사가**　태어난 뒤 20년, 집을 맡을 허락을 얻은 그는 왕에게도 군무를 받았다. 그가 바라던 것은 여전히 동경하던 왕이 앞장서 싸우는 모습이었다. 왕을 쓰러뜨릴 뜻은 아직 없었다.
+**HISTORIAN**　Twenty years after birth, having gained permission to lead the household, he also received military duties from the king. He still wanted to see the king he admired lead in battle. He had no intention yet of bringing him down.
 
-아이의 울음이 그친다. 집무채에서 새 가주를 부르는 목소리가 남는다.
+The baby's cry stops. A voice calling the new family head remains from the office.

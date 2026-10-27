@@ -1,999 +1,999 @@
-# 《대막리지》 정전 안내
+# Guide to the canon of *Daemangniji*
 
-형제 부는 참조 대상의 종류로 나눈다. 작품 약속에서 세계와 제도, 참여자, 운용 조건, 장소와 물건으로 간다. 같은 대상의 상세는 유일 owner에서 찾는다. 이 순서는 본편의 사건·공개 순서가 아니다.
+Sibling sections are organized by the kind of subject referenced, from the work's promises through world and institutions, participants, operating conditions, places and objects. Find details of each subject at its sole owner. This order is not the main story's sequence of events or revelations.
 
-## 작품의 약속과 표현 기준 {#010-work}
+## The work's promises and standards of expression {#010-work}
 
-어떤 경험을 어떤 잠정 편집 예산으로 납품하고 표현 기준은 어디서 찾는지 안내한다. 작품 선언 뒤에 그 선언을 전달할 계약의 위치를 둔다.
+Find the experience to be delivered, the provisional editing budget and the standards of expression. The declaration of the work is followed by the contract for conveying it.
 
-### 나라를 지킨 사람이 남긴 나라 {#010-work--010-work}
+### The country left by the man who defended it {#010-work--010-work}
 
-[나라를 지킨 사람이 남긴 나라](../010-work/010-work.md) — 관객 경험·본편 전체의 납품 경계·잠정 편집 예산과 정전 범위 지도를 찾는다. 세부 정전에 들어가기 전 읽을 선언이다.
+[The country left by the man who defended it](../010-work/010-work.md) — Find the audience experience, delivery boundaries, provisional editing budget and map of canon. This declaration precedes the detailed canon.
 
-### 역사가의 목소리와 말씨 {#010-work--020-voice-owners}
+### The historian's voice and speech {#010-work--020-voice-owners}
 
-[역사가의 목소리와 말씨](../010-work/020-voice-owners.md) — 역사가·인물의 말씨와 표현 개선 기준의 정식 계약 위치를 찾는다. 세계 사실과 매체별 표현 권한을 구별하는 입구다.
+[The historian's voice and speech](../010-work/020-voice-owners.md) — Find the formal contract for the historian's and characters' voices and standards for improving expression, distinguishing world facts from each medium's authority over expression.
 
-## 시간과 이웃 나라의 조건 {#020-world}
+## Time and the conditions of neighboring countries {#020-world}
 
-연차·사망 이설·전역 달력·보고 접근을 먼저 두고 선대의 재건과 주변 세력으로 넓힌다. 같은 시대를 함께 계산할 기준이 개인 전기에 앞선다.
+Timelines, alternate death dates, campaign calendars and access to reports come first, expanding to earlier reconstruction and neighboring powers. Shared chronological standards precede individual biographies.
 
-### 연개소문과 아들 세대의 연차 {#020-world--010-family-years}
+### Years of Yeon Gaesomun and his sons' generation {#020-world--010-family-years}
 
-[연개소문과 아들 세대의 연차](../020-world/010-family-years.md) — 생년과 관력의 나이 계산을 맞출 기준을 찾는다. 뒤의 인물별 연차가 기대는 계산법이다.
+[Years of Yeon Gaesomun and his sons' generation](../020-world/010-family-years.md) — Find the method for reconciling birth years with ages in career records. Later individual timelines depend on it.
 
-### 사망 연대에서 택한 해 {#020-world--020-yeon-death-year}
+### The year chosen among accounts of the death {#020-world--020-yeon-death-year}
 
-[사망 연대에서 택한 해](../020-world/020-yeon-death-year.md) — 사망 연대의 기록 차이와 작품이 채택한 해의 적용 범위를 찾는다. 생애 계산 뒤에 이설을 분리했다.
+[The year chosen among accounts of the death](../020-world/020-yeon-death-year.md) — Find the differing records of the death year and the scope of the year adopted by the work. Alternatives follow the life calculations.
 
-### 661~662년 전역의 시간 {#020-world--030-second-war-calendar}
+### Timing the 661–662 campaign {#020-world--030-second-war-calendar}
 
-[661~662년 전역의 시간](../020-world/030-second-war-calendar.md) — 기사의 월과 결빙 계절, 작품 기준일이 다른 자리를 찾는다. 전역별 세부 이동 전에 시간의 지위를 구별한다.
+[Timing the 661–662 campaign](../020-world/030-second-war-calendar.md) — Find where recorded months, freezing season and story reference dates differ. Their status is distinguished before detailed campaign movements.
 
-### 정복전쟁이 멈춘 뒤의 시간 {#020-world--040-postwar-window}
+### The period after the conquest war stops {#020-world--040-postwar-window}
 
-[정복전쟁이 멈춘 뒤의 시간](../020-world/040-postwar-window.md) — 대규모 정복 중지와 남방의 국지전을 구별할 전후 상태를 찾는다. 전역 달력 다음에 그 달력의 끝이 남기는 조건을 둔다.
+[The period after the conquest war stops](../020-world/040-postwar-window.md) — Find postwar conditions distinguishing the end of large-scale conquest from local southern fighting. The campaign calendar is followed by the conditions at its end.
 
-### 소식이 도착하기 전과 후 {#020-world--050-information-arrival}
+### Before and after news arrives {#020-world--050-information-arrival}
 
-[소식이 도착하기 전과 후](../020-world/050-information-arrival.md) — 전령·교역·포로의 소식과 인물별 접근 한계를 찾는다. 전쟁의 실제 값과 당대의 앎을 구별하는 공통 기준이다.
+[Before and after news arrives](../020-world/050-information-arrival.md) — Find news carried by couriers, trade and prisoners and limits on each character's access. This standard separates actual wartime figures from contemporary knowledge.
 
-### 귀족 이천 명을 잃은 계승 내전 {#020-world--060-earlier-civil-war}
+### The succession civil war that cost two thousand nobles {#020-world--060-earlier-civil-war}
 
-[귀족 이천 명을 잃은 계승 내전](../020-world/060-earlier-civil-war.md) — 선대 내전이 남긴 불신과 동원 기반을 찾는다. 두 재건의 출발 조건이어서 복구 정책에 앞선다.
+[The succession civil war that cost two thousand nobles](../020-world/060-earlier-civil-war.md) — Find the distrust and mobilization base left by the earlier civil war, a starting condition for both restorations.
 
-### 평원왕과 영양왕이 이어 만든 기반 {#020-world--070-first-restoration}
+### The foundation built by Pyeongwon and Yeongyang {#020-world--070-first-restoration}
 
-[평원왕과 영양왕이 이어 만든 기반](../020-world/070-first-restoration.md) — 평원왕·영양왕 때 회복한 생산·동원의 기반을 찾는다. 뒤의 수 전쟁이 소비할 자원이다.
+[The foundation built by Pyeongwon and Yeongyang](../020-world/070-first-restoration.md) — Find the production and mobilization base restored under those kings, resources consumed in the later Sui wars.
 
-### 이겨도 다시 온 수의 군대 {#020-world--080-repeated-sui-wars}
+### Sui armies returned after victory {#020-world--080-repeated-sui-wars}
 
-[이겨도 다시 온 수의 군대](../020-world/080-repeated-sui-wars.md) — 승전 뒤에도 남은 주민 부담과 다음 침공의 조건을 찾는다. 승리와 회복을 같은 값으로 세지 않게 한다.
+[Sui armies returned after victory](../020-world/080-repeated-sui-wars.md) — Find residents' burdens after victory and conditions of the next invasion. Victory and recovery are not equivalent.
 
-### 당의 빠른 회복을 본 영류왕 {#020-world--090-second-restoration-and-tang}
+### King Yeongnyu sees Tang's rapid recovery {#020-world--090-second-restoration-and-tang}
 
-[당의 빠른 회복을 본 영류왕](../020-world/090-second-restoration-and-tang.md) — 영류왕의 복구와 당의 빠른 재통일이 양립한 조건을 찾는다. 개소문 세대의 평가와 당시 지식을 구별한다.
+[King Yeongnyu sees Tang's rapid recovery](../020-world/090-second-restoration-and-tang.md) — Find how Yeongnyu's restoration and Tang's rapid reunification coexisted, distinguishing later judgments from knowledge at the time.
 
-### 승전 뒤 갈라지는 다음 과업 {#020-world--100-victory-and-future}
+### Diverging tasks after victory {#020-world--100-victory-and-future}
 
-[승전 뒤 갈라지는 다음 과업](../020-world/100-victory-and-future.md) — 승전 뒤 재건·공세에 대한 서로 다른 국가 과업을 찾는다. 개인의 심리 값은 해당 인물로 연결한다.
+[Diverging tasks after victory](../020-world/100-victory-and-future.md) — Find the different national tasks of reconstruction and offense. Individual motivations link to the relevant characters.
 
-### 당의 부흥과 북방의 힘 {#020-world--110-tang-and-steppe}
+### Tang's rise and northern strength {#020-world--110-tang-and-steppe}
 
-[당의 부흥과 북방의 힘](../020-world/110-tang-and-steppe.md) — 당과 북방 세력이 각각 쓸 수 있는 전력·관계를 찾는다. 이웃을 고구려의 계획에만 종속시키지 않는다.
+[Tang's rise and northern strength](../020-world/110-tang-and-steppe.md) — Find the forces and relationships available to Tang and northern powers respectively, without subordinating neighbors solely to Goguryeo's plans.
 
-### 남쪽에서 바뀌는 강약 {#020-world--120-southern-recoveries}
+### Changing strengths in the south {#020-world--120-southern-recoveries}
 
-[남쪽에서 바뀌는 강약](../020-world/120-southern-recoveries.md) — 백제·신라의 성장과 통제 범위가 고구려에 주는 조건을 찾는다. 전투별 전개에 앞선 남방 개관이다.
+[Changing strengths in the south](../020-world/120-southern-recoveries.md) — Find how Baekje and Silla's growth and areas of control affect Goguryeo. This overview precedes individual battles.
 
-### 655년 연합 공세의 성과 {#020-world--130-655-southern-offensive}
+### Results of the allied offensive of 655 {#020-world--130-655-southern-offensive}
 
-[655년 연합 공세의 성과](../020-world/130-655-southern-offensive.md) — 연합 공세의 기록 범위와 성 점유 상태를 찾는다. 남방 개관 뒤에 특정 연도의 제약을 둔다.
+[Results of the allied offensive of 655](../020-world/130-655-southern-offensive.md) — Find the scope of records on the offensive and fortress occupation. This follows the southern overview with a specific year's constraints.
 
-### 거란의 가축과 자원을 탐내는 국경 {#020-world--140-khitan-resources}
+### A frontier coveting Khitan livestock and resources {#020-world--140-khitan-resources}
 
-[거란의 가축과 자원을 탐내는 국경](../020-world/140-khitan-resources.md) — 국경에서 탐내는 가축·자원과 충돌의 비용을 찾는다. 북방 관계를 물질적 이해로 좁힌다.
+[A frontier coveting Khitan livestock and resources](../020-world/140-khitan-resources.md) — Find the livestock and resources coveted at the frontier and costs of conflict, narrowing northern relations to material interests.
 
-### 국경을 넘는 교역과 귀부 {#020-world--150-cross-border-ties}
+### Trade and allegiance across borders {#020-world--150-cross-border-ties}
 
-[국경을 넘는 교역과 귀부](../020-world/150-cross-border-ties.md) — 교역·망명·귀부가 허용하는 연결과 한계를 찾는다. 국경의 소유와 사람의 이동을 구별한다.
+[Trade and allegiance across borders](../020-world/150-cross-border-ties.md) — Find the connections and limits of trade, exile and submission, distinguishing border ownership from people's movement.
 
-## 권력과 생계를 이어 주는 제도 {#030-society}
+## Institutions connecting power and livelihood {#030-society}
 
-왕명·군역과 배움, 생활·동원, 말갈 공동체와 보호 의무 순서다. 누가 권한을 갖는지 안 뒤 그 권한이 가구와 공동체에 요구하는 것을 찾는다.
+Royal orders, military service and learning come first, followed by livelihood and mobilization, then Malgal communities and the duty of protection. Once authority is established, find what it asks of households and communities.
 
-### 왕과 귀족이 나누어 가진 힘 {#030-society--010-royal-and-aristocratic-power}
+### Power shared by king and nobles {#030-society--010-royal-and-aristocratic-power}
 
-[왕과 귀족이 나누어 가진 힘](../030-society/010-royal-and-aristocratic-power.md) — 왕명·귀족 동원의 권한과, 떠날 수 있는 가족/등록 수비원의 서로 다른 통행 조건을 찾는다.
+[Power shared by king and nobles](../030-society/010-royal-and-aristocratic-power.md) — Find authority over royal orders and aristocratic mobilization, and different passage conditions for departing family and registered defenders.
 
-### 전공으로 얻는 인정과 남성의 체면 {#030-society--020-martial-status}
+### Martial recognition and masculine standing {#030-society--020-martial-status}
 
-[전공으로 얻는 인정과 남성의 체면](../030-society/020-martial-status.md) — 군공·체면·신분 상승과 채무 노비/비세습의 작품 선택을 구별한다.
+[Martial recognition and masculine standing](../030-society/020-martial-status.md) — Distinguish military merit, standing and advancement from the work's choices concerning debt bondage and nonhereditary status.
 
-### 경당에서 몸에 남는 숙련 {#030-society--030-gyeongdang}
+### Skills learned at the gyeongdang {#030-society--030-gyeongdang}
 
-[경당에서 몸에 남는 숙련](../030-society/030-gyeongdang.md) — 경당의 읽기·활쏘기·노동 부담과 귀족 참여의 채택 해석을 찾는다. 기마 교육은 포함하지 않는다.
+[Skills learned at the gyeongdang](../030-society/030-gyeongdang.md) — Find the adopted interpretation of reading, archery, labor burdens and noble participation. Riding instruction is excluded.
 
-### 태학과 군사 귀족의 배움 {#030-society--040-taehak}
+### Taehak and military aristocratic learning {#030-society--040-taehak}
 
-[태학과 군사 귀족의 배움](../030-society/040-taehak.md) — 태학의 입학·추천·글과 군사 귀족의 배움이 직책으로 곧장 이어지지 않는 한계를 찾는다.
+[Taehak and military aristocratic learning](../030-society/040-taehak.md) — Find admission, recommendation and writing at Taehak, and why military aristocratic learning does not lead directly to office.
 
-### 요동·국내성·평양에서 다른 약속 {#030-society--050-regional-authority}
+### Different commitments in Liaodong, Gungnaeseong and Pyongyang {#030-society--050-regional-authority}
 
-[요동·국내성·평양에서 다른 약속](../030-society/050-regional-authority.md) — 요동·국내성·평양의 공헌·복구·왕실 불신이 지역 안에서도 갈리는 이유를 찾는다.
+[Different commitments in Liaodong, Gungnaeseong and Pyongyang](../030-society/050-regional-authority.md) — Find why contributions, reconstruction and distrust of the royal house differ even within these regions.
 
-### 지역마다 다른 생계의 계절 {#030-society--060-regional-livelihood}
+### Regional seasons of livelihood {#030-society--060-regional-livelihood}
 
-[지역마다 다른 생계의 계절](../030-society/060-regional-livelihood.md) — 농사·수렵·채집·목축의 지역별 조합과 동원이 다음 계절 노동에 남기는 비용을 찾는다.
+[Regional seasons of livelihood](../030-society/060-regional-livelihood.md) — Find regional combinations of farming, hunting, gathering and herding, and mobilization's costs for the next season's labor.
 
-### 곡물과 사람을 내는 가구 {#030-society--070-household-burdens}
+### Households providing grain and people {#030-society--070-household-burdens}
 
-[곡물과 사람을 내는 가구](../030-society/070-household-burdens.md) — 곡물·천·군역·운반 노동을 가구에서 배분하는 방식과 사적/공적 창고의 권한을 찾는다.
+[Households providing grain and people](../030-society/070-household-burdens.md) — Find household allocation of grain, cloth, military service and transport labor, and authority over private and public storehouses.
 
-### 무장을 마련할 수 있는 집안 {#030-society--080-private-armament}
+### Families able to equip themselves {#030-society--080-private-armament}
 
-[무장을 마련할 수 있는 집안](../030-society/080-private-armament.md) — 가문의 재력이 철갑과 말로 바뀌는 조건, 수선·사료의 비용과 장비를 잃은 뒤의 한계를 찾는다.
+[Families able to equip themselves](../030-society/080-private-armament.md) — Find how wealth becomes armor and horses, repair and fodder costs, and limits after equipment is lost.
 
-### 피난과 청야가 남기는 손실 {#030-society--090-evacuation-and-denial}
+### Losses from evacuation and denial {#030-society--090-evacuation-and-denial}
 
-[피난과 청야가 남기는 손실](../030-society/090-evacuation-and-denial.md) — 청야의 피난·운반·수용 부담과 단기 결전을 바라는 주민의 다른 판단을 찾는다.
+[Losses from evacuation and denial](../030-society/090-evacuation-and-denial.md) — Find evacuation, transport and shelter burdens under scorched-earth measures, and residents' differing desire for a quick decisive battle.
 
-### 남생의 재건이 먼저 돌려줄 것 {#030-society--100-reconstruction-program}
+### What Namsaeng's reconstruction restores first {#030-society--100-reconstruction-program}
 
-[남생의 재건이 먼저 돌려줄 것](../030-society/100-reconstruction-program.md) — 종자·식량·가축·길·방어를 되살리는 재건의 순서와 지원 지역이 치르는 부담을 찾는다.
+[What Namsaeng's reconstruction restores first](../030-society/100-reconstruction-program.md) — Find the order of restoring seed, food, livestock, roads and defense, and burdens paid by supporting regions.
 
-### 서로 다른 말갈 공동체 {#030-society--110-different-malgal-communities}
+### Different Malgal communities {#030-society--110-different-malgal-communities}
 
-[서로 다른 말갈 공동체](../030-society/110-different-malgal-communities.md) — 편입/국경 밖/당과 연결된 말갈을 구별하고 생업·친족·군역이 같은 정치 의지를 뜻하지 않는 경계를 찾는다.
+[Different Malgal communities](../030-society/110-different-malgal-communities.md) — Distinguish incorporated Malgal, those beyond the border and those connected to Tang, and the limits of treating shared livelihoods, kinship or service as one political will.
 
-### 이동 목축을 주업으로 삼는 편입 공동체 {#030-society--120-pastoral-malgal}
+### An incorporated community living by mobile herding {#030-society--120-pastoral-malgal}
 
-[이동 목축을 주업으로 삼는 편입 공동체](../030-society/120-pastoral-malgal.md) — 이동 목축 공동체 초지부의 겨울 거점·경당·교역·군역 조건을 찾는다.
+[An incorporated community living by mobile herding](../030-society/120-pastoral-malgal.md) — Find the pastoral Chojibu community's winter base, gyeongdang, trade and service conditions.
 
-### 작은 약탈과 돌지계 규모의 위협 {#030-society--130-border-retaliation}
+### Small raids and a threat on Doljigye's scale {#030-society--130-border-retaliation}
 
-[작은 약탈과 돌지계 규모의 위협](../030-society/130-border-retaliation.md) — 작은 약탈에 대한 제한 대응과 돌지계 규모의 조직적 위협을 구별한다.
+[Small raids and a threat on Doljigye's scale](../030-society/130-border-retaliation.md) — Distinguish limited responses to small raids from an organized threat on Doljigye's scale.
 
-### 거래와 배움으로 이어지는 편입 {#030-society--140-eastern-incorporation}
+### Incorporation through trade and learning {#030-society--140-eastern-incorporation}
 
-[거래와 배움으로 이어지는 편입](../030-society/140-eastern-incorporation.md) — 교역·경당·통역·군역의 연결과 무진·머루·구빈의 서로 다른 권한을 찾는다.
+[Incorporation through trade and learning](../030-society/140-eastern-incorporation.md) — Find connections among trade, gyeongdang, interpretation and service, and the different authority of Mujin, Meoru and Gubin.
 
-### 주필산에서 갈라진 포로의 운명 {#030-society--150-jupilsan-prisoners}
+### Prisoners' divided fates at Jupilsan {#030-society--150-jupilsan-prisoners}
 
-[주필산에서 갈라진 포로의 운명](../030-society/150-jupilsan-prisoners.md) — 주필산 포로 분류와 말갈3,300인 처형의 기록, 생존자와 가구의 갈라진 반응을 찾는다.
+[Prisoners' divided fates at Jupilsan](../030-society/150-jupilsan-prisoners.md) — Find prisoner sorting, the record of 3,300 Malgal executions, and differing responses of survivors and households.
 
-### 연개소문이 이행하는 보호 {#030-society--160-yeon-protection}
+### The protection Yeon Gaesomun provides {#030-society--160-yeon-protection}
 
-[연개소문이 이행하는 보호](../030-society/160-yeon-protection.md) — 유족 보호의 물자·귀향·군역 조정과 지원 실패에 책임을 묻는 통치 조건을 찾는다.
+[The protection Yeon Gaesomun provides](../030-society/160-yeon-protection.md) — Find supplies, return arrangements and service adjustments for bereaved families, and accountability for failed aid.
 
-### 맡길 수 있게 된 경기병 {#030-society--170-trusted-light-cavalry}
+### Light cavalry trusted with responsibility {#030-society--170-trusted-light-cavalry}
 
-[맡길 수 있게 된 경기병](../030-society/170-trusted-light-cavalry.md) — 혼합 경기병에게 자율적인 정찰·차단을 맡길 수 있게 하는 교육·보고·가족 보호의 신뢰를 찾는다.
+[Light cavalry trusted with responsibility](../030-society/170-trusted-light-cavalry.md) — Find the trust built through training, reporting and family protection that allows mixed light cavalry independent reconnaissance and interception.
 
-## 사람과 공동체의 독립된 처지 {#040-agents}
+## The independent circumstances of people and communities {#040-agents}
 
-개소문과 선대·교육, 후계자와 왕가, 실행자와 가구, 당·신라·백제·왜, 앞선 전쟁의 당사자 순서다. 이름이 없는 참여자도 개인의 선택·손해가 있으면 따로 찾는다. 고휘 아내·딸은 고휘 레코드에서 직접 연결한 가족 레코드이고, 끝의 어머니·정토·부루·을보·경당 아이들은 개소문의 소년기 레코드에서 직접 연결한 집안·경당 사람이고, 석우는 618년 논쟁에서 태조와 맞서는 왕의 장수이며, 아란은 632년 개소문과 혼인한 아내이고, 가문 병사들은 연씨 집 마당에서 훈련하고 동원에 나가는 사람들이다.
+The order runs from Gaesomun, his predecessors and education through successors and the royal house, workers and households, Tang, Silla, Baekje and Wa, and participants in earlier wars. Unnamed participants with individual choices or losses also have separate entries. Go Hwi's wife and daughter are family records directly linked from his record; the mother, Jeongto, Buru, Eulbo and gyeongdang children at the end are household and school people directly linked from Gaesomun's youth record. Seogu is the king's general opposing Taejo in the 618 dispute; Aran is the wife who married Gaesomun in 632; family soldiers train in the Yeon courtyard and go out on mobilization.
 
-### 연개소문이 할 수 있는 일과 보지 못한 일 {#040-agents--001-yeon-gaesomun}
+### What Yeon Gaesomun can and cannot see {#040-agents--001-yeon-gaesomun}
 
-[연개소문이 할 수 있는 일과 보지 못한 일](../040-agents/001-yeon-gaesomun.md) — 가계·관력·소년기·통치·왕에게 진 빚·후계·임종의 서로 다른 H2를 찾는다. 연령별 몸과 실제 정보 접근도 이 파일에서 나뉜다.
+[What Yeon Gaesomun can and cannot see](../040-agents/001-yeon-gaesomun.md) — Find separate sections on family, career, youth, rule, debt to the king, succession and death, as well as his body at different ages and actual access to information.
 
-### 태조가 허락한 배움 {#040-agents--002-taejo}
+### The education Taejo permits {#040-agents--002-taejo}
 
-[태조가 허락한 배움](../040-agents/002-taejo.md) — 태조의 병력 사용권과 아들의 승리/설득을 가르는 교육, 석우와의 논쟁을 찾는다.
+[The education Taejo permits](../040-agents/002-taejo.md) — Find Taejo's authority over troops, his teaching that distinguishes victory from persuasion, and his dispute with Seogu.
 
-### 조부 자유의 이름 {#040-agents--003-jayu}
+### The name of grandfather Jayu {#040-agents--003-jayu}
 
-[조부 자유의 이름](../040-agents/003-jayu.md) — 조부 자유의 관력과 집안 명성의 입력을 찾는다. 직접 만남·초상·음성은 만들지 않는다.
+[The name of grandfather Jayu](../040-agents/003-jayu.md) — Find Jayu's career and contribution to family reputation. Do not invent a direct meeting, portrait or voice.
 
-### 승계를 반대한 귀족들 {#040-agents--004-inheritance-opponents}
+### The nobles who opposed succession {#040-agents--004-inheritance-opponents}
 
-[승계를 반대한 귀족들](../040-agents/004-inheritance-opponents.md) — 계승에 반대하는 세 가구의 요구와 사죄·대행을 받아들이는 조건을 찾는다.
+[The nobles who opposed succession](../040-agents/004-inheritance-opponents.md) — Find the demands of three opposing households and conditions for accepting apology and regency.
 
-### 태학에서 가르치는 무곡 {#040-agents--005-taehak-participants}
+### Mugok teaches at Taehak {#040-agents--005-taehak-participants}
 
-[태학에서 가르치는 무곡](../040-agents/005-taehak-participants.md) — 태학 교사 무곡의 설명 요구와 징벌 권한의 한계, 실제 교사 모습·목소리를 찾는다.
+[Mugok teaches at Taehak](../040-agents/005-taehak-participants.md) — Find teacher Mugok's demands for explanations, limits on punishment, and his actual appearance and voice.
 
-### 개소문과 겨루는 태학 자제들 {#040-agents--006-taehak-pupils}
+### Taehak pupils who contend with Gaesomun {#040-agents--006-taehak-pupils}
 
-[개소문과 겨루는 태학 자제들](../040-agents/006-taehak-pupils.md) — 공동 훈련을 하는 태학 자제 집단과 개인의 대사·손해가 생길 때 분리할 경계를 찾는다.
+[Taehak pupils who contend with Gaesomun](../040-agents/006-taehak-pupils.md) — Find the group training together and when individual dialogue or loss requires separate treatment.
 
-### 같은 아버지를 다르게 이어받은 사람들 {#040-agents--007-namsaeng}
+### Sons who inherit the same father differently {#040-agents--007-namsaeng}
 
-[같은 아버지를 다르게 이어받은 사람들](../040-agents/007-namsaeng.md) — 남생의 전선 인망·재건·아버지 역할과 헌충 상실 뒤의 의도적 귀부·책임을 구별한다.
+[Sons who inherit the same father differently](../040-agents/007-namsaeng.md) — Distinguish Namsaeng's frontline trust, reconstruction and fatherhood from his deliberate submission and responsibility after losing Heonchung.
 
-### 연남건의 군사적 자부심 {#040-agents--008-namgeon}
+### Yeon Namgeon's military pride {#040-agents--008-namgeon}
 
-[연남건의 군사적 자부심](../040-agents/008-namgeon.md) — 남건의 현장 군사 능력과 승전한 힘을 계속 공세에 쓸 수 있다는 오판을 찾는다.
+[Yeon Namgeon's military pride](../040-agents/008-namgeon.md) — Find Namgeon's field competence and his mistaken belief that a victorious force can remain on the offensive.
 
-### 연남산이 오가는 두 자리 {#040-agents--009-namsan}
+### The two places Yeon Namsan moves between {#040-agents--009-namsan}
 
-[연남산이 오가는 두 자리](../040-agents/009-namsan.md) — 남산의 왕실 교섭 능력·왕을 다룰 수 있다는 과신과 항복 선택을 찾는다.
+[The two places Yeon Namsan moves between](../040-agents/009-namsan.md) — Find Namsan's skill negotiating with the royal house, overconfidence in managing the king and choice to surrender.
 
-### 연헌충의 재능과 아직 얻지 못한 권한 {#040-agents--010-heonchung}
+### Yeon Heonchung's talent and authority not yet gained {#040-agents--010-heonchung}
 
-[연헌충의 재능과 아직 얻지 못한 권한](../040-agents/010-heonchung.md) — 헌충의 재능·나이·가문 호위에 한정된 지휘권과 부상 제약의 참조를 찾는다.
+[Yeon Heonchung's talent and authority not yet gained](../040-agents/010-heonchung.md) — Find his talent, age, command limited to family guards and injury constraints.
 
-### 연헌성의 생존과 설득 {#040-agents--011-heonseong}
+### Yeon Heonseong's survival and persuasion {#040-agents--011-heonseong}
 
-[연헌성의 생존과 설득](../040-agents/011-heonseong.md) — 헌성의651년 복원·헌충 동생이라는 선택과 외부 원조를 설득할 사절 능력을 찾는다.
+[Yeon Heonseong's survival and persuasion](../040-agents/011-heonseong.md) — Find the reconstruction of Heonseong as born in 651 and Heonchung's younger brother, and his ability as an envoy to persuade outside powers to help.
 
-### 평원왕이 남긴 재건 {#040-agents--012-pyeongwon}
+### The reconstruction King Pyeongwon left {#040-agents--012-pyeongwon}
 
-[평원왕이 남긴 재건](../040-agents/012-pyeongwon.md) — 고건무의 회상에서 쓰는 평원왕의 재건과 말년 모습·목소리를 찾는다.
+[The reconstruction King Pyeongwon left](../040-agents/012-pyeongwon.md) — Find his reconstruction and late-life appearance and voice used in Go Geonmu's recollection.
 
-### 영양왕이 감당한 전쟁 {#040-agents--013-yeongyang}
+### The war King Yeongyang bore {#040-agents--013-yeongyang}
 
-[영양왕이 감당한 전쟁](../040-agents/013-yeongyang.md) — 영양왕의 가계·전쟁 부담과 넓은 영향권/생산 실속의 다른 평가를 찾는다.
+[The war King Yeongyang bore](../040-agents/013-yeongyang.md) — Find his family, wartime burdens and differing assessments of broad influence and productive substance.
 
-### 보장왕의 부친 대양왕 {#040-agents--014-daeyang}
+### King Bojang's father Daeyang {#040-agents--014-daeyang}
 
-[보장왕의 부친 대양왕](../040-agents/014-daeyang.md) — 보장왕 가계의 대양왕 호칭을 찾는다. 독립 재위나 직접 장면을 보태지 않는다.
+[King Bojang's father Daeyang](../040-agents/014-daeyang.md) — Find the title King Daeyang in Bojang's genealogy. Add neither a separate reign nor direct scenes.
 
-### 전쟁을 이긴 왕과 왕위를 되찾으려는 왕 {#040-agents--015-geonmu}
+### The king who won a war and the king who seeks his throne {#040-agents--015-geonmu}
 
-[전쟁을 이긴 왕과 왕위를 되찾으려는 왕](../040-agents/015-geonmu.md) — 고건무의612년 실제 전장/부풀려진 영웅담·왕의 재건·마지막 변론을 나누어 찾는다.
+[The king who won a war and the king who seeks his throne](../040-agents/015-geonmu.md) — Find Go Geonmu's actual 612 battlefield experience versus exaggerated hero stories, royal reconstruction and final defense separately.
 
-### 보장왕이 기다리는 권력 {#040-agents--016-bojang}
+### The power King Bojang awaits {#040-agents--016-bojang}
 
-[보장왕이 기다리는 권력](../040-agents/016-bojang.md) — 보장왕의608년 생년 선택·실권 회복 계산과 형제를 이용하는 정변 책임을 찾는다.
+[The power King Bojang awaits](../040-agents/016-bojang.md) — Find the choice of a 608 birth, his calculations to recover real power and his responsibility for the coup using the brothers.
 
-### 왕가와 지역 귀족의 원한 {#040-agents--017-royal-house-and-regions}
+### Resentment between royal house and regional nobles {#040-agents--017-royal-house-and-regions}
 
-[왕가와 지역 귀족의 원한](../040-agents/017-royal-house-and-regions.md) — 왕가와 지역 귀족의 다른 기억, 멸망 뒤 왕의 상징과677년 복귀 조건을 찾는다.
+[Resentment between royal house and regional nobles](../040-agents/017-royal-house-and-regions.md) — Find their different memories, the king's symbolism after the fall and conditions of his return in 677.
 
-### 붙잡힌 남생의 탐문자 {#040-agents--018-namsaeng-messenger}
+### Namsaeng's detained investigator {#040-agents--018-namsaeng-messenger}
 
-[붙잡힌 남생의 탐문자](../040-agents/018-namsaeng-messenger.md) — 탐문자 두겸의 제한된 권한·구금 상태와 확인되지 않은 이후 생사를 찾는다.
+[Namsaeng's detained investigator](../040-agents/018-namsaeng-messenger.md) — Find Dugyeom's limited authority, detention and unconfirmed subsequent fate.
 
-### 구금 소식을 돌려보낸 마부 {#040-agents--019-messenger-driver}
+### The driver who sent news of detention {#040-agents--019-messenger-driver}
 
-[구금 소식을 돌려보낸 마부](../040-agents/019-messenger-driver.md) — 동행 마부가 보고할 수 있는 구금 관측과 심문/왕의 전모를 모르는 경계를 찾는다.
+[The driver who sent news of detention](../040-agents/019-messenger-driver.md) — Find what the accompanying driver could observe and report about detention, and what he did not know about interrogation or the king's full deliberations.
 
-### 연씨 거처를 접수하는 지휘자 {#040-agents--020-coup-receiver}
+### The commander seizing the Yeon residence {#040-agents--020-coup-receiver}
 
-[연씨 거처를 접수하는 지휘자](../040-agents/020-coup-receiver.md) — 접수 지휘자 담석의1천명 권한·생포 의도·통제 실패의 책임을 찾는다.
+[The commander seizing the Yeon residence](../040-agents/020-coup-receiver.md) — Find Damseok's authority over one thousand, intent to capture alive and responsibility for losing control.
 
-### 헌충을 벤 선두 병사 {#040-agents--021-heonchung-attacker}
+### The front-line soldier who cut Heonchung {#040-agents--021-heonchung-attacker}
 
-[헌충을 벤 선두 병사](../040-agents/021-heonchung-attacker.md) — 헌충을 벤 선두 병사의 지휘 관계와 계획된 자객이 아니라는 경계를 찾는다.
+[The front-line soldier who cut Heonchung](../040-agents/021-heonchung-attacker.md) — Find the soldier's chain of command and the boundary that he was not a planned assassin.
 
-### 헌충의 출동을 반대하는 군관 {#040-agents--022-household-officer}
+### The officer opposing Heonchung's sortie {#040-agents--022-household-officer}
 
-[헌충의 출동을 반대하는 군관](../040-agents/022-household-officer.md) — 두림의 공자 보호 의무와 출동 반대의 군사적 판단을 찾는다.
+[The officer opposing Heonchung's sortie](../040-agents/022-household-officer.md) — Find Durim's duty to protect the young master and military judgment against the sortie.
 
-### 부상자를 안으로 옮긴 호위 {#040-agents--023-wounded-carriers}
+### The guards who carried the wounded inside {#040-agents--023-wounded-carriers}
 
-[부상자를 안으로 옮긴 호위](../040-agents/023-wounded-carriers.md) — 운반·경계를 맡을 네 호위의 집단 식별과 전원 생존이 삼백명 전체를 뜻하지 않는 한계를 찾는다.
+[The guards who carried the wounded inside](../040-agents/023-wounded-carriers.md) — Find the four carriers and guards as a group and the limit that their survival does not establish the fate of all three hundred.
 
-### 사흘 동안 상처를 돌본 치료자 {#040-agents--024-heonchung-healer}
+### The healer who tended the wound for three days {#040-agents--024-heonchung-healer}
 
-[사흘 동안 상처를 돌본 치료자](../040-agents/024-heonchung-healer.md) — 치료자 석연의 처치 범위와 사망을 막지 못한 책임/보고 한계를 찾는다.
+[The healer who tended the wound for three days](../040-agents/024-heonchung-healer.md) — Find Seokyeon's scope of treatment and the limits of responsibility and reporting after failing to prevent death.
 
-### 고연수가 믿는 구원군 {#040-agents--025-goyeonsu}
+### The relief army Go Yeonsu trusts {#040-agents--025-goyeonsu}
 
-[고연수가 믿는 구원군](../040-agents/025-goyeonsu.md) — 고연수의 구원군 자신감·지휘·항복 뒤 보호 실패를 찾는다.
+[The relief army Go Yeonsu trusts](../040-agents/025-goyeonsu.md) — Find his confidence in and command of the relief army, and failure to protect people after surrender.
 
-### 고혜진이 확인하는 진격 조건 {#040-agents--026-gohyejin}
+### Go Hyejin checks the conditions for advance {#040-agents--026-gohyejin}
 
-[고혜진이 확인하는 진격 조건](../040-agents/026-gohyejin.md) — 고혜진의 진격 실무 판단과 고연수와 함께 책임지는 항복을 찾는다.
+[Go Hyejin checks the conditions for advance](../040-agents/026-gohyejin.md) — Find his practical judgment about the advance and surrender shared with Go Yeonsu.
 
-### 고정의가 피하려는 싸움 {#040-agents--027-gojeongui}
+### The battle Go Jeongui wants to avoid {#040-agents--027-gojeongui}
 
-[고정의가 피하려는 싸움](../040-agents/027-gojeongui.md) — 고정의의 지연·보급 차단 권고와 군 전체에 강제할 권한이 없는 자리를 찾는다.
+[The battle Go Jeongui wants to avoid](../040-agents/027-gojeongui.md) — Find his recommendation to delay and cut supplies, without authority to compel the whole army.
 
-### 안시성주가 맡은 사람들 {#040-agents--028-ansi-castellan}
+### The people entrusted to the Ansiseong commander {#040-agents--028-ansi-castellan}
 
-[안시성주가 맡은 사람들](../040-agents/028-ansi-castellan.md) — 안시성주의 독자적 방어 책임·개소문과의 불복 관계, 실명 미확정 경계를 찾는다.
+[The people entrusted to the Ansiseong commander](../040-agents/028-ansi-castellan.md) — Find independent defensive responsibility, the commander's disobedience relationship with Gaesomun, and the unconfirmed personal name.
 
-### 속로와 그의 두 병력 {#040-agents--029-sokro}
+### Sokro and his two forces {#040-agents--029-sokro}
 
-[속로와 그의 두 병력](../040-agents/029-sokro.md) — 속로의 친족 병력/혼합 경기병, 학살의 상실과 귀부를 곧장 따르지 않는 판단을 찾는다.
+[Sokro and his two forces](../040-agents/029-sokro.md) — Distinguish kin troops and mixed light cavalry, the loss in the massacre and his judgment that does not automatically follow submission.
 
-### 미란의 집과 군역 {#040-agents--030-miran}
+### Miran's household and military service {#040-agents--030-miran}
 
-[미란의 집과 군역](../040-agents/030-miran.md) — 미란의 유족 가구·물자 요구·딸의 미래와 공동체 전체를 대표하지 않는 한계를 찾는다.
+[Miran's household and military service](../040-agents/030-miran.md) — Find the bereaved household, demands for supplies, her daughter's future and the limit that Miran does not represent the entire community.
 
-### 석부가 따라가는 두 지휘자 {#040-agents--031-seokbu}
+### The two commanders Seokbu follows {#040-agents--031-seokbu}
 
-[석부가 따라가는 두 지휘자](../040-agents/031-seokbu.md) — 석부의 남생에 대한 전선 신뢰와 귀부를 거부하는 문턱을 찾는다.
+[The two commanders Seokbu follows](../040-agents/031-seokbu.md) — Find his frontline trust in Namsaeng and the threshold at which he refuses submission.
 
-### 평양을 먼저 떠나려는 고휘 {#040-agents--032-go-hwi-flight}
+### Go Hwi tries to leave Pyongyang first {#040-agents--032-go-hwi-flight}
 
-[평양을 먼저 떠나려는 고휘](../040-agents/032-go-hwi-flight.md) — 고휘의 주필산 생존·수성론·가족 이동과 등록 수비원 해제권이 없는 경계를 찾는다.
+[Go Hwi tries to leave Pyongyang first](../040-agents/032-go-hwi-flight.md) — Find his survival at Jupilsan, advocacy of fortress defense and family movement, and his lack of authority to release registered defenders.
 
-### 동문에서 고휘와 맞서는 문지기 {#040-agents--033-east-gate-officer}
+### The gatekeeper who confronts Go Hwi {#040-agents--033-east-gate-officer}
 
-[동문에서 고휘와 맞서는 문지기](../040-agents/033-east-gate-officer.md) — 동문 책임자 두락의 명부·통행 확인권과 처벌/면직 권한의 한계를 찾는다.
+[The gatekeeper who confronts Go Hwi](../040-agents/033-east-gate-officer.md) — Find east-gate officer Durak's authority to check rolls and passage and limits on punishment or dismissal.
 
-### 집으로 수레를 돌리는 유혜 {#040-agents--034-yu-hye-gate-household}
+### Yuhye turns her cart home {#040-agents--034-yu-hye-gate-household}
 
-[집으로 수레를 돌리는 유혜](../040-agents/034-yu-hye-gate-household.md) — 유혜의 피난 목적지·동행 부족과 가족의 이동 권리가 실제 이동을 보증하지 않는 조건을 찾는다.
+[Yuhye turns her cart home](../040-agents/034-yu-hye-gate-household.md) — Find her evacuation destination and lack of a companion, and why a right to leave does not ensure actual passage.
 
-### 해은이 잃지 않으려는 것 {#040-agents--035-haeeun}
+### What Haeun tries not to lose {#040-agents--035-haeeun}
 
-[해은이 잃지 않으려는 것](../040-agents/035-haeeun.md) — 해은의 수선 생계·가족 보호와668년 이주 앞 짐 선택의 기준을 찾는다.
+[What Haeun tries not to lose](../040-agents/035-haeeun.md) — Find her repair livelihood, family protection and criteria for choosing luggage before the 668 relocation.
 
-### 동부 경당의 군관 교습자 {#040-agents--036-eastern-instructor}
+### The military instructor at the eastern gyeongdang {#040-agents--036-eastern-instructor}
 
-[동부 경당의 군관 교습자](../040-agents/036-eastern-instructor.md) — 동부 교습자 무진의 글·활·신호·번역 능력과 배급 권한이 없는 한계를 찾는다.
+[The military instructor at the eastern gyeongdang](../040-agents/036-eastern-instructor.md) — Find Mujin's writing, archery, signaling and interpretation skills and lack of rationing authority.
 
-### 마을 가구의 몫을 모으는 머루 {#040-agents--037-community-head}
+### Meoru gathers village households' shares {#040-agents--037-community-head}
 
-[마을 가구의 몫을 모으는 머루](../040-agents/037-community-head.md) — 우두머리 머루가 모으는 군역/교역 요구와 각 가구의 거절을 조정할 책임을 찾는다.
+[Meoru gathers village households' shares](../040-agents/037-community-head.md) — Find the leader's duty to coordinate demands for military service and trade with individual households' refusals.
 
-### 돌아오지 못한 날로 {#040-agents--038-nallo}
+### Nallo, who did not return {#040-agents--038-nallo}
 
-[돌아오지 못한 날로](../040-agents/038-nallo.md) — 날로의 포획 전 생존 시도·처형 뒤 부재와 돌아오지 않은 무장을 찾는다.
+[Nallo, who did not return](../040-agents/038-nallo.md) — Find his attempts to survive before capture, absence after execution and equipment that did not return.
 
-### 미란의 딸 누리 {#040-agents--039-nuri}
+### Miran's daughter Nuri {#040-agents--039-nuri}
 
-[미란의 딸 누리](../040-agents/039-nuri.md) — 누리의645년 두 살/661년 성인 단계 몸·말·노동과 자기 선택을 찾는다.
+[Miran's daughter Nuri](../040-agents/039-nuri.md) — Find her body, speech, work and choices as a two-year-old in 645 and an adult in 661.
 
-### 해은의 남편 장근 {#040-agents--040-janggeun}
+### Haeun's husband Janggeun {#040-agents--040-janggeun}
 
-[해은의 남편 장근](../040-agents/040-janggeun.md) — 장근의 운반 생계와669년 가족이 같은 이주 집단에 드는 조건을 찾는다.
+[Haeun's husband Janggeun](../040-agents/040-janggeun.md) — Find his transport livelihood and conditions under which the family joins the same relocation group in 669.
 
-### 해은의 맏아이 서우 {#040-agents--041-seou}
+### Haeun's eldest child Seou {#040-agents--041-seou}
 
-[해은의 맏아이 서우](../040-agents/041-seou.md) — 서우의 수선 노동·자기 도구와 부모 돌봄의 부담을 찾는다.
+[Haeun's eldest child Seou](../040-agents/041-seou.md) — Find Seou's repair work, own tools and burden of caring for parents.
 
-### 해은의 둘째 차무 {#040-agents--042-chamu}
+### Haeun's second child Chamu {#040-agents--042-chamu}
 
-[해은의 둘째 차무](../040-agents/042-chamu.md) — 성인 차무의 운반 역할과669년 하남에서 가족과 함께 남는 조건을 찾는다.
+[Haeun's second child Chamu](../040-agents/042-chamu.md) — Find adult Chamu's transport role and conditions for remaining with family in Henan in 669.
 
-### 지원을 맡은 군관 구빈 {#040-agents--043-gubin}
+### Gubin, the officer responsible for aid {#040-agents--043-gubin}
 
-[지원을 맡은 군관 구빈](../040-agents/043-gubin.md) — 구빈의 유족 물자 인계·지연분 재전달과 전체 군량을 독점하지 않는 권한을 찾는다.
+[Gubin, the officer responsible for aid](../040-agents/043-gubin.md) — Find his handover of supplies to bereaved families, renewed delivery of delayed shares and authority short of monopolizing all provisions.
 
-### 교체된 수송 책임자 고탁 {#040-agents--044-gotak}
+### Go Tak, the replaced transport official {#040-agents--044-gotak}
 
-[교체된 수송 책임자 고탁](../040-agents/044-gotak.md) — 고탁의 수송 우선순위 실패와 교체가 처형/가구 처벌로 번지지 않는 결과를 찾는다.
+[Go Tak, the replaced transport official](../040-agents/044-gotak.md) — Find his failure of transport priorities and replacement without extending the outcome to execution or punishment of his household.
 
-### 재건의 작업을 나누는 뉴일 {#040-agents--045-nyuil}
+### Nyuil divides reconstruction work {#040-agents--045-nyuil}
 
-[재건의 작업을 나누는 뉴일](../040-agents/045-nyuil.md) — 뉴일의 파종·휴식에 맞춘 작업 조정권과 공사를 모두 취소할 수 없는 한계를 찾는다.
+[Nyuil divides reconstruction work](../040-agents/045-nyuil.md) — Find authority to adjust work around sowing and rest and the limit that not all construction can be canceled.
 
-### 당 태종의 승리 경험 {#040-agents--046-taizong}
+### Tang Taizong's experience of victory {#040-agents--046-taizong}
 
-[당 태종의 승리 경험](../040-agents/046-taizong.md) — 당 태종의 전장 경험·자기 안목을 높이는 말씨와 포로 처분의 폭력을 찾는다.
+[Tang Taizong's experience of victory](../040-agents/046-taizong.md) — Find his battlefield experience, speech elevating his own judgment, and violence toward prisoners.
 
-### 당 고종이 쓸 수 있는 전력 {#040-agents--047-gaozong}
+### The forces Tang Gaozong can use {#040-agents--047-gaozong}
 
-[당 고종이 쓸 수 있는 전력](../040-agents/047-gaozong.md) — 고종의 동원/전용 최종권한과662년 전략 변경이 영구 맹세가 아닌 경계를 찾는다.
+[The forces Tang Gaozong can use](../040-agents/047-gaozong.md) — Find his final authority over mobilization and diversion, and why the 662 strategic change is not a permanent pledge.
 
-### 이세적이 버티는 앞선 진 {#040-agents--048-li-shiji}
+### Li Shiji holds the forward line {#040-agents--048-li-shiji}
 
-[이세적이 버티는 앞선 진](../040-agents/048-li-shiji.md) — 이세적의645년 정면 유지·668년 귀부 지식 활용과 두 시기 외형을 찾는다.
+[Li Shiji holds the forward line](../040-agents/048-li-shiji.md) — Find his 645 defense of the front, use of knowledge from submission in 668 and appearance in both periods.
 
-### 장손무기의 측후방 공격 {#040-agents--049-zhangsun-wuji}
+### Zhangsun Wuji's attack on flank and rear {#040-agents--049-zhangsun-wuji}
 
-[장손무기의 측후방 공격](../040-agents/049-zhangsun-wuji.md) — 장손무기의 측후방 지휘와 앞선 진의 버팀을 기다리는 관계를 찾는다.
+[Zhangsun Wuji's attack on flank and rear](../040-agents/049-zhangsun-wuji.md) — Find his flanking command and dependence on the forward line holding.
 
-### 소정방의 강점과 고립 {#040-agents--050-su-dingfang}
+### Su Dingfang's strength and isolation {#040-agents--050-su-dingfang}
 
-[소정방의 강점과 고립](../040-agents/050-su-dingfang.md) — 소정방의 원정 능력·보급 요청·살아 나간 군대와 고립의 한계를 찾는다.
+[Su Dingfang's strength and isolation](../040-agents/050-su-dingfang.md) — Find his expeditionary ability, supply request, surviving army and limits imposed by isolation.
 
-### 방효태와 가족이 있는 사수의 진 {#040-agents--051-pang-xiaotai}
+### Pang Xiaotai and family in the Sasu camp {#040-agents--051-pang-xiaotai}
 
-[방효태와 가족이 있는 사수의 진](../040-agents/051-pang-xiaotai.md) — 방효태의 지휘와 가족 확인이 겹치는 부담, 사수 전사의 고정 결과를 찾는다.
+[Pang Xiaotai and family in the Sasu camp](../040-agents/051-pang-xiaotai.md) — Find the burden of command alongside checking on family and the fixed outcome of death at the Sasu.
 
-### 방효태의 열세 아들 {#040-agents--052-pang-sons}
+### Pang Xiaotai's thirteen sons {#040-agents--052-pang-sons}
 
-[방효태의 열세 아들](../040-agents/052-pang-sons.md) — 방효태 열세 아들의 공동 전사와 개별 나이/관직/영웅담을 미정으로 둔 범위를 찾는다.
+[Pang Xiaotai's thirteen sons](../040-agents/052-pang-sons.md) — Find their collective death and the unresolved individual ages, offices and hero stories.
 
-### 임아상군의 먼저 끊어진 연결 {#040-agents--053-ren-yaxiang}
+### Ren Yaxiang's force loses its connection first {#040-agents--053-ren-yaxiang}
 
-[임아상군의 먼저 끊어진 연결](../040-agents/053-ren-yaxiang.md) — 임아상의 진중 사망 기록과 작전 조직 상실의 다른 지위를 찾는다.
+[Ren Yaxiang's force loses its connection first](../040-agents/053-ren-yaxiang.md) — Distinguish the record of his death in camp from the loss of his operational organization.
 
-### 계필하력의 경험과 남생의 상대 {#040-agents--054-qibi-heli}
+### Qibi Heli's experience and rivalry with Namsaeng {#040-agents--054-qibi-heli}
 
-[계필하력의 경험과 남생의 상대](../040-agents/054-qibi-heli.md) — 철륵계 계필하력의 압록강 상대/666년 구원자라는 역전과500기병 수습을 찾는다.
+[Qibi Heli's experience and rivalry with Namsaeng](../040-agents/054-qibi-heli.md) — Find the reversal from Yalu opponent to 666 rescuer and his recovery of five hundred cavalry.
 
-### 아사나사이의 전장 행동 {#040-agents--055-ashina-sheer}
+### Ashina She'er's battlefield actions {#040-agents--055-ashina-sheer}
 
-[아사나사이의 전장 행동](../040-agents/055-ashina-sheer.md) — 아사나사이의 가계·요동 전장 행동과 당 협력이 전체 돌궐의 의지가 아닌 경계를 찾는다.
+[Ashina She'er's battlefield actions](../040-agents/055-ashina-sheer.md) — Find his genealogy and Liaodong actions, and why cooperation with Tang is not the will of all Turks.
 
-### 아사나충의 숙위와 원정 {#040-agents--056-ashina-zhong}
+### Ashina Zhong's guard service and expedition {#040-agents--056-ashina-zhong}
 
-[아사나충의 숙위와 원정](../040-agents/056-ashina-zhong.md) — 아사나충의 숙위·명령 범위·북방 전용을 아사나사이와 구별한다.
+[Ashina Zhong's guard service and expedition](../040-agents/056-ashina-zhong.md) — Distinguish his guard service, command scope and northern diversion from Ashina She'er.
 
-### 고구려 밖에서 당군의 뒤를 지킨 집실사력 {#040-agents--057-zhishi-sili}
+### Zhishi Sili guards Tang's rear outside Goguryeo {#040-agents--057-zhishi-sili}
 
-[고구려 밖에서 당군의 뒤를 지킨 집실사력](../040-agents/057-zhishi-sili.md) — 집실사력의645년 금산도 북방 임무를 찾는다. 주필산 현장이나 고유 음성은 배정하지 않는다.
+[Zhishi Sili guards Tang's rear outside Goguryeo](../040-agents/057-zhishi-sili.md) — Find his northern Jinshan route mission in 645. Assign him no Jupilsan presence or individual voice.
 
-### 정명진의 잔류와 반격 피해 {#040-agents--058-zheng-mingzhen}
+### Zheng Mingzhen's remaining force and counterattack losses {#040-agents--058-zheng-mingzhen}
 
-[정명진의 잔류와 반격 피해](../040-agents/058-zheng-mingzhen.md) — 정명진의 잔류·누방 조직 상실과662년 사망 경위의 미확정을 찾는다.
+[Zheng Mingzhen's remaining force and counterattack losses](../040-agents/058-zheng-mingzhen.md) — Find his staying, organizational loss at Nufang and unconfirmed circumstances of death in 662.
 
-### 소사업이 옮겨 가는 전선 {#040-agents--059-xiao-siye}
+### Xiao Siye moves to another front {#040-agents--059-xiao-siye}
 
-[소사업이 옮겨 가는 전선](../040-agents/059-xiao-siye.md) — 소사업의 북방 전용·679년 생존과 정인태의 사막 손실을 혼동하지 않을 경계를 찾는다.
+[Xiao Siye moves to another front](../040-agents/059-xiao-siye.md) — Find his northern diversion and survival in 679, without confusing him with Zheng Rentai's desert losses.
 
-### 장량의 수군 지휘와 침묵 {#040-agents--060-zhang-liang}
+### Zhang Liang's naval command and silence {#040-agents--060-zhang-liang}
 
-[장량의 수군 지휘와 침묵](../040-agents/060-zhang-liang.md) — 장량의 수군 지휘·급습 때 침묵과 장금수 수습의 다른 역할을 찾는다.
+[Zhang Liang's naval command and silence](../040-agents/060-zhang-liang.md) — Distinguish his command and silence during the raid from Zhang Jinshu's recovery role.
 
-### 장금수가 다시 움직인 병력 {#040-agents--061-zhang-jinshu}
+### The troops Zhang Jinshu set moving again {#040-agents--061-zhang-jinshu}
 
-[장금수가 다시 움직인 병력](../040-agents/061-zhang-jinshu.md) — 장금수가 북으로 병력을 수습한 능력과 국지 반격/원정 목표의 차이를 찾는다.
+[The troops Zhang Jinshu set moving again](../040-agents/061-zhang-jinshu.md) — Find his skill rallying troops with drums and the difference between local counterattack and expedition objectives.
 
-### 설인귀의 발탁과 명성의 한계 {#040-agents--062-xue-rengui}
+### Xue Rengui's selection and the limits of fame {#040-agents--062-xue-rengui}
 
-[설인귀의 발탁과 명성의 한계](../040-agents/062-xue-rengui.md) — 설인귀의645년 발탁·밝은 표지와670년 패전이 비법 유출로 설명되지 않는 경계를 찾는다.
+[Xue Rengui's selection and the limits of fame](../040-agents/062-xue-rengui.md) — Find his selection and bright marker in 645, and why his 670 defeat is not explained by a secret method leaking.
 
-### 우진달이 맡는 회전 병력 {#040-agents--063-niu-jinda}
+### Niu Jinda's turning force {#040-agents--063-niu-jinda}
 
-[우진달이 맡는 회전 병력](../040-agents/063-niu-jinda.md) — 우진달이 공동 지휘한1만1천을 별도 병력으로 중복하지 않을 조건을 찾는다. 보고 인물의 범위다.
+[Niu Jinda's turning force](../040-agents/063-niu-jinda.md) — Find the rule against double-counting the eleven thousand he jointly commanded. His role is within reported accounts.
 
-### 양오에서 곡물을 받는 군관 {#040-agents--064-yang-o-receiver}
+### The officer receiving grain at Yango {#040-agents--064-yang-o-receiver}
 
-[양오에서 곡물을 받는 군관](../040-agents/064-yang-o-receiver.md) — 양오 수령 군관 마정의 젖은 곡물 분리·인계권과 철수 결정권이 없는 한계를 찾는다.
+[The officer receiving grain at Yango](../040-agents/064-yang-o-receiver.md) — Find Ma Jeong's separation of wet grain and handover authority, without authority to decide withdrawal.
 
-### 인계터의 운반 병력 {#040-agents--065-yang-o-porters}
+### Porters at the handover site {#040-agents--065-yang-o-porters}
 
-[인계터의 운반 병력](../040-agents/065-yang-o-porters.md) — 당 인계 병력의 하역 역할과 신라 수송대와 다른 소속을 찾는다. 개별 가족극은 없다.
+[Porters at the handover site](../040-agents/065-yang-o-porters.md) — Find Tang personnel's unloading role and distinct affiliation from the Silla transport force. There is no individual family drama.
 
-### 김유신의 행군과 대가 {#040-agents--066-kim-yusin}
+### Kim Yusin's march and its costs {#040-agents--066-kim-yusin}
 
-[김유신의 행군과 대가](../040-agents/066-kim-yusin.md) — 김유신의 겨울 지휘·상벌 위임·전달 성과와 동상/손실을 함께 찾는다.
+[Kim Yusin's march and its costs](../040-agents/066-kim-yusin.md) — Find his winter command, delegated rewards and punishments, successful delivery, frostbite and losses together.
 
-### 김인문의 연락과 협력 {#040-agents--067-kim-inmun}
+### Kim Inmun's liaison and cooperation {#040-agents--067-kim-inmun}
 
-[김인문의 연락과 협력](../040-agents/067-kim-inmun.md) — 김인문의 당·신라 연락과664년 돌사성 참여를 별도 임무로 찾는다.
+[Kim Inmun's liaison and cooperation](../040-agents/067-kim-inmun.md) — Find Tang–Silla liaison and participation at Dolsaseong in 664 as separate assignments.
 
-### 김양도의 전달과 해로 귀환 {#040-agents--068-kim-yangdo}
+### Kim Yangdo's delivery and return by sea {#040-agents--068-kim-yangdo}
 
-[김양도의 전달과 해로 귀환](../040-agents/068-kim-yangdo.md) — 김양도의 전달 뒤 일부 해로 귀환과 육로 본대와의 구별을 찾는다.
+[Kim Yangdo's delivery and return by sea](../040-agents/068-kim-yangdo.md) — Find his partial return by sea after delivery, distinct from the main land force.
 
-### 김춘추의 협력 선택 {#040-agents--069-kim-chunchu}
+### Kim Chunchu's choice of cooperation {#040-agents--069-kim-chunchu}
 
-[김춘추의 협력 선택](../040-agents/069-kim-chunchu.md) — 김춘추의 대당 협력·660년 백제 정복·661년 승계를 찾는다.
+[Kim Chunchu's choice of cooperation](../040-agents/069-kim-chunchu.md) — Find cooperation with Tang, the 660 conquest of Baekje and succession in 661.
 
-### 문무왕이 이어받은 전쟁 {#040-agents--070-munmu}
+### The war King Munmu inherited {#040-agents--070-munmu}
 
-[문무왕이 이어받은 전쟁](../040-agents/070-munmu.md) — 문무왕의 법민 종군/661년 즉위와 위임·다음 국력 판단을 찾는다.
+[The war King Munmu inherited](../040-agents/070-munmu.md) — Find his campaigning as Beopmin, accession in 661, delegation and assessment of future national strength.
 
-### 복신이 일으킨 부흥 세력 {#040-agents--071-boksin}
+### The restoration force raised by Boksin {#040-agents--071-boksin}
 
-[복신이 일으킨 부흥 세력](../040-agents/071-boksin.md) — 복신의 현장 권력·고위험 생존 구상과 백강 이전에 끝나는 생존 사용 범위를 찾는다.
+[The restoration force raised by Boksin](../040-agents/071-boksin.md) — Find his local power, high-risk survival plan and use limited to his life before Baekgang.
 
-### 부여풍의 왕위와 왜의 연결 {#040-agents--072-buyeo-pung}
+### Buyeo Pung's throne and connection to Wa {#040-agents--072-buyeo-pung}
 
-[부여풍의 왕위와 왜의 연결](../040-agents/072-buyeo-pung.md) — 부여풍의 왕위·복신과의 권력 충돌 및 그 관계의 상한·왜 혼인과 고구려 도주를 찾는다.
+[Buyeo Pung's throne and connection to Wa](../040-agents/072-buyeo-pung.md) — Find his throne, power conflict with Boksin and its limits, marriage in Wa and flight to Goguryeo.
 
-### 왜의 지원을 둘러싼 관계 {#040-agents--073-yamato-support}
+### Relationships around Wa support {#040-agents--073-yamato-support}
 
-[왜의 지원을 둘러싼 관계](../040-agents/073-yamato-support.md) — 왜의 지원 보고와 가족 연결을 찾되 전체 혈통·언어를 확정하지 않는 범위를 찾는다.
+[Relationships around Wa support](../040-agents/073-yamato-support.md) — Find aid reports and family connections without fixing the ancestry or language of all Wa people.
 
-### 찬오가 옮기는 식량 {#040-agents--074-chano}
+### The food Chano carries {#040-agents--074-chano}
 
-[찬오가 옮기는 식량](../040-agents/074-chano.md) — 찬오의 운반 숙련·몸의 손상·생존과 귀돌 유품 인계 책임을 찾는다.
+[The food Chano carries](../040-agents/074-chano.md) — Find his transport skill, bodily injury, survival and responsibility for delivering Gwidol's belongings.
 
-### 부여풍과 혼인한 왜의 여성 {#040-agents--075-pung-wife}
+### The Wa woman married to Buyeo Pung {#040-agents--075-pung-wife}
 
-[부여풍과 혼인한 왜의 여성](../040-agents/075-pung-wife.md) — 다신장부 여동생의 혼인 기록과 동행/생사 미확정 경계를 찾는다. 직접 음성은 없다.
+[The Wa woman married to Buyeo Pung](../040-agents/075-pung-wife.md) — Find the marriage record of Komoshiki's younger sister and the unconfirmed accompaniment and fate. She has no direct voice.
 
-### 혼인의 가문 다신장부 {#040-agents--076-ta-shikibu}
+### Komoshiki and the marriage family {#040-agents--076-ta-shikibu}
 
-[혼인의 가문 다신장부](../040-agents/076-ta-shikibu.md) — 다신장부가 보고 속 혼인 가문의 이름인 범위를 찾는다. 총사령관으로 확장하지 않는다.
+[Komoshiki and the marriage family](../040-agents/076-ta-shikibu.md) — Find the scope of Komoshiki as the marriage family's name in a report. Do not expand him into a supreme commander.
 
-### 돌아오지 못한 귀돌 {#040-agents--077-guidol}
+### Gwidol, who did not return {#040-agents--077-guidol}
 
-[돌아오지 못한 귀돌](../040-agents/077-guidol.md) — 귀돌의 귀환 노동·동사와 시신을 옮길 여유가 없는 유품 관계를 찾는다.
+[Gwidol, who did not return](../040-agents/077-guidol.md) — Find his expected work on return, death from exposure and belongings where there is no capacity to carry his body.
 
-### 아들의 칼을 받는 아진 {#040-agents--078-ajin}
+### Ajin receives her son's knife {#040-agents--078-ajin}
 
-[아들의 칼을 받는 아진](../040-agents/078-ajin.md) — 아진의 사별한 가족 조건·아들 상실·칼 인계·남은 생계와 찬오의 부상을 알아보는 관계를 찾는다.
+[Ajin receives her son's knife](../040-agents/078-ajin.md) — Find her bereaved family, loss of her son, knife handover, remaining livelihood and recognition of Chano's injury.
 
-### 열기의 현장 공로 {#040-agents--079-yeolgi}
+### Yeolgi's contribution in the field {#040-agents--079-yeolgi}
 
-[열기의 현장 공로](../040-agents/079-yeolgi.md) — 열기의 급찬/사찬 포상 기록을 찾는다. 두품 상승이나 독립 전기는 아니다.
+[Yeolgi's contribution in the field](../040-agents/079-yeolgi.md) — Find records of his geupchan and sachan awards, without inventing a rank-class rise or independent biography.
 
-### 구근이 함께 받은 포상 {#040-agents--080-gugeun}
+### Gugeun's shared award {#040-agents--080-gugeun}
 
-[구근이 함께 받은 포상](../040-agents/080-gugeun.md) — 구근의 별도 이름·공로와 열기와 같은 포상 절차를 찾는다. 직접 장면은 없다.
+[Gugeun's shared award](../040-agents/080-gugeun.md) — Find his separate name and contribution and the same award procedure as Yeolgi. He has no direct scene.
 
-### 돌사성 공격의 품일 {#040-agents--081-pumil}
+### Pumil in the attack on Dolsaseong {#040-agents--081-pumil}
 
-[돌사성 공격의 품일](../040-agents/081-pumil.md) — 품일의664년 돌사성 공동 공격 보고와 확인되지 않은 개별 전공의 한계를 찾는다.
+[Pumil in the attack on Dolsaseong](../040-agents/081-pumil.md) — Find his reported joint attack in 664 and limits on unconfirmed individual credit.
 
-### 돌사성 공격의 군관 {#040-agents--082-gungwan}
+### Gungwan in the attack on Dolsaseong {#040-agents--082-gungwan}
 
-[돌사성 공격의 군관](../040-agents/082-gungwan.md) — 인명 군관을 보통명사 군관과 구별하고 돌사성 보고의 범위를 찾는다.
+[Gungwan in the attack on Dolsaseong](../040-agents/082-gungwan.md) — Distinguish the personal name Gungwan from the common noun for military officer and find the report's scope.
 
-### 돌사성 공격의 문영 {#040-agents--083-munyeong}
+### Munyeong in the attack on Dolsaseong {#040-agents--083-munyeong}
 
-[돌사성 공격의 문영](../040-agents/083-munyeong.md) — 문영의 돌사성 공동 임무와 별도 전술·가족을 배정하지 않은 경계를 찾는다.
+[Munyeong in the attack on Dolsaseong](../040-agents/083-munyeong.md) — Find his joint assignment and the boundary that no separate tactics or family have been assigned.
 
-### 온달이 보여 준 출세의 길 {#040-agents--084-ondal}
+### Ondal's path to advancement {#040-agents--084-ondal}
 
-[온달이 보여 준 출세의 길](../040-agents/084-ondal.md) — 온달의 서민 출세·대형 관등·아단성 밖 전사와 창작 계보의 경계를 찾는다.
+[Ondal's path to advancement](../040-agents/084-ondal.md) — Find commoner advancement, high rank, death outside Adanseong and the boundary of invented genealogy.
 
-### 신성이 맡은 군무 {#040-agents--085-sinseong-monk}
+### Sinseong's military work {#040-agents--085-sinseong-monk}
 
-[신성이 맡은 군무](../040-agents/085-sinseong-monk.md) — 승려 신성(信誠)의 군무·내응 동기와 성곽 신성(新城)의 구별을 찾는다.
+[Sinseong's military work](../040-agents/085-sinseong-monk.md) — Distinguish the monk Sinseong's military work and motives for internal cooperation from the fortress Sinseong.
 
-### 오사가 맡은 문의 교대 {#040-agents--086-osa}
+### Osa's gate rotation {#040-agents--086-osa}
 
-[오사가 맡은 문의 교대](../040-agents/086-osa.md) — 오사의 통용문 교대·잠금·출입 권한과 요묘에 의존하는 조건을 찾는다.
+[Osa's gate rotation](../040-agents/086-osa.md) — Find Osa's authority over shifts, locking and passage and dependence on Yomyo.
 
-### 요묘가 맞추는 접근 통로 {#040-agents--087-yomyo}
+### Yomyo coordinates the approach route {#040-agents--087-yomyo}
 
-[요묘가 맞추는 접근 통로](../040-agents/087-yomyo.md) — 요묘의 안길 순찰·교대 권한과 독자적으로 문을 열 수 없는 한계를 찾는다.
+[Yomyo coordinates the approach route](../040-agents/087-yomyo.md) — Find his patrol and shift authority and inability to open the gate independently.
 
-### 온달의 후손으로 보는 온사문 {#040-agents--088-onsamun}
+### On Samun as Ondal's descendant {#040-agents--088-onsamun}
 
-[온달의 후손으로 보는 온사문](../040-agents/088-onsamun.md) — 온사문의659년 패전 보고와 온달 손자/608년생이라는 창작 연결을 찾는다.
+[On Samun as Ondal's descendant](../040-agents/088-onsamun.md) — Find the 659 defeat report and fictional connection as Ondal's grandson born in 608.
 
-### 계승 내전의 추군 세력 {#040-agents--089-chugun}
+### Chugun's faction in the succession civil war {#040-agents--089-chugun}
 
-[계승 내전의 추군 세력](../040-agents/089-chugun.md) — 선대 내전의 추군 호칭을 찾는다. 실명·얼굴·개인 대사는 복원하지 않는다.
+[Chugun's faction in the succession civil war](../040-agents/089-chugun.md) — Find the faction name; no personal names, faces or dialogue are reconstructed.
 
-### 계승 내전의 세군 세력 {#040-agents--090-segun}
+### Segun's faction in the succession civil war {#040-agents--090-segun}
 
-[계승 내전의 세군 세력](../040-agents/090-segun.md) — 세군 쪽 피해와 추군과 다른 당사자임을 찾는다. 개인 전투 장면은 없다.
+[Segun's faction in the succession civil war](../040-agents/090-segun.md) — Find its losses and distinct position from Chugun. There are no individual battle scenes.
 
-### 신라에 남은 망명 가구들 {#040-agents--091-silla-exiles}
+### Exiled households remaining in Silla {#040-agents--091-silla-exiles}
 
-[신라에 남은 망명 가구들](../040-agents/091-silla-exiles.md) — 신라 친족에게 향한 익명 망명 가구와 되찾지 못한 관계의 범위를 찾는다.
+[Exiled households remaining in Silla](../040-agents/091-silla-exiles.md) — Find anonymous households who went to Silla relatives and the scope of connections not recovered.
 
-### 백제로 향한 망명 가구들 {#040-agents--092-baekje-exiles}
+### Exiled households who went to Baekje {#040-agents--092-baekje-exiles}
 
-[백제로 향한 망명 가구들](../040-agents/092-baekje-exiles.md) — 백제의 교역·혼인 연고로 옮긴 가구를 신라 망명과 구별한다.
+[Exiled households who went to Baekje](../040-agents/092-baekje-exiles.md) — Distinguish households moving to trade and marriage connections in Baekje from the Silla exiles.
 
-### 북중국을 합친 북주 무제 {#040-agents--093-zhou-wudi}
+### Northern Zhou's Emperor Wu unites north China {#040-agents--093-zhou-wudi}
 
-[북중국을 합친 북주 무제](../040-agents/093-zhou-wudi.md) — 577년 북제를 합친 북주 무제의 정세 보고와5호16국 혼동의 경계를 찾는다.
+[Northern Zhou's Emperor Wu unites north China](../040-agents/093-zhou-wudi.md) — Find the report of his 577 annexation of Northern Qi without confusing it with the Sixteen Kingdoms.
 
-### 북주의 기반을 통일로 이은 수문제 {#040-agents--094-sui-wendi}
+### Sui Wendi builds unification on Northern Zhou {#040-agents--094-sui-wendi}
 
-[북주의 기반을 통일로 이은 수문제](../040-agents/094-sui-wendi.md) — 589년 통일을 이룬 수문제를 수양제와 구별하는 선대 정세 입력을 찾는다.
+[Sui Wendi builds unification on Northern Zhou](../040-agents/094-sui-wendi.md) — Find the earlier context distinguishing the unifier of 589 from Sui Yangdi.
 
-### 선박의 병력을 정리한 주법상 {#040-agents--095-zhou-fashang}
+### Zhou Fashang organizes troops on ships {#040-agents--095-zhou-fashang}
 
-[선박의 병력을 정리한 주법상](../040-agents/095-zhou-fashang.md) — 주법상의612년 선박 잔류·병력 정돈을 찾는다. 모든 수군의 전멸로 바꾸지 않는다.
+[Zhou Fashang organizes troops on ships](../040-agents/095-zhou-fashang.md) — Find his remaining on ships and organizing troops in 612. Do not turn this into the destruction of the entire navy.
 
-### 큰 적대 집단을 이끈 돌지계 {#040-agents--096-dolji-gye}
+### Doljigye leads a large hostile group {#040-agents--096-dolji-gye}
 
-[큰 적대 집단을 이끈 돌지계](../040-agents/096-dolji-gye.md) — 돌지계의 대규모 적대 집단을 말갈 전체와 구별하고 선대 보고의 범위를 찾는다.
+[Doljigye leads a large hostile group](../040-agents/096-dolji-gye.md) — Distinguish his large hostile group from all Malgal and find the scope of earlier reports.
 
-### 침공을 되풀이한 수양제 {#040-agents--097-sui-yangdi}
+### Sui Yangdi's repeated invasions {#040-agents--097-sui-yangdi}
 
-[침공을 되풀이한 수양제](../040-agents/097-sui-yangdi.md) — 수양제를 반복 침공의 권한자로 읽는 두 세대의 다른 기억을 찾는다. 독립 궁정 장면은 없다.
+[Sui Yangdi's repeated invasions](../040-agents/097-sui-yangdi.md) — Find two generations' different memories of the authority behind repeated invasions. There is no separate court scene.
 
-### 평양으로 온 내호아 {#040-agents--098-lai-huer}
+### Lai Huer comes to Pyongyang {#040-agents--098-lai-huer}
 
-[평양으로 온 내호아](../040-agents/098-lai-huer.md) — 내호아의612/614년 수군 임무와 공격 지속/철군 명령의 차이를 찾는다.
+[Lai Huer comes to Pyongyang](../040-agents/098-lai-huer.md) — Find his 612 and 614 naval missions and the difference between continuing an attack and an order to withdraw.
 
-### 돌려보내는 곡사정 {#040-agents--099-husi-zheng}
+### Husi Zheng is returned {#040-agents--099-husi-zheng}
 
-[돌려보내는 곡사정](../040-agents/099-husi-zheng.md) — 곡사정의613년 도주·614년 송환과 전지적 정보원으로 확대하지 않는 경계를 찾는다.
+[Husi Zheng is returned](../040-agents/099-husi-zheng.md) — Find his 613 flight and 614 repatriation, without expanding him into an omniscient source.
 
-### 고구려 사행의 진대덕 {#040-agents--100-chen-dade}
+### Chen Dade on a mission to Goguryeo {#040-agents--100-chen-dade}
 
-[고구려 사행의 진대덕](../040-agents/100-chen-dade.md) — 진대덕의641년 탐문 기록과 고구려가 이를 현장 발각하지 않은 정보 경계를 찾는다.
+[Chen Dade on a mission to Goguryeo](../040-agents/100-chen-dade.md) — Find the record of his 641 inquiries and the limit that Goguryeo did not discover them on site.
 
-### 아사나사이의 부친 처라가한 {#040-agents--101-chuluo-khagan}
+### Chuluo Qaghan, Ashina She'er's father {#040-agents--101-chuluo-khagan}
 
-[아사나사이의 부친 처라가한](../040-agents/101-chuluo-khagan.md) — 처라가한이 아사나사이의 부친으로만 쓰이는 가계 입력을 찾는다.
+[Chuluo Qaghan, Ashina She'er's father](../040-agents/101-chuluo-khagan.md) — Find the genealogical input used only as Ashina She'er's father.
 
-### 603년 북한산성을 공격한 고승 {#040-agents--102-go-seung}
+### Go Seung attacks Bukhansanseong in 603 {#040-agents--102-go-seung}
 
-[603년 북한산성을 공격한 고승](../040-agents/102-go-seung.md) — 고승의603년 북한산성 철수 보고를 온달·온사문과 구별한다.
+[Go Seung attacks Bukhansanseong in 603](../040-agents/102-go-seung.md) — Distinguish the report of his 603 withdrawal from Ondal and On Samun.
 
-### 고승을 물러나게 한 진평왕 {#040-agents--103-jinpyeong}
+### King Jinpyeong turns Go Seung back {#040-agents--103-jinpyeong}
 
-[고승을 물러나게 한 진평왕](../040-agents/103-jinpyeong.md) — 진평왕의603년 구원군이 성벽과 함께 작용한 보고 범위를 찾는다.
+[King Jinpyeong turns Go Seung back](../040-agents/103-jinpyeong.md) — Find the reported scope of the 603 relief army working with the fortress walls.
 
-### 661년 북한산성을 지킨 동타천 {#040-agents--104-dongtacheon}
+### Dong Tacheon defends Bukhansanseong in 661 {#040-agents--104-dongtacheon}
 
-[661년 북한산성을 지킨 동타천](../040-agents/104-dongtacheon.md) — 동타천의661년 주민 방어 보고를 찾는다. 별도 전투 인물 장면은 없다.
+[Dong Tacheon defends Bukhansanseong in 661](../040-agents/104-dongtacheon.md) — Find the report of his civilian defense. There is no separate battle-character scene.
 
-### 북한산성을 공격한 뇌음신 {#040-agents--105-noeumsin}
+### Noeumsin attacks Bukhansanseong {#040-agents--105-noeumsin}
 
-[북한산성을 공격한 뇌음신](../040-agents/105-noeumsin.md) — 뇌음신의661년 술천→북한산성 공격 보고와 생해와 다른 이름을 찾는다.
+[Noeumsin attacks Bukhansanseong](../040-agents/105-noeumsin.md) — Find the 661 Sulcheon-to-Bukhansanseong attack report and his distinct name from Saenghae.
 
-### 뇌음신과 함께 공격한 생해 {#040-agents--106-saenghae}
+### Saenghae attacks with Noeumsin {#040-agents--106-saenghae}
 
-[뇌음신과 함께 공격한 생해](../040-agents/106-saenghae.md) — 생해의 공동 공격과 이름만으로 혈통/말갈 전체 지휘를 정하지 않는 경계를 찾는다.
+[Saenghae attacks with Noeumsin](../040-agents/106-saenghae.md) — Find the joint attack without deciding ancestry or command over all Malgal from the name alone.
 
-### 성왕의 죽음이 남긴 남방 {#040-agents--107-seongwang}
+### The south after King Seong's death {#040-agents--107-seongwang}
 
-[성왕의 죽음이 남긴 남방](../040-agents/107-seongwang.md) — 성왕의554년 전사를 백제 전체의 영구 무능으로 넓히지 않을 배경을 찾는다.
+[The south after King Seong's death](../040-agents/107-seongwang.md) — Find background that does not extend his death in 554 into permanent incapacity for all Baekje.
 
-### 무왕이 회복한 백제의 힘 {#040-agents--108-mu-baekje}
+### Baekje's strength restored by King Mu {#040-agents--108-mu-baekje}
 
-[무왕이 회복한 백제의 힘](../040-agents/108-mu-baekje.md) — 무왕의 공세 회복 보고와 영토 배수 등 미채택 수치의 경계를 찾는다.
+[Baekje's strength restored by King Mu](../040-agents/108-mu-baekje.md) — Find reports of restored offensive strength and the boundary of unadopted figures such as territorial multiples.
 
-### 의자왕의 공세와 패망 {#040-agents--109-uija}
+### King Uija's offensive and defeat {#040-agents--109-uija}
 
-[의자왕의 공세와 패망](../040-agents/109-uija.md) — 의자왕의642년 공세/660년 패망 보고를 부여풍과 구별한다.
+[King Uija's offensive and defeat](../040-agents/109-uija.md) — Distinguish reports of his 642 offensive and 660 defeat from Buyeo Pung.
 
-### 고휘의 아내가 가진 이동의 책임 {#040-agents--110-go-hwi-wife}
+### Go Hwi's wife is responsible for the journey {#040-agents--110-go-hwi-wife}
 
-[고휘의 아내가 가진 이동의 책임](../040-agents/110-go-hwi-wife.md) — 고휘 아내의 짐·수행원·딸 이동 책임과 등록 수비원을 쓸 수 없는 권한을 찾는다.
+[Go Hwi's wife is responsible for the journey](../040-agents/110-go-hwi-wife.md) — Find her responsibility for luggage, attendants and her daughter's movement, and inability to use registered defenders.
 
-### 고휘의 어린 딸 {#040-agents--111-go-hwi-daughter}
+### Go Hwi's young daughter {#040-agents--111-go-hwi-daughter}
 
-[고휘의 어린 딸](../040-agents/111-go-hwi-daughter.md) — 고휘 딸의 아홉 살·머리·음성과 어머니에게 의존하는 보호 관계를 찾는다.
+[Go Hwi's young daughter](../040-agents/111-go-hwi-daughter.md) — Find her age of nine, hair and voice, and protective dependence on her mother.
 
-### 개소문을 기른 어머니 {#040-agents--112-yeon-mother}
+### The mother who raised Gaesomun {#040-agents--112-yeon-mother}
 
-[개소문을 기른 어머니](../040-agents/112-yeon-mother.md) — 어머니의 살림·정치 접근·상중 역할과614~634년 모습을 찾는다. 이후 사용은 보충 조건을 따른다.
+[The mother who raised Gaesomun](../040-agents/112-yeon-mother.md) — Find her household work, political access, mourning role and appearance in 614–634. Later use follows supplementary conditions.
 
-### 형을 따라 자란 아우 정토 {#040-agents--113-yeon-jeongto}
+### Jeongto, the younger brother who grew up following him {#040-agents--113-yeon-jeongto}
 
-[형을 따라 자란 아우 정토](../040-agents/113-yeon-jeongto.md) — 정토의 소년기 모습·형과 다른 판단,666년 항복 결과와 실제 성인 장면의 보충 경계를 찾는다.
+[Jeongto, the younger brother who grew up following him](../040-agents/113-yeon-jeongto.md) — Find his childhood appearance, different judgment from his brother, 666 surrender and limits requiring supplementation for actual adult scenes.
 
-### 평양 경당의 노병 부루 {#040-agents--114-gyeongdang-teacher}
+### Buru, the veteran at the Pyongyang gyeongdang {#040-agents--114-gyeongdang-teacher}
 
-[평양 경당의 노병 부루](../040-agents/114-gyeongdang-teacher.md) — 노병 부루의 손가락 손상·경당 교육과 영웅담을 부풀리는 동기를 찾는다.
+[Buru, the veteran at the Pyongyang gyeongdang](../040-agents/114-gyeongdang-teacher.md) — Find his damaged fingers, teaching and motive for exaggerating hero stories.
 
-### 경당에서 함께 자란 을보 {#040-agents--115-eulbo}
+### Eulbo, who grew up with him at the gyeongdang {#040-agents--115-eulbo}
 
-[경당에서 함께 자란 을보](../040-agents/115-eulbo.md) — 을보의 부채·경당 경쟁·성인 모습과 645년 안시성 안의 운반/수선 배정을 찾는다. 첫 군역·전공·채무 해소/노비 여부·이후 생사는 미결이다.
+[Eulbo, who grew up with him at the gyeongdang](../040-agents/115-eulbo.md) — Find Eulbo's debt, school rivalry, adult appearance and 645 transport and repair assignment inside Ansiseong. First service, merit, debt resolution, bondage status and later fate remain unresolved.
 
-### 평양 경당의 아이들 {#040-agents--116-gyeongdang-children}
+### Children at the Pyongyang gyeongdang {#040-agents--116-gyeongdang-children}
 
-[평양 경당의 아이들](../040-agents/116-gyeongdang-children.md) — 평양 경당 아이들의 혼합 신분·공동 무구와 을보처럼 독립 인물이 되는 문턱을 찾는다.
+[Children at the Pyongyang gyeongdang](../040-agents/116-gyeongdang-children.md) — Find their mixed status, shared equipment and the threshold for becoming an independent character like Eulbo.
 
-### 지금은 복구할 때라고 말하는 석우 {#040-agents--117-seogu}
+### Seogu says it is time to rebuild {#040-agents--117-seogu}
 
-[지금은 복구할 때라고 말하는 석우](../040-agents/117-seogu.md) — 석우의 복구 경험·태조와 다른 원정 판단,631년 이후 미정 경계를 찾는다.
+[Seogu says it is time to rebuild](../040-agents/117-seogu.md) — Find his reconstruction experience, judgment on expeditions differing from Taejo's and the unresolved period after 631.
 
-### 남생을 낳은 아내 아란 {#040-agents--118-yeon-wife}
+### Aran, the wife who bore Namsaeng {#040-agents--118-yeon-wife}
 
-[남생을 낳은 아내 아란](../040-agents/118-yeon-wife.md) — 아란의 혼인·상복·임신 단계와633년 말 태조 사망 뒤634년 계승/출산 순서를 찾는다.
+[Aran, the wife who bore Namsaeng](../040-agents/118-yeon-wife.md) — Find her marriage, mourning clothes and pregnancy stages, and the succession and birth in 634 after Taejo's death in late 633.
 
-### 연씨 가문의 병사들 {#040-agents--119-yeon-house-soldiers}
+### Soldiers of the Yeon family {#040-agents--119-yeon-house-soldiers}
 
-[연씨 가문의 병사들](../040-agents/119-yeon-house-soldiers.md) — 가문 병사들의 거절·장비 사용권과 부상병의 생계 상태를 찾는다. 방문 문답의 원본 제약은 별도 지시에 있다.
+[Soldiers of the Yeon family](../040-agents/119-yeon-house-soldiers.md) — Find their ability to refuse, rights to use equipment and injured soldiers' livelihoods. Separate instructions own the source constraints for the visit dialogue.
 
-### 먼저 질문한 태학 자제 {#040-agents--120-taehak-moving-pupil}
+### The Taehak pupil who asked first {#040-agents--120-taehak-moving-pupil}
 
-[먼저 질문한 태학 자제](../040-agents/120-taehak-moving-pupil.md) — 먼저 질문한 자제와 이동·도착을 맡는 동료의 동일 식별,출발 전에 받아야 할 인수 답을 찾는다.
+[The Taehak pupil who asked first](../040-agents/120-taehak-moving-pupil.md) — Find the shared identity of the first questioner and the colleague responsible for movement and arrival, and the handover answer needed before departure.
 
-### 옆자리의 태학 자제 {#040-agents--121-taehak-receiving-pupil}
+### The Taehak pupil in the next place {#040-agents--121-taehak-receiving-pupil}
 
-[옆자리의 태학 자제](../040-agents/121-taehak-receiving-pupil.md) — 옆길의 공백을 묻는 자제와 빈자리를 인수하는 자제의 동일 식별 및 자기 응답 범위를 찾는다.
+[The Taehak pupil in the next place](../040-agents/121-taehak-receiving-pupil.md) — Find the shared identity of the pupil asking about a gap on the adjacent road and the one taking over the vacant place, and the scope of their own response.
 
-### 첫 가구의 대표 {#040-agents--122-first-household-representative}
+### The first household representative {#040-agents--122-first-household-representative}
 
-[첫 가구의 대표](../040-agents/122-first-household-representative.md) — 633년 말의 발화자와634년 첫 대표의 연속 식별,선대 명성과 현재 허가의 구별 및 사전협의 조건을 찾는다.
+[The first household representative](../040-agents/122-first-household-representative.md) — Find the continuous identity of the speaker in late 633 and the first representative in 634, the distinction between ancestral reputation and present permission, and prior consultation conditions.
 
-### 둘째 가구의 대표 {#040-agents--123-second-household-representative}
+### The second household representative {#040-agents--123-second-household-representative}
 
-[둘째 가구의 대표](../040-agents/123-second-household-representative.md) — 자기 가구의 비용을 말하고 수행을 본 뒤 협조를 계속할지 판단하는 둘째 대표의 식별과 조건을 찾는다.
+[The second household representative](../040-agents/123-second-household-representative.md) — Find the identity and conditions of the representative who states their household's costs and judges continued cooperation after seeing performance.
 
-### 셋째 가구의 대표 {#040-agents--124-third-household-representative}
+### The third household representative {#040-agents--124-third-household-representative}
 
-[셋째 가구의 대표](../040-agents/124-third-household-representative.md) — 동원 전에 자기 가구 사정을 듣게 하는 셋째 대표의 독립 응답과 식별을 찾는다.
+[The third household representative](../040-agents/124-third-household-representative.md) — Find the independent answer and identity of the representative who requires their household's circumstances to be heard before mobilization.
 
-## 군대와 통치가 작동하는 조건 {#050-systems}
+## Conditions under which armies and government operate {#050-systems}
 
-군대 공통 운용과 총량 뒤에 전역별 편제·위치·시간·손실을 둔다. 661~662년을 먼저 참조하고 645년·정변·남방·멸망 이후의 기준으로 넓힌다. 실제 공격·선택·공개 순서는 해당 시기의 treatments가 맡으며, 661~662년 전역은 해당 전역의 treatments가 맡는다.
+Common military operations and totals precede each campaign's organization, positions, timing and losses. Start with 661–662, then broaden to standards for 645, the coups, the south and the aftermath of the fall. Treatments for the relevant periods own the actual order of attacks, choices and revelations; the 661–662 campaign belongs to its own treatments.
 
-### 정예한 당군의 자신감 {#050-systems--010-tang-military-confidence}
+### Confidence of the elite Tang army {#050-systems--010-tang-military-confidence}
 
-[정예한 당군의 자신감](../050-systems/010-tang-military-confidence.md) — 당이 고구려 앞에서 무너뜨린 나라들, 수와 당의 차이, 당군의 훈련·편제 협동과 무적이라는 소문의 차이를 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[Confidence of the elite Tang army](../050-systems/010-tang-military-confidence.md) — Find countries Tang defeated before Goguryeo, differences from Sui, training and cooperation versus rumors of invincibility. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 고구려의 전력을 묶는 방식 {#050-systems--020-goguryeo-force-system}
+### How Goguryeo assembles its forces {#050-systems--020-goguryeo-force-system}
 
-[고구려의 전력을 묶는 방식](../050-systems/020-goguryeo-force-system.md) — 중앙·지역·편입 병력을 동원하는 권한과 중복 계상 금지를 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[How Goguryeo assembles its forces](../050-systems/020-goguryeo-force-system.md) — Find authority to mobilize central, local and incorporated forces and the prohibition on double-counting. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 여섯 방면과 삼십오만의 작품 값 {#050-systems--030-six-fronts-strength}
+### Six fronts and the story's 350,000 {#050-systems--030-six-fronts-strength}
 
-[여섯 방면과 삼십오만의 작품 값](../050-systems/030-six-fronts-strength.md) — 당의 전체 동원 값과 작품 방면별 배분을 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[Six fronts and the story's 350,000](../050-systems/030-six-fronts-strength.md) — Find Tang's total mobilization and the work's allocation by front. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 661년 늦봄 결전을 밝히는 자리 {#050-systems--035-late-spring-661-decision}
+### The late-spring 661 decision {#050-systems--035-late-spring-661-decision}
 
-[661년 늦봄 결전을 밝히는 자리](../050-systems/035-late-spring-661-decision.md) — 도입 액자 장면의 자리·참석자·맞서는 근거와 그 밤의 자리를 찾는다. 그 뒤의 회의와 전개는 해당 전역의 treatments가 맡는다.
+[The late-spring 661 decision](../050-systems/035-late-spring-661-decision.md) — Find the opening frame's setting, participants, opposing reasons and that night's location. Subsequent councils and developments belong to the campaign treatments.
 
-### 고구려의 가용 인원과 손실 {#050-systems--040-goguryeo-661-strength}
+### Goguryeo's available personnel and losses {#050-systems--040-goguryeo-661-strength}
 
-[고구려의 가용 인원과 손실](../050-systems/040-goguryeo-661-strength.md) — 고구려의 가용·수비·야전 인원과 시점별 손실, 기병 중심 결전 야전군의 병종·유지 비용과 현지 보병 연합을 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[Goguryeo's available personnel and losses](../050-systems/040-goguryeo-661-strength.md) — Find available, defensive and field personnel and losses over time; the cavalry-centered decisive field army's arms, maintenance costs and local infantry alliance. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 포위가 야전을 강요하는 이유 {#050-systems--050-forced-field-war}
+### Why a siege forces field battle {#050-systems--050-forced-field-war}
 
-[포위가 야전을 강요하는 이유](../050-systems/050-forced-field-war.md) — 야전은 깨지고 수성은 안에서 말라 가는 양쪽 덫, 봄갈이 전에 결전을 끝내야 하는 계절의 시한, 수성만으로 생산·보급을 지킬 수 없는 조건을 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[Why a siege forces field battle](../050-systems/050-forced-field-war.md) — Find the double trap of field defeat and depletion inside walls, the deadline before spring plowing, and why defense alone cannot protect production and supply. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 전술의 파훼와 전역의 붕괴 {#050-systems--060-tactics-and-operational-defeat}
+### Tactical counters and campaign collapse {#050-systems--060-tactics-and-operational-defeat}
 
-[전술의 파훼와 전역의 붕괴](../050-systems/060-tactics-and-operational-defeat.md) — 강약을 바꾸는 피로·보급·지형과 비법의 비채택을 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[Tactical counters and campaign collapse](../050-systems/060-tactics-and-operational-defeat.md) — Find fatigue, supplies and terrain changing strengths and weaknesses, and the rejection of a secret technique. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 수도에 먼저 들어온 적 {#050-systems--070-pyongyang-isolation}
+### The enemy reaches the capital first {#050-systems--070-pyongyang-isolation}
 
-[수도에 먼저 들어온 적](../050-systems/070-pyongyang-isolation.md) — 평양 주변 진입 상태와 육상 보급 연결의 한계를 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[The enemy reaches the capital first](../050-systems/070-pyongyang-isolation.md) — Find positions around Pyongyang and limits of land supply connections. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 남생의 한 달과 마지막 패배 {#050-systems--080-yalu-delay-and-loss}
+### Namsaeng's month and final defeat {#050-systems--080-yalu-delay-and-loss}
 
-[남생의 한 달과 마지막 패배](../050-systems/080-yalu-delay-and-loss.md) — 압록강 결빙·대치·패전 뒤의 가용 상태를 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[Namsaeng's month and final defeat](../050-systems/080-yalu-delay-and-loss.md) — Find Yalu freezing, confrontation and availability after defeat. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 북방의 위기로 벌어진 틈 {#050-systems--090-northern-diversion}
+### An opening created by the northern crisis {#050-systems--090-northern-diversion}
 
-[북방의 위기로 벌어진 틈](../050-systems/090-northern-diversion.md) — 북방 전환 명령·보고의 시차와 잔류 편제를 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[An opening created by the northern crisis](../050-systems/090-northern-diversion.md) — Find northern diversion orders, reporting delays and the remaining organization. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 살아남은 병력이 평양에 닿는 과정 {#050-systems--100-counterattack-concentration}
+### How surviving forces reach Pyongyang {#050-systems--100-counterattack-concentration}
 
-[살아남은 병력이 평양에 닿는 과정](../050-systems/100-counterattack-concentration.md) — 요동 기동군의 남하 거리·평양성 병력과의 집결 인원/지원 구분 및 별도 H2의 분산 비축·현지 운반·고갈 한도를 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[How surviving forces reach Pyongyang](../050-systems/100-counterattack-concentration.md) — Find the Liaodong mobile force's southward distance, assembly with fortress troops and support-personnel distinction, plus separate sections on dispersed reserves, local transport and depletion limits. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 임아상군을 먼저 깨뜨리는 집중 {#050-systems--110-ren-yaxiang-defeat}
+### Concentration against Ren Yaxiang first {#050-systems--110-ren-yaxiang-defeat}
 
-[임아상군을 먼저 깨뜨리는 집중](../050-systems/110-ren-yaxiang-defeat.md) — 임아상 진의 접촉·조직 상실 기준과 구원로를 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[Concentration against Ren Yaxiang first](../050-systems/110-ren-yaxiang-defeat.md) — Find contact with his camp, criteria for organizational loss and relief routes. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 사수에서 끝나는 옥저도군 {#050-systems--120-sasu-battle}
+### The Okjeo-route army ends at the Sasu {#050-systems--120-sasu-battle}
 
-[사수에서 끝나는 옥저도군](../050-systems/120-sasu-battle.md) — 사수의 기준일·진 사이 거리·구원 소요시간을 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[The Okjeo-route army ends at the Sasu](../050-systems/120-sasu-battle.md) — Find the reference date, distances between camps and time needed for relief. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 세 조직의 파괴와 남은 사람 {#050-systems--130-second-war-losses}
+### Three organizations destroyed and people remaining {#050-systems--130-second-war-losses}
 
-[세 조직의 파괴와 남은 사람](../050-systems/130-second-war-losses.md) — 당의 조직 상실과 귀환·비귀환 인원 합계를 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[Three organizations destroyed and people remaining](../050-systems/130-second-war-losses.md) — Find Tang's organizational losses and totals returned and not returned. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 수송대가 선택한 험로 {#050-systems--140-supply-route}
+### The difficult road chosen by the convoy {#050-systems--140-supply-route}
 
-[수송대가 선택한 험로](../050-systems/140-supply-route.md) — 칠중하~양오 수송로의 거리·지형·도착일을 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[The difficult road chosen by the convoy](../050-systems/140-supply-route.md) — Find distance, terrain and arrival date for the Chiljungha–Yango route. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 지휘가 통과시켜야 할 대열 {#050-systems--150-transport-column}
+### The column command must get through {#050-systems--150-transport-column}
 
-[지휘가 통과시켜야 할 대열](../050-systems/150-transport-column.md) — 전투원·운반자 구성과 자루·행정 용량의 차이를 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[The column command must get through](../050-systems/150-transport-column.md) — Find combatant and carrier composition and the difference between sacks and administrative capacity. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 전달할 식량과 자기 식량 {#050-systems--160-grain-and-rations}
+### Food to deliver and food for the force {#050-systems--160-grain-and-rations}
 
-[전달할 식량과 자기 식량](../050-systems/160-grain-and-rations.md) — 전달 군량의 이본·양곡 종류와 자체 양식을 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[Food to deliver and food for the force](../050-systems/160-grain-and-rations.md) — Find variant accounts of delivered grain, grain types and the force's own rations. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 귀환의 기만과 임진강의 추격 {#050-systems--170-return-and-pursuit}
+### Deception on return and pursuit at the Imjin {#050-systems--170-return-and-pursuit}
 
-[귀환의 기만과 임진강의 추격](../050-systems/170-return-and-pursuit.md) — 귀환 속도·추격 가용 인원과 전투 뒤 상태를 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[Deception on return and pursuit at the Imjin](../050-systems/170-return-and-pursuit.md) — Find return speed, personnel available for pursuit and their condition after battle. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 돌아온 사람의 손과 다음 전쟁 {#050-systems--180-winter-human-cost}
+### Returnees' hands and the next war {#050-systems--180-winter-human-cost}
 
-[돌아온 사람의 손과 다음 전쟁](../050-systems/180-winter-human-cost.md) — 동상·비귀환·후유 손상의 작품 인원을 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[Returnees' hands and the next war](../050-systems/180-winter-human-cost.md) — Find the story's counts for frostbite, nonreturn and lasting injury. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 단기 결전을 원하는 구원군 {#050-systems--190-645-relief-army}
+### A relief army seeking a quick decision {#050-systems--190-645-relief-army}
 
-[단기 결전을 원하는 구원군](../050-systems/190-645-relief-army.md) — 구원군의 전체 동원과 회전 실투입의 구별을 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[A relief army seeking a quick decision](../050-systems/190-645-relief-army.md) — Distinguish total mobilization from the force actually committed to battle. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 주필산에서 깨지는 연결 {#050-systems--200-jupilsan-defeat}
+### Connections break at Jupilsan {#050-systems--200-jupilsan-defeat}
 
-[주필산에서 깨지는 연결](../050-systems/200-jupilsan-defeat.md) — 주필산의 경로·접촉 소요와 패전 뒤 인원을 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[Connections break at Jupilsan](../050-systems/200-jupilsan-defeat.md) — Find routes, time to contact and personnel after defeat. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 안시성의 수비가 얻는 시간 {#050-systems--210-ansi-defence}
+### Time bought by the defense of Ansiseong {#050-systems--210-ansi-defence}
 
-[안시성의 수비가 얻는 시간](../050-systems/210-ansi-defence.md) — 안시 수비 인원·권한과 주민 노동의 범위를 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[Time bought by the defense of Ansiseong](../050-systems/210-ansi-defence.md) — Find defenders, authority and the scope of civilian labor. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 건안성 아래 수군의 실패 {#050-systems--220-645-naval-failure}
+### Naval failure below Geonanseong {#050-systems--220-645-naval-failure}
 
-[건안성 아래 수군의 실패](../050-systems/220-645-naval-failure.md) — 건안성 진의 완성 상태와 수군 손실의 기록 경계를 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[Naval failure below Geonanseong](../050-systems/220-645-naval-failure.md) — Find the camp's state of completion and limits of records on naval losses. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 645년의 승리와 남는 질문 {#050-systems--230-first-war-outcome}
+### Victory in 645 and questions remaining {#050-systems--230-first-war-outcome}
 
-[645년의 승리와 남는 질문](../050-systems/230-first-war-outcome.md) — 645년 전후의 방어·주민·협력 조건을 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[Victory in 645 and questions remaining](../050-systems/230-first-war-outcome.md) — Find defensive, civilian and cooperative conditions before and after 645. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 645년 이후 당과의 야전 기록 {#050-systems--235-field-records-after-645}
+### Field records against Tang after 645 {#050-systems--235-field-records-after-645}
 
-[645년 이후 당과의 야전 기록](../050-systems/235-field-records-after-645.md) — 645~659년 야전의 승패와 기록별 엇갈림을 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[Field records against Tang after 645](../050-systems/235-field-records-after-645.md) — Find victories and defeats in 645–659 and disagreements among records. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 642년 개소문이 먼저 움직인 조건 {#050-systems--240-642-coup}
+### Conditions under which Gaesomun moved first in 642 {#050-systems--240-642-coup}
 
-[642년 개소문이 먼저 움직인 조건](../050-systems/240-642-coup.md) — 642년 왕권·귀족·집권의 채택 조건을 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[Conditions under which Gaesomun moved first in 642](../050-systems/240-642-coup.md) — Find adopted conditions of royal power, nobles and seizure of power. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 665년의 승계와 남아 있는 대리 권력 {#050-systems--250-succession-665}
+### The 665 succession and delegated power remaining {#050-systems--250-succession-665}
 
-[665년의 승계와 남아 있는 대리 권력](../050-systems/250-succession-665.md) — 665년 승계 직책과 중앙 대리 권력의 범위를 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[The 665 succession and delegated power remaining](../050-systems/250-succession-665.md) — Find succession offices and the scope of delegated authority at the center. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 666년 왕명으로 바뀌는 가족 갈등 {#050-systems--260-666-coup}
+### Family conflict changed by a royal order in 666 {#050-systems--260-666-coup}
 
-[666년 왕명으로 바뀌는 가족 갈등](../050-systems/260-666-coup.md) — 666년 실제 왕명이라는 창작 채택과 접수 편제를 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[Family conflict changed by a royal order in 666](../050-systems/260-666-coup.md) — Find the creative choice of an actual royal order and the seizure force's organization. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 헌충의 상처와 죽음 {#050-systems--270-heonchung-injury}
+### Heonchung's wound and death {#050-systems--270-heonchung-injury}
 
-[헌충의 상처와 죽음](../050-systems/270-heonchung-injury.md) — 헌충의 상처·치료 한계·사망과 보고 상태를 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[Heonchung's wound and death](../050-systems/270-heonchung-injury.md) — Find the wound, limits of treatment, death and status of reports. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 국내성의 귀부와 당이 얻는 길 {#050-systems--280-namsaeng-defection}
+### Gungnaeseong's submission and the route opened to Tang {#050-systems--280-namsaeng-defection}
 
-[국내성의 귀부와 당이 얻는 길](../050-systems/280-namsaeng-defection.md) — 국내성 귀부 상태에서 당이 접근할 정보를 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[Gungnaeseong's submission and the route opened to Tang](../050-systems/280-namsaeng-defection.md) — Find information Tang can access after the submission. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 이미 시작된 백제의 부흥 {#050-systems--290-baekje-restoration-war}
+### The Baekje restoration already underway {#050-systems--290-baekje-restoration-war}
 
-[이미 시작된 백제의 부흥](../050-systems/290-baekje-restoration-war.md) — 백제 부흥·왜 지원의 연도별 규모와 통제 한계를 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[The Baekje restoration already underway](../050-systems/290-baekje-restoration-war.md) — Find yearly scales of restoration and Wa support and limits of control. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 백강에서 겹친 육상과 수상 작전 {#050-systems--300-baekgang-battle}
+### Land and water operations at Baekgang {#050-systems--300-baekgang-battle}
 
-[백강에서 겹친 육상과 수상 작전](../050-systems/300-baekgang-battle.md) — 백강의 해상·육상 조건과 원군 총수의 지위를 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[Land and water operations at Baekgang](../050-systems/300-baekgang-battle.md) — Find naval and land conditions and the status of total reinforcement figures. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 664년 돌사성의 국지전 {#050-systems--310-664-dolsa}
+### The local battle at Dolsaseong in 664 {#050-systems--310-664-dolsa}
 
-[664년 돌사성의 국지전](../050-systems/310-664-dolsa.md) — 돌사성 점유 변화와 위치·피해 미상의 범위를 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[The local battle at Dolsaseong in 664](../050-systems/310-664-dolsa.md) — Find the change of occupation and limits of unknown location and losses. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 남생이 읽는 남방의 새 국력 {#050-systems--320-southern-power-after-baekgang}
+### The south's new strength as Namsaeng sees it {#050-systems--320-southern-power-after-baekgang}
 
-[남생이 읽는 남방의 새 국력](../050-systems/320-southern-power-after-baekgang.md) — 남방 인구·생산 통합에 관한 작품의 국력 조건을 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[The south's new strength as Namsaeng sees it](../050-systems/320-southern-power-after-baekgang.md) — Find the story's national-strength conditions concerning southern population and production integration. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 귀부가 열어 준 세 번째 원정 {#050-systems--330-third-war}
+### The third expedition opened by submission {#050-systems--330-third-war}
 
-[귀부가 열어 준 세 번째 원정](../050-systems/330-third-war.md) — 귀부 이후 당의 원정과 지역 방어망 상태를 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[The third expedition opened by submission](../050-systems/330-third-war.md) — Find Tang's expedition after submission and the state of regional defenses. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 신성이 연 성문과 남건의 생존 {#050-systems--340-pyongyang-fall}
+### The gate Sinseong opened and Namgeon's survival {#050-systems--340-pyongyang-fall}
 
-[신성이 연 성문과 남건의 생존](../050-systems/340-pyongyang-fall.md) — 평양 개문·남건 생존·유배의 채택 제약을 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[The gate Sinseong opened and Namgeon's survival](../050-systems/340-pyongyang-fall.md) — Find adopted constraints on the opening of Pyongyang, Namgeon's survival and exile. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 사민과 잔류가 갈라 놓는 생활 {#050-systems--350-forced-migration}
+### Lives divided by forced migration and staying {#050-systems--350-forced-migration}
 
-[사민과 잔류가 갈라 놓는 생활](../050-systems/350-forced-migration.md) — 사민 호수의 이본과 가족별 도착·잔류 상태를 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[Lives divided by forced migration and staying](../050-systems/350-forced-migration.md) — Find variant household counts and each family's arrival or remaining status. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 당의 통치와 다시 이어지는 지역 {#050-systems--360-post-conquest-rule}
+### Tang rule and regions reconnecting {#050-systems--360-post-conquest-rule}
 
-[당의 통치와 다시 이어지는 지역](../050-systems/360-post-conquest-rule.md) — 당의 현지 통치·왕가 귀환·남생 관력의 기준을 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[Tang rule and regions reconnecting](../050-systems/360-post-conquest-rule.md) — Find standards for local Tang rule, royal return and Namsaeng's career. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-### 제국의 한계와 외전의 문턱 {#050-systems--370-afterlife-of-kingdom}
+### The empire's limits and the threshold of the sequel {#050-systems--370-afterlife-of-kingdom}
 
-[제국의 한계와 외전의 문턱](../050-systems/370-afterlife-of-kingdom.md) — 후속 전선과 발해 외전의 범위를 찾는다. 전역별 실제 선택과 인과는 해당 시기의 treatments가 맡는다.
+[The empire's limits and the threshold of the sequel](../050-systems/370-afterlife-of-kingdom.md) — Find the scope of subsequent fronts and the Balhae side story. Actual campaign choices and causality belong to the treatments for the relevant period.
 
-## 출입하고 이동하며 살아가는 공간 {#060-places}
+## Places people enter, cross and inhabit {#060-places}
 
-평양 권력 공간에서 지방 거점·길·전장으로, 남방의 성과 수송지에서 생활 거처로 간다. 끝의 평양 경당·북쪽 숲과 들·부상병의 집은 소년기 사건이 쓰는 평양 안팎의 장소다. 접근·시야·고저·수용 조건을 찾는 부이며 공격의 진행을 정하는 부가 아니다.
+Move from Pyongyang's seats of power to regional bases, roads and battlefields, then southern fortresses and transport sites, and finally living quarters. The Pyongyang gyeongdang, northern woods and fields, and injured soldier's home at the end are places in and around Pyongyang used by childhood events. This section owns access, sightlines, elevation and capacity, not the progress of attacks.
 
-### 평양의 왕궁 {#060-places--010-pyeongyang-palace}
+### The palace in Pyongyang {#060-places--010-pyeongyang-palace}
 
-[평양의 왕궁](../060-places/010-pyeongyang-palace.md) — 왕궁의 두 출입 확인·회의당/별실의 분리와642년 대면의 시야·광원을 찾는다.
+[The palace in Pyongyang](../060-places/010-pyeongyang-palace.md) — Find two palace access checks, separate council hall and private room, and sightlines and light for the 642 encounter.
 
-### 연씨의 거처와 접수되는 문 {#060-places--020-yeon-residence}
+### The Yeon residence and the gate seized {#060-places--020-yeon-residence}
 
-[연씨의 거처와 접수되는 문](../060-places/020-yeon-residence.md) — 연씨 집의 정문·회랑·치료방과 태조 시절/666년 접수 시기의 다른 점유를 찾는다.
+[The Yeon residence and the gate seized](../060-places/020-yeon-residence.md) — Find the main gate, corridor and treatment room and differences in occupancy under Taejo and during the 666 seizure.
 
-### 태학의 읽는 방과 익히는 마당 {#060-places--030-taehak-place}
+### Taehak's reading room and training yard {#060-places--030-taehak-place}
 
-[태학의 읽는 방과 익히는 마당](../060-places/030-taehak-place.md) — 태학의 읽는 방·무구·활 마당이 서로의 동선을 가로막지 않는 배치를 찾는다.
+[Taehak's reading room and training yard](../060-places/030-taehak-place.md) — Find the arrangement that keeps movement through the reading room, equipment area and archery yard from obstructing one another.
 
-### 평양 동문과 내륙 피난길 {#060-places--040-pyongyang-east-route}
+### Pyongyang's east gate and inland evacuation route {#060-places--040-pyongyang-east-route}
 
-[평양 동문과 내륙 피난길](../060-places/040-pyongyang-east-route.md) — 동문 명부 마당·나루·35km 피난길·처가 거처의 다른 관측 범위를 찾는다.
+[Pyongyang's east gate and inland evacuation route](../060-places/040-pyongyang-east-route.md) — Find the different observation scopes of the gate's registration yard, ferry, 35-kilometer route and wife's family residence.
 
-### 평양 서쪽 통용문의 개방 {#060-places--050-pyongyang-west-gate}
+### Opening Pyongyang's western service gate {#060-places--050-pyongyang-west-gate}
 
-[평양 서쪽 통용문의 개방](../060-places/050-pyongyang-west-gate.md) — 668년 서쪽 통용문의 잠금·교대·갈림길 권한과 문루 화재 상태를 찾는다.
+[Opening Pyongyang's western service gate](../060-places/050-pyongyang-west-gate.md) — Find locking, shifts and junction authority at the gate in 668 and the gatehouse fire.
 
-### 국내성의 생활권 {#060-places--060-gungnae}
+### The living area of Gungnaeseong {#060-places--060-gungnae}
 
-[국내성의 생활권](../060-places/060-gungnae.md) — 국내성 남문·군량 마당·별도 귀족 거처 사이의 출입과 회의 접근을 찾는다.
+[The living area of Gungnaeseong](../060-places/060-gungnae.md) — Find access among the south gate, provisions courtyard and separate noble residence, including meeting access.
 
-### 요동성의 남은 집과 돌아오는 주민 {#060-places--070-yodong}
+### Homes remaining and residents returning to Yodongseong {#060-places--070-yodong}
 
-[요동성의 남은 집과 돌아오는 주민](../060-places/070-yodong.md) — 요동성의 숙소/성밖 작업 마당과 정명진 진의 두 서쪽 운반 길·동쪽 출격로를 찾는다.
+[Homes remaining and residents returning to Yodongseong](../060-places/070-yodong.md) — Find lodging, the outside work yard, two western supply roads to Zheng Mingzhen's camp and its eastern sortie route.
 
-### 국내성과 요동성을 오가는 시간 {#060-places--080-regional-travel}
+### Travel time between Gungnaeseong and Yodongseong {#060-places--080-regional-travel}
 
-[국내성과 요동성을 오가는 시간](../060-places/080-regional-travel.md) — 국내성~요동성 순행·겨울·긴급 전령의 서로 다른 이동 시간을 찾는다.
+[Travel time between Gungnaeseong and Yodongseong](../060-places/080-regional-travel.md) — Find different travel times for tours, winter journeys and urgent couriers.
 
-### 압록강의 저지선 {#060-places--090-yalu-crossing}
+### The Yalu blocking line {#060-places--090-yalu-crossing}
 
-[압록강의 저지선](../060-places/090-yalu-crossing.md) — 압록 남안 저지와 상류4km 도하의 차폐, 철산 퇴각 집결의 비정 한계를 찾는다.
+[The Yalu blocking line](../060-places/090-yalu-crossing.md) — Find south-bank defense, concealment of the crossing four kilometers upstream and limits on locating the Cheolsan retreat assembly.
 
-### 사수와 평양 포위 진영 {#060-places--100-sasu-ground}
+### The Sasu and the camps besieging Pyongyang {#060-places--100-sasu-ground}
 
-[사수와 평양 포위 진영](../060-places/100-sasu-ground.md) — 사수·임아상·소정방 세 진의 근사 위치·구원 연결과 좁은 진입로의 병종 제약을 찾는다.
+[The Sasu and the camps besieging Pyongyang](../060-places/100-sasu-ground.md) — Find approximate locations and relief connections among the Sasu, Ren Yaxiang and Su Dingfang camps, and troop-type limits on narrow approaches.
 
-### 안시성 안과 성문 아래 {#060-places--110-ansi}
+### Inside Ansiseong and below its gate {#060-places--110-ansi}
 
-[안시성 안과 성문 아래](../060-places/110-ansi.md) — 안시성 문/성위 통로/군무방과 흙산의 제한된 우세를 찾는다. 현대 비정은 확정하지 않는다.
+[Inside Ansiseong and below its gate](../060-places/110-ansi.md) — Find the gate, wall passage, military room and limited advantage of the earthen mound. Do not fix a modern identification.
 
-### 주필산의 정면과 뒤로 도는 길 {#060-places--120-jupilsan-field}
+### Jupilsan's front and the road behind it {#060-places--120-jupilsan-field}
 
-[주필산의 정면과 뒤로 도는 길](../060-places/120-jupilsan-field.md) — 주필산의 정면·구릉 뒤6km·황제 진과 서로 다른 중기병/말갈 접근을 찾는다.
+[Jupilsan's front and the road behind it](../060-places/120-jupilsan-field.md) — Find the front, six-kilometer route behind the hills, emperor's camp and different heavy-cavalry and Malgal approaches.
 
-### 건안성 아래의 당 수군 진영 {#060-places--130-tang-naval-camp}
+### The Tang naval camp below Geonanseong {#060-places--130-tang-naval-camp}
 
-[건안성 아래의 당 수군 진영](../060-places/130-tang-naval-camp.md) — 건안 수군 진의 미완 울타리·하역·방목과 북 신호의 가청 한계를 찾는다.
+[The Tang naval camp below Geonanseong](../060-places/130-tang-naval-camp.md) — Find its unfinished barrier, unloading and grazing areas and the audible limits of drum signals.
 
-### 동부의 마을과 경당 {#060-places--140-eastern-village}
+### The eastern village and gyeongdang {#060-places--140-eastern-village}
 
-[동부의 마을과 경당](../060-places/140-eastern-village.md) — 동부 마을의 숲/교역 길·경당/놀이/창고 분리와 배급을 비교할 공개 마당을 찾는다.
+[The eastern village and gyeongdang](../060-places/140-eastern-village.md) — Find forest and trade roads, separate school, play and storage areas, and the public courtyard for comparing distributions.
 
-### 삼년산성 {#060-places--150-samnyeon}
+### Samnyeonsanseong {#060-places--150-samnyeon}
 
-[삼년산성](../060-places/150-samnyeon.md) — 삼년산성의 선행 축성·후대 수리와 제한 원정을 막는 참고 방어 조건을 찾는다.
+[Samnyeonsanseong](../060-places/150-samnyeon.md) — Find earlier construction, later repairs and reference defensive conditions limiting an expedition.
 
-### 단양 적성의 수로와 산길 {#060-places--160-danyang}
+### Water and mountain routes at Danyang Jeokseong {#060-places--160-danyang}
 
-[단양 적성의 수로와 산길](../060-places/160-danyang.md) — 단양 적성의 남한강/죽령 연결·급경사/완경사와 초축 미확정 경계를 찾는다.
+[Water and mountain routes at Danyang Jeokseong](../060-places/160-danyang.md) — Find connections to the Namhan River and Jukryeong, steep and gentle slopes, and the unresolved original construction.
 
-### 온달이 전사하는 아단성 아래 {#060-places--170-adan}
+### Below Adanseong, where Ondal dies {#060-places--170-adan}
 
-[온달이 전사하는 아단성 아래](../060-places/170-adan.md) — 온달이 성 밖에서 맞는 화살과 좁은 접근·시신 회수 길, 아단 비정의 선택을 찾는다.
+[Below Adanseong, where Ondal dies](../060-places/170-adan.md) — Find the arrow striking him outside the fortress, narrow approach, body recovery route and chosen identification of Adan.
 
-### 칠중성과 임진강의 길 {#060-places--180-chiljung}
+### Chiljungseong and the Imjin River road {#060-places--180-chiljung}
 
-[칠중성과 임진강의 길](../060-places/180-chiljung.md) — 칠중성의 점유 시기와 임진강 북안 대기/서쪽 접근/남안 출구의 서로 다른 전면을 찾는다.
+[Chiljungseong and the Imjin River road](../060-places/180-chiljung.md) — Find occupation dates and distinct fronts of north-bank waiting, western approach and south-bank exit.
 
-### 북한산성의 방어와 구원군 {#060-places--190-bukhan}
+### Bukhansanseong's defense and relief army {#060-places--190-bukhan}
 
-[북한산성의 방어와 구원군](../060-places/190-bukhan.md) — 603/661년 북한산성 보고의 방어 자원·주민·날씨와 조선 시설을 소급하지 않을 경계를 찾는다.
+[Bukhansanseong's defense and relief army](../060-places/190-bukhan.md) — Find defenses, residents and weather in the 603 and 661 reports, without projecting Joseon-era facilities backward.
 
-### 양오의 인계 자리 {#060-places--200-yango}
+### The handover site at Yango {#060-places--200-yango}
 
-[양오의 인계 자리](../060-places/200-yango.md) — 양오의 순환 하역·마른/젖은 곡물 구역·별도 탑승 물가와 순간 인계 금지를 찾는다.
+[The handover site at Yango](../060-places/200-yango.md) — Find circular unloading, dry and wet grain zones, a separate boarding waterside and the prohibition on instantaneous handover.
 
-### 험로의 야영지 {#060-places--210-winter-camp}
+### A camp on the difficult road {#060-places--210-winter-camp}
 
-[험로의 야영지](../060-places/210-winter-camp.md) — 찬오 무리의 대표 야영 구역을 전체3만 대열과 구별하고 물/경계/짐·잠자리의 비용을 찾는다.
+[A camp on the difficult road](../060-places/210-winter-camp.md) — Distinguish Chano's representative camp area from the entire thirty-thousand-person column and find the costs of water, security, loads and sleeping places.
 
-### 백강과 부흥군의 물가 {#060-places--220-baekgang}
+### Baekgang and the restoration army's waterside {#060-places--220-baekgang}
 
-[백강과 부흥군의 물가](../060-places/220-baekgang.md) — 백강의 수륙 제약과 고구려에 닿는 보고만으로 쓰는 현재 사용 범위를 찾는다.
+[Baekgang and the restoration army's waterside](../060-places/220-baekgang.md) — Find land and water constraints and the present scope limited to reports reaching Goguryeo.
 
-### 평양에서 해은이 고치던 집 {#060-places--230-haeeun-first-home}
+### Haeun's repair home in Pyongyang {#060-places--230-haeeun-first-home}
 
-[평양에서 해은이 고치던 집](../060-places/230-haeeun-first-home.md) — 평양 해은 집의 수선/잠자리 공유와 도구·빛·소리·자재 부족을 찾는다.
+[Haeun's repair home in Pyongyang](../060-places/230-haeeun-first-home.md) — Find shared repair and sleeping space, tools, light, sound and shortages of materials.
 
-### 이주한 해은의 하남 집 {#060-places--240-haeeun-migrant-home}
+### Haeun's migrant home in Henan {#060-places--240-haeeun-migrant-home}
 
-[이주한 해은의 하남 집](../060-places/240-haeeun-migrant-home.md) — 이주한 하남 집의 더 작은 전체 평면·낯선 이웃 말·가족의 작업 조건을 찾는다.
+[Haeun's migrant home in Henan](../060-places/240-haeeun-migrant-home.md) — Find its smaller overall plan, unfamiliar neighbors' speech and the family's working conditions.
 
-### 남생의 마지막 관사 {#060-places--250-namsaeng-last-house}
+### Namsaeng's last official residence {#060-places--250-namsaeng-last-house}
 
-[남생의 마지막 관사](../060-places/250-namsaeng-last-house.md) — 남생 마지막 관사의 집무/병상 출입·헌성 자리와 실제 관사 사망/창작 평면의 구별을 찾는다.
+[Namsaeng's last official residence](../060-places/250-namsaeng-last-house.md) — Find office and sickbed access, Heonseong's place and the distinction between an actual death at an official residence and the fictional floor plan.
 
-### 평양 남쪽 거리의 경당 {#060-places--260-pyongyang-gyeongdang}
+### The gyeongdang on Pyongyang's south street {#060-places--260-pyongyang-gyeongdang}
 
-[평양 남쪽 거리의 경당](../060-places/260-pyongyang-gyeongdang.md) — 평양 경당의 읽기/보관/활/놀이 구획과 덧문 상태에 따른 채광을 찾는다.
+[The gyeongdang on Pyongyang's south street](../060-places/260-pyongyang-gyeongdang.md) — Find reading, storage, archery and play areas and light depending on the shutters.
 
-### 평양 북쪽의 숲과 들 {#060-places--270-pyongyang-north-woods}
+### Woods and fields north of Pyongyang {#060-places--270-pyongyang-north-woods}
 
-[평양 북쪽의 숲과 들](../060-places/270-pyongyang-north-woods.md) — 평양 북쪽 들·숲·지름길·개울의 이동과 관측 제약을 찾는다. 상설 건물은 없다.
+[Woods and fields north of Pyongyang](../060-places/270-pyongyang-north-woods.md) — Find movement and observation constraints in fields, woods, shortcuts and stream. There is no permanent building.
 
-### 부상병의 집과 문답 자리 {#060-places--280-injured-soldier-home}
+### The injured soldier's home and place for questions {#060-places--280-injured-soldier-home}
 
-[부상병의 집과 문답 자리](../060-places/280-injured-soldier-home.md) — 629년 직접 방문에 쓰는 골목·문·쉬는 자리와 가까운 문답의 크기·빛·소리를 찾는다.
+[The injured soldier's home and place for questions](../060-places/280-injured-soldier-home.md) — Find the alley, door and resting place used in the 629 visit, and the size, light and sound of close conversation.
 
-## 사람의 손과 명령이 쓰는 물건 {#070-objects}
+## Objects used by hands and orders {#070-objects}
 
-몸에 갖추는 무장, 공격·방어 도구, 운반·신호·문서, 배·말·생활 도구 순서다. 형상과 기능을 먼저 알고 어떤 조건에서 쓸 수 없는지 찾는다.
+The order is worn equipment, offensive and defensive tools, transport, signals and documents, then ships, horses and everyday tools. Learn their form and function first, then the conditions in which they cannot be used.
 
-### 갑옷과 말의 무장 {#070-objects--010-armour}
+### Armor for people and horses {#070-objects--010-armour}
 
-[갑옷과 말의 무장](../070-objects/010-armour.md) — 철찰·끈·투구·말갑의 겹침과 가동 관절, 유물 잔편/창작 완성치수를 구별한다.
+[Armor for people and horses](../070-objects/010-armour.md) — Distinguish overlapping iron scales, ties, helmets and horse armor and movable joints from artifact fragments versus invented complete dimensions.
 
-### 활과 화살 {#070-objects--020-bow}
+### Bows and arrows {#070-objects--020-bow}
 
-[활과 화살](../070-objects/020-bow.md) — 복합궁의 측면 굽힘·목궁·화살의 전체 길이와 속로 전통의 외형/유효 수납을 찾는다.
+[Bows and arrows](../070-objects/020-bow.md) — Find the composite bow's side curvature, wooden bow, total arrow length and Sokro tradition's appearance and usable storage.
 
-### 헌충과 선두 병사의 칼 {#070-objects--030-combat-blades}
+### Heonchung's and the front soldier's blades {#070-objects--030-combat-blades}
 
-[헌충과 선두 병사의 칼](../070-objects/030-combat-blades.md) — 헌충과 선두 병사의 외날 칼·칼집을 구별하고 특별한 독·자동 신원 판별을 배제한다.
+[Heonchung's and the front soldier's blades](../070-objects/030-combat-blades.md) — Distinguish their single-edged swords and scabbards; exclude special poison and automatic identification.
 
-### 대열에서 쓰는 창 {#070-objects--040-spears}
+### Spears used in formation {#070-objects--040-spears}
 
-[대열에서 쓰는 창](../070-objects/040-spears.md) — 보병/기병 창의 자루와 대열 안 회전·사용 자세의 한계를 찾는다.
+[Spears used in formation](../070-objects/040-spears.md) — Find infantry and cavalry spear shafts and limits on turning and posture within formation.
 
-### 귀돌이 남긴 작은 칼 {#070-objects--050-guidol-knife}
+### Gwidol's small knife {#070-objects--050-guidol-knife}
 
-[귀돌이 남긴 작은 칼](../070-objects/050-guidol-knife.md) — 귀돌의25cm 생활 칼을 헌충의 장검과 구별하고 유품 인계의 참조를 찾는다.
+[Gwidol's small knife](../070-objects/050-guidol-knife.md) — Distinguish his 25-centimeter everyday knife from Heonchung's long sword and find the handover reference.
 
-### 돌을 던지는 포차 {#070-objects--060-pocha}
+### The stone-throwing pocha {#070-objects--060-pocha}
 
-[돌을 던지는 포차](../070-objects/060-pocha.md) — 포차의 받침·회전축·짧은 견인 끝/긴 투석 끝과 조작자·발사선의 분리를 찾는다.
+[The stone-throwing pocha](../070-objects/060-pocha.md) — Find its support, pivot, short traction end, long throwing end and separation of operators from the firing line.
 
-### 큰 살대를 쏘는 노포 {#070-objects--070-nopo}
+### The nopo that fires large bolts {#070-objects--070-nopo}
 
-[큰 살대를 쏘는 노포](../070-objects/070-nopo.md) — 노포의 활·홈·권양·걸쇠·방아쇠가 장전/발사에 연결되는 최소 복원을 찾는다.
+[The nopo that fires large bolts](../070-objects/070-nopo.md) — Find the minimum reconstruction connecting bow, groove, winding mechanism, catch and trigger to loading and firing.
 
-### 발을 막는 마름쇠 {#070-objects--080-caltrops}
+### Caltrops that stop feet {#070-objects--080-caltrops}
 
-[발을 막는 마름쇠](../070-objects/080-caltrops.md) — 마름쇠의 네 끝과 자군이 기억해야 할 안전 통로를 찾는다.
+[Caltrops that stop feet](../070-objects/080-caltrops.md) — Find four points and the safe passage friendly troops must remember.
 
-### 돌을 받는 임시 밧줄망 {#070-objects--090-defensive-net}
+### A temporary rope net to catch stones {#070-objects--090-defensive-net}
 
-[돌을 받는 임시 밧줄망](../070-objects/090-defensive-net.md) — 가죽/솜옷 망의 매듭·받침·벽 이격과 휨·파단·수리의 한계를 찾는다.
+[A temporary rope net to catch stones](../070-objects/090-defensive-net.md) — Find knots, supports, distance from the wall and limits of bending, breakage and repair for the hide and padded-clothing net.
 
-### 곡물의 짐과 운반 도구 {#070-objects--100-grain-load}
+### Grain loads and carrying equipment {#070-objects--100-grain-load}
 
-[곡물의 짐과 운반 도구](../070-objects/100-grain-load.md) — 자루·수레·좌우짐의 형상과 용적/곡종의 서로 다른 수치 owner를 찾는다.
+[Grain loads and carrying equipment](../070-objects/100-grain-load.md) — Find the shapes of sacks, carts and paired loads, and the separate owners for volume and grain-type figures.
 
-### 깃발과 군령 {#070-objects--110-signals}
+### Flags and military orders {#070-objects--110-signals}
 
-[깃발과 군령](../070-objects/110-signals.md) — 방면별 이름-띠 대응·부여 두 지휘의 보조 표지와 북/전령의 가림·지연을 찾는다.
+[Flags and military orders](../070-objects/110-signals.md) — Find name-to-stripe assignments by front, auxiliary marks for the two Buyeo commanders and obstruction or delay of drums and messengers.
 
-### 왕명을 옮기는 글 {#070-objects--120-writs}
+### Documents carrying royal orders {#070-objects--120-writs}
 
-[왕명을 옮기는 글](../070-objects/120-writs.md) — 왕명의 종이·인장·봉함과 전달자 확인, 소환/처형 문서의 구별을 찾는다.
+[Documents carrying royal orders](../070-objects/120-writs.md) — Find paper, seals and closures, messenger verification and distinctions between summons and execution documents.
 
-### 강과 길을 나타내는 보고 그림 {#070-objects--130-report-map}
+### A report drawing of rivers and roads {#070-objects--130-report-map}
 
-[강과 길을 나타내는 보고 그림](../070-objects/130-report-map.md) — 보고 그림의 작은 종이·강/길/표지와 실시간 위치·좌표가 없는 경계를 찾는다.
+[A report drawing of rivers and roads](../070-objects/130-report-map.md) — Find its small paper, rivers, roads and markers and the absence of real-time positions or coordinates.
 
-### 사람과 곡물을 나르는 배 {#070-objects--140-ships}
+### Ships carrying people and grain {#070-objects--140-ships}
 
-[사람과 곡물을 나르는 배](../070-objects/140-ships.md) — 해상 수송선/작은 배의 선체·덮개·통로와 사람/곡물/군마의 적재 경합을 찾는다.
+[Ships carrying people and grain](../070-objects/140-ships.md) — Find hulls, covers and passages of sea transports and small boats, and competition between people, grain and horses for cargo space.
 
-### 군마와 안장 {#070-objects--150-horses}
+### Warhorses and saddles {#070-objects--150-horses}
 
-[군마와 안장](../070-objects/150-horses.md) — 군마 몸·안장·등자·하루 먹이와 상처·물·휴식, 급양 모델로 가는 참조를 찾는다.
+[Warhorses and saddles](../070-objects/150-horses.md) — Find the horse's body, saddle, stirrups, daily feed, wounds, water and rest, with references to the supply model.
 
-### 옷과 수선 도구 {#070-objects--160-clothing-and-repair}
+### Clothing and repair tools {#070-objects--160-clothing-and-repair}
 
-[옷과 수선 도구](../070-objects/160-clothing-and-repair.md) — 천의 색·겨울 겹침·바느질 도구와 찬오 손상 뒤의 사용 한계를 찾는다.
+[Clothing and repair tools](../070-objects/160-clothing-and-repair.md) — Find cloth colors, winter layers and sewing tools, and limits on use after Chano's injury.
 
-### 설인귀가 드러낸 밝은 겉옷 {#070-objects--170-xue-wear}
+### Xue Rengui's conspicuous light outer garment {#070-objects--170-xue-wear}
 
-[설인귀가 드러낸 밝은 겉옷](../070-objects/170-xue-wear.md) — 설인귀의 밝은 회갈 겉옷·옆트임·안쪽 군장과 흙·피·차폐로 표지가 달라지는 조건을 찾는다.
+[Xue Rengui's conspicuous light outer garment](../070-objects/170-xue-wear.md) — Find its light gray-brown color, side slits and equipment beneath, and how dirt, blood and obstruction change its visibility.
