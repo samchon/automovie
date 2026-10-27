@@ -1,27 +1,27 @@
-# 장군을 권력으로 옮기는 다른 손
+# Other Hands Carry the General to Power
 
-## 구원자로 불린 사람이 의회에서 막힌다 {#coup}
+## The man called a savior meets resistance in the legislature {#coup}
 
-이 파일의 사실 부모: [브뤼메르](../settings/100-history/020-life-and-memory.md#italy-and-egypt), [뤼시앵](../settings/050-people/010-ensemble.md#lucien-bonaparte), [정부](../settings/030-society/010-power-and-cost.md#government), [나폴레옹](../settings/050-people/010-ensemble.md#napoleon).
+Factual parents: [Brumaire](../settings/100-history/020-life-and-memory.md#italy-and-egypt), [Lucien](../settings/050-people/010-ensemble.md#lucien-bonaparte), [government](../settings/030-society/010-power-and-cost.md#government), [Napoleon](../settings/050-people/010-ensemble.md#napoleon).
 
-1799년 11월 9~10일. 혁명의 불안정한 정부를 바꾸려는 세력은 군의 명성을 필요로 하고, 나폴레옹은 전쟁에서 얻은 신임을 정치의 권한으로 바꾸려 한다. 같은 사람을 필요로 해도 시에예스와 장군이 원하는 권력의 끝은 같지 않다. 질서에 대한 대중의 갈망은 쿠데타의 바깥 조건이지 모든 사람이 미리 같은 체제를 승인했다는 뜻이 아니다.
+November 9–10, 1799. Forces seeking to change the Revolution's unstable government need military prestige; Napoleon seeks to turn the confidence won in war into political authority. Although they need the same man, Sieyès and the general do not want the same ultimate power. Public longing for order is a condition outside the coup, not proof that everyone has already approved the same regime.
 
-10일 오백인회의 저항은 나폴레옹을 법 밖에 두라는 요구로 나아간다. 의장 뤼시앵은 그 요구가 표결로 넘어가는 것을 막는다. 장군의 명성이 의회의 동의로 바뀌지 않는 위기에서 그는 형을 버리는 대신 경비병을 설득하는 쪽을 택한다. 형이 의원들에게 습격당했다고 주장하여 병사들이 의회를 보호하는 일과 의회를 무력으로 해산하는 일을 뒤바꾸어 받아들이게 한다. 설득에 응한 병력의 행동이 저항을 해산으로 넘기고, 나폴레옹이 혼자 얻지 못한 권력이 다른 사람의 개입으로 열린다.
+On the 10th, resistance in the Council of Five Hundred advances toward a demand to outlaw Napoleon. Its president Lucien prevents the demand from coming to a vote. When the general's prestige cannot become legislative consent, Lucien chooses to persuade the guards rather than abandon his brother. Claiming that deputies attacked his brother, he leads soldiers to accept the forcible dissolution of the legislature as its protection. The troops who respond to persuasion turn resistance into dissolution; another person's intervention opens power Napoleon could not obtain alone.
 
-개입의 경과는 뤼시앵·부리엔의 후일 회고를 거친 채택임을 역사가가 구별한다. 단검 피습 주장을 관객이 본 확정 공격으로 인증하지 않는다. 의장석에서 물러나는 순서, 요청의 정확한 말, 칼을 뽑은 맹세는 정하지 않는다. 결과는 의원의 자발적 동의가 아니라 절차를 막은 권한과 설득, 무장 강제가 함께 만든 정권 획득이다.
+The historian distinguishes the adopted account as one transmitted through Lucien's and Bourrienne's later memoirs. Do not authenticate the claim of a dagger attack as an established assault seen by the audience. Do not fix the order of Lucien's departure from the chair, the exact words of his appeal, or an oath with a drawn sword. The result is a seizure of government made by procedural obstruction, persuasion, and armed force together, not voluntary consent by the deputies.
 
-## 잠정 질서가 한 사람의 자리를 넓힌다 {#consuls}
+## A provisional order widens one man's place {#consuls}
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 현재 `docs/body/settings/030-society/010-power-and-cost.md#government`의 질서 갈망·기관·전문가와 `docs/body/settings/050-people/010-ensemble.md#cambaceres`의 법·절차 역할을 그대로 사용했다. “장군은 홀로 법이 되지 않지만” 집행 중심이 되는 집단 과정은 새 헌법 조문·개별 입법 행위·즉위 의도를 상류에 추가하지 않고 결정된다.
 -->
-새 체제는 전투 뒤의 야영지가 아니라 문서와 직책, 협상으로 굳어진다. 혼란을 끝내 달라는 요구는 더 넓은 집행 권한의 이유가 되고, 그 권한을 얻은 나폴레옹은 동료 정치가의 도구로 머물지 않는다. 캉바세레스와 같은 법률·행정의 전문성이 이후 체제의 지속에 필요해진다. 장군은 홀로 법이 되지 않지만 법을 움직이는 중심을 차지한다.
+The new regime is consolidated through documents, offices, and negotiation, not a camp after battle. The demand to end disorder becomes a reason for wider executive authority, and Napoleon, who obtains it, does not remain his fellow politicians' instrument. Legal and administrative expertise such as Cambacérès's becomes necessary to the regime's survival. The general does not become the law alone, but occupies the center from which it is directed.
 
-첫 전투의 황제를 이미 본 관객에게 이 결과는 예정된 즉위 장면이 아니다. 무엇이 가능해지고 무엇이 좁아졌는지가 남는다. 가족의 추방에서 시작한 출세는 국가 전체에 명령할 길을 얻고, 혁명이 연 정치적 참여는 군의 힘으로 닫힐 수 있게 된다. 이 정권은 이제 강제로 연 권력을 국민의 승인으로 말할 수 있는 형식을 필요로 한다.
+For an audience that has already seen the Emperor at the first battle, this result is not a predestined accession. What has become possible and what has narrowed remain. An ascent that began with the family's expulsion gains a path to command the whole state, while political participation opened by the Revolution can be closed by military force. The regime now needs a form in which to present power opened by force as the people's approval.
 
-## 등록부의 선택과 보고서의 찬성은 같지 않다 {#constitutional-vote}
+## A choice in the register differs from approval in the report {#constitutional-vote}
 
-1799년 말에서 1800년의 헌법 승인으로 이어진다. 시민은 코뮌의 공개 등록부에 찬반을 적고, 정부는 그 응답을 모아 새 체제의 승인으로 제시한다. 이름을 드러내는 참여와 정권의 질서 약속이 같은 절차 안에 놓인다. 공식 보고의 찬성 결과는 군의 강제로 얻은 권력을 국민이 원한 권력이라는 주장으로 바꾸는 데 쓰인다.
+The story moves from late 1799 to approval of the constitution in 1800. Citizens enter their votes for or against in public communal registers, and the government collects the responses and presents them as approval of the new regime. Participation under one's own name and the regime's promise of order occupy the same procedure. The official report's favorable result is used to turn power obtained through military force into a claim of power wanted by the people.
 
-여기서 역사가가 공식 보고와 후대의 대조를 갈라 준다. 원본이 인계한 랑글루아의 1972년 연구에 따르면 뤼시앵의 보고에는 찬성표가 덧붙여졌다. 투표자의 기입에서 집계·보고로 넘어가는 사이 숫자가 부풀려져, 보고서의 승인은 실제로 적힌 동의와 같지 않게 된다. 하룻밤 비밀 방에서 조작하는 장면이나 정확한 표수를 만들지 않는다. 뤼시앵의 새 장관 공연도 열지 않고 보고에 관한 차이를 역사가의 접근으로 전한다. 당대의 모든 참여자가 그 조작을 안다는 반응은 주지 않는다.
+Here the historian separates the official report from later comparison. According to Langlois's 1972 study handed down by the source, affirmative votes were added to Lucien's report. Between voters' entries and the count and report, the figures were inflated, so approval in the report differs from consent actually recorded. Do not invent a secret room where the manipulation happens in one night or an exact vote total. Do not introduce a new performance of Lucien as minister; convey the difference in the report through the historian. Do not give every contemporary participant a reaction showing knowledge of the manipulation.
 
-질서에 대한 실제 지지와 조작된 수치는 서로를 지우지 않는다. 관객은 왜 사람들이 따랐는지 이해하면서도 공식 승인이 반대와 침묵까지 대표하지 못함을 안다. 이 회차의 결과를 다음 마렝고의 승리와 구별해 두고, 1802년 종신 통령·1804년 제위의 별도 투표에 같은 조작을 자동으로 옮기지 않는다.
+Real support for order and manipulated figures do not erase each other. The audience understands why people followed while knowing that official approval does not represent opposition and silence. Keep this unit's result distinct from the next victory at Marengo, and do not automatically transfer the same manipulation to the separate votes for consul for life in 1802 and emperor in 1804.

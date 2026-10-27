@@ -1,32 +1,31 @@
-# 빈 중앙을 향해 오르는 군대
+# The Army Ascends Toward the Empty Center
 
-## 오른쪽이 버텨야 중앙의 선택이 산다 {#south}
+## The right must hold for the choice in the center to live {#south}
 
-이 파일의 사실 부모: [전장 상태](../settings/100-history/010-austerlitz.md#battle-state), [지형과 빛](../settings/100-history/010-austerlitz.md#light-and-loss), [술트](../settings/050-people/010-ensemble.md#soult), [다부](../settings/050-people/010-ensemble.md#davout), [란](../settings/050-people/010-ensemble.md#lannes), [뮈라](../settings/050-people/010-ensemble.md#murat).
+Factual parents: [the battlefield](../settings/100-history/010-austerlitz.md#battle-state), [terrain and light](../settings/100-history/010-austerlitz.md#light-and-loss), [Soult](../settings/050-people/010-ensemble.md#soult), [Davout](../settings/050-people/010-ensemble.md#davout), [Lannes](../settings/050-people/010-ensemble.md#lannes), [Murat](../settings/050-people/010-ensemble.md#murat).
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 현재 `docs/body/settings/100-history/010-austerlitz.md#battle-state`의 르그랑·다부·프리앙·선두/본대 구별과 구댕 부재를 그대로 행사시켰다. `docs/body/settings/110-knowledge/010-information.md#access`의 현장 시야 안에서 “눈앞의 마을”을 지키게 해 새 지원군·동시 도착·전략 지식으로 부족을 메울 필요가 생기지 않았다.
 -->
-12월 2일 아침, 골트바흐의 남쪽 마을들. 연합군의 전위와 제1~3종대가 내려오고 르그랑의 수비와 도착하는 다부·프리앙의 병력이 텔니츠와 소콜니츠를 지탱한다. 다리·개울·밭·탄약과 길의 엉킴이 병력의 종이 합계를 실제 투입과 갈라 놓는다. 프리앙의 선두와 뒤의 본대를 하나의 동시 도착으로 만들지 않는다. 구댕을 빈자리를 메우는 지원으로 데려오지 않는다.
+On the morning of December 2, in the southern villages along the Goldbach, the Allied vanguard and first three columns descend. Legrand's defenders and the arriving troops of Davout and Friant hold Telnitz and Sokolnitz. Bridges, stream, fields, ammunition, and congested roads separate a paper total of troops from those actually committed. Do not make Friant's advance elements and the main body behind them arrive simultaneously. Do not bring Gudin in as reinforcements to fill the gap.
 
-이 구역을 먼저 충분히 진행시켜 관객이 약한 오른쪽을 미끼라는 말만으로 가볍게 여기지 못하게 한다. 버티는 사람이 밀리면 중앙 공격의 기회도 다른 결과를 낳을 수 있다. 현장 병사는 전체의 유인책을 아는 대신 눈앞의 마을과 도착한 지원을 기준으로 버틴다. 이후 중앙으로 관객의 접근을 넓혀 같은 시간대의 다른 선택이 무엇을 얻는지 알린다.
+Develop this sector sufficiently first, so the audience cannot dismiss the weak right as merely bait. If the men holding it are pushed back, the opportunity for an attack on the center may yield a different result. Soldiers on the spot hold according to the village before them and the support that has arrived, rather than knowing the entire plan of deception. Then widen the audience's access to the center and show what another choice in the same period gains.
 
-## 고지는 명령 한 번으로 넘어오지 않는다 {#pratzen}
+## The heights do not fall to a single order {#pratzen}
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 현재 `docs/body/settings/100-history/010-austerlitz.md#battle-state`의 공격 범위·두 사단·중앙 반격·약 두 시간과 `docs/body/settings/100-history/010-austerlitz.md#light-and-loss`의 안개 시야를 그대로 썼다. “정해진 분에 전장 전체를 맑게” 하지 않고 타 구역의 보고 지연을 유지한 채 고지 장악이 성립하여, 새 초단위 시계나 전군 동시 관측의 상류 사실은 필요하지 않았다.
 -->
-나폴레옹은 연합군이 남쪽으로 내려간 형세에서 중앙을 칠 기회를 잡는다. 술트의 방담과 생틸레르가 아침 8시 반~9시 무렵 낮은 프라첸 능선을 오른다. 안개와 높이에 따른 보임의 차이는 움직임을 숨기고 드러내지만 정해진 분에 전장 전체를 맑게 만드는 장치가 아니다. 후일의 몇 분 문답을 초시계의 천재성으로 대신하지 않는다.
+Napoleon seizes the chance to strike the center as the Allies move south. Soult's divisions under Vandamme and Saint-Hilaire climb the low Pratzen heights around 8:30–9:00 a.m. Fog and elevation conceal and reveal movement differently; they are not a device that clears the entire field at a fixed minute. Do not replace the action with a later exchange of a few minutes treated as stopwatch genius.
 
-콜로브라트와 밀로라도비치의 중앙은 저절로 사라지지 않는다. 교전과 반격이 이어지는 동안 프랑스군은 오른쪽의 버팀으로 얻은 시간을 고지를 붙드는 결과로 바꾼다. 약 두 시간의 싸움이 남하한 종대와 지휘부 사이의 연결을 위협한다. 관객이 먼저 중앙의 변화를 알더라도 북쪽의 바그라티온이나 남쪽 지휘관이 같은 순간 전체 패배를 알게 하지 않는다.
+The center under Kolowrat and Miloradovich does not vanish of itself. Through fighting and counterattack, the French turn the time bought by the right's resistance into possession of the heights. About two hours of fighting threaten the connection between the southbound columns and their command. Even if the audience learns of the change in the center first, do not let Bagration in the north or commanders in the south know of the entire defeat at that same moment.
 
-## 승리 속에서도 빼앗기는 것이 있다 {#north-and-guard}
+## Even in victory something is taken {#north-and-guard}
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 현재 `docs/body/settings/100-history/010-austerlitz.md#battle-state`의 북쪽·중앙 뒤·기병 구별과 `docs/body/settings/100-history/010-austerlitz.md#light-and-loss`의 제4 전열 독수리 탈취를 변형 없이 행사시켰다. “명령에 닿을 때까지 전투는 계속”되므로 새 동시 통신이나 부대 합성 없이 여러 결과를 잇고, 개별 미채택 전술을 부모에서 더 받아야 할 결손은 드러나지 않았다.
 -->
-북쪽에서 란은 별도의 적 전위와 싸우고, 뮈라의 기병은 기병끼리 부딪친다. 중앙 뒤에서는 러시아 근위의 반격과 프랑스 측 대응이 전투의 다른 위험을 연다. 보병 예비와 근위대 기병, 리히텐슈타인의 기병과 러시아 근위를 한 덩어리로 섞지 않는다. 러시아 근위가 프랑스 제4 전열의 독수리를 빼앗는 성취는 패자의 무의미한 몸부림으로 지우지 않는다.
+In the north Lannes fights a separate enemy vanguard, and Murat's cavalry meets cavalry. Behind the center a Russian Guard counterattack and the French response open another danger. Do not merge the infantry reserves and Guard cavalry, Liechtenstein's cavalry, and the Russian Guard into one mass. Do not erase the Russian Guard's capture of the eagle of the French 4th Line as a defeated side's meaningless struggle.
 
-관객은 여러 구역의 결과를 차례로 얻되 정확한 분 단위의 가짜 동시성을 받지 않는다. 중앙이 갈라진 결과가 다른 구역의 명령에 닿을 때까지 전투는 계속된다. 장군 한 사람이 한눈에 모든 곳을 보고 고친 승리가 아니라, 그가 고른 기회가 서로 다른 부대의 버팀과 행동을 통해 실제 성과가 되는 과정으로 결판을 만든다.
+The audience receives results from several sectors in turn, without false simultaneity down to the minute. Fighting continues until the consequences of the break in the center reach orders in other sectors. The victory is not one general seeing and correcting everything at a glance: the opportunity he chose becomes an actual achievement through the endurance and actions of different units.
 
-추가 사실 부모: [추가 역사 결정](../settings/100-history/030-decisions-and-results.md#guard-response).
+Additional factual parent: [additional historical decisions](../settings/100-history/030-decisions-and-results.md#guard-response).
 
-독수리가 넘어간 뒤 나폴레옹은 상황을 확인하고 대응할 기병을 라프와 함께 보낸다. 프랑스 방진 사이에서 러시아 기병을 마주한 대응군에 다른 근위 기병이 가담하여 중앙 뒤의 압력을 막는다. 라프의 부상은 대응의 비용이고, 독수리는 되찾지 못한 손실로 남긴다. 이 경과는 라프의 후일 회고에 귀속하여 받으며 다른 회고의 순서를 한 전투로 합치지 않는다. 관객은 위협의 발생뿐 아니라 이를 막는 부대의 행동을 받은 뒤 남쪽 퇴각으로 넘어간다.
-
+After the eagle is taken, Napoleon assesses the situation and sends cavalry with Rapp to respond. Other Guard cavalry join the force confronting Russian cavalry among the French squares, stopping the pressure behind the center. Rapp's wound is a cost of the response; the eagle remains a loss, not recovered. Attribute this sequence to Rapp's later memoir and do not combine the order of another memoir into the same battle. The audience sees both the threat and the action of the troops who stop it before moving to the retreat in the south.

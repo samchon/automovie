@@ -1,28 +1,27 @@
-# 지켜 준 정부가 입을 닫게 한다
+# The Government That Protected Them Silences Them
 
-## 불안에 대한 답이 행정으로 닿는다 {#administration}
+## Administration brings an answer to insecurity {#administration}
 
-이 파일의 사실 부모: [정부](../settings/030-society/010-power-and-cost.md#government), [통치의 형성](../settings/100-history/020-life-and-memory.md#consulate), [푸셰](../settings/050-people/010-ensemble.md#fouche), [스탈 부인](../settings/050-people/010-ensemble.md#de-stael).
+Factual parents: [government](../settings/030-society/010-power-and-cost.md#government), [the formation of rule](../settings/100-history/020-life-and-memory.md#consulate), [Fouché](../settings/050-people/010-ensemble.md#fouche), [Madame de Staël](../settings/050-people/010-ensemble.md#de-stael).
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 현재 `docs/body/settings/030-society/010-power-and-cost.md#government`의 도지사·경찰·조세와 `docs/body/settings/030-society/010-power-and-cost.md#finance`의 신용/정복 재원 구별, `docs/body/settings/110-knowledge/010-information.md#access`의 발송/수행 차이를 시험했다. “모자란 것을 다시 보고”받아 중앙이 선택하는 과정은 특정 보고서·지방 관료·수납액 없이 성립하여 새 사실을 부모에 보태지 않았다.
 -->
-1800년 무렵 프랑스. 새 정부는 전투의 신임을 계속 쓸 수 있는 행정으로 바꾼다. 중앙의 결정이 도지사의 집행과 경찰의 보고, 세금의 부과로 지방에 닿는다. 혁명의 재정 붕괴와 정권 교체에 지친 사람에게는 예측 가능한 명령이 생긴다. 바로 그 통로가 군에 낼 사람과 돈을 요구하므로 질서의 이익을 받은 사회는 국가의 요구에서 자유로워지지 않는다.
+France, around 1800. The new government turns confidence won in battle into administration it can continue to use. Central decisions reach the provinces through prefects' execution, police reports, and taxation. For people exhausted by revolutionary financial collapse and changes of regime, orders become predictable. The same channel demands men and money for the army, so a society benefiting from order does not become free of the state's demands.
 
-나폴레옹이 원하는 빠른 집행과 실제 수행의 간격을 남긴다. 중앙은 집행을 요구하고 지방은 수행한 일과 모자란 것을 다시 보고한다. 요구한 자원이 곧 도착하지 않으면 중앙은 독촉과 다음 배분을 골라야 하므로, 발송된 문서가 이행의 완료를 대신하지 못한다. 질서를 기대한 주민은 같은 통로로 납부와 동원의 요구를 받으며, 이행을 재촉할수록 생활을 보전할 여지가 줄어든다. 은행을 포함한 신용의 재조직도 전쟁에서 빼앗은 금고와 같은 재원으로 섞지 않는다. 전쟁의 기회를 만든 군인 뒤에 상시로 일하는 국가가 생기며, 이 국가가 뒤의 동원과 지지 양쪽을 만들어 낸다.
+Leave a gap between the quick execution Napoleon wants and actual performance. The center demands action; the provinces report back what was done and what is lacking. If requested resources do not arrive immediately, the center must choose how to press and allocate next; a dispatched document cannot stand in for completed compliance. Residents who expected order receive demands for payment and mobilization through the same channel, and the harder compliance is pressed, the less room remains to protect their livelihoods. Do not merge the reorganization of credit, including the bank, with coffers taken in war as the same source of funds. Behind the soldier who created an opportunity in war arises a state working continuously, which produces both later mobilization and support.
 
-추가 사실 부모: [신용·지식·산업](../settings/030-society/020-credit-knowledge-and-industry.md#bank).
+Additional factual parent: [credit, knowledge, and industry](../settings/030-society/020-credit-knowledge-and-industry.md#bank).
 
-주주 자본으로 설립된 프랑스은행과 뒤의 1803년 파리 지폐 발행 독점 허가를 신용의 별도 통로로 결정한다. 전쟁의 약탈금과 달리 계약·신용과 국가 권한의 결합이며, 그 통로가 생겼다고 모든 지방의 요구액이 곧 도착하는 것은 아니다. 은행의 존재는 장부와 권한의 실제 차이로 전달하고 미확인 개인 대출을 공연하지 않는다.
+Establish the Bank of France, founded with shareholders' capital, and its later 1803 authorization for a monopoly on issuing banknotes in Paris as a separate channel of credit. Unlike war booty, it joins contracts and credit with state authority; its existence does not mean every provincial demand is immediately met. Convey the bank through the actual difference made by accounts and authority, without staging an unverified personal loan.
 
-## 폭탄의 범인과 처벌할 적은 갈라진다 {#security}
+## The bombers and the enemies selected for punishment diverge {#security}
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 현재 `docs/body/settings/100-history/020-life-and-memory.md#consulate`의 생니케즈·탄압과 `docs/body/settings/050-people/010-ensemble.md#fouche`의 정보 권한·`docs/body/settings/050-people/010-ensemble.md#de-stael`의 자유와 살롱 독립을 시험했다. “푸셰의 수사와 정권의 정치적 단정이 같은 속도로 움직이지 않”는 사건은 새 범인 지식의 동시 공유나 정확 추방·압수 세부 없이 성립한다.
 -->
-생니케즈의 폭탄 뒤 나폴레옹의 생존은 정부를 지킨 결과이지만 거리의 피해는 남는다. 그는 위협을 제거하려는 필요를 반대 세력을 억누르는 권한으로 넓힌다. 푸셰의 수사와 정권의 정치적 단정이 같은 속도로 움직이지 않으며, 범인을 알아내는 일이 이미 선택한 탄압을 자동으로 거두게 하지 않는다. 관객은 통치자의 생명이 보존되는 안도 뒤에 다른 사람의 자유가 사라지는 결과를 받는다.
+After the Saint-Nicaise bomb, Napoleon's survival preserves the government, but harm in the street remains. He extends the need to eliminate threats into authority to suppress opposition. Fouché's investigation and the regime's political conclusion do not move at the same speed; identifying the perpetrators does not automatically reverse repression already chosen. After relief that the ruler survives, the audience receives the loss of other people's liberty.
 
-언론과 살롱에도 같은 경계가 자란다. 스탈 부인은 주인공에게 정답을 알려 주는 현대 해설자가 아니라 생각하고 말할 자유를 자기 생활의 힘으로 지키려는 사람이다. 비판과 사교의 독립을 원하는 그녀와 통제를 원하는 체제가 충돌한다. 비판이 불편하다는 이유로 말할 자리가 좁아지는 결과를 남겨, 다음 국민적 승인이라는 형식이 침묵당한 목소리까지 대표하지 못하게 한다.
+The same boundary grows around the press and salons. Madame de Staël is not a modern commentator giving the protagonist the right answer, but a person defending freedom to think and speak as a force in her own life. Her desire for independent criticism and society clashes with a regime seeking control. Leave the result that a place to speak narrows because criticism is inconvenient, so the next form of national approval cannot represent silenced voices as well.
 
-추가 사실 부모: [신용·지식·산업](../settings/030-society/020-credit-knowledge-and-industry.md#saint-nicaise), [스탈 부인](../settings/050-people/010-ensemble.md#de-stael).
+Additional factual parents: [credit, knowledge, and industry](../settings/030-society/020-credit-knowledge-and-industry.md#saint-nicaise), [Madame de Staël](../settings/050-people/010-ensemble.md#de-stael).
 
-폭탄 뒤 자코뱅을 지목한 정치적 단정이 먼저 추방 결정으로 이어진다. 뒤에 푸셰의 수사가 왕당파 슈앙을 가리켜도 130명의 추방은 취소되지 않는다. 관객은 혐의 대상·처분 대상·수사로 드러난 가담자가 갈라진다는 사실을 받는다. 스탈 부인의 비판은 국가에 대한 의무가 통치자 개인에 대한 복종과 같은가라는 정치적 쟁점으로 정한다. 이는 채택된 독립적 판단의 실제 재구성이지 후년의 원문을 당겨온 인용이 아니다. 스탈은 나가라는 통보에도 현재의 비판을 끝내는 쪽을 고른다. 그 말을 마친 뒤 떠나야 하고 남은 사람도 대화를 이어가지 못하므로 비판의 내용은 발화되지만 말할 자리는 좁아지는 결과로 정한다. 단순히 말하기 좋아하는 성격으로 축소하지 않는다.
-
+The political conclusion naming Jacobins after the bomb first leads to a decision to deport them. Even when Fouché's later investigation points to royalist Chouans, the deportation of 130 is not canceled. The audience receives the distinction among those suspected, those punished, and participants revealed by investigation. Define Staël's criticism as the political question whether duty to the state equals obedience to an individual ruler. This is an actual reconstruction of her adopted independent judgment, not a quotation brought forward from a later text. Despite being told to leave, Staël chooses to finish her present criticism. After she speaks she must leave, and those remaining cannot continue the conversation; the criticism is voiced, but the place to speak narrows. Do not reduce her to a character who simply likes talking.

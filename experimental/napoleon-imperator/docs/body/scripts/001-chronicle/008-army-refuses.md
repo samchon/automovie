@@ -1,199 +1,195 @@
+# The Army That Refuses to Fight
 
-# 싸우지 않겠다는 군대
+## Victory by a new army {#spring}
 
-## 새 군대의 승리 {#spring}
+Parents: [032#spring](../../treatments/032-the-new-army.md#spring), [032#duroc](../../treatments/032-the-new-army.md#duroc).
 
-부모: [032#spring](../../treatments/032-the-new-army.md#spring), [032#duroc](../../treatments/032-the-new-army.md#duroc).
+Spring 1813, daytime. A recruit beside a veteran adjusts his position with a musket. From beside the ranks see Ney move forward.
 
-1813년 봄, 낮. 고참 곁 신병이 총 들 자리를 고친다. 대열 옆에서 네가 앞으로 나가는 모습을 본다.
+NEY: Follow me!
 
-네: 따라오시오!
+The recruit looks at the person beside him and runs with them.
 
-옆 사람을 본 신병이 함께 뛴다.
+Caption: May 2, Lützen.
 
-자막: 5월 2일, 뤼첸.
+Soldiers pushed back from the villages. Ney's troops hold among houses and look back. Napoleon stands where guns are newly concentrating.
 
-마을 쪽에서 밀려오는 병사들. 네의 군이 집 사이를 붙들다 뒤로 돌아본다. 포가 새로 모이는 쪽에 나폴레옹이 있다.
+NAPOLEON: We must hold that side. Bring up the guns.
 
-나폴레옹: 저쪽을 버텨야 하오. 포를 붙이시오.
+Artillery strikes before the village and the Young Guard advances. A soldier pushed back joins that line and turns around. The enemy withdraws from the village.
 
-포격이 마을 앞을 치고 청년근위가 나아간다. 밀려나던 병사가 그 줄에 붙어 돌아선다. 상대가 마을에서 물러난다.
+Caption: May 20–21, Bautzen.
 
-자막: 5월 20~21일, 바우첸.
+While French troops fight frontally, Ney's men move on the flank from another direction. Open the view toward the enemy retreat route: troops escape in order. The force coming from the flank cannot close that road.
 
-정면의 프랑스군이 싸우는 동안 다른 방향의 네 군이 측면으로 나간다. 적의 퇴로를 향해 시야를 열면 군이 질서를 지켜 빠져나간다. 측면에서 온 군은 그 길을 닫지 못한다.
+OFFICER: They are getting away.
 
-장교: 빠져나가고 있습니다.
+Where pursuit preparations are requested, the line of horses and cavalry is too small.
 
-추격 준비를 요구받은 곳에서는 말과 기병의 줄이 모자란다.
+STAFF OFFICER: We cannot pursue like that with the horses we have.
 
-참모: 지금 있는 말로는 그렇게 따라갈 수 없습니다.
+Napoleon looks toward the departing enemy, then at other troops ready. Sounds announcing victory overlap writing down resources to gather anew.
 
-나폴레옹은 적이 간 방향을 보다가 다른 준비된 군을 살핀다. 승리를 알리는 소리에 새로 모을 자원을 적는 소리가 겹친다.
+Night of May 22, the wounded Duroc's room. A person about to enter stops at the door. The man who always arranged access lies inside. Alternate close faces of Napoleon and Duroc at the bed with paper for the next order outside.
 
-5월 22일 밤, 부상한 뒤로크의 방. 들어오려던 사람이 문 앞에 선다. 늘 접근 순서를 정하던 사람이 안에 누워 있다. 침상으로 온 나폴레옹과 뒤로크의 가까운 얼굴, 문밖 다음 명령의 종이를 번갈아 본다.
+Duroc dies that night. People wait before Napoleon as he leaves the room. With no one to arrange the order for him, he points to one person himself.
 
-그날 밤 뒤로크가 죽는다. 방에서 나온 나폴레옹 앞에 사람들이 기다린다. 대신 순서를 정해 주는 사람 없이, 그가 직접 한 사람을 가리킨다.
+## A concession written late {#mediation}
 
-## 늦게 적힌 양보 {#mediation}
+Parents: [033#mediation](../../treatments/033-the-opponents-use-the-pause.md#mediation), [033#renewal](../../treatments/033-the-opponents-use-the-pause.md#renewal).
 
-부모: [033#mediation](../../treatments/033-the-opponents-use-the-pause.md#mediation), [033#renewal](../../treatments/033-the-opponents-use-the-pause.md#renewal).
+The 1813 armistice. See French military reorganization and Austrian mediation documents in different rooms. Metternich handles conditions and choices for his country. Do not dress this as a witty verbatim private meeting.
 
-1813년 휴전. 프랑스의 군 재정비와 오스트리아의 중재 문서를 다른 방에서 본다. 메테르니히가 조건과 자국의 선택을 다룬다. 단독 회담의 재치 있는 축어록으로 꾸미지 않는다.
+HISTORIAN (off screen): Dissolution of the Confederation of the Rhine and return of Illyria were the price of reducing the Emperor's control.
 
-역사가(화면 밖): 라인 동맹의 해체와 일리리아의 반환은 황제의 지배를 줄이는 대가였다.
+Before a map of those regions Napoleon delays an answer. Even as the deadline approaches, no agreement document goes out. Only after the conference closes does he put forward an answer.
 
-그 지역 지도 앞에서 나폴레옹이 답을 늦춘다. 시한이 다가와도 동의 문서는 나가지 않는다. 회의가 닫힌 뒤에야 답을 내민다.
+HISTORIAN (off screen): The late answer expressed willingness to surrender the Confederation of the Rhine and part of Illyria.
 
-역사가(화면 밖): 뒤늦은 답에는 라인 동맹과 일리리아 일부를 내놓을 뜻이 담겼다.
+NAPOLEON: Send this answer.
 
-나폴레옹: 이 뜻을 보내시오.
+A messenger leaves. While the answer has not yet reached the other side, Austria's entry into war is announced. Show dispatch and receipt separately.
 
-전달자가 나간다. 아직 상대에게 답이 닿지 않은 동안 오스트리아 참전의 문서가 공개된다. 발송과 수령을 분리해 보여 준다.
+Move from British tax and borrowing ledgers to signatures on subsidy treaties. Allied troops promised support are still distributing equipment. People who left home line up for training.
 
-영국의 조세·차입 장부에서 보조금 조약의 서명으로 옮긴다. 약속을 받은 동맹군은 아직 장비를 나누고 있다. 집을 나온 사람들이 훈련 줄을 맞춘다.
+CONSCRIPT: When the money comes, is it finished?
 
-징집병: 돈이 오면 끝납니까?
+VETERAN: You still have to march.
 
-고참: 그래도 네가 걸어야 한다.
+The veteran adjusts the recruit's shoulder and matches the next step.
 
-고참이 어깨를 고쳐 주고 다음 걸음을 맞춘다.
+Bernadotte before a map involving Sweden's interests.
 
-스웨덴의 이해가 걸린 지도 앞, 베르나도트.
+BERNADOTTE: I cannot judge wearing my old uniform. Let us go where Sweden needs.
 
-베르나도트: 옛 군복을 입고 판단할 수는 없소. 스웨덴에 필요한 쪽으로 갑시다.
+Gneisenau divides the direction Blücher urges into march preparations. Schwarzenberg moves armies within restrictions of several sovereigns. Do not gather different preparations into one staff room.
 
-블뤼허가 서두르는 방향을 그나이제나우가 행군 준비로 나눈다. 슈바르첸베르크는 여러 군주의 제한 속에서 군을 움직인다. 서로 다른 준비를 하나의 참모실에 모으지 않는다.
+## An Emperor absent from every place {#leipzig}
 
-## 모든 곳에 없는 황제 {#leipzig}
+Parents: [034#avoidance](../../treatments/034-leipzig-and-the-bridge.md#avoidance), [034#leipzig](../../treatments/034-leipzig-and-the-bridge.md#leipzig).
 
-부모: [034#avoidance](../../treatments/034-leipzig-and-the-bridge.md#avoidance), [034#leipzig](../../treatments/034-leipzig-and-the-bridge.md#leipzig).
+War resumes. After an order leaves French headquarters in one direction, a defeat report arrives from another front. On a separate Allied map see movement avoiding the Emperor and routes concentrating on marshals.
 
-재개된 전쟁. 프랑스 본영에서 한 방향으로 명령이 나간 뒤 다른 전선의 패전 보고가 들어온다. 연합군의 별도 지도에서는 황제를 피하는 이동과 원수들에게 집중하는 길을 본다.
+BLÜCHER: If we hold them here, that force must move too.
 
-블뤼허: 여기서 붙들면 저쪽도 움직여야 하오.
+GNEISENAU: I will gather this side before that army arrives.
 
-그나이제나우: 그 군이 닿기 전에 이쪽을 모으겠습니다.
+Follow the words with feet actually departing. Other Allied armies do not move at the same speed. Demands from another front accumulate beside the Emperor's victory report.
 
-말 뒤에 실제 출발하는 발을 잇는다. 다른 연합군은 같은 속도로 움직이지 않는다. 황제의 승전 보고 옆에도 다른 전선의 요구가 쌓인다.
+Caption: August 26, Katzbach.
 
-자막: 8월 26일, 카츠바흐.
+A rainy crossing. The leading force stops on a narrow road and ranks behind press up. In one wide view the French on the other side are separated by a distance preventing immediate joint fighting. Blücher's troops attack the gap. French soldiers trying to cross turn back, blocking the road further.
 
-비 오는 도하로. 앞의 군이 좁은 길에서 멈추고 뒤의 줄이 붙는다. 다른 쪽에 떨어진 프랑스군까지 한 원경 안에 두면 서로 바로 붙어 싸울 수 없는 간격이 보인다. 블뤼허의 군이 그 틈을 향해 공격한다. 건너려던 프랑스군이 돌아서며 길이 더 막힌다.
+HISTORIAN (off screen): MacDonald commanded this army after Napoleon left. The Emperor's other victory could not save troops fighting divided here.
 
-역사가(화면 밖): 나폴레옹이 떠난 뒤 맥도날드가 맡은 군이었다. 황제의 다른 승전은 여기서 나뉘어 싸운 군을 구하지 못했다.
+The defeat report reaches French headquarters and is opened beside an earlier victory report.
 
-프랑스 본영에 이 패전의 보고가 도착한다. 앞서 놓인 승전 보고 옆에 펼친다.
+Caption: October, Leipzig.
 
-자막: 10월, 라이프치히.
+HISTORIAN (off screen): Poniatowski, commander of Polish troops and minister of war of the Duchy of Warsaw, was also in this war. At Leipzig he became a marshal of France.
 
-역사가(화면 밖): 폴란드군을 이끌고 바르샤바 공국의 전쟁장관이었던 포니아토프스키도 이 전쟁에 있었다. 라이프치히에서 그는 프랑스 원수가 되었다.
+After several armies fight at Leipzig, the French gather on a retreat route. In a low wide view at the water, follow the flow toward a bridge. A premature explosion. People behind stop. Across the water troops already crossed are visible, but there is no road back to them.
 
+HISTORIAN (off screen): Poniatowski and others did not return. The war first made retreat necessary; the lost bridge increased its losses.
 
+Add no unknown demolition order or new close view of an individual's death. The remaining army heads for France.
 
-라이프치히에서 여러 군이 싸운 뒤 프랑스군이 퇴로에 모인다. 물가의 낮은 원경으로 다리 향하는 흐름을 잡는다. 조기 폭파음. 뒤의 사람들이 멈춘다. 이미 건넌 군이 보이는 반대편으로 돌아올 길은 없다.
+## Victory does not bring the capital back {#france}
 
-역사가(화면 밖): 포니아토프스키를 비롯한 사람들이 돌아오지 못했다. 전쟁이 먼저 후퇴를 요구했고, 잃은 다리가 그 손실을 키웠다.
+Parents: [035#defense](../../treatments/035-france-and-paris.md#defense), [035#capital](../../treatments/035-france-and-paris.md#capital).
 
-미상 폭파 명령이나 새 개인의 최후 근경은 두지 않는다. 남은 군은 프랑스로 향한다.
+France, 1814. A small army concentrates and attacks. As the enemy withdraws Napoleon chooses the next road. Widen the view: another direction he has left is empty.
 
-## 이겨도 수도가 돌아오지 않는다 {#france}
+CAULAINCOURT: They demand a return to pre-Revolutionary borders and surrender of influence beyond them.
 
-부모: [035#defense](../../treatments/035-france-and-paris.md#defense), [035#capital](../../treatments/035-france-and-paris.md#capital).
+NAPOLEON: They want even the natural frontiers we have defended?
 
-1814년 프랑스. 작은 군이 집중해 공격한다. 적이 물러나자 나폴레옹이 다음 길을 고른다. 시야가 넓어지면 그가 떠난 다른 방향은 비어 있다.
+CAULAINCOURT: If we miss terms we can obtain now, next time we may have less.
 
-코랭쿠르: 상대는 혁명 이전 국경으로 돌아가고, 그 밖의 영향력도 포기하라고 합니다.
+NAPOLEON: One more victory will change that.
 
-나폴레옹: 우리가 지켜 온 자연 국경까지 내놓으란 말이오?
+CAULAINCOURT: They will not decide on one battle alone.
 
-코랭쿠르: 지금 얻을 조건을 놓치면, 다음에는 더 줄어들 수 있습니다.
+Napoleon looks at the next military report. Put the negotiations Caulaincourt conducts at another time and place.
 
-나폴레옹: 한 번 더 이기면 달라질 것이오.
+Later headquarters. Napoleon draws the negotiating document forward again and broadens authority for concessions to send Caulaincourt. A different document departs from the military orders sent earlier.
 
-코랭쿠르: 상대는 한 전투만 보고 결정하지 않습니다.
+HISTORIAN (off screen): He authorized concessions to prevent the collapse of Châtillon, but that authority arrived late.
 
-나폴레옹은 다음 군사 보고를 본다. 코랭쿠르가 협상하는 자리는 다른 시간과 장소에 둔다.
+The Châtillon negotiations in 1814. A communication reaches Caulaincourt. He opens it.
 
-뒤의 본영. 나폴레옹이 협상 문서를 다시 당겨 코랭쿠르에게 보낼 양보 권한을 넓힌다. 앞서 나간 군사 명령과 다른 문서가 출발한다.
+CAULAINCOURT: Even on these terms it cannot be reopened now. The talks are over.
 
-역사가(화면 밖): 샤티옹의 결렬을 막으려 양보를 허락했지만, 그 권한은 늦게 닿았다.
+He puts the document aside. No negotiating partner returns.
 
-1814년 샤티옹의 협상 자리. 코랭쿠르에게 연락이 도착한다. 받은 문서를 펼친다.
+Allies reach Paris. Talleyrand stands before documents of capital politics.
 
-코랭쿠르: 이제는 이 조건으로도 다시 열 수 없소. 회담이 끝났소.
+TALLEYRAND: The capital cannot wait until the next battle.
 
-문서를 옆에 놓는다. 돌아오는 협상 상대는 없다.
+Under military superiority, Senate procedure continues. After receiving a document appointing a provisional government, move the date forward to the text of deposition.
 
-연합군이 파리에 닿는다. 수도 정치의 문서 앞에 탈레랑이 있다.
+HISTORIAN (off screen): The Senate denied Napoleon and his family hereditary imperial rule. It also released the nation and army from their oaths of loyalty.
 
-탈레랑: 수도는 다음 전투까지 기다릴 수 없습니다.
+Senate documents and Allied military orders leave different hands. On receiving news, Napoleon's hand stops opening a new map. He turns to the remaining army.
 
-군사적 우세 아래 원로원 절차가 진행된다. 임시정부의 지명 문서를 받은 뒤 날짜를 넘겨 폐위 문안을 받는다.
+## Authority relinquished twice {#abdication}
 
-역사가(화면 밖): 원로원은 나폴레옹과 그 가족의 세습 제위를 부정했다. 국민과 군대의 충성 서약도 풀었다.
+Parents: [036#abdication](../../treatments/036-the-first-abdication.md#abdication), [036#separation](../../treatments/036-the-first-abdication.md#separation).
 
-원로원의 문서와 연합군의 군사 명령은 다른 손에서 나간다. 소식을 받은 나폴레옹의 손이 새 지도를 펴다가 멈춘다. 그는 남은 군을 향해 돌아선다.
+Fontainebleau, a room by day. See Napoleon and marshals including Ney together in a medium view from the door. Uniformed feet are still. This is reconstruction without fixing an exact meeting list or time.
 
-## 두 번 놓는 권한 {#abdication}
+NAPOLEON: There is still an army. We can march.
 
-부모: [036#abdication](../../treatments/036-the-first-abdication.md#abdication), [036#separation](../../treatments/036-the-first-abdication.md#separation).
+NEY: We will march no farther.
 
-퐁텐블로, 낮의 방. 나폴레옹과 네를 비롯한 원수들을 문 쪽 중경에서 함께 본다. 군복 입은 발들이 멈춰 있다. 정확한 회의 명단이나 시각을 확정하지 않는 재구성이다.
+NAPOLEON: We fought together with that army.
 
-나폴레옹: 아직 군이 있소. 진군할 수 있소.
+NEY: Then we must stop. We cannot use up the people left.
 
-네: 더는 진군하지 않겠습니다.
+Napoleon searches other faces. No one steps forward. He takes a document to preserve his son's succession.
 
-나폴레옹: 함께 싸운 군이오.
+Caption: Around April 4, conditional abdication.
 
-네: 그러니 멈춰야 합니다. 남은 사람까지 써 버릴 수는 없습니다.
+NAPOLEON: My son's succession must remain.
 
-나폴레옹이 다른 얼굴을 찾는다. 아무도 나서지 않는다. 그가 아들의 계승을 남길 문서를 잡는다.
+He puts the document before him.
 
-자막: 4월 4일 전후, 조건부 퇴위.
+Night of April 4–5, the Essonnes corps moves. See ranks from afar.
 
-나폴레옹: 아들의 계승은 남겨야 하오.
+HISTORIAN (off screen): The Essonnes corps left Napoleon's command. Marmont later defended his action, but troops lost through the defection did not return to negotiation to protect the son's succession.
 
-문서를 앞에 놓는다.
+News of movement arrives. Beside the conditional succession proposal, military possibility disappears.
 
-4~5일 밤, 에손 군단이 이동한다. 대열을 멀리서 본다.
+Caption: April 6, unconditional abdication.
 
-역사가(화면 밖): 에손 군단은 나폴레옹의 지휘에서 이탈했다. 마르몽은 뒤에 자기 행동을 변호했지만 이탈로 사라진 병력은 아들의 계승을 지킬 협상으로 돌아오지 않았다.
+Napoleon closes the earlier document and receives new paper. He lets go, takes hold again, and signs.
 
-이동 소식이 닿는다. 조건부 계승안 옆에서 군사적 가능성이 사라진다.
+Marie Louise and the child move under other countries' demands. The three-year-old reaches out to go together and his mother takes his hand. Napoleon does not fetch them from the same room.
 
-자막: 4월 6일, 무조건 퇴위.
+May 29. Receive Joséphine's death through the date and an empty living space. Add no new farewell or reconciliation.
 
-나폴레옹이 앞의 문서를 덮고 새 종이를 받는다. 손을 놓았다가 다시 잡아 서명한다.
+## Work possible in a small state {#elba}
 
-마리 루이즈와 아이는 다른 나라들의 요구 아래 옮겨간다. 세 살 아이가 함께 가려 손을 뻗으면 어머니가 잡는다. 나폴레옹이 같은 방에서 데려오지 않는다.
+Parents: [037#elba](../../treatments/037-a-small-state.md#elba), [037#restoration](../../treatments/037-a-small-state.md#restoration).
 
-5월 29일, 조제핀의 죽음을 날짜와 빈 생활 공간으로 받는다. 새 이별이나 화해를 붙이지 않는다.
+Elba by day, 1814. Feet walk a paved street; a resident's hand receives water. Napoleon comes to inspect the completed water facility. After a brief smile, the sound of water people use remains.
 
-## 작은 나라에서 할 수 있는 일 {#elba}
+At another construction site tools are still. A cost document arrives.
 
-부모: [037#elba](../../treatments/037-a-small-state.md#elba), [037#restoration](../../treatments/037-a-small-state.md#restoration).
+NAPOLEON: Can we not continue even this much?
 
-1814년 엘바의 낮. 포장된 시가를 걷는 발, 물을 받는 주민의 손. 나폴레옹이 와 완성된 급수 시설을 살핀다. 짧게 웃고 나면 사람들이 쓰는 물소리가 남는다.
+OFFICIAL: We must decide what more money to put in.
 
-다른 공사 현장은 도구가 멈춰 있다. 비용 문서가 옮겨 온다.
+Napoleon looks at the area for work and returns the document. It is not expanded that day.
 
-나폴레옹: 이만큼도 이어갈 수 없소?
+HISTORIAN (off screen): Houssaye's later synthesis distinguished changed streets and water facilities from halted construction. The plans Campbell recorded in the first week are not a list of completed works.
 
-담당자: 더 들일 돈을 정해야 합니다.
+Do not add facilities found only in plans as completed images.
 
-공사할 면을 본 나폴레옹이 문서를 돌려준다. 그날은 더 넓히지 않는다.
+A house in the evening. Napoleon, unable to summon family at will, reads discontent about the French Restoration. Caption for the audience: Discontent accumulating under France's restored monarchy. It is not a quotation of document wording. The audience also sees the broader process of countries pursuing their interests at the Congress of Vienna. Do not let Napoleon hear the entire congress.
 
-역사가(화면 밖): 우세의 후대 종합은 바뀐 시가와 급수 시설을 중단된 공사와 구별했다. 캠벨이 첫 주에 적은 계획은 완공 목록이 아니다.
+After reading the news, he sets aside baggage to take on departure. Stop at preparations before going to sea.
 
-계획에만 든 시설은 완성 화면으로 보태지 않는다.
+End of main work. A separate author voice.
 
-저녁의 집. 가족을 뜻대로 부를 수 없는 나폴레옹이 프랑스 복고에 관한 불만을 읽는다. 관객용 자막: 프랑스의 복고왕정에 쌓이는 불만. 문서의 원문 인용은 아니다. 관객에게는 빈 회의에서 제 이익을 다루는 나라들의 넓은 과정도 보여 준다. 그 전체 회의를 나폴레옹에게 들려주지는 않는다.
-
-소식을 다 읽은 그가 출항에 쓸 짐을 따로 놓는다. 바다로 나가기 전 준비에서 멈춘다.
-
-본편 끝. 별도 작가 음성.
-
-작가: 몰락 속에도 실제 승리와 성취가 있었습니다. 뒤늦은 양보를 적었다는 것과 시한 안에 합의했다는 것은 달라요. 첫 퇴위도 조건부 계승 시도에서 최종 퇴위까지 단계가 있었습니다. 엘바에서 이룬 일과 멈춘 일도 같은 완공 목록에 넣지 않았어요.
-
+AUTHOR: There were real victories and achievements amid downfall. Writing a late concession differs from reaching agreement before the deadline. The first abdication also had stages, from an attempt at conditional succession to final abdication. We did not put work achieved and work halted on Elba into one list of completions.

@@ -1,43 +1,43 @@
-# 자유를 돌려받지 않으려는 사람들
+# People Who Refuse to Give Up Their Freedom
 
-## 죽음으로 끝내도 복종하지 않는 선택 {#delgres}
+## Choosing not to submit, even in death {#delgres}
 
-이 파일의 사실 부모: [식민지의 지역별 조건](../settings/030-society/010-power-and-cost.md#slavery), [투생](../settings/050-people/010-ensemble.md#toussaint), [델그레스](../settings/050-people/010-ensemble.md#delgres), [두 사람의 행위](../settings/050-people/010-ensemble.md#colonial-agency), [아미앵의 파탄](../settings/100-history/020-life-and-memory.md#consulate).
+Factual parents: [conditions in each colony](../settings/030-society/010-power-and-cost.md#slavery), [Toussaint](../settings/050-people/010-ensemble.md#toussaint), [Delgrès](../settings/050-people/010-ensemble.md#delgres), [the two men's agency](../settings/050-people/010-ensemble.md#colonial-agency), [the breakdown of Amiens](../settings/100-history/020-life-and-memory.md#consulate).
 
-이 파일에서는 실제 농장의 하루나 마투바의 기록 없는 마지막 하루를 재구성하지 않는다.
+This file does not reconstruct an actual day on a plantation or the unrecorded last day at Matouba.
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 현재 `docs/body/settings/030-society/010-power-and-cost.md#slavery`의 지역별 복원과 `docs/body/settings/050-people/010-ensemble.md#delgres`·`docs/body/settings/050-people/010-ensemble.md#colonial-agency`의 저항·포위·폭파 한계를 그대로 시험했다. “사적인 하루”를 열지 않고도 선택·충돌·죽음이 완결되어 최후 발언·방화자·폭사 수를 부모에서 새로 확정할 필요가 없었다.
 -->
-1802년 5월 과들루프. 유럽의 평화와 국가 조직이 진행되는 동안, 해외에서는 이미 보낸 군대가 자유와 통치를 강제할 힘이 된다. 과들루프의 군사적 복원은 델그레스와 동료들의 저항을 만난다. 그들은 자기 자유와 생존이 걸린 편을 택한다. 프랑스 정책을 논평하기 위해 잠깐 등장한 얼굴이 아니라 그 정책의 성공을 실제로 가로막는 사람들로 둔다. 마투바에서 포위된 집단의 폭파와 죽음은 저항이 닫히는 결과다.
+Guadeloupe, May 1802. While peace and state organization proceed in Europe, troops already dispatched overseas become a force capable of imposing rule and taking freedom. Military restoration in Guadeloupe meets resistance from Delgrès and his companions. They choose the side on which their own freedom and survival depend. They are not faces appearing briefly to comment on French policy, but people who actually obstruct its success. The explosion and death of the group surrounded at Matouba are the outcome that closes the resistance.
 
-이 결과에 이르는 사적인 하루, 누가 마지막 불을 붙였는지, 동료에게 한 최후의 말은 정하지 않는다. 기록이 허용하는 포위와 저항·폭파의 윤곽에서 멈추며, 동료를 한 사람의 영웅적 죽음을 꾸미는 폭사 숫자로 쓰지 않는다. 관객은 법의 명칭이 바뀌기 전에 현장에서 자유가 무력으로 빼앗길 수 있다는 사실을 받는다. 역사가가 1794년 폐지의 지역 차이, 1802년 유지법, 과들루프의 별도 명령과 늦은 공표, 기아나의 점진적 복원을 구별한다.
+Do not fix a private day leading to this result, who lit the final fire, or last words to companions. Stop at the outline of siege, resistance, and explosion the record allows; do not use companions as a number killed in an explosion to decorate one person's heroic death. The audience receives the fact that freedom can be taken by force on the ground before the name of a law changes. The historian distinguishes regional differences in the 1794 abolition, the 1802 law maintaining slavery, the separate Guadeloupe order and its late publication, and gradual restoration in Guiana.
 
-## 항복으로 지키려던 자유를 빼앗긴다 {#toussaint}
+## Freedom he sought to protect by surrender is taken away {#toussaint}
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 현재 `docs/body/settings/050-people/010-ensemble.md#toussaint`의 통치·노동 강제·포로와 `docs/body/settings/030-society/010-power-and-cost.md#slavery`의 1802년 체포·1803년 4월 7일 죽음을 그대로 시험했다. “실제 처지”로 약속과 안전의 차이가 드러나 미전 초대장·비밀 회담·자유의 나무 축어를 상류에서 새 사실로 채택할 필요가 없었다.
 -->
-1802년 6월 생도맹그. 투생은 이미 자유를 지키며 종신 총독의 권력을 얻은 사람이고, 앞서 도착한 프랑스군은 그 권력을 복종시키려 한다. 그의 질서에도 해방 경작자를 임금 노동에 붙드는 강제가 있다. 관객은 이 선행 조건을 짧게 받고, 그를 순결한 피해자나 프랑스의 부하 하나로 먼저 단정하지 않은 채 지금의 포로화로 들어간다.
+Saint-Domingue, June 1802. Toussaint has already defended freedom and gained the power of governor for life; French troops arriving earlier seek to bring that power into submission. His own order also uses coercion to bind emancipated cultivators to wage labor. The audience briefly receives this prior condition and enters his present captivity without first fixing him as a pure victim or merely a French subordinate.
 
-항복으로 노예제 복원을 피하려던 투생은 체포되어 가족과 함께 자유를 잃고 프랑스로 보내진다. 초대 편지의 사라진 문구나 비밀 회담을 만들어 배신을 설명하지 않는다. 그의 편지와 포로의 실제 처지를 통해 협력의 약속이 안전을 보장하지 못했다는 결과를 준다. 나폴레옹의 명령 아래 주 요새의 수감이 이어지고 1803년 4월 7일 죽음으로 닫힌다. 자유의 나무 문구는 후대 전승으로만 접근한다. 그의 죽음 뒤에도 생도맹그의 저항은 끝나지 않는다.
+Toussaint, who sought to avoid restoration of slavery by surrendering, is arrested, loses freedom with his family, and is sent to France. Do not invent the missing words of an invitation letter or a secret meeting to explain betrayal. Through his letters and the actual conditions of captivity, show that promises of cooperation did not guarantee safety. Imprisonment at Fort de Joux follows under Napoleon's orders and ends in death on April 7, 1803. Approach the words about the tree of liberty only as later tradition. Resistance in Saint-Domingue does not end with his death.
 
-## 유럽의 돈이 되는 먼 땅 {#louisiana}
+## A distant land becomes money for Europe {#louisiana}
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 현재 `docs/body/settings/030-society/010-power-and-cost.md#slavery`의 실패·질병·전쟁 위험, 조약일/서명일, 전액 현금 금지를 시험했다. “계획을 붙들기보다” 처분하는 선택이 여러 조건에서 성립해 투생 사망의 단일 인과·새 협상가·확정 현금액을 부모에서 추가할 필요가 없다. 남은 저항도 매각으로 종료하지 않았다.
 -->
-생도맹그에서는 황열과 원정의 폭력이 군과 주민을 무너뜨리고, 투생을 제거한 뒤에도 프랑스 지배는 안정되지 않는다. 실패와 질병, 영국과의 재전쟁 위험이 루이지애나를 처분할 조건을 함께 만든다. 나폴레옹은 아메리카의 계획을 붙들기보다 다른 전쟁에 쓸 가능성을 택한다. 매각을 투생 한 사람의 죽음이 즉시 낳은 반응으로 줄이지 않는다.
+In Saint-Domingue, yellow fever and the expedition's violence devastate troops and inhabitants, and French rule does not stabilize even after Toussaint is removed. Failure, disease, and the danger of renewed war with Britain together create conditions for disposing of Louisiana. Napoleon chooses the possibility of using it for another war rather than holding to plans in America. Do not reduce the sale to an immediate reaction caused by Toussaint's death alone.
 
-조약의 1803년 4월 30일자와 실제 서명 5월 2일의 차이를 지키되 새로운 협상가의 근경은 만들지 않는다. 8천만 프랑을 전액 현금의 승리로 세지 않는다. 매각은 생도맹그 저항의 끝이 아니라 프랑스가 다른 전쟁을 준비하며 아메리카의 계획을 바꾸는 결과다.
+Preserve the difference between the treaty dated April 30, 1803 and actual signature on May 2, without creating a close scene for a new negotiator. Do not count 80 million francs as a victory paid entirely in cash. The sale is not the end of resistance in Saint-Domingue, but a change in France's plans in America as it prepares for another war.
 
-추가 사실 부모: [신용·지식·산업](../settings/030-society/020-credit-knowledge-and-industry.md#louisiana).
+Additional factual parent: [credit, knowledge, and industry](../settings/030-society/020-credit-knowledge-and-industry.md#louisiana).
 
-문서의 거래 상대를 미국으로 밝힌다. 총액은 대금과 청구권 처리를 포함한다는 조건을 함께 전달하며 새 개인 협상자의 대면을 추가하지 않는다.
+Identify the United States as the transaction's other party. Convey that the total includes the purchase price and settlement of claims, without adding a meeting with a new individual negotiator.
 
-## 같은 평화에서 다른 의무를 요구한다 {#renewed-war}
+## Different obligations are demanded under the same peace {#renewed-war}
 
-1803년 5월 유럽. 앞서 얻은 아미앵의 안도는 상대가 의무를 지키지 않는다는 두 진영의 주장 앞에서 닫힌다. 프랑스는 평화 중에도 대륙에 간섭하고 영국은 몰타에서 철수하지 않는다. 영국 쪽은 프랑스의 간섭 때문에 철수를 미룬다고 주장하고, 프랑스 쪽은 몰타를 돌려주고 물러나기로 한 조약을 영국이 지키지 않았다고 맞선다. 각자 안전을 지킨다는 선택이 상대에게는 평화를 믿을 수 없는 이유가 된다.
+Europe, May 1803. The earlier relief of Amiens closes as both camps claim the other has failed its obligations. France interferes on the continent even during peace, and Britain does not withdraw from Malta. Britain claims French interference causes it to postpone withdrawal; France answers that Britain has failed the treaty by not returning Malta and withdrawing. Each side's choice to protect its security becomes a reason for the other to distrust peace.
 
-영국의 선전포고로 전쟁이 다시 열린다. 어느 한쪽의 비난을 역사가의 단일 판결로 만들지 않고, 교역과 휴식의 기대가 다시 전쟁 준비에 자리를 내주는 결과를 준다. 정확한 선전포고 날짜의 갈림과 미확보 외교 보고서의 문구는 고정하지 않는다. 휘트워스와의 새 접견이나 인용도 만들지 않는다. 유럽의 전쟁 재개는 매각에 앞서 존재하던 위험이 실제 상태로 바뀐 것이며, 매각 자체가 선전포고를 낳은 원인은 아니다.
+Britain's declaration of war opens hostilities again. Do not turn either side's accusation into the historian's single verdict; show expectations of trade and rest giving way again to preparation for war. Do not fix the disputed exact date of declaration or wording of diplomatic reports not obtained. Invent no new audience with Whitworth or quotation. The resumption of European war turns a risk present before the sale into an actual condition; the sale itself did not cause the declaration.
 
-## 지배가 실패한 땅은 독립을 얻는다 {#independence}
+## A land where rule failed gains independence {#independence}
 
-1803년 말 프랑스군의 패배와 1804년 아이티 독립으로 식민지의 결과를 회수한다. 투생을 제거하고 군을 보냈다는 사실이 현지의 복종을 만들지 못했다. 질병과 폭력 아래서도 이어진 저항은 프랑스가 유지하려던 지배를 무너뜨린다. 유럽에서는 통치자의 명성과 권력이 커지지만, 바깥의 사람들은 그의 허락으로만 자유를 얻고 잃은 것이 아니라 저항으로 국가를 벗어난다.
+Return to the colonial result through French defeat at the end of 1803 and Haitian independence in 1804. Removing Toussaint and sending an army did not produce local submission. Resistance continuing under disease and violence brings down the rule France sought to maintain. In Europe the ruler's fame and power grow, but people elsewhere did not gain and lose freedom only by his permission: through resistance they leave the state behind.

@@ -1,81 +1,81 @@
-# 전쟁과 정권의 결정 대상
+# Objects of Decisions in War and Government
 
-[개요의 위치](../outline/index.md#100-history--030-decisions-and-results). 이 기록은 기존 생애·전장 정전의 한정을 우선하며 아래에 명시한 사실만 추가 채택한다. 보존 자료의 승인·증거는 새 채택의 승인으로 사용하지 않는다. 사건 배열과 실제 대사는 T와 Script의 책임이다.
+[Place in the outline](../outline/index.md#100-history--030-decisions-and-results). This record prioritizes existing limits in life and battlefield canon and additionally adopts only facts stated below. Approval and evidence in retained material do not approve new adoptions. Treatments and scripts own event order and actual dialogue.
 
-## 툴롱의 공격 목표 {#toulon}
+## The attack objective at Toulon {#toulon}
 
-1793년 툴롱에서 영국군이 지키던 뮐그레이브 보루는 작은 지브롤터로 불렸다. 12월의 포격 뒤 16일 밤에서 17일 새벽으로 이어진 공격에서 첫 시도는 막혔고 재공격으로 고지를 얻었다. 나폴레옹은 공격에 참여하여 부상했다. 연합군의 철수와 진급은 고지 확보 뒤의 결과다. 포를 쐈다는 사실만으로 목표 달성을 대체하지 않는다. 정확한 공격 시각·포 사거리·가공의 함대 피해는 채택하지 않는다. [툴롱 기록](../../../references/novels/settings/100-history/001-toulon.md#toulon)에서 이 범위를 채택한다.
+At Toulon in 1793 the Mulgrave redoubt held by British troops was called Little Gibraltar. After bombardment in December, the first attempt in the attack from the night of the 16th into the morning of the 17th was repulsed, and a renewed attack gained the height. Napoleon participated and was wounded. Allied withdrawal and promotion followed capture of the height. Firing guns alone does not substitute for reaching the objective. Adopt no exact time of attack, gun range, or invented fleet damage. This scope is adopted from the [Toulon record](../../../references/novels/settings/100-history/001-toulon.md#toulon).
 
-## 1794년 여름의 체포 혐의 {#thermidor}
+## Suspicion behind the arrest in summer 1794 {#thermidor}
 
-1794년 여름 체포 문서에는 살리세티·알비트·라포르트가 서명했다. 부리엔의 후일 서술은 제노바 임무에 관한 의심을 든다. 로베스피에르와의 관계만으로 체포 이유를 전부 확정하지 않으며, 살리세티는 함께 갇힌 친구가 아니다. 체포와 석방의 정확한 날은 기존 여름 한정 안에 둔다. [툴롱](../../../references/novels/settings/100-history/001-toulon.md#toulon)과 [오귀스탱 로베스피에르](../../../references/novels/settings/050-people/237-augustin-robespierre.md#augustin-robespierre)의 실질 사실을 이 범위로 채택한다.
+Saliceti, Albitte, and Laporte signed the arrest document in summer 1794. Bourrienne's later account cites suspicion over the Genoa mission. Do not settle the entire reason as association with Robespierre alone; Saliceti is not a friend imprisoned with him. Keep exact arrest and release dates within the existing summer limit. Adopt substantive facts of [Toulon](../../../references/novels/settings/100-history/001-toulon.md#toulon) and [Augustin Robespierre](../../../references/novels/settings/050-people/237-augustin-robespierre.md#augustin-robespierre) within this scope.
 
-## 이탈리아의 강화와 해방 {#italian-settlement}
+## Settlement and liberation in Italy {#italian-settlement}
 
-1797년 캄포포르미오 강화에서 베네치아의 아디제강 동쪽 영역과 이스트리아·달마티아가 오스트리아에 돌아갔다. 작품은 베네치아를 오스트리아에 넘기는 결정 대상으로 한정할 수 있으며 조약 전체 영토 목록을 공연할 필요는 없다. [조약 기록](../../../references/novels/settings/100-history/018-campo-formio.md#campo-formio)의 사실이다. 기존 [점령](../030-society/010-power-and-cost.md#occupation)이 정한 특권 폐지·새 권리와 조달의 이중 효과를 보존한다. 1806년의 이탈리아 법을 1797년에 소급하지 않는다.
+At Campo Formio in 1797, Venice's territory east of the Adige and Istria and Dalmatia went to Austria. The work may limit the decision object to handing Venice to Austria; it need not perform the treaty's entire territorial list. This is fact from the [treaty record](../../../references/novels/settings/100-history/018-campo-formio.md#campo-formio). Preserve the double effects of privilege abolished and new rights alongside procurement established by [occupation](../030-society/010-power-and-cost.md#occupation). Do not apply the Italian law of 1806 retroactively to 1797.
 
-## 이집트 원정의 정치 목적 {#egypt-purpose}
+## Political purpose of the Egyptian expedition {#egypt-purpose}
 
-1798년 프랑스는 이집트를 동방 교역의 발판으로 삼고 영국의 인도 기반에 압박을 가할 기회로 보았다. 이것은 목적이며 달성한 결과가 아니다. 영국 교역을 이미 전량 끊었다거나 인도 원정을 실행했다는 뜻이 아니다. 근대 수에즈 운하·새 교역 수량·비밀 계획 회의·실제 외교 대사는 채택하지 않는다.
+In 1798 France saw Egypt as a foothold for eastern trade and a chance to pressure Britain's position in India. This is an objective, not a result achieved. It does not mean all British trade was already cut off or an Indian expedition executed. Adopt no modern Suez Canal, new trade volume, secret planning meeting, or actual diplomatic dialogue.
 
-이 값은 root의 [SG01/02 확인](../../../references/research/20261026/napoleon-sg01-sg02-political-purpose-research-20261026.md)의 SG01 범위에서 채택한다. NAM의 해당 절과 Fondation 서문은 root가 직접 읽었고 BnF는 큐레이터 색인 서문 수준이며 직접 본문 요청은 시간 초과였다. 이번 저자의 외부 원전 전독으로 표현하지 않는다. 기존 [피라미드](../../../references/novels/settings/100-history/009-pyramids.md#pyramids)의 전투 결과와 원정 목적을 구별한다.
+This value is adopted within SG01 of the root author's [SG01/02 check](../../../references/research/20261026/napoleon-sg01-sg02-political-purpose-research-20261026.md). The root author directly read the relevant NAM section and Foundation introduction; BnF was limited to a curator's index introduction, with the direct text request timing out. Do not present it as this author's complete reading of external originals. Distinguish the expedition purpose from the existing battle result at [the Pyramids](../../../references/novels/settings/100-history/009-pyramids.md#pyramids).
 
-## 아우스터리츠의 근위 기병 대응 {#guard-response}
+## Guard cavalry response at Austerlitz {#guard-response}
 
-러시아 근위의 공격과 제4 전열 독수리 상실 뒤 프랑스의 대응을 생략하지 않는다. [프랑스 근위대](../../../references/novels/settings/060-institutions/016-guard-at-austerlitz.md#guard-at-austerlitz)에서 라프의 후일 회고에 귀속한 좁은 경과를 선택한다. 나폴레옹은 라프에게 맘루크와 기병 일부를 보내 상황을 확인하게 했고, 라프는 프랑스 보병 방진 사이의 러시아 기병을 만나 대응했다. 모를랑·달만의 기병 및 척탄기병 증원이 대응에 참여했고 라프는 부상했다. 이는 정확한 분 단위 기록이나 모든 회고의 합성 경과가 아니다. 다른 회고의 순서 차이를 없애지 않으며 보병 예비와 기병을 구별한다. 반격이 이미 빼앗긴 독수리의 회수를 뜻하지 않는다. 새 개인 대사는 기록되지 않은 재구성이며 라프의 실제 발언으로 인용하지 않는다.
+Do not omit the French response after the Russian Guard attack and loss of the 4th Line eagle. From the [French Guard](../../../references/novels/settings/060-institutions/016-guard-at-austerlitz.md#guard-at-austerlitz), select the narrow sequence attributed to Rapp's later memoir. Napoleon sent Rapp with Mamelukes and some cavalry to assess the situation; Rapp encountered Russian cavalry between French infantry squares and responded. Morland's and Dahlmann's cavalry and reinforcements of mounted grenadiers joined the response, and Rapp was wounded. This is not an exact minute-by-minute record or a composite of all memoirs. Do not erase differences in other memoirs' sequences; distinguish infantry reserve from cavalry. Counterattack does not mean recovery of the eagle already taken. New personal dialogue is an unrecorded reconstruction, not a quotation of Rapp.
 
-라프의 독립된 시각적 수행에는 [라프 기록](../../../references/novels/settings/050-people/063-rapp.md#rapp)의 아래 작품 선택을 채택한다. 외부 사료의 외형 증언으로 주장하지 않으며, 이 전투에는 새 대사를 주지 않는다.
+For Rapp's independent visual performance, adopt the following work choice from the [Rapp record](../../../references/novels/settings/050-people/063-rapp.md#rapp). Do not claim it as external testimony of appearance or give him new dialogue in this battle.
 
-작품의 결정(외형과 목소리). 1805년에 서른네 살로 읽히는 얼굴이다. 키는 중간보다 약간 작고 가슴통이 두껍고 목이 짧은 다부진 체격이다. 얼굴은 넓고 네모져 광대와 턱이 억세고 눈은 연한 푸른색이며 눈썹이 옅다. 머리는 밝은 갈색으로 짧게 깎았고 피부는 붉고 거칠다. 골리민의 왼팔 상처는1806년12월 이후의 몸 상태다. 그 뒤 장면에서는 비 오는 날 팔을 주무르는 모습으로 쓴다. 아우스터리츠의 머리 상처는1805년12월2일 부상 이후에만 적용하고, 한쪽 이마 위 머리선에 흉터가 남는다는 선택을 부상 전1805년의 얼굴에 소급하지 않는다. 전투 당일에는 아문 흉터가 아닌 새 상처로 쓴다. 짙은 청색 장군 군복은 단추까지 잠그되 깃은 헐렁하고 늘 허리에 단검 한 자루를 찬다(슈탑스가 품은 식칼과 별개의 물건이다). 목소리는 굵고 크며 알자스 억양으로 r이 목 안에서 굴러가는 투박한 프랑스어이고 말이 직설적이어서 상대가 황제여도 돌려 말하지 않는다. 화나면 독일어가 튀어나온다. 독일어로 말한 일, 여러 상처, 솔직함(콩스탕)만 위 서술에 있고 나머지는 사료가 비운 곳을 채운 이 작품의 선택이며 외부 증거가 아니다.
+Work decision (appearance and voice). His face reads as thirty-four in 1805. Slightly below medium height, he is stocky with a broad chest and short neck. His face is broad and square with strong cheekbones and jaw, light blue eyes, and pale brows. Light-brown hair is cut short; skin is red and rough. His left arm wound at Golymin is a condition only after December 1806; in later scenes he rubs the arm on rainy days. The Austerlitz head wound applies only after injury on December 2, 1805; do not retroactively apply the choice of a scar above one side of the forehead to his face before the wound. On battle day use a new wound, not a healed scar. His dark blue general's uniform is buttoned but loose at the collar, and he always wears a dagger at his waist, separate from the kitchen knife carried by Staps. His voice is deep and loud, with rough French and an Alsatian accent rolling the r in his throat; direct speech does not become circumlocution even to the Emperor. German comes out when angry. Only speaking German, multiple wounds, and frankness (Constant) are in the preceding account; the rest fills gaps by this work's choice, not external evidence.
 
-## 빈의 다리와 별도의 휴전 {#vienna-bridge}
+## The Vienna bridge and a separate armistice {#vienna-bridge}
 
-1805년 11월 13일 빈의 다리에서는 오스트리아 측이 파괴를 준비했고 뮈라와 란 쪽은 휴전 주장을 이용해 접근했다. 베르트랑이 수비 지휘관 게링거를 붙들어 두는 사이 우디노의 척탄병이 건너갔고 도화선을 끊어 다리와 포를 확보했다. 도화선을 끊은 사람의 실명을 새로 정하지 않는다. 당일의 다리 이름을 10일에 관한 별도 기록에서 옮기지 않는다. 이후 뮈라의 권한 밖 휴전과 러시아군의 퇴각 시간 획득은 별도 사건이다. [빈 다리 기록](../../../references/novels/settings/100-history/025-vienna-bridge.md#vienna-bridge)의 허용 범위다.
+At the Vienna bridge on November 13, 1805, Austrians prepared to destroy it while Murat and Lannes's side approached using a claim of armistice. While Bertrand held defending commander Geringer, Oudinot's grenadiers crossed and cut the fuse, securing bridge and guns. Do not newly name the person who cut it. Do not transfer a bridge name for that day from a separate record concerning the 10th. Murat's later armistice beyond his authority and the Russians gaining retreat time are a separate event. This is within the [Vienna bridge record](../../../references/novels/settings/100-history/025-vienna-bridge.md#vienna-bridge).
 
-## 프로이센이 요구한 철수 {#prussian-demand}
+## The withdrawal demanded by Prussia {#prussian-demand}
 
-1806년 프로이센은 프랑스군이 라인강 너머로 철수할 것을 요구했다. 독일 안에서 프로이센의 운신과 프랑스의 군 배치·독일 동맹 질서가 걸린 정치 이해라고 작품이 해석할 수 있다. 후자는 작품 해석임을 구별하며 프로이센의 실제 사적 연설로 만들지 않는다. 1805년 통첩과 혼합하지 않고 발송·파리 전달·황제 수령을 하나의 날짜로 만들지 않는다. [root 확인](../../../references/research/20261026/napoleon-sg01-sg02-political-purpose-research-20261026.md)의 SG02 범위다. Fondation의 1806년 연표와 클라우제비츠의 후일 비판적 회고 발췌는 다른 자료다. 북부 동맹 비방해는 후자에 귀속할 때만 쓸 수 있으며 이 작품에서는 추가 요구로 선택하지 않는다.
+In 1806 Prussia demanded French withdrawal beyond the Rhine. The work may interpret this as political interests involving Prussian room for action in Germany and French deployment and German alliance order. Distinguish the latter as the work's interpretation; do not make it an actual private Prussian speech. Do not mix it with the 1805 ultimatum or make dispatch, delivery to Paris, and receipt by the Emperor one date. This is within SG02 of the [root author's check](../../../references/research/20261026/napoleon-sg01-sg02-political-purpose-research-20261026.md). The Foundation's 1806 chronology and an extract of Clausewitz's later critical memoir are different sources. Noninterference with a northern alliance may be used only attributed to the latter; this work does not select it as an additional demand.
 
-## 아우어슈테트의 비교와 프로이센의 제한 {#prussia-after-battle}
+## Comparison at Auerstädt and the Prussian limitation {#prussia-after-battle}
 
-1806년 아우어슈테트에서 다부 군단은 거의 두 배의 프로이센군과 싸웠다. 정확한 병력 숫자를 새로 고정하지 않는다. 나폴레옹은 다음 날 오전의 보고로 이 결과를 받으며 전투 중의 전지적 지휘로 바꾸지 않는다. [아우어슈테트](../../../references/novels/settings/100-history/033-auerstedt.md#auerstedt)의 비교값이다. 1808년 프로이센군 상한은 병력 보유를 제한하는 조건이며 1807년 틸지트 당일의 조약 서명으로 합치지 않는다. 상한을 기존 현행보다 정밀한 새 숫자로 확장하지 않는다.
+At Auerstädt in 1806 Davout's corps fought a Prussian force nearly twice its size. Do not newly fix exact troop figures. Napoleon receives this result in the next morning's report; do not turn him into an omniscient commander during battle. This comparison is from [Auerstädt](../../../references/novels/settings/100-history/033-auerstedt.md#auerstedt). The 1808 Prussian army ceiling limits retained strength; do not merge it into the signing of Tilsit in 1807. Do not extend the ceiling to a new figure more precise than existing canon.
 
-## 바그람의 두 날 {#wagram}
+## Two days at Wagram {#wagram}
 
-1809년 7월 4일 밤의 로바우 동쪽 도하는 5~6일 바그람 전투의 준비다. 5일의 프랑스 공격은 완결된 승리를 얻지 못했다. 6일 오스트리아의 압력 아래 프랑스는 포병을 집중하고 다부의 날개 공격 및 맥도날드의 전진을 결합했다. 카를은 요한의 군이 제때 닿지 않는 조건에서 퇴각했다. [바그람](../../../references/novels/settings/100-history/046-wagram.md#wagram)을 이 경과로 채택하며 새 정확 시각·손실표·카를의 비밀 생각을 추가하지 않는다. 란의 죽음과 교황의 처지는 각각 다른 원인이며 전투의 대체 결과가 아니다.
+The crossing east of Lobau on the night of July 4, 1809 prepares the July 5–6 battle of Wagram. The French attack on the 5th did not gain complete victory. Under Austrian pressure on the 6th, France concentrated artillery and combined Davout's wing attack with MacDonald's advance. Charles withdrew when John's army did not arrive in time. Adopt [Wagram](../../../references/novels/settings/100-history/046-wagram.md#wagram) in this sequence; add no new exact time, loss table, or Charles's secret thoughts. Lannes's death and the Pope's situation have distinct causes and do not substitute as battle results.
 
-## 말레의 명령을 멈춘 과정 {#malet-stopped}
+## Stopping Malet's orders {#malet-stopped}
 
-1812년 말레의 가짜 사망 보고에 기대어 움직인 명령은 두세가 위조를 알아차리고 라보르드가 말레를 체포한 뒤 병력이 복귀하여 저지되었다. [말레 기록](../../../references/novels/settings/100-history/100-malet-conspiracy.md#malet-conspiracy)의 이 결과를 채택한다. 두세·라보르드의 새 개인 근경·발언·사적 동기는 정하지 않는다. 황제는 파리와 떨어져 있어 이 저지 과정을 같은 순간 알고 지시하지 못한다.
+Orders moved by Malet's false death report in 1812 were stopped after Doucet recognized forgery, Laborde arrested Malet, and troops returned. Adopt this result from the [Malet record](../../../references/novels/settings/100-history/100-malet-conspiracy.md#malet-conspiracy). Establish no new close performance, words, or private motives for Doucet or Laborde. Away from Paris, the Emperor could not know and direct the suppression simultaneously.
 
-## 뤼첸과 바우첸의 다른 승리 {#spring}
+## Different victories at Lützen and Bautzen {#spring}
 
-5월 2일 뤼첸에서는 네의 부대가 마을들에서 예상하지 못한 압력을 받았고 프랑스는 포병을 모으고 청년근위의 반격으로 상대를 물러나게 했다. 기병 부족으로 승리가 적군 섬멸이 되지 못했다. 5월 20~21일 바우첸에서는 정면 공격과 네의 측면 기동이 결합되었으나 퇴로를 닫지 못해 연합군은 질서를 지켜 물러났다. 두 싸움의 기동을 하나로 만들지 않는다. [뤼첸](../../../references/novels/settings/100-history/069-lutzen.md#lutzen), [바우첸](../../../references/novels/settings/100-history/070-bautzen.md#bautzen)의 범위다.
+At Lützen on May 2, Ney's troops faced unexpected pressure in villages; the French gathered artillery and drove the enemy back with a Young Guard counterattack. A lack of cavalry kept victory from destroying the enemy army. At Bautzen on May 20–21, frontal attack and Ney's flank movement combined but did not close the retreat, allowing the Allies to withdraw in order. Do not make the two battles' maneuvers one. This is within [Lützen](../../../references/novels/settings/100-history/069-lutzen.md#lutzen) and [Bautzen](../../../references/novels/settings/100-history/070-bautzen.md#bautzen).
 
-## 황제를 피하는 구상과 카츠바흐 {#katzbach}
+## The plan to avoid the Emperor and the Katzbach {#katzbach}
 
-7월의 트라헨베르크 구상은 나폴레옹과 직접 결판을 피하며 다른 지휘군을 상대하는 방향이며 모든 전장이 같은 계획대로 완벽히 실행되었다는 설명은 아니다. 오스트리아를 7월 초 이미 교전 중인 참가자로 만들지 않는다. 8월 26일 카츠바흐에서 나폴레옹이 떠난 뒤 지휘하던 맥도날드의 군은 비와 좁은 도하 조건에서 나뉘어 움직이다 블뤼허의 공격에 패했다. [구상](../../../references/novels/settings/100-history/078-trachenberg-teplitz.md#trachenberg-teplitz)과 [카츠바흐](../../../references/novels/settings/100-history/072-katzbach.md#katzbach)를 구별한다. 5월 22일 뒤로크의 죽음은 앞선 두 전투의 결과와 별개다.
+The July Trachenberg plan favors avoiding a direct decision against Napoleon and facing other commands; it does not mean every field was perfectly executed to one plan. Do not make Austria a belligerent already at the beginning of July. On August 26 at the Katzbach, MacDonald's army, commanded after Napoleon departed, moved divided under rain and narrow crossing conditions and was defeated by Blücher's attack. Distinguish the [plan](../../../references/novels/settings/100-history/078-trachenberg-teplitz.md#trachenberg-teplitz) and [Katzbach](../../../references/novels/settings/100-history/072-katzbach.md#katzbach). Duroc's death on May 22 is separate from the earlier two battles' results.
 
-## 샤티옹 협상의 영토 {#frontiers}
+## Territory at the Châtillon negotiations {#frontiers}
 
-샤티옹에서 연합국은 프랑스의 1789년 혁명 이전 국경과 그 밖의 영향력 포기를 요구했다. 나폴레옹이 원한 자연 국경과 다른 선택이었다. 코랭쿠르는 지시의 한계를 넘는 양보를 모색했고 뒤늦은 양보는 협상이 닫힌 뒤에 닿았다. [샤티옹](../../../references/novels/settings/100-history/089-chatillon.md#chatillon)의 영토 대가를 선택하며 새 지도 좌표나 미전 대사는 만들지 않는다.
+At Châtillon the Allies demanded France's pre-Revolutionary 1789 borders and surrender of influence beyond them. This differed from the natural frontiers Napoleon wanted. Caulaincourt sought concessions beyond his instructions; late concessions arrived after the talks closed. Adopt the territorial price in [Châtillon](../../../references/novels/settings/100-history/089-chatillon.md#chatillon), without inventing new map coordinates or unrecorded dialogue.
 
-## 원로원의 폐위와 충성 서약 {#senate-deposition}
+## Senate deposition and oaths of loyalty {#senate-deposition}
 
-4월 1일 원로원의 임시정부 지명과 2일의 폐위 결정, 3일의 정리된 문안은 구별한다. 폐위는 나폴레옹의 제위와 그 가족의 세습권을 부정하고 국민·군대의 충성 서약을 풀었다. 원로원이 든 모든 비난을 역사적 사실로 확정하지 않는다. [원로원 기록](../../../references/novels/settings/100-history/123-senate-acts-1814.md#senate-deposition-1814)의 기관 행위다.
+Distinguish the Senate's appointment of a provisional government on April 1, deposition on the 2nd, and settled text on the 3rd. Deposition denied Napoleon's imperial office and his family's hereditary rights and released nation and army from oaths of loyalty. Do not fix every accusation raised by the Senate as historical fact. This is an institutional act in the [Senate record](../../../references/novels/settings/100-history/123-senate-acts-1814.md#senate-deposition-1814).
 
-## 에손 군단의 지휘 이탈 {#essonnes}
+## The Essonnes corps leaves command {#essonnes}
 
-에손 군단은 단순 이동이 아니라 나폴레옹의 지휘에서 이탈했다. 이 이탈은 4일의 아들 계승을 남기는 퇴위안이 가진 군사적 지렛대를 없앴고 6일 무조건 퇴위에 이른다. 마르몽의 비밀 속내를 단정하지 않는다. [퐁텐블로 기록](../../../references/novels/settings/100-history/115-fontainebleau-abdication.md#fontainebleau-abdication)의 밤 4~5일 이탈과 6일 퇴위를 따르며 단순한 행군 이동으로 완화하지 않는다.
+The Essonnes corps did not merely move; it left Napoleon's command. This defection removed the military leverage of the April 4 abdication proposal preserving succession for his son and led to unconditional abdication on the 6th. Do not assert Marmont's secret thoughts. Follow the night of April 4–5 defection and April 6 abdication in the [Fontainebleau record](../../../references/novels/settings/100-history/115-fontainebleau-abdication.md#fontainebleau-abdication), without softening it to a mere march.
 
-## 백일천하의 제한된 권한 {#additional-act}
+## Limited powers in the Hundred Days {#additional-act}
 
-1815년 추가헌장은 직접세의 해마다 의회 승인과 대신의 책임을 두었다. 세습 상원도 남아 있었으므로 이를 완성된 보통선거 민주정으로 설명하지 않는다. [백일천하 정부](../../../references/novels/settings/100-history/112-hundred-days-government.md#hundred-days-government)에서 이 제한을 채택한다. 돌아온 황제에 대한 지지가 예전의 무제한 권한을 되돌려 주는 것은 아니다.
+The Additional Act of 1815 required annual parliamentary approval of direct taxes and ministerial responsibility. A hereditary upper chamber also remained, so do not describe it as completed universal-suffrage democracy. Adopt these limits from [government of the Hundred Days](../../../references/novels/settings/100-history/112-hundred-days-government.md#hundred-days-government). Support for the returning Emperor does not restore his former unlimited power.
 
-## 출정 연설과 뒤의 전설 {#nice-proclamation}
+## The campaign speech and later legend {#nice-proclamation}
 
-니스의 1796년 3월 말 포고문 계보는 [보존 자료](../../../references/novels/settings/120-research/040-reference-shelf.md#proclamation-nice-1796-provenance)의 한정에 따른다. 널리 알려진 헐벗은 군대와 풍요로운 평야의 연설은 1817년 세인트헬레나 구술과 1823년 간행의 후대 재구성이다. 동시대에 더 가까운 기록은 베르티에를 거쳐 1797년 모니퇴르에 전하며 포·옷·신발·급료의 결핍과 용기를 대비한다. 정확한 날짜와 전문은 채택하지 않는다. 여기서는 두 본의 차이와 풍요의 약속을 자기 말로 전달하고 실제 병사들 앞의 원문 음성으로 복원하지 않는다. 힉스의 자료 분석을 보존 기록으로 읽은 것이며 원회의록·자필 서한집·회고록 전권을 새로 읽었다는 뜻은 아니다.
+The provenance of the late March 1796 Nice proclamation follows limits in the [retained material](../../../references/novels/settings/120-research/040-reference-shelf.md#proclamation-nice-1796-provenance). The widely known speech about a ragged army and fertile plains is a later reconstruction in Saint Helena dictation of 1817 and publication in 1823. A record closer to the time passes through Berthier to the Moniteur in 1797, contrasting lack of guns, clothing, shoes, and pay with courage. Adopt neither exact date nor complete text. Convey the difference between the versions and promise of abundance in one's own words here; do not reconstruct the original voice before actual soldiers. This reads Hicks's source analysis as retained material, not a claim to have newly read complete original proceedings, autograph correspondence, or memoir volumes.
 
-## 파리 진압의 위임과 대상 {#vendemiaire}
+## Delegation and target of the Paris suppression {#vendemiaire}
 
-1795년 10월 5일 파리에서 국민공회 쪽 정부는 왕당파 봉기에 맞서 나폴레옹에게 진압을 맡겼다. 군사적 폭력은 무너질 수 있는 정권을 존속시키고 장교에게 신임을 주었다. [보존 방데미에르 기록](../../../references/novels/settings/100-history/002-vendemiaire.md#vendemiaire)의 이 관계를 채택한다. 거리 군중 모두가 같은 정치적 속내를 가졌다고 정하지 않고 총재정부가 이미 개시한 뒤의 사건으로 바꾸지 않는다. 새 진압 위임의 축어 대사·통계·구체 명령 문서는 발명하지 않는다.
+On October 5, 1795 in Paris, the government on the National Convention's side entrusted Napoleon with suppressing the royalist uprising. Military violence kept a potentially collapsing regime alive and brought the officer renewed confidence. Adopt this relationship from the [retained Vendémiaire record](../../../references/novels/settings/100-history/002-vendemiaire.md#vendemiaire). Do not establish the same political motive for everyone in the street or move the event to after the Directory has begun. Invent no verbatim delegation of suppression, statistics, or specific order document.

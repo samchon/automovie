@@ -1,199 +1,197 @@
+# Hands That Make Order
 
-# 질서를 만드는 손
+## Resources that have not arrived {#administration}
 
-## 도착하지 않은 자원 {#administration}
+[Event parent 1](../../../body/treatments/014-order-and-police.md#administration) · [Scene parent](../../../body/scripts/001-chronicle/004-order.md#administration)
 
-[사건 부모 1](../../../body/treatments/014-order-and-police.md#administration) · [장면 부모](../../../body/scripts/001-chronicle/004-order.md#administration)
+Caption: January 18, 1800. Founding of the Bank of France.
 
-화면 자막: 1800년 1월 18일. 프랑스은행 설립.
+Bank shareholders contribute their own capital. Close this scene and open the route by which a separate administrative demand reaches the provinces. A local official conveys the government's demand for payment to a resident. The resident compares the written demand with the share to pay and gathers a separate share to keep. The amount to prepare is on the demand. Even after reducing what the household will keep, the payment is still short.
 
-은행 주주들이 자기 자본을 출자한다. 이 장면을 닫고, 별개의 행정 요구가 지방에 도착하는 길을 연다. 정부가 보낸 납부 요구를 현지 관리가 주민에게 전한다. 주민은 쓰여 있는 요구와 납부할 몫을 맞춰 보고, 남길 몫을 따로 모은다. 준비할 몫은 요구서에 적혀 있다. 주민이 집에 남길 몫까지 줄여 보지만, 납부할 양은 아직 모자란다.
+The local official counts receipts and sends a report of the shortfall. Receiving it, Napoleon chooses where to allocate resources already received first.
 
-현지 관리가 받은 것을 세고 미달 보고를 보낸다. 보고를 받은 나폴레옹이 들어온 자원부터 어디에 돌릴지 고른다.
+NAPOLEON: Distribute what has come in first. Demand the rest again from the places that are short.
 
-나폴레옹: 받은 것부터 나눠 보내게. 덜 낸 곳에는 다시 요구하고.
+That choice reaches the official who must carry it out.
 
-그 선택이 집행할 관리에게 전달된다.
+OFFICIAL: Send another demand. We distribute what has arrived first.
 
-관리: 다시 독촉하십시오. 들어온 몫부터 배분합니다.
+After the sound of money moving, someone is still waiting. The image changes to banknotes. Caption: 1803, monopoly on issuing banknotes in Paris.
 
-돈이 옮겨지는 소리 뒤로 아직 기다리는 사람이 남는다. 화면은 은행의 지폐로 바뀐다. 자막: 1803년, 파리 지폐 발행 독점권.
+HISTORIAN (voice): The bank created credit on the basis of shareholders' capital. In 1803 the state gave it a monopoly on issuing banknotes in Paris.
 
-역사가(음성): 은행은 주주들의 자본을 바탕으로 신용을 만들었다. 1803년 국가는 파리에서 지폐를 발행할 독점권을 주었다.
+Residents' payments and shareholders' contributions occur among separate people in separate places. Do not edit the two sums into one treasury.
 
-주민의 납부와 주주의 출자는 별개의 사람과 장소에서 이루어진다. 두 돈이 같은 금고로 들어가는 편집은 하지 않는다.
+A hand receiving a banknote finishes checking it. In the next image, a province still cannot send its shortfall. A central demand arriving does not immediately fill the gap.
 
-지폐를 받는 손이 확인을 마친다. 다음 화면의 지방에서는 여전히 미달분을 보내지 못한다. 중앙의 요구서가 도착해도 빈 곳은 즉시 채워지지 않는다.
+## A protected man and silenced mouths {#police}
 
-## 지켜진 사람과 닫힌 입 {#police}
+[Event parent 1](../../../body/treatments/014-order-and-police.md#security) · [Scene parent](../../../body/scripts/001-chronicle/004-order.md#police)
 
-[사건 부모 1](../../../body/treatments/014-order-and-police.md#security) · [장면 부모](../../../body/scripts/001-chronicle/004-order.md#police)
+Caption: Late 1800, Paris. Saint-Nicaise.
 
-자막: 1800년 말, 파리. 생니케즈.
+An explosion. After light and fragments in the darkness, people search for one another.
 
-폭발음. 어둠 속의 빛과 파편 뒤 사람이 서로를 찾는다.
+A person in bloodstained clothes tries to rise, then collapses in pain. Someone beside them holds them to prevent another fall. They support the injured person and move together; when the injured person stops, the helper stops too. Voices and footsteps of people calling and searching continue around them.
 
-피가 번진 옷의 사람이 몸을 일으키려다가 통증에 주저앉는다. 곁의 사람이 그를 붙들어 더 넘어지지 않게 한다. 몸을 받쳐 함께 옮기다가 다친 사람이 멎으면 그도 멈춘다. 서로를 부르며 찾는 사람들의 목소리와 발소리는 그 곁에서 계속된다.
+Napoleon names Jacobins. In early January 1801 documents sent out accumulate under a caption: “130 deportations ordered.”
 
-나폴레옹이 자코뱅을 지목한다. 1801년 1월 초, '130명 추방 결정'이라는 자막과 함께 내보내는 문서가 쌓인다.
+A later investigation. Fouché reports in a low, even voice.
 
-뒤의 수사. 푸셰가 낮고 평평한 목소리로 보고한다.
+FOUCHÉ: Royalist Chouans, Citizen First Consul.
 
-푸셰: 왕당파 슈앙 쪽입니다, 시민 제1통령.
+Napoleon receives the report. The deportation documents do not return. Briefly show the life of someone already displaced, then move to another place of criticism.
 
-나폴레옹은 보고를 받는다. 추방 문서는 되돌아오지 않는다. 이미 자리를 잃은 사람의 생활을 짧게 보인 뒤 다른 비판의 자리로 옮긴다.
+Madame de Staël speaks in a room. People around her listen to her quick, clear voice. Caption: Reconstruction showing independent criticism.
 
-스탈 부인이 말하는 공간. 빠르고 맑은 목소리를 주변 사람들이 듣는다. 화면 자막: 독립적 비판을 보여 주는 재구성.
+MADAME DE STAËL: Does a duty to the country mean we must say every judgment made by one man is right? Even when it harms us?
 
-스탈 부인: 나라에 대한 의무가 있다고 해서 한 사람이 내린 판단을 모두 옳다고 말해야 합니까? 그 판단이 우리를 해치는데도요?
+Notice to leave is delivered. Staël stops a hand picking up her shawl and finishes speaking.
 
-떠나라는 통보가 전해진다. 숄을 집던 손을 멈춘 스탈은 말을 마저 한다.
+MADAME DE STAËL: I also have a responsibility to oppose that judgment. I will finish what I am saying and then leave.
 
-스탈 부인: 그 판단에 반대할 책임도 제게 있습니다. 저는 이 말을 끝내고 가겠습니다.
+She goes. A listener opens their mouth, looks around, and stops. The closing door sounds long between an empty chair and the place brushed by her shawl.
 
-그녀가 나간다. 듣던 사람 하나가 입을 열었다가 주변을 보고 말을 접는다. 남은 의자와 숄이 스쳤던 자리 사이로 문 닫히는 소리가 길게 난다.
+## Faith and service {#peace-and-service}
 
-## 믿음과 복무 {#peace-and-service}
+[Event parent 1](../../../body/treatments/015-peace-and-service.md#concordat) · [Event parent 2](../../../body/treatments/015-peace-and-service.md#schools-and-honors) · [Event parent 3](../../../body/treatments/015-peace-and-service.md#amiens) · [Scene parent](../../../body/scripts/001-chronicle/004-order.md#peace-and-service)
 
-[사건 부모 1](../../../body/treatments/015-peace-and-service.md#concordat) · [사건 부모 2](../../../body/treatments/015-peace-and-service.md#schools-and-honors) · [사건 부모 3](../../../body/treatments/015-peace-and-service.md#amiens) · [장면 부모](../../../body/scripts/001-chronicle/004-order.md#peace-and-service)
+From 1801. People enter a space where religious life finds a place again. Listen fully to voices praying before moving to government documents dealing with the agreement.
 
-1801년부터. 종교 생활이 다시 자리를 얻는 공간에 사람들이 들어간다. 기도하는 사람들의 목소리를 충분히 들은 뒤 협약을 다루는 정부의 문서로 옮긴다.
+HISTORIAN (voice): The government sought to bind faith and order together. How far the Church could remain independent was an unresolved question.
 
-역사가(음성): 정부는 신앙과 질서를 함께 묶으려 했다. 교회가 어디까지 독립할 수 있는가는 남은 문제였다.
+At school a student repeats something learned and corrects an error. Then military training and work in an office. People different from the students each use what they have learned in their work.
 
-학교에서 학생이 익히던 것을 다시 해 보고 틀린 부분을 고친다. 이어 군의 훈련, 관청의 일. 학교의 학생과는 다른 사람들이 저마다 배운 것을 써서 일한다.
+HISTORIAN (voice): Paths to learning and recognition opened that family alone could not have provided. The state gained people able to use those skills in military and administrative service. Learning did not mean everyone advanced.
 
-역사가(음성): 가문만으로는 얻을 수 없던 배움과 인정의 길이 열렸다. 국가는 그 능력으로 군과 관청에서 복무할 사람을 얻었다. 배웠다고 누구나 출세한 것은 아니었다.
+A person stands straight to receive and wear a decoration. After looking down at the mark on the coat, they look around. In later images of life, work continues for women and children who cannot enter that path on equal terms.
 
-훈장을 받는 사람이 몸을 세우고 그것을 단다. 옷에 붙은 표식을 내려다본 뒤 주변 사람을 본다. 뒤의 생활 화면에서는 그 길에 똑같이 들어갈 수 없는 여성과 아이들의 일이 계속된다.
+The Peace of Amiens. Harbor sounds of moving goods replace battlefield explosions. A resting soldier sets equipment nearby and stretches out. As someone rises after rest, the historian speaks.
 
-아미앵의 평화. 물자를 옮기는 항구의 소리가 전장의 폭음 자리를 대신한다. 쉬는 군인은 장비를 곁에 놓고 몸을 편다. 휴식을 마친 사람이 일어날 때 역사가의 말이 들어온다.
+HISTORIAN (voice): Trade and rest were real. They did not guarantee the opponent's next choice.
 
-역사가(음성): 교역과 휴식은 실제였다. 그것이 상대의 다음 선택까지 보장하지는 않았다.
+## Freedom that will not be surrendered {#colonies}
 
-## 빼앗기지 않을 자유 {#colonies}
+[Event parent 1](../../../body/treatments/016-colonial-freedom.md#delgres) · [Event parent 2](../../../body/treatments/016-colonial-freedom.md#toussaint) · [Event parent 3](../../../body/treatments/016-colonial-freedom.md#louisiana) · [Scene parent](../../../body/scripts/001-chronicle/004-order.md#colonies)
 
-[사건 부모 1](../../../body/treatments/016-colonial-freedom.md#delgres) · [사건 부모 2](../../../body/treatments/016-colonial-freedom.md#toussaint) · [사건 부모 3](../../../body/treatments/016-colonial-freedom.md#louisiana) · [장면 부모](../../../body/scripts/001-chronicle/004-order.md#colonies)
+Matouba, Guadeloupe, May 1802. The sturdy Delgrès, in dark blue uniform, moves with companions inside the French encirclement. They stay and resist. An explosion closes the scene. No private last words are heard.
 
-1802년 5월, 과들루프 마투바. 남청색 군복의 건장한 델그레스가 동료들과 함께 프랑스군 포위 안에서 움직인다. 이들은 그 자리에 남아 저항한다. 폭발로 장면이 닫힌다. 사적 마지막 발언은 들리지 않는다.
+After its echo, the screen distinguishes regions and procedures: “Abolition of slavery, 1794”; “Law maintaining slavery, 1802”; “Guadeloupe: separate order and late publication”; “Guiana: gradual restoration.” Between captions show bodies under forced labor.
 
-폭발의 잔향 뒤 화면은 지역과 절차를 나누어 보인다. '1794년 노예제 폐지', '1802년 유지법', '과들루프: 별도 명령과 늦은 공표', '기아나: 점진적 복원'. 그 자막 사이에 강제되는 노동의 몸을 둔다.
+Saint-Domingue, June that year. Toussaint is arrested after surrender and separated from his family. His blue command uniform changes to dark wool in captivity. A room at Fort de Joux, France. Life ends within reach of his hand.
 
-같은 해 6월, 생도맹그. 투생이 항복 뒤 체포되어 가족과 떨어진다. 지휘할 때의 청색 군복에서 수감의 어두운 모직으로 바뀐다. 프랑스 주 요새의 방. 손이 닿을 범위 안에서 생활이 끝난다.
+HISTORIAN (voice): He was a man whose freedom was not guaranteed. He also had his own order that compelled emancipated cultivators to work.
 
-역사가(음성): 자유를 보장받지 못한 사람이었다. 해방된 경작자에게 노동을 강제한 자기 질서도 가진 사람이었다.
+Caption his death on April 7, 1803. After leaving the screen empty long enough, move to Louisiana sale negotiations. Connect expedition failure, sick troops, and risk of renewed war with Britain through separate images.
 
-1803년 4월 7일, 투생의 죽음을 자막으로 보인다. 화면을 충분히 비운 뒤 루이지애나 매각의 교섭으로 옮긴다. 원정의 실패와 병든 군, 영국과 다시 싸울 위험을 서로 다른 화면으로 잇는다.
+Treaty image: dated April 30. Next image: actually signed May 2. Buyer: United States. Allow time to read the caption “80 million francs: includes price and settlement of claims.” Do not change it into a pile of cash accumulating in France at once.
 
-조약 화면: 날짜 4월 30일. 다음 화면: 실제 서명 5월 2일. 구매자 미국. '8천만 프랑: 대금과 청구권 처리 포함'이라는 자막을 읽을 시간을 둔다. 현금 더미가 일시에 프랑스에 쌓이는 화면으로 바꾸지 않는다.
+## Each side's reasons for ending peace {#war}
 
-## 평화를 끝내는 서로의 이유 {#war}
+[Event parent 1](../../../body/treatments/016-colonial-freedom.md#renewed-war) · [Scene parent](../../../body/scripts/001-chronicle/004-order.md#war)
 
-[사건 부모 1](../../../body/treatments/016-colonial-freedom.md#renewed-war) · [장면 부모](../../../body/scripts/001-chronicle/004-order.md#war)
+May 1803. Spaces in France and Britain separated by the sea. The historian conveys the texts of both sides' documents as distinct claims.
 
-1803년 5월. 바다 사이로 떨어진 프랑스와 영국의 공간. 양쪽 문서의 글을 역사가가 각 주장으로 구별해 전한다.
+HISTORIAN (voice): France accused Britain of not withdrawing from Malta. Britain objected to French interference on the continent.
 
-역사가(음성): 프랑스는 영국이 몰타에서 물러나지 않는다고 비난했다. 영국은 프랑스의 대륙 간섭을 문제 삼았다.
+Trade sounds at the port diminish and news of Britain's declaration of war is conveyed. Equipment laid aside in peace is gathered again. Place the first person holding the news and someone still waiting for it in different locations. The two countries' spaces and documents stay apart. Do not connect one side's claim to another's character answering in a meeting.
 
-항구의 교역 소리가 줄어들고 영국의 선전포고 소식이 전달된다. 평화 때 풀어놓았던 장비를 다시 챙긴다. 먼저 손에 든 사람과 소식을 아직 기다리는 사람을 다른 장소에 둔다. 양국의 공간과 문서는 떨어져 있다. 한쪽 주장에 다른 쪽 인물이 대답하는 대면 장면으로 연결하지 않는다.
+## A land independent {#independence}
 
-## 독립한 땅 {#independence}
+[Event parent 1](../../../body/treatments/016-colonial-freedom.md#independence) · [Scene parent](../../../body/scripts/001-chronicle/004-order.md#independence)
 
-[사건 부모 1](../../../body/treatments/016-colonial-freedom.md#independence) · [장면 부모](../../../body/scripts/001-chronicle/004-order.md#independence)
+Saint-Domingue, end of 1803. After French defeat and withdrawal, local people remain there. A surviving army of resistance moves on its own land. Do not show Toussaint's one empty place as the absence of the entire army.
 
-1803년 말, 생도맹그. 프랑스군의 패배와 철수 뒤에도 현지의 사람들은 그 자리에 남는다. 살아남은 저항의 군이 자기 땅에서 움직인다. 투생 한 사람의 빈자리를 군 전체의 부재로 보이지 않는다.
+1804, Haitian independence. Keep the public declaration distant. Its sound is crowd reaction and resonance in the space, without individually intelligible words.
 
-1804년, 아이티 독립. 공적 선언의 현장은 멀리 둔다. 그 소리는 개별 문구를 식별하지 않는 군중의 반응과 공간의 울림으로 들린다.
+HISTORIAN (voice): Even after Toussaint was seized and sent away, resistance on this land did not end. After French troops were defeated, Haiti became independent.
 
-역사가(음성): 투생을 붙잡아 보냈어도 이 땅의 저항은 끝나지 않았다. 프랑스군이 패한 뒤, 아이티가 독립했다.
+Sounds of life on the land remain after people leave the frame.
 
-사람들이 화면을 벗어나도 땅의 생활 소리가 남는다.
+## People who keep revising a clause {#law}
 
-## 조항을 끝까지 고치는 사람 {#law}
+[Event parent 1](../../../body/treatments/017-law-and-crown.md#code) · [Event parent 2](../../../body/treatments/017-law-and-crown.md#emperor) · [Scene parent](../../../body/scripts/001-chronicle/004-order.md#law)
 
-[사건 부모 1](../../../body/treatments/017-law-and-crown.md#code) · [사건 부모 2](../../../body/treatments/017-law-and-crown.md#emperor) · [장면 부모](../../../body/scripts/001-chronicle/004-order.md#law)
+Before a draft written by jurists sits Cambacérès, the mediator. Briefly identify his name and role coordinating deliberation. Napoleon reads a sentence under discussion and starts to turn to the next.
 
-법률가들이 작성한 초안 앞에 조정자 캉바세레스가 앉는다. 이름과 심의 조정 역할을 화면에 짧게 붙인다. 나폴레옹이 심의 중인 문장을 읽다가 다음으로 넘기려 한다.
+NAPOLEON: Property must be protected and people equal before the law. This part is done.
 
-나폴레옹: 재산은 보호하고 법 앞에서는 같아야 하오. 이 부분은 됐소.
+CAMBACÉRÈS: Citizen First Consul, you must look at the following restrictions too. Those clauses apply to the same people as the first.
 
-캉바세레스: 시민 제1통령, 그다음의 제한도 함께 보셔야 합니다. 앞부분과 같은 사람에게 적용될 조항입니다.
+Napoleon's hand cannot turn the page until the slow, gentle words end. He reads the earlier part again. Items concerning the subordination of women and children and control of labor appear briefly on screen. A jurist revises, Cambacérès aligns other clauses, and Napoleon continues deliberation. Give the labor enough time for candle height and bodies in seats to change. Review ends and correcting hands stop. The completed code is placed down. Benefits and restrictions seen earlier now lie in the same framework to be applied to many people.
 
-느리고 부드러운 말이 끝날 때까지 나폴레옹의 손은 종이를 넘기지 못한다. 다시 앞쪽을 읽는다. 여성과 아이의 종속, 노동 통제에 해당하는 항목이 화면에 짧게 나타난다. 법률가가 고치고, 캉바세레스가 다른 조항과 맞추며, 나폴레옹이 심의를 계속한다. 초의 높이와 자리의 몸이 달라질 만큼 노동을 둔다. 검토가 끝나고 고치는 손들이 멎는다. 완성된 법전이 놓인다. 앞서 본 이익과 제한이 이제 여러 사람에게 적용할 같은 틀 안에 놓인다.
+Threats and the execution of Enghien come in a separate image. After the execution, the historian conveys the regime's stated reason.
 
-위협과 앙기앵의 처형은 별도 화면으로 온다. 처형 뒤 역사가가 체제가 내세운 이유를 전한다.
+HISTORIAN (voice): The security argument for a hereditary dynasty was that power would continue even if one ruler died. That claim did not make the execution just.
 
-역사가(음성): 통치자 하나가 죽어도 권력이 이어지게 하겠다는 것이 세습 왕조의 안전 논리였다. 그 주장이 처형을 정당한 일로 만들지는 않았다.
+Around May 18, 1804, “First Consul” in an earlier document changes to the new title “Emperor.” At the December 2 coronation light strikes Joséphine's ceremonial dress and jewels. Separate the ceremony where Letizia is absent and a later painting placing her there by time captions. On December 5 the outdoor air and sound of troops at the distribution of eagles replace the ceremony's indoor resonance.
 
-1804년 5월 18일 전후. 이전 문서의 '제1통령'에서 새 호칭 '황제'로 바뀐다. 12월 2일 대관식에서는 조제핀의 의전복과 보석에 빛이 닿는다. 레티치아가 없는 의식과, 훗날 그녀를 배치한 그림을 시간 자막으로 나눈다. 12월 5일 군기 수여의 바깥 공기와 군의 소리가 의식의 실내 울림을 대신한다.
+## The army goes to the continent {#ulm}
 
-## 대륙으로 가는 육군 {#ulm}
+[Event parent 1](../../../body/treatments/018-the-sea-keeps-its-power.md#continental-turn) · [Event parent 2](../../../body/treatments/018-the-sea-keeps-its-power.md#ulm) · [Scene parent](../../../body/scripts/001-chronicle/004-order.md#ulm)
 
-[사건 부모 1](../../../body/treatments/018-the-sea-keeps-its-power.md#continental-turn) · [사건 부모 2](../../../body/treatments/018-the-sea-keeps-its-power.md#ulm) · [장면 부모](../../../body/scripts/001-chronicle/004-order.md#ulm)
+April 1805, Palais Saint-Pierre, Lyon. The name of Jacquard, who will explain the loom, appears. An apron is visible beneath a borrowed black waistcoat. His rough hand points to linked punched cards. Napoleon and Joséphine stand before the loom.
 
-1805년 4월, 리옹 팔레 생피에르. 직기를 설명할 자카르의 이름이 나타난다. 그가 빌려 입은 검은 조끼 아래로 앞치마가 보인다. 거친 손이 연결 천공카드를 가리킨다. 나폴레옹과 조제핀이 직기 앞에 서 있다.
+JACQUARD: The holes select the warp threads. Look here.
 
-자카르: 구멍이 날실을 고릅니다. 이쪽을 보십시오.
+After his slow, low words, the loom moves. First see threads lifted according to the cards, then hands continuing to weave between them.
 
-느린 낮은 말 뒤 직기가 움직인다. 카드의 선택에 따라 올려지는 날실을 먼저 보고, 그 사이로 직조를 잇는 사람의 손을 본다.
+WEAVER: What happens to the work of the person who selected and lifted them before?
 
-직공: 그러면 전에 골라 올리던 사람의 일은 어떻게 됩니까?
+JACQUARD: This device makes that selection. A person continues the weaving.
 
-자카르: 그 선택은 이 장치가 합니다. 짜는 일은 사람이 계속합니다.
+The weaver looks at the connection between their hands and the machine. After Napoleon watches the entire operation, the weaver turns to him.
 
-직공이 자기 손과 기계의 연결을 본다. 나폴레옹이 작동을 끝까지 본 뒤 직공이 그를 향해 몸을 돌린다.
+WEAVER: Can I keep working if I learn more about this machine too?
 
-직공: 저도 이 기계를 더 배워서 계속 일할 수 있겠습니까?
+NAPOLEON: It would be good to see more looms like this in use.
 
-나폴레옹: 이런 직기는 더 널리 쓰면 좋겠소.
+The weaver watches Napoleon and waits for more. No answer to the question comes. The weaver turns back and continues weaving.
 
-직공은 나폴레옹을 바라보며 다음 말을 기다린다. 자기 물음에 돌아오는 말은 없다. 직공이 다시 직기 쪽으로 돌아서 직조를 계속한다.
+After the visit closes, the historian conveys institutional support.
 
-방문의 장면이 닫힌 뒤 역사가의 목소리로 제도 지원을 전한다.
+HISTORIAN (voice): It was followed by support rewarding looms put into operation.
 
-역사가(음성): 이후 가동에 넘긴 직기에 보상하는 지원으로 이어졌다.
+Do not show this as a private subsidy decision or cash payment during the visit. The weaver's employment outcome remains unresolved.
 
-이 지원을 그 방문 때의 사적 보조금 결정이나 현금 지급으로 보이지 않는다. 직공의 고용 결과는 미결로 남는다.
+Later, the army at Boulogne. Forces receiving Berthier's divided orders leave by different roads. Passing rain on one road and dust on another in turn, the army concentrates. At Ulm, French troops stand in every place the enemy seeks to escape. Even after surrender, worn shoes and tired horses remain, and residents' food is taken away.
 
-이후 불로뉴의 군. 베르티에의 분할 명령을 받은 군들이 서로 다른 길로 떠난다. 한 길의 비와 다른 길의 먼지를 차례로 지나 군이 집중한다. 울름에서 적이 나가려는 곳마다 프랑스군이 붙어 있다. 항복 뒤에도 닳은 신발과 지친 말이 남고 주민의 식량을 실어 간다.
+Across the sea in Britain, taxation and borrowing sustain ships and armies. Someone forced into naval service is separated from life ashore and taken to a ship. Instead of the French army's victory sounds, ship equipment and people's work continue.
 
-바다 건너 영국. 조세와 차입이 선박과 군의 지속으로 이어진다. 강제로 수병이 되는 사람이 육지의 생활에서 떼어져 배로 간다. 프랑스 육군의 승전 소리 대신 배의 장비와 사람들의 일소리가 이어진다.
+## News arriving at different speeds {#return}
 
-## 서로 다른 속도로 오는 소식 {#return}
+[Event parent 1](../../../body/treatments/019-the-road-back-to-the-opening.md#trafalgar) · [Event parent 2](../../../body/treatments/019-the-road-back-to-the-opening.md#bridges) · [Event parent 3](../../../body/treatments/019-the-road-back-to-the-opening.md#news-and-return) · [Scene parent](../../../body/scripts/001-chronicle/004-order.md#return)
 
-[사건 부모 1](../../../body/treatments/019-the-road-back-to-the-opening.md#trafalgar) · [사건 부모 2](../../../body/treatments/019-the-road-back-to-the-opening.md#bridges) · [사건 부모 3](../../../body/treatments/019-the-road-back-to-the-opening.md#news-and-return) · [장면 부모](../../../body/scripts/001-chronicle/004-order.md#return)
+Trafalgar, October 21, 1805. A British fleet signal passes to the next ship. People steering, handling guns again, and working beside guns recoiled after firing continue the same fight. Nelson wears an admiral's uniform with the empty right sleeve folded across his chest. After he falls and is carried below, deck labor and firing continue. On the sea where the French fleet has been defeated, the British fleet attends to the work remaining.
 
-1805년 10월 21일, 트라팔가르. 영국 함대의 신호가 다음 배로 전달된다. 항로를 잡는 사람, 포를 다시 다루는 사람, 발사 뒤 밀린 포 곁에서 다음 일을 하는 수병들이 같은 싸움을 잇는다. 넬슨은 빈 오른소매를 가슴에 접은 제독복 차림이다. 그가 쓰러져 아래로 옮겨진 뒤에도 갑판의 노동과 포격이 계속된다. 프랑스 함대가 패한 바다에서 영국 함대가 남은 일을 수습한다.
+London, November 6. News of the naval battle and Nelson's death arrives. People gather close on hearing victory, then lower their voices at the death.
 
-11월 6일 런던. 해전의 소식과 넬슨의 죽음이 도착한다. 사람들은 승리를 듣고 가까이 모였다가 죽음을 듣고 목소리를 낮춘다.
+Vienna bridge, November 13. The French claim an armistice to Austrians preparing demolition.
 
-11월 13일 빈의 다리. 파괴 준비를 한 오스트리아 측을 향해 프랑스가 휴전을 주장한다.
+MURAT: An armistice. There is no need to destroy the bridge.
 
-뮈라: 휴전이오. 다리를 파괴할 필요가 없소.
+Shift attention from Lannes beside him and Bertrand holding Geringer to the rear. Oudinot's grenadiers cross. Speech remains background without words the audience can identify; attention gathers on a hand cutting the fuse. Bridge and guns pass into French hands.
 
-그 곁의 란과, 게링거를 붙들어 두는 베르트랑에게서 뒤쪽으로 시선을 옮긴다. 우디노의 척탄병들이 건넌다. 말하는 소리는 관객이 낱말을 식별하지 않는 배경으로 남고, 도화선을 끊는 손에 주의가 모인다. 다리와 포가 프랑스군 손에 넘어간다.
+Afterward, a separate expectation of armistice. Pursuit is delayed and Russian troops increase their distance.
 
-그 뒤의 별도 휴전 기대. 추격이 지체되고 러시아군이 거리를 벌린다.
+Receiving the delay report, Napoleon turns to Murat.
 
-그 지체를 보고받은 나폴레옹이 뮈라에게 몸을 돌린다.
+NAPOLEON: You had no authority to make an armistice. Who gave you permission to stop?
 
-나폴레옹: 자네가 휴전을 정할 권한은 없네. 누구의 허락으로 멈췄나?
+MURAT: Sire, I thought they—
 
-뮈라: 폐하, 저는 저들이—
+NAPOLEON: Enough. We have lost time to pursue the Russians.
 
-나폴레옹: 그만. 우리가 러시아군을 뒤쫓을 시간을 잃었네.
+Murat stops speaking. He remains waiting for the next order to transmit.
 
-뮈라는 말을 멈춘다. 전할 다음 명령을 기다리며 자리에 남는다.
+NAPOLEON: They have gained time. We were deceived.
 
-나폴레옹: 저쪽은 시간을 얻었네. 속은 거야.
+After his judgment show the road of the Russians already farther away. Do not move to a scene confirming a private Russian plan.
 
-그의 판단 뒤, 이미 멀어진 러시아군의 길을 보인다. 러시아의 사적인 계획을 확인하는 장면으로 옮기지 않는다.
+Znaim, November 18. Napoleon receives news of Trafalgar. Unlike the audience, who knew the result at sea, he reads it now. The continental movement already begun preceded that news.
 
-11월 18일 즈나임. 나폴레옹이 트라팔가르 소식을 받는다. 바다의 결과를 알고 있던 관객과 달리 그는 지금 읽는다. 이미 시작한 대륙 이동은 그 소식보다 앞선 일이었다.
+November 27. Napoleon points out troops not yet all assembled. Alternate between places awaiting arrivals and ranks still on the road. In that day's incomplete concentration, the screen darkens and the main work ends.
 
-11월 27일. 아직 다 모이지 않은 군을 나폴레옹이 짚는다. 도착을 기다리는 군의 자리와 여전히 길 위에 있는 대열을 번갈아 본다. 그날의 미집결 상태에서 화면이 어두워지고 본편이 끝난다.
+A separate “Author's Commentary” screen. A friendly, courteous voice distinct from the historian.
 
-별도 '작가 해설' 화면. 역사가와 다른 친근한 존댓말.
-
-작가(음성): 법전의 이익과 제한을 같은 심의 안에 두었습니다. 식민지의 사건들도 하나의 정책이나 한 사람의 죽음으로 묶지 않았어요. 직기는 1805년의 원리에 맞춰 움직이게 했고, 직공의 질문은 제가 재구성했습니다. 일자리를 지켜 줬다거나 곧 잃었다고 결론 내리지는 않았습니다. 이번 본편은 11월 27일, 아직 군이 다 모이지 않은 때에 멈췄습니다. 이미 보신 전투를 다시 열지 않고, 다음 편에서 12월 3일로 갑니다.
-
+AUTHOR (voice): We put the benefits and restrictions of the code in the same deliberation. We did not combine colonial events into one policy or one person's death. The loom moved according to its 1805 principle, and I reconstructed the weaver's question. We did not conclude that the job was protected or immediately lost. This episode stopped on November 27, when the army had not yet fully assembled. We won't reopen the battle you have already seen; the next episode moves to December 3.

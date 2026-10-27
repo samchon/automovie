@@ -1,154 +1,151 @@
+# A Name to Continue
 
-# 이어질 이름
+## The river divides the army {#aspern}
 
-## 강이 군을 가른다 {#aspern}
+Parent: [025#aspern](../../treatments/025-the-danube-and-lannes.md#aspern).
 
-부모: [025#aspern](../../treatments/025-the-danube-and-lannes.md#aspern).
+Aspern-Essling, May 21–22, 1809. See the river and French positions across it wide, then move down to Austrian troops converging on two villages. Archduke Charles, unable to stand long, leans briefly, then looks at the field again.
 
-1809년 5월 21~22일, 아스페른-에슬링. 강과 건너온 프랑스 거점을 넓게 본 뒤 두 마을로 몰려오는 오스트리아군에 내려온다. 오래 서 있기 어려운 카를 대공이 잠깐 기대었다가 다시 전장을 본다.
+CHARLES: Keep pressure on both villages. Make that army spend its strength here and at the river.
 
-카를: 두 마을을 계속 압박하시오. 저 군이 여기에도, 강에도 힘을 쓰게 해야 하오.
+Austrian troops move at his order. Some French firing from behind houses come forward at a demand to advance in the center. Attack reaches the thinned village defense again. Someone carrying ammunition shows an empty load.
 
-명령을 받은 오스트리아군이 움직인다. 집 뒤에서 사격하던 프랑스군 일부는 중앙 진격 요구에 앞으로 나온다. 얇아진 마을 방어선에 다시 공격이 닿는다. 탄약을 옮기던 사람이 빈 짐을 들어 보인다.
+A messenger at headquarters catches his breath.
 
-본영으로 온 보고자가 숨을 고른다.
+MESSENGER: The large bridge has broken too.
 
-보고자: 큰 다리도 끊겼습니다.
+Napoleon looks back at the center and orders:
 
-중앙을 돌아본 나폴레옹이 명한다.
+NAPOLEON: Stop the attack. We cannot connect the army.
 
-나폴레옹: 공격을 멈추게. 군을 이을 수 없소.
+A messenger leaves. Give time for the order to reach the front and troops to return. Next dawn see the army withdraw along the riverbank. Do not fix an actor who broke the bridge. Charles's victory and the limits confronting the French remain.
 
-전령이 나간다. 명령이 전선에 닿고 군이 돌아오기까지 시간을 둔다. 다음 새벽, 강변에서 철수하는 군을 본다. 다리를 끊은 자의 행동은 확정하지 않는다. 카를이 얻은 승리와 프랑스군이 맞닥뜨린 한계가 남는다.
+## A body that does not recover while they wait {#lannes}
 
-## 기다려도 낫지 않는 몸 {#lannes}
+Parent: [025#lannes](../../treatments/025-the-danube-and-lannes.md#lannes).
 
-부모: [025#lannes](../../treatments/025-the-danube-and-lannes.md#lannes).
+Caption: May 22.
 
-자막: 5월 22일.
+Move close to bodies carrying wounded Lannes. Medical personnel clear people away and open his clothing. Receive amputation of one leg through his face and hands holding his body, without framing to settle left or right. After sounds of instruments, Lannes's breathing breaks. Give treatment more time than battle cheers.
 
-부상한 란을 옮기는 몸 가까이 간다. 의료진이 사람들을 비키게 하고 옷을 연다. 한쪽 다리의 절단은 좌우를 확정하는 구도 없이 얼굴과 몸 붙드는 손으로 받는다. 도구 소리 뒤 란의 숨이 갈라진다. 치료의 시간을 전투 함성보다 오래 둔다.
+Daylight on another day. Napoleon comes to the bed and starts to speak, then stops at labored breathing. Lannes turns his face. Though their hands touch, Lannes remains in pain.
 
-다른 날의 낮빛. 침상으로 온 나폴레옹이 말하려다 힘든 숨에 멈춘다. 란이 얼굴을 돌린다. 두 손이 닿아 있어도 란은 계속 아파한다.
+Caption: May 31.
 
-자막: 5월 31일.
+At the same distance by the bed, Napoleon waits without moving for the next breath. Medical personnel come and check. Insert neither last words nor reconciliation of the first duel. Leave the bed in frame after Napoleon rises.
 
-같은 간격의 침상 곁. 나폴레옹은 움직이지 않고 다음 숨을 기다린다. 의료진이 와 확인한다. 마지막 말도, 첫 결투의 화해도 끼우지 않는다. 나폴레옹이 일어난 뒤에도 침상을 프레임에 남긴다.
+## Authority outside victory {#wagram-and-church}
 
-## 승리 밖의 권한 {#wagram-and-church}
+Parents: [025#wagram](../../treatments/025-the-danube-and-lannes.md#wagram), [025#church-and-force](../../treatments/025-the-danube-and-lannes.md#church-and-force).
 
-부모: [025#wagram](../../treatments/025-the-danube-and-lannes.md#wagram), [025#church-and-force](../../treatments/025-the-danube-and-lannes.md#church-and-force).
+Caption: Night of July 4, 1809.
 
-자막: 1809년 7월 4일 밤.
+A wide view of the crossing east of Lobau. Troops cross a bridge laid there. Those behind must wait for the front to clear.
 
-로바우 동쪽 도하의 원경. 놓은 다리로 군이 건넌다. 뒤의 군은 앞이 빠져야 나아간다.
+Caption: July 5, Wagram.
 
-자막: 7월 5일, 바그람.
+French troops climbing stop under defensive fire. Wounded are received beside returning lines. Even at dusk the defensive line ahead remains.
 
-올라가던 프랑스군이 방어 사격에 멎는다. 돌아오는 줄 곁으로 부상자를 받는다. 날이 저물어도 앞의 방어선은 남았다.
+Next day Austrians press. A report of an attacked position reaches Napoleon.
 
-다음 날, 오스트리아군이 압박한다. 나폴레옹 앞에 공격받는 곳의 보고가 온다.
+STAFF OFFICER: This side is being pushed back.
 
-참모: 이쪽이 밀리고 있습니다.
+NAPOLEON: Concentrate the guns. Davout's attack must continue too.
 
-나폴레옹: 포를 모으시오. 다부 쪽 공격도 이어야 하오.
+Guns moving separately stop facing one direction. After bombardment MacDonald's troops advance; widen to see Davout's flank attack press from another side. When someone guarding a gun falls, another takes over loading.
 
-따로 움직이던 포들이 같은 방향을 향해 멈춘다. 포격 뒤 맥도날드의 군이 전진하고 시야를 넓히면 다부의 날개 공격이 다른 쪽을 압박한다. 포를 지키던 사람이 쓰러지면 옆 사람이 장전 일을 이어 받는다.
+HISTORIAN (off screen): Charles withdrew the army that remained rather than keep waiting for John's troops, who had not reached him in time.
 
-역사가(화면 밖): 카를은 제때 닿지 않은 요한의 군을 기다리다 남은 군을 물렸다.
+Resisting troops withdraw while making a route of retreat. After the wide view of victory, another person occupies a place for Lannes at headquarters. Do not fill it with Lannes returning.
 
-저항하던 군이 퇴로를 만들며 물러난다. 승전의 원경 뒤 본영에서는 다른 사람이 란에게 줄 자리를 차지한다. 돌아온 란의 모습으로 채우지 않는다.
+HISTORIAN (off screen): That same year, separately from battlefield preparations, a conflict over authority with the Church was underway.
 
-역사가(화면 밖): 같은 해, 전장의 준비와 별개로 교회와의 권한 충돌도 진행되고 있었다.
+A document annexing the Papal States. In different light, the Church's excommunication document opens.
 
-교황령 병합 문서. 다른 빛 아래 교회 쪽 파문 문서가 펼쳐진다.
+HISTORIAN (off screen): The excommunication targeted those who violated temporal sovereignty. It did not name Napoleon.
 
-역사가(화면 밖): 파문은 세속 주권을 침해한 자를 겨냥했다. 나폴레옹의 이름을 적지는 않았다.
+See the July arrest without a papal monologue or new arresting officer's dialogue. Frame closing access and the moving escort from afar.
 
-교황의 독백이나 새 체포자의 대사 없이 7월의 체포를 본다. 닫히는 출입과 이동하는 호송을 멀리 잡는다.
+HISTORIAN (off screen): Seizing a body did not obtain consent. A direct arrest order from the Emperor is not established either.
 
-역사가(화면 밖): 몸을 붙잡았다고 동의를 얻은 것은 아니었다. 황제의 직접 체포 명령도 확정되어 있지 않다.
+Do not overlay the Concordat and present document as one sheet.
 
-정교협약과 지금의 문서를 한 장으로 겹치지 않는다.
+## A husband's dynastic reason {#divorce}
 
-## 남편이 내놓는 왕조의 이유 {#divorce}
+Parent: [026#divorce](../../treatments/026-two-marriages.md#divorce).
 
-부모: [026#divorce](../../treatments/026-two-marriages.md#divorce).
+An evening at the end of 1809. Joséphine and Napoleon sit across a corner of a long table. Candlelight illuminates their faces separately. This reconstructed conversation does not complete the whole procedure that day.
 
-1809년 말 저녁. 조제핀과 나폴레옹이 긴 탁자의 모서리를 사이에 두고 앉는다. 촛불은 두 얼굴을 따로 비춘다. 절차 전체를 이날 끝내지 않는 재구성 대화.
+NAPOLEON: I need an heir.
 
-나폴레옹: 후계자가 필요하오.
+JOSÉPHINE: I know. Do not think I don't.
 
-조제핀: 알아요. 제가 그걸 모른다고 생각하지 말아요.
+NAPOLEON: I must leave a dynasty.
 
-나폴레옹: 왕조를 남겨야 하오.
+JOSÉPHINE: And my place in it?
 
-조제핀: 그 안에 있던 내 자리는요?
+His answer is late. She withdraws her hand below the table.
 
-답이 늦어진다. 그녀가 탁자 밑으로 손을 거둔다.
+NAPOLEON: I do not mean to abandon your livelihood.
 
-나폴레옹: 당신 생활을 버리겠다는 것은 아니오.
+JOSÉPHINE: Living together and letting me live are different things.
 
-조제핀: 함께 사는 것과 살게 해 주는 건 다르죠.
+He starts to approach, but she rises first.
 
-그가 다가오려 하자 그녀가 먼저 일어난다.
+The later ceremony and move, and annulment of the church marriage, proceed with changes of date and place. Eugène prepares a new life beside his mother. Caption for the audience: Eugène, Joséphine's son.
 
-뒤의 의식과 이주, 교회 혼인 무효는 날짜와 자리를 바꾸어 진행한다. 외젠은 어머니 곁에서 새 생활을 준비한다. 관객용 자막: 조제핀의 아들 외젠.
+EUGÈNE: Tell me what you need.
 
-외젠: 필요한 것을 말씀해 주세요.
+JOSÉPHINE: Do not abandon your own work to come here.
 
-조제핀: 네 일까지 버리고 오지는 말아라.
+Eugène swallows his reply and brings the luggage closer. See the life remaining here rather than an empty house waiting for the Emperor's next marriage.
 
-외젠이 대답을 삼키고 옮길 짐을 가까이 가져온다. 황제의 다음 혼인을 기다리는 빈 집 대신 이곳에 남은 생활을 본다.
+## The new family's present {#marriage-and-heir}
 
-## 새 가족의 현재 {#marriage-and-heir}
+Parents: [026#remarriage](../../treatments/026-two-marriages.md#remarriage), [027#heir](../../treatments/027-heir-and-hunger.md#heir).
 
-부모: [026#remarriage](../../treatments/026-two-marriages.md#remarriage), [027#heir](../../treatments/027-heir-and-hunger.md#heir).
+The marriage ceremony in 1810. See from Marie Louise's height as she enters an unfamiliar space.
 
-1810년 혼인의 의례. 낯선 공간에 들어오는 마리 루이즈의 높이에서 본다.
+HISTORIAN (off screen): Metternich's diplomacy and Austria's security were at stake in this marriage.
 
-역사가(화면 밖): 메테르니히의 외교와 오스트리아의 안전이 이 혼인에 걸려 있었다.
+She looks at an offered hand and takes it. Napoleon waits until she steps.
 
-건네진 손을 그녀가 보고 잡는다. 나폴레옹은 그녀가 발을 옮길 때까지 기다린다.
+NAPOLEON: This way.
 
-나폴레옹: 이쪽이오.
+MARIE LOUISE: I will go with you.
 
-마리 루이즈: 함께 가겠습니다.
+Follow both, then distinguish 1811 with a caption.
 
-두 사람을 따른 뒤 자막으로 1811년을 구별한다.
+A room by day after childbirth. Marie Louise reclines. Napoleon's arms stiffen holding the child. She shows him where to support the baby.
 
-출산 뒤 낮의 방. 마리 루이즈가 기대앉아 있다. 아이를 든 나폴레옹의 팔이 굳는다. 그녀가 받칠 곳을 알려 준다.
+MARIE LOUISE: Support him a little more here.
 
-마리 루이즈: 조금 더 이쪽을 받쳐 주세요.
+He adjusts his arm. The baby moves and he smiles briefly.
 
-그가 팔을 고친다. 아이가 움직이자 잠깐 웃는다.
+NAPOLEON: Like this?
 
-나폴레옹: 이렇게?
+Marie Louise nods and closes her eyes. Keep celebratory sounds farther away than the room's careful breathing. Give the child no future will or parents expressions knowing later fate.
 
-마리 루이즈가 끄덕이고 눈을 감는다. 방 안의 조심스러운 호흡보다 멀리 축하 소리를 둔다. 아이에게 장래의 의지를, 부모에게 이후 운명을 아는 표정을 주지 않는다.
+HISTORIAN (off screen): The child received the title King of Rome.
 
-역사가(화면 밖): 아이는 로마 왕의 칭호를 받았다.
+## A country demanding more {#grain}
 
+Parent: [027#grain-and-conscription](../../treatments/027-heir-and-hunger.md#grain-and-conscription).
 
-## 더 내놓으라는 나라 {#grain}
+At the same period, distribution of grain by day. From the end of a line see shares received and sacks remaining. Follow households responding to service demands without a new named family's injury.
 
-부모: [027#grain-and-conscription](../../treatments/027-heir-and-hunger.md#grain-and-conscription).
+HOUSEHOLD ADULT: We have no money to buy a substitute.
 
-같은 시기, 낮의 곡물 배분. 줄 끝의 높이에서 받은 몫과 남은 자루를 본다. 새 실명 가족의 피해 사건 없이 복무 요구에 응하는 집들을 따른다.
+OFFICIAL: Then the required service must be performed.
 
-집의 어른: 대리로 갈 사람을 살 돈은 없소.
+A young person puts down a tool used for work. In another household, money is handed over and family stays inside. Follow a departing back to conscripts gathering beside a food cart.
 
-행정 담당자: 그럼 정해진 복무를 해야 하오.
+Alexander in Russia receives a report of what the blockade demands of his country.
 
-젊은이가 일하던 도구를 놓는다. 다른 집에서는 돈을 건네고 가족이 안에 남는다. 떠나는 등을 따라가면 식량 수레 옆에 징집 대열이 모인다.
+HISTORIAN (off screen): The blockade burdened Russian life and trade too. Alexander put his country's interests before France's demands. Napoleon sought to stop Russia's departure from the blockade again by force.
 
-러시아의 알렉산드르는 봉쇄가 자국에 요구하는 것을 보고받는다.
+News of that departure reaches Napoleon. Do not join two decisions in separate places as an agreement in one room. Celebratory sounds in the city become footsteps preparing a new army.
 
-역사가(화면 밖): 봉쇄는 러시아의 생활과 교역에도 부담을 주었다. 알렉산드르는 프랑스의 요구보다 자국의 이해를 앞세웠다. 러시아의 봉쇄 이탈을 나폴레옹은 다시 강제로 막으려 했다.
+End of main work. A separate author voice.
 
-나폴레옹에게는 그 이탈의 소식이 닿는다. 다른 장소의 두 결정을 한 방의 합의로 붙이지 않는다. 도시의 축하 소리가 새 군을 준비하는 발소리로 바뀐다.
-
-본편 끝. 별도 작가 음성.
-
-작가: 얻은 것 곁에 되돌릴 수 없는 것도 놓았습니다. 란의 마지막 말을 합성하지 않았고, 이혼 절차도 한밤의 대화로 끝내지 않았어요. 가족의 대사는 고정된 결과 안에서 재구성한 말입니다. 아이를 돌보는 그날의 기쁨까지 이후 역사를 안다는 이유로 지우지는 않으려 했어요.
-
+AUTHOR: We placed things that cannot be restored beside things gained. We did not synthesize Lannes's last words, and the divorce procedure did not end in a single night's conversation. Family dialogue reconstructs words within fixed results. We did not want later history to erase the joy of caring for the child that day.

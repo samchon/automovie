@@ -1,30 +1,29 @@
-# 몸보다 오래 남는 이름
+# A Name Outlives the Body
 
-## 출판된 황제와 남은 가족 {#publication}
+## The published Emperor and the family left behind {#publication}
 
-이 파일의 사실 부모: [사후 기억과 아들](../settings/100-history/020-life-and-memory.md#exile-and-memory), [기록의 성립](../settings/120-research/010-source-policy.md#weight), [레티치아](../settings/050-people/010-ensemble.md#letizia), [나폴레옹 2세](../settings/050-people/010-ensemble.md#napoleon-ii), [실제 참고의 경계](../settings/120-research/010-source-policy.md#bibliography), [캉브론 전승의 한계](../settings/100-history/020-life-and-memory.md#return-and-waterloo), [부리엔](../settings/050-people/010-ensemble.md#bourrienne), [마렝고 전역 보고](../settings/100-history/020-life-and-memory.md#consulate).
+Factual parents: [posthumous memory and the son](../settings/100-history/020-life-and-memory.md#exile-and-memory), [formation of the record](../settings/120-research/010-source-policy.md#weight), [Letizia](../settings/050-people/010-ensemble.md#letizia), [Napoleon II](../settings/050-people/010-ensemble.md#napoleon-ii), [limits of actual consultation](../settings/120-research/010-source-policy.md#bibliography), [limits of the Cambronne tradition](../settings/100-history/020-life-and-memory.md#return-and-waterloo), [Bourrienne](../settings/050-people/010-ensemble.md#bourrienne), [the Marengo campaign report](../settings/100-history/020-life-and-memory.md#consulate).
 <!--
 @evidenceExclude settings/120-research/010-source-policy.md#editions 현재 T 48파일·116H2 전체의 편지·명령·회고·출판 언급을 대조했다. 나폴레옹 서한집 32권본이나 15권본에서 특정 문서를 직접 인용하거나 슈투터하임 1807년 영어판의 문구·번역 판단을 사건 근거로 사용한 곳은 없다. 009의 3월 30일 편지 거리, 이 절의 라스카즈 간행과 미독서 번역서 금지는 각각 관계·자료 성립·서지 정직성의 다른 현재 owner를 따른다. 따라서 이 판본별 사용 H2 전체의 구체 선택은 이번 T에서 소비하지 않는다. 사료 층위나 실제 읽은 범위의 의무를 제외하지 않으며 새 판본 인용이 필요하면 이 owner로 돌아가야 한다.
 -->
-1823년 회상록의 간행은 섬에서의 대화와 같은 사건이 아니다. 라스카즈가 기록하고 뒤에 손질한 글이 독자에게 닿으면 나폴레옹은 정치적 기억과 전설의 자원을 얻는다. 관객은 섬에서 기록자가 자기 자리를 얻고 내용을 골라 남기던 과정을 이미 알므로, 책을 나폴레옹이 직접 쓴 단일한 진실로 받지 않는다. 제작자가 실제 읽지 않은 번역서를 읽은 책으로 소개하지도 않는다.
+Publication of the memoir in 1823 is not the same event as conversation on the island. When writing recorded and later revised by Las Cases reaches readers, Napoleon gains resources of political memory and legend. The audience already knows the process by which the recorder gained a place and selected content on the island, and so does not receive the book as one truth written by Napoleon himself. Nor should the production present a translation it did not actually read as a book it read.
 
-출판으로 섬에 없었던 독자도 기록을 읽을 수 있게 된다. 일상의 청자에게 행사하던 힘이 더 넓은 독자에게 닿는 변화다. 마렝고의 실제 전장과 보고 개정의 차이는 이미 앞에서 받았으므로 여기서 같은 비교를 다시 공연하지 않는다. 전역 보고와 라스카즈의 1823년 책은 다른 원고이며 한때 한 경로로 간행된 기록으로 합치지 않는다.
+Publication allows readers who were not on the island to read the record. Power once exercised over listeners in daily life now reaches a wider readership. The audience already received the difference between the actual field at Marengo and the revised report; do not perform the same comparison again here. The campaign report and Las Cases's 1823 book are different manuscripts; do not combine them as a record once published through one channel.
 
-워털루에서 보류했던 캉브론의 두 말 역시 전언으로 퍼져 패배에 굴복하지 않는 이름을 만들지만, 본인이 부인했다는 기록이 그 매끈한 기억을 막는다. 이 전승도 라스카즈의 책에 실렸다는 뜻으로 합치지 않는다. 관객은 현장에서 듣지 않은 말을 전설의 목소리로 되돌려 인증하는 대신, 말이 유통되는 힘과 증언이 그 말을 거부하는 차이를 받는다.
+The two Cambronne sayings deferred at Waterloo also spread as reported tradition, making a name that did not yield to defeat, but the record that he denied them interrupts that smooth memory. Do not merge this tradition into Las Cases's book either. Rather than authenticate words not heard on the field by returning them as legend's voice, give the audience the difference between the power of circulating words and testimony rejecting them.
 
-부리엔의 회고 역시 가까이서 문서를 만들던 경험과 결별 뒤의 감정이 함께 작동하는 기록으로 돌아온다. 비서였던 시기의 접근이 그 뒤의 모든 사생활까지 본 권한을 주지는 않는다. 관객이 먼저 경험한 문서 노동은 그의 증언이 단순한 바깥 논평이 아닌 이유가 되지만, 돈과 해임 뒤의 앙금은 그 설명을 그대로 사실로 승인하지 못하게 한다. 새 출판 연도나 미채택 원문을 붙이지 않고 참여했던 사람이 과거를 다시 소유하려는 차이를 남긴다.
+Bourrienne's memoir too returns as a record in which experience making documents at close quarters and feelings after separation both operate. Access during his time as secretary does not give authority to have seen all later private life. Document work the audience has already experienced explains why his testimony is not merely outside commentary, but money and resentment after dismissal prevent approval of his account as fact unchanged. Without adding a new publication year or unadopted original wording, preserve the difference in which a participant seeks to own the past again.
 
-레티치아에게 남은 것은 민족의 불멸하는 황제와 다른, 죽은 아들과 계속 살아야 하는 가족이다. 그녀가 평생 지키려 했던 지속의 욕구를 이 결과와 이어 놓는다. 구체적인 새 편지 문구와 수령일을 발명하지 않고, 영광의 이름이 가족의 상실을 돌려주지 않는 차이를 남긴다. 관객의 시선은 후계자로 소개했던 아들이 어떤 삶을 갖는가로 옮겨간다.
+For Letizia, what remains is a family that must live on after a son's death, unlike the nation's immortal emperor. Connect the desire for continuity she sought throughout life to this result. Without inventing new words in a specific letter or date of receipt, retain the difference that a glorious name does not restore a family's loss. The audience's gaze shifts to what life the son introduced as heir has.
 
-## 아버지의 이름을 물려받아도 권력을 얻지 못한다 {#son}
+## Inheriting his father's name does not bring power {#son}
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 상위 부모인 docs/body/settings/050-people/010-ensemble.md#napoleon-ii의 1832년 나이·쇤브룬·사망·명목 지위와 후대 아글롱 호칭 제한, docs/body/settings/100-history/020-life-and-memory.md#exile-and-memory의 부자 사망·유해 귀환 순서를 유지했다. 계승 기대가 실제 군·국가가 되지 못하고 닫히는 사건을 시험하며 계급 차이에 인과를 기대지 않는다. 모든 보나파르트계 후계가 사라졌다는 일반화나 새 전투·직책·사적 발언을 만들지 않았다.
 -->
-쇤브룬에서 자란 아들은 아버지의 기억과 외가 궁정의 요구 사이에 놓인다. 어린아이였던 얼굴은 스물한 살의 청년으로 이어지되 스스로 전쟁을 지휘하는 작은 나폴레옹으로 변하지 않는다. 가족에게 머물고 싶었던 욕구와 아버지의 자리를 묻는 마음이 생겨도 명목상 지위는 실제 국가와 군을 주지 않는다.
+The son raised at Schönbrunn stands between his father's memory and the demands of his maternal family's court. The face once a child continues into a young man of twenty-one, but does not become a little Napoleon commanding war himself. Even if desires arise to remain with family and to ask about his father's place, nominal status gives him no actual state or army.
 
-1832년 7월 22일 죽음으로 생물학적 계승의 기대도 닫힌다. 생전에 자신을 아글롱이라고 부르게 하지 않고, 1835년 이후 작품의 호칭은 역사가의 후대 수용 구간에서만 소개할 수 있다. 계급장에 이 사건의 인과를 기대지 않는다. 관객에게 남는 것은 미래 황제의 예고가 아니라 아버지와 아들이 모두 돌아오지 못했다는 결과다. 이후 국가가 맞을 수 있는 것은 살아 있는 계승자 대신 유해와 기억이다.
+His death on July 22, 1832 closes the expectation of biological succession too. Do not have him call himself the Eaglet in life; the name from works after 1835 may be introduced only in the historian's later reception. Do not depend on differences in rank insignia for the cause of this event. What remains for the audience is not a promise of a future emperor but the result that neither father nor son could return. What a state can later receive is remains and memory instead of a living successor.
 
-추가 사실 부모: [역할·유언](../settings/050-people/020-roles-and-last-wishes.md#napoleon-ii).
+Additional factual parent: [roles and last wishes](../settings/050-people/020-roles-and-last-wishes.md#napoleon-ii).
 
-1811년 로마 왕으로 불린 아이, 아버지가 선언한 나폴레옹 2세, 빈에서 프란츠로 불리며 라이히슈타트 공작이 된 청년의 호칭을 시대에 맞게 분리한다. 실제 프랑스를 통치한 황제는 아니었다. 아버지의 권력을 잃은 추상적 아들이 아니라 서로 다른 제국이 부여한 이름과 실권의 부재가 함께 남은 사람으로 끝낸다.
-
+Separate by period the child called King of Rome in 1811, Napoleon II as declared by his father, and the young man called Franz in Vienna who became Duke of Reichstadt. He was not an emperor who actually ruled France. End with a person bearing names given by different empires alongside an absence of actual power, rather than an abstract son who lost his father's power.

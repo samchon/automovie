@@ -1,29 +1,29 @@
-# 기다리는 사람이 둘인 전장
+# A Battlefield with Two People Waiting
 
-## 버티는 시간과 밀어붙이는 시간이 다르다 {#pressure}
+## Time spent holding and time spent pressing are different {#pressure}
 
-이 파일의 사실 부모: [워털루](../settings/100-history/020-life-and-memory.md#return-and-waterloo), [그루시](../settings/050-people/010-ensemble.md#grouchy), [네](../settings/050-people/010-ensemble.md#ney), [웰링턴](../settings/050-people/010-ensemble.md#wellington), [블뤼허](../settings/050-people/010-ensemble.md#blucher), [물질의 한계](../settings/020-world/010-material-world.md#weapons-and-medicine).
+Factual parents: [Waterloo](../settings/100-history/020-life-and-memory.md#return-and-waterloo), [Grouchy](../settings/050-people/010-ensemble.md#grouchy), [Ney](../settings/050-people/010-ensemble.md#ney), [Wellington](../settings/050-people/010-ensemble.md#wellington), [Blücher](../settings/050-people/010-ensemble.md#blucher), [material limits](../settings/020-world/010-material-world.md#weapons-and-medicine).
 
-6월 18일 워털루. 진흙과 농장, 탄약과 연기, 보병과 기병의 다른 조건을 먼저 두어 움직임이 지도 위 화살표처럼 진행되지 않게 한다. 프랑스군은 상대를 무너뜨릴 성과를 얻어야 하고 웰링턴의 군은 자기 선을 유지하며 지원이 도착할 시간을 벌어야 한다. 어느 쪽도 지휘관의 의지만으로 지친 몸과 부족해지는 탄약을 없애지 못한다.
+Waterloo, June 18. First establish mud and farms, ammunition and smoke, and different conditions for infantry and cavalry so movement does not proceed like arrows on a map. The French must gain results that break the opponent, while Wellington's army must hold its line and buy time for support to arrive. Neither side can eliminate exhausted bodies and dwindling ammunition by a commander's will alone.
 
-한편 추격 중 대포 소리를 들은 그루시는 방향을 바꿀지 판단해야 한다. 그때 그가 가진 것은 전날의 프로이센 추격 임무와 자신이 확인해 보고한 갈라진 행군 상태이며, 그날 뒤에 닿을 새 급보들은 아직 받지 않았다. 그는 소리만으로 추격을 버리고 황제 쪽으로 돌아서는 대신 와브르를 향한 임무를 계속한다. 관객은 이 선택을 당시의 정보에서 본 뒤, 그날 오전 발송되어 오후에 닿는 급보도 와브르로 서두르되 황제군과 연락하라는 취지였음을 받는다. 전장 전체를 알고도 오기를 거부한 사람이라는 후일의 단죄가 현장의 앎을 대신하지 않는다.
+Meanwhile Grouchy, hearing cannon while pursuing, must decide whether to change direction. At that moment he has the previous day's mission to pursue the Prussians and the divided state of their march he has confirmed and reported; he has not yet received the new dispatches that will reach him later that day. Rather than abandon pursuit and turn toward the Emperor on sound alone, he continues his mission toward Wavre. After seeing that choice with the information then available, the audience receives that a dispatch sent that morning and arriving in the afternoon also told him in substance to hurry toward Wavre while maintaining contact with the Emperor's army. Later condemnation of a man who knew the whole battle and stubbornly refused to come does not replace knowledge on the ground.
 
-워털루의 프랑스군은 오후 프로이센군의 접근을 확인하고 일부 힘을 동쪽 대응으로 돌려야 한다. 프로이센군은 실제로 동쪽에서 압박을 가하며 이미 벌어지는 싸움의 선택지를 줄인다. 이 개입을 라에생트 함락 뒤 처음 나타날 구원으로 늦추지 않는다. 웰링턴을 무너뜨리려는 군은 다른 방향도 막아야 하고, 지원을 기다리는 쪽에는 아직 다 오지 않은 힘이 이미 일부의 전투로 이어지는 변화가 생긴다.
+In the afternoon the French at Waterloo confirm the Prussians' approach and must divert some strength eastward. Prussians actually exert pressure from the east, narrowing choices in fighting already underway. Do not delay this intervention as rescue first appearing after La Haye Sainte falls. An army trying to break Wellington must also block another direction; for the side awaiting support, strength not yet all arrived is already changing the battle in part.
 
-네의 행동과 기병 투입이 전투의 압력을 키워도 같은 방법을 되풀이하는 동안 남은 수단이 줄어든다. 방진과 기병의 관계를 용감한 기수와 겁먹은 보병의 단순 대결로 바꾸지 않는다. 관객은 공격의 기세와 그것으로 얻지 못한 결과를 쌓으면서, 프랑스의 소모와 상대의 버팀·협력이 함께 전장을 좁히는 것을 안다. 나폴레옹의 몸 상태 하나로 이 과정을 설명하지 않는다.
+Even as Ney's actions and commitment of cavalry intensify pressure, repeated use of the same method reduces remaining means. Do not turn the relationship of squares and cavalry into a simple contest of brave riders and frightened infantry. As the audience accumulates the momentum of attack and results it did not obtain, it sees French attrition and opposing endurance and cooperation together narrow the field. Do not explain the process through Napoleon's physical condition alone.
 
-## 함락된 농장과 도착하는 다른 군 {#arrivals}
+## A fallen farm and another army arriving {#arrivals}
 
-라에생트는 채택한 저녁 6시 무렵 함락된다. 프랑스군에게 기회가 열리지만 이전에 잃은 시간과 병력, 이미 동쪽 대응에 쓴 힘까지 회복되지는 않는다. 뒤이어 더해지는 프로이센 증원과 영란군 좌익의 연결은 그날 처음 프로이센군이 나타나는 사건이 아니다. 이미 싸운 군에 새 힘이 이어져 상대의 압박이 커지는 결과로 둔다. 블뤼허의 행동과 그나이제나우의 계산, 군이 실제로 걸어온 노동은 웰링턴의 계획 하나에 흡수되지 않는다.
+La Haye Sainte falls around the adopted time of 6 p.m. An opportunity opens for the French, but time and troops previously lost and strength already used against the east are not restored. Later Prussian reinforcements and connection with the Anglo-Allied left are not the first appearance of Prussians that day. New strength joins an army already fighting, increasing pressure on the opponent. Blücher's action, Gneisenau's calculation, and the army's actual labor of marching are not absorbed into Wellington's plan alone.
 
-그루시는 워털루에 오지 않는다. 황제는 기대한 힘이 닿지 않는 기다림을 겪지만 관객은 추격군의 앞선 선택과 실제 수령 상태를 알고 있다. 황제군 쪽으로 기동하여 황제군의 측면을 공격하는 프로이센군을 함께 치라는 오후 급보는 늦은 오후 또는 저녁에야 전해진다. 특히 이 급보의 수령 시각은 기록마다 갈리므로 농가 함락과 같은 정확한 분으로 묶지 않는다. 앞서 오전에 보낸 와브르·연락의 급보와 이 다른 요구를 한 명령으로 합치거나, 뒤늦게 받은 내용을 처음 포성을 들었을 때의 앎으로 소급하지 않는다.
+Grouchy does not come to Waterloo. The Emperor experiences waiting for expected strength that does not arrive, but the audience knows the pursuing force's earlier choice and actual receipt of orders. The afternoon dispatch to maneuver toward the Emperor's army and jointly strike Prussians attacking its flank reaches Grouchy only in late afternoon or evening. Accounts differ over this dispatch's receipt in particular, so do not bind it to the same exact minute as the fall of the farm. Do not merge the earlier morning dispatch about Wavre and contact with this different demand, or retroactively give him its late-arriving contents when he first heard cannon.
 
-명령을 받아도 이미 벌어진 전장의 시간이 되돌아오지는 않는다. 오지 않았다는 결과를 한 사람만 왔으면 확실히 이겼다는 인증으로 바꾸지 않는다. 관객은 황제와 함께 기대가 닫히는 답답함을 겪으면서도 상대의 버팀과 독립된 지원, 프랑스가 이미 소모한 힘이 함께 남은 선택을 좁혔음을 받는다.
+Even after an order is received, time on a field already in battle cannot be returned. Do not turn the result that he did not come into proof that one man's arrival would certainly have won. The audience shares the Emperor's frustration as expectation closes while also receiving the opposing side's endurance and independent support and the strength France already spent as factors narrowing remaining choices.
 
-## 마지막 수단을 쓴 뒤 전투를 되돌릴 군이 없다 {#collapse}
+## After the last means are used, no army can reverse the battle {#collapse}
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 상위 부모인 docs/body/settings/100-history/020-life-and-memory.md#return-and-waterloo의 확정 패배와 캉브론 전승의 불확실성, docs/body/settings/110-knowledge/010-information.md#malet-waterloo의 런던 수신 지연을 그대로 경계로 삼았다. 최후 투입의 실패가 군을 무너뜨려도 정치와 소식은 따로 이어지는지 시험했으며 새 최후 발언·현장 증언을 보충하지 않아 설정 수선이 요구되지 않는다.
 -->
-근위대를 포함한 마지막 투입도 필요한 결과를 만들지 못한다. 프랑스군은 패배와 붕괴의 상태로 넘어간다. 사람들에게는 계속 싸울 명예와 살아 돌아갈 필요가 충돌한다. 캉브론의 유명한 두 말을 현장에 확정된 최후의 음성으로 넣지 않는다. 그 말의 전승과 본인의 부인은 뒤의 기억 문제로 남기고, 여기서는 패배의 몸과 흩어지는 군을 끝까지 따른다.
+The final commitment, including the Guard, also fails to produce the required result. The French army moves into defeat and collapse. For people, honor in fighting on conflicts with the need to return alive. Do not put Cambronne's two famous sayings into the field as confirmed final words. Leave the traditions and his own denial for the later problem of memory; here follow the bodies of defeat and the scattering army to the end.
 
-웰링턴과 프로이센군의 승리는 이제서야 결과가 된다. 그날 프랑스에서 정치적 결론이 모두 내려지거나 런던이 동시에 환호하지 않는다. 관객에게는 첫 아우스터리츠와 반대의 밤이 주어진다. 지휘관이 살아 있어도 그가 다시 쓸 군과 받아들일 국가의 선택은 남은 자들의 문제가 된다.
+Wellington's and the Prussians' victory only now becomes a result. Not every political conclusion is reached in France that day, nor does London cheer simultaneously. The audience receives a night opposite to the first Austerlitz. Even if the commander lives, the army he could use again and the choice of a state willing to receive him remain problems for those left.

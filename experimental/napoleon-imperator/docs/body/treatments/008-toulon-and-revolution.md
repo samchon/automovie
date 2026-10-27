@@ -1,26 +1,25 @@
-# 포를 쏘는 사람과 임명하는 사람
+# The Man Who Fires the Guns and the Man Who Appoints Him
 
-## 펜과 포가 같은 권력으로 들어간다 {#toulon}
+## Pen and cannon enter the same power {#toulon}
 
-이 파일의 사실 부모: [혁명의 장교](../settings/100-history/020-life-and-memory.md#formation), [살리세티](../settings/050-people/010-ensemble.md#saliceti), [나폴레옹](../settings/050-people/010-ensemble.md#napoleon).
+Factual parents: [the officer of the Revolution](../settings/100-history/020-life-and-memory.md#formation), [Saliceti](../settings/050-people/010-ensemble.md#saliceti), [Napoleon](../settings/050-people/010-ensemble.md#napoleon).
 
-1793년 프랑스. 가난한 장교는 군사 지식만으로 빈 지휘 자리를 차지하지 못한다. 『보케르의 저녁』으로 혁명의 편에 선 글이 정치적 후원의 통로가 되고, 살리세티의 권한과 포병의 실제 필요가 만날 때 툴롱의 일이 주어진다. 살리세티는 장차 황제가 될 사람을 알아보는 예언자가 아니라 당장의 전쟁을 이기고 정권을 지켜야 하는 정치가다.
+France, 1793. Military knowledge alone does not give a poor officer a vacant command. His pro-Revolutionary writing in The Supper at Beaucaire opens a channel to political patronage; the assignment at Toulon comes when Saliceti's authority meets the artillery's practical need. Saliceti is not a prophet recognizing a future emperor, but a politician who must win the present war and protect the regime.
 
-툴롱에서는 포의 운용과 군을 움직이는 판단이 성과로 이어지고 부상까지 남긴다. 결과가 난 뒤에 임명과 진급의 의미가 커진다. 관객에게는 역참에서 보았던 원수들과 다른 출세의 출발점이 생긴다. 능력이 실제로 쓸모 있었고, 그 능력이 쓰일 기회는 다른 사람의 서명으로 열렸다는 두 원인을 함께 남긴다.
+At Toulon the handling of guns and decisions about moving troops produce results, and a wound remains. Once the result is known, the appointment and promotion gain significance. The audience sees a starting point for advancement different from that of the marshals at the post house. Keep both causes: ability proved useful, and another person's signature opened the opportunity to use it.
 
-추가 사실 부모: [추가 역사 결정](../settings/100-history/030-decisions-and-results.md#toulon).
+Additional factual parent: [additional historical decisions](../settings/100-history/030-decisions-and-results.md#toulon).
 
-공격의 목표를 작은 지브롤터로 불리는 뮐그레이브 보루로 정한다. 12월의 포격 뒤 첫 야간 공격은 막힌다. 물러나 끝낼지 다시 공격할지에서 재공격을 택한 군이 고지를 차지하고 나폴레옹도 부상한다. 확보한 고지는 연합군이 항구에 계속 머물 조건을 바꾼다. 관객은 고지의 수비→공격 실패→재공격과 확보→철수→진급의 서로 다른 결과를 받는다.
+The objective is the Mulgrave redoubt, known as Little Gibraltar. After the December bombardment, the first night attack is repulsed. Faced with withdrawing or attacking again, the army chooses another assault and takes the height; Napoleon is wounded. Its capture changes the conditions that allowed the Allies to remain in the harbor. The audience receives the distinct results in sequence: defense of the height, failed attack, renewed attack and capture, withdrawal, and promotion.
 
-## 후원의 손이 체포 문서에도 남는다 {#thermidor}
+## The patron's hand appears on the arrest papers too {#thermidor}
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 현재 `docs/body/settings/100-history/020-life-and-memory.md#formation`의 1794년 여름 위험과 `docs/body/settings/050-people/010-ensemble.md#saliceti`의 체포 서명 쪽이라는 경계를 바꾸지 않았다. “풀려난 뒤에도” 남는 공백으로 다음 선택이 연결되어, 정확 체포 시각이나 동료 수감자라는 잘못된 관계를 새로 채택할 필요가 없다.
 -->
-정변이 일어나자 같은 연줄은 안전의 증명에서 의심의 근거로 바뀐다. 1794년 여름 나폴레옹은 체포의 위험을 겪고 풀려난다. 정확한 체포일이나 석방 시각을 새로 정하지 않는다. 살리세티를 함께 갇힌 충직한 친구로 만들지 않고, 정권과 자기 생존을 위해 장교를 체포하는 쪽에 설 수 있는 사람으로 남긴다.
+After the political upheaval, the same connections change from proof of safety to grounds for suspicion. In the summer of 1794 Napoleon faces arrest and is released. Do not fix a new exact date of arrest or time of release. Do not make Saliceti a loyal friend imprisoned beside him; leave him as someone who can stand on the side arresting the officer for the sake of the regime and his own survival.
 
-풀려난 뒤에도 지휘권과 생계는 저절로 돌아오지 않는다. 가족을 부양할 능력과 자기 확신 사이의 간격이 더 벌어진다. 혁명은 낮은 출신에게 문을 열지만 그 문지기는 계속 바뀐다는 경험이 남는다. 다음의 파리 진압에서는 그 자신이 정권의 생존을 위해 다른 사람에게 폭력을 쓰는 자리를 택한다.
+Even after release, command and a livelihood do not return of themselves. The distance between his ability to support his family and his confidence in himself widens. The Revolution opens a door to those of low birth, but its gatekeepers keep changing. In the next suppression in Paris he chooses the position of a man who uses violence on others to preserve the regime.
 
-추가 사실 부모: [추가 역사 결정](../settings/100-history/030-decisions-and-results.md#thermidor).
+Additional factual parent: [additional historical decisions](../settings/100-history/030-decisions-and-results.md#thermidor).
 
-체포 문서의 주체를 살리세티를 포함한 서명자들로 밝힌다. 제노바 임무를 의심한 경위는 부리엔의 후일 설명으로 전하고, 체포 당시 모든 인물이 같은 혐의의 진실을 안다는 대면을 만들지 않는다. 체포로 지휘·소지품의 자유를 잃고 석방되어도 생활의 부족은 남는 순서를 유지한다.
-
+Identify the parties to the arrest document as the signatories, including Saliceti. Give the suspicion surrounding the Genoa mission as Bourrienne's later account; do not invent a confrontation in which everyone present at the arrest knows the truth of the same allegation. Preserve the sequence in which arrest deprives him of command and freedom over his belongings, and want remains even after release.

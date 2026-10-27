@@ -1,17 +1,17 @@
-# 갈 곳을 정해 주는 사람들
+# People Who Decide Where He May Go
 
-## 도착과 입주는 다른 시간이다 {#longwood}
+## Arrival and moving in are different times {#longwood}
 
-이 파일의 사실 부모: [섬의 생활](../settings/100-history/020-life-and-memory.md#exile-and-memory), [베르트랑](../settings/050-people/010-ensemble.md#bertrand), [마르샹](../settings/050-people/010-ensemble.md#marchand), [라스카즈](../settings/050-people/010-ensemble.md#las-cases), [허드슨 로](../settings/050-people/010-ensemble.md#hudson-lowe).
+Factual parents: [life on the island](../settings/100-history/020-life-and-memory.md#exile-and-memory), [Bertrand](../settings/050-people/010-ensemble.md#bertrand), [Marchand](../settings/050-people/010-ensemble.md#marchand), [Las Cases](../settings/050-people/010-ensemble.md#las-cases), [Hudson Lowe](../settings/050-people/010-ensemble.md#hudson-lowe).
 
-1815년 말 세인트헬레나. 10월에 섬에 닿은 사람이 곧바로 롱우드에서 살았던 것으로 잇지 않는다. 임시 거처를 거쳐 12월의 롱우드 생활로 들어간다. 집의 습기와 불편, 경비와 출입 조건은 더 큰 군을 모으면 해결할 문제가 아니다. 오늘 누구를 만나고 어디까지 움직일 수 있는지 타인의 허가가 정한다. 아직 오지 않은 로를 첫날부터 현장의 총독으로 세우지 않는다.
+Saint Helena, late 1815. Do not connect arrival on the island in October directly to living at Longwood. Go through temporary quarters into life at Longwood in December. Damp and discomfort in the house, guards, and conditions of access are not problems solved by gathering a larger army. Another person's permission determines whom he may meet today and how far he may move. Do not place Lowe, who has not yet arrived, as governor present from the first day.
 
-베르트랑은 수행원의 가족과 장부·기록을 함께 챙기고, 마르샹은 몸과 일상, 금고와 구술을 가까이에서 돌본다. 라스카즈는 언어와 기록의 쓸모로 자리를 얻는다. 모두 황제를 따른다는 이유만으로 같은 일을 하지 않는다. 관객은 출입의 제한이 작아 보이는 생활의 선택을 얼마나 크게 바꾸는지 먼저 익힌다.
+Bertrand attends to the companions' families as well as accounts and records; Marchand closely tends the body and daily life, the cashbox and dictation. Las Cases gains a place through usefulness in language and record. They do not all do the same work merely because they follow the Emperor. The audience first learns how greatly restrictions on entry and exit change seemingly small choices of daily life.
 
-## 호칭을 지키는 일이 생활비와 부딪친다 {#governor}
+## Defending a title collides with living expenses {#governor}
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 상위 부모인 docs/body/settings/050-people/010-ensemble.md#hudson-lowe의 정부 책임·도착 시기와 자료 간 갈림, docs/body/settings/100-history/020-life-and-memory.md#exile-and-memory의 호칭·통신·생활비·은 식기 범위를 유지했다. 규정과 지위의 충돌이 수행원 음식에 닿는 결과를 시험했으며 불확실한 면담 횟수·출생일이나 미채택 악행을 새 사실로 만들지 않았다.
 -->
-1816년 4월 이후 로가 도착해 맡는 책임은 탈출과 외부 통신을 막으라는 영국 정부의 요구다. 나폴레옹에게는 황제라는 지위와 자기 생활의 존엄을 지키는 일이 걸려 있다. 로는 규정을 따르게 하려 하고 나폴레옹은 규정에 응하는 행동이 자기 지위를 인정하지 않는 선례가 될 수 있다고 맞선다. 직접 면담 횟수나 출생일의 갈림을 새 사실로 고정하지 않는다.
+After Lowe arrives in April 1816, his responsibility is the British government's demand to prevent escape and outside communication. Napoleon has his imperial status and dignity in daily life at stake. Lowe seeks compliance with regulations; Napoleon resists because complying may set a precedent that does not recognize his status. Do not fix disputed numbers of direct meetings or dates of birth as new facts.
 
-생활비와 은 식기를 둘러싼 갈등은 허영에 대한 가벼운 농담으로만 닫히지 않는다. 지출의 책임을 져야 하는 총독과 자기 자원을 처분해도 모욕을 드러내려는 황제의 이해가 충돌한다. 수행원에게는 그 다툼의 결과가 음식과 생활로 닿는다. 관객은 로를 모든 악을 발명한 개인으로 단정하지 않으면서도 규정 집행이 당사자에게 고립과 모욕이 되는 실제 효과를 받는다.
+The conflict over expenses and silver plate does not close merely as a light joke about vanity. The interests of a governor responsible for expenditure clash with those of an emperor who would dispose of his own resources to make the insult visible. For the companions, that dispute reaches food and daily life. Without fixing Lowe as the individual inventor of every evil, the audience receives the actual effect of enforcement as isolation and humiliation for those subject to it.

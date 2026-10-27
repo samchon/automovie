@@ -1,29 +1,29 @@
-# 『나폴레옹 연대기』의 각색 범위
+# Adaptation Scope for The Napoleon Chronicle
 
-## 채택한 원본과 창작 입력의 경계 {#adopted-source}
+## Adopted source and the boundary of creative input {#adopted-source}
 
-사용자는 `wrtnlabs/wrtn-novels/novels/napoleon-imperator`의 instructions와 settings를 영상 제작의 입력으로 채택했다. 원본은 [입력 목록](../references/intake-manifest.json)과 `docs/references/novels/instructions`, `docs/references/novels/settings`에 보존한다. 원작 treatments·scripts·prose는 창작 입력으로 읽거나 옮기지 않는다. 이 제작의 사건 설계와 대사와 영상 표현은 채택한 지시와 정전에서 새로 만든다. 원본의 승인·증거·검토 문구는 이 제작의 승인이 아니다.
+The user adopted the instructions and settings in `wrtnlabs/wrtn-novels/novels/napoleon-imperator` as input for the video production. The source is retained in the [intake manifest](../references/intake-manifest.json), `docs/references/novels/instructions`, and `docs/references/novels/settings`. The original treatments, scripts, and prose are neither read as creative input nor transferred. This production creates its own event design, dialogue, and audiovisual expression from the adopted instructions and canon. Approval, evidence, and review statements in the source do not approve this production.
 
-## 작품명과 역사적 전제 {#title-and-history}
+## Title and historical premise {#title-and-history}
 
-작품명은 『나폴레옹 연대기』이며 부제를 붙이지 않는다. 한국어로 보는 정통 역사극이다. 사건의 날짜·승패·결과·인물의 지위와 운명을 바꾸지 않는다. 사료의 빈틈에서 대화와 행동을 재구성하되 회귀·빙의·초자연·시간 여행·대체 역사를 도입하지 않는다. 원본 `001-premise#title`, `#orthodox-history`와 settings의 작품 선언을 채택한다.
+The title is The Napoleon Chronicle, with no subtitle. It is an orthodox historical drama presented in English. Do not change dates, victories and defeats, outcomes, or people's positions and fates. Reconstruct dialogue and action where the historical record is silent, without introducing regression, possession, the supernatural, time travel, or alternate history. This adopts the original `001-premise#title`, `#orthodox-history`, and the work declaration in settings.
 
-## 생애와 시대 전체의 납품 {#complete-life}
+## Delivery of the whole life and era {#complete-life}
 
-가장 이른 극중 날짜는 1769년 8월 15일이고 가장 늦은 날짜는 1840년 12월 15일이다. 혁명기의 형성, 이탈리아와 이집트, 통령정부의 통치, 제국의 확장, 러시아, 연합군의 반격, 두 퇴위와 백일천하, 유배와 죽음, 사후 기억과 유해 귀환을 모두 인과적으로 완결한다. 1769년 이전은 기억과 배경으로만 들어온다. 1840년 이후의 제2제정이나 완성된 묘소를 장면으로 열지 않는다. 원본 settings `010-work/010-work-declaration#delivery-scope`와 `996-named-deaths-and-ending#ending-conditions`를 채택한다.
+The earliest date dramatized is August 15, 1769, and the latest is December 15, 1840. Complete the causal account of formation during the Revolution, Italy and Egypt, rule under the Consulate, the expansion of the Empire, Russia, the allied counterattack, both abdications and the Hundred Days, exile and death, posthumous memory, and the return of the remains. Events before 1769 enter only as memory and background. Do not open scenes in the Second Empire or at the completed tomb after 1840. This adopts the original settings `010-work/010-work-declaration#delivery-scope` and `996-named-deaths-and-ending#ending-conditions`.
 
-## 아우스터리츠의 정점을 먼저 본다 {#peak-first}
+## The peak at Austerlitz comes first {#peak-first}
 
-첫 공개 단위는 1805년 11월 28일 무렵의 전초 후퇴와 본영의 불안에서 12월 2일 전투의 결판과 그날 밤까지를 시간순으로 다룬다. 그 뒤 출생으로 돌아가 아우스터리츠 직전까지 올라오며, 이후는 전투 다음 날부터 1840년까지 이어진다. 12월 4일 회견·휴전과 프레스부르크 조약을 첫 공개 단위의 승리 안에 당겨 넣지 않는다. 이 구조는 원본 첫 권의 경계를 영상에서 보존하는 것이다.
+The first released unit follows events in chronological order from the outpost retreat and anxiety at headquarters around November 28, 1805, through the decision of the battle on December 2 and that night. It then returns to the birth and moves forward to just before Austerlitz; the subsequent narrative continues from the day after the battle through 1840. Do not bring the December 4 meeting and armistice or the Treaty of Pressburg into the victory of the first unit. This structure preserves the original first volume's boundary on screen.
 
-## 첫 사건의 두 날짜와 세 원수 {#opening-duel}
+## Two dates and three marshals in the opening incident {#opening-duel}
 
-첫 사건은 적 선봉의 접근과 프랑스 전초의 후퇴가 만든 실제 위험을 보여 준다. 뮈라와 술트가 공동 건의를 란에게 맡기고, 술트가 황제 앞에서 답을 바꾸며, 란이 술트 한 사람에게 결투를 요구한다. 황제는 다툼에 개입하지 않은 채 후퇴에 동의한다. 답 없는 결투장 뒤 12월 2일 전투 직전의 란의 재항의, 술트의 더 중요한 일이 있다는 답, 란의 응수까지 이 사건에 포함한다. 실제 결투나 황제의 결투 금지를 만들어 넣지 않는다. 티에보 회고의 전언이라는 자료 지위를 함께 보존한다. 세부의 단일 정전은 [역참](../body/settings/100-history/010-austerlitz.md#post-house)이다.
+The first incident shows the real danger created by the approach of the enemy vanguard and the French outposts' retreat. Murat and Soult entrust a joint recommendation to Lannes; Soult changes his answer before the Emperor, and Lannes challenges Soult alone to a duel. The Emperor agrees to the retreat without intervening in the quarrel. After the unanswered meeting at the dueling ground, the incident also includes Lannes's renewed protest just before the December 2 battle, Soult's reply that there are more important matters, and Lannes's retort. Do not invent an actual duel or a prohibition by the Emperor. Preserve the material's status as an account transmitted in Thiébault's memoirs. The single canon for details is the [post house](../body/settings/100-history/010-austerlitz.md#post-house).
 
-## 소설의 분량을 영상의 인과와 호흡으로 옮긴다 {#medium-transposition}
+## Translate the novel's scale into audiovisual causality and rhythm {#medium-transposition}
 
-원본의 14권·364화·화당 5,500자·완결본 권장 2,002,000자는 웹소설의 출판 단위다. 원본이 그 숫자로 요구한 전 생애의 완결, 인물과 제도의 깊이, 큰 사건 사이의 인간극을 영상에서 보존한다. 영상에 364개의 장면이나 소설의 글자 수를 강제하지 않는다. 1권 10화 이후의 구매 경계도 유료화 지시로 이관하지 않으며, 그 경계가 요구한 초반의 작품 약속과 다음 사건을 볼 이유는 첫 공개 단위 전체의 경험으로 옮긴다. 이 전환은 사용자에게 위임받은 매체 설계이며 역사 범위의 축소 권한이 아니다.
+The original's 14 volumes, 364 episodes, 5,500 characters per episode, and recommended 2,002,000 characters for the completed work are web-novel publication units. Preserve in video the complete life, depth of people and institutions, and human drama between great events that those numbers required. Do not impose 364 scenes or the novel's character count on the video. Do not transfer the purchase boundary after volume 1, episode 10 as a monetization instruction; carry its promise of the work and reason to watch the next event into the experience of the whole first released unit. This is a medium-design choice delegated by the user, not authority to reduce the historical scope.
 
-## 잠정 규모와 계층별 창작 {#provisional-delivery}
+## Provisional scale and creation by layer {#provisional-delivery}
 
-저자는 사건 전환에 맞춘 길이가 다른 열 공개 단위, 합계 약 세 시간의 첫 편집 예산을 고른다. 이는 사용자에게 위임받은 저자 선택이며 상영 시간을 측정한 결과나 대사·행동을 맞춰 늘릴 할당량이 아니다. 실제 장면 수와 공개 경계는 scripts에서 정하며 수행·편집 확인에 따라 예산과 편성을 조정할 수 있다. 글자 수나 표의 분을 상영 시간 측정으로 주장하지 않는다. 이번 저작은 settings → treatments → scripts → final screenplay 전체와 scripts·screenplay 각각의 표현 수정을 포함한다. 영상 실행과 렌더 완성 여부는 저작 완성과 구별한다.
+The author chooses an initial editing budget of about three hours across ten released units of differing lengths shaped by event transitions. This is an authorial choice delegated by the user, not a measured running time or a quota to fill with dialogue and action. Scripts determines actual scene counts and release boundaries; performance and editing may lead to changes in budget and arrangement. Do not claim that character counts or minutes in a table measure screen time. This authorship includes the complete settings → treatments → scripts → final screenplay sequence and expressive revision of scripts and screenplay. Distinguish completed authorship from video execution and finished rendering.

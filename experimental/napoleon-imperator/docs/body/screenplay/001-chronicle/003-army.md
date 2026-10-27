@@ -1,220 +1,219 @@
+# The Army That Followed, the Army Left Behind
 
-# 따라온 군대, 남겨진 군대
+## The side that concentrates first {#italy}
 
-## 먼저 모이는 쪽 {#italy}
+[Event parent 1](../../../body/treatments/010-italy-and-the-image.md#campaign) · [Scene parent](../../../body/scripts/001-chronicle/003-army.md#italy)
 
-[사건 부모 1](../../../body/treatments/010-italy-and-the-image.md#campaign) · [장면 부모](../../../body/scripts/001-chronicle/003-army.md#italy)
+Italy, 1796. A soldier takes off a worn shoe and puts it back on. Where provisions are being loaded, a resident's hand cannot let go of a sack. Show hands gathering grain left after the army takes its share, then follow the march of troops who have eaten and risen.
 
-1796년, 이탈리아. 병사가 닳은 신발을 벗었다가 다시 신는다. 식량을 싣는 곳에서는 주민의 손이 자루를 놓지 못한다. 군이 가져간 자리에 남은 곡식을 모으는 손을 보인 뒤, 먹고 일어난 군의 행군을 잇는다.
+At the command post, a thin Napoleon points to separated enemy positions.
 
-지휘소. 마른 나폴레옹이 떨어져 있는 적의 위치를 짚는다.
+NAPOLEON: We concentrate here before they unite. We don't go there to wait. We fight first.
 
-나폴레옹: 합치기 전에 이쪽으로 모인다. 가서 기다리는 게 아니라 먼저 싸운다.
+Lodi. The leading men fall under fire from guns across the bridge. Feet coming up behind stop, then press forward again. The direction from which the turning cavalry should come remains empty. A report reaches Napoleon.
 
-로디. 다리 건너 포격에 선두가 쓰러진다. 뒤에서 올라오던 발이 멈추고 다시 앞으로 밀린다. 우회 기병이 올 쪽은 아직 비어 있다. 나폴레옹 곁으로 보고가 온다.
+MESSENGER: The cavalry cannot join us yet.
 
-보고자: 기병은 아직 합류하지 못합니다.
+Napoleon looks at Lannes, ready to move toward the bridge. He decides between waiting to commit them together and continuing the attack now.
 
-나폴레옹은 다리 쪽으로 나아갈 준비를 한 란을 본다. 기다렸다 함께 붙일 길과 지금 이을 공격 사이에서 결정을 내린다.
+NAPOLEON: Continue the attack. Lannes, take the lead.
 
-나폴레옹: 공격을 잇는다. 란, 선두를 맡게.
+Lannes receives the order and stands at the head of the exposed column. He leads the bridge attack while cavalry has not arrived. Rough breathing from troops who have reached the far side through smoke. Later, pursuit slows in darkness and fatigue. A soldier rises as if to go farther, then sinks down.
 
-란이 그 지시를 받고 노출된 종대의 앞에 선다. 기병이 오지 않은 동안에도 다리의 공격을 이끈다. 연기를 뚫고 건너편에 닿은 군의 거친 숨. 이어 어둠과 피로 속에서 추격이 느려진다. 병사는 더 갈 듯 일어나다가 주저앉는다.
+Castiglione. French troops leave the siege of Mantua. A soldier leaves a gun he cannot take and departs. Napoleon's voice over his retreating figure.
 
-카스틸리오네. 만토바를 포위하던 프랑스군이 빠져나온다. 병사가 가져갈 수 없는 포를 남겨 두고 떠난다. 그 뒷모습 위로 나폴레옹의 목소리.
+NAPOLEON: We must concentrate the army. Abandon the siege.
 
-나폴레옹: 군을 모아야 한다. 포위는 버린다.
+Enemy ranks lengthen following the retreating French. Return to the command post. After confirming Fiorella's flank movement, Napoleon speaks.
 
-후퇴하는 프랑스군을 따라 적의 대열이 길어진다. 지휘소로 돌아온다. 피오렐라의 측면 움직임을 확인한 뒤 나폴레옹이 입을 연다.
+NAPOLEON: Now we attack.
 
-나폴레옹: 이제 공격한다.
+On the ensuing field, briefly attach commanders' names to their troops at the first needed moment. Verdier's troops head for the redoubt. Marmont, in a uniform without marshal's ornament yet, directs artillery fire. After the guns fire, Augereau's and Masséna's attacks follow. Cannon swallow the end of an order as dispersed French strength comes together in one direction.
 
-이후의 전장에서는 처음 필요한 순간에 지휘자 이름을 해당 군 옆에 짧게 붙인다. 베르디에의 군이 보루를 향한다. 마르몽은 아직 원수 장식 없는 군복 차림으로 포격을 맞춘다. 포가 쏜 뒤 오주로와 마세나의 공격이 이어진다. 포성이 명령의 말끝을 삼키며 흩어졌던 프랑스군의 힘이 한 방향으로 붙는다.
+Caption: Arcole, first day. The frontal route is blocked by fire. Day passes while they wait for Guieu, and French troops evacuate the village they had taken. Do not end the day with victorious cheers. A second day's turning movement returns too. At night, people making a passage through waterways and marshes lower their bodies and move their feet. Water rises between the bridge timbers. On the third day Augereau's troops cross by that route.
 
-아르콜레, 첫날이라는 자막. 정면의 길은 사격에 막힌다. 기외 쪽을 기다리는 사이 낮이 지나고, 프랑스군이 얻었던 마을을 다시 비운다. 이긴 함성으로 하루를 닫지 않는다. 둘째 날의 우회도 돌아온다. 밤, 수로와 늪에서 통로를 내는 사람이 몸을 낮추고 발을 옮긴다. 물이 다리 사이로 올라온다. 사흘째, 그 길로 오주로의 군이 건넌다.
+When news arrives that the center is being pushed back, Napoleon moves troops. The enemy following the retreating French center meets an ambush and flank attack by the transferred force. Masséna enters the village. Under fire, his high voice becomes brief and low.
 
-중앙이 밀린다는 소식이 닿자 나폴레옹이 병력을 옮긴다. 프랑스 중앙이 물러난 뒤를 따라 전진한 적이, 옮겨 온 병력의 매복과 측면 공격에 부딪친다. 마세나가 마을에 들어간다. 포화 안에서 그의 높은 목소리는 짧고 낮아진다.
+MASSÉNA: Inside. Stay together here.
 
-마세나: 안으로. 여기서 흩어지지 마라.
+Rivoli, 1797. Reports of attacks from several directions lie before Napoleon. He takes Joubert's report and compares it with the others.
 
-1797년 리볼리. 나폴레옹 앞에 여러 방향의 공격 보고가 놓인다. 주베르 쪽 보고를 들고 다른 보고와 대조한다.
+NAPOLEON: Is this the main force? Or are they holding us in place?
 
-나폴레옹: 여기가 주력인가? 우리를 묶어 두려는 건가?
+Show the substance of Joubert's report as screen text: after falling back, he is holding ground and enemy pressure is concentrating. Napoleon chooses troops to send there.
 
-주베르의 보고 요지를 화면 글로 읽는다. 물러난 뒤 땅을 지키고 있으며, 적의 압력이 집중되고 있다. 나폴레옹은 그곳에 보낼 군을 고른다.
+NAPOLEON: Send reinforcements to Joubert.
 
-나폴레옹: 주베르 쪽으로 증원을 보내라.
+Reinforcements set out at night. From receipt of the order, follow a long actual march to the vicinity of the field. At dawn guns and Joubert's infantry hold before the arriving troops.
 
-밤의 증원군이 출발한다. 명령을 받은 자리에서 실제 길 위의 긴 행군을 거쳐 전장 가까이로 온다. 새벽의 포와 주베르의 보병은 도착할 군보다 먼저 버틴다.
+JOUBERT: Hold your ground! Help is coming!
 
-주베르: 자리를 지켜라! 뒤가 오는 중이다!
+Masséna joins and rallies disordered troops. When the enemy ahead is repelled, another enemy column appears in the rear. Reserves and arriving troops turn to face it. Feet that have walked a long road run again toward battle.
 
-합류한 마세나가 흐트러진 군을 수습한다. 앞의 적을 물리자 후방에서 다른 적 종대가 나타난다. 예비와 도착한 군이 방향을 돌려 후방을 상대한다. 먼 길을 걸어온 발들이 다시 전투 방향으로 뛴다.
+A person with a new report stops before Napoleon.
 
-새 보고를 들고 온 사람이 나폴레옹 앞에서 멈춘다.
+MESSENGER: Provera is threatening Mantua.
 
-보고자: 프로베라가 만토바를 위협하고 있습니다.
+NAPOLEON: Back to Mantua. Turn the army around.
 
-나폴레옹: 만토바로 돌아간다. 군을 돌려라.
+Exhausted troops walk toward Mantua again. Murat also moves with Joubert's subsequent action at Corona. Do not let them hear victory from the main body in advance. After a place where captured goods are gathered, show the feet of a soldier waiting for shoes. Leave another road between an order saying supplies have departed and the moment that soldier receives shoes.
 
-지친 군이 다시 만토바 쪽으로 걷는다. 주베르의 코로나 후속 행동에는 뮈라도 함께 움직인다. 본대의 승전 소리를 이들에게 미리 들려주지 않는다. 포획품을 모으는 곳 다음에는 신발을 기다리는 병사의 발이 나온다. 물자가 떠났다는 명령과 그 병사가 신발을 받는 순간 사이에 다시 길을 둔다.
+## Hands in a painting and on documents {#image-and-office}
 
-## 그림과 문서의 손 {#image-and-office}
+[Event parent 1](../../../body/treatments/010-italy-and-the-image.md#arcole) · [Event parent 2](../../../body/treatments/010-italy-and-the-image.md#settlement) · [Scene parent](../../../body/scripts/001-chronicle/003-army.md#image-and-office)
 
-[사건 부모 1](../../../body/treatments/010-italy-and-the-image.md#arcole) · [사건 부모 2](../../../body/treatments/010-italy-and-the-image.md#settlement) · [장면 부모](../../../body/scripts/001-chronicle/003-army.md#image-and-office)
+The picture briefly returns to a caption: Nice, 1796. As meager equipment and clothing are shown, the historian speaks.
 
-화면은 1796년 니스라는 자막으로 짧게 돌아간다. 빈약한 군장과 옷을 보이며 역사가가 읽는다.
+HISTORIAN (voice): The contemporary record emphasized the courage of an army short of guns, clothes, shoes, and pay. Later a famous speech promising fertile plains took its place, words arriving through dictation and publication in exile.
 
-역사가(음성): 당시 기록은 포와 옷과 신발과 급료가 부족한 군대의 용기를 앞세웠다. 훗날 그 자리에는 풍요로운 평야를 약속하는 유명한 연설이 놓였다. 유배기의 구술과 간행을 거쳐 도착한 말이다.
+Do not join a sentence on a later printed page and a contemporary soldier's face as though he were listening to the speech. Close the publication and return with a caption: “After Arcole, 1796.”
 
-후대 인쇄물 위의 문장과 당시 병사의 얼굴을 한 사람이 듣는 연설처럼 잇지 않는다. 인쇄물을 덮고 '1796년 아르콜레 뒤'라는 자막으로 돌아간다.
+Napoleon in the painting, gathered into a hero's image. The uniforms of soldiers watching it still bear dirt from actual marches and battle.
 
-영웅의 모습으로 모인 그림 속 나폴레옹. 그림을 보는 병사들의 군복에는 실제 행군과 전투의 흙이 남아 있다.
+SOLDIER: We were there too.
 
-병사: 저 일은 우리도 같이했는데.
+The man beside him looks down at his own uniform, then back at the painting.
 
-옆 병사가 자기 군복을 내려다보고 그림으로 눈을 돌린다.
+OTHER SOLDIER: We weren't that clean.
 
-다른 병사: 저렇게 말끔하지는 않았지.
+They stay a little longer before it.
 
-그림 앞에서 두 사람이 조금 더 머문다.
+SOLDIER: Still, we won.
 
-병사: 그래도 이긴 건 우리야.
+Move to a workplace in 1797.
 
-1797년의 일터로 넘어간다.
+NAPOLEON: Tell him I will see him later.
 
-나폴레옹: 나중에 보겠다고 전하시오.
+Secretary Bourrienne rolls up the sleeves of his black wool coat and writes the answer. Duroc, responsible for access, stops a waiting visitor. Give both names and roles at their first appearance.
 
-비서 부리엔은 검은 모직 옷의 소매를 걷고 답을 문서로 옮긴다. 출입을 맡은 뒤로크가 기다리던 방문자를 막는다. 두 사람의 이름과 역할이 첫 얼굴에 나타난다.
+VISITOR: Has he finished?
 
-방문자: 끝났습니까?
+DUROC: Not yet.
 
-뒤로크: 아직입니다.
+Inside, Bourrienne rereads what he has written. The document's content is inaudible.
 
-안쪽에서 부리엔이 써 놓은 문장을 눈으로 다시 읽는다. 문서의 내용은 들리지 않는다.
+BOURRIENNE: Shall I send him away today? Or tell him to wait until you call?
 
-부리엔: 오늘은 돌려보낼까요? 아니면 부르실 때까지 기다리라고 할까요?
+NAPOLEON: Send that answer. Admit him after I finish this.
 
-나폴레옹: 그렇게 보내시오. 방문자는 이 일이 끝난 뒤에 들이게.
+Bourrienne writes that he must wait until called when the work is finished. Duroc takes the answer to the visitor.
 
-부리엔이 일이 끝나 부를 때까지 기다리라고 적는다. 뒤로크가 그 답을 들고 방문자에게 간다.
+DUROC: Wait here. I'll show you in when he calls.
 
-뒤로크: 여기서 기다리십시오. 부르시면 안내하겠습니다.
+Duroc stays outside. Bourrienne's pen stops and Napoleon finishes the last task.
 
-뒤로크는 문밖에 머문다. 부리엔의 펜이 멎고 나폴레옹이 마지막 일을 마친다.
+NAPOLEON: Admit him now.
 
-나폴레옹: 이제 들여보내게.
+At his words Duroc opens the door. The visitor steps forward.
 
-그 말을 받은 뒤로크가 문을 연다. 방문자가 앞으로 나아간다.
+Venice. The sound of ghetto gates being removed. Two adults stand before their belongings. One ties up what to carry; the companion stands inside their original dwelling.
 
-베네치아. 게토의 문을 철거하는 소리. 두 성인이 짐을 앞에 두고 서 있다. 한 사람은 들고 갈 것을 묶고, 동행은 원래 거처 안쪽에 서 있다.
+DEPARTING RESIDENT: We can live outside now. I am moving.
 
-떠나는 주민: 이제 밖에서 살 수 있어요. 나는 옮기겠어요.
+RESIDENT STAYING: I will stay here.
 
-남는 주민: 나는 여기 있겠어요.
+The person carrying belongings passes where the gate stood. The one remaining looks there a little longer, then returns home. Caption: These two people's choices are reconstructed.
 
-짐을 든 사람이 문 있던 자리를 지나간다. 남은 사람은 그 자리를 조금 더 바라보다가 자기 거처로 돌아간다. 자막: 이 두 사람의 선택은 재구성.
+A dwelling outside the ghetto. The departing resident eats from a bowl brought along. The belongings carried out now sit in the room where that person lives.
 
-게토 밖으로 옮긴 거처. 떠난 주민이 가져온 그릇으로 식사를 한다. 앞서 떠날 때 들었던 생활짐이 이제 그가 머무는 방 안에 있다.
+Elsewhere in the city: requisition and removal of artworks. The noise of moving goods grows louder and different from the earlier moving household. After Campo Formio, screen text: “Venice to Austria.” Under a caption “After Austria's return,” Jewish residents return to the ghetto. The historian speaks over them.
 
-도시 다른 곳의 징발과 미술품 반출. 옮기는 짐의 소리가 앞선 이삿짐 소리와 다르게 커진다. 캄포포르미오 강화 뒤 화면에 '베네치아는 오스트리아로'가 뜬다. 오스트리아 귀환 후라는 자막 아래, 유대인 주민들이 게토로 돌아온다. 역사가의 목소리가 돌아오는 주민 위로 들어온다.
+HISTORIAN (voice): The freedom to live outside ended. They had to reside inside the ghetto again.
 
-역사가(음성): 밖에 살 수 있던 자유는 끝났다. 다시 게토 안에 거주해야 했다.
+## Different victories on land and sea {#egypt}
 
-## 육지와 바다의 다른 승리 {#egypt}
+[Event parent 1](../../../body/treatments/011-egypt-and-isolation.md#nile) · [Scene parent](../../../body/scripts/001-chronicle/003-army.md#egypt)
 
-[사건 부모 1](../../../body/treatments/011-egypt-and-isolation.md#nile) · [장면 부모](../../../body/scripts/001-chronicle/003-army.md#egypt)
+Egypt, 1798. Screen text identifies France's purpose: “Egypt as a foothold for eastern trade, a chance to pressure Britain's position in India.” Under a later caption, “Battle of the Pyramids,” French victory on land unfolds. French troops remain on the ground after the fighting. Gunfire fades into the sounds of human work.
 
-1798년 이집트. 화면 글로 프랑스의 목적을 짚는다. '이집트를 동방 교역의 발판으로, 영국의 인도 기반을 압박할 기회로.' 뒤의 '피라미드 전투' 자막 아래 프랑스의 육전 승리가 펼쳐진다. 싸움이 끝난 땅에 프랑스군이 남는다. 총성이 가라앉고 사람의 노동 소리로 넘어간다.
+Inside a building, two surveyors take places at facing walls. One checks a reading against the other's record.
 
-건물 안. 조사자 두 사람이 서로 마주 보는 벽에 각기 자리를 잡는다. 한쪽에서 읽은 것을 다른 쪽 기록과 맞춰 본다.
+SURVEYOR: Was that measured from your end?
 
-조사자: 그쪽 끝에서 잰 게 맞습니까?
+OTHER SURVEYOR: Yes. Read it again.
 
-다른 조사자: 예. 다시 읽어 보세요.
+The first checks the starting wall and compares again. A person standing between the walls moves aside, briefly revealing the entire measured distance. No number or name of a particular discovered site is shown. A short caption identifies this unnamed work as reconstruction.
 
-첫 조사자가 시작한 벽을 확인하고 다시 대조한다. 두 벽 사이에 있던 사람이 비켜서며 측량하는 거리 전체가 한 번 보인다. 측정 수치와 특정 유적의 발견명은 제시하지 않는다. 이 무명 작업은 재구성이라는 짧은 자막.
+Outside, a resident attempting to go along a road is stopped by troops requisitioning supplies. After standing until goods pass, the resident takes another route. Surveying continues in the building behind.
 
-바깥에서는 주민이 자기 길로 가려다 징발하는 군에 막힌다. 물자가 지나갈 때까지 서 있다가 다른 길로 돌아간다. 그의 뒤에서 건물의 조사 작업은 계속된다.
+At sea, Nelson, missing one arm, watches British fleet signals and turns toward a moving ship. On deck a sailor strains at a rope while others pull a gun back into place and reload. As cannon thunder over him, Nelson's mouth is briefly hidden. A person transmitting orders moves following the arm indicating direction. Individual words of command cannot be distinguished in the gunfire. Men continue handling a gun recoiling after firing and pulling ropes. Even after a French ship can no longer continue fighting, British sailors do not leave their work.
 
-바다. 한쪽 팔을 잃은 넬슨이 영국 함대의 신호를 살피고 움직이는 배 쪽으로 몸을 돌린다. 갑판의 수병이 밧줄에 힘을 주고, 다른 수병들은 포를 제자리로 끌어 다시 장전한다. 포성이 덮칠 때 넬슨의 입이 잠깐 보이지 않는다. 그가 방향을 짚는 팔을 따라 명령을 전달하는 사람이 움직인다. 명령의 개별 문구는 포성 안에서 식별되지 않는다. 발사 뒤 물러난 포를 다시 다루고 밧줄을 당기는 일이 이어진다. 프랑스 배가 싸움을 잇지 못하는 상태에 이른 뒤에도 영국 수병들은 제 일을 놓지 않는다.
+On land, separate from the defeat at sea the audience has seen, immediate work continues at French headquarters.
 
-관객이 본 바다의 패배와 떨어진 육지. 프랑스 본영에서는 당장의 일이 계속되고 있다.
+A report actually arrives. The reading hand stops, and commanders' attention gathers on Napoleon as he receives it.
 
-보고가 실제로 도착한다. 읽는 손이 멎고, 지휘부 사람들의 주의가 보고를 받은 나폴레옹에게 모인다.
+NAPOLEON: We must reckon again with the way back and the way here.
 
-나폴레옹: 돌아갈 길도, 오는 길도 다시 계산해야겠군.
+Return to hands handling supplies on land. The sea where they look for incoming ships and land already occupied lie apart in one view.
 
-물자를 다루던 육지의 손으로 돌아온다. 들어올 배를 보는 바다와 이미 차지한 땅이 한 화면 안에 떨어져 있다.
+## People left by advance and retreat {#syria}
 
-## 전진과 철수에 남는 사람 {#syria}
+[Event parent 1](../../../body/treatments/011-egypt-and-isolation.md#syria) · [Event parent 2](../../../body/treatments/011-egypt-and-isolation.md#departure) · [Scene parent](../../../body/scripts/001-chronicle/003-army.md#syria)
 
-[사건 부모 1](../../../body/treatments/011-egypt-and-isolation.md#syria) · [사건 부모 2](../../../body/treatments/011-egypt-and-isolation.md#departure) · [장면 부모](../../../body/scripts/001-chronicle/003-army.md#syria)
+Jaffa, March 1799. Prisoners disarmed after surrender are under French control. An order for their disposal is conveyed. Shots sound over a distant view and the movement of people waiting stops. No words of victory come over that sound.
 
-1799년 3월 자파. 항복 뒤 무장을 잃은 포로들이 프랑스군 통제 아래 놓인다. 처분의 명령이 전해진다. 멀어진 화면에 총성이 들리고, 기다리던 사람들의 움직임이 멈춘다. 승리의 말은 이 소리 위에 오지 않는다.
+Acre. Sidney Smith watches approaching French troops. Near his British naval uniform, men prepare guns. Ottoman troops at another defensive position also see the approaching force and prepare to fire. Show the two groups and their work in turn so neither substitutes for the other.
 
-아크레. 시드니 스미스가 다가오는 프랑스군을 살핀다. 영국 해군복 곁에서 포를 준비하는 사람들이 움직인다. 다른 수비 자리의 오스만군도 접근하는 군을 보고 사격할 준비를 마친다. 두 집단의 사람과 일을 차례로 보며 한쪽이 다른 쪽을 대신하지 않게 한다.
+As the attack reaches them, defenders keep firing. French troops who climbed are stopped and descend. While they gather again, defenders bring ammunition to replenish what is running low. As Smith checks the next approach, Ottoman defenders also fire again from their positions. The renewed French attack cannot get inside. Preparation for another attack continues behind wounded being carried out, and sick bodies increase between preparations.
 
-공격이 닿자 수비의 사격이 이어진다. 올라오던 프랑스군이 막혀 내려간다. 그들이 다시 모이는 사이 수비 쪽에서는 비어 가는 탄약을 가져다 채운다. 스미스가 다음 접근을 확인할 때, 오스만 수비군도 자기 자리에서 다시 사격한다. 프랑스군의 재공격은 안으로 이어지지 못한다. 부상자를 실어 내는 뒤로 다음 공격 준비가 이어지고, 그 준비 사이에 병든 몸이 늘어난다.
+Withdrawal in May. Caption: Jaffa again on the return road. The army's steps slow as men see patients who must be left behind.
 
-5월의 철수. 돌아가는 길에서 다시 자파라는 자막. 남겨야 할 환자를 보는 군의 발이 느려진다.
+HISTORIAN (voice): Accounts of opium and a poisoning order concerning patients on the return differ. This is also a different event from disposal of prisoners who surrendered earlier.
 
-역사가(음성): 귀로의 환자들을 둘러싼 아편과 독살 명령의 이야기는 전언이 갈린다. 앞서 항복한 포로의 처분과도 다른 사건이다.
+Move away from a patient's face, but show no poisoning or swallowing. The sound of the army setting out again continues.
 
-환자의 얼굴에서 멀어지되 독을 주거나 삼키는 장면은 없다. 군이 다시 길을 떠나는 소리가 이어진다.
+After victory at the land battle of Aboukir, connect departing Napoleon and Kléber, remaining to command the Army of the Orient, with an interval in time. The large-bodied Kléber looks at the army left behind. Do not give Napoleon aboard ship the next judgment made on that scene. Sea sounds become the footsteps of troops remaining.
 
-아부키르 육전의 승리 뒤, 떠나는 나폴레옹과 남아 동방군을 맡는 클레베르를 시간의 간격을 두고 잇는다. 큰 몸의 클레베르가 남은 군을 본다. 배 위의 나폴레옹에게는 그 현장의 다음 판단을 들려주지 않는다. 바닷소리가 남은 군의 발소리로 바뀐다.
+## The vote the president blocked {#brumaire}
 
-## 의장이 막은 표결 {#brumaire}
+[Event parent 1](../../../body/treatments/012-brumaire.md#coup) · [Event parent 2](../../../body/treatments/012-brumaire.md#consuls) · [Event parent 3](../../../body/treatments/012-brumaire.md#constitutional-vote) · [Scene parent](../../../body/scripts/001-chronicle/003-army.md#brumaire)
 
-[사건 부모 1](../../../body/treatments/012-brumaire.md#coup) · [사건 부모 2](../../../body/treatments/012-brumaire.md#consuls) · [사건 부모 3](../../../body/treatments/012-brumaire.md#constitutional-vote) · [장면 부모](../../../body/scripts/001-chronicle/003-army.md#brumaire)
+France, 1799. Show political preparations on Sieyès's side and troops following Napoleon in separate spaces.
 
-1799년 프랑스. 시에예스 쪽의 정치적 준비와 나폴레옹을 따르는 군을 떨어진 공간으로 보인다.
+HISTORIAN (voice): Sieyès's side needed military prestige and force to change the Directory. Napoleon wanted the center of executive power, not to remain their commander.
 
-역사가(음성): 총재정부를 바꾸려는 시에예스 쪽에는 군의 명성과 무력이 필요했다. 나폴레옹은 그들의 지휘관에 머무르지 않고 집행권의 중심을 원했다.
+Caption: “The intervention reconstructed through later memoirs by Lucien and Bourrienne.”
 
-화면 자막: '뤼시앵과 부리엔이 후일 남긴 회고를 거쳐 재구성한 개입의 경과.'
+Noise in the legislature grows. Among opposing deputies Napoleon cannot continue speaking. A demand to outlaw him grows in other voices. The president Lucien does not proceed to a vote.
 
-의회의 소음이 커진다. 나폴레옹이 저항하는 의원들 가운데서 말을 잇지 못한다. '법 밖에 두라'는 요구가 다른 목소리에 실려 커진다. 의장 뤼시앵은 표결을 진행하지 않는다.
+LUCIEN: In these circumstances we cannot vote.
 
-뤼시앵: 이 상태로는 표결할 수 없습니다.
+Without opening the vote, the president leaves the chamber. He passes the noise of deputies left behind and goes to the guards outside.
 
-의장은 표결을 열지 않은 채 회의장을 나간다. 뒤에 남은 의원들의 소음을 지나 밖의 경비병에게 간다.
+Outside the chamber he claims to guards that deputies attacked his brother. Watch a soldier listening.
 
-회의장 밖. 그가 경비병들에게 의원들의 습격을 주장한다. 그의 말을 듣는 병사의 얼굴을 본다.
+LUCIEN: My brother was attacked in there. We must protect the legislature.
 
-뤼시앵: 제 형이 안에서 공격받았습니다. 의회를 보호해야 합니다.
+The guards look toward the chamber. The scene does not become an attack authenticating his claim.
 
-경비병이 회의장 쪽을 본다. 현장은 그 주장을 인증하는 공격 장면으로 바뀌지 않는다.
+LUCIEN: We must stop the threat inside. Go in.
 
-뤼시앵: 안의 위협을 멈춰야 합니다. 들어가십시오.
+Troops enter and people are pushed from their places. Doors open, words break off, and seats empty. Napoleon sits at the center of executive power in the new Consulate.
 
-병력이 안으로 들어가고 사람들이 자리에서 밀려난다. 문이 열리며 말이 끊기고 의석이 빈다. 새 통령 체제의 집행권 중심에 나폴레옹이 앉는다.
+Later, a public register. Watch a citizen's hand recording a choice. As the view widens, only the historian adds an explanation.
 
-뒤의 공개 등록부. 시민이 자기 뜻을 적는 손을 본다. 화면이 넓어지며 역사가만 덧붙인다.
+Above the register separately identify the later comparison: “Langlois, comparison in 1972.” Do not connect it as a picture of the citizen reading those words.
 
-등록부 위에 후대 대조의 자료명을 따로 붙인다. '랑글루아, 1972년의 대조.' 시민이 이 글을 읽는 화면으로 연결하지 않는다.
+HISTORIAN (voice): This later comparison distinguishes citizens' public entries from the inflated affirmative count in Lucien's report.
 
-역사가(음성): 이 후대의 대조에서, 시민의 공개 기입과 뤼시앵의 보고에 부풀려진 찬성은 구별된다.
+The citizen passes the pen to the next person and leaves.
 
-시민은 옆 사람에게 펜을 넘기고 자리를 떠난다.
+## A name that cannot be called again {#marengo}
 
-## 다시 부를 수 없는 이름 {#marengo}
+[Event parent 1](../../../body/treatments/013-marengo-and-the-two-deaths.md#marengo) · [Event parent 2](../../../body/treatments/013-marengo-and-the-two-deaths.md#kleber) · [Scene parent](../../../body/scripts/001-chronicle/003-army.md#marengo)
 
-[사건 부모 1](../../../body/treatments/013-marengo-and-the-two-deaths.md#marengo) · [사건 부모 2](../../../body/treatments/013-marengo-and-the-two-deaths.md#kleber) · [장면 부모](../../../body/scripts/001-chronicle/003-army.md#marengo)
+Marengo, June 14, 1800. The French are actually driven back. Napoleon looks beyond retreating men to newly joining troops. Screen text names Desaix, commanding the arriving force. He enters, a small figure in a dusty, worn coat moving through the hurried confusion.
 
-1800년 6월 14일 마렝고. 프랑스군이 실제로 밀려난다. 나폴레옹은 물러나는 사람들 너머로 새로 합류하는 병력을 본다. 합류한 병력을 지휘하는 드세의 이름이 화면에 붙는다. 그가 들어온다. 먼지 낀 낡은 외투의 작은 몸이 황급한 소란 사이를 지나간다.
+DESAIX: My men are here.
 
-드세: 제 군이 왔습니다.
+NAPOLEON: Attack again. Join them together.
 
-나폴레옹: 다시 공격한다. 함께 붙여라.
+The arriving troops turn and counterattack. Feet retreating meet feet advancing, and the fight changes direction. After Desaix falls, the counterattack continues past him. As Napoleon looks for his name after victory, the caption changes to Cairo.
 
-합류한 군이 돌아서 반격한다. 물러나던 발들이 전진하는 발과 만나고, 싸움의 방향이 바뀐다. 드세가 쓰러진 뒤에도 반격은 그를 지나 앞으로 간다. 승리 뒤 나폴레옹이 그 이름을 찾는 동안 카이로라는 자막으로 바뀐다.
+HISTORIAN (voice): That same day in Egypt, Kléber died.
 
-역사가(음성): 같은 날 이집트에서는 클레베르가 죽었다.
+The sound announcing the death in Cairo cannot be heard by people at Marengo. When the picture returns to the French, they are looking at the place Desaix left empty. As the living army prepares to move, calls for him no longer receive an answer.
 
-카이로의 죽음을 알리는 소리는 마렝고의 사람들에게 들리지 않는다. 다시 프랑스군으로 돌아왔을 때 그들은 드세의 빈자리를 보고 있다. 살아 있는 군이 이동 준비를 하는 사이, 그를 부르는 소리가 더는 응답을 얻지 못한다.
+End of main work. After the picture closes, “Author's Commentary” and a separate voice.
 
-본편 끝. 화면을 닫은 뒤 '작가 해설'과 별도 목소리.
-
-작가(음성): 이탈리아에서는 포위 포기와 군의 집중, 막힌 길의 변경, 승리 뒤의 재이동을 서로 다른 선택으로 두었습니다. 베네치아의 두 주민과 이집트의 조사자는 이 사건들을 장면으로 옮기며 만든 인물이에요. 그들의 대화를 실제 기록의 인용으로 제시하지 않았습니다. 마렝고와 카이로의 죽음은 같은 날짜지만, 한쪽 사람들이 다른 쪽 소식을 동시에 알지는 못합니다.
+AUTHOR (voice): In Italy we treated abandoning a siege and concentrating the army, changing a blocked route, and moving again after victory as distinct choices. The two residents in Venice and the surveyor in Egypt were created to bring these events into scenes. We did not present their dialogue as quotations from actual records. The deaths at Marengo and Cairo occurred on the same date, but the people in one place did not know the news from the other at the same moment.

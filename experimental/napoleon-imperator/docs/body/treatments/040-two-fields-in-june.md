@@ -1,24 +1,23 @@
-# 네 날의 첫 갈림
+# The First Divergence in Four Days
 
-## 상대가 완전히 모이기 전에 사이로 들어간다 {#opening}
+## Entering between opponents before they fully unite {#opening}
 
-이 파일의 사실 부모: [리니와 카트르브라](../settings/100-history/020-life-and-memory.md#return-and-waterloo), [네](../settings/050-people/010-ensemble.md#ney), [그루시](../settings/050-people/010-ensemble.md#grouchy), [웰링턴](../settings/050-people/010-ensemble.md#wellington), [블뤼허](../settings/050-people/010-ensemble.md#blucher), [그나이제나우](../settings/050-people/010-ensemble.md#gneisenau), [명령의 시차](../settings/110-knowledge/010-information.md#access).
+Factual parents: [Ligny and Quatre Bras](../settings/100-history/020-life-and-memory.md#return-and-waterloo), [Ney](../settings/050-people/010-ensemble.md#ney), [Grouchy](../settings/050-people/010-ensemble.md#grouchy), [Wellington](../settings/050-people/010-ensemble.md#wellington), [Blücher](../settings/050-people/010-ensemble.md#blucher), [Gneisenau](../settings/050-people/010-ensemble.md#gneisenau), [delay in orders](../settings/110-knowledge/010-information.md#access).
 
-1815년 6월 중순 벨기에. 나폴레옹은 웰링턴과 프로이센군이 함께 힘을 쓰기 전에 그 사이를 갈라 각각 싸우려 한다. 첫 이동의 주도권이 생겨도 상대의 다음 행동까지 결정하지는 못한다. 웰링턴은 자기 연합군을 보전해야 하고 블뤼허와 그나이제나우는 자기 군과 협력의 가능성을 지켜야 한다. 두 상대는 황제가 그린 작전도 위의 말이 아니다.
+Belgium, mid-June 1815. Napoleon seeks to divide Wellington and the Prussians and fight each before they can act together. Gaining the initiative in the first movement does not decide the opponent's next action. Wellington must preserve his Allied army, and Blücher and Gneisenau must protect their army and the possibility of cooperation. The two opponents are not pieces on a plan drawn by the Emperor.
 
-명령은 발송·이동·수령을 거쳐야 한다. 관객이 명령이 나간 일을 보았다고 수신자의 행동을 이미 가능한 것으로 여기지 않게, 다음 두 날의 실제 수령 상태를 행동과 붙인다. 한 부대를 두 전장에 동시에 써서 계획의 빈틈을 메우지 않는다. 먼저 16일의 다른 전장과 결과를 보고, 17일에 갈라지는 추격과 지원이 18일의 서로 다른 기다림을 만들도록 진행한다.
+Orders must be sent, travel, and be received. So the audience does not assume a recipient can already act merely because it saw an order sent, attach the actual state of receipt on the next two days to action. Do not use one unit simultaneously on two fields to fill a gap in the plan. First show the different fields and results of the 16th; then let pursuit and support diverging on the 17th create different periods of waiting on the 18th.
 
-## 리니의 승리와 카트르브라의 미결 {#june-sixteen}
+## Victory at Ligny and an unresolved Quatre Bras {#june-sixteen}
 
-6월 16일 나폴레옹은 리니에서 프로이센군을 꺾고 네는 카트르브라에서 웰링턴을 밀어내지 못한다. 두 전장의 압력과 결과를 따로 진행한다. 데를롱의 군단은 이동과 엇갈린 요구 속에서 어느 전장에서도 싸우지 못한다. 그 공백을 리니 승리의 숨은 지원이나 카트르브라의 실전 병력으로 회수하지 않는다. 이날 오후 네에게 보낸 명령은 두세 시간 뒤의 수령과 구별해 보여 준다. 발송된 순간에는 그가 아직 실행할 수 없던 요구였다는 차이를 남기며, 이 지연을 뒤의 그루시 급보 전체에 같은 시간으로 적용하지 않는다.
+On June 16 Napoleon defeats the Prussians at Ligny, while Ney fails to dislodge Wellington at Quatre Bras. Develop the pressure and outcome of each field separately. D'Erlon's corps, amid movement and conflicting demands, fights on neither field. Do not recover that absence as hidden support at Ligny or troops actually fighting at Quatre Bras. Distinguish orders sent to Ney that afternoon from their receipt two or three hours later. Preserve the difference that at dispatch he could not yet execute the demand, and do not apply this delay as the same time for all of Grouchy's later dispatches.
 
-나폴레옹에게는 한 적을 이겼다는 성과가 있지만 관객은 두 적이 모두 제거되지 않았음을 안다. 블뤼허의 패배는 군 전체의 소멸이 아니다. 그나이제나우의 계산과 군을 움직이는 노동이 남은 프로이센군의 다음 행동을 만든다. 아직 알 수 없는 미래의 배신이나 필연적 패배로 판단을 대신하지 않는다.
+Napoleon has achieved victory over one enemy, but the audience knows both have not been eliminated. Blücher's defeat is not the destruction of his whole army. Gneisenau's calculation and the labor of moving troops make the remaining Prussian army's next action. Do not replace judgment with future betrayal still unknowable or inevitable defeat.
 
-## 추격과 협력은 다른 방향의 다음 선택이다 {#june-seventeen}
+## Pursuit and cooperation are next choices in different directions {#june-seventeen}
 
-17일 프랑스 측은 그루시에게 프로이센군의 추격을 맡기고 황제는 웰링턴을 향한다. 그루시는 물러나는 적을 따라 그 방향을 확인하는 임무를 이어간다. 그날 밤 장블루에서 내보내는 보고에는 상대가 와브르와 다른 방면으로 갈라졌다는 판단과, 와브르로 가면 따르겠다는 생각이 담긴다. 관객에게 이 보고의 내용을 먼저 주되 황제가 같은 순간 이미 읽은 것으로 합치지 않는다. 두 지휘부가 서로의 상황을 같은 시각에 알지 못하는 거리가 다음 날의 선택 조건이 된다.
+On the 17th the French assign Grouchy to pursue the Prussians, while the Emperor moves toward Wellington. Grouchy continues his task of following the retreating enemy and confirming its direction. His report sent that night from Gembloux contains his judgment that the enemy has split toward Wavre and other directions and his intention to follow if it goes to Wavre. Give the audience this report first, without merging it with the Emperor having already read it at the same moment. The distance in which the two commands do not know each other's situation at the same time conditions the next day's choices.
 
-같은 17일 웰링턴의 지원 요청에 블뤼허는 탄약의 제약 때문에 당장 응하지 못한다. 패한 군을 보전하고 철수만 이어가는 길과, 피로한 군에 다음 행군을 요구해 협력하는 길이 갈린다. 수송대가 도착한 뒤 밤에 지원 행군을 명하는 쪽을 택한다. 블뤼허의 계속 싸우려는 의지와 그나이제나우의 군을 움직이는 판단이 실제 명령과 발걸음으로 바뀐다. 리니에서 물러날 때부터 완성된 합류 계획이 있었거나 모든 불신이 사라진 상태로 되돌려 쓰지 않는다.
+Also on the 17th, Blücher cannot immediately answer Wellington's request for support because of ammunition constraints. The alternatives are preserving the defeated army and continuing withdrawal or asking tired troops to march again in cooperation. After transport arrives, he chooses to order a supporting march that night. Blücher's will to continue fighting and Gneisenau's judgment in moving the army become actual orders and footsteps. Do not rewrite a completed junction plan or an absence of all distrust into the moment of retreat from Ligny.
 
-웰링턴은 자기 군만 빼는 대신 지원이 이어질 조건을 두고 다음 전장에서 버티기로 한다. 그러나 요청과 명령은 이미 도착한 군의 보증이 아니다. 연결은 걷는 시간과 지친 몸을 더 지불해야 실현되므로 웰링턴은 지원이 닿기 전까지 버텨야 하고 프로이센군은 실제로 가야 한다. 프랑스 황제가 추격군을 통해 기대하는 효과와 다른 방향에서 실행되는 이 움직임이 내일의 두 기다림을 준비한다.
-
+Wellington chooses to hold on the next field, subject to conditions for support, rather than withdraw only his own army. Yet requests and orders do not guarantee troops already arrived. The connection requires further payment in walking time and exhausted bodies, so Wellington must hold until support reaches him and the Prussians must actually go. This movement executed from a different direction than the effect the French Emperor expects from his pursuing force prepares tomorrow's two periods of waiting.

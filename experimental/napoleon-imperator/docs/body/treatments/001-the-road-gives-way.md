@@ -1,23 +1,23 @@
-# 승리 전에 밀린 길
+# The Road Gives Way Before Victory
 
-## 승리할 사람도 아직 모르는 위험 {#outposts}
+## A danger even the future victor does not yet know {#outposts}
 
-이 파일의 사실 부모: [11월 28일의 군](../settings/100-history/010-austerlitz.md#november-28), [역참](../settings/100-history/010-austerlitz.md#post-house), [정보 접근](../settings/110-knowledge/010-information.md#access).
+Factual parents: [the army on November 28](../settings/100-history/010-austerlitz.md#november-28), [the post house](../settings/100-history/010-austerlitz.md#post-house), [access to information](../settings/110-knowledge/010-information.md#access).
 
-첫 사건은 1805년 11월 28일 프랑스 전초의 후퇴다.
+The first event is the retreat of the French outposts on November 28, 1805.
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 현재 `docs/body/settings/100-history/010-austerlitz.md#november-28`의 비샤우·라우스니츠 후퇴와 미집결, `docs/body/settings/110-knowledge/010-information.md#access`의 현장 접근 한계를 그대로 시험한다. “적 총수나 야영불의 줄” 없이도 전초에서 본영으로 위험이 올라오는 사건이 성립하므로 이 단위 때문에 새 병력 수나 보고자 권한을 부모에 더할 필요는 드러나지 않았다.
 -->
-비샤우의 프랑스 전초가 적 전위의 압력에 밀린다. 처음 관객이 만나는 것은 황제의 완성된 작전도가 아니라 뒤로 물러나야 하는 길이다. 라우스니츠도 저녁에 비워지면서 위험이 브륀 쪽으로 가까워진다. 술트와 란의 군단, 뮈라의 기병, 뒤의 예비가 흩어져 있고 베르나도트와 다부의 증원은 아직 모이지 않았다. 적이 아군의 집결보다 먼저 닿을 수 있다는 문제가 전선에서 본영으로 올라온다.
+The French outposts at Vyškov give way under pressure from the enemy vanguard. The audience first encounters a road that must be abandoned, not the Emperor's finished plan of operations. Rousínov too is evacuated that evening, bringing danger closer to Brünn. Soult's and Lannes's corps, Murat's cavalry, and the reserves behind them are dispersed; Bernadotte's and Davout's reinforcements have not yet assembled. From the front the problem reaches headquarters: the enemy may arrive before the French can concentrate.
 
-원수들의 불안은 겁쟁이의 오해로 먼저 판정되지 않는다. 밀린 전초와 떨어진 아군이 그 판단을 받친다. 적 총수나 야영불의 줄을 정확한 병력 계산으로 주지 않는다. 관객에게도 그날 도착하지 않은 사람과 이미 밀린 길을 먼저 알린 뒤, 이름이 알려진 승리의 주인공이 이 위험을 어떻게 통과할 것인가를 질문으로 연다.
+The marshals' anxiety is not first judged a cowardly misunderstanding. The displaced outposts and separated French forces support their judgment. Do not give an exact enemy total or calculate troop strength from a line of campfires. First tell the audience who has not arrived that day and which road has already been lost; then ask how the man whose victory is already famous will pass through this danger.
 
-## 공동 편지가 한 사람의 체면을 남긴다 {#letter}
+## A joint letter leaves one man's honor exposed {#letter}
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 현재 `docs/body/settings/100-history/010-austerlitz.md#post-house`의 전언 경로·동의 순서·한 사람만의 결투 상대와 `docs/body/settings/050-people/010-ensemble.md#lannes`의 정보 의존을 바꾸지 않았다. 편지 뒤의 명령과 이미 보낸 소집을 갈라 실제 인과를 시험했고, 답 없는 결투장만 넘겨 미상의 발송 시각을 메우지 않아 추가 부모 수리가 필요하지 않았다.
 -->
-그날 저녁 포조리츠 옛 역참으로 채택한 본영. 술트와 뮈라는 막 도착한 란에게 자기들이 파악한 위험을 설명하고 공동 후퇴 건의를 쓰게 한다. 란은 스스로 전선을 모두 확인한 사람이 아니라 두 원수의 정보와 간청에 기대어 편지를 맡은 사람이다. 황제가 들어와 편지를 집어 읽고 술트에게 묻자, 술트는 자기 군단이 두 배의 적도 감당할 수 있다는 충성의 답으로 바꾼다.
+That evening, headquarters is at the old post house at Pozořice. Soult and Murat explain the danger they have perceived to the newly arrived Lannes and have him write a joint recommendation to retreat. Lannes has not inspected the entire front himself; he undertakes the letter on the strength of the two marshals' information and entreaties. When the Emperor enters, picks up the letter, reads it, and questions Soult, Soult changes his answer to a declaration of loyalty: his corps can handle twice its number.
 
-란의 항의는 작전 의견의 차이를 넘어, 함께 부탁한 사람이 자기만 겁먹은 사람으로 남겼다는 모욕에서 나온다. 그는 술트 한 사람에게 결투를 요구한다. 황제는 그 다툼에 개입하지 않은 채 걸음을 잇다가 후퇴의 필요에 동의한다. 원수들이 나간 뒤 베르티에가 기동 명령을 받아 적는다. 이미 앞서 발송된 집결 소집까지 이 편지의 결과로 돌리지 않는다. 후퇴는 채택되었지만 란에게는 풀리지 않은 체면의 빚이 남는다.
+Lannes's protest goes beyond a difference of military opinion. He is insulted that a man who joined in the request has left him alone to look frightened. He challenges Soult alone to a duel. The Emperor continues on his way without intervening in the quarrel, then agrees that a retreat is necessary. After the marshals leave, Berthier receives and writes down the maneuver orders. Do not attribute the earlier summons to concentrate, already dispatched, to this letter. The retreat is adopted, but Lannes is left with an unpaid debt of honor.
 
-이 교환은 티에보가 란의 부관 쉬베르비의 문밖 전언으로 후일 기록한 장면이라는 문턱을 먼저 둔다. 칼을 뽑는 결투나 황제의 금지로 갈등을 대신 해결하지 않는다. 결투장을 보냈으나 답은 오지 않는다는 결과만 이후로 넘기고 발송 날짜를 정하지 않는다.
+First establish that Thiébault recorded this exchange later on the word of Lannes's aide Subervie, who heard it from outside the door. Do not resolve the conflict by drawing swords or having the Emperor forbid a duel. Carry forward only the result that a challenge was sent and went unanswered, without fixing its date of dispatch.

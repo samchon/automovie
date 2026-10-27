@@ -1,21 +1,21 @@
-# 한국어 공연과 기록의 정직함
+# English Performance and Honesty About the Record
 
-## 말씨와 표기 {#korean-performance}
+## Speech and names {#korean-performance}
 
-읽고 들을 때 막힘없는 한국어를 쓴다. 시대에 없는 개념·인터넷 말투·유행어를 인물에게 주지 않고 고어와 번역투로 거리를 꾸미지 않는다. tu·vous의 거리는 한국어의 반말·높임으로 옮기며 실제 관계별 값은 인물 정전이 소유한다. 서술자의 현대 비유는 대사와 구별한다. 인명·지명은 정전의 단일 표기를 유지하고 첫 등장에는 직무나 알아볼 특징을 준다. 날짜는 서력만 화면과 발화에 쓴다. 원본 `002-style#speech-and-address`, `#precedent-and-ideas`와 settings의 표기·말씨를 채택한다.
+Use English that reads and speaks naturally. Do not give characters concepts foreign to their time, internet language, or fashionable slang, and do not create distance through archaism or translationese. Convey the distance between tu and vous through forms of address and the relationship in the exchange; the character canon owns the values for each relationship. Distinguish the narrator's modern analogies from dialogue. Use consistent names for people and places from the canon, and give a role or recognizable feature at first appearance. Use only Gregorian dates on screen and in speech. This adopts the original `002-style#speech-and-address`, `#precedent-and-ideas`, and the settings' conventions for names and speech, adapted to the commissioned English edition.
 
-## 역사 선례와 인용 {#actual-citations}
+## Historical precedents and quotations {#actual-citations}
 
-카이사르·한니발·알렉산드로스와 계몽 사상 같은 선례는 실제 존재하고 그 인물이 알 수 있던 범위에서 쓴다. 기록된 말은 기록자·판본·번역 범위를 밝혀 뜻을 지킨다. 후일 정리된 군사 금언을 해당 전장의 축어 대사로 옮기지 않는다. 문헌을 인용했다는 말은 실제 읽은 범위를 넘지 않는다.
+Use precedents such as Caesar, Hannibal, Alexander, and Enlightenment thought only within what actually existed and what the person could have known. Identify the recorder, edition, and translation limits of recorded words and preserve their meaning. Do not put military maxims compiled later into a battle as verbatim dialogue. Claims of having consulted literature must not exceed what was actually read.
 
-## 사실·해석·상상의 경계 {#historical-support}
+## The boundaries of fact, interpretation, and imagination {#historical-support}
 
-날짜·장소·직함·지휘·병력·행적·말·원인과 결과는 settings에서 근거와 범위를 정한다. 당대 문서, 목격자의 후일 회고, 후대 전기와 전설, 출처 미상의 이야기를 구별하며 선전과 이해관계자의 자기 평가는 기록자가 그렇게 주장했다는 사실로 쓴다. 사료의 갈림과 누가 언제 전했는지를 지우지 않는다. 확인되지 않은 값은 정밀하게 만들어 넣지 않고 허용 범위와 조사 조건을 남긴다. 원본 `003-research`의 여덟 요구를 채택한다.
+Settings determines the support and limits for dates, places, titles, command, troop strength, actions, words, and causes and consequences. Distinguish contemporary documents, witnesses' later memoirs, later biographies and legends, and stories of unknown origin. Present propaganda and interested parties' assessments as claims made by their authors. Do not erase disagreements in sources or who transmitted an account and when. Do not invent precision for unconfirmed values; retain the permitted range and conditions for research. This adopts the eight requirements of the original `003-research`.
 
-## 조사와 인물·전장의 깊이 {#usable-canon}
+## Research and depth of character and battle {#usable-canon}
 
-정전은 이름으로 행동하는 사람과 집단의 권한·욕구·관계·외형·목소리·지식 한계를 찾을 수 있게 한다. 전투는 양쪽의 군단·사단·여단과 지휘관, 명령 경로·지형·시각별 위치·도착·포병·치중·보급 상태를 출처가 허용하는 깊이로 정한다. 편성과 현원, 도착과 투입, 명령과 수령, 사건일과 보고 작성일을 섞지 않는다. 사료가 비운 값은 미상으로 남겨 이후 저자가 임의 확정하지 못하게 한다. 원본 `005-canon-depth#individual-canon`, `#battle-canon`을 채택한다.
+Canon makes the authority, desires, relationships, appearance, voice, and limits of knowledge of named people and groups findable. For battles it establishes the corps, divisions, brigades, and commanders on both sides, paths of command, terrain, positions by time, arrivals, artillery, baggage, and supply to the depth the sources allow. Do not conflate organization with actual strength, arrival with commitment, orders with receipt, or the date of an event with the date of a report. Leave values absent from the sources unknown so later authors cannot arbitrarily settle them. This adopts the original `005-canon-depth#individual-canon` and `#battle-canon`.
 
-## 매 공개 단위 뒤의 작가 해설 {#commentary}
+## Author's commentary after each released unit {#commentary}
 
-scripts가 나눈 매 episode 파일의 끝에 본편과 분명히 나뉜 작가 해설을 둔다. final screenplay는 그 구분을 화면·음성으로 실현한다. 해설은 친근한 구어체 존댓말이며 격조 있는 역사가와 다른 목소리다. 그 단위까지 본 사실과 상상, 해석, 전설, 참고 문헌을 짧게 풀고 다음 단위의 사건을 미리 밝히지 않는다. 실제 참고한 문헌과 확인한 번역서만 소개하며 서지 확인을 책 전체의 독서로 포장하지 않는다. 원본 `004-episode-commentary`를 영상의 공개 단위로 옮긴다.
+Place author commentary clearly separate from the main work at the end of every episode file divided by scripts. The final screenplay realizes that separation in image and sound. The commentary has a friendly, conversational, courteous voice distinct from the elevated historian. Briefly explain facts and imagination, interpretation, legend, and references encountered through that unit without revealing the next unit's events. Introduce only literature actually consulted and translations actually checked; do not present bibliographic verification as reading an entire book. This adapts the original `004-episode-commentary` to the video's released units.

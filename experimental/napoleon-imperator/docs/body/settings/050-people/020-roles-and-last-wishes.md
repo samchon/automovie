@@ -1,27 +1,27 @@
-# 역할과 유언과 후계자
+# Roles, the Will, and the Heir
 
-[개요의 위치](../outline/index.md#050-people--020-roles-and-last-wishes). 기존 인물별 외양·목소리·관계 정전을 유지한다. 다음은 새로 선택한 역할과 문서의 뜻이며 마지막 말을 창작하여 실제 인용으로 쓰는 허가가 아니다.
+[Place in the outline](../outline/index.md#050-people--020-roles-and-last-wishes). Preserve existing character canon for appearance, voice, and relationships. The following are newly selected roles and meanings of documents, not permission to invent final words and use them as actual quotations.
 
-## 집사 시프리아니의 일 {#cipriani}
+## The steward Cipriani's work {#cipriani}
 
-시프리아니는 집안 살림과 식량 조달에 관여하는 집사이며 1818년 2월 사망했다. [시프리아니](../../../references/novels/settings/050-people/282-cipriani.md#cipriani)의 사망일 갈림은 월 단위로 유지한다. 비밀 첩보 활동·새 사망 장면·최후 대사는 정하지 않는다.
+Cipriani is a steward involved in household management and food procurement and died in February 1818. Preserve the differing death dates in [Cipriani](../../../references/novels/settings/050-people/282-cipriani.md#cipriani) at the level of the month. Do not establish secret intelligence work, a new death scene, or last words.
 
-## 유언의 지급과 매장 희망 {#will}
+## Payment under the will and burial wish {#will}
 
-1821년 유언의 증여 지시는 이미 지급된 재산과 다르다. 나폴레옹은 자신이 사랑한 프랑스 사람들 가운데 센강 가에 묻히길 원했다. [유언 기록](../../../references/novels/settings/100-history/117-will-of-1821.md#will-of-1821)의 이 희망을 채택하며 실제 이장 허가나 1840년의 결과를 예고하는 보장으로 바꾸지 않는다.
+Directions for gifts in the 1821 will differ from property already paid. Napoleon wished to be buried on the banks of the Seine among the French people he loved. Adopt this wish from the [will record](../../../references/novels/settings/100-history/117-will-of-1821.md#will-of-1821); do not turn it into permission for actual transfer or a guarantee foretelling the 1840 result.
 
-## 로마 왕과 빈의 청년 {#napoleon-ii}
+## King of Rome and the young man in Vienna {#napoleon-ii}
 
-1811년 태어난 아들은 로마 왕의 칭호를 받았다. 1815년 아버지는 나폴레옹 2세로 계승을 선언했으나 실제 통치한 황제가 아니다. 빈에서는 프란츠로 불렸고 1818년 라이히슈타트 공작이 되었다. 아버지의 이름과 달리 프랑스 군대·국가를 지휘할 권한이 없었다. [나폴레옹 2세](../../../references/novels/settings/050-people/019-napoleon-ii.md#napoleon-ii)의 범위로 채택한다. 1832년 7월 22일 죽음과 생전에는 아글롱이라 부르지 않는 기존 조건을 유지한다. 실제 미전 독백·새 실존 청자·새 편지를 만들지 않는다.
+The son born in 1811 received the title King of Rome. In 1815 his father declared succession as Napoleon II, but he was not an emperor who actually ruled. In Vienna he was called Franz and became Duke of Reichstadt in 1818. Unlike his father's name, he had no authority to command the French army or state. Adopt within the scope of [Napoleon II](../../../references/novels/settings/050-people/019-napoleon-ii.md#napoleon-ii). Retain death on July 22, 1832 and the existing condition that he was not called the Eaglet during life. Invent no unrecorded monologue, new historical listener, or new letter.
 
-## 폴란드군의 지휘관 {#poniatowski}
+## Commander of Polish forces {#poniatowski}
 
-포니아토프스키는 바르샤바 공국의 전쟁장관이며 폴란드군을 지휘했다. 1813년 10월 16일 프랑스 원수가 되었고 19일 라이프치히 퇴각 중 사망했다. [보존 인물 기록](../../../references/novels/settings/050-people/039-poniatowski.md#poniatowski)의 이 역할과 결과만 추가 채택한다. 생전의 짧은 인물 근경이나 미전 발언을 새로 만들지 않으므로 나머지 외양·목소리와 부상 부위·속내는 조건부로 남긴다. 프랑스 원수라는 호칭이 이전 폴란드 지휘 경력을 지우지 않는다.
+Poniatowski was minister of war of the Duchy of Warsaw and commanded Polish troops. He became a marshal of France on October 16, 1813 and died during the retreat from Leipzig on the 19th. Adopt only these roles and result from the [retained character record](../../../references/novels/settings/050-people/039-poniatowski.md#poniatowski). Since no new brief close performance in life or unrecorded speech is created, remaining appearance, voice, wound location, and inner thoughts remain conditional. The title marshal of France does not erase his earlier Polish command.
 
-## 이탈리아의 마세나 {#massena-italy}
+## Masséna in Italy {#massena-italy}
 
-현재 이탈리아 사건에서 병력을 수습하고 공격하는 마세나에게는 기존 전술 역할과 별도로 독립 공연의 값이 필요하다. [보존 개인 기록](../../../references/novels/settings/050-people/027-massena.md#massena)의 외형·목소리 작품 선택 단락을 1796~1797년에 맞추어 좁혀 채택한다. 1758년 5월 6일생으로 1796년 5월 6일 이후 서른여덟, 리볼리에서는 서른여덟이다. 약 1.65미터의 작고 마른 체구, 드러난 뼈와 매부리코, 검은 눈, 올리브빛 피부와 검은 직모는 작품의 공연값이다. 1805년의 줄어든 머리숱·나이 인상을 그대로 젊은 얼굴에 옮기지 않는다. 니스 억양의 높고 날카로운 빠른 말이며 포화 속에서는 낮고 침착해진다. 1796~1797년에는 당시 장군의 감청색 군복을 쓰되 1804년 이후 원수 장식·1808년 공작 칭호·1808년 한쪽 눈 부상을 앞당기지 않는다. 두 눈은 온전하다. 재산·사냥·후대 원정과 미전 발언은 이번 채택에서 제외한다. 외부 사료의 새 외형 검증이 아니다.
+Masséna, who rallies and attacks with troops in the present Italian events, needs independent performance values in addition to his existing tactical role. Adopt the appearance and voice choices in the [retained individual record](../../../references/novels/settings/050-people/027-massena.md#massena), narrowed to 1796–1797. Born May 6, 1758, he is thirty-eight after May 6, 1796 and at Rivoli. A small, thin build about 1.65 meters tall, prominent bones and aquiline nose, black eyes, olive skin, and straight black hair are performance choices for the work. Do not transfer the thinner hair and age impression of 1805 unchanged to a younger face. His speech is high, sharp, and fast with a Nice accent, becoming low and calm under fire. In 1796–1797 he wears a general's dark blue uniform of the time, without bringing forward marshal's ornament after 1804, a ducal title in 1808, or injury to one eye in 1808. Both eyes are intact. Property, hunting, later campaigns, and unrecorded words are excluded from this adoption. This is not new external verification of appearance.
 
-## 리볼리의 주베르 {#joubert-rivoli}
+## Joubert at Rivoli {#joubert-rivoli}
 
-리볼리에서 보고·방어와 후속 행동을 맡는 주베르의 역할은 기존 전역 정전에 있다. [보존 개인 기록](../../../references/novels/settings/050-people/243-joubert.md#joubert)의 작품 외형·목소리 단락을 이때의 공연값으로 채택한다. 1769년 4월 14일생으로 1797년 1월에는 스물일곱이며 1799년 서른의 인상을 그대로 쓰지 않는다. 약 1.74미터의 호리호리한 체구, 큰 짙은 갈색 눈·곧은 눈썹과 코·갸름한 얼굴, 귀 아래 짙은 갈색 머리를 분칠하지 않는 값이다. 감색 군복·붉은 깃·흰 조끼와 당시 장군 장식으로 정한다. 맑고 높은 테너로 빠르게 말하고 분노하면 더 빨라지며 웃음이 사라진다. 이는 사료가 비운 공연의 작품 선택이며 동시대 음성의 복원이 아니다. 1799년 쿠데타·혼인·노비·죽음·마지막 말의 이설은 이 출연의 추가 사건으로 채택하지 않는다.
+Joubert's roles reporting, defending, and acting afterward at Rivoli belong to existing campaign canon. Adopt the work's appearance and voice paragraphs in the [retained individual record](../../../references/novels/settings/050-people/243-joubert.md#joubert) as performance values for this time. Born April 14, 1769, he is twenty-seven in January 1797; do not use the impression of age thirty in 1799 unchanged. He has a slender build about 1.74 meters tall, large dark-brown eyes, straight brows and nose, a narrow face, and dark-brown hair below his ears without powder. Set a dark blue uniform, red collar, white waistcoat, and general's ornament of the time. He speaks quickly in a clear, high tenor, faster when angry, with his smile gone. These are choices for performance where the record is silent, not a reconstruction of a contemporary voice. Do not adopt the 1799 coup, marriage, Novi, death, or differing accounts of last words as additional events of this appearance.

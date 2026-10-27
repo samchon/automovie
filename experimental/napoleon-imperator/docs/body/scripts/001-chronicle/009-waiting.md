@@ -1,199 +1,197 @@
+# Two Armies Waiting
 
-# 기다리는 두 군대
+## A return needing an answer {#return}
 
-## 응답을 얻어야 하는 귀환 {#return}
+Parents: [038#departure](../../treatments/038-the-road-to-paris.md#departure), [038#regiments](../../treatments/038-the-road-to-paris.md#regiments).
 
-부모: [038#departure](../../treatments/038-the-road-to-paris.md#departure), [038#regiments](../../treatments/038-the-road-to-paris.md#regiments).
+Caption: February 26, 1815, Elba.
 
-자막: 1815년 2월 26일, 엘바.
+With the sea behind, see people loading luggage and a ship. Bertrand checks his family's baggage and comes to Napoleon.
 
-바다를 등지고 짐 싣는 사람들과 배를 본다. 가족의 짐을 살핀 베르트랑이 나폴레옹에게 온다.
+BERTRAND: We are ready to follow.
 
-베르트랑: 따라갈 준비를 했습니다.
+NAPOLEON: They must receive us on the other side.
 
-나폴레옹: 저쪽에서 받아 주어야 하오.
+Bertrand looks beyond the shore. The ship sails while Napoleon still has no state to command. It crosses the sea and reaches land.
 
-베르트랑이 해안 너머를 본다. 아직 명령할 국가를 갖지 못한 채 배가 출항한다. 바다를 건너 육지에 닿는다.
+Troops with the king's orders and the returning Emperor meet on a road. Hold both in a wide fixed view and wait for the first movement.
 
-왕의 명령을 받은 군과 귀환한 황제가 길에서 마주한다. 넓은 고정 화면에 양쪽을 두고 첫 움직임을 기다린다.
+SOLDIER: That's him.
 
-병사: 저 사람이오.
+The soldier beside him holds a musket and says nothing.
 
-옆 병사는 총을 들고 말이 없다.
+HISTORIAN (off screen): Old service and recognition of it remained. The Restoration had not given everyone the place expected.
 
-역사가(화면 밖): 옛 전공과 그때의 인정은 남았다. 복고가 모두에게 기대한 자리를 준 것은 아니었다.
+One soldier lowers his muzzle. The next still aims. Cheers sound and some go forward. A hesitant soldier looks behind, then follows. Napoleon receives approaching troops. Men on the same strength roll now move under different authority.
 
-한 병사가 총구를 내린다. 옆 사람은 아직 겨눈다. 함성이 나고 일부가 앞으로 간다. 망설이던 병사도 뒤를 본 다음 따라간다. 나폴레옹이 다가온 군을 맞는다. 같은 병력표에 있던 군이 이제 다른 권한으로 움직인다.
+Another French army by day. The king's order lies before Ney. From the ranks come words of old service and calls for the Emperor. An officer beside Ney looks that way and turns back. Beyond both, people about to move and people standing still are visible.
 
-다른 프랑스군의 낮. 네 앞에 왕의 명령이 놓여 있다. 대열에서 옛 전공을 말하며 황제를 부른다. 곁의 장교가 그쪽을 보고 네에게 돌아온다. 두 사람 너머로 움직이려는 사람과 서 있는 사람이 함께 보인다.
+OFFICER: Some say they will go to the Emperor. Those remaining await orders.
 
-장교: 황제에게 가겠다는 사람들이 있습니다. 남은 사람들은 명령을 기다립니다.
+Ney watches the troops, then lowers his eyes to the document in his hand.
 
-네가 군을 보다가 손의 문서로 눈을 내린다.
+NEY: I told him to stop marching. We could not lose the army that remained.
 
-네: 내가 그 사람에게 진군을 멈추라 했소. 남은 군까지 잃을 수는 없었소.
+OFFICER: Do you follow this order now too?
 
-장교: 그럼 지금도 이 명령을 따릅니까?
+Ney folds the document and holds it. Not everyone moves together even at the cheers.
 
-네가 문서를 접어 손에 둔다. 함성에도 모두가 함께 움직이지 않는다.
+NEY: Then I stopped to protect the army. Now this paper cannot hold those turning away.
 
-네: 그때는 군을 지키려 멈췄소. 지금은 이 종이로 돌아서는 사람들을 붙잡을 수 없소.
+The officer waits for an order.
 
-장교는 명령을 기다린다.
+NEY: I will go to the Emperor. Gather those who will follow.
 
-네: 황제에게 가겠소. 따를 사람을 모으시오.
+OFFICER: I do not know whether all will follow.
 
-장교: 전부 따를지는 모릅니다.
+NEY: Do not report that all have come. I will see the troops actually gathered.
 
-네: 다 온다고 보고하지 마시오. 실제로 모인 군을 보겠소.
+The officer goes to the ranks. Ney puts the king's document aside and walks toward the troops. Gaps remain among the men moving together. Follow departing feet.
 
-장교가 대열로 간다. 네는 왕의 문서를 옆에 놓고 군 쪽으로 걷는다. 함께 움직이는 군 사이에도 빈 간격이 남는다. 출발하는 발을 따라간다.
+Cheers in Paris subside, leaving new government documents indoors.
 
-파리의 환호가 가라앉고, 실내에는 새 통치 문서가 남는다.
+## Conditions attached to the returning man {#constitution}
 
-## 돌아온 사람에게 붙은 조건 {#constitution}
+Parents: [039#constitution](../../treatments/039-a-different-returned-emperor.md#constitution), [039#isolation](../../treatments/039-a-different-returned-emperor.md#isolation).
 
-부모: [039#constitution](../../treatments/039-a-different-returned-emperor.md#constitution), [039#isolation](../../treatments/039-a-different-returned-emperor.md#isolation).
+Paris, 1815, daytime. Constitutional documents occupy the desk. Lucien maintains a position distinct from politicians beside him before his brother.
 
-1815년 파리, 낮. 헌정 문서가 책상을 차지한다. 뤼시앵은 형 앞에서 옆 정치가들과 구별되는 자리를 지킨다.
+LUCIEN: Coming back did not restore every old power. Parliament must approve direct taxes each year.
 
-뤼시앵: 돌아왔다고 전의 권한까지 다 되찾은 건 아니야. 직접세는 해마다 의회가 승인해야 해.
+NAPOLEON: That condition is in the document.
 
-나폴레옹: 그 조건은 문서에 두었네.
+LUCIEN: Ministers must be responsible too. It cannot end with saying it was the Emperor's order.
 
-뤼시앵: 대신도 책임을 져야지. 황제 명령이었다는 말만으로 끝낼 수는 없어.
+NAPOLEON: The army is gathering again.
 
-나폴레옹: 군은 다시 모이고 있네.
+LUCIEN: An army's return is not a blank check from the country.
 
-뤼시앵: 군이 왔다고 나라까지 백지로 맡긴 건 아니지.
+HISTORIAN (off screen): The Additional Act limited authority, but retained a hereditary upper chamber too.
 
-역사가(화면 밖): 추가헌장은 권한을 제한했지만 세습 상원도 남겼다.
+Davout opens a report of military and administrative shortages.
 
-다부가 군과 행정의 부족 보고를 편다.
+DAVOUT: A name cannot fill them. People and equipment must actually be gathered.
 
-다부: 이름만으로는 못 채웁니다. 사람과 장비를 실제로 모아야 합니다.
+Fouché sets down separate news from another channel. Show work to retain a place in the next negotiation separately from present military reorganization.
 
-푸셰가 다른 경로의 소식을 따로 놓는다. 다음 협상의 자리를 지키려는 일은 지금의 군 재편과 나누어 보여 준다.
+The Allies prepare armies again for security and the postwar order. Seeing preparation, Napoleon moves to divide and fight opponents before they all gather. Political documents remain among army baggage heading for Belgium.
 
-연합국은 안전과 전후 질서를 위해 다시 군을 준비한다. 그 준비를 본 나폴레옹은 상대가 다 모이기 전에 갈라 싸우려 이동한다. 벨기에로 향하는 군의 짐 속에도 정치 문서가 남는다.
+## Two fields one corps did not reach {#june-sixteen}
 
-## 한 군단이 닿지 않은 두 전장 {#june-sixteen}
+Parents: [040#opening](../../treatments/040-two-fields-in-june.md#opening), [040#june-sixteen](../../treatments/040-two-fields-in-june.md#june-sixteen).
 
-부모: [040#opening](../../treatments/040-two-fields-in-june.md#opening), [040#june-sixteen](../../treatments/040-two-fields-in-june.md#june-sixteen).
+Mid-June. After seeing a road on the map toward the gap between two enemies, follow French ranks actually splitting. Wellington and the Prussians also choose movement from their respective positions.
 
-6월 중순. 지도 위 두 적 사이로 향한 길을 본 뒤 실제로 갈라지는 프랑스 대열을 따른다. 웰링턴과 프로이센군도 각자의 위치에서 이동을 택한다.
+Afternoon of June 16. An order to Ney leaves Napoleon's position. Ney, not yet having received it, faces the enemy at Quatre Bras. Enemy troops being pressed hold their line again. Ney cannot displace them as far as he wants.
 
-6월 16일 오후, 나폴레옹의 자리에서 네에게 명령이 출발한다. 아직 받지 못한 네는 카트르브라의 적을 상대한다. 밀리던 적 병력이 다시 선을 붙든다. 네는 원하는 만큼 밀어내지 못한다.
+Separately at Ligny, Prussians withdraw before Napoleon's attack. Gneisenau gathers remaining troops and Blücher holds to the next action.
 
-별도의 리니에서는 나폴레옹의 공격에 프로이센군이 물러난다. 그나이제나우가 남은 군을 모으고 블뤼허가 다음 행동을 붙든다.
+Between fields D'Erlon's corps changes direction under conflicting demands. Leave it on the road, fighting on neither field.
 
-두 전장 사이, 데를롱 군단은 엇갈린 요구를 받아 방향을 바꾼다. 어느 전장에서도 싸우지 못하는 길 위에 남긴다.
+The order reaches Ney. Indicate within that day the passage of two or three hours since dispatch.
 
-네에게 명령이 도착한다. 발송 뒤 두세 시간의 경과를 이날 안에서 표시한다.
+NEY: Has this just arrived?
 
-네: 지금 온 것인가?
+MESSENGER: I am delivering it now.
 
-전달자: 지금 전달합니다.
+The field behind Ney reading has already changed. Show Ligny victory, but no map where both enemies have disappeared.
 
-명령을 읽는 네 뒤의 전장은 이미 달라졌다. 리니의 승리를 보여 주되 두 적이 모두 사라진 지도는 두지 않는다.
+## An alliance waiting for ammunition {#june-seventeen}
 
-## 포탄을 기다리는 동맹 {#june-seventeen}
+Parent: [040#june-seventeen](../../treatments/040-two-fields-in-june.md#june-seventeen).
 
-부모: [040#june-seventeen](../../treatments/040-two-fields-in-june.md#june-seventeen).
+June 17. Grouchy leaves assigned to pursue Prussians. The Emperor goes toward Wellington. Send the dividing armies through one wide view.
 
-6월 17일. 그루시가 프로이센군 추격을 맡아 떠난다. 나폴레옹은 웰링턴 쪽으로 간다. 갈라지는 군을 한 원경 안에 보낸다.
+Gembloux at night. Grouchy organizes a report of the enemy's divided direction.
 
-밤의 장블루. 그루시가 적의 갈라진 행군 방향을 보고로 정리한다.
+HISTORIAN (off screen): He reported the enemy had split toward Wavre and other directions. His judgment was to follow if they went to Wavre.
 
-역사가(화면 밖): 상대가 와브르와 다른 방면으로 갈라졌다고 그는 보고했다. 와브르로 간다면 따라가겠다는 판단이었다.
+The folded report leaves. Do not intercut the Emperor reading it the same night.
 
-접은 보고가 나간다. 같은 밤 황제가 읽는 장면으로 교차하지 않는다.
+Wellington's request for support has reached the Prussians. When Blücher wants to hurry, Gneisenau points to ammunition and transport.
 
-프로이센군에는 웰링턴의 지원 요청이 와 있다. 블뤼허가 서두르려 하자 그나이제나우가 탄약과 수송을 짚는다.
+GNEISENAU: Ammunition is short. We must be able to fight when we get there.
 
-그나이제나우: 탄약이 모자랍니다. 가서 싸울 수 있어야 합니다.
+BLÜCHER: When it arrives, we move. I will not leave him alone.
 
-블뤼허: 도착하면 움직입시다. 저쪽을 혼자 두지 않겠소.
+Transport arrives and people receive shares of loads. An order for the supporting march comes at night. Tired troops rise and walk again.
 
-수송대가 오고 사람들이 짐을 나누어 받는다. 밤에 지원 행군 명령이 난다. 피로한 군이 일어나 다시 걷는다.
+Wellington deploys his army on the next field.
 
-웰링턴은 자기 군을 다음 전장에 배치한다.
+WELLINGTON: We must hold until they come. Do not assume they are already here.
 
-웰링턴: 올 때까지 버텨야 하오. 이미 왔다고 여기지 마시오.
+## Sound and orders received {#pressure}
 
-## 소리와 받은 명령 {#pressure}
+Parent: [041#pressure](../../treatments/041-waterloo.md#pressure).
 
-부모: [041#pressure](../../treatments/041-waterloo.md#pressure).
+Caption: June 18, Waterloo.
 
-자막: 6월 18일, 워털루.
+Low infantry view of feet in mud. Smoke fills the space between farms and firing lines. Wellington's troops hold under attack and the French seek to open a gap. Show routes for carrying ammunition and cavalry movement separately.
 
-진흙 밟는 보병의 낮은 시선. 농장과 사격선 사이로 연기가 찬다. 공격을 받는 웰링턴의 군이 버티고 프랑스군은 틈을 벌리려 한다. 탄약 운반의 길과 기병이 움직일 길을 나누어 본다.
+Far away, Grouchy of the pursuing force stops at cannon sounds. He has the previous day's mission and his own reported judgment.
 
-멀리 추격군의 그루시가 포성에 말을 멈춘다. 전날의 임무와 자신이 보낸 판단을 가진 상태다.
+OFFICER BESIDE HIM: There is fighting over there.
 
-옆 장교: 저쪽에서 싸우고 있습니다.
+GROUCHY: We are following the Prussians. Continue checking toward Wavre.
 
-그루시: 우리는 프로이센군을 따라가고 있소. 와브르 쪽을 계속 확인하시오.
+The ranks follow the direction he takes. Later dispatches are not yet in his hands.
 
-그가 가는 쪽으로 대열이 따른다. 뒤에 올 급보는 아직 손에 없다.
+Afternoon east of Waterloo. Some French troops turn after seeing actual Prussian attack. Show both directions wide so diminished strength for pressing Wellington is legible.
 
-오후 워털루 동쪽. 프로이센군의 실제 공격을 본 프랑스군 일부가 돌아선다. 두 방향을 넓게 보여 주어 웰링턴 쪽을 밀 힘이 줄어든 것을 읽힌다.
+On another road the morning dispatch reaches Grouchy in the afternoon. He reads its substance: hurry to Wavre and keep contact with the Emperor's army. Do not put this document back at the moment he first heard cannon.
 
-다른 길에서는 오전 발송 급보가 그루시에게 오후에 도착한다. 와브르로 서두르고 황제군과 연락하라는 취지를 읽는다. 처음 포성을 들은 순간으로 이 문서를 돌려놓지 않는다.
+Ney's cavalry climbs. Infantry in square hold their line even as horses charge.
 
-네의 기병이 오른다. 방진 안 보병은 말이 달려와도 줄을 붙든다.
+SERGEANT: Keep your muzzles up!
 
-하사관: 총구 내리지 마!
+Show firing, horses turning aside, and cavalry gathering again in turn. As attacks continue, more places lose horses and people. The necessary result has not yet been obtained.
 
-사격, 말의 회피, 다시 모이는 기병을 차례로 본다. 공격이 이어질수록 말과 사람이 빠진 자리가 늘어난다. 아직 필요한 결과는 얻지 못한다.
+## An opened farm and closing opportunity {#arrivals}
 
-## 열린 농장과 닫히는 기회 {#arrivals}
+Parents: [041#arrivals](../../treatments/041-waterloo.md#arrivals), [041#collapse](../../treatments/041-waterloo.md#collapse).
 
-부모: [041#arrivals](../../treatments/041-waterloo.md#arrivals), [041#collapse](../../treatments/041-waterloo.md#collapse).
+Around 6 p.m., La Haye Sainte. Troops who held inside are driven back and the French cross the threshold. After seeing the fall close, widen east. Reinforcements join Prussians already fighting. They connect with the Anglo-Allied left.
 
-저녁 6시 무렵, 라에생트. 안에서 버틴 군이 밀려나고 프랑스군이 문턱을 넘는다. 함락을 가까이 본 뒤 동쪽으로 시야를 넓힌다. 앞서 싸우던 프로이센군에 증원이 더해진다. 영란군 좌익과 연결된다.
+Napoleon's position. He looks down the road Grouchy should take.
 
-나폴레옹의 자리. 그루시가 올 길을 본다.
+NAPOLEON: Grouchy?
 
-나폴레옹: 그루시는?
+No answer. Move to the separate pursuing force. The afternoon dispatch reaches Grouchy late. Caption for audience: substance of afternoon dispatch — maneuver toward the Emperor's army and jointly attack Prussians striking its flank. The screen does not reproduce the original text. Leave receipt as the range late afternoon or evening; do not match the exact minute of the farm's fall. Even after Grouchy reads, time on the field does not return.
 
-답이 없다. 별도의 추격군 자리로 옮긴다. 그루시에게 오후 급보가 뒤늦게 온다. 관객용 자막: 오후 급보의 요지 — 황제군 쪽으로 기동하여 황제군의 측면을 공격하는 프로이센군을 함께 공격. 원문을 그대로 옮긴 화면은 아니다. 수령은 늦은 오후 또는 저녁의 갈림으로 남긴다. 농장 함락과 같은 분에 맞추지 않는다. 그루시가 종이를 읽은 뒤에도 전장 시간은 돌아가지 않는다.
+The last troops committed advance. They fail to obtain the required breakthrough and are pushed back. People wishing to keep fighting and those wanting to return alive diverge. Cambronne's famous words are not heard as confirmed field speech. Follow the road by which even the Guard withdraws and see the army collapse.
 
-마지막으로 투입한 군이 전진한다. 필요한 돌파를 못 얻고 밀린다. 계속 싸우려는 사람과 살아 돌아가려는 사람이 갈라진다. 캉브론의 유명한 말은 확정된 현장 음성으로 들리지 않는다. 근위대까지 물러난 길을 따라 군의 붕괴를 본다.
+Wellington's army and Prussians win. Do not yet add cheers in London. At night the French scatter rather than sit together as on the first night of victory.
 
-웰링턴의 군과 프로이센군이 승리를 얻는다. 런던의 환호는 아직 붙이지 않는다. 밤의 프랑스군은 첫 승전의 밤처럼 모여 앉지 못하고 흩어진다.
+## A name that cannot stand in for a country {#abdication}
 
-## 나라를 대신할 수 없는 이름 {#abdication}
+Parents: [042#abdication](../../treatments/042-the-second-abdication.md#abdication), [042#british-ship](../../treatments/042-the-second-abdication.md#british-ship), [042#ney-aftermath](../../treatments/042-the-second-abdication.md#ney-aftermath).
 
-부모: [042#abdication](../../treatments/042-the-second-abdication.md#abdication), [042#british-ship](../../treatments/042-the-second-abdication.md#british-ship), [042#ney-aftermath](../../treatments/042-the-second-abdication.md#ney-aftermath).
+A room in Paris. Napoleon returns and receives documents on the remaining army. Davout distinguishes responsibility for army and France.
 
-파리의 실내. 나폴레옹이 돌아와 남은 군의 문서를 받는다. 다부는 군과 프랑스의 책임을 나누어 말한다.
+DAVOUT: An army remaining does not mean it will keep fighting for Your Majesty.
 
-다부: 군이 남았다고 폐하를 위해 계속 싸우겠다는 뜻은 아닙니다.
+Fouché's papers head toward other political forces and the next order. Parliament does not wait for the Emperor's next command either.
 
-푸셰의 서류는 다른 정치 세력과 다음 질서로 향한다. 의회도 다음 황제 명령을 기다리지 않는다.
+News of victory reaches London on the night of June 21. Change the date to see the extra edition of the 22nd.
 
-6월 21일 밤 런던에 닿는 승전 소식. 22일의 호외는 날짜를 바꾸어 본다.
+Back before documents in Paris.
 
-다시 파리의 문서 앞.
+NAPOLEON: I will relinquish my authority.
 
-나폴레옹: 내 권한을 놓겠소.
+The signed document passes to another hand. Even with his son's name on it, there is no scene of the son actually commanding troops.
 
-서명한 문서가 다른 손으로 간다. 거기에 아들의 이름이 있어도 실제 군을 지휘하는 아들 장면은 없다.
+The road from Malmaison through Rochefort to a British ship. Before the sea Napoleon cannot command an exit. Bertrand checks luggage for companions and family.
 
-말메종에서 로슈포르, 영국 배로 향하는 길. 바다 앞의 나폴레옹은 출구를 명령하지 못한다. 베르트랑이 동행과 가족의 짐을 살핀다.
+BERTRAND: We will come with you.
 
-베르트랑: 저희도 함께 가겠습니다.
+Napoleon nods and boards the British ship. Do not explain his expectations as a guaranteed promise by the British government.
 
-나폴레옹이 끄덕인다. 영국 배로 오른다. 그의 기대를 영국 정부의 보장된 약속으로 설명하지 않는다.
+See arrival at Saint Helena in October from afar. Then December 7, an empty place for a uniform.
 
-10월의 세인트헬레나 도착을 멀리 본다. 이어 12월 7일, 빈 군복 자리.
+HISTORIAN (off screen): Ney was executed. The choice to follow the Emperor did not protect everyone in the same exile.
 
-역사가(화면 밖): 네는 처형되었다. 황제를 따른 선택이 모두를 같은 유배로 지켜 주지는 못했다.
+Close without famous last words.
 
-최후의 유명한 발언 없이 닫는다.
+End of main work. A separate author voice.
 
-본편 끝. 별도 작가 음성.
-
-작가: 워털루에서는 보낸 명령과 받은 명령을 나누어 봤습니다. 그루시가 오지 않은 것은 결과지만, 왔다면 반드시 이겼다는 증명은 아니에요. 프로이센군도 탄약을 받고 실제로 걸어왔습니다. 먼저 싸운 군에 뒤의 군이 더해졌어요. 네의 이후 운명에는 황제와 같은 보호를 받지 못한 선택의 값이 남았습니다.
-
+AUTHOR: At Waterloo we separated orders sent from orders received. Grouchy's absence was a result, but not proof that arrival would certainly have won. The Prussians received ammunition and actually walked too. Later troops joined those already fighting. Ney's later fate carried a cost of choice that did not receive the same protection as the Emperor.

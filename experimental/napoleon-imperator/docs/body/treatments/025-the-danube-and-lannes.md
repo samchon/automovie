@@ -1,39 +1,39 @@
-# 막힌 강과 잃은 벗
+# A Blocked River and a Lost Friend
 
-## 다른 제국의 지휘관도 조건 속에서 기회를 잡는다 {#aspern}
+## A commander of another empire finds opportunity within constraints {#aspern}
 
-이 파일의 사실 부모: [1809년 전쟁](../settings/100-history/020-life-and-memory.md#expansion), [카를 대공](../settings/050-people/010-ensemble.md#archduke-charles), [란](../settings/050-people/010-ensemble.md#lannes), [의료](../settings/020-world/010-material-world.md#weapons-and-medicine), [정부와 교회](../settings/030-society/010-power-and-cost.md#dynasty-and-belief).
+Factual parents: [the war of 1809](../settings/100-history/020-life-and-memory.md#expansion), [Archduke Charles](../settings/050-people/010-ensemble.md#archduke-charles), [Lannes](../settings/050-people/010-ensemble.md#lannes), [medicine](../settings/020-world/010-material-world.md#weapons-and-medicine), [government and Church](../settings/030-society/010-power-and-cost.md#dynasty-and-belief).
 
-1809년 오스트리아의 전쟁. 카를 대공은 프랑스 황제의 승리를 위해 소모될 상대가 아니라 자기 군을 움직여 프랑스군의 한계를 잡는 지휘관이다. 그의 몸의 약함과 궁정·참모의 제약은 전투 능력을 없애는 희화화가 되지 않는다. 5월 21~22일 아스페른-에슬링에서 그의 군은 강을 건너 자리 잡은 프랑스군의 두 마을을 공격한다. 프랑스군은 거점 방어에 매이면서도 중앙을 밀어 결판을 내려고 한다. 상대의 실제 공격 때문에 연결이 불안한 군은 진군의 힘과 이미 얻은 자리를 지킬 힘을 동시에 써야 한다.
+Austria's war of 1809. Archduke Charles is not an opponent to be consumed for the French Emperor's victory, but a commander who moves his army and exploits the limits of the French. His physical weakness and constraints from court and staff do not become caricature erasing his ability in battle. At Aspern-Essling on May 21–22 his army attacks two villages held by French troops who have crossed the river. The French are tied to defending their positions while trying to decide the battle by pressing the center. Because of the enemy's actual attacks, an army with uncertain connections must spend strength both advancing and holding ground already gained.
 
-강을 잇는 연결이 거듭 끊긴 뒤 더 큰 다리도 끊겼다는 보고가 오자 나폴레옹은 중앙 공격을 멈추게 한다. 부족해지는 탄약과 군을 잇지 못하는 조건 아래 더 밀어붙이는 대신 철수를 택하고 다음 새벽 물러난다. 카를의 군이 압박한 결과와 프랑스가 보고를 받아 공격을 중단한 판단을 나누어 둔다. 다리 단절을 적의 부유물 탓으로 확정하거나 카를이 직접 다리를 끊는 행동을 만들지 않는다.
+After connections across the river repeatedly break, a report arrives that the larger bridge too has broken, and Napoleon orders the central attack stopped. Under conditions of dwindling ammunition and inability to connect his forces, he chooses withdrawal instead of pushing farther, and pulls back the next dawn. Keep separate the result of pressure by Charles's army and the French decision to stop the attack upon receiving the report. Do not establish enemy floating debris as the cause of the broken bridge or invent Charles personally breaking it.
 
-관객은 나폴레옹이 이길 방법을 찾는 긴장과, 앞서 적을 갈랐던 사람이 이제 강과 자기 군의 연결에 묶이는 역전을 함께 받는다. 실패를 훗날 승리를 위한 일부러 한 연습으로 바꾸지 않는다. 물러선 뒤 다시 준비할 힘은 남지만 죽거나 다친 사람은 다음 준비의 재료로 되돌아오지 않는다. 다음에는 이 전투에서 다친 란의 몸이 지휘관의 재준비와 다른 시간을 살게 된다.
+The audience receives both the tension of Napoleon seeking a way to win and the reversal in which the man who earlier divided enemies is now bound by the river and connection to his own army. Do not turn failure into deliberate practice for a later victory. Strength to prepare again remains after withdrawal, but the dead and wounded do not return as material for the next preparation. Next, the body of Lannes, wounded in this battle, will live on a different clock from the commander's preparations.
 
-## 그날 부상한 사람이 며칠 뒤 죽는다 {#lannes}
+## The man wounded that day dies days later {#lannes}
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 란은 `docs/body/settings/100-history/020-life-and-memory.md#expansion`의 22일 부상/31일 사망, `docs/body/settings/020-world/010-material-world.md#weapons-and-medicine`의 의료 한계, `docs/body/settings/100-history/010-austerlitz.md#post-house`의 미해결 감정을 그대로 시험했다. `docs/body/settings/050-people/010-ensemble.md#conditional-records`의 라레 공연 제한과 `docs/body/settings/050-people/010-ensemble.md#lannes`의 절단 좌우/말 미결을 지켜 새 임종 대사·치료 능력·자동 화해 보수가 없다.
 -->
-5월 22일 란이 다친다. 31일 죽음까지의 간격에서 전투 지휘의 속도는 환자를 살리는 시간과 다르게 흐른다. 절단과 치료는 현대 마취나 감염 지식을 가진 전능한 구조가 아니다. 선택하지 않은 라레의 새 개인 공연을 열지 않고 의료진이 그 시대의 한계에서 몸을 돌보는 과정으로 둔다. 절단한 다리의 좌우나 기록이 갈리는 마지막 말을 확정하지 않는다.
+Lannes is wounded on May 22. In the interval until his death on the 31st, the pace of battle command runs differently from time spent trying to save a patient. Amputation and treatment are not an omnipotent rescue equipped with modern anesthesia or knowledge of infection. Do not open a new individual performance for Larrey, who has not been selected; show medical personnel caring for a body within the limits of their time. Do not settle which leg was amputated or last words on which records differ.
 
-황제에게 직언하고 역참에서 모욕을 당했던 사람이 이제 돌아오지 못한다. 전투가 끝날 때마다 미뤄 둔 관계를 다음 승리로 다시 만날 수 있으리라는 기대가 닫힌다. 나폴레옹의 가까운 슬픔에 역사가의 농담을 끼우지 않는다. 관객은 첫 승리의 밤에 남아 있던 란의 감정을 이 죽음으로 자동 화해시키지 않은 채 상실한다.
+The man who spoke frankly to the Emperor and was insulted at the post house will not return. The expectation that a relationship deferred after each battle could be resumed at the next victory closes. Do not insert the historian's joke into Napoleon's intimate grief. The audience loses Lannes without automatically reconciling the feelings left on the first night of victory through his death.
 
-## 다시 이겨도 이전 상태로 돌아가지 않는다 {#wagram}
+## Winning again does not restore the earlier state {#wagram}
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 바그람은 `docs/body/settings/100-history/020-life-and-memory.md#expansion`의 실제 승리와 교회 갈등의 병행 시간, `docs/body/settings/050-people/010-ensemble.md#lannes`의 돌아오지 않는 상실을 그대로 시험했다. 군사 성과에서 통제력을 얻어도 병합/체포의 원인으로 삼지 않아 새 명령이나 교회 사건의 날짜 보수가 필요하지 않았다.
 -->
-바그람에서 나폴레옹은 준비와 군사적 기량으로 승리를 되찾는다. 카를과 오스트리아는 군과 나라를 보전해야 할 다음 조건을 받는다. 두 전투를 패배 뒤 즉시 복수한 같은 날의 결판으로 합치지 않는다. 프랑스 황제는 더 큰 통제력을 얻지만 란과 이전의 군은 돌아오지 않는다.
+At Wagram Napoleon regains victory through preparation and military ability. Charles and Austria receive the next conditions for preserving army and country. Do not combine the two battles into a same-day decision of immediate revenge after defeat. The French Emperor gains greater control, but Lannes and the earlier army do not return.
 
-다음 절은 이 전쟁과 겹쳐 진행된 1809년 교회 갈등을 따로 잇는다. 바그람 승리가 병합과 체포를 시작시킨 원인이라는 순서를 만들지 않는다. 군사적 성과를 얻어도 제국에 남은 복종의 문제는 다른 수단과 저항을 가진다.
+The next section separately follows the Church conflict of 1809, which overlaps this war. Do not make victory at Wagram the cause that began annexation and arrest. Even with military success, the empire's remaining problem of obedience has other means and resistance.
 
-추가 사실 부모: [추가 역사 결정](../settings/100-history/030-decisions-and-results.md#wagram).
+Additional factual parent: [additional historical decisions](../settings/100-history/030-decisions-and-results.md#wagram).
 
-로바우 동쪽 도하 뒤 5일의 공격은 이기지 못한다. 6일 적의 압박을 받는 나폴레옹은 포를 집중하고 다부의 날개 공격과 맥도날드의 전진을 결합한다. 카를은 제때 오지 않은 요한의 지원을 무한정 기다리는 대신 군을 물려 보전한다. 프랑스의 승리는 이 과정을 거친 뒤에만 주고 란의 죽음이 승리를 대신하는 표가 되지 않게 한다.
+After crossing east of Lobau, the attack on the 5th does not win. On the 6th, under enemy pressure, Napoleon concentrates artillery and combines Davout's flank attack with MacDonald's advance. Rather than wait indefinitely for John's support, which has not arrived in time, Charles withdraws to preserve his army. Give the French victory only after this process, and do not let Lannes's death become a token standing in for victory.
 
-## 영토를 빼앗아도 동의는 얻지 못한다 {#church-and-force}
+## Taking territory does not win consent {#church-and-force}
 
-같은 1809년의 병합에서 7월 체포까지 이어진 병행 과정이다. 앞선 정교협약은 종교 생활을 잇고 통치의 지지를 얻었지만, 나폴레옹이 요구하는 제국의 통제와 봉쇄는 교황이 지킬 세속 영토·종교 권한·중립과 부딪친다. 프랑스는 교황령을 병합하여 영토를 지배하는 쪽을 택하고, 교황은 교회의 세속 주권을 침해한 자에 대한 파문 문서로 맞선다. 그 문서가 나폴레옹의 이름을 쓰지 않았다는 제한을 지키며 칙서·교서 중 하나로 장르를 확정하지 않는다.
+This is a parallel process in 1809, from annexation to arrest in July. The earlier Concordat sustained religious life and gained support for rule, but imperial control and blockade demanded by Napoleon clash with the Pope's temporal territory, religious authority, and neutrality. France chooses to annex the Papal States and control the territory; the Pope answers with a document excommunicating those who violated the Church's temporal sovereignty. Preserve the limit that the document does not name Napoleon, and do not fix its genre as either a bull or a brief.
 
-이 문서의 저항을 영토를 되찾은 군사적 성과로 바꾸지는 않는다. 제국의 강제는 그해 7월 교황을 체포하는 데 이르지만 몸을 구금한 결과가 종교적 동의로 바뀌지는 않는다. 프랑스가 행사할 수 있는 힘과 교회가 응하지 않을 수 있는 힘이 달라 앞선 화해는 복종의 보증이 아니었음이 드러난다. 병합·문서·체포를 같은 순간의 한 명령으로 합치지 않고, 나폴레옹의 직접 체포 명령은 미결로 남긴다. 교황이나 체포 지휘자의 새 근경 공연, 사적 대면과 정확한 문구는 정하지 않는다.
+Do not turn the document's resistance into a military achievement recovering territory. Imperial coercion reaches the Pope's arrest that July, but detaining his body does not become religious consent. The power France can exercise differs from the Church's power to refuse, revealing that earlier reconciliation was no guarantee of obedience. Do not merge annexation, document, and arrest into one order at the same moment; leave Napoleon's direct order to arrest unresolved. Do not fix new close performances of the Pope or the arrest commander, private confrontation, or exact words.
 
-관객은 전쟁에 이긴 통치자가 다른 독립을 인정하기보다 강제로 관계를 붙들면서도 원하는 동의를 얻지 못한 결과를 받는다. 군사적 승리와 이 미해결의 권한 충돌을 함께 안고, 다음에는 왕조의 안전을 혼인으로 더 단단히 묶으려는 선택으로 옮겨간다.
+The audience receives the result that a ruler victorious in war seeks to hold a relationship by force rather than recognize another independence, yet cannot obtain the desired consent. Carry both military victory and this unresolved conflict of authority into the next choice to bind dynastic security more tightly through marriage.

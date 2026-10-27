@@ -1,116 +1,115 @@
+# The Distance Home
 
-# 돌아갈 거리
+## Warning before departure {#warnings}
 
-## 떠나기 전의 만류 {#warnings}
+[Event parent 1](../../../body/treatments/028-the-distance-before-winter.md#warnings) · [Scene parent](../../../body/scripts/001-chronicle/007-distance.md#warnings)
 
-[사건 부모 1](../../../body/treatments/028-the-distance-before-winter.md#warnings) · [장면 부모](../../../body/scripts/001-chronicle/007-distance.md#warnings)
+Before preparations for the 1812 expedition. Caption: “Warning reconstructed from Caulaincourt's later memoir.”
 
-1812년 원정을 준비하기 전. 화면 자막: '코랭쿠르의 후일 회고에 따른 만류의 재구성.'
+Caulaincourt speaks quickly and courteously. Napoleon listens, then opens a map, but Caulaincourt looks first at his face, not the map.
 
-코랭쿠르가 빠르고 정중하게 말한다. 나폴레옹은 듣다가 지도를 펴지만 코랭쿠르는 지도보다 먼저 그의 얼굴을 본다.
+CAULAINCOURT: Sire, if they retreat, the distance you must follow grows longer. You must not expect one victory to end the war for you.
 
-코랭쿠르: 폐하, 저들이 물러나면 따라갈 거리가 더 길어집니다. 한 번 이긴다고 전쟁을 끝내 주리라 기대해서는 안 됩니다.
+NAPOLEON: We should let them break away?
 
-나폴레옹: 이탈하게 내버려 두자는 건가?
+CAULAINCOURT: I am telling you what it may cost to force them back.
 
-코랭쿠르: 억지로 돌려놓으려면 무엇을 치러야 할지 말씀드리는 겁니다.
+Napoleon looks at him briefly, then calls Berthier.
 
-나폴레옹은 그를 잠깐 본 뒤 베르티에를 부른다.
+NAPOLEON: Send the orders to prepare.
 
-나폴레옹: 준비 명령을 보내게.
+BERTHIER: Yes, Sire.
 
-베르티에: 예, 폐하.
+Caulaincourt falls silent. Berthier continues sending orders. The picture follows people receiving orders and preparing the expedition. They have not yet set out.
 
-코랭쿠르가 입을 다문다. 베르티에는 계속해서 명령을 내보낸다. 화면은 명령을 받아 원정을 준비하는 사람들을 따른다. 아직 이들은 길을 떠나기 전이다.
+## A road without winter {#advance}
 
-## 겨울이 아닌 길 {#advance}
+[Event parent 1](../../../body/treatments/028-the-distance-before-winter.md#advance) · [Event parent 2](../../../body/treatments/028-the-distance-before-winter.md#limited-sight) · [Scene parent](../../../body/scripts/001-chronicle/007-distance.md#advance)
 
-[사건 부모 1](../../../body/treatments/028-the-distance-before-winter.md#advance) · [사건 부모 2](../../../body/treatments/028-the-distance-before-winter.md#limited-sight) · [장면 부모](../../../body/scripts/001-chronicle/007-distance.md#advance)
+Summer 1812. A march in running sweat. First-name caption: Bourgogne, Guard infantry sergeant. He starts to sit beside food, then rises again to follow the ranks. A horse cannot pull a cart and stops. Someone behind tries to go around the cart ahead and steps onto bad ground off the road.
 
-1812년 여름. 땀이 흐르는 행군. 근위 보병 하사관 부르고뉴라는 첫 이름 자막. 그가 음식 곁에 앉으려다 다시 일어나 대열을 따른다. 말이 수레를 당기지 못하고 멈춘다. 뒤의 사람이 앞 수레를 비켜 가려다 길 밖의 나쁜 땅에 발을 넣는다.
+BOURGOGNE: Come this way. Don't stay behind the cart.
 
-부르고뉴: 이쪽으로 와. 수레 뒤에 붙지 말고.
+After pulling his comrade over, he puts weight on his own leg. The longer he walks, discomfort in his right thigh shows in his step. The wait for food lengthens, and sick people fall out of line.
 
-동료를 끌어당긴 뒤 자기 다리에 힘을 싣는다. 오래 걸을수록 오른허벅지의 불편이 걸음에 드러난다. 음식을 기다리는 시간은 길어지고, 병든 사람이 대열에서 떨어진다.
+Russian troops. Name Barclay at his first appearance as he commands retreat. He keeps a notebook beside his bent right arm and chooses a direction to preserve and join his army. People around him object to orders to withdraw.
 
-러시아군. 후퇴를 지휘하는 바클라이의 이름을 첫 얼굴에 붙인다. 그는 굽은 오른팔 곁에 수첩을 두고 군을 보전해 합류할 방향을 잡는다. 뒤로 물러가라는 명령을 들은 주변의 불만이 나온다.
+RUSSIAN OFFICER: Retreat again?
 
-러시아 장교: 또 물러납니까?
+BARCLAY: We cannot fight scattered. We must unite the army.
 
-바클라이: 흩어진 채 싸울 수는 없소. 군을 합쳐야 하오.
+He keeps the order under their dissatisfied gazes. Behind retreating Russians the French advance deeper.
 
-불만의 시선을 받은 채 명령을 유지한다. 후퇴하는 러시아군의 뒤로 프랑스군이 더 깊이 들어온다.
+Vitebsk. Caption: A reconstructed warning from Ségur's later account.
 
-비텝스크. 화면 자막: 세귀르가 후일 전한 만류의 재구성.
+BERTHIER: Sire, if we go farther, it will be difficult to protect our communications and sustain the army.
 
-베르티에: 폐하, 여기서 더 가면 연락선을 지키고 군을 유지하기가 어렵습니다.
+The end of words meant to be low and brief catches in his breath. Napoleon listens but points in the direction of advance.
 
-낮고 짧게 말하려던 끝이 숨에 걸린다. 나폴레옹은 듣고도 전진할 방향을 짚는다.
+NAPOLEON: We continue. Prepare.
 
-나폴레옹: 계속 가네. 준비하게.
+The order goes out. Bourgogne hears the local call to move again, not the words at headquarters. He gathers the food he was eating and walks with it in his hand.
 
-명령이 밖으로 나간다. 부르고뉴는 지휘소의 말 대신 다시 움직이라는 현장의 소리를 듣는다. 먹던 것을 챙겨 손에 쥔 채 걷는다.
+## No answer in the place taken {#moscow}
 
-## 차지한 곳에서 얻지 못한 답 {#moscow}
+[Event parent 1](../../../body/treatments/029-a-city-without-peace.md#borodino) · [Event parent 2](../../../body/treatments/029-a-city-without-peace.md#moscow) · [Scene parent](../../../body/scripts/001-chronicle/007-distance.md#moscow)
 
-[사건 부모 1](../../../body/treatments/029-a-city-without-peace.md#borodino) · [사건 부모 2](../../../body/treatments/029-a-city-without-peace.md#moscow) · [장면 부모](../../../body/scripts/001-chronicle/007-distance.md#moscow)
+Borodino. Wounded accumulate amid firing from both sides. French troops advance and surviving Russians withdraw in ranks. Follow them leaving the field, then transition to French entering Moscow.
 
-보로디노. 양쪽에서 총포를 쏘는 사이로 부상자가 쌓인다. 프랑스군이 전진하고, 살아남은 러시아군은 대열을 이루어 물러난다. 그들이 전장을 벗어나는 모습을 따라간 뒤 모스크바로 들어가는 프랑스군으로 전환한다.
+Kutuzov's army remains outside the city. The old, stout commander watches troops moving. Inside Moscow Napoleon awaits an answer. An arriving officer stops empty-handed.
 
-도시 밖에는 쿠투조프의 군이 남아 있다. 늙고 비대한 지휘관이 이동하는 군을 지켜본다. 모스크바 안의 나폴레옹은 답을 기다린다. 보고하러 온 사람이 빈손으로 멈춘다.
+NAPOLEON: The answer?
 
-나폴레옹: 답은?
+OFFICER: None yet, Sire.
 
-장교: 아직 오지 않았습니다, 폐하.
+Firelight spreads through the street. Without showing who first lit it, follow troops who must move before flames already present. Alexander continues the war in another space. No words connect the sovereigns' faces as direct dialogue.
 
-화재의 빛이 거리에 번진다. 불을 처음 붙인 사람을 보여 주지 않고 이미 불길 앞에서 움직여야 하는 군을 따른다. 알렉산드르는 다른 공간에서 전쟁을 계속한다. 두 군주의 얼굴 사이에 직접 문답처럼 이어지는 말은 없다.
+Days pass without an answer. Brought food dwindles and horses and carts for transport worsen. Napoleon hears another report of no answer. This time he rises first.
 
-날이 바뀌어도 대답이 오지 않는다. 가져온 음식이 줄고 수송에 쓸 말과 수레의 상태가 나빠진다. 나폴레옹은 또 답이 오지 않았다는 보고를 듣는다. 이번에는 그가 먼저 몸을 일으킨다.
+NAPOLEON: We leave. The army stays here no longer.
 
-나폴레옹: 떠나게. 군을 여기 더 두지 않는다.
+Hands prepare to go and places empty. The image narrows from the occupied city's size to the size of baggage that can be taken.
 
-나갈 준비를 하는 손과 비워지는 자리. 점령한 도시의 크기에서 가져갈 수 있는 짐의 크기로 화면이 좁아진다.
+## Orders declaring a living man dead {#malet}
 
-## 살아 있는데 죽었다는 명령 {#malet}
+[Event parent 1](../../../body/treatments/030-the-death-report.md#paris) · [Event parent 2](../../../body/treatments/030-the-death-report.md#retreat) · [Event parent 3](../../../body/treatments/030-the-death-report.md#arrival) · [Scene parent](../../../body/scripts/001-chronicle/007-distance.md#malet)
 
-[사건 부모 1](../../../body/treatments/030-the-death-report.md#paris) · [사건 부모 2](../../../body/treatments/030-the-death-report.md#retreat) · [사건 부모 3](../../../body/treatments/030-the-death-report.md#arrival) · [장면 부모](../../../body/scripts/001-chronicle/007-distance.md#malet)
+Paris, 1812. Over a distant view of troops moving, screen text: “Orders based on the Emperor's reported death.” Without entering an individual's room or mind, see military movement at a public distance and the route of documents.
 
-1812년 파리. 멀리서 본 군의 이동에 '황제 사망을 전제로 한 명령'이라는 화면 글이 놓인다. 개인의 방이나 속마음으로 들어가지 않고 병력이 움직이는 공적 거리와 문서의 경로를 본다.
+HISTORIAN (voice): Malet's lie moved troops. Doucet recognized the forgery and Laborde arrested Malet. Troops returned and the orders stopped.
 
-역사가(음성): 말레의 거짓말로 군이 움직였다. 두세가 위조를 알아차렸고 라보르드가 말레를 체포했다. 병력이 돌아오며 명령은 멎었다.
+After seeing returning ranks, move to the Russian retreat road. The date shows time continuing there. In cold, Bourgogne gives a comrade food. When the receiving hand trembles and nearly drops it, they hold it together.
 
-돌아오는 군의 대열을 본 뒤 러시아 퇴각로로 옮긴다. 날짜는 그쪽 시간이 계속되고 있음을 알린다. 부르고뉴는 추위 속에서 동료에게 먹을 것을 건넨다. 받던 손이 떨려 떨어뜨리려 하자 함께 붙잡는다.
+BOURGOGNE: Hold it. Eat as we walk.
 
-부르고뉴: 쥐어. 가면서 먹어.
+People's baggage is added to already diminished horses and transport. Pursuing Russians also stop tired horses and steady their own bodies. When they catch up, the French rearguard turns to fight, then moves again.
 
-이미 줄어든 말과 수송에 사람의 짐까지 얹힌다. 추격하는 러시아군도 지친 말을 세우고 자기 몸을 추스른다. 그들이 따라붙으면 프랑스군의 후위가 돌아서 싸우고 다시 이동한다.
+Caption: November 6–7. News from Paris reaches Napoleon late. His voice is short and cold.
 
-11월 6~7일 범위라는 자막. 파리의 소식이 뒤늦게 나폴레옹에게 닿는다. 짧고 차가운 목소리가 나온다.
+NAPOLEON: They said I was dead.
 
-나폴레옹: 내가 죽었다고 했단 말인가.
+Behind his face receiving the report, show the retreating army again. Bourgogne and the comrade who received food continue walking together.
 
-보고받는 얼굴 뒤로 퇴각군을 다시 보인다. 앞서 먹을 것을 건네받은 동료와 부르고뉴가 함께 계속 걷는다.
+## Until a bridge exists {#berezina}
 
-## 다리가 생길 때까지 {#berezina}
+[Event parent 1](../../../body/treatments/031-the-crossing-and-the-return.md#berezina) · [Event parent 2](../../../body/treatments/031-the-crossing-and-the-return.md#return) · [Scene parent](../../../body/scripts/001-chronicle/007-distance.md#berezina)
 
-[사건 부모 1](../../../body/treatments/031-the-crossing-and-the-return.md#berezina) · [사건 부모 2](../../../body/treatments/031-the-crossing-and-the-return.md#return) · [장면 부모](../../../body/scripts/001-chronicle/007-distance.md#berezina)
+The Berezina. People reaching the river stop. They can see the other bank but cannot go. Engineers in the water hold and fit structural members. Éblé reaches out a wet hand from beneath an oiled waterproof coat and checks the connection.
 
-베레지나. 강 앞에 이른 사람들이 멈춘다. 건너편을 보고도 갈 수 없다. 물에 들어간 공병들이 부재를 잡고 맞춘다. 에블레는 기름 먹인 방수외투 아래 젖은 손을 뻗어 연결을 살핀다.
+ÉBLÉ: My children, join it here first. Don't let go.
 
-에블레: 내 아이들아, 여기부터 붙여라. 놓지 마라.
+Gunfire carries over the water. Someone holding flinches, then strains again. Show feet of the waiting army, then return to the gap not yet joined. When one member catches, an engineer moves over it to join the next. At last the first troops step onto it to cross.
 
-사격 소리가 물 위로 온다. 잡고 있던 사람이 움츠렸다가 다시 힘을 준다. 기다리는 군의 발을 보이고, 아직 이어지지 않은 틈으로 돌아온다. 부재 하나가 걸리자 공병이 그 위로 나아가 다음 부재를 잇는다. 비로소 먼저 건너는 군이 발을 올린다.
+Bourgogne joins the line and steps onto the bridge. He advances as far as the person ahead moves. Reaching ground across the water, he puts strength on his leg and follows the ranks. A person remaining at the same bank starts to push forward, then stops. See Bourgogne across and people unable to cross separately. Do not close them with a caption of total survivors.
 
-부르고뉴가 건너는 대열에 섞여 다리 위로 발을 올린다. 앞사람이 움직이는 만큼 그도 나아간다. 물 건너 땅에 닿은 그는 자기 다리에 힘을 싣고 대열을 따른다. 같은 강변에 남은 사람은 앞으로 밀리려다가 멈춘다. 건넌 부르고뉴와 건너지 못한 사람들을 따로 본다. 이들을 생존 총수의 자막으로 닫지 않는다.
+The later road home. Napoleon and Caulaincourt head to the capital before the army. Feet in fur boots, longer beards, tired breathing between conversation. Even as they draw closer to France, the return of troops left behind is not completed all at once.
 
-뒤의 귀환길. 나폴레옹과 코랭쿠르가 군보다 먼저 수도로 향한다. 모피 장화의 발, 길어진 수염, 대화 사이의 지친 숨. 그들이 프랑스 쪽으로 가까워져도 뒤에 남은 군의 귀환이 한꺼번에 완료되지는 않는다.
+A family's house. A messenger hands over paper.
 
-가족의 집. 소식을 전하는 사람이 종이를 건넨다.
+MESSENGER: A demand for a new army.
 
-전달자: 새 군을 내라는 요구입니다.
+The recipient looks down the road by which a family member who has not yet returned departed. Outside stands the bearer of the demand instead. Only the news brought inside is placed on the table.
 
-받아 든 사람은 아직 돌아오지 않은 가족이 나갔던 길을 본다. 문밖에는 그 사람 대신 요구를 전한 이가 서 있다. 집 안으로 들어온 소식만 탁자에 놓인다.
+Close the main work and show a separate “Author's Commentary.”
 
-본편을 닫고 별도 '작가 해설'.
-
-작가(음성): 이 길은 눈이 오기 전부터 군을 줄였습니다. 출발 전 만류는 코랭쿠르의 후일 회고, 별개의 비텝스크 만류는 세귀르의 후일 전언을 거쳐 재구성했어요. 모스크바의 불도 최초 행위자를 새로 정하지 않았습니다. 베레지나에서는 공병이 다리를 잇는 동안 군이 기다리게 했습니다. 부르고뉴가 건넜어도 강변에는 건너지 못한 사람들이 남아 있었지요.
+AUTHOR: This road reduced the army before snow came. We reconstructed the warning before departure through Caulaincourt's later memoir, and the separate Vitebsk warning through Ségur's later account. We did not newly identify the first person to set Moscow's fire. At the Berezina we made the army wait while engineers joined the bridge. Even after Bourgogne crossed, people who could not cross remained on the bank.

@@ -1,25 +1,25 @@
-# 추위가 오기 전에 잃는 군대
+# The Army Lost Before the Cold
 
-## 외교의 경고보다 강제를 택한다 {#warnings}
+## Coercion is chosen over diplomatic warning {#warnings}
 
-이 파일의 사실 부모: [러시아 원정](../settings/100-history/020-life-and-memory.md#russia-and-coalition), [코랭쿠르](../settings/050-people/010-ensemble.md#caulaincourt), [베르티에](../settings/050-people/010-ensemble.md#berthier), [바클라이](../settings/050-people/010-ensemble.md#barclay), [이동과 몸](../settings/020-world/010-material-world.md#movement).
+Factual parents: [the Russian campaign](../settings/100-history/020-life-and-memory.md#russia-and-coalition), [Caulaincourt](../settings/050-people/010-ensemble.md#caulaincourt), [Berthier](../settings/050-people/010-ensemble.md#berthier), [Barclay](../settings/050-people/010-ensemble.md#barclay), [movement and the body](../settings/020-world/010-material-world.md#movement).
 
-1812년 침공에 앞서 코랭쿠르는 자신이 아는 러시아의 조건과 외교적 한계를 경고한다. 맡은 관계를 지키려는 만류는 불충이 아니라 제국을 계속 가능하게 하려는 충성의 방식이다. 나폴레옹은 동맹의 이탈을 받아들이는 대신 지금까지의 집중과 승리로 더 큰 압력도 해결할 수 있다고 원정을 선택한다. 경고를 들었다고 곧 실패를 확신한 사람이 출발하는 것은 아니다.
+Before the invasion in 1812, Caulaincourt warns of Russian conditions and diplomatic limits he knows. His attempt to dissuade, seeking to preserve the relationship entrusted to him, is a form of loyalty intended to keep the empire viable, not disloyalty. Rather than accept an ally's departure, Napoleon chooses the campaign believing that concentration and victory as before can solve greater pressure too. Having heard a warning does not mean the man departing is already certain of failure.
 
-관객에게는 결말을 아는 사람의 정답 발표 대신 제국의 질서를 지키려는 판단과 거리의 비용이 충돌하는 출발을 준다. 베르티에의 진군 중 만류는 아직 이 결정 앞에 당겨 놓지 않는다. 코랭쿠르의 후일 증언은 그때 모두가 함께 앉아 남긴 단일 회의록이 아니다. 출발한 큰 군의 힘이 거리를 없앨 수 있는지는 이제 행군의 결과로 시험된다.
+Give the audience a departure in which a judgment seeking to protect imperial order collides with the cost of distance, rather than a correct answer announced by someone who knows the ending. Do not bring Berthier's objections during the march forward to this decision. Caulaincourt's later testimony is not a single set of minutes recorded by everyone sitting together then. Whether the strength of the great army that departed can eliminate distance is now tested by the march's results.
 
-## 물러나는 적이 진군의 비용을 바꾼다 {#advance}
+## A retreating enemy changes the cost of advancing {#advance}
 
-러시아군은 프랑스 황제가 원하는 장소와 시간에 모두 모여 결판을 내주지 않는다. 바클라이는 군의 보전과 합류를 고려하며 물러나는 선택의 군사적 이익과 정치적 부담을 함께 진다. 알렉산드르의 나라에서도 후퇴를 계속 받아들이기 어려운 압력이 쌓인다. 관객은 러시아 지휘부의 판단을 한 사람의 비밀 완벽한 계획으로 합치지 않는다.
+The Russian army does not gather everywhere to decide the war at the place and time the French Emperor wants. Barclay bears both the military benefit and political burden of choosing retreat while considering preservation and junction of his forces. Pressure accumulates in Alexander's country too against continuing to accept withdrawal. Do not combine Russian command's judgments into one person's secret perfect plan.
 
-프랑스군은 따라갈수록 거리와 더위, 질병·굶주림·말의 손실을 떠안는다. 추위가 오지 않았는데도 뒤처지는 몸과 멈추는 수송이 늘어, 앞에서 얻던 현지 조달과 빠른 기동이 같은 방식으로 다음 날을 열지 못한다. 이 손실을 겨울 뒤에 처음 설명하지 않는다. 네만 강을 건너 이미 침공한 뒤 비텝스크의 논의에서 베르티에는 늘어난 연락선과 군을 지속시킬 수 있는지 염려하며 더 나아가는 데 반대한다. 나폴레옹은 멈추는 대신 적을 따라잡을 기회를 더 앞에서 찾는다. 참모의 반대가 결정을 돌리지 못해 이미 줄어든 군으로 다음 전투를 해야 하는 상태가 남는다.
+The farther the French follow, the more they bear distance, heat, disease, hunger, and loss of horses. Even before cold arrives, bodies fall behind and transport stops in growing numbers; local procurement and rapid maneuver that opened the next day before no longer work in the same way. Do not first explain these losses after winter. At the discussion in Vitebsk after the Niemen has already been crossed and the invasion begun, Berthier opposes advancing farther, concerned about lengthened lines of communication and whether the army can be sustained. Napoleon seeks an opportunity farther ahead to catch the enemy rather than stop. The staff officer's opposition does not reverse the decision, leaving a diminished army to fight the next battle.
 
-역사가는 비텝스크의 우려를 세귀르가 후대에 전해 들은 증언의 층위로 짚는다. 출발 전 코랭쿠르의 만류, 뒤의 스몰렌스크·모스크바 증언과 같은 회의나 축어록으로 합치지 않는다. 관객은 현장의 비용과 그 반대를 알되 눈물·탄식의 전언을 당대 직접 관찰로 인증하는 재현은 받지 않는다.
+The historian identifies concern at Vitebsk as testimony Ségur later heard and transmitted. Do not combine Caulaincourt's warning before departure and later testimony at Smolensk and Moscow into the same meeting or verbatim record. The audience knows costs on the ground and that opposition, but does not receive a reenactment authenticating accounts of tears and lament as direct contemporary observation.
 
-## 황제를 따라가도 같은 전황을 아는 것은 아니다 {#limited-sight}
+## Following the Emperor does not mean knowing the same battle {#limited-sight}
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 시야는 `docs/body/settings/050-people/010-ensemble.md#eugene`·`docs/body/settings/050-people/010-ensemble.md#ney`의 자기 부대 임무와 `docs/body/settings/050-people/010-ensemble.md#bourgogne`의 하사관 경험, `docs/body/settings/110-knowledge/010-information.md#access`의 사후 회고/직접 관측 구분을 그대로 시험했다. 다음 보로디노 이전의 결핍은 `docs/body/settings/100-history/020-life-and-memory.md#russia-and-coalition`에 있어 새 회고 일화·동료·전군 총계가 필요하지 않았다.
 -->
-외젠과 네 등 각 지휘관에게는 자기 부대와 받은 명령의 일이 있고, 부르고뉴에게는 행군과 생존의 시야가 있다. 하사관은 참모의 총수를 알고 소모를 해설하는 사람이 아니라 눈앞에서 먹고 걷고 동료와 떨어지지 않으려는 사람이다. 그의 후일 회고를 현재 경험으로 채택할 때도 다른 회고자의 유명한 고난을 옮겨 붙이지 않는다.
+Commanders including Eugène and Ney have the work of their own troops and orders received; Bourgogne has the perspective of marching and survival. The noncommissioned officer is not someone who knows the staff's total and explains attrition, but someone trying to eat, walk, and not lose his companions before him. Even when adopting his later memoir as present experience, do not attach another memoirist's famous hardship to him.
 
-관객은 지휘부가 기대하는 결전과 병사가 이미 치르는 패배를 함께 안다. 그러나 병사에게 후일의 전체 참상을 미리 말하게 하지 않는다. 이렇게 쌓인 결핍 위에 보로디노의 결전이 오며, 그날의 막대한 희생은 건강한 대군이 처음 지불한 값이 아니게 된다.
+The audience knows both the decisive battle expected by command and the defeat already suffered by soldiers. Yet do not have a soldier announce the whole later disaster in advance. Borodino comes on top of this accumulated deprivation, so that day's immense sacrifice is not the first price paid by a healthy great army.

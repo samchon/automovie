@@ -1,195 +1,193 @@
+# The Returning Coffin
 
-# 돌아오는 관
+## People deciding where he may stay {#house}
 
-## 머물 곳을 정해 주는 사람 {#house}
+Parents: [043#longwood](../../treatments/043-a-house-under-guard.md#longwood), [043#governor](../../treatments/043-a-house-under-guard.md#governor).
 
-부모: [043#longwood](../../treatments/043-a-house-under-guard.md#longwood), [043#governor](../../treatments/043-a-house-under-guard.md#governor).
+Saint Helena, late 1815. After temporary quarters, enter Longwood in December. Watch baggage entering from inside the door. Bertrand moves among damp walls and belongings. Marchand places necessities near Napoleon; Las Cases uses language and recording to connect requests. Lowe, not yet arrived, does not appear.
 
-1815년 말 세인트헬레나. 임시 거처를 거쳐 12월 롱우드로 들어간다. 문 안에서 짐이 들어오는 길을 본다. 습한 벽과 생활 짐 사이로 베르트랑이 오간다. 마르샹은 나폴레옹 가까이에 필요한 것을 놓고 라스카즈는 언어와 기록으로 요청을 잇는다. 아직 오지 않은 로는 등장하지 않는다.
+NAPOLEON: Is this all?
 
-나폴레옹: 여기까지인가?
+MARCHAND: I will first prepare the place you need today.
 
-마르샹: 오늘 쓰실 곳부터 마련하겠습니다.
+Bertrand attends to his family's place and the accounts together. Someone awaiting permission stands outside. Even when another enters in their place, no path opens for that person.
 
-베르트랑이 가족의 자리와 장부를 함께 챙긴다. 허가를 기다리는 사람은 문밖에 선다. 다른 사람이 대신 들어와도 그에게는 길이 나지 않는다.
+After April 1816, Lowe's office. A British government document orders prevention of escape and communication. See his enforcement and Napoleon's refusal in separate spaces. Do not multiply direct meetings with a new count.
 
-1816년 4월 이후, 로의 집무 자리. 도주와 통신을 막으라는 영국 정부 문서가 있다. 그의 집행과 나폴레옹의 거부를 서로 다른 공간에서 본다. 새 직접 면담 횟수로 늘리지 않는다.
+LOWE: Communications leaving without permission must be stopped.
 
-로: 허가 없이 나가는 통신은 막아야 합니다.
+At Longwood Napoleon refuses conditions that do not treat him as Emperor. Amid the expense dispute, he prepares to dispose of silver plate.
 
-롱우드에서는 나폴레옹이 황제 대접을 받지 못하는 조건에 응하지 않는다. 비용 갈등 속에서 은 식기를 처분할 준비를 한다.
+MARCHAND: Are you giving this up too?
 
-마르샹: 이것도 내놓으십니까?
+NAPOLEON: Put it out.
 
-나폴레옹: 내놓게.
+Marchand separates used plate. Bertrand records expenditure, then counts remaining living expenses. Regulations made far away reach an empty place at the table.
 
-쓰던 식기를 마르샹이 따로 나눈다. 베르트랑은 지출을 적다가 남은 생활비를 센다. 멀리서 정한 규정이 식탁의 빈자리로 닿는다.
+## A campaign moved by words {#dictation}
 
-## 말로 움직이는 전역 {#dictation}
+Parent: [044#dictation](../../treatments/044-the-people-who-write.md#dictation).
 
-부모: [044#dictation](../../treatments/044-the-people-who-write.md#dictation).
+Longwood by day, autumn 1816. Napoleon walks and speaks. Las Cases draws paper toward him. Distinguish where Las Cases's son takes dictation from the father's diary desk. After Napoleon stops, the pen writes a few more characters.
 
-1816년 가을, 낮의 롱우드. 나폴레옹이 걸으며 말한다. 라스카즈는 종이를 당겨 본다. 라스카즈의 아들이 받아쓰는 자리와 그 아버지의 일기 책상을 구별한다. 나폴레옹이 멈춘 뒤에도 펜은 몇 글자를 더 간다.
+NAPOLEON: Have you written that far?
 
-나폴레옹: 거기까지 적었소?
+LAS CASES: I am finishing what you just said.
 
-라스카즈: 방금 말씀을 마저 정리하고 있습니다.
+Before Las Cases can read back, Napoleon starts the next campaign. The father turns a page; the son draws another sheet.
 
-읽어 보려는 라스카즈보다 먼저 나폴레옹이 다음 전역을 말한다. 아버지는 종이를 넘기고 아들은 다른 종이를 당긴다.
+HISTORIAN (off screen): Las Cases's diary, his son's dictation, and the separately dictated campaign memoirs were different manuscripts.
 
-역사가(화면 밖): 라스카즈의 일기와 그 아들의 받아쓰기, 별도로 구술한 전역 회고는 서로 다른 원고였다.
+Through the historian's approach briefly widen to the Marengo report revised in exile. Compare the actual retreat and counterattack after Desaix arrived, already seen, briefly. Do not perform the entire battle again.
 
-역사가의 접근으로 유배기에 개정한 마렝고 보고까지 잠깐 시야를 넓힌다. 앞서 본 실제 후퇴와 드세 도착 뒤 반격을 짧게 맞댄다. 전투 전체를 다시 공연하지 않는다.
+HISTORIAN (off screen): Victory won by an army that was pushed back and counterattacked became, in the later account, strategy calculated from the start. The exact time of revision cannot be fixed to one day that autumn.
 
-역사가(화면 밖): 밀린 군이 반격해 얻은 승리는 뒤의 설명에서 처음부터 계산한 전략이 되었다. 정확히 언제 고쳤는지는 이 가을의 한날로 정할 수 없다.
+Do not invent the revised original text on screen or read it as scene dialogue. Return to the same Longwood desk. Bertrand adds dates and Marchand records what he heard in close daily life.
 
-고친 원문을 화면에 만들어 쓰거나 현장 대사로 읽지 않는다. 같은 롱우드 책상으로 돌아온다. 베르트랑은 날짜를 붙이고 마르샹은 가까운 일상에서 들은 것을 남긴다.
+HISTORIAN (off screen): Montholon's memoir too was formed at another time under other conditions. Being nearby did not give the same credibility.
 
-역사가(화면 밖): 몽톨롱의 회고도 다른 때, 다른 조건에서 성립했다. 곁에 있었다고 같은 신빙성을 얻지는 않았다.
+Do not open a new scene performing Montholon.
 
-몽톨롱을 연기하는 새 장면은 열지 않는다.
+## A man who wants to be closer {#rivalry}
 
-## 가까워지고 싶은 사람 {#rivalry}
+Parents: [044#rivalry](../../treatments/044-the-people-who-write.md#rivalry), [044#departures](../../treatments/044-the-people-who-write.md#departures).
 
-부모: [044#rivalry](../../treatments/044-the-people-who-write.md#rivalry), [044#departures](../../treatments/044-the-people-who-write.md#departures).
+An evening in Longwood daily life, without a fixed date. Reconstruct the relationship. Gourgaud tries to go to an empty place near Napoleon. Another companion speaks first. The gaze following that exchange lowers to Gourgaud's waiting hand.
 
-날짜를 특정하지 않은 롱우드 일상의 저녁. 관계를 재구성한다. 구르고가 나폴레옹 곁 빈자리로 가려 한다. 다른 수행원이 먼저 말을 건다. 그쪽을 따른 시선이 기다리는 구르고의 손으로 내려온다.
+GOURGAUD: I have something to tell you too.
 
-구르고: 저도 말씀드릴 것이 있습니다.
+NAPOLEON: Wait a little.
 
-나폴레옹: 조금 기다리게.
+Gourgaud steps back. Even after the earlier conversation ends he does not step forward again, but goes out. Alone he opens paper and writes. Laughter inside stops his pen. Do not show a new original passage from his actual diary.
 
-구르고가 한 걸음 물러난다. 앞의 말이 끝나도 다시 나서지 않고 밖으로 나간다. 혼자 종이를 펴 쓴다. 문 안에서 웃음이 들리자 펜이 멈춘다. 실제 일기의 새 원문은 보여 주지 않는다.
+Las Cases's arrest and removal in 1816. His son gathers papers while baggage is closed and they leave. Do not keep placing Las Cases's recorded voice over conversations of those remaining after he leaves.
 
-1816년 라스카즈의 체포와 이송. 짐을 닫고 떠나는 동안 아들이 종이를 챙긴다. 떠난 뒤 남은 사람들의 대화에 라스카즈의 기록 음성을 계속 붙이지 않는다.
+February 1818. A place disappears at the table.
 
-1818년 2월, 식탁의 자리가 줄어든다.
+HISTORIAN (off screen): Cipriani, the steward responsible for household and food procurement, died. Those remaining had to take on his work too.
 
-역사가(화면 밖): 살림과 식량 조달을 맡던 집사 시프리아니가 죽었다. 남은 사람들은 그의 일도 맡아야 했다.
+Gourgaud sails in March. Receive his later statements in Britain through a different approach in another place. Do not combine them with the same voice as his island diary. Bertrand cannot close the ledger and writes down newly remaining work.
 
-3월 구르고가 출항한다. 뒤의 영국 발언은 다른 장소에서 다른 접근으로 받는다. 섬의 일기와 같은 음성으로 합치지 않는다. 베르트랑은 장부를 덮지 못하고 새로 남은 일을 적는다.
+## The patient's room and the governor's report {#care}
 
-## 환자의 방과 총독의 보고 {#care}
+Parents: [045#o-meara](../../treatments/045-the-patient-and-the-reports.md#o-meara), [045#antommarchi](../../treatments/045-the-patient-and-the-reports.md#antommarchi).
 
-부모: [045#o-meara](../../treatments/045-the-patient-and-the-reports.md#o-meara), [045#antommarchi](../../treatments/045-the-patient-and-the-reports.md#antommarchi).
+Spring 1818, the patient's room. O'Meara examines Napoleon closely. Bertrand waits at the door; Marchand hands over water.
 
-1818년 봄, 환자의 방. 오미라가 나폴레옹의 몸을 가까이 살핀다. 문 앞에 베르트랑이 기다리고 마르샹은 물을 건넨다.
+O'MEARA: When did this begin today?
 
-오미라: 오늘은 언제부터 이러셨습니까?
+Napoleon thinks briefly and answers.
 
-잠시 생각한 나폴레옹이 답한다.
+NAPOLEON: It is worse than before.
 
-나폴레옹: 아까보다 더 힘드오.
+O'Meara writes and examines him again. In another room Lowe waits for a report. O'Meara's writing hand stops.
 
-오미라가 적은 뒤 몸을 다시 살핀다. 다른 방에서는 로가 보고를 기다린다. 쓰던 오미라의 손이 멈춘다.
+O'MEARA: How much of what I hear from my patient must I pass on?
 
-오미라: 환자에게 들은 것을 어디까지 넘겨야 합니까?
+After this question receive the official report and opposing statements on Lowe's side as records of different interests.
 
-이 질문 뒤 공식 보고와 로 측의 반대 진술을 서로 다른 이해의 기록으로 받는다.
+HISTORIAN (off screen): O'Meara wrote on the patient's side; Lowe's side opposed him. Closeness of treatment did not remove the interests in reporting.
 
-역사가(화면 밖): 오미라는 환자의 편에서 썼고 로 쪽은 반대했다. 진료의 가까움이 보고의 이해관계까지 없애지는 않았다.
+Dismissed in July, O'Meara gathers instruments and leaves. See the patient's room beyond the empty door. Do not keep him treating into the next year.
 
-7월 해임된 오미라가 도구를 챙겨 나간다. 빈 문 너머 환자의 방을 본다. 그를 다음 해까지 진료하는 사람으로 남겨 두지 않는다.
+Caption: September 20, 1819.
 
-자막: 1819년 9월 20일.
+Newly arrived Antommarchi enters the room now. He examines the body through answers and observations received from this point. On a day helping exercise, follow legs walking in the garden and see feet stop.
 
-새로 온 안토마르키가 지금의 방에 들어온다. 이제부터 받은 답과 관찰로 몸을 살핀다. 운동을 돕는 날, 정원에서 걷는 다리를 따르다가 멎는 발을 본다.
+NAPOLEON: I can go a little farther.
 
-나폴레옹: 조금 더 갈 수 있겠소.
+Marchand stays close. After several steps Napoleon seeks rest; Antommarchi indicates a place to sit. What the body permits diminishes and meals and dictation become shorter. Give no expression of already knowing modern diagnosis or omnipotent treatment.
 
-마르샹이 곁에 붙는다. 몇 걸음 뒤 쉬려 하자 안토마르키가 앉을 곳을 가리킨다. 몸이 허락하는 일이 줄어들고 식사와 구술도 짧아진다. 현대 진단을 미리 아는 표정이나 전능한 치료는 두지 않는다.
+## The work of what will be left {#will-and-death}
 
-## 남길 것의 일 {#will-and-death}
+Parents: [046#will](../../treatments/046-death-and-burial.md#will), [046#death](../../treatments/046-death-and-burial.md#death).
 
-부모: [046#will](../../treatments/046-death-and-burial.md#will), [046#death](../../treatments/046-death-and-burial.md#death).
+An overcast day in 1821. A will nearing completion. Gift instructions remain on paper, not yet paid. Napoleon reaches for a paper and Marchand brings it closer. Bertrand separately organizes records and belongings.
 
-1821년 흐린 낮. 완성되어 가는 유언 문서. 증여의 지시는 아직 지급되지 않은 채 종이에 남는다. 종이를 향해 손을 뻗는 나폴레옹에게 마르샹이 가까이 가져다준다. 베르트랑이 기록과 유품을 따로 정리한다.
+BERTRAND: I will put these together here.
 
-베르트랑: 이쪽에 함께 두겠습니다.
+Napoleon's gaze stays long as he checks.
 
-확인하려는 나폴레옹의 시선이 오래 머문다.
+HISTORIAN (off screen): He wished to be buried on the banks of the Seine among the French people he loved. Where the remains could be placed was under others' authority.
 
-역사가(화면 밖): 그는 자신이 사랑한 프랑스 사람들 가운데, 센강 가에 묻히길 원했다. 유해를 어디에 둘지는 다른 사람들의 권한이었다.
+The picture remains in the room of 1821.
 
-화면은 1821년의 방에 남는다.
+Caption: May 5, 1821.
 
-자막: 1821년 5월 5일.
+See people beside the bed at the same height. Marchand adjusts support for the body and Antommarchi approaches. Bertrand waits. Intervals between breaths lengthen. Do not fill in last words. When no further response comes, Marchand's hand stops. People remain in the room.
 
-침상 곁 사람들을 같은 높이에서 본다. 마르샹이 몸을 고쳐 받치고 안토마르키가 다가온다. 베르트랑은 기다린다. 숨의 간격이 길어진다. 마지막 말을 대신 채우지 않는다. 응답이 더 오지 않자 마르샹의 손이 멎는다. 방에는 사람들이 남아 있다.
+Receive the autopsy on the 6th through documents and the medical personnel's different findings.
 
-6일의 부검은 문서와 의료진의 서로 다른 소견으로 받는다.
+HISTORIAN (off screen): The adopted cause of death is stomach cancer. Contemporary autopsy findings and interpretations differed. That difference is not proof of a poisoner.
 
-역사가(화면 밖): 사인은 위암으로 본다. 당시 부검의 소견과 해석은 달랐다. 그 차이가 독살범의 증거는 아니다.
+In May a coffin is placed in the island grave. After people leave, the grave remains that day.
 
-5월, 섬의 무덤에 관을 놓는다. 사람들이 떠난 뒤 그날의 무덤을 남긴다.
+## A book arrives and a son departs {#memory-and-son}
 
-## 책이 도착하고 아들은 떠난다 {#memory-and-son}
+Parents: [047#publication](../../treatments/047-the-name-outlives-the-family.md#publication), [047#son](../../treatments/047-the-name-outlives-the-family.md#son).
 
-부모: [047#publication](../../treatments/047-the-name-outlives-the-family.md#publication), [047#son](../../treatments/047-the-name-outlives-the-family.md#son).
+In 1823 a published book reaches a reader. Connect hands selecting papers at Longwood with hands turning pages. Do not return to a conversation on the same day.
 
-1823년, 출판된 책이 독자에게 닿는다. 롱우드에서 종이를 고르던 손과 책장 넘기는 손을 잇는다. 같은 날의 대화로 돌아가지 않는다.
+HISTORIAN (off screen): Las Cases's record was later revised into a book. It was a different manuscript from revisions of the Marengo campaign report.
 
-역사가(화면 밖): 라스카즈의 기록은 뒤에 손질되어 책이 되었다. 마렝고 전역 보고의 개정과는 다른 원고다.
+The reader places a finger where they were reading and opens an earlier page again. Dictation during exile now reaches someone not present there.
 
-책장을 넘긴 독자가 읽던 자리에 손가락을 두고 다시 앞장을 펼친다. 유배 중 구술은 이제 그 자리에 없던 사람에게도 닿는다.
+HISTORIAN (off screen): Two sayings attributed to Cambronne made a name that did not yield even in defeat. He denied those words.
 
-역사가(화면 밖): 캉브론에게 붙은 두 말은 패배에도 굴복하지 않는 이름을 만들었다. 본인은 그 말들을 부인했다.
+Do not return this voice to an actual mouth at Waterloo.
 
-워털루의 실제 입에 이 음성을 돌려 붙이지 않는다.
+HISTORIAN (off screen): Bourrienne was a secretary who made documents. Resentment over money and dismissal also remained in his memoir. Being close as secretary did not mean seeing all later private life.
 
-역사가(화면 밖): 부리엔은 문서를 만들던 비서였다. 돈과 해임 뒤의 앙금도 회고에 남았다. 비서 시절 곁에 있었다고 이후의 모든 사생활까지 본 것은 아니었다.
+Without adding an unverified publication year or new original text, leave differences in records. Letizia is in a family space without her son. See her body beside remaining family rather than a new letter or words.
 
-확인하지 않은 출판 연도나 새 원문을 보태지 않고 기록의 차이를 남긴다. 레티치아는 아들이 없는 가족 공간에 있다. 새 편지나 문구 대신 남은 가족 곁의 몸을 본다.
+HISTORIAN (off screen): The father declared succession as Napoleon II for the child born King of Rome. Actual rule did not come. In Vienna he was called Franz and became Duke of Reichstadt.
 
-역사가(화면 밖): 로마 왕으로 태어난 아이에게 아버지는 나폴레옹 2세라는 계승을 선언했다. 실제 통치는 오지 않았다. 빈에서는 프란츠로 불렸고 라이히슈타트 공작이 되었다.
+Daylight inside Schönbrunn. The grown son turns from activity outside the window to his own document. An independent reconstruction without a new meeting with a specific historical person.
 
-낮의 쇤브룬 실내. 자란 아들이 창밖의 활동에서 자기 문서로 눈을 돌린다. 특정 실존인과 새 대면을 만들지 않는 독립된 재구성.
+SON: Even with my father's name, I do not gain a place of my own.
 
-아들: 아버지 이름을 받았어도 내 자리가 생기는 건 아니군요.
+No army to answer or state order arrives. Briefly juxtapose his childhood face, then close on the result of his death July 22, 1832. Do not call him the Eaglet in life. The child once promising a return did not become a living successor who could return.
 
-답할 군대나 나라의 명령은 들어오지 않는다. 어린 얼굴을 짧게 맞댄 뒤 1832년 7월 22일 죽음의 결과로 닫는다. 생전의 아들을 아글롱이라 부르지 않는다. 앞서 귀환을 예고하던 아이는 살아 돌아올 계승자가 되지 못한다.
+## Authority to bring the coffin home {#permission-and-exhumation}
 
-## 관을 데려올 권한 {#permission-and-exhumation}
+Parents: [048#permission](../../treatments/048-the-last-return.md#permission), [048#exhumation](../../treatments/048-the-last-return.md#exhumation).
 
-부모: [048#permission](../../treatments/048-the-last-return.md#permission), [048#exhumation](../../treatments/048-the-last-return.md#exhumation).
+1840.
 
-1840년.
+HISTORIAN (off screen): Louis Philippe's government pursued return of the remains. Thiers's negotiations with Britain opened the way.
 
-역사가(화면 밖): 루이 필리프 정부가 유해 귀환을 추진했다. 티에르와 영국의 교섭이 길을 열었다.
+Papers pass; after permission, a ship moves. There is no scene in which a king's secret thoughts or one order opens the voyage.
 
-서류가 오가고 허가를 받은 뒤 배가 움직인다. 왕의 비밀 속내나 명령 하나로 항해가 열리는 장면은 없다.
+Bertrand and Marchand return for voyage preparations. The same people at sixty-seven and forty-nine move more slowly than before.
 
-항해 준비에 베르트랑과 마르샹이 돌아온다. 예순일곱과 마흔아홉의 같은 사람들이 전보다 느리게 움직인다.
+HISTORIAN (off screen): The Las Cases on this voyage is the son, not the father who recorded at Longwood.
 
-역사가(화면 밖): 이 항해의 라스카즈는 롱우드의 아버지 기록자가 아니라 아들이다.
+The island grave by day. Frame space for the coffin to emerge wide, then narrow to Bertrand's and Marchand's approaching faces. Do not newly fix coffin material order or opening minute. Watch their checking gaze and bodies stiff from long waiting.
 
-낮의 섬 무덤. 관이 나올 공간을 넓게 잡다가 다가오는 베르트랑과 마르샹의 얼굴로 좁힌다. 관 재료의 순서와 개봉 분은 새로 정하지 않는다. 확인하려는 시선과 오래 기다린 몸의 굳음을 본다.
+MARCHAND: I will look closer.
 
-마르샹: 가까이 보겠습니다.
+Bertrand makes room. Give both time to verify.
 
-베르트랑이 옆을 내준다. 두 사람이 확인하는 시간을 둔다.
+HISTORIAN (off screen): Observations reported by those who opened the coffin differed too. This was not a place to confirm a person had returned alive.
 
-역사가(화면 밖): 관을 연 이들이 시신을 두고 전한 관찰도 한결같지는 않았다. 살아 돌아온 사람을 확인하는 자리는 아니었다.
+Without an effect of the body breathing, hands supporting the coffin pass it to the next carriers.
 
-시신이 숨 쉬는 효과 없이 관을 받치는 손이 다음 운반자의 손으로 넘어간다.
+Beside the secured coffin aboard ship, Bertrand looks at records. Marchand checks traces of close care. Place two people doing different work without a monologue representing one memory. Hear water outside while a completed life is transported, instead of the unknown of the exile voyage.
 
-배 안 고정된 관 곁에서 베르트랑이 기록을 본다. 마르샹은 가까운 돌봄의 흔적을 살핀다. 하나의 기억을 대표하는 독백 없이 다른 일을 하는 두 사람을 둔다. 유배 항해의 미지 대신 닫힌 생애가 옮겨가는 동안 바깥 물소리를 듣는다.
+## The person beside the coffin {#ending}
 
-## 관 곁의 사람 {#ending}
+Parent: [048#arrival-and-ending](../../treatments/048-the-last-return.md#arrival-and-ending).
 
-부모: [048#arrival-and-ending](../../treatments/048-the-last-return.md#arrival-and-ending).
+Caption: December 15, 1840, Paris.
 
-자막: 1840년 12월 15일, 파리.
+See crowds wide without rising to a height that counts them. Follow different faces and procession movement as the coffin enters Les Invalides. Stop at temporary placement without the completed tomb of 1861. See Louis Philippe's ceremony at a public distance. Add no private words for the king.
 
-군중을 넓게 보되 수를 세는 높이로 올라가지 않는다. 다른 얼굴들과 행렬의 움직임을 따라 관이 앵발리드로 들어간다. 1861년의 완성 묘소 없이 임시 안치 자리에서 멈춘다. 루이 필리프의 의례는 공적 거리에서 본다. 왕의 사적 말은 붙이지 않는다.
+Marchand steps back after finishing work beside the coffin. Bertrand remains. The approaching gaze stops on his face, then includes the coffin too. He guards the place as though seeing whether anything remains to move, a man who has long held responsibility. He does not hand a sword to the king or speak a final maxim.
 
-관 곁 일을 마친 마르샹이 물러난다. 베르트랑이 남는다. 가까워지는 시선이 얼굴에 멎었다가 관을 함께 넣는다. 오래 책임을 맡은 사람이 더 옮겨야 할 것이 있는지 보듯 자리를 지킨다. 왕에게 검을 건네거나 최후의 명언을 말하지 않는다.
+HISTORIAN (off screen): The state received him.
 
-역사가(화면 밖): 국가는 그를 맞아들였다.
+After the words, stay on Bertrand and the coffin. Procession sounds recede. Even the small sound of moving feet stops. Fade to black.
 
-말이 끝난 뒤 베르트랑과 관에 머문다. 행렬 소리가 멀어진다. 발 옮기는 작은 소리도 멎는다. 암전.
+End of main work. Separately announce author commentary on a dark screen, then a new voice.
 
-본편 끝. 어두운 화면에 작가 해설의 시작을 따로 알린 뒤 새 음성.
-
-작가: 마지막은 1840년 12월 15일의 임시 안치입니다. 훗날 완성된 묘소는 아직 없어요. 베르트랑 곁의 관에서 멈추되 마르샹의 다른 일도 지우지 않았습니다. 섬의 기록도 한 사람이 쓴 한 권의 진실로 합치지 않았어요. 이번에 실제로 읽은 사건 설계가 나눈 자료 지위를 따랐고, 거기 나온 회고록과 번역서를 제가 모두 읽었다고 말하지는 않겠습니다.
-
+AUTHOR: The ending is temporary placement on December 15, 1840. The later completed tomb does not yet exist. We stop at the coffin beside Bertrand without erasing Marchand's different work. We did not combine island records into one book of truth written by one person. We followed the source status distinguished in the event design I actually read for this work, and I will not claim I read all the memoirs and translations mentioned there.

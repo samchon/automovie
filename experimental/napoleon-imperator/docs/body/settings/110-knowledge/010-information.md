@@ -1,23 +1,23 @@
-# 편지와 보고가 닿는 때
+# When Letters and Reports Arrive
 
-[개요](../outline/index.md#110-knowledge--010-information)
+[Outline](../outline/index.md#110-knowledge--010-information)
 
-## 인물의 눈과 기록자의 시야 {#access}
+## Characters' eyes and a recorder's view {#access}
 
-명령한 때·보낸 때·받은 때·행동한 때는 서로 다른 상태다. 전령이 출발했다는 기록만으로 수신자가 이미 안다고 하지 않는다. 사후 회고의 넓은 그림을 현장 인물이 전부 본 시야로 바꾸지 않는다. 각 사건의 지형과 보고 경로가 가능한 앎의 상한이다. 이 제약은 원본 지식 영역 다섯 파일과 역사·기관 기록의 공통 경계이며, 관객에게 언제 보여 줄지는 treatments가 정한다.
+Ordering, sending, receiving, and acting are distinct states. A record that a messenger departed does not mean the recipient already knows. Do not turn the wide picture of a later memoir into everything a person on the scene saw. Each event's terrain and reporting routes set an upper limit on possible knowledge. This constraint is common to the five original knowledge-domain files and historical and institutional records; treatments determines when the audience sees information.
 
-## 바다의 소식과 두 전장의 보고 {#news}
+## News from the sea and reports from two fields {#news}
 
-원본에서 채택한 트라팔가르의 전투일은 1805년 10월 21일이다. 소식은 11월 6일 새벽 런던 해군성에, 11월 18일 즈나임의 나폴레옹에게 닿는다. 전투일에 런던과 황제가 동시에 소식을 아는 장면은 성립하지 않는다. 피클호 정박·보트의 상륙·역마차 출발은 한 시각으로 합치지 않는다. 출처는 원본 `110-knowledge/002-news-lag-trafalgar#news-lag-trafalgar`와 그 파일이 구별한 The Trafalgar Way 및 나폴레옹 재단 해설의 인계이며 이번에 항해 일지 전체를 다시 대조한 값이 아니다.
+The date of Trafalgar adopted from the source is October 21, 1805. News reaches the Admiralty in London in the early hours of November 6 and Napoleon at Znaim on November 18. A scene in which London and the Emperor know simultaneously on the battle date cannot stand. Do not combine HMS Pickle's anchoring, a boat landing, and a post-chaise's departure into one time. The source is the original `110-knowledge/002-news-lag-trafalgar#news-lag-trafalgar` and its handoff of The Trafalgar Way and Napoleon Foundation accounts; this is not a value obtained by rechecking the entire ship's log now.
 
-1806년 10월 14일 예나와 아우어슈테트는 다른 전장이다. 다음 날 오전 다부의 승전 보고가 왔을 때 나폴레옹이 믿지 않았다는 기록을 따른다. “둘로 보인다”는 놀림은 전해지는 말이며 축어록이 아니다. 보고의 상세 이동 경로와 소요 시간은 미상이다. 원본 `001-news-lag-jena#news-lag-jena`가 인계한 재단 해설을 따른다.
+Jena and Auerstädt on October 14, 1806 are different fields. Follow the record that Napoleon disbelieved Davout's victory report when it arrived the next morning. The tease that he “saw double” is a reported saying, not a verbatim transcript. The report's detailed route and travel time are unknown. Follow the Foundation account handed on by original `001-news-lag-jena#news-lag-jena`.
 
-## 죽었다는 거짓 소식과 진짜 귀환 {#malet-waterloo}
+## False news of death and a real return {#malet-waterloo}
 
-말레는 1812년 10월 22~23일 밤 요양원을 빠져나와 황제의 죽음이라는 거짓 정보를 이용한다. 황제가 이 음모를 아는 때는 11월 6~7일로 갈리므로 러시아의 나폴레옹에게 파리 사건을 즉시 알려 주지 않는다. 거짓 보고가 움직인 권한과 실제 진압의 경과는 역사 정전이 소유한다. 원본 `004-news-lag-malet#news-lag-malet`의 재단 전기·퇴각 연표와 다른 연표의 갈림을 유지한다.
+Malet escapes a nursing home on the night of October 22–23, 1812 and uses false information of the Emperor's death. Accounts differ between November 6 and 7 for when the Emperor learns of the conspiracy, so do not immediately inform Napoleon in Russia of the Paris event. Historical canon owns the authority moved by the false report and the actual suppression. Preserve the difference between the Foundation biography and retreat chronology and another chronology in original `004-news-lag-malet#news-lag-malet`.
 
-워털루 승리 소식은 1815년 6월 21일 밤 런던에 닿아 22일 호외로 실린다. 거리 350~400킬로미터와 평균 속도는 후대 신문 계산의 범위이며 배의 표류와 육상 이동을 하나의 고정 보행 속도로 만들지 않는다. 원본 `003-news-lag-waterloo#news-lag-waterloo`의 귀속을 유지한다.
+News of victory at Waterloo reaches London on the night of June 21, 1815 and is printed in an extra edition on the 22nd. The 350–400 kilometer distance and average speed are ranges calculated by later newspapers; do not turn the ship's drift and land travel into one fixed walking speed. Preserve the attribution in original `003-news-lag-waterloo#news-lag-waterloo`.
 
-## 잠에서 깬 참모가 아는 밤 {#staff-night}
+## The night as waking staff officers know it {#staff-night}
 
-르죈 회고 1895년판 1권 33~35쪽의 12월 1일 밤에는 늦게 합류한 롱샹, 프랑스에서 가져온 편지, 노래, 술통과 짚대, 짚 위의 잠, 환호와 불빛이 있다. 특정 편지의 문구나 발신자, 참모의 연인은 기록되지 않았다. 황제를 알아본 병사들의 짚 횃불이라는 설명과 잠자리를 태운 희생이라는 평은 회고자의 후일 설명이다. 잠에서 깬 사람이 곧바로 전군의 생각과 적의 반응을 아는 장면으로 바꾸지 않는다. 별빛·밤 10~11시·6만 횃불은 안개·공보의 새벽 순시와 합쳐 하나의 정확한 관측으로 만들지 않는다. “Vive l’Empereur!”는 그 회고에 실린 말이며 대관식 기념일 때문에 외쳤다는 인과는 이 대목이 확인하지 않는다. 원본 `005-berthier-staff-mail-night#berthier-staff-mail-night`의 채택이고 이번에 르죈 원문 전체를 새로 읽은 것은 아니다.
+In the night of December 1 on pages 33–35 of volume 1 of the 1895 edition of Lejeune's memoir are Longchamp joining late, letters brought from France, a song, a cask and straws, sleep on straw, cheers, and light. The wording or sender of a particular letter and a staff officer's lover are not recorded. The explanation that soldiers who recognized the Emperor carried straw torches and the assessment that they sacrificed their bedding are the memoirist's later account. Do not turn a waking person into someone immediately knowing the whole army's thoughts and the enemy's response. Do not combine starlight, 10–11 p.m., and 60,000 torches with fog and a bulletin's dawn inspection into one precise observation. “Vive l’Empereur!” appears in the memoir; this passage does not confirm the cause that they cried it because of the coronation anniversary. This is adopted from original `005-berthier-staff-mail-night#berthier-staff-mail-night`; the whole original Lejeune text was not newly read now.

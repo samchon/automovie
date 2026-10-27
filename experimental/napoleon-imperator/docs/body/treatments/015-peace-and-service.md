@@ -1,23 +1,23 @@
-# 평화를 얻고 복무를 조직한다
+# Peace Won and Service Organized
 
-## 화해가 믿음과 국가의 자리를 다시 나눈다 {#concordat}
+## Reconciliation redraws the places of faith and state {#concordat}
 
-이 파일의 사실 부모: [종교·교육·명예](../settings/030-society/010-power-and-cost.md#dynasty-and-belief), [정부](../settings/030-society/010-power-and-cost.md#government), [통령정부](../settings/100-history/020-life-and-memory.md#consulate), [캉바세레스](../settings/050-people/010-ensemble.md#cambaceres).
+Factual parents: [religion, education, and honor](../settings/030-society/010-power-and-cost.md#dynasty-and-belief), [government](../settings/030-society/010-power-and-cost.md#government), [the Consulate](../settings/100-history/020-life-and-memory.md#consulate), [Cambacérès](../settings/050-people/010-ensemble.md#cambaceres).
 
-1801~1802년 정교협약의 과정. 종교적 분열을 끝내려는 정부와 교회의 이해가 만나 타협한다. 나폴레옹에게 화해는 신앙을 모두 지워서 얻을 수 없는 질서이고, 믿는 사람에게는 혁명 뒤 끊긴 생활을 이어 갈 가능성이다. 교회도 단순한 승전의 장식으로 복귀하지 않고 국가와 맺을 관계를 따로 가진다.
+During the Concordat process of 1801–1802, the interests of a government seeking to end religious division and those of the Church meet in compromise. For Napoleon reconciliation is an order that cannot be obtained by erasing all faith; for believers it offers a way to continue a life interrupted by revolution. The Church does not return merely as an ornament of victory, but has its own relationship to make with the state.
 
-화해의 성과를 실제 지지의 한 원인으로 남긴 뒤, 국가가 종교를 통제하려는 권한도 보존한다. 이때의 타협이 교황에게 계속 강제할 수 없다는 보장이 되지는 않는다. 뒤의 충돌은 처음부터 화해가 모두 거짓이었다는 반전이 아니라, 질서를 위해 맺은 관계가 독립의 범위에서 다시 부딪치는 회수다.
+Preserve reconciliation as one real cause of support, and also the state's authority to control religion. The compromise gives no guarantee that the Pope can never again be coerced. Later conflict is not a twist proving the entire reconciliation false from the start; it returns to a relationship made for order that collides again over the scope of independence.
 
-## 국가가 쓸 사람에게 출세의 길을 준다 {#schools-and-honors}
+## The state gives advancement to people it can use {#schools-and-honors}
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 현재 `docs/body/settings/030-society/010-power-and-cost.md#government`·`docs/body/settings/030-society/010-power-and-cost.md#dynasty-and-belief`의 학교·훈장·통제와 `docs/body/settings/050-people/010-ensemble.md#cambaceres`의 절차·사교 조정을 시험했다. “교육과 명예를 얻은 사람의 능력”을 복무로 돌려받는 집단 과정은 미채택 학생·수훈자·정확 통계·캉바세레스 특정 법안 없이 결정되어 추가 부모 수리가 필요하지 않았다.
 -->
-평화의 시간을 국가의 지속으로 옮기는 일에서 학교와 훈장이 필요해진다. 군과 행정은 숙련된 사람을 얻고, 사람들은 가문만으로 얻지 못하던 교육과 인정의 길을 본다. 장학생이었던 나폴레옹의 출발이 여기서 국가를 설계하는 사람의 선택으로 돌아온다. 공적을 인정하는 성취와 국가에 필요한 사람을 골라 묶는 통제는 같은 제도의 결과다.
+Schools and honors become necessary to turn peacetime into the state's continued life. Army and administration gain skilled people, while people see paths to education and recognition they could not have obtained through family alone. Napoleon's beginning as a scholarship student returns here in the choices of a man designing a state. Recognition of merit and control that selects and binds people needed by the state are results of the same institutions.
 
-캉바세레스의 절차와 사교적 조정은 장군의 명령만으로 되지 않는 집행을 지속시킨다. 국가는 선발과 공적 인정으로 사람을 불러들이고, 교육과 명예를 얻은 사람의 능력을 군과 행정의 복무로 돌려받는다. 가문 밖에서 열린 길을 택하는 이들에게 출세가 생기는 만큼 국가는 그 능력을 계속 요구할 근거를 얻는다. 학교 수나 훈장 수를 성과 자막으로 늘어놓지 않고 이 교환을 통치가 지속되는 힘으로 남긴다. 특정 신입생의 실제 입학 사건이나 수훈자를 새로 발명하지 않는다. 다음 전쟁에서는 이 국가가 길러 낸 능력과 내놓으라고 요구할 몸이 함께 움직인다.
+Cambacérès's procedural and social mediation sustains execution that cannot be achieved by a general's orders alone. The state draws people in by selection and recognition of merit, then receives the abilities of those educated and honored back in military and administrative service. As those who take a path opened beyond family find advancement, the state gains grounds to keep demanding their abilities. Instead of listing numbers of schools or decorations as achievement captions, leave this exchange as a force sustaining rule. Do not invent an actual admission of a particular new student or a recipient of honors. In the next war, the abilities this state cultivated and the bodies it demands will move together.
 
-## 평화는 상대의 순종과 다르다 {#amiens}
+## Peace is different from an opponent's obedience {#amiens}
 
-1802년 봄, 아미앵에서 맺은 평화 아래 싸움을 멈출 수 있다는 기대가 열린다. 영국과 프랑스는 각자의 안전과 영향력을 지키려 하며, 같은 문서에 서명했다고 유럽과 바다의 이해가 하나가 되지 않는다. 관객은 평화가 깨질 것을 알아도 당시의 휴식과 교역, 안도까지 무의미했다고 받지 않는다. 조약의 서명 장면으로 시간을 되돌리지 않고 이미 얻은 평화가 사람들의 현재 선택을 바꾸는 상태를 준다.
+In spring 1802 the Peace of Amiens opens an expectation that fighting can stop. Britain and France each seek to protect their own security and influence; signing the same document does not make their interests in Europe and at sea one. Even knowing peace will break, the audience does not receive the rest, trade, and relief of the time as meaningless. Do not return in time to a treaty-signing scene; show the peace already won changing people's present choices.
 
-이 평화는 프랑스가 해외에서 행사하는 강제까지 멈추게 하지 않는다. 다음의 식민지 사건은 유럽의 안도와 같은 시대에 벌어진다. 영국과 프랑스의 이해 차이도 남아 있어, 뒤에 합의가 깨질 때 프랑스의 간섭과 영국의 철수 불이행을 두 진영의 다른 주장으로 다시 만나게 한다.
+This peace does not stop coercion France exercises overseas. The following colonial events occur in the same period as European relief. British and French interests also remain different, so when the agreement later breaks the two camps' different claims about French interference and Britain's failure to withdraw return.

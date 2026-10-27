@@ -1,106 +1,105 @@
+# Leaving Home
 
-# 집을 떠나는 사람
+## A child comes to his mother {#birth}
 
-## 어머니에게 온 아이 {#birth}
+[Event parent 1](../../../body/treatments/006-birth-and-school.md#birth) · [Scene parent](../../../body/scripts/001-chronicle/002-home.md#birth)
 
-[사건 부모 1](../../../body/treatments/006-birth-and-school.md#birth) · [장면 부모](../../../body/scripts/001-chronicle/002-home.md#birth)
+The first image is a young hand supporting a baby. Caption: August 15, 1769. Ajaccio.
 
-첫 화면에는 아기를 받친 젊은 손이 보인다. 자막: 1769년 8월 15일. 아작시오.
+The child's cries fill the room. Letizia adjusts her arms first, drawing the baby close.
 
-아이의 울음이 방을 채운다. 레티치아가 먼저 팔을 고쳐 내밀며 아이를 가까이 받는다.
+LETIZIA: Give him to me.
 
-레티치아: 이리 줘요.
+After looking at the child, she turns to her family in the room. The baby keeps crying. The young mother's tired breathing and the cries sound together.
 
-아이를 본 뒤 방 안의 가족에게 시선을 옮긴다. 아이는 계속 운다. 젊은 어머니의 피곤한 숨과 울음이 함께 들린다.
+HISTORIAN (voice): A child was born in Corsica, now part of France. Before he was called Emperor, there was another child in this house to feed and raise.
 
-역사가(음성): 프랑스에 편입된 코르시카에서 태어난 아이였다. 훗날의 황제라는 이름으로 부르기 전에, 이 집에는 먹이고 길러야 할 아이가 하나 더 생겼다.
+As the cries subside, they give way to unfamiliar syllables in another language.
 
-울음이 잦아들며 다른 언어의 낯선 음절로 넘어간다.
+## Words he must learn to understand {#school}
 
-## 배워야 알아듣는 말 {#school}
+[Event parent 1](../../../body/treatments/006-birth-and-school.md#school) · [Scene parent](../../../body/scripts/001-chronicle/002-home.md#school)
 
-[사건 부모 1](../../../body/treatments/006-birth-and-school.md#school) · [장면 부모](../../../body/scripts/001-chronicle/002-home.md#school)
+Autun, 1779. Young Napoleon shapes French words he has heard in his mouth again. His first pronunciation misses; he tries once more. While he repeats one syllable, conversation around him has already moved to the next words.
 
-1779년, 오툉. 어린 나폴레옹이 들은 프랑스어를 입안에서 다시 만든다. 첫 발음이 빗나가자 한 번 더 말한다. 그가 한 음절을 되풀이하는 사이 주변의 대화는 벌써 다음 말로 넘어간다.
+Brienne. Among the boys Napoleon's accent sounds different. Someone imitates it and laughter follows. He starts to answer, then stops and returns to his calculations. When he gives the answer, he looks directly at the person who asked.
 
-브리엔. 소년들 사이에서 나폴레옹의 억양만 다르게 들린다. 누군가 흉내 낸 발음에 웃음이 난다. 그는 답하다가 멈추고 계산하던 곳으로 돌아간다. 숫자의 답을 내놓을 때는 묻던 사람을 똑바로 본다.
+YOUNG NAPOLEON: I've worked this far. I'll do the next one too.
 
-소년 나폴레옹: 여기까지 계산했어요. 다음 것도 하겠습니다.
+Caption: Reconstruction of a game from Bourrienne's later memoir.
 
-화면 자막: 부리엔의 후일 회고에 따른 놀이의 재구성.
+A fort built of snow. Boys charge and snowballs with stones in them fly. A hard impact cuts the shouting short. People gather around an injured child. Napoleon stops running too. Looking down at the child on the snow, his calculating confidence disappears.
 
-눈으로 쌓은 요새. 소년들이 달려들고 돌이 섞인 눈덩이가 날아간다. 단단한 것이 맞는 소리 뒤 함성이 끊긴다. 다친 아이에게 사람들이 모인다. 나폴레옹도 달리던 발을 멈춘다. 눈 위의 아이를 내려다보는 얼굴에서 계산하던 자신감이 사라진다.
+Paris military school, 1784. A young body in a larger space. A quiet caption then announces his father's death. In 1785 Napoleon, now a second lieutenant, dresses in uniform and counts money to spend while thinking of his family. Even after setting aside their share, he looks again at the money in his hand.
 
-1784년 파리 사관학교. 더 큰 공간 속의 젊은 몸. 이어 아버지의 죽음을 알리는 자막이 조용히 들어온다. 1785년, 소위가 된 나폴레옹은 군복을 갖춰 입고 가족을 생각하며 지출할 돈을 헤아린다. 남길 몫을 떼고도 손 안의 돈을 다시 본다.
+## One island, different sides {#island}
 
-## 같은 섬, 다른 편 {#island}
+[Event parent 1](../../../body/treatments/007-corsica-and-exile.md#paoli) · [Event parent 2](../../../body/treatments/007-corsica-and-exile.md#departure) · [Scene parent](../../../body/scripts/001-chronicle/002-home.md#island)
 
-[사건 부모 1](../../../body/treatments/007-corsica-and-exile.md#paoli) · [사건 부모 2](../../../body/treatments/007-corsica-and-exile.md#departure) · [장면 부모](../../../body/scripts/001-chronicle/002-home.md#island)
+Corsica, 1793. Show separate spaces where Napoleon's followers and Paoli's people conduct their respective political work.
 
-1793년 코르시카. 나폴레옹을 따르는 사람들과 파올리 쪽 사람들이 각자의 정치적 일을 진행하는 떨어진 공간을 보인다.
+HISTORIAN (voice): Napoleon sought opportunity and authority for Corsica within revolutionary France. Paoli sought to defend Corsica's right to decide for itself and his own authority to govern. Choosing help from another power was also a path to that end.
 
-역사가(음성): 나폴레옹은 혁명 프랑스 안에서 코르시카의 기회와 권한을 구했다. 파올리는 코르시카가 스스로 정할 권리와 자기 통치권을 지키려 했다. 다른 권력의 도움을 택한 것도 그 목적을 위한 길이었다.
+After this divergence, different names appear on screen: “National Convention summons and arrest targets: Paoli, Charles André Pozzo di Borgo.”
 
-그 갈림 뒤 화면에는 서로 다른 이름을 띄운다. '국민공회의 소환·체포 대상: 파올리, 샤를 앙드레 포초 디 보르고.'
+HISTORIAN (voice): After Lucien's denunciation, France's revolutionary government and the island's leading men split apart. The price of the Bonaparte family's support for France came back to this house.
 
-역사가(음성): 뤼시앵의 고발 뒤, 프랑스 혁명 정부와 섬의 유력자들이 갈라졌다. 보나파르트 집안이 프랑스 쪽에 선 대가는 이 집으로 돌아왔다.
+As commotion outside draws nearer, Letizia stops packing. She checks by sight that the family is all together. Young Napoleon guards the door, then moves aside for his mother.
 
-바깥의 소란이 가까워지자 레티치아가 챙기던 것을 멈춘다. 가족이 다 모였는지 눈으로 확인한다. 젊은 나폴레옹은 문 쪽을 지키다가 어머니를 향해 자리를 비킨다.
+LETIZIA: We go together.
 
-레티치아: 다 같이 가자.
+June 11. A ship leaving the island. The family do not all look in the same direction. Letizia looks from face to face as if counting them. As the sound of the sea continues, the date changes to June 13. Feet reaching Toulon step onto land.
 
-6월 11일, 섬을 떠나는 배. 가족은 같은 방향을 보지 않는다. 레티치아는 사람 수를 확인하듯 가족의 얼굴을 차례로 본다. 바닷물 소리가 이어지는 동안 날짜가 6월 13일로 바뀐다. 툴롱에 닿은 발들이 육지를 밟는다.
+## A signature opens an artillery command {#toulon}
 
-## 서명으로 열리는 포대 {#toulon}
+[Event parent 1](../../../body/treatments/008-toulon-and-revolution.md#toulon) · [Event parent 2](../../../body/treatments/008-toulon-and-revolution.md#thermidor) · [Scene parent](../../../body/scripts/001-chronicle/002-home.md#toulon)
 
-[사건 부모 1](../../../body/treatments/008-toulon-and-revolution.md#toulon) · [사건 부모 2](../../../body/treatments/008-toulon-and-revolution.md#thermidor) · [장면 부모](../../../body/scripts/001-chronicle/002-home.md#toulon)
+1793. Show the title The Supper at Beaucaire. Before a young officer in cheap lodgings, Saliceti looks from the writing to the man.
 
-1793년. 『보케르의 저녁』이라는 제목을 화면에 보인다. 값싼 생활 공간의 젊은 장교 앞에서 살리세티가 글과 사람을 번갈아 본다.
+SALICETI: I've read your piece. What we need now is artillery work. Will you take it?
 
-살리세티: 글은 읽었소. 지금 필요한 건 포병 일이오. 맡겠소?
+NAPOLEON: I will. Give me the means to put the guns to use.
 
-나폴레옹: 맡겠습니다. 포대를 쓸 수 있게 해 주십시오.
+Saliceti's authority opens the assignment, and Napoleon positions guns in the field. Move from the same hand signing paper to many hands hauling a gun.
 
-살리세티의 권한으로 일이 열리고 나폴레옹이 현장에서 포를 배치한다. 같은 손이 종이에 서명하는 화면에서 포를 끌어 옮기는 여러 사람의 손으로 넘어간다.
+December. Beyond the bombardment, the Mulgrave redoubt; caption: “Little Gibraltar.” An attack climbs toward the height defended by British troops and is stopped by fire. In the darkness, men who came down gather again. Napoleon looks toward the height and follows them into a renewed assault. As light changes from the night of the 16th to the dawn of the 17th, he is wounded, but the advance continues. First show French troops on the captured height, then Allies withdrawing from the harbor. Napoleon's promotion comes afterward in a separate caption.
 
-12월. 포격 너머 뮐그레이브 보루, '작은 지브롤터'라는 자막. 영국군이 지킨 고지로 공격이 오르다가 사격에 막힌다. 밤의 어둠 속에서 내려온 사람들이 다시 모인다. 나폴레옹은 고지 쪽을 보고 사람들을 따라 재공격에 들어간다. 16일 밤에서 17일 새벽으로 빛이 바뀌는 동안 몸이 다치고도 전진은 계속된다. 확보한 고지 위의 프랑스군을 먼저 보인 다음 항구에서 철수하는 연합군을 보인다. 나폴레옹의 진급은 그 뒤 별도 자막으로 온다.
+Summer 1794. Show Saliceti's name among signatures on the arrest document. Napoleon remains inside as a door closes. The gaze that saw the name opening artillery work now rests on the closed door.
 
-1794년 여름. 체포 문서의 서명 가운데 살리세티 이름을 비춘다. 닫히는 문 안쪽에 나폴레옹이 남는다. 포병 일을 열어 준 이름을 보았던 시선이 이번에는 닫힌 문에 머문다.
+HISTORIAN (voice): Bourrienne later explained that the Genoa mission had aroused suspicion.
 
-역사가(음성): 제노바 임무가 의심을 샀다는 설명은 부리엔이 훗날 남겼다.
+After release, the officer sits in impoverished lodgings. His signs of promotion remain, but his living is still poor. He rises again to look for work.
 
-석방 후. 장교가 궁핍한 거처에 앉는다. 진급의 표식은 그대로인데 생활은 여전히 빈약하다. 그는 일자리를 찾으러 다시 일어난다.
+## Guns turned toward the street {#paris}
 
-## 거리로 향한 포 {#paris}
+[Event parent 1](../../../body/treatments/009-paris-and-josephine.md#vendemiaire) · [Scene parent](../../../body/scripts/001-chronicle/002-home.md#paris)
 
-[사건 부모 1](../../../body/treatments/009-paris-and-josephine.md#vendemiaire) · [장면 부모](../../../body/scripts/001-chronicle/002-home.md#paris)
+Paris, October 5, 1795. A royalist uprising blocks the street. Napoleon, charged with suppression, checks the guns' direction. A crowd moves in the narrow street. Shouts in front drown out words behind.
 
-1795년 10월 5일, 파리. 왕당파 봉기로 거리가 막힌다. 진압을 맡은 나폴레옹이 포의 방향을 확인한다. 좁은 거리에서 군중이 움직인다. 앞줄의 소리에 뒤쪽 말이 묻힌다.
+NAPOLEON: Fire.
 
-나폴레옹: 발포.
+After the blast, smoke briefly hides people. As it thins, a fallen body and someone trying to drag it away appear. Napoleon still watches the street from beside the battery. Instead of victory music, voices call for people nearby.
 
-폭음 뒤 연기가 잠시 사람을 가린다. 연기가 얇아지며 쓰러진 몸과 그 몸을 끌어내려는 사람이 보인다. 포대 옆에서 나폴레옹은 아직 거리를 본다. 승리의 음악 대신 가까운 사람을 부르는 소리가 들린다.
+HISTORIAN (voice): The government survived and placed its confidence in the officer who had done it.
 
-역사가(음성): 정부는 살아남았고, 그 일을 해낸 장교를 신임했다.
+As the road opens, people approach the fallen. The picture stays in the street. The guns' echo dies away.
 
-길이 열리자 사람들이 쓰러진 이에게 다가간다. 화면은 이 거리에 머문다. 포의 잔향이 가라앉는다.
+## Letters sent quickly {#josephine}
 
-## 빨리 보내는 편지 {#josephine}
+[Event parent 1](../../../body/treatments/009-paris-and-josephine.md#letters) · [Scene parent](../../../body/scripts/001-chronicle/002-home.md#josephine)
 
-[사건 부모 1](../../../body/treatments/009-paris-and-josephine.md#letters) · [장면 부모](../../../body/scripts/001-chronicle/002-home.md#josephine)
+Paris. Screen text introduces Joséphine. She is among her family and people in her own life. Her face, listening fully and answering slowly, changes as she welcomes Napoleon. He comes close and says what he has been waiting to say.
 
-파리. 화면 글로 조제핀을 소개한다. 그녀가 가족과 자기 생활의 사람들 사이에 있다. 사람의 말을 다 듣고 천천히 답하던 얼굴이 나폴레옹을 맞으며 달라진다. 그는 가까이 와 기다리던 말을 꺼낸다.
+NAPOLEON: I've been waiting again.
 
-나폴레옹: 또 기다렸어.
+Joséphine looks at him with a closed-lipped smile. Give them time together in the same space. After marriage the road to Italy separates them.
 
-조제핀은 이를 드러내지 않는 미소로 그를 본다. 두 사람이 같은 공간에 머무는 시간을 둔다. 결혼 뒤에는 이탈리아로 떠나는 길이 둘 사이를 가른다.
+March 30, 1796. Napoleon writes a letter. Ink gathers at the tip of his rapidly moving pen. Briefly show “tu / vous” side by side.
 
-1796년 3월 30일. 나폴레옹이 편지를 쓴다. 빨리 움직이는 펜 끝에 잉크가 모인다. 화면에는 짧게 'tu / vous'를 나란히 보인다.
+HISTORIAN (voice): In the letter he weighed the distance between those words. He addressed her intimately, but felt that her words kept a distance.
 
-역사가(음성): 그는 편지에서 두 말 사이의 거리를 따졌다. 자기는 가깝게 부르는데, 그녀의 말에는 거리가 남아 있다고 느꼈다.
+The sealed letter leaves. Napoleon starts other work, then turns at a sound by the entrance. Do not fill Joséphine's unpreserved reply with a voice. In Paris she continues her own life, and no answer to him is heard yet.
 
-봉한 편지가 떠난다. 나폴레옹은 다른 일을 시작했다가 출입구 쪽 소리에 돌아본다. 조제핀의 전하지 않는 답장을 음성으로 채우지 않는다. 파리의 그녀는 자기 생활을 계속하고, 그에게 돌아갈 말은 아직 들리지 않는다.
+The main work ends and “Author's Commentary” appears. A separate author's friendly voice takes over.
 
-본편이 끝나고 화면에 '작가 해설'. 별도 작가의 친근한 목소리로 바뀐다.
-
-작가(음성): 이번에는 가족을 먹여야 하는 소년과 일자리가 필요한 장교로 돌아왔습니다. 눈 요새는 부리엔이 뒤에 남긴 이야기예요. 놀이의 다친 아이도 빼지 않았습니다. 일을 맡길 권한은 살리세티에게, 그 일을 해낼 책임은 나폴레옹에게 있었지요. 마지막 편지는 두 사람의 말씨 거리를 보여 주는 기록을 바탕으로 했고, 남아 있지 않은 조제핀의 답장 원문을 만들지는 않았습니다.
+AUTHOR (voice): This time we returned to a boy with a family to feed and an officer who needed work. The snow fort comes from a story Bourrienne told later. We have kept the child injured in the game too. Saliceti had the authority to give him the work; Napoleon had the responsibility to carry it out. The last letter draws on a record of the distance in how they addressed each other, and we have not invented and quoted an original reply by Joséphine that has not survived.

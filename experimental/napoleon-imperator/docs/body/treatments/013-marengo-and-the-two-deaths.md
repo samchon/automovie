@@ -1,16 +1,15 @@
-# 되찾은 전장과 되돌릴 수 없는 사람
+# A Battlefield Reclaimed and People Who Cannot Be Recalled
 
-## 패배를 수습해야 얻을 수 있는 승리 {#marengo}
+## Victory requires recovering from defeat {#marengo}
 
-이 파일의 사실 부모: [통령정부](../settings/100-history/020-life-and-memory.md#consulate), [드세](../settings/050-people/010-ensemble.md#desaix), [클레베르](../settings/050-people/010-ensemble.md#kleber), [기록의 무게](../settings/120-research/010-source-policy.md#weight).
+Factual parents: [the Consulate](../settings/100-history/020-life-and-memory.md#consulate), [Desaix](../settings/050-people/010-ensemble.md#desaix), [Kléber](../settings/050-people/010-ensemble.md#kleber), [the weight of the record](../settings/120-research/010-source-policy.md#weight).
 
-1800년 6월 14일 마렝고. 새 정권의 장군은 이탈리아에서 다시 승리해야 하지만 오전의 후퇴는 통치자의 명성과 함께 군의 생존을 위협한다. 나폴레옹은 처음부터 후퇴를 계획했다는 완성된 해설 속에 있지 않다. 실제로 밀리는 군을 수습하고 도착하는 드세의 병력과 반격의 가능성에 기대어 저녁의 결과를 바꾼다. 귀환과 합류는 개인적 신임이 만들어 낸 순간이 아니라 그곳에 닿은 군의 상태로만 작동한다.
+Marengo, June 14, 1800. The general of the new regime must win again in Italy, but the morning's retreat threatens the army's survival along with the ruler's reputation. Napoleon is not inside a finished account in which he planned the retreat from the beginning. He rallies an army actually being driven back and relies on the arriving troops of Desaix and the possibility of a counterattack to change the evening's outcome. Return and junction work through the condition of the troops who reach the field, not as a moment created by personal trust.
 
-반격의 성공과 드세의 죽음은 하나를 선택해 지울 수 없는 같은 날의 결과다. 드세에게 전설적인 마지막 명언을 주어 죽음을 영웅의 완결로 정리하지 않는다. 관객이 받은 승리에는 나폴레옹이 계속 권력을 쥘 조건과 다시 부를 수 없는 부하가 함께 남는다. 첫 아우스터리츠에서 보았던 승전과 손실의 관계가 이제 한 사람의 얼굴을 얻는다.
+The successful counterattack and Desaix's death are results of the same day, neither of which can be erased in favor of the other. Do not give Desaix a legendary last maxim that tidies death into a hero's completion. The victory leaves the audience both with the conditions for Napoleon to retain power and a subordinate he can never call again. The relationship between victory and loss seen at the first Austerlitz now gains a particular face.
 
-## 한날의 다른 죽음은 한 장군에게 모이지 않는다 {#kleber}
+## Another death on the same day does not belong to one general {#kleber}
 
-같은 6월 14일 이집트에서는 남겨진 군을 맡은 클레베르가 죽는다. 프랑스의 지휘부가 그날 동시에 아는 뉴스로 교차시키지 않고, 관객에게 두 장소의 결과를 먼저 주고 소식은 뒤에 닿게 한다. 나폴레옹의 정치적 생존이 좋아지는 날에도 그가 떠난 땅의 책임과 사람은 계속 사라진다. 동방 원정은 귀환 장군의 장식으로 닫히지 않는다.
+On the same June 14 in Egypt, Kléber, who commands the army left behind, dies. Do not intercut it as news the French command knows simultaneously that day; first give the audience results in two places, and let the news arrive later. On a day when Napoleon's political survival improves, responsibility and people continue to be lost in the land he left. The eastern expedition does not close as decoration for a returning general.
 
-마렝고의 뒤 전투 보고 개정은 실제 후퇴를 처음부터 계산된 전략으로 설명하는 쪽으로 바꾼다. 이 파일에서 먼저 겪은 것은 밀리던 군을 수습하고 반격해 얻은 승리이므로, 관객은 나중에 계획된 승리라는 설명을 그 경험과 맞댈 근거를 갖는다. 당대 공보와 뒤 보고 개정, 유배에서 다시 손댄 판을 한 문서의 한날로 합치지 않는다. 그 비교는 유배기의 기록에서 돌아오되 고친 문장의 실물이나 정확한 수정 날짜를 발명하지 않는다. 승전의 모든 설명이 거짓이라고 거꾸로 단정하는 결말도 아니다.
-
+A later revision of the Marengo battle report changes the account toward presenting the actual retreat as strategy calculated from the start. Since this file has first given the audience an army driven back, rallied, and victorious in a counterattack, they have grounds to measure the later explanation of planned victory against that experience. Do not combine a contemporary bulletin, a later revision of the report, and the version revised again in exile into one document on one day. Return to that comparison in the record of exile without inventing the physical revised sentences or an exact date of revision. Nor is the conclusion an inverse assertion that every account of victory is false.

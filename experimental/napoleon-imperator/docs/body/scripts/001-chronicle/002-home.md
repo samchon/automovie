@@ -1,159 +1,157 @@
+# Leaving Home
 
-# 집을 떠나는 사람
+## A child comes to his mother {#birth}
 
-## 어머니에게 온 아이 {#birth}
+Parent: [006#birth](../../treatments/006-birth-and-school.md#birth).
 
-부모: [006#birth](../../treatments/006-birth-and-school.md#birth).
+The night of victory fades to black. A baby cries first.
 
-승전의 밤이 암전된다. 먼저 아기 울음이 들린다.
+Caption: August 15, 1769, Ajaccio.
 
-자막: 1769년 8월 15일, 아작시오.
+A room lit by daylight. See Letizia and the child together from bedside height. As the arm supporting the baby trembles, another hand slides underneath. Family draw near; she indicates water with her chin.
 
-낮빛 드는 방. 침상 곁의 높이에서 레티치아와 아이를 함께 본다. 아이를 받친 팔이 흔들리자 다른 손이 밑으로 들어간다. 가족이 가까이 오자 그녀가 턱으로 물을 가리킨다.
+LETIZIA: Bring that here. We must wash the baby first.
 
-레티치아: 그걸 이리 줘요. 아이부터 씻겨야겠어요.
+Water is set down and a wet cloth handed over. When the child cries, Letizia puts down the cloth and draws him close.
 
-물이 놓이고 젖은 천이 건네진다. 아이가 울자 레티치아는 천을 내려놓고 몸을 당긴다.
+HISTORIAN (off screen): He was born in Corsica, incorporated into France. What this house needed at once was a child who would live, not an emperor.
 
-역사가(화면 밖): 프랑스에 편입된 코르시카에서 태어났다. 당장 이 집에 필요한 것은 황제가 아니라 살아갈 아이였다.
+Sounds of life in the courtyard enter the room. End the scene on the hand supporting the child. Do not move to a future decoration.
 
-마당의 생활 소리가 방으로 들어온다. 아이를 받친 손에서 장면을 마친다. 미래의 훈장으로 넘어가지 않는다.
+## Words he must learn to understand {#school}
 
-## 배워야 알아듣는 말 {#school}
+Parent: [006#school](../../treatments/006-birth-and-school.md#school).
 
-부모: [006#school](../../treatments/006-birth-and-school.md#school).
+Caption: 1779, Autun. Then school at Brienne.
 
-자막: 1779년, 오툉. 이어 브리엔의 학교.
+A side view of a classroom in daytime. Napoleon corrects his pronunciation as he reads. He stops when laughter comes from behind.
 
-낮의 교실을 옆에서 본다. 읽던 나폴레옹이 발음을 고친다. 뒤에서 웃음이 나자 멈춘다.
+FELLOW CADET: Say it again. I didn't understand you.
 
-동료 생도: 다시 말해 봐. 못 알아들었어.
+NAPOLEON: Because you weren't listening.
 
-나폴레옹: 들으려 하지 않았으니까.
+A teacher's hand points to the book. The boy starts reading again from the sentence beneath it. In the evening he sits over a mathematics problem. Instead of daytime laughter, a pen catches on paper.
 
-교사의 손이 책을 짚는다. 소년은 그 밑의 문장부터 다시 읽는다. 저녁에는 수학 문제 앞에 앉아 있다. 낮의 웃음 대신 펜촉이 종이에 걸리는 소리가 들린다.
+Move outside in winter.
 
-겨울 바깥으로 옮긴다.
+HISTORIAN (off screen): Bourrienne later recounted a game at school with a snow fort.
 
-역사가(화면 밖): 훗날 부리엔은 학교의 눈 요새 놀이를 전했다.
+A wide side view of the fort. Boys pile snow and Napoleon points to one side.
 
-눈 요새를 옆에서 넓게 본다. 소년들이 눈을 쌓고 나폴레옹이 한쪽을 가리킨다.
+NAPOLEON: Block that side. This one's still open.
 
-나폴레옹: 그쪽 막아. 여기는 아직 비었어.
+A child struck by a snowball from opposite falls to the ground. Feet running in laughter stop. A stone rolls from a fallen snowball. Napoleon lowers his beckoning hand and goes to the injured child. Do not add a prohibition over this.
 
-맞은편 눈덩이를 맞은 아이가 주저앉는다. 웃으며 달리던 발들이 멎는다. 떨어진 눈덩이에서 돌이 굴러 나온다. 나폴레옹은 부르던 손을 내리고 다친 아이에게 간다. 그 위에 금지 명령은 덧붙이지 않는다.
+Caption: 1784, Paris military school.
 
-자막: 1784년, 파리 사관학교.
+Indoors in daytime, an older boy closes a book.
 
-낮의 실내에서 전보다 큰 소년이 책을 덮는다.
+HISTORIAN (off screen): His father died. After completing the course he would also have to help his family.
 
-역사가(화면 밖): 아버지가 죽었다. 과정을 마친 뒤에는 집에도 보탬이 되어야 했다.
+Hands set aside a share to send home. The second lieutenant of 1785 closes the bundle.
 
-집으로 보낼 몫을 따로 놓는 손. 1785년의 소위가 그 묶음을 닫는다.
+## One island, different sides {#island}
 
-## 같은 섬, 다른 편 {#island}
+Parents: [007#paoli](../../treatments/007-corsica-and-exile.md#paoli), [007#departure](../../treatments/007-corsica-and-exile.md#departure).
 
-부모: [007#paoli](../../treatments/007-corsica-and-exile.md#paoli), [007#departure](../../treatments/007-corsica-and-exile.md#departure).
+Corsica, daytime. Paoli and the young officer Napoleon stand on opposite sides of a room. Window light falls on the table between them. This dialogue is a reconstruction, not a verbatim account of a particular meeting.
 
-코르시카, 낮. 방 양쪽에 파올리와 젊은 장교 나폴레옹이 선다. 창빛이 사이의 탁자에 든다. 특정 면담의 축어록이 아닌 재구성 대화.
+NAPOLEON: The Revolution can open a path for the island too.
 
-나폴레옹: 혁명이 섬에도 길을 열 수 있습니다.
+PAOLI: The island must decide whom it relies on.
 
-파올리: 누구에게 기대어 살지는 섬이 정할 일이네.
+NAPOLEON: If we turn away from French authority, we will lose even that path.
 
-나폴레옹: 프랑스의 권한을 외면하면 그 길마저 잃습니다.
+PAOLI: Do not assume your path is the one Corsica must defend.
 
-파올리: 자네의 길이 코르시카가 지킬 길과 같다고 여기지 말게.
+Napoleon starts to answer, then stops. People given papers come out into the street.
 
-나폴레옹이 답하려다 멈춘다. 종이를 전달받은 사람들이 거리로 나온다.
+HISTORIAN (off screen): After Lucien's denunciation, the National Convention sought to summon and arrest Paoli and Pozzo di Borgo. Resistance on the island turned toward the Bonaparte family, who stood with the French revolutionary government.
 
-역사가(화면 밖): 뤼시앵의 고발 뒤 국민공회는 파올리와 포초 디 보르고를 소환하고 체포하려 했다. 섬의 반발은 프랑스 혁명 정부 쪽에 선 보나파르트 가족을 향했다.
+Do not connect change across the island as a reaction to one line of the preceding conversation.
 
-섬 전체의 변화는 앞선 대화 한마디의 반응으로 잇지 않는다.
+1793, a house being packed. Letizia opens a large bundle and repacks only what is needed.
 
-1793년, 짐을 싸는 집. 레티치아가 큰 짐을 풀고 필요한 것만 다시 넣는다.
+NAPOLEON: Are we leaving this too?
 
-나폴레옹: 이것도 두고 갑니까?
+LETIZIA: We need hands to carry it. See to the people first.
 
-레티치아: 들고 갈 손이 있어야지. 사람부터 챙겨라.
+He puts down the bundle and checks on family outside the door. A wide view of the shore as they leave June 11. Move the date forward and see feet arrive at Toulon on the 13th. The bundle set down is smaller than before.
 
-그가 짐을 내려놓고 문밖 가족을 확인한다. 6월 11일 떠나는 해안의 원경. 날짜를 넘겨 13일 툴롱에 닿은 발을 본다. 내려놓은 짐은 전보다 작다.
+## A signature opens an artillery command {#toulon}
 
-## 서명으로 열리는 포대 {#toulon}
+Parents: [008#toulon](../../treatments/008-toulon-and-revolution.md#toulon), [008#thermidor](../../treatments/008-toulon-and-revolution.md#thermidor).
 
-부모: [008#toulon](../../treatments/008-toulon-and-revolution.md#toulon), [008#thermidor](../../treatments/008-toulon-and-revolution.md#thermidor).
+France, 1793. The Supper at Beaucaire lies on a desk by a window. Widen from the paper to Saliceti and Napoleon facing each other.
 
-1793년 프랑스. 창가 책상에 『보케르의 저녁』이 놓여 있다. 그 종이에서 시선을 넓히면 살리세티와 나폴레옹이 마주한다.
+SALICETI: Your writing shows which side you're on. Now that side needs guns.
 
-살리세티: 글로 어느 편인지 밝혔군. 이제 그 편에 쓸 포가 필요하네.
+NAPOLEON: Give me the task and I will put them to use.
 
-나폴레옹: 맡겨 주시면 쓸 수 있게 하겠습니다.
+A signed paper leaves the desk.
 
-서명한 종이가 책상을 떠난다.
+December, Toulon. Hold the sea and the Little Gibraltar redoubt in one wide view. Fire comes from the redoubt, and gunners aim again at the height.
 
-12월, 툴롱. 바다 쪽과 작은 지브롤터 보루를 한 원경 안에 둔다. 보루에서 사격이 나오고 포수들은 그 높이를 향해 포를 다시 댄다.
+NAPOLEON: We cannot finish this while they hold that ground.
 
-나폴레옹: 저 고지를 그대로 두고는 끝낼 수 없소.
+People step away from a loaded gun. After it fires, smoke obscures the height.
 
-장전한 포에서 사람들이 물러난다. 발사 뒤 연기가 고지 쪽을 가린다.
+Night of the 16th into dawn on the 17th. Infantry climbing the slope fall under defensive fire. People coming down overlap a line preparing to climb again. Napoleon stops beside the descending line.
 
-16일 밤에서 17일 새벽. 경사를 오르던 보병이 방어 사격에 엎드린다. 아래로 내려오는 사람과 다시 오르려는 줄이 겹친다. 나폴레옹은 내려오는 줄 옆에서 멈춘다.
+OFFICER: The first attack was stopped.
 
-장교: 첫 공격은 막혔습니다.
+NAPOLEON: Gather the men again. We go for the height.
 
-나폴레옹: 다시 모으시오. 고지로 갑시다.
+Troops join him as he climbs. Fire continues ahead and Napoleon's wounded body stops. A soldier beside him moves to support him, while troops climbing behind pass them. Defenders retreat from the redoubt and the French take the position. The troops who gained the height organize it.
 
-그가 오르는 쪽으로 군이 붙는다. 앞의 사격이 이어지고 부상한 나폴레옹이 걸음을 끊는다. 옆 병사가 받치려 하자 뒤에서 올라온 군이 두 사람을 지나친다. 보루 위 수비병이 물러나고 프랑스군이 자리를 차지한다. 고지를 얻은 군이 진지를 정리한다.
+Move forward to the harbor. Allied troops withdraw by ship.
 
-날짜를 넘긴 항구. 연합군이 배로 철수한다.
+A promotion document is set down. Move forward to an arrest document in summer.
 
-진급 문서가 놓인다. 여름의 체포 문서로 날짜를 넘긴다.
+HISTORIAN (off screen): In the summer of 1794, Saliceti also signed the arrest document. Bourrienne later explained that the Genoa mission had aroused suspicion.
 
-역사가(화면 밖): 1794년 여름, 살리세티도 체포 문서에 서명했다. 부리엔은 훗날 제노바 임무가 의심받았다고 설명했다.
+Napoleon puts down his belongings. The man who signed does not enter to be confined with him.
 
-나폴레옹이 소지품을 놓는다. 서명한 사람이 함께 갇히러 들어오지는 않는다.
+Released, Napoleon counts money for living expenses. He counts the shortfall again. Family can be heard outside. He gathers the money and opens the door.
 
-풀려난 나폴레옹이 생활비를 센다. 모자란 몫을 다시 센다. 문밖에서 가족의 기척이 난다. 돈을 쓸어 담고 문을 연다.
+## Guns turned toward the street {#paris}
 
-## 거리로 향한 포 {#paris}
+Parent: [009#vendemiaire](../../treatments/009-paris-and-josephine.md#vendemiaire).
 
-부모: [009#vendemiaire](../../treatments/009-paris-and-josephine.md#vendemiaire).
+Caption: October 5, 1795, Paris.
 
-자막: 1795년 10월 5일, 파리.
+HISTORIAN (off screen): Faced with a royalist uprising, the government entrusted Napoleon with its suppression. It sought the strength to survive in a battery outside the legislature.
 
-역사가(화면 밖): 왕당파 봉기 앞에서 정부는 나폴레옹에게 진압을 맡겼다. 정부가 존속할 힘을 구한 곳은 의회 밖의 포대였다.
+A low fixed view beside the street. Guns are pushed out and soldiers take position. Orders overlap shouting opposite. Do not combine the crowd's many voices into one purpose. Napoleon stops before the battery.
 
-거리 옆의 낮은 고정 시선. 포가 밀려 나오고 병사들이 자리를 잡는다. 맞은편 고함에 명령이 겹친다. 군중의 여러 목소리를 하나의 뜻으로 합치지 않는다. 나폴레옹이 포대 앞에서 멈춘다.
+OFFICER: Ready.
 
-장교: 준비됐습니다.
+NAPOLEON: Fire.
 
-나폴레옹: 쏘시오.
+Smoke clears slowly. Someone fleeing returns to a fallen person. A gunner loads again. Stay beside the people left in the street before moving to the government building.
 
-연기가 천천히 걷힌다. 달아나던 사람이 쓰러진 사람에게 돌아온다. 포수는 다음 장전을 한다. 관청으로 넘어가기 전 거리의 남은 사람 곁에 머문다.
+The officer, having gained confidence, enters the building. A civilian holding bloodied cloth remains outside.
 
-신임을 얻은 장교가 관청 안으로 들어간다. 피 묻은 천을 든 시민은 문밖에 남는다.
+## Letters sent quickly {#josephine}
 
-## 빨리 보내는 편지 {#josephine}
+Parent: [009#letters](../../treatments/009-paris-and-josephine.md#letters).
 
-부모: [009#letters](../../treatments/009-paris-and-josephine.md#letters).
+After the marriage, before departure. See Joséphine's living space in daylight from near the door. Napoleon is about to leave, then turns back. Joséphine opens the door wider so his coat will not catch.
 
-결혼 뒤 출정 전. 낮빛 드는 조제핀의 생활 공간을 문 가까이서 본다. 나폴레옹이 나가려다 돌아온다. 조제핀은 외투가 걸리지 않게 문을 더 연다.
+NAPOLEON: I'll write soon.
 
-나폴레옹: 곧 편지할게.
+JOSÉPHINE: You're making me wait before you've even left.
 
-조제핀: 떠나기도 전에 기다리게 하네요.
+NAPOLEON: Write to me too.
 
-나폴레옹: 당신도 써 줘.
+After seeing him off, Joséphine returns to the people in her house. Show this life at a different pace from his waiting.
 
-그를 보낸 조제핀이 집 안 사람들에게 돌아간다. 그의 기다림과 다른 속도로 이 생활을 보여 준다.
+The officer heading for Italy turns a sheet hastily written under a lamp. On another night he writes a new letter. Over his gaze stopping before a letter received, a caption notes only the distance in the letter of March 30, 1796.
 
-이탈리아로 향한 장교가 등불 아래 급히 쓴 종이를 넘긴다. 다른 밤에도 새 편지를 쓴다. 도착한 편지 앞에서 멈춘 시선 위로 1796년 3월 30일 서한의 거리만 자막으로 짚는다.
+HISTORIAN (off screen): He felt that he wrote intimately while she kept her distance. Her reply has not survived; we do not write it in her place.
 
-역사가(화면 밖): 자신은 반말로 쓰는데 상대는 거리를 둔다고 그는 느꼈다. 전해지지 않은 그녀의 답장은 여기서 대신 쓰지 않는다.
+Napoleon folds the letter. Outside, someone announces preparations to depart. He puts the letter inside his coat and leaves.
 
-나폴레옹이 편지를 접는다. 밖에서 출발 준비를 알린다. 편지를 품에 넣고 나간다.
+End of main work. After the picture goes dark, a separate author voice.
 
-본편 끝. 화면이 어두워진 뒤 별도 작가 음성.
-
-작가: 유년기의 눈싸움은 부리엔이 훗날 남긴 일화를 거쳐 왔어요. 가족이나 정치 대화도 그대로 받아 적은 말은 아닙니다. 이번에 읽은 사건 설계의 선택과 결과를 장면으로 옮겼고, 조제핀의 남아 있지 않은 답장까지 지어 인용하지는 않았어요.
-
+AUTHOR: The childhood snow fight comes through an anecdote Bourrienne recorded later. The family and political conversations are not words taken down verbatim either. I turned the choices and results of the event design I read for this work into scenes, and did not invent and quote Joséphine's missing reply.

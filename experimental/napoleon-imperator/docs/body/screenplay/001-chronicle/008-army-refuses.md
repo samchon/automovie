@@ -1,150 +1,149 @@
+# The Army That Refuses to Fight
 
-# 싸우지 않겠다는 군대
+## Victory by a new army {#spring}
 
-## 새 군대의 승리 {#spring}
+[Event parent 1](../../../body/treatments/032-the-new-army.md#spring) · [Event parent 2](../../../body/treatments/032-the-new-army.md#duroc) · [Scene parent](../../../body/scripts/001-chronicle/008-army-refuses.md#spring)
 
-[사건 부모 1](../../../body/treatments/032-the-new-army.md#spring) · [사건 부모 2](../../../body/treatments/032-the-new-army.md#duroc) · [장면 부모](../../../body/scripts/001-chronicle/008-army-refuses.md#spring)
+Lützen, May 2, 1813. Ney's troops face greater pressure in the villages than expected. Red-haired Ney moves among people, overpowering the sounds of scattering.
 
-1813년 5월 2일 뤼첸. 네의 부대가 마을에서 예상보다 큰 압력을 받는다. 붉은 머리의 네가 사람들 사이를 움직이며 흩어지는 소리를 누른다.
+NEY: Hold here! Until the guns come up!
 
-네: 여기서 버텨! 포가 붙을 때까지!
+Artillery takes position and fires in concentration. A Young Guard counterattack advances and village pressure is pushed back. A new soldier watches the man ahead load, corrects his own hands, and follows the ranks. Before the retreating enemy disappears, French horses stop from exhaustion.
 
-포병이 자리를 잡아 집중 사격한다. 청년근위의 반격이 나아가며 마을의 압력이 되밀린다. 새 병사는 앞사람의 장전 동작을 보고 자기 손을 고친 뒤 대열을 따른다. 물러나는 적이 사라지기 전에 프랑스 쪽 말들이 지쳐 멎는다.
+Bautzen, May 20–21. While the enemy is held frontally, Ney moves on the flank. The retreat route meant to close remains open to the end. Allies escape through the gap in order. Hold the point where victory stops by looking at the absent cavalry for pursuit.
 
-5월 20~21일 바우첸. 정면에서 적을 붙든 동안 네가 측면으로 간다. 닫혀야 할 퇴로는 끝내 열려 있다. 연합군이 질서 있게 그 틈으로 빠져나간다. 추격할 기병의 빈자리를 보며 승리가 멎는 지점을 둔다.
+May 22. Duroc is wounded after fighting. Duroc usually stood by the door. Now the man about Napoleon's height lies down. After a caption for night, breathing diminishes. He dies that night. Napoleon remains beside him. The man who managed access no longer answers. At work later, Napoleon receives an order and turns toward where Duroc stood. The expected answer does not come. He looks at the paper again and sends the next order himself.
 
-5월 22일. 싸움 뒤 뒤로크가 다친다. 평소 문가에 서 있던 뒤로크. 나폴레옹과 비슷한 키의 그가 이제 누워 있다. 밤이라는 자막 뒤 숨소리가 줄어든다. 그날 밤 죽음에 이른다. 나폴레옹이 곁에 머문다. 출입을 맡아 주던 그가 이제 답하지 않는다. 뒤의 집무에서 나폴레옹은 명령서를 받다가 뒤로크가 서던 쪽으로 몸을 돌린다. 기다리던 응답은 오지 않는다. 그가 다시 종이를 보고 다음 명령을 직접 내보낸다.
+## A concession written late {#mediation}
 
-## 늦게 적힌 양보 {#mediation}
+[Event parent 1](../../../body/treatments/033-the-opponents-use-the-pause.md#mediation) · [Event parent 2](../../../body/treatments/033-the-opponents-use-the-pause.md#renewal) · [Scene parent](../../../body/scripts/001-chronicle/008-army-refuses.md#mediation)
 
-[사건 부모 1](../../../body/treatments/033-the-opponents-use-the-pause.md#mediation) · [사건 부모 2](../../../body/treatments/033-the-opponents-use-the-pause.md#renewal) · [장면 부모](../../../body/scripts/001-chronicle/008-army-refuses.md#mediation)
+French troops reorganize during the armistice. Metternich's mediation proceeds in another public space. Screen summary: “Dissolution of the Confederation of the Rhine, return of Illyria.” Do not make a private face-to-face exchange.
 
-휴전의 프랑스군은 재편 중이다. 다른 공적 공간에서 메테르니히의 중재가 진행된다. 화면의 조건 요지: '라인 동맹 해체, 일리리아 반환.' 사적인 대면 문답으로 만들지 않는다.
+HISTORIAN (voice): The conditions reduced domination through German allies and territorial authority in Illyria.
 
-역사가(음성): 독일의 동맹국들을 통한 지배와 일리리아의 영토 권한을 줄이라는 조건이었다.
+Napoleon receives the conditions but initially sends no consent. The answer waits while rebuilding continues. When he later writes concessions, attach their substance: “Concession concerning the Confederation of the Rhine, concession concerning part of Illyria.” This is not the full return originally demanded. As the folded answer is sent, caption that the deadline has passed.
 
-조건을 받은 나폴레옹은 처음에는 동의를 보내지 않는다. 군을 다시 꾸리는 일이 계속되는 동안 답은 머문다. 이후 양보를 적을 때 화면에 그 요지를 붙인다. '라인 동맹에 관한 양보, 일리리아 일부에 관한 양보.' 처음 요구한 반환 전부가 아니다. 접은 답을 내보낼 때에는 시한이 지났다는 자막이 붙는다.
+Midway along the messenger's road, cut to Austria's declaration of war. Only after the declaration is France's answer received. The folded concession cannot become agreement reversing a deadline already closed and entry into war.
 
-전령의 길 중간에 화면을 오스트리아의 참전 선언으로 전환한다. 선언 뒤에야 프랑스의 답이 수령된다. 접혀 온 양보 문서는 이미 닫힌 시한과 참전을 되돌린 합의가 되지 못한다.
+Britain collects taxes and borrows money. Subsidies are sent to allies. Then hands receive equipment and troops match steps in training. Only after training move to their march.
 
-영국에서 세금을 걷고 돈을 빌린다. 보조금이 동맹으로 보내진다. 이어 장비를 받는 손, 훈련에서 발을 맞추는 군. 훈련이 지난 뒤에야 그 군의 행군으로 옮긴다.
+Bernadotte judges from his place as crown prince of Sweden. Do not overlay forms of address used for marshals from his French period.
 
-베르나도트는 스웨덴 왕세자의 자리에서 판단한다. 프랑스 시절의 원수들과 같은 호칭으로 부르는 소리를 겹치지 않는다.
+BERNADOTTE: I will first consider what Sweden can bear.
 
-베르나도트: 스웨덴이 감당할 일을 먼저 보겠소.
+Schwarzenberg prepares orders from a command position receiving demands from several sovereigns. A hand about to send one after reading it stops to check another demand. Without newly sounding the sovereigns' voices, give time for his adjustment under several authorities. Blücher's and Gneisenau's preparations take place in another army.
 
-슈바르첸베르크는 여러 군주의 요구가 도착하는 지휘 자리에서 명령을 마련한다. 하나를 읽고 곧바로 보내려던 손이 다른 요구를 확인하며 멈춘다. 군주들의 목소리를 새로 들려주지 않고, 여러 권한 아래서 조정해야 하는 그의 시간을 둔다. 블뤼허와 그나이제나우의 준비는 다른 군에서 이루어진다.
+HISTORIAN (voice): Schwarzenberg commanded under constraints from several sovereigns. Blücher's urgency and Gneisenau's preparation, and Bernadotte putting Sweden first, were not the same judgment.
 
-역사가(음성): 슈바르첸베르크는 여러 군주의 제약 아래 지휘했다. 블뤼허의 서두름과 그나이제나우의 준비, 스웨덴을 먼저 보는 베르나도트는 같은 판단이 아니었다.
+At first needed appearances briefly attach each person's name and command or staff function. Army orders go to different forces. Even under a common purpose, troops must wait for each authority and preparation before moving.
 
-처음 필요한 얼굴에는 해당 군의 지휘·참모 기능과 이름을 짧게 붙인다. 군별 명령서가 서로 다른 부대로 간다. 같은 목적 아래서도 각자의 권한과 준비를 기다려야 군이 움직인다.
+## An Emperor absent from every place {#leipzig}
 
-## 모든 곳에 없는 황제 {#leipzig}
+[Event parent 1](../../../body/treatments/034-leipzig-and-the-bridge.md#avoidance) · [Event parent 2](../../../body/treatments/034-leipzig-and-the-bridge.md#leipzig) · [Scene parent](../../../body/scripts/001-chronicle/008-army-refuses.md#leipzig)
 
-[사건 부모 1](../../../body/treatments/034-leipzig-and-the-bridge.md#avoidance) · [사건 부모 2](../../../body/treatments/034-leipzig-and-the-bridge.md#leipzig) · [장면 부모](../../../body/scripts/001-chronicle/008-army-refuses.md#leipzig)
+Katzbach, August 26. In rain, French troops commanded by MacDonald cross a narrow passage in divided groups. Blücher's attack enters between troops already across and those not yet over.
 
-8월 26일 카츠바흐. 비에 젖은 길에서 맥도날드가 지휘하는 프랑스군이 좁은 도하를 나뉘어 지난다. 먼저 건넌 군과 아직 건너지 못한 군 사이로 블뤼허의 공격이 들어온다.
+BLÜCHER: Press them!
 
-블뤼허: 밀어붙여라!
+His troops receive the order and advance kicking through water and mud. Unable to unite, the French are defeated. Napoleon is not on this field.
 
-블뤼허의 군이 명령을 받고 물과 흙을 차며 나아간다. 프랑스군이 모이지 못한 채 패한다. 나폴레옹은 이 전장에 없다.
+HISTORIAN (voice): They sought to avoid the Emperor and strike his other commands. Not every fight was controlled according to that plan.
 
-역사가(음성): 황제를 피하고 그의 다른 지휘군을 치려 했다. 그 구상대로 모든 싸움이 통제된 것은 아니었다.
+Leipzig in October. Different Allied armies press the French. A caption introduces Poniatowski as Polish commander and minister of war of the Duchy of Warsaw, then gives his appointment as marshal of France on the 16th. Briefly see him with Polish troops, then return to the field's wide pressure.
 
-10월 라이프치히. 서로 다른 연합군이 프랑스군을 압박한다. 포니아토프스키를 폴란드군 지휘관이자 바르샤바 공국 전쟁장관으로 소개하는 자막 뒤, 16일 프랑스 원수 임명이 온다. 폴란드군과 함께 있는 그를 짧게 보고 다시 전장의 넓은 압력으로 돌아간다.
+The 19th. Battle forces retreat to begin. Troops crowd toward the bridge and people coming behind keep increasing. The bridge is blown too early. A foot about to cross stops before empty space as troops push from behind. Poniatowski dies during the retreat. Without moving to the unknown face who ordered demolition or a dying person's final speech, follow losses of an army whose road is cut off.
 
-19일. 전투 때문에 퇴각이 시작된다. 군이 다리 쪽으로 몰리고 뒤에서 오는 사람은 계속 늘어난다. 다리가 너무 일찍 폭파된다. 건너가려던 사람의 발이 허공 앞에서 멎고 뒤의 군이 밀려온다. 포니아토프스키는 그 퇴각 중 죽는다. 폭파한 명령자의 얼굴이나 죽는 이의 최후 연설로 시선을 옮기지 않고, 갈 길이 끊긴 군의 손실을 따라간다.
+## Victory does not bring the capital back {#france}
 
-## 이겨도 수도가 돌아오지 않는다 {#france}
+[Event parent 1](../../../body/treatments/035-france-and-paris.md#defense) · [Event parent 2](../../../body/treatments/035-france-and-paris.md#capital) · [Scene parent](../../../body/scripts/001-chronicle/008-army-refuses.md#france)
 
-[사건 부모 1](../../../body/treatments/035-france-and-paris.md#defense) · [사건 부모 2](../../../body/treatments/035-france-and-paris.md#capital) · [장면 부모](../../../body/scripts/001-chronicle/008-army-refuses.md#france)
+France, 1814. Local victories follow Napoleon's orders concentrating a small army. The image leaves the direction where he arrived and repelled the enemy and moves to another direction left empty by that army. Allied superiority approaching Paris continues.
 
-1814년 프랑스. 작은 군을 모으는 나폴레옹의 명령 뒤 국지의 승리가 잇따른다. 그가 도착해 적을 물린 방향에서 화면이 빠져나와, 그 군이 비운 다른 방향으로 간다. 파리 쪽으로 접근하는 연합군의 우세가 이어진다.
+The Châtillon negotiations. Conditions before Caulaincourt are “pre-Revolutionary 1789 borders, surrender of influence outside them.” Distinguish those words in one image from the natural frontiers Napoleon demanded. Show the army's earlier fighting direction apart from narrowed negotiating terms.
 
-샤티옹 교섭. 코랭쿠르 앞의 조건은 '1789년 혁명 이전 국경, 바깥 영향력 포기'다. 나폴레옹이 요구하던 자연 국경과 다른 글을 한 화면에 구별해 놓는다. 앞서 싸우던 군의 방향과 좁아진 교섭 조건을 떨어뜨려 보여 준다.
+When initial conditions still leave a negotiating route open, Caulaincourt warns Napoleon. He does not speak with present knowledge of talks that will later close.
 
-초기 조건이 아직 교섭의 길을 열어 둔 때. 코랭쿠르가 나폴레옹에게 만류한다. 뒤에 닫힐 회담 자리를 지금 알고 말하지 않는다.
+CAULAINCOURT: Sire, if we miss these terms, less may remain next time. Give me authority while we have this chance.
 
-코랭쿠르: 폐하, 지금의 조건을 놓치면 다음에는 덜 남을 수 있습니다. 이번 기회에 권한을 주십시오.
+NAPOLEON: One more victory and they will change their terms. We must hold the natural frontiers.
 
-나폴레옹: 한 번 더 이기면 저들도 조건을 고칠 걸세. 자연 국경은 지켜야 하네.
+CAULAINCOURT: We cannot know whether they will wait for that victory.
 
-코랭쿠르: 그 승리를 기다려 줄지는 알 수 없습니다.
+Napoleon turns to military business.
 
-나폴레옹은 군의 일을 다루는 쪽으로 돌아선다.
+NAPOLEON: I will look first at where to concentrate the army.
 
-나폴레옹: 군을 모을 곳부터 보겠네.
+Caulaincourt says no more. A military report takes its place.
 
-코랭쿠르의 다음 말은 나오지 않는다. 군사 보고가 그 자리를 잇는다.
+Later Napoleon broadens and sends authority to concede, while Caulaincourt waits for it. When authority arrives late, the negotiating place has already closed.
 
-이후 나폴레옹이 양보할 권한을 넓혀 보내고, 코랭쿠르는 그 도착을 기다린다. 뒤늦게 그 권한이 왔을 때 회담 자리는 이미 닫혔다.
+CAULAINCOURT: Authority has come, but there is no place left to negotiate.
 
-코랭쿠르: 이제 권한은 왔지만, 교섭할 자리가 없습니다.
+He looks at the empty negotiating place and puts away the document. Do not reuse the 1813 deadline image; keep the date 1814.
 
-그는 빈 교섭 자리를 보고 문서를 거둔다. 1813년의 시한 화면을 재사용하지 않고 1814년이라는 날짜를 유지한다.
+Paris. Talleyrand takes his place, moving with difficulty on one leg. Capital politicians choose the next order in the reality that Allies have arrived.
 
-파리. 탈레랑이 한쪽 다리를 불편하게 옮겨 자리를 잡는다. 수도의 정치가들은 연합군이 닿은 현실을 두고 다음 질서를 고른다.
+TALLEYRAND: The people remaining here must decide, I suppose.
 
-탈레랑: 여기 남은 사람들로 정해야겠지요.
+April 1, appointment of a provisional government. April 2, Senate deposition. April 3, final text. Documents change with each date. Show that the Senate denies hereditary imperial rule to Napoleon and his family and releases oaths of loyalty.
 
-4월 1일 임시정부 지명. 2일 원로원의 폐위 결정. 3일 최종 문안. 날짜마다 문서가 달라진다. 원로원이 나폴레옹과 가족의 세습 제위를 부정하고 충성 서약을 푼다는 내용을 화면에 보인다.
+HISTORIAN (voice): The Senate accused him and released the oaths. Those accusations do not all become the historian's verdict.
 
-역사가(음성): 원로원은 그를 비난하며 서약을 풀었다. 그 비난이 모두 역사가의 판결이 되는 것은 아니다.
+The capital's obedience does not return to Napoleon, who won earlier. He enters among commanders awaiting the next instruction.
 
-앞서 승리했던 나폴레옹에게 수도의 복종이 돌아오지 않는다. 다음 지시를 기다리는 지휘관들 사이로 그가 들어온다.
+## Authority relinquished twice {#abdication}
 
-## 두 번 놓는 권한 {#abdication}
+[Event parent 1](../../../body/treatments/036-the-first-abdication.md#abdication) · [Event parent 2](../../../body/treatments/036-the-first-abdication.md#separation) · [Scene parent](../../../body/scripts/001-chronicle/008-army-refuses.md#abdication)
 
-[사건 부모 1](../../../body/treatments/036-the-first-abdication.md#abdication) · [사건 부모 2](../../../body/treatments/036-the-first-abdication.md#separation) · [장면 부모](../../../body/scripts/001-chronicle/008-army-refuses.md#abdication)
+Napoleon before the marshals. His hand indicating an army to march stops on the table.
 
-원수들 앞의 나폴레옹. 진군시킬 군을 짚는 그의 손이 탁자 위에서 멈춘다.
+NAPOLEON: We can march again.
 
-나폴레옹: 다시 진군하면 되네.
+NEY: Sire, we will march no farther.
 
-네: 폐하, 더 진군하지 않겠습니다.
+Ney's rough, loud voice remains in the room.
 
-네의 거친 큰 목소리가 방에 남는다.
+NEY: We must protect the army that remains.
 
-네: 남은 군을 지켜야 합니다.
+Napoleon looks at the other marshals but gets no answer that they will march. Caption: around April 4. He makes an abdication proposal conditional on his son's succession. From the document where Napoleon confirms his son's name, move to the actual army that would support that condition.
 
-나폴레옹은 다른 원수들을 보지만 진군하겠다는 답을 얻지 못한다. 4월 4일 전후라는 자막. 아들의 계승을 조건으로 퇴위안을 만든다. 나폴레옹이 아들의 이름을 확인한 문서에서, 그 조건을 떠받칠 실제 군으로 넘어간다.
+Night of April 4–5, Essonnes. Marmont's corps moves away from command. Soldiers' feet no longer remain in the direction the Emperor ordered. Say nothing of Marmont's private motives. Show in turn the succession proposal left to Napoleon and the troops that departed.
 
-4~5일 밤 에손. 마르몽의 군단이 지휘를 이탈해 움직인다. 군의 발은 황제가 지시한 쪽에 남아 있지 않다. 마르몽의 사적 동기는 말하지 않는다. 나폴레옹에게 남은 계승안과 빠져나간 군을 차례로 보인다.
+April 6. Unconditional abdication document. The earlier condition of the son's succession can no longer remain. Napoleon signs and sets down the paper.
 
-4월 6일. 무조건 퇴위 문서. 앞의 문서에 있던 아들 계승의 조건을 더는 남길 수 없다. 나폴레옹이 서명하고 종이를 놓는다.
+Elsewhere, Marie Louise takes her three-year-old son's hand and follows the move. The authority to decide where they go does not belong to Napoleon. Maintain distance between family he wants to take with him and the two actually being moved.
 
-다른 공간. 마리 루이즈는 세 살 아들의 손을 잡고 이동을 따른다. 둘이 향할 곳을 정하는 권한은 나폴레옹에게 있지 않다. 나폴레옹이 함께 가기를 바라는 가족과 실제로 옮겨 가는 두 사람의 거리를 유지한다.
+HISTORIAN (voice): Even if he wanted to bring wife and son together, he could not decide it. Authority to reunite the family had gone too.
 
-역사가(음성): 아내와 아들을 함께 데려가고 싶어도, 그가 정할 수 없었다. 가족을 다시 모을 권한도 사라졌다.
+The door for family to enter his space does not open. Do not combine it into a final parting or reconciliation in one room.
 
-그의 공간으로 가족이 들어오는 문은 열리지 않는다. 한 방의 마지막 이별이나 화해로 합치지 않는다.
+Caption: “Joséphine died May 29, 1814.”
 
-자막: '조제핀, 1814년 5월 29일 사망.'
+Light changes in a place of life she used. No voice gives new last words.
 
-그녀가 쓰던 생활의 자리에서 빛이 달라진다. 새 마지막 발언의 음성은 없다.
+## Work possible in a small state {#elba}
 
-## 작은 나라에서 할 수 있는 일 {#elba}
+[Event parent 1](../../../body/treatments/037-a-small-state.md#elba) · [Event parent 2](../../../body/treatments/037-a-small-state.md#restoration) · [Scene parent](../../../body/scripts/001-chronicle/008-army-refuses.md#elba)
 
-[사건 부모 1](../../../body/treatments/037-a-small-state.md#elba) · [사건 부모 2](../../../body/treatments/037-a-small-state.md#restoration) · [장면 부모](../../../body/scripts/001-chronicle/008-army-refuses.md#elba)
+Elba, 1814. Move from feet on a paved street to hands using a water facility. Napoleon passes the actual facility. Elsewhere construction has stopped and a person waits.
 
-1814년 엘바. 포장된 시가를 걷는 사람의 발에서 급수 시설을 이용하는 손으로 간다. 나폴레옹이 그 실제 시설을 지난다. 다른 곳에서는 공사가 멈춰 있고 사람이 기다린다.
+OFFICIAL: We need more resources to continue.
 
-담당자: 자원이 더 있어야 계속할 수 있습니다.
+Napoleon looks at the site and turns away. Screen text: “Plans in Campbell's first-week record.” After showing plans, return to the stopped site.
 
-나폴레옹은 현장을 보고 돌아선다. 화면 글: ‘캠벨의 첫 주 기록에 남은 계획.’ 계획을 보인 뒤 멈춘 현장으로 돌아온다.
+He wants to summon family, but they do not come. Reading news arriving on the island, Napoleon looks down at paper and speaks.
 
-가족을 부를 뜻은 있어도 가족은 오지 않는다. 섬에 온 소식을 읽던 나폴레옹이 종이를 내려다보며 말한다.
+NAPOLEON: There is discontent with the Restoration in France. I will look at other news too.
 
-나폴레옹: 프랑스의 복고에 불만이 있다는군. 다른 소식도 보겠네.
+He receives more news and compares it with the first paper. The screen leaves the limited news that reached the island and shows the Congress of Vienna from afar.
 
-다른 소식을 받아 앞의 종이와 대조한다. 섬에 도착한 그 제한된 소식에서 화면이 떠나 빈 회의를 원경으로 보인다.
+HISTORIAN (voice): Europe's sovereigns and politicians were arranging the order after war.
 
-역사가(음성): 유럽의 군주와 정치가들은 전쟁 뒤의 질서를 정하고 있었다.
+From the wide congress return to the narrow paper of news that reached the island.
 
-그 넓은 회의에서 섬에 도착한 소식의 좁은 종이로 돌아온다.
+Preparations for departure. Necessary things are carried aboard. Napoleon looks from land at the road to the ship. Do not go as far as the ship sailing out to sea; close the main work where preparations have ended.
 
-출항을 위한 준비. 필요한 물건이 배로 옮겨진다. 나폴레옹이 육지에서 배로 향하는 길을 본다. 아직 배가 바다를 떠나는 화면까지 가지 않고 준비가 끝난 자리에서 본편을 닫는다.
+A separate “Author's Commentary” screen and voice.
 
-별도 '작가 해설' 화면과 목소리.
-
-작가(음성): 이긴 군이 왜 전쟁을 끝내지 못했는지 말과 기병의 부족, 열린 퇴로, 비어 있는 다른 방향으로 보여 드렸습니다. 양보를 보냈어도 늦으면 교섭을 되돌릴 수 없었습니다. 에손 군단의 이탈에는 마르몽의 비밀 마음을 붙이지 않았습니다. 엘바에서는 실제 시설과 멈춘 공사를 함께 두었습니다. 계획을 세웠다는 기록만으로 완공 풍경을 만들지는 않았습니다.
+AUTHOR: We showed why a victorious army could not end the war through shortages of horses and cavalry, open retreat routes, and an empty direction elsewhere. Even a concession sent could not restore negotiation once it was late. We attached no secret thoughts by Marmont to the Essonnes corps defection. On Elba we placed actual facilities alongside stopped construction. We did not create a completed scene from a record of plans alone.

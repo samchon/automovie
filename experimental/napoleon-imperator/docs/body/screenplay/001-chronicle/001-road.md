@@ -1,162 +1,161 @@
+# The Road Gives Way
 
-# 밀린 길
+## An army clears the road {#road}
 
-## 길을 비우는 군대 {#road}
+[Event parent 1](../../../body/treatments/001-the-road-gives-way.md#outposts) · [Event parent 2](../../../body/treatments/002-the-open-right.md#withdrawal) · [Scene parent](../../../body/scripts/001-chronicle/001-road.md#road)
 
-[사건 부모 1](../../../body/treatments/001-the-road-gives-way.md#outposts) · [사건 부모 2](../../../body/treatments/002-the-open-right.md#withdrawal) · [장면 부모](../../../body/scripts/001-chronicle/001-road.md#road)
+Caption: November 28, 1805. Near Vyškov.
 
-화면 자막: 1805년 11월 28일. 비샤우 부근.
+French outposts retreat from the direction of cannon fire. A soldier with a musket walks backward, pushing in his ramrod. The shoulder of a man beside him knocks the hand reaching for a paper cartridge. Ahead, the wheel of a cart blocking the road has stopped.
 
-포성이 난 쪽에서 프랑스 전초병들이 물러온다. 총을 든 병사가 뒤를 향해 걸으며 장전봉을 밀어 넣는다. 종이 탄약을 꺼내려는 손을 옆 병사의 어깨가 치고 지나간다. 앞길을 막은 수레의 바퀴가 멈춰 있다.
+SOLDIER: Out of the way! They're coming!
 
-병사: 비켜! 뒤에서 옵니다!
+The people pushing the cart put their weight against it. The wheel moves and infantry slip through the gap. A final musket shot sounds from the man covering the rear, followed only by footsteps leaving the village.
 
-수레를 미는 사람들이 몸을 붙인다. 바퀴가 움직이고 보병이 그 틈으로 빠져나간다. 뒤를 맡은 병사의 총성이 마지막으로 들린 다음, 마을을 비우는 발소리만 따라온다.
+Evening. Rousínov. Troops file out with the light of the houses behind them. A soldier looks at a fork in the road.
 
-저녁. 라우스니츠. 집 안의 불빛을 등지고 군이 빠져나간다. 한 병사가 길의 갈림을 본다.
+SOLDIER: How far are we going?
 
-병사: 어디까지 가는 겁니까?
+The soldier beside him follows the man ahead. Before he hears an answer, troops behind push him past the fork.
 
-곁의 병사는 앞사람을 따라 걷는다. 답을 듣기 전에 뒤에서 오는 군에 밀려 갈림을 지난다.
+At headquarters, Berthier folds an order. Screen text: “Berthier, transmitting orders for the French army.”
 
-본영의 베르티에는 명령서를 접는다. 화면 글: '프랑스군 명령을 전하는 베르티에.'
+BERTHIER: Orders to concentrate the corps. Take them.
 
-베르티에: 군단들을 모으라는 명령일세. 전하게.
+A messenger takes a leather bag and leaves. As he mounts, Berthier looks at the scattered corps marked on the map.
 
-명령을 받은 전령이 가죽가방을 들고 나간다. 그가 말을 타는 동안 베르티에는 지도 위의 흩어진 군단 표시를 본다.
+BERTHIER: No report of their arrival yet. Wait for word.
 
-베르티에: 아직 닿았다는 보고는 없네. 도착 보고를 기다리게.
+Voices from the next room cover the departing horse's hoofbeats.
 
-전령이 떠나는 말발굽 소리를 다음 방의 말소리가 덮는다.
+## A letter requested by three men {#letter}
 
-## 셋이 청한 편지 {#letter}
+[Event parent 1](../../../body/treatments/001-the-road-gives-way.md#letter) · [Scene parent](../../../body/scripts/001-chronicle/001-road.md#letter)
 
-[사건 부모 1](../../../body/treatments/001-the-road-gives-way.md#letter) · [장면 부모](../../../body/scripts/001-chronicle/001-road.md#letter)
+Inside the post house, a white feather in Murat's fur hat brushes the doorframe. Soult approaches the table with heavy steps. Newly arrived Lannes looks at the map the two offer him. Murat and Soult tell him the state of outposts he has not seen himself. At each man's first appearance, briefly show his name and title as a French marshal.
 
-역참 안. 뮈라의 모피모자에서 흰 깃털 하나가 문틀에 닿는다. 술트는 무거운 걸음으로 탁자에 다가온다. 막 합류한 란은 두 사람이 내미는 지도를 본다. 자기 눈으로 확인하지 못한 전초의 상황을 뮈라와 술트에게서 듣는다. 세 사람의 첫 얼굴에 이름과 프랑스 원수라는 직책을 짧게 붙인다.
+MURAT: If we stay scattered, the enemy will take us one by one. Let us ask to withdraw together.
 
-뮈라: 더 흩어져 있다가는 오는 적을 따로 맞게 생겼소. 함께 물러나자고 청합시다.
+SOULT: My outposts have been pushed back too.
 
-술트: 내 쪽에서도 전초가 밀려났소.
+After reporting, Soult slides paper toward Lannes.
 
-술트가 보고를 마친 뒤 란 쪽으로 종이를 밀어 준다.
+SOULT: Marshal Lannes, you write it. We are of one mind.
 
-술트: 란 원수가 쓰시오. 우리 뜻도 같소.
+LANNES: I shall make clear that you both agree.
 
-란: 두 분도 같은 뜻이라는 걸 분명히 쓰겠소.
+A pen scratches paper. Small caption: Reconstruction based on Subervie's account, recorded later by Thiébault.
 
-펜이 종이를 긁는다. 화면의 작은 자막: 티에보가 훗날 기록한 쉬베르비의 전언에 따른 재구성.
+Before Napoleon, Emperor of the French, Lannes hands over the joint petition. The Emperor reads it, then looks from the paper to Soult.
 
-프랑스 황제 나폴레옹 앞. 란이 공동 청원을 건넨다. 황제는 받아 읽고 종이에서 술트에게로 눈을 옮긴다.
+NAPOLEON: Soult, what do you think?
 
-나폴레옹: 술트, 자네 생각은 어떤가?
+SOULT: Sire, my corps can face twice its number.
 
-술트: 폐하, 제 군단은 두 배의 적도 감당할 수 있습니다.
+Lannes fixes his eyes on Soult. The man who had just leaned over the table with him looks only at the map.
 
-란의 눈이 술트에게 붙는다. 방금까지 탁자에 함께 기대던 사람은 지도만 보고 있다.
+LANNES: You asked me to write it, and now I am the only one asking?
 
-란: 내 손으로 쓰라더니, 여기서는 나 혼자 청한 일이오?
+SOULT: He asked about my corps.
 
-술트: 내 군단을 물으셨소.
+LANNES: Marshal Soult, I challenge you to a duel.
 
-란: 술트 원수, 당신에게 결투를 청하오.
+Napoleon addresses the three marshals.
 
-나폴레옹은 세 원수에게 말한다.
+NAPOLEON: We must bring the army together. We shall withdraw.
 
-나폴레옹: 군을 모아야 하네. 물러나겠네.
+While the Emperor answers, Lannes watches only Soult. Soult leaves first without answering the challenge. Lannes follows, and Murat leaves the room last.
 
-황제가 답하는 동안에도 란은 술트만 본다. 술트는 결투 요구에 답하지 않은 채 먼저 나간다. 란이 뒤따르고 마지막으로 뮈라가 방을 떠난다.
+After the marshals leave, Berthier takes up a pen. Napoleon dictates the withdrawal order.
 
-원수들이 떠난 뒤 베르티에가 펜을 든다. 나폴레옹이 그에게 후퇴 명령을 불러 준다.
+NAPOLEON: Move the army back. Send the orders to withdraw.
 
-나폴레옹: 군을 뒤로 물리게. 후퇴 명령을 보내게.
+BERTHIER: Yes, Sire.
 
-베르티에: 예, 폐하.
+Berthier writes down the order. Messengers announcing the concentration are already on the road.
 
-베르티에가 후퇴 명령을 받아 적는다. 집결을 알리는 전령들은 이미 길 위에 있다.
+## The heights left empty {#plans}
 
-## 비워 둔 고지 {#plans}
+[Event parent 1](../../../body/treatments/002-the-open-right.md#withdrawal) · [Event parent 2](../../../body/treatments/002-the-open-right.md#allied-plan) · [Event parent 3](../../../body/treatments/003-the-night-before.md#orders-and-challenge) · [Scene parent](../../../body/scripts/001-chronicle/001-road.md#plans)
 
-[사건 부모 1](../../../body/treatments/002-the-open-right.md#withdrawal) · [사건 부모 2](../../../body/treatments/002-the-open-right.md#allied-plan) · [사건 부모 3](../../../body/treatments/003-the-night-before.md#orders-and-challenge) · [장면 부모](../../../body/scripts/001-chronicle/001-road.md#plans)
+The night of November 28 into the 29th. French troops descend a dark road. Wind passes through an empty position; time jumps forward. Later Allied troops climb the heights and look down.
 
-11월 28일 밤에서 29일로. 프랑스군은 어두운 길을 내려간다. 빈 진지를 지나가는 바람 소리 뒤로 시간이 건너뛴다. 이후 연합군이 고지에 올라 아래를 살핀다.
+An Allied conference. Screen text identifies Weyrother reading the attack plan. He reads the columns' assignments in a loud voice. His pointer traces a route around the French right, cutting the road to Vienna.
 
-연합군의 회의. 공격 계획을 낭독하는 바이로터라는 화면 글. 그가 큰 목소리로 종대의 임무를 읽는다. 지시봉이 프랑스 오른쪽을 돌아 빈으로 이어지는 길을 가로막는다.
+WEYROTHER: We go down this way and cut the road. Each column will take its assigned route.
 
-바이로터: 이쪽으로 내려가 길을 끊습니다. 각 종대는 정해진 길로 움직이십시오.
+Alexander, Emperor of Russia, sits upright and listens. Kutuzov, commander of the Russian army, studies the dispositions from a lower seat. Their names appear beside their first appearances. Papers are folded and people leave by different exits.
 
-러시아 황제 알렉산드르가 몸을 곧게 세우고 듣는다. 러시아군 지휘관 쿠투조프는 낮은 자리에서 배치도를 바라본다. 두 이름이 첫 얼굴 곁에 나타난다. 종이가 접히고 사람들의 출구가 갈린다.
+On the next march, another column's cart blocks the place where the leading column needs to go. An officer with orders dismounts and looks for a route. The ranks behind stop. Between the column names that ran smoothly during the reading comes the sound of strained breathing as men lift a wheel.
 
-다음 행군. 앞 종대가 가야 할 자리에 다른 종대의 수레가 가로놓인다. 명령을 받은 장교가 말에서 내려 길을 찾는다. 뒤의 대열은 멈춘다. 낭독 때 매끄럽게 이어졌던 종대의 이름 사이로 바퀴를 들어 올리는 숨소리가 들어온다.
+## A night on straw, a night on the road {#night}
 
-## 짚 위의 밤, 길 위의 밤 {#night}
+[Event parent 1](../../../body/treatments/003-the-night-before.md#march-and-mail) · [Event parent 2](../../../body/treatments/003-the-night-before.md#orders-and-challenge) · [Scene parent](../../../body/scripts/001-chronicle/001-road.md#night)
 
-[사건 부모 1](../../../body/treatments/003-the-night-before.md#march-and-mail) · [사건 부모 2](../../../body/treatments/003-the-night-before.md#orders-and-challenge) · [장면 부모](../../../body/scripts/001-chronicle/001-road.md#night)
+Night of December 1. Staff officers at headquarters spread out mail from France. Reading voices are background sound in the room; the audience cannot make out words. No sender or letter's contents are presented.
 
-12월 1일 밤, 본영의 참모들. 프랑스에서 온 우편을 펴 놓는다. 읽는 말은 관객이 낱말을 알아들을 수 없는 방 안의 배경음이다. 편지의 발신자나 사연은 제시하지 않는다.
+STAFF OFFICER: Read that part again.
 
-참모: 그 대목 다시 읽어 줘.
+He tilts the paper toward the light. Beside him another draws wine from a cask through a long straw. A song begins, but the audience hears only humming following the melody, no intelligible lyrics. Screen text: A reconstruction of the night from Lejeune's later account.
 
-종이를 불빛 쪽으로 기울인다. 옆사람이 긴 짚대로 술통의 술을 빨아 마신다. 노래가 시작되지만 관객에게 들리는 것은 선율을 잇는 웅얼거림이며, 의미 있는 가사는 없다. 화면 글: 르죈의 후일 전언에 따른 밤의 재구성.
+The officers lie down on straw and sleep. Just outside, voices of soldiers who have recognized the Emperor suddenly rise.
 
-참모들이 짚 위에 누워 잠든다. 가까운 바깥에서 황제를 알아본 병사들의 목소리가 갑자기 커진다.
+SOLDIERS (outside): Long live the Emperor!
 
-병사들(바깥): 황제 폐하 만세!
+A sleeping officer sits up. Another wakes and looks toward the sound. Light flickers in the doorway before the waking man's eyes. Cheers come from nearby outside.
 
-잠든 참모가 몸을 일으킨다. 다른 참모도 깨어 그 소리 쪽을 본다. 깨어난 참모의 눈앞에 문가의 불빛이 흔들린다. 환호는 가까운 바깥에서 들려온다.
+Raygern. Caption: The same night. The feet of Friant's leading men stop. A soldier about to sit sees the road open again before him. They must go farther south. The song at headquarters cuts off, leaving the long sound of equipment striking equipment.
 
-라이게른. 같은 밤이라는 자막. 프리앙 선두의 발이 멈춘다. 앉으려던 병사 앞으로 길이 다시 열린다. 남쪽으로 더 가야 한다. 본영의 노래는 끊기고 장비가 부딪는 소리만 길게 남는다.
+Next dawn. Lannes blocks Soult's way.
 
-다음 새벽. 란이 술트 앞을 막는다.
+LANNES: I sent you a challenge. You have yet to answer it.
 
-란: 결투장을 보냈소. 아직 내게 답하지 않았소.
+SOULT: We have more important business today.
 
-술트: 오늘은 더 중요한 일이 있소.
+LANNES: And that makes what happened disappear?
 
-란: 그 말이면 그날 일도 없어지는 거요?
+Soult goes toward the battlefield. Lannes stands where he has moved aside, then heads to his own troops.
 
-술트는 전장 쪽으로 간다. 란은 그가 비킨 자리에 서 있다가 자기 군대로 향한다.
+## While the villages hold {#battle}
 
-## 마을이 버티는 동안 {#battle}
+[Event parent 1](../../../body/treatments/004-the-battle-opens.md#south) · [Event parent 2](../../../body/treatments/004-the-battle-opens.md#pratzen) · [Event parent 3](../../../body/treatments/004-the-battle-opens.md#north-and-guard) · [Scene parent](../../../body/scripts/001-chronicle/001-road.md#battle)
 
-[사건 부모 1](../../../body/treatments/004-the-battle-opens.md#south) · [사건 부모 2](../../../body/treatments/004-the-battle-opens.md#pratzen) · [사건 부모 3](../../../body/treatments/004-the-battle-opens.md#north-and-guard) · [장면 부모](../../../body/scripts/001-chronicle/001-road.md#battle)
+December 2. A southern village on the Goldbach. A French soldier guarding a window lowers the musket he has fired and feels through his cartridge box. Paper cartridges are dwindling in the hands of the man beside him too. An attack approaches again across the water.
 
-12월 2일. 남쪽 골트바흐의 마을. 창가를 지키던 프랑스 병사가 쏜 총을 내리고 탄약통을 더듬는다. 옆 사람의 손에서도 종이 탄약이 줄어든다. 물 건너의 공격이 다시 다가온다.
+SOLDIER: Pass some this way!
 
-병사: 이쪽으로 나눠 줘!
+Newly arriving troops fill the narrow road. Davout, in round spectacles, checks the defense before him and the leading men who have arrived. Identify Davout and Friant by name with their respective troops.
 
-새로 들어온 군이 좁은 길을 채운다. 둥근 안경의 다부가 눈앞의 수비와 도착한 선두를 확인한다. 다부와 프리앙의 이름을 각자의 군에 붙여 구별한다.
+DAVOUT: Put the men who are here into the line. We cannot wait for the rest.
 
-다부: 온 부대부터 붙이시오. 뒤를 기다릴 수 없소.
+Friant's leading elements enter the firing line. Show the feet of the main body still marching in the distance, then return to the village. Muzzles flash again between water and houses.
 
-프리앙의 선두가 사격선으로 들어간다. 멀리서 아직 걸어오는 본대의 발을 보인 뒤 마을로 돌아온다. 물과 집 사이에서 총구가 다시 불을 뿜는다.
+The center. From Napoleon's view Allied forces descend south. He points out the heights to Soult.
 
-중앙. 나폴레옹의 시야 아래 연합군이 남쪽으로 내려간다. 그는 술트에게 고지를 가리킨다.
+NAPOLEON: Strike the center. We must take the ground they have left.
 
-나폴레옹: 중앙을 치게. 저들이 비운 곳을 잡아야 하네.
+SOULT: Yes, Sire.
 
-술트: 예, 폐하.
+Vandamme's and Saint-Hilaire's troops climb the Pratzen. The leading men take fire and duck. Those coming up behind spread to the side instead of pushing them out. As smoke clears, the enemy counterattacks. The French who reached the heights seem about to be driven down again, then continue firing and advancing. Soldiers holding the heights still hear gunfire from the south.
 
-방담과 생틸레르의 군이 프라첸을 오른다. 올라간 선두가 사격을 받고 몸을 낮춘다. 뒤에서 올라오는 군이 앞사람을 밀어내는 대신 옆으로 펴진다. 연기가 걷힐 때 반격하는 적이 보인다. 고지에 닿았던 프랑스군이 다시 아래로 밀릴 듯하다가 사격과 전진을 잇는다. 고지를 지키는 병사들에게 남쪽의 총성이 계속 들린다.
+North. Lannes's infantry hold formation toward the enemy before them. Murat's cavalry passes beside them. News of victory in the center has not yet reached this fight against Liechtenstein's cavalry.
 
-북쪽. 란의 보병은 앞의 적을 향해 대열을 지킨다. 뮈라의 기병이 그 곁을 통과한다. 리히텐슈타인의 기병과 맞서는 이 싸움에 중앙의 승전 보고는 아직 도착하지 않았다.
+Another pressure behind the center. Caption: Sequence based on Rapp's later memoir.
 
-중앙의 다른 압력. 화면 자막: 라프가 후일 남긴 회고에 따른 경과.
+In the Russian Guard attack, the eagle of the French 4th Line tilts. Russian hands seize it. It moves away from French hands reaching to recover it and passes into Russian ranks. Guard cavalry move behind the line of French infantry reserve. Rapp, sent by Napoleon, takes his bearings on horseback and enters between the squares. The squares' muskets and cavalry movements narrow one another's paths. Russian cavalry thrust between them and Rapp's cavalry meets it. Only after other French Guard cavalry join does the pressure pushing them back stop.
 
-러시아 근위의 공격 속에서 프랑스 제4 전열의 독수리가 기울어진다. 러시아군의 손이 그것을 붙잡는다. 되잡으려 뻗은 프랑스군의 손에서 멀어지며 독수리가 러시아 대열 안으로 넘어간다. 프랑스 보병 예비의 줄 뒤로 근위 기병이 움직인다. 나폴레옹이 보낸 라프는 말 위에서 방향을 잡고 방진 사이로 들어간다. 방진의 총구와 기병의 움직임이 서로의 길을 좁힌다. 러시아 기병이 사이를 파고들자 라프 쪽 기병이 부딪친다. 다른 프랑스 근위 기병이 가담한 뒤에야 밀리던 압력이 멎는다.
+Rapp, his light-brown hair cut short, returns wounded. Leave empty space near his hand; do not insert a victorious image of the eagle returning. Cut at once to hands receiving ammunition in a southern village. The soldier shows no sign that he knows what happened on the heights.
 
-짧은 밝은 갈색 머리의 라프가 부상한 채 돌아온다. 그의 손 가까이 빈 공간을 두고, 독수리가 돌아오는 승리의 삽입 화면은 넣지 않는다. 곧 남쪽 마을의 탄약을 받는 손으로 전환한다. 그 병사가 고지의 이 일을 알았다는 표정은 없다.
+## Empty places in the victorious army {#victory}
 
-## 이긴 군의 빈자리 {#victory}
+[Event parent 1](../../../body/treatments/005-victory-night.md#retreat) · [Event parent 2](../../../body/treatments/005-victory-night.md#night) · [Scene parent](../../../body/scripts/001-chronicle/001-road.md#victory)
 
-[사건 부모 1](../../../body/treatments/005-victory-night.md#retreat) · [사건 부모 2](../../../body/treatments/005-victory-night.md#night) · [장면 부모](../../../body/scripts/001-chronicle/001-road.md#victory)
+The southern retreat route. Behind people fleeing, a rearguard stops and turns; under its cover other troops escape along the road. In the north a withdrawal order arrives late. Horses turned around and men become tangled. Under the feet of someone pressed toward a pond's edge, ice bends and water rises. The person about to take another step stops; the one behind changes route too. As they move onto the narrow ground left away from water, the ranks behind must wait. No total of the dead appears over the sounds of ice and water.
 
-남쪽 퇴각로. 달아나는 사람 뒤로 후위가 멈춰 돌아서고, 그 엄호 아래 다른 부대가 길을 빠져나간다. 북쪽에는 뒤늦게 철수 명령이 닿는다. 돌이킨 말과 사람이 뒤엉킨다. 못 가장자리로 밀린 사람의 발밑에서 얼음이 휘며 물이 올라온다. 다음 발을 내디디려던 사람이 멎고 뒤의 사람도 길을 바꾼다. 물을 피해 좁게 남은 땅으로 움직이는 동안 뒤의 대열은 기다려야 한다. 얼음과 물소리 위에 죽은 사람의 합계는 나타나지 않는다.
+That night, French soldiers cheer. People carrying wounded pass beside the cheering crowd toward a quieter place. A soldier on straw holding a bowl looks at the empty place beside him. Another comes to sit, sees his gaze, takes the bowl and sets it on the ground.
 
-그날 밤. 프랑스 병사들의 환호가 난다. 부상자를 옮기는 사람들은 환호의 무리 옆을 지나 더 조용한 쪽으로 간다. 짚 위에서 그릇 하나를 들고 있던 병사가 옆의 빈자리를 본다. 다른 사람이 다가와 앉으려다 그 시선을 보고 그릇을 받아 바닥에 내려놓는다.
+Lannes and Soult are in separate groups. No toast brings them together; only the sounds of the night continue. A soldier's hand presses the straw flat beside the empty place.
 
-란과 술트는 각기 다른 무리 안에 있다. 두 사람을 한 자리에 모으는 축배 없이 밤의 소리만 이어진다. 병사의 손이 빈자리 곁의 짚을 눌러 편다.
+The main picture closes. After a brief silence, “Author's Commentary” appears on screen. A separate voice, closer than the historian.
 
-본편 화면이 닫힌다. 짧은 무음 뒤 화면에 '작가 해설'이 뜬다. 역사가보다 가까운 별도 목소리.
-
-작가(음성): 첫 이야기는 승전한 날 밤에서 멈췄습니다. 결투 다툼은 티에보가 란의 부관에게서 들었다고 남긴 이야기이고, 근위 기병의 경과는 라프의 후일 회고를 좁게 따랐어요. 대화와 이름 없는 병사들의 생활은 재구성했습니다. 이 회고들은 그날의 녹음과는 다르다는 점을 함께 기억해 주세요. 오늘 밤의 환호 옆에 돌아오지 못한 사람의 자리를 남겨 두었습니다.
+AUTHOR (voice): Our first story stops on the night of victory. The quarrel over the duel comes from an account Thiébault said he heard from Lannes's aide; the Guard cavalry sequence follows Rapp's later memoir within a narrow scope. We reconstructed the conversations and the lives of unnamed soldiers. Please remember that these memoirs are not recordings of that day. Beside tonight's cheering, we have left a place for those who did not return.

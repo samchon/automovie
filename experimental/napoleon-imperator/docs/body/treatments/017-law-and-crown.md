@@ -1,17 +1,17 @@
-# 시민의 법과 황제의 호칭
+# The Citizens' Law and the Emperor's Title
 
-## 오래 쓸 법을 함께 만드는 노동 {#code}
+## The shared work of making a lasting law {#code}
 
-이 파일의 사실 부모: [정부와 법](../settings/030-society/010-power-and-cost.md#government), [통령정부](../settings/100-history/020-life-and-memory.md#consulate), [캉바세레스](../settings/050-people/010-ensemble.md#cambaceres), [가족](../settings/030-society/010-power-and-cost.md#dynasty-and-belief), [호칭](../settings/050-people/010-ensemble.md#registers).
+Factual parents: [government and law](../settings/030-society/010-power-and-cost.md#government), [the Consulate](../settings/100-history/020-life-and-memory.md#consulate), [Cambacérès](../settings/050-people/010-ensemble.md#cambaceres), [family](../settings/030-society/010-power-and-cost.md#dynasty-and-belief), [forms of address](../settings/050-people/010-ensemble.md#registers).
 
-1804년 프랑스. 종신 통령의 승인이라는 공식 결과를 이미 얻은 체제는 법전을 마무리한다. 찬성표가 모든 사람의 자유로운 뜻을 증명한다는 해설은 붙이지 않는다. 법률가들이 쓴 내용과 나폴레옹이 회의를 주재하며 다툰 일을 나누고 캉바세레스를 기초위원 네 사람 중 하나로 바꾸지 않는다. 회의의 권한이 곧 한 사람의 집필권은 아니다. 나폴레옹은 원하는 질서를 법으로 고정하려 하고 법률가들은 조항과 절차로 그 뜻을 다루며, 캉바세레스의 조정은 다툼을 계속 심의할 수 있는 작업으로 돌린다. 즉시 명령으로 끝내는 대신 문구를 다투고 공통의 규칙을 얻는 쪽에 시간을 쓴 결과 법전이 완성된다. 전장의 빠른 명령을 요구하는 사람이 이 노동에 몰입하면서, 군사적 성공 밖에서도 국가를 자기 성취로 여길 이유가 생긴다.
+France, 1804. The regime, having already obtained the formal result of approval for a consulship for life, finishes the civil code. Do not add an explanation that affirmative votes prove everyone's free will. Distinguish what jurists wrote from Napoleon's work presiding over and arguing in meetings, and do not make Cambacérès one of the four members of the drafting commission. Authority in a meeting is not authorship by one person. Napoleon seeks to fix his desired order in law; jurists work through his intentions in articles and procedure, and Cambacérès's mediation turns disputes into work that can continue to be deliberated. Rather than ending the matter by immediate command, they spend time arguing over wording and obtaining common rules, completing the code. As the man who demands rapid orders on the battlefield immerses himself in this work, he gains reason to regard the state as his achievement outside military success too.
 
-재산의 보호와 법적 평등을 정리하는 성과를 얻는 사회는 여성과 아이의 종속, 노동의 통제도 같은 질서 안에 받는다. 서로 다른 조항의 효과를 하나의 평등 선언으로 닫지 않는다. 법전의 완성은 모든 개별 재판이 이미 공평하게 끝났다는 결과가 아니라 앞으로 권리와 권한을 행사할 공통의 틀이다. 관객은 길어진 통치가 선전만으로 지속된 것이 아니었음을 알면서 그 틀의 배제도 함께 이해한다.
+A society gains protection of property and legal equality, but also receives the subordination of women and children and control of labor within the same order. Do not close the effects of different provisions with a single declaration of equality. Completion of the code is not the result that every individual trial has already ended fairly, but a common framework for exercising rights and authority in future. The audience understands that extended rule did not continue through propaganda alone, while also understanding the framework's exclusions.
 
-## 보호를 명분으로 왕조를 얻는다 {#emperor}
+## A dynasty is obtained in the name of protection {#emperor}
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 제위 전환은 `docs/body/settings/050-people/010-ensemble.md#registers`의 1804년 5월 18일 전후 호칭, `docs/body/settings/100-history/020-life-and-memory.md#consulate`의 서로 다른 12월 의례, `docs/body/settings/050-people/010-ensemble.md#letizia`의 실제 부재를 그대로 시험했다. 조제핀의 안전/계승 압력도 `docs/body/settings/030-society/010-power-and-cost.md#dynasty-and-belief` 안에서 변하며 새 참석자나 영구 혼인 보장을 필요로 하지 않았다.
 -->
-위협과 탄압, 앙기앵 공작 처형이 있던 체제는 공화국의 직위를 세습 왕조의 안전으로 바꾸려 한다. 장군을 구원자로 택한 동맹은 이제 황제를 인정해야 한다. 1804년 5월 18일을 전후해 시민 제1통령에서 폐하로 바뀌는 호칭을 관계 변화의 실제 문턱으로 둔다. 주변 사람은 같은 몸을 상대해도 다른 공식 거리를 취해야 한다.
+A regime marked by threats, repression, and the execution of the Duke of Enghien seeks to exchange a republican office for the security of a hereditary dynasty. An alliance that chose the general as savior must now recognize an emperor. Make the change in address around May 18, 1804, from Citizen First Consul to Your Majesty, an actual threshold in relationships. Those around him must keep a different formal distance even when facing the same person.
 
-조제핀에게 황후의 자리는 혼인의 안전을 높이는 동시에 후계자의 부재를 더 크게 만든다. 레티치아의 실제 부재를 남기고 12월 2일 대관식과 5일 군기 수여를 나눈다. 의례에 참가한 사람과 다비드의 그림에 배치된 사람은 같지 않다. 역사가가 그림을 후대 기억의 소유물로 열어 두면, 관객은 어린 장학생이 국가의 상징이 된 경이와 그 상징이 필요로 하는 편집을 함께 받는다.
+For Joséphine, the position of Empress increases the security of her marriage while making the absence of an heir more acute. Preserve Letizia's actual absence, and distinguish the December 2 coronation from the December 5 distribution of eagles. Those who attended the ceremony are not identical to those placed in David's painting. When the historian leaves the painting open as an object of later memory, the audience receives both the wonder of a young scholarship student becoming a symbol of the state and the editing that symbol requires.

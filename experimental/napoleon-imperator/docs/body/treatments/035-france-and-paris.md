@@ -1,26 +1,25 @@
-# 가까운 승리와 멀리 닿는 적
+# Victory Nearby and an Enemy Reaching Farther
 
-## 마지막 재능이 마지막 자원을 쓴다 {#defense}
+## The last reserves serve the last display of talent {#defense}
 
-이 파일의 사실 부모: [1814년 프랑스 방어](../settings/100-history/020-life-and-memory.md#russia-and-coalition), [코랭쿠르](../settings/050-people/010-ensemble.md#caulaincourt), [탈레랑](../settings/050-people/010-ensemble.md#talleyrand), [마르몽](../settings/050-people/010-ensemble.md#marmont), [징집](../settings/030-society/010-power-and-cost.md#recruitment).
+Factual parents: [defense of France in 1814](../settings/100-history/020-life-and-memory.md#russia-and-coalition), [Caulaincourt](../settings/050-people/010-ensemble.md#caulaincourt), [Talleyrand](../settings/050-people/010-ensemble.md#talleyrand), [Marmont](../settings/050-people/010-ensemble.md#marmont), [conscription](../settings/030-society/010-power-and-cost.md#recruitment).
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 상위 부모인 docs/body/settings/100-history/020-life-and-memory.md#russia-and-coalition의 1814년 연속 승리와 수도에 닿는 다른 연합군, docs/body/settings/030-society/010-power-and-cost.md#recruitment의 숙련·말 부족을 함께 시험했다. docs/body/settings/050-people/010-ensemble.md#caulaincourt의 외교적 한계도 유지한다. 새 병력 수·협상 축어·정확한 이동 시간을 정하지 않고도 전장 성공과 정치적 시간의 충돌이 성립하여 추가 설정 수리는 없다.
 -->
-1814년 프랑스. 나폴레옹은 제한된 군으로 연속 승리를 만들며 상대에게 여전히 두려운 지휘관임을 입증한다. 앞서 익힌 집중과 기동이 자기 땅에서도 작동하는 순간을 충분히 둔다. 그러나 새로 모을 병사와 말, 그들을 먹이고 무장시킬 여력은 줄었다. 한 곳의 성공을 위해 움직일수록 다른 길과 수도를 지킬 힘은 제한된다.
+France, 1814. With limited forces Napoleon wins successive victories, proving he remains a commander the enemy fears. Give full time to moments when the concentration and maneuver learned earlier work on his own soil too. Yet fewer soldiers and horses can be gathered, and there is less capacity to feed and arm them. The more he moves to succeed in one place, the more limited the strength to defend other routes and the capital.
 
-연합군은 전투에서 졌다는 이유로 자기 정치적 목표를 버리지 않는다. 코랭쿠르가 협상에서 마주하는 것은 황제의 전장 계산과 다른 시간의 필요다. 더 좋은 조건을 위해 다음 승리를 기다리려는 쪽과, 더 잃기 전에 나라를 보전하려는 쪽의 간격을 남긴다. 관객에게 기대와 답답함은 함께 열린다. 이 사람은 아직 이길 수 있지만 이 승리들로 전쟁을 끝낼 수 있는지는 다르다.
+The Allies do not abandon political objectives because they lost a battle. Caulaincourt faces a need for time in negotiation different from the Emperor's battlefield calculation. Preserve the gap between those who want to wait for the next victory for better terms and those who want to save the country before more is lost. Open both hope and frustration for the audience. He can still win, but whether those victories can end the war is another matter.
 
-추가 사실 부모: [추가 역사 결정](../settings/100-history/030-decisions-and-results.md#frontiers).
+Additional factual parent: [additional historical decisions](../settings/100-history/030-decisions-and-results.md#frontiers).
 
-샤티옹의 대가는 프랑스가 혁명 이전 국경으로 돌아가고 바깥 영향력을 포기하는 것이다. 나폴레옹은 자연 국경을 지키려 하고 코랭쿠르는 합의를 얻기 위한 양보의 여지를 찾는다. 관객이 포기해야 할 실제 대상을 알고 나서 뒤늦은 양보가 닫힌 회담을 되돌리지 못하는 결과를 받는다.
+The price at Châtillon is France's return to its pre-Revolutionary borders and surrender of external influence. Napoleon seeks to keep the natural frontiers; Caulaincourt looks for room to concede in order to obtain agreement. After the audience knows what must actually be surrendered, give the result that a late concession cannot reopen closed talks.
 
-## 수도의 선택이 전장의 승리와 갈라진다 {#capital}
+## The capital's choice diverges from battlefield victory {#capital}
 
-연합군이 파리에 닿으면 수도의 정치가들과 지휘관은 황제가 다음 전투를 준비하는 동안 자기 선택을 해야 한다. 탈레랑에게 질서와 안전을 보전할 길은 더 이상 같은 황제를 계속 지키는 것과 일치하지 않는다. 원로원의 절차와 연합군의 군사적 우세는 서로 다른 권한이면서 함께 황제를 고립시킨다.
+When the Allies reach Paris, politicians and commanders in the capital must make their own choices while the Emperor prepares his next battle. For Talleyrand the way to preserve order and security no longer coincides with continuing to defend the same emperor. The Senate's procedure and Allied military superiority are different authorities that together isolate him.
 
-나폴레옹이 한 전장에서 이겼어도 수도가 정치적 복종으로 돌아오는 결과는 생기지 않는다. 다만 아직 남은 군과 왕조의 가능성까지 이 시점에서 한꺼번에 사라진 것으로 닫지 않는다. 관객은 수도와 황제의 선택이 갈라졌다는 상태를 받고, 다음 퐁텐블로에서 더 싸울 군이 실제로 그 명령을 받아들일지 기다린다. 뒤의 군단 이탈을 첫 진군 거부가 이미 끝난 원인으로 앞당기지 않는다.
+Even if Napoleon has won on one field, the capital does not return to political obedience. Yet do not close the matter here as though the remaining army and dynastic possibility have all vanished at once. The audience receives the divergence between the capital's and Emperor's choices, then waits at Fontainebleau to see whether an army will actually accept an order to fight further. Do not bring the later corps defection forward as a cause that had already completed the first refusal to march.
 
-추가 사실 부모: [추가 역사 결정](../settings/100-history/030-decisions-and-results.md#senate-deposition).
+Additional factual parent: [additional historical decisions](../settings/100-history/030-decisions-and-results.md#senate-deposition).
 
-원로원의 임시정부 지명 뒤 별도의 폐위 결정은 나폴레옹과 가족의 세습 제위를 부정하고 국민과 군의 충성 서약을 푼다. 군이 남아도 수도의 제도적 복종이 남아 있지 않다는 조건이 다음 퇴위로 넘어간다. 원로원의 비난 문안을 역사가의 사실 판결로 낭독하지 않는다.
-
+After appointing a provisional government, the Senate separately deposes Napoleon, denying hereditary imperial rule to him and his family and releasing the nation and army from their oaths of loyalty. The condition that institutional obedience in the capital no longer remains, even if troops do, carries into the next abdication. Do not read the Senate's accusations as the historian's factual verdict.

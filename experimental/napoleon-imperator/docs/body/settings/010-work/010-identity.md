@@ -1,21 +1,21 @@
-# 시대의 약속과 범위
+# The Promise and Scope of the Era
 
-[개요](../outline/index.md#010-work--010-identity)
+[Outline](../outline/index.md#010-work--010-identity)
 
-## 승리와 몰락을 함께 만든 사람들 {#promise}
+## The people who made victory and downfall together {#promise}
 
-『나폴레옹 연대기』의 중심 질문은 “이 시대의 승리와 몰락은 누구의 것인가, 그를 따른 사람들은 왜 따랐고 어디서 갈라섰는가”다. 저자는 이 질문을 결말의 재판문으로 닫지 않는다. 관객은 이미 아는 결과의 속사정을 발견하고, 양쪽 진영의 계산이 얽히는 쾌감과 낯선 시대를 이해하는 재미, 웃음·긴장·경탄·답답함·상실을 받는다. 기량과 오류, 질서와 강제, 가족의 애정과 왕조의 필요가 같은 사람에게서 나온다. 이는 원본 작품 선언과 배분의 해석을 채택한 작품의 선택이다.
+The central question of The Napoleon Chronicle is: “Whose were the victories and downfall of this age? Why did those who followed him do so, and where did they part?” The author does not close this question with a verdict at the end. The audience discovers the inner workings of an outcome it already knows and receives the pleasure of calculations on both sides intertwining, the interest of understanding an unfamiliar era, laughter, tension, wonder, frustration, and loss. Ability and error, order and coercion, family affection and dynastic necessity come from the same person. This is the work's choice adopting the original declaration and interpretation of distribution.
 
-## 서사의 시간과 땅 {#scope}
+## The narrative's time and lands {#scope}
 
-서사의 고정 경계는 1769년 8월 15일 아작시오의 출생과 1840년 12월 15일 앵발리드의 유해 도착이다. 중심 무대는 프랑스와 유럽 대륙, 영국의 해상과 재정이며 이집트·시리아·생도맹그·과들루프·루이지애나·세인트헬레나는 제국의 선택과 피해가 닿는 범위로 포함한다. 더 넓은 세계의 내정과 1840년 뒤의 제정은 새 줄거리로 열지 않는다. 이 범위는 원본의 유럽 중심 한계를 계승하면서 채택한 식민지 피해의 얼굴을 지우지 않는 경계다.
+The fixed boundaries are birth in Ajaccio on August 15, 1769 and arrival of the remains at Les Invalides on December 15, 1840. The main stages are France and continental Europe, and British sea power and finance; Egypt, Syria, Saint-Domingue, Guadeloupe, Louisiana, and Saint Helena are included as places reached by imperial choices and harm. Do not open the domestic affairs of the wider world or the empire after 1840 as new plots. This boundary inherits the original's European focus without erasing the people harmed in the adopted colonial scope.
 
-출생일은 [나폴레옹 재단의 초기 연표](https://www.napoleon.org/en/history-of-the-two-empires/timelines/1769-1793-napoleon-bonapartes-early-years/)의 출생·세례 문단을 이번 저작에서 열어 확인했다. 마지막 날짜는 [재단의 유해 귀환 해설](https://www.napoleon.org/en/history-of-the-two-empires/close-up/close-up-on-the-retour-des-cendres-napoleons-body-is-returned-to-paris/)의 도착과 임시 안치 구간을 열어 확인했다. 두 문서를 연대기 전체의 외부 검증으로 확대하지 않는다.
+The birth and baptism paragraphs of the [Napoleon Foundation's early chronology](https://www.napoleon.org/en/history-of-the-two-empires/timelines/1769-1793-napoleon-bonapartes-early-years/) were opened and checked for the birth date in this authorship. The arrival and temporary placement section of the [Foundation's account of the return of the remains](https://www.napoleon.org/en/history-of-the-two-empires/close-up/close-up-on-the-retour-des-cendres-napoleons-body-is-returned-to-paris/) was opened and checked for the last date. Do not extend these two documents into external verification of the whole chronology.
 
-## 시대를 찾는 열일곱 질문 {#domains}
+## Seventeen questions for finding the era {#domains}
 
-전체 정전은 생애·가족, 군의 편제·지휘, 징병·병사 생활, 징집 가족의 부담, 병참·의료·손실, 외교·연합, 법·행정, 교회, 교육·인재, 재정·조세, 식민지·노예제, 점령지·동맹국 주민과 병사, 궁정·의례, 여성·권력, 과학·산업·시설, 지도·통신·시간, 선전·공적 기억을 포괄한다. 각 시기의 쓰임은 [구간별 범위](020-periods.md#periods)와 각 사실 owner로 찾는다. 유배기에 새 야전군이나 전 유럽의 학교 통계를 채우지 않는다. 그 시기의 의료·생활비·수행원 가족·기록 간행·귀환 의례는 실제 조건으로 남는다. 정전의 폭은 모든 이름을 출연시키라는 요구가 아니다.
+The complete canon covers life and family; military organization and command; conscription and soldiers' lives; burdens on conscripted families; logistics, medicine, and loss; diplomacy and coalitions; law and administration; the Church; education and talent; finance and taxation; colonies and slavery; residents and soldiers of occupied lands and allies; court and ceremony; women and power; science, industry, and facilities; maps, communication, and time; propaganda and public memory. Find each period's use in [period scope](020-periods.md#periods) and each factual owner. Do not fill exile with a new field army or school statistics for all Europe. Medicine, expenses, companions' families, publication of records, and the return ceremony remain actual conditions of that period. The breadth of canon is not a requirement to cast every named person.
 
-## 압축이 바꿀 수 없는 것 {#compression}
+## What compression cannot change {#compression}
 
-원본의 개별 기록 707개는 지워진 역사가 아니라 이 각색의 보존된 근거다. 새 정전은 영상의 사실과 한계를 찾아 쓰는 단일 owner를 세우고, 출연하지 않는 인물의 삶이나 생략한 전투의 결과도 뒤의 상태를 바꾸는 범위에서는 유지한다. 인물 여러 명을 하나의 실존 인물로 합치지 않는다. 기록 없는 무명 병사·가족·주민은 당시의 처지에 맞는 창작 인물로 밝힐 수 있으나 실제 결정·발언·공적을 빼앗아 주지 않는다. 미상인 치수·동작·말씨를 공연을 위해 정할 때는 작품의 선택이라고 표시한다.
+The original's 707 individual records are retained foundations for this adaptation, not erased history. The new canon establishes a single owner where audiovisual facts and limits can be found and used; it retains the lives of people not appearing and outcomes of omitted battles insofar as they change later conditions. Do not merge several people into one historical person. Unrecorded unnamed soldiers, families, and residents may be identified as fictional characters suited to contemporary conditions, but do not assign them others' actual decisions, words, or achievements. When unknown dimensions, actions, or forms of speech are fixed for performance, mark them as choices of the work.

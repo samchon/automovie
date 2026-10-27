@@ -1,21 +1,21 @@
-# 조국에서 쫓겨나는 가족
+# A Family Driven from Its Homeland
 
-## 존경하던 이름이 다른 명령을 내린다 {#paoli}
+## The revered name gives different orders {#paoli}
 
-이 파일의 사실 부모: [형성](../settings/100-history/020-life-and-memory.md#formation), [파올리](../settings/050-people/010-ensemble.md#paoli), [레티치아](../settings/050-people/010-ensemble.md#letizia), [뤼시앵](../settings/050-people/010-ensemble.md#lucien-bonaparte).
+Factual parents: [formation](../settings/100-history/020-life-and-memory.md#formation), [Paoli](../settings/050-people/010-ensemble.md#paoli), [Letizia](../settings/050-people/010-ensemble.md#letizia), [Lucien](../settings/050-people/010-ensemble.md#lucien-bonaparte).
 
-장교가 되어 돌아오는 나폴레옹은 코르시카와 혁명의 프랑스를 함께 붙들 수 있다고 여긴다. 파올리는 젊은 보나파르트의 출세를 위해 움직이는 후원자가 아니라 섬의 자립과 자기 권위를 지킬 사람이다. 두 사람이 같은 조국을 말해도 의존하는 정치적 힘은 같지 않다. 프랑스 혁명의 권한과 파올리의 권한이 갈라질수록 중간에 남을 가능성이 좁아진다.
+Returning as an officer, Napoleon believes he can hold on to both Corsica and revolutionary France. Paoli is not a patron working for the young Bonaparte's advancement; he will defend the island's independence and his own authority. Even when they speak of the same homeland, they rely on different political forces. As the authority of the French Revolution and Paoli's authority diverge, the possibility of remaining between them narrows.
 
-결별은 말다툼 하나로 섬 전체가 돌아서는 사건이 아니다. 뤼시앵의 고발과 혁명 정부의 조치, 현지의 반발이 가족의 안전에 실제 압력으로 돌아온다. 나폴레옹의 열광은 상대가 원하는 길을 바꾸지 못한다. 관객은 이후의 프랑스 장군을 이미 알지만, 가족에게 프랑스는 지금 돌아가 성공할 무대보다 우선 도망갈 곳이 된다.
+The break is not a single argument that turns the whole island against them. Lucien's denunciation, action by the revolutionary government, and local resistance become real pressure on the family's safety. Napoleon's enthusiasm cannot change the path the other man wants. The audience already knows the future French general, but for the family France becomes first a place of refuge, before it is a stage on which to return and succeed.
 
-추가 사실 부모: [형성](../settings/100-history/020-life-and-memory.md#formation).
+Additional factual parent: [formation](../settings/100-history/020-life-and-memory.md#formation).
 
-뤼시앵의 고발 뒤 국민공회가 소환·체포하려는 대상은 파올리와 샤를 앙드레 포초 디 보르고다. 그 조치를 코르시카에 대한 프랑스의 공격으로 받아들이는 반발이 보나파르트 가족을 위험하게 만든다. 가족에게 체포장이 내려온 사건으로 바꾸지 않는다.
+After Lucien's denunciation, the National Convention seeks to summon and arrest Paoli and Charles André Pozzo di Borgo. Resistance that regards this measure as a French attack on Corsica endangers the Bonaparte family. Do not turn it into an arrest warrant issued against the family.
 
-## 선택의 값은 남겨 둔 집이다 {#departure}
+## The price of the choice is the home left behind {#departure}
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 현재 `docs/body/settings/100-history/020-life-and-memory.md#formation`의 1793년 6월 11일·13일과 `docs/body/settings/050-people/010-ensemble.md#letizia`의 지속·생존 욕구를 그대로 사용했다. “떠난다”는 선택이 기반 상실과 후원 의존을 낳으므로 미상의 항해 동선·새 가족 행위자·발언을 보태지 않아도 사건이 성립한다.
 -->
-1793년 가족은 섬에 남아 정치적 화해를 기다리는 대신 떠난다. 집을 잃은 결과를 나폴레옹 한 사람의 상처로 모으지 않는다. 레티치아는 가족의 이동과 생존을 우선하며 아들의 명예 싸움과 다른 일을 맡는다. 형제들의 관계는 이때부터 같은 지붕을 구하는 협력이자 서로의 정치적 위험을 떠안는 관계가 된다.
+In 1793 the family leaves rather than remain on the island and await political reconciliation. Do not concentrate the loss of home in Napoleon's wound alone. Letizia puts the family's movement and survival first, undertaking work different from her son's struggle for honor. From this point the siblings' relationship is both cooperation to secure a common roof and a willingness to bear one another's political dangers.
 
-6월 11일 출발과 13일 툴롱 도착을 구별한다. 관객이 받은 것은 출세의 첫 승리가 아니라 돌아갈 기반의 상실이다. 프랑스의 군복과 정치적 후원이 이제 선택 가능한 여러 길 중 하나가 아니라 가족의 삶을 다시 만들 거의 유일한 통로로 좁혀진다. 다음 사건의 포병 지휘는 이 절박함 위에서 열린다.
+Distinguish departure on June 11 from arrival at Toulon on June 13. What the audience receives is not the first victory of an ascent but the loss of a base to which the family can return. A French uniform and political patronage narrow from one of several possible paths to almost the only way to rebuild their lives. Artillery command in the next event opens upon this urgency.

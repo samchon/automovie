@@ -1,25 +1,25 @@
-# 말과 화약과 종이의 세계
+# A World of Horses, Gunpowder, and Paper
 
-[개요](../outline/index.md#020-world--010-material-world)
+[Outline](../outline/index.md#020-world--010-material-world)
 
-## 걷는 군대와 닿아야 하는 명령 {#movement}
+## An army on foot and orders that must arrive {#movement}
 
-이 세계의 군대는 사람이 걷고 말이 포와 치중을 끈다. 원본이 작품의 기준으로 채택한 평상시 하루 20~30킬로미터와 전령 70~100킬로미터는 모든 전역의 실측값이 아니다. 강행군은 잠·음식·신발·말·낙오의 비용을 가진다. 실제 전역의 도로·도하·도착 상태가 일반 속도보다 우선한다. 지도 위의 직선 거리로 행군 시간이나 특정 군단의 도착을 역산하지 않는다. 신호탑은 정부의 정해진 노선과 시야, 낮의 빛에 기대며 밤·안개 속 만능 통신이 아니다. Source: 보존본 `020-world/001-march-and-roads#march-and-roads`, `040-systems/001-semaphore#semaphore`.
+Armies in this world move on human feet, while horses pull guns and baggage. The ordinary daily march of 20–30 kilometers and messenger distance of 70–100 kilometers adopted by the source as standards for the work are not measurements for every campaign. Forced marches cost sleep, food, shoes, horses, and stragglers. Actual roads, crossings, and arrivals in a campaign take precedence over general speed. Do not calculate marching time or a corps' arrival backward from straight-line distance on a map. Signal towers depend on the government's fixed routes, sight lines, and daylight; they are not universal communication at night or in fog. Source: retained `020-world/001-march-and-roads#march-and-roads`, `040-systems/001-semaphore#semaphore`.
 
-## 화약의 동작과 몸의 한계 {#weapons-and-medicine}
+## Gunpowder in action and the body's limits {#weapons-and-medicine}
 
-보병의 주무기는 전장식 수석총이다. 종이 탄약을 이로 뜯고 총구에서 장전하며 현대 탄피를 배출하지 않는다. 일제사격·대열·방진은 부정확한 사격과 기병의 위협 안에서 사람을 묶는 기술이다. 포의 실탄과 근거리 산탄은 다른 용도이며 활강포의 튀는 탄은 평지와 진흙에서 다른 효과를 낸다. 연기가 사수와 지휘관의 시야를 가린다. 명목 분당 발사 수를 한 시간 내내 유지하는 자동화기처럼 연출하지 않는다. 정확한 모델·구경·포수·배치는 그 전장의 기관 기록을 따른다.
+The infantry's principal weapon is the muzzle-loading flintlock. A soldier tears a paper cartridge with his teeth and loads at the muzzle; it does not eject modern cartridge cases. Volleys, ranks, and squares are techniques binding people together amid inaccurate fire and the threat of cavalry. Solid shot and close-range canister have different uses; bouncing shot from smoothbore guns has different effects on level ground and in mud. Smoke obscures the view of gunners and commanders. Do not stage a nominal rounds-per-minute rate like an automatic weapon sustained for an entire hour. Exact model, caliber, gunners, and disposition follow institutional records for the particular battlefield.
 
-상처·열·이질·굶주림·피로는 교전 밖에서도 군대를 줄인다. 라레의 빠른 절단과 분류 치료는 의료의 제약 안에서 생명을 살리려는 판단이다. 현대 에테르 마취의 공개 시연을 이 시대로 앞당기지 않으며 이것을 당대의 모든 통증 완화가 전무했다는 주장으로 넓히지도 않는다. 수술과 감염의 현대적 해석은 당대 인물의 진단과 구별한다. Source: 원본 `040-systems/006-medicine`, `007-infantry-weapon`, `008-artillery-and-cavalry`, `009-tactics`와 라레·란의 개인 기록.
+Wounds, fever, dysentery, hunger, and fatigue reduce armies outside combat too. Larrey's rapid amputations and triage are judgments seeking to save lives within medical limits. Do not bring the public demonstration of modern ether anesthesia forward into this era, or expand that into a claim that no contemporary pain relief existed. Distinguish modern interpretations of surgery and infection from contemporary characters' diagnoses. Source: original `040-systems/006-medicine`, `007-infantry-weapon`, `008-artillery-and-cavalry`, `009-tactics`, and personal records of Larrey and Lannes.
 
-## 달력과 단위와 자연의 시각 {#calendar-and-units}
+## Calendar, units, and the appearance of nature {#calendar-and-units}
 
-화면의 날짜와 발화는 그레고리력 서력을 쓴다. 러시아 기록은 1800년 2월 말까지 11일, 그 뒤는 12일 차이의 율리우스력일 수 있으나 원기록이 어느 달력인지 모르면 환산 날짜를 확정하지 않는다. 혁명력 원문은 조사 단계에서 식별하며 화면에 두 달력을 병기하거나 달력 설명을 삽입하지 않는다. 나이는 실제 생일 기준 만 나이이며 생일 미상은 안팎으로 쓴다.
+Dates on screen and in speech use Gregorian calendar years. Russian records may use the Julian calendar, eleven days behind through the end of February 1800 and twelve days thereafter; if the original record's calendar is unknown, do not fix a converted date. Identify original Revolutionary calendar dates in research; do not place both calendars on screen or insert a calendar explanation. Ages are completed years based on actual birthdays; use approximate ages where birthdays are unknown.
 
-서술과 자막의 거리는 미터법, 온도는 섭씨를 기본으로 한다. 당대 문서와 대사는 그 나라의 실제 단위를 유지하고 필요한 첫 설명만 준다. 프랑스 옛 피에와 영국 피트를 같은 단위로 읽지 않는다. 레오뮈르 1도는 섭씨 1.25도여서 눈금 없는 러시아 겨울의 “영하 30도”를 섭씨 확정치로 쓰지 않는다. 현지 태양시·함선 시계·계산한 일출과 실제로 안개를 뚫고 보이는 해를 구별한다. Source: 원본 `010-work/020-writing-rules#calendar-dates`, `020-world/002-french-units`, `003-foreign-units`, `004-sun-and-clock`, `005-russian-winter`.
+Narration and captions use metric distance and Celsius by default. Contemporary documents and dialogue retain the country's actual units, with only the necessary first explanation. Do not read the old French pied and British foot as the same unit. One degree Réaumur equals 1.25 degrees Celsius, so do not fix “minus 30 degrees” in the Russian winter as Celsius when no scale is given. Distinguish local solar time, ship clocks, calculated sunrise, and the sun actually visible through fog. Source: original `010-work/020-writing-rules#calendar-dates`, `020-world/002-french-units`, `003-foreign-units`, `004-sun-and-clock`, `005-russian-winter`.
 
-## 시기와 장소가 보이는 물질 {#appearance}
+## Materials showing period and place {#appearance}
 
-빛은 초·기름등·화롯불·야영불과 자연광을 기본으로 한다. 확인되지 않은 파리 가스 가로등과 전기를 들이지 않는다. 1805년의 프랑스 보병 모자와 뒤 시기의 샤코, 근위대와 일반 보병, 국가별 옷의 색과 장비는 해당 연도·부대의 기록을 따른다. 군복 색만으로 같은 편의 모든 사람이 동일 병종이 되지 않는다. 나폴레옹의 녹색 엽기병 대령복·회색 르댕고트·가로로 쓴 소박한 모자는 원수들의 장식과 대비한다. 약 1.67미터의 평균적인 키를 영국 풍자화의 작은 몸으로 바꾸지 않는다. 보존 군복의 퇴색은 원래의 색이 아니다.
+Light comes primarily from candles, oil lamps, hearths, campfires, and daylight. Do not introduce unverified Paris gas streetlights or electricity. Follow records for the relevant year and unit for French infantry headgear in 1805 and later shakos, Guard and ordinary infantry, and each country's clothing colors and equipment. Uniform color alone does not make everyone on the same side the same arm of service. Napoleon's green uniform as colonel of the chasseurs, gray redingote, and plain sideways hat contrast with marshals' ornament. Do not turn his average height of about 1.67 meters into the small body of British caricature. Fading in a surviving uniform is not its original color.
 
-도시와 궁전의 연도도 물질의 조건이다. 1805년과 1809년 쇤브룬은 후대의 짙은 노랑으로 칠하지 않는다. 공사 명령·착공·완공·봉헌은 다르다. 1840년 앵발리드에는 1861년의 완성 묘소가 없고, 마들렌의 1845년 봉헌은 작품 뒤다. 다비드의 대관식 그림에 있는 레티치아는 실제 식에 없었다. 그림의 구도를 실제 참석·배치의 증거로 삼지 않는다. Source: 원본 작품 선언의 시각 세계, `080-places`와 `090-objects`의 연도별 레코드. 개별 장소의 치수·좌석·색·날씨·소품은 [채택 장부](../120-research/020-source-register.md#places-and-objects)의 해당 원본 기록을 함께 따른다.
+A city or palace's year is also a material condition. Do not paint Schönbrunn in 1805 or 1809 the deeper yellow of a later period. An order to build, starting work, completion, and consecration are different. Les Invalides in 1840 has no completed 1861 tomb, and the Madeleine's consecration in 1845 falls after the work. Letizia appears in David's coronation painting but did not attend the actual ceremony. Do not use the painting's composition as evidence of actual attendance or placement. Source: visual world of the original work declaration and yearly records in `080-places` and `090-objects`. For individual places' dimensions, seating, colors, weather, and props also follow the relevant original records in the [adopted register](../120-research/020-source-register.md#places-and-objects).

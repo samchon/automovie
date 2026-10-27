@@ -1,23 +1,23 @@
-# 한날의 서로 다른 승리
+# Different Victories on the Same Day
 
-## 예나의 황제와 아우어슈테트의 원수 {#two-fields}
+## The Emperor at Jena and the Marshal at Auerstädt {#two-fields}
 
-이 파일의 사실 부모: [제국의 확장](../settings/100-history/020-life-and-memory.md#expansion), [두 전장의 소식](../settings/110-knowledge/010-information.md#news), [다부](../settings/050-people/010-ensemble.md#davout), [루이제](../settings/050-people/010-ensemble.md#queen-louise), [다시 군을 만드는 조건](../settings/030-society/010-power-and-cost.md#recruitment).
+Factual parents: [imperial expansion](../settings/100-history/020-life-and-memory.md#expansion), [news from the two fields](../settings/110-knowledge/010-information.md#news), [Davout](../settings/050-people/010-ensemble.md#davout), [Louise](../settings/050-people/010-ensemble.md#queen-louise), [conditions for rebuilding an army](../settings/030-society/010-power-and-cost.md#recruitment).
 
-1806년 10월 14일. 관객은 예나의 나폴레옹과 아우어슈테트의 다부가 다른 적을 상대하는 두 전장을 번갈아 따라간다. 예나에서는 프랑스군의 공격으로 프로이센군의 왼쪽과 중앙이 무너진다. 뒤이어 별도 군단이 역습하지만 이미 생긴 패배를 돌리지 못한다. 황제가 자기 전장에서 만든 승리가 다른 전장의 지휘까지 대신하지는 않는다.
+October 14, 1806. The audience alternates between Napoleon at Jena and Davout at Auerstädt as they face different enemies on two fields. At Jena the French attack breaks the Prussian left and center. A separate corps then counterattacks but cannot reverse the defeat already inflicted. The Emperor's victory on his own field does not substitute for command on the other.
 
-아우어슈테트에서 다부군의 선두 보병은 프로이센 기병의 공격을 방진으로 막는다. 공격에 흩어지지 않고 버틴 보병에 뒤의 사단들이 합류하면서 프랑스군은 반격으로 넘어가고 프로이센군은 물러난다. 하나로 모이지 않은 프로이센 기병의 지휘는 그 방어를 깨지 못한 대응의 한계로 남는다. 다부의 규율과 임무는 황제의 승리 소식을 받은 뒤의 자신감이 아니라, 눈앞의 공격을 견디고 합류한 군으로 반격하는 과정에서 성과가 된다.
+At Auerstädt Davout's leading infantry repels a Prussian cavalry attack in squares. Divisions behind join the infantry that held without dispersing; the French move to a counterattack and the Prussians withdraw. The lack of unified command among Prussian cavalry remains a limitation of the response that failed to break that defense. Davout's discipline and mission yield results through enduring the attack before him and counterattacking with the forces that joined him, not through confidence gained from news of the Emperor's victory.
 
-예나의 붕괴 뒤 역습 실패와 아우어슈테트의 방진을 깨지 못한 공격을 같은 실패로 합치지 않는다. 프랑스군에게는 다른 사람이 만들어 낸 성과가 한 제국의 승리로 모인다. 관객은 양쪽 결과를 알지만 그날 나폴레옹이 아우어슈테트의 전부를 알고 명령한 사람이 되지는 않는다. 그가 이 성과를 받는 일은 다음 날의 보고로 남긴다.
+Do not merge the failed counterattack after the collapse at Jena with the attack that failed to break squares at Auerstädt. For the French, achievements made by different people gather into one empire's victory. The audience knows both results, but Napoleon does not become a man who knew and ordered all of Auerstädt that day. His receipt of the achievement awaits the next day's report.
 
-추가 사실 부모: [추가 역사 결정](../settings/100-history/030-decisions-and-results.md#prussian-demand), [추가 역사 결정](../settings/100-history/030-decisions-and-results.md#prussia-after-battle).
+Additional factual parents: [additional historical decisions](../settings/100-history/030-decisions-and-results.md#prussian-demand), [additional historical decisions](../settings/100-history/030-decisions-and-results.md#prussia-after-battle).
 
-전투 전에 프로이센의 라인강 너머 철수 요구를 밝혀 프랑스군의 주둔과 독일 질서를 두고 전쟁의 선택이 열린다는 정치적 대상을 준다. 독일 안에서 운신하려는 프로이센과 군 배치·동맹 질서를 유지하려는 프랑스라는 해석은 작품의 설명으로 한정한다. 전투에서 다부가 상대하는 군은 거의 두 배이며, 그 차이는 보고를 믿지 못하는 다음 사건의 비교값으로 넘긴다.
+Before battle, establish Prussia's demand that French forces withdraw beyond the Rhine, giving the choice of war a political object in French deployment and the German order. Limit the interpretation of Prussia seeking room to maneuver in Germany and France seeking to maintain its deployment and alliance system to the work's explanation. The army Davout faces is nearly twice his size; carry that difference forward as the comparison in the next incident, where the report is hard to believe.
 
-## 보고를 믿는 일도 권력의 시험이다 {#report}
+## Believing a report is also a test of power {#report}
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 보고는 `docs/body/settings/110-knowledge/010-information.md#news`의 다음 날 오전 수령·초기 불신·미상 경로를 그대로 사용했다. `docs/body/settings/050-people/010-ensemble.md#queen-louise`의 독립된 존속 요구와 `docs/body/settings/030-society/010-power-and-cost.md#recruitment`의 패배 뒤 개혁은 인정 이후의 출구를 지원하여 새 전령 여정·놀림 축어록·개혁 완료일이 필요하지 않았다.
 -->
-다음 날 오전 다부의 승전 보고가 닿는다. 황제가 처음 믿지 않는 반응은 다부의 성과를 아직 자기 전장의 크기에 맞춰 읽는 한계를 드러낸다. 실제 보고가 인정되면 군의 성취가 한 사람의 시야보다 컸다는 사실이 남는다. 전해지는 놀림을 확정 축어록으로 쓰거나 보고 경로의 미상 구간을 정확한 전령 여행으로 만들지 않는다.
+Davout's victory report arrives the next morning. The Emperor's initial disbelief reveals the limitation of reading Davout's achievement through the scale of his own field. Once the actual report is accepted, the army's achievement remains greater than one man's view. Do not use the reported teasing as a confirmed verbatim quotation or fill an unknown part of the report's route with a precise messenger journey.
 
-루이제에게 패배는 남성 장군의 체면 손상만이 아니라 나라와 왕가의 존속 문제다. 그녀가 지키려는 독립과 보존의 요구를 군사적 패배의 결론과 함께 남긴다. 전쟁을 부추긴 어리석은 왕비라는 후대 단순화로 원인을 끝내지 않는다. 프로이센이 무너진 장면은 이후 개혁과 재동원의 시작 조건이 된다.
+For Louise, defeat is not merely damage to male generals' honor but a question of survival for country and dynasty. Preserve her demand for independence and survival alongside the military defeat. Do not end the causes with the later simplification of a foolish queen who urged war. The collapse of Prussia becomes the starting condition for later reform and remobilization.

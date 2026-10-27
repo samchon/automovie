@@ -1,155 +1,153 @@
+# The Road Gives Way
 
-# 밀린 길
+## An army clears the road {#road}
 
-## 길을 비우는 군대 {#road}
+Parents: [001#outposts](../../treatments/001-the-road-gives-way.md#outposts), [002#withdrawal](../../treatments/002-the-open-right.md#withdrawal).
 
-부모: [001#outposts](../../treatments/001-the-road-gives-way.md#outposts), [002#withdrawal](../../treatments/002-the-open-right.md#withdrawal).
+Caption: November 28, 1805, near Vyškov.
 
-자막: 1805년 11월 28일, 비샤우 부근.
+An overcast day. A low wide view follows the road. A retreating French outpost soldier turns his musket back. Another passes him. Distant shots grow closer together and the hands loading tremble.
 
-흐린 낮. 낮은 원경으로 길을 따라 본다. 물러오는 프랑스 전초병 하나가 총구를 뒤로 돌린다. 옆 병사가 그를 지나친다. 먼 사격음의 간격이 짧아지고 장전하는 손이 떨린다.
+SOLDIER: Are our men still behind us?
 
-병사: 뒤에도 우리 군이 있나?
+SERGEANT: Keep the road clear. Load farther back.
 
-하사관: 길 막지 마. 뒤로 가서 장전해.
+The sergeant holds the place the soldier leaves. White smoke from firing covers the road.
 
-병사가 비킨 자리를 하사관이 지킨다. 사격 뒤 흰 연기가 길을 덮는다.
+Beyond the smoke, Rousínov in the evening. People adjust their packs and leave the village. The last troops cross the threshold too.
 
-연기 너머, 저녁의 라우스니츠. 등짐을 고쳐 멘 사람들이 마을을 빠져나간다. 마지막 부대도 문턱을 넘는다.
+HISTORIAN (off screen): Danger drew closer to Brünn. The forces that had to assemble were still apart.
 
-역사가(화면 밖): 위험이 브륀 쪽으로 다가왔다. 모여야 할 군은 아직 떨어져 있었다.
+Look down at the map at headquarters. Berthier's hand stops at the positions of corps that have not arrived. Napoleon points to the end of the road they must take.
 
-본영의 지도를 내려다본다. 베르티에의 손이 미도착 군단 위치에서 멎는다. 나폴레옹은 그들이 올 길의 끝을 짚는다.
+NAPOLEON: Have the orders to concentrate been sent?
 
-나폴레옹: 집결 명령은 보냈는가?
+BERTHIER: Yes, Sire. No reports of arrival yet.
 
-베르티에: 보냈습니다. 도착 보고는 아직 없습니다.
+Napoleon withdraws his hand. The empty places on the map remain.
 
-나폴레옹이 손을 거둔다. 지도 위 빈 곳은 그대로다.
+## A letter requested by three men {#letter}
 
-## 셋이 청한 편지 {#letter}
+Parent: [001#letter](../../treatments/001-the-road-gives-way.md#letter).
 
-부모: [001#letter](../../treatments/001-the-road-gives-way.md#letter).
+Evening, headquarters at the old Pozořice post house. Yellow candlelight falls on the desk and three marshals' faces. Outside the window it is dark. See all three from the door, then move close to Lannes's pen. Soult stands opposite, Murat near the door.
 
-저녁, 포조리츠의 옛 역참 본영. 초의 노란빛이 책상과 세 원수의 얼굴을 비춘다. 창밖은 어둡다. 문 쪽에서 세 사람을 함께 본 뒤 란의 펜 가까이 간다. 맞은편에 술트, 문 가까이에 뮈라가 서 있다.
+HISTORIAN (off screen): Thiébault later wrote down an account he said came from Lannes's aide Subervie, outside the door. The words exchanged here reconstruct that account too.
 
-역사가(화면 밖): 훗날 티에보는 란의 부관 쉬베르비가 문밖에서 전했다는 이야기를 적었다. 여기서 오가는 말도 그 전언의 재구성이다.
+MURAT: The outposts have been driven back. If we face them scattered like this, we will lose the first troops they reach.
 
-뮈라: 전초가 밀렸소. 이대로 흩어져 맞으면 먼저 닿는 군부터 잃겠소.
+SOULT: Let us ask to withdraw together. Marshal Lannes, will you write it?
 
-술트: 함께 후퇴를 청합시다. 란 원수, 써 주시오.
+LANNES: I have not seen that whole front.
 
-란: 나는 그 전선을 다 보지 못했소.
+SOULT: Write what we have seen.
 
-술트: 우리가 본 사정을 쓰면 되오.
+Lannes begins to write. Murat turns at footsteps outside. Napoleon enters, picks up the letter, and reads. Lannes rises; Soult straightens too.
 
-란이 쓰기 시작한다. 뮈라는 문밖 발소리에 돌아선다. 나폴레옹이 들어와 편지를 집어 읽는다. 란이 일어서고 술트도 자세를 바로잡는다.
+NAPOLEON: Soult, do you agree?
 
-나폴레옹: 술트, 자네도 같은 생각인가?
+SOULT: Sire, my corps could face twice its number.
 
-술트: 폐하, 제 군단이라면 두 배의 적도 감당할 수 있습니다.
+Lannes's ink-stained hand leaves the letter.
 
-잉크 묻은 란의 손이 편지에서 떨어진다.
+LANNES: You asked me to make the request for us, and now you change your answer?
 
-란: 함께 청해 달라더니, 여기서 말을 바꾸시오?
+Soult turns toward Lannes. Napoleon continues walking around the room.
 
-술트가 란을 향해 돌아선다. 나폴레옹은 방 안을 계속 걷는다.
+LANNES: Soult, meet me in a duel. I cannot let that insult pass.
 
-란: 술트, 나와 결투합시다. 이 모욕은 못 넘기겠소.
+NAPOLEON: We must withdraw and bring the army together.
 
-나폴레옹: 물러나 군을 붙여야겠군.
+Murat opens the door. Lannes seeks Soult's eyes, but Soult leaves first. Berthier comes to the desk after the marshals have gone and writes down the orders. The scratch of his pen follows the receding footsteps.
 
-뮈라가 문을 연다. 란은 술트의 눈을 찾지만 술트가 먼저 나간다. 원수들이 떠난 책상으로 베르티에가 와 명령을 받아 적는다. 멀어지는 발소리 뒤에 펜 소리가 이어진다.
+## The heights left empty {#plans}
 
-## 비워 둔 고지 {#plans}
+Parents: [002#withdrawal](../../treatments/002-the-open-right.md#withdrawal), [002#allied-plan](../../treatments/002-the-open-right.md#allied-plan), [003#orders-and-challenge](../../treatments/003-the-night-before.md#orders-and-challenge).
 
-부모: [002#withdrawal](../../treatments/002-the-open-right.md#withdrawal), [002#allied-plan](../../treatments/002-the-open-right.md#allied-plan), [003#orders-and-challenge](../../treatments/003-the-night-before.md#orders-and-challenge).
+French troops walk a night road. Campfires recede behind them. Next day the army leaving Austerlitz vacates the Pratzen heights. Walk beside the ranks and hear rough breathing. Troops from another road join, thickening the line. The road to the south remains long.
 
-밤길을 걷는 프랑스군. 야영불이 등 뒤로 멀어진다. 다음 날 아우스터리츠를 떠나는 군이 프라첸 고지를 비운다. 대열 옆에서 함께 걸으며 거친 숨을 듣는다. 다른 길의 부대가 합쳐져 줄이 굵어진다. 남쪽까지 가야 할 길은 여전히 길다.
+Allied headquarters. At a map table lit by candles, staff officer Weyrother reads the attack plan. His fingertip goes around the French right toward Vienna. Alexander watches the line and Kutuzov sits beside the table.
 
-연합 지휘부. 초를 켠 지도 탁자에서 참모 바이로터가 공격 계획을 읽는다. 손끝이 프랑스 오른쪽을 돌아 빈으로 향한다. 알렉산드르는 그 선을 보고 쿠투조프는 탁자 옆에 앉아 있다.
+WEYROTHER: We turn south and cut this road. Each column descends by its assigned route.
 
-바이로터: 남쪽으로 돌아 이 길을 끊습니다. 종대마다 맡은 길로 내려갑니다.
+ALEXANDER: They are withdrawing and opening the way for us.
 
-알렉산드르: 물러나며 우리에게 길을 내주는군.
+A folded order leaves the room. Before the officer receiving it, carts of a column that left earlier fill the road. While he waits for a way through, the reading continues inside. Hold briefly on Kutuzov's face. Do not give him a new speech of opposition over his silence.
 
-접은 명령서가 방 밖으로 나간다. 종이를 받은 장교 앞에는 먼저 떠난 종대의 수레가 길을 채우고 있다. 장교가 길이 나기를 기다리는 동안 안에서는 낭독이 계속된다. 쿠투조프의 얼굴에 잠시 머문다. 그의 침묵 위로 새 반대 연설을 들려주지 않는다.
+## A night on straw, a night on the road {#night}
 
-## 짚 위의 밤, 길 위의 밤 {#night}
+Parents: [003#march-and-mail](../../treatments/003-the-night-before.md#march-and-mail), [003#orders-and-challenge](../../treatments/003-the-night-before.md#orders-and-challenge).
 
-부모: [003#march-and-mail](../../treatments/003-the-night-before.md#march-and-mail), [003#orders-and-challenge](../../treatments/003-the-night-before.md#orders-and-challenge).
+Caption: Night of December 1.
 
-자막: 12월 1일 밤.
+Under candles, staff officers read letters from home. One folds his paper into his coat and starts a song. Beside him another puts a straw into a cask and drinks. A hand looking for a cup reaches for a straw too. After a short laugh they lie down on straw, still in their coats.
 
-초 아래 참모들이 고향에서 온 편지를 읽는다. 한 사람이 종이를 접어 품에 넣고 노래를 시작한다. 옆 사람은 짚대를 술통에 꽂아 마신다. 잔을 찾던 손도 짚대로 향한다. 짧은 웃음 뒤 사람들이 외투를 입은 채 짚 위에 눕는다.
+HISTORIAN (off screen): Lejeune later recorded this night in these terms.
 
-역사가(화면 밖): 르죈은 훗날 이 밤을 이렇게 남겼다.
+Outside, voices calling the Emperor grow louder. A waking officer goes to the window. Faces appear among burning straw.
 
-밖에서 황제를 부르는 소리가 커진다. 잠을 깬 참모가 창으로 간다. 짚불 사이에 사람들의 얼굴이 떠 있다.
+While cheers continue, see Friant's soldiers reaching Raygern. A man sitting beside the dark road touches his shoe. Davout passes in front of him, looking down the road south.
 
-환호가 이어지는 동안 라이게른에 닿은 프리앙의 병사들을 본다. 어두운 길가에 앉은 병사가 신발을 만진다. 다부가 앞을 지나 남쪽 길을 살핀다.
+SOLDIER: Are we stopping here?
 
-병사: 여기서 멈춥니까?
+SERGEANT: Get ready to move again.
 
-하사관: 다시 나갈 준비 해.
+The soldier ties his shoe. Cheers at headquarters recede, leaving the sound of dragging feet.
 
-병사가 신발을 묶는다. 본영의 환호가 멀어지고 발 끄는 소리가 남는다.
+Dawn, outdoors before battle. Lannes and Soult meet as each heads to his troops. A fixed view holds both at waist height. Distant cannon sounds in the south.
 
-새벽, 전투를 앞둔 야외. 각자 부대로 향하던 란과 술트가 마주친다. 두 사람의 허리 높이에서 함께 보는 고정 시선. 남쪽에서 먼 포성이 난다.
+LANNES: Why have you not answered my challenge?
 
-란: 내 결투장에는 왜 답이 없소?
+SOULT: There are more important matters today.
 
-술트: 오늘은 더 중요한 일이 있소.
+LANNES: Do you think the insult vanishes because there is work to do?
 
-란: 일이 있다고 모욕까지 없어지는 줄 아시오?
+Soult turns to his troops. Lannes goes the opposite way. Keep the camera where they part; do not follow to add an expression of reconciliation.
 
-술트가 자기 부대로 돌아선다. 란은 반대편으로 간다. 두 사람이 갈라지는 자리에 카메라를 둔다. 뒤따라가 화해의 표정을 붙이지 않는다.
+## While the villages hold {#battle}
 
-## 마을이 버티는 동안 {#battle}
+Parents: [004#south](../../treatments/004-the-battle-opens.md#south), [004#pratzen](../../treatments/004-the-battle-opens.md#pratzen), [004#north-and-guard](../../treatments/004-the-battle-opens.md#north-and-guard).
 
-부모: [004#south](../../treatments/004-the-battle-opens.md#south), [004#pratzen](../../treatments/004-the-battle-opens.md#pratzen), [004#north-and-guard](../../treatments/004-the-battle-opens.md#north-and-guard).
+Morning of December 2, south of the Goldbach. Fog and powder smoke divide the villages. In a wide view across the stream, the Allied vanguard gathers at a bridge while French defenders fire from behind buildings. When one man moves from a window, another fills his place and fires.
 
-12월 2일 아침, 골트바흐 남쪽. 안개와 화약 연기가 마을 사이를 가른다. 개울 건너를 넓게 보면 연합군 전위가 다리로 모이고 프랑스 수비병은 건물 뒤에서 사격한다. 한 사람이 창가에서 물러나면 옆 사람이 빈자리를 채워 사격한다.
+DEFENDER: Ammunition!
 
-수비병: 탄약!
+A soldier behind offers his pouch. Soon even that is empty. Footsteps of Friant's leading troops sound on the road and those arriving first enter the fight. The road behind stays empty for a while, then fills with the main body. Davout looks beyond the scene and lowers his hand.
 
-뒤의 병사가 주머니를 내민다. 곧 그마저 빈다. 길에서 프리앙 선두의 발소리가 들리고 먼저 닿은 군이 싸움에 들어간다. 뒤의 길은 한동안 비어 있다가 본대가 메운다. 다부가 현장 너머를 살피고 손을 낮춘다.
+DAVOUT: Hold here. The rest are still coming.
 
-다부: 이곳을 버티시오. 뒤의 군은 아직 오는 중이오.
+SOLDIER: They're coming behind us! Hold here!
 
-병사: 뒤에서 오고 있다! 여길 버텨!
+Men push and are pushed back in the narrow village. Widen the view to the low central ridge. Napoleon sees the enemy moving south and turns to Soult.
 
-좁은 마을에서 밀고 밀린다. 시야를 중앙의 낮은 능선으로 넓힌다. 나폴레옹은 남하하는 적을 보고 술트에게 돌아선다.
+NAPOLEON: Go for the center.
 
-나폴레옹: 중앙으로 가게.
+SOULT: Sire.
 
-술트: 폐하.
+Follow Vandamme's and Saint-Hilaire's troops up the slope. As they emerge from fog, the opposing center fires. The first rank ducks and the next stops too. A soldier helping a retreating comrade picks up his musket again. Pushed back by a counterattack on the heights, the ranks reform and climb again. Even in one view, some places are lit by sunlight and others remain in fog.
 
-방담과 생틸레르의 군을 따라 경사를 오른다. 안개를 벗어나자 맞은편 중앙군이 사격한다. 첫 줄이 숙여지고 뒤의 줄도 멈춘다. 물러나는 동료를 부축한 병사가 다시 총을 잡는다. 고지의 반격에 밀린 대열이 줄을 고쳐 또 오른다. 한 화면 안에서도 햇빛에 드러난 곳과 안개 속이 갈린다.
+Fighting continues after the French hold the ridge. In the north Lannes's infantry face the enemy vanguard and Murat's cavalry clashes with opposing horse. Behind the center the Russian Guard counterattacks. The eagle of the French 4th Line passes into Russian hands. Stay with the side that took it.
 
-프랑스군이 능선을 붙든 뒤에도 싸움은 이어진다. 북쪽에서 란의 보병이 적 전위와 맞서고 뮈라의 기병은 상대 기병과 충돌한다. 중앙 뒤에서는 러시아 근위가 반격한다. 프랑스 제4 전열의 독수리가 러시아 병력의 손으로 넘어간다. 빼앗은 쪽에 시선을 남긴다.
+HISTORIAN (off screen): The French response that followed is traced through Rapp's later account.
 
-역사가(화면 밖): 뒤의 프랑스 대응은 라프가 훗날 남긴 경과를 따라간다.
+Cavalry depart from Napoleon's side. In a wider view Russian horse push between French squares. Cavalry arriving with Mamelukes block their path and collide with them. Other Guard cavalry enter between retreating horses. As the newly joined troops push back, the path between squares opens again. Rapp withdraws wounded. The eagle taken by the Russians does not return by that route.
 
-나폴레옹 곁에서 기병이 출발한다. 시야를 넓히면 프랑스 방진 사이로 러시아 기병이 파고든다. 맘루크와 함께 온 기병이 그 진로를 막고 충돌한다. 물러나는 말 사이로 다른 근위 기병이 들어온다. 새로 붙은 군이 밀어내자 방진 사이의 길이 다시 열린다. 부상한 라프가 물러난다. 러시아군이 가져간 독수리는 그 길로 돌아오지 않는다.
+## Empty places in the victorious army {#victory}
 
-## 이긴 군의 빈자리 {#victory}
+Parents: [005#retreat](../../treatments/005-victory-night.md#retreat), [005#night](../../treatments/005-victory-night.md#night).
 
-부모: [005#retreat](../../treatments/005-victory-night.md#retreat), [005#night](../../treatments/005-victory-night.md#night).
+Afternoon, a wide view of the southern retreat route. Some Allied troops cover withdrawal and units behind escape. A cart tips on a narrow causeway. One person pushes the wheel while another behind stops. Muddy feet slip toward water. At the sound of breaking ice people crowd toward the inside of the path. Rather than a count of drowned over the water, follow the organized line escaping.
 
-오후, 남쪽 퇴로를 넓게 본다. 연합군 일부가 후퇴를 가리고 그 뒤 부대들이 빠져나간다. 좁은 둑길에서 수레가 기운다. 옆 사람은 바퀴를 밀고 뒤의 사람은 멈춘다. 진흙 묻은 발이 물가로 미끄러진다. 얼음 깨지는 소리에 사람들은 길 안쪽으로 붙는다. 물 위의 익사자 숫자 대신 빠져나가는 조직된 줄을 따라간다.
+A late withdrawal order reaches the north. As Bagration's men pull back, southern troops have already gone far.
 
-북쪽에 뒤늦은 철수 명령이 닿는다. 바그라티온의 군이 물러날 때 남쪽 군은 이미 멀어졌다.
+Night at a French camp. Beside soldiers shouting victory at a fire, medical personnel remove a wounded man's coat. One stops work and fetches more cloth. A soldier who returned alive pulls a pack from an empty place toward himself.
 
-밤, 프랑스 야영지. 불가에서 승리를 외치는 병사 곁으로 의료진이 부상자의 외투를 벗긴다. 손을 멈추고 천을 더 가져온다. 살아 돌아온 병사가 빈자리에 놓인 등짐을 자기 쪽으로 당긴다.
+SOLDIER: That was his place.
 
-병사: 저 친구 자리요.
+CANTINIÈRE: I know. Put it by the fire.
 
-칸티니에르: 알아. 불 가까이 둬.
+She moves aside someone about to sit. Napoleon passes between the lights and cheers follow him. In the distance Lannes and Soult are each beside their own troops. No new gesture passes between them. Under the cheers comes the sound of water washing a wound.
 
-그녀가 앉으려던 사람을 비켜 세운다. 나폴레옹이 불빛 사이를 지나가고 환호가 따라간다. 멀리 란과 술트는 각자의 군 곁에 있다. 둘 사이에 새 몸짓은 오가지 않는다. 환호 밑으로 상처 씻는 물소리가 들린다.
+End of main work. After the light goes out, a separate author voice.
 
-본편 끝. 불빛이 꺼진 뒤 별도 작가 음성.
-
-작가: 첫 승리를 먼저 보셨어요. 역참의 다툼은 티에보의 후일 전언이고, 대사는 그 뜻을 옮긴 재구성입니다. 못의 희생자 수도 전장에서 센 것처럼 보여 드리지는 않았어요. 제가 이번에 읽은 것은 각색의 사건 설계와 그 안의 자료 구분입니다. 거기에 나온 회고록 원전을 새로 완독했다는 뜻은 아니에요.
-
+AUTHOR: You have seen the first victory first. The quarrel at the post house is Thiébault's later account, and the dialogue reconstructs its meaning. We have not shown a count of victims in the ponds as though counted on the battlefield. What I read for this work was the adaptation's event design and its distinctions between sources. That does not mean I newly read the complete original memoirs mentioned there.

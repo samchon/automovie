@@ -1,37 +1,37 @@
-# 역사가의 목소리와 사람의 시대
+# The Historian's Voice and People in Their Time
 
-## 먼 역사가와 가까운 장면 {#chronicler-and-scene}
+## The distant historian and the close scene {#chronicler-and-scene}
 
-서술자는 먼 훗날에 지난 시대를 돌아보는 역사가다. 해와 날짜를 짚고 기록과 평가를 대조하며 앞날을 아는 아이러니를 만든다. 서술자가 사는 해나 가공의 역사책을 새로 발명하지 않는다. 원경의 설명은 장면을 이해할 만큼 짧게 두고, 선택이 일어나는 근경에서는 몸과 말과 반응에 시간을 준다. 원본 `002-style#chronicler-voice`, `#near-and-far`를 채택한다. 『은하영웅전설』에서 받아들이는 것은 이 거리와 군상극의 구조이며 문장이나 고유 표현을 베끼는 요구가 아니다.
+The narrator is a historian looking back on a past age from the distant future. The narrator marks years and dates, compares records and judgments, and draws irony from knowing what lies ahead. Do not invent the year in which the narrator lives or a fictional history book. Keep distant exposition short enough to support understanding; in close scenes where choices are made, give time to bodies, speech, and reactions. This adopts the original `002-style#chronicler-voice` and `#near-and-far`. What is adopted from Legend of the Galactic Heroes is this distance and ensemble structure, not its sentences or distinctive expressions.
 
-## 알고 있는 역사와 모르는 앞날 {#unequal-knowledge}
+## Known history and an unknown future {#unequal-knowledge}
 
-서술자는 결말을 알지만 인물은 그때 받은 편지·보고·소문과 직접 본 것만 안다. 소식의 발송과 도착을 구별하고 잘못된 보고도 선택의 실제 조건으로 쓴다. 서술자의 후대 지식과 비유를 인물의 대사에 넘기지 않는다. 원본 `002-style#knowledge-of-the-moment`를 채택한다.
+The narrator knows the ending; characters know only the letters, reports, and rumors received by then and what they have seen themselves. Distinguish the sending and arrival of news, and use incorrect reports as actual conditions of a choice. Do not transfer the narrator's later knowledge or analogies into characters' dialogue. This adopts the original `002-style#knowledge-of-the-moment`.
 
-## 각자 이유를 가진 양쪽 진영 {#ensemble}
+## Both camps have reasons of their own {#ensemble}
 
-나폴레옹은 중심이지만 모든 장면의 관찰자도 유일한 원인도 아니다. 프랑스의 원수·정치가·가족·병사, 영국·러시아·오스트리아·프로이센의 맞수, 점령지와 식민지의 사람은 서로 다른 욕구와 선택과 대가를 가진다. 넬슨·카를 대공·쿠투조프·알렉산드르·웰링턴·탈레랑·메테르니히의 독자적인 힘을 보존한다. 반대편끼리의 협력과 갈등, 프랑스와 무관하게 내린 판단도 결과를 바꾼다. 원본 `002-style#rival-camps`, `006-story-and-characters#ensemble-portrait`를 채택한다.
+Napoleon is central, but he is neither observer of every scene nor its sole cause. French marshals, politicians, family, and soldiers; British, Russian, Austrian, and Prussian rivals; and people in occupied lands and colonies have distinct desires, choices, and costs. Preserve the independent power of Nelson, Archduke Charles, Kutuzov, Alexander, Wellington, Talleyrand, and Metternich. Cooperation and conflict among opponents, and decisions made independently of France, also change outcomes. This adopts the original `002-style#rival-camps` and `006-story-and-characters#ensemble-portrait`.
 
-## 나폴레옹의 재능과 모순 {#napoleon}
+## Napoleon's talents and contradictions {#napoleon}
 
-그를 영웅이나 폭군 한 면으로 고정하지 않는다. 야심·허세·계산·집착·다정함·이기심·장난과 냉정함을 상황 속에서 읽게 한다. 그의 군사적 역량은 적의 두려움, 대응, 회피와 전장의 실제 판단으로 압도적으로 느끼게 한다. 법과 행정에 쏟는 일과 자부심에도 전쟁과 맞먹는 극적 무게를 준다. 검열·탄압·노예제 복원·여성과 아이의 권리 제한을 같은 사람의 일로 남긴다. 속내의 단정과 역사적 진단 대신 기록된 행동에 근거한 해석을 쓴다. 원본 `#not-a-hero-epic`, `#napoleon-as-person`, `#military-genius`를 채택한다.
+Do not fix him as either hero or tyrant. Let ambition, swagger, calculation, obsession, tenderness, selfishness, playfulness, and coldness emerge in context. Make his military ability feel overwhelming through his enemies' fear, response and avoidance, and his actual decisions in battle. Give his work and pride in law and administration dramatic weight equal to war. Leave censorship, repression, the restoration of slavery, and restrictions on the rights of women and children as actions of the same man. Interpret recorded actions rather than asserting his private thoughts or making historical diagnoses. This adopts the original `#not-a-hero-epic`, `#napoleon-as-person`, and `#military-genius`.
 
-## 따른 이유와 돌아선 이유 {#support-and-cost}
+## Why people followed and why they turned away {#support-and-cost}
 
-질서에 대한 갈망, 공적에 따른 출세, 승리와 선전, 병사와의 유대, 국민투표의 형식, 복고 왕정의 실정이 지지를 만든 과정을 사람의 행동으로 보인다. 조작된 숫자와 연출된 그림, 침묵당한 반대도 함께 남긴다. 해방자·정복자·찬탈자·시대의 화신이라는 동시대의 시선이 열광에서 환멸과 반감, 사후 전설로 바뀌는 과정은 전체 작품의 축이다. 원본 `#contemporary-gaze`, `#why-they-followed`를 채택한다.
+Show through people's actions how desire for order, advancement on merit, victory and propaganda, bonds with soldiers, the form of plebiscites, and the restored monarchy's failures created support. Also retain manipulated figures, staged images, and silenced opposition. The transformation of contemporary views of him as liberator, conqueror, usurper, or embodiment of the age, from enthusiasm through disillusionment and hostility to posthumous legend, runs through the whole work. This adopts the original `#contemporary-gaze` and `#why-they-followed`.
 
-## 전쟁을 지탱하고 값을 치르는 사람 {#war-and-society}
+## People who sustain war and pay its price {#war-and-society}
 
-승패는 외교·재정·신용·보조금·징병·말·먹을 것·도로·의료가 만든 조건 위에서 일어난다. 되풀이해 패한 나라가 어떻게 다시 군대를 세웠는지 돈을 빌리는 재상과 징집되는 집안, 개혁하는 장교와 점령지 주민을 통해 납득시킨다. 병사·하사관·군의관·칸티니에르·가족의 눈과 몸이 명령의 대가를 보인다. 모든 시기의 제도와 생활 조건을 검토하되 유배기에 새 야전 편제를 발명하지 않는다. 원본 `005-canon-depth#era-canon`, `006-story-and-characters#war-from-below`, `008-era-gap#how-was-it-possible`를 채택한다.
+Victories and defeats occur under conditions created by diplomacy, finance, credit, subsidies, conscription, horses, food, roads, and medicine. Make it understandable how repeatedly defeated countries raised armies again through ministers borrowing money, families facing conscription, reforming officers, and inhabitants of occupied lands. The eyes and bodies of soldiers, noncommissioned officers, surgeons, cantinières, and families show the cost of orders. Examine institutions and living conditions in every period, but do not invent a new field organization during exile. This adopts the original `005-canon-depth#era-canon`, `006-story-and-characters#war-from-below`, and `008-era-gap#how-was-it-possible`.
 
-## 일화와 인간극으로 이어 가는 시대 {#material-and-youth}
+## An era carried by anecdotes and human drama {#material-and-youth}
 
-유년기와 출세 전 청년기는 가난·억양·자존심·야심과 선택을 드러내는 일화를 장면의 뼈대로 삼는다. 큰 전투 사이에도 우정·질투·가족·사랑·오해·실수·관습·뜻밖의 반전이 감정의 변화를 만든다. 원본의 사례는 이 종류와 쓰임의 본보기이며 모든 사례를 장면으로 넣는 목록이 아니다. 알려지지 않은 일화는 기록이 없다는 지위로 보존한다. 원본 `#story-pleasure`, `#material-mining`, `#youth-episodes`, `007-material-examples#material-examples`를 채택한다.
+For childhood and youth before advancement, build scenes around anecdotes that reveal poverty, accent, pride, ambition, and choice. Between major battles, friendship, jealousy, family, love, misunderstandings, mistakes, customs, and unexpected reversals also create emotional change. The original examples illustrate the kind and use of this material; they are not a list of scenes that must all be included. Preserve unknown anecdotes as unrecorded. This adopts the original `#story-pleasure`, `#material-mining`, `#youth-episodes`, and `007-material-examples#material-examples`.
 
-## 웃음의 표적과 비극의 무게 {#satire-and-grief}
+## The targets of laughter and the weight of tragedy {#satire-and-grief}
 
-건조한 아이러니·블랙 조크·패러디·풍자의 표적은 권력의 허세, 선전과 현실의 차이, 체면과 의례, 관료제와 전쟁의 부조리, 후대의 영웅 전설이다. 죽거나 다친 사람을 웃음거리로 만들지 않는다. 죽음·학살·이별의 중심에서는 서술자의 농담으로 정조를 깨지 않으며, 당사자의 자조가 고통을 더 절실하게 할 때는 남긴다. 장면과 거리의 전환으로 정조를 가른다. 매 부에 같은 양의 웃음을 강요하지 않는다. 원본 `002-style#satire-and-black-humor`, `#tonal-balance`를 채택한다.
+Dry irony, black humor, parody, and satire target the pretensions of power, the gap between propaganda and reality, appearances and ceremony, the absurdity of bureaucracy and war, and later heroic legends. Do not make the dead or wounded the butt of a joke. At the heart of death, massacre, and parting, do not break the mood with the narrator's jokes; retain a person's self-deprecating humor when it makes suffering more acute. Separate tones through changes of scene and distance. Do not require the same amount of laughter in every part. This adopts the original `002-style#satire-and-black-humor` and `#tonal-balance`.
 
-## 당대의 말과 낯선 관습 {#period-understanding}
+## Period speech and unfamiliar customs {#period-understanding}
 
-인물은 그 시대의 지식·기술·명예·신앙·왕조·가문 안에서 판단한다. 현대의 정답을 미리 아는 인물로 만들지 않는다. 처음 보는 당대인의 눈, 당대인끼리의 논쟁, 역사가와 작가 해설이 낯선 선택의 이유를 나눠 전한다. 익숙한 욕구에서 시작해 관습을 조금씩 쌓고 이미 익힌 용어를 되풀이해 설명하지 않는다. 앞 세대의 전쟁 빚·영웅·굴욕·사상이 판단을 움직이는 경우도 사실과 해석을 구별한다. 원본 `008-era-gap`의 다섯 요구를 채택한다.
+Characters judge within the knowledge, technology, honor, faith, dynasties, and families of their own time. Do not make them people who already know modern answers. A contemporary seeing something for the first time, debate between contemporaries, and the historian's and author's commentary share the work of explaining unfamiliar choices. Begin with familiar desires, build up custom gradually, and do not repeatedly explain terms already learned. When the previous generation's war debts, heroes, humiliations, or ideas shape judgment, distinguish fact from interpretation. This adopts the five requirements of the original `008-era-gap`.
