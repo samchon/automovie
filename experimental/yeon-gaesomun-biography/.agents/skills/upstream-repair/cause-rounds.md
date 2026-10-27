@@ -1,9 +1,0 @@
-# Complete cause rounds
-
-Every author reading, evidence correction, independent review and author response finishes its inspection round before edits. Before judging, collect literal candidates across the whole declared scope for every failure named by applicable contracts, rather than only passages noticed while reading. Use the same layer-specific expression questions as independent review during draft rereading and expressive rewriting. Record candidates and decisions in author notes or the review record.
-
-Group findings by cause and affected consumers. For an unnamed failure, find its whole-scope class too. Search repeated words and constructions as well as reading; a few examples cannot establish a class's extent. Repair the causes together, placing missing material where its action or explanation belongs rather than appending an answer at the end.
-
-After repair, compare changed passages together for the same failure in different words or a new uniform mold. Compare meaning with actual parents and any frozen original. Within the submitted pass, recheck dependent sentences, quotations, positions, counts, order, screen action, inherited state, exclusions and reasons for preservation; a surviving quotation alone does not keep an answer true. Complete related [answer corrections](../evidence-writing/SKILL.md) in the same repair. Keep unaffected bytes and historical judgments attributable to their actual snapshot; changes involving completed layers follow [closed-pass repair](closed-passes.md).
-
-Judge retained and unadopted candidates under the canonical [retention test](../evidence-writing/SKILL.md#grounds-for-retaining-a-candidate), keeping the comparison available to independent review. Finish the next whole inspection round before adopting further repairs. Author corrections finish when a complete round adopts no further edit; independent acceptance follows [review rounds](../review/rounds.md).

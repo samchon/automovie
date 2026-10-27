@@ -30,9 +30,9 @@ packages/*/src/**/*.js.map
 # declarations emitted beside a source are compiler output, just like JavaScript.
 packages/*/src/**/*.d.ts
 # repository instructions the scaffold mirrors; packages/template/build/syncScaffoldInstructions.ts
-# regenerates them on prepare and build, and its SHARED list must match these paths
+# regenerates them on prepare and build, and its SHARED destinations must match these paths
 packages/template/scaffold/.agents/skills/development/repair.md
-packages/template/scaffold/.agents/skills/documentation/writing.md
+packages/template/scaffold/.agents/skills/development/writing.md
 # the scaffold nests a whole project, so its own sources need the same rule
 packages/template/scaffold/src/**/*.js
 packages/template/scaffold/src/**/*.js.map

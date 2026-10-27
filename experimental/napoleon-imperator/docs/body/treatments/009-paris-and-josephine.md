@@ -2,7 +2,7 @@
 
 ## A government seeking order chooses an officer {#vendemiaire}
 
-Factual parents: [formation](../settings/100-history/020-life-and-memory.md#formation), [Joséphine](../settings/050-people/010-ensemble.md#josephine), [forms of address](../settings/050-people/010-ensemble.md#registers), [materials and weapons](../settings/020-world/010-material-world.md#weapons-and-medicine).
+Factual parents: [formation](../settings/100-history/020-life-and-memory.md#formation), [Joséphine](../settings/050-people/050-josephine.md#josephine), [forms of address](../settings/050-people/010-ensemble.md#registers), [materials and weapons](../settings/020-world/010-material-world.md#weapons-and-medicine).
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 현재 `docs/body/settings/100-history/020-life-and-memory.md#formation`의 1795년 10월 5일 진압과 `docs/body/settings/020-world/010-material-world.md#weapons-and-medicine`의 포병·몸의 조건을 사용했다. “정부가 얻는 것은 생존”이라는 교환은 새 포대 배치나 군중 전체의 단일 동기 없이 성립해 추가 세계 사실의 부모 수리는 요구되지 않았다.
 -->

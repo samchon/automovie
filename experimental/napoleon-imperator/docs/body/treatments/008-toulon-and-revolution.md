@@ -2,7 +2,7 @@
 
 ## Pen and cannon enter the same power {#toulon}
 
-Factual parents: [the officer of the Revolution](../settings/100-history/020-life-and-memory.md#formation), [Saliceti](../settings/050-people/010-ensemble.md#saliceti), [Napoleon](../settings/050-people/010-ensemble.md#napoleon).
+Factual parents: [the officer of the Revolution](../settings/100-history/020-life-and-memory.md#formation), [Saliceti](../settings/050-people/460-saliceti.md#saliceti), [Napoleon](../settings/050-people/030-napoleon.md#napoleon).
 
 France, 1793. Military knowledge alone does not give a poor officer a vacant command. His pro-Revolutionary writing in The Supper at Beaucaire opens a channel to political patronage; the assignment at Toulon comes when Saliceti's authority meets the artillery's practical need. Saliceti is not a prophet recognizing a future emperor, but a politician who must win the present war and protect the regime.
 

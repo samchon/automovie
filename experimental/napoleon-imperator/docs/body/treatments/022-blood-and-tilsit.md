@@ -2,7 +2,7 @@
 
 ## At Eylau the language of victory cannot cover every body {#eylau}
 
-Factual parents: [war and settlement in 1807](../settings/100-history/020-life-and-memory.md#expansion), [Alexander](../settings/050-people/010-ensemble.md#alexander), [Louise](../settings/050-people/010-ensemble.md#queen-louise), [Prussian reform](../settings/030-society/010-power-and-cost.md#recruitment), [occupation](../settings/030-society/010-power-and-cost.md#occupation).
+Factual parents: [war and settlement in 1807](../settings/100-history/020-life-and-memory.md#expansion), [Alexander](../settings/050-people/330-alexander.md#alexander), [Louise](../settings/050-people/430-queen-louise.md#queen-louise), [Prussian reform](../settings/030-society/010-power-and-cost.md#recruitment), [occupation](../settings/030-society/010-power-and-cost.md#occupation).
 
 Eylau, 1807. The rapid concentration and talent for command familiar to the audience meet their limits in an attack through a snowstorm. The infantry attack of Augereau's corps veers left, suffers heavy losses to Russian batteries, and collapses. Let the audience experience this failure first, so it understands what the later cavalry action answers. Do not open a new close encounter for Augereau or give him unrecorded orders in dialogue.
 

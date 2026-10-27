@@ -2,7 +2,7 @@
 
 ## A newly assembled army wins again {#spring}
 
-Factual parents: [the war of 1813](../settings/100-history/020-life-and-memory.md#russia-and-coalition), [the cost of conscription](../settings/030-society/010-power-and-cost.md#recruitment), [Ney](../settings/050-people/010-ensemble.md#ney), [Duroc](../settings/050-people/010-ensemble.md#duroc).
+Factual parents: [the war of 1813](../settings/100-history/020-life-and-memory.md#russia-and-coalition), [the cost of conscription](../settings/030-society/010-power-and-cost.md#recruitment), [Ney](../settings/050-people/200-ney.md#ney), [Duroc](../settings/050-people/210-duroc.md#duroc).
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 봄 전투는 `docs/body/settings/100-history/020-life-and-memory.md#russia-and-coalition`의 실제 승리와 부족한 추격, `docs/body/settings/030-society/010-power-and-cost.md#recruitment`의 고참/신병·기병/말 손실, `docs/body/settings/050-people/010-ensemble.md#ney`의 선두 용기를 그대로 시험했다. 성과와 활용 한계가 함께 성립해 새 병력 비율·열네 살 보편 연령·전투 결과 보수는 없다.
 -->

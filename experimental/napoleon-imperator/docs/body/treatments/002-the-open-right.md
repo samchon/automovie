@@ -2,7 +2,7 @@
 
 ## Retreat buys time to prepare {#withdrawal}
 
-Factual parents: [maneuvers and the opposing plan](../settings/100-history/010-austerlitz.md#plans), [the battlefield](../settings/100-history/010-austerlitz.md#battle-state), [Alexander](../settings/050-people/010-ensemble.md#alexander), [Kutuzov](../settings/050-people/010-ensemble.md#kutuzov), [Weyrother](../settings/050-people/010-ensemble.md#weyrother), [movement of orders](../settings/020-world/010-material-world.md#movement).
+Factual parents: [maneuvers and the opposing plan](../settings/100-history/010-austerlitz.md#plans), [the battlefield](../settings/100-history/010-austerlitz.md#battle-state), [Alexander](../settings/050-people/330-alexander.md#alexander), [Kutuzov](../settings/050-people/340-kutuzov.md#kutuzov), [Weyrother](../settings/050-people/440-weyrother.md#weyrother), [movement of orders](../settings/020-world/010-material-world.md#movement).
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 현재 `docs/body/settings/100-history/010-austerlitz.md#plans`·`docs/body/settings/100-history/010-austerlitz.md#battle-state`와 `docs/body/settings/020-world/010-material-world.md#movement`의 발송·이동·실제 도착 차이를 사용했다. “1일 밤 라이게른”을 다음 이동의 출발 상태로 두어 미집결을 종이 명령으로 해소하지 않았고, 갈리는 철수 시계도 확정하지 않아 새 시간값의 부모 채택은 요구되지 않았다.
 -->

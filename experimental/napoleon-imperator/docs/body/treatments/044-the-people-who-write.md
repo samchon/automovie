@@ -2,7 +2,7 @@
 
 ## A war he can no longer command is revised in words {#dictation}
 
-Factual parents: [the weight of the record](../settings/120-research/010-source-policy.md#weight), [timing of entry and departure](../settings/100-history/020-life-and-memory.md#exile-and-memory), [Las Cases](../settings/050-people/010-ensemble.md#las-cases), [Gourgaud](../settings/050-people/010-ensemble.md#gourgaud), [Bertrand](../settings/050-people/010-ensemble.md#bertrand), [Marchand](../settings/050-people/010-ensemble.md#marchand), [the actual proposition compared in the Marengo report](../settings/100-history/020-life-and-memory.md#consulate).
+Factual parents: [the weight of the record](../settings/120-research/010-source-policy.md#weight), [timing of entry and departure](../settings/100-history/020-life-and-memory.md#exile-and-memory), [Las Cases](../settings/050-people/550-las-cases.md#las-cases), [Gourgaud](../settings/050-people/560-gourgaud.md#gourgaud), [Bertrand](../settings/050-people/530-bertrand.md#bertrand), [Marchand](../settings/050-people/610-marchand.md#marchand), [the actual proposition compared in the Marengo report](../settings/100-history/020-life-and-memory.md#consulate).
 
 Dictation and recording continuing at Longwood in autumn 1816 are remaining powers Napoleon can exercise over past campaigns. He seeks to control the meaning of the past by saying which choices were necessary and who failed to execute his wishes. The diary written by Las Cases, dictation taken down by his son, and campaign memoirs Napoleon dictated separately are not the same manuscript. Recorders select and later edit while gaining loyalty and a place of their own.
 
@@ -28,6 +28,6 @@ Convey Cipriani's death in February 1818 as the loss of one person from the comp
 
 For Bertrand and Marchand, their own duties remain even when a departed person's work is gone. The audience does not measure loyalty by the number of entrances and exits, but receives the cost in family, body, and time of choosing to stay. As a physician's departure follows, isolation narrows from literary loneliness to a practical problem of care.
 
-Additional factual parent: [roles and last wishes](../settings/050-people/020-roles-and-last-wishes.md#cipriani).
+Additional factual parent: [roles and last wishes](../settings/050-people/640-cipriani.md#cipriani).
 
 Cipriani's death is the absence of a steward responsible for procuring food and household supplies. Convey not only a reduction in the group's number, but the practical result that his work falls to those remaining. Do not newly fix unconfirmed final treatment or a one-day difference in dates.

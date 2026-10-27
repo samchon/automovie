@@ -2,7 +2,7 @@
 
 ## The shared work of making a lasting law {#code}
 
-Factual parents: [government and law](../settings/030-society/010-power-and-cost.md#government), [the Consulate](../settings/100-history/020-life-and-memory.md#consulate), [Cambacérès](../settings/050-people/010-ensemble.md#cambaceres), [family](../settings/030-society/010-power-and-cost.md#dynasty-and-belief), [forms of address](../settings/050-people/010-ensemble.md#registers).
+Factual parents: [government and law](../settings/030-society/010-power-and-cost.md#government), [the Consulate](../settings/100-history/020-life-and-memory.md#consulate), [Cambacérès](../settings/050-people/090-cambaceres.md#cambaceres), [family](../settings/030-society/010-power-and-cost.md#dynasty-and-belief), [forms of address](../settings/050-people/010-ensemble.md#registers).
 
 France, 1804. The regime, having already obtained the formal result of approval for a consulship for life, finishes the civil code. Do not add an explanation that affirmative votes prove everyone's free will. Distinguish what jurists wrote from Napoleon's work presiding over and arguing in meetings, and do not make Cambacérès one of the four members of the drafting commission. Authority in a meeting is not authorship by one person. Napoleon seeks to fix his desired order in law; jurists work through his intentions in articles and procedure, and Cambacérès's mediation turns disputes into work that can continue to be deliberated. Rather than ending the matter by immediate command, they spend time arguing over wording and obtaining common rules, completing the code. As the man who demands rapid orders on the battlefield immerses himself in this work, he gains reason to regard the state as his achievement outside military success too.
 

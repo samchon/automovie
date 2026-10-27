@@ -2,7 +2,7 @@
 
 ## Arrival and moving in are different times {#longwood}
 
-Factual parents: [life on the island](../settings/100-history/020-life-and-memory.md#exile-and-memory), [Bertrand](../settings/050-people/010-ensemble.md#bertrand), [Marchand](../settings/050-people/010-ensemble.md#marchand), [Las Cases](../settings/050-people/010-ensemble.md#las-cases), [Hudson Lowe](../settings/050-people/010-ensemble.md#hudson-lowe).
+Factual parents: [life on the island](../settings/100-history/020-life-and-memory.md#exile-and-memory), [Bertrand](../settings/050-people/530-bertrand.md#bertrand), [Marchand](../settings/050-people/610-marchand.md#marchand), [Las Cases](../settings/050-people/550-las-cases.md#las-cases), [Hudson Lowe](../settings/050-people/540-hudson-lowe.md#hudson-lowe).
 
 Saint Helena, late 1815. Do not connect arrival on the island in October directly to living at Longwood. Go through temporary quarters into life at Longwood in December. Damp and discomfort in the house, guards, and conditions of access are not problems solved by gathering a larger army. Another person's permission determines whom he may meet today and how far he may move. Do not place Lowe, who has not yet arrived, as governor present from the first day.
 

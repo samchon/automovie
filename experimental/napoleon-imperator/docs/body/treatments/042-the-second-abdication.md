@@ -2,7 +2,7 @@
 
 ## Authority to decide remains divided after battle {#abdication}
 
-Factual parents: [the second abdication and surrender](../settings/100-history/020-life-and-memory.md#return-and-waterloo), [news in London](../settings/110-knowledge/010-information.md#malet-waterloo), [Fouché](../settings/050-people/010-ensemble.md#fouche), [Davout](../settings/050-people/010-ensemble.md#davout), [Bertrand](../settings/050-people/010-ensemble.md#bertrand), [Ney](../settings/050-people/010-ensemble.md#ney).
+Factual parents: [the second abdication and surrender](../settings/100-history/020-life-and-memory.md#return-and-waterloo), [news in London](../settings/110-knowledge/010-information.md#malet-waterloo), [Fouché](../settings/050-people/110-fouche.md#fouche), [Davout](../settings/050-people/190-davout.md#davout), [Bertrand](../settings/050-people/530-bertrand.md#bertrand), [Ney](../settings/050-people/200-ney.md#ney).
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 상위 부모인 docs/body/settings/100-history/020-life-and-memory.md#return-and-waterloo의 두 번째 퇴위, docs/body/settings/110-knowledge/010-information.md#malet-waterloo의 21일 밤·22일 공적 전달, docs/body/settings/050-people/010-ensemble.md#davout·docs/body/settings/050-people/010-ensemble.md#fouche 및 docs/body/settings/030-society/010-power-and-cost.md#government의 권한 경계를 그대로 적용했다. 퇴위가 전투의 자동 연장인지 남은 주체의 결정인지 시험했으며 새 의회 직책·투표수·비밀 협정을 추가하지 않았다.
 -->

@@ -2,7 +2,7 @@
 
 ## Making a crossing possible takes longer than an order {#berezina}
 
-Factual parents: [the Berezina and the army's disintegration](../settings/100-history/020-life-and-memory.md#russia-and-coalition), [Éblé](../settings/050-people/010-ensemble.md#eble), [Bourgogne](../settings/050-people/010-ensemble.md#bourgogne), [Caulaincourt](../settings/050-people/010-ensemble.md#caulaincourt), [the denominator of numbers](../settings/120-research/010-source-policy.md#numbers).
+Factual parents: [the Berezina and the army's disintegration](../settings/100-history/020-life-and-memory.md#russia-and-coalition), [Éblé](../settings/050-people/280-eble.md#eble), [Bourgogne](../settings/050-people/300-bourgogne.md#bourgogne), [Caulaincourt](../settings/050-people/120-caulaincourt.md#caulaincourt), [the denominator of numbers](../settings/120-research/010-source-policy.md#numbers).
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 베레지나는 `docs/body/settings/050-people/010-ensemble.md#eble`의 도구·시간·희생과 `docs/body/settings/100-history/020-life-and-memory.md#russia-and-coalition`의 구조/유기/손실을 그대로 시험했다. `docs/body/settings/050-people/010-ensemble.md#bourgogne`의 개인 경험과 `docs/body/settings/120-research/010-source-policy.md#numbers`의 미지원 숫자·눈금 제한을 지켜 전군 구조 순서·400명 중 9명·확정 기온을 새로 보수할 필요가 없었다.
 -->

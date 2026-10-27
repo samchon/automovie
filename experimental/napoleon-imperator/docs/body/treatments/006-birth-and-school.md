@@ -2,7 +2,7 @@
 
 ## A Corsican born a child of France {#birth}
 
-Factual parents: [formation](../settings/100-history/020-life-and-memory.md#formation), [Napoleon](../settings/050-people/010-ensemble.md#napoleon), [Letizia](../settings/050-people/010-ensemble.md#letizia).
+Factual parents: [formation](../settings/100-history/020-life-and-memory.md#formation), [Napoleon](../settings/050-people/030-napoleon.md#napoleon), [Letizia](../settings/050-people/040-letizia.md#letizia).
 
 Return from the preceding night of battle to 1769.
 <!--

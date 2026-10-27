@@ -2,7 +2,7 @@
 
 ## The right must hold for the choice in the center to live {#south}
 
-Factual parents: [the battlefield](../settings/100-history/010-austerlitz.md#battle-state), [terrain and light](../settings/100-history/010-austerlitz.md#light-and-loss), [Soult](../settings/050-people/010-ensemble.md#soult), [Davout](../settings/050-people/010-ensemble.md#davout), [Lannes](../settings/050-people/010-ensemble.md#lannes), [Murat](../settings/050-people/010-ensemble.md#murat).
+Factual parents: [the battlefield](../settings/100-history/010-austerlitz.md#battle-state), [terrain and light](../settings/100-history/010-austerlitz.md#light-and-loss), [Soult](../settings/050-people/160-soult.md#soult), [Davout](../settings/050-people/190-davout.md#davout), [Lannes](../settings/050-people/150-lannes.md#lannes), [Murat](../settings/050-people/170-murat.md#murat).
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 현재 `docs/body/settings/100-history/010-austerlitz.md#battle-state`의 르그랑·다부·프리앙·선두/본대 구별과 구댕 부재를 그대로 행사시켰다. `docs/body/settings/110-knowledge/010-information.md#access`의 현장 시야 안에서 “눈앞의 마을”을 지키게 해 새 지원군·동시 도착·전략 지식으로 부족을 메울 필요가 생기지 않았다.
 -->

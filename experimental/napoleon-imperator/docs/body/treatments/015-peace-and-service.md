@@ -2,7 +2,7 @@
 
 ## Reconciliation redraws the places of faith and state {#concordat}
 
-Factual parents: [religion, education, and honor](../settings/030-society/010-power-and-cost.md#dynasty-and-belief), [government](../settings/030-society/010-power-and-cost.md#government), [the Consulate](../settings/100-history/020-life-and-memory.md#consulate), [Cambacérès](../settings/050-people/010-ensemble.md#cambaceres).
+Factual parents: [religion, education, and honor](../settings/030-society/010-power-and-cost.md#dynasty-and-belief), [government](../settings/030-society/010-power-and-cost.md#government), [the Consulate](../settings/100-history/020-life-and-memory.md#consulate), [Cambacérès](../settings/050-people/090-cambaceres.md#cambaceres).
 
 During the Concordat process of 1801–1802, the interests of a government seeking to end religious division and those of the Church meet in compromise. For Napoleon reconciliation is an order that cannot be obtained by erasing all faith; for believers it offers a way to continue a life interrupted by revolution. The Church does not return merely as an ornament of victory, but has its own relationship to make with the state.
 

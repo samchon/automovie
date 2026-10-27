@@ -2,7 +2,7 @@
 
 ## The change of throne proceeds despite resistance to occupation {#bayonne}
 
-Factual parents: [Iberia](../settings/100-history/020-life-and-memory.md#expansion), [the several actors in occupation](../settings/030-society/010-power-and-cost.md#occupation), [Joseph](../settings/050-people/010-ensemble.md#joseph-bonaparte), [Wellington](../settings/050-people/010-ensemble.md#wellington), [Sidney Smith](../settings/050-people/010-ensemble.md#sidney-smith).
+Factual parents: [Iberia](../settings/100-history/020-life-and-memory.md#expansion), [the several actors in occupation](../settings/030-society/010-power-and-cost.md#occupation), [Joseph](../settings/050-people/080-joseph-bonaparte.md#joseph-bonaparte), [Wellington](../settings/050-people/400-wellington.md#wellington), [Sidney Smith](../settings/050-people/500-sidney-smith.md#sidney-smith).
 
 In Madrid, occupied by French troops in 1808, the transfer of the royal family to Bayonne meets resistance from citizens. Suppression with executions comes first; the abdications at Bayonne and the crown to be given Joseph follow. Do not reverse the resistance already present into a reaction to the arrival of a new king. Military force may quiet the streets for the moment, but cannot create the consent of residents and other powers.
 

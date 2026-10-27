@@ -2,7 +2,7 @@
 
 ## Coercion is chosen over diplomatic warning {#warnings}
 
-Factual parents: [the Russian campaign](../settings/100-history/020-life-and-memory.md#russia-and-coalition), [Caulaincourt](../settings/050-people/010-ensemble.md#caulaincourt), [Berthier](../settings/050-people/010-ensemble.md#berthier), [Barclay](../settings/050-people/010-ensemble.md#barclay), [movement and the body](../settings/020-world/010-material-world.md#movement).
+Factual parents: [the Russian campaign](../settings/100-history/020-life-and-memory.md#russia-and-coalition), [Caulaincourt](../settings/050-people/120-caulaincourt.md#caulaincourt), [Berthier](../settings/050-people/180-berthier.md#berthier), [Barclay](../settings/050-people/350-barclay.md#barclay), [movement and the body](../settings/020-world/010-material-world.md#movement).
 
 Before the invasion in 1812, Caulaincourt warns of Russian conditions and diplomatic limits he knows. His attempt to dissuade, seeking to preserve the relationship entrusted to him, is a form of loyalty intended to keep the empire viable, not disloyalty. Rather than accept an ally's departure, Napoleon chooses the campaign believing that concentration and victory as before can solve greater pressure too. Having heard a warning does not mean the man departing is already certain of failure.
 

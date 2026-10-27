@@ -2,7 +2,7 @@
 
 ## His wishes become documents in place of his body {#will}
 
-Factual parents: [death and grave](../settings/100-history/020-life-and-memory.md#exile-and-memory), [Bertrand](../settings/050-people/010-ensemble.md#bertrand), [Marchand](../settings/050-people/010-ensemble.md#marchand), [Antommarchi](../settings/050-people/010-ensemble.md#antommarchi), [the final return](../settings/010-work/020-periods.md#ending).
+Factual parents: [death and grave](../settings/100-history/020-life-and-memory.md#exile-and-memory), [Bertrand](../settings/050-people/530-bertrand.md#bertrand), [Marchand](../settings/050-people/610-marchand.md#marchand), [Antommarchi](../settings/050-people/580-antommarchi.md#antommarchi), [the final return](../settings/010-work/020-periods.md#ending).
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 현재 docs/body/settings/050-people/010-ensemble.md#bertrand·docs/body/settings/050-people/010-ensemble.md#marchand의 기록·장부·몸·일상 돌봄과 docs/body/settings/100-history/020-life-and-memory.md#exile-and-memory의 유언·죽음·귀환 순서를 유지한다. 현재 본문의 ‘기록과 유품을 정리하고 돌볼 일’이 문서 완성 뒤 남는 통상적인 사후 작업인지를 시험했다. 법적 유언 집행인 직책이나 조건부 117번 인물 채택, 미지급 유증의 지급을 주장하지 않으므로 새 권한을 위해 부모를 고칠 필요가 없다.
 -->
