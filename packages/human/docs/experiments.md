@@ -332,3 +332,13 @@ The rule does not say how the two auricles' results combine into the one represe
 - Every variant's G1 is 85 to 90 degrees, the relief's included, though the plan gives the relief no boundary.
 - Every variant's G0 is 4.1 to 16.6 mm, so each variant leaves some point of its root loop at least 4.1 mm from its surface samples.
 - Only 15 of the left's 36 rim-normal planes and 23 of the right's 37 gave a ribbon section: a run of at least 8 points inside the root loop, its nearest point within 3 mm of the plane's rim point.
+
+## Identity measurement, first run (f1, 2026-10-27)
+
+`measureIdentity.ts test/.shots/f1 .shots/claude-scratch/f1-identity.json`, 16:26:31 to 16:26:39, on the joined mesh (63,867 vertices, 108,820 triangles, from -1.2 to 1699.7 mm; the inner eye corner landmark 0.00 mm from a mesh vertex, so the landmarks share the mesh's frame).
+
+Body (mm unless noted): stature 1700.9; cervicale 1472.1, suprasternale 1419.4 and acromial height 1407.9; biacromial breadth 284.5, bideltoid 498.6, span 1637.2; bicristal 308.6, hip joint centres 193.3, hip breadth 383.6; neck circumference 325.5; chest 863.1 by 295.6 by 215.0; underbust 749.1; waist 675.2 at 1111.2, 240.4 by 179.5; buttocks 990.3, depth 235.0; craniovertebral angle 54.8 degrees. Each arm: upper arm 312.3, forearm 242.7, hand 165.5 by 81.3, palm 80.1, thumb 52.2; girths 271.4, 237.0 and 152.4; carrying angle 2.5 degrees. Each leg: thigh 437.9, shank 392.2, ankle height 75.9; foot 244.4 by 88.3; girths 646.9, 343.1, 348.3 and 206.3. The two sides agree to a tenth of a millimetre, the body mesh being mirror-symmetric.
+
+Head: length 189.4, cephalic index 83.3, circumference 553.6, height 183.2; face height 91.4, face width 147.7, mandibular width 121.9, minimum frontal width 139.5; eye fissures 32.0 by 10.5 a side, intercanthal 31.0; nose 37.1 wide, 67.6 high, 27.0 protruding; mouth 47.0 wide, vermilion heights 168.1 and 164.3; ears 63.5 and 62.8 long, 22.6 and 21.9 broad, 20.6 to 21.7 protruding.
+
+Nine values measure something else than their definition names, each traced to its definition (the plan's section 8): the acromia (straight above the shoulder joints, medial of the bony points), the bideltoid breadth and the carrying angle (the bind pose), nasion (high, so the nose height), menton (stopped at the mentolabial sulcus, so the face and head heights), stomion (round the back of the head, so the vermilion heights), and the face, minimum frontal, nose and ear breadths (the ears, the temples, the cheeks and one end of the helix). The program is run again, on all four specimens, after the plan's definitions are corrected and a review round has passed them.
