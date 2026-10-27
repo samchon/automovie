@@ -618,3 +618,7 @@ Stand as measured: the acromia, the hip breadths, the hand's and the foot's brea
 m1's menton lies 25.6 mm behind and 17.6 mm below its gnathion, where the other three lie 5 to 7 mm behind, on the corner its own profile draws under the chin. Nothing in the geometry marks that as another point than the definition's, and it stands with the rest.
 
 One fault remains: **gonion**. On f1's mirror-symmetric mesh the two gonia fall 8 mm apart in height. m2's left one lies 12.0 mm forward, 0.1 mm ahead of its head joint and still on the neck's side, 63 mm below its right one. The frontal outline from the lobules to menton shows no single corner: the jaw's side runs into the neck with a turn too soft to fix one point, and on m2 the neck's side reaches forward of the head joint. The mandible's angle is a bony corner that this skin does not show, as the patella's upper border is.
+
+## Identity measurement, sixth run (all four, 2026-10-27)
+
+`measureIdentity.ts`, brought to the plan as of commit 60b7ea551 (gonion and the mandibular width removed), ran on f1, f2, m1 and m2 from 17:19:42 to 17:20:08. All four finished with no field unmeasured, every other value as in the fifth run. The four `<alias>-identity.json` files it wrote under `.shots/claude-scratch/` are the sites step 2's fitters key at, kept until step 3 writes the identities into the playground's parameter files.
