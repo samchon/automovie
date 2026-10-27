@@ -679,6 +679,15 @@ Run 18:16:37 to 18:47:24, 305,208 observed points.
 - Cross-validation: the score has its least inside the bracket, at 2.21 mm (2.19 and 2.23 mm score higher); inlier RMS 0.715 mm, tr A 768.0. The RMS per 20 mm of station runs 0.28 to 0.46 mm from 1080 to 1180 mm and 0.6 to 1.1 mm above it, and 1.2 to 1.8 mm in the bins below 1000 mm that hold inliers; the bins 840 to 860 and 920 to 940 mm hold none, lying under the leg root regions and the buttocks' window.
 - Check, against `c` 2.56 mm: arm_l 995 misses, largest 7.94 mm; arm_r 949, largest 11.58 mm; leg_l 2,644, largest 36.01 mm; leg_r 2,688, largest 35.94 mm; both breasts and the buttocks none. The arms' misses gather at 1255 to 1257 mm and 1329 to 1337 mm of station, the regions' lower and upper edges. The legs' lie in two bands: 816 to 821 mm, up to 14.9 mm, 3 to 8 mm outside the region; and 888 to 898 mm, rising from 5.4 to 36.0 mm with height and with distance outside the region (9 to 15 mm), the largest at (90.3, 931.1, ±155.3), beside the hips in front. Their cause is not traced, as section 4 sets; the renders judge them.
 
+### Head base with its cap
+
+Run 18:47:24 to 19:24:18, 1,626,756 observed points.
+
+- Keys (station, mm): neck ring 1425.0 (the trunk's, held), radius 1453.6, gnathion 1482.2, radius 1532.6, zygion 1583.0, nasion 1598.5, the crown's end key 1611.5; N 96; rho 88.19 mm with four cap keys, 11 keys in all. The crown's end key, the highest horizontal section no flatter than a hemisphere below the pole, fell at 1611.5 mm, below three of the head's measurement sites, which the fitter left out as lying outside its end keys: glabella (1612.1), frontotemporale (1623.0) and eurion (1625.0). The keys where the head's length, minimum frontal width and breadth are measured are therefore absent; the cap's keys carry that skin.
+- Regions: lips 13 vertices over 1518.0 to 1556.0 mm, 84.4 mm of chart wide; nose 7 over 1541.0 to 1599.0, 45.2 mm; left auricle 17 over 1541.0 to 1598.0, 31.4 mm; right auricle 15 over 1541.0 to 1603.0, 31.4 mm.
+- Cross-validation: the score has its least inside the bracket, at 1.10 mm (1.09 and 1.11 mm score higher); inlier RMS 0.360 mm, tr A 667.0.
+- Check, against `c` 1.23 mm: lips 7,393 misses, largest 28.38 mm at (105.7, 1482.5, -2.8), the chin, in station bins from 1503 mm rising to 28 mm at 1510 to 1514 mm; nose 81, largest 1.36 mm; left auricle 82,053, largest 14.85 mm; right auricle 4,841, largest 13.64 mm, the right's largest at 1582 to 1586 mm. The auricles' misses are the rim overhang the settling set recorded; the lips' are the chin below the mentolabial fold, the settling set's low misses, now standing up to 28 mm off the refit. Their cause is not traced, as section 4 sets.
+
 ### Left arm
 
 Run 18:28:19 to 18:49:24, 26,496 observed points.
