@@ -4,7 +4,7 @@ Use this branch when the commission calls for generated video. A complete motion
 
 ## Establish a usable input path
 
-Identify which required scenes the generator will realize and the exact adopted inputs each consumes: motion video, reference image, pose, depth, masks, audio or text as supported. Verify its actual dimensions, frame rate, duration, coordinate or skeleton convention, identity controls and available output contract. A plausible-looking skeleton or a seed does not prove compatibility. Keep the original programmed hint and its identities available for comparison.
+Prepare programmed motion and its aligned controls through [conditioning handoff](conditioning.md). Identify which required scenes the generator will realize and the exact adopted inputs each consumes: motion video, reference image, pose, depth, masks, audio or text as supported. Verify its actual dimensions, frame rate, duration, coordinate or skeleton convention, identity controls and available output contract. A plausible-looking skeleton or a seed does not prove compatibility. Keep the original programmed hint and its identities available for comparison.
 
 Within the adopted authority, prove one representative input, generation, download and playback path before submitting the full batch. Choose a case that exercises the intended performance, required contacts or interactions and any identity continuity the production relies on. Inspect the result against the intended action and the applicable [delivery questions](../contracts/delivery.md); record unsupported controls instead of assuming the model will repair the source motion. Fix input or integration causes before multiplying them across scenes.
 
