@@ -694,3 +694,17 @@ Run 18:28:19 to 18:49:24, 26,496 observed points.
 
 - Keys (arc length, mm): root 0.0, radius 32.0, upper arm girth 64.0, radius 100.0, 132.0 and 168.0, elbow 200.2, radius 224.2, forearm girth 248.2, radius 268.2, 292.2, 312.2, 336.2, 356.2, 376.2, 400.2 and 420.2, wrist 442.9 (the palm's key); family planes 17 to 129; 18 keys.
 - Cross-validation: the score falls with the length all the way to 1.01 mm, the bracket's lower end, as the feet's did, so the 1 mm floor and not the data ends the search; inlier RMS 0.095 mm, tr A 853.0.
+
+### Left leg
+
+Run 18:49:24 to 19:28:31, 83,960 observed points.
+
+- Keys (arc length, mm): root 0.0 (the thigh girth's site, the gluteal furrow, on the root plane, one key with it), radius 48.0, 96.0, 148.0, 196.0, 244.0 and 292.0, knee 342.5, radius 386.5 and 426.5, calf girth 470.5, radius 498.5, 526.5, 554.5, 582.5, 610.5, 638.5 and 666.5, ankle girth 694.5, radius 714.5, ankle 735.3 (the foot's key); family planes 24 to 209; 21 keys.
+- Cross-validation: the score falls to 1.01 mm, the bracket's lower end; inlier RMS 0.143 mm, tr A 1,200.4.
+
+### Left thumb
+
+Run 19:28:31 to 19:30:23, 1,944 observed points.
+
+- Keys (arc length, mm): root 0.0, radius 8.0, 16.0 and 20.0, `thumb_03` 25.0, the cap's end key 31.0 (family plane 38); rho 10.00 mm with two cap keys; family planes 22 to 38; 8 keys.
+- Cross-validation: the score falls to 1.01 mm, the bracket's lower end; inlier RMS 0.112 mm, tr A 100.2.
