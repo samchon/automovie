@@ -30,4 +30,4 @@ Listen to each adopted take for the intended words, pronunciation, performance, 
 
 Inspect the actual delivery path when an asset is missing or the result differs from the accepted take. Fix acquisition, asset identity, timing, or host wiring at its owner, and review the affected delivery together. State which takes and delivered sections were heard and what remains unchecked.
 
-Use [delivery review](../delivery-review/SKILL.md) for final assembled acceptance and handoff; these listening checks supply the audio observations it needs.
+Use [delivery review](../review/delivery.md) for final assembled acceptance and handoff; these listening checks supply the audio observations it needs.

@@ -2,7 +2,7 @@
 
 ## Mediation's deadline closes over the price of reduced domination {#mediation}
 
-Factual parents: [armistice and rebuilding](../settings/100-history/020-life-and-memory.md#russia-and-coalition), [Allied money](../settings/030-society/010-power-and-cost.md#finance), [reform and conscription](../settings/030-society/010-power-and-cost.md#recruitment), [Metternich](../settings/050-people/010-ensemble.md#metternich), [Bernadotte](../settings/050-people/010-ensemble.md#bernadotte).
+Factual parents: [armistice and rebuilding](../settings/100-history/020-life-and-memory.md#russia-and-coalition), [Allied money](../settings/030-society/010-power-and-cost.md#finance), [reform and conscription](../settings/030-society/010-power-and-cost.md#recruitment), [Metternich](../settings/050-people/370-metternich.md#metternich), [Bernadotte](../settings/050-people/230-bernadotte.md#bernadotte).
 
 During the 1813 armistice Napoleon gains time to repair his army, while Austria seeks security and balance using mediation as a lever. Metternich is not a man who sees through the Emperor's true intentions and already knows the outcome; he calculates his country's weakness and the sides available to it. Treat the armistice, British subsidy treaties, and Austria's conditional commitment as separate processes creating different forces; do not finish them all in one meeting.
 

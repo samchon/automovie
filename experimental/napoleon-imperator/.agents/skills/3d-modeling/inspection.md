@@ -10,6 +10,6 @@ Capture current output from the real consumer with the source revision, asset id
 
 Measure rendering cost at the intended resolution, asset population, and motion load. If a lower specification host is a requirement, observe that host or report the untested limitation; a coarser mesh alone does not establish acceptable memory or frame time. Keep measured budgets and accepted visual compromises with the production decisions.
 
-Complete each inspection round before editing: collect every affected render, measurement, diagnostic, and failure; relate each phenomenon to its cause and contributing conditions; then correct all identified causes together. Repeat the original conditions across all affected consumers and inspect regressions before accepting the change. Use the [asset questions](../contracts/assets.md) for review; the [contracts skill](../contracts/SKILL.md) owns formal adoption and respondent selection.
+Complete each inspection round before editing: collect every affected render, measurement, diagnostic, and failure; relate each phenomenon to its cause and contributing conditions; then correct all identified causes together. Repeat the original conditions across all affected consumers and inspect regressions before accepting the change. Use the [asset questions](../contracts/assets.md) for review; the [evidence skill](../evidence/SKILL.md) owns formal adoption and respondent selection.
 
-For final assembled delivery or an asset export handoff, use [delivery review](../delivery-review/SKILL.md); local inspection establishes only its observed use.
+For final assembled delivery or an asset export handoff, use [delivery review](../review/delivery.md); local inspection establishes only its observed use.

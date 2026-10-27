@@ -2,7 +2,7 @@
 
 ## The revered name gives different orders {#paoli}
 
-Factual parents: [formation](../settings/100-history/020-life-and-memory.md#formation), [Paoli](../settings/050-people/010-ensemble.md#paoli), [Letizia](../settings/050-people/010-ensemble.md#letizia), [Lucien](../settings/050-people/010-ensemble.md#lucien-bonaparte).
+Factual parents: [formation](../settings/100-history/020-life-and-memory.md#formation), [Paoli](../settings/050-people/450-paoli.md#paoli), [Letizia](../settings/050-people/040-letizia.md#letizia), [Lucien](../settings/050-people/070-lucien-bonaparte.md#lucien-bonaparte).
 
 Returning as an officer, Napoleon believes he can hold on to both Corsica and revolutionary France. Paoli is not a patron working for the young Bonaparte's advancement; he will defend the island's independence and his own authority. Even when they speak of the same homeland, they rely on different political forces. As the authority of the French Revolution and Paoli's authority diverge, the possibility of remaining between them narrows.
 

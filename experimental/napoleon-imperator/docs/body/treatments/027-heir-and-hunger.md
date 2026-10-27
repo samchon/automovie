@@ -2,7 +2,7 @@
 
 ## A child's birth becomes the nation's promise {#heir}
 
-Factual parents: [conditions in 1811–1812](../settings/100-history/020-life-and-memory.md#russia-and-coalition), [the heir](../settings/050-people/010-ensemble.md#napoleon-ii), [Marie Louise](../settings/050-people/010-ensemble.md#marie-louise), [conscription](../settings/030-society/010-power-and-cost.md#recruitment), [finance](../settings/030-society/010-power-and-cost.md#finance).
+Factual parents: [conditions in 1811–1812](../settings/100-history/020-life-and-memory.md#russia-and-coalition), [the heir](../settings/050-people/590-napoleon-ii.md#napoleon-ii), [Marie Louise](../settings/050-people/060-marie-louise.md#marie-louise), [conscription](../settings/030-society/010-power-and-cost.md#recruitment), [finance](../settings/030-society/010-power-and-cost.md#finance).
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 탄생은 `docs/body/settings/100-history/020-life-and-memory.md#russia-and-coalition`의 1811년 조건과 `docs/body/settings/050-people/010-ensemble.md#napoleon-ii`의 실제 아기/명목 지위, `docs/body/settings/050-people/010-ensemble.md#marie-louise`의 출산 뒤 몸을 그대로 시험했다. 질서 유지 욕구와 동맹의 독립을 함께 남기는 진행에 새 출산 위기·아기의 의지·외교 순종 보수가 필요하지 않았다.
 -->
@@ -10,7 +10,7 @@ The heir's birth in 1811 gives Napoleon two results: family joy and continuity o
 
 The desire that the established order continue so this child can be safe connects to a larger logic of national security. Yet the heir's existence does not make allies more obedient. The difference between a future made certain for the father and Europe's uncertainty remains as pressure toward the next war.
 
-Additional factual parent: [the heir's title](../settings/050-people/020-roles-and-last-wishes.md#napoleon-ii).
+Additional factual parent: [the heir's title](../settings/050-people/590-napoleon-ii.md#napoleon-ii-vienna-role).
 
 The child receives the title King of Rome. Make that title known separately from the child cared for by his family, without turning it into actual command of a state by the baby.
 

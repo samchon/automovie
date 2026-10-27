@@ -29,16 +29,19 @@ Stop only when nothing can move without the user or a destructive or outward-fac
 
 Read [PROJECT.md](PROJECT.md) for the adopted scope, then enter the requested task directly. Screenwriting selects only the current writing task; review, graph configuration and media production have their own entry points.
 
-- [production](.agents/skills/production/SKILL.md): starting, resuming, restructuring, or delivering a production, including recording its scope and operating choices in PROJECT.md and choosing working files.
+### Creation
+
+- [production](.agents/skills/production/SKILL.md): starting, resuming, restructuring, or delivering a production, including project context, working files, video generation, editing, encoding and handoff.
 - [screenwriting](.agents/skills/screenwriting/SKILL.md): planning, writing, continuing or revising a brief, settings, treatments, scripts, final screenplay, expression pass, narrative evidence or cause-based repair. Its task table selects the needed documents.
-- [evidence-configuration](.agents/skills/evidence-configuration/SKILL.md): configuring evidence graphs, narrative mode, stages, or selectors.
 - [3d-modeling](.agents/skills/3d-modeling/SKILL.md): creating, importing, recovering, or inspecting asset representations, geometry, rigs, and authored controls.
-- [motion](.agents/skills/motion/SKILL.md): programming scene performance, staging, constraints, scene time, and engine feedback, or assembling the whole motion video at useful low detail.
+- [motion](.agents/skills/motion/SKILL.md): programmed performance, staging, physical responses, frame-time evaluation and motion verification.
 - [audio](.agents/skills/audio/SKILL.md): choosing or acquiring speech, music, or effects, aligning sound, and checking the final mix.
-- [contracts](.agents/skills/contracts/SKILL.md): adopting semantic requirements, assigning honest respondents, or writing and reviewing source and tests against their selected questions.
-- [development](.agents/skills/development/SKILL.md): writing or changing production source, tests, dependencies, or commands.
-- [documentation](.agents/skills/documentation/SKILL.md): writing technical documents, instructions, evidence explanations, and doc comments.
-- [testing](.agents/skills/testing/SKILL.md): choosing or writing behavioral checks for a production's measurable promises.
-- [review](.agents/skills/review/SKILL.md): reviewing source or tests, independently reviewing a narrative pass, or checking the truth of its evidence.
-- [delivery-review](.agents/skills/delivery-review/SKILL.md): inspecting the commissioned screenplay, generation hint, finished video, or asset at its actual output.
-- [estimation](.agents/skills/estimation/SKILL.md): a requested read-only audience-experience assessment or edition comparison, separate from evidence and approval.
+
+### Implementation and evidence
+
+- [development](.agents/skills/development/SKILL.md): production implementation, integrations, behavioral tests and technical documentation.
+- [evidence](.agents/skills/evidence/SKILL.md): requirements, question ownership, evidence answers, graph configuration, scope and actual parent relationships.
+
+### Assessment
+
+- [review](.agents/skills/review/SKILL.md): source and narrative review, actual delivery acceptance, or explicitly requested read-only experience estimation.

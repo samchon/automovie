@@ -2,7 +2,7 @@
 
 ## The army changes direction before crossing the sea {#continental-turn}
 
-Factual parents: [the continental turn and Ulm](../settings/100-history/020-life-and-memory.md#consulate), [Berthier](../settings/050-people/010-ensemble.md#berthier), [movement](../settings/020-world/010-material-world.md#movement), [Britain's capacity for war](../settings/030-society/010-power-and-cost.md#finance).
+Factual parents: [the continental turn and Ulm](../settings/100-history/020-life-and-memory.md#consulate), [Berthier](../settings/050-people/180-berthier.md#berthier), [movement](../settings/020-world/010-material-world.md#movement), [Britain's capacity for war](../settings/030-society/010-power-and-cost.md#finance).
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 전환은 `docs/body/settings/100-history/020-life-and-memory.md#consulate`의 트라팔가르 이전 이동과 미실현 침공을 바꾸지 않고 사용한다. `docs/body/settings/030-society/010-power-and-cost.md#finance`의 영국 신용·무역·의회·조세 및 강제 징집 비용은 육군이 떠나도 상대의 지속 능력이 남는 결과를 이미 지원하여 추가 해전 원인이나 새 재정 사실을 요구하지 않았다.
 -->

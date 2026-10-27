@@ -2,7 +2,7 @@
 
 ## Victory requires recovering from defeat {#marengo}
 
-Factual parents: [the Consulate](../settings/100-history/020-life-and-memory.md#consulate), [Desaix](../settings/050-people/010-ensemble.md#desaix), [Kléber](../settings/050-people/010-ensemble.md#kleber), [the weight of the record](../settings/120-research/010-source-policy.md#weight).
+Factual parents: [the Consulate](../settings/100-history/020-life-and-memory.md#consulate), [Desaix](../settings/050-people/470-desaix.md#desaix), [Kléber](../settings/050-people/490-kleber.md#kleber), [the weight of the record](../settings/120-research/010-source-policy.md#weight).
 
 Marengo, June 14, 1800. The general of the new regime must win again in Italy, but the morning's retreat threatens the army's survival along with the ruler's reputation. Napoleon is not inside a finished account in which he planned the retreat from the beginning. He rallies an army actually being driven back and relies on the arriving troops of Desaix and the possibility of a counterattack to change the evening's outcome. Return and junction work through the condition of the troops who reach the field, not as a moment created by personal trust.
 

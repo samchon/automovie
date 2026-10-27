@@ -1,14 +1,20 @@
 ---
 name: review
-description: Reviews current production work and independently judges narrative passes against their actual inputs. Use for source reviews, narrative review rounds, and evidence truth checks; final output acceptance belongs to delivery-review.
+description: Reviews source, narrative passes and actual delivered artifacts, and estimates experience only on request. Use for independent review, evidence truth checks, final acceptance or read-only edition comparison, selecting the corresponding task below.
 ---
 
 # Review
 
-Read the complete requested scope from the recipient's perspective. For narrative passes, use [independent reading](reading.md), then [review rounds](rounds.md) for findings, author exchange, current unit records and the whole-pass verdict. A self-review does not satisfy an independent pass.
+Identify the requested judgment, exact scope, current inputs and recipient. A source check, narrative pass, delivered artifact and read-only estimate establish different things. A self-review does not satisfy independent acceptance; an unavailable independent context or actual output remains an unperformed check.
 
-Use the [review principles](../contracts/story/shared/principles/review.md) for narrative judgments. [Writing workflow](../screenwriting/workflow.md#completion) owns checker and pass handoff; structural readiness cannot grant semantic acceptance. All corrections follow [complete cause rounds](../screenwriting/repair.md#cause-rounds).
+| Task | Read |
+| --- | --- |
+| Review source, measurable behavior and evidence truth | [Source review](source.md) |
+| Read a narrative independently before auditing author records | [Independent reading](reading.md) |
+| Judge a narrative pass, exchange findings and close its round | [Narrative rounds](rounds.md) |
+| Accept the complete commissioned output and handoff | [Delivery review](delivery.md) |
+| Inspect images, a whole motion hint or a finished film | [Video review](video.md) |
+| Inspect a model, export, standalone audio or other asset handoff | [Asset review](assets.md) |
+| Estimate quality or compare editions without repairing or approving | [Estimation scope](estimation.md) and [assessment method](estimation-method.md) |
 
-For source and measurable behavior, inspect actual consumers, affected checks and the selected [engineering contracts](../contracts/SKILL.md), using [development](../development/SKILL.md) and [testing](../testing/SKILL.md). Gather the whole round before repairing its causes together.
-
-Use [3d-modeling](../3d-modeling/SKILL.md) for local visible results and [audio](../audio/SKILL.md) for sound. Final screenplay, diffusion hint, asset or finished-video acceptance uses [delivery review](../delivery-review/SKILL.md).
+Finish each complete inspection round before repairing findings together by cause. Source repair belongs to development, geometry to 3D modeling, performance to motion, sound to audio and assembled media to production. Narrative changes preserve the closed-proof boundary under screenwriting. Current observations and accountable evidence establish the result; previous approval, scores or mechanical coverage cannot replace them.

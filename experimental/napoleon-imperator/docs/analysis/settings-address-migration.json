@@ -1,0 +1,463 @@
+{
+  "kind": "settings-address-migration",
+  "scope": "Current Napoleon people settings; structure and address changes only",
+  "baseCommit": "3d174714dae065e563b7bbb8691c2fe2b54b5693",
+  "profileFiles": 65,
+  "originalPeopleH2Count": 71,
+  "currentPeopleH2Count": 71,
+  "movedH2s": [
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#napoleon",
+      "new": "docs/body/settings/050-people/030-napoleon.md#napoleon",
+      "originalH2Sha256": "6d7e4f5478d69e18a4ab43139808d278285d5664187274f90f5fd588974b0714",
+      "relocatedH2Sha256": "974128e4ea1950a88c9bffdcf38602025617889ead31ce9076cc55ef3aa7880a"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#letizia",
+      "new": "docs/body/settings/050-people/040-letizia.md#letizia",
+      "originalH2Sha256": "8b950462c8312dbb4a5ba2509e0f8dca3baada32e856728050a7092fc9e2acdf",
+      "relocatedH2Sha256": "8314c6567af27d64e986921f82be0b37331d20494ed341597a681d3a9be867e0"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#josephine",
+      "new": "docs/body/settings/050-people/050-josephine.md#josephine",
+      "originalH2Sha256": "f2eaba4024f858d7f93ce20a6ae8017b55272413bdf714e2380266af4d7445fa",
+      "relocatedH2Sha256": "317ee58051704ca5278d687ae886f56820f04e95b94843a49efcfb8205c97276"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#marie-louise",
+      "new": "docs/body/settings/050-people/060-marie-louise.md#marie-louise",
+      "originalH2Sha256": "4e38156b48373ee1e6f55bde74fcd71b5c037d03ebd36ec34a4e9bbcc20525aa",
+      "relocatedH2Sha256": "e92f2bd5fc4fa8ce7bfc85faa0895b25c35734dcffe1cb734a0450240998a727"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#lucien-bonaparte",
+      "new": "docs/body/settings/050-people/070-lucien-bonaparte.md#lucien-bonaparte",
+      "originalH2Sha256": "ebfd3c7d9c48400d9a929e4ab183f9a496dfd96a1fc5138dd10c752ac8bcc4cd",
+      "relocatedH2Sha256": "f68094ec64682403869f6c19fe7360e246b0377e038be6b08015acfaf9543bc9"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#joseph-bonaparte",
+      "new": "docs/body/settings/050-people/080-joseph-bonaparte.md#joseph-bonaparte",
+      "originalH2Sha256": "991bbe2ac6a894e70babd9a5ad6373ca227615cf0455b19f23d6d64744944d5f",
+      "relocatedH2Sha256": "6fbeb5895977a0c55f4657b5083a8187ade6fb678e7d0836d47f9ddb309f5154"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#cambaceres",
+      "new": "docs/body/settings/050-people/090-cambaceres.md#cambaceres",
+      "originalH2Sha256": "1f7dfc86f816abe77ff359f18aa7d1379cbf2c382a3c4832db78cd9fa36fd857",
+      "relocatedH2Sha256": "d53b98821b739d5a07f4841af89fe92994ea57953260a0a5a33dc0d58e0fc2f6"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#talleyrand",
+      "new": "docs/body/settings/050-people/100-talleyrand.md#talleyrand",
+      "originalH2Sha256": "c98b6e55fa0a6550a9ddf2b06947bf869d6b673ffa3303e2a54d004001a0b9fb",
+      "relocatedH2Sha256": "acd8676507d70dbeb3196ad470fc92903f8530632f0d43f7678a186457036f23"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#fouche",
+      "new": "docs/body/settings/050-people/110-fouche.md#fouche",
+      "originalH2Sha256": "8e6cc5d30a5329f451616e96801ad8925444efbb7c40def248d9bd140caaad3c",
+      "relocatedH2Sha256": "25bc1291daa03b352185af3ff4eb693feb7b7f6e02e8e6ee39658751329383dd"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#caulaincourt",
+      "new": "docs/body/settings/050-people/120-caulaincourt.md#caulaincourt",
+      "originalH2Sha256": "02b83a65d6901a72ecb272ee57d58a0e785aaf39f2279ef0453a5c1b5e7efbc4",
+      "relocatedH2Sha256": "a446950f04e095b0b2f31fd83124fa8b0a66a48077eb45e8a3924e52a17a73ac"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#de-stael",
+      "new": "docs/body/settings/050-people/130-de-stael.md#de-stael",
+      "originalH2Sha256": "d15b3cc14c0918a045706d07473cb5948db0c1287fb684d1e7a869150c7017f7",
+      "relocatedH2Sha256": "94db33af470543c6bd0d215f1b66fcabeadb28ab28e48cf3b81cb3cebff417f3"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#eugene",
+      "new": "docs/body/settings/050-people/140-eugene.md#eugene",
+      "originalH2Sha256": "2ea1aa9ca9c858efbef1e47eea29248e65f3bb6b6cfc0f6f938ca80823fb6866",
+      "relocatedH2Sha256": "d1e50a6bcead742c2d90fbd154e2e1f1199b0af1b1d4d551d274fbe15bb2b63b"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#lannes",
+      "new": "docs/body/settings/050-people/150-lannes.md#lannes",
+      "originalH2Sha256": "a60b0551822c1908b799d6f4ce8b6e3fa6fe5171a7e7e0d8e24f0a41ba04c840",
+      "relocatedH2Sha256": "0087082069a262cd9222e76f4635183f7242145ec723bfa2779da5257a74c2d5"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#soult",
+      "new": "docs/body/settings/050-people/160-soult.md#soult",
+      "originalH2Sha256": "99c347bf60714c643a1a8e3878e7faa1919172677ef750e643f67ad74c5931ff",
+      "relocatedH2Sha256": "15a97a0df146b2afa8a5401c98adf86294b2654b8e3b933d2a5adc3198592b75"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#murat",
+      "new": "docs/body/settings/050-people/170-murat.md#murat",
+      "originalH2Sha256": "b0d489342d7a84bb10b9e722b162fa54d8da6bf7a02f00e4831e3e87cb8ffc00",
+      "relocatedH2Sha256": "ecd397e9122a4403aa9243ff9d2782ca3580fd6e313821731db38c64bb28b157"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#berthier",
+      "new": "docs/body/settings/050-people/180-berthier.md#berthier",
+      "originalH2Sha256": "1d7631281a72ac125b234496a647975340a52439f2e3673c3e478bcc7d1ed4b6",
+      "relocatedH2Sha256": "269acc097bd7ab3f035b96605b32858d30650fe3cd825ed520783dde7e4272c2"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#davout",
+      "new": "docs/body/settings/050-people/190-davout.md#davout",
+      "originalH2Sha256": "74edca96e6d9d90f8118fe0fb5466e287b4e5a4a2c3e2f506b30c99355f55651",
+      "relocatedH2Sha256": "75f8ea26a60c7bdb2737fa91263f40574b1b5e8a6323db6d04590931d56f9655"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#ney",
+      "new": "docs/body/settings/050-people/200-ney.md#ney",
+      "originalH2Sha256": "9c72451e4eea3c1835d43da5cc8674017dfc7edcfd3bba70e81376c637f243ab",
+      "relocatedH2Sha256": "c3a0157a8800b7c578c190a495cb8b5ed6331758e46706e2cc20aaebbb40eb68"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#duroc",
+      "new": "docs/body/settings/050-people/210-duroc.md#duroc",
+      "originalH2Sha256": "822b57270e652750e74605b000b9337832359443a52bcd57c763782d4b776683",
+      "relocatedH2Sha256": "ce321556805463b79695411509f0c9c67d28e0ed171d0b1c9d6c49c3da3abf91"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#grouchy",
+      "new": "docs/body/settings/050-people/220-grouchy.md#grouchy",
+      "originalH2Sha256": "d9f8cc640966f30ea0fbe68e09075ffbd891a6a6bfbacd706b39a7f1a7d7bb02",
+      "relocatedH2Sha256": "b8e2f9b7c8ddc0c1fe2893e8e5da85f124ceb043f5a6895854f88ea70a544323"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#bernadotte",
+      "new": "docs/body/settings/050-people/230-bernadotte.md#bernadotte",
+      "originalH2Sha256": "56bc614a07809d66ae1b5820b9587bc07597f8fd440a2df3196e759b686867ce",
+      "relocatedH2Sha256": "f38040192c07e8276700b5c247aac2af3203f5295e3b2569e46e04155e59ccdb"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#louis-bonaparte",
+      "new": "docs/body/settings/050-people/240-louis-bonaparte.md#louis-bonaparte",
+      "originalH2Sha256": "1abcdb70169a5e4bfd055948cb4944f719918e91170642ab76338887eee05094",
+      "relocatedH2Sha256": "15eeac1ad7ec5580483e48ebbe7fc59ae938ffdfc4ac862029426763939e2cd7"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#caroline-bonaparte",
+      "new": "docs/body/settings/050-people/250-caroline-bonaparte.md#caroline-bonaparte",
+      "originalH2Sha256": "5ea45c73d0299b497e040c0b7e5ece05c9d1abccbb9164d2e8f8a7cff3a08626",
+      "relocatedH2Sha256": "aa35bcd384b8cb9ee238670ce0c344bdfc3dc34a479bbde96388438277876ba7"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#pauline-bonaparte",
+      "new": "docs/body/settings/050-people/260-pauline-bonaparte.md#pauline-bonaparte",
+      "originalH2Sha256": "9cf463ace54d96fb16ce62c1c4839e5284e035a5993c4fd694181368e4dcb30f",
+      "relocatedH2Sha256": "eaa1d36fd16376b66aa560a1e79e614608f3e55abfb2b97000d1ecc9b4902170"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#larrey",
+      "new": "docs/body/settings/050-people/270-larrey.md#larrey",
+      "originalH2Sha256": "2af517775fcf0cc2eef174cb15a0619a62f1ff8fb51796a4f3cdee3db2f293a0",
+      "relocatedH2Sha256": "439875309baf3a3654f6f42ff78e640b4362c3c2ab2b3fe108a4cb363f612286"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#eble",
+      "new": "docs/body/settings/050-people/280-eble.md#eble",
+      "originalH2Sha256": "6ecc1e3090ce24671976bcee5a7de404164797ad39b76aa2892deeeacdf7a597",
+      "relocatedH2Sha256": "002e857b18bf760fe75d121dceda5f87ba2b7b0eda1d4a58bbc90aec57c64844"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#coignet",
+      "new": "docs/body/settings/050-people/290-coignet.md#coignet",
+      "originalH2Sha256": "a22d1069f1c6652e5ed543f82949290b2e20e4d9cbc475a9c1dfef4870199539",
+      "relocatedH2Sha256": "11c1971a0041ab7f250274d84fe215a1eb1f9a0f07ab32e1a889848354b10dbe"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#bourgogne",
+      "new": "docs/body/settings/050-people/300-bourgogne.md#bourgogne",
+      "originalH2Sha256": "b5a45c8673210149291bc1e35f4772a46b48b7baabc0be4d69970ab3ade07421",
+      "relocatedH2Sha256": "d5b1b080563c78ebd65d7c11a5747e2b6e557237fe13e17d0c599c87814ad160"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#fezensac",
+      "new": "docs/body/settings/050-people/310-fezensac.md#fezensac",
+      "originalH2Sha256": "422b178d7670cb35d23731e1e7feff19acdab5b178e784a48f2846e7d70f96e6",
+      "relocatedH2Sha256": "856ff0fa5791ab4b13bfd46d0204f24ea05ef89c1928738e8064d172a39dbbe0"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#segur",
+      "new": "docs/body/settings/050-people/320-segur.md#segur",
+      "originalH2Sha256": "e75569236c156bf939d8040cbe480cfc51fa8d7fbdf164ce2e4cff116e2c7ed7",
+      "relocatedH2Sha256": "792cbba5a0272bca8d63da77953f102a1804817c9fd900be31819e06e2622885"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#alexander",
+      "new": "docs/body/settings/050-people/330-alexander.md#alexander",
+      "originalH2Sha256": "e4cf55bf782401265f8a4e3f8ffd66c58f9a36e53b890d6dde70374b355d6660",
+      "relocatedH2Sha256": "c574ccc919a55e54140d7f11bdd3c0e8dd2f518cdea90f9af6ceb4ae60c74211"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#kutuzov",
+      "new": "docs/body/settings/050-people/340-kutuzov.md#kutuzov",
+      "originalH2Sha256": "22a1adaa7eb74677a580b41450b740c98d672fc81801d41d7f971c7b9bc99641",
+      "relocatedH2Sha256": "35a4ee29bf46fcf48d19d9b51edf30181230062c2364d0d98778f2b30ef567e3"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#barclay",
+      "new": "docs/body/settings/050-people/350-barclay.md#barclay",
+      "originalH2Sha256": "bd22f7e49ee444e5f3ca4c0346319ce24ef9dafb1b31ec99259145ffc88eb923",
+      "relocatedH2Sha256": "046aca90d562ae94a4ee3b87d3ed152368dab615f54998611d68f49876a3ae90"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#archduke-charles",
+      "new": "docs/body/settings/050-people/360-archduke-charles.md#archduke-charles",
+      "originalH2Sha256": "5a130f8373e3c2479d1c59a3fb16036c74f762f5acd34230475e7b38a76eecb6",
+      "relocatedH2Sha256": "5174773b6729d9102847fa7f844a1c3a14262988ba2a7d8406f9dda865c3d4ee"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#metternich",
+      "new": "docs/body/settings/050-people/370-metternich.md#metternich",
+      "originalH2Sha256": "d1dc6377d4bfe0deebafb06c36db8f843c23864e4c5304d24b99cb5c44785bc8",
+      "relocatedH2Sha256": "cb712c8f3ed2e613d7e6baa8f0523e44f9f2ca1058e39bd0e35f5b87b78ff548"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#nelson",
+      "new": "docs/body/settings/050-people/380-nelson.md#nelson",
+      "originalH2Sha256": "ad2c57b748ae76b223e9a8da92623b748fdd269219e484764f654c9d56b8a2e9",
+      "relocatedH2Sha256": "16e0ceabf4ed6b44a688ce59631f7a513db7d9857693e44846bb6c7620d0dd89"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#collingwood",
+      "new": "docs/body/settings/050-people/390-collingwood.md#collingwood",
+      "originalH2Sha256": "03b70cdc3e96b6fed62715bc28948354364399f35d4d95e77691001ffa3b42c4",
+      "relocatedH2Sha256": "7f07d3dcb27d7c3dbcfb140970cac29a1431dfe6600f0fa3c6ebb71205a24e74"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#wellington",
+      "new": "docs/body/settings/050-people/400-wellington.md#wellington",
+      "originalH2Sha256": "fc4e40a5887759a4c59c4db9255e3ca5ddf5a0e1536ac7bd90308fd8965c5286",
+      "relocatedH2Sha256": "ad173dfb311a1b80c0e7a460b79e3a2ea4bcb58cd387788e20fec1b27a0dcb59"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#blucher",
+      "new": "docs/body/settings/050-people/410-blucher.md#blucher",
+      "originalH2Sha256": "91ee04ce7f89ece86aa2c3ed4c5d4da91845ece719f5dfc73bb4dcfcf0547cb3",
+      "relocatedH2Sha256": "342bc6058409ab971606f74df7d63e71d8424826d7bb3f66bfbfd56cd36f217f"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#gneisenau",
+      "new": "docs/body/settings/050-people/420-gneisenau.md#gneisenau",
+      "originalH2Sha256": "3b9bc6bff637855efe41c08f1a0fe790eed484b742fc2a1324bb10b801ca68ad",
+      "relocatedH2Sha256": "1bca1ae35e5e17c8bd83f409e30e4b4298ad48714db1195f47ef8bb07923e1a5"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#queen-louise",
+      "new": "docs/body/settings/050-people/430-queen-louise.md#queen-louise",
+      "originalH2Sha256": "c6f782f31bdfc7b766de89727c1de141716e5abce4311d79d822be8a20f25920",
+      "relocatedH2Sha256": "894ef4e494dcb16e478e6f1aead1e4ecc740c039d234a8e2c949c4579da8ebd7"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#weyrother",
+      "new": "docs/body/settings/050-people/440-weyrother.md#weyrother",
+      "originalH2Sha256": "8fbfe4fec9a273ae739a7eea9878feb35b9f558da7e81fb052bafa94ab4aa8bc",
+      "relocatedH2Sha256": "c3fba44d6558e04637d05d56c3ce151afb9f9c439d6bfa70638dc50e064fe41f"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#paoli",
+      "new": "docs/body/settings/050-people/450-paoli.md#paoli",
+      "originalH2Sha256": "e648f129974746d393104b1cc449cc27db34e89174606d1ac61de218b8e92ee2",
+      "relocatedH2Sha256": "bdc3d5d136656daa58ae59b9867db17239537c4f9dbd688210f86f8bd2f4ac42"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#saliceti",
+      "new": "docs/body/settings/050-people/460-saliceti.md#saliceti",
+      "originalH2Sha256": "446d6ca267b8b17355c071e213c22ddaff4308a9016c4f556ffde9c936ba7a28",
+      "relocatedH2Sha256": "679cfe2c54b38fdd7a6348062bcad5fbb319cfb2a4aa9a0bdd0e79baa1e78e0c"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#desaix",
+      "new": "docs/body/settings/050-people/470-desaix.md#desaix",
+      "originalH2Sha256": "eefdda399ad008aa96734a0c510bea892581f57fa86d2c3a193a59ffcbd4f53a",
+      "relocatedH2Sha256": "06756ec3b361715901707cbf1c1147fc9f1dbefc9a80780635605ff50d14aa69"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#bourrienne",
+      "new": "docs/body/settings/050-people/480-bourrienne.md#bourrienne",
+      "originalH2Sha256": "f33d896a25687f62ec2ea15f22860f37658af6289429d83d1eddf94bd964a7c7",
+      "relocatedH2Sha256": "cab36ad2fd3ced702f5c5ed7f9886a8c5f219c5e6408b56fb86a4fc250a7567b"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#kleber",
+      "new": "docs/body/settings/050-people/490-kleber.md#kleber",
+      "originalH2Sha256": "bc9dcbd62bd2ed51f73505b5718eb968e05ab8199bea07dc3d358f1a3f62a325",
+      "relocatedH2Sha256": "f5abe1e3503fafdf8ad5c72c8dfd5ced27deacd6a2c761e6707382183c123caf"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#sidney-smith",
+      "new": "docs/body/settings/050-people/500-sidney-smith.md#sidney-smith",
+      "originalH2Sha256": "67e840ab4b4e75c9d34b841ba6c5b5188e7e5170b0080dba3bcb957156da0e21",
+      "relocatedH2Sha256": "00e7bee4b6e6145954e3b61b28aa0c11caa285fa9fc309461fdf2f464e756a1e"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#marmont",
+      "new": "docs/body/settings/050-people/510-marmont.md#marmont",
+      "originalH2Sha256": "1d1af4cd64d1df946be6cc67b3555b8229bdb10e35785880a63b9e53ff44e5a8",
+      "relocatedH2Sha256": "ffa72f50441dce455324c51894d81ebe6d0c4c21fd3998c6c9bc711bc2105e04"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#schwarzenberg",
+      "new": "docs/body/settings/050-people/520-schwarzenberg.md#schwarzenberg",
+      "originalH2Sha256": "a5004b0990394536c120abdac3b362a663f401f8db1c9527b79dd959d77bf3f9",
+      "relocatedH2Sha256": "ee2a39d2f6efa6acecae42663da371893acb566ba19ff118d5a20b81eb608333"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#bertrand",
+      "new": "docs/body/settings/050-people/530-bertrand.md#bertrand",
+      "originalH2Sha256": "22a9fc459a94124612710c15a1e9c3b25013eed23e0989af782ff657dfc8d64e",
+      "relocatedH2Sha256": "da44bb56d766519d6b817ec6755cdf7d47fa925b833efb34399b7f5ac3ecc7ba"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#hudson-lowe",
+      "new": "docs/body/settings/050-people/540-hudson-lowe.md#hudson-lowe",
+      "originalH2Sha256": "ce7184c8e118548b141b0b31e3c2e0cd7101b8e17240f7b2089949d61f6fdf08",
+      "relocatedH2Sha256": "770bb367aaafec48795aaebc8e385c521875de73ad8249ec1284635ff403f5a2"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#las-cases",
+      "new": "docs/body/settings/050-people/550-las-cases.md#las-cases",
+      "originalH2Sha256": "c6bba29338de4a770514a80e7bebbcfd5bdb867bb0a52b28735be6c5ab92380d",
+      "relocatedH2Sha256": "0fe91a14300f6108ad7edadd05344039a5887cf25cffda2d55db68a97d2a3086"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#gourgaud",
+      "new": "docs/body/settings/050-people/560-gourgaud.md#gourgaud",
+      "originalH2Sha256": "4d074a0a2ce7cde4c988925c734414b1f5cc7f3c61004496ed28913bc751d81b",
+      "relocatedH2Sha256": "eae9e7586e052b314ac87a0c476f85affbb894c9ade58294790df6d126313ab0"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#o-meara",
+      "new": "docs/body/settings/050-people/570-o-meara.md#o-meara",
+      "originalH2Sha256": "848231376bc75899f8485279d1ada12c1c1c0f46d80beaaa6cb75d2a04496d64",
+      "relocatedH2Sha256": "9fd8f6dae0e880064a0e719519732b8168d68251c1999f52c259b3c89b802127"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#antommarchi",
+      "new": "docs/body/settings/050-people/580-antommarchi.md#antommarchi",
+      "originalH2Sha256": "0c0c614e177ea22c911f996d0d82d73340790f138af2913946ede3d1c677b770",
+      "relocatedH2Sha256": "ac05201235616f82b8c32f1cfcb184ba0efd3c417114267e0268a5355d7e7150"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#napoleon-ii",
+      "new": "docs/body/settings/050-people/590-napoleon-ii.md#napoleon-ii",
+      "originalH2Sha256": "e3a5fd63f3185bdce01c816ffbea226308d45d37d03d8887590181d32ce745a8",
+      "relocatedH2Sha256": "e3a5fd63f3185bdce01c816ffbea226308d45d37d03d8887590181d32ce745a8"
+    },
+    {
+      "old": "docs/body/settings/050-people/020-roles-and-last-wishes.md#napoleon-ii",
+      "new": "docs/body/settings/050-people/590-napoleon-ii.md#napoleon-ii-vienna-role",
+      "originalH2Sha256": "f7170df3ccfb5016e01c42e01eba17d59c4a516ae08e5a89f270655025d75dab",
+      "relocatedH2Sha256": "0021f3f4c87a140fbcb0253f09a72bde0e1c5d864ee782e92b2d495d54a8d774"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#louis-philippe",
+      "new": "docs/body/settings/050-people/600-louis-philippe.md#louis-philippe",
+      "originalH2Sha256": "ed662bdcedf6d4206d8f5987f0f14aa0dd4a1d59ecd4f5bcaf77721d204ac1df",
+      "relocatedH2Sha256": "0d5bbeaf63b625281ddcee1a98483c8ac9f9a2db1d6cd0f6123ae6fd9539d2e5"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#marchand",
+      "new": "docs/body/settings/050-people/610-marchand.md#marchand",
+      "originalH2Sha256": "7a2d8c1739f2bfd9d1c0ee84784a7f336c8dda56304c46a626b358ed5ef95799",
+      "relocatedH2Sha256": "3acc608fafdea643d2ee86810dc582a7c40791126c825ef37b67bb121294559a"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#toussaint",
+      "new": "docs/body/settings/050-people/620-toussaint.md#toussaint",
+      "originalH2Sha256": "fdfeeebb05586a65955a94584b1a07a5398fd023c35a7eeab20e4919e5cdace4",
+      "relocatedH2Sha256": "3585e5ea21bae442dcd012eea9e665c16f0ba53ae5409de360a0711ae80b9286"
+    },
+    {
+      "old": "docs/body/settings/050-people/010-ensemble.md#delgres",
+      "new": "docs/body/settings/050-people/630-delgres.md#delgres",
+      "originalH2Sha256": "fbeed77df3dc1f4b6cf45b75cca53e8beb36e63c50734498d9cb9df6e47b059e",
+      "relocatedH2Sha256": "b8f99d26aaf7151787cbf808f2d0bdbab2a49c6a07b28805e185b1dc70085acc"
+    },
+    {
+      "old": "docs/body/settings/050-people/020-roles-and-last-wishes.md#cipriani",
+      "new": "docs/body/settings/050-people/640-cipriani.md#cipriani",
+      "originalH2Sha256": "a16fdb9e0955a41afa2a08b999ee4b724b7f4b95e25020390a5b2d97639b8a23",
+      "relocatedH2Sha256": "e0ceb817841d0d4eed6c397d01c1aff47fb565f74b1a7222b59915a631e7dc30"
+    },
+    {
+      "old": "docs/body/settings/050-people/020-roles-and-last-wishes.md#poniatowski",
+      "new": "docs/body/settings/050-people/650-poniatowski.md#poniatowski",
+      "originalH2Sha256": "a4d85b45c21bed40e6b6eb0410aac1207c1f849f1f6d471d3528628d1282dcb1",
+      "relocatedH2Sha256": "a3dd6374e6b99682dfbfd39bc56d9bfd1abfbfa21b4d02bd0a6d8e18f90dd803"
+    },
+    {
+      "old": "docs/body/settings/050-people/020-roles-and-last-wishes.md#massena-italy",
+      "new": "docs/body/settings/050-people/660-massena.md#massena-italy",
+      "originalH2Sha256": "a8473bf5e00b10a9dcfcc41013ae47dcc82e090409673443357889bd4616cd03",
+      "relocatedH2Sha256": "547d60176d574204b3b9e3c2528b2fb3010fc866c15802d5ce0690ecc057eaab"
+    },
+    {
+      "old": "docs/body/settings/050-people/020-roles-and-last-wishes.md#joubert-rivoli",
+      "new": "docs/body/settings/050-people/670-joubert.md#joubert-rivoli",
+      "originalH2Sha256": "3348a4b69e48fcb0e23c4252fbcd89cf4697c8b41d2a58f46d531af6772fa489",
+      "relocatedH2Sha256": "3348a4b69e48fcb0e23c4252fbcd89cf4697c8b41d2a58f46d531af6772fa489"
+    }
+  ],
+  "rebasedConsumerFiles": [
+    "docs/analysis/source-owner-map.md",
+    "docs/body/treatments/002-the-open-right.md",
+    "docs/body/treatments/003-the-night-before.md",
+    "docs/body/treatments/004-the-battle-opens.md",
+    "docs/body/treatments/006-birth-and-school.md",
+    "docs/body/treatments/007-corsica-and-exile.md",
+    "docs/body/treatments/008-toulon-and-revolution.md",
+    "docs/body/treatments/009-paris-and-josephine.md",
+    "docs/body/treatments/010-italy-and-the-image.md",
+    "docs/body/treatments/011-egypt-and-isolation.md",
+    "docs/body/treatments/012-brumaire.md",
+    "docs/body/treatments/013-marengo-and-the-two-deaths.md",
+    "docs/body/treatments/014-order-and-police.md",
+    "docs/body/treatments/015-peace-and-service.md",
+    "docs/body/treatments/016-colonial-freedom.md",
+    "docs/body/treatments/017-law-and-crown.md",
+    "docs/body/treatments/018-the-sea-keeps-its-power.md",
+    "docs/body/treatments/019-the-road-back-to-the-opening.md",
+    "docs/body/treatments/021-two-battles-and-a-report.md",
+    "docs/body/treatments/022-blood-and-tilsit.md",
+    "docs/body/treatments/023-the-blockade-enters-homes.md",
+    "docs/body/treatments/024-spain-will-not-close.md",
+    "docs/body/treatments/025-the-danube-and-lannes.md",
+    "docs/body/treatments/026-two-marriages.md",
+    "docs/body/treatments/027-heir-and-hunger.md",
+    "docs/body/treatments/028-the-distance-before-winter.md",
+    "docs/body/treatments/029-a-city-without-peace.md",
+    "docs/body/treatments/030-the-death-report.md",
+    "docs/body/treatments/031-the-crossing-and-the-return.md",
+    "docs/body/treatments/032-the-new-army.md",
+    "docs/body/treatments/033-the-opponents-use-the-pause.md",
+    "docs/body/treatments/034-leipzig-and-the-bridge.md",
+    "docs/body/treatments/035-france-and-paris.md",
+    "docs/body/treatments/036-the-first-abdication.md",
+    "docs/body/treatments/038-the-road-to-paris.md",
+    "docs/body/treatments/039-a-different-returned-emperor.md",
+    "docs/body/treatments/040-two-fields-in-june.md",
+    "docs/body/treatments/041-waterloo.md",
+    "docs/body/treatments/042-the-second-abdication.md",
+    "docs/body/treatments/043-a-house-under-guard.md",
+    "docs/body/treatments/044-the-people-who-write.md",
+    "docs/body/treatments/045-the-patient-and-the-reports.md",
+    "docs/body/treatments/046-death-and-burial.md",
+    "docs/body/treatments/047-the-name-outlives-the-family.md",
+    "docs/body/treatments/048-the-last-return.md",
+    "docs/body/settings/030-society/010-power-and-cost.md",
+    "docs/body/settings/100-history/020-life-and-memory.md"
+  ],
+  "limitations": [
+    "H2 text comparison normalizes relative-link destinations, the explicitly mapped duplicate anchor, and separating terminal blank lines; current fragment digests identify actual written bytes.",
+    "No historical approval is renewed; source archive and retained source documents are unchanged.",
+    "Document-only production has no runnable package or current native creative approval.",
+    "Three current native relationship addresses were rebased; 57 historical annotation reasons mentioning old addresses retain their original wording and resolve historically through this map/base revision."
+  ],
+  "rebasedNativeAddressTargets": 3,
+  "preservedHistoricalReasonMentions": 57
+}

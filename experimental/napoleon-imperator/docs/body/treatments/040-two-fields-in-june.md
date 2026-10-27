@@ -2,7 +2,7 @@
 
 ## Entering between opponents before they fully unite {#opening}
 
-Factual parents: [Ligny and Quatre Bras](../settings/100-history/020-life-and-memory.md#return-and-waterloo), [Ney](../settings/050-people/010-ensemble.md#ney), [Grouchy](../settings/050-people/010-ensemble.md#grouchy), [Wellington](../settings/050-people/010-ensemble.md#wellington), [Blücher](../settings/050-people/010-ensemble.md#blucher), [Gneisenau](../settings/050-people/010-ensemble.md#gneisenau), [delay in orders](../settings/110-knowledge/010-information.md#access).
+Factual parents: [Ligny and Quatre Bras](../settings/100-history/020-life-and-memory.md#return-and-waterloo), [Ney](../settings/050-people/200-ney.md#ney), [Grouchy](../settings/050-people/220-grouchy.md#grouchy), [Wellington](../settings/050-people/400-wellington.md#wellington), [Blücher](../settings/050-people/410-blucher.md#blucher), [Gneisenau](../settings/050-people/420-gneisenau.md#gneisenau), [delay in orders](../settings/110-knowledge/010-information.md#access).
 
 Belgium, mid-June 1815. Napoleon seeks to divide Wellington and the Prussians and fight each before they can act together. Gaining the initiative in the first movement does not decide the opponent's next action. Wellington must preserve his Allied army, and Blücher and Gneisenau must protect their army and the possibility of cooperation. The two opponents are not pieces on a plan drawn by the Emperor.
 

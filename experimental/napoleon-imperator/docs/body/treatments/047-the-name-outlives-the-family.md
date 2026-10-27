@@ -2,7 +2,7 @@
 
 ## The published Emperor and the family left behind {#publication}
 
-Factual parents: [posthumous memory and the son](../settings/100-history/020-life-and-memory.md#exile-and-memory), [formation of the record](../settings/120-research/010-source-policy.md#weight), [Letizia](../settings/050-people/010-ensemble.md#letizia), [Napoleon II](../settings/050-people/010-ensemble.md#napoleon-ii), [limits of actual consultation](../settings/120-research/010-source-policy.md#bibliography), [limits of the Cambronne tradition](../settings/100-history/020-life-and-memory.md#return-and-waterloo), [Bourrienne](../settings/050-people/010-ensemble.md#bourrienne), [the Marengo campaign report](../settings/100-history/020-life-and-memory.md#consulate).
+Factual parents: [posthumous memory and the son](../settings/100-history/020-life-and-memory.md#exile-and-memory), [formation of the record](../settings/120-research/010-source-policy.md#weight), [Letizia](../settings/050-people/040-letizia.md#letizia), [Napoleon II](../settings/050-people/590-napoleon-ii.md#napoleon-ii), [limits of actual consultation](../settings/120-research/010-source-policy.md#bibliography), [limits of the Cambronne tradition](../settings/100-history/020-life-and-memory.md#return-and-waterloo), [Bourrienne](../settings/050-people/480-bourrienne.md#bourrienne), [the Marengo campaign report](../settings/100-history/020-life-and-memory.md#consulate).
 <!--
 @evidenceExclude settings/120-research/010-source-policy.md#editions 현재 T 48파일·116H2 전체의 편지·명령·회고·출판 언급을 대조했다. 나폴레옹 서한집 32권본이나 15권본에서 특정 문서를 직접 인용하거나 슈투터하임 1807년 영어판의 문구·번역 판단을 사건 근거로 사용한 곳은 없다. 009의 3월 30일 편지 거리, 이 절의 라스카즈 간행과 미독서 번역서 금지는 각각 관계·자료 성립·서지 정직성의 다른 현재 owner를 따른다. 따라서 이 판본별 사용 H2 전체의 구체 선택은 이번 T에서 소비하지 않는다. 사료 층위나 실제 읽은 범위의 의무를 제외하지 않으며 새 판본 인용이 필요하면 이 owner로 돌아가야 한다.
 -->
@@ -24,6 +24,6 @@ The son raised at Schönbrunn stands between his father's memory and the demands
 
 His death on July 22, 1832 closes the expectation of biological succession too. Do not have him call himself the Eaglet in life; the name from works after 1835 may be introduced only in the historian's later reception. Do not depend on differences in rank insignia for the cause of this event. What remains for the audience is not a promise of a future emperor but the result that neither father nor son could return. What a state can later receive is remains and memory instead of a living successor.
 
-Additional factual parent: [roles and last wishes](../settings/050-people/020-roles-and-last-wishes.md#napoleon-ii).
+Additional factual parent: [roles and last wishes](../settings/050-people/590-napoleon-ii.md#napoleon-ii-vienna-role).
 
 Separate by period the child called King of Rome in 1811, Napoleon II as declared by his father, and the young man called Franz in Vienna who became Duke of Reichstadt. He was not an emperor who actually ruled France. End with a person bearing names given by different empires alongside an absence of actual power, rather than an abstract son who lost his father's power.

@@ -2,7 +2,7 @@
 
 ## The man called a savior meets resistance in the legislature {#coup}
 
-Factual parents: [Brumaire](../settings/100-history/020-life-and-memory.md#italy-and-egypt), [Lucien](../settings/050-people/010-ensemble.md#lucien-bonaparte), [government](../settings/030-society/010-power-and-cost.md#government), [Napoleon](../settings/050-people/010-ensemble.md#napoleon).
+Factual parents: [Brumaire](../settings/100-history/020-life-and-memory.md#italy-and-egypt), [Lucien](../settings/050-people/070-lucien-bonaparte.md#lucien-bonaparte), [government](../settings/030-society/010-power-and-cost.md#government), [Napoleon](../settings/050-people/030-napoleon.md#napoleon).
 
 November 9–10, 1799. Forces seeking to change the Revolution's unstable government need military prestige; Napoleon seeks to turn the confidence won in war into political authority. Although they need the same man, Sieyès and the general do not want the same ultimate power. Public longing for order is a condition outside the coup, not proof that everyone has already approved the same regime.
 

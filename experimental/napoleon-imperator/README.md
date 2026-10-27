@@ -1,6 +1,6 @@
 # The Napoleon Chronicle
 
-This English document edition translates the Korean historical screenplay adaptation. Read the final audiovisual screenplay in [docs/body/screenplay](docs/body/screenplay/). Its supporting canon, treatments and executable scripts remain in [docs/body](docs/body/); creative requirements are in [docs/instructions](docs/instructions/).
+This English document edition translates the Korean historical screenplay adaptation. Read the final audiovisual screenplay in [docs/body/screenplay](docs/body/screenplay). Its supporting canon, treatments and executable scripts remain in [docs/body](docs/body); creative requirements are in [docs/instructions](docs/instructions).
 
 The [project brief](PROJECT.md) owns the document scope. The [source manifest](docs/translation/korean-source-manifest.json) identifies the exact Korean input captured before translation, and the [source archive](docs/translation/korean-source.zip) preserves its original bytes, including line endings. The baseline commit preserves the readable Korean edition. Retained references and source comments remain historical material; their Korean approvals do not approve the English edition.
 

@@ -16,6 +16,7 @@ Read the task document below. Read workflow when choosing a route, resuming a pa
 | Develop a direction within delegated authority | [Direction](direction.md) |
 | Find and assign uncovered work requirements | [Discovery](discovery.md) |
 | Establish usable facts and their finding guide | [Settings](settings.md) |
+| Organize character, relationship, place and object records | [Settings records](settings-records.md) |
 | Decide events, consequences and information release | [Treatments](treatments.md) |
 | Partition the work and execute scenes | [Scripts](scripts.md) |
 | Compose the final audiovisual experience, including a short | [Screenplay](screenplay.md) |
@@ -30,4 +31,4 @@ Read the task document below. Read workflow when choosing a route, resuming a pa
 
 [Story contracts](../contracts/story/index.md) own quality questions and their populations; read the selected layer and pass. Preserve user-fixed choices and make the layer's own contribution within delegation. Author inspection and evidence cannot approve the work: independent [review](../review/SKILL.md) judges it.
 
-[Evidence configuration](../evidence-configuration/SKILL.md) owns graph definitions, stages and scope; installed documentation owns APIs. [Production](../production/SKILL.md) executes commissioned media. A screenplay-only commission follows its text passes and [delivery review](../delivery-review/SKILL.md) without inventing media work.
+[Evidence configuration](../evidence/configuration.md) owns graph definitions, stages and scope; installed documentation owns APIs. [Production](../production/SKILL.md) executes commissioned media. A screenplay-only commission follows its text passes and [delivery review](../review/delivery.md) without inventing media work.

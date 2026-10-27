@@ -2,7 +2,7 @@
 
 ## Former enemies open a road home {#permission}
 
-Factual parents: [the ending in 1840](../settings/010-work/020-periods.md#ending), [return of the remains](../settings/100-history/020-life-and-memory.md#exile-and-memory), [Louis Philippe](../settings/050-people/010-ensemble.md#louis-philippe), [Bertrand](../settings/050-people/010-ensemble.md#bertrand), [Marchand](../settings/050-people/010-ensemble.md#marchand), [materials of the period](../settings/020-world/010-material-world.md#appearance).
+Factual parents: [the ending in 1840](../settings/010-work/020-periods.md#ending), [return of the remains](../settings/100-history/020-life-and-memory.md#exile-and-memory), [Louis Philippe](../settings/050-people/600-louis-philippe.md#louis-philippe), [Bertrand](../settings/050-people/530-bertrand.md#bertrand), [Marchand](../settings/050-people/610-marchand.md#marchand), [materials of the period](../settings/020-world/010-material-world.md#appearance).
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 상위 부모인 docs/body/settings/050-people/010-ensemble.md#louis-philippe의 티에르·영국 교섭과 docs/body/settings/050-people/010-ensemble.md#bertrand·docs/body/settings/050-people/010-ensemble.md#marchand의 1840년 나이·참여, docs/body/settings/050-people/010-ensemble.md#las-cases의 부자 구별, docs/body/settings/010-work/020-periods.md#ending의 유해 귀환 경계를 사용했다. 국가 허가가 실제 관 확인·운반을 가능하게 하는 사건을 시험했으며 새 정치가 공연·비밀 회담·미상 독백이나 아버지 라스카즈의 항해를 추가하지 않았다.
 -->

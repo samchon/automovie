@@ -2,7 +2,7 @@
 
 ## Victory on land and defeat at sea {#nile}
 
-Factual parents: [the eastern expedition](../settings/100-history/020-life-and-memory.md#italy-and-egypt), [Nelson](../settings/050-people/010-ensemble.md#nelson), [Desaix](../settings/050-people/010-ensemble.md#desaix), [Kléber](../settings/050-people/010-ensemble.md#kleber), [Sidney Smith](../settings/050-people/010-ensemble.md#sidney-smith), [the power of knowledge](../settings/030-society/010-power-and-cost.md#dynasty-and-belief).
+Factual parents: [the eastern expedition](../settings/100-history/020-life-and-memory.md#italy-and-egypt), [Nelson](../settings/050-people/380-nelson.md#nelson), [Desaix](../settings/050-people/470-desaix.md#desaix), [Kléber](../settings/050-people/490-kleber.md#kleber), [Sidney Smith](../settings/050-people/500-sidney-smith.md#sidney-smith), [the power of knowledge](../settings/030-society/010-power-and-cost.md#dynasty-and-belief).
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 현재 `docs/body/settings/100-history/020-life-and-memory.md#italy-and-egypt`의 육전 승리·함대 패배·고립과 `docs/body/settings/050-people/010-ensemble.md#nelson`의 함대·수병 의존, `docs/body/settings/110-knowledge/010-information.md#access`를 시험했다. “소식이 닿고서야” 지휘부가 고립을 알아 새 동시 지식·전령 동선·해전 전술의 부모 보충 없이 사건이 성립한다.
 -->

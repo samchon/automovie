@@ -10,7 +10,7 @@ Assign each promised experience to the event or intended narrator contribution t
 
 Do not assign the same recognition, lesson or realization to be spoken or experienced repeatedly. Once realized, that knowledge must produce a new consequence or choice at its next use. Recording what someone already knows or their current state in several H2s for continuity is legitimate and is not another assignment to enact the recognition.
 
-A result label or writing policy that leaves the core progression for scripts to invent fails. Treatments create event connections; new world facts return to their settings owner. Exact speech, detailed blocking, and audiovisual execution remain for scripts unless a specific decision itself determines the cause or result. Concise prose, lists, and tables may fully decide an event without performing it.
+A result label or writing policy that leaves the core progression for scripts to invent fails. Treatments create event connections; new world facts return to their settings owner. Exact speech, detailed blocking, and audiovisual execution remain for scripts unless a specific decision itself determines the cause or result. Concise prose, lists, and tables may fully decide an event without performing it. Overprescribing scripts' work also fails: ordered argument inventories, prewritten recognitions or lessons and narrator sentences, incidental action order, and directions or prohibitions addressed to the next author leave no realization to create. Preserve only the detail that determines the event's cause or result.
 
 ## Is its information design usable? {#information-design}
 

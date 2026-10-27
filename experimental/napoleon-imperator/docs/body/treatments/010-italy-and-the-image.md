@@ -2,7 +2,7 @@
 
 ## Turning deprivation into the power to move {#campaign}
 
-Factual parents: [Italy](../settings/100-history/020-life-and-memory.md#italy-and-egypt), [finance](../settings/030-society/010-power-and-cost.md#finance), [occupation](../settings/030-society/010-power-and-cost.md#occupation), [Lannes](../settings/050-people/010-ensemble.md#lannes), [Murat](../settings/050-people/010-ensemble.md#murat), [Bourrienne](../settings/050-people/010-ensemble.md#bourrienne), [Duroc](../settings/050-people/010-ensemble.md#duroc).
+Factual parents: [Italy](../settings/100-history/020-life-and-memory.md#italy-and-egypt), [finance](../settings/030-society/010-power-and-cost.md#finance), [occupation](../settings/030-society/010-power-and-cost.md#occupation), [Lannes](../settings/050-people/150-lannes.md#lannes), [Murat](../settings/050-people/170-murat.md#murat), [Bourrienne](../settings/050-people/480-bourrienne.md#bourrienne), [Duroc](../settings/050-people/210-duroc.md#duroc).
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 현재 `docs/body/settings/100-history/020-life-and-memory.md#italy-and-egypt`의 분리·집중·연속 기동과 `docs/body/settings/030-society/010-power-and-cost.md#finance`·`docs/body/settings/030-society/010-power-and-cost.md#occupation`의 조달·주민 비용을 시험했다. “먼저 집중하는 선택”과 조달 후 재집중만으로 전역 연결이 정해져 개별 네 전투의 미채택 전술·날씨를 보충할 필요는 없었다. 이 부정은 네 전투 상세가 이미 완성되었다는 뜻이 아니다.
 -->
@@ -20,7 +20,7 @@ At Rivoli in January 1797, attacks appear from other directions while Joubert fa
 
 These four fights have different crises and outcomes: a river crossing in 1796, abandonment of a siege and attack after observation, three days of changing a blocked route, and night concentration and defense of a plateau in 1797. Distinguish the process by which money and supplies actually reach soldiers from the victory report; keep the established connection in which local people's livelihoods pay for the next maneuver. The shared achievement is compressed into the image of one person in the next section. In the documents, audiences, and peace settlement of 1797, Bourrienne and Duroc participate in transmitting that power through their already established functions. Do not newly place them as recipients of tactical orders in the preceding four battles.
 
-Additional performance parents: [Masséna in 1796–1797](../settings/050-people/020-roles-and-last-wishes.md#massena-italy), [Joubert at Rivoli](../settings/050-people/020-roles-and-last-wishes.md#joubert-rivoli). These are performance values for the already established rallying of troops, reporting, defense, and subsequent action; they add no new biographical event or later rank.
+Additional performance parents: [Masséna in 1796–1797](../settings/050-people/660-massena.md#massena-italy), [Joubert at Rivoli](../settings/050-people/670-joubert.md#joubert-rivoli). These are performance values for the already established rallying of troops, reporting, defense, and subsequent action; they add no new biographical event or later rank.
 
 ## Where the painting crossed and where the people crossed {#arcole}
 <!--
