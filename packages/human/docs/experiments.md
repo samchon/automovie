@@ -639,3 +639,19 @@ The fitters as of commits `d38a56009` (the area centroid and the length-averaged
 | check misses (count, largest) | thumb 96, 2.46; index 40, 1.62; middle 124, 4.11; ring 99, 6.34; pinky 806, 16.47 | thumb 97, 2.49; index 0; middle 149, 13.05; ring 667, 13.31; pinky 853, 14.17 | big 89, 2.97; index 446, 11.17; middle 4, 2.69; ring 278, 12.18; little 790, 12.04 | big 398, 11.15; index 97, 7.59; middle 18, 2.60; ring 98, 11.88; little 686, 9.81 |
 
 The palms' score has its least inside the bracket, at 1.03 mm; the feet's falls all the way to 1.01 mm, the bracket's lower end, so the criterion would take a still smaller length there and the 1 mm floor, not the data, ends the search. The inlier count `n` moves with the length (17,717 to 18,515 on palm_l), since each length's fit pairs and weighs its own inliers.
+
+### Trunk
+
+Run 18:16:37 to 18:47:24, 305,208 observed points.
+
+- Keys (station, mm): end 813.3, buttocks 886.0, iliac crests 1004.2, radius 1057.1, waist 1110.0, underbust 1189.5, chest 1260.0, radius 1324.1, acromia 1388.2, suprasternale 1418.2, neck ring 1425.0; N 96; rho 8.20 mm with one cap key, 12 keys in all. Every site of the identity file became its own key, none merged.
+- Regions: each arm's 344 to 368 points over 1268.4 to 1333.4 mm, 107.1 mm of chart wide; each leg's 672 to 696 points over 801.4 to 885.4 mm, 425.1 mm wide; each breast's 64 points over 1189.3 to 1329.5 mm, 140.2 mm wide; the buttocks' 72 points over 801.4 to 1106.4 mm, 456.2 mm wide.
+- Cross-validation: the score has its least inside the bracket, at 2.21 mm (2.19 and 2.23 mm score higher); inlier RMS 0.715 mm, tr A 768.0. The RMS per 20 mm of station runs 0.28 to 0.46 mm from 1080 to 1180 mm and 0.6 to 1.1 mm above it, and 1.2 to 1.8 mm in the bins below 1000 mm that hold inliers; the bins 840 to 860 and 920 to 940 mm hold none, lying under the leg root regions and the buttocks' window.
+- Check, against `c` 2.56 mm: arm_l 995 misses, largest 7.94 mm; arm_r 949, largest 11.58 mm; leg_l 2,644, largest 36.01 mm; leg_r 2,688, largest 35.94 mm; both breasts and the buttocks none. The arms' misses gather at 1255 to 1257 mm and 1329 to 1337 mm of station, the regions' lower and upper edges. The legs' lie in two bands: 816 to 821 mm, up to 14.9 mm, 3 to 8 mm outside the region; and 888 to 898 mm, rising from 5.4 to 36.0 mm with height and with distance outside the region (9 to 15 mm), the largest at (90.3, 931.1, ±155.3), beside the hips in front. Their cause is not traced, as section 4 sets; the renders judge them.
+
+### Left arm
+
+Run 18:28:19 to 18:49:24, 26,496 observed points.
+
+- Keys (arc length, mm): root 0.0, radius 32.0, upper arm girth 64.0, radius 100.0, 132.0 and 168.0, elbow 200.2, radius 224.2, forearm girth 248.2, radius 268.2, 292.2, 312.2, 336.2, 356.2, 376.2, 400.2 and 420.2, wrist 442.9 (the palm's key); family planes 17 to 129; 18 keys.
+- Cross-validation: the score falls with the length all the way to 1.01 mm, the bracket's lower end, as the feet's did, so the 1 mm floor and not the data ends the search; inlier RMS 0.095 mm, tr A 853.0.
