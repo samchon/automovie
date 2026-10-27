@@ -358,6 +358,106 @@ The rows at the front midline from 825.10 to 837.10 mm hold a narrow feature tha
 
 ### Head
 
+The numbers of this subsection were printed by these read-only scripts (outputs beside them):
+
+```text
+node --max-old-space-size=3072 --experimental-transform-types --no-warnings --import ./.shots/claude-scratch/hooks.ts .shots/claude-scratch/head/headCalibration.ts .shots/claude-scratch/head/head-calibration.txt
+node --max-old-space-size=3072 --experimental-transform-types --no-warnings --import ./.shots/claude-scratch/hooks.ts .shots/claude-scratch/head/headObservations.ts test/.shots/f1 .shots/claude-scratch/head/head-observations.txt
+node --max-old-space-size=3072 --experimental-transform-types --no-warnings --import ./.shots/claude-scratch/hooks.ts .shots/claude-scratch/head/headTopology.ts test/.shots/f1 .shots/claude-scratch/head/head-topology.txt
+node --max-old-space-size=3072 --experimental-transform-types --no-warnings --import ./.shots/claude-scratch/hooks.ts .shots/claude-scratch/head/headAxis.ts test/.shots/f1 .shots/claude-scratch/head/head-axis.txt
+node --max-old-space-size=3072 --experimental-transform-types --no-warnings --import ./.shots/claude-scratch/hooks.ts .shots/claude-scratch/head/headRegions.ts test/.shots/f1 .shots/claude-scratch/head/head-regions.txt
+node --max-old-space-size=3072 --experimental-transform-types --no-warnings --import ./.shots/claude-scratch/hooks.ts .shots/claude-scratch/head/headNostrils.ts test/.shots/f1 .shots/claude-scratch/head/head-nostrils.txt
+```
+
+Positions are registered millimetres (x forward, y up, z left). Landmark positions of `head-observations.json` take their lateral axis mirrored, as `fitEyeCalibration.ts:53`-`:57` mirrors it, so the left eyelid lies at +z; after the mirror the Frankfurt points `pt_frankfurt_fl` and `_rl` and the outer lid edges `crv_outer_eyelid_edge_right_*` lie at -z, so those names count their side the other way. Left and right agree to the printed digit unless a pair `left / right` is given.
+
+#### Joints and the head's frame
+
+- Bind joints (`head-observations.txt`): `neck_01 (-13.19, 1431.27, -0.02)`, `neck_02 (-1.81, 1483.32, -0.02)`, `head (9.07, 1537.35, -0.02)`. Only `neck_02` and `head` lie above `neck_01`: the skeleton has no jaw, eye, ear or other facial joint.
+- The line from `neck_02` through `head` (55.11 mm) leans 11.39 degrees forward of world up; `neck_01` to `neck_02` leans 12.33 degrees, 0.94 degrees from it. Station below is arc length along that line from `neck_02`.
+- The Frankfurt points (orbitales and porions) span a plane whose normal lies 7.71 degrees from the line and 3.69 degrees from world up; the fourth point lies 0.10 mm off the plane through the other three. The orbitales' midpoint minus the porions' midpoint, made normal to the line, is `(0.98, -0.20, 0.01)`.
+- The Neck Base course plane (normal `(0.50, 0.87, 0.00)`, survey Trunk) crosses the line at station -35.07 mm; the course spans stations -54.70 to -21.09 mm. `head` lies at 55.11 mm.
+- The crown, the exterior's farthest vertex along the line, is `(51.72, 1696.37, -0.22)` at station 219.42 mm, 10.42 mm in front of the line; the highest vertex `(15.34, 1699.69, -0.32)` lies at 215.50 mm. Landmark tops: ear curves 118.19, upper lid contact lines 133.60, eye creases 135.97, brow lines 153.33 mm.
+
+#### The head mesh's sheets and openings
+
+- `head-native.json` has render sections 0 (skin, 48004 triangles) and 1 to 8 (mouth interior and eye parts, among them the eyeballs 3 and 4, 1536 triangles each). The head-common exterior selection (`sections.head-common-ear-left-crosscourse-v1.json`, `head-common-exterior-v1`) keeps 37420 triangles, all of section 0; the 10584 others of section 0 form five disks (`head-observations.txt`, `head-topology.txt`), each bounded by one loop of the exterior:
+
+| Disk | Triangles, area | Its boundary loop lies on (mean / largest distance, mm) |
+| --- | --- | --- |
+| oral (lips and mouth lining) | 7304, 16017.3 mm2 | the outer lip contours with the philtrum, 0.36 / 0.86: the vermilion border; the loop's box equals the endpoint box of `AutoMovieHumanVermilionCalibration` |
+| eyelid interiors | 1136 each | the outer lid edges, 0.86 / 1.80 and 1.13 / 1.65; the lid contact lines 0.94 / 2.14 and 1.81 / 2.83 |
+| nostrils | 504 each | `crv_nostril_*`, 0.42 / 0.90 and 0.31 / 0.67 |
+
+- The landmark positions are not vertices of this mesh: each lies 0.02 to 2.97 mm from the nearest head-native vertex (the lid contact lines up to 1.48 mm, the outer lip contours up to 0.87 mm, the ear curves up to 2.97 mm; `head-regions.txt`), mirror pairs differ (the lobule connections 1.99 / 0.50 mm) although the mesh is mirror-symmetric, and the `vertexIds` they carry do not index head-native's vertices (278.8 mm apart; `head-topology.txt`). The `inner_lips` feature is a zipper definition of `vertexIds` without positions, so it cannot be placed on this mesh.
+- The vermilion: 2077 of the oral disk's triangles (1232.9 mm2, one connected piece, stations 49.5 to 73.8 mm, lateral -22.9 to 23.8 mm) see out of the head along the front axis without meeting another triangle; the rest of the oral disk lies behind the lip contact.
+- Each nostril's boundary loop lies within 0.75 / 0.66 mm of its least-squares plane; the plane normal, oriented away from the disk, is `(0.58, -0.72, 0.39)` / `(0.58, -0.74, -0.34)`, 0.90 / 0.66 degrees from the stored apertures' `forward`; the disk's deepest point lies 7.96 / 7.93 mm behind the plane, against the stored pockets of 8.96 / 8.68 mm (`head-nostrils.txt`).
+
+#### Head families against the sheets
+
+Nodes at 8 per Hermite span, each labelled by its nearest triangle (`head-observations.txt`):
+
+| Family | Sections | Loops, open pieces | Nodes on a disk or another render section |
+| --- | --- | --- | --- |
+| `horizontal-exterior-lower-v1` | 272, 1400.0 to 1535.5 mm | 216, 72 | oral 53 |
+| `horizontal-exterior-v1` | 329, 1536.0 to 1700.0 mm | 446, 74 | eyelids 38 / 37, nostrils 17 / 7; eyeballs and other sections 7050 |
+| `horizontal-exterior-helix-v1`, `-lobe-v1` | 71 and 36, at 0.1 mm | 328 and 78, 56 and 2 | eyeballs and other sections 8002 (helix) |
+| `horizontal-v1` (all of section 0) | 169, 1530.0 to 1614.0 mm | 277, 0 | oral 9981 in 45 sections, eyelids 1750 / 1811, nostrils 853 / 950 |
+| `tilted-lower-v1` (exterior with the disks below 1570 mm restored) | 237, origins 1425.0 to 1543.0 mm | 299, 0 | oral 12261 in 53 sections |
+| `rim-normal-v1` | 73 | 62, 33 | disks 8, other sections 9 |
+| saved loft, rows above 1400 mm | 2597 | 12993, 0 | oral 142083, eyelids 48600 / 40049, nostrils 1054 / 835; other sections 658702 |
+
+The exterior families include the eyeballs (sections 3 and 4) so that rows cross the palpebral openings (`observeEarSections.ts:103`-`:113`); `tilted-lower-v1` and `horizontal-v1` run into the mouth along the lips' inner faces; the exterior families' rows end at the disks as open pieces.
+
+#### Sections along the head
+
+- Normal planes of the line (`head-topology.txt`): one closed exterior loop from station -54 to 48 mm; open chains where a plane crosses the mouth (50 to 74), the nostrils (84 to 90) and the eyes (122 to 132); one loop holding both auricles from 92 to 112 mm (largest area 24377.5 mm2 at 100), 2 or 3 loops at 114 to 118 mm (the helices); from 134 mm one loop, its area largest at 138 mm (23786.5 mm2) and falling to the crown.
+- Planes normal to the lateral axis (`head-topology.txt`): the auricle's loop parts from the head's at offset 77.0 / 76.0 mm (perimeters 175.9 / 178.1 mm, the head's 117.8 / 145.3 mm) and shrinks to its last loop at 96.0 / 94.0 mm; the concha shows as an inner loop from 65 / 64 to 69 mm (up to 49.0 / 47.9 mm); small separate loops of the helix's curl appear at 73 to 74 and 91 / 89 mm.
+- The submental skin: the area-weighted 10th percentile of its angle to the line's normal planes is 3.4 to 13.7 degrees at stations 8 and 10 mm within 20 mm of the midsagittal plane, and 16.1 degrees or more 20 to 50 mm out along the jaw (`head-regions.txt`); to the horizontal it is 4.1 to 7.5 degrees (`head-topology.txt`). A cubic from the neck ring centre with the Neck Base plane's normal as its tangent to `head` (or through `head` to the crown) turns its normal planes from 30.0 degrees at the ring to 8.3 to 12.2 degrees at stations 0 to 10 mm and leaves them 1.3 to 2.8 degrees from the skin there (`head-axis.txt`). No curve through the neck and head joints crosses the submental skin steeply: the joints lean 11 to 12 degrees and the skin 4 to 8 degrees.
+
+#### Feature regions as height fields
+
+Bounds on `max_a min_i n_i . a` over the region's exterior triangle normals, by Gilbert's minimum-norm point of their convex hull (`head-observations.txt`, `head-regions.txt`; regions are convex hulls of landmarks seen along the front axis, the auricles' along the lateral axis, the chin's along the bisector of front and down):
+
+| Region | Least cosine | Axis |
+| --- | --- | --- |
+| nose: nasion estimate, inner eye corners, nostrils | 0.013 to 0.016 | `(0.97, -0.26, 0.00)` |
+| nose as `fitHeadBase.ts:314`-`:316` takes it (with the alar points) | none: the origin lies in the hull; 94 triangles at stations 92 to 98 mm, 15 to 18 mm lateral, face backward | - |
+| lips: outer lip contours, mentolabial fold, mouth corners, exterior and vermilion | 0.020 to 0.022 | `(0.97, -0.21, -0.08)` |
+| chin: mentolabial fold and the Neck Base course's front half, on the head's side of its plane | 0.095 to 0.096 | `(0.95, -0.31, 0.00)` |
+| chin and jaw to the lobule connections; brows (brow line and eye crease) | none | - |
+| auricles (every ear landmark) | none | - |
+
+#### The eye openings
+
+- `AutoMovieHumanEyeCalibration`: Fourier order 24, `forward (1, 0, 0)`, depth 4, no `base`; margins 1587.23 to 1597.74 / 1586.82 to 1597.43 mm high, 77.63 / 77.37 mm long; globes `(96.06, 1594.83, 31.48)` / `(94.71, 1593.90, -31.59)`, radius 11.392 mm (`head-calibration.txt`). Both are absolute world coordinates.
+- `AutoMovieHumanEyelid.create` puts the medial canthus at 16.92 / 16.89 mm and the lateral at 14.68 / 14.54 mm from the gaze axis, beyond the globe's 12 mm radius; 135 / 134 of its 360 margin samples lie past 0.95 of that radius, where the posterior edge keeps the margin's own depth instead of resting on the globe (`AutoMovieHumanEyelid.ts:240`-`:249`).
+- World axes the eye code reads: the gaze `forward` (1, 0, 0) (`fitEyeCalibration.ts:283`, `AutoMovieHuman.ts:179`), up as world up made normal to it (`AutoMovieHumanEyelid.ts:293`, `AutoMovieHuman.ts:180`), the medial canthus as the one nearer z = 0 (`AutoMovieHumanEyelid.ts:188`-`:190`), the outline's lateral as `forward x` world up (`AutoMovieHumanLoftAperture.ts:120`-`:124`).
+- Rule constants of the lid (`AutoMovieHumanEyelid.ts:57`-`:75`: band 2.5, depths 1.0 and 0.8, offset 0.25, taper 5, merge 0.3, gap 0.03, clearance 0.5 mm; `AutoMovieHumanEyelidProfile.ts:12`, `:18`, `:24`, `:109`) and of the pocket (`AutoMovieHumanAperturePocket.ts:16`, `:121`-`:123`) are appearance conventions of the generator, not fitted values.
+
+#### What the head fitters read
+
+- `fitHeadBase.ts` reads the world-height calibration (`:58`): `head.lower`, `head.middle`, `head.upper` (`:97`-`:107`) for its station range, tilted planes and start keys (the calibration's rings smoothed to 4 cycles, `:193`-`:207`), its crown pole (`:154`) and its end key (`:155`-`:166`); the eye apertures (`:59`, `:109`-`:127`). Its other rules: the identity's sites as keys (`:169`-`:192`), the `sin(theta)` cap (`:209`-`:235`), regions from landmark hulls on a 256-column chart of radius 80 mm (`:246`-`:347`), a mask grown by 4.5 mm (`:377`-`:381`), the biweight with stiffness halving and key insertion (`:396`-`:449`) or GCV (`:458`-`:467`), and the 15 mm check (`:481`-`:538`).
+- `fitHeadReliefs.ts` reads the eye apertures (`:22`, `:47`-`:65`) and the base fit's `regions` and `radius` (`:43`, `:90`); windows are region boxes grown by 4.5 mm (`:31`-`:33`, `:96`-`:97`), the nose fitted before the lips (`:82`).
+- `fitAuricleSet.ts` and `runAuricleSet.ts` read the base fit's chain, `regions`, `radius` and `scale` only; `fitEyeCalibration.ts` reads `AutoMovieHumanEyeGlobe` only; `planHeadSections.ts` reads nothing and carries `TILT` 0.25, `RISE` 62.5, `HOLD` 12.5, `FALL` 36 mm (`:34`-`:39`), the planes of `tilted-lower-v1`.
+- `EarSectionGeometry.ts` (imported by nothing) carries the eyeball test (`x > 70`, `|z|` 12 to 52, perimeter below 110 mm, `:171`), the 0.3 mm stitch and 8 mm bridge (`:201`, `:220`) and the slit rule (40, 20, 2.5 and 60 mm, `:261`-`:285`).
+
+#### Observations on f1 only
+
+`ear-observations/` (all seven families) and `body-sections/` exist on f1 alone. `head-native.json`, `head-observations.json`, `body-observations.json`, the saved loft and the head-common section families (the exterior selection among them) exist for f1, f2, m1 and m2 (`ls test/.shots/<alias>`).
+
+#### Defects and their causes
+
+| Defect | Traced cause |
+| --- | --- |
+| Ledge from each lateral canthus to the temple, line at eye height (#2978, #2979) | One section per height crosses the eyes: the exterior rows at 1586.5 to 1597.5 mm break at the palpebral openings (open pieces) and the fitter interpolated across them (Open defects); `head.middle`'s layers at 1589.0 to 1595.5 mm carry 32 to 52 curvature sign changes and `head.upper`'s at 1596.3 mm 34 (`head-calibration.txt`); the eye apertures come from landmark curves 0.94 to 1.81 mm (mean) off the observed eyelid edge (sheets table), so the cut outline and the lofted skin come from different surfaces |
+| Lateral canthus open past the globe, lid teeth (#2979) | The canthi lie 14.5 to 16.9 mm from the gaze axis, beyond the 12 mm globe, where the posterior edge keeps the margin's depth (above); the opening is clipped by position out of a bridged loft (`AutoMovieHumanBodyApertures.ts:223`-`:426`, no `base`), and the lid band takes one column per cut vertex (`AutoMovieHumanEyelidSurface.ts:28`-`:87`), so its columns follow the clipped triangles |
+| Auricle stairs, ripples, helix-root trace, rim and lobe joins (#2984) | The auricles ride in `head.middle`'s whole-head sections (29 layers, 16 to 52 sign changes); the helix, rim, pocket and lobe chains have layers 0.1 mm apart with 8 to 36 sign changes; the helices leave through one up event at 1595.5 mm and the lobes through a down event at 1543.2 mm, joined by the event join and `ringBlend` |
+| Lip notch at each commissure, light patch at the left one (#2980) | `head.lower`'s tilted layers ring at the lips (6 to 18 sign changes from 1519.0 mm up); the oral line crosses those layers; `AutoMovieHumanLipSmoothing` and `AutoMovieHumanCornerSmoothing` act after the fit. The light patch is not traced further |
+| Rough nostril rims (#2983) | The nostril apertures have no `base`, so they are clipped by position out of a bridged loft, and the pocket starts from cut triangles' jets averaged along the rim (`AutoMovieHumanAperturePocket.ts:67`-`:88`) rather than the skin's own derivative; the stored pocket depths exceed the observed cavity's by 1.00 / 0.75 mm |
+| Line under the chin | `head.lower`'s layers at 1494.5 to 1502.0 mm advance unevenly (Open defects); every plane family through the neck joints grazes the submental skin (3.4 degrees at station 8 mm), so one plane meets the throat and the next the chin underside, which `planHeadSections.ts`'s invented tilt profile met |
+| Vertical striations on the forehead | `head.upper`'s 256-point layers from 1608.5 to 1698.5 mm show no curvature sign change above 1/50 per mm, so the striations lie below that scale: phase noise of 256-point sections fitted to faceted rows (Open defects), not traced further |
+
 ### Hand
 
 The numbers of this subsection were printed by these read-only scripts (outputs beside them):
@@ -433,6 +533,73 @@ No hand fitter reads the world-height calibration; `fitStrip.ts:40` imports only
 
 ### Arm
 
+The numbers of this subsection were printed by these read-only scripts (outputs beside them):
+
+```text
+node --max-old-space-size=3072 --experimental-transform-types --no-warnings --import ./.shots/claude-scratch/hooks.ts .shots/claude-scratch/arm/armSurvey.ts test/.shots/f1 .shots/claude-scratch/arm/arm-survey.txt
+node --max-old-space-size=3072 --experimental-transform-types --no-warnings --import ./.shots/claude-scratch/hooks.ts .shots/claude-scratch/arm/armFrames.ts .shots/claude-scratch/arm/arm-frames.txt test/.shots/f1 test/.shots/f2 test/.shots/m1 test/.shots/m2
+node --max-old-space-size=3072 --experimental-transform-types --no-warnings --import ./.shots/claude-scratch/hooks.ts .shots/claude-scratch/arm/armCoverage.ts test/.shots/f1 18 18 .shots/claude-scratch/arm/arm-coverage.txt
+node --max-old-space-size=3072 --experimental-transform-types --no-warnings --import ./.shots/claude-scratch/hooks.ts .shots/claude-scratch/arm/armElbowFan.ts test/.shots/f1 l .shots/claude-scratch/arm/arm-elbow-fan.txt
+node --max-old-space-size=3072 --experimental-transform-types --no-warnings --import ./.shots/claude-scratch/hooks.ts .shots/claude-scratch/arm/armCalibration.ts test/.shots/f1 .shots/claude-scratch/arm/arm-calibration.txt
+```
+
+Positions are registered millimetres (x forward, y up, z left). Left and right agree to the printed digit unless a pair `left / right` is given. A meridian is a half-plane through the humerus line, its angle measured about the line from the front axis toward along × front.
+
+#### Joints, frames and the anchor
+
+- Bind joints (`HumanBodySkeleton.read`): `upperarm_l (-16.3, 1353.2, 142.2)`, `lowerarm_l (-9.1, 1140.1, 304.9)`, `hand_l (140.7, 993.5, 427.2)`; upper arm 268.18 mm, forearm 242.71 mm, `clavicle_l` to `upperarm_l` 135.13 mm. The elbow bends 36.65 degrees and the wrist 2.49 degrees; the humerus lies 37.38 degrees from world down (the bind pose abducts the arms, Experiment findings). On f2, m1 and m2 the elbow's bend, the humerus's direction and the front axis below agree with f1's to the printed digit (`arm-frames.txt`).
+- Axes from joint centres: along, `upperarm` to `lowerarm`, is `(0.027, -0.795, 0.606)` / `(0.027, -0.795, -0.606)`; front, the forearm's direction (`lowerarm` to `hand`) made normal to along, is `(0.998, 0.056, 0.029)` / `(0.998, 0.056, -0.029)`, 3.64 degrees from world forward; along × front is `(-0.057, 0.604, 0.795)` / `(0.057, -0.604, 0.795)`, toward the body's left on both arms. As a check only: the rig's corrective joints `upperarm_bicep` and `upperarm_fwd` lie off the humerus 0.71 and 0.40 degrees from front on f1, `upperarm_tricep` and `upperarm_bck` 170.33 and 175.23 degrees from it; over the four people the bicep joint lies 0.71 to 18.48 degrees from front and the tricep joint 170.33 to 171.82 degrees.
+- The anchor's record: `upperarm_<s>`'s `bindNativeAffineColumnMajor16`, registered as the translations are, is orthonormal to `max |A^T A - I|` 1.15e-6 / 1.04e-6, and its polar factor (Higham's iteration) turns no column at the printed digit. Its columns are minus along, front and minus along × front on the left arm, and along, minus front and minus along × front on the right. `lowerarm_<s>`'s third column lies 180 degrees from along × forearm, so the rig's elbow hinge is the joint centres' bend axis. `HumanBodySkeleton.read` keeps the translations only (`HumanBodySkeleton.ts:36`-`:39`).
+- The palm's front by the Hand's rule lies 98.55 degrees from the arm's front (98.55 to 99.68 over the four people). The arm's front, made normal to plane 18's normal and carried plane to plane by double-reflection transport to the wrist plane, lies 99.57 / -99.57 degrees from the palm's front there.
+
+#### The arm family and its root
+
+- The arm family (`arm_<s>-v2.json.gz`) is one axis `upperarm`, `lowerarm`, `hand`, `middle_01` (`planBodySections.ts:107`-`:111`): 151 planes over 590.94 mm, counted every 4 mm from each joint (`:193`-`:196`), `u` from world forward (`:144`-`:148`). Joint planes: `upperarm` 0, `lowerarm` 68 (268.18 mm), `hand` 129 (510.88 mm), `middle_01` 150. The planes turn across the elbow at planes 59 to 77 / 59 to 76 and across the wrist at 123 to 135 (`:186`, `:197`-`:212`).
+- Inside the elbow's turn (left arm, `arm-elbow-fan.txt`) neighbouring planes meet 107.2 to 115.0 mm from their origins toward meridian 0, the flexion side, and each loop's point nearest the next plane lies 30.0 to 34.8 mm from its origin. Plane 67 lies just before the elbow's plane, since planes are counted from each joint, so its loop comes within 0.12 mm of plane 68 without crossing it. From plane 18 to 128 no loop reaches past its next plane, and no loop straddles plane 18's or the wrist plane, nor do theirs straddle it.
+- Every plane keeps one loop round its origin (`observeBodySections.ts:211`), with 0 to 5 others left out; the file's status is `partial`, with 251 / 249 diagnostics. Planes 0 to 16 hold loops joined to the trunk, of 83 to 152 / 75 to 159 spans; planes 17 to 128 hold 6 to 62 / 6 to 68 spans, the most at plane 43.
+- The separated root: plane 17, 68.00 mm from `upperarm` (46 / 43 spans, perimeter 283.6 / 283.8 mm, the `-root-v2` key of `findRootKeys.ts:49`-`:55`, `:111`-`:116`), is the first plane whose loop winds round neither the trunk axis's crossing nor the crossing of the other arm's or either leg's bone polyline. Planes 0 to 16 wind round the trunk axis's crossing only, so the shared sibling test keeps plane 17 on f1.
+- Coverage: over the connected part of the welded skin strictly between plane 18 and the wrist plane that holds the vertex nearest the elbow joint (2267 vertices), the distance to the nearest observed point of planes 18 to 128 has median 1.18 / 1.15, 99th percentile 2.54 / 2.51 and maximum 3.16 / 3.04 mm; within 40 mm of the elbow joint's station the maximum is 2.78 / 3.04 mm (`arm-coverage.txt`).
+
+#### The arm's share of the trunk rows
+
+The armscye plane and the cuts below are the Trunk's (survey, Trunk), recomputed in `arm-survey.txt`.
+
+- The armscye plane lies 60.63 / 60.70 degrees from the root plane's normal. `upperarm_<s>` lies 0.05 / 0.00 mm from it, and the humerus line crosses it 0.1 / 0.0 mm from the joint. The outer armscye boundary, the front-most and back-most crossing of each row from 1275.10 to 1409.10 mm (126 points), winds once round that crossing, and its meridian turns monotonically along it; so does plane 18's loop's (`arm-coverage.txt`).
+- The rows 1277.10 and 1279.10 mm cross the plane four times. Their arcs, in order, are arm 12.8, trunk 16.6, arm 256.5, trunk 1147.5 mm and arm 16.8, trunk 3.3, arm 252.9, trunk 1109.6 mm on the left, and arm 254.8, trunk 17.9, arm 11.6, trunk 1149.1 mm and arm 252.3, trunk 4.6, arm 15.5, trunk 1110.2 mm on the right: a short trunk arc inside the axillary hollow between two arm-side arcs.
+- At 32 samples per span the rows hold 39924 / 40056 samples on the arm side of the armscye plane and not distal of the root loop, and 16230 / 17216 distal of it.
+- Plane 17's loop lies -2.65 / -2.93 to 76.91 / 76.82 mm from the armscye plane (positive on the arm side), and the armscye boundary reaches 0.08 / 0.19 mm past plane 17. Plane 18 is the first plane with the whole boundary before it, at least 3.92 / 3.81 mm; its loop lies -2.05 / -2.09 to 78.21 / 78.11 mm from the armscye plane, its points on the trunk's side 1268.9 to 1272.2 / 1272.3 mm high, below the axilla's row, where the rows hold the upper arm apart from the trunk. Plane 17's points on the trunk's side lie 1273.2 / 1273.1 to 1277.0 / 1277.2 mm high. Plane 20 is the first whose loop lies wholly on the arm side (from 0.08 / 0.05 mm).
+- On 64 meridians the chord from the outer armscye boundary to plane 18's loop runs from 4.3 / 3.9 mm at meridian -73.1 / 73.1 degrees, the front of the axilla, to 123.5 mm at 101.3 / -101.2 degrees, over the shoulder; the axilla lies at meridian -125.1 / 126.1 degrees and the shoulder point at 122.7 / -122.7 degrees.
+- Along the root plane's normal toward the trunk, the lines of 193 of the separated root loop's 368 points (8 per span) / 185 of 344 enter no trunk row's kept polygon (the trunk's side after the root and armscye cuts, its gaps closed by chords). All of them lie 1304.2 to 1329.6 mm high and 48.2 / 48.0 to 76.9 / 76.8 mm on the arm side of the armscye plane, where the humerus's direction passes over the shoulder; the others enter 3.8 / 2.4 to 103.0 mm from their points.
+- Coverage of the strip's skin (welded skin on the arm side of the armscye plane, proximal of plane 18, nearest the clavicle, the humerus or the forearm; 311 / 309 vertices): against the rows' arm-side arcs not distal of the root loop alone, median 0.67 / 0.66 and maximum 6.30 / 6.37 mm, at `(-39.7, 1270.0, 152.9)` / `(-39.7, 1270.0, -153.0)`, below the axilla's row; with plane 17's loop as well, maximum 4.43 mm, at `(-26.4, 1393.1, 170.8)` / `(-26.4, 1393.1, -170.9)` on the shoulder.
+
+#### World-height arm calibration and its consumers
+
+- `AutoMovieHumanTorsoCalibration`'s `arm.<s>` (`arm-calibration.txt`): order 128, rule `arclength`, 24 horizontal layers from 957.6 to 1276.6 mm, 1.0 to 40.0 mm apart (40.0 mm from 1033.8 to 1073.8 mm). Between its layers its axis lies 28.5 to 63.2 degrees from the vertical, the angle at which each horizontal section cuts the arm off its cross-section. Its bottom axis point lies 54.2 mm from `hand_<s>`, 51.2 mm along the 80.1 mm hand bone, inside the palm; its top axis point lies 94.3 mm from `upperarm_<s>`. `upper` splits down at its bottom ring (1276.57 mm, Trunk) into `trunk` and the arms, the arms' arcs `[1.133..2.308]` and `[3.975..5.149]`; `arm.<s>` splits down into `thumb.<s>` and `hand.<s>.1` (Hand). No trim or pole names an arm chain.
+- Repairs acting on it: `AutoMovieHumanContactSmoothing`'s `upper` row (20, 20 and 15 mm) at the axillary ring and its `arm|hand` row (`:132`, `:135`), whose comment records that "the axillary ring rang 56 times on the shoulder side and 62 on the trunk's (a lump at the front of each armpit under raking light)" (`:38`-`:40`); the event join; `ringBlend` within 4 mm of the ring; the warp's stretch of each arm along its axis from the axillary ring (`AutoMovieHumanBodyWarpField.ts:56`-`:57`, `:359`-`:388`, `:668`-`:688`) at the girth stations of `AutoMovieHumanBodyGirth.ts:96`-`:106`.
+- `AutoMovieHumanJointCentres.ts:172`-`:232`: the arm's radius at its top station (`:174`); the shoulder height `min(0.8 S, top of upper)` and the glenohumeral and sternoclavicular points from `upper`'s ring there (`:175`-`:199`); the wrist at `arm.<s>`'s bottom end (`:200`), inside the palm; the elbow at `0.162 / (0.162 + 0.151)` of the polyline from that glenohumeral point down the arm's stations (`:201`-`:204`); the forearm's radius at the station `(elbow y + wrist y) / 2`, a height taken as a station (`:231`).
+- `AutoMovieHumanSkinLandmarks.ts:109`-`:110`, `:122`-`:129`, `:149`-`:163`: the wrist is the arm chain's extreme nearer the palm's centroid, the elbow the point 0.55 of the way between the chain's extremes, its spread 0.07 of their distance. `AutoMovieHumanSkinTone.ts:233`-`:258` fades palmar skin in on `arm.` chains from that wrist, and `:260`-`:275` takes the elbow's posterior side against world -X (`:268`). `AutoMovieHumanSkinMarks.ts:336` weights freckles 0.6 on `arm.`. `AutoMovieHumanGarmentBody.ts:295`-`:306` covers no arm part, and `:336`-`:340` takes the axilla as the trunk part's highest vertex, the axillary ring.
+
+#### What the arm fitters read
+
+- Neither reads the world-height calibration: `fitAppendage.ts:38`-`:39` imports two types, and `fitStrip.ts:38`-`:46` imports generator modules and the `IAppendage` type.
+- `fitAppendage.ts` (arm path) reads the arm family, its planes and its `-root-v2` file (`:83`-`:85`) and the palm's fit as the wrist key's owner, and requires the palm's first key at the arm's own station of the wrist plane (`:141`-`:148`). It keys the separated root, the elbow, the identity's `upperArmGirth`, `forearmGirth` and `wrist` sites (`.shots/claude-scratch/<alias>-identity.json`) and the wrist plane, merged by `keyStations` (`:50`-`:53`, `:202`-`:235`); carries the key axes back from the palm's key (`:239`-`:242`); names the chain `arm.<side>` (`:76`); takes N 64 (`:46`); and fits the planes from the root through the wrist plane (`:307`) with the biweight, `CAP` 6 mm, two rounds and GCV (`:322`-`:327`).
+- `fitStrip.ts` (arm path) reads the trunk fit's `radius` and `regions["arm_<s>"]` (`:114`, `:340`-`:359`), the `-root-v2` loop with its plane's normal as the trim direction (`:120`-`:122`) and the carried rule (`:123`-`:143`). Its observations are the saved loft and the trunk rows between the trunk fit's cap pole height and its last key's station, both world heights, keeping loops that wind round the bind axis at the point's height (`:283`-`:320`), inside the carried region (`:360`-`:366`), plus the arm family's planes before the `-root-v2` index (`:367`-`:377`).
+
+#### Open defects and their causes
+
+| Defect | Cause |
+| --- | --- |
+| Armpit lump at the front of each armpit (world-height calibration, rendered today; #2985) | The arm's top ring is `upper`'s horizontal contact ring at 1276.57 mm, cut at pinch phases; it rang 56 and 62 times before the contact low-pass (`AutoMovieHumanContactSmoothing.ts:38`-`:40`), which with the event join and `ringBlend` repairs it after the fit (root causes 2, 3 and 4); the Trunk subsection traces the trunk's side |
+| Wrist joint centre and the palmar fade's wrist inside the palm (world-height calibration) | `AutoMovieHumanJointCentres.ts:200` and `AutoMovieHumanSkinLandmarks.ts:122`-`:129` take the wrist at the arm chain's bottom, 54.2 mm from `hand_<s>`, where `arm.<s>` splits into the thumb and the palm |
+| Elbow placed by fractions of chain extremes, its back against world -X (world-height calibration) | `AutoMovieHumanJointCentres.ts:201`-`:204` and `AutoMovieHumanSkinLandmarks.ts:149`-`:163` place the elbow by fractions of polylines whose ends are an estimated glenohumeral point or the axillary ring and the bottom inside the palm; `AutoMovieHumanSkinTone.ts:268` reads world -X |
+| Arm trim off the trunk over the shoulder | `fitStrip.ts:123`-`:143` carries each root-loop point along the root plane's normal and, failing a sample within one cell of that line, takes the nearest sample; for 193 / 185 points the line meets no trunk, since the humerus's direction lies 60.63 / 60.70 degrees from the armscye's normal |
+| Strip crossed at the axilla | The armscye boundary reaches 0.08 / 0.19 mm past the separated root's plane, and its loop 2.65 / 2.93 mm onto the trunk's side of the armscye plane: the separated root is the first plane past the axillary saddle, where the trunk's boundary also passes |
+| Strip observations counted twice and selected by the cell rule | `fitStrip.ts:283`-`:378` takes the trunk's nodes in its carried region (saved loft and trunk rows) and the arm planes before the root, whose joined loops observe skin the trunk rows observe |
+| The arm fit observes the palm's wrist plane | `fitAppendage.ts:307` keeps the planes through the wrist plane, the palm's key (Hand) |
+| The wrist key's owner refused | `fitAppendage.ts:147` requires the palm's first key at the arm's station of the wrist plane; the palm's stations start at 0 at the wrist (Hand) |
+| Arm keys at sites and joints | `fitAppendage.ts:202`-`:235` (the `keyStations` row of the Shared fitting code table) |
+| The arm's axes and keys in the world | The planner's `u` from world forward (`planBodySections.ts:144`-`:148`) and keys stored in the world with no anchor (the module-frame row of the Shared fitting code table) |
+
 ### Foot
 
 The numbers of this subsection were printed by these read-only scripts (outputs beside them):
@@ -499,6 +666,73 @@ No foot fitter reads the world-height calibration. `fitBodyBase.ts` (foot path) 
 | Toe tips and webs depend on repairs (world-height calibration) | Fan poles at the toe tips replaced by `domeBase` domes and web rings low-passed by `AutoMovieHumanContactSmoothing`; repairs after the fit, retired with the rows |
 
 ### Leg
+
+The numbers of this subsection were printed by these read-only scripts (outputs beside them):
+
+```text
+node --max-old-space-size=3072 --experimental-transform-types --no-warnings --import ./.shots/claude-scratch/hooks.ts .shots/claude-scratch/leg/legSurvey.ts test/.shots/f1 .shots/claude-scratch/leg/leg-survey.txt
+node --max-old-space-size=3072 --experimental-transform-types --no-warnings --import ./.shots/claude-scratch/hooks.ts .shots/claude-scratch/leg/legDetail.ts test/.shots/f1 .shots/claude-scratch/leg/leg-detail.txt
+node --max-old-space-size=3072 --experimental-transform-types --no-warnings --import ./.shots/claude-scratch/hooks.ts .shots/claude-scratch/leg/legFrames.ts test/.shots/f1 .shots/claude-scratch/leg/leg-frames.txt
+node --max-old-space-size=3072 --experimental-transform-types --no-warnings --import ./.shots/claude-scratch/hooks.ts .shots/claude-scratch/leg/legTrim.ts test/.shots/f1 .shots/claude-scratch/leg/leg-trim.txt
+for s in 1 2; do awk -v S=$s 'BEGIN{split("0 45 90 135 165 180 195 210 225 240 255 270 315",az," ")} /^=== side/{side++} side==S && /^    plane/{for(i=3;i<=NF;i++){v=$i; sub(/\[.*/,"",v); v+=0; if(v>50) continue; k=i-2; if(!(k in mn)||v<mn[k]){mn[k]=v; mnp[k]=$2} if(!(k in mx)||v>mx[k]){mx[k]=v; mxp[k]=$2}}} END{for(k=1;k<=13;k++) printf "az %s: %.2f (%s) .. %.2f (%s)\n", az[k], mn[k], mnp[k], mx[k], mxp[k]}' .shots/claude-scratch/leg/leg-detail.txt; echo; done
+```
+
+The `awk` loop printed, to the terminal, each azimuth's least and greatest calibration-minus-observed radius over planes 24..40 per side from `leg-detail.txt`, leaving out the one cell above 50 mm (plane 24, azimuth 240, below).
+
+Positions are registered millimetres (x forward, y up, z left). An azimuth in a leg plane runs from the leg's front (0) through lateral (90) and back (180) to medial (270). Left and right agree to the printed digit unless a pair `left / right` is given.
+
+#### Joints, family and frames
+
+- Bind joints (`HumanBodySkeleton.read`): `thigh_l (25.4, 904.8, 96.6)`, `calf_l (16.3, 466.9, 117.1)`, `foot_l (1.2, 74.7, 134.4)`, `ball_l (133.1, 9.2, 157.2)`; femur 438.51 mm, shank 392.83 mm; the knee bends 1.03 degrees, the ankle 65.72. The four joints are coplanar: `ball` lies 0.090 mm off the plane through the other three. The knee's bend axis (femur x shank) and the ankle's (shank x foot bone, the Foot's `e3`) lie 0.04 degrees apart, and so does the third column of the bind affines of `thigh_<s>` and `calf_<s>`, registered as the positions are: the rig's hinge of the whole leg (`leg-frames.txt`). The affines' first column runs along the bone on the left and against it on the right (the rig's own convention per side). `HumanBodySkeleton.read` swaps the source's side suffixes on f1 (`HumanBodySkeleton.ts:40`-`:45`), so the source's `thigh_r` record is the calibration's `thigh_l`.
+- The leg family (`leg_<s>-v2.json.gz`, axis `thigh`, `calf`, `foot`, `ball`, `planBodySections.ts:109`): planes every 4 mm counted from each joint (`:193`-`:196`). The knee plane, through `calf_<s>`, is index 110 at 438.5 mm of arc from the thigh joint; the ankle plane, through `foot_<s>`, index 209 at 831.3 mm, and plane 208 lies 0.8 mm before it. The planes turn from the femur to the shank over planes 96..123 (-54.5..52.0 mm about the knee plane) and toward the foot from plane 197 (44.8 mm before the ankle plane). Every plane 0..208 keeps one loop round its origin (`observeBodySections.ts:211`), and no loop reaches past its next plane (the largest reach is -0.22 mm, plane 208 against the ankle plane). The file's status is `partial`, with 371 / 370 diagnostics. Loops of planes 24..208 have up to 87 / 90 Hermite spans; planes 0..23 up to 149 / 148.
+- Planes 0..23 hold one loop round both the bind axis's crossing (as `findRootKeys.ts:49`-`:55` continues it below the pelvis) and the other leg's bone polyline's crossing, 985.7 to 1198.5 / 1198.4 mm long: the pelvis with both thighs. Plane 24 is the first whose loop winds round neither, nor round either arm's bone polyline, the same plane as `leg_<s>-root-v2.json`'s index on both sides. The planner's in-plane u is world forward made normal to the plane (`planBodySections.ts:144`-`:148`).
+- Front axes. The trunk's forward at the pelvis (the Trunk plan's rule: the natural spline's tangent through the spine joints, the hip axis) carried onto the femur by the least rotation from the trunk axis's downward direction lies 1.18 degrees from +x; carried by rotation-minimising transport over the family planes from plane 24 to the ankle plane, it meets the foot's ankle key axis (`u = e3 x n`, the Foot plan) 8.32 degrees off (`leg-detail.txt`). The front built from the ankle's bend axis (lateral `e3` made normal to the femur, front = lateral x along) lies 8.47 degrees from +x and meets the foot's ankle key axis 0.00 degrees off (`leg-frames.txt`): the leg's hinge plane, which holds all four joints, is turned out of the trunk's sagittal plane. The knee's bend axis is the same line but rests on a 1.03-degree bend.
+
+#### Root loops and the crotch
+
+- Root loop, plane 24 at 96.00 mm of arc: normal `(-0.021, -0.999, ±0.047)`, along the femur; 87 / 84 spans, 647.4 / 647.3 mm; heights 803.9 to 813.3 mm; 117.1 mm at most from the bone line (Experiment findings: 117 to 126 mm for loops standing apart from the other femur, 308 to 310 mm on m1 and m2 for loops tested against the bind axis alone).
+- The two root loops come within 2.67 mm of each other. Their medial-most points `(8.3, 804.6, 1.3)` / `(5.7, 804.6, -1.3)` lie 1.31 / 1.29 mm from the midline. The crotch, the Rise course's lowest point `(-0.3, 805.1, -0.0)`, carried along the root plane's normal lies outside both loops, 0.43 mm on the trunk's side of the root plane and 1.47 / 1.72 mm from the nearest root loop point.
+- The trunk rows' points distal of the root plane within 150 mm of the femur line, 1024 / 1027 at 8 per span in the rows 807.1 to 813.1 mm, lie within median 1.25 / 1.19 mm and at most 2.50 / 2.86 mm of the leg family's loops from plane 24 on: the leg family observes that skin.
+- The skin crosses the root plane's normal, the femur's direction, at a grazing angle over most of the root loop. From each root loop point to plane 25's loop along the loop's outward normal, the angle between that normal and the skin's tangent plane has median 4.54 / 4.93 degrees and quartiles 2.25 / 2.12 and 28.96 / 31.67 degrees, at most 53.64 / 54.16; 379 of 696 / 340 of 672 points lie under 5 degrees and 446 / 406 under 10 (`leg-trim.txt`). The steep part is the buttock's underside, behind and medially, where the radius falls up to about 1 mm per mm of station (The gluteal fold). Plane 25, 4.00 mm past the root plane, is the first family plane the whole root loop lies proximal of.
+- Planes as keys: the line every plane 25..208 shares with the root plane, and every plane 26..208 with plane 25, and with the ankle plane misses the inside of both loops; the least clearance is 22.11 / 22.95 mm (plane 208 against the ankle plane), and the planes before the knee's turn are parallel to planes 24 and 25 (70 such pairs past plane 25). The root and ankle planes meet more than 1000 mm from both loops.
+
+#### The heel's upper back and the ankle turn
+
+- The loops of planes 193..208 lie wholly proximal of the ankle plane (plane 208 at most -0.22 mm past it), and the ankle plane's loop wholly distal of plane 208 (at least 0.22 mm past it): the family planes split the skin at the ankle plane without crossing it.
+- The heel's upper back (mesh vertices below the ankle joint, behind it along the foot bone and proximal of the ankle plane, the Foot's 23 per side) is nearest planes 205..208 (3, 5, 8, 7 / 3, 5, 7, 8 vertices), within median 1.60 / 1.57 mm and at most 3.02 / 3.06 mm of the leg's planes before the ankle plane. The leg skin between plane 197 and the ankle plane, 182 vertices, lies within median 1.03 / 1.04 mm, 99th percentile 2.92 / 2.85 mm and at most 3.02 / 3.06 mm of them, the worst at `(-38.1, 62.3, ±135.9)`, 29.1 mm behind the ankle along the foot bone and 9.0 mm before the ankle plane; 22 / 21 lie beyond 2 mm.
+- Thigh skin from the root plane to plane 96 within 150 mm of the bone line, 965 vertices, lies within median 1.12 / 1.10 mm, 99th percentile 2.60 / 2.85 mm and at most 3.56 / 5.40 mm of the leg's planes; 51 / 47 lie beyond 2 mm.
+
+#### The gluteal fold
+
+The radius of each loop from its plane's origin, along 24 azimuths, from plane 24 to plane 95 (`leg-survey.txt`). Behind and medially the radius falls about 0.9 mm per mm of station below the root plane, then turns flat within a few millimetres: at azimuth 240 from 108.5 mm (plane 24) to 90.0 mm (plane 29) and 88.5 mm (planes 31, 32); at azimuth 210 from 117.0 mm (plane 24) to 91.4 mm (plane 31) and 87.2 mm (plane 33). The largest positive second differences of the radius over station, the crease, run obliquely across the planes: azimuth 270 at plane 25 (0.163 / 0.178 mm per mm squared), 255 at plane 27 (0.156 / 0.137), 240 at plane 29 (0.167 / 0.169), 225 at plane 31 (0.109 / 0.117), 195 and 210 at planes 30 and 31 (0.072, 0.071), 180 at plane 26 (0.048); laterally behind (azimuths 120 to 150) at most 0.021. So the infragluteal fold lies on the leg, 4 to 28 mm distal of the root plane, deepest posteromedially, and the leg's first planes carry the underside of the buttock above it. Every ray from a plane's origin, every 5 degrees on planes 24..44, crosses its loop exactly once (1512 rays per side), so in the leg's planes the buttock's underside and the fold are a radial height field over the leg's axis, with no overhang. The observed loops of planes 24..95 change curvature sign 34 times (median; 23 / 21 to 43 / 47) over their posterior halves at 8 samples per span: the source's facet noise, which the Recovery fits follow.
+
+#### World-height leg chains and their consumers
+
+- `AutoMovieHumanTorsoCalibration`'s `leg.<s>`: basis spline, order 256, rule polar, samples 256; 19 / 20 horizontal layers at 103.79, 183.79, 273.79, 363.79, 403.79, 423.79, 453.79, 493.79, 513.79, 543.79, 633.79, 723.79, 763.79, (773.79 right only), 783.79, 793.79, 799.00, 801.00, 803.79 and 804.84 mm. Curvature sign changes per layer at 8N samples, whole loop / posterior half: 0 to 10 / 0 to 6 from 103.79 to 723.79 mm, 8 to 16 / 8 to 14 from 763.79 to 793.79 mm, then 22 / 17, 32 / 21 (30 / 19 right), 66 / 31 (69 / 35) and 68 / 32 (73 / 38) at 799.00, 801.00, 803.79 and 804.84 mm (`leg-detail.txt`).
+- Events and trims (`world-chains.txt`, `foot-survey.txt`): `trunk` splits down into both legs at its bottom ring (804.87 mm), and each leg continues down into `foot.<s>`; the foot region trims the legs' bottoms at stations 113.5 / 112.5 mm, so the repaired chains run from 113.50 / 112.50 to 804.84 mm.
+- The repaired calibration against the leg planes 24..40, along the horizontal ray from the femur line at the observed point's height, minus the observed radius: -0.25 to +0.64 mm at azimuths 0 to 180, 270 and 315; across the fold, azimuths 195 to 255, -1.11 to +1.08 mm on the left and -0.64 to +0.60 mm on the right. At azimuth 240 the left leg stands 1.05, 1.11 and 0.78 mm inside the observed skin at planes 31..33 and 0.95 to 1.08 mm outside at planes 37..40. At plane 24, azimuth 240, the observed point lies above the leg chain and the ray meets the far side of the `trunk` ring, so that cell measures nothing and is left out.
+- Consumers of `leg.<s>`: `AutoMovieHumanJointCentres.ts:99`-`:106` (each hip centre interpolated at height `0.518 S` between the knee and the leg's top), `:302`-`:339` (the knee as the axis point at station `0.2865 S`, the ankle at the leg bottom's x and z and height `0.0405 S`, the radii as girths at mid-stations taken as heights). On the calibration they lie 26.0 mm (hip, 25.8 mm below `thigh_<s>`), 22.3 mm (knee, 19.3 mm above `calf_<s>`) and 6.0 mm (ankle, 6.0 mm below `foot_<s>`) from the bind joints (`leg-detail.txt`). `AutoMovieHumanGarmentBody.ts:295`-`:307` takes `leg.left` and `leg.right` parts as covered chain kinds, which the brief's leg openings read (`AutoMovieHumanGarmentPattern.ts:176`-`:177`). `AutoMovieHumanSkinTone.ts:277`-`:283` darkens a knee band on `leg.` chains about world height `0.285 S` (`AutoMovieHumanSkinLandmarks.ts:222`-`:223`) on the side facing world +x. `AutoMovieHumanSkinMarks.ts:343` weights freckles on `leg.` chains. `AutoMovieHumanBodyGirth.ts:85`-`:96` (thigh, knee and calf stations in fixed station windows) and the warp read the leg chains by name and layer; Retirement deletes them.
+
+#### What the leg fitters read
+
+No leg fitter reads the world-height calibration: `fitAppendage.ts` imports only the chain and frame types (`:38`-`:41`), `fitStrip.ts` only the `IAppendage` type of the calibration (`:40`).
+
+- `fitAppendage.ts` (leg path): the family, its planes and `-root-v2.json` (`:83`-`:86`); the foot's fit, whose first key it copies as the held ankle key with `ends.top` (`:141`-`:148`, `:250`-`:252`, `:299`), checking that the foot's first key stands at the leg's own station of the ankle plane (`:147`); keys at the root, the joints the axis crosses and the identity's `thighGirth`, `calfGirth` and `ankleGirth` sites (`:50`-`:53`, `:202`-`:229`) by `keyStations` (`:230`-`:235`); key axes carried back from the foot's key (`:239`-`:243`); N 64, `CYCLES` 4, `CAP` 6 mm (`:46`-`:48`); observations from the root plane to the ankle plane (`:307`); the biweight with GCV (`:322`-`:327`); the chain name `leg.<side>` (`:76`).
+- `fitStrip.ts` (leg path): the trunk fit's `radius` and `regions` (`:114`, `:340`-`:342`), the leg's `-root-v2` loop carried by the nearest-cell rule (`:120`-`:143`), a trim count raised until one cell (`:179`-`:197`), the saved loft and the trunk rows between the trunk's cap pole height and its last key's station as world heights, kept by a winding test about the bind axis polyline (`:284`-`:321`), the family's planes before the root (`:367`-`:377`), the reach by doubling and golden section (`:406`-`:436`), the row rule (`:446`), the biweight, two pairing rounds and GCV (`:500`-`:610`).
+- `findRootKeys.ts` tests a leg loop only against the bind axis continued below the pelvis (`:49`-`:55`, `:111`-`:116`); `measureIdentity.ts` also tests the other femur (`:373`-`:396`, `:463`-`:466`).
+- `exportModules.ts` reads `leg_<s>-base.json` and `leg_<s>-strip.json` (`:156`, `:160`, `:163`-`:178`).
+
+#### Open defects and their causes
+
+| Defect | Cause |
+| --- | --- |
+| Horizontal gluteal fold (the leg's share) | The `trunk` and the legs meet in a horizontal contact ring at 804.87 / 804.84 mm (Trunk), at the height of the tilted root loop (803.9 to 813.3 mm), while the observed fold runs obliquely 4 to 28 mm below the root plane, posteromedially; the leg's top layers bunch at 793.79, 799.00, 801.00, 803.79 and 804.84 mm and cannot follow an oblique crease; at azimuth 240 the left calibration stands up to 1.11 mm inside the crease and up to 1.08 mm outside below it (root causes 2 and 3) |
+| Thigh line at the crotch ring | The same ring and the shape's fold there (Open defects); the leg's last four layers lie at 799.00, 801.00, 803.79 and 804.84 mm under it with 22 to 73 curvature sign changes each, and the event join and `ringBlend` act within 4 mm of it (root causes 3 and 4) |
+| Vertical striations on the backs of the thighs (the leg's share) | `leg.<s>`'s 256-point layers from 763.79 mm up change curvature sign 8 to 73 times each, 8 to 38 times behind; the observed leg loops, Recovery fits of the same faceted source, change sign 34 times (median) over each posterior half, and each calibration layer was fitted to one row of such fits (Calibration data; root cause 1) |
+| Root loops holding both thighs (m1, m2) | `findRootKeys.ts:111`-`:116` tests the bind axis only; on f1 the first plane apart from it, plane 24, also stands apart from the other leg's bone |
+| Joint centres off the bind joints | `AutoMovieHumanJointCentres.ts:99`-`:106`, `:302`-`:339` take stature fractions as heights on the leg chain: hip 26.0 mm, knee 22.3 mm and ankle 6.0 mm from `thigh_<s>`, `calf_<s>` and `foot_<s>` |
+| The leg's axes, phase and keys from the world | The planner's u is world forward (`planBodySections.ts:144`-`:148`); `fitAppendage.ts:239`-`:243` carries the key axes from the foot's key and writes them in the world; the knee band and its facing are world height and world +x (`AutoMovieHumanSkinTone.ts:277`-`:283`) |
+| Keys at sites and joints; the foot's station tied to the leg's | `fitAppendage.ts:202`-`:235` puts keys at the girth sites and joints; `:147` requires the foot's first key at the leg's own station, which the Foot plan's stations from `foot_<s>` break |
 
 ### Integration
 
