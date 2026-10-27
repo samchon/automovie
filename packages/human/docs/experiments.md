@@ -711,15 +711,15 @@ Run 19:28:31 to 19:30:23, 1,944 observed points.
 
 ### Left fingers
 
-| | index_l | middle_l |
-| --- | --- | --- |
-| run | 19:30:23 to 19:35:26 | 19:35:26 to 19:40:55 |
-| observed points | 2,872 | 2,968 |
-| keys (arc length, mm) | root 0.0, radius 6.0, 12.0 and 18.0, `index_02` 24.9, radius 30.9, 34.9 and 40.9, `index_03` 45.8, radius 49.8 and 55.8, the cap's end key 59.8 | root 0.0, radius 8.0, 12.0 and 18.0, `middle_02` 26.0, radius 32.0, 36.0, 40.0, 46.0 and 50.0, `middle_03` 53.0, radius 57.0 and 63.0, the cap's end key 67.0 |
-| cap | from family plane 39, rho 6.90 mm, one cap key | from family plane 44, rho 6.00 mm, one cap key |
-| keys in all, family planes | 13, 8 to 39 | 15, 9 to 44 |
-| cross-validated length | 1.01, the bracket's lower end | 1.01, the bracket's lower end |
-| inlier RMS, tr A | 0.074, 168.6 | 0.090, 199.4 |
+| | index_l | middle_l | ring_l |
+| --- | --- | --- | --- |
+| run | 19:30:23 to 19:35:26 | 19:35:26 to 19:40:55 | 19:40:55 to 19:45:11 |
+| observed points | 2,872 | 2,968 | 1,984 |
+| keys (arc length, mm) | root 0.0, radius 6.0, 12.0 and 18.0, `index_02` 24.9, radius 30.9, 34.9 and 40.9, `index_03` 45.8, radius 49.8 and 55.8, the cap's end key 59.8 | root 0.0, radius 8.0, 12.0 and 18.0, `middle_02` 26.0, radius 32.0, 36.0, 40.0, 46.0 and 50.0, `middle_03` 53.0, radius 57.0 and 63.0, the cap's end key 67.0 | root 0.0, radius 8.0, `ring_02` 15.1, radius 21.1, 27.1, 33.1 and 39.1, `ring_03` 44.6, radius 48.6 and 52.6, the cap's end key 56.6 |
+| cap | from family plane 39, rho 6.90 mm, one cap key | from family plane 44, rho 6.00 mm, one cap key | from family plane 40, rho 6.00 mm, one cap key |
+| keys in all, family planes | 13, 8 to 39 | 15, 9 to 44 | 12, 11 to 40 |
+| cross-validated length | 1.01, the bracket's lower end | 1.01, the bracket's lower end | 1.01, the bracket's lower end |
+| inlier RMS, tr A | 0.074, 168.6 | 0.090, 199.4 | 0.070, 146.9 |
 
 ### Trunk reliefs
 
