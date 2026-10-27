@@ -6,6 +6,8 @@ Use this branch to turn commissioned shots or accepted media into the actual del
 
 Keep the required screenplay-unit, executable-shot and actual-edit relationships in the source and selected evidence under [execution traceability](../evidence/execution.md), respecting its native ownership limits. Resolve missing, duplicated or omitted required material before rendering the whole work. Use existing production records rather than maintaining another unconsumed coverage inventory. A generated-film edit consumes [accepted takes](generation.md); a hint or direct 3D film consumes its actual programmed scene output.
 
+For a motion hint or companion controls, use [conditioning handoff](conditioning.md) to preserve their actual channel meanings, frame/camera alignment and accepted control bytes through conversion and delivery. A viewing encode or picture transition does not certify categorical or quantitative control values.
+
 Give the edit one timeline owner. Select shots or takes, order, in/out points, transitions and intended pauses from the work's audience experience, preserving required performance and information. [Motion timing](../motion/timeline.md) owns frame schedules, shot-local time, stateful evaluation and replay. [Audio](../audio/SKILL.md) supplies accepted recordings and measured timing; place sound, captions and required mouth motion against those exact performances. A new take, trim, speed change or cut requires rechecking the affected timing and neighboring continuity. Do not use an estimate or an inaudible placeholder as the final performance.
 
 ## Prove the actual output path

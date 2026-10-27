@@ -17,6 +17,7 @@ Choose the production task directly:
 | --- | --- |
 | Establish scope, decisions and setup authority | [Project context](profile.md) |
 | Organize source, supplied material and consumers | [Layout and intake](layout.md) |
+| Prepare a whole motion hint and aligned control channels | [Conditioning handoff](conditioning.md) |
 | Use a selected generator and adopt its actual video takes | [Video generation](generation.md) |
 | Assemble shots/takes, wire the real host, encode and hand off | [Editing and finishing](finishing.md) |
 
