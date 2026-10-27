@@ -342,3 +342,82 @@ Body (mm unless noted): stature 1700.9; cervicale 1472.1, suprasternale 1419.4 a
 Head: length 189.4, cephalic index 83.3, circumference 553.6, height 183.2; face height 91.4, face width 147.7, mandibular width 121.9, minimum frontal width 139.5; eye fissures 32.0 by 10.5 a side, intercanthal 31.0; nose 37.1 wide, 67.6 high, 27.0 protruding; mouth 47.0 wide, vermilion heights 168.1 and 164.3; ears 63.5 and 62.8 long, 22.6 and 21.9 broad, 20.6 to 21.7 protruding.
 
 Nine values measure something else than their definition names, each traced to its definition (the plan's section 8): the acromia (straight above the shoulder joints, medial of the bony points), the bideltoid breadth and the carrying angle (the bind pose), nasion (high, so the nose height), menton (stopped at the mentolabial sulcus, so the face and head heights), stomion (round the back of the head, so the vermilion heights), and the face, minimum frontal, nose and ear breadths (the ears, the temples, the cheeks and one end of the helix). The program is run again, on all four specimens, after the plan's definitions are corrected and a review round has passed them.
+
+This run covered f1 alone, though the plan's section 4 runs the program on all four specimens. Its definitions were changed from one specimen's output, and the plan was edited before this record was written. Both break the work order, as the compliance audits at 16:21 and 16:36 found.
+
+## Identity measurement, second run (all four, 2026-10-27)
+
+`measureIdentity.ts`, rewritten to the plan's definitions as of commit c7c76ab5f, ran on f1, f2, m1 and m2 in turn from 16:38:09 to 16:38:34. It also prints where each point fell, a diagnostic the plan did not name. Each joined mesh's inner eye corner landmark lay 0.00 mm from a mesh vertex. Values are in mm unless noted, and both sides agree on every specimen.
+
+f1:
+- Body:
+  - stature 1700.9; cervicale 1472.1; suprasternale 1419.4; acromial height 1389.4;
+  - biacromial 361.8; span 1637.2; bicristal 308.6; hip joint centres 193.3; hip breadth 383.6;
+  - neck 325.5; chest 863.1 by 295.6 by 215.0; underbust 749.1;
+  - waist 675.2 at 1111.2, 240.4 by 179.5; buttocks 990.3, depth 235.0;
+  - craniovertebral angle 54.8 degrees.
+- Each arm: upper arm 277.4; forearm 242.7; hand 165.5 by 81.3; palm 80.1; thumb 52.2; girths 266.4, 237.0 and 152.4.
+- Each leg: thigh 437.9; shank 392.2; ankle height 75.9; foot 244.4 by 88.3; girths 646.9, 343.1, 348.3 and 206.3.
+- Head:
+  - length 189.4; cephalic index 83.3; circumference 553.6; height 211.2;
+  - face height 116.8; face width 147.7; mandibular width 121.9; minimum frontal width 103.1;
+  - eye fissures 32.0 by 10.5; intercanthal 31.0;
+  - nose 37.1 wide, 64.8 high, 27.0 protruding;
+  - mouth 47.0 wide, vermilion heights 20.9 and 15.4;
+  - ears 63.5 and 62.8 long, 26.3 and 26.2 broad, 21.7 and 20.6 protruding.
+- Sites:
+  - gnathion and menton both 1482.2; stomion 1519.5; gonion 1518.0; pronasale 1556.7; zygion 1583.0; nasion 1598.5; glabella 1612.1; frontotemporale and eurion both 1625.0;
+  - the acromia at (-16.3, 1388.2, ±180.9), 38.7 mm lateral of and 35.0 mm above the shoulder joints.
+
+f2:
+- Body:
+  - stature 1706.8; cervicale 1467.8; suprasternale 1417.6; acromial height 1392.1;
+  - biacromial 366.5; span 1682.4; bicristal 318.4; hip joint centres 193.3; hip breadth 393.2;
+  - neck 317.0; chest 931.5 by 311.2 by 236.7; underbust 748.8;
+  - waist 689.2 at 1090.6, 246.9 by 184.0; buttocks 1010.2, depth 243.7;
+  - craniovertebral angle 57.8 degrees.
+- Each arm: upper arm 286.4; forearm 249.0; hand 172.5 by 66.5; palm 82.9; thumb 54.0; girths 299.9, 256.3 and 154.9.
+- Each leg: thigh 428.5; shank 393.0; ankle height 78.5; foot 248.9 by 94.0; girths 669.5, 347.3, 361.8 and 209.4.
+- Head:
+  - length 193.9; cephalic index 79.4; circumference 561.8; height 215.6;
+  - face height 122.3; face width 148.5; mandibular width 122.9; minimum frontal width 98.8;
+  - eye fissures 33.0 by 10.5; intercanthal 32.0;
+  - nose 39.5 wide, 67.8 high, 24.6 protruding;
+  - mouth 54.0 wide, vermilion heights 29.0 and 14.0;
+  - ears 60.0 and 60.4 long, 27.1 and 26.5 broad, 16.5 and 16.0 protruding.
+- Sites: gnathion and menton both 1478.7; stomion 1510.6; gonion 1521.0; frontotemporale and eurion both 1630.0.
+
+m1 and m2 stopped at 860 and 873 mm with no trunk section round the bind axis.
+
+Each finding below is read from the geometry and the identity types' own definitions, not from population figures:
+
+1. **m1's and m2's buttocks search.** It starts 1 mm above the Rise course's lowest point (858.5 and 871.1 mm; f1's 805.1 and f2's 800.7 passed). On the men no horizontal section there yet winds round the bind axis. So the search begins below the trunk's lowest closed section, and the trunk's sections are read where only the legs' exist.
+2. **Hip breadth.** The program takes it from the trunk's loop alone, where the plan takes every horizontal section, legs included. That is an implementation fault. The plan's wording would also take the hands: in the bind pose the fingertips hang at about the crotch's height (the audit renders). So the plan has to name the trunk's and the legs' sections.
+3. **Upper arm length.** The arm identity is "measured hanging at the side". Its upper arm length is acromion to radiale, and its own definition says it is "markedly shorter with the arm abducted". The bind pose abducts the arms, and the corner rule's acromion stands lateral of and above the joint along the abducted arm. So 277.4 and 286.4 are bind-pose lengths, which the pose hides as it hides the bideltoid breadth.
+4. **Hand breadth.** The type defines it across the heads of the second to fifth metacarpals. The program cuts the plane through `middle_01` normal to the palm axis, but `ring_01` lies 7.0 to 8.9 mm and `pinky_01` 14.4 to 19.2 mm proximal of that plane on all four specimens. The plane therefore passes beyond the fifth head, where the little finger can stand apart from the palm: f2 gave 66.5 against f1's 81.3. The foot breadth's plane through `ball` normal to the foot axis has the same form, against a definition across the metatarsal heads.
+5. **Lower thigh.**
+   - The hollow came out 0.0 mm above the knee joint on f1 and f2, the search range's lower end, so the girth is the knee joint's own section.
+   - The type measures it at suprapatella, the upper border of the patella. The source's Knee course and its corrective joint `calf_knee` both lie 8.0 mm below the knee joint's centre on f1, `calf_knee` 52.9 mm in front of it at the knee's front.
+   - So the patella spans the joint's plane. A range starting there holds its lower half and tendon, whose front can stand less forward than the hollow above it.
+6. **Menton.**
+   - It is the same point as gnathion on f1 and f2. Gnathion is the chin's farthest point along the bisector of down and forward, so the tangent there runs 45 degrees from straight down toward the back.
+   - That is exactly the walk's stopping rule, so the walk always ends at gnathion.
+   - The head height, menton to vertex, therefore starts above the chin's lowest point.
+7. **Gonion.**
+   - It fell at the top of its range on f1 and f2, 1 mm below the mouth corners' mean height (1518.9 and 1521.8 mm). The face's breadth grows steadily from menton up to the mouth corners, so the greatest breadth is the range's upper end on the cheek.
+   - The type's gonion is the mandible's angle, the corner where the side of the face turns into the underside of the jaw.
+8. **Frontotemporale.**
+   - It fell at eurion's level, its range's upper end, on f1 and f2, at a depth 0.3 to 1.7 mm forward of the outer eye corners' bound.
+   - The cut forward of a fixed depth narrows as the forehead recedes above the brows, so the least breadth is wherever the range stops.
+   - The type's frontotemporale is the narrowest forehead between the temporal crests, the corner where the forehead turns into the temple.
+9. **Stomion.**
+   - On f1 it lies at 106.8 mm forward, the mouth corners' own depth (106.1 to 106.9). That is 16.3 mm behind labiale superius and 11.7 mm behind labiale inferius. f2 is the same: 109.2 against the corners' 106.8 to 107.4 and the labiales' 127.6 and 123.2.
+   - The midline cut runs into the mouth along the lips' inner faces, and the least forward point forward of the corners lies there.
+   - The type measures the closed lips' fissure, and f2's 29.0 mm upper vermilion passes the type's 25 mm maximum.
+10. **Nose width.**
+    - f1's 37.1 and f2's 39.5 are the breadth of the band the creases bound. The creases' upper ends lie 18.8 to 19.2 and 20.2 mm from the midline, the band 38.4 and 40.4 mm wide.
+    - The nostril outlines reach only 13.5 to 14.1 and 15.9 to 16.0 mm, so the band takes the cheek beside each ala.
+    - A cut at the nostrils' mean height also crosses the nostril outlines themselves, which span heights above and below their mean.
+    - The type's width is alare to alare, the alae's most lateral points.
+
+Nasion, glabella, pronasale, zygion, eurion, the acromia and the remaining fields each lie inside their ranges. Their geometry shows no fault, and they stand as measured.
