@@ -593,3 +593,28 @@ The faults, read from the geometry and the definitions:
    - The corner breadth narrows as far as the range lets it, so eurion's level is no bound on the forehead.
 
 Stand as measured: the acromia, the hip breadths, the hand's and the foot's breadths, stomion, the zygia, eurion, nasion, glabella and the remaining body fields.
+
+## Identity measurement, fifth run (all four, 2026-10-27)
+
+`measureIdentity.ts`, brought to the plan as of commit 0a3ca7a18, ran on f1, f2, m1 and m2 in turn from 17:16:04 to 17:16:30. All four finished with no field unmeasured, and values not listed are unchanged from the fourth run.
+
+| | f1 | f2 | m1 | m2 |
+| --- | --- | --- | --- | --- |
+| root loop's reach from the bone line, winding round the other femur | 117.1, no | 124.9, no | 126.2, no | 123.4, no |
+| thigh girth | 646.9 | 669.5 | 671.6 | 694.9 |
+| narrowing below the knee, calf's plane below the knee | 42, 127 | 36, 128 | 55, 141 | 45, 148 |
+| calf girth | 348.3 | 361.8 | 387.4 | 422.3 |
+| gnathion (forward, height) | 105.4, 1482.2 | 110.8, 1478.7 | 125.7, 1624.0 | 124.6, 1635.7 |
+| menton (forward, height) | 98.6, 1477.5 | 105.7, 1475.6 | 100.1, 1606.4 | 119.5, 1631.3 |
+| head height, face height | 216.3, 116.8 | 219.3, 122.3 | 229.9, 115.6 | 207.1, 124.8 |
+| subnasale (forward, height) | 121.5, 1541.0 | 123.3, 1544.7 | 131.9, 1690.5 | 134.9, 1702.2 |
+| nose width, height, protrusion | 37.4, 57.8, 21.8 | 40.9, 57.3, 17.9 | 47.5, 49.8, 16.2 | 41.8, 58.4, 23.8 |
+| alaria (height, lateral offset) | 1551, ±18.6 | 1553, ±20.5 | 1691, ±23.7 | 1714, ±21.0 |
+| frontotemporale's level, eurion's | 1623, 1625 | 1616, 1630 | 1760, 1749 | 1770, 1771 |
+| minimum frontal width | 100.0 | 112.5 | 111.0 | 105.9 |
+| gonia (forward, height) | 42.4, 1534; 48.3, 1526 | 50.8, 1538; 50.1, 1534 | 44.3 and 42.9, 1667 | 12.0, 1632; 45.3, 1695 |
+| mandibular width | 129.3 | 131.3 | 163.6 | 155.5 |
+
+m1's menton lies 25.6 mm behind and 17.6 mm below its gnathion, where the other three lie 5 to 7 mm behind, on the corner its own profile draws under the chin. Nothing in the geometry marks that as another point than the definition's, and it stands with the rest.
+
+One fault remains: **gonion**. On f1's mirror-symmetric mesh the two gonia fall 8 mm apart in height. m2's left one lies 12.0 mm forward, 0.1 mm ahead of its head joint and still on the neck's side, 63 mm below its right one. The frontal outline from the lobules to menton shows no single corner: the jaw's side runs into the neck with a turn too soft to fix one point, and on m2 the neck's side reaches forward of the head joint. The mandible's angle is a bony corner that this skin does not show, as the patella's upper border is.
