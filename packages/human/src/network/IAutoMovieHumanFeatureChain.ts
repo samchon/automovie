@@ -30,8 +30,50 @@ export interface IAutoMovieHumanFeatureChain {
 
   /** Reliefs over the chain's surface; absent means none. */
   reliefs?: IAutoMovieHumanRelief[];
+
+  /**
+   * Ends whose key is shared with a neighbouring chain that owns it (the
+   * redesign plan's sections 2 and 3): the key is copied from the owner,
+   * and the interval ending there takes the owner's first and second
+   * station derivatives, so the join is C2. Absent ends are free.
+   */
+  ends?: {
+    /** The bottom key's owner. */
+    bottom?: IAutoMovieHumanFeatureChain.IShare;
+
+    /** The top key's owner. */
+    top?: IAutoMovieHumanFeatureChain.IShare;
+  };
+
+  /**
+   * Cap closing its owner's end: the stations are the angle from the pole
+   * axis, 0 at the pole to pi / 2 at the top key, shared with the owner
+   * named by `ends.top`. Absent for a chain that is not a cap.
+   */
+  cap?: IAutoMovieHumanFeatureChain.ICap;
 }
 export namespace IAutoMovieHumanFeatureChain {
+  /** The owner of a shared key. */
+  export interface IShare {
+    /** Owning chain's name. */
+    owner: string;
+
+    /** The owner's end whose key is shared. */
+    end: "bottom" | "top";
+  }
+
+  /**
+   * A cap: its keys lie in planes parallel to the owner's end key at
+   * origins `C + rho cos(theta) n` (C the end key's origin, n its normal
+   * pointing out of the owner, rho the pole's distance from the end plane),
+   * so a section's size goes as `rho sin(theta)` and the pole has no cone
+   * point.
+   */
+  export interface ICap {
+    /** The pole: the point the bottom key's control points all sit on, mm. */
+    pole: [number, number, number];
+  }
+
   /** One key section. */
   export interface IKey {
     /**

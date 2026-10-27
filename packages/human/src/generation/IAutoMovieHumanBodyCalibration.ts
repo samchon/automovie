@@ -87,6 +87,17 @@ export namespace IAutoMovieHumanBodyCalibration {
      * makes it fuller.
      */
     reach: number;
+
+    /**
+     * Interior rows of the strip, from the appendage toward the base: each
+     * the offsets of one row from the edges' quintic blend at its Greville
+     * abscissa, in the blend's frame there (along the ring, the normal and
+     * their cross product), as three periodic cubic B-splines in the ring
+     * phase of M control points, `[a_0 .. a_{M-1}, b_0 .., c_0 ..]` in mm
+     * (`AutoMovieHumanBodyStrip`). Absent means none: the strip is then the
+     * six edge rows alone.
+     */
+    rows?: number[][];
   }
 
   /**

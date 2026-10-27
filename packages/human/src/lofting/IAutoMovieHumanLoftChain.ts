@@ -58,6 +58,14 @@ export interface IAutoMovieHumanLoftChain {
    * {@link IAutoMovieHumanRelief}. Absent means none.
    */
   reliefs?: IAutoMovieHumanRelief[];
+
+  /**
+   * Pole of a cap: the point every section shrinks to at the chain's
+   * bottom station (the angle 0 from the pole axis), where the skin closes
+   * by a fan from the first ring after it. Absent for a chain that is not a
+   * cap.
+   */
+  pole?: [number, number, number];
 }
 export namespace IAutoMovieHumanLoftChain {
   /** One principal layer: a shape event of the chain. */
@@ -95,5 +103,25 @@ export namespace IAutoMovieHumanLoftChain {
 
     /** Station derivative of every `lift` value in mm per mm; present exactly when `lift` is. */
     liftSlopes?: number[];
+
+    /**
+     * Second station derivative of every coefficient. When both layers of
+     * an interval carry it, the interval is the quintic Hermite of their
+     * values, slopes and these (`AutoMovieHumanStationHermite`); absent,
+     * the cubic Hermite of values and slopes.
+     */
+    curvatures?: number[];
+
+    /**
+     * Station derivatives of the layer's plane, its origin and both axes
+     * component by component. When both layers of an interval carry them,
+     * the plane is the Hermite of the two planes' components, its axes not
+     * renormalised, so it moves C2 with the coefficients; absent, the
+     * rotation Hermite of `AutoMovieHumanLoftFrame.interpolate`.
+     */
+    frameSlopes?: AutoMovieHumanLoftFrame.IFrame;
+
+    /** Second station derivatives of the plane's components; with `frameSlopes`, the quintic rule. */
+    frameCurvatures?: AutoMovieHumanLoftFrame.IFrame;
   }
 }

@@ -1,7 +1,9 @@
 import { AutoMovieHumanLoftAperture } from "../lofting/AutoMovieHumanLoftAperture";
 import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
 import { AutoMovieHumanLoftFrame } from "../lofting/AutoMovieHumanLoftFrame";
+import { AutoMovieHumanLoftJet } from "../lofting/AutoMovieHumanLoftJet";
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
+import { AutoMovieHumanLoftStations } from "../lofting/AutoMovieHumanLoftStations";
 import { AutoMovieHumanSplineCurve } from "../lofting/AutoMovieHumanSplineCurve";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import { AutoMovieHumanBodyApertures } from "./AutoMovieHumanBodyApertures";
@@ -113,6 +115,20 @@ export namespace AutoMovieHumanBodySurface {
       const t: number = coordinates[3 * v + 2]!;
       if (!Number.isFinite(index) || !Number.isFinite(t)) continue;
       const target: IAutoMovieHumanLoftChain = calibration.chains[index]!;
+
+      // A chain with jets has its exact normal, oriented with the mesh's.
+      if (AutoMovieHumanLoftJet.carries(target)) {
+        const n: [number, number, number] | null = AutoMovieHumanLoftJet.normal(
+          AutoMovieHumanLoftJet.at(target, s, t),
+        );
+        if (n === null) continue;
+        const c: number =
+          n[0] * mesh[3 * v]! + n[1] * mesh[3 * v + 1]! + n[2] * mesh[3 * v + 2]!;
+        if (Math.abs(c) < cosine) continue;
+        for (let k: number = 0; k < 3; k++)
+          out[3 * v + k] = (c < 0 ? -1 : 1) * n[k]!;
+        continue;
+      }
       const key: string = index.toString() + ":" + s.toString();
       let jet: IStationJet | undefined = cache.get(key);
       if (jet === undefined) {
@@ -551,14 +567,16 @@ export namespace AutoMovieHumanBodySurface {
     const topY: number =
       (top.kind === "pole" ? domeBase(context, target, "top") : null) ??
       endHeight(target, "top");
-    // Bisection stations, refined where the rings pass near an opening.
-    const heights: number[] = AutoMovieHumanBodyApertures.detail(
+    // Bisection stations, refined where the rings pass near an opening. A
+    // cap's sections all sit on its pole at its bottom station, so its
+    // rings start at the next station and its pole closes them by a fan.
+    const bisected: number[] = AutoMovieHumanBodyApertures.detail(
       context.details,
       target,
       AutoMovieHumanBodyApertures.refine(
         context.apertures,
         target,
-        AutoMovieHumanLoftChain.stations(
+        AutoMovieHumanLoftStations.bisect(
           target,
           bottomY,
           topY,
@@ -568,6 +586,10 @@ export namespace AutoMovieHumanBodySurface {
       ),
       phases,
     );
+    const heights: number[] =
+      target.pole !== undefined && bottom.kind === "pole"
+        ? bisected.slice(1)
+        : bisected;
 
     // Ring and phase set at each station. Ends come from their boundaries
     // when inherited or owned, and are generated here when the end is a
@@ -1087,7 +1109,9 @@ export namespace AutoMovieHumanBodySurface {
     const calibrated: IAutoMovieHumanBodyCalibration.IPole | undefined =
       context.poles.get(target.name + ":" + end);
     const point: [number, number, number] =
-      calibrated?.point ?? AutoMovieHumanLoftChain.axis(target, y);
+      (end === "bottom" ? target.pole : undefined) ??
+      calibrated?.point ??
+      AutoMovieHumanLoftChain.axis(target, y);
 
     AutoMovieHumanLoftMesh.group(
       context.mesh,

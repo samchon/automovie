@@ -44,4 +44,13 @@ export interface IAutoMovieHumanRelief {
    * lowest station, `rows * columns` values; the three outer rings are zero.
    */
   heights: number[];
+
+  /**
+   * The lips' station map `D` (the redesign plan's section 2): control
+   * values in mm of station over the same net as `heights`, its three outer
+   * rings zero, so the relief reads its height field at station
+   * `s + D(s, t)` and the vermilion borders move without the cutaneous lips.
+   * Absent means no map.
+   */
+  shift?: number[];
 }

@@ -3,6 +3,7 @@ import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanSplineCurve } from "../lofting/AutoMovieHumanSplineCurve";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieHumanBodyStrip } from "./AutoMovieHumanBodyStrip";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 
 /**
@@ -13,22 +14,9 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * base is lofted with every cell touching the loop's inside left out; the
  * hole's edge of grid vertices and the loop itself are joined by a zipper,
  * so the base surface runs up to the loop. Between the loop and the
- * appendage's end ring runs the strip
- *
- * ```text
- * T(u, w) = H0(w) A + H1(w) l_A A' + H2(w) l_A^2 A''
- *         + H3(w) l_C^2 C'' + H4(w) l_C C' + H5(w) C
- * ```
- *
- * with the quintic Hermite basis H0 .. H5 on w in [0, 1]: A the appendage's
- * end ring point at phase u, A' and A'' its station derivatives taken
- * outward from the appendage and reparameterized by arc length; C the base
- * point on the loop, C' and C'' its derivatives along the base surface
- * across the loop, away from the hole, by arc length; `l_A` and `l_C` the
- * edge lengths of the strip, the root's reach times the chord |C - A|. The
- * strip leaves the appendage and meets the base with their positions,
- * tangent directions and curvatures along the crossing, which makes the
- * skin G2 across both edges.
+ * appendage's end ring runs the strip of `AutoMovieHumanBodyStrip`, which
+ * meets both with their positions, tangent planes and curvatures (G2);
+ * this module samples it in rings and zips its base edge to the hole.
  */
 export namespace AutoMovieHumanBodyRoots {
   /** Chart point and derivative of a root loop at loop parameter u. */
@@ -108,12 +96,6 @@ export namespace AutoMovieHumanBodyRoots {
     hole: readonly number[],
     holeCharts: readonly [number, number][],
   ): void {
-    const end: number =
-      root.end === "bottom"
-        ? appendage.layers[0]!.y
-        : appendage.layers[appendage.layers.length - 1]!.y;
-    const outward: number = root.end === "bottom" ? -1 : 1;
-
     // The loop's turning sense in the (phase, station) plane: the outward
     // normal is its tangent turned clockwise for a counter-clockwise loop.
     const sense: number =
@@ -125,43 +107,30 @@ export namespace AutoMovieHumanBodyRoots {
         ? 1
         : -1;
 
-    // Columns: one per end ring vertex, at its phase.
-    const columns: IColumn[] = phases.map((u: number, i: number): IColumn => {
-      const A: V = AutoMovieHumanLoftMesh.position(mesh, ring[i]!);
-      const [a1, a2] = stationJet(appendage, end, u, outward);
-      const [s, t, ds, dt] = point(root.root, u);
-      const C: V = at(base, s, t);
-      // Chart direction across the loop, away from its inside: the tangent
-      // (dt, ds) in (phase, station) turned clockwise, (ds, -dt).
-      const [c1, c2] = chartJet(base, s, t, sense * ds, -sense * dt);
-      return { A, a1, a2, C, c1, c2, s, t };
+    // Columns: the strip's control rows at each end ring vertex's phase,
+    // and the loop's chart point there.
+    const columns: V[][] = phases.map((u: number): V[] =>
+      AutoMovieHumanBodyStrip.controls(base, appendage, root, u, sense),
+    );
+    const charts: [number, number][] = phases.map((u: number): [number, number] => {
+      const p: [number, number, number, number] = point(root.root, u);
+      return [p[0], p[1]];
     });
 
-    // Rings of the strip from the appendage (w = 0) to the base (w = 1).
+    // Rings of the strip from the appendage (w = 0, its own end ring) to
+    // the base (w = 1).
     const rings: number[][] = [[...ring]];
     for (let k: number = 1; k <= STEPS; k++) {
-      const w: number = k / STEPS;
-      const h: number[] = quintic(w);
-      const points: V[] = columns.map((c: IColumn): V => {
-        const chord: number = Math.hypot(...sub(c.C, c.A));
-        const l: number = root.reach * chord;
-        return [0, 1, 2].map(
-          (j: number): number =>
-            h[0]! * c.A[j]! +
-            h[1]! * l * c.a1[j]! +
-            h[2]! * l * l * c.a2[j]! +
-            h[3]! * l * l * c.c2[j]! +
-            h[4]! * l * c.c1[j]! +
-            h[5]! * c.C[j]!,
-        ) as V;
-      });
+      const points: V[] = columns.map((c: V[]): V =>
+        AutoMovieHumanBodyStrip.point(c, k / STEPS),
+      );
       const vertices: number[] = AutoMovieHumanLoftMesh.vertices(mesh, points);
-      for (const c of columns)
-        if (k === STEPS) coordinates.push(baseIndex, c.s, wrap(c.t));
+      for (const [s, t] of charts)
+        if (k === STEPS) coordinates.push(baseIndex, s, wrap(t));
         else coordinates.push(NaN, NaN, NaN);
       rings.push(vertices);
     }
-    const reference: V = normal(base, columns[0]!.s, columns[0]!.t);
+    const reference: V = normal(base, charts[0]![0], charts[0]![1]);
     for (let k: number = 0; k < STEPS; k++)
       oriented(mesh, reference, (): void =>
         AutoMovieHumanLoftMesh.band(mesh, rings[k]!, rings[k + 1]!),
@@ -169,13 +138,7 @@ export namespace AutoMovieHumanBodyRoots {
 
     // The base's hole edge to the loop.
     oriented(mesh, reference, (): void =>
-      seam(
-        mesh,
-        rings[STEPS]!,
-        columns.map((c: IColumn): [number, number] => [c.s, c.t]),
-        hole,
-        holeCharts,
-      ),
+      seam(mesh, rings[STEPS]!, charts, hole, holeCharts),
     );
   }
 
@@ -262,24 +225,12 @@ export namespace AutoMovieHumanBodyRoots {
   export const outward = normal;
 
   /** Outward first and second derivatives of a chain across a loop, by arc length. */
-  export const across = chartJet;
+  export const across = AutoMovieHumanBodyStrip.across;
 }
 
 const dot = (a: V, b: readonly number[]): number => a[0] * b[0]! + a[1] * b[1]! + a[2] * b[2]!;
 
 type V = [number, number, number];
-
-/** One strip column: both edge points and their outward derivatives. */
-interface IColumn {
-  A: V;
-  a1: V;
-  a2: V;
-  C: V;
-  c1: V;
-  c2: V;
-  s: number;
-  t: number;
-}
 
 /** Station step of the numerical derivatives, mm. */
 const H: number = 0.05;
@@ -303,16 +254,9 @@ function polygonArea(loop: readonly [number, number][]): number {
   return a / 2;
 }
 
-/** Surface point of a chain at a chart point. */
-function at(chain: IAutoMovieHumanLoftChain, s: number, t: number): V {
-  const y0: number = chain.layers[0]!.y;
-  const y1: number = chain.layers[chain.layers.length - 1]!.y;
-  return AutoMovieHumanLoftChain.ring(
-    chain,
-    Math.min(y1, Math.max(y0, s)),
-    [t],
-  )[0]!;
-}
+/** Surface point of a chain at a chart point, the station clamped into it. */
+const at: (chain: IAutoMovieHumanLoftChain, s: number, t: number) => V =
+  AutoMovieHumanBodyStrip.surface;
 
 /** Unit outward surface normal of a chain at a chart point: away from its axis. */
 function normal(chain: IAutoMovieHumanLoftChain, s: number, t: number): V {
@@ -330,87 +274,6 @@ function normal(chain: IAutoMovieHumanLoftChain, s: number, t: number): V {
   const c: V = AutoMovieHumanLoftChain.axis(chain, Math.min(y1, Math.max(y0, s)));
   const sign: number = (p[0] - c[0]) * n[0] + (p[1] - c[1]) * n[1] + (p[2] - c[2]) * n[2] < 0 ? -1 : 1;
   return [(sign * n[0]) / l, (sign * n[1]) / l, (sign * n[2]) / l];
-}
-
-/**
- * First and second derivatives of the appendage at its end along its
- * station, outward and by arc length.
- */
-function stationJet(
-  chain: IAutoMovieHumanLoftChain,
-  end: number,
-  u: number,
-  outward: number,
-): [V, V] {
-  const p0: V = at(chain, end, u);
-  const p1: V = at(chain, end - outward * H, u);
-  const p2: V = at(chain, end - 2 * outward * H, u);
-  // One-sided differences into the chain, turned to point outward.
-  const d1: V = [0, 1, 2].map(
-    (k: number): number => (3 * p0[k]! - 4 * p1[k]! + p2[k]!) / (2 * H),
-  ) as V;
-  const d2: V = [0, 1, 2].map(
-    (k: number): number => (p0[k]! - 2 * p1[k]! + p2[k]!) / (H * H),
-  ) as V;
-  return arcLength(d1, d2);
-}
-
-/**
- * First and second derivatives of the base along the chart direction
- * `(dt, ds)` (phase, station) at a chart point, by arc length.
- */
-function chartJet(
-  chain: IAutoMovieHumanLoftChain,
-  s: number,
-  t: number,
-  dt: number,
-  ds: number,
-): [V, V] {
-  // A chart step of e along (dt, ds), scaled to about H mm on the surface.
-  const probe: V = sub(at(chain, s + ds * 1e-4, t + dt * 1e-4), at(chain, s, t));
-  const scale: number = H / (Math.hypot(...probe) / 1e-4 || 1);
-  const q = (e: number): V => at(chain, s + ds * scale * e, t + dt * scale * e);
-  const m: V = q(-1);
-  const c: V = q(0);
-  const p: V = q(1);
-  const d1: V = [0, 1, 2].map((k: number): number => (p[k]! - m[k]!) / (2 * H)) as V;
-  const d2: V = [0, 1, 2].map(
-    (k: number): number => (p[k]! - 2 * c[k]! + m[k]!) / (H * H),
-  ) as V;
-  return arcLength(d1, d2);
-}
-
-/**
- * Derivatives of a curve reparameterized by arc length: the unit tangent
- * and the curvature vector, the second derivative's part across the tangent.
- */
-function arcLength(d1: V, d2: V): [V, V] {
-  const speed: number = Math.hypot(...d1) || 1;
-  const T: V = [d1[0] / speed, d1[1] / speed, d1[2] / speed];
-  const along: number = (d2[0] * T[0] + d2[1] * T[1] + d2[2] * T[2]) / speed;
-  const K: V = [0, 1, 2].map(
-    (k: number): number => (d2[k]! - along * speed * T[k]!) / (speed * speed),
-  ) as V;
-  return [T, K];
-}
-
-/**
- * Quintic Hermite basis at w: weights of the start point, start tangent,
- * start second derivative, end second derivative, end tangent, end point.
- */
-function quintic(w: number): number[] {
-  const w2: number = w * w;
-  const w3: number = w2 * w;
-  const w4: number = w3 * w;
-  const w5: number = w4 * w;
-  return [
-    1 - 10 * w3 + 15 * w4 - 6 * w5,
-    w - 6 * w3 + 8 * w4 - 3 * w5,
-    0.5 * w2 - 1.5 * w3 + 1.5 * w4 - 0.5 * w5,
-    0.5 * w3 - w4 + 0.5 * w5,
-    -4 * w3 + 7 * w4 - 3 * w5,
-    10 * w3 - 15 * w4 + 6 * w5,
-  ];
 }
 
 /**

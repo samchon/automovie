@@ -66,6 +66,45 @@ export namespace AutoMovieHumanSplineCurve {
   }
 
   /**
+   * Evaluate the curve with its first and second phase derivatives.
+   *
+   * The same span and weights as {@link evaluate}, with the cubic weights'
+   * second derivatives `[1 - f, 3 f - 2, 1 - 3 f, f]` scaled by
+   * `(N / 2pi)^2`, so a surface's phase curvature is exact.
+   *
+   * @param coefficients Control points in the layout above.
+   * @param count Number of control points N.
+   * @param t Phase in radians, any real value.
+   * @returns `[x, z, dx/dt, dz/dt, d2x/dt2, d2z/dt2]`.
+   */
+  export function jet(
+    coefficients: readonly number[],
+    count: number,
+    t: number,
+  ): [number, number, number, number, number, number] {
+    const u: number = ((((t / (2 * Math.PI)) % 1) + 1) % 1) * count;
+    const i: number = Math.min(count - 1, Math.floor(u));
+    const f: number = u - i;
+    const w: number[] = weights(f);
+    const d: number[] = derivatives(f);
+    const dd: number[] = [1 - f, 3 * f - 2, 1 - 3 * f, f];
+    const scale: number = count / (2 * Math.PI);
+    const out: [number, number, number, number, number, number] = [0, 0, 0, 0, 0, 0];
+    for (let k: number = 0; k < 4; k++) {
+      const j: number = (((i - 1 + k) % count) + count) % count;
+      const x: number = coefficients[j]!;
+      const z: number = coefficients[count + j]!;
+      out[0] += w[k]! * x;
+      out[1] += w[k]! * z;
+      out[2] += d[k]! * x * scale;
+      out[3] += d[k]! * z * scale;
+      out[4] += dd[k]! * x * scale * scale;
+      out[5] += dd[k]! * z * scale * scale;
+    }
+    return out;
+  }
+
+  /**
    * Least-squares control points of samples at uniform phases.
    *
    * The samples must number a multiple of N. Then every control point sees
