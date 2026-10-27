@@ -723,17 +723,17 @@ Run 19:28:31 to 19:30:23, 1,944 observed points.
 
 ### Left toes
 
-| | bigtoe_l | indextoe_l |
-| --- | --- | --- |
-| run | 19:48:44 to 19:50:23 | 19:50:23 to 19:51:33 |
-| observed points | 3,384 | 2,496 |
-| keys (arc length, mm) | root 0.0, radius 6.0, `bigtoe_02` 12.8, radius 20.8, the cap's end key 26.8 | root 0.0, radius 6.0, `indextoe_02` 12.9, the cap's end key 20.9 |
-| cap | from family plane 22, rho 12.00 mm, two cap keys | from family plane 19, rho 10.00 mm, two cap keys |
-| keys in all, family planes | 7, 8 to 22 | 6, 8 to 19 |
-| cross-validated length | 1.01, the bracket's lower end | 1.01, the bracket's lower end |
-| inlier RMS, tr A | 0.251, 114.4 | 0.393, 94.4 |
+| | bigtoe_l | indextoe_l | middletoe_l | ringtoe_l |
+| --- | --- | --- | --- | --- |
+| run | 19:48:44 to 19:50:23 | 19:50:23 to 19:51:33 | 19:51:33 to 19:53:01 | 19:53:01 to 19:53:40 |
+| observed points | 3,384 | 2,496 | 1,680 | 752 |
+| keys (arc length, mm) | root 0.0, radius 6.0, `bigtoe_02` 12.8, radius 20.8, the cap's end key 26.8 | root 0.0, radius 6.0, `indextoe_02` 12.9, the cap's end key 20.9 | root 0.0, `middletoe_02` 7.3, radius 11.3 and 17.3, the cap's end key 21.3 | root 0.0, the cap's end key 3.0 |
+| cap | from family plane 22, rho 12.00 mm, two cap keys | from family plane 19, rho 10.00 mm, two cap keys | from family plane 19, rho 8.00 mm, two cap keys | from family plane 11, rho 8.00 mm, four cap keys |
+| keys in all, family planes | 7, 8 to 22 | 6, 8 to 19 | 7, 8 to 19 | 6, 9 to 11 |
+| cross-validated length | 1.01, the bracket's lower end | 1.01, the bracket's lower end | 1.01, the bracket's lower end | 1.01, the bracket's lower end |
+| inlier RMS, tr A | 0.251, 114.4 | 0.393, 94.4 | 0.194, 80.8 | 0.583, 48.8 |
 
-### Left strips
+littletoe_l, run 19:53:40 to 19:53:41, 304 observed points: its keys were the root alone and the cap's end key, the cap from family plane 9, 2.0 mm past the root, rho 10.00 mm with one cap key, two keys from plane 8 to 9; the first fit's composition threw `Cap of littletoe.left has no end key with a base key beside it` (`AutoMovieHumanFeatureChain.ts` line 306), the composer needing a base key before the cap's end key, so no base was written. The family holds one loop on every plane from 0 to 13 (none on 14 to 16), so the cap's end rule, the last plane past the root with one loop no farther from its centroid than from the tip's pole, left planes 10 to 13 out on its radius test, not on their loops: the toe's tip is flatter than a hemisphere over those 8 mm. ringtoe_l's family likewise holds one loop on planes 0 to 15, its cap starting at plane 11, 3 mm past its root.### Left strips
 
 The strips' fitter (`fitStrip.ts`) reads only its parent's and its own base, so the left limbs' and digits' strips ran from 19:48:47 beside job B, whose right side was still to come, rather than after it; the exporter, which also reads both relief files, waits for them.
 
