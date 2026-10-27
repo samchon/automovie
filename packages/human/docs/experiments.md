@@ -335,7 +335,7 @@ The rule does not say how the two auricles' results combine into the one represe
 
 ### Join trace
 
-`runAuricleSet.ts` ran once with the trace the plan's section 2 states, 18:56:00 to 19:07:30, exit 0, on the same head base and prepared root loops, its report in `.shots/claude-scratch/auricle-trace.json`. The region observations (79,769 left, 112,716 right), the ribbon sections (15 and 23), the implicit points (531 and 548) and every distance and root loop measure of the table above came out the same to the last printed digit, so the variants refitted as the first run fitted them.
+`runAuricleSet.ts` ran once with the trace the plan's section 2 states, 18:56:00 to 19:07:30, exit 0, on the same head base and prepared root loops (`head-base-biweight.json`, the base the settling set chose for the auricle set, plan sections 4 and 8; the head base's refit with its cap, which step 2 was running then, is the module's base and not the set's, and the auricles are fitted again over it with the face's reliefs), its report in `.shots/claude-scratch/auricle-trace.json`. The region observations (79,769 left, 112,716 right), the ribbon sections (15 and 23), the implicit points (531 and 548) and every distance and root loop measure of the table above came out the same to the last printed digit, so the variants refitted as the first run fitted them.
 
 Pairings of the root loop samples by their distance to the variant's nearest sample (bins from 0, 0.5, 1, 2, 4, 8 and 16 mm; count and largest normal angle in degrees):
 
