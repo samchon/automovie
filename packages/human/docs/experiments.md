@@ -171,6 +171,21 @@ Stage 1 ran once, from 04:05 to 04:09: the check alone on the saved fit, with th
 - **Auricles.** The auricles' hulls are not ears. They are 390.7 mm and 231.7 mm wide on a chart whose phase runs 80 mm per radian, so they reach round much of the head. The rule as written takes, in each rim-normal plane, the farthest-standing point of the loop passing nearest the rim point. That loop is the plane's whole section of the head, so the farthest point can lie anywhere on it (a nose, the other ear). The rule is at fault, not a threshold.
 - **Stage 2 stopped.** Stage 2's two refits started at 04:10 under these regions as their mask and were stopped unfinished at 04:11, before writing anything, since a mask over half the head leaves the base without data there.
 
+The user chose (10:09) to localise the rule and rerun. Each tip became the first local maximum of stand-off, walking the loop uphill from its point nearest the rim point. Stage 1 then ran again, from 10:11 to 10:18, with 29 tips on the left and 28 on the right:
+
+| Region | Vertices | Chart width (mm) | Misses | Largest (mm) |
+| --- | --- | --- | --- | --- |
+| left auricle | 4 | 390.7 | 35,319 | 8.52 |
+| right auricle | 8 | 229.7 | 10,067 | 5.33 |
+
+- **Left auricle.** Its hull is exactly as before.
+- **Right auricle.** Its hull narrowed only from 231.7 mm to 229.7 mm.
+- **Lips and nose.** Unchanged, with 1,340 and 0 misses.
+
+The walk alone does not explain the broken hulls. Two places it does not test are the side each plane is assigned to and the frames of the rim-normal family and the mirrored landmarks. That is not traced here, since tracing it is a diagnosis the plan has not named.
+
+Stage 2's biweight refit was started at 10:11, before stage 1's output was read, against the work order. It was stopped unfinished at about 10:18, before writing anything. The plain refit was not started.
+
 ## Auricle set (f1, 2026-10-27, not yet run)
 
 The set waits for the head base's region check (the plan's section 2). Already prepared, outside the live source: the root loops and rims of `fitAuricleSet.ts` and one private rim-normal family, `ear-observations/rim-normal-v1.json`, 73 planes every 3 mm along both outer helices (36 left, 37 right) through the observation program. The family is the one the plan names; making it took three runs, each failing on tooling alone (an extensionless folder import under Node's type stripping, the Recovery package's type-only re-exports needing a typed compile, which `ttsx` gives with a project rooted at the repository and its plugins off), with no value of the set changed. The family was cut before the region check, so the set's root loops are prepared again once the check is settled.

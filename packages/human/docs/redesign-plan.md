@@ -196,6 +196,8 @@ The settling set's stage 1 (the [experiments](experiments.md)) showed the rim-ti
 
 Round AE (10:10, lines 1 to 225 read, the whole file, before any edit; the walk's edge case checked against its wording, a start whose neighbours both stand lower being its own first non-rise and so the tip) found nothing.
 
+The rerun's stage 1 (the [experiments](experiments.md)) left the left auricle's hull unchanged at 390.7 mm and narrowed the right's only to 229.7 mm, so the walk is not the cause; stage 2's biweight refit, started before that output was read, was stopped unfinished. The set is held again, with no rule, walk, region or fitter changed, until the user chooses how to go on.
+
 1. Module evaluators and the composer, with the head (cranium and face base, nose and lips reliefs, the auricles in the auricle set's chosen representation, eye and nostril openings) and the trunk with its limbs, hands and feet.
 2. The observation program's explicit-plane form for the body and the new private families (trunk, limbs, digits, toes, auricle rims); fitters for every module, every closed end fitted as a cap (the head base fitted for the auricle set ends in horizontal keys at the crown and is refitted with its cap here); fitted coefficients for f1.
 3. Basis refit for f2, m1, m2; law re-pointed.
