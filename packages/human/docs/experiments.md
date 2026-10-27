@@ -333,7 +333,37 @@ The rule does not say how the two auricles' results combine into the one represe
 - Every variant's G0 is 4.1 to 16.6 mm, so each variant leaves some point of its root loop at least 4.1 mm from its surface samples.
 - Only 15 of the left's 36 rim-normal planes and 23 of the right's 37 gave a ribbon section: a run of at least 8 points inside the root loop, its nearest point within 3 mm of the plane's rim point.
 
-## Identity measurement, first run (f1, 2026-10-27)
+### Join trace
+
+`runAuricleSet.ts` ran once with the trace the plan's section 2 states, 18:56:00 to 19:07:30, exit 0, on the same head base and prepared root loops, its report in `.shots/claude-scratch/auricle-trace.json`. The region observations (79,769 left, 112,716 right), the ribbon sections (15 and 23), the implicit points (531 and 548) and every distance and root loop measure of the table above came out the same to the last printed digit, so the variants refitted as the first run fitted them.
+
+Pairings of the root loop samples by their distance to the variant's nearest sample (bins from 0, 0.5, 1, 2, 4, 8 and 16 mm; count and largest normal angle in degrees):
+
+| Auricle | Variant | 0 | 0.5 | 1 | 2 | 4 | 8 | 16 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| left | ribbon | 3 / 89.8 | 9 / 81.3 | 10 / 80.2 | 25 / 89.9 | 78 / 85.2 | 67 / 88.9 | 3 / 59.6 |
+| left | relief | 2 / 19.5 | 9 / 81.2 | 49 / 90.0 | 80 / 90.0 | 53 / 88.8 | 2 / 46.5 | 0 |
+| left | implicit | 22 / 68.1 | 44 / 58.7 | 81 / 81.5 | 41 / 82.7 | 7 / 86.9 | 0 | 0 |
+| right | ribbon | 3 / 69.7 | 8 / 78.6 | 21 / 84.0 | 54 / 88.6 | 77 / 89.9 | 15 / 89.4 | 0 |
+| right | relief | 6 / 81.9 | 16 / 77.4 | 55 / 84.3 | 53 / 89.3 | 41 / 89.0 | 7 / 58.6 | 0 |
+| right | implicit | 29 / 39.4 | 46 / 51.2 | 64 / 72.8 | 38 / 85.2 | 1 / 61.8 | 0 | 0 |
+
+Large angles occur in every distance bin, the nearest included (69.7 to 89.8 degrees within 0.5 mm for five of the six), so far pairings alone do not make the first run's 85 to 90 degrees.
+
+Each variant's own join, where its construction meets the base:
+
+| Auricle | Variant | Samples | G0 (mm) | G1 (degrees) | G2 (1/mm) |
+| --- | --- | --- | --- | --- | --- |
+| left | ribbon, long edges | 482 | 14.918 | 89.89 | 1.280 |
+| left | relief, window edge | 390 | 0.185 | 22.90 | 1.107 |
+| left | implicit, blend edge | 552 | 0.477 | 72.85 | 1.370 |
+| right | ribbon, long edges | 482 | 12.413 | 89.51 | 1.488 |
+| right | relief, window edge | 374 | 0.264 | 31.33 | 0.802 |
+| right | implicit, blend edge | 413 | 0.355 | 75.88 | 1.311 |
+
+**Choice by section 2's rule on these measures.** No variant meets the 99th percentile bound (0.23 mm) or the G1 bound (1 degree) on either side. The rule then takes the lowest 99th percentile, both auricles taking the variant whose worse side scores best: the ribbon's worse side is 13.008 mm, the relief's 8.307 mm and the implicit variant's 9.681 mm, so the relief (the shell over the ear's footprint carrying the folds) is chosen.
+
+**Shortfall, recorded with its cause as far as the measures show it.** The relief's worse 99th percentile is 36 times the bound. Its window edge, where its height and first two derivatives vanish by construction, measures 0.19 to 0.26 mm of G0 and 23 to 31 degrees of G1 against the base: the measure takes the base's point and normal from the chart's nearest sample on a 1 mm by 256-phase grid and the relief's normal from differences of 0.05 mm and 0.001 radian, so part of that residual is the measure's own sampling, and how much is not traced. The ribbon's long edges stand 12 to 15 mm off the base, its sections ending where they leave the root loop rather than on the base.
 
 `measureIdentity.ts test/.shots/f1 .shots/claude-scratch/f1-identity.json`, 16:26:31 to 16:26:39, on the joined mesh (63,867 vertices, 108,820 triangles, from -1.2 to 1699.7 mm; the inner eye corner landmark 0.00 mm from a mesh vertex, so the landmarks share the mesh's frame).
 
