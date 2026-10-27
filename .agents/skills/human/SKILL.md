@@ -18,6 +18,27 @@ All Human work runs under this structure, the user's standing request for subage
 - The main agent reads every output itself: the code, the numbers, the files and the images. A subagent's report is not evidence.
 - On any violation, the main agent stops the subagent at once and warns it strongly, naming the violation. Violations include inventing a heuristic or constant, faking a test or result, working outside its task, and reporting what its output does not show.
 - The main agent tells the user only what it has checked in the output, and answers for it.
+- The main agent checks every join between parts itself: C2 at shared keys, G2 across strips, and trims.
+
+### Subagents by body part
+
+| Subagent | Owns | Starts after |
+| --- | --- | --- |
+| Method | the one fitting library every part uses | nothing |
+| Trunk | trunk base, breast and buttock reliefs, the neck ring | Method |
+| Head | head base and cap, face reliefs, eye openings | Trunk |
+| Hand | palm, digits, digit strips, the wrist key | Method |
+| Arm | arm, arm strip on the trunk | Trunk, Hand |
+| Foot | foot, toes, toe strips, the ankle key | Method |
+| Leg | leg, leg strip on the trunk | Trunk, Foot |
+| Integration | export of every part and the render | every part |
+
+- One subagent fits both sides of its part with the same rules.
+- Run subagents whose dependencies are done in parallel. A part's internal order (base before reliefs, palm or foot before digits or toes, strips last) stays inside its subagent.
+- A shared key has one owner, the subagent named above; the other side copies it read-only.
+- Each subagent writes only its own part's files. Part subagents never edit the Method library; a change it needs goes through the main agent to the Method subagent.
+- Subagents run no git, issue or pull request operation and never start, stop or restart a server. The main agent commits.
+- The main agent sets each process's memory cap and how many run at once, and stops any subagent or process whose task is finished or obsolete.
 
 ## Work Order
 
@@ -46,9 +67,9 @@ On resuming, after a context summary, and whenever the current step is unclear, 
 
 ## Work Allocation
 
-Under [Supervision](#supervision), the main agent assigns these roles to subagents before parallel work:
+Under [Supervision](#supervision), the main agent assigns these roles before parallel work:
 
-- One integration owner controls the common skeleton and boundaries.
+- The Integration subagent controls the common skeleton and boundaries.
 - One execution owner controls compiler, native, GPU and capture resources.
 - Every subagent reads [Verification](verification.md) before implementation; the main agent keeps responsibility for checks and user reports.
 
