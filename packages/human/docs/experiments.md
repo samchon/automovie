@@ -188,6 +188,78 @@ Stage 2's biweight refit was started at 10:11, before stage 1's output was read,
 
 The user then chose to go on without the rim tips: each auricle's region is the hull of its landmarks again, the set keeps the perioral lips and runs stage 2 under them, and the rim's overhang beyond the landmark hull, which the first check's auricle misses show, is left to the auricle set. No rule, walk or diagnosis is added for it.
 
+### Stage 2
+
+`fitHeadBase.ts` lost its rim-tip walk first, so `settle` takes only the perioral lips and the auricles' landmark hulls. Stage 2 then ran once, both refits in parallel from 10:43:25, on 1,626,756 observed points:
+
+- biweight, `fit biweight settle`, ended 11:22:42;
+- plain least squares, `fit plain settle`, ended 11:08:53.
+
+Each wrote its fit to the ignored `.shots/claude-scratch/`. Their exit codes were not captured. Each log ends with its `wrote` line, and each error log is empty.
+
+Both fits read the same regions:
+
+| Region | Vertices | Stations (mm) | Chart width (mm) |
+| --- | --- | --- | --- |
+| lips (perioral) | 13 | 1517.0 to 1557.0 | 84.4 |
+| nose | 7 | 1544.0 to 1598.0 | 55.0 |
+| left auricle | 17 | 1541.0 to 1596.0 | 35.3 |
+| right auricle | 16 | 1542.0 to 1596.0 | 31.4 |
+
+The nasion lies at (109.0, 1600.3, -0.1) mm.
+
+Each stage's inlier RMS offset, with the robust scale s in brackets (mm):
+
+| Thin-plate length (mm) | Biweight | Plain |
+| --- | --- | --- |
+| 40 | 1.051 (0.767) | 1.268 (0.774) |
+| 20 | 0.854 (0.649) | 1.070 (0.699) |
+| 10 | 0.548 (0.414) | 0.669 (0.417) |
+| 5 | 0.228 (0.170) | 0.380 (0.160) |
+| 2.5 | 0.133 (0.108) | 0.217 (0.093) |
+| 1.25 | 0.092 (0.083) | 0.154 (0.072) |
+| bisections | 1.875: 0.103, 2.188: 0.109, 2.344: 0.112, 2.422: 0.114 | none |
+| 55, 63, 71 keys | 0.104, 0.101, 0.098 | 0.122, 0.136, 0.199 |
+
+- **Biweight.** It reached the rows' error of 0.115 mm at 1.25 mm, bisected to 2.42 mm, and ended at 71 keys with an RMS offset of 0.098 mm.
+- **Plain.** It never reached the rows' error. The halving stopped at its 1 mm floor with 1.25 mm, at 0.154 mm, so it made no bisection. Its key additions raised the RMS offset at each pass, ending at 71 keys and 0.199 mm.
+
+The check, each fit against its own threshold `c`, counts points standing outward beyond `c` outside the whole mask within 15 mm of a region:
+
+| Region | Biweight (c 0.41 mm) | Largest (mm) at | Plain (c 0.33 mm) | Largest (mm) at |
+| --- | --- | --- | --- | --- |
+| lips | 963 | 1.67 at (109.7, 1492.1, -7.9) | 1,990 | 2.81 at (116.9, 1553.0, 18.2) |
+| nose | 0 | 0 | 588 | 1.82 at (104.2, 1566.0, 39.7) |
+| left auricle | 57,971 | 13.19 at (2.4, 1560.0, 89.9) | 31,070 | 11.66 at (6.0, 1551.0, 85.0) |
+| right auricle | 14,228 | 8.79 at (5.8, 1553.0, -82.6) | 40,632 | 19.65 at (1.6, 1592.8, -94.2) |
+| total | 73,162 | | 74,280 | |
+
+**Choice.** The biweight fit leaves fewer misses, 73,162 against 74,280, and fewer in three of the four regions. By the plan's rule it becomes the head base the auricle set reads, `.shots/claude-scratch/head-base-biweight.json`. The biweight is also the head base's weighting when step 2 of the pass refits it with its cap. The plain fit leaves fewer misses only at the left auricle.
+
+**Remaining misses of the chosen fit**, from its bins, recorded under the stopping rule. No region, weighting or run is added for them.
+
+- **Lips: 963 misses, at most 1.67 mm, all 4 to 14 mm outside the region.** Two groups by station:
+  - 401 at stations 1509 to 1513 mm, 4 to 8 mm below the region's lowest station of 1517 mm, up to 1.67 mm. This is below the mentolabial fold, the region's lowest landmark: the chin, which section 1 makes the face base's own shape.
+  - 562 at stations 1539 to 1549 mm, within the region's station span and so beside it, up to 1.62 mm. The bins give their station and distance but not their side, so they show no cause.
+
+  Stage 1 had left the same two groups (1509 to 1513 mm and 1539 to 1548 mm).
+- **Nose:** none.
+- **Left auricle: 57,971 misses, at most 13.19 mm.**
+  - 54,587 lie within 3 mm outside the hull (31,674 within 1 mm). They stand up to 13.19 mm, the ear's own height. Most lie along the ear's top: 47,021 at stations 1591 to 1597 mm, up to 9.17 mm, against the hull's top station of 1596 mm. Fewer lie down its side, at 1550 to 1589 mm, with bin maxima of 8 to 13 mm.
+  - 1,592 lie 3 to 5 mm outside, up to 11.46 mm.
+  - Beyond 5 mm out, none stands above 1.27 mm. Low misses of 0.8 to 1.4 mm also lie below the ear (1533 to 1540 mm) and of 0.6 to 1.0 mm above it (1600 to 1604 mm).
+- **Right auricle: 14,228 misses, at most 8.79 mm.**
+  - 12,935 lie within 2 mm outside the hull, up to 8.79 mm. They are densest along the ear's top: 11,515 at stations 1593 to 1596 mm, up to 7.42 mm. Fewer lie at 1543 to 1557 mm, up to 8.79 mm.
+  - 1,293 lie 2 mm or more outside. Beyond 5 mm out, none stands above 0.93 mm. Low misses of up to 0.93 mm lie below the ear (1534 to 1539 mm), and of up to 0.65 mm above it (1600 to 1603 mm).
+
+The bins show the cause of the auricles' high misses: the ear's own surface, standing at the auricle's height within a few millimetres outside a hull drawn through landmark curves inside its outline. This is the rim's overhang, which the user left to the auricle set. The low misses, at most 1.42 mm and several millimetres out, show no cause in the bins. The left auricle leaves four times the right's misses under the same rule, and the bins do not trace that difference either.
+
+## Body families (f1, 2026-10-27)
+
+The new private families of the plan's section 4, cut by `observeBodySections.ts` under `test/.shots/f1/body-sections/`, each plane keeping only its loops that wind round the plane's origin (the bind axis for the trunk, the bone axis for a limb).
+
+- Trunk, horizontal rows every 2 mm from the crotch (805.1 mm, the Rise course's lowest point) to the cervicale (1470.8 mm, the Neck Base course's highest), 333 rows. The first cut (11:17), from the body mesh alone, kept a loop in 266 rows and none from 1339.1 mm up: there the body mesh's sections are open contours, the head mesh carrying the neck and upper chest. The plan then took the body mesh joined to the head mesh's skin. The second cut (11:22:07 to 11:22:55) kept one loop in 327 rows; of the other six, 805.1 mm is the crotch's single point, and 1345.1, 1347.1, 1385.1, 1391.1 and 1393.1 mm still close no loop (seven open contours in Recovery's diagnostics, where the two meshes' seam vertices do not sit at one position), heights the saved rows cover every 10 mm. The first cut's file was deleted unused.
+
 ## Auricle set (f1, 2026-10-27, not yet run)
 
 The set waits for the head base's region check (the plan's section 2). Already prepared, outside the live source: the root loops and rims of `fitAuricleSet.ts` and one private rim-normal family, `ear-observations/rim-normal-v1.json`, 73 planes every 3 mm along both outer helices (36 left, 37 right) through the observation program. The family is the one the plan names; making it took three runs, each failing on tooling alone (an extensionless folder import under Node's type stripping, the Recovery package's type-only re-exports needing a typed compile, which `ttsx` gives with a project rooted at the repository and its plugins off), with no value of the set changed. The family was cut before the region check, so the set's root loops are prepared again once the check is settled.
