@@ -1,6 +1,6 @@
 # Callender 2026, classification of high curl pattern hair
 
-Callender V, Burgess C, Harvey VM, Heath C, Mitchell H, Woolery-Lloyd H, Andriessen A, et al. "Classification of High Curl Pattern Hair: A Systematic Review and Clinical Perspective." *Journal of Cosmetic Dermatology* 25(4):e70828, 2026, doi:10.1111/jocd.70828. Read as PMC13046883 (NCBI efetch).
+Callender V, Burgess C, Harvey VM, Heath C, Mitchell H, Woolery-Lloyd H, Andriessen A, et al. "Classification of High Curl Pattern Hair: A Systematic Review and Clinical Perspective." *Journal of Cosmetic Dermatology* 25(4):e70828, 2026, doi:10.1111/jocd.70828. PMC13046883.
 
 ## Licence
 

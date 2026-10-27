@@ -21,4 +21,4 @@ Hands of the 1987-1988 US Army anthropometric survey: 1,304 women and 1,003 men,
 | Digit 5 (little) length | 5.83 | 6.47 |
 | Hand length, measured | 18.07 | 19.41 |
 
-Ratios to the middle finger: index 0.902 / 0.899, ring 0.935 / 0.945, little 0.755 / 0.772; thumb over hand length 0.351 / 0.359. The scan's OCR garbled some table headers; the digit 5 mean was identified by its position between measurements 45 and 47 and its inch value (2.30 / 2.55).
+Ratios to the middle finger: index 0.902 / 0.899, ring 0.935 / 0.945, little 0.755 / 0.772; thumb over hand length 0.351 / 0.359. Some table headers of the scan are illegible; the digit 5 mean is identified by its position between measurements 45 and 47 and its inch value (2.30 / 2.55).

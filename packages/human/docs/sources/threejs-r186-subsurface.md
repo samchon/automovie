@@ -21,4 +21,4 @@ Defaults: distortion 0.1, ambient 0, attenuation 0.1, power 2, scale 10. It mode
 
 ## MeshPhysicalMaterial
 
-Exposes sheen (colour, roughness), anisotropy (strength, rotation, map), specularIntensity and specularColor, transmission, thickness, attenuationColor and distance, iridescence, clearcoat and dispersion. `packages/viewer/src/buildMaterial.ts` builds every automovie material as a MeshPhysicalMaterial and adds its own screen-space curvature subsurface approximation when `subsurfaceRadius` is set.
+Exposes sheen (colour, roughness), anisotropy (strength, rotation, map), specularIntensity and specularColor, transmission, thickness, attenuationColor and distance, iridescence, clearcoat and dispersion.

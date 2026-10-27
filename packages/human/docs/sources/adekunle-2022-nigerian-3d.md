@@ -1,6 +1,6 @@
 # Adekunle 2022, Nigerian facial anthropometry by stereophotogrammetry
 
-Adekunle AA, Olowo AY, James O, Adamson OO, Alade AA, Agbogidi FO, Oladega AO, Ogunlewe MO, Adeyemo WL, Busch T, et al. "Facial Anthropometry Measurements Using 3D Stereophotogrammetry Analysis Among Nigerians." *Journal of Craniofacial Surgery* 33(4):1178-1181, 2022, doi:10.1097/SCS.0000000000008036. Read as the NIH author manuscript PMC8783922 (NCBI efetch); the supplemental tables were not read.
+Adekunle AA, Olowo AY, James O, Adamson OO, Alade AA, Agbogidi FO, Oladega AO, Ogunlewe MO, Adeyemo WL, Busch T, et al. "Facial Anthropometry Measurements Using 3D Stereophotogrammetry Analysis Among Nigerians." *Journal of Craniofacial Surgery* 33(4):1178-1181, 2022, doi:10.1097/SCS.0000000000008036. NIH author manuscript PMC8783922; the supplemental tables were not read.
 
 ## Licence
 

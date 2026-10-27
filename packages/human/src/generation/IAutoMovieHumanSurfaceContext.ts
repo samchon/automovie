@@ -30,4 +30,27 @@ export interface IAutoMovieHumanSurfaceContext {
   indices: Map<string, number>;
   /** Flat chain-index, station-mm and phase-radian triples per generated vertex. */
   coordinates: number[];
+  /**
+   * Loops on each base chain, by its name: an appendage's root loop or an
+   * opening's trim loop, sampled in the base chart as `[station, phase]`.
+   */
+  roots: Map<
+    string,
+    {
+      appendage?: IAutoMovieHumanBodyCalibration.IAppendage;
+      opening?: AutoMovieHumanBodyApertures.IPrepared;
+      loop: [number, number][];
+    }[]
+  >;
+  /** Root end ring of every appendage chain, in its own phases, once lofted. */
+  ends: Map<string, { ring: number[]; phases: readonly number[] }>;
+  /**
+   * Cells a base left out inside its root loops, by base chain name: each
+   * cell's four corner vertices in ring order, and every corner's chart
+   * point.
+   */
+  holes: Map<
+    string,
+    { cells: [number, number, number, number][]; charts: Map<number, [number, number]> }
+  >;
 }

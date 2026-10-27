@@ -1,6 +1,6 @@
 # Liang 2024, cephalic index of Chinese children
 
-Liang Q, Shen Z, Sun S, Gong J, Bao N. "Cephalic index and horizontal point of maximum width in children with normal brain development in China." *BMC Pediatrics* 24:685, 2024, doi:10.1186/s12887-024-05173-4. Read as PMC11520368 (NCBI efetch).
+Liang Q, Shen Z, Sun S, Gong J, Bao N. "Cephalic index and horizontal point of maximum width in children with normal brain development in China." *BMC Pediatrics* 24:685, 2024, doi:10.1186/s12887-024-05173-4. PMC11520368.
 
 ## Licence
 

@@ -1,6 +1,6 @@
 # Cho 2025, external ear of Korean adults
 
-Cho E, Won JY, Park MH, Oh JH, Lee IW, Choung YH, Cho YS, Han GC, Lee HJ. "Anthropometry of the External Ear in Korean Adults: A Multicenter Study." *Journal of Korean Medical Science* 40(22):e107, 2025, doi:10.3346/jkms.2025.40.e107. Read as PMC12148551 (NCBI efetch).
+Cho E, Won JY, Park MH, Oh JH, Lee IW, Choung YH, Cho YS, Han GC, Lee HJ. "Anthropometry of the External Ear in Korean Adults: A Multicenter Study." *Journal of Korean Medical Science* 40(22):e107, 2025, doi:10.3346/jkms.2025.40.e107. PMC12148551.
 
 ## Licence
 

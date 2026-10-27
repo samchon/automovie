@@ -1,4 +1,5 @@
 import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
+import { AutoMovieHumanFeatureChain } from "../network/AutoMovieHumanFeatureChain";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
@@ -39,7 +40,10 @@ export namespace AutoMovieHumanBodyRegions {
     // Chains by unique name; copies, so trims never touch the region data.
     const chains: Map<string, IAutoMovieHumanLoftChain> = new Map();
     for (const region of regions)
-      for (const chain of region.chains) {
+      for (const chain of [
+        ...region.chains,
+        ...(region.networks ?? []).map(AutoMovieHumanFeatureChain.expand),
+      ]) {
         if (chains.has(chain.name))
           throw new Error(`Chain ${chain.name} is defined by two regions`);
         chains.set(chain.name, { ...chain, layers: [...chain.layers] });
@@ -88,6 +92,11 @@ export namespace AutoMovieHumanBodyRegions {
       eyes: regions.flatMap(
         (r: IAutoMovieHumanBodyRegion): IAutoMovieHumanBodyCalibration.IEye[] =>
           r.eyes ?? [],
+      ),
+      appendages: regions.flatMap(
+        (
+          r: IAutoMovieHumanBodyRegion,
+        ): IAutoMovieHumanBodyCalibration.IAppendage[] => r.appendages ?? [],
       ),
     };
   }

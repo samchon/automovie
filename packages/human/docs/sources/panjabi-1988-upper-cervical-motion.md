@@ -1,6 +1,6 @@
 # Panjabi et al. 1988, upper cervical motion
 
-Panjabi M., Dvorak J., Duranceau J., Yamamoto I., Gerber M., Rauschning W., Bueff H.U. "Three-dimensional movements of the upper cervical spine." *Spine* 13(7):726-730, 1988, doi:10.1097/00007632-198807000-00003. [PubMed abstract](https://pubmed.ncbi.nlm.nih.gov/3194778/) read through its indexed text on 2026-10-24; full article and White and Panjabi's 1990 handbook were not read.
+Panjabi M., Dvorak J., Duranceau J., Yamamoto I., Gerber M., Rauschning W., Bueff H.U. "Three-dimensional movements of the upper cervical spine." *Spine* 13(7):726-730, 1988, doi:10.1097/00007632-198807000-00003. Read: the [PubMed abstract](https://pubmed.ncbi.nlm.nih.gov/3194778/) only; the full article and White and Panjabi's 1990 handbook were not read.
 
 ## Population and protocol
 

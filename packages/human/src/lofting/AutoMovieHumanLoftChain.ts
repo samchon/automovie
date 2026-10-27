@@ -1,6 +1,8 @@
+import { AutoMovieHumanRelief } from "../network/AutoMovieHumanRelief";
 import { AutoMovieHumanHarmonicCurve } from "./AutoMovieHumanHarmonicCurve";
 import { AutoMovieHumanLoftFrame } from "./AutoMovieHumanLoftFrame";
 import { AutoMovieHumanSplineCurve } from "./AutoMovieHumanSplineCurve";
+import { AutoMovieHumanStationHermite } from "./AutoMovieHumanStationHermite";
 import type { IAutoMovieHumanLoftChain } from "./IAutoMovieHumanLoftChain";
 
 /**
@@ -157,6 +159,19 @@ export namespace AutoMovieHumanLoftChain {
     const H: number = b.y - a.y;
     const u: number = Math.min(1, Math.max(0, (y - a.y) / H));
 
+    // Layers that carry second derivatives (a feature chain expanded with
+    // its jets) take the quintic rule; the cubic below stays as it was.
+    if (
+      pick === sectionArrays &&
+      a.curvatures !== undefined &&
+      b.curvatures !== undefined
+    )
+      return AutoMovieHumanStationHermite.combine(
+        { value: av, slope: am, curvature: a.curvatures },
+        { value: bv, slope: bm, curvature: b.curvatures },
+        AutoMovieHumanStationHermite.weights(u, H, differentiate ? 1 : 0, true),
+      );
+
     // Cubic Hermite basis on the unit interval, or its derivative divided by
     // H, which converts d/du back to d/ds.
     const h00: number = differentiate
@@ -201,6 +216,29 @@ export namespace AutoMovieHumanLoftChain {
     const [lo, hi] = bracket(chain, s);
     const a: IAutoMovieHumanLoftChain.ILayer = layers[lo]!;
     const b: IAutoMovieHumanLoftChain.ILayer = layers[hi]!;
+
+    // Planes carrying their station derivatives move component by component
+    // by the Hermite rule, C2 with the coefficients (the plan's section 2).
+    if (
+      AutoMovieHumanStationHermite.framed(a) &&
+      AutoMovieHumanStationHermite.framed(b)
+    ) {
+      const ea: AutoMovieHumanStationHermite.IEnd =
+        AutoMovieHumanStationHermite.frameEnd(a);
+      const eb: AutoMovieHumanStationHermite.IEnd =
+        AutoMovieHumanStationHermite.frameEnd(b);
+      const quintic: boolean =
+        ea.curvature !== undefined && eb.curvature !== undefined;
+      const w: number[] = AutoMovieHumanStationHermite.weights(
+        Math.min(1, Math.max(0, (s - a.y) / (b.y - a.y))),
+        b.y - a.y,
+        0,
+        quintic,
+      );
+      return AutoMovieHumanStationHermite.unflat(
+        AutoMovieHumanStationHermite.combine(ea, eb, w),
+      );
+    }
     if (
       a.frame === undefined &&
       b.frame === undefined &&
@@ -380,13 +418,21 @@ export namespace AutoMovieHumanLoftChain {
         p[0],
         p[1],
       );
-      if (lifted === null) return q;
-      const h: number = AutoMovieHumanSplineCurve.evaluate(
-        lifted,
-        chain.order,
-        t,
-      )[0];
-      return [q[0] + h * n[0], q[1] + h * n[1], q[2] + h * n[2]];
+      if (lifted !== null) {
+        const h: number = AutoMovieHumanSplineCurve.evaluate(
+          lifted,
+          chain.order,
+          t,
+        )[0];
+        for (let k: number = 0; k < 3; k++) q[k]! += h * n[k]!;
+      }
+      // Reliefs move the base point along their axes.
+      for (const relief of chain.reliefs ?? []) {
+        const d: number = AutoMovieHumanRelief.height(relief, s, t)[0];
+        if (d === 0) continue;
+        for (let k: number = 0; k < 3; k++) q[k]! += d * relief.axis[k]!;
+      }
+      return q;
     });
   }
 
@@ -397,81 +443,5 @@ export namespace AutoMovieHumanLoftChain {
       f.v[2] * f.u[0] - f.v[0] * f.u[2],
       f.v[0] * f.u[1] - f.v[1] * f.u[0],
     ];
-  }
-
-  /**
-   * Tessellation heights between `from` and `to` by recursive bisection.
-   *
-   * Every principal layer inside the range is always a station, since it is
-   * a shape event. Each remaining interval is split at its midpoint while the
-   * Hermite section at the midpoint deviates from the straight chord between
-   * its two end sections by more than `tolerance` mm at any probe phase; both
-   * halves are then examined the same way. The chord deviation is the
-   * physical error a flat band of triangles would make there, so the rule
-   * refines curved stretches and leaves straight ones coarse. `depth` bounds
-   * the recursion, so a pathological interval yields an explicit coarse band
-   * instead of unbounded work.
-   *
-   * @returns Increasing heights including both ends.
-   */
-  export function stations(
-    chain: IAutoMovieHumanLoftChain,
-    from: number,
-    to: number,
-    tolerance: number,
-    depth: number = 8,
-  ): number[] {
-    // Probe phases for the chord test; 48 resolve every harmonic up to the
-    // orders used by the body chains.
-    const probes: number[] = Array.from(
-      { length: 48 },
-      (_: unknown, i: number): number => (2 * Math.PI * i) / 48,
-    );
-
-    // Principal layers strictly inside the range split it unconditionally.
-    const marks: number[] = [
-      from,
-      ...chain.layers
-        .map((l: IAutoMovieHumanLoftChain.ILayer): number => l.y)
-        .filter((y: number): boolean => y > from && y < to),
-      to,
-    ];
-
-    const out: number[] = [from];
-    const split = (a: number, b: number, level: number): void => {
-      const m: number = (a + b) / 2;
-
-      if (level < depth) {
-        const ra: [number, number, number][] = ring(chain, a, probes);
-        const rb: [number, number, number][] = ring(chain, b, probes);
-        const rm: [number, number, number][] = ring(chain, m, probes);
-
-        // Largest distance between the midpoint section and the average of
-        // its end sections, i.e. the flat band's sagitta. For horizontal
-        // layers the height component of this difference is zero.
-        let error: number = 0;
-        rm.forEach((p: [number, number, number], i: number): void => {
-          error = Math.max(
-            error,
-            Math.hypot(
-              p[0] - (ra[i]![0] + rb[i]![0]) / 2,
-              p[1] - (ra[i]![1] + rb[i]![1]) / 2,
-              p[2] - (ra[i]![2] + rb[i]![2]) / 2,
-            ),
-          );
-        });
-
-        if (error > tolerance) {
-          split(a, m, level + 1);
-          split(m, b, level + 1);
-          return;
-        }
-      }
-      out.push(b);
-    };
-
-    for (let i: number = 1; i < marks.length; i++)
-      split(marks[i - 1]!, marks[i]!, 0);
-    return out;
   }
 }

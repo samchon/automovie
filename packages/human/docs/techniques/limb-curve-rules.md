@@ -13,7 +13,7 @@ c_i = g*B_i
 dc_i/ds = (g'*B_i + g*B_i')/L.
 ```
 
-A degree-five shape times a linear or quadratic scale has degree six or seven. Restriction must retain that function rather than replace it with a cubic between principal layers.
+A degree-five shape times a linear or quadratic scale has degree six or seven. Restriction retains that function rather than replacing it with a cubic between principal layers.
 
 With fixed chart axes U,V, O=A+t(B-A)+U*c0+V*c1, e=U*cos(phi)+V*sin(phi),
 
@@ -24,14 +24,12 @@ P_phi = e_phi*R + e*R_phi
 P_sphi = e_phi*R_s + e*R_sphi.
 ```
 
-Positions use mm, phase radians and station mm. O_s includes both centre-channel derivatives. Reflection must retain the declared angular meaning and orientation sign.
+Positions use mm, phase radians and station mm. O_s includes both centre-channel derivatives. Reflection retains the declared angular meaning and orientation sign.
 
 ## Features and limits
 
 Principal layers follow observed volume, width/depth, centre and topology events, not every acquisition plane. Locate extrema on the retained function and distinguish an observed endpoint from an anatomical minimum.
 
-Use source interval widths in quadrature and keep each person's contribution comparable when observation density differs. A compact spline with feature knots can preserve meaningful transitions better than a single higher-degree polynomial, but extra knots need observed justification.
+Use source interval widths in quadrature and keep each person's contribution comparable when observation density differs. A compact spline with feature knots can preserve meaningful transitions better than a single higher-degree polynomial; each extra knot needs an observed reason.
 
-Actual achieved course values, course polygons and planar skin perimeter have different definitions. Do not force them equal. Positivity of a radial chart neither establishes anatomical fidelity nor qualifies independent dimension response. Shared cuts and neighboring transitions still require one boundary owner.
-
-[Original derivation and experimental record](https://github.com/samchon/automovie/blob/197196b7b/packages/human/docs/techniques/limb-curve-rules.md). Its source identities, fitted coefficients, paths and reported outcomes are not validated for the current reference cohort.
+Achieved course values, course polygons and planar skin perimeter have different definitions and are not forced equal. Positivity of a radial chart neither establishes anatomical fidelity nor qualifies independent dimension response. Shared cuts and neighboring transitions still require one boundary owner.

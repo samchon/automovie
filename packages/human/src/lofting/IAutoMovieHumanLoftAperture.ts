@@ -28,4 +28,13 @@ export interface IAutoMovieHumanLoftAperture {
    * with a globe behind it takes its depth from the globe instead.
    */
   pocket?: number;
+
+  /**
+   * Chain whose skin the opening lies on. Given, the opening is a trim
+   * loop in that chain's chart (the outline projected onto its surface
+   * along `forward`): the chain leaves the cells inside unlofted and the
+   * closure starts from the loop with the surface's own derivatives.
+   * Absent, the opening is cut from the finished mesh by position.
+   */
+  base?: string;
 }

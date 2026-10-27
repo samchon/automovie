@@ -1,6 +1,6 @@
 # Farkas 2004, facial framework in adulthood
 
-Farkas LG, Eiben OG, Sivkov S, Tompson B, Katic MJ, Forrest CR. "Anthropometric measurements of the facial framework in adulthood: age-related changes in eight age categories in 600 healthy white North Americans of European ancestry from 16 to 90 years of age." *Journal of Craniofacial Surgery* 15(2):288-298, 2004, doi:10.1097/00001665-200403000-00027. Abstract only (Europe PMC REST API).
+Farkas LG, Eiben OG, Sivkov S, Tompson B, Katic MJ, Forrest CR. "Anthropometric measurements of the facial framework in adulthood: age-related changes in eight age categories in 600 healthy white North Americans of European ancestry from 16 to 90 years of age." *Journal of Craniofacial Surgery* 15(2):288-298, 2004, doi:10.1097/00001665-200403000-00027. Read: the abstract only.
 
 ## Population and protocol (abstract)
 

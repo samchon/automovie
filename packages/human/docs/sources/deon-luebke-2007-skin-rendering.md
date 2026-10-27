@@ -28,4 +28,4 @@ Book chapter published free online by NVIDIA.
 | 1.99 | 0.358 | 0.004 | 0 |
 | 7.41 | 0.078 | 0 | 0 |
 
-Red scatters furthest (36 percent of its weight at variance 1.99 mm², standard deviation 1.4 mm), blue barely leaves the entry point. A per-channel radius for the viewer's `subsurfaceRadius` can be derived as the weighted standard deviation √(Σ wᵢ vᵢ): red 1.18 mm, green 0.26 mm, blue 0.16 mm (derived here, not in the chapter; each channel's weights sum to 1).
+Red scatters furthest (36 percent of its weight at variance 1.99 mm², standard deviation 1.4 mm), blue barely leaves the entry point. The weighted standard deviation √(Σ wᵢ vᵢ) of each channel is red 1.18 mm, green 0.26 mm and blue 0.16 mm (derived, not in the chapter).

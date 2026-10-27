@@ -15,4 +15,11 @@ export type IAutoMovieHumanSurfaceBoundary =
   | {
       /** The chain end closes at its calibrated or inferred pole. */
       kind: "pole";
+    }
+  | {
+      /**
+       * The chain end is an appendage's root: generated in the chain's own
+       * phases and joined to its base by a transition strip afterwards.
+       */
+      kind: "root";
     };

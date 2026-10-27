@@ -25,8 +25,8 @@ import { AutoMovieHumanScalpBoundary } from "./AutoMovieHumanScalpBoundary";
  * the hair as one volume rather than as flat strips, leaned slightly per
  * card and across its width, and a per-card vertex-colour shade with
  * darker roots breaks the mass into locks. Width grows from a third over
- * the root band, narrows by a quarter along the card and by a further
- * fifth over the tip band. Curl classes
+ * the root band, narrows by a quarter along the card and rounds over the
+ * tip band to an elliptic end, drawn every {@link TIP_STEP} mm. Curl classes
  * add an in-plane wave whose amplitude and wavelength grow tighter from
  * class I (straight) to VIII, with a phase that varies smoothly over the
  * scalp so neighbouring cards wave together; a class names curve diameter
@@ -144,6 +144,9 @@ const WIDTH: Record<AutoMovieHumanHairStyle, number> = {
   [AutoMovieHumanHairStyle.Bob]: 12,
 };
 
+/** Longest card segment in the tip band, millimetres. */
+const TIP_STEP: number = 2;
+
 /** In-plane wave `[amplitude mm, wavelength mm]` per curl class. */
 const CURL: Record<AutoMovieHumanHairCurl, [number, number]> = {
   [AutoMovieHumanHairCurl.I]: [0, 1],
@@ -179,7 +182,6 @@ function cards(
 
   for (const guide of guides) {
     const base: number = positions.length / 3;
-    const n: number = guide.points.length;
     const length: number = guide.length;
     const window: number =
       Math.floor(AutoMovieHumanAppearanceNoise.hash(8, guide.root) * 4) / 4;
@@ -218,17 +220,35 @@ function cards(
     const rootSpan: number = Math.min(8, 0.4 * length);
     const tipSpan: number = Math.min(30, 0.2 * length);
     const tipStart: number = length - tipSpan;
+
+    // The guide's points, with every segment reaching into the tip band cut
+    // into pieces of at most TIP_STEP mm, so the rounded end is drawn.
+    const points: Array<[number, number, number]> = [guide.points[0]!];
+    const outwards: Array<[number, number, number]> = [guide.normals[0]!];
+    for (let i: number = 1, arc: number = 0; i < guide.points.length; ++i) {
+      const a: [number, number, number] = guide.points[i - 1]!;
+      const b: [number, number, number] = guide.points[i]!;
+      arc += distance(a, b);
+      const pieces: number =
+        arc > tipStart ? Math.max(1, Math.ceil(distance(a, b) / TIP_STEP)) : 1;
+      for (let k: number = 1; k <= pieces; ++k) {
+        const t: number = k / pieces;
+        points.push(lerp(a, b, t));
+        outwards.push(unit(lerp(guide.normals[i - 1]!, guide.normals[i]!, t)));
+      }
+    }
+    const n: number = points.length;
     let s: number = 0;
 
     for (let i: number = 0; i < n; ++i) {
-      const p: [number, number, number] = guide.points[i]!;
-      const outward: [number, number, number] = guide.normals[i]!;
-      if (i > 0) s += distance(p, guide.points[i - 1]!);
+      const p: [number, number, number] = points[i]!;
+      const outward: [number, number, number] = outwards[i]!;
+      if (i > 0) s += distance(p, points[i - 1]!);
 
       // Heading by central differences; the width axis is heading x
       // outward, tangent to the hair mass.
-      const a: [number, number, number] = guide.points[Math.max(0, i - 1)]!;
-      const b: [number, number, number] = guide.points[Math.min(n - 1, i + 1)]!;
+      const a: [number, number, number] = points[Math.max(0, i - 1)]!;
+      const b: [number, number, number] = points[Math.min(n - 1, i + 1)]!;
       const heading: [number, number, number] = [
         b[0] - a[0],
         b[1] - a[1],
@@ -248,10 +268,11 @@ function cards(
                 (s - rootSpan)) /
                 Math.max(tipStart - rootSpan, 1e-9);
 
-      // Width narrows by a quarter along the length and by a further fifth
-      // over the tip band, where the image's strands converge into points.
-      // Narrowing by half there drew each card's end as a separate spike,
-      // and the cut as a saw edge. Cards rooted at the hairline are as much
+      // Width narrows by a quarter along the length and rounds over the tip
+      // band, half width times sqrt(1 - x^2) of the band's share x, an
+      // elliptic end with no corner: a straight narrowing drew each card's
+      // end as a spike or a square, and the cut as a saw edge, where the
+      // image's strands converge into points. Cards rooted at the hairline are as much
       // narrower as they are shorter (down to a third), so the edge thins
       // into sparse fine hair instead of a row of full cards. Each card also
       // widens from a third at its root over the root band: cut square
@@ -263,8 +284,12 @@ function cards(
         (1 / 3 +
           (2 / 3) * AutoMovieHumanAppearanceNoise.smoothstep(0, rootSpan, s)) *
         (1 - 0.25 * t) *
-        (1 -
-          0.2 * AutoMovieHumanAppearanceNoise.smoothstep(tipStart, length, s));
+        Math.sqrt(
+          Math.max(
+            0,
+            1 - Math.min(1, Math.max(0, (s - tipStart) / tipSpan)) ** 2,
+          ),
+        );
       const wave: number =
         amplitude *
         Math.sin((2 * Math.PI * s) / wavelength + phase) *
@@ -433,6 +458,26 @@ function distance(
   b: [number, number, number],
 ): number {
   return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+}
+
+/**
+ * Linear interpolation.
+ *
+ * @param a Start
+ * @param b End
+ * @param t Share of the way to `b`
+ * @returns `a + t (b - a)`
+ */
+function lerp(
+  a: [number, number, number],
+  b: [number, number, number],
+  t: number,
+): [number, number, number] {
+  return [
+    a[0] + t * (b[0] - a[0]),
+    a[1] + t * (b[1] - a[1]),
+    a[2] + t * (b[2] - a[2]),
+  ];
 }
 
 /**
