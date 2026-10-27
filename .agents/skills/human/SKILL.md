@@ -1,6 +1,6 @@
 ---
 name: human
-description: Models human figures from existing parameters and recovered curves through a written survey and plan, one-pass implementation, and full inspection rounds fixed by cause, under a subagent compliance audit every 15 minutes. Use with 3d-modeling for Human geometry or display.
+description: Models human figures from existing parameters and recovered curves through a written survey and plan, one-pass implementation, and full inspection rounds fixed by cause, with the main agent supervising worker subagents that do all the work. Use with 3d-modeling for Human geometry or display.
 ---
 
 # Human
@@ -9,16 +9,15 @@ Honor explicit shutdowns; do not restore a deliberately stopped service. Explici
 
 During authorized modeling, the working viewer and screenshot path take priority over every modeling task. Keep the single service running even when models fail. If a page or capture fails, stop modeling and shared computation, repair the complete page-to-PNG path and open every required audit image before resuming. Only an explicit user instruction permits terminating a live server. See [Screenshots](screenshot.md) for interface and verification limits.
 
-## Compliance Audit
+## Supervision
 
-The user ordered this audit for all Human work and forbids breaking it, because the main agent kept breaking skills it had read and auditing itself did not stop it. It is the user's standing request for a subagent under [AGENTS.md](../../../AGENTS.md), and it judges conduct while the [render audit](verification.md#audit-and-user-reports) judges the model; neither replaces the other.
+All Human work runs under this structure, the user's standing request for subagents under [AGENTS.md](../../../AGENTS.md). Never work as a single agent.
 
-1. Keep a recurring job that fires every 15 minutes for as long as Human work runs. Confirm it exists when work starts or resumes, after a context summary, and on every turn the job did not start, and recreate it at once if it is missing, because a session-scoped schedule ends with its session without notice.
-2. At each firing, spawn one read-only subagent with [Compliance Audit](compliance-audit.md) as its brief, naming the session transcript, the previous audit's time and verdict, and the pull request the user allows.
-3. Relay its verdict and every warning to the user in the user's language, whole and unsoftened.
-4. Correct every named violation before any other work continues.
-
-Skipping or delaying a firing because work is busy, letting the job lapse, auditing yourself instead, summarizing or softening a verdict, and deferring a correction each break this order.
+- The main agent only supervises. It does no survey, plan, code, fit or capture itself.
+- Worker subagents do all the work. The main agent assigns each task, its scope and the method to use.
+- The main agent reads every output itself: the code, the numbers, the files and the images. A subagent's report is not evidence.
+- On any violation, the main agent stops the subagent at once and warns it strongly, naming the violation. Violations include inventing a heuristic or constant, faking a test or result, working outside its task, and reporting what its output does not show.
+- The main agent tells the user only what it has checked in the output, and answers for it.
 
 ## Work Order
 
@@ -47,12 +46,11 @@ On resuming, after a context summary, and whenever the current step is unclear, 
 
 ## Work Allocation
 
-Work alone apart from the [compliance audit](#compliance-audit). Spawn or resume any other subagent only when the user explicitly requests delegation; regional tasks, campaign issues and the render audit schedule do not authorize it.
+Under [Supervision](#supervision), the main agent assigns these roles to subagents before parallel work:
 
 - One integration owner controls the common skeleton and boundaries.
 - One execution owner controls compiler, native, GPU and capture resources.
-- In solo work, perform both roles yourself; when delegated, assign them before parallel work.
-- Read [Verification](verification.md) before implementation; retain responsibility for checks and user reports in solo or delegated work.
+- Every subagent reads [Verification](verification.md) before implementation; the main agent keeps responsibility for checks and user reports.
 
 ## Modeling Method
 
@@ -66,7 +64,7 @@ The plan derives its changes by this method:
 
 - Fit f1's observed whole body first, through public generation, actual model and viewer, including skin, construction and every join; carry f2, m1 and m2 through shared rules.
 - Use recovered coordinates as calibration constraints, without person-indexed tables; f1 reproduction alone does not establish common laws or unseen-shape prediction.
-- Complete every [scheduled render audit](verification.md#audit-and-user-reports). A failed request, an unavailable status or an old image does not satisfy it; repair capture and finish the required fresh images.
+- Complete every [render audit](verification.md#audit-and-user-reports). A failed request, an unavailable status or an old image does not satisfy it; repair capture and finish the required fresh images.
 - Use available observations immediately. [Additional references](references.md#add-or-resume-a-reference) are already authorized when needed; acquisition must not become an implementation delay.
 
 The [Human campaign](https://github.com/samchon/automovie/issues/2925) owns modeling; [reference supply](https://github.com/samchon/automovie/issues/2926) owns `test/.shots/{f1,f2,m1,m2}/` and its manifest.

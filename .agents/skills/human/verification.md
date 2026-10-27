@@ -1,6 +1,6 @@
 # Verification
 
-Run a complete inspection round after each implementation pass of the [work order](SKILL.md#work-order), including in solo work. Inspect the assembled result before claiming visual acceptance. Report unavailable checks as unverified.
+Run a complete inspection round after each implementation pass of the [work order](SKILL.md#work-order). Inspect the assembled result before claiming visual acceptance. Report unavailable checks as unverified.
 
 ## Actual Generated Form
 
@@ -40,17 +40,17 @@ Record the cause with the finding and keep the PNGs that showed it with the roun
 
 ## Audit And User Reports
 
-During authorized active modeling, deliver these reports directly to the user, including in solo work and when progress is unchanged. When verification is delegated, inspect its evidence and retain responsibility for the user report; internal agent replies do not replace it. The [explicit stop](SKILL.md#human) suspends captures and automatic resumption.
+During authorized active modeling, the main agent delivers these reports directly to the user. It inspects the subagent's evidence itself and keeps responsibility for the report; internal agent replies do not replace it. The [explicit stop](SKILL.md#human) suspends captures and automatic resumption.
 
-- Run this render audit and report it every 15 minutes, including solo work; the [compliance audit](SKILL.md#compliance-audit) runs beside it on its own schedule. Check the next deadline before starting a bounded computation; schedule capture ahead of work that could cross it.
+- Run this render audit only after the generated output changes, and show only the new frames. Never capture or send an unchanged model.
 - Use the subjects, directions, display conditions and delivery format the user requests. By default, capture f1 only: fresh whole front, side, top and back with `garment=0`, plus whole-body front, side and back construction. Keep PNGs local and open all seven. Specimen implementation still requires its own affected-population verification.
 - Extra details and cache hits do not replace the required whole-body set.
 - An audit reports state. A defect it shows joins the next inspection round's findings and starts no edit.
-- Check regional image inspection, actual code consumption and uncovered regions; rule violations belong to the compliance audit. Follow [Work Allocation](SKILL.md#work-allocation) to delegate this audit.
+- Check regional image inspection, actual code consumption and uncovered regions. Assign the capture under [Work Allocation](SKILL.md#work-allocation).
 - Preserve/open/display exact local PNGs under [Screenshot reporting](screenshot.md#user-facing-image-reports), with captured UTC, SHA and code/input/output binding.
 - Distinguish capture, local-save and report times. Report defects, unsupported scope and remaining comparisons.
-- A scheduled audit is complete only after every required fresh PNG is saved, its provenance checked and the local image opened. If any capture fails, suspend all modeling and shared computation, collect the failure evidence, repair the viewer/capture path and finish the entire audit before resuming. Failure notes and unavailable labels do not replace the images.
-- On delay, report cause/current recovery/last actual capture immediately and continue recovery until the audit is complete. Never reset the cadence to excuse a missed audit, skip a direction or present cached pixels as a new capture.
+- An audit is complete only after every required fresh PNG is saved, its provenance checked and the local image opened. If any capture fails, suspend all modeling and shared computation, collect the failure evidence, repair the viewer/capture path and finish the entire audit before resuming. Failure notes and unavailable labels do not replace the images.
+- On delay, report cause/current recovery/last actual capture immediately and continue recovery until the audit is complete. Never skip a direction or present cached pixels as a new capture.
 
 ## Separate Qualifications
 

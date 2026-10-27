@@ -44,7 +44,7 @@ The head observation (`head-observations.json`) carries the source's own landmar
 
 ## Viewer features
 
-One service at `http://127.0.0.1:5173`. Passes `surface`, `overlay`, `construction`; cameras `whole-*`, `region-row*-*`, `head-*`, `eye-*-front`, `free`; free view `az`, `el`, `view`, `target`, `dist`, `ortho`; `curves` selection with `isolate` and `fit=selection`; `garment=0`, `hair=0`, `material=clay`, `light=raking-left|right`; 2D curve diagrams with curvature combs and station series (`<chain>@<from>:<to>:<step>`), axis profiles; receipts, SHA headers and the archive; the stickman page. The audit set is f1's bare whole front, side, top and back plus construction front, side and back every 15 minutes.
+One service at `http://127.0.0.1:5173`. Passes `surface`, `overlay`, `construction`; cameras `whole-*`, `region-row*-*`, `head-*`, `eye-*-front`, `free`; free view `az`, `el`, `view`, `target`, `dist`, `ortho`; `curves` selection with `isolate` and `fit=selection`; `garment=0`, `hair=0`, `material=clay`, `light=raking-left|right`; 2D curve diagrams with curvature combs and station series (`<chain>@<from>:<to>:<step>`), axis profiles; receipts, SHA headers and the archive; the stickman page. The audit set is f1's bare whole front, side, top and back plus construction front, side and back, captured after each change to the generated output.
 
 ## Open defects and their causes
 
