@@ -35,7 +35,7 @@ export interface IProductionPassValidation {
   /** Known policy findings belonging exclusively to downstream passes. */
   frozenDownstreamDiagnostics: IEvidenceDiagnostic[];
 
-  /** Current authored structure and all prerequisites permit a full reread. */
+  /** Authored structure and prerequisites permit reading, even with empty current reviews. */
   rereadReady: boolean;
 
   /** Includes active, nonempty current review and verdict and all their findings. */

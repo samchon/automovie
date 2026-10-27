@@ -1,14 +1,14 @@
 ---
 name: review
-description: Independently reviews production bodies, evidence, and delivered outputs against their current inputs. Use for reviews, pass completion, and final delivery.
+description: Reviews current production work and independently judges narrative passes against their actual inputs. Use for source reviews, narrative review rounds, and evidence truth checks; final output acceptance belongs to delivery-review.
 ---
 
 # Review
 
-Read the complete requested scope from the recipient's perspective. For narrative passes, follow [independent review](../../../docs/guides/narrative-review.md): read and lock the first response before consulting the author's evidence, then inspect contracts, parents, and claims. A self-review does not satisfy an independent pass; use a fresh reviewer context and report when that cannot be provided.
+Read the complete requested scope from the recipient's perspective. For narrative passes, use [independent reading](reading.md), then [review rounds](rounds.md) for findings, author exchange, current unit records and the whole-pass verdict. A self-review does not satisfy an independent pass.
 
-For selected narrative work, the installed production checker described in the [evidence guide](../../../docs/guides/evidence.md#complete-a-pass-check) validates current graph structure, dependencies, reviews, and rewriting transfer. Its readiness result does not issue a semantic PASS. Record current unit reviews and a whole-pass verdict only after the required reading and finding resolution.
+Use the [review principles](../contracts/story/shared/principles/review.md) for narrative judgments. [Narrative completion](../narrative-completion/SKILL.md) owns checker and pass handoff; structural readiness cannot grant semantic acceptance. All corrections follow [complete cause rounds](../upstream-repair/cause-rounds.md).
 
-Collect all findings in the round before editing. Authors record acceptance, partial acceptance, or rejection with grounds; disputed findings return to the reviewer. Correct causes and all affected consumers together, then use a fresh complete round to close the pass. Revisit currentness after upstream changes rather than refreshing hashes without rereading.
+For source and measurable behavior, inspect actual consumers, affected checks and the selected [engineering contracts](../contracts/SKILL.md), using [development](../development/SKILL.md) and [testing](../testing/SKILL.md). Gather the whole round before repairing its causes together.
 
-Use [3d-modeling](../3d-modeling/SKILL.md) for visible results, [audio](../audio/SKILL.md) for sound, and [testing](../testing/SKILL.md) for measurable behavior. At delivery, perform the separate whole-work review and watch/listen to the assembled video. For an asset, inspect its promised controls and actual model or export. Preserve the revision, input/output identities, reviewed scope, and unverified limitations.
+Use [3d-modeling](../3d-modeling/SKILL.md) for local visible results and [audio](../audio/SKILL.md) for sound. Final screenplay, diffusion hint, asset or finished-video acceptance uses [delivery review](../delivery-review/SKILL.md).

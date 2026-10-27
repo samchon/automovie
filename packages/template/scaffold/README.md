@@ -1,6 +1,6 @@
 # {{name}}
 
-Make a standalone 3D asset, a short video, or a long film or series. Keep authored TypeScript under `src` and fixed media under `public`; choose the planning depth and tools the production needs.
+Use an LLM to author a complete movie screenplay, then program the main scenes' motion and staging and assemble the whole video as a reproducible film-generation hint. Stick figures, block figures, and coarse meshes can carry that performance; Human is optional. Stills and pilot clips alone do not complete a movie hint. A separately commissioned screenplay, whole motion hint, finished direct 3D film, and finished post-diffusion film have distinct delivery scopes. Standalone assets and short videos can use their own production path.
 
 ## First run
 
@@ -11,27 +11,30 @@ npm run evidence
 npm test
 ```
 
-The blank project contains instructions, contracts, and configuration, with no story, models, viewer, render host, or media provider selected. The default `lint.config.ts` and `evidence.config.ts` check ordinary TypeScript source and tests. Start with the [production skill](.agents/skills/production/SKILL.md); add [narrative options](docs/guides/evidence.md#choose-the-production-scope) to the same evidence configuration for video writing. Long productions retain settings → treatments → scripts → final screenplay; short videos enter at final screenplay; asset-only work keeps the engineering baseline and adopts its actual asset duties. Passing checks on an empty harness does not complete a production.
+The blank project contains instructions, contracts, and configuration, with no story, models, viewer, render host, or media provider selected. Start with [production](.agents/skills/production/SKILL.md) for the requested output and [storytelling](.agents/skills/storytelling/SKILL.md) for creative work. Default lint and evidence check ordinary TypeScript source and tests; [evidence configuration](.agents/skills/evidence-configuration/SKILL.md) adds narrative scope and stages to that same configuration. Checks on an empty harness do not complete a production.
 
 ## Commands
 
 | Command | Purpose |
 | --- | --- |
 | `npm run lint` | TypeScript and source correctness |
-| `npm run evidence` | Source/test checklists and the selected production path's active evidence obligations |
-| `npm run production:check -- --layer <layer> --pass <pass>` | After narrative opt-in, current pass structure and prerequisites; see [pass checks](docs/guides/evidence.md#complete-a-pass-check) |
+| `npm run evidence` | Source/test checklists and the selected path's active evidence obligations |
+| `npm run production:check -- --layer <layer> --pass <pass>` | After narrative opt-in, current pass structure and prerequisites; see [narrative completion](.agents/skills/narrative-completion/SKILL.md) |
 | `npm test` | Every exported `test_*` function under `test`; passes when there is none |
 | `npm run format` | Source formatting |
 
 The project uses ES modules with `verbatimModuleSyntax` and `isolatedModules`: mark type-only imports and exports with `type`, and keep each file transformable on its own.
 
-## Working files
+## Project files
 
-- `src` holds executable source, including viewer and command entries; `test` holds tests and their runner; `public` holds HTML and fixed media.
-- `docs` holds production decisions and working documents when needed; `docs/guides` holds the shipped manuals.
-- `production.check.ts` calls the installed `@automovie/evidence` checker against the same evidence configuration.
-- `lint.config.ts` configures source lint; `evidence.config.ts` selects the checklists in `.agents/skills/contracts`.
-- `package.json` owns dependencies, commands, and compiler settings.
-- Installation is one-way: these files are project-owned, and package upgrades never overwrite them.
+- `.agents/skills` holds task overviews, directly linked resources, and contracts; `AGENTS.md` routes their use.
+- `PROJECT.md` holds the project overview, commissioned scope, current choices, constraints and setup authority.
+- `docs/instructions` holds creative writing requirements; other `docs` locations hold bodies, working editions, evidence and reviews when needed. [Layout and intake](.agents/skills/production/layout.md) explains their owners.
+- `src` holds executable source and actual host entries, with optional provider or local-tool code in `src/integrations`; `test` holds tests and their runner; `public` holds retained fixed media.
+- Runtime README instructions and `.env.example` hold nonsecret setup and variable names. Keep actual secrets in ignored local `.env`.
+- `evidence.config.ts` selects duties through installed `@automovie/evidence`; `production.check.ts` calls its pass checker against that configuration.
+- `lint.config.ts` configures source lint; `package.json` owns dependencies, commands, and compiler settings.
 
-Use the [production guide](docs/guides/production.md) to choose or change the layout, [storytelling](docs/guides/storytelling.md) for long narrative work, [assets](docs/guides/assets.md) for modeling and acquisition, [audio](docs/guides/audio.md) for provider choices, and [contracts](docs/guides/contracts.md) for evidence scope. Installed package READMEs, public types, and JSDoc remain the API reference, including `@automovie/evidence` for configuration and checking. The [evidence guide](docs/guides/evidence.md) records creative procedure and upstream provenance. Add viewer or host dependencies only when the chosen output needs them.
+Installation is one-way: instructions, contracts, configuration, and authored source belong to this project, and package upgrades never overwrite them. Installed package READMEs, public types, and JSDoc own API behavior. Use [motion](.agents/skills/motion/SKILL.md) for scene performance, staging, and whole-video assembly. Choose [3D representation and acquisition](.agents/skills/3d-modeling/SKILL.md) and [audio](.agents/skills/audio/SKILL.md) for the commissioned video's actual needs, including direct 3D sound and setup; [delivery review](.agents/skills/delivery-review/SKILL.md) inspects the commissioned artifact. A motion hint needs the whole assembled video but no completed diffusion film; an explicitly requested direct 3D film can finish without diffusion.
+
+The production skills and story contracts adapt [wrtnlabs/novels](https://github.com/wrtnlabs/novels/tree/6a9178bb2d96038d93b5313cd28682061cf44a03/packages/template/scaffold/.agents/skills). Its MIT copyright and permission notice remain in [LICENSE.novels](.agents/skills/LICENSE.novels); [provenance and responsibility ownership](.agents/skills/contracts/adoption.md#retain-provenance) records the adaptation.

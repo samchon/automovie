@@ -1,0 +1,15 @@
+# Rendered-use inspection
+
+Select inspection conditions from the commissioned output and the change's reach. An instance-only task inspects that instance and its promised controls; a screenplay-only task requires no render. A motion hint is judged as its complete commissioned hint artifact, not as an uncommissioned post-diffusion film. A static background prop and a reusable articulated character need different coverage. Include the affected shot cameras, visible details, assembled neighbors, and any additional view needed to expose a suspected shape or junction defect. Broader reuse requires broader view and motion coverage; a shot-specific result should say which use was checked.
+
+For a whole-video commission, inspect the complete programmed main-scene progression and assembled timeline, including transitions and ending; stills and isolated clips cannot replace it. [Motion](../motion/SKILL.md) owns performance and engine-feedback integration. Inspect visible consequences of its contacts and constraints rather than inferring success from admitted numbers. After a detail upgrade, compare the same sequence for changed proportions, pivots, attachments, deformation, contact, timing and silhouette, and remeasure cost. A hint needs reliable action and staging; photographic detail is required only by its adopted output contract. A requested direct 3D film receives its commissioned visual finish after low-cost motion works.
+
+When changing shape, inspect the actual generating construction alongside the surface to trace defects to their cause. Check form under light that exposes it, then judge materials and lighting in the intended presentation. For moving assemblies, inspect relevant intermediate poses, extremes, contacts, and returns, including combinations affected by changed proportions or attachments.
+
+Capture current output from the real consumer with the source revision, asset identities, time or pose, camera, renderer, and detail settings needed to repeat the observation. Compare changes under matching conditions. A blank frame, stale capture, or output nobody inspected remains unverified.
+
+Measure rendering cost at the intended resolution, asset population, and motion load. If a lower specification host is a requirement, observe that host or report the untested limitation; a coarser mesh alone does not establish acceptable memory or frame time. Keep measured budgets and accepted visual compromises with the production decisions.
+
+Complete each inspection round before editing: collect every affected render, measurement, diagnostic, and failure; relate each phenomenon to its cause and contributing conditions; then correct all identified causes together. Repeat the original conditions across all affected consumers and inspect regressions before accepting the change. Use the [asset questions](../contracts/assets.md) for review; the [contracts skill](../contracts/SKILL.md) owns formal adoption and respondent selection.
+
+For final assembled delivery or an asset export handoff, use [delivery review](../delivery-review/SKILL.md); local inspection establishes only its observed use.

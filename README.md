@@ -1,12 +1,18 @@
 # AutoMovie
 
-**Deterministic motion and staging that a diffusion model repaints into video.**
+**LLM-authored screenplays and reproducible motion hints for video diffusion.**
 
-A user directs a coding agent in natural language; the agent authors figures, props, motion, staging and camera in TypeScript against AutoMovie's public engine, and AutoMovie validates and renders them deterministically. The render is the hint a diffusion model repaints into the final video. It fixes who stands where, how they move, when, and from which camera, which a diffusion model left alone invents differently on every run. The same source always produces the same frames.
+A user directs an LLM in natural language. The agent writes the film's screenplay, then authors the staging, motion and camera needed to convey it. AutoMovie's deterministic engine makes those choices reproducible and inspectable before a chosen diffusion workflow turns the hint into finished imagery.
 
-Figures range from stick figures to a human generated from measurements, all on one shared skeleton, so motion authored and reviewed on a stick figure carries over unchanged when the figure is upgraded. A realistic, detailed person leaves diffusion less room to distort faces and hands, and serves as the reference that judges the repainted frame. The engine's physics computes hits, impacts, recoil and projectile paths, so they follow from the motion instead of being drawn by hand.
+Stick figures and coarse meshes can carry the hint. Their performance, contacts, trajectories, reactions and timing must express the intended action accurately; surface detail follows the shot's needs and budget. Human is an optional way to express character information. Important objects may need only an approximate frame, while objects unnecessary to the conditioning can stay in the screenplay's description.
 
-There is no internal LLM and no authoring server: whatever an agent cannot reach by reading its project and running its code does not exist.
+Productions can combine code-authored geometry, fixed images and imported or generated meshes. Use an existing asset directly when it has the needed controls. When deformation or code control requires an editable construction, Recovery provides supported paths toward saved curves and reconstructed geometry. A generated image can itself be a hint; multiview generation and image-to-3D services are optional routes for detail a shot actually needs. Package documentation defines their supported inputs and limits.
+
+The scaffold's skills guide the agent through settings → treatments → scripts → final audiovisual screenplay for long work, including expression revision, evidence and independent review. A short video can start directly at final screenplay. A film-generation hint programs motion and staging for the main scenes and assembles the whole video; stills and isolated clips support that work without replacing it. A screenplay-only request can end at text. A requested finished video can use direct 3D rendering or the chosen diffusion workflow. Start with low-cost instances and verified motion, then upgrade selected objects through code options within the production budget. A good hint still needs verification against the chosen generator; it does not guarantee the generated film's quality.
+
+Record adopted production choices in the generated project-root `PROJECT.md`; keep creative writing instructions under `docs/instructions`. Production choices include output route, representation, providers or local tools, and authorized setup. Keep run instructions in the production README, required environment names in `.env.example`, and secrets in a Git-ignored `.env`. Use the selected tool's existing interface; add integration source only where the production needs it.
+
+There is no internal LLM or authoring server. Use your chosen coding agent, media providers and production host; generation produces fixed inputs with provenance outside deterministic replay.
 
 See it at [samchon.github.io/AutoMovie](https://samchon.github.io/AutoMovie/), where productions kept under [`experimental`](./experimental) are rendered from their authored source in the browser.
 
