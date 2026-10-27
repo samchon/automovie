@@ -587,9 +587,11 @@ export namespace AutoMovieHumanBodySurface {
       phases,
     );
     const heights: number[] =
-      target.pole !== undefined && bottom.kind === "pole"
+      target.pole?.end === "bottom" && bottom.kind === "pole"
         ? bisected.slice(1)
-        : bisected;
+        : target.pole?.end === "top" && top.kind === "pole"
+          ? bisected.slice(0, -1)
+          : bisected;
 
     // Ring and phase set at each station. Ends come from their boundaries
     // when inherited or owned, and are generated here when the end is a
@@ -1109,7 +1111,7 @@ export namespace AutoMovieHumanBodySurface {
     const calibrated: IAutoMovieHumanBodyCalibration.IPole | undefined =
       context.poles.get(target.name + ":" + end);
     const point: [number, number, number] =
-      (end === "bottom" ? target.pole : undefined) ??
+      (target.pole?.end === end ? target.pole.point : undefined) ??
       calibrated?.point ??
       AutoMovieHumanLoftChain.axis(target, y);
 

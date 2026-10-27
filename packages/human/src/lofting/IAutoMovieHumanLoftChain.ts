@@ -60,12 +60,18 @@ export interface IAutoMovieHumanLoftChain {
   reliefs?: IAutoMovieHumanRelief[];
 
   /**
-   * Pole of a cap: the point every section shrinks to at the chain's
-   * bottom station (the angle 0 from the pole axis), where the skin closes
-   * by a fan from the first ring after it. Absent for a chain that is not a
-   * cap.
+   * Pole of a cap: the point every section shrinks to at the chain's end
+   * station on the cap's side (the angle 0 from the pole axis), where the
+   * skin closes by a fan from the ring next to it. Absent for a chain
+   * without a cap.
    */
-  pole?: [number, number, number];
+  pole?: {
+    /** The chain's end the pole closes. */
+    end: "bottom" | "top";
+
+    /** The pole, mm. */
+    point: [number, number, number];
+  };
 }
 export namespace IAutoMovieHumanLoftChain {
   /** One principal layer: a shape event of the chain. */

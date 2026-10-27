@@ -205,21 +205,21 @@ export namespace AutoMovieHumanFeatureChain {
         flat(k.frame ?? AutoMovieHumanLoftFrame.horizontal(k.station)),
     );
 
-    // A cap's planes and their derivatives follow C + rho cos(theta) n.
-    const cap: ICap | null =
-      chain.cap === undefined ? null : capOf(chain, t, ownerEnd);
-    if (cap !== null)
-      t.forEach((theta: number, k: number): void => {
-        planes[k] = cap.plane(theta, 0);
-      });
+    // A cap's keys, past its end key, take their planes from its formula.
+    const cap: ICap | null = chain.cap === undefined ? null : capOf(chain);
+    const capped: boolean[] = t.map((s: number): boolean => cap !== null && cap.beyond(s));
+    t.forEach((s: number, k: number): void => {
+      if (capped[k]) planes[k] = cap!.plane(s, 0);
+    });
 
     // Shared ends copy the owner's key before the spline is solved, and
-    // keep the owner's derivatives, signed into this chain's station
-    // (scaled by ds / dtheta for a cap's top key).
+    // keep the owner's derivatives, signed into this chain's station.
     const overrides: [number, IAutoMovieHumanLoftChain.ILayer, number][] = [];
     for (const which of ["bottom", "top"] as const) {
       const share: IAutoMovieHumanFeatureChain.IShare | undefined = chain.ends?.[which];
       if (share === undefined) continue;
+      if (chain.cap?.end === which)
+        throw new Error(`Chain ${chain.name} both shares and caps its ${which} end`);
       const end: IAutoMovieHumanLoftChain.ILayer = ownerEnd(share);
       const index: number = which === "bottom" ? 0 : last;
       if (end.coefficients.length !== coefficients[index]!.length)
@@ -228,22 +228,26 @@ export namespace AutoMovieHumanFeatureChain {
         throw new Error(`Owner ${share.owner} of ${chain.name} carries no jets`);
       coefficients[index] = [...end.coefficients];
       planes[index] = flat(end.frame ?? AutoMovieHumanLoftFrame.horizontal(end.y));
-      const factor: number =
-        cap !== null && which === "top"
-          ? (share.end === "top" ? -1 : 1) * cap.rho
-          : which === share.end
-            ? -1
-            : 1;
-      overrides.push([index, end, factor]);
+      overrides.push([index, end, which === share.end ? -1 : 1]);
     }
 
-    // Natural splines over the keys, then the shared keys' derivatives.
+    // Natural splines: the control points over every key, base and cap
+    // alike, the planes over the base's keys alone (the cap's follow its
+    // formula, which meets the base's straight end C2); then the shared
+    // keys' derivatives.
     const cM: number[][] = curvatures(t, coefficients);
     const cS: number[][] = derivatives(t, coefficients, cM);
-    const pM: number[][] =
-      cap === null ? curvatures(t, planes) : t.map((x: number): number[] => cap.plane(x, 2));
-    const pS: number[][] =
-      cap === null ? derivatives(t, planes, pM) : t.map((x: number): number[] => cap.plane(x, 1));
+    const base: number[] = t.map((_: number, k: number): number => k).filter((k: number): boolean => !capped[k]);
+    const bt: number[] = base.map((k: number): number => t[k]!);
+    const bp: number[][] = base.map((k: number): number[] => planes[k]!);
+    const bM: number[][] = curvatures(bt, bp);
+    const bS: number[][] = derivatives(bt, bp, bM);
+    const pM: number[][] = t.map((s: number, k: number): number[] =>
+      capped[k] ? cap!.plane(s, 2) : bM[base.indexOf(k)]!,
+    );
+    const pS: number[][] = t.map((s: number, k: number): number[] =>
+      capped[k] ? cap!.plane(s, 1) : bS[base.indexOf(k)]!,
+    );
     for (const [index, end, factor] of overrides) {
       cS[index] = end.slopes.map((v: number): number => v * factor);
       cM[index] = end.curvatures!.map((v: number): number => v * factor * factor);
@@ -258,7 +262,7 @@ export namespace AutoMovieHumanFeatureChain {
       rule: chain.rule,
       samples: chain.samples,
       ...(chain.reliefs?.length ? { reliefs: chain.reliefs } : {}),
-      ...(chain.cap === undefined ? {} : { pole: chain.cap.pole }),
+      ...(chain.cap === undefined ? {} : { pole: { end: chain.cap.end, point: chain.cap.pole } }),
       layers: keys.map(
         (k: IAutoMovieHumanFeatureChain.IKey, i: number): IAutoMovieHumanLoftChain.ILayer => ({
           y: k.station,
@@ -273,57 +277,68 @@ export namespace AutoMovieHumanFeatureChain {
     };
   }
 
-  /** A cap's plane formula: its rho and its planes' value or derivatives at an angle. */
+  /** A cap's plane formula over the chain's station. */
   interface ICap {
-    /** The pole's distance from the end plane along n, mm. */
-    rho: number;
+    /** Whether a station lies past the end key, on the cap. */
+    beyond: (s: number) => boolean;
 
-    /** A plane's nine numbers `[origin, u, v]` at an angle, or their first or second derivative in it. */
-    plane: (theta: number, order: 0 | 1 | 2) => number[];
+    /** A plane's nine numbers `[origin, u, v]` at a station, or their first or second station derivative. */
+    plane: (s: number, order: 0 | 1 | 2) => number[];
   }
 
   /**
-   * The cap of a chain: C the owner's end key's origin, n that key's plane
-   * normal pointing out of the owner (along the owner's station at a top
-   * end, against it at a bottom end), rho the pole's height over the end
-   * plane; its planes keep the end key's axes.
+   * The cap of a chain: C the end key's origin, n its plane normal pointing
+   * out of the base (away from the base key beside it), rho the pole's
+   * height over the end plane, and `theta = pi / 2 - sigma (s - s_e) / rho`
+   * at station s, so the origin `C + rho cos(theta) n` moves by
+   * `sigma sin(theta) n` and `-(cos(theta) / rho) n` per station and the
+   * axes stay the end key's.
    */
-  function capOf(
-    chain: IAutoMovieHumanFeatureChain,
-    t: readonly number[],
-    ownerEnd: (share: IAutoMovieHumanFeatureChain.IShare) => IAutoMovieHumanLoftChain.ILayer,
-  ): ICap {
-    const share: IAutoMovieHumanFeatureChain.IShare | undefined = chain.ends?.top;
-    if (share === undefined)
-      throw new Error(`Cap ${chain.name} names no owner for its top key`);
-    if (Math.abs(t[0]!) > 1e-9 || Math.abs(t[t.length - 1]! - Math.PI / 2) > 1e-9)
-      throw new Error(`Cap ${chain.name} must run from 0 to pi / 2`);
-    const end: IAutoMovieHumanLoftChain.ILayer = ownerEnd(share);
-    const f: AutoMovieHumanLoftFrame.IFrame =
-      end.frame ?? AutoMovieHumanLoftFrame.horizontal(end.y);
+  function capOf(chain: IAutoMovieHumanFeatureChain): ICap {
+    const cap: IAutoMovieHumanFeatureChain.ICap = chain.cap!;
+    const sigma: number = cap.end === "top" ? 1 : -1;
+    const keys: readonly IAutoMovieHumanFeatureChain.IKey[] = chain.keys;
+    const at: number = keys.findIndex(
+      (k: IAutoMovieHumanFeatureChain.IKey): boolean => Math.abs(k.station - cap.from) < 1e-9,
+    );
+    const beside: IAutoMovieHumanFeatureChain.IKey | undefined = keys[at - sigma];
+    if (at < 0 || beside === undefined)
+      throw new Error(`Cap of ${chain.name} has no end key with a base key beside it`);
+    const frameOf = (k: IAutoMovieHumanFeatureChain.IKey): AutoMovieHumanLoftFrame.IFrame =>
+      k.frame ?? AutoMovieHumanLoftFrame.horizontal(k.station);
+    const f: AutoMovieHumanLoftFrame.IFrame = frameOf(keys[at]!);
+    const g: AutoMovieHumanLoftFrame.IFrame = frameOf(beside);
     const w: number[] = [
       f.v[1] * f.u[2] - f.v[2] * f.u[1],
       f.v[2] * f.u[0] - f.v[0] * f.u[2],
       f.v[0] * f.u[1] - f.v[1] * f.u[0],
     ];
-    const ahead: readonly number[] = end.frameSlopes?.origin ?? w;
-    const along: number = w[0]! * ahead[0]! + w[1]! * ahead[1]! + w[2]! * ahead[2]!;
-    const sign: number = (along >= 0 ? 1 : -1) * (share.end === "top" ? 1 : -1);
+    const along: number = w.reduce(
+      (a: number, x: number, k: number): number => a + x * (f.origin[k]! - g.origin[k]!),
+      0,
+    );
     const length: number = Math.hypot(w[0]!, w[1]!, w[2]!);
-    const n: number[] = w.map((x: number): number => (sign * x) / length);
-    const pole: [number, number, number] = chain.cap!.pole;
-    const rho: number =
-      (pole[0] - f.origin[0]) * n[0]! +
-      (pole[1] - f.origin[1]) * n[1]! +
-      (pole[2] - f.origin[2]) * n[2]!;
+    const n: number[] = w.map((x: number): number => ((along >= 0 ? 1 : -1) * x) / length);
+    const rho: number = n.reduce(
+      (a: number, x: number, k: number): number => a + x * (cap.pole[k]! - f.origin[k]!),
+      0,
+    );
     if (!(rho > 0))
-      throw new Error(`Cap ${chain.name}'s pole lies behind its end plane`);
+      throw new Error(`Cap of ${chain.name} has its pole behind its end plane`);
+    const pole: number = cap.from + (sigma * rho * Math.PI) / 2;
+    const end: number = sigma > 0 ? keys[keys.length - 1]!.station : keys[0]!.station;
+    if (Math.abs(end - pole) > 1e-6)
+      throw new Error(`Cap of ${chain.name} ends at ${end}, not at its pole's station ${pole}`);
     return {
-      rho,
-      plane: (theta: number, order: 0 | 1 | 2): number[] => {
-        // d^k/dtheta^k of rho cos(theta): cos, -sin, -cos.
+      beyond: (s: number): boolean => sigma * (s - cap.from) > 1e-9,
+      plane: (s: number, order: 0 | 1 | 2): number[] => {
+        const theta: number = Math.PI / 2 - (sigma * (s - cap.from)) / rho;
         const r: number =
-          rho * (order === 0 ? Math.cos(theta) : order === 1 ? -Math.sin(theta) : -Math.cos(theta));
+          order === 0
+            ? rho * Math.cos(theta)
+            : order === 1
+              ? sigma * Math.sin(theta)
+              : -Math.cos(theta) / rho;
         const origin: number[] = n.map(
           (x: number, k: number): number => (order === 0 ? f.origin[k]! : 0) + r * x,
         );

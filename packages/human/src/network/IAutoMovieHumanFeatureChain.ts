@@ -46,9 +46,9 @@ export interface IAutoMovieHumanFeatureChain {
   };
 
   /**
-   * Cap closing its owner's end: the stations are the angle from the pole
-   * axis, 0 at the pole to pi / 2 at the top key, shared with the owner
-   * named by `ends.top`. Absent for a chain that is not a cap.
+   * Cap closing one end of this chain past its end key: the keys beyond
+   * `cap.from` on the cap's side are the cap's, their planes set by the
+   * cap's formula; absent for a chain without a cap.
    */
   cap?: IAutoMovieHumanFeatureChain.ICap;
 }
@@ -63,14 +63,25 @@ export namespace IAutoMovieHumanFeatureChain {
   }
 
   /**
-   * A cap: its keys lie in planes parallel to the owner's end key at
-   * origins `C + rho cos(theta) n` (C the end key's origin, n its normal
-   * pointing out of the owner, rho the pole's distance from the end plane),
-   * so a section's size goes as `rho sin(theta)` and the pole has no cone
-   * point.
+   * A cap continuing its chain past the end key (the redesign plan's
+   * section 2): its angle theta from the pole axis runs on from the end
+   * key's station `s_e` as `s = s_e + sigma rho (pi / 2 - theta)`, sigma 1
+   * for a top cap and -1 for a bottom one, and its keys lie in planes
+   * parallel to the end key at origins `C + rho cos(theta) n` (C the end
+   * key's origin, n its normal pointing out of the base, rho the pole's
+   * distance from the end plane), so a section's size goes as
+   * `rho sin(theta)` and the pole has no cone point. The pole key, every
+   * control point at the pole, is the chain's end key on the cap's side, at
+   * `s_e + sigma rho pi / 2`.
    */
   export interface ICap {
-    /** The pole: the point the bottom key's control points all sit on, mm. */
+    /** The chain's end the cap closes. */
+    end: "bottom" | "top";
+
+    /** Station of the end key, the last key of the base before the cap, mm. */
+    from: number;
+
+    /** The pole, mm. */
     pole: [number, number, number];
   }
 
